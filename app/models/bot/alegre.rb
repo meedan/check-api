@@ -111,6 +111,7 @@ class Bot::Alegre < BotUser
         self.get_extracted_text(pm)
         self.relate_project_media_to_similar_items(pm)
         self.get_flags(pm)
+        self.automatic_transcription(pm)
         handled = true
       end
     rescue StandardError => e
@@ -241,6 +242,23 @@ class Bot::Alegre < BotUser
     lang = pm.text.blank? ? 'und' : self.get_language_from_alegre(pm.text)
     self.save_annotation(pm, 'language', { language: lang })
     lang
+  end
+
+  def self.automatic_transcription(pm)
+    tbi = self.get_alegre_tbi(pm&.team_id)
+    settings = tbi.nil? ? {} : tbi.alegre_settings
+    if settings['automatic_transcription_enabled']
+      # Get file length
+      if pm.report_type == 'uploadedaudio' || pm.report_type == 'uploadedvideo'
+        url = self.media_file_url(pm)
+        TagLib::FileRef.open(url) do |fileref|
+          unless fileref.null?
+            properties = fileref.audio_properties
+            self.transcribe_audio(pm) if properties.length_in_seconds.between?(settings['media_minimum_duration'], settings['media_maximum_duration'])
+          end
+        end
+      end
+    end
   end
 
   def self.get_language_from_alegre(text)

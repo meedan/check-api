@@ -127,6 +127,63 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
   end
 
+  test "should auto transcribe audio" do
+    json_schema = {
+      type: 'object',
+      required: ['job_name'],
+      properties: {
+        text: { type: 'string' },
+        job_name: { type: 'string' },
+        last_response: { type: 'object' }
+      }
+    }
+    create_annotation_type_and_fields('Transcription', {}, json_schema)
+    Bot::Alegre.unstub(:request_api)
+    tbi = Bot::Alegre.get_alegre_tbi(@team.id)
+    tbi.set_automatic_transcription_enabled = false
+    tbi.save!
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
+      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
+      WebMock.stub_request(:get, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
+      WebMock.stub_request(:post, 'http://alegre/audio/similarity/').to_return(body: {
+        "success": true
+      }.to_json)
+      WebMock.stub_request(:get, 'http://alegre/audio/similarity/').to_return(body: {
+        "result": []
+      }.to_json)
+      pm1 = create_project_media team: @pm.team, media: create_uploaded_audio(file: 'rails.mp3')
+      url = File.join(Rails.root, 'test', 'data', 'rails.mp3')
+      WebMock.stub_request(:post, 'http://alegre/audio/transcription/').with({
+        body: { url: url, job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }.to_json
+      }).to_return(body: { 'job_status' => 'IN_PROGRESS' }.to_json)
+      WebMock.stub_request(:get, 'http://alegre/audio/transcription/').with(
+        body: { job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }
+      ).to_return(body: { 'job_status' => 'COMPLETED', 'transcription' => 'Foo bar' }.to_json)
+      Bot::Alegre.stubs(:media_file_url).with(pm1).returns(url)
+      # Verify with automatic_transcription_enabled = false
+      assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
+      a = pm1.annotations('transcription').last
+      assert_nil a
+      # Verify with automatic_transcription_enabled = true and duration less than media_maximum_duration
+      tbi.set_automatic_transcription_enabled = true
+      tbi.set_media_minimum_duration = 7
+      tbi.set_media_maximum_duration = 10
+      tbi.save!
+      assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
+      a = pm1.annotations('transcription').last
+      assert_nil a
+      # Audio item match all required conditions
+      tbi.set_media_maximum_duration = 30
+      tbi.save!
+      assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
+      a = pm1.annotations('transcription').last
+      assert_equal 'Foo bar', a.data['text']
+      Bot::Alegre.unstub(:media_file_url)
+    end
+  end
+
   test "should return true when bot is called successfully" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
