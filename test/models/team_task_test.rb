@@ -655,4 +655,28 @@ class TeamTaskTest < ActiveSupport::TestCase
     end
     Team.unstub(:current)
   end
+
+  test "should count teamwide tasks" do
+    t =  create_team
+    p = create_project team: t
+    Team.stubs(:current).returns(t)
+    Sidekiq::Testing.inline! do
+      tt = create_team_task team_id: t.id, project_ids: [], label: 'Foo', description: 'Foo', task_type: 'single_choice', options: [{ label: 'Foo' }]
+      pm = create_project_media project: p
+      pm2 = create_project_media project: p
+      pm3 = create_project_media project: p
+      pm4 = create_project_media project: p
+      # add response to task for pm4
+      at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+      ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+      fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+      pm4_tt = pm4.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm4_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
+      pm4_tt.save!
+
+      assert_equal 4, tt.tasks_count
+      assert_equal 1, tt.tasks_with_answers_count
+    end
+    Team.unstub(:current)
+  end
 end

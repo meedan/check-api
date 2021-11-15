@@ -86,12 +86,12 @@ class TeamTask < ApplicationRecord
   def self.destroy_teamwide_tasks_bg(id, keep_completed_tasks)
     if keep_completed_tasks
       TeamTask.get_teamwide_tasks_zero_answers(id).find_each do |t|
-        self.destory_project_media_task(t)
+        self.destroy_project_media_task(t)
       end
     else
       Task.where(annotation_type: 'task', annotated_type: ['ProjectMedia', 'Source'])
       .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', id).find_each do |t|
-        self.destory_project_media_task(t)
+        self.destroy_project_media_task(t)
       end
     end
   end
@@ -124,6 +124,14 @@ class TeamTask < ApplicationRecord
     task1.update_column(:order, task2_order)
     task2.update_column(:order, task1_order)
     task2_order
+  end
+
+  def tasks_count
+    TeamTask.get_teamwide_tasks(self.id).count
+  end
+
+  def tasks_with_answers_count
+    get_teamwide_tasks_with_answers.count
   end
 
   private
@@ -236,9 +244,13 @@ class TeamTask < ApplicationRecord
     end
   end
 
-  def self.get_teamwide_tasks_zero_answers(id)
+  def self.get_teamwide_tasks(id)
     Task.where('annotations.annotation_type' => 'task')
     .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', id)
+  end
+
+  def self.get_teamwide_tasks_zero_answers(id)
+    TeamTask.get_teamwide_tasks(id)
     .joins("LEFT JOIN annotations responses ON responses.annotation_type LIKE 'task_response%'
       AND responses.annotated_type = 'Task'
       AND responses.annotated_id = annotations.id"
@@ -247,15 +259,14 @@ class TeamTask < ApplicationRecord
   end
 
   def get_teamwide_tasks_with_answers
-    Task.where('annotations.annotation_type' => 'task')
-    .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', self.id)
+    TeamTask.get_teamwide_tasks(self.id)
     .joins("INNER JOIN annotations responses ON responses.annotation_type LIKE 'task_response%'
       AND responses.annotated_type = 'Task'
       AND responses.annotated_id = annotations.id"
       )
   end
 
-  def self.destory_project_media_task(t)
+  def self.destroy_project_media_task(t)
     t.skip_check_ability = true
     t.destroy
   end
