@@ -308,6 +308,32 @@ class GraphqlController5Test < ActionController::TestCase
     Bot::Alegre.unstub(:get_similar_texts)
   end
 
+  test "should create and update flags and content warning" do
+    create_flag_annotation_type
+    t = create_team
+    u = create_user is_admin: true
+    pm = create_project_media team: t
+    authenticate_with_user(u)
+    # verify create
+    query = 'mutation create { createDynamicAnnotationFlag(input: { clientMutationId: "1", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", set_fields: "{\"flags\":{\"adult\":3,\"spoof\":2,\"medical\":1,\"violence\":3,\"racy\":4,\"spam\":0},\"show_cover\":false}" }) { dynamic { dbid } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    d = Dynamic.find(JSON.parse(@response.body)['data']['createDynamicAnnotationFlag']['dynamic']['dbid'])
+    data = d.data.with_indifferent_access
+    assert_equal ['flags', 'show_cover'].sort, data.keys.sort
+    assert_equal ['adult', 'spoof', 'medical', 'violence', 'racy', 'spam'].sort, data['flags'].keys.sort
+    assert !data['show_cover']
+    # verify update
+    query = 'mutation update { updateDynamicAnnotationFlag(input: { clientMutationId: "1", id: "' + d.graphql_id + '", set_fields: "{\"show_cover\":true}" }) { dynamic { dbid } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    d = Dynamic.find(d.id)
+    data = d.data.with_indifferent_access
+    assert_equal ['flags', 'show_cover'].sort, data.keys.sort
+    assert_equal ['adult', 'spoof', 'medical', 'violence', 'racy', 'spam'].sort, data['flags'].keys.sort
+    assert data['show_cover']
+  end
+
   protected
 
   def assert_error_message(expected)
