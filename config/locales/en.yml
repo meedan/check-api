@@ -733,6 +733,7 @@ en:
   fetch_bot_service_unsupported: Service unsupported
   task_options_must_be_array: Task options must be a list
   fieldset_not_defined_by_team: Fieldset should be supported by the workspace
+  cant_change_field_type_or_options_when_answered: The field type cannot be changed because answers have already been filled
   replace_by_media_in_the_same_team: Sorry, you can only replace this item by another
     item from the same workspace
   replace_blank_media_only: Sorry, but for now you can only replace blank items
