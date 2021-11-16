@@ -636,7 +636,6 @@ fil:
   team_rule_type_image_threshold: Distansya sa pagitan ng mga larawan
   team_rule_type_flag_threshold: May posibilidad na hindi bababa sa
   team_rule_select_flag: Mamili ng flag
-  team_rule_flagged_as: Naka-flag ang item bilang
   team_rule_report_is_published: Nakalathala ang ulat
   team_rule_report_is_paused: Nakahinto ang ulat
   team_rule_condition_groups: Mga grupong pangkundisyon
@@ -655,20 +654,15 @@ fil:
   team_rule_select_field_value_tasks: Mamili ng sagot
   team_rule_item_is_assigned_to_user: Itinalaga ang item kay
   team_rule_add_tag: Magdagdag ng tag
-  flag_adult: Hindi angkop sa bata
   flag_spoof: Katatawanan
-  flag_medical: Pang-medikal
   flag_violence: Karahasan
   flag_racy: Sekswal
   flag_spam: Spam
   annotation_type_flag_name_label: I-flag
   annotation_type_flag_value_label: I-flag ang posibilidad
   flag_likelihood_0: Hindi matukoy
-  flag_likelihood_1: Higit na walang katiyakan
   flag_likelihood_2: Walang katiyakan
-  flag_likelihood_3: Posible
   flag_likelihood_4: Maaari
-  flag_likelihood_5: Higit na maaari
   relationship_not_same_team: Kailangang nasa iisang workspace ang magkaugnay na item
   bulk_operation_limit_error: Paumanhin, ang pinakamalaking bilang ng mga item na
     pwedeng iproseso nang sabay-sabay ay %{limit}

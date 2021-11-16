@@ -42,7 +42,18 @@ hi:
     source:
       undetermined:
         label: 'शुरू नहीं किया है '
+  mails_notifications:
+    unsubscribe: अनसब्स्क्राइब
   smooch_bot_message_unconfirmed: 1 न भेजने पर आपका यह निवेदन यहीं समाप्त होता है.
     धन्यवाद.
   smooch_bot_window_closing: इस नंबर पर तथ्यों की जांच के निवेदन ज़्यादा होने के कारण
     आपके निवेदन का जवाब हम अब तक नहीं दे पाए हैं. आपके धैर्य के लिए धन्यवाद.
+  unsubscribe: अनसब्स्क्राइब
+  smooch_bot_message_newsletter_fallback: |-
+    नमस्कार! ये रहे आपके साप्ताहिक तथ्य।
+
+    यह न्यूज़लेटर %{platform} पर %{team} द्वारा प्रकाशित किया जाता है। %{date} के सप्ताह के लिए सबसे अधिक महत्वपूर्ण तथ्य ये रहे:
+
+    %{content}
+
+    इस न्यूज़लेटर को प्राप्त करना बंद करने के लिए, टाइप करें '%{unsubscribe}'

@@ -701,7 +701,6 @@ es:
   team_rule_type_image_threshold: Distancia entre imágenes
   team_rule_type_flag_threshold: Con una probabilidad de al menos
   team_rule_select_flag: Seleccionar marca
-  team_rule_flagged_as: Ítem marcado como
   team_rule_report_is_published: Informe está publicado
   team_rule_report_is_paused: Informe está en pausa
   team_rule_condition_groups: Grupos de condiciones
@@ -713,27 +712,27 @@ es:
   team_rule_item_user_is: El ítem fue creado por
   team_rule_item_is_read: Ítem leído
   team_rule_field_from_fieldset_tasks_value_is: La tarea tiene una respuesta específica
+  team_rule_field_from_fieldset_metadata_value_is: La anotación tiene un valor específico
   team_rule_field_from_fieldset_tasks_value_contains_keyword: La respuesta de la tarea
     contiene una palabra clave
+  team_rule_field_from_fieldset_metadata_value_contains_keyword: La anotación contiene
+    una palabra clave
+  team_rule_select_field_metadata: Seleccionar anotación
   team_rule_select_field_value_metadata: Seleccionar valor
   team_rule_select_field_tasks: Seleccionar tarea
   team_rule_select_field_value_tasks: Seleccionar respuesta
   team_rule_item_is_assigned_to_user: Ítem es asignado a
   team_rule_add_tag: Añadir etiqueta
-  flag_adult: Adulto
   flag_spoof: Suplantación
-  flag_medical: Médico
   flag_violence: Violencia
   flag_racy: Sugestivo
   flag_spam: Spam
   annotation_type_flag_name_label: Marca
   annotation_type_flag_value_label: Probabilidad de la marca
   flag_likelihood_0: Desconocido
-  flag_likelihood_1: Muy improbable
   flag_likelihood_2: Improbable
-  flag_likelihood_3: Posible
   flag_likelihood_4: Probable
-  flag_likelihood_5: Muy probable
+  flag_likelihood_7: Manual
   relationship_not_same_team: Los elementos relacionados deben existir en el misma
     área de trabajo
   bulk_operation_limit_error: Lo sentimos, el número máximo de elementos que se procesarán
@@ -792,6 +791,46 @@ es:
     nuestro boletín.
   smooch_message_subscription_header_unsubscribed: Actualmente estás *desuscrita(o)*
     de nuestro boletín.
+  smooch_bot_message_newsletter_fallback: |-
+    ¡Hola! Aquí están tus datos semanales.
+
+    Este boletín es publicado en %{platform} por %{team}. Aquí están los datos más importantes para la semana de %{date}:
+
+    %{content}
+
+    Para dejar de recibir este boletín, escribe "%{unsubscribe}".
+  smooch_v2_first_state: |-
+    Escribe un número para navegar:
+
+    1. Envía contenido para verificar hechos
+    2. Agrega más detalles
+    3. Menú principal
+  smooch_v2_add_more_details_menu: |-
+    ¡Gracias! ¿Estás lista(o) para enviar?
+
+    1. Envía contenido para verificar hechos
+    2. Agrega más detalles
+    3. Cancela y regresa al menú principal
+  smooch_v2_search_state: Buscando verificación de hechos...
+  smooch_v2_search_error: Error al intentar buscar verificación de hechos. Por favor
+    inténtalo nuevamente más tarde.
+  smooch_v2_add_more_details_state: Por favor agrega más detalles.
+  smooch_v2_search_result_state: |-
+    ¿Son estas verificaciones de hechos relevantes?
+
+    1. Sí - regresar al menú principal
+    2. No - enviar a periodistas para verificación
+  smooch_v2_search_no_results: |-
+    No se pudieron encontrar verificaciones de hechos para este contenido. ¡Gracias por alertarnos!
+    Fue enviado a periodistas para investigarlo.
+
+    Serás notificada(o) en este hilo si una verificación de hechos es producida.
+
+    *0. Menú principal*
+  smooch_v2_search_submit: |-
+    La notificación fue enviada a periodistas. Si se verifica el hecho, lo recibirás aquí.
+
+    Escribe 0 para volver al menú principal.
   info:
     messages:
       sent_to_trash_by_rule: '%{item_title}" ha sido enviado a la papelera por una

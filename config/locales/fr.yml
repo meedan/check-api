@@ -515,7 +515,7 @@ fr:
   archive_archive_org: Archive.org
   workflow_status_is_not_valid: L’état %{status} est invalide (devrait être un de
     %{valid})
-  workflow_status_permission_error: Désolé, vous n’êtes pas autorisé à modifier cet
+  workflow_status_permission_error: Désolé, vous n’êtes pas autorisé à changer cet
     état.
   blank_default_status_for_custom_verification_status: Veuillez indiquer une valeur
     par défaut pour les états personnalisés de vérification
@@ -597,7 +597,7 @@ fr:
           permissions:
             edit: Modifier un élément
             move: Déplacer un élément
-            change_status: Modifier l’état de l’élément
+            change_status: Changer l’état de l’élément
             lock_unlock_status: Verrouiller/déverrouiller l’état
             add_remove_tag: Ajouter/supprimer des étiquettes
             send_to_trash: Déplacer l’élément ou la source vers la corbeille
@@ -724,7 +724,6 @@ fr:
   team_rule_type_image_threshold: Distance entre les images
   team_rule_type_flag_threshold: Avec une probabilité d’au moins
   team_rule_select_flag: Sélectionnez un drapeau
-  team_rule_flagged_as: L’élément est marqué du drapeau
   team_rule_report_is_published: Le rapport est publié
   team_rule_report_is_paused: Le rapport est interrompu
   team_rule_condition_groups: Groupes de conditions
@@ -739,26 +738,24 @@ fr:
   team_rule_field_from_fieldset_metadata_value_is: L’annotation a une valeur précise
   team_rule_field_from_fieldset_tasks_value_contains_keyword: La réponse de la tâche
     comprend le mot-clé
+  team_rule_field_from_fieldset_metadata_value_contains_keyword: La valeur d’annotation
+    comprend un mot-clé
   team_rule_select_field_metadata: Sélectionnez une annotation
   team_rule_select_field_value_metadata: Sélectionnez la valeur
   team_rule_select_field_tasks: Sélectionnez la tâche
   team_rule_select_field_value_tasks: Sélectionnez la réponse
   team_rule_item_is_assigned_to_user: L’élément est attribué à
   team_rule_add_tag: Ajouter une étiquette
-  flag_adult: Adulte
   flag_spoof: Pastiche
-  flag_medical: Médical
   flag_violence: Violence
   flag_racy: Suggestif
   flag_spam: Indésirable
   annotation_type_flag_name_label: Drapeau
   annotation_type_flag_value_label: Probabilité du drapeau
   flag_likelihood_0: Inconnu
-  flag_likelihood_1: Très peu probable
   flag_likelihood_2: Peu probable
-  flag_likelihood_3: Possible
   flag_likelihood_4: Probable
-  flag_likelihood_5: Très probable
+  flag_likelihood_7: Manuels
   relationship_not_same_team: Les éléments associés doivent exister dans le même espace
     de travail
   bulk_operation_limit_error: Désolé, le nombre maximal d’éléments à traiter à la
@@ -836,11 +833,28 @@ fr:
 
     1. Envoyer un contenu pour en vérifier les faits
     2. Ajouter des détails
-    3. Annuler et accéder au menu principal
+    3. Annuler et retourner au menu principal
   smooch_v2_search_state: Recherche de vérifications de faits…
-  smooch_v2_search_error: Erreur de lors de la recherche de vérifications de faits.
-    Veuillez réessayer plus tard.
+  smooch_v2_search_error: Erreur lors de la recherche de vérifications de faits. Veuillez
+    réessayer plus tard.
   smooch_v2_add_more_details_state: Veuillez ajouter des détails.
+  smooch_v2_search_result_state: |-
+    Ces vérifications de faits sont-elles pertinentes ?
+
+    1. Oui – retourner au menu principal
+
+    2. Non – envoyer aux journalistes pour vérification
+  smooch_v2_search_no_results: |-
+    Aucune vérification de faits n’a pu être trouvée pour ce contenu. Nous vous remercions de nous avoir alertés.
+    Il a été envoyé à nos journalistes pour enquête.
+
+    Si une vérification de faits est produite, elle vous sera signalée dans ce fil.
+
+    *0. Menu principal*
+  smooch_v2_search_submit: |-
+    L’affirmation a été envoyée aux journalistes. Si ces faits sont vérifiés, cela vous sera signalé ici.
+
+    Tapez 0 pour revenir au menu principal.
   info:
     messages:
       sent_to_trash_by_rule: "« %{item_title} » a été mis dans la corbeille par une
