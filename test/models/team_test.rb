@@ -1410,8 +1410,6 @@ class TeamTest < ActiveSupport::TestCase
   test "should match rule by flags" do
     create_flag_annotation_type
     t = create_team
-    p0 = create_project team: t
-    p1 = create_project team: t
     rules = []
     rules << {
       "name": random_string,
@@ -1432,25 +1430,30 @@ class TeamTest < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p1.id.to_s
+          "action_definition": "add_warning_cover",
+          "action_value": ""
         }
       ]
     }
     t.rules = rules.to_json
     t.save!
-    assert_equal 0, Project.find(p0.id).project_medias.count
-    assert_equal 0, Project.find(p1.id).project_medias.count
-    pm = create_project_media project: p0
+    pm = create_project_media team: t
+    assert !pm.show_warning_cover
     data = valid_flags_data
-    data[:flags]['spam'] = 2
-    create_flag set_fields: data.to_json, annotated: pm
-    assert_equal 1, Project.find(p0.id).project_medias.count
-    assert_equal 0, Project.find(p1.id).project_medias.count
+    data[:flags]['spam'] = 1
+    d = create_flag set_fields: data.to_json, annotated: pm
+    assert !pm.reload.show_warning_cover
     data[:flags]['spam'] = 3
-    create_flag set_fields: data.to_json, annotated: pm
-    assert_equal 0, Project.find(p0.id).project_medias.count
-    assert_equal 1, Project.find(p1.id).project_medias.count
+    d.set_fields = data.to_json
+    d.save!
+    data = d.reload.data.with_indifferent_access
+    assert data['show_cover']
+    pm = create_project_media team: t
+    assert !pm.show_warning_cover
+    data[:flags]['spam'] = 3
+    d = create_flag set_fields: data.to_json, annotated: pm
+    data = d.reload.data.with_indifferent_access
+    assert data['show_cover']
   end
 
   test "should get team URL" do
@@ -1767,10 +1770,10 @@ class TeamTest < ActiveSupport::TestCase
     pm3 = create_project_media project: p1, quote: 'bar test'
 
     data = valid_flags_data(false)
-    data[:flags]['spam'] = 4
+    data[:flags]['spam'] = 3
     create_flag set_fields: data.to_json, annotated: pm1
     create_flag set_fields: data.to_json, annotated: pm2
-    data[:flags]['spam'] = 2
+    data[:flags]['spam'] = 1
     create_flag set_fields: data.to_json, annotated: pm3
 
     assert_equal p2, pm1.reload.project
