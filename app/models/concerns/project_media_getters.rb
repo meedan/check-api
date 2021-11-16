@@ -142,4 +142,8 @@ module ProjectMediaGetters
   def extracted_text
     begin self.get_dynamic_annotation('extracted_text').get_field_value('text') rescue '' end
   end
+
+  def transcription
+    begin self.get_dynamic_annotation('transcription').get_field_value('text') rescue '' end
+  end
 end
