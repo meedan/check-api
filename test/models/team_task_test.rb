@@ -337,12 +337,9 @@ class TeamTaskTest < ActiveSupport::TestCase
       pm2_tt.save!
       pm4_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
       pm4_tt.save!
-      # update title/description/type/options
-      # type and options can't be edited if tasks has answers
+      # update title/description/
       tt.label = 'update label'
       tt.description = 'update desc'
-      tt.task_type = 'multiple_choice'
-      tt.json_options = [{ label: 'Test' }].to_json
       tt.keep_completed_tasks = true
       tt.save!
       pm2_tt = pm2_tt.reload
@@ -379,6 +376,39 @@ class TeamTaskTest < ActiveSupport::TestCase
         tt.json_project_ids = [].to_json
         tt.save!
       end
+    end
+    Team.unstub(:current)
+  end
+
+  test "should not update type or options from teamwide tasks with answers" do
+    t =  create_team
+    p = create_project team: t
+    Team.stubs(:current).returns(t)
+    Sidekiq::Testing.inline! do
+      tt = create_team_task team_id: t.id, project_ids: [], label: 'Foo', description: 'Foo', task_type: 'single_choice', options: [{ label: 'Foo' }]
+      pm = create_project_media project: p
+      pm2 = create_project_media project: p
+      pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      # add response to task for pm2
+      at = create_annotation_type annotation_type: 'task_response_single_choice', label: 'Task'
+      ft1 = create_field_type field_type: 'single_choice', label: 'Single Choice'
+      fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+      pm2_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_task: 'Foo' }.to_json }.to_json
+      pm2_tt.save!
+      # update type/options
+      # type and options can't be edited if tasks has answers
+      tt.task_type = 'multiple_choice'
+      assert_raises ActiveRecord::RecordInvalid do
+        tt.save!
+      end
+      tt.reload
+      tt.json_options = [{ label: 'Test' }].to_json
+      assert_raises ActiveRecord::RecordInvalid do
+        tt.save!
+      end
+      assert_equal 'single_choice', TeamTask.find(tt.id).task_type
+      assert_equal([{ label: 'Foo' }], TeamTask.find(tt.id).options)
     end
     Team.unstub(:current)
   end
@@ -652,6 +682,30 @@ class TeamTaskTest < ActiveSupport::TestCase
       pm2_tt2 = pm2.annotations('task').select{|t| t.team_task_id == tt2.id}
       assert_equal 1, pm2_tt.count
       assert_equal 1, pm2_tt2.count
+    end
+    Team.unstub(:current)
+  end
+
+  test "should count teamwide tasks" do
+    t =  create_team
+    p = create_project team: t
+    Team.stubs(:current).returns(t)
+    Sidekiq::Testing.inline! do
+      tt = create_team_task team_id: t.id, project_ids: [], label: 'Foo', description: 'Foo', task_type: 'single_choice', options: [{ label: 'Foo' }]
+      pm = create_project_media project: p
+      pm2 = create_project_media project: p
+      pm3 = create_project_media project: p
+      pm4 = create_project_media project: p
+      # add response to task for pm4
+      at = create_annotation_type annotation_type: 'task_response_single_choice', label: 'Task'
+      ft1 = create_field_type field_type: 'single_choice', label: 'Single Choice'
+      fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+      pm4_tt = pm4.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm4_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_task: 'Foo' }.to_json }.to_json
+      pm4_tt.save!
+
+      assert_equal 4, tt.tasks_count
+      assert_equal 1, tt.tasks_with_answers_count
     end
     Team.unstub(:current)
   end

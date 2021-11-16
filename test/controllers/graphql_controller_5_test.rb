@@ -335,6 +335,30 @@ class GraphqlController5Test < ActionController::TestCase
     assert data['show_cover']
   end
 
+  test "should return number of tasks related to a team task" do
+    t = create_team
+    tt = create_team_task team_id: t.id
+    p = create_project team: t
+    pm = create_project_media project: p
+    pm2 = create_project_media project: p
+    pm3 = create_project_media project: p
+    # add response to task for pm
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+    pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+    pm_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
+    pm_tt.save!
+
+    query = 'query { team { team_tasks(fieldset: "tasks") { edges { node { dbid tasks_count tasks_with_answers_count } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    response = JSON.parse(@response.body)['data']['team']['team_tasks']['edges'][0]['node']
+    assert_equal tt.id, response['dbid']
+    assert_equal 3, response['tasks_count']
+    assert_equal 1, response['tasks_with_answers_count']
+  end
+
   protected
 
   def assert_error_message(expected)
