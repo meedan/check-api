@@ -17,8 +17,8 @@ fi
 if [ ! -d "configurator" ]; then git clone -q https://${GITHUB_TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator; fi
 d=configurator/check/${DEPLOY_ENV}/${APP}/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
 
-APOLLO_BIN=`find ${DEPLOYDIR}/vendor/bundle/ruby/ -type f -name engineproxy_linux_amd64`
-${APOLLO_BIN} --config config/apollo-engine-proxy.json &
+# APOLLO_BIN=`find ${DEPLOYDIR}/vendor/bundle/ruby/ -type f -name engineproxy_linux_amd64`
+# ${APOLLO_BIN} --config config/apollo-engine-proxy.json &
 
 mkdir -p ${PWD}/tmp/pids
 puma="${PWD}/tmp/puma-${RAILS_ENV}.rb"
