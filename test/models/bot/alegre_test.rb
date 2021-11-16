@@ -138,9 +138,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }
     }
     create_annotation_type_and_fields('Transcription', {}, json_schema)
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', true] })
     Bot::Alegre.unstub(:request_api)
     tbi = Bot::Alegre.get_alegre_tbi(@team.id)
-    tbi.set_automatic_transcription_enabled = false
+    tbi.set_auto_transcription_enabled = false
     tbi.save!
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
@@ -162,21 +163,29 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         body: { job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }
       ).to_return(body: { 'job_status' => 'COMPLETED', 'transcription' => 'Foo bar' }.to_json)
       Bot::Alegre.stubs(:media_file_url).with(pm1).returns(url)
-      # Verify with automatic_transcription_enabled = false
+      # Verify with auto_transcription_enabled = false
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       a = pm1.annotations('transcription').last
       assert_nil a
-      # Verify with automatic_transcription_enabled = true and duration less than media_maximum_duration
-      tbi.set_automatic_transcription_enabled = true
+      # Verify with auto_transcription_enabled = true and duration less than media_maximum_duration
+      tbi.set_auto_transcription_enabled = true
       tbi.set_media_minimum_duration = 7
       tbi.set_media_maximum_duration = 10
+      tbi.set_media_minimum_requests = 2
       tbi.save!
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       a = pm1.annotations('transcription').last
       assert_nil a
-      # Audio item match all required conditions
+      # Verify that requests count less than media_minimum_requests
       tbi.set_media_maximum_duration = 30
       tbi.save!
+      assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
+      a = pm1.annotations('transcription').last
+      assert_nil a
+      # Audio item match all required conditions by verify media_minimum_requests count
+      RequestStore.store[:skip_cached_field_update] = false
+      create_dynamic_annotation annotation_type: 'smooch', annotated: pm1
+      create_dynamic_annotation annotation_type: 'smooch', annotated: pm1
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       a = pm1.annotations('transcription').last
       assert_equal 'Foo bar', a.data['text']

@@ -111,7 +111,7 @@ class Bot::Alegre < BotUser
         self.get_extracted_text(pm)
         self.relate_project_media_to_similar_items(pm)
         self.get_flags(pm)
-        self.automatic_transcription(pm)
+        self.auto_transcription(pm)
         handled = true
       end
     rescue StandardError => e
@@ -244,17 +244,17 @@ class Bot::Alegre < BotUser
     lang
   end
 
-  def self.automatic_transcription(pm)
+  def self.auto_transcription(pm)
     tbi = self.get_alegre_tbi(pm&.team_id)
     settings = tbi.nil? ? {} : tbi.alegre_settings
-    if settings['automatic_transcription_enabled']
-      # Get file length
-      if pm.report_type == 'uploadedaudio' || pm.report_type == 'uploadedvideo'
+    if settings['auto_transcription_enabled'] && ['uploadedaudio', 'uploadedvideo'].include?(pm.report_type)
+      if pm.requests_count >=  settings['media_minimum_requests'].to_i
         url = self.media_file_url(pm)
         TagLib::FileRef.open(url) do |fileref|
           unless fileref.null?
             properties = fileref.audio_properties
-            self.transcribe_audio(pm) if properties.length_in_seconds.between?(settings['media_minimum_duration'], settings['media_maximum_duration'])
+            # Verify that file length between min & max duration
+            self.transcribe_audio(pm) if properties.length_in_seconds.between?(settings['media_minimum_duration'].to_f, settings['media_maximum_duration'].to_f)
           end
         end
       end

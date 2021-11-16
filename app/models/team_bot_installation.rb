@@ -26,7 +26,7 @@ class TeamBotInstallation < TeamUser
       video_similarity_enabled
       audio_similarity_enabled
       date_similarity_threshold_enabled
-      automatic_transcription_enabled
+      auto_transcription_enabled
     )
     boolean_keys.each{ |k| settings[k] = self.send("get_#{k}").nil? ? (CheckConfig.get(k, true).to_s == 'true') : self.send("get_#{k}") }
     threshold_keys = %w(
@@ -43,6 +43,7 @@ class TeamBotInstallation < TeamUser
       audio_hash_suggestion_threshold
       media_minimum_duration
       media_maximum_duration
+      media_minimum_requests
     )
     threshold_keys.each do |k|
       settings[k] = self.send("get_#{k}").nil? ? CheckConfig.get(k, 0.9).to_f : self.send("get_#{k}").to_f
