@@ -8,6 +8,7 @@ class TeamTask < ApplicationRecord
   validates_presence_of :label, :team_id, :fieldset
   validates :task_type, included: { values: Task.task_types }
   validate :fieldset_exists_in_team
+  validate :can_change_task_type, on: :update
 
   serialize :options, Array
   serialize :project_ids, Array
@@ -273,6 +274,12 @@ class TeamTask < ApplicationRecord
 
   def fieldset_exists_in_team
     errors.add(:base, I18n.t(:fieldset_not_defined_by_team)) unless self.team&.get_fieldsets.to_a.collect{ |f| f['identifier'] }.include?(self.fieldset)
+  end
+
+  def can_change_task_type
+    if (self.task_type_changed? || self.options_changed?) && !tasks_with_answers_count.zero?
+      errors.add(:base, I18n.t(:cant_change_field_type_or_options_when_answered))
+    end
   end
 
   def set_order
