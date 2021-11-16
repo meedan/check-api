@@ -204,7 +204,7 @@ id:
         ke %{project}"
       project_media_added_to_list: "%{user} (%{role} pada %{team}) menambahkan perihal
         ke folder %{list_name}"
-      project_media_status: "%{user} (%{role} pada %{team}) mengganti status %{workflow}
+      project_media_status: "%{user} (%{role} pada %{team}) mengubah status %{workflow}
         dari %{type}"
       project_media_assign: "%{user} (%{role} pada %{team}) menugaskan sebuah %{type}"
       project_media_unassign: "%{user} (%{role} pada %{team}) membatalkan sebuah %{type}"
@@ -292,7 +292,7 @@ id:
   error_annotated_archived: Maaf, Anda tidak dapat menambah catatan pada perihal yang
     telah dihapus
   only_super_admin_can_do_this: Maaf, hanya administrator sistem yang dapat melakukan
-    perubahan ini
+    pengubahan ini
   cant_change_custom_statuses: |-
     Maaf, Anda tidak dapat memodifikasi definisi status karena beberapa status akan hilang. Pengenal status ini: %{statuses} sedang digunakan oleh perihal berikut:
     %{urls} %{others_amount}
@@ -502,7 +502,7 @@ id:
   archive_archive_org: Archive.org
   workflow_status_is_not_valid: 'Status salah: ''%{status}'' (seharusnya berupa satu
     dari %{valid})'
-  workflow_status_permission_error: Maaf, anda tidak diizinkan untuk mengganti status
+  workflow_status_permission_error: Maaf, anda tidak diizinkan untuk mengubah status
     ini.
   blank_default_status_for_custom_verification_status: Mohon sediakan nilai bawaan
     untuk status verifikasi kustom
@@ -582,7 +582,7 @@ id:
           permissions:
             edit: Sunting perihal
             move: Pindahkan perihal
-            change_status: Ganti status perihal
+            change_status: Ubah status perihal
             lock_unlock_status: Kunci/buka kunci status
             add_remove_tag: Tambah/hapus label
             send_to_trash: Pindahkan perihal atau sumber ke Tong Sampah
@@ -647,12 +647,12 @@ id:
     Sukses!
     Tipline Anda sekarang terhubung dengan Facebook Messenger.
     Pesan yang diterima oleh Halaman Facebook ini akan ditangani oleh tipline.
-    Mohon muat ulang halaman pengaturan tipline Anda untuk melihat perubahan baru.
+    Mohon muat ulang halaman pengaturan tipline Anda untuk melihat pengubahan baru.
   smooch_twitter_success: |
     Sukses!
     Tipline Anda sekarang terhubung dengan Twitter.
     Semua pesan yang diterima oleh profil Twitter ini akan ditangani oleh tipline.
-    Mohon muat ulang halaman pengaturan tipline Anda untuk melihat perubahan baru.
+    Mohon muat ulang halaman pengaturan tipline Anda untuk melihat pengubahan baru.
   must_select_exactly_one_facebook_page: Silakan pilih salah satu halaman Facebook
     yang Anda ingin integrasikan dengan Tipline.
   invalid_task_answer: Format jawaban dari tugas salah
@@ -705,7 +705,6 @@ id:
   team_rule_type_image_threshold: Jarak antara gambar
   team_rule_type_flag_threshold: Dengan kemungkinan setidaknya
   team_rule_select_flag: Pilih tanda
-  team_rule_flagged_as: Perihal ditandai sebagai
   team_rule_report_is_published: Laporan diterbitkan
   team_rule_report_is_paused: Laporan ditunda
   team_rule_condition_groups: Grup kondisi
@@ -717,27 +716,27 @@ id:
   team_rule_item_user_is: Perihal dibuat oleh
   team_rule_item_is_read: Perihal dibaca
   team_rule_field_from_fieldset_tasks_value_is: Tugas dengan jawaban spesifik
+  team_rule_field_from_fieldset_metadata_value_is: Anotasi dengan nilai spesifik
   team_rule_field_from_fieldset_tasks_value_contains_keyword: Jawaban tugas mengandung
     kata kunci
+  team_rule_field_from_fieldset_metadata_value_contains_keyword: Nilai anotasi mengandung
+    kata kunci
+  team_rule_select_field_metadata: Pilih anotasi
   team_rule_select_field_value_metadata: Pilih nilai
   team_rule_select_field_tasks: Pilih tugas
   team_rule_select_field_value_tasks: Pilih jawaban
   team_rule_item_is_assigned_to_user: Perihal ditugaskan kepada
   team_rule_add_tag: Tambah label
-  flag_adult: Dewasa
   flag_spoof: Tipuan
-  flag_medical: Medis
   flag_violence: Kekerasan
   flag_racy: Cabul
   flag_spam: Spam
   annotation_type_flag_name_label: Tandai
   annotation_type_flag_value_label: Tandai kemungkinan
   flag_likelihood_0: Tidak diketahui
-  flag_likelihood_1: Sangat tidak mungkin
   flag_likelihood_2: Tidak mungkin
-  flag_likelihood_3: Bisa jadi
   flag_likelihood_4: Mungkin
-  flag_likelihood_5: Sangat mungkin
+  flag_likelihood_7: Panduan
   relationship_not_same_team: Perihal terkait harus berada di dalam ruang kerja yang
     sama
   bulk_operation_limit_error: Maaf, jumlah maksimal perihal yang dapat diproses saat
@@ -795,6 +794,46 @@ id:
     ke buletin kami.
   smooch_message_subscription_header_unsubscribed: Anda saat ini sedang *berhenti
     berlangganan* ke buletin kami.
+  smooch_bot_message_newsletter_fallback: |-
+    Hai! Berikut fakta mingguan Anda.
+
+    Buletin ini diterbitkan di %{platform} oleh %{team}. Berikut adalah fakta terpenting untuk minggu ini per %{date}:
+
+    %{content}
+
+    Untuk berhenti menerima buletin ini, ketik "%{unsubscribe}".
+  smooch_v2_first_state: |-
+    Ketik nomor untuk mendapat navigasi:
+
+    1. Kirim konten untuk pengecekan fakta
+    2. Tambah lebih banyak detail
+    3. Menu utama
+  smooch_v2_add_more_details_menu: |-
+    Terima kasih! Anda siap untuk mengirim??
+
+    1. Kirim konten untuk pengecekan fakta
+    2. Tambah lebih banyak detail
+    3. Batalkan dan kembali ke menu utama
+  smooch_v2_search_state: Mencari pengecekan fakta…
+  smooch_v2_search_error: Terjadi kesalahan ketika mencoba mencari pengecekan fakta.
+    Silakan coba lagi nanti.
+  smooch_v2_add_more_details_state: Silakan tambahkan lebih banyak detail.
+  smooch_v2_search_result_state: |-
+    Apakah pengecekan fakta ini relevan??
+
+    1. Ya - kembali ke menu utama
+    2. Tidak - kirim ke jurnalis untuk verifikasi
+  smooch_v2_search_no_results: |-
+    Tidak ada pengecekan fakta yang dapat ditemukan untuk konten ini. Terima kasih telah mengingatkan kami!
+    Hal tersebut dikirim ke jurnalis kami untuk diselidiki.
+
+    Anda akan diberi tahu di utas ini jika pengecekan fakta sudah ada.
+
+    *0. Menu utama*
+  smooch_v2_search_submit: |-
+    Klaim telah dikirim ke jurnalis. Jika telah dicek faktanya, Anda akan menerimanya di sini.
+
+    Ketik 0 untuk kembali ke menu utama.
   info:
     messages:
       sent_to_trash_by_rule: '"%{item_title}" telah dibuang ke tong sampah oleh aturan

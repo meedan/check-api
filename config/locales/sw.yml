@@ -610,7 +610,6 @@ sw:
   team_rule_type_image_threshold: Umbali kati ya picha
   team_rule_type_flag_threshold: Na uwezekano wa angalau
   team_rule_select_flag: Chagua kiboya
-  team_rule_flagged_as: Kitu kimeboywa kama
   team_rule_report_is_published: Ripoti imechapishwa
   team_rule_report_is_paused: Ripoti imesitishwa
   team_rule_condition_groups: Vikundi vya masharti
@@ -629,20 +628,15 @@ sw:
   team_rule_select_field_value_tasks: Chagua jibu
   team_rule_item_is_assigned_to_user: Kitu kimepangiwa
   team_rule_add_tag: Ongeza lebo
-  flag_adult: 'Mtu  mzima '
   flag_spoof: Hadaa
-  flag_medical: Matibabu
   flag_violence: 'Vurugu '
   flag_racy: Changamfu
   flag_spam: Barua taka
   annotation_type_flag_name_label: Kiboya
   annotation_type_flag_value_label: Uwezekano wa kuboya
   flag_likelihood_0: Isiyojulikana
-  flag_likelihood_1: Haiwezekani kabisa
   flag_likelihood_2: Haiwezekani
-  flag_likelihood_3: Inawezekana
   flag_likelihood_4: Uwezekano
-  flag_likelihood_5: Uwezekano mkubwa zaidi
   relationship_not_same_team: Vitu vinavyohusiana lazima viwe kwenye ulingo mmoja
     wa kazi
   bulk_operation_limit_error: Samahani, kiwango cha juu cha vitu vitakavyochakatwa

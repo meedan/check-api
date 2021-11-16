@@ -640,7 +640,6 @@ ro:
   team_rule_type_image_threshold: Distanță între imagini
   team_rule_type_flag_threshold: Cu o probabilitate de cel puțin
   team_rule_select_flag: Selectați marcajul
-  team_rule_flagged_as: Elementul este marcat ca
   team_rule_report_is_published: Raportul este publicat
   team_rule_report_is_paused: Raportul este în pauză
   team_rule_condition_groups: Grupe de condiții
@@ -659,20 +658,15 @@ ro:
   team_rule_select_field_value_tasks: Selectează răspunsul
   team_rule_item_is_assigned_to_user: Elementul este alocat lui
   team_rule_add_tag: Adaugă eticheta
-  flag_adult: Adult
   flag_spoof: Înșelătorie
-  flag_medical: Medical
   flag_violence: Violență
   flag_racy: Indecent
   flag_spam: Spam
   annotation_type_flag_name_label: Marcaj
   annotation_type_flag_value_label: Marchează probabilitatea
   flag_likelihood_0: Necunoscut
-  flag_likelihood_1: Foarte improbabil
   flag_likelihood_2: Improbabil
-  flag_likelihood_3: Posibil
   flag_likelihood_4: Probabil
-  flag_likelihood_5: Foarte probabil
   relationship_not_same_team: În același spațiu de lucru trebuie să existe elemente
     corelate
   bulk_operation_limit_error: Ne pare rău, numărul maxim de elemente care pot fi prelucrate

@@ -620,7 +620,6 @@ ru:
   team_rule_type_image_threshold: Степень сходства между изображениями
   team_rule_type_flag_threshold: С минимальной вероятностью в
   team_rule_select_flag: Выберите пометку
-  team_rule_flagged_as: Материал помечен как
   team_rule_report_is_published: Отчёт опубликован
   team_rule_report_is_paused: Отчёт поставлен на паузу
   team_rule_condition_groups: Группы условий
@@ -639,20 +638,15 @@ ru:
   team_rule_select_field_value_tasks: Выберите ответ
   team_rule_item_is_assigned_to_user: Материал назначен на
   team_rule_add_tag: Добавить тэг
-  flag_adult: Не для детей
   flag_spoof: Пародия
-  flag_medical: Медицинский
   flag_violence: Насилие
   flag_racy: Непристойности
   flag_spam: Спам
   annotation_type_flag_name_label: Пометка
   annotation_type_flag_value_label: Вероятность пометки
   flag_likelihood_0: Неизвестно
-  flag_likelihood_1: Крайне маловероятно
   flag_likelihood_2: Маловероятно
-  flag_likelihood_3: Возможно
   flag_likelihood_4: Вероятно
-  flag_likelihood_5: Крайне вероятно
   relationship_not_same_team: Связанные материалы должны находиться в одном проекте
   bulk_operation_limit_error: 'Извините, достигнуто максимальное количество материалов,
     обрабатываемых за раз: %{limit}'
