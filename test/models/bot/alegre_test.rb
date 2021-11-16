@@ -141,7 +141,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', true] })
     Bot::Alegre.unstub(:request_api)
     tbi = Bot::Alegre.get_alegre_tbi(@team.id)
-    tbi.set_auto_transcription_enabled = false
+    tbi.set_transcription_similarity_enabled = false
     tbi.save!
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
@@ -163,12 +163,12 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         body: { job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }
       ).to_return(body: { 'job_status' => 'COMPLETED', 'transcription' => 'Foo bar' }.to_json)
       Bot::Alegre.stubs(:media_file_url).with(pm1).returns(url)
-      # Verify with auto_transcription_enabled = false
+      # Verify with transcription_similarity_enabled = false
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       a = pm1.annotations('transcription').last
       assert_nil a
-      # Verify with auto_transcription_enabled = true and duration less than media_maximum_duration
-      tbi.set_auto_transcription_enabled = true
+      # Verify with transcription_similarity_enabled = true and duration less than media_maximum_duration
+      tbi.set_transcription_similarity_enabled = true
       tbi.set_media_minimum_duration = 7
       tbi.set_media_maximum_duration = 10
       tbi.set_media_minimum_requests = 2
@@ -985,6 +985,27 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => 0.9 })
     assert_difference 'Relationship.count' do
       create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm, set_fields: { text: 'Foo bar' }.to_json
+    end
+    Bot::Alegre.unstub(:get_items_with_similar_description)
+  end
+
+  test "should use transcription data for similarity matching" do
+    json_schema = {
+      type: 'object',
+      required: ['job_name'],
+      properties: {
+        text: { type: 'string' },
+        job_name: { type: 'string' },
+        last_response: { type: 'object' }
+      }
+    }
+    create_annotation_type_and_fields('Transcription', {}, json_schema)
+    pm = create_project_media team: @team
+    pm2 = create_project_media team: @team
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => 0.9 })
+    assert_difference 'Relationship.count' do
+      data = { 'job_status' => 'COMPLETED', 'transcription' => 'Foo bar' }
+      create_dynamic_annotation annotation_type: 'transcription', annotated: pm, set_fields: { text: data['transcription'], job_name: '0c481e87f2774b1bd41a0a70d9b70d11', last_response: data }.to_json
     end
     Bot::Alegre.unstub(:get_items_with_similar_description)
   end

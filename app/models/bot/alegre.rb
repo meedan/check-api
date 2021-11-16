@@ -9,7 +9,7 @@ class Bot::Alegre < BotUser
   ELASTICSEARCH_MODEL = 'elasticsearch'
 
   REPORT_TEXT_SIMILARITY_FIELDS = ['report_text_title', 'report_text_content', 'report_visual_card_title', 'report_visual_card_content']
-  ALL_TEXT_SIMILARITY_FIELDS = REPORT_TEXT_SIMILARITY_FIELDS + ['original_title', 'original_description', 'extracted_text']
+  ALL_TEXT_SIMILARITY_FIELDS = REPORT_TEXT_SIMILARITY_FIELDS + ['original_title', 'original_description', 'extracted_text', 'transcription']
 
   ::ProjectMedia.class_eval do
     attr_accessor :alegre_similarity_thresholds, :alegre_matched_fields
@@ -40,7 +40,7 @@ class Bot::Alegre < BotUser
 
   Dynamic.class_eval do
     after_commit :send_annotation_data_to_similarity_index, if: :can_be_sent_to_index?, on: [:create, :update]
-    after_create :match_similar_items_using_ocr
+    after_create :match_similar_items_using_ocr, :match_similar_items_using_transcription
 
     def self.send_annotation_data_to_similarity_index(pm_id, annotation_type)
       pm = ProjectMedia.find_by_id(pm_id)
@@ -50,15 +50,17 @@ class Bot::Alegre < BotUser
         end
       elsif annotation_type == 'extracted_text'
         Bot::Alegre.send_field_to_similarity_index(pm, 'extracted_text')
+      elsif annotation_type == 'transcription'
+        Bot::Alegre.send_field_to_similarity_index(pm, 'transcription')
       end
     end
 
-    def self.match_similar_items_using_ocr(id)
+    def self.match_similar_items_by_type(id, type)
       annotation = Dynamic.find_by_id(id)
-      if annotation && annotation.annotation_type == 'extracted_text'
+      if annotation && annotation.annotation_type == type
         pm = annotation.annotated
         text = annotation.get_field_value('text')
-        return if text.blank? || !Bot::Alegre.should_get_similar_items_of_type?('master', pm.team_id) || !Bot::Alegre.should_get_similar_items_of_type?('image', pm.team_id)
+        return if text.blank? || !Bot::Alegre.should_get_similar_items_of_type?('master', pm.team_id) || !Bot::Alegre.should_get_similar_items_of_type?(type, pm.team_id)
         matches = Bot::Alegre.get_items_with_similar_description(pm, Bot::Alegre.get_threshold_for_query('text', pm), text).max_by{ |_pm_id, score| score }
         unless matches.nil?
           match_id, score = matches
@@ -72,7 +74,7 @@ class Bot::Alegre < BotUser
     private
 
     def can_be_sent_to_index?
-      ['report_design', 'extracted_text'].include?(self.annotation_type) &&
+      ['report_design', 'extracted_text', 'transcription'].include?(self.annotation_type) &&
       Bot::Alegre.team_has_alegre_bot_installed?(self.annotated&.team&.id&.to_i)
     end
 
@@ -81,7 +83,11 @@ class Bot::Alegre < BotUser
     end
 
     def match_similar_items_using_ocr
-      self.class.delay_for(15.seconds, retry: 5).match_similar_items_using_ocr(self.id)
+      self.class.delay_for(15.seconds, retry: 5).match_similar_items_by_type(self.id, 'extracted_text')
+    end
+
+    def match_similar_items_using_transcription
+      self.class.delay_for(15.seconds, retry: 5).match_similar_items_by_type(self.id, 'transcription')
     end
   end
 
@@ -124,6 +130,17 @@ class Bot::Alegre < BotUser
     self.unarchive_if_archived(pm)
 
     handled
+  end
+
+  def self.get_items_from_similar_text(team_id, text, field = nil, threshold = nil, model = nil, fuzzy = false)
+    field ||= (['original_title', 'original_description'] + REPORT_TEXT_SIMILARITY_FIELDS).flatten
+    threshold ||= self.get_threshold_for_query('text', nil, true)
+    model ||= self.matching_model_to_use(ProjectMedia.new(team_id: team_id))
+    self.get_similar_items_from_api(
+      '/text/similarity/',
+      self.similar_texts_from_api_conditions(text, model, fuzzy, team_id, field, threshold),
+      threshold
+    )
   end
 
   def self.unarchive_if_archived(pm)
@@ -193,9 +210,10 @@ class Bot::Alegre < BotUser
   end
 
   def self.auto_transcription(pm)
-    tbi = self.get_alegre_tbi(pm&.team_id)
-    settings = tbi.nil? ? {} : tbi.alegre_settings
-    if settings['auto_transcription_enabled'] && ['uploadedaudio', 'uploadedvideo'].include?(pm.report_type)
+    return if !Bot::Alegre.should_get_similar_items_of_type?('master', pm.team_id) || !Bot::Alegre.should_get_similar_items_of_type?('transcription', pm.team_id)
+    if ['uploadedaudio', 'uploadedvideo'].include?(pm.report_type)
+      tbi = self.get_alegre_tbi(pm&.team_id)
+      settings = tbi.nil? ? {} : tbi.alegre_settings
       if pm.requests_count >=  settings['media_minimum_requests'].to_i
         url = self.media_file_url(pm)
         TagLib::FileRef.open(url) do |fileref|
