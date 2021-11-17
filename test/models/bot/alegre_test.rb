@@ -1003,9 +1003,12 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm = create_project_media team: @team
     pm2 = create_project_media team: @team
     Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => 0.9 })
+    data = { 'job_status' => 'COMPLETED', 'transcription' => 'Foo bar' }
+    a = create_dynamic_annotation annotation_type: 'transcription', annotated: pm, set_fields: { job_name: '0c481e87f2774b1bd41a0a70d9b70d11', last_response: data }.to_json
     assert_difference 'Relationship.count' do
-      data = { 'job_status' => 'COMPLETED', 'transcription' => 'Foo bar' }
-      create_dynamic_annotation annotation_type: 'transcription', annotated: pm, set_fields: { text: data['transcription'], job_name: '0c481e87f2774b1bd41a0a70d9b70d11', last_response: data }.to_json
+      a = Dynamic.find(a.id)
+      a.set_fields = { text: data['transcription'] }.to_json
+      a.save!
     end
     Bot::Alegre.unstub(:get_items_with_similar_description)
   end
