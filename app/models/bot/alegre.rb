@@ -214,13 +214,13 @@ class Bot::Alegre < BotUser
     if ['uploadedaudio', 'uploadedvideo'].include?(pm.report_type)
       tbi = self.get_alegre_tbi(pm&.team_id)
       settings = tbi.nil? ? {} : tbi.alegre_settings
-      if pm.requests_count >=  settings['media_minimum_requests'].to_i
+      if pm.requests_count >=  settings['transcription_minimum_requests'].to_i
         url = self.media_file_url(pm)
         TagLib::FileRef.open(url) do |fileref|
           unless fileref.null?
             properties = fileref.audio_properties
             # Verify that file length between min & max duration
-            self.transcribe_audio(pm) if properties.length_in_seconds.between?(settings['media_minimum_duration'].to_f, settings['media_maximum_duration'].to_f)
+            self.transcribe_audio(pm) if properties.length_in_seconds.between?(settings['transcription_minimum_duration'].to_f, settings['transcription_maximum_duration'].to_f)
           end
         end
       end

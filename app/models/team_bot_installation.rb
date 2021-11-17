@@ -41,9 +41,9 @@ class TeamBotInstallation < TeamUser
       video_hash_suggestion_threshold
       audio_hash_matching_threshold
       audio_hash_suggestion_threshold
-      media_minimum_duration
-      media_maximum_duration
-      media_minimum_requests
+      transcription_minimum_duration
+      transcription_maximum_duration
+      transcription_minimum_requests
     )
     threshold_keys.each do |k|
       settings[k] = self.send("get_#{k}").nil? ? CheckConfig.get(k, 0.9).to_f : self.send("get_#{k}").to_f

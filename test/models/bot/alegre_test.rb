@@ -167,22 +167,22 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       a = pm1.annotations('transcription').last
       assert_nil a
-      # Verify with transcription_similarity_enabled = true and duration less than media_maximum_duration
+      # Verify with transcription_similarity_enabled = true and duration less than transcription_maximum_duration
       tbi.set_transcription_similarity_enabled = true
-      tbi.set_media_minimum_duration = 7
-      tbi.set_media_maximum_duration = 10
-      tbi.set_media_minimum_requests = 2
+      tbi.set_transcription_minimum_duration = 7
+      tbi.set_transcription_maximum_duration = 10
+      tbi.set_transcription_minimum_requests = 2
       tbi.save!
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       a = pm1.annotations('transcription').last
       assert_nil a
-      # Verify that requests count less than media_minimum_requests
-      tbi.set_media_maximum_duration = 30
+      # Verify that requests count less than transcription_minimum_requests
+      tbi.set_transcription_maximum_duration = 30
       tbi.save!
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       a = pm1.annotations('transcription').last
       assert_nil a
-      # Audio item match all required conditions by verify media_minimum_requests count
+      # Audio item match all required conditions by verify transcription_minimum_requests count
       RequestStore.store[:skip_cached_field_update] = false
       create_dynamic_annotation annotation_type: 'smooch', annotated: pm1
       create_dynamic_annotation annotation_type: 'smooch', annotated: pm1
