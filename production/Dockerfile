@@ -36,8 +36,7 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 # dependencies
 #RUN add-apt-repository ppa:mc3man/trusty-media -y
 RUN apt-get update -qq && apt-get install -y libidn11-dev lsof nodejs git build-essential libpq-dev sqlite3 libsqlite3-dev graphicsmagick \
-     ffmpegthumbnailer libtag1-dev lz4
-
+     ffmpegthumbnailer libtag1-dev lz4 ffmpeg
 
 # CMD and helper scripts
 COPY --chown=root:root production/bin /opt/bin

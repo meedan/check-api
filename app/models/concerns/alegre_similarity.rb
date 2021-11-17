@@ -134,7 +134,7 @@ module AlegreSimilarity
 
     def get_items_with_similar_description(pm, threshold, input_description = nil)
       description = input_description || pm.original_description
-      description.blank? ? {} : self.get_merged_similar_items(pm, threshold, ['original_description', 'report_text_content', 'report_visual_card_content', 'extracted_text'], description)
+      description.blank? ? {} : self.get_merged_similar_items(pm, threshold, ['original_description', 'report_text_content', 'report_visual_card_content', 'extracted_text', 'transcription'], description)
     end
 
     def get_merged_similar_items(pm, threshold, fields, value)

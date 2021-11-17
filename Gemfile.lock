@@ -697,6 +697,8 @@ GEM
       sprockets (>= 3.0.0)
     sqlite3 (1.3.13)
     ssrf_filter (1.0.7)
+    streamio-ffmpeg (3.0.2)
+      multi_json (~> 1.8)
     swagger-docs (0.2.9)
       activesupport (>= 3)
       rails (>= 3)
@@ -890,6 +892,7 @@ DEPENDENCIES
   smooch-api (= 5.29.1)
   sprockets (= 3.7.2)
   sqlite3 (= 1.3.13)
+  streamio-ffmpeg
   swagger-docs (= 0.2.9)
   taglib-ruby
   therubyracer
