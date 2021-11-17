@@ -40,7 +40,8 @@ class Bot::Alegre < BotUser
 
   Dynamic.class_eval do
     after_commit :send_annotation_data_to_similarity_index, if: :can_be_sent_to_index?, on: [:create, :update]
-    after_create :match_similar_items_using_ocr, :match_similar_items_using_transcription
+    after_create :match_similar_items_using_ocr
+    after_update :match_similar_items_using_transcription
 
     def self.send_annotation_data_to_similarity_index(pm_id, annotation_type)
       pm = ProjectMedia.find_by_id(pm_id)
@@ -100,7 +101,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.run(body)
-    Rails.logger.info("[Alegre Bot] received task to update PM with body of #{body}")
+    Rails.logger.info("[Alegre Bot] Received event with body of #{body}")
     if CheckConfig.get('alegre_host').blank?
       Rails.logger.warn("[Alegre Bot] Skipping events because `alegre_host` config is blank")
       return false
@@ -210,19 +211,27 @@ class Bot::Alegre < BotUser
   end
 
   def self.auto_transcription(pm)
-    return if !Bot::Alegre.should_get_similar_items_of_type?('master', pm.team_id) || !Bot::Alegre.should_get_similar_items_of_type?('transcription', pm.team_id)
+    Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Auto Transcription 1/5] Attempting auto transcription"
+    Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] [Auto Transcription 2/5] Not proceeding with auto transcription because workspace similarity settings don't enable it") and return if !Bot::Alegre.should_get_similar_items_of_type?('master', pm.team_id) || !Bot::Alegre.should_get_similar_items_of_type?('transcription', pm.team_id)
     if ['uploadedaudio', 'uploadedvideo'].include?(pm.report_type)
+      Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] [Auto Transcription 3/5] Proceeding with auto transcription because item is an audio or video")
       tbi = self.get_alegre_tbi(pm&.team_id)
       settings = tbi.nil? ? {} : tbi.alegre_settings
-      if pm.requests_count >=  settings['transcription_minimum_requests'].to_i
+      min_requests = settings['transcription_minimum_requests'].to_i
+      if pm.requests_count >= min_requests
+        Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] [Auto Transcription 4/5] Proceeding with auto transcription because item has #{pm.requests_count} requests, which is equal or above the minimum of #{min_requests}")
         url = self.media_file_url(pm)
-        TagLib::FileRef.open(url) do |fileref|
-          unless fileref.null?
-            properties = fileref.audio_properties
-            # Verify that file length between min & max duration
-            self.transcribe_audio(pm) if properties.length_in_seconds.between?(settings['transcription_minimum_duration'].to_f, settings['transcription_maximum_duration'].to_f)
-          end
+        tempfile = Tempfile.new('transcription', binmode: true)
+        tempfile.write(open(url).read)
+        tempfile.close
+        media = FFMPEG::Movie.new(tempfile.path)
+        min, max = settings['transcription_minimum_duration'].to_f, settings['transcription_maximum_duration'].to_f
+        dur = media.duration
+        if dur.between?(min, max)
+          Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] [Auto Transcription 5/5] Proceeding with auto transcription because media has #{dur} seconds, which is between the minimum (#{min} seconds) and maximum (#{max} seconds) configured settings for this workspace")
+          self.transcribe_audio(pm)
         end
+        tempfile.unlink
       end
     end
   end
