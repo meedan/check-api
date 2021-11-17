@@ -310,5 +310,11 @@ module ProjectMediaCachedFields
           }
         },
       ]
+
+    cached_field :picture,
+      start_as: proc { |pm| pm.lead_image },
+      update_es: false,
+      recalculate: proc { |pm| pm.lead_image },
+      update_on: [] # Never changes
   end
 end
