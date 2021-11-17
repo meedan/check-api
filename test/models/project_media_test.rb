@@ -2606,4 +2606,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     ProjectMedia.unstub(:clear_caches)
   end
+
+  test "should cache picture" do
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media
+    assert_queries(0, '=') { assert_equal('', pm.picture) }
+    assert_queries(0, '>') { assert_equal('', pm.picture(true)) }
+  end
 end
