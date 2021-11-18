@@ -358,7 +358,10 @@ ActiveRecord::Schema.define(version: 2021_11_14_080408) do
 
   create_table "teams", id: :serial, force: :cascade do |t|
     t.string "name"
-    t.string "logo"
+    t.string "logo"<<<<<<< fix/CHECK-1111-opposite-direction
+383
+ 
+
     t.boolean "private", default: true
     t.integer "archived", default: 0
     t.datetime "created_at", null: false
@@ -381,6 +384,8 @@ ActiveRecord::Schema.define(version: 2021_11_14_080408) do
     t.string "platform"
     t.datetime "created_at", default: "2021-11-03 16:25:14", null: false
     t.datetime "updated_at", default: "2021-11-03 16:25:14", null: false
+    t.datetime "created_at", default: "2021-11-17 21:24:27", null: false
+    t.datetime "updated_at", default: "2021-11-17 21:24:27", null: false
     t.index ["language", "team_id"], name: "index_tipline_subscriptions_on_language_and_team_id"
     t.index ["language"], name: "index_tipline_subscriptions_on_language"
     t.index ["platform"], name: "index_tipline_subscriptions_on_platform"
