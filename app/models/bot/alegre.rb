@@ -167,7 +167,7 @@ class Bot::Alegre < BotUser
   def self.restrict_to_same_modality(pm, matches)
     other_pms = Hash[ProjectMedia.where(id: matches.keys).includes(:media).all.collect{ |item| [item.id, item] }]
     if pm.is_text?
-      matches.select{ |k, _v| other_pms[k.to_i]&.is_text? || !other_pms[k.to_i]&.extracted_text.blank? }
+      matches.select{ |k, _v| other_pms[k.to_i]&.is_text? || !other_pms[k.to_i]&.extracted_text.blank? || !other_pms[k.to_i]&.transcription.blank? }
     else
       matches.select{ |k, _v| (self.valid_match_types(other_pms[k.to_i]&.media&.type) & self.valid_match_types(pm.media.type)).length > 0 }
     end

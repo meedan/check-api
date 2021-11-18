@@ -43,12 +43,6 @@ module ProjectMediaGetters
     self.media.class.name.downcase
   end
 
-  def picture
-    Concurrent::Future.execute(executor: POOL) do
-      self.lead_image
-    end
-  end
-
   def lead_image
     self.media&.picture&.to_s
   end

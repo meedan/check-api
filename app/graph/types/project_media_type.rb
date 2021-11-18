@@ -104,11 +104,17 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type -> { TeamType }
 
     resolve -> (project_media, _args, _ctx) {
-      project_media.team
+      RecordLoader.for(Team).load(project_media.team_id)
     }
   end
 
-  field :project, ProjectType
+  field :project do
+    type -> { ProjectType }
+
+    resolve -> (project_media, _args, _ctx) {
+      RecordLoader.for(Project).load(project_media.project_id)
+    }
+  end
 
   field :media do
     type -> { MediaType }
