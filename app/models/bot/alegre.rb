@@ -61,8 +61,10 @@ class Bot::Alegre < BotUser
       if annotation && annotation.annotation_type == type
         pm = annotation.annotated
         text = annotation.get_field_value('text')
+        Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] An annotation of type #{type} was saved, so we are looking for items with similar description to #{pm.id} (text is '#{text}')")
         return if text.blank? || !Bot::Alegre.should_get_similar_items_of_type?('master', pm.team_id) || !Bot::Alegre.should_get_similar_items_of_type?(type, pm.team_id)
         matches = Bot::Alegre.get_items_with_similar_description(pm, Bot::Alegre.get_threshold_for_query('text', pm), text).max_by{ |_pm_id, score| score }
+        Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] An annotation of type #{type} was saved, so the items with similar description to #{pm.id} (text is '#{text}') are: #{matches.inspect}")
         unless matches.nil?
           match_id, score = matches
           match = ProjectMedia.find_by_id(match_id)
@@ -112,7 +114,7 @@ class Bot::Alegre < BotUser
     begin
       pm = ProjectMedia.where(id: body.dig(:data, :dbid)).last
       if body.dig(:event) == 'create_project_media' && !pm.nil?
-        Rails.logger.info("[Alegre Bot] now updating PM of ID #{pm.id}")
+        Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] This item was just created, processing...")
         self.get_language(pm)
         self.send_to_media_similarity_index(pm)
         self.send_field_to_similarity_index(pm, 'original_title')
