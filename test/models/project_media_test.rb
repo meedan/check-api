@@ -2613,4 +2613,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_queries(0, '=') { assert_equal('', pm.picture) }
     assert_queries(0, '>') { assert_equal('', pm.picture(true)) }
   end
+
+  test "should create blank item" do
+    assert_difference 'ProjectMedia.count' do
+      assert_difference 'Blank.count' do
+        ProjectMedia.create! media_type: 'Blank', team: create_team
+      end
+    end
+  end
 end
