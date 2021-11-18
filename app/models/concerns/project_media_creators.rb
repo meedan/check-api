@@ -84,6 +84,8 @@ module ProjectMediaCreators
       m = self.create_claim
     when 'Link'
       m = self.create_link
+    when 'Blank'
+      m = Blank.create!
     end
     m
   end
