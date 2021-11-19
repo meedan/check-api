@@ -20,6 +20,7 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 RUN apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
     ffmpegthumbnailer \
+    ffmpeg \
     git \
     graphicsmagick \
     libidn11-dev \

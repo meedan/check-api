@@ -702,7 +702,6 @@ pt:
   team_rule_type_image_threshold: Distância entre imagens
   team_rule_type_flag_threshold: Com uma probabilidade de pelo menos
   team_rule_select_flag: Selecionar classificação
-  team_rule_flagged_as: O item está classificado como
   team_rule_report_is_published: O relatório foi publicado
   team_rule_report_is_paused: O relatório está suspenso
   team_rule_condition_groups: Grupos de condições
@@ -714,27 +713,27 @@ pt:
   team_rule_item_user_is: O item foi criado por
   team_rule_item_is_read: O item foi lido
   team_rule_field_from_fieldset_tasks_value_is: A tarefa tem uma resposta específica
+  team_rule_field_from_fieldset_metadata_value_is: As anotações têm um valor específico
   team_rule_field_from_fieldset_tasks_value_contains_keyword: A resposta da tarefa
     contém a palavra-chave
+  team_rule_field_from_fieldset_metadata_value_contains_keyword: O valor da anotação
+    contém palavra-chave
+  team_rule_select_field_metadata: Selecionar anotação
   team_rule_select_field_value_metadata: Selecionar valor
   team_rule_select_field_tasks: Selecionar tarefa
   team_rule_select_field_value_tasks: Selecionar resposta
   team_rule_item_is_assigned_to_user: O item está atribuído a
   team_rule_add_tag: Adicionar tag
-  flag_adult: Adulto
   flag_spoof: Falsificação
-  flag_medical: Médico
   flag_violence: Violência
   flag_racy: Sugestivo
   flag_spam: Spam
   annotation_type_flag_name_label: Classificação
   annotation_type_flag_value_label: 'Probabilidade da classificação '
   flag_likelihood_0: Desconhecido
-  flag_likelihood_1: Muito improvável
   flag_likelihood_2: Improvável
-  flag_likelihood_3: Possível
   flag_likelihood_4: Provável
-  flag_likelihood_5: Muito provável
+  flag_likelihood_7: Manual
   relationship_not_same_team: Itens relacionados devem existir no mesmo espaço de
     trabalho
   bulk_operation_limit_error: Desculpe, o número máximo de itens a serem processados
@@ -793,6 +792,46 @@ pt:
     em nosso boletim informativo.
   smooch_message_subscription_header_unsubscribed: Atualmente, você *não está inscrito(a)*
     em nosso boletim informativo.
+  smooch_bot_message_newsletter_fallback: |-
+    Olá! Aqui estão os seus fatos semanais.
+
+    Este boletim informativo é publicado no %{platform} por %{team}. Aqui estão os fatos mais importantes da semana de %{date}:
+
+    %{content}
+
+    Para deixar de receber este boletim, digite "%{unsubscribe}".
+  smooch_v2_first_state: |-
+    Digite um número para navegar:
+
+    1. Submeter o conteúdo à verificação de fatos
+    2. Adicionar mais detalhes
+    3. Menu principal
+  smooch_v2_add_more_details_menu: |-
+    Obrigado! Você está pronto(a) para enviar?
+
+    1. Enviar o conteúdo para verificação de fatos
+    2. Adicionar mais detalhes
+    3. Cancelar e voltar para o menu principal
+  smooch_v2_search_state: Procurando por verificações de fatos...
+  smooch_v2_search_error: Erro ao tentar procurar verificações de fatos. Por favor,
+    tente novamente mais tarde.
+  smooch_v2_add_more_details_state: Por favor, adicione mais detalhes.
+  smooch_v2_search_result_state: |-
+    Estas verificações de fato são relevantes?
+
+    1. Sim - voltar ao menu principal
+    2. Não - enviar aos jornalistas para verificação
+  smooch_v2_search_no_results: |-
+    Não foi possível encontrar uma verificação de fatos para este conteúdo. Agradecemos por nos alertar!
+    Foi enviado aos(às) nossos(as) jornalistas para investigação.
+
+    Você receberá uma notificação neste fio se uma verificação de fatos for produzida.
+
+    *0. Menu principal*
+  smooch_v2_search_submit: |-
+    A afirmação foi enviada aos jornalistas. Se verificada, você a receberá aqui.
+
+    Digite 0 para voltar ao menu principal.
   info:
     messages:
       sent_to_trash_by_rule: O item "%{item_title}" foi enviado para a lixeira, seguindo

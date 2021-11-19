@@ -41,25 +41,25 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description:
+        description: 
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description:
+        description: 
       misleading:
         label: Misleading
-        description:
+        description: 
       disputed:
         label: Disputed
-        description:
+        description: 
       out_of_scope:
         label: Out of Scope
-        description:
+        description: 
       junk:
         label: Junk
-        description:
+        description: 
       unstarted:
         label: Unstarted
         description: Default, just added, no work has started
@@ -677,7 +677,7 @@ en:
   team_rule_type_image_threshold: Distance between images
   team_rule_type_flag_threshold: With a likelihood of at least
   team_rule_select_flag: Select flag
-  team_rule_flagged_as: Item is flagged as
+  team_rule_flagged_as: Item has been detected as
   team_rule_report_is_published: Report is published
   team_rule_report_is_paused: Report is paused
   team_rule_condition_groups: Condition groups
@@ -700,20 +700,22 @@ en:
   team_rule_select_field_value_tasks: Select answer
   team_rule_item_is_assigned_to_user: Item is assigned to
   team_rule_add_tag: Add tag
-  flag_adult: Adult
+  team_rule_add_warning_cover: Add content warning cover
+  flag_adult: Adult (nudity, pornographic)
   flag_spoof: Spoof
-  flag_medical: Medical
+  flag_medical: Medical conditions/procedures
   flag_violence: Violence
   flag_racy: Racy
   flag_spam: Spam
   annotation_type_flag_name_label: Flag
   annotation_type_flag_value_label: Flag likelihood
   flag_likelihood_0: Unknown
-  flag_likelihood_1: Very unlikely
+  flag_likelihood_1: Low (less content will be detected)
   flag_likelihood_2: Unlikely
-  flag_likelihood_3: Possible
+  flag_likelihood_3: Medium (some content will be detected)
   flag_likelihood_4: Likely
-  flag_likelihood_5: Very likely
+  flag_likelihood_5: High (more content will be detected)
+  flag_likelihood_7: Manual
   relationship_not_same_team: Related items must exist in the same workspace
   bulk_operation_limit_error: Sorry, the maximum number of items to be processed at
     once is %{limit}
@@ -729,6 +731,8 @@ en:
   fetch_bot_service_unsupported: Service unsupported
   task_options_must_be_array: Task options must be a list
   fieldset_not_defined_by_team: Fieldset should be supported by the workspace
+  cant_change_field_type_or_options_when_answered: The field type cannot be changed
+    because answers have already been filled
   replace_by_media_in_the_same_team: Sorry, you can only replace this item by another
     item from the same workspace
   replace_blank_media_only: Sorry, but for now you can only replace blank items
@@ -827,3 +831,4 @@ en:
         rule.'
       moved_to_private_folder: '"%{item_title}" has been moved to a folder you do
         not have access to.'
+      add_warning_cover_by_rule: Added a warning cover to sensitive item "%{item_title}"

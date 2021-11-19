@@ -252,6 +252,7 @@ class GraphqlController5Test < ActionController::TestCase
       s3_url = url.gsub(/^https?:\/\/[^\/]+/, "s3://#{CheckConfig.get('storage_bucket')}")
 
       Bot::Alegre.unstub(:request_api)
+      Bot::Alegre.stubs(:request_api).returns({ success: true })
       Bot::Alegre.stubs(:request_api).with('post', '/audio/transcription/', { url: s3_url, job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }).returns({ 'job_status' => 'IN_PROGRESS' })
       Bot::Alegre.stubs(:request_api).with('get', '/audio/transcription/', { job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }).returns({ 'job_status' => 'COMPLETED', 'transcription' => 'Foo bar' })
 
@@ -276,6 +277,86 @@ class GraphqlController5Test < ActionController::TestCase
 
       Bot::Alegre.unstub(:request_api)
     end
+  end
+
+  test "should find similar items to media item" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p, media: create_uploaded_audio(file: 'rails.mp3')
+    pm2 = create_project_media project: p
+    Bot::Alegre.stubs(:get_items_with_similar_media).returns({ pm2.id => 0.9, pm.id => 0.8 })
+
+    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") { similar_items(first: 10000) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal pm2.id, JSON.parse(@response.body)['data']['project_media']['similar_items']['edges'][0]['node']['dbid']
+
+    Bot::Alegre.unstub(:get_items_with_similar_media)
+  end
+
+  test "should find similar items to text item" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    pm2 = create_project_media project: p
+    Bot::Alegre.stubs(:get_similar_texts).returns({ pm2.id => 0.9, pm.id => 0.8 })
+
+    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") { similar_items(first: 10000) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal pm2.id, JSON.parse(@response.body)['data']['project_media']['similar_items']['edges'][0]['node']['dbid']
+
+    Bot::Alegre.unstub(:get_similar_texts)
+  end
+
+  test "should create and update flags and content warning" do
+    create_flag_annotation_type
+    t = create_team
+    u = create_user is_admin: true
+    pm = create_project_media team: t
+    authenticate_with_user(u)
+    # verify create
+    query = 'mutation create { createDynamicAnnotationFlag(input: { clientMutationId: "1", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", set_fields: "{\"flags\":{\"adult\":3,\"spoof\":2,\"medical\":1,\"violence\":3,\"racy\":4,\"spam\":0},\"show_cover\":false}" }) { dynamic { dbid } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    d = Dynamic.find(JSON.parse(@response.body)['data']['createDynamicAnnotationFlag']['dynamic']['dbid'])
+    data = d.data.with_indifferent_access
+    assert_equal ['flags', 'show_cover'].sort, data.keys.sort
+    assert_equal ['adult', 'spoof', 'medical', 'violence', 'racy', 'spam'].sort, data['flags'].keys.sort
+    assert !data['show_cover']
+    # verify update
+    query = 'mutation update { updateDynamicAnnotationFlag(input: { clientMutationId: "1", id: "' + d.graphql_id + '", set_fields: "{\"show_cover\":true}" }) { dynamic { dbid } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    d = Dynamic.find(d.id)
+    data = d.data.with_indifferent_access
+    assert_equal ['flags', 'show_cover'].sort, data.keys.sort
+    assert_equal ['adult', 'spoof', 'medical', 'violence', 'racy', 'spam'].sort, data['flags'].keys.sort
+    assert data['show_cover']
+  end
+
+  test "should return number of tasks related to a team task" do
+    t = create_team
+    tt = create_team_task team_id: t.id
+    p = create_project team: t
+    pm = create_project_media project: p
+    pm2 = create_project_media project: p
+    pm3 = create_project_media project: p
+    # add response to task for pm
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+    pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+    pm_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
+    pm_tt.save!
+
+    query = 'query { team { team_tasks(fieldset: "tasks") { edges { node { dbid tasks_count tasks_with_answers_count } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    response = JSON.parse(@response.body)['data']['team']['team_tasks']['edges'][0]['node']
+    assert_equal tt.id, response['dbid']
+    assert_equal 3, response['tasks_count']
+    assert_equal 1, response['tasks_with_answers_count']
   end
 
   protected
