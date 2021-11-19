@@ -148,3 +148,4 @@ gem 'jsonapi-resources'
 gem 'bootsnap', require: false
 gem 'sidekiq-cron', '~> 1.1'
 gem 'parse-cron'
+gem 'streamio-ffmpeg'

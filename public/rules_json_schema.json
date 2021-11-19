@@ -305,6 +305,10 @@
                     {
                       "key": "add_tag",
                       "value": "<%= I18n.t(:team_rule_add_tag) %>"
+                    },
+                    {
+                      "key": "add_warning_cover",
+                      "value": "<%= I18n.t(:team_rule_add_warning_cover) %>"
                     }
                   ]
                 }

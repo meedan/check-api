@@ -17,8 +17,8 @@ fi
 if [ ! -d "configurator" ]; then git clone -q https://${GITHUB_TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator; fi
 d=configurator/check/${DEPLOY_ENV}/${APP}/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
 
-APOLLO_BIN=`find ${DEPLOYDIR}/vendor/bundle/ruby/ -type f -name engineproxy_linux_amd64`
-${APOLLO_BIN} --config config/apollo-engine-proxy.json &
+# APOLLO_BIN=`find ${DEPLOYDIR}/vendor/bundle/ruby/ -type f -name engineproxy_linux_amd64`
+# ${APOLLO_BIN} --config config/apollo-engine-proxy.json &
 
 mkdir -p ${PWD}/tmp/pids
 puma="${PWD}/tmp/puma-${RAILS_ENV}.rb"
@@ -31,4 +31,4 @@ workers 2
 worker_timeout 120
 EOF
 
-bundle exec puma -C ${puma} -t 4:32 -p 3300
+bundle exec puma -C ${puma} -t 4:32 -p 3300 -p 8000

@@ -8,6 +8,7 @@ class TeamTask < ApplicationRecord
   validates_presence_of :label, :team_id, :fieldset
   validates :task_type, included: { values: Task.task_types }
   validate :fieldset_exists_in_team
+  validate :can_change_task_type, on: :update
 
   serialize :options, Array
   serialize :project_ids, Array
@@ -68,13 +69,13 @@ class TeamTask < ApplicationRecord
     # collect updated fields with new values
     columns = {}
     options.each do |k, _v|
-      columns[k] = self.read_attribute(k)
+      attribute = self.read_attribute(k)
+      # type is called `task_type` on TeamTask and `type` on Task
+      k = :type if k == :task_type
+      columns[k] = attribute
     end
     unless columns.blank?
-      # update tasks with zero answer
-      update_tasks_with_zero_answer(columns)
-      # handle tasks with answers
-      update_tasks_with_answer(columns) unless keep_completed_tasks
+      update_tasks(columns, keep_completed_tasks)
     end
     # items related to added projects
     unless projects.blank?
@@ -86,12 +87,12 @@ class TeamTask < ApplicationRecord
   def self.destroy_teamwide_tasks_bg(id, keep_completed_tasks)
     if keep_completed_tasks
       TeamTask.get_teamwide_tasks_zero_answers(id).find_each do |t|
-        self.destory_project_media_task(t)
+        self.destroy_project_media_task(t)
       end
     else
       Task.where(annotation_type: 'task', annotated_type: ['ProjectMedia', 'Source'])
       .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', id).find_each do |t|
-        self.destory_project_media_task(t)
+        self.destroy_project_media_task(t)
       end
     end
   end
@@ -126,6 +127,14 @@ class TeamTask < ApplicationRecord
     task2_order
   end
 
+  def tasks_count
+    TeamTask.get_teamwide_tasks(self.id).count
+  end
+
+  def tasks_with_answers_count
+    get_teamwide_tasks_with_answers.count
+  end
+
   private
 
   def add_teamwide_tasks
@@ -139,6 +148,7 @@ class TeamTask < ApplicationRecord
     options = {
       label: self.saved_change_to_label?,
       description: self.saved_change_to_description?,
+      task_type: self.saved_change_to_task_type?,
       options: self.saved_change_to_options?
     }
     options.delete_if{|_k, v| v == false || v.nil?}
@@ -196,6 +206,14 @@ class TeamTask < ApplicationRecord
     [condition, excluded_ids]
   end
 
+  def update_tasks(columns, keep_completed_tasks)
+    columns = columns.except(:type, :options) if get_teamwide_tasks_with_answers.any?
+    # update tasks with zero answer
+    update_tasks_with_zero_answer(columns)
+    # handle tasks with answers
+    update_tasks_with_answer(columns) unless keep_completed_tasks
+  end
+
   def update_tasks_with_zero_answer(columns)
     TeamTask.get_teamwide_tasks_zero_answers(self.id).find_each do |t|
       t.skip_check_ability = true
@@ -227,9 +245,13 @@ class TeamTask < ApplicationRecord
     end
   end
 
-  def self.get_teamwide_tasks_zero_answers(id)
+  def self.get_teamwide_tasks(id)
     Task.where('annotations.annotation_type' => 'task')
     .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', id)
+  end
+
+  def self.get_teamwide_tasks_zero_answers(id)
+    TeamTask.get_teamwide_tasks(id)
     .joins("LEFT JOIN annotations responses ON responses.annotation_type LIKE 'task_response%'
       AND responses.annotated_type = 'Task'
       AND responses.annotated_id = annotations.id"
@@ -238,21 +260,26 @@ class TeamTask < ApplicationRecord
   end
 
   def get_teamwide_tasks_with_answers
-    Task.where('annotations.annotation_type' => 'task')
-    .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', self.id)
+    TeamTask.get_teamwide_tasks(self.id)
     .joins("INNER JOIN annotations responses ON responses.annotation_type LIKE 'task_response%'
       AND responses.annotated_type = 'Task'
       AND responses.annotated_id = annotations.id"
       )
   end
 
-  def self.destory_project_media_task(t)
+  def self.destroy_project_media_task(t)
     t.skip_check_ability = true
     t.destroy
   end
 
   def fieldset_exists_in_team
     errors.add(:base, I18n.t(:fieldset_not_defined_by_team)) unless self.team&.get_fieldsets.to_a.collect{ |f| f['identifier'] }.include?(self.fieldset)
+  end
+
+  def can_change_task_type
+    if (self.task_type_changed? || self.options_changed?) && !tasks_with_answers_count.zero?
+      errors.add(:base, I18n.t(:cant_change_field_type_or_options_when_answered))
+    end
   end
 
   def set_order

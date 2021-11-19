@@ -35,6 +35,10 @@ module ProjectMediaGetters
     self.is_claim? || self.is_link?
   end
 
+  def is_media?
+    self.is_image? || self.is_audio? || self.is_video?
+  end
+
   def report_type
     self.media.class.name.downcase
   end
@@ -131,5 +135,9 @@ module ProjectMediaGetters
 
   def extracted_text
     begin self.get_dynamic_annotation('extracted_text').get_field_value('text') rescue '' end
+  end
+
+  def transcription
+    begin self.get_dynamic_annotation('transcription').get_field_value('text') rescue '' end
   end
 end
