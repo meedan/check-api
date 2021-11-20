@@ -114,7 +114,7 @@ module AnnotationBase
 
     def annotated_is_not_archived
       annotated = self.annotated ? self.annotated.reload : nil
-      if annotated && annotated.respond_to?(:archived) && annotated.archived > CheckArchivedFlags::FlagCodes::NONE && self.annotator_type != 'BotUser' && !self.skip_trashed_validation
+      if annotated && annotated.respond_to?(:archived) && annotated.archived == CheckArchivedFlags::FlagCodes::TRASHED && self.annotator_type != 'BotUser' && !self.skip_trashed_validation
         errors.add(:base, I18n.t(:error_annotated_archived))
       end
     end
