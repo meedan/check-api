@@ -146,7 +146,7 @@ class Bot::FetchTest < ActiveSupport::TestCase
 
   test "should set service" do
     Bot::Fetch.set_service('fetch', 'foo', 'undetermined', {})
-    assert_equal 'foo', @installation.reload.get_fetch_service_name
+    assert_equal ['foo'], @installation.reload.get_fetch_service_name
     assert_equal 'undetermined', @installation.reload.get_status_fallback
     assert_equal '{}', @installation.reload.get_status_mapping
   end
