@@ -13,8 +13,8 @@ class Bot::Fetch < BotUser
 
     after_save do
       if self.bot_user.identifier == 'fetch'
-        previous_services = self.settings_before_last_save.to_h.with_indifferent_access[:fetch_service_name].to_a.sort.uniq
-        new_services = self.settings.to_h.with_indifferent_access[:fetch_service_name].to_a.sort.uniq
+        previous_services = ::Bot::Fetch.convert_service_name(self.settings_before_last_save.to_h.with_indifferent_access[:fetch_service_name])
+        new_services = ::Bot::Fetch.convert_service_name(self.settings.to_h.with_indifferent_access[:fetch_service_name])
         if new_services != previous_services
           Bot::Fetch.setup_service(self, previous_services, new_services)
         end
@@ -24,7 +24,7 @@ class Bot::Fetch < BotUser
     private
 
     def service_is_supported
-      services = self.settings.to_h.with_indifferent_access[:fetch_service_name].to_a
+      services = ::Bot::Fetch.convert_service_name(self.settings.to_h.with_indifferent_access[:fetch_service_name])
       services.each { |service| errors.add(:base, I18n.t(:fetch_bot_service_unsupported)) if !service.blank? && !Bot::Fetch.is_service_supported?(service) }
     end
   end
@@ -32,6 +32,10 @@ class Bot::Fetch < BotUser
   # Mandatory methods that all core bots must have
 
   check_settings
+
+  def self.convert_service_name(value)
+    [value].flatten.reject{ |str| str.blank? }.uniq.sort
+  end
 
   def self.valid_request?(request)
     installation = self.get_installation_for_team(request.query_parameters['team'])
@@ -137,7 +141,7 @@ class Bot::Fetch < BotUser
       Team.current = team = installation.team
       status_fallback = installation.get_status_fallback
       status_mapping = installation.get_status_mapping.blank? ? nil : JSON.parse(installation.get_status_mapping, { quirks_mode: true })
-      installation.get_fetch_service_name.to_a.each do |service_name|
+      Bot::Fetch.convert_service_name(installation.get_fetch_service_name).each do |service_name|
         service_info = Bot::Fetch.supported_services.find{ |s| s['service'] == service_name }
         if service_info['count'] > 0
           # Paginate by date in a way that we have more or less 1000 items per "page"
