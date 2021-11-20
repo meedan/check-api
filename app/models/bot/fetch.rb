@@ -1,5 +1,5 @@
 # How to set a service for a Fetch bot installation using Rails console:
-# > Bot::Fetch.set_service(team_slug, service_name, status_fallback, status_mapping ({ reviewRating.(ratingValue|alternameName) => Check status identifier }, as a JSON object))
+# > Bot::Fetch.set_service(team_slug, [service_names], status_fallback, status_mapping ({ reviewRating.(ratingValue|alternameName) => Check status identifier }, as a JSON object))
 
 class Bot::Fetch < BotUser
 
@@ -13,10 +13,10 @@ class Bot::Fetch < BotUser
 
     after_save do
       if self.bot_user.identifier == 'fetch'
-        previous_service = self.settings_before_last_save.to_h.with_indifferent_access[:fetch_service_name].to_s
-        new_service = self.settings.to_h.with_indifferent_access[:fetch_service_name].to_s
-        if new_service != previous_service
-          Bot::Fetch.setup_service(self, previous_service, new_service)
+        previous_services = self.settings_before_last_save.to_h.with_indifferent_access[:fetch_service_name].to_a.sort.uniq
+        new_services = self.settings.to_h.with_indifferent_access[:fetch_service_name].to_a.sort.uniq
+        if new_services != previous_services
+          Bot::Fetch.setup_service(self, previous_services, new_services)
         end
       end
     end
@@ -24,8 +24,8 @@ class Bot::Fetch < BotUser
     private
 
     def service_is_supported
-      service = self.settings.to_h.with_indifferent_access[:fetch_service_name].to_s
-      errors.add(:base, I18n.t(:fetch_bot_service_unsupported)) if !service.blank? && !Bot::Fetch.is_service_supported?(service)
+      services = self.settings.to_h.with_indifferent_access[:fetch_service_name].to_a
+      services.each { |service| errors.add(:base, I18n.t(:fetch_bot_service_unsupported)) if !service.blank? && !Bot::Fetch.is_service_supported?(service) }
     end
   end
 
@@ -72,7 +72,7 @@ class Bot::Fetch < BotUser
 
   def self.set_service(team_slug, service_name, status_fallback, status_mapping)
     installation = self.get_installation_for_team(team_slug)
-    installation.set_fetch_service_name(service_name)
+    installation.set_fetch_service_name([service_name].flatten)
     installation.set_status_fallback(status_fallback)
     installation.set_status_mapping(status_mapping.to_json)
     installation.save!
@@ -82,15 +82,15 @@ class Bot::Fetch < BotUser
     CheckConfig.get('fetch_check_webhook_url') + '/api/webhooks/fetch?team=' + team.slug + '&token=' + CheckConfig.get('fetch_token')
   end
 
-  def self.setup_service(installation, previous_service, new_service)
+  def self.setup_service(installation, previous_services, new_services)
     team = installation.team
-    if !new_service.blank? && self.is_service_supported?(new_service)
-      self.call_fetch_api(:post, 'subscribe', { service: new_service, url: self.webhook_url(team) })
-      Bot::Fetch::Import.delay(retry: 0).import_claim_reviews(installation.id)
+    new_services.each do |new_service|
+      if self.is_service_supported?(new_service)
+        self.call_fetch_api(:post, 'subscribe', { service: new_service, url: self.webhook_url(team) })
+      end
     end
-    unless previous_service.blank?
-      self.call_fetch_api(:delete, 'subscribe', { service: previous_service, url: self.webhook_url(team) })
-    end
+    previous_services.each { |previous_service| self.call_fetch_api(:delete, 'subscribe', { service: previous_service, url: self.webhook_url(team) }) }
+    Bot::Fetch::Import.delay(retry: 0).import_claim_reviews(installation.id) unless new_services.blank?
   end
 
   def self.is_service_supported?(service)
@@ -135,29 +135,30 @@ class Bot::Fetch < BotUser
       RequestStore.store[:skip_notifications] = true
       User.current = user = installation.user
       Team.current = team = installation.team
-      service_name = installation.get_fetch_service_name
       status_fallback = installation.get_status_fallback
       status_mapping = installation.get_status_mapping.blank? ? nil : JSON.parse(installation.get_status_mapping, { quirks_mode: true })
-      service_info = Bot::Fetch.supported_services.find{ |s| s['service'] == service_name }
-      if service_info['count'] > 0
-        # Paginate by date in a way that we have more or less 1000 items per "page"
-        n = (service_info['count'].to_f / 1000).ceil
-        from = Time.parse(service_info['earliest'])
-        to = Time.parse(service_info['latest'])
-        days = ((to - from) / 86400.0).ceil
-        step = (days.to_f / n).ceil
-        step = 1 if step == 0
-        total = 0
-        (from.to_i..to.to_i).step(step.days).each do |current_timestamp|
-          from2 = Time.at(current_timestamp)
-          to2 = from2 + step.days
-          params = { service: service_name, start_time: from2.strftime('%Y-%m-%d'), end_time: to2.strftime('%Y-%m-%d'), per_page: 10000 }
-          Bot::Fetch.call_fetch_api(:get, 'claim_reviews', params).each do |claim_review|
-            self.import_claim_review(claim_review, team.id, user.id, status_fallback, status_mapping)
-            total += 1
+      installation.get_fetch_service_name.to_a.each do |service_name|
+        service_info = Bot::Fetch.supported_services.find{ |s| s['service'] == service_name }
+        if service_info['count'] > 0
+          # Paginate by date in a way that we have more or less 1000 items per "page"
+          n = (service_info['count'].to_f / 1000).ceil
+          from = Time.parse(service_info['earliest'])
+          to = Time.parse(service_info['latest'])
+          days = ((to - from) / 86400.0).ceil
+          step = (days.to_f / n).ceil
+          step = 1 if step == 0
+          total = 0
+          (from.to_i..to.to_i).step(step.days).each do |current_timestamp|
+            from2 = Time.at(current_timestamp)
+            to2 = from2 + step.days
+            params = { service: service_name, start_time: from2.strftime('%Y-%m-%d'), end_time: to2.strftime('%Y-%m-%d'), per_page: 10000 }
+            Bot::Fetch.call_fetch_api(:get, 'claim_reviews', params).each do |claim_review|
+              self.import_claim_review(claim_review, team.id, user.id, status_fallback, status_mapping)
+              total += 1
+            end
           end
+          Airbrake.notify(Bot::Fetch::Error.new("[Fetch] The number of imported claim reviews (#{total}) is different from the expected (#{service_info['count']})")) if Airbrake.configured? && total != service_info['count']
         end
-        Airbrake.notify(Bot::Fetch::Error.new("[Fetch] The number of imported claim reviews (#{total}) is different from the expected (#{service_info['count']})")) if Airbrake.configured? && total != service_info['count']
       end
     end
 
