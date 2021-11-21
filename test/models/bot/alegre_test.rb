@@ -1046,4 +1046,15 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
     assert_equal r.reload.relationship_type, Relationship.confirmed_type
   end
+
+  test "should match imported report" do
+    pm = create_project_media team: @team
+    pm2 = create_project_media team: @team, media: Blank.create!, channel: CheckChannels::ChannelCodes::FETCH
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => 0.9 })
+    assert_equal [pm2.id], Bot::Alegre.get_similar_items(pm).keys
+    assert_difference 'ProjectMedia.count', -1 do
+      Bot::Alegre.relate_project_media_to_similar_items(pm)
+    end
+    Bot::Alegre.unstub(:get_items_with_similar_description)
+  end
 end
