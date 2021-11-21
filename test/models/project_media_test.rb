@@ -2607,11 +2607,16 @@ class ProjectMediaTest < ActiveSupport::TestCase
     ProjectMedia.unstub(:clear_caches)
   end
 
-  test "should cache picture" do
+  test "should cache picture and creator name" do
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media
+    u = create_user
+    pm = create_project_media channel: 0, user: u
+    # picture
     assert_queries(0, '=') { assert_equal('', pm.picture) }
     assert_queries(0, '>') { assert_equal('', pm.picture(true)) }
+    # creator name
+    assert_queries(0, '=') { assert_equal(u.name, pm.creator_name) }
+    assert_queries(0, '>') { assert_equal(u.name, pm.creator_name(true)) }
   end
 
   test "should create blank item" do

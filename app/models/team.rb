@@ -537,6 +537,11 @@ class Team < ApplicationRecord
         key: 'folder',
         label: I18n.t(:list_column_folder),
         show: false
+      },
+      {
+        key: 'creator_name',
+        label: I18n.t(:list_column_creator_name),
+        show: false
       }
     ]
   end
