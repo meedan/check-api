@@ -422,7 +422,9 @@ class Bot::Alegre < BotUser
       if parent_relationship.is_confirmed? && pm_id_scores[parent_id][:relationship_type] == Relationship.confirmed_type
         new_type = Relationship.confirmed_type
       end
+      original_parent_id = parent_id
       parent_id = parent_relationship.source_id
+      pm_id_scores[parent_id] = pm_id_scores[original_parent_id]
       pm_id_scores[parent_id][:relationship_type] = new_type if pm_id_scores[parent_id]
     end
 
