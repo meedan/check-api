@@ -154,10 +154,6 @@ class Team < ApplicationRecord
     end
   end
 
-  def rules=(rules)
-    self.send(:set_rules, JSON.parse(rules))
-  end
-
   def slack_notifications=(slack_notifications)
     self.send(:set_slack_notifications, JSON.parse(slack_notifications))
   end
