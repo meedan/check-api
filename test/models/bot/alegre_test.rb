@@ -424,8 +424,9 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm1 = create_project_media project: p, is_image: true
     pm2 = create_project_media project: p, media: Blank.new
     pm3 = create_project_media project: p, media: Blank.new
-    response = Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
-    assert_equal response, true
+    assert_difference 'ProjectMedia.count', -1 do
+      Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
+    end
   end
 
   test "should return matches for non-blank cases" do
