@@ -424,8 +424,9 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm1 = create_project_media project: p, is_image: true
     pm2 = create_project_media project: p, media: Blank.new
     pm3 = create_project_media project: p, media: Blank.new
-    response = Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
-    assert_equal response, true
+    assert_difference 'ProjectMedia.count', -1 do
+      Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
+    end
   end
 
   test "should return matches for non-blank cases" do
@@ -1045,5 +1046,16 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       Bot::Alegre.create_relationship(pm2, pm, 0.9, Relationship.confirmed_type)
     end
     assert_equal r.reload.relationship_type, Relationship.confirmed_type
+  end
+
+  test "should match imported report" do
+    pm = create_project_media team: @team
+    pm2 = create_project_media team: @team, media: Blank.create!, channel: CheckChannels::ChannelCodes::FETCH
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => 0.9 })
+    assert_equal [pm2.id], Bot::Alegre.get_similar_items(pm).keys
+    assert_difference 'ProjectMedia.count', -1 do
+      Bot::Alegre.relate_project_media_to_similar_items(pm)
+    end
+    Bot::Alegre.unstub(:get_items_with_similar_description)
   end
 end
