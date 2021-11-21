@@ -545,6 +545,12 @@ class Team < ApplicationRecord
     self.get_language || 'en'
   end
 
+  def sources_by_keyword(keyword = nil)
+    sources = self.sources
+    sources = sources.where('name ILIKE ?', "%#{keyword}%") unless keyword.blank?
+    sources
+  end
+
   protected
 
   def get_values_from_entry(entry)
