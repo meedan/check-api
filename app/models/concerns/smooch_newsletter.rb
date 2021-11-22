@@ -71,7 +71,7 @@ module SmoochNewsletter
     end
 
     def newsletter_content_changed?(newsletter, language, team_id)
-      Rails.cache.read("newsletter:content_hash:team:#{team_id}:#{language}") != Digest::MD5.hexdigest(Bot::Smooch.build_newsletter_content(newsletter, language, team_id, false))
+      Rails.cache.read("newsletter:content_hash:team:#{team_id}:#{language}").to_s != Digest::MD5.hexdigest(Bot::Smooch.build_newsletter_content(newsletter, language, team_id, false).to_s)
     end
 
     def newsletter_cron(newsletter)
