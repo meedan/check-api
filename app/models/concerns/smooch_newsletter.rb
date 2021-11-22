@@ -28,7 +28,7 @@ module SmoochNewsletter
               language = workflow['smooch_workflow_language']
               information[language] = {
                 subscribers_count: TiplineSubscription.where(team_id: self.team_id, language: language).count,
-                next_date: I18n.l(CronParser.new(Bot::Smooch.newsletter_cron(newsletter)).next(Time.now + 7.days).to_date, locale: language.to_s.tr('_', '-'), format: :short),
+                next_date: I18n.l(CronParser.new(Bot::Smooch.newsletter_cron(newsletter)).next(Time.now).to_date, locale: language.to_s.tr('_', '-'), format: :short),
                 next_time: "#{newsletter['smooch_newsletter_time']}:00 #{newsletter['smooch_newsletter_timezone']}",
                 paused: !Bot::Smooch.newsletter_content_changed?(newsletter, language, self.team_id)
               }
