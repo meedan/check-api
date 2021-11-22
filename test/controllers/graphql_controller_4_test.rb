@@ -344,12 +344,12 @@ class GraphqlController4Test < ActionController::TestCase
     create_source team: t, name: 'in the KEYWORD middle'
     create_source team: t
     authenticate_with_user(u)
-    query = 'query read { team(slug: "sawy") { sources(first: 1000) { edges { node { dbid } } } } }'
+    query = 'query read { team(slug: "sawy") { sources_count, sources(first: 1000) { edges { node { dbid } } } } }'
     post :create, params: { query: query }
     assert_response :success
     edges = JSON.parse(@response.body)['data']['team']['sources']['edges']
     assert_equal 4, edges.length
-    query = 'query read { team(slug: "sawy") { sources(first: 1000, keyword: "keyword") { edges { node { dbid } } } } }'
+    query = 'query read { team(slug: "sawy") { sources_count(keyword: "keyword"), sources(first: 1000, keyword: "keyword") { edges { node { dbid } } } } }'
     post :create, params: { query: query }
     assert_response :success
     edges = JSON.parse(@response.body)['data']['team']['sources']['edges']

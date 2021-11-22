@@ -154,10 +154,6 @@ class Team < ApplicationRecord
     end
   end
 
-  def rules=(rules)
-    self.send(:set_rules, JSON.parse(rules))
-  end
-
   def slack_notifications=(slack_notifications)
     self.send(:set_slack_notifications, JSON.parse(slack_notifications))
   end
@@ -543,6 +539,12 @@ class Team < ApplicationRecord
 
   def default_language
     self.get_language || 'en'
+  end
+
+  def sources_by_keyword(keyword = nil)
+    sources = self.sources
+    sources = sources.where('name ILIKE ?', "%#{keyword}%") unless keyword.blank?
+    sources
   end
 
   protected

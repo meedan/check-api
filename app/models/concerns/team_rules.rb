@@ -11,6 +11,10 @@ module TeamRules
 
   RULES_JSON_SCHEMA = File.read(File.join(Rails.root, 'public', 'rules_json_schema.json'))
 
+  def rules=(rules)
+    self.send(:set_rules, JSON.parse(rules))
+  end
+
   module Rules
     def has_less_than_x_words(pm, value, _rule_id)
       return false unless pm.media&.type == 'Claim'
