@@ -212,7 +212,8 @@ class Dynamic < ApplicationRecord
 
   def set_data
     unless self.set_fields.blank? || self.json_schema.blank?
-      begin self.data = self.data.merge(JSON.parse(self.set_fields)) rescue {} end
+      self.data ||= {}.with_indifferent_access
+      self.data = begin self.data.merge(JSON.parse(self.set_fields)).with_indifferent_access rescue {}.with_indifferent_access end
     end
   end
 
