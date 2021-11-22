@@ -755,6 +755,7 @@ en:
   list_column_related_count: Related
   list_column_suggestions_count: Suggested matches
   list_column_folder: Folder
+  list_column_creator_name: Created by
   go_back_to_check: Go back to Check
   project_cant_have_children_if_has_parent: This folder has a parent folder, so it
     can't have a child folder
