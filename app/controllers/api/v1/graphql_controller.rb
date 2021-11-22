@@ -154,7 +154,7 @@ module Api
       def set_current_team
         if !current_api_user.nil? && !@context_team.nil? && current_api_user.is_member_of?(@context_team) && current_api_user.current_team_id != @context_team.id
           current_api_user.current_team_id = @context_team.id
-          current_api_user.save!
+          current_api_user.save
         end
       end
 
