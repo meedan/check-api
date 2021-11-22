@@ -2637,4 +2637,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should convert old hash" do
+    t = create_team
+    pm = create_project_media team: t
+    Team.any_instance.stubs(:settings).returns(ActionController::Parameters.new({ media_verification_statuses: { statuses: [] } }))
+    assert_nothing_raised do
+      pm.custom_statuses
+    end
+    Team.any_instance.unstub(:settings)
+  end
 end
