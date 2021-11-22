@@ -242,6 +242,9 @@ class ProjectMedia < ApplicationRecord
     else
       id = new_project_media.id
       ProjectMedia.transaction do
+        current_user = User.current
+        current_team = Team.current
+        User.current = Team.current = nil
         # Remove any status and report from the new item
         Annotation.where(
           annotation_type: ['verification_status', 'report_design'],
@@ -259,6 +262,8 @@ class ProjectMedia < ApplicationRecord
         new_project_media.updated_at = Time.now
         new_project_media.skip_check_ability = true
         new_project_media.save!
+        User.current = current_user
+        Team.current = current_team
       end
     end
   end
