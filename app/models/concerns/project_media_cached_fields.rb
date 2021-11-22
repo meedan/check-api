@@ -319,7 +319,7 @@ module ProjectMediaCachedFields
 
     cached_field :creator_name,
       start_as: proc { |pm| pm.get_creator_name },
-      update_es: false,
+      update_es: true,
       recalculate: proc { |pm| pm.get_creator_name },
       update_on: [] # Never changes
   end
