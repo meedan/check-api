@@ -2619,6 +2619,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_queries(0, '>') { assert_equal(u.name, pm.creator_name(true)) }
   end
 
+  test "should get creator name based on channel" do
+    RequestStore.store[:skip_cached_field_update] = false
+    u = create_user
+    pm = create_project_media user: u
+    assert_equal pm.creator_name, u.name
+    pm = create_project_media user: u, channel: CheckChannels::ChannelCodes::WHATSAPP
+    assert_equal pm.creator_name, I18n.t(:tipline_creator_name)
+    pm = create_project_media user: u, channel: CheckChannels::ChannelCodes::FETCH
+    assert_equal pm.creator_name, I18n.t(:import_creator_name)
+  end
+
   test "should create blank item" do
     assert_difference 'ProjectMedia.count' do
       assert_difference 'Blank.count' do
