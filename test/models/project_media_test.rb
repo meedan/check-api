@@ -2625,9 +2625,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media user: u
     assert_equal pm.creator_name, u.name
     pm = create_project_media user: u, channel: CheckChannels::ChannelCodes::WHATSAPP
-    assert_equal pm.creator_name, I18n.t(:tipline_creator_name)
+    assert_equal pm.creator_name, 'Tipline'
     pm = create_project_media user: u, channel: CheckChannels::ChannelCodes::FETCH
-    assert_equal pm.creator_name, I18n.t(:import_creator_name)
+    assert_equal pm.creator_name, 'Import'
   end
 
   test "should create blank item" do

@@ -321,9 +321,9 @@ class ProjectMedia < ApplicationRecord
     if [CheckChannels::ChannelCodes::MANUAL, CheckChannels::ChannelCodes::BROWSER_EXTENSION].include?(self.channel)
       user_name = self.user.name
     elsif CheckChannels::ChannelCodes::TIPLINE.include?(self.channel)
-      user_name = I18n.t(:tipline_creator_name)
+      user_name = 'Tipline'
     elsif [CheckChannels::ChannelCodes::FETCH, CheckChannels::ChannelCodes::API, CheckChannels::ChannelCodes::ZAPIER].include?(self.channel)
-      user_name = I18n.t(:import_creator_name)
+      user_name = 'Import'
     end
     user_name
   end
