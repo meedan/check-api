@@ -547,4 +547,28 @@ class ElasticSearch7Test < ActionController::TestCase
       assert_equal [pm3.id], results.medias.map(&:id)
     end
   end
+
+  test "should sort items by creator name" do
+    t = create_team
+    p = create_project team: t
+    # create users with capital and small letters to verify sort with case insensitive
+    u1 = create_user name: 'ahmad'
+    u2 = create_user name: 'Ali'
+    u3 = create_user name: 'Zahra'
+    u4 = create_user name: 'Zein'
+    create_team_user team: t, user: u1
+    create_team_user team: t, user: u2
+    create_team_user team: t, user: u3
+    create_team_user team: t, user: u4
+    RequestStore.store[:skip_cached_field_update] = false
+    pm1 = create_project_media project: p, user: u1
+    pm2 = create_project_media project: p, user: u2
+    pm3 = create_project_media project: p, user: u3
+    pm4 = create_project_media project: p, user: u4
+    sleep 2
+    result = CheckSearch.new({ projects: [p.id], sort: 'creator_name', sort_type: 'asc' }.to_json)
+    assert_equal [pm1.id, pm2.id, pm3.id, pm4.id], result.medias.map(&:id)
+    result = CheckSearch.new({ projects: [p.id], sort: 'creator_name', sort_type: 'desc' }.to_json)
+    assert_equal [pm4.id, pm3.id, pm2.id, pm1.id], result.medias.map(&:id)
+  end
 end
