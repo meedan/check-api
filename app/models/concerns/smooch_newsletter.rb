@@ -28,7 +28,7 @@ module SmoochNewsletter
               language = workflow['smooch_workflow_language']
               information[language] = {
                 subscribers_count: TiplineSubscription.where(team_id: self.team_id, language: language).count,
-                next_date: I18n.l(CronParser.new(Bot::Smooch.newsletter_cron(newsletter)).next(Time.now + 7.days).to_date, locale: language.to_s.tr('_', '-'), format: :short),
+                next_date: I18n.l(CronParser.new(Bot::Smooch.newsletter_cron(newsletter)).next(Time.now).to_date, locale: language.to_s.tr('_', '-'), format: :short),
                 next_time: "#{newsletter['smooch_newsletter_time']}:00 #{newsletter['smooch_newsletter_timezone']}",
                 paused: !Bot::Smooch.newsletter_content_changed?(newsletter, language, self.team_id)
               }
@@ -71,7 +71,7 @@ module SmoochNewsletter
     end
 
     def newsletter_content_changed?(newsletter, language, team_id)
-      Rails.cache.read("newsletter:content_hash:team:#{team_id}:#{language}") != Digest::MD5.hexdigest(Bot::Smooch.build_newsletter_content(newsletter, language, team_id, false))
+      Rails.cache.read("newsletter:content_hash:team:#{team_id}:#{language}").to_s != Digest::MD5.hexdigest(Bot::Smooch.build_newsletter_content(newsletter, language, team_id, false).to_s)
     end
 
     def newsletter_cron(newsletter)
