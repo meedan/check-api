@@ -2628,6 +2628,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal pm.creator_name, 'Tipline'
     pm = create_project_media user: u, channel: CheckChannels::ChannelCodes::FETCH
     assert_equal pm.creator_name, 'Import'
+    # update cache based on user update
+    u.name = 'update name'
+    u.save!
+    assert_equal pm.creator_name, 'update name'
   end
 
   test "should create blank item" do
