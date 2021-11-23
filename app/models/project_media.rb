@@ -319,7 +319,7 @@ class ProjectMedia < ApplicationRecord
   def get_creator_name
     user_name = ''
     if [CheckChannels::ChannelCodes::MANUAL, CheckChannels::ChannelCodes::BROWSER_EXTENSION].include?(self.channel)
-      user_name = self.user.name
+      user_name = self.user&.name
     elsif CheckChannels::ChannelCodes::TIPLINE.include?(self.channel)
       user_name = 'Tipline'
     elsif [CheckChannels::ChannelCodes::FETCH, CheckChannels::ChannelCodes::API, CheckChannels::ChannelCodes::ZAPIER].include?(self.channel)

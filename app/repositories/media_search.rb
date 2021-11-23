@@ -117,5 +117,7 @@ class MediaSearch
     indexes :channel, { type: 'integer' }
 
     indexes :extracted_text, { type: 'text', analyzer: 'check' }
+
+    indexes :creator_name, { type: 'keyword', normalizer: 'check', fields: { raw: { type: 'text', analyzer: 'check' } } }
   end
 end
