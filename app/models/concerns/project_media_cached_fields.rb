@@ -321,6 +321,16 @@ module ProjectMediaCachedFields
       start_as: proc { |pm| pm.get_creator_name },
       update_es: true,
       recalculate: proc { |pm| pm.get_creator_name },
-      update_on: [] # Never changes
+      update_on: [
+        {
+          model: User,
+          affected_ids: proc { |u| u.project_media_ids },
+          if: proc { |u| u.saved_change_to_name? },
+          events: {
+            update: proc { |_pm, u| u.name },
+            destroy: proc { |_pm, u| u.name }
+          }
+        },
+      ]
   end
 end
