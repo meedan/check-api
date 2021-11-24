@@ -702,6 +702,7 @@ pt:
   team_rule_type_image_threshold: Distância entre imagens
   team_rule_type_flag_threshold: Com uma probabilidade de pelo menos
   team_rule_select_flag: Selecionar classificação
+  team_rule_flagged_as: O item foi detectado como
   team_rule_report_is_published: O relatório foi publicado
   team_rule_report_is_paused: O relatório está suspenso
   team_rule_condition_groups: Grupos de condições
@@ -724,15 +725,21 @@ pt:
   team_rule_select_field_value_tasks: Selecionar resposta
   team_rule_item_is_assigned_to_user: O item está atribuído a
   team_rule_add_tag: Adicionar tag
+  team_rule_add_warning_cover: Adicionar capa com aviso de conteúdo
+  flag_adult: Adulto (nudez, pornografia)
   flag_spoof: Falsificação
+  flag_medical: Condições/procedimentos médicos
   flag_violence: Violência
   flag_racy: Sugestivo
   flag_spam: Spam
   annotation_type_flag_name_label: Classificação
   annotation_type_flag_value_label: 'Probabilidade da classificação '
   flag_likelihood_0: Desconhecido
+  flag_likelihood_1: Baixo (menos conteúdo será detectado)
   flag_likelihood_2: Improvável
+  flag_likelihood_3: Médio (algum conteúdo será detectado)
   flag_likelihood_4: Provável
+  flag_likelihood_5: Alto (mais conteúdo será detectado)
   flag_likelihood_7: Manual
   relationship_not_same_team: Itens relacionados devem existir no mesmo espaço de
     trabalho
@@ -751,6 +758,8 @@ pt:
   fetch_bot_service_unsupported: O serviço não possui suporte
   task_options_must_be_array: As opções de tarefas devem ser uma lista
   fieldset_not_defined_by_team: Fieldset deve ter suporte do espaço de trabalho
+  cant_change_field_type_or_options_when_answered: O tipo de campo não pode ser alterado
+    porque as respostas já foram preenchidas
   replace_by_media_in_the_same_team: Desculpe, você só pode substituir este item por
     outro do mesmo espaço de trabalho
   replace_blank_media_only: Desculpe, mas, por enquanto, você só pode substituir itens
@@ -773,6 +782,7 @@ pt:
   list_column_related_count: Relacionado
   list_column_suggestions_count: Coincidências sugeridas
   list_column_folder: Pasta
+  list_column_creator_name: Criado por
   go_back_to_check: Voltar ao Check
   project_cant_have_children_if_has_parent: Esta pasta possui uma pasta ascendente,
     por isso não pode ter uma pasta descendente
@@ -793,9 +803,9 @@ pt:
   smooch_message_subscription_header_unsubscribed: Atualmente, você *não está inscrito(a)*
     em nosso boletim informativo.
   smooch_bot_message_newsletter_fallback: |-
-    Olá! Aqui estão os seus fatos semanais.
+    Olá! Aqui estão os fatos da semana.
 
-    Este boletim informativo é publicado no %{platform} por %{team}. Aqui estão os fatos mais importantes da semana de %{date}:
+    Esta newsletter é publicada no %{platform} por %{team}. Aqui estão os fatos mais importantes da semana de %{date}:
 
     %{content}
 
@@ -852,3 +862,5 @@ pt:
         regra automática.
       moved_to_private_folder: O item "%{item_title}" foi movido para uma pasta à
         qual você não possui acesso.
+      add_warning_cover_by_rule: Uma capa com aviso de conteúdo foi adicionada ao
+        item sensível "%{item_title}"

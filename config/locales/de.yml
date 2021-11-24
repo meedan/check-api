@@ -1,0 +1,13 @@
+---
+de:
+  mails_notifications:
+    unsubscribe: Abmelden
+  unsubscribe: Abmelden
+  smooch_bot_message_newsletter_fallback: |-
+    Hallo! Hier sind Ihre wöchentlichen Fakten.
+
+    Dieser Newsletter wird auf %{platform} veröffentlicht von %{team}. Hier sind die wichtigsten Fakten für die Woche vom %{date}:
+
+    %{content}
+
+    Um das Abo des Newsletters zu beenden, schreiben Sie "%{unsubscribe}"
