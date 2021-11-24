@@ -4,7 +4,7 @@
 # Dependencies: GNU Make, Inkscape and PDF LateX, besides the API dependencies
 
 INKSCAPE = inkscape -b 'rgb(255,255,255)'
-RAKE = bundle exec rake
+RUNNER = bundle exec rails
 BEXEC = bundle exec
 
 all: controllers_brief.png controllers_complete.png models_brief.png models_complete.png api.txt licenses.csv api-docs.json api.md graphql.md structure.sql
@@ -35,24 +35,24 @@ models_complete.svg:
 
 api.txt:
 	echo "API Endpoints - `LANG=en_US date --utc`" > api.txt
-	$(RAKE) routes | sed 's/.*\([PGD]\)/\1/g' | sed 's/(.:format).*//g' | grep -v Pattern | sort | nl >> api.txt
+	$(RUNNER) routes | sed 's/.*\([PGD]\)/\1/g' | sed 's/(.:format).*//g' | grep -v Pattern | sort | nl >> api.txt
 
 licenses.csv:
-	$(RAKE) gem:licenses:csv['doc/licenses.csv']
+	$(RUNNER) gem:licenses:csv['doc/licenses.csv']
 
 api-docs.json:
-	$(RAKE) swagger:docs && ln -s ../public/api-docs.json .
+	$(RUNNER) swagger:docs && ln -s ../public/api-docs.json .
 
 api.md: api-docs.json
-	$(RAKE) swagger:docs:markdown
+	$(RUNNER) swagger:docs:markdown
 
 structure.sql:
-	$(RAKE) db:structure:dump && mv ../db/structure.sql .
+	$(RUNNER) db:structure:dump && mv ../db/structure.sql .
 
 graphql.md:
 	graphql-markdown ../public/relay.json > graphql.md
 
 clean:
 	rm -f controllers_brief.png controllers_complete.png models_brief.png models_complete.png api.txt licenses.csv api-docs.json api.md graphql.md structure.sql
-	apt-get update && apt-get install graphviz postgresql-client inkscape
-	npm i -g graphql-markdown
+	apt-get update && apt-get install -y graphviz postgresql-client inkscape
+	npm i -g graphql-markdown graphql

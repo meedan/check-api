@@ -1,11 +1,11 @@
 {
   "apiVersion": "1.0",
   "swaggerVersion": "1.2",
-  "basePath": "/",
+  "basePath": "",
   "resourcePath": "sessions",
   "apis": [
     {
-      "path": "api/users/sign_in",
+      "path": "/api/users/sign_in",
       "operations": [
         {
           "summary": "Sign in",
@@ -53,13 +53,13 @@
               "required": true
             }
           ],
-          "method": "post",
-          "nickname": "Api::V1::Sessions#create"
+          "nickname": "Api::V1::Sessions#create",
+          "method": "post"
         }
       ]
     },
     {
-      "path": "api/users/sign_out",
+      "path": "/api/users/sign_out",
       "operations": [
         {
           "summary": "Sign out",
@@ -74,10 +74,11 @@
               "message": "Signed out"
             }
           ],
-          "method": "delete",
-          "nickname": "Api::V1::Sessions#destroy"
+          "nickname": "Api::V1::Sessions#destroy",
+          "method": "delete"
         }
       ]
     }
-  ]
+  ],
+  "authorizations": null
 }

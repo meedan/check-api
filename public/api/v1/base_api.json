@@ -1,11 +1,11 @@
 {
   "apiVersion": "1.0",
   "swaggerVersion": "1.2",
-  "basePath": "/",
+  "basePath": "",
   "resourcePath": "base_api",
   "apis": [
     {
-      "path": "api/version",
+      "path": "/api/version",
       "operations": [
         {
           "summary": "Get current version",
@@ -31,13 +31,13 @@
               "message": "Access denied"
             }
           ],
-          "method": "get",
-          "nickname": "Api::V1::BaseApi#version"
+          "nickname": "Api::V1::BaseApi#version",
+          "method": "get"
         }
       ]
     },
     {
-      "path": "api/me",
+      "path": "/api/me",
       "operations": [
         {
           "summary": "Information about current user",
@@ -50,10 +50,11 @@
               "message": "Information about current user, or nil if not authenticated"
             }
           ],
-          "method": "get",
-          "nickname": "Api::V1::BaseApi#me"
+          "nickname": "Api::V1::BaseApi#me",
+          "method": "get"
         }
       ]
     }
-  ]
+  ],
+  "authorizations": null
 }

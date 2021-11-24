@@ -13,6 +13,7 @@
     * [AccountSource](#accountsource)
     * [AccountSourceConnection](#accountsourceconnection)
     * [AccountSourceEdge](#accountsourceedge)
+    * [AddFilesToTaskPayload](#addfilestotaskpayload)
     * [Annotation](#annotation)
     * [AnnotationConnection](#annotationconnection)
     * [AnnotationEdge](#annotationedge)
@@ -27,23 +28,22 @@
     * [Comment](#comment)
     * [CommentConnection](#commentconnection)
     * [CommentEdge](#commentedge)
-    * [Contact](#contact)
-    * [ContactConnection](#contactconnection)
-    * [ContactEdge](#contactedge)
     * [CreateAccountSourcePayload](#createaccountsourcepayload)
     * [CreateAnnotationPayload](#createannotationpayload)
     * [CreateCommentPayload](#createcommentpayload)
-    * [CreateContactPayload](#createcontactpayload)
     * [CreateDynamicAnnotationAnalysisPayload](#createdynamicannotationanalysispayload)
+    * [CreateDynamicAnnotationArchiveIsPayload](#createdynamicannotationarchiveispayload)
     * [CreateDynamicAnnotationArchiverPayload](#createdynamicannotationarchiverpayload)
     * [CreateDynamicAnnotationClipPayload](#createdynamicannotationclippayload)
     * [CreateDynamicAnnotationEmbedCodePayload](#createdynamicannotationembedcodepayload)
-    * [CreateDynamicAnnotationFetchPayload](#createdynamicannotationfetchpayload)
+    * [CreateDynamicAnnotationExtractedTextPayload](#createdynamicannotationextractedtextpayload)
     * [CreateDynamicAnnotationFlagPayload](#createdynamicannotationflagpayload)
     * [CreateDynamicAnnotationGeolocationPayload](#createdynamicannotationgeolocationpayload)
     * [CreateDynamicAnnotationLanguagePayload](#createdynamicannotationlanguagepayload)
+    * [CreateDynamicAnnotationMemebusterPayload](#createdynamicannotationmemebusterpayload)
     * [CreateDynamicAnnotationMetadataPayload](#createdynamicannotationmetadatapayload)
     * [CreateDynamicAnnotationMetricsPayload](#createdynamicannotationmetricspayload)
+    * [CreateDynamicAnnotationMtPayload](#createdynamicannotationmtpayload)
     * [CreateDynamicAnnotationReportDesignPayload](#createdynamicannotationreportdesignpayload)
     * [CreateDynamicAnnotationReverseImagePayload](#createdynamicannotationreverseimagepayload)
     * [CreateDynamicAnnotationSlackMessagePayload](#createdynamicannotationslackmessagepayload)
@@ -52,23 +52,28 @@
     * [CreateDynamicAnnotationSmoochUserPayload](#createdynamicannotationsmoochuserpayload)
     * [CreateDynamicAnnotationSyrianArchiveDataPayload](#createdynamicannotationsyrianarchivedatapayload)
     * [CreateDynamicAnnotationTaskResponseDatetimePayload](#createdynamicannotationtaskresponsedatetimepayload)
+    * [CreateDynamicAnnotationTaskResponseFileUploadPayload](#createdynamicannotationtaskresponsefileuploadpayload)
     * [CreateDynamicAnnotationTaskResponseFreeTextPayload](#createdynamicannotationtaskresponsefreetextpayload)
     * [CreateDynamicAnnotationTaskResponseGeolocationPayload](#createdynamicannotationtaskresponsegeolocationpayload)
-    * [CreateDynamicAnnotationTaskResponseImageUploadPayload](#createdynamicannotationtaskresponseimageuploadpayload)
     * [CreateDynamicAnnotationTaskResponseMultipleChoicePayload](#createdynamicannotationtaskresponsemultiplechoicepayload)
+    * [CreateDynamicAnnotationTaskResponseNumberPayload](#createdynamicannotationtaskresponsenumberpayload)
     * [CreateDynamicAnnotationTaskResponseSingleChoicePayload](#createdynamicannotationtaskresponsesinglechoicepayload)
     * [CreateDynamicAnnotationTaskResponseYesNoPayload](#createdynamicannotationtaskresponseyesnopayload)
     * [CreateDynamicAnnotationTaskStatusPayload](#createdynamicannotationtaskstatuspayload)
     * [CreateDynamicAnnotationTeamBotResponsePayload](#createdynamicannotationteambotresponsepayload)
     * [CreateDynamicAnnotationTranscriptPayload](#createdynamicannotationtranscriptpayload)
+    * [CreateDynamicAnnotationTranscriptionPayload](#createdynamicannotationtranscriptionpayload)
+    * [CreateDynamicAnnotationTranslationPayload](#createdynamicannotationtranslationpayload)
+    * [CreateDynamicAnnotationTranslationRequestPayload](#createdynamicannotationtranslationrequestpayload)
+    * [CreateDynamicAnnotationTranslationStatusPayload](#createdynamicannotationtranslationstatuspayload)
     * [CreateDynamicAnnotationVerificationStatusPayload](#createdynamicannotationverificationstatuspayload)
     * [CreateDynamicPayload](#createdynamicpayload)
+    * [CreateProjectGroupPayload](#createprojectgrouppayload)
     * [CreateProjectMediaPayload](#createprojectmediapayload)
-    * [CreateProjectMediaProjectPayload](#createprojectmediaprojectpayload)
-    * [CreateProjectMediaProjectsPayload](#createprojectmediaprojectspayload)
     * [CreateProjectMediaUserPayload](#createprojectmediauserpayload)
     * [CreateProjectPayload](#createprojectpayload)
     * [CreateRelationshipPayload](#createrelationshippayload)
+    * [CreateSavedSearchPayload](#createsavedsearchpayload)
     * [CreateSourcePayload](#createsourcepayload)
     * [CreateTagPayload](#createtagpayload)
     * [CreateTagTextPayload](#createtagtextpayload)
@@ -84,17 +89,19 @@
     * [DestroyAccountSourcePayload](#destroyaccountsourcepayload)
     * [DestroyAnnotationPayload](#destroyannotationpayload)
     * [DestroyCommentPayload](#destroycommentpayload)
-    * [DestroyContactPayload](#destroycontactpayload)
     * [DestroyDynamicAnnotationAnalysisPayload](#destroydynamicannotationanalysispayload)
+    * [DestroyDynamicAnnotationArchiveIsPayload](#destroydynamicannotationarchiveispayload)
     * [DestroyDynamicAnnotationArchiverPayload](#destroydynamicannotationarchiverpayload)
     * [DestroyDynamicAnnotationClipPayload](#destroydynamicannotationclippayload)
     * [DestroyDynamicAnnotationEmbedCodePayload](#destroydynamicannotationembedcodepayload)
-    * [DestroyDynamicAnnotationFetchPayload](#destroydynamicannotationfetchpayload)
+    * [DestroyDynamicAnnotationExtractedTextPayload](#destroydynamicannotationextractedtextpayload)
     * [DestroyDynamicAnnotationFlagPayload](#destroydynamicannotationflagpayload)
     * [DestroyDynamicAnnotationGeolocationPayload](#destroydynamicannotationgeolocationpayload)
     * [DestroyDynamicAnnotationLanguagePayload](#destroydynamicannotationlanguagepayload)
+    * [DestroyDynamicAnnotationMemebusterPayload](#destroydynamicannotationmemebusterpayload)
     * [DestroyDynamicAnnotationMetadataPayload](#destroydynamicannotationmetadatapayload)
     * [DestroyDynamicAnnotationMetricsPayload](#destroydynamicannotationmetricspayload)
+    * [DestroyDynamicAnnotationMtPayload](#destroydynamicannotationmtpayload)
     * [DestroyDynamicAnnotationReportDesignPayload](#destroydynamicannotationreportdesignpayload)
     * [DestroyDynamicAnnotationReverseImagePayload](#destroydynamicannotationreverseimagepayload)
     * [DestroyDynamicAnnotationSlackMessagePayload](#destroydynamicannotationslackmessagepayload)
@@ -103,23 +110,28 @@
     * [DestroyDynamicAnnotationSmoochUserPayload](#destroydynamicannotationsmoochuserpayload)
     * [DestroyDynamicAnnotationSyrianArchiveDataPayload](#destroydynamicannotationsyrianarchivedatapayload)
     * [DestroyDynamicAnnotationTaskResponseDatetimePayload](#destroydynamicannotationtaskresponsedatetimepayload)
+    * [DestroyDynamicAnnotationTaskResponseFileUploadPayload](#destroydynamicannotationtaskresponsefileuploadpayload)
     * [DestroyDynamicAnnotationTaskResponseFreeTextPayload](#destroydynamicannotationtaskresponsefreetextpayload)
     * [DestroyDynamicAnnotationTaskResponseGeolocationPayload](#destroydynamicannotationtaskresponsegeolocationpayload)
-    * [DestroyDynamicAnnotationTaskResponseImageUploadPayload](#destroydynamicannotationtaskresponseimageuploadpayload)
     * [DestroyDynamicAnnotationTaskResponseMultipleChoicePayload](#destroydynamicannotationtaskresponsemultiplechoicepayload)
+    * [DestroyDynamicAnnotationTaskResponseNumberPayload](#destroydynamicannotationtaskresponsenumberpayload)
     * [DestroyDynamicAnnotationTaskResponseSingleChoicePayload](#destroydynamicannotationtaskresponsesinglechoicepayload)
     * [DestroyDynamicAnnotationTaskResponseYesNoPayload](#destroydynamicannotationtaskresponseyesnopayload)
     * [DestroyDynamicAnnotationTaskStatusPayload](#destroydynamicannotationtaskstatuspayload)
     * [DestroyDynamicAnnotationTeamBotResponsePayload](#destroydynamicannotationteambotresponsepayload)
     * [DestroyDynamicAnnotationTranscriptPayload](#destroydynamicannotationtranscriptpayload)
+    * [DestroyDynamicAnnotationTranscriptionPayload](#destroydynamicannotationtranscriptionpayload)
+    * [DestroyDynamicAnnotationTranslationPayload](#destroydynamicannotationtranslationpayload)
+    * [DestroyDynamicAnnotationTranslationRequestPayload](#destroydynamicannotationtranslationrequestpayload)
+    * [DestroyDynamicAnnotationTranslationStatusPayload](#destroydynamicannotationtranslationstatuspayload)
     * [DestroyDynamicAnnotationVerificationStatusPayload](#destroydynamicannotationverificationstatuspayload)
     * [DestroyDynamicPayload](#destroydynamicpayload)
+    * [DestroyProjectGroupPayload](#destroyprojectgrouppayload)
     * [DestroyProjectMediaPayload](#destroyprojectmediapayload)
-    * [DestroyProjectMediaProjectPayload](#destroyprojectmediaprojectpayload)
-    * [DestroyProjectMediaProjectsPayload](#destroyprojectmediaprojectspayload)
     * [DestroyProjectMediaUserPayload](#destroyprojectmediauserpayload)
     * [DestroyProjectPayload](#destroyprojectpayload)
     * [DestroyRelationshipPayload](#destroyrelationshippayload)
+    * [DestroySavedSearchPayload](#destroysavedsearchpayload)
     * [DestroySourcePayload](#destroysourcepayload)
     * [DestroyTagPayload](#destroytagpayload)
     * [DestroyTagTextPayload](#destroytagtextpayload)
@@ -130,30 +142,37 @@
     * [DestroyTeamUserPayload](#destroyteamuserpayload)
     * [DestroyUserPayload](#destroyuserpayload)
     * [DestroyVersionPayload](#destroyversionpayload)
+    * [DuplicateTeamMutationPayload](#duplicateteammutationpayload)
     * [Dynamic](#dynamic)
     * [DynamicAnnotationField](#dynamicannotationfield)
     * [DynamicConnection](#dynamicconnection)
     * [DynamicEdge](#dynamicedge)
     * [Dynamic_annotation_analysis](#dynamic_annotation_analysis)
     * [Dynamic_annotation_analysisEdge](#dynamic_annotation_analysisedge)
+    * [Dynamic_annotation_archive_is](#dynamic_annotation_archive_is)
+    * [Dynamic_annotation_archive_isEdge](#dynamic_annotation_archive_isedge)
     * [Dynamic_annotation_archiver](#dynamic_annotation_archiver)
     * [Dynamic_annotation_archiverEdge](#dynamic_annotation_archiveredge)
     * [Dynamic_annotation_clip](#dynamic_annotation_clip)
     * [Dynamic_annotation_clipEdge](#dynamic_annotation_clipedge)
     * [Dynamic_annotation_embed_code](#dynamic_annotation_embed_code)
     * [Dynamic_annotation_embed_codeEdge](#dynamic_annotation_embed_codeedge)
-    * [Dynamic_annotation_fetch](#dynamic_annotation_fetch)
-    * [Dynamic_annotation_fetchEdge](#dynamic_annotation_fetchedge)
+    * [Dynamic_annotation_extracted_text](#dynamic_annotation_extracted_text)
+    * [Dynamic_annotation_extracted_textEdge](#dynamic_annotation_extracted_textedge)
     * [Dynamic_annotation_flag](#dynamic_annotation_flag)
     * [Dynamic_annotation_flagEdge](#dynamic_annotation_flagedge)
     * [Dynamic_annotation_geolocation](#dynamic_annotation_geolocation)
     * [Dynamic_annotation_geolocationEdge](#dynamic_annotation_geolocationedge)
     * [Dynamic_annotation_language](#dynamic_annotation_language)
     * [Dynamic_annotation_languageEdge](#dynamic_annotation_languageedge)
+    * [Dynamic_annotation_memebuster](#dynamic_annotation_memebuster)
+    * [Dynamic_annotation_memebusterEdge](#dynamic_annotation_memebusteredge)
     * [Dynamic_annotation_metadata](#dynamic_annotation_metadata)
     * [Dynamic_annotation_metadataEdge](#dynamic_annotation_metadataedge)
     * [Dynamic_annotation_metrics](#dynamic_annotation_metrics)
     * [Dynamic_annotation_metricsEdge](#dynamic_annotation_metricsedge)
+    * [Dynamic_annotation_mt](#dynamic_annotation_mt)
+    * [Dynamic_annotation_mtEdge](#dynamic_annotation_mtedge)
     * [Dynamic_annotation_report_design](#dynamic_annotation_report_design)
     * [Dynamic_annotation_report_designEdge](#dynamic_annotation_report_designedge)
     * [Dynamic_annotation_reverse_image](#dynamic_annotation_reverse_image)
@@ -170,14 +189,16 @@
     * [Dynamic_annotation_syrian_archive_dataEdge](#dynamic_annotation_syrian_archive_dataedge)
     * [Dynamic_annotation_task_response_datetime](#dynamic_annotation_task_response_datetime)
     * [Dynamic_annotation_task_response_datetimeEdge](#dynamic_annotation_task_response_datetimeedge)
+    * [Dynamic_annotation_task_response_file_upload](#dynamic_annotation_task_response_file_upload)
+    * [Dynamic_annotation_task_response_file_uploadEdge](#dynamic_annotation_task_response_file_uploadedge)
     * [Dynamic_annotation_task_response_free_text](#dynamic_annotation_task_response_free_text)
     * [Dynamic_annotation_task_response_free_textEdge](#dynamic_annotation_task_response_free_textedge)
     * [Dynamic_annotation_task_response_geolocation](#dynamic_annotation_task_response_geolocation)
     * [Dynamic_annotation_task_response_geolocationEdge](#dynamic_annotation_task_response_geolocationedge)
-    * [Dynamic_annotation_task_response_image_upload](#dynamic_annotation_task_response_image_upload)
-    * [Dynamic_annotation_task_response_image_uploadEdge](#dynamic_annotation_task_response_image_uploadedge)
     * [Dynamic_annotation_task_response_multiple_choice](#dynamic_annotation_task_response_multiple_choice)
     * [Dynamic_annotation_task_response_multiple_choiceEdge](#dynamic_annotation_task_response_multiple_choiceedge)
+    * [Dynamic_annotation_task_response_number](#dynamic_annotation_task_response_number)
+    * [Dynamic_annotation_task_response_numberEdge](#dynamic_annotation_task_response_numberedge)
     * [Dynamic_annotation_task_response_single_choice](#dynamic_annotation_task_response_single_choice)
     * [Dynamic_annotation_task_response_single_choiceEdge](#dynamic_annotation_task_response_single_choiceedge)
     * [Dynamic_annotation_task_response_yes_no](#dynamic_annotation_task_response_yes_no)
@@ -188,40 +209,55 @@
     * [Dynamic_annotation_team_bot_responseEdge](#dynamic_annotation_team_bot_responseedge)
     * [Dynamic_annotation_transcript](#dynamic_annotation_transcript)
     * [Dynamic_annotation_transcriptEdge](#dynamic_annotation_transcriptedge)
+    * [Dynamic_annotation_transcription](#dynamic_annotation_transcription)
+    * [Dynamic_annotation_transcriptionEdge](#dynamic_annotation_transcriptionedge)
+    * [Dynamic_annotation_translation](#dynamic_annotation_translation)
+    * [Dynamic_annotation_translationEdge](#dynamic_annotation_translationedge)
+    * [Dynamic_annotation_translation_request](#dynamic_annotation_translation_request)
+    * [Dynamic_annotation_translation_requestEdge](#dynamic_annotation_translation_requestedge)
+    * [Dynamic_annotation_translation_status](#dynamic_annotation_translation_status)
+    * [Dynamic_annotation_translation_statusEdge](#dynamic_annotation_translation_statusedge)
     * [Dynamic_annotation_verification_status](#dynamic_annotation_verification_status)
     * [Dynamic_annotation_verification_statusEdge](#dynamic_annotation_verification_statusedge)
+    * [ExtractTextPayload](#extracttextpayload)
     * [Flag](#flag)
     * [GenerateTwoFactorBackupCodesPayload](#generatetwofactorbackupcodespayload)
-    * [ImportSpreadsheetPayload](#importspreadsheetpayload)
     * [Media](#media)
     * [MediaConnection](#mediaconnection)
     * [MediaEdge](#mediaedge)
+    * [MoveTaskDownPayload](#movetaskdownpayload)
+    * [MoveTaskUpPayload](#movetaskuppayload)
+    * [MoveTeamTaskDownPayload](#moveteamtaskdownpayload)
+    * [MoveTeamTaskUpPayload](#moveteamtaskuppayload)
     * [PageInfo](#pageinfo)
     * [Project](#project)
     * [ProjectConnection](#projectconnection)
     * [ProjectEdge](#projectedge)
+    * [ProjectGroup](#projectgroup)
+    * [ProjectGroupConnection](#projectgroupconnection)
+    * [ProjectGroupEdge](#projectgroupedge)
     * [ProjectMedia](#projectmedia)
     * [ProjectMediaConnection](#projectmediaconnection)
     * [ProjectMediaEdge](#projectmediaedge)
-    * [ProjectMediaProject](#projectmediaproject)
-    * [ProjectMediaProjectEdge](#projectmediaprojectedge)
     * [ProjectMediaUser](#projectmediauser)
     * [ProjectMediaUserEdge](#projectmediauseredge)
     * [PublicTeam](#publicteam)
     * [Relationship](#relationship)
+    * [RelationshipConnection](#relationshipconnection)
     * [RelationshipEdge](#relationshipedge)
-    * [Relationships](#relationships)
-    * [RelationshipsSource](#relationshipssource)
-    * [RelationshipsSourceConnection](#relationshipssourceconnection)
-    * [RelationshipsSourceEdge](#relationshipssourceedge)
-    * [RelationshipsTarget](#relationshipstarget)
-    * [RelationshipsTargetConnection](#relationshipstargetconnection)
-    * [RelationshipsTargetEdge](#relationshipstargetedge)
+    * [RemoveFilesFromTaskPayload](#removefilesfromtaskpayload)
+    * [ReplaceProjectMediaPayload](#replaceprojectmediapayload)
     * [ResendCancelInvitationPayload](#resendcancelinvitationpayload)
     * [ResendConfirmationPayload](#resendconfirmationpayload)
     * [ResetPasswordPayload](#resetpasswordpayload)
     * [RootLevel](#rootlevel)
+    * [SavedSearch](#savedsearch)
+    * [SavedSearchConnection](#savedsearchconnection)
+    * [SavedSearchEdge](#savedsearchedge)
+    * [SearchUploadPayload](#searchuploadpayload)
+    * [SmoochBotAddIntegrationPayload](#smoochbotaddintegrationpayload)
     * [SmoochBotAddSlackChannelUrlPayload](#smoochbotaddslackchannelurlpayload)
+    * [SmoochBotRemoveIntegrationPayload](#smoochbotremoveintegrationpayload)
     * [Source](#source)
     * [SourceConnection](#sourceconnection)
     * [SourceEdge](#sourceedge)
@@ -234,7 +270,6 @@
     * [Task](#task)
     * [TaskConnection](#taskconnection)
     * [TaskEdge](#taskedge)
-    * [TasksOrderPayload](#tasksorderpayload)
     * [Team](#team)
     * [TeamBotInstallation](#teambotinstallation)
     * [TeamBotInstallationConnection](#teambotinstallationconnection)
@@ -247,20 +282,23 @@
     * [TeamUser](#teamuser)
     * [TeamUserConnection](#teamuserconnection)
     * [TeamUserEdge](#teamuseredge)
+    * [TranscribeAudioPayload](#transcribeaudiopayload)
     * [UpdateAccountPayload](#updateaccountpayload)
     * [UpdateAccountSourcePayload](#updateaccountsourcepayload)
     * [UpdateCommentPayload](#updatecommentpayload)
-    * [UpdateContactPayload](#updatecontactpayload)
     * [UpdateDynamicAnnotationAnalysisPayload](#updatedynamicannotationanalysispayload)
+    * [UpdateDynamicAnnotationArchiveIsPayload](#updatedynamicannotationarchiveispayload)
     * [UpdateDynamicAnnotationArchiverPayload](#updatedynamicannotationarchiverpayload)
     * [UpdateDynamicAnnotationClipPayload](#updatedynamicannotationclippayload)
     * [UpdateDynamicAnnotationEmbedCodePayload](#updatedynamicannotationembedcodepayload)
-    * [UpdateDynamicAnnotationFetchPayload](#updatedynamicannotationfetchpayload)
+    * [UpdateDynamicAnnotationExtractedTextPayload](#updatedynamicannotationextractedtextpayload)
     * [UpdateDynamicAnnotationFlagPayload](#updatedynamicannotationflagpayload)
     * [UpdateDynamicAnnotationGeolocationPayload](#updatedynamicannotationgeolocationpayload)
     * [UpdateDynamicAnnotationLanguagePayload](#updatedynamicannotationlanguagepayload)
+    * [UpdateDynamicAnnotationMemebusterPayload](#updatedynamicannotationmemebusterpayload)
     * [UpdateDynamicAnnotationMetadataPayload](#updatedynamicannotationmetadatapayload)
     * [UpdateDynamicAnnotationMetricsPayload](#updatedynamicannotationmetricspayload)
+    * [UpdateDynamicAnnotationMtPayload](#updatedynamicannotationmtpayload)
     * [UpdateDynamicAnnotationReportDesignPayload](#updatedynamicannotationreportdesignpayload)
     * [UpdateDynamicAnnotationReverseImagePayload](#updatedynamicannotationreverseimagepayload)
     * [UpdateDynamicAnnotationSlackMessagePayload](#updatedynamicannotationslackmessagepayload)
@@ -269,24 +307,29 @@
     * [UpdateDynamicAnnotationSmoochUserPayload](#updatedynamicannotationsmoochuserpayload)
     * [UpdateDynamicAnnotationSyrianArchiveDataPayload](#updatedynamicannotationsyrianarchivedatapayload)
     * [UpdateDynamicAnnotationTaskResponseDatetimePayload](#updatedynamicannotationtaskresponsedatetimepayload)
+    * [UpdateDynamicAnnotationTaskResponseFileUploadPayload](#updatedynamicannotationtaskresponsefileuploadpayload)
     * [UpdateDynamicAnnotationTaskResponseFreeTextPayload](#updatedynamicannotationtaskresponsefreetextpayload)
     * [UpdateDynamicAnnotationTaskResponseGeolocationPayload](#updatedynamicannotationtaskresponsegeolocationpayload)
-    * [UpdateDynamicAnnotationTaskResponseImageUploadPayload](#updatedynamicannotationtaskresponseimageuploadpayload)
     * [UpdateDynamicAnnotationTaskResponseMultipleChoicePayload](#updatedynamicannotationtaskresponsemultiplechoicepayload)
+    * [UpdateDynamicAnnotationTaskResponseNumberPayload](#updatedynamicannotationtaskresponsenumberpayload)
     * [UpdateDynamicAnnotationTaskResponseSingleChoicePayload](#updatedynamicannotationtaskresponsesinglechoicepayload)
     * [UpdateDynamicAnnotationTaskResponseYesNoPayload](#updatedynamicannotationtaskresponseyesnopayload)
     * [UpdateDynamicAnnotationTaskStatusPayload](#updatedynamicannotationtaskstatuspayload)
     * [UpdateDynamicAnnotationTeamBotResponsePayload](#updatedynamicannotationteambotresponsepayload)
     * [UpdateDynamicAnnotationTranscriptPayload](#updatedynamicannotationtranscriptpayload)
+    * [UpdateDynamicAnnotationTranscriptionPayload](#updatedynamicannotationtranscriptionpayload)
+    * [UpdateDynamicAnnotationTranslationPayload](#updatedynamicannotationtranslationpayload)
+    * [UpdateDynamicAnnotationTranslationRequestPayload](#updatedynamicannotationtranslationrequestpayload)
+    * [UpdateDynamicAnnotationTranslationStatusPayload](#updatedynamicannotationtranslationstatuspayload)
     * [UpdateDynamicAnnotationVerificationStatusPayload](#updatedynamicannotationverificationstatuspayload)
     * [UpdateDynamicPayload](#updatedynamicpayload)
+    * [UpdateProjectGroupPayload](#updateprojectgrouppayload)
     * [UpdateProjectMediaPayload](#updateprojectmediapayload)
-    * [UpdateProjectMediaProjectPayload](#updateprojectmediaprojectpayload)
-    * [UpdateProjectMediaProjectsPayload](#updateprojectmediaprojectspayload)
     * [UpdateProjectMediaUserPayload](#updateprojectmediauserpayload)
     * [UpdateProjectMediasPayload](#updateprojectmediaspayload)
     * [UpdateProjectPayload](#updateprojectpayload)
     * [UpdateRelationshipPayload](#updaterelationshippayload)
+    * [UpdateSavedSearchPayload](#updatesavedsearchpayload)
     * [UpdateSourcePayload](#updatesourcepayload)
     * [UpdateTagPayload](#updatetagpayload)
     * [UpdateTagTextPayload](#updatetagtextpayload)
@@ -306,21 +349,24 @@
     * [VersionConnection](#versionconnection)
     * [VersionEdge](#versionedge)
   * [Inputs](#inputs)
+    * [AddFilesToTaskInput](#addfilestotaskinput)
     * [ChangePasswordInput](#changepasswordinput)
     * [CreateAccountSourceInput](#createaccountsourceinput)
     * [CreateAnnotationInput](#createannotationinput)
     * [CreateCommentInput](#createcommentinput)
-    * [CreateContactInput](#createcontactinput)
     * [CreateDynamicAnnotationAnalysisInput](#createdynamicannotationanalysisinput)
+    * [CreateDynamicAnnotationArchiveIsInput](#createdynamicannotationarchiveisinput)
     * [CreateDynamicAnnotationArchiverInput](#createdynamicannotationarchiverinput)
     * [CreateDynamicAnnotationClipInput](#createdynamicannotationclipinput)
     * [CreateDynamicAnnotationEmbedCodeInput](#createdynamicannotationembedcodeinput)
-    * [CreateDynamicAnnotationFetchInput](#createdynamicannotationfetchinput)
+    * [CreateDynamicAnnotationExtractedTextInput](#createdynamicannotationextractedtextinput)
     * [CreateDynamicAnnotationFlagInput](#createdynamicannotationflaginput)
     * [CreateDynamicAnnotationGeolocationInput](#createdynamicannotationgeolocationinput)
     * [CreateDynamicAnnotationLanguageInput](#createdynamicannotationlanguageinput)
+    * [CreateDynamicAnnotationMemebusterInput](#createdynamicannotationmemebusterinput)
     * [CreateDynamicAnnotationMetadataInput](#createdynamicannotationmetadatainput)
     * [CreateDynamicAnnotationMetricsInput](#createdynamicannotationmetricsinput)
+    * [CreateDynamicAnnotationMtInput](#createdynamicannotationmtinput)
     * [CreateDynamicAnnotationReportDesignInput](#createdynamicannotationreportdesigninput)
     * [CreateDynamicAnnotationReverseImageInput](#createdynamicannotationreverseimageinput)
     * [CreateDynamicAnnotationSlackMessageInput](#createdynamicannotationslackmessageinput)
@@ -329,24 +375,28 @@
     * [CreateDynamicAnnotationSmoochUserInput](#createdynamicannotationsmoochuserinput)
     * [CreateDynamicAnnotationSyrianArchiveDataInput](#createdynamicannotationsyrianarchivedatainput)
     * [CreateDynamicAnnotationTaskResponseDatetimeInput](#createdynamicannotationtaskresponsedatetimeinput)
+    * [CreateDynamicAnnotationTaskResponseFileUploadInput](#createdynamicannotationtaskresponsefileuploadinput)
     * [CreateDynamicAnnotationTaskResponseFreeTextInput](#createdynamicannotationtaskresponsefreetextinput)
     * [CreateDynamicAnnotationTaskResponseGeolocationInput](#createdynamicannotationtaskresponsegeolocationinput)
-    * [CreateDynamicAnnotationTaskResponseImageUploadInput](#createdynamicannotationtaskresponseimageuploadinput)
     * [CreateDynamicAnnotationTaskResponseMultipleChoiceInput](#createdynamicannotationtaskresponsemultiplechoiceinput)
+    * [CreateDynamicAnnotationTaskResponseNumberInput](#createdynamicannotationtaskresponsenumberinput)
     * [CreateDynamicAnnotationTaskResponseSingleChoiceInput](#createdynamicannotationtaskresponsesinglechoiceinput)
     * [CreateDynamicAnnotationTaskResponseYesNoInput](#createdynamicannotationtaskresponseyesnoinput)
     * [CreateDynamicAnnotationTaskStatusInput](#createdynamicannotationtaskstatusinput)
     * [CreateDynamicAnnotationTeamBotResponseInput](#createdynamicannotationteambotresponseinput)
     * [CreateDynamicAnnotationTranscriptInput](#createdynamicannotationtranscriptinput)
+    * [CreateDynamicAnnotationTranscriptionInput](#createdynamicannotationtranscriptioninput)
+    * [CreateDynamicAnnotationTranslationInput](#createdynamicannotationtranslationinput)
+    * [CreateDynamicAnnotationTranslationRequestInput](#createdynamicannotationtranslationrequestinput)
+    * [CreateDynamicAnnotationTranslationStatusInput](#createdynamicannotationtranslationstatusinput)
     * [CreateDynamicAnnotationVerificationStatusInput](#createdynamicannotationverificationstatusinput)
     * [CreateDynamicInput](#createdynamicinput)
+    * [CreateProjectGroupInput](#createprojectgroupinput)
     * [CreateProjectInput](#createprojectinput)
     * [CreateProjectMediaInput](#createprojectmediainput)
-    * [CreateProjectMediaProjectInput](#createprojectmediaprojectinput)
-    * [CreateProjectMediaProjectsBulkInput](#createprojectmediaprojectsbulkinput)
-    * [CreateProjectMediaProjectsInput](#createprojectmediaprojectsinput)
     * [CreateProjectMediaUserInput](#createprojectmediauserinput)
     * [CreateRelationshipInput](#createrelationshipinput)
+    * [CreateSavedSearchInput](#createsavedsearchinput)
     * [CreateSourceInput](#createsourceinput)
     * [CreateTagInput](#createtaginput)
     * [CreateTagTextInput](#createtagtextinput)
@@ -363,17 +413,19 @@
     * [DestroyAccountSourceInput](#destroyaccountsourceinput)
     * [DestroyAnnotationInput](#destroyannotationinput)
     * [DestroyCommentInput](#destroycommentinput)
-    * [DestroyContactInput](#destroycontactinput)
     * [DestroyDynamicAnnotationAnalysisInput](#destroydynamicannotationanalysisinput)
+    * [DestroyDynamicAnnotationArchiveIsInput](#destroydynamicannotationarchiveisinput)
     * [DestroyDynamicAnnotationArchiverInput](#destroydynamicannotationarchiverinput)
     * [DestroyDynamicAnnotationClipInput](#destroydynamicannotationclipinput)
     * [DestroyDynamicAnnotationEmbedCodeInput](#destroydynamicannotationembedcodeinput)
-    * [DestroyDynamicAnnotationFetchInput](#destroydynamicannotationfetchinput)
+    * [DestroyDynamicAnnotationExtractedTextInput](#destroydynamicannotationextractedtextinput)
     * [DestroyDynamicAnnotationFlagInput](#destroydynamicannotationflaginput)
     * [DestroyDynamicAnnotationGeolocationInput](#destroydynamicannotationgeolocationinput)
     * [DestroyDynamicAnnotationLanguageInput](#destroydynamicannotationlanguageinput)
+    * [DestroyDynamicAnnotationMemebusterInput](#destroydynamicannotationmemebusterinput)
     * [DestroyDynamicAnnotationMetadataInput](#destroydynamicannotationmetadatainput)
     * [DestroyDynamicAnnotationMetricsInput](#destroydynamicannotationmetricsinput)
+    * [DestroyDynamicAnnotationMtInput](#destroydynamicannotationmtinput)
     * [DestroyDynamicAnnotationReportDesignInput](#destroydynamicannotationreportdesigninput)
     * [DestroyDynamicAnnotationReverseImageInput](#destroydynamicannotationreverseimageinput)
     * [DestroyDynamicAnnotationSlackMessageInput](#destroydynamicannotationslackmessageinput)
@@ -382,23 +434,28 @@
     * [DestroyDynamicAnnotationSmoochUserInput](#destroydynamicannotationsmoochuserinput)
     * [DestroyDynamicAnnotationSyrianArchiveDataInput](#destroydynamicannotationsyrianarchivedatainput)
     * [DestroyDynamicAnnotationTaskResponseDatetimeInput](#destroydynamicannotationtaskresponsedatetimeinput)
+    * [DestroyDynamicAnnotationTaskResponseFileUploadInput](#destroydynamicannotationtaskresponsefileuploadinput)
     * [DestroyDynamicAnnotationTaskResponseFreeTextInput](#destroydynamicannotationtaskresponsefreetextinput)
     * [DestroyDynamicAnnotationTaskResponseGeolocationInput](#destroydynamicannotationtaskresponsegeolocationinput)
-    * [DestroyDynamicAnnotationTaskResponseImageUploadInput](#destroydynamicannotationtaskresponseimageuploadinput)
     * [DestroyDynamicAnnotationTaskResponseMultipleChoiceInput](#destroydynamicannotationtaskresponsemultiplechoiceinput)
+    * [DestroyDynamicAnnotationTaskResponseNumberInput](#destroydynamicannotationtaskresponsenumberinput)
     * [DestroyDynamicAnnotationTaskResponseSingleChoiceInput](#destroydynamicannotationtaskresponsesinglechoiceinput)
     * [DestroyDynamicAnnotationTaskResponseYesNoInput](#destroydynamicannotationtaskresponseyesnoinput)
     * [DestroyDynamicAnnotationTaskStatusInput](#destroydynamicannotationtaskstatusinput)
     * [DestroyDynamicAnnotationTeamBotResponseInput](#destroydynamicannotationteambotresponseinput)
     * [DestroyDynamicAnnotationTranscriptInput](#destroydynamicannotationtranscriptinput)
+    * [DestroyDynamicAnnotationTranscriptionInput](#destroydynamicannotationtranscriptioninput)
+    * [DestroyDynamicAnnotationTranslationInput](#destroydynamicannotationtranslationinput)
+    * [DestroyDynamicAnnotationTranslationRequestInput](#destroydynamicannotationtranslationrequestinput)
+    * [DestroyDynamicAnnotationTranslationStatusInput](#destroydynamicannotationtranslationstatusinput)
     * [DestroyDynamicAnnotationVerificationStatusInput](#destroydynamicannotationverificationstatusinput)
     * [DestroyDynamicInput](#destroydynamicinput)
+    * [DestroyProjectGroupInput](#destroyprojectgroupinput)
     * [DestroyProjectInput](#destroyprojectinput)
     * [DestroyProjectMediaInput](#destroyprojectmediainput)
-    * [DestroyProjectMediaProjectInput](#destroyprojectmediaprojectinput)
-    * [DestroyProjectMediaProjectsInput](#destroyprojectmediaprojectsinput)
     * [DestroyProjectMediaUserInput](#destroyprojectmediauserinput)
     * [DestroyRelationshipInput](#destroyrelationshipinput)
+    * [DestroySavedSearchInput](#destroysavedsearchinput)
     * [DestroySourceInput](#destroysourceinput)
     * [DestroyTagInput](#destroytaginput)
     * [DestroyTagTextInput](#destroytagtextinput)
@@ -409,27 +466,39 @@
     * [DestroyTeamUserInput](#destroyteamuserinput)
     * [DestroyUserInput](#destroyuserinput)
     * [DestroyVersionInput](#destroyversioninput)
+    * [DuplicateTeamMutationInput](#duplicateteammutationinput)
+    * [ExtractTextInput](#extracttextinput)
     * [GenerateTwoFactorBackupCodesInput](#generatetwofactorbackupcodesinput)
-    * [ImportSpreadsheetInput](#importspreadsheetinput)
+    * [MoveTaskDownInput](#movetaskdowninput)
+    * [MoveTaskUpInput](#movetaskupinput)
+    * [MoveTeamTaskDownInput](#moveteamtaskdowninput)
+    * [MoveTeamTaskUpInput](#moveteamtaskupinput)
+    * [RemoveFilesFromTaskInput](#removefilesfromtaskinput)
+    * [ReplaceProjectMediaInput](#replaceprojectmediainput)
     * [ResendCancelInvitationInput](#resendcancelinvitationinput)
     * [ResendConfirmationInput](#resendconfirmationinput)
     * [ResetPasswordInput](#resetpasswordinput)
+    * [SearchUploadInput](#searchuploadinput)
+    * [SmoochBotAddIntegrationInput](#smoochbotaddintegrationinput)
     * [SmoochBotAddSlackChannelUrlInput](#smoochbotaddslackchannelurlinput)
-    * [TasksOrderInput](#tasksorderinput)
+    * [SmoochBotRemoveIntegrationInput](#smoochbotremoveintegrationinput)
+    * [TranscribeAudioInput](#transcribeaudioinput)
     * [UpdateAccountInput](#updateaccountinput)
     * [UpdateAccountSourceInput](#updateaccountsourceinput)
     * [UpdateCommentInput](#updatecommentinput)
-    * [UpdateContactInput](#updatecontactinput)
     * [UpdateDynamicAnnotationAnalysisInput](#updatedynamicannotationanalysisinput)
+    * [UpdateDynamicAnnotationArchiveIsInput](#updatedynamicannotationarchiveisinput)
     * [UpdateDynamicAnnotationArchiverInput](#updatedynamicannotationarchiverinput)
     * [UpdateDynamicAnnotationClipInput](#updatedynamicannotationclipinput)
     * [UpdateDynamicAnnotationEmbedCodeInput](#updatedynamicannotationembedcodeinput)
-    * [UpdateDynamicAnnotationFetchInput](#updatedynamicannotationfetchinput)
+    * [UpdateDynamicAnnotationExtractedTextInput](#updatedynamicannotationextractedtextinput)
     * [UpdateDynamicAnnotationFlagInput](#updatedynamicannotationflaginput)
     * [UpdateDynamicAnnotationGeolocationInput](#updatedynamicannotationgeolocationinput)
     * [UpdateDynamicAnnotationLanguageInput](#updatedynamicannotationlanguageinput)
+    * [UpdateDynamicAnnotationMemebusterInput](#updatedynamicannotationmemebusterinput)
     * [UpdateDynamicAnnotationMetadataInput](#updatedynamicannotationmetadatainput)
     * [UpdateDynamicAnnotationMetricsInput](#updatedynamicannotationmetricsinput)
+    * [UpdateDynamicAnnotationMtInput](#updatedynamicannotationmtinput)
     * [UpdateDynamicAnnotationReportDesignInput](#updatedynamicannotationreportdesigninput)
     * [UpdateDynamicAnnotationReverseImageInput](#updatedynamicannotationreverseimageinput)
     * [UpdateDynamicAnnotationSlackMessageInput](#updatedynamicannotationslackmessageinput)
@@ -438,24 +507,29 @@
     * [UpdateDynamicAnnotationSmoochUserInput](#updatedynamicannotationsmoochuserinput)
     * [UpdateDynamicAnnotationSyrianArchiveDataInput](#updatedynamicannotationsyrianarchivedatainput)
     * [UpdateDynamicAnnotationTaskResponseDatetimeInput](#updatedynamicannotationtaskresponsedatetimeinput)
+    * [UpdateDynamicAnnotationTaskResponseFileUploadInput](#updatedynamicannotationtaskresponsefileuploadinput)
     * [UpdateDynamicAnnotationTaskResponseFreeTextInput](#updatedynamicannotationtaskresponsefreetextinput)
     * [UpdateDynamicAnnotationTaskResponseGeolocationInput](#updatedynamicannotationtaskresponsegeolocationinput)
-    * [UpdateDynamicAnnotationTaskResponseImageUploadInput](#updatedynamicannotationtaskresponseimageuploadinput)
     * [UpdateDynamicAnnotationTaskResponseMultipleChoiceInput](#updatedynamicannotationtaskresponsemultiplechoiceinput)
+    * [UpdateDynamicAnnotationTaskResponseNumberInput](#updatedynamicannotationtaskresponsenumberinput)
     * [UpdateDynamicAnnotationTaskResponseSingleChoiceInput](#updatedynamicannotationtaskresponsesinglechoiceinput)
     * [UpdateDynamicAnnotationTaskResponseYesNoInput](#updatedynamicannotationtaskresponseyesnoinput)
     * [UpdateDynamicAnnotationTaskStatusInput](#updatedynamicannotationtaskstatusinput)
     * [UpdateDynamicAnnotationTeamBotResponseInput](#updatedynamicannotationteambotresponseinput)
     * [UpdateDynamicAnnotationTranscriptInput](#updatedynamicannotationtranscriptinput)
+    * [UpdateDynamicAnnotationTranscriptionInput](#updatedynamicannotationtranscriptioninput)
+    * [UpdateDynamicAnnotationTranslationInput](#updatedynamicannotationtranslationinput)
+    * [UpdateDynamicAnnotationTranslationRequestInput](#updatedynamicannotationtranslationrequestinput)
+    * [UpdateDynamicAnnotationTranslationStatusInput](#updatedynamicannotationtranslationstatusinput)
     * [UpdateDynamicAnnotationVerificationStatusInput](#updatedynamicannotationverificationstatusinput)
     * [UpdateDynamicInput](#updatedynamicinput)
+    * [UpdateProjectGroupInput](#updateprojectgroupinput)
     * [UpdateProjectInput](#updateprojectinput)
     * [UpdateProjectMediaInput](#updateprojectmediainput)
-    * [UpdateProjectMediaProjectInput](#updateprojectmediaprojectinput)
-    * [UpdateProjectMediaProjectsInput](#updateprojectmediaprojectsinput)
     * [UpdateProjectMediaUserInput](#updateprojectmediauserinput)
     * [UpdateProjectMediasInput](#updateprojectmediasinput)
     * [UpdateRelationshipInput](#updaterelationshipinput)
+    * [UpdateSavedSearchInput](#updatesavedsearchinput)
     * [UpdateSourceInput](#updatesourceinput)
     * [UpdateTagInput](#updatetaginput)
     * [UpdateTagTextInput](#updatetagtextinput)
@@ -476,6 +550,8 @@
     * [String](#string)
   * [Interfaces](#interfaces)
     * [Node](#node)
+  * [Unions](#unions)
+    * [AnnotationUnion](#annotationunion)
 
 </details>
 
@@ -591,6 +667,20 @@ Information about a project, given its id and its team id
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>project_group</strong></td>
+<td valign="top"><a href="#projectgroup">ProjectGroup</a></td>
+<td>
+
+Information about the project_group with given id
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>project_media</strong></td>
 <td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
 <td>
@@ -667,6 +757,20 @@ Public information about a team
 <tr>
 <td colspan="2" valign="top"><strong>root</strong></td>
 <td valign="top"><a href="#rootlevel">RootLevel</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>saved_search</strong></td>
+<td valign="top"><a href="#savedsearch">SavedSearch</a></td>
+<td>
+
+Information about the saved_search with given id
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -773,6 +877,16 @@ Information about the user with given id
 </thead>
 <tbody>
 <tr>
+<td colspan="2" valign="top"><strong>addFilesToTask</strong></td>
+<td valign="top"><a href="#addfilestotaskpayload">AddFilesToTaskPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#addfilestotaskinput">AddFilesToTaskInput</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>changePassword</strong></td>
 <td valign="top"><a href="#changepasswordpayload">ChangePasswordPayload</a></td>
 <td></td>
@@ -813,16 +927,6 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>createContact</strong></td>
-<td valign="top"><a href="#createcontactpayload">CreateContactPayload</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#createcontactinput">CreateContactInput</a>!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>createDynamic</strong></td>
 <td valign="top"><a href="#createdynamicpayload">CreateDynamicPayload</a></td>
 <td></td>
@@ -840,6 +944,16 @@ Information about the user with given id
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
 <td valign="top"><a href="#createdynamicannotationanalysisinput">CreateDynamicAnnotationAnalysisInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>createDynamicAnnotationArchiveIs</strong></td>
+<td valign="top"><a href="#createdynamicannotationarchiveispayload">CreateDynamicAnnotationArchiveIsPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#createdynamicannotationarchiveisinput">CreateDynamicAnnotationArchiveIsInput</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -873,13 +987,13 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>createDynamicAnnotationFetch</strong></td>
-<td valign="top"><a href="#createdynamicannotationfetchpayload">CreateDynamicAnnotationFetchPayload</a></td>
+<td colspan="2" valign="top"><strong>createDynamicAnnotationExtractedText</strong></td>
+<td valign="top"><a href="#createdynamicannotationextractedtextpayload">CreateDynamicAnnotationExtractedTextPayload</a></td>
 <td></td>
 </tr>
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#createdynamicannotationfetchinput">CreateDynamicAnnotationFetchInput</a>!</td>
+<td valign="top"><a href="#createdynamicannotationextractedtextinput">CreateDynamicAnnotationExtractedTextInput</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -913,6 +1027,16 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>createDynamicAnnotationMemebuster</strong></td>
+<td valign="top"><a href="#createdynamicannotationmemebusterpayload">CreateDynamicAnnotationMemebusterPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#createdynamicannotationmemebusterinput">CreateDynamicAnnotationMemebusterInput</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>createDynamicAnnotationMetadata</strong></td>
 <td valign="top"><a href="#createdynamicannotationmetadatapayload">CreateDynamicAnnotationMetadataPayload</a></td>
 <td></td>
@@ -930,6 +1054,16 @@ Information about the user with given id
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
 <td valign="top"><a href="#createdynamicannotationmetricsinput">CreateDynamicAnnotationMetricsInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>createDynamicAnnotationMt</strong></td>
+<td valign="top"><a href="#createdynamicannotationmtpayload">CreateDynamicAnnotationMtPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#createdynamicannotationmtinput">CreateDynamicAnnotationMtInput</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -1013,6 +1147,16 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>createDynamicAnnotationTaskResponseFileUpload</strong></td>
+<td valign="top"><a href="#createdynamicannotationtaskresponsefileuploadpayload">CreateDynamicAnnotationTaskResponseFileUploadPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#createdynamicannotationtaskresponsefileuploadinput">CreateDynamicAnnotationTaskResponseFileUploadInput</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>createDynamicAnnotationTaskResponseFreeText</strong></td>
 <td valign="top"><a href="#createdynamicannotationtaskresponsefreetextpayload">CreateDynamicAnnotationTaskResponseFreeTextPayload</a></td>
 <td></td>
@@ -1033,16 +1177,6 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>createDynamicAnnotationTaskResponseImageUpload</strong></td>
-<td valign="top"><a href="#createdynamicannotationtaskresponseimageuploadpayload">CreateDynamicAnnotationTaskResponseImageUploadPayload</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#createdynamicannotationtaskresponseimageuploadinput">CreateDynamicAnnotationTaskResponseImageUploadInput</a>!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>createDynamicAnnotationTaskResponseMultipleChoice</strong></td>
 <td valign="top"><a href="#createdynamicannotationtaskresponsemultiplechoicepayload">CreateDynamicAnnotationTaskResponseMultipleChoicePayload</a></td>
 <td></td>
@@ -1050,6 +1184,16 @@ Information about the user with given id
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
 <td valign="top"><a href="#createdynamicannotationtaskresponsemultiplechoiceinput">CreateDynamicAnnotationTaskResponseMultipleChoiceInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>createDynamicAnnotationTaskResponseNumber</strong></td>
+<td valign="top"><a href="#createdynamicannotationtaskresponsenumberpayload">CreateDynamicAnnotationTaskResponseNumberPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#createdynamicannotationtaskresponsenumberinput">CreateDynamicAnnotationTaskResponseNumberInput</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -1103,6 +1247,46 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>createDynamicAnnotationTranscription</strong></td>
+<td valign="top"><a href="#createdynamicannotationtranscriptionpayload">CreateDynamicAnnotationTranscriptionPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#createdynamicannotationtranscriptioninput">CreateDynamicAnnotationTranscriptionInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>createDynamicAnnotationTranslation</strong></td>
+<td valign="top"><a href="#createdynamicannotationtranslationpayload">CreateDynamicAnnotationTranslationPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#createdynamicannotationtranslationinput">CreateDynamicAnnotationTranslationInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>createDynamicAnnotationTranslationRequest</strong></td>
+<td valign="top"><a href="#createdynamicannotationtranslationrequestpayload">CreateDynamicAnnotationTranslationRequestPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#createdynamicannotationtranslationrequestinput">CreateDynamicAnnotationTranslationRequestInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>createDynamicAnnotationTranslationStatus</strong></td>
+<td valign="top"><a href="#createdynamicannotationtranslationstatuspayload">CreateDynamicAnnotationTranslationStatusPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#createdynamicannotationtranslationstatusinput">CreateDynamicAnnotationTranslationStatusInput</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>createDynamicAnnotationVerificationStatus</strong></td>
 <td valign="top"><a href="#createdynamicannotationverificationstatuspayload">CreateDynamicAnnotationVerificationStatusPayload</a></td>
 <td></td>
@@ -1123,6 +1307,16 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>createProjectGroup</strong></td>
+<td valign="top"><a href="#createprojectgrouppayload">CreateProjectGroupPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#createprojectgroupinput">CreateProjectGroupInput</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>createProjectMedia</strong></td>
 <td valign="top"><a href="#createprojectmediapayload">CreateProjectMediaPayload</a></td>
 <td></td>
@@ -1130,26 +1324,6 @@ Information about the user with given id
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
 <td valign="top"><a href="#createprojectmediainput">CreateProjectMediaInput</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>createProjectMediaProject</strong></td>
-<td valign="top"><a href="#createprojectmediaprojectpayload">CreateProjectMediaProjectPayload</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#createprojectmediaprojectinput">CreateProjectMediaProjectInput</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>createProjectMediaProjects</strong></td>
-<td valign="top"><a href="#createprojectmediaprojectspayload">CreateProjectMediaProjectsPayload</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#createprojectmediaprojectsinput">CreateProjectMediaProjectsInput</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -1170,6 +1344,16 @@ Information about the user with given id
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
 <td valign="top"><a href="#createrelationshipinput">CreateRelationshipInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>createSavedSearch</strong></td>
+<td valign="top"><a href="#createsavedsearchpayload">CreateSavedSearchPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#createsavedsearchinput">CreateSavedSearchInput</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -1323,16 +1507,6 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>destroyContact</strong></td>
-<td valign="top"><a href="#destroycontactpayload">DestroyContactPayload</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#destroycontactinput">DestroyContactInput</a>!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>destroyDynamic</strong></td>
 <td valign="top"><a href="#destroydynamicpayload">DestroyDynamicPayload</a></td>
 <td></td>
@@ -1350,6 +1524,16 @@ Information about the user with given id
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
 <td valign="top"><a href="#destroydynamicannotationanalysisinput">DestroyDynamicAnnotationAnalysisInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>destroyDynamicAnnotationArchiveIs</strong></td>
+<td valign="top"><a href="#destroydynamicannotationarchiveispayload">DestroyDynamicAnnotationArchiveIsPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#destroydynamicannotationarchiveisinput">DestroyDynamicAnnotationArchiveIsInput</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -1383,13 +1567,13 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>destroyDynamicAnnotationFetch</strong></td>
-<td valign="top"><a href="#destroydynamicannotationfetchpayload">DestroyDynamicAnnotationFetchPayload</a></td>
+<td colspan="2" valign="top"><strong>destroyDynamicAnnotationExtractedText</strong></td>
+<td valign="top"><a href="#destroydynamicannotationextractedtextpayload">DestroyDynamicAnnotationExtractedTextPayload</a></td>
 <td></td>
 </tr>
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#destroydynamicannotationfetchinput">DestroyDynamicAnnotationFetchInput</a>!</td>
+<td valign="top"><a href="#destroydynamicannotationextractedtextinput">DestroyDynamicAnnotationExtractedTextInput</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -1423,6 +1607,16 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>destroyDynamicAnnotationMemebuster</strong></td>
+<td valign="top"><a href="#destroydynamicannotationmemebusterpayload">DestroyDynamicAnnotationMemebusterPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#destroydynamicannotationmemebusterinput">DestroyDynamicAnnotationMemebusterInput</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>destroyDynamicAnnotationMetadata</strong></td>
 <td valign="top"><a href="#destroydynamicannotationmetadatapayload">DestroyDynamicAnnotationMetadataPayload</a></td>
 <td></td>
@@ -1440,6 +1634,16 @@ Information about the user with given id
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
 <td valign="top"><a href="#destroydynamicannotationmetricsinput">DestroyDynamicAnnotationMetricsInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>destroyDynamicAnnotationMt</strong></td>
+<td valign="top"><a href="#destroydynamicannotationmtpayload">DestroyDynamicAnnotationMtPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#destroydynamicannotationmtinput">DestroyDynamicAnnotationMtInput</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -1523,6 +1727,16 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>destroyDynamicAnnotationTaskResponseFileUpload</strong></td>
+<td valign="top"><a href="#destroydynamicannotationtaskresponsefileuploadpayload">DestroyDynamicAnnotationTaskResponseFileUploadPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#destroydynamicannotationtaskresponsefileuploadinput">DestroyDynamicAnnotationTaskResponseFileUploadInput</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>destroyDynamicAnnotationTaskResponseFreeText</strong></td>
 <td valign="top"><a href="#destroydynamicannotationtaskresponsefreetextpayload">DestroyDynamicAnnotationTaskResponseFreeTextPayload</a></td>
 <td></td>
@@ -1543,16 +1757,6 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>destroyDynamicAnnotationTaskResponseImageUpload</strong></td>
-<td valign="top"><a href="#destroydynamicannotationtaskresponseimageuploadpayload">DestroyDynamicAnnotationTaskResponseImageUploadPayload</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#destroydynamicannotationtaskresponseimageuploadinput">DestroyDynamicAnnotationTaskResponseImageUploadInput</a>!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>destroyDynamicAnnotationTaskResponseMultipleChoice</strong></td>
 <td valign="top"><a href="#destroydynamicannotationtaskresponsemultiplechoicepayload">DestroyDynamicAnnotationTaskResponseMultipleChoicePayload</a></td>
 <td></td>
@@ -1560,6 +1764,16 @@ Information about the user with given id
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
 <td valign="top"><a href="#destroydynamicannotationtaskresponsemultiplechoiceinput">DestroyDynamicAnnotationTaskResponseMultipleChoiceInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>destroyDynamicAnnotationTaskResponseNumber</strong></td>
+<td valign="top"><a href="#destroydynamicannotationtaskresponsenumberpayload">DestroyDynamicAnnotationTaskResponseNumberPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#destroydynamicannotationtaskresponsenumberinput">DestroyDynamicAnnotationTaskResponseNumberInput</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -1613,6 +1827,46 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>destroyDynamicAnnotationTranscription</strong></td>
+<td valign="top"><a href="#destroydynamicannotationtranscriptionpayload">DestroyDynamicAnnotationTranscriptionPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#destroydynamicannotationtranscriptioninput">DestroyDynamicAnnotationTranscriptionInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>destroyDynamicAnnotationTranslation</strong></td>
+<td valign="top"><a href="#destroydynamicannotationtranslationpayload">DestroyDynamicAnnotationTranslationPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#destroydynamicannotationtranslationinput">DestroyDynamicAnnotationTranslationInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>destroyDynamicAnnotationTranslationRequest</strong></td>
+<td valign="top"><a href="#destroydynamicannotationtranslationrequestpayload">DestroyDynamicAnnotationTranslationRequestPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#destroydynamicannotationtranslationrequestinput">DestroyDynamicAnnotationTranslationRequestInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>destroyDynamicAnnotationTranslationStatus</strong></td>
+<td valign="top"><a href="#destroydynamicannotationtranslationstatuspayload">DestroyDynamicAnnotationTranslationStatusPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#destroydynamicannotationtranslationstatusinput">DestroyDynamicAnnotationTranslationStatusInput</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>destroyDynamicAnnotationVerificationStatus</strong></td>
 <td valign="top"><a href="#destroydynamicannotationverificationstatuspayload">DestroyDynamicAnnotationVerificationStatusPayload</a></td>
 <td></td>
@@ -1633,6 +1887,16 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>destroyProjectGroup</strong></td>
+<td valign="top"><a href="#destroyprojectgrouppayload">DestroyProjectGroupPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#destroyprojectgroupinput">DestroyProjectGroupInput</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>destroyProjectMedia</strong></td>
 <td valign="top"><a href="#destroyprojectmediapayload">DestroyProjectMediaPayload</a></td>
 <td></td>
@@ -1640,26 +1904,6 @@ Information about the user with given id
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
 <td valign="top"><a href="#destroyprojectmediainput">DestroyProjectMediaInput</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>destroyProjectMediaProject</strong></td>
-<td valign="top"><a href="#destroyprojectmediaprojectpayload">DestroyProjectMediaProjectPayload</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#destroyprojectmediaprojectinput">DestroyProjectMediaProjectInput</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>destroyProjectMediaProjects</strong></td>
-<td valign="top"><a href="#destroyprojectmediaprojectspayload">DestroyProjectMediaProjectsPayload</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#destroyprojectmediaprojectsinput">DestroyProjectMediaProjectsInput</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -1680,6 +1924,16 @@ Information about the user with given id
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
 <td valign="top"><a href="#destroyrelationshipinput">DestroyRelationshipInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>destroySavedSearch</strong></td>
+<td valign="top"><a href="#destroysavedsearchpayload">DestroySavedSearchPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#destroysavedsearchinput">DestroySavedSearchInput</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -1783,6 +2037,26 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>duplicateTeam</strong></td>
+<td valign="top"><a href="#duplicateteammutationpayload">DuplicateTeamMutationPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#duplicateteammutationinput">DuplicateTeamMutationInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>extractText</strong></td>
+<td valign="top"><a href="#extracttextpayload">ExtractTextPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#extracttextinput">ExtractTextInput</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>generateTwoFactorBackupCodes</strong></td>
 <td valign="top"><a href="#generatetwofactorbackupcodespayload">GenerateTwoFactorBackupCodesPayload</a></td>
 <td></td>
@@ -1793,13 +2067,63 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>importSpreadsheet</strong></td>
-<td valign="top"><a href="#importspreadsheetpayload">ImportSpreadsheetPayload</a></td>
+<td colspan="2" valign="top"><strong>moveTaskDown</strong></td>
+<td valign="top"><a href="#movetaskdownpayload">MoveTaskDownPayload</a></td>
 <td></td>
 </tr>
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#importspreadsheetinput">ImportSpreadsheetInput</a>!</td>
+<td valign="top"><a href="#movetaskdowninput">MoveTaskDownInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>moveTaskUp</strong></td>
+<td valign="top"><a href="#movetaskuppayload">MoveTaskUpPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#movetaskupinput">MoveTaskUpInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>moveTeamTaskDown</strong></td>
+<td valign="top"><a href="#moveteamtaskdownpayload">MoveTeamTaskDownPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#moveteamtaskdowninput">MoveTeamTaskDownInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>moveTeamTaskUp</strong></td>
+<td valign="top"><a href="#moveteamtaskuppayload">MoveTeamTaskUpPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#moveteamtaskupinput">MoveTeamTaskUpInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>removeFilesFromTask</strong></td>
+<td valign="top"><a href="#removefilesfromtaskpayload">RemoveFilesFromTaskPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#removefilesfromtaskinput">RemoveFilesFromTaskInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>replaceProjectMedia</strong></td>
+<td valign="top"><a href="#replaceprojectmediapayload">ReplaceProjectMediaPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#replaceprojectmediainput">ReplaceProjectMediaInput</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -1833,6 +2157,26 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>searchUpload</strong></td>
+<td valign="top"><a href="#searchuploadpayload">SearchUploadPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#searchuploadinput">SearchUploadInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>smoochBotAddIntegration</strong></td>
+<td valign="top"><a href="#smoochbotaddintegrationpayload">SmoochBotAddIntegrationPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#smoochbotaddintegrationinput">SmoochBotAddIntegrationInput</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>smoochBotAddSlackChannelUrl</strong></td>
 <td valign="top"><a href="#smoochbotaddslackchannelurlpayload">SmoochBotAddSlackChannelUrlPayload</a></td>
 <td></td>
@@ -1843,13 +2187,23 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>tasksOrder</strong></td>
-<td valign="top"><a href="#tasksorderpayload">TasksOrderPayload</a></td>
+<td colspan="2" valign="top"><strong>smoochBotRemoveIntegration</strong></td>
+<td valign="top"><a href="#smoochbotremoveintegrationpayload">SmoochBotRemoveIntegrationPayload</a></td>
 <td></td>
 </tr>
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#tasksorderinput">TasksOrderInput</a>!</td>
+<td valign="top"><a href="#smoochbotremoveintegrationinput">SmoochBotRemoveIntegrationInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>transcribeAudio</strong></td>
+<td valign="top"><a href="#transcribeaudiopayload">TranscribeAudioPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#transcribeaudioinput">TranscribeAudioInput</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -1883,16 +2237,6 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>updateContact</strong></td>
-<td valign="top"><a href="#updatecontactpayload">UpdateContactPayload</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#updatecontactinput">UpdateContactInput</a>!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>updateDynamic</strong></td>
 <td valign="top"><a href="#updatedynamicpayload">UpdateDynamicPayload</a></td>
 <td></td>
@@ -1910,6 +2254,16 @@ Information about the user with given id
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
 <td valign="top"><a href="#updatedynamicannotationanalysisinput">UpdateDynamicAnnotationAnalysisInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updateDynamicAnnotationArchiveIs</strong></td>
+<td valign="top"><a href="#updatedynamicannotationarchiveispayload">UpdateDynamicAnnotationArchiveIsPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#updatedynamicannotationarchiveisinput">UpdateDynamicAnnotationArchiveIsInput</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -1943,13 +2297,13 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>updateDynamicAnnotationFetch</strong></td>
-<td valign="top"><a href="#updatedynamicannotationfetchpayload">UpdateDynamicAnnotationFetchPayload</a></td>
+<td colspan="2" valign="top"><strong>updateDynamicAnnotationExtractedText</strong></td>
+<td valign="top"><a href="#updatedynamicannotationextractedtextpayload">UpdateDynamicAnnotationExtractedTextPayload</a></td>
 <td></td>
 </tr>
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#updatedynamicannotationfetchinput">UpdateDynamicAnnotationFetchInput</a>!</td>
+<td valign="top"><a href="#updatedynamicannotationextractedtextinput">UpdateDynamicAnnotationExtractedTextInput</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -1983,6 +2337,16 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>updateDynamicAnnotationMemebuster</strong></td>
+<td valign="top"><a href="#updatedynamicannotationmemebusterpayload">UpdateDynamicAnnotationMemebusterPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#updatedynamicannotationmemebusterinput">UpdateDynamicAnnotationMemebusterInput</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>updateDynamicAnnotationMetadata</strong></td>
 <td valign="top"><a href="#updatedynamicannotationmetadatapayload">UpdateDynamicAnnotationMetadataPayload</a></td>
 <td></td>
@@ -2000,6 +2364,16 @@ Information about the user with given id
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
 <td valign="top"><a href="#updatedynamicannotationmetricsinput">UpdateDynamicAnnotationMetricsInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updateDynamicAnnotationMt</strong></td>
+<td valign="top"><a href="#updatedynamicannotationmtpayload">UpdateDynamicAnnotationMtPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#updatedynamicannotationmtinput">UpdateDynamicAnnotationMtInput</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -2083,6 +2457,16 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>updateDynamicAnnotationTaskResponseFileUpload</strong></td>
+<td valign="top"><a href="#updatedynamicannotationtaskresponsefileuploadpayload">UpdateDynamicAnnotationTaskResponseFileUploadPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#updatedynamicannotationtaskresponsefileuploadinput">UpdateDynamicAnnotationTaskResponseFileUploadInput</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>updateDynamicAnnotationTaskResponseFreeText</strong></td>
 <td valign="top"><a href="#updatedynamicannotationtaskresponsefreetextpayload">UpdateDynamicAnnotationTaskResponseFreeTextPayload</a></td>
 <td></td>
@@ -2103,16 +2487,6 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>updateDynamicAnnotationTaskResponseImageUpload</strong></td>
-<td valign="top"><a href="#updatedynamicannotationtaskresponseimageuploadpayload">UpdateDynamicAnnotationTaskResponseImageUploadPayload</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#updatedynamicannotationtaskresponseimageuploadinput">UpdateDynamicAnnotationTaskResponseImageUploadInput</a>!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>updateDynamicAnnotationTaskResponseMultipleChoice</strong></td>
 <td valign="top"><a href="#updatedynamicannotationtaskresponsemultiplechoicepayload">UpdateDynamicAnnotationTaskResponseMultipleChoicePayload</a></td>
 <td></td>
@@ -2120,6 +2494,16 @@ Information about the user with given id
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
 <td valign="top"><a href="#updatedynamicannotationtaskresponsemultiplechoiceinput">UpdateDynamicAnnotationTaskResponseMultipleChoiceInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updateDynamicAnnotationTaskResponseNumber</strong></td>
+<td valign="top"><a href="#updatedynamicannotationtaskresponsenumberpayload">UpdateDynamicAnnotationTaskResponseNumberPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#updatedynamicannotationtaskresponsenumberinput">UpdateDynamicAnnotationTaskResponseNumberInput</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -2173,6 +2557,46 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>updateDynamicAnnotationTranscription</strong></td>
+<td valign="top"><a href="#updatedynamicannotationtranscriptionpayload">UpdateDynamicAnnotationTranscriptionPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#updatedynamicannotationtranscriptioninput">UpdateDynamicAnnotationTranscriptionInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updateDynamicAnnotationTranslation</strong></td>
+<td valign="top"><a href="#updatedynamicannotationtranslationpayload">UpdateDynamicAnnotationTranslationPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#updatedynamicannotationtranslationinput">UpdateDynamicAnnotationTranslationInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updateDynamicAnnotationTranslationRequest</strong></td>
+<td valign="top"><a href="#updatedynamicannotationtranslationrequestpayload">UpdateDynamicAnnotationTranslationRequestPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#updatedynamicannotationtranslationrequestinput">UpdateDynamicAnnotationTranslationRequestInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updateDynamicAnnotationTranslationStatus</strong></td>
+<td valign="top"><a href="#updatedynamicannotationtranslationstatuspayload">UpdateDynamicAnnotationTranslationStatusPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#updatedynamicannotationtranslationstatusinput">UpdateDynamicAnnotationTranslationStatusInput</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>updateDynamicAnnotationVerificationStatus</strong></td>
 <td valign="top"><a href="#updatedynamicannotationverificationstatuspayload">UpdateDynamicAnnotationVerificationStatusPayload</a></td>
 <td></td>
@@ -2193,6 +2617,16 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>updateProjectGroup</strong></td>
+<td valign="top"><a href="#updateprojectgrouppayload">UpdateProjectGroupPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#updateprojectgroupinput">UpdateProjectGroupInput</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>updateProjectMedia</strong></td>
 <td valign="top"><a href="#updateprojectmediapayload">UpdateProjectMediaPayload</a></td>
 <td></td>
@@ -2200,26 +2634,6 @@ Information about the user with given id
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
 <td valign="top"><a href="#updateprojectmediainput">UpdateProjectMediaInput</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>updateProjectMediaProject</strong></td>
-<td valign="top"><a href="#updateprojectmediaprojectpayload">UpdateProjectMediaProjectPayload</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#updateprojectmediaprojectinput">UpdateProjectMediaProjectInput</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>updateProjectMediaProjects</strong></td>
-<td valign="top"><a href="#updateprojectmediaprojectspayload">UpdateProjectMediaProjectsPayload</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#updateprojectmediaprojectsinput">UpdateProjectMediaProjectsInput</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -2250,6 +2664,16 @@ Information about the user with given id
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
 <td valign="top"><a href="#updaterelationshipinput">UpdateRelationshipInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updateSavedSearch</strong></td>
+<td valign="top"><a href="#updatesavedsearchpayload">UpdateSavedSearchPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#updatesavedsearchinput">UpdateSavedSearchInput</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -2393,10 +2817,10 @@ Information about the application
 <tbody>
 <tr>
 <td colspan="2" valign="top"><strong>audio_extensions</strong></td>
-<td valign="top"><a href="#string">String</a></td>
+<td valign="top">[<a href="#string">String</a>]</td>
 <td>
 
-Allowed video types
+Allowed audio types
 
 </td>
 </tr>
@@ -2405,7 +2829,61 @@ Allowed video types
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Maximum video upload size
+Maximum audio upload size, in human-readable format
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>audio_max_size_in_bytes</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Maximum audio upload size, in bytes
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>channels</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td>
+
+List check channels
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>countries</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td>
+
+List of workspace countries
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>file_extensions</strong></td>
+<td valign="top">[<a href="#string">String</a>]</td>
+<td>
+
+Allowed file types
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>file_max_size</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Maximum file upload size, in human-readable format
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>file_max_size_in_bytes</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Maximum file upload size, in bytes
 
 </td>
 </tr>
@@ -2443,7 +2921,7 @@ Terms last update date
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>upload_extensions</strong></td>
-<td valign="top"><a href="#string">String</a></td>
+<td valign="top">[<a href="#string">String</a>]</td>
 <td>
 
 Allowed upload types
@@ -2464,7 +2942,16 @@ Maximum image dimensions
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Maximum upload size
+Maximum upload size, in human-readable format
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>upload_max_size_in_bytes</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Maximum upload size, in bytes
 
 </td>
 </tr>
@@ -2488,7 +2975,7 @@ Application version
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>video_extensions</strong></td>
-<td valign="top"><a href="#string">String</a></td>
+<td valign="top">[<a href="#string">String</a>]</td>
 <td>
 
 Allowed video types
@@ -2500,7 +2987,16 @@ Allowed video types
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Maximum video upload size
+Maximum video upload size, in human-readable format
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>video_max_size_in_bytes</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Maximum video upload size, in bytes
 
 </td>
 </tr>
@@ -2827,6 +3323,37 @@ The item at the end of the edge.
 </tbody>
 </table>
 
+### AddFilesToTaskPayload
+
+Autogenerated return type of AddFilesToTask
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>task</strong></td>
+<td valign="top"><a href="#task">Task</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### Annotation
 
 <table>
@@ -3008,13 +3535,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -3086,6 +3613,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>project_media</strong></td>
 <td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
@@ -3305,6 +3837,11 @@ Bot User type
 <tr>
 <td colspan="2" valign="top"><strong>dbid</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>default</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
 <td></td>
 </tr>
 <tr>
@@ -3734,13 +4271,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -3802,6 +4339,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
@@ -3883,138 +4425,6 @@ A cursor for use in pagination.
 <tr>
 <td colspan="2" valign="top"><strong>node</strong></td>
 <td valign="top"><a href="#comment">Comment</a></td>
-<td>
-
-The item at the end of the edge.
-
-</td>
-</tr>
-</tbody>
-</table>
-
-### Contact
-
-Contact type
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>created_at</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>location</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>permissions</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>phone</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>team</strong></td>
-<td valign="top"><a href="#team">Team</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>team_id</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>updated_at</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>web</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
-### ContactConnection
-
-The connection type for Contact.
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>edges</strong></td>
-<td valign="top">[<a href="#contactedge">ContactEdge</a>]</td>
-<td>
-
-A list of edges.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>pageInfo</strong></td>
-<td valign="top"><a href="#pageinfo">PageInfo</a>!</td>
-<td>
-
-Information to aid in pagination.
-
-</td>
-</tr>
-</tbody>
-</table>
-
-### ContactEdge
-
-An edge in a connection.
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>cursor</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td>
-
-A cursor for use in pagination.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>node</strong></td>
-<td valign="top"><a href="#contact">Contact</a></td>
 <td>
 
 The item at the end of the edge.
@@ -4187,42 +4597,6 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
-### CreateContactPayload
-
-Autogenerated return type of CreateContact
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-A unique identifier for the client performing the mutation.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>contact</strong></td>
-<td valign="top"><a href="#contact">Contact</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>contactEdge</strong></td>
-<td valign="top"><a href="#contactedge">ContactEdge</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
 ### CreateDynamicAnnotationAnalysisPayload
 
 Autogenerated return type of CreateDynamicAnnotationAnalysis
@@ -4279,6 +4653,77 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### CreateDynamicAnnotationArchiveIsPayload
+
+Autogenerated return type of CreateDynamicAnnotationArchiveIs
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamicEdge</strong></td>
+<td valign="top"><a href="#dynamicedge">DynamicEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_archive_is</strong></td>
+<td valign="top"><a href="#dynamic_annotation_archive_is">Dynamic_annotation_archive_is</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_archive_isEdge</strong></td>
+<td valign="top"><a href="#dynamic_annotation_archive_isedge">Dynamic_annotation_archive_isEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -4342,6 +4787,11 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -4401,6 +4851,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -4464,12 +4919,17 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
-### CreateDynamicAnnotationFetchPayload
+### CreateDynamicAnnotationExtractedTextPayload
 
-Autogenerated return type of CreateDynamicAnnotationFetch
+Autogenerated return type of CreateDynamicAnnotationExtractedText
 
 <table>
 <thead>
@@ -4501,13 +4961,13 @@ A unique identifier for the client performing the mutation.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>dynamic_annotation_fetch</strong></td>
-<td valign="top"><a href="#dynamic_annotation_fetch">Dynamic_annotation_fetch</a></td>
+<td colspan="2" valign="top"><strong>dynamic_annotation_extracted_text</strong></td>
+<td valign="top"><a href="#dynamic_annotation_extracted_text">Dynamic_annotation_extracted_text</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>dynamic_annotation_fetchEdge</strong></td>
-<td valign="top"><a href="#dynamic_annotation_fetchedge">Dynamic_annotation_fetchEdge</a></td>
+<td colspan="2" valign="top"><strong>dynamic_annotation_extracted_textEdge</strong></td>
+<td valign="top"><a href="#dynamic_annotation_extracted_textedge">Dynamic_annotation_extracted_textEdge</a></td>
 <td></td>
 </tr>
 <tr>
@@ -4523,6 +4983,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -4586,6 +5051,11 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -4645,6 +5115,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -4708,6 +5183,77 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### CreateDynamicAnnotationMemebusterPayload
+
+Autogenerated return type of CreateDynamicAnnotationMemebuster
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamicEdge</strong></td>
+<td valign="top"><a href="#dynamicedge">DynamicEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_memebuster</strong></td>
+<td valign="top"><a href="#dynamic_annotation_memebuster">Dynamic_annotation_memebuster</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_memebusterEdge</strong></td>
+<td valign="top"><a href="#dynamic_annotation_memebusteredge">Dynamic_annotation_memebusterEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -4767,6 +5313,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -4830,6 +5381,77 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### CreateDynamicAnnotationMtPayload
+
+Autogenerated return type of CreateDynamicAnnotationMt
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamicEdge</strong></td>
+<td valign="top"><a href="#dynamicedge">DynamicEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_mt</strong></td>
+<td valign="top"><a href="#dynamic_annotation_mt">Dynamic_annotation_mt</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_mtEdge</strong></td>
+<td valign="top"><a href="#dynamic_annotation_mtedge">Dynamic_annotation_mtEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -4889,6 +5511,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -4952,6 +5579,11 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -5011,6 +5643,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -5074,6 +5711,11 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -5133,6 +5775,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -5196,6 +5843,11 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -5255,6 +5907,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -5318,6 +5975,77 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### CreateDynamicAnnotationTaskResponseFileUploadPayload
+
+Autogenerated return type of CreateDynamicAnnotationTaskResponseFileUpload
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamicEdge</strong></td>
+<td valign="top"><a href="#dynamicedge">DynamicEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_task_response_file_upload</strong></td>
+<td valign="top"><a href="#dynamic_annotation_task_response_file_upload">Dynamic_annotation_task_response_file_upload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_task_response_file_uploadEdge</strong></td>
+<td valign="top"><a href="#dynamic_annotation_task_response_file_uploadedge">Dynamic_annotation_task_response_file_uploadEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -5377,6 +6105,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -5440,65 +6173,9 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
-</tbody>
-</table>
-
-### CreateDynamicAnnotationTaskResponseImageUploadPayload
-
-Autogenerated return type of CreateDynamicAnnotationTaskResponseImageUpload
-
-<table>
-<thead>
 <tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-A unique identifier for the client performing the mutation.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>dynamic</strong></td>
-<td valign="top"><a href="#dynamic">Dynamic</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>dynamicEdge</strong></td>
-<td valign="top"><a href="#dynamicedge">DynamicEdge</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>dynamic_annotation_task_response_image_upload</strong></td>
-<td valign="top"><a href="#dynamic_annotation_task_response_image_upload">Dynamic_annotation_task_response_image_upload</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>dynamic_annotation_task_response_image_uploadEdge</strong></td>
-<td valign="top"><a href="#dynamic_annotation_task_response_image_uploadedge">Dynamic_annotation_task_response_image_uploadEdge</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project</strong></td>
-<td valign="top"><a href="#project">Project</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_media</strong></td>
-<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>source</strong></td>
-<td valign="top"><a href="#source">Source</a></td>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -5562,6 +6239,77 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### CreateDynamicAnnotationTaskResponseNumberPayload
+
+Autogenerated return type of CreateDynamicAnnotationTaskResponseNumber
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamicEdge</strong></td>
+<td valign="top"><a href="#dynamicedge">DynamicEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_task_response_number</strong></td>
+<td valign="top"><a href="#dynamic_annotation_task_response_number">Dynamic_annotation_task_response_number</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_task_response_numberEdge</strong></td>
+<td valign="top"><a href="#dynamic_annotation_task_response_numberedge">Dynamic_annotation_task_response_numberEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -5621,6 +6369,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -5684,6 +6437,11 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -5743,6 +6501,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -5806,6 +6569,11 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -5867,6 +6635,275 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### CreateDynamicAnnotationTranscriptionPayload
+
+Autogenerated return type of CreateDynamicAnnotationTranscription
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamicEdge</strong></td>
+<td valign="top"><a href="#dynamicedge">DynamicEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_transcription</strong></td>
+<td valign="top"><a href="#dynamic_annotation_transcription">Dynamic_annotation_transcription</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_transcriptionEdge</strong></td>
+<td valign="top"><a href="#dynamic_annotation_transcriptionedge">Dynamic_annotation_transcriptionEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### CreateDynamicAnnotationTranslationPayload
+
+Autogenerated return type of CreateDynamicAnnotationTranslation
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamicEdge</strong></td>
+<td valign="top"><a href="#dynamicedge">DynamicEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_translation</strong></td>
+<td valign="top"><a href="#dynamic_annotation_translation">Dynamic_annotation_translation</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_translationEdge</strong></td>
+<td valign="top"><a href="#dynamic_annotation_translationedge">Dynamic_annotation_translationEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### CreateDynamicAnnotationTranslationRequestPayload
+
+Autogenerated return type of CreateDynamicAnnotationTranslationRequest
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamicEdge</strong></td>
+<td valign="top"><a href="#dynamicedge">DynamicEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_translation_request</strong></td>
+<td valign="top"><a href="#dynamic_annotation_translation_request">Dynamic_annotation_translation_request</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_translation_requestEdge</strong></td>
+<td valign="top"><a href="#dynamic_annotation_translation_requestedge">Dynamic_annotation_translation_requestEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### CreateDynamicAnnotationTranslationStatusPayload
+
+Autogenerated return type of CreateDynamicAnnotationTranslationStatus
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamicEdge</strong></td>
+<td valign="top"><a href="#dynamicedge">DynamicEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_translation_status</strong></td>
+<td valign="top"><a href="#dynamic_annotation_translation_status">Dynamic_annotation_translation_status</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_translation_statusEdge</strong></td>
+<td valign="top"><a href="#dynamic_annotation_translation_statusedge">Dynamic_annotation_translation_statusEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -5926,6 +6963,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -5997,6 +7039,47 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### CreateProjectGroupPayload
+
+Autogenerated return type of CreateProjectGroup
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_group</strong></td>
+<td valign="top"><a href="#projectgroup">ProjectGroup</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_groupEdge</strong></td>
+<td valign="top"><a href="#projectgroupedge">ProjectGroupEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### CreateProjectMediaPayload
 
 Autogenerated return type of CreateProjectMedia
@@ -6037,6 +7120,11 @@ Autogenerated return type of CreateProjectMedia
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>check_search_unconfirmed</strong></td>
+<td valign="top"><a href="#checksearch">CheckSearch</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>clientMutationId</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td>
@@ -6048,6 +7136,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_group</strong></td>
+<td valign="top"><a href="#projectgroup">ProjectGroup</a></td>
 <td></td>
 </tr>
 <tr>
@@ -6068,128 +7161,6 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>related_to</strong></td>
 <td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>relationships_source</strong></td>
-<td valign="top"><a href="#relationshipssource">RelationshipsSource</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>relationships_target</strong></td>
-<td valign="top"><a href="#relationshipstarget">RelationshipsTarget</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>team</strong></td>
-<td valign="top"><a href="#team">Team</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
-### CreateProjectMediaProjectPayload
-
-Autogenerated return type of CreateProjectMediaProject
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>check_search_project</strong></td>
-<td valign="top"><a href="#checksearch">CheckSearch</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>check_search_project_was</strong></td>
-<td valign="top"><a href="#checksearch">CheckSearch</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>check_search_team</strong></td>
-<td valign="top"><a href="#checksearch">CheckSearch</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>check_search_trash</strong></td>
-<td valign="top"><a href="#checksearch">CheckSearch</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-A unique identifier for the client performing the mutation.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project</strong></td>
-<td valign="top"><a href="#project">Project</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_media</strong></td>
-<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_media_project</strong></td>
-<td valign="top"><a href="#projectmediaproject">ProjectMediaProject</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_media_projectEdge</strong></td>
-<td valign="top"><a href="#projectmediaprojectedge">ProjectMediaProjectEdge</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_was</strong></td>
-<td valign="top"><a href="#project">Project</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>team</strong></td>
-<td valign="top"><a href="#team">Team</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
-### CreateProjectMediaProjectsPayload
-
-Autogenerated return type of CreateProjectMediaProjects
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-A unique identifier for the client performing the mutation.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project</strong></td>
-<td valign="top"><a href="#project">Project</a></td>
 <td></td>
 </tr>
 <tr>
@@ -6280,6 +7251,16 @@ A unique identifier for the client performing the mutation.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>project_group</strong></td>
+<td valign="top"><a href="#projectgroup">ProjectGroup</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_group_was</strong></td>
+<td valign="top"><a href="#projectgroup">ProjectGroup</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>team</strong></td>
 <td valign="top"><a href="#team">Team</a></td>
 <td></td>
@@ -6311,11 +7292,6 @@ A unique identifier for the client performing the mutation.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>current_project_media</strong></td>
-<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>relationship</strong></td>
 <td valign="top"><a href="#relationship">Relationship</a></td>
 <td></td>
@@ -6326,16 +7302,6 @@ A unique identifier for the client performing the mutation.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>relationships_source</strong></td>
-<td valign="top"><a href="#relationshipssource">RelationshipsSource</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>relationships_target</strong></td>
-<td valign="top"><a href="#relationshipstarget">RelationshipsTarget</a></td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>source_project_media</strong></td>
 <td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
 <td></td>
@@ -6343,6 +7309,47 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>target_project_media</strong></td>
 <td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### CreateSavedSearchPayload
+
+Autogenerated return type of CreateSavedSearch
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>saved_search</strong></td>
+<td valign="top"><a href="#savedsearch">SavedSearch</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>saved_searchEdge</strong></td>
+<td valign="top"><a href="#savedsearchedge">SavedSearchEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -6370,6 +7377,11 @@ Autogenerated return type of CreateSource
 A unique identifier for the client performing the mutation.
 
 </td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
@@ -6495,6 +7507,11 @@ Autogenerated return type of CreateTags
 </tr>
 </thead>
 <tbody>
+<tr>
+<td colspan="2" valign="top"><strong>check_search_team</strong></td>
+<td valign="top"><a href="#checksearch">CheckSearch</a></td>
+<td></td>
+</tr>
 <tr>
 <td colspan="2" valign="top"><strong>clientMutationId</strong></td>
 <td valign="top"><a href="#string">String</a></td>
@@ -6640,6 +7657,11 @@ Autogenerated return type of CreateTeam
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>check_search_trash</strong></td>
+<td valign="top"><a href="#checksearch">CheckSearch</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>check_search_unconfirmed</strong></td>
 <td valign="top"><a href="#checksearch">CheckSearch</a></td>
 <td></td>
 </tr>
@@ -7008,9 +8030,9 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
-### DestroyContactPayload
+### DestroyDynamicAnnotationAnalysisPayload
 
-Autogenerated return type of DestroyContact
+Autogenerated return type of DestroyDynamicAnnotationAnalysis
 
 <table>
 <thead>
@@ -7036,12 +8058,27 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#id">ID</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
-### DestroyDynamicAnnotationAnalysisPayload
+### DestroyDynamicAnnotationArchiveIsPayload
 
-Autogenerated return type of DestroyDynamicAnnotationAnalysis
+Autogenerated return type of DestroyDynamicAnnotationArchiveIs
 
 <table>
 <thead>
@@ -7223,9 +8260,9 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
-### DestroyDynamicAnnotationFetchPayload
+### DestroyDynamicAnnotationExtractedTextPayload
 
-Autogenerated return type of DestroyDynamicAnnotationFetch
+Autogenerated return type of DestroyDynamicAnnotationExtractedText
 
 <table>
 <thead>
@@ -7407,6 +8444,52 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### DestroyDynamicAnnotationMemebusterPayload
+
+Autogenerated return type of DestroyDynamicAnnotationMemebuster
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>deletedId</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### DestroyDynamicAnnotationMetadataPayload
 
 Autogenerated return type of DestroyDynamicAnnotationMetadata
@@ -7456,6 +8539,52 @@ A unique identifier for the client performing the mutation.
 ### DestroyDynamicAnnotationMetricsPayload
 
 Autogenerated return type of DestroyDynamicAnnotationMetrics
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>deletedId</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### DestroyDynamicAnnotationMtPayload
+
+Autogenerated return type of DestroyDynamicAnnotationMt
 
 <table>
 <thead>
@@ -7867,6 +8996,52 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### DestroyDynamicAnnotationTaskResponseFileUploadPayload
+
+Autogenerated return type of DestroyDynamicAnnotationTaskResponseFileUpload
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>deletedId</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### DestroyDynamicAnnotationTaskResponseFreeTextPayload
 
 Autogenerated return type of DestroyDynamicAnnotationTaskResponseFreeText
@@ -7959,9 +9134,9 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
-### DestroyDynamicAnnotationTaskResponseImageUploadPayload
+### DestroyDynamicAnnotationTaskResponseMultipleChoicePayload
 
-Autogenerated return type of DestroyDynamicAnnotationTaskResponseImageUpload
+Autogenerated return type of DestroyDynamicAnnotationTaskResponseMultipleChoice
 
 <table>
 <thead>
@@ -8005,9 +9180,9 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
-### DestroyDynamicAnnotationTaskResponseMultipleChoicePayload
+### DestroyDynamicAnnotationTaskResponseNumberPayload
 
-Autogenerated return type of DestroyDynamicAnnotationTaskResponseMultipleChoice
+Autogenerated return type of DestroyDynamicAnnotationTaskResponseNumber
 
 <table>
 <thead>
@@ -8281,6 +9456,190 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### DestroyDynamicAnnotationTranscriptionPayload
+
+Autogenerated return type of DestroyDynamicAnnotationTranscription
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>deletedId</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### DestroyDynamicAnnotationTranslationPayload
+
+Autogenerated return type of DestroyDynamicAnnotationTranslation
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>deletedId</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### DestroyDynamicAnnotationTranslationRequestPayload
+
+Autogenerated return type of DestroyDynamicAnnotationTranslationRequest
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>deletedId</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### DestroyDynamicAnnotationTranslationStatusPayload
+
+Autogenerated return type of DestroyDynamicAnnotationTranslationStatus
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>deletedId</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### DestroyDynamicAnnotationVerificationStatusPayload
 
 Autogenerated return type of DestroyDynamicAnnotationVerificationStatus
@@ -8383,6 +9742,42 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### DestroyProjectGroupPayload
+
+Autogenerated return type of DestroyProjectGroup
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>deletedId</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### DestroyProjectMediaPayload
 
 Autogenerated return type of DestroyProjectMedia
@@ -8418,6 +9813,11 @@ Autogenerated return type of DestroyProjectMedia
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>check_search_unconfirmed</strong></td>
+<td valign="top"><a href="#checksearch">CheckSearch</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>clientMutationId</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td>
@@ -8434,6 +9834,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_group</strong></td>
+<td valign="top"><a href="#projectgroup">ProjectGroup</a></td>
 <td></td>
 </tr>
 <tr>
@@ -8444,133 +9849,6 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>related_to</strong></td>
 <td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>relationships_source</strong></td>
-<td valign="top"><a href="#relationshipssource">RelationshipsSource</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>relationships_target</strong></td>
-<td valign="top"><a href="#relationshipstarget">RelationshipsTarget</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>team</strong></td>
-<td valign="top"><a href="#team">Team</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
-### DestroyProjectMediaProjectPayload
-
-Autogenerated return type of DestroyProjectMediaProject
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>check_search_project</strong></td>
-<td valign="top"><a href="#checksearch">CheckSearch</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>check_search_project_was</strong></td>
-<td valign="top"><a href="#checksearch">CheckSearch</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>check_search_team</strong></td>
-<td valign="top"><a href="#checksearch">CheckSearch</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>check_search_trash</strong></td>
-<td valign="top"><a href="#checksearch">CheckSearch</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-A unique identifier for the client performing the mutation.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>deletedId</strong></td>
-<td valign="top"><a href="#id">ID</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project</strong></td>
-<td valign="top"><a href="#project">Project</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_media</strong></td>
-<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_was</strong></td>
-<td valign="top"><a href="#project">Project</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>team</strong></td>
-<td valign="top"><a href="#team">Team</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
-### DestroyProjectMediaProjectsPayload
-
-Autogenerated return type of DestroyProjectMediaProjects
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>check_search_project_was</strong></td>
-<td valign="top"><a href="#checksearch">CheckSearch</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-A unique identifier for the client performing the mutation.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>ids</strong></td>
-<td valign="top">[<a href="#id">ID</a>]</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_was</strong></td>
-<td valign="top"><a href="#project">Project</a></td>
 <td></td>
 </tr>
 <tr>
@@ -8651,6 +9929,16 @@ A unique identifier for the client performing the mutation.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>project_group</strong></td>
+<td valign="top"><a href="#projectgroup">ProjectGroup</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_group_was</strong></td>
+<td valign="top"><a href="#projectgroup">ProjectGroup</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>team</strong></td>
 <td valign="top"><a href="#team">Team</a></td>
 <td></td>
@@ -8682,23 +9970,8 @@ A unique identifier for the client performing the mutation.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>current_project_media</strong></td>
-<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>deletedId</strong></td>
 <td valign="top"><a href="#id">ID</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>relationships_source</strong></td>
-<td valign="top"><a href="#relationshipssource">RelationshipsSource</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>relationships_target</strong></td>
-<td valign="top"><a href="#relationshipstarget">RelationshipsTarget</a></td>
 <td></td>
 </tr>
 <tr>
@@ -8709,6 +9982,42 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>target_project_media</strong></td>
 <td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### DestroySavedSearchPayload
+
+Autogenerated return type of DestroySavedSearch
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>deletedId</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -8740,6 +10049,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>deletedId</strong></td>
 <td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -8949,6 +10263,11 @@ Autogenerated return type of DestroyTeam
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>check_search_unconfirmed</strong></td>
+<td valign="top"><a href="#checksearch">CheckSearch</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>clientMutationId</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td>
@@ -9119,6 +10438,37 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### DuplicateTeamMutationPayload
+
+Autogenerated return type of DuplicateTeamMutation
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### Dynamic
 
 <table>
@@ -9259,13 +10609,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -9332,6 +10682,16 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>sent_count</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
@@ -9599,13 +10959,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -9675,6 +11035,11 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>updated_at</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -9713,6 +11078,274 @@ A cursor for use in pagination.
 <tr>
 <td colspan="2" valign="top"><strong>node</strong></td>
 <td valign="top"><a href="#dynamic_annotation_analysis">Dynamic_annotation_analysis</a></td>
+<td>
+
+The item at the end of the edge.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### Dynamic_annotation_archive_is
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotation_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotations</strong></td>
+<td valign="top"><a href="#annotationunionconnection">AnnotationUnionConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">annotation_type</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotator</strong></td>
+<td valign="top"><a href="#annotator">Annotator</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>assignments</strong></td>
+<td valign="top"><a href="#userconnection">UserConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>content</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>created_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dbid</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>lock_version</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>locked</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>medias</strong></td>
+<td valign="top"><a href="#projectmediaconnection">ProjectMediaConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>parsed_fragment</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissions</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updated_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>version</strong></td>
+<td valign="top"><a href="#version">Version</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### Dynamic_annotation_archive_isEdge
+
+An edge in a connection.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>cursor</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A cursor for use in pagination.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>node</strong></td>
+<td valign="top"><a href="#dynamic_annotation_archive_is">Dynamic_annotation_archive_is</a></td>
 <td>
 
 The item at the end of the edge.
@@ -9862,13 +11495,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -9935,6 +11568,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
@@ -10125,13 +11763,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -10198,6 +11836,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
@@ -10388,13 +12031,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -10464,6 +12107,11 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>updated_at</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -10511,7 +12159,7 @@ The item at the end of the edge.
 </tbody>
 </table>
 
-### Dynamic_annotation_fetch
+### Dynamic_annotation_extracted_text
 
 <table>
 <thead>
@@ -10651,13 +12299,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -10727,6 +12375,11 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>updated_at</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -10739,7 +12392,7 @@ Returns the elements in the list that come before the specified global ID.
 </tbody>
 </table>
 
-### Dynamic_annotation_fetchEdge
+### Dynamic_annotation_extracted_textEdge
 
 An edge in a connection.
 
@@ -10764,7 +12417,7 @@ A cursor for use in pagination.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>node</strong></td>
-<td valign="top"><a href="#dynamic_annotation_fetch">Dynamic_annotation_fetch</a></td>
+<td valign="top"><a href="#dynamic_annotation_extracted_text">Dynamic_annotation_extracted_text</a></td>
 <td>
 
 The item at the end of the edge.
@@ -10914,13 +12567,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -10987,6 +12640,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
@@ -11177,13 +12835,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -11250,6 +12908,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
@@ -11440,13 +13103,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -11516,6 +13179,11 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>updated_at</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -11554,6 +13222,274 @@ A cursor for use in pagination.
 <tr>
 <td colspan="2" valign="top"><strong>node</strong></td>
 <td valign="top"><a href="#dynamic_annotation_language">Dynamic_annotation_language</a></td>
+<td>
+
+The item at the end of the edge.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### Dynamic_annotation_memebuster
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotation_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotations</strong></td>
+<td valign="top"><a href="#annotationunionconnection">AnnotationUnionConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">annotation_type</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotator</strong></td>
+<td valign="top"><a href="#annotator">Annotator</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>assignments</strong></td>
+<td valign="top"><a href="#userconnection">UserConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>content</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>created_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dbid</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>lock_version</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>locked</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>medias</strong></td>
+<td valign="top"><a href="#projectmediaconnection">ProjectMediaConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>parsed_fragment</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissions</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updated_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>version</strong></td>
+<td valign="top"><a href="#version">Version</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### Dynamic_annotation_memebusterEdge
+
+An edge in a connection.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>cursor</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A cursor for use in pagination.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>node</strong></td>
+<td valign="top"><a href="#dynamic_annotation_memebuster">Dynamic_annotation_memebuster</a></td>
 <td>
 
 The item at the end of the edge.
@@ -11703,13 +13639,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -11776,6 +13712,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
@@ -11966,13 +13907,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -12042,6 +13983,11 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>updated_at</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -12080,6 +14026,274 @@ A cursor for use in pagination.
 <tr>
 <td colspan="2" valign="top"><strong>node</strong></td>
 <td valign="top"><a href="#dynamic_annotation_metrics">Dynamic_annotation_metrics</a></td>
+<td>
+
+The item at the end of the edge.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### Dynamic_annotation_mt
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotation_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotations</strong></td>
+<td valign="top"><a href="#annotationunionconnection">AnnotationUnionConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">annotation_type</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotator</strong></td>
+<td valign="top"><a href="#annotator">Annotator</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>assignments</strong></td>
+<td valign="top"><a href="#userconnection">UserConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>content</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>created_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dbid</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>lock_version</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>locked</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>medias</strong></td>
+<td valign="top"><a href="#projectmediaconnection">ProjectMediaConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>parsed_fragment</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissions</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updated_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>version</strong></td>
+<td valign="top"><a href="#version">Version</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### Dynamic_annotation_mtEdge
+
+An edge in a connection.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>cursor</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A cursor for use in pagination.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>node</strong></td>
+<td valign="top"><a href="#dynamic_annotation_mt">Dynamic_annotation_mt</a></td>
 <td>
 
 The item at the end of the edge.
@@ -12229,13 +14443,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -12302,6 +14516,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
@@ -12492,13 +14711,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -12565,6 +14784,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
@@ -12755,13 +14979,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -12828,6 +15052,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
@@ -13018,13 +15247,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -13091,6 +15320,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
@@ -13281,13 +15515,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -13354,6 +15588,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
@@ -13544,13 +15783,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -13617,6 +15856,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
@@ -13807,13 +16051,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -13880,6 +16124,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
@@ -14070,13 +16319,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -14146,6 +16395,11 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>updated_at</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -14184,6 +16438,274 @@ A cursor for use in pagination.
 <tr>
 <td colspan="2" valign="top"><strong>node</strong></td>
 <td valign="top"><a href="#dynamic_annotation_task_response_datetime">Dynamic_annotation_task_response_datetime</a></td>
+<td>
+
+The item at the end of the edge.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### Dynamic_annotation_task_response_file_upload
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotation_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotations</strong></td>
+<td valign="top"><a href="#annotationunionconnection">AnnotationUnionConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">annotation_type</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotator</strong></td>
+<td valign="top"><a href="#annotator">Annotator</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>assignments</strong></td>
+<td valign="top"><a href="#userconnection">UserConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>content</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>created_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dbid</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>lock_version</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>locked</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>medias</strong></td>
+<td valign="top"><a href="#projectmediaconnection">ProjectMediaConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>parsed_fragment</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissions</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updated_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>version</strong></td>
+<td valign="top"><a href="#version">Version</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### Dynamic_annotation_task_response_file_uploadEdge
+
+An edge in a connection.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>cursor</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A cursor for use in pagination.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>node</strong></td>
+<td valign="top"><a href="#dynamic_annotation_task_response_file_upload">Dynamic_annotation_task_response_file_upload</a></td>
 <td>
 
 The item at the end of the edge.
@@ -14333,13 +16855,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -14406,6 +16928,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
@@ -14596,13 +17123,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -14669,6 +17196,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
@@ -14710,269 +17242,6 @@ A cursor for use in pagination.
 <tr>
 <td colspan="2" valign="top"><strong>node</strong></td>
 <td valign="top"><a href="#dynamic_annotation_task_response_geolocation">Dynamic_annotation_task_response_geolocation</a></td>
-<td>
-
-The item at the end of the edge.
-
-</td>
-</tr>
-</tbody>
-</table>
-
-### Dynamic_annotation_task_response_image_upload
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>annotated_id</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>annotated_type</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>annotation_type</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>annotations</strong></td>
-<td valign="top"><a href="#annotationunionconnection">AnnotationUnionConnection</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">first</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the first _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">after</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come after the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">last</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the last _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">before</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come before the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">annotation_type</td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>annotator</strong></td>
-<td valign="top"><a href="#annotator">Annotator</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>assignments</strong></td>
-<td valign="top"><a href="#userconnection">UserConnection</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">first</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the first _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">after</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come after the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">last</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the last _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">before</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come before the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>content</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>created_at</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>dbid</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>lock_version</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>locked</strong></td>
-<td valign="top"><a href="#boolean">Boolean</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>medias</strong></td>
-<td valign="top"><a href="#projectmediaconnection">ProjectMediaConnection</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">first</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the first _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">after</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come after the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">last</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the last _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">before</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come before the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>parsed_fragment</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>permissions</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project</strong></td>
-<td valign="top"><a href="#project">Project</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>updated_at</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>version</strong></td>
-<td valign="top"><a href="#version">Version</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
-### Dynamic_annotation_task_response_image_uploadEdge
-
-An edge in a connection.
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>cursor</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td>
-
-A cursor for use in pagination.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>node</strong></td>
-<td valign="top"><a href="#dynamic_annotation_task_response_image_upload">Dynamic_annotation_task_response_image_upload</a></td>
 <td>
 
 The item at the end of the edge.
@@ -15122,13 +17391,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -15198,6 +17467,11 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>updated_at</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -15236,6 +17510,274 @@ A cursor for use in pagination.
 <tr>
 <td colspan="2" valign="top"><strong>node</strong></td>
 <td valign="top"><a href="#dynamic_annotation_task_response_multiple_choice">Dynamic_annotation_task_response_multiple_choice</a></td>
+<td>
+
+The item at the end of the edge.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### Dynamic_annotation_task_response_number
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotation_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotations</strong></td>
+<td valign="top"><a href="#annotationunionconnection">AnnotationUnionConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">annotation_type</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotator</strong></td>
+<td valign="top"><a href="#annotator">Annotator</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>assignments</strong></td>
+<td valign="top"><a href="#userconnection">UserConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>content</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>created_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dbid</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>lock_version</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>locked</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>medias</strong></td>
+<td valign="top"><a href="#projectmediaconnection">ProjectMediaConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>parsed_fragment</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissions</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updated_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>version</strong></td>
+<td valign="top"><a href="#version">Version</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### Dynamic_annotation_task_response_numberEdge
+
+An edge in a connection.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>cursor</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A cursor for use in pagination.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>node</strong></td>
+<td valign="top"><a href="#dynamic_annotation_task_response_number">Dynamic_annotation_task_response_number</a></td>
 <td>
 
 The item at the end of the edge.
@@ -15385,13 +17927,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -15458,6 +18000,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
@@ -15648,13 +18195,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -15721,6 +18268,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
@@ -15911,13 +18463,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -15984,6 +18536,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
@@ -16174,13 +18731,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -16247,6 +18804,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
@@ -16437,13 +18999,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -16513,6 +19075,11 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>updated_at</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -16551,6 +19118,1078 @@ A cursor for use in pagination.
 <tr>
 <td colspan="2" valign="top"><strong>node</strong></td>
 <td valign="top"><a href="#dynamic_annotation_transcript">Dynamic_annotation_transcript</a></td>
+<td>
+
+The item at the end of the edge.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### Dynamic_annotation_transcription
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotation_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotations</strong></td>
+<td valign="top"><a href="#annotationunionconnection">AnnotationUnionConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">annotation_type</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotator</strong></td>
+<td valign="top"><a href="#annotator">Annotator</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>assignments</strong></td>
+<td valign="top"><a href="#userconnection">UserConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>content</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>created_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dbid</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>lock_version</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>locked</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>medias</strong></td>
+<td valign="top"><a href="#projectmediaconnection">ProjectMediaConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>parsed_fragment</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissions</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updated_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>version</strong></td>
+<td valign="top"><a href="#version">Version</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### Dynamic_annotation_transcriptionEdge
+
+An edge in a connection.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>cursor</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A cursor for use in pagination.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>node</strong></td>
+<td valign="top"><a href="#dynamic_annotation_transcription">Dynamic_annotation_transcription</a></td>
+<td>
+
+The item at the end of the edge.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### Dynamic_annotation_translation
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotation_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotations</strong></td>
+<td valign="top"><a href="#annotationunionconnection">AnnotationUnionConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">annotation_type</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotator</strong></td>
+<td valign="top"><a href="#annotator">Annotator</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>assignments</strong></td>
+<td valign="top"><a href="#userconnection">UserConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>content</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>created_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dbid</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>lock_version</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>locked</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>medias</strong></td>
+<td valign="top"><a href="#projectmediaconnection">ProjectMediaConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>parsed_fragment</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissions</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updated_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>version</strong></td>
+<td valign="top"><a href="#version">Version</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### Dynamic_annotation_translationEdge
+
+An edge in a connection.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>cursor</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A cursor for use in pagination.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>node</strong></td>
+<td valign="top"><a href="#dynamic_annotation_translation">Dynamic_annotation_translation</a></td>
+<td>
+
+The item at the end of the edge.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### Dynamic_annotation_translation_request
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotation_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotations</strong></td>
+<td valign="top"><a href="#annotationunionconnection">AnnotationUnionConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">annotation_type</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotator</strong></td>
+<td valign="top"><a href="#annotator">Annotator</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>assignments</strong></td>
+<td valign="top"><a href="#userconnection">UserConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>content</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>created_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dbid</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>lock_version</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>locked</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>medias</strong></td>
+<td valign="top"><a href="#projectmediaconnection">ProjectMediaConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>parsed_fragment</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissions</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updated_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>version</strong></td>
+<td valign="top"><a href="#version">Version</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### Dynamic_annotation_translation_requestEdge
+
+An edge in a connection.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>cursor</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A cursor for use in pagination.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>node</strong></td>
+<td valign="top"><a href="#dynamic_annotation_translation_request">Dynamic_annotation_translation_request</a></td>
+<td>
+
+The item at the end of the edge.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### Dynamic_annotation_translation_status
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotation_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotations</strong></td>
+<td valign="top"><a href="#annotationunionconnection">AnnotationUnionConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">annotation_type</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotator</strong></td>
+<td valign="top"><a href="#annotator">Annotator</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>assignments</strong></td>
+<td valign="top"><a href="#userconnection">UserConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>content</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>created_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dbid</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>lock_version</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>locked</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>medias</strong></td>
+<td valign="top"><a href="#projectmediaconnection">ProjectMediaConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>parsed_fragment</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissions</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updated_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>version</strong></td>
+<td valign="top"><a href="#version">Version</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### Dynamic_annotation_translation_statusEdge
+
+An edge in a connection.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>cursor</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A cursor for use in pagination.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>node</strong></td>
+<td valign="top"><a href="#dynamic_annotation_translation_status">Dynamic_annotation_translation_status</a></td>
 <td>
 
 The item at the end of the edge.
@@ -16700,13 +20339,13 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -16776,6 +20415,11 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>updated_at</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -16819,6 +20463,37 @@ A cursor for use in pagination.
 The item at the end of the edge.
 
 </td>
+</tr>
+</tbody>
+</table>
+
+### ExtractTextPayload
+
+Autogenerated return type of ExtractText
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -16963,6 +20638,11 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>flag</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -16970,11 +20650,6 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>id</strong></td>
 <td valign="top"><a href="#id">ID</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
@@ -17039,6 +20714,11 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>updated_at</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -17078,37 +20758,6 @@ A unique identifier for the client performing the mutation.
 <td colspan="2" valign="top"><strong>codes</strong></td>
 <td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>success</strong></td>
-<td valign="top"><a href="#boolean">Boolean</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
-### ImportSpreadsheetPayload
-
-Autogenerated return type of ImportSpreadsheet
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-A unique identifier for the client performing the mutation.
-
-</td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>success</strong></td>
@@ -17290,6 +20939,150 @@ The item at the end of the edge.
 </tbody>
 </table>
 
+### MoveTaskDownPayload
+
+Autogenerated return type of MoveTaskDown
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>task</strong></td>
+<td valign="top"><a href="#task">Task</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### MoveTaskUpPayload
+
+Autogenerated return type of MoveTaskUp
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>task</strong></td>
+<td valign="top"><a href="#task">Task</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### MoveTeamTaskDownPayload
+
+Autogenerated return type of MoveTeamTaskDown
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team_task</strong></td>
+<td valign="top"><a href="#teamtask">TeamTask</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### MoveTeamTaskUpPayload
+
+Autogenerated return type of MoveTeamTaskUp
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team_task</strong></td>
+<td valign="top"><a href="#teamtask">TeamTask</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### PageInfo
 
 Information about pagination in a connection.
@@ -17404,11 +21197,6 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>auto_tasks</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>avatar</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -17429,11 +21217,6 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>get_slack_channel</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>id</strong></td>
 <td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
@@ -17446,6 +21229,21 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>permissions</strong></td>
 <td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>privacy</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_group</strong></td>
+<td valign="top"><a href="#projectgroup">ProjectGroup</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_group_id</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
 <td></td>
 </tr>
 <tr>
@@ -17597,6 +21395,184 @@ The item at the end of the edge.
 </tbody>
 </table>
 
+### ProjectGroup
+
+Project group type
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>created_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dbid</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>description</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>medias_count</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissions</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>projects</strong></td>
+<td valign="top"><a href="#projectconnection">ProjectConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team_id</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>title</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updated_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### ProjectGroupConnection
+
+The connection type for ProjectGroup.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>edges</strong></td>
+<td valign="top">[<a href="#projectgroupedge">ProjectGroupEdge</a>]</td>
+<td>
+
+A list of edges.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>pageInfo</strong></td>
+<td valign="top"><a href="#pageinfo">PageInfo</a>!</td>
+<td>
+
+Information to aid in pagination.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### ProjectGroupEdge
+
+An edge in a connection.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>cursor</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A cursor for use in pagination.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>node</strong></td>
+<td valign="top"><a href="#projectgroup">ProjectGroup</a></td>
+<td>
+
+The item at the end of the edge.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### ProjectMedia
 
 ProjectMedia type
@@ -17614,6 +21590,11 @@ ProjectMedia type
 <tr>
 <td colspan="2" valign="top"><strong>account</strong></td>
 <td valign="top"><a href="#account">Account</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>added_as_similar_by_name</strong></td>
+<td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
 <tr>
@@ -17684,7 +21665,7 @@ Returns the elements in the list that come before the specified global ID.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>archived</strong></td>
-<td valign="top"><a href="#boolean">Boolean</a></td>
+<td valign="top"><a href="#int">Int</a></td>
 <td></td>
 </tr>
 <tr>
@@ -17785,12 +21766,114 @@ Returns the elements in the list that come before the specified global ID.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>confirmed_as_similar_by_name</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>confirmed_main_item</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>confirmed_similar_items_count</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>confirmed_similar_relationships</strong></td>
+<td valign="top"><a href="#relationshipconnection">RelationshipConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>created_at</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>dbid</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>default_relationships</strong></td>
+<td valign="top"><a href="#relationshipconnection">RelationshipConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>default_relationships_count</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
 <td></td>
 </tr>
@@ -17815,6 +21898,11 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_archive_is</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>dynamic_annotation_archiver</strong></td>
 <td valign="top"><a href="#dynamic">Dynamic</a></td>
 <td></td>
@@ -17830,7 +21918,7 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>dynamic_annotation_fetch</strong></td>
+<td colspan="2" valign="top"><strong>dynamic_annotation_extracted_text</strong></td>
 <td valign="top"><a href="#dynamic">Dynamic</a></td>
 <td></td>
 </tr>
@@ -17850,12 +21938,22 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_memebuster</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>dynamic_annotation_metadata</strong></td>
 <td valign="top"><a href="#dynamic">Dynamic</a></td>
 <td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>dynamic_annotation_metrics</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_mt</strong></td>
 <td valign="top"><a href="#dynamic">Dynamic</a></td>
 <td></td>
 </tr>
@@ -17900,6 +21998,11 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_task_response_file_upload</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>dynamic_annotation_task_response_free_text</strong></td>
 <td valign="top"><a href="#dynamic">Dynamic</a></td>
 <td></td>
@@ -17910,12 +22013,12 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>dynamic_annotation_task_response_image_upload</strong></td>
+<td colspan="2" valign="top"><strong>dynamic_annotation_task_response_multiple_choice</strong></td>
 <td valign="top"><a href="#dynamic">Dynamic</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>dynamic_annotation_task_response_multiple_choice</strong></td>
+<td colspan="2" valign="top"><strong>dynamic_annotation_task_response_number</strong></td>
 <td valign="top"><a href="#dynamic">Dynamic</a></td>
 <td></td>
 </tr>
@@ -17945,12 +22048,73 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_transcription</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_translation</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_translation_request</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_translation_status</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>dynamic_annotation_verification_status</strong></td>
 <td valign="top"><a href="#dynamic">Dynamic</a></td>
 <td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>dynamic_annotations_analysis</strong></td>
+<td valign="top"><a href="#dynamicconnection">DynamicConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotations_archive_is</strong></td>
 <td valign="top"><a href="#dynamicconnection">DynamicConnection</a></td>
 <td></td>
 </tr>
@@ -18114,7 +22278,7 @@ Returns the elements in the list that come before the specified global ID.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>dynamic_annotations_fetch</strong></td>
+<td colspan="2" valign="top"><strong>dynamic_annotations_extracted_text</strong></td>
 <td valign="top"><a href="#dynamicconnection">DynamicConnection</a></td>
 <td></td>
 </tr>
@@ -18278,6 +22442,47 @@ Returns the elements in the list that come before the specified global ID.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>dynamic_annotations_memebuster</strong></td>
+<td valign="top"><a href="#dynamicconnection">DynamicConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>dynamic_annotations_metadata</strong></td>
 <td valign="top"><a href="#dynamicconnection">DynamicConnection</a></td>
 <td></td>
@@ -18320,6 +22525,47 @@ Returns the elements in the list that come before the specified global ID.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>dynamic_annotations_metrics</strong></td>
+<td valign="top"><a href="#dynamicconnection">DynamicConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotations_mt</strong></td>
 <td valign="top"><a href="#dynamicconnection">DynamicConnection</a></td>
 <td></td>
 </tr>
@@ -18688,6 +22934,47 @@ Returns the elements in the list that come before the specified global ID.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>dynamic_annotations_task_response_file_upload</strong></td>
+<td valign="top"><a href="#dynamicconnection">DynamicConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>dynamic_annotations_task_response_free_text</strong></td>
 <td valign="top"><a href="#dynamicconnection">DynamicConnection</a></td>
 <td></td>
@@ -18770,7 +23057,7 @@ Returns the elements in the list that come before the specified global ID.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>dynamic_annotations_task_response_image_upload</strong></td>
+<td colspan="2" valign="top"><strong>dynamic_annotations_task_response_multiple_choice</strong></td>
 <td valign="top"><a href="#dynamicconnection">DynamicConnection</a></td>
 <td></td>
 </tr>
@@ -18811,7 +23098,7 @@ Returns the elements in the list that come before the specified global ID.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>dynamic_annotations_task_response_multiple_choice</strong></td>
+<td colspan="2" valign="top"><strong>dynamic_annotations_task_response_number</strong></td>
 <td valign="top"><a href="#dynamicconnection">DynamicConnection</a></td>
 <td></td>
 </tr>
@@ -19057,6 +23344,170 @@ Returns the elements in the list that come before the specified global ID.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>dynamic_annotations_transcription</strong></td>
+<td valign="top"><a href="#dynamicconnection">DynamicConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotations_translation</strong></td>
+<td valign="top"><a href="#dynamicconnection">DynamicConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotations_translation_request</strong></td>
+<td valign="top"><a href="#dynamicconnection">DynamicConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotations_translation_status</strong></td>
+<td valign="top"><a href="#dynamicconnection">DynamicConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>dynamic_annotations_verification_status</strong></td>
 <td valign="top"><a href="#dynamicconnection">DynamicConnection</a></td>
 <td></td>
@@ -19108,8 +23559,23 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>full_url</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>id</strong></td>
 <td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>is_confirmed_similar_to_another_item</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>is_main</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
 <td></td>
 </tr>
 <tr>
@@ -19119,6 +23585,11 @@ Returns the elements in the list that come before the specified global ID.
 </tr>
 <tr>
 <td colspan="2" align="right" valign="top">by_me</td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>is_secondary</strong></td>
 <td valign="top"><a href="#boolean">Boolean</a></td>
 <td></td>
 </tr>
@@ -19150,6 +23621,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>linked_items_count</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>list_columns_values</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
@@ -19234,18 +23710,8 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>metadata</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>oembed_metadata</strong></td>
 <td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>overridden</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
@@ -19259,60 +23725,19 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>project_ids</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>project_media_project</strong></td>
-<td valign="top"><a href="#projectmediaproject">ProjectMediaProject</a></td>
+<td colspan="2" valign="top"><strong>project_group</strong></td>
+<td valign="top"><a href="#projectgroup">ProjectGroup</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">project_id</td>
-<td valign="top"><a href="#int">Int</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>projects</strong></td>
-<td valign="top"><a href="#projectconnection">ProjectConnection</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">first</td>
+<td colspan="2" valign="top"><strong>project_id</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the first _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">after</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come after the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">last</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the last _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">before</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come before the specified global ID.
-
-</td>
+<td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>published</strong></td>
@@ -19330,13 +23755,8 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>relationship</strong></td>
-<td valign="top"><a href="#relationship">Relationship</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>relationships</strong></td>
-<td valign="top"><a href="#relationships">Relationships</a></td>
+<td colspan="2" valign="top"><strong>report_status</strong></td>
+<td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
 <tr>
@@ -19350,7 +23770,17 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>secondary_items</strong></td>
+<td colspan="2" valign="top"><strong>share_count</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>show_warning_cover</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>similar_items</strong></td>
 <td valign="top"><a href="#projectmediaconnection">ProjectMediaConnection</a></td>
 <td></td>
 </tr>
@@ -19391,24 +23821,65 @@ Returns the elements in the list that come before the specified global ID.
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">source_type</td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">target_type</td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>share_count</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>status</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>suggested_main_item</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>suggested_similar_items_count</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>suggested_similar_relationships</strong></td>
+<td valign="top"><a href="#relationshipconnection">RelationshipConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>tags</strong></td>
@@ -19491,6 +23962,11 @@ Returns the last _n_ elements from the list.
 Returns the elements in the list that come before the specified global ID.
 
 </td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">fieldset</td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>tasks_count</strong></td>
@@ -19601,103 +24077,6 @@ A cursor for use in pagination.
 <tr>
 <td colspan="2" valign="top"><strong>node</strong></td>
 <td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
-<td>
-
-The item at the end of the edge.
-
-</td>
-</tr>
-</tbody>
-</table>
-
-### ProjectMediaProject
-
-ProjectMediaProject type
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>created_at</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>dbid</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>permissions</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project</strong></td>
-<td valign="top"><a href="#project">Project</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_id</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_media</strong></td>
-<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_media_id</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>updated_at</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
-### ProjectMediaProjectEdge
-
-An edge in a connection.
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>cursor</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td>
-
-A cursor for use in pagination.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>node</strong></td>
-<td valign="top"><a href="#projectmediaproject">ProjectMediaProject</a></td>
 <td>
 
 The item at the end of the edge.
@@ -19879,6 +24258,11 @@ Public team type
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>unconfirmed_count</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>updated_at</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -19943,6 +24327,41 @@ A relationship between two items
 </tbody>
 </table>
 
+### RelationshipConnection
+
+The connection type for Relationship.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>edges</strong></td>
+<td valign="top">[<a href="#relationshipedge">RelationshipEdge</a>]</td>
+<td>
+
+A list of edges.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>pageInfo</strong></td>
+<td valign="top"><a href="#pageinfo">PageInfo</a>!</td>
+<td>
+
+Information to aid in pagination.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### RelationshipEdge
 
 An edge in a connection.
@@ -19978,9 +24397,9 @@ The item at the end of the edge.
 </tbody>
 </table>
 
-### Relationships
+### RemoveFilesFromTaskPayload
 
-The sources and targets relationships of the project media
+Autogenerated return type of RemoveFilesFromTask
 
 <table>
 <thead>
@@ -19993,123 +24412,25 @@ The sources and targets relationships of the project media
 </thead>
 <tbody>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>source_id</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>sources</strong></td>
-<td valign="top"><a href="#relationshipssourceconnection">RelationshipsSourceConnection</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">first</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the first _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">after</td>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified global ID.
+A unique identifier for the client performing the mutation.
 
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">last</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the last _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">before</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come before the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>sources_count</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>target_id</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>targets</strong></td>
-<td valign="top"><a href="#relationshipstargetconnection">RelationshipsTargetConnection</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">first</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the first _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">after</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come after the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">last</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the last _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">before</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come before the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">filters</td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>targets_count</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
+<td colspan="2" valign="top"><strong>task</strong></td>
+<td valign="top"><a href="#task">Task</a></td>
 <td></td>
 </tr>
 </tbody>
 </table>
 
-### RelationshipsSource
+### ReplaceProjectMediaPayload
 
-The source of a relationship
+Autogenerated return type of ReplaceProjectMedia
 
 <table>
 <thead>
@@ -20122,273 +24443,23 @@ The source of a relationship
 </thead>
 <tbody>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>relationship_id</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>siblings</strong></td>
-<td valign="top"><a href="#projectmediaconnection">ProjectMediaConnection</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">first</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the first _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">after</td>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified global ID.
+A unique identifier for the client performing the mutation.
 
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">last</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the last _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">before</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come before the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>source</strong></td>
+<td colspan="2" valign="top"><strong>new_project_media</strong></td>
 <td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>type</strong></td>
-<td valign="top"><a href="#string">String</a></td>
+<td colspan="2" valign="top"><strong>old_project_media_deleted_id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
 <td></td>
-</tr>
-</tbody>
-</table>
-
-### RelationshipsSourceConnection
-
-The connection type for RelationshipsSource.
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>edges</strong></td>
-<td valign="top">[<a href="#relationshipssourceedge">RelationshipsSourceEdge</a>]</td>
-<td>
-
-A list of edges.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>pageInfo</strong></td>
-<td valign="top"><a href="#pageinfo">PageInfo</a>!</td>
-<td>
-
-Information to aid in pagination.
-
-</td>
-</tr>
-</tbody>
-</table>
-
-### RelationshipsSourceEdge
-
-An edge in a connection.
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>cursor</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td>
-
-A cursor for use in pagination.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>node</strong></td>
-<td valign="top"><a href="#relationshipssource">RelationshipsSource</a></td>
-<td>
-
-The item at the end of the edge.
-
-</td>
-</tr>
-</tbody>
-</table>
-
-### RelationshipsTarget
-
-The targets of a relationship
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>targets</strong></td>
-<td valign="top"><a href="#projectmediaconnection">ProjectMediaConnection</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">first</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the first _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">after</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come after the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">last</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the last _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">before</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come before the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>type</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
-### RelationshipsTargetConnection
-
-The connection type for RelationshipsTarget.
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>edges</strong></td>
-<td valign="top">[<a href="#relationshipstargetedge">RelationshipsTargetEdge</a>]</td>
-<td>
-
-A list of edges.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>pageInfo</strong></td>
-<td valign="top"><a href="#pageinfo">PageInfo</a>!</td>
-<td>
-
-Information to aid in pagination.
-
-</td>
-</tr>
-</tbody>
-</table>
-
-### RelationshipsTargetEdge
-
-An edge in a connection.
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>cursor</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td>
-
-A cursor for use in pagination.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>node</strong></td>
-<td valign="top"><a href="#relationshipstarget">RelationshipsTarget</a></td>
-<td>
-
-The item at the end of the edge.
-
-</td>
 </tr>
 </tbody>
 </table>
@@ -20484,11 +24555,6 @@ A unique identifier for the client performing the mutation.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>expiry</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>success</strong></td>
 <td valign="top"><a href="#boolean">Boolean</a></td>
 <td></td>
@@ -20511,419 +24577,19 @@ Unassociated root object queries
 </thead>
 <tbody>
 <tr>
-<td colspan="2" valign="top"><strong>account_sources</strong></td>
-<td valign="top"><a href="#accountsourceconnection">AccountSourceConnection</a></td>
+<td colspan="2" valign="top"><strong>current_team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">first</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the first _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">after</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come after the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">last</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the last _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">before</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come before the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>accounts</strong></td>
-<td valign="top"><a href="#accountconnection">AccountConnection</a></td>
+<td colspan="2" valign="top"><strong>current_user</strong></td>
+<td valign="top"><a href="#user">User</a></td>
 <td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">first</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the first _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">after</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come after the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">last</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the last _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">before</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come before the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>annotations</strong></td>
-<td valign="top"><a href="#annotationconnection">AnnotationConnection</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">first</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the first _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">after</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come after the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">last</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the last _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">before</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come before the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>comments</strong></td>
-<td valign="top"><a href="#commentconnection">CommentConnection</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">first</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the first _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">after</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come after the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">last</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the last _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">before</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come before the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>contacts</strong></td>
-<td valign="top"><a href="#contactconnection">ContactConnection</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">first</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the first _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">after</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come after the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">last</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the last _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">before</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come before the specified global ID.
-
-</td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>id</strong></td>
 <td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>medias</strong></td>
-<td valign="top"><a href="#mediaconnection">MediaConnection</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">first</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the first _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">after</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come after the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">last</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the last _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">before</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come before the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_medias</strong></td>
-<td valign="top"><a href="#projectmediaconnection">ProjectMediaConnection</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">first</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the first _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">after</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come after the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">last</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the last _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">before</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come before the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>projects</strong></td>
-<td valign="top"><a href="#projectconnection">ProjectConnection</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">first</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the first _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">after</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come after the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">last</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the last _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">before</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come before the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>sources</strong></td>
-<td valign="top"><a href="#sourceconnection">SourceConnection</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">first</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the first _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">after</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come after the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">last</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the last _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">before</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come before the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>tags</strong></td>
-<td valign="top"><a href="#tagconnection">TagConnection</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">first</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the first _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">after</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come after the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">last</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the last _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">before</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come before the specified global ID.
-
-</td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>team_bots_approved</strong></td>
@@ -20966,128 +24632,199 @@ Returns the elements in the list that come before the specified global ID.
 
 </td>
 </tr>
+</tbody>
+</table>
+
+### SavedSearch
+
+Saved search type
+
+<table>
+<thead>
 <tr>
-<td colspan="2" valign="top"><strong>team_users</strong></td>
-<td valign="top"><a href="#teamuserconnection">TeamUserConnection</a></td>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>created_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">first</td>
+<td colspan="2" valign="top"><strong>dbid</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the first _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">after</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come after the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">last</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the last _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">before</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come before the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>teams</strong></td>
-<td valign="top"><a href="#teamconnection">TeamConnection</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">first</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the first _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">after</td>
+<td colspan="2" valign="top"><strong>filters</strong></td>
 <td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come after the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">last</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the last _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">before</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come before the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>users</strong></td>
-<td valign="top"><a href="#userconnection">UserConnection</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">first</td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissions</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team_id</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>title</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updated_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### SavedSearchConnection
+
+The connection type for SavedSearch.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>edges</strong></td>
+<td valign="top">[<a href="#savedsearchedge">SavedSearchEdge</a>]</td>
 <td>
 
-Returns the first _n_ elements from the list.
+A list of edges.
 
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">after</td>
+<td colspan="2" valign="top"><strong>pageInfo</strong></td>
+<td valign="top"><a href="#pageinfo">PageInfo</a>!</td>
+<td>
+
+Information to aid in pagination.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### SavedSearchEdge
+
+An edge in a connection.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>cursor</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A cursor for use in pagination.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>node</strong></td>
+<td valign="top"><a href="#savedsearch">SavedSearch</a></td>
+<td>
+
+The item at the end of the edge.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### SearchUploadPayload
+
+Autogenerated return type of SearchUpload
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified global ID.
+A unique identifier for the client performing the mutation.
 
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">last</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the last _n_ elements from the list.
-
-</td>
+<td colspan="2" valign="top"><strong>file_handle</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
 </tr>
+</tbody>
+</table>
+
+### SmoochBotAddIntegrationPayload
+
+Autogenerated return type of SmoochBotAddIntegration
+
+<table>
+<thead>
 <tr>
-<td colspan="2" align="right" valign="top">before</td>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified global ID.
+A unique identifier for the client performing the mutation.
 
 </td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team_bot_installation</strong></td>
+<td valign="top"><a href="#teambotinstallation">TeamBotInstallation</a></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -21123,6 +24860,37 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>success</strong></td>
 <td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### SmoochBotRemoveIntegrationPayload
+
+Autogenerated return type of SmoochBotRemoveIntegration
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team_bot_installation</strong></td>
+<td valign="top"><a href="#teambotinstallation">TeamBotInstallation</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -21286,6 +25054,11 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>archived</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>collaborators</strong></td>
 <td valign="top"><a href="#userconnection">UserConnection</a></td>
 <td></td>
@@ -21419,6 +25192,52 @@ Returns the elements in the list that come before the specified global ID.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>pusher_channel</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>tasks</strong></td>
+<td valign="top"><a href="#taskconnection">TaskConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">fieldset</td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
@@ -21645,6 +25464,11 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>fragment</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -21652,11 +25476,6 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>id</strong></td>
 <td valign="top"><a href="#id">ID</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
@@ -21733,6 +25552,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>tag_text_object</strong></td>
 <td valign="top"><a href="#tagtext">TagText</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 <tr>
@@ -22085,6 +25909,16 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>fieldset</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>first_response</strong></td>
 <td valign="top"><a href="#annotation">Annotation</a></td>
 <td></td>
@@ -22097,11 +25931,6 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>id</strong></td>
 <td valign="top"><a href="#id">ID</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>image_data</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
@@ -22288,8 +26117,23 @@ Returns the elements in the list that come before the specified global ID.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>show_in_browser_extension</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>suggestions_count</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team_task</strong></td>
+<td valign="top"><a href="#teamtask">TeamTask</a></td>
 <td></td>
 </tr>
 <tr>
@@ -22385,42 +26229,6 @@ The item at the end of the edge.
 </tbody>
 </table>
 
-### TasksOrderPayload
-
-Autogenerated return type of TasksOrder
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-A unique identifier for the client performing the mutation.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>errors</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>success</strong></td>
-<td valign="top"><a href="#boolean">Boolean</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
 ### Team
 
 Team type
@@ -22437,7 +26245,7 @@ Team type
 <tbody>
 <tr>
 <td colspan="2" valign="top"><strong>archived</strong></td>
-<td valign="top"><a href="#boolean">Boolean</a></td>
+<td valign="top"><a href="#int">Int</a></td>
 <td></td>
 </tr>
 <tr>
@@ -22451,45 +26259,14 @@ Team type
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>contacts</strong></td>
-<td valign="top"><a href="#contactconnection">ContactConnection</a></td>
+<td colspan="2" valign="top"><strong>check_search_unconfirmed</strong></td>
+<td valign="top"><a href="#checksearch">CheckSearch</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">first</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the first _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">after</td>
+<td colspan="2" valign="top"><strong>country</strong></td>
 <td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come after the specified global ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">last</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-
-Returns the last _n_ elements from the list.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">before</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Returns the elements in the list that come before the specified global ID.
-
-</td>
+<td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>created_at</strong></td>
@@ -22512,8 +26289,18 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>get_data_report_url</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>get_embed_whitelist</strong></td>
 <td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>get_fieldsets</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
@@ -22542,8 +26329,8 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>get_slack_channel</strong></td>
-<td valign="top"><a href="#string">String</a></td>
+<td colspan="2" valign="top"><strong>get_slack_notifications</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
@@ -22562,13 +26349,23 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td colspan="2" valign="top"><strong>get_tasks_enabled</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>invited_mails</strong></td>
+<td colspan="2" valign="top"><strong>get_tipline_inbox_filters</strong></td>
 <td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>get_trends_enabled</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -22613,6 +26410,11 @@ Returns the elements in the list that come before the specified global ID.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>list_columns</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>medias_count</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
 <td></td>
@@ -22641,6 +26443,47 @@ Returns the elements in the list that come before the specified global ID.
 <td colspan="2" valign="top"><strong>private</strong></td>
 <td valign="top"><a href="#boolean">Boolean</a></td>
 <td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_groups</strong></td>
+<td valign="top"><a href="#projectgroupconnection">ProjectGroupConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>projects</strong></td>
@@ -22714,12 +26557,58 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>saved_searches</strong></td>
+<td valign="top"><a href="#savedsearchconnection">SavedSearchConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>search</strong></td>
 <td valign="top"><a href="#checksearch">CheckSearch</a></td>
 <td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>search_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>slack_notifications_json_schema</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
@@ -22770,6 +26659,11 @@ Returns the elements in the list that come before the specified global ID.
 </td>
 </tr>
 <tr>
+<td colspan="2" align="right" valign="top">keyword</td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>tag_texts</strong></td>
 <td valign="top"><a href="#tagtextconnection">TagTextConnection</a></td>
 <td></td>
@@ -22809,6 +26703,16 @@ Returns the last _n_ elements from the list.
 Returns the elements in the list that come before the specified global ID.
 
 </td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team_bot_installation</strong></td>
+<td valign="top"><a href="#teambotinstallation">TeamBotInstallation</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">bot_identifier</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>team_bot_installations</strong></td>
@@ -22934,6 +26838,11 @@ Returns the elements in the list that come before the specified global ID.
 </td>
 </tr>
 <tr>
+<td colspan="2" align="right" valign="top">fieldset</td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>team_users</strong></td>
 <td valign="top"><a href="#teamuserconnection">TeamUserConnection</a></td>
 <td></td>
@@ -22975,6 +26884,11 @@ Returns the elements in the list that come before the specified global ID.
 </td>
 </tr>
 <tr>
+<td colspan="2" align="right" valign="top">status</td>
+<td valign="top">[<a href="#string">String</a>]</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>trash_count</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
 <td></td>
@@ -22985,7 +26899,17 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>unconfirmed_count</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>updated_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>url</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
@@ -23063,6 +26987,11 @@ Team Bot Installation type
 </thead>
 <tbody>
 <tr>
+<td colspan="2" valign="top"><strong>alegre_settings</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>bot_user</strong></td>
 <td valign="top"><a href="#botuser">BotUser</a></td>
 <td></td>
@@ -23085,6 +27014,36 @@ Team Bot Installation type
 <tr>
 <td colspan="2" valign="top"><strong>permissions</strong></td>
 <td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>smooch_bot_preview_rss_feed</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">rss_feed_url</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">number_of_articles</td>
+<td valign="top"><a href="#int">Int</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>smooch_enabled_integrations</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">force</td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>smooch_newsletter_information</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
@@ -23255,6 +27214,16 @@ Team task type
 </thead>
 <tbody>
 <tr>
+<td colspan="2" valign="top"><strong>associated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>conditional_info</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>created_at</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -23266,6 +27235,11 @@ Team task type
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>description</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fieldset</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
@@ -23307,6 +27281,21 @@ Team task type
 <tr>
 <td colspan="2" valign="top"><strong>required</strong></td>
 <td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>show_in_browser_extension</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>tasks_count</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>tasks_with_answers_count</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
 <td></td>
 </tr>
 <tr>
@@ -23432,6 +27421,11 @@ TeamUser type
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>invited_by</strong></td>
+<td valign="top"><a href="#user">User</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>permissions</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -23540,6 +27534,42 @@ A cursor for use in pagination.
 The item at the end of the edge.
 
 </td>
+</tr>
+</tbody>
+</table>
+
+### TranscribeAudioPayload
+
+Autogenerated return type of TranscribeAudio
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>annotation</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -23687,42 +27717,6 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
-### UpdateContactPayload
-
-Autogenerated return type of UpdateContact
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-A unique identifier for the client performing the mutation.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>contact</strong></td>
-<td valign="top"><a href="#contact">Contact</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>contactEdge</strong></td>
-<td valign="top"><a href="#contactedge">ContactEdge</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
 ### UpdateDynamicAnnotationAnalysisPayload
 
 Autogenerated return type of UpdateDynamicAnnotationAnalysis
@@ -23779,6 +27773,77 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### UpdateDynamicAnnotationArchiveIsPayload
+
+Autogenerated return type of UpdateDynamicAnnotationArchiveIs
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamicEdge</strong></td>
+<td valign="top"><a href="#dynamicedge">DynamicEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_archive_is</strong></td>
+<td valign="top"><a href="#dynamic_annotation_archive_is">Dynamic_annotation_archive_is</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_archive_isEdge</strong></td>
+<td valign="top"><a href="#dynamic_annotation_archive_isedge">Dynamic_annotation_archive_isEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -23842,6 +27907,11 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -23901,6 +27971,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -23964,12 +28039,17 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
-### UpdateDynamicAnnotationFetchPayload
+### UpdateDynamicAnnotationExtractedTextPayload
 
-Autogenerated return type of UpdateDynamicAnnotationFetch
+Autogenerated return type of UpdateDynamicAnnotationExtractedText
 
 <table>
 <thead>
@@ -24001,13 +28081,13 @@ A unique identifier for the client performing the mutation.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>dynamic_annotation_fetch</strong></td>
-<td valign="top"><a href="#dynamic_annotation_fetch">Dynamic_annotation_fetch</a></td>
+<td colspan="2" valign="top"><strong>dynamic_annotation_extracted_text</strong></td>
+<td valign="top"><a href="#dynamic_annotation_extracted_text">Dynamic_annotation_extracted_text</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>dynamic_annotation_fetchEdge</strong></td>
-<td valign="top"><a href="#dynamic_annotation_fetchedge">Dynamic_annotation_fetchEdge</a></td>
+<td colspan="2" valign="top"><strong>dynamic_annotation_extracted_textEdge</strong></td>
+<td valign="top"><a href="#dynamic_annotation_extracted_textedge">Dynamic_annotation_extracted_textEdge</a></td>
 <td></td>
 </tr>
 <tr>
@@ -24023,6 +28103,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -24086,6 +28171,11 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -24145,6 +28235,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -24208,6 +28303,77 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### UpdateDynamicAnnotationMemebusterPayload
+
+Autogenerated return type of UpdateDynamicAnnotationMemebuster
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamicEdge</strong></td>
+<td valign="top"><a href="#dynamicedge">DynamicEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_memebuster</strong></td>
+<td valign="top"><a href="#dynamic_annotation_memebuster">Dynamic_annotation_memebuster</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_memebusterEdge</strong></td>
+<td valign="top"><a href="#dynamic_annotation_memebusteredge">Dynamic_annotation_memebusterEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -24267,6 +28433,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -24330,6 +28501,77 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### UpdateDynamicAnnotationMtPayload
+
+Autogenerated return type of UpdateDynamicAnnotationMt
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamicEdge</strong></td>
+<td valign="top"><a href="#dynamicedge">DynamicEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_mt</strong></td>
+<td valign="top"><a href="#dynamic_annotation_mt">Dynamic_annotation_mt</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_mtEdge</strong></td>
+<td valign="top"><a href="#dynamic_annotation_mtedge">Dynamic_annotation_mtEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -24389,6 +28631,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -24452,6 +28699,11 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -24511,6 +28763,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -24574,6 +28831,11 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -24633,6 +28895,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -24696,6 +28963,11 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -24755,6 +29027,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -24818,6 +29095,77 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### UpdateDynamicAnnotationTaskResponseFileUploadPayload
+
+Autogenerated return type of UpdateDynamicAnnotationTaskResponseFileUpload
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamicEdge</strong></td>
+<td valign="top"><a href="#dynamicedge">DynamicEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_task_response_file_upload</strong></td>
+<td valign="top"><a href="#dynamic_annotation_task_response_file_upload">Dynamic_annotation_task_response_file_upload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_task_response_file_uploadEdge</strong></td>
+<td valign="top"><a href="#dynamic_annotation_task_response_file_uploadedge">Dynamic_annotation_task_response_file_uploadEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -24877,6 +29225,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -24940,65 +29293,9 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
-</tbody>
-</table>
-
-### UpdateDynamicAnnotationTaskResponseImageUploadPayload
-
-Autogenerated return type of UpdateDynamicAnnotationTaskResponseImageUpload
-
-<table>
-<thead>
 <tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-A unique identifier for the client performing the mutation.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>dynamic</strong></td>
-<td valign="top"><a href="#dynamic">Dynamic</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>dynamicEdge</strong></td>
-<td valign="top"><a href="#dynamicedge">DynamicEdge</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>dynamic_annotation_task_response_image_upload</strong></td>
-<td valign="top"><a href="#dynamic_annotation_task_response_image_upload">Dynamic_annotation_task_response_image_upload</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>dynamic_annotation_task_response_image_uploadEdge</strong></td>
-<td valign="top"><a href="#dynamic_annotation_task_response_image_uploadedge">Dynamic_annotation_task_response_image_uploadEdge</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project</strong></td>
-<td valign="top"><a href="#project">Project</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_media</strong></td>
-<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>source</strong></td>
-<td valign="top"><a href="#source">Source</a></td>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -25062,6 +29359,77 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### UpdateDynamicAnnotationTaskResponseNumberPayload
+
+Autogenerated return type of UpdateDynamicAnnotationTaskResponseNumber
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamicEdge</strong></td>
+<td valign="top"><a href="#dynamicedge">DynamicEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_task_response_number</strong></td>
+<td valign="top"><a href="#dynamic_annotation_task_response_number">Dynamic_annotation_task_response_number</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_task_response_numberEdge</strong></td>
+<td valign="top"><a href="#dynamic_annotation_task_response_numberedge">Dynamic_annotation_task_response_numberEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -25121,6 +29489,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -25184,6 +29557,11 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -25243,6 +29621,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -25306,6 +29689,11 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -25367,6 +29755,275 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#source">Source</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### UpdateDynamicAnnotationTranscriptionPayload
+
+Autogenerated return type of UpdateDynamicAnnotationTranscription
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamicEdge</strong></td>
+<td valign="top"><a href="#dynamicedge">DynamicEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_transcription</strong></td>
+<td valign="top"><a href="#dynamic_annotation_transcription">Dynamic_annotation_transcription</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_transcriptionEdge</strong></td>
+<td valign="top"><a href="#dynamic_annotation_transcriptionedge">Dynamic_annotation_transcriptionEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### UpdateDynamicAnnotationTranslationPayload
+
+Autogenerated return type of UpdateDynamicAnnotationTranslation
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamicEdge</strong></td>
+<td valign="top"><a href="#dynamicedge">DynamicEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_translation</strong></td>
+<td valign="top"><a href="#dynamic_annotation_translation">Dynamic_annotation_translation</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_translationEdge</strong></td>
+<td valign="top"><a href="#dynamic_annotation_translationedge">Dynamic_annotation_translationEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### UpdateDynamicAnnotationTranslationRequestPayload
+
+Autogenerated return type of UpdateDynamicAnnotationTranslationRequest
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamicEdge</strong></td>
+<td valign="top"><a href="#dynamicedge">DynamicEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_translation_request</strong></td>
+<td valign="top"><a href="#dynamic_annotation_translation_request">Dynamic_annotation_translation_request</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_translation_requestEdge</strong></td>
+<td valign="top"><a href="#dynamic_annotation_translation_requestedge">Dynamic_annotation_translation_requestEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### UpdateDynamicAnnotationTranslationStatusPayload
+
+Autogenerated return type of UpdateDynamicAnnotationTranslationStatus
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamicEdge</strong></td>
+<td valign="top"><a href="#dynamicedge">DynamicEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_translation_status</strong></td>
+<td valign="top"><a href="#dynamic_annotation_translation_status">Dynamic_annotation_translation_status</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_translation_statusEdge</strong></td>
+<td valign="top"><a href="#dynamic_annotation_translation_statusedge">Dynamic_annotation_translation_statusEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -25426,6 +30083,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -25497,6 +30159,47 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### UpdateProjectGroupPayload
+
+Autogenerated return type of UpdateProjectGroup
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_group</strong></td>
+<td valign="top"><a href="#projectgroup">ProjectGroup</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_groupEdge</strong></td>
+<td valign="top"><a href="#projectgroupedge">ProjectGroupEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### UpdateProjectMediaPayload
 
 Autogenerated return type of UpdateProjectMedia
@@ -25537,6 +30240,11 @@ Autogenerated return type of UpdateProjectMedia
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>check_search_unconfirmed</strong></td>
+<td valign="top"><a href="#checksearch">CheckSearch</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>clientMutationId</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td>
@@ -25548,6 +30256,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_group</strong></td>
+<td valign="top"><a href="#projectgroup">ProjectGroup</a></td>
 <td></td>
 </tr>
 <tr>
@@ -25568,143 +30281,6 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>related_to</strong></td>
 <td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>relationships_source</strong></td>
-<td valign="top"><a href="#relationshipssource">RelationshipsSource</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>relationships_target</strong></td>
-<td valign="top"><a href="#relationshipstarget">RelationshipsTarget</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>team</strong></td>
-<td valign="top"><a href="#team">Team</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
-### UpdateProjectMediaProjectPayload
-
-Autogenerated return type of UpdateProjectMediaProject
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>check_search_project</strong></td>
-<td valign="top"><a href="#checksearch">CheckSearch</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>check_search_project_was</strong></td>
-<td valign="top"><a href="#checksearch">CheckSearch</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>check_search_team</strong></td>
-<td valign="top"><a href="#checksearch">CheckSearch</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>check_search_trash</strong></td>
-<td valign="top"><a href="#checksearch">CheckSearch</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-A unique identifier for the client performing the mutation.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project</strong></td>
-<td valign="top"><a href="#project">Project</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_media</strong></td>
-<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_media_project</strong></td>
-<td valign="top"><a href="#projectmediaproject">ProjectMediaProject</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_media_projectEdge</strong></td>
-<td valign="top"><a href="#projectmediaprojectedge">ProjectMediaProjectEdge</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_was</strong></td>
-<td valign="top"><a href="#project">Project</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>team</strong></td>
-<td valign="top"><a href="#team">Team</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
-### UpdateProjectMediaProjectsPayload
-
-Autogenerated return type of UpdateProjectMediaProjects
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>check_search_project_was</strong></td>
-<td valign="top"><a href="#checksearch">CheckSearch</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-A unique identifier for the client performing the mutation.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>ids</strong></td>
-<td valign="top">[<a href="#id">ID</a>]</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project</strong></td>
-<td valign="top"><a href="#project">Project</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_was</strong></td>
-<td valign="top"><a href="#project">Project</a></td>
 <td></td>
 </tr>
 <tr>
@@ -25776,12 +30352,22 @@ Autogenerated return type of UpdateProjectMedias
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>check_search_project_was</strong></td>
+<td valign="top"><a href="#checksearch">CheckSearch</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>check_search_team</strong></td>
 <td valign="top"><a href="#checksearch">CheckSearch</a></td>
 <td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>check_search_trash</strong></td>
+<td valign="top"><a href="#checksearch">CheckSearch</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>check_search_unconfirmed</strong></td>
 <td valign="top"><a href="#checksearch">CheckSearch</a></td>
 <td></td>
 </tr>
@@ -25801,6 +30387,16 @@ A unique identifier for the client performing the mutation.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_group</strong></td>
+<td valign="top"><a href="#projectgroup">ProjectGroup</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_was</strong></td>
 <td valign="top"><a href="#project">Project</a></td>
 <td></td>
 </tr>
@@ -25851,6 +30447,16 @@ A unique identifier for the client performing the mutation.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>project_group</strong></td>
+<td valign="top"><a href="#projectgroup">ProjectGroup</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_group_was</strong></td>
+<td valign="top"><a href="#projectgroup">ProjectGroup</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>team</strong></td>
 <td valign="top"><a href="#team">Team</a></td>
 <td></td>
@@ -25882,11 +30488,6 @@ A unique identifier for the client performing the mutation.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>current_project_media</strong></td>
-<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>relationship</strong></td>
 <td valign="top"><a href="#relationship">Relationship</a></td>
 <td></td>
@@ -25897,16 +30498,6 @@ A unique identifier for the client performing the mutation.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>relationships_source</strong></td>
-<td valign="top"><a href="#relationshipssource">RelationshipsSource</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>relationships_target</strong></td>
-<td valign="top"><a href="#relationshipstarget">RelationshipsTarget</a></td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>source_project_media</strong></td>
 <td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
 <td></td>
@@ -25914,6 +30505,47 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>target_project_media</strong></td>
 <td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### UpdateSavedSearchPayload
+
+Autogenerated return type of UpdateSavedSearch
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>saved_search</strong></td>
+<td valign="top"><a href="#savedsearch">SavedSearch</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>saved_searchEdge</strong></td>
+<td valign="top"><a href="#savedsearchedge">SavedSearchEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -25941,6 +30573,11 @@ Autogenerated return type of UpdateSource
 A unique identifier for the client performing the mutation.
 
 </td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
@@ -26180,6 +30817,11 @@ Autogenerated return type of UpdateTeam
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>check_search_trash</strong></td>
+<td valign="top"><a href="#checksearch">CheckSearch</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>check_search_unconfirmed</strong></td>
 <td valign="top"><a href="#checksearch">CheckSearch</a></td>
 <td></td>
 </tr>
@@ -26465,6 +31107,11 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>completed_signup</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>confirmed</strong></td>
 <td valign="top"><a href="#boolean">Boolean</a></td>
 <td></td>
@@ -26542,6 +31189,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>last_accepted_terms_at</strong></td>
 <td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>last_active_at</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
 <td></td>
 </tr>
 <tr>
@@ -26854,7 +31506,7 @@ A unique identifier for the client performing the mutation.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>success</strong></td>
+<td colspan="2" valign="top"><strong>errors</strong></td>
 <td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
@@ -27023,6 +31675,26 @@ Returns the elements in the list that come before the specified global ID.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>smooch_report_received_at</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>smooch_report_update_received_at</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>smooch_user_external_identifier</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>smooch_user_request_language</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>smooch_user_slack_channel_url</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -27162,6 +31834,36 @@ The item at the end of the edge.
 </table>
 
 ## Inputs
+
+### AddFilesToTaskInput
+
+Autogenerated input type of AddFilesToTask
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
 
 ### ChangePasswordInput
 
@@ -27348,9 +32050,9 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
-### CreateContactInput
+### CreateDynamicAnnotationAnalysisInput
 
-Autogenerated input type of CreateContact
+Autogenerated input type of CreateDynamicAnnotationAnalysis
 
 <table>
 <thead>
@@ -27371,31 +32073,46 @@ A unique identifier for the client performing the mutation.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>location</strong></td>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>phone</strong></td>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>web</strong></td>
+<td colspan="2" valign="top"><strong>set_attribution</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>team_id</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
+<td colspan="2" valign="top"><strong>fragment</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action_data</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_fields</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
 <td></td>
 </tr>
 </tbody>
 </table>
 
-### CreateDynamicAnnotationAnalysisInput
+### CreateDynamicAnnotationArchiveIsInput
 
-Autogenerated input type of CreateDynamicAnnotationAnalysis
+Autogenerated input type of CreateDynamicAnnotationArchiveIs
 
 <table>
 <thead>
@@ -27633,9 +32350,9 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
-### CreateDynamicAnnotationFetchInput
+### CreateDynamicAnnotationExtractedTextInput
 
-Autogenerated input type of CreateDynamicAnnotationFetch
+Autogenerated input type of CreateDynamicAnnotationExtractedText
 
 <table>
 <thead>
@@ -27873,6 +32590,66 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### CreateDynamicAnnotationMemebusterInput
+
+Autogenerated input type of CreateDynamicAnnotationMemebuster
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_attribution</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fragment</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action_data</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_fields</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### CreateDynamicAnnotationMetadataInput
 
 Autogenerated input type of CreateDynamicAnnotationMetadata
@@ -27936,6 +32713,66 @@ A unique identifier for the client performing the mutation.
 ### CreateDynamicAnnotationMetricsInput
 
 Autogenerated input type of CreateDynamicAnnotationMetrics
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_attribution</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fragment</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action_data</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_fields</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### CreateDynamicAnnotationMtInput
+
+Autogenerated input type of CreateDynamicAnnotationMt
 
 <table>
 <thead>
@@ -28473,6 +33310,66 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### CreateDynamicAnnotationTaskResponseFileUploadInput
+
+Autogenerated input type of CreateDynamicAnnotationTaskResponseFileUpload
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_attribution</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fragment</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action_data</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_fields</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### CreateDynamicAnnotationTaskResponseFreeTextInput
 
 Autogenerated input type of CreateDynamicAnnotationTaskResponseFreeText
@@ -28593,9 +33490,9 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
-### CreateDynamicAnnotationTaskResponseImageUploadInput
+### CreateDynamicAnnotationTaskResponseMultipleChoiceInput
 
-Autogenerated input type of CreateDynamicAnnotationTaskResponseImageUpload
+Autogenerated input type of CreateDynamicAnnotationTaskResponseMultipleChoice
 
 <table>
 <thead>
@@ -28653,9 +33550,9 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
-### CreateDynamicAnnotationTaskResponseMultipleChoiceInput
+### CreateDynamicAnnotationTaskResponseNumberInput
 
-Autogenerated input type of CreateDynamicAnnotationTaskResponseMultipleChoice
+Autogenerated input type of CreateDynamicAnnotationTaskResponseNumber
 
 <table>
 <thead>
@@ -29013,6 +33910,246 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### CreateDynamicAnnotationTranscriptionInput
+
+Autogenerated input type of CreateDynamicAnnotationTranscription
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_attribution</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fragment</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action_data</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_fields</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### CreateDynamicAnnotationTranslationInput
+
+Autogenerated input type of CreateDynamicAnnotationTranslation
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_attribution</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fragment</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action_data</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_fields</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### CreateDynamicAnnotationTranslationRequestInput
+
+Autogenerated input type of CreateDynamicAnnotationTranslationRequest
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_attribution</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fragment</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action_data</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_fields</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### CreateDynamicAnnotationTranslationStatusInput
+
+Autogenerated input type of CreateDynamicAnnotationTranslationStatus
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_attribution</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fragment</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action_data</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_fields</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### CreateDynamicAnnotationVerificationStatusInput
 
 Autogenerated input type of CreateDynamicAnnotationVerificationStatus
@@ -29128,6 +34265,46 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### CreateProjectGroupInput
+
+Autogenerated input type of CreateProjectGroup
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>title</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>description</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team_id</strong></td>
+<td valign="top"><a href="#int">Int</a>!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### CreateProjectInput
 
 Autogenerated input type of CreateProject
@@ -29151,11 +34328,6 @@ A unique identifier for the client performing the mutation.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>lead_image</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>description</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -29167,6 +34339,11 @@ A unique identifier for the client performing the mutation.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>team_id</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_group_id</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
 <td></td>
 </tr>
@@ -29221,7 +34398,12 @@ A unique identifier for the client performing the mutation.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>add_to_project_id</strong></td>
+<td colspan="2" valign="top"><strong>project_id</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>channel</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
 <td></td>
 </tr>
@@ -29238,95 +34420,6 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>media_type</strong></td>
 <td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
-### CreateProjectMediaProjectInput
-
-Autogenerated input type of CreateProjectMediaProject
-
-<table>
-<thead>
-<tr>
-<th colspan="2" align="left">Field</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-A unique identifier for the client performing the mutation.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_id</strong></td>
-<td valign="top"><a href="#int">Int</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_media_id</strong></td>
-<td valign="top"><a href="#int">Int</a>!</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
-### CreateProjectMediaProjectsBulkInput
-
-<table>
-<thead>
-<tr>
-<th colspan="2" align="left">Field</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>project_id</strong></td>
-<td valign="top"><a href="#int">Int</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_media_id</strong></td>
-<td valign="top"><a href="#int">Int</a>!</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
-### CreateProjectMediaProjectsInput
-
-Autogenerated input type of CreateProjectMediaProjects
-
-<table>
-<thead>
-<tr>
-<th colspan="2" align="left">Field</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-A unique identifier for the client performing the mutation.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>inputs</strong></td>
-<td valign="top">[<a href="#createprojectmediaprojectsbulkinput">CreateProjectMediaProjectsBulkInput</a>]</td>
 <td></td>
 </tr>
 </tbody>
@@ -29409,6 +34502,56 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>relationship_source_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>relationship_target_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### CreateSavedSearchInput
+
+Autogenerated input type of CreateSavedSearch
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>title</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>filters</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team_id</strong></td>
+<td valign="top"><a href="#int">Int</a>!</td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -29452,6 +34595,21 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>user_id</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>add_to_project_media_id</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>urls</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>validate_primary_link_exist</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -29668,6 +34826,11 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#int">Int</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>fieldset</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -29730,7 +34893,7 @@ A unique identifier for the client performing the mutation.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>archived</strong></td>
-<td valign="top"><a href="#boolean">Boolean</a></td>
+<td valign="top"><a href="#int">Int</a></td>
 <td></td>
 </tr>
 <tr>
@@ -29750,11 +34913,6 @@ A unique identifier for the client performing the mutation.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>description</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>contact</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
@@ -29821,6 +34979,31 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>order</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fieldset</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>associated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>show_in_browser_extension</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>conditional_info</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>required</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
 <td></td>
 </tr>
 <tr>
@@ -29899,13 +35082,18 @@ A unique identifier for the client performing the mutation.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>email</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
+<td colspan="2" valign="top"><strong>profile_image</strong></td>
+<td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>profile_image</strong></td>
-<td valign="top"><a href="#string">String</a></td>
+<td colspan="2" valign="top"><strong>current_team_id</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>email</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -29916,11 +35104,6 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>name</strong></td>
 <td valign="top"><a href="#string">String</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>current_team_id</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
 <td></td>
 </tr>
 <tr>
@@ -30096,9 +35279,9 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
-### DestroyContactInput
+### DestroyDynamicAnnotationAnalysisInput
 
-Autogenerated input type of DestroyContact
+Autogenerated input type of DestroyDynamicAnnotationAnalysis
 
 <table>
 <thead>
@@ -30126,9 +35309,9 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
-### DestroyDynamicAnnotationAnalysisInput
+### DestroyDynamicAnnotationArchiveIsInput
 
-Autogenerated input type of DestroyDynamicAnnotationAnalysis
+Autogenerated input type of DestroyDynamicAnnotationArchiveIs
 
 <table>
 <thead>
@@ -30246,9 +35429,9 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
-### DestroyDynamicAnnotationFetchInput
+### DestroyDynamicAnnotationExtractedTextInput
 
-Autogenerated input type of DestroyDynamicAnnotationFetch
+Autogenerated input type of DestroyDynamicAnnotationExtractedText
 
 <table>
 <thead>
@@ -30366,6 +35549,36 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### DestroyDynamicAnnotationMemebusterInput
+
+Autogenerated input type of DestroyDynamicAnnotationMemebuster
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### DestroyDynamicAnnotationMetadataInput
 
 Autogenerated input type of DestroyDynamicAnnotationMetadata
@@ -30399,6 +35612,36 @@ A unique identifier for the client performing the mutation.
 ### DestroyDynamicAnnotationMetricsInput
 
 Autogenerated input type of DestroyDynamicAnnotationMetrics
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### DestroyDynamicAnnotationMtInput
+
+Autogenerated input type of DestroyDynamicAnnotationMt
 
 <table>
 <thead>
@@ -30666,6 +35909,36 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### DestroyDynamicAnnotationTaskResponseFileUploadInput
+
+Autogenerated input type of DestroyDynamicAnnotationTaskResponseFileUpload
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### DestroyDynamicAnnotationTaskResponseFreeTextInput
 
 Autogenerated input type of DestroyDynamicAnnotationTaskResponseFreeText
@@ -30726,9 +35999,9 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
-### DestroyDynamicAnnotationTaskResponseImageUploadInput
+### DestroyDynamicAnnotationTaskResponseMultipleChoiceInput
 
-Autogenerated input type of DestroyDynamicAnnotationTaskResponseImageUpload
+Autogenerated input type of DestroyDynamicAnnotationTaskResponseMultipleChoice
 
 <table>
 <thead>
@@ -30756,9 +36029,9 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
-### DestroyDynamicAnnotationTaskResponseMultipleChoiceInput
+### DestroyDynamicAnnotationTaskResponseNumberInput
 
-Autogenerated input type of DestroyDynamicAnnotationTaskResponseMultipleChoice
+Autogenerated input type of DestroyDynamicAnnotationTaskResponseNumber
 
 <table>
 <thead>
@@ -30936,6 +36209,126 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### DestroyDynamicAnnotationTranscriptionInput
+
+Autogenerated input type of DestroyDynamicAnnotationTranscription
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### DestroyDynamicAnnotationTranslationInput
+
+Autogenerated input type of DestroyDynamicAnnotationTranslation
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### DestroyDynamicAnnotationTranslationRequestInput
+
+Autogenerated input type of DestroyDynamicAnnotationTranslationRequest
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### DestroyDynamicAnnotationTranslationStatusInput
+
+Autogenerated input type of DestroyDynamicAnnotationTranslationStatus
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### DestroyDynamicAnnotationVerificationStatusInput
 
 Autogenerated input type of DestroyDynamicAnnotationVerificationStatus
@@ -30969,6 +36362,36 @@ A unique identifier for the client performing the mutation.
 ### DestroyDynamicInput
 
 Autogenerated input type of DestroyDynamic
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### DestroyProjectGroupInput
+
+Autogenerated input type of DestroyProjectGroup
 
 <table>
 <thead>
@@ -31056,81 +36479,6 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
-### DestroyProjectMediaProjectInput
-
-Autogenerated input type of DestroyProjectMediaProject
-
-<table>
-<thead>
-<tr>
-<th colspan="2" align="left">Field</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-A unique identifier for the client performing the mutation.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_id</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_media_id</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
-### DestroyProjectMediaProjectsInput
-
-Autogenerated input type of DestroyProjectMediaProjects
-
-<table>
-<thead>
-<tr>
-<th colspan="2" align="left">Field</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-A unique identifier for the client performing the mutation.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>ids</strong></td>
-<td valign="top">[<a href="#id">ID</a>]!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>previous_project_id</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
 ### DestroyProjectMediaUserInput
 
 Autogenerated input type of DestroyProjectMediaUser
@@ -31189,8 +36537,38 @@ A unique identifier for the client performing the mutation.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>current_id</strong></td>
+<td colspan="2" valign="top"><strong>add_to_project_id</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### DestroySavedSearchInput
+
+Autogenerated input type of DestroySavedSearch
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -31501,6 +36879,76 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### DuplicateTeamMutationInput
+
+Autogenerated input type of DuplicateTeamMutation
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team_id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>custom_slug</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>custom_name</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### ExtractTextInput
+
+Autogenerated input type of ExtractText
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### GenerateTwoFactorBackupCodesInput
 
 Autogenerated input type of GenerateTwoFactorBackupCodes
@@ -31531,9 +36979,9 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
-### ImportSpreadsheetInput
+### MoveTaskDownInput
 
-Autogenerated input type of ImportSpreadsheet
+Autogenerated input type of MoveTaskDown
 
 <table>
 <thead>
@@ -31554,18 +37002,168 @@ A unique identifier for the client performing the mutation.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>spreadsheet_url</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### MoveTaskUpInput
+
+Autogenerated input type of MoveTaskUp
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### MoveTeamTaskDownInput
+
+Autogenerated input type of MoveTeamTaskDown
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### MoveTeamTaskUpInput
+
+Autogenerated input type of MoveTeamTaskUp
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### RemoveFilesFromTaskInput
+
+Autogenerated input type of RemoveFilesFromTask
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>team_id</strong></td>
-<td valign="top"><a href="#int">Int</a>!</td>
+<td colspan="2" valign="top"><strong>filenames</strong></td>
+<td valign="top">[<a href="#string">String</a>]</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### ReplaceProjectMediaInput
+
+Autogenerated input type of ReplaceProjectMedia
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media_to_be_replaced_id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>user_id</strong></td>
-<td valign="top"><a href="#int">Int</a>!</td>
+<td colspan="2" valign="top"><strong>new_project_media_id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 </tbody>
@@ -31666,6 +37264,75 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### SearchUploadInput
+
+Autogenerated input type of SearchUpload
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### SmoochBotAddIntegrationInput
+
+Autogenerated input type of SmoochBotAddIntegration
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team_bot_installation_id</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>integration_type</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>params</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+JSON string with additional parameters specific for this integration
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### SmoochBotAddSlackChannelUrlInput
 
 Autogenerated input type of SmoochBotAddSlackChannelUrl
@@ -31701,9 +37368,9 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
-### TasksOrderInput
+### SmoochBotRemoveIntegrationInput
 
-Autogenerated input type of TasksOrder
+Autogenerated input type of SmoochBotRemoveIntegration
 
 <table>
 <thead>
@@ -31724,8 +37391,43 @@ A unique identifier for the client performing the mutation.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>tasks</strong></td>
-<td valign="top"><a href="#jsonstringtype">JsonStringType</a>!</td>
+<td colspan="2" valign="top"><strong>team_bot_installation_id</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>integration_type</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### TranscribeAudioInput
+
+Autogenerated input type of TranscribeAudio
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
 </tbody>
@@ -31856,9 +37558,9 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
-### UpdateContactInput
+### UpdateDynamicAnnotationAnalysisInput
 
-Autogenerated input type of UpdateContact
+Autogenerated input type of UpdateDynamicAnnotationAnalysis
 
 <table>
 <thead>
@@ -31884,31 +37586,61 @@ A unique identifier for the client performing the mutation.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>location</strong></td>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>phone</strong></td>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>web</strong></td>
+<td colspan="2" valign="top"><strong>set_attribution</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>team_id</strong></td>
+<td colspan="2" valign="top"><strong>fragment</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action_data</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_fields</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>lock_version</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>assigned_to_ids</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>locked</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
 <td></td>
 </tr>
 </tbody>
 </table>
 
-### UpdateDynamicAnnotationAnalysisInput
+### UpdateDynamicAnnotationArchiveIsInput
 
-Autogenerated input type of UpdateDynamicAnnotationAnalysis
+Autogenerated input type of UpdateDynamicAnnotationArchiveIs
 
 <table>
 <thead>
@@ -32226,9 +37958,9 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
-### UpdateDynamicAnnotationFetchInput
+### UpdateDynamicAnnotationExtractedTextInput
 
-Autogenerated input type of UpdateDynamicAnnotationFetch
+Autogenerated input type of UpdateDynamicAnnotationExtractedText
 
 <table>
 <thead>
@@ -32546,6 +38278,86 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### UpdateDynamicAnnotationMemebusterInput
+
+Autogenerated input type of UpdateDynamicAnnotationMemebuster
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_attribution</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fragment</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action_data</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_fields</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>lock_version</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>assigned_to_ids</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>locked</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### UpdateDynamicAnnotationMetadataInput
 
 Autogenerated input type of UpdateDynamicAnnotationMetadata
@@ -32629,6 +38441,86 @@ A unique identifier for the client performing the mutation.
 ### UpdateDynamicAnnotationMetricsInput
 
 Autogenerated input type of UpdateDynamicAnnotationMetrics
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_attribution</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fragment</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action_data</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_fields</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>lock_version</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>assigned_to_ids</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>locked</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### UpdateDynamicAnnotationMtInput
+
+Autogenerated input type of UpdateDynamicAnnotationMt
 
 <table>
 <thead>
@@ -33346,6 +39238,86 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### UpdateDynamicAnnotationTaskResponseFileUploadInput
+
+Autogenerated input type of UpdateDynamicAnnotationTaskResponseFileUpload
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_attribution</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fragment</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action_data</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_fields</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>lock_version</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>assigned_to_ids</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>locked</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### UpdateDynamicAnnotationTaskResponseFreeTextInput
 
 Autogenerated input type of UpdateDynamicAnnotationTaskResponseFreeText
@@ -33506,9 +39478,9 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
-### UpdateDynamicAnnotationTaskResponseImageUploadInput
+### UpdateDynamicAnnotationTaskResponseMultipleChoiceInput
 
-Autogenerated input type of UpdateDynamicAnnotationTaskResponseImageUpload
+Autogenerated input type of UpdateDynamicAnnotationTaskResponseMultipleChoice
 
 <table>
 <thead>
@@ -33586,9 +39558,9 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
-### UpdateDynamicAnnotationTaskResponseMultipleChoiceInput
+### UpdateDynamicAnnotationTaskResponseNumberInput
 
-Autogenerated input type of UpdateDynamicAnnotationTaskResponseMultipleChoice
+Autogenerated input type of UpdateDynamicAnnotationTaskResponseNumber
 
 <table>
 <thead>
@@ -34066,6 +40038,326 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### UpdateDynamicAnnotationTranscriptionInput
+
+Autogenerated input type of UpdateDynamicAnnotationTranscription
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_attribution</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fragment</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action_data</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_fields</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>lock_version</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>assigned_to_ids</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>locked</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### UpdateDynamicAnnotationTranslationInput
+
+Autogenerated input type of UpdateDynamicAnnotationTranslation
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_attribution</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fragment</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action_data</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_fields</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>lock_version</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>assigned_to_ids</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>locked</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### UpdateDynamicAnnotationTranslationRequestInput
+
+Autogenerated input type of UpdateDynamicAnnotationTranslationRequest
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_attribution</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fragment</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action_data</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_fields</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>lock_version</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>assigned_to_ids</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>locked</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### UpdateDynamicAnnotationTranslationStatusInput
+
+Autogenerated input type of UpdateDynamicAnnotationTranslationStatus
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_attribution</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fragment</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action_data</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_fields</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>lock_version</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>assigned_to_ids</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>locked</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### UpdateDynamicAnnotationVerificationStatusInput
 
 Autogenerated input type of UpdateDynamicAnnotationVerificationStatus
@@ -34214,8 +40506,53 @@ A unique identifier for the client performing the mutation.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>assignment_message</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>locked</strong></td>
 <td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### UpdateProjectGroupInput
+
+Autogenerated input type of UpdateProjectGroup
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>title</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>description</strong></td>
+<td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -34249,11 +40586,6 @@ A unique identifier for the client performing the mutation.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>lead_image</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>description</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -34264,18 +40596,28 @@ A unique identifier for the client performing the mutation.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>set_slack_channel</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>information</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>assigned_to_ids</strong></td>
 <td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>assignment_message</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_group_id</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>previous_project_group_id</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>privacy</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -34334,103 +40676,18 @@ A unique identifier for the client performing the mutation.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>metadata</strong></td>
-<td valign="top"><a href="#string">String</a></td>
+<td colspan="2" valign="top"><strong>project_id</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source_id</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
 <td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>read</strong></td>
 <td valign="top"><a href="#boolean">Boolean</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
-### UpdateProjectMediaProjectInput
-
-Autogenerated input type of UpdateProjectMediaProject
-
-<table>
-<thead>
-<tr>
-<th colspan="2" align="left">Field</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-A unique identifier for the client performing the mutation.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#id">ID</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_id</strong></td>
-<td valign="top"><a href="#int">Int</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>previous_project_id</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_media_id</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
-### UpdateProjectMediaProjectsInput
-
-Autogenerated input type of UpdateProjectMediaProjects
-
-<table>
-<thead>
-<tr>
-<th colspan="2" align="left">Field</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-A unique identifier for the client performing the mutation.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>ids</strong></td>
-<td valign="top">[<a href="#id">ID</a>]!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_id</strong></td>
-<td valign="top"><a href="#int">Int</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>previous_project_id</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>project_media_id</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -34509,13 +40766,13 @@ A unique identifier for the client performing the mutation.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>archived</strong></td>
-<td valign="top"><a href="#boolean">Boolean</a></td>
+<td colspan="2" valign="top"><strong>action</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>previous_project_id</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
+<td colspan="2" valign="top"><strong>params</strong></td>
+<td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -34549,11 +40806,6 @@ A unique identifier for the client performing the mutation.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>current_id</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>source_id</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
 <td></td>
@@ -34561,6 +40813,56 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>target_id</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>relationship_source_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>relationship_target_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### UpdateSavedSearchInput
+
+Autogenerated input type of UpdateSavedSearch
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>title</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>filters</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -34615,6 +40917,11 @@ A unique identifier for the client performing the mutation.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>user_id</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>add_to_project_media_id</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
 <td></td>
 </tr>
@@ -34778,6 +41085,11 @@ A unique identifier for the client performing the mutation.
 <td valign="top"><a href="#int">Int</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>fieldset</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -34845,7 +41157,7 @@ A unique identifier for the client performing the mutation.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>archived</strong></td>
-<td valign="top"><a href="#boolean">Boolean</a></td>
+<td valign="top"><a href="#int">Int</a></td>
 <td></td>
 </tr>
 <tr>
@@ -34874,11 +41186,6 @@ A unique identifier for the client performing the mutation.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>slack_channel</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>add_auto_task</strong></td>
 <td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
@@ -34899,12 +41206,12 @@ A unique identifier for the client performing the mutation.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>remove_auto_task</strong></td>
+<td colspan="2" valign="top"><strong>slack_notifications</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>contact</strong></td>
+<td colspan="2" valign="top"><strong>remove_auto_task</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
@@ -34926,6 +41233,16 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>languages</strong></td>
 <td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>list_columns</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>tipline_inbox_filters</strong></td>
+<td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -34996,6 +41313,31 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>order</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fieldset</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>associated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>show_in_browser_extension</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>conditional_info</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>required</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -35079,23 +41421,23 @@ A unique identifier for the client performing the mutation.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>email</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>profile_image</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>name</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>current_team_id</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>email</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
 <tr>
@@ -35130,6 +41472,11 @@ A unique identifier for the client performing the mutation.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>accept_terms</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>completed_signup</strong></td>
 <td valign="top"><a href="#boolean">Boolean</a></td>
 <td></td>
 </tr>
@@ -35297,6 +41644,45 @@ An object with an ID.
 ID of the object.
 
 </td>
+</tr>
+</tbody>
+</table>
+
+## Unions
+
+### AnnotationUnion
+
+A union type of all annotation types we can handle
+
+<table>
+<thead>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong><a href="#annotation">Annotation</a></strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong><a href="#dynamic">Dynamic</a></strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong><a href="#comment">Comment</a></strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong><a href="#tag">Tag</a></strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong><a href="#flag">Flag</a></strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong><a href="#task">Task</a></strong></td>
+<td></td>
 </tr>
 </tbody>
 </table>

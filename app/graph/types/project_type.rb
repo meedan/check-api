@@ -14,7 +14,6 @@ ProjectType = GraphqlCrudOperations.define_default_type do
   field :search_id, types.String
   field :url, types.String
   field :search, CheckSearchType
-  field :auto_tasks, JsonStringType
   field :team, TeamType
   field :project_group_id, types.Int
   field :project_group, ProjectGroupType
