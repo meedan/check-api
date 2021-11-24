@@ -1,0 +1,13 @@
+---
+mr:
+  mails_notifications:
+    unsubscribe: सदस्यता रद्द करा
+  unsubscribe: सदस्यता रद्द करा
+  smooch_bot_message_newsletter_fallback: |-
+    नमस्कार! आपले साप्ताहिक तथ्य येथे आहेत.
+
+    हे वृत्तपत्र %{team} यांनी %{platform} वर प्रकाशित केले आहे. %{date} आठवड्यासाठी सर्वात महत्वाचे तथ्य येथे आहेत:
+
+    %{content}
+
+    हे वृत्तपत्र प्राप्त करणे थांबविण्यासाठी, '%{unsubscribe}' टाइप करा
