@@ -2,7 +2,7 @@ namespace :swagger do
   namespace :docs do
     task markdown: :environment do
       # Work with test environment
-      ApplicationRecord.establish_connection('test')
+      ApplicationRecord.establish_connection(:test)
       ApiKey.where(access_token: 'test').destroy_all
       api_key = ApiKey.create!
       api_key.access_token = 'test'
@@ -53,7 +53,7 @@ namespace :swagger do
               output.puts "#{r[:code]}: #{r[:message]}"
 
               app = ActionDispatch::Integration::Session.new(Rails.application)
-              response = app.send(op[:method], '/' + api[:path], example[:query], example[:headers])
+              response = app.send(op[:method], '/' + api[:path], params: example[:query], headers: example[:headers])
               json = app.body.chomp
               object = nil
 
@@ -74,7 +74,7 @@ namespace :swagger do
       output.close
 
       api_key.destroy!
-      ApplicationRecord.establish_connection(ENV['RAILS_ENV'])
+      ApplicationRecord.establish_connection(Rails.env.to_sym)
 
       puts "Done! Check your API documentation at doc/api.md. You can copy and paste it to your README.md."
     end # task

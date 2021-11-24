@@ -2,7 +2,7 @@ namespace :lapis do
   namespace :client do
     task ruby: :environment do
       # Work with test environment
-      ApplicationRecord.establish_connection('test')
+      ApplicationRecord.establish_connection(:test)
       ApiKey.where(access_token: 'test').destroy_all
       api_key = ApiKey.create!
       api_key.access_token = 'test'
@@ -275,7 +275,7 @@ end}
       puts '----------------------------------------------------------------------------------------------------------------'
 
       api_key.destroy!
-      ApplicationRecord.establish_connection(ENV['RAILS_ENV'])
+      ApplicationRecord.establish_connection(ENV['RAILS_ENV'].to_sym)
     end
   end
 end
