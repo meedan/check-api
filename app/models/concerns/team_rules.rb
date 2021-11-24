@@ -221,9 +221,9 @@ module TeamRules
       tags: self.tag_texts.collect{ |t| { key: t.text, value: t.text } },
       statuses: statuses_objs.collect{ |st| { key: st.with_indifferent_access['id'], value: st.with_indifferent_access['label'] } },
       flags: DynamicAnnotation::AnnotationType.where(annotation_type: 'flag').last&.json_schema&.dig('properties', 'flags', 'required').to_a
-             .reject{ |f| f == 'spam' } # We are currently hiding the SPAM flag, as per #8220
+      .reject{ |f| ['spam', 'racy', 'spoof'].include?(f) } # Hide some flags
              .collect{ |f| { key: f, value: I18n.t("flag_#{f}") } },
-      likelihoods: [1, 3, 5].collect{ |n| { key: n, value: I18n.t("flag_likelihood_#{n}") } },
+      likelihoods: [5, 3, 1].map.with_index{ |n, i| { key: n, value: "#{i + 1}. #{I18n.t("flag_likelihood_#{n}")}" } },
       languages: self.get_languages.to_a.collect{ |l| { key: l, value: CheckCldr.language_code_to_name(l) } },
       users: self.users.to_a.sort_by{ |u| u.name }.collect{ |u| { key: u.id, value: u.name } },
       choice_fields: choice_field_objs.deep_dup.each{ |_fs, tts| tts.collect!{ |tt| { key: tt[:id], value: tt[:label] } } },
