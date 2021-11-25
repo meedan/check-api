@@ -40,7 +40,7 @@ module Check
     config.i18n.enforce_available_locales = false
 
     if cfg['locale'].blank?
-      config.i18n.available_locales = ["ar","bn","fil","fr","hi","id","ml","pt","ro","ru","es","sw","te","en"] # Do not change manually! Use `rake transifex:languages` instead, or set the `locale` key in your `config/config.yml`
+      config.i18n.available_locales = ["ar","bn","fil","fr","de","hi","id","kn","ml","mr","pa","pt","ro","ru","es","sw","te","en"] # Do not change manually! Use `rake transifex:languages` instead, or set the `locale` key in your `config/config.yml`
     else
       config.i18n.available_locales = [cfg['locale']].flatten
     end

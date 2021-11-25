@@ -689,6 +689,7 @@ ar:
   team_rule_type_image_threshold: المسافة بين الصور
   team_rule_type_flag_threshold: احتمالية الوقوع على الأقل
   team_rule_select_flag: اختيار مؤشّر
+  team_rule_flagged_as: لقد وُضع العنصر في تصنيف
   team_rule_report_is_published: التقرير منشور
   team_rule_report_is_paused: التقرير موقوف مؤقتا
   team_rule_condition_groups: مجموعات الشرط
@@ -711,15 +712,21 @@ ar:
   team_rule_select_field_value_tasks: اختيار إجابة
   team_rule_item_is_assigned_to_user: العنصر مُخصَّص لـ
   team_rule_add_tag: إضافة الوسم
+  team_rule_add_warning_cover: إضافة غطاء تحذيري على المحتوى
+  flag_adult: إباحي (عري، صور خليعة)
   flag_spoof: متلاعب بها
+  flag_medical: حالات (أو إجراءات) طبية
   flag_violence: عنف
   flag_racy: جنسي
   flag_spam: إعلانية مؤذية
   annotation_type_flag_name_label: المؤشّر
   annotation_type_flag_value_label: احتمالية المؤشّر
   flag_likelihood_0: غير معروف
+  flag_likelihood_1: منخفض (سيجري الكشف عن محتوى أقل)
   flag_likelihood_2: مُستبعد
+  flag_likelihood_3: متوسط (سيتم اكتشاف بعض المحتويات)
   flag_likelihood_4: محتمل
+  flag_likelihood_5: عالي (سيجري الكشف عن محتوى أكثر)
   flag_likelihood_7: يدوي
   relationship_not_same_team: يجب أن تكون العناصر ذات الصلة  في مساحة العمل ذاتها
   bulk_operation_limit_error: عذراً، الحد الأقصى لعدد العناصر التى يمكن معالجتها في
@@ -736,6 +743,8 @@ ar:
   fetch_bot_service_unsupported: الخدمة غير مدعومة
   task_options_must_be_array: خيارات المهمة يجب أن تكون على شكل قائمة
   fieldset_not_defined_by_team: يجب أن تكون مجموعة الحقول مدعومة من قبل مساحة العمل
+  cant_change_field_type_or_options_when_answered: لا يمكن تغيير نوع الحقل لأنه قد
+    مُليءَ من قبل ببعض الإجابات.
   replace_by_media_in_the_same_team: عذراً، لا يمكن استبدال هذا العنصر إلا بآخر من
     نفس مساحة العمل
   replace_blank_media_only: 'عذراً، في الوقت الحالي لا يمكنكم إلّا استبدال العناصر
@@ -757,6 +766,7 @@ ar:
   list_column_related_count: ذات صلة
   list_column_suggestions_count: المتطابقات المقترحة
   list_column_folder: مجلد
+  list_column_creator_name: تم الإنشاء بواسطة
   go_back_to_check: العودة إلى Check
   project_cant_have_children_if_has_parent: يوجد هذا المجلد ضمن مجلد آخر، لذا لا يمكن
     أن يحوي مجلدا بداخله
@@ -829,3 +839,5 @@ ar:
       tagged_by_rule: لقد وُضع الوسم "%{tag}" على "%{item_title}" بواسطة قاعدة آلية.
       moved_to_private_folder: لقد تم نقل "%{item_title}" إلى مجلد ليس لديك تصريح
         الوصول إليه.
+      add_warning_cover_by_rule: 'لقد تمت إضافة غطاء تحذيري للعنصر « %{item_title}
+        » لكونه يحتوي على مواد حساسة '

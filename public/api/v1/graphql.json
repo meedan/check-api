@@ -1,11 +1,11 @@
 {
   "apiVersion": "1.0",
   "swaggerVersion": "1.2",
-  "basePath": "/",
+  "basePath": "",
   "resourcePath": "graphql",
   "apis": [
     {
-      "path": "api/graphql",
+      "path": "/api/graphql",
       "operations": [
         {
           "summary": "GraphQL interface",
@@ -42,10 +42,11 @@
               "required": true
             }
           ],
-          "method": "post",
-          "nickname": "Api::V1::Graphql#create"
+          "nickname": "Api::V1::Graphql#create",
+          "method": "post"
         }
       ]
     }
-  ]
+  ],
+  "authorizations": null
 }

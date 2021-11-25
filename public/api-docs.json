@@ -20,6 +20,7 @@
       "description": "Registrations"
     }
   ],
+  "authorizations": null,
   "info": {
     "title": "Check",
     "description": "Verify breaking news online"

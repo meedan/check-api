@@ -724,6 +724,7 @@ fr:
   team_rule_type_image_threshold: Distance entre les images
   team_rule_type_flag_threshold: Avec une probabilité d’au moins
   team_rule_select_flag: Sélectionnez un drapeau
+  team_rule_flagged_as: L’élément a été détecté comme contenu
   team_rule_report_is_published: Le rapport est publié
   team_rule_report_is_paused: Le rapport est interrompu
   team_rule_condition_groups: Groupes de conditions
@@ -746,16 +747,22 @@ fr:
   team_rule_select_field_value_tasks: Sélectionnez la réponse
   team_rule_item_is_assigned_to_user: L’élément est attribué à
   team_rule_add_tag: Ajouter une étiquette
+  team_rule_add_warning_cover: Ajouter une couverture d’avertissement sur le contenu
+  flag_adult: Adulte (nudité, pornographie)
   flag_spoof: Pastiche
+  flag_medical: Conditions ou actes médicaux
   flag_violence: Violence
   flag_racy: Suggestif
   flag_spam: Indésirable
   annotation_type_flag_name_label: Drapeau
   annotation_type_flag_value_label: Probabilité du drapeau
   flag_likelihood_0: Inconnu
+  flag_likelihood_1: Basse (moins de contenus seront détectés)
   flag_likelihood_2: Peu probable
+  flag_likelihood_3: Moyenne (certains contenus seront détectés)
   flag_likelihood_4: Probable
-  flag_likelihood_7: Manuels
+  flag_likelihood_5: Élevée (davantage de contenus seront détectés)
+  flag_likelihood_7: Manuel
   relationship_not_same_team: Les éléments associés doivent exister dans le même espace
     de travail
   bulk_operation_limit_error: Désolé, le nombre maximal d’éléments à traiter à la
@@ -774,6 +781,8 @@ fr:
   task_options_must_be_array: Les options de la tâche doivent être une liste
   fieldset_not_defined_by_team: "« Fieldset » devrait être pris en charge par l’espace
     de travail"
+  cant_change_field_type_or_options_when_answered: Le type de champ ne peut pas être
+    changé, car des réponses ont déjà été inscrites
   replace_by_media_in_the_same_team: Désolé, vous ne pouvez remplacer cet article
     que par un autre article du même espace de travail
   replace_blank_media_only: Désolé, mais vous ne pouvez pour l’instant que remplacer
@@ -795,6 +804,7 @@ fr:
   list_column_related_count: Associés
   list_column_suggestions_count: Correspondances suggérées
   list_column_folder: Dossier
+  list_column_creator_name: Créé par
   go_back_to_check: Retourner à Check
   project_cant_have_children_if_has_parent: Ce dossier a un dossier parent et il ne
     peut donc pas avoir un dossier enfant
@@ -874,3 +884,5 @@ fr:
       tagged_by_rule: "« %{item_title} » a été étiqueté « %{tag} » par une règle d’automatisation."
       moved_to_private_folder: "« %{item_title} » a été déplacé vers un dossier auquel
         vous n’avez pas accès."
+      add_warning_cover_by_rule: Une couverture d’avertissement a été ajoutée à l’élément
+        délicat « %{item_title} »
