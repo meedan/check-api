@@ -2607,11 +2607,31 @@ class ProjectMediaTest < ActiveSupport::TestCase
     ProjectMedia.unstub(:clear_caches)
   end
 
-  test "should cache picture" do
+  test "should cache picture and creator name" do
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media
+    u = create_user
+    pm = create_project_media channel: 0, user: u
+    # picture
     assert_queries(0, '=') { assert_equal('', pm.picture) }
     assert_queries(0, '>') { assert_equal('', pm.picture(true)) }
+    # creator name
+    assert_queries(0, '=') { assert_equal(u.name, pm.creator_name) }
+    assert_queries(0, '>') { assert_equal(u.name, pm.creator_name(true)) }
+  end
+
+  test "should get creator name based on channel" do
+    RequestStore.store[:skip_cached_field_update] = false
+    u = create_user
+    pm = create_project_media user: u
+    assert_equal pm.creator_name, u.name
+    pm = create_project_media user: u, channel: CheckChannels::ChannelCodes::WHATSAPP
+    assert_equal pm.creator_name, 'Tipline'
+    pm = create_project_media user: u, channel: CheckChannels::ChannelCodes::FETCH
+    assert_equal pm.creator_name, 'Import'
+    # update cache based on user update
+    u.name = 'update name'
+    u.save!
+    assert_equal pm.creator_name, 'update name'
   end
 
   test "should create blank item" do
@@ -2620,5 +2640,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
         ProjectMedia.create! media_type: 'Blank', team: create_team
       end
     end
+  end
+
+  test "should convert old hash" do
+    t = create_team
+    pm = create_project_media team: t
+    Team.any_instance.stubs(:settings).returns(ActionController::Parameters.new({ media_verification_statuses: { statuses: [] } }))
+    assert_nothing_raised do
+      pm.custom_statuses
+    end
+    Team.any_instance.unstub(:settings)
   end
 end

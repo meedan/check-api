@@ -701,6 +701,7 @@ es:
   team_rule_type_image_threshold: Distancia entre imágenes
   team_rule_type_flag_threshold: Con una probabilidad de al menos
   team_rule_select_flag: Seleccionar marca
+  team_rule_flagged_as: Ítem ha sido detectado como
   team_rule_report_is_published: Informe está publicado
   team_rule_report_is_paused: Informe está en pausa
   team_rule_condition_groups: Grupos de condiciones
@@ -723,15 +724,21 @@ es:
   team_rule_select_field_value_tasks: Seleccionar respuesta
   team_rule_item_is_assigned_to_user: Ítem es asignado a
   team_rule_add_tag: Añadir etiqueta
+  team_rule_add_warning_cover: Añadir cubierta de advertencia de contenido
+  flag_adult: Adulta(o) (desnudos, pornografía)
   flag_spoof: Suplantación
+  flag_medical: Condiciones/procedimientos médicos
   flag_violence: Violencia
   flag_racy: Sugestivo
   flag_spam: Spam
   annotation_type_flag_name_label: Marca
   annotation_type_flag_value_label: Probabilidad de la marca
   flag_likelihood_0: Desconocido
+  flag_likelihood_1: Bajo (se detectará menos contenido)
   flag_likelihood_2: Improbable
+  flag_likelihood_3: Medio (se detectará algún contenido)
   flag_likelihood_4: Probable
+  flag_likelihood_5: Alto (se detectará más contenido)
   flag_likelihood_7: Manual
   relationship_not_same_team: Los elementos relacionados deben existir en el misma
     área de trabajo
@@ -750,6 +757,8 @@ es:
   fetch_bot_service_unsupported: Servicio no soportado
   task_options_must_be_array: Las opciones de tareas deben ser una lista
   fieldset_not_defined_by_team: Fieldset debe ser compatible con el área de trabajo
+  cant_change_field_type_or_options_when_answered: El tipo de campo no se puede cambiar
+    porque las respuestas ya se han completado
   replace_by_media_in_the_same_team: Lo sentimos, solo puedes reemplazar este ítem
     por otro ítem de la misma área de trabajo
   replace_blank_media_only: Lo sentimos, pero por ahora solo puedes reemplazar ítems
@@ -772,6 +781,7 @@ es:
   list_column_related_count: Relacionado(s)
   list_column_suggestions_count: Coincidencias sugeridas
   list_column_folder: Carpeta
+  list_column_creator_name: Creado por
   go_back_to_check: Regresar a Check
   project_cant_have_children_if_has_parent: Esta carpeta tiene una carpeta principal,
     por lo que no puede tener una subcarpeta
@@ -851,3 +861,5 @@ es:
         de automatización.'
       moved_to_private_folder: '"%{item_title}" se ha movido a una carpeta a la que
         no tienes acceso.'
+      add_warning_cover_by_rule: Se ha añadido una cubierta de advertencia al ítem
+        sensible "%{item_title}"

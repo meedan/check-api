@@ -30,7 +30,11 @@ class Workflow::VerificationStatus < Workflow::Base
     end
 
     def custom_statuses
-      self.team.settings.to_h.with_indifferent_access['media_verification_statuses'].to_h.with_indifferent_access['statuses'].to_a
+      settings = self.team.settings
+      settings = settings.permit('media_verification_statuses') if settings.is_a?(ActionController::Parameters) # Legacy from Rails 4
+      statuses = settings.to_h.with_indifferent_access['media_verification_statuses']
+      statuses = statuses.permit('statuses') if statuses.is_a?(ActionController::Parameters) # Legacy from Rails 4
+      statuses.to_h.with_indifferent_access['statuses'].to_a
     end
 
     def custom_status_ids

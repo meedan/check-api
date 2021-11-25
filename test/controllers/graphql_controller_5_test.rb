@@ -359,6 +359,20 @@ class GraphqlController5Test < ActionController::TestCase
     assert_equal 1, response['tasks_with_answers_count']
   end
 
+  test "should not raise error that user can't be updated" do
+    t1 = create_team
+    t2 = create_team
+    u = create_user
+    create_team_user user: u, team: t1
+    create_team_user user: u, team: t2
+    u.current_team_id = t1.id
+    u.save!
+    authenticate_with_user(u)
+    query = 'query { search(query: "{}") { number_of_results } }'
+    post :create, params: { query: query, team: t2.slug }
+    assert_response :success
+  end
+
   protected
 
   def assert_error_message(expected)

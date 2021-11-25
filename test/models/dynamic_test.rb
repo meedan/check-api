@@ -352,4 +352,44 @@ class DynamicTest < ActiveSupport::TestCase
   test "should get max size for file upload task response" do
     assert_not_nil FileUploadTaskResponse.max_size
   end
+
+  test "should not raise ActiveRecord::SerializationTypeMismatch when attempting to serialize data" do
+    json_schema = {
+      type: 'object',
+      required: ['flags'],
+      properties: {
+        flags: {
+          type: 'object',
+          required: ['adult', 'spoof', 'medical', 'violence', 'racy', 'spam'],
+          properties: {
+            adult: { type: 'integer', minimum: 0, maximum: 5 },
+            spoof: { type: 'integer', minimum: 0, maximum: 5 },
+            medical: { type: 'integer', minimum: 0, maximum: 5 },
+            violence: { type: 'integer', minimum: 0, maximum: 5 },
+            racy: { type: 'integer', minimum: 0, maximum: 5 },
+            spam: { type: 'integer', minimum: 0, maximum: 5 }
+          }
+        }
+      }
+    }
+    create_annotation_type_and_fields('Flag', {}, json_schema)
+    pm = create_project_media
+    assert_nothing_raised do
+      d = Dynamic.new
+      d.annotation_type = 'flag'
+      d.annotated = pm
+      d.data = nil
+      d.set_fields = {
+        "flags": {
+          "adult": 1,
+          "spoof": 1,
+          "medical": 1,
+          "violence": 1,
+          "racy": 1,
+          "spam": 0
+        }
+      }.to_json
+      d.save!
+    end
+  end
 end

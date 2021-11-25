@@ -41,5 +41,16 @@ bn:
     source:
       undetermined:
         label: শুরু করা যায়নি
+  mails_notifications:
+    unsubscribe: আনসাবস্ক্রাইব
   smooch_bot_message_unconfirmed: 1 রিপ্লাই না দেওয়ার জন্য আপনার এই নিবেদন এখানেই
     সমাপ্ত হল।  ধন্যবাদ।
+  unsubscribe: আনসাবস্ক্রাইব
+  smooch_bot_message_newsletter_fallback: |-
+    ওহে! এখানে আপনার সাপ্তাহিক তথ্য আছে.
+
+    এই নিউজলেটারটি %{platform} এ %{team} দ্বারা প্রকাশিত হয়েছে। এখানে %{date} সপ্তাহের জন্য সবচেয়ে গুরুত্বপূর্ণ তথ্য রয়েছে:
+
+    %{content}
+
+    এই নিউজলেটার পাওয়া বন্ধ করতে, '%{unsubscribe}' টাইপ করুন

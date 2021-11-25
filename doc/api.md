@@ -67,50 +67,6 @@ Use this method in order to send queries to the GraphQL server
       "name": "Check",
       "version": "0.0.1"
     }
-  },
-  "extensions": {
-    "tracing": {
-      "version": 1,
-      "startTime": "2020-08-13T18:51:25.685Z",
-      "endTime": "2020-08-13T18:51:29.874Z",
-      "duration": 4189505100,
-      "execution": {
-        "resolvers": [
-          {
-            "path": [
-              "about"
-            ],
-            "parentType": "Query",
-            "fieldName": "about",
-            "returnType": "About",
-            "startOffset": 2713203,
-            "duration": 4185518980
-          },
-          {
-            "path": [
-              "about",
-              "name"
-            ],
-            "parentType": "About",
-            "fieldName": "name",
-            "returnType": "String",
-            "startOffset": 4188745260,
-            "duration": 85353
-          },
-          {
-            "path": [
-              "about",
-              "version"
-            ],
-            "parentType": "About",
-            "fieldName": "version",
-            "returnType": "String",
-            "startOffset": 4189048051,
-            "duration": 146389
-          }
-        ]
-      }
-    }
   }
 }
 ```
@@ -122,50 +78,6 @@ Use this method in order to send queries to the GraphQL server
     "about": {
       "name": "Check",
       "version": "0.0.1"
-    }
-  },
-  "extensions": {
-    "tracing": {
-      "version": 1,
-      "startTime": "2020-08-13T18:51:29.967Z",
-      "endTime": "2020-08-13T18:51:33.563Z",
-      "duration": 3596071958,
-      "execution": {
-        "resolvers": [
-          {
-            "path": [
-              "about"
-            ],
-            "parentType": "Query",
-            "fieldName": "about",
-            "returnType": "About",
-            "startOffset": 2356767,
-            "duration": 3592782258
-          },
-          {
-            "path": [
-              "about",
-              "name"
-            ],
-            "parentType": "About",
-            "fieldName": "name",
-            "returnType": "String",
-            "startOffset": 3595492124,
-            "duration": 98228
-          },
-          {
-            "path": [
-              "about",
-              "version"
-            ],
-            "parentType": "About",
-            "fieldName": "version",
-            "returnType": "String",
-            "startOffset": 3595772027,
-            "duration": 52928
-          }
-        ]
-      }
     }
   }
 }
@@ -222,104 +134,6 @@ Use this method in order to sign out
 **Response**
 
 200: Signed out
-
-
-#### POST /api/users
-
-Use this method in order to create a new user account
-
-**Parameters**
-
-* `api_user[email]`: E-mail _(required)_
-* `api_user[name]`: Name _(required)_
-* `api_user[password]`: Password _(required)_
-* `api_user[password_confirmation]`: Password Confirmation _(required)_
-
-**Response**
-
-200: Account created
-```json
-{
-  "errors": [
-    {
-      "message": "Please check your email to verify your account.",
-      "code": 1,
-      "data": {
-      }
-    }
-  ]
-}
-```
-
-400: Password is too short
-```json
-{
-  "errors": [
-    {
-      "message": "has already been taken",
-      "code": 4,
-      "data": {
-      }
-    }
-  ]
-}
-```
-
-400: Passwords do not match
-```json
-{
-  "errors": [
-    {
-      "message": "has already been taken",
-      "code": 4,
-      "data": {
-      }
-    }
-  ]
-}
-```
-
-400: E-mail missing
-```json
-{
-  "errors": [
-    {
-      "message": "has already been taken",
-      "code": 4,
-      "data": {
-      }
-    }
-  ]
-}
-```
-
-400: Password is missing
-```json
-{
-  "errors": [
-    {
-      "message": "has already been taken",
-      "code": 4,
-      "data": {
-      }
-    }
-  ]
-}
-```
-
-400: Name is missing
-```json
-{
-  "errors": [
-    {
-      "message": "has already been taken",
-      "code": 4,
-      "data": {
-      }
-    }
-  ]
-}
-```
 
 
 #### PATCH /api/users
@@ -437,6 +251,104 @@ Use this method in order to delete your account
     {
       "message": "You need to sign in or sign up before continuing.",
       "code": 1,
+      "data": {
+      }
+    }
+  ]
+}
+```
+
+
+#### POST /api/users
+
+Use this method in order to create a new user account
+
+**Parameters**
+
+* `api_user[email]`: E-mail _(required)_
+* `api_user[name]`: Name _(required)_
+* `api_user[password]`: Password _(required)_
+* `api_user[password_confirmation]`: Password Confirmation _(required)_
+
+**Response**
+
+200: Account created
+```json
+{
+  "errors": [
+    {
+      "message": "Please check your email to verify your account.",
+      "code": 1,
+      "data": {
+      }
+    }
+  ]
+}
+```
+
+400: Password is too short
+```json
+{
+  "errors": [
+    {
+      "message": "Password is too short (minimum is 8 characters)",
+      "code": 4,
+      "data": {
+      }
+    }
+  ]
+}
+```
+
+400: Passwords do not match
+```json
+{
+  "errors": [
+    {
+      "message": "Password confirmation doesn't match Password",
+      "code": 4,
+      "data": {
+      }
+    }
+  ]
+}
+```
+
+400: E-mail missing
+```json
+{
+  "errors": [
+    {
+      "message": "Email can't be blank",
+      "code": 4,
+      "data": {
+      }
+    }
+  ]
+}
+```
+
+400: Password is missing
+```json
+{
+  "errors": [
+    {
+      "message": "Password can't be blank",
+      "code": 4,
+      "data": {
+      }
+    }
+  ]
+}
+```
+
+400: Name is missing
+```json
+{
+  "errors": [
+    {
+      "message": "Name can't be blank",
+      "code": 4,
       "data": {
       }
     }

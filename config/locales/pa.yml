@@ -1,0 +1,13 @@
+---
+pa:
+  mails_notifications:
+    unsubscribe: ਅਨਸਬਸਕ੍ਰਾਈਬ
+  unsubscribe: ਅਨਸਬਸਕ੍ਰਾਈਬ
+  smooch_bot_message_newsletter_fallback: |-
+    ਹੈਲੋ! ਇਹ ਰਹੇ ਤੁਹਾਡੇ ਹਫਤਾਵਾਰ ਤੱਥ।
+
+    ਇਹ ਨਿਊਜ਼ਲੈਟਰ %{platform} 'ਤੇ %{team} ਦੁਆਰਾ ਪ੍ਰਕਾਸ਼ਿਤ ਕੀਤਾ ਜਾਂਦਾ ਹੈ। %{date} ਦੇ ਹਫਤੇ ਦੇ ਲਈ ਸਭ ਤੋਂ ਮਹੱਤਵਪੂਰਨ ਤੱਥ ਇਹ ਰਹੇ:
+
+    %{content}
+
+    ਇਸ ਨਿਊਜ਼ਲੈਟਰ ਨੂੰ ਪ੍ਰਾਪਤ ਕਰਨਾ ਬੰਦ ਕਰਨ ਲਈ, ਟਾਈਪ ਕਰੋ '%{unsubscribe}'
