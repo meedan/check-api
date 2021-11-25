@@ -324,11 +324,12 @@ module ProjectMediaCachedFields
       update_on: [
         {
           model: User,
-          affected_ids: proc { |u| u.project_media_ids },
+          affected_ids: proc { |u|
+            u.project_medias.where(channel: [CheckChannels::ChannelCodes::MANUAL, CheckChannels::ChannelCodes::BROWSER_EXTENSION]).map(&:id)
+          },
           if: proc { |u| u.saved_change_to_name? },
           events: {
-            update: proc { |_pm, u| u.name },
-            destroy: proc { |_pm, u| u.name }
+            update: proc { |_pm, u| u.name }
           }
         },
       ]
