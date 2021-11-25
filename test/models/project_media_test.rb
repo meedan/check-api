@@ -2624,14 +2624,26 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u = create_user
     pm = create_project_media user: u
     assert_equal pm.creator_name, u.name
-    pm = create_project_media user: u, channel: CheckChannels::ChannelCodes::WHATSAPP
-    assert_equal pm.creator_name, 'Tipline'
-    pm = create_project_media user: u, channel: CheckChannels::ChannelCodes::FETCH
-    assert_equal pm.creator_name, 'Import'
+    pm2 = create_project_media user: u, channel: CheckChannels::ChannelCodes::WHATSAPP
+    assert_equal pm2.creator_name, 'Tipline'
+    pm3 = create_project_media user: u, channel: CheckChannels::ChannelCodes::FETCH
+    assert_equal pm3.creator_name, 'Import'
     # update cache based on user update
     u.name = 'update name'
     u.save!
     assert_equal pm.creator_name, 'update name'
+    assert_equal pm.creator_name(true), 'update name'
+    assert_equal pm2.creator_name, 'Tipline'
+    assert_equal pm2.creator_name(true), 'Tipline'
+    assert_equal pm3.creator_name, 'Import'
+    assert_equal pm3.creator_name(true), 'Import'
+    User.delete_check_user(u)
+    assert_equal pm.creator_name, 'Anonymous'
+    assert_equal pm.reload.creator_name(true), 'Anonymous'
+    assert_equal pm2.creator_name, 'Tipline'
+    assert_equal pm2.creator_name(true), 'Tipline'
+    assert_equal pm3.creator_name, 'Import'
+    assert_equal pm3.creator_name(true), 'Import'
   end
 
   test "should create blank item" do
