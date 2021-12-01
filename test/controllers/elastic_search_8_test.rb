@@ -63,7 +63,7 @@ class ElasticSearch8Test < ActionController::TestCase
       end
       # Query with max and min
       query[:range_numeric][field][:min] = 1
-      query[:range_numeric][field][:max] = 1
+      query[:range_numeric][field][:max] = 2
       result = CheckSearch.new(query.to_json)
       assert_equal [pm2.id, pm3.id].sort, result.medias.map(&:id).sort
     end
