@@ -120,7 +120,7 @@ class CheckSearch
     end
     query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     filters_blank = true
-    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status'].each do |filter|
+    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric'].each do |filter|
       filters_blank = false unless @options[filter].blank?
     end
     range_filter = hit_es_for_range_filter
@@ -246,6 +246,7 @@ class CheckSearch
     custom_conditions.concat build_search_integer_terms_query('source_id', 'sources')
     custom_conditions.concat build_search_doc_conditions
     custom_conditions.concat build_search_range_filter(:es)
+    custom_conditions.concat build_search_numeric_range_filter
     dynamic_conditions = build_search_dynamic_annotation_conditions
     check_search_concat_conditions(custom_conditions, dynamic_conditions)
     team_tasks_conditions = build_search_team_tasks_conditions
@@ -632,6 +633,24 @@ class CheckSearch
         method = "field_search_query_type_range_#{name}"
         conditions << ProjectMedia.send(method, range, timezone)
       end
+    end
+    conditions
+  end
+
+  # range_numeric: {field_name: {min: <minimum_number>}, max: <maximum_number> }
+  # field_name should be one of the following: linked_items_count, suggestions_count, demand
+  def build_search_numeric_range_filter
+    conditions = []
+    return conditions unless @options.has_key?(:range_numeric)
+    [:linked_items_count, :suggestions_count, :demand].each do |field|
+      values = @options['range_numeric'].dig(field)
+      next if values.nil?
+      min, max = values.dig('min'), values.dig('max')
+      next if min.blank? && max.blank?
+      field_condition = {}
+      field_condition[:gte] = min.to_i unless min.blank?
+      field_condition[:lte] = max.to_i unless max.blank?
+      conditions << { range: { "#{field}": field_condition } }
     end
     conditions
   end
