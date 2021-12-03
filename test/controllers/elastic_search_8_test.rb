@@ -10,8 +10,8 @@ class ElasticSearch8Test < ActionController::TestCase
     test "should filter by #{field} numeric range" do
       RequestStore.store[:skip_cached_field_update] = false
       p = create_project
-      query = { projects: [p.id], range_numeric: {"#{field}": { max: 5 } } }
-      query[:range_numeric][field][:min] = 0
+      query = { projects: [p.id], "#{field}": { max: 5 } }
+      query[field][:min] = 0
       result = CheckSearch.new(query.to_json)
       assert_equal 0, result.medias.count
       pm1 = create_project_media project: p, quote: 'Test A', disable_es_callbacks: false
@@ -50,20 +50,20 @@ class ElasticSearch8Test < ActionController::TestCase
 
       # query with numeric range only
       min_mapping.each do |min, items|
-        query[:range_numeric][field][:min] = min.to_s
+        query[field][:min] = min.to_s
         result = CheckSearch.new(query.to_json)
         assert_equal items.sort, result.medias.map(&:id).sort
       end
       # query with numeric range and keyword
       query[:keyword] = 'Test'
       min_mapping.each do |min, items|
-        query[:range_numeric][field][:min] = min.to_s
+        query[field][:min] = min.to_s
         result = CheckSearch.new(query.to_json)
         assert_equal items.sort, result.medias.map(&:id).sort
       end
       # Query with max and min
-      query[:range_numeric][field][:min] = 1
-      query[:range_numeric][field][:max] = 2
+      query[field][:min] = 1
+      query[field][:max] = 2
       result = CheckSearch.new(query.to_json)
       assert_equal [pm2.id, pm3.id].sort, result.medias.map(&:id).sort
     end

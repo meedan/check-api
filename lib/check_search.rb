@@ -21,6 +21,7 @@ class CheckSearch
     @options['none_project'] = @options['projects'].include?('-1') unless @options['projects'].blank?
     adjust_project_filter
     adjust_channel_filter
+    adjust_numeric_range_filter
     # set es_id option
     @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['String', 'Integer'].include?(@options['id'].class.name)
     Project.current = Project.where(id: @options['projects'].last).last if @options['projects'].to_a.size == 1 && Project.current.nil?
@@ -301,6 +302,16 @@ class CheckSearch
     if @options['channels'].is_a?(Array) && @options['channels'].include?('any_tipline')
       channels = @options['channels'] - ['any_tipline']
       @options['channels'] = channels.map(&:to_i).concat(CheckChannels::ChannelCodes::TIPLINE).uniq
+    end
+  end
+
+  def adjust_numeric_range_filter
+    @options['range_numeric'] = {}
+    [:linked_items_count, :suggestions_count, :demand].each do |field|
+      if @options.has_key?(field) && !@options[field].blank?
+        @options['range_numeric'][field] = @options[field]
+      end
+      @options.delete(field)
     end
   end
 
@@ -641,9 +652,8 @@ class CheckSearch
   # field_name should be one of the following: linked_items_count, suggestions_count, demand
   def build_search_numeric_range_filter
     conditions = []
-    return conditions unless @options.has_key?(:range_numeric)
-    [:linked_items_count, :suggestions_count, :demand].each do |field|
-      values = @options['range_numeric'].dig(field)
+    return conditions if @options['range_numeric'].blank?
+    @options['range_numeric'].each do |field, values|
       next if values.nil?
       min, max = values.dig('min'), values.dig('max')
       next if min.blank? && max.blank?
