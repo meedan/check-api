@@ -571,4 +571,6 @@ class ElasticSearch7Test < ActionController::TestCase
     result = CheckSearch.new({ projects: [p.id], sort: 'creator_name', sort_type: 'desc' }.to_json)
     assert_equal [pm4.id, pm3.id, pm2.id, pm1.id], result.medias.map(&:id)
   end
+
+  # Please add new tests to test/controllers/elastic_search_8_test.rb
 end
