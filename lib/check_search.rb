@@ -450,9 +450,7 @@ class CheckSearch
       must_c = []
       must_c << { term: { "task_responses.team_task_id": tt['id'] } } if tt.has_key?('id')
       response_type = tt['response_type'] ||= 'choice'
-      if tt['response'] == 'ANY_VALUE'
-        must_c << { exists: { field: "task_responses.value" } }
-      elsif tt['response'] == 'NO_VALUE'
+      if tt['response'] == 'NO_VALUE'
         return [{
           bool: {
             must_not: [
@@ -472,22 +470,12 @@ class CheckSearch
             ]
           }
         }]
-      elsif tt['response'] == 'NUMERIC_RANGE'
-        range_condition = format_mumeric_range_condition('task_responses.value', tt['range'])
-        must_c << range_condition unless range_condition.blank?
-      elsif tt['response'] == 'DATE_RANGE'
-        timezone = tt['range'].delete(:timezone) || @context_timezone
-        values = tt['range']
-        range = format_times_search_range_filter(values, timezone)
-        unless range.nil?
-          must_c << ProjectMedia.send('field_search_query_type_range', 'value', range, timezone)
-        end
+      elsif %w(ANY_VALUE NUMERIC_RANGE DATE_RANGE choice).include?(tt['response'])
+        method = "format_#{tt['response'].downcase}_team_tasks_field"
+        response_condition = self.send(method, tt)
+        must_c << response_condition unless response_condition.blank?
       elsif response_type == 'choice'
-        if tt['response'].is_a?(Array)
-          must_c << { terms: { 'task_responses.value.raw': tt['response'] } }
-        else
-          must_c << { term: { 'task_responses.value.raw': tt['response'] } }
-        end
+        must_c << format_choice_team_tasks_field(tt)
       else
         must_c << { match: { "task_responses.value": tt['response'] } }
       end
