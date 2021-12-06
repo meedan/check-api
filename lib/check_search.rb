@@ -472,6 +472,16 @@ class CheckSearch
             ]
           }
         }]
+      elsif tt['response'] == 'NUMERIC_RANGE'
+        range_condition = format_mumeric_range_condition('task_responses.value', tt['range'])
+        must_c << range_condition unless range_condition.blank?
+      elsif tt['response'] == 'DATE_RANGE'
+        timezone = tt['range'].delete(:timezone) || @context_timezone
+        values = tt['range']
+        range = format_times_search_range_filter(values, timezone)
+        unless range.nil?
+          must_c << ProjectMedia.send('field_search_query_type_range', 'value', range, timezone)
+        end
       elsif response_type == 'choice'
         if tt['response'].is_a?(Array)
           must_c << { terms: { 'task_responses.value.raw': tt['response'] } }
@@ -654,15 +664,21 @@ class CheckSearch
     conditions = []
     return conditions if @options['range_numeric'].blank?
     @options['range_numeric'].each do |field, values|
-      next if values.nil?
-      min, max = values.dig('min'), values.dig('max')
-      next if min.blank? && max.blank?
-      field_condition = {}
-      field_condition[:gte] = min.to_i unless min.blank?
-      field_condition[:lte] = max.to_i unless max.blank?
-      conditions << { range: { "#{field}": field_condition } }
+      range_condition = format_mumeric_range_condition(field, values)
+      conditions << range_condition unless range_condition.blank?
     end
     conditions
+  end
+
+  def format_mumeric_range_condition(field, values)
+    condition = {}
+    return condition if values.nil?
+    min, max = values.dig('min'), values.dig('max')
+    return condition if min.blank? && max.blank?
+    field_condition = {}
+    field_condition[:gte] = min.to_i unless min.blank?
+    field_condition[:lte] = max.to_i unless max.blank?
+    { range: { "#{field}": field_condition } }
   end
 
   def sort_pg_results(results, table)
