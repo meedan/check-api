@@ -319,7 +319,7 @@ CheckSearch.class_eval do
     timezone = tt['range'].delete(:timezone) || @context_timezone
     values = tt['range']
     range = format_times_search_range_filter(values, timezone)
-    range.nil? ? {} : ProjectMedia.send('field_search_query_type_range', 'value', range, timezone)
+    range.nil? ? {} : ProjectMedia.send('field_search_query_type_range', 'task_responses.date_value', range, timezone)
   end
 
   def format_choice_team_tasks_field(tt)

@@ -421,8 +421,8 @@ class ElasticSearch7Test < ActionController::TestCase
       pm2 = create_project_media team: t, disable_es_callbacks: false
       pm3 = create_project_media team: t, disable_es_callbacks: false
       pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
-      start_time = Time.now - 2.months
-      end_time = Time.now + 2.months
+      start_time = Time.now - 4.months
+      end_time = Time.now - 2.months
       pm2_tt.response = { annotation_type: 'task_response_datetime', set_fields: { response_datetime: start_time }.to_json }.to_json
       pm2_tt.save!
       pm3_tt = pm3.annotations('task').select{|t| t.team_task_id == tt.id}.last
@@ -430,13 +430,13 @@ class ElasticSearch7Test < ActionController::TestCase
       pm3_tt.save!
       sleep 2
       results = CheckSearch.new({ team_tasks: [{ id: tt.id, response: 'DATE_RANGE', range: { start_time: start_time }}]}.to_json)
-      # assert_equal [pm2.id, pm3.id], results.medias.map(&:id).sort
+      assert_equal [pm2.id, pm3.id], results.medias.map(&:id).sort
       results = CheckSearch.new({ team_tasks: [{ id: tt.id, response: 'DATE_RANGE', range: { start_time: start_time, end_time: end_time }}]}.to_json)
-      # assert_equal [pm2.id, pm3.id], results.medias.map(&:id).sort
+      assert_equal [pm2.id, pm3.id], results.medias.map(&:id).sort
       results = CheckSearch.new({ team_tasks: [{ id: tt.id, response: 'DATE_RANGE', range: { start_time: start_time, end_time: end_time - 1.month }}]}.to_json)
-      # assert_equal [pm2.id], results.medias.map(&:id)
+      assert_equal [pm2.id], results.medias.map(&:id)
       results = CheckSearch.new({ team_tasks: [{ id: tt.id, response: 'DATE_RANGE', range: { start_time: start_time + 1.month, max: end_time + 1.month }}]}.to_json)
-      # assert_equal [pm3.id], results.medias.map(&:id)
+      assert_equal [pm3.id], results.medias.map(&:id)
     end
   end
 
