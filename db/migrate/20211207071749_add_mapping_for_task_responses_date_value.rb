@@ -7,6 +7,7 @@ class AddMappingForTaskResponsesDateValue < ActiveRecord::Migration[5.2]
       body: {
         properties: {
           task_responses: {
+            type: 'nested',
             properties: {
               date_value: { type: 'date' },
             }
