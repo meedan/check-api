@@ -437,7 +437,7 @@ class Bot::Alegre < BotUser
     parent = ProjectMedia.find_by_id(parent_id)
     return false if parent.nil?
     if parent.is_blank?
-      parent.replace_by(pm)
+      self.create_relationship(parent, pm, pm_id_scores[parent_id][:score], Relationship.suggested_type)
     elsif pm_id_scores[parent_id]
       relationship_type = self.set_relationship_type(pm, pm_id_scores, parent)
       self.create_relationship(parent, pm, pm_id_scores[parent_id][:score], relationship_type)

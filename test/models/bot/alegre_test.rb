@@ -419,13 +419,15 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:media_file_url)
   end
 
-  test "should replace_by when parent is blank" do
+  test "should not replace when parent is blank" do
     p = create_project
     pm1 = create_project_media project: p, is_image: true
     pm2 = create_project_media project: p, media: Blank.new
     pm3 = create_project_media project: p, media: Blank.new
-    assert_difference 'ProjectMedia.count', -1 do
-      Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
+    assert_no_difference 'ProjectMedia.count' do
+      assert_difference 'Relationship.count' do
+        Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
+      end
     end
   end
 
@@ -1053,8 +1055,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2 = create_project_media team: @team, media: Blank.create!, channel: CheckChannels::ChannelCodes::FETCH
     Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => 0.9 })
     assert_equal [pm2.id], Bot::Alegre.get_similar_items(pm).keys
-    assert_difference 'ProjectMedia.count', -1 do
-      Bot::Alegre.relate_project_media_to_similar_items(pm)
+    assert_no_difference 'ProjectMedia.count' do
+      assert_difference 'Relationship.count' do
+        Bot::Alegre.relate_project_media_to_similar_items(pm)
+      end
     end
     Bot::Alegre.unstub(:get_items_with_similar_description)
   end
