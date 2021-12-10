@@ -470,7 +470,7 @@ class CheckSearch
             ]
           }
         }]
-      elsif %w(ANY_VALUE NUMERIC_RANGE DATE_RANGE choice).include?(tt['response'])
+      elsif %w(ANY_VALUE NUMERIC_RANGE DATE_RANGE).include?(tt['response'])
         method = "format_#{tt['response'].downcase}_team_tasks_field"
         response_condition = self.send(method, tt)
         must_c << response_condition unless response_condition.blank?
