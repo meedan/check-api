@@ -115,14 +115,6 @@ class Team < ApplicationRecord
     recipients
   end
 
-  def slack_notifications_enabled=(enabled)
-    self.send(:set_slack_notifications_enabled, enabled)
-  end
-
-  def slack_webhook=(webhook)
-    self.send(:set_slack_webhook, webhook)
-  end
-
   def report=(report_settings)
     settings = report_settings.is_a?(String) ? JSON.parse(report_settings) : report_settings
     self.send(:set_report, settings)
@@ -152,10 +144,6 @@ class Team < ApplicationRecord
     list.each do |task|
       self.add_auto_task = task
     end
-  end
-
-  def slack_notifications=(slack_notifications)
-    self.send(:set_slack_notifications, JSON.parse(slack_notifications))
   end
 
   def tipline_inbox_filters=(tipline_inbox_filters)
