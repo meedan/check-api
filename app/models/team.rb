@@ -162,6 +162,10 @@ class Team < ApplicationRecord
     self.send(:set_tipline_inbox_filters, JSON.parse(tipline_inbox_filters))
   end
 
+  def suggested_matches_filters=(suggested_matches_filters)
+    self.send(:set_suggested_matches_filters, JSON.parse(suggested_matches_filters))
+  end
+
   def languages=(languages)
     languages = languages.is_a?(String) ? JSON.parse(languages) : languages
     self.send(:set_languages, languages.uniq)

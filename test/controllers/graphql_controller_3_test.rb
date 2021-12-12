@@ -1315,7 +1315,7 @@ class GraphqlController3Test < ActionController::TestCase
     assert_not_nil JSON.parse(@response.body)['data']['updateTeam']['team']['get_slack_notifications']
   end
 
-  test "should set and get tipline inbox filters for team" do
+  test "should set and get special list filters for team" do
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'admin'
@@ -1324,6 +1324,10 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_not_nil JSON.parse(@response.body)['data']['updateTeam']['team']['get_tipline_inbox_filters']
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", suggested_matches_filters: "{\"projects\":[\"-1\"],\"suggestions_count\":{\"min\":5,\"max\":10}}" }) { team { get_suggested_matches_filters } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body)['data']['updateTeam']['team'][':get_suggested_matches_filters']
   end
 
   test "should get Smooch Bot RSS feed preview if has permissions" do
