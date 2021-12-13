@@ -29,13 +29,16 @@ class Project < ApplicationRecord
   after_commit :send_slack_notification, on: [:create, :update]
   after_commit :update_elasticsearch_data, on: :update
   after_update :archive_or_restore_project_medias_if_needed
+  after_update :keep_only_one_default_folder, if: proc { |p| p.saved_change_to_is_default? }
   before_destroy :store_project_media_ids
+  before_destroy :can_destroy_project, prepend: true
   after_destroy :reset_current_project
 
   validates_presence_of :title
   validates :lead_image, size: true
   validate :team_is_not_archived, unless: proc { |p| p.is_being_copied }
   validate :project_group_is_under_same_team
+  validate :unique_default_folder_per_team
 
   has_annotations
 
@@ -258,6 +261,11 @@ class Project < ApplicationRecord
 
   private
 
+  def keep_only_one_default_folder
+    # Update other default projects to be false
+    self.team.projects.where.not(id: self.id).where(is_default: true).update_all(is_default: false) if self.is_default?
+  end
+
   def set_description_and_team_and_user
     self.description ||= ''
     if !User.current.nil? && !self.team_id
@@ -304,7 +312,20 @@ class Project < ApplicationRecord
     errors.add(:base, I18n.t(:project_group_must_be_under_same_team)) if self.project_group && self.project_group.team_id != self.team_id
   end
 
+  def unique_default_folder_per_team
+    if self.new_record? && self.is_default?
+      errors.add(:base, I18n.t(:unique_default_folder_per_team)) unless self.team.default_folder.nil?
+    elsif self.is_default_changed? && !self.is_default?
+      default_folder = self.team.default_folder
+      errors.add(:base, I18n.t(:unique_default_folder_per_team)) if self.id == default_folder.id
+    end
+  end
+
   def store_project_media_ids
     self.project_media_ids_were = self.project_media_ids
+  end
+
+  def can_destroy_project
+    throw :abort if self.is_default?
   end
 end

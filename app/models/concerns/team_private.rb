@@ -99,4 +99,13 @@ module TeamPrivate
     statuses_were = self.settings_before_last_save.to_h.with_indifferent_access[:media_verification_statuses]
     self.class.delay_for(1.second).update_reports_if_labels_changed(self.id, statuses_were, statuses)
   end
+
+  def create_default_folder
+    p = Project.new
+    p.team_id = self.id
+    p.title = 'Unnamed folder (default)'
+    p.skip_check_ability = true
+    p.is_default = true
+    p.save!
+  end
 end

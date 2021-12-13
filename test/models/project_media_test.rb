@@ -2663,4 +2663,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     Team.any_instance.unstub(:settings)
   end
+
+  test "should assign item to default project if project not set" do
+    t = create_team
+    pm = create_project_media team: t
+    assert_equal pm.project, t.default_folder
+  end
 end

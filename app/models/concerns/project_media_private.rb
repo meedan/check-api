@@ -74,6 +74,12 @@ module ProjectMediaPrivate
     self.team_id = Team.current.id if self.team_id.blank? && !Team.current.blank?
   end
 
+  def set_project_id
+    if self.project_id.blank?
+      self.project = self.team.default_folder unless self.team.nil?
+    end
+  end
+
   def source_belong_to_team
     errors.add(:base, "Source should belong to media team.") if self.team_id != self.source.team_id
   end

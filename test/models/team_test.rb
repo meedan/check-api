@@ -2647,4 +2647,9 @@ class TeamTest < ActiveSupport::TestCase
     ss2 = t2.saved_searches.first
     assert_equal tt2.id.to_s, ss2.filters.dig('team_tasks', 0, 'id')
   end
+
+  test "should have a default folder" do
+    t = create_team
+    assert_not_nil t.default_folder
+  end
 end

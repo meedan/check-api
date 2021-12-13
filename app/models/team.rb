@@ -26,7 +26,7 @@ class Team < ApplicationRecord
   before_validation :normalize_slug, on: :create
   before_validation :set_default_language, on: :create
   before_validation :set_default_fieldsets, on: :create
-  after_create :add_user_to_team, :add_default_bots_to_team
+  after_create :add_user_to_team, :add_default_bots_to_team, :create_default_folder
   after_update :archive_or_restore_projects_if_needed
   after_save :update_reports_if_labels_changed, on: :update
   before_destroy :anonymize_sources_and_accounts
@@ -180,6 +180,10 @@ class Team < ApplicationRecord
 
   def search_id
     CheckSearch.id({ 'parent' => { 'type' => 'team', 'slug' => self.slug } })
+  end
+
+  def default_folder
+    self.projects.where(is_default: true).last
   end
 
   def self.archive_or_restore_projects_if_needed(archived, team_id)

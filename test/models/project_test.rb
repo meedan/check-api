@@ -619,4 +619,19 @@ class ProjectTest < ActiveSupport::TestCase
     p.previous_project_group_id = pg.id
     assert_equal pg, p.project_group_was
   end
+
+  test "should validate unique default folder and should not delete it" do
+    t = create_team
+    default_folder = t.default_folder
+    assert_not default_folder.destroy
+    assert_raises ActiveRecord::RecordInvalid do
+      default_folder.is_default = false
+      default_folder.save!
+    end
+    p = create_project team: t
+    p.is_default = true
+    p.save!
+    assert_equal 1, t.projects.where(is_default: true).count
+  end
+
 end
