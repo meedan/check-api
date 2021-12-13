@@ -115,14 +115,6 @@ class Team < ApplicationRecord
     recipients
   end
 
-  def slack_notifications_enabled=(enabled)
-    self.send(:set_slack_notifications_enabled, enabled)
-  end
-
-  def slack_webhook=(webhook)
-    self.send(:set_slack_webhook, webhook)
-  end
-
   def report=(report_settings)
     settings = report_settings.is_a?(String) ? JSON.parse(report_settings) : report_settings
     self.send(:set_report, settings)
@@ -154,12 +146,12 @@ class Team < ApplicationRecord
     end
   end
 
-  def slack_notifications=(slack_notifications)
-    self.send(:set_slack_notifications, JSON.parse(slack_notifications))
-  end
-
   def tipline_inbox_filters=(tipline_inbox_filters)
     self.send(:set_tipline_inbox_filters, JSON.parse(tipline_inbox_filters))
+  end
+
+  def suggested_matches_filters=(suggested_matches_filters)
+    self.send(:set_suggested_matches_filters, JSON.parse(suggested_matches_filters))
   end
 
   def languages=(languages)
