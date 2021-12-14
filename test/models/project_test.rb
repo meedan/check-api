@@ -9,8 +9,9 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test "should create project" do
+    t = create_team
     assert_difference 'Project.count' do
-      create_project
+      create_project team: t
     end
     u = create_user
     t = create_team current_user: u
@@ -160,25 +161,28 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test "should not upload a logo that is not an image" do
+    t = create_team
     assert_no_difference 'Project.count' do
       assert_raises MiniMagick::Invalid do
-        create_project lead_image: 'not-an-image.csv'
+        create_project team: t, lead_image: 'not-an-image.csv'
       end
     end
   end
 
   test "should not upload a big logo" do
+    t = create_team
     assert_no_difference 'Project.count' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_project lead_image: 'ruby-big.png'
+        create_project team: t, lead_image: 'ruby-big.png'
       end
     end
   end
 
   test "should not upload a small logo" do
+    t = create_team
     assert_no_difference 'Project.count' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_project lead_image: 'ruby-small.png'
+        create_project team: t, lead_image: 'ruby-small.png'
       end
     end
   end
@@ -623,7 +627,6 @@ class ProjectTest < ActiveSupport::TestCase
   test "should validate unique default folder and should not delete it" do
     t = create_team
     default_folder = t.default_folder
-    assert_not default_folder.destroy
     assert_raises ActiveRecord::RecordInvalid do
       default_folder.is_default = false
       default_folder.save!
@@ -632,6 +635,14 @@ class ProjectTest < ActiveSupport::TestCase
     p.is_default = true
     p.save!
     assert_equal 1, t.projects.where(is_default: true).count
+    default_folder = t.default_folder
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      assert_raise RuntimeError do
+        default_folder.destroy
+      end
+    end
   end
 
 end

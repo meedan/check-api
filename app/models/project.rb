@@ -31,7 +31,6 @@ class Project < ApplicationRecord
   after_update :archive_or_restore_project_medias_if_needed
   after_update :keep_only_one_default_folder, if: proc { |p| p.saved_change_to_is_default? }
   before_destroy :store_project_media_ids
-  before_destroy :can_destroy_project, prepend: true
   after_destroy :reset_current_project
 
   validates_presence_of :title
@@ -323,9 +322,5 @@ class Project < ApplicationRecord
 
   def store_project_media_ids
     self.project_media_ids_were = self.project_media_ids
-  end
-
-  def can_destroy_project
-    throw :abort if self.is_default?
   end
 end

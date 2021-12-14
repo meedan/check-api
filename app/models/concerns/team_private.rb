@@ -101,6 +101,7 @@ module TeamPrivate
   end
 
   def create_default_folder
+    return if self.is_being_copied
     p = Project.new
     p.team_id = self.id
     p.title = 'Unnamed folder (default)'
