@@ -65,7 +65,8 @@ namespace :check do
 
         if group_by_month == 1
           (start_month..end_month).to_a.each do |month|
-            get_statistics(Time.parse("#{year}-#{month}-01"), Time.parse("#{year}-#{month+1}-01"), slugs)
+            time = Time.parse("#{year}-#{month}-01")
+            get_statistics(time.beginning_of_month, time.end_of_month, slugs)
           end
         else
           get_statistics(Time.parse("#{year}-#{start_month}-01"), Time.parse("#{year}-#{end_month}-01").end_of_month, slugs)
