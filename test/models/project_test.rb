@@ -645,4 +645,35 @@ class ProjectTest < ActiveSupport::TestCase
     end
   end
 
+  test "should move project medias to destination project when destroy project" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    u = create_user
+    p = create_project team: t
+    p2 = create_project team: t
+    p3 = create_project team: t
+    default_folder = t.default_folder
+    create_team_user team: t, user: u, role: 'admin'
+    Sidekiq::Testing.inline! do
+      with_current_user_and_team(u, t) do
+        pm1 = create_project_media project: p
+        pm2 = create_project_media project: p
+        pm3 = create_project_media project: p2
+        pm4 = create_project_media project: p2
+        # should move realted items to default project if destination not set
+        assert_equal [pm1.id, pm2.id], p.project_media_ids.sort
+        assert_equal [pm3.id, pm4.id], p2.project_media_ids.sort
+        p.destroy
+        assert_equal [pm1.id, pm2.id], default_folder.reload.project_media_ids.sort
+        # should move realted items to destination project
+        puts "items_destination_project_id ==> #{p3.id}"
+        p2.items_destination_project_id = p3.id
+        p2.destroy
+        assert_equal [pm3.id, pm4.id], p3.reload.project_media_ids.sort
+        # assert_equal p3.title, pm3.folder
+        assert_equal 2, p3.medias_count
+      end
+    end
+    RequestStore.store[:skip_cached_field_update] = true
+  end
 end

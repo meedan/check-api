@@ -13,7 +13,7 @@ class Project < ApplicationRecord
 
   scope :allowed, ->(team) { where('privacy <= ?', Project.privacy_for_role(team)) }
 
-  attr_accessor :project_media_ids_were, :previous_project_group_id
+  attr_accessor :project_media_ids_were, :previous_project_group_id, :items_destination_project_id
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
   belongs_to :user, optional: true
@@ -257,6 +257,19 @@ class Project < ApplicationRecord
     { 'editor' => PrivacySettings::EDITORS, 'admin' => PrivacySettings::ADMINS }[role] || PrivacySettings::ALL
   end
 
+  def before_destroy_later
+    self.store_project_media_ids
+  end
+
+  def store_project_media_ids
+    self.project_media_ids_were = self.project_media_ids
+    unless self.project_media_ids.blank?
+      # assing related ProjectMedia to destination project or default one
+      move_to_id = self.items_destination_project_id || self.team.default_folder.id
+      ProjectMedia.bulk_update(self.project_media_ids, { action: 'move_to', params: { move_to: move_to_id }.to_json }, self.team) unless move_to_id.blank?
+    end
+  end
+
   private
 
   def keep_only_one_default_folder
@@ -317,9 +330,5 @@ class Project < ApplicationRecord
       default_folder = self.team.default_folder
       errors.add(:base, I18n.t(:unique_default_folder_per_team)) if self.id == default_folder.id
     end
-  end
-
-  def store_project_media_ids
-    self.project_media_ids_were = self.project_media_ids
   end
 end

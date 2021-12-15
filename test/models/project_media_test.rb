@@ -2430,8 +2430,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_queries(0, '=') { assert_equal 'Bar', pm.folder }
     assert_equal p2.id, pm.reload.project_id
     p2.destroy!
-    assert_nil pm.reload.project_id
-    assert_queries(0, '=') { assert_equal '', pm.folder }
+    assert_equal t.default_folder.id, pm.reload.project_id
+    assert_queries(0, '=') { assert_equal default_folder.title, pm.folder }
   end
 
   test "should get original title for uploaded files" do
