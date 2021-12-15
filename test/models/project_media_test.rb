@@ -2417,7 +2417,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p1 = create_project title: 'Foo', team: t
     p2 = create_project title: 'Bar', team: t
     pm = create_project_media project: nil, project_id: nil, team: t
-    assert_queries(0, '=') { assert_equal '', pm.folder }
+    default_folder = t.default_folder
+    assert_queries(0, '=') { assert_equal default_folder.title, pm.folder }
     pm.project_id = p1.id
     pm.save!
     assert_queries(0, '=') { assert_equal 'Foo', pm.folder }
@@ -2594,7 +2595,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
         result = $repository.find(get_es_id(pm))
         assert_equal pm_status, result['verification_status']
         # Verify rules callback
-        assert_nil pm.reload.project_id
+        assert_equal t.default_folder.id, pm.reload.project_id
         assert_equal p.id, pm2.reload.project_id
         assert_equal p.id, pm3.reload.project_id
         # Verify ES index

@@ -109,4 +109,10 @@ module TeamPrivate
     p.is_default = true
     p.save!
   end
+
+  def remove_is_default_project_flag
+    # Call this method before destory team to delete all related projects
+    # as admin not allowed to delete the default project
+    self.default_folder.update_columns(is_default: false)
+  end
 end

@@ -68,6 +68,7 @@ module TeamDuplication
 
     def self.alter_project_copy(copy)
       copy.generate_token(true)
+      copy.team.is_being_copied = true
       copy.set_slack_notifications_enabled = false
     end
 

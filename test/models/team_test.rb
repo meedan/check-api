@@ -207,7 +207,8 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     create_project team: t
     create_project team: t
-    assert_equal 2, t.projects_count
+    # should add default folder to total count
+    assert_equal 3, t.projects_count
   end
 
   test "should have a JSON version" do

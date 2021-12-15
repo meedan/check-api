@@ -1,7 +1,7 @@
 class Team < ApplicationRecord
   # These two callbacks must be in the top
   after_create :create_team_partition
-  before_destroy :delete_created_bots
+  before_destroy :delete_created_bots, :remove_is_default_project_flag
 
   include ValidationsHelper
   include DestroyLater

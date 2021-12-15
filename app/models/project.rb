@@ -35,9 +35,8 @@ class Project < ApplicationRecord
 
   validates_presence_of :title
   validates :lead_image, size: true
-  validate :team_is_not_archived, unless: proc { |p| p.is_being_copied }
+  validate :team_is_not_archived, :unique_default_folder_per_team, unless: proc { |p| p.is_being_copied }
   validate :project_group_is_under_same_team
-  validate :unique_default_folder_per_team
 
   has_annotations
 
