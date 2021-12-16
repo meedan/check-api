@@ -24,6 +24,7 @@ module Api
       attribute :score
       attribute :report_image
       attribute :report_status
+      attribute :report_text_content
 
       def score
         RequestStore.store[:scores] ? RequestStore.store[:scores][@model.id].to_f : nil
