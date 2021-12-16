@@ -13,7 +13,7 @@ class Project < ApplicationRecord
 
   scope :allowed, ->(team) { where('privacy <= ?', Project.privacy_for_role(team)) }
 
-  attr_accessor :project_media_ids_were, :previous_project_group_id, :items_destination_project_id
+  attr_accessor :project_media_ids_were, :previous_project_group_id, :previous_default_project_id, :items_destination_project_id
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
   belongs_to :user, optional: true
@@ -30,7 +30,7 @@ class Project < ApplicationRecord
   after_commit :update_elasticsearch_data, on: :update
   after_update :archive_or_restore_project_medias_if_needed
   after_update :keep_only_one_default_folder, if: proc { |p| p.saved_change_to_is_default? }
-  before_destroy :store_project_media_ids
+  before_destroy :move_project_medias
   after_destroy :reset_current_project
 
   validates_presence_of :title
@@ -88,6 +88,10 @@ class Project < ApplicationRecord
 
   def project_group_was
     ProjectGroup.find_by_id(self.previous_project_group_id) unless self.previous_project_group_id.nil?
+  end
+
+  def previous_default_project
+    Project.find_by_id(self.previous_default_project_id) unless self.previous_default_project_id.nil?
   end
 
   def user_id_callback(value, _mapping_ids = nil)
@@ -258,14 +262,14 @@ class Project < ApplicationRecord
   end
 
   def before_destroy_later
-    self.store_project_media_ids
+    self.move_project_medias
   end
 
-  def store_project_media_ids
+  def move_project_medias
     self.project_media_ids_were = self.project_media_ids
     unless self.project_media_ids.blank?
       # assing related ProjectMedia to destination project or default one
-      move_to_id = self.items_destination_project_id || self.team.default_folder.id
+      move_to_id = self.items_destination_project_id || self.team.default_folder&.id
       ProjectMedia.bulk_update(self.project_media_ids, { action: 'move_to', params: { move_to: move_to_id }.to_json }, self.team) unless move_to_id.blank?
     end
   end
@@ -306,17 +310,6 @@ class Project < ApplicationRecord
 
   def reset_current_project
     User.where(current_project_id: self.id).each{ |user| user.update_columns(current_project_id: nil) }
-    # reset ProjectMedia.project_id in PG & ES
-    ProjectMedia.where(project_id: self.id).update_all(project_id: nil)
-    client = $repository.client
-    options = {
-      index: CheckElasticSearchModel.get_index_alias,
-      body: {
-        script: { source: "ctx._source.project_id = params.project_id", params: { project_id: 0 } },
-        query: { term: { project_id: { value: self.id } } }
-      }
-    }
-    client.update_by_query options
   end
 
   def project_group_is_under_same_team

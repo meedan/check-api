@@ -422,7 +422,7 @@ class ProjectTest < ActiveSupport::TestCase
       with_current_user_and_team(u, t) do
         p.destroy_later
       end
-      assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
+      assert_equal n + 3, Sidekiq::Extensions::DelayedClass.jobs.size
     end
   end
 
