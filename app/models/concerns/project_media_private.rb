@@ -37,7 +37,7 @@ module ProjectMediaPrivate
   end
 
   def archive_or_restore_related_medias_if_needed
-    ProjectMedia.delay.archive_or_restore_related_medias(self.archived, self.id) if self.saved_change_to_archived?
+    ProjectMedia.delay.archive_or_restore_related_medias(self.archived, self.id, self.team) if self.saved_change_to_archived?
   end
 
   def destroy_related_medias
