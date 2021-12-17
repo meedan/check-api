@@ -74,6 +74,7 @@ namespace :check do
       Relationship.where('relationship_type = ?', Relationship.suggested_type.to_yaml).find_each do |r|
         i += 1
         puts("Relationship #{i}")
+        next if r.source.nil? || r.target.nil?
         o.puts([r.source.team.slug, r.weight, r.source_id, r.source.media.type, r.target_id, r.target.media.type, r.created_at].join(','))
       end
       o.close
