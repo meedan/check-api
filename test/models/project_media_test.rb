@@ -2419,8 +2419,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       p2.destroy!
       assert_equal t.default_folder.id, pm.reload.project_id
-      # TODO: fix by Sawy
-      # assert_queries(0, '=') { assert_equal default_folder.title, pm.folder }
+      assert_queries(0, '=') { assert_equal default_folder.title, pm.folder }
     end
   end
 

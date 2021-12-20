@@ -274,6 +274,11 @@ class Project < ApplicationRecord
     end
   end
 
+  # FIXME: This method doesn't make sense but is required and used only by the GraphQL layer, which expects this method to exist in opposition to previous_default_project parent for project mutations
+  def projects
+    []
+  end
+
   private
 
   def keep_only_one_default_folder

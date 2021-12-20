@@ -195,10 +195,10 @@ class ProjectMedia < ApplicationRecord
   end
 
   def self.archive_or_restore_related_medias(archived, project_media_id, team)
-    conditions = { source_id: project_media_id }
+    items = Relationship.where(source_id: project_media_id)
     if archived
       # Trash action should archive confirmed items only
-      conditions[:relationship_type] = Relationship.confirmed_type
+      items.where('relationship_type IN (?)', [Relationship.default_type.to_yaml, Relationship.confirmed_type.to_yaml])
       # Move similar items to default folder
       similar_ids = Relationship.where(source_id: project_media_id, relationship_type: Relationship.suggested_type).map(&:target_id)
       unless similar_ids.blank?
@@ -206,7 +206,7 @@ class ProjectMedia < ApplicationRecord
         ProjectMedia.bulk_update(similar_ids, { action: 'move_to', params: { move_to: move_to_id }.to_json }, team) unless move_to_id.blank?
       end
     end
-    ids = Relationship.where(conditions).map(&:target_id)
+    ids = items.map(&:target_id)
     # should bulk archive
     ProjectMedia.bulk_update(ids, { action: 'archived', params: { archived: archived }.to_json }, team)
   end
