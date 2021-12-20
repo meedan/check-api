@@ -264,6 +264,8 @@ class ProjectMedia < ApplicationRecord
         new_project_media.save!
         User.current = current_user
         Team.current = current_team
+        # Send a published report if any
+        ::Bot::Smooch.send_report_from_parent_to_child(new_project_media.id, new_project_media.id)
       end
     end
   end
