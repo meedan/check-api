@@ -12,7 +12,7 @@ namespace :check do
           default_folder.title = 'Unnamed folder (default)'
           default_folder.skip_check_ability = true
           default_folder.is_default = true
-          default_folder.save!
+          default_folder.save(validate: false)
         end
         team.project_medias.where('project_id IS NULL').find_in_batches(:batch_size => 2500) do |pms|
           ids = pms.map(&:id)
