@@ -68,7 +68,10 @@ class Ability
     can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'collaborator'], role_was: ['editor', 'collaborator']
     can :preview_rss_feed, Team, :id => @context_team.id
     can :invite_members, Team, :id => @context_team.id
-    can [:cud], Project, :team_id => @context_team.id
+    can [:create, :update], Project, :team_id => @context_team.id
+    can :destroy, Project do |obj|
+      obj.team_id == @context_team.id && !obj.is_default?
+    end
     can :destroy, ProjectMedia do |obj|
       obj.related_to_team?(@context_team) && obj.user_can_see_project?(@user)
     end

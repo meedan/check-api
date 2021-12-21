@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_22_140729) do
+ActiveRecord::Schema.define(version: 2021_12_13_040254) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -238,6 +238,7 @@ ActiveRecord::Schema.define(version: 2021_11_22_140729) do
     t.integer "user_id"
     t.integer "team_id"
     t.string "title"
+    t.boolean "is_default", default: false
     t.text "description"
     t.string "lead_image"
     t.datetime "created_at", null: false
@@ -249,6 +250,7 @@ ActiveRecord::Schema.define(version: 2021_11_22_140729) do
     t.integer "project_group_id"
     t.integer "privacy", default: 0, null: false
     t.index ["id"], name: "index_projects_on_id"
+    t.index ["is_default"], name: "index_projects_on_is_default"
     t.index ["privacy"], name: "index_projects_on_privacy"
     t.index ["project_group_id"], name: "index_projects_on_project_group_id"
     t.index ["team_id"], name: "index_projects_on_team_id"

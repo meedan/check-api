@@ -146,6 +146,12 @@ TeamType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :default_folder do
+    type ProjectType
+
+    resolve -> (team, _args, _ctx) { team.default_folder }
+  end
+
   connection :saved_searches, SavedSearchType.connection_type
   connection :project_groups, ProjectGroupType.connection_type
 end

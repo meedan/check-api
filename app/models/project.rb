@@ -13,7 +13,7 @@ class Project < ApplicationRecord
 
   scope :allowed, ->(team) { where('privacy <= ?', Project.privacy_for_role(team)) }
 
-  attr_accessor :project_media_ids_were, :previous_project_group_id
+  attr_accessor :project_media_ids_were, :previous_project_group_id, :previous_default_project_id, :items_destination_project_id
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
   belongs_to :user, optional: true
@@ -29,12 +29,13 @@ class Project < ApplicationRecord
   after_commit :send_slack_notification, on: [:create, :update]
   after_commit :update_elasticsearch_data, on: :update
   after_update :archive_or_restore_project_medias_if_needed
-  before_destroy :store_project_media_ids
+  after_update :keep_only_one_default_folder, if: proc { |p| p.saved_change_to_is_default? }
+  before_destroy :move_project_medias
   after_destroy :reset_current_project
 
   validates_presence_of :title
   validates :lead_image, size: true
-  validate :team_is_not_archived, unless: proc { |p| p.is_being_copied }
+  validate :team_is_not_archived, :unique_default_folder_per_team, unless: proc { |p| p.is_being_copied }
   validate :project_group_is_under_same_team
 
   has_annotations
@@ -87,6 +88,10 @@ class Project < ApplicationRecord
 
   def project_group_was
     ProjectGroup.find_by_id(self.previous_project_group_id) unless self.previous_project_group_id.nil?
+  end
+
+  def previous_default_project
+    Project.find_by_id(self.previous_default_project_id) unless self.previous_default_project_id.nil?
   end
 
   def user_id_callback(value, _mapping_ids = nil)
@@ -256,7 +261,30 @@ class Project < ApplicationRecord
     { 'editor' => PrivacySettings::EDITORS, 'admin' => PrivacySettings::ADMINS }[role] || PrivacySettings::ALL
   end
 
+  def before_destroy_later
+    self.move_project_medias
+  end
+
+  def move_project_medias
+    self.project_media_ids_were = self.project_media_ids
+    unless self.project_media_ids.blank?
+      # assing related ProjectMedia to destination project or default one
+      move_to_id = self.items_destination_project_id || self.team.default_folder&.id
+      ProjectMedia.bulk_update(self.project_media_ids, { action: 'move_to', params: { move_to: move_to_id }.to_json }, self.team) unless move_to_id.blank?
+    end
+  end
+
+  # FIXME: This method doesn't make sense but is required and used only by the GraphQL layer, which expects this method to exist in opposition to previous_default_project parent for project mutations
+  def projects
+    []
+  end
+
   private
+
+  def keep_only_one_default_folder
+    # Update other default projects to be false
+    self.team.projects.where.not(id: self.id).where(is_default: true).update_all(is_default: false) if self.is_default?
+  end
 
   def set_description_and_team_and_user
     self.description ||= ''
@@ -287,24 +315,18 @@ class Project < ApplicationRecord
 
   def reset_current_project
     User.where(current_project_id: self.id).each{ |user| user.update_columns(current_project_id: nil) }
-    # reset ProjectMedia.project_id in PG & ES
-    ProjectMedia.where(project_id: self.id).update_all(project_id: nil)
-    client = $repository.client
-    options = {
-      index: CheckElasticSearchModel.get_index_alias,
-      body: {
-        script: { source: "ctx._source.project_id = params.project_id", params: { project_id: 0 } },
-        query: { term: { project_id: { value: self.id } } }
-      }
-    }
-    client.update_by_query options
   end
 
   def project_group_is_under_same_team
     errors.add(:base, I18n.t(:project_group_must_be_under_same_team)) if self.project_group && self.project_group.team_id != self.team_id
   end
 
-  def store_project_media_ids
-    self.project_media_ids_were = self.project_media_ids
+  def unique_default_folder_per_team
+    if self.new_record? && self.is_default?
+      errors.add(:base, I18n.t(:unique_default_folder_per_team)) unless self.team.default_folder.nil?
+    elsif self.is_default_changed? && !self.is_default?
+      default_folder = self.team.default_folder
+      errors.add(:base, I18n.t(:unique_default_folder_per_team)) if self.id == default_folder.id
+    end
   end
 end

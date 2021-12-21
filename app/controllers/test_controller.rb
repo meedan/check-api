@@ -75,8 +75,9 @@ class TestController < ApplicationController
   end
 
   def new_project
-    Team.current = Team.find(params[:team_id])
-    p = create_project params
+    t = Team.find(params[:team_id])
+    Team.current = t
+    p = params[:use_default_project] ? t.default_folder : create_project(params)
     Team.current = nil
     render_success 'project', p
   end
