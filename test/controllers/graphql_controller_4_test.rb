@@ -322,6 +322,18 @@ class GraphqlController4Test < ActionController::TestCase
     assert_equal 2, data['source']['medias']['edges'].size
   end
 
+  test "should set a project as default" do
+    default_folder = @t.default_folder.id
+    p = create_project team: @t
+    query = "mutation { updateProject(input: { clientMutationId: \"1\", id: \"#{p.graphql_id}\", previous_default_project_id: #{default_folder},is_default: true}) { project { is_default }, previous_default_project { dbid, is_default } } }"
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['updateProject']
+    assert data['project']['is_default']
+    assert_equal default_folder, data['previous_default_project']['dbid']
+    assert !data['previous_default_project']['is_default']
+  end
+
   test "should create related project media for source" do
     t = create_team
     pm = create_project_media team: t

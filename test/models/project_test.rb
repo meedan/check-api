@@ -9,8 +9,9 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test "should create project" do
+    t = create_team
     assert_difference 'Project.count' do
-      create_project
+      create_project team: t
     end
     u = create_user
     t = create_team current_user: u
@@ -160,25 +161,28 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test "should not upload a logo that is not an image" do
+    t = create_team
     assert_no_difference 'Project.count' do
       assert_raises MiniMagick::Invalid do
-        create_project lead_image: 'not-an-image.csv'
+        create_project team: t, lead_image: 'not-an-image.csv'
       end
     end
   end
 
   test "should not upload a big logo" do
+    t = create_team
     assert_no_difference 'Project.count' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_project lead_image: 'ruby-big.png'
+        create_project team: t, lead_image: 'ruby-big.png'
       end
     end
   end
 
   test "should not upload a small logo" do
+    t = create_team
     assert_no_difference 'Project.count' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_project lead_image: 'ruby-small.png'
+        create_project team: t, lead_image: 'ruby-small.png'
       end
     end
   end
@@ -418,7 +422,7 @@ class ProjectTest < ActiveSupport::TestCase
       with_current_user_and_team(u, t) do
         p.destroy_later
       end
-      assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
+      assert_equal n + 3, Sidekiq::Extensions::DelayedClass.jobs.size
     end
   end
 
@@ -618,5 +622,58 @@ class ProjectTest < ActiveSupport::TestCase
     pg = create_project_group
     p.previous_project_group_id = pg.id
     assert_equal pg, p.project_group_was
+  end
+
+  test "should validate unique default folder and should not delete it" do
+    t = create_team
+    default_folder = t.default_folder
+    assert_raises ActiveRecord::RecordInvalid do
+      default_folder.is_default = false
+      default_folder.save!
+    end
+    p = create_project team: t
+    p.is_default = true
+    p.save!
+    assert_equal 1, t.projects.where(is_default: true).count
+    default_folder = t.default_folder
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      assert_raise RuntimeError do
+        default_folder.destroy
+      end
+    end
+  end
+
+  test "should move project medias to destination project when destroy project" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    u = create_user
+    p = create_project team: t
+    p2 = create_project team: t
+    p3 = create_project team: t
+    default_folder = t.default_folder
+    create_team_user team: t, user: u, role: 'admin'
+    Sidekiq::Testing.inline! do
+      with_current_user_and_team(u, t) do
+        pm1 = create_project_media project: p
+        pm2 = create_project_media project: p
+        pm3 = create_project_media project: p2
+        pm4 = create_project_media project: p2
+        # should move realted items to default project if destination not set
+        assert_equal [pm1.id, pm2.id], p.project_media_ids.sort
+        assert_equal [pm3.id, pm4.id], p2.project_media_ids.sort
+        p.destroy
+        assert_equal [pm1.id, pm2.id], default_folder.reload.project_media_ids.sort
+        # should move realted items to destination project
+        puts "items_destination_project_id ==> #{p3.id}"
+        p2.items_destination_project_id = p3.id
+        p2.destroy
+        assert_equal [pm3.id, pm4.id], p3.reload.project_media_ids.sort
+        # assert_equal p3.title, pm3.folder
+        assert_equal 2, p3.medias_count
+      end
+    end
+    RequestStore.store[:skip_cached_field_update] = true
   end
 end

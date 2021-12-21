@@ -37,7 +37,7 @@ module ProjectMediaPrivate
   end
 
   def archive_or_restore_related_medias_if_needed
-    ProjectMedia.delay.archive_or_restore_related_medias(self.archived, self.id) if self.saved_change_to_archived?
+    ProjectMedia.delay.archive_or_restore_related_medias(self.archived, self.id, self.team) if self.saved_change_to_archived?
   end
 
   def destroy_related_medias
@@ -72,6 +72,12 @@ module ProjectMediaPrivate
       self.team_id = project.team_id unless project.nil?
     end
     self.team_id = Team.current.id if self.team_id.blank? && !Team.current.blank?
+  end
+
+  def set_project_id
+    if self.project_id.blank?
+      self.project = self.team.default_folder unless self.team.nil?
+    end
   end
 
   def source_belong_to_team
