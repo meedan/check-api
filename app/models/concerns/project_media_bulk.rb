@@ -123,6 +123,7 @@ module ProjectMediaBulk
       client = $repository.client
       options = {
         index: CheckElasticSearchModel.get_index_alias,
+        conflicts: 'proceed',
         body: {
           script: script,
           query: { terms: { annotated_id: ids } }

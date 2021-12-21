@@ -3,9 +3,8 @@ require_relative '../test_helper'
 class ProjectMediaTest < ActiveSupport::TestCase
   def setup
     require 'sidekiq/testing'
-    super
-    setup_elasticsearch
     Sidekiq::Testing.fake!
+    super
     create_team_bot login: 'keep', name: 'Keep'
   end
 
@@ -313,8 +312,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should notify Pusher when project media is created" do
-    # stubs :env as setup_elasticsearch method set it to development
-    Rails.stubs(:env).returns('test')
     pm = create_project_media
     assert pm.sent_to_pusher
     t = create_team
@@ -322,7 +319,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     m = create_claim_media project_id: p.id
     pm = create_project_media project: p, media: m
     assert pm.sent_to_pusher
-    Rails.unstub(:env)
   end
 
   test "should notify Pusher when project media is destroyed" do
@@ -1363,6 +1359,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should update media account when change author_url" do
+    setup_elasticsearch
     u = create_user is_admin: true
     t = create_team
     create_team_user user: u, team: t
@@ -1411,6 +1408,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should update elasticsearch parent_id field" do
+    setup_elasticsearch
     t = create_team
     s1 = create_project_media team: t, disable_es_callbacks: false
     s2 = create_project_media team: t, disable_es_callbacks: false
@@ -1663,6 +1661,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache and sort by demand" do
+    setup_elasticsearch
     RequestStore.store[:skip_cached_field_update] = false
     team = create_team
     p = create_project team: team
@@ -1838,6 +1837,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should index sortable fields" do
     RequestStore.store[:skip_cached_field_update] = false
     # sortable fields are [linked_items_count, last_seen and share_count]
+    setup_elasticsearch
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     team = create_team
     p = create_project team: team
@@ -1887,6 +1887,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should query media" do
+    setup_elasticsearch
     t = create_team
     p = create_project team: t
     p1 = create_project team: t
@@ -1933,6 +1934,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
         end
       end
     end
+
+    setup_elasticsearch
+
     threads = []
     pm = create_project_media media: nil, quote: 'test', disable_es_callbacks: false
     id = get_es_id(pm)
@@ -2090,6 +2094,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should restore and confirm item if not super admin" do
+    setup_elasticsearch
     t = create_team
     p = create_project team: t
     p3 = create_project team: t
@@ -2534,6 +2539,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should run callbacks for bulk-update status" do
     ProjectMedia.stubs(:clear_caches).returns(nil)
+    setup_elasticsearch
     create_verification_status_stuff
     t = create_team
     u = create_user
@@ -2660,6 +2666,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should attach similar items to default folder when trash parent item" do
+    setup_elasticsearch
     t = create_team
     default_folder = t.default_folder
     p = create_project team: t
@@ -2670,24 +2677,22 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_relationship source: pm, target: pm1_c, relationship_type: Relationship.confirmed_type
     create_relationship source: pm, target: pm1_s, relationship_type: Relationship.suggested_type
     create_relationship source: pm, target: pm2_s, relationship_type: Relationship.suggested_type
-    Sidekiq::Testing.inline! do
-      pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
-      pm.save!
-      pm1_s = pm1_s.reload; pm2_s.reload
-      assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm1_c.reload.archived
-      assert_equal CheckArchivedFlags::FlagCodes::NONE, pm1_s.archived
-      assert_equal CheckArchivedFlags::FlagCodes::NONE, pm2_s.archived
-      assert_equal default_folder.id, pm1_s.project_id
-      assert_equal default_folder.id, pm2_s.project_id
-      # Verify ES
-      result = $repository.find(get_es_id(pm1_c))
-      result['archived'] = CheckArchivedFlags::FlagCodes::TRASHED
-      result = $repository.find(get_es_id(pm1_s))
-      result['archived'] = CheckArchivedFlags::FlagCodes::NONE
-      result['project_id'] = default_folder.id
-      result = $repository.find(get_es_id(pm1_s))
-      result['archived'] = CheckArchivedFlags::FlagCodes::NONE
-      result['project_id'] = default_folder.id
-    end
+    pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
+    pm.save!
+    pm1_s = pm1_s.reload; pm2_s.reload
+    assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm1_c.reload.archived
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm1_s.archived
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm2_s.archived
+    assert_equal default_folder.id, pm1_s.project_id
+    assert_equal default_folder.id, pm2_s.project_id
+    # Verify ES
+    result = $repository.find(get_es_id(pm1_c))
+    result['archived'] = CheckArchivedFlags::FlagCodes::TRASHED
+    result = $repository.find(get_es_id(pm1_s))
+    result['archived'] = CheckArchivedFlags::FlagCodes::NONE
+    result['project_id'] = default_folder.id
+    result = $repository.find(get_es_id(pm1_s))
+    result['archived'] = CheckArchivedFlags::FlagCodes::NONE
+    result['project_id'] = default_folder.id
   end
 end
