@@ -94,7 +94,8 @@ module CheckElasticSearchModel
       settings = settings.reduce(:merge)
       mappings = mappings.reduce(:merge)
       client.indices.create index: index_name, body: { settings: settings.to_hash, mappings: mappings.to_hash }
-      client.indices.put_alias index: index_name, name: CheckElasticSearchModel.get_index_alias if c_alias
+      alias_name = CheckElasticSearchModel.get_index_alias
+      client.indices.put_alias index: index_name, name: alias_name if c_alias
     end
 
     def delete_index(index_name = CheckElasticSearchModel.get_index_name)

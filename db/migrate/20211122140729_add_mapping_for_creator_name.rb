@@ -3,7 +3,7 @@ class AddMappingForCreatorName < ActiveRecord::Migration[5.2]
     index_alias = CheckElasticSearchModel.get_index_alias
     client = $repository.client
     # update settings with check normalizer
-    client.indices.close index: '_all', wait_for_active_shards: 0
+    client.indices.close index: index_alias, wait_for_active_shards: 0
     body = {
       analysis: {
         normalizer: {
@@ -14,8 +14,8 @@ class AddMappingForCreatorName < ActiveRecord::Migration[5.2]
         }
       }
     }
-    client.indices.put_settings body: body
-    client.indices.open index: '_all'
+    client.indices.put_settings body: body, index: index_alias
+    client.indices.open index: index_alias
     # update mapping with creator_name field
     options = {
       index: index_alias,

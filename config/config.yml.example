@@ -245,7 +245,7 @@ test:
   pender_url: 'http://pender:3200'
   pender_key: 'test'
   alegre_token: 'test'
-  elasticsearch_index: 'check_test<%= ENV["TEST_ENV_NUMBER"] %>'
+  elasticsearch_index: 'check_test_<%= ENV["TEST_ENV_NUMBER"] %>_index'
   elasticsearch_sync: true
   elasticsearch_log: false
   google_analytics_code:
