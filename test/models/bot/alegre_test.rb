@@ -992,6 +992,21 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:get_items_with_similar_description)
   end
 
+  # This test to reproduce errbit error CHECK-1218
+  test "should match to existing parent" do
+    pm_s = create_project_media team: @team
+    pm = create_project_media team: @team
+    pm2 = create_project_media team: @team
+    create_relationship source_id: pm_s.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => 0.9 })
+    assert_difference 'Relationship.count' do
+      create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm, set_fields: { text: 'Foo bar' }.to_json
+    end
+    relationship = Relationship.last
+    assert_equal pm_s.id, relationship.source_id
+    Bot::Alegre.unstub(:get_items_with_similar_description)
+  end
+
   test "should use transcription data for similarity matching" do
     json_schema = {
       type: 'object',
