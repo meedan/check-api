@@ -14,15 +14,22 @@ def get_statistics(start_date, end_date, slugs)
   # 
   # data << Annotation.where(annotation_type: 'extracted_text').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slugs).where('annotations.created_at' => start_date..end_date).count.to_s
   # data << ProjectMedia.joins(:team).where('teams.slug' => slugs).where('project_medias.created_at' => start_date..end_date).count.to_s
-  # data << TiplineSubscription.where(created_at: start_date..end_date).where('teams.slug' => slugs).group(:team_id).joins(:team).count.collect{ |id, count| "#{Team.find(id).name} (#{count})" }.join(',')
-  data << Annotation.where(annotation_type: 'report_design').where('data LIKE ?', '%state: published%').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slugs).where('annotations.created_at' => start_date..end_date).count.to_s
-  value = 0
+  data << TiplineSubscription.where(created_at: start_date..end_date).where('teams.slug' => slugs).group(:team_id).joins(:team).count.collect{ |id, count| "#{Team.find(id).name} (#{count})" }.join('; ')
+  value = []
   slugs.each do |slug|
-    value += Version.from_partition(Team.find_by_slug(slug).id).joins("INNER JOIN annotations a ON a.id = versions.item_id::int8 AND versions.item_type = 'Dynamic'").where('a.annotation_type' => 'report_design').where('object_after LIKE ?', '%"state":"published"%').joins("INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('a.created_at' => start_date..end_date).count
+    team = Team.find_by_slug(slug)
+    count = Version.from_partition(team.id).where(created_at: start_date..end_date, team_id: team.id, item_type: 'TiplineSubscription', event_type: 'destroy_tiplinesubscription').count
+    value << "#{team.name} (#{count})" if count > 0
   end
-  data << value.to_s
-  data << Annotation.where(annotation_type: 'smooch').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slugs).where('annotations.created_at' => start_date..end_date).count.to_s
-  data << Relationship.joins('INNER JOIN project_medias pm ON pm.id = relationships.source_id INNER JOIN teams t ON t.id = pm.team_id').where('t.slug' => slugs).where('relationships.created_at' => start_date..end_date).where('relationship_type = ?', Relationship.confirmed_type.to_yaml).count.to_s
+  data << value.join('; ')
+  # data << Annotation.where(annotation_type: 'report_design').where('data LIKE ?', '%state: published%').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slugs).where('annotations.created_at' => start_date..end_date).count.to_s
+  # value = 0
+  # slugs.each do |slug|
+  #   value += Version.from_partition(Team.find_by_slug(slug).id).joins("INNER JOIN annotations a ON a.id = versions.item_id::int8 AND versions.item_type = 'Dynamic'").where('a.annotation_type' => 'report_design').where('object_after LIKE ?', '%"state":"published"%').joins("INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('a.created_at' => start_date..end_date).count
+  # end
+  # data << value.to_s
+  # data << Annotation.where(annotation_type: 'smooch').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slugs).where('annotations.created_at' => start_date..end_date).count.to_s
+  # data << Relationship.joins('INNER JOIN project_medias pm ON pm.id = relationships.source_id INNER JOIN teams t ON t.id = pm.team_id').where('t.slug' => slugs).where('relationships.created_at' => start_date..end_date).where('relationship_type = ?', Relationship.confirmed_type.to_yaml).count.to_s
   puts data.join(',')
 end
 
@@ -48,19 +55,21 @@ namespace :check do
         # end
         # header << 'Number of OCR’d images'
         # header << 'Number of claims available through the search DB'
-        # header << 'Number of users who opted-in / received the newsletter, per publisher'
-        header << 'Number of fact-checks published'
-        header << 'Number of fact-checks sent to users'
-        header << 'Number of requests'
-        header << 'Number of similar media'
+        header << 'Number of users who opted-in / received the newsletter per publisher'
+        header << 'Number of users who opted-out from the newsletter per publisher'
+        # header << 'Number of fact-checks published'
+        # header << 'Number of fact-checks sent to users'
+        # header << 'Number of requests'
+        # header << 'Number of similar media'
         puts header.join(',')
 
         if group_by_month == 1
           (start_month..end_month).to_a.each do |month|
-            get_statistics(Time.parse("#{year}-#{month}-01"), Time.parse("#{year}-#{month+1}-01"), slugs)
+            time = Time.parse("#{year}-#{month}-01")
+            get_statistics(time.beginning_of_month, time.end_of_month, slugs)
           end
         else
-          get_statistics(Time.parse("#{year}-#{start_month}-01"), Time.parse("#{year}-#{end_month}-01"), slugs)
+          get_statistics(Time.parse("#{year}-#{start_month}-01"), Time.parse("#{year}-#{end_month}-01").end_of_month, slugs)
         end
       end
     end

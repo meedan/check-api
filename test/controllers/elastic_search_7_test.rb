@@ -584,6 +584,6 @@ class ElasticSearch7Test < ActionController::TestCase
       assert_equal tipline_ids.concat([pm.id]).sort, results.medias.map(&:id).sort
     end
   end
-
+  
   # Please add new tests to test/controllers/elastic_search_8_test.rb
 end

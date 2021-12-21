@@ -1,7 +1,7 @@
 class Team < ApplicationRecord
   # These two callbacks must be in the top
   after_create :create_team_partition
-  before_destroy :delete_created_bots
+  before_destroy :delete_created_bots, :remove_is_default_project_flag
 
   include ValidationsHelper
   include DestroyLater
@@ -26,7 +26,7 @@ class Team < ApplicationRecord
   before_validation :normalize_slug, on: :create
   before_validation :set_default_language, on: :create
   before_validation :set_default_fieldsets, on: :create
-  after_create :add_user_to_team, :add_default_bots_to_team
+  after_create :add_user_to_team, :add_default_bots_to_team, :create_default_folder
   after_update :archive_or_restore_projects_if_needed
   after_save :update_reports_if_labels_changed, on: :update
   before_destroy :anonymize_sources_and_accounts
@@ -115,14 +115,6 @@ class Team < ApplicationRecord
     recipients
   end
 
-  def slack_notifications_enabled=(enabled)
-    self.send(:set_slack_notifications_enabled, enabled)
-  end
-
-  def slack_webhook=(webhook)
-    self.send(:set_slack_webhook, webhook)
-  end
-
   def report=(report_settings)
     settings = report_settings.is_a?(String) ? JSON.parse(report_settings) : report_settings
     self.send(:set_report, settings)
@@ -154,12 +146,12 @@ class Team < ApplicationRecord
     end
   end
 
-  def slack_notifications=(slack_notifications)
-    self.send(:set_slack_notifications, JSON.parse(slack_notifications))
-  end
-
   def tipline_inbox_filters=(tipline_inbox_filters)
     self.send(:set_tipline_inbox_filters, JSON.parse(tipline_inbox_filters))
+  end
+
+  def suggested_matches_filters=(suggested_matches_filters)
+    self.send(:set_suggested_matches_filters, JSON.parse(suggested_matches_filters))
   end
 
   def languages=(languages)
@@ -180,6 +172,10 @@ class Team < ApplicationRecord
 
   def search_id
     CheckSearch.id({ 'parent' => { 'type' => 'team', 'slug' => self.slug } })
+  end
+
+  def default_folder
+    self.projects.where(is_default: true).last
   end
 
   def self.archive_or_restore_projects_if_needed(archived, team_id)

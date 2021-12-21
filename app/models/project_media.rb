@@ -13,7 +13,7 @@ class ProjectMedia < ApplicationRecord
   include ProjectMediaSourceAssociations
   include ProjectMediaGetters
 
-  validates_presence_of :media, :team
+  validates_presence_of :media, :team, :project
 
   validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }, on: :create
   validate :source_belong_to_team, unless: proc { |pm| pm.source_id.blank? || pm.is_being_copied }
@@ -21,7 +21,7 @@ class ProjectMedia < ApplicationRecord
   validates :channel, included: { values: CheckChannels::ChannelCodes::ALL }, on: :create
   validates :channel, inclusion: { in: ->(pm) { [pm.channel_was] }, message: :channel_update }, on: :update
 
-  before_validation :set_team_id, :set_channel, on: :create
+  before_validation :set_team_id, :set_channel, :set_project_id, on: :create
   after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks
   after_commit :apply_rules_and_actions_on_create, :set_quote_metadata, :notify_team_bots_create, on: [:create]
   after_commit :create_relationship, on: [:update]
@@ -194,9 +194,21 @@ class ProjectMedia < ApplicationRecord
     Relationship.where('source_id = ? OR target_id = ?', self.id, self.id)
   end
 
-  def self.archive_or_restore_related_medias(archived, project_media_id)
-    ids = Relationship.where(source_id: project_media_id).map(&:target_id)
-    ProjectMedia.where(id: ids).update_all(archived: archived)
+  def self.archive_or_restore_related_medias(archived, project_media_id, team)
+    items = Relationship.where(source_id: project_media_id)
+    if archived == CheckArchivedFlags::FlagCodes::TRASHED
+      # Trash action should archive confirmed items only
+      items = items.where('relationship_type IN (?)', [Relationship.default_type.to_yaml, Relationship.confirmed_type.to_yaml])
+      # Move similar items to default folder
+      similar_ids = Relationship.where(source_id: project_media_id, relationship_type: Relationship.suggested_type).map(&:target_id)
+      unless similar_ids.blank?
+        move_to = team.default_folder
+        ProjectMedia.bulk_move(similar_ids, team.default_folder, team) unless move_to.blank?
+      end
+    end
+    ids = items.map(&:target_id)
+    # should bulk archive
+    ProjectMedia.bulk_update(ids, { action: 'archived', params: { archived: archived }.to_json }, team)
   end
 
   def self.destroy_related_medias(project_media, user_id = nil)
@@ -264,6 +276,8 @@ class ProjectMedia < ApplicationRecord
         new_project_media.save!
         User.current = current_user
         Team.current = current_team
+        # Send a published report if any
+        ::Bot::Smooch.send_report_from_parent_to_child(new_project_media.id, new_project_media.id)
       end
     end
   end
