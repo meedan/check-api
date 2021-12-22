@@ -12,8 +12,11 @@ namespace :check do
         .find_in_batches(:batch_size => 2500) do |relationships|
           es_body = []
           count_mapping = {}
+          count_target_mapping = {}
           target_ids = relationships.map(&:target_id)
+          source_ids = relationships.map(&:source_id)
           target_ids.each{ |tc| count_mapping[tc.to_i] = 0 }
+          source_ids.each{ |tc| count_target_mapping[tc.to_i] = 0 }
           # delete existing relation
           Relationship.where(id: relationships.map(&:id)).delete_all
           # query sources_count
@@ -34,6 +37,20 @@ namespace :check do
             target.update_columns(sources_count: sources_count)
           end
           client.bulk body: es_body unless es_body.blank?
+          # Update targets count
+          # query targets_count
+          Relationship.select('source_id, count(source_id) as c')
+          .where(source_id: source_ids)
+          .where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml)
+          .group('source_id').each do |raw|
+            count_target_mapping[raw.source_id.to_i] = raw.c.to_i
+          end
+          ProjectMedia.where(id: source_ids).find_each do |source|
+            print '.'
+            targets_count = count_target_mapping[source.id.to_i]
+            # update source count for target
+            source.update_columns(targets_count: targets_count)
+          end
         end
         # log last team id
         puts "[#{Time.now}] Done for team #{team.slug}"
