@@ -16,11 +16,12 @@ class ElasticSearch8Test < ActionController::TestCase
       pm2 = create_project_media project: p, disable_es_callbacks: false
       pm3 = create_project_media team: t, quote: 'claim a', disable_es_callbacks: false
       results = CheckSearch.new({ projects: ['-1'] }.to_json)
-      assert_equal [pm.id, pm3.id], results.medias.map(&:id).sort
+      # result should return empty as now all items should have a project CHECK-1150
+      assert_empty results.medias.map(&:id)
       results = CheckSearch.new({ projects: [p.id, '-1'] }.to_json)
-      assert_equal [pm.id, pm2.id, pm3.id], results.medias.map(&:id).sort
+      assert_equal [pm2.id], results.medias.map(&:id)
       results = CheckSearch.new({ keyword: 'claim', projects: ['-1'] }.to_json)
-      assert_equal [pm3.id], results.medias.map(&:id)
+      assert_empty results.medias.map(&:id)
       # test read/unread
       pm.read = true
       pm.save!
