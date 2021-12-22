@@ -373,6 +373,28 @@ class GraphqlController5Test < ActionController::TestCase
     assert_response :success
   end
 
+  test "should get version related to status change" do
+    create_verification_status_stuff
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'admin'
+    p = create_project team: t
+    pm = nil
+    with_current_user_and_team(u, t) do
+      pm = create_project_media project: p
+      s = pm.last_status_obj
+      s.status = 'in_progress'
+      s.save!
+    end
+    authenticate_with_user(u)
+    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") {  log(annotation_types: ["verification_status"]) { edges { node { annotation { annotation_type } } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    log = JSON.parse(@response.body)['data']['project_media']['log']['edges'].collect{ |e| e['node'] }
+    assert_equal 1, log.size
+    assert_equal 'verification_status', log[0]['annotation']['annotation_type']
+  end
+
   protected
 
   def assert_error_message(expected)
