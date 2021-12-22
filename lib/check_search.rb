@@ -449,9 +449,7 @@ class CheckSearch
       must_c = []
       must_c << { term: { "task_responses.team_task_id": tt['id'] } } if tt.has_key?('id')
       response_type = tt['response_type'] ||= 'choice'
-      if tt['response'] == 'ANY_VALUE'
-        must_c << { exists: { field: "task_responses.value" } }
-      elsif tt['response'] == 'NO_VALUE'
+      if tt['response'] == 'NO_VALUE'
         return [{
           bool: {
             must_not: [
@@ -471,12 +469,12 @@ class CheckSearch
             ]
           }
         }]
+      elsif %w(ANY_VALUE NUMERIC_RANGE DATE_RANGE).include?(tt['response'])
+        method = "format_#{tt['response'].downcase}_team_tasks_field"
+        response_condition = self.send(method, tt)
+        must_c << response_condition unless response_condition.blank?
       elsif response_type == 'choice'
-        if tt['response'].is_a?(Array)
-          must_c << { terms: { 'task_responses.value.raw': tt['response'] } }
-        else
-          must_c << { term: { 'task_responses.value.raw': tt['response'] } }
-        end
+        must_c << format_choice_team_tasks_field(tt)
       else
         must_c << { match: { "task_responses.value": tt['response'] } }
       end
@@ -653,15 +651,21 @@ class CheckSearch
     conditions = []
     return conditions if @options['range_numeric'].blank?
     @options['range_numeric'].each do |field, values|
-      next if values.nil?
-      min, max = values.dig('min'), values.dig('max')
-      next if min.blank? && max.blank?
-      field_condition = {}
-      field_condition[:gte] = min.to_i unless min.blank?
-      field_condition[:lte] = max.to_i unless max.blank?
-      conditions << { range: { "#{field}": field_condition } }
+      range_condition = format_mumeric_range_condition(field, values)
+      conditions << range_condition unless range_condition.blank?
     end
     conditions
+  end
+
+  def format_mumeric_range_condition(field, values)
+    condition = {}
+    return condition if values.nil?
+    min, max = values.dig('min'), values.dig('max')
+    return condition if min.blank? && max.blank?
+    field_condition = {}
+    field_condition[:gte] = min.to_i unless min.blank?
+    field_condition[:lte] = max.to_i unless max.blank?
+    { range: { "#{field}": field_condition } }
   end
 
   def sort_pg_results(results, table)
