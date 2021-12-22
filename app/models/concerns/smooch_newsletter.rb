@@ -76,7 +76,12 @@ module SmoochNewsletter
 
     def newsletter_cron(newsletter)
       hour = newsletter['smooch_newsletter_time'].to_i
-      time_set = DateTime.parse("#{hour}:00 #{newsletter['smooch_newsletter_timezone']}")
+      timezone = newsletter['smooch_newsletter_timezone'].to_s.upcase
+      # Mapping for timezones not supported by Ruby's DateTime
+      timezone = {
+        'PHT' => '+0800'
+      }[timezone] || timezone
+      time_set = DateTime.parse("#{hour}:00 #{timezone}")
       time_utc = time_set.utc
       days = (0..6).to_a
       day = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].index(newsletter['smooch_newsletter_day'])

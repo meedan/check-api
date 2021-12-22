@@ -418,5 +418,13 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
       'smooch_newsletter_day' => 'sunday'
     }
     assert_equal '0 6 * * 1', Bot::Smooch.newsletter_cron(settings)
+
+    # PHT, which is not supported by Ruby's DateTime
+    settings = {
+      'smooch_newsletter_time' => '7',
+      'smooch_newsletter_timezone' => 'PHT',
+      'smooch_newsletter_day' => 'sunday'
+    }
+    assert_equal '0 23 * * 6', Bot::Smooch.newsletter_cron(settings)
   end
 end
