@@ -40,8 +40,8 @@ class Bot::Alegre < BotUser
 
   Dynamic.class_eval do
     after_commit :send_annotation_data_to_similarity_index, if: :can_be_sent_to_index?, on: [:create, :update]
-    after_create :match_similar_items_using_ocr
-    after_update :match_similar_items_using_transcription
+    after_create :match_similar_items_using_ocr, :get_language_from_ocr
+    after_update :match_similar_items_using_transcription, :get_language_from_transcription
 
     def self.send_annotation_data_to_similarity_index(pm_id, annotation_type)
       pm = ProjectMedia.find_by_id(pm_id)
@@ -75,6 +75,11 @@ class Bot::Alegre < BotUser
       end
     end
 
+    def self.get_language_from_extracted_text(id, type)
+      annotation = Dynamic.find_by_id(id)
+      ::Bot::Alegre.get_language_from_text(annotation.annotated, annotation.get_field_value('text')) if annotation&.annotation_type == type
+    end
+
     private
 
     def can_be_sent_to_index?
@@ -92,6 +97,14 @@ class Bot::Alegre < BotUser
 
     def match_similar_items_using_transcription
       self.class.delay_for(15.seconds, retry: 5).match_similar_items_by_type(self.id, 'transcription')
+    end
+
+    def get_language_from_ocr
+      self.class.delay_for(15.seconds, retry: 5).get_language_from_extracted_text(self.id, 'extracted_text')
+    end
+
+    def get_language_from_transcription
+      self.class.delay_for(15.seconds, retry: 5).get_language_from_extracted_text(self.id, 'transcription')
     end
   end
 
@@ -208,7 +221,11 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_language(pm)
-    lang = pm.text.blank? ? 'und' : self.get_language_from_alegre(pm.text)
+    self.get_language_from_text(pm, pm.text)
+  end
+
+  def self.get_language_from_text(pm, text)
+    lang = text.blank? ? 'und' : self.get_language_from_alegre(text)
     self.save_annotation(pm, 'language', { language: lang })
     lang
   end
