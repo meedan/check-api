@@ -248,6 +248,7 @@ ActiveRecord::Schema.define(version: 2021_11_22_140729) do
     t.integer "assignments_count", default: 0
     t.integer "project_group_id"
     t.integer "privacy", default: 0, null: false
+    t.boolean "is_default", default: false
     t.index ["id"], name: "index_projects_on_id"
     t.index ["privacy"], name: "index_projects_on_privacy"
     t.index ["project_group_id"], name: "index_projects_on_project_group_id"
