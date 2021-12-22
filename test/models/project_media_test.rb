@@ -2665,7 +2665,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal pm.project, t.default_folder
   end
 
-  test "should attach similar items to default folder when trash parent item" do
+  test "should detach similar items when trash parent item" do
     setup_elasticsearch
     t = create_team
     default_folder = t.default_folder
@@ -2674,25 +2674,33 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm1_c = create_project_media project: p
     pm1_s = create_project_media project: p
     pm2_s = create_project_media project: p
-    create_relationship source: pm, target: pm1_c, relationship_type: Relationship.confirmed_type
-    create_relationship source: pm, target: pm1_s, relationship_type: Relationship.suggested_type
-    create_relationship source: pm, target: pm2_s, relationship_type: Relationship.suggested_type
-    pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
-    pm.save!
+    r = create_relationship source: pm, target: pm1_c, relationship_type: Relationship.confirmed_type
+    r2 = create_relationship source: pm, target: pm1_s, relationship_type: Relationship.suggested_type
+    r3 = create_relationship source: pm, target: pm2_s, relationship_type: Relationship.suggested_type
+    assert_difference 'Relationship.count', -2 do
+      pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
+      pm.save!
+    end
+    assert_raises ActiveRecord::RecordNotFound do
+      r2.reload
+    end
+    assert_raises ActiveRecord::RecordNotFound do
+      r3.reload
+    end
     pm1_s = pm1_s.reload; pm2_s.reload
     assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm1_c.reload.archived
     assert_equal CheckArchivedFlags::FlagCodes::NONE, pm1_s.archived
     assert_equal CheckArchivedFlags::FlagCodes::NONE, pm2_s.archived
-    assert_equal default_folder.id, pm1_s.project_id
-    assert_equal default_folder.id, pm2_s.project_id
+    assert_equal p.id, pm1_s.project_id
+    assert_equal p.id, pm2_s.project_id
     # Verify ES
     result = $repository.find(get_es_id(pm1_c))
     result['archived'] = CheckArchivedFlags::FlagCodes::TRASHED
     result = $repository.find(get_es_id(pm1_s))
     result['archived'] = CheckArchivedFlags::FlagCodes::NONE
-    result['project_id'] = default_folder.id
-    result = $repository.find(get_es_id(pm1_s))
+    result['project_id'] = p.id
+    result = $repository.find(get_es_id(pm2_s))
     result['archived'] = CheckArchivedFlags::FlagCodes::NONE
-    result['project_id'] = default_folder.id
+    result['project_id'] = p.id
   end
 end
