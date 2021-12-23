@@ -196,7 +196,7 @@ class Bot::FetchTest < ActiveSupport::TestCase
   test "should notify Airbrake if can't import a claim review" do
     Airbrake.stubs(:configured?).returns(true)
     Airbrake.expects(:notify).once
-    Bot::Fetch::Import.import_claim_review({}, 0, 0, random_string, {})
+    Bot::Fetch::Import.import_claim_review({}, 0, 0, random_string, {}, false)
     Airbrake.unstub(:configured?)
     Airbrake.unstub(:notify)
   end
