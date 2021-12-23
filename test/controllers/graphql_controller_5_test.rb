@@ -245,6 +245,9 @@ class GraphqlController5Test < ActionController::TestCase
   end
 
   test "should transcribe audio" do
+    ft = DynamicAnnotation::FieldType.where(field_type: 'language').last || create_field_type(field_type: 'language', label: 'Language')
+    at = create_annotation_type annotation_type: 'language', label: 'Language'
+    create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
     Sidekiq::Testing.inline! do
       t = create_team
       pm = create_project_media team: t, media: create_uploaded_audio(file: 'rails.mp3')
@@ -255,6 +258,7 @@ class GraphqlController5Test < ActionController::TestCase
       Bot::Alegre.stubs(:request_api).returns({ success: true })
       Bot::Alegre.stubs(:request_api).with('post', '/audio/transcription/', { url: s3_url, job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }).returns({ 'job_status' => 'IN_PROGRESS' })
       Bot::Alegre.stubs(:request_api).with('get', '/audio/transcription/', { job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }).returns({ 'job_status' => 'COMPLETED', 'transcription' => 'Foo bar' })
+      WebMock.stub_request(:post, 'http://alegre/text/langid/').to_return(body: { 'result' => { 'language' => 'es' }}.to_json)
 
       json_schema = {
         type: 'object',
