@@ -60,6 +60,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     ft = create_field_type field_type: 'image_path', label: 'Image Path'
     at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
     create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
+    WebMock.stub_request(:post, 'http://alegre/text/langid/').to_return(body: { 'result' => { 'language' => 'es' }}.to_json)
     Bot::Alegre.unstub(:request_api)
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
@@ -143,6 +144,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     tbi = Bot::Alegre.get_alegre_tbi(@team.id)
     tbi.set_transcription_similarity_enabled = false
     tbi.save!
+    WebMock.stub_request(:post, 'http://alegre/text/langid/').to_return(body: { 'result' => { 'language' => 'es' }}.to_json)
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
