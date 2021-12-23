@@ -53,7 +53,7 @@ class Bot::Fetch < BotUser
       User.current = installation.user
       Team.current = installation.team
       status_mapping = installation.get_status_mapping.blank? ? nil : JSON.parse(installation.get_status_mapping, { quirks_mode: true })
-      Bot::Fetch::Import.delay(retry: 3).import_claim_review(claim_review, installation.team_id, installation.user_id, installation.get_status_fallback, status_mapping)
+      Bot::Fetch::Import.delay(retry: 3).import_claim_review(claim_review, installation.team_id, installation.user_id, installation.get_status_fallback, status_mapping, installation.get_auto_publish_reports)
       true
     rescue StandardError => e
       Rails.logger.error("[Fetch Bot] Exception: #{e.message}")
@@ -140,6 +140,7 @@ class Bot::Fetch < BotUser
       User.current = user = installation.user
       Team.current = team = installation.team
       status_fallback = installation.get_status_fallback
+      auto_publish_reports = installation.get_auto_publish_reports
       status_mapping = installation.get_status_mapping.blank? ? nil : JSON.parse(installation.get_status_mapping, { quirks_mode: true })
       Bot::Fetch.convert_service_name(installation.get_fetch_service_name).each do |service_name|
         service_info = Bot::Fetch.supported_services.find{ |s| s['service'] == service_name }
@@ -157,7 +158,7 @@ class Bot::Fetch < BotUser
             to2 = from2 + step.days
             params = { service: service_name, start_time: from2.strftime('%Y-%m-%d'), end_time: to2.strftime('%Y-%m-%d'), per_page: 10000 }
             Bot::Fetch.call_fetch_api(:get, 'claim_reviews', params).each do |claim_review|
-              self.import_claim_review(claim_review, team.id, user.id, status_fallback, status_mapping)
+              self.import_claim_review(claim_review, team.id, user.id, status_fallback, status_mapping, auto_publish_reports)
               total += 1
             end
           end
@@ -166,7 +167,7 @@ class Bot::Fetch < BotUser
       end
     end
 
-    def self.import_claim_review(claim_review, team_id, user_id, status_fallback, status_mapping)
+    def self.import_claim_review(claim_review, team_id, user_id, status_fallback, status_mapping, auto_publish_reports)
       begin
         user = User.find(user_id)
         team = Team.find(team_id)
@@ -176,7 +177,7 @@ class Bot::Fetch < BotUser
             pm = self.create_project_media(team, user)
             self.set_status(claim_review, pm, status_fallback, status_mapping)
             self.set_analysis(claim_review, pm)
-            self.create_report(claim_review, pm, team, user)
+            self.create_report(claim_review, pm, team, user, auto_publish_reports)
           end
         end
       rescue StandardError => e
@@ -249,7 +250,7 @@ class Bot::Fetch < BotUser
       CGI.unescapeHTML(ActionView::Base.full_sanitizer.sanitize(text.to_s))
     end
 
-    def self.create_report(claim_review, pm, team, user)
+    def self.create_report(claim_review, pm, team, user, auto_publish_reports)
       report = Dynamic.new
       report.annotation_type = 'report_design'
       report.annotated = pm
@@ -263,7 +264,7 @@ class Bot::Fetch < BotUser
       date = claim_review['datePublished'].blank? ? Time.now : Time.parse(claim_review['datePublished'])
       language = team.default_language
       fields = {
-        state: 'paused',
+        state: auto_publish_reports ? 'published' : 'paused',
         options: [{
           language: language,
           status_label: pm.status_i18n(pm.reload.last_verification_status),
