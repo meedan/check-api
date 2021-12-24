@@ -36,7 +36,7 @@ namespace :check do
         end
         team.project_medias.where('project_id IS NULL').find_in_batches(:batch_size => 2500) do |pms|
           ids = pms.map(&:id)
-          updates = { action: 'move_to', params: { move_to: default_folder.id }.to_json }
+          updates = { action: 'move_to', params: { move_to: default_folder_id }.to_json }
           ProjectMedia.bulk_update(ids, updates, team)
         end
         # log last team id
