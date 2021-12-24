@@ -476,6 +476,7 @@ module SampleData
 
   def create_team(options = {})
     team = Team.new
+    options.each { |k, v| team.send("#{k}=", v) }
     team.name = options[:name] || random_string
     team.slug = options[:slug] || Team.slug_from_name(team.name)
     file = 'rails.png'
