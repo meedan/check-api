@@ -463,7 +463,7 @@ module SampleData
       end
     end
     project.archived = options[:archived] || 0
-    team = options[:team] || create_team
+    team = options[:team] || create_team unless options.has_key?(:team_id)
     project.team_id = options[:team_id] || team.id
     project.project_group_id = options[:project_group_id] if options.has_key?(:project_group_id)
     project.save!
@@ -476,6 +476,7 @@ module SampleData
 
   def create_team(options = {})
     team = Team.new
+    options.each { |k, v| team.send("#{k}=", v) if team.respond_to?("#{k}=") || k.to_s =~ /^set_/ }
     team.name = options[:name] || random_string
     team.slug = options[:slug] || Team.slug_from_name(team.name)
     file = 'rails.png'
@@ -616,7 +617,7 @@ module SampleData
   def create_version(options = {})
     User.current = options[:user] || create_user
     t = create_team
-    v = t.versions.from_partition(t.id).last
+    v = t.versions.from_partition(t.id).where(item_type: 'Team').last
     User.current = nil
     v
   end

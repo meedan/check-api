@@ -74,11 +74,12 @@ class MediaSearch
     indexes :task_responses, {
       type: 'nested',
       properties: {
-        id: { type: 'integer'},
-        fieldset: { type: 'text'},
-        field_type: { type: 'text'},
-        team_task_id: { type: 'integer'},
-        value: { type: 'text', analyzer: 'check', fields: { raw: { type: 'text', analyzer: 'keyword' } } }
+        id: { type: 'integer' },
+        fieldset: { type: 'text' },
+        field_type: { type: 'text' },
+        team_task_id: { type: 'integer' },
+        value: { type: 'text', analyzer: 'check', fields: { raw: { type: 'text', analyzer: 'keyword' } } },
+        date_value: { type: 'date' },
       }
     }
 

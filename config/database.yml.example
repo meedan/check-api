@@ -16,7 +16,7 @@ development:
 # Do not set to the same as development or production.
 test:
   <<: *default
-  database: check_test<%= ENV['TEST_ENV_NUMBER'] %>
+  database: check_test_<%= ENV['TEST_ENV_NUMBER'] %>_db
 
 production:
   <<: *default

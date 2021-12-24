@@ -630,10 +630,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_difference 'Task.length', 3 do
         pm = create_project_media team: t, project_id: p2.id
       end
-      assert_difference 'Task.length', -2 do
-        pm.project_id = nil
-        pm.save!
-      end
       # should keep completed tasks (task with answer)
       assert_difference 'Task.length', 3 do
         pm = create_project_media team: t, project_id: p2.id
@@ -644,10 +640,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
       fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
       pm_tt2.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
       pm_tt2.save!
-      assert_difference 'Task.length', -1 do
-        pm.project_id = nil
-        pm.save!
-      end
     end
     Team.unstub(:current)
   end
@@ -1198,7 +1190,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should not create project media under archived project" do
-    p = create_project archived: 1
+    p = create_project archived: CheckArchivedFlags::FlagCodes::TRASHED
     assert_raises ActiveRecord::RecordInvalid do
       create_project_media project_id: p.id
     end
@@ -1206,10 +1198,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should archive" do
     pm = create_project_media
-    assert_equal pm.archived, 0
-    pm.archived = 1
+    assert_equal pm.archived, CheckArchivedFlags::FlagCodes::NONE
+    pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
     pm.save!
-    assert_equal pm.reload.archived, 1
+    assert_equal pm.reload.archived, CheckArchivedFlags::FlagCodes::TRASHED
   end
 
   test "should create annotation when is embedded for the first time" do
@@ -1609,7 +1601,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = nil
     with_current_user_and_team(u, t) do
       pm = create_project_media project: p, media: m, user: u
-      pm.archived = 1;pm.save
+      pm.archived = CheckArchivedFlags::FlagCodes::TRASHED;pm.save
       assert_equal 2, pm.versions.count
     end
     version = pm.versions.last
@@ -1902,7 +1894,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p2 = create_project team: t
     pm = create_project_media team: t, project_id: p.id, disable_es_callbacks: false
     create_project_media team: t, project_id: p1.id, disable_es_callbacks: false
-    create_project_media team: t, archived: 1, project_id: p.id, disable_es_callbacks: false
+    create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::TRASHED, project_id: p.id, disable_es_callbacks: false
     pm = create_project_media team: t, project_id: p1.id, disable_es_callbacks: false
     create_relationship source_id: pm.id, target_id: create_project_media(team: t, project_id: p.id, disable_es_callbacks: false).id, relationship_type: Relationship.confirmed_type
     sleep 2
@@ -1989,7 +1981,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should not throw exception for trashed item if request does not come from a client" do
     pm = create_project_media project: p
-    pm.archived = 1
+    pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
     pm.save!
     User.current = nil
     assert_nothing_raised do
@@ -2416,8 +2408,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     p1 = create_project title: 'Foo', team: t
     p2 = create_project title: 'Bar', team: t
-    pm = create_project_media project: nil, project_id: nil, team: t
-    assert_queries(0, '=') { assert_equal '', pm.folder }
+    pm = create_project_media team: t
+    default_folder = t.default_folder
+    assert_queries(0, '=') { assert_equal default_folder.title, pm.folder }
     pm.project_id = p1.id
     pm.save!
     assert_queries(0, '=') { assert_equal 'Foo', pm.folder }
@@ -2428,9 +2421,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.save!
     assert_queries(0, '=') { assert_equal 'Bar', pm.folder }
     assert_equal p2.id, pm.reload.project_id
-    p2.destroy!
-    assert_nil pm.reload.project_id
-    assert_queries(0, '=') { assert_equal '', pm.folder }
+    Sidekiq::Testing.inline! do
+      p2.destroy!
+      assert_equal t.default_folder.id, pm.reload.project_id
+      assert_queries(0, '=') { assert_equal default_folder.title, pm.folder }
+    end
   end
 
   test "should get original title for uploaded files" do
@@ -2594,7 +2589,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
         result = $repository.find(get_es_id(pm))
         assert_equal pm_status, result['verification_status']
         # Verify rules callback
-        assert_nil pm.reload.project_id
+        assert_equal t.default_folder.id, pm.reload.project_id
         assert_equal p.id, pm2.reload.project_id
         assert_equal p.id, pm3.reload.project_id
         # Verify ES index
@@ -2662,5 +2657,50 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm.custom_statuses
     end
     Team.any_instance.unstub(:settings)
+  end
+
+  test "should assign item to default project if project not set" do
+    t = create_team
+    pm = create_project_media team: t
+    assert_equal pm.project, t.default_folder
+  end
+
+  test "should detach similar items when trash parent item" do
+    setup_elasticsearch
+    t = create_team
+    default_folder = t.default_folder
+    p = create_project team: t
+    pm = create_project_media project: p
+    pm1_c = create_project_media project: p
+    pm1_s = create_project_media project: p
+    pm2_s = create_project_media project: p
+    r = create_relationship source: pm, target: pm1_c, relationship_type: Relationship.confirmed_type
+    r2 = create_relationship source: pm, target: pm1_s, relationship_type: Relationship.suggested_type
+    r3 = create_relationship source: pm, target: pm2_s, relationship_type: Relationship.suggested_type
+    assert_difference 'Relationship.count', -2 do
+      pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
+      pm.save!
+    end
+    assert_raises ActiveRecord::RecordNotFound do
+      r2.reload
+    end
+    assert_raises ActiveRecord::RecordNotFound do
+      r3.reload
+    end
+    pm1_s = pm1_s.reload; pm2_s.reload
+    assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm1_c.reload.archived
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm1_s.archived
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm2_s.archived
+    assert_equal p.id, pm1_s.project_id
+    assert_equal p.id, pm2_s.project_id
+    # Verify ES
+    result = $repository.find(get_es_id(pm1_c))
+    result['archived'] = CheckArchivedFlags::FlagCodes::TRASHED
+    result = $repository.find(get_es_id(pm1_s))
+    result['archived'] = CheckArchivedFlags::FlagCodes::NONE
+    result['project_id'] = p.id
+    result = $repository.find(get_es_id(pm2_s))
+    result['archived'] = CheckArchivedFlags::FlagCodes::NONE
+    result['project_id'] = p.id
   end
 end

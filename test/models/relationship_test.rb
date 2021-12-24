@@ -144,16 +144,16 @@ class RelationshipTest < ActiveSupport::TestCase
     t2 = create_project_media project: @project
     create_relationship source_id: s.id, target_id: t1.id
     create_relationship source_id: s.id, target_id: t2.id
-    assert_equal 0, t1.reload.archived
-    assert_equal 0, t2.reload.archived
-    s.archived = 1
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, t1.reload.archived
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, t2.reload.archived
+    s.archived = CheckArchivedFlags::FlagCodes::TRASHED
     s.save!
-    assert_equal 1, t1.reload.archived
-    assert_equal 1, t2.reload.archived
-    s.archived = 0
+    assert_equal CheckArchivedFlags::FlagCodes::TRASHED, t1.reload.archived
+    assert_equal CheckArchivedFlags::FlagCodes::TRASHED, t2.reload.archived
+    s.archived = CheckArchivedFlags::FlagCodes::NONE
     s.save!
-    assert_equal 0, t1.reload.archived
-    assert_equal 0, t2.reload.archived
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, t1.reload.archived
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, t2.reload.archived
   end
 
   test "should delete medias when source is deleted" do

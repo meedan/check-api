@@ -305,3 +305,28 @@ Team.class_eval do
     TeamTask.where(team_id: self.id, fieldset: fieldset).order(order: :asc, id: :asc)
   end
 end
+
+CheckSearch.class_eval do
+  def format_any_value_team_tasks_field(_tt)
+    { exists: { field: "task_responses.value" } }
+  end
+
+  def format_numeric_range_team_tasks_field(tt)
+    format_mumeric_range_condition('task_responses.value', tt['range'])
+  end
+
+  def format_date_range_team_tasks_field(tt)
+    timezone = tt['range'].delete(:timezone) || @context_timezone
+    values = tt['range']
+    range = format_times_search_range_filter(values, timezone)
+    range.nil? ? {} : ProjectMedia.send('field_search_query_type_range', 'task_responses.date_value', range, timezone)
+  end
+
+  def format_choice_team_tasks_field(tt)
+    if tt['response'].is_a?(Array)
+      { terms: { 'task_responses.value.raw': tt['response'] } }
+    else
+      { term: { 'task_responses.value.raw': tt['response'] } }
+    end
+  end
+end

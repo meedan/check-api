@@ -291,8 +291,7 @@ module ProjectMediaCachedFields
           model: Project,
           affected_ids: proc { |p| p.project_media_ids.empty? ? p.project_media_ids_were.to_a : p.project_media_ids },
           events: {
-            save: proc { |_pm, p| p.title },
-            destroy: proc { |_pm, _p| '' }
+            save: proc { |_pm, p| p.title }
           }
         }
       ]

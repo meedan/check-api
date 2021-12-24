@@ -99,4 +99,20 @@ module TeamPrivate
     statuses_were = self.settings_before_last_save.to_h.with_indifferent_access[:media_verification_statuses]
     self.class.delay_for(1.second).update_reports_if_labels_changed(self.id, statuses_were, statuses)
   end
+
+  def create_default_folder
+    return if self.is_being_copied
+    p = Project.new
+    p.team_id = self.id
+    p.title = 'Unnamed folder (default)'
+    p.skip_check_ability = true
+    p.is_default = true
+    p.save!
+  end
+
+  def remove_is_default_project_flag
+    # Call this method before destory team to delete all related projects
+    # as admin not allowed to delete the default project
+    self.default_folder.update_columns(is_default: false)
+  end
 end
