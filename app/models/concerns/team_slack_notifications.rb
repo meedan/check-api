@@ -50,6 +50,18 @@ module TeamSlackNotifications
     other_events.blank? ? any_activity.first : other_events.first
   end
 
+  def slack_notifications_enabled=(enabled)
+    self.send(:set_slack_notifications_enabled, enabled)
+  end
+
+  def slack_webhook=(webhook)
+    self.send(:set_slack_webhook, webhook)
+  end
+
+  def slack_notifications=(slack_notifications)
+    self.send(:set_slack_notifications, JSON.parse(slack_notifications))
+  end
+
   private
 
   def slack_channel_format

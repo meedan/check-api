@@ -21,6 +21,7 @@ class CheckSearch
     @options['none_project'] = @options['projects'].include?('-1') unless @options['projects'].blank?
     adjust_project_filter
     adjust_channel_filter
+    adjust_numeric_range_filter
     # set es_id option
     @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['String', 'Integer'].include?(@options['id'].class.name)
     Project.current = Project.where(id: @options['projects'].last).last if @options['projects'].to_a.size == 1 && Project.current.nil?
@@ -108,7 +109,6 @@ class CheckSearch
 
   def number_of_items(collection)
     return collection.size if collection.is_a?(Array)
-    return $repository.client.count(index: CheckElasticSearchModel.get_index_alias, body: { query: medias_build_search_query })['count'].to_i if self.should_hit_elasticsearch?
     collection = collection.unscope(where: :id)
     collection.limit(nil).reorder(nil).offset(nil).count
   end
@@ -120,7 +120,7 @@ class CheckSearch
     end
     query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     filters_blank = true
-    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status'].each do |filter|
+    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric'].each do |filter|
       filters_blank = false unless @options[filter].blank?
     end
     range_filter = hit_es_for_range_filter
@@ -246,6 +246,7 @@ class CheckSearch
     custom_conditions.concat build_search_integer_terms_query('source_id', 'sources')
     custom_conditions.concat build_search_doc_conditions
     custom_conditions.concat build_search_range_filter(:es)
+    custom_conditions.concat build_search_numeric_range_filter
     dynamic_conditions = build_search_dynamic_annotation_conditions
     check_search_concat_conditions(custom_conditions, dynamic_conditions)
     team_tasks_conditions = build_search_team_tasks_conditions
@@ -300,6 +301,16 @@ class CheckSearch
     if @options['channels'].is_a?(Array) && @options['channels'].include?('any_tipline')
       channels = @options['channels'] - ['any_tipline']
       @options['channels'] = channels.map(&:to_i).concat(CheckChannels::ChannelCodes::TIPLINE).uniq
+    end
+  end
+
+  def adjust_numeric_range_filter
+    @options['range_numeric'] = {}
+    [:linked_items_count, :suggestions_count, :demand].each do |field|
+      if @options.has_key?(field) && !@options[field].blank?
+        @options['range_numeric'][field] = @options[field]
+      end
+      @options.delete(field)
     end
   end
 
@@ -438,9 +449,7 @@ class CheckSearch
       must_c = []
       must_c << { term: { "task_responses.team_task_id": tt['id'] } } if tt.has_key?('id')
       response_type = tt['response_type'] ||= 'choice'
-      if tt['response'] == 'ANY_VALUE'
-        must_c << { exists: { field: "task_responses.value" } }
-      elsif tt['response'] == 'NO_VALUE'
+      if tt['response'] == 'NO_VALUE'
         return [{
           bool: {
             must_not: [
@@ -460,12 +469,12 @@ class CheckSearch
             ]
           }
         }]
+      elsif %w(ANY_VALUE NUMERIC_RANGE DATE_RANGE).include?(tt['response'])
+        method = "format_#{tt['response'].downcase}_team_tasks_field"
+        response_condition = self.send(method, tt)
+        must_c << response_condition unless response_condition.blank?
       elsif response_type == 'choice'
-        if tt['response'].is_a?(Array)
-          must_c << { terms: { 'task_responses.value.raw': tt['response'] } }
-        else
-          must_c << { term: { 'task_responses.value.raw': tt['response'] } }
-        end
+        must_c << format_choice_team_tasks_field(tt)
       else
         must_c << { match: { "task_responses.value": tt['response'] } }
       end
@@ -634,6 +643,29 @@ class CheckSearch
       end
     end
     conditions
+  end
+
+  # range_numeric: {field_name: {min: <minimum_number>}, max: <maximum_number> }
+  # field_name should be one of the following: linked_items_count, suggestions_count, demand
+  def build_search_numeric_range_filter
+    conditions = []
+    return conditions if @options['range_numeric'].blank?
+    @options['range_numeric'].each do |field, values|
+      range_condition = format_mumeric_range_condition(field, values)
+      conditions << range_condition unless range_condition.blank?
+    end
+    conditions
+  end
+
+  def format_mumeric_range_condition(field, values)
+    condition = {}
+    return condition if values.nil?
+    min, max = values.dig('min'), values.dig('max')
+    return condition if min.blank? && max.blank?
+    field_condition = {}
+    field_condition[:gte] = min.to_i unless min.blank?
+    field_condition[:lte] = max.to_i unless max.blank?
+    { range: { "#{field}": field_condition } }
   end
 
   def sort_pg_results(results, table)

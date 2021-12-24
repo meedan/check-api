@@ -758,6 +758,7 @@ en:
   project_cant_have_children_if_has_parent: This folder has a parent folder, so it
     can't have a child folder
   project_group_must_be_under_same_team: The collection should be under the same workspace
+  unique_default_folder_per_team: Workspace should only have a one default folder
   smooch_bot_message_subscribed: |-
     You are now subscribed.
 

@@ -207,7 +207,8 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     create_project team: t
     create_project team: t
-    assert_equal 2, t.projects_count
+    # should add default folder to total count
+    assert_equal 3, t.projects_count
   end
 
   test "should have a JSON version" do
@@ -2646,5 +2647,10 @@ class TeamTest < ActiveSupport::TestCase
     tt2 = t2.team_tasks.first
     ss2 = t2.saved_searches.first
     assert_equal tt2.id.to_s, ss2.filters.dig('team_tasks', 0, 'id')
+  end
+
+  test "should have a default folder" do
+    t = create_team
+    assert_not_nil t.default_folder
   end
 end

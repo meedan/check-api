@@ -729,6 +729,19 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response 400
   end
 
+  test "should destroy project and assign related items to destination project" do
+    u = create_user
+    p = create_project team: @team
+    p2 = create_project team: @team
+    pm = create_project_media project: p
+    create_team_user user: u, team: @team, role: 'admin'
+    authenticate_with_user(u)
+    query = "mutation destroy { destroyProject(input: { clientMutationId: \"1\", id: \"#{p.graphql_id}\", items_destination_project_id: #{p2.id} }) { deletedId } }"
+    post :create, params: { query: query, team: @team.slug }
+    assert_response :success
+    assert_equal p2.id, pm.reload.project_id
+  end
+
   test "should reset password if email is found" do
     u = create_user email: 'foo@bar.com'
     p = create_project team: @team

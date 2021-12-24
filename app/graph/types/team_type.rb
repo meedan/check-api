@@ -45,6 +45,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_tasks_enabled, types.Boolean
   field :url, types.String
   field :get_tipline_inbox_filters, JsonStringType
+  field :get_suggested_matches_filters, JsonStringType
   field :get_trends_enabled, types.Boolean
   field :country, types.String
 
@@ -143,6 +144,12 @@ TeamType = GraphqlCrudOperations.define_default_type do
       tasks = tasks.where(fieldset: args['fieldset']) unless args['fieldset'].blank?
       tasks
     }
+  end
+
+  field :default_folder do
+    type ProjectType
+
+    resolve -> (team, _args, _ctx) { team.default_folder }
   end
 
   connection :saved_searches, SavedSearchType.connection_type
