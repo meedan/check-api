@@ -186,7 +186,7 @@ module TeamRules
     end
 
     def add_warning_cover(pm, _value, _rule_id)
-      flag = pm.annotations('flag').last.load
+      flag = pm.annotations('flag').last&.load
       unless flag.nil?
         RequestStore.store[:skip_rules] = true
         flag.set_fields = { show_cover: true }.to_json
