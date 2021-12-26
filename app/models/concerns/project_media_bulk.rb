@@ -106,8 +106,7 @@ module ProjectMediaBulk
       ids = pmp_mapping.keys
       current_user = User.current
       User.current = User.find_by_id(user_id.to_i)
-      ids.each do |id|
-        pm = ProjectMedia.find(id)
+      ProjectMedia.where(id: ids).where.not(archived: CheckArchivedFlags::FlagCodes::TRASHED).each do |pm|
         if pm.project_id != pmp_mapping[pm.id]
           # Remove existing team tasks based on old project_id
           pm.remove_related_team_tasks_bg(pmp_mapping[pm.id]) unless pmp_mapping[pm.id].blank?
