@@ -109,8 +109,8 @@ class CheckSearch
 
   def number_of_items(collection)
     return collection.size if collection.is_a?(Array)
-    # return $repository.client.count(index: CheckElasticSearchModel.get_index_alias, body: { query: medias_build_search_query })['count'].to_i if self.should_hit_elasticsearch?
-    collection = collection.unscope(where: :id) unless self.should_hit_elasticsearch?
+    return $repository.client.count(index: CheckElasticSearchModel.get_index_alias, body: { query: medias_build_search_query })['count'].to_i if self.should_hit_elasticsearch?
+    collection = collection.unscope(where: :id)
     collection.limit(nil).reorder(nil).offset(nil).count
   end
 
