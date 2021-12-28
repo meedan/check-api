@@ -160,7 +160,7 @@ module AlegreSimilarity
     def get_similar_items_from_api(path, conditions, _threshold={}, query_or_body = 'body' )
       Rails.logger.error("[Alegre Bot] Sending request to alegre : #{path} , #{conditions.to_json}")
       response = {}
-      result = self.request_api('get', path, conditions, query_or_body).dig('result')
+      result = self.request_api('get', path, conditions, query_or_body)&.dig('result')
       project_medias = result.collect{ |r| self.extract_project_medias_from_context(r) } if !result.nil? && result.is_a?(Array)
       project_medias.each do |request_response|
         request_response.each do |pmid, score|
