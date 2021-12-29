@@ -1081,4 +1081,39 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, params: { query: query, team: t.slug }
     assert_response :success
   end
+
+  test "should get number of results without similar items" do
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team slug: 'team'
+    create_team_user user: u, team: t
+    p = create_project team: t
+    pm1 = create_project_media project: p, quote: 'Test 1 Bar', disable_es_callbacks: false
+    pm2 = create_project_media project: p, quote: 'Test 2 Foo', disable_es_callbacks: false
+    create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type, disable_es_callbacks: false
+    pm3 = create_project_media project: p, quote: 'Test 3 Bar', disable_es_callbacks: false
+    pm4 = create_project_media project: p, quote: 'Test 4 Foo', disable_es_callbacks: false
+    create_relationship source_id: pm3.id, target_id: pm4.id, relationship_type: Relationship.confirmed_type, disable_es_callbacks: false
+    sleep 1
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\"}") { number_of_results } }' 
+    post :create, params: { query: query, team: 'team' }
+    assert_response :success
+    assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"show_similar\":false}") { number_of_results } }' 
+    post :create, params: { query: query, team: 'team' }
+    assert_response :success
+    assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"show_similar\":true}") { number_of_results } }' 
+    post :create, params: { query: query, team: 'team' }
+    assert_response :success
+    assert_equal 4, JSON.parse(@response.body)['data']['search']['number_of_results']
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Foo\",\"show_similar\":false}") { number_of_results } }' 
+    post :create, params: { query: query, team: 'team' }
+    assert_response :success
+    assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
+  end
 end
