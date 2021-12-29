@@ -109,7 +109,17 @@ class CheckSearch
 
   def number_of_items(collection)
     return collection.size if collection.is_a?(Array)
-    return $repository.client.count(index: CheckElasticSearchModel.get_index_alias, body: { query: medias_build_search_query })['count'].to_i if self.should_hit_elasticsearch?
+    if self.should_hit_elasticsearch?
+      aggs = {
+        total: {
+          cardinality: {
+            field: self.get_search_field
+          }
+        }
+      }
+      response = $repository.search(query: self.medias_build_search_query, size: 0, aggs: aggs).raw_response
+      return response.dig('aggregations', 'total', 'value')
+    end
     collection = collection.unscope(where: :id)
     collection.limit(nil).reorder(nil).offset(nil).count
   end
@@ -231,14 +241,14 @@ class CheckSearch
     field
   end
 
-  def medias_build_search_query
+  def medias_build_search_query(include_related_items = self.should_include_related_items?)
     core_conditions = []
     custom_conditions = []
     core_conditions << { terms: { team_id: [@options['team_id']].flatten } } unless @options['team_id'].blank?
     archived = @options['archived'].to_i
     core_conditions << { term: { archived: archived } }
     custom_conditions << { terms: { read: @options['read'].map(&:to_i) } } if @options.has_key?('read')
-    core_conditions << { term: { sources_count: 0 } } unless should_include_related_items?
+    core_conditions << { term: { sources_count: 0 } } unless include_related_items
     custom_conditions.concat build_search_keyword_conditions
     custom_conditions.concat build_search_tags_conditions
     custom_conditions.concat build_search_report_status_conditions
