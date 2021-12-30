@@ -25,8 +25,9 @@ namespace :check do
                 id: f.tid.to_i,
                 fieldset: data['fieldset'],
                 team_task_id: data['team_task_id'].to_i,
-                value: f.value.to_i,
-                field_type: 'number'
+                value: [f.value],
+                field_type: 'number',
+                numeric_value: f.value.to_i
               }
               es_body << {
                 update: {
