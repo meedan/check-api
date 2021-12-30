@@ -79,6 +79,7 @@ class MediaSearch
         field_type: { type: 'text' },
         team_task_id: { type: 'integer' },
         value: { type: 'text', analyzer: 'check', fields: { raw: { type: 'text', analyzer: 'keyword' } } },
+        numeric_value: { type: 'integer' },
         date_value: { type: 'date' },
       }
     }
