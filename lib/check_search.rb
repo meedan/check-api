@@ -40,7 +40,7 @@ class CheckSearch
 
   def team_condition(team_id = nil)
     return team_id unless team_id.nil?
-    if trends_query? 
+    if trends_query?
       ProjectMedia.where.not(cluster_id: nil).group(:team_id).count.keys
     elsif @options['country'] && User.current&.is_admin?
       country = [@options['country']].flatten.reject{ |c| c.blank? }
