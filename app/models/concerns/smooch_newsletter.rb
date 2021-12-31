@@ -85,7 +85,7 @@ module SmoochNewsletter
       time_utc = time_set.utc
       days = (0..6).to_a
       day = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].index(newsletter['smooch_newsletter_day'])
-      day += (time_utc.day - time_set.day)
+      day += (time_utc.strftime('%w').to_i - time_set.strftime('%w').to_i)
       "#{time_utc.min} #{time_utc.hour} * * #{days[day]}"
     end
   end
