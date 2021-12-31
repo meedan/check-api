@@ -704,7 +704,7 @@ class GraphqlController4Test < ActionController::TestCase
     assert_equal pm1.id, JSON.parse(@response.body)['data']['search']['medias']['edges'][0]['node']['dbid']
 
     Bot::Alegre.stubs(:get_similar_texts).returns({ pm2.id => 0.8 })
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"This is a test\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    query = 'query CheckSearch { search(query: "{\"trends\":true,\"keyword\":\"This is a test\"}") { medias(first: 20) { edges { node { dbid } } } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal 1, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
