@@ -14,26 +14,30 @@ class Bot::Alegre < BotUser
   ::ProjectMedia.class_eval do
     attr_accessor :alegre_similarity_thresholds, :alegre_matched_fields
 
-    def similar_items
-      ids = [0]
-      team_ids = User.current&.is_admin? ? Team.where.not(country: nil).map(&:id) : [self.team_id]
+    def similar_items_ids_and_scores(team_ids)
+      ids_and_scores = {}
       if self.is_media?
         media_type = {
           'UploadedVideo' => 'video',
           'UploadedAudio' => 'audio',
           'UploadedImage' => 'image',
         }[self.media.type]
-        threshold = Bot::Alegre.get_threshold_for_query(media_type, self)[:value]
-        ids = Bot::Alegre.get_items_with_similar_media(Bot::Alegre.media_file_url(self), { value: threshold }, team_ids, "/#{media_type}/similarity/").to_h.keys
+        threshold = Bot::Alegre.get_threshold_for_query(media_type, self, true)[:value]
+        ids_and_scores = Bot::Alegre.get_items_with_similar_media(Bot::Alegre.media_file_url(self), { value: threshold }, team_ids, "/#{media_type}/similarity/").to_h
       elsif self.is_text?
-        ids = []
+        ids_and_scores = {}
         threads = []
         ALL_TEXT_SIMILARITY_FIELDS.each do |field|
-          threads << Thread.new { ids << Bot::Alegre.get_similar_texts(team_ids, self.send(field)).to_h.keys }
+          threads << Thread.new { ids_and_scores.merge!(Bot::Alegre.get_similar_texts(team_ids, self.send(field)).to_h) }
         end
         threads.map(&:join)
-        ids = ids.flatten.uniq
       end
+      ids_and_scores
+    end
+
+    def similar_items
+      team_ids = User.current&.is_admin? ? ProjectMedia.where.not(cluster_id: nil).group(:team_id).count.keys : [self.team_id]
+      ids = self.similar_items_ids_and_scores(team_ids).keys.flatten.uniq
       ProjectMedia.where(id: ids.empty? ? [0] : ids.reject{ |id| id == self.id })
     end
   end
@@ -137,6 +141,7 @@ class Bot::Alegre < BotUser
         self.relate_project_media_to_similar_items(pm)
         self.get_flags(pm)
         self.auto_transcription(pm)
+        self.set_cluster(pm)
         handled = true
       end
     rescue StandardError => e
@@ -147,6 +152,16 @@ class Bot::Alegre < BotUser
     self.unarchive_if_archived(pm)
 
     handled
+  end
+
+  def self.set_cluster(pm)
+    team_ids = ProjectMedia.where.not(cluster_id: nil).group(:team_id).count.keys
+    ids_and_scores = pm.similar_items_ids_and_scores(team_ids)
+    main_id = ids_and_scores.key(ids_and_scores.values.max)
+    main = ProjectMedia.find_by_id(main_id)
+    cluster_id = main && main.cluster_id ? main.cluster_id : (ProjectMedia.maximum(:cluster_id).to_i + 1) # FIXME: Possible race condition when getting the next cluster_id to use
+    pm.cluster_id = cluster_id
+    pm.save!
   end
 
   def self.get_items_from_similar_text(team_id, text, field = nil, threshold = nil, model = nil, fuzzy = false)

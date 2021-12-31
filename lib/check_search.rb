@@ -35,12 +35,14 @@ class CheckSearch
     'published_at' => 'published_at', 'report_status' => 'report_status', 'tags_as_sentence' => 'tags_as_sentence',
     'media_published_at' => 'media_published_at', 'reaction_count' => 'reaction_count', 'comment_count' => 'comment_count',
     'related_count' => 'related_count', 'suggestions_count' => 'suggestions_count', 'status_index' => 'status_index',
-    'type_of_media' => 'type_of_media', 'title' => 'sort_title', 'creator_name' => 'creator_name'
+    'type_of_media' => 'type_of_media', 'title' => 'sort_title', 'creator_name' => 'creator_name', 'cluster_id' => 'cluster_id'
   }
 
   def team_condition(team_id = nil)
     return team_id unless team_id.nil?
-    if @options['country'] && User.current&.is_admin?
+    if trends_query? 
+      ProjectMedia.where.not(cluster_id: nil).group(:team_id).count.keys
+    elsif @options['country'] && User.current&.is_admin?
       country = [@options['country']].flatten.reject{ |c| c.blank? }
       Team.where(country: country).map(&:id)
     else
@@ -135,7 +137,7 @@ class CheckSearch
       filters_blank = false unless @options[filter].blank?
     end
     range_filter = hit_es_for_range_filter
-    !(query_all_types && status_blank && filters_blank && !range_filter && ['recent_activity', 'recent_added', 'last_seen'].include?(@options['sort']))
+    !(query_all_types && status_blank && filters_blank && !range_filter && ['recent_activity', 'recent_added', 'last_seen', 'cluster_id'].include?(@options['sort']))
   end
 
   def media_types_filter
@@ -190,6 +192,10 @@ class CheckSearch
     hash
   end
 
+  def trends_query?
+    @options['trends'] && User.current&.is_admin? && Team.current&.get_trends_enabled
+  end
+
   def get_pg_results_for_media
     custom_conditions = {}
     core_conditions = {}
@@ -223,7 +229,9 @@ class CheckSearch
       ids = results.blank? ? [0] : results.keys
       core_conditions.merge!({ 'project_medias.id' => ids })
     end
-    relation.distinct('project_medias.id').includes(:media).includes(:project).where(core_conditions)
+    relation = relation.distinct('project_medias.id').includes(:media).includes(:project).where(core_conditions)
+    relation = relation.where.not(cluster_id: nil) if trends_query?
+    relation
   end
 
   def should_include_related_items?
@@ -302,7 +310,7 @@ class CheckSearch
       @options['projects'] = project_ids.empty? ? [0] : project_ids
     end
     # Also, adjust projects filter taking projects' privacy settings into account
-    if Team.current && !@options['country']
+    if Team.current && !@options['country'] && !trends_query?
       @options['projects'] = @options['projects'].blank? ? (Project.where(team_id: Team.current.id).allowed(Team.current).map(&:id) + [nil]) : Project.where(id: @options['projects']).allowed(Team.current).map(&:id)
     end
     @options['projects'] += [nil] if @options['none_project']
@@ -332,7 +340,7 @@ class CheckSearch
 
   def build_search_keyword_conditions
     return [] if @options["keyword"].blank? || @options["keyword"].class.name != 'String'
-    if Team.current&.get_trends_enabled && @options["keyword"].split(/\s+/).size > 3
+    if trends_query? && @options["keyword"].split(/\s+/).size > 3
       result = Bot::Alegre.get_similar_texts([@options['team_id']].flatten, @options["keyword"])
       pmids = result.empty? ? [0] : result.keys
       return [{ bool: { must: [{ terms: { parent_id: pmids }}] }}]
