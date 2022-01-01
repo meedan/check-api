@@ -59,10 +59,6 @@ module ProjectMediaGetters
     self.source&.name&.to_s
   end
 
-  def team_name
-    self.team&.name&.to_s
-  end
-
   def text
     self.media.text
   end
