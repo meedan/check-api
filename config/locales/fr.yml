@@ -810,6 +810,8 @@ fr:
     peut donc pas avoir un dossier enfant
   project_group_must_be_under_same_team: La collection devrait être dans le même espace
     de travail
+  unique_default_folder_per_team: L’espace de travail ne devrait avoir qu’un dossier
+    par défaut
   smooch_bot_message_subscribed: |-
     L’abonnement est en vigueur.
 
