@@ -293,7 +293,7 @@ GEM
       retriable (>= 2.0, < 4.0)
       rexml
       signet (~> 0.12)
-    google-protobuf (3.17.2)
+    google-protobuf (3.19.2)
     google_drive (3.0.5)
       google-api-client (>= 0.11.0, < 1.0.0)
       googleauth (>= 0.5.0, < 1.0.0)
@@ -811,7 +811,7 @@ DEPENDENCIES
   fog-aws
   gem-licenses
   geojsonlint
-  google-protobuf (= 3.17.2)
+  google-protobuf (= 3.19.2)
   google_drive
   graphiql-rails!
   graphql (= 1.8.0.pre10)
