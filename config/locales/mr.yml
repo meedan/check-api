@@ -3,6 +3,10 @@ mr:
   mails_notifications:
     unsubscribe: सदस्यता रद्द करा
   unsubscribe: सदस्यता रद्द करा
+  smooch_message_subscription_header_subscribed: आपण सध्या आमच्या वृत्तपत्राची सदस्यता
+    घेत आहात.
+  smooch_message_subscription_header_unsubscribed: आपण सध्या आमच्या वृत्तपत्रात सदस्यता
+    रद्द करीत आहात.
   smooch_bot_message_newsletter_fallback: |-
     नमस्कार! आपले साप्ताहिक तथ्य येथे आहेत.
 

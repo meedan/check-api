@@ -787,6 +787,8 @@ es:
     por lo que no puede tener una subcarpeta
   project_group_must_be_under_same_team: La colección debe estar en la misma área
     de trabajo
+  unique_default_folder_per_team: 'El área de trabajo sólo debería tener una carpeta
+    predeterminada '
   smooch_bot_message_subscribed: |-
     Ahora estás suscrita(o).
 

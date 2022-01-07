@@ -3,6 +3,10 @@ pa:
   mails_notifications:
     unsubscribe: ਅਨਸਬਸਕ੍ਰਾਈਬ
   unsubscribe: ਅਨਸਬਸਕ੍ਰਾਈਬ
+  smooch_message_subscription_header_subscribed: ਤੁਸੀਂ ਇਸ ਸਮੇਂ ਆਪਣੇ ਨਿ newslet ਜ਼ਲੈਟਰ
+    ਦੇ ਮੈਂਬਰ ਬਣੇ ਹੋ.
+  smooch_message_subscription_header_unsubscribed: ਇਸ ਸਮੇਂ ਉਸਨੇ ਸਾਡੇ ਨਿ newslet ਜ਼ਲੈਟਰ
+    ਦੀ ਗਾਹਕੀ ਲਈ ਗਈ ਹੈ.
   smooch_bot_message_newsletter_fallback: |-
     ਹੈਲੋ! ਇਹ ਰਹੇ ਤੁਹਾਡੇ ਹਫਤਾਵਾਰ ਤੱਥ।
 

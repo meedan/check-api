@@ -780,7 +780,7 @@ pt:
   list_column_tags_as_sentence: Tags
   list_column_media_published_at: Mídia publicada
   list_column_related_count: Relacionado
-  list_column_suggestions_count: Coincidências sugeridas
+  list_column_suggestions_count: Correspondências sugeridas
   list_column_folder: Pasta
   list_column_creator_name: Criado por
   go_back_to_check: Voltar ao Check
@@ -788,6 +788,8 @@ pt:
     por isso não pode ter uma pasta descendente
   project_group_must_be_under_same_team: A coleção deve estar sob o mesmo espaço de
     trabalho
+  unique_default_folder_per_team: O espaço de trabalho deve possuir apenas uma pasta
+    padrão
   smooch_bot_message_subscribed: |-
     Sua inscrição foi feita.
 

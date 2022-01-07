@@ -771,6 +771,7 @@ ar:
   project_cant_have_children_if_has_parent: يوجد هذا المجلد ضمن مجلد آخر، لذا لا يمكن
     أن يحوي مجلدا بداخله
   project_group_must_be_under_same_team: يجب أن تكون المجموعة ضمن نفس مساحة العمل
+  unique_default_folder_per_team: يجب أن تحتوي مساحة العمل على مجلد افتراضي واحد
   smooch_bot_message_subscribed: |-
     لقد اشتركت الآن.
 

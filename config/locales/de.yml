@@ -3,6 +3,10 @@ de:
   mails_notifications:
     unsubscribe: Abmelden
   unsubscribe: Abmelden
+  smooch_message_subscription_header_subscribed: Sie werden derzeit unseren Newsletter
+    *abonniert*.
+  smooch_message_subscription_header_unsubscribed: Sie sind derzeit von unseren Newsletter
+    *abgemeldet*.
   smooch_bot_message_newsletter_fallback: |-
     Hallo! Hier sind Ihre wöchentlichen Fakten.
 

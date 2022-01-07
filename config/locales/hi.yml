@@ -49,6 +49,10 @@ hi:
   smooch_bot_window_closing: इस नंबर पर तथ्यों की जांच के निवेदन ज़्यादा होने के कारण
     आपके निवेदन का जवाब हम अब तक नहीं दे पाए हैं. आपके धैर्य के लिए धन्यवाद.
   unsubscribe: अनसब्स्क्राइब
+  smooch_message_subscription_header_subscribed: आप वर्तमान में हमारे न्यूज़लेटर की
+    सदस्यता ले रहे हैं।
+  smooch_message_subscription_header_unsubscribed: आप वर्तमान में हमारे न्यूजलेटर
+    के लिए सदस्यता समाप्त कर रहे हैं।
   smooch_bot_message_newsletter_fallback: |-
     नमस्कार! ये रहे आपके साप्ताहिक तथ्य।
 
