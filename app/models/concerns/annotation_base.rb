@@ -76,8 +76,6 @@ module AnnotationBase
     after_initialize :start_serialized_fields
     after_create :notify_team_bots_create
     after_update :notify_team_bots_update, :notify_bot_author
-    after_save :touch_annotated, unless: proc { |a| a.is_being_copied }
-    after_destroy :touch_annotated
 
     has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities, :lock_version], if: proc { |a| (User.current.present? && !a.is_being_copied) || a.force_version }, versions: { class_name: 'Version' }
 
@@ -97,19 +95,6 @@ module AnnotationBase
     def start_serialized_fields
       self.data ||= {}
       self.entities ||= []
-    end
-
-    def touch_annotated
-      annotated = self.annotated
-      if !annotated.nil? && !annotated.is_a?(Project)
-        annotated.skip_check_ability = annotated.skip_notifications = true # the notification will be triggered by the annotation already
-        annotated.skip_clear_cache = self.skip_clear_cache
-        annotated.updated_at = Time.now
-        annotated.disable_es_callbacks = true
-        ApplicationRecord.connection_pool.with_connection do
-          annotated.save!(validate: false)
-        end
-      end
     end
 
     def annotated_is_not_archived
