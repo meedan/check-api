@@ -335,7 +335,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     CheckPusher::Worker.drain
     assert_equal 0, CheckPusher::Worker.jobs.size
     create_project_media project: p
-    assert_equal 7, CheckPusher::Worker.jobs.size
+    assert_equal 2, CheckPusher::Worker.jobs.size
     CheckPusher::Worker.drain
     assert_equal 0, CheckPusher::Worker.jobs.size
     Rails.unstub(:env)

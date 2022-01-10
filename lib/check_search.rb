@@ -135,7 +135,7 @@ class CheckSearch
       filters_blank = false unless @options[filter].blank?
     end
     range_filter = hit_es_for_range_filter
-    !(query_all_types && status_blank && filters_blank && !range_filter && ['recent_activity', 'recent_added', 'last_seen'].include?(@options['sort']))
+    !(query_all_types && status_blank && filters_blank && !range_filter && ['recent_added'].include?(@options['sort']))
   end
 
   def media_types_filter
