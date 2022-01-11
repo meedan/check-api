@@ -603,9 +603,8 @@ class GraphqlController3Test < ActionController::TestCase
     t = create_team
     p = create_project team: t
     pm1 = create_project_media project: p
-    sleep 1
     pm2 = create_project_media project: p
-    query = 'query CheckSearch { search(query: "{\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + '],\"id\":' + pm1.id.to_s + ',\"esoffset\":0,\"eslimit\":1}") {item_navigation_offset,medias(first:20){edges{node{dbid}}}}}'
+    query = 'query CheckSearch { search(query: "{\"sort\":\"recent_added\",\"projects\":[' + p.id.to_s + '],\"id\":' + pm1.id.to_s + ',\"esoffset\":0,\"eslimit\":1}") {item_navigation_offset,medias(first:20){edges{node{dbid}}}}}'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     response = JSON.parse(@response.body)['data']['search']
