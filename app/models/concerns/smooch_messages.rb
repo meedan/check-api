@@ -47,23 +47,59 @@ module SmoochMessages
           self.handle_bundle_messages(type, list, last, app_id, annotated, !force)
           Redis.new(REDIS_CONFIG).del("smooch:bundle:#{uid}")
           sm = CheckStateMachine.new(uid)
-          sm.reset unless sm.state.value == 'add_more_details'
+          sm.reset unless sm.state.value == 'main'
         end
       end
+    end
+    
+    def send_final_message_to_user(uid, text, workflow, language)
+      if self.config['smooch_version'] == 'v2'
+        CheckStateMachine.new(uid).go_to_main
+        self.send_message_to_user_with_main_menu_appended(uid, text, workflow, language)
+      else
+        self.send_message_to_user(uid, text)
+      end
+    end
+
+    def send_message_for_state(uid, workflow, state, language, pretext = '')
+      message = self.utmize_urls(self.get_message_for_state(workflow, state, language, uid).to_s, 'resource')
+      text = [pretext, message].reject{ |part| part.blank? }.join("\n\n")
+      # On v2, when we go to the "main" state, we need to show the main menu
+      if self.config['smooch_version'] == 'v2'
+        state == 'main' ? self.send_message_to_user_with_main_menu_appended(uid, text, workflow, language) : self.send_message_for_state_with_buttons(uid, text, workflow, state, language)
+      else
+        self.send_message_to_user(uid, text)
+      end
+    end
+
+    def send_message_for_state_with_buttons(uid, text, workflow, state, language)
+      options = []
+      self.get_menu_options(state, workflow).each do |option|
+        keyword = option['smooch_menu_option_keyword'].split(',').map(&:strip).first
+        value = option['smooch_menu_option_value']
+        options << {
+          value: { keyword: keyword }.to_json,
+          label: self.get_menu_string("#{value}_button_label", language, 20)
+        }
+      end
+      options.size > 0 ? self.send_message_to_user_with_buttons(uid, text, options) : self.send_message_to_user(uid, text)
     end
 
     def get_message_for_state(workflow, state, language, uid = nil)
       message = []
-      message << self.tos_message(workflow, language) if state.to_s == 'main'
+      if state.to_s == 'main'
+        message << workflow['smooch_message_smooch_bot_greetings']
+        message << self.tos_message(workflow, language)
+      end
       message << self.subscription_message(uid, language) if state.to_s == 'subscription'
-      message << workflow.dig("smooch_state_#{state}", 'smooch_menu_message')
-      message << I18n.t("smooch_v2_#{state}_state", locale: language) if ['first', 'search', 'search_result', 'add_more_details'].include?(state.to_s)
+      message << workflow.dig("smooch_state_#{state}", 'smooch_menu_message') if state != 'main' || self.config['smooch_version'] != 'v2'
+      message << self.get_menu_string("#{state}_state", language) if ['search', 'search_result', 'add_more_details', 'ask_if_ready'].include?(state.to_s)
       message.reject{ |m| m.blank? }.join("\n\n")
     end
 
     def subscription_message(uid, language)
       subscribed = !TiplineSubscription.where(team_id: self.config['team_id'], uid: uid, language: language).last.nil?
-      subscribed ? I18n.t(:smooch_message_subscription_header_subscribed, locale: language) : I18n.t(:smooch_message_subscription_header_unsubscribed, locale: language)
+      subscribed ? self.get_menu_string('message_subscribed', language) : self.get_menu_string('message_unsubscribed', language)
     end
 
     def send_message_if_disabled_and_return_state(uid, workflow, state)

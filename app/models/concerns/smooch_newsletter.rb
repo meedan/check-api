@@ -43,17 +43,16 @@ module SmoochNewsletter
       end
     end
 
-    def toggle_subscription(uid, language, team_id, platform)
+    def toggle_subscription(uid, language, team_id, platform, workflow)
       s = TiplineSubscription.where(uid: uid, language: language, team_id: team_id).last
-      sm = CheckStateMachine.new(uid)
+      CheckStateMachine.new(uid).reset
       if s.nil?
         TiplineSubscription.create!(uid: uid, language: language, team_id: team_id, platform: platform)
-        self.send_message_to_user(uid, I18n.t(:smooch_bot_message_subscribed, locale: language))
+        self.send_final_message_to_user(uid, self.get_menu_string('message_subscribed', language), workflow, language)
       else
         s.destroy!
-        self.send_message_to_user(uid, I18n.t(:smooch_bot_message_unsubscribed, locale: language))
+        self.send_final_message_to_user(uid, self.get_menu_string('message_unsubscribed', language), workflow, language)
       end
-      sm.reset
     end
 
     def newsletter_is_set?(workflow)

@@ -309,7 +309,7 @@ module SmoochTos
       message = message.gsub(/^[ ]+/, '')
       message = message.gsub('%{team}', team.name)
       message = message.gsub('%{channel}', platform)
-      self.send_message_to_user(uid, message)
+      self.send_final_message_to_user(uid, message, workflow, language)
     end
 
     def should_send_tos?(state, typed)

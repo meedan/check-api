@@ -14,7 +14,7 @@ module SmoochResources
       end
     end
 
-    def send_rss_to_user(uid, resource, no_cache = false)
+    def send_rss_to_user(uid, resource, workflow, language, no_cache = false)
       message = []
       unless resource.blank?
         message << "*#{resource['smooch_custom_resource_title']}*" unless resource['smooch_custom_resource_title'].to_s.strip.blank?
@@ -26,20 +26,20 @@ module SmoochResources
         end
       end
       message = self.utmize_urls(message.join("\n\n"), 'resource')
-      self.send_message_to_user(uid, message) unless message.blank?
+      self.send_final_message_to_user(uid, message, workflow, language) unless message.blank?
     end
 
-    def send_resource_to_user(uid, workflow, option)
+    def send_resource_to_user(uid, workflow, option, language)
       resource = workflow['smooch_custom_resources'].to_a.find{ |r| r['smooch_custom_resource_id'] == option['smooch_menu_custom_resource_id'] }
-      self.send_rss_to_user(uid, resource)
+      self.send_rss_to_user(uid, resource, workflow, language)
       resource.blank? ? nil : BotResource.find_by_uuid(resource['smooch_custom_resource_id'])
     end
 
-    def send_resource_to_user_on_timeout(uid, workflow)
+    def send_resource_to_user_on_timeout(uid, workflow, language)
       redis = Redis.new(REDIS_CONFIG)
       user_messages_count = redis.llen("smooch:bundle:#{uid}")
       resource = workflow['smooch_message_smooch_bot_no_action']
-      self.send_rss_to_user(uid, resource, true) if !resource.blank? && user_messages_count > 0
+      self.send_rss_to_user(uid, resource, workflow, language, true) if !resource.blank? && user_messages_count > 0
     end
 
     def render_articles_from_rss_feed(url, count = 3)
