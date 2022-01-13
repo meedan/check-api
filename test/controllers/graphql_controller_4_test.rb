@@ -695,6 +695,8 @@ class GraphqlController4Test < ActionController::TestCase
     p = create_project team: t
     pm1 = create_project_media disable_es_callbacks: false, media: m1, project: p
     pm2 = create_project_media disable_es_callbacks: false, media: m2, project: p
+    pm1.cluster_center = true ; pm1.disable_es_callbacks = false ; pm1.save!
+    pm2.cluster_center = true ; pm2.disable_es_callbacks = false ; pm2.save!
     sleep 5
 
     query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\"}") { medias(first: 20) { edges { node { dbid } } } } }'

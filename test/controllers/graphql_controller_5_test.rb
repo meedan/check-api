@@ -301,8 +301,10 @@ class GraphqlController5Test < ActionController::TestCase
   test "should find similar items to text item" do
     t = create_team
     p = create_project team: t
-    pm = create_project_media project: p
-    pm2 = create_project_media project: p
+    m = create_claim_media quote: 'This is a test'
+    m2 = create_claim_media quote: 'Foo bar'
+    pm = create_project_media project: p, media: m
+    pm2 = create_project_media project: p, media: m2
     Bot::Alegre.stubs(:get_similar_texts).returns({ pm2.id => 0.9, pm.id => 0.8 })
 
     query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") { similar_items(first: 10000) { edges { node { dbid } } } } }'
