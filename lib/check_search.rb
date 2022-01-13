@@ -230,7 +230,7 @@ class CheckSearch
       core_conditions.merge!({ 'project_medias.id' => ids })
     end
     relation = relation.distinct('project_medias.id').includes(:media).includes(:project).where(core_conditions)
-    relation = relation.where.not(cluster_id: nil) if trends_query?
+    relation = relation.where(cluster_center: true) if trends_query?
     relation
   end
 
@@ -257,6 +257,7 @@ class CheckSearch
     core_conditions << { term: { archived: archived } }
     custom_conditions << { terms: { read: @options['read'].map(&:to_i) } } if @options.has_key?('read')
     core_conditions << { term: { sources_count: 0 } } unless include_related_items
+    core_conditions << { term: { cluster_center: 1 } } if trends_query?
     custom_conditions.concat build_search_keyword_conditions
     custom_conditions.concat build_search_tags_conditions
     custom_conditions.concat build_search_report_status_conditions

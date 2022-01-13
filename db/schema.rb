@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_12_31_002929) do
+ActiveRecord::Schema.define(version: 2022_01_12_204737) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -226,7 +226,9 @@ ActiveRecord::Schema.define(version: 2021_12_31_002929) do
     t.integer "last_seen"
     t.integer "channel", default: 0
     t.integer "cluster_id"
+    t.boolean "cluster_center", default: false
     t.index ["channel"], name: "index_project_medias_on_channel"
+    t.index ["cluster_center"], name: "index_project_medias_on_cluster_center"
     t.index ["cluster_id"], name: "index_project_medias_on_cluster_id"
     t.index ["last_seen"], name: "index_project_medias_on_last_seen"
     t.index ["media_id"], name: "index_project_medias_on_media_id"
@@ -240,7 +242,6 @@ ActiveRecord::Schema.define(version: 2021_12_31_002929) do
     t.integer "user_id"
     t.integer "team_id"
     t.string "title"
-    t.boolean "is_default", default: false
     t.text "description"
     t.string "lead_image"
     t.datetime "created_at", null: false
@@ -251,6 +252,7 @@ ActiveRecord::Schema.define(version: 2021_12_31_002929) do
     t.integer "assignments_count", default: 0
     t.integer "project_group_id"
     t.integer "privacy", default: 0, null: false
+    t.boolean "is_default", default: false
     t.index ["id"], name: "index_projects_on_id"
     t.index ["is_default"], name: "index_projects_on_is_default"
     t.index ["privacy"], name: "index_projects_on_privacy"

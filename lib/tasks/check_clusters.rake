@@ -12,9 +12,23 @@ namespace :check do
       # Get the team IDs from the team slugs passed as input parameters
       team_ids = Team.where(slug: args.to_a.map(&:to_s)).all.map(&:id)
 
-      # Reset the cluster_id column of existing items to null
-      print 'Resetting all cluster IDs to null...'
-      ProjectMedia.where.not(cluster_id: nil).update_all(cluster_id: nil)
+      # Reset the cluster_id and cluster_center columns of existing items
+      print 'Resetting all cluster IDs to null and cluster centers to false...'
+      ids_to_reset = ProjectMedia.where.not(cluster_id: nil).map(&:id).concat(ProjectMedia.where(cluster_center: true).map(&:id)).uniq
+      ProjectMedia.where(id: ids_to_reset).update_all(cluster_id: nil, cluster_center: false)
+      # Reset cluster_id and cluster_center in ElasticSearch as well
+      es_body = []
+      ids_to_reset.each do |id|
+        es_body << {
+          update: {
+            _index: ::CheckElasticSearchModel.get_index_alias,
+            _id: Base64.encode64("ProjectMedia/#{id}"),
+            retry_on_conflict: 3,
+            data: { doc: { cluster_id: nil, cluster_center: 0 } }
+          }
+        }
+      end
+      $repository.client.bulk body: es_body
       puts 'Done.'
 
       # Set the clusters for all media types
@@ -76,6 +90,9 @@ namespace :check do
           end
           next if ids_to_update.empty?
           ProjectMedia.where(id: ids_to_update).update_all(cluster_id: cluster_id)
+          first = ProjectMedia.find(ids_to_update.first)
+          first.cluster_center = true
+          first.save!
 
           # Update cluster_id in ElasticSearch as well
           es_body = []

@@ -28,10 +28,13 @@ class Bot::Alegre < BotUser
         ids_and_scores = {}
         threads = []
         ALL_TEXT_SIMILARITY_FIELDS.each do |field|
-          threads << Thread.new { ids_and_scores.merge!(Bot::Alegre.get_similar_texts(team_ids, self.send(field)).to_h) }
+          text = self.send(field)
+          next if text.blank?
+          threads << Thread.new { ids_and_scores.merge!(Bot::Alegre.get_similar_texts(team_ids, text).to_h) }
         end
         threads.map(&:join)
       end
+      ids_and_scores.delete(self.id)
       ids_and_scores
     end
 
@@ -160,12 +163,14 @@ class Bot::Alegre < BotUser
     ids_and_scores = pm.similar_items_ids_and_scores(team_ids)
     main_id = ids_and_scores.key(ids_and_scores.values.max)
     main = ProjectMedia.find_by_id(main_id.to_i)
-    cluster_id = main && main.cluster_id ? main.cluster_id : (ProjectMedia.maximum(:cluster_id).to_i + 1) # FIXME: Possible race condition when getting the next cluster_id to use
+    cluster_id = main && main.cluster_id ? main.cluster_id : (ProjectMedia.maximum(:cluster_id).to_i + 1) # FIXME: Possible race condition when getting the next cluster_id to use and when setting the cluster center
     pm.cluster_id = cluster_id
+    pm.cluster_center = !main&.cluster_id
     pm.save!
   end
 
   def self.get_items_from_similar_text(team_id, text, field = nil, threshold = nil, model = nil, fuzzy = false)
+    return {} if text.blank?
     field ||= (['original_title', 'original_description'] + REPORT_TEXT_SIMILARITY_FIELDS).flatten
     threshold ||= self.get_threshold_for_query('text', nil, true)
     model ||= self.matching_model_to_use(ProjectMedia.new(team_id: team_id))
