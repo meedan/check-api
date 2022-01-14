@@ -173,13 +173,10 @@ class ElasticSearch4Test < ActionController::TestCase
     t = create_team
     p = create_project team: t
     pm1  = create_project_media project: p, disable_es_callbacks: false
-    sleep 1
     pm2  = create_project_media project: p, disable_es_callbacks: false
-    sleep 1
     pm3  = create_project_media project: p, disable_es_callbacks: false
-    sleep 1
     create_status annotated: pm1, status: 'in_progress', disable_es_callbacks: false
-    sleep 1
+    sleep 2
     Team.current = t
     result = CheckSearch.new({projects: [p.id], sort: "recent_activity"}.to_json)
     assert_equal [pm1.id, pm3.id, pm2.id], result.medias.map(&:id)

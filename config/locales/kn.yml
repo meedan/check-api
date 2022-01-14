@@ -3,6 +3,10 @@ kn:
   mails_notifications:
     unsubscribe: ಚಂದಾದಾರಿಕೆ ರದ್ದು ಮಾಡಿ
   unsubscribe: ಚಂದಾದಾರಿಕೆ ರದ್ದು ಮಾಡಿ
+  smooch_message_subscription_header_subscribed: ನೀವು ಪ್ರಸ್ತುತ ನಮ್ಮ ಸುದ್ದಿಪತ್ರಕ್ಕೆ
+    ಚಂದಾದಾರರಾಗಿದ್ದೀರಿ.
+  smooch_message_subscription_header_unsubscribed: ನೀವು ಪ್ರಸ್ತುತ ನಮ್ಮ ಸುದ್ದಿಪತ್ರಗಳಿಗೆ
+    ಅನ್ಸಬ್ಸ್ಕ್ರೈಬ್ ಮಾಡಿದ್ದೀರಿ.
   smooch_bot_message_newsletter_fallback: |-
     ನಮಸ್ಕಾರ! ಇಲ್ಲಿ ನಿಮ್ಮ ಸಾಪ್ತಾಹಿಕ ವಾಸ್ತವಾಂಶಗಳಿವೆ.
 
