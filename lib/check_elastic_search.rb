@@ -16,6 +16,8 @@ module CheckElasticSearch
     ms.attributes[:updated_at] = self.updated_at.utc
     ms.attributes[:published_at] = self.published_at
     ms.attributes[:source_id] = self.source_id
+    ms.attributes[:cluster_id] = nil
+    ms.attributes[:cluster_center] = 0
     # Intial nested objects with []
     ['accounts', 'comments', 'tags', 'dynamics', 'task_responses', 'task_comments', 'assigned_user_ids'].each{ |f| ms.attributes[f] = [] }
     self.add_extra_elasticsearch_data(ms)
@@ -25,7 +27,7 @@ module CheckElasticSearch
 
   def update_elasticsearch_doc(keys, data = {}, obj = nil)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    options = {keys: keys, data: data}
+    options = { keys: keys, data: data }
     options[:obj] = obj unless obj.nil?
     ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_doc')
   end
