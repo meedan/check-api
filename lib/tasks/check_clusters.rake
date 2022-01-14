@@ -28,7 +28,7 @@ namespace :check do
           }
         }
       end
-      $repository.client.bulk body: es_body
+      $repository.client.bulk(body: es_body) unless es_body.empty?
       puts 'Done.'
 
       # Set the clusters for all media types
@@ -72,12 +72,15 @@ namespace :check do
           ids = []
           cluster.each do |node|
             id = node.dig('context', 0, 'project_media_id') unless node['context'].blank?
-            id = Base64.decode64(node['data_type_id']).match(/^check-project_media-([0-9]+)-.*$/)[1].to_i unless id
+            unless id
+              id = begin Base64.decode64(node['data_type_id']).match(/^check-project_media-([0-9]+)-.*$/)[1].to_i rescue 0 end
+            end
             ids << id
           end
           ids_to_update = []
           ids.uniq.sort.each do |id|
             pm = ProjectMedia.find_by_id(id)
+            next if pm.nil?
             media_type = {
               'UploadedVideo' => 'video',
               'UploadedAudio' => 'audio',
