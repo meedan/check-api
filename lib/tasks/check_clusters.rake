@@ -12,19 +12,20 @@ namespace :check do
       # Get the team IDs from the team slugs passed as input parameters
       team_ids = Team.where(slug: args.to_a.map(&:to_s)).all.map(&:id)
 
-      # Reset the cluster_id and cluster_center columns of existing items
-      print 'Resetting all cluster IDs to null and cluster centers to false...'
-      ids_to_reset = ProjectMedia.where.not(cluster_id: nil).map(&:id).concat(ProjectMedia.where(cluster_center: true).map(&:id)).uniq
-      ProjectMedia.where(id: ids_to_reset).update_all(cluster_id: nil, cluster_center: false)
-      # Reset cluster_id and cluster_center in ElasticSearch as well
+      # Delete existing clusters
+      print 'Resetting all cluster IDs to null...'
+      centers = Cluster.all.map(&:project_media_id)
+      Cluster.delete_all
+      ProjectMedia.where.not(cluster_id: nil).update_all(cluster_id: nil)
+      # Reset cluster_size in ElasticSearch
       es_body = []
-      ids_to_reset.each do |id|
+      centers.each do |id|
         es_body << {
           update: {
             _index: ::CheckElasticSearchModel.get_index_alias,
             _id: Base64.encode64("ProjectMedia/#{id}"),
             retry_on_conflict: 3,
-            data: { doc: { cluster_id: nil, cluster_center: 0 } }
+            data: { doc: { cluster_size: 0 } }
           }
         }
       end
@@ -68,16 +69,18 @@ namespace :check do
         log "Cluster is ready for #{job_id}, response was: #{response.to_json}"
 
         # Iterate through the results: set cluster_id for each relevant item in the response
-        response['clusters'].each_with_index do |cluster, cluster_id|
+        response['clusters'].each do |cluster|
           ids = []
           cluster.each do |node|
             id = node.dig('context', 0, 'project_media_id') unless node['context'].blank?
             unless id
               id = begin Base64.decode64(node['data_type_id']).match(/^check-project_media-([0-9]+)-.*$/)[1].to_i rescue 0 end
             end
-            ids << id
+            ids << id if id.to_i > 0
           end
-          ids_to_update = []
+          next if ids.empty?
+          cluster_obj = nil
+          count = 0
           ids.uniq.sort.each do |id|
             pm = ProjectMedia.find_by_id(id)
             next if pm.nil?
@@ -88,30 +91,16 @@ namespace :check do
               'Claim' => 'text',
               'Link' => 'text'
             }[pm.media.type]
-            next if pm.nil? || pm.archived == ::CheckArchivedFlags::FlagCodes::TRASHED || !team_ids.include?(pm.team_id) || media_type != type
-            ids_to_update << id
+            next if pm.archived == ::CheckArchivedFlags::FlagCodes::TRASHED || !team_ids.include?(pm.team_id) || media_type != type
+            cluster_obj ||= Cluster.create!(project_media: pm)
+            cluster_obj.project_medias << pm
+            count += 1
           end
-          next if ids_to_update.empty?
-          ProjectMedia.where(id: ids_to_update).update_all(cluster_id: cluster_id)
-          first = ProjectMedia.find(ids_to_update.first)
-          first.cluster_center = true
-          first.save!
-
-          # Update cluster_id in ElasticSearch as well
-          es_body = []
-          ids_to_update.each do |id|
-            es_body << {
-              update: {
-                _index: ::CheckElasticSearchModel.get_index_alias,
-                _id: Base64.encode64("ProjectMedia/#{id}"),
-                retry_on_conflict: 3,
-                data: { doc: { cluster_id: cluster_id } }
-              }
-            }
+          if cluster_obj.nil?
+            log "No cluster created, since we have #{count} items"
+          else
+            log "Updated #{count} items for cluster ID #{cluster_obj.id}"
           end
-          $repository.client.bulk body: es_body
-
-          log "Updated #{ids_to_update.size} items for cluster ID #{cluster_id}"
         end
         FileUtils.rm(key)
       end
