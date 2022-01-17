@@ -1081,18 +1081,21 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should set cluster" do
-    pm1 = create_project_media team: @team, cluster_id: 1
-    pm2 = create_project_media team: @team, cluster_id: 2
+    c1 = create_cluster
+    c2 = create_cluster
+    pm1 = create_project_media team: @team, cluster_id: c1.id
+    pm2 = create_project_media team: @team, cluster_id: c2.id
 
     ProjectMedia.any_instance.stubs(:similar_items_ids_and_scores).returns({ pm1.id => 0.9, pm2.id => 0.8 })
     pm3 = create_project_media team: @team
     Bot::Alegre.set_cluster(pm3)
-    assert_equal 1, pm3.reload.cluster_id
+    assert_equal c1.id, pm3.reload.cluster_id
 
     ProjectMedia.any_instance.stubs(:similar_items_ids_and_scores).returns({})
     pm4 = create_project_media team: @team
-    Bot::Alegre.set_cluster(pm4)
-    assert_equal 3, pm4.reload.cluster_id
+    assert_difference 'Cluster.count' do
+      Bot::Alegre.set_cluster(pm4)
+    end
 
     ProjectMedia.any_instance.unstub(:similar_items_ids_and_scores)
   end
