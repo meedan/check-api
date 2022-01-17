@@ -83,7 +83,7 @@ namespace :check do
           count = 0
           ids.uniq.sort.each do |id|
             pm = ProjectMedia.find_by_id(id)
-            next if pm.nil?
+            next if pm.nil? || !pm.cluster_id.nil?
             media_type = {
               'UploadedVideo' => 'video',
               'UploadedAudio' => 'audio',
