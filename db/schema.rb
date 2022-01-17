@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_01_12_204737) do
+ActiveRecord::Schema.define(version: 2022_01_14_195539) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -105,6 +105,14 @@ ActiveRecord::Schema.define(version: 2022_01_12_204737) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_bounces_on_email", unique: true
+  end
+
+  create_table "clusters", force: :cascade do |t|
+    t.integer "project_medias_count", default: 0
+    t.integer "project_media_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_media_id"], name: "index_clusters_on_project_media_id", unique: true
   end
 
   create_table "dynamic_annotation_annotation_types", primary_key: "annotation_type", id: :string, force: :cascade do |t|
@@ -226,9 +234,7 @@ ActiveRecord::Schema.define(version: 2022_01_12_204737) do
     t.integer "last_seen"
     t.integer "channel", default: 0
     t.integer "cluster_id"
-    t.boolean "cluster_center", default: false
     t.index ["channel"], name: "index_project_medias_on_channel"
-    t.index ["cluster_center"], name: "index_project_medias_on_cluster_center"
     t.index ["cluster_id"], name: "index_project_medias_on_cluster_id"
     t.index ["last_seen"], name: "index_project_medias_on_last_seen"
     t.index ["media_id"], name: "index_project_medias_on_media_id"

@@ -34,6 +34,8 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :creator_name, types.String
   field :team_name, types.String
   field :channel, types.Int
+  field :cluster_size, types.Int
+  field :cluster_team_names, types[types.String]
   field :is_read, types.Boolean do
     argument :by_me, types.Boolean
 

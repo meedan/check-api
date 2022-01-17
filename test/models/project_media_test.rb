@@ -2703,4 +2703,27 @@ class ProjectMediaTest < ActiveSupport::TestCase
     result['archived'] = CheckArchivedFlags::FlagCodes::NONE
     result['project_id'] = p.id
   end
+
+  test "should get cluster size" do
+    pm = create_project_media
+    assert_nil pm.reload.cluster_size
+    c = create_cluster
+    c.project_medias << pm
+    assert_equal 1, pm.reload.cluster_size
+    c.project_medias << create_project_media
+    assert_equal 2, pm.reload.cluster_size
+  end
+
+  test "should get cluster teams" do
+    t1 = create_team
+    t2 = create_team
+    pm1 = create_project_media team: t1
+    assert_nil pm1.cluster_team_names
+    c = create_cluster project_media: pm1
+    c.project_medias << pm1
+    assert_equal [t1.name], pm1.cluster_team_names
+    pm2 = create_project_media team: t2
+    c.project_medias << pm2
+    assert_equal [t1.name, t2.name].sort, pm1.cluster_team_names.sort
+  end
 end

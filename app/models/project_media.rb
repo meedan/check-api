@@ -338,6 +338,14 @@ class ProjectMedia < ApplicationRecord
     user_name
   end
 
+  def cluster_size
+    self.cluster_id ? self.cluster.size : nil
+  end
+
+  def cluster_team_names
+    self.cluster_id ? self.cluster.team_names : nil
+  end
+
   protected
 
   def set_es_account_data

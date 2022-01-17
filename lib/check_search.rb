@@ -35,7 +35,7 @@ class CheckSearch
     'published_at' => 'published_at', 'report_status' => 'report_status', 'tags_as_sentence' => 'tags_as_sentence',
     'media_published_at' => 'media_published_at', 'reaction_count' => 'reaction_count', 'comment_count' => 'comment_count',
     'related_count' => 'related_count', 'suggestions_count' => 'suggestions_count', 'status_index' => 'status_index',
-    'type_of_media' => 'type_of_media', 'title' => 'sort_title', 'creator_name' => 'creator_name', 'cluster_id' => 'cluster_id'
+    'type_of_media' => 'type_of_media', 'title' => 'sort_title', 'creator_name' => 'creator_name', 'cluster_size' => 'cluster_size'
   }
 
   def team_condition(team_id = nil)
@@ -137,7 +137,7 @@ class CheckSearch
       filters_blank = false unless @options[filter].blank?
     end
     range_filter = hit_es_for_range_filter
-    !(query_all_types && status_blank && filters_blank && !range_filter && ['recent_added', 'cluster_id'].include?(@options['sort']))
+    !(query_all_types && status_blank && filters_blank && !range_filter && ['recent_added'].include?(@options['sort']))
   end
 
   def media_types_filter
@@ -230,7 +230,7 @@ class CheckSearch
       core_conditions.merge!({ 'project_medias.id' => ids })
     end
     relation = relation.distinct('project_medias.id').includes(:media).includes(:project).where(core_conditions)
-    relation = relation.where(cluster_center: true) if trends_query?
+    relation = relation.joins('INNER JOIN clusters ON clusters.project_media_id = project_medias.id') if trends_query?
     relation
   end
 
@@ -257,7 +257,7 @@ class CheckSearch
     core_conditions << { term: { archived: archived } }
     custom_conditions << { terms: { read: @options['read'].map(&:to_i) } } if @options.has_key?('read')
     core_conditions << { term: { sources_count: 0 } } unless include_related_items
-    core_conditions << { term: { cluster_center: 1 } } if trends_query?
+    core_conditions << { range: { cluster_size: { gt: 0 } } } if trends_query?
     custom_conditions.concat build_search_keyword_conditions
     custom_conditions.concat build_search_tags_conditions
     custom_conditions.concat build_search_report_status_conditions
