@@ -120,7 +120,7 @@ module SmoochMenus
         message_subscribed: 'You are currently *subscribed* to the newsletter',
         message_unsubscribed: 'You are currently *unsubscribed* to the newsletter'
       }[key.to_sym] || key
-      (label + " [#{language}]").truncate(truncate_at)
+      label.truncate(truncate_at)
     end
 
     def send_message_to_user_with_buttons(uid, text, options)
