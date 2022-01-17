@@ -318,4 +318,10 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
       project_media.similar_items
     }
   end
+
+  connection :cluster_items, -> { ProjectMediaType.connection_type } do
+    resolve -> (project_media, _args, _ctx) {
+      User.current&.is_admin ? project_media.cluster_items : []
+    }
+  end
 end

@@ -401,6 +401,21 @@ class GraphqlController5Test < ActionController::TestCase
     assert_equal 'verification_status', log[0]['annotation']['annotation_type']
   end
 
+  test "should get cluster items" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    c = create_cluster project_media: pm
+    c.project_medias << pm
+    c.project_medias << create_project_media
+    authenticate_with_user(u)
+    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") {  cluster_items { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 2, JSON.parse(@response.body)['data']['project_media']['cluster_items']['edges'].size
+  end
+
   protected
 
   def assert_error_message(expected)
