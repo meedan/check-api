@@ -361,6 +361,7 @@ class Bot::Smooch < BotUser
         false
       end
     rescue StandardError => e
+      raise(e) if Rails.env.development?
       self.handle_exception(e, body)
       false
     end
@@ -401,7 +402,11 @@ class Bot::Smooch < BotUser
 
   def self.start_flow(message, workflow, language, uid)
     CheckStateMachine.new(uid).start
-    self.send_message_for_state(uid, workflow, 'main', language)
+    if self.config['smooch_version'] == 'v2' && self.config['smooch_workflows'].to_a.size > 1
+      self.ask_for_language_confirmation(workflow, language, uid)
+    else
+      self.send_message_for_state(uid, workflow, 'main', language)
+    end
   end
 
   def self.parse_query_message(message, app_id, uid, workflow, language)

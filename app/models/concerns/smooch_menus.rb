@@ -118,7 +118,9 @@ module SmoochMenus
         privacy_statement: 'Privacy statement',
         subscription_confirmation_button_label: 'Change',
         message_subscribed: 'You are currently *subscribed* to the newsletter',
-        message_unsubscribed: 'You are currently *unsubscribed* to the newsletter'
+        message_unsubscribed: 'You are currently *unsubscribed* to the newsletter',
+        confirm_preferred_language: 'Please confirm your preferred language:',
+        languages: 'Languages'
       }[key.to_sym] || key
       label.truncate(truncate_at)
     end
@@ -154,6 +156,57 @@ module SmoochMenus
         }
       }
       self.send_message_to_user(uid, text, extra)
+    end
+
+    def send_message_to_user_with_single_section_menu(uid, text, options, menu_label)
+      rows = []
+      options.each do |option|
+        rows << {
+          id: option[:value],
+          title: option[:label].truncate(24)
+        }
+      end
+      sections = [{
+        title: menu_label.truncate(24),
+        rows: rows
+      }]
+      extra = {
+        override: {
+          whatsapp: {
+            payload: {
+              recipient_type: 'individual',
+              type: 'interactive',
+              interactive: {
+                type: 'list',
+                body: {
+                  text: text.truncate(1024)
+                },
+                action: {
+                  button: menu_label.truncate(24),
+                  sections: sections
+                }
+              }
+            }
+          }
+        }
+      }
+      self.send_message_to_user(uid, text, extra)
+    end
+
+    def ask_for_language_confirmation(workflow, language, uid)
+      text = [workflow['smooch_message_smooch_bot_greetings'], self.get_menu_string(:confirm_preferred_language, language)].join("\n\n")
+      options = self.config['smooch_workflows'].collect do |w|
+        l = w['smooch_workflow_language']
+        {
+          value: { state: 'main', keyword: l }.to_json,
+          label: ::CheckCldr.language_code_to_name(l, l).truncate(20)
+        }
+      end
+      if options.size > 3
+        self.send_message_to_user_with_single_section_menu(uid, text, options, self.get_menu_string(:languages, language))
+      else
+        self.send_message_to_user_with_buttons(uid, text, options)
+      end
     end
   end
 end
