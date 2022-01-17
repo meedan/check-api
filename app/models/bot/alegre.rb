@@ -159,14 +159,20 @@ class Bot::Alegre < BotUser
 
   def self.set_cluster(pm)
     team_ids = ProjectMedia.where.not(cluster_id: nil).group(:team_id).count.keys
+    pm = ProjectMedia.find(pm.id)
     return if !pm.cluster_id.blank? || !team_ids.include?(pm.team_id)
     ids_and_scores = pm.similar_items_ids_and_scores(team_ids)
     main_id = ids_and_scores.key(ids_and_scores.values.max)
     main = ProjectMedia.find_by_id(main_id.to_i)
-    cluster_id = main && main.cluster_id ? main.cluster_id : (ProjectMedia.maximum(:cluster_id).to_i + 1) # FIXME: Possible race condition when getting the next cluster_id to use and when setting the cluster center
-    pm.cluster_id = cluster_id
-    pm.cluster_center = !main&.cluster_id
-    pm.save!
+    cluster = main&.cluster
+    unless cluster
+      cluster = Cluster.new
+      cluster.project_media = pm
+      cluster.skip_check_ability = true
+      cluster.save!
+    end
+    cluster.project_medias << pm
+    cluster
   end
 
   def self.get_items_from_similar_text(team_id, text, field = nil, threshold = nil, model = nil, fuzzy = false)

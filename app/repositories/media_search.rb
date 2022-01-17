@@ -122,8 +122,6 @@ class MediaSearch
 
     indexes :creator_name, { type: 'keyword', normalizer: 'check', fields: { raw: { type: 'text', analyzer: 'check' } } }
 
-    indexes :cluster_id, { type: 'integer' }
-
-    indexes :cluster_center, { type: 'integer' }
+    indexes :cluster_size, { type: 'long' }
   end
 end
