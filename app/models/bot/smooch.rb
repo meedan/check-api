@@ -391,7 +391,7 @@ class Bot::Smooch < BotUser
     uid = message['authorId']
     team = Team.find(self.config['team_id'])
     default_language = team.default_language
-    supported_languages = team.get_languages || ['en']
+    supported_languages = self.get_supported_languages
     user_language = Rails.cache.fetch("smooch:user_language:#{uid}") do
       language = default_language
       language = self.get_language(message, language) if state == 'waiting_for_message'
@@ -400,9 +400,20 @@ class Bot::Smooch < BotUser
     supported_languages.include?(user_language) ? user_language : default_language
   end
 
+  def self.get_supported_languages
+    team = Team.find(self.config['team_id'])
+    team_languages = team.get_languages || ['en']
+    languages = []
+    self.config['smooch_workflows'].each do |w|
+      l = w['smooch_workflow_language']
+      languages << l if team_languages.include?(l)
+    end
+    languages
+  end
+
   def self.start_flow(message, workflow, language, uid)
     CheckStateMachine.new(uid).start
-    if self.config['smooch_version'] == 'v2' && self.config['smooch_workflows'].to_a.size > 1
+    if self.config['smooch_version'] == 'v2' && self.get_supported_languages.size > 1
       self.ask_for_language_confirmation(workflow, language, uid)
     else
       self.send_message_for_state(uid, workflow, 'main', language)
@@ -480,7 +491,16 @@ class Bot::Smooch < BotUser
         { 'smooch_menu_option_keyword' => '2', 'smooch_menu_option_value' => 'search_result_is_not_relevant' }
       ]
     else
-      workflow.dig("smooch_state_#{state}", 'smooch_menu_options').to_a
+      options = workflow.dig("smooch_state_#{state}", 'smooch_menu_options').to_a
+      if state == 'main' && self.config['smooch_version'] == 'v2'
+        self.get_supported_languages.each do |l|
+          options << {
+            'smooch_menu_option_keyword' => l,
+            'smooch_menu_option_value' => l
+          }
+        end
+      end
+      options
     end
   end
 

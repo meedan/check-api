@@ -45,8 +45,7 @@ module SmoochMenus
 
       # Languages and privacy
       rows = []
-      self.config['smooch_workflows'].each do |w|
-        l = w['smooch_workflow_language']
+      self.get_supported_languages.each do |l|
         next if l == language
         code = l.gsub(/_.*$/, '')
         rows << {
@@ -195,8 +194,7 @@ module SmoochMenus
 
     def ask_for_language_confirmation(workflow, language, uid)
       text = [workflow['smooch_message_smooch_bot_greetings'], self.get_menu_string(:confirm_preferred_language, language)].join("\n\n")
-      options = self.config['smooch_workflows'].collect do |w|
-        l = w['smooch_workflow_language']
+      options = self.get_supported_languages.collect do |l|
         {
           value: { state: 'main', keyword: l }.to_json,
           label: ::CheckCldr.language_code_to_name(l, l).truncate(20)
