@@ -487,8 +487,8 @@ class Bot::Alegre < BotUser
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 4/6] Parent is blank, creating suggested relationship"
       self.create_relationship(parent, pm, pm_id_scores[parent_id][:score], Relationship.suggested_type)
     elsif pm_id_scores[parent_id]
-      Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 4/6] Parent is blank, creating relationship of #{relationship_type.inspect}"
       relationship_type = self.set_relationship_type(pm, pm_id_scores, parent)
+      Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 4/6] Parent is blank, creating relationship of #{relationship_type.inspect}"
       self.create_relationship(parent, pm, pm_id_scores[parent_id][:score], relationship_type)
     end
   end
