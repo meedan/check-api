@@ -767,6 +767,7 @@ ar:
   list_column_suggestions_count: المتطابقات المقترحة
   list_column_folder: مجلد
   list_column_creator_name: تم الإنشاء بواسطة
+  list_column_team_name: مساحة العمل
   go_back_to_check: العودة إلى Check
   project_cant_have_children_if_has_parent: يوجد هذا المجلد ضمن مجلد آخر، لذا لا يمكن
     أن يحوي مجلدا بداخله
