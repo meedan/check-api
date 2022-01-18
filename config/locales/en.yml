@@ -762,7 +762,8 @@ en:
     can't have a child folder
   project_group_must_be_under_same_team: The collection should be under the same workspace
   unique_default_folder_per_team: Workspace should only have a one default folder
-  center_is_not_part_of_another_cluster: The center of this cluster cannot be part of another cluster
+  center_is_not_part_of_another_cluster: The center of this cluster cannot be part
+    of another cluster
   smooch_bot_message_subscribed: |-
     You are now subscribed.
 

@@ -785,6 +785,7 @@ id:
   list_column_suggestions_count: Kecocokan yang disarankan
   list_column_folder: Folder
   list_column_creator_name: Dibuat oleh
+  list_column_team_name: Ruang kerja
   go_back_to_check: Kembali ke Check
   project_cant_have_children_if_has_parent: Folder ini berada di dalam folder lain,
     sehingga tidak dapat membuat folder turunan di dalamnya.

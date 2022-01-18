@@ -805,6 +805,7 @@ fr:
   list_column_suggestions_count: Correspondances suggérées
   list_column_folder: Dossier
   list_column_creator_name: Créé par
+  list_column_team_name: Espace de travail
   go_back_to_check: Retourner à Check
   project_cant_have_children_if_has_parent: Ce dossier a un dossier parent et il ne
     peut donc pas avoir un dossier enfant

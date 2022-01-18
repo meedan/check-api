@@ -783,6 +783,7 @@ pt:
   list_column_suggestions_count: Correspondências sugeridas
   list_column_folder: Pasta
   list_column_creator_name: Criado por
+  list_column_team_name: Espaço de trabalho
   go_back_to_check: Voltar ao Check
   project_cant_have_children_if_has_parent: Esta pasta possui uma pasta ascendente,
     por isso não pode ter uma pasta descendente
