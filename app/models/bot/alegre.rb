@@ -444,6 +444,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.add_relationships(pm, pm_id_scores)
+    Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 1/6] Adding relationships for #{pm_id_scores.inspect}"
     return if pm_id_scores.blank? || pm_id_scores.keys.include?(pm.id)
 
     # Take first match as being the best potential parent.
@@ -454,9 +455,10 @@ class Bot::Alegre < BotUser
 
     parent_id = pm_id_scores.keys.sort[0]
     parent_relationships = Relationship.where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).where(target_id: parent_id).all
+    Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 2/6] Number of parent relationships #{parent_relationships.count}"
     if parent_relationships.length > 0
       # Sanity check: if there are multiple parents, something is wrong in the dataset.
-      self.notify_error(StandardError.new("[Alegre Bot] Found multiple similarity relationship parents for ProjectMedia #{parent_id}"), {}, RequestStore[:request]) if parent_relationships.length > 1
+      self.notify_error(StandardError.new("[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships ERROR] Found multiple similarity relationship parents for ProjectMedia #{parent_id}"), {}, RequestStore[:request]) if parent_relationships.length > 1
       # Take the first source as the parent (A).
       # 1. A is confirmed to B and C is suggested to B: type of the relationship between A and C is: suggested
       # 2. A is confirmed to B and C is confirmed to B: type of the relationship between A and C is: confirmed
@@ -472,7 +474,7 @@ class Bot::Alegre < BotUser
       pm_id_scores[parent_id] = pm_id_scores[original_parent_id]
       pm_id_scores[parent_id][:relationship_type] = new_type if pm_id_scores[parent_id]
     end
-
+    Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 3/6] Adding relationship for following pm_id, pm_id_scores, parent_id #{[pm.id, pm_id_scores, parent_id].inspect}"
     self.add_relationship(pm, pm_id_scores, parent_id)
   end
 
@@ -482,8 +484,10 @@ class Bot::Alegre < BotUser
     parent = ProjectMedia.find_by_id(parent_id)
     return false if parent.nil?
     if parent.is_blank?
+      Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 4/6] Parent is blank, creating suggested relationship"
       self.create_relationship(parent, pm, pm_id_scores[parent_id][:score], Relationship.suggested_type)
     elsif pm_id_scores[parent_id]
+      Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 4/6] Parent is blank, creating relationship of #{relationship_type.inspect}"
       relationship_type = self.set_relationship_type(pm, pm_id_scores, parent)
       self.create_relationship(parent, pm, pm_id_scores[parent_id][:score], relationship_type)
     end
@@ -507,16 +511,20 @@ class Bot::Alegre < BotUser
       r.target_id = target.id
       r.user_id ||= BotUser.alegre_user&.id
       r.save!
+      Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Created new relationship for relationship ID Of #{r.id}"
     elsif r.relationship_type != relationship_type && r.relationship_type == Relationship.suggested_type
+      Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Upgrading relationship from suggested to confirmed for relationship ID of #{r.id}"
       # confirm existing relation if a new one is confirmed
       r.relationship_type = relationship_type
       r.save!
     end
+    message_type = r.is_confirmed? ? 'related_to_confirmed_similar' : 'related_to_suggested_similar'
+    message_opts = {item_title: target.title, similar_item_title: source.title}
     CheckNotification::InfoMessages.send(
-      r.is_confirmed? ? 'related_to_confirmed_similar' : 'related_to_suggested_similar',
-      item_title: target.title,
-      similar_item_title: source.title
+      message_type,
+      message_opts
     )
+    Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 6/6] Sent Check notification with message type and opts of #{[message_type, message_opts].inspect}"
     r
   end
 
