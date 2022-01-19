@@ -785,11 +785,13 @@ id:
   list_column_suggestions_count: Kecocokan yang disarankan
   list_column_folder: Folder
   list_column_creator_name: Dibuat oleh
+  list_column_team_name: Ruang kerja
   go_back_to_check: Kembali ke Check
   project_cant_have_children_if_has_parent: Folder ini berada di dalam folder lain,
     sehingga tidak dapat membuat folder turunan di dalamnya.
   project_group_must_be_under_same_team: Koleksi tersebut harus berada di bawah ruang
     kerja yang sama
+  unique_default_folder_per_team: Ruang kerja harus memiliki hanya satu folder bawaan
   smooch_bot_message_subscribed: |-
     Sekarang Anda telah berlangganan.
 

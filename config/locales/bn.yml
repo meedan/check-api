@@ -46,6 +46,10 @@ bn:
   smooch_bot_message_unconfirmed: 1 রিপ্লাই না দেওয়ার জন্য আপনার এই নিবেদন এখানেই
     সমাপ্ত হল।  ধন্যবাদ।
   unsubscribe: আনসাবস্ক্রাইব
+  smooch_message_subscription_header_subscribed: আপনি বর্তমানে আমাদের নিউজলেটার সাবস্ক্রাইব
+    করা হয়।
+  smooch_message_subscription_header_unsubscribed: আপনি বর্তমানে আমাদের নিউজলেটারের
+    কাছে সাবস্ক্রাইব করেছেন।
   smooch_bot_message_newsletter_fallback: |-
     ওহে! এখানে আপনার সাপ্তাহিক তথ্য আছে.
 
