@@ -15,6 +15,7 @@ module AlegreSimilarity
     end
 
     def get_similar_items(pm)
+      Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 1/5] Getting similar items"
       type = nil
       if pm.is_text?
         type = 'text'
@@ -25,12 +26,18 @@ module AlegreSimilarity
       elsif pm.is_audio?
         type = 'audio'
       end
+      Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 2/5] Type is #{type.blank? ? "blank" : type}"
       unless type.blank?
-        return {} if !self.should_get_similar_items_of_type?('master', pm.team_id) || !self.should_get_similar_items_of_type?(type, pm.team_id)
+        if !self.should_get_similar_items_of_type?('master', pm.team_id) || !self.should_get_similar_items_of_type?(type, pm.team_id)
+          Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 3/5] ProjectMedia cannot be checked for similar items"
+          return {}
+        else
+          Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 3/5] ProjectMedia can be checked for similar items"
+        end
         suggested_or_confirmed = self.get_items_with_similarity(type, pm, self.get_threshold_for_query(type, pm))
-        Rails.logger.info("[Alegre Bot] suggested_or_confirmed for #{pm.id} is #{suggested_or_confirmed.inspect}")
+        Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 4/5] suggested_or_confirmed for #{pm.id} is #{suggested_or_confirmed.inspect}")
         confirmed = self.get_items_with_similarity(type, pm, self.get_threshold_for_query(type, pm, true))
-        Rails.logger.info("[Alegre Bot] confirmed for #{pm.id} is #{confirmed.inspect}")
+        Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 5/5] confirmed for #{pm.id} is #{confirmed.inspect}")
         self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
       else
         {}
@@ -41,8 +48,8 @@ module AlegreSimilarity
       if type == 'text'
         self.get_merged_items_with_similar_text(pm, threshold)
       else
-        results = self.get_items_with_similar_media(self.media_file_url(pm), threshold, pm.team_id, "/#{type}/similarity/", query_or_body)
-        results.reject{ |id, _score| pm.id == id }
+        results = self.get_items_with_similar_media(self.media_file_url(pm), threshold, pm.team_id, "/#{type}/similarity/", query_or_body).reject{ |id, _score| pm.id == id }
+        results
       end
     end
 
