@@ -782,11 +782,14 @@ es:
   list_column_suggestions_count: Coincidencias sugeridas
   list_column_folder: Carpeta
   list_column_creator_name: Creado por
+  list_column_team_name: Área de trabajo
   go_back_to_check: Regresar a Check
   project_cant_have_children_if_has_parent: Esta carpeta tiene una carpeta principal,
     por lo que no puede tener una subcarpeta
   project_group_must_be_under_same_team: La colección debe estar en la misma área
     de trabajo
+  unique_default_folder_per_team: 'El área de trabajo sólo debería tener una carpeta
+    predeterminada '
   smooch_bot_message_subscribed: |-
     Ahora estás suscrita(o).
 

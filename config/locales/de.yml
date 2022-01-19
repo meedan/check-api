@@ -2,7 +2,20 @@
 de:
   mails_notifications:
     unsubscribe: Abmelden
+  smooch_bot_message_subscribed: |-
+    Sie sind jetzt abonniert.
+
+    *Antworten Sie mit 0*, um zum Hauptmenü zurückzukehren.
+  smooch_bot_message_unsubscribed: |-
+    Sie sind jetzt abgemeldet.
+
+    *Antworten Sie mit 0*, um zum Hauptmenü zurückzukehren.
+  subscribe: Abonnieren
   unsubscribe: Abmelden
+  smooch_message_subscription_header_subscribed: Sie werden derzeit unseren Newsletter
+    *abonniert*.
+  smooch_message_subscription_header_unsubscribed: Sie sind derzeit von unseren Newsletter
+    *abgemeldet*.
   smooch_bot_message_newsletter_fallback: |-
     Hallo! Hier sind Ihre wöchentlichen Fakten.
 
