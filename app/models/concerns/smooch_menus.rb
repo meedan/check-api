@@ -154,7 +154,11 @@ module SmoochMenus
           }
         }
       }
-      self.send_message_to_user(uid, text, extra)
+      fallback = [text, '']
+      options.each_with_index do |option, i|
+        fallback << "#{i + 1}. #{option[:label]}"
+      end
+      self.send_message_to_user(uid, fallback.join("\n"), extra)
     end
 
     def send_message_to_user_with_single_section_menu(uid, text, options, menu_label)
@@ -189,10 +193,15 @@ module SmoochMenus
           }
         }
       }
-      self.send_message_to_user(uid, text, extra)
+      fallback = [text, '']
+      options.each_with_index do |option, i|
+        fallback << "#{i + 1}: #{option[:label]}"
+      end
+      self.send_message_to_user(uid, fallback.join("\n"), extra)
     end
 
     def ask_for_language_confirmation(workflow, language, uid)
+      self.reset_user_language(uid)
       text = [workflow['smooch_message_smooch_bot_greetings'], self.get_menu_string(:confirm_preferred_language, language)].join("\n\n")
       options = self.get_supported_languages.collect do |l|
         {

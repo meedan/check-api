@@ -392,12 +392,21 @@ class Bot::Smooch < BotUser
     team = Team.find(self.config['team_id'])
     default_language = team.default_language
     supported_languages = self.get_supported_languages
-    user_language = Rails.cache.fetch("smooch:user_language:#{uid}") do
-      language = default_language
-      language = self.get_language(message, language) if state == 'waiting_for_message'
-      language
+    guessed_language = nil
+    if state == 'waiting_for_message'
+      guessed_language = self.get_language(message, default_language)
+      Rails.cache.fetch("smooch:user_language:#{uid}") { guessed_language }
     end
+    user_language = Rails.cache.read("smooch:user_language:#{uid}") || guessed_language || default_language
     supported_languages.include?(user_language) ? user_language : default_language
+  end
+
+  def self.reset_user_language(uid)
+    Rails.cache.delete("smooch:user_language:#{uid}")
+  end
+
+  def self.user_language_set?(uid)
+    !Rails.cache.read("smooch:user_language:#{uid}").blank?
   end
 
   def self.get_supported_languages
@@ -478,7 +487,7 @@ class Bot::Smooch < BotUser
     value.to_i.seconds
   end
 
-  def self.get_menu_options(state, workflow)
+  def self.get_menu_options(state, workflow, uid)
     if state == 'ask_if_ready'
       [
         { 'smooch_menu_option_keyword' => '1', 'smooch_menu_option_value' => 'search_state' },
@@ -492,10 +501,11 @@ class Bot::Smooch < BotUser
       ]
     else
       options = workflow.dig("smooch_state_#{state}", 'smooch_menu_options').to_a
-      if state == 'main' && self.config['smooch_version'] == 'v2'
-        self.get_supported_languages.each do |l|
+      if state == 'main' && self.config['smooch_version'] == 'v2' && !self.user_language_set?(uid)
+        options = []
+        self.get_supported_languages.each_with_index do |l, i|
           options << {
-            'smooch_menu_option_keyword' => l,
+            'smooch_menu_option_keyword' => [l, i + 1].join(','),
             'smooch_menu_option_value' => l
           }
         end
@@ -574,7 +584,7 @@ class Bot::Smooch < BotUser
       return true
     end
     workflow ||= {}
-    self.get_menu_options(state, workflow).each do |option|
+    self.get_menu_options(state, workflow, uid).each do |option|
       if option['smooch_menu_option_keyword'].split(',').map(&:downcase).map(&:strip).collect{ |k| k.gsub(/[^a-z0-9]+/, '') }.include?(typed.gsub(/[^a-z0-9]+/, ''))
         self.process_menu_option_value(option['smooch_menu_option_value'], option, message, language, workflow, app_id)
         return true

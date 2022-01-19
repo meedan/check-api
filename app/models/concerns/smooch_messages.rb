@@ -74,7 +74,7 @@ module SmoochMessages
 
     def send_message_for_state_with_buttons(uid, text, workflow, state, language)
       options = []
-      self.get_menu_options(state, workflow).each do |option|
+      self.get_menu_options(state, workflow, uid).each do |option|
         keyword = option['smooch_menu_option_keyword'].split(',').map(&:strip).first
         value = option['smooch_menu_option_value']
         options << {
