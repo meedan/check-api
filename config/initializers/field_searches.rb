@@ -54,6 +54,13 @@ Dynamic.class_eval do
     { keys: [:language, :indexable], data: data }
   end
 
+  def get_elasticsearch_options_dynamic_annotation_url
+    return {} if self.get_field(:url).nil?
+    url = self.get_field_value(:url)
+    data = { url: url, indexable: url }
+    { keys: [:url, :indexable], data: data }
+  end
+
   def get_elasticsearch_options_dynamic_annotation_geolocation
     return {} if self.get_field(:geolocation).nil?
     location = {}

@@ -19,6 +19,10 @@ DynamicAnnotation::Field.class_eval do
     value
   end
 
+  def field_formatter_type_url
+    url = JSON.parse(self.value).url
+  end
+
   def field_formatter_type_datetime
     # Capture TZ abbreviation manually because DateTime does not parse it
     # http://rubular.com/r/wOfJTCSxlI
