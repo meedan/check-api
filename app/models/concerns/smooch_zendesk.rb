@@ -55,7 +55,7 @@ module SmoochZendesk
       app_id = self.config['smooch_app_id']
       params = { 'role' => 'appMaker', 'type' => 'text', 'text' => text.to_s.truncate(4096) }.merge(extra)
       # An error is raised by Smooch API if we set "preview_url: true" and there is no URL in the "text" parameter
-      if text.to_s.match(/https?:\/\//) && !params[:override] 
+      if text.to_s.match(/https?:\/\//) && !params[:override]
         params.merge!({
           override: {
             whatsapp: {

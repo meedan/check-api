@@ -51,7 +51,7 @@ module SmoochMessages
         end
       end
     end
-    
+
     def send_final_message_to_user(uid, text, workflow, language)
       if self.is_v2?
         CheckStateMachine.new(uid).go_to_main
@@ -316,6 +316,27 @@ module SmoochMessages
           url
         end
       end
+    end
+
+    def send_message_on_status_change(pm_id, status, request_actor_session_id = nil)
+      RequestStore[:actor_session_id] = request_actor_session_id unless request_actor_session_id.nil?
+      pm = ProjectMedia.find_by_id(pm_id)
+      return if pm.nil?
+      requestors_count = 0
+      parent = Relationship.where(target_id: pm.id).last&.source || pm
+      ProjectMedia.where(id: parent.related_items_ids).each do |pm2|
+        pm2.get_annotations('smooch').find_each do |annotation|
+          data = JSON.parse(annotation.load.get_field_value('smooch_data'))
+          self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
+          message = parent.team.get_status_message_for_language(status, data['language'])
+          unless message.blank?
+            response = self.send_message_to_user(data['authorId'], message)
+            self.save_smooch_response(response, parent, data['received'].to_i, 'fact_check_status', data['language'], { message: message })
+            requestors_count += 1
+          end
+        end
+      end
+      CheckNotification::InfoMessages.send('sent_message_to_requestors_on_status_change', status: pm.status_i18n, requestors_count: requestors_count) if requestors_count > 0
     end
   end
 end

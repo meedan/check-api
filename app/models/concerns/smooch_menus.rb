@@ -10,41 +10,31 @@ module SmoochMenus
 
       # Main section
       rows = []
-      unless workflow['smooch_state_main'].blank?
-        workflow['smooch_state_main']['smooch_menu_options'].each do |option|
-          if ['query_state', 'subscription_state'].include?(option['smooch_menu_option_value'])
-            rows << {
-              id: { state: 'main', keyword: counter.to_s }.to_json,
-              title: self.get_menu_string(option['smooch_menu_option_value'], language, 24)
-            }
-            counter += 1
-            counter += 1 if counter == 9
-          end
-        end
-        main << {
-          title: self.get_menu_string('smooch_state_main_title', language, 24),
-          rows: rows
+      workflow['smooch_state_main'].to_h['smooch_menu_options'].to_a.select{ |o| ['query_state', 'subscription_state'].include?(o['smooch_menu_option_value']) }.each do |option|
+        rows << {
+          id: { state: 'main', keyword: counter.to_s }.to_json,
+          title: self.get_menu_string(option['smooch_menu_option_value'], language, 24)
         }
+        counter = self.get_next_menu_item_number(counter)
       end
+      main << {
+        title: self.get_menu_string('smooch_state_main_title', language, 24),
+        rows: rows
+      }
 
       # Secondary menu
       rows = []
-      unless workflow['smooch_state_secondary'].blank?
-        workflow['smooch_state_secondary']['smooch_menu_options'].each do |option|
-          if option['smooch_menu_option_value'] == 'custom_resource'
-            rows << {
-              id: { state: 'main', keyword: counter.to_s }.to_json,
-              title: BotResource.find_by_uuid(option['smooch_menu_custom_resource_id'])&.title.to_s.truncate(24)
-            }
-            counter += 1
-            counter += 1 if counter == 9
-          end
-        end
-        main << {
-          title: self.get_menu_string('smooch_state_secondary_title', language, 24),
-          rows: rows
-        } unless rows.empty?
+      workflow['smooch_state_secondary'].to_h['smooch_menu_options'].to_a.select{ |o| o['smooch_menu_option_value'] == 'custom_resource' }.each do |option|
+        rows << {
+          id: { state: 'main', keyword: counter.to_s }.to_json,
+          title: BotResource.find_by_uuid(option['smooch_menu_custom_resource_id'])&.title.to_s.truncate(24)
+        }
+        counter = self.get_next_menu_item_number(counter)
       end
+      main << {
+        title: self.get_menu_string('smooch_state_secondary_title', language, 24),
+        rows: rows
+      }
 
       # Languages and privacy
       rows = []
@@ -54,8 +44,7 @@ module SmoochMenus
           id: { state: 'main', keyword: counter.to_s }.to_json,
           title: ::CheckCldr.language_code_to_name(code, code).truncate(24)
         }
-        counter += 1
-        counter += 1 if counter == 9
+        counter = self.get_next_menu_item_number(counter)
       end
       rows << {
         id: { state: 'main', keyword: '9' }.to_json,
@@ -79,7 +68,7 @@ module SmoochMenus
                 },
                 action: {
                   button: self.get_menu_string('main_menu', language, 20),
-                  sections: main
+                  sections: main.reject{ |m| m[:rows].empty? }
                 }
               }
             }
@@ -100,7 +89,14 @@ module SmoochMenus
       self.send_message_to_user(uid, fallback.join("\n"), extra)
     end
 
-    def get_menu_string(key, language, truncate_at = 1024)
+    def get_next_menu_item_number(current)
+      counter = current
+      counter += 1
+      counter += 1 if counter == 9 # Skip 9 - fixed option number for privacy statement
+      counter
+    end
+
+    def get_menu_string(key, _language, truncate_at = 1024)
       # Truncation happens because WhatsApp has limitations:
       # - Section title: 24 characters
       # - Menu item title: 24 characters
@@ -169,11 +165,7 @@ module SmoochMenus
           }
         }
       }
-      fallback = [text, '']
-      options.each_with_index do |option, i|
-        value = begin JSON.parse(option[:value])['keyword'] rescue option[:value] end
-        fallback << "#{value}. #{option[:label]}"
-      end
+      fallback = self.format_fallback_text_menu_from_options(text, options)
       self.send_message_to_user(uid, fallback.join("\n"), extra)
     end
 
@@ -209,12 +201,17 @@ module SmoochMenus
           }
         }
       }
-      fallback = [text, '']
-      options.each_with_index do |option, i|
-        value = begin JSON.parse(option[:value])['keyword'] rescue option[:value] end
-        fallback << "#{value}: #{option[:label]}"
-      end
+      fallback = self.format_fallback_text_menu_from_options(text, options)
       self.send_message_to_user(uid, fallback.join("\n"), extra)
+    end
+
+    def format_fallback_text_menu_from_options(text, options)
+      fallback = [text, '']
+      options.each do |option|
+        value = begin JSON.parse(option[:value])['keyword'] rescue option[:value] end
+        fallback << "#{value}. #{option[:label]}"
+      end
+      fallback
     end
 
     def ask_for_language_confirmation(workflow, language, uid)
