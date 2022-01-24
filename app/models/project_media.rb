@@ -248,33 +248,40 @@ class ProjectMedia < ApplicationRecord
     elsif self.media.media_type != 'blank'
       raise I18n.t(:replace_blank_media_only)
     else
-      id = new_project_media.id
-      ProjectMedia.transaction do
-        current_user = User.current
-        current_team = Team.current
-        User.current = Team.current = nil
-        # Remove any status and report from the new item
-        Annotation.where(
-          annotation_type: ['verification_status', 'report_design'],
-          annotated_type: 'ProjectMedia', annotated_id: new_project_media.id
-        ).find_each do |a|
-          a.skip_check_ability = true
-          a.destroy!
-        end
-        # All annotations from the old item should point to the new item
-        Annotation.where(annotated_type: 'ProjectMedia', annotated_id: self.id).update_all(annotated_id: id)
-        # Destroy the old item
-        self.skip_check_ability = true
-        self.destroy!
-        # Save the new item
-        new_project_media.updated_at = Time.now
-        new_project_media.skip_check_ability = true
-        new_project_media.save!
-        User.current = current_user
-        Team.current = current_team
-        # Send a published report if any
-        ::Bot::Smooch.send_report_from_parent_to_child(new_project_media.id, new_project_media.id)
+      self.delay.apply_replace_by(self, new_project_media)
+    end
+  end
+
+  def apply_replace_by(old_pm, new_pm)
+    id = new_pm.id
+    ProjectMedia.transaction do
+      current_user = User.current
+      current_team = Team.current
+      User.current = Team.current = nil
+      analysis = new_pm.analysis
+      # Remove any status and report from the new item
+      Annotation.where(
+        annotation_type: ['verification_status', 'report_design'],
+        annotated_type: 'ProjectMedia', annotated_id: new_pm.id
+      ).find_each do |a|
+        a.skip_check_ability = true
+        a.destroy!
       end
+      # All annotations from the old item should point to the new item
+      Annotation.where(annotated_type: 'ProjectMedia', annotated_id: self.id).update_all(annotated_id: id)
+      # Destroy the old item
+      old_pm.skip_check_ability = true
+      old_pm.destroy!
+      # Save the new item
+      new_pm.updated_at = Time.now
+      new_pm.skip_check_ability = true
+      new_pm.channel = CheckChannels::ChannelCodes::FETCH
+      new_pm.save(validate: false) # To skip channel validation
+      new_pm.analysis = { title: analysis['title'], content: analysis['content'] }
+      User.current = current_user
+      Team.current = current_team
+      # Send a published report if any
+      ::Bot::Smooch.send_report_from_parent_to_child(new_pm.id, new_pm.id)
     end
   end
 
