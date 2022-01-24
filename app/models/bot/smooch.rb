@@ -271,7 +271,6 @@ class Bot::Smooch < BotUser
         false
       end
     rescue StandardError => e
-      raise(e) if Rails.env.development?
       self.handle_exception(e, body)
       false
     end
@@ -363,7 +362,7 @@ class Bot::Smooch < BotUser
 
     # Shortcuts
     if [I18n.t(:subscribe, locale: language), I18n.t(:unsubscribe, locale: language)].map(&:downcase).include?(message['text'].to_s.downcase.strip)
-      self.toggle_subscription(uid, language, self.config['team_id'], self.get_platform_from_message(message))
+      self.toggle_subscription(uid, language, self.config['team_id'], self.get_platform_from_message(message), workflow)
       return true
     end
 
@@ -464,6 +463,8 @@ class Bot::Smooch < BotUser
   end
 
   def self.process_menu_option_value_for_state(value, message, language, workflow, app_id)
+    uid = message['authorId']
+    sm = CheckStateMachine.new(uid)
     self.bundle_message(message)
     new_state = value.gsub(/_state$/, '')
     self.delay_for(self.time_to_send_request, { queue: 'smooch_ping', retry: false }).bundle_messages(uid, message['_id'], app_id) if new_state == 'query' && !self.is_v2?
@@ -482,11 +483,11 @@ class Bot::Smooch < BotUser
     if value =~ /_state$/
       self.process_menu_option_value_for_state(value, message, language, workflow, app_id)
     elsif value == 'resource'
+      pmid = option['smooch_menu_project_media_id'].to_i
+      pm = ProjectMedia.where(id: pmid, team_id: self.config['team_id'].to_i).last
       sm.reset
       self.bundle_message(message)
       self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'menu_options_requests', pm)
-      pmid = option['smooch_menu_project_media_id'].to_i
-      pm = ProjectMedia.where(id: pmid, team_id: self.config['team_id'].to_i).last
       self.send_report_to_user(uid, {}, pm, language)
     elsif value == 'custom_resource'
       sm.reset

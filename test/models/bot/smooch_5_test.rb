@@ -118,7 +118,9 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
       now = Time.now
       uid = random_string
       sm = CheckStateMachine.new(uid)
+      assert_equal 'waiting_for_message', sm.state.value
       send_message_to_smooch_bot(random_string, uid)
+      assert_equal 'main', sm.state.value
       send_message_to_smooch_bot('1', uid)
       assert_equal 'secondary', sm.state.value
       send_message_to_smooch_bot('1', uid)
@@ -234,7 +236,7 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => 'Foo bar' })
     CheckSearch.any_instance.stubs(:medias).returns([pm])
 
-    assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id)
+    assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en')
 
     Bot::Smooch.unstub(:bundle_list_of_messages)
     CheckSearch.any_instance.unstub(:medias)
@@ -252,12 +254,14 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
 
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => 'Foo bar foo bar foo bar' })
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
+    ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
     Bot::Alegre.stubs(:get_similar_texts).returns({ pm.id => 0.9 })
 
-    assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id)
+    assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en')
 
     Bot::Smooch.unstub(:bundle_list_of_messages)
     ProjectMedia.any_instance.unstub(:report_status)
+    ProjectMedia.any_instance.unstub(:analysis_published_article_url)
     Bot::Alegre.unstub(:get_similar_texts)
   end
 
@@ -273,12 +277,14 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
 
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'image', 'mediaUrl' => 'https://image' })
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
+    ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
     Bot::Alegre.stubs(:get_items_with_similar_media).returns({ pm.id => 0.9 })
 
-    assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id)
+    assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en')
 
     Bot::Smooch.unstub(:bundle_list_of_messages)
     ProjectMedia.any_instance.unstub(:report_status)
+    ProjectMedia.any_instance.unstub(:analysis_published_article_url)
     Bot::Alegre.unstub(:get_items_with_similar_media)
   end
 
