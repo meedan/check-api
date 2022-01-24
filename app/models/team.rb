@@ -540,6 +540,11 @@ class Team < ApplicationRecord
         key: 'team_name',
         label: I18n.t(:list_column_team_name),
         show: false
+      },
+      {
+        key: 'source',
+        label: I18n.t(:list_column_source_name),
+        show: false
       }
     ]
   end
