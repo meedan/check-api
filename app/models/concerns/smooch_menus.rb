@@ -97,20 +97,6 @@ module SmoochMenus
         end
       end
 
-      # FIXME: Delete these debugging lines
-
-      puts '====================================================='
-      require 'ap'
-      puts 'DEBUG: MAIN MENU'
-      ap extra
-      puts '====================================================='
-
-      puts '====================================================='
-      require 'ap'
-      puts 'DEBUG: MAIN MENU FALLBACK'
-      ap fallback
-      puts '====================================================='
-
       self.send_message_to_user(uid, fallback.join("\n"), extra)
     end
 

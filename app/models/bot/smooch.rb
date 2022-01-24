@@ -545,12 +545,6 @@ class Bot::Smooch < BotUser
           options = all_options
         end
       end
-      # FIXME: Delete these debugging lines
-      puts '========================================================='
-      puts 'DEBUG: AVAILABLE OPTIONS'
-      require 'ap'
-      ap options
-      puts '========================================================='
       options.reject{ |o| o.blank? }
     end
   end
@@ -607,11 +601,6 @@ class Bot::Smooch < BotUser
       sm.send("go_to_#{new_state}") if new_state && new_state != sm.state.value
       typed = payload['keyword']
     end
-    # FIXME: Delete these debugging lines
-    puts '========================================================='
-    puts 'DEBUG: TYPED'
-    puts typed.inspect
-    puts '========================================================='
     [typed.to_s.downcase.strip, new_state]
   end
 
