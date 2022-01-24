@@ -6,17 +6,19 @@ module SmoochMenus
   module ClassMethods
     def send_message_to_user_with_main_menu_appended(uid, text, workflow, language)
       main = []
+      counter = 1
 
       # Main section
       rows = []
       unless workflow['smooch_state_main'].blank?
         workflow['smooch_state_main']['smooch_menu_options'].each do |option|
           if ['query_state', 'subscription_state'].include?(option['smooch_menu_option_value'])
-            keyword = option['smooch_menu_option_keyword'].split(',').map(&:strip).first
             rows << {
-              id: { state: 'main', keyword: keyword }.to_json,
+              id: { state: 'main', keyword: counter.to_s }.to_json,
               title: self.get_menu_string(option['smooch_menu_option_value'], language, 24)
             }
+            counter += 1
+            counter += 1 if counter == 9
           end
         end
         main << {
@@ -30,11 +32,12 @@ module SmoochMenus
       unless workflow['smooch_state_secondary'].blank?
         workflow['smooch_state_secondary']['smooch_menu_options'].each do |option|
           if option['smooch_menu_option_value'] == 'custom_resource'
-            keyword = option['smooch_menu_option_keyword'].split(',').map(&:strip).first
             rows << {
-              id: { state: 'secondary', keyword: keyword }.to_json,
+              id: { state: 'main', keyword: counter.to_s }.to_json,
               title: BotResource.find_by_uuid(option['smooch_menu_custom_resource_id'])&.title.to_s.truncate(24)
             }
+            counter += 1
+            counter += 1 if counter == 9
           end
         end
         main << {
@@ -45,16 +48,17 @@ module SmoochMenus
 
       # Languages and privacy
       rows = []
-      self.get_supported_languages.each do |l|
-        next if l == language
+      self.get_supported_languages.sort.each do |l|
         code = l.gsub(/_.*$/, '')
         rows << {
-          id: { state: 'main', keyword: l }.to_json,
+          id: { state: 'main', keyword: counter.to_s }.to_json,
           title: ::CheckCldr.language_code_to_name(code, code).truncate(24)
         }
+        counter += 1
+        counter += 1 if counter == 9
       end
       rows << {
-        id: { state: 'main', keyword: 9 }.to_json,
+        id: { state: 'main', keyword: '9' }.to_json,
         title: self.get_menu_string('privacy_statement', language, 24)
       }
       main << {
@@ -82,7 +86,32 @@ module SmoochMenus
           }
         }
       }
-      self.send_message_to_user(uid, text, extra)
+
+      fallback = [text]
+      main.each do |section|
+        fallback << ''
+        fallback << section[:title].upcase
+        section[:rows].each do |row|
+          value = begin JSON.parse(row[:id])['keyword'] rescue row[:id] end
+          fallback << "#{value}. #{row[:title]}"
+        end
+      end
+
+      # FIXME: Delete these debugging lines
+
+      puts '====================================================='
+      require 'ap'
+      puts 'DEBUG: MAIN MENU'
+      ap extra
+      puts '====================================================='
+
+      puts '====================================================='
+      require 'ap'
+      puts 'DEBUG: MAIN MENU FALLBACK'
+      ap fallback
+      puts '====================================================='
+
+      self.send_message_to_user(uid, fallback.join("\n"), extra)
     end
 
     def get_menu_string(key, language, truncate_at = 1024)
@@ -156,7 +185,8 @@ module SmoochMenus
       }
       fallback = [text, '']
       options.each_with_index do |option, i|
-        fallback << "#{i + 1}. #{option[:label]}"
+        value = begin JSON.parse(option[:value])['keyword'] rescue option[:value] end
+        fallback << "#{value}. #{option[:label]}"
       end
       self.send_message_to_user(uid, fallback.join("\n"), extra)
     end
@@ -195,7 +225,8 @@ module SmoochMenus
       }
       fallback = [text, '']
       options.each_with_index do |option, i|
-        fallback << "#{i + 1}: #{option[:label]}"
+        value = begin JSON.parse(option[:value])['keyword'] rescue option[:value] end
+        fallback << "#{value}: #{option[:label]}"
       end
       self.send_message_to_user(uid, fallback.join("\n"), extra)
     end
@@ -203,9 +234,10 @@ module SmoochMenus
     def ask_for_language_confirmation(workflow, language, uid)
       self.reset_user_language(uid)
       text = [workflow['smooch_message_smooch_bot_greetings'], self.get_menu_string(:confirm_preferred_language, language)].join("\n\n")
-      options = self.get_supported_languages.collect do |l|
-        {
-          value: { state: 'main', keyword: l }.to_json,
+      options = []
+      self.get_supported_languages.sort.each_with_index do |l, i|
+        options << {
+          value: { state: 'main', keyword: (i + 1) }.to_json,
           label: ::CheckCldr.language_code_to_name(l, l).truncate(20)
         }
       end

@@ -53,7 +53,7 @@ module SmoochMessages
     end
     
     def send_final_message_to_user(uid, text, workflow, language)
-      if self.config['smooch_version'] == 'v2'
+      if self.is_v2?
         CheckStateMachine.new(uid).go_to_main
         self.send_message_to_user_with_main_menu_appended(uid, text, workflow, language)
       else
@@ -65,7 +65,7 @@ module SmoochMessages
       message = self.utmize_urls(self.get_message_for_state(workflow, state, language, uid).to_s, 'resource')
       text = [pretext, message].reject{ |part| part.blank? }.join("\n\n")
       # On v2, when we go to the "main" state, we need to show the main menu
-      if self.config['smooch_version'] == 'v2'
+      if self.is_v2?
         state == 'main' ? self.send_message_to_user_with_main_menu_appended(uid, text, workflow, language) : self.send_message_for_state_with_buttons(uid, text, workflow, state, language)
       else
         self.send_message_to_user(uid, text)

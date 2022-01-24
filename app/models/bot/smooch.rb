@@ -417,12 +417,12 @@ class Bot::Smooch < BotUser
       l = w['smooch_workflow_language']
       languages << l if team_languages.include?(l)
     end
-    languages
+    languages.sort
   end
 
   def self.start_flow(message, workflow, language, uid)
     CheckStateMachine.new(uid).start
-    if self.config['smooch_version'] == 'v2' && self.get_supported_languages.size > 1
+    if self.is_v2? && self.get_supported_languages.size > 1
       self.ask_for_language_confirmation(workflow, language, uid)
     else
       self.send_message_for_state(uid, workflow, 'main', language)
@@ -433,7 +433,7 @@ class Bot::Smooch < BotUser
     sm = CheckStateMachine.new(uid)
     if self.process_menu_option(message, sm.state.value, app_id)
       # Do nothing else - the action will be executed by "process_menu_option" method
-    elsif self.config['smooch_version'] == 'v2'
+    elsif self.is_v2?
       sm.go_to_ask_if_ready unless sm.state.value == 'ask_if_ready'
       self.ask_if_ready_to_submit(uid, workflow, 'ask_if_ready', language)
     else
@@ -487,6 +487,10 @@ class Bot::Smooch < BotUser
     value.to_i.seconds
   end
 
+  def self.is_v2?
+    self.config['smooch_version'] == 'v2'
+  end
+
   def self.get_menu_options(state, workflow, uid)
     if state == 'ask_if_ready'
       [
@@ -499,18 +503,55 @@ class Bot::Smooch < BotUser
         { 'smooch_menu_option_keyword' => '1', 'smooch_menu_option_value' => 'search_result_is_relevant' },
         { 'smooch_menu_option_keyword' => '2', 'smooch_menu_option_value' => 'search_result_is_not_relevant' }
       ]
+    elsif state == 'subscription' && self.is_v2?
+      [
+        { 'smooch_menu_option_keyword' => '1', 'smooch_menu_option_value' => 'subscription_confirmation' },
+        { 'smooch_menu_option_keyword' => '2', 'smooch_menu_option_value' => 'main_state' }
+      ]
+    elsif state == 'query' && self.is_v2?
+      [
+        { 'smooch_menu_option_keyword' => '1', 'smooch_menu_option_value' => 'main_state' },
+      ]
+    # Custom menus
     else
-      options = workflow.dig("smooch_state_#{state}", 'smooch_menu_options').to_a
-      if state == 'main' && self.config['smooch_version'] == 'v2' && !self.user_language_set?(uid)
-        options = []
-        self.get_supported_languages.each_with_index do |l, i|
-          options << {
-            'smooch_menu_option_keyword' => [l, i + 1].join(','),
-            'smooch_menu_option_value' => l
-          }
+      options = workflow.dig("smooch_state_#{state}", 'smooch_menu_options').to_a.clone
+      if state == 'main' && self.is_v2?
+        unless self.user_language_set?(uid)
+          options = []
+          self.get_supported_languages.each_with_index do |l, i|
+            options << {
+              'smooch_menu_option_keyword' => [l, i + 1].join(','),
+              'smooch_menu_option_value' => l
+            }
+          end
+        else
+          options = options.reject{ |o| !['query_state', 'subscription_state'].include?(o['smooch_menu_option_value']) }.concat(workflow.dig('smooch_state_secondary', 'smooch_menu_options').to_a.clone.select{ |o| o['smooch_menu_option_value'] == 'custom_resource' })
+          self.get_supported_languages.sort.each do |l|
+            options << {
+              'smooch_menu_option_keyword' => l,
+              'smooch_menu_option_value' => l
+            }
+          end
+          all_options = []
+          keyword = 0
+          options.each do |o|
+            next if o.blank?
+            keyword += 1
+            keyword += 1 if keyword == 9 # Reserved for "privacy statement"
+            o2 = o.clone
+            o2['smooch_menu_option_keyword'] = keyword.to_s
+            all_options << o2
+          end
+          options = all_options
         end
       end
-      options
+      # FIXME: Delete these debugging lines
+      puts '========================================================='
+      puts 'DEBUG: AVAILABLE OPTIONS'
+      require 'ap'
+      ap options
+      puts '========================================================='
+      options.reject{ |o| o.blank? }
     end
   end
 
@@ -521,11 +562,11 @@ class Bot::Smooch < BotUser
       self.bundle_message(message)
       new_state = value.gsub(/_state$/, '')
       self.clear_user_bundled_messages(uid) if new_state == 'main'
-      self.delay_for(self.time_to_send_request, { queue: 'smooch_ping', retry: false }).bundle_messages(uid, message['_id'], app_id) if new_state == 'query'
+      self.delay_for(self.time_to_send_request, { queue: 'smooch_ping', retry: false }).bundle_messages(uid, message['_id'], app_id) if new_state == 'query' && !self.is_v2?
       self.delay_for(self.time_to_send_request, { queue: 'smooch_ping', retry: false }).wait_and_ask_if_ready_to_submit(uid, message['_id'], app_id, language, workflow) if new_state == 'add_more_details'
       self.delay_for(1.seconds, { queue: 'smooch', retry: false }).search(app_id, uid, language, message, self.config['team_id'].to_i, workflow) if new_state == 'search'
       sm.send("go_to_#{new_state}")
-      new_state == 'main' && self.config['smooch_version'] == 'v2' ? self.send_message_to_user_with_main_menu_appended(uid, self.get_menu_string('cancelled', language), workflow, language) : self.send_message_for_state(uid, workflow, new_state, language)
+      new_state == 'main' && self.is_v2? ? self.send_message_to_user_with_main_menu_appended(uid, self.get_menu_string('cancelled', language), workflow, language) : self.send_message_for_state(uid, workflow, new_state, language)
     elsif value == 'resource'
       sm.reset
       self.bundle_message(message)
@@ -566,6 +607,11 @@ class Bot::Smooch < BotUser
       sm.send("go_to_#{new_state}") if new_state && new_state != sm.state.value
       typed = payload['keyword']
     end
+    # FIXME: Delete these debugging lines
+    puts '========================================================='
+    puts 'DEBUG: TYPED'
+    puts typed.inspect
+    puts '========================================================='
     [typed.to_s.downcase.strip, new_state]
   end
 
@@ -584,7 +630,8 @@ class Bot::Smooch < BotUser
       return true
     end
     workflow ||= {}
-    self.get_menu_options(state, workflow, uid).each do |option|
+    options = self.get_menu_options(state, workflow, uid)
+    options.each do |option|
       if option['smooch_menu_option_keyword'].split(',').map(&:downcase).map(&:strip).collect{ |k| k.gsub(/[^a-z0-9]+/, '') }.include?(typed.gsub(/[^a-z0-9]+/, ''))
         self.process_menu_option_value(option['smooch_menu_option_value'], option, message, language, workflow, app_id)
         return true
