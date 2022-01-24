@@ -433,6 +433,26 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
   end
 
+  test "should return empty when shouldnt get similar items of certain type zzz" do
+    p = create_project
+    pm1 = create_project_media project: p, quote: "Blah", team: @team
+    pm1.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
+    pm1.save!
+    pm2 = create_project_media project: p, quote: "Blah2", team: @team
+    pm2.save!
+    Bot::Alegre.get_merged_items_with_similar_text(pm2, Bot::Alegre.get_threshold_for_query('text', pm2))
+    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_query('text', pm2)).returns({pm1.id => 0.99})
+    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_query('text', pm2, true)).returns({})
+    tbi = TeamBotInstallation.new
+    tbi.set_text_similarity_enabled = false
+    tbi.user = BotUser.alegre_user
+    tbi.team = p.team
+    tbi.save!
+    TeamBotInstallation.stubs(:find_by_team_id_and_user_id).returns(tbi)
+    assert_equal Bot::Alegre.get_similar_items(pm2), {}
+    Bot::Alegre.unstub(:get_merged_items_with_similar_text)
+    TeamBotInstallation.unstub(:find_by_team_id_and_user_id)
+  end
   test "should return matches for non-blank cases" do
     p = create_project
     pm1 = create_project_media project: p, quote: "Blah", team: @team

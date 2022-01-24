@@ -2228,18 +2228,24 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
-      old = create_project_media team: t, media: Blank.create!
+      old = create_project_media team: t, media: Blank.create!, channel: CheckChannels::ChannelCodes::FETCH
+      old.analysis = { title: 'old title' }
       old_r = publish_report(old)
       old_s = old.last_status_obj
-      new = create_project_media team: t
+      new = create_project_media quote: 'new title', team: t
       new_r = publish_report(new)
       new_s = new.last_status_obj
-      old.replace_by(new)
+      Sidekiq::Testing.inline! do
+        old.replace_by(new)
+      end
       assert_nil ProjectMedia.find_by_id(old.id)
       assert_nil Annotation.find_by_id(new_s.id)
       assert_nil Annotation.find_by_id(new_r.id)
       assert_equal old_r, new.get_dynamic_annotation('report_design')
       assert_equal old_s, new.get_dynamic_annotation('verification_status')
+      new = new.reload
+      assert_equal 'new title', new.title
+      assert_equal CheckChannels::ChannelCodes::FETCH, new.channel
     end
   end
 
