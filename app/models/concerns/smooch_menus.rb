@@ -81,8 +81,7 @@ module SmoochMenus
         fallback << ''
         fallback << section[:title].upcase
         section[:rows].each do |row|
-          value = begin JSON.parse(row[:id])['keyword'] rescue row[:id] end
-          fallback << "#{value}. #{row[:title]}"
+          fallback << self.format_fallback_text_menu_option(row, :id, :title)
         end
       end
 
@@ -208,10 +207,14 @@ module SmoochMenus
     def format_fallback_text_menu_from_options(text, options)
       fallback = [text, '']
       options.each do |option|
-        value = begin JSON.parse(option[:value])['keyword'] rescue option[:value] end
-        fallback << "#{value}. #{option[:label]}"
+        fallback << self.format_fallback_text_menu_option(option, :value, :label)
       end
       fallback
+    end
+
+    def format_fallback_text_menu_option(option, value_key, label_key)
+      value = begin JSON.parse(option[value_key])['keyword'] rescue option[value_key] end
+      "#{value}. #{option[label_key]}"
     end
 
     def ask_for_language_confirmation(workflow, language, uid)
