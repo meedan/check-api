@@ -40,17 +40,10 @@ module SmoochSearch
       self.send_message_for_state(uid, workflow, state, language)
     end
 
-    def wait_and_ask_if_ready_to_submit(uid, message_id, app_id, language, workflow)
-      self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
-      list = self.list_of_bundled_messages_from_user(uid)
-      unless list.empty?
-        last = JSON.parse(list.last)
-        if last['_id'] == message_id
-          sm = CheckStateMachine.new(uid)
-          sm.go_to_ask_if_ready unless sm.state.value == 'ask_if_ready'
-          self.ask_if_ready_to_submit(uid, workflow, 'ask_if_ready', language)
-        end
-      end
+    def go_to_state_and_ask_if_ready_to_submit(uid, language, workflow)
+      sm = CheckStateMachine.new(uid)
+      sm.go_to_ask_if_ready unless sm.state.value == 'ask_if_ready'
+      self.ask_if_ready_to_submit(uid, workflow, 'ask_if_ready', language)
     end
 
     def parse_search_results_from_alegre(results, team_id)

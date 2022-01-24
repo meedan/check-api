@@ -387,7 +387,7 @@ class Bot::Smooch < BotUser
       self.parse_query_message(message, app_id, uid, workflow, language)
     when 'add_more_details'
       self.bundle_message(message)
-      self.delay_for(self.time_to_send_request, { queue: 'smooch_ping', retry: false }).wait_and_ask_if_ready_to_submit(uid, message['_id'], app_id, language, workflow)
+      self.go_to_state_and_ask_if_ready_to_submit(uid, language, workflow)
     end
   end
 
@@ -468,13 +468,10 @@ class Bot::Smooch < BotUser
     self.bundle_message(message)
     new_state = value.gsub(/_state$/, '')
     self.delay_for(self.time_to_send_request, { queue: 'smooch_ping', retry: false }).bundle_messages(uid, message['_id'], app_id) if new_state == 'query' && !self.is_v2?
-    self.delay_for(self.time_to_send_request, { queue: 'smooch_ping', retry: false }).wait_and_ask_if_ready_to_submit(uid, message['_id'], app_id, language, workflow) if new_state == 'add_more_details'
     self.delay_for(1.seconds, { queue: 'smooch', retry: false }).search(app_id, uid, language, message, self.config['team_id'].to_i, workflow) if new_state == 'search'
     sm.send("go_to_#{new_state}")
-    if new_state == 'main'
-      self.clear_user_bundled_messages(uid) 
-      self.is_v2? ? self.send_message_to_user_with_main_menu_appended(uid, self.get_menu_string('cancelled', language), workflow, language) : self.send_message_for_state(uid, workflow, new_state, language)
-    end
+    self.clear_user_bundled_messages(uid) if new_state == 'main'
+    new_state == 'main' && self.is_v2? ? self.send_message_to_user_with_main_menu_appended(uid, self.get_menu_string('cancelled', language), workflow, language) : self.send_message_for_state(uid, workflow, new_state, language)
   end
 
   def self.process_menu_option_value(value, option, message, language, workflow, app_id)
