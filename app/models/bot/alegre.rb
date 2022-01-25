@@ -519,7 +519,7 @@ class Bot::Alegre < BotUser
       r = Relationship.new
       r.skip_check_ability = true
       r.relationship_type = relationship_type
-      r.model = self.get_indexing_model(pm)
+      r.model = self.get_indexing_model(source)
       r.weight = score
       r.details = context
       r.source_id = source.id
