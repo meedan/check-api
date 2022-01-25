@@ -495,11 +495,7 @@ class Bot::Alegre < BotUser
 
   def self.get_indexing_model(pm)
     type = self.get_pm_type(pm)
-    if type == text
-      return type
-    else
-      return self.indexing_model_to_use(pm)
-    end
+    type == "text" ? type : self.indexing_model_to_use(pm)
   end
 
   def self.create_relationship(source, target, score_with_context, relationship_type)
