@@ -73,11 +73,11 @@ class Bot::Alegre < BotUser
         matches = Bot::Alegre.get_items_with_similar_description(pm, Bot::Alegre.get_threshold_for_query('text', pm), text).max_by{ |_pm_id, score| score }
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] An annotation of type #{type} was saved, so the items with similar description to #{pm.id} (text is '#{text}') are: #{matches.inspect}")
         unless matches.nil?
-          match_id, score = matches
+          match_id, score_with_context = matches
           match = ProjectMedia.find_by_id(match_id)
           existing_parent = Relationship.where(target_id: match_id).where('relationship_type IN (?)', [Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml]).first
           parent = existing_parent.nil? ? match : existing_parent.source
-          Bot::Alegre.create_relationship(parent, pm, score, Relationship.suggested_type)
+          Bot::Alegre.create_relationship(parent, pm, score_with_context, Relationship.suggested_type)
         end
       end
     end
@@ -421,7 +421,7 @@ class Bot::Alegre < BotUser
     elsif context.kind_of?(Hash)
       pms.push(context.with_indifferent_access.dig('project_media_id'))
     end
-    Hash[pms.flatten.collect{ |pm| [pm.to_i, self.get_score_from_image_or_text_response(search_result)] }]
+    Hash[pms.flatten.collect{ |pm| [pm.to_i, {score: self.get_score_from_image_or_text_response(search_result), context: context}] }]
   end
 
   def self.get_context_from_image_or_text_response(search_result)
@@ -485,16 +485,20 @@ class Bot::Alegre < BotUser
     return false if parent.nil?
     if parent.is_blank?
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 4/6] Parent is blank, creating suggested relationship"
-      self.create_relationship(parent, pm, pm_id_scores[parent_id][:score], Relationship.suggested_type)
+      self.create_relationship(parent, pm, pm_id_scores[parent_id], Relationship.suggested_type)
     elsif pm_id_scores[parent_id]
       relationship_type = self.set_relationship_type(pm, pm_id_scores, parent)
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 4/6] Parent is blank, creating relationship of #{relationship_type.inspect}"
-      self.create_relationship(parent, pm, pm_id_scores[parent_id][:score], relationship_type)
+      self.create_relationship(parent, pm, pm_id_scores[parent_id], relationship_type)
     end
   end
 
-  def self.create_relationship(source, target, weight, relationship_type)
+  def self.create_relationship(source, target, score_with_context, relationship_type)
     return if source.nil? || target.nil?
+    score = score_with_context[:score]
+    context = score_with_context[:context]
+    source_field = score_with_context[:source_field]
+    target_field = score_with_context[:target_field]
     r = Relationship.where(source_id: source.id, target_id: target.id)
     .where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).last
     if r.nil?
@@ -506,9 +510,12 @@ class Bot::Alegre < BotUser
       r = Relationship.new
       r.skip_check_ability = true
       r.relationship_type = relationship_type
-      r.weight = weight
+      r.weight = score
+      r.details = context
       r.source_id = source.id
       r.target_id = target.id
+      r.source_field = source_field
+      r.target_field = target_field
       r.user_id ||= BotUser.alegre_user&.id
       r.save!
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Created new relationship for relationship ID Of #{r.id}"

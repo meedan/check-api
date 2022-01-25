@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_01_14_195539) do
+ActiveRecord::Schema.define(version: 2022_01_20_152305) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -277,6 +277,10 @@ ActiveRecord::Schema.define(version: 2022_01_14_195539) do
     t.float "weight", default: 0.0
     t.integer "confirmed_by"
     t.datetime "confirmed_at"
+    t.string "source_field"
+    t.string "target_field"
+    t.string "model"
+    t.jsonb "details", default: "{}"
     t.index ["relationship_type"], name: "index_relationships_on_relationship_type"
     t.index ["source_id", "target_id", "relationship_type"], name: "relationship_index", unique: true
   end
