@@ -493,6 +493,11 @@ class Bot::Alegre < BotUser
     end
   end
 
+  def self.get_indexing_model(pm)
+    type = self.get_pm_type(pm)
+    type == "text" ? type : self.indexing_model_to_use(pm)
+  end
+
   def self.create_relationship(source, target, score_with_context, relationship_type)
     return if source.nil? || target.nil?
     score = score_with_context[:score]
@@ -510,6 +515,7 @@ class Bot::Alegre < BotUser
       r = Relationship.new
       r.skip_check_ability = true
       r.relationship_type = relationship_type
+      r.model = self.get_indexing_model(source)
       r.weight = score
       r.details = context
       r.source_id = source.id
