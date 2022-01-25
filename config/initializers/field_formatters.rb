@@ -20,7 +20,7 @@ DynamicAnnotation::Field.class_eval do
   end
 
   def field_formatter_type_url
-    url = JSON.parse(self.value).url
+    urls = self.value.map { |item| item['url'] }.join(",")
   end
 
   def field_formatter_type_datetime
@@ -33,7 +33,7 @@ DynamicAnnotation::Field.class_eval do
     I18n.l(DateTime.parse(self.value), format: :task).gsub('[TZ]', abbr)
   end
 
-  ['free_text', 'yes_no', 'single_choice', 'multiple_choice', 'geolocation', 'datetime', 'file_upload', 'number'].each do |type|
+  ['free_text', 'yes_no', 'single_choice', 'multiple_choice', 'geolocation', 'datetime', 'file_upload', 'number', 'url'].each do |type|
     define_method "field_formatter_name_suggestion_#{type}" do
       JSON.parse(self.value)['suggestion']
     end

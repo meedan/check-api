@@ -14,12 +14,10 @@ DynamicAnnotation::Field.class_eval do
 
   def field_validator_type_url
     errormsg = I18n.t(:url_invalid_value)
-    begin
-      json = JSON.parse(self.value)
-      url = json.url
-      url.is_a?(URI::HTTP) && !url.host.nil?
-    rescue
-      errors.add(:base, errormsg)
+    urls = self.value
+    urls.each do |item|
+      url = URI.parse(item['url'])
+      errors.add(:base, errormsg + ' ' + url.to_s) unless url.is_a?(URI::HTTP) && !url.host.nil?
     end
   end
 
