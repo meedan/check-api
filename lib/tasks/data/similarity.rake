@@ -7,12 +7,12 @@ namespace :check do
       # Accepted suggestions
       puts 'Extracting data for accepted suggestions to /tmp/accepted.csv...'
       o = File.open('/tmp/accepted.csv', 'w+')
-      o.puts('Workspace Slug,Weight,Main Item ID,Main Item Type,Secondary Item ID,Secondary Item Type,Timestamp')
+      o.puts('Workspace Slug,Model,Weight,Main Item ID,Main Item Field,Main Item Type,Secondary Item ID,Secondary Item Field,Secondary Item Type,Relationship Metadata,Timestamp')
       i = 0
       Relationship.where('relationship_type = ?', Relationship.confirmed_type.to_yaml).where(user: BotUser.alegre_user).where('confirmed_by IS NOT NULL').find_each do |r|
         i += 1
         puts("Relationship #{i}")
-        o.puts([r.source.team.slug, r.weight, r.source_id, r.source.media.type, r.target_id, r.target.media.type, r.created_at].join(','))
+        o.puts([r.source.team.slug, r.model, r.weight, r.source_id, r.source_field, r.source.media.type, r.target_id, r.target_field, r.target.media.type, r.details, r.created_at].join(','))
       end
       o.close
 
@@ -38,12 +38,12 @@ namespace :check do
       # Manually created matches
       puts 'Extracting data for manual matches to /tmp/manual.csv...'
       o = File.open('/tmp/manual.csv', 'w+')
-      o.puts('Workspace Slug,Weight,Main Item ID,Main Item Type,Secondary Item ID,Secondary Item Type,Timestamp')
+      o.puts('Workspace Slug,Model,Weight,Main Item ID,Main Item Field,Main Item Type,Secondary Item ID,Secondary Item Field,Secondary Item Type,Relationship Metadata,Timestamp')
       i = 0
       Relationship.where('relationship_type = ?', Relationship.confirmed_type.to_yaml).where.not(user: BotUser.alegre_user).find_each do |r|
         i += 1
         puts("Relationship #{i}")
-        o.puts([r.source.team.slug, r.weight, r.source_id, r.source.media.type, r.target_id, r.target.media.type, r.created_at].join(','))
+        o.puts([r.source.team.slug, r.model, r.weight, r.source_id, r.source_field, r.source.media.type, r.target_id, r.target_field, r.target.media.type, r.details, r.created_at].join(','))
       end
       o.close
 
@@ -69,13 +69,13 @@ namespace :check do
       # Suggestions
       puts 'Extracting data for suggestions to /tmp/suggestions.csv...'
       o = File.open('/tmp/suggestions.csv', 'w+')
-      o.puts('Workspace Slug,Weight,Main Item ID,Main Item Type,Secondary Item ID,Secondary Item Type,Timestamp')
+      o.puts('Workspace Slug,Model,Weight,Main Item ID,Main Item Field,Main Item Type,Secondary Item ID,Secondary Item Field,Secondary Item Type,Relationship Metadata,Timestamp')
       i = 0
       Relationship.where('relationship_type = ?', Relationship.suggested_type.to_yaml).find_each do |r|
         i += 1
         puts("Relationship #{i}")
         next if r.source.nil? || r.target.nil?
-        o.puts([r.source.team.slug, r.weight, r.source_id, r.source.media.type, r.target_id, r.target.media.type, r.created_at].join(','))
+        o.puts([r.source.team.slug, r.model, r.weight, r.source_id, r.source_field, r.source.media.type, r.target_id, r.target_field, r.target.media.type, r.details, r.created_at].join(','))
       end
       o.close
     end
