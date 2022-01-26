@@ -32,7 +32,10 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :project_group, ProjectGroupType
   field :show_warning_cover, types.Boolean
   field :creator_name, types.String
+  field :team_name, types.String
   field :channel, types.Int
+  field :cluster_size, types.Int
+  field :cluster_team_names, types[types.String]
   field :is_read, types.Boolean do
     argument :by_me, types.Boolean
 
@@ -313,6 +316,12 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   connection :similar_items, -> { ProjectMediaType.connection_type } do
     resolve -> (project_media, _args, _ctx) {
       project_media.similar_items
+    }
+  end
+
+  connection :cluster_items, -> { ProjectMediaType.connection_type } do
+    resolve -> (project_media, _args, _ctx) {
+      User.current&.is_admin ? project_media.cluster_items : []
     }
   end
 end

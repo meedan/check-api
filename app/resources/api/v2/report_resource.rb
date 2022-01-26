@@ -27,7 +27,7 @@ module Api
       attribute :report_text_content
 
       def score
-        RequestStore.store[:scores] ? RequestStore.store[:scores][@model.id].to_f : nil
+        RequestStore.store[:scores] ? RequestStore.store[:scores][@model.id][:score].to_f : nil
       end
 
       def self.records(options = {})

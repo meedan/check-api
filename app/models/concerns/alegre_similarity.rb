@@ -5,7 +5,7 @@ module AlegreSimilarity
 
   module ClassMethods
     def translate_similar_items(similar_items, relationship_type)
-      Hash[similar_items.collect{|k,v| [k, {score: v, relationship_type: relationship_type}]}]
+      Hash[similar_items.collect{|k,v| [k, v.merge(relationship_type: relationship_type)]}]
     end
 
     def should_get_similar_items_of_type?(type, team_id)
@@ -15,22 +15,20 @@ module AlegreSimilarity
     end
 
     def get_similar_items(pm)
-      type = nil
-      if pm.is_text?
-        type = 'text'
-      elsif pm.is_image?
-        type = 'image'
-      elsif pm.is_video?
-        type = 'video'
-      elsif pm.is_audio?
-        type = 'audio'
-      end
+      Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 1/5] Getting similar items"
+      type = self.get_pm_type(pm)
+      Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 2/5] Type is #{type.blank? ? "blank" : type}"
       unless type.blank?
-        return {} if !self.should_get_similar_items_of_type?('master', pm.team_id) || !self.should_get_similar_items_of_type?(type, pm.team_id)
+        if !self.should_get_similar_items_of_type?('master', pm.team_id) || !self.should_get_similar_items_of_type?(type, pm.team_id)
+          Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 3/5] ProjectMedia cannot be checked for similar items"
+          return {}
+        else
+          Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 3/5] ProjectMedia can be checked for similar items"
+        end
         suggested_or_confirmed = self.get_items_with_similarity(type, pm, self.get_threshold_for_query(type, pm))
-        Rails.logger.info("[Alegre Bot] suggested_or_confirmed for #{pm.id} is #{suggested_or_confirmed.inspect}")
+        Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 4/5] suggested_or_confirmed for #{pm.id} is #{suggested_or_confirmed.inspect}")
         confirmed = self.get_items_with_similarity(type, pm, self.get_threshold_for_query(type, pm, true))
-        Rails.logger.info("[Alegre Bot] confirmed for #{pm.id} is #{confirmed.inspect}")
+        Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 5/5] confirmed for #{pm.id} is #{confirmed.inspect}")
         self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
       else
         {}
@@ -41,16 +39,49 @@ module AlegreSimilarity
       if type == 'text'
         self.get_merged_items_with_similar_text(pm, threshold)
       else
-        results = self.get_items_with_similar_media(self.media_file_url(pm), threshold, pm.team_id, "/#{type}/similarity/", query_or_body)
-        results.reject{ |id, _score| pm.id == id }
+        results = self.get_items_with_similar_media(self.media_file_url(pm), threshold, pm.team_id, "/#{type}/similarity/", query_or_body).reject{ |id, _score_with_context| pm.id == id }
+        self.merge_response_with_source_and_target_fields(results, type)
       end
     end
 
+    def get_pm_type(pm)
+      type = nil
+      if pm.is_text?
+        type = 'text'
+      elsif pm.is_image?
+        type = 'image'
+      elsif pm.is_video?
+        type = 'video'
+      elsif pm.is_audio?
+        type = 'audio'
+      end
+      return type
+    end
+
+    def get_pm_type_given_response(pm, response)
+      base_type = self.get_pm_type(pm)
+      if base_type == "text"
+        raise if response[pm.id][:context]["field"].nil?
+        return response[pm.id][:context]["field"] || base_type
+      else
+        return base_type
+      end
+    end
+
+    def get_target_field_map(response)
+      project_media_type_map = Hash[ProjectMedia.where(id: response.keys).collect{|pm| [pm.id, self.get_pm_type_given_response(pm, response)]}]
+      Hash[response.collect{|k,v| [k, v.merge(target_field: project_media_type_map[k])]}]
+    end
+
+    def merge_response_with_source_and_target_fields(response, source_field)
+      self.get_target_field_map(Hash[response.collect{|k,v| [k, v.merge(source_field: source_field)]}])
+    end
+
     def get_merged_items_with_similar_text(pm, threshold)
-      by_title = self.get_items_with_similar_title(pm, threshold)
-      by_description = self.get_items_with_similar_description(pm, threshold)
+      by_title = self.merge_response_with_source_and_target_fields(self.get_items_with_similar_title(pm, threshold), "original_title")
+      by_description = self.merge_response_with_source_and_target_fields(self.get_items_with_similar_description(pm, threshold), "original_description")
       Hash[(by_title.keys|by_description.keys).collect do |pmid|
-        [pmid, [by_title[pmid].to_f, by_description[pmid].to_f].max]
+        [pmid, [by_title[pmid], by_description[pmid]].compact.sort_by{|x| x[:score]}.last]
       end]
     end
 
@@ -160,19 +191,19 @@ module AlegreSimilarity
     def get_similar_items_from_api(path, conditions, _threshold={}, query_or_body = 'body' )
       Rails.logger.error("[Alegre Bot] Sending request to alegre : #{path} , #{conditions.to_json}")
       response = {}
-      result = self.request_api('get', path, conditions, query_or_body).dig('result')
+      result = self.request_api('get', path, conditions, query_or_body)&.dig('result')
       project_medias = result.collect{ |r| self.extract_project_medias_from_context(r) } if !result.nil? && result.is_a?(Array)
       project_medias.each do |request_response|
-        request_response.each do |pmid, score|
-          response[pmid] = score
+        request_response.each do |pmid, score_with_context|
+          response[pmid] = score_with_context
         end
       end unless project_medias.nil?
-      response.reject{ |id, _score| id.blank? }
+      response.reject{ |id, _score_with_context| id.blank? }
     end
 
     def get_items_with_similar_text(pm, field, threshold, text, model = nil)
       model ||= self.matching_model_to_use(pm)
-      self.get_items_from_similar_text(pm.team_id, text, field, threshold, model).reject{ |id, _score| pm.id == id }
+      self.get_items_from_similar_text(pm.team_id, text, field, threshold, model).reject{ |id, _score_with_context| pm.id == id }
     end
 
     def similar_texts_from_api_conditions(text, model, fuzzy, team_id, field, threshold, match_across_content_types=true)

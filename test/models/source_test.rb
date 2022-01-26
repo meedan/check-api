@@ -52,7 +52,7 @@ class SourceTest < ActiveSupport::TestCase
       s = create_source
       s.slogan = 'test'
       s.save!
-      assert_equal 3, s.versions.size
+      assert_equal 2, s.versions.size
     end
   end
 
