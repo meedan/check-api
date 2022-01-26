@@ -316,6 +316,12 @@ module ProjectMediaCachedFields
       recalculate: proc { |pm| pm.lead_image },
       update_on: [] # Never changes
 
+    cached_field :team_name,
+      start_as: proc { |pm| pm.team.name },
+      update_es: false,
+      recalculate: proc { |pm| pm.team.name },
+      update_on: [] # Never changes
+
     cached_field :creator_name,
       start_as: proc { |pm| pm.get_creator_name },
       update_es: true,

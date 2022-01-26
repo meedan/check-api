@@ -99,7 +99,7 @@ module ProjectAssociation
         'read' => obj.read.to_i,
         'published_at' => obj.published_at,
         'source_id' => obj.source_id,
-        'project_id' => obj.project_id,
+        'project_id' => obj.project_id
       }
       options = { keys: keys, data: data, obj: obj }
       ElasticSearchWorker.perform_in(1.second, YAML::dump(obj), YAML::dump(options), 'update_doc')

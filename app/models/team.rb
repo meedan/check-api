@@ -535,6 +535,11 @@ class Team < ApplicationRecord
         key: 'creator_name',
         label: I18n.t(:list_column_creator_name),
         show: false
+      },
+      {
+        key: 'team_name',
+        label: I18n.t(:list_column_team_name),
+        show: false
       }
     ]
   end

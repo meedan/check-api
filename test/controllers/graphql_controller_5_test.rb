@@ -301,8 +301,10 @@ class GraphqlController5Test < ActionController::TestCase
   test "should find similar items to text item" do
     t = create_team
     p = create_project team: t
-    pm = create_project_media project: p
-    pm2 = create_project_media project: p
+    m = create_claim_media quote: 'This is a test'
+    m2 = create_claim_media quote: 'Foo bar'
+    pm = create_project_media project: p, media: m
+    pm2 = create_project_media project: p, media: m2
     Bot::Alegre.stubs(:get_similar_texts).returns({ pm2.id => 0.9, pm.id => 0.8 })
 
     query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") { similar_items(first: 10000) { edges { node { dbid } } } } }'
@@ -397,6 +399,21 @@ class GraphqlController5Test < ActionController::TestCase
     log = JSON.parse(@response.body)['data']['project_media']['log']['edges'].collect{ |e| e['node'] }
     assert_equal 1, log.size
     assert_equal 'verification_status', log[0]['annotation']['annotation_type']
+  end
+
+  test "should get cluster items" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    c = create_cluster project_media: pm
+    c.project_medias << pm
+    c.project_medias << create_project_media
+    authenticate_with_user(u)
+    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") {  cluster_items { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 2, JSON.parse(@response.body)['data']['project_media']['cluster_items']['edges'].size
   end
 
   protected

@@ -335,7 +335,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     CheckPusher::Worker.drain
     assert_equal 0, CheckPusher::Worker.jobs.size
     create_project_media project: p
-    assert_equal 7, CheckPusher::Worker.jobs.size
+    assert_equal 2, CheckPusher::Worker.jobs.size
     CheckPusher::Worker.drain
     assert_equal 0, CheckPusher::Worker.jobs.size
     Rails.unstub(:env)
@@ -2228,18 +2228,24 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
-      old = create_project_media team: t, media: Blank.create!
+      old = create_project_media team: t, media: Blank.create!, channel: CheckChannels::ChannelCodes::FETCH
+      old.analysis = { title: 'old title' }
       old_r = publish_report(old)
       old_s = old.last_status_obj
-      new = create_project_media team: t
+      new = create_project_media quote: 'new title', team: t
       new_r = publish_report(new)
       new_s = new.last_status_obj
-      old.replace_by(new)
+      Sidekiq::Testing.inline! do
+        old.replace_by(new)
+      end
       assert_nil ProjectMedia.find_by_id(old.id)
       assert_nil Annotation.find_by_id(new_s.id)
       assert_nil Annotation.find_by_id(new_r.id)
       assert_equal old_r, new.get_dynamic_annotation('report_design')
       assert_equal old_s, new.get_dynamic_annotation('verification_status')
+      new = new.reload
+      assert_equal 'new title', new.title
+      assert_equal CheckChannels::ChannelCodes::FETCH, new.channel
     end
   end
 
@@ -2702,5 +2708,28 @@ class ProjectMediaTest < ActiveSupport::TestCase
     result = $repository.find(get_es_id(pm2_s))
     result['archived'] = CheckArchivedFlags::FlagCodes::NONE
     result['project_id'] = p.id
+  end
+
+  test "should get cluster size" do
+    pm = create_project_media
+    assert_nil pm.reload.cluster_size
+    c = create_cluster
+    c.project_medias << pm
+    assert_equal 1, pm.reload.cluster_size
+    c.project_medias << create_project_media
+    assert_equal 2, pm.reload.cluster_size
+  end
+
+  test "should get cluster teams" do
+    t1 = create_team
+    t2 = create_team
+    pm1 = create_project_media team: t1
+    assert_nil pm1.cluster_team_names
+    c = create_cluster project_media: pm1
+    c.project_medias << pm1
+    assert_equal [t1.name], pm1.cluster_team_names
+    pm2 = create_project_media team: t2
+    c.project_medias << pm2
+    assert_equal [t1.name, t2.name].sort, pm1.cluster_team_names.sort
   end
 end

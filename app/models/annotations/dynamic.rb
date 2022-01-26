@@ -147,7 +147,7 @@ class Dynamic < ApplicationRecord
         else
           # OP will be update for choices tasks as it's already created in TASK model(add_elasticsearch_task)
           op = self.annotation_type =~ /choice/ ? 'update' : op
-          keys = %w(id team_task_id value field_type fieldset date_value)
+          keys = %w(id team_task_id value field_type fieldset date_value numeric_value)
           self.add_update_nested_obj({op: op, obj: pm, nested_key: 'task_responses', keys: keys})
         end
       end

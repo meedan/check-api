@@ -79,6 +79,7 @@ class MediaSearch
         field_type: { type: 'text' },
         team_task_id: { type: 'integer' },
         value: { type: 'text', analyzer: 'check', fields: { raw: { type: 'text', analyzer: 'keyword' } } },
+        numeric_value: { type: 'integer' },
         date_value: { type: 'date' },
       }
     }
@@ -120,5 +121,7 @@ class MediaSearch
     indexes :extracted_text, { type: 'text', analyzer: 'check' }
 
     indexes :creator_name, { type: 'keyword', normalizer: 'check', fields: { raw: { type: 'text', analyzer: 'check' } } }
+
+    indexes :cluster_size, { type: 'long' }
   end
 end

@@ -69,7 +69,7 @@ module AnnotationBase
     notifies_pusher on: :save,
                     if: proc { |a| ['ProjectMedia', 'Source'].include?(a.annotated_type) && !['slack_message', 'smooch_response'].include?(a.annotation_type) && !a.skip_notifications },
                     event: proc { |a| a.annotated_type == 'ProjectMedia' ? 'media_updated' : 'source_updated'},
-                    targets: proc { |a| a.annotated_type == 'ProjectMedia' ? [a.annotated.media] : [a.annotated] },
+                    targets: proc { |a| a.annotated_type == 'ProjectMedia' ? [a.annotated&.media] : [a.annotated] },
                     data: proc { |a| a = Annotation.where(id: a.id).last; a.nil? ? a.to_json : a.load.to_json }
 
     before_validation :remove_null_bytes, :set_type_and_event, :set_annotator
@@ -77,7 +77,6 @@ module AnnotationBase
     after_create :notify_team_bots_create
     after_update :notify_team_bots_update, :notify_bot_author
     after_save :touch_annotated, unless: proc { |a| a.is_being_copied }
-    after_destroy :touch_annotated
 
     has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities, :lock_version], if: proc { |a| (User.current.present? && !a.is_being_copied) || a.force_version }, versions: { class_name: 'Version' }
 
@@ -101,7 +100,7 @@ module AnnotationBase
 
     def touch_annotated
       annotated = self.annotated
-      if !annotated.nil? && !annotated.is_a?(Project)
+      if !annotated.nil? && annotated.is_a?(Link)
         annotated.skip_check_ability = annotated.skip_notifications = true # the notification will be triggered by the annotation already
         annotated.skip_clear_cache = self.skip_clear_cache
         annotated.updated_at = Time.now

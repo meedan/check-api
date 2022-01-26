@@ -25,7 +25,7 @@ module CheckElasticSearch
 
   def update_elasticsearch_doc(keys, data = {}, obj = nil)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    options = {keys: keys, data: data}
+    options = { keys: keys, data: data }
     options[:obj] = obj unless obj.nil?
     ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_doc')
   end
@@ -140,6 +140,7 @@ module CheckElasticSearch
         end
         data = { value: value, field_type: field.field_type }
         data.merge!({ date_value: DateTime.parse(field.value).utc }) if field.field_name =~ /datetime/
+        data.merge!({ numeric_value: field.value.to_i }) if field.field_name =~ /number/
         task = self.annotated
         if task.respond_to?(:annotation_type) && task.annotation_type == 'task'
           data.merge!({ id: task.id, team_task_id: task.team_task_id, fieldset: task.fieldset })

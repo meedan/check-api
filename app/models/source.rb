@@ -104,6 +104,7 @@ class Source < ApplicationRecord
       a.refresh_metadata
       a.skip_check_ability = true
       a.save!
+      a.touch # call this method to set updated_at with current time
     end
     self.update_from_pender_data(self.accounts.first.data)
     self.updated_at = Time.now

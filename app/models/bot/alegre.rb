@@ -14,26 +14,33 @@ class Bot::Alegre < BotUser
   ::ProjectMedia.class_eval do
     attr_accessor :alegre_similarity_thresholds, :alegre_matched_fields
 
-    def similar_items
-      ids = [0]
-      team_ids = User.current&.is_admin? ? Team.where.not(country: nil).map(&:id) : [self.team_id]
+    def similar_items_ids_and_scores(team_ids)
+      ids_and_scores = {}
       if self.is_media?
         media_type = {
           'UploadedVideo' => 'video',
           'UploadedAudio' => 'audio',
           'UploadedImage' => 'image',
         }[self.media.type]
-        threshold = Bot::Alegre.get_threshold_for_query(media_type, self)[:value]
-        ids = Bot::Alegre.get_items_with_similar_media(Bot::Alegre.media_file_url(self), { value: threshold }, team_ids, "/#{media_type}/similarity/").to_h.keys
+        threshold = Bot::Alegre.get_threshold_for_query(media_type, self, true)[:value]
+        ids_and_scores = Bot::Alegre.get_items_with_similar_media(Bot::Alegre.media_file_url(self), { value: threshold }, team_ids, "/#{media_type}/similarity/").to_h
       elsif self.is_text?
-        ids = []
+        ids_and_scores = {}
         threads = []
         ALL_TEXT_SIMILARITY_FIELDS.each do |field|
-          threads << Thread.new { ids << Bot::Alegre.get_similar_texts(team_ids, self.send(field)).to_h.keys }
+          text = self.send(field)
+          next if text.blank?
+          threads << Thread.new { ids_and_scores.merge!(Bot::Alegre.get_similar_texts(team_ids, text).to_h) }
         end
         threads.map(&:join)
-        ids = ids.flatten.uniq
       end
+      ids_and_scores.delete(self.id)
+      ids_and_scores
+    end
+
+    def similar_items
+      team_ids = User.current&.is_admin? ? ProjectMedia.where.not(cluster_id: nil).group(:team_id).count.keys : [self.team_id]
+      ids = self.similar_items_ids_and_scores(team_ids).keys.flatten.uniq
       ProjectMedia.where(id: ids.empty? ? [0] : ids.reject{ |id| id == self.id })
     end
   end
@@ -66,11 +73,11 @@ class Bot::Alegre < BotUser
         matches = Bot::Alegre.get_items_with_similar_description(pm, Bot::Alegre.get_threshold_for_query('text', pm), text).max_by{ |_pm_id, score| score }
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] An annotation of type #{type} was saved, so the items with similar description to #{pm.id} (text is '#{text}') are: #{matches.inspect}")
         unless matches.nil?
-          match_id, score = matches
+          match_id, score_with_context = matches
           match = ProjectMedia.find_by_id(match_id)
           existing_parent = Relationship.where(target_id: match_id).where('relationship_type IN (?)', [Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml]).first
           parent = existing_parent.nil? ? match : existing_parent.source
-          Bot::Alegre.create_relationship(parent, pm, score, Relationship.suggested_type)
+          Bot::Alegre.create_relationship(parent, pm, score_with_context, Relationship.suggested_type)
         end
       end
     end
@@ -137,6 +144,7 @@ class Bot::Alegre < BotUser
         self.relate_project_media_to_similar_items(pm)
         self.get_flags(pm)
         self.auto_transcription(pm)
+        self.set_cluster(pm)
         handled = true
       end
     rescue StandardError => e
@@ -149,7 +157,26 @@ class Bot::Alegre < BotUser
     handled
   end
 
+  def self.set_cluster(pm)
+    team_ids = ProjectMedia.where.not(cluster_id: nil).group(:team_id).count.keys
+    pm = ProjectMedia.find(pm.id)
+    return if !pm.cluster_id.blank? || !team_ids.include?(pm.team_id)
+    ids_and_scores = pm.similar_items_ids_and_scores(team_ids)
+    main_id = ids_and_scores.key(ids_and_scores.values.max)
+    main = ProjectMedia.find_by_id(main_id.to_i)
+    cluster = main&.cluster
+    unless cluster
+      cluster = Cluster.new
+      cluster.project_media = pm
+      cluster.skip_check_ability = true
+      cluster.save!
+    end
+    cluster.project_medias << pm
+    cluster
+  end
+
   def self.get_items_from_similar_text(team_id, text, field = nil, threshold = nil, model = nil, fuzzy = false)
+    return {} if text.blank?
     field ||= (['original_title', 'original_description'] + REPORT_TEXT_SIMILARITY_FIELDS).flatten
     threshold ||= self.get_threshold_for_query('text', nil, true)
     model ||= self.matching_model_to_use(ProjectMedia.new(team_id: team_id))
@@ -394,7 +421,7 @@ class Bot::Alegre < BotUser
     elsif context.kind_of?(Hash)
       pms.push(context.with_indifferent_access.dig('project_media_id'))
     end
-    Hash[pms.flatten.collect{ |pm| [pm.to_i, self.get_score_from_image_or_text_response(search_result)] }]
+    Hash[pms.flatten.collect{ |pm| [pm.to_i, {score: self.get_score_from_image_or_text_response(search_result), context: context}] }]
   end
 
   def self.get_context_from_image_or_text_response(search_result)
@@ -417,6 +444,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.add_relationships(pm, pm_id_scores)
+    Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 1/6] Adding relationships for #{pm_id_scores.inspect}"
     return if pm_id_scores.blank? || pm_id_scores.keys.include?(pm.id)
 
     # Take first match as being the best potential parent.
@@ -427,9 +455,10 @@ class Bot::Alegre < BotUser
 
     parent_id = pm_id_scores.keys.sort[0]
     parent_relationships = Relationship.where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).where(target_id: parent_id).all
+    Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 2/6] Number of parent relationships #{parent_relationships.count}"
     if parent_relationships.length > 0
       # Sanity check: if there are multiple parents, something is wrong in the dataset.
-      self.notify_error(StandardError.new("[Alegre Bot] Found multiple similarity relationship parents for ProjectMedia #{parent_id}"), {}, RequestStore[:request]) if parent_relationships.length > 1
+      self.notify_error(StandardError.new("[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships ERROR] Found multiple similarity relationship parents for ProjectMedia #{parent_id}"), {}, RequestStore[:request]) if parent_relationships.length > 1
       # Take the first source as the parent (A).
       # 1. A is confirmed to B and C is suggested to B: type of the relationship between A and C is: suggested
       # 2. A is confirmed to B and C is confirmed to B: type of the relationship between A and C is: confirmed
@@ -445,7 +474,7 @@ class Bot::Alegre < BotUser
       pm_id_scores[parent_id] = pm_id_scores[original_parent_id]
       pm_id_scores[parent_id][:relationship_type] = new_type if pm_id_scores[parent_id]
     end
-
+    Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 3/6] Adding relationship for following pm_id, pm_id_scores, parent_id #{[pm.id, pm_id_scores, parent_id].inspect}"
     self.add_relationship(pm, pm_id_scores, parent_id)
   end
 
@@ -455,15 +484,26 @@ class Bot::Alegre < BotUser
     parent = ProjectMedia.find_by_id(parent_id)
     return false if parent.nil?
     if parent.is_blank?
-      self.create_relationship(parent, pm, pm_id_scores[parent_id][:score], Relationship.suggested_type)
+      Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 4/6] Parent is blank, creating suggested relationship"
+      self.create_relationship(parent, pm, pm_id_scores[parent_id], Relationship.suggested_type)
     elsif pm_id_scores[parent_id]
       relationship_type = self.set_relationship_type(pm, pm_id_scores, parent)
-      self.create_relationship(parent, pm, pm_id_scores[parent_id][:score], relationship_type)
+      Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 4/6] Parent is blank, creating relationship of #{relationship_type.inspect}"
+      self.create_relationship(parent, pm, pm_id_scores[parent_id], relationship_type)
     end
   end
 
-  def self.create_relationship(source, target, weight, relationship_type)
+  def self.get_indexing_model(pm)
+    type = self.get_pm_type(pm)
+    type == "text" ? self.indexing_model_to_use(pm) : type
+  end
+
+  def self.create_relationship(source, target, score_with_context, relationship_type)
     return if source.nil? || target.nil?
+    score = score_with_context[:score]
+    context = score_with_context[:context]
+    source_field = score_with_context[:source_field]
+    target_field = score_with_context[:target_field]
     r = Relationship.where(source_id: source.id, target_id: target.id)
     .where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).last
     if r.nil?
@@ -475,21 +515,29 @@ class Bot::Alegre < BotUser
       r = Relationship.new
       r.skip_check_ability = true
       r.relationship_type = relationship_type
-      r.weight = weight
+      r.model = self.get_indexing_model(source)
+      r.weight = score
+      r.details = context
       r.source_id = source.id
       r.target_id = target.id
+      r.source_field = source_field
+      r.target_field = target_field
       r.user_id ||= BotUser.alegre_user&.id
       r.save!
+      Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Created new relationship for relationship ID Of #{r.id}"
     elsif r.relationship_type != relationship_type && r.relationship_type == Relationship.suggested_type
+      Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Upgrading relationship from suggested to confirmed for relationship ID of #{r.id}"
       # confirm existing relation if a new one is confirmed
       r.relationship_type = relationship_type
       r.save!
     end
+    message_type = r.is_confirmed? ? 'related_to_confirmed_similar' : 'related_to_suggested_similar'
+    message_opts = {item_title: target.title, similar_item_title: source.title}
     CheckNotification::InfoMessages.send(
-      r.is_confirmed? ? 'related_to_confirmed_similar' : 'related_to_suggested_similar',
-      item_title: target.title,
-      similar_item_title: source.title
+      message_type,
+      message_opts
     )
+    Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 6/6] Sent Check notification with message type and opts of #{[message_type, message_opts].inspect}"
     r
   end
 
