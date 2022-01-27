@@ -542,8 +542,8 @@ class Team < ApplicationRecord
         show: false
       },
       {
-        key: 'source',
-        label: I18n.t(:list_column_source_name),
+        key: 'sources_as_sentence',
+        label: I18n.t(:list_column_sources_as_sentence),
         show: false
       }
     ]

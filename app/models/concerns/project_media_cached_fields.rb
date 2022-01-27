@@ -210,6 +210,28 @@ module ProjectMediaCachedFields
         }
       ]
 
+    cached_field :sources_as_sentence,
+      start_as: proc { |_pm| '' },
+      recalculate: proc { |pm| [pm.source&.name].join(', ') },
+      update_on: [
+        {
+          model: ProjectMedia,
+          affected_ids: proc { |pm| [pm.id] },
+          if: proc { |pm| pm.saved_change_to_source_id? },
+          events: {
+            save: :recalculate,
+          }
+        },
+        {
+          model: Relationship,
+          affected_ids: proc { |r| [r.source_id] },
+          events: {
+            create: :recalculate,
+            destroy: :recalculate
+          }
+        }
+      ]
+
     cached_field :media_published_at,
       start_as: proc { |pm| pm.published_at.to_i },
       update_es: true,
