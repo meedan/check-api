@@ -2223,16 +2223,16 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should replace a blank project media by another project media" do
-    create_verification_status_stuff
+    setup_elasticsearch
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
-      old = create_project_media team: t, media: Blank.create!, channel: CheckChannels::ChannelCodes::FETCH
-      old.analysis = { title: 'old title' }
+      old = create_project_media team: t, media: Blank.create!, channel: CheckChannels::ChannelCodes::FETCH, disable_es_callbacks: false
+      old.analysis = { title: 'imported item' }
       old_r = publish_report(old)
       old_s = old.last_status_obj
-      new = create_project_media quote: 'new title', team: t
+      new = create_project_media team: t, media: create_uploaded_video, disable_es_callbacks: false
       new_r = publish_report(new)
       new_s = new.last_status_obj
       Sidekiq::Testing.inline! do
@@ -2244,8 +2244,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_equal old_r, new.get_dynamic_annotation('report_design')
       assert_equal old_s, new.get_dynamic_annotation('verification_status')
       new = new.reload
-      assert_equal 'new title', new.title
+      assert_equal 'imported item', new.analysis['title']
       assert_equal CheckChannels::ChannelCodes::FETCH, new.channel
+      # Verify ES
+      result = $repository.find(get_es_id(new))
+      assert_equal CheckChannels::ChannelCodes::FETCH, result['channel']
+      assert_equal 'imported item', result['analysis_title']
     end
   end
 
@@ -2546,7 +2550,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should run callbacks for bulk-update status" do
     ProjectMedia.stubs(:clear_caches).returns(nil)
     setup_elasticsearch
-    create_verification_status_stuff
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
