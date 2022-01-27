@@ -248,7 +248,7 @@ class ProjectMedia < ApplicationRecord
     elsif self.media.media_type != 'blank'
       raise I18n.t(:replace_blank_media_only)
     else
-      self.apply_replace_by(self, new_pm)
+      self.delay.apply_replace_by(self, new_pm)
     end
   end
 
