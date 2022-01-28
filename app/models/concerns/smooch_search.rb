@@ -48,7 +48,7 @@ module SmoochSearch
 
     def parse_search_results_from_alegre(results, team_id)
       after = self.date_filter(team_id)
-      results.sort{ |a, b| a[1] <=> b[1] }.to_h.keys.reverse.collect{ |id| ProjectMedia.find(id) }.select{ |pm| pm.report_status == 'published' && pm.updated_at.to_i > after.to_i && !pm.analysis_published_article_url.blank? }.last(3)
+      results.sort{ |a, b| a[1][:score] <=> b[1][:score] }.to_h.keys.reverse.collect{ |id| ProjectMedia.find(id) }.select{ |pm| pm.report_status == 'published' && pm.updated_at.to_i > after.to_i && !pm.analysis_published_article_url.blank? }.last(3)
     end
 
     def date_filter(team_id)

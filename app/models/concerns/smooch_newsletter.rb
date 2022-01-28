@@ -53,7 +53,6 @@ module SmoochNewsletter
         s.destroy!
         self.send_final_message_to_user(uid, self.get_menu_string('message_unsubscribed', language), workflow, language)
       end
-      sm.reset
       self.clear_user_bundled_messages(uid)
     end
 
