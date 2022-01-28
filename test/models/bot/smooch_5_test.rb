@@ -153,7 +153,9 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
       assert_equal 5, text.size
       assert_equal '1', text.last
       send_message_to_smooch_bot(random_string, uid)
+      assert_equal 'main', sm.state.value
       send_message_to_smooch_bot(random_string, uid)
+      assert_equal 'main', sm.state.value
       Time.stubs(:now).returns(now + 30.minutes)
       assert_difference 'Annotation.where(annotation_type: "smooch").count', 1 do
         Sidekiq::Worker.drain_all
