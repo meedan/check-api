@@ -43,7 +43,7 @@ namespace :check do
           f.write({
             source_team_slug: source.team.slug,
             model: r["model"],
-            weight: r["weight",
+            weight: r["weight"],
             source_id: source.id,
             source_field: r["source_field"],
             source_media_type: source.media.type,
@@ -96,7 +96,7 @@ namespace :check do
           f.write({
             source_team_slug: source.team.slug,
             model: r["model"],
-            weight: r["weight",
+            weight: r["weight"],
             source_id: source.id,
             source_field: r["source_field"],
             source_media_type: source.media.type,
