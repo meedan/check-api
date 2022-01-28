@@ -80,7 +80,8 @@ module SmoochNewsletter
       timezone = newsletter['smooch_newsletter_timezone'].to_s.upcase
       # Mapping for timezones not supported by Ruby's DateTime
       timezone = {
-        'PHT' => '+0800'
+        'PHT' => '+0800',
+        'CAT' => '+0200'
       }[timezone] || timezone
       time_set = DateTime.parse("#{hour}:00 #{timezone}")
       time_utc = time_set.utc

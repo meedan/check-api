@@ -426,6 +426,38 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
       'smooch_newsletter_day' => 'sunday'
     }
     assert_equal '0 23 * * 6', Bot::Smooch.newsletter_cron(settings)
+
+    # CET
+    settings = {
+      'smooch_newsletter_time' => '10',
+      'smooch_newsletter_timezone' => 'CET',
+      'smooch_newsletter_day' => 'friday'
+    }
+    assert_equal '0 9 * * 5', Bot::Smooch.newsletter_cron(settings)
+
+    # CAT
+    settings = {
+      'smooch_newsletter_time' => '10',
+      'smooch_newsletter_timezone' => 'CAT',
+      'smooch_newsletter_day' => 'friday'
+    }
+    assert_equal '0 8 * * 5', Bot::Smooch.newsletter_cron(settings)
+
+    # CST
+    settings = {
+      'smooch_newsletter_time' => '10',
+      'smooch_newsletter_timezone' => 'CST',
+      'smooch_newsletter_day' => 'friday'
+    }
+    assert_equal '0 16 * * 5', Bot::Smooch.newsletter_cron(settings)
+
+    # EST
+    settings = {
+      'smooch_newsletter_time' => '10',
+      'smooch_newsletter_timezone' => 'EST',
+      'smooch_newsletter_day' => 'friday'
+    }
+    assert_equal '0 15 * * 5', Bot::Smooch.newsletter_cron(settings)
   end
 
   test "should not timeout after subscribing to newsletter" do
