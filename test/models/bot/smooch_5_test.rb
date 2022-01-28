@@ -155,7 +155,9 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
       assert_equal 5, text.size
       assert_equal '1', text.last
       send_message_to_smooch_bot(random_string, uid)
+      assert_equal 'main', sm.state.value
       send_message_to_smooch_bot(random_string, uid)
+      assert_equal 'main', sm.state.value
       Time.stubs(:now).returns(now + 30.minutes)
       assert_difference 'Annotation.where(annotation_type: "smooch").count', 1 do
         Sidekiq::Worker.drain_all
@@ -336,5 +338,61 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
       'smooch_newsletter_day' => 'sunday'
     }
     assert_equal '0 23 * * 6', Bot::Smooch.newsletter_cron(settings)
+
+    # CET
+    settings = {
+      'smooch_newsletter_time' => '10',
+      'smooch_newsletter_timezone' => 'CET',
+      'smooch_newsletter_day' => 'friday'
+    }
+    assert_equal '0 9 * * 5', Bot::Smooch.newsletter_cron(settings)
+
+    # CAT
+    settings = {
+      'smooch_newsletter_time' => '10',
+      'smooch_newsletter_timezone' => 'CAT',
+      'smooch_newsletter_day' => 'friday'
+    }
+    assert_equal '0 8 * * 5', Bot::Smooch.newsletter_cron(settings)
+
+    # CST
+    settings = {
+      'smooch_newsletter_time' => '10',
+      'smooch_newsletter_timezone' => 'CST',
+      'smooch_newsletter_day' => 'friday'
+    }
+    assert_equal '0 16 * * 5', Bot::Smooch.newsletter_cron(settings)
+
+    # EST
+    settings = {
+      'smooch_newsletter_time' => '10',
+      'smooch_newsletter_timezone' => 'EST',
+      'smooch_newsletter_day' => 'friday'
+    }
+    assert_equal '0 15 * * 5', Bot::Smooch.newsletter_cron(settings)
+  end
+
+  test "should not timeout after subscribing to newsletter" do
+    setup_smooch_bot(true)
+    @team.set_languages ['de']
+    @team.save!
+    uid = random_string
+    sm = CheckStateMachine.new(uid)
+    Sidekiq::Testing.fake! do
+      assert_equal 'waiting_for_message', sm.state.value
+      send_message_to_smooch_bot(random_string, uid)
+      assert_equal 'main', sm.state.value
+      send_message_to_smooch_bot('1', uid)
+      assert_equal 'secondary', sm.state.value
+      send_message_to_smooch_bot('5', uid)
+      assert_equal 'subscription', sm.state.value
+      assert_difference 'TiplineSubscription.count' do
+        send_message_to_smooch_bot('1', uid)
+        assert_equal 'waiting_for_message', sm.state.value
+      end
+      assert_no_difference "DynamicAnnotation::Field.where('value LIKE ?', '%timeout_request%').count" do
+        Sidekiq::Worker.drain_all
+      end
+    end
   end
 end

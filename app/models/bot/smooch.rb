@@ -975,10 +975,10 @@ class Bot::Smooch < BotUser
     stored_time = Rails.cache.read("smooch:last_message_from_user:#{uid}").to_i
     return if stored_time > time
     sm = CheckStateMachine.new(uid)
-    unless sm.state.value == 'human_mode'
+    unless ['human_mode', 'waiting_for_message'].include?(sm.state.value)
+      self.bundle_messages(message['authorId'], message['_id'], app_id, 'timeout_requests', nil, true)
+      self.send_resource_to_user_on_timeout(uid, workflow)
       sm.reset
-      self.send_resource_to_user_on_timeout(uid, workflow, language)
-      self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id, 'timeout_requests')
     end
   end
 

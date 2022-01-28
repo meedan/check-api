@@ -53,6 +53,7 @@ module SmoochNewsletter
         s.destroy!
         self.send_final_message_to_user(uid, self.get_menu_string('message_unsubscribed', language), workflow, language)
       end
+      sm.reset
       self.clear_user_bundled_messages(uid)
     end
 
@@ -79,7 +80,8 @@ module SmoochNewsletter
       timezone = newsletter['smooch_newsletter_timezone'].to_s.upcase
       # Mapping for timezones not supported by Ruby's DateTime
       timezone = {
-        'PHT' => '+0800'
+        'PHT' => '+0800',
+        'CAT' => '+0200'
       }[timezone] || timezone
       time_set = DateTime.parse("#{hour}:00 #{timezone}")
       time_utc = time_set.utc
