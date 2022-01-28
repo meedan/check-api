@@ -1062,7 +1062,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm3 = create_project_media team: @team
     pm4 = create_project_media team: @team
     r = create_relationship source_id: pm2.id, target_id: pm.id, relationship_type: Relationship.suggested_type
-    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => {score: 0.9, context: {"blah" => 1}}})
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => { :score => 700 }, 779761 => { score: 602.4235, context: { team_id: 2080 } } } )
     assert_no_difference 'Relationship.count' do
       create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm, set_fields: { text: 'Foo bar' }.to_json
     end
@@ -1073,7 +1073,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       r.save!
     end
     r2 = create_relationship source_id: pm4.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
-    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm4.id => {score: 0.9, context: {"blah" => 1}}})
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm4.id => { score: 0.9, context: { 'blah' => 1 } } })
     assert_no_difference 'Relationship.count' do
       create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm3, set_fields: { text: 'Foo bar' }.to_json
     end
