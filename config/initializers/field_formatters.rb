@@ -20,7 +20,7 @@ DynamicAnnotation::Field.class_eval do
   end
 
   def field_formatter_type_url
-    urls = self.value.map { |item| item['url'] }.join(",")
+    urls = JSON.generate(self.value)
   end
 
   def field_formatter_type_datetime
