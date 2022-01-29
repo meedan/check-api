@@ -892,11 +892,21 @@ class ActiveSupport::TestCase
       @settings['smooch_workflows'][0].merge!({
         'smooch_state_main' => {
           'smooch_menu_message' => 'Hello, welcome! Press 1 to go to secondary menu.',
-          'smooch_menu_options' => [{
-            'smooch_menu_option_keyword' => '1 ,one',
-            'smooch_menu_option_value' => 'secondary_state',
-            'smooch_menu_project_media_id' => ''
-          }]
+          'smooch_menu_options' => [
+            {
+              'smooch_menu_option_keyword' => '1 ,one',
+              'smooch_menu_option_value' => 'secondary_state',
+              'smooch_menu_project_media_id' => ''
+            },
+            {
+              'smooch_menu_option_keyword' => 'query',
+              'smooch_menu_option_value' => 'query_state',
+            },
+            {
+              'smooch_menu_option_keyword' => 'newsletter',
+              'smooch_menu_option_value' => 'subscription_state',
+            }
+          ]
         },
         'smooch_state_secondary' => {
           'smooch_menu_message' => 'Now press 1 to see a project media or 2 to go to the query menu',

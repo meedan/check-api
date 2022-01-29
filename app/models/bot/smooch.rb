@@ -468,8 +468,8 @@ class Bot::Smooch < BotUser
     self.bundle_message(message)
     new_state = value.gsub(/_state$/, '')
     self.delay_for(self.time_to_send_request, { queue: 'smooch_ping', retry: false }).bundle_messages(uid, message['_id'], app_id) if new_state == 'query' && !self.is_v2?
-    self.delay_for(1.seconds, { queue: 'smooch', retry: false }).search(app_id, uid, language, message, self.config['team_id'].to_i, workflow) if new_state == 'search'
     sm.send("go_to_#{new_state}")
+    self.delay_for(1.seconds, { queue: 'smooch', retry: false }).search(app_id, uid, language, message, self.config['team_id'].to_i, workflow) if new_state == 'search'
     self.clear_user_bundled_messages(uid) if new_state == 'main'
     new_state == 'main' && self.is_v2? ? self.send_message_to_user_with_main_menu_appended(uid, self.get_menu_string('cancelled', language), workflow, language) : self.send_message_for_state(uid, workflow, new_state, language)
   end
