@@ -275,4 +275,16 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     assert_state 'main'
     assert_user_language 'fr'
   end
+
+  test "should stay on search state until there are results on tipline bot v2" do
+    send_message 'hello', '1', '1', 'Foo bar', '1'
+    assert_state 'search'
+    send_message 'hey'
+    assert_state 'search'
+  end
+
+  test "should parse WhatsApp payload on tipline bot v2" do
+    message = { 'text' => 'Bar', 'payload' => { state: 'main', keyword: 'Foo ' }.to_json }
+    assert_equal 'foo', Bot::Smooch.get_typed_message(message, @sm)[0]
+  end
 end

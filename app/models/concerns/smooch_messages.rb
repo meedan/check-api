@@ -181,7 +181,7 @@ module SmoochMessages
           bundle['mediaUrl'] = media
         end
         text << message['mediaUrl'].to_s
-        text << message['text'].to_s
+        text << begin JSON.parse(message['payload'])['keyword'] rescue message['text'] end
       end
       bundle['text'] = text.reject{ |t| t.blank? }.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}") # Add a boundary so we can easily split messages if needed
       bundle
