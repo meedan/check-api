@@ -83,7 +83,7 @@ module CheckPermissions
       'Link' => [ProjectMedia, Comment, Tag, Dynamic, Task],
       'Claim' => [ProjectMedia, Comment, Tag, Dynamic, Task],
       'Project' => [Source, Media, ProjectMedia, Claim, Link],
-      'ProjectMedia' => [Comment, Tag, Dynamic, Task, Relationship],
+      'ProjectMedia' => [Comment, Tag, Dynamic, Task, Relationship, ClaimDescription],
       'Source' => [Account, Project, Dynamic, Task],
       'User' => [Source, TeamUser, Team, Project]
     }
