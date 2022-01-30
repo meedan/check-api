@@ -48,6 +48,7 @@ class ClaimDescriptionTest < ActiveSupport::TestCase
     cd = create_claim_description project_media: pm
     assert_equal pm, cd.project_media
     assert_equal cd, pm.claim_description
+    assert_equal [cd], pm.claim_descriptions
   end
 
   test "should have a fact check" do
@@ -55,6 +56,7 @@ class ClaimDescriptionTest < ActiveSupport::TestCase
     fc = create_fact_check claim_description: cd
     assert_equal fc, cd.fact_check
     assert_equal cd, fc.claim_description
+    assert_equal [fc], cd.fact_checks
   end
 
   test "should not create a claim description if does not have permission" do

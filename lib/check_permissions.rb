@@ -97,7 +97,7 @@ module CheckPermissions
       create[obj].each do |data|
         model = data.new
 
-        if model.respond_to?('team_id=') and Team.current.present?
+        if model.respond_to?('team_id=') && Team.current.present?
           model.team_id = Team.current.id
         end
 
@@ -116,6 +116,7 @@ module CheckPermissions
   def set_media_for_permissions(model)
     model.media_id = self.id if model.respond_to?(:media_id)
     model.annotated = self if model.respond_to?(:annotated)
+    model.project_media = self if model.is_a?(ClaimDescription)
     model
   end
 
