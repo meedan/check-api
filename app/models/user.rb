@@ -20,6 +20,8 @@ class User < ApplicationRecord
   has_many :sources
   has_many :login_activities
   has_many :project_media_users, dependent: :destroy
+  has_many :claim_descriptions
+  has_many :fact_checks
 
   devise :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,

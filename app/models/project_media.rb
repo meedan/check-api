@@ -357,6 +357,11 @@ class ProjectMedia < ApplicationRecord
     self.cluster_id ? self.cluster.items : nil
   end
 
+  # FIXME: Required by GraphQL API
+  def claim_descriptions
+    self.claim_description ? [self.claim_description] : []
+  end
+
   protected
 
   def set_es_account_data

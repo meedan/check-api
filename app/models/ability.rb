@@ -149,6 +149,8 @@ class Ability
       v_obj = obj.item_type.constantize.find(obj.item_id) if obj.item_type == 'ProjectMedia'
       !v_obj.nil? and v_obj.team_id == @context_team.id and v_obj.media.user_id = @user.id
     end
+    can [:create, :update], FactCheck, { claim_description: { project_media: { team_id: @context_team.id } } }
+    can [:create, :update], ClaimDescription, { project_media: { team_id: @context_team.id } }
   end
 
   def bot_permissions

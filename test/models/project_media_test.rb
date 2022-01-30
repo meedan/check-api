@@ -394,7 +394,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       "read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment",
       "create Tag", "create Task", "create Dynamic", "restore ProjectMedia", "confirm ProjectMedia",
       "embed ProjectMedia", "lock Annotation","update Status", "administer Content", "create Relationship",
-      "create Source", "update Source"
+      "create Source", "update Source", "create ClaimDescription"
     ].sort
     User.stubs(:current).returns(u)
     Team.stubs(:current).returns(t)
