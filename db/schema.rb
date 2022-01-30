@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_01_20_152305) do
+ActiveRecord::Schema.define(version: 2022_01_29_185833) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -107,6 +107,16 @@ ActiveRecord::Schema.define(version: 2022_01_20_152305) do
     t.index ["email"], name: "index_bounces_on_email", unique: true
   end
 
+  create_table "claim_descriptions", force: :cascade do |t|
+    t.text "description", null: false
+    t.bigint "user_id", null: false
+    t.bigint "project_media_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_media_id"], name: "index_claim_descriptions_on_project_media_id"
+    t.index ["user_id"], name: "index_claim_descriptions_on_user_id"
+  end
+
   create_table "clusters", force: :cascade do |t|
     t.integer "project_medias_count", default: 0
     t.integer "project_media_id"
@@ -158,6 +168,18 @@ ActiveRecord::Schema.define(version: 2022_01_20_152305) do
     t.index ["field_type"], name: "index_dynamic_annotation_fields_on_field_type"
     t.index ["value"], name: "index_status", where: "((field_name)::text = 'verification_status_status'::text)"
     t.index ["value_json"], name: "index_dynamic_annotation_fields_on_value_json", using: :gin
+  end
+
+  create_table "fact_checks", force: :cascade do |t|
+    t.text "summary", null: false
+    t.string "url"
+    t.string "title", null: false
+    t.bigint "user_id", null: false
+    t.bigint "claim_description_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["claim_description_id"], name: "index_fact_checks_on_claim_description_id"
+    t.index ["user_id"], name: "index_fact_checks_on_user_id"
   end
 
   create_table "login_activities", id: :serial, force: :cascade do |t|
@@ -483,4 +505,8 @@ ActiveRecord::Schema.define(version: 2022_01_20_152305) do
     t.index ["team_id"], name: "index_versions_on_team_id"
   end
 
+  add_foreign_key "claim_descriptions", "project_medias"
+  add_foreign_key "claim_descriptions", "users"
+  add_foreign_key "fact_checks", "claim_descriptions"
+  add_foreign_key "fact_checks", "users"
 end
