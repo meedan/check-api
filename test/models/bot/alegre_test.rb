@@ -86,6 +86,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       Bot::Alegre.stubs(:media_file_url).with(pm1).returns("some/path")
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       Bot::Alegre.unstub(:media_file_url)
+      context = [{
+        "team_id" => pm1.team.id.to_s,
+        "project_media_id" => pm1.id.to_s
+      }]
       WebMock.stub_request(:get, 'http://alegre/image/similarity/').to_return(body: {
         "result": [
           {
@@ -93,16 +97,13 @@ class Bot::AlegreTest < ActiveSupport::TestCase
             "sha256": "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
             "phash": 17399941807326929,
             "url": "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
-            "context": [{
-              "team_id": pm1.team.id.to_s,
-              "project_media_id": pm1.id.to_s
-            }],
+            "context": context,
             "score": 0
           }
         ]
       }.to_json)
       pm2 = create_project_media team: @pm.team, media: create_uploaded_image
-      response = {pm1.id => 0}
+      response = {pm1.id => {:score => 0, :context => context, :source_field=>"image", :target_field => "image"}}
       Bot::Alegre.stubs(:media_file_url).with(pm2).returns("some/path")
       assert_equal response, Bot::Alegre.get_items_with_similarity('image', pm2, Bot::Alegre.get_threshold_for_query('image', pm2))
 
@@ -241,7 +242,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should extract project medias from context" do
-    assert_equal Bot::Alegre.extract_project_medias_from_context({"_score" => 2, "_source" => {"context" => {"project_media_id" => 1}}}), {1=>2}
+    assert_equal Bot::Alegre.extract_project_medias_from_context({"_score" => 2, "_source" => {"context" => {"project_media_id" => 1}}}), {1=>{:score=>2, :context=>{"project_media_id"=>1}}}
   end
 
   test "should update on alegre" do
@@ -460,10 +461,9 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm1.save!
     pm2 = create_project_media project: p, quote: "Blah2", team: @team
     pm2.save!
-    Bot::Alegre.get_merged_items_with_similar_text(pm2, Bot::Alegre.get_threshold_for_query('text', pm2))
-    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_query('text', pm2)).returns({pm1.id => 0.99})
+    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_query('text', pm2)).returns({pm1.id => {score: 0.99, context: {"blah" => 1}}})
     Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_query('text', pm2, true)).returns({})
-    assert_equal Bot::Alegre.get_similar_items(pm2), {pm1.id=>{:score=>0.99, :relationship_type=>{:source=>"suggested_sibling", :target=>"suggested_sibling"}}}
+    assert_equal Bot::Alegre.get_similar_items(pm2), {pm1.id=>{:score=>0.99, :context => {"blah" => 1}, :relationship_type=>{:source=>"suggested_sibling", :target=>"suggested_sibling"}}}
     Bot::Alegre.unstub(:get_merged_items_with_similar_text)
   end
 
@@ -476,8 +476,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2.save!
     pm3 = create_project_media project: p, media: Blank.new
     pm3.save!
-    Bot::Alegre.get_merged_items_with_similar_text(pm3, Bot::Alegre.get_threshold_for_query('text', pm3))
-    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm3, Bot::Alegre.get_threshold_for_query('text', pm3)).returns({pm1.id => 0.99, pm2.id => 0.99})
+    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm3, Bot::Alegre.get_threshold_for_query('text', pm3)).returns({pm1.id => {score: 0.99, context: {"blah" => 1}}, pm2.id => {score: 0.99, context: {"blah" => 1}}})
     assert_equal Bot::Alegre.get_similar_items(pm3), {}
     Bot::Alegre.unstub(:get_merged_items_with_similar_text)
   end
@@ -559,7 +558,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     }}]})
     response = Bot::Alegre.get_similar_items_from_api("blah", {})
     assert_equal response.class, Hash
-    assert_equal response, {1932=>100.60148}
+    assert_equal response, {1932=>{:score=>100.60148, :context=>{"team_id"=>1692, "field"=>"title", "project_media_id"=>1932}}}
     Bot::Alegre.unstub(:request_api)
   end
 
@@ -670,9 +669,12 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should get items with similar text" do
     pm = create_project_media quote: "Blah"
-    Bot::Alegre.stubs(:get_items_with_similar_title).returns({1 => 0.2, 2 => 0.3})
-    Bot::Alegre.stubs(:get_items_with_similar_description).returns({2 => 0.2, 3 => 0.3})
-    assert_equal Bot::Alegre.get_merged_items_with_similar_text(pm, 0.0), {1 => 0.2, 2 => 0.3, 3 => 0.3}
+    pm2 = create_project_media quote: "Blah"
+    pm3 = create_project_media quote: "Blah"
+    pm4 = create_project_media quote: "Blah"
+    Bot::Alegre.stubs(:get_items_with_similar_title).returns({pm2.id => {score: 0.2, context: {"field" => "title", "blah" => 1}}, pm3.id => {score: 0.3, context: {"field" => "title", "blah" => 1}}})
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({pm3.id => {score: 0.2, context: {"field" => "title", "blah" => 1}}, pm4.id => {score: 0.3, context: {"field" => "title", "blah" => 1}}})
+    assert_equal Bot::Alegre.get_merged_items_with_similar_text(pm, 0.0), {pm2.id => {:score=>0.2, :context=>{"field"=>"title", "blah"=>1}, :source_field=>"original_title", :target_field=>"title"}, pm3.id => {:score=>0.3, :context=>{"field"=>"title", "blah"=>1}, :source_field=>"original_title", :target_field=>"title"}, pm4.id => {:score=>0.3, :context=>{"field"=>"title", "blah"=>1}, :source_field=>"original_description", :target_field=>"title"}}
     Bot::Alegre.unstub(:get_items_with_similar_title)
     Bot::Alegre.unstub(:get_items_with_similar_description)
   end
@@ -742,7 +744,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:request_api)
   end
 
-  test "should get items with similar title when using non-elasticsearch matching model" do
+  test "should get items with similar title when using non-elasticsearch matching model zzz" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media quote: "Blah", team: @team
@@ -864,7 +866,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2 = create_project_media project: p
     pm3 = create_project_media project: p
     create_relationship source_id: pm3.id, target_id: pm2.id
-    Bot::Alegre.add_relationships(pm1, {pm3.id => {score: 1, relationship_type: Relationship.confirmed_type}})
+    Bot::Alegre.add_relationships(pm1, {pm3.id => {score: 1, relationship_type: Relationship.confirmed_type, context: {"blah" => 1}, source_field: pm1.media.type, target_field: pm2.media.type}})
     r = Relationship.last
     assert_equal pm1, r.target
     assert_equal pm3, r.source
@@ -877,9 +879,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm1 = create_project_media project: p, is_image: true
     pm2 = create_project_media project: p, is_image: true
     pm3 = create_project_media project: p, is_image: true
+    
     create_relationship source_id: pm3.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     assert_difference 'Relationship.count' do
-      Bot::Alegre.add_relationships(pm1, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}, pm3.id => {score: 1, relationship_type: Relationship.suggested_type}})
+      Bot::Alegre.add_relationships(pm1, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type, context: {"blah" => 1}, source_field: pm1.media.type, target_field: pm2.media.type}, pm3.id => {score: 1, relationship_type: Relationship.suggested_type, context: {"blah" => 1}, source_field: pm1.media.type, target_field: pm3.media.type}})
     end
     r = Relationship.last
     assert_equal pm1, r.target
@@ -890,7 +893,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm4 = create_project_media project: p
     pm5 = create_project_media project: p, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED
     assert_difference 'Relationship.count' do
-      Bot::Alegre.add_relationships(pm5, {pm4.id => {score: 1, relationship_type: Relationship.suggested_type}})
+      Bot::Alegre.add_relationships(pm5, {pm4.id => {score: 1, relationship_type: Relationship.suggested_type, context: {"blah" => 1}, source_field: pm5.media.type, target_field: pm4.media.type}})
     end
     assert_equal CheckArchivedFlags::FlagCodes::NONE, pm5.reload.archived
   end
@@ -930,7 +933,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         {
           "_score" => 26.493948,
           "_source" => {
-            "context"=> { "team_id"=> pm1.team_id.to_s, "project_media_id" => pm1.id.to_s, "has_custom_id" => true }
+            "context"=> { "field" => "title", "team_id"=> pm1.team_id.to_s, "project_media_id" => pm1.id.to_s, "has_custom_id" => true }
           }
         }
       ]
@@ -948,7 +951,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         {
           "_score" => 26.493948,
           "_source" => {
-            "context"=> { "team_id"=> pm3.team_id.to_s, "project_media_id" => pm3.id.to_s, "has_custom_id" => true }
+            "context"=> { "field" => "title", "team_id" => pm3.team_id.to_s, "project_media_id" => pm3.id.to_s, "has_custom_id" => true }
           }
         }
       ]
@@ -971,7 +974,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         {
           "_score" => 26.493948,
           "_source" => {
-            "context"=> { "team_id"=> pm1.team_id.to_s, "project_media_id" => pm1.id.to_s, "has_custom_id" => true }
+            "context"=> { "field" => "title", "team_id"=> pm1.team_id.to_s, "project_media_id" => pm1.id.to_s, "has_custom_id" => true }
           }
         }
       ]
@@ -1007,7 +1010,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should use OCR data for similarity matching" do
     pm = create_project_media team: @team
     pm2 = create_project_media team: @team
-    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => 0.9 })
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => {score: 0.9, context: {"blah" => 1}} })
     assert_difference 'Relationship.count' do
       create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm, set_fields: { text: 'Foo bar' }.to_json
     end
@@ -1020,7 +1023,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm = create_project_media team: @team
     pm2 = create_project_media team: @team
     create_relationship source_id: pm_s.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
-    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => 0.9 })
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => {score: 0.9, context: {"blah" => 1}} })
     assert_difference 'Relationship.count' do
       create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm, set_fields: { text: 'Foo bar' }.to_json
     end
@@ -1042,7 +1045,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     create_annotation_type_and_fields('Transcription', {}, json_schema)
     pm = create_project_media team: @team
     pm2 = create_project_media team: @team
-    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => 0.9 })
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => {score: 0.9, context: {"blah" => 1}}})
     data = { 'job_status' => 'COMPLETED', 'transcription' => 'Foo bar' }
     a = create_dynamic_annotation annotation_type: 'transcription', annotated: pm, set_fields: { job_name: '0c481e87f2774b1bd41a0a70d9b70d11', last_response: data }.to_json
     assert_difference 'Relationship.count' do
@@ -1059,7 +1062,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm3 = create_project_media team: @team
     pm4 = create_project_media team: @team
     r = create_relationship source_id: pm2.id, target_id: pm.id, relationship_type: Relationship.suggested_type
-    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => 0.9 })
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => { :score => 700 }, 779761 => { score: 602.4235, context: { team_id: 2080 } } } )
     assert_no_difference 'Relationship.count' do
       create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm, set_fields: { text: 'Foo bar' }.to_json
     end
@@ -1070,7 +1073,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       r.save!
     end
     r2 = create_relationship source_id: pm4.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
-    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm4.id => 0.9 })
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm4.id => { score: 0.9, context: { 'blah' => 1 } } })
     assert_no_difference 'Relationship.count' do
       create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm3, set_fields: { text: 'Foo bar' }.to_json
     end
@@ -1082,7 +1085,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2 = create_project_media team: @team
     r = create_relationship source_id: pm2.id, target_id: pm.id, relationship_type: Relationship.suggested_type
     assert_no_difference 'Relationship.count' do
-      Bot::Alegre.create_relationship(pm2, pm, 0.9, Relationship.confirmed_type)
+      Bot::Alegre.create_relationship(pm2, pm, {score: 0.9, context: {"blah" => 1}}, Relationship.confirmed_type)
     end
     assert_equal r.reload.relationship_type, Relationship.confirmed_type
   end
@@ -1090,7 +1093,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should match imported report" do
     pm = create_project_media team: @team
     pm2 = create_project_media team: @team, media: Blank.create!, channel: CheckChannels::ChannelCodes::FETCH
-    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => 0.9 })
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => {score: 0.9, context: {"blah" => 1}}})
     assert_equal [pm2.id], Bot::Alegre.get_similar_items(pm).keys
     assert_no_difference 'ProjectMedia.count' do
       assert_difference 'Relationship.count' do
