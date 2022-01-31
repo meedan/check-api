@@ -248,7 +248,15 @@ class ProjectMedia < ApplicationRecord
     elsif self.media.media_type != 'blank'
       raise I18n.t(:replace_blank_media_only)
     else
-      self.apply_replace_by(self, new_pm)
+      # Save the new item
+      analysis = self.analysis
+      new_pm.updated_at = Time.now
+      new_pm.skip_check_ability = true
+      new_pm.channel = CheckChannels::ChannelCodes::FETCH
+      new_pm.save(validate: false) # To skip channel validation
+      new_pm.analysis = { title: analysis['title'], content: analysis['content'] }
+      # Apply other stuff in background
+      self.delay.apply_replace_by(self, new_pm)
     end
   end
 
@@ -272,11 +280,7 @@ class ProjectMedia < ApplicationRecord
       # Destroy the old item
       old_pm.skip_check_ability = true
       old_pm.destroy!
-      # Save the new item
-      new_pm.updated_at = Time.now
-      new_pm.skip_check_ability = true
-      new_pm.channel = CheckChannels::ChannelCodes::FETCH
-      new_pm.save(validate: false) # To skip channel validation
+      # Save analysis to new item
       new_pm.analysis = { title: analysis['title'], content: analysis['content'] }
       User.current = current_user
       Team.current = current_team
