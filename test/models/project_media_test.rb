@@ -2235,9 +2235,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       new = create_project_media team: t, media: create_uploaded_video, disable_es_callbacks: false
       new_r = publish_report(new)
       new_s = new.last_status_obj
-      Sidekiq::Testing.inline! do
-        old.replace_by(new)
-      end
+      old.replace_by(new)
       assert_nil ProjectMedia.find_by_id(old.id)
       assert_nil Annotation.find_by_id(new_s.id)
       assert_nil Annotation.find_by_id(new_r.id)
