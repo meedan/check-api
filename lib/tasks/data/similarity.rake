@@ -5,21 +5,31 @@ namespace :check do
     desc 'Extract similarity data into CSV files.'
     task similarity: :environment do |_t, _params|
       # Accepted suggestions
-      puts 'Extracting data for accepted suggestions to /tmp/accepted.csv...'
-      o = File.open('/tmp/accepted.csv', 'w+')
-      o.puts('Workspace Slug,Weight,Main Item ID,Main Item Type,Secondary Item ID,Secondary Item Type,Timestamp')
+      puts 'Extracting data for accepted suggestions to /tmp/accepted.json...'
+      f = File.open("/tmp/accepted.json", "w")
       i = 0
       Relationship.where('relationship_type = ?', Relationship.confirmed_type.to_yaml).where(user: BotUser.alegre_user).where('confirmed_by IS NOT NULL').find_each do |r|
         i += 1
         puts("Relationship #{i}")
-        o.puts([r.source.team.slug, r.weight, r.source_id, r.source.media.type, r.target_id, r.target.media.type, r.created_at].join(','))
+        f.write({
+          source_team_slug: r.source.team.slug,
+          model: r.model,
+          weight: r.weight,
+          source_id: r.source_id,
+          source_field: r.source_field,
+          source_media_type: r.source.media.type,
+          target_id: r.target_id,
+          target_field: r.target_field,
+          target_media_type: r.target.media.type,
+          details: r.details,
+          created_at: r.created_at
+        }.to_json+"\n")
       end
-      o.close
+      f.close
 
       # Rejected suggestions
-      puts 'Extracting data for rejected suggestions to /tmp/rejected.csv...'
-      o = File.open('/tmp/rejected.csv', 'w+')
-      o.puts('Workspace Slug,Weight,Main Item ID,Main Item Type,Secondary Item ID,Secondary Item Type,Timestamp')
+      puts 'Extracting data for rejected suggestions to /tmp/rejected.json...'
+      f = File.open("/tmp/rejected.json", "w")
       tids = Team.all.map(&:id)
       tids.each_with_index do |tid, i|
         j = 0
@@ -30,27 +40,49 @@ namespace :check do
           source = ProjectMedia.find_by_id(r['source_id'])
           target = ProjectMedia.find_by_id(r['target_id'])
           next if source.nil? || target.nil?
-          o.puts([source.team.slug, r['weight'], source.id, source.media.type, target.id, target.media.type, r['created_at']].join(','))
+          f.write({
+            source_team_slug: source.team.slug,
+            model: r["model"],
+            weight: r["weight"],
+            source_id: source.id,
+            source_field: r["source_field"],
+            source_media_type: source.media.type,
+            target_id: target.id,
+            target_field: r["target_field"],
+            target_media_type: target.media.type,
+            details: r["details"],
+            created_at: r["created_at"]
+          }.to_json+"\n")
         end
       end
-      o.close
+      f.close
 
       # Manually created matches
-      puts 'Extracting data for manual matches to /tmp/manual.csv...'
-      o = File.open('/tmp/manual.csv', 'w+')
-      o.puts('Workspace Slug,Weight,Main Item ID,Main Item Type,Secondary Item ID,Secondary Item Type,Timestamp')
+      puts 'Extracting data for manual matches to /tmp/manual.json...'
+      f = File.open("/tmp/manual.json", "w")
       i = 0
       Relationship.where('relationship_type = ?', Relationship.confirmed_type.to_yaml).where.not(user: BotUser.alegre_user).find_each do |r|
         i += 1
         puts("Relationship #{i}")
-        o.puts([r.source.team.slug, r.weight, r.source_id, r.source.media.type, r.target_id, r.target.media.type, r.created_at].join(','))
+        f.write({
+          source_team_slug: r.source.team.slug,
+          model: r.model,
+          weight: r.weight,
+          source_id: r.source_id,
+          source_field: r.source_field,
+          source_media_type: r.source.media.type,
+          target_id: r.target_id,
+          target_field: r.target_field,
+          target_media_type: r.target.media.type,
+          details: r.details,
+          created_at: r.created_at
+        }.to_json+"\n")
       end
-      o.close
+      f.close
 
       # Manually detached matches
-      puts 'Extracting data for detached matches to /tmp/detached.csv...'
-      o = File.open('/tmp/detached.csv', 'w+')
-      o.puts('Workspace Slug,Weight,Main Item ID,Main Item Type,Secondary Item ID,Secondary Item Type,Timestamp')
+      puts 'Extracting data for detached matches to /tmp/detached.json...'
+      f = File.open("/tmp/detached.json", "w")
       tids = Team.all.map(&:id)
       tids.each_with_index do |tid, i|
         j = 0
@@ -61,23 +93,46 @@ namespace :check do
           source = ProjectMedia.find_by_id(r['source_id'])
           target = ProjectMedia.find_by_id(r['target_id'])
           next if source.nil? || target.nil?
-          o.puts([source.team.slug, r['weight'], source.id, source.media.type, target.id, target.media.type, r['created_at']].join(','))
+          f.write({
+            source_team_slug: source.team.slug,
+            model: r["model"],
+            weight: r["weight"],
+            source_id: source.id,
+            source_field: r["source_field"],
+            source_media_type: source.media.type,
+            target_id: target.id,
+            target_field: r["target_field"],
+            target_media_type: target.media.type,
+            details: r["details"],
+            created_at: r["created_at"]
+          }.to_json+"\n")
         end
       end
-      o.close
+      f.close
 
       # Suggestions
-      puts 'Extracting data for suggestions to /tmp/suggestions.csv...'
-      o = File.open('/tmp/suggestions.csv', 'w+')
-      o.puts('Workspace Slug,Weight,Main Item ID,Main Item Type,Secondary Item ID,Secondary Item Type,Timestamp')
+      puts 'Extracting data for suggestions to /tmp/suggestions.json...'
+      f = File.open("/tmp/suggestions.json", "w")
       i = 0
       Relationship.where('relationship_type = ?', Relationship.suggested_type.to_yaml).find_each do |r|
         i += 1
         puts("Relationship #{i}")
         next if r.source.nil? || r.target.nil?
-        o.puts([r.source.team.slug, r.weight, r.source_id, r.source.media.type, r.target_id, r.target.media.type, r.created_at].join(','))
+        f.write({
+          source_team_slug: r.source.team.slug,
+          model: r.model,
+          weight: r.weight,
+          source_id: r.source_id,
+          source_field: r.source_field,
+          source_media_type: r.source.media.type,
+          target_id: r.target_id,
+          target_field: r.target_field,
+          target_media_type: r.target.media.type,
+          details: r.details,
+          created_at: r.created_at
+        }.to_json+"\n")
       end
-      o.close
+      f.close
     end
   end
 end

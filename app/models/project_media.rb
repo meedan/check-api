@@ -242,13 +242,13 @@ class ProjectMedia < ApplicationRecord
     self.create_auto_tasks(project_id, tasks) unless tasks.blank?
   end
 
-  def replace_by(new_project_media)
-    if self.team_id != new_project_media.team_id
+  def replace_by(new_pm)
+    if self.team_id != new_pm.team_id
       raise I18n.t(:replace_by_media_in_the_same_team)
     elsif self.media.media_type != 'blank'
       raise I18n.t(:replace_blank_media_only)
     else
-      self.delay.apply_replace_by(self, new_project_media)
+      self.apply_replace_by(self, new_pm)
     end
   end
 
@@ -258,7 +258,7 @@ class ProjectMedia < ApplicationRecord
       current_user = User.current
       current_team = Team.current
       User.current = Team.current = nil
-      analysis = new_pm.analysis
+      analysis = old_pm.analysis
       # Remove any status and report from the new item
       Annotation.where(
         annotation_type: ['verification_status', 'report_design'],
@@ -355,6 +355,11 @@ class ProjectMedia < ApplicationRecord
 
   def cluster_items
     self.cluster_id ? self.cluster.items : nil
+  end
+
+  # FIXME: Required by GraphQL API
+  def claim_descriptions
+    self.claim_description ? [self.claim_description] : []
   end
 
   protected
