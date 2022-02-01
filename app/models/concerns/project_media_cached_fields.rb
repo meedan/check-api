@@ -212,11 +212,14 @@ module ProjectMediaCachedFields
 
     cached_field :sources_as_sentence,
       start_as: proc { |_pm| '' },
-      recalculate: proc { |pm| [pm.source&.name].join(', ') },
+      recalculate: proc { |pm| pm.get_project_media_sources },
       update_on: [
         {
           model: ProjectMedia,
-          affected_ids: proc { |pm| [pm.id] },
+          affected_ids: proc { |pm| [pm.id].concat(
+            Relationship.where(target_id: pm.id).where('relationship_type = ?', Relationship.suggested_type.to_yaml)
+            .map(&:source_id)
+            )},
           if: proc { |pm| pm.saved_change_to_source_id? },
           events: {
             save: :recalculate,
@@ -230,6 +233,14 @@ module ProjectMediaCachedFields
             destroy: :recalculate
           }
         }
+        # {
+        #   model: Source,
+        #   if: proc { |s| s.saved_change_to_name? },
+        #   affected_ids: proc { |s| s.project_media_ids },
+        #   events: {
+        #     update: :recalculate,
+        #   }
+        # }
       ]
 
     cached_field :media_published_at,

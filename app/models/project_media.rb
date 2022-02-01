@@ -366,6 +366,16 @@ class ProjectMedia < ApplicationRecord
     self.claim_description ? [self.claim_description] : []
   end
 
+  def get_project_media_sources
+    ids = ProjectMedia.get_similar_items(self, Relationship.suggested_type).map(&:id)
+    ids << self.id
+    sources = {}
+    Source.joins('INNER JOIN project_medias pm ON pm.source_id = sources.id').where('pm.id IN (?)', ids).find_each do |s|
+      sources[s.id] = s.name
+    end
+    sources.to_json
+  end
+
   protected
 
   def set_es_account_data

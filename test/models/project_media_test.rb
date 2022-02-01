@@ -2733,4 +2733,55 @@ class ProjectMediaTest < ActiveSupport::TestCase
     c.project_medias << pm2
     assert_equal [t1.name, t2.name].sort, pm1.cluster_team_names.sort
   end
+
+  test "should cache sources list" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    s_a = create_source team: t, name: 'source_a'
+    s_b = create_source team: t, name: 'source_b'
+    s_c = create_source team: t, name: 'source_c'
+    pm = create_project_media team: t, source: s_a, skip_autocreate_source: false
+    t1 = create_project_media team: t, source: s_b, skip_autocreate_source: false
+    t2 = create_project_media team: t, source: s_c, skip_autocreate_source: false
+    result = {}
+    # Verify cache item source
+    result[s_a.id] = s_a.name
+    assert_queries(0, '=') { assert_equal result.to_json, pm.sources_as_sentence }
+    # Verify cache source for similar items
+    r1 = create_relationship source_id: pm.id, target_id: t1.id, relationship_type: Relationship.suggested_type
+    r2 = create_relationship source_id: pm.id, target_id: t2.id, relationship_type: Relationship.suggested_type
+    result[s_b.id] = s_b.name
+    result[s_c.id] = s_c.name
+    pm = ProjectMedia.find(pm.id)
+    assert_queries(0, '=') { assert_equal result.to_json, pm.sources_as_sentence }
+    # Verify update source names after destroy similar item
+    r1.destroy
+    result.delete(s_b.id)
+    pm = ProjectMedia.find(pm.id)
+    assert_queries(0, '=') { assert_equal result.to_json, pm.sources_as_sentence }
+    # Verify update item source
+    new_s1 = create_source team: t, name: 'new_source_1'
+    pm.source = new_s1; pm.save!
+    result.delete(s_a.id)
+    result[new_s1.id] = new_s1.name
+    pm = ProjectMedia.find(pm.id)
+    assert_queries(0, '=') { assert_equal result.to_json, pm.sources_as_sentence }
+    # Verify update source for similar item
+    result_similar = {}
+    result_similar[s_c.id] = s_c.name
+    assert_queries(0, '=') { assert_equal result_similar.to_json, t2.sources_as_sentence }
+    new_s2 = create_source team: t, name: 'new_source_2'
+    t2.source = new_s2; t2.save!
+    t2 = ProjectMedia.find(t2.id)
+    result_similar.delete(s_c.id)
+    result_similar[new_s2.id] = new_s2.name
+    assert_queries(0, '=') { assert_equal result_similar.to_json, t2.sources_as_sentence }
+    result.delete(s_c.id)
+    result[new_s2.id] = new_s2.name
+    pm = ProjectMedia.find(pm.id)
+    assert_queries(0, '=') { assert_equal result.to_json, pm.sources_as_sentence }
+    # TODO: Sawy :: Verify update source name
+    Rails.cache.clear
+    assert_queries(0, '>') { assert_equal result.to_json, pm.sources_as_sentence }
+  end
 end
