@@ -57,13 +57,13 @@ module SmoochMessages
       message << self.tos_message(workflow, language) if state.to_s == 'main'
       message << self.subscription_message(uid, language) if state.to_s == 'subscription'
       message << workflow.dig("smooch_state_#{state}", 'smooch_menu_message')
-      message << I18n.t("smooch_v2_#{state}_state", locale: language) if ['first', 'search', 'search_result', 'add_more_details'].include?(state.to_s)
+      message << I18n.t("smooch_v2_#{state}_state", locale: language.gsub(/[-_].*$/, '')) if ['first', 'search', 'search_result', 'add_more_details'].include?(state.to_s)
       message.reject{ |m| m.blank? }.join("\n\n")
     end
 
     def subscription_message(uid, language)
       subscribed = !TiplineSubscription.where(team_id: self.config['team_id'], uid: uid, language: language).last.nil?
-      subscribed ? I18n.t(:smooch_message_subscription_header_subscribed, locale: language) : I18n.t(:smooch_message_subscription_header_unsubscribed, locale: language)
+      subscribed ? I18n.t(:smooch_message_subscription_header_subscribed, locale: language.gsub(/[-_].*$/, '')) : I18n.t(:smooch_message_subscription_header_unsubscribed, locale: language.gsub(/[-_].*$/, ''))
     end
 
     def send_message_if_disabled_and_return_state(uid, workflow, state)

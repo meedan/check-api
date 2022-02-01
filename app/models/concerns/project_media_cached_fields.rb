@@ -9,14 +9,20 @@ module ProjectMediaCachedFields
   end
 
   module ClassMethods
-    def analysis_update(field)
+    def metadata_or_claim_or_fact_check_update
       [
         {
-          model: DynamicAnnotation::Field,
-          if: proc { |f| f.field_name == field && f.annotation.annotation_type == 'verification_status' && !f.value.blank? },
-          affected_ids: proc { |f| [f.annotation.annotated_id] },
+          model: ClaimDescription,
+          affected_ids: proc { |cd| [cd.project_media] },
           events: {
-            save: proc { |_pm, f| f.value }
+            save: :recalculate
+          }
+        },
+        {
+          model: FactCheck,
+          affected_ids: proc { |fc| fc.claim_description.project_media },
+          events: {
+            save: :recalculate
           }
         },
         {
@@ -140,12 +146,12 @@ module ProjectMediaCachedFields
       ]
 
     cached_field :description,
-      recalculate: proc { |pm| pm.has_analysis_description? ? pm.analysis_description : pm.original_description },
-      update_on: analysis_update('content')
+      recalculate: proc { |pm| pm.fact_check_summary || pm.claim_description_content || pm.original_description },
+      update_on: metadata_or_claim_or_fact_check_update
 
     cached_field :title,
-      recalculate: proc { |pm| pm.has_analysis_title? ? pm.analysis_title : pm.original_title },
-      update_on: analysis_update('title')
+      recalculate: proc { |pm| pm.fact_check_title || pm.claim_description_content || pm.original_title },
+      update_on: metadata_or_claim_or_fact_check_update
 
     cached_field :status,
       recalculate: proc { |pm| pm.last_verification_status },

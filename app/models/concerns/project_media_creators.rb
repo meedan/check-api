@@ -34,6 +34,7 @@ module ProjectMediaCreators
   end
 
   def set_title_for_files
+    title = nil
     if self.user&.login == 'smooch' && ['UploadedVideo', 'UploadedImage', 'UploadedAudio'].include?(self.media.type)
       type_count = Media.where(type: self.media.type).joins("INNER JOIN project_medias pm ON medias.id = pm.media_id")
       .where("pm.team_id = ?", self.team&.id).count
@@ -47,7 +48,7 @@ module ProjectMediaCreators
         title = File.basename(file_path, File.extname(file_path))
       end
     end
-    self.analysis = { title: title }
+    Rails.cache.write(ProjectMedia.check_cache_key(ProjectMedia, self.id, 'title'), title) unless title.blank?
   end
 
   protected
