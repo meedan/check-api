@@ -30,6 +30,21 @@ class Bot::Smooch < BotUser
     def report_image
       self.get_dynamic_annotation('report_design')&.report_design_image_url(nil)
     end
+
+    def get_deduplicated_smooch_annotations
+      uids = []
+      annotations = []
+      ProjectMedia.where(id: self.related_items_ids).each do |pm|
+        pm.get_annotations('smooch').find_each do |annotation|
+          data = JSON.parse(annotation.load.get_field_value('smooch_data'))
+          uid = data['authorId']
+          next if uids.include?(uid)
+          uids << uid
+          annotations << annotation
+        end
+      end
+      annotations
+    end
   end
 
   ::Relationship.class_eval do
@@ -840,12 +855,10 @@ class Bot::Smooch < BotUser
     report = parent.get_annotations('report_design').last&.load
     return if report.nil?
     last_published_at = report.get_field_value('last_published').to_i
-    ProjectMedia.where(id: parent.related_items_ids).each do |pm2|
-      pm2.get_annotations('smooch').find_each do |annotation|
-        data = JSON.parse(annotation.load.get_field_value('smooch_data'))
-        self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
-        self.send_correction_to_user(data, parent, annotation.created_at, last_published_at, action, report.get_field_value('published_count').to_i) unless self.config['smooch_disabled']
-      end
+    parent.get_deduplicated_smooch_annotations.each do |annotation|
+      data = JSON.parse(annotation.load.get_field_value('smooch_data'))
+      self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
+      self.send_correction_to_user(data, parent, annotation.created_at, last_published_at, action, report.get_field_value('published_count').to_i) unless self.config['smooch_disabled']
     end
   end
 
@@ -935,16 +948,14 @@ class Bot::Smooch < BotUser
     return if pm.nil?
     requestors_count = 0
     parent = Relationship.where(target_id: pm.id).last&.source || pm
-    ProjectMedia.where(id: parent.related_items_ids).each do |pm2|
-      pm2.get_annotations('smooch').find_each do |annotation|
-        data = JSON.parse(annotation.load.get_field_value('smooch_data'))
-        self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
-        message = parent.team.get_status_message_for_language(status, data['language'])
-        unless message.blank?
-          response = self.send_message_to_user(data['authorId'], message)
-          self.save_smooch_response(response, parent, data['received'].to_i, 'fact_check_status', data['language'], { message: message })
-          requestors_count += 1
-        end
+    parent.get_deduplicated_smooch_annotations.each do |annotation|
+      data = JSON.parse(annotation.load.get_field_value('smooch_data'))
+      self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
+      message = parent.team.get_status_message_for_language(status, data['language'])
+      unless message.blank?
+        response = self.send_message_to_user(data['authorId'], message)
+        self.save_smooch_response(response, parent, data['received'].to_i, 'fact_check_status', data['language'], { message: message })
+        requestors_count += 1
       end
     end
     CheckNotification::InfoMessages.send('sent_message_to_requestors_on_status_change', status: pm.status_i18n, requestors_count: requestors_count) if requestors_count > 0
