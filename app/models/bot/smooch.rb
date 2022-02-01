@@ -403,7 +403,7 @@ class Bot::Smooch < BotUser
     message = ''
     if self.config['smooch_version'] == 'v2'
       sm.start_v2
-      message = [workflow['smooch_message_smooch_bot_greetings'], I18n.t(:smooch_v2_first_state, locale: language)].join("\n\n")
+      message = [workflow['smooch_message_smooch_bot_greetings'], I18n.t(:smooch_v2_first_state, locale: language.gsub(/[-_].*$/, ''))].join("\n\n")
     else
       sm.start
       message = [workflow['smooch_message_smooch_bot_greetings'], self.get_message_for_state(workflow, 'main', language)].join("\n\n")
@@ -427,7 +427,7 @@ class Bot::Smooch < BotUser
     state = self.send_message_if_disabled_and_return_state(uid, workflow, state)
 
     # Shortcuts
-    if [I18n.t(:subscribe, locale: language), I18n.t(:unsubscribe, locale: language)].map(&:downcase).include?(message['text'].to_s.downcase.strip)
+    if [I18n.t(:subscribe, locale: language.gsub(/[-_].*$/, '')), I18n.t(:unsubscribe, locale: language.gsub(/[-_].*$/, ''))].map(&:downcase).include?(message['text'].to_s.downcase.strip)
       self.toggle_subscription(uid, language, self.config['team_id'], self.get_platform_from_message(message))
       return true
     end
@@ -651,7 +651,7 @@ class Bot::Smooch < BotUser
     m_type = is_supported[:m_type] || 'file'
     max_size = "Uploaded#{m_type.camelize}".constantize.max_size_readable
     workflow = self.get_workflow(message['language'])
-    error_message = is_supported[:type] == false ? workflow['smooch_message_smooch_bot_message_type_unsupported'] : I18n.t(:smooch_bot_message_size_unsupported, { max_size: max_size, locale: message['language'] })
+    error_message = is_supported[:type] == false ? workflow['smooch_message_smooch_bot_message_type_unsupported'] : I18n.t(:smooch_bot_message_size_unsupported, { max_size: max_size, locale: message['language'].gsub(/[-_].*$/, '') })
     self.send_message_to_user(message['authorId'], error_message)
   end
 
