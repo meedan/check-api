@@ -285,6 +285,7 @@ en:
   duplicate_source: Source already exists
   geolocation_invalid_value: Invalid location. Expecting a valid GeoJSON structure
     (http://geojson.org/)
+  url_invalid_value: The following submitted URL is invalid
   datetime_invalid_date: Invalid date
   error_team_archived: Sorry, you can't add a folder to a trashed workspace
   error_project_archived: Sorry, you can't add an item to a trashed folder

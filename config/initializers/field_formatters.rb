@@ -19,6 +19,10 @@ DynamicAnnotation::Field.class_eval do
     value
   end
 
+  def field_formatter_type_url
+    urls = JSON.generate(self.value)
+  end
+
   def field_formatter_type_datetime
     # Capture TZ abbreviation manually because DateTime does not parse it
     # http://rubular.com/r/wOfJTCSxlI
@@ -29,7 +33,7 @@ DynamicAnnotation::Field.class_eval do
     I18n.l(DateTime.parse(self.value), format: :task).gsub('[TZ]', abbr)
   end
 
-  ['free_text', 'yes_no', 'single_choice', 'multiple_choice', 'geolocation', 'datetime', 'file_upload', 'number'].each do |type|
+  ['free_text', 'yes_no', 'single_choice', 'multiple_choice', 'geolocation', 'datetime', 'file_upload', 'number', 'url'].each do |type|
     define_method "field_formatter_name_suggestion_#{type}" do
       JSON.parse(self.value)['suggestion']
     end

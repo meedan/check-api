@@ -19,7 +19,7 @@ class Task < ApplicationRecord
 
   field :type
   def self.task_types
-    ['free_text', 'yes_no', 'single_choice', 'multiple_choice', 'geolocation', 'datetime', 'file_upload', 'number']
+    ['free_text', 'yes_no', 'single_choice', 'multiple_choice', 'geolocation', 'datetime', 'file_upload', 'number', 'url']
   end
   validates :type, included: { values: self.task_types }
 
