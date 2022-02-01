@@ -31,6 +31,7 @@ module TeamDuplication
         self.process_team_bot_installations(t, team)
         team = self.modify_settings(t, team)
         team = self.update_team_rules(team)
+        self.adjust_team_tasks(team)
         Team.current = team
         self.add_current_user(team)
         team.skip_check_ability = true
@@ -83,6 +84,18 @@ module TeamDuplication
     def self.alter_tag_text_copy(copy)
       copy.team_id = @team_id if !@team_id.nil?
       copy.tags_count = 0
+    end
+
+    def self.adjust_team_tasks(team)
+      team_task_map = self.team_task_map
+      team.team_tasks.each do |copy|
+        unless copy.conditional_info.nil?
+          ci = JSON.parse(copy.conditional_info)
+          ci['selectedFieldId'] = team_task_map[ci['selectedFieldId'].to_i] unless ci['selectedFieldId'].blank?
+          copy.conditional_info = ci.to_json
+          copy.save!
+        end
+      end
     end
 
     def self.alter_team_task_copy(_copy)

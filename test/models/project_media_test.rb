@@ -431,7 +431,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.disable_es_callbacks = true
     pm.media_type = 'UploadedImage'
     pm.save!
-    assert_equal media_filename('rails.png', false), pm.analysis['title']
+    assert_equal media_filename('rails.png', false), pm.title
   end
 
   test "should set automatic title for images videos and audios" do
@@ -1252,9 +1252,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     c = create_claim_media quote: 'Test'
     pm = create_project_media media: c
     assert_equal 'Test', pm.reload.description
-    info = { content: 'Test 2' }
-    pm.analysis = info
-    pm.save!
+    create_claim_description project_media: pm, description: 'Test 2'
     assert_equal 'Test 2', pm.reload.description
   end
 
@@ -1795,42 +1793,36 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should cache title" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media
-    pm.analysis = { title: 'Title 1' }
-    pm.save!
-    assert pm.respond_to?(:title)
+    pm = create_project_media quote: 'Title 0'
+    assert_equal 'Title 0', pm.title
+    cd = create_claim_description project_media: pm, description: 'Title 1'
     assert_queries 0, '=' do
       assert_equal 'Title 1', pm.title
     end
-    pm = create_project_media
-    pm.analysis = { title: 'Title 2' }
-    pm.save!
+    create_fact_check claim_description: cd, title: 'Title 2'
     assert_queries 0, '=' do
       assert_equal 'Title 2', pm.title
     end
     assert_queries(0, '>') do
-      assert_equal 'Title 2', pm.title(true)
+      assert_equal 'Title 2', pm.reload.title(true)
     end
   end
 
   test "should cache description" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media
-    pm.analysis = { content: 'Description 1' }
-    pm.save!
-    assert pm.respond_to?(:description)
+    pm = create_project_media quote: 'Description 0'
+    assert_equal 'Description 0', pm.description
+    cd = create_claim_description description: 'Description 1', project_media: pm
     assert_queries 0, '=' do
       assert_equal 'Description 1', pm.description
     end
-    pm = create_project_media
-    pm.analysis = { content: 'Description 2' }
-    pm.save!
+    create_fact_check claim_description: cd, summary: 'Description 2'
     assert_queries 0, '=' do
       assert_equal 'Description 2', pm.description
     end
     assert_queries(0, '>') do
-      assert_equal 'Description 2', pm.description(true)
+      assert_equal 'Description 2', pm.reload.description(true)
     end
   end
 
@@ -2441,8 +2433,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     RequestStore.store[:skip_cached_field_update] = false
     create_verification_status_stuff
     pm = create_project_media media: create_uploaded_image
-    pm.analysis = { title: 'Custom Title' }
-    pm.save!
+    create_claim_description project_media: pm, description: 'Custom Title'
     assert_equal 'Custom Title', pm.reload.title
     assert_equal media_filename('rails.png'), pm.reload.original_title
   end
@@ -2733,5 +2724,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm2 = create_project_media team: t2
     c.project_medias << pm2
     assert_equal [t1.name, t2.name].sort, pm1.cluster_team_names.sort
+  end
+
+  test "should have web form channel" do
+    pm = create_project_media channel: 11
+    assert_equal 'Web Form', pm.reload.get_creator_name
   end
 end

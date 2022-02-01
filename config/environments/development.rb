@@ -12,19 +12,14 @@ Rails.application.configure do
   # Show full error reports.
   config.consider_all_requests_local = true
 
-  # Enable/disable caching. By default caching is disabled.
-  # Run rails dev:cache to toggle caching.
-  if Rails.root.join('tmp', 'caching-dev.txt').exist?
-    config.action_controller.perform_caching = true
-
-    config.cache_store = :memory_store
-    config.public_file_server.headers = {
-      'Cache-Control' => "public, max-age=#{2.days.to_i}"
-    }
-  else
-    config.action_controller.perform_caching = false
-
-    config.cache_store = :null_store
+  # Same cache store as production
+  file = File.join(Rails.root, 'config', "sidekiq-#{Rails.env}.yml")
+  file = File.join(Rails.root, 'config', "sidekiq.yml") unless File.exist?(file)
+  if File.exist?(file)
+    require 'sidekiq/middleware/i18n'
+    redis_config = YAML.load_file(file)
+    redis_url = { host: redis_config[:redis_host], port: redis_config[:redis_port], db: redis_config[:redis_database], namespace: "cache_checkapi_#{Rails.env}" }
+    config.cache_store = :redis_store, redis_url
   end
 
   # Store uploaded files on the local file system (see config/storage.yml for options)

@@ -136,4 +136,16 @@ module ProjectMediaGetters
   def transcription
     begin self.get_dynamic_annotation('transcription').get_field_value('text') rescue '' end
   end
+
+  def claim_description_content
+    self.claim_description&.description
+  end
+
+  def fact_check_title
+    self.claim_description&.fact_check&.title
+  end
+
+  def fact_check_summary
+    self.claim_description&.fact_check&.summary
+  end
 end
