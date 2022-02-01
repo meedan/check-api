@@ -307,7 +307,7 @@ class GraphqlController5Test < ActionController::TestCase
     pm2 = create_project_media project: p, media: m2
     Bot::Alegre.stubs(:get_similar_texts).returns({ pm2.id => 0.9, pm.id => 0.8 })
 
-    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") { similar_items(first: 10000) { edges { node { dbid, claim_description } } } } }'
+    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") { similar_items(first: 10000) { edges { node { dbid, claim_description { id } } } } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal pm2.id, JSON.parse(@response.body)['data']['project_media']['similar_items']['edges'][0]['node']['dbid']

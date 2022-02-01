@@ -431,7 +431,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.disable_es_callbacks = true
     pm.media_type = 'UploadedImage'
     pm.save!
-    assert_equal media_filename('rails.png', false), pm.analysis['title']
+    assert_equal media_filename('rails.png', false), pm.title
   end
 
   test "should set automatic title for images videos and audios" do
