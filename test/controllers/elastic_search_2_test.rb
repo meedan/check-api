@@ -106,8 +106,7 @@ class ElasticSearch2Test < ActionController::TestCase
     Sidekiq::Testing.inline! do
       # Update title
       pm2.reload; pm2.disable_es_callbacks = false
-      info = { title: 'overridden_title' }
-      pm2.analysis = info
+      create_claim_description project_media: pm2, description: 'overridden_title'
       pm.reload; pm.disable_es_callbacks = false
       pm.refresh_media = true
       pm.save!
@@ -115,12 +114,12 @@ class ElasticSearch2Test < ActionController::TestCase
       pm2.refresh_media = true
       pm2.save!
     end
-    sleep 1
+    sleep 3
     ms2 = $repository.find(get_es_id(pm2))
     assert_equal 'overridden_title', ms2['title']
     ms = $repository.find(get_es_id(pm))
-    assert_equal 'new_title', pm.title
     assert_equal 'new_title', ms['title']
+    assert_equal 'new_title', pm.reload.title
   end
 
   test "should set elasticsearch data for media account" do

@@ -9,7 +9,7 @@ module ProjectMediaCachedFields
   end
 
   module ClassMethods
-    def claim_or_fact_check_update
+    def metadata_or_claim_or_fact_check_update
       [
         {
           model: ClaimDescription,
@@ -21,6 +21,18 @@ module ProjectMediaCachedFields
         {
           model: FactCheck,
           affected_ids: proc { |fc| fc.claim_description.project_media },
+          events: {
+            save: :recalculate
+          }
+        },
+        {
+          model: DynamicAnnotation::Field,
+          if: proc { |f| f.field_name == 'metadata_value' },
+          affected_ids: proc { |f|
+            if ['Media', 'Link'].include?(f.annotation.annotated_type)
+              ProjectMedia.where(media_id: f.annotation.annotated_id).map(&:id)
+            end
+          },
           events: {
             save: :recalculate
           }
@@ -135,11 +147,11 @@ module ProjectMediaCachedFields
 
     cached_field :description,
       recalculate: proc { |pm| pm.fact_check_summary || pm.claim_description_content || pm.original_description },
-      update_on: claim_or_fact_check_update
+      update_on: metadata_or_claim_or_fact_check_update
 
     cached_field :title,
       recalculate: proc { |pm| pm.fact_check_title || pm.claim_description_content || pm.original_title },
-      update_on: claim_or_fact_check_update
+      update_on: metadata_or_claim_or_fact_check_update
 
     cached_field :status,
       recalculate: proc { |pm| pm.last_verification_status },

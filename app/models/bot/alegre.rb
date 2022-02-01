@@ -177,7 +177,7 @@ class Bot::Alegre < BotUser
 
   def self.get_items_from_similar_text(team_id, text, field = nil, threshold = nil, model = nil, fuzzy = false)
     return {} if text.blank?
-    field ||= (['original_title', 'original_description'] + REPORT_TEXT_SIMILARITY_FIELDS).flatten
+    field ||= ALL_TEXT_SIMILARITY_FIELDS
     threshold ||= self.get_threshold_for_query('text', nil, true)
     model ||= self.matching_model_to_use(ProjectMedia.new(team_id: team_id))
     self.get_similar_items_from_api(
