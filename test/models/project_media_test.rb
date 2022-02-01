@@ -2228,6 +2228,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
+      RequestStore.store[:skip_clear_cache] = true
       old = create_project_media team: t, media: Blank.create!, channel: CheckChannels::ChannelCodes::FETCH, disable_es_callbacks: false
       old.analysis = { title: 'imported item' }
       old_r = publish_report(old)
