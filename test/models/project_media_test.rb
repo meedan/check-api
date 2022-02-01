@@ -2749,8 +2749,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     result[s_a.id] = s_a.name
     assert_queries(0, '=') { assert_equal result.to_json, pm.sources_as_sentence }
     # Verify cache source for similar items
-    r1 = create_relationship source_id: pm.id, target_id: t1.id, relationship_type: Relationship.suggested_type
-    r2 = create_relationship source_id: pm.id, target_id: t2.id, relationship_type: Relationship.suggested_type
+    r1 = create_relationship source_id: pm.id, target_id: t1.id, relationship_type: Relationship.confirmed_type
+    r2 = create_relationship source_id: pm.id, target_id: t2.id, relationship_type: Relationship.confirmed_type
     result[s_b.id] = s_b.name
     result[s_c.id] = s_c.name
     pm = ProjectMedia.find(pm.id)

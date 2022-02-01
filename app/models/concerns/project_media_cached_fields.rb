@@ -217,7 +217,7 @@ module ProjectMediaCachedFields
         {
           model: ProjectMedia,
           affected_ids: proc { |pm| [pm.id].concat(
-            Relationship.where(target_id: pm.id).where('relationship_type = ?', Relationship.suggested_type.to_yaml)
+            Relationship.where(target_id: pm.id).where('relationship_type = ?', Relationship.confirmed_type.to_yaml)
             .map(&:source_id)
             )},
           if: proc { |pm| pm.saved_change_to_source_id? },
