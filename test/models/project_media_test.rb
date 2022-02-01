@@ -2734,4 +2734,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     c.project_medias << pm2
     assert_equal [t1.name, t2.name].sort, pm1.cluster_team_names.sort
   end
+
+  test "should have web form channel" do
+    pm = create_project_media channel: 11
+    assert_equal 'Web Form', pm.reload.get_creator_name
+  end
 end
