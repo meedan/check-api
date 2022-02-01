@@ -48,10 +48,6 @@ class Bot::Smooch < BotUser
   end
 
   ::Relationship.class_eval do
-    def is_valid_smooch_relationship?
-      self.is_confirmed?
-    end
-
     def suggestion_accepted?
       self.relationship_type_before_last_save.to_json == Relationship.suggested_type.to_json && self.is_confirmed?
     end
@@ -59,7 +55,7 @@ class Bot::Smooch < BotUser
     def inherit_status_and_send_report
       target = self.target
       parent = self.source
-      if ::Bot::Smooch.team_has_smooch_bot_installed(target) && self.is_valid_smooch_relationship?
+      if ::Bot::Smooch.team_has_smooch_bot_installed(target) && self.is_confirmed?
         s = target.annotations.where(annotation_type: 'verification_status').last&.load
         status = parent.last_verification_status
         if !s.nil? && s.status != status
@@ -79,7 +75,7 @@ class Bot::Smooch < BotUser
     end
 
     after_destroy do
-      if self.is_valid_smooch_relationship?
+      if self.is_confirmed?
         target = self.target
         s = target.annotations.where(annotation_type: 'verification_status').last&.load
         status = ::Workflow::Workflow.options(target, 'verification_status')[:default]
