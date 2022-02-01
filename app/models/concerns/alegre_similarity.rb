@@ -160,12 +160,12 @@ module AlegreSimilarity
     end
 
     def get_items_with_similar_title(pm, threshold)
-      pm.original_title.blank? ? {} : self.get_merged_similar_items(pm, threshold, ['original_title', 'report_text_title', 'report_visual_card_title'], pm.original_title)
+      pm.original_title.blank? ? {} : self.get_merged_similar_items(pm, threshold, ['original_title', 'report_text_title', 'report_visual_card_title', 'fact_check_title'], pm.original_title)
     end
 
     def get_items_with_similar_description(pm, threshold, input_description = nil)
       description = input_description || pm.original_description
-      description.blank? ? {} : self.get_merged_similar_items(pm, threshold, ['original_description', 'report_text_content', 'report_visual_card_content', 'extracted_text', 'transcription'], description)
+      description.blank? ? {} : self.get_merged_similar_items(pm, threshold, ['original_description', 'report_text_content', 'report_visual_card_content', 'extracted_text', 'transcription', 'claim_description_content', 'fact_check_summary'], description)
     end
 
     def get_merged_similar_items(pm, threshold, fields, value)
