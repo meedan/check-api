@@ -232,15 +232,15 @@ module ProjectMediaCachedFields
             create: :recalculate,
             destroy: :recalculate
           }
+        },
+        {
+          model: Source,
+          if: proc { |s| s.saved_change_to_name? },
+          affected_ids: proc { |s| s.project_media_ids },
+          events: {
+            update: :recalculate,
+          }
         }
-        # {
-        #   model: Source,
-        #   if: proc { |s| s.saved_change_to_name? },
-        #   affected_ids: proc { |s| s.project_media_ids },
-        #   events: {
-        #     update: :recalculate,
-        #   }
-        # }
       ]
 
     cached_field :media_published_at,
