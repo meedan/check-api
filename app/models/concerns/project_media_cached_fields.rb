@@ -154,11 +154,11 @@ module ProjectMediaCachedFields
       ]
 
     cached_field :description,
-      recalculate: proc { |pm| pm.fact_check_summary || pm.claim_description_content || pm.analysis_description || pm.original_description },
+      recalculate: proc { |pm| pm.get_description },
       update_on: metadata_or_claim_or_fact_check_update
 
     cached_field :title,
-      recalculate: proc { |pm| pm.fact_check_title || pm.claim_description_content || pm.analysis_title || pm.original_title },
+      recalculate: proc { |pm| pm.get_title },
       update_on: metadata_or_claim_or_fact_check_update
 
     cached_field :status,

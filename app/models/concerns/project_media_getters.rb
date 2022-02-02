@@ -148,4 +148,12 @@ module ProjectMediaGetters
   def fact_check_summary
     self.claim_description&.fact_check&.summary
   end
+
+  def get_title
+    self.fact_check_title || self.claim_description_content || self.analysis_title || self.original_title
+  end
+
+  def get_description
+    self.fact_check_summary || self.claim_description_content || self.analysis_description || self.original_description
+  end
 end
