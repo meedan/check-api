@@ -1,14 +1,16 @@
 class FactCheck < ApplicationRecord
-  belongs_to :user
+  include ClaimAndFactCheck
+
   belongs_to :claim_description
 
-  before_validation :set_user, on: :create
   validates_presence_of :summary, :title, :user, :claim_description
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
 
-  private
+  def text_fields
+    ['fact_check_title', 'fact_check_summary']
+  end
 
-  def set_user
-    self.user ||= User.current
+  def project_media
+    self.claim_description.project_media
   end
 end

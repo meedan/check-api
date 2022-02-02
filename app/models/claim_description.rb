@@ -1,9 +1,9 @@
 class ClaimDescription < ApplicationRecord
-  belongs_to :user
+  include ClaimAndFactCheck
+
   belongs_to :project_media
   has_one :fact_check
 
-  before_validation :set_user, on: :create
   validates_presence_of :description, :user, :project_media
 
   # FIXME: Required by GraphQL API
@@ -11,9 +11,7 @@ class ClaimDescription < ApplicationRecord
     self.fact_check ? [self.fact_check] : []
   end
 
-  private
-
-  def set_user
-    self.user ||= User.current
+  def text_fields
+    ['claim_description_content']
   end
 end
