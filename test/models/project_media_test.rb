@@ -2730,4 +2730,23 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media channel: 11
     assert_equal 'Web Form', pm.reload.get_creator_name
   end
+
+  test "should respond to file upload auto-task on creation" do
+    url = random_url
+    WebMock.stub_request(:get, url).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
+
+    at = create_annotation_type annotation_type: 'task_response_file_upload', label: 'Task'
+    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+    fi1 = create_field_instance annotation_type_object: at, name: 'response_file_upload', label: 'Response', field_type_object: ft1
+
+    t = create_team
+    create_team_task team_id: t.id, label: 'Upload a file', task_type: 'file_upload'
+    Sidekiq::Testing.inline! do
+      assert_difference 'Task.length', 1 do
+        pm = create_project_media team: t, set_tasks_responses: { 'upload_a_file' => url }
+        task = pm.annotations('task').last
+        assert task.existing_files.size > 0
+      end
+    end
+  end
 end
