@@ -48,10 +48,10 @@ module SmoochNewsletter
       sm = CheckStateMachine.new(uid)
       if s.nil?
         TiplineSubscription.create!(uid: uid, language: language, team_id: team_id, platform: platform)
-        self.send_message_to_user(uid, I18n.t(:smooch_bot_message_subscribed, locale: language))
+        self.send_message_to_user(uid, I18n.t(:smooch_bot_message_subscribed, locale: language.gsub(/[-_].*$/, '')))
       else
         s.destroy!
-        self.send_message_to_user(uid, I18n.t(:smooch_bot_message_unsubscribed, locale: language))
+        self.send_message_to_user(uid, I18n.t(:smooch_bot_message_unsubscribed, locale: language.gsub(/[-_].*$/, '')))
       end
       sm.reset
       self.clear_user_bundled_messages(uid)

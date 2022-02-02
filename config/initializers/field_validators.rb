@@ -12,6 +12,15 @@ DynamicAnnotation::Field.class_eval do
     end
   end
 
+  def field_validator_type_url
+    errormsg = I18n.t(:url_invalid_value)
+    urls = self.value
+    urls.each do |item|
+      url = URI.parse(item['url'])
+      errors.add(:base, errormsg + ' ' + url.to_s) unless url.is_a?(URI::HTTP) && !url.host.nil?
+    end
+  end
+
   def field_validator_type_datetime
     self.value.tr!('۰١۲۳۴۵۶۷۸۹','0123456789')
     begin

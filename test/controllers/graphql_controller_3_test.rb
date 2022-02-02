@@ -524,7 +524,8 @@ class GraphqlController3Test < ActionController::TestCase
     pm2 = create_project_media project: p
     r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2, set_fields: { smooch_data: '{}' }.to_json)
-    info = { title: 'Title Test', content: 'Description Test' }; pm.analysis = info; pm.save!
+    cd = create_claim_description project_media: pm
+    create_fact_check claim_description: cd, title: 'Title Test', summary: 'Description Test'
 
     sleep 10
 
@@ -553,7 +554,7 @@ class GraphqlController3Test < ActionController::TestCase
       }}
     '
 
-    assert_queries 21, '<=' do
+    assert_queries 25, '<=' do
       post :create, params: { query: query, team: 'team' }
     end
 

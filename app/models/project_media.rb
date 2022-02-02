@@ -248,7 +248,15 @@ class ProjectMedia < ApplicationRecord
     elsif self.media.media_type != 'blank'
       raise I18n.t(:replace_blank_media_only)
     else
-      self.apply_replace_by(self, new_pm)
+      # Save the new item
+      analysis = self.analysis
+      new_pm.updated_at = Time.now
+      new_pm.skip_check_ability = true
+      new_pm.channel = CheckChannels::ChannelCodes::FETCH
+      new_pm.save(validate: false) # To skip channel validation
+      new_pm.analysis = { title: analysis['title'], content: analysis['content'] }
+      # Apply other stuff in background
+      self.delay.apply_replace_by(self, new_pm)
     end
   end
 
@@ -272,11 +280,7 @@ class ProjectMedia < ApplicationRecord
       # Destroy the old item
       old_pm.skip_check_ability = true
       old_pm.destroy!
-      # Save the new item
-      new_pm.updated_at = Time.now
-      new_pm.skip_check_ability = true
-      new_pm.channel = CheckChannels::ChannelCodes::FETCH
-      new_pm.save(validate: false) # To skip channel validation
+      # Save analysis to new item
       new_pm.analysis = { title: analysis['title'], content: analysis['content'] }
       User.current = current_user
       Team.current = current_team
@@ -341,6 +345,8 @@ class ProjectMedia < ApplicationRecord
       user_name = 'Tipline'
     elsif [CheckChannels::ChannelCodes::FETCH, CheckChannels::ChannelCodes::API, CheckChannels::ChannelCodes::ZAPIER].include?(self.channel)
       user_name = 'Import'
+    elsif self.channel == CheckChannels::ChannelCodes::WEB_FORM
+      user_name = 'Web Form'
     end
     user_name
   end
@@ -355,6 +361,11 @@ class ProjectMedia < ApplicationRecord
 
   def cluster_items
     self.cluster_id ? self.cluster.items : nil
+  end
+
+  # FIXME: Required by GraphQL API
+  def claim_descriptions
+    self.claim_description ? [self.claim_description] : []
   end
 
   protected

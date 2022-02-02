@@ -950,4 +950,12 @@ module SampleData
   def create_cluster(options = {})
     Cluster.create!({ project_media: create_project_media }.merge(options))
   end
+
+  def create_claim_description(options = {})
+    ClaimDescription.create!({ description: random_string, user: options[:user] || create_user, project_media: options[:project_media] || create_project_media }.merge(options))
+  end
+
+  def create_fact_check(options = {})
+    FactCheck.create!({ summary: random_string, url: random_url, title: random_string, user: options[:user] || create_user, claim_description: options[:claim_description] || create_claim_description }.merge(options))
+  end
 end

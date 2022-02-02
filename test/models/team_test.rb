@@ -2653,4 +2653,14 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     assert_not_nil t.default_folder
   end
+
+  test "should convert conditional info of team tasks when duplicating a team" do
+    t1 = create_team
+    tt1 = create_team_task team_id: t1.id
+    tt2 = create_team_task team_id: t1.id, conditional_info: { selectedConditional: 'is...', selectedFieldId: tt1.id, selectedCondition: 'The Beatles' }.to_json
+    t2 = Team.duplicate(t1)
+    tt3 = TeamTask.where.not(conditional_info: nil).where(team_id: t2.id).last
+    tt4 = TeamTask.find(JSON.parse(tt3.conditional_info)['selectedFieldId'])
+    assert_equal t2, tt4.team
+  end
 end
