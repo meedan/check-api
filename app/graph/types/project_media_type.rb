@@ -29,6 +29,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :confirmed_as_similar_by_name, types.String
   field :added_as_similar_by_name, types.String
   field :project_id, types.Int
+  field :source_id, types.Int
   field :project_group, ProjectGroupType
   field :show_warning_cover, types.Boolean
   field :creator_name, types.String
@@ -36,9 +37,12 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :channel, types.Int
   field :cluster_size, types.Int
   field :cluster_team_names, types[types.String]
-  field :source_id, types.Int
-  field :claim_description, ClaimDescriptionType
-
+  field :claim_description, ClaimDescriptionType do
+    resolve -> (project_media, _args, _ctx) {
+      pm = Relationship.where('relationship_type = ? OR relationship_type = ?', Relationship.suggested_type.to_yaml, Relationship.confirmed_type.to_yaml).where(target_id: project_media.id).first&.source || project_media
+      pm.claim_description
+    }
+  end
   field :is_read, types.Boolean do
     argument :by_me, types.Boolean
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_01_29_185833) do
+ActiveRecord::Schema.define(version: 2022_02_02_020510) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -270,6 +270,7 @@ ActiveRecord::Schema.define(version: 2022_01_29_185833) do
     t.integer "user_id"
     t.integer "team_id"
     t.string "title"
+    t.boolean "is_default", default: false
     t.text "description"
     t.string "lead_image"
     t.datetime "created_at", null: false
@@ -280,7 +281,6 @@ ActiveRecord::Schema.define(version: 2022_01_29_185833) do
     t.integer "assignments_count", default: 0
     t.integer "project_group_id"
     t.integer "privacy", default: 0, null: false
-    t.boolean "is_default", default: false
     t.index ["id"], name: "index_projects_on_id"
     t.index ["is_default"], name: "index_projects_on_is_default"
     t.index ["privacy"], name: "index_projects_on_privacy"

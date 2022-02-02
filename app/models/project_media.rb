@@ -345,6 +345,8 @@ class ProjectMedia < ApplicationRecord
       user_name = 'Tipline'
     elsif [CheckChannels::ChannelCodes::FETCH, CheckChannels::ChannelCodes::API, CheckChannels::ChannelCodes::ZAPIER].include?(self.channel)
       user_name = 'Import'
+    elsif self.channel == CheckChannels::ChannelCodes::WEB_FORM
+      user_name = 'Web Form'
     end
     user_name
   end
