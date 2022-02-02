@@ -180,11 +180,11 @@ class Bot::Alegre < BotUser
     field ||= ALL_TEXT_SIMILARITY_FIELDS
     threshold ||= self.get_threshold_for_query('text', nil, true)
     model ||= self.matching_model_to_use(ProjectMedia.new(team_id: team_id))
-    self.get_similar_items_from_api(
+    Hash[self.get_similar_items_from_api(
       '/text/similarity/',
       self.similar_texts_from_api_conditions(text, model, fuzzy, team_id, field, threshold),
       threshold
-    )
+    ).collect{|k,v| [k, v.merge(model: model)]}]
   end
 
   def self.unarchive_if_archived(pm)
@@ -493,9 +493,9 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.get_indexing_model(pm)
+  def self.get_indexing_model(pm, score_with_context)
     type = self.get_pm_type(pm)
-    type == "text" ? self.indexing_model_to_use(pm) : type
+    type == "text" ? score_with_context.delete(:model) : type
   end
 
   def self.create_relationship(source, target, score_with_context, relationship_type)
@@ -515,7 +515,7 @@ class Bot::Alegre < BotUser
       r = Relationship.new
       r.skip_check_ability = true
       r.relationship_type = relationship_type
-      r.model = self.get_indexing_model(source)
+      r.model = self.get_indexing_model(source, score_with_context)
       r.weight = score
       r.details = context
       r.source_id = source.id
