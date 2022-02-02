@@ -394,7 +394,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       "read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment",
       "create Tag", "create Task", "create Dynamic", "restore ProjectMedia", "confirm ProjectMedia",
       "embed ProjectMedia", "lock Annotation","update Status", "administer Content", "create Relationship",
-      "create Source", "update Source"
+      "create Source", "update Source", "create ClaimDescription"
     ].sort
     User.stubs(:current).returns(u)
     Team.stubs(:current).returns(t)
@@ -431,7 +431,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.disable_es_callbacks = true
     pm.media_type = 'UploadedImage'
     pm.save!
-    assert_equal media_filename('rails.png', false), pm.analysis['title']
+    assert_equal media_filename('rails.png', false), pm.title
   end
 
   test "should set automatic title for images videos and audios" do
@@ -1252,9 +1252,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     c = create_claim_media quote: 'Test'
     pm = create_project_media media: c
     assert_equal 'Test', pm.reload.description
-    info = { content: 'Test 2' }
-    pm.analysis = info
-    pm.save!
+    create_claim_description project_media: pm, description: 'Test 2'
     assert_equal 'Test 2', pm.reload.description
   end
 
@@ -1795,42 +1793,36 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should cache title" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media
-    pm.analysis = { title: 'Title 1' }
-    pm.save!
-    assert pm.respond_to?(:title)
+    pm = create_project_media quote: 'Title 0'
+    assert_equal 'Title 0', pm.title
+    cd = create_claim_description project_media: pm, description: 'Title 1'
     assert_queries 0, '=' do
       assert_equal 'Title 1', pm.title
     end
-    pm = create_project_media
-    pm.analysis = { title: 'Title 2' }
-    pm.save!
+    create_fact_check claim_description: cd, title: 'Title 2'
     assert_queries 0, '=' do
       assert_equal 'Title 2', pm.title
     end
     assert_queries(0, '>') do
-      assert_equal 'Title 2', pm.title(true)
+      assert_equal 'Title 2', pm.reload.title(true)
     end
   end
 
   test "should cache description" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media
-    pm.analysis = { content: 'Description 1' }
-    pm.save!
-    assert pm.respond_to?(:description)
+    pm = create_project_media quote: 'Description 0'
+    assert_equal 'Description 0', pm.description
+    cd = create_claim_description description: 'Description 1', project_media: pm
     assert_queries 0, '=' do
       assert_equal 'Description 1', pm.description
     end
-    pm = create_project_media
-    pm.analysis = { content: 'Description 2' }
-    pm.save!
+    create_fact_check claim_description: cd, summary: 'Description 2'
     assert_queries 0, '=' do
       assert_equal 'Description 2', pm.description
     end
     assert_queries(0, '>') do
-      assert_equal 'Description 2', pm.description(true)
+      assert_equal 'Description 2', pm.reload.description(true)
     end
   end
 
@@ -2228,6 +2220,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
+      RequestStore.store[:skip_clear_cache] = true
       old = create_project_media team: t, media: Blank.create!, channel: CheckChannels::ChannelCodes::FETCH, disable_es_callbacks: false
       old.analysis = { title: 'imported item' }
       old_r = publish_report(old)
@@ -2235,9 +2228,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       new = create_project_media team: t, media: create_uploaded_video, disable_es_callbacks: false
       new_r = publish_report(new)
       new_s = new.last_status_obj
-      Sidekiq::Testing.inline! do
-        old.replace_by(new)
-      end
+      old.replace_by(new)
       assert_nil ProjectMedia.find_by_id(old.id)
       assert_nil Annotation.find_by_id(new_s.id)
       assert_nil Annotation.find_by_id(new_r.id)
@@ -2442,8 +2433,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     RequestStore.store[:skip_cached_field_update] = false
     create_verification_status_stuff
     pm = create_project_media media: create_uploaded_image
-    pm.analysis = { title: 'Custom Title' }
-    pm.save!
+    create_claim_description project_media: pm, description: 'Custom Title'
     assert_equal 'Custom Title', pm.reload.title
     assert_equal media_filename('rails.png'), pm.reload.original_title
   end
@@ -2734,5 +2724,29 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm2 = create_project_media team: t2
     c.project_medias << pm2
     assert_equal [t1.name, t2.name].sort, pm1.cluster_team_names.sort
+  end
+
+  test "should have web form channel" do
+    pm = create_project_media channel: 11
+    assert_equal 'Web Form', pm.reload.get_creator_name
+  end
+
+  test "should respond to file upload auto-task on creation" do
+    url = random_url
+    WebMock.stub_request(:get, url).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
+
+    at = create_annotation_type annotation_type: 'task_response_file_upload', label: 'Task'
+    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+    fi1 = create_field_instance annotation_type_object: at, name: 'response_file_upload', label: 'Response', field_type_object: ft1
+
+    t = create_team
+    create_team_task team_id: t.id, label: 'Upload a file', task_type: 'file_upload'
+    Sidekiq::Testing.inline! do
+      assert_difference 'Task.length', 1 do
+        pm = create_project_media team: t, set_tasks_responses: { 'upload_a_file' => url }
+        task = pm.annotations('task').last
+        assert task.existing_files.size > 0
+      end
+    end
   end
 end

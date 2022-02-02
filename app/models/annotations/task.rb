@@ -19,7 +19,7 @@ class Task < ApplicationRecord
 
   field :type
   def self.task_types
-    ['free_text', 'yes_no', 'single_choice', 'multiple_choice', 'geolocation', 'datetime', 'file_upload', 'number']
+    ['free_text', 'yes_no', 'single_choice', 'multiple_choice', 'geolocation', 'datetime', 'file_upload', 'number', 'url']
   end
   validates :type, included: { values: self.task_types }
 
@@ -125,6 +125,7 @@ class Task < ApplicationRecord
 
   def response=(json)
     params = JSON.parse(json)
+    params = begin self.get_file_from_uri(params) rescue params end
     response = self.new_or_existing_response
     response.annotated = self
     response.annotation_type = params['annotation_type'] unless params['annotation_type'].blank?
@@ -136,6 +137,20 @@ class Task < ApplicationRecord
     @response = response
     self.update_task_answer_cache
     self.record_timestamps = false
+  end
+
+  def get_file_from_uri(params)
+    file_url = begin JSON.parse(params['set_fields'])['response_file_upload'] rescue '' end
+    unless file_url.blank?
+      open(file_url) do |f|
+        data = f.read
+        filepath = File.join(Rails.root, 'tmp', "#{Digest::MD5.hexdigest(data)}.png")
+        File.atomic_write(filepath) { |file| file.write(data) }
+        self.file = File.open(filepath)
+        params['set_fields'] = { response_file_upload: 'Uploaded file' }.to_json
+      end
+    end
+    params
   end
 
   def existing_files
