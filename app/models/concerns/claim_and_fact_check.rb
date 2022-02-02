@@ -5,9 +5,9 @@ module ClaimAndFactCheck
 
   included do
     include CheckElasticSearch
-  
+
     belongs_to :user
-    
+
     before_validation :set_user, on: :create
     after_save :index_in_elasticsearch, :send_to_alegre
   end
