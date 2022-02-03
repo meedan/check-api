@@ -2236,6 +2236,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_equal old_s, new.get_dynamic_annotation('verification_status')
       new = new.reload
       assert_equal 'imported item', new.analysis['title']
+      assert_equal 'Import', new.creator_name
       assert_equal CheckChannels::ChannelCodes::FETCH, new.channel
       # Verify ES
       result = $repository.find(get_es_id(new))
