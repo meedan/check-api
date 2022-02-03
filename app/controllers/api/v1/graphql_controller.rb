@@ -48,19 +48,19 @@ module Api
       def parse_graphql_result
         context = { ability: @ability, file: parse_uploaded_files }
         @output = nil
-        begin
+        # begin
           result = yield(context)
           @output = result
           render json: result
 
         # Mutations are not batched, so we can return errors in the root
-        rescue ActiveRecord::RecordInvalid, RuntimeError, ActiveRecord::RecordNotUnique, NameError, GraphQL::Batch::NestedError => e
-          @output = parse_json_exception(e)
-          render json: @output, status: 400
-        rescue ActiveRecord::StaleObjectError => e
-          @output = format_error_message(e)
-          render json: @output, status: 409
-        end
+        # rescue ActiveRecord::RecordInvalid, RuntimeError, ActiveRecord::RecordNotUnique, NameError, GraphQL::Batch::NestedError => e
+        #   @output = parse_json_exception(e)
+        #   render json: @output, status: 400
+        # rescue ActiveRecord::StaleObjectError => e
+        #   @output = format_error_message(e)
+        #   render json: @output, status: 409
+        # end
       end
 
       def parse_uploaded_files
