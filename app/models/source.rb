@@ -7,6 +7,7 @@ class Source < ApplicationRecord
   include ValidationsHelper
   include CustomLock
   include ProjectMediaSourceAssociations
+  include AnnotationBase::Association
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
   has_many :account_sources, dependent: :destroy
@@ -15,8 +16,6 @@ class Source < ApplicationRecord
   belongs_to :user, optional: true
   belongs_to :team, optional: true
   has_one :bot_user
-
-  has_annotations
 
   before_validation :set_user, :set_team, on: :create
 
@@ -28,6 +27,8 @@ class Source < ApplicationRecord
   after_create :create_metadata, :notify_team_bots_create, :create_auto_tasks
   after_update :notify_team_bots_update
   after_save :cache_source_overridden, :add_to_project_media, :create_related_accounts
+
+  has_annotations
 
   notifies_pusher on: :update, event: 'source_updated', data: proc { |s| s.to_json }, targets: proc { |s| [s] }
 
