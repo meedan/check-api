@@ -17,7 +17,7 @@ module ClaimAndFactCheck
   end
 
   def set_user
-    self.user ||= User.current
+    self.user = User.current unless User.current.nil?
   end
 
   def index_in_elasticsearch
