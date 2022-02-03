@@ -2775,7 +2775,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_queries(0, '=') { assert_equal result.to_json, pm.sources_as_sentence }
     # Verify update source name
     new_s2.name = 'update source'; new_s2.save!
-    pp new_s2.reload
     result[new_s2.id] = 'update source'
     pm = ProjectMedia.find(pm.id)
     assert_queries(0, '=') { assert_equal result.to_json, pm.sources_as_sentence }

@@ -250,7 +250,10 @@ module ProjectMediaCachedFields
         {
           model: Source,
           if: proc { |s| s.saved_change_to_name? },
-          affected_ids: proc { |s| s.project_media_ids },
+          affected_ids: proc { |s| s.project_media_ids.concat(
+            Relationship.where(target_id: s.project_media_ids).where('relationship_type = ?', Relationship.confirmed_type.to_yaml)
+            .map(&:source_id)
+            )},
           events: {
             update: :recalculate,
           }
