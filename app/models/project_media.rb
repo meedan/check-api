@@ -255,6 +255,8 @@ class ProjectMedia < ApplicationRecord
       new_pm.channel = CheckChannels::ChannelCodes::FETCH
       new_pm.save(validate: false) # To skip channel validation
       new_pm.analysis = { title: analysis['title'], content: analysis['content'] }
+      # update creator_name cached field
+      Rails.cache.write("check_cached_field:ProjectMedia:#{new_pm.id}:creator_name", 'Import')
       # Apply other stuff in background
       self.delay.apply_replace_by(self, new_pm)
     end
