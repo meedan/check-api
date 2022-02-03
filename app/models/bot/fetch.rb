@@ -177,7 +177,7 @@ class Bot::Fetch < BotUser
             pm = self.create_project_media(team, user)
             self.set_status(claim_review, pm, status_fallback, status_mapping)
             self.set_analysis(claim_review, pm)
-            self.set_claim_and_fact_check(claim_review, pm)
+            self.set_claim_and_fact_check(claim_review, pm, user)
             self.create_report(claim_review, pm, team, user, auto_publish_reports)
           end
         end
@@ -206,11 +206,12 @@ class Bot::Fetch < BotUser
       self.parse_text(title.to_s)
     end
 
-    def self.set_claim_and_fact_check(claim_review, pm)
+    def self.set_claim_and_fact_check(claim_review, pm, user)
       cd = ClaimDescription.new
       cd.skip_check_ability = true
       cd.project_media = pm
       cd.description = self.parse_text(claim_review['text'])
+      cd.user = user
       cd.save!
 
       fc = FactCheck.new
@@ -219,6 +220,7 @@ class Bot::Fetch < BotUser
       fc.title = self.get_title(claim_review)
       fc.summary = self.parse_text(claim_review['text'])
       fc.url = claim_review['url'].to_s
+      fc.user = user
       fc.save!
     end
 
