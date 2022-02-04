@@ -2501,7 +2501,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     # Set channel with API if ApiKey exists
     a = create_api_key
     ApiKey.current = a
-    pm3 = create_project_media
+    pm3 = create_project_media channel: nil
     assert_equal CheckChannels::ChannelCodes::API, pm3.channel
     ApiKey.current = nil
   end
