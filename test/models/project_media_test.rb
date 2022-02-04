@@ -2750,6 +2750,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     result[s_c.id] = s_c.name
     pm = ProjectMedia.find(pm.id)
     assert_queries(0, '=') { assert_equal result.to_json, pm.sources_as_sentence }
+    # Verify main source is a first element
+    assert_equal pm.source_id, JSON.parse(pm.sources_as_sentence).keys.first.to_i
     # Verify update source names after destroy similar item
     r1.destroy
     result.delete(s_b.id)
@@ -2761,7 +2763,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     result.delete(s_a.id)
     result[new_s1.id] = new_s1.name
     pm = ProjectMedia.find(pm.id)
-    assert_queries(0, '=') { assert_equal result.to_json, pm.sources_as_sentence }
+    assert_queries(0, '=') { assert_equal result.keys.sort.map(&:to_s), JSON.parse(pm.sources_as_sentence).keys.sort }
     # Verify update source for similar item
     result_similar = {}
     result_similar[s_c.id] = s_c.name
