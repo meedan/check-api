@@ -277,7 +277,7 @@ class TeamTask < ApplicationRecord
   end
 
   def can_change_task_type
-    if (self.task_type_changed? || self.options_changed?) && !tasks_with_answers_count.zero?
+    if self.task_type_changed? && !tasks_with_answers_count.zero?
       errors.add(:base, I18n.t(:cant_change_field_type_or_options_when_answered))
     end
   end
