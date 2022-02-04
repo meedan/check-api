@@ -110,6 +110,6 @@ module ProjectMediaPrivate
   end
 
   def set_channel
-    self.channel = CheckChannels::ChannelCodes::API unless ApiKey.current.nil?
+    self.channel ||= CheckChannels::ChannelCodes::API unless ApiKey.current.nil?
   end
 end
