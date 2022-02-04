@@ -243,7 +243,7 @@ module ProjectMediaCachedFields
           model: Relationship,
           affected_ids: proc { |r| [r.source_id] },
           events: {
-            create: :recalculate,
+            save: :recalculate,
             destroy: :recalculate
           }
         },

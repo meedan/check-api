@@ -377,6 +377,12 @@ class ProjectMedia < ApplicationRecord
     Source.joins('INNER JOIN project_medias pm ON pm.source_id = sources.id').where('pm.id IN (?)', ids).find_each do |s|
       sources[s.id] = s.name
     end
+    # make the main source as the begging of the list
+    unless self.source_id.blank?
+      main_s = sources.slice(self.source_id)
+      sources.delete(self.source_id)
+      sources = main_s.merge(sources)
+    end
     sources.to_json
   end
 
