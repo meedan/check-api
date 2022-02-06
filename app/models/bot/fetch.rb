@@ -287,8 +287,8 @@ class Bot::Fetch < BotUser
         options: [{
           language: language,
           status_label: pm.status_i18n(pm.reload.last_verification_status),
-          description: self.parse_text(claim_review['text']).truncate(240),
-          title: self.get_title(claim_review).truncate(85),
+          description: self.parse_text(claim_review['text']),
+          title: self.get_title(claim_review),
           headline: self.get_title(claim_review).truncate(85),
           use_visual_card: true,
           image: '',
