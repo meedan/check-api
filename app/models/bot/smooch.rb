@@ -32,13 +32,24 @@ class Bot::Smooch < BotUser
     def report_image
       self.get_dynamic_annotation('report_design')&.report_design_image_url(nil)
     end
+
+    def get_deduplicated_smooch_annotations
+      uids = []
+      annotations = []
+      ProjectMedia.where(id: self.related_items_ids).each do |pm|
+        pm.get_annotations('smooch').find_each do |annotation|
+          data = JSON.parse(annotation.load.get_field_value('smooch_data'))
+          uid = data['authorId']
+          next if uids.include?(uid)
+          uids << uid
+          annotations << annotation
+        end
+      end
+      annotations
+    end
   end
 
   ::Relationship.class_eval do
-    def is_valid_smooch_relationship?
-      self.is_confirmed?
-    end
-
     def suggestion_accepted?
       self.relationship_type_before_last_save.to_json == Relationship.suggested_type.to_json && self.is_confirmed?
     end
@@ -46,7 +57,7 @@ class Bot::Smooch < BotUser
     def inherit_status_and_send_report
       target = self.target
       parent = self.source
-      if ::Bot::Smooch.team_has_smooch_bot_installed(target) && self.is_valid_smooch_relationship?
+      if ::Bot::Smooch.team_has_smooch_bot_installed(target) && self.is_confirmed?
         s = target.annotations.where(annotation_type: 'verification_status').last&.load
         status = parent.last_verification_status
         if !s.nil? && s.status != status
@@ -66,7 +77,7 @@ class Bot::Smooch < BotUser
     end
 
     after_destroy do
-      if self.is_valid_smooch_relationship?
+      if self.is_confirmed?
         target = self.target
         s = target.annotations.where(annotation_type: 'verification_status').last&.load
         status = ::Workflow::Workflow.options(target, 'verification_status')[:default]
@@ -361,7 +372,7 @@ class Bot::Smooch < BotUser
     state = self.send_message_if_disabled_and_return_state(uid, workflow, state)
 
     # Shortcuts
-    if [I18n.t(:subscribe, locale: language), I18n.t(:unsubscribe, locale: language)].map(&:downcase).include?(message['text'].to_s.downcase.strip)
+    if [I18n.t(:subscribe, locale: language.gsub(/[-_].*$/, '')), I18n.t(:unsubscribe, locale: language.gsub(/[-_].*$/, ''))].map(&:downcase).include?(message['text'].to_s.downcase.strip)
       self.toggle_subscription(uid, language, self.config['team_id'], self.get_platform_from_message(message), workflow)
       return true
     end
@@ -656,7 +667,7 @@ class Bot::Smooch < BotUser
     m_type = is_supported[:m_type] || 'file'
     max_size = "Uploaded#{m_type.camelize}".constantize.max_size_readable
     workflow = self.get_workflow(message['language'])
-    error_message = is_supported[:type] == false ? workflow['smooch_message_smooch_bot_message_type_unsupported'] : I18n.t(:smooch_bot_message_size_unsupported, { max_size: max_size, locale: message['language'] })
+    error_message = is_supported[:type] == false ? workflow['smooch_message_smooch_bot_message_type_unsupported'] : I18n.t(:smooch_bot_message_size_unsupported, { max_size: max_size, locale: message['language'].gsub(/[-_].*$/, '') })
     self.send_message_to_user(message['authorId'], error_message)
   end
 
@@ -845,12 +856,10 @@ class Bot::Smooch < BotUser
     report = parent.get_annotations('report_design').last&.load
     return if report.nil?
     last_published_at = report.get_field_value('last_published').to_i
-    ProjectMedia.where(id: parent.related_items_ids).each do |pm2|
-      pm2.get_annotations('smooch').find_each do |annotation|
-        data = JSON.parse(annotation.load.get_field_value('smooch_data'))
-        self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
-        self.send_correction_to_user(data, parent, annotation.created_at, last_published_at, action, report.get_field_value('published_count').to_i) unless self.config['smooch_disabled']
-      end
+    parent.get_deduplicated_smooch_annotations.each do |annotation|
+      data = JSON.parse(annotation.load.get_field_value('smooch_data'))
+      self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
+      self.send_correction_to_user(data, parent, annotation.created_at, last_published_at, action, report.get_field_value('published_count').to_i) unless self.config['smooch_disabled']
     end
   end
 

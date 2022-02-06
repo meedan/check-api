@@ -93,13 +93,13 @@ module SmoochMessages
       end
       message << self.subscription_message(uid, language) if state.to_s == 'subscription'
       message << workflow.dig("smooch_state_#{state}", 'smooch_menu_message') if state != 'main' || self.config['smooch_version'] != 'v2'
-      message << self.get_menu_string("#{state}_state", language) if ['search', 'search_result', 'add_more_details', 'ask_if_ready'].include?(state.to_s)
+      message << self.get_menu_string("#{state}_state", language.gsub(/[-_].*$/, '')) if ['search', 'search_result', 'add_more_details', 'ask_if_ready'].include?(state.to_s)
       message.reject{ |m| m.blank? }.join("\n\n")
     end
 
     def subscription_message(uid, language)
       subscribed = !TiplineSubscription.where(team_id: self.config['team_id'], uid: uid, language: language).last.nil?
-      subscribed ? self.get_menu_string('message_subscribed', language) : self.get_menu_string('message_unsubscribed', language)
+      subscribed ? self.get_menu_string('message_subscribed', language.gsub(/[-_].*$/, '')) : self.get_menu_string('message_unsubscribed', language.gsub(/[-_].*$/, ''))
     end
 
     def send_message_if_disabled_and_return_state(uid, workflow, state)
@@ -324,16 +324,14 @@ module SmoochMessages
       return if pm.nil?
       requestors_count = 0
       parent = Relationship.where(target_id: pm.id).last&.source || pm
-      ProjectMedia.where(id: parent.related_items_ids).each do |pm2|
-        pm2.get_annotations('smooch').find_each do |annotation|
-          data = JSON.parse(annotation.load.get_field_value('smooch_data'))
-          self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
-          message = parent.team.get_status_message_for_language(status, data['language'])
-          unless message.blank?
-            response = self.send_message_to_user(data['authorId'], message)
-            self.save_smooch_response(response, parent, data['received'].to_i, 'fact_check_status', data['language'], { message: message })
-            requestors_count += 1
-          end
+      parent.get_deduplicated_smooch_annotations.each do |annotation|
+        data = JSON.parse(annotation.load.get_field_value('smooch_data'))
+        self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
+        message = parent.team.get_status_message_for_language(status, data['language'])
+        unless message.blank?
+          response = self.send_message_to_user(data['authorId'], message)
+          self.save_smooch_response(response, parent, data['received'].to_i, 'fact_check_status', data['language'], { message: message })
+          requestors_count += 1
         end
       end
       CheckNotification::InfoMessages.send('sent_message_to_requestors_on_status_change', status: pm.status_i18n, requestors_count: requestors_count) if requestors_count > 0

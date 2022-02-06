@@ -9,14 +9,20 @@ module ProjectMediaCachedFields
   end
 
   module ClassMethods
-    def analysis_update(field)
+    def metadata_or_claim_or_fact_check_update
       [
         {
-          model: DynamicAnnotation::Field,
-          if: proc { |f| f.field_name == field && f.annotation.annotation_type == 'verification_status' && !f.value.blank? },
-          affected_ids: proc { |f| [f.annotation.annotated_id] },
+          model: ClaimDescription,
+          affected_ids: proc { |cd| [cd.project_media] },
           events: {
-            save: proc { |_pm, f| f.value }
+            save: :recalculate
+          }
+        },
+        {
+          model: FactCheck,
+          affected_ids: proc { |fc| fc.claim_description.project_media },
+          events: {
+            save: :recalculate
           }
         },
         {
@@ -27,6 +33,14 @@ module ProjectMediaCachedFields
               ProjectMedia.where(media_id: f.annotation.annotated_id).map(&:id)
             end
           },
+          events: {
+            save: :recalculate
+          }
+        },
+        {
+          model: DynamicAnnotation::Field,
+          if: proc { |f| ['title', 'content'].include?(f.field_name) && f.annotation.annotation_type == 'verification_status' && !f.value.blank? },
+          affected_ids: proc { |f| [f.annotation.annotated_id] },
           events: {
             save: :recalculate
           }
@@ -140,12 +154,12 @@ module ProjectMediaCachedFields
       ]
 
     cached_field :description,
-      recalculate: proc { |pm| pm.has_analysis_description? ? pm.analysis_description : pm.original_description },
-      update_on: analysis_update('content')
+      recalculate: proc { |pm| pm.get_description },
+      update_on: metadata_or_claim_or_fact_check_update
 
     cached_field :title,
-      recalculate: proc { |pm| pm.has_analysis_title? ? pm.analysis_title : pm.original_title },
-      update_on: analysis_update('title')
+      recalculate: proc { |pm| pm.get_title },
+      update_on: metadata_or_claim_or_fact_check_update
 
     cached_field :status,
       recalculate: proc { |pm| pm.last_verification_status },
@@ -206,6 +220,42 @@ module ProjectMediaCachedFields
           events: {
             save: proc { |pm, t| pm.tags_as_sentence.split(', ').concat([t.tag_text]).join(', ') },
             destroy: proc { |pm, t| pm.tags_as_sentence.split(', ').reject{ |tt| tt == t.tag_text }.join(', ') }
+          }
+        }
+      ]
+
+    cached_field :sources_as_sentence,
+      start_as: proc { |_pm| '' },
+      recalculate: proc { |pm| pm.get_project_media_sources },
+      update_on: [
+        {
+          model: ProjectMedia,
+          affected_ids: proc { |pm| [pm.id].concat(
+            Relationship.where(target_id: pm.id).where('relationship_type = ?', Relationship.confirmed_type.to_yaml)
+            .map(&:source_id)
+            )},
+          if: proc { |pm| pm.saved_change_to_source_id? },
+          events: {
+            save: :recalculate,
+          }
+        },
+        {
+          model: Relationship,
+          affected_ids: proc { |r| [r.source_id] },
+          events: {
+            save: :recalculate,
+            destroy: :recalculate
+          }
+        },
+        {
+          model: Source,
+          if: proc { |s| s.saved_change_to_name? },
+          affected_ids: proc { |s| s.project_media_ids.concat(
+            Relationship.where(target_id: s.project_media_ids).where('relationship_type = ?', Relationship.confirmed_type.to_yaml)
+            .map(&:source_id)
+            )},
+          events: {
+            update: :recalculate,
           }
         }
       ]

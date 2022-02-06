@@ -285,6 +285,7 @@ en:
   duplicate_source: Source already exists
   geolocation_invalid_value: Invalid location. Expecting a valid GeoJSON structure
     (http://geojson.org/)
+  url_invalid_value: The following submitted URL is invalid
   datetime_invalid_date: Invalid date
   error_team_archived: Sorry, you can't add a folder to a trashed workspace
   error_project_archived: Sorry, you can't add an item to a trashed folder
@@ -757,6 +758,7 @@ en:
   list_column_folder: Folder
   list_column_creator_name: Created by
   list_column_team_name: Workspace
+  list_column_sources_as_sentence: Source
   go_back_to_check: Go back to Check
   project_cant_have_children_if_has_parent: This folder has a parent folder, so it
     can't have a child folder

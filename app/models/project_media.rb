@@ -248,7 +248,17 @@ class ProjectMedia < ApplicationRecord
     elsif self.media.media_type != 'blank'
       raise I18n.t(:replace_blank_media_only)
     else
-      self.apply_replace_by(self, new_pm)
+      # Save the new item
+      analysis = self.analysis
+      new_pm.updated_at = Time.now
+      new_pm.skip_check_ability = true
+      new_pm.channel = CheckChannels::ChannelCodes::FETCH
+      new_pm.save(validate: false) # To skip channel validation
+      new_pm.analysis = { title: analysis['title'], content: analysis['content'] }
+      # update creator_name cached field
+      Rails.cache.write("check_cached_field:ProjectMedia:#{new_pm.id}:creator_name", 'Import')
+      # Apply other stuff in background
+      self.delay.apply_replace_by(self, new_pm)
     end
   end
 
@@ -272,11 +282,7 @@ class ProjectMedia < ApplicationRecord
       # Destroy the old item
       old_pm.skip_check_ability = true
       old_pm.destroy!
-      # Save the new item
-      new_pm.updated_at = Time.now
-      new_pm.skip_check_ability = true
-      new_pm.channel = CheckChannels::ChannelCodes::FETCH
-      new_pm.save(validate: false) # To skip channel validation
+      # Save analysis to new item
       new_pm.analysis = { title: analysis['title'], content: analysis['content'] }
       User.current = current_user
       Team.current = current_team
@@ -341,6 +347,8 @@ class ProjectMedia < ApplicationRecord
       user_name = 'Tipline'
     elsif [CheckChannels::ChannelCodes::FETCH, CheckChannels::ChannelCodes::API, CheckChannels::ChannelCodes::ZAPIER].include?(self.channel)
       user_name = 'Import'
+    elsif self.channel == CheckChannels::ChannelCodes::WEB_FORM
+      user_name = 'Web Form'
     end
     user_name
   end
@@ -360,6 +368,22 @@ class ProjectMedia < ApplicationRecord
   # FIXME: Required by GraphQL API
   def claim_descriptions
     self.claim_description ? [self.claim_description] : []
+  end
+
+  def get_project_media_sources
+    ids = ProjectMedia.get_similar_items(self, Relationship.confirmed_type).map(&:id)
+    ids << self.id
+    sources = {}
+    Source.joins('INNER JOIN project_medias pm ON pm.source_id = sources.id').where('pm.id IN (?)', ids).find_each do |s|
+      sources[s.id] = s.name
+    end
+    # make the main source as the begging of the list
+    unless self.source_id.blank?
+      main_s = sources.slice(self.source_id)
+      sources.delete(self.source_id)
+      sources = main_s.merge(sources)
+    end
+    sources.to_json
   end
 
   protected
