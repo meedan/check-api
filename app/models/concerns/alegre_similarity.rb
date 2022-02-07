@@ -90,10 +90,11 @@ module AlegreSimilarity
     end
 
     def send_field_to_similarity_index(pm, field)
-      if pm.send(field).blank?
+      value = pm.send(field)
+      if value.blank?
         self.delete_field_from_text_similarity_index(pm, field, true)
-      else
-        self.send_to_text_similarity_index(pm, field, pm.send(field), self.item_doc_id(pm, field))
+      elsif value.size > 1
+        self.send_to_text_similarity_index(pm, field, value, self.item_doc_id(pm, field))
       end
     end
 
