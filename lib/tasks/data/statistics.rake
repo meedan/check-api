@@ -4,32 +4,39 @@ require 'open-uri'
 
 def get_statistics(start_date, end_date, slugs)
   data = [start_date, end_date]
-  # relationships_query = Relationship.joins('INNER JOIN project_medias pm ON pm.id = relationships.source_id INNER JOIN teams t ON t.id = pm.team_id').where('t.slug' => slugs).where('relationships.created_at' => start_date..end_date)
-  # 
-  # { 'video' => 'UploadedVideo', 'audio' => 'UploadedAudio', 'image' => 'UploadedImage', 'text' => ['Claim', 'Link'] }.each do |type, klass|
-  #   ['confirmed', 'suggested'].each do |relationship_type|
-  #     data << relationships_query.joins('INNER JOIN medias m ON m.id = pm.media_id').where('m.type' => klass).send(relationship_type).count.to_s
-  #   end
-  # end
-  # 
-  # data << Annotation.where(annotation_type: 'extracted_text').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slugs).where('annotations.created_at' => start_date..end_date).count.to_s
-  # data << ProjectMedia.joins(:team).where('teams.slug' => slugs).where('project_medias.created_at' => start_date..end_date).count.to_s
-  data << TiplineSubscription.where(created_at: start_date..end_date).where('teams.slug' => slugs).group(:team_id).joins(:team).count.collect{ |id, count| "#{Team.find(id).name} (#{count})" }.join('; ')
-  value = []
+
+  # Number of conversations
+  value1 = Annotation.where(annotation_type: 'smooch').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slugs).where('annotations.created_at' => start_date..end_date).count.to_s
+  value2 = Annotation.where(annotation_type: 'smooch').joins("INNER JOIN teams t ON annotations.annotated_type = 'Team' AND t.id = annotations.annotated_id").where('t.slug' => slugs).where('annotations.created_at' => start_date..end_date).count.to_s
+  data << (value1 + value2) 
+  
+  # Number of unique users
+  data << Annotation.where(annotation_type: 'smooch_user').joins("INNER JOIN teams t ON annotations.annotated_type = 'Team' AND t.id = annotations.annotated_id").where('t.slug' => slugs).where('annotations.created_at' => start_date..end_date).count.to_s
+
+  # Number of valid queries
+  data << Annotation.where(annotation_type: 'smooch').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slugs).where('annotations.created_at' => start_date..end_date).where('pm.archived' => 0).count.to_s
+
+  # Number of new published reports
+  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slugs).where('annotations.created_at' => start_date..end_date).count.to_s
+
+  # Number of queries answered with a report
+  DynamicAnnotation::Field.where(field_name: 'smooch_report_received').joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slugs).where('dynamic_annotation_fields.created_at' => start_date..end_date).group('pm.id').count.to_s
+
+  # Number of users who received a report
+  DynamicAnnotation::Field.where(field_name: 'smooch_report_received').joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slugs).where('dynamic_annotation_fields.created_at' => start_date..end_date).count.to_s
+
+  # Number of new newsletter subscriptions
+  data << TiplineSubscription.where(created_at: start_date..end_date).where('teams.slug' => slugs).joins(:team).count.to_s
+
+  # Number of newsletter subscription cancellations
+  value = 0
   slugs.each do |slug|
     team = Team.find_by_slug(slug)
     count = Version.from_partition(team.id).where(created_at: start_date..end_date, team_id: team.id, item_type: 'TiplineSubscription', event_type: 'destroy_tiplinesubscription').count
-    value << "#{team.name} (#{count})" if count > 0
+    value += count
   end
-  data << value.join('; ')
-  # data << Annotation.where(annotation_type: 'report_design').where('data LIKE ?', '%state: published%').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slugs).where('annotations.created_at' => start_date..end_date).count.to_s
-  # value = 0
-  # slugs.each do |slug|
-  #   value += Version.from_partition(Team.find_by_slug(slug).id).joins("INNER JOIN annotations a ON a.id = versions.item_id::int8 AND versions.item_type = 'Dynamic'").where('a.annotation_type' => 'report_design').where('object_after LIKE ?', '%"state":"published"%').joins("INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('a.created_at' => start_date..end_date).count
-  # end
-  # data << value.to_s
-  # data << Annotation.where(annotation_type: 'smooch').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slugs).where('annotations.created_at' => start_date..end_date).count.to_s
-  # data << Relationship.joins('INNER JOIN project_medias pm ON pm.id = relationships.source_id INNER JOIN teams t ON t.id = pm.team_id').where('t.slug' => slugs).where('relationships.created_at' => start_date..end_date).where('relationship_type = ?', Relationship.confirmed_type.to_yaml).count.to_s
+  data << value
+
   puts data.join(',')
 end
 
@@ -46,21 +53,15 @@ namespace :check do
       if slugs.empty?
         puts 'Please provide a list of workspace slugs'
       else
-        # puts "Getting data from #{start_month}/#{year} to #{end_month}/#{year} for workspaces #{slugs.join(', ')}#{group_by_month == 1 ? ' (grouped by month)' : ''}."
         header = ['From', 'To']
-        # { 'video' => 'UploadedVideo', 'audio' => 'UploadedAudio', 'image' => 'UploadedImage', 'text' => ['Claim', 'Link'] }.each do |type, klass|
-        #   ['confirmed', 'suggested'].each do |relationship_type|
-        #     header << "Number of #{type} #{relationship_type}"
-        #   end
-        # end
-        # header << 'Number of OCR’d images'
-        # header << 'Number of claims available through the search DB'
-        header << 'Number of users who opted-in / received the newsletter per publisher'
-        header << 'Number of users who opted-out from the newsletter per publisher'
-        # header << 'Number of fact-checks published'
-        # header << 'Number of fact-checks sent to users'
-        # header << 'Number of requests'
-        # header << 'Number of similar media'
+        header << '# of conversations'
+        header << '# of new unique users'
+        header << '# of valid queries (not in trash)'
+        header << '# of new published reports'
+        header << '# of queries answered with a report'
+        header << '# of users who received a report'
+        header << '# of new newsletter subscriptions'
+        header << '# of newsletter subscription cancellations'
         puts header.join(',')
 
         if group_by_month == 1
