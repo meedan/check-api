@@ -210,7 +210,7 @@ class Bot::Fetch < BotUser
       cd = ClaimDescription.new
       cd.skip_check_ability = true
       cd.project_media = pm
-      cd.description = self.parse_text(claim_review['text'])
+      cd.description = '-'
       cd.user = user
       cd.save!
 
