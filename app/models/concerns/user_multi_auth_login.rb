@@ -120,7 +120,6 @@ module UserMultiAuthLogin
 
     def get_social_accounts_for_login(conditions = {})
       s = self.source
-      return nil if s.nil? || !ApplicationRecord.connection.column_exists?(:accounts, :uid)
       if conditions.blank?
         a = s.accounts.where("uid IS NOT NULL AND user_id = ?", self.id)
       else
