@@ -2501,7 +2501,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     # Set channel with API if ApiKey exists
     a = create_api_key
     ApiKey.current = a
-    pm3 = create_project_media
+    pm3 = create_project_media channel: nil
     assert_equal CheckChannels::ChannelCodes::API, pm3.channel
     ApiKey.current = nil
   end
@@ -2733,9 +2733,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     s_a = create_source team: t, name: 'source_a'
     s_b = create_source team: t, name: 'source_b'
     s_c = create_source team: t, name: 'source_c'
+    s_d = create_source team: t, name: 'source_d'
     pm = create_project_media team: t, source: s_a, skip_autocreate_source: false
     t1 = create_project_media team: t, source: s_b, skip_autocreate_source: false
     t2 = create_project_media team: t, source: s_c, skip_autocreate_source: false
+    t3 = create_project_media team: t, source: s_d, skip_autocreate_source: false
     result = {}
     # Verify cache item source
     result[s_a.id] = s_a.name
@@ -2743,10 +2745,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
     # Verify cache source for similar items
     r1 = create_relationship source_id: pm.id, target_id: t1.id, relationship_type: Relationship.confirmed_type
     r2 = create_relationship source_id: pm.id, target_id: t2.id, relationship_type: Relationship.confirmed_type
+    r3 = create_relationship source_id: pm.id, target_id: t3.id, relationship_type: Relationship.suggested_type
     result[s_b.id] = s_b.name
     result[s_c.id] = s_c.name
     pm = ProjectMedia.find(pm.id)
     assert_queries(0, '=') { assert_equal result.to_json, pm.sources_as_sentence }
+    # Verify main source is a first element
+    assert_equal pm.source_id, JSON.parse(pm.sources_as_sentence).keys.first.to_i
     # Verify update source names after destroy similar item
     r1.destroy
     result.delete(s_b.id)
@@ -2758,7 +2763,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     result.delete(s_a.id)
     result[new_s1.id] = new_s1.name
     pm = ProjectMedia.find(pm.id)
-    assert_queries(0, '=') { assert_equal result.to_json, pm.sources_as_sentence }
+    assert_queries(0, '=') { assert_equal result.keys.sort.map(&:to_s), JSON.parse(pm.sources_as_sentence).keys.sort }
     # Verify update source for similar item
     result_similar = {}
     result_similar[s_c.id] = s_c.name
@@ -2778,8 +2783,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
     result[new_s2.id] = 'update source'
     pm = ProjectMedia.find(pm.id)
     assert_queries(0, '=') { assert_equal result.to_json, pm.sources_as_sentence }
+    # Verify update relation
+    r3.relationship_type = Relationship.confirmed_type; r3.save!
+    result[s_d.id] = s_d.name
+    pm = ProjectMedia.find(pm.id)
+    result_keys = result.keys.map(&:to_i).sort
+    sources_keys = JSON.parse(pm.sources_as_sentence).keys.map(&:to_i).sort
+    assert_queries(0, '=') { assert_equal result_keys, sources_keys }
     Rails.cache.clear
-    assert_queries(0, '>') { assert_equal result.to_json, pm.sources_as_sentence }
+    assert_queries(0, '>') { assert_equal result_keys, JSON.parse(pm.sources_as_sentence).keys.map(&:to_i).sort }
   end
 
   test "should have web form channel" do

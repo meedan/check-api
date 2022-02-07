@@ -255,7 +255,9 @@ class ProjectMedia < ApplicationRecord
       new_pm.channel = CheckChannels::ChannelCodes::FETCH
       new_pm.save(validate: false) # To skip channel validation
       new_pm.analysis = { title: analysis['title'], content: analysis['content'] }
-      # update creator_name cached field
+      # Point the claim
+      new_pm.claim_description = self.claim_description
+      # Update creator_name cached field
       Rails.cache.write("check_cached_field:ProjectMedia:#{new_pm.id}:creator_name", 'Import')
       # Apply other stuff in background
       self.delay.apply_replace_by(self, new_pm)
@@ -376,6 +378,12 @@ class ProjectMedia < ApplicationRecord
     sources = {}
     Source.joins('INNER JOIN project_medias pm ON pm.source_id = sources.id').where('pm.id IN (?)', ids).find_each do |s|
       sources[s.id] = s.name
+    end
+    # make the main source as the begging of the list
+    unless self.source_id.blank?
+      main_s = sources.slice(self.source_id)
+      sources.delete(self.source_id)
+      sources = main_s.merge(sources)
     end
     sources.to_json
   end

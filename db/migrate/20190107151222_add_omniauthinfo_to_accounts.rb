@@ -1,10 +1,5 @@
 class AddOmniauthinfoToAccounts < ActiveRecord::Migration[4.2]
   def change
-  	add_column :accounts, :omniauth_info, :text
-  	add_column :accounts, :uid, :string
-  	add_column :accounts, :provider, :string
-  	add_column :accounts, :token, :string
-    add_column :accounts, :email, :string
     # Migrate provider value
     Account.find_each do |a|
       provider = a.data['provider']
