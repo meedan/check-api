@@ -101,7 +101,6 @@ module UserInvitation
     end
 
     def is_invited?(team = nil)
-      return false unless ApplicationRecord.connection.column_exists?(:users, :invitation_token)
       team ||= Team.current
       return true if self.invited_to_sign_up?
       tu = self.team_users.where(status: 'invited', team_id: team.id).where.not(invitation_token: nil).last unless team.nil?
