@@ -434,7 +434,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
   end
 
-  test "should return empty when shouldnt get similar items of certain type zzz" do
+  test "should return empty when shouldnt get similar items of certain type" do
     p = create_project
     pm1 = create_project_media project: p, quote: "Blah", team: @team
     pm1.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
@@ -689,6 +689,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm.save!
     Bot::Alegre.stubs(:request_api).returns(true)
     assert Bot::Alegre.send_to_media_similarity_index(pm)
+    Bot::Alegre.unstub(:request_api)
   end
 
   test "should pass through the send audio to similarity index call" do
@@ -701,6 +702,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm.save!
     Bot::Alegre.stubs(:request_api).returns(true)
     assert Bot::Alegre.send_to_media_similarity_index(pm)
+    Bot::Alegre.unstub(:request_api)
   end
 
   test "should pass through the send to description similarity index call" do
@@ -711,6 +713,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm.save!
     Bot::Alegre.stubs(:request_api).returns(true)
     assert Bot::Alegre.send_field_to_similarity_index(pm, 'description')
+    Bot::Alegre.unstub(:request_api)
   end
 
   test "should get items with similar description" do
@@ -744,7 +747,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:request_api)
   end
 
-  test "should get items with similar title when using non-elasticsearch matching model zzz" do
+  test "should get items with similar title when using non-elasticsearch matching model" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media quote: "Blah", team: @team
@@ -772,6 +775,61 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Bot::Alegre.stubs(:matching_model_to_use).with(pm).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
     response = Bot::Alegre.get_items_with_similar_title(pm, {key: 'text_elasticsearch_suggestion_threshold', value: 0.1, automatic: false})
     assert_equal response.class, Hash
+    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:matching_model_to_use)
+  end
+
+  test "should merge items with similar title when using non-elasticsearch and elasticsearch matching model" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah", team: @team
+    pm.analysis = { title: 'This is some more longer title that has enough text to be worth checking Title 1' }
+    pm.save!
+    pm2 = create_project_media quote: "Blah2", team: @team
+    pm2.analysis = { title: 'Title 1' }
+    pm2.save!
+    response = {"result" => [{
+        "_index" => "alegre_similarity",
+        "_type" => "_doc",
+        "_id" => "tMXj53UB36CYclMPXp14",
+        "_score" => 10.9,
+        "_source" => {
+          "content" => "Bautista began his wrestling career in 1999, and signed with the World Wrestling Federation (WWF, now WWE) in 2000. From 2002 to 2010, he gained fame under the ring name Batista and became a six-time world champion by winning the World Heavyweight Championship four times and the WWE Championship twice. He holds the record for the longest reign as World Heavyweight Champion at 282 days and has also won the World Tag Team Championship three times (twice with Ric Flair and once with John Cena) and the WWE Tag Team Championship once (with Rey Mysterio). He was the winner of the 2005 Royal Rumble match and went on to headline WrestleMania 21, one of the top five highest-grossing pay-per-view events in professional wrestling history",
+          "context" => {
+            "team_id" => pm2.team.id.to_s,
+            "field" => "title",
+            "project_media_id" => pm2.id.to_s
+          }
+        }
+      }
+      ]
+    }
+    response2 = {"result" => [{
+        "_index" => "alegre_similarity",
+        "_type" => "_doc",
+        "_id" => "tMXj53UB36CYclMPXp14",
+        "_score" => 0.9,
+        "_source" => {
+          "content" => "Bautista began his wrestling career in 1999, and signed with the World Wrestling Federation (WWF, now WWE) in 2000. From 2002 to 2010, he gained fame under the ring name Batista and became a six-time world champion by winning the World Heavyweight Championship four times and the WWE Championship twice. He holds the record for the longest reign as World Heavyweight Champion at 282 days and has also won the World Tag Team Championship three times (twice with Ric Flair and once with John Cena) and the WWE Tag Team Championship once (with Rey Mysterio). He was the winner of the 2005 Royal Rumble match and went on to headline WrestleMania 21, one of the top five highest-grossing pay-per-view events in professional wrestling history",
+          "context" => {
+            "team_id" => pm2.team.id.to_s,
+            "field" => "title",
+            "project_media_id" => pm2.id.to_s
+          }
+        }
+      }
+      ]
+    }
+    [0.7, 0.75,0.95].each do |threshold|
+      ["original_title","original_description","report_text_title","transcription","extracted_text","report_text_content","report_visual_card_title","claim_description_content","fact_check_summary","report_visual_card_content","fact_check_title"].each do |field|
+        Bot::Alegre.stubs(:request_api).with("get", "/text/similarity/", {:text=>"Blah", :model=>"elasticsearch", :fuzzy=>false, :context=>{:has_custom_id=>true, :field=>field, :team_id=>pm.team_id}, :threshold=>threshold, :match_across_content_types=>true}, "body").returns(response)
+        Bot::Alegre.stubs(:request_api).with("get", "/text/similarity/", {:text=>"Blah", :model=>Bot::Alegre::MEAN_TOKENS_MODEL, :fuzzy=>false, :context=>{:has_custom_id=>true, :field=>field, :team_id=>pm.team_id}, :threshold=>threshold, :match_across_content_types=>true}, "body").returns(response2)
+      end
+    end
+    Bot::Alegre.stubs(:matching_model_to_use).with(pm).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
+    response = Bot::Alegre.relate_project_media_to_similar_items(pm)
+    assert_equal response.model, Bot::Alegre::MEAN_TOKENS_MODEL
+    assert_equal response.weight, 0.9
     Bot::Alegre.unstub(:request_api)
     Bot::Alegre.unstub(:matching_model_to_use)
   end
@@ -842,7 +900,9 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should capture error when failing to call service" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
        WebMock.stub_request(:get, 'http://alegre/text/langid/').to_return(body: 'bad JSON response')
+       WebMock.stub_request(:post, 'http://alegre/text/langid/').to_return(body: 'bad JSON response')
        WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
+       WebMock.stub_request(:get, 'http://alegre/text/similarity/').to_return(body: 'success')
        WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
        Bot::Alegre.any_instance.stubs(:get_language).raises(RuntimeError)
        assert_nothing_raised do
@@ -1000,7 +1060,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should index report data" do
-    WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
+    WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
+    WebMock.stub_request(:post, 'http://alegre:5000/text/similarity/').to_return(body: {}.to_json)
     pm = create_project_media team: @team
     assert_nothing_raised do
       publish_report(pm)

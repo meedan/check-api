@@ -38,6 +38,7 @@ class Bot::FetchTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, 'http://fetch:8000/claim_reviews?end_time=2017-08-10&per_page=10000&service=test&start_time=2017-08-09').to_return(body: [@claim_review].to_json)
     WebMock.stub_request(:post, 'http://fetch:8000/subscribe').with(body: { service: 'foo', url: 'http://check:5000/api/webhooks/fetch?team=fetch&token=test' }.to_json).to_return(body: '{}')
     WebMock.stub_request(:delete, 'http://fetch:8000/subscribe').with(body: { service: 'test', url: 'http://check:5000/api/webhooks/fetch?team=fetch&token=test' }.to_json).to_return(body: '{}')
+    WebMock.stub_request(:post, 'http://alegre:5000/text/similarity/').to_return(body: {}.to_json)
     
     create_verification_status_stuff
     create_report_design_annotation_type
