@@ -1170,7 +1170,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm1 = create_project_media team: @team, cluster_id: c1.id
     pm2 = create_project_media team: @team, cluster_id: c2.id
 
-    ProjectMedia.any_instance.stubs(:similar_items_ids_and_scores).returns({ pm1.id => 0.9, pm2.id => 0.8 })
+    ProjectMedia.any_instance.stubs(:similar_items_ids_and_scores).returns({ pm1.id => { score: 0.9 }, pm2.id => { score: 0.8 } })
     pm3 = create_project_media team: @team
     Bot::Alegre.set_cluster(pm3)
     assert_equal c1.id, pm3.reload.cluster_id

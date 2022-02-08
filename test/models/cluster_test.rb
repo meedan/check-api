@@ -86,4 +86,15 @@ class ClusterTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should set cluster" do
+    t = create_team
+    pm1 = create_project_media team: t
+    c = create_cluster
+    c.project_medias << pm1
+    pm2 = create_project_media team: t
+    ProjectMedia.any_instance.stubs(:similar_items_ids_and_scores).returns({ pm1.id => { score: 0.9, context: {} }, random_number => { score: 0.8, context: { foo: 'bar' } } })
+    assert_equal c, Bot::Alegre.set_cluster(pm2)
+    ProjectMedia.any_instance.unstub(:similar_items_ids_and_scores)
+  end
 end 
