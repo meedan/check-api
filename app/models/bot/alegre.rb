@@ -162,7 +162,7 @@ class Bot::Alegre < BotUser
     pm = ProjectMedia.find(pm.id)
     return if !pm.cluster_id.blank? || !team_ids.include?(pm.team_id)
     ids_and_scores = pm.similar_items_ids_and_scores(team_ids)
-    main_id = ids_and_scores.key(ids_and_scores.values.max)
+    main_id = ids_and_scores.max_by{ |_pm_id, score_and_context| score_and_context[:score] }&.first
     main = ProjectMedia.find_by_id(main_id.to_i)
     cluster = main&.cluster
     unless cluster

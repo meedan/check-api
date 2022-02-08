@@ -416,6 +416,16 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   end
 
   test "should get language" do
+    stub_request(:post, "http://alegre/text/langid/").
+    with(
+      body: "{\"text\":\"This is just a test\"}",
+      headers: {
+  	  'Accept'=>'*/*',
+  	  'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+  	  'Content-Type'=>'application/json',
+  	  'User-Agent'=>'Ruby'
+      }).
+    to_return(status: 200, body: "", headers: {})
     Bot::Smooch.unstub(:get_language)
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.stub_request(:get, 'http://alegre/text/langid/').to_return(body: {

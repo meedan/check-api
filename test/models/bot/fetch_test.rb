@@ -38,6 +38,7 @@ class Bot::FetchTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, 'http://fetch:8000/claim_reviews?end_time=2017-08-10&per_page=10000&service=test&start_time=2017-08-09').to_return(body: [@claim_review].to_json)
     WebMock.stub_request(:post, 'http://fetch:8000/subscribe').with(body: { service: 'foo', url: 'http://check:5000/api/webhooks/fetch?team=fetch&token=test' }.to_json).to_return(body: '{}')
     WebMock.stub_request(:delete, 'http://fetch:8000/subscribe').with(body: { service: 'test', url: 'http://check:5000/api/webhooks/fetch?team=fetch&token=test' }.to_json).to_return(body: '{}')
+    WebMock.stub_request(:post, 'http://alegre:5000/text/similarity/').to_return(body: {}.to_json)
     
     create_verification_status_stuff
     create_report_design_annotation_type
@@ -156,6 +157,7 @@ class Bot::FetchTest < ActiveSupport::TestCase
   end
 
   test "should import claim reviews with report and correct status and ignore duplicates" do
+    RequestStore.store[:skip_cached_field_update] = false
     cr1 = @claim_review.deep_dup
     cr1['reviewRating']['ratingValue'] = 0
     cr1['reviewRating']['alternateName'] = 'False'
@@ -183,8 +185,8 @@ class Bot::FetchTest < ActiveSupport::TestCase
       d = DynamicAnnotation::Field.where(field_name: 'external_id', value: id).last
       assert_not_nil d
       assert_equal statuses[i], d.annotation.annotated.last_status
-      assert_equal "Earth isn't flat", d.annotation.annotated.last_status_obj.get_field_value('title')
-      assert_equal "Scientific evidences show that Earth is round",  d.annotation.annotated.last_status_obj.get_field_value('content')
+      assert_equal "Earth isn't flat", d.annotation.annotated.title
+      assert_equal "Scientific evidences show that Earth is round",  d.annotation.annotated.description
     end
     r = Dynamic.where(annotation_type: 'report_design').last
     assert_equal "Earth isn't flat", r.report_design_field_value('headline', 'en')
