@@ -156,6 +156,7 @@ class Bot::FetchTest < ActiveSupport::TestCase
   end
 
   test "should import claim reviews with report and correct status and ignore duplicates" do
+    RequestStore.store[:skip_cached_field_update] = false
     cr1 = @claim_review.deep_dup
     cr1['reviewRating']['ratingValue'] = 0
     cr1['reviewRating']['alternateName'] = 'False'
@@ -183,8 +184,8 @@ class Bot::FetchTest < ActiveSupport::TestCase
       d = DynamicAnnotation::Field.where(field_name: 'external_id', value: id).last
       assert_not_nil d
       assert_equal statuses[i], d.annotation.annotated.last_status
-      assert_equal "Earth isn't flat", d.annotation.annotated.last_status_obj.get_field_value('title')
-      assert_equal "Scientific evidences show that Earth is round",  d.annotation.annotated.last_status_obj.get_field_value('content')
+      assert_equal "Earth isn't flat", d.annotation.annotated.title
+      assert_equal "Scientific evidences show that Earth is round",  d.annotation.annotated.description
     end
     r = Dynamic.where(annotation_type: 'report_design').last
     assert_equal "Earth isn't flat", r.report_design_field_value('headline', 'en')
