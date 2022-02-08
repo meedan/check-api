@@ -6,12 +6,21 @@ def get_statistics(start_date, end_date, slug)
   data = [Team.find_by_slug(slug).name, start_date, end_date]
 
   # Number of conversations
-  value1 = Annotation.where(annotation_type: 'smooch').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date).count.to_s
-  value2 = Annotation.where(annotation_type: 'smooch').joins("INNER JOIN teams t ON annotations.annotated_type = 'Team' AND t.id = annotations.annotated_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date).count.to_s
-  data << (value1 + value2) 
+  value1 = Annotation.where(annotation_type: 'smooch').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date).count
+  value2 = Annotation.where(annotation_type: 'smooch').joins("INNER JOIN teams t ON annotations.annotated_type = 'Team' AND t.id = annotations.annotated_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date).count
+  data << (value1 + value2).to_s
   
   # Number of unique users
-  data << Annotation.where(annotation_type: 'smooch_user').joins("INNER JOIN teams t ON annotations.annotated_type = 'Team' AND t.id = annotations.annotated_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date).count.to_s
+  uids = []
+  Annotation.where(annotation_type: 'smooch').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date).find_each do |a|
+    uid = begin JSON.parse(a.load.get_field_value('smooch_data'))['authorId'] rescue nil end
+    uids << uid if !uid.nil? && !uids.include?(uid)
+  end
+  Annotation.where(annotation_type: 'smooch').joins("INNER JOIN teams t ON annotations.annotated_type = 'Team' AND t.id = annotations.annotated_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date).find_each do |a|
+    uid = begin JSON.parse(a.load.get_field_value('smooch_data'))['authorId'] rescue nil end
+    uids << uid if !uid.nil? && !uids.include?(uid)
+  end
+  data << uids.size
 
   # Number of valid queries
   data << Annotation.where(annotation_type: 'smooch').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date).where('pm.archived' => 0).count.to_s
@@ -50,7 +59,7 @@ namespace :check do
       else
         header = ['Org', 'From', 'To']
         header << '# of conversations'
-        header << '# of new unique users'
+        header << '# of unique users'
         header << '# of valid queries (not in trash)'
         header << '# of new published reports'
         header << '# of queries answered with a report'
