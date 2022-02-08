@@ -792,6 +792,8 @@ id:
   project_group_must_be_under_same_team: Koleksi tersebut harus berada di bawah ruang
     kerja yang sama
   unique_default_folder_per_team: Ruang kerja harus memiliki hanya satu folder bawaan
+  center_is_not_part_of_another_cluster: Pusat klaster ini tidak dapat menjadi bagian
+    dari klaster lain
   smooch_bot_message_subscribed: |-
     Sekarang Anda telah berlangganan.
 

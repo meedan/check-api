@@ -773,6 +773,8 @@ ar:
     أن يحوي مجلدا بداخله
   project_group_must_be_under_same_team: يجب أن تكون المجموعة ضمن نفس مساحة العمل
   unique_default_folder_per_team: يجب أن تحتوي مساحة العمل على مجلد افتراضي واحد
+  center_is_not_part_of_another_cluster: لا يمكن أن يكون مركز هذا التجمع جزءا من تجمع
+    آخر
   smooch_bot_message_subscribed: |-
     لقد اشتركت الآن.
 
