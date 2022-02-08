@@ -900,7 +900,9 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should capture error when failing to call service" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
        WebMock.stub_request(:get, 'http://alegre/text/langid/').to_return(body: 'bad JSON response')
+       WebMock.stub_request(:post, 'http://alegre/text/langid/').to_return(body: 'bad JSON response')
        WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
+       WebMock.stub_request(:get, 'http://alegre/text/similarity/').to_return(body: 'success')
        WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
        Bot::Alegre.any_instance.stubs(:get_language).raises(RuntimeError)
        assert_nothing_raised do
@@ -1058,7 +1060,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should index report data" do
-    WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
+    WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
+    WebMock.stub_request(:post, 'http://alegre:5000/text/similarity/').to_return(body: {}.to_json)
     pm = create_project_media team: @team
     assert_nothing_raised do
       publish_report(pm)
