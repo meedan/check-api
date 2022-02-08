@@ -95,41 +95,49 @@ module SmoochMenus
       counter
     end
 
-    def get_menu_string(key, _language, truncate_at = 1024)
+    def get_menu_string(key, language, truncate_at = 1024)
       # Truncation happens because WhatsApp has limitations:
       # - Section title: 24 characters
       # - Menu item title: 24 characters
       # - Menu item description: 72 characters
       # - Button label: 20 characters
       # - Body: 1024 characters
-      # FIXME: For now these are hard-coded, but the user will be able to set SOME (see in Airtable the ones that are hard-coded) of them in the UI (this method should still provide a default string in English)
-      label = {
-        smooch_state_main_title: 'Main',
-        query_state: 'Submit new content to fact-check',
-        subscription_state: 'Subscribe to our newsletter',
-        smooch_state_secondary_title: 'Secondary',
+      workflow = self.get_workflow(language) || {}
+      label = workflow[key.to_s] || {
+        smooch_state_main_title: 'Main', # FIXME: This is a section title that can be customized in the UI
+        query_state: 'Submit new content to fact-check', # FIXME: This is a menu option label that can be customized in the UI
+        subscription_state: 'Subscribe to our newsletter', # FIXME: This is a menu option label that can be customized in the UI
+        smooch_state_secondary_title: 'Secondary', # FIXME: This is a section title that can be customized in the UI
+        main_menu: 'Main menu', # FIXME: This is a section title that can be customized in the UI
+        languages_and_privacy_title: 'Languages and Privacy', # FIXME: This is a section title that can be customized in the UI
+
+        # Button labels
         main_state_button_label: 'Cancel',
         search_state_button_label: 'Submit',
         add_more_details_state_button_label: 'Add more information',
-        search_no_results: 'No fact-checks could be found for this content. Thank you for alerting us! Sent to investigation.',
-        main_menu: 'Main menu',
-        search_state: 'Got it! Let us check this claim',
-        ask_if_ready_state: 'Are you ready to submit?',
-        add_more_details_state: 'OK! Please add more content. You can also send a video, image or audio file.',
-        search_error: 'Error when trying to look for fact-checks. Please try again later.',
-        search_result_state: 'Are these articles answering your question?',
-        search_submit: 'Thank you for your feedback. Journalists on our team have been notified and you will receive an update in this thread if the information is fact-checked.',
-        search_result_is_relevant: 'Thank you for your feedback!',
         search_result_is_relevant_button_label: 'Yes',
         search_result_is_not_relevant_button_label: 'No',
-        cancelled: 'OK! Your request has been cancelled.',
-        languages_and_privacy_title: 'Languages and Privacy',
+
+        # Probably hard-coded, needs review
         privacy_statement: 'Privacy statement',
         subscription_confirmation_button_label: 'Change',
-        message_subscribed: 'You are currently *subscribed* to the newsletter',
-        message_unsubscribed: 'You are currently *unsubscribed* to the newsletter',
         confirm_preferred_language: 'Please confirm your preferred language:',
-        languages: 'Languages'
+        languages: 'Languages',
+
+        # Hard-coded messages
+        subscribed: 'Subscribed',
+        unsubscribed: 'Unsubscribed',
+
+        # Default values for customizable messages
+        cancelled: 'OK! Your submission is canceled.',
+        ask_if_ready_state: 'Are you ready to submit?',
+        add_more_details_state: 'OK! Please add more content.',
+        search_state: 'Thank you! Looking for fact-checks.',
+        search_no_results: 'No result has been found. Journalists on our team have been notified and you will receive an update in this thread if the information is fact-checked.',
+        search_result_state: 'Are these fact-checks answering your question?',
+        search_submit: 'Thank you for your feedback. Journalists on our team have been notified and you will receive an update in this thread if the information is fact-checked.',
+        search_result_is_relevant: 'Thank you! Spread the word about this tipline to help us fight misinformation!',
+        newsletter_optin_optout: 'Our newsletter is the best fact-checking resource to stay informed. {subscription_status}.',
       }[key.to_sym] || key
       label.truncate(truncate_at)
     end

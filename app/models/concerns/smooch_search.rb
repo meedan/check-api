@@ -24,7 +24,7 @@ module SmoochSearch
     end
 
     def handle_search_error(uid, e, language)
-      self.send_message_to_user(uid, self.get_menu_string('search_error', language))
+      self.send_message_to_user(uid, 'Error')
       sm = CheckStateMachine.new(uid)
       sm.reset
       self.handle_exception(e)

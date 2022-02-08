@@ -97,9 +97,10 @@ module SmoochMessages
       message.reject{ |m| m.blank? }.join("\n\n")
     end
 
-    def subscription_message(uid, language)
-      subscribed = !TiplineSubscription.where(team_id: self.config['team_id'], uid: uid, language: language).last.nil?
-      subscribed ? self.get_menu_string('message_subscribed', language.gsub(/[-_].*$/, '')) : self.get_menu_string('message_unsubscribed', language.gsub(/[-_].*$/, ''))
+    def subscription_message(uid, language, subscribed = nil)
+      subscribed = subscribed.nil? ? !TiplineSubscription.where(team_id: self.config['team_id'], uid: uid, language: language).last.nil? : subscribed
+      status = subscribed ? self.get_menu_string('subscribed', language.gsub(/[-_].*$/, '')) : self.get_menu_string('unsubscribed', language.gsub(/[-_].*$/, ''))
+      self.get_menu_string('newsletter_optin_optout', language).gsub('{subscription_status}', status)
     end
 
     def send_message_if_disabled_and_return_state(uid, workflow, state)
