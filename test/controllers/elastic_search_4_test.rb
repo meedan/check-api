@@ -170,6 +170,7 @@ class ElasticSearch4Test < ActionController::TestCase
   end
 
   test "should include tag status and comments in recent activity sort" do
+    RequestStore.store[:skip_cached_field_update] = false
     t = create_team
     p = create_project team: t
     pm1  = create_project_media project: p, disable_es_callbacks: false
