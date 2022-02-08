@@ -230,10 +230,6 @@ class Bot::Fetch < BotUser
       s.skip_notifications = true
       s.disable_es_callbacks = Rails.env.to_s == 'test'
       s.set_fields = {
-        title: self.get_title(claim_review),
-        content: self.parse_text(claim_review['text']),
-        published_article_url: claim_review['url'].to_s,
-        date_published: claim_review['datePublished'].blank? ? '' : Time.parse(claim_review['datePublished']).to_i,
         external_id: claim_review['identifier'].to_s,
         raw: claim_review.to_json
       }.to_json
