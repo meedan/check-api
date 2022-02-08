@@ -813,6 +813,8 @@ fr:
     de travail
   unique_default_folder_per_team: L’espace de travail ne devrait avoir qu’un dossier
     par défaut
+  center_is_not_part_of_another_cluster: Le centre de ce groupe ne peut pas faire
+    partie d’un autre groupe
   smooch_bot_message_subscribed: |-
     L’abonnement est en vigueur.
 
