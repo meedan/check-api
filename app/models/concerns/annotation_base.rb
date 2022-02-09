@@ -99,21 +99,21 @@ module AnnotationBase
     end
 
     def touch_annotated
-      annotated.update_columns(updated_at: Time.now) if should_touch_annotated?
-    end
-
-    def should_touch_annotated?
       annotated = self.annotated
-      ret = false
       unless annotated.nil?
         if annotated.is_a?(Link)
-          ret = true
+          # the notification will be triggered by the annotation already
+          annotated.skip_check_ability = annotated.skip_notifications = true
+          annotated.skip_clear_cache = self.skip_clear_cache
+          annotated.updated_at = Time.now
+          annotated.disable_es_callbacks = true
+          ApplicationRecord.connection_pool.with_connection do
+            annotated.save!(validate: false)
+          end
         elsif annotated.is_a?(ProjectMedia)
-          # here shold check annotation type
-          ret = ['comment', 'tag', 'verification_status'].include?(self.annotation_type) || self.annotation_type =~ /^task_response/
+          annotated.update_columns(updated_at: Time.now) if ['comment', 'tag', 'verification_status'].include?(self.annotation_type) || self.annotation_type =~ /^task_response/
         end
       end
-      ret
     end
 
     def annotated_is_not_archived
