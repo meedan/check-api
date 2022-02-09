@@ -3,7 +3,7 @@ require 'sidekiq/testing'
 
 # Tests Smooch Bot v2
 
-class Bot::Smooch5Test < ActiveSupport::TestCase
+class Bot::Smooch6Test < ActiveSupport::TestCase
   def setup
     super
     setup_smooch_bot(true)
@@ -84,6 +84,7 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
   end
 
   test "should submit query without details on tipline bot v2" do
+    WebMock.stub_request(:get, 'http://alegre:5000/text/similarity/').to_return(body: {}.to_json)
     claim = 'This is a test claim'
     send_message 'hello', '1', '1', random_string, random_string, claim, random_string, random_string, '1'
     assert_saved_query_type 'default_requests'
@@ -152,6 +153,7 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
   end
 
   test "should submit query with details on tipline bot v2" do
+    WebMock.stub_request(:get, 'http://alegre:5000/text/similarity/').to_return(body: {}.to_json)
     claim = 'This is a test claim'
     send_message 'hello', '1', '1', random_string, '2', random_string, claim, '1'
     assert_saved_query_type 'default_requests'
