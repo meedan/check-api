@@ -5,7 +5,7 @@ module SmoochStrings
 
   module ClassMethods
     def get_string(key, language)
-      {
+      string = {
         # Button labels
         main_state_button_label: {
           en: 'Cancel',
@@ -59,7 +59,9 @@ module SmoochStrings
           en: 'Unsubscribed',
           pt: 'Não-inscrito'
         }
-      }[key.to_sym][language.gsub(/[-_].*$/, '').to_sym]
+      }[key.to_sym]
+      language = language.gsub(/[-_].*$/, '').to_sym
+      string ? (string[language] || string[:en]) : string
     end
   end
 end
