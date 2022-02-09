@@ -26,6 +26,7 @@ module SmoochStrings
           "be": "আরও তথ্য যোগ করুন",
           "de": "Mehr hinzufügen",
           "es": "Añadir más ",
+          "pt": "Adicionar mais",
           "ur": "مزید معلومات شامل کریں"
         },
         "main_menu": {
