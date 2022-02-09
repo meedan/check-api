@@ -23,6 +23,7 @@ class Bot::Smooch < BotUser
   include SmoochSearch
   include SmoochZendesk
   include SmoochTurnio
+  include SmoochStrings
   include SmoochMenus
   include SmoochVersions
 

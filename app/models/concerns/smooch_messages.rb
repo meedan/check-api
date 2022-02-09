@@ -93,7 +93,7 @@ module SmoochMessages
       end
       message << self.subscription_message(uid, language) if state.to_s == 'subscription'
       message << workflow.dig("smooch_state_#{state}", 'smooch_menu_message') if state != 'main' || self.config['smooch_version'] != 'v2'
-      message << self.get_menu_string("#{state}_state", language.gsub(/[-_].*$/, '')) if ['search', 'search_result', 'add_more_details', 'ask_if_ready'].include?(state.to_s)
+      message << self.get_menu_string("#{state}_state", language) if ['search', 'search_result', 'add_more_details', 'ask_if_ready'].include?(state.to_s)
       message.reject{ |m| m.blank? }.join("\n\n")
     end
 

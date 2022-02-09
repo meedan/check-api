@@ -8,33 +8,28 @@ module SmoochMenus
       main = []
       counter = 1
 
-      # Main section
-      rows = []
-      workflow['smooch_state_main'].to_h['smooch_menu_options'].to_a.select{ |o| ['query_state', 'subscription_state'].include?(o['smooch_menu_option_value']) }.each do |option|
-        rows << {
-          id: { state: 'main', keyword: counter.to_s }.to_json,
-          title: self.get_menu_string(option['smooch_menu_option_value'], language, 24)
+      # Main section and secondary menu
+      allowed_types = ['query_state', 'subscription_state', 'custom_resource']
+      ['smooch_state_main', 'smooch_state_secondary'].each_with_index do |state, i|
+        rows = []
+        options = workflow[state].to_h['smooch_menu_options'].to_a
+        next if options.empty?
+        options.select{ |o| allowed_types.include?(o['smooch_menu_option_value']) }.each do |option|
+          title = option['smooch_menu_option_label']
+          title ||= BotResource.find_by_uuid(option['smooch_menu_custom_resource_id'])&.title if option['smooch_menu_option_value'] == 'custom_resource'
+          title ||= option['smooch_menu_option_value']
+          rows << {
+            id: { state: 'main', keyword: counter.to_s }.to_json,
+            title: title.truncate(24)
+          }
+          counter = self.get_next_menu_item_number(counter)
+        end
+        section_title = workflow[state].to_h['smooch_menu_title'] || (i + 1).to_s
+        main << {
+          title: section_title.truncate(24),
+          rows: rows
         }
-        counter = self.get_next_menu_item_number(counter)
       end
-      main << {
-        title: self.get_menu_string('smooch_state_main_title', language, 24),
-        rows: rows
-      }
-
-      # Secondary menu
-      rows = []
-      workflow['smooch_state_secondary'].to_h['smooch_menu_options'].to_a.select{ |o| o['smooch_menu_option_value'] == 'custom_resource' }.each do |option|
-        rows << {
-          id: { state: 'main', keyword: counter.to_s }.to_json,
-          title: BotResource.find_by_uuid(option['smooch_menu_custom_resource_id'])&.title.to_s.truncate(24)
-        }
-        counter = self.get_next_menu_item_number(counter)
-      end
-      main << {
-        title: self.get_menu_string('smooch_state_secondary_title', language, 24),
-        rows: rows
-      }
 
       # Languages and privacy
       rows = []
@@ -103,32 +98,8 @@ module SmoochMenus
       # - Button label: 20 characters
       # - Body: 1024 characters
       workflow = self.get_workflow(language) || {}
-      label = workflow[key.to_s] || {
-        smooch_state_main_title: 'Main', # FIXME: This is a section title that can be customized in the UI
-        query_state: 'Submit new content to fact-check', # FIXME: This is a menu option label that can be customized in the UI
-        subscription_state: 'Subscribe to our newsletter', # FIXME: This is a menu option label that can be customized in the UI
-        smooch_state_secondary_title: 'Secondary', # FIXME: This is a section title that can be customized in the UI
-        main_menu: 'Main menu', # FIXME: This is a section title that can be customized in the UI
-        languages_and_privacy_title: 'Languages and Privacy', # FIXME: This is a section title that can be customized in the UI
-
-        # Button labels
-        main_state_button_label: 'Cancel',
-        search_state_button_label: 'Submit',
-        add_more_details_state_button_label: 'Add more information',
-        search_result_is_relevant_button_label: 'Yes',
-        search_result_is_not_relevant_button_label: 'No',
-
-        # Probably hard-coded, needs review
-        privacy_statement: 'Privacy statement',
-        subscription_confirmation_button_label: 'Change',
-        confirm_preferred_language: 'Please confirm your preferred language:',
-        languages: 'Languages',
-
-        # Hard-coded messages
-        subscribed: 'Subscribed',
-        unsubscribed: 'Unsubscribed',
-
-        # Default values for customizable messages
+      label = workflow[key.to_s] || self.get_string(key, language) || {
+        # Default values for customizable strings
         cancelled: 'OK! Your submission is canceled.',
         ask_if_ready_state: 'Are you ready to submit?',
         add_more_details_state: 'OK! Please add more content.',
