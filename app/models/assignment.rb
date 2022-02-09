@@ -135,6 +135,8 @@ class Assignment < ApplicationRecord
       pm = self.assigned.annotated
       uids = Assignment.where(assigned_type: self.assigned_type, assigned_id: self.assigned_id).map(&:user_id)
       options = { keys: ['assigned_user_ids'], data: { 'assigned_user_ids' => uids }, obj: pm }
+      # update updated_at for ProjectMedia for recent_activity sort
+      pm.update_columns(updated_at: Time.now)
       ElasticSearchWorker.perform_in(1.second, YAML::dump(pm), YAML::dump(options), 'update_doc')
     end
   end

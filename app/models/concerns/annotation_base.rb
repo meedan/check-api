@@ -100,13 +100,18 @@ module AnnotationBase
 
     def touch_annotated
       annotated = self.annotated
-      if !annotated.nil? && annotated.is_a?(Link)
-        annotated.skip_check_ability = annotated.skip_notifications = true # the notification will be triggered by the annotation already
-        annotated.skip_clear_cache = self.skip_clear_cache
-        annotated.updated_at = Time.now
-        annotated.disable_es_callbacks = true
-        ApplicationRecord.connection_pool.with_connection do
-          annotated.save!(validate: false)
+      unless annotated.nil?
+        if annotated.is_a?(Link)
+          # the notification will be triggered by the annotation already
+          annotated.skip_check_ability = annotated.skip_notifications = true
+          annotated.skip_clear_cache = self.skip_clear_cache
+          annotated.updated_at = Time.now
+          annotated.disable_es_callbacks = true
+          ApplicationRecord.connection_pool.with_connection do
+            annotated.save!(validate: false)
+          end
+        elsif annotated.is_a?(ProjectMedia)
+          annotated.update_columns(updated_at: Time.now) if ['comment', 'tag', 'verification_status'].include?(self.annotation_type) || self.annotation_type =~ /^task_response/
         end
       end
     end
