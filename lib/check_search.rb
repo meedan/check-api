@@ -634,9 +634,7 @@ class CheckSearch
     end
   end
 
-  def format_times_search_range_filter(values, timezone)
-    return if values.blank?
-    tz = (!timezone.blank? && ActiveSupport::TimeZone[timezone]) ? timezone : 'UTC'
+  def get_from_and_to_values(values, tz)
     # condition_type = 'less_than', 'is_between'
     condition_type = values.dig('condition') || 'is_between'
     if condition_type == 'less_than'
@@ -657,7 +655,13 @@ class CheckSearch
       from = format_time_with_timezone(values.dig('start_time'), tz)
       to = format_time_with_timezone(values.dig('end_time'), tz)
     end
+    return from, to
+  end
 
+  def format_times_search_range_filter(values, timezone)
+    return if values.blank?
+    tz = (!timezone.blank? && ActiveSupport::TimeZone[timezone]) ? timezone : 'UTC'
+    from, to = get_from_and_to_values(values, tz)
     return if from.blank? && to.blank?
     from ||= DateTime.new
     to ||= DateTime.now.in_time_zone(tz)
