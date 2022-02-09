@@ -39,7 +39,7 @@ module ProjectMediaCachedFields
         },
         {
           model: DynamicAnnotation::Field,
-          if: proc { |f| ['title', 'content'].include?(f.field_name) && f.annotation.annotation_type == 'verification_status' && !f.value.blank? },
+          if: proc { |f| ['title', 'content', 'file_title'].include?(f.field_name) && f.annotation.annotation_type == 'verification_status' && !f.value.blank? },
           affected_ids: proc { |f| [f.annotation.annotated_id] },
           events: {
             save: :recalculate
@@ -158,6 +158,8 @@ module ProjectMediaCachedFields
       update_on: metadata_or_claim_or_fact_check_update
 
     cached_field :title,
+      update_es: true,
+      es_field_name: :title_index,
       recalculate: proc { |pm| pm.get_title },
       update_on: metadata_or_claim_or_fact_check_update
 

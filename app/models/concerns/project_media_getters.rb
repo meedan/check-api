@@ -150,8 +150,10 @@ module ProjectMediaGetters
   end
 
   def get_title
-    analysis_title = self.has_analysis_title? ? self.analysis_title : nil
-    self.fact_check_title || self.claim_description_content || analysis_title || self.original_title
+    analysis = self.analysis
+    analysis_title = analysis['title'].blank? ? nil : analysis['title']
+    file_title = analysis['file_title'].blank? ? nil : analysis['file_title']
+    self.fact_check_title || self.claim_description_content || analysis_title || file_title || self.original_title
   end
 
   def get_description

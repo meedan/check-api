@@ -14,6 +14,7 @@ class MediaSearch
     indexes :description, { type: 'text', analyzer: 'check' }
     indexes :analysis_title, { type: 'text', analyzer: 'check' }
     indexes :sort_title, { type: 'keyword' }
+    indexes :title_index, { type: 'keyword', normalizer: 'check' } # For sorting by item title
     indexes :analysis_description, { type: 'text', analyzer: 'check' }
     indexes :quote, { type: 'text', analyzer: 'check' }
     indexes :archived, { type: 'integer' }
