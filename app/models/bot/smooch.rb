@@ -391,7 +391,7 @@ class Bot::Smooch < BotUser
       end
     when 'main', 'secondary', 'subscription', 'search_result'
       if !self.process_menu_option(message, state, app_id)
-        self.send_message_for_state(uid, workflow, state, language, workflow['smooch_message_smooch_bot_option_not_available'])
+        self.send_message_for_state(uid, workflow, state, language, workflow['smooch_message_smooch_bot_option_not_available'] || self.get_string(:option_not_available, language))
       end
     when 'search'
       self.send_message_to_user(uid, self.get_message_for_state(workflow, state, language, uid))
@@ -668,7 +668,7 @@ class Bot::Smooch < BotUser
     m_type = is_supported[:m_type] || 'file'
     max_size = "Uploaded#{m_type.camelize}".constantize.max_size_readable
     workflow = self.get_workflow(message['language'])
-    error_message = is_supported[:type] == false ? workflow['smooch_message_smooch_bot_message_type_unsupported'] : I18n.t(:smooch_bot_message_size_unsupported, { max_size: max_size, locale: message['language'].gsub(/[-_].*$/, '') })
+    error_message = is_supported[:type] == false ? (workflow['smooch_message_smooch_bot_message_type_unsupported'] || self.get_string(:invalid_format, message['language'])) : I18n.t(:smooch_bot_message_size_unsupported, { max_size: max_size, locale: message['language'].gsub(/[-_].*$/, '') })
     self.send_message_to_user(message['authorId'], error_message)
   end
 
@@ -871,7 +871,7 @@ class Bot::Smooch < BotUser
     if subscribed_at.to_i < last_published_at.to_i && published_count > 0
       if ['publish', 'republish_and_resend'].include?(action)
         workflow = self.get_workflow(lang)
-        message = workflow['smooch_message_smooch_bot_result_changed']
+        message = workflow['smooch_message_smooch_bot_result_changed'] || self.get_string(:report_updated, lang)
         self.send_message_to_user(uid, message) unless message.blank?
         sleep 1
         self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated')

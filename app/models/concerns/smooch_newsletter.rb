@@ -43,6 +43,10 @@ module SmoochNewsletter
       end
     end
 
+    def user_is_subscribed_to_newsletter?(uid, language, team_id)
+      TiplineSubscription.where(uid: uid, language: language, team_id: team_id).exists?
+    end
+
     def toggle_subscription(uid, language, team_id, platform, workflow)
       s = TiplineSubscription.where(uid: uid, language: language, team_id: team_id).last
       CheckStateMachine.new(uid).reset

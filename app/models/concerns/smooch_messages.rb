@@ -77,9 +77,15 @@ module SmoochMessages
       self.get_menu_options(state, workflow, uid).each do |option|
         keyword = option['smooch_menu_option_keyword'].split(',').map(&:strip).first
         value = option['smooch_menu_option_value']
+        key = value
+        # We use different menu labels for the subscription state, based on the current subscription status (subscribed / unsubscribed)
+        if state == 'subscription'
+          team_id = self.config['team_id']
+          key = self.user_is_subscribed_to_newsletter?(uid, language, team_id) ? 'unsubscribe_button_label' : 'subscribe_button_label'
+        end
         options << {
           value: { keyword: keyword }.to_json,
-          label: self.get_menu_string("#{value}_button_label", language, 20)
+          label: self.get_menu_string("#{key}_button_label", language, 20)
         }
       end
       options.size > 0 ? self.send_message_to_user_with_buttons(uid, text, options) : self.send_message_to_user(uid, text)
