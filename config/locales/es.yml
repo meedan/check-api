@@ -790,6 +790,8 @@ es:
     de trabajo
   unique_default_folder_per_team: 'El área de trabajo sólo debería tener una carpeta
     predeterminada '
+  center_is_not_part_of_another_cluster: El centro de este clúster no puede ser parte
+    de otro clúster
   smooch_bot_message_subscribed: |-
     Ahora estás suscrita(o).
 

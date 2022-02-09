@@ -791,8 +791,8 @@ pt:
     trabalho
   unique_default_folder_per_team: O espaço de trabalho deve possuir apenas uma pasta
     padrão
-  center_is_not_part_of_another_cluster: O centro deste agrupamento não pode fazer
-    parte de outro agrupamento
+  center_is_not_part_of_another_cluster: O núcleo deste conjunto não pode fazer parte
+    de outro conjunto
   smooch_bot_message_subscribed: |-
     Sua inscrição foi feita.
 
