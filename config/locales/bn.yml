@@ -45,15 +45,22 @@ bn:
     unsubscribe: আনসাবস্ক্রাইব
   smooch_bot_message_unconfirmed: 1 রিপ্লাই না দেওয়ার জন্য আপনার এই নিবেদন এখানেই
     সমাপ্ত হল।  ধন্যবাদ।
-  unsubscribe: আনসাবস্ক্রাইব
-  smooch_message_subscription_header_subscribed: আপনি বর্তমানে আমাদের নিউজলেটার সাবস্ক্রাইব
-    করা হয়।
-  smooch_message_subscription_header_unsubscribed: আপনি বর্তমানে আমাদের নিউজলেটারের
-    কাছে সাবস্ক্রাইব করেছেন।
-  smooch_bot_message_newsletter_fallback: |-
-    ওহে! এখানে আপনার সাপ্তাহিক তথ্য আছে.
+  smooch_bot_message_subscribed: |-
+    আপনি বর্তমানে আমাদের নিউজলেটারে সাবস্ক্রাইব করেছেন।
 
-    এই নিউজলেটারটি %{platform} এ %{team} দ্বারা প্রকাশিত হয়েছে। এখানে %{date} সপ্তাহের জন্য সবচেয়ে গুরুত্বপূর্ণ তথ্য রয়েছে:
+    মুখ্য মেনুতে যেতে 0 টাইপ করুন
+  smooch_bot_message_unsubscribed: |-
+    আপনি বর্তমানে আমাদের নিউজলেটারে আনসাবস্ক্রাইব করেছেন।
+
+    মুখ্য মেনুতে যেতে 0 টাইপ করুন
+  subscribe: সাবস্ক্রাইব করুন
+  unsubscribe: আনসাবস্ক্রাইব করুন
+  smooch_message_subscription_header_subscribed: আপনি বর্তমানে আমাদের নিউজলেটারে সাবস্ক্রাইব
+    করেছেন।
+  smooch_message_subscription_header_unsubscribed: আপনি বর্তমানে আমাদের নিউজলেটারে
+    আনসাবস্ক্রাইব করেছেন।
+  smooch_bot_message_newsletter_fallback: |-
+    নমস্কার! এখানে আপনার সাপ্তাহিক তথ্য আছে। এই নিউজলেটারটি %{platform}-এ %{team} দ্বারা %{date}-এ প্রকাশিত হয়েছিল:
 
     %{content}
 
