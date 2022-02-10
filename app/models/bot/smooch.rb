@@ -23,6 +23,9 @@ class Bot::Smooch < BotUser
   include SmoochSearch
   include SmoochZendesk
   include SmoochTurnio
+  include SmoochStrings
+  include SmoochMenus
+  include SmoochVersions
 
   ::ProjectMedia.class_eval do
     attr_accessor :smooch_message
@@ -139,97 +142,6 @@ class Bot::Smooch < BotUser
         sm = CheckStateMachine.new(uid)
         sm.leave_human_mode if sm.state.value == 'human_mode'
       end
-    end
-  end
-
-  ::Version.class_eval do
-    def smooch_user_slack_channel_url
-      Concurrent::Future.execute(executor: POOL) do
-        object_after = JSON.parse(self.object_after)
-        return unless object_after['field_name'] == 'smooch_data'
-        slack_channel_url = ''
-        data = JSON.parse(object_after['value'])
-        unless data.nil?
-          key = "SmoochUserSlackChannelUrl:Team:#{self.team_id}:#{data['authorId']}"
-          slack_channel_url = Rails.cache.read(key)
-          if slack_channel_url.blank?
-            obj = self.associated
-            slack_channel_url = get_slack_channel_url(obj, data)
-            Rails.cache.write(key, slack_channel_url) unless slack_channel_url.blank?
-          end
-        end
-        slack_channel_url
-      end
-    end
-
-    def smooch_user_external_identifier
-      Concurrent::Future.execute(executor: POOL) do
-        object_after = JSON.parse(self.object_after)
-        return '' unless object_after['field_name'] == 'smooch_data'
-        data = JSON.parse(object_after['value'])
-        Rails.cache.fetch("smooch:user:external_identifier:#{data['authorId']}") do
-          field = DynamicAnnotation::Field.where('field_name = ? AND dynamic_annotation_fields_value(field_name, value) = ?', 'smooch_user_id', data['authorId'].to_json).last
-          return '' if field.nil?
-          user = JSON.parse(field.annotation.load.get_field_value('smooch_user_data')).with_indifferent_access[:raw][:clients][0]
-          case user[:platform]
-          when 'whatsapp'
-            user[:displayName]
-          when 'telegram'
-            '@' + user[:raw][:username].to_s
-          when 'messenger', 'viber', 'line'
-            user[:externalId]
-          when 'twitter'
-            '@' + user[:raw][:screen_name]
-          else
-            ''
-          end
-        end
-      end
-    end
-
-    def smooch_report_received_at
-      Concurrent::Future.execute(executor: POOL) do
-        begin
-          self.item.annotation.load.get_field_value('smooch_report_received').to_i
-        rescue
-          nil
-        end
-      end
-    end
-
-    def smooch_report_update_received_at
-      Concurrent::Future.execute(executor: POOL) do
-        begin
-          field = self.item.annotation.load.get_field('smooch_report_received')
-          field.created_at != field.updated_at ? field.value.to_i : nil
-        rescue
-          nil
-        end
-      end
-    end
-
-    def smooch_user_request_language
-      Concurrent::Future.execute(executor: POOL) do
-        object_after = JSON.parse(self.object_after)
-        return '' unless object_after['field_name'] == 'smooch_data'
-        JSON.parse(object_after['value'])['language'].to_s
-      end
-    end
-
-    private
-
-    def get_slack_channel_url(obj, data)
-      slack_channel_url = nil
-      tid = obj.team_id
-      smooch_user_data = DynamicAnnotation::Field.where(field_name: 'smooch_user_id', annotation_type: 'smooch_user')
-      .where('dynamic_annotation_fields_value(field_name, value) = ?', data['authorId'].to_json)
-      .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id")
-      .where("a.annotated_type = ? AND a.annotated_id = ?", 'Team', tid).last
-      unless smooch_user_data.nil?
-        field_value = DynamicAnnotation::Field.where(field_name: 'smooch_user_slack_channel_url', annotation_type: 'smooch_user', annotation_id: smooch_user_data.annotation_id).last
-        slack_channel_url = field_value.value unless field_value.nil?
-      end
-      slack_channel_url
     end
   end
 
@@ -400,31 +312,54 @@ class Bot::Smooch < BotUser
     uid = message['authorId']
     team = Team.find(self.config['team_id'])
     default_language = team.default_language
-    supported_languages = team.get_languages || ['en']
-    user_language = Rails.cache.fetch("smooch:user_language:#{uid}") do
-      language = default_language
-      language = self.get_language(message, language) if state == 'waiting_for_message'
-      language
+    supported_languages = self.get_supported_languages
+    guessed_language = nil
+    if state == 'waiting_for_message'
+      guessed_language = self.get_language(message, default_language)
+      Rails.cache.fetch("smooch:user_language:#{uid}") { guessed_language }
     end
+    user_language = Rails.cache.read("smooch:user_language:#{uid}") || guessed_language || default_language
     supported_languages.include?(user_language) ? user_language : default_language
   end
 
-  def self.start_flow(message, workflow, language, uid)
-    sm = CheckStateMachine.new(uid)
-    message = ''
-    if self.config['smooch_version'] == 'v2'
-      sm.start_v2
-      message = [workflow['smooch_message_smooch_bot_greetings'], I18n.t(:smooch_v2_first_state, locale: language.gsub(/[-_].*$/, ''))].join("\n\n")
-    else
-      sm.start
-      message = [workflow['smooch_message_smooch_bot_greetings'], self.get_message_for_state(workflow, 'main', language)].join("\n\n")
-    end
-    self.send_message_to_user(uid, utmize_urls(message, 'resource'))
+  def self.reset_user_language(uid)
+    Rails.cache.delete("smooch:user_language:#{uid}")
   end
 
-  def self.parse_query_message(message, app_id, uid)
-    (self.process_menu_option(message, 'query', app_id) && self.clear_user_bundled_messages(uid)) ||
+  def self.user_language_set?(uid)
+    !Rails.cache.read("smooch:user_language:#{uid}").blank?
+  end
+
+  def self.get_supported_languages
+    team = Team.find(self.config['team_id'])
+    team_languages = team.get_languages || ['en']
+    languages = []
+    self.config['smooch_workflows'].each do |w|
+      l = w['smooch_workflow_language']
+      languages << l if team_languages.include?(l)
+    end
+    languages.sort
+  end
+
+  def self.start_flow(workflow, language, uid)
+    CheckStateMachine.new(uid).start
+    if self.is_v2? && self.get_supported_languages.size > 1
+      self.ask_for_language_confirmation(workflow, language, uid)
+    else
+      self.send_message_for_state(uid, workflow, 'main', language)
+    end
+  end
+
+  def self.parse_query_message(message, app_id, uid, workflow, language)
+    sm = CheckStateMachine.new(uid)
+    if self.process_menu_option(message, sm.state.value, app_id)
+      # Do nothing else - the action will be executed by "process_menu_option" method
+    elsif self.is_v2?
+      sm.go_to_ask_if_ready unless sm.state.value == 'ask_if_ready'
+      self.ask_if_ready_to_submit(uid, workflow, 'ask_if_ready', language)
+    else
       self.delay_for(self.time_to_send_request, { queue: 'smooch_ping', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id)
+    end
   end
 
   def self.parse_message_based_on_state(message, app_id)
@@ -439,7 +374,7 @@ class Bot::Smooch < BotUser
 
     # Shortcuts
     if [I18n.t(:subscribe, locale: language.gsub(/[-_].*$/, '')), I18n.t(:unsubscribe, locale: language.gsub(/[-_].*$/, ''))].map(&:downcase).include?(message['text'].to_s.downcase.strip)
-      self.toggle_subscription(uid, language, self.config['team_id'], self.get_platform_from_message(message))
+      self.toggle_subscription(uid, language, self.config['team_id'], self.get_platform_from_message(message), workflow)
       return true
     end
 
@@ -448,23 +383,23 @@ class Bot::Smooch < BotUser
       self.bundle_message(message)
       has_main_menu = (workflow&.dig('smooch_state_main', 'smooch_menu_options').to_a.size > 0)
       if has_main_menu
-        self.start_flow(message, workflow, language, uid)
+        self.start_flow(workflow, language, uid)
       else
         self.clear_user_bundled_messages(uid)
         sm.go_to_query
         self.parse_message_based_on_state(message, app_id)
       end
-    when 'main', 'secondary', 'subscription', 'first', 'search_result'
+    when 'main', 'secondary', 'subscription', 'search_result'
       if !self.process_menu_option(message, state, app_id)
-        no_option_message = [workflow['smooch_message_smooch_bot_option_not_available'], self.get_message_for_state(workflow, state, language, uid)].join("\n\n")
-        self.send_message_to_user(uid, utmize_urls(no_option_message, 'resource'))
+        self.send_message_for_state(uid, workflow, state, language, workflow['smooch_message_smooch_bot_option_not_available'] || self.get_string(:option_not_available, language))
       end
     when 'search'
       self.send_message_to_user(uid, self.get_message_for_state(workflow, state, language, uid))
-    when 'query'
-      self.parse_query_message(message, app_id, uid)
+    when 'query', 'ask_if_ready'
+      self.parse_query_message(message, app_id, uid, workflow, language)
     when 'add_more_details'
-      self.process_menu_option(message, state, app_id) || self.delay_for(self.time_to_send_request, { queue: 'smooch_ping', retry: false }).ask_for_more_details(message['authorId'], message['_id'], app_id)
+      self.bundle_message(message)
+      self.go_to_state_and_ask_if_ready_to_submit(uid, language, workflow)
     end
   end
 
@@ -473,8 +408,12 @@ class Bot::Smooch < BotUser
     value.to_i.seconds
   end
 
-  def self.get_menu_options(state, workflow)
-    if ['first', 'add_more_details'].include?(state)
+  def self.is_v2?
+    self.config['smooch_version'] == 'v2'
+  end
+
+  def self.get_menu_options(state, workflow, uid)
+    if state == 'ask_if_ready'
       [
         { 'smooch_menu_option_keyword' => '1', 'smooch_menu_option_value' => 'search_state' },
         { 'smooch_menu_option_keyword' => '2', 'smooch_menu_option_value' => 'add_more_details_state' },
@@ -485,49 +424,114 @@ class Bot::Smooch < BotUser
         { 'smooch_menu_option_keyword' => '1', 'smooch_menu_option_value' => 'search_result_is_relevant' },
         { 'smooch_menu_option_keyword' => '2', 'smooch_menu_option_value' => 'search_result_is_not_relevant' }
       ]
+    elsif state == 'subscription' && self.is_v2?
+      [
+        { 'smooch_menu_option_keyword' => '1', 'smooch_menu_option_value' => 'subscription_confirmation' },
+        { 'smooch_menu_option_keyword' => '2', 'smooch_menu_option_value' => 'main_state' }
+      ]
+    elsif state == 'query' && self.is_v2?
+      [
+        { 'smooch_menu_option_keyword' => '1', 'smooch_menu_option_value' => 'main_state' },
+      ]
+    # Custom menus
     else
-      workflow.dig("smooch_state_#{state}", 'smooch_menu_options').to_a
+      self.get_custom_menu_options(state, workflow, uid)
     end
+  end
+
+  def self.get_custom_menu_options(state, workflow, uid)
+    options = workflow.dig("smooch_state_#{state}", 'smooch_menu_options').to_a.clone
+    if state == 'main' && self.is_v2?
+      unless self.user_language_set?(uid)
+        options = []
+        self.get_supported_languages.each_with_index do |l, i|
+          options << {
+            'smooch_menu_option_keyword' => [l, i + 1].join(','),
+            'smooch_menu_option_value' => l
+          }
+        end
+      else
+        options = options.reject{ |o| !['query_state', 'subscription_state'].include?(o['smooch_menu_option_value']) }.concat(workflow.dig('smooch_state_secondary', 'smooch_menu_options').to_a.clone.select{ |o| o['smooch_menu_option_value'] == 'custom_resource' })
+        self.get_supported_languages.sort.each do |l|
+          options << {
+            'smooch_menu_option_keyword' => l,
+            'smooch_menu_option_value' => l
+          }
+        end
+        all_options = []
+        keyword = 0
+        options.each do |o|
+          next if o.blank?
+          keyword += 1
+          keyword += 1 if keyword == 9 # Reserved for "privacy statement"
+          o2 = o.clone
+          o2['smooch_menu_option_keyword'] = keyword.to_s
+          all_options << o2
+        end
+        options = all_options
+      end
+    end
+    options.reject{ |o| o.blank? }
+  end
+
+  def self.process_menu_option_value_for_state(value, message, language, workflow, app_id)
+    uid = message['authorId']
+    sm = CheckStateMachine.new(uid)
+    self.bundle_message(message)
+    new_state = value.gsub(/_state$/, '')
+    self.delay_for(self.time_to_send_request, { queue: 'smooch_ping', retry: false }).bundle_messages(uid, message['_id'], app_id) if new_state == 'query' && !self.is_v2?
+    sm.send("go_to_#{new_state}")
+    self.delay_for(1.seconds, { queue: 'smooch', retry: false }).search(app_id, uid, language, message, self.config['team_id'].to_i, workflow) if new_state == 'search'
+    self.clear_user_bundled_messages(uid) if new_state == 'main'
+    new_state == 'main' && self.is_v2? ? self.send_message_to_user_with_main_menu_appended(uid, self.get_menu_string('cancelled', language), workflow, language) : self.send_message_for_state(uid, workflow, new_state, language)
   end
 
   def self.process_menu_option_value(value, option, message, language, workflow, app_id)
     uid = message['authorId']
     sm = CheckStateMachine.new(uid)
     if value =~ /_state$/
-      self.bundle_message(message)
-      new_state = value.gsub(/_state$/, '')
-      self.delay_for(self.time_to_send_request, { queue: 'smooch_ping', retry: false }).bundle_messages(uid, message['_id'], app_id) if ['query', 'add_more_details'].include?(new_state)
-      sm.send("go_to_#{new_state}")
-      self.send_message_to_user(uid, utmize_urls(self.get_message_for_state(workflow, new_state, language, uid), 'resource'))
-      self.delay_for(1.seconds, { queue: 'smooch', retry: false }).search(app_id, uid, language, message, self.config['team_id'].to_i) if new_state == 'search'
+      self.process_menu_option_value_for_state(value, message, language, workflow, app_id)
     elsif value == 'resource'
       pmid = option['smooch_menu_project_media_id'].to_i
       pm = ProjectMedia.where(id: pmid, team_id: self.config['team_id'].to_i).last
-      self.send_report_to_user(uid, {}, pm, language)
       sm.reset
       self.bundle_message(message)
       self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'menu_options_requests', pm)
+      self.send_report_to_user(uid, {}, pm, language)
     elsif value == 'custom_resource'
       sm.reset
-      resource = self.send_resource_to_user(uid, workflow, option)
+      resource = self.send_resource_to_user(uid, workflow, option, language)
       self.bundle_message(message)
       self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'resource_requests', resource)
     elsif value == 'subscription_confirmation'
-      self.toggle_subscription(uid, language, self.config['team_id'], self.get_platform_from_message(message))
+      self.toggle_subscription(uid, language, self.config['team_id'], self.get_platform_from_message(message), workflow)
     elsif value == 'search_result_is_not_relevant'
-      self.submit_search_query_for_verification(uid, app_id)
+      self.submit_search_query_for_verification(uid, app_id, workflow, language)
     elsif value == 'search_result_is_relevant'
       self.clear_user_bundled_messages(uid)
       sm.reset
-      sm.go_to_first
-      self.send_message_to_user(uid, utmize_urls(self.get_message_for_state(workflow, 'first', language, uid), 'resource'))
+      self.send_final_message_to_user(uid, self.get_menu_string('search_result_is_relevant', language), workflow, language)
     elsif value =~ /^[a-z]{2}(_[A-Z]{2})?$/
       Rails.cache.write("smooch:user_language:#{uid}", value)
       sm.send('go_to_main')
       workflow = self.get_workflow(value)
       self.bundle_message(message)
-      self.send_message_to_user(uid, utmize_urls(self.get_message_for_state(workflow, 'main', value), 'resource'))
+      self.send_message_for_state(uid, workflow, 'main', value)
     end
+  end
+
+  def self.get_typed_message(message, sm)
+    # v1 (plain text)
+    typed = message['text']
+    new_state = nil
+    # v2 (buttons and lists)
+    if message.has_key?('payload')
+      payload = JSON.parse(message['payload'])
+      new_state = payload['state']
+      sm.send("go_to_#{new_state}") if new_state && new_state != sm.state.value
+      typed = payload['keyword']
+    end
+    [typed.to_s.downcase.strip, new_state]
   end
 
   def self.process_menu_option(message, state, app_id)
@@ -535,16 +539,18 @@ class Bot::Smooch < BotUser
     sm = CheckStateMachine.new(uid)
     language = self.get_user_language(message, state)
     workflow = self.get_workflow(language)
-    typed = message['text'].to_s.downcase.strip
+    typed, new_state = self.get_typed_message(message, sm)
+    state = new_state if new_state
     if self.should_send_tos?(state, typed)
+      sm.reset
       platform = self.get_platform_from_message(message)
       self.send_tos_to_user(workflow, uid, language, platform)
       self.bundle_message(message)
-      sm.reset
       return true
     end
     workflow ||= {}
-    self.get_menu_options(state, workflow).each do |option|
+    options = self.get_menu_options(state, workflow, uid)
+    options.each do |option|
       if option['smooch_menu_option_keyword'].split(',').map(&:downcase).map(&:strip).collect{ |k| k.gsub(/[^a-z0-9]+/, '') }.include?(typed.gsub(/[^a-z0-9]+/, ''))
         self.process_menu_option_value(option['smooch_menu_option_value'], option, message, language, workflow, app_id)
         return true
@@ -662,7 +668,7 @@ class Bot::Smooch < BotUser
     m_type = is_supported[:m_type] || 'file'
     max_size = "Uploaded#{m_type.camelize}".constantize.max_size_readable
     workflow = self.get_workflow(message['language'])
-    error_message = is_supported[:type] == false ? workflow['smooch_message_smooch_bot_message_type_unsupported'] : I18n.t(:smooch_bot_message_size_unsupported, { max_size: max_size, locale: message['language'].gsub(/[-_].*$/, '') })
+    error_message = is_supported[:type] == false ? (workflow['smooch_message_smooch_bot_message_type_unsupported'] || self.get_string(:invalid_format, message['language'])) : I18n.t(:smooch_bot_message_size_unsupported, { max_size: max_size, locale: message['language'].gsub(/[-_].*$/, '') })
     self.send_message_to_user(message['authorId'], error_message)
   end
 
@@ -865,7 +871,7 @@ class Bot::Smooch < BotUser
     if subscribed_at.to_i < last_published_at.to_i && published_count > 0
       if ['publish', 'republish_and_resend'].include?(action)
         workflow = self.get_workflow(lang)
-        message = workflow['smooch_message_smooch_bot_result_changed']
+        message = workflow['smooch_message_smooch_bot_result_changed'] || self.get_string(:report_updated, lang)
         self.send_message_to_user(uid, message) unless message.blank?
         sleep 1
         self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated')
@@ -938,25 +944,6 @@ class Bot::Smooch < BotUser
     Team.current = nil
   end
 
-  def self.send_message_on_status_change(pm_id, status, request_actor_session_id = nil)
-    RequestStore[:actor_session_id] = request_actor_session_id unless request_actor_session_id.nil?
-    pm = ProjectMedia.find_by_id(pm_id)
-    return if pm.nil?
-    requestors_count = 0
-    parent = Relationship.where(target_id: pm.id).last&.source || pm
-    parent.get_deduplicated_smooch_annotations.each do |annotation|
-      data = JSON.parse(annotation.load.get_field_value('smooch_data'))
-      self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
-      message = parent.team.get_status_message_for_language(status, data['language'])
-      unless message.blank?
-        response = self.send_message_to_user(data['authorId'], message)
-        self.save_smooch_response(response, parent, data['received'].to_i, 'fact_check_status', data['language'], { message: message })
-        requestors_count += 1
-      end
-    end
-    CheckNotification::InfoMessages.send('sent_message_to_requestors_on_status_change', status: pm.status_i18n, requestors_count: requestors_count) if requestors_count > 0
-  end
-
   def self.refresh_smooch_slack_timeout(uid, slack_data = {})
     time = Time.now.to_i
     data = Rails.cache.read("smooch:slack:last_human_message:#{uid}") || {}
@@ -1000,7 +987,7 @@ class Bot::Smooch < BotUser
     sm = CheckStateMachine.new(uid)
     unless ['human_mode', 'waiting_for_message'].include?(sm.state.value)
       self.bundle_messages(message['authorId'], message['_id'], app_id, 'timeout_requests', nil, true)
-      self.send_resource_to_user_on_timeout(uid, workflow)
+      self.send_resource_to_user_on_timeout(uid, workflow, language)
       sm.reset
     end
   end

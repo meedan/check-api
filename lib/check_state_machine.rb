@@ -18,7 +18,6 @@ class CheckStateMachine
 
   aasm column: 'state' do
     state :waiting_for_message, initial: true
-    state :first
     state :main
     state :secondary
     state :query
@@ -27,15 +26,12 @@ class CheckStateMachine
     state :search
     state :search_result
     state :add_more_details
+    state :ask_if_ready
 
-    ALL_STATES = [:human_mode, :main, :first, :secondary, :query, :waiting_for_message, :subscription, :search, :search_result, :add_more_details]
+    ALL_STATES = [:human_mode, :main, :secondary, :query, :waiting_for_message, :subscription, :search, :search_result, :add_more_details, :ask_if_ready]
 
     event :start do
       transitions :from => [:waiting_for_message, :main], :to => :main
-    end
-
-    event :start_v2 do
-      transitions :from => [:waiting_for_message, :first], :to => :first
     end
 
     event :reset do
@@ -52,10 +48,6 @@ class CheckStateMachine
 
     event :go_to_secondary do
       transitions :from => ALL_STATES, :to => :secondary
-    end
-
-    event :go_to_first do
-      transitions :from => ALL_STATES, :to => :first
     end
 
     event :go_to_main do
@@ -76,6 +68,10 @@ class CheckStateMachine
 
     event :go_to_search_result do
       transitions :from => ALL_STATES, :to => :search_result
+    end
+
+    event :go_to_ask_if_ready do
+      transitions :from => ALL_STATES, :to => :ask_if_ready
     end
 
     event :go_to_add_more_details do
