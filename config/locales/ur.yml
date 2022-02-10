@@ -1,6 +1,18 @@
 ---
 ur:
-  smooch_message_subscription_header_subscribed: آپ فی الحال ہمارے نیوز لیٹر میں داخل
-    ہوئے ہیں.
-  smooch_message_subscription_header_unsubscribed: آپ فی الحال ہمارے نیوز لیٹر میں
-    داخل نہیں ہوئے ہیں.
+  mails_notifications:
+    unsubscribe: رکنیت ختم کریں۔
+  smooch_bot_message_subscribed: |-
+    آپ فی الحال ہمارے نیوز لیٹر کو سبسکرائب کر چکے ہیں۔
+
+    مین مینو میں جانے کے لیے 0 ٹائپ کریں۔
+  smooch_bot_message_unsubscribed: |-
+    آپ فی الحال ہمارے نیوز لیٹر کی رکنیت ختم کر چکے ہیں۔
+
+    مین مینو میں جانے کے لیے 0 ٹائپ کریں۔
+  subscribe: سبسکرائب
+  unsubscribe: رکنیت ختم کریں۔
+  smooch_message_subscription_header_subscribed: آپ فی الحال ہمارے نیوز لیٹر کو سبسکرائب
+    کر چکے ہیں۔
+  smooch_message_subscription_header_unsubscribed: آپ فی الحال ہمارے نیوز لیٹر کی
+    رکنیت ختم کر چکے ہیں۔

@@ -701,4 +701,5 @@ fil:
   list_column_suggestions_count: Mga iminumungkahing tugma
   list_column_creator_name: Ginawa ni
   list_column_team_name: Workspace
+  list_column_sources_as_sentence: Source
   unsubscribe: Mag-unsubscribe
