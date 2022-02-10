@@ -160,4 +160,10 @@ module ProjectMediaGetters
     analysis_description = self.has_analysis_description? ? self.analysis_description : nil
     self.fact_check_summary || self.claim_description_content || analysis_description || self.original_description
   end
+
+  def published_url
+    analysis_url = self.analysis_published_article_url
+    fact_check_url = self.claim_description&.fact_check&.url
+    fact_check_url || analysis_url
+  end
 end
