@@ -108,7 +108,7 @@ module SmoochMenus
         search_result_state: 'Are these fact-checks answering your question?',
         search_submit: 'Thank you for your feedback. Journalists on our team have been notified and you will receive an update in this thread if the information is fact-checked.',
         search_result_is_relevant: 'Thank you! Spread the word about this tipline to help us fight misinformation!',
-        newsletter_optin_optout: 'Our newsletter is the best fact-checking resource to stay informed. {subscription_status}.',
+        newsletter_optin_optout: '{subscription_status}.',
       }[key.to_sym] || key
       label.truncate(truncate_at)
     end
