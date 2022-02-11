@@ -2817,4 +2817,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should get shared database creator" do
+    pm = create_project_media channel: 12
+    assert_equal 'Shared Database', pm.creator_name
+  end
 end

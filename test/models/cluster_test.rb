@@ -97,4 +97,28 @@ class ClusterTest < ActiveSupport::TestCase
     assert_equal c, Bot::Alegre.set_cluster(pm2)
     ProjectMedia.any_instance.unstub(:similar_items_ids_and_scores)
   end
-end 
+
+  test "should get requests count" do
+    ProjectMedia.any_instance.stubs(:requests_count).returns(2)
+    c = create_cluster
+    2.times { c.project_medias << create_project_media }
+    assert_equal 4, c.requests_count
+    ProjectMedia.any_instance.unstub(:requests_count)
+  end
+
+  test "should get teams that fact-checked the item" do
+    c = create_cluster
+    assert_kind_of Array, c.get_names_of_teams_that_fact_checked_it
+  end
+
+  test "should get claim descriptions" do
+    c = create_cluster
+    pm1 = create_project_media
+    cd1 = create_claim_description project_media: pm1
+    c.project_medias << pm1
+    pm2 = create_project_media
+    cd2 = create_claim_description project_media: pm2
+    c.project_medias << pm2
+    assert_equal [cd1, cd2], c.claim_descriptions.sort
+  end
+end
