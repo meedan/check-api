@@ -164,4 +164,20 @@ module ProjectMediaGetters
     fact_check_url = self.claim_description&.fact_check&.url
     fact_check_url || analysis_url
   end
+
+  def get_creator_name
+    user_name = ''
+    if [CheckChannels::ChannelCodes::MANUAL, CheckChannels::ChannelCodes::BROWSER_EXTENSION].include?(self.channel)
+      user_name = self.user&.name
+    elsif CheckChannels::ChannelCodes::TIPLINE.include?(self.channel)
+      user_name = 'Tipline'
+    elsif [CheckChannels::ChannelCodes::FETCH, CheckChannels::ChannelCodes::API, CheckChannels::ChannelCodes::ZAPIER].include?(self.channel)
+      user_name = 'Import'
+    elsif self.channel == CheckChannels::ChannelCodes::WEB_FORM
+      user_name = 'Web Form'
+    elsif self.channel == CheckChannels::ChannelCodes::SHARED_DATABASE
+      user_name = 'Shared Database'
+    end
+    user_name
+  end
 end
