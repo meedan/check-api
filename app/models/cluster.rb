@@ -100,7 +100,7 @@ class Cluster < ApplicationRecord
     $repository.client.bulk(body: es_body)
   end
 
-  def update_team_names_cache(_item)
+  def update_cached_fields(_item)
     self.team_names(true)
     self.fact_checked_by_team_names(true)
   end
