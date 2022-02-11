@@ -9,8 +9,11 @@ module ProjectMediaMutations
     quote: 'str',
     quote_attributions: 'str',
     project_id: 'int',
+    media_id: 'int',
+    team_id: 'int',
     channel: 'int',
     set_annotation: 'str',
+    set_claim_description: 'str',
     set_tasks_responses: 'json',
     media_type: 'str'
   })
