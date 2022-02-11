@@ -76,10 +76,6 @@ module ProjectMediaGetters
     self.updated_at.to_i
   end
 
-  def has_analysis_title?
-    !self.analysis_title.blank?
-  end
-
   def original_title
     self.media&.metadata&.dig('title') || self.media&.quote || self.media&.file&.file&.filename
   end
