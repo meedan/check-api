@@ -178,7 +178,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
     Bot::Alegre.stubs(:get_similar_texts).returns({ create_project_media.id => { score: 0.9 } })
     Sidekiq::Testing.inline! do
-      send_message 'hello', '1', '1', 'Foo bar foo bar', '1'
+      send_message 'hello', '1', '1', 'Foo bar foo bar foo bar', '1'
       assert_state 'search_result'
       assert_no_difference 'Dynamic.count + ProjectMedia.count' do
         send_message '1'

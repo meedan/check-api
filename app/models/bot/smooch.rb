@@ -451,7 +451,8 @@ class Bot::Smooch < BotUser
           }
         end
       else
-        options = options.reject{ |o| !['query_state', 'subscription_state'].include?(o['smooch_menu_option_value']) }.concat(workflow.dig('smooch_state_secondary', 'smooch_menu_options').to_a.clone.select{ |o| o['smooch_menu_option_value'] == 'custom_resource' })
+        allowed_types = ['query_state', 'subscription_state', 'custom_resource']
+        options = options.reject{ |o| !allowed_types.include?(o['smooch_menu_option_value']) }.concat(workflow.dig('smooch_state_secondary', 'smooch_menu_options').to_a.clone.select{ |o| allowed_types.include?(o['smooch_menu_option_value']) })
         self.get_supported_languages.sort.each do |l|
           options << {
             'smooch_menu_option_keyword' => l,
@@ -508,8 +509,11 @@ class Bot::Smooch < BotUser
     elsif value == 'search_result_is_not_relevant'
       self.submit_search_query_for_verification(uid, app_id, workflow, language)
     elsif value == 'search_result_is_relevant'
-      self.clear_user_bundled_messages(uid)
       sm.reset
+      self.bundle_message(message)
+      key = "smooch:user_search_results:#{uid}"
+      results = Rails.cache.read(key).to_a.collect{ |pmid| ProjectMedia.find(pmid) }
+      self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'relevant_search_result_requests', results, true)
       self.send_final_message_to_user(uid, self.get_menu_string('search_result_is_relevant', language), workflow, language)
     elsif value =~ /^[a-z]{2}(_[A-Z]{2})?$/
       Rails.cache.write("smooch:user_language:#{uid}", value)
