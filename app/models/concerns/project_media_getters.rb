@@ -151,17 +151,35 @@ module ProjectMediaGetters
 
   def get_title
     analysis_title = self.has_analysis_title? ? self.analysis_title : nil
-    self.fact_check_title || self.claim_description_content || analysis_title || self.original_title
+    title = self.claim_description_content || analysis_title || self.original_title
+    self.channel == CheckChannels::ChannelCodes::FETCH ? self.fact_check_title : title
   end
 
   def get_description
+    return self.fact_check_summary if self.channel == CheckChannels::ChannelCodes::FETCH
     analysis_description = self.has_analysis_description? ? self.analysis_description : nil
-    self.fact_check_summary || self.claim_description_content || analysis_description || self.original_description
+    self.claim_description_content || analysis_description || self.original_description
   end
 
   def published_url
     analysis_url = self.analysis_published_article_url
     fact_check_url = self.claim_description&.fact_check&.url
     fact_check_url || analysis_url
+  end
+
+  def get_creator_name
+    user_name = ''
+    if [CheckChannels::ChannelCodes::MANUAL, CheckChannels::ChannelCodes::BROWSER_EXTENSION].include?(self.channel)
+      user_name = self.user&.name
+    elsif CheckChannels::ChannelCodes::TIPLINE.include?(self.channel)
+      user_name = 'Tipline'
+    elsif [CheckChannels::ChannelCodes::FETCH, CheckChannels::ChannelCodes::API, CheckChannels::ChannelCodes::ZAPIER].include?(self.channel)
+      user_name = 'Import'
+    elsif self.channel == CheckChannels::ChannelCodes::WEB_FORM
+      user_name = 'Web Form'
+    elsif self.channel == CheckChannels::ChannelCodes::SHARED_DATABASE
+      user_name = 'Shared Database'
+    end
+    user_name
   end
 end

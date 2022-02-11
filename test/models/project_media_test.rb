@@ -1801,10 +1801,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     create_fact_check claim_description: cd, title: 'Title 2'
     assert_queries 0, '=' do
-      assert_equal 'Title 2', pm.title
+      assert_equal 'Title 1', pm.title
     end
     assert_queries(0, '>') do
-      assert_equal 'Title 2', pm.reload.title(true)
+      assert_equal 'Title 1', pm.reload.title(true)
     end
   end
 
@@ -1819,10 +1819,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     create_fact_check claim_description: cd, summary: 'Description 2'
     assert_queries 0, '=' do
-      assert_equal 'Description 2', pm.description
+      assert_equal 'Description 1', pm.description
     end
     assert_queries(0, '>') do
-      assert_equal 'Description 2', pm.reload.description(true)
+      assert_equal 'Description 1', pm.reload.description(true)
     end
   end
 
@@ -2706,25 +2706,25 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should get cluster size" do
     pm = create_project_media
-    assert_nil pm.reload.cluster_size
+    assert_nil pm.reload.cluster
     c = create_cluster
     c.project_medias << pm
-    assert_equal 1, pm.reload.cluster_size
+    assert_equal 1, pm.reload.cluster.size
     c.project_medias << create_project_media
-    assert_equal 2, pm.reload.cluster_size
+    assert_equal 2, pm.reload.cluster.size
   end
 
   test "should get cluster teams" do
     t1 = create_team
     t2 = create_team
     pm1 = create_project_media team: t1
-    assert_nil pm1.cluster_team_names
+    assert_nil pm1.cluster
     c = create_cluster project_media: pm1
     c.project_medias << pm1
-    assert_equal [t1.name], pm1.cluster_team_names
+    assert_equal [t1.name], pm1.cluster.team_names
     pm2 = create_project_media team: t2
     c.project_medias << pm2
-    assert_equal [t1.name, t2.name].sort, pm1.cluster_team_names.sort
+    assert_equal [t1.name, t2.name].sort, pm1.cluster.team_names.sort
   end
 
   test "should cache sources list" do
@@ -2816,5 +2816,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
         assert task.existing_files.size > 0
       end
     end
+  end
+
+  test "should get shared database creator" do
+    pm = create_project_media channel: 12
+    assert_equal 'Shared Database', pm.creator_name
   end
 end

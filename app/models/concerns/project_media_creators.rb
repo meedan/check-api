@@ -149,4 +149,8 @@ module ProjectMediaCreators
       end
     end
   end
+
+  def create_claim_description
+    ClaimDescription.create!(description: self.set_claim_description, project_media: self) unless self.set_claim_description.blank?
+  end
 end

@@ -9,7 +9,7 @@ module ProjectMediaCachedFields
   end
 
   module ClassMethods
-    def metadata_or_claim_or_fact_check_update
+    def title_or_description_update
       [
         {
           model: ClaimDescription,
@@ -20,7 +20,7 @@ module ProjectMediaCachedFields
         },
         {
           model: FactCheck,
-          affected_ids: proc { |fc| fc.claim_description.project_media },
+          affected_ids: proc { |fc| [fc.claim_description.project_media] },
           events: {
             save: :recalculate
           }
@@ -155,11 +155,11 @@ module ProjectMediaCachedFields
 
     cached_field :description,
       recalculate: proc { |pm| pm.get_description },
-      update_on: metadata_or_claim_or_fact_check_update
+      update_on: title_or_description_update
 
     cached_field :title,
       recalculate: proc { |pm| pm.get_title },
-      update_on: metadata_or_claim_or_fact_check_update
+      update_on: title_or_description_update
 
     cached_field :status,
       recalculate: proc { |pm| pm.last_verification_status },
