@@ -410,10 +410,10 @@ class GraphqlController5Test < ActionController::TestCase
     c.project_medias << pm
     c.project_medias << create_project_media
     authenticate_with_user(u)
-    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") {  cluster_items { edges { node { dbid } } } } }'
+    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") {  cluster { items { edges { node { dbid } } } } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
-    assert_equal 2, JSON.parse(@response.body)['data']['project_media']['cluster_items']['edges'].size
+    assert_equal 2, JSON.parse(@response.body)['data']['project_media']['cluster']['items']['edges'].size
   end
 
   protected

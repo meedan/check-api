@@ -150,11 +150,13 @@ module ProjectMediaGetters
   end
 
   def get_title
+    return self.fact_check_title if self.channel == CheckChannels::ChannelCodes::FETCH
     analysis_title = self.has_analysis_title? ? self.analysis_title : nil
     self.claim_description_content || analysis_title || self.original_title
   end
 
   def get_description
+    return self.fact_check_summary if self.channel == CheckChannels::ChannelCodes::FETCH
     analysis_description = self.has_analysis_description? ? self.analysis_description : nil
     self.claim_description_content || analysis_description || self.original_description
   end

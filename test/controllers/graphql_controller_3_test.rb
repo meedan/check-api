@@ -524,8 +524,7 @@ class GraphqlController3Test < ActionController::TestCase
     pm2 = create_project_media project: p
     r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2, set_fields: { smooch_data: '{}' }.to_json)
-    cd = create_claim_description project_media: pm
-    create_fact_check claim_description: cd, title: 'Title Test', summary: 'Description Test'
+    create_claim_description project_media: pm, description: 'Test'
 
     sleep 10
 
@@ -564,8 +563,8 @@ class GraphqlController3Test < ActionController::TestCase
     assert_equal 1, result['medias']['edges'].size
     result['medias']['edges'].each do |pm_node|
       pm = pm_node['node']
-      assert_equal 'Title Test', pm['title']
-      assert_equal 'Description Test', pm['description']
+      assert_equal 'Test', pm['title']
+      assert_equal 'Test', pm['description']
       assert_equal 0, pm['virality']
       assert_equal 1, pm['linked_items_count']
       assert_equal 'UploadedImage', pm['type']
