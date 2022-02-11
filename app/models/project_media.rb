@@ -355,18 +355,6 @@ class ProjectMedia < ApplicationRecord
     user_name
   end
 
-  def cluster_size
-    self.cluster_id ? self.cluster.size : nil
-  end
-
-  def cluster_team_names
-    self.cluster_id ? self.cluster.team_names : nil
-  end
-
-  def cluster_items
-    self.cluster_id ? self.cluster.items : nil
-  end
-
   # FIXME: Required by GraphQL API
   def claim_descriptions
     self.claim_description ? [self.claim_description] : []
