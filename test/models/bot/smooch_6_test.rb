@@ -20,6 +20,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     @sm.reset
     Bot::Smooch.clear_user_bundled_messages(@uid)
     Sidekiq::Testing.fake!
+    @search_result = create_project_media team: @team
 
     # The test bot main menu looks like:
     # Hello! Send 9 to read the terms of service.
@@ -29,11 +30,13 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     # 2. Subscribe to our news...
     #
     # SECONDARY
-    # 3. Latest articles
+    # 3. Query
+    # 4. Latest articles
+    # 5. Subscription
     #
     # LANGUAGES AND PRIVACY
-    # 4. English
-    # 5. Português
+    # 6. English
+    # 7. Português
     # 9. Privacy statement
   end
 
@@ -79,7 +82,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
 
   test "should get resource on tipline bot v2" do
     WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(body: '<rss></rss>')
-    send_message 'hello', '1', '3'
+    send_message 'hello', '1', '4'
     assert_saved_query_type 'resource_requests'
   end
 
@@ -115,11 +118,11 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   end
 
   test "should change language on tipline bot v2" do
-    send_message 'hello', '1', '4'
+    send_message 'hello', '1', '6'
     assert_state 'main'
     assert_user_language 'en'
 
-    send_message 'hello', '5'
+    send_message 'hello', '7'
     assert_state 'main'
     assert_user_language 'pt'
   end
@@ -165,7 +168,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar', '1'
       assert_state 'search_result'
-      assert_no_difference 'Dynamic.count + ProjectMedia.count' do
+      assert_difference 'Dynamic.count + ProjectMedia.count' do
         send_message '1'
       end
       assert_state 'main'
@@ -180,7 +183,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar foo bar foo bar', '1'
       assert_state 'search_result'
-      assert_no_difference 'Dynamic.count + ProjectMedia.count' do
+      assert_difference 'Dynamic.count + ProjectMedia.count' do
         send_message '1'
       end
       assert_state 'main'
@@ -191,14 +194,16 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   end
 
   test "should submit query and get relevant image search results on tipline bot v2" do
+    image_url = random_url
+    WebMock.stub_request(:get, image_url).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
-    Bot::Alegre.stubs(:get_items_with_similar_media).returns({ create_project_media.id => { score: 0.9 } })
-    Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'image' })
+    Bot::Alegre.stubs(:get_items_with_similar_media).returns({ @search_result.id => { score: 0.9 } })
+    Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'image', 'mediaUrl' => image_url })
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Image here', '1'
       assert_state 'search_result'
-      assert_no_difference 'Dynamic.count + ProjectMedia.count' do
+      assert_difference 'Dynamic.count + ProjectMedia.count' do
         send_message '1'
       end
       assert_state 'main'
@@ -242,7 +247,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     @team.set_languages ['en']
     @team.save!
     WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(body: '<rss></rss>')
-    send_message 'hello', '3'
+    send_message 'hello', '4'
     assert_saved_query_type 'resource_requests'
   end
 
@@ -261,19 +266,19 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     assert_state 'main'
     assert_user_language 'en'
 
-    send_message '4'
+    send_message '6'
     assert_state 'main'
     assert_user_language 'en'
 
-    send_message '5'
+    send_message '7'
     assert_state 'main'
     assert_user_language 'pt'
 
-    send_message '6'
+    send_message '8'
     assert_state 'main'
     assert_user_language 'es'
 
-    send_message '7'
+    send_message '9'
     assert_state 'main'
     assert_user_language 'fr'
   end

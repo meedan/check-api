@@ -512,7 +512,7 @@ class Bot::Smooch < BotUser
       sm.reset
       self.bundle_message(message)
       key = "smooch:user_search_results:#{uid}"
-      results = Rails.cache.read(key).to_a.collect{ |pmid| ProjectMedia.find(pmid) }
+      results = Rails.cache.read(key).to_a.collect{ |result_id| ProjectMedia.find(result_id) }
       self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'relevant_search_result_requests', results, true)
       self.send_final_message_to_user(uid, self.get_menu_string('search_result_is_relevant', language), workflow, language)
     elsif value =~ /^[a-z]{2}(_[A-Z]{2})?$/
