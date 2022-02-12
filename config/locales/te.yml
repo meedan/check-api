@@ -41,3 +41,7 @@ te:
     source:
       undetermined:
         label: మొదలవలేదు
+  mails_notifications:
+    unsubscribe: అన్‌సబ్‌స్క్రైబ్_బటన్
+  subscribe: సబ్‌స్క్రైబ్_బటన్
+  unsubscribe: అన్‌సబ్‌స్క్రైబ్_బటన్

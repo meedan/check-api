@@ -137,7 +137,7 @@ class CheckSearch
       filters_blank = false unless @options[filter].blank?
     end
     range_filter = hit_es_for_range_filter
-    !(query_all_types && status_blank && filters_blank && !range_filter && ['recent_added'].include?(@options['sort']))
+    !(query_all_types && status_blank && filters_blank && !range_filter && ['recent_activity', 'recent_added', 'last_seen'].include?(@options['sort']))
   end
 
   def media_types_filter
@@ -579,6 +579,7 @@ class CheckSearch
 
   def build_search_report_status_conditions
     return [] if @options['report_status'].blank? || !@options['report_status'].is_a?(Array)
+    return [{ term: { cluster_report_published: (@options['report_status'].include?('published') ? 1 : 0) } }] if trends_query?
     statuses = []
     @options['report_status'].each do |status_name|
       status_id = ['unpublished', 'paused', 'published'].index(status_name) || -1 # Invalidate the query if an invalid status is passed

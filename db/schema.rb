@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_02_02_020510) do
+ActiveRecord::Schema.define(version: 2022_02_11_051210) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -27,14 +27,14 @@ ActiveRecord::Schema.define(version: 2022_02_02_020510) do
   create_table "accounts", id: :serial, force: :cascade do |t|
     t.integer "user_id"
     t.string "url"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer "team_id"
     t.text "omniauth_info"
     t.string "uid"
     t.string "provider"
     t.string "token"
     t.string "email"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "team_id"
     t.index ["uid", "provider", "token", "email"], name: "index_accounts_on_uid_and_provider_and_token_and_email"
     t.index ["url"], name: "index_accounts_on_url", unique: true
     t.index ["user_id"], name: "index_accounts_on_user_id"
@@ -122,6 +122,8 @@ ActiveRecord::Schema.define(version: 2022_02_02_020510) do
     t.integer "project_media_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "first_item_at"
+    t.datetime "last_item_at"
     t.index ["project_media_id"], name: "index_clusters_on_project_media_id", unique: true
   end
 
@@ -377,15 +379,15 @@ ActiveRecord::Schema.define(version: 2022_02_02_020510) do
     t.integer "team_id"
     t.integer "user_id"
     t.string "type"
+    t.integer "invited_by_id"
+    t.string "invitation_token"
+    t.string "raw_invitation_token"
+    t.datetime "invitation_accepted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "role"
     t.string "status", default: "member"
     t.text "settings"
-    t.integer "invited_by_id"
-    t.string "invitation_token"
-    t.string "raw_invitation_token"
-    t.datetime "invitation_accepted_at"
     t.string "invitation_email"
     t.index ["team_id", "user_id"], name: "index_team_users_on_team_id_and_user_id", unique: true
     t.index ["type"], name: "index_team_users_on_type"
@@ -430,6 +432,7 @@ ActiveRecord::Schema.define(version: 2022_02_02_020510) do
     t.string "name", default: "", null: false
     t.string "login", default: "", null: false
     t.string "token", default: "", null: false
+    t.boolean "default", default: false
     t.string "email"
     t.string "encrypted_password", default: ""
     t.string "reset_password_token"
@@ -440,6 +443,14 @@ ActiveRecord::Schema.define(version: 2022_02_02_020510) do
     t.datetime "last_sign_in_at"
     t.string "current_sign_in_ip"
     t.string "last_sign_in_ip"
+    t.string "invitation_token"
+    t.string "raw_invitation_token"
+    t.datetime "invitation_created_at"
+    t.datetime "invitation_sent_at"
+    t.datetime "invitation_accepted_at"
+    t.integer "invitation_limit"
+    t.integer "invited_by_id"
+    t.string "invited_by_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "image"
@@ -456,14 +467,6 @@ ActiveRecord::Schema.define(version: 2022_02_02_020510) do
     t.string "unconfirmed_email"
     t.integer "current_project_id"
     t.boolean "is_active", default: true
-    t.string "invitation_token"
-    t.string "raw_invitation_token"
-    t.datetime "invitation_created_at"
-    t.datetime "invitation_sent_at"
-    t.datetime "invitation_accepted_at"
-    t.integer "invitation_limit"
-    t.integer "invited_by_id"
-    t.string "invited_by_type"
     t.datetime "last_accepted_terms_at"
     t.string "encrypted_otp_secret"
     t.string "encrypted_otp_secret_iv"
@@ -471,7 +474,6 @@ ActiveRecord::Schema.define(version: 2022_02_02_020510) do
     t.integer "consumed_timestep"
     t.boolean "otp_required_for_login"
     t.string "otp_backup_codes", array: true
-    t.boolean "default", default: false
     t.boolean "completed_signup", default: true
     t.datetime "last_active_at"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true

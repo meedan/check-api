@@ -401,7 +401,7 @@ class GraphqlController5Test < ActionController::TestCase
     assert_equal 'verification_status', log[0]['annotation']['annotation_type']
   end
 
-  test "should get cluster items" do
+  test "should get cluster information" do
     u = create_user is_admin: true
     t = create_team
     p = create_project team: t
@@ -410,10 +410,10 @@ class GraphqlController5Test < ActionController::TestCase
     c.project_medias << pm
     c.project_medias << create_project_media
     authenticate_with_user(u)
-    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") {  cluster_items { edges { node { dbid } } } } }'
+    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") {  cluster { first_item_at, last_item_at, claim_descriptions { edges { node { id } } }, items { edges { node { dbid } } } } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
-    assert_equal 2, JSON.parse(@response.body)['data']['project_media']['cluster_items']['edges'].size
+    assert_equal 2, JSON.parse(@response.body)['data']['project_media']['cluster']['items']['edges'].size
   end
 
   protected

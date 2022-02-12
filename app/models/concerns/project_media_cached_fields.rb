@@ -9,7 +9,7 @@ module ProjectMediaCachedFields
   end
 
   module ClassMethods
-    def metadata_or_claim_or_fact_check_update
+    def title_or_description_update
       [
         {
           model: ClaimDescription,
@@ -20,7 +20,7 @@ module ProjectMediaCachedFields
         },
         {
           model: FactCheck,
-          affected_ids: proc { |fc| fc.claim_description.project_media },
+          affected_ids: proc { |fc| [fc.claim_description.project_media] },
           events: {
             save: :recalculate
           }
@@ -155,11 +155,11 @@ module ProjectMediaCachedFields
 
     cached_field :description,
       recalculate: proc { |pm| pm.get_description },
-      update_on: metadata_or_claim_or_fact_check_update
+      update_on: title_or_description_update
 
     cached_field :title,
       recalculate: proc { |pm| pm.get_title },
-      update_on: metadata_or_claim_or_fact_check_update
+      update_on: title_or_description_update
 
     cached_field :status,
       recalculate: proc { |pm| pm.last_verification_status },
@@ -220,6 +220,42 @@ module ProjectMediaCachedFields
           events: {
             save: proc { |pm, t| pm.tags_as_sentence.split(', ').concat([t.tag_text]).join(', ') },
             destroy: proc { |pm, t| pm.tags_as_sentence.split(', ').reject{ |tt| tt == t.tag_text }.join(', ') }
+          }
+        }
+      ]
+
+    cached_field :sources_as_sentence,
+      start_as: proc { |_pm| '' },
+      recalculate: proc { |pm| pm.get_project_media_sources },
+      update_on: [
+        {
+          model: ProjectMedia,
+          affected_ids: proc { |pm| [pm.id].concat(
+            Relationship.where(target_id: pm.id).where('relationship_type = ?', Relationship.confirmed_type.to_yaml)
+            .map(&:source_id)
+            )},
+          if: proc { |pm| pm.saved_change_to_source_id? },
+          events: {
+            save: :recalculate,
+          }
+        },
+        {
+          model: Relationship,
+          affected_ids: proc { |r| [r.source_id] },
+          events: {
+            save: :recalculate,
+            destroy: :recalculate
+          }
+        },
+        {
+          model: Source,
+          if: proc { |s| s.saved_change_to_name? },
+          affected_ids: proc { |s| s.project_media_ids.concat(
+            Relationship.where(target_id: s.project_media_ids).where('relationship_type = ?', Relationship.confirmed_type.to_yaml)
+            .map(&:source_id)
+            )},
+          events: {
+            update: :recalculate,
           }
         }
       ]
