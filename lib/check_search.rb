@@ -32,7 +32,7 @@ class CheckSearch
   SORT_MAPPING = {
     'recent_activity' => 'updated_at', 'recent_added' => 'created_at', 'demand' => 'demand',
     'related' => 'linked_items_count', 'last_seen' => 'last_seen', 'share_count' => 'share_count',
-    'published_at' => 'published_at', 'report_status' => 'report_status', 'tags_as_sentence' => 'tags_as_sentence',
+    'report_status' => 'report_status', 'tags_as_sentence' => 'tags_as_sentence',
     'media_published_at' => 'media_published_at', 'reaction_count' => 'reaction_count', 'comment_count' => 'comment_count',
     'related_count' => 'related_count', 'suggestions_count' => 'suggestions_count', 'status_index' => 'status_index',
     'type_of_media' => 'type_of_media', 'title' => 'sort_title', 'creator_name' => 'creator_name', 'cluster_size' => 'cluster_size'
@@ -675,7 +675,7 @@ class CheckSearch
     conditions = []
     return conditions unless @options.has_key?(:range)
     timezone = @options[:range].delete(:timezone) || @context_timezone
-    [:created_at, :updated_at, :last_seen, :published_at].each do |name|
+    [:created_at, :updated_at, :last_seen, :media_published_at].each do |name|
       values = @options['range'].dig(name)
       range = format_times_search_range_filter(values, timezone)
       next if range.nil?
@@ -723,6 +723,6 @@ class CheckSearch
   end
 
   def hit_es_for_range_filter
-    !@options['range'].blank? && (@options['range'].keys.include?('last_seen') || @options['range'].keys.include?('published_at'))
+    !@options['range'].blank? && (@options['range'].keys.include?('last_seen') || @options['range'].keys.include?('media_published_at'))
   end
 end
