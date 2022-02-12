@@ -1,5 +1,5 @@
 class ProjectMedia < ApplicationRecord
-  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :skip_rules
+  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :skip_rules, :set_claim_description
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -22,7 +22,7 @@ class ProjectMedia < ApplicationRecord
   validates :channel, inclusion: { in: ->(pm) { [pm.channel_was] }, message: :channel_update }, on: :update
 
   before_validation :set_team_id, :set_channel, :set_project_id, on: :create
-  after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks
+  after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks, :create_claim_description
   after_commit :apply_rules_and_actions_on_create, :set_quote_metadata, :notify_team_bots_create, on: [:create]
   after_commit :create_relationship, on: [:update]
   after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :add_remove_team_tasks, :move_similar_item, :send_move_to_slack_notification
@@ -341,35 +341,25 @@ class ProjectMedia < ApplicationRecord
     project.nil? || project.privacy <= Project.privacy_for_role(project.team, user)
   end
 
-  def get_creator_name
-    user_name = ''
-    if [CheckChannels::ChannelCodes::MANUAL, CheckChannels::ChannelCodes::BROWSER_EXTENSION].include?(self.channel)
-      user_name = self.user&.name
-    elsif CheckChannels::ChannelCodes::TIPLINE.include?(self.channel)
-      user_name = 'Tipline'
-    elsif [CheckChannels::ChannelCodes::FETCH, CheckChannels::ChannelCodes::API, CheckChannels::ChannelCodes::ZAPIER].include?(self.channel)
-      user_name = 'Import'
-    elsif self.channel == CheckChannels::ChannelCodes::WEB_FORM
-      user_name = 'Web Form'
-    end
-    user_name
-  end
-
-  def cluster_size
-    self.cluster_id ? self.cluster.size : nil
-  end
-
-  def cluster_team_names
-    self.cluster_id ? self.cluster.team_names : nil
-  end
-
-  def cluster_items
-    self.cluster_id ? self.cluster.items : nil
-  end
-
   # FIXME: Required by GraphQL API
   def claim_descriptions
     self.claim_description ? [self.claim_description] : []
+  end
+
+  def get_project_media_sources
+    ids = ProjectMedia.get_similar_items(self, Relationship.confirmed_type).map(&:id)
+    ids << self.id
+    sources = {}
+    Source.joins('INNER JOIN project_medias pm ON pm.source_id = sources.id').where('pm.id IN (?)', ids).find_each do |s|
+      sources[s.id] = s.name
+    end
+    # make the main source as the begging of the list
+    unless self.source_id.blank?
+      main_s = sources.slice(self.source_id)
+      sources.delete(self.source_id)
+      sources = main_s.merge(sources)
+    end
+    sources.to_json
   end
 
   protected

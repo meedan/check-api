@@ -15,7 +15,8 @@ module CheckChannels
           "VIBER" => VIBER,
           "LINE" => LINE,
         },
-        "WEB_FORM" => WEB_FORM
+        "WEB_FORM" => WEB_FORM,
+        "SHARED_DATABASE" => SHARED_DATABASE
       }
     end
     MANUAL = 0 # items submitted via app
@@ -31,6 +32,7 @@ module CheckChannels
     LINE = 10
     TIPLINE = [WHATSAPP, MESSENGER, TWITTER, TELEGRAM, VIBER, LINE]
     WEB_FORM = 11
-    ALL = [MANUAL, FETCH, BROWSER_EXTENSION, API, ZAPIER, WEB_FORM] + TIPLINE
+    SHARED_DATABASE = 12
+    ALL = [MANUAL, FETCH, BROWSER_EXTENSION, API, ZAPIER, WEB_FORM, SHARED_DATABASE] + TIPLINE
   end
 end

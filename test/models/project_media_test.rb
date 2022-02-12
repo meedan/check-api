@@ -1801,10 +1801,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     create_fact_check claim_description: cd, title: 'Title 2'
     assert_queries 0, '=' do
-      assert_equal 'Title 2', pm.title
+      assert_equal 'Title 1', pm.title
     end
     assert_queries(0, '>') do
-      assert_equal 'Title 2', pm.reload.title(true)
+      assert_equal 'Title 1', pm.reload.title(true)
     end
   end
 
@@ -1819,10 +1819,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     create_fact_check claim_description: cd, summary: 'Description 2'
     assert_queries 0, '=' do
-      assert_equal 'Description 2', pm.description
+      assert_equal 'Description 1', pm.description
     end
     assert_queries(0, '>') do
-      assert_equal 'Description 2', pm.reload.description(true)
+      assert_equal 'Description 1', pm.reload.description(true)
     end
   end
 
@@ -2706,25 +2706,92 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should get cluster size" do
     pm = create_project_media
-    assert_nil pm.reload.cluster_size
+    assert_nil pm.reload.cluster
     c = create_cluster
     c.project_medias << pm
-    assert_equal 1, pm.reload.cluster_size
+    assert_equal 1, pm.reload.cluster.size
     c.project_medias << create_project_media
-    assert_equal 2, pm.reload.cluster_size
+    assert_equal 2, pm.reload.cluster.size
   end
 
   test "should get cluster teams" do
     t1 = create_team
     t2 = create_team
     pm1 = create_project_media team: t1
-    assert_nil pm1.cluster_team_names
+    assert_nil pm1.cluster
     c = create_cluster project_media: pm1
     c.project_medias << pm1
-    assert_equal [t1.name], pm1.cluster_team_names
+    assert_equal [t1.name], pm1.cluster.team_names
     pm2 = create_project_media team: t2
     c.project_medias << pm2
-    assert_equal [t1.name, t2.name].sort, pm1.cluster_team_names.sort
+    assert_equal [t1.name, t2.name].sort, pm1.cluster.team_names.sort
+  end
+
+  test "should cache sources list" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    s_a = create_source team: t, name: 'source_a'
+    s_b = create_source team: t, name: 'source_b'
+    s_c = create_source team: t, name: 'source_c'
+    s_d = create_source team: t, name: 'source_d'
+    pm = create_project_media team: t, source: s_a, skip_autocreate_source: false
+    t1 = create_project_media team: t, source: s_b, skip_autocreate_source: false
+    t2 = create_project_media team: t, source: s_c, skip_autocreate_source: false
+    t3 = create_project_media team: t, source: s_d, skip_autocreate_source: false
+    result = {}
+    # Verify cache item source
+    result[s_a.id] = s_a.name
+    assert_queries(0, '=') { assert_equal result.to_json, pm.sources_as_sentence }
+    # Verify cache source for similar items
+    r1 = create_relationship source_id: pm.id, target_id: t1.id, relationship_type: Relationship.confirmed_type
+    r2 = create_relationship source_id: pm.id, target_id: t2.id, relationship_type: Relationship.confirmed_type
+    r3 = create_relationship source_id: pm.id, target_id: t3.id, relationship_type: Relationship.suggested_type
+    result[s_b.id] = s_b.name
+    result[s_c.id] = s_c.name
+    pm = ProjectMedia.find(pm.id)
+    assert_queries(0, '=') { assert_equal result.to_json, pm.sources_as_sentence }
+    # Verify main source is a first element
+    assert_equal pm.source_id, JSON.parse(pm.sources_as_sentence).keys.first.to_i
+    # Verify update source names after destroy similar item
+    r1.destroy
+    result.delete(s_b.id)
+    pm = ProjectMedia.find(pm.id)
+    assert_queries(0, '=') { assert_equal result.to_json, pm.sources_as_sentence }
+    # Verify update item source
+    new_s1 = create_source team: t, name: 'new_source_1'
+    pm.source = new_s1; pm.save!
+    result.delete(s_a.id)
+    result[new_s1.id] = new_s1.name
+    pm = ProjectMedia.find(pm.id)
+    assert_queries(0, '=') { assert_equal result.keys.sort.map(&:to_s), JSON.parse(pm.sources_as_sentence).keys.sort }
+    # Verify update source for similar item
+    result_similar = {}
+    result_similar[s_c.id] = s_c.name
+    assert_queries(0, '=') { assert_equal result_similar.to_json, t2.sources_as_sentence }
+    new_s2 = create_source team: t, name: 'new_source_2'
+    t2.source = new_s2; t2.save!
+    t2 = ProjectMedia.find(t2.id)
+    result_similar.delete(s_c.id)
+    result_similar[new_s2.id] = new_s2.name
+    assert_queries(0, '=') { assert_equal result_similar.to_json, t2.sources_as_sentence }
+    result.delete(s_c.id)
+    result[new_s2.id] = new_s2.name
+    pm = ProjectMedia.find(pm.id)
+    assert_queries(0, '=') { assert_equal result.to_json, pm.sources_as_sentence }
+    # Verify update source name
+    new_s2.name = 'update source'; new_s2.save!
+    result[new_s2.id] = 'update source'
+    pm = ProjectMedia.find(pm.id)
+    assert_queries(0, '=') { assert_equal result.to_json, pm.sources_as_sentence }
+    # Verify update relation
+    r3.relationship_type = Relationship.confirmed_type; r3.save!
+    result[s_d.id] = s_d.name
+    pm = ProjectMedia.find(pm.id)
+    result_keys = result.keys.map(&:to_i).sort
+    sources_keys = JSON.parse(pm.sources_as_sentence).keys.map(&:to_i).sort
+    assert_queries(0, '=') { assert_equal result_keys, sources_keys }
+    Rails.cache.clear
+    assert_queries(0, '>') { assert_equal result_keys, JSON.parse(pm.sources_as_sentence).keys.map(&:to_i).sort }
   end
 
   test "should have web form channel" do
@@ -2749,5 +2816,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
         assert task.existing_files.size > 0
       end
     end
+  end
+
+  test "should get shared database creator" do
+    pm = create_project_media channel: 12
+    assert_equal 'Shared Database', pm.creator_name
   end
 end

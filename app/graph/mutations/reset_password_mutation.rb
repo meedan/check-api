@@ -6,7 +6,7 @@ ResetPasswordMutation = GraphQL::Relay::Mutation.define do
   return_field :success, types.Boolean
 
   resolve -> (_root, inputs, _ctx) {
-    user = User.where(email: inputs[:email]).last
+    user = User.where(email: inputs[:email].downcase).last
     unless user.nil?
       user.skip_check_ability = true
       user.send_reset_password_instructions

@@ -173,8 +173,8 @@ class ActiveSupport::TestCase
     WebMock.stub_request(:get, /#{CheckConfig.get('narcissus_url')}/).to_return(body: '{"url":"http://screenshot/test/test.png"}')
     WebMock.stub_request(:get, /api\.smooch\.io/)
     RequestStore.store[:skip_cached_field_update] = true
-    Bot::Alegre.stubs(:request_api).returns({"success" => true})
-    Bot::Alegre.stubs(:request_api).returns({"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+    # Bot::Alegre.stubs(:request_api).returns({"success" => true})
+    # Bot::Alegre.stubs(:request_api).returns({"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
   end
 
   # This will run after any test
@@ -188,6 +188,7 @@ class ActiveSupport::TestCase
     User.current = nil
     RequestStore.clear!
     CONFIG.unstub(:[])
+    # Bot::Alegre.unstub(:request_api)
     # puts "Finished test #{self.class.name}/#{self.method_name}"
   end
 
@@ -892,11 +893,21 @@ class ActiveSupport::TestCase
       @settings['smooch_workflows'][0].merge!({
         'smooch_state_main' => {
           'smooch_menu_message' => 'Hello, welcome! Press 1 to go to secondary menu.',
-          'smooch_menu_options' => [{
-            'smooch_menu_option_keyword' => '1 ,one',
-            'smooch_menu_option_value' => 'secondary_state',
-            'smooch_menu_project_media_id' => ''
-          }]
+          'smooch_menu_options' => [
+            {
+              'smooch_menu_option_keyword' => '1 ,one',
+              'smooch_menu_option_value' => 'secondary_state',
+              'smooch_menu_project_media_id' => ''
+            },
+            {
+              'smooch_menu_option_keyword' => 'query',
+              'smooch_menu_option_value' => 'query_state',
+            },
+            {
+              'smooch_menu_option_keyword' => 'newsletter',
+              'smooch_menu_option_value' => 'subscription_state',
+            }
+          ]
         },
         'smooch_state_secondary' => {
           'smooch_menu_message' => 'Now press 1 to see a project media or 2 to go to the query menu',

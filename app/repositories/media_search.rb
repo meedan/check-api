@@ -129,5 +129,7 @@ class MediaSearch
     indexes :fact_check_title, { type: 'text', analyzer: 'check' }
 
     indexes :fact_check_summary, { type: 'text', analyzer: 'check' }
+
+    indexes :cluster_report_published, { type: 'long' } # 0 = not published, 1 = published
   end
 end
