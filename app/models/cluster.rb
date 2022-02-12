@@ -103,6 +103,7 @@ class Cluster < ApplicationRecord
   def update_timestamps(item)
     self.first_item_at = item.created_at if item.created_at.to_i < self.first_item_at.to_i || self.first_item_at.to_i == 0
     self.last_item_at = item.created_at if item.created_at.to_i > self.last_item_at.to_i
+    self.skip_check_ability = true
     self.save!
   end
 end
