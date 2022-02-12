@@ -2,15 +2,22 @@
 mr:
   mails_notifications:
     unsubscribe: सदस्यता रद्द करा
-  unsubscribe: सदस्यता रद्द करा
-  smooch_message_subscription_header_subscribed: आपण सध्या आमच्या वृत्तपत्राची सदस्यता
-    घेत आहात.
-  smooch_message_subscription_header_unsubscribed: आपण सध्या आमच्या वृत्तपत्रात सदस्यता
-    रद्द करीत आहात.
-  smooch_bot_message_newsletter_fallback: |-
-    नमस्कार! आपले साप्ताहिक तथ्य येथे आहेत.
+  smooch_bot_message_subscribed: |-
+    आपण सध्या आमचे वृत्तपत्र सबस्क्राइब केले आहे.
 
-    हे वृत्तपत्र %{team} यांनी %{platform} वर प्रकाशित केले आहे. %{date} आठवड्यासाठी सर्वात महत्वाचे तथ्य येथे आहेत:
+    मुख्य मेन्यू मध्ये जाण्यासाठी 0 टाइप करा
+  smooch_bot_message_unsubscribed: |-
+    आपण सध्या आमचे वृत्तपत्र सबस्क्राइब केले नाही
+
+    मुख्य मेन्यू मध्ये जाण्यासाठी 0 टाइप करा
+  subscribe: सबस्क्राइब करा
+  unsubscribe: अनसबस्क्राइब करा
+  smooch_message_subscription_header_subscribed: आपण सध्या आमचे वृत्तपत्र सबस्क्राइब
+    केले आहे.
+  smooch_message_subscription_header_unsubscribed: आपण सध्या आमचे वृत्तपत्र सबस्क्राइब
+    केले नाही
+  smooch_bot_message_newsletter_fallback: |-
+    नमस्कार! येथे आपल्या साप्ताहिक तथ्ये आहेत. हे वृत्तपत्र %{platform} वर %{team} द्वारे %{date} रोजी पब्लिश करण्यात आले होते.
 
     %{content}
 

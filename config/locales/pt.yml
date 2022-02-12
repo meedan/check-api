@@ -289,6 +289,7 @@ pt:
   duplicate_source: Esta fonte já existe
   geolocation_invalid_value: Localização inválida. Esperando uma estrutura GeoJSON
     válida (http://geojson.org/)
+  url_invalid_value: A URL enviada é inválida
   datetime_invalid_date: Data inválida
   error_team_archived: Desculpe, não é possível adicionar uma pasta a um espaço de
     trabalho que esteja na lixeira
@@ -784,6 +785,7 @@ pt:
   list_column_folder: Pasta
   list_column_creator_name: Criado por
   list_column_team_name: Espaço de trabalho
+  list_column_sources_as_sentence: Fonte
   go_back_to_check: Voltar ao Check
   project_cant_have_children_if_has_parent: Esta pasta possui uma pasta ascendente,
     por isso não pode ter uma pasta descendente
@@ -794,23 +796,22 @@ pt:
   center_is_not_part_of_another_cluster: O núcleo deste conjunto não pode fazer parte
     de outro conjunto
   smooch_bot_message_subscribed: |-
-    Sua inscrição foi feita.
+    Atualmente, você está inscrito(a) em nosso boletim informativo.
 
-    *Responda 0* para voltar ao Menu Principal.
+    Digite 0 para ir para o menu principal.
   smooch_bot_message_unsubscribed: |-
-    Sua inscrição foi cancelada.
+    Atualmente, você não está inscrito(a) em nosso boletim informativo.
 
-    *Responda 0* para voltar ao Menu Principal.
+    Digite 0 para ir para o menu principal.
   subscribe: Inscrever-se
   unsubscribe: Desinscrever-se
-  smooch_message_subscription_header_subscribed: Atualmente, você *está inscrito(a)*
+  smooch_message_subscription_header_subscribed: Atualmente, você está inscrito(a)
     em nosso boletim informativo.
-  smooch_message_subscription_header_unsubscribed: Atualmente, você *não está inscrito(a)*
+  smooch_message_subscription_header_unsubscribed: Atualmente, você não está inscrito(a)
     em nosso boletim informativo.
   smooch_bot_message_newsletter_fallback: |-
-    Olá! Aqui estão os fatos da semana.
-
-    Esta newsletter é publicada no %{platform} por %{team}. Aqui estão os fatos mais importantes da semana de %{date}:
+    Olá! Aqui estão os fatos da semana. Este boletim foi publicado
+    no %{platform} pelo %{team} em %{date}:
 
     %{content}
 

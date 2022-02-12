@@ -1,6 +1,18 @@
 ---
 ta:
-  smooch_message_subscription_header_subscribed: நீங்கள் தற்போது எங்கள் செய்திமடலுக்கு
-    சந்தா செலுத்துவீர்கள்.
-  smooch_message_subscription_header_unsubscribed: நீங்கள் தற்போது எங்கள் செய்திமடலுக்கு
-    குழுவிலகிருக்கலாம்.
+  mails_notifications:
+    unsubscribe: பதிவை ரத்து செய்
+  smooch_bot_message_subscribed: |-
+    தற்சமயம் நீங்கள் எங்கள் செய்தி மடலைப் பெறுவதற்குப் பதிவு செய்திருக்கிறீர்கள்
+
+    மெயின் மெனுவிற்கு செல்வதற்கு 0 -ஐ உள்ளிடவும்
+  smooch_bot_message_unsubscribed: |-
+    தற்சமயம் நீங்கள் எங்கள் செய்தி மடலைப் பெறும் வசதியை ரத்து செய்து இருக்கிறீர்கள்
+
+    மெயின் மெனுவிற்கு செல்வதற்கு 0 -ஐ உள்ளிடவும்
+  subscribe: பதிவு செய்
+  unsubscribe: பதிவை ரத்து செய்
+  smooch_message_subscription_header_subscribed: தற்சமயம் நீங்கள் எங்கள் செய்தி மடலைப்
+    பெறுவதற்குப் பதிவு செய்திருக்கிறீர்கள்
+  smooch_message_subscription_header_unsubscribed: 'தற்சமயம் நீங்கள் எங்கள் செய்தி
+    மடலைப் பெறும் வசதியை ரத்து செய்து இருக்கிறீர்கள் '

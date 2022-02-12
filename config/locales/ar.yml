@@ -295,6 +295,7 @@ ar:
   duplicate_source: هذا المصدر موجود بالفعل
   geolocation_invalid_value: الموقع غير صالح. المتوقع صيغة صالحة من نوع (/GeoJSON
     (http://geojson.org
+  url_invalid_value: الرابط المرسل التالي غير صالح
   datetime_invalid_date: التاريخ غير صالح
   error_team_archived: عذراً، لا يمكن إضافة مجلد لمساحة عمل في سلة المهملات
   error_project_archived: عذراً ، لا يمكن إضافة عنصر لمجلد في سلة المهملات
@@ -768,6 +769,7 @@ ar:
   list_column_folder: مجلد
   list_column_creator_name: تم الإنشاء بواسطة
   list_column_team_name: مساحة العمل
+  list_column_sources_as_sentence: المصدر
   go_back_to_check: العودة إلى Check
   project_cant_have_children_if_has_parent: يوجد هذا المجلد ضمن مجلد آخر، لذا لا يمكن
     أن يحوي مجلدا بداخله

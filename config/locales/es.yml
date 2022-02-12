@@ -783,6 +783,7 @@ es:
   list_column_folder: Carpeta
   list_column_creator_name: Creado por
   list_column_team_name: Área de trabajo
+  list_column_sources_as_sentence: Fuente
   go_back_to_check: Regresar a Check
   project_cant_have_children_if_has_parent: Esta carpeta tiene una carpeta principal,
     por lo que no puede tener una subcarpeta
@@ -793,23 +794,21 @@ es:
   center_is_not_part_of_another_cluster: El centro de este clúster no puede ser parte
     de otro clúster
   smooch_bot_message_subscribed: |-
-    Ahora estás suscrita(o).
+    Actualmente estás suscrita(o) a nuestro boletín.
 
-    *Responde 0* para regresar al menú principal.
+    Escribe 0 para ir al menú principal.
   smooch_bot_message_unsubscribed: |-
-    Se ha cancelado tu suscripción.
+    Actualmente no estás suscrita(o) a nuestro boletín.
 
-    *Responde 0* para regresar al menú principal.
+    Escribe 0 para ir al menú principal.
   subscribe: Suscribirse
-  unsubscribe: 'Cancelar suscripción '
-  smooch_message_subscription_header_subscribed: Actualmente estás *suscrita(o)* a
-    nuestro boletín.
-  smooch_message_subscription_header_unsubscribed: Actualmente estás *desuscrita(o)*
-    de nuestro boletín.
+  unsubscribe: Cancelar suscripción
+  smooch_message_subscription_header_subscribed: Actualmente estás suscrita(o) a nuestro
+    boletín.
+  smooch_message_subscription_header_unsubscribed: Actualmente no estás suscrita(o)
+    a nuestro boletín.
   smooch_bot_message_newsletter_fallback: |-
-    ¡Hola! Aquí están tus datos semanales.
-
-    Este boletín es publicado en %{platform} por %{team}. Aquí están los datos más importantes para la semana de %{date}:
+    ¡Hola! Aquí están tus datos semanales. Este boletín fue publicado en %{platform} por %{team} en %{date}:
 
     %{content}
 

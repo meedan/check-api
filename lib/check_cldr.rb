@@ -2,7 +2,7 @@ class CheckCldr
   def self.load
     data = {}
     Dir.foreach(File.join(Rails.root, 'data')) do |file|
-      if /^[a-z]{2,3}$/ === file
+      if File.directory?(File.join(Rails.root, 'data', file))
         yaml = File.join(Rails.root, 'data', file, 'languages.yml')
         data[file] = YAML.load(File.read(yaml))[file]['languages'] if File.exist?(yaml)
       end
@@ -11,9 +11,11 @@ class CheckCldr
   end
 
   def self.language_code_to_name(code, locale = I18n.locale)
+    code = code.to_s.gsub(/[_-].*$/, '')
     locale ||= :en
-    name = CLDR_LANGUAGES[locale.to_s][code.to_s]
-    name.blank? ? code.to_s : name.mb_chars.capitalize
+    locale = locale.to_s.gsub(/[_-].*$/, '')
+    name = CLDR_LANGUAGES.dig(locale, code.to_s) || CLDR_LANGUAGES.dig(locale, :en)
+    name.blank? ? code : name.mb_chars.capitalize
   end
 
   def self.localized_languages(locale = I18n.locale)

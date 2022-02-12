@@ -296,6 +296,7 @@ fr:
   duplicate_source: La source existe déjà
   geolocation_invalid_value: Le lieu est invalide. Une structure GeoJSON valide est
     attendue (http://geojson.org/)
+  url_invalid_value: L’URL suivante indiquée est invalide
   datetime_invalid_date: La date est invalide
   error_team_archived: Désolé, vous ne pouvez pas ajouter un dossier à un espace de
     travail qui est dans la corbeille
@@ -806,6 +807,7 @@ fr:
   list_column_folder: Dossier
   list_column_creator_name: Créé par
   list_column_team_name: Espace de travail
+  list_column_sources_as_sentence: Source
   go_back_to_check: Retourner à Check
   project_cant_have_children_if_has_parent: Ce dossier a un dossier parent et il ne
     peut donc pas avoir un dossier enfant
@@ -816,23 +818,21 @@ fr:
   center_is_not_part_of_another_cluster: Le centre de ce groupe ne peut pas faire
     partie d’un autre groupe
   smooch_bot_message_subscribed: |-
-    L’abonnement est en vigueur.
+    Vous êtes actuellement abonné à notre lettre d’information.
 
-    *Répondez 0* pour revenir au menu principal.
+    Tapez 0 pour accéder au menu principal.
   smooch_bot_message_unsubscribed: |-
-    L’abonnement a été annulé.
+    Vous n’êtes actuellement pas abonné à notre lettre d’information.
 
-    *Répondez 0* pour revenir au menu principal.
+    Tapez 0 pour accéder au menu principal.
   subscribe: M’abonner
   unsubscribe: Me désabonner
-  smooch_message_subscription_header_subscribed: L’abonnement à notre lettre d’information
-    est actuellement *activé*.
-  smooch_message_subscription_header_unsubscribed: L’abonnement à notre lettre d’information
-    est actuellement *désactivé*.
+  smooch_message_subscription_header_subscribed: Vous êtes actuellement abonné à notre
+    lettre d’information.
+  smooch_message_subscription_header_unsubscribed: Vous n’êtes actuellement pas abonné
+    à notre lettre d’information.
   smooch_bot_message_newsletter_fallback: |-
-    Bonjour. Voici vos faits hebdomadaires.
-
-    Cette lettre d’information est publiée sur %{platform} par %{team}. Voici les faits les plus importants pour la semaine du %{date} :
+    Bonjour. Voici vos faits hebdomadaires. Cette lettre d’information a été publiée sur %{platform} par %{team} le %{date} :
 
     %{content}
 

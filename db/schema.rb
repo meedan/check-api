@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_02_02_020510) do
+ActiveRecord::Schema.define(version: 2022_02_11_051210) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -122,6 +122,8 @@ ActiveRecord::Schema.define(version: 2022_02_02_020510) do
     t.integer "project_media_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "first_item_at"
+    t.datetime "last_item_at"
     t.index ["project_media_id"], name: "index_clusters_on_project_media_id", unique: true
   end
 
