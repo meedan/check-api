@@ -95,7 +95,7 @@ module SmoochMessages
       message = []
       if state.to_s == 'main'
         message << workflow['smooch_message_smooch_bot_greetings']
-        message << self.tos_message(workflow, language)
+        message << self.tos_message(workflow, language) if self.config['smooch_version'] != 'v2'
       end
       message << self.subscription_message(uid, language) if state.to_s == 'subscription'
       message << workflow.dig("smooch_state_#{state}", 'smooch_menu_message') if state != 'main' || self.config['smooch_version'] != 'v2'
@@ -103,10 +103,10 @@ module SmoochMessages
       message.reject{ |m| m.blank? }.join("\n\n")
     end
 
-    def subscription_message(uid, language, subscribed = nil)
+    def subscription_message(uid, language, subscribed = nil, full_message = true)
       subscribed = subscribed.nil? ? !TiplineSubscription.where(team_id: self.config['team_id'], uid: uid, language: language).last.nil? : subscribed
       status = subscribed ? self.get_menu_string('subscribed', language.gsub(/[-_].*$/, '')) : self.get_menu_string('unsubscribed', language.gsub(/[-_].*$/, ''))
-      self.get_menu_string('newsletter_optin_optout', language).gsub('{subscription_status}', status)
+      full_message ? self.get_menu_string('newsletter_optin_optout', language).gsub('{subscription_status}', status) : status
     end
 
     def send_message_if_disabled_and_return_state(uid, workflow, state)
@@ -198,9 +198,11 @@ module SmoochMessages
       bundle = self.bundle_list_of_messages(list, last)
       if type == 'default_requests'
         self.process_message(bundle, app_id, send_message)
-      elsif ['timeout_requests', 'menu_options_requests', 'resource_requests'].include?(type)
+      elsif ['timeout_requests', 'menu_options_requests', 'resource_requests', 'relevant_search_result_requests'].include?(type)
         key = "smooch:banned:#{bundle['authorId']}"
-        self.save_message_later(bundle, app_id, type, annotated) if Rails.cache.read(key).nil?
+        if Rails.cache.read(key).nil?
+          [annotated].flatten.each { |a| self.save_message_later(bundle, app_id, type, a) }
+        end
       end
     end
 
@@ -251,7 +253,7 @@ module SmoochMessages
       if ['default_requests', 'timeout_requests', 'resource_requests'].include?(request_type)
         message['archived'] = request_type == 'default_requests' ? self.default_archived_flag : CheckArchivedFlags::FlagCodes::UNCONFIRMED
         annotated = self.create_project_media_from_message(message)
-      elsif ['menu_options_requests'].include?(request_type)
+      elsif ['menu_options_requests', 'relevant_search_result_requests'].include?(request_type)
         annotated = annotated_obj
       end
 
@@ -262,6 +264,7 @@ module SmoochMessages
       Rails.cache.write("smooch:message:#{hash}", annotated.id)
 
       self.smooch_save_annotations(message, annotated, app_id, author, request_type, annotated_obj)
+
       # If item is published (or parent item), send a report right away
       self.send_report_to_user(message['authorId'], message, annotated, message['language'], 'fact_check_report') if self.should_try_to_send_report?(request_type, annotated)
     end

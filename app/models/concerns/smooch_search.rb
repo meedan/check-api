@@ -16,11 +16,16 @@ module SmoochSearch
         else
           self.send_message_to_user(uid, self.format_search_results(results))
           sm.go_to_search_result
+          self.save_search_results_for_user(uid, results.map(&:id))
           self.send_message_for_state(uid, workflow, 'search_result', language)
         end
       rescue StandardError => e
         self.handle_search_error(uid, e, language)
       end
+    end
+
+    def save_search_results_for_user(uid, pmids)
+      Rails.cache.write("smooch:user_search_results:#{uid}", pmids)
     end
 
     def handle_search_error(uid, e, _language)
@@ -68,7 +73,7 @@ module SmoochSearch
         if type == 'text'
           words = ::Bot::Smooch.extract_claim(message['text']).split(/\s+/)
           text = words.join(' ')
-          if words.size <= 3
+          if words.size <= 5
             filters = { keyword: text, eslimit: 3, report_status: ['published'] }
             filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) if after
             results = CheckSearch.new(filters.to_json, nil, team_id).medias

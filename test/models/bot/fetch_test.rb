@@ -83,8 +83,7 @@ class Bot::FetchTest < ActiveSupport::TestCase
       assert Bot::Fetch.webhook(request)
     end
     pm = ProjectMedia.last
-    assert_equal "Earth isn't flat", pm.title
-    assert CheckChannels::ChannelCodes::FETCH, pm.channel
+    assert_equal CheckChannels::ChannelCodes::FETCH, pm.channel
   end
 
   # This test to reproduce errbit error #CHECK-166

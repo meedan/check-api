@@ -52,10 +52,10 @@ module SmoochNewsletter
       CheckStateMachine.new(uid).reset
       if s.nil?
         TiplineSubscription.create!(uid: uid, language: language, team_id: team_id, platform: platform)
-        self.send_final_message_to_user(uid, self.subscription_message(uid, language, true), workflow, language)
+        self.send_final_message_to_user(uid, self.subscription_message(uid, language, true, false), workflow, language)
       else
         s.destroy!
-        self.send_final_message_to_user(uid, self.subscription_message(uid, language, false), workflow, language)
+        self.send_final_message_to_user(uid, self.subscription_message(uid, language, false, false), workflow, language)
       end
       self.clear_user_bundled_messages(uid)
     end
