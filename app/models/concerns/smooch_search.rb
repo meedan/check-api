@@ -74,7 +74,7 @@ module SmoochSearch
           words = ::Bot::Smooch.extract_claim(message['text']).split(/\s+/)
           text = words.join(' ')
           if words.size <= 5
-            filters = { keyword: text, eslimit: 3, report_status: ['published'] }
+            filters = { keyword: text, eslimit: 3, report_status: ['published'], show_similar: true }
             filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) if after
             results = CheckSearch.new(filters.to_json, nil, team_id).medias
             Rails.logger.info "[Smooch Bot] Keyword search got #{results.count} results while looking for '#{text}' after date #{after.inspect} for team #{team_id}"
@@ -94,7 +94,11 @@ module SmoochSearch
     end
 
     def format_search_results(results)
-      results.collect{ |r| "#{r.title}\n#{r.published_url}" }.join("\n\n")
+      results = results.collect { |r| Relationship.confirmed_parent(r) }.uniq
+      results.collect do |r|
+        title = r.fact_check_title || r.title
+        "#{title}\n#{r.published_url}"
+      end.join("\n\n")
     end
   end
 end

@@ -76,10 +76,6 @@ module ProjectMediaGetters
     self.updated_at.to_i
   end
 
-  def has_analysis_title?
-    !self.analysis_title.blank?
-  end
-
   def original_title
     self.media&.metadata&.dig('title') || self.media&.quote || self.media&.file&.file&.filename
   end
@@ -150,8 +146,10 @@ module ProjectMediaGetters
   end
 
   def get_title
-    analysis_title = self.has_analysis_title? ? self.analysis_title : nil
-    title = self.claim_description_content || analysis_title || self.original_title
+    analysis = self.analysis
+    analysis_title = analysis['title'].blank? ? nil : analysis['title']
+    file_title = analysis['file_title'].blank? ? nil : analysis['file_title']
+    title = self.claim_description_content || analysis_title || file_title || self.original_title
     self.channel == CheckChannels::ChannelCodes::FETCH ? self.fact_check_title : title
   end
 

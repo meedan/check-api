@@ -48,7 +48,7 @@ module ProjectMediaCreators
         title = File.basename(file_path, File.extname(file_path))
       end
     end
-    Rails.cache.write(ProjectMedia.check_cache_key(ProjectMedia, self.id, 'title'), title) unless title.blank?
+    self.analysis = { file_title: title }
   end
 
   protected
