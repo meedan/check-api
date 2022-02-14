@@ -1078,6 +1078,41 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:get_items_with_similar_description)
   end
 
+  test "should use OCR data for similarity matching zzz" do
+    pm = create_project_media team: @team, media: create_uploaded_image
+    pm2 = create_project_media team: @team, media: create_uploaded_image
+    Bot::Alegre.stubs(:request_api).returns({"result"=> [{
+      "_index"=>"alegre_similarity",
+      "_type"=>"_doc",
+      "_id"=>"i8XY53UB36CYclMPF5wC",
+      "_score"=>100.60148,
+      "_source"=> {
+        "content"=>
+          "Bautista began his wrestling career in 1999, and signed with the World Wrestling Federation (WWF, now WWE) in 2000. From 2002 to 2010, he gained fame under the ring name Batista and became a six-time world champion by winning the World Heavyweight Championship four times and the WWE Championship twice. He holds the record for the longest reign as World Heavyweight Champion at 282 days and has also won the World Tag Team Championship three times (twice with Ric Flair and once with John Cena) and the WWE Tag Team Championship once (with Rey Mysterio). He was the winner of the 2005 Royal Rumble match and went on to headline WrestleMania 21, one of the top five highest-grossing pay-per-view events in professional wrestling history",
+        "context"=>{"team_id"=>@team.id, "field"=>"title", "project_media_id"=>pm2.id}
+      }
+    }, {
+      "_index"=>"alegre_similarity",
+      "_type"=>"_doc",
+      "_id"=>"tMXj53UB36CYclMPXp14",
+      "_score"=>100.60148,
+      "_source"=>
+       {
+         "content"=>
+           "Bautista began his wrestling career in 1999, and signed with the World Wrestling Federation (WWF, now WWE) in 2000. From 2002 to 2010, he gained fame under the ring name Batista and became a six-time world champion by winning the World Heavyweight Championship four times and the WWE Championship twice. He holds the record for the longest reign as World Heavyweight Champion at 282 days and has also won the World Tag Team Championship three times (twice with Ric Flair and once with John Cena) and the WWE Tag Team Championship once (with Rey Mysterio). He was the winner of the 2005 Royal Rumble match and went on to headline WrestleMania 21, one of the top five highest-grossing pay-per-view events in professional wrestling history",
+         "context"=>{"team_id"=>@team.id, "field"=>"title", "extracted_text"=>pm2.id}
+    }}]})
+    assert_difference 'Relationship.count' do
+      create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm, set_fields: { text: 'Foo bar' }.to_json
+    end
+    r = Relationship.last
+    assert_equal r.model, "elasticsearch"
+    assert_equal Bot::Alegre.get_pm_type(r.source), "image"
+    assert_equal Bot::Alegre.get_pm_type(r.target), "image"
+    Bot::Alegre.unstub(:request_api)
+  end
+
+
   # This test to reproduce errbit error CHECK-1218
   test "should match to existing parent" do
     pm_s = create_project_media team: @team
