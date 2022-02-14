@@ -121,4 +121,16 @@ class ClusterTest < ActiveSupport::TestCase
     c.project_medias << pm2
     assert_equal [cd1, cd2], c.claim_descriptions.sort
   end
+
+  test "should set cluster_report_published value in ES" do
+    setup_elasticsearch
+    t = create_team
+    c = create_cluster
+    pm = create_project_media team: t, cluster_id: c.id
+    c.project_media_id = pm.id
+    c.save!
+    publish_report(pm)
+    result = $repository.find(get_es_id(pm))
+    assert_equal 1, result['cluster_report_published']
+  end
 end
