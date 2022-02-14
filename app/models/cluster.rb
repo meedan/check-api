@@ -9,17 +9,11 @@ class Cluster < ApplicationRecord
     after_save do
       if self.annotation_type == 'report_design'
         cluster = self.annotated&.cluster
-        es_body = [
-          {
-            update: {
-              _index: ::CheckElasticSearchModel.get_index_alias,
-              _id: Base64.encode64("ProjectMedia/#{cluster&.project_media_id}"),
-              retry_on_conflict: 3,
-              data: { doc: { cluster_report_published: 1 } }
-            }
-          }
-        ]
-        $repository.client.bulk(body: es_body) unless cluster.nil?
+        unless cluster.nil?
+          pm = cluster.project_media
+          options = { keys: ['cluster_report_published'], data: { 'cluster_report_published' => 1 }, obj: pm }
+          ElasticSearchWorker.perform_in(1.second, YAML::dump(pm), YAML::dump(options), 'update_doc')
+        end
       end
     end
   end
@@ -82,17 +76,9 @@ class Cluster < ApplicationRecord
   end
 
   def update_elastic_search(_item)
-    es_body = [
-      {
-        update: {
-          _index: ::CheckElasticSearchModel.get_index_alias,
-          _id: Base64.encode64("ProjectMedia/#{self.project_media_id}"),
-          retry_on_conflict: 3,
-          data: { doc: { cluster_size: self.project_medias.count } }
-        }
-      }
-    ]
-    $repository.client.bulk(body: es_body)
+    pm = self.project_media
+    options = { keys: ['cluster_size'], data: { 'cluster_size' => self.project_medias.count }, obj: pm }
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(pm), YAML::dump(options), 'update_doc')
   end
 
   def update_cached_fields(_item)
@@ -103,6 +89,7 @@ class Cluster < ApplicationRecord
   def update_timestamps(item)
     self.first_item_at = item.created_at if item.created_at.to_i < self.first_item_at.to_i || self.first_item_at.to_i == 0
     self.last_item_at = item.created_at if item.created_at.to_i > self.last_item_at.to_i
+    self.skip_check_ability = true
     self.save!
   end
 end
