@@ -203,6 +203,17 @@ ProjectMedia.class_eval do
     output
   end
 
+  def self.field_search_query_type_range_long(field, range)
+    {
+      range: {
+        "#{field}": {
+          gte: range[0].to_i,
+          lte: range[1].to_i
+        }
+      }
+    }
+  end
+
   def self.field_search_query_type_range_created_at(range, timezone, _options = nil)
     self.field_search_query_type_range(:created_at, range, timezone)
   end
@@ -211,25 +222,15 @@ ProjectMedia.class_eval do
     self.field_search_query_type_range(:updated_at, range, timezone)
   end
 
+  def self.field_search_query_type_range_report_published_at(range, _timezone, _options = nil)
+    self.field_search_query_type_range_long(:report_published_at, range)
+  end
+
   def self.field_search_query_type_range_media_published_at(range, _timezone, _options = nil)
-    {
-      range: {
-        media_published_at: {
-          gte: range[0].to_i,
-          lte: range[1].to_i
-        }
-      }
-    }
+    self.field_search_query_type_range_long(:media_published_at, range)
   end
 
   def self.field_search_query_type_range_last_seen(range, _timezone, _options = nil)
-    {
-      range: {
-        last_seen: {
-          gte: range[0].to_i,
-          lte: range[1].to_i
-        }
-      }
-    }
+    self.field_search_query_type_range_long(:last_seen, range)
   end
 end

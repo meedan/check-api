@@ -675,7 +675,7 @@ class CheckSearch
     conditions = []
     return conditions unless @options.has_key?(:range)
     timezone = @options[:range].delete(:timezone) || @context_timezone
-    [:created_at, :updated_at, :last_seen, :media_published_at].each do |name|
+    [:created_at, :updated_at, :last_seen, :media_published_at, :report_published_at].each do |name|
       values = @options['range'].dig(name)
       range = format_times_search_range_filter(values, timezone)
       next if range.nil?
@@ -723,6 +723,6 @@ class CheckSearch
   end
 
   def hit_es_for_range_filter
-    !@options['range'].blank? && (@options['range'].keys.include?('last_seen') || @options['range'].keys.include?('media_published_at'))
+    !@options['range'].blank? && (@options['range'].keys.include?('report_published_at') || @options['range'].keys.include?('media_published_at'))
   end
 end
