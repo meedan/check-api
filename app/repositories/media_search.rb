@@ -101,6 +101,8 @@ class MediaSearch
 
     indexes :media_published_at, { type: 'long' }
 
+    indexes :report_published_at, { type: 'long' }
+
     indexes :reaction_count, { type: 'long' }
 
     indexes :comment_count, { type: 'long' }
