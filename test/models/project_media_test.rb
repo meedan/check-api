@@ -690,7 +690,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_equal [
         "create_comment", "create_dynamic", "create_dynamic", "create_dynamic", "create_dynamicannotationfield",
         "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield",
-        "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield",
+        "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield",
         "create_dynamicannotationfield", "create_dynamicannotationfield", "create_tag", "create_task", "update_dynamicannotationfield",
         "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_task"
       ].sort, pm.get_versions_log.map(&:event_type).sort

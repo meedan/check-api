@@ -16,9 +16,7 @@ namespace :check do
     # bundle exec rails check:migrate:sync_updated_at_field['slug:team_slug&updated_at:value']
     task sync_updated_at_field: :environment do |_t, args|
       started = Time.now.to_i
-      slugs = args.extras
       condition = parse_conditions args.extras
-      pp condition
       team_condition = {}
       team_condition = { slug: condition['slug'] } unless condition['slug'].blank?
       client = $repository.client

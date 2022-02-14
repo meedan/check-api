@@ -374,15 +374,18 @@ class ProjectMedia < ApplicationRecord
   end
 
   def add_extra_elasticsearch_data(ms)
+    analysis = self.analysis
+    analysis_title = analysis['title'].blank? ? nil : analysis['title']
+    file_title = analysis['file_title'].blank? ? nil : analysis['file_title']
     m = self.media
     ms.attributes[:associated_type] = m.type
     ms.attributes[:url] = m.url
     ms.attributes[:accounts] = self.set_es_account_data unless m.account.nil?
     ms.attributes[:title] = self.original_title
-    # initiate sort_title with same title value for sorting by title purpose
-    ms.attributes[:sort_title] = self.title&.downcase
+    # initiate title_index with same title value for sorting by title purpose
+    ms.attributes[:title_index] = self.title
     ms.attributes[:description] = self.original_description
-    ms.attributes[:analysis_title] = self.analysis_title
+    ms.attributes[:analysis_title] = analysis_title || file_title
     ms.attributes[:analysis_description] = self.analysis_description
     ms.attributes[:quote] = m.quote
     ms.attributes[:verification_status] = self.last_status
