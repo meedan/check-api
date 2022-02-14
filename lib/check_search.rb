@@ -723,6 +723,6 @@ class CheckSearch
   end
 
   def hit_es_for_range_filter
-    !@options['range'].blank? && (@options['range'].keys.include?('report_published_at') || @options['range'].keys.include?('media_published_at'))
+    !@options['range'].blank? && !(['last_seen', 'report_published_at', 'media_published_at'] & @options['range'].keys).blank?
   end
 end
