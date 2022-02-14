@@ -73,11 +73,12 @@ module SmoochSearch
         if type == 'text'
           words = ::Bot::Smooch.extract_claim(message['text']).split(/\s+/)
           text = words.join(' ')
-          if words.size <= 5
-            filters = { keyword: text, eslimit: 3, report_status: ['published'], show_similar: true }
+          if words.size <= 3
+            filters = { keyword: words.join('+'), eslimit: 3, report_status: ['published'] }
             filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) if after
             results = CheckSearch.new(filters.to_json, nil, team_id).medias
             Rails.logger.info "[Smooch Bot] Keyword search got #{results.count} results while looking for '#{text}' after date #{after.inspect} for team #{team_id}"
+            results = CheckSearch.new(filters.merge({ show_similar: true }).to_json, nil, team_id).medias if results.empty?
           else
             results = self.parse_search_results_from_alegre(Bot::Alegre.get_similar_texts([team_id], text), team_id)
             Rails.logger.info "[Smooch Bot] Text similarity search got #{results.count} results while looking for '#{text}' after date #{after.inspect} for team #{team_id}"
