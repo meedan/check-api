@@ -130,6 +130,7 @@ class Dynamic < ApplicationRecord
     return if self.disable_es_callbacks
     handle_elasticsearch_response(op)
     handle_extracted_text(op)
+    handle_report_published_at(op)
     op = 'create_or_update' if annotation_type == 'smooch'
     options = get_elasticsearch_options_dynamic
     options.merge!({op: op, nested_key: 'dynamics'})
@@ -158,6 +159,13 @@ class Dynamic < ApplicationRecord
     if self.annotated_type == 'ProjectMedia' && self.annotation_type == 'extracted_text'
       value = op == 'destroy' ? '' : self.data['text']
       self.update_elasticsearch_doc(['extracted_text'], { 'extracted_text' => value }, self.annotated)
+    end
+  end
+
+  def handle_report_published_at(_op)
+    if self.annotated_type == 'ProjectMedia' && self.annotation_type == 'report_design'
+      data = { 'report_published_at' => self.data['last_published'] }
+      self.update_elasticsearch_doc(['report_published_at'], data, self.annotated)
     end
   end
 

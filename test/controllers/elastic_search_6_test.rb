@@ -135,6 +135,7 @@ class ElasticSearch6Test < ActionController::TestCase
 
   [:created_at, :updated_at, :last_seen].each do |field|
     test "should filter by #{field} range" do
+      RequestStore.store[:skip_cached_field_update] = false
       p = create_project
 
       to = Time.new(2019, 05, 21, 14, 01).strftime("%Y-%m-%d %H:%M")
@@ -196,6 +197,7 @@ class ElasticSearch6Test < ActionController::TestCase
 
   [:created_at, :updated_at, :last_seen].each do |field|
     test "should handle inputs when filter by #{field} range" do
+      RequestStore.store[:skip_cached_field_update] = false
       p = create_project
 
       Time.stubs(:now).returns(Time.new(2019, 05, 19, 13, 00))

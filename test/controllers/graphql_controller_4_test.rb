@@ -511,11 +511,18 @@ class GraphqlController4Test < ActionController::TestCase
     pm3 = create_project_media team: t, disable_es_callbacks: false
 
     # Search
-    sleep 10
+    sleep 2
     query = 'query CheckSearch { search(query: "{\"report_status\":[\"published\"]}") { medias(first: 20) { edges { node { dbid } } } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }
+
+    # Verify filter by report published data
+    query = 'query CheckSearch { search(query: "{\"range\": {\"report_published_at\":{\"condition\":\"less_than\",\"period\":\"1\",\"period_type\":\"y\"},\"timezone\":\"America/Bahia\"}}") { medias(first:20){edges{node{dbid}}}}}'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+    assert_equal [pm1.id, pm2.id], results.sort
   end
 
   test "should get a single bot installation" do
