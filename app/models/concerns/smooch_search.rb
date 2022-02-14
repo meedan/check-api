@@ -94,7 +94,11 @@ module SmoochSearch
     end
 
     def format_search_results(results)
-      results.collect{ |r| "#{r.title}\n#{r.published_url}" }.join("\n\n")
+      results = results.collect { |r| Relationship.confirmed_parent(r) }.uniq
+      results.collect do |r|
+        title = r.fact_check_title || r.title
+        "#{title}\n#{r.published_url}"
+      end.join("\n\n")
     end
   end
 end
