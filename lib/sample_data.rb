@@ -234,6 +234,7 @@ module SampleData
     at = create_annotation_type annotation_type: 'verification_status', label: 'Verification Status'
     create_field_instance annotation_type_object: at, name: 'verification_status_status', label: 'Verification Status', default_value: 'undetermined', field_type_object: ft2, optional: false
     create_field_instance annotation_type_object: at, name: 'title', label: 'Title', field_type_object: ft1, optional: true
+    create_field_instance annotation_type_object: at, name: 'file_title', label: 'File Title', field_type_object: ft1, optional: true
     create_field_instance annotation_type_object: at, name: 'content', label: 'Content', field_type_object: ft1, optional: true
     create_field_instance annotation_type_object: at, name: 'published_article_url', label: 'Published Article URL', field_type_object: ft1, optional: true
     create_field_instance annotation_type_object: at, name: 'date_published', label: 'Date Published', field_type_object: ft1, optional: true
