@@ -99,4 +99,16 @@ class FactCheckTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should index text_fields" do
+    setup_elasticsearch
+    t = create_team
+    u = create_user
+    pm = create_project_media team: t, disable_es_callbacks: false
+    cd = create_claim_description project_media: pm
+    fc = create_fact_check claim_description: cd, user: u, summary: 'summary_text', title: 'title_text'
+    result = $repository.find(get_es_id(pm))
+    assert_equal 'summary_text', result['fact_check_summary']
+    assert_equal 'title_text', result['fact_check_title']
+  end
 end

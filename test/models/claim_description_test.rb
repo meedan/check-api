@@ -84,4 +84,14 @@ class ClaimDescriptionTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should index text_fields" do
+    setup_elasticsearch
+    t = create_team
+    u = create_user
+    pm = create_project_media team: t, disable_es_callbacks: false
+    cd = create_claim_description project_media: pm, description: 'description_text'
+    result = $repository.find(get_es_id(pm))
+    assert_equal 'description_text', result['claim_description_content']
+  end
 end
