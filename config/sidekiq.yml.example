@@ -10,3 +10,4 @@
   - ["smooch_ping", 1]
   - ["pusher", 1]
   - ["carrierwave", 1]
+  - ["fetch", 1]
