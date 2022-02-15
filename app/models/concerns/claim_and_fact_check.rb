@@ -9,7 +9,7 @@ module ClaimAndFactCheck
     belongs_to :user
 
     before_validation :set_user, on: :create
-    after_save :index_in_elasticsearch, :send_to_alegre
+    after_commit :index_in_elasticsearch, :send_to_alegre, on: [:create, :update]
   end
 
   def text_fields
@@ -21,7 +21,13 @@ module ClaimAndFactCheck
   end
 
   def index_in_elasticsearch
-    self.class.delay_for(1.second).index_in_elasticsearch(self.id)
+    values = {}
+    if self.class.name == 'FactCheck'
+      values = { 'fact_check_title' => self.title, 'fact_check_summary' => self.summary }
+    else
+      values = { 'claim_description_content' => self.description }
+    end
+    self.update_elasticsearch_doc(self.text_fields, values, self.project_media)
   end
 
   def send_to_alegre
@@ -29,15 +35,6 @@ module ClaimAndFactCheck
   end
 
   module ClassMethods
-    def index_in_elasticsearch(id)
-      obj = self.find(id)
-      values = {}
-      obj.text_fields.each do |field|
-        values[field] = obj.project_media.send(field)
-      end
-      obj.update_elasticsearch_doc(obj.text_fields, values, obj.project_media)
-    end
-
     def send_to_alegre(id)
       obj = self.find(id)
       obj.text_fields.each do |field|
