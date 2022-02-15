@@ -22,7 +22,9 @@ namespace :check do
           target_field: r.target_field,
           target_media_type: r.target.media.type,
           details: r.details,
-          created_at: r.created_at
+          created_at: r.created_at,
+          source_text_fields: Hash[Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.collect{|f| [f, (r.source.send(f) rescue nil)]}],
+          target_text_fields: Hash[Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.collect{|f| [f, (r.target.send(f) rescue nil)]}],
         }.to_json+"\n")
       end
       f.close
@@ -51,7 +53,9 @@ namespace :check do
             target_field: r["target_field"],
             target_media_type: target.media.type,
             details: r["details"],
-            created_at: r["created_at"]
+            created_at: r["created_at"],
+            source_text_fields: Hash[Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.collect{|f| [f, (source.send(f) rescue nil)]}],
+            target_text_fields: Hash[Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.collect{|f| [f, (target.send(f) rescue nil)]}],
           }.to_json+"\n")
         end
       end
@@ -75,7 +79,9 @@ namespace :check do
           target_field: r.target_field,
           target_media_type: r.target.media.type,
           details: r.details,
-          created_at: r.created_at
+          created_at: r.created_at,
+          source_text_fields: Hash[Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.collect{|f| [f, (r.source.send(f) rescue nil)]}],
+          target_text_fields: Hash[Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.collect{|f| [f, (r.target.send(f) rescue nil)]}],
         }.to_json+"\n")
       end
       f.close
@@ -104,7 +110,9 @@ namespace :check do
             target_field: r["target_field"],
             target_media_type: target.media.type,
             details: r["details"],
-            created_at: r["created_at"]
+            created_at: r["created_at"],
+            source_text_fields: Hash[Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.collect{|f| [f, (source.send(f) rescue nil)]}],
+            target_text_fields: Hash[Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.collect{|f| [f, (target.send(f) rescue nil)]}],
           }.to_json+"\n")
         end
       end
@@ -129,7 +137,9 @@ namespace :check do
           target_field: r.target_field,
           target_media_type: r.target.media.type,
           details: r.details,
-          created_at: r.created_at
+          created_at: r.created_at,
+          source_text_fields: Hash[Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.collect{|f| [f, (r.source.send(f) rescue nil)]}],
+          target_text_fields: Hash[Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.collect{|f| [f, (r.target.send(f) rescue nil)]}],
         }.to_json+"\n")
       end
       f.close
