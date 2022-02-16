@@ -24,16 +24,16 @@ class ElasticSearch7Test < ActionController::TestCase
 
     sleep 5
 
-    result = CheckSearch.new({ dynamic: { flag_name: ['spam'], flag_value: ['3'] } }.to_json)
+    result = CheckSearch.new({ dynamic: { flag_name: ['spam'], flag_value: ['3'] } }.to_json, nil, t.id)
     assert_equal [pm1.id], result.medias.map(&:id)
 
-    result = CheckSearch.new({ dynamic: { flag_name: ['racy'], flag_value: ['4'] } }.to_json)
+    result = CheckSearch.new({ dynamic: { flag_name: ['racy'], flag_value: ['4'] } }.to_json, nil, t.id)
     assert_equal [pm2.id], result.medias.map(&:id)
 
-    result = CheckSearch.new({ dynamic: { flag_name: ['racy', 'spam'], flag_value: ['3', '4'] } }.to_json)
+    result = CheckSearch.new({ dynamic: { flag_name: ['racy', 'spam'], flag_value: ['3', '4'] } }.to_json, nil, t.id)
     assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
 
-    result = CheckSearch.new({ dynamic: { flag_name: ['adult'], flag_value: ['5'] } }.to_json)
+    result = CheckSearch.new({ dynamic: { flag_name: ['adult'], flag_value: ['5'] } }.to_json, nil, t.id)
     assert_equal [], result.medias
   end
 
@@ -225,21 +225,21 @@ class ElasticSearch7Test < ActionController::TestCase
     create_tag tag: 'another_desc', annotated: pm3, disable_es_callbacks: false
     create_tag tag: 'newtag', annotated: pm3, disable_es_callbacks: false
     sleep 2
-    result = CheckSearch.new({keyword: 'search_title'}.to_json)
+    result = CheckSearch.new({keyword: 'search_title'}.to_json, nil, t.id)
     assert_equal [pm.id, pm2.id, pm3.id], result.medias.map(&:id).sort
-    result = CheckSearch.new({keyword: 'search_title', keyword_fields: {fields: ['title']}}.to_json)
+    result = CheckSearch.new({keyword: 'search_title', keyword_fields: {fields: ['title']}}.to_json, nil, t.id)
     assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
-    result = CheckSearch.new({keyword: 'search_desc', keyword_fields: {fields: ['description']}}.to_json)
+    result = CheckSearch.new({keyword: 'search_desc', keyword_fields: {fields: ['description']}}.to_json, nil, t.id)
     assert_equal [pm.id], result.medias.map(&:id)
-    result = CheckSearch.new({keyword: 'override_title', keyword_fields: {fields: ['analysis_title']}}.to_json)
+    result = CheckSearch.new({keyword: 'override_title', keyword_fields: {fields: ['analysis_title']}}.to_json, nil, t.id)
     assert_equal [pm2.id], result.medias.map(&:id)
-    result = CheckSearch.new({keyword: 'search_title', keyword_fields: {fields: ['analysis_title']}}.to_json)
+    result = CheckSearch.new({keyword: 'search_title', keyword_fields: {fields: ['analysis_title']}}.to_json, nil, t.id)
     assert_empty result.medias
-    result = CheckSearch.new({keyword: 'override_description', keyword_fields: {fields: ['analysis_description']}}.to_json)
+    result = CheckSearch.new({keyword: 'override_description', keyword_fields: {fields: ['analysis_description']}}.to_json, nil, t.id)
     assert_equal [pm2.id], result.medias.map(&:id)
-    result = CheckSearch.new({keyword: 'search_title', keyword_fields: {fields: ['tags']}}.to_json)
+    result = CheckSearch.new({keyword: 'search_title', keyword_fields: {fields: ['tags']}}.to_json, nil, t.id)
     assert_equal [pm3.id], result.medias.map(&:id)
-    result = CheckSearch.new({keyword: 'another_desc', keyword_fields: {fields:['description', 'tags']}}.to_json)
+    result = CheckSearch.new({keyword: 'another_desc', keyword_fields: {fields:['description', 'tags']}}.to_json, nil, t.id)
     assert_equal [pm2.id, pm3.id], result.medias.map(&:id).sort
   end
 
@@ -455,15 +455,15 @@ class ElasticSearch7Test < ActionController::TestCase
     pm2 = create_project_media team: t, source: s, disable_es_callbacks: false, skip_autocreate_source: false
     pm3 = create_project_media team: t, source: s2, disable_es_callbacks: false, skip_autocreate_source: false
     sleep 2
-    result = CheckSearch.new({ sources: [s.id] }.to_json)
+    result = CheckSearch.new({ sources: [s.id] }.to_json, nil, t.id)
     assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
-    result = CheckSearch.new({ sources: [s2.id] }.to_json)
+    result = CheckSearch.new({ sources: [s2.id] }.to_json, nil, t.id)
     assert_equal [pm3.id], result.medias.map(&:id)
-    result = CheckSearch.new({ sources: [s.id, s2.id] }.to_json)
+    result = CheckSearch.new({ sources: [s.id, s2.id] }.to_json, nil, t.id)
     assert_equal [pm.id, pm2.id, pm3.id], result.medias.map(&:id).sort
-    result = CheckSearch.new({ sources: [s3.id] }.to_json)
+    result = CheckSearch.new({ sources: [s3.id] }.to_json, nil, t.id)
     assert_empty result.medias
-    result = CheckSearch.new({ sources: [s2.id], show: ['links'] }.to_json)
+    result = CheckSearch.new({ sources: [s2.id], show: ['links'] }.to_json, nil, t.id)
     assert_equal [pm3.id], result.medias.map(&:id)
   end
 

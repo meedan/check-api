@@ -327,7 +327,8 @@ class ElasticSearch2Test < ActionController::TestCase
   end
 
   test "should filter by others and unidentified language" do
-    p = create_project
+    t = create_team
+    p = create_project team: t
     att = 'language'
     at = create_annotation_type annotation_type: att, label: 'Language'
     language = create_field_type field_type: 'language', label: 'Language'
@@ -359,7 +360,7 @@ class ElasticSearch2Test < ActionController::TestCase
       },
       projects: [p.id]
     }
-    result = CheckSearch.new(unidentified_query.to_json)
+    result = CheckSearch.new(unidentified_query.to_json, nil, t.id)
     assert_equal 4, result.medias.size
     assert_equal ids['unidentified'].sort, result.medias.map(&:id).sort
 
@@ -369,7 +370,7 @@ class ElasticSearch2Test < ActionController::TestCase
       },
       projects: [p.id]
     }
-    result = CheckSearch.new(other_query.to_json)
+    result = CheckSearch.new(other_query.to_json, nil, t.id)
     assert_equal 1, result.medias.size
     assert_equal ids['es'], result.medias.first.id
   end

@@ -90,7 +90,7 @@ module TeamPrivate
 
   def check_search_filter(params = {})
     params.merge!({ 'parent' => { 'type' => 'team', 'slug' => self.slug }})
-    CheckSearch.new(params.to_json)
+    CheckSearch.new(params.to_json, nil, self.id)
   end
 
   def update_reports_if_labels_changed

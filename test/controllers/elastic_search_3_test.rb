@@ -137,14 +137,14 @@ class ElasticSearch3Test < ActionController::TestCase
     create_tag tag: 'Test', annotated: pm2, disable_es_callbacks: false
     sleep 5
     # search by tags
-    result = CheckSearch.new({tags: ['test']}.to_json)
+    result = CheckSearch.new({tags: ['test']}.to_json, nil, t.id)
     assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
-    result = CheckSearch.new({tags: ['Test']}.to_json)
+    result = CheckSearch.new({tags: ['Test']}.to_json, nil, t.id)
     assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
     # search by tags as keyword
-    result = CheckSearch.new({keyword: 'test'}.to_json)
+    result = CheckSearch.new({keyword: 'test'}.to_json, nil, t.id)
     assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
-    result = CheckSearch.new({keyword: 'Test'}.to_json)
+    result = CheckSearch.new({keyword: 'Test'}.to_json, nil, t.id)
     assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
   end
 

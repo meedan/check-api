@@ -309,25 +309,23 @@ class ElasticSearchTest < ActionController::TestCase
   end
 
   test "should ensure project_medias to be an alias of medias" do
-    create_project_media
-    cs = CheckSearch.new('{}')
+    pm = create_project_media
+    cs = CheckSearch.new('{}', nil, pm.team_id)
     assert_equal cs.medias, cs.project_medias
   end
 
   test "should get search id" do
     assert_not_nil CheckSearch.id
-    assert_not_nil CheckSearch.new('{}').id
+    assert_not_nil CheckSearch.new('{}', nil, create_team.id).id
   end
 
   test "should get Pusher channel" do
     p = create_project
-    cs = CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => p.id }, 'projects' => [p.id] }.to_json)
+    cs = CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => p.id }, 'projects' => [p.id] }.to_json, nil, p.team_id)
     assert_equal p.pusher_channel, cs.pusher_channel
     t = create_team
-    cs = CheckSearch.new({ 'parent' => { 'type' => 'team', 'slug' => t.slug } }.to_json)
+    cs = CheckSearch.new({ 'parent' => { 'type' => 'team', 'slug' => t.slug } }.to_json, nil, t.id)
     assert_equal t.pusher_channel, cs.pusher_channel
-    cs = CheckSearch.new('{}')
-    assert_nil cs.pusher_channel
   end
 
   # Please add new tests to test/controllers/elastic_search_7_test.rb

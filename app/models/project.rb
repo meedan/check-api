@@ -83,7 +83,7 @@ class Project < ApplicationRecord
   end
 
   def check_search_project
-    CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => self.id }, 'projects' => [self.id] }.to_json)
+    CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => self.id }, 'projects' => [self.id] }.to_json, nil, self.team_id)
   end
 
   def project_group_was
@@ -202,7 +202,7 @@ class Project < ApplicationRecord
   end
 
   def search
-    CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => self.id }, 'projects' => [self.id] }.to_json)
+    self.check_search_project
   end
 
   def generate_token(force = false)

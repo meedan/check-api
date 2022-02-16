@@ -20,15 +20,15 @@ class ElasticSearch5Test < ActionController::TestCase
     pm1 = create_project_media disable_es_callbacks: false, project: p
     pm2 = create_project_media disable_es_callbacks: false, project: p
     sleep 2
-    result = CheckSearch.new({}.to_json)
+    result = CheckSearch.new({}.to_json, nil, t.id)
     assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
     r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     sleep 2
-    result = CheckSearch.new({ projects: [p.id] }.to_json)
+    result = CheckSearch.new({ projects: [p.id] }.to_json, nil, t.id)
     assert_equal [pm1.id], result.medias.map(&:id)
-    result = CheckSearch.new({}.to_json)
+    result = CheckSearch.new({}.to_json, nil, t.id)
     assert_equal [pm1.id].sort, result.medias.map(&:id)
-    result = CheckSearch.new({ show_similar: true }.to_json)
+    result = CheckSearch.new({ show_similar: true }.to_json, nil, t.id)
     assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
     # detach and assign to specific list
     r.add_to_project_id = p2.id
@@ -47,17 +47,17 @@ class ElasticSearch5Test < ActionController::TestCase
     pm2 = create_project_media quote: 'target_media', disable_es_callbacks: false, project: p
     r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     sleep 2
-    result = CheckSearch.new({ projects: [p.id] }.to_json)
+    result = CheckSearch.new({ projects: [p.id] }.to_json, nil, t.id)
     assert_equal [pm.id, pm1.id], result.medias.map(&:id).sort
-    result = CheckSearch.new({ projects: [p.id], keyword: 'target_media' }.to_json)
+    result = CheckSearch.new({ projects: [p.id], keyword: 'target_media' }.to_json, nil, t.id)
     assert_equal [pm1.id], result.medias.map(&:id)
-    result = CheckSearch.new({ projects: [p.id], keyword: 'target_media', tags: ['test'] }.to_json)
+    result = CheckSearch.new({ projects: [p.id], keyword: 'target_media', tags: ['test'] }.to_json, nil, t.id)
     assert_empty result.medias.map(&:id)
     # detach and assign to specific list
     r.add_to_project_id = p.id
     r.destroy
     sleep 2
-    result = CheckSearch.new({ projects: [p.id] }.to_json)
+    result = CheckSearch.new({ projects: [p.id] }.to_json, nil, t.id)
     assert_equal [pm.id, pm1.id, pm2.id], result.medias.map(&:id).sort
   end
 
@@ -212,7 +212,7 @@ class ElasticSearch5Test < ActionController::TestCase
     m = create_claim_media quote: 'search quote'
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     sleep 1
-    result = CheckSearch.new({keyword: "search / quote"}.to_json)
+    result = CheckSearch.new({keyword: "search / quote"}.to_json, nil, t.id)
     assert_equal [pm.id], result.medias.map(&:id)
   end
 
@@ -233,11 +233,11 @@ class ElasticSearch5Test < ActionController::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     assert_equal 'foo-bar', pm.last_verification_status
     sleep 5
-    result = CheckSearch.new({verification_status: ['foo']}.to_json)
+    result = CheckSearch.new({verification_status: ['foo']}.to_json, nil, t.id)
     assert_empty result.medias
-    result = CheckSearch.new({verification_status: ['bar']}.to_json)
+    result = CheckSearch.new({verification_status: ['bar']}.to_json, nil, t.id)
     assert_empty result.medias
-    result = CheckSearch.new({verification_status: ['foo-bar']}.to_json)
+    result = CheckSearch.new({verification_status: ['foo-bar']}.to_json, nil, t.id)
     assert_equal [pm.id], result.medias.map(&:id)
   end
 
