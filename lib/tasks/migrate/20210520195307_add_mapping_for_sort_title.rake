@@ -29,7 +29,6 @@ namespace :check do
     task fill_file_title: :environment do |_t, args|
       date = args.extras.first
       last_team_id = Rails.cache.read('check:migrate:fill_file_title:team_id') || 0
-      smooch = User.where(login: 'smooch').last
       Team.where('id > ?', last_team_id).find_each do |t|
         created_at = date.blank? ? t.created_at : date.to_datetime
         t.project_medias.joins(:media)
@@ -38,7 +37,7 @@ namespace :check do
         .find_in_batches(:batch_size => 2500) do |pms|
           pms.each do |pm|
             print '.'
-            pm.analysis = { file_title: pm.title }
+            pm.analysis = { file_title: pm.title } unless pm.title.blank?
           end
         end
         # log last team id
