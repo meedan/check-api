@@ -1,5 +1,5 @@
 class CheckSearch
-  def initialize(options, file = nil, team_id = nil)
+  def initialize(options, file = nil, team_id = Team.current.id)
     # options include keywords, projects, tags, status, report status
     options = begin JSON.parse(options) rescue {} end
     @options = options.clone.with_indifferent_access
@@ -39,14 +39,11 @@ class CheckSearch
   }
 
   def team_condition(team_id = nil)
-    return team_id unless team_id.nil?
+    team = Team.find(team_id)
     if trends_query?
-      ProjectMedia.where.not(cluster_id: nil).group(:team_id).count.keys
-    elsif @options['country'] && User.current&.is_admin?
-      country = [@options['country']].flatten.reject{ |c| c.blank? }
-      Team.where(country: country).map(&:id)
+      ProjectMedia.joins(:team).where('teams.country' => team.country).where.not(cluster_id: nil).group(:team_id).count.keys
     else
-      Team.current&.id
+      team_id || Team.current.id
     end
   end
 
@@ -62,7 +59,7 @@ class CheckSearch
 
   def team
     team_id = @options['team_id'].is_a?(Array) ? @options['team_id'].first : @options['team_id']
-    Team.find(team_id) unless team_id.blank?
+    Team.find(team_id)
   end
 
   def teams
@@ -193,7 +190,7 @@ class CheckSearch
   end
 
   def trends_query?
-    @options['trends'] && User.current&.is_admin? && Team.current&.get_trends_enabled
+    @options['trends'] && Team.current.get_trends_enabled && Team.current.country
   end
 
   def get_pg_results_for_media
@@ -224,7 +221,7 @@ class CheckSearch
         hash = CheckSearch.upload_file(@file)
         file_path = "check_search/#{hash}"
       end
-      threshold = Bot::Alegre.get_threshold_for_query(@options['file_type'], ProjectMedia.new(team_id: Team.current&.id))[:value]
+      threshold = Bot::Alegre.get_threshold_for_query(@options['file_type'], ProjectMedia.new(team_id: Team.current.id))[:value]
       results = Bot::Alegre.get_items_with_similar_media(CheckS3.public_url(file_path), { value: threshold }, @options['team_id'], "/#{@options['file_type']}/similarity/")
       ids = results.blank? ? [0] : results.keys
       core_conditions.merge!({ 'project_medias.id' => ids })
@@ -311,7 +308,7 @@ class CheckSearch
       @options['projects'] = project_ids.empty? ? [0] : project_ids
     end
     # Also, adjust projects filter taking projects' privacy settings into account
-    if Team.current && !@options['country'] && !trends_query?
+    if Team.current && !trends_query?
       @options['projects'] = @options['projects'].blank? ? (Project.where(team_id: Team.current.id).allowed(Team.current).map(&:id) + [nil]) : Project.where(id: @options['projects']).allowed(Team.current).map(&:id)
     end
     @options['projects'] += [nil] if @options['none_project']
