@@ -22,14 +22,16 @@ ClusterType = GraphqlCrudOperations.define_default_type do
   end
 
   connection :items, -> { ProjectMediaType.connection_type } do
-    resolve -> (cluster, _args, _ctx) {
-      User.current&.is_admin ? cluster.project_medias : []
+    resolve -> (cluster, _args, ctx) {
+      team = Team.find_if_can(Team.current.id.to_i, ctx[:ability])
+      cluster.project_medias.joins(:team).where('teams.country' => team.country)
     }
   end
 
   connection :claim_descriptions, -> { ClaimDescriptionType.connection_type } do
-    resolve -> (cluster, _args, _ctx) {
-      User.current&.is_admin ? cluster.claim_descriptions : []
+    resolve -> (cluster, _args, ctx) {
+      team = Team.find_if_can(Team.current.id.to_i, ctx[:ability])
+      ClaimDescription.joins(project_media: :team).where('project_medias.cluster_id' => cluster.id, 'teams.country' => team.country)
     }
   end
 end

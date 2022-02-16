@@ -22,7 +22,7 @@ module CheckPermissions
       if ability.can?(:read, model)
         model
       else
-        raise AccessDenied, "Not Found"
+        raise AccessDenied, 'Not Found'
       end
     end
 
