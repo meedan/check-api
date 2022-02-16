@@ -202,7 +202,7 @@ class Project < ApplicationRecord
   end
 
   def search
-    CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => self.id }, 'projects' => [self.id] }.to_json, nil, self.team_id)
+    self.check_search_project
   end
 
   def generate_token(force = false)
