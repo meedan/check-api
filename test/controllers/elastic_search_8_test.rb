@@ -52,9 +52,9 @@ class ElasticSearch8Test < ActionController::TestCase
     pm3 = create_project_media project: p, user: u3
     pm4 = create_project_media project: p, user: u4
     sleep 2
-    result = CheckSearch.new({ projects: [p.id], sort: 'creator_name', sort_type: 'asc' }.to_json)
+    result = CheckSearch.new({ projects: [p.id], sort: 'creator_name', sort_type: 'asc' }.to_json, nil, t.id)
     assert_equal [pm1.id, pm2.id, pm3.id, pm4.id], result.medias.map(&:id)
-    result = CheckSearch.new({ projects: [p.id], sort: 'creator_name', sort_type: 'desc' }.to_json)
+    result = CheckSearch.new({ projects: [p.id], sort: 'creator_name', sort_type: 'desc' }.to_json, nil, t.id)
     assert_equal [pm4.id, pm3.id, pm2.id, pm1.id], result.medias.map(&:id)
   end
 
@@ -64,7 +64,7 @@ class ElasticSearch8Test < ActionController::TestCase
       p = create_project
       query = { projects: [p.id], "#{field}": { max: 5 } }
       query[field][:min] = 0
-      result = CheckSearch.new(query.to_json)
+      result = CheckSearch.new(query.to_json, nil, p.team_id)
       assert_equal 0, result.medias.count
       pm1 = create_project_media project: p, quote: 'Test A', disable_es_callbacks: false
       pm2 = create_project_media project: p, quote: 'Test B', disable_es_callbacks: false
@@ -103,20 +103,20 @@ class ElasticSearch8Test < ActionController::TestCase
       # query with numeric range only
       min_mapping.each do |min, items|
         query[field][:min] = min.to_s
-        result = CheckSearch.new(query.to_json)
+        result = CheckSearch.new(query.to_json, nil, p.team_id)
         assert_equal items.sort, result.medias.map(&:id).sort
       end
       # query with numeric range and keyword
       query[:keyword] = 'Test'
       min_mapping.each do |min, items|
         query[field][:min] = min.to_s
-        result = CheckSearch.new(query.to_json)
+        result = CheckSearch.new(query.to_json, nil, p.team_id)
         assert_equal items.sort, result.medias.map(&:id).sort
       end
       # Query with max and min
       query[field][:min] = 1
       query[field][:max] = 2
-      result = CheckSearch.new(query.to_json)
+      result = CheckSearch.new(query.to_json, nil, p.team_id)
       assert_equal [pm2.id, pm3.id].sort, result.medias.map(&:id).sort
     end
   end

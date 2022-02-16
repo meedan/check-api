@@ -812,9 +812,7 @@ class GraphqlController3Test < ActionController::TestCase
 
     # Anonymous user searching across all teams
     post :create, params: { query: query }
-    assert_response :success
-    assert_nil JSON.parse(@response.body)['data']['search']
-    assert_not_nil JSON.parse(@response.body)['errors']
+    assert_response 400
 
     # Anonymous user searching for a public team
     post :create, params: { query: query, team: t3.slug }
