@@ -1679,9 +1679,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal result['demand'], 1
     result = $repository.find(ms_pm2)
     assert_equal result['demand'], 2
-    result = CheckSearch.new({projects: [p.id], sort: 'demand'}.to_json)
+    result = CheckSearch.new({projects: [p.id], sort: 'demand'}.to_json, nil, team.id)
     assert_equal [pm2.id, pm.id], result.medias.map(&:id)
-    result = CheckSearch.new({projects: [p.id], sort: 'demand', sort_type: 'asc'}.to_json)
+    result = CheckSearch.new({projects: [p.id], sort: 'demand', sort_type: 'asc'}.to_json, nil, team.id)
     assert_equal [pm.id, pm2.id], result.medias.map(&:id)
     r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     assert_equal 1, pm.reload.requests_count
@@ -1890,11 +1890,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media team: t, project_id: p1.id, disable_es_callbacks: false
     create_relationship source_id: pm.id, target_id: create_project_media(team: t, project_id: p.id, disable_es_callbacks: false).id, relationship_type: Relationship.confirmed_type
     sleep 2
-    assert_equal 3, CheckSearch.new({ team_id: t.id }.to_json).medias.size
-    assert_equal 4, CheckSearch.new({ show_similar: true, team_id: t.id }.to_json).medias.size
-    assert_equal 2, CheckSearch.new({ team_id: t.id, projects: [p1.id] }.to_json).medias.size
-    assert_equal 0, CheckSearch.new({ team_id: t.id, projects: [p2.id] }.to_json).medias.size
-    assert_equal 1, CheckSearch.new({ team_id: t.id, projects: [p1.id], eslimit: 1 }.to_json).medias.size
+    assert_equal 3, CheckSearch.new({ team_id: t.id }.to_json, nil, t.id).medias.size
+    assert_equal 4, CheckSearch.new({ show_similar: true, team_id: t.id }.to_json, nil, t.id).medias.size
+    assert_equal 2, CheckSearch.new({ team_id: t.id, projects: [p1.id] }.to_json, nil, t.id).medias.size
+    assert_equal 0, CheckSearch.new({ team_id: t.id, projects: [p2.id] }.to_json, nil, t.id).medias.size
+    assert_equal 1, CheckSearch.new({ team_id: t.id, projects: [p1.id], eslimit: 1 }.to_json, nil, t.id).medias.size
   end
 
   test "should handle indexing conflicts" do

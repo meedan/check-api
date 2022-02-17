@@ -55,8 +55,8 @@ class GraphqlControllerTest < ActionController::TestCase
     end
     assert_not_equal [], t.reload.get_media_verification_statuses[:statuses].select{ |s| s[:id] == 'id2' }
     sleep 5
-    assert_equal [pm2.id], CheckSearch.new({ verification_status: ['id2'] }.to_json).medias.map(&:id)
-    assert_equal [], CheckSearch.new({ verification_status: ['id3'] }.to_json).medias.map(&:id)
+    assert_equal [pm2.id], CheckSearch.new({ verification_status: ['id2'] }.to_json, nil, t.id).medias.map(&:id)
+    assert_equal [], CheckSearch.new({ verification_status: ['id3'] }.to_json, nil, t.id).medias.map(&:id)
     assert_equal 'published', r1.reload.get_field_value('state')
     assert_equal 'published', r2.reload.get_field_value('state')
     assert_not_equal 'red', r1.reload.report_design_field_value('theme_color', 'en')
@@ -75,8 +75,8 @@ class GraphqlControllerTest < ActionController::TestCase
       assert_equal 'id3', pm2.status
     end
     sleep 5
-    assert_equal [], CheckSearch.new({ verification_status: ['id2'] }.to_json).medias.map(&:id)
-    assert_equal [pm2.id], CheckSearch.new({ verification_status: ['id3'] }.to_json).medias.map(&:id)
+    assert_equal [], CheckSearch.new({ verification_status: ['id2'] }.to_json, nil, t.id).medias.map(&:id)
+    assert_equal [pm2.id], CheckSearch.new({ verification_status: ['id3'] }.to_json, nil, t.id).medias.map(&:id)
     assert_equal [], t.reload.get_media_verification_statuses[:statuses].select{ |s| s[:id] == 'id2' }
     assert_equal 'published', r1.reload.get_field_value('state')
     assert_equal 'paused', r2.reload.get_field_value('state')
