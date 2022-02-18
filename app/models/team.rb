@@ -166,7 +166,7 @@ class Team < ApplicationRecord
 
   def list_columns=(columns)
     # Clear list_columns cache
-    Rails.cache.delete("list_columns:team:#{self.id}")
+    Rails.cache.delete_matched("list_columns:team:*:#{self.id}")
     columns = columns.is_a?(String) ? JSON.parse(columns) : columns
     self.send(:set_list_columns, columns)
   end
@@ -364,7 +364,7 @@ class Team < ApplicationRecord
   end
 
   def list_columns
-    key = "list_columns:team:#{self.id}"
+    key = "list_columns:team:#{I18n.locale}:#{self.id}"
     columns = Rails.cache.read(key)
     if columns.blank?
       show_columns = self.get_list_columns || Team.default_list_columns.select{ |c| c[:show] }.collect{ |c| c[:key] }
