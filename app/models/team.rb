@@ -364,7 +364,7 @@ class Team < ApplicationRecord
   end
 
   def list_columns
-    key = "list_columns:team:#{I18n.locale.to_s}:#{self.id}"
+    key = "list_columns:team:#{I18n.locale}:#{self.id}"
     columns = Rails.cache.read(key)
     if columns.blank?
       show_columns = self.get_list_columns || Team.default_list_columns.select{ |c| c[:show] }.collect{ |c| c[:key] }
