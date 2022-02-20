@@ -29,14 +29,16 @@ class CheckSearch
   end
 
   MEDIA_TYPES = %w[claims links images videos audios blank]
+  # Should add allowed keys for sorting
+  SORT_KEYS = [
+    'recent_activity', 'recent_added', 'demand','related', 'last_seen', 'share_count','report_status', 'tags_as_sentence',
+    'media_published_at', 'reaction_count', 'comment_count','related_count', 'suggestions_count', 'status_index','type_of_media',
+    'title', 'creator_name','cluster_size', 'cluster_first_item_at', 'cluster_last_item_at'
+  ]
+  # Add sort mapping if sort key different than elastic search field name
   SORT_MAPPING = {
-    'recent_activity' => 'updated_at', 'recent_added' => 'created_at', 'demand' => 'demand',
-    'related' => 'linked_items_count', 'last_seen' => 'last_seen', 'share_count' => 'share_count',
-    'report_status' => 'report_status', 'tags_as_sentence' => 'tags_as_sentence',
-    'media_published_at' => 'media_published_at', 'reaction_count' => 'reaction_count', 'comment_count' => 'comment_count',
-    'related_count' => 'related_count', 'suggestions_count' => 'suggestions_count', 'status_index' => 'status_index',
-    'type_of_media' => 'type_of_media', 'title' => 'title_index', 'creator_name' => 'creator_name',
-    'cluster_size' => 'cluster_size', 'cluster_first_item_at' => 'cluster_first_item_at', 'cluster_last_item_at' => 'cluster_last_item_at'
+    'recent_activity' => 'updated_at', 'recent_added' => 'created_at','related' => 'linked_items_count',
+    'title' => 'title_index',
   }
 
   def team_condition(team_id = nil)
@@ -143,14 +145,14 @@ class CheckSearch
   end
 
   def get_pg_results
-    sort = { SORT_MAPPING[@options['sort'].to_s] => @options['sort_type'].to_s.downcase.to_sym }
+    sort = { get_sort_key => @options['sort_type'].to_s.downcase.to_sym }
     relation = get_pg_results_for_media
     @options['id'] ? relation.where(id: @options['id']) : relation.order(sort).limit(@options['eslimit'].to_i).offset(@options['esoffset'].to_i)
   end
 
   def item_navigation_offset
     return -1 unless @options['es_id']
-    sort_key = SORT_MAPPING[@options['sort'].to_s]
+    sort_key = get_sort_key
     sort_type = @options['sort_type'].to_s.downcase.to_sym
     pm = ProjectMedia.where(id: @options['id']).last
     return -1 if pm.nil?
@@ -290,6 +292,11 @@ class CheckSearch
   end
 
   private
+
+  def get_sort_key
+    sort_key = @options['sort'].to_s
+    SORT_MAPPING.include?(sort_key) ? SORT_MAPPING[@options['sort'].to_s] : sort_key
+  end
 
   def adjust_es_window_size
     window_size = 10000
@@ -529,9 +536,9 @@ class CheckSearch
           }
         }
       ]
-    elsif SORT_MAPPING.keys.include?(@options['sort'].to_s)
+    elsif SORT_KEYS.include?(@options['sort'].to_s)
       return [
-        { SORT_MAPPING[@options['sort'].to_s] => @options['sort_type'].to_s.downcase.to_sym }
+        { get_sort_key => @options['sort_type'].to_s.downcase.to_sym }
       ]
     end
     [
