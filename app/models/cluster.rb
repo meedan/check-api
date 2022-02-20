@@ -1,6 +1,6 @@
 class Cluster < ApplicationRecord
   belongs_to :project_media # Item that is the cluster center
-  has_many :project_medias, dependent: :nullify, after_add: [:update_elastic_search, :update_cached_fields, :update_timestamps] # Items that belong to the cluster
+  has_many :project_medias, dependent: :nullify, after_add: [:update_cached_fields, :update_elasticsearch_and_timestamps] # Items that belong to the cluster
   validates_presence_of :project_media_id
   validates_uniqueness_of :project_media_id
   validate :center_is_not_part_of_another_cluster
@@ -55,7 +55,8 @@ class Cluster < ApplicationRecord
 
   cached_field :fact_checked_by_team_names,
     start_as: proc { |c| c.get_names_of_teams_that_fact_checked_it },
-    update_es: false,
+    update_es: proc { |_pm, value| value.size }
+    es_field_name: :cluster_published_reports_count
     recalculate: proc { |c| c.get_names_of_teams_that_fact_checked_it },
     update_on: [
       # Also handled by an "after_add" callback above
@@ -75,21 +76,25 @@ class Cluster < ApplicationRecord
     errors.add(:base, I18n.t(:center_is_not_part_of_another_cluster)) if self.center&.cluster_id && self.center&.cluster_id != self.id
   end
 
-  def update_elastic_search(_item)
-    pm = self.project_media
-    options = { keys: ['cluster_size'], data: { 'cluster_size' => self.project_medias.count }, obj: pm }
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(pm), YAML::dump(options), 'update_doc')
-  end
-
   def update_cached_fields(_item)
     self.team_names(true)
     self.fact_checked_by_team_names(true)
   end
 
-  def update_timestamps(item)
+  def update_elasticsearch_and_timestamps(item)
     self.first_item_at = item.created_at if item.created_at.to_i < self.first_item_at.to_i || self.first_item_at.to_i == 0
     self.last_item_at = item.created_at if item.created_at.to_i > self.last_item_at.to_i
     self.skip_check_ability = true
     self.save!
+    # update ES
+    keys = ['cluster_size', 'cluster_first_item_at', 'cluster_last_item_at']
+    pm = self.project_media
+    data = {
+      'cluster_size' => self.project_medias.count,
+      'cluster_first_item_at' => self.first_item_at.to_i,
+      'cluster_last_item_at' => self.last_item_at.to_i
+    }
+    options = { keys: keys, data: data, obj: pm }
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(pm), YAML::dump(options), 'update_doc')
   end
 end
