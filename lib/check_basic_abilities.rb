@@ -86,7 +86,7 @@ module CheckBasicAbilities
     end
 
     can :read, Cluster do |obj|
-      ProjectMedia.where(cluster_id: obj.id, team_id: @context_team.id).exists?
+      ProjectMedia.joins(:team).where(cluster_id: obj.id, 'teams.country' => @context_team.country).exists?
     end
 
     can :read, BotUser do |obj|

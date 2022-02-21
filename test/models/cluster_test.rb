@@ -136,22 +136,37 @@ class ClusterTest < ActiveSupport::TestCase
 
   test "should access cluster" do
     u = create_user
-    t = create_team
-    create_team_user user: u, team: t
-    pm1 = create_project_media team: t
+    t1 = create_team country: 'Brazil'
+    create_team_user user: u, team: t1
+
+    # A cluster whose center is from the same team
+    pm1 = create_project_media team: t1
     c1 = create_cluster project_media: pm1
     c1.project_medias << pm1
-    pm2 = create_project_media
+
+    # A cluster from another country
+    t2 = create_team country: 'USA'
+    pm2 = create_project_media team: t2
     c2 = create_cluster project_media: pm2
     c2.project_medias << pm2
-    pm3 = create_project_media
+
+    # A cluster from the same country without any item from the team
+    t3 = create_team country: 'Brazil'
+    pm3 = create_project_media team: t3
     c3 = create_cluster project_media: pm3
     c3.project_medias << pm3
-    pm4 = create_project_media team: t
-    c3.project_medias << pm4
-    a = Ability.new(u, t)
+
+    # A cluster from the same country with an item from the team
+    t4 = create_team country: 'Brazil'
+    pm4 = create_project_media team: t4
+    c4 = create_cluster project_media: pm4
+    c4.project_medias << pm4
+    c4.project_medias << create_project_media(team: t1)
+
+    a = Ability.new(u, t1)
     assert a.can?(:read, c1)
     assert !a.can?(:read, c2)
     assert a.can?(:read, c3)
+    assert a.can?(:read, c4)
   end
 end
