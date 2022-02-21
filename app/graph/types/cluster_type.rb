@@ -4,6 +4,7 @@ ClusterType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
+  field :dbid, types.Int
   field :size, types.Int
   field :team_names, types[types.String]
   field :fact_checked_by_team_names, types[types.String]
@@ -23,15 +24,15 @@ ClusterType = GraphqlCrudOperations.define_default_type do
 
   connection :items, -> { ProjectMediaType.connection_type } do
     resolve -> (cluster, _args, ctx) {
-      team = Team.find_if_can(Team.current.id.to_i, ctx[:ability])
-      cluster.project_medias.joins(:team).where('teams.country' => team.country)
+      Cluster.find_if_can(cluster.id, ctx[:ability])
+      cluster.project_medias.joins(:team).where('teams.country' => Team.current.country)
     }
   end
 
   connection :claim_descriptions, -> { ClaimDescriptionType.connection_type } do
     resolve -> (cluster, _args, ctx) {
-      team = Team.find_if_can(Team.current.id.to_i, ctx[:ability])
-      ClaimDescription.joins(project_media: :team).where('project_medias.cluster_id' => cluster.id, 'teams.country' => team.country)
+      Cluster.find_if_can(cluster.id, ctx[:ability])
+      ClaimDescription.joins(project_media: :team).where('project_medias.cluster_id' => cluster.id, 'teams.country' => Team.current.country)
     }
   end
 end

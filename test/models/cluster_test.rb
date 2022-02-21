@@ -133,4 +133,25 @@ class ClusterTest < ActiveSupport::TestCase
     result = $repository.find(get_es_id(pm))
     assert_equal 1, result['cluster_report_published']
   end
+
+  test "should access cluster" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t
+    pm1 = create_project_media team: t
+    c1 = create_cluster project_media: pm1
+    c1.project_medias << pm1
+    pm2 = create_project_media
+    c2 = create_cluster project_media: pm2
+    c2.project_medias << pm2
+    pm3 = create_project_media
+    c3 = create_cluster project_media: pm3
+    c3.project_medias << pm3
+    pm4 = create_project_media team: t
+    c3.project_medias << pm4
+    a = Ability.new(u, t)
+    assert a.can?(:read, c1)
+    assert !a.can?(:read, c2)
+    assert a.can?(:read, c3)
+  end
 end
