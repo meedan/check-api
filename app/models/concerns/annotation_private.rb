@@ -37,6 +37,10 @@ module AnnotationPrivate
     end
   end
 
+  def notify_team_bots_save
+    BotUser.enqueue_event('save_annotation', self.team.id, self) if self.team
+  end
+
   def remove_null_bytes
     self.data.each { |k, v| self.data[k] = v.gsub("\u0000", "\\u0000") if v.is_a?(String) }
   end
