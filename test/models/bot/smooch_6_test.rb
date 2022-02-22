@@ -295,4 +295,28 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     message = { 'text' => 'Bar', 'payload' => { state: 'main', keyword: 'Foo ' }.to_json }
     assert_equal 'foo', Bot::Smooch.get_typed_message(message, @sm)[0]
   end
+
+  test "should confirm language on tipline bot v2" do
+    assert_state 'waiting_for_message'
+    send_message 'hello'
+    assert_state 'main'
+    send_message 'hello'
+    assert_state 'main'
+  end
+
+  test "should submit URL on tipline bot v2" do
+    url = random_url
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","description":"Foo bar","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    ProjectMedia.any_instance.stubs(:report_status).returns('published')
+    ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
+    Bot::Alegre.stubs(:get_merged_similar_items).returns({ create_project_media.id => { score: 0.9 } })
+    Sidekiq::Testing.inline! do
+      send_message 'hello', '1', '1', "Foo bar foo bar #{url} foo bar", '1'
+    end
+    Bot::Alegre.unstub(:get_merged_similar_items)
+    ProjectMedia.any_instance.unstub(:report_status)
+    ProjectMedia.any_instance.unstub(:analysis_published_article_url)
+  end
 end
