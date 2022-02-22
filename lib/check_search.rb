@@ -33,7 +33,8 @@ class CheckSearch
   SORT_KEYS = [
     'recent_activity', 'recent_added', 'demand','related', 'last_seen', 'share_count','report_status', 'tags_as_sentence',
     'media_published_at', 'reaction_count', 'comment_count','related_count', 'suggestions_count', 'status_index','type_of_media',
-    'title', 'creator_name','cluster_size', 'cluster_first_item_at', 'cluster_last_item_at'
+    'title', 'creator_name','cluster_size', 'cluster_first_item_at', 'cluster_last_item_at', 'cluster_requests_count',
+    'cluster_published_reports_count'
   ]
   # Add sort mapping if sort key different than elastic search field name
   SORT_MAPPING = {

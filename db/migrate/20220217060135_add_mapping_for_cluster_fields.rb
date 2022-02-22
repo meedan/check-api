@@ -15,6 +15,9 @@ class AddMappingForClusterFields < ActiveRecord::Migration[5.2]
           cluster_published_reports_count: {
             type: 'long'
           },
+          cluster_requests_count: {
+            type: 'long'
+          },
         }
       }
     }

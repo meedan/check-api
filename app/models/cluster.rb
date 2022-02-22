@@ -32,7 +32,7 @@ class Cluster < ApplicationRecord
     self.project_medias_count
   end
 
-  def requests_count
+  def get_requests_count
     self.project_medias.select(:id).collect{ |pm| pm.requests_count }.sum
   end
 
@@ -72,6 +72,23 @@ class Cluster < ApplicationRecord
       }
     ]
 
+  cached_field :requests_count,
+    start_as: proc { |c| c.get_requests_count },
+    update_es: true,
+    es_field_name: :cluster_requests_count,
+    recalculate: proc { |c| c.get_requests_count },
+    update_on: [
+        {
+          model: Dynamic,
+          if: proc { |d| d.annotation_type == 'smooch' && d.annotated_type == 'ProjectMedia' },
+          affected_ids: proc { |d| ProjectMedia.where(id: d.annotated.related_items_ids).group(:cluster_id).count.keys.reject{ |cid| cid.nil? } },
+          events: {
+            create: :recalculate,
+            destroy: :recalculate
+          }
+        }
+      ]
+
   private
 
   def center_is_not_part_of_another_cluster
@@ -81,6 +98,7 @@ class Cluster < ApplicationRecord
   def update_cached_fields(_item)
     self.team_names(true)
     self.fact_checked_by_team_names(true)
+    self.requests_count(true)
   end
 
   def update_elasticsearch_and_timestamps(item)

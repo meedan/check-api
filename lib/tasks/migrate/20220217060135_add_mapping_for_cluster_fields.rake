@@ -11,7 +11,9 @@ namespace :check do
           doc_id = Base64.encode64("ProjectMedia/#{cluster.project_media_id}")
           fields = {
             'cluster_first_item_at' => cluster.first_item_at.to_i,
-            'cluster_last_item_at' => cluster.last_item_at.to_i
+            'cluster_last_item_at' => cluster.last_item_at.to_i,
+            'cluster_requests_count' => cluster.requests_count,
+            'cluster_published_reports_count' => cluster.fact_checked_by_team_names.size
           }
           es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
         end
