@@ -153,7 +153,7 @@ class CheckSearch
 
   def item_navigation_offset
     return -1 unless @options['es_id']
-    sort_key = get_sort_key
+    sort_key = SORT_MAPPING[@options['sort'].to_s] || @options['sort'].to_s
     sort_type = @options['sort_type'].to_s.downcase.to_sym
     pm = ProjectMedia.where(id: @options['id']).last
     return -1 if pm.nil?
@@ -167,9 +167,8 @@ class CheckSearch
       query = { bool: { must: conditions, must_not: must_not } }
       $repository.count(query: query)
     else
-      sort_value = pm.send(sort_key)
-      condition = sort_type == :asc ? "#{sort_key} < :value" : "#{sort_key} > :value"
-      get_pg_results_for_media.where(condition, value: sort_value).count
+      condition = sort_type == :asc ? "#{sort_key} < ?" : "#{sort_key} > ?"
+      get_pg_results_for_media.where(condition, pm.send(sort_key)).count
     end
   end
 
@@ -296,12 +295,7 @@ class CheckSearch
   private
 
   def get_sort_key
-    sort_key = nil
-    key = @options['sort'].to_s
-    if SORT_KEYS.include?(key)
-      sort_key = SORT_MAPPING.include?(key) ? SORT_MAPPING[key] : key
-    end
-    sort_key
+    SORT_KEYS.include?(@options['sort'].to_s) ? SORT_MAPPING[@options['sort'].to_s] || @options['sort'].to_s : nil
   end
 
   def adjust_es_window_size
