@@ -63,6 +63,14 @@ module SmoochSearch
       settings['date_similarity_threshold_enabled'] && !date.blank? ? date : nil
     end
 
+    def max_number_of_words_for_keyword_search
+      self.config['smooch_search_max_keyword'].to_i || 3
+    end
+
+    def get_text_similarity_threshold
+      self.config['smooch_search_text_similarity_threshold'].blank? ? 0.9 : self.config['smooch_search_text_similarity_threshold'].to_f
+    end
+
     def get_search_results(uid, last_message, team_id, language)
       results = []
       begin
@@ -70,21 +78,22 @@ module SmoochSearch
         message = self.bundle_list_of_messages(list, last_message)
         type = message['type'] || 'text'
         after = self.date_filter(team_id)
+        pm = ProjectMedia.new(team_id: team_id)
         if type == 'text'
           words = ::Bot::Smooch.extract_claim(message['text']).split(/\s+/)
           text = words.join(' ')
-          if words.size <= 3
+          if words.size <= self.max_number_of_words_for_keyword_search
             filters = { keyword: words.join('+'), eslimit: 3, report_status: ['published'] }
             filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) if after
             results = CheckSearch.new(filters.to_json, nil, team_id).medias
             Rails.logger.info "[Smooch Bot] Keyword search got #{results.count} results while looking for '#{text}' after date #{after.inspect} for team #{team_id}"
             results = CheckSearch.new(filters.merge({ show_similar: true }).to_json, nil, team_id).medias if results.empty?
           else
-            results = self.parse_search_results_from_alegre(Bot::Alegre.get_similar_texts([team_id], text), team_id)
+            results = self.parse_search_results_from_alegre(Bot::Alegre.get_merged_similar_items(pm, { value: self.get_text_similarity_threshold }, Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text), team_id)
             Rails.logger.info "[Smooch Bot] Text similarity search got #{results.count} results while looking for '#{text}' after date #{after.inspect} for team #{team_id}"
           end
         else
-          threshold = Bot::Alegre.get_threshold_for_query(type, ProjectMedia.new(team_id: team_id))[:value]
+          threshold = Bot::Alegre.get_threshold_for_query(type, pm)[:value]
           results = self.parse_search_results_from_alegre(Bot::Alegre.get_items_with_similar_media(message['mediaUrl'], { value: threshold }, [team_id], "/#{type}/similarity/"), team_id)
           Rails.logger.info "[Smooch Bot] Media similarity search got #{results.count} results while looking for '#{message['mediaUrl']}' after date #{after.inspect} for team #{team_id}"
         end
