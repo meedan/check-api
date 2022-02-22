@@ -9,7 +9,7 @@ module ClaimAndFactCheck
     belongs_to :user
 
     before_validation :set_user, on: :create
-    after_commit :index_in_elasticsearch, :send_to_alegre, on: [:create, :update]
+    after_commit :index_in_elasticsearch, :send_to_alegre, :notify_bots, on: [:create, :update]
   end
 
   def text_fields
@@ -32,6 +32,14 @@ module ClaimAndFactCheck
 
   def send_to_alegre
     self.class.delay_for(1.second).send_to_alegre(self.id)
+  end
+
+  def notify_bots
+    event = {
+      'ClaimDescription' => 'save_claim_description',
+      'FactCheck' => 'save_fact_check'
+    }[self.class.name]
+    BotUser.enqueue_event(event, self.project_media.team_id, self)
   end
 
   module ClassMethods
