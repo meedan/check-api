@@ -87,9 +87,16 @@ module SmoochSearch
         after = self.date_filter(team_id)
         pm = ProjectMedia.new(team_id: team_id)
         if type == 'text'
+          link = self.extract_url(message['text'])
           text = ::Bot::Smooch.extract_claim(message['text'])
+          unless link.nil?
+            Rails.logger.info "[Smooch Bot] Search query (URL): #{link.url}"
+            result = ProjectMedia.joins(:media).where('medias.url' => link.url, 'project_medias.team_id' => team_id).last
+            return [result] if result&.report_status == 'published'
+            text = link.pender_data['description']
+          end
           words = text.split(/\s+/)
-          Rails.logger.info "[Smooch Bot] Search query: #{text}"
+          Rails.logger.info "[Smooch Bot] Search query (text): #{text}"
           if words.size <= self.max_number_of_words_for_keyword_search
             filters = { keyword: words.join('+'), eslimit: 3, report_status: ['published'] }
             filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) if after

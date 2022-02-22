@@ -723,7 +723,7 @@ class Bot::Smooch < BotUser
         raise SecurityError if m.pender_error_code == PenderClient::ErrorCodes::UNSAFE
         nil
       else
-        m.url
+        m
       end
     rescue URI::InvalidURIError
       nil
@@ -770,20 +770,20 @@ class Bot::Smooch < BotUser
     return team unless self.is_a_valid_text_message?(text)
 
     begin
-      url = self.extract_url(text)
+      link = self.extract_url(text)
       pm = nil
       extra = {}
-      if url.nil?
+      if link.nil?
         claim = self.extract_claim(text)
         extra = { quote: claim }
         pm = ProjectMedia.joins(:media).where('lower(quote) = ?', claim.downcase).where('project_medias.team_id' => team.id).last
       else
-        extra = { url: url }
-        pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.team_id' => team.id).last
+        extra = { url: link.url }
+        pm = ProjectMedia.joins(:media).where('medias.url' => link.url, 'project_medias.team_id' => team.id).last
       end
 
       if pm.nil?
-        type = url.nil? ? 'Claim' : 'Link'
+        type = link.nil? ? 'Claim' : 'Link'
         pm = self.create_project_media(message, type, extra)
       end
 
