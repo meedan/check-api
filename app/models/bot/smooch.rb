@@ -443,7 +443,7 @@ class Bot::Smooch < BotUser
   def self.get_custom_menu_options(state, workflow, uid)
     options = workflow.dig("smooch_state_#{state}", 'smooch_menu_options').to_a.clone
     if state == 'main' && self.is_v2?
-      unless self.user_language_confirmed?(uid)
+      if self.should_ask_for_language_confirmation?(uid)
         options = []
         self.get_supported_languages.each_with_index do |l, i|
           options << {

@@ -19,6 +19,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     @sm = CheckStateMachine.new(@uid)
     @sm.reset
     Bot::Smooch.clear_user_bundled_messages(@uid)
+    Bot::Smooch.reset_user_language(@uid)
     Sidekiq::Testing.fake!
     @search_result = create_project_media team: @team
 
@@ -179,7 +180,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   test "should submit query and get relevant text similarity search results on tipline bot v2" do
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
-    Bot::Alegre.stubs(:get_similar_texts).returns({ create_project_media.id => { score: 0.9 } })
+    Bot::Alegre.stubs(:get_merged_similar_items).returns({ create_project_media.id => { score: 0.9 } })
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar foo bar foo bar', '1'
       assert_state 'search_result'
@@ -188,7 +189,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       end
       assert_state 'main'
     end
-    Bot::Alegre.unstub(:get_similar_texts)
+    Bot::Alegre.unstub(:get_merged_similar_items)
     ProjectMedia.any_instance.unstub(:report_status)
     ProjectMedia.any_instance.unstub(:analysis_published_article_url)
   end
@@ -208,7 +209,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       end
       assert_state 'main'
     end
-    Bot::Alegre.unstub(:get_similar_texts)
+    Bot::Alegre.unstub(:get_merged_similar_items)
     Bot::Smooch.unstub(:bundle_list_of_messages)
     ProjectMedia.any_instance.unstub(:report_status)
     ProjectMedia.any_instance.unstub(:analysis_published_article_url)
@@ -238,7 +239,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       assert_difference 'Dynamic.count + ProjectMedia.count', 3 do
         send_message '2'
       end
-      assert_state 'main'
+      assert_state 'waiting_for_message'
     end
     CheckSearch.any_instance.unstub(:medias)
   end
