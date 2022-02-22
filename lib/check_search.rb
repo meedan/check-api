@@ -167,8 +167,9 @@ class CheckSearch
       query = { bool: { must: conditions, must_not: must_not } }
       $repository.count(query: query)
     else
-      condition = sort_type == :asc ? "#{sort_key} < ?" : "#{sort_key} > ?"
-      get_pg_results_for_media.where(condition, pm.send(sort_key)).count
+      sort_value = pm.send(sort_key)
+      condition = sort_type == :asc ? "#{sort_key} < :value" : "#{sort_key} > :value"
+      get_pg_results_for_media.where(condition, value: sort_value).count
     end
   end
 
