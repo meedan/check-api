@@ -108,11 +108,14 @@ class Cluster < ApplicationRecord
     self.save!
     # update ES
     keys = ['cluster_size', 'cluster_first_item_at', 'cluster_last_item_at']
+    keys = ['cluster_size', 'cluster_first_item_at', 'cluster_last_item_at', 'cluster_published_reports_count', 'cluster_requests_count']
     pm = self.project_media
     data = {
       'cluster_size' => self.project_medias.count,
       'cluster_first_item_at' => self.first_item_at.to_i,
-      'cluster_last_item_at' => self.last_item_at.to_i
+      'cluster_last_item_at' => self.last_item_at.to_i,
+      'cluster_published_reports_count' => self.fact_checked_by_team_names.size,
+      'cluster_requests_count' => self.requests_count,
     }
     options = { keys: keys, data: data, obj: pm }
     ElasticSearchWorker.perform_in(1.second, YAML::dump(pm), YAML::dump(options), 'update_doc')
