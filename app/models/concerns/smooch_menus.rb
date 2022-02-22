@@ -102,12 +102,12 @@ module SmoochMenus
         # Default values for customizable strings
         cancelled: 'OK! Your submission is canceled.',
         ask_if_ready_state: 'Are you ready to submit?',
-        add_more_details_state: 'OK! Please add more content.',
-        search_state: 'Thank you! Looking for fact-checks.',
-        search_no_results: 'No result has been found. Journalists on our team have been notified and you will receive an update in this thread if the information is fact-checked.',
+        add_more_details_state: 'Please add more content.',
+        search_state: 'Thank you! Looking for fact-checks, it may take a minute.',
+        search_no_results: 'No fact-checks have been found. Journalists on our team have been notified and you will receive an update in this thread if the information is fact-checked.',
         search_result_state: 'Are these fact-checks answering your question?',
-        search_submit: 'Thank you for your feedback. Journalists on our team have been notified and you will receive an update in this thread if the information is fact-checked.',
-        search_result_is_relevant: 'Thank you! Spread the word about this tipline to help us fight misinformation!',
+        search_submit: 'Thank you for your feedback. Journalists on our team have been notified and you will receive an update in this thread if a new fact-check is published.',
+        search_result_is_relevant: 'Thank you! Spread the word about this tipline to help us fight misinformation! *insert_entry_point_link*',
         newsletter_optin_optout: '{subscription_status}',
       }[key.to_sym] || key
       label.truncate(truncate_at)
