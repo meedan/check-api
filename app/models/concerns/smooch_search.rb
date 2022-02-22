@@ -35,9 +35,14 @@ module SmoochSearch
       self.handle_exception(e)
     end
 
+    def bundle_search_query(uid)
+      list = self.list_of_bundled_messages_from_user(uid)
+      self.clear_user_bundled_messages(uid)
+      list
+    end
+
     def submit_search_query_for_verification(uid, app_id, workflow, language)
-      self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
-      self.bundle_messages(uid, '', app_id, 'default_requests', nil, true)
+      self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, '', app_id, 'default_requests', nil, true, self.bundle_search_query(uid))
       self.send_final_message_to_user(uid, self.get_menu_string('search_submit', language), workflow, language)
     end
 
@@ -53,7 +58,7 @@ module SmoochSearch
 
     def parse_search_results_from_alegre(results, team_id)
       after = self.date_filter(team_id)
-      results.sort{ |a, b| a[1][:score] <=> b[1][:score] }.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find(id)) }.select{ |pm| pm.report_status == 'published' && pm.updated_at.to_i > after.to_i }.last(3)
+      results.sort{ |a, b| a[1][:score] <=> b[1][:score] }.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }.select{ |pm| pm&.report_status == 'published' && pm&.updated_at.to_i > after.to_i }.last(3)
     end
 
     def date_filter(team_id)
@@ -64,24 +69,27 @@ module SmoochSearch
     end
 
     def max_number_of_words_for_keyword_search
-      self.config['smooch_search_max_keyword'].to_i || 3
+      value = self.config['smooch_search_max_keyword'].to_i
+      value == 0 ? 3 : value
     end
 
     def get_text_similarity_threshold
-      self.config['smooch_search_text_similarity_threshold'].blank? ? 0.9 : self.config['smooch_search_text_similarity_threshold'].to_f
+      value = self.config['smooch_search_text_similarity_threshold'].to_f
+      value == 0.0 ? 0.9 : value
     end
 
     def get_search_results(uid, last_message, team_id, language)
       results = []
       begin
         list = self.list_of_bundled_messages_from_user(uid)
-        message = self.bundle_list_of_messages(list, last_message)
+        message = self.bundle_list_of_messages(list, last_message, true)
         type = message['type'] || 'text'
         after = self.date_filter(team_id)
         pm = ProjectMedia.new(team_id: team_id)
         if type == 'text'
-          words = ::Bot::Smooch.extract_claim(message['text']).split(/\s+/)
-          text = words.join(' ')
+          text = ::Bot::Smooch.extract_claim(message['text'])
+          words = text.split(/\s+/)
+          Rails.logger.info "[Smooch Bot] Search query: #{text}"
           if words.size <= self.max_number_of_words_for_keyword_search
             filters = { keyword: words.join('+'), eslimit: 3, report_status: ['published'] }
             filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) if after

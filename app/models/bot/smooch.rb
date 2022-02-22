@@ -342,9 +342,13 @@ class Bot::Smooch < BotUser
     languages.sort
   end
 
+  def self.should_ask_for_language_confirmation?(uid)
+    self.is_v2? && self.get_supported_languages.size > 1 && !self.user_language_confirmed?(uid)
+  end
+
   def self.start_flow(workflow, language, uid)
     CheckStateMachine.new(uid).start
-    if self.is_v2? && self.get_supported_languages.size > 1 && !self.user_language_confirmed?(uid)
+    if self.should_ask_for_language_confirmation?(uid)
       self.ask_for_language_confirmation(workflow, language, uid)
     else
       self.send_message_for_state(uid, workflow, 'main', language)
@@ -509,12 +513,13 @@ class Bot::Smooch < BotUser
       self.toggle_subscription(uid, language, self.config['team_id'], self.get_platform_from_message(message), workflow)
     elsif value == 'search_result_is_not_relevant'
       self.submit_search_query_for_verification(uid, app_id, workflow, language)
+      sm.reset
     elsif value == 'search_result_is_relevant'
       sm.reset
       self.bundle_message(message)
       key = "smooch:user_search_results:#{uid}"
       results = Rails.cache.read(key).to_a.collect{ |result_id| ProjectMedia.find(result_id) }
-      self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'relevant_search_result_requests', results, true)
+      self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'relevant_search_result_requests', results, true, self.bundle_search_query(uid))
       self.send_final_message_to_user(uid, self.get_menu_string('search_result_is_relevant', language), workflow, language)
     elsif value =~ /^[a-z]{2}(_[A-Z]{2})?$/
       Rails.cache.write("smooch:user_language:#{uid}", value)
