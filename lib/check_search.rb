@@ -295,8 +295,12 @@ class CheckSearch
   private
 
   def get_sort_key
-    sort_key = @options['sort'].to_s
-    SORT_MAPPING.include?(sort_key) ? SORT_MAPPING[@options['sort'].to_s] : sort_key
+    sort_key = nil
+    key = @options['sort'].to_s
+    if SORT_KEYS.include?(key)
+      sort_key = SORT_MAPPING.include?(key) ? SORT_MAPPING[key] : key
+    end
+    sort_key
   end
 
   def adjust_es_window_size

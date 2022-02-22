@@ -107,7 +107,6 @@ class Cluster < ApplicationRecord
     self.skip_check_ability = true
     self.save!
     # update ES
-    keys = ['cluster_size', 'cluster_first_item_at', 'cluster_last_item_at']
     keys = ['cluster_size', 'cluster_first_item_at', 'cluster_last_item_at', 'cluster_published_reports_count', 'cluster_requests_count']
     pm = self.project_media
     data = {
