@@ -11,7 +11,7 @@ module SmoochMessages
         self.refresh_smooch_slack_timeout(uid)
         return
       end
-      self.refresh_smooch_menu_timeout(message, app_id)
+      self.refresh_smooch_menu_timeout(message, app_id) unless self.is_v2?
       redis = Redis.new(REDIS_CONFIG)
       key = "smooch:bundle:#{uid}"
       self.delay_for(1.second).save_user_information(app_id, uid, payload.to_json) if redis.llen(key) == 0

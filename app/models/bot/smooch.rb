@@ -326,8 +326,8 @@ class Bot::Smooch < BotUser
     Rails.cache.delete("smooch:user_language:#{uid}")
   end
 
-  def self.user_language_set?(uid)
-    !Rails.cache.read("smooch:user_language:#{uid}").blank?
+  def self.user_language_confirmed?(uid)
+    !Rails.cache.read("smooch:user_language:#{uid}:confirmed").blank?
   end
 
   def self.get_supported_languages
@@ -343,7 +343,7 @@ class Bot::Smooch < BotUser
 
   def self.start_flow(workflow, language, uid)
     CheckStateMachine.new(uid).start
-    if self.is_v2? && self.get_supported_languages.size > 1
+    if self.is_v2? && self.get_supported_languages.size > 1 && !self.user_language_confirmed?(uid)
       self.ask_for_language_confirmation(workflow, language, uid)
     else
       self.send_message_for_state(uid, workflow, 'main', language)
@@ -442,7 +442,7 @@ class Bot::Smooch < BotUser
   def self.get_custom_menu_options(state, workflow, uid)
     options = workflow.dig("smooch_state_#{state}", 'smooch_menu_options').to_a.clone
     if state == 'main' && self.is_v2?
-      unless self.user_language_set?(uid)
+      unless self.user_language_confirmed?(uid)
         options = []
         self.get_supported_languages.each_with_index do |l, i|
           options << {
@@ -517,6 +517,7 @@ class Bot::Smooch < BotUser
       self.send_final_message_to_user(uid, self.get_menu_string('search_result_is_relevant', language), workflow, language)
     elsif value =~ /^[a-z]{2}(_[A-Z]{2})?$/
       Rails.cache.write("smooch:user_language:#{uid}", value)
+      Rails.cache.write("smooch:user_language:#{uid}:confirmed", value)
       sm.send('go_to_main')
       workflow = self.get_workflow(value)
       self.bundle_message(message)
