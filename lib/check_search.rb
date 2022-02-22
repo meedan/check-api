@@ -153,7 +153,7 @@ class CheckSearch
 
   def item_navigation_offset
     return -1 unless @options['es_id']
-    sort_key = SORT_MAPPING[@options['sort'].to_s] || @options['sort'].to_s
+    sort_key = self.get_sort_key
     sort_type = @options['sort_type'].to_s.downcase.to_sym
     pm = ProjectMedia.where(id: @options['id']).last
     return -1 if pm.nil?
