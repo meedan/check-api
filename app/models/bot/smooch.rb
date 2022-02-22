@@ -413,10 +413,6 @@ class Bot::Smooch < BotUser
     value.to_i.seconds
   end
 
-  def self.is_v2?
-    self.config['smooch_version'] == 'v2'
-  end
-
   def self.get_menu_options(state, workflow, uid)
     if state == 'ask_if_ready'
       [

@@ -4,6 +4,10 @@ module SmoochMenus
   extend ActiveSupport::Concern
 
   module ClassMethods
+    def is_v2?
+      self.config['smooch_version'] == 'v2'
+    end
+
     def send_message_to_user_with_main_menu_appended(uid, text, workflow, language)
       main = []
       counter = 1
