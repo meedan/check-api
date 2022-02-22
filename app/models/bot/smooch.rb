@@ -324,10 +324,11 @@ class Bot::Smooch < BotUser
 
   def self.reset_user_language(uid)
     Rails.cache.delete("smooch:user_language:#{uid}")
+    Rails.cache.delete("smooch:user_language:#{uid}:confirmed")
   end
 
-  def self.user_language_set?(uid)
-    !Rails.cache.read("smooch:user_language:#{uid}").blank?
+  def self.user_language_confirmed?(uid)
+    !Rails.cache.read("smooch:user_language:#{uid}:confirmed").blank?
   end
 
   def self.get_supported_languages
@@ -341,9 +342,13 @@ class Bot::Smooch < BotUser
     languages.sort
   end
 
+  def self.should_ask_for_language_confirmation?(uid)
+    self.is_v2? && self.get_supported_languages.size > 1 && !self.user_language_confirmed?(uid)
+  end
+
   def self.start_flow(workflow, language, uid)
     CheckStateMachine.new(uid).start
-    if self.is_v2? && self.get_supported_languages.size > 1
+    if self.should_ask_for_language_confirmation?(uid)
       self.ask_for_language_confirmation(workflow, language, uid)
     else
       self.send_message_for_state(uid, workflow, 'main', language)
@@ -408,10 +413,6 @@ class Bot::Smooch < BotUser
     value.to_i.seconds
   end
 
-  def self.is_v2?
-    self.config['smooch_version'] == 'v2'
-  end
-
   def self.get_menu_options(state, workflow, uid)
     if state == 'ask_if_ready'
       [
@@ -442,7 +443,7 @@ class Bot::Smooch < BotUser
   def self.get_custom_menu_options(state, workflow, uid)
     options = workflow.dig("smooch_state_#{state}", 'smooch_menu_options').to_a.clone
     if state == 'main' && self.is_v2?
-      unless self.user_language_set?(uid)
+      if self.should_ask_for_language_confirmation?(uid)
         options = []
         self.get_supported_languages.each_with_index do |l, i|
           options << {
@@ -508,15 +509,17 @@ class Bot::Smooch < BotUser
       self.toggle_subscription(uid, language, self.config['team_id'], self.get_platform_from_message(message), workflow)
     elsif value == 'search_result_is_not_relevant'
       self.submit_search_query_for_verification(uid, app_id, workflow, language)
+      sm.reset
     elsif value == 'search_result_is_relevant'
       sm.reset
       self.bundle_message(message)
       key = "smooch:user_search_results:#{uid}"
       results = Rails.cache.read(key).to_a.collect{ |result_id| ProjectMedia.find(result_id) }
-      self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'relevant_search_result_requests', results, true)
+      self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'relevant_search_result_requests', results, true, self.bundle_search_query(uid))
       self.send_final_message_to_user(uid, self.get_menu_string('search_result_is_relevant', language), workflow, language)
     elsif value =~ /^[a-z]{2}(_[A-Z]{2})?$/
       Rails.cache.write("smooch:user_language:#{uid}", value)
+      Rails.cache.write("smooch:user_language:#{uid}:confirmed", value)
       sm.send('go_to_main')
       workflow = self.get_workflow(value)
       self.bundle_message(message)
@@ -716,7 +719,7 @@ class Bot::Smooch < BotUser
         raise SecurityError if m.pender_error_code == PenderClient::ErrorCodes::UNSAFE
         nil
       else
-        m.url
+        m
       end
     rescue URI::InvalidURIError
       nil
@@ -763,20 +766,20 @@ class Bot::Smooch < BotUser
     return team unless self.is_a_valid_text_message?(text)
 
     begin
-      url = self.extract_url(text)
+      link = self.extract_url(text)
       pm = nil
       extra = {}
-      if url.nil?
+      if link.nil?
         claim = self.extract_claim(text)
         extra = { quote: claim }
         pm = ProjectMedia.joins(:media).where('lower(quote) = ?', claim.downcase).where('project_medias.team_id' => team.id).last
       else
-        extra = { url: url }
-        pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.team_id' => team.id).last
+        extra = { url: link.url }
+        pm = ProjectMedia.joins(:media).where('medias.url' => link.url, 'project_medias.team_id' => team.id).last
       end
 
       if pm.nil?
-        type = url.nil? ? 'Claim' : 'Link'
+        type = link.nil? ? 'Claim' : 'Link'
         pm = self.create_project_media(message, type, extra)
       end
 

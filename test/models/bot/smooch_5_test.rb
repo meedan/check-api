@@ -257,14 +257,14 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => 'Foo bar foo bar foo bar' })
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
-    Bot::Alegre.stubs(:get_similar_texts).returns({ pm.id => 0.9 })
+    Bot::Alegre.stubs(:get_merged_similar_items).returns({ pm.id => 0.9 })
 
     assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en')
 
     Bot::Smooch.unstub(:bundle_list_of_messages)
     ProjectMedia.any_instance.unstub(:report_status)
     ProjectMedia.any_instance.unstub(:analysis_published_article_url)
-    Bot::Alegre.unstub(:get_similar_texts)
+    Bot::Alegre.unstub(:get_merged_similar_items)
   end
 
   test "should perform a media similarity search" do
