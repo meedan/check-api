@@ -324,6 +324,7 @@ class Bot::Smooch < BotUser
 
   def self.reset_user_language(uid)
     Rails.cache.delete("smooch:user_language:#{uid}")
+    Rails.cache.delete("smooch:user_language:#{uid}:confirmed")
   end
 
   def self.user_language_confirmed?(uid)
