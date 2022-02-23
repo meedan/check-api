@@ -101,7 +101,8 @@ module CheckElasticSearch
   end
 
   def get_es_doc_obj
-    self.is_annotation? ? self.annotated : self
+    obj = self.is_annotation? ? self.annotated : self
+    obj.class.name == 'Cluster' ? obj.project_media : obj
   end
 
   def get_es_doc_id(obj = nil)

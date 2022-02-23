@@ -35,7 +35,10 @@ class CheckSearch
     'report_status' => 'report_status', 'tags_as_sentence' => 'tags_as_sentence',
     'media_published_at' => 'media_published_at', 'reaction_count' => 'reaction_count', 'comment_count' => 'comment_count',
     'related_count' => 'related_count', 'suggestions_count' => 'suggestions_count', 'status_index' => 'status_index',
-    'type_of_media' => 'type_of_media', 'title' => 'title_index', 'creator_name' => 'creator_name', 'cluster_size' => 'cluster_size'
+    'type_of_media' => 'type_of_media', 'title' => 'title_index', 'creator_name' => 'creator_name',
+    'cluster_size' => 'cluster_size', 'cluster_first_item_at' => 'cluster_first_item_at',
+    'cluster_last_item_at' => 'cluster_last_item_at', 'cluster_requests_count' => 'cluster_requests_count',
+    'cluster_published_reports_count' => 'cluster_published_reports_count'
   }
 
   def team_condition(team_id = nil)
@@ -289,6 +292,7 @@ class CheckSearch
   end
 
   private
+
 
   def adjust_es_window_size
     window_size = 10000
