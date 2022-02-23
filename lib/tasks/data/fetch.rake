@@ -17,7 +17,7 @@ namespace :check do
         # 4. Re-install fetch bot
         # 5. Print fetch & app status to build status_mapping
         # Step 1
-        fetch_user = User.where(login: 'fetch').last
+        fetch_user = BotUser.find_by_login('fetch')
         unless fetch_user.nil?
           tbi = TeamBotInstallation.where(user_id: fetch_user.id, team_id: team.id).last
           tbi.destroy! unless tbi.nil?
@@ -59,6 +59,30 @@ namespace :check do
         # Print list of Check statuses
         puts "Check statuses..."
         team.media_verification_statuses['statuses'].each{ |s| puts "#{s['id']}: #{s['label']}" } unless team.media_verification_statuses.nil?
+      end
+    end
+
+    # bundle exec rails check:fetch:import['team_slug', 'list-of-services']
+    task :import, [:slug, :services] => :environment do |_t, args|
+      # This task depend on status_mapping
+      # TODO: find a good way to pass status mapping to the rake task
+      slug = args[:slug]
+      services = args[:services].split('-')
+      team = Team.find_by_slug(slug)
+      unless team.nil?
+        # Install fetch
+        fetch_user = BotUser.find_by_login('fetch')
+        tbi_fetch = TeamBotInstallation.where(user_id: fetch_user.id, team_id: team.id).last
+        if tbi_fetch.nil?
+          tbi = TeamBotInstallation.new
+          tbi.user = fetch_user
+          tbi.team = team
+          tbi.save!
+        end
+        Bot::Fetch.set_service(slug, services, "undetermined", status_mapping)
+        services.each { |service| Bot::Fetch.call_fetch_api(:delete, 'subscribe', { service: service, url: Bot::Fetch.webhook_url(team) }) }
+        services.each { |service| Bot::Fetch.call_fetch_api(:post, 'subscribe', { service: service, url: Bot::Fetch.webhook_url(team) }) }
+        Bot::Fetch::Import.delay(retry: 0).import_claim_reviews(TeamBotInstallation.where(user_id: BotUser.find_by_login('fetch').id, team_id: team.id).last.id)
       end
     end
   end
