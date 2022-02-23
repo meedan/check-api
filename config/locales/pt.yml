@@ -816,38 +816,6 @@ pt:
     %{content}
 
     Para deixar de receber este boletim, digite "%{unsubscribe}".
-  smooch_v2_first_state: |-
-    Digite um número para navegar:
-
-    1. Submeter o conteúdo à verificação de fatos
-    2. Adicionar mais detalhes
-    3. Menu principal
-  smooch_v2_add_more_details_menu: |-
-    Obrigado! Você está pronto(a) para enviar?
-
-    1. Enviar o conteúdo para verificação de fatos
-    2. Adicionar mais detalhes
-    3. Cancelar e voltar para o menu principal
-  smooch_v2_search_state: Procurando por verificações de fatos...
-  smooch_v2_search_error: Erro ao tentar procurar verificações de fatos. Por favor,
-    tente novamente mais tarde.
-  smooch_v2_add_more_details_state: Por favor, adicione mais detalhes.
-  smooch_v2_search_result_state: |-
-    Estas verificações de fato são relevantes?
-
-    1. Sim - voltar ao menu principal
-    2. Não - enviar aos jornalistas para verificação
-  smooch_v2_search_no_results: |-
-    Não foi possível encontrar uma verificação de fatos para este conteúdo. Agradecemos por nos alertar!
-    Foi enviado aos(às) nossos(as) jornalistas para investigação.
-
-    Você receberá uma notificação neste fio se uma verificação de fatos for produzida.
-
-    *0. Menu principal*
-  smooch_v2_search_submit: |-
-    A afirmação foi enviada aos jornalistas. Se verificada, você a receberá aqui.
-
-    Digite 0 para voltar ao menu principal.
   info:
     messages:
       sent_to_trash_by_rule: O item "%{item_title}" foi enviado para a lixeira, seguindo

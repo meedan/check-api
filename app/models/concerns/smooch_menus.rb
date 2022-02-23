@@ -4,6 +4,10 @@ module SmoochMenus
   extend ActiveSupport::Concern
 
   module ClassMethods
+    def is_v2?
+      self.config['smooch_version'] == 'v2'
+    end
+
     def send_message_to_user_with_main_menu_appended(uid, text, workflow, language)
       main = []
       counter = 1
@@ -102,12 +106,12 @@ module SmoochMenus
         # Default values for customizable strings
         cancelled: 'OK! Your submission is canceled.',
         ask_if_ready_state: 'Are you ready to submit?',
-        add_more_details_state: 'OK! Please add more content.',
-        search_state: 'Thank you! Looking for fact-checks.',
-        search_no_results: 'No result has been found. Journalists on our team have been notified and you will receive an update in this thread if the information is fact-checked.',
+        add_more_details_state: 'Please add more content.',
+        search_state: 'Thank you! Looking for fact-checks, it may take a minute.',
+        search_no_results: 'No fact-checks have been found. Journalists on our team have been notified and you will receive an update in this thread if the information is fact-checked.',
         search_result_state: 'Are these fact-checks answering your question?',
-        search_submit: 'Thank you for your feedback. Journalists on our team have been notified and you will receive an update in this thread if the information is fact-checked.',
-        search_result_is_relevant: 'Thank you! Spread the word about this tipline to help us fight misinformation!',
+        search_submit: 'Thank you for your feedback. Journalists on our team have been notified and you will receive an update in this thread if a new fact-check is published.',
+        search_result_is_relevant: 'Thank you! Spread the word about this tipline to help us fight misinformation! *insert_entry_point_link*',
         newsletter_optin_optout: '{subscription_status}',
       }[key.to_sym] || key
       label.truncate(truncate_at)
@@ -198,14 +202,16 @@ module SmoochMenus
 
     def ask_for_language_confirmation(workflow, language, uid)
       self.reset_user_language(uid)
-      text = [workflow['smooch_message_smooch_bot_greetings'], self.get_menu_string(:confirm_preferred_language, language)].join("\n\n")
+      text = [workflow['smooch_message_smooch_bot_greetings']]
       options = []
       self.get_supported_languages.sort.each_with_index do |l, i|
+        text << self.get_menu_string(:confirm_preferred_language, l)
         options << {
           value: { state: 'main', keyword: (i + 1) }.to_json,
           label: ::CheckCldr.language_code_to_name(l, l).truncate(20)
         }
       end
+      text = text.join("\n\n")
       if options.size > 3
         self.send_message_to_user_with_single_section_menu(uid, text, options, self.get_menu_string(:languages, language))
       else
