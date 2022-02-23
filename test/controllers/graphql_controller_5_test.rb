@@ -416,6 +416,51 @@ class GraphqlController5Test < ActionController::TestCase
     assert_equal 2, JSON.parse(@response.body)['data']['project_media']['cluster']['items']['edges'].size
   end
 
+  test "should paginate folder items" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    pm3 = create_project_media project: p
+    authenticate_with_user(u)
+
+    # Paginating one item per page
+
+    # Page 1
+    query = 'query { project(id: "' + p.id.to_s + '") { project_medias(first: 1) { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['project']['project_medias']
+    results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
+    assert_equal 1, results.size
+    assert_equal pm3.id, results[0]
+    page_info = data['pageInfo']
+    assert page_info['hasNextPage']
+
+    # Page 2
+    query = 'query { project(id: "' + p.id.to_s + '") { project_medias(first: 1, after: "' + page_info['endCursor'] + '") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['project']['project_medias']
+    results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
+    assert_equal 1, results.size
+    assert_equal pm2.id, results[0]
+    page_info = data['pageInfo']
+    assert page_info['hasNextPage']
+
+    # Page 3
+    query = 'query { project(id: "' + p.id.to_s + '") { project_medias(first: 1, after: "' + page_info['endCursor'] + '") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['project']['project_medias']
+    results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
+    assert_equal 1, results.size
+    assert_equal pm1.id, results[0]
+    page_info = data['pageInfo']
+    assert !page_info['hasNextPage']
+  end
+
   protected
 
   def assert_error_message(expected)

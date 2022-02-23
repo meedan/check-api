@@ -38,16 +38,18 @@ module SmoochMessages
       redis.lrange(key, 0, redis.llen(key))
     end
 
-    def bundle_messages(uid, id, app_id, type = 'default_requests', annotated = nil, force = false)
-      list = self.list_of_bundled_messages_from_user(uid)
+    def bundle_messages(uid, id, app_id, type = 'default_requests', annotated = nil, force = false, bundle = nil)
+      list = bundle || self.list_of_bundled_messages_from_user(uid)
       unless list.empty?
         last = JSON.parse(list.last)
         if last['_id'] == id || ['menu_options_requests'].include?(type) || force
           self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
           self.handle_bundle_messages(type, list, last, app_id, annotated, !force)
-          Redis.new(REDIS_CONFIG).del("smooch:bundle:#{uid}")
-          sm = CheckStateMachine.new(uid)
-          sm.reset unless sm.state.value == 'main'
+          if bundle.nil?
+            self.clear_user_bundled_messages(uid)
+            sm = CheckStateMachine.new(uid)
+            sm.reset unless sm.state.value == 'main'
+          end
         end
       end
     end
@@ -64,9 +66,13 @@ module SmoochMessages
     def send_message_for_state(uid, workflow, state, language, pretext = '')
       message = self.utmize_urls(self.get_message_for_state(workflow, state, language, uid).to_s, 'resource')
       text = [pretext, message].reject{ |part| part.blank? }.join("\n\n")
-      # On v2, when we go to the "main" state, we need to show the main menu
       if self.is_v2?
-        state == 'main' ? self.send_message_to_user_with_main_menu_appended(uid, text, workflow, language) : self.send_message_for_state_with_buttons(uid, text, workflow, state, language)
+        if self.should_ask_for_language_confirmation?(uid)
+          self.ask_for_language_confirmation(workflow, language, uid)
+        else
+          # On v2, when we go to the "main" state, we need to show the main menu
+          state == 'main' ? self.send_message_to_user_with_main_menu_appended(uid, text, workflow, language) : self.send_message_for_state_with_buttons(uid, text, workflow, state, language)
+        end
       else
         self.send_message_to_user(uid, text)
       end
@@ -177,11 +183,12 @@ module SmoochMessages
       Redis.new(REDIS_CONFIG).del("smooch:bundle:#{uid}")
     end
 
-    def bundle_list_of_messages(list, last)
+    def bundle_list_of_messages(list, last, reject_payload = false)
       bundle = last.clone
       text = []
       media = nil
       list.collect{ |m| JSON.parse(m) }.sort_by{ |m| m['received'].to_f }.each do |message|
+        next if reject_payload && message['payload']
         if media.nil?
           media = message['mediaUrl']
           bundle['type'] = message['type']
@@ -201,7 +208,7 @@ module SmoochMessages
       elsif ['timeout_requests', 'menu_options_requests', 'resource_requests', 'relevant_search_result_requests'].include?(type)
         key = "smooch:banned:#{bundle['authorId']}"
         if Rails.cache.read(key).nil?
-          [annotated].flatten.each { |a| self.save_message_later(bundle, app_id, type, a) }
+          [annotated].flatten.uniq.each { |a| self.save_message_later(bundle, app_id, type, a) }
         end
       end
     end

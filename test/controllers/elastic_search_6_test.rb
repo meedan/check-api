@@ -137,6 +137,7 @@ class ElasticSearch6Test < ActionController::TestCase
 
   [:created_at, :updated_at, :last_seen].each do |field|
     test "should filter by #{field} range" do
+      RequestStore.store[:skip_cached_field_update] = false
       t = create_team
       p = create_project team: t
 
@@ -199,6 +200,7 @@ class ElasticSearch6Test < ActionController::TestCase
 
   [:created_at, :updated_at, :last_seen].each do |field|
     test "should handle inputs when filter by #{field} range" do
+      RequestStore.store[:skip_cached_field_update] = false
       t = create_team
       p = create_project team: t
 

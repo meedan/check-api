@@ -281,6 +281,7 @@ id:
   oembed_notes: Catatan
   duplicate_source: Sumber sudah ada
   geolocation_invalid_value: Lokasi salah. Menunggu struktur GeoJSON yang benar (http://geojson.org/)
+  url_invalid_value: URL yang diserahkan berikut tidak valid
   datetime_invalid_date: Tanggal salah
   error_team_archived: Maaf, Anda tidak dapat menambah folder ke ruang kerja yang
     telah dihapus
@@ -817,38 +818,6 @@ id:
     %{content}
 
     Untuk berhenti menerima buletin ini, ketik "%{unsubscribe}".
-  smooch_v2_first_state: |-
-    Ketik nomor untuk mendapat navigasi:
-
-    1. Kirim konten untuk pengecekan fakta
-    2. Tambah lebih banyak detail
-    3. Menu utama
-  smooch_v2_add_more_details_menu: |-
-    Terima kasih! Anda siap untuk mengirim??
-
-    1. Kirim konten untuk pengecekan fakta
-    2. Tambah lebih banyak detail
-    3. Batalkan dan kembali ke menu utama
-  smooch_v2_search_state: Mencari pengecekan fakta…
-  smooch_v2_search_error: Terjadi kesalahan ketika mencoba mencari pengecekan fakta.
-    Silakan coba lagi nanti.
-  smooch_v2_add_more_details_state: Silakan tambahkan lebih banyak detail.
-  smooch_v2_search_result_state: |-
-    Apakah pengecekan fakta ini relevan??
-
-    1. Ya - kembali ke menu utama
-    2. Tidak - kirim ke jurnalis untuk verifikasi
-  smooch_v2_search_no_results: |-
-    Tidak ada pengecekan fakta yang dapat ditemukan untuk konten ini. Terima kasih telah mengingatkan kami!
-    Hal tersebut dikirim ke jurnalis kami untuk diselidiki.
-
-    Anda akan diberi tahu di utas ini jika pengecekan fakta sudah ada.
-
-    *0. Menu utama*
-  smooch_v2_search_submit: |-
-    Klaim telah dikirim ke jurnalis. Jika telah dicek faktanya, Anda akan menerimanya di sini.
-
-    Ketik 0 untuk kembali ke menu utama.
   info:
     messages:
       sent_to_trash_by_rule: '"%{item_title}" telah dibuang ke tong sampah oleh aturan

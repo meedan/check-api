@@ -2,7 +2,8 @@ class BotUser < User
   include ErrorNotification
   include CheckPusher
 
-  EVENTS = ['create_project_media', 'update_project_media', 'create_source', 'update_source', 'update_annotation_own', 'publish_report']
+  EVENTS = ['create_project_media', 'update_project_media', 'create_source', 'update_source', 'update_annotation_own', 'publish_report',
+            'save_annotation', 'save_claim_description', 'save_fact_check']
   custom_annotation_types = begin DynamicAnnotation::AnnotationType.all.map(&:annotation_type) rescue [] end
   annotation_types = custom_annotation_types + ['comment', 'tag', 'task', 'geolocation']
   annotation_types.each do |type|
