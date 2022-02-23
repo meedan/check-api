@@ -954,7 +954,8 @@ module SampleData
   end
 
   def create_cluster(options = {})
-    Cluster.create!({ project_media: create_project_media }.merge(options))
+    options[:project_media] = create_project_media unless options.has_key?(:project_media)
+    Cluster.create!(options)
   end
 
   def create_claim_description(options = {})

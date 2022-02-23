@@ -48,7 +48,8 @@ module CheckCachedFields
       if update_index
         value = update_index.call(target, value) if update_index.is_a?(Proc)
         field_name = options[:es_field_name] || name
-        es_options = { keys: [field_name], data: { field_name => value }, obj: target }
+        es_options = { keys: [field_name], data: { field_name => value } }
+        es_options[:obj] = target if target.class.name == 'ProjectMedia'
         ElasticSearchWorker.perform_in(1.second, YAML::dump(target), YAML::dump(es_options), 'update_doc')
       end
       update_pg = options[:update_pg] || false
