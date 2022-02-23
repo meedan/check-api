@@ -32,10 +32,13 @@ class CheckSearch
   SORT_MAPPING = {
     'recent_activity' => 'updated_at', 'recent_added' => 'created_at', 'demand' => 'demand',
     'related' => 'linked_items_count', 'last_seen' => 'last_seen', 'share_count' => 'share_count',
-    'published_at' => 'published_at', 'report_status' => 'report_status', 'tags_as_sentence' => 'tags_as_sentence',
+    'report_status' => 'report_status', 'tags_as_sentence' => 'tags_as_sentence',
     'media_published_at' => 'media_published_at', 'reaction_count' => 'reaction_count', 'comment_count' => 'comment_count',
     'related_count' => 'related_count', 'suggestions_count' => 'suggestions_count', 'status_index' => 'status_index',
-    'type_of_media' => 'type_of_media', 'title' => 'title_index', 'creator_name' => 'creator_name', 'cluster_size' => 'cluster_size'
+    'type_of_media' => 'type_of_media', 'title' => 'title_index', 'creator_name' => 'creator_name',
+    'cluster_size' => 'cluster_size', 'cluster_first_item_at' => 'cluster_first_item_at',
+    'cluster_last_item_at' => 'cluster_last_item_at', 'cluster_requests_count' => 'cluster_requests_count',
+    'cluster_published_reports_count' => 'cluster_published_reports_count'
   }
 
   def team_condition(team_id = nil)
@@ -289,6 +292,7 @@ class CheckSearch
   end
 
   private
+
 
   def adjust_es_window_size
     window_size = 10000
@@ -632,11 +636,34 @@ class CheckSearch
     end
   end
 
+  def get_from_and_to_values(values, tz)
+    # condition_type = 'less_than', 'is_between'
+    condition_type = values.dig('condition') || 'is_between'
+    if condition_type == 'less_than'
+      period = values.dig('period').to_i
+      from_date = case values.dig('period_type').downcase
+                  when 'd'
+                    Time.now - period.day
+                  when 'w'
+                    Time.now - period.week
+                  when 'm'
+                    Time.now - period.month
+                  when 'y'
+                    Time.now - period.year
+                  end
+      from = from_date.blank? ? nil : format_time_with_timezone(from_date.to_s, tz)
+      to = nil
+    else
+      from = format_time_with_timezone(values.dig('start_time'), tz)
+      to = format_time_with_timezone(values.dig('end_time'), tz)
+    end
+    return from, to
+  end
+
   def format_times_search_range_filter(values, timezone)
     return if values.blank?
     tz = (!timezone.blank? && ActiveSupport::TimeZone[timezone]) ? timezone : 'UTC'
-    from = format_time_with_timezone(values.dig('start_time'), tz)
-    to = format_time_with_timezone(values.dig('end_time'), tz)
+    from, to = get_from_and_to_values(values, tz)
     return if from.blank? && to.blank?
     from ||= DateTime.new
     to ||= DateTime.now.in_time_zone(tz)
@@ -649,7 +676,7 @@ class CheckSearch
     conditions = []
     return conditions unless @options.has_key?(:range)
     timezone = @options[:range].delete(:timezone) || @context_timezone
-    [:created_at, :updated_at, :last_seen, :published_at].each do |name|
+    [:created_at, :updated_at, :last_seen, :media_published_at, :report_published_at].each do |name|
       values = @options['range'].dig(name)
       range = format_times_search_range_filter(values, timezone)
       next if range.nil?
@@ -697,6 +724,6 @@ class CheckSearch
   end
 
   def hit_es_for_range_filter
-    !@options['range'].blank? && (@options['range'].keys.include?('last_seen') || @options['range'].keys.include?('published_at'))
+    !@options['range'].blank? && !(['last_seen', 'report_published_at', 'media_published_at'] & @options['range'].keys).blank?
   end
 end

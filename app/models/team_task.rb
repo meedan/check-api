@@ -138,13 +138,13 @@ class TeamTask < ApplicationRecord
   private
 
   def add_teamwide_tasks
-    Rails.cache.delete("list_columns:team:#{self.team_id}")
+    Rails.cache.delete_matched("list_columns:team:*:#{self.id}")
     projects = { new: self.project_ids }
     TeamTaskWorker.perform_in(1.second, 'add', self.id, YAML::dump(User.current), YAML::dump({}), YAML::dump(projects))
   end
 
   def update_teamwide_tasks
-    Rails.cache.delete("list_columns:team:#{self.team_id}")
+    Rails.cache.delete_matched("list_columns:team:*:#{self.id}")
     options = {
       label: self.saved_change_to_label?,
       description: self.saved_change_to_description?,

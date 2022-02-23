@@ -945,18 +945,34 @@ module SampleData
   end
 
   def create_tipline_subscription(options = {})
-    TiplineSubscription.create!({ uid: random_string, team_id: create_team.id, language: 'en', platform: 'WhatsApp' }.merge(options))
+    TiplineSubscription.create!({
+      uid: random_string,
+      team_id: create_team.id,
+      language: 'en',
+      platform: 'WhatsApp'
+    }.merge(options))
   end
 
   def create_cluster(options = {})
-    Cluster.create!({ project_media: create_project_media }.merge(options))
+    options[:project_media] = create_project_media unless options.has_key?(:project_media)
+    Cluster.create!(options)
   end
 
   def create_claim_description(options = {})
-    ClaimDescription.create!({ description: random_string, user: options[:user] || create_user, project_media: options[:project_media] || create_project_media }.merge(options))
+    ClaimDescription.create!({
+      description: random_string,
+      user: options[:user] || create_user,
+      project_media: options[:project_media] || create_project_media
+    }.merge(options))
   end
 
   def create_fact_check(options = {})
-    FactCheck.create!({ summary: random_string, url: random_url, title: random_string, user: options[:user] || create_user, claim_description: options[:claim_description] || create_claim_description }.merge(options))
+    FactCheck.create!({
+      summary: random_string,
+      url: random_url,
+      title: random_string,
+      user: options[:user] || create_user,
+      claim_description: options[:claim_description] || create_claim_description
+    }.merge(options))
   end
 end

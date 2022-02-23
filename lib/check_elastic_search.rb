@@ -14,7 +14,7 @@ module CheckElasticSearch
     ms.attributes[:parent_id] = self.id
     ms.attributes[:created_at] = self.created_at.utc
     ms.attributes[:updated_at] = self.updated_at.utc
-    ms.attributes[:published_at] = self.published_at
+    ms.attributes[:media_published_at] = self.media_published_at
     ms.attributes[:source_id] = self.source_id
     # Intial nested objects with []
     ['accounts', 'comments', 'tags', 'dynamics', 'task_responses', 'task_comments', 'assigned_user_ids'].each{ |f| ms.attributes[f] = [] }
@@ -101,7 +101,8 @@ module CheckElasticSearch
   end
 
   def get_es_doc_obj
-    self.is_annotation? ? self.annotated : self
+    obj = self.is_annotation? ? self.annotated : self
+    obj.class.name == 'Cluster' ? obj.project_media : obj
   end
 
   def get_es_doc_id(obj = nil)

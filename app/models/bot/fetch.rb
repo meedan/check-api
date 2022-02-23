@@ -53,7 +53,7 @@ class Bot::Fetch < BotUser
       User.current = installation.user
       Team.current = installation.team
       status_mapping = installation.get_status_mapping.blank? ? nil : JSON.parse(installation.get_status_mapping, { quirks_mode: true })
-      Bot::Fetch::Import.delay(retry: 3).import_claim_review(claim_review, installation.team_id, installation.user_id, installation.get_status_fallback, status_mapping, installation.get_auto_publish_reports)
+      Bot::Fetch::Import.delay_for(1.second, { queue: 'fetch', retry: 3 }).import_claim_review(claim_review, installation.team_id, installation.user_id, installation.get_status_fallback, status_mapping, installation.get_auto_publish_reports)
       true
     rescue StandardError => e
       Rails.logger.error("[Fetch Bot] Exception: #{e.message}")
@@ -94,7 +94,7 @@ class Bot::Fetch < BotUser
       end
     end
     previous_services.each { |previous_service| self.call_fetch_api(:delete, 'subscribe', { service: previous_service, url: self.webhook_url(team) }) }
-    Bot::Fetch::Import.delay(retry: 0).import_claim_reviews(installation.id) unless new_services.blank?
+    Bot::Fetch::Import.delay_for(1.second, { queue: 'fetch', retry: 0 }).import_claim_reviews(installation.id) unless new_services.blank?
   end
 
   def self.is_service_supported?(service)

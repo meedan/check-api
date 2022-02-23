@@ -494,8 +494,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_indexing_model(pm, score_with_context)
-    type = self.get_pm_type(pm)
-    type == "text" ? score_with_context.delete(:model) : type
+    score_with_context[:model] || self.get_pm_type(pm)
   end
 
   def self.create_relationship(source, target, score_with_context, relationship_type)

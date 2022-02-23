@@ -101,6 +101,8 @@ class MediaSearch
 
     indexes :media_published_at, { type: 'long' }
 
+    indexes :report_published_at, { type: 'long' }
+
     indexes :reaction_count, { type: 'long' }
 
     indexes :comment_count, { type: 'long' }
@@ -132,5 +134,13 @@ class MediaSearch
     indexes :fact_check_summary, { type: 'text', analyzer: 'check' }
 
     indexes :cluster_report_published, { type: 'long' } # 0 = not published, 1 = published
+
+    indexes :cluster_first_item_at, { type: 'long' }
+
+    indexes :cluster_last_item_at, { type: 'long' }
+
+    indexes :cluster_published_reports_count, { type: 'long' }
+
+    indexes :cluster_requests_count, { type: 'long' }
   end
 end
