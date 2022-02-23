@@ -83,8 +83,8 @@ class Cluster < ApplicationRecord
           if: proc { |d| d.annotation_type == 'smooch' && d.annotated_type == 'ProjectMedia' },
           affected_ids: proc { |d| ProjectMedia.where(id: d.annotated.related_items_ids).group(:cluster_id).count.keys.reject{ |cid| cid.nil? } },
           events: {
-            create: :recalculate,
-            destroy: :recalculate
+            create: proc { |c, _d| c.requests_count + 1 },
+            destroy: proc { |c, _d| c.requests_count - 1 }
           }
         }
       ]

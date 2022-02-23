@@ -204,6 +204,8 @@ class ElasticSearch8Test < ActionController::TestCase
     pm1 = create_project_media team: t
     pm1_1 = create_project_media team: t
     pm2 = create_project_media team: t
+    create_dynamic_annotation annotation_type: 'smooch', annotated: pm1
+    create_dynamic_annotation annotation_type: 'smooch', annotated: pm2
     c1 = create_cluster project_media: pm1
     c2 = create_cluster project_media: pm2
     c1.project_medias << pm1
@@ -214,6 +216,10 @@ class ElasticSearch8Test < ActionController::TestCase
       create_dynamic_annotation annotation_type: 'smooch', annotated: pm1
       create_dynamic_annotation annotation_type: 'smooch', annotated: pm1_1
       sleep 2
+      es1 = $repository.find(get_es_id(pm1))
+      es2 = $repository.find(get_es_id(pm2))
+      assert_equal c1.requests_count(true), es1['cluster_requests_count']
+      assert_equal c2.requests_count(true), es2['cluster_requests_count']
       query = { trends: true, country: true, sort: 'cluster_requests_count' }
       result = CheckSearch.new(query.to_json)
       assert_equal [pm1.id, pm2.id], result.medias.map(&:id)
