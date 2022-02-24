@@ -1,11 +1,25 @@
+def parse_args(args)
+  data = {}
+  return data if args.blank?
+  args.each do |a|
+    arg = a.split('&')
+    arg.each do |pair|
+      key, value = pair.split(':')
+      data.merge!({ key => value })
+    end
+  end
+  data
+end
+
 namespace :check do
   namespace :fetch do
-    # bundle exec rails check:fetch:clear['team_slug', 'list-of-services']
-    task :clear, [:slug, :services] => :environment do |_t, args|
-      slug = args[:slug]
-      services = args[:services].split('-')
-      if slug.blank?
-        puts "You should pass workspace slugs to the rake task[check:fetch:clear['team_slug1']"
+    # bundle exec rails check:fetch:clear['slug:team_slug&services:list-of-services']
+    task clear: :environment do |_t, args|
+      data = parse_args args.extras
+      slug = data['slug']
+      services = data['services'].split('-')
+      if slug.blank? || services.blank?
+        puts "You should pass workspace slug and services to the rake task[check:fetch:clear['slug:team_slug&services:list-of-services']"
         exit
       end
       Team.where(slug: slug).find_each do |team|
@@ -62,14 +76,23 @@ namespace :check do
       end
     end
 
-    # bundle exec rails check:fetch:import['team_slug', 'list-of-services']
-    task :import, [:slug, :services] => :environment do |_t, args|
+    # bundle exec rails check:fetch:import['slug:team_slug&services:list-of-services']
+    task import: :environment do |_t, args|
       # This task depend on status_mapping
-      # TODO: find a good way to pass status mapping to the rake task
-      slug = args[:slug]
-      services = args[:services].split('-')
+      # and user must set the mapping using environment variable
+      # i.e export STATUS_MAPPING=mapping.to_json
+      data = parse_args args.extras
+      slug = data['slug']
+      services = data['services'].split('-')
       team = Team.find_by_slug(slug)
+      if slug.blank? || services.blank?
+        puts "You should pass workspace slug and services to the rake task[check:fetch:import['slug:team_slug&services:list-of-services']"
+        exit
+      end
       unless team.nil?
+        # Get status mapping
+        # should set status_mapping as environment variable in json format (i.e export STATUS_MAPPING=mapping.to_json)
+        status_mapping = begin JSON.parse(ENV["STATUS_MAPPING"]) rescue {} end
         # Install fetch
         fetch_user = BotUser.find_by_login('fetch')
         tbi_fetch = TeamBotInstallation.where(user_id: fetch_user.id, team_id: team.id).last
