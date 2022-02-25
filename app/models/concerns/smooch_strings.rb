@@ -20,6 +20,10 @@ module SmoochStrings
           "en": "Languages and Privacy",
           "pt": "Idiomas e Privacidade"
         },
+        "privacy_title": {
+          "en": "Privacy",
+          "pt": "Privacidade"
+        },
         "add_more_details_state_button_label": {
           "en": "Add more",
           "id": "Tambah lebih banyak",
