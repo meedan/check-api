@@ -65,6 +65,22 @@ module SmoochStrings
           "te": "రద్దు_బటన్",
           "ur": "منسوخ"
         },
+        "ask_if_ready_state_button_label": {
+          "en": "Cancel",
+          "id": "Batalkan",
+          "be": "বাতিল করুন",
+          "fr": "Annuler",
+          "de": "Abbrechen",
+          "hi": "रद्द करें\n",
+          "kn": "ರದ್ದು_ಬಟನ್",
+          "mr": "रद्द करा",
+          "pt": "Cancelar",
+          "pa": "ਰੱਦ ਕਰੋ\n",
+          "es": "Cancelar",
+          "ta": "ரத்து செய்",
+          "te": "రద్దు_బటన్",
+          "ur": "منسوخ"
+        },
         "invalid_format": {
           "en": "Sorry, the file you submitted is not supported format. "
         },
