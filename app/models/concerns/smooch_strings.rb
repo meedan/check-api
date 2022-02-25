@@ -20,6 +20,10 @@ module SmoochStrings
           "en": "Languages and Privacy",
           "pt": "Idiomas e Privacidade"
         },
+        "privacy_title": {
+          "en": "Privacy",
+          "pt": "Privacidade"
+        },
         "add_more_details_state_button_label": {
           "en": "Add more",
           "id": "Tambah lebih banyak",
@@ -46,6 +50,22 @@ module SmoochStrings
           "ur": "مین مینو"
         },
         "main_state_button_label": {
+          "en": "Cancel",
+          "id": "Batalkan",
+          "be": "বাতিল করুন",
+          "fr": "Annuler",
+          "de": "Abbrechen",
+          "hi": "रद्द करें\n",
+          "kn": "ರದ್ದು_ಬಟನ್",
+          "mr": "रद्द करा",
+          "pt": "Cancelar",
+          "pa": "ਰੱਦ ਕਰੋ\n",
+          "es": "Cancelar",
+          "ta": "ரத்து செய்",
+          "te": "రద్దు_బటన్",
+          "ur": "منسوخ"
+        },
+        "ask_if_ready_state_button_label": {
           "en": "Cancel",
           "id": "Batalkan",
           "be": "বাতিল করুন",

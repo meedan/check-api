@@ -37,20 +37,25 @@ module SmoochMenus
 
       # Languages and privacy
       rows = []
-      self.get_supported_languages.sort.each do |l|
-        code = l.gsub(/_.*$/, '')
-        rows << {
-          id: { state: 'main', keyword: counter.to_s }.to_json,
-          title: ::CheckCldr.language_code_to_name(code, code).truncate(24)
-        }
-        counter = self.get_next_menu_item_number(counter)
+      languages = self.get_supported_languages
+      title = self.get_menu_string('privacy_title', language, 24)
+      if languages.size > 1
+        title = self.get_menu_string('languages_and_privacy_title', language, 24)
+        languages.sort.each do |l|
+          code = l.gsub(/_.*$/, '')
+          rows << {
+            id: { state: 'main', keyword: counter.to_s }.to_json,
+            title: ::CheckCldr.language_code_to_name(code, code).truncate(24)
+          }
+          counter = self.get_next_menu_item_number(counter)
+        end
       end
       rows << {
         id: { state: 'main', keyword: '9' }.to_json,
         title: self.get_menu_string('privacy_statement', language, 24)
       }
       main << {
-        title: self.get_menu_string('languages_and_privacy_title', language, 24),
+        title: title,
         rows: rows
       }
 
