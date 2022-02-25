@@ -99,9 +99,16 @@ class ClusterTest < ActiveSupport::TestCase
   end
 
   test "should get requests count" do
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', true] })
     ProjectMedia.any_instance.stubs(:requests_count).returns(2)
     c = create_cluster
     2.times { c.project_medias << create_project_media }
+    assert_equal 4, c.requests_count
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = c.project_medias.last
+    d = Dynamic.create! annotation_type: 'smooch', annotated: pm
+    assert_equal 5, c.requests_count
+    d.destroy!
     assert_equal 4, c.requests_count
     ProjectMedia.any_instance.unstub(:requests_count)
   end
