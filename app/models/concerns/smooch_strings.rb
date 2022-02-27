@@ -20,6 +20,10 @@ module SmoochStrings
           "en": "Languages and Privacy",
           "pt": "Idiomas e Privacidade"
         },
+        "privacy_title": {
+          "en": "Privacy",
+          "pt": "Privacidade"
+        },
         "add_more_details_state_button_label": {
           "en": "Add more",
           "id": "Tambah lebih banyak",
@@ -46,6 +50,22 @@ module SmoochStrings
           "ur": "مین مینو"
         },
         "main_state_button_label": {
+          "en": "Cancel",
+          "id": "Batalkan",
+          "be": "বাতিল করুন",
+          "fr": "Annuler",
+          "de": "Abbrechen",
+          "hi": "रद्द करें\n",
+          "kn": "ರದ್ದು_ಬಟನ್",
+          "mr": "रद्द करा",
+          "pt": "Cancelar",
+          "pa": "ਰੱਦ ਕਰੋ\n",
+          "es": "Cancelar",
+          "ta": "ரத்து செய்",
+          "te": "రద్దు_బటన్",
+          "ur": "منسوخ"
+        },
+        "ask_if_ready_state_button_label": {
           "en": "Cancel",
           "id": "Batalkan",
           "be": "বাতিল করুন",
@@ -138,7 +158,7 @@ module SmoochStrings
           "en": "You are currently unsubscribed to our newsletter.",
           "id": "Anda saat ini sedang tidak berlangganan ke buletin kami.",
           "be": "আপনি বর্তমানে আমাদের নিউজলেটারে আনসাবস্ক্রাইব করেছেন।",
-          "fr": "Vous n'êtes actuellement pas abonner à notre lettre d'information.",
+          "fr": "Vous n'êtes actuellement pas abonné(e) à notre newsletter.",
           "de": "Sie haben unseren Newsletter derzeit nicht abonniert.",
           "hi": "आपने इस समय हमारे न्यूज़लेटर को अनसब्स्क्राइब किया हुआ है।\n",
           "kn": "ಸಬ್‍ಸ್ಕ್ರಿಪ್ಷನ್_ಸ್ಟೆಟಸ್_ನೆಗೆಟೀವ್",
@@ -154,7 +174,7 @@ module SmoochStrings
           "en": "You are currently subscribed to our newsletter.",
           "id": "Anda saat ini sedang berlangganan ke buletin kami.",
           "be": "আপনি বর্তমানে আমাদের নিউজলেটারে সাবস্ক্রাইব করেছেন।",
-          "fr": "Vous êtes actuellement abonneé à notre lettre d'information.",
+          "fr": "Vous êtes actuellement abonné(e) à notre newsletter.",
           "de": "Sie haben unseren Newsletter derzeit abonniert.",
           "hi": "आपने इस समय हमारे न्यूज़लेटर को सब्स्क्राइब किया हुआ है।\n",
           "kn": "ಸಬ್‌ಸ್ಕ್ರಿಪ್ಷನ್_ಸ್ಟೇಟಸ್_ಧನಾತ್ಮಕ",
