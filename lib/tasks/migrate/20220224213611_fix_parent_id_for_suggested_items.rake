@@ -7,8 +7,8 @@ namespace :check do
       Relationship.where('relationship_type = ?', Relationship.suggested_type.to_yaml)
       .find_in_batches(:batch_size => 2500) do |items|
         # Update PG
-        ids = items.map(&:id)
-        Relationship.where(id: ids).update_all(sources_count: 0)
+        ids = items.map(&:target_id)
+        ProjectMedia.where(id: ids).update_all(sources_count: 0)
         # Update ES
         es_body = []
         items.each do |item|
