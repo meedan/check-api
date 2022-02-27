@@ -1423,7 +1423,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t2_es = $repository.find(get_es_id(t2))
     assert_equal s2.id, t2_es['parent_id']
     t3_es = $repository.find(get_es_id(t3))
-    assert_equal s3.id, t3_es['parent_id']
+    assert_equal t3.id, t3_es['parent_id']
   end
 
   test "should validate media source" do

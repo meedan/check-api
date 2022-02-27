@@ -79,9 +79,9 @@ class ElasticSearch8Test < ActionController::TestCase
       create_relationship source_id: pm3.id, target_id: t2_pm3.id, relationship_type: Relationship.confirmed_type
 
       # Add suggested items
-      t_pm2 = create_project_media project: p
-      t_pm3 = create_project_media project: p
-      t2_pm3 = create_project_media project: p
+      t_pm2 = create_project_media project: p, quote: 'Test D', disable_es_callbacks: false
+      t_pm3 = create_project_media project: p, quote: 'Test E', disable_es_callbacks: false
+      t2_pm3 = create_project_media project: p, quote: 'Test F', disable_es_callbacks: false
       create_relationship source_id: pm2.id, target_id: t_pm2.id, relationship_type: Relationship.suggested_type
       create_relationship source_id: pm3.id, target_id: t_pm3.id, relationship_type: Relationship.suggested_type
       create_relationship source_id: pm3.id, target_id: t2_pm3.id, relationship_type: Relationship.suggested_type
@@ -94,7 +94,7 @@ class ElasticSearch8Test < ActionController::TestCase
       sleep 2
 
       min_mapping = {
-        "0": [pm1.id, pm2.id, pm3.id],
+        "0": [pm1.id, pm2.id, pm3.id, t_pm2.id, t_pm3.id, t2_pm3.id],
         "1": [pm2.id, pm3.id],
         "2": [pm3.id],
         "3": [],
