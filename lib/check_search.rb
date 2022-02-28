@@ -467,9 +467,9 @@ class CheckSearch
   def build_search_has_claim_conditions
     conditions = []
     return conditions unless @options.has_key?('has_claim')
-    if @options['has_claim'] == 'NO_VALUE'
+    if @options['has_claim'].include?('NO_VALUE')
       conditions << { bool: { must_not: [ { exists: { field: 'claim_description_content' } } ] } }
-    elsif @options['has_claim'] == 'ANY_VALUE'
+    elsif @options['has_claim'].include?('ANY_VALUE')
       conditions << { exists: { field: 'claim_description_content' } }
     end
     conditions
