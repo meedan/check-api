@@ -305,9 +305,9 @@ class ElasticSearch8Test < ActionController::TestCase
       create_claim_description project_media: pm, disable_es_callbacks: false
       create_claim_description project_media: pm3, disable_es_callbacks: false
       sleep 2
-      results = CheckSearch.new({ has_claim: 'ANY_VALUE' }.to_json)
+      results = CheckSearch.new({ has_claim: ['ANY_VALUE'] }.to_json)
       assert_equal [pm.id, pm3.id], results.medias.map(&:id).sort
-      results = CheckSearch.new({ has_claim: 'NO_VALUE' }.to_json)
+      results = CheckSearch.new({ has_claim: ['NO_VALUE'] }.to_json)
       assert_equal [pm2.id, pm4.id], results.medias.map(&:id).sort
     end
   end
