@@ -133,7 +133,7 @@ class CheckSearch
     end
     query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     filters_blank = true
-    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric'].each do |filter|
+    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric', 'has_claim'].each do |filter|
       filters_blank = false unless @options[filter].blank?
     end
     range_filter = hit_es_for_range_filter
@@ -265,6 +265,7 @@ class CheckSearch
     custom_conditions.concat build_search_integer_terms_query('channel', 'channels')
     custom_conditions.concat build_search_integer_terms_query('source_id', 'sources')
     custom_conditions.concat build_search_doc_conditions
+    custom_conditions.concat build_search_has_claim_conditions
     custom_conditions.concat build_search_range_filter(:es)
     custom_conditions.concat build_search_numeric_range_filter
     dynamic_conditions = build_search_dynamic_annotation_conditions
@@ -459,6 +460,17 @@ class CheckSearch
       #   }
       end
       conditions << condition unless condition.nil?
+    end
+    conditions
+  end
+
+  def build_search_has_claim_conditions
+    conditions = []
+    return conditions unless @options.has_key?('has_claim')
+    if @options['has_claim'] == 'NO_VALUE'
+      conditions << { bool: { must_not: [ { exists: { field: 'claim_description_content' } } ] } }
+    elsif @options['has_claim'] == 'ANY_VALUE'
+      conditions << { exists: { field: 'claim_description_content' } }
     end
     conditions
   end
