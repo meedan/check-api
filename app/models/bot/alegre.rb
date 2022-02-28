@@ -497,6 +497,10 @@ class Bot::Alegre < BotUser
     score_with_context[:model] || self.get_pm_type(pm)
   end
 
+  def self.is_suggested_to_trash(source, target, relationship_type)
+    relationship_type == Relationship.suggested_type && (source.archived == CheckArchivedFlags::FlagCodes::TRASHED || target.archived == CheckArchivedFlags::FlagCodes::TRASHED)
+  end
+
   def self.create_relationship(source, target, score_with_context, relationship_type)
     return if source.nil? || target.nil?
     score = score_with_context[:score]
@@ -505,6 +509,8 @@ class Bot::Alegre < BotUser
     target_field = score_with_context[:target_field]
     r = Relationship.where(source_id: source.id, target_id: target.id)
     .where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).last
+    
+    return if self.is_suggested_to_trash
     if r.nil?
       # Ensure that target relationship is confirmed before creating the relation `CHECK-907`
       if target.archived != CheckArchivedFlags::FlagCodes::NONE

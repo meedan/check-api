@@ -434,6 +434,24 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
   end
 
+  test "should not create suggestion when parent is trashed" do
+    p = create_project
+    pm2 = create_project_media project: p, is_image: true, archived: CheckArchivedFlags::FlagCodes::TRASHED
+    pm3 = create_project_media project: p, is_image: true
+    assert_no_difference 'Relationship.count' do
+      Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.suggested_type}})
+    end
+  end
+
+  test "should not create suggestion when child is trashed" do
+    p = create_project
+    pm2 = create_project_media project: p, is_image: true
+    pm3 = create_project_media project: p, is_image: true, archived: CheckArchivedFlags::FlagCodes::TRASHED
+    assert_no_difference 'Relationship.count' do
+      Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.suggested_type}})
+    end
+  end
+
   test "should return empty when shouldnt get similar items of certain type" do
     p = create_project
     pm1 = create_project_media project: p, quote: "Blah", team: @team
