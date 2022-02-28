@@ -990,6 +990,18 @@ class GraphqlController2Test < ActionController::TestCase
     assert_response :success
     assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
 
+    query = 'query CheckSearch { search(query: "{\"assigned_to\":[\"ANY_VALUE\"]}") { id,medias(first:20){edges{node{dbid}}}}}'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    ids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+    assert_equal [pm1.id, pm2.id], ids.sort
+
+    query = 'query CheckSearch { search(query: "{\"assigned_to\":[\"NO_VALUE\"]}") { id,medias(first:20){edges{node{dbid}}}}}'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    ids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+    assert_empty ids
+
     a1.destroy!
     a2.destroy!
     sleep 2
