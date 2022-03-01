@@ -94,4 +94,13 @@ class ClaimDescriptionTest < ActiveSupport::TestCase
     result = $repository.find(get_es_id(pm))
     assert_equal 'description_text', result['claim_description_content']
   end
+
+  test "should destroy a claim when destroy the item" do
+    t = create_team
+    pm = create_project_media team: t
+    cd = create_claim_description project_media: pm
+    assert_nothing_raised do
+      pm.destroy!
+    end
+  end
 end

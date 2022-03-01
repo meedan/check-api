@@ -133,7 +133,7 @@ class Relationship < ApplicationRecord
     target = self.target
 
     target.skip_check_ability = true
-    target.sources_count = Relationship.where(target_id: target.id).where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).count
+    target.sources_count = Relationship.where(target_id: target.id).where('relationship_type = ?', Relationship.confirmed_type.to_yaml).count
     target.save!
 
     source.skip_check_ability = true
@@ -202,9 +202,11 @@ class Relationship < ApplicationRecord
 
   def update_elasticsearch_parent(action = 'create_or_update')
     return if self.is_default? || self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    parent_id = action == 'destroy' ? self.target_id : self.source_id
-    options = { keys: ['parent_id'], data: { 'parent_id' => parent_id }, obj: self.target }
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(self.target), YAML::dump(options), 'update_doc')
+    if self.is_confirmed?
+      parent_id = action == 'destroy' ? self.target_id : self.source_id
+      options = { keys: ['parent_id'], data: { 'parent_id' => parent_id }, obj: self.target }
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(self.target), YAML::dump(options), 'update_doc')
+    end
   end
 
   def move_to_same_project_as_main

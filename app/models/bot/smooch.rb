@@ -430,10 +430,9 @@ class Bot::Smooch < BotUser
         { 'smooch_menu_option_keyword' => '1', 'smooch_menu_option_value' => 'subscription_confirmation' },
         { 'smooch_menu_option_keyword' => '2', 'smooch_menu_option_value' => 'main_state' }
       ]
-    elsif state == 'query' && self.is_v2?
-      [
-        { 'smooch_menu_option_keyword' => '1', 'smooch_menu_option_value' => 'main_state' },
-      ]
+    elsif ['query', 'add_more_details'].include?(state) && self.is_v2?
+      destination = { 'query' => 'main_state', 'add_more_details' => 'ask_if_ready_state' }[state]
+      [{ 'smooch_menu_option_keyword' => '1', 'smooch_menu_option_value' => destination }]
     # Custom menus
     else
       self.get_custom_menu_options(state, workflow, uid)
