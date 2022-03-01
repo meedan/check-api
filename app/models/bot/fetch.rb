@@ -211,9 +211,7 @@ class Bot::Fetch < BotUser
       cd.skip_check_ability = true
       cd.project_media = pm
       cd.user = user
-      description = claim_review['claimReviewed'] || '-'
-      raise if !description.to_s.blank?
-      cd.description = description
+      cd.description = claim_review['claimReviewed'] || '-'
       cd.save!
 
       fc = FactCheck.new

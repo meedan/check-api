@@ -509,7 +509,6 @@ class Bot::Alegre < BotUser
     target_field = score_with_context[:target_field]
     r = Relationship.where(source_id: source.id, target_id: target.id)
     .where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).last
-    
     return if self.is_suggested_to_trash(source, target, relationship_type)
     if r.nil?
       # Ensure that target relationship is confirmed before creating the relation `CHECK-907`
