@@ -569,8 +569,17 @@ class CheckSearch
   end
 
   def build_search_integer_terms_query(field, key)
-    return [] unless @options[key].is_a?(Array)
-    [{ terms: { "#{field}": @options[key].map(&:to_i) } }]
+    conditions = []
+    return conditions unless @options[key].is_a?(Array)
+    # Handle ANY_VALUE or ANY_VALUE
+    if @options[key].include?('NO_VALUE')
+      conditions << { bool: { must_not: [ { exists: { field: "#{field}" } } ] } }
+    elsif @options[key].include?('ANY_VALUE')
+      conditions << { exists: { field: "#{field}" } }
+    else
+      conditions << { terms: { "#{field}": @options[key].map(&:to_i) } }
+    end
+    conditions
   end
 
   def search_tags_query(tags)
