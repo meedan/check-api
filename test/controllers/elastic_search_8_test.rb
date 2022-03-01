@@ -79,9 +79,9 @@ class ElasticSearch8Test < ActionController::TestCase
       create_relationship source_id: pm3.id, target_id: t2_pm3.id, relationship_type: Relationship.confirmed_type
 
       # Add suggested items
-      t_pm2 = create_project_media project: p
-      t_pm3 = create_project_media project: p
-      t2_pm3 = create_project_media project: p
+      t_pm2 = create_project_media project: p, quote: 'Test D', disable_es_callbacks: false
+      t_pm3 = create_project_media project: p, quote: 'Test E', disable_es_callbacks: false
+      t2_pm3 = create_project_media project: p, quote: 'Test F', disable_es_callbacks: false
       create_relationship source_id: pm2.id, target_id: t_pm2.id, relationship_type: Relationship.suggested_type
       create_relationship source_id: pm3.id, target_id: t_pm3.id, relationship_type: Relationship.suggested_type
       create_relationship source_id: pm3.id, target_id: t2_pm3.id, relationship_type: Relationship.suggested_type
@@ -94,7 +94,7 @@ class ElasticSearch8Test < ActionController::TestCase
       sleep 2
 
       min_mapping = {
-        "0": [pm1.id, pm2.id, pm3.id],
+        "0": [pm1.id, pm2.id, pm3.id, t_pm2.id, t_pm3.id, t2_pm3.id],
         "1": [pm2.id, pm3.id],
         "2": [pm3.id],
         "3": [],
@@ -290,5 +290,25 @@ class ElasticSearch8Test < ActionController::TestCase
     result = CheckSearch.new(query.to_json)
     assert_equal [pm3.id, pm1.id, pm2.id], result.medias.map(&:id)
     Team.unstub(:current)
+  end
+
+  test "should filter items by has_claim" do
+    t = create_team
+    p = create_project team: t
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u ,t) do
+      pm = create_project_media team: t, disable_es_callbacks: false
+      pm2 = create_project_media team: t, disable_es_callbacks: false
+      pm3 = create_project_media team: t, disable_es_callbacks: false
+      pm4 = create_project_media team: t, disable_es_callbacks: false
+      create_claim_description project_media: pm, disable_es_callbacks: false
+      create_claim_description project_media: pm3, disable_es_callbacks: false
+      sleep 2
+      results = CheckSearch.new({ has_claim: ['ANY_VALUE'] }.to_json)
+      assert_equal [pm.id, pm3.id], results.medias.map(&:id).sort
+      results = CheckSearch.new({ has_claim: ['NO_VALUE'] }.to_json)
+      assert_equal [pm2.id, pm4.id], results.medias.map(&:id).sort
+    end
   end
 end
