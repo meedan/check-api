@@ -35,6 +35,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :creator_name, types.String
   field :team_name, types.String
   field :channel, types.Int
+  field :cluster_id, types.Int
   field :cluster, ClusterType
   field :claim_description, ClaimDescriptionType do
     resolve -> (project_media, _args, _ctx) {
