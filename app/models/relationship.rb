@@ -204,7 +204,7 @@ class Relationship < ApplicationRecord
       new_cluster = self.source.cluster
       old_cluster = pm.cluster
       if old_cluster.nil? || (old_cluster.size == 1 && old_cluster.project_media_id == pm.id)
-        old_cluster.destroy!
+        old_cluster.destroy! unless old_cluster.nil?
         new_cluster.project_medias << pm
       end
     end
