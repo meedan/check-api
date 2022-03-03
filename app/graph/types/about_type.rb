@@ -28,4 +28,5 @@ AboutType = GraphQL::ObjectType.define do
 
   field :channels, JsonStringType, 'List check channels'
   field :countries, JsonStringType, 'List of workspace countries'
+  field :teams, JsonStringType, 'List of workspaces'
 end
