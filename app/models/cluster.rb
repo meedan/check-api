@@ -6,6 +6,7 @@ class Cluster < ApplicationRecord
   validates_presence_of :project_media_id
   validates_uniqueness_of :project_media_id
   validate :center_is_not_part_of_another_cluster
+  after_destroy :update_elasticsearch
 
   ::Dynamic.class_eval do
     after_save do
@@ -116,6 +117,15 @@ class Cluster < ApplicationRecord
       'cluster_published_reports_count' => self.fact_checked_by_team_names.size,
       'cluster_requests_count' => self.requests_count,
     }
+    options = { keys: keys, data: data, obj: pm }
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(pm), YAML::dump(options), 'update_doc')
+  end
+
+  def update_elasticsearch
+    keys = ['cluster_size', 'cluster_first_item_at', 'cluster_last_item_at', 'cluster_published_reports_count', 'cluster_requests_count']
+    pm = self.project_media
+    data = {}
+    keys.each { |k| data[k] = 0 }
     options = { keys: keys, data: data, obj: pm }
     ElasticSearchWorker.perform_in(1.second, YAML::dump(pm), YAML::dump(options), 'update_doc')
   end

@@ -13,11 +13,11 @@ namespace :check do
       team_ids = Team.where(slug: args.to_a.map(&:to_s)).all.map(&:id)
 
       # Delete existing clusters
-      print 'Resetting all cluster IDs to null...'
+      log 'Resetting all cluster IDs to null...'
       centers = Cluster.all.map(&:project_media_id)
       Cluster.delete_all
       ProjectMedia.where.not(cluster_id: nil).update_all(cluster_id: nil)
-      # Reset cluster_size in ElasticSearch
+      # Reset fields in ElasticSearch
       es_body = []
       centers.each do |id|
         es_body << {
@@ -25,12 +25,21 @@ namespace :check do
             _index: ::CheckElasticSearchModel.get_index_alias,
             _id: Base64.encode64("ProjectMedia/#{id}"),
             retry_on_conflict: 3,
-            data: { doc: { cluster_size: 0 } }
+            data: {
+              doc: {
+                cluster_size: 0,
+                cluster_report_published: 0,
+                cluster_first_item_at: 0,
+                cluster_last_item_at: 0,
+                cluster_published_reports_count: 0,
+                cluster_requests_count: 0
+              }
+            }
           }
         }
       end
       $repository.client.bulk(body: es_body) unless es_body.empty?
-      puts 'Done.'
+      log 'Done.'
 
       # Set the clusters for all media types
       ['text', 'image', 'audio', 'video'].each do |type|
@@ -103,6 +112,20 @@ namespace :check do
           end
         end
         FileUtils.rm(key)
+      end
+
+      # Now handle manually-added items
+      log "-----------------------------------\nComputing cluster for manually-added relationships\n-----------------------------------"
+      join = 'INNER JOIN relationships r ON r.target_id = project_medias.id'
+      relationship_condition = ['((r.relationship_type = ? AND r.user_id != ?) OR (r.confirmed_by IS NOT NULL))', Relationship.confirmed_type.to_yaml, BotUser.alegre_user.id]
+      ProjectMedia.joins(join).where(team_id: team_ids).where(*relationship_condition).find_each do |pm|
+        main = Relationship.confirmed_parent(pm)
+        cluster = pm.cluster
+        if main != pm && (cluster.nil? || (cluster.size == 1 && cluster.project_media_id == pm.id)) && (main.cluster_id && main.cluster_id != pm.cluster_id)
+          log "Adding item #{pm.id} to cluster #{main.cluster_id}"
+          cluster.destroy! unless cluster.nil?
+          main.cluster.project_medias << pm
+        end
       end
     end
   end
