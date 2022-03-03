@@ -311,4 +311,33 @@ class ElasticSearch8Test < ActionController::TestCase
       assert_equal [pm2.id, pm4.id], results.medias.map(&:id).sort
     end
   end
+
+  test "should filter trends by workspace" do
+    t1 = create_team country: 'Egypt', set_trends_enabled: true
+    t2 = create_team country: 'Egypt', set_trends_enabled: true
+    t3 = create_team country: 'Egypt', set_trends_enabled: true
+    pm1 = create_project_media team: t1
+    c1 = create_cluster project_media: pm1
+    c1.project_medias << pm1
+    pm2 = create_project_media team: t2
+    c2 = create_cluster project_media: pm2
+    c2.project_medias << pm2
+    pm3 = create_project_media team: t3
+    c3 = create_cluster project_media: pm3
+    c3.project_medias << pm3
+    sleep 2
+    u = create_user
+    create_team_user team: t1, user: u, role: 'admin'
+    with_current_user_and_team(u, t1) do
+      query = { trends: true, country: true }
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm1.id, pm2.id, pm3.id], result.medias.map(&:id).sort
+      query[:teams] = [t1.id]
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm1.id], result.medias.map(&:id)
+      query[:teams] = [t2.id, t3.id]
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm2.id, pm3.id], result.medias.map(&:id).sort
+    end
+  end
 end
