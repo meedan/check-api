@@ -3,7 +3,7 @@ class CustomSampler
 
   def self.sample(fields)
     if ['http_request', 'sql.active_record'].include?(fields['name']) && should_sample(1, fields['trace.trace_id'])
-      return [true, 16]
+      return [true, 32]
     end
     return [false, 0]
   end
