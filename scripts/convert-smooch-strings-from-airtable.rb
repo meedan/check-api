@@ -27,23 +27,15 @@ MAPPING = {
   unsubscribe_button: :unsubscribe_button_label,
   subscription_status_negative: :unsubscribed,
   subscription_status_positive: :subscribed,
-  yes_button: :search_result_is_relevant_button_label
+  yes_button: :search_result_is_relevant_button_label,
+  language_button: :languages,
+  privacy_statement_option: :privacy_statement,
+  languages_privacy_section: :languages_and_privacy_title,
+  privacy_section: :privacy_title,
+  newsletter_footer_text: SKIP # Not used currently
 }
 
-MISSING_IN_AIRTABLE = {
-  privacy_statement: {
-    en: 'Privacy statement',
-    pt: 'Política de privacidade'
-  },
-  languages: {
-    en: 'Languages',
-    pt: 'Idiomas'
-  },
-  languages_and_privacy_title: {
-    en: 'Languages and Privacy',
-    pt: 'Idiomas e Privacidade'
-  }
-}
+MISSING_IN_AIRTABLE = {}
 
 LANGUAGES = {
   '00 - English' => :en,
@@ -68,17 +60,17 @@ i = 0
 CSV.foreach(input, headers: true) do |row|
   i += 1
   data = row.to_h
-  if data['Status'] == 'Done' || data['Language'] == '00 - English'
-    id = data.values.first
+  if data['Status'] =~ /Done/ || data['Language'] == '00 - English'
+    id = data.values.first.to_s.strip
     raise "ID missing for row #{i}" if id.nil?
     key = MAPPING[id.to_sym]
-    lang = LANGUAGES[data['Language']]
+    lang = LANGUAGES[data['Language'].to_s.strip]
     raise "Language mapping not found: #{data['Language']}" if lang.nil?
     raise "ID mapping not found: #{id}" if key.nil?
     raise "Content is blank for ID #{id} and language #{data['Language']}" if data['Content'].nil?
     unless key == 'SKIP'
       strings[key] ||= {}
-      strings[key][lang] = data['Content']
+      strings[key][lang] = data['Content'].strip
     end
   end
 end
