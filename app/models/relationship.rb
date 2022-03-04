@@ -11,6 +11,7 @@ class Relationship < ApplicationRecord
 
   before_validation :set_user, on: :create
   before_validation :set_confirmed, if: :is_being_confirmed?, on: :update
+  before_validation :set_cluster, if: :is_being_confirmed?, on: :update
   validate :relationship_type_is_valid
   validate :items_are_from_the_same_team
   validates :relationship_type, uniqueness: { scope: [:source_id, :target_id], message: :already_exists }, on: :create
@@ -23,6 +24,7 @@ class Relationship < ApplicationRecord
   after_destroy :update_counters, prepend: true
   after_commit :update_counters, :update_elasticsearch_parent, on: [:create, :update]
   after_commit :update_counters, :destroy_elasticsearch_relation, on: :destroy
+  after_commit :set_cluster, on: [:create]
 
   has_paper_trail on: [:create, :update, :destroy], if: proc { |x| User.current.present? && !x.is_being_copied? }, versions: { class_name: 'Version' }
 
@@ -60,7 +62,7 @@ class Relationship < ApplicationRecord
   end
 
   def self.confirmed_parent(pm)
-    parent = Relationship.confirmed.where(target_id: pm.id).last&.source
+    parent = Relationship.confirmed.where(target_id: pm&.id).last&.source
     parent || pm
   end
 
@@ -193,6 +195,18 @@ class Relationship < ApplicationRecord
     if User.current
       self.confirmed_at = Time.now
       self.confirmed_by = User.current.id
+    end
+  end
+
+  def set_cluster
+    if self.relationship_type.to_json == Relationship.confirmed_type.to_json && User.current && User.current&.id != BotUser.alegre_user&.id
+      pm = self.target
+      new_cluster = self.source.cluster
+      old_cluster = pm.cluster
+      if old_cluster.nil? || (old_cluster.size == 1 && old_cluster.project_media_id == pm.id)
+        old_cluster.destroy! unless old_cluster.nil?
+        new_cluster.project_medias << pm unless new_cluster.nil?
+      end
     end
   end
 
