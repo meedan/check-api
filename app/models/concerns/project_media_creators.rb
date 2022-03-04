@@ -151,6 +151,6 @@ module ProjectMediaCreators
   end
 
   def create_claim_description
-    ClaimDescription.create!(description: self.set_claim_description, project_media: self) unless self.set_claim_description.blank?
+    ClaimDescription.create!(description: self.set_claim_description, project_media: self, skip_check_ability: true) unless self.set_claim_description.blank?
   end
 end
