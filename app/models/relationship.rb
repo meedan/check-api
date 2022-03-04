@@ -62,7 +62,7 @@ class Relationship < ApplicationRecord
   end
 
   def self.confirmed_parent(pm)
-    parent = Relationship.confirmed.where(target_id: pm.id).last&.source
+    parent = Relationship.confirmed.where(target_id: pm&.id).last&.source
     parent || pm
   end
 
