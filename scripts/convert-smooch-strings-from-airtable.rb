@@ -10,7 +10,7 @@ MAPPING = {
   add_more_button: :add_more_details_state_button_label,
   back_to_menu_button: :main_menu,
   back_to_menu_text: SKIP, # Not used currently, because on the non-WhatsApp platforms, the main menu is always appended to the final messages
-  cancel_button: :main_state_button_label,
+  cancel_button: [:main_state_button_label, :ask_if_ready_state_button_label],
   cancel_text: SKIP, # Not used currently, because on the non-WhatsApp platforms, it is build dynamically with a number + the string above
   invalid_format: :invalid_format,
   language_confirmation: :confirm_preferred_language,
@@ -69,8 +69,10 @@ CSV.foreach(input, headers: true) do |row|
     raise "ID mapping not found: #{id}" if key.nil?
     raise "Content is blank for ID #{id} and language #{data['Language']}" if data['Content'].nil?
     unless key == 'SKIP'
-      strings[key] ||= {}
-      strings[key][lang] = data['Content'].strip
+      [key].flatten.each do |k|
+        strings[k] ||= {}
+        strings[k][lang] = data['Content'].strip
+      end
     end
   end
 end
@@ -81,7 +83,7 @@ strings.each do |key, value|
 end
 
 # Make sure that all strings are there
-expected = MAPPING.values.reject{ |v| v == SKIP }
+expected = MAPPING.values.reject{ |v| v == SKIP }.collect{ |v| [v].flatten }.flatten
 actual = strings.keys
 diff = (expected - actual)
 raise "Missing strings: #{diff.join(', ')}" if diff.size > 0
@@ -96,7 +98,9 @@ module SmoochStrings
 
   module ClassMethods
     def get_string(key, language)
-      string = #{JSON::pretty_generate(strings, allow_nan: true, max_nesting: false)}[key.to_sym]
+      string = #{
+        JSON::pretty_generate(strings, allow_nan: true, max_nesting: false)
+      }[key.to_sym]
       language = language.gsub(/[-_].*$/, '').to_sym
       string ? (string[language] || string[:en]) : string
     end
