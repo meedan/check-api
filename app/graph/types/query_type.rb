@@ -12,8 +12,6 @@ QueryType = GraphQL::ObjectType.define do
     type AboutType
     description 'Information about the application'
     resolve -> (_obj, _args, _ctx) do
-      teams = {}
-      Team.limit(10).find_each{ |t| teams[t.id] = t.name }
       OpenStruct.new({
         name: Rails.application.class.parent_name,
         version: VERSION,
@@ -36,8 +34,7 @@ QueryType = GraphQL::ObjectType.define do
         languages_supported: CheckCldr.localized_languages.to_json,
         terms_last_updated_at: User.terms_last_updated_at,
         channels: CheckChannels::ChannelCodes.all_channels,
-        countries: Team.group(:country).count.keys.reject{ |c| c.blank? }.sort,
-        teams: teams,
+        countries: Team.group(:country).count.keys.reject{ |c| c.blank? }.sort
       })
     end
   end

@@ -42,13 +42,9 @@ class CheckSearch
   }
 
   def team_condition(team_id = nil)
+    team = Team.find(team_id)
     if trends_query?
-      if @options['teams'].blank?
-        team = Team.find_by_id(team_id)
-        ProjectMedia.joins(:team).where('teams.country' => team.country).where.not(cluster_id: nil).group(:team_id).count.keys
-      else
-        @options['teams'].to_a.map(&:to_i)
-      end
+      ProjectMedia.joins(:team).where('teams.country' => team.country).where.not(cluster_id: nil).group(:team_id).count.keys
     else
       team_id || Team.current.id
     end
