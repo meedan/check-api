@@ -2721,10 +2721,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_nil pm1.cluster
     c = create_cluster project_media: pm1
     c.project_medias << pm1
-    assert_equal [t1.name], pm1.cluster.team_names
+    assert_equal [t1.name], pm1.cluster.team_names.values
+    assert_equal [t1.id], pm1.cluster.team_names.keys
     pm2 = create_project_media team: t2
     c.project_medias << pm2
-    assert_equal [t1.name, t2.name].sort, pm1.cluster.team_names.sort
+    assert_equal [t1.name, t2.name].sort, pm1.cluster.team_names.values.sort
+    assert_equal [t1.id, t2.id].sort, pm1.cluster.team_names.keys.sort
   end
 
   test "should cache sources list" do

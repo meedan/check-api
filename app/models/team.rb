@@ -60,6 +60,14 @@ class Team < ApplicationRecord
     self.projects.allowed(self).permissioned.count
   end
 
+  def country_teams
+    data = {}
+    unless self.country.nil?
+      Team.where(country: self.country).find_each{ |t| data[t.id] = t.name }
+    end
+    data
+  end
+
   def as_json(_options = {})
     {
       dbid: self.id,

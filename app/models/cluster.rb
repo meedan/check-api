@@ -38,7 +38,11 @@ class Cluster < ApplicationRecord
   end
 
   def get_team_names
+    data = {}
     self.project_medias.group(:team_id).count.keys.collect{ |tid| Team.find_by_id(tid)&.name }
+    tids = self.project_medias.group(:team_id).count.keys
+    Team.where(id: tids).find_each { |t| data[t.id] = t.name }
+    data
   end
 
   def get_names_of_teams_that_fact_checked_it
@@ -52,13 +56,14 @@ class Cluster < ApplicationRecord
 
   cached_field :team_names,
     start_as: proc { |c| c.get_team_names },
-    update_es: false,
+    update_es: proc { |_c, value| value.keys },
+    es_field_name: :cluster_teams,
     recalculate: proc { |c| c.get_team_names },
     update_on: [] # Handled by an "after_add" callback above
 
   cached_field :fact_checked_by_team_names,
     start_as: proc { |c| c.get_names_of_teams_that_fact_checked_it },
-    update_es: proc { |_pm, value| value.size },
+    update_es: proc { |_c, value| value.size },
     es_field_name: :cluster_published_reports_count,
     recalculate: proc { |c| c.get_names_of_teams_that_fact_checked_it },
     update_on: [
@@ -108,7 +113,6 @@ class Cluster < ApplicationRecord
     self.skip_check_ability = true
     self.save!
     # update ES
-    keys = ['cluster_size', 'cluster_first_item_at', 'cluster_last_item_at', 'cluster_published_reports_count', 'cluster_requests_count']
     pm = self.project_media
     data = {
       'cluster_size' => self.project_medias.count,
@@ -116,8 +120,9 @@ class Cluster < ApplicationRecord
       'cluster_last_item_at' => self.last_item_at.to_i,
       'cluster_published_reports_count' => self.fact_checked_by_team_names.size,
       'cluster_requests_count' => self.requests_count,
+      'cluster_teams' => self.team_names.keys,
     }
-    options = { keys: keys, data: data, obj: pm }
+    options = { keys: data.keys, data: data, obj: pm }
     ElasticSearchWorker.perform_in(1.second, YAML::dump(pm), YAML::dump(options), 'update_doc')
   end
 
