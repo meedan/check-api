@@ -273,9 +273,8 @@ class Task < ApplicationRecord
     # Will index team tasks of type choices only so user can filter by ANY/NON answer value(#8801)
     if self.type =~ /choice/ && self.team_task_id && self.annotated_type == 'ProjectMedia'
       pm = self.project_media
-      keys = %w(team_task_id fieldset)
       data = { 'team_task_id' => self.team_task_id, 'fieldset' => self.fieldset }
-      self.add_update_nested_obj({op: op, obj: pm, nested_key: 'task_responses', keys: keys, data: data})
+      self.add_update_nested_obj({op: op, obj: pm, nested_key: 'task_responses', keys: data.keys, data: data})
     end
   end
 

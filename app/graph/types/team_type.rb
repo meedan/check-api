@@ -48,6 +48,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_suggested_matches_filters, JsonStringType
   field :get_trends_enabled, types.Boolean
   field :country, types.String
+  field :country_teams, JsonStringType
 
   field :public_team do
     type PublicTeamType

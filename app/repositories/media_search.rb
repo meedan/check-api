@@ -142,5 +142,7 @@ class MediaSearch
     indexes :cluster_published_reports_count, { type: 'long' }
 
     indexes :cluster_requests_count, { type: 'long' }
+
+    indexes :cluster_teams, { type: 'long' }
   end
 end
