@@ -110,7 +110,7 @@ module SmoochStrings
           "be": "মুখ্য মেনু",
           "fr": "Menu principal",
           "de": "Hauptmenü",
-          "hi": "मुख्य मेन्यू",
+          "hi": "मेन मेन्यू",
           "kn": "ಮುಖ್ಯ ಮೆನು",
           "mr": "मुख्य मेन्यू",
           "pt": "Menu principal",
