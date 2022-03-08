@@ -24,38 +24,6 @@ module SmoochStrings
           "te": "ఇంకా_చేర్ఛండి",
           "ur": "مزید شامل کریں"
         },
-        "main_menu": {
-          "en": "Main menu",
-          "id": "Menu utama",
-          "be": "মুখ্য মেনু",
-          "fr": "Menu principal",
-          "de": "Hauptmenü",
-          "hi": "मुख्य मेन्यू",
-          "kn": "ಮುಖ್ಯ ಮೆನು",
-          "mr": "मुख्य मेन्यू",
-          "pt": "Menu principal",
-          "pa": "ਮੁੱਖ ਮੀਨੂ",
-          "es": "Menú principal",
-          "ta": "மெயின் மெனு",
-          "te": "ప్రధాన మెను",
-          "ur": "مین مینو"
-        },
-        "main_state_button_label": {
-          "en": "Cancel",
-          "id": "Batalkan",
-          "be": "বাতিল করুন",
-          "fr": "Annuler",
-          "de": "Abbrechen",
-          "hi": "रद्द करें",
-          "kn": "ರದ್ದು",
-          "mr": "रद्द करा",
-          "pt": "Cancelar",
-          "pa": "ਰੱਦ ਕਰੋ",
-          "es": "Cancelar",
-          "ta": "ரத்து செய்",
-          "te": "రద్దు",
-          "ur": "منسوخ"
-        },
         "ask_if_ready_state_button_label": {
           "en": "Cancel",
           "id": "Batalkan",
@@ -71,6 +39,22 @@ module SmoochStrings
           "ta": "ரத்து செய்",
           "te": "రద్దు",
           "ur": "منسوخ"
+        },
+        "confirm_preferred_language": {
+          "en": "Please confirm your preferred language",
+          "id": "Silakan konfirmasi bahasa pilihan Anda",
+          "be": "অনুগ্রহ করে আপনার পছন্দেসই ভাষা নিশ্চিত করুন",
+          "fr": "Veuillez confirmer votre préférence de langue",
+          "de": "Bitte bestätigen Sie Ihre bevorzugte Sprache.",
+          "hi": "कृ पया अपनी भाषा चुनें",
+          "kn": "ನಿಮ್ಮ ಆಯ್ಕೆಯ ಭಾಷೆಯನ್ನು ಖಚಿತಪಡಿಸಿ",
+          "mr": "कृपया आपल्या पसंतीच्या भाषेची खात्री करा",
+          "pt": "Por favor, confirme seu idioma de preferência",
+          "pa": "ਕਿਰਪਾ ਆਪਣੀ ਪਸੰਦ ਦੀ ਭਾਸ਼ਾ ਦੀ ਪੁਸ਼ਟੀ ਕਰੋ",
+          "es": "Por favor confirma tu idioma de preferencia",
+          "ta": "உங்கள் விருப்ப மொழியை உறுதி செய்யவும்",
+          "te": "మీరు ఎంచుకున్న భాషను కన్ఫర్మ్ చెయండి",
+          "ur": "براہ کرم اپنی پسندیدہ زبان کی تصدیق کریں۔"
         },
         "invalid_format": {
           "en": "Sorry, the file you submitted is not supported format.",
@@ -104,22 +88,6 @@ module SmoochStrings
           "te": "భాషలు",
           "ur": "زبانیں"
         },
-        "confirm_preferred_language": {
-          "en": "Please confirm your preferred language",
-          "id": "Silakan konfirmasi bahasa pilihan Anda",
-          "be": "অনুগ্রহ করে আপনার পছন্দেসই ভাষা নিশ্চিত করুন",
-          "fr": "Veuillez confirmer votre préférence de langue",
-          "de": "Bitte bestätigen Sie Ihre bevorzugte Sprache.",
-          "hi": "कृ पया अपनी भाषा चुनें",
-          "kn": "ನಿಮ್ಮ ಆಯ್ಕೆಯ ಭಾಷೆಯನ್ನು ಖಚಿತಪಡಿಸಿ",
-          "mr": "कृपया आपल्या पसंतीच्या भाषेची खात्री करा",
-          "pt": "Por favor, confirme seu idioma de preferência",
-          "pa": "ਕਿਰਪਾ ਆਪਣੀ ਪਸੰਦ ਦੀ ਭਾਸ਼ਾ ਦੀ ਪੁਸ਼ਟੀ ਕਰੋ",
-          "es": "Por favor confirma tu idioma de preferencia",
-          "ta": "உங்கள் விருப்ப மொழியை உறுதி செய்யவும்",
-          "te": "మీరు ఎంచుకున్న భాషను కన్ఫర్మ్ చెయండి",
-          "ur": "براہ کرم اپنی پسندیدہ زبان کی تصدیق کریں۔"
-        },
         "languages_and_privacy_title": {
           "en": "Languages and Privacy",
           "id": "Bahasa dan Privasi",
@@ -136,21 +104,37 @@ module SmoochStrings
           "te": "భాష మరియు గౌప్యత",
           "ur": "زبانیں اور رازداری"
         },
-        "search_result_is_not_relevant_button_label": {
-          "en": "No",
-          "id": "Tidak",
-          "be": "না",
-          "fr": "Non",
-          "de": "Nein",
-          "hi": "नहीं",
-          "kn": "ಇಲ್ಲ",
-          "mr": "नाही",
-          "pt": "Não",
-          "pa": "ਨਹੀਂ",
-          "es": "No",
-          "ta": "இல்லை",
-          "te": "లేదు",
-          "ur": "نہیں"
+        "main_menu": {
+          "en": "Main menu",
+          "id": "Menu utama",
+          "be": "মুখ্য মেনু",
+          "fr": "Menu principal",
+          "de": "Hauptmenü",
+          "hi": "मुख्य मेन्यू",
+          "kn": "ಮುಖ್ಯ ಮೆನು",
+          "mr": "मुख्य मेन्यू",
+          "pt": "Menu principal",
+          "pa": "ਮੁੱਖ ਮੀਨੂ",
+          "es": "Menú principal",
+          "ta": "மெயின் மெனு",
+          "te": "ప్రధాన మెను",
+          "ur": "مین مینو"
+        },
+        "main_state_button_label": {
+          "en": "Cancel",
+          "id": "Batalkan",
+          "be": "বাতিল করুন",
+          "fr": "Annuler",
+          "de": "Abbrechen",
+          "hi": "रद्द करें",
+          "kn": "ರದ್ದು",
+          "mr": "रद्द करा",
+          "pt": "Cancelar",
+          "pa": "ਰੱਦ ਕਰੋ",
+          "es": "Cancelar",
+          "ta": "ரத்து செய்",
+          "te": "రద్దు",
+          "ur": "منسوخ"
         },
         "option_not_available": {
           "en": "I'm sorry, I didn't understand your message.",
@@ -168,22 +152,6 @@ module SmoochStrings
           "te": "క్షమించండి, మీ సందేశం నాకు అర్థం కాలేదు.",
           "ur": "معذرت، مجھے آپ کا پیغام سمجھ نہیں آیا۔"
         },
-        "privacy_title": {
-          "en": "Privacy",
-          "id": "Privasi",
-          "be": "গোপনীয়তা",
-          "fr": "Confidentialité",
-          "de": "Datenschutz",
-          "hi": "गोपनीयता",
-          "kn": "ಗೌಪ್ಯತೆ",
-          "mr": "गोपनीयता",
-          "pt": "Privacidade",
-          "pa": "ਗੋਪਨੀਅਤਾ",
-          "ta": "தனியுரிமை",
-          "te": "గౌప్యత",
-          "ur": "رازداری",
-          "es": "Privacidad"
-        },
         "privacy_statement": {
           "en": "Privacy statement",
           "id": "Pernyataan privasi",
@@ -200,6 +168,22 @@ module SmoochStrings
           "te": "గౌప్యతా ప్రతిపాదన",
           "ur": "رازداری کا بیان"
         },
+        "privacy_title": {
+          "en": "Privacy",
+          "id": "Privasi",
+          "be": "গোপনীয়তা",
+          "fr": "Confidentialité",
+          "de": "Datenschutz",
+          "hi": "गोपनीयता",
+          "kn": "ಗೌಪ್ಯತೆ",
+          "mr": "गोपनीयता",
+          "pt": "Privacidade",
+          "pa": "ਗੋਪਨੀਅਤਾ",
+          "ta": "தனியுரிமை",
+          "te": "గౌప్యత",
+          "ur": "رازداری",
+          "es": "Privacidad"
+        },
         "report_updated": {
           "en": "The following fact-check has been *updated* with new information:",
           "id": "Pengecekan fakta berikut telah *diperbarui* dengan informasi baru:",
@@ -215,6 +199,38 @@ module SmoochStrings
           "ta": "பின்வரும் தகவல் சரிபார்ப்பு புதிய தகவல்களுடன் *புதுப்பிக்கப்பட்டுள்ளது*.",
           "te": "కింది వాస్తవ తనిఖీ కొత్త సమాచారంతో \"నవీకరించబడింది\"",
           "ur": "درج ذیل حقائق کی جانچ کو نئی معلومات کے ساتھ *اپ ڈیٹ* کر دیا گیا ہے۔"
+        },
+        "search_result_is_not_relevant_button_label": {
+          "en": "No",
+          "id": "Tidak",
+          "be": "না",
+          "fr": "Non",
+          "de": "Nein",
+          "hi": "नहीं",
+          "kn": "ಇಲ್ಲ",
+          "mr": "नाही",
+          "pt": "Não",
+          "pa": "ਨਹੀਂ",
+          "es": "No",
+          "ta": "இல்லை",
+          "te": "లేదు",
+          "ur": "نہیں"
+        },
+        "search_result_is_relevant_button_label": {
+          "en": "Yes",
+          "id": "Ya",
+          "be": "হ্যাঁ",
+          "fr": "Oui",
+          "de": "Ja",
+          "hi": "हाँ",
+          "kn": "ಹೌದು",
+          "mr": "होय",
+          "pt": "Sim",
+          "pa": "ਹਾਂ",
+          "es": "Si",
+          "ta": "ஆம்",
+          "te": "అవును",
+          "ur": "جی ہاں"
         },
         "search_state_button_label": {
           "en": "Submit",
@@ -248,22 +264,6 @@ module SmoochStrings
           "te": "సబ్‌స్క్రైబ్",
           "ur": "سبسکرائب"
         },
-        "unsubscribed": {
-          "en": "You are currently not subscribed to our newsletter.",
-          "id": "Saat ini Anda tidak berlangganan buletin kami.",
-          "be": "আপনি বর্তমানে আমাদের নিউজলেটার সদস্যতা নেই.",
-          "fr": "Vous n’êtes actuellement pas abonné à notre lettre d’information.",
-          "de": "Sie haben unseren Newsletter derzeit nicht abonniert.",
-          "hi": "आपने वर्तमान में हमारे न्यूज़लेटर की सदस्यता नहीं ली है।",
-          "kn": "ನೀವು ಪ್ರಸ್ತುತ ನಮ್ಮ ಸುದ್ದಿಪತ್ರಕ್ಕೆ ಚಂದಾದಾರರಾಗಿಲ್ಲ.",
-          "mr": "तुम्ही सध्या आमच्या वृत्तपत्राचे सदस्यत्व घेतलेले नाही.",
-          "pt": "Atualmente, você não está inscrito(a) em nosso boletim informativo.",
-          "pa": "ਤੁਸੀਂ ਵਰਤਮਾਨ ਵਿੱਚ ਸਾਡੇ ਨਿਊਜ਼ਲੈਟਰ ਦੀ ਗਾਹਕੀ ਨਹੀਂ ਲਈ ਹੈ।",
-          "es": "Actualmente no está suscrita(o) a nuestro boletín.",
-          "ta": "தற்சமயம் நீங்கள் எங்கள் செய்தி மடலைப் பெறும் வசதியை ரத்து செய்து இருக்கிறீர்கள்",
-          "te": "మీరు ప్రస్తుతం మా వార్తాలేఖకు సభ్యత్వం పొందలేదు.",
-          "ur": "آپ نے فی الحال ہمارے نیوز لیٹر کو سبسکرائب نہیں کیا ہے۔"
-        },
         "subscribed": {
           "en": "You are currently subscribed to our newsletter.",
           "id": "Anda saat ini sedang berlangganan ke buletin kami.",
@@ -296,21 +296,21 @@ module SmoochStrings
           "te": "అన్‌సబ్‌స్క్రైబ్",
           "ur": "رکنیت ختم کریں۔"
         },
-        "search_result_is_relevant_button_label": {
-          "en": "Yes",
-          "id": "Ya",
-          "be": "হ্যাঁ",
-          "fr": "Oui",
-          "de": "Ja",
-          "hi": "हाँ",
-          "kn": "ಹೌದು",
-          "mr": "होय",
-          "pt": "Sim",
-          "pa": "ਹਾਂ",
-          "es": "Si",
-          "ta": "ஆம்",
-          "te": "అవును",
-          "ur": "جی ہاں"
+        "unsubscribed": {
+          "en": "You are currently not subscribed to our newsletter.",
+          "id": "Saat ini Anda tidak berlangganan buletin kami.",
+          "be": "আপনি বর্তমানে আমাদের নিউজলেটার সদস্যতা নেই.",
+          "fr": "Vous n’êtes actuellement pas abonné à notre lettre d’information.",
+          "de": "Sie haben unseren Newsletter derzeit nicht abonniert.",
+          "hi": "आपने वर्तमान में हमारे न्यूज़लेटर की सदस्यता नहीं ली है।",
+          "kn": "ನೀವು ಪ್ರಸ್ತುತ ನಮ್ಮ ಸುದ್ದಿಪತ್ರಕ್ಕೆ ಚಂದಾದಾರರಾಗಿಲ್ಲ.",
+          "mr": "तुम्ही सध्या आमच्या वृत्तपत्राचे सदस्यत्व घेतलेले नाही.",
+          "pt": "Atualmente, você não está inscrito(a) em nosso boletim informativo.",
+          "pa": "ਤੁਸੀਂ ਵਰਤਮਾਨ ਵਿੱਚ ਸਾਡੇ ਨਿਊਜ਼ਲੈਟਰ ਦੀ ਗਾਹਕੀ ਨਹੀਂ ਲਈ ਹੈ।",
+          "es": "Actualmente no está suscrita(o) a nuestro boletín.",
+          "ta": "தற்சமயம் நீங்கள் எங்கள் செய்தி மடலைப் பெறும் வசதியை ரத்து செய்து இருக்கிறீர்கள்",
+          "te": "మీరు ప్రస్తుతం మా వార్తాలేఖకు సభ్యత్వం పొందలేదు.",
+          "ur": "آپ نے فی الحال ہمارے نیوز لیٹر کو سبسکرائب نہیں کیا ہے۔"
         }
       }[key.to_sym]
       language = language.gsub(/[-_].*$/, '').to_sym
