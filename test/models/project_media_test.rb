@@ -696,11 +696,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
       ].sort, pm.get_versions_log.map(&:event_type).sort
       assert_equal 12, pm.get_versions_log_count
       c.destroy
-      assert_equal 12, pm.get_versions_log_count
+      assert_equal 13, pm.get_versions_log_count
       tg.destroy
-      assert_equal 12, pm.get_versions_log_count
+      assert_equal 14, pm.get_versions_log_count
       f.destroy
-      assert_equal 12, pm.get_versions_log_count
+      assert_equal 15, pm.get_versions_log_count
     end
   end
 
