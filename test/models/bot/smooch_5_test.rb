@@ -397,7 +397,7 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
   end
   
   test "should order results from Alegre" do
-    ProjectMedia.any_instance.stubs(:report_status).returns('published'') # We can stub this because it's not what this test is testing
+    ProjectMedia.any_instance.stubs(:report_status).returns('published') # We can stub this because it's not what this test is testing
     t = create_team
     pm1 = create_project_media team: t #ES low score
     pm2 = create_project_media team: t #ES high score
