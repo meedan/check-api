@@ -404,7 +404,7 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     pm3 = create_project_media team: t #Vector high score
     pm4 = create_project_media team: t #Vector low score
     # Create more project media if needed
-    results = { pm1.id => { model: 'elasticsearch', score: 10.8 }, pm2.id => { model: 'elasticsearch', score: 15.2}
+    results = { pm1.id => { model: 'elasticsearch', score: 10.8 }, pm2.id => { model: 'elasticsearch', score: 15.2},
       pm3.id => { model: 'anything-else', score: 1.98 }, pm4.id => { model: 'anything-else', score: 1.8}}
     assert_equal [pm3, pm4, pm2, pm1], Bot::Smooch.parse_search_results_from_alegre(results, t.id)
     ProjectMedia.any_instance.unstub(:report_status)
