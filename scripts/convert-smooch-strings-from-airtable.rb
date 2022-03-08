@@ -99,7 +99,7 @@ module SmoochStrings
   module ClassMethods
     def get_string(key, language)
       string = #{
-        JSON::pretty_generate(strings, allow_nan: true, max_nesting: false)
+        JSON::pretty_generate(strings.sort.to_h, allow_nan: true, max_nesting: false)
       }[key.to_sym]
       language = language.gsub(/[-_].*$/, '').to_sym
       string ? (string[language] || string[:en]) : string
