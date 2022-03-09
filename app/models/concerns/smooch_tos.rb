@@ -183,7 +183,7 @@ module SmoochTos
     id: %{
       Privasi dan Tujuan
 
-      Selamat datang di {partner team name} tipline WhatsApp. Kami berupaya menjadikan Anda sumber informasi yang lebih baik untuk keluarga dan teman Anda di WhatsApp. 
+      Selamat datang di %{team} tipline WhatsApp. Kami berupaya menjadikan Anda sumber informasi yang lebih baik untuk keluarga dan teman Anda di WhatsApp.
 
       Anda dapat menggunakan nomor ini untuk mengirimkan pertanyaan untuk diverifikasi. Kami tidak dapat menanggapi setiap permintaan, tetapi data Anda akan tetap aman. 
 
@@ -199,7 +199,7 @@ module SmoochTos
     de: %{
       Datenschutzbestimmungen
 
-      Willkommen bei der WhatsApp-Hinweisnummer von {partner team name}. Wir arbeiten daran, dass Sie für Ihre Familie und Freunde bei WhatsApp eine zuverlässigere Informationsquelle werden.
+      Willkommen bei der WhatsApp-Hinweisnummer von %{team}. Wir arbeiten daran, dass Sie für Ihre Familie und Freunde bei WhatsApp eine zuverlässigere Informationsquelle werden.
 
       Sie können diese Nummer verwenden, um uns Ihre Anfragen zu einer Wahrheitsprüfung zuzusenden. Wir können leider nicht jede Anfrage beantworten, aber Ihre Daten sind auf jeden Fall geschützt.
 
