@@ -571,12 +571,6 @@ class Team < ApplicationRecord
     sources
   end
 
-  protected
-
-  def get_values_from_entry(entry)
-    (entry && entry.respond_to?(:values)) ? entry.values : entry
-  end
-
   # private
   #
   # Please add private methods to app/models/concerns/team_private.rb
