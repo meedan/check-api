@@ -163,6 +163,10 @@ class Team < ApplicationRecord
     self.send(:set_suggested_matches_filters, JSON.parse(suggested_matches_filters))
   end
 
+  def trends_filters=(trends_filters)
+    self.send(:set_trends_filters, JSON.parse(trends_filters))
+  end
+
   def languages=(languages)
     languages = languages.is_a?(String) ? JSON.parse(languages) : languages
     self.send(:set_languages, languages.uniq)

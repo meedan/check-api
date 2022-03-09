@@ -1381,14 +1381,21 @@ class GraphqlController3Test < ActionController::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'admin'
     authenticate_with_user(u)
+    # Tipline list
     query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", tipline_inbox_filters: "{\"read\":[\"0\"],\"projects\":[\"-1\"]}" }) { team { get_tipline_inbox_filters } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_not_nil JSON.parse(@response.body)['data']['updateTeam']['team']['get_tipline_inbox_filters']
+    # Suggested match list
     query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", suggested_matches_filters: "{\"projects\":[\"-1\"],\"suggestions_count\":{\"min\":5,\"max\":10}}" }) { team { get_suggested_matches_filters } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_not_nil JSON.parse(@response.body)['data']['updateTeam']['team']['get_suggested_matches_filters']
+    # Trends list
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", trends_filters: "{\"trends\":true,\"country\":true,\"show\":[\"claims\"]}" }) { team { get_trends_filters } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body)['data']['updateTeam']['team']['get_trends_filters']
   end
 
   test "should get Smooch Bot RSS feed preview if has permissions" do
