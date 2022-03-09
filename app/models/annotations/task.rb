@@ -132,6 +132,7 @@ class Task < ApplicationRecord
     response.set_fields = params['set_fields'] unless params['set_fields'].blank?
     response.updated_at = Time.now
     response.file = [self.file].flatten
+    response.skip_check_ability = self.skip_check_ability
     self.file = nil
     response.save!
     @response = response

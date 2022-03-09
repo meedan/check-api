@@ -4,6 +4,14 @@ module ProjectMediaMutations
     related_to_id: 'int'
   }
 
+  set_fields = {
+    set_annotation: 'str',
+    set_claim_description: 'str',
+    set_fact_check: 'json',
+    set_tasks_responses: 'json',
+    set_tags: 'json'
+  }
+
   create_fields = fields.merge({
     url: 'str',
     quote: 'str',
@@ -12,11 +20,8 @@ module ProjectMediaMutations
     media_id: 'int',
     team_id: 'int',
     channel: 'int',
-    set_annotation: 'str',
-    set_claim_description: 'str',
-    set_tasks_responses: 'json',
     media_type: 'str'
-  })
+  }).merge(set_fields)
 
   update_fields = fields.merge({
     refresh_media: 'int',
