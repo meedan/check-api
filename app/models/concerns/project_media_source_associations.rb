@@ -60,6 +60,7 @@ module ProjectMediaSourceAssociations
         fields = {
           "response_#{task.type}" => responses[task.slug]
         }
+        task.skip_check_ability = true
         task.response = { annotation_type: type, set_fields: fields.to_json }.to_json
         task.save!
       end

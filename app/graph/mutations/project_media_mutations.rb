@@ -14,7 +14,9 @@ module ProjectMediaMutations
     channel: 'int',
     set_annotation: 'str',
     set_claim_description: 'str',
+    set_fact_check: 'json',
     set_tasks_responses: 'json',
+    set_tags: 'json',
     media_type: 'str'
   })
 
