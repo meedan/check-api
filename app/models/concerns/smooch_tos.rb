@@ -19,18 +19,19 @@ module SmoochTos
     ur: 'ہم آپ کی ذاتی شناخت والی معلومات کبھی بھی شیئر نہیں کریں گے۔ ہماری پرائیویسی اور مقصد والے بیان کے مطالعہ کیلئے جواب 9 میں دیجئے۔',
     pa: 'ਅਸੀਂ ਕਦੇ ਵੀ ਤੁਹਾਡੀ ਨਿੱਜੀ ਪਛਾਣ ਕਰਨ ਵਾਲੀ ਜਾਣਕਾਰੀ ਨੂੰ ਸਾਂਝਾ ਨਹੀਂ ਕਰਾਂਗੇ। ਸਾਡੇ ਗੋਪਨੀਯਤਾ ਅਤੇ ਉਦੇਸ਼ ਕਥਨ ਨੂੰ ਪੜ੍ਹਨ ਲਈ ਜਵਾਬ ਵਿੱਚ 9 ਭੇਜੋ।',
     id: 'Kami tidak akan pernah membagikan informasi pengenal pribadi Anda. Balas dengan angka 9 untuk membaca pernyataan Privasi dan Tujuan kami.',
-    de: 'Wir werden Daten, mit denen Sie identifiziert werden können, niemals weitergeben. Drücken Sie 9, um unsere Datenschutzbestimmungen zu lesen.'
+    de: 'Wir werden Daten, mit denen Sie identifiziert werden können, niemals weitergeben. Drücken Sie 9, um unsere Datenschutzbestimmungen zu lesen.',
+    fr: "Nous ne partagerons jamais vos informations personnellement identifiables. Répondez 9 pour lire notre déclaration de confidentialité et d'objectif."
   }
 
   CONTENT = {
     en: %{
       Privacy and Purpose 
 
-      Welcome to the %{team} %{channel} tipline. We are working to make you a better source of information for your family and friends on %{channel}. 
+      Welcome to the %{team} %{channel} tipline. 
 
-      You can use this number to submit your query for verification. We're not able to respond to every request, but your data will be safe either way. 
+      You can use this number to submit your query for verification.
 
-      We take seriously our responsibility to safeguard your personal information and to keep %{channel} private and secure; will never share, sell, or otherwise use your personally identifiable information (PII) except to provide and improve this service.
+      Your data is safe. We take seriously our responsibility to safeguard your personal information and to keep %{channel} private and secure; will never share, sell, or otherwise use your personally identifiable information (PII) except to provide and improve this service.
        
       To detect viral misinformation as early as possible in the future, we may share non-PII content from this tipline with vetted researchers and fact-checking partners. 
 
@@ -42,17 +43,13 @@ module SmoochTos
     pt: %{
       Privacidade e Escopo
 
-      Seja bem-vinda/o à linha direta %{team}. Nós estamos trabalhando para que você se torne uma melhor fonte de informações para a sua família e amigos no %{channel}. 
+      Bem-vindo(a) à linha do %{channel} de %{team}. Estamos trabalhando para tornar você uma melhor fonte de informação para sua família e amigos(as) no canal %{channel}.
 
-      Você pode usar este número para enviar a sua solicitação de verificação. Nós não podemos atender a todas as demandas, mas os seus dados estarão protegidos de qualquer forma.  
+      Você pode usar este número para submeter sua solicitação de verificação. Não somos capazes de responder a todas as solicitações, mas seus dados estarão seguros de qualquer forma.
 
-      Nós levamos a sério a nossa responsabilidade de proteger as suas informações pessoais e manter o %{channel} privado e seguro; nós nunca compartilharemos, venderemos ou usaremos suas informações de identificação pessoal (PII), por nenhum meio, exceto para fornecer e melhorar este serviço. 
+      Levamos a sério nossa responsabilidade de proteger suas informações pessoais e de manter este canal do %{channel} privado e seguro; nunca compartilharemos, venderemos ou usaremos suas informações pessoais identificáveis (PII), exceto para fornecer e melhorar este serviço.
 
-      Para detectar informações virais falsas o mais cedo possível no futuro, pode ser que compartilhemos conteúdos da nossa linha direta, desde que não sejam informações de identificação pessoal (PII), com pesquisadores aprovados e com parceiros de verificação de dados. 
-
-      Lembre-se que sites, os quais compartilhamos links aqui, têm suas próprias políticas de privacidade.
-
-      Se você não quiser que suas informações sejam utilizadas neste trabalho, por favor, não contribua para o nosso sistema.
+      Para detectar desinformação viral o mais cedo possível no futuro, poderemos compartilhar o conteúdo não-PII deste canal com pesquisadores(as) aprovados(as) e parceiros(as) de verificação de fatos. Se você não quiser que suas solicitações sejam utilizadas para isso, por favor, não contribua para nosso sistema. Observe que os sites para os quais temos links tem sua própria política.
     },
 
     hi: %{
@@ -211,6 +208,20 @@ module SmoochTos
       Um zukünftig virale Desinformation so schnell wie möglich erkennen zu können, geben wir nicht-personenbezogene Informationen von dieser Hinweisnummer möglicherweise an geprüfte Rechercheure und Partner weiter, die Fakten für uns überprüfen.
 
       Bitte beachten Sie, dass von uns verlinkte Webseiten ihre eigenen Datenschutzbestimmungen haben. \n Wenn Sie nicht wollen, dass Ihre Anfragen derartig verwendet werden, wirken Sie bei unserem System bitte einfach nicht mit.
+    },
+
+    fr: %{
+      Confidentialité et objectif
+
+      Bienvenue sur la ligne info Tipline de %{team} %{channel}. 
+
+      Vos données seront protégées. Nous prenons au sérieux notre responsabilité de protéger vos renseignements personnels et d’assurer la sécurité et la confidentialité de %{channel} ; jamais nous ne partagerons, ne vendrons, ni n’utiliserons autrement des renseignements qui peuvent vous identifier personnellement (RIP), sauf pour fournir ce service ou l’améliorer.
+
+      Afin de détecter la mésinformation virale le plus tôt possible à l’avenir, nous pourrions partager des contenus non-RIP de cette ligne info avec des chercheurs et des partenaires approuvés de vérification des faits.
+
+      Veuillez prendre note que les sites Web vers lesquels nous établissons des liens ont leur propre politique de confidentialité.
+
+      Si vous ne voulez pas que vos envois soient utilisés dans le cadre de ce travail, veuillez ne pas contribuer à notre système.
     }
   }
 
