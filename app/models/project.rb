@@ -298,9 +298,8 @@ class Project < ApplicationRecord
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     v = Version.from_partition(self.team_id).where(item_id: self.id, item_type: self.class.name).last
     unless v.nil? || v.changeset['team_id'].blank?
-      keys = %w(team_id)
       data = {'team_id' => self.team_id}
-      options = {keys: keys, data: data}
+      options = { keys: data.keys, data: data }
       ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_doc_team')
     end
   end

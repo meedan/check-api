@@ -22,7 +22,7 @@ class Relationship < ApplicationRecord
   after_update :propagate_inversion
   before_destroy :detach_to_list
   after_destroy :update_counters, prepend: true
-  after_commit :update_counters, :update_elasticsearch_parent, on: [:create, :update]
+  after_commit :update_counter_and_elasticsearch, on: [:create, :update]
   after_commit :update_counters, :destroy_elasticsearch_relation, on: :destroy
   after_commit :set_cluster, on: [:create]
 
@@ -143,6 +143,16 @@ class Relationship < ApplicationRecord
     source.save!
   end
 
+  def update_elasticsearch_parent(action = 'create_or_update')
+    return if self.is_default? || self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    if self.is_confirmed?
+      parent_id = action == 'destroy' ? self.target_id : self.source_id
+      data = { 'parent_id' => parent_id }
+      options = { keys: data.keys , data: data, obj: self.target }
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(self.target), YAML::dump(options), 'update_doc')
+    end
+  end
+
   private
 
   def relationship_type_is_valid
@@ -210,17 +220,13 @@ class Relationship < ApplicationRecord
     end
   end
 
-  def destroy_elasticsearch_relation
-    update_elasticsearch_parent('destroy')
+  def update_counter_and_elasticsearch
+    self.update_counters
+    self.update_elasticsearch_parent
   end
 
-  def update_elasticsearch_parent(action = 'create_or_update')
-    return if self.is_default? || self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    if self.is_confirmed?
-      parent_id = action == 'destroy' ? self.target_id : self.source_id
-      options = { keys: ['parent_id'], data: { 'parent_id' => parent_id }, obj: self.target }
-      ElasticSearchWorker.perform_in(1.second, YAML::dump(self.target), YAML::dump(options), 'update_doc')
-    end
+  def destroy_elasticsearch_relation
+    update_elasticsearch_parent('destroy')
   end
 
   def move_to_same_project_as_main

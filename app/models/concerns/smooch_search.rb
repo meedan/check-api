@@ -58,7 +58,7 @@ module SmoochSearch
 
     def parse_search_results_from_alegre(results, team_id)
       after = self.date_filter(team_id)
-      results.sort{ |a, b| a[1][:score] <=> b[1][:score] }.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }.select{ |pm| pm&.report_status == 'published' && pm&.updated_at.to_i > after.to_i }.last(3)
+      results.sort_by{|a| [a[1][:model]!=Bot::Alegre::ELASTICSEARCH_MODEL ? 1:0, a[1][:score]]}.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }.select{ |pm| pm&.report_status == 'published' && pm&.updated_at.to_i > after.to_i }.uniq(&:id).first(3)
     end
 
     def date_filter(team_id)

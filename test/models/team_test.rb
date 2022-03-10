@@ -2663,4 +2663,14 @@ class TeamTest < ActiveSupport::TestCase
     tt4 = TeamTask.find(JSON.parse(tt3.conditional_info)['selectedFieldId'])
     assert_equal t2, tt4.team
   end
+
+  test "should get teams with same country" do
+    t = create_team country: 'Egypt'
+    t2 = create_team country: 'Egypt'
+    t3 = create_team country: 'Brazil'
+    t4 = create_team
+    assert_equal [t.id, t2.id], t.country_teams.keys.sort
+    assert_equal [t.name, t2.name].sort, t.country_teams.values.sort
+    assert_empty t4.country_teams
+  end
 end

@@ -527,9 +527,9 @@ pt:
     tarefa quando aceita) e `comment` (exibido aos(às) usuário(a)s).
   tag_text_id_not_found: Tag não encontrada
   annotation_type_language_label: Idioma
-  smooch_bot_message_confirmed: Agradecemos-lhe. Sua solicitação foi adicionada à
-    nossa fila de verificação. Vamos tentar enviar um relatório nas próximas 24 horas,
-    mas, por favor, note que não podemos responder a todas as mensagens.
+  smooch_bot_message_confirmed: Agradecemos a você. Sua solicitação foi adicionada
+    à nossa fila de verificação. Vamos tentar enviar um relatório nas próximas 24
+    horas, mas, por favor, note que não podemos responder a todas as mensagens.
   smooch_bot_message_unconfirmed: Como você não respondeu com 1, nós interromperemos
     o tratamento da sua solicitação. Agradecemos.
   smooch_bot_message_type_unsupported: Desculpe, nós não oferecemos suporte a este
@@ -545,17 +545,17 @@ pt:
 
     Para verificar, *por favor, responda com 1*. Qualquer outra resposta encerrará nossa conversa.
   smooch_bot_ask_for_tos: |-
-    Agradecemos-lhe por entrar em contato com a Check Message!
+    Agradecemos a você por entrar em contato com a Check Message!
 
     Você pode usar este serviço para solicitar verificações, verificações de fatos e investigações de notícias e informações. Check Message é fornecida a você sob estes Termos de Serviço: %{tos}. Ao continuar a usar este serviço, *você concorda em cumprir estes termos*. Caso não concorde, você deve parar de usar a Check Message.
   smooch_bot_window_closing: O volume de solicitações neste canal é muito alto, e
-    ainda não conseguimos responder ao seu pedido ainda. Agradecemos-lhe pela sua
+    ainda não conseguimos responder ao seu pedido ainda. Agradecemos a você pela sua
     paciência.
   smooch_bot_not_final: "[Relatório de Verificação - CORREÇÃO] A mensagem que você
     compartilhou conosco foi incorretamente marcada como *%{status}*. Ela ainda está
     em nossa fila para verificação complementar."
-  smooch_bot_disabled: Agradecemos-lhe por enviar esta mensagem. Não é possível enviar
-    relatórios de verificação, porque este projeto não está mais ativo.
+  smooch_bot_disabled: Agradecemos a você por enviar esta mensagem. Não é possível
+    enviar relatórios de verificação, porque este projeto não está mais ativo.
   smooch_bot_result_changed: "❗️A verificação que lhe enviamos foi *atualizada* com
     novas informações"
   permissions_info:

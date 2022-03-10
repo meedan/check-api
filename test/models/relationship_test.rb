@@ -404,4 +404,25 @@ class RelationshipTest < ActiveSupport::TestCase
     pm2.save(validate: false)
     create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
   end
+
+  test "should update sources_count and parent_id for confirmed item" do
+    setup_elasticsearch
+    t = create_team
+    pm_s = create_project_media team: t
+    pm_t = create_project_media team: t
+    r = create_relationship source_id: pm_s.id, target_id: pm_t.id, relationship_type: Relationship.suggested_type
+    sleep 2
+    es_t = $repository.find(get_es_id(pm_t))
+    assert_equal pm_t.id, es_t['parent_id']
+    assert_equal pm_t.reload.sources_count, es_t['sources_count']
+    assert_equal 0, pm_t.reload.sources_count
+    # Confirm item
+    r.relationship_type = Relationship.confirmed_type
+    r.save!
+    sleep 2
+    es_t = $repository.find(get_es_id(pm_t))
+    assert_equal r.source_id, es_t['parent_id']
+    assert_equal pm_t.reload.sources_count, es_t['sources_count']
+    assert_equal 1, pm_t.reload.sources_count
+  end
 end

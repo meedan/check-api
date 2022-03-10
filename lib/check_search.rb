@@ -133,7 +133,7 @@ class CheckSearch
     end
     query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     filters_blank = true
-    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric', 'has_claim'].each do |filter|
+    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric', 'has_claim', 'cluster_teams'].each do |filter|
       filters_blank = false unless @options[filter].blank?
     end
     range_filter = hit_es_for_range_filter
@@ -256,6 +256,7 @@ class CheckSearch
     archived = @options['archived'].to_i
     core_conditions << { term: { archived: archived } }
     custom_conditions << { terms: { read: @options['read'].map(&:to_i) } } if @options.has_key?('read')
+    custom_conditions << { terms: { cluster_teams: @options['cluster_teams'] } } if @options.has_key?('cluster_teams')
     core_conditions << { term: { sources_count: 0 } } unless include_related_items
     core_conditions << { range: { cluster_size: { gt: 0 } } } if trends_query?
     custom_conditions.concat build_search_keyword_conditions
