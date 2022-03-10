@@ -257,7 +257,7 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => 'Foo bar foo bar foo bar' })
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
-    Bot::Alegre.stubs(:get_merged_similar_items).returns({ pm.id => 0.9 })
+    Bot::Alegre.stubs(:get_merged_similar_items).returns({ pm.id => { score: 0.9, model: 'elasticsearch' } })
 
     assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en')
 
@@ -280,7 +280,7 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'image', 'mediaUrl' => 'https://image' })
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
-    Bot::Alegre.stubs(:get_items_with_similar_media).returns({ pm.id => 0.9 })
+    Bot::Alegre.stubs(:get_items_with_similar_media).returns({ pm.id => { score: 0.9, model: 'elasticsearch' } })
 
     assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en')
 
@@ -395,4 +395,19 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
       end
     end
   end
+  
+  test "should order results from Alegre" do
+    ProjectMedia.any_instance.stubs(:report_status).returns('published') # We can stub this because it's not what this test is testing
+    t = create_team
+    pm1 = create_project_media team: t #ES low score
+    pm2 = create_project_media team: t #ES high score
+    pm3 = create_project_media team: t #Vector high score
+    pm4 = create_project_media team: t #Vector low score
+    # Create more project media if needed
+    results = { pm1.id => { model: 'elasticsearch', score: 10.8 }, pm2.id => { model: 'elasticsearch', score: 15.2},
+      pm3.id => { model: 'anything-else', score: 1.98 }, pm4.id => { model: 'anything-else', score: 1.8}}
+    assert_equal [pm3, pm4, pm2], Bot::Smooch.parse_search_results_from_alegre(results, t.id)
+    ProjectMedia.any_instance.unstub(:report_status)
+  end
+  
 end

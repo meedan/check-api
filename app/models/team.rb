@@ -60,6 +60,14 @@ class Team < ApplicationRecord
     self.projects.allowed(self).permissioned.count
   end
 
+  def country_teams
+    data = {}
+    unless self.country.nil?
+      Team.where(country: self.country).find_each{ |t| data[t.id] = t.name }
+    end
+    data
+  end
+
   def as_json(_options = {})
     {
       dbid: self.id,
@@ -153,6 +161,10 @@ class Team < ApplicationRecord
 
   def suggested_matches_filters=(suggested_matches_filters)
     self.send(:set_suggested_matches_filters, JSON.parse(suggested_matches_filters))
+  end
+
+  def trends_filters=(trends_filters)
+    self.send(:set_trends_filters, JSON.parse(trends_filters))
   end
 
   def languages=(languages)
@@ -557,12 +569,6 @@ class Team < ApplicationRecord
     sources = self.sources
     sources = sources.where('name ILIKE ?', "%#{keyword}%") unless keyword.blank?
     sources
-  end
-
-  protected
-
-  def get_values_from_entry(entry)
-    (entry && entry.respond_to?(:values)) ? entry.values : entry
   end
 
   # private

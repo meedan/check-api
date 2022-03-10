@@ -168,6 +168,18 @@ class VersionTest < ActiveSupport::TestCase
     end
   end
 
+  test "should destroy version" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      pm = create_project_media team: t
+      v = pm.versions.last
+      v.destroy!
+    end
+  end
+
   test "should get source" do
     v = create_version
     assert_nil v.source

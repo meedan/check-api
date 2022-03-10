@@ -74,7 +74,16 @@ module ActiveRecordExtensions
   end
 
   def destroy_annotations_and_versions
-    Version.from_partition(self.team&.id).where(item_type: self.class_name, item_id: self.id.to_s).destroy_all if PaperTrail.request.enabled_for_model?(self.class_name.constantize)
+    if PaperTrail.request.enabled_for_model?(self.class_name.constantize)
+      Version.from_partition(self.team&.id).where(item_type: self.class_name, item_id: self.id.to_s).delete_all
+      # Handle destroy callback for version `decrement_project_association_annotations_count`
+      if self.respond_to?(:cached_annotations_count)
+        value = Version.from_partition(self.team&.id)
+        .where.not(event_type: 'create_dynamicannotationfield', associated_type: nil, associated_id: nil).count
+        count = self.cached_annotations_count - value
+        self.update_columns(cached_annotations_count: count)
+      end
+    end
     self.annotations.destroy_all if self.respond_to?(:annotations)
   end
 
