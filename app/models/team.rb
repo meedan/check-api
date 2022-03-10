@@ -163,6 +163,10 @@ class Team < ApplicationRecord
     self.send(:set_suggested_matches_filters, JSON.parse(suggested_matches_filters))
   end
 
+  def trends_filters=(trends_filters)
+    self.send(:set_trends_filters, JSON.parse(trends_filters))
+  end
+
   def languages=(languages)
     languages = languages.is_a?(String) ? JSON.parse(languages) : languages
     self.send(:set_languages, languages.uniq)
@@ -565,12 +569,6 @@ class Team < ApplicationRecord
     sources = self.sources
     sources = sources.where('name ILIKE ?', "%#{keyword}%") unless keyword.blank?
     sources
-  end
-
-  protected
-
-  def get_values_from_entry(entry)
-    (entry && entry.respond_to?(:values)) ? entry.values : entry
   end
 
   # private

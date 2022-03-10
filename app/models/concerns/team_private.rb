@@ -3,6 +3,12 @@ require 'active_support/concern'
 module TeamPrivate
   extend ActiveSupport::Concern
 
+  protected
+
+  def get_values_from_entry(entry)
+    (entry && entry.respond_to?(:values)) ? entry.values : entry
+  end
+
   private
 
   def add_user_to_team
