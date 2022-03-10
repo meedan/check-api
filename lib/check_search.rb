@@ -262,6 +262,7 @@ class CheckSearch
     custom_conditions.concat build_search_keyword_conditions
     custom_conditions.concat build_search_tags_conditions
     custom_conditions.concat build_search_report_status_conditions
+    custom_conditions.concat build_search_published_by_conditions
     custom_conditions.concat build_search_integer_terms_query('assigned_user_ids', 'assigned_to')
     custom_conditions.concat build_search_integer_terms_query('channel', 'channels')
     custom_conditions.concat build_search_integer_terms_query('source_id', 'sources')
@@ -609,6 +610,11 @@ class CheckSearch
       statuses << status_id
     end
     [{ terms: { report_status: statuses } }]
+  end
+
+  def build_search_published_by_conditions
+    return [] if @options['published_by'].blank?
+    [{ terms: { published_by: [@options['published_by']].flatten } }]
   end
 
   def build_search_doc_conditions

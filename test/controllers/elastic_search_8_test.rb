@@ -340,4 +340,41 @@ class ElasticSearch8Test < ActionController::TestCase
       assert_equal [pm2.id], result.medias.map(&:id)
     end
   end
+
+  test "should cache and filter by published_by value" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    u = create_user
+    u2 = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      pm = create_project_media team: t
+      assert_queries(0, '=') { assert_empty pm.published_by }
+      publish_report(pm)
+      pm = ProjectMedia.find(pm.id)
+      data = {}
+      data[u.id] = u.name
+      assert_queries(0, '=') { assert_equal data, pm.published_by }
+      u.name = 'update name'
+      u.save!
+      pm = ProjectMedia.find(pm.id)
+      data[u.id] = 'update name'
+      assert_queries(0, '=') { assert_equal data, pm.published_by }
+      Rails.cache.clear
+      assert_queries(0, '>') { assert_equal data, pm.published_by }
+      pm2 = create_project_media team: t
+      sleep 2
+      result = $repository.find(get_es_id(pm))
+      assert_equal u.id, result['published_by']
+      result = $repository.find(get_es_id(pm2))
+      # assert_empty result['published_by']
+      # Filter by published by
+      # result = CheckSearch.new({published_by: [u.id]}.to_json)
+      # assert_equal [pm.id], result.medias.map(&:id)
+      # result = CheckSearch.new({published_by: [u2.id]}.to_json)
+      # assert_empty result.medias.map(&:id)
+      # result = CheckSearch.new({published_by: [u.id, u2.id]}.to_json)
+      # assert_equal [pm.id], result.medias.map(&:id)
+    end
+  end
 end
