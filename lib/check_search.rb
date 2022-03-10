@@ -133,7 +133,9 @@ class CheckSearch
     end
     query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     filters_blank = true
-    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric', 'has_claim', 'cluster_teams'].each do |filter|
+    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
+      'has_claim', 'cluster_teams', 'published_by'
+    ].each do |filter|
       filters_blank = false unless @options[filter].blank?
     end
     range_filter = hit_es_for_range_filter

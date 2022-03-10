@@ -367,14 +367,14 @@ class ElasticSearch8Test < ActionController::TestCase
       result = $repository.find(get_es_id(pm))
       assert_equal u.id, result['published_by']
       result = $repository.find(get_es_id(pm2))
-      # assert_empty result['published_by']
+      assert_nil result['published_by']
       # Filter by published by
-      # result = CheckSearch.new({published_by: [u.id]}.to_json)
-      # assert_equal [pm.id], result.medias.map(&:id)
-      # result = CheckSearch.new({published_by: [u2.id]}.to_json)
-      # assert_empty result.medias.map(&:id)
-      # result = CheckSearch.new({published_by: [u.id, u2.id]}.to_json)
-      # assert_equal [pm.id], result.medias.map(&:id)
+      result = CheckSearch.new({ published_by: [u.id] }.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      result = CheckSearch.new({ published_by: [u2.id] }.to_json)
+      assert_empty result.medias.map(&:id)
+      result = CheckSearch.new({ published_by: [u.id, u2.id] }.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
     end
   end
 end
