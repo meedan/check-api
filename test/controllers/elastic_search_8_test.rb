@@ -338,6 +338,8 @@ class ElasticSearch8Test < ActionController::TestCase
       query[:cluster_teams] = [t2.id, t3.id]
       result = CheckSearch.new(query.to_json)
       assert_equal [pm2.id], result.medias.map(&:id)
+      # Get current team
+      assert_equal t1, result.team
     end
   end
 end
