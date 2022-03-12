@@ -610,7 +610,17 @@ class CheckSearch
 
   def build_search_report_status_conditions
     return [] if @options['report_status'].blank? || !@options['report_status'].is_a?(Array)
-    return [{ range: { cluster_published_reports_count: { gt: 0 } } }] if trends_query?
+    if trends_query?
+      conditions = []
+      if (['published', 'unpublished'] - @options['report_status']).empty?
+        conditions << { range: { cluster_published_reports_count: { gte: 0 } } }
+      elsif @options['report_status'].include?('published')
+        conditions << { range: { cluster_published_reports_count: { gt: 0 } } }
+      elsif @options['report_status'].include?('unpublished')
+        conditions << { term: { cluster_published_reports_count: 0 } }
+      end
+      return conditions
+    end
     statuses = []
     @options['report_status'].each do |status_name|
       status_id = ['unpublished', 'paused', 'published'].index(status_name) || -1 # Invalidate the query if an invalid status is passed
