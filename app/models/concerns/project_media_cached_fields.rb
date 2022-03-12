@@ -276,6 +276,44 @@ module ProjectMediaCachedFields
         }
       ]
 
+    cached_field :published_by,
+      start_as: {},
+      update_es: proc { |_pm, value| value.keys.first || 0 },
+      recalculate: proc { |pm|
+        d = pm.get_dynamic_annotation('report_design')
+        annotator = d && d['data']['state'] == 'published' ? d.annotator : nil
+        annotator.nil? ? {} : { annotator.id => annotator.name }
+      },
+      update_on: [
+        {
+          model: Dynamic,
+          if: proc { |d| d.annotation_type == 'report_design' },
+          affected_ids: proc { |d| d.annotated_id },
+          events: {
+            save: proc { |_pm, d|
+              annotator = d['data']['state'] == 'published' ? d.annotator : nil
+              annotator.nil? ? {} : { annotator.id => annotator.name }
+            }
+          }
+        },
+        {
+          model: User,
+          affected_ids: proc { |u|
+            conditions = {
+              annotation_type: 'report_design',
+              annotator_type: 'User',
+              annotator_id: u.id,
+              annotated_type: 'ProjectMedia'
+            }
+            Dynamic.where(conditions).where('data LIKE ?', '%state: published%').map(&:annotated_id)
+          },
+          if: proc { |u| u.saved_change_to_name? },
+          events: {
+            update: proc { |_pm, u| { u.id => u.name } }
+          }
+        },
+      ]
+
     cached_field :type_of_media,
       start_as: proc { |pm| pm.media.type },
       update_es: proc { |_pm, value| Media.types.index(value) },

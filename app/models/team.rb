@@ -519,6 +519,11 @@ class Team < ApplicationRecord
         show: false
       },
       {
+        key: 'published_by',
+        label: I18n.t(:list_column_published_by),
+        show: false
+      },
+      {
         key: 'comment_count',
         label: I18n.t(:list_column_comment_count),
         show: false

@@ -342,4 +342,57 @@ class ElasticSearch8Test < ActionController::TestCase
       assert_equal t1, result.team
     end
   end
+
+  test "should cache and filter by published_by value" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    u = create_user
+    u2 = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    create_team_user team: t, user: u2, role: 'admin'
+    pm = create_project_media team: t
+    with_current_user_and_team(u, t) do
+      assert_queries(0, '=') { assert_empty pm.published_by }
+      r = publish_report(pm)
+      pm = ProjectMedia.find(pm.id)
+      data = {}
+      data[u.id] = u.name
+      assert_queries(0, '=') { assert_equal data, pm.published_by }
+      u.name = 'update name'
+      u.save!
+      pm = ProjectMedia.find(pm.id)
+      data[u.id] = 'update name'
+      assert_queries(0, '=') { assert_equal data, pm.published_by }
+      Rails.cache.clear
+      assert_queries(0, '>') { assert_equal data, pm.published_by }
+      pm2 = create_project_media team: t
+      sleep 2
+      result = $repository.find(get_es_id(pm))
+      assert_equal u.id, result['published_by']
+      result = $repository.find(get_es_id(pm2))
+      assert_equal 0, result['published_by']
+      # Filter by published by
+      result = CheckSearch.new({ published_by: [u.id] }.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      result = CheckSearch.new({ published_by: [u2.id] }.to_json)
+      assert_empty result.medias.map(&:id)
+      result = CheckSearch.new({ published_by: [u.id, u2.id] }.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      # pause report should reset published_by value
+      r = Dynamic.find(r.id)
+      r.set_fields = { state: 'paused' }.to_json
+      r.action = 'pause'
+      r.save!
+      pm = ProjectMedia.find(pm.id)
+      assert_queries(0, '=') { assert_empty pm.published_by }
+    end
+    # should log latest published_by user
+    with_current_user_and_team(u2, t) do
+      r = publish_report(pm)
+      pm = ProjectMedia.find(pm.id)
+      data = {}
+      data[u2.id] = u2.name
+      assert_queries(0, '=') { assert_equal data, pm.published_by }
+    end
+  end
 end
