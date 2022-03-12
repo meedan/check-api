@@ -753,6 +753,7 @@ en:
   list_column_report_status: Report status
   list_column_tags_as_sentence: Tags
   list_column_media_published_at: Media published
+  list_column_published_by: Report published by
   list_column_related_count: Related
   list_column_suggestions_count: Suggested matches
   list_column_folder: Folder
