@@ -8,19 +8,6 @@ class Cluster < ApplicationRecord
   validate :center_is_not_part_of_another_cluster
   after_destroy :update_elasticsearch
 
-  ::Dynamic.class_eval do
-    after_save do
-      if self.annotation_type == 'report_design'
-        cluster = self.annotated&.cluster
-        unless cluster.nil?
-          pm = cluster.project_media
-          options = { keys: ['cluster_report_published'], data: { 'cluster_report_published' => 1 }, obj: pm }
-          ElasticSearchWorker.perform_in(1.second, YAML::dump(pm), YAML::dump(options), 'update_doc')
-        end
-      end
-    end
-  end
-
   def center
     self.project_media
   end
