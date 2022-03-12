@@ -349,10 +349,11 @@ class ElasticSearch8Test < ActionController::TestCase
     u = create_user
     u2 = create_user
     create_team_user team: t, user: u, role: 'admin'
+    create_team_user team: t, user: u2, role: 'admin'
+    pm = create_project_media team: t
     with_current_user_and_team(u, t) do
-      pm = create_project_media team: t
       assert_queries(0, '=') { assert_empty pm.published_by }
-      publish_report(pm)
+      r = publish_report(pm)
       pm = ProjectMedia.find(pm.id)
       data = {}
       data[u.id] = u.name
@@ -369,7 +370,7 @@ class ElasticSearch8Test < ActionController::TestCase
       result = $repository.find(get_es_id(pm))
       assert_equal u.id, result['published_by']
       result = $repository.find(get_es_id(pm2))
-      assert_nil result['published_by']
+      assert_equal 0, result['published_by']
       # Filter by published by
       result = CheckSearch.new({ published_by: [u.id] }.to_json)
       assert_equal [pm.id], result.medias.map(&:id)
@@ -377,6 +378,21 @@ class ElasticSearch8Test < ActionController::TestCase
       assert_empty result.medias.map(&:id)
       result = CheckSearch.new({ published_by: [u.id, u2.id] }.to_json)
       assert_equal [pm.id], result.medias.map(&:id)
+      # pause report should reset published_by value
+      r = Dynamic.find(r.id)
+      r.set_fields = { state: 'paused' }.to_json
+      r.action = 'pause'
+      r.save!
+      pm = ProjectMedia.find(pm.id)
+      assert_queries(0, '=') { assert_empty pm.published_by }
+    end
+    # should log latest published_by user
+    with_current_user_and_team(u2, t) do
+      r = publish_report(pm)
+      pm = ProjectMedia.find(pm.id)
+      data = {}
+      data[u2.id] = u2.name
+      assert_queries(0, '=') { assert_equal data, pm.published_by }
     end
   end
 end
