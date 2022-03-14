@@ -343,6 +343,33 @@ class ElasticSearch8Test < ActionController::TestCase
     end
   end
 
+  test "should filter trends by report status" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team country: 'Egypt', set_trends_enabled: true
+    pm1 = create_project_media team: t
+    c1 = create_cluster project_media: pm1
+    c1.project_medias << pm1
+    pm2 = create_project_media team: t
+    c2 = create_cluster project_media: pm2
+    c2.project_medias << pm2
+    sleep 2
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      publish_report(pm1)
+      query = { trends: true, country: true, report_status: ['published', 'unpublished'] }
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm1.id, pm2.id], result.medias.map(&:id).sort
+      query[:report_status] = ['published']
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm1.id], result.medias.map(&:id)
+      query[:report_status] = ['unpublished']
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm2.id], result.medias.map(&:id)
+    end
+  end
+
   test "should cache and filter by published_by value" do
     RequestStore.store[:skip_cached_field_update] = false
     t = create_team
