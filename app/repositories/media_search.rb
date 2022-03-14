@@ -3,7 +3,6 @@ class MediaSearch
   include CheckElasticSearchModel
 
   mapping do
-    indexes :annotation_type, { type: 'text' }
     indexes :team_id, { type: 'integer' }
     indexes :project_id, { type: 'integer' }
     indexes :annotated_type, { type: 'text' }
@@ -13,7 +12,6 @@ class MediaSearch
     indexes :title, { type: 'text', analyzer: 'check' }
     indexes :description, { type: 'text', analyzer: 'check' }
     indexes :analysis_title, { type: 'text', analyzer: 'check' }
-    indexes :sort_title, { type: 'keyword' }
     indexes :title_index, { type: 'keyword', normalizer: 'check' } # For sorting by item title
     indexes :analysis_description, { type: 'text', analyzer: 'check' }
     indexes :quote, { type: 'text', analyzer: 'check' }
@@ -23,7 +21,6 @@ class MediaSearch
     indexes :read, { type: 'integer' }
     indexes :created_at, { type: 'date' }
     indexes :updated_at, { type: 'date' }
-    indexes :published_at, { type: 'date' }
     indexes :accounts, {
       type: 'nested',
       properties: {
