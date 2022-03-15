@@ -1236,4 +1236,13 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
     ProjectMedia.any_instance.unstub(:similar_items_ids_and_scores)
   end
+
+  test "should get number of words" do
+    assert_equal 4, Bot::Alegre.get_number_of_words('58 This   is a test !!! 123 😊')
+    assert_equal 1, Bot::Alegre.get_number_of_words(random_url)
+  end
+
+  test "should not get similar texts for texts with up to 2 words" do
+    assert_equal({}, Bot::Alegre.get_items_from_similar_text(random_number, 'Foo bar'))
+  end
 end
