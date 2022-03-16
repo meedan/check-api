@@ -1,6 +1,7 @@
 # bundle exec rake check:data:statistics[year,start_month,end_month,group_by_month (0 or 1),workspace_slugs_as_a_dot_separated_values_string]
 
 require 'open-uri'
+include ActionView::Helpers::DateHelper
 
 def get_statistics(start_date, end_date, slug)
   data = [Team.find_by_slug(slug).name, start_date, end_date]
@@ -41,6 +42,25 @@ def get_statistics(start_date, end_date, slug)
   team = Team.find_by_slug(slug)
   data << Version.from_partition(team.id).where(created_at: start_date..end_date, team_id: team.id, item_type: 'TiplineSubscription', event_type: 'destroy_tiplinesubscription').count.to_s
 
+  # Average time to publishing
+  times = []
+  DynamicAnnotation::Field.where(field_name: 'smooch_report_received').joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('dynamic_annotation_fields.created_at' => start_date..end_date).find_each do |f|
+    times << (f.created_at - f.annotation.created_at)
+  end
+  avg = times.sum.to_f / times.size
+  data << avg.to_i
+  data << distance_of_time_in_words(avg)
+
+  # Average number of end-user messages per cycle/converstation/session
+  numbers_of_messages = []
+  DynamicAnnotation::Field.where(field_name: 'smooch_data').joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('dynamic_annotation_fields.created_at' => start_date..end_date).find_each do |f|
+    numbers_of_messages << f.value_json['text'].to_s.split(Bot::Smooch::MESSAGE_BOUNDARY).size
+  end
+  DynamicAnnotation::Field.where(field_name: 'smooch_data').joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN teams t ON t.id = a.annotated_id AND a.annotated_type = 'Team'").where('t.slug' => slug).where('dynamic_annotation_fields.created_at' => start_date..end_date).find_each do |f|
+    numbers_of_messages << f.value_json['text'].to_s.split(Bot::Smooch::MESSAGE_BOUNDARY).size
+  end
+  data << (numbers_of_messages.sum / numbers_of_messages.size).to_i
+
   puts data.join(',')
 end
 
@@ -66,6 +86,9 @@ namespace :check do
         header << '# of users who received a report'
         header << '# of new newsletter subscriptions'
         header << '# of newsletter subscription cancellations'
+        header << 'Average time to publishing (seconds)'
+        header << 'Average time to publishing (readable)'
+        header << 'Average number of end-user message per cycle/converstation/session'
         puts header.join(',')
 
         slugs.each do |slug|
