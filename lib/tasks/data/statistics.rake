@@ -68,6 +68,8 @@ namespace :check do
   namespace :data do
     desc 'Generate some statistics about some workspaces'
     task statistics: :environment do |_t, params|
+      old_logger = ActiveRecord::Base.logger
+      ActiveRecord::Base.logger = nil
       args = params.to_a
       year = args[0].to_i
       start_month = args[1].to_i
@@ -102,6 +104,7 @@ namespace :check do
           end
         end
       end
+      ActiveRecord::Base.logger = old_logger
     end
   end
 end
