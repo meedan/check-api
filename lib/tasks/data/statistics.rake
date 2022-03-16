@@ -47,9 +47,14 @@ def get_statistics(start_date, end_date, slug)
   DynamicAnnotation::Field.where(field_name: 'smooch_report_received').joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('dynamic_annotation_fields.created_at' => start_date..end_date).find_each do |f|
     times << (f.created_at - f.annotation.created_at)
   end
-  avg = times.sum.to_f / times.size
-  data << avg.to_i
-  data << distance_of_time_in_words(avg)
+  if times.size == 0
+    data << 0
+    data << '-'
+  else
+    avg = times.sum.to_f / times.size
+    data << avg.to_i
+    data << distance_of_time_in_words(avg)
+  end
 
   # Average number of end-user messages per cycle/converstation/session
   numbers_of_messages = []
@@ -59,7 +64,11 @@ def get_statistics(start_date, end_date, slug)
   DynamicAnnotation::Field.where(field_name: 'smooch_data').joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN teams t ON t.id = a.annotated_id AND a.annotated_type = 'Team'").where('t.slug' => slug).where('dynamic_annotation_fields.created_at' => start_date..end_date).find_each do |f|
     numbers_of_messages << f.value_json['text'].to_s.split(Bot::Smooch::MESSAGE_BOUNDARY).size
   end
-  data << (numbers_of_messages.sum / numbers_of_messages.size).to_i
+  if numbers_of_messages.size == 0
+    data << 0
+  else
+    data << (numbers_of_messages.sum / numbers_of_messages.size).to_i
+  end
 
   puts data.join(',')
 end
