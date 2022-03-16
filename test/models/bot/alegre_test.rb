@@ -678,7 +678,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }
       ]
     })
-    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'text_elasticsearch_matching_threshold', value: 0.7, automatic: true}, 'blah')
+    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'text_elasticsearch_matching_threshold', value: 0.7, automatic: true}, 'blah foo bar')
     assert_equal response.class, Hash
     assert_not_empty response
     Bot::Alegre.unstub(:request_api)
