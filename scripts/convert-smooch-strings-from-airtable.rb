@@ -19,7 +19,6 @@ MAPPING = {
   navigation_text: SKIP, # Not used currently
   newsletter_header: SKIP, # Not used currently... it's still a setting (actually one per language) under the tipline settings
   no_button: :search_result_is_not_relevant_button_label,
-  option_not_available: :option_not_available,
   privacy_and_purpose: SKIP, # Please see app/models/concerns/smooch_tos.rb
   report_updated: :report_updated,
   submit_button: :search_state_button_label,
@@ -32,6 +31,8 @@ MAPPING = {
   privacy_statement_option: :privacy_statement,
   languages_privacy_section: :languages_and_privacy_title,
   privacy_section: :privacy_title,
+  keep_subscription: SKIP, # To be used in CHECK-1590
+  newsletter_notification: SKIP, # To be used in CHECK-1548
   newsletter_footer_text: SKIP # Not used currently
 }
 
@@ -61,14 +62,14 @@ CSV.foreach(input, headers: true) do |row|
   i += 1
   data = row.to_h
   if data['Status'] =~ /Done/ || data['Language'] == '00 - English'
-    id = data.values.first.to_s.strip
+    id = data.values.first.to_s.strip.downcase
     raise "ID missing for row #{i}" if id.nil?
     key = MAPPING[id.to_sym]
     lang = LANGUAGES[data['Language'].to_s.strip]
     raise "Language mapping not found: #{data['Language']}" if lang.nil?
     raise "ID mapping not found: #{id}" if key.nil?
-    raise "Content is blank for ID #{id} and language #{data['Language']}" if data['Content'].nil?
     unless key == 'SKIP'
+      raise "Content is blank for ID #{id} and language #{data['Language']}" if data['Content'].nil?
       [key].flatten.each do |k|
         strings[k] ||= {}
         strings[k][lang] = data['Content'].strip
