@@ -20,7 +20,8 @@ module SmoochTos
     pa: 'ਅਸੀਂ ਕਦੇ ਵੀ ਤੁਹਾਡੀ ਨਿੱਜੀ ਪਛਾਣ ਕਰਨ ਵਾਲੀ ਜਾਣਕਾਰੀ ਨੂੰ ਸਾਂਝਾ ਨਹੀਂ ਕਰਾਂਗੇ। ਸਾਡੇ ਗੋਪਨੀਯਤਾ ਅਤੇ ਉਦੇਸ਼ ਕਥਨ ਨੂੰ ਪੜ੍ਹਨ ਲਈ ਜਵਾਬ ਵਿੱਚ 9 ਭੇਜੋ।',
     id: 'Kami tidak akan pernah membagikan informasi pengenal pribadi Anda. Balas dengan angka 9 untuk membaca pernyataan Privasi dan Tujuan kami.',
     de: 'Wir werden Daten, mit denen Sie identifiziert werden können, niemals weitergeben. Drücken Sie 9, um unsere Datenschutzbestimmungen zu lesen.',
-    fr: "Nous ne partagerons jamais vos informations personnellement identifiables. Répondez 9 pour lire notre déclaration de confidentialité et d'objectif."
+    fr: "Nous ne partagerons jamais vos informations personnellement identifiables. Répondez 9 pour lire notre déclaration de confidentialité et d'objectif.",
+    es: ''
   }
 
   CONTENT = {
@@ -222,6 +223,22 @@ module SmoochTos
       Veuillez prendre note que les sites Web vers lesquels nous établissons des liens ont leur propre politique de confidentialité.
 
       Si vous ne voulez pas que vos envois soient utilisés dans le cadre de ce travail, veuillez ne pas contribuer à notre système.
+    },
+
+    es: %{
+      Privacidad y Propósito
+
+      Bienvenida(o) a la tipline de %{team} %{channel}. 
+
+      Puedes utilizar este número para enviar tu consulta para verificación. 
+
+      Tus datos están seguros. Nos tomamos muy en serio nuestra responsabilidad de salvaguardar tu información personal y mantener %{channel} privado y seguro; nunca compartiremos, venderemos o usaremos tu información de identificación personal (PII) excepto para proporcionar y mejorar este servicio.
+
+      Para detectar desinformación viral lo antes posible en el futuro, puede que compartamos contenido no PII de esta tipline con socia(o)s certificada(o)s en investigación y verificación de hechos.
+
+      Por favor ten en cuenta que los sitios web a los que enlazamos tendrán su propia política de privacidad.
+
+      Si no deseas que tus aportes se utilicen en este trabajo, por favor no contribuyas a nuestro sistema.
     }
   }
 
