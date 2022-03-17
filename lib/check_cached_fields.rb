@@ -23,7 +23,8 @@ module CheckCachedFields
 
       define_method name do |recalculate = false|
         Rails.cache.fetch(self.class.check_cache_key(self.class, self.id, name), force: recalculate, race_condition_ttl: 30.seconds) do
-          options[:recalculate].call(self)
+          value = options[:recalculate].call(self)
+          self.class.index_and_pg_cached_field(options, value, name, self)
         end
       end
 
