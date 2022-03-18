@@ -88,10 +88,16 @@ module SmoochNewsletter
       }[timezone] || timezone
       time_set = DateTime.parse("#{hour}:00 #{timezone}")
       time_utc = time_set.utc
-      days = (0..6).to_a
-      day = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].index(newsletter['smooch_newsletter_day'])
-      day += (time_utc.strftime('%w').to_i - time_set.strftime('%w').to_i)
-      "#{time_utc.min} #{time_utc.hour} * * #{days[day]}"
+      cron_day = nil
+      if newsletter['smooch_newsletter_day'] == 'everyday'
+        cron_day = '*'
+      else
+        days = (0..6).to_a
+        day = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].index(newsletter['smooch_newsletter_day'])
+        day += (time_utc.strftime('%w').to_i - time_set.strftime('%w').to_i)
+        cron_day = days[day]
+      end
+      "#{time_utc.min} #{time_utc.hour} * * #{cron_day}"
     end
   end
 end
