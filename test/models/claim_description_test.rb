@@ -12,14 +12,6 @@ class ClaimDescriptionTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not create claim description without description" do
-    assert_no_difference 'ClaimDescription.count' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_claim_description description: nil
-      end
-    end
-  end
-
   test "should not create claim description without user" do
     assert_no_difference 'ClaimDescription.count' do
       assert_raises ActiveRecord::RecordInvalid do
@@ -80,7 +72,19 @@ class ClaimDescriptionTest < ActiveSupport::TestCase
     pm = create_project_media team: t
     with_current_user_and_team(u, t) do
       assert_difference 'ClaimDescription.count' do
-        create_claim_description user: u, project_media: pm
+        cd = create_claim_description user: u, project_media: pm
+      end
+    end
+  end
+
+  test "should create a claim description with context only if has permission" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u
+    pm = create_project_media team: t
+    with_current_user_and_team(u, t) do
+      assert_difference 'ClaimDescription.count' do
+        cd = create_claim_description user: u, project_media: pm, description: nil
       end
     end
   end

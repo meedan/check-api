@@ -961,6 +961,7 @@ module SampleData
   def create_claim_description(options = {})
     ClaimDescription.create!({
       description: random_string,
+      context: random_string,
       user: options[:user] || create_user,
       project_media: options[:project_media] || create_project_media
     }.merge(options))
