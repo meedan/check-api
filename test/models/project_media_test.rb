@@ -2824,4 +2824,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media channel: 12
     assert_equal 'Shared Database', pm.creator_name
   end
+
+  test "should delete claims and fact-checks when item is deleted" do
+    pm = create_project_media
+    cd = create_claim_description project_media: pm
+    fc = create_fact_check claim_description: cd
+    assert_difference 'ProjectMedia.count', -1 do
+      assert_difference 'ClaimDescription.count', -1 do
+        assert_difference 'FactCheck.count', -1 do
+          pm.destroy!
+        end
+      end
+    end
+  end
 end
