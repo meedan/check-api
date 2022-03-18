@@ -4,7 +4,7 @@ class ClaimDescription < ApplicationRecord
   belongs_to :project_media
   has_one :fact_check
 
-  validates_presence_of :description, :user, :project_media
+  validates_presence_of :user, :project_media
 
   # FIXME: Required by GraphQL API
   def fact_checks
