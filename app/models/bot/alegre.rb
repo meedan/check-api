@@ -157,10 +157,10 @@ class Bot::Alegre < BotUser
     handled
   end
 
-  def self.set_cluster(pm)
+  def self.set_cluster(pm, force = false)
     team_ids = ProjectMedia.where.not(cluster_id: nil).group(:team_id).count.keys
     pm = ProjectMedia.find(pm.id)
-    return if !pm.cluster_id.blank? || !team_ids.include?(pm.team_id)
+    return if (!pm.cluster_id.blank? || !team_ids.include?(pm.team_id)) && !force
     ids_and_scores = pm.similar_items_ids_and_scores(team_ids)
     main_id = ids_and_scores.max_by{ |_pm_id, score_and_context| score_and_context[:score] }&.first
     main = ProjectMedia.find_by_id(main_id.to_i)
