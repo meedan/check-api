@@ -85,9 +85,14 @@ module SmoochMessages
         value = option['smooch_menu_option_value']
         key = value
         # We use different menu labels for the subscription state, based on the current subscription status (subscribed / unsubscribed)
-        if state == 'subscription' && value == 'subscription_confirmation'
+        if state == 'subscription'
           team_id = self.config['team_id']
-          key = self.user_is_subscribed_to_newsletter?(uid, language, team_id) ? 'unsubscribe' : 'subscribe'
+          subscribed = self.user_is_subscribed_to_newsletter?(uid, language, team_id)
+          if value == 'subscription_confirmation'
+            key = subscribed ? 'unsubscribe' : 'subscribe'
+          elsif value == 'main_state' && subscribed # Cancel subscription
+            key = 'keep_subscription'
+          end
         end
         options << {
           value: { keyword: keyword }.to_json,
