@@ -269,7 +269,7 @@ module SmoochStrings
           "hi": "आपने इस समय हमारे न्यूज़लेटर को सब्स्क्राइब किया हुआ है।",
           "kn": "ನೀವು ಈಗ ನಮ್ಮ ನ್ಯೂಸ್ ಲೆಟರ್‌ಗೆ ಸಬ್‌ಸ್ಕ್ರೈಬ್ ಆಗಿರುತ್ತೀರಿ",
           "mr": "आपण सध्या आमचे वृत्तपत्र सबस्क्राइब केले आहे.",
-          "pt": "Atualmente, você está inscrito(a) em nosso boletim informativo.",
+          "pt": "Atualmente, você estás inscrito(a) em nosso boletim informativo.",
           "pa": "ਤੁਸੀਂ ਇਸ ਸਮੇਂ ਸਾਡੇ ਨਿਊਜ਼ਲੈਟਰ ਨੂੰ ਸਬਸਕ੍ਰਾਈਬ ਕੀਤਾ ਹੋਇਆ ਹੈ",
           "es": "Actualmente estás suscrita(o) a nuestro boletín.",
           "ta": "தற்சமயம் நீங்கள் எங்கள் செய்தி மடலைப் பெறுவதற்குப் பதிவு செய்திருக்கிறீர்கள்",
