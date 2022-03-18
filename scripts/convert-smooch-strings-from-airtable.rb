@@ -31,7 +31,7 @@ MAPPING = {
   privacy_statement_option: :privacy_statement,
   languages_privacy_section: :languages_and_privacy_title,
   privacy_section: :privacy_title,
-  keep_subscription: SKIP, # To be used in CHECK-1590
+  keep_subscription: :keep_subscription_button_label,
   newsletter_notification: SKIP, # To be used in CHECK-1548
   newsletter_footer_text: SKIP # Not used currently
 }
