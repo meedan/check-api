@@ -2,7 +2,7 @@ class ClaimDescription < ApplicationRecord
   include ClaimAndFactCheck
 
   belongs_to :project_media
-  has_one :fact_check
+  has_one :fact_check, dependent: :destroy
 
   validates_presence_of :description, :user, :project_media
 
