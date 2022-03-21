@@ -46,7 +46,7 @@ module SmoochStrings
           "be": "অনুগ্রহ করে আপনার পছন্দেসই ভাষা নিশ্চিত করুন",
           "fr": "Veuillez confirmer votre préférence de langue",
           "de": "Bitte bestätigen Sie Ihre bevorzugte Sprache.",
-          "hi": "कृ पया अपनी भाषा चुनें",
+          "hi": "कृपया अपनी भाषा चुनें",
           "kn": "ನಿಮ್ಮ ಆಯ್ಕೆಯ ಭಾಷೆಯನ್ನು ಖಚಿತಪಡಿಸಿ",
           "mr": "कृपया आपल्या पसंतीच्या भाषेची खात्री करा",
           "pt": "Por favor, confirme seu idioma de preferência",
@@ -135,22 +135,6 @@ module SmoochStrings
           "ta": "ரத்து செய்",
           "te": "రద్దు",
           "ur": "منسوخ"
-        },
-        "option_not_available": {
-          "en": "I'm sorry, I didn't understand your message.",
-          "id": "Maaf, saya tidak memahami pesan Anda",
-          "be": "ক্ষমা করবেন, আমি আপনার ম্যাসেজটি বুঝতে পারিনি।",
-          "fr": "Je suis désolé, je n’ai pas compris votre message.",
-          "de": "Tut mir leid, ich habe Ihre Nachricht nicht verstanden",
-          "hi": "क्षमा करें, मुझे आपका संदेश समझ नहीं आया।",
-          "kn": "ಕ್ಷಮಿಸಿ, ನಿಮ್ಮ ಸಂದೇಶ ನನಗೆ ಅರ್ಥವಾಗಲಿಲ್ಲ.",
-          "mr": "मला माफ करा, मला आपला संदेश समजला नाही.",
-          "pt": "Desculpe, não entendi sua mensagem.",
-          "pa": "ਮੁਆਫ ਕਰੋ, ਮੈਨੂੰ ਤੁਹਾਡਾ ਸੰਦੇਸ਼ ਸਮਝ ਨਹੀਂ ਆਇਆ।",
-          "es": "Lo siento, no entendí tu mensaje ¡Inténtalo de nuevo!",
-          "ta": "மன்னிக்கவும், நீங்கள் சொல்வது எனக்குப் புரியவில்லை.",
-          "te": "క్షమించండి, మీ సందేశం నాకు అర్థం కాలేదు.",
-          "ur": "معذرت، مجھے آپ کا پیغام سمجھ نہیں آیا۔"
         },
         "privacy_statement": {
           "en": "Privacy statement",
@@ -273,9 +257,9 @@ module SmoochStrings
           "hi": "आपने इस समय हमारे न्यूज़लेटर को सब्स्क्राइब किया हुआ है।",
           "kn": "ನೀವು ಈಗ ನಮ್ಮ ನ್ಯೂಸ್ ಲೆಟರ್‌ಗೆ ಸಬ್‌ಸ್ಕ್ರೈಬ್ ಆಗಿರುತ್ತೀರಿ",
           "mr": "आपण सध्या आमचे वृत्तपत्र सबस्क्राइब केले आहे.",
-          "pt": "Atualmente, você está inscrito(a) em nosso boletim informativo.",
+          "pt": "Atualmente, você estás inscrito(a) em nosso boletim informativo.",
           "pa": "ਤੁਸੀਂ ਇਸ ਸਮੇਂ ਸਾਡੇ ਨਿਊਜ਼ਲੈਟਰ ਨੂੰ ਸਬਸਕ੍ਰਾਈਬ ਕੀਤਾ ਹੋਇਆ ਹੈ",
-          "es": "Actualmente está suscrita(o) a nuestro boletín.",
+          "es": "Actualmente estás suscrita(o) a nuestro boletín.",
           "ta": "தற்சமயம் நீங்கள் எங்கள் செய்தி மடலைப் பெறுவதற்குப் பதிவு செய்திருக்கிறீர்கள்",
           "te": "మీరు ఇప్పుడు మా వార్తాలేఖకు సభ్యత్వాన్ని పొంది ఉన్నారు.",
           "ur": "آپ فی الحال ہمارے نیوز لیٹر کو سبسکرائب کر چکے ہیں۔"
