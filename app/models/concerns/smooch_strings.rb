@@ -148,6 +148,22 @@ module SmoochStrings
           "te": "రద్దు",
           "ur": "منسوخ"
         },
+        "navigation_button": {
+          "en": "Use the buttons to navigate",
+          "id": "Gunakan tombol untuk mendapatkan navigasi",
+          "be": "নেভিগেট করতে বোতামগুলি ব্যবহার করুন",
+          "fr": "Utilisez les boutons pour naviguer",
+          "de": "Verwenden Sie die Schaltflächen zum Navigieren",
+          "hi": "नेविगेट करने के लिए बटनों का उपयोग करें",
+          "kn": "ನ್ಯಾವಿಗೇಟ್ ಮಾಡಲು ಬಟನ್‌ಗಳನ್ನು ಬಳಸಿ",
+          "mr": "नेव्हिगेट करण्यासाठी बटने वापरा",
+          "pt": "Use os botões para navegar",
+          "pa": "ਨੈਵੀਗੇਟ ਕਰਨ ਲਈ ਬਟਨਾਂ ਦੀ ਵਰਤੋਂ ਕਰੋ",
+          "es": "Usa el menú para ver más opciones",
+          "ta": "நேவிகேட் செய்வதற்கு பட்டன்களை பயனபடுதவும்",
+          "te": "న్యావిగేట్ చెయడానికి బటన్‍లను వాడండి",
+          "ur": "نیویگیٹ کرنے کے لیے بٹنوں کا استعمال کریں۔"
+        },
         "privacy_statement": {
           "en": "Privacy statement",
           "id": "Pernyataan privasi",

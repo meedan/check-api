@@ -211,7 +211,7 @@ module SmoochMenus
 
     def ask_for_language_confirmation(workflow, language, uid)
       self.reset_user_language(uid)
-      text = [workflow['smooch_message_smooch_bot_greetings']]
+      text = []
       options = []
       self.get_supported_languages.sort.each_with_index do |l, i|
         text << self.get_menu_string(:confirm_preferred_language, l)
@@ -225,6 +225,15 @@ module SmoochMenus
         self.send_message_to_user_with_single_section_menu(uid, text, options, self.get_menu_string(:languages, language))
       else
         self.send_message_to_user_with_buttons(uid, text, options)
+      end
+    end
+
+    def send_greeting(uid, workflow)
+      if self.is_v2?
+        text = workflow['smooch_message_smooch_bot_greetings'] || ''
+        image = workflow['smooch_greeting_image']
+        image.blank? || image == 'none' ? self.send_message_to_user(uid, text) : self.send_message_to_user(uid, text, { 'type' => 'image', 'mediaUrl' => image })
+        sleep 2 # Give it some time, so the main menu message is sent after the greetings
       end
     end
   end

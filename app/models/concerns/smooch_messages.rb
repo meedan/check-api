@@ -104,12 +104,13 @@ module SmoochMessages
 
     def get_message_for_state(workflow, state, language, uid = nil)
       message = []
+      is_v2 = (self.config['smooch_version'] == 'v2')
       if state.to_s == 'main'
-        message << workflow['smooch_message_smooch_bot_greetings']
-        message << self.tos_message(workflow, language) if self.config['smooch_version'] != 'v2'
+        message << (is_v2 ? self.get_string('navigation_button', language) : workflow['smooch_message_smooch_bot_greetings'])
+        message << self.tos_message(workflow, language) unless is_v2
       end
       message << self.subscription_message(uid, language) if state.to_s == 'subscription'
-      message << workflow.dig("smooch_state_#{state}", 'smooch_menu_message') if state != 'main' || self.config['smooch_version'] != 'v2'
+      message << workflow.dig("smooch_state_#{state}", 'smooch_menu_message') if state != 'main' || !is_v2
       message << self.get_menu_string("#{state}_state", language) if ['search', 'search_result', 'add_more_details', 'ask_if_ready'].include?(state.to_s)
       message.reject{ |m| m.blank? }.join("\n\n")
     end

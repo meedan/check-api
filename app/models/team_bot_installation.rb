@@ -1,6 +1,8 @@
 class TeamBotInstallation < TeamUser
   include Versioned
-  include HasImage
+
+  mount_uploaders :file, ImageUploader
+  serialize :file, JSON
 
   before_validation :apply_default_settings, on: :create
   before_validation :set_role, on: :create
@@ -9,10 +11,6 @@ class TeamBotInstallation < TeamUser
   validate :settings_follow_schema, on: :update
 
   check_settings
-
-  def file_mandatory?
-    false
-  end
 
   def json_settings=(json)
     self.settings = JSON.parse(json)
