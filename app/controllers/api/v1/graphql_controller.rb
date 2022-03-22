@@ -116,7 +116,8 @@ module Api
         mapping = {
           CheckPermissions::AccessDenied => ::LapisConstants::ErrorCodes::ID_NOT_FOUND,
           ActiveRecord::RecordNotFound => ::LapisConstants::ErrorCodes::ID_NOT_FOUND,
-          ActiveRecord::StaleObjectError => ::LapisConstants::ErrorCodes::CONFLICT
+          ActiveRecord::StaleObjectError => ::LapisConstants::ErrorCodes::CONFLICT,
+          ActiveRecord::RecordNotUnique => ::LapisConstants::ErrorCodes::CONFLICT
         }
         errors = []
         message = e.message.kind_of?(Array) ? e.message : [e.message]
