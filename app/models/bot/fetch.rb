@@ -286,7 +286,7 @@ class Bot::Fetch < BotUser
           description: self.parse_text(claim_review['text']),
           title: self.get_title(claim_review),
           headline: self.get_title(claim_review).truncate(85),
-          use_visual_card: true,
+          use_visual_card: false,
           image: '',
           use_introduction: false,
           introduction: '',
