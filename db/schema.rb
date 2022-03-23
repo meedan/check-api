@@ -391,6 +391,7 @@ ActiveRecord::Schema.define(version: 2022_03_18_160448) do
     t.string "status", default: "member"
     t.text "settings"
     t.string "invitation_email"
+    t.string "file"
     t.index ["team_id", "user_id"], name: "index_team_users_on_team_id_and_user_id", unique: true
     t.index ["type"], name: "index_team_users_on_type"
     t.index ["user_id", "team_id", "status"], name: "index_team_users_on_user_id_and_team_id_and_status"
