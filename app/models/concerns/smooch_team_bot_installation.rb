@@ -29,7 +29,12 @@ module SmoochTeamBotInstallation
           self.set_smooch_workflows = workflows
           self.skip_save_images = true
           self.save!
-          Rails.cache.delete_matched("smooch:user_language:#{self.team_id}:*:confirmed") if images_updated # Make sure that users will see the new image
+          # Make sure that users will see the new image
+          if images_updated
+            Rails.cache.delete_matched("smooch:user_language:#{self.team_id}:*:confirmed")
+            uids = DynamicAnnotation::Field.joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN teams t ON t.id = a.annotated_id AND a.annotated_type = 'Team'").where(field_name: 'smooch_user_id', 't.id' => self.team_id).map(&:value)
+            uids.each { |uid| CheckStateMachine.new(uid).reset }
+          end
         end
       end
 
