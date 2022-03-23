@@ -5,12 +5,31 @@ module SmoochTeamBotInstallation
 
   module ClassMethods
     TeamBotInstallation.class_eval do
+      attr_accessor :skip_save_images
 
       # Save Twitter/Facebook token and authorization URL
       after_create do
         if self.bot_user.identifier == 'smooch'
           self.reset_smooch_authorization_token
           self.save!
+        end
+      end
+
+      # Save greeting images
+      after_save do
+        if self.bot_user.identifier == 'smooch' && !self.skip_save_images && self.respond_to?(:saved_change_to_file?) && self.saved_change_to_file?
+          workflows = self.get_smooch_workflows
+          images_updated = false
+          self.file.each_with_index do |image, i|
+            next if image.blank?
+            url = begin image.file.public_url rescue '' end
+            workflows[i]['smooch_greeting_image'] = url
+            images_updated = true
+          end
+          self.set_smooch_workflows = workflows
+          self.skip_save_images = true
+          self.save!
+          Rails.cache.delete_matched("smooch:user_language:#{self.team_id}:*:confirmed") if images_updated # Make sure that users will see the new image
         end
       end
 
