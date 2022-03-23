@@ -14,7 +14,7 @@ class Bot::Alegre < BotUser
   ::ProjectMedia.class_eval do
     attr_accessor :alegre_similarity_thresholds, :alegre_matched_fields
 
-    def similar_items_ids_and_scores(team_ids, param1= nil, param2= nil, param3= nil, param4= nil, param5= nil, param6= nil, param7= nil,)
+    def similar_items_ids_and_scores(team_ids, param1= nil, param2= nil, param3= nil, param4= nil, param5= nil, param6= nil, param7= nil)
       ids_and_scores = {}
       if self.is_media?
         media_type = {
