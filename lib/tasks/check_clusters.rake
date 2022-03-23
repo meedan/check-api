@@ -128,5 +128,21 @@ namespace :check do
         end
       end
     end
+
+    # bundle exec rake check:clusters:add[team slug]
+    desc 'Add a new workspace to the  similarity clusters'
+    task add: :environment do |_t, args|
+      slug = args.to_a.first
+      raise "Missing input parameter! Usage: bundle exec rake check:clusters:add[team slug]" if slug.blank?
+      puts "Adding workspace #{slug} to the clusters."
+      team = Team.find_by_slug(slug)
+      n = ProjectMedia.where(team_id: team.id).count
+      i = 0
+      ProjectMedia.where(team_id: team.id).order('id ASC').find_each do |pm|
+        i += 1
+        c = Bot::Alegre.set_cluster(pm, true)
+        log "[#{i}/#{n}] [#{Time.now}] Adding item #{pm.id} to the clusters... added to cluster #{c.id}"
+      end
+    end
   end
 end

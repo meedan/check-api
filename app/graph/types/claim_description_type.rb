@@ -6,6 +6,7 @@ ClaimDescriptionType = GraphqlCrudOperations.define_default_type do
 
   field :dbid, types.Int
   field :description, types.String
+  field :context, types.String
   field :user, UserType
   field :project_media, ProjectMediaType
   field :fact_check, FactCheckType

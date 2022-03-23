@@ -678,7 +678,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }
       ]
     })
-    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'text_elasticsearch_matching_threshold', value: 0.7, automatic: true}, 'blah')
+    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'text_elasticsearch_matching_threshold', value: 0.7, automatic: true}, 'blah foo bar')
     assert_equal response.class, Hash
     assert_not_empty response
     Bot::Alegre.unstub(:request_api)
@@ -800,11 +800,11 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should merge items with similar title when using non-elasticsearch and elasticsearch matching model" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah", team: @team
+    pm = create_project_media quote: "Blah foo bar", team: @team
     pm.analysis = { title: 'This is some more longer title that has enough text to be worth checking Title 1' }
     pm.save!
-    pm2 = create_project_media quote: "Blah2", team: @team
-    pm2.analysis = { title: 'Title 1' }
+    pm2 = create_project_media quote: "Blah2 foo bar", team: @team
+    pm2.analysis = { title: 'Title 1 Foo Bar' }
     pm2.save!
     response = {"result" => [{
         "_index" => "alegre_similarity",
@@ -840,8 +840,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     }
     [0.7, 0.75,0.95].each do |threshold|
       ["original_title","original_description","report_text_title","transcription","extracted_text","report_text_content","report_visual_card_title","claim_description_content","fact_check_summary","report_visual_card_content","fact_check_title"].each do |field|
-        Bot::Alegre.stubs(:request_api).with("get", "/text/similarity/", {:text=>"Blah", :model=>"elasticsearch", :fuzzy=>false, :context=>{:has_custom_id=>true, :field=>field, :team_id=>pm.team_id}, :threshold=>threshold, :match_across_content_types=>true}, "body").returns(response)
-        Bot::Alegre.stubs(:request_api).with("get", "/text/similarity/", {:text=>"Blah", :model=>Bot::Alegre::MEAN_TOKENS_MODEL, :fuzzy=>false, :context=>{:has_custom_id=>true, :field=>field, :team_id=>pm.team_id}, :threshold=>threshold, :match_across_content_types=>true}, "body").returns(response2)
+        Bot::Alegre.stubs(:request_api).with("get", "/text/similarity/", {:text=>"Blah foo bar", :model=>"elasticsearch", :fuzzy=>false, :context=>{:has_custom_id=>true, :field=>field, :team_id=>pm.team_id}, :threshold=>threshold, :match_across_content_types=>true}, "body").returns(response)
+        Bot::Alegre.stubs(:request_api).with("get", "/text/similarity/", {:text=>"Blah foo bar", :model=>Bot::Alegre::MEAN_TOKENS_MODEL, :fuzzy=>false, :context=>{:has_custom_id=>true, :field=>field, :team_id=>pm.team_id}, :threshold=>threshold, :match_across_content_types=>true}, "body").returns(response2)
       end
     end
     Bot::Alegre.stubs(:matching_model_to_use).with(pm).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
@@ -1096,7 +1096,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:get_items_with_similar_description)
   end
 
-  test "should use OCR data for similarity matching zzz" do
+  test "should use OCR data for similarity matching 2" do
     pm = create_project_media team: @team, media: create_uploaded_image
     pm2 = create_project_media team: @team, media: create_uploaded_image
     Bot::Alegre.stubs(:request_api).returns({"result"=> [{
@@ -1121,7 +1121,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
          "context"=>{"team_id"=>@team.id, "field"=>"title", "extracted_text"=>pm2.id}
     }}]})
     assert_difference 'Relationship.count' do
-      create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm, set_fields: { text: 'Foo bar' }.to_json
+      create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm, set_fields: { text: 'Foo bar test' }.to_json
     end
     r = Relationship.last
     assert_equal r.model, "elasticsearch"
@@ -1235,5 +1235,14 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
 
     ProjectMedia.any_instance.unstub(:similar_items_ids_and_scores)
+  end
+
+  test "should get number of words" do
+    assert_equal 4, Bot::Alegre.get_number_of_words('58 This   is a test !!! 123 😊')
+    assert_equal 1, Bot::Alegre.get_number_of_words(random_url)
+  end
+
+  test "should not get similar texts for texts with up to 2 words" do
+    assert_equal({}, Bot::Alegre.get_items_from_similar_text(random_number, 'Foo bar'))
   end
 end

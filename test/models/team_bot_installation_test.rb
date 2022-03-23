@@ -202,4 +202,16 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should add files" do
+    b = create_team_bot login: 'smooch', set_approved: true
+    tbi = create_team_bot_installation user_id: b.id, settings: { smooch_workflows: [{}, {}] }
+    tbi = TeamBotInstallation.find(tbi.id)
+    File.open(File.join(Rails.root, 'test', 'data', 'rails.png')) do |f|
+      tbi.file = ['', f]
+    end
+    tbi.save!
+    assert tbi.reload.get_smooch_workflows[0]['smooch_greeting_image'].blank?
+    assert_match /rails.png/, tbi.reload.get_smooch_workflows[1]['smooch_greeting_image']
+  end
 end

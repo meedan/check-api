@@ -1,6 +1,9 @@
 class TeamBotInstallation < TeamUser
   include Versioned
 
+  mount_uploaders :file, ImageUploader
+  serialize :file, JSON
+
   before_validation :apply_default_settings, on: :create
   before_validation :set_role, on: :create
 

@@ -157,10 +157,10 @@ class Bot::Alegre < BotUser
     handled
   end
 
-  def self.set_cluster(pm)
+  def self.set_cluster(pm, force = false)
     team_ids = ProjectMedia.where.not(cluster_id: nil).group(:team_id).count.keys
     pm = ProjectMedia.find(pm.id)
-    return if !pm.cluster_id.blank? || !team_ids.include?(pm.team_id)
+    return if (!pm.cluster_id.blank? || !team_ids.include?(pm.team_id)) && !force
     ids_and_scores = pm.similar_items_ids_and_scores(team_ids)
     main_id = ids_and_scores.max_by{ |_pm_id, score_and_context| score_and_context[:score] }&.first
     main = ProjectMedia.find_by_id(main_id.to_i)
@@ -175,8 +175,12 @@ class Bot::Alegre < BotUser
     cluster
   end
 
+  def self.get_number_of_words(text)
+    text.gsub(/[^\p{L}\s]/u, '').strip.chomp.split(/\s+/).size
+  end
+
   def self.get_items_from_similar_text(team_id, text, field = nil, threshold = nil, model = nil, fuzzy = false)
-    return {} if text.blank?
+    return {} if text.blank? || self.get_number_of_words(text) < 3
     field ||= ALL_TEXT_SIMILARITY_FIELDS
     threshold ||= self.get_threshold_for_query('text', nil, true)
     model ||= self.matching_model_to_use(ProjectMedia.new(team_id: team_id))
