@@ -22,10 +22,12 @@ module SmoochMenus
           title = option['smooch_menu_option_label']
           title ||= BotResource.find_by_uuid(option['smooch_menu_custom_resource_id'])&.title if option['smooch_menu_option_value'] == 'custom_resource'
           title ||= option['smooch_menu_option_value']
-          rows << {
+          row = {
             id: { state: 'main', keyword: counter.to_s }.to_json,
             title: title.truncate(24)
           }
+          row[:description] = option['smooch_menu_option_description'].to_s.truncate(72) unless option['smooch_menu_option_description'].blank?
+          rows << row
           counter = self.get_next_menu_item_number(counter)
         end
         section_title = workflow[state].to_h['smooch_menu_title'] || (i + 1).to_s
@@ -85,7 +87,7 @@ module SmoochMenus
         fallback << ''
         fallback << section[:title].upcase
         section[:rows].each do |row|
-          fallback << self.format_fallback_text_menu_option(row, :id, :title)
+          fallback << self.format_fallback_text_menu_option(row, :id, :title, :description)
         end
       end
 
@@ -201,14 +203,15 @@ module SmoochMenus
       fallback
     end
 
-    def format_fallback_text_menu_option(option, value_key, label_key)
+    def format_fallback_text_menu_option(option, value_key, label_key, description_key = nil)
       value = begin JSON.parse(option[value_key])['keyword'] rescue option[value_key] end
-      "#{value}. #{option[label_key]}"
+      description = description_key && option[description_key] ? " – #{option[description_key]}" : ''
+      "#{value}. #{option[label_key]}#{description}"
     end
 
     def ask_for_language_confirmation(workflow, language, uid)
       self.reset_user_language(uid)
-      text = [workflow['smooch_message_smooch_bot_greetings']]
+      text = []
       options = []
       self.get_supported_languages.sort.each_with_index do |l, i|
         text << self.get_menu_string(:confirm_preferred_language, l)
@@ -222,6 +225,15 @@ module SmoochMenus
         self.send_message_to_user_with_single_section_menu(uid, text, options, self.get_menu_string(:languages, language))
       else
         self.send_message_to_user_with_buttons(uid, text, options)
+      end
+    end
+
+    def send_greeting(uid, workflow)
+      if self.is_v2?
+        text = workflow['smooch_message_smooch_bot_greetings'] || ''
+        image = workflow['smooch_greeting_image']
+        image.blank? || image == 'none' ? self.send_message_to_user(uid, text) : self.send_message_to_user(uid, text, { 'type' => 'image', 'mediaUrl' => image })
+        sleep 2 # Give it some time, so the main menu message is sent after the greetings
       end
     end
   end

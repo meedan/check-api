@@ -5,12 +5,36 @@ module SmoochTeamBotInstallation
 
   module ClassMethods
     TeamBotInstallation.class_eval do
+      attr_accessor :skip_save_images
 
       # Save Twitter/Facebook token and authorization URL
       after_create do
         if self.bot_user.identifier == 'smooch'
           self.reset_smooch_authorization_token
           self.save!
+        end
+      end
+
+      # Save greeting images
+      after_save do
+        if self.bot_user.identifier == 'smooch' && !self.skip_save_images && self.respond_to?(:saved_change_to_file?) && self.saved_change_to_file?
+          workflows = self.get_smooch_workflows
+          images_updated = false
+          self.file.each_with_index do |image, i|
+            next if image.blank?
+            url = begin image.file.public_url rescue '' end
+            workflows[i]['smooch_greeting_image'] = url
+            images_updated = true
+          end
+          self.set_smooch_workflows = workflows
+          self.skip_save_images = true
+          self.save!
+          # Make sure that users will see the new image
+          if images_updated
+            Rails.cache.delete_matched("smooch:user_language:#{self.team_id}:*:confirmed")
+            uids = DynamicAnnotation::Field.joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN teams t ON t.id = a.annotated_id AND a.annotated_type = 'Team'").where(field_name: 'smooch_user_id', 't.id' => self.team_id).map(&:value)
+            uids.each { |uid| CheckStateMachine.new(uid).reset }
+          end
         end
       end
 

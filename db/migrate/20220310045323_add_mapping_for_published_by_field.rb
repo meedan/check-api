@@ -1,4 +1,4 @@
-class IndexClusterReportPublished < ActiveRecord::Migration[5.2]
+class AddMappingForPublishedByField < ActiveRecord::Migration[5.2]
   def change
     index_alias = CheckElasticSearchModel.get_index_alias
     client = $repository.client
@@ -6,7 +6,9 @@ class IndexClusterReportPublished < ActiveRecord::Migration[5.2]
       index: index_alias,
       body: {
         properties: {
-          cluster_report_published: { type: 'long' },
+          published_by: {
+            type: 'long'
+          },
         }
       }
     }

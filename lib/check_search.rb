@@ -42,11 +42,11 @@ class CheckSearch
   }
 
   def team_condition(team_id = nil)
-    team = Team.find(team_id)
     if trends_query?
+      team = Team.find(team_id)
       ProjectMedia.joins(:team).where('teams.country' => team.country).where.not(cluster_id: nil).group(:team_id).count.keys
     else
-      team_id || Team.current.id
+      team_id || Team.current&.id
     end
   end
 
@@ -61,8 +61,13 @@ class CheckSearch
   end
 
   def team
-    team_id = @options['team_id'].is_a?(Array) ? @options['team_id'].first : @options['team_id']
-    Team.find(team_id)
+    team_id = 0
+    if trends_query?
+      team_id = Team.current ? Team.current.id : @options['team_id'].first
+    else
+      team_id = @options['team_id']
+    end
+    Team.find_by_id(team_id)
   end
 
   def teams
@@ -133,7 +138,9 @@ class CheckSearch
     end
     query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     filters_blank = true
-    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric', 'has_claim', 'cluster_teams'].each do |filter|
+    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
+      'has_claim', 'cluster_teams', 'published_by'
+    ].each do |filter|
       filters_blank = false unless @options[filter].blank?
     end
     range_filter = hit_es_for_range_filter
@@ -262,6 +269,7 @@ class CheckSearch
     custom_conditions.concat build_search_keyword_conditions
     custom_conditions.concat build_search_tags_conditions
     custom_conditions.concat build_search_report_status_conditions
+    custom_conditions.concat build_search_published_by_conditions
     custom_conditions.concat build_search_integer_terms_query('assigned_user_ids', 'assigned_to')
     custom_conditions.concat build_search_integer_terms_query('channel', 'channels')
     custom_conditions.concat build_search_integer_terms_query('source_id', 'sources')
@@ -602,13 +610,28 @@ class CheckSearch
 
   def build_search_report_status_conditions
     return [] if @options['report_status'].blank? || !@options['report_status'].is_a?(Array)
-    return [{ term: { cluster_report_published: (@options['report_status'].include?('published') ? 1 : 0) } }] if trends_query?
+    if trends_query?
+      conditions = []
+      if (['published', 'unpublished'] - @options['report_status']).empty?
+        conditions << { range: { cluster_published_reports_count: { gte: 0 } } }
+      elsif @options['report_status'].include?('published')
+        conditions << { range: { cluster_published_reports_count: { gt: 0 } } }
+      elsif @options['report_status'].include?('unpublished')
+        conditions << { term: { cluster_published_reports_count: 0 } }
+      end
+      return conditions
+    end
     statuses = []
     @options['report_status'].each do |status_name|
       status_id = ['unpublished', 'paused', 'published'].index(status_name) || -1 # Invalidate the query if an invalid status is passed
       statuses << status_id
     end
     [{ terms: { report_status: statuses } }]
+  end
+
+  def build_search_published_by_conditions
+    return [] if @options['published_by'].blank?
+    [{ terms: { published_by: [@options['published_by']].flatten } }]
   end
 
   def build_search_doc_conditions

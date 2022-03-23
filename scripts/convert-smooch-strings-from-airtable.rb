@@ -15,8 +15,8 @@ MAPPING = {
   invalid_format: :invalid_format,
   language_confirmation: :confirm_preferred_language,
   language_confirmation_text: SKIP, # Not used currently, because on the non-WhatsApp platforms, the text is the same as the one above
-  navigation_button: SKIP, # Not used currently
-  navigation_text: SKIP, # Not used currently
+  navigation_button: :navigation_button,
+  navigation_text: SKIP, # Not used currently, we're using only the navigation_button one
   newsletter_header: SKIP, # Not used currently... it's still a setting (actually one per language) under the tipline settings
   no_button: :search_result_is_not_relevant_button_label,
   privacy_and_purpose: SKIP, # Please see app/models/concerns/smooch_tos.rb
@@ -31,7 +31,7 @@ MAPPING = {
   privacy_statement_option: :privacy_statement,
   languages_privacy_section: :languages_and_privacy_title,
   privacy_section: :privacy_title,
-  keep_subscription: SKIP, # To be used in CHECK-1590
+  keep_subscription: :keep_subscription_button_label,
   newsletter_notification: SKIP, # To be used in CHECK-1548
   newsletter_footer_text: SKIP # Not used currently
 }

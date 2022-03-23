@@ -324,11 +324,11 @@ class Bot::Smooch < BotUser
 
   def self.reset_user_language(uid)
     Rails.cache.delete("smooch:user_language:#{uid}")
-    Rails.cache.delete("smooch:user_language:#{uid}:confirmed")
+    Rails.cache.delete("smooch:user_language:#{self.config['team_id']}:#{uid}:confirmed")
   end
 
   def self.user_language_confirmed?(uid)
-    !Rails.cache.read("smooch:user_language:#{uid}:confirmed").blank?
+    !Rails.cache.read("smooch:user_language:#{self.config['team_id']}:#{uid}:confirmed").blank?
   end
 
   def self.get_supported_languages
@@ -351,6 +351,7 @@ class Bot::Smooch < BotUser
     if self.should_ask_for_language_confirmation?(uid)
       self.ask_for_language_confirmation(workflow, language, uid)
     else
+      self.send_greeting(uid, workflow)
       self.send_message_for_state(uid, workflow, 'main', language)
     end
   end
@@ -518,10 +519,11 @@ class Bot::Smooch < BotUser
       self.send_final_message_to_user(uid, self.get_menu_string('search_result_is_relevant', language), workflow, language)
     elsif value =~ /^[a-z]{2}(_[A-Z]{2})?$/
       Rails.cache.write("smooch:user_language:#{uid}", value)
-      Rails.cache.write("smooch:user_language:#{uid}:confirmed", value)
+      Rails.cache.write("smooch:user_language:#{self.config['team_id']}:#{uid}:confirmed", value)
       sm.send('go_to_main')
       workflow = self.get_workflow(value)
       self.bundle_message(message)
+      self.send_greeting(uid, workflow)
       self.send_message_for_state(uid, workflow, 'main', value)
     end
   end

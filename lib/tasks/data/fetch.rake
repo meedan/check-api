@@ -13,13 +13,13 @@ end
 
 namespace :check do
   namespace :fetch do
-    # bundle exec rails check:fetch:clear['slug:team_slug&services:list-of-services']
+    # bundle exec rails check:fetch:clear['slug:team_slug&services:list|of|services']
     task clear: :environment do |_t, args|
       data = parse_args args.extras
       slug = data['slug']
-      services = data['services'].split('-')
+      services = data['services'].split('|')
       if slug.blank? || services.blank?
-        puts "You should pass workspace slug and services to the rake task[check:fetch:clear['slug:team_slug&services:list-of-services']"
+        puts "You should pass workspace slug and services to the rake task[check:fetch:clear['slug:team_slug&services:list|of|services']"
         exit
       end
       Team.where(slug: slug).find_each do |team|
@@ -76,23 +76,27 @@ namespace :check do
       end
     end
 
-    # bundle exec rails check:fetch:import['slug:team_slug&services:list-of-services']
+    # bundle exec rails check:fetch:import['slug:team_slug&services:list|of|services']
     task import: :environment do |_t, args|
       # This task depend on status_mapping
       # and user must set the mapping using environment variable
       # i.e export STATUS_MAPPING=mapping.to_json
       data = parse_args args.extras
       slug = data['slug']
-      services = data['services'].split('-')
+      services = data['services'].split('|')
       team = Team.find_by_slug(slug)
       if slug.blank? || services.blank?
-        puts "You should pass workspace slug and services to the rake task[check:fetch:import['slug:team_slug&services:list-of-services']"
+        puts "You should pass workspace slug and services to the rake task[check:fetch:import['slug:team_slug&services:list|of|services']"
         exit
       end
       unless team.nil?
         # Get status mapping
         # should set status_mapping as environment variable in json format (i.e export STATUS_MAPPING=mapping.to_json)
-        status_mapping = begin JSON.parse(ENV["STATUS_MAPPING"]) rescue {} end
+        begin
+          status_mapping = JSON.parse(ENV["STATUS_MAPPING"])
+        rescue JSON::ParserError,TypeError
+          raise "Couldn't parse a status mapping. Please pass in a JSON status mapping into the STATUS_MAPPING environment variable."
+        end
         # Install fetch
         fetch_user = BotUser.find_by_login('fetch')
         tbi_fetch = TeamBotInstallation.where(user_id: fetch_user.id, team_id: team.id).last

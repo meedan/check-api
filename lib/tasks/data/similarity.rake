@@ -12,15 +12,15 @@ namespace :check do
         i += 1
         puts("Relationship #{i}")
         f.write({
-          source_team_slug: r.source.team.slug,
+          source_team_slug: (r.source.team.slug rescue nil),
           model: r.model,
           weight: r.weight,
           source_id: r.source_id,
           source_field: r.source_field,
-          source_media_type: r.source.media.type,
+          source_media_type: (r.source.media.type rescue nil),
           target_id: r.target_id,
           target_field: r.target_field,
-          target_media_type: r.target.media.type,
+          target_media_type: (r.target.media.type rescue nil),
           details: r.details,
           created_at: r.created_at,
           source_text_fields: Hash[Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.collect{|f| [f, (r.source.send(f) rescue nil)]}],
@@ -43,15 +43,15 @@ namespace :check do
           target = ProjectMedia.find_by_id(r['target_id'])
           next if source.nil? || target.nil?
           f.write({
-            source_team_slug: source.team.slug,
+            source_team_slug: (source.team.slug rescue nil),
             model: r["model"],
             weight: r["weight"],
             source_id: source.id,
             source_field: r["source_field"],
-            source_media_type: source.media.type,
+            source_media_type: (source.media.type rescue nil),
             target_id: target.id,
             target_field: r["target_field"],
-            target_media_type: target.media.type,
+            target_media_type: (target.media.type rescue nil),
             details: r["details"],
             created_at: r["created_at"],
             source_text_fields: Hash[Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.collect{|f| [f, (source.send(f) rescue nil)]}],
@@ -69,15 +69,15 @@ namespace :check do
         i += 1
         puts("Relationship #{i}")
         f.write({
-          source_team_slug: r.source.team.slug,
+          source_team_slug: (r.source.team.slug rescue nil),
           model: r.model,
           weight: r.weight,
           source_id: r.source_id,
           source_field: r.source_field,
-          source_media_type: r.source.media.type,
+          source_media_type: (r.source.media.type rescue nil),
           target_id: r.target_id,
           target_field: r.target_field,
-          target_media_type: r.target.media.type,
+          target_media_type: (r.target.media.type rescue nil),
           details: r.details,
           created_at: r.created_at,
           source_text_fields: Hash[Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.collect{|f| [f, (r.source.send(f) rescue nil)]}],
@@ -100,15 +100,15 @@ namespace :check do
           target = ProjectMedia.find_by_id(r['target_id'])
           next if source.nil? || target.nil?
           f.write({
-            source_team_slug: source.team.slug,
+            source_team_slug: (source.team.slug rescue nil),
             model: r["model"],
             weight: r["weight"],
             source_id: source.id,
             source_field: r["source_field"],
-            source_media_type: source.media.type,
+            source_media_type: (source.media.type rescue nil),
             target_id: target.id,
             target_field: r["target_field"],
-            target_media_type: target.media.type,
+            target_media_type: (target.media.type rescue nil),
             details: r["details"],
             created_at: r["created_at"],
             source_text_fields: Hash[Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.collect{|f| [f, (source.send(f) rescue nil)]}],
@@ -127,15 +127,15 @@ namespace :check do
         puts("Relationship #{i}")
         next if r.source.nil? || r.target.nil?
         f.write({
-          source_team_slug: r.source.team.slug,
+          source_team_slug: (r.source.team.slug rescue nil),
           model: r.model,
           weight: r.weight,
           source_id: r.source_id,
           source_field: r.source_field,
-          source_media_type: r.source.media.type,
+          source_media_type: (r.source.media.type rescue nil),
           target_id: r.target_id,
           target_field: r.target_field,
-          target_media_type: r.target.media.type,
+          target_media_type: (r.target.media.type rescue nil),
           details: r.details,
           created_at: r.created_at,
           source_text_fields: Hash[Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.collect{|f| [f, (r.source.send(f) rescue nil)]}],
