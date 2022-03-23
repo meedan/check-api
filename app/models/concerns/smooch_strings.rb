@@ -75,6 +75,7 @@ module SmoochStrings
         "keep_subscription_button_label": {
           "es": "Mantener suscripción",
           "be": "সাবস্ক্রিপশন করে রাখুন",
+          "fr": "Rester abonné",
           "hi": "सबस्क्रिप्शन कायम रखें",
           "kn": "ಚಂದಾದಾರಿಕೆ ಇಟ್ಟುಕೊಳ್ಳಿ",
           "mr": "सबस्क्रिप्शन कायम ठेवा",
