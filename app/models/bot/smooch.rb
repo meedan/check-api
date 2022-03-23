@@ -351,6 +351,7 @@ class Bot::Smooch < BotUser
     if self.should_ask_for_language_confirmation?(uid)
       self.ask_for_language_confirmation(workflow, language, uid)
     else
+      self.send_greeting(uid, workflow)
       self.send_message_for_state(uid, workflow, 'main', language)
     end
   end
