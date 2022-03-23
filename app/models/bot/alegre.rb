@@ -14,7 +14,7 @@ class Bot::Alegre < BotUser
   ::ProjectMedia.class_eval do
     attr_accessor :alegre_similarity_thresholds, :alegre_matched_fields
 
-    def similar_items_ids_and_scores(team_ids, param1= nil, param2= nil, param3= nil, param4= nil, param5= nil, param6= nil, param7= nil)
+    def similar_items_ids_and_scores(team_ids)
       ids_and_scores = {}
       if self.is_media?
         media_type = {
@@ -51,8 +51,8 @@ class Bot::Alegre < BotUser
     after_update :match_similar_items_using_transcription, :get_language_from_transcription
 
     def self.send_annotation_data_to_similarity_index(pm_id, annotation_type)
-      pm = ProjectMedia.find_by_id( pm_id )
-      if annotation_type == "report_design"
+      pm = ProjectMedia.find_by_id(pm_id)
+      if annotation_type == 'report_design'
         REPORT_TEXT_SIMILARITY_FIELDS.each do |field|
           Bot::Alegre.send_field_to_similarity_index(pm, field)
         end
@@ -255,13 +255,11 @@ class Bot::Alegre < BotUser
     self.get_language_from_text(pm, pm.text)
   end
 
-  def self.get_language_from_text(pm, text)  
+  def self.get_language_from_text(pm, text)
     lang = text.blank? ? 'und' : self.get_language_from_alegre(text)
     self.save_annotation(pm, 'language', { language: lang })
     lang
-  end 
-
-
+  end
 
   def self.auto_transcription(pm)
     Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Auto Transcription 1/5] Attempting auto transcription"
@@ -431,7 +429,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_context_from_image_or_text_response(search_result)
-    self.get_source_key_from_image_or_text_response(search_result, "context" )
+    self.get_source_key_from_image_or_text_response(search_result, 'context')
   end
 
   def self.get_source_key_from_image_or_text_response(search_result, source_key)
@@ -484,7 +482,7 @@ class Bot::Alegre < BotUser
     self.add_relationship(pm, pm_id_scores, parent_id)
   end
 
-  def self.add_relationship( pm, pm_id_scores, parent_id )
+  def self.add_relationship(pm, pm_id_scores, parent_id)
     # Better be safe than sorry.
     return if parent_id == pm.id
     parent = ProjectMedia.find_by_id(parent_id)
@@ -566,7 +564,6 @@ class Bot::Alegre < BotUser
   end
 
   def self.is_text_too_short?(pm, length_threshold)
-
     is_short = false
     unless pm.alegre_matched_fields.blank?
       fields_size = []
@@ -583,6 +580,3 @@ class Bot::Alegre < BotUser
   end
 
 end
-
-
-
