@@ -27,6 +27,16 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_equal pm, r.target
   end
 
+  test "should not have a published target" do
+    create_verification_status_stuff
+    s = create_project_media team: @team
+    t = create_project_media team: @team
+    publish_report(t)
+    assert_raises ActiveRecord::RecordInvalid do
+      create_relationship source_id: s.id, target_id: t.id
+    end
+  end
+
   test "should not save if source is missing" do
     assert_raises ActiveRecord::StatementInvalid do
       assert_no_difference 'Relationship.count' do
