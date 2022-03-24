@@ -30,12 +30,13 @@ module SmoochTeamBotInstallation
           self.skip_save_images = true
           self.save!
           # Make sure that users will see the new image
-          if images_updated
-            Rails.cache.delete_matched("smooch:user_language:#{self.team_id}:*:confirmed")
-            uids = DynamicAnnotation::Field.joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN teams t ON t.id = a.annotated_id AND a.annotated_type = 'Team'").where(field_name: 'smooch_user_id', 't.id' => self.team_id).map(&:value)
-            uids.each { |uid| CheckStateMachine.new(uid).reset }
-          end
+          self.class.delay_for(1.second).reset_smooch_users_states(self.team_id) if images_updated
         end
+      end
+
+      def self.reset_smooch_users_states(team_id)
+        Rails.cache.delete_matched("smooch:user_language:#{team_id}:*:confirmed")
+        DynamicAnnotation::Field.joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN teams t ON t.id = a.annotated_id AND a.annotated_type = 'Team'").where(field_name: 'smooch_user_id', 't.id' => team_id).find_each { |f| CheckStateMachine.new(f.value).reset }
       end
 
       def reset_smooch_authorization_token
