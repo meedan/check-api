@@ -391,7 +391,7 @@ GEM
       activesupport (>= 4)
       railties (>= 4)
       request_store (~> 1.0)
-    loofah (2.15.0)
+    loofah (2.2.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     mail (2.7.1)
@@ -561,8 +561,8 @@ GEM
       activesupport (>= 4.2.0)
       nokogiri (>= 1.6)
     rails-graphql-generator (0.1.0)
-    rails-html-sanitizer (1.4.2)
-      loofah (~> 2.3)
+    rails-html-sanitizer (1.0.3)
+      loofah (~> 2.0)
     railties (5.2.6.3)
       actionpack (= 5.2.6.3)
       activesupport (= 5.2.6.3)
@@ -860,7 +860,7 @@ DEPENDENCIES
   jwt
   listen
   lograge
-  loofah (= 2.15.0)
+  loofah (= 2.2.1)
   mini_magick (= 4.10.1)
   minitest (= 5.14.4)
   minitest-hooks
@@ -894,7 +894,7 @@ DEPENDENCIES
   rails (= 5.2.6.3)
   rails-controller-testing
   rails-graphql-generator
-  rails-html-sanitizer (~> 1.2)
+  rails-html-sanitizer (= 1.0.3)
   rails-i18n!
   redis-namespace
   redis-objects
