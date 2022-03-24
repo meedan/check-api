@@ -209,7 +209,7 @@ module SmoochMenus
       "#{value}. #{option[label_key]}#{description}"
     end
 
-    def ask_for_language_confirmation(workflow, language, uid)
+    def ask_for_language_confirmation(_workflow, language, uid)
       self.reset_user_language(uid)
       text = []
       options = []
