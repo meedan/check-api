@@ -5,6 +5,8 @@ require 'airbrake/sidekiq'
 
 Airbrake.add_filter(Airbrake::Sidekiq::RetryableJobsFilter.new)
 
+Sidekiq::Extensions.enable_delay!
+
 REDIS_CONFIG = {}
 if File.exist?(file)
   require 'sidekiq/middleware/i18n'
