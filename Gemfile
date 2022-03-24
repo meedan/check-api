@@ -149,3 +149,4 @@ gem 'bootsnap', require: false
 gem 'sidekiq-cron', '~> 1.1'
 gem 'parse-cron'
 gem 'streamio-ffmpeg'
+gem 'rdoc', '6.3.2'
