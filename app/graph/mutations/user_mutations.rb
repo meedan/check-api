@@ -10,20 +10,23 @@ module UserMutations
     name: '!str',
     password: '!str',
     password_confirmation: '!str'
-  });
+  })
+
+  bool_fields = {
+    send_email_notifications: 'bool',
+    send_successful_login_notifications: 'bool',
+    send_failed_login_notifications: 'bool',
+    accept_terms: 'bool',
+    completed_signup: 'bool'
+  }
 
   update_fields = fields.merge({
     email: 'str',
     name: 'str',
     current_project_id: 'int',
     password: 'str',
-    password_confirmation: 'str',
-    send_email_notifications: 'bool',
-    send_successful_login_notifications: 'bool',
-    send_failed_login_notifications: 'bool',
-    accept_terms: 'bool',
-    completed_signup: 'bool'
-  });
+    password_confirmation: 'str'
+  }).merge(bool_fields)
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('user', create_fields, update_fields)
 end
