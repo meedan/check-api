@@ -73,17 +73,18 @@ module SmoochStrings
           "ur": "معذرت، آپ کی جمع کرائی گئی فائل سپورٹ فارمیٹ نہیں ہے۔"
         },
         "keep_subscription_button_label": {
-          "es": "Mantener suscripción",
+          "en": "Keep subscription",
           "be": "সাবস্ক্রিপশন করে রাখুন",
           "fr": "Rester abonné",
+          "de": "Abo behalten",
           "hi": "सबस्क्रिप्शन कायम रखें",
           "kn": "ಚಂದಾದಾರಿಕೆ ಇಟ್ಟುಕೊಳ್ಳಿ",
           "mr": "सबस्क्रिप्शन कायम ठेवा",
           "pt": "Manter inscrição",
           "pa": "ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਕਾਇਮ ਰੱਖੋ",
+          "es": "Mantener suscripción",
           "ta": "சந்தாவை தொடர்",
-          "te": "చందా ఉంచుకోండి",
-          "en": "Keep subscription"
+          "te": "చందా ఉంచుకోండి"
         },
         "languages": {
           "en": "Languages",
@@ -192,10 +193,10 @@ module SmoochStrings
           "mr": "गोपनीयता",
           "pt": "Privacidade",
           "pa": "ਗੋਪਨੀਅਤਾ",
+          "es": "Privacidad",
           "ta": "தனியுரிமை",
           "te": "గౌప్యత",
-          "ur": "رازداری",
-          "es": "Privacidad"
+          "ur": "رازداری"
         },
         "report_updated": {
           "en": "The following fact-check has been *updated* with new information:",
@@ -320,7 +321,7 @@ module SmoochStrings
           "mr": "तुम्ही सध्या आमच्या वृत्तपत्राचे सदस्यत्व घेतलेले नाही.",
           "pt": "Atualmente, você não está inscrito(a) em nosso boletim informativo.",
           "pa": "ਤੁਸੀਂ ਵਰਤਮਾਨ ਵਿੱਚ ਸਾਡੇ ਨਿਊਜ਼ਲੈਟਰ ਦੀ ਗਾਹਕੀ ਨਹੀਂ ਲਈ ਹੈ।",
-          "es": "Actualmente no está suscrita(o) a nuestro boletín.",
+          "es": "Actualmente no estás suscrita(o) a nuestro boletín.",
           "ta": "தற்சமயம் நீங்கள் எங்கள் செய்தி மடலைப் பெறும் வசதியை ரத்து செய்து இருக்கிறீர்கள்",
           "te": "మీరు ప్రస్తుతం మా వార్తాలేఖకు సభ్యత్వం పొందలేదు.",
           "ur": "آپ نے فی الحال ہمارے نیوز لیٹر کو سبسکرائب نہیں کیا ہے۔"
