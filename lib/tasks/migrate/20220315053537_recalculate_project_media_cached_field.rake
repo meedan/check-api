@@ -15,7 +15,11 @@ namespace :check do
             print '.'
             value = pm.send(field_name, true)
             doc_id = Base64.encode64("ProjectMedia/#{pm.id}")
-            fields = { "#{field_name}" => value }
+            field_value = value
+            if field_name == 'report_status'
+              field_value = ['unpublished', 'paused', 'published'].index(value)
+            end
+            fields = { "#{field_name}" => field_value }
             es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
           end
           client.bulk body: es_body unless es_body.blank?
