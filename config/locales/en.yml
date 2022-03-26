@@ -720,6 +720,7 @@ en:
   flag_likelihood_5: High (more content will be detected)
   flag_likelihood_7: Manual
   relationship_not_same_team: Related items must exist in the same workspace
+  target_is_published: Target should not have a published report
   bulk_operation_limit_error: Sorry, the maximum number of items to be processed at
     once is %{limit}
   must_provide_fallback_when_deleting_status_in_use: This status is being used, so
