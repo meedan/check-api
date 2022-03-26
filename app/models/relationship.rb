@@ -12,8 +12,8 @@ class Relationship < ApplicationRecord
   before_validation :set_user, on: :create
   before_validation :set_confirmed, if: :is_being_confirmed?, on: :update
   before_validation :set_cluster, if: :is_being_confirmed?, on: :update
-  validate :relationship_type_is_valid
-  validate :items_are_from_the_same_team
+  validate :relationship_type_is_valid, :items_are_from_the_same_team
+  validate :target_not_pulished_report, on: :create
   validates :relationship_type, uniqueness: { scope: [:source_id, :target_id], message: :already_exists }, on: :create
 
   after_create :move_to_same_project_as_main, prepend: true
@@ -189,6 +189,13 @@ class Relationship < ApplicationRecord
   def items_are_from_the_same_team
     if self.source && self.target && self.source.team_id != self.target.team_id
       errors.add(:base, I18n.t(:relationship_not_same_team))
+    end
+  end
+
+  def target_not_pulished_report
+    unless self.target.nil?
+      state = self.target.get_annotations('report_design').last&.load&.get_field_value('state')
+      errors.add(:base, I18n.t(:target_is_published)) if state == 'published'
     end
   end
 
