@@ -59,6 +59,7 @@ class Account < ApplicationRecord
       data = self.pender_data
       source = get_source_obj(data)
       source.update_from_pender_data(data)
+      source.skip_check_ability = true
       source.save!
     end
     create_account_source(source)
