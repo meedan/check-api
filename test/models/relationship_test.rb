@@ -321,6 +321,17 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_not_nil Relationship.where(source_id: i1, target_id: i11).last
     assert_not_nil Relationship.where(source_id: i1, target_id: i111).last
     assert_nil Relationship.where(source_id: i11, target_id: i111).last
+    # should re-point if same target exists in two relationships
+    s1 = create_project_media team: t
+    s2 = create_project_media team: t
+    t = create_project_media team: t
+    create_relationship source_id: s1.id, target_id: t.id, relationship_type: Relationship.confirmed_type
+    create_relationship source_id: s2.id, target_id: t.id, relationship_type: Relationship.confirmed_type
+    create_relationship source_id: s2.id, target_id: s1.id, relationship_type: Relationship.confirmed_type
+    assert_equal 2, Relationship.where(source_id: s2).count
+    assert_nil Relationship.where(source_id: s1, target_id: t).last
+    assert_not_nil Relationship.where(source_id: s2, target_id: t).last
+    assert_not_nil Relationship.where(source_id: s2, target_id: s1).last
   end
 
   test "should not attempt to update source count if source does not exist" do
