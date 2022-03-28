@@ -145,6 +145,10 @@ en:
           attributes:
             data:
               already_exists: already exists
+        relationship:
+          attributes:
+            relationship_type:
+              already_exists: already exists
         team:
           attributes:
             slug:
