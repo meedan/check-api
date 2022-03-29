@@ -136,7 +136,7 @@ module TeamRules
     end
 
     def extracted_text_contains_keyword(pm, value, _rule_id)
-      text_contains_keyword(pm.title, value)
+      text_contains_keyword(pm.extracted_text, value)
     end
 
     def field_contains_keyword(pm, value, _rule_id)
