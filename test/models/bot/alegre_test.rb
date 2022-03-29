@@ -1251,7 +1251,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     create_tag_text text: 'test', team_id: t.id
     rules = []
     rules << {
-      "name": "random_string",
+      "name": random_string,
       "project_ids": "",
       "rules": {
         "operator": "and",
