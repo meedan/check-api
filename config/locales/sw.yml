@@ -136,6 +136,10 @@ sw:
           attributes:
             data:
               already_exists: Tayari ipo
+        relationship:
+          attributes:
+            relationship_type:
+              already_exists: Tayari ipo
         team:
           attributes:
             slug:
