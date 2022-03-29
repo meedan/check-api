@@ -185,6 +185,15 @@ module SmoochMessages
       end
     end
 
+    def adjust_media_type(message)
+      if message['type'] == 'file'
+        message['mediaType'] = self.detect_media_type(message)
+        m = message['mediaType'].to_s.match(/^(image|video|audio)\//)
+        message['type'] = m[1] unless m.nil?
+      end
+      message
+    end
+
     def clear_user_bundled_messages(uid)
       Redis.new(REDIS_CONFIG).del("smooch:bundle:#{uid}")
     end
@@ -204,7 +213,7 @@ module SmoochMessages
         text << begin JSON.parse(message['payload'])['keyword'] rescue message['text'] end
       end
       bundle['text'] = text.reject{ |t| t.blank? }.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}") # Add a boundary so we can easily split messages if needed
-      bundle
+      self.adjust_media_type(bundle)
     end
 
     def handle_bundle_messages(type, list, last, app_id, annotated, send_message = true)
