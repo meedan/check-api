@@ -139,6 +139,10 @@ es:
           attributes:
             data:
               already_exists: ya existe
+        relationship:
+          attributes:
+            relationship_type:
+              already_exists: ya existe
         team:
           attributes:
             slug:

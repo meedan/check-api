@@ -143,6 +143,10 @@ id:
           attributes:
             data:
               already_exists: sudah ada
+        relationship:
+          attributes:
+            relationship_type:
+              already_exists: sudah ada
         team:
           attributes:
             slug:

@@ -139,6 +139,10 @@ fil:
           attributes:
             data:
               already_exists: ay dati na
+        relationship:
+          attributes:
+            relationship_type:
+              already_exists: ay dati na
         team:
           attributes:
             slug:

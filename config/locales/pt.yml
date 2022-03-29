@@ -140,6 +140,10 @@ pt:
           attributes:
             data:
               already_exists: já existe
+        relationship:
+          attributes:
+            relationship_type:
+              already_exists: já existe
         team:
           attributes:
             slug:

@@ -137,6 +137,10 @@ ar:
           attributes:
             data:
               already_exists: موجود بالفعل
+        relationship:
+          attributes:
+            relationship_type:
+              already_exists: موجود بالفعل
         team:
           attributes:
             slug:
