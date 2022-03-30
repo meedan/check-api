@@ -209,7 +209,7 @@ class CheckSearch
     core_conditions['team_id'] = @options['team_id'] unless @options['team_id'].blank?
     # Add custom conditions for array values
     {
-      'project_id' => 'projects', 'user_id' => 'users', 'source_id' => 'sources', 'channel' => 'channels', 'read' => 'read'
+      'project_id' => 'projects', 'user_id' => 'users', 'source_id' => 'sources', 'read' => 'read'
     }.each do |k, v|
       custom_conditions[k] = [@options[v]].flatten if @options.has_key?(v)
     end
@@ -238,6 +238,7 @@ class CheckSearch
     end
     relation = relation.distinct('project_medias.id').includes(:media).includes(:project).where(core_conditions)
     relation = relation.joins('INNER JOIN clusters ON clusters.project_media_id = project_medias.id') if trends_query?
+    relation = relation.where("channel->>'main'IN (?)", [@options['channels']].flatten.map(&:to_s)) if @options.has_key?('channels')
     relation
   end
 

@@ -796,7 +796,7 @@ class Bot::Smooch < BotUser
   def self.create_project_media(message, type, extra)
     extra.merge!({ archived: message['archived'] })
     channel_value = self.get_smooch_channel(message)
-    extra.merge!({ channel: channel_value }) unless channel_value.nil?
+    extra.merge!({ channel: {main: channel_value }}) unless channel_value.nil?
     pm = ProjectMedia.create!({ media_type: type, smooch_message: message }.merge(extra))
     pm.is_being_created = true
     pm
@@ -842,7 +842,7 @@ class Bot::Smooch < BotUser
         pm.is_being_created = true
         # set channel
         channel_value = self.get_smooch_channel(message)
-        pm.channel = channel_value unless channel_value.nil?
+        pm.channel = { main: channel_value } unless channel_value.nil?
         File.open(filepath) do |f2|
           pm.file = f2
           pm.save!
