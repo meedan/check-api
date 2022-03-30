@@ -143,6 +143,10 @@ fr:
           attributes:
             data:
               already_exists: existe déjà
+        relationship:
+          attributes:
+            relationship_type:
+              already_exists: existe déjà
         team:
           attributes:
             slug:
@@ -282,8 +286,8 @@ fr:
     one: Une note
     other: "%{count} notes"
   oembed_completed_tasks_count:
-    one: Une tâche est achevée
-    other: "%{count} tâches sont achevées"
+    one: Une tâche est remplie
+    other: "%{count} tâches sont remplies"
   oembed_verification_tasks: Tâches
   oembed_tasks: Tâches
   oembed_translations: Traductions
@@ -412,7 +416,7 @@ fr:
       expire_note: Veuillez noter que ce lien expirera dans %{days} jours.
       team_import_subject: L’importation de vos données est terminée
       team_import_title: Importation des données
-      team_import_text: "<p>Votre travail d’importation dans %{app_name} est achevé.
+      team_import_text: "<p>Votre travail d’importation dans %{app_name} est terminé.
         Vous pouvez consulter %{worksheet_url} pour examiner l’état de chaque élément
         à importer.</p> <p>Notez que vous pourrez relancer l’importation après avoir
         corrigé les erreurs qui y sont signalées. Les éléments déjà importés ne seront
@@ -433,7 +437,7 @@ fr:
       section_title: Marqué %{status}.
       added_to: Ajouté à %{app_name}
       update_h: Dernière mise à jour
-      tasks_h: Les tâches sont achevées
+      tasks_h: Les tâches sont remplies
     assignment:
       assign_task_subject: "[%{team} – %{project}] Une tâche vous a été attribuée"
       unassign_task_subject: "[%{team} – %{project}] L’attribution d’une tâche vous

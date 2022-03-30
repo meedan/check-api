@@ -822,11 +822,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.save_media_message(message)
-    if message['type'] == 'file'
-      message['mediaType'] = self.detect_media_type(message)
-      m = message['mediaType'].to_s.match(/^(image|video|audio)\//)
-      message['type'] = m[1] unless m.nil?
-    end
+    message = self.adjust_media_type(message)
     allowed_types = { 'image' => 'jpeg', 'video' => 'mp4', 'audio' => 'mp3' }
     return unless allowed_types.keys.include?(message['type'])
 

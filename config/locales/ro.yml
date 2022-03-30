@@ -136,6 +136,10 @@ ro:
           attributes:
             data:
               already_exists: deja există
+        relationship:
+          attributes:
+            relationship_type:
+              already_exists: deja există
         team:
           attributes:
             slug:
