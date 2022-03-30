@@ -2221,7 +2221,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
       RequestStore.store[:skip_clear_cache] = true
-      old = create_project_media team: t, media: Blank.create!, channel: CheckChannels::ChannelCodes::FETCH, disable_es_callbacks: false
+      old = create_project_media team: t, media: Blank.create!, channel: { main: CheckChannels::ChannelCodes::FETCH }, disable_es_callbacks: false
       old.analysis = { title: 'imported item' }
       old_r = publish_report(old)
       old_s = old.last_status_obj
@@ -2488,11 +2488,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     pm = nil
     assert_difference 'ProjectMedia.count' do
-      pm = create_project_media channel: CheckChannels::ChannelCodes::WHATSAPP
+      pm = create_project_media channel: { main: CheckChannels::ChannelCodes::WHATSAPP }
     end
     # validate channel update (should not update existing value)
     assert_raises ActiveRecord::RecordInvalid do
-      pm.channel = CheckChannels::ChannelCodes::MESSENGER
+      pm.channel = { main: CheckChannels::ChannelCodes::MESSENGER }
       pm.save!
     end
     # Set channel with default value MANUAL
@@ -2619,9 +2619,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u = create_user
     pm = create_project_media user: u
     assert_equal pm.creator_name, u.name
-    pm2 = create_project_media user: u, channel: CheckChannels::ChannelCodes::WHATSAPP
+    pm2 = create_project_media user: u, channel: { main: CheckChannels::ChannelCodes::WHATSAPP }
     assert_equal pm2.creator_name, 'Tipline'
-    pm3 = create_project_media user: u, channel: CheckChannels::ChannelCodes::FETCH
+    pm3 = create_project_media user: u, channel: { main: CheckChannels::ChannelCodes::FETCH }
     assert_equal pm3.creator_name, 'Import'
     # update cache based on user update
     u.name = 'update name'

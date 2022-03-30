@@ -198,7 +198,12 @@ class Bot::Fetch < BotUser
     end
 
     def self.create_project_media(team, user)
-      ProjectMedia.create!(media: Blank.create!, team: team, user: user, channel: CheckChannels::ChannelCodes::FETCH)
+      ProjectMedia.create!(
+        media: Blank.create!,
+        team: team,
+        user: user,
+        channel: { main: CheckChannels::ChannelCodes::FETCH }
+      )
     end
 
     def self.get_title(claim_review)

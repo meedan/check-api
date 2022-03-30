@@ -293,7 +293,7 @@ class User < ApplicationRecord
       }
       user.update_columns(columns)
       # update cached field that affected by change user name
-      pm_ids = user.project_medias.where(channel: [CheckChannels::ChannelCodes::MANUAL, CheckChannels::ChannelCodes::BROWSER_EXTENSION]).map(&:id)
+      pm_ids = user.project_medias.where("channel->>'main'IN (?)", [CheckChannels::ChannelCodes::MANUAL, CheckChannels::ChannelCodes::BROWSER_EXTENSION]).map(&:id)
       pm_ids.each{ |pm_id| Rails.cache.write("check_cached_field:ProjectMedia:#{pm_id}:creator_name", 'Anonymous') }
       # delete source profile and accounts
       self.delete_user_profile(s) unless s.nil?

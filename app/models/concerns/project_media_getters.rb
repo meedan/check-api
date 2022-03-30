@@ -150,11 +150,11 @@ module ProjectMediaGetters
     analysis_title = analysis['title'].blank? ? nil : analysis['title']
     file_title = analysis['file_title'].blank? ? nil : analysis['file_title']
     title = self.claim_description_content || analysis_title || file_title || self.original_title
-    self.channel == CheckChannels::ChannelCodes::FETCH ? self.fact_check_title : title
+    self.get_main_channel == CheckChannels::ChannelCodes::FETCH ? self.fact_check_title : title
   end
 
   def get_description
-    return self.fact_check_summary if self.channel == CheckChannels::ChannelCodes::FETCH
+    return self.fact_check_summary if self.get_main_channel == CheckChannels::ChannelCodes::FETCH
     analysis_description = self.has_analysis_description? ? self.analysis_description : nil
     self.claim_description_content || analysis_description || self.original_description
   end
@@ -165,17 +165,22 @@ module ProjectMediaGetters
     fact_check_url || analysis_url
   end
 
+  def get_main_channel
+    self.channel.with_indifferent_access[:main].to_i
+  end
+
   def get_creator_name
     user_name = ''
-    if [CheckChannels::ChannelCodes::MANUAL, CheckChannels::ChannelCodes::BROWSER_EXTENSION].include?(self.channel)
+    main_channel = self.get_main_channel
+    if [CheckChannels::ChannelCodes::MANUAL, CheckChannels::ChannelCodes::BROWSER_EXTENSION].include?(main_channel)
       user_name = self.user&.name
-    elsif CheckChannels::ChannelCodes::TIPLINE.include?(self.channel)
+    elsif CheckChannels::ChannelCodes::TIPLINE.include?(main_channel)
       user_name = 'Tipline'
-    elsif [CheckChannels::ChannelCodes::FETCH, CheckChannels::ChannelCodes::API, CheckChannels::ChannelCodes::ZAPIER].include?(self.channel)
+    elsif [CheckChannels::ChannelCodes::FETCH, CheckChannels::ChannelCodes::API, CheckChannels::ChannelCodes::ZAPIER].include?(main_channel)
       user_name = 'Import'
-    elsif self.channel == CheckChannels::ChannelCodes::WEB_FORM
+    elsif main_channel == CheckChannels::ChannelCodes::WEB_FORM
       user_name = 'Web Form'
-    elsif self.channel == CheckChannels::ChannelCodes::SHARED_DATABASE
+    elsif main_channel == CheckChannels::ChannelCodes::SHARED_DATABASE
       user_name = 'Shared Database'
     end
     user_name

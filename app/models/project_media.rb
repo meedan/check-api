@@ -18,7 +18,8 @@ class ProjectMedia < ApplicationRecord
   validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }, on: :create
   validate :source_belong_to_team, unless: proc { |pm| pm.source_id.blank? || pm.is_being_copied }
   validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
-  validates :channel, included: { values: CheckChannels::ChannelCodes::ALL }, on: :create
+  # TODO: Sawy
+  # validates :channel, included: { values: CheckChannels::ChannelCodes::ALL }, on: :create
   validates :channel, inclusion: { in: ->(pm) { [pm.channel_was] }, message: :channel_update }, on: :update
 
   before_validation :set_team_id, :set_channel, :set_project_id, on: :create
@@ -252,7 +253,7 @@ class ProjectMedia < ApplicationRecord
       analysis = self.analysis
       new_pm.updated_at = Time.now
       new_pm.skip_check_ability = true
-      new_pm.channel = CheckChannels::ChannelCodes::FETCH
+      new_pm.channel = { main: CheckChannels::ChannelCodes::FETCH }
       new_pm.save(validate: false) # To skip channel validation
       new_pm.analysis = { title: analysis['title'], content: analysis['content'] }
       # Point the claim
