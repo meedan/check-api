@@ -258,7 +258,7 @@ ActiveRecord::Schema.define(version: 2022_03_30_043007) do
     t.integer "project_id"
     t.integer "last_seen"
     t.integer "cluster_id"
-    t.jsonb "channel", default: "{\"main\":0}"
+    t.jsonb "channel", default: {"main"=>0}
     t.index ["channel"], name: "index_project_medias_on_channel"
     t.index ["cluster_id"], name: "index_project_medias_on_cluster_id"
     t.index ["last_seen"], name: "index_project_medias_on_last_seen"

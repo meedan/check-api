@@ -390,9 +390,10 @@ class ProjectMedia < ApplicationRecord
     ms.attributes[:analysis_description] = self.analysis_description
     ms.attributes[:quote] = m.quote
     ms.attributes[:verification_status] = self.last_status
+    ms.attributes[:channel] = self.channel.values.map(&:to_i)
     # set fields with integer value
     fields_i = [
-      'archived', 'channel', 'sources_count', 'linked_items_count', 'share_count',
+      'archived', 'sources_count', 'linked_items_count', 'share_count',
       'last_seen', 'demand', 'user_id', 'read'
     ]
     fields_i.each{ |f| ms.attributes[f] = self.send(f).to_i }

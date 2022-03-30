@@ -420,7 +420,7 @@ module ProjectMediaCachedFields
         {
           model: User,
           affected_ids: proc { |u|
-            u.project_medias.where("channel->>'main'IN (?)", [CheckChannels::ChannelCodes::MANUAL, CheckChannels::ChannelCodes::BROWSER_EXTENSION]).map(&:id)
+            u.project_medias.where("channel->>'main'IN (?)", [CheckChannels::ChannelCodes::MANUAL, CheckChannels::ChannelCodes::BROWSER_EXTENSION].map(&:to_s)).map(&:id)
           },
           if: proc { |u| u.saved_change_to_name? },
           events: {
