@@ -1280,4 +1280,51 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm, set_fields: { text: 'Foo' }.to_json
     assert_equal ['test'], pm.get_annotations('tag').map(&:load).map(&:tag_text)
   end
+
+  test "should handle similar items from different workspaces" do
+    t2 = create_team
+    t3 = create_team
+    pm1a = create_project_media team: @team, media: create_uploaded_image
+    pm2 = create_project_media team: t2, media: create_uploaded_image
+    pm3 = create_project_media team: t3, media: create_uploaded_image
+    pm4 = create_project_media media: create_uploaded_image
+    pm1b = create_project_media team: @team, media: create_uploaded_image
+    response = {
+      result: [
+        {
+          id: pm4.id,
+          sha256: random_string,
+          phash: random_string,
+          url: random_url,
+          context: [
+            {
+              team_id: t2.id,
+              has_custom_id: true,
+              project_media_id: pm2.id
+            },
+            {
+              team_id: @team.id,
+              has_custom_id: true,
+              project_media_id: pm1b.id
+            },
+            {
+              team_id: t3.id,
+              has_custom_id: true,
+              project_media_id: pm3.id
+            },
+          ],
+          score: 0
+        }
+      ]
+    }.with_indifferent_access
+    Bot::Alegre.stubs(:request_api).returns(response)
+    assert_nothing_raised do
+      assert_difference 'Relationship.count' do
+        Bot::Alegre.relate_project_media_to_similar_items(pm1a)
+      end
+    end
+    assert_equal pm1b, Relationship.last.source
+    assert_equal pm1a, Relationship.last.target
+    Bot::Alegre.unstub(:request_api)
+  end
 end
