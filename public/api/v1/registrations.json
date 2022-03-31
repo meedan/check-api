@@ -18,8 +18,8 @@
                   "apiUser": {
                     "password": "12345678",
                     "passwordConfirmation": "12345678",
-                    "email": "t@test.com",
-                    "name": "Test"
+                    "name": "Test",
+                    "email": "t_3@test.com"
                   }
                 }
               },
@@ -30,13 +30,11 @@
               "responseModel": {
                 "query": {
                   "apiUser": {
-                    "password": "12345678",
-                    "passwordConfirmation": "12345678",
-                    "email": "t@test.com",
-                    "name": "Test"
-                  },
-                  "password": "123456",
-                  "passwordConfirmation": "123456"
+                    "password": "123456",
+                    "passwordConfirmation": "123456",
+                    "name": "Test",
+                    "email": "t_11@test.com"
+                  }
                 }
               },
               "message": "Password is too short"
@@ -47,11 +45,10 @@
                 "query": {
                   "apiUser": {
                     "password": "12345678",
-                    "passwordConfirmation": "12345678",
-                    "email": "t@test.com",
-                    "name": "Test"
-                  },
-                  "passwordConfirmation": "12345679"
+                    "passwordConfirmation": "12345679",
+                    "name": "Test",
+                    "email": "t_2@test.com"
+                  }
                 }
               },
               "message": "Passwords do not match"
@@ -63,10 +60,9 @@
                   "apiUser": {
                     "password": "12345678",
                     "passwordConfirmation": "12345678",
-                    "email": "t@test.com",
-                    "name": "Test"
-                  },
-                  "email": ""
+                    "name": "Test",
+                    "email": ""
+                  }
                 }
               },
               "message": "E-mail missing"
@@ -76,12 +72,11 @@
               "responseModel": {
                 "query": {
                   "apiUser": {
-                    "password": "12345678",
-                    "passwordConfirmation": "12345678",
-                    "email": "t@test.com",
-                    "name": "Test"
-                  },
-                  "password": ""
+                    "password": "",
+                    "passwordConfirmation": "",
+                    "name": "Test",
+                    "email": "t_73@test.com"
+                  }
                 }
               },
               "message": "Password is missing"
@@ -93,10 +88,9 @@
                   "apiUser": {
                     "password": "12345678",
                     "passwordConfirmation": "12345678",
-                    "email": "t@test.com",
-                    "name": "Test"
-                  },
-                  "name": ""
+                    "name": "",
+                    "email": "t_57@test.com"
+                  }
                 }
               },
               "message": "Name is missing"
@@ -179,8 +173,8 @@
                   "apiUser": {
                     "password": "12345678",
                     "passwordConfirmation": "12345678",
-                    "email": "t@test.com",
-                    "name": "Test"
+                    "name": "Test",
+                    "email": "t_87@test.com"
                   }
                 }
               },
@@ -191,13 +185,11 @@
               "responseModel": {
                 "query": {
                   "apiUser": {
-                    "password": "12345678",
-                    "passwordConfirmation": "12345678",
-                    "email": "t@test.com",
-                    "name": "Test"
-                  },
-                  "password": "123456",
-                  "passwordConfirmation": "123456"
+                    "password": "123456",
+                    "passwordConfirmation": "123456",
+                    "name": "Test",
+                    "email": "t_18@test.com"
+                  }
                 }
               },
               "message": "Password is too short"
@@ -208,11 +200,10 @@
                 "query": {
                   "apiUser": {
                     "password": "12345678",
-                    "passwordConfirmation": "12345678",
-                    "email": "t@test.com",
-                    "name": "Test"
-                  },
-                  "passwordConfirmation": "12345679"
+                    "passwordConfirmation": "12345679",
+                    "name": "Test",
+                    "email": "t_84@test.com"
+                  }
                 }
               },
               "message": "Passwords do not match"
@@ -224,10 +215,9 @@
                   "apiUser": {
                     "password": "12345678",
                     "passwordConfirmation": "12345678",
-                    "email": "t@test.com",
-                    "name": "Test"
-                  },
-                  "email": ""
+                    "name": "Test",
+                    "email": ""
+                  }
                 }
               },
               "message": "E-mail missing"
@@ -237,12 +227,11 @@
               "responseModel": {
                 "query": {
                   "apiUser": {
-                    "password": "12345678",
-                    "passwordConfirmation": "12345678",
-                    "email": "t@test.com",
-                    "name": "Test"
-                  },
-                  "password": ""
+                    "password": "",
+                    "passwordConfirmation": "",
+                    "name": "Test",
+                    "email": "t_99@test.com"
+                  }
                 }
               },
               "message": "Password is missing"
@@ -254,10 +243,9 @@
                   "apiUser": {
                     "password": "12345678",
                     "passwordConfirmation": "12345678",
-                    "email": "t@test.com",
-                    "name": "Test"
-                  },
-                  "name": ""
+                    "name": "",
+                    "email": "t_93@test.com"
+                  }
                 }
               },
               "message": "Name is missing"

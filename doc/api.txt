@@ -1,4 +1,4 @@
-API Endpoints - Tue Nov 23 07:27:57 UTC 2021
+API Endpoints - Thu Mar 31 21:22:55 UTC 2022
        
      1	                              sidekiq_web          /sidekiq                                                                                 Sidekiq::Web
      2	DELETE   /api/users

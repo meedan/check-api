@@ -180,14 +180,14 @@ CREATE TABLE public.accounts (
     id integer NOT NULL,
     user_id integer,
     url character varying,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    team_id integer,
     omniauth_info text,
     uid character varying,
     provider character varying,
     token character varying,
-    email character varying
+    email character varying,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    team_id integer
 );
 
 
@@ -407,6 +407,74 @@ ALTER SEQUENCE public.bounces_id_seq OWNED BY public.bounces.id;
 
 
 --
+-- Name: claim_descriptions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.claim_descriptions (
+    id bigint NOT NULL,
+    description text,
+    user_id bigint NOT NULL,
+    project_media_id bigint NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    context text
+);
+
+
+--
+-- Name: claim_descriptions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.claim_descriptions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: claim_descriptions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.claim_descriptions_id_seq OWNED BY public.claim_descriptions.id;
+
+
+--
+-- Name: clusters; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.clusters (
+    id bigint NOT NULL,
+    project_medias_count integer DEFAULT 0,
+    project_media_id integer,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    first_item_at timestamp without time zone,
+    last_item_at timestamp without time zone
+);
+
+
+--
+-- Name: clusters_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.clusters_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: clusters_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.clusters_id_seq OWNED BY public.clusters.id;
+
+
+--
 -- Name: dynamic_annotation_annotation_types; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -467,6 +535,41 @@ CREATE TABLE public.dynamic_annotation_fields (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
+
+
+--
+-- Name: fact_checks; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.fact_checks (
+    id bigint NOT NULL,
+    summary text NOT NULL,
+    url character varying,
+    title character varying NOT NULL,
+    user_id bigint NOT NULL,
+    claim_description_id bigint NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: fact_checks_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.fact_checks_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: fact_checks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.fact_checks_id_seq OWNED BY public.fact_checks.id;
 
 
 --
@@ -688,7 +791,8 @@ CREATE TABLE public.project_medias (
     source_id integer,
     project_id integer,
     last_seen integer,
-    channel integer DEFAULT 0
+    channel integer DEFAULT 0,
+    cluster_id integer
 );
 
 
@@ -721,6 +825,7 @@ CREATE TABLE public.projects (
     user_id integer,
     team_id integer,
     title character varying,
+    is_default boolean DEFAULT false,
     description text,
     lead_image character varying,
     created_at timestamp without time zone NOT NULL,
@@ -768,7 +873,11 @@ CREATE TABLE public.relationships (
     user_id integer,
     weight double precision DEFAULT 0.0,
     confirmed_by integer,
-    confirmed_at timestamp without time zone
+    confirmed_at timestamp without time zone,
+    source_field character varying,
+    target_field character varying,
+    model character varying,
+    details jsonb DEFAULT '"{}"'::jsonb
 );
 
 
@@ -1000,16 +1109,17 @@ CREATE TABLE public.team_users (
     team_id integer,
     user_id integer,
     type character varying,
+    invited_by_id integer,
+    invitation_token character varying,
+    raw_invitation_token character varying,
+    invitation_accepted_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     role character varying,
     status character varying DEFAULT 'member'::character varying,
     settings text,
-    invited_by_id integer,
-    invitation_token character varying,
-    raw_invitation_token character varying,
-    invitation_accepted_at timestamp without time zone,
-    invitation_email character varying
+    invitation_email character varying,
+    file character varying
 );
 
 
@@ -1117,6 +1227,7 @@ CREATE TABLE public.users (
     name character varying DEFAULT ''::character varying NOT NULL,
     login character varying DEFAULT ''::character varying NOT NULL,
     token character varying DEFAULT ''::character varying NOT NULL,
+    "default" boolean DEFAULT false,
     email character varying,
     encrypted_password character varying DEFAULT ''::character varying,
     reset_password_token character varying,
@@ -1127,6 +1238,14 @@ CREATE TABLE public.users (
     last_sign_in_at timestamp without time zone,
     current_sign_in_ip character varying,
     last_sign_in_ip character varying,
+    invitation_token character varying,
+    raw_invitation_token character varying,
+    invitation_created_at timestamp without time zone,
+    invitation_sent_at timestamp without time zone,
+    invitation_accepted_at timestamp without time zone,
+    invitation_limit integer,
+    invited_by_id integer,
+    invited_by_type character varying,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     image character varying,
@@ -1143,14 +1262,6 @@ CREATE TABLE public.users (
     unconfirmed_email character varying,
     current_project_id integer,
     is_active boolean DEFAULT true,
-    invitation_token character varying,
-    raw_invitation_token character varying,
-    invitation_created_at timestamp without time zone,
-    invitation_sent_at timestamp without time zone,
-    invitation_accepted_at timestamp without time zone,
-    invitation_limit integer,
-    invited_by_id integer,
-    invited_by_type character varying,
     last_accepted_terms_at timestamp without time zone,
     encrypted_otp_secret character varying,
     encrypted_otp_secret_iv character varying,
@@ -1158,7 +1269,6 @@ CREATE TABLE public.users (
     consumed_timestep integer,
     otp_required_for_login boolean,
     otp_backup_codes character varying[],
-    "default" boolean DEFAULT false,
     completed_signup boolean DEFAULT true,
     last_active_at timestamp without time zone
 );
@@ -1296,10 +1406,31 @@ ALTER TABLE ONLY public.bounces ALTER COLUMN id SET DEFAULT nextval('public.boun
 
 
 --
+-- Name: claim_descriptions id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.claim_descriptions ALTER COLUMN id SET DEFAULT nextval('public.claim_descriptions_id_seq'::regclass);
+
+
+--
+-- Name: clusters id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.clusters ALTER COLUMN id SET DEFAULT nextval('public.clusters_id_seq'::regclass);
+
+
+--
 -- Name: dynamic_annotation_fields id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.dynamic_annotation_fields ALTER COLUMN id SET DEFAULT nextval('public.new_dynamic_annotation_fields_id_seq'::regclass);
+
+
+--
+-- Name: fact_checks id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.fact_checks ALTER COLUMN id SET DEFAULT nextval('public.fact_checks_id_seq'::regclass);
 
 
 --
@@ -1507,6 +1638,22 @@ ALTER TABLE ONLY public.bounces
 
 
 --
+-- Name: claim_descriptions claim_descriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.claim_descriptions
+    ADD CONSTRAINT claim_descriptions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: clusters clusters_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.clusters
+    ADD CONSTRAINT clusters_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: dynamic_annotation_annotation_types dynamic_annotation_annotation_types_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1528,6 +1675,14 @@ ALTER TABLE ONLY public.dynamic_annotation_field_instances
 
 ALTER TABLE ONLY public.dynamic_annotation_field_types
     ADD CONSTRAINT dynamic_annotation_field_types_pkey PRIMARY KEY (field_type);
+
+
+--
+-- Name: fact_checks fact_checks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.fact_checks
+    ADD CONSTRAINT fact_checks_pkey PRIMARY KEY (id);
 
 
 --
@@ -1817,6 +1972,27 @@ CREATE UNIQUE INDEX index_bounces_on_email ON public.bounces USING btree (email)
 
 
 --
+-- Name: index_claim_descriptions_on_project_media_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_claim_descriptions_on_project_media_id ON public.claim_descriptions USING btree (project_media_id);
+
+
+--
+-- Name: index_claim_descriptions_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_claim_descriptions_on_user_id ON public.claim_descriptions USING btree (user_id);
+
+
+--
+-- Name: index_clusters_on_project_media_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_clusters_on_project_media_id ON public.clusters USING btree (project_media_id);
+
+
+--
 -- Name: index_dynamic_annotation_annotation_types_on_json_schema; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1842,6 +2018,20 @@ CREATE INDEX index_dynamic_annotation_fields_on_field_type ON public.dynamic_ann
 --
 
 CREATE INDEX index_dynamic_annotation_fields_on_value_json ON public.dynamic_annotation_fields USING gin (value_json);
+
+
+--
+-- Name: index_fact_checks_on_claim_description_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_fact_checks_on_claim_description_id ON public.fact_checks USING btree (claim_description_id);
+
+
+--
+-- Name: index_fact_checks_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_fact_checks_on_user_id ON public.fact_checks USING btree (user_id);
 
 
 --
@@ -1908,6 +2098,13 @@ CREATE INDEX index_project_medias_on_channel ON public.project_medias USING btre
 
 
 --
+-- Name: index_project_medias_on_cluster_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_project_medias_on_cluster_id ON public.project_medias USING btree (cluster_id);
+
+
+--
 -- Name: index_project_medias_on_last_seen; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1954,6 +2151,13 @@ CREATE INDEX index_project_medias_on_user_id ON public.project_medias USING btre
 --
 
 CREATE INDEX index_projects_on_id ON public.projects USING btree (id);
+
+
+--
+-- Name: index_projects_on_is_default; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_projects_on_is_default ON public.projects USING btree (is_default);
 
 
 --
@@ -2315,6 +2519,38 @@ CREATE RULE versions_insert_redirector AS
 
 
 --
+-- Name: fact_checks fk_rails_1fcf0f26da; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.fact_checks
+    ADD CONSTRAINT fk_rails_1fcf0f26da FOREIGN KEY (claim_description_id) REFERENCES public.claim_descriptions(id);
+
+
+--
+-- Name: fact_checks fk_rails_a23a003919; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.fact_checks
+    ADD CONSTRAINT fk_rails_a23a003919 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: claim_descriptions fk_rails_e113cc6e9c; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.claim_descriptions
+    ADD CONSTRAINT fk_rails_e113cc6e9c FOREIGN KEY (project_media_id) REFERENCES public.project_medias(id);
+
+
+--
+-- Name: claim_descriptions fk_rails_e53818bb09; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.claim_descriptions
+    ADD CONSTRAINT fk_rails_e53818bb09 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: p0 p0_team_id_fkey; Type: FK CONSTRAINT; Schema: versions_partitions; Owner: -
 --
 
@@ -2499,7 +2735,6 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180919184524'),
 ('20180921220829'),
 ('20180926184218'),
-('20180927063738'),
 ('20180928162406'),
 ('20181010190550'),
 ('20181012184401'),
@@ -2654,7 +2889,6 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20201020034234'),
 ('20201021100409'),
 ('20201030175455'),
-('20201031161040'),
 ('20201109160504'),
 ('20201113205207'),
 ('20201113220754'),
@@ -2696,7 +2930,6 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210504180559'),
 ('20210504211958'),
 ('20210504211959'),
-('20210520195307'),
 ('20210606165124'),
 ('20210610200336'),
 ('20210613204517'),
@@ -2723,6 +2956,31 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211014173355'),
 ('20211019121302'),
 ('20211114080408'),
-('20211119174153');
+('20211119174153'),
+('20211122140729'),
+('20211207071749'),
+('20211213040254'),
+('20211223031321'),
+('20211230063103'),
+('20211230181528'),
+('20220112204737'),
+('20220114151602'),
+('20220114165410'),
+('20220114195539'),
+('20220120152305'),
+('20220124165559'),
+('20220129185504'),
+('20220129185833'),
+('20220202020510'),
+('20220209173742'),
+('20220211034158'),
+('20220214055345'),
+('20220217060135'),
+('20220221205147'),
+('20220306034438'),
+('20220310045323'),
+('20220317210706'),
+('20220318032157'),
+('20220318160448');
 
 

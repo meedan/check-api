@@ -67,6 +67,50 @@ Use this method in order to send queries to the GraphQL server
       "name": "Check",
       "version": "0.0.1"
     }
+  },
+  "extensions": {
+    "tracing": {
+      "version": 1,
+      "startTime": "2022-03-31T21:23:19.903Z",
+      "endTime": "2022-03-31T21:23:21.784Z",
+      "duration": 1881003618,
+      "execution": {
+        "resolvers": [
+          {
+            "path": [
+              "about"
+            ],
+            "parentType": "Query",
+            "fieldName": "about",
+            "returnType": "About",
+            "startOffset": 1687765,
+            "duration": 1878917217
+          },
+          {
+            "path": [
+              "about",
+              "name"
+            ],
+            "parentType": "About",
+            "fieldName": "name",
+            "returnType": "String",
+            "startOffset": 1880761623,
+            "duration": 34570
+          },
+          {
+            "path": [
+              "about",
+              "version"
+            ],
+            "parentType": "About",
+            "fieldName": "version",
+            "returnType": "String",
+            "startOffset": 1880865573,
+            "duration": 16212
+          }
+        ]
+      }
+    }
   }
 }
 ```
@@ -78,6 +122,50 @@ Use this method in order to send queries to the GraphQL server
     "about": {
       "name": "Check",
       "version": "0.0.1"
+    }
+  },
+  "extensions": {
+    "tracing": {
+      "version": 1,
+      "startTime": "2022-03-31T21:23:22.070Z",
+      "endTime": "2022-03-31T21:23:22.100Z",
+      "duration": 29601812,
+      "execution": {
+        "resolvers": [
+          {
+            "path": [
+              "about"
+            ],
+            "parentType": "Query",
+            "fieldName": "about",
+            "returnType": "About",
+            "startOffset": 985383,
+            "duration": 28251647
+          },
+          {
+            "path": [
+              "about",
+              "name"
+            ],
+            "parentType": "About",
+            "fieldName": "name",
+            "returnType": "String",
+            "startOffset": 29363632,
+            "duration": 46968
+          },
+          {
+            "path": [
+              "about",
+              "version"
+            ],
+            "parentType": "About",
+            "fieldName": "version",
+            "returnType": "String",
+            "startOffset": 29499530,
+            "duration": 24080
+          }
+        ]
+      }
     }
   }
 }
