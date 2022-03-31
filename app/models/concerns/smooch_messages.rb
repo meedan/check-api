@@ -118,6 +118,7 @@ module SmoochMessages
     def subscription_message(uid, language, subscribed = nil, full_message = true)
       subscribed = subscribed.nil? ? !TiplineSubscription.where(team_id: self.config['team_id'], uid: uid, language: language).last.nil? : subscribed
       status = subscribed ? self.get_menu_string('subscribed', language.gsub(/[-_].*$/, '')) : self.get_menu_string('unsubscribed', language.gsub(/[-_].*$/, ''))
+      status = "*#{status}*"
       full_message ? self.get_menu_string('newsletter_optin_optout', language).gsub('{subscription_status}', status) : status
     end
 
