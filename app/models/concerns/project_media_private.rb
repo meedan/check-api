@@ -7,8 +7,8 @@ module ProjectMediaPrivate
     type: 'object',
     required: ['main'],
     properties: {
-      main: { type: 'number', title: 'Label' },
-      others: { type: 'array', title: 'Active' },
+      main: { type: 'number', title: 'Main' },
+      others: { type: 'array', title: 'Others' },
     }
   }
 
