@@ -99,7 +99,7 @@ module ProjectAssociation
         'media_published_at' => obj.media_published_at,
         'source_id' => obj.source_id,
         'project_id' => obj.project_id,
-        'channel' => obj.channel
+        'channel' => obj.channel.values.map(&:to_i)
       }
       options = { keys: data.keys, data: data, obj: obj }
       ElasticSearchWorker.perform_in(1.second, YAML::dump(obj), YAML::dump(options), 'update_doc')

@@ -18,9 +18,9 @@ class ProjectMedia < ApplicationRecord
   validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }, on: :create
   validate :source_belong_to_team, unless: proc { |pm| pm.source_id.blank? || pm.is_being_copied }
   validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
-  # TODO: Sawy
-  # validates :channel, included: { values: CheckChannels::ChannelCodes::ALL }, on: :create
-  validates :channel, inclusion: { in: ->(pm) { [pm.channel_was] }, message: :channel_update }, on: :update
+  validate :custom_channel_format
+  validate :channel_in_allowed_values, on: :create
+  validate :channel_not_changed, on: :update
 
   before_validation :set_team_id, :set_channel, :set_project_id, on: :create
   after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks, :create_claim_description_and_fact_check, :create_tags

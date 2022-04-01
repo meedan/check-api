@@ -2241,8 +2241,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_equal data, new.channel
       # Verify ES
       result = $repository.find(get_es_id(new))
-      # TODO: Sawy fix
-      # assert_equal [CheckChannels::ChannelCodes::FETCH], result['channel']
+      assert_equal [CheckChannels::ChannelCodes::FETCH], result['channel']
       assert_equal 'imported item', result['analysis_title']
     end
   end
@@ -2483,31 +2482,49 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_kind_of String, pm.extracted_text
   end
 
-  # TODO: fix by Sawy
-  # test "should validate channel value" do
-  #   # validate channel create (should be in allowed values)
-  #   assert_raises ActiveRecord::RecordInvalid do
-  #     create_project_media channel: 90
-  #   end
-  #   pm = nil
-  #   assert_difference 'ProjectMedia.count' do
-  #     pm = create_project_media channel: { main: CheckChannels::ChannelCodes::WHATSAPP }
-  #   end
-  #   # validate channel update (should not update existing value)
-  #   assert_raises ActiveRecord::RecordInvalid do
-  #     pm.channel = { main: CheckChannels::ChannelCodes::MESSENGER }
-  #     pm.save!
-  #   end
-  #   # Set channel with default value MANUAL
-  #   pm2 = create_project_media
-  #   assert_equal CheckChannels::ChannelCodes::MANUAL, pm2.channel
-  #   # Set channel with API if ApiKey exists
-  #   a = create_api_key
-  #   ApiKey.current = a
-  #   pm3 = create_project_media channel: nil
-  #   assert_equal CheckChannels::ChannelCodes::API, pm3.channel
-  #   ApiKey.current = nil
-  # end
+  test "should validate channel value" do
+    # validate channel create (should be in allowed values)
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_media channel: { main: 90 }
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_media channel: { main: '90' }
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_media channel: { others: [90] }
+    end
+    assert_nothing_raised do
+      create_project_media channel: { main: CheckChannels::ChannelCodes::MANUAL, others: [90] }
+    end
+    pm = nil
+    assert_difference 'ProjectMedia.count' do
+      pm = create_project_media channel: { main: CheckChannels::ChannelCodes::WHATSAPP }
+    end
+    # validate channel update (should not update existing value)
+    assert_raises ActiveRecord::RecordInvalid do
+      pm.channel = { main: CheckChannels::ChannelCodes::MESSENGER }
+      pm.save!
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      pm.channel = { others: [90] }
+      pm.save!
+    end
+    assert_nothing_raised do
+      pm.channel = { main: CheckChannels::ChannelCodes::WHATSAPP, others: [main: CheckChannels::ChannelCodes::MESSENGER]}
+      pm.save!
+    end
+    # Set channel with default value MANUAL
+    pm2 = create_project_media
+    data = { "main" => CheckChannels::ChannelCodes::MANUAL }
+    assert_equal data, pm2.channel
+    # Set channel with API if ApiKey exists
+    a = create_api_key
+    ApiKey.current = a
+    pm3 = create_project_media channel: nil
+    data = { "main" => CheckChannels::ChannelCodes::API }
+    assert_equal data, pm3.channel
+    ApiKey.current = nil
+  end
   
   test "should not create duplicated media with for the same uploaded file" do
     team = create_team

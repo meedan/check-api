@@ -539,6 +539,16 @@ class Bot::Alegre < BotUser
       r.relationship_type = relationship_type
       r.save!
     end
+    # check channels for both source & target
+    s_channel = source.get_main_channel
+    t_channel = target.get_main_channel
+    if t_channel == CheckChannels::ChannelCodes::MANUAL && CheckChannels::ChannelCodes::TIPLINE.include?(s_channel)
+      new_channels = target.channel
+      others = target.channel.with_indifferent_access[:others] || []
+      new_channels[:others] = others.concat([s_channel])
+      target.channel = new_channels
+      target.save!
+    end
     message_type = r.is_confirmed? ? 'related_to_confirmed_similar' : 'related_to_suggested_similar'
     message_opts = {item_title: target.title, similar_item_title: source.title}
     CheckNotification::InfoMessages.send(
