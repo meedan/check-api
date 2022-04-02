@@ -127,7 +127,6 @@ module ProjectMediaPrivate
   end
 
   def channel_in_allowed_values
-    error = false
     main = self.channel.with_indifferent_access[:main].to_i
     error = !CheckChannels::ChannelCodes::ALL.include?(main)
     others = self.channel.with_indifferent_access[:others] || []
