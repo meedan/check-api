@@ -554,6 +554,30 @@ class ElasticSearch7Test < ActionController::TestCase
       assert_equal tipline_ids.concat([pm.id]).sort, results.medias.map(&:id).sort
     end
   end
+
+  test "should filter items by channel in main and others" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u ,t) do
+      pm = create_project_media team: t, quote: 'claim a', channel: { main: CheckChannels::ChannelCodes::MANUAL }, disable_es_callbacks: false
+      pm2 = create_project_media team: t, quote: 'claim b', channel: { main: CheckChannels::ChannelCodes::ZAPIER }, disable_es_callbacks: false
+      # tipline items
+      pm3 = create_project_media team: t, channel: { main: CheckChannels::ChannelCodes::WHATSAPP }, disable_es_callbacks: false
+      pm.channel = { main: CheckChannels::ChannelCodes::MANUAL, others: [CheckChannels::ChannelCodes::WHATSAPP] }
+      pm.save!
+      sleep 2
+      results = CheckSearch.new({ channels: [CheckChannels::ChannelCodes::MANUAL] }.to_json)
+      assert_equal [pm.id], results.medias.map(&:id)
+      results = CheckSearch.new({ channels: [CheckChannels::ChannelCodes::WHATSAPP] }.to_json)
+      assert_equal [pm.id, pm3.id], results.medias.map(&:id).sort
+      results = CheckSearch.new({ channels: [CheckChannels::ChannelCodes::WHATSAPP, CheckChannels::ChannelCodes::ZAPIER] }.to_json)
+      assert_equal [pm.id, pm2.id, pm3.id], results.medias.map(&:id).sort
+      # filter by any tipline
+      results = CheckSearch.new({ channels: ['any_tipline'] }.to_json)
+      assert_equal [pm.id, pm3.id], results.medias.map(&:id).sort
+    end
+  end
   
   # Please add new tests to test/controllers/elastic_search_8_test.rb
 end

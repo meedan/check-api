@@ -139,7 +139,7 @@ class CheckSearch
     query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     filters_blank = true
     ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
-      'has_claim', 'cluster_teams', 'published_by'
+      'has_claim', 'cluster_teams', 'published_by', 'channels'
     ].each do |filter|
       filters_blank = false unless @options[filter].blank?
     end
@@ -238,7 +238,6 @@ class CheckSearch
     end
     relation = relation.distinct('project_medias.id').includes(:media).includes(:project).where(core_conditions)
     relation = relation.joins('INNER JOIN clusters ON clusters.project_media_id = project_medias.id') if trends_query?
-    relation = relation.where("channel->>'main'IN (?)", [@options['channels']].flatten.map(&:to_s)) if @options.has_key?('channels')
     relation
   end
 

@@ -390,7 +390,7 @@ class ProjectMedia < ApplicationRecord
     ms.attributes[:analysis_description] = self.analysis_description
     ms.attributes[:quote] = m.quote
     ms.attributes[:verification_status] = self.last_status
-    ms.attributes[:channel] = self.channel.values.map(&:to_i)
+    ms.attributes[:channel] = self.channel.values.flatten.map(&:to_i)
     # set fields with integer value
     fields_i = [
       'archived', 'sources_count', 'linked_items_count', 'share_count',

@@ -2493,7 +2493,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_raises ActiveRecord::RecordInvalid do
       create_project_media channel: { others: [90] }
     end
-    assert_nothing_raised do
+    assert_raises ActiveRecord::RecordInvalid do
       create_project_media channel: { main: CheckChannels::ChannelCodes::MANUAL, others: [90] }
     end
     pm = nil

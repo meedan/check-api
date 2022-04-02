@@ -127,8 +127,15 @@ module ProjectMediaPrivate
   end
 
   def channel_in_allowed_values
-    value = self.channel.with_indifferent_access[:main].to_i
-    errors.add(:channel, I18n.t(:"errors.messages.invalid_project_media_channel_value")) unless CheckChannels::ChannelCodes::ALL.include?(value)
+    error = false
+    main = self.channel.with_indifferent_access[:main].to_i
+    error = !CheckChannels::ChannelCodes::ALL.include?(main)
+    others = self.channel.with_indifferent_access[:others] || []
+    unless error || others.empty?
+      others = others.map(&:to_i)
+      error = !(others - CheckChannels::ChannelCodes::ALL).empty?
+    end
+    errors.add(:channel, I18n.t(:"errors.messages.invalid_project_media_channel_value")) if error
   end
 
   def channel_not_changed
