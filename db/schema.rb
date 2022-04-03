@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_03_18_160448) do
+ActiveRecord::Schema.define(version: 2022_03_30_043007) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -257,8 +257,8 @@ ActiveRecord::Schema.define(version: 2022_03_18_160448) do
     t.integer "source_id"
     t.integer "project_id"
     t.integer "last_seen"
-    t.integer "channel", default: 0
     t.integer "cluster_id"
+    t.jsonb "channel", default: {"main"=>0}
     t.index ["channel"], name: "index_project_medias_on_channel"
     t.index ["cluster_id"], name: "index_project_medias_on_cluster_id"
     t.index ["last_seen"], name: "index_project_medias_on_last_seen"

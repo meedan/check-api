@@ -139,7 +139,7 @@ class CheckSearch
     query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     filters_blank = true
     ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
-      'has_claim', 'cluster_teams', 'published_by'
+      'has_claim', 'cluster_teams', 'published_by', 'channels'
     ].each do |filter|
       filters_blank = false unless @options[filter].blank?
     end
@@ -209,7 +209,7 @@ class CheckSearch
     core_conditions['team_id'] = @options['team_id'] unless @options['team_id'].blank?
     # Add custom conditions for array values
     {
-      'project_id' => 'projects', 'user_id' => 'users', 'source_id' => 'sources', 'channel' => 'channels', 'read' => 'read'
+      'project_id' => 'projects', 'user_id' => 'users', 'source_id' => 'sources', 'read' => 'read'
     }.each do |k, v|
       custom_conditions[k] = [@options[v]].flatten if @options.has_key?(v)
     end

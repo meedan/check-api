@@ -526,17 +526,17 @@ class ElasticSearch7Test < ActionController::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u ,t) do
-      pm = create_project_media team: t, quote: 'claim a', channel: CheckChannels::ChannelCodes::MANUAL, disable_es_callbacks: false
-      pm2 = create_project_media team: t, channel: CheckChannels::ChannelCodes::FETCH, disable_es_callbacks: false
-      pm3 = create_project_media team: t, channel: CheckChannels::ChannelCodes::API, disable_es_callbacks: false
-      pm4 = create_project_media team: t, quote: 'claim b', channel: CheckChannels::ChannelCodes::ZAPIER, disable_es_callbacks: false
+      pm = create_project_media team: t, quote: 'claim a', channel: { main: CheckChannels::ChannelCodes::MANUAL }, disable_es_callbacks: false
+      pm2 = create_project_media team: t, channel: { main: CheckChannels::ChannelCodes::FETCH }, disable_es_callbacks: false
+      pm3 = create_project_media team: t, channel: { main: CheckChannels::ChannelCodes::API }, disable_es_callbacks: false
+      pm4 = create_project_media team: t, quote: 'claim b', channel: { main: CheckChannels::ChannelCodes::ZAPIER }, disable_es_callbacks: false
       # tipline items
-      pm5 = create_project_media team: t, channel: CheckChannels::ChannelCodes::WHATSAPP, disable_es_callbacks: false
-      pm6 = create_project_media team: t, channel: CheckChannels::ChannelCodes::MESSENGER, disable_es_callbacks: false
-      pm7 = create_project_media team: t, channel: CheckChannels::ChannelCodes::TWITTER, disable_es_callbacks: false
-      pm8 = create_project_media team: t, channel: CheckChannels::ChannelCodes::TELEGRAM, disable_es_callbacks: false
-      pm9 = create_project_media team: t, channel: CheckChannels::ChannelCodes::VIBER, disable_es_callbacks: false
-      pm10 = create_project_media team: t, channel: CheckChannels::ChannelCodes::LINE, disable_es_callbacks: false
+      pm5 = create_project_media team: t, channel: { main: CheckChannels::ChannelCodes::WHATSAPP }, disable_es_callbacks: false
+      pm6 = create_project_media team: t, channel: { main: CheckChannels::ChannelCodes::MESSENGER }, disable_es_callbacks: false
+      pm7 = create_project_media team: t, channel: { main: CheckChannels::ChannelCodes::TWITTER }, disable_es_callbacks: false
+      pm8 = create_project_media team: t, channel: { main: CheckChannels::ChannelCodes::TELEGRAM }, disable_es_callbacks: false
+      pm9 = create_project_media team: t, channel: { main: CheckChannels::ChannelCodes::VIBER }, disable_es_callbacks: false
+      pm10 = create_project_media team: t, channel: { main: CheckChannels::ChannelCodes::LINE }, disable_es_callbacks: false
       tipline_ids = [pm5.id, pm6.id, pm7.id, pm8.id, pm9.id, pm10.id]
       sleep 2
       # Hit PG
@@ -552,6 +552,30 @@ class ElasticSearch7Test < ActionController::TestCase
       assert_equal tipline_ids, results.medias.map(&:id).sort
       results = CheckSearch.new({ channels: ['any_tipline', CheckChannels::ChannelCodes::MANUAL, CheckChannels::ChannelCodes::TWITTER] }.to_json)
       assert_equal tipline_ids.concat([pm.id]).sort, results.medias.map(&:id).sort
+    end
+  end
+
+  test "should filter items by channel in main and others" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u ,t) do
+      pm = create_project_media team: t, quote: 'claim a', channel: { main: CheckChannels::ChannelCodes::MANUAL }, disable_es_callbacks: false
+      pm2 = create_project_media team: t, quote: 'claim b', channel: { main: CheckChannels::ChannelCodes::ZAPIER }, disable_es_callbacks: false
+      # tipline items
+      pm3 = create_project_media team: t, channel: { main: CheckChannels::ChannelCodes::WHATSAPP }, disable_es_callbacks: false
+      pm.channel = { main: CheckChannels::ChannelCodes::MANUAL, others: [CheckChannels::ChannelCodes::WHATSAPP] }
+      pm.save!
+      sleep 2
+      results = CheckSearch.new({ channels: [CheckChannels::ChannelCodes::MANUAL] }.to_json)
+      assert_equal [pm.id], results.medias.map(&:id)
+      results = CheckSearch.new({ channels: [CheckChannels::ChannelCodes::WHATSAPP] }.to_json)
+      assert_equal [pm.id, pm3.id], results.medias.map(&:id).sort
+      results = CheckSearch.new({ channels: [CheckChannels::ChannelCodes::WHATSAPP, CheckChannels::ChannelCodes::ZAPIER] }.to_json)
+      assert_equal [pm.id, pm2.id, pm3.id], results.medias.map(&:id).sort
+      # filter by any tipline
+      results = CheckSearch.new({ channels: ['any_tipline'] }.to_json)
+      assert_equal [pm.id, pm3.id], results.medias.map(&:id).sort
     end
   end
   
