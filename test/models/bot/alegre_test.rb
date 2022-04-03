@@ -392,8 +392,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should relate project media to similar items" do
     p = create_project
     pm1 = create_project_media project: p, media: create_uploaded_image
-    pm2 = create_project_media project: p, media: create_uploaded_image
-    pm3 = create_project_media project: p, media: create_uploaded_image
+    pm2 = create_project_media project: p, media: create_uploaded_image, channel: { main: CheckChannels::ChannelCodes::WHATSAPP }
+    pm3 = create_project_media project: p, media: create_uploaded_image, channel: { main: CheckChannels::ChannelCodes::MANUAL }
     create_relationship source_id: pm2.id, target_id: pm1.id
     Bot::Alegre.stubs(:request_api).returns({
       "result" => [
@@ -417,6 +417,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     r = Relationship.last
     assert_equal pm3, r.target
     assert_equal pm2, r.source
+    data = {"main" => CheckChannels::ChannelCodes::MANUAL, "others" => [CheckChannels::ChannelCodes::WHATSAPP]}
+    assert_equal data, pm3.reload.channel
+    data = {"main" => CheckChannels::ChannelCodes::WHATSAPP }
+    assert_equal data, pm2.reload.channel
     assert_equal r.weight, 1
     Bot::Alegre.unstub(:request_api)
     Bot::Alegre.unstub(:media_file_url)
@@ -1206,7 +1210,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should match imported report" do
     pm = create_project_media team: @team
-    pm2 = create_project_media team: @team, media: Blank.create!, channel: CheckChannels::ChannelCodes::FETCH
+    pm2 = create_project_media team: @team, media: Blank.create!, channel: { main: CheckChannels::ChannelCodes::FETCH }
     Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => {score: 0.9, context: {"blah" => 1}}})
     assert_equal [pm2.id], Bot::Alegre.get_similar_items(pm).keys
     assert_no_difference 'ProjectMedia.count' do

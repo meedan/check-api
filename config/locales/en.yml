@@ -103,6 +103,8 @@ en:
         if the error persists.
       invalid_format_for_languages: Invalid language format. Expecting the format
         `['en', 'ar', …]`
+      invalid_project_media_channel_value: Sorry, channel value not supported
+      invalid_project_media_channel_update: Sorry, you could not update channel value
   activerecord:
     models:
       link: Link
@@ -153,10 +155,6 @@ en:
           attributes:
             slug:
               slug_format: accepts only letters, numbers and hyphens
-        project_media:
-          attributes:
-            channel:
-              channel_update: Sorry, you could not update channel value
       messages:
         record_invalid: "%{errors}"
         improbable_phone: is an invalid number

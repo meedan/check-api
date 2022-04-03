@@ -34,7 +34,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :show_warning_cover, types.Boolean
   field :creator_name, types.String
   field :team_name, types.String
-  field :channel, types.Int
+  field :channel, JsonStringType
   field :cluster_id, types.Int
   field :cluster, ClusterType
   field :claim_description, ClaimDescriptionType do
