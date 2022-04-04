@@ -9,7 +9,7 @@ class CustomSampler
   end
 end
 
-unless CheckConfig.get('honeycomb_key').blank?
+if !CheckConfig.get('honeycomb_key').blank? && !ENV['CHECK_SKIP_HONEYCOMB']
   Honeycomb.configure do |config|
     config.write_key = CheckConfig.get('honeycomb_key')
     config.dataset = CheckConfig.get('honeycomb_dataset')
