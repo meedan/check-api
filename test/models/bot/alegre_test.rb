@@ -438,6 +438,19 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
   end
 
+  test "should store relationship for highest-scoring match" do
+    p = create_project
+    pm1 = create_project_media project: p, is_image: true
+    pm2 = create_project_media project: p, media: Blank.new
+    pm3 = create_project_media project: p, media: Blank.new
+    assert_no_difference 'ProjectMedia.count' do
+      assert_difference 'Relationship.count' do
+        Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 100, relationship_type: Relationship.confirmed_type}, pm1.id => {score: 1, relationship_type: Relationship.confirmed_type}})
+      end
+    end
+    assert_equal Relationship.last.source_id, pm2.id
+  end
+
   test "should not create suggestion when parent is trashed" do
     p = create_project
     pm2 = create_project_media project: p, is_image: true, archived: CheckArchivedFlags::FlagCodes::TRASHED
