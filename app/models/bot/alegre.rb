@@ -456,8 +456,8 @@ class Bot::Alegre < BotUser
     # - If it's a child, get its parent.
     # - If it's a parent, use it.
     # - If it has no existing relationship, use it.
-
-    parent_id = pm_id_scores.sort_by{|_k,v| v[:score]}.reverse.first.first
+    #make K negative so that we bias towards older IDs
+    parent_id = pm_id_scores.sort_by{|k,v| [v[:score], -k]}.reverse.first.first
     parent_relationships = Relationship.where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).where(target_id: parent_id).all
     Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 2/6] Number of parent relationships #{parent_relationships.count}"
     if parent_relationships.length > 0
