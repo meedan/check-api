@@ -449,7 +449,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 100, model: Bot::Alegre::ELASTICSEARCH_MODEL, relationship_type: Relationship.confirmed_type}, pm1.id => {score: 1, model: Bot::Alegre::INDIAN_MODEL, relationship_type: Relationship.confirmed_type}, pm4.id => {score: 1, model: Bot::Alegre::INDIAN_MODEL, relationship_type: Relationship.confirmed_type}})
       end
     end
-    assert_equal Relationship.last.source_id, pm4.id
+    assert_equal Relationship.last.source_id, pm1.id
   end
 
   test "should store relationship for highest-scoring match" do
