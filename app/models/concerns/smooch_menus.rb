@@ -43,7 +43,7 @@ module SmoochMenus
       title = self.get_menu_string('privacy_title', language, 24)
       if languages.size > 1
         title = self.get_menu_string('languages_and_privacy_title', language, 24)
-        languages.sort.each do |l|
+        languages.reject{ |l| l == language }.sort.each do |l|
           code = l.gsub(/_.*$/, '')
           rows << {
             id: { state: 'main', keyword: counter.to_s }.to_json,
