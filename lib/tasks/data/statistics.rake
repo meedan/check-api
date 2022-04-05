@@ -101,7 +101,7 @@ def get_statistics(start_date, end_date, slug, platform)
   end
         
   # Number of returning users (at least one session in the current month, and at least one session in the last previous 2 months)
-  data << DynamicAnnotation::Field.where(field_name: 'smooch_data', created_at: start_date.ago(2.months)..start_date).where("value_json->>'authorId' IN (?)", uids).count.to_s
+  data << DynamicAnnotation::Field.where(field_name: 'smooch_data', created_at: start_date.ago(2.months)..start_date).where("value_json->>'authorId' IN (?)", uids).collect{ |f| f.value_json['authorId'] }.uniq.size
 
   # Current number of newsletter subscribers
   data << TiplineSubscription.where(created_at: start_date.ago(100.years)..end_date, platform: platform_name).where('teams.slug' => slug).joins(:team).count.to_s
@@ -136,7 +136,7 @@ namespace :check do
         header << 'Average time to publishing (seconds)'
         header << 'Average time to publishing (readable)'
         header << 'Average number of end-user messages per day'
-        header << '# of returning users (at least one session in the current month, and at least one session in the last previous 2 month)'
+        header << '# of returning users (at least one session in the current month and at least one session in the last previous 2 months)'
         header << 'Current # of newsletter subscribers'
         puts header.join(',')
 
