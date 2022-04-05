@@ -438,6 +438,20 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
   end
 
+  test "should store relationship for lower-scoring match that's from a preferred model, but is latest ID" do
+    p = create_project
+    pm1 = create_project_media project: p, is_image: true
+    pm2 = create_project_media project: p, media: Blank.new
+    pm3 = create_project_media project: p, media: Blank.new
+    pm4 = create_project_media project: p, media: Blank.new
+    assert_no_difference 'ProjectMedia.count' do
+      assert_difference 'Relationship.count' do
+        Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 100, model: Bot::Alegre::ELASTICSEARCH_MODEL, relationship_type: Relationship.confirmed_type}, pm1.id => {score: 1, model: Bot::Alegre::INDIAN_MODEL, relationship_type: Relationship.confirmed_type}, pm4.id => {score: 1, model: Bot::Alegre::INDIAN_MODEL, relationship_type: Relationship.confirmed_type}})
+      end
+    end
+    assert_equal Relationship.last.source_id, pm4.id
+  end
+
   test "should store relationship for highest-scoring match" do
     p = create_project
     pm1 = create_project_media project: p, is_image: true
@@ -489,6 +503,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:get_merged_items_with_similar_text)
     TeamBotInstallation.unstub(:find_by_team_id_and_user_id)
   end
+
   test "should return matches for non-blank cases" do
     p = create_project
     pm1 = create_project_media project: p, quote: "Blah", team: @team
