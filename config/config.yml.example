@@ -249,6 +249,12 @@ test:
   elasticsearch_sync: true
   elasticsearch_log: false
   google_analytics_code:
+  image_min_width:
+  image_max_width:
+  image_min_height:
+  image_max_height:
+  image_embed_size:
+  image_thumbnail_size:
   default_mail: 'root@localhost'
   transifex_user:
   transifex_password:
