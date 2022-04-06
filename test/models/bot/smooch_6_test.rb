@@ -319,4 +319,29 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     ProjectMedia.any_instance.unstub(:report_status)
     ProjectMedia.any_instance.unstub(:analysis_published_article_url)
   end
+
+  test "should update channel for manually matched items" do
+    pm = create_project_media team: @team
+    Sidekiq::Testing.inline! do
+      message = {
+        type: 'text',
+        text: random_string,
+        role: 'appUser',
+        received: 1573082583.219,
+        name: random_string,
+        authorId: random_string,
+        '_id': random_string,
+        source: {
+          originalMessageId: random_string,
+          originalMessageTimestamp: 1573082582,
+          type: 'whatsapp',
+          integrationId: random_string
+        },
+      }
+      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm)
+      # verifiy new channel value
+      data = {"main" => CheckChannels::ChannelCodes::MANUAL, "others" => [CheckChannels::ChannelCodes::WHATSAPP]}
+      assert_equal data, pm.reload.channel
+    end
+  end
 end

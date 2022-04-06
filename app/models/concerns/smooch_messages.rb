@@ -302,6 +302,15 @@ module SmoochMessages
       result = self.smooch_api_get_messages(app_id, message['authorId'])
       fields[:smooch_conversation_id] = result.conversation.id unless result.nil? || result.conversation.nil?
       self.create_smooch_annotations(annotated, author, fields)
+      # update channel if annotated is manual item
+      if annotated.get_main_channel == CheckChannels::ChannelCodes::MANUAL
+        channel_value = self.get_smooch_channel(message)
+        unless channel_value.blank?
+          others = annotated.channel.with_indifferent_access[:others] || []
+          annotated.channel[:others] = others.concat([channel_value]).uniq
+          annotated.save!
+        end
+      end
     end
 
     def create_smooch_resources_and_type(annotated, annotated_obj, author, request_type)
