@@ -97,6 +97,8 @@ es:
         %{support_email} si el error persiste.
       invalid_format_for_languages: Formato de idiomas no válido. Se espera `['en',
         'ar', ...]`
+      invalid_project_media_channel_update: Lo sentimos, no pudiste actualizar el
+        valor del canal
   activerecord:
     models:
       link: Enlace
@@ -147,10 +149,6 @@ es:
           attributes:
             slug:
               slug_format: acepta solo letras, números y guiones
-        project_media:
-          attributes:
-            channel:
-              channel_update: Lo sentimos, no pudiste actualizar el valor del canal
       messages:
         record_invalid: "%{errors}"
         improbable_phone: 'es un número inválido '
@@ -678,6 +676,7 @@ es:
     clave
   team_rule_title_contains_keyword: El contenido contiene una o más de las siguientes
     palabras clave
+  team_rule_extracted_text_contains_keyword: El texto extraído contiene palabra clave
   team_rule_select_type: Seleccionar tipo
   team_rule_select_language: 'Selecciona el idioma '
   team_rule_select_user: Selecciona un(a) colaborador(a)
@@ -747,6 +746,7 @@ es:
   flag_likelihood_7: Manual
   relationship_not_same_team: Los elementos relacionados deben existir en el misma
     área de trabajo
+  target_is_published: El objetivo no debe tener un informe publicado
   bulk_operation_limit_error: Lo sentimos, el número máximo de elementos que se procesarán
     a la vez es %{limit}
   must_provide_fallback_when_deleting_status_in_use: Este estado se está utilizando,
@@ -783,6 +783,7 @@ es:
   list_column_report_status: Reportar estado
   list_column_tags_as_sentence: Etiquetas
   list_column_media_published_at: Medios publicados
+  list_column_published_by: Informe publicado por
   list_column_related_count: Relacionado(s)
   list_column_suggestions_count: Coincidencias sugeridas
   list_column_folder: Carpeta

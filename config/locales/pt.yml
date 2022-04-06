@@ -98,6 +98,8 @@ pt:
         %{support_email} se o erro persistir.
       invalid_format_for_languages: Formato de idioma inválido. O formato esperado
         é `['en', 'ar', …]`
+      invalid_project_media_channel_update: Desculpe, não possível atualizar o valor
+        do canal
   activerecord:
     models:
       link: Link
@@ -148,10 +150,6 @@ pt:
           attributes:
             slug:
               slug_format: aceita apenas letras, números e hífens
-        project_media:
-          attributes:
-            channel:
-              channel_update: Desculpe, não possível atualizar o valor do canal
       messages:
         record_invalid: "%{errors}"
         improbable_phone: é um número inválido
@@ -679,6 +677,7 @@ pt:
   team_rule_type_is_uploadedvideo: Vídeo
   team_rule_contains_keyword: A solicitação contém uma ou mais destas palavras-chave
   team_rule_title_contains_keyword: O conteúdo possui uma ou mais das seguintes palavras-chave
+  team_rule_extracted_text_contains_keyword: O texto extraído contém a palavra-chave
   team_rule_select_type: Selecionar tipo
   team_rule_select_language: Selecionar idioma
   team_rule_select_user: Escolha um(a) colaborador(a)
@@ -748,6 +747,7 @@ pt:
   flag_likelihood_7: Manual
   relationship_not_same_team: Itens relacionados devem existir no mesmo espaço de
     trabalho
+  target_is_published: O alvo não deve ter um relatório publicado
   bulk_operation_limit_error: Desculpe, o número máximo de itens a serem processados
     de uma só vez é %{limit}
   must_provide_fallback_when_deleting_status_in_use: Esse status está sendo usado,
@@ -784,6 +784,7 @@ pt:
   list_column_report_status: O status do relatório é
   list_column_tags_as_sentence: Tags
   list_column_media_published_at: Mídia publicada
+  list_column_published_by: Relatório publicado por
   list_column_related_count: Relacionado
   list_column_suggestions_count: Correspondências sugeridas
   list_column_folder: Pasta
