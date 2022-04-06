@@ -307,7 +307,7 @@ module SmoochMessages
         channel_value = self.get_smooch_channel(message)
         unless channel_value.blank?
           others = annotated.channel.with_indifferent_access[:others] || []
-          annotated.channel[:others] = others.concat([channel_value])
+          annotated.channel[:others] = others.concat([channel_value]).uniq
           annotated.save!
         end
       end
