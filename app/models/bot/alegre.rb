@@ -1,5 +1,7 @@
 class Bot::Alegre < BotUser
   check_settings
+  class Error < ::StandardError
+  end
 
   include AlegreSimilarity
 
@@ -552,7 +554,7 @@ class Bot::Alegre < BotUser
 
   def self.throw_airbrake_notify_if_bad_relationship(relationship, score_with_context, relationship_type)
     if relationship.model.nil? || relationship.weight.nil? || relationship.source_field.nil? || relationship.target_field.nil?
-      Airbrake.notify(e, {trace: Thread.current.backtrace.join("\n"), relationship: relationship.attributes, relationship_type: relationship_type, score_with_context: score_with_context}) if Airbrake.configured?
+      Airbrake.notify(Bot::Alegre::Error.new("[Alegre] Bad relationship was stored without required metadata"), {trace: Thread.current.backtrace.join("\n"), relationship: relationship.attributes, relationship_type: relationship_type, score_with_context: score_with_context}) if Airbrake.configured?
     end
   end
 
