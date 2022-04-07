@@ -1,5 +1,7 @@
 class Bot::Alegre < BotUser
   check_settings
+  class Error < ::StandardError
+  end
 
   include AlegreSimilarity
 
@@ -532,6 +534,7 @@ class Bot::Alegre < BotUser
       r.target_field = target_field
       r.user_id ||= BotUser.alegre_user&.id
       r.save!
+      self.throw_airbrake_notify_if_bad_relationship(r, score_with_context, relationship_type)
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Created new relationship for relationship ID Of #{r.id}"
     elsif r.relationship_type != relationship_type && r.relationship_type == Relationship.suggested_type
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Upgrading relationship from suggested to confirmed for relationship ID of #{r.id}"
@@ -539,7 +542,6 @@ class Bot::Alegre < BotUser
       r.relationship_type = relationship_type
       r.save!
     end
-    self.update_channel_values(source, target)
     message_type = r.is_confirmed? ? 'related_to_confirmed_similar' : 'related_to_suggested_similar'
     message_opts = {item_title: target.title, similar_item_title: source.title}
     CheckNotification::InfoMessages.send(
@@ -550,16 +552,9 @@ class Bot::Alegre < BotUser
     r
   end
 
-  def self.update_channel_values(source, target)
-    # check channels for both source & target
-    s_channel = source.get_main_channel
-    t_channel = target.get_main_channel
-    if t_channel == CheckChannels::ChannelCodes::MANUAL && CheckChannels::ChannelCodes::TIPLINE.include?(s_channel)
-      new_channels = target.channel
-      others = target.channel.with_indifferent_access[:others] || []
-      new_channels[:others] = others.concat([s_channel])
-      target.channel = new_channels
-      target.save!
+  def self.throw_airbrake_notify_if_bad_relationship(relationship, score_with_context, relationship_type)
+    if relationship.model.nil? || relationship.weight.nil? || relationship.source_field.nil? || relationship.target_field.nil?
+      Airbrake.notify(Bot::Alegre::Error.new("[Alegre] Bad relationship was stored without required metadata"), {trace: Thread.current.backtrace.join("\n"), relationship: relationship.attributes, relationship_type: relationship_type, score_with_context: score_with_context}) if Airbrake.configured?
     end
   end
 

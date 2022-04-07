@@ -392,8 +392,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should relate project media to similar items" do
     p = create_project
     pm1 = create_project_media project: p, media: create_uploaded_image
-    pm2 = create_project_media project: p, media: create_uploaded_image, channel: { main: CheckChannels::ChannelCodes::WHATSAPP }
-    pm3 = create_project_media project: p, media: create_uploaded_image, channel: { main: CheckChannels::ChannelCodes::MANUAL }
+    pm2 = create_project_media project: p, media: create_uploaded_image
+    pm3 = create_project_media project: p, media: create_uploaded_image
     create_relationship source_id: pm2.id, target_id: pm1.id
     Bot::Alegre.stubs(:request_api).returns({
       "result" => [
@@ -417,10 +417,6 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     r = Relationship.last
     assert_equal pm3, r.target
     assert_equal pm2, r.source
-    data = {"main" => CheckChannels::ChannelCodes::MANUAL, "others" => [CheckChannels::ChannelCodes::WHATSAPP]}
-    assert_equal data, pm3.reload.channel
-    data = {"main" => CheckChannels::ChannelCodes::WHATSAPP }
-    assert_equal data, pm2.reload.channel
     assert_equal r.weight, 1
     Bot::Alegre.unstub(:request_api)
     Bot::Alegre.unstub(:media_file_url)
@@ -436,6 +432,33 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
       end
     end
+  end
+
+  test "should notify Airbrake if there's a bad relationship" do
+    Airbrake.stubs(:configured?).returns(true)
+    Airbrake.expects(:notify).once
+    p = create_project
+    pm1 = create_project_media project: p, is_image: true
+    pm2 = create_project_media project: p, is_image: true
+    pm3 = create_project_media project: p, is_image: true
+    create_relationship source_id: pm3.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
+    Bot::Alegre.throw_airbrake_notify_if_bad_relationship(Relationship.last, {ball: 1}, "boop")
+    Airbrake.unstub(:configured?)
+    Airbrake.unstub(:notify)
+  end
+
+  test "should store relationship for lower-scoring match that's from a preferred model, but is latest ID" do
+    p = create_project
+    pm1 = create_project_media project: p, is_image: true
+    pm2 = create_project_media project: p, media: Blank.new
+    pm3 = create_project_media project: p, media: Blank.new
+    pm4 = create_project_media project: p, media: Blank.new
+    assert_no_difference 'ProjectMedia.count' do
+      assert_difference 'Relationship.count' do
+        Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 100, model: Bot::Alegre::ELASTICSEARCH_MODEL, relationship_type: Relationship.confirmed_type}, pm1.id => {score: 1, model: Bot::Alegre::INDIAN_MODEL, relationship_type: Relationship.confirmed_type}, pm4.id => {score: 1, model: Bot::Alegre::INDIAN_MODEL, relationship_type: Relationship.confirmed_type}})
+      end
+    end
+    assert_equal Relationship.last.source_id, pm1.id
   end
 
   test "should store relationship for highest-scoring match" do
@@ -489,6 +512,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:get_merged_items_with_similar_text)
     TeamBotInstallation.unstub(:find_by_team_id_and_user_id)
   end
+
   test "should return matches for non-blank cases" do
     p = create_project
     pm1 = create_project_media project: p, quote: "Blah", team: @team

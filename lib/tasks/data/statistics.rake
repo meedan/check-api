@@ -86,7 +86,7 @@ def get_statistics(start_date, end_date, slug, platform)
     data << distance_of_time_in_words(avg)
   end
 
-  # Average number of end-user messages per cycle/converstation/session
+  # Average number of end-user messages per day
   numbers_of_messages = []
   project_media_requests(slug, platform, start_date, end_date).find_each do |a|
     numbers_of_messages << JSON.parse(a.load.get_field_value('smooch_data'))['text'].to_s.split(Bot::Smooch::MESSAGE_BOUNDARY).size
@@ -97,8 +97,14 @@ def get_statistics(start_date, end_date, slug, platform)
   if numbers_of_messages.size == 0
     data << 0
   else
-    data << (numbers_of_messages.sum / numbers_of_messages.size).to_i
+    data << (numbers_of_messages.sum / (start_date.to_date..end_date.to_date).count).to_i
   end
+        
+  # Number of returning users (at least one session in the current month, and at least one session in the last previous 2 months)
+  data << DynamicAnnotation::Field.where(field_name: 'smooch_data', created_at: start_date.ago(2.months)..start_date).where("value_json->>'authorId' IN (?)", uids).collect{ |f| f.value_json['authorId'] }.uniq.size
+
+  # Current number of newsletter subscribers
+  data << TiplineSubscription.where(created_at: start_date.ago(100.years)..end_date, platform: platform_name).where('teams.slug' => slug).joins(:team).count.to_s
 
   puts data.join(',')
 end
@@ -129,7 +135,9 @@ namespace :check do
         header << '# of newsletter subscription cancellations'
         header << 'Average time to publishing (seconds)'
         header << 'Average time to publishing (readable)'
-        header << 'Average number of end-user message per cycle/converstation/session'
+        header << 'Average number of end-user messages per day'
+        header << '# of returning users (at least one session in the current month and at least one session in the last previous 2 months)'
+        header << 'Current # of newsletter subscribers'
         puts header.join(',')
 
         slugs.each do |slug|
