@@ -555,7 +555,7 @@ class Bot::Alegre < BotUser
       Airbrake.notify(e, {trace: Thread.current.backtrace.join("\n"), relationship: relationship.attributes, relationship_type: relationship_type, score_with_context: score_with_context}) if Airbrake.configured?
     end
   end
-  
+
   def self.set_relationship_type(pm, pm_id_scores, parent)
     tbi = self.get_alegre_tbi(pm&.team_id)
     settings = tbi.nil? ? {} : tbi.alegre_settings
