@@ -532,6 +532,7 @@ class Bot::Alegre < BotUser
       r.target_field = target_field
       r.user_id ||= BotUser.alegre_user&.id
       r.save!
+      self.throw_airbrake_notify_if_bad_relationship(r, score_with_context, relationship_type)
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Created new relationship for relationship ID Of #{r.id}"
     elsif r.relationship_type != relationship_type && r.relationship_type == Relationship.suggested_type
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Upgrading relationship from suggested to confirmed for relationship ID of #{r.id}"
@@ -549,6 +550,12 @@ class Bot::Alegre < BotUser
     r
   end
 
+  def self.throw_airbrake_notify_if_bad_relationship(relationship, score_with_context, relationship_type)
+    if relationship.model.nil? || relationship.weight.nil? || relationship.source_field.nil? || relationship.target_field.nil?
+      Airbrake.notify(e, {trace: Thread.current.backtrace.join("\n"), relationship: relationship.attributes, relationship_type: relationship_type, score_with_context: score_with_context}) if Airbrake.configured?
+    end
+  end
+  
   def self.set_relationship_type(pm, pm_id_scores, parent)
     tbi = self.get_alegre_tbi(pm&.team_id)
     settings = tbi.nil? ? {} : tbi.alegre_settings
