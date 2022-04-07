@@ -434,6 +434,19 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
   end
 
+  test "should notify Airbrake if there's a bad relationship" do
+    Airbrake.stubs(:configured?).returns(true)
+    Airbrake.expects(:notify).once
+    p = create_project
+    pm1 = create_project_media project: p, is_image: true
+    pm2 = create_project_media project: p, is_image: true
+    pm3 = create_project_media project: p, is_image: true
+    create_relationship source_id: pm3.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
+    Bot::Alegre.throw_airbrake_notify_if_bad_relationship(Relationship.last, {ball: 1}, "boop")
+    Airbrake.unstub(:configured?)
+    Airbrake.unstub(:notify)
+  end
+
   test "should store relationship for lower-scoring match that's from a preferred model, but is latest ID" do
     p = create_project
     pm1 = create_project_media project: p, is_image: true
