@@ -442,7 +442,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2 = create_project_media project: p, is_image: true
     pm3 = create_project_media project: p, is_image: true
     create_relationship source_id: pm3.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
-    Bot::Alegre.throw_airbrake_notify_if_bad_relationship(create_relationship, {ball: 1}, "boop")
+    Bot::Alegre.throw_airbrake_notify_if_bad_relationship(Relationship.last, {ball: 1}, "boop")
     Airbrake.unstub(:configured?)
     Airbrake.unstub(:notify)
   end
