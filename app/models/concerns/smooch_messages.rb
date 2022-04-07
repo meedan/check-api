@@ -305,9 +305,11 @@ module SmoochMessages
       # update channel if annotated is manual item
       if annotated.get_main_channel == CheckChannels::ChannelCodes::MANUAL
         channel_value = self.get_smooch_channel(message)
+        Rails.logger.info "SawyDebugging :: #{channel_value} ::#{annotated.inspect} :: #{message.inspect}"
         unless channel_value.blank?
           others = annotated.channel.with_indifferent_access[:others] || []
           annotated.channel[:others] = others.concat([channel_value]).uniq
+          annotated.skip_check_ability = true
           annotated.save!
         end
       end
