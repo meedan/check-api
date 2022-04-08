@@ -13,11 +13,14 @@ module SmoochResend
       # Exit if there is no template namespace
       return false if self.config['smooch_template_namespace'].blank?
 
-      # This is a report that was created or updated, or a message send by a rule action
+      # This is a report that was created or updated, or a message send by a rule action, or a newsletter
       unless original.blank?
         original = JSON.parse(original)
-        return self.resend_whatsapp_report_after_window(message, original) if original['fallback_template'] =~ /report/
-        return self.resend_rules_message_after_window(message, original) if original['fallback_template'] == 'fact_check_status'
+        output = nil
+        output = self.resend_whatsapp_report_after_window(message, original) if original['fallback_template'] =~ /report/
+        output = self.resend_rules_message_after_window(message, original) if original['fallback_template'] == 'fact_check_status'
+        output = self.resend_newsletter_after_window(message, original) if original['fallback_template'] == 'newsletter'
+        return output unless output.nil?
       end
 
       # A message sent from Slack
@@ -58,6 +61,17 @@ module SmoochResend
         return true
       end
       false
+    end
+
+    def resend_newsletter_after_window(message, original)
+      template_name = self.config['smooch_template_name_for_newsletter']
+      language = original['language']
+      date = I18n.l(Time.now, locale: language, format: :short)
+      introduction = original['introduction']
+      response = self.send_message_to_user(message['appUser']['_id'], self.format_template_message(template_name, [date, introduction], nil, introduction, language))
+      id = self.get_id_from_send_response(response)
+      Rails.cache.write("smooch:original:#{id}", 'newsletter') # This way if "Read now" is clicked, the newsletter can be sent
+      return true
     end
   end
 
