@@ -16,9 +16,11 @@ module SmoochResend
       # This is a report that was created or updated, or a message send by a rule action, or a newsletter
       unless original.blank?
         original = JSON.parse(original)
-        return self.resend_whatsapp_report_after_window(message, original) if original['fallback_template'] =~ /report/
-        return self.resend_rules_message_after_window(message, original) if original['fallback_template'] == 'fact_check_status'
-        return self.resend_newsletter_after_window(message, original) if original['fallback_template'] == 'newsletter'
+        output = nil
+        output = self.resend_whatsapp_report_after_window(message, original) if original['fallback_template'] =~ /report/
+        output = self.resend_rules_message_after_window(message, original) if original['fallback_template'] == 'fact_check_status'
+        output = self.resend_newsletter_after_window(message, original) if original['fallback_template'] == 'newsletter'
+        return output unless output.nil?
       end
 
       # A message sent from Slack
