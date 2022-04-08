@@ -37,10 +37,6 @@ module SmoochNewsletter
         end
         information
       end
-
-      def get_newsletter_template_name
-        self.settings['smooch_template_name_for_newsletter'] || 'newsletter'
-      end
     end
 
     def user_is_subscribed_to_newsletter?(uid, language, team_id)
