@@ -6,7 +6,7 @@ require 'airbrake/sidekiq'
 Airbrake.add_filter(Airbrake::Sidekiq::RetryableJobsFilter.new)
 
 Sidekiq::Extensions.enable_delay!
-Sidekiq::CloudWatchMetrics.enable!(namespace: "Sidekiq-#{ENV['DEPLOY_ENV']}")
+Sidekiq::CloudWatchMetrics.enable!(namespace: "sidekiq_checkapi_#{Rails.env}")
 
 REDIS_CONFIG = {}
 if File.exist?(file)
