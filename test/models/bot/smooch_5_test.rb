@@ -179,20 +179,6 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     end
   end
 
-  test "should take a shortcut to subscribe or unsubscribe to newsletter" do
-    setup_smooch_bot(true)
-    Sidekiq::Testing.fake! do
-      uid = random_string
-      sm = CheckStateMachine.new(uid)
-      assert_difference 'TiplineSubscription.count' do
-        send_message_to_smooch_bot('subscribe', uid)
-      end
-      assert_difference 'TiplineSubscription.count', -1 do
-        send_message_to_smooch_bot('unsubscribe', uid)
-      end
-    end
-  end
-
   test "should subscribe or unsubscribe to newsletter" do
     setup_smooch_bot(true)
     Sidekiq::Testing.fake! do
