@@ -91,6 +91,22 @@ module SmoochMenus
         end
       end
 
+      if ['Telegram', 'Viber', 'Facebook Messenger'].include?(self.request_platform)
+        actions = []
+        main.each do |section|
+          section[:rows].each do |row|
+            actions << {
+              type: 'reply',
+              text: row[:title],
+              iconUrl: '',
+              payload: row[:id],
+            }
+          end
+        end
+        extra = { actions: actions }
+        fallback = [text]
+      end
+
       self.send_message_to_user(uid, fallback.join("\n"), extra)
     end
 
