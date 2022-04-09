@@ -574,7 +574,7 @@ class Bot::Smooch < BotUser
     self.get_installation(self.installation_setting_id_keys, message['app']['_id'])
     original = Rails.cache.read('smooch:original:' + message['message']['_id'])
     unless original.blank?
-      original = JSON.parse(original)
+      original = begin JSON.parse(original) rescue {} end
       if original['fallback_template'] =~ /report/
         pmids = ProjectMedia.find(original['project_media_id']).related_items_ids
         DynamicAnnotation::Field.joins(:annotation).where(field_name: 'smooch_data', 'annotations.annotated_type' => 'ProjectMedia', 'annotations.annotated_id' => pmids).where("value_json ->> 'authorId' = ?", message['appUser']['_id']).each do |f|
