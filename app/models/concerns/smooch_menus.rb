@@ -171,7 +171,7 @@ module SmoochMenus
           }
         }
       }
-      fallback = self.format_fallback_text_menu_from_options(text, options)
+      extra, fallback = self.format_fallback_text_menu_from_options(text, options, extra)
       self.send_message_to_user(uid, fallback.join("\n"), extra)
     end
 
@@ -207,16 +207,31 @@ module SmoochMenus
           }
         }
       }
-      fallback = self.format_fallback_text_menu_from_options(text, options)
+      extra, fallback = self.format_fallback_text_menu_from_options(text, options, extra)
       self.send_message_to_user(uid, fallback.join("\n"), extra)
     end
 
-    def format_fallback_text_menu_from_options(text, options)
+    def format_fallback_text_menu_from_options(text, options, extra)
       fallback = [text, '']
       options.each do |option|
         fallback << self.format_fallback_text_menu_option(option, :value, :label)
       end
-      fallback
+
+      if ['Telegram', 'Viber', 'Facebook Messenger'].include?(self.request_platform)
+        actions = []
+        options.each do |option|
+          actions << {
+            type: 'reply',
+            text: option[:label],
+            iconUrl: '',
+            payload: option[:value],
+          }
+        end
+        extra = { actions: actions }
+        fallback = [text]
+      end
+
+      [extra, fallback]
     end
 
     def format_fallback_text_menu_option(option, value_key, label_key, description_key = nil)
