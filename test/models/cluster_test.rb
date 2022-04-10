@@ -115,7 +115,7 @@ class ClusterTest < ActiveSupport::TestCase
 
   test "should get teams that fact-checked the item" do
     c = create_cluster
-    assert_kind_of Array, c.get_names_of_teams_that_fact_checked_it
+    assert_kind_of Hash, c.get_names_of_teams_that_fact_checked_it
   end
 
   test "should get claim descriptions" do
