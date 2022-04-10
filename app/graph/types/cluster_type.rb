@@ -7,7 +7,7 @@ ClusterType = GraphqlCrudOperations.define_default_type do
   field :dbid, types.Int
   field :size, types.Int
   field :team_names, types[types.String]
-  field :fact_checked_by_team_names, types[types.String]
+  field :fact_checked_by_team_names, JsonStringType
   field :requests_count, types.Int
 
   field :first_item_at, types.Int do
