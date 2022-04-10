@@ -249,6 +249,8 @@ test:
   elasticsearch_sync: true
   elasticsearch_log: false
   google_analytics_code:
+  video_file_max_size:
+  uploaded_file_max_size:
   image_min_width:
   image_max_width:
   image_min_height:
