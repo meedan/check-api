@@ -84,7 +84,17 @@ class Workflow::VerificationStatus < Workflow::Base
 
     def check_if_item_is_published
       published = begin (self.annotation.annotated.get_annotations('report_design').last.load.get_field_value('state') == 'published') rescue false end
-      raise(I18n.t(:cant_change_status_if_item_is_published)) if published
+      if published
+        error = {
+          message: I18n.t(:cant_change_status_if_item_is_published),
+          code: LapisConstants::ErrorCodes::const_get('PUBLISHED_REPORT'),
+          data: {
+            type: 'media',
+            id: self.annotation.annotated_id,
+          }
+        }
+        raise error.to_json
+      end
     end
 
     def update_report_design_if_needed

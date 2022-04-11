@@ -1,5 +1,7 @@
 class Bot::Alegre < BotUser
   check_settings
+  class Error < ::StandardError
+  end
 
   include AlegreSimilarity
 
@@ -456,8 +458,8 @@ class Bot::Alegre < BotUser
     # - If it's a child, get its parent.
     # - If it's a parent, use it.
     # - If it has no existing relationship, use it.
-
-    parent_id = pm_id_scores.keys.sort[0]
+    #make K negative so that we bias towards older IDs
+    parent_id = pm_id_scores.sort_by{|k,v| [Bot::Alegre::ELASTICSEARCH_MODEL != v[:model] ? 1 : 0, v[:score], -k]}.reverse.first.first
     parent_relationships = Relationship.where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).where(target_id: parent_id).all
     Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 2/6] Number of parent relationships #{parent_relationships.count}"
     if parent_relationships.length > 0
@@ -532,6 +534,7 @@ class Bot::Alegre < BotUser
       r.target_field = target_field
       r.user_id ||= BotUser.alegre_user&.id
       r.save!
+      self.throw_airbrake_notify_if_bad_relationship(r, score_with_context, relationship_type)
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Created new relationship for relationship ID Of #{r.id}"
     elsif r.relationship_type != relationship_type && r.relationship_type == Relationship.suggested_type
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Upgrading relationship from suggested to confirmed for relationship ID of #{r.id}"
@@ -547,6 +550,12 @@ class Bot::Alegre < BotUser
     )
     Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 6/6] Sent Check notification with message type and opts of #{[message_type, message_opts].inspect}"
     r
+  end
+
+  def self.throw_airbrake_notify_if_bad_relationship(relationship, score_with_context, relationship_type)
+    if relationship.model.nil? || relationship.weight.nil? || relationship.source_field.nil? || relationship.target_field.nil?
+      Airbrake.notify(Bot::Alegre::Error.new("[Alegre] Bad relationship was stored without required metadata"), {trace: Thread.current.backtrace.join("\n"), relationship: relationship.attributes, relationship_type: relationship_type, score_with_context: score_with_context}) if Airbrake.configured?
+    end
   end
 
   def self.set_relationship_type(pm, pm_id_scores, parent)

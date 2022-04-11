@@ -43,7 +43,7 @@ module SmoochMenus
       title = self.get_menu_string('privacy_title', language, 24)
       if languages.size > 1
         title = self.get_menu_string('languages_and_privacy_title', language, 24)
-        languages.sort.each do |l|
+        languages.reject{ |l| l == language }.sort.each do |l|
           code = l.gsub(/_.*$/, '')
           rows << {
             id: { state: 'main', keyword: counter.to_s }.to_json,
@@ -89,6 +89,22 @@ module SmoochMenus
         section[:rows].each do |row|
           fallback << self.format_fallback_text_menu_option(row, :id, :title, :description)
         end
+      end
+
+      if ['Telegram', 'Viber', 'Facebook Messenger'].include?(self.request_platform)
+        actions = []
+        main.each do |section|
+          section[:rows].each do |row|
+            actions << {
+              type: 'reply',
+              text: row[:title],
+              iconUrl: '',
+              payload: row[:id],
+            }
+          end
+        end
+        extra = { actions: actions }
+        fallback = [text]
       end
 
       self.send_message_to_user(uid, fallback.join("\n"), extra)
@@ -155,7 +171,7 @@ module SmoochMenus
           }
         }
       }
-      fallback = self.format_fallback_text_menu_from_options(text, options)
+      extra, fallback = self.format_fallback_text_menu_from_options(text, options, extra)
       self.send_message_to_user(uid, fallback.join("\n"), extra)
     end
 
@@ -191,16 +207,31 @@ module SmoochMenus
           }
         }
       }
-      fallback = self.format_fallback_text_menu_from_options(text, options)
+      extra, fallback = self.format_fallback_text_menu_from_options(text, options, extra)
       self.send_message_to_user(uid, fallback.join("\n"), extra)
     end
 
-    def format_fallback_text_menu_from_options(text, options)
+    def format_fallback_text_menu_from_options(text, options, extra)
       fallback = [text, '']
       options.each do |option|
         fallback << self.format_fallback_text_menu_option(option, :value, :label)
       end
-      fallback
+
+      if ['Telegram', 'Viber', 'Facebook Messenger'].include?(self.request_platform)
+        actions = []
+        options.each do |option|
+          actions << {
+            type: 'reply',
+            text: option[:label],
+            iconUrl: '',
+            payload: option[:value],
+          }
+        end
+        extra = { actions: actions }
+        fallback = [text]
+      end
+
+      [extra, fallback]
     end
 
     def format_fallback_text_menu_option(option, value_key, label_key, description_key = nil)
@@ -209,7 +240,7 @@ module SmoochMenus
       "#{value}. #{option[label_key]}#{description}"
     end
 
-    def ask_for_language_confirmation(workflow, language, uid)
+    def ask_for_language_confirmation(_workflow, language, uid)
       self.reset_user_language(uid)
       text = []
       options = []

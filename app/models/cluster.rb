@@ -33,8 +33,20 @@ class Cluster < ApplicationRecord
   end
 
   def get_names_of_teams_that_fact_checked_it
+    data = {}
     j = "INNER JOIN project_medias pm ON annotations.annotated_type = 'ProjectMedia' AND annotations.annotated_id = pm.id INNER JOIN clusters c ON c.id = pm.cluster_id"
-    Dynamic.where(annotation_type: 'report_design').where('data LIKE ?', '%state: published%').joins(j).where('c.id' => self.id).group(:team_id).count.keys.collect{ |tid| Team.find_by_id(tid)&.name }
+    tids = Dynamic.where(annotation_type: 'report_design').where('data LIKE ?', '%state: published%')
+    .joins(j).where('c.id' => self.id).group(:team_id).count.keys
+    Team.where(id: tids).find_each { |t| data[t.id] = t.name }
+    # update ES count field
+    pm = self.project_media
+    options = {
+      keys: ['cluster_published_reports_count'],
+      data: { 'cluster_published_reports_count' => data.size },
+      obj: pm
+    }
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(pm), YAML::dump(options), 'update_doc')
+    data
   end
 
   def claim_descriptions
@@ -50,8 +62,8 @@ class Cluster < ApplicationRecord
 
   cached_field :fact_checked_by_team_names,
     start_as: proc { |c| c.get_names_of_teams_that_fact_checked_it },
-    update_es: proc { |_c, value| value.size },
-    es_field_name: :cluster_published_reports_count,
+    update_es: proc { |_c, value| value.keys },
+    es_field_name: :cluster_published_reports,
     recalculate: proc { |c| c.get_names_of_teams_that_fact_checked_it },
     update_on: [
       # Also handled by an "after_add" callback above
@@ -105,6 +117,7 @@ class Cluster < ApplicationRecord
       'cluster_size' => self.project_medias.count,
       'cluster_first_item_at' => self.first_item_at.to_i,
       'cluster_last_item_at' => self.last_item_at.to_i,
+      'cluster_published_reports' => self.fact_checked_by_team_names.keys,
       'cluster_published_reports_count' => self.fact_checked_by_team_names.size,
       'cluster_requests_count' => self.requests_count,
       'cluster_teams' => self.team_names.keys,

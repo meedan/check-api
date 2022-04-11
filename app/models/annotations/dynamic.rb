@@ -12,7 +12,7 @@ class Dynamic < ApplicationRecord
   before_validation :update_attribution, :update_timestamp, :set_data
   after_create :create_fields
   after_update :update_fields
-  after_commit :apply_rules_and_actions, on: [:create, :update], if: proc { |d| ['flag', 'report_design', 'language', 'task_response_single_choice', 'task_response_multiple_choice', 'task_response_free_text'].include?(d.annotation_type) }
+  after_commit :apply_rules_and_actions, on: [:create, :update], if: proc { |d| ['flag', 'report_design', 'language', 'task_response_single_choice', 'task_response_multiple_choice', 'task_response_free_text', 'extracted_text'].include?(d.annotation_type) }
   after_commit :dynamic_send_slack_notification, on: [:create, :update]
   after_commit :add_elasticsearch_dynamic, on: :create
   after_commit :update_elasticsearch_dynamic, on: :update
@@ -297,6 +297,8 @@ class Dynamic < ApplicationRecord
                  self.send(:rule_ids_for_choice_task_response)
                when 'task_response_free_text'
                  self.send(:rule_ids_for_text_task_response)
+               when 'extracted_text'
+                 self.send(:rule_ids_for_extracted_text)
                end
     rule_ids
   end
@@ -330,6 +332,14 @@ class Dynamic < ApplicationRecord
     return [] unless self.annotated_type == 'Task'
     self.annotated.annotated.team.get_rules_that_match_condition do |condition, value|
       condition == "field_from_fieldset_#{self.annotated.fieldset}_value_contains_keyword" && self.annotated.annotated.team.text_contains_keyword(self.get_field_value('response_free_text'), value['value'])
+    end
+  end
+
+  def rule_ids_for_extracted_text
+    team = self.annotated.team
+    team.get_rules_that_match_condition do |condition, value|
+      text = self.get_field_value('text')
+      condition == 'extracted_text_contains_keyword' && team.text_contains_keyword(text, value)
     end
   end
 end

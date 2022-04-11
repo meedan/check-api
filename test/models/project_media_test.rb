@@ -2221,7 +2221,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
       RequestStore.store[:skip_clear_cache] = true
-      old = create_project_media team: t, media: Blank.create!, channel: CheckChannels::ChannelCodes::FETCH, disable_es_callbacks: false
+      old = create_project_media team: t, media: Blank.create!, channel: { main: CheckChannels::ChannelCodes::FETCH }, disable_es_callbacks: false
       old.analysis = { title: 'imported item' }
       old_r = publish_report(old)
       old_s = old.last_status_obj
@@ -2237,10 +2237,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
       new = new.reload
       assert_equal 'imported item', new.analysis['title']
       assert_equal 'Import', new.creator_name
-      assert_equal CheckChannels::ChannelCodes::FETCH, new.channel
+      data = { "main" => CheckChannels::ChannelCodes::FETCH }
+      assert_equal data, new.channel
       # Verify ES
       result = $repository.find(get_es_id(new))
-      assert_equal CheckChannels::ChannelCodes::FETCH, result['channel']
+      assert_equal [CheckChannels::ChannelCodes::FETCH], result['channel']
       assert_equal 'imported item', result['analysis_title']
     end
   end
@@ -2484,25 +2485,44 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should validate channel value" do
     # validate channel create (should be in allowed values)
     assert_raises ActiveRecord::RecordInvalid do
-      create_project_media channel: 90
+      create_project_media channel: { main: 90 }
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_media channel: { main: '90' }
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_media channel: { others: [90] }
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_media channel: { main: CheckChannels::ChannelCodes::MANUAL, others: [90] }
     end
     pm = nil
     assert_difference 'ProjectMedia.count' do
-      pm = create_project_media channel: CheckChannels::ChannelCodes::WHATSAPP
+      pm = create_project_media channel: { main: CheckChannels::ChannelCodes::WHATSAPP }
     end
     # validate channel update (should not update existing value)
     assert_raises ActiveRecord::RecordInvalid do
-      pm.channel = CheckChannels::ChannelCodes::MESSENGER
+      pm.channel = { main: CheckChannels::ChannelCodes::MESSENGER }
+      pm.save!
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      pm.channel = { others: [90] }
+      pm.save!
+    end
+    assert_nothing_raised do
+      pm.channel = { main: CheckChannels::ChannelCodes::WHATSAPP, others: [main: CheckChannels::ChannelCodes::MESSENGER]}
       pm.save!
     end
     # Set channel with default value MANUAL
     pm2 = create_project_media
-    assert_equal CheckChannels::ChannelCodes::MANUAL, pm2.channel
+    data = { "main" => CheckChannels::ChannelCodes::MANUAL }
+    assert_equal data, pm2.channel
     # Set channel with API if ApiKey exists
     a = create_api_key
     ApiKey.current = a
     pm3 = create_project_media channel: nil
-    assert_equal CheckChannels::ChannelCodes::API, pm3.channel
+    data = { "main" => CheckChannels::ChannelCodes::API }
+    assert_equal data, pm3.channel
     ApiKey.current = nil
   end
   
@@ -2605,7 +2625,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should cache picture and creator name" do
     RequestStore.store[:skip_cached_field_update] = false
     u = create_user
-    pm = create_project_media channel: 0, user: u
+    pm = create_project_media channel: { main: CheckChannels::ChannelCodes::MANUAL }, user: u
     # picture
     assert_queries(0, '=') { assert_equal('', pm.picture) }
     assert_queries(0, '>') { assert_equal('', pm.picture(true)) }
@@ -2619,9 +2639,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u = create_user
     pm = create_project_media user: u
     assert_equal pm.creator_name, u.name
-    pm2 = create_project_media user: u, channel: CheckChannels::ChannelCodes::WHATSAPP
+    pm2 = create_project_media user: u, channel: { main: CheckChannels::ChannelCodes::WHATSAPP }
     assert_equal pm2.creator_name, 'Tipline'
-    pm3 = create_project_media user: u, channel: CheckChannels::ChannelCodes::FETCH
+    pm3 = create_project_media user: u, channel: { main: CheckChannels::ChannelCodes::FETCH }
     assert_equal pm3.creator_name, 'Import'
     # update cache based on user update
     u.name = 'update name'
@@ -2797,7 +2817,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should have web form channel" do
-    pm = create_project_media channel: 11
+    pm = create_project_media channel: { main: CheckChannels::ChannelCodes::WEB_FORM }
     assert_equal 'Web Form', pm.reload.get_creator_name
   end
 
@@ -2821,7 +2841,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should get shared database creator" do
-    pm = create_project_media channel: 12
+    pm = create_project_media channel: { main: CheckChannels::ChannelCodes::SHARED_DATABASE }
     assert_equal 'Shared Database', pm.creator_name
   end
 

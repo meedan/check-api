@@ -101,6 +101,8 @@ id:
         %{support_email} jika kesalahannya terus berlanjut.
       invalid_format_for_languages: Format bahasa salah. Format yang diharapkan `['en',
         'ar', ....]`
+      invalid_project_media_channel_update: Maaf, Anda tidak dapat memperbarui nilai
+        saluran
   activerecord:
     models:
       link: Tautan
@@ -143,14 +145,14 @@ id:
           attributes:
             data:
               already_exists: sudah ada
+        relationship:
+          attributes:
+            relationship_type:
+              already_exists: sudah ada
         team:
           attributes:
             slug:
               slug_format: hanya menerima huruf, angka dan tanda hubung
-        project_media:
-          attributes:
-            channel:
-              channel_update: Maaf, Anda tidak dapat memperbarui nilai saluran
       messages:
         record_invalid: "%{errors}"
         improbable_phone: salah nomor
@@ -678,6 +680,8 @@ id:
     berikut
   team_rule_title_contains_keyword: Konten mengandung satu atau lebih dari kata kunci
     berikut
+  team_rule_extracted_text_contains_keyword: Teks yang diekstraksi mengandung kata
+    kunci
   team_rule_select_type: Pilih tipe
   team_rule_select_language: Pilih bahasa
   team_rule_select_user: Pilih seorang kolaborator
@@ -747,6 +751,7 @@ id:
   flag_likelihood_7: Panduan
   relationship_not_same_team: Perihal terkait harus berada di dalam ruang kerja yang
     sama
+  target_is_published: Target seharusnya tidak memiliki laporan yang diterbitkan
   bulk_operation_limit_error: Maaf, jumlah maksimal perihal yang dapat diproses saat
     bersamaan adalah %{limit}
   must_provide_fallback_when_deleting_status_in_use: Status ini sedang digunakan,
@@ -782,6 +787,7 @@ id:
   list_column_report_status: Status laporan
   list_column_tags_as_sentence: Label-label
   list_column_media_published_at: Media yang diterbitkan
+  list_column_published_by: Laporan diterbitkan oleh
   list_column_related_count: Terkait
   list_column_suggestions_count: Kecocokan yang disarankan
   list_column_folder: Folder

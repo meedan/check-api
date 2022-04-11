@@ -134,6 +134,10 @@ ru:
           attributes:
             data:
               already_exists: уже существует
+        relationship:
+          attributes:
+            relationship_type:
+              already_exists: уже существует
         team:
           attributes:
             slug:

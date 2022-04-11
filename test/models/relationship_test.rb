@@ -27,6 +27,16 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_equal pm, r.target
   end
 
+  test "should not have a published target" do
+    create_verification_status_stuff
+    s = create_project_media team: @team
+    t = create_project_media team: @team
+    publish_report(t)
+    assert_raises ActiveRecord::RecordInvalid do
+      create_relationship source_id: s.id, target_id: t.id
+    end
+  end
+
   test "should not save if source is missing" do
     assert_raises ActiveRecord::StatementInvalid do
       assert_no_difference 'Relationship.count' do
@@ -311,6 +321,17 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_not_nil Relationship.where(source_id: i1, target_id: i11).last
     assert_not_nil Relationship.where(source_id: i1, target_id: i111).last
     assert_nil Relationship.where(source_id: i11, target_id: i111).last
+    # should re-point if same target exists in two relationships
+    s1 = create_project_media team: t
+    s2 = create_project_media team: t
+    t = create_project_media team: t
+    create_relationship source_id: s1.id, target_id: t.id, relationship_type: Relationship.confirmed_type
+    create_relationship source_id: s2.id, target_id: t.id, relationship_type: Relationship.confirmed_type
+    create_relationship source_id: s2.id, target_id: s1.id, relationship_type: Relationship.confirmed_type
+    assert_equal 2, Relationship.where(source_id: s2).count
+    assert_nil Relationship.where(source_id: s1, target_id: t).last
+    assert_not_nil Relationship.where(source_id: s2, target_id: t).last
+    assert_not_nil Relationship.where(source_id: s2, target_id: s1).last
   end
 
   test "should not attempt to update source count if source does not exist" do
@@ -424,5 +445,22 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_equal r.source_id, es_t['parent_id']
     assert_equal pm_t.reload.sources_count, es_t['sources_count']
     assert_equal 1, pm_t.reload.sources_count
+  end
+
+  test "should set cluster" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    s = create_project_media team: t
+    t = create_project_media team: t
+    s_c = create_cluster project_media: s
+    s_c.project_medias << s
+    t_c = create_cluster project_media: t
+    t_c.project_medias << t
+    User.stubs(:current).returns(u)
+    create_relationship source_id: s.id, target_id: t.id, relationship_type: Relationship.confirmed_type
+    assert_nil Cluster.where(id: t_c.id).last
+    assert_equal [s.id, t.id].sort, s_c.reload.project_media_ids.sort
+    User.unstub(:current)
   end
 end

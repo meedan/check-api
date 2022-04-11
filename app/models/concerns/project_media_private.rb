@@ -3,6 +3,15 @@ require 'active_support/concern'
 module ProjectMediaPrivate
   extend ActiveSupport::Concern
 
+  CUSTOM_CHANNEL_SCHEMA = {
+    type: 'object',
+    required: ['main'],
+    properties: {
+      main: { type: 'number', title: 'Main' },
+      others: { type: 'array', title: 'Others' },
+    }
+  }
+
   private
 
   def update_media_account
@@ -110,6 +119,27 @@ module ProjectMediaPrivate
   end
 
   def set_channel
-    self.channel ||= CheckChannels::ChannelCodes::API unless ApiKey.current.nil?
+    self.channel ||= { main: CheckChannels::ChannelCodes::API } unless ApiKey.current.nil?
+  end
+
+  def custom_channel_format
+    errors.add(:channel, JSON::Validator.fully_validate(CUSTOM_CHANNEL_SCHEMA, self.channel)) if !JSON::Validator.validate(CUSTOM_CHANNEL_SCHEMA, self.channel)
+  end
+
+  def channel_in_allowed_values
+    main = self.channel.with_indifferent_access[:main].to_i
+    error = !CheckChannels::ChannelCodes::ALL.include?(main)
+    others = self.channel.with_indifferent_access[:others] || []
+    unless error || others.empty?
+      others = others.map(&:to_i)
+      error = !(others - CheckChannels::ChannelCodes::ALL).empty?
+    end
+    errors.add(:channel, I18n.t(:"errors.messages.invalid_project_media_channel_value")) if error
+  end
+
+  def channel_not_changed
+    value = self.channel.with_indifferent_access[:main].to_i
+    value_was = self.channel_was.with_indifferent_access[:main].to_i
+    errors.add(:channel, I18n.t(:"errors.messages.invalid_project_media_channel_update")) if value != value_was
   end
 end

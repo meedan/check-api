@@ -83,7 +83,8 @@ class Bot::FetchTest < ActiveSupport::TestCase
       assert Bot::Fetch.webhook(request)
     end
     pm = ProjectMedia.last
-    assert_equal CheckChannels::ChannelCodes::FETCH, pm.channel
+    data = { "main" => CheckChannels::ChannelCodes::FETCH }
+    assert_equal data, pm.channel
   end
 
   # This test to reproduce errbit error #CHECK-166

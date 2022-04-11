@@ -25,11 +25,16 @@
     * [BotUserEdge](#botuseredge)
     * [ChangePasswordPayload](#changepasswordpayload)
     * [CheckSearch](#checksearch)
+    * [ClaimDescription](#claimdescription)
+    * [ClaimDescriptionConnection](#claimdescriptionconnection)
+    * [ClaimDescriptionEdge](#claimdescriptionedge)
+    * [Cluster](#cluster)
     * [Comment](#comment)
     * [CommentConnection](#commentconnection)
     * [CommentEdge](#commentedge)
     * [CreateAccountSourcePayload](#createaccountsourcepayload)
     * [CreateAnnotationPayload](#createannotationpayload)
+    * [CreateClaimDescriptionPayload](#createclaimdescriptionpayload)
     * [CreateCommentPayload](#createcommentpayload)
     * [CreateDynamicAnnotationAnalysisPayload](#createdynamicannotationanalysispayload)
     * [CreateDynamicAnnotationArchiveIsPayload](#createdynamicannotationarchiveispayload)
@@ -58,6 +63,7 @@
     * [CreateDynamicAnnotationTaskResponseMultipleChoicePayload](#createdynamicannotationtaskresponsemultiplechoicepayload)
     * [CreateDynamicAnnotationTaskResponseNumberPayload](#createdynamicannotationtaskresponsenumberpayload)
     * [CreateDynamicAnnotationTaskResponseSingleChoicePayload](#createdynamicannotationtaskresponsesinglechoicepayload)
+    * [CreateDynamicAnnotationTaskResponseUrlPayload](#createdynamicannotationtaskresponseurlpayload)
     * [CreateDynamicAnnotationTaskResponseYesNoPayload](#createdynamicannotationtaskresponseyesnopayload)
     * [CreateDynamicAnnotationTaskStatusPayload](#createdynamicannotationtaskstatuspayload)
     * [CreateDynamicAnnotationTeamBotResponsePayload](#createdynamicannotationteambotresponsepayload)
@@ -68,6 +74,7 @@
     * [CreateDynamicAnnotationTranslationStatusPayload](#createdynamicannotationtranslationstatuspayload)
     * [CreateDynamicAnnotationVerificationStatusPayload](#createdynamicannotationverificationstatuspayload)
     * [CreateDynamicPayload](#createdynamicpayload)
+    * [CreateFactCheckPayload](#createfactcheckpayload)
     * [CreateProjectGroupPayload](#createprojectgrouppayload)
     * [CreateProjectMediaPayload](#createprojectmediapayload)
     * [CreateProjectMediaUserPayload](#createprojectmediauserpayload)
@@ -116,6 +123,7 @@
     * [DestroyDynamicAnnotationTaskResponseMultipleChoicePayload](#destroydynamicannotationtaskresponsemultiplechoicepayload)
     * [DestroyDynamicAnnotationTaskResponseNumberPayload](#destroydynamicannotationtaskresponsenumberpayload)
     * [DestroyDynamicAnnotationTaskResponseSingleChoicePayload](#destroydynamicannotationtaskresponsesinglechoicepayload)
+    * [DestroyDynamicAnnotationTaskResponseUrlPayload](#destroydynamicannotationtaskresponseurlpayload)
     * [DestroyDynamicAnnotationTaskResponseYesNoPayload](#destroydynamicannotationtaskresponseyesnopayload)
     * [DestroyDynamicAnnotationTaskStatusPayload](#destroydynamicannotationtaskstatuspayload)
     * [DestroyDynamicAnnotationTeamBotResponsePayload](#destroydynamicannotationteambotresponsepayload)
@@ -201,6 +209,8 @@
     * [Dynamic_annotation_task_response_numberEdge](#dynamic_annotation_task_response_numberedge)
     * [Dynamic_annotation_task_response_single_choice](#dynamic_annotation_task_response_single_choice)
     * [Dynamic_annotation_task_response_single_choiceEdge](#dynamic_annotation_task_response_single_choiceedge)
+    * [Dynamic_annotation_task_response_url](#dynamic_annotation_task_response_url)
+    * [Dynamic_annotation_task_response_urlEdge](#dynamic_annotation_task_response_urledge)
     * [Dynamic_annotation_task_response_yes_no](#dynamic_annotation_task_response_yes_no)
     * [Dynamic_annotation_task_response_yes_noEdge](#dynamic_annotation_task_response_yes_noedge)
     * [Dynamic_annotation_task_status](#dynamic_annotation_task_status)
@@ -220,6 +230,8 @@
     * [Dynamic_annotation_verification_status](#dynamic_annotation_verification_status)
     * [Dynamic_annotation_verification_statusEdge](#dynamic_annotation_verification_statusedge)
     * [ExtractTextPayload](#extracttextpayload)
+    * [FactCheck](#factcheck)
+    * [FactCheckEdge](#factcheckedge)
     * [Flag](#flag)
     * [GenerateTwoFactorBackupCodesPayload](#generatetwofactorbackupcodespayload)
     * [Media](#media)
@@ -285,6 +297,7 @@
     * [TranscribeAudioPayload](#transcribeaudiopayload)
     * [UpdateAccountPayload](#updateaccountpayload)
     * [UpdateAccountSourcePayload](#updateaccountsourcepayload)
+    * [UpdateClaimDescriptionPayload](#updateclaimdescriptionpayload)
     * [UpdateCommentPayload](#updatecommentpayload)
     * [UpdateDynamicAnnotationAnalysisPayload](#updatedynamicannotationanalysispayload)
     * [UpdateDynamicAnnotationArchiveIsPayload](#updatedynamicannotationarchiveispayload)
@@ -313,6 +326,7 @@
     * [UpdateDynamicAnnotationTaskResponseMultipleChoicePayload](#updatedynamicannotationtaskresponsemultiplechoicepayload)
     * [UpdateDynamicAnnotationTaskResponseNumberPayload](#updatedynamicannotationtaskresponsenumberpayload)
     * [UpdateDynamicAnnotationTaskResponseSingleChoicePayload](#updatedynamicannotationtaskresponsesinglechoicepayload)
+    * [UpdateDynamicAnnotationTaskResponseUrlPayload](#updatedynamicannotationtaskresponseurlpayload)
     * [UpdateDynamicAnnotationTaskResponseYesNoPayload](#updatedynamicannotationtaskresponseyesnopayload)
     * [UpdateDynamicAnnotationTaskStatusPayload](#updatedynamicannotationtaskstatuspayload)
     * [UpdateDynamicAnnotationTeamBotResponsePayload](#updatedynamicannotationteambotresponsepayload)
@@ -323,6 +337,7 @@
     * [UpdateDynamicAnnotationTranslationStatusPayload](#updatedynamicannotationtranslationstatuspayload)
     * [UpdateDynamicAnnotationVerificationStatusPayload](#updatedynamicannotationverificationstatuspayload)
     * [UpdateDynamicPayload](#updatedynamicpayload)
+    * [UpdateFactCheckPayload](#updatefactcheckpayload)
     * [UpdateProjectGroupPayload](#updateprojectgrouppayload)
     * [UpdateProjectMediaPayload](#updateprojectmediapayload)
     * [UpdateProjectMediaUserPayload](#updateprojectmediauserpayload)
@@ -353,6 +368,7 @@
     * [ChangePasswordInput](#changepasswordinput)
     * [CreateAccountSourceInput](#createaccountsourceinput)
     * [CreateAnnotationInput](#createannotationinput)
+    * [CreateClaimDescriptionInput](#createclaimdescriptioninput)
     * [CreateCommentInput](#createcommentinput)
     * [CreateDynamicAnnotationAnalysisInput](#createdynamicannotationanalysisinput)
     * [CreateDynamicAnnotationArchiveIsInput](#createdynamicannotationarchiveisinput)
@@ -381,6 +397,7 @@
     * [CreateDynamicAnnotationTaskResponseMultipleChoiceInput](#createdynamicannotationtaskresponsemultiplechoiceinput)
     * [CreateDynamicAnnotationTaskResponseNumberInput](#createdynamicannotationtaskresponsenumberinput)
     * [CreateDynamicAnnotationTaskResponseSingleChoiceInput](#createdynamicannotationtaskresponsesinglechoiceinput)
+    * [CreateDynamicAnnotationTaskResponseUrlInput](#createdynamicannotationtaskresponseurlinput)
     * [CreateDynamicAnnotationTaskResponseYesNoInput](#createdynamicannotationtaskresponseyesnoinput)
     * [CreateDynamicAnnotationTaskStatusInput](#createdynamicannotationtaskstatusinput)
     * [CreateDynamicAnnotationTeamBotResponseInput](#createdynamicannotationteambotresponseinput)
@@ -391,6 +408,7 @@
     * [CreateDynamicAnnotationTranslationStatusInput](#createdynamicannotationtranslationstatusinput)
     * [CreateDynamicAnnotationVerificationStatusInput](#createdynamicannotationverificationstatusinput)
     * [CreateDynamicInput](#createdynamicinput)
+    * [CreateFactCheckInput](#createfactcheckinput)
     * [CreateProjectGroupInput](#createprojectgroupinput)
     * [CreateProjectInput](#createprojectinput)
     * [CreateProjectMediaInput](#createprojectmediainput)
@@ -440,6 +458,7 @@
     * [DestroyDynamicAnnotationTaskResponseMultipleChoiceInput](#destroydynamicannotationtaskresponsemultiplechoiceinput)
     * [DestroyDynamicAnnotationTaskResponseNumberInput](#destroydynamicannotationtaskresponsenumberinput)
     * [DestroyDynamicAnnotationTaskResponseSingleChoiceInput](#destroydynamicannotationtaskresponsesinglechoiceinput)
+    * [DestroyDynamicAnnotationTaskResponseUrlInput](#destroydynamicannotationtaskresponseurlinput)
     * [DestroyDynamicAnnotationTaskResponseYesNoInput](#destroydynamicannotationtaskresponseyesnoinput)
     * [DestroyDynamicAnnotationTaskStatusInput](#destroydynamicannotationtaskstatusinput)
     * [DestroyDynamicAnnotationTeamBotResponseInput](#destroydynamicannotationteambotresponseinput)
@@ -485,6 +504,7 @@
     * [TranscribeAudioInput](#transcribeaudioinput)
     * [UpdateAccountInput](#updateaccountinput)
     * [UpdateAccountSourceInput](#updateaccountsourceinput)
+    * [UpdateClaimDescriptionInput](#updateclaimdescriptioninput)
     * [UpdateCommentInput](#updatecommentinput)
     * [UpdateDynamicAnnotationAnalysisInput](#updatedynamicannotationanalysisinput)
     * [UpdateDynamicAnnotationArchiveIsInput](#updatedynamicannotationarchiveisinput)
@@ -513,6 +533,7 @@
     * [UpdateDynamicAnnotationTaskResponseMultipleChoiceInput](#updatedynamicannotationtaskresponsemultiplechoiceinput)
     * [UpdateDynamicAnnotationTaskResponseNumberInput](#updatedynamicannotationtaskresponsenumberinput)
     * [UpdateDynamicAnnotationTaskResponseSingleChoiceInput](#updatedynamicannotationtaskresponsesinglechoiceinput)
+    * [UpdateDynamicAnnotationTaskResponseUrlInput](#updatedynamicannotationtaskresponseurlinput)
     * [UpdateDynamicAnnotationTaskResponseYesNoInput](#updatedynamicannotationtaskresponseyesnoinput)
     * [UpdateDynamicAnnotationTaskStatusInput](#updatedynamicannotationtaskstatusinput)
     * [UpdateDynamicAnnotationTeamBotResponseInput](#updatedynamicannotationteambotresponseinput)
@@ -523,6 +544,7 @@
     * [UpdateDynamicAnnotationTranslationStatusInput](#updatedynamicannotationtranslationstatusinput)
     * [UpdateDynamicAnnotationVerificationStatusInput](#updatedynamicannotationverificationstatusinput)
     * [UpdateDynamicInput](#updatedynamicinput)
+    * [UpdateFactCheckInput](#updatefactcheckinput)
     * [UpdateProjectGroupInput](#updateprojectgroupinput)
     * [UpdateProjectInput](#updateprojectinput)
     * [UpdateProjectMediaInput](#updateprojectmediainput)
@@ -583,6 +605,20 @@ Information about the application
 <td>
 
 Information about the bot_user with given id
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>cluster</strong></td>
+<td valign="top"><a href="#cluster">Cluster</a></td>
+<td>
+
+Information about the cluster with given id
 
 </td>
 </tr>
@@ -917,6 +953,16 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>createClaimDescription</strong></td>
+<td valign="top"><a href="#createclaimdescriptionpayload">CreateClaimDescriptionPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#createclaimdescriptioninput">CreateClaimDescriptionInput</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>createComment</strong></td>
 <td valign="top"><a href="#createcommentpayload">CreateCommentPayload</a></td>
 <td></td>
@@ -1207,6 +1253,16 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>createDynamicAnnotationTaskResponseUrl</strong></td>
+<td valign="top"><a href="#createdynamicannotationtaskresponseurlpayload">CreateDynamicAnnotationTaskResponseUrlPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#createdynamicannotationtaskresponseurlinput">CreateDynamicAnnotationTaskResponseUrlInput</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>createDynamicAnnotationTaskResponseYesNo</strong></td>
 <td valign="top"><a href="#createdynamicannotationtaskresponseyesnopayload">CreateDynamicAnnotationTaskResponseYesNoPayload</a></td>
 <td></td>
@@ -1294,6 +1350,16 @@ Information about the user with given id
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
 <td valign="top"><a href="#createdynamicannotationverificationstatusinput">CreateDynamicAnnotationVerificationStatusInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>createFactCheck</strong></td>
+<td valign="top"><a href="#createfactcheckpayload">CreateFactCheckPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#createfactcheckinput">CreateFactCheckInput</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -1787,6 +1853,16 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>destroyDynamicAnnotationTaskResponseUrl</strong></td>
+<td valign="top"><a href="#destroydynamicannotationtaskresponseurlpayload">DestroyDynamicAnnotationTaskResponseUrlPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#destroydynamicannotationtaskresponseurlinput">DestroyDynamicAnnotationTaskResponseUrlInput</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>destroyDynamicAnnotationTaskResponseYesNo</strong></td>
 <td valign="top"><a href="#destroydynamicannotationtaskresponseyesnopayload">DestroyDynamicAnnotationTaskResponseYesNoPayload</a></td>
 <td></td>
@@ -2227,6 +2303,16 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>updateClaimDescription</strong></td>
+<td valign="top"><a href="#updateclaimdescriptionpayload">UpdateClaimDescriptionPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#updateclaimdescriptioninput">UpdateClaimDescriptionInput</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>updateComment</strong></td>
 <td valign="top"><a href="#updatecommentpayload">UpdateCommentPayload</a></td>
 <td></td>
@@ -2517,6 +2603,16 @@ Information about the user with given id
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>updateDynamicAnnotationTaskResponseUrl</strong></td>
+<td valign="top"><a href="#updatedynamicannotationtaskresponseurlpayload">UpdateDynamicAnnotationTaskResponseUrlPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#updatedynamicannotationtaskresponseurlinput">UpdateDynamicAnnotationTaskResponseUrlInput</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>updateDynamicAnnotationTaskResponseYesNo</strong></td>
 <td valign="top"><a href="#updatedynamicannotationtaskresponseyesnopayload">UpdateDynamicAnnotationTaskResponseYesNoPayload</a></td>
 <td></td>
@@ -2604,6 +2700,16 @@ Information about the user with given id
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
 <td valign="top"><a href="#updatedynamicannotationverificationstatusinput">UpdateDynamicAnnotationVerificationStatusInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updateFactCheck</strong></td>
+<td valign="top"><a href="#updatefactcheckpayload">UpdateFactCheckPayload</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#updatefactcheckinput">UpdateFactCheckInput</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -4131,6 +4237,297 @@ Returns the elements in the list that come before the specified global ID.
 </tbody>
 </table>
 
+### ClaimDescription
+
+ClaimDescription type
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>context</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>created_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dbid</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>description</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fact_check</strong></td>
+<td valign="top"><a href="#factcheck">FactCheck</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissions</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updated_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>user</strong></td>
+<td valign="top"><a href="#user">User</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### ClaimDescriptionConnection
+
+The connection type for ClaimDescription.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>edges</strong></td>
+<td valign="top">[<a href="#claimdescriptionedge">ClaimDescriptionEdge</a>]</td>
+<td>
+
+A list of edges.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>pageInfo</strong></td>
+<td valign="top"><a href="#pageinfo">PageInfo</a>!</td>
+<td>
+
+Information to aid in pagination.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### ClaimDescriptionEdge
+
+An edge in a connection.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>cursor</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A cursor for use in pagination.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>node</strong></td>
+<td valign="top"><a href="#claimdescription">ClaimDescription</a></td>
+<td>
+
+The item at the end of the edge.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### Cluster
+
+Cluster type
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>claim_descriptions</strong></td>
+<td valign="top"><a href="#claimdescriptionconnection">ClaimDescriptionConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>created_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dbid</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fact_checked_by_team_names</strong></td>
+<td valign="top">[<a href="#string">String</a>]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>first_item_at</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>items</strong></td>
+<td valign="top"><a href="#projectmediaconnection">ProjectMediaConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>last_item_at</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissions</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>requests_count</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>size</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team_names</strong></td>
+<td valign="top">[<a href="#string">String</a>]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updated_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### Comment
 
 <table>
@@ -4526,6 +4923,47 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>task</strong></td>
 <td valign="top"><a href="#task">Task</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### CreateClaimDescriptionPayload
+
+Autogenerated return type of CreateClaimDescription
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>claim_description</strong></td>
+<td valign="top"><a href="#claimdescription">ClaimDescription</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>claim_descriptionEdge</strong></td>
+<td valign="top"><a href="#claimdescriptionedge">ClaimDescriptionEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -6379,6 +6817,72 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### CreateDynamicAnnotationTaskResponseUrlPayload
+
+Autogenerated return type of CreateDynamicAnnotationTaskResponseUrl
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamicEdge</strong></td>
+<td valign="top"><a href="#dynamicedge">DynamicEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_task_response_url</strong></td>
+<td valign="top"><a href="#dynamic_annotation_task_response_url">Dynamic_annotation_task_response_url</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_task_response_urlEdge</strong></td>
+<td valign="top"><a href="#dynamic_annotation_task_response_urledge">Dynamic_annotation_task_response_urlEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### CreateDynamicAnnotationTaskResponseYesNoPayload
 
 Autogenerated return type of CreateDynamicAnnotationTaskResponseYesNo
@@ -7039,6 +7543,47 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### CreateFactCheckPayload
+
+Autogenerated return type of CreateFactCheck
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>claim_description</strong></td>
+<td valign="top"><a href="#claimdescription">ClaimDescription</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fact_check</strong></td>
+<td valign="top"><a href="#factcheck">FactCheck</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fact_checkEdge</strong></td>
+<td valign="top"><a href="#factcheckedge">FactCheckEdge</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### CreateProjectGroupPayload
 
 Autogenerated return type of CreateProjectGroup
@@ -7239,6 +7784,11 @@ Autogenerated return type of CreateProject
 A unique identifier for the client performing the mutation.
 
 </td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>previous_default_project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
@@ -9272,6 +9822,52 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### DestroyDynamicAnnotationTaskResponseUrlPayload
+
+Autogenerated return type of DestroyDynamicAnnotationTaskResponseUrl
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>deletedId</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### DestroyDynamicAnnotationTaskResponseYesNoPayload
 
 Autogenerated return type of DestroyDynamicAnnotationTaskResponseYesNo
@@ -9926,6 +10522,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>deletedId</strong></td>
 <td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>previous_default_project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
 <td></td>
 </tr>
 <tr>
@@ -18055,6 +18656,274 @@ The item at the end of the edge.
 </tbody>
 </table>
 
+### Dynamic_annotation_task_response_url
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotation_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotations</strong></td>
+<td valign="top"><a href="#annotationunionconnection">AnnotationUnionConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">annotation_type</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotator</strong></td>
+<td valign="top"><a href="#annotator">Annotator</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>assignments</strong></td>
+<td valign="top"><a href="#userconnection">UserConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>content</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>created_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dbid</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>file_data</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>lock_version</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>locked</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>medias</strong></td>
+<td valign="top"><a href="#projectmediaconnection">ProjectMediaConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>parsed_fragment</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissions</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team</strong></td>
+<td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updated_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>version</strong></td>
+<td valign="top"><a href="#version">Version</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### Dynamic_annotation_task_response_urlEdge
+
+An edge in a connection.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>cursor</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A cursor for use in pagination.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>node</strong></td>
+<td valign="top"><a href="#dynamic_annotation_task_response_url">Dynamic_annotation_task_response_url</a></td>
+<td>
+
+The item at the end of the edge.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### Dynamic_annotation_task_response_yes_no
 
 <table>
@@ -20498,6 +21367,108 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### FactCheck
+
+FactCheck type
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>claim_description</strong></td>
+<td valign="top"><a href="#claimdescription">ClaimDescription</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>created_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dbid</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissions</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>summary</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>title</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updated_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>url</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>user</strong></td>
+<td valign="top"><a href="#user">User</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### FactCheckEdge
+
+An edge in a connection.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>cursor</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A cursor for use in pagination.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>node</strong></td>
+<td valign="top"><a href="#factcheck">FactCheck</a></td>
+<td>
+
+The item at the end of the edge.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### Flag
 
 <table>
@@ -21222,6 +22193,11 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>is_default</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>medias_count</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
 <td></td>
@@ -21725,6 +22701,26 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>channel</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>claim_description</strong></td>
+<td valign="top"><a href="#claimdescription">ClaimDescription</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>cluster</strong></td>
+<td valign="top"><a href="#cluster">Cluster</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>cluster_id</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>comments</strong></td>
 <td valign="top"><a href="#commentconnection">CommentConnection</a></td>
 <td></td>
@@ -21823,6 +22819,11 @@ Returns the elements in the list that come before the specified global ID.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>created_at</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>creator_name</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
@@ -22024,6 +23025,11 @@ Returns the elements in the list that come before the specified global ID.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>dynamic_annotation_task_response_single_choice</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_task_response_url</strong></td>
 <td valign="top"><a href="#dynamic">Dynamic</a></td>
 <td></td>
 </tr>
@@ -23180,6 +24186,47 @@ Returns the elements in the list that come before the specified global ID.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>dynamic_annotations_task_response_url</strong></td>
+<td valign="top"><a href="#dynamicconnection">DynamicConnection</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the first _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come after the specified global ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Returns the last _n_ elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns the elements in the list that come before the specified global ID.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>dynamic_annotations_task_response_yes_no</strong></td>
 <td valign="top"><a href="#dynamicconnection">DynamicConnection</a></td>
 <td></td>
@@ -23826,6 +24873,11 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>source_id</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>status</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -23976,6 +25028,11 @@ Returns the elements in the list that come before the specified global ID.
 <tr>
 <td colspan="2" valign="top"><strong>team</strong></td>
 <td valign="top"><a href="#team">Team</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>team_name</strong></td>
+<td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
 <tr>
@@ -26122,6 +27179,11 @@ Returns the elements in the list that come before the specified global ID.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>slug</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>suggestions_count</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
 <td></td>
@@ -26269,6 +27331,11 @@ Team type
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>country_teams</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>created_at</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -26276,6 +27343,11 @@ Team type
 <tr>
 <td colspan="2" valign="top"><strong>dbid</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>default_folder</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
 <td></td>
 </tr>
 <tr>
@@ -26349,6 +27421,11 @@ Team type
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>get_suggested_matches_filters</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>get_tasks_enabled</strong></td>
 <td valign="top"><a href="#boolean">Boolean</a></td>
 <td></td>
@@ -26361,6 +27438,11 @@ Team type
 <tr>
 <td colspan="2" valign="top"><strong>get_trends_enabled</strong></td>
 <td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>get_trends_filters</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
@@ -26657,6 +27739,16 @@ Returns the last _n_ elements from the list.
 Returns the elements in the list that come before the specified global ID.
 
 </td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">keyword</td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>sources_count</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
 </tr>
 <tr>
 <td colspan="2" align="right" valign="top">keyword</td>
@@ -27646,6 +28738,47 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source</strong></td>
 <td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### UpdateClaimDescriptionPayload
+
+Autogenerated return type of UpdateClaimDescription
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>claim_description</strong></td>
+<td valign="top"><a href="#claimdescription">ClaimDescription</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>claim_descriptionEdge</strong></td>
+<td valign="top"><a href="#claimdescriptionedge">ClaimDescriptionEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -29499,6 +30632,72 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### UpdateDynamicAnnotationTaskResponseUrlPayload
+
+Autogenerated return type of UpdateDynamicAnnotationTaskResponseUrl
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic</strong></td>
+<td valign="top"><a href="#dynamic">Dynamic</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamicEdge</strong></td>
+<td valign="top"><a href="#dynamicedge">DynamicEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_task_response_url</strong></td>
+<td valign="top"><a href="#dynamic_annotation_task_response_url">Dynamic_annotation_task_response_url</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dynamic_annotation_task_response_urlEdge</strong></td>
+<td valign="top"><a href="#dynamic_annotation_task_response_urledge">Dynamic_annotation_task_response_urlEdge</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media</strong></td>
+<td valign="top"><a href="#projectmedia">ProjectMedia</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>source</strong></td>
+<td valign="top"><a href="#source">Source</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>versionEdge</strong></td>
+<td valign="top"><a href="#versionedge">VersionEdge</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### UpdateDynamicAnnotationTaskResponseYesNoPayload
 
 Autogenerated return type of UpdateDynamicAnnotationTaskResponseYesNo
@@ -30159,6 +31358,47 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### UpdateFactCheckPayload
+
+Autogenerated return type of UpdateFactCheck
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>claim_description</strong></td>
+<td valign="top"><a href="#claimdescription">ClaimDescription</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fact_check</strong></td>
+<td valign="top"><a href="#factcheck">FactCheck</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fact_checkEdge</strong></td>
+<td valign="top"><a href="#factcheckedge">FactCheckEdge</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### UpdateProjectGroupPayload
 
 Autogenerated return type of UpdateProjectGroup
@@ -30435,6 +31675,11 @@ Autogenerated return type of UpdateProject
 A unique identifier for the client performing the mutation.
 
 </td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>previous_default_project</strong></td>
+<td valign="top"><a href="#project">Project</a></td>
+<td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>project</strong></td>
@@ -32000,6 +33245,46 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>locked</strong></td>
 <td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### CreateClaimDescriptionInput
+
+Autogenerated input type of CreateClaimDescription
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>description</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>project_media_id</strong></td>
+<td valign="top"><a href="#int">Int</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>context</strong></td>
+<td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -33670,6 +34955,66 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### CreateDynamicAnnotationTaskResponseUrlInput
+
+Autogenerated input type of CreateDynamicAnnotationTaskResponseUrl
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_attribution</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fragment</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action_data</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_fields</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### CreateDynamicAnnotationTaskResponseYesNoInput
 
 Autogenerated input type of CreateDynamicAnnotationTaskResponseYesNo
@@ -34265,6 +35610,51 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### CreateFactCheckInput
+
+Autogenerated input type of CreateFactCheck
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>title</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>summary</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>url</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>claim_description_id</strong></td>
+<td valign="top"><a href="#int">Int</a>!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### CreateProjectGroupInput
 
 Autogenerated input type of CreateProjectGroup
@@ -34403,8 +35793,18 @@ A unique identifier for the client performing the mutation.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>team_id</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>channel</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>media_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
 <tr>
@@ -34413,13 +35813,23 @@ A unique identifier for the client performing the mutation.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>set_claim_description</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_fact_check</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>set_tasks_responses</strong></td>
 <td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>media_type</strong></td>
-<td valign="top"><a href="#string">String</a></td>
+<td colspan="2" valign="top"><strong>set_tags</strong></td>
+<td valign="top"><a href="#jsonstringtype">JsonStringType</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -36089,6 +37499,36 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### DestroyDynamicAnnotationTaskResponseUrlInput
+
+Autogenerated input type of DestroyDynamicAnnotationTaskResponseUrl
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### DestroyDynamicAnnotationTaskResponseYesNoInput
 
 Autogenerated input type of DestroyDynamicAnnotationTaskResponseYesNo
@@ -36444,6 +37884,11 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>id</strong></td>
 <td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>items_destination_project_id</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -37503,6 +38948,46 @@ A unique identifier for the client performing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>source_id</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### UpdateClaimDescriptionInput
+
+Autogenerated input type of UpdateClaimDescription
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>description</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>context</strong></td>
+<td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -39718,6 +41203,86 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### UpdateDynamicAnnotationTaskResponseUrlInput
+
+Autogenerated input type of UpdateDynamicAnnotationTaskResponseUrl
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_id</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>annotated_type</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_attribution</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fragment</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>action_data</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>set_fields</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>lock_version</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>assigned_to_ids</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>locked</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### UpdateDynamicAnnotationTaskResponseYesNoInput
 
 Autogenerated input type of UpdateDynamicAnnotationTaskResponseYesNo
@@ -40518,6 +42083,51 @@ A unique identifier for the client performing the mutation.
 </tbody>
 </table>
 
+### UpdateFactCheckInput
+
+Autogenerated input type of UpdateFactCheck
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>clientMutationId</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A unique identifier for the client performing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>title</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>summary</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>url</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### UpdateProjectGroupInput
 
 Autogenerated input type of UpdateProjectGroup
@@ -40616,8 +42226,18 @@ A unique identifier for the client performing the mutation.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>previous_default_project_id</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>privacy</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>is_default</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -41242,6 +42862,16 @@ A unique identifier for the client performing the mutation.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>tipline_inbox_filters</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>suggested_matches_filters</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>trends_filters</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>

@@ -1,27 +1,27 @@
 name,version,homepage,summary,license
-aasm,5.1.1,https://github.com/aasm/aasm,State machine mixin for Ruby objects,MIT
-actioncable,5.2.6,http://rubyonrails.org,WebSocket framework for Rails.,MIT
-actionmailer,5.2.6,http://rubyonrails.org,"Email composition, delivery, and receiving framework (part of Rails).",MIT
-actionpack,5.2.6,http://rubyonrails.org,Web-flow and rendering framework putting the VC in MVC (part of Rails).,MIT
-actionview,5.2.6,http://rubyonrails.org,Rendering framework putting the V in MVC (part of Rails).,MIT
-activejob,5.2.6,http://rubyonrails.org,Job framework with pluggable queues.,MIT
-activemodel,5.2.6,http://rubyonrails.org,A toolkit for building modeling frameworks (part of Rails).,MIT
-activerecord,5.2.6,http://rubyonrails.org,Object-relational mapper framework (part of Rails).,MIT
+aasm,5.2.0,https://github.com/aasm/aasm,State machine mixin for Ruby objects,MIT
+actioncable,5.2.6.3,http://rubyonrails.org,WebSocket framework for Rails.,MIT
+actionmailer,5.2.6.3,http://rubyonrails.org,"Email composition, delivery, and receiving framework (part of Rails).",MIT
+actionpack,5.2.6.3,http://rubyonrails.org,Web-flow and rendering framework putting the VC in MVC (part of Rails).,MIT
+actionview,5.2.6.3,http://rubyonrails.org,Rendering framework putting the V in MVC (part of Rails).,MIT
+activejob,5.2.6.3,http://rubyonrails.org,Job framework with pluggable queues.,MIT
+activemodel,5.2.6.3,http://rubyonrails.org,A toolkit for building modeling frameworks (part of Rails).,MIT
+activerecord,5.2.6.3,http://rubyonrails.org,Object-relational mapper framework (part of Rails).,MIT
 activerecord-import,1.1.0,https://github.com/zdennis/activerecord-import,Bulk insert extension for ActiveRecord,MIT
-activestorage,5.2.6,http://rubyonrails.org,Local and cloud file storage framework.,MIT
-activesupport,5.2.6,http://rubyonrails.org,A toolkit of support libraries and Ruby core extensions extracted from the Rails framework.,MIT
+activestorage,5.2.6.3,http://rubyonrails.org,Local and cloud file storage framework.,MIT
+activesupport,5.2.6.3,http://rubyonrails.org,A toolkit of support libraries and Ruby core extensions extracted from the Rails framework.,MIT
 airbrake,11.0.1,https://airbrake.io,Airbrake is an online tool that provides robust exception tracking in any of your Ruby applications.,MIT
-airbrake-ruby,5.2.0,https://airbrake.io,Ruby notifier for https://airbrake.io,MIT
+airbrake-ruby,5.2.1,https://airbrake.io,Ruby notifier for https://airbrake.io,MIT
 apollo-tracing,1.5.0,https://github.com/uniiverse/apollo-tracing-ruby,Ruby implementation of GraphQL trace data in the Apollo Tracing format.,MIT
 arel,9.0.0,https://github.com/rails/arel,Arel Really Exasperates Logicians  Arel is a SQL AST manager for Ruby,MIT
-ast,2.4.1,https://whitequark.github.io/ast/,A library for working with Abstract Syntax Trees.,MIT
+ast,2.4.2,https://whitequark.github.io/ast/,A library for working with Abstract Syntax Trees.,MIT
 attr_encrypted,3.1.0,http://github.com/attr-encrypted/attr_encrypted,Encrypt and decrypt attributes,MIT
-authtrail,0.1.3,https://github.com/ankane/authtrail,Track Devise login activity,MIT
-autoprefixer-rails,10.1.0.0,https://github.com/ai/autoprefixer-rails,Parse CSS and add vendor prefixes to CSS rules using values from the Can I Use website.,MIT
-awesome_print,1.8.0,https://github.com/awesome-print/awesome_print,Pretty print Ruby objects with proper indentation and colors,MIT
-bcrypt,3.1.16,https://github.com/codahale/bcrypt-ruby,OpenBSD's bcrypt() password hashing algorithm.,MIT
+authtrail,0.4.2,https://github.com/ankane/authtrail,Track Devise login activity,MIT
+autoprefixer-rails,10.4.2.0,https://github.com/ai/autoprefixer-rails,Parse CSS and add vendor prefixes to CSS rules using values from the Can I Use website.,MIT
+awesome_print,1.9.2,https://github.com/awesome-print/awesome_print,Pretty print Ruby objects with proper indentation and colors,MIT
+bcrypt,3.1.17,https://github.com/bcrypt-ruby/bcrypt-ruby,OpenBSD's bcrypt() password hashing algorithm.,MIT
 bitly,2.0.1,https://github.com/philnash/bitly,Use the Bitly API to shorten or expand URLs,MIT
-bootsnap,1.7.5,https://github.com/Shopify/bootsnap,Boot large ruby/rails apps faster,MIT
+bootsnap,1.11.1,https://github.com/Shopify/bootsnap,Boot large ruby/rails apps faster,MIT
 bootstrap-sass,3.4.1,https://github.com/twbs/bootstrap-sass,"bootstrap-sass is a Sass-powered version of Bootstrap 3, ready to drop right into your Sass powered applications.",MIT
 buftok,0.2.0,https://github.com/sferik/buftok,BufferedTokenizer extracts token delimited entities from a sequence of arbitrary inputs,MIT
 builder,3.2.4,http://onestepback.org,Builders for MarkUp.,MIT
@@ -31,91 +31,101 @@ cancancan,1.17.0,https://github.com/CanCanCommunity/cancancan,Simple authorizati
 carrierwave,1.3.2,https://github.com/carrierwaveuploader/carrierwave,Ruby file upload library,MIT
 carrierwave-video-thumbnailer,0.1.4,https://github.com/evrone/carrierwave-video-thumbnailer#readme,Video thumbnailer plugin for CarrierWave,MIT
 carrierwave_backgrounder,0.4.2,https://github.com/lardawge/carrierwave_backgrounder,"Offload CarrierWave's image processing and storage to a background process using Delayed Job, Resque, Sidekiq, Qu, Queue Classic or Girl Friday",MIT
-chartkick,3.4.2,https://chartkick.com,Create beautiful JavaScript charts with one line of Ruby,MIT
+chartkick,4.1.3,https://chartkick.com,Create beautiful JavaScript charts with one line of Ruby,MIT
 chronic_duration,0.10.6,https://github.com/hpoydar/chronic_duration,A simple Ruby natural language parser for elapsed time,MIT
-chunky_png,1.3.15,https://github.com/wvanbergen/chunky_png/wiki,"Pure ruby library for read/write, chunk-level access to PNG files",MIT
+chunky_png,1.4.0,https://github.com/wvanbergen/chunky_png/wiki,"Pure ruby library for read/write, chunk-level access to PNG files",MIT
 codeclimate-test-reporter,1.0.7,https://github.com/codeclimate/ruby-test-reporter,Uploads Ruby test coverage data to Code Climate.,MIT
 coffee-rails,4.2.2,https://github.com/rails/coffee-rails,CoffeeScript adapter for the Rails asset pipeline.,MIT
 coffee-script,2.4.1,http://github.com/josh/ruby-coffee-script,Ruby CoffeeScript Compiler,MIT
 coffee-script-source,1.12.2,http://coffeescript.org,The CoffeeScript Compiler,MIT
-concurrent-ruby,1.1.9,http://www.concurrent-ruby.com,"Modern concurrency tools for Ruby. Inspired by Erlang, Clojure, Scala, Haskell, F#, C#, Java, and classic concurrency patterns.",MIT
-connection_pool,2.2.3,https://github.com/mperham/connection_pool,Generic connection pool for Ruby,MIT
-crack,0.4.4,http://github.com/jnunemaker/crack,"Really simple JSON and XML parsing, ripped from Merb and Rails.",MIT
+concurrent-ruby,1.1.10,http://www.concurrent-ruby.com,"Modern concurrency tools for Ruby. Inspired by Erlang, Clojure, Scala, Haskell, F#, C#, Java, and classic concurrency patterns.",MIT
+connection_pool,2.2.5,https://github.com/mperham/connection_pool,Generic connection pool for Ruby,MIT
+crack,0.4.5,https://github.com/jnunemaker/crack,"Really simple JSON and XML parsing, ripped from Merb and Rails.",MIT
 crass,1.0.6,https://github.com/rgrove/crass/,CSS parser based on the CSS Syntax Level 3 spec.,MIT
-daemons,1.3.1,https://github.com/thuehlinger/daemons,A toolkit to create and control daemons in different ways,MIT
+daemons,1.4.1,https://github.com/thuehlinger/daemons,A toolkit to create and control daemons in different ways,MIT
 debugger-ruby_core_source,1.3.8,http://github.com/cldwalker/debugger-ruby_core_source,Provide Ruby core source files,MIT
 declarative,0.0.20,https://github.com/apotonick/declarative,DSL for nested schemas.,MIT
-declarative-option,0.1.0,https://github.com/apotonick/declarative-option,Dynamic options to evaluate at runtime.,MIT
 deep_cloneable,2.3.2,http://github.com/moiristo/deep_cloneable,This gem gives every ActiveRecord::Base object the possibility to do a deep clone.,MIT
 devise,4.8.0,https://github.com/heartcombo/devise,Flexible authentication solution for Rails with Warden,MIT
 devise-i18n,1.10.0,http://github.com/tigrish/devise-i18n,Translations for the devise gem,MIT
 devise-two-factor,4.0.0,https://github.com/tinfoil/devise-two-factor,Barebones two-factor authentication with Devise,MIT
 devise_invitable,2.0.5,https://github.com/scambra/devise_invitable,An invitation strategy for Devise,MIT
 did_you_mean,1.3.0,https://github.com/yuki24/did_you_mean,"""Did you mean?"" experience in Ruby",MIT
-diff-lcs,1.4.4,https://github.com/halostatue/diff-lcs,Diff::LCS computes the difference between two Enumerable sequences using the McIlroy-Hunt longest common subsequence (LCS) algorithm,MIT
-docile,1.3.2,https://ms-ati.github.io/docile/,Docile keeps your Ruby DSLs tame and well-behaved.,MIT
+diff-lcs,1.5.0,https://github.com/halostatue/diff-lcs,Diff::LCS computes the difference between two Enumerable sequences using the McIlroy-Hunt longest common subsequence (LCS) algorithm,MIT
+docile,1.4.0,https://ms-ati.github.io/docile/,Docile keeps your Ruby DSLs tame and well-behaved.,MIT
 encryptor,3.0.0,http://github.com/attr-encrypted/encryptor,A simple wrapper for the standard ruby OpenSSL library,MIT
 equalizer,0.0.11,https://github.com/dkubb/equalizer,"Module to define equality, equivalence and inspection methods",MIT
 erubi,1.10.0,https://github.com/jeremyevans/erubi,Small ERB Implementation,MIT
-et-orbi,1.2.4,http://github.com/floraison/et-orbi,time with zones,MIT
+et-orbi,1.2.7,https://github.com/floraison/et-orbi,time with zones,MIT
 ethon,0.12.0,https://github.com/typhoeus/ethon,Libcurl wrapper.,MIT
-excon,0.78.1,https://github.com/excon/excon,"speed, persistence, http(s)",MIT
+excon,0.92.1,https://github.com/excon/excon,"speed, persistence, http(s)",MIT
 execjs,2.8.1,https://github.com/rails/execjs,Run JavaScript code from Ruby,MIT
-faraday,1.1.0,https://lostisland.github.io/faraday,HTTP/REST API client library.,MIT
-file_validators,2.3.0,https://github.com/musaffa/file_validators,ActiveModel file validators,MIT
+expgen,0.1.1,"",Generate random regular expression,MIT
+faraday,1.10.0,https://lostisland.github.io/faraday,HTTP/REST API client library.,MIT
+faraday-em_http,1.0.0,https://github.com/lostisland/faraday-em_http,Faraday adapter for Em::Http,MIT
+faraday-em_synchrony,1.0.0,https://github.com/lostisland/faraday-em_synchrony,Faraday adapter for EM::Synchrony,MIT
+faraday-excon,1.1.0,https://github.com/lostisland/faraday-excon,Faraday adapter for Excon,MIT
+faraday-httpclient,1.0.1,https://github.com/lostisland/faraday-httpclient,Faraday adapter for HTTPClient,MIT
+faraday-multipart,1.0.3,https://github.com/lostisland/faraday-multipart,Perform multipart-post requests using Faraday.,MIT
+faraday-net_http,1.0.1,https://github.com/lostisland/faraday-net_http,Faraday adapter for Net::HTTP,MIT
+faraday-net_http_persistent,1.2.0,https://github.com/lostisland/faraday-net_http_persistent,Faraday adapter for NetHttpPersistent,MIT
+faraday-patron,1.0.0,https://github.com/lostisland/faraday-patron,Faraday adapter for Patron,MIT
+faraday-rack,1.0.0,https://github.com/lostisland/faraday-rack,Faraday adapter for Rack,MIT
+faraday-retry,1.0.3,https://github.com/lostisland/faraday-retry,Catches exceptions and retries each request a limited number of times,MIT
+file_validators,3.0.0,https://github.com/musaffa/file_validators,ActiveModel file validators,MIT
+filelock,1.1.1,http://github.com/sheerun/filelock,Heavily tested yet simple filelocking solution using flock,MIT
 filesize,0.2.0,https://github.com/dominikh/filesize,"filesize is a small class for handling filesizes with both the SI and binary prefixes, allowing conversion from any size to any other size.",MIT
 find_a_port,1.0.1,http://github.com/jwilger/find_a_port,Find an open TCP port,MIT
-fog-aws,3.7.0,https://github.com/fog/fog-aws,Module for the 'fog' gem to support Amazon Web Services.,MIT
-fog-core,2.2.3,https://github.com/fog/fog-core,Shared classes and tests for fog providers and services.,MIT
+fog-aws,3.13.0,https://github.com/fog/fog-aws,Module for the 'fog' gem to support Amazon Web Services.,MIT
+fog-core,2.3.0,https://github.com/fog/fog-core,Shared classes and tests for fog providers and services.,MIT
 fog-json,1.2.0,http://github.com/fog/fog-json,JSON parsing for fog providers,MIT
-fog-xml,0.1.3,https://github.com/fog/fog-xml,XML parsing for fog providers,MIT
-formatador,0.2.5,http://github.com/geemus/formatador,Ruby STDOUT text formatting,MIT
-fugit,1.5.1,https://github.com/floraison/fugit,time tools for flor,MIT
+fog-xml,0.1.4,https://github.com/fog/fog-xml,XML parsing for fog providers,MIT
+formatador,1.1.0,https://github.com/geemus/formatador,Ruby STDOUT text formatting,MIT
+fugit,1.5.2,https://github.com/floraison/fugit,time tools for flor,MIT
 gem-licenses,0.2.2,http://github.com/dblock/gem-licenses,Attempts to figure out what licenses various gems use.,MIT
 geocoder,1.6.4,http://www.rubygeocoder.com,Complete geocoding solution for Ruby.,MIT
-globalid,0.4.2,http://www.rubyonrails.org,Refer to any model with a URI: gid://app/class/id,MIT
+globalid,1.0.0,http://www.rubyonrails.org,Refer to any model with a URI: gid://app/class/id,MIT
 graphiql-rails,1.4.2,http://github.com/rmosolgo/graphiql-rails,A mountable GraphiQL endpoint for Rails,MIT
 graphql,1.8.0.pre10,http://github.com/rmosolgo/graphql-ruby,A GraphQL language and runtime for Ruby,MIT
 graphql-batch,0.3.5,https://github.com/Shopify/graphql-batch,A query batching executor for the graphql gem,MIT
 graphql-formatter,0.1.1,https://github.com/brandfolder/graphql-formatter,Pretty prints GraphQL queries,MIT
 hashdiff,1.0.1,https://github.com/liufengyun/hashdiff,Hashdiff is a diff lib to compute the smallest difference between two hashes.,MIT
-hashie,4.1.0,https://github.com/hashie/hashie,Your friendly neighborhood hash library.,MIT
+hashie,5.0.0,https://github.com/hashie/hashie,Your friendly neighborhood hash library.,MIT
 htmlentities,4.3.4,https://github.com/threedaymonk/htmlentities,Encode/decode HTML entities,MIT
 http,4.4.1,https://github.com/httprb/http,HTTP should be easy,MIT
 http-accept,1.7.0,https://github.com/ioquatix/http-accept,Parse Accept and Accept-Language HTTP headers.,MIT
-http-cookie,1.0.3,https://github.com/sparklemotion/http-cookie,A Ruby library to handle HTTP Cookies based on RFC 6265,MIT
+http-cookie,1.0.4,https://github.com/sparklemotion/http-cookie,A Ruby library to handle HTTP Cookies based on RFC 6265,MIT
 http-form_data,2.3.0,https://github.com/httprb/form_data.rb,http-form_data-2.3.0,MIT
-http-parser,1.2.2,https://github.com/cotag/http-parser,Ruby bindings to joyent/http-parser,MIT
+http-parser,1.2.3,https://github.com/cotag/http-parser,Ruby bindings to joyent/http-parser,MIT
 http_accept_language,2.1.1,https://github.com/iain/http_accept_language,Find out which locale the user preferes by reading the languages they specified in their browser,MIT
 http_parser.rb,0.6.0,http://github.com/tmm1/http_parser.rb,Simple callback-based HTTP request/response parser,MIT
-i18n,1.8.10,https://github.com/ruby-i18n/i18n,New wave Internationalization support for Ruby,MIT
+i18n,1.10.0,https://github.com/ruby-i18n/i18n,New wave Internationalization support for Ruby,MIT
 i18n-generators,1.1.3,https://github.com/hauleth/i18n-generators,Generates I18n locale files for Rails 3 and Rails 2,MIT
-ipaddress,0.8.3,https://github.com/bluemonk/ipaddress,IPv4/IPv6 address manipulation library,MIT
-jbuilder,2.9.1,https://github.com/rails/jbuilder,Create JSON structures via a Builder-style DSL,MIT
+jbuilder,2.11.5,https://github.com/rails/jbuilder,Create JSON structures via a Builder-style DSL,MIT
 jquery-rails,4.4.0,https://github.com/rails/jquery-rails,Use jQuery with Rails 4+,MIT
 json-schema,2.5.0,http://github.com/ruby-json-schema/json-schema/tree/master,Ruby JSON Schema Validator,MIT
-jsonapi-resources,0.10.4,https://github.com/cerebris/jsonapi-resources,Easily support JSON API in Rails.,MIT
+jsonapi-resources,0.10.7,https://github.com/cerebris/jsonapi-resources,Easily support JSON API in Rails.,MIT
 jsonpath,0.8.12,https://github.com/joshbuddy/jsonpath,Ruby implementation of http://goessner.net/articles/JsonPath/,MIT
-jwt,2.2.2,https://github.com/jwt/ruby-jwt,JSON Web Token implementation in Ruby,MIT
+jwt,2.3.0,https://github.com/jwt/ruby-jwt,JSON Web Token implementation in Ruby,MIT
 libv8,3.16.14.19,http://github.com/cowboyd/libv8,Distribution of the V8 JavaScript engine,MIT
-listen,3.6.0,https://github.com/guard/listen,Listen to file modifications,MIT
+listen,3.7.1,https://github.com/guard/listen,Listen to file modifications,MIT
 lograge,0.11.2,https://github.com/roidrage/lograge,Tame Rails' multi-line logging into a single line per request,MIT
-loofah,2.10.0,https://github.com/flavorjones/loofah,"Loofah is a general library for manipulating and transforming HTML/XML documents and fragments, built on top of Nokogiri",MIT
+loofah,2.3.1,https://github.com/flavorjones/loofah,"Loofah is a general library for manipulating and transforming HTML/XML documents and fragments, built on top of Nokogiri",MIT
 mail,2.7.1,https://github.com/mikel/mail,"Mail provides a nice Ruby DSL for making, sending and reading emails.",MIT
-marcel,1.0.1,https://github.com/rails/marcel,"Simple mime type detection using magic numbers, filenames, and extensions",MIT
-mechanize,2.7.7,http://docs.seattlerb.org/mechanize/,The Mechanize library is used for automating interaction with websites,MIT
+marcel,1.0.2,https://github.com/rails/marcel,"Simple mime type detection using magic numbers, filenames, and extensions",MIT
+mechanize,2.8.4,https://github.com/sparklemotion/mechanize,The Mechanize library is used for automating interaction with websites,MIT
 memoist,0.16.2,https://github.com/matthewrudy/memoist,memoize methods invocation,MIT
 memoizable,0.4.2,https://github.com/dkubb/memoizable,Memoize method return values,MIT
 metaclass,0.0.4,http://github.com/floehopper/metaclass,Adds a metaclass method to all Ruby objects,MIT
 method_source,1.0.0,http://banisterfiend.wordpress.com,retrieve the sourcecode for a method,MIT
-mime-types,3.3.1,https://github.com/mime-types/ruby-mime-types/,The mime-types library provides a library and registry for information about MIME content type definitions,MIT
-mime-types-data,3.2020.1104,https://github.com/mime-types/mime-types-data/,mime-types-data provides a registry for information about MIME media type definitions,MIT
+mime-types,3.4.1,https://github.com/mime-types/ruby-mime-types/,The mime-types library provides a library and registry for information about MIME content type definitions,MIT
+mime-types-data,3.2022.0105,https://github.com/mime-types/mime-types-data/,mime-types-data provides a registry for information about MIME media type definitions,MIT
 mini_magick,4.10.1,https://github.com/minimagick/minimagick,Manipulate images with minimal use of memory via ImageMagick / GraphicsMagick,MIT
-mini_mime,1.1.0,https://github.com/discourse/mini_mime,A lightweight mime type lookup toy,MIT
-mini_portile2,2.6.1,https://github.com/flavorjones/mini_portile,Simplistic port-like solution for developers,MIT
+mini_mime,1.1.2,https://github.com/discourse/mini_mime,A lightweight mime type lookup toy,MIT
+mini_portile2,2.8.0,https://github.com/flavorjones/mini_portile,Simplistic port-like solution for developers,MIT
 minitest,5.14.4,https://github.com/seattlerb/minitest,"minitest provides a complete suite of testing facilities supporting TDD, BDD, mocking, and benchmarking",MIT
 minitest-hooks,1.5.0,http://github.com/jeremyevans/minitest-hooks,Around and before_all/after_all/around_all hooks for Minitest,MIT
-minitest-retry,0.2.1,https://github.com/y-yagi/minitest-retry,re-run the test when the test fails,MIT
+minitest-retry,0.2.2,https://github.com/y-yagi/minitest-retry,re-run the test when the test fails,MIT
 mocha,1.2.1,http://gofreerange.com/mocha/docs,Mocking and stubbing library,MIT
 multi_json,1.15.0,https://github.com/intridea/multi_json,A common interface to multiple JSON libraries.,MIT
 multi_xml,0.6.0,https://github.com/sferik/multi_xml,A generic swappable back-end for XML parsing,MIT
@@ -126,110 +136,112 @@ net-http-digest_auth,1.4.1,http://github.com/drbrain/net-http-digest_auth,An imp
 net-http-persistent,4.0.1,https://github.com/drbrain/net-http-persistent,Manages persistent connections using Net::HTTP including a thread pool for connecting to multiple hosts,MIT
 netrc,0.11.0,https://github.com/geemus/netrc,Library to read and write netrc files.,MIT
 nio4r,2.5.8,https://github.com/socketry/nio4r,New IO for Ruby,MIT
-nokogiri,1.12.5,https://nokogiri.org,Nokogiri (鋸) makes it easy and painless to work with XML and HTML from Ruby.,MIT
+nokogiri,1.13.2,https://nokogiri.org,Nokogiri (鋸) makes it easy and painless to work with XML and HTML from Ruby.,MIT
 numerizer,0.1.1,http://github.com/jduff/numerizer,Numerizer is a gem to help with parsing numbers in natural language from strings (ex forty two).,MIT
-oauth,0.5.6,https://github.com/oauth-xx/oauth-ruby,OAuth Core Ruby implementation,MIT
-oauth2,1.4.4,https://github.com/oauth-xx/oauth2,A Ruby wrapper for the OAuth 2.0 protocol.,MIT
+oauth,0.5.8,https://github.com/oauth-xx/oauth-ruby,OAuth Core Ruby implementation,MIT
+oauth2,1.4.9,https://github.com/oauth-xx/oauth2,A Ruby wrapper for the OAuth 2.0 protocol.,MIT
 omniauth,1.9.1,https://github.com/omniauth/omniauth,A generalized Rack framework for multiple-provider authentication.,MIT
-omniauth-facebook,8.0.0,https://github.com/simi/omniauth-facebook,Facebook OAuth2 Strategy for OmniAuth,MIT
+omniauth-facebook,9.0.0,https://github.com/simi/omniauth-facebook,Facebook OAuth2 Strategy for OmniAuth,MIT
 omniauth-google-oauth2,0.2.6,"",A Google OAuth2 strategy for OmniAuth 1.x,MIT
-omniauth-oauth,1.1.0,https://github.com/intridea/omniauth-oauth,A generic OAuth (1.0/1.0a) strategy for OmniAuth.,MIT
+omniauth-oauth,1.2.0,https://github.com/intridea/omniauth-oauth,A generic OAuth (1.0/1.0a) strategy for OmniAuth.,MIT
 omniauth-oauth2,1.3.1,https://github.com/intridea/omniauth-oauth2,An abstract OAuth2 strategy for OmniAuth.,MIT
 omniauth-slack,2.3.0,https://github.com/kmrshntr/omniauth-slack.git,OmniAuth strategy for Slack,MIT
 omniauth-twitter,1.4.0,https://github.com/arunagw/omniauth-twitter,OmniAuth strategy for Twitter,MIT
 open_uri_redirections,0.2.1,https://github.com/jaimeiniesta/open_uri_redirections,OpenURI patch to allow redirections between HTTP and HTTPS,MIT
 orm_adapter,0.5.0,http://github.com/ianwhite/orm_adapter,orm_adapter provides a single point of entry for using basic features of popular ruby ORMs.  Its target audience is gem authors who want to support many ruby ORMs.,MIT
-os,1.1.1,http://github.com/rdp/os,"Simple and easy way to know if you're on windows or not (reliably), as well as how many bits the OS is, etc.",MIT
-pact,1.32.0,https://github.com/pact-foundation/pact-ruby,"Enables consumer driven contract testing, providing a mock service and DSL for the consumer project, and interaction playback and verification for the service provider project.",MIT
+os,1.1.4,http://github.com/rdp/os,"Simple and easy way to know if you're on windows or not (reliably), as well as how many bits the OS is, etc.",MIT
+pact,1.62.0,https://github.com/pact-foundation/pact-ruby,"Enables consumer driven contract testing, providing a mock service and DSL for the consumer project, and interaction playback and verification for the service provider project.",MIT
 pact-consumer-minitest,1.0.1,"",Provides Minitest support for the Pact Consumer gem,MIT
-pact-mock_service,2.1.0,https://github.com/bethesque/pact-mock_service,Provides a mock service for use with Pact,MIT
-pact-support,1.16.7,https://github.com/pact-foundation/pact-support,Shared code for Pact gems,MIT
+pact-mock_service,3.10.0,https://github.com/bethesque/pact-mock_service,Provides a mock service for use with Pact,MIT
+pact-support,1.17.0,https://github.com/pact-foundation/pact-support,Shared code for Pact gems,MIT
 paper_trail,10.3.1,https://github.com/paper-trail-gem/paper_trail,Track changes to your models.,MIT
-parallel,1.20.1,https://github.com/grosser/parallel,Run any kind of code in parallel processes,MIT
-parallel_tests,3.4.0,https://github.com/grosser/parallel_tests,Run Test::Unit / RSpec / Cucumber / Spinach in parallel,MIT
+parallel,1.22.0,https://github.com/grosser/parallel,Run any kind of code in parallel processes,MIT
+parallel_tests,3.7.3,https://github.com/grosser/parallel_tests,Run Test::Unit / RSpec / Cucumber / Spinach in parallel,MIT
 parse-cron,0.1.4,https://github.com/siebertm/parse-cron,Parses cron expressions and calculates the next occurence,MIT
 parser,2.7.2.0,https://github.com/whitequark/parser,A Ruby parser written in pure Ruby.,MIT
+parslet,2.0.0,http://kschiess.github.io/parslet,Parser construction library with great error reporting in Ruby.,MIT
 peek,1.1.0,https://github.com/peek/peek,Take a peek into your Rails application.,MIT
 peek-rblineprof,0.2.0,https://github.com/peek/peek-rblineprof,Peek into how much each line of your Rails application takes throughout a request.,MIT
 pender_client,0.0.4,https://github.com/meedan/pender-client,"[""A parsing and rendering service (Client)""]",MIT
 pghero,2.8.1,https://github.com/ankane/pghero,A performance dashboard for Postgres,MIT
-phony,2.18.18,https://github.com/floere/phony,"Fast international phone number (E164 standard) normalizing, splitting and formatting.",MIT
-phony_rails,0.14.13,https://github.com/joost/phony_rails,"This Gem adds useful methods to your Rails app to validate, display and save phone numbers.",MIT
+phony,2.19.9,https://github.com/floere/phony,"Fast international phone number (E164 standard) normalizing, splitting and formatting.",MIT
+phony_rails,0.15.0,https://github.com/joost/phony_rails,"This Gem adds useful methods to your Rails app to validate, display and save phone numbers.",MIT
 powerpack,0.1.3,https://github.com/bbatsov/powerpack,A few useful extensions to core Ruby classes.,MIT
 public_suffix,4.0.6,https://simonecarletti.com/code/publicsuffix-ruby,Domain name parser based on the Public Suffix List.,MIT
-pusher,1.3.3,http://github.com/pusher/pusher-http-ruby,Pusher Channels API client,MIT
+pusher,2.0.2,http://github.com/pusher/pusher-http-ruby,Pusher Channels API client,MIT
 pusher-signature,0.1.8,http://github.com/pusher/pusher-signature,Simple key/secret based authentication for apis,MIT
 raabro,1.4.0,https://github.com/floraison/raabro,a very dumb PEG parser library,MIT
 rack,2.2.3,https://github.com/rack/rack,A modular Ruby webserver interface.,MIT
 rack-cors,1.0.6,https://github.com/cyu/rack-cors,Middleware for enabling Cross-Origin Resource Sharing in Rack apps,MIT
 rack-protection,2.1.0,http://sinatrarb.com/protection/,"Protect against typical web attacks, works with all Rack apps, including Rails.",MIT
-rack-test,0.6.3,http://github.com/brynary/rack-test,Simple testing API built on Rack,MIT
-rails,5.2.6,http://rubyonrails.org,Full-stack web application framework.,MIT
+rack-test,1.1.0,http://github.com/rack-test/rack-test,Simple testing API built on Rack,MIT
+rails,5.2.6.3,http://rubyonrails.org,Full-stack web application framework.,MIT
 rails-controller-testing,1.0.5,https://github.com/rails/rails-controller-testing,Extracting `assigns` and `assert_template` from ActionDispatch.,MIT
 rails-dom-testing,2.0.3,https://github.com/rails/rails-dom-testing,Dom and Selector assertions for Rails applications,MIT
 rails-graphql-generator,0.1.0,https://github.com/movielala/rails-graphql-generator,A rails generator for GrapphQL.,MIT
-rails-html-sanitizer,1.3.0,https://github.com/rails/rails-html-sanitizer,This gem is responsible to sanitize HTML fragments in Rails applications.,MIT
+rails-html-sanitizer,1.0.4,https://github.com/rails/rails-html-sanitizer,This gem is responsible to sanitize HTML fragments in Rails applications.,MIT
 rails-i18n,5.1.3,http://github.com/svenfuchs/rails-i18n,Common locale data and translations for Rails i18n.,MIT
-railties,5.2.6,http://rubyonrails.org,"Tools for creating, working with, and running Rails applications.",MIT
+railties,5.2.6.3,http://rubyonrails.org,"Tools for creating, working with, and running Rails applications.",MIT
 rainbow,2.2.2,https://github.com/sickill/rainbow,Colorize printed text on ANSI terminals,MIT
 rake,13.0.6,https://github.com/ruby/rake,Rake is a Make-like program implemented in Ruby,MIT
-randexp,0.1.7,http://github.com/benburkert/randexp,Library for generating random strings.,MIT
-rb-fsevent,0.10.4,http://rubygems.org/gems/rb-fsevent,Very simple & usable FSEvents API,MIT
+rb-fsevent,0.11.1,http://rubygems.org/gems/rb-fsevent,Very simple & usable FSEvents API,MIT
 rb-inotify,0.10.1,https://github.com/guard/rb-inotify,"A Ruby wrapper for Linux inotify, using FFI",MIT
 rblineprof,0.3.7,http://github.com/tmm1/rblineprof,line-profiler for ruby,MIT
-rbtree3,0.6.0,https://github.com/kyrylo/rbtree3,A RBTree is a sorted associative collection that is implemented with a Red-Black Tree.,MIT
-redis,3.3.5,https://github.com/redis/redis-rb,A Ruby client library for Redis,MIT
-redis-actionpack,5.1.0,http://redis-store.org/redis-actionpack,Redis session store for ActionPack,MIT
-redis-activesupport,5.2.0,http://redis-store.org/redis-activesupport,Redis store for ActiveSupport,MIT
-redis-namespace,1.8.0,https://github.com/resque/redis-namespace,Namespaces Redis commands.,MIT
-redis-rack,2.0.6,http://redis-store.org/redis-rack,Redis Store for Rack,MIT
+rbtree3,0.7.0,https://github.com/kyrylo/rbtree3,A RBTree is a sorted associative collection that is implemented with a Red-Black Tree.,MIT
+redis,4.5.1,https://github.com/redis/redis-rb,A Ruby client library for Redis,MIT
+redis-actionpack,5.3.0,http://redis-store.org/redis-actionpack,Redis session store for ActionPack,MIT
+redis-activesupport,5.3.0,http://redis-store.org/redis-activesupport,Redis store for ActiveSupport,MIT
+redis-namespace,1.8.2,https://github.com/resque/redis-namespace,Namespaces Redis commands.,MIT
+redis-rack,2.1.4,http://redis-store.org/redis-rack,Redis Store for Rack,MIT
 redis-rails,5.0.2,http://redis-store.org/redis-rails,Redis for Ruby on Rails,MIT
-redis-store,1.6.0,http://redis-store.org/redis-store,Redis stores for Ruby frameworks,MIT
+redis-store,1.9.1,http://redis-store.org/redis-store,Redis stores for Ruby frameworks,MIT
 ref,2.0.0,http://github.com/ruby-concurrency/ref,"Library that implements weak, soft, and strong references in Ruby.",MIT
-representable,3.0.4,https://github.com/trailblazer/representable/,"Renders and parses JSON/XML/YAML documents from and to Ruby objects. Includes plain properties, collections, nesting, coercion and more.",MIT
-request_store,1.5.0,http://github.com/steveklabnik/request_store,RequestStore gives you per-request global storage.,MIT
+representable,3.1.1,https://github.com/trailblazer/representable/,"Renders and parses JSON/XML/YAML documents from and to Ruby objects. Includes plain properties, collections, nesting, coercion and more.",MIT
+request_store,1.5.1,https://github.com/steveklabnik/request_store,RequestStore gives you per-request global storage.,MIT
 request_store-sidekiq,0.1.0,https://github.com/madebylotus/request_store-sidekiq,Easily integrate RequestStore with Sidekiq as a middleware,MIT
 responders,3.0.1,https://github.com/heartcombo/responders,A set of Rails responders to dry up your application,MIT
 rest-client,2.1.0,https://github.com/rest-client/rest-client,"Simple HTTP and REST client for Ruby, inspired by microframework syntax for specifying actions.",MIT
 retriable,3.1.2,http://github.com/kamui/retriable,Retriable is a simple DSL to retry failed code blocks with randomized exponential backoff,MIT
 rotp,6.2.0,https://github.com/mdp/rotp,A Ruby library for generating and verifying one time passwords,MIT
-rqrcode,1.1.2,https://github.com/whomwah/rqrcode,A library to encode QR Codes,MIT
-rqrcode_core,0.1.2,https://github.com/whomwah/rqrcode_core,A library to encode QR Codes,MIT
-rspec,3.10.0,http://github.com/rspec,rspec-3.10.0,MIT
-rspec-core,3.10.0,https://github.com/rspec/rspec-core,rspec-core-3.10.0,MIT
-rspec-expectations,3.10.0,https://github.com/rspec/rspec-expectations,rspec-expectations-3.10.0,MIT
-rspec-mocks,3.10.0,https://github.com/rspec/rspec-mocks,rspec-mocks-3.10.0,MIT
+rqrcode,2.1.1,https://github.com/whomwah/rqrcode,A library to encode QR Codes,MIT
+rqrcode_core,1.2.0,https://github.com/whomwah/rqrcode_core,A library to encode QR Codes,MIT
+rspec,3.11.0,http://github.com/rspec,rspec-3.11.0,MIT
+rspec-core,3.11.0,https://github.com/rspec/rspec-core,rspec-core-3.11.0,MIT
+rspec-expectations,3.11.0,https://github.com/rspec/rspec-expectations,rspec-expectations-3.11.0,MIT
+rspec-mocks,3.11.0,https://github.com/rspec/rspec-mocks,rspec-mocks-3.11.0,MIT
 rspec-rails,4.0.1,https://github.com/rspec/rspec-rails,RSpec for Rails,MIT
-rspec-support,3.10.0,https://github.com/rspec/rspec-support,rspec-support-3.10.0,MIT
+rspec-support,3.11.0,https://github.com/rspec/rspec-support,rspec-support-3.11.0,MIT
 rubocop,0.49.0,http://github.com/bbatsov/rubocop,Automatic Ruby code style checking tool.,MIT
 ruby-cldr,0.5.0,http://github.com/ruby-i18n/ruby-cldr,Ruby library for exporting and using data from CLDR,MIT
-ruby-progressbar,1.10.1,https://github.com/jfelchner/ruby-progressbar,Ruby/ProgressBar is a flexible text progress bar library for Ruby.,MIT
+ruby-progressbar,1.11.0,https://github.com/jfelchner/ruby-progressbar,Ruby/ProgressBar is a flexible text progress bar library for Ruby.,MIT
+rubyntlm,0.6.3,https://github.com/winrb/rubyntlm,Ruby/NTLM library.,MIT
 sass,3.7.4,https://sass-lang.com/,A powerful but elegant CSS compiler that makes CSS fun again.,MIT
 sass-listen,4.0.0,https://github.com/sass/listen,Fork of guard/listen,MIT
-sass-rails,5.0.7,https://github.com/rails/sass-rails,Sass adapter for the Rails asset pipeline.,MIT
+sass-rails,5.1.0,https://github.com/rails/sass-rails,Sass adapter for the Rails asset pipeline.,MIT
 sassc,2.4.0,https://github.com/sass/sassc-ruby,Use libsass with Ruby!,MIT
 sdoc,2.0.3,https://github.com/zzak/sdoc,rdoc html with javascript search index.,MIT
 shortener,0.8.2,http://jamespmcgrath.com/projects/shortener,Shortener is a Rails Engine that makes it easy to create shortened URLs for your rails application.,MIT
-sidekiq-benchmark,0.5.2,https://github.com/kosmatov/sidekiq-benchmark/,"Adds benchmarking methods to Sidekiq workers, keeps metrics and adds tab to Web UI to let you browse them.",MIT
+sidekiq-benchmark,0.7.1,https://github.com/kosmatov/sidekiq-benchmark/,"Adds benchmarking methods to Sidekiq workers, keeps metrics and adds tab to Web UI to let you browse them.",MIT
 sidekiq-cron,1.2.0,http://github.com/ondrejbartas/sidekiq-cron,Sidekiq Cron helps to add repeated scheduled jobs,MIT
-sidekiq-status,1.1.4,http://github.com/utgarda/sidekiq-status,An extension to the sidekiq message processing to track your jobs,MIT
+sidekiq-status,2.1.3,https://github.com/kenaniah/sidekiq-status,An extension to the sidekiq message processing to track your jobs,MIT
 simple_oauth,0.3.1,https://github.com/laserlemon/simple_oauth,Simply builds and verifies OAuth headers,MIT
 simplecov,0.17.1,http://github.com/colszowka/simplecov,Code coverage for Ruby 1.9+ with a powerful configuration library and automatic merging of coverage across test suites,MIT
-simplecov-console,0.8.0,http://github.com/chetan/simplecov-console,Simple console output formatter,MIT
+simplecov-console,0.9.1,http://github.com/chetan/simplecov-console,Simple console output formatter,MIT
 simplecov-html,0.10.2,https://github.com/colszowka/simplecov-html,Default HTML formatter for SimpleCov code coverage tool for ruby 1.9+,MIT
 sinatra,2.1.0,http://sinatrarb.com/,Classy web-development dressed in a DSL,MIT
 sprockets,3.7.2,https://github.com/rails/sprockets,Rack-based asset packaging system,MIT
-sprockets-rails,3.2.2,https://github.com/rails/sprockets-rails,Sprockets Rails integration,MIT
+sprockets-rails,3.4.2,https://github.com/rails/sprockets-rails,Sprockets Rails integration,MIT
 ssrf_filter,1.0.7,https://github.com/arkadiyt/ssrf_filter,A gem that makes it easy to prevent server side request forgery (SSRF) attacks,MIT
 streamio-ffmpeg,3.0.2,http://github.com/streamio/streamio-ffmpeg,Wraps ffmpeg to read metadata and transcodes videos.,MIT
 swagger-docs,0.2.9,https://github.com/richhollis/swagger-docs,Generates swagger-ui json files for rails apps with APIs. You add the swagger DSL to your controller classes and then run one rake task to generate the json files.,MIT
-taglib-ruby,1.0.1,http://robinst.github.io/taglib-ruby/,Ruby interface for the taglib C++ library,MIT
-terminal-table,2.0.0,https://github.com/tj/terminal-table,"Simple, feature rich ascii table generation library",MIT
+taglib-ruby,1.1.0,http://robinst.github.io/taglib-ruby/,Ruby interface for the taglib C++ library,MIT
+terminal-table,3.0.2,https://github.com/tj/terminal-table,"Simple, feature rich ascii table generation library",MIT
 therubyracer,0.12.3,http://github.com/cowboyd/therubyracer,Embed the V8 JavaScript interpreter into Ruby,MIT
-thor,1.1.0,http://whatisthor.com/,Thor is a toolkit for building powerful command-line interfaces.,MIT
+thor,1.2.1,http://whatisthor.com/,Thor is a toolkit for building powerful command-line interfaces.,MIT
 tilt,2.0.10,http://github.com/rtomayko/tilt/,Generic interface to multiple Ruby template engines,MIT
-tins,1.29.1,https://github.com/flori/tins,Useful stuff.,MIT
+tins,1.31.0,https://github.com/flori/tins,Useful stuff.,MIT
 to_regexp,0.2.1,https://github.com/seamusabshere/to_regexp,Provides String#to_regexp,MIT
+trailblazer-option,0.1.2,https://trailblazer.to/,Callable patterns for options in Trailblazer,MIT
 transifex-interface-ruby,0.0.2,"",This gem allows you to communicate with the Transifex API to perform every possible actions listed in the documentation: http://docs.transifex.com/developer/api/,MIT
 turbolinks,5.2.1,https://github.com/turbolinks/turbolinks,Turbolinks makes navigating your web application faster,MIT
 turbolinks-source,5.2.0,https://github.com/turbolinks/turbolinks-source-gem,Turbolinks JavaScript assets,MIT
@@ -238,12 +250,12 @@ typhoeus,1.4.0,https://github.com/typhoeus/typhoeus,Parallel HTTP library on top
 tzinfo,1.2.9,https://tzinfo.github.io,Daylight savings aware timezone library,MIT
 uber,0.1.0,https://github.com/apotonick/uber,"Gem-authoring tools like generic builders, dynamic options and more.",MIT
 uglifier,4.2.0,http://github.com/lautis/uglifier,Ruby wrapper for UglifyJS JavaScript compressor,MIT
-unf_ext,0.0.7.7,https://github.com/knu/ruby-unf_ext,Unicode Normalization Form support library for CRuby,MIT
-unicode-display_width,1.7.0,https://github.com/janlelis/unicode-display_width,Determines the monospace display width of a string in Ruby.,MIT
+unf_ext,0.0.8.1,https://github.com/knu/ruby-unf_ext,Unicode Normalization Form support library for CRuby,MIT
+unicode-display_width,1.8.0,https://github.com/janlelis/unicode-display_width,Determines the monospace display width of a string in Ruby.,MIT
 useragent,0.16.10,https://github.com/gshutler/useragent,HTTP User Agent parser,MIT
 voight_kampff,1.1.4,https://github.com/biola/Voight-Kampff,Voight-Kampff bot detection,MIT
 warden,1.2.9,https://github.com/hassox/warden,An authentication library compatible with all Rack-based frameworks,MIT
-webmock,3.10.0,http://github.com/bblimke/webmock,Library for stubbing HTTP requests in Ruby.,MIT
+webmock,3.14.0,http://github.com/bblimke/webmock,Library for stubbing HTTP requests in Ruby.,MIT
 ansi,1.5.0,http://rubyworks.github.com/ansi,ANSI at your fingertips!,BSD 2-Clause
 byebug,11.1.3,https://github.com/deivid-rodriguez/byebug,Ruby fast debugger - base + CLI,BSD 2-Clause
 domain_name,0.5.20190701,https://github.com/knu/ruby-domain_name,Domain Name manipulation library for Ruby,BSD 2-Clause
@@ -251,35 +263,38 @@ etc,1.0.1,https://github.com/ruby/etc,Provides access to information typically s
 fileutils,1.1.0,https://github.com/ruby/fileutils,"Several file utility methods for copying, moving, removing, etc.",BSD 2-Clause
 forwardable,1.2.0,https://github.com/ruby/forwardable,Provides delegation of specified methods to a designated object.,BSD 2-Clause
 mocha,1.2.1,http://gofreerange.com/mocha/docs,Mocking and stubbing library,BSD 2-Clause
-racc,1.5.2,http://i.loveruby.net/en/projects/racc/,Racc is a LALR(1) parser generator,BSD 2-Clause
+racc,1.6.0,https://i.loveruby.net/en/projects/racc/,Racc is a LALR(1) parser generator,BSD 2-Clause
 rexml,3.2.5,https://github.com/ruby/rexml,An XML toolkit for Ruby,BSD 2-Clause
+ruby2_keywords,0.0.5,https://github.com/ruby/ruby2_keywords,Shim library for Module#ruby2_keywords,BSD 2-Clause
 rubyzip,1.3.0,http://github.com/rubyzip/rubyzip,rubyzip is a ruby module for reading and writing zip files,BSD 2-Clause
 sync,0.5.0,https://github.com/ruby/sync,A module that provides a two-phase lock with a counter.,BSD 2-Clause
 unf,0.1.4,https://github.com/knu/ruby-unf,A wrapper library to bring Unicode Normalization Form support to Ruby/JRuby,BSD 2-Clause
 webrick,1.7.0,https://github.com/ruby/webrick,HTTP server toolkit,BSD 2-Clause
 webrobots,0.1.2,https://github.com/knu/webrobots,A Ruby library to help write robots.txt compliant web robots,BSD 2-Clause
 addressable,2.8.0,https://github.com/sporkmonger/addressable,URI Implementation,Apache 2.0
-aws-eventstream,1.1.0,https://github.com/aws/aws-sdk-ruby,AWS Event Stream Library,Apache 2.0
-aws-partitions,1.409.0,https://github.com/aws/aws-sdk-ruby,"Provides information about AWS partitions, regions, and services.",Apache 2.0
-aws-sdk-core,3.110.0,https://github.com/aws/aws-sdk-ruby,AWS SDK for Ruby - Core,Apache 2.0
-aws-sdk-kms,1.40.0,https://github.com/aws/aws-sdk-ruby,AWS SDK for Ruby - KMS,Apache 2.0
+aws-eventstream,1.2.0,https://github.com/aws/aws-sdk-ruby,AWS Event Stream Library,Apache 2.0
+aws-partitions,1.569.0,https://github.com/aws/aws-sdk-ruby,"Provides information about AWS partitions, regions, and services.",Apache 2.0
+aws-sdk-core,3.130.0,https://github.com/aws/aws-sdk-ruby,AWS SDK for Ruby - Core,Apache 2.0
+aws-sdk-kms,1.55.0,https://github.com/aws/aws-sdk-ruby,AWS SDK for Ruby - KMS,Apache 2.0
 aws-sdk-s3,1.46.0,https://github.com/aws/aws-sdk-ruby,AWS SDK for Ruby - Amazon S3,Apache 2.0
-aws-sigv4,1.2.2,https://github.com/aws/aws-sdk-ruby,AWS Signature Version 4 library.,Apache 2.0
-elasticsearch,7.10.0,https://www.elastic.co/guide/en/elasticsearch/client/ruby-api/7.x/index.html,Ruby integrations for Elasticsearch,Apache 2.0
-elasticsearch-api,7.10.0,https://www.elastic.co/guide/en/elasticsearch/client/ruby-api/7.x/index.html,Ruby API for Elasticsearch.,Apache 2.0
+aws-sigv4,1.4.0,https://github.com/aws/aws-sdk-ruby,AWS Signature Version 4 library.,Apache 2.0
+elasticsearch,7.17.1,https://www.elastic.co/guide/en/elasticsearch/client/ruby-api/7.16/index.html,Ruby integrations for Elasticsearch,Apache 2.0
+elasticsearch-api,7.17.1,https://www.elastic.co/guide/en/elasticsearch/client/ruby-api/7.16/index.html,Ruby API for Elasticsearch.,Apache 2.0
 elasticsearch-model,7.1.1,https://github.com/elasticsearch/elasticsearch-rails/,ActiveModel/Record integrations for Elasticsearch.,Apache 2.0
 elasticsearch-persistence,7.1.1,https://github.com/elasticsearch/elasticsearch-rails/,Persistence layer for Ruby models and Elasticsearch.,Apache 2.0
-elasticsearch-transport,7.10.0,https://www.elastic.co/guide/en/elasticsearch/client/ruby-api/7.x/index.html,Ruby client for Elasticsearch.,Apache 2.0
+elasticsearch-transport,7.17.1,https://www.elastic.co/guide/en/elasticsearch/client/ruby-api/7.16/index.html,Ruby client for Elasticsearch.,Apache 2.0
 ffi-compiler,1.0.1,http://wiki.github.com/ffi/ffi,Ruby FFI Rakefile generator,Apache 2.0
-google-api-client,0.52.0,https://github.com/google/google-api-ruby-client,Client for accessing Google APIs,Apache 2.0
-googleauth,0.14.0,https://github.com/googleapis/google-auth-library-ruby,Google Auth Library for Ruby,Apache 2.0
-honeycomb-beeline,2.3.0,https://honeycomb.io,Instrument your Ruby apps with Honeycomb,Apache 2.0
-idn-ruby,0.1.0,http://github.com/deepfryed/idn-ruby,LibIDN Ruby Bindings.,Apache 2.0
-jmespath,1.4.0,http://github.com/trevorrowe/jmespath.rb,JMESPath - Ruby Edition,Apache 2.0
-libhoney,1.16.0,https://github.com/honeycombio/libhoney-rb,send data to Honeycomb,Apache 2.0
-marcel,1.0.1,https://github.com/rails/marcel,"Simple mime type detection using magic numbers, filenames, and extensions",Apache 2.0
-msgpack,1.4.2,http://msgpack.org/,"MessagePack, a binary-based efficient data interchange format.",Apache 2.0
-signet,0.14.0,https://github.com/googleapis/signet,Signet is an OAuth 1.0 / OAuth 2.0 implementation.,Apache 2.0
+google-apis-core,0.4.2,https://github.com/google/google-api-ruby-client,Common utility and base classes for legacy Google REST clients,Apache 2.0
+google-apis-drive_v3,0.19.0,https://github.com/google/google-api-ruby-client,Simple REST client for Drive API V3,Apache 2.0
+google-apis-sheets_v4,0.12.0,https://github.com/google/google-api-ruby-client,Simple REST client for Google Sheets API V4,Apache 2.0
+googleauth,0.17.1,https://github.com/googleapis/google-auth-library-ruby,Google Auth Library for Ruby,Apache 2.0
+honeycomb-beeline,2.9.0,https://honeycomb.io,Instrument your Ruby apps with Honeycomb,Apache 2.0
+idn-ruby,0.1.4,http://github.com/deepfryed/idn-ruby,LibIDN Ruby Bindings.,Apache 2.0
+jmespath,1.6.1,http://github.com/trevorrowe/jmespath.rb,JMESPath - Ruby Edition,Apache 2.0
+libhoney,2.1.0,https://github.com/honeycombio/libhoney-rb,send data to Honeycomb,Apache 2.0
+marcel,1.0.2,https://github.com/rails/marcel,"Simple mime type detection using magic numbers, filenames, and extensions",Apache 2.0
+msgpack,1.4.5,http://msgpack.org/,"MessagePack, a binary-based efficient data interchange format.",Apache 2.0
+signet,0.16.1,https://github.com/googleapis/signet,Signet is an OAuth 1.0 / OAuth 2.0 implementation.,Apache 2.0
 smooch-api,5.29.1,https://github.com/zendesk/sunshine-conversations-ruby,Smooch Ruby Gem,Apache 2.0
 term-ansicolor,1.7.1,http://flori.github.com/term-ansicolor,Ruby library that colors strings using ANSI escape sequences,Apache 2.0
 thread_safe,0.3.6,https://github.com/ruby-concurrency/thread_safe,Thread-safe collections and utilities for Ruby,Apache 2.0
@@ -288,12 +303,12 @@ websocket-driver,0.7.5,https://github.com/faye/websocket-driver-ruby,WebSocket p
 websocket-extensions,0.1.5,https://github.com/faye/websocket-extensions-ruby,Generic extension manager for WebSocket connections,Apache 2.0
 eventmachine,1.2.7,http://rubyeventmachine.com,Ruby/EventMachine library,Ruby
 httpclient,2.8.3,https://github.com/nahi/httpclient,gives something like the functionality of libwww-perl (LWP) in Ruby,Ruby
-json,2.4.1,http://flori.github.com/json,JSON Implementation for Ruby,Ruby
+json,2.6.1,http://flori.github.com/json,JSON Implementation for Ruby,Ruby
 pg,0.18.4,https://bitbucket.org/ged/ruby-pg,Pg is the Ruby interface to the {PostgreSQL RDBMS}[http://www.postgresql.org/],Ruby
-racc,1.5.2,http://i.loveruby.net/en/projects/racc/,Racc is a LALR(1) parser generator,Ruby
+racc,1.6.0,https://i.loveruby.net/en/projects/racc/,Racc is a LALR(1) parser generator,Ruby
 rdoc,6.3.2,https://ruby.github.io/rdoc,RDoc produces HTML and command-line documentation for Ruby projects,Ruby
-ruby2_keywords,0.0.2,https://github.com/ruby/ruby2_keywords,Shim library for Module#ruby2_keywords,Ruby
-thin,1.8.0,https://github.com/macournoyer/thin,A thin and fast web server,Ruby
+ruby2_keywords,0.0.5,https://github.com/ruby/ruby2_keywords,Shim library for Module#ruby2_keywords,Ruby
+thin,1.8.1,https://github.com/macournoyer/thin,A thin and fast web server,Ruby
 webrick,1.7.0,https://github.com/ruby/webrick,HTTP server toolkit,Ruby
 pg,0.18.4,https://bitbucket.org/ged/ruby-pg,Pg is the Ruby interface to the {PostgreSQL RDBMS}[http://www.postgresql.org/],BSD
 pg,0.18.4,https://bitbucket.org/ged/ruby-pg,Pg is the Ruby interface to the {PostgreSQL RDBMS}[http://www.postgresql.org/],gpl
@@ -301,21 +316,20 @@ activerecord-redshift-adapter,0.9.12,http://github.com/fiksu/activerecord-redshi
 partitioned,2.1.0,http://github.com/fiksu/partitioned,Postgres table partitioning support for ActiveRecord.,new bsd license
 domain_name,0.5.20190701,https://github.com/knu/ruby-domain_name,Domain Name manipulation library for Ruby,bsd-3-clause
 ffi,1.9.24,http://wiki.github.com/ffi/ffi,Ruby FFI,bsd-3-clause
-google-protobuf,3.17.2,https://developers.google.com/protocol-buffers,Protocol Buffers,bsd-3-clause
-google_drive,3.0.5,https://github.com/gimite/google-drive-ruby,A library to read/write files/spreadsheets in Google Drive/Docs.,bsd-3-clause
+google-protobuf,3.19.2,https://developers.google.com/protocol-buffers,Protocol Buffers,bsd-3-clause
+google_drive,3.0.7,https://github.com/gimite/google-drive-ruby,A library to read/write files/spreadsheets in Google Drive/Docs.,bsd-3-clause
 pg_query,0.13.0,http://github.com/lfittl/pg_query,PostgreSQL query parsing and normalization library,bsd-3-clause
-puma,5.5.1,https://puma.io,"Puma is a simple, fast, threaded, and highly parallel HTTP 1.1 server for Ruby/Rack applications",bsd-3-clause
+puma,5.6.2,https://puma.io,"Puma is a simple, fast, threaded, and highly parallel HTTP 1.1 server for Ruby/Rack applications",bsd-3-clause
 clamav-client,3.2.0,https://github.com/franckverrot/clamav-client,ClamAV::Client connects to a Clam Anti-Virus clam daemon and send commands.,gpl-v3
 colorize,0.8.1,http://github.com/fazibear/colorize,Ruby gem for colorizing text using ANSI escape sequences.,gpl-2.0
 eventmachine,1.2.7,http://rubyeventmachine.com,Ruby/EventMachine library,gpl-2.0
-diff-lcs,1.4.4,https://github.com/halostatue/diff-lcs,Diff::LCS computes the difference between two Enumerable sequences using the McIlroy-Hunt longest common subsequence (LCS) algorithm,artistic-2.0
-redis-objects,1.3.1,http://github.com/nateware/redis-objects,Map Redis types directly to Ruby objects,artistic-2.0
-diff-lcs,1.4.4,https://github.com/halostatue/diff-lcs,Diff::LCS computes the difference between two Enumerable sequences using the McIlroy-Hunt longest common subsequence (LCS) algorithm,GPLv2
-railroady,1.5.3,http://github.com/preston/railroady,Ruby on Rails 3/4 model and controller UML class diagram generator.,GPLv2
-thin,1.8.0,https://github.com/macournoyer/thin,A thin and fast web server,GPLv2
+diff-lcs,1.5.0,https://github.com/halostatue/diff-lcs,Diff::LCS computes the difference between two Enumerable sequences using the McIlroy-Hunt longest common subsequence (LCS) algorithm,artistic-2.0
+redis-objects,1.5.1,http://github.com/nateware/redis-objects,Map Redis types directly to Ruby objects,artistic-2.0
+diff-lcs,1.5.0,https://github.com/halostatue/diff-lcs,Diff::LCS computes the difference between two Enumerable sequences using the McIlroy-Hunt longest common subsequence (LCS) algorithm,GPLv2
+railroady,1.6.0,http://github.com/preston/railroady,Ruby on Rails model and controller UML class diagram generator.,GPLv2
+thin,1.8.1,https://github.com/macournoyer/thin,A thin and fast web server,GPLv2
 domain_name,0.5.20190701,https://github.com/knu/ruby-domain_name,Domain Name manipulation library for Ruby,mpl-2.0
 geojsonlint,0.1.3,http://github.com/can-explore/geojsonlint,A geojson validator.,bsd 3-clause
 promise.rb,0.7.4,https://github.com/lgierth/promise,Ruby implementation of the Promises/A+ spec,public domain
-ntlm-http,0.1.1,http://www.mindflowsolutions.net,Ruby/NTLM HTTP library.,unknown
-sidekiq,4.2.10,http://sidekiq.org,"Simple, efficient background processing for Ruby",LGPLv3
+sidekiq,5.2.10,http://sidekiq.org,"Simple, efficient background processing for Ruby",LGPLv3
 sqlite3,1.3.13,https://github.com/sparklemotion/sqlite3-ruby,This module allows Ruby programs to interface with the SQLite3 database engine (http://www.sqlite.org),bsd-3

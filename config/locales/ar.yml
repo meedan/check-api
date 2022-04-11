@@ -95,6 +95,7 @@ ar:
       pender_could_not_parse: "‫لا يمكن معالجة هذا الرابط. إذا تكرر هذا الخطأ، يُرجى
         التواصل عبر العنوان %{support_email}."
       invalid_format_for_languages: صيغة اللغة غير صالحة. المتوقع `['en', 'ar', …]`
+      invalid_project_media_channel_update: عذراً، لم تتمكن من تحديث الغرفة
   activerecord:
     models:
       link: رابط
@@ -137,14 +138,14 @@ ar:
           attributes:
             data:
               already_exists: موجود بالفعل
+        relationship:
+          attributes:
+            relationship_type:
+              already_exists: موجود بالفعل
         team:
           attributes:
             slug:
               slug_format: 'يقبل الأحرف والأرقام و''-'' فقط '
-        project_media:
-          attributes:
-            channel:
-              channel_update: عذراً، لم تتمكن من تحديث الغرفة
       messages:
         record_invalid: "%{errors}"
         improbable_phone: رقم غير صالح
@@ -663,6 +664,7 @@ ar:
     اﻵتية
   team_rule_title_contains_keyword: يضم المحتوى كلمة أو أكثر من الكلمات المفتاحية
     التالية
+  team_rule_extracted_text_contains_keyword: النص المستخلص يتضمن كلمة مفتاحية
   team_rule_select_type: تحديد النوع
   team_rule_select_language: تحديد اللغة
   team_rule_select_user: اختيار شريك(ة)
@@ -730,6 +732,7 @@ ar:
   flag_likelihood_5: عالي (سيجري الكشف عن محتوى أكثر)
   flag_likelihood_7: يدوي
   relationship_not_same_team: يجب أن تكون العناصر ذات الصلة  في مساحة العمل ذاتها
+  target_is_published: لا يمكن أن يكون للمستهدف تقرير منشور
   bulk_operation_limit_error: عذراً، الحد الأقصى لعدد العناصر التى يمكن معالجتها في
     آنِ واحد هو %{limit}
   must_provide_fallback_when_deleting_status_in_use: هذه الحالة مستخدمة حاليّاً، لِحذفها،
@@ -764,6 +767,7 @@ ar:
   list_column_report_status: حالة التقرير
   list_column_tags_as_sentence: الوسوم
   list_column_media_published_at: تاريخ نشر المادة الإعلامية
+  list_column_published_by: تم نشر التقرير بواسطة
   list_column_related_count: ذات صلة
   list_column_suggestions_count: المتطابقات المقترحة
   list_column_folder: مجلد

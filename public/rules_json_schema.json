@@ -115,6 +115,10 @@
                                 "value": "<%= I18n.t(:team_rule_title_contains_keyword) %>"
                               },
                               {
+                                "key": "extracted_text_contains_keyword",
+                                "value": "<%= I18n.t(:team_rule_extracted_text_contains_keyword) %>"
+                              },
+                              {
                                 "key": "report_is_published",
                                 "value": "<%= I18n.t(:team_rule_report_is_published) %>"
                               },
@@ -128,7 +132,7 @@
                         "allOf": [
                           {
                             "if": {
-                              "properties": { "rule_definition": { "enum": ["contains_keyword", "title_contains_keyword"] } }
+                              "properties": { "rule_definition": { "enum": ["contains_keyword", "title_contains_keyword", "extracted_text_contains_keyword"] } }
                             },
                             "then": {
                               "properties": { "rule_value": { "title": "<%= I18n.t(:team_rule_value) %>", "type": "string" } }
