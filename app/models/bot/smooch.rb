@@ -379,7 +379,7 @@ class Bot::Smooch < BotUser
     state = self.send_message_if_disabled_and_return_state(uid, workflow, state)
 
     # Shortcut
-    if Rails.cache.read("smooch:original:#{message.dig('quotedMessage', 'content', '_id')}") == 'newsletter'
+    if self.message_is_a_newsletter_request?(message)
       date = I18n.l(Time.now.to_date, locale: language.to_s.tr('_', '-'), format: :short)
       newsletter = Bot::Smooch.build_newsletter_content(workflow['smooch_newsletter'], language, self.config['team_id']).gsub('{date}', date).gsub('{channel}', self.get_platform_from_message(message))
       Bot::Smooch.send_final_message_to_user(uid, newsletter, workflow, language)
