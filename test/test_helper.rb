@@ -1032,14 +1032,14 @@ class ActiveSupport::TestCase
     Bot::Smooch.stubs(:save_user_information).returns(nil)
   end
 
-  def send_message_to_smooch_bot(message = random_string, user = random_string)
+  def send_message_to_smooch_bot(message = random_string, user = random_string, extra = {})
     messages = [
       {
         '_id': random_string,
         authorId: user,
         type: 'text',
         text: message
-      }
+      }.merge(extra)
     ]
     payload = {
       trigger: 'message:appUser',

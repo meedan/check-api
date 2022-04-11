@@ -10,11 +10,11 @@ class TiplineNewsletterWorker
           if !newsletter.nil? && Bot::Smooch.newsletter_content_changed?(newsletter, language, team_id)
             date = I18n.l(Time.now.to_date, locale: language.to_s.tr('_', '-'), format: :short)
             TiplineSubscription.where(language: language, team_id: team_id).each do |ts|
-              content = Bot::Smooch.build_newsletter_content(newsletter, language, team_id)
-              fallback = I18n.t(:smooch_bot_message_newsletter_fallback, { platform: ts.platform, locale: language, team: tbi.team.name, date: date, content: content, unsubscribe: I18n.t(:unsubscribe, { locale: language }) })
+              introduction = newsletter['smooch_newsletter_introduction'].to_s.gsub('{date}', date).gsub('{channel}', ts.platform)
+              content = Bot::Smooch.build_newsletter_content(newsletter, language, team_id).gsub('{date}', date).gsub('{channel}', ts.platform)
               Bot::Smooch.get_installation { |i| i.id == tbi.id }
-              message = Bot::Smooch.format_template_message(tbi.get_newsletter_template_name, [tbi.team.name, date, content], nil, fallback, language)
-              Bot::Smooch.send_message_to_user(ts.uid, message)
+              response = Bot::Smooch.send_final_message_to_user(ts.uid, content, workflow, language)
+              Bot::Smooch.save_smooch_response(response, nil, nil, 'newsletter', language, { introduction: introduction })
             end
           end
         end

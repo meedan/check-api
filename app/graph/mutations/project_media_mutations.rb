@@ -19,7 +19,7 @@ module ProjectMediaMutations
     project_id: 'int',
     media_id: 'int',
     team_id: 'int',
-    channel: 'int',
+    channel: 'json',
     media_type: 'str'
   }).merge(set_fields)
 

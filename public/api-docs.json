@@ -1,22 +1,22 @@
 {
   "apiVersion": "1.0",
   "swaggerVersion": "1.2",
-  "basePath": "/",
+  "basePath": "",
   "apis": [
     {
-      "path": "api/v1/base_api.{format}",
+      "path": "/api/v1/base_api.{format}",
       "description": "BaseApi"
     },
     {
-      "path": "api/v1/graphql.{format}",
+      "path": "/api/v1/graphql.{format}",
       "description": "GraphQL"
     },
     {
-      "path": "api/v1/sessions.{format}",
+      "path": "/api/v1/sessions.{format}",
       "description": "Sessions"
     },
     {
-      "path": "api/v1/registrations.{format}",
+      "path": "/api/v1/registrations.{format}",
       "description": "Registrations"
     }
   ],

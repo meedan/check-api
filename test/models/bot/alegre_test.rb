@@ -434,6 +434,46 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
   end
 
+  test "should notify Airbrake if there's a bad relationship" do
+    Airbrake.stubs(:configured?).returns(true)
+    Airbrake.expects(:notify).once
+    p = create_project
+    pm1 = create_project_media project: p, is_image: true
+    pm2 = create_project_media project: p, is_image: true
+    pm3 = create_project_media project: p, is_image: true
+    create_relationship source_id: pm3.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
+    Bot::Alegre.throw_airbrake_notify_if_bad_relationship(Relationship.last, {ball: 1}, "boop")
+    Airbrake.unstub(:configured?)
+    Airbrake.unstub(:notify)
+  end
+
+  test "should store relationship for lower-scoring match that's from a preferred model, but is latest ID" do
+    p = create_project
+    pm1 = create_project_media project: p, is_image: true
+    pm2 = create_project_media project: p, media: Blank.new
+    pm3 = create_project_media project: p, media: Blank.new
+    pm4 = create_project_media project: p, media: Blank.new
+    assert_no_difference 'ProjectMedia.count' do
+      assert_difference 'Relationship.count' do
+        Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 100, model: Bot::Alegre::ELASTICSEARCH_MODEL, relationship_type: Relationship.confirmed_type}, pm1.id => {score: 1, model: Bot::Alegre::INDIAN_MODEL, relationship_type: Relationship.confirmed_type}, pm4.id => {score: 1, model: Bot::Alegre::INDIAN_MODEL, relationship_type: Relationship.confirmed_type}})
+      end
+    end
+    assert_equal Relationship.last.source_id, pm1.id
+  end
+
+  test "should store relationship for highest-scoring match" do
+    p = create_project
+    pm1 = create_project_media project: p, is_image: true
+    pm2 = create_project_media project: p, media: Blank.new
+    pm3 = create_project_media project: p, media: Blank.new
+    assert_no_difference 'ProjectMedia.count' do
+      assert_difference 'Relationship.count' do
+        Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 100, relationship_type: Relationship.confirmed_type}, pm1.id => {score: 1, relationship_type: Relationship.confirmed_type}})
+      end
+    end
+    assert_equal Relationship.last.source_id, pm2.id
+  end
+
   test "should not create suggestion when parent is trashed" do
     p = create_project
     pm2 = create_project_media project: p, is_image: true, archived: CheckArchivedFlags::FlagCodes::TRASHED
@@ -472,6 +512,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:get_merged_items_with_similar_text)
     TeamBotInstallation.unstub(:find_by_team_id_and_user_id)
   end
+
   test "should return matches for non-blank cases" do
     p = create_project
     pm1 = create_project_media project: p, quote: "Blah", team: @team
@@ -1206,7 +1247,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should match imported report" do
     pm = create_project_media team: @team
-    pm2 = create_project_media team: @team, media: Blank.create!, channel: CheckChannels::ChannelCodes::FETCH
+    pm2 = create_project_media team: @team, media: Blank.create!, channel: { main: CheckChannels::ChannelCodes::FETCH }
     Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => {score: 0.9, context: {"blah" => 1}}})
     assert_equal [pm2.id], Bot::Alegre.get_similar_items(pm).keys
     assert_no_difference 'ProjectMedia.count' do
@@ -1244,5 +1285,87 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should not get similar texts for texts with up to 2 words" do
     assert_equal({}, Bot::Alegre.get_items_from_similar_text(random_number, 'Foo bar'))
+  end
+
+  test "should match rule by extracted text" do
+    t = create_team
+    create_tag_text text: 'test', team_id: t.id
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "extracted_text_contains_keyword",
+                "rule_value": "Foo"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "add_tag",
+          "action_value": "test"
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    pm = create_project_media team: t
+    create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm, set_fields: { text: 'Foo' }.to_json
+    assert_equal ['test'], pm.get_annotations('tag').map(&:load).map(&:tag_text)
+  end
+
+  test "should handle similar items from different workspaces" do
+    t2 = create_team
+    t3 = create_team
+    pm1a = create_project_media team: @team, media: create_uploaded_image
+    pm2 = create_project_media team: t2, media: create_uploaded_image
+    pm3 = create_project_media team: t3, media: create_uploaded_image
+    pm4 = create_project_media media: create_uploaded_image
+    pm1b = create_project_media team: @team, media: create_uploaded_image
+    response = {
+      result: [
+        {
+          id: pm4.id,
+          sha256: random_string,
+          phash: random_string,
+          url: random_url,
+          context: [
+            {
+              team_id: t2.id,
+              has_custom_id: true,
+              project_media_id: pm2.id
+            },
+            {
+              team_id: @team.id,
+              has_custom_id: true,
+              project_media_id: pm1b.id
+            },
+            {
+              team_id: t3.id,
+              has_custom_id: true,
+              project_media_id: pm3.id
+            },
+          ],
+          score: 0
+        }
+      ]
+    }.with_indifferent_access
+    Bot::Alegre.stubs(:request_api).returns(response)
+    assert_nothing_raised do
+      assert_difference 'Relationship.count' do
+        Bot::Alegre.relate_project_media_to_similar_items(pm1a)
+      end
+    end
+    assert_equal pm1b, Relationship.last.source
+    assert_equal pm1a, Relationship.last.target
+    Bot::Alegre.unstub(:request_api)
   end
 end

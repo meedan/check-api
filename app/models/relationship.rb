@@ -12,8 +12,8 @@ class Relationship < ApplicationRecord
   before_validation :set_user, on: :create
   before_validation :set_confirmed, if: :is_being_confirmed?, on: :update
   before_validation :set_cluster, if: :is_being_confirmed?, on: :update
-  validate :relationship_type_is_valid
-  validate :items_are_from_the_same_team
+  validate :relationship_type_is_valid, :items_are_from_the_same_team
+  validate :target_not_pulished_report, on: :create
   validates :relationship_type, uniqueness: { scope: [:source_id, :target_id], message: :already_exists }, on: :create
 
   after_create :move_to_same_project_as_main, prepend: true
@@ -192,10 +192,27 @@ class Relationship < ApplicationRecord
     end
   end
 
+  def target_not_pulished_report
+    unless self.target.nil?
+      state = self.target.get_annotations('report_design').last&.load&.get_field_value('state')
+      errors.add(:base, I18n.t(:target_is_published)) if state == 'published'
+    end
+  end
+
   def point_targets_to_new_source
+    # Get existing targets for the source
+    target_ids = Relationship.where(source_id: self.source_id, relationship_type: self.relationship_type).map(&:target_id)
+    # Delete duplicate relation from target(CHECK-1603)
+    Relationship.where(source_id: self.target_id, relationship_type: self.relationship_type, target_id: target_ids).delete_all
     Relationship.where(source_id: self.target_id).where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).each do |old_relationship|
       old_relationship.delete
-      new_relationship = Relationship.new(source_id: self.source_id, target_id: old_relationship.target_id, relationship_type: old_relationship.relationship_type, user_id: old_relationship.user_id, weight: old_relationship.weight)
+      new_relationship = Relationship.new(
+        source_id: self.source_id,
+        target_id: old_relationship.target_id,
+        relationship_type: old_relationship.relationship_type,
+        user_id: old_relationship.user_id,
+        weight: old_relationship.weight
+      )
       new_relationship.skip_check_ability = true
       new_relationship.save!
     end
@@ -214,7 +231,10 @@ class Relationship < ApplicationRecord
       new_cluster = self.source.cluster
       old_cluster = pm.cluster
       if old_cluster.nil? || (old_cluster.size == 1 && old_cluster.project_media_id == pm.id)
-        old_cluster.destroy! unless old_cluster.nil?
+        unless old_cluster.nil?
+          old_cluster.skip_check_ability = true
+          old_cluster.destroy!
+        end
         new_cluster.project_medias << pm unless new_cluster.nil?
       end
     end

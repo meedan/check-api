@@ -18,8 +18,9 @@ class ProjectMedia < ApplicationRecord
   validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }, on: :create
   validate :source_belong_to_team, unless: proc { |pm| pm.source_id.blank? || pm.is_being_copied }
   validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
-  validates :channel, included: { values: CheckChannels::ChannelCodes::ALL }, on: :create
-  validates :channel, inclusion: { in: ->(pm) { [pm.channel_was] }, message: :channel_update }, on: :update
+  validate :custom_channel_format
+  validate :channel_in_allowed_values, on: :create
+  validate :channel_not_changed, on: :update
 
   before_validation :set_team_id, :set_channel, :set_project_id, on: :create
   after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks, :create_claim_description_and_fact_check, :create_tags
@@ -252,7 +253,7 @@ class ProjectMedia < ApplicationRecord
       analysis = self.analysis
       new_pm.updated_at = Time.now
       new_pm.skip_check_ability = true
-      new_pm.channel = CheckChannels::ChannelCodes::FETCH
+      new_pm.channel = { main: CheckChannels::ChannelCodes::FETCH }
       new_pm.save(validate: false) # To skip channel validation
       new_pm.analysis = { title: analysis['title'], content: analysis['content'] }
       # Point the claim
@@ -389,9 +390,10 @@ class ProjectMedia < ApplicationRecord
     ms.attributes[:analysis_description] = self.analysis_description
     ms.attributes[:quote] = m.quote
     ms.attributes[:verification_status] = self.last_status
+    ms.attributes[:channel] = self.channel.values.flatten.map(&:to_i)
     # set fields with integer value
     fields_i = [
-      'archived', 'channel', 'sources_count', 'linked_items_count', 'share_count',
+      'archived', 'sources_count', 'linked_items_count', 'share_count',
       'last_seen', 'demand', 'user_id', 'read'
     ]
     fields_i.each{ |f| ms.attributes[f] = self.send(f).to_i }

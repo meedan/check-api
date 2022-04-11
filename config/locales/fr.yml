@@ -101,6 +101,8 @@ fr:
         %{support_email} si l’erreur persiste. '
       invalid_format_for_languages: Le format de langue est invalide. Le format `['fr',
         'en'…]` est attendu
+      invalid_project_media_channel_update: Désolé, il ne vous a pas été possible
+        de mettre à jour la valeur du canal
   activerecord:
     models:
       link: Lien
@@ -143,15 +145,14 @@ fr:
           attributes:
             data:
               already_exists: existe déjà
+        relationship:
+          attributes:
+            relationship_type:
+              already_exists: existe déjà
         team:
           attributes:
             slug:
               slug_format: n’accepte que les lettres, les chiffres et les tirets
-        project_media:
-          attributes:
-            channel:
-              channel_update: Désolé, il ne vous a pas été possible de mettre à jour
-                la valeur du canal
       messages:
         record_invalid: "%{errors}"
         improbable_phone: est un numéro invalide
@@ -282,8 +283,8 @@ fr:
     one: Une note
     other: "%{count} notes"
   oembed_completed_tasks_count:
-    one: Une tâche est achevée
-    other: "%{count} tâches sont achevées"
+    one: Une tâche est remplie
+    other: "%{count} tâches sont remplies"
   oembed_verification_tasks: Tâches
   oembed_tasks: Tâches
   oembed_translations: Traductions
@@ -412,7 +413,7 @@ fr:
       expire_note: Veuillez noter que ce lien expirera dans %{days} jours.
       team_import_subject: L’importation de vos données est terminée
       team_import_title: Importation des données
-      team_import_text: "<p>Votre travail d’importation dans %{app_name} est achevé.
+      team_import_text: "<p>Votre travail d’importation dans %{app_name} est terminé.
         Vous pouvez consulter %{worksheet_url} pour examiner l’état de chaque élément
         à importer.</p> <p>Notez que vous pourrez relancer l’importation après avoir
         corrigé les erreurs qui y sont signalées. Les éléments déjà importés ne seront
@@ -433,7 +434,7 @@ fr:
       section_title: Marqué %{status}.
       added_to: Ajouté à %{app_name}
       update_h: Dernière mise à jour
-      tasks_h: Les tâches sont achevées
+      tasks_h: Les tâches sont remplies
     assignment:
       assign_task_subject: "[%{team} – %{project}] Une tâche vous a été attribuée"
       unassign_task_subject: "[%{team} – %{project}] L’attribution d’une tâche vous
@@ -697,6 +698,7 @@ fr:
     suivants
   team_rule_title_contains_keyword: Le contenu comprend l’un ou plusieurs des mots-clés
     suivants
+  team_rule_extracted_text_contains_keyword: Le texte extrait comprend le mot-clé
   team_rule_select_type: Sélectionnez un type
   team_rule_select_language: Sélectionnez la langue
   team_rule_select_user: Sélectionnez un collaborateur
@@ -766,6 +768,7 @@ fr:
   flag_likelihood_7: Manuel
   relationship_not_same_team: Les éléments associés doivent exister dans le même espace
     de travail
+  target_is_published: La cible ne devrait pas avoir de rapport publié
   bulk_operation_limit_error: Désolé, le nombre maximal d’éléments à traiter à la
     fois est %{limit}
   must_provide_fallback_when_deleting_status_in_use: Ce état est déjà utilisé, vous
@@ -802,6 +805,7 @@ fr:
   list_column_report_status: État du rapport
   list_column_tags_as_sentence: Étiquettes
   list_column_media_published_at: Média publié
+  list_column_published_by: Rapport publié par
   list_column_related_count: Associés
   list_column_suggestions_count: Correspondances suggérées
   list_column_folder: Dossier

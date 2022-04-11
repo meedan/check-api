@@ -5,7 +5,8 @@ module TeamRules
 
   RULES = ['contains_keyword', 'has_less_than_x_words', 'title_matches_regexp', 'request_matches_regexp', 'type_is', 'tagged_as',
            'flagged_as', 'status_is', 'title_contains_keyword', 'item_titles_are_similar', 'item_images_are_similar', 'report_is_published',
-           'report_is_paused', 'item_language_is', 'item_user_is', 'item_is_read', 'item_is_assigned_to_user']
+           'report_is_paused', 'item_language_is', 'item_user_is', 'item_is_read', 'item_is_assigned_to_user',
+            'extracted_text_contains_keyword']
 
   ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter', 'add_tag', 'add_warning_cover']
 
@@ -132,6 +133,10 @@ module TeamRules
     def item_is_assigned_to_user(pm, value, _rule_id)
       status = pm.last_status_obj
       status && Assignment.exists?(assigned_type: 'Annotation', assigned_id: status.id, user_id: value.to_i)
+    end
+
+    def extracted_text_contains_keyword(pm, value, _rule_id)
+      text_contains_keyword(pm.extracted_text, value)
     end
 
     def field_contains_keyword(pm, value, _rule_id)

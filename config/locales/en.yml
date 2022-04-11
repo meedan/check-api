@@ -103,6 +103,8 @@ en:
         if the error persists.
       invalid_format_for_languages: Invalid language format. Expecting the format
         `['en', 'ar', …]`
+      invalid_project_media_channel_value: Sorry, channel value not supported
+      invalid_project_media_channel_update: Sorry, you could not update channel value
   activerecord:
     models:
       link: Link
@@ -145,14 +147,14 @@ en:
           attributes:
             data:
               already_exists: already exists
+        relationship:
+          attributes:
+            relationship_type:
+              already_exists: already exists
         team:
           attributes:
             slug:
               slug_format: accepts only letters, numbers and hyphens
-        project_media:
-          attributes:
-            channel:
-              channel_update: Sorry, you could not update channel value
       messages:
         record_invalid: "%{errors}"
         improbable_phone: is an invalid number
@@ -653,6 +655,7 @@ en:
   team_rule_contains_keyword: Request contains one or more of the following keywords
   team_rule_title_contains_keyword: Content contains one or more of the following
     keywords
+  team_rule_extracted_text_contains_keyword: Extracted text contains keyword
   team_rule_select_type: Select type
   team_rule_select_language: Select language
   team_rule_select_user: Choose a collaborator
@@ -720,6 +723,7 @@ en:
   flag_likelihood_5: High (more content will be detected)
   flag_likelihood_7: Manual
   relationship_not_same_team: Related items must exist in the same workspace
+  target_is_published: Target should not have a published report
   bulk_operation_limit_error: Sorry, the maximum number of items to be processed at
     once is %{limit}
   must_provide_fallback_when_deleting_status_in_use: This status is being used, so

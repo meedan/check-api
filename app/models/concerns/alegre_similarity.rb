@@ -189,17 +189,22 @@ module AlegreSimilarity
       es_matches
     end
 
-    def get_similar_items_from_api(path, conditions, _threshold={}, query_or_body = 'body' )
+    def get_similar_items_from_api(path, conditions, _threshold = {}, query_or_body = 'body')
       Rails.logger.error("[Alegre Bot] Sending request to alegre : #{path} , #{conditions.to_json}")
       response = {}
       result = self.request_api('get', path, conditions, query_or_body)&.dig('result')
       project_medias = result.collect{ |r| self.extract_project_medias_from_context(r) } if !result.nil? && result.is_a?(Array)
       project_medias.each do |request_response|
         request_response.each do |pmid, score_with_context|
-          response[pmid] = score_with_context
+          response[pmid] = score_with_context if self.should_include_id_in_result?(pmid, conditions)
         end
       end unless project_medias.nil?
       response.reject{ |id, _score_with_context| id.blank? }
+    end
+
+    def should_include_id_in_result?(pmid, conditions)
+      team_id = conditions.dig(:context, :team_id)
+      !team_id || [team_id].flatten.include?(ProjectMedia.find_by_id(pmid)&.team_id)
     end
 
     def get_items_with_similar_text(pm, field, threshold, text, model = nil)

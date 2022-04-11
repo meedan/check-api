@@ -105,6 +105,10 @@ ml:
           attributes:
             data:
               already_exists: നേരത്തേ നിലവിലുണ്ട്
+        relationship:
+          attributes:
+            relationship_type:
+              already_exists: നേരത്തേ നിലവിലുണ്ട്
         team:
           attributes:
             slug:
