@@ -357,4 +357,10 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
 
     send_message_to_smooch_bot('Read now', @uid, { 'quotedMessage' => { 'content' => { '_id' => id } } })
   end
+
+  test "should show main menu as buttons for non-WhatsApp platforms on tipline bot v2" do
+    send_message_to_smooch_bot('Hello', @uid, { 'source' => { 'type' => 'telegram' } })
+    send_message_to_smooch_bot('1', @uid, { 'source' => { 'type' => 'telegram' } })
+    assert_state 'main'
+  end
 end
