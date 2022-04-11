@@ -94,5 +94,10 @@ module SmoochNewsletter
       end
       "#{time_utc.min} #{time_utc.hour} * * #{cron_day}"
     end
+
+    def message_is_a_newsletter_request?(message)
+      quoted_id = message.dig('quotedMessage', 'content', '_id')
+      !quoted_id.blank? && Rails.cache.read("smooch:original:#{quoted_id}") == 'newsletter'
+    end
   end
 end
