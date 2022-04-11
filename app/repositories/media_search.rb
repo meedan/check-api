@@ -136,6 +136,8 @@ class MediaSearch
 
     indexes :cluster_last_item_at, { type: 'long' }
 
+    indexes :cluster_published_reports, { type: 'long' }
+
     indexes :cluster_published_reports_count, { type: 'long' }
 
     indexes :cluster_requests_count, { type: 'long' }
