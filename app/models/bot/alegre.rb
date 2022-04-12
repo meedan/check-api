@@ -8,6 +8,7 @@ class Bot::Alegre < BotUser
   # Text similarity models
   MEAN_TOKENS_MODEL = 'xlm-r-bert-base-nli-stsb-mean-tokens'
   INDIAN_MODEL = 'indian-sbert'
+  FILIPINO_MODEL = 'mdeberta-v3-filipino'
   ELASTICSEARCH_MODEL = 'elasticsearch'
 
   REPORT_TEXT_SIMILARITY_FIELDS = ['report_text_title', 'report_text_content', 'report_visual_card_title', 'report_visual_card_content']
