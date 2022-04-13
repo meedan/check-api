@@ -63,8 +63,10 @@ module AlegreSimilarity
       if base_type == "text"
         raise if response[pm.id][:context]["field"].nil?
         return response[pm.id][:context]["field"] || base_type
-      else
+      elsif !base_type.nil?
         return base_type
+      else
+        return response[pm.id][:context]["field"] || base_type
       end
     end
 
