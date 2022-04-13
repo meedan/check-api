@@ -553,7 +553,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.throw_airbrake_notify_if_bad_relationship(relationship, score_with_context, relationship_type)
-    if relationship.model.nil? || relationship.weight.nil? || relationship.source_field.nil? || relationship.target_field.nil?
+    if relationship.model.nil? || relationship.weight.nil? || relationship.source_field.nil? || relationship.target_field.nil? || ![MEAN_TOKENS_MODEL, INDIAN_MODEL, ELASTICSEARCH_MODEL, 'audio', 'image', 'video'].include?(relationship.model)
       Airbrake.notify(Bot::Alegre::Error.new("[Alegre] Bad relationship was stored without required metadata"), {trace: Thread.current.backtrace.join("\n"), relationship: relationship.attributes, relationship_type: relationship_type, score_with_context: score_with_context}) if Airbrake.configured?
     end
   end
