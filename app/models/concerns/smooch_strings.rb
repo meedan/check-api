@@ -73,7 +73,8 @@ module SmoochStrings
           "ur": "معذرت، آپ کی جمع کرائی گئی فائل سپورٹ فارمیٹ نہیں ہے۔"
         },
         "keep_subscription_button_label": {
-          "en": "Keep subscription",
+          "es": "Mantener suscripción",
+          "id": "Tetap berlangganan",
           "be": "সাবস্ক্রিপশন করে রাখুন",
           "fr": "Rester abonné",
           "de": "Abo behalten",
@@ -82,9 +83,10 @@ module SmoochStrings
           "mr": "सबस्क्रिप्शन कायम ठेवा",
           "pt": "Manter inscrição",
           "pa": "ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਕਾਇਮ ਰੱਖੋ",
-          "es": "Mantener suscripción",
           "ta": "சந்தாவை தொடர்",
-          "te": "చందా ఉంచుకోండి"
+          "te": "చందా ఉంచుకోండి",
+          "ur": "رکنیت برقرار رکھیں",
+          "en": "Keep subscription"
         },
         "languages": {
           "en": "Languages",
@@ -115,7 +117,7 @@ module SmoochStrings
           "pa": "ਭਾਸ਼ਾਵਾਂ ਅਤੇ ਗੋਪਨੀਅਤਾ",
           "es": "Idiomas y Privacidad",
           "ta": "மொழிகள் & தனியுரிமை",
-          "te": "భాష మరియు గౌప్యత",
+          "te": "భాష & ప్రైవసీ",
           "ur": "زبانیں اور رازداری"
         },
         "main_menu": {
@@ -179,7 +181,7 @@ module SmoochStrings
           "pa": "ਪਰਦੇਦਾਰੀ ਕਥਨ",
           "es": "Política de privacidad",
           "ta": "தனியுரிமை அறிக்கை",
-          "te": "గౌప్యతా ప్రతిపాదన",
+          "te": "ప్రైవసీ స్టేట్మెంట్",
           "ur": "رازداری کا بیان"
         },
         "privacy_title": {
@@ -193,10 +195,10 @@ module SmoochStrings
           "mr": "गोपनीयता",
           "pt": "Privacidade",
           "pa": "ਗੋਪਨੀਅਤਾ",
-          "es": "Privacidad",
           "ta": "தனியுரிமை",
           "te": "గౌప్యత",
-          "ur": "رازداری"
+          "ur": "رازداری",
+          "es": "Privacidad"
         },
         "report_updated": {
           "en": "The following fact-check has been *updated* with new information:",
