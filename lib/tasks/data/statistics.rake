@@ -106,6 +106,9 @@ def get_statistics(start_date, end_date, slug, platform)
   # Current number of newsletter subscribers
   data << TiplineSubscription.where(created_at: start_date.ago(100.years)..end_date, platform: platform_name).where('teams.slug' => slug).joins(:team).count.to_s
 
+  # Number of imported reports
+  data << ProjectMedia.joins(:team).where('teams.slug' => slug, 'created_at' => start_date..end_date, 'user_id' => BotUser.fetch_user.id).count.to_s
+
   puts data.join(',')
 end
 
@@ -138,6 +141,7 @@ namespace :check do
         header << 'Average number of end-user messages per day'
         header << '# of returning users (at least one session in the current month and at least one session in the last previous 2 months)'
         header << 'Current # of newsletter subscribers'
+        header << 'Number of imported reports'
         puts header.join(',')
 
         slugs.each do |slug|
