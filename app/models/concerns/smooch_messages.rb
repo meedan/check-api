@@ -5,6 +5,7 @@ module SmoochMessages
 
   module ClassMethods
     def parse_message(message, app_id, payload = nil)
+      self.get_platform_from_message(message)
       uid = message['authorId']
       sm = CheckStateMachine.new(uid)
       if sm.state.value == 'human_mode'
@@ -130,7 +131,13 @@ module SmoochMessages
 
     def get_platform_from_message(message)
       type = message.dig('source', 'type')
-      type ? ::Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[type].to_s : 'Unknown'
+      platform = type ? ::Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[type].to_s : 'Unknown'
+      RequestStore.store[:smooch_bot_platform] = platform
+      platform
+    end
+
+    def request_platform
+      RequestStore.store[:smooch_bot_platform]
     end
 
     def save_message_later_and_reply_to_user(message, app_id, send_message = true)
@@ -305,7 +312,6 @@ module SmoochMessages
       # update channel if annotated is manual item
       if annotated.get_main_channel == CheckChannels::ChannelCodes::MANUAL
         channel_value = self.get_smooch_channel(message)
-        Rails.logger.info "SawyDebugging :: #{channel_value} ::#{annotated.inspect} :: #{message.inspect}"
         unless channel_value.blank?
           others = annotated.channel.with_indifferent_access[:others] || []
           annotated.channel[:others] = others.concat([channel_value]).uniq

@@ -8,6 +8,7 @@ class Bot::Alegre < BotUser
   # Text similarity models
   MEAN_TOKENS_MODEL = 'xlm-r-bert-base-nli-stsb-mean-tokens'
   INDIAN_MODEL = 'indian-sbert'
+  FILIPINO_MODEL = 'mdeberta-v3-filipino'
   ELASTICSEARCH_MODEL = 'elasticsearch'
 
   REPORT_TEXT_SIMILARITY_FIELDS = ['report_text_title', 'report_text_content', 'report_visual_card_title', 'report_visual_card_content']
@@ -553,7 +554,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.throw_airbrake_notify_if_bad_relationship(relationship, score_with_context, relationship_type)
-    if relationship.model.nil? || relationship.weight.nil? || relationship.source_field.nil? || relationship.target_field.nil?
+    if relationship.model.nil? || relationship.weight.nil? || relationship.source_field.nil? || relationship.target_field.nil? || ![MEAN_TOKENS_MODEL, INDIAN_MODEL, ELASTICSEARCH_MODEL, 'audio', 'image', 'video'].include?(relationship.model)
       Airbrake.notify(Bot::Alegre::Error.new("[Alegre] Bad relationship was stored without required metadata"), {trace: Thread.current.backtrace.join("\n"), relationship: relationship.attributes, relationship_type: relationship_type, score_with_context: score_with_context}) if Airbrake.configured?
     end
   end

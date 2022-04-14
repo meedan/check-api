@@ -259,6 +259,13 @@ class ElasticSearch8Test < ActionController::TestCase
     query[:sort_type] = 'asc'
     result = CheckSearch.new(query.to_json)
     assert_equal [pm2.id, pm1.id], result.medias.map(&:id)
+    # filter by published_by filter `cluster_published_reports`
+    query = { trends: true, country: true, cluster_published_reports: [t.id, t2.id]}
+    result = CheckSearch.new(query.to_json)
+    assert_equal [pm1.id, pm2.id], result.medias.map(&:id).sort
+    query = { trends: true, country: true, cluster_published_reports: [t2.id]}
+    result = CheckSearch.new(query.to_json)
+    assert_equal [pm1.id], result.medias.map(&:id)
     Team.unstub(:current)
   end
 

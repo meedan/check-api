@@ -7,6 +7,7 @@ module SmoochSearch
     # This method runs in background
     def search(app_id, uid, language, message, team_id, workflow)
       begin
+        self.get_platform_from_message(message)
         sm = CheckStateMachine.new(uid)
         self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
         results = self.get_search_results(uid, message, team_id, language)

@@ -378,9 +378,11 @@ class Bot::Smooch < BotUser
 
     state = self.send_message_if_disabled_and_return_state(uid, workflow, state)
 
-    # Shortcuts
-    if [I18n.t(:subscribe, locale: language.gsub(/[-_].*$/, '')), I18n.t(:unsubscribe, locale: language.gsub(/[-_].*$/, ''))].map(&:downcase).include?(message['text'].to_s.downcase.strip)
-      self.toggle_subscription(uid, language, self.config['team_id'], self.get_platform_from_message(message), workflow)
+    # Shortcut
+    if self.message_is_a_newsletter_request?(message)
+      date = I18n.l(Time.now.to_date, locale: language.to_s.tr('_', '-'), format: :short)
+      newsletter = Bot::Smooch.build_newsletter_content(workflow['smooch_newsletter'], language, self.config['team_id']).gsub('{date}', date).gsub('{channel}', self.get_platform_from_message(message))
+      Bot::Smooch.send_final_message_to_user(uid, newsletter, workflow, language)
       return true
     end
 
@@ -396,7 +398,7 @@ class Bot::Smooch < BotUser
         self.parse_message_based_on_state(message, app_id)
       end
     when 'main', 'secondary', 'subscription', 'search_result'
-      if !self.process_menu_option(message, state, app_id)
+      unless self.process_menu_option(message, state, app_id)
         self.send_message_for_state(uid, workflow, state, language, workflow['smooch_message_smooch_bot_option_not_available'] || self.get_string(:option_not_available, language))
       end
     when 'search'
@@ -572,7 +574,7 @@ class Bot::Smooch < BotUser
     self.get_installation(self.installation_setting_id_keys, message['app']['_id'])
     original = Rails.cache.read('smooch:original:' + message['message']['_id'])
     unless original.blank?
-      original = JSON.parse(original)
+      original = begin JSON.parse(original) rescue {} end
       if original['fallback_template'] =~ /report/
         pmids = ProjectMedia.find(original['project_media_id']).related_items_ids
         DynamicAnnotation::Field.joins(:annotation).where(field_name: 'smooch_data', 'annotations.annotated_type' => 'ProjectMedia', 'annotations.annotated_id' => pmids).where("value_json ->> 'authorId' = ?", message['appUser']['_id']).each do |f|
@@ -919,7 +921,7 @@ class Bot::Smooch < BotUser
   def self.save_smooch_response(response, pm, query_date, fallback_template = nil, lang = 'en', custom = {})
     return false if response.nil? || fallback_template.nil?
     id = self.get_id_from_send_response(response)
-    Rails.cache.write('smooch:original:' + id, { project_media_id: pm.id, fallback_template: fallback_template, language: lang, query_date: (query_date || Time.now.to_i) }.merge(custom).to_json) unless id.blank?
+    Rails.cache.write('smooch:original:' + id, { project_media_id: pm&.id, fallback_template: fallback_template, language: lang, query_date: (query_date || Time.now.to_i) }.merge(custom).to_json) unless id.blank?
   end
 
   def self.send_report_from_parent_to_child(parent_id, target_id)
