@@ -67,7 +67,7 @@ COPY --chown=checkdeploy:www-data . ${DEPLOYDIR}
 USER ${DEPLOYUSER}
 RUN cp production/config.yml.dockerfile config/config.yml && \
     printf "production:\n adapter: sqlite3\n database: /tmp/db.sqlite\n" > config/database.yml && \
-    SECRET_KEY_BASE=bogus AWS_REGION=eu-west-1 bundle exec rake assets:precompile && \
+    SECRET_KEY_BASE=bogus bundle exec rake assets:precompile && \
     rm config/config.yml
 
 EXPOSE 3300
