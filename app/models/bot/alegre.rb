@@ -73,7 +73,7 @@ class Bot::Alegre < BotUser
         text = annotation.get_field_value('text')
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] An annotation of type #{type} was saved, so we are looking for items with similar description to #{pm.id} (text is '#{text}')")
         return if text.blank? || !Bot::Alegre.should_get_similar_items_of_type?('master', pm.team_id) || !Bot::Alegre.should_get_similar_items_of_type?(type, pm.team_id)
-        matches = Bot::Alegre.get_items_with_similar_description(pm, Bot::Alegre.get_threshold_for_query('text', pm), text).max_by{ |_pm_id, score_and_context| score_and_context[:score] }
+        matches = Bot::Alegre.return_prioritized_matches(Bot::Alegre.merge_response_with_source_and_target_fields(Bot::Alegre.get_items_with_similar_description(pm, Bot::Alegre.get_threshold_for_query('text', pm), text), type))
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] An annotation of type #{type} was saved, so the items with similar description to #{pm.id} (text is '#{text}') are: #{matches.inspect}")
         unless matches.nil?
           match_id, score_with_context = matches
@@ -450,6 +450,10 @@ class Bot::Alegre < BotUser
     context
   end
 
+  def self.return_prioritized_matches(pm_id_scores)
+    pm_id_scores.sort_by{|k,v| [Bot::Alegre::ELASTICSEARCH_MODEL != v[:model] ? 1 : 0, v[:score], -k]}.reverse
+  end
+
   def self.add_relationships(pm, pm_id_scores)
     Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 1/6] Adding relationships for #{pm_id_scores.inspect}"
     return if pm_id_scores.blank? || pm_id_scores.keys.include?(pm.id)
@@ -460,7 +464,7 @@ class Bot::Alegre < BotUser
     # - If it's a parent, use it.
     # - If it has no existing relationship, use it.
     #make K negative so that we bias towards older IDs
-    parent_id = pm_id_scores.sort_by{|k,v| [Bot::Alegre::ELASTICSEARCH_MODEL != v[:model] ? 1 : 0, v[:score], -k]}.reverse.first.first
+    parent_id = self.return_prioritized_matches(pm_id_scores).first.first
     parent_relationships = Relationship.where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).where(target_id: parent_id).all
     Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 2/6] Number of parent relationships #{parent_relationships.count}"
     if parent_relationships.length > 0
