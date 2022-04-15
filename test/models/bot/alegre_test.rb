@@ -1130,7 +1130,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should use OCR data for similarity matching" do
     pm = create_project_media team: @team
     pm2 = create_project_media team: @team
-    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => {score: 0.9, context: {"blah" => 1}} })
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => {:score=>0.9, :context=>{"team_id"=>@team.id, "field"=>"original_description", "project_media_id"=>pm2.id, "has_custom_id"=>true}, :model=>"elasticsearch"} })
     assert_difference 'Relationship.count' do
       create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm, set_fields: { text: 'Foo bar' }.to_json
     end
@@ -1178,7 +1178,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm = create_project_media team: @team
     pm2 = create_project_media team: @team
     create_relationship source_id: pm_s.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
-    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => {score: 0.9, context: {"blah" => 1}} })
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => {:score=>0.9, :context=>{"team_id"=>@team.id, "field"=>"original_description", "project_media_id"=>pm2.id, "has_custom_id"=>true}, :model=>"elasticsearch"} })
     assert_difference 'Relationship.count' do
       create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm, set_fields: { text: 'Foo bar' }.to_json
     end
@@ -1200,7 +1200,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     create_annotation_type_and_fields('Transcription', {}, json_schema)
     pm = create_project_media team: @team
     pm2 = create_project_media team: @team
-    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => {score: 0.9, context: {"blah" => 1}}})
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => {:score=>0.9, :context=>{"team_id"=>@team.id, "field"=>"original_description", "project_media_id"=>pm2.id, "has_custom_id"=>true}, :model=>"elasticsearch"}})
     data = { 'job_status' => 'COMPLETED', 'transcription' => 'Foo bar' }
     a = create_dynamic_annotation annotation_type: 'transcription', annotated: pm, set_fields: { job_name: '0c481e87f2774b1bd41a0a70d9b70d11', last_response: data }.to_json
     assert_difference 'Relationship.count' do
@@ -1217,7 +1217,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm3 = create_project_media team: @team
     pm4 = create_project_media team: @team
     r = create_relationship source_id: pm2.id, target_id: pm.id, relationship_type: Relationship.suggested_type
-    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => { :score => 700 }, 779761 => { score: 602.4235, context: { team_id: 2080 } } } )
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({pm2.id => {:score=>700, :context=>{"team_id"=>@team.id, "field"=>"original_description", "project_media_id"=>pm2.id, "has_custom_id"=>true}, :model=>"elasticsearch"}, 779761 => {:score=>602.4235, :context=>{"team_id"=>2080, "field"=>"original_description", "project_media_id"=>pm2.id, "has_custom_id"=>true}, :model=>"elasticsearch"}})
     assert_no_difference 'Relationship.count' do
       create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm, set_fields: { text: 'Foo bar' }.to_json
     end
@@ -1228,7 +1228,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       r.save!
     end
     r2 = create_relationship source_id: pm4.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
-    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm4.id => { score: 0.9, context: { 'blah' => 1 } } })
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm4.id => {:score=>0.9, :context=>{"team_id"=>@team.id, "field"=>"original_description", "project_media_id"=>pm2.id, "has_custom_id"=>true}, :model=>"elasticsearch"} })
     assert_no_difference 'Relationship.count' do
       create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm3, set_fields: { text: 'Foo bar' }.to_json
     end
@@ -1248,7 +1248,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should match imported report" do
     pm = create_project_media team: @team
     pm2 = create_project_media team: @team, media: Blank.create!, channel: { main: CheckChannels::ChannelCodes::FETCH }
-    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => {score: 0.9, context: {"blah" => 1}}})
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => {:score=>0.9, :context=>{"team_id"=>@team.id, "field"=>"original_description", "project_media_id"=>pm2.id, "has_custom_id"=>true}, :model=>"elasticsearch"}})
     assert_equal [pm2.id], Bot::Alegre.get_similar_items(pm).keys
     assert_no_difference 'ProjectMedia.count' do
       assert_difference 'Relationship.count' do

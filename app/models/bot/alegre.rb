@@ -73,7 +73,7 @@ class Bot::Alegre < BotUser
         text = annotation.get_field_value('text')
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] An annotation of type #{type} was saved, so we are looking for items with similar description to #{pm.id} (text is '#{text}')")
         return if text.blank? || !Bot::Alegre.should_get_similar_items_of_type?('master', pm.team_id) || !Bot::Alegre.should_get_similar_items_of_type?(type, pm.team_id)
-        matches = Bot::Alegre.return_prioritized_matches(Bot::Alegre.merge_response_with_source_and_target_fields(Bot::Alegre.get_items_with_similar_description(pm, Bot::Alegre.get_threshold_for_query('text', pm), text), type))
+        matches = Bot::Alegre.return_prioritized_matches(Bot::Alegre.merge_response_with_source_and_target_fields(Bot::Alegre.get_items_with_similar_description(pm, Bot::Alegre.get_threshold_for_query('text', pm), text), type)).first
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] An annotation of type #{type} was saved, so the items with similar description to #{pm.id} (text is '#{text}') are: #{matches.inspect}")
         unless matches.nil?
           match_id, score_with_context = matches
