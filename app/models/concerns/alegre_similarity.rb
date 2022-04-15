@@ -16,7 +16,7 @@ module AlegreSimilarity
 
     def get_similar_items(pm)
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 1/5] Getting similar items"
-      type = self.get_pm_type(pm)
+      type = Bot::Alegre.get_pm_type(pm)
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 2/5] Type is #{type.blank? ? "blank" : type}"
       unless type.blank?
         if !self.should_get_similar_items_of_type?('master', pm.team_id) || !self.should_get_similar_items_of_type?(type, pm.team_id)
@@ -25,11 +25,11 @@ module AlegreSimilarity
         else
           Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 3/5] ProjectMedia can be checked for similar items"
         end
-        suggested_or_confirmed = self.get_items_with_similarity(type, pm, self.get_threshold_for_query(type, pm))
+        suggested_or_confirmed = Bot::Alegre.get_items_with_similarity(type, pm, Bot::Alegre.get_threshold_for_query(type, pm))
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 4/5] suggested_or_confirmed for #{pm.id} is #{suggested_or_confirmed.inspect}")
-        confirmed = self.get_items_with_similarity(type, pm, self.get_threshold_for_query(type, pm, true))
+        confirmed = Bot::Alegre.get_items_with_similarity(type, pm, Bot::Alegre.get_threshold_for_query(type, pm, true))
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 5/5] confirmed for #{pm.id} is #{confirmed.inspect}")
-        self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
+        Bot::Alegre.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
       else
         {}
       end
@@ -60,13 +60,14 @@ module AlegreSimilarity
 
     def get_pm_type_given_response(pm, response)
       base_type = self.get_pm_type(pm)
+      specific_type = response[pm.id] && response[pm.id][:context] && response[pm.id][:context].class == Hash && response[pm.id][:context]["field"]
       if base_type == "text"
-        raise if response[pm.id][:context]["field"].nil?
-        return response[pm.id][:context]["field"] || base_type
+        raise if specific_type.nil?
+        return specific_type || base_type
       elsif !base_type.nil?
         return base_type
       else
-        return response[pm.id][:context]["field"] || base_type
+        return specific_type || base_type
       end
     end
 
