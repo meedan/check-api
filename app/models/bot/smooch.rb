@@ -276,6 +276,16 @@ class Bot::Smooch < BotUser
       when 'message:delivery:failure'
         self.resend_message(json)
         true
+      when 'conversation:start'
+        message = {
+          '_id': json['conversation']['_id'],
+          authorId: json['appUser']['_id'],
+          type: 'text',
+          text: 'start',
+          source: { type: json['source']['type'] }
+        }.with_indifferent_access
+        self.parse_message(message, json['app']['_id'], json)
+        true
       when 'message:delivery:channel'
         self.user_received_report(json)
         true
