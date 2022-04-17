@@ -165,10 +165,10 @@ class Bot::Alegre < BotUser
     pm = ProjectMedia.find(pm.id)
     return if (!pm.cluster_id.blank? || !team_ids.include?(pm.team_id)) && !force
     thresholds = {
-      audio: { value: CheckConfig.get('audio_cluster_similarity_threshold') },
-      video: { value: CheckConfig.get('video_cluster_similarity_threshold') },
-      image: { value: CheckConfig.get('image_cluster_similarity_threshold') },
-      text: { value: CheckConfig.get('text_cluster_similarity_threshold') }
+      audio: { value: CheckConfig.get('audio_cluster_similarity_threshold', 0.8, :float) },
+      video: { value: CheckConfig.get('video_cluster_similarity_threshold', 0.8, :float) },
+      image: { value: CheckConfig.get('image_cluster_similarity_threshold', 0.9, :float) },
+      text: { value: CheckConfig.get('text_cluster_similarity_threshold', 0.9, :float) }
     }
     ids_and_scores = pm.similar_items_ids_and_scores(team_ids, thresholds)
     main_id = ids_and_scores.max_by{ |_pm_id, score_and_context| score_and_context[:score] }&.first
