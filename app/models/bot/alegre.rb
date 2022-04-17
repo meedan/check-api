@@ -17,15 +17,15 @@ class Bot::Alegre < BotUser
   ::ProjectMedia.class_eval do
     attr_accessor :alegre_similarity_thresholds, :alegre_matched_fields
 
-    def similar_items_ids_and_scores(team_ids)
+    def similar_items_ids_and_scores(team_ids, thresholds = {})
       ids_and_scores = {}
       if self.is_media?
         media_type = {
           'UploadedVideo' => 'video',
           'UploadedAudio' => 'audio',
           'UploadedImage' => 'image',
-        }[self.media.type]
-        threshold = Bot::Alegre.get_threshold_for_query(media_type, self, true)[:value]
+        }[self.media.type].to_s
+        threshold = thresholds.dig(media_type.to_sym, :value) || Bot::Alegre.get_threshold_for_query(media_type, self, true)[:value]
         ids_and_scores = Bot::Alegre.get_items_with_similar_media(Bot::Alegre.media_file_url(self), { value: threshold }, team_ids, "/#{media_type}/similarity/").to_h
       elsif self.is_text?
         ids_and_scores = {}
@@ -33,7 +33,7 @@ class Bot::Alegre < BotUser
         ALL_TEXT_SIMILARITY_FIELDS.each do |field|
           text = self.send(field)
           next if text.blank?
-          threads << Thread.new { ids_and_scores.merge!(Bot::Alegre.get_similar_texts(team_ids, text).to_h) }
+          threads << Thread.new { ids_and_scores.merge!(Bot::Alegre.get_similar_texts(team_ids, text, Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, thresholds[:text]).to_h) }
         end
         threads.map(&:join)
       end
@@ -164,7 +164,13 @@ class Bot::Alegre < BotUser
     team_ids = ProjectMedia.where.not(cluster_id: nil).group(:team_id).count.keys
     pm = ProjectMedia.find(pm.id)
     return if (!pm.cluster_id.blank? || !team_ids.include?(pm.team_id)) && !force
-    ids_and_scores = pm.similar_items_ids_and_scores(team_ids)
+    thresholds = {
+      audio: { value: CheckConfig.get('audio_cluster_similarity_threshold') },
+      video: { value: CheckConfig.get('video_cluster_similarity_threshold') },
+      image: { value: CheckConfig.get('image_cluster_similarity_threshold') },
+      text: { value: CheckConfig.get('text_cluster_similarity_threshold') }
+    }
+    ids_and_scores = pm.similar_items_ids_and_scores(team_ids, thresholds)
     main_id = ids_and_scores.max_by{ |_pm_id, score_and_context| score_and_context[:score] }&.first
     main = ProjectMedia.find_by_id(main_id.to_i)
     cluster = main&.cluster
