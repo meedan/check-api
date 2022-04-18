@@ -186,9 +186,11 @@ module AlegreSimilarity
         end
       end
       es_matches = output.values.reduce({}, :merge)
-      # set matched fields to use in short-text suggestion
-      pm.alegre_matched_fields ||= []
-      pm.alegre_matched_fields.concat(output.keys)
+      unless pm.nil?
+        # Set matched fields to use in short-text suggestion
+        pm.alegre_matched_fields ||= []
+        pm.alegre_matched_fields.concat(output.keys)
+      end
       es_matches
     end
 
@@ -212,7 +214,7 @@ module AlegreSimilarity
 
     def get_items_with_similar_text(pm, field, threshold, text, model = nil)
       model ||= self.matching_model_to_use(pm)
-      self.get_items_from_similar_text(pm.team_id, text, field, threshold, model).reject{ |id, _score_with_context| pm.id == id }
+      self.get_items_from_similar_text(pm&.team_id, text, field, threshold, model).reject{ |id, _score_with_context| pm&.id == id }
     end
 
     def similar_texts_from_api_conditions(text, model, fuzzy, team_id, field, threshold, match_across_content_types=true)
