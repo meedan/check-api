@@ -73,14 +73,14 @@ class Bot::Alegre < BotUser
         text = annotation.get_field_value('text')
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] An annotation of type #{type} was saved, so we are looking for items with similar description to #{pm.id} (text is '#{text}')")
         return if text.blank? || !Bot::Alegre.should_get_similar_items_of_type?('master', pm.team_id) || !Bot::Alegre.should_get_similar_items_of_type?(type, pm.team_id)
-        matches = Bot::Alegre.return_prioritized_matches(Bot::Alegre.merge_response_with_source_and_target_fields(Bot::Alegre.get_items_with_similar_description(pm, Bot::Alegre.get_threshold_for_query('text', pm), text), type)).first
+        matches = Bot::Alegre.return_prioritized_matches(Bot::Alegre.merge_response_with_source_and_target_fields(Bot::Alegre.get_items_with_similar_description(pm, Bot::Alegre.get_threshold_for_query('text', pm), text), type))
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] An annotation of type #{type} was saved, so the items with similar description to #{pm.id} (text is '#{text}') are: #{matches.inspect}")
         unless matches.nil?
-          match_id, score_with_context = matches
+          match_id, score_with_context = matches.first
           match = ProjectMedia.find_by_id(match_id)
           existing_parent = Relationship.where(target_id: match_id).where('relationship_type IN (?)', [Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml]).first
-          parent = existing_parent.nil? ? match : existing_parent.source
-          Bot::Alegre.create_relationship(parent, pm, score_with_context, Relationship.suggested_type)
+          parent = existing_parent.nil? ? 
+          Bot::Alegre.create_relationship(match || existing_parent.source, pm, matches, Relationship.suggested_type, match, Relationship.suggested_type)
         end
       end
     end
@@ -473,6 +473,8 @@ class Bot::Alegre < BotUser
     parent_id = self.return_prioritized_matches(pm_id_scores).first.first
     parent_relationships = Relationship.where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).where(target_id: parent_id).all
     Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 2/6] Number of parent relationships #{parent_relationships.count}"
+    original_parent_id = nil
+    original_relationship = nil
     if parent_relationships.length > 0
       # Sanity check: if there are multiple parents, something is wrong in the dataset.
       self.notify_error(StandardError.new("[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships ERROR] Found multiple similarity relationship parents for ProjectMedia #{parent_id}"), {}, RequestStore[:request]) if parent_relationships.length > 1
@@ -488,25 +490,27 @@ class Bot::Alegre < BotUser
       end
       original_parent_id = parent_id
       parent_id = parent_relationship.source_id
+      original_relationship = pm_id_scores[original_parent_id]
       pm_id_scores[parent_id] = pm_id_scores[original_parent_id]
       pm_id_scores[parent_id][:relationship_type] = new_type if pm_id_scores[parent_id]
     end
     Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 3/6] Adding relationship for following pm_id, pm_id_scores, parent_id #{[pm.id, pm_id_scores, parent_id].inspect}"
-    self.add_relationship(pm, pm_id_scores, parent_id)
+    self.add_relationship(pm, pm_id_scores, parent_id, original_parent_id, original_relationship)
   end
 
-  def self.add_relationship(pm, pm_id_scores, parent_id)
+  def self.add_relationship(pm, pm_id_scores, parent_id, original_parent_id=nil, original_relationship=nil)
     # Better be safe than sorry.
     return if parent_id == pm.id
     parent = ProjectMedia.find_by_id(parent_id)
+    original_parent = ProjectMedia.find_by_id(original_parent_id)
     return false if parent.nil?
     if parent.is_blank?
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 4/6] Parent is blank, creating suggested relationship"
-      self.create_relationship(parent, pm, pm_id_scores[parent_id], Relationship.suggested_type)
+      self.create_relationship(parent, pm, pm_id_scores, Relationship.suggested_type, original_parent, original_relationship)
     elsif pm_id_scores[parent_id]
       relationship_type = self.set_relationship_type(pm, pm_id_scores, parent)
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 4/6] Parent is blank, creating relationship of #{relationship_type.inspect}"
-      self.create_relationship(parent, pm, pm_id_scores[parent_id], relationship_type)
+      self.create_relationship(parent, pm, pm_id_scores, relationship_type, original_parent, original_relationship)
     end
   end
 
@@ -518,7 +522,8 @@ class Bot::Alegre < BotUser
     relationship_type == Relationship.suggested_type && (source.archived == CheckArchivedFlags::FlagCodes::TRASHED || target.archived == CheckArchivedFlags::FlagCodes::TRASHED)
   end
 
-  def self.create_relationship(source, target, score_with_context, relationship_type)
+  def self.create_relationship(source, target, pm_id_scores, relationship_type, original_source=nil, original_relationship_type=nil)
+    score_with_context[source.id]
     return if source.nil? || target.nil?
     score = score_with_context[:score]
     context = score_with_context[:context]
@@ -543,6 +548,14 @@ class Bot::Alegre < BotUser
       r.target_id = target.id
       r.source_field = source_field
       r.target_field = target_field
+      if original_source
+        r.original_weight = pm_id_scores[original_source.id][:score]
+        r.original_details = pm_id_scores[original_source.id][:context]
+        r.original_relationship_type = original_relationship_type
+        r.original_model = self.get_indexing_model(original_source, pm_id_scores[original_source.id])
+        r.original_source_id = original_source.id
+        r.original_source_field = pm_id_scores[original_source.id][:source_field]
+      end
       r.user_id ||= BotUser.alegre_user&.id
       r.save!
       self.throw_airbrake_notify_if_bad_relationship(r, score_with_context, relationship_type)
