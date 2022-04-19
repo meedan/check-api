@@ -323,7 +323,7 @@ class CheckSearch
       @options['projects'] = project_ids.empty? ? [0] : project_ids
     end
     # Also, adjust projects filter taking projects' privacy settings into account
-    if Team.current && !trends_query?
+    if Team.current && !trends_query? && [@options['team_id']].flatten.size == 1
       @options['projects'] = @options['projects'].blank? ? (Project.where(team_id: Team.current.id).allowed(Team.current).map(&:id) + [nil]) : Project.where(id: @options['projects']).allowed(Team.current).map(&:id)
     end
     @options['projects'] += [nil] if @options['none_project']
