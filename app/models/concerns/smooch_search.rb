@@ -100,7 +100,7 @@ module SmoochSearch
     def search_for_similar_published_fact_checks(type, query, team_ids, after = nil)
       results = []
       pm = nil
-      pm = ProjectMedia.new(team_id: team_ids[0]) if team_ids.size == 1 # We'll use the settings of a team instead of global settings when there is only one team 
+      pm = ProjectMedia.new(team_id: team_ids[0]) if team_ids.size == 1 # We'll use the settings of a team instead of global settings when there is only one team
       if type == 'text'
         link = self.extract_url(query)
         text = ::Bot::Smooch.extract_claim(query)
