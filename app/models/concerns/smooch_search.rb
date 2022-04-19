@@ -120,7 +120,7 @@ module SmoochSearch
           results = CheckSearch.new(filters.merge({ show_similar: true }).to_json, nil, team_ids).medias if results.empty?
           Rails.logger.info "[Smooch Bot] Keyword search got #{results.count} results (including secondary items) while looking for '#{text}' after date #{after.inspect} for teams #{team_ids}"
         else
-          results = self.parse_search_results_from_alegre(Bot::Alegre.get_merged_similar_items(pm, { value: self.get_text_similarity_threshold }, Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text), team_ids)
+          results = self.parse_search_results_from_alegre(Bot::Alegre.get_merged_similar_items(pm, { value: self.get_text_similarity_threshold }, Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text, team_ids), team_ids)
           Rails.logger.info "[Smooch Bot] Text similarity search got #{results.count} results while looking for '#{text}' after date #{after.inspect} for teams #{team_ids}"
         end
       else

@@ -172,16 +172,16 @@ module AlegreSimilarity
       description.blank? ? {} : self.get_merged_similar_items(pm, threshold, ['original_description', 'report_text_content', 'report_visual_card_content', 'extracted_text', 'transcription', 'claim_description_content', 'fact_check_summary'], description)
     end
 
-    def get_merged_similar_items(pm, threshold, fields, value)
+    def get_merged_similar_items(pm, threshold, fields, value, team_ids = [pm&.team_id])
       output = {}
       fields.each do |field|
-        response = self.get_items_with_similar_text(pm, field, threshold, value, self.default_matching_model)
+        response = self.get_items_with_similar_text(pm, field, threshold, value, self.default_matching_model, team_ids)
         output[field] = response unless response.blank?
       end
 
       if self.matching_model_to_use(pm) != self.default_matching_model
         fields.each do |field|
-          response = self.get_items_with_similar_text(pm, field, threshold, value)
+          response = self.get_items_with_similar_text(pm, field, threshold, value, nil, team_ids)
           output[field] = response unless response.blank?
         end
       end
@@ -212,9 +212,9 @@ module AlegreSimilarity
       !team_id || [team_id].flatten.include?(ProjectMedia.find_by_id(pmid)&.team_id)
     end
 
-    def get_items_with_similar_text(pm, field, threshold, text, model = nil)
+    def get_items_with_similar_text(pm, field, threshold, text, model = nil, team_ids = [pm&.team_id])
       model ||= self.matching_model_to_use(pm)
-      self.get_items_from_similar_text(pm&.team_id, text, field, threshold, model).reject{ |id, _score_with_context| pm&.id == id }
+      self.get_items_from_similar_text(team_ids, text, field, threshold, model).reject{ |id, _score_with_context| pm&.id == id }
     end
 
     def similar_texts_from_api_conditions(text, model, fuzzy, team_id, field, threshold, match_across_content_types=true)
