@@ -228,20 +228,20 @@ class GraphqlController5Test < ActionController::TestCase
     query = 'mutation { addFilesToTask(input: { clientMutationId: "1", id: "' + t0.graphql_id + '" }) { task { id } } }'
     post :create, params: { query: query, file: { '0' => @f1 }, team: @t.slug }
     assert_response :success
-    assert_equal 1, t0.reload.first_response_obj.file_data.size
-    assert_equal ['rails.png'], t0.reload.first_response_obj.file_data.collect{ |f| f.split('/').last }
+    assert_equal 1, t0.reload.first_response_obj.file_data[:file_urls].size
+    assert_equal ['rails.png'], t0.reload.first_response_obj.file_data[:file_urls].collect{ |f| f.split('/').last }
 
     query = 'mutation { addFilesToTask(input: { clientMutationId: "1", id: "' + t0.graphql_id + '" }) { task { id } } }'
     post :create, params: { query: query, file: { '0' => @f2, '1' => @f3 }, team: @t.slug }
     assert_response :success
-    assert_equal 3, t0.reload.first_response_obj.file_data.size
-    assert_equal ['rails.png', 'rails2.png', 'rails.mp4'].sort, t0.reload.first_response_obj.file_data.collect{ |f| f.split('/').last }.sort
+    assert_equal 3, t0.reload.first_response_obj.file_data[:file_urls].size
+    assert_equal ['rails.png', 'rails2.png', 'rails.mp4'].sort, t0.reload.first_response_obj.file_data[:file_urls].collect{ |f| f.split('/').last }.sort
 
     query = 'mutation { removeFilesFromTask(input: { clientMutationId: "1", id: "' + t0.graphql_id + '", filenames: ["rails.mp4", "rails.png"] }) { task { id } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
-    assert_equal 1, t0.reload.first_response_obj.file_data.size
-    assert_equal ['rails2.png'], t0.reload.first_response_obj.file_data.collect{ |f| f.split('/').last }
+    assert_equal 1, t0.reload.first_response_obj.file_data[:file_urls].size
+    assert_equal ['rails2.png'], t0.reload.first_response_obj.file_data[:file_urls].collect{ |f| f.split('/').last }
   end
 
   test "should transcribe audio" do
