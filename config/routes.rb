@@ -25,6 +25,7 @@ Rails.application.routes.draw do
       scope :v2 do
         jsonapi_resources :workspaces, only: [:index, :show]
         jsonapi_resources :reports, only: [:index, :show]
+        jsonapi_resources :feeds, only: [:index]
         post :reports, to: 'reports#index' # For the case we want to upload an image
       end
     end

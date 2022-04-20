@@ -20,6 +20,11 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Sidekiq::Testing.inline!
   end
 
+  def teardown
+    super
+    Bot::Alegre.unstub(:media_file_url)
+  end
+
   test "should return language" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.stub_request(:get, 'http://alegre/text/langid/').to_return(body: {
@@ -83,7 +88,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
       # Similarity
       pm1 = create_project_media team: @pm.team, media: create_uploaded_image
-      Bot::Alegre.stubs(:media_file_url).with(pm1).returns("some/path")
+      Bot::Alegre.stubs(:media_file_url).returns("some/path")
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       Bot::Alegre.unstub(:media_file_url)
       context = [{
@@ -104,7 +109,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }.to_json)
       pm2 = create_project_media team: @pm.team, media: create_uploaded_image
       response = {pm1.id => {:score => 0, :context => context, :source_field=>"image", :target_field => "image"}}
-      Bot::Alegre.stubs(:media_file_url).with(pm2).returns("some/path")
+      Bot::Alegre.stubs(:media_file_url).returns("some/path")
       assert_equal response, Bot::Alegre.get_items_with_similarity('image', pm2, Bot::Alegre.get_threshold_for_query('image', pm2))
 
       # Flags
@@ -113,7 +118,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         "result": valid_flags_data
       }.to_json)
       pm3 = create_project_media team: @pm.team, media: create_uploaded_image
-      Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
+      Bot::Alegre.stubs(:media_file_url).returns("some/path")
       assert Bot::Alegre.run({ data: { dbid: pm3.id }, event: 'create_project_media' })
       assert_not_nil pm3.get_annotations('flag').last
       Bot::Alegre.unstub(:media_file_url)
@@ -121,7 +126,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       # Text extraction
       Bot::Alegre.unstub(:media_file_url)
       pm4 = create_project_media team: @pm.team, media: create_uploaded_image
-      Bot::Alegre.stubs(:media_file_url).with(pm4).returns("some/path")
+      Bot::Alegre.stubs(:media_file_url).returns("some/path")
       assert Bot::Alegre.run({ data: { dbid: pm4.id }, event: 'create_project_media' })
       extracted_text_annotation = pm4.get_annotations('extracted_text').last
       assert_equal 'Foo bar', extracted_text_annotation.data['text']
@@ -165,7 +170,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       WebMock.stub_request(:get, 'http://alegre/audio/transcription/').with(
         body: { job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }
       ).to_return(body: { 'job_status' => 'COMPLETED', 'transcription' => 'Foo bar' }.to_json)
-      Bot::Alegre.stubs(:media_file_url).with(pm1).returns(url)
+      Bot::Alegre.stubs(:media_file_url).returns(url)
       # Verify with transcription_similarity_enabled = false
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       a = pm1.annotations('transcription').last
@@ -265,7 +270,6 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should decode a doc_id" do
     assert_equal Bot::Alegre.decode_item_doc_id("Y2hlY2stcHJvamVjdF9tZWRpYS01NTQ1NzEtdmlkZW8"), ["check", "project_media", "554571", "video" ]
   end
-
 
   test "should not replace when parent is blank" do
     p = create_project
@@ -726,8 +730,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     }
     [0.7, 0.75,0.95].each do |threshold|
       ["original_title","original_description","report_text_title","transcription","extracted_text","report_text_content","report_visual_card_title","claim_description_content","fact_check_summary","report_visual_card_content","fact_check_title"].each do |field|
-        Bot::Alegre.stubs(:request_api).with("get", "/text/similarity/", {:text=>"Blah foo bar", :model=>"elasticsearch", :fuzzy=>false, :context=>{:has_custom_id=>true, :field=>field, :team_id=>pm.team_id}, :threshold=>threshold, :match_across_content_types=>true}, "body").returns(response)
-        Bot::Alegre.stubs(:request_api).with("get", "/text/similarity/", {:text=>"Blah foo bar", :model=>Bot::Alegre::MEAN_TOKENS_MODEL, :fuzzy=>false, :context=>{:has_custom_id=>true, :field=>field, :team_id=>pm.team_id}, :threshold=>threshold, :match_across_content_types=>true}, "body").returns(response2)
+        Bot::Alegre.stubs(:request_api).with("get", "/text/similarity/", {:text=>"Blah foo bar", :model=>"elasticsearch", :fuzzy=>false, :context=>{:has_custom_id=>true, :field=>field, :team_id=>[pm.team_id]}, :threshold=>threshold, :match_across_content_types=>true}, "body").returns(response)
+        Bot::Alegre.stubs(:request_api).with("get", "/text/similarity/", {:text=>"Blah foo bar", :model=>Bot::Alegre::MEAN_TOKENS_MODEL, :fuzzy=>false, :context=>{:has_custom_id=>true, :field=>field, :team_id=>[pm.team_id]}, :threshold=>threshold, :match_across_content_types=>true}, "body").returns(response2)
       end
     end
     Bot::Alegre.stubs(:matching_model_to_use).with(pm).returns(Bot::Alegre::MEAN_TOKENS_MODEL)

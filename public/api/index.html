@@ -44,15 +44,6 @@
       }
     });
 
-    $('#http_user, #http_pass').change(function() {
-      var user = $('#http_user')[0].value.trim(),
-          pass = $('#http_pass')[0].value.trim();
-      if (user != '' && pass != '') {
-        var auth = 'Basic ' + btoa(user + ':' + pass);
-        window.authorizations.add('key', new ApiKeyAuthorization('Authorization', auth, 'header'));
-      }
-    });
-
     window.swaggerUi.load();
   });
 
@@ -66,13 +57,7 @@
 
     <form id='api_selector'>
       <div class='input'><input placeholder="/api" id="input_baseUrl" name="baseUrl" type="text"/></div>
-      <div class='input'><input placeholder="api_key" id="input_apiKey" name="apiKey" type="text"/></div>
-      <div class='input'><input placeholder="http auth user" id="http_user" name="http_user" type="text"/></div>
-      <div class='input'><input placeholder="http auth password" id="http_pass" name="http_pass" type="text"/></div>
-      <div class='input'><a id="explore" href="#">Explore</a></div>
-      <a href="/api/users/auth/twitter?destination=/api" id="twitter-login">Twitter</a>
-      <a href="/api/users/auth/facebook?destination=/api" id="facebook-login">Facebook</a>
-      <a href="/api/users/auth/slack?destination=/api" id="slack-login">Slack</a>
+      <div class='input'><input placeholder="API Key" id="input_apiKey" name="apiKey" type="text"/></div>
     </form>
   </div>
 </div>
