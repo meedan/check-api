@@ -137,12 +137,20 @@ module ProjectMediaGetters
     self.claim_description&.description
   end
 
+  def claim_description_context
+    self.claim_description&.context
+  end
+
   def fact_check_title
     self.claim_description&.fact_check&.title
   end
 
   def fact_check_summary
     self.claim_description&.fact_check&.summary
+  end
+
+  def fact_check_published_on
+    self.claim_description&.fact_check&.updated_at
   end
 
   def get_title

@@ -97,6 +97,7 @@ es:
         %{support_email} si el error persiste.
       invalid_format_for_languages: Formato de idiomas no válido. Se espera `['en',
         'ar', ...]`
+      invalid_project_media_channel_value: Lo sentimos, el valor del canal no es compatible
       invalid_project_media_channel_update: Lo sentimos, no pudiste actualizar el
         valor del canal
   activerecord:

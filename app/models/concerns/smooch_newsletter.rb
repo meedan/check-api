@@ -62,9 +62,11 @@ module SmoochNewsletter
 
     def build_newsletter_content(newsletter, language, team_id, cache = true)
       content = ''
-      content = newsletter['smooch_newsletter_body'] unless newsletter['smooch_newsletter_body'].blank?
-      content = Bot::Smooch.render_articles_from_rss_feed(newsletter['smooch_newsletter_feed_url'], newsletter['smooch_newsletter_number_of_articles']) unless newsletter['smooch_newsletter_feed_url'].blank?
-      content = [newsletter['smooch_newsletter_introduction'], content].reject{ |text| text.blank? }.join("\n\n")
+      unless newsletter.blank?
+        content = newsletter['smooch_newsletter_body'] unless newsletter['smooch_newsletter_body'].blank?
+        content = Bot::Smooch.render_articles_from_rss_feed(newsletter['smooch_newsletter_feed_url'], newsletter['smooch_newsletter_number_of_articles']) unless newsletter['smooch_newsletter_feed_url'].blank?
+        content = [newsletter['smooch_newsletter_introduction'], content].reject{ |text| text.blank? }.join("\n\n")
+      end
       Rails.cache.write("newsletter:content_hash:team:#{team_id}:#{language}", Digest::MD5.hexdigest(content)) if cache
       content
     end

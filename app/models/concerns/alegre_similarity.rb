@@ -16,7 +16,7 @@ module AlegreSimilarity
 
     def get_similar_items(pm)
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 1/5] Getting similar items"
-      type = self.get_pm_type(pm)
+      type = Bot::Alegre.get_pm_type(pm)
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 2/5] Type is #{type.blank? ? "blank" : type}"
       unless type.blank?
         if !self.should_get_similar_items_of_type?('master', pm.team_id) || !self.should_get_similar_items_of_type?(type, pm.team_id)
@@ -25,11 +25,11 @@ module AlegreSimilarity
         else
           Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 3/5] ProjectMedia can be checked for similar items"
         end
-        suggested_or_confirmed = self.get_items_with_similarity(type, pm, self.get_threshold_for_query(type, pm))
+        suggested_or_confirmed = Bot::Alegre.get_items_with_similarity(type, pm, Bot::Alegre.get_threshold_for_query(type, pm))
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 4/5] suggested_or_confirmed for #{pm.id} is #{suggested_or_confirmed.inspect}")
-        confirmed = self.get_items_with_similarity(type, pm, self.get_threshold_for_query(type, pm, true))
+        confirmed = Bot::Alegre.get_items_with_similarity(type, pm, Bot::Alegre.get_threshold_for_query(type, pm, true))
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 5/5] confirmed for #{pm.id} is #{confirmed.inspect}")
-        self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
+        Bot::Alegre.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
       else
         {}
       end
@@ -60,11 +60,14 @@ module AlegreSimilarity
 
     def get_pm_type_given_response(pm, response)
       base_type = self.get_pm_type(pm)
+      specific_type = response[pm.id] && response[pm.id][:context] && response[pm.id][:context].class == Hash && response[pm.id][:context]["field"]
       if base_type == "text"
-        raise if response[pm.id][:context]["field"].nil?
-        return response[pm.id][:context]["field"] || base_type
-      else
+        raise if specific_type.nil?
+        return specific_type || base_type
+      elsif !base_type.nil?
         return base_type
+      else
+        return specific_type || base_type
       end
     end
 
@@ -169,23 +172,25 @@ module AlegreSimilarity
       description.blank? ? {} : self.get_merged_similar_items(pm, threshold, ['original_description', 'report_text_content', 'report_visual_card_content', 'extracted_text', 'transcription', 'claim_description_content', 'fact_check_summary'], description)
     end
 
-    def get_merged_similar_items(pm, threshold, fields, value)
+    def get_merged_similar_items(pm, threshold, fields, value, team_ids = [pm&.team_id])
       output = {}
       fields.each do |field|
-        response = self.get_items_with_similar_text(pm, field, threshold, value, self.default_matching_model)
+        response = self.get_items_with_similar_text(pm, field, threshold, value, self.default_matching_model, team_ids)
         output[field] = response unless response.blank?
       end
 
       if self.matching_model_to_use(pm) != self.default_matching_model
         fields.each do |field|
-          response = self.get_items_with_similar_text(pm, field, threshold, value)
+          response = self.get_items_with_similar_text(pm, field, threshold, value, nil, team_ids)
           output[field] = response unless response.blank?
         end
       end
       es_matches = output.values.reduce({}, :merge)
-      # set matched fields to use in short-text suggestion
-      pm.alegre_matched_fields ||= []
-      pm.alegre_matched_fields.concat(output.keys)
+      unless pm.nil?
+        # Set matched fields to use in short-text suggestion
+        pm.alegre_matched_fields ||= []
+        pm.alegre_matched_fields.concat(output.keys)
+      end
       es_matches
     end
 
@@ -207,9 +212,9 @@ module AlegreSimilarity
       !team_id || [team_id].flatten.include?(ProjectMedia.find_by_id(pmid)&.team_id)
     end
 
-    def get_items_with_similar_text(pm, field, threshold, text, model = nil)
+    def get_items_with_similar_text(pm, field, threshold, text, model = nil, team_ids = [pm&.team_id])
       model ||= self.matching_model_to_use(pm)
-      self.get_items_from_similar_text(pm.team_id, text, field, threshold, model).reject{ |id, _score_with_context| pm.id == id }
+      self.get_items_from_similar_text(team_ids, text, field, threshold, model).reject{ |id, _score_with_context| pm&.id == id }
     end
 
     def similar_texts_from_api_conditions(text, model, fuzzy, team_id, field, threshold, match_across_content_types=true)
