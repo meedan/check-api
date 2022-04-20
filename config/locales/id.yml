@@ -101,6 +101,7 @@ id:
         %{support_email} jika kesalahannya terus berlanjut.
       invalid_format_for_languages: Format bahasa salah. Format yang diharapkan `['en',
         'ar', ....]`
+      invalid_project_media_channel_value: Maaf, nilai saluran tidak didukung
       invalid_project_media_channel_update: Maaf, Anda tidak dapat memperbarui nilai
         saluran
   activerecord:
