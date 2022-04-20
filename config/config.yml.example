@@ -39,6 +39,10 @@ development: &default
   image_similarity_enabled: true
   text_similarity_enabled: true
   video_similarity_enabled: true
+  audio_cluster_similarity_threshold: 0.8
+  video_cluster_similarity_threshold: 0.8
+  image_cluster_similarity_threshold: 0.9
+  text_cluster_similarity_threshold: 0.9
 
   # Localization
   #

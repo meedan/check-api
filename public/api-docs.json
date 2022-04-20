@@ -1,28 +1,82 @@
 {
-  "apiVersion": "1.0",
+  "apiVersion": "2.0",
   "swaggerVersion": "1.2",
-  "basePath": "",
+  "basePath": "/",
+  "resourcePath": "/api",
+  "produces": [
+    "application/vnd.api+json"
+  ],
   "apis": [
     {
-      "path": "/api/v1/base_api.{format}",
-      "description": "BaseApi"
-    },
-    {
-      "path": "/api/v1/graphql.{format}",
-      "description": "GraphQL"
-    },
-    {
-      "path": "/api/v1/sessions.{format}",
-      "description": "Sessions"
-    },
-    {
-      "path": "/api/v1/registrations.{format}",
-      "description": "Registrations"
+      "path": "api/v2/feeds",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get fact-checks that are similar to the input query and type.",
+          "notes": "Up to 3 fact-checks are returned. The scope of the search are the organizations that the provided API key has access to.",
+          "type": "FactCheck",
+          "nickname": "getFeeds",
+          "authorizations": {},
+          "parameters": [
+            {
+              "name": "filter[type]",
+              "description": "Query type. Supported values are text (default), audio, video and image.",
+              "required": true,
+              "type": "string",
+              "paramType": "query"
+            },
+            {
+              "name": "filter[query]",
+              "description": "Input query. A piece of text if the request type is 'text'. If the request type is 'audio', 'video' or 'image', then a public file URL must be provided.",
+              "required": true,
+              "type": "string",
+              "paramType": "query"
+            },
+            {
+              "name": "filter[after]",
+              "description": "Optional date filter. If provided, only fact-checks created after that date will be considered. Format: YYYY-MM-DD.",
+              "required": false,
+              "type": "date",
+              "paramType": "query"
+            }
+          ],
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Successful request"
+            },
+            {
+              "code": 401,
+              "message": "Unauthorized (API token must be provided)"
+            },
+            {
+              "code": 500,
+              "message": "Unknown error"
+            }
+          ]
+        }
+      ]
     }
   ],
+  "models": {
+    "FactCheck": {
+      "id": "FactCheck",
+      "properties": {
+        "claim": { "type": "string" },
+        "claim-context": { "type": "string" },
+        "claim-tags": { "type": "string" },
+        "fact-check-title": { "type": "string" },
+        "fact-check-summary": { "type": "string" },
+        "fact-check-published-on": { "type": "date" },
+        "fact-check-rating": { "type": "string" },
+        "published-article-url": { "type": "string" },
+        "organization": { "type": "string" }
+      }
+    }
+  },
   "authorizations": null,
   "info": {
     "title": "Check",
-    "description": "Verify breaking news online"
+    "description": "Verify breaking news online."
   }
 }

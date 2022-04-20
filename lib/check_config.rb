@@ -8,6 +8,7 @@ class CheckConfig
     return default if value.nil?
     value = self.parse_value(value) if type == :json
     value = value.to_i if type == :integer
+    value = value.to_f if type == :float
     return value unless value.is_a?(Hash) && value.has_key?('lang')
     self.get_lang_value(value)
   end

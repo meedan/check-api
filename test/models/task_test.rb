@@ -739,8 +739,8 @@ class TaskTest < ActiveSupport::TestCase
     t.response = { annotation_type: 'task_response' }.to_json
     t.save!
     file_urls = t.reload.first_response_obj.file_data
-    assert_kind_of Array, file_urls
-    assert_equal 2, file_urls.size
+    assert_kind_of Hash, file_urls
+    assert_equal 2, file_urls[:file_urls].size
   end
 
   test "should get team task from task" do

@@ -363,4 +363,21 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     send_message_to_smooch_bot('1', @uid, { 'source' => { 'type' => 'telegram' } })
     assert_state 'main'
   end
+
+  test "should auto-start conversation" do
+    payload = {
+      trigger: 'conversation:start',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      source: { type: 'viber' },
+      conversation: { '_id': random_string },
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    assert Bot::Smooch.run(payload)
+  end
 end

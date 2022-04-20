@@ -8,6 +8,7 @@ class Bot::Alegre < BotUser
   # Text similarity models
   MEAN_TOKENS_MODEL = 'xlm-r-bert-base-nli-stsb-mean-tokens'
   INDIAN_MODEL = 'indian-sbert'
+  FILIPINO_MODEL = 'paraphrase-filipino-mpnet-base-v2'
   ELASTICSEARCH_MODEL = 'elasticsearch'
 
   REPORT_TEXT_SIMILARITY_FIELDS = ['report_text_title', 'report_text_content', 'report_visual_card_title', 'report_visual_card_content']
@@ -16,15 +17,15 @@ class Bot::Alegre < BotUser
   ::ProjectMedia.class_eval do
     attr_accessor :alegre_similarity_thresholds, :alegre_matched_fields
 
-    def similar_items_ids_and_scores(team_ids)
+    def similar_items_ids_and_scores(team_ids, thresholds = {})
       ids_and_scores = {}
       if self.is_media?
         media_type = {
           'UploadedVideo' => 'video',
           'UploadedAudio' => 'audio',
           'UploadedImage' => 'image',
-        }[self.media.type]
-        threshold = Bot::Alegre.get_threshold_for_query(media_type, self, true)[:value]
+        }[self.media.type].to_s
+        threshold = thresholds.dig(media_type.to_sym, :value) || Bot::Alegre.get_threshold_for_query(media_type, self, true)[:value]
         ids_and_scores = Bot::Alegre.get_items_with_similar_media(Bot::Alegre.media_file_url(self), { value: threshold }, team_ids, "/#{media_type}/similarity/").to_h
       elsif self.is_text?
         ids_and_scores = {}
@@ -32,7 +33,7 @@ class Bot::Alegre < BotUser
         ALL_TEXT_SIMILARITY_FIELDS.each do |field|
           text = self.send(field)
           next if text.blank?
-          threads << Thread.new { ids_and_scores.merge!(Bot::Alegre.get_similar_texts(team_ids, text).to_h) }
+          threads << Thread.new { ids_and_scores.merge!(Bot::Alegre.get_similar_texts(team_ids, text, Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, thresholds[:text]).to_h) }
         end
         threads.map(&:join)
       end
@@ -72,7 +73,7 @@ class Bot::Alegre < BotUser
         text = annotation.get_field_value('text')
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] An annotation of type #{type} was saved, so we are looking for items with similar description to #{pm.id} (text is '#{text}')")
         return if text.blank? || !Bot::Alegre.should_get_similar_items_of_type?('master', pm.team_id) || !Bot::Alegre.should_get_similar_items_of_type?(type, pm.team_id)
-        matches = Bot::Alegre.get_items_with_similar_description(pm, Bot::Alegre.get_threshold_for_query('text', pm), text).max_by{ |_pm_id, score_and_context| score_and_context[:score] }
+        matches = Bot::Alegre.return_prioritized_matches(Bot::Alegre.merge_response_with_source_and_target_fields(Bot::Alegre.get_items_with_similar_description(pm, Bot::Alegre.get_threshold_for_query('text', pm), text), type)).first
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] An annotation of type #{type} was saved, so the items with similar description to #{pm.id} (text is '#{text}') are: #{matches.inspect}")
         unless matches.nil?
           match_id, score_with_context = matches
@@ -163,7 +164,13 @@ class Bot::Alegre < BotUser
     team_ids = ProjectMedia.where.not(cluster_id: nil).group(:team_id).count.keys
     pm = ProjectMedia.find(pm.id)
     return if (!pm.cluster_id.blank? || !team_ids.include?(pm.team_id)) && !force
-    ids_and_scores = pm.similar_items_ids_and_scores(team_ids)
+    thresholds = {
+      audio: { value: CheckConfig.get('audio_cluster_similarity_threshold', 0.8, :float) },
+      video: { value: CheckConfig.get('video_cluster_similarity_threshold', 0.8, :float) },
+      image: { value: CheckConfig.get('image_cluster_similarity_threshold', 0.9, :float) },
+      text: { value: CheckConfig.get('text_cluster_similarity_threshold', 0.9, :float) }
+    }
+    ids_and_scores = pm.similar_items_ids_and_scores(team_ids, thresholds)
     main_id = ids_and_scores.max_by{ |_pm_id, score_and_context| score_and_context[:score] }&.first
     main = ProjectMedia.find_by_id(main_id.to_i)
     cluster = main&.cluster
@@ -182,13 +189,15 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_items_from_similar_text(team_id, text, field = nil, threshold = nil, model = nil, fuzzy = false)
+    team_ids = [team_id].flatten
     return {} if text.blank? || self.get_number_of_words(text) < 3
     field ||= ALL_TEXT_SIMILARITY_FIELDS
     threshold ||= self.get_threshold_for_query('text', nil, true)
-    model ||= self.matching_model_to_use(ProjectMedia.new(team_id: team_id))
+    pm = team_ids.size == 1 ? ProjectMedia.new(team_id: team_ids[0]) : nil
+    model ||= self.matching_model_to_use(pm)
     Hash[self.get_similar_items_from_api(
       '/text/similarity/',
-      self.similar_texts_from_api_conditions(text, model, fuzzy, team_id, field, threshold),
+      self.similar_texts_from_api_conditions(text, model, fuzzy, team_ids, field, threshold),
       threshold
     ).collect{|k,v| [k, v.merge(model: model)]}]
   end
@@ -449,6 +458,10 @@ class Bot::Alegre < BotUser
     context
   end
 
+  def self.return_prioritized_matches(pm_id_scores)
+    pm_id_scores.sort_by{|k,v| [Bot::Alegre::ELASTICSEARCH_MODEL != v[:model] ? 1 : 0, v[:score], -k]}.reverse
+  end
+
   def self.add_relationships(pm, pm_id_scores)
     Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 1/6] Adding relationships for #{pm_id_scores.inspect}"
     return if pm_id_scores.blank? || pm_id_scores.keys.include?(pm.id)
@@ -459,7 +472,7 @@ class Bot::Alegre < BotUser
     # - If it's a parent, use it.
     # - If it has no existing relationship, use it.
     #make K negative so that we bias towards older IDs
-    parent_id = pm_id_scores.sort_by{|k,v| [Bot::Alegre::ELASTICSEARCH_MODEL != v[:model] ? 1 : 0, v[:score], -k]}.reverse.first.first
+    parent_id = self.return_prioritized_matches(pm_id_scores).first.first
     parent_relationships = Relationship.where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).where(target_id: parent_id).all
     Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 2/6] Number of parent relationships #{parent_relationships.count}"
     if parent_relationships.length > 0
@@ -553,7 +566,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.throw_airbrake_notify_if_bad_relationship(relationship, score_with_context, relationship_type)
-    if relationship.model.nil? || relationship.weight.nil? || relationship.source_field.nil? || relationship.target_field.nil? || ![MEAN_TOKENS_MODEL, INDIAN_MODEL, ELASTICSEARCH_MODEL, 'audio', 'image', 'video'].include?(relationship.model)
+    if relationship.model.nil? || relationship.weight.nil? || relationship.source_field.nil? || relationship.target_field.nil? || ![MEAN_TOKENS_MODEL, INDIAN_MODEL, FILIPINO_MODEL, ELASTICSEARCH_MODEL, 'audio', 'image', 'video'].include?(relationship.model)
       Airbrake.notify(Bot::Alegre::Error.new("[Alegre] Bad relationship was stored without required metadata"), {trace: Thread.current.backtrace.join("\n"), relationship: relationship.attributes, relationship_type: relationship_type, score_with_context: score_with_context}) if Airbrake.configured?
     end
   end
