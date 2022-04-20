@@ -20,6 +20,11 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Sidekiq::Testing.inline!
   end
 
+  def teardown
+    super
+    Bot::Alegre.unstub(:media_file_url)
+  end
+
   test "should return language" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.stub_request(:get, 'http://alegre/text/langid/').to_return(body: {
@@ -83,7 +88,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
       # Similarity
       pm1 = create_project_media team: @pm.team, media: create_uploaded_image
-      Bot::Alegre.stubs(:media_file_url).with(pm1).returns("some/path")
+      Bot::Alegre.stubs(:media_file_url).returns("some/path")
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       Bot::Alegre.unstub(:media_file_url)
       context = [{
@@ -104,7 +109,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }.to_json)
       pm2 = create_project_media team: @pm.team, media: create_uploaded_image
       response = {pm1.id => {:score => 0, :context => context, :source_field=>"image", :target_field => "image"}}
-      Bot::Alegre.stubs(:media_file_url).with(pm2).returns("some/path")
+      Bot::Alegre.stubs(:media_file_url).returns("some/path")
       assert_equal response, Bot::Alegre.get_items_with_similarity('image', pm2, Bot::Alegre.get_threshold_for_query('image', pm2))
 
       # Flags
@@ -113,7 +118,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         "result": valid_flags_data
       }.to_json)
       pm3 = create_project_media team: @pm.team, media: create_uploaded_image
-      Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
+      Bot::Alegre.stubs(:media_file_url).returns("some/path")
       assert Bot::Alegre.run({ data: { dbid: pm3.id }, event: 'create_project_media' })
       assert_not_nil pm3.get_annotations('flag').last
       Bot::Alegre.unstub(:media_file_url)
@@ -121,7 +126,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       # Text extraction
       Bot::Alegre.unstub(:media_file_url)
       pm4 = create_project_media team: @pm.team, media: create_uploaded_image
-      Bot::Alegre.stubs(:media_file_url).with(pm4).returns("some/path")
+      Bot::Alegre.stubs(:media_file_url).returns("some/path")
       assert Bot::Alegre.run({ data: { dbid: pm4.id }, event: 'create_project_media' })
       extracted_text_annotation = pm4.get_annotations('extracted_text').last
       assert_equal 'Foo bar', extracted_text_annotation.data['text']
@@ -165,7 +170,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       WebMock.stub_request(:get, 'http://alegre/audio/transcription/').with(
         body: { job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }
       ).to_return(body: { 'job_status' => 'COMPLETED', 'transcription' => 'Foo bar' }.to_json)
-      Bot::Alegre.stubs(:media_file_url).with(pm1).returns(url)
+      Bot::Alegre.stubs(:media_file_url).returns(url)
       # Verify with transcription_similarity_enabled = false
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       a = pm1.annotations('transcription').last
@@ -291,7 +296,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       ]
     })
-    Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
+    Bot::Alegre.stubs(:media_file_url).returns("some/path")
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm3)
     end
@@ -334,7 +339,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       ]
     })
-    Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
+    Bot::Alegre.stubs(:media_file_url).returns("some/path")
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm3)
     end
@@ -377,7 +382,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       ]
     })
-    Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
+    Bot::Alegre.stubs(:media_file_url).returns('some/path')
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm3)
     end
@@ -410,7 +415,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       ]
     })
-    Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
+    Bot::Alegre.stubs(:media_file_url).returns("some/path")
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm3)
     end
