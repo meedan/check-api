@@ -11,10 +11,20 @@ def parse_args(args)
   output
 end
 
+# These rake tasks to handle sync fields related to ProjectMedia betwwen PG & ES
+# 1-bundle exec rails check:project_media:recalculate_cached_field['slug:team_slug&field:field_name']
+#     This rake task to sync cached field and accept teamSlug and fieldName as args so the sync either
+#     by team or accross all teams
+# 2-bundle exec rails check:project_media:recalculate_cluster_cached_field['field']
+#     This rake task to sync cluster cached field and accept field name as args
+# 3-bundle exec rails check:project_media:sync_pg_field['slug:team_slug&field:field_name']
+#     This rake task to sync PG field and accept teamSlug and fieldName as args so the sync either
+#     by team or accross all teams
+
 namespace :check do
-  namespace :migrate do
-    # bundle exec rails check:migrate:recalculate_project_media_cached_field['slug:team_slug&field:field_name']
-    task recalculate_project_media_cached_field: :environment do |_t, args|
+  namespace :project_media do
+    # bundle exec rails check:project_media:recalculate_cached_field['slug:team_slug&field:field_name']
+    task recalculate_cached_field: :environment do |_t, args|
       data_args = parse_args args.extras
       started = Time.now.to_i
       field_name = data_args['field']
@@ -29,7 +39,7 @@ namespace :check do
       # Add team condition
       team_condition = {}
       if data_args['slug'].blank?
-        last_team_id = Rails.cache.read('check:migrate:recalculate_project_media_cached_field:team_id') || 0
+        last_team_id = Rails.cache.read('check:project_media:recalculate_cached_field:team_id') || 0
       else
         last_team_id = 0
         team_condition = { slug: data_args['slug'] } unless data_args['slug'].blank?
@@ -59,13 +69,13 @@ namespace :check do
           end
           client.bulk body: es_body unless es_body.blank?
         end
-        Rails.cache.write('check:migrate:recalculate_project_media_cached_field:team_id', team.id) if data_args['slug'].blank?
+        Rails.cache.write('check:project_media:recalculate_cached_field:team_id', team.id) if data_args['slug'].blank?
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
 
-    # bundle exec rails check:migrate:recalculate_cluster_cached_field[field]
+    # bundle exec rails check:project_media:recalculate_cluster_cached_field[field]
     task recalculate_cluster_cached_field: :environment do |_t, args|
       started = Time.now.to_i
       field_name = args.extras.last
@@ -92,6 +102,53 @@ namespace :check do
           es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
         end
         client.bulk body: es_body unless es_body.blank?
+      end
+      minutes = ((Time.now.to_i - started) / 60).to_i
+      puts "[#{Time.now}] Done in #{minutes} minutes."
+    end
+
+    # bundle exec rails check:project_media:sync_pg_field['slug:team_slug&field:field_name']
+    task sync_pg_field: :environment do |_t, args|
+      data_args = parse_args args.extras
+      started = Time.now.to_i
+      field_name = data_args['field']
+      raise "You must set field name as args for rake task Aborting." if field_name.blank? || !ProjectMedia.new.respond_to?(field_name)
+      # TODO: add mapping if PG field name not same as ES field name
+      es_fields_mapping = {
+        'status' => 'verification_status'
+      }
+      es_field_name = es_fields_mapping[field_name].blank? ? field_name : es_fields_mapping[field_name]
+      index_alias = CheckElasticSearchModel.get_index_alias
+      client = $repository.client
+      # Add team condition
+      team_condition = {}
+      if data_args['slug'].blank?
+        last_team_id = Rails.cache.read('check:project_media:sync_pg_field:team_id') || 0
+      else
+        last_team_id = 0
+        team_condition = { slug: data_args['slug'] } unless data_args['slug'].blank?
+      end
+      Team.where('id > ?', last_team_id).where(team_condition).find_each do |team|
+        team.project_medias.find_in_batches(:batch_size => 2500) do |pms|
+          es_body = []
+          pms.each do |pm|
+            print '.'
+            value = pm.send(field_name)
+            doc_id = Base64.encode64("ProjectMedia/#{pm.id}")
+            field_i = ['archived', 'sources_count', 'linked_items_count', 'share_count','last_seen', 'demand', 'user_id', 'read']
+            field_value = if field_name == 'channel'
+                            value.values.flatten.map(&:to_i)
+                          elsif field_i.include?(field_name)
+                            value.to_i
+                          else
+                            value
+                          end
+            fields = { "#{es_field_name}" => field_value }
+            es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
+          end
+          client.bulk body: es_body unless es_body.blank?
+        end
+        Rails.cache.write('check:project_media:sync_pg_field:team_id', team.id) if data_args['slug'].blank?
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
