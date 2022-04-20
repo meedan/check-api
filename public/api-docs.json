@@ -13,7 +13,7 @@
         {
           "method": "GET",
           "summary": "Get fact-checks that are similar to the input query and type.",
-          "notes": "",
+          "notes": "Up to 3 fact-checks are returned. The scope of the search are the organizations that the provided API key has access to.",
           "type": "FactCheck",
           "nickname": "getFeeds",
           "authorizations": {},
@@ -63,19 +63,20 @@
       "id": "FactCheck",
       "properties": {
         "claim": { "type": "string" },
-        "title": { "type": "string" },
-        "summary": { "type": "string" },
-        "url": { "type": "string" },
-        "report_title": { "type": "string" },
-        "report_summary": { "type": "string" },
-        "organization": { "type": "string" },
-        "rating": { "type": "string" }
+        "claim-context": { "type": "string" },
+        "claim-tags": { "type": "string" },
+        "fact-check-title": { "type": "string" },
+        "fact-check-summary": { "type": "string" },
+        "fact-check-published-on": { "type": "date" },
+        "fact-check-rating": { "type": "string" },
+        "published-article-url": { "type": "string" },
+        "organization": { "type": "string" }
       }
     }
   },
   "authorizations": null,
   "info": {
     "title": "Check",
-    "description": "Verify breaking news online"
+    "description": "Verify breaking news online."
   }
 }
