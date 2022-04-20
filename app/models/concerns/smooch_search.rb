@@ -57,9 +57,8 @@ module SmoochSearch
       self.ask_if_ready_to_submit(uid, workflow, 'ask_if_ready', language)
     end
 
-    def parse_search_results_from_alegre(results, team_id)
-      after = self.date_filter(team_id)
-      results.sort_by{|a| [a[1][:model]!=Bot::Alegre::ELASTICSEARCH_MODEL ? 1:0, a[1][:score]]}.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }.select{ |pm| pm&.report_status == 'published' && pm&.updated_at.to_i > after.to_i }.uniq(&:id).first(3)
+    def parse_search_results_from_alegre(results, after = nil)
+      results.sort_by{ |a| [a[1][:model] != Bot::Alegre::ELASTICSEARCH_MODEL ? 1 : 0, a[1][:score]] }.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }.select{ |pm| pm&.report_status == 'published' && pm&.updated_at.to_i > after.to_i }.uniq(&:id).first(3)
     end
 
     def date_filter(team_id)
@@ -120,12 +119,14 @@ module SmoochSearch
           results = CheckSearch.new(filters.merge({ show_similar: true }).to_json, nil, team_ids).medias if results.empty?
           Rails.logger.info "[Smooch Bot] Keyword search got #{results.count} results (including secondary items) while looking for '#{text}' after date #{after.inspect} for teams #{team_ids}"
         else
-          results = self.parse_search_results_from_alegre(Bot::Alegre.get_merged_similar_items(pm, { value: self.get_text_similarity_threshold }, Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text, team_ids), team_ids)
+          alegre_results = Bot::Alegre.get_merged_similar_items(pm, { value: self.get_text_similarity_threshold }, Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text, team_ids)
+          results = self.parse_search_results_from_alegre(alegre_results, after)
           Rails.logger.info "[Smooch Bot] Text similarity search got #{results.count} results while looking for '#{text}' after date #{after.inspect} for teams #{team_ids}"
         end
       else
         threshold = Bot::Alegre.get_threshold_for_query(type, pm)[:value]
-        results = self.parse_search_results_from_alegre(Bot::Alegre.get_items_with_similar_media(query, { value: threshold }, team_ids, "/#{type}/similarity/"), team_ids)
+        alegre_results = Bot::Alegre.get_items_with_similar_media(query, { value: threshold }, team_ids, "/#{type}/similarity/")
+        results = self.parse_search_results_from_alegre(alegre_results, after)
         Rails.logger.info "[Smooch Bot] Media similarity search got #{results.count} results while looking for '#{query}' after date #{after.inspect} for teams #{team_ids}"
       end
       results

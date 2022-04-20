@@ -20,7 +20,7 @@ class FeedsControllerTest < ActionController::TestCase
     create_project_media quote: 'Bar 1', media: nil, team: t1
     create_project_media quote: 'Bar 2', media: nil, team: t2
     create_project_media quote: 'Foo Bar', media: nil, team: t3
-    Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [t1.id, t2.id]).returns([pm1, pm2])
+    Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [t1.id, t2.id], nil).returns([pm1, pm2])
   end
 
   def teardown

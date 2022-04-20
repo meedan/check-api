@@ -31,6 +31,13 @@
               "required": true,
               "type": "string",
               "paramType": "query"
+            },
+            {
+              "name": "filter[after]",
+              "description": "Optional date filter. If provided, only fact-checks created after that date will be considered. Format: YYYY-MM-DD.",
+              "required": false,
+              "type": "date",
+              "paramType": "query"
             }
           ],
           "responseMessages": [
