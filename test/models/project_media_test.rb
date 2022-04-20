@@ -2857,4 +2857,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should get claim description and fact-check data" do
+    pm = create_project_media
+    assert_nil pm.claim_description_content
+    assert_nil pm.claim_description_context
+    cd = create_claim_description project_media: pm, description: 'Foo', context: 'Bar'
+    fc = create_fact_check claim_description: cd
+    assert_equal 'Foo', pm.claim_description_content
+    assert_equal 'Bar', pm.claim_description_context
+    assert_not_nil pm.fact_check_published_on
+  end
 end
