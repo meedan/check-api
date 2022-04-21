@@ -352,7 +352,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     original = { 'language' => 'en', 'introduction' => 'Latest from {date} on {channel}:' }
     Bot::Smooch.stubs(:send_message_to_user).returns(OpenStruct.new(message: OpenStruct.new({ id: id })))
     assert Bot::Smooch.resend_newsletter_after_window(message, original)
-    assert_equal 'newsletter', Rails.cache.read("smooch:original:#{id}")
+    assert_equal 'newsletter:en', Rails.cache.read("smooch:original:#{id}")
     Bot::Smooch.unstub(:send_message_to_user)
 
     send_message_to_smooch_bot('Read now', @uid, { 'quotedMessage' => { 'content' => { '_id' => id } } })
