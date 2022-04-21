@@ -98,8 +98,16 @@ module SmoochNewsletter
     end
 
     def message_is_a_newsletter_request?(message)
+      self.newsletter_request(message)[:type] == 'newsletter'
+    end
+
+    def newsletter_request(message, language = nil)
       quoted_id = message.dig('quotedMessage', 'content', '_id')
-      !quoted_id.blank? && Rails.cache.read("smooch:original:#{quoted_id}") == 'newsletter'
+      unless quoted_id.blank?
+        original = Rails.cache.read("smooch:original:#{quoted_id}").to_s.split(':')
+        { type: original[0], language: original[1] || language }
+      end
+      {}
     end
   end
 end
