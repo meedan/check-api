@@ -8,7 +8,7 @@ class Bot::Alegre < BotUser
   # Text similarity models
   MEAN_TOKENS_MODEL = 'xlm-r-bert-base-nli-stsb-mean-tokens'
   INDIAN_MODEL = 'indian-sbert'
-  FILIPINO_MODEL = 'mdeberta-v3-filipino'
+  FILIPINO_MODEL = 'paraphrase-filipino-mpnet-base-v2'
   ELASTICSEARCH_MODEL = 'elasticsearch'
 
   REPORT_TEXT_SIMILARITY_FIELDS = ['report_text_title', 'report_text_content', 'report_visual_card_title', 'report_visual_card_content']
@@ -188,13 +188,15 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_items_from_similar_text(team_id, text, field = nil, threshold = nil, model = nil, fuzzy = false)
+    team_ids = [team_id].flatten
     return {} if text.blank? || self.get_number_of_words(text) < 3
     field ||= ALL_TEXT_SIMILARITY_FIELDS
     threshold ||= self.get_threshold_for_query('text', nil, true)
-    model ||= self.matching_model_to_use(ProjectMedia.new(team_id: team_id))
+    pm = team_ids.size == 1 ? ProjectMedia.new(team_id: team_ids[0]) : nil
+    model ||= self.matching_model_to_use(pm)
     Hash[self.get_similar_items_from_api(
       '/text/similarity/',
-      self.similar_texts_from_api_conditions(text, model, fuzzy, team_id, field, threshold),
+      self.similar_texts_from_api_conditions(text, model, fuzzy, team_ids, field, threshold),
       threshold
     ).collect{|k,v| [k, v.merge(model: model)]}]
   end
