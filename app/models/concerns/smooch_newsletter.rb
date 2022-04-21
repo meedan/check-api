@@ -105,7 +105,7 @@ module SmoochNewsletter
       quoted_id = message.dig('quotedMessage', 'content', '_id')
       unless quoted_id.blank?
         original = Rails.cache.read("smooch:original:#{quoted_id}").to_s.split(':')
-        { type: original[0], language: original[1] || language }
+        return { type: original[0], language: original[1] || language }
       end
       {}
     end
