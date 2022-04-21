@@ -524,7 +524,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.create_relationship(source, target, pm_id_scores, relationship_type, original_source=nil, original_relationship_type=nil)
-    score_with_context[source.id]
+    score_with_context = pm_id_scores[source.id]
     return if source.nil? || target.nil?
     score = score_with_context[:score]
     context = score_with_context[:context]
