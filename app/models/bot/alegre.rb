@@ -79,7 +79,7 @@ class Bot::Alegre < BotUser
           match_id, _score_with_context = matches.first
           match = ProjectMedia.find_by_id(match_id)
           existing_parent = Relationship.where(target_id: match_id).where('relationship_type IN (?)', [Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml]).first
-          Bot::Alegre.create_relationship(match || existing_parent.source, pm, matches, Relationship.suggested_type, match, Relationship.suggested_type)
+          Bot::Alegre.create_relationship(match || existing_parent.source, pm, Hash[matches], Relationship.suggested_type, match, Relationship.suggested_type)
         end
       end
     end
