@@ -393,7 +393,7 @@ class Bot::Smooch < BotUser
       newsletter_language = self.newsletter_request(message, language)[:language]
       date = I18n.l(Time.now.to_date, locale: newsletter_language.to_s.tr('_', '-'), format: :short)
       newsletter = Bot::Smooch.build_newsletter_content(workflow['smooch_newsletter'], newsletter_language, self.config['team_id']).gsub('{date}', date).gsub('{channel}', self.get_platform_from_message(message))
-      Bot::Smooch.send_final_message_to_user(uid, newsletter, workflow, newsletter_language)
+      Bot::Smooch.send_final_message_to_user(uid, newsletter, self.get_workflow(newsletter_language), newsletter_language)
       return true
     end
 
