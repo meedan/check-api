@@ -33,58 +33,18 @@ end
 
 def get_statistics(start_date, end_date, slug, platform)
   platform_name = Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[platform]
-  data = [Team.find_by_slug(slug).name, platform_name, start_date, end_date]
+  month = nil
+  if start_date.month != end_date.month || start_date.year != end_date.year
+    month = "#{Date::MONTHNAMES[start_date.month]} #{start_date.year} - #{Date::MONTHNAMES[end_date.month]} #{end_date.year}"
+  else
+    month = "#{Date::MONTHNAMES[start_date.month]} #{start_date.year}"
+  end
+  data = [Team.find_by_slug(slug).name, platform_name, month]
 
   # Number of conversations
   value1 = project_media_requests(slug, platform, start_date, end_date).count
   value2 = team_requests(slug, platform, start_date, end_date).count
   data << (value1 + value2).to_s
-  
-  # Number of unique users
-  uids = []
-  project_media_requests(slug, platform, start_date, end_date).find_each do |a|
-    uid = begin JSON.parse(a.load.get_field_value('smooch_data'))['authorId'] rescue nil end
-    uids << uid if !uid.nil? && !uids.include?(uid)
-  end
-  team_requests(slug, platform, start_date, end_date).find_each do |a|
-    uid = begin JSON.parse(a.load.get_field_value('smooch_data'))['authorId'] rescue nil end
-    uids << uid if !uid.nil? && !uids.include?(uid)
-  end
-  data << uids.size
-
-  # Number of valid queries
-  data << project_media_requests(slug, platform, start_date, end_date).where('pm.archived' => 0).count.to_s
-
-  # Number of new published reports
-  # NOTE: For all platforms
-  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date).count.to_s
-
-  # Number of queries answered with a report
-  data << reports_received(slug, platform, start_date, end_date).group('pm.id').count.size.to_s
-
-  # Number of users who received a report
-  data << reports_received(slug, platform, start_date, end_date).count.to_s
-
-  # Number of new newsletter subscriptions
-  data << TiplineSubscription.where(created_at: start_date..end_date, platform: platform_name).where('teams.slug' => slug).joins(:team).count.to_s
-
-  # Number of newsletter subscription cancellations
-  team = Team.find_by_slug(slug)
-  data << Version.from_partition(team.id).where(created_at: start_date..end_date, team_id: team.id, item_type: 'TiplineSubscription', event_type: 'destroy_tiplinesubscription').where('object LIKE ?', "%#{platform_name}%").count.to_s
-
-  # Average time to publishing
-  times = []
-  reports_received(slug, platform, start_date, end_date).find_each do |f|
-    times << (f.created_at - f.annotation.created_at)
-  end
-  if times.size == 0
-    data << 0
-    data << '-'
-  else
-    avg = times.sum.to_f / times.size
-    data << avg.to_i
-    data << distance_of_time_in_words(avg)
-  end
 
   # Average number of end-user messages per day
   numbers_of_messages = []
@@ -99,9 +59,55 @@ def get_statistics(start_date, end_date, slug, platform)
   else
     data << (numbers_of_messages.sum / (start_date.to_date..end_date.to_date).count).to_i
   end
-        
+  
+  # Number of unique users
+  uids = []
+  project_media_requests(slug, platform, start_date, end_date).find_each do |a|
+    uid = begin JSON.parse(a.load.get_field_value('smooch_data'))['authorId'] rescue nil end
+    uids << uid if !uid.nil? && !uids.include?(uid)
+  end
+  team_requests(slug, platform, start_date, end_date).find_each do |a|
+    uid = begin JSON.parse(a.load.get_field_value('smooch_data'))['authorId'] rescue nil end
+    uids << uid if !uid.nil? && !uids.include?(uid)
+  end
+  data << uids.size
+
   # Number of returning users (at least one session in the current month, and at least one session in the last previous 2 months)
   data << DynamicAnnotation::Field.where(field_name: 'smooch_data', created_at: start_date.ago(2.months)..start_date).where("value_json->>'authorId' IN (?)", uids).collect{ |f| f.value_json['authorId'] }.uniq.size
+
+  # Number of valid queries
+  data << project_media_requests(slug, platform, start_date, end_date).where('pm.archived' => 0).count.to_s
+
+  # Number of new published reports
+  # NOTE: For all platforms
+  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date).count.to_s
+
+  # Number of queries answered with a report
+  data << reports_received(slug, platform, start_date, end_date).group('pm.id').count.size.to_s
+
+  # Number of users who received a report
+  data << reports_received(slug, platform, start_date, end_date).count.to_s
+
+  # Average time to publishing
+  times = []
+  reports_received(slug, platform, start_date, end_date).find_each do |f|
+    times << (f.created_at - f.annotation.created_at)
+  end
+  if times.size == 0
+    # data << 0
+    data << '-'
+  else
+    avg = times.sum.to_f / times.size
+    # data << avg.to_i
+    data << distance_of_time_in_words(avg)
+  end
+
+  # Number of new newsletter subscriptions
+  data << TiplineSubscription.where(created_at: start_date..end_date, platform: platform_name).where('teams.slug' => slug).joins(:team).count.to_s
+
+  # Number of newsletter subscription cancellations
+  team = Team.find_by_slug(slug)
+  data << Version.from_partition(team.id).where(created_at: start_date..end_date, team_id: team.id, item_type: 'TiplineSubscription', event_type: 'destroy_tiplinesubscription').where('object LIKE ?', "%#{platform_name}%").count.to_s
 
   # Current number of newsletter subscribers
   data << TiplineSubscription.where(created_at: start_date.ago(100.years)..end_date, platform: platform_name).where('teams.slug' => slug).joins(:team).count.to_s
@@ -127,21 +133,24 @@ namespace :check do
       if slugs.empty?
         puts 'Please provide a list of workspace slugs'
       else
-        header = ['Org', 'Platform', 'From', 'To']
-        header << '# of conversations'
-        header << '# of unique users'
-        header << '# of valid queries (not in trash)'
-        header << '# of new published reports (for all platforms)'
-        header << '# of queries answered with a report'
-        header << '# of users who received a report'
-        header << '# of new newsletter subscriptions'
-        header << '# of newsletter subscription cancellations'
-        header << 'Average time to publishing (seconds)'
-        header << 'Average time to publishing (readable)'
-        header << 'Average number of end-user messages per day'
-        header << '# of returning users (at least one session in the current month and at least one session in the last previous 2 months)'
-        header << 'Current # of newsletter subscribers'
-        header << 'Number of imported reports'
+        header = [
+          'Org',
+          'Platform',
+          'Month',
+          'Conversations',
+          'Average messages per day',
+          'Unique users',
+          'Returning users',
+          'Valid queries received (not in trash)',
+          'New published reports',
+          'Queries answered with a report',
+          'Users who received a report',
+          'Average (Median) response time',
+          'New newsletter subscriptions',
+          'Newsletter cancellations',
+          'Current subscribers',
+          'Imported reports'
+        ]
         puts header.join(',')
 
         slugs.each do |slug|
