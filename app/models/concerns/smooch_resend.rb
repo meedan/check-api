@@ -70,7 +70,7 @@ module SmoochResend
       introduction = original['introduction']
       response = self.send_message_to_user(message['appUser']['_id'], self.format_template_message(template_name, [date, introduction], nil, introduction, language))
       id = self.get_id_from_send_response(response)
-      Rails.cache.write("smooch:original:#{id}", 'newsletter') # This way if "Read now" is clicked, the newsletter can be sent
+      Rails.cache.write("smooch:original:#{id}", "newsletter:#{language}") # This way if "Read now" is clicked, the newsletter can be sent
       return true
     end
   end
