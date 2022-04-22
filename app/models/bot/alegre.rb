@@ -571,6 +571,7 @@ class Bot::Alegre < BotUser
       r.original_source_field = pm_id_scores[original_source.id][:source_field]
     end
     r.user_id ||= BotUser.alegre_user&.id
+    r
   end
 
   def self.can_create_relationship?(source, target, relationship_type)
