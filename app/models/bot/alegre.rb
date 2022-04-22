@@ -524,7 +524,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.create_relationship(source, target, pm_id_scores, relationship_type, original_source=nil, original_relationship_type=nil)
-    return if !self.can_create_relationship(source, target, relationship_type)
+    return if !self.can_create_relationship?(source, target, relationship_type)
     r = Relationship.where(source_id: source.id, target_id: target.id)
     .where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).last
     if r.nil?
