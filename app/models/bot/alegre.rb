@@ -524,59 +524,70 @@ class Bot::Alegre < BotUser
   end
 
   def self.create_relationship(source, target, pm_id_scores, relationship_type, original_source=nil, original_relationship_type=nil)
-    return if source.nil? || target.nil?
-    score_with_context = pm_id_scores[source.id] || {}
-    score = score_with_context[:score]
-    context = score_with_context[:context]
-    source_field = score_with_context[:source_field]
-    target_field = score_with_context[:target_field]
+    return if !self.can_create_relationship(source, target, relationship_type)
     r = Relationship.where(source_id: source.id, target_id: target.id)
     .where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).last
-    return if self.is_suggested_to_trash(source, target, relationship_type)
     if r.nil?
       # Ensure that target relationship is confirmed before creating the relation `CHECK-907`
       if target.archived != CheckArchivedFlags::FlagCodes::NONE
         target.archived = CheckArchivedFlags::FlagCodes::NONE
         target.save!
       end
-      r = Relationship.new
-      r.skip_check_ability = true
-      r.relationship_type = relationship_type
-      r.model = self.get_indexing_model(source, score_with_context)
-      r.weight = score
-      r.details = context
-      r.source_id = source.id
-      r.target_id = target.id
-      r.source_field = source_field
-      r.target_field = target_field
-      if original_source
-        r.original_weight = pm_id_scores[original_source.id][:score]
-        r.original_details = pm_id_scores[original_source.id][:context]
-        r.original_relationship_type = original_relationship_type
-        r.original_model = self.get_indexing_model(original_source, pm_id_scores[original_source.id])
-        r.original_source_id = original_source.id
-        r.original_source_field = pm_id_scores[original_source.id][:source_field]
-      end
-      r.user_id ||= BotUser.alegre_user&.id
+      r = self.fill_in_new_relationship(source, target, pm_id_scores, relationship_type, original_source, original_relationship_type)
       r.save!
       self.throw_airbrake_notify_if_bad_relationship(r, score_with_context, relationship_type)
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Created new relationship for relationship ID Of #{r.id}"
-    elsif r.relationship_type != relationship_type && r.relationship_type == Relationship.suggested_type
+    elsif self.is_relationship_upgrade?(r, relationship_type)
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Upgrading relationship from suggested to confirmed for relationship ID of #{r.id}"
       # confirm existing relation if a new one is confirmed
       r.relationship_type = relationship_type
       r.save!
     end
-    message_type = r.is_confirmed? ? 'related_to_confirmed_similar' : 'related_to_suggested_similar'
+    self.send_post_create_message(source, target, r)
+  end
+
+  def self.is_relationship_upgrade?(relationship, relationship_type)
+    r.relationship_type != relationship_type && r.relationship_type == Relationship.suggested_type
+  end
+
+  def self.fill_in_new_relationship(source, target, pm_id_scores, relationship_type, original_source, original_relationship_type)
+    score_with_context = pm_id_scores[source.id] || {}
+    r = Relationship.new
+    r.skip_check_ability = true
+    r.relationship_type = relationship_type
+    r.model = self.get_indexing_model(source, score_with_context)
+    r.weight = score_with_context[:score]
+    r.details = score_with_context[:context]
+    r.source_id = source.id
+    r.target_id = target.id
+    r.source_field = score_with_context[:source_field]
+    r.target_field = score_with_context[:target_field]
+    if original_source
+      r.original_weight = pm_id_scores[original_source.id][:score]
+      r.original_details = pm_id_scores[original_source.id][:context]
+      r.original_relationship_type = original_relationship_type
+      r.original_model = self.get_indexing_model(original_source, pm_id_scores[original_source.id])
+      r.original_source_id = original_source.id
+      r.original_source_field = pm_id_scores[original_source.id][:source_field]
+    end
+    r.user_id ||= BotUser.alegre_user&.id
+  end
+
+  def self.can_create_relationship?(source, target, relationship_type)
+    return false if source.nil? || target.nil?
+    return false if self.is_suggested_to_trash(source, target, relationship_type)
+    return true
+  end
+
+  def self.send_post_create_message(source, target, relationship)
+    message_type = relationship.is_confirmed? ? 'related_to_confirmed_similar' : 'related_to_suggested_similar'
     message_opts = {item_title: target.title, similar_item_title: source.title}
     CheckNotification::InfoMessages.send(
       message_type,
       message_opts
     )
     Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 6/6] Sent Check notification with message type and opts of #{[message_type, message_opts].inspect}"
-    r
   end
-
   def self.throw_airbrake_notify_if_bad_relationship(relationship, score_with_context, relationship_type)
     if relationship.model.nil? || relationship.weight.nil? || relationship.source_field.nil? || relationship.target_field.nil? || ![MEAN_TOKENS_MODEL, INDIAN_MODEL, FILIPINO_MODEL, ELASTICSEARCH_MODEL, 'audio', 'image', 'video'].include?(relationship.model)
       Airbrake.notify(Bot::Alegre::Error.new("[Alegre] Bad relationship was stored without required metadata"), {trace: Thread.current.backtrace.join("\n"), relationship: relationship.attributes, relationship_type: relationship_type, score_with_context: score_with_context}) if Airbrake.configured?
