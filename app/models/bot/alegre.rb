@@ -547,7 +547,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.is_relationship_upgrade?(relationship, relationship_type)
-    r.relationship_type != relationship_type && r.relationship_type == Relationship.suggested_type
+    relationship.relationship_type != relationship_type && relationship.relationship_type == Relationship.suggested_type
   end
 
   def self.fill_in_new_relationship(source, target, pm_id_scores, relationship_type, original_source, original_relationship_type)
