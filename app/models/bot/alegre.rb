@@ -535,7 +535,7 @@ class Bot::Alegre < BotUser
       end
       r = self.fill_in_new_relationship(source, target, pm_id_scores, relationship_type, original_source, original_relationship_type)
       r.save!
-      self.throw_airbrake_notify_if_bad_relationship(r, score_with_context, relationship_type)
+      self.throw_airbrake_notify_if_bad_relationship(r, pm_id_scores, relationship_type)
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Created new relationship for relationship ID Of #{r.id}"
     elsif self.is_relationship_upgrade?(r, relationship_type)
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Upgrading relationship from suggested to confirmed for relationship ID of #{r.id}"
@@ -589,9 +589,9 @@ class Bot::Alegre < BotUser
     )
     Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 6/6] Sent Check notification with message type and opts of #{[message_type, message_opts].inspect}"
   end
-  def self.throw_airbrake_notify_if_bad_relationship(relationship, score_with_context, relationship_type)
+  def self.throw_airbrake_notify_if_bad_relationship(relationship, pm_id_scores, relationship_type)
     if relationship.model.nil? || relationship.weight.nil? || relationship.source_field.nil? || relationship.target_field.nil? || ![MEAN_TOKENS_MODEL, INDIAN_MODEL, FILIPINO_MODEL, ELASTICSEARCH_MODEL, 'audio', 'image', 'video'].include?(relationship.model)
-      Airbrake.notify(Bot::Alegre::Error.new("[Alegre] Bad relationship was stored without required metadata"), {trace: Thread.current.backtrace.join("\n"), relationship: relationship.attributes, relationship_type: relationship_type, score_with_context: score_with_context}) if Airbrake.configured?
+      Airbrake.notify(Bot::Alegre::Error.new("[Alegre] Bad relationship was stored without required metadata"), {trace: Thread.current.backtrace.join("\n"), relationship: relationship.attributes, relationship_type: relationship_type, pm_id_scores: pm_id_scores}) if Airbrake.configured?
     end
   end
 
