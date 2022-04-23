@@ -1033,6 +1033,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
     relationship = Relationship.last
     assert_equal pm_s.id, relationship.source_id
+    assert_equal pm2.id, relationship.original_source_id
     Bot::Alegre.unstub(:get_items_with_similar_description)
   end
 
@@ -1089,7 +1090,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2 = create_project_media team: @team
     r = create_relationship source_id: pm2.id, target_id: pm.id, relationship_type: Relationship.suggested_type
     assert_no_difference 'Relationship.count' do
-      Bot::Alegre.create_relationship(pm2, pm, {score: 0.9, context: {"blah" => 1}}, Relationship.confirmed_type)
+      Bot::Alegre.create_relationship(pm2, pm, {pm2.id => {score: 0.9, context: {"blah" => 1}}}, Relationship.confirmed_type)
     end
     assert_equal r.reload.relationship_type, Relationship.confirmed_type
   end
