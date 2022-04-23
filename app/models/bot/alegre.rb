@@ -544,6 +544,7 @@ class Bot::Alegre < BotUser
       r.save!
     end
     self.send_post_create_message(source, target, r)
+    r
   end
 
   def self.is_relationship_upgrade?(relationship, relationship_type)
