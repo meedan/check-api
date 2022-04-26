@@ -390,9 +390,11 @@ class Bot::Smooch < BotUser
 
     # Shortcut
     if self.message_is_a_newsletter_request?(message)
-      date = I18n.l(Time.now.to_date, locale: language.to_s.tr('_', '-'), format: :short)
-      newsletter = Bot::Smooch.build_newsletter_content(workflow['smooch_newsletter'], language, self.config['team_id']).gsub('{date}', date).gsub('{channel}', self.get_platform_from_message(message))
-      Bot::Smooch.send_final_message_to_user(uid, newsletter, workflow, language)
+      newsletter_language = self.newsletter_request(message, language)[:language]
+      newsletter_workflow = self.get_workflow(newsletter_language)
+      date = I18n.l(Time.now.to_date, locale: newsletter_language.to_s.tr('_', '-'), format: :short)
+      newsletter = Bot::Smooch.build_newsletter_content(newsletter_workflow['smooch_newsletter'], newsletter_language, self.config['team_id']).gsub('{date}', date).gsub('{channel}', self.get_platform_from_message(message))
+      Bot::Smooch.send_final_message_to_user(uid, newsletter, newsletter_workflow, newsletter_language)
       return true
     end
 
@@ -906,14 +908,13 @@ class Bot::Smooch < BotUser
       last_smooch_response = nil
       if report.report_design_field_value('use_introduction', lang)
         introduction = report.report_design_introduction(data, lang)
-        last_smooch_response = self.send_message_to_user(uid, introduction)
-        Rails.logger.info "[Smooch Bot] Sent report introduction to user #{uid} for item with ID #{pm.id}, response was: #{last_smooch_response.to_json}"
+        smooch_intro_response = self.send_message_to_user(uid, introduction)
+        Rails.logger.info "[Smooch Bot] Sent report introduction to user #{uid} for item with ID #{pm.id}, response was: #{smooch_intro_response.to_json}"
         sleep 1
       end
       if report.report_design_field_value('use_visual_card', lang)
         last_smooch_response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url(lang) })
         Rails.logger.info "[Smooch Bot] Sent report visual card to user #{uid} for item with ID #{pm.id}, response was: #{last_smooch_response.to_json}"
-        sleep 3
       end
       if report.report_design_field_value('use_text_message', lang)
         workflow = self.get_workflow(lang)

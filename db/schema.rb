@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_10_043747) do
+ActiveRecord::Schema.define(version: 2022_04_18_074142) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -27,14 +27,14 @@ ActiveRecord::Schema.define(version: 2022_04_10_043747) do
   create_table "accounts", id: :serial, force: :cascade do |t|
     t.integer "user_id"
     t.string "url"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer "team_id"
     t.text "omniauth_info"
     t.string "uid"
     t.string "provider"
     t.string "token"
     t.string "email"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "team_id"
     t.index ["uid", "provider", "token", "email"], name: "index_accounts_on_uid_and_provider_and_token_and_email"
     t.index ["url"], name: "index_accounts_on_url", unique: true
     t.index ["user_id"], name: "index_accounts_on_user_id"
@@ -273,6 +273,7 @@ ActiveRecord::Schema.define(version: 2022_04_10_043747) do
     t.integer "user_id"
     t.integer "team_id"
     t.string "title"
+    t.boolean "is_default", default: false
     t.text "description"
     t.string "lead_image"
     t.datetime "created_at", null: false
@@ -283,7 +284,6 @@ ActiveRecord::Schema.define(version: 2022_04_10_043747) do
     t.integer "assignments_count", default: 0
     t.integer "project_group_id"
     t.integer "privacy", default: 0, null: false
-    t.boolean "is_default", default: false
     t.index ["id"], name: "index_projects_on_id"
     t.index ["is_default"], name: "index_projects_on_is_default"
     t.index ["privacy"], name: "index_projects_on_privacy"
@@ -306,6 +306,12 @@ ActiveRecord::Schema.define(version: 2022_04_10_043747) do
     t.string "target_field"
     t.string "model"
     t.jsonb "details", default: "{}"
+    t.float "original_weight", default: 0.0
+    t.jsonb "original_details", default: "{}"
+    t.string "original_relationship_type"
+    t.string "original_model"
+    t.integer "original_source_id"
+    t.string "original_source_field"
     t.index ["relationship_type"], name: "index_relationships_on_relationship_type"
     t.index ["source_id", "target_id", "relationship_type"], name: "relationship_index", unique: true
   end
@@ -381,15 +387,15 @@ ActiveRecord::Schema.define(version: 2022_04_10_043747) do
     t.integer "team_id"
     t.integer "user_id"
     t.string "type"
+    t.integer "invited_by_id"
+    t.string "invitation_token"
+    t.string "raw_invitation_token"
+    t.datetime "invitation_accepted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "role"
     t.string "status", default: "member"
     t.text "settings"
-    t.integer "invited_by_id"
-    t.string "invitation_token"
-    t.string "raw_invitation_token"
-    t.datetime "invitation_accepted_at"
     t.string "invitation_email"
     t.string "file"
     t.index ["team_id", "user_id"], name: "index_team_users_on_team_id_and_user_id", unique: true
@@ -435,6 +441,7 @@ ActiveRecord::Schema.define(version: 2022_04_10_043747) do
     t.string "name", default: "", null: false
     t.string "login", default: "", null: false
     t.string "token", default: "", null: false
+    t.boolean "default", default: false
     t.string "email"
     t.string "encrypted_password", default: ""
     t.string "reset_password_token"
@@ -445,6 +452,14 @@ ActiveRecord::Schema.define(version: 2022_04_10_043747) do
     t.datetime "last_sign_in_at"
     t.string "current_sign_in_ip"
     t.string "last_sign_in_ip"
+    t.string "invitation_token"
+    t.string "raw_invitation_token"
+    t.datetime "invitation_created_at"
+    t.datetime "invitation_sent_at"
+    t.datetime "invitation_accepted_at"
+    t.integer "invitation_limit"
+    t.integer "invited_by_id"
+    t.string "invited_by_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "image"
@@ -461,14 +476,6 @@ ActiveRecord::Schema.define(version: 2022_04_10_043747) do
     t.string "unconfirmed_email"
     t.integer "current_project_id"
     t.boolean "is_active", default: true
-    t.string "invitation_token"
-    t.string "raw_invitation_token"
-    t.datetime "invitation_created_at"
-    t.datetime "invitation_sent_at"
-    t.datetime "invitation_accepted_at"
-    t.integer "invitation_limit"
-    t.integer "invited_by_id"
-    t.string "invited_by_type"
     t.datetime "last_accepted_terms_at"
     t.string "encrypted_otp_secret"
     t.string "encrypted_otp_secret_iv"
@@ -476,7 +483,6 @@ ActiveRecord::Schema.define(version: 2022_04_10_043747) do
     t.integer "consumed_timestep"
     t.boolean "otp_required_for_login"
     t.string "otp_backup_codes", array: true
-    t.boolean "default", default: false
     t.boolean "completed_signup", default: true
     t.datetime "last_active_at"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true

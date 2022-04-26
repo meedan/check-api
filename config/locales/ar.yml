@@ -95,7 +95,8 @@ ar:
       pender_could_not_parse: "‫لا يمكن معالجة هذا الرابط. إذا تكرر هذا الخطأ، يُرجى
         التواصل عبر العنوان %{support_email}."
       invalid_format_for_languages: صيغة اللغة غير صالحة. المتوقع `['en', 'ar', …]`
-      invalid_project_media_channel_update: عذراً، لم تتمكن من تحديث الغرفة
+      invalid_project_media_channel_value: عذرا، لا ندعم هذه الغرفة
+      invalid_project_media_channel_update: عذراً، لقد تعذر عليك تحديث الغرفة
   activerecord:
     models:
       link: رابط
