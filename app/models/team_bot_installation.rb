@@ -1,5 +1,5 @@
 class TeamBotInstallation < TeamUser
-  include Versioned
+  # include Versioned
 
   mount_uploaders :file, ImageUploader
   serialize :file, JSON

@@ -35,7 +35,11 @@ class Version < Partitioned::ByForeignKey
   end
 
   def project_media
-    self.item.project_media if self.item.respond_to?(:project_media)
+    obj = self.item
+    if obj.class.name != 'ProjectMedia'
+      obj = self.item.respond_to?(:project_media) ? self.item.project_media : nil
+    end
+    obj
   end
 
   def associated_graphql_id
@@ -159,7 +163,7 @@ class Version < Partitioned::ByForeignKey
     case self.event_type
     when 'create_comment', 'create_tag', 'create_task', 'update_task', 'create_dynamic', 'update_dynamic', 'destroy_comment', 'destroy_tag', 'destroy_task', 'create_dynamicannotationfield', 'update_dynamicannotationfield'
       self.get_associated_from_annotation(self.event_type, self.item)
-    when 'update_projectmedia', 'copy_projectmedia'
+    when 'create_projectmedia', 'update_projectmedia'
       [self.item.class.name, self.item_id.to_i]
     when 'create_relationship', 'destroy_relationship'
       self.get_associated_from_relationship

@@ -15,7 +15,7 @@ class Assignment < ApplicationRecord
 
   validate :assigned_to_user_from_the_same_team, if: proc { |a| a.user.present? }
 
-  has_paper_trail on: [:create, :destroy], if: proc { |a| User.current.present? && a.assigned_type == 'Annotation' }, versions: { class_name: 'Version' }
+  # has_paper_trail on: [:create, :destroy], if: proc { |a| User.current.present? && a.assigned_type == 'Annotation' }, versions: { class_name: 'Version' }
 
   def version_metadata(_changes)
     meta = { user_name: self.user&.name }
