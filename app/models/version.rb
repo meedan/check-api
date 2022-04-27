@@ -171,6 +171,8 @@ class Version < Partitioned::ByForeignKey
       self.get_associated_from_assignment
     when 'create_claimdescription', 'update_claimdescription'
       ['ProjectMedia', self.item.project_media_id]
+    when 'create_factcheck'
+      ['ProjectMedia', self.item.claim_description.project_media_id]
     end
   end
 
