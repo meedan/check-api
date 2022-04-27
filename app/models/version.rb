@@ -169,6 +169,8 @@ class Version < Partitioned::ByForeignKey
       self.get_associated_from_relationship
     when 'create_assignment', 'destroy_assignment'
       self.get_associated_from_assignment
+    when 'create_claimdescription', 'update_claimdescription'
+      ['ProjectMedia', self.item.project_media_id]
     end
   end
 

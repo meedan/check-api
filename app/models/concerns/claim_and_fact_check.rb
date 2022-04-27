@@ -5,6 +5,7 @@ module ClaimAndFactCheck
 
   included do
     include CheckElasticSearch
+    has_paper_trail on: [:create, :update], ignore: [:updated_at, :created_at], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
 
     belongs_to :user
 
