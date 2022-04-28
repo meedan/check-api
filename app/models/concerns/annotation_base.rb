@@ -79,7 +79,7 @@ module AnnotationBase
     after_save :touch_annotated, unless: proc { |a| a.is_being_copied }
     after_commit :notify_team_bots_save, on: [:create, :update]
 
-    has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities, :lock_version], if: proc { |a| (User.current.present? && ['tag', 'report_design'].include?(a.annotation_type) && !a.is_being_copied) || a.force_version }, versions: { class_name: 'Version' }
+    has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities, :lock_version], if: proc { |a| (User.current.present? && ['tag', 'report_design', 'verification_status'].include?(a.annotation_type) && !a.is_being_copied) || a.force_version }, versions: { class_name: 'Version' }
 
     has_many :assignments, ->{ where(assigned_type: 'Annotation') }, foreign_key: :assigned_id, dependent: :destroy
 

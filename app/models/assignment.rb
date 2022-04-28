@@ -15,16 +15,16 @@ class Assignment < ApplicationRecord
 
   validate :assigned_to_user_from_the_same_team, if: proc { |a| a.user.present? }
 
-  # has_paper_trail on: [:create, :destroy], if: proc { |a| User.current.present? && a.assigned_type == 'Annotation' }, versions: { class_name: 'Version' }
+  has_paper_trail on: [:create, :destroy], ignore: [:updated_at, :created_at], if: proc { |a| User.current.present? && a.assigned_type == 'Annotation' }, versions: { class_name: 'Version' }
 
-  # def version_metadata(_changes)
-  #   meta = { user_name: self.user&.name }
-  #   annotation = self.assigned.load || self.assigned
-  #   meta[:type] = annotation.annotation_type
-  #   meta[:type] = 'media' if meta[:type] =~ /status/
-  #   meta[:title] = annotation.to_s
-  #   meta.to_json
-  # end
+  def version_metadata(_changes)
+    meta = { user_name: self.user&.name }
+    annotation = self.assigned.load || self.assigned
+    meta[:type] = annotation.annotation_type
+    meta[:type] = 'media' if meta[:type] =~ /status/
+    meta[:title] = annotation.to_s
+    meta.to_json
+  end
 
   def team
     assigned = self.assigned_type.constantize.where(id: self.assigned_id).last
