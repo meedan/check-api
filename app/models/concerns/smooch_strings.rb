@@ -195,10 +195,10 @@ module SmoochStrings
           "mr": "गोपनीयता",
           "pt": "Privacidade",
           "pa": "ਗੋਪਨੀਅਤਾ",
+          "es": "Privacidad",
           "ta": "தனியுரிமை",
           "te": "గౌప్యత",
-          "ur": "رازداری",
-          "es": "Privacidad"
+          "ur": "رازداری"
         },
         "report_updated": {
           "en": "The following fact-check has been *updated* with new information:",
