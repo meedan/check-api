@@ -2,10 +2,15 @@ file = File.join(Rails.root, 'config', "sidekiq-#{Rails.env}.yml")
 file = File.join(Rails.root, 'config', 'sidekiq.yml') unless File.exist?(file)
 require File.join(Rails.root, 'lib', 'middleware_sidekiq_server_retry')
 require 'airbrake/sidekiq'
+require "sidekiq"
+require "sidekiq/cloudwatchmetrics"
 
 Airbrake.add_filter(Airbrake::Sidekiq::RetryableJobsFilter.new)
 
 Sidekiq::Extensions.enable_delay!
+Sidekiq::CloudWatchMetrics.enable!(
+  namespace: "sidekiq_checkapi_#{Rails.env}",
+  additional_dimensions: { "ClusterName" => "Sidekiq-#{ENV['DEPLOY_ENV']}" } )
 
 REDIS_CONFIG = {}
 if File.exist?(file)
