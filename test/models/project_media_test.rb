@@ -687,20 +687,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
       r = DynamicAnnotation::Field.where(field_name: 'response').last; r.value = 'Test 2'; r.save!
       r = DynamicAnnotation::Field.where(field_name: 'note').last; r.value = 'Test 2'; r.save!
 
-      assert_equal [
-        "create_comment", "create_dynamic", "create_dynamic", "create_dynamic", "create_dynamicannotationfield",
-        "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield",
-        "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield",
-        "create_dynamicannotationfield", "create_dynamicannotationfield", "create_tag", "create_task", "update_dynamicannotationfield",
-        "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_task"
-      ].sort, pm.get_versions_log.map(&:event_type).sort
-      assert_equal 12, pm.get_versions_log_count
+      assert_equal ["create_dynamic", "create_dynamicannotationfield", "create_projectmedia", "create_tag", "update_dynamicannotationfield"].sort, pm.get_versions_log.map(&:event_type).sort
+      assert_equal 4, pm.get_versions_log_count
       c.destroy
-      assert_equal 13, pm.get_versions_log_count
+      assert_equal 4, pm.get_versions_log_count
       tg.destroy
-      assert_equal 14, pm.get_versions_log_count
+      assert_equal 5, pm.get_versions_log_count
       f.destroy
-      assert_equal 15, pm.get_versions_log_count
+      assert_equal 5, pm.get_versions_log_count
     end
   end
 
@@ -1207,10 +1201,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should create annotation when is embedded for the first time" do
     create_annotation_type_and_fields('Embed Code', { 'Copied' => ['Boolean', false] })
     pm = create_project_media
-    assert_difference 'PaperTrail::Version.count', 2 do
+    assert_difference 'Annotation.where(annotation_type: "embed_code").count', 1 do
       pm.as_oembed
     end
-    assert_no_difference 'PaperTrail::Version.count' do
+    assert_no_difference 'Annotation.where(annotation_type: "embed_code").count' do
       pm.as_oembed
     end
   end
@@ -1599,7 +1593,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = nil
     with_current_user_and_team(u, t) do
       pm = create_project_media project: p, media: m, user: u
-      pm.archived = CheckArchivedFlags::FlagCodes::TRASHED;pm.save
+      pm.source_id = create_source(team_id: t.id).id
+      pm.save
       assert_equal 2, pm.versions.count
     end
     version = pm.versions.last

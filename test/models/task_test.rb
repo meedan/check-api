@@ -321,19 +321,6 @@ class TaskTest < ActiveSupport::TestCase
     end
   end
 
-  test "should save comment in version" do
-    u = create_user is_admin: true
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    with_current_user_and_team(u, t) do
-      tk = create_task annotated: pm
-      c = create_comment annotated: tk, text: 'Foo Bar'
-      meta = pm.reload.get_versions_log.where(event_type: 'update_task').last.meta
-      assert_equal 'Foo Bar', JSON.parse(meta)['data']['text']
-    end
-  end
-
   test "should accept suggestion from bot" do
     text = create_field_type field_type: 'text', label: 'Text'
     json = DynamicAnnotation::FieldType.where(field_type: 'json').last || create_field_type(field_type: 'json', label: 'JSON')

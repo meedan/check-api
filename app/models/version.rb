@@ -103,31 +103,6 @@ class Version < Partitioned::ByForeignKey
     self.meta = item.version_metadata(self.object_changes) if !item.nil? && item.respond_to?(:version_metadata)
   end
 
-  def projects
-    ret = []
-    if (self.item_type == 'ProjectMedia' && self.event == 'update') || self.event_type == 'copy_projectmedia'
-      ret = get_from_object_changes(:project)
-    end
-    ret
-  end
-
-  def teams
-    ret = []
-    ret = get_from_object_changes(:team) if self.event_type == 'copy_projectmedia'
-    ret
-  end
-
-  def get_from_object_changes(item)
-    ret = []
-    item = item.to_s
-    changes = self.get_object_changes
-    if changes["#{item}_id"]
-      ret = changes["#{item}_id"].collect{ |pid| item.classify.constantize.where(id: pid).last }
-      ret = [] if ret.include?(nil)
-    end
-    ret
-  end
-
   def task
     task = nil
     if self.item && self.item_type == 'DynamicAnnotation::Field'

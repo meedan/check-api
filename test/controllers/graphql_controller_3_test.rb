@@ -1273,25 +1273,6 @@ class GraphqlController3Test < ActionController::TestCase
     end
   end
 
-  test "should return version when answering task" do
-    u = create_user is_admin: true
-    t = create_team
-    pm = create_project_media team: t
-    at = create_annotation_type annotation_type: 'task_response_test'
-    create_field_instance annotation_type_object: at, name: 'response_test'
-    tk = create_task annotated: pm
-    authenticate_with_user(u)
-
-    assert_difference 'Version.count', 2 do
-      query = 'mutation { updateTask(input: { clientMutationId: "1", response: "{\"annotation_type\":\"task_response_test\",\"set_fields\":\"{\\\"response_test\\\":\\\"test\\\"}\"}", id: "' + tk.graphql_id + '" }) { version { event_type }, versionEdge { node { event_type } } } }'
-      post :create, params: { query: query, team: t.slug }
-      assert_response :success
-      data = JSON.parse(@response.body)['data']['updateTask']
-      assert_equal 'create_dynamicannotationfield', data['version']['event_type']
-      assert_equal 'create_dynamicannotationfield', data['versionEdge']['node']['event_type']
-    end
-  end
-
   test "should get team fieldsets" do
     u = create_user is_admin: true
     authenticate_with_user(u)

@@ -152,21 +152,6 @@ class VersionTest < ActiveSupport::TestCase
     assert_equal v.id, v.dbid
   end
 
-  test "should get teams" do
-    u = create_user is_admin: true
-    t = create_team
-    create_team_user team: t, user: u, role: 'admin'
-    t2 = create_team
-    with_current_user_and_team(u, t) do
-      pm = create_project_media team: t
-      pm.team_id = t2.id
-      pm.source_id = nil
-      pm.skip_check_ability = true
-      pm.save!
-      log = pm.get_versions_log(['update_projectmedia']).last
-      assert_equal [t, t2], log.get_from_object_changes(:team)
-    end
-  end
 
   test "should destroy version" do
     u = create_user is_admin: true
@@ -240,41 +225,41 @@ class VersionTest < ActiveSupport::TestCase
     create_team_user user: u, team: t
     pm = create_project_media team: t
     with_current_user_and_team(u, t) do
-      c = nil
+      tag = nil
       assert_difference 'Version.count' do
-        c = Comment.new annotated: pm, annotator: u, text: random_string
-        c.save_with_version!
+        tag = Tag.new annotated: pm, annotator: u, tag: random_string
+        tag.save_with_version!
       end
-      v = c.version_object
-      assert_equal 'create_comment', v.event_type
-      c = Comment.find(c.id)
-      assert_nil c.version_object
-      c.text = random_string
+      v = tag.version_object
+      assert_equal 'create_tag', v.event_type
+      tag = Tag.find(tag.id)
+      assert_nil tag.version_object
+      tag.tag = random_string
       assert_difference 'Version.count' do
-        c.save_with_version!
+        tag.save_with_version!
       end
-      v = c.version_object
-      assert_equal 'update_comment', v.event_type
+      v = tag.version_object
+      assert_equal 'update_tag', v.event_type
 
       # Concurrency
       10.times do
         threads = []
         @v1 = nil
         @v2 = nil
-        @c = c
+        @tag = tag
         threads << Thread.start do
           User.current = create_user(is_admin: true)
-          c1 = Comment.find(@c.id)
-          c1.text = random_string
-          c1.save_with_version!
-          @v1 = c1.version_object
+          tag1 = Tag.find(@tag.id)
+          tag1.tag = random_string
+          tag1.save_with_version!
+          @v1 = tag1.version_object
         end
         threads << Thread.start do
           User.current = create_user(is_admin: true)
-          c2 = Comment.find(@c.id)
-          c2.text = random_string
-          c2.save_with_version!
-          @v2 = c2.version_object
+          tag2 = Tag.find(@tag.id)
+          tag2.tag = random_string
+          tag2.save_with_version!
+          @v2 = tag2.version_object
         end
         threads.map(&:join)
         assert_not_equal @v1.id, @v2.id
