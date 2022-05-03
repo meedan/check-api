@@ -39,7 +39,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :cluster, ClusterType
   field :claim_description, ClaimDescriptionType do
     resolve -> (project_media, _args, _ctx) {
-      pm = Relationship.where('relationship_type = ? OR relationship_type = ?', Relationship.suggested_type.to_yaml, Relationship.confirmed_type.to_yaml).where(target_id: project_media.id).first&.source || project_media
+      pm = Relationship.where('relationship_type = ?', Relationship.confirmed_type.to_yaml).where(target_id: project_media.id).first&.source || project_media
       pm.claim_description
     }
   end
