@@ -108,7 +108,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         ]
       }.to_json)
       pm2 = create_project_media team: @pm.team, media: create_uploaded_image
-      response = {pm1.id => {:score => 0, :context => context, :source_field=>"image", :target_field => "image"}}
+      response = {pm1.id => {:score => 0, :context => context, :model=>nil, :source_field=>"image", :target_field => "image"}}
       Bot::Alegre.stubs(:media_file_url).returns("some/path")
       assert_equal response, Bot::Alegre.get_items_with_similarity('image', pm2, Bot::Alegre.get_threshold_for_query('image', pm2))
 
@@ -247,7 +247,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should extract project medias from context" do
-    assert_equal Bot::Alegre.extract_project_medias_from_context({"_score" => 2, "_source" => {"context" => {"project_media_id" => 1}}}), {1=>{:score=>2, :context=>{"project_media_id"=>1}}}
+    assert_equal Bot::Alegre.extract_project_medias_from_context({"_score" => 2, "_source" => {"context" => {"project_media_id" => 1}}}), {1=>{:score=>2, :context=>{"project_media_id"=>1}, :model=>nil}}
   end
 
   test "should update on alegre" do
@@ -466,13 +466,13 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     }}]})
     response = Bot::Alegre.get_similar_items_from_api("blah", {})
     assert_equal response.class, Hash
-    assert_equal response, {1932=>{:score=>100.60148, :context=>{"team_id"=>1692, "field"=>"title", "project_media_id"=>1932}}}
+    assert_equal response, {1932=>{:score=>100.60148, :context=>{"team_id"=>1692, "field"=>"title", "project_media_id"=>1932}, :model=>nil}}
     Bot::Alegre.unstub(:request_api)
   end
 
   test "should generate correct text conditions for api request" do
     conditions = Bot::Alegre.similar_texts_from_api_conditions("blah", "elasticsearch", 'true', 1, 'original_title', {value: 0.7, key: 'text_elasticsearch_suggestion_threshold', automatic: false})
-    assert_equal conditions, {:text=>"blah", :model=>"elasticsearch", :fuzzy=>true, :context=>{:has_custom_id=>true, :field=>"original_title", :team_id=>1}, :threshold=>0.7, :match_across_content_types=>true}
+    assert_equal conditions, {:text=>"blah", :model=>["elasticsearch"], :fuzzy=>true, :context=>{:has_custom_id=>true, :field=>"original_title", :team_id=>1}, :threshold=>0.7, :match_across_content_types=>true}
   end
 
   test "should generate correct media conditions for api request" do
