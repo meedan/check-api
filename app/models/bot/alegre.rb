@@ -187,16 +187,16 @@ class Bot::Alegre < BotUser
     text.gsub(/[^\p{L}\s]/u, '').strip.chomp.split(/\s+/).size
   end
 
-  def self.get_items_from_similar_text(team_id, text, field = nil, threshold = nil, model = nil, fuzzy = false)
+  def self.get_items_from_similar_text(team_id, text, field = nil, threshold = nil, models = nil, fuzzy = false)
     team_ids = [team_id].flatten
     return {} if text.blank? || self.get_number_of_words(text) < 3
     field ||= ALL_TEXT_SIMILARITY_FIELDS
     threshold ||= self.get_threshold_for_query('text', nil, true)
     pm = team_ids.size == 1 ? ProjectMedia.new(team_id: team_ids[0]) : nil
-    model ||= self.matching_model_to_use(pm)
+    models ||= [self.matching_model_to_use(pm)]
     Hash[self.get_similar_items_from_api(
       '/text/similarity/',
-      self.similar_texts_from_api_conditions(text, model, fuzzy, team_ids, field, threshold),
+      self.similar_texts_from_api_conditions(text, models, fuzzy, team_ids, field, threshold),
       threshold
     ).collect{|k,v| [k, v.merge(model: model)]}]
   end
