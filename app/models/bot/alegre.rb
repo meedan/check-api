@@ -198,7 +198,7 @@ class Bot::Alegre < BotUser
       '/text/similarity/',
       self.similar_texts_from_api_conditions(text, models, fuzzy, team_ids, field, threshold),
       threshold
-    ).collect{|k,v| [k, v.merge(model: model)]}]
+    ).collect{|k,v| [k, v.merge(model: v[:model]||Bot::Alegre.default_matching_model)]}]
   end
 
   def self.unarchive_if_archived(pm)
@@ -429,17 +429,22 @@ class Bot::Alegre < BotUser
     # - a straight hash with project_media_id
     # - an array of hashes, each with project_media_id
     context = self.get_context_from_image_or_text_response(search_result)
+    model = self.get_model_from_image_or_text_response(search_result)
     pms = []
     if context.kind_of?(Array)
       context.each{ |c| pms.push(c.with_indifferent_access.dig('project_media_id')) }
     elsif context.kind_of?(Hash)
       pms.push(context.with_indifferent_access.dig('project_media_id'))
     end
-    Hash[pms.flatten.collect{ |pm| [pm.to_i, {score: self.get_score_from_image_or_text_response(search_result), context: context}] }]
+    Hash[pms.flatten.collect{ |pm| [pm.to_i, {score: self.get_score_from_image_or_text_response(search_result), context: context, model: model}] }]
   end
 
   def self.get_context_from_image_or_text_response(search_result)
     self.get_source_key_from_image_or_text_response(search_result, 'context')
+  end
+
+  def self.get_model_from_image_or_text_response(search_result)
+    self.get_source_key_from_image_or_text_response(search_result, 'model')
   end
 
   def self.get_source_key_from_image_or_text_response(search_result, source_key)
