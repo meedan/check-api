@@ -137,9 +137,8 @@ module SmoochSearch
       results = results.collect { |r| Relationship.confirmed_parent(r) }.uniq
       results.each do |result|
         report = result.get_dynamic_annotation('report_design')
-        next if report.nil?
-        self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url }) if report.report_design_field_value('use_visual_card')
-        self.send_message_to_user(uid, report.report_design_text) if !report.report_design_field_value('use_visual_card') && report.report_design_field_value('use_text_message')
+        self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report&.report_design_image_url }) if report && report.report_design_field_value('use_visual_card')
+        self.send_message_to_user(uid, report.report_design_text) if report && !report.report_design_field_value('use_visual_card') && report.report_design_field_value('use_text_message')
       end
     end
   end
