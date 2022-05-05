@@ -17,14 +17,15 @@ Dynamic.class_eval do
       elsif self.report_design_field_value('use_visual_card')
         fields.merge!({
           title: self.report_design_field_value('headline'),
-          summary: self.report_design_field_value('description')
+          summary: self.report_design_field_value('description'),
+          url: self.report_design_field_value('published_article_url')
         })
       end
       if fc.nil?
-        FactCheck.create!({ claim_description: self.annotated.claim_description }.merge(fields))
+        FactCheck.create({ claim_description: self.annotated.claim_description }.merge(fields))
       else
         fields.each { |field, value| fc.send("#{field}=", value) }
-        fc.save!
+        fc.save
       end
     end
   end
