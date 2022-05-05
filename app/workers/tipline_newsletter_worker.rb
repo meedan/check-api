@@ -8,7 +8,7 @@ class TiplineNewsletterWorker
         if workflow['smooch_workflow_language'] == language
           newsletter = workflow['smooch_newsletter']
           if !newsletter.nil? && Bot::Smooch.newsletter_content_changed?(newsletter, language, team_id)
-            date = I18n.l(Time.now.to_date, locale: language.to_s.tr('_', '-'), format: :short)
+            date = I18n.l(Time.now.to_date, locale: language.to_s.tr('_', '-'), format: :long)
             TiplineSubscription.where(language: language, team_id: team_id).each do |ts|
               introduction = newsletter['smooch_newsletter_introduction'].to_s.gsub('{date}', date).gsub('{channel}', ts.platform)
               content = Bot::Smooch.build_newsletter_content(newsletter, language, team_id).gsub('{date}', date).gsub('{channel}', ts.platform)
