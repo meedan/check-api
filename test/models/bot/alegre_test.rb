@@ -194,6 +194,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       RequestStore.store[:skip_cached_field_update] = false
       create_dynamic_annotation annotation_type: 'smooch', annotated: pm1
       create_dynamic_annotation annotation_type: 'smooch', annotated: pm1
+      binding.pry
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       a = pm1.annotations('transcription').last
       assert_equal 'Foo bar', a.data['text']
@@ -472,7 +473,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should generate correct text conditions for api request" do
     conditions = Bot::Alegre.similar_texts_from_api_conditions("blah", "elasticsearch", 'true', 1, 'original_title', {value: 0.7, key: 'text_elasticsearch_suggestion_threshold', automatic: false})
-    assert_equal conditions, {:text=>"blah", :model=>["elasticsearch"], :fuzzy=>true, :context=>{:has_custom_id=>true, :field=>"original_title", :team_id=>1}, :threshold=>0.7, :match_across_content_types=>true}
+    assert_equal conditions, {:text=>"blah", :models=>["elasticsearch"], :fuzzy=>true, :context=>{:has_custom_id=>true, :field=>"original_title", :team_id=>1}, :threshold=>0.7, :match_across_content_types=>true}
   end
 
   test "should generate correct media conditions for api request" do
@@ -700,22 +701,6 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         "_index" => "alegre_similarity",
         "_type" => "_doc",
         "_id" => "tMXj53UB36CYclMPXp14",
-        "_score" => 10.9,
-        "_source" => {
-          "content" => "Bautista began his wrestling career in 1999, and signed with the World Wrestling Federation (WWF, now WWE) in 2000. From 2002 to 2010, he gained fame under the ring name Batista and became a six-time world champion by winning the World Heavyweight Championship four times and the WWE Championship twice. He holds the record for the longest reign as World Heavyweight Champion at 282 days and has also won the World Tag Team Championship three times (twice with Ric Flair and once with John Cena) and the WWE Tag Team Championship once (with Rey Mysterio). He was the winner of the 2005 Royal Rumble match and went on to headline WrestleMania 21, one of the top five highest-grossing pay-per-view events in professional wrestling history",
-          "context" => {
-            "team_id" => pm2.team.id.to_s,
-            "field" => "title",
-            "project_media_id" => pm2.id.to_s
-          }
-        }
-      }
-      ]
-    }
-    response2 = {"result" => [{
-        "_index" => "alegre_similarity",
-        "_type" => "_doc",
-        "_id" => "tMXj53UB36CYclMPXp14",
         "_score" => 0.9,
         "_source" => {
           "content" => "Bautista began his wrestling career in 1999, and signed with the World Wrestling Federation (WWF, now WWE) in 2000. From 2002 to 2010, he gained fame under the ring name Batista and became a six-time world champion by winning the World Heavyweight Championship four times and the WWE Championship twice. He holds the record for the longest reign as World Heavyweight Champion at 282 days and has also won the World Tag Team Championship three times (twice with Ric Flair and once with John Cena) and the WWE Tag Team Championship once (with Rey Mysterio). He was the winner of the 2005 Royal Rumble match and went on to headline WrestleMania 21, one of the top five highest-grossing pay-per-view events in professional wrestling history",
@@ -723,12 +708,13 @@ class Bot::AlegreTest < ActiveSupport::TestCase
             "team_id" => pm2.team.id.to_s,
             "field" => "title",
             "project_media_id" => pm2.id.to_s
-          }
+          },
+          "model" => Bot::Alegre::MEAN_TOKENS_MODEL
         }
       }
       ]
     }
-    [0.7, 0.75,0.95].each do |threshold|
+    [0.7, 0.75,0.9,0.95].each do |threshold|
       ["original_title","original_description","report_text_title","transcription","extracted_text","report_text_content","report_visual_card_title","claim_description_content","fact_check_summary","report_visual_card_content","fact_check_title"].each do |field|
         Bot::Alegre.stubs(:request_api).with("get", "/text/similarity/", {:text=>"Blah foo bar", :models=>["elasticsearch", Bot::Alegre::MEAN_TOKENS_MODEL], :fuzzy=>false, :context=>{:has_custom_id=>true, :field=>field, :team_id=>[pm.team_id]}, :threshold=>threshold, :match_across_content_types=>true}, "body").returns(response)
       end
