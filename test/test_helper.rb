@@ -1074,16 +1074,18 @@ class ActiveSupport::TestCase
       options: [{
         language: 'en',
         status_label: random_string,
-        description: random_string,
-        headline: random_string,
-        use_visual_card: true,
-        image: '',
         use_introduction: true,
         introduction: 'Regarding {{query_message}} on {{query_date}}, it is {{status}}.',
+        use_visual_card: true,
+        description: random_string,
+        headline: random_string,
+        image: '',
         theme_color: '#FF0000',
         url: random_url,
         use_text_message: true,
+        title: random_string,
         text: random_string,
+        published_article_url: random_url,
         use_disclaimer: true,
         disclaimer: random_string
       }.merge(option_data)]

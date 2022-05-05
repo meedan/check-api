@@ -1030,13 +1030,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
         use_text_message: true,
         use_disclaimer: false,
         disclaimer: '',
-        text: '*This* _is_ a ~test~!'
+        title: 'Title',
+        text: '*This* _is_ a ~test~!',
+        published_article_url: 'http://foo.bar'
       })
       PenderClient::Request.unstub(:get_medias)
-      expected = File.read(File.join(Rails.root, 'test', 'data', "oembed-#{pm.default_project_media_status_type}.html"))
-        .gsub(/.*<body/m, '<body')
-        .gsub('https?://[^:]*:3000', CheckConfig.get('checkdesk_base_url'))
-      actual = ProjectMedia.find(pm.id).html.gsub(/.*<body/m, '<body')
+      expected = File.read(File.join(Rails.root, 'test', 'data', "oembed-#{pm.default_project_media_status_type}.html")).gsub(/^\s+/m, '')
+      actual = ProjectMedia.find(pm.id).html.gsub(/.*<body/m, '<body').gsub(/^\s+/m, '').gsub(/https?:\/\/[^:]*:3000/, 'http://check')
       assert_equal expected, actual
     end
   end
