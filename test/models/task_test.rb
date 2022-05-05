@@ -293,34 +293,6 @@ class TaskTest < ActiveSupport::TestCase
     assert_equal 1, t.reload.log_count
   end
 
-  test "should have log" do
-    u = create_user is_admin: true
-    t = create_team
-    with_current_user_and_team(u, t) do
-      tk = create_task
-      assert_equal 0, tk.reload.log.count
-      create_comment annotated: tk
-      assert_equal 1, tk.reload.log.count
-      create_comment annotated: tk
-      assert_equal 2, tk.reload.log.count
-    end
-  end
-
-  test "should update parent log count when comment is added to task" do
-    u = create_user is_admin: true
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    tk = create_task annotated: pm
-    with_current_user_and_team(u, t) do
-      assert_equal 0, pm.reload.cached_annotations_count
-      create_comment annotated: tk
-      assert_equal 2, pm.reload.cached_annotations_count
-      c = create_comment annotated: tk
-      assert_equal 4, pm.reload.cached_annotations_count
-    end
-  end
-
   test "should accept suggestion from bot" do
     text = create_field_type field_type: 'text', label: 'Text'
     json = DynamicAnnotation::FieldType.where(field_type: 'json').last || create_field_type(field_type: 'json', label: 'JSON')

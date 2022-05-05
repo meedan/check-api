@@ -1240,39 +1240,6 @@ class GraphqlController3Test < ActionController::TestCase
     assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
   end
 
-  test "should return version when updating dynamic" do
-    u = create_user is_admin: true
-    t = create_team
-    create_team_user user: u, team: t
-    json_schema = {
-      type: 'object',
-      properties: {
-        test: { type: 'string' }
-      }
-    }
-    create_annotation_type_and_fields('Test', {}, json_schema)
-    pm = create_project_media team: t
-    d = nil
-    with_current_user_and_team(u, t) do
-      d = create_dynamic_annotation annotated: pm, annotation_type: 'test', set_fields: { test: random_string }.to_json
-    end
-    authenticate_with_user(u)
-
-    assert_difference 'Version.count' do
-      query = 'mutation { updateDynamic(input: { clientMutationId: "1", id: "' + d.graphql_id + '", locked: true }) { version { dbid, object_changes_json, event_type }, versionEdge { node { dbid, object_changes_json, event_type } } } }'
-      post :create, params: { query: query, team: t.slug }
-      assert_response :success
-      data = JSON.parse(@response.body)['data']['updateDynamic']
-      vo = data['version']
-      ve = data['versionEdge']['node']
-      [vo, ve].each do |v|
-        assert_equal Version.last.id, v['dbid']
-        assert_equal 'update_dynamic', v['event_type']
-        assert_equal({ 'locked' => [false, true] }, JSON.parse(v['object_changes_json']))
-      end
-    end
-  end
-
   test "should get team fieldsets" do
     u = create_user is_admin: true
     authenticate_with_user(u)
