@@ -29,7 +29,7 @@ class ReportDesignerWorker
     d = Dynamic.where(id: id).last
     data = d.data.with_indifferent_access
     data[:options].each_with_index do |option, i|
-      data[:options][i][:previous_published_status_label] = option[:status_label]
+      data[:options][i][:previous_published_status_label] = option[:status_label].to_s
     end
     data[:first_published] ||= Time.now.to_i.to_s
     data[:last_published] = Time.now.to_i.to_s

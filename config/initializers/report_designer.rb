@@ -3,6 +3,32 @@ Dynamic.class_eval do
     self.keep_file = true if self.annotation_type == 'report_design'
   end
 
+  after_save do
+    if self.annotation_type == 'report_design' && (self.action == 'save' || self.action =~ /publish/) && self.annotated&.claim_description
+      fc = self.annotated.claim_description.fact_check
+      user = self.annotator || User.current
+      fields = { user: user, skip_report_update: true }
+      if self.report_design_field_value('use_text_message')
+        fields.merge!({
+          title: self.report_design_field_value('title'),
+          summary: self.report_design_field_value('text'),
+          url: self.report_design_field_value('published_article_url')
+        })
+      elsif self.report_design_field_value('use_visual_card')
+        fields.merge!({
+          title: self.report_design_field_value('headline'),
+          summary: self.report_design_field_value('description')
+        })
+      end
+      if fc.nil?
+        FactCheck.create!({ claim_description: self.annotated.claim_description }.merge(fields))
+      else
+        fields.each { |field, value| fc.send("#{field}=", value) }
+        fc.save!
+      end
+    end
+  end
+
   def report_design_introduction(data, language)
     if self.annotation_type == 'report_design'
       introduction = self.report_design_field_value('introduction', language).to_s
@@ -33,24 +59,28 @@ Dynamic.class_eval do
     footer.join("\n")
   end
 
-  def report_design_text(language)
+  def report_design_text(language = nil)
     if self.annotation_type == 'report_design'
       text = []
       title = self.report_design_field_value('title', language)
       text << "*#{title}*" unless title.blank?
       text << Bot::Smooch.utmize_urls(self.report_design_field_value('text', language).to_s, 'report')
-      footer = self.report_design_text_footer(language)
-      text << footer if !footer.blank? && self.report_design_team_setting_value('use_signature', language)
+      url = self.report_design_field_value('published_article_url', language)
+      text << Bot::Smooch.utmize_urls(url, 'report') unless url.blank?
+      unless language.nil?
+        footer = self.report_design_text_footer(language)
+        text << footer if !footer.blank? && self.report_design_team_setting_value('use_signature', language)
+      end
       text.join("\n\n")
     end
   end
 
-  def report_design_field_value(field, language)
+  def report_design_field_value(field, language = nil)
     value = nil
     default = nil
     if self.annotation_type == 'report_design'
       data = self.data.with_indifferent_access
-      default_language = data[:default_language] || self.annotated&.team&.default_language
+      default_language = data[:default_language] || self.annotated&.team&.default_language || 'en'
       data[:options].to_a.each do |option|
         value = option[field] if option[:language] == language
         default = option[field] if option[:language] == default_language
@@ -59,7 +89,7 @@ Dynamic.class_eval do
     value.blank? ? default : value
   end
 
-  def report_design_image_url(language)
+  def report_design_image_url(language = nil)
     self.annotation_type == 'report_design' ? Dynamic.find(self.id).report_design_field_value('visual_card_url', language) : nil
   end
 
@@ -116,7 +146,7 @@ Dynamic.class_eval do
       temp_name = 'temp-' + self.id.to_s + '-' + language + '.html'
       temp = File.join(Rails.root, 'public', 'report_design', temp_name)
       output = File.open(temp, 'w+')
-      output.puts doc.to_s.gsub(/#CCCCCC/, self.report_design_field_value('theme_color', language)).gsub('%IMAGE_URL%', image).gsub('%AVATAR_URL%', avatar)
+      output.puts doc.to_s.gsub(/#CCCCCC/, self.report_design_field_value('theme_color', language).to_s).gsub('%IMAGE_URL%', image.to_s).gsub('%AVATAR_URL%', avatar.to_s)
       output.close
 
       # Upload the HTML to S3
