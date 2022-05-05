@@ -194,7 +194,6 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       RequestStore.store[:skip_cached_field_update] = false
       create_dynamic_annotation annotation_type: 'smooch', annotated: pm1
       create_dynamic_annotation annotation_type: 'smooch', annotated: pm1
-      binding.pry
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       a = pm1.annotations('transcription').last
       assert_equal 'Foo bar', a.data['text']
