@@ -146,7 +146,7 @@ Dynamic.class_eval do
       temp_name = 'temp-' + self.id.to_s + '-' + language + '.html'
       temp = File.join(Rails.root, 'public', 'report_design', temp_name)
       output = File.open(temp, 'w+')
-      output.puts doc.to_s.gsub(/#CCCCCC/, self.report_design_field_value('theme_color', language).to_s).gsub('%IMAGE_URL%', image).gsub('%AVATAR_URL%', avatar)
+      output.puts doc.to_s.gsub(/#CCCCCC/, self.report_design_field_value('theme_color', language).to_s).gsub('%IMAGE_URL%', image.to_s).gsub('%AVATAR_URL%', avatar.to_s)
       output.close
 
       # Upload the HTML to S3
