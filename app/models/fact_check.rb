@@ -33,10 +33,10 @@ class FactCheck < ApplicationRecord
       data[:options] << report
     end
     report.merge!({
-      title: self.title,
-      headline: self.title,
-      text: self.summary,
-      description: self.summary,
+      title: self.title.to_s.strip,
+      headline: self.title.to_s.strip,
+      text: self.summary.to_s.strip,
+      description: self.summary.to_s.strip,
       published_article_url: self.url
     })
     reports.annotator = self.user || User.current

@@ -64,7 +64,7 @@ Dynamic.class_eval do
     if self.annotation_type == 'report_design'
       text = []
       title = self.report_design_field_value('title', language)
-      text << "*#{title}*" unless title.blank?
+      text << "*#{title.strip}*" unless title.blank?
       text << Bot::Smooch.utmize_urls(self.report_design_field_value('text', language).to_s, 'report')
       url = self.report_design_field_value('published_article_url', language)
       text << Bot::Smooch.utmize_urls(url, 'report') unless url.blank?

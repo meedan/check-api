@@ -18,7 +18,7 @@ module SmoochSearch
           self.send_search_results_to_user(uid, results)
           sm.go_to_search_result
           self.save_search_results_for_user(uid, results.map(&:id))
-          sleep 3 # Be sure that the user has enough time to take a look at the results before answering if they are relevant
+          sleep 7 # Be sure that the user has enough time to take a look at the results before answering if they are relevant
           self.send_message_for_state(uid, workflow, 'search_result', language)
         end
       rescue StandardError => e
