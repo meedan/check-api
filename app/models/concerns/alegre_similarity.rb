@@ -175,15 +175,8 @@ module AlegreSimilarity
     def get_merged_similar_items(pm, threshold, fields, value, team_ids = [pm&.team_id])
       output = {}
       fields.each do |field|
-        response = self.get_items_with_similar_text(pm, field, threshold, value, self.default_matching_model, team_ids)
+        response = self.get_items_with_similar_text(pm, field, threshold, value, [self.default_matching_model, self.matching_model_to_use(pm)].flatten.uniq, team_ids)
         output[field] = response unless response.blank?
-      end
-
-      if self.matching_model_to_use(pm) != self.default_matching_model
-        fields.each do |field|
-          response = self.get_items_with_similar_text(pm, field, threshold, value, nil, team_ids)
-          output[field] = response unless response.blank?
-        end
       end
       es_matches = output.values.reduce({}, :merge)
       unless pm.nil?
@@ -212,15 +205,15 @@ module AlegreSimilarity
       !team_id || [team_id].flatten.include?(ProjectMedia.find_by_id(pmid)&.team_id)
     end
 
-    def get_items_with_similar_text(pm, field, threshold, text, model = nil, team_ids = [pm&.team_id])
-      model ||= self.matching_model_to_use(pm)
-      self.get_items_from_similar_text(team_ids, text, field, threshold, model).reject{ |id, _score_with_context| pm&.id == id }
+    def get_items_with_similar_text(pm, field, threshold, text, models = nil, team_ids = [pm&.team_id])
+      models ||= [self.matching_model_to_use(pm)]
+      self.get_items_from_similar_text(team_ids, text, field, threshold, models).reject{ |id, _score_with_context| pm&.id == id }
     end
 
-    def similar_texts_from_api_conditions(text, model, fuzzy, team_id, field, threshold, match_across_content_types=true)
+    def similar_texts_from_api_conditions(text, models, fuzzy, team_id, field, threshold, match_across_content_types=true)
       {
         text: text,
-        model: model,
+        models: [models].flatten.empty? ? nil : [models].flatten,
         fuzzy: fuzzy == 'true' || fuzzy.to_i == 1,
         context: self.build_context(team_id, field),
         threshold: threshold[:value],
