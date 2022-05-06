@@ -5,7 +5,7 @@ class FactCheck < ApplicationRecord
 
   belongs_to :claim_description
 
-  validates_presence_of :summary, :title, :user, :claim_description
+  validates_presence_of :user, :claim_description
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
 
   after_save :update_report
@@ -37,8 +37,7 @@ class FactCheck < ApplicationRecord
       headline: self.title,
       text: self.summary,
       description: self.summary,
-      published_article_url: self.url,
-      theme_color: '#333333'
+      published_article_url: self.url
     })
     reports.annotator = self.user || User.current
     reports.set_fields = data.to_json

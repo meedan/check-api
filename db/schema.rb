@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_18_074142) do
+ActiveRecord::Schema.define(version: 2022_05_06_001039) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -174,9 +174,9 @@ ActiveRecord::Schema.define(version: 2022_04_18_074142) do
   end
 
   create_table "fact_checks", force: :cascade do |t|
-    t.text "summary", null: false
+    t.text "summary"
     t.string "url"
-    t.string "title", null: false
+    t.string "title"
     t.bigint "user_id", null: false
     t.bigint "claim_description_id", null: false
     t.datetime "created_at", null: false
