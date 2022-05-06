@@ -108,7 +108,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         ]
       }.to_json)
       pm2 = create_project_media team: @pm.team, media: create_uploaded_image
-      response = {pm1.id => {:score => 0, :context => context, :source_field=>"image", :target_field => "image"}}
+      response = {pm1.id => {:score => 0, :context => context, :model=>nil, :source_field=>"image", :target_field => "image"}}
       Bot::Alegre.stubs(:media_file_url).returns("some/path")
       assert_equal response, Bot::Alegre.get_items_with_similarity('image', pm2, Bot::Alegre.get_threshold_for_query('image', pm2))
 
@@ -247,7 +247,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should extract project medias from context" do
-    assert_equal Bot::Alegre.extract_project_medias_from_context({"_score" => 2, "_source" => {"context" => {"project_media_id" => 1}}}), {1=>{:score=>2, :context=>{"project_media_id"=>1}}}
+    assert_equal Bot::Alegre.extract_project_medias_from_context({"_score" => 2, "_source" => {"context" => {"project_media_id" => 1}}}), {1=>{:score=>2, :context=>{"project_media_id"=>1}, :model=>nil}}
   end
 
   test "should update on alegre" do
@@ -466,13 +466,13 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     }}]})
     response = Bot::Alegre.get_similar_items_from_api("blah", {})
     assert_equal response.class, Hash
-    assert_equal response, {1932=>{:score=>100.60148, :context=>{"team_id"=>1692, "field"=>"title", "project_media_id"=>1932}}}
+    assert_equal response, {1932=>{:score=>100.60148, :context=>{"team_id"=>1692, "field"=>"title", "project_media_id"=>1932}, :model=>nil}}
     Bot::Alegre.unstub(:request_api)
   end
 
   test "should generate correct text conditions for api request" do
     conditions = Bot::Alegre.similar_texts_from_api_conditions("blah", "elasticsearch", 'true', 1, 'original_title', {value: 0.7, key: 'text_elasticsearch_suggestion_threshold', automatic: false})
-    assert_equal conditions, {:text=>"blah", :model=>"elasticsearch", :fuzzy=>true, :context=>{:has_custom_id=>true, :field=>"original_title", :team_id=>1}, :threshold=>0.7, :match_across_content_types=>true}
+    assert_equal conditions, {:text=>"blah", :models=>["elasticsearch"], :fuzzy=>true, :context=>{:has_custom_id=>true, :field=>"original_title", :team_id=>1}, :threshold=>0.7, :match_across_content_types=>true}
   end
 
   test "should generate correct media conditions for api request" do
@@ -700,22 +700,6 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         "_index" => "alegre_similarity",
         "_type" => "_doc",
         "_id" => "tMXj53UB36CYclMPXp14",
-        "_score" => 10.9,
-        "_source" => {
-          "content" => "Bautista began his wrestling career in 1999, and signed with the World Wrestling Federation (WWF, now WWE) in 2000. From 2002 to 2010, he gained fame under the ring name Batista and became a six-time world champion by winning the World Heavyweight Championship four times and the WWE Championship twice. He holds the record for the longest reign as World Heavyweight Champion at 282 days and has also won the World Tag Team Championship three times (twice with Ric Flair and once with John Cena) and the WWE Tag Team Championship once (with Rey Mysterio). He was the winner of the 2005 Royal Rumble match and went on to headline WrestleMania 21, one of the top five highest-grossing pay-per-view events in professional wrestling history",
-          "context" => {
-            "team_id" => pm2.team.id.to_s,
-            "field" => "title",
-            "project_media_id" => pm2.id.to_s
-          }
-        }
-      }
-      ]
-    }
-    response2 = {"result" => [{
-        "_index" => "alegre_similarity",
-        "_type" => "_doc",
-        "_id" => "tMXj53UB36CYclMPXp14",
         "_score" => 0.9,
         "_source" => {
           "content" => "Bautista began his wrestling career in 1999, and signed with the World Wrestling Federation (WWF, now WWE) in 2000. From 2002 to 2010, he gained fame under the ring name Batista and became a six-time world champion by winning the World Heavyweight Championship four times and the WWE Championship twice. He holds the record for the longest reign as World Heavyweight Champion at 282 days and has also won the World Tag Team Championship three times (twice with Ric Flair and once with John Cena) and the WWE Tag Team Championship once (with Rey Mysterio). He was the winner of the 2005 Royal Rumble match and went on to headline WrestleMania 21, one of the top five highest-grossing pay-per-view events in professional wrestling history",
@@ -723,15 +707,15 @@ class Bot::AlegreTest < ActiveSupport::TestCase
             "team_id" => pm2.team.id.to_s,
             "field" => "title",
             "project_media_id" => pm2.id.to_s
-          }
+          },
+          "model" => Bot::Alegre::MEAN_TOKENS_MODEL
         }
       }
       ]
     }
-    [0.7, 0.75,0.95].each do |threshold|
+    [0.7, 0.75,0.9,0.95].each do |threshold|
       ["original_title","original_description","report_text_title","transcription","extracted_text","report_text_content","report_visual_card_title","claim_description_content","fact_check_summary","report_visual_card_content","fact_check_title"].each do |field|
-        Bot::Alegre.stubs(:request_api).with("get", "/text/similarity/", {:text=>"Blah foo bar", :model=>"elasticsearch", :fuzzy=>false, :context=>{:has_custom_id=>true, :field=>field, :team_id=>[pm.team_id]}, :threshold=>threshold, :match_across_content_types=>true}, "body").returns(response)
-        Bot::Alegre.stubs(:request_api).with("get", "/text/similarity/", {:text=>"Blah foo bar", :model=>Bot::Alegre::MEAN_TOKENS_MODEL, :fuzzy=>false, :context=>{:has_custom_id=>true, :field=>field, :team_id=>[pm.team_id]}, :threshold=>threshold, :match_across_content_types=>true}, "body").returns(response2)
+        Bot::Alegre.stubs(:request_api).with("get", "/text/similarity/", {:text=>"Blah foo bar", :models=>["elasticsearch", Bot::Alegre::MEAN_TOKENS_MODEL], :fuzzy=>false, :context=>{:has_custom_id=>true, :field=>field, :team_id=>[pm.team_id]}, :threshold=>threshold, :match_across_content_types=>true}, "body").returns(response)
       end
     end
     Bot::Alegre.stubs(:matching_model_to_use).with(pm).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
