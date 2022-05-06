@@ -12,25 +12,9 @@ class FactCheckTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not create fact check without summary" do
-    assert_no_difference 'FactCheck.count' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_fact_check summary: nil
-      end
-    end
-  end
-
-  test "should create fact check without url" do
+  test "should create fact check without optional fields" do
     assert_difference 'FactCheck.count' do
-      create_fact_check url: nil
-    end
-  end
-
-  test "should not create fact check without title" do
-    assert_no_difference 'FactCheck.count' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_fact_check title: nil
-      end
+      create_fact_check url: nil, title: nil, summary: nil
     end
   end
 
@@ -100,7 +84,7 @@ class FactCheckTest < ActiveSupport::TestCase
     end
   end
 
-  test "should index text_fields" do
+  test "should index text fields" do
     setup_elasticsearch
     t = create_team
     u = create_user
