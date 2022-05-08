@@ -15,9 +15,10 @@ module SmoochSearch
           self.bundle_messages(uid, '', app_id, 'default_requests', nil, true)
           self.send_final_message_to_user(uid, self.get_menu_string('search_no_results', language), workflow, language)
         else
-          self.send_message_to_user(uid, self.format_search_results(results))
+          self.send_search_results_to_user(uid, results)
           sm.go_to_search_result
           self.save_search_results_for_user(uid, results.map(&:id))
+          sleep 7 # Be sure that the user has enough time to take a look at the results before answering if they are relevant
           self.send_message_for_state(uid, workflow, 'search_result', language)
         end
       rescue StandardError => e
@@ -132,12 +133,13 @@ module SmoochSearch
       results
     end
 
-    def format_search_results(results)
+    def send_search_results_to_user(uid, results)
       results = results.collect { |r| Relationship.confirmed_parent(r) }.uniq
-      results.collect do |r|
-        title = r.fact_check_title || r.report_text_title || r.title
-        "#{title}\n#{r.published_url}"
-      end.join("\n\n")
+      results.each do |result|
+        report = result.get_dynamic_annotation('report_design')
+        self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report&.report_design_image_url }) if report && report.report_design_field_value('use_visual_card')
+        self.send_message_to_user(uid, report.report_design_text) if report && !report.report_design_field_value('use_visual_card') && report.report_design_field_value('use_text_message')
+      end
     end
   end
 end
