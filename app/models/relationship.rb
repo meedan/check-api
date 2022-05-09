@@ -54,6 +54,7 @@ class Relationship < ApplicationRecord
     target = self.target
     target.nil? ? nil : {
       target: {
+        id: target.id,
         title: target.title,
         type: target.report_type,
         url: target.full_url
