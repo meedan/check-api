@@ -217,10 +217,6 @@ class Team < ApplicationRecord
     ProjectMedia.where({ team_id: self.id, archived: CheckArchivedFlags::FlagCodes::TRASHED , sources_count: 0 })
   end
 
-  def unconfirmed
-    ProjectMedia.where({ team_id: self.id, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED , sources_count: 0 })
-  end
-
   def trash_size
     {
       project_media: self.trash_count,
@@ -230,10 +226,6 @@ class Team < ApplicationRecord
 
   def trash_count
     self.trash.count
-  end
-
-  def unconfirmed_count
-    self.unconfirmed.count
   end
 
   def medias_count
@@ -250,10 +242,6 @@ class Team < ApplicationRecord
 
   def check_search_trash
     check_search_filter({ 'archived' => CheckArchivedFlags::FlagCodes::TRASHED })
-  end
-
-  def check_search_unconfirmed
-    check_search_filter({ 'archived' => CheckArchivedFlags::FlagCodes::UNCONFIRMED })
   end
 
   def public_team

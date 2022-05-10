@@ -26,11 +26,6 @@ module ProjectAssociation
     team.check_search_trash
   end
 
-  def check_search_unconfirmed
-    team = self.team
-    team.check_search_unconfirmed
-  end
-
   def as_json(_options = {})
     super.merge({ full_url: self.full_url.to_s })
   end

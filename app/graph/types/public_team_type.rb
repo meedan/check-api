@@ -21,6 +21,5 @@ PublicTeamType = GraphqlCrudOperations.define_default_type do
   end
 
   instance_exec :trash_count, &GraphqlCrudOperations.archived_count
-  instance_exec :unconfirmed_count, &GraphqlCrudOperations.archived_count
 
 end
