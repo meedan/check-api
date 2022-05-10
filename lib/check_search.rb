@@ -22,6 +22,7 @@ class CheckSearch
     adjust_project_filter
     adjust_channel_filter
     adjust_numeric_range_filter
+    adjust_archived_filter
     # set es_id option
     @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['String', 'Integer'].include?(@options['id'].class.name)
     Project.current = Project.where(id: @options['projects'].last).last if @options['projects'].to_a.size == 1 && Project.current.nil?
@@ -213,8 +214,7 @@ class CheckSearch
     }.each do |k, v|
       custom_conditions[k] = [@options[v]].flatten if @options.has_key?(v)
     end
-    archived = @options['archived'].to_i
-    core_conditions.merge!({ archived: archived })
+    core_conditions.merge!({ archived: @options['archived'] })
     core_conditions.merge!({ sources_count: 0 }) unless should_include_related_items?
     build_search_range_filter(:pg, custom_conditions)
     relation = ProjectMedia
@@ -260,8 +260,7 @@ class CheckSearch
     core_conditions = []
     custom_conditions = []
     core_conditions << { terms: { team_id: [@options['team_id']].flatten } } unless @options['team_id'].blank?
-    archived = @options['archived'].to_i
-    core_conditions << { term: { archived: archived } }
+    core_conditions << { terms: { archived: @options['archived'] } }
     custom_conditions << { terms: { read: @options['read'].map(&:to_i) } } if @options.has_key?('read')
     custom_conditions << { terms: { cluster_teams: @options['cluster_teams'] } } if @options.has_key?('cluster_teams')
     core_conditions << { term: { sources_count: 0 } } unless include_related_items
@@ -344,6 +343,10 @@ class CheckSearch
       end
       @options.delete(field)
     end
+  end
+
+  def adjust_archived_filter
+    @options['archived'] = @options['archived'].blank? ? [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED] : [@options['archived']].flatten.map(&:to_i)
   end
 
   def index_exists?
