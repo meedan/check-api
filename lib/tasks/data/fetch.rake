@@ -25,11 +25,11 @@ namespace :check do
       Team.where(slug: slug).find_each do |team|
         puts "Processing #{team.name} workspace..."
         # Steps for clear task
-        # 1. Disable fetch bot
+        # 1. Disable Fetch bot
         # 2. Destroy imported items
         # 3. Destroy imported items cache (semaphores) and fields named `external_id`
-        # 4. Re-install fetch bot
-        # 5. Print fetch & app status to build status_mapping
+        # 4. Re-install Fetch bot
+        # 5. Print Fetch & Check statuses to build STATUS_MAPPING
         # Step 1
         fetch_user = BotUser.find_by_login('fetch')
         unless fetch_user.nil?
@@ -78,9 +78,8 @@ namespace :check do
 
     # bundle exec rails check:fetch:import['slug:team_slug&services:list|of|services']
     task import: :environment do |_t, args|
-      # This task depend on status_mapping
-      # and user must set the mapping using environment variable
-      # i.e export STATUS_MAPPING=mapping.to_json
+      # This task depends on STATUS_MAPPING environment variable, something like `export STATUS_MAPPING=mapping.to_json`
+      # The mapping is a hash, where the key is a Fetch status/rating and the value is an existing Check status identifier (not the label)
       data = parse_args args.extras
       slug = data['slug']
       services = data['services'].split('|')
@@ -91,13 +90,14 @@ namespace :check do
       end
       unless team.nil?
         # Get status mapping
-        # should set status_mapping as environment variable in json format (i.e export STATUS_MAPPING=mapping.to_json)
+        # You must set the status mapping as an environment variable in JSON format (e.g., `export STATUS_MAPPING=mapping.to_json`)
+        # The mapping is a hash, where the key is a Fetch status/rating and the value is an existing Check status identifier (not the label)
         begin
           status_mapping = JSON.parse(ENV["STATUS_MAPPING"])
         rescue JSON::ParserError,TypeError
           raise "Couldn't parse a status mapping. Please pass in a JSON status mapping into the STATUS_MAPPING environment variable."
         end
-        # Install fetch
+        # Install Fetch bot
         fetch_user = BotUser.find_by_login('fetch')
         tbi_fetch = TeamBotInstallation.where(user_id: fetch_user.id, team_id: team.id).last
         if tbi_fetch.nil?
