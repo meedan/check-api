@@ -66,7 +66,7 @@ module SmoochResend
     def resend_newsletter_after_window(message, original)
       template_name = self.config['smooch_template_name_for_newsletter']
       language = original['language']
-      date = I18n.l(Time.now.to_date, locale: language.to_s.tr('_', '-'), format: :short)
+      date = I18n.l(Time.now.to_date, locale: language.to_s.tr('_', '-'), format: :long)
       introduction = original['introduction']
       response = self.send_message_to_user(message['appUser']['_id'], self.format_template_message(template_name, [date, introduction], nil, introduction, language))
       id = self.get_id_from_send_response(response)

@@ -12,6 +12,15 @@ Sidekiq::CloudWatchMetrics.enable!(
   namespace: "sidekiq_checkapi_#{Rails.env}",
   additional_dimensions: { "ClusterName" => "Sidekiq-#{ENV['DEPLOY_ENV']}" } )
 
+# Only enable CloudWatch metrics for QA and Live, not Travis or other
+# integration test environments.
+#
+if "#{ENV['DEPLOY_ENV']}" == 'qa' || "#{ENV['DEPLOY_ENV']}" == 'live'
+  Sidekiq::CloudWatchMetrics.enable!(
+    namespace: "sidekiq_checkapi_#{Rails.env}",
+    additional_dimensions: { "ClusterName" => "Sidekiq-#{ENV['DEPLOY_ENV']}" } )
+end
+
 REDIS_CONFIG = {}
 if File.exist?(file)
   require 'sidekiq/middleware/i18n'

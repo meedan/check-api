@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_10_043747) do
+ActiveRecord::Schema.define(version: 2022_05_06_001039) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -174,9 +174,9 @@ ActiveRecord::Schema.define(version: 2022_04_10_043747) do
   end
 
   create_table "fact_checks", force: :cascade do |t|
-    t.text "summary", null: false
+    t.text "summary"
     t.string "url"
-    t.string "title", null: false
+    t.string "title"
     t.bigint "user_id", null: false
     t.bigint "claim_description_id", null: false
     t.datetime "created_at", null: false
@@ -305,6 +305,12 @@ ActiveRecord::Schema.define(version: 2022_04_10_043747) do
     t.string "target_field"
     t.string "model"
     t.jsonb "details", default: "{}"
+    t.float "original_weight", default: 0.0
+    t.jsonb "original_details", default: "{}"
+    t.string "original_relationship_type"
+    t.string "original_model"
+    t.integer "original_source_id"
+    t.string "original_source_field"
     t.index ["relationship_type"], name: "index_relationships_on_relationship_type"
     t.index ["source_id", "target_id", "relationship_type"], name: "relationship_index", unique: true
   end
