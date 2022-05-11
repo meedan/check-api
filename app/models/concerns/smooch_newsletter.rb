@@ -77,8 +77,13 @@ module SmoochNewsletter
 
     def newsletter_cron(newsletter)
       hour = newsletter['smooch_newsletter_time'].to_i
-      timezone = newsletter['smooch_newsletter_timezone'].to_s.upcase
-      # Mapping for timezones not supported by Ruby's DateTime
+      # If an offset is being passed, it's in the new format
+      if newsletter['smooch_newsletter_timezone'].match?(/\W\d\d:\d\d/)
+        timezone = newsletter['smooch_newsletter_timezone'].match(/\W\d\d:\d\d/)
+      else
+        timezone = newsletter['smooch_newsletter_timezone'].to_s.upcase
+      end
+      # Mapping for old-style timezones not supported by Ruby's DateTime
       timezone = {
         'PHT' => '+0800',
         'CAT' => '+0200'

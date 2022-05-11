@@ -285,18 +285,26 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
   end
 
   test "should format newsletter time as cron" do
-    # Regular time
+    # Offset
     settings = {
       'smooch_newsletter_time' => '10',
-      'smooch_newsletter_timezone' => 'BRT',
-      'smooch_newsletter_day' => 'sunday'
+      'smooch_newsletter_timezone' => 'America/Chicago (GMT-05:00)',
+      'smooch_newsletter_day' => 'friday'
     }
-    assert_equal '0 13 * * 0', Bot::Smooch.newsletter_cron(settings)
+    assert_equal '0 15 * * 5', Bot::Smooch.newsletter_cron(settings)
+
+    # Offset, other direction
+    settings = {
+      'smooch_newsletter_time' => '10',
+      'smooch_newsletter_timezone' => 'Indian/Maldives (GMT+05:00)',
+      'smooch_newsletter_day' => 'friday'
+    }
+    assert_equal '0 5 * * 5', Bot::Smooch.newsletter_cron(settings)
 
     # Non-integer hours offset, but still same day as UTC
     settings = {
       'smooch_newsletter_time' => '19',
-      'smooch_newsletter_timezone' => 'IST',
+      'smooch_newsletter_timezone' => 'Asia/Kolkata (GMT+05:30)',
       'smooch_newsletter_day' => 'sunday'
     }
     assert_equal '30 13 * * 0', Bot::Smooch.newsletter_cron(settings)
@@ -304,7 +312,7 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     # Non-integer hours offset and not same day as UTC
     settings = {
       'smooch_newsletter_time' => '1',
-      'smooch_newsletter_timezone' => 'IST',
+      'smooch_newsletter_timezone' => 'Asia/Kolkata (GMT+05:30)',
       'smooch_newsletter_day' => 'sunday'
     }
     assert_equal '30 19 * * 6', Bot::Smooch.newsletter_cron(settings)
@@ -312,50 +320,10 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     # Integer hours offset and not same day as UTC
     settings = {
       'smooch_newsletter_time' => '23',
-      'smooch_newsletter_timezone' => 'PDT',
+      'smooch_newsletter_timezone' => 'America/Los Angeles (GMT-07:00)',
       'smooch_newsletter_day' => 'sunday'
     }
     assert_equal '0 6 * * 1', Bot::Smooch.newsletter_cron(settings)
-
-    # PHT, which is not supported by Ruby's DateTime
-    settings = {
-      'smooch_newsletter_time' => '7',
-      'smooch_newsletter_timezone' => 'PHT',
-      'smooch_newsletter_day' => 'sunday'
-    }
-    assert_equal '0 23 * * 6', Bot::Smooch.newsletter_cron(settings)
-
-    # CET
-    settings = {
-      'smooch_newsletter_time' => '10',
-      'smooch_newsletter_timezone' => 'CET',
-      'smooch_newsletter_day' => 'friday'
-    }
-    assert_equal '0 9 * * 5', Bot::Smooch.newsletter_cron(settings)
-
-    # CAT
-    settings = {
-      'smooch_newsletter_time' => '10',
-      'smooch_newsletter_timezone' => 'CAT',
-      'smooch_newsletter_day' => 'friday'
-    }
-    assert_equal '0 8 * * 5', Bot::Smooch.newsletter_cron(settings)
-
-    # CST
-    settings = {
-      'smooch_newsletter_time' => '10',
-      'smooch_newsletter_timezone' => 'CST',
-      'smooch_newsletter_day' => 'friday'
-    }
-    assert_equal '0 16 * * 5', Bot::Smooch.newsletter_cron(settings)
-
-    # EST
-    settings = {
-      'smooch_newsletter_time' => '10',
-      'smooch_newsletter_timezone' => 'EST',
-      'smooch_newsletter_day' => 'friday'
-    }
-    assert_equal '0 15 * * 5', Bot::Smooch.newsletter_cron(settings)
 
     # Everyday
     settings = {
