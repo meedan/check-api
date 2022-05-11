@@ -29,7 +29,12 @@ class FactCheck < ApplicationRecord
     report = data[:options].to_a.find{ |o| o[:language] == language }
     unless report
       data[:options] ||= []
-      report = { language: language, use_text_message: true }
+      report = {
+        language: language,
+        use_text_message: true,
+        use_introduction: reports.report_design_team_setting_value('use_introduction', language),
+        introduction: reports.report_design_team_setting_value('introduction', language)
+      }
       data[:options] << report
     end
     report.merge!({
