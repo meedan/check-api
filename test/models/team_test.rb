@@ -2673,4 +2673,15 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal [t.name, t2.name].sort, t.country_teams.values.sort
     assert_empty t4.country_teams
   end
+
+  test "should return number of items" do
+    t = create_team
+    single = create_project_media team: t
+    main = create_project_media team: t
+    suggested = create_project_media team: t
+    confirmed = create_project_media team: t
+    create_relationship source_id: main.id, target_id: suggested.id, relationship_type: Relationship.suggested_type
+    create_relationship source_id: main.id, target_id: confirmed.id, relationship_type: Relationship.confirmed_type
+    assert_equal 3, t.reload.medias_count
+  end
 end
