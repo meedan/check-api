@@ -237,7 +237,7 @@ class Team < ApplicationRecord
   end
 
   def medias_count
-    ProjectMedia.where(team_id: self.id, archived: CheckArchivedFlags::FlagCodes::NONE).joins("LEFT JOIN relationships r ON r.target_id = project_medias.id AND r.relationship_type = '#{Relationship.confirmed_type.to_yaml}'").where('r.id IS NULL').count
+    ProjectMedia.where(team_id: self.id, archived: CheckArchivedFlags::FlagCodes::NONE).joins("LEFT JOIN relationships r ON r.target_id = project_medias.id AND r.relationship_type = '#{Team.sanitize_sql(Relationship.confirmed_type.to_yaml)}'").where('r.id IS NULL').count
   end
 
   def check_search_team
