@@ -158,7 +158,7 @@ module ProjectMediaGetters
     [self.analysis['file_title'], self.analysis['title'], self.fact_check_title, self.claim_description_content].each do |value|
       title = value if !value.blank? && value != '-' && value != '​'
     end
-    title
+    title.to_s
   end
 
   def get_description
