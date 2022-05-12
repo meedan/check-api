@@ -1,6 +1,6 @@
 require 'active_support/concern'
 
-module SmoochVersions
+module SmoochFields
   extend ActiveSupport::Concern
 
   module ClassMethods
