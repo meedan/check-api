@@ -42,6 +42,11 @@ class DynamicAnnotation::Field < ApplicationRecord
     self.annotation.team
   end
 
+  def associated_graphql_id
+    annotation = self.annotation
+    Base64.encode64("#{annotation.annotated_type}/#{annotation.annotated_id}")
+  end
+
   protected
 
   def method_suggestions(prefix)
