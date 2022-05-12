@@ -154,11 +154,11 @@ module ProjectMediaGetters
   end
 
   def get_title
-    analysis = self.analysis
-    analysis_title = analysis['title'].blank? ? nil : analysis['title']
-    file_title = analysis['file_title'].blank? ? nil : analysis['file_title']
-    title = self.claim_description_content || analysis_title || file_title || self.original_title
-    (self.get_main_channel == CheckChannels::ChannelCodes::FETCH || title == '​') ? self.fact_check_title : title
+    title = self.original_title
+    [self.analysis['file_title'], self.analysis['title'], self.fact_check_title, self.claim_description_content].each do |value|
+      title = value if !value.blank? && value != '-' && value != '​'
+    end
+    title
   end
 
   def get_description
