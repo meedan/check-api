@@ -328,10 +328,18 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     # Everyday
     settings = {
       'smooch_newsletter_time' => '10',
-      'smooch_newsletter_timezone' => 'EST',
+      'smooch_newsletter_timezone' => 'America/New York (GMT-04:00)',
       'smooch_newsletter_day' => 'everyday'
     }
-    assert_equal '0 15 * * *', Bot::Smooch.newsletter_cron(settings)
+    assert_equal '0 14 * * *', Bot::Smooch.newsletter_cron(settings)
+
+    # Legacy 3 letter codes
+    settings = {
+      'smooch_newsletter_time' => '10',
+      'smooch_newsletter_timezone' => 'EST',
+      'smooch_newsletter_day' => 'sunday'
+    }
+    assert_equal '0 15 * * 0', Bot::Smooch.newsletter_cron(settings)
   end
 
   test "should not timeout after subscribing to newsletter" do
