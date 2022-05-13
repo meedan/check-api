@@ -33,7 +33,9 @@ class FactCheck < ApplicationRecord
         language: language,
         use_text_message: true,
         use_introduction: !!reports.report_design_team_setting_value('use_introduction', language),
-        introduction: reports.report_design_team_setting_value('introduction', language).to_s
+        introduction: reports.report_design_team_setting_value('introduction', language).to_s,
+        status_label: pm.status_i18n(pm.last_verification_status, { locale: language }),
+        theme_color: pm.last_status_color
       }
       data[:options] << report
     end
