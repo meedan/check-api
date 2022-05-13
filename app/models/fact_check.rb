@@ -32,8 +32,8 @@ class FactCheck < ApplicationRecord
       report = {
         language: language,
         use_text_message: true,
-        use_introduction: reports.report_design_team_setting_value('use_introduction', language),
-        introduction: reports.report_design_team_setting_value('introduction', language)
+        use_introduction: !!reports.report_design_team_setting_value('use_introduction', language),
+        introduction: reports.report_design_team_setting_value('introduction', language).to_s
       }
       data[:options] << report
     end
