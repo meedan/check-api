@@ -27,13 +27,26 @@ namespace :check do
         # - Source (create/update)
         condition[:item_type] = 'Source'
         Version.from_partition(team.id).where(condition).delete_all
+        # -Comment
+        condition[:item_type] = 'Comment'
+        Version.from_partition(team.id).where(condition).delete_all
+        # TODO: Review tags logs
         # - TeamBotInstallation (create/update)
         condition[:item_type] = 'TeamBotInstallation'
         Version.from_partition(team.id).where(condition).delete_all
         # - TiplineSubscription (create/update)
         condition[:item_type] = 'TiplineSubscription'
-        Version.from_partition(team.id).where(condition).delete_all
-        # - Annotations (create/update/destroy) [keep the following types -['tag', 'report_design', 'verification_status']-]
+        Version.from_partition(team.id).where(condition).where.not(event: 'destroy').delete_all
+        # - Annotations (create/update/destroy) [keep the following types -['report_design', 'verification_status']-]
+        team.project_medias.find_in_batches(:batch_size => 2500) do |pms|
+          pm_ids = pm.map(&:id)
+          Dynamic.where(annotated_type: 'ProjectMedia', annotated_id: pm_ids)
+          .where.not(annotation_type: ['verification_status', 'report_design']).find_in_batches(:batch_size => 2500) do |ds|
+            ds_ids = ds.map(&:id)
+            Version.from_partition(team.id).where(item_type: 'Dynamic', item_id: ds_ids).delete_all
+          end
+        end
+        # - TODO
         # - Field (create/update) [keep the following field names -[verification_status_status] || , f.annotation_type =~ /^task_response/]-]
         after_c = Version.from_partition(team.id).count
         diff_c = before_c - after_c
