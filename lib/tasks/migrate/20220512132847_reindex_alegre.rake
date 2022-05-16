@@ -70,12 +70,13 @@ namespace :check do
       end
       threads.each do |t|
         t.join
-        t[:output].map{|x| received_cases << x};false
+        if t[:output].class.name == 'Hash' && t[:output]['type'] == 'error'
+          log_errors << { message: t[:output]['data']}
+        else
+          t[:output].map{|x| received_cases << x};false
+        end
       end
       puts received_cases.length
-      if output.class.name == 'Hash' && output['type'] == 'error'
-        log_errors << { message: output['data']}
-      end
       unless log_errors.empty?
         puts "[#{Time.now}] #{log_errors.size} project medias couldn't be updated:"
         puts log_errors
