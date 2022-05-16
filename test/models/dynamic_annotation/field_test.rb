@@ -39,6 +39,8 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
     value = { 'lat' => '-13.34', 'lon' => '2.54' }
     f = create_field value: value
     assert_equal value, f.reload.value
+    # get associated_graphql_id
+    assert_kind_of String, f.reload.associated_graphql_id
   end
 
   test "should get string value" do

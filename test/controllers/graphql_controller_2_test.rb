@@ -434,6 +434,24 @@ class GraphqlController2Test < ActionController::TestCase
     assert_equal tbi.graphql_id, data['deletedId']
   end
 
+  test "should get task by id" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+    tk = create_task annotated: pm
+
+
+    query = "query GetById { task(id: \"#{tk.id}\") { project_media { id }, options, responses { edges { node { id } } } } }"
+    post :create, params: { query: query, team: t.slug }
+
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['task']
+    assert_kind_of Array, data['options']
+  end
+
   test "should get team tag_texts" do
     t = create_team
     p = create_project team: t

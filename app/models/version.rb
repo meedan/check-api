@@ -103,17 +103,6 @@ class Version < Partitioned::ByForeignKey
     self.meta = item.version_metadata(self.object_changes) if !item.nil? && item.respond_to?(:version_metadata)
   end
 
-  def task
-    task = nil
-    if self.item && self.item_type == 'DynamicAnnotation::Field'
-      annotation = self.item.annotation
-      if annotation && annotation.annotation_type =~ /response/ && annotation.annotated_type == 'Task'
-        task = Task.where(id: annotation.annotated_id).last
-      end
-    end
-    task
-  end
-
   def deserialize_change(d)
     ret = d
     unless d.nil? || !d.is_a?(String)
@@ -136,7 +125,7 @@ class Version < Partitioned::ByForeignKey
 
   def get_associated
     case self.event_type
-    when 'create_comment', 'create_tag', 'create_task', 'update_task', 'create_dynamic', 'update_dynamic', 'destroy_comment', 'destroy_tag', 'destroy_task', 'create_dynamicannotationfield', 'update_dynamicannotationfield'
+    when 'create_tag', 'create_dynamic', 'update_dynamic', 'destroy_tag', 'create_dynamicannotationfield', 'update_dynamicannotationfield'
       self.get_associated_from_annotation(self.event_type, self.item)
     when 'create_projectmedia', 'update_projectmedia'
       [self.item.class.name, self.item_id.to_i]
@@ -161,17 +150,13 @@ class Version < Partitioned::ByForeignKey
 
   def get_associated_from_core_annotation(annotation)
     associated = [nil, nil]
-    if annotation && ['ProjectMedia', 'Task'].include?(annotation.annotated_type)
-      associated = annotation.annotation_type =~ /response/ && annotation.annotated_type == 'Task' ? ['ProjectMedia', annotation.annotated.annotated_id.to_i] : [annotation.annotated_type, annotation.annotated_id.to_i]
+    if annotation && annotation.annotated_type == 'ProjectMedia'
+      associated = [annotation.annotated_type, annotation.annotated_id.to_i]
     end
     associated
   end
 
   def get_associated_from_dynamic_annotation
-    if self.item.is_a?(DynamicAnnotation::Field) && self.item.field_name =~ /^(suggestion|review)_/
-      task = begin Task.find(self.item.annotation.annotated_id) rescue nil end
-      return ['Task', task.id] unless task.nil?
-    end
     annotation = self.item.annotation if self.item
     self.get_associated_from_core_annotation(annotation)
   end

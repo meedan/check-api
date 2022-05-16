@@ -978,7 +978,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should get published time for oEmbed" do
-    create_task_status_stuff
     url = 'http://twitter.com/test/123456'
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"1989-01-25 08:30:00"}}'
