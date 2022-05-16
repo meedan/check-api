@@ -31,6 +31,7 @@ class TiplineNewsletterWorker
         end
       end
     end
+    log team_id, language, "Newsletter sent to #{count} subscribers"
     count
   end
 
