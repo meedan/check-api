@@ -249,16 +249,6 @@ module SampleData
     create_verification_status_stuff(false) unless DynamicAnnotation::AnnotationType.where(annotation_type: 'verification_status').exists?
   end
 
-  def create_task_status_stuff(delete_existing = true)
-    if delete_existing
-      [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
-      create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
-    end
-    ft1 = DynamicAnnotation::FieldType.where(field_type: 'select').last || create_field_type(field_type: 'select', label: 'Select')
-    at = create_annotation_type annotation_type: 'task_status', label: 'Task Status'
-    create_field_instance annotation_type_object: at, name: 'task_status_status', label: 'Task Status', default_value: 'unresolved', field_type_object: ft1, optional: true
-  end
-
   def create_task_stuff(delete_existing = true)
     if delete_existing
       [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }

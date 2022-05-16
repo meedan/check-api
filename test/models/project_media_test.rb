@@ -660,17 +660,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should get log" do
     create_verification_status_stuff
-    create_task_status_stuff(false)
     m = create_valid_media
     u = create_user
     t = create_team
     p = create_project team: t
     p2 = create_project team: t
     create_team_user user: u, team: t, role: 'admin'
-    at = create_annotation_type annotation_type: 'response'
-    ft2 = DynamicAnnotation::FieldType.where(field_type: 'text').last || create_field_type(field_type: 'text')
-    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
-    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'note'
 
     with_current_user_and_team(u, t) do
       pm = create_project_media project: p, media: m, user: u
@@ -681,11 +676,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
       s.status = 'In Progress'; s.save!
       info = { title: 'Foo' }; pm.analysis = info; pm.save!
       info = { title: 'Bar' }; pm.analysis = info; pm.save!
-      t = create_task annotated: pm, annotator: u
-      t = Task.find(t.id); t.response = { annotation_type: 'response', set_fields: { response: 'Test', note: 'Test' }.to_json }.to_json; t.save!
-      t = Task.find(t.id); t.label = 'Test?'; t.save!
-      r = DynamicAnnotation::Field.where(field_name: 'response').last; r.value = 'Test 2'; r.save!
-      r = DynamicAnnotation::Field.where(field_name: 'note').last; r.value = 'Test 2'; r.save!
 
       assert_equal ["create_dynamic", "create_dynamicannotationfield", "create_projectmedia", "create_tag", "update_dynamicannotationfield"].sort, pm.get_versions_log.map(&:event_type).sort
       assert_equal 4, pm.get_versions_log_count

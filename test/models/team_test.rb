@@ -1092,7 +1092,6 @@ class TeamTest < ActiveSupport::TestCase
   test "should match rule based on status" do
     RequestStore.store[:skip_cached_field_update] = false
     create_verification_status_stuff
-    create_task_status_stuff(false)
     setup_elasticsearch
     t = create_team
     p0 = create_project team: t
