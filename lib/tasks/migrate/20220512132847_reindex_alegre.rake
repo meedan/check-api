@@ -19,7 +19,7 @@ namespace :check do
         counter += 1
         progressbar = ProgressBar.create(:title => "Update team [#{tb.team_id}]: #{counter}/#{team_total}", :total => total)
         ProjectMedia.where(team_id: tb.team_id).where("project_medias.id > ? ", last_id)
-        .where("project_medias.created_at < ?", Time.parse("2022-05-13")
+        .where("project_medias.created_at < ?", Time.parse("2022-05-13"))
         .where("project_medias.created_at > ?", Time.parse("2020-01-01")).includes(claim_description: :fact_check).order(:id)
         .find_in_batches(:batch_size => 2500) do |pms|
           progressbar.increment
