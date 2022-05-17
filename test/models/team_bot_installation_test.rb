@@ -191,18 +191,6 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
     assert !tbi.get_archive_keep_backup_enabled
   end
 
-  test "should create a paper trail on changes" do
-    u = create_user is_admin: true
-    t = create_team
-    tb = create_team_bot set_approved: true
-    create_team_user team: t, user: u, role: 'admin'
-    assert_difference 'Version.count' do
-      with_current_user_and_team(u, t) do
-        tb.install_to!(t)
-      end
-    end
-  end
-
   test "should add files" do
     b = create_team_bot login: 'smooch', set_approved: true
     tbi = create_team_bot_installation user_id: b.id, settings: { smooch_workflows: [{}, {}] }

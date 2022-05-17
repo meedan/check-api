@@ -60,29 +60,6 @@ class AccountTest < ActiveSupport::TestCase
     assert_equal [m1, m2], @account.medias.to_a
   end
 
-  test "should create version when account is created" do
-    u = create_user
-    create_team_user user: u
-    s = create_source
-    User.current = u
-    a = create_account source: s
-    assert_equal 1, a.versions.size
-    User.current = nil
-  end
-
-  test "should create version when account is updated" do
-    t = create_team
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    with_current_user_and_team(u, t) do
-      a = create_account
-      a.team = create_team
-      a.save!
-      assert_equal 2, a.versions.size
-    end
-
-  end
-
   test "should get user id from callback" do
     u = create_user email: 'test@test.com'
     @account.user = u

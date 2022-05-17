@@ -5,7 +5,6 @@ class TaskTest < ActiveSupport::TestCase
     super
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
-    create_task_status_stuff
   end
 
   test "should create task" do
@@ -57,16 +56,6 @@ class TaskTest < ActiveSupport::TestCase
     t = Task.new
     t.jsonoptions = ['foo', 'bar'].to_json
     assert_equal ['foo', 'bar'], t.options
-  end
-
-  test "should create and update status" do
-    t = create_task status: 'unresolved'
-    d = create_dynamic_annotation annotation_type: 'task_status', annotated: t, set_fields: { task_status_status: 'unresolved' }.to_json
-    assert_equal 'unresolved', t.reload.status
-    # update status
-    t.status = 'resolved'
-    t.save!
-    assert_equal 'resolved', t.reload.status
   end
 
   test "should add response to task" do
@@ -282,102 +271,6 @@ class TaskTest < ActiveSupport::TestCase
     assert_equal t, t.task
   end
 
-  test "should have cached log count" do
-    t = create_task
-    assert_nil t.log_count
-    c = create_comment annotated: t
-    assert_equal 1, t.reload.log_count
-    create_comment annotated: t
-    assert_equal 2, t.reload.log_count
-    c.destroy
-    assert_equal 1, t.reload.log_count
-  end
-
-  test "should have log" do
-    u = create_user is_admin: true
-    t = create_team
-    with_current_user_and_team(u, t) do
-      tk = create_task
-      assert_equal 0, tk.reload.log.count
-      create_comment annotated: tk
-      assert_equal 1, tk.reload.log.count
-      create_comment annotated: tk
-      assert_equal 2, tk.reload.log.count
-    end
-  end
-
-  test "should update parent log count when comment is added to task" do
-    u = create_user is_admin: true
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    tk = create_task annotated: pm
-    with_current_user_and_team(u, t) do
-      assert_equal 0, pm.reload.cached_annotations_count
-      create_comment annotated: tk
-      assert_equal 2, pm.reload.cached_annotations_count
-      c = create_comment annotated: tk
-      assert_equal 4, pm.reload.cached_annotations_count
-    end
-  end
-
-  test "should save comment in version" do
-    u = create_user is_admin: true
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    with_current_user_and_team(u, t) do
-      tk = create_task annotated: pm
-      c = create_comment annotated: tk, text: 'Foo Bar'
-      meta = pm.reload.get_versions_log.where(event_type: 'update_task').last.meta
-      assert_equal 'Foo Bar', JSON.parse(meta)['data']['text']
-    end
-  end
-
-  test "should accept suggestion from bot" do
-    text = create_field_type field_type: 'text', label: 'Text'
-    json = DynamicAnnotation::FieldType.where(field_type: 'json').last || create_field_type(field_type: 'json', label: 'JSON')
-    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task Response Free Text'
-    create_field_instance annotation_type_object: at, name: 'review_free_text', label: 'Review', field_type_object: json, optional: true
-    create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: text, optional: false
-    create_field_instance annotation_type_object: at, name: 'suggestion_free_text', label: 'Suggestion', field_type_object: json, optional: true
-
-    tb = create_team_bot
-    t = create_task type: 'free_text'
-    assert_raises ActiveRecord::RecordInvalid do
-      t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: '', suggestion_free_text: 'invalid' }.to_json }.to_json
-    end
-    t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: '', suggestion_free_text: { suggestion: 'Test', comment: 'Nothing' }.to_json }.to_json }.to_json
-    t.save!
-    assert_equal '', t.reload.first_response
-
-    t = Task.find t.id
-    t.accept_suggestion = 0
-    t.save!
-    assert_equal 'Test', t.reload.first_response
-
-    t = create_task type: 'free_text'
-    t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: '', suggestion_free_text: { suggestion: 'Test', comment: 'Nothing' }.to_json }.to_json }.to_json
-    t.save!
-    assert_equal '', t.reload.first_response
-
-    t = Task.find t.id
-    t.reject_suggestion = 0
-    t.save!
-    assert_equal '', t.reload.first_response
-
-    u = create_user is_admin: true
-    with_current_user_and_team(u, create_team) do
-      t = create_task type: 'free_text'
-      assert_nil t.reload.suggestions_count
-      t.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: '', suggestion_free_text: { suggestion: 'Test', comment: 'Nothing' }.to_json }.to_json }.to_json
-      assert_equal 1, Task.find(t.id).suggestions_count
-      f = t.responses.first.get_fields.select{ |f| f.field_name =~ /suggestion/ }.last
-      assert_equal 'Task', f.versions.last.associated_type
-      assert_equal t.id, f.versions.last.associated_id
-    end
-  end
-
   test "should get completed and opended tasks" do
     at = create_annotation_type annotation_type: 'task_response'
     create_field_instance annotation_type_object: at, name: 'response_test'
@@ -411,33 +304,6 @@ class TaskTest < ActiveSupport::TestCase
     tk2.save!
     assert_equal 0, pm.open_tasks.count
     assert_equal 2, pm.completed_tasks_count
-  end
-
-  test "should respect task state transition roles" do
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    tk = create_task annotated: pm
-    create_dynamic_annotation annotation_type: 'task_status', annotated: tk, set_fields: { task_status_status: 'unresolved' }.to_json
-    tk.status = 'resolved'
-    tk.save!
-    u = create_user
-    create_team_user team: t, user: u, role: 'collaborator'
-    assert_equal 'resolved', tk.reload.status
-    with_current_user_and_team(u ,t) do
-      a = Annotation.where(annotation_type: 'task_status', annotated_type: 'Task', annotated_id: tk.id).last.load
-      f = a.get_field('task_status_status')
-      f.value = 'unresolved'
-      assert_raises ActiveRecord::RecordInvalid do
-        f.save!
-      end
-    end
-  end
-
-  test "should get status label" do
-    t = create_task
-    create_dynamic_annotation annotation_type: 'task_status', annotated: t, set_fields: { task_status_status: 'unresolved' }.to_json
-    assert_equal 'Unresolved', t.last_task_status_label
   end
 
   test "should allow editor to delete task" do

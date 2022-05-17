@@ -35,27 +35,6 @@ class SourceTest < ActiveSupport::TestCase
     end
   end
 
-  test "should create version when source is created" do
-    u = create_user
-    create_team_user user: u, role: 'collaborator'
-    User.current = u
-    s = create_source
-    assert_equal 1, s.versions.size
-    User.current = nil
-  end
-
-  test "should create version when source is updated" do
-    t = create_team
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    with_current_user_and_team(u, t) do
-      s = create_source
-      s.slogan = 'test'
-      s.save!
-      assert_equal 2, s.versions.size
-    end
-  end
-
   test "should have accounts" do
     a1 = create_valid_account
     a2 = create_valid_account

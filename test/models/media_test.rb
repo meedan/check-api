@@ -105,33 +105,6 @@ class MediaTest < ActiveSupport::TestCase
     assert_not_empty media.annotations('metadata')
   end
 
-  test "should create version when media is created" do
-    u = create_user
-    create_team_user user: u
-    User.current = u
-    m = create_valid_media
-    User.current = nil
-    assert_equal 1, m.versions.size
-  end
-
-  test "should create version when media is updated" do
-    u = create_user
-    t = create_team
-    p = create_project team: t
-    create_team_user user: u, team: t, role: 'admin'
-    u2 = create_user
-    m = nil
-    with_current_user_and_team(u, t) do
-      m = create_valid_media
-      create_project_media project: p, media: m
-      assert_equal 1, m.versions.size
-      m = m.reload
-      m.user = u2
-      m.save!
-    end
-    assert_equal 2, m.reload.versions.size
-  end
-
   test "should not update url when media is updated" do
     m = create_valid_media
     m = m.reload

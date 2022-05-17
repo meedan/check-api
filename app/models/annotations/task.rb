@@ -33,9 +33,6 @@ class Task < ApplicationRecord
   validate :task_options_is_array
 
   field :slug
-  field :log_count, Integer
-  field :suggestions_count, Integer
-  field :pending_suggestions_count, Integer
   field :team_task_id, Integer
   field :order, Integer
   field :json_schema
@@ -49,20 +46,6 @@ class Task < ApplicationRecord
   # TODO: Sawy::remove this method and handle slack notification for sources
   def task_send_slack_notification
     self.send_slack_notification unless self.annotated_type == 'Source'
-  end
-
-  def status=(value)
-    a = Annotation.where(annotation_type: 'task_status', annotated_type: 'Task', annotated_id: self.id).last
-    a = a.nil? ? nil : (a.load || a)
-    return nil if a.nil?
-    f = a.get_field('task_status_status')
-    f.value = value
-    f.skip_check_ability = true
-    f.save!
-  end
-
-  def status
-    self.last_task_status
   end
 
   def to_s
@@ -97,7 +80,7 @@ class Task < ApplicationRecord
 
   def content
     hash = {}
-    %w(label type description options status suggestions_count pending_suggestions_count order).each{ |key| hash[key] = self.send(key) }
+    %w(label type description options order).each{ |key| hash[key] = self.send(key) }
     hash.to_json
   end
 
@@ -175,15 +158,6 @@ class Task < ApplicationRecord
     @response
   end
 
-  def version_object
-    uid = User.current&.id
-    @response ||= self.first_response_obj
-    return @version_object if @response.nil?
-    @field ||= @response.get_fields.select{ |f| f.field_name =~ /^response/ }.first
-    return @version_object if @field.nil?
-    Version.from_partition(self.team&.id).where(whodunnit: uid, item_type: 'DynamicAnnotation::Field', item_id: @field.id.to_s).last
-  end
-
   def first_response
     @response ||= self.first_response_obj
     return nil if @response.nil?
@@ -193,43 +167,6 @@ class Task < ApplicationRecord
 
   def task
     Task.where(id: self.id).last
-  end
-
-  def log
-    Version.from_partition(self.team&.id).where(associated_type: 'Task', associated_id: self.id).where.not("object_after LIKE '%task_status%'").order('id ASC')
-  end
-
-  def reject_suggestion=(version_id)
-    self.handle_suggestion(false, version_id)
-  end
-
-  def accept_suggestion=(version_id)
-    self.handle_suggestion(true, version_id)
-  end
-
-  def handle_suggestion(accept, version_id)
-    response = self.responses.first
-    return if response.nil?
-    response = response.load
-    suggestion = response.get_fields.select{ |f| f.field_name =~ /^suggestion/ }.first
-    return if suggestion.nil?
-
-    # Save review information and copy suggestion to answer if accepted
-    review = { user: User.current, timestamp: Time.now, accepted: accept }.to_json
-    fields = { "review_#{self.type}" => review }
-    if accept
-      fields["response_#{self.type}"] = suggestion.to_s
-    end
-    response.set_fields = fields.to_json
-    response.updated_at = Time.now
-    response.save!
-
-    # Save review information in version
-    version = Version.from_partition(self.team&.id).where(id: version_id).last
-    version.update_column(:meta, review) unless version.nil?
-
-    # Update number of suggestions
-    self.pending_suggestions_count -= 1 if self.pending_suggestions_count.to_i > 0
   end
 
   def show_in_browser_extension
@@ -318,59 +255,6 @@ class Task < ApplicationRecord
   def destroy_elasticsearch_task
     # Remove task with answer from ES
     self.destroy_es_items('task_responses', 'destroy_doc_nested', self.project_media)
-  end
-end
-
-Comment.class_eval do
-  after_create :increment_task_log_count
-  after_destroy :decrement_task_log_count
-
-  protected
-
-  def update_task_log_count(value)
-    return unless self.annotated_type == 'Task'
-    RequestStore[:task_comment] = self
-    task = self.annotated.reload
-    parent = task.annotated
-    return if parent&.reload&.archived > CheckArchivedFlags::FlagCodes::NONE
-    task.log_count ||= 0
-    task.log_count += value
-    task.skip_check_ability = true
-    task.save!
-    unless parent.nil?
-      count = parent.reload.cached_annotations_count + value
-      parent.update_columns(cached_annotations_count: count)
-    end
-  end
-
-  private
-
-  def increment_task_log_count
-    self.update_task_log_count(1)
-  end
-
-  def decrement_task_log_count
-    self.update_task_log_count(-1)
-  end
-end
-
-Version.class_eval do
-  after_create :increment_task_suggestions_count
-
-  private
-
-  def increment_task_suggestions_count
-    object = JSON.parse(self.object_after)
-    if object['field_name'] =~ /^suggestion_/ && self.associated_type == 'Task'
-      task = Task.find(self.associated_id)
-      task.suggestions_count ||= 0
-      task.suggestions_count += 1
-      task.pending_suggestions_count ||= 0
-      task.pending_suggestions_count += 1
-      task.skip_notifications = true
-      task.skip_check_ability = true
-      task.save!
-    end
   end
 end
 
