@@ -25,6 +25,8 @@ class TiplineNewsletterWorker
                 log team_id, language, "Could not send newsletter to subscriber ##{ts.id}: #{e.message}"
               end
             end
+            newsletter['smooch_newsletter_last_sent_at'] = Time.now
+            tbi.save!
           else
             log team_id, language, 'Not sending newsletter because content has not changed since the last delivery'
           end
