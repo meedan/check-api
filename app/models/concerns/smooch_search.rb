@@ -18,8 +18,7 @@ module SmoochSearch
           self.send_search_results_to_user(uid, results)
           sm.go_to_search_result
           self.save_search_results_for_user(uid, results.map(&:id))
-          sleep 7 # Be sure that the user has enough time to take a look at the results before answering if they are relevant
-          self.send_message_for_state(uid, workflow, 'search_result', language)
+          self.delay_for(1.second).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, 1)
         end
       rescue StandardError => e
         self.handle_search_error(uid, e, language)
@@ -134,11 +133,32 @@ module SmoochSearch
     end
 
     def send_search_results_to_user(uid, results)
+      redis = Redis.new(REDIS_CONFIG)
       results = results.collect { |r| Relationship.confirmed_parent(r) }.uniq
       results.each do |result|
         report = result.get_dynamic_annotation('report_design')
-        self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report&.report_design_image_url }) if report && report.report_design_field_value('use_visual_card')
-        self.send_message_to_user(uid, report.report_design_text) if report && !report.report_design_field_value('use_visual_card') && report.report_design_field_value('use_text_message')
+        response = nil
+        response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report&.report_design_image_url }) if report && report.report_design_field_value('use_visual_card')
+        response = self.send_message_to_user(uid, report.report_design_text) if report && !report.report_design_field_value('use_visual_card') && report.report_design_field_value('use_text_message')
+        id = self.get_id_from_send_response(response)
+        redis.rpush("smooch:search:#{uid}", id) unless id.blank?
+      end
+    end
+
+    def user_received_search_result(message)
+      uid = message['appUser']['_id']
+      id = message['message']['_id']
+      redis = Redis.new(REDIS_CONFIG)
+      redis.lrem("smooch:search:#{uid}", 0, id) if redis.exists("smooch:search:#{uid}") == 1
+    end
+
+    def ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, attempts)
+      redis = Redis.new(REDIS_CONFIG)
+      if redis.llen("smooch:search:#{uid}") == 0 && CheckStateMachine.new(uid).state.value == 'search_result'
+        self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
+        self.send_message_for_state(uid, workflow, 'search_result', language)
+      else
+        self.delay_for(1.second).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, attempts + 1) if attempts < 30 # Try for 30 seconds
       end
     end
   end
