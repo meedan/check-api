@@ -288,6 +288,7 @@ class Bot::Smooch < BotUser
         true
       when 'message:delivery:channel'
         self.user_received_report(json)
+        self.user_received_search_result(json)
         true
       else
         false

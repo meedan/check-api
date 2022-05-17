@@ -380,4 +380,33 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     }.to_json
     assert Bot::Smooch.run(payload)
   end
+
+  test "should send feedback message after user receive search results" do
+    uid = random_string
+    CheckStateMachine.new(uid).go_to_search_result
+    id = random_string
+    redis = Redis.new(REDIS_CONFIG)
+    redis.rpush("smooch:search:#{uid}", id)
+    assert_equal 1, redis.llen("smooch:search:#{uid}")
+    Bot::Smooch.ask_for_feedback_when_all_search_results_are_received(@app_id, 'en', {}, uid, 1)
+    Sidekiq::Testing.inline! do
+      payload = {
+        trigger: 'message:delivery:channel',
+        app: {
+          '_id': @app_id
+        },
+        version: 'v1.1',
+        source: { type: 'whatsapp' },
+        conversation: { '_id': random_string },
+        message: { '_id': id },
+        appUser: {
+          '_id': uid,
+          'conversationStarted': true
+        }
+      }.to_json
+      assert Bot::Smooch.run(payload)
+      Bot::Smooch.ask_for_feedback_when_all_search_results_are_received(@app_id, 'en', {}, uid, 1)
+      assert_equal 0, redis.llen("smooch:search:#{uid}")
+    end
+  end
 end
