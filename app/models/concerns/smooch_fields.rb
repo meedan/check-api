@@ -50,11 +50,7 @@ module SmoochFields
 
       def smooch_report_received_at
         Concurrent::Future.execute(executor: POOL) do
-          begin
-            self.annotation.load.get_field_value('smooch_report_received').to_i
-          rescue
-            nil
-          end
+          begin self.annotation.load.get_field_value('smooch_report_received').to_i rescue nil end
         end
       end
 
