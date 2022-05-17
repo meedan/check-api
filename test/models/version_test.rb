@@ -145,6 +145,15 @@ class VersionTest < ActiveSupport::TestCase
   test "should get project media" do
     v = create_version
     assert_not_nil v.project_media
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'admin'
+    with_current_user_and_team(u, t) do
+      pm = create_project_media team: t
+      tg = create_tag annotated: pm
+      v = tg.versions.last
+      assert_not_nil v.project_media
+    end
   end
 
   test "should get associated" do
