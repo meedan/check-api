@@ -12,6 +12,21 @@ class FactCheckTest < ActiveSupport::TestCase
     end
   end
 
+  test "should have versions" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'admin'
+    pm = create_project_media team: t
+    cd = create_claim_description project_media: pm, user: u
+    with_current_user_and_team(u, t) do
+      fc = nil
+      assert_difference 'PaperTrail::Version.count', 1 do
+        fc = create_fact_check claim_description: cd, user: u
+      end
+      assert_equal 1, fc.versions.count
+    end
+  end
+
   test "should create fact check without optional fields" do
     assert_difference 'FactCheck.count' do
       create_fact_check url: nil, title: nil, summary: nil

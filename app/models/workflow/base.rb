@@ -27,10 +27,6 @@ module Workflow
       CheckConfig.set('default_project_media_workflow', self.id)
     end
 
-    def self.check_default_task_workflow
-      CheckConfig.set('default_task_workflow', self.id)
-    end
-
     def self.workflow_permissions
       klass = self
       proc do

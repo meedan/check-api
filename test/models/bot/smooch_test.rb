@@ -512,11 +512,11 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert Bot::Smooch.run(payload)
 
     pm = ProjectMedia.last
-    v = Version.joins("INNER JOIN dynamic_annotation_fields daf ON daf.id::text = versions.item_id AND versions.item_type = 'DynamicAnnotation::Field' INNER JOIN annotations a ON a.id = daf.annotation_id").where('a.annotated_id' => pm.id).last
-    assert_not_nil v
-    assert_nil Version.first.smooch_report_received_at
-    assert_equal 0, v.reload.smooch_report_received_at
-    assert_nil v.reload.smooch_report_update_received_at
+    sm = pm.get_annotations('smooch').last
+    df = DynamicAnnotation::Field.where(annotation_id: sm.id, field_name: 'smooch_data').last
+    assert_not_nil df
+    assert_equal 0, df.reload.smooch_report_received_at
+    assert_nil df.reload.smooch_report_update_received_at
     r = publish_report(pm)
     assert_equal 0, r.reload.sent_count
     msg_id = random_string
@@ -546,8 +546,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     f1 = DynamicAnnotation::Field.where(field_name: 'smooch_report_received').last
     assert_not_nil f1
     t1 = f1.value
-    assert_equal t1, v.reload.smooch_report_received_at
-    assert_nil v.reload.smooch_report_update_received_at
+    assert_equal t1, df.reload.smooch_report_received_at
+    assert_nil df.reload.smooch_report_update_received_at
     assert_equal 1, r.reload.sent_count
 
     sleep 1
@@ -556,8 +556,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     f2 = DynamicAnnotation::Field.where(field_name: 'smooch_report_received').last
     assert_equal f1, f2
     t2 = f2.value
-    assert_equal t2, v.reload.smooch_report_received_at
-    assert_equal t2, v.reload.smooch_report_update_received_at
+    assert_equal t2, df.reload.smooch_report_received_at
+    assert_equal t2, df.reload.smooch_report_update_received_at
     assert_equal 1, r.reload.sent_count
 
     assert t2 > t1
@@ -642,8 +642,9 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     }.to_json
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
-    v = Version.where("object_after LIKE '%smooch_data%'").last
-    assert_equal 'en', v.smooch_user_request_language
+    sm = pm.get_annotations('smooch').last.load
+    f = sm.get_field('smooch_data')
+    assert_equal 'en', f.smooch_user_request_language
   end
 
   test "should get turn.io installation" do
