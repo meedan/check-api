@@ -11,7 +11,6 @@ namespace :check do
       sent_cases = []
       received_cases = []
       BotUser.alegre_user.team_bot_installations.find_each do |tb|
-        next if !tb.team.get_master_similarity_enabled || !tb.team.get_text_similarity_enabled
         models = [tb.get_alegre_model_in_use, Bot::Alegre::ELASTICSEARCH_MODEL].compact.uniq
         last_id = Rails.cache.read("check:migrate:update_alegre_stored_team_#{tb.team_id}:pm_id") || 0
         pm_all_count = ProjectMedia.where(team_id: tb.team_id).where("project_medias.id > ? ", last_id)
@@ -20,6 +19,7 @@ namespace :check do
         counter += 1
         progressbar = ProgressBar.create(:title => "Update team [#{tb.team_id}]: #{counter}/#{team_total}", :total => total)
         ProjectMedia.where(team_id: tb.team_id).where("project_medias.id > ? ", last_id)
+        .where("project_medias.created_at < ?", Time.parse("2022-05-13"))
         .where("project_medias.created_at > ?", Time.parse("2020-01-01")).includes(claim_description: :fact_check).order(:id)
         .find_in_batches(:batch_size => 2500) do |pms|
           progressbar.increment
@@ -39,19 +39,15 @@ namespace :check do
             end
           end
           if running_bucket.length > 500
-            threads = []
-            running_bucket.each_slice(50) do |bucket_slice|
+            responses = Parallel.map(running_bucket.each_slice(30).to_a, in_processes: 3) do |bucket_slice|
               bucket_slice.collect{|x| sent_cases << x};false
-              threads << Thread.new { 
-                Thread.current[:output] = Bot::Alegre.request_api('post', '/text/bulk_similarity/', { documents: bucket_slice })
-              }
+              Bot::Alegre.request_api('post', '/text/bulk_similarity/', { documents: bucket_slice })
             end
-            threads.each do |t|
-              t.join
-              if t[:output].class.name == 'Hash' && t[:output]['type'] == 'error'
-                log_errors << { message: t[:output]['data']}
+            responses.each do |output|
+              if output.class.name == 'Hash' && output['type'] == 'error'
+                log_errors << { message: output['data']}
               else
-                t[:output].map{|x| received_cases << x};false
+                output.map{|x| received_cases << x};false
               end
             end
             puts received_cases.length
@@ -61,21 +57,18 @@ namespace :check do
         end
       end
       # send latest running_bucket even lenght < 50
-      threads = []
-      running_bucket.each_slice(50) do |bucket_slice|
+      responses = Parallel.map(running_bucket.each_slice(30).to_a, in_processes: 3) do |bucket_slice|
         bucket_slice.collect{|x| sent_cases << x};false
-        threads << Thread.new { 
-          Thread.current[:output] = Bot::Alegre.request_api('post', '/text/bulk_similarity/', { documents: bucket_slice })
-        }
+        Bot::Alegre.request_api('post', '/text/bulk_similarity/', { documents: bucket_slice })
       end
-      threads.each do |t|
-        t.join
-        t[:output].map{|x| received_cases << x};false
+      responses.each do |output|
+        if output.class.name == 'Hash' && output['type'] == 'error'
+          log_errors << { message: output['data']}
+        else
+          output.map{|x| received_cases << x};false
+        end
       end
       puts received_cases.length
-      if output.class.name == 'Hash' && output['type'] == 'error'
-        log_errors << { message: output['data']}
-      end
       unless log_errors.empty?
         puts "[#{Time.now}] #{log_errors.size} project medias couldn't be updated:"
         puts log_errors
