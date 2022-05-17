@@ -17,12 +17,10 @@ namespace :check do
         .where("project_medias.created_at > ?", Time.parse("2020-01-01")).count
         total = (pm_all_count/2500.to_f).ceil
         counter += 1
-        progressbar = ProgressBar.create(:title => "Update team [#{tb.team_id}]: #{counter}/#{team_total}", :total => total)
         ProjectMedia.where(team_id: tb.team_id).where("project_medias.id > ? ", last_id)
         .where("project_medias.created_at < ?", Time.parse("2022-05-13"))
         .where("project_medias.created_at > ?", Time.parse("2020-01-01")).includes(claim_description: :fact_check).order(:id)
         .find_in_batches(:batch_size => 2500) do |pms|
-          progressbar.increment
           pms.each do |pm|
             Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.each do |field|
               field_value = pm.send(field)
@@ -40,9 +38,9 @@ namespace :check do
           end
           if running_bucket.length > 500
             responses = Parallel.map(running_bucket.each_slice(30).to_a, in_processes: 3) do |bucket_slice|
-              bucket_slice.collect{|x| sent_cases << x};false
               Bot::Alegre.request_api('post', '/text/bulk_similarity/', { documents: bucket_slice })
             end
+            running_bucket.collect{|x| sent_cases << x};false
             responses.each do |output|
               if output.class.name == 'Hash' && output['type'] == 'error'
                 log_errors << { message: output['data']}
@@ -58,9 +56,9 @@ namespace :check do
       end
       # send latest running_bucket even lenght < 50
       responses = Parallel.map(running_bucket.each_slice(30).to_a, in_processes: 3) do |bucket_slice|
-        bucket_slice.collect{|x| sent_cases << x};false
         Bot::Alegre.request_api('post', '/text/bulk_similarity/', { documents: bucket_slice })
       end
+      running_bucket.collect{|x| sent_cases << x};false
       responses.each do |output|
         if output.class.name == 'Hash' && output['type'] == 'error'
           log_errors << { message: output['data']}
