@@ -136,7 +136,7 @@ def get_statistics(start_date, end_date, slug, platform, language)
       rescue
         nil
       end
-    end.reject{ |v| v.blank? }.size.to_s
+    end.reject{ |v| v.blank? }.uniq.size.to_s
   end
 
   # Number of new newsletter subscriptions
