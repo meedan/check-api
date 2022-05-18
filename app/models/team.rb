@@ -75,8 +75,7 @@ class Team < ApplicationRecord
       avatar: self.avatar,
       name: self.name,
       projects: self.recent_projects.allowed(team),
-      slug: self.slug,
-      tasks_enabled: self.get_tasks_enabled
+      slug: self.slug
     }
   end
 
