@@ -25,8 +25,11 @@ class TiplineNewsletterWorker
                 log team_id, language, "Could not send newsletter to subscriber ##{ts.id}: #{e.message}"
               end
             end
+            User.current = BotUser.smooch_user
+            tbi.skip_check_ability = true
             newsletter['smooch_newsletter_last_sent_at'] = Time.now
             tbi.save!
+            User.current = nil
           else
             log team_id, language, 'Not sending newsletter because content has not changed since the last delivery'
           end

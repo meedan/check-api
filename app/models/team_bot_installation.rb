@@ -1,4 +1,6 @@
 class TeamBotInstallation < TeamUser
+  has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at], versions: { class_name: 'Version' }
+
   mount_uploaders :file, ImageUploader
   serialize :file, JSON
 
