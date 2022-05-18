@@ -270,18 +270,18 @@ class AbilityTest < ActiveSupport::TestCase
       pm = create_project_media project: p
       with_current_user_and_team(u, t) do
         s = create_status annotated: pm, status: 'verified'
-        em = create_metadata annotated: pm
+        tag = create_tag annotated: pm
         s_v = s.versions.last
-        em_v = em.versions.last
+        tag_v = tag.versions.last
         ability = Ability.new
         # Status versions
         assert ability.can?(:create, s_v)
         assert ability.cannot?(:update, s_v)
         assert ability.can?(:destroy, s_v)
-        # Embed versions
-        assert ability.can?(:create, em_v)
-        assert ability.cannot?(:update, em_v)
-        assert ability.can?(:destroy, em_v)
+        # Tag versions
+        assert ability.can?(:create, tag_v)
+        assert ability.cannot?(:update, tag_v)
+        assert ability.can?(:destroy, tag_v)
       end
     end
 
@@ -291,18 +291,18 @@ class AbilityTest < ActiveSupport::TestCase
       tu = create_team_user team: t, user: u, role: role
       p = create_project team: t
       pm = create_project_media project: p
-      c = create_comment annotated: pm, annotator: u
-      c2 = create_comment annotated: pm
+      tag = create_tag annotated: pm, annotator: u
+      tag2 = create_tag annotated: pm
       with_current_user_and_team(u, t) do
         ability = Ability.new
-        assert ability.can?(:update, c)
-        assert ability.can?(:destroy, c)
-        assert ability.can?(:update, c2)
-        assert ability.can?(:destroy, c2)
-        c.destroy!
+        assert ability.can?(:update, tag)
+        assert ability.can?(:destroy, tag)
+        assert ability.can?(:update, tag2)
+        assert ability.can?(:destroy, tag2)
+        tag.destroy!
         v = Version.last
         assert ability.can?(:destroy, v)
-        c2.destroy!
+        tag2.destroy!
         v = Version.last
         assert ability.can?(:destroy, v)
       end

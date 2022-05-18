@@ -215,7 +215,7 @@ class Bot::Fetch < BotUser
       cd = ClaimDescription.new
       cd.skip_check_ability = true
       cd.project_media = pm
-      cd.description = claim_review['claimReviewed'].to_s.blank? ? '-' : claim_review['claimReviewed']
+      cd.description = claim_review['claimReviewed'].to_s.blank? ? '-' : self.parse_text(claim_review['claimReviewed'])
       cd.user = user
       cd.save!
 
@@ -226,6 +226,7 @@ class Bot::Fetch < BotUser
       fc.summary = self.parse_text(claim_review['text'].to_s.blank? ? claim_review['headline'] : claim_review['text'])
       fc.url = claim_review['url'].to_s
       fc.user = user
+      fc.skip_report_update = true
       fc.save!
     end
 

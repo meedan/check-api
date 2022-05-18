@@ -1,11 +1,12 @@
 class ProjectMedia < ApplicationRecord
   attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :skip_rules, :set_claim_description, :set_fact_check, :set_tags
 
+  has_paper_trail on: [:create, :update], only: [:source_id], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
+
   include ProjectAssociation
   include ProjectMediaAssociations
   include ProjectMediaCreators
   include ProjectMediaEmbed
-  include Versioned
   include ValidationsHelper
   include ProjectMediaPrivate
   include ProjectMediaCachedFields
@@ -361,6 +362,11 @@ class ProjectMedia < ApplicationRecord
       sources = main_s.merge(sources)
     end
     sources.to_json
+  end
+
+  def version_metadata(_changes)
+    meta = { source_name: self.source&.name }
+    meta.to_json
   end
 
   protected

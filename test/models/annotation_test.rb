@@ -192,10 +192,10 @@ class AnnotationTest < ActiveSupport::TestCase
     create_team_user user: u, team: t
     p = create_project team: t
     pm = create_project_media project: p
-    c = create_comment annotated: pm, annotator: u
+    tag = create_tag annotated: pm, annotator: u
     with_current_user_and_team(u, t) do
       assert_difference 'PaperTrail::Version.count' do
-        c.destroy
+        tag.destroy
       end
     end
     v = PaperTrail::Version.last

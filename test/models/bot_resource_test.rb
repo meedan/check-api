@@ -42,15 +42,4 @@ class BotResourceTest < ActiveSupport::TestCase
     assert_equal t, br2.team
     assert_equal [br1, br2].sort, t.bot_resources.sort
   end
-
-  test "should have versions" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u, role: 'editor'
-    with_current_user_and_team(u, t) do
-      assert_difference "Version.from_partition(#{t.id}).count" do
-        create_bot_resource team: t
-      end
-    end
-  end
 end

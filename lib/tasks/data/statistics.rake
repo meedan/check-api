@@ -3,14 +3,20 @@
 require 'open-uri'
 include ActionView::Helpers::DateHelper
 
-def requests(slug, platform, start_date, end_date, language)
-  Annotation
+def requests(slug, platform, start_date, end_date, language, type = nil)
+  relation = Annotation
     .where(annotation_type: 'smooch')
     .joins("INNER JOIN dynamic_annotation_fields fs ON fs.annotation_id = annotations.id AND fs.field_name = 'smooch_data'")
-    .where("value_json->'source'->>'type' = ?", platform)
-    .where("value_json->>'language' = ?", language)
+    .where("fs.value_json->'source'->>'type' = ?", platform)
+    .where("fs.value_json->>'language' = ?", language)
     .where('t.slug' => slug)
     .where('annotations.created_at' => start_date..end_date)
+  unless type.nil?
+    relation = relation
+      .joins("INNER JOIN dynamic_annotation_fields fs2 ON fs2.annotation_id = annotations.id AND fs2.field_name = 'smooch_request_type'")
+      .where('fs2.value' => type.to_json)
+  end
+  relation
 end
 
 def reports_received(slug, platform, start_date, end_date, language)
@@ -23,8 +29,8 @@ def reports_received(slug, platform, start_date, end_date, language)
     .where('dynamic_annotation_fields.created_at' => start_date..end_date)
 end
 
-def project_media_requests(slug, platform, start_date, end_date, language)
-  base = requests(slug, platform, start_date, end_date, language)
+def project_media_requests(slug, platform, start_date, end_date, language, type = nil)
+  base = requests(slug, platform, start_date, end_date, language, type)
   base.joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id")
 end
 
@@ -77,12 +83,22 @@ def get_statistics(start_date, end_date, slug, platform, language)
   # Number of returning users (at least one session in the current month, and at least one session in the last previous 2 months)
   data << DynamicAnnotation::Field.where(field_name: 'smooch_data', created_at: start_date.ago(2.months)..start_date).where("value_json->>'authorId' IN (?) AND value_json->>'language' = ?", uids, language).collect{ |f| f.value_json['authorId'] }.uniq.size
 
+  # Number of positive search results
+  data << project_media_requests(slug, platform, start_date, end_date, language, 'relevant_search_result_requests').count.to_s
+
+  # Number of negative search results
+  data << project_media_requests(slug, platform, start_date, end_date, language, 'default_requests').where('pm.archived' => 0).count.to_s
+
   # Number of valid queries
   data << project_media_requests(slug, platform, start_date, end_date, language).where('pm.archived' => 0).count.to_s
 
-  # Number of new published reports created in Check (e.g., not imported)
+  # Number of new published reports created in Check (e.g., native, not imported)
   # NOTE: For all platforms
   data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date).where("data LIKE '%language: #{language}%'").where.not('pm.user_id' => BotUser.fetch_user.id).count.to_s
+
+  # Number of published imported reports
+  # NOTE: For all languages and platforms
+  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug, 'pm.user_id' => BotUser.fetch_user.id).where('annotations.created_at' => start_date..end_date).count.to_s
 
   # Number of queries answered with a report
   data << reports_received(slug, platform, start_date, end_date, language).group('pm.id').count.size.to_s
@@ -99,19 +115,34 @@ def get_statistics(start_date, end_date, slug, platform, language)
     times << (f.created_at - f.annotation.created_at)
   end
   if times.size == 0
-    # data << 0
     data << '-'
   else
     avg = times.sum.to_f / times.size
-    # data << avg.to_i
     data << distance_of_time_in_words(avg)
+  end
+
+  # Number of newsletters sent
+  # NOTE: For all platforms
+  # NOTE: Only starting from May 17, 2022
+  team = Team.find_by_slug(slug)
+  if end_date < Time.parse('2022-05-18')
+    data << '-'
+  else
+    tbi = TeamBotInstallation.where(team: team, user: BotUser.smooch_user).last
+    data << Version.from_partition(team.id).where(created_at: start_date..end_date, item_id: tbi.id.to_s, item_type: ['TeamUser', 'TeamBotInstallation']).collect do |v|
+      begin
+        workflow = YAML.load(JSON.parse(v.object_after)['settings'])['smooch_workflows'].select{ |w| w['smooch_workflow_language'] == language }.first
+        workflow['smooch_newsletter']['smooch_newsletter_last_sent_at']
+      rescue
+        nil
+      end
+    end.reject{ |v| v.blank? }.uniq.size.to_s
   end
 
   # Number of new newsletter subscriptions
   data << TiplineSubscription.where(created_at: start_date..end_date, platform: platform_name, language: language).where('teams.slug' => slug).joins(:team).count.to_s
 
   # Number of newsletter subscription cancellations
-  team = Team.find_by_slug(slug)
   data << Version.from_partition(team.id).where(created_at: start_date..end_date, team_id: team.id, item_type: 'TiplineSubscription', event_type: 'destroy_tiplinesubscription').where('object LIKE ?', "%#{platform_name}%").where('object LIKE ?', '%"language":"' + language + '"%').count.to_s
 
   # Current number of newsletter subscribers
@@ -119,11 +150,7 @@ def get_statistics(start_date, end_date, slug, platform, language)
 
   # Total number of imported reports
   # NOTE: For all languages and platforms
-  data << ProjectMedia.joins(:team).where('teams.slug' => slug, 'created_at' => start_date..end_date, 'user_id' => BotUser.fetch_user.id).count.to_s
-
-  # Number of published imported reports
-  # NOTE: For all languages and platforms
-  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug, 'pm.user_id' => BotUser.fetch_user.id).where('annotations.created_at' => start_date..end_date).count.to_s
+  # data << ProjectMedia.joins(:team).where('teams.slug' => slug, 'created_at' => start_date..end_date, 'user_id' => BotUser.fetch_user.id).count.to_s
 
   puts data.join(',')
 end
@@ -155,17 +182,19 @@ namespace :check do
           'Average messages per day',
           'Unique users',
           'Returning users',
+          'Positive search results',
+          'Negative search results',
           'Valid queries received (not in trash)',
-          'New published reports (not imported)',
+          'Published native reports',
+          'Published imported reports',
           'Queries answered with a report',
           'Reports sent to users',
           'Unique users who received a report',
           'Average (median) response time',
+          'Unique newsletters sent',
           'New newsletter subscriptions',
           'Newsletter cancellations',
-          'Current subscribers',
-          'Total imported reports',
-          'Published imported reports'
+          'Current subscribers'
         ]
         puts header.join(',')
 

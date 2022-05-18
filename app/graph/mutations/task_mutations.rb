@@ -1,7 +1,6 @@
 module TaskMutations
   fields = {
     description: 'str',
-    assigned_to_ids: 'str',
     json_schema: 'str',
     order: 'int',
     fieldset: 'str'
@@ -17,9 +16,7 @@ module TaskMutations
 
   update_fields = {
     label: 'str',
-    response: 'str',
-    accept_suggestion: 'int',
-    reject_suggestion: 'int'
+    response: 'str'
   }.merge(fields)
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('task', create_fields, update_fields, ['project_media', 'source', 'project', 'version'])

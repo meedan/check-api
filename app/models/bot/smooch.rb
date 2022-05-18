@@ -25,7 +25,7 @@ class Bot::Smooch < BotUser
   include SmoochTurnio
   include SmoochStrings
   include SmoochMenus
-  include SmoochVersions
+  include SmoochFields
 
   ::ProjectMedia.class_eval do
     attr_accessor :smooch_message
@@ -288,6 +288,7 @@ class Bot::Smooch < BotUser
         true
       when 'message:delivery:channel'
         self.user_received_report(json)
+        self.user_received_search_result(json)
         true
       else
         false
@@ -392,8 +393,8 @@ class Bot::Smooch < BotUser
     if self.message_is_a_newsletter_request?(message)
       newsletter_language = self.newsletter_request(message, language)[:language]
       newsletter_workflow = self.get_workflow(newsletter_language)
-      date = I18n.l(Time.now.to_date, locale: newsletter_language.to_s.tr('_', '-'), format: :short)
-      newsletter = Bot::Smooch.build_newsletter_content(newsletter_workflow['smooch_newsletter'], newsletter_language, self.config['team_id']).gsub('{date}', date).gsub('{channel}', self.get_platform_from_message(message))
+      date = I18n.l(Time.now.to_date, locale: newsletter_language.to_s.tr('_', '-'), format: :long)
+      newsletter = Bot::Smooch.build_newsletter_content(newsletter_workflow['smooch_newsletter'], newsletter_language, self.config['team_id'], false).gsub('{date}', date).gsub('{channel}', self.get_platform_from_message(message))
       Bot::Smooch.send_final_message_to_user(uid, newsletter, newsletter_workflow, newsletter_language)
       return true
     end
