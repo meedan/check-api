@@ -26,10 +26,11 @@ module SmoochNewsletter
             if Bot::Smooch.newsletter_is_set?(workflow)
               newsletter = workflow['smooch_newsletter']
               language = workflow['smooch_workflow_language']
+              next_date_and_time_utc = CronParser.new(Bot::Smooch.newsletter_cron(newsletter)).next(Time.now).to_datetime
+              next_date_and_time = begin next_date_and_time_utc.in_time_zone(newsletter['smooch_newsletter_timezone'].gsub(/ .*$/, '')) rescue next_date_and_time_utc end
               information[language] = {
                 subscribers_count: TiplineSubscription.where(team_id: self.team_id, language: language).count,
-                next_date: I18n.l(CronParser.new(Bot::Smooch.newsletter_cron(newsletter)).next(Time.now).to_date, locale: language.to_s.tr('_', '-'), format: :short),
-                next_time: "#{newsletter['smooch_newsletter_time']}:00 #{newsletter['smooch_newsletter_timezone']}",
+                next_date_and_time: I18n.l(next_date_and_time, locale: language.to_s.tr('_', '-'), format: :long),
                 paused: !Bot::Smooch.newsletter_content_changed?(newsletter, language, self.team_id)
               }
             end
