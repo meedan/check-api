@@ -296,6 +296,7 @@ module SmoochMessages
       self.smooch_save_annotations(message, annotated, app_id, author, request_type, annotated_obj)
 
       # If item is published (or parent item), send a report right away
+      self.get_platform_from_message(message)
       self.send_report_to_user(message['authorId'], message, annotated, message['language'], 'fact_check_report') if self.should_try_to_send_report?(request_type, annotated)
     end
 
