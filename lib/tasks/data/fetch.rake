@@ -11,8 +11,30 @@ def parse_args(args)
   data
 end
 
+def print_status_mapping(services, team)
+  puts "Fetch status..."
+  services.each do |service|
+    Bot::Fetch.supported_services.select{ |s| s['service'] == service }.last
+    params = { service: service, start_time: '1900-01-01', end_time: '2100-01-01', per_page: 10000 }
+    Bot::Fetch.call_fetch_api(:get, 'claim_reviews', params)
+    .collect{ |cr| cr.dig('reviewRating', 'alternateName') || cr.dig('reviewRating', 'ratingValue').to_s || '' }
+    .sort.uniq.reject{ |s| s.blank? }.each{ |s| puts "\"#{s}\" => \"\"," } ; nil
+  end
+  # Print list of Check statuses
+  puts "Check statuses..."
+  team.media_verification_statuses['statuses'].each{ |s| puts "#{s['id']}: #{s['label']}" } unless team.media_verification_statuses.nil?
+end
+
 namespace :check do
   namespace :fetch do
+    # bundle exec rails check:fetch:print_status_mapping['slug:team_slug&services:list|of|services']
+    task print_status_mapping: :environment do |_t, args|
+      data = parse_args args.extras
+      slug = data['slug']
+      services = data['services'].split('|')
+      print_status_mapping(services, Team.where(slug: slug).first)
+    end
+
     # bundle exec rails check:fetch:clear['slug:team_slug&services:list|of|services']
     task clear: :environment do |_t, args|
       data = parse_args args.extras
@@ -62,17 +84,7 @@ namespace :check do
         tbi.save!
         # Step 5
         # Print list of imported status values from Fetch side
-        puts "Fetch status..."
-        services.each do |service|
-          Bot::Fetch.supported_services.select{ |s| s['service'] == service }.last
-          params = { service: service, start_time: '1900-01-01', end_time: '2100-01-01', per_page: 10000 }
-          Bot::Fetch.call_fetch_api(:get, 'claim_reviews', params)
-          .collect{ |cr| cr.dig('reviewRating', 'alternateName') || cr.dig('reviewRating', 'ratingValue').to_s || '' }
-          .sort.uniq.reject{ |s| s.blank? }.each{ |s| puts "\"#{s}\" => \"\"," } ; nil
-        end
-        # Print list of Check statuses
-        puts "Check statuses..."
-        team.media_verification_statuses['statuses'].each{ |s| puts "#{s['id']}: #{s['label']}" } unless team.media_verification_statuses.nil?
+        print_status_mapping(services, team)
       end
     end
 
