@@ -31,9 +31,6 @@ namespace :check do
         condition[:item_type] = 'Comment'
         Version.from_partition(team.id).where(condition).delete_all
         # TODO: Review tags logs
-        # - TeamBotInstallation (create/update)
-        condition[:item_type] = 'TeamBotInstallation'
-        Version.from_partition(team.id).where(condition).delete_all
         # - TiplineSubscription (create/update)
         condition[:item_type] = 'TiplineSubscription'
         Version.from_partition(team.id).where(condition).where.not(event: 'destroy').delete_all

@@ -51,13 +51,15 @@ class Relationship < ApplicationRecord
   end
 
   def version_metadata(_object_changes = nil)
-    target = self.target
-    target.nil? ? nil : {
-      target: {
-        id: target.id,
-        title: target.title,
-        type: target.report_type,
-        url: target.full_url
+    alegre_id = User.where(login: 'alegre').last&.id
+    by_check = alegre_id == User.current&.id
+    source = self.source
+    source.nil? ? nil : {
+      source: {
+        title: source.title,
+        type: source.report_type,
+        url: source.full_url,
+        by_check: by_check,
       }
     }.to_json
   end

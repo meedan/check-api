@@ -163,7 +163,7 @@ class Version < Partitioned::ByForeignKey
 
   def get_associated_from_relationship
     r = self.item
-    r.nil? ? [nil, nil] : ['ProjectMedia', r.source_id]
+    r.nil? ? [nil, nil] : ['ProjectMedia', r.target_id]
   end
 
   def get_associated_from_assignment
