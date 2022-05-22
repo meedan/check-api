@@ -6,8 +6,8 @@ module SmoochSearch
   module ClassMethods
     # This method runs in background
     def search(app_id, uid, language, message, team_id, workflow)
+      platform = self.get_platform_from_message(message)
       begin
-        self.get_platform_from_message(message)
         sm = CheckStateMachine.new(uid)
         self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
         results = self.get_search_results(uid, message, team_id, language)
@@ -18,7 +18,7 @@ module SmoochSearch
           self.send_search_results_to_user(uid, results)
           sm.go_to_search_result
           self.save_search_results_for_user(uid, results.map(&:id))
-          self.delay_for(1.second).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, 1)
+          self.delay_for(1.second).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, 1)
         end
       rescue StandardError => e
         self.handle_search_error(uid, e, language)
@@ -152,13 +152,14 @@ module SmoochSearch
       redis.lrem("smooch:search:#{uid}", 0, id) if redis.exists("smooch:search:#{uid}") == 1
     end
 
-    def ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, attempts)
+    def ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, attempts)
+      RequestStore.store[:smooch_bot_platform] = platform
       redis = Redis.new(REDIS_CONFIG)
       if redis.llen("smooch:search:#{uid}") == 0 && CheckStateMachine.new(uid).state.value == 'search_result'
         self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
         self.send_message_for_state(uid, workflow, 'search_result', language)
       else
-        self.delay_for(1.second).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, attempts + 1) if attempts < 30 # Try for 30 seconds
+        self.delay_for(1.second).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, attempts + 1) if attempts < 30 # Try for 30 seconds
       end
     end
   end
