@@ -129,7 +129,7 @@ class Version < Partitioned::ByForeignKey
       self.get_associated_from_annotation(self.event_type, self.item)
     when 'create_projectmedia', 'update_projectmedia'
       [self.item.class.name, self.item_id.to_i]
-    when 'create_relationship', 'destroy_relationship'
+    when 'create_relationship', 'update_relationship', 'destroy_relationship'
       self.get_associated_from_relationship
     when 'create_assignment', 'destroy_assignment'
       self.get_associated_from_assignment

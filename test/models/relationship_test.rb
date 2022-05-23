@@ -227,10 +227,10 @@ class RelationshipTest < ActiveSupport::TestCase
     end
     assert_not_empty r.versions
     v = r.versions.last
-    assert_equal so.id, v.associated_id
+    assert_equal ta.id, v.associated_id
     assert_equal 'ProjectMedia', v.associated_type
-    so = ProjectMedia.find(so.id)
-    assert so.get_versions_log.map(&:event_type).include?('create_relationship')
+    ta = ProjectMedia.find(ta.id)
+    assert ta.get_versions_log.map(&:event_type).include?('create_relationship')
 
     with_current_user_and_team(u, t) do
       ta.destroy
@@ -238,10 +238,10 @@ class RelationshipTest < ActiveSupport::TestCase
     
     v2 = Version.where(item_type: 'Relationship', item_id: r.id.to_s, event_type: 'destroy_relationship').last
     assert_not_equal v, v2
-    assert_equal so.id, v2.associated_id
+    assert_equal ta.id, v2.associated_id
     assert_equal 'ProjectMedia', v2.associated_type
-    so = ProjectMedia.find(so.id)
-    assert so.get_versions_log.map(&:event_type).include?('destroy_relationship')
+    ta = ProjectMedia.find(ta.id)
+    assert ta.get_versions_log.map(&:event_type).include?('destroy_relationship')
     assert_not_nil v2.meta
   end
 
