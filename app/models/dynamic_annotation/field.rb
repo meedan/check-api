@@ -1,6 +1,6 @@
 class DynamicAnnotation::Field < ApplicationRecord
   include CheckElasticSearch
-  has_paper_trail on: [:create, :update], save_changes: true, ignore: [:updated_at, :created_at], if: proc { |f| User.current.present? && (['verification_status_status'].include?(f.field_name) || f.annotation_type =~ /^task_response/) }, versions: { class_name: 'Version' }
+  has_paper_trail on: [:create, :update], save_changes: true, ignore: [:updated_at, :created_at], if: proc { |f| User.current.present? && (['verification_status_status', 'language'].include?(f.field_name) || f.annotation_type =~ /^task_response/) }, versions: { class_name: 'Version' }
 
   attr_accessor :disable_es_callbacks
 
