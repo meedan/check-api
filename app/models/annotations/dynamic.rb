@@ -210,6 +210,7 @@ class Dynamic < ApplicationRecord
       fields = self.fields
       data = JSON.parse(self.set_fields)
       data.each do |field, value|
+        next if value.blank?
         f = fields.select{ |x| x.field_name == field }.last || create_field(field, nil)
         f.value = value
         f.skip_check_ability = self.skip_check_ability unless self.skip_check_ability.nil?
