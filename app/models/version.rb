@@ -99,8 +99,10 @@ class Version < Partitioned::ByForeignKey
   end
 
   def set_meta
-    item = self.item
-    self.meta = item.version_metadata(self.object_changes) if !item.nil? && item.respond_to?(:version_metadata)
+    if self.meta.blank?
+      item = self.item
+      self.meta = item.version_metadata(self.object_changes) if !item.nil? && item.respond_to?(:version_metadata)
+    end
   end
 
   def deserialize_change(d)
