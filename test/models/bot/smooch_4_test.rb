@@ -596,7 +596,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
 
   test "should not create duplicated project media and media on team" do
     Sidekiq::Testing.inline! do
-      # video
+      # Video
       message = {
         type: 'file',
         text: random_string,
@@ -623,6 +623,14 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
        Bot::Smooch.save_message(message.to_json, @app_id)
       end
       assert_equal medias_count, Media.count
+    end
+  end
+
+  test "should send only visual card to user" do
+    pm = create_project_media
+    publish_report(pm, {}, nil, { use_text_message: false })
+    assert_nothing_raised do
+      Bot::Smooch.send_report_to_user(random_string, { 'received' => Time.now.to_i }, pm, 'report')
     end
   end
 end
