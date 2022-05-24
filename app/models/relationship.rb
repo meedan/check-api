@@ -51,8 +51,7 @@ class Relationship < ApplicationRecord
   end
 
   def version_metadata(_object_changes = nil)
-    alegre_id = User.where(login: 'alegre').last&.id
-    by_check = alegre_id == User.current&.id
+    by_check = BotUser.alegre_user&.id == User.current&.id
     source = self.source
     source.nil? ? nil : {
       source: {
