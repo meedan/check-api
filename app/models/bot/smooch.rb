@@ -884,6 +884,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.send_correction_to_user(data, pm, subscribed_at, last_published_at, action, published_count = 0)
+    self.get_platform_from_message(data)
     uid = data['authorId']
     lang = data['language']
     # User received a report before
@@ -942,6 +943,7 @@ class Bot::Smooch < BotUser
     return if parent.nil? || child.nil?
     child.get_annotations('smooch').find_each do |annotation|
       data = JSON.parse(annotation.load.get_field_value('smooch_data'))
+      self.get_platform_from_message(data)
       self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
       self.send_report_to_user(data['authorId'], data, parent, data['language'], 'fact_check_report')
     end
