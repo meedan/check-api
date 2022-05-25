@@ -116,8 +116,8 @@ module SmoochSearch
           filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) if after
           results = CheckSearch.new(filters.to_json, nil, team_ids).medias
           Rails.logger.info "[Smooch Bot] Keyword search got #{results.count} results (only main items) while looking for '#{text}' after date #{after.inspect} for teams #{team_ids}"
-          results = CheckSearch.new(filters.merge({ show_similar: true }).to_json, nil, team_ids).medias if results.empty?
-          Rails.logger.info "[Smooch Bot] Keyword search got #{results.count} results (including secondary items) while looking for '#{text}' after date #{after.inspect} for teams #{team_ids}"
+          results = CheckSearch.new(filters.merge({ show_similar: true, fuzzy: true }).to_json, nil, team_ids).medias if results.empty?
+          Rails.logger.info "[Smooch Bot] Keyword search got #{results.count} results (including secondary items and using fuzzy matching) while looking for '#{text}' after date #{after.inspect} for teams #{team_ids}"
         else
           alegre_results = Bot::Alegre.get_merged_similar_items(pm, { value: self.get_text_similarity_threshold }, Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text, team_ids)
           results = self.parse_search_results_from_alegre(alegre_results, after)
