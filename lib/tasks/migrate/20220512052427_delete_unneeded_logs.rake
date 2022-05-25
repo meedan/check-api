@@ -22,7 +22,7 @@ namespace :check do
     task delete_models_logs: :environment do
       started = Time.now.to_i
       data = [] 
-      last_team_id = Rails.cache.read('check:migrate:delete_unneeded_logs:team_id') || 0
+      last_team_id = Rails.cache.read('check:migrate:delete_models_logs:team_id') || 0
       Team.where('id > ?', last_team_id).find_each do |team|
         puts "Process team : #{team.slug}"
         condition = {}
@@ -50,7 +50,7 @@ namespace :check do
         # - TiplineSubscription (create/update)
         condition[:item_type] = 'TiplineSubscription'
         delete_versions(team.id, condition)
-        Rails.cache.write('check:migrate:delete_unneeded_logs:team_id', team.id)
+        Rails.cache.write('check:migrate:delete_models_logs:team_id', team.id)
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
@@ -63,8 +63,9 @@ namespace :check do
       Team.where('id > ?', last_team_id).find_each do |team|
         puts "Processing team : #{team.slug}"
         team.project_medias.find_in_batches(:batch_size => 2500) do |pms|
+          pm_ids = pms.map(&:id)
           re_mapping = {}
-          relationships = Relationship.where(source_id: pms.map(&:id))
+          relationships = Relationship.where(source_id: pm_ids)
           relationships.collect{ |r| re_mapping[r.id] = { source: r.source_id, target: r.target_id}}
           source_meta = {}
           ProjectMedia.select("project_medias.*, medias.type").where(id: relationships.map(&:source_id)).joins(:media).find_each do |pm|
@@ -80,7 +81,9 @@ namespace :check do
           end
           versions = []
           deleted_ids = []
-          Version.from_partition(team.id).where(item_id: relationships.map(&:id), item_type: 'Relationship').find_each do |v|
+          Version.from_partition(team.id)
+          .where(item_id: relationships.map(&:id), item_type: 'Relationship', associated_type: 'ProjectMedia', associated_id: pm_ids)
+          .find_each do |v|
             deleted_ids << v.id
             unless source_meta[v.associated_id].blank?
               print '.'
@@ -128,7 +131,7 @@ namespace :check do
             create_log['associated_type'] = 'ProjectMedia'
             versions << create_log
             # add one for source creation
-            object_changes = JSON.parse(v.object_changes)
+            object_changes = begin JSON.parse(v.object_changes) rescue {} end
             if object_changes.keys.include?('source_id')
               source_id = object_changes['source_id'][1]
               unless source_mapping[source_id].blank?
@@ -155,7 +158,7 @@ namespace :check do
             print '.'
             deleted_ids << v.id
             # add meta for source change
-            object_changes = JSON.parse(v.object_changes)
+            object_changes = begin JSON.parse(v.object_changes) rescue {} end
             if object_changes.keys.include?('source_id')
               source_id = object_changes['source_id'][1]
               unless source_mapping[source_id].blank?

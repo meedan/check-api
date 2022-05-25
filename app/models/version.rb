@@ -105,6 +105,17 @@ class Version < Partitioned::ByForeignKey
     end
   end
 
+  def task
+    task = nil
+    if self.item && self.item_type == 'DynamicAnnotation::Field'
+      annotation = self.item.annotation
+      if annotation && annotation.annotation_type =~ /response/ && annotation.annotated_type == 'Task'
+        task = Task.where(id: annotation.annotated_id).last
+      end
+    end
+    task
+  end
+
   def deserialize_change(d)
     ret = d
     unless d.nil? || !d.is_a?(String)
@@ -114,7 +125,7 @@ class Version < Partitioned::ByForeignKey
   end
 
   def object_changes_json
-    changes = self.object_changes ? JSON.parse(self.object_changes) : {}
+    changes = begin JSON.parse(self.object_changes) rescue {} end
     if changes['data'] && changes['data'].is_a?(Array)
       changes['data'].collect!{ |d| d.is_a?(String) ? self.deserialize_change(d) : d }
     end
@@ -152,8 +163,8 @@ class Version < Partitioned::ByForeignKey
 
   def get_associated_from_core_annotation(annotation)
     associated = [nil, nil]
-    if annotation && annotation.annotated_type == 'ProjectMedia'
-      associated = [annotation.annotated_type, annotation.annotated_id.to_i]
+    if annotation && ['ProjectMedia', 'Task'].include?(annotation.annotated_type)
+      associated = annotation.annotation_type =~ /response/ && annotation.annotated_type == 'Task' ? ['ProjectMedia', annotation.annotated.annotated_id.to_i] : [annotation.annotated_type, annotation.annotated_id.to_i]
     end
     associated
   end
