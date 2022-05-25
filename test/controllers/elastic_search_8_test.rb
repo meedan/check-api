@@ -429,22 +429,4 @@ class ElasticSearch8Test < ActionController::TestCase
       assert_queries(0, '=') { assert_equal data, pm.published_by }
     end
   end
-
-  test "should search for keywords with typos" do
-    t = create_team
-    p = create_project team: t
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    with_current_user_and_team(u ,t) do
-      pm1 = create_project_media team: t, quote: 'Foobar 1', disable_es_callbacks: false
-      pm2 = create_project_media team: t, quote: 'Fobar 2', disable_es_callbacks: false
-      pm3 = create_project_media team: t, quote: 'Test 3', disable_es_callbacks: false
-      results = CheckSearch.new({ keyword: 'Foobar' }.to_json)
-      assert_equal [pm1.id, pm2.id].sort, results.medias.map(&:id).sort
-      results = CheckSearch.new({ keyword: 'Fobar' }.to_json)
-      assert_equal [pm1.id, pm2.id].sort, results.medias.map(&:id).sort
-      results = CheckSearch.new({ keyword: 'Test' }.to_json)
-      assert_equal [pm3.id], results.medias.map(&:id)
-    end
-  end
 end
