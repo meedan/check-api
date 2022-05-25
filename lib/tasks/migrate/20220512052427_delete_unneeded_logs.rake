@@ -1,3 +1,11 @@
+def delete_versions(team_id, condition)
+  Version.from_partition(team_id).where(condition).find_in_batches(:batch_size => 2500) do |items|
+    print '.'
+    ids = items.map(&:id)
+    Version.from_partition(team_id).where(id: ids).delete_all
+  end
+end
+
 namespace :check do
   namespace :migrate do
     # Get versions count
@@ -11,7 +19,7 @@ namespace :check do
       puts "Count per team: #{count.inspect}"
       puts "Total count is: #{total}"
     end
-    task delete_unneeded_logs: :environment do
+    task delete_models_logs: :environment do
       started = Time.now.to_i
       data = [] 
       last_team_id = Rails.cache.read('check:migrate:delete_unneeded_logs:team_id') || 0
@@ -20,40 +28,28 @@ namespace :check do
         condition = {}
         # - Account  (create/update)
         condition[:item_type] = 'Account'
-        Version.from_partition(team.id).where(condition).delete_all
+        delete_versions(team.id, condition)
         # - BotResource (create/update)
         condition[:item_type] = 'BotResource'
-        Version.from_partition(team.id).where(condition).delete_all
+        delete_versions(team.id, condition)
         # - Team (create/update)
         condition[:item_type] = 'Team'
-        Version.from_partition(team.id).where(condition).delete_all
+        delete_versions(team.id, condition)
         # - Media (create/update)
         condition[:item_type] = 'Media'
-        Version.from_partition(team.id).where(condition).delete_all
+        delete_versions(team.id, condition)
         # - Project (create/update)
         condition[:item_type] = 'Project'
-        Version.from_partition(team.id).where(condition).delete_all
+        delete_versions(team.id, condition)
         # - Source (create/update)
         condition[:item_type] = 'Source'
-        Version.from_partition(team.id).where(condition).delete_all
+        delete_versions(team.id, condition)
         # -Comment
         condition[:item_type] = 'Comment'
-        Version.from_partition(team.id).where(condition).delete_all
+        delete_versions(team.id, condition)
         # - TiplineSubscription (create/update)
         condition[:item_type] = 'TiplineSubscription'
-        Version.from_partition(team.id).where(condition).where.not(event: 'destroy').delete_all
-        # - Annotations (create/update/destroy) [keep the following types -['tag', 'report_design', 'verification_status']-]
-        team.project_medias.find_in_batches(:batch_size => 2500) do |pms|
-          pm_ids = pms.map(&:id)
-          Dynamic.where(annotated_type: 'ProjectMedia', annotated_id: pm_ids)
-          .where.not(annotation_type: ['tag', 'verification_status', 'report_design']).find_in_batches(:batch_size => 2500) do |ds|
-            print '.'
-            ds_ids = ds.map(&:id)
-            Version.from_partition(team.id).where(item_type: 'Dynamic', item_id: ds_ids).delete_all
-          end
-        end
-        # - TODO
-        # - Field (create/update) [keep the following field names -[language, verification_status_status] || , f.annotation_type =~ /^task_response/]-]
+        delete_versions(team.id, condition)
         Rails.cache.write('check:migrate:delete_unneeded_logs:team_id', team.id)
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
@@ -73,9 +69,10 @@ namespace :check do
           source_meta = {}
           ProjectMedia.select("project_medias.*, medias.type").where(id: relationships.map(&:source_id)).joins(:media).find_each do |pm|
             print '.'
+            s_title = pm.title.gsub(/[?'"%]/,'')
             source_meta[pm.id] = {
               source: {
-                title: pm.title,
+                title: s_title,
                 type: pm.type,
                 url: "#{CheckConfig.get('checkdesk_client')}/#{team.slug}/project/#{pm.project_id}/media/#{pm.id}",
               }
@@ -176,6 +173,32 @@ namespace :check do
           Version.from_partition(team.id).where(id: deleted_ids).delete_all if deleted_ids.size > 0
         end
         Rails.cache.write('check:migrate:fix_project_medias_log:team_id', team.id)
+      end
+      minutes = ((Time.now.to_i - started) / 60).to_i
+      puts "[#{Time.now}] Done in #{minutes} minutes."
+    end
+    # Task to delete dynmic and fields logs
+    task delete_dynmic_fields_logs: :environment do
+      started = Time.now.to_i
+      data = []
+      last_team_id = Rails.cache.read('check:migrate:delete_dynmic_fields_logs:team_id') || 0
+      Team.where('id > ?', last_team_id).find_each do |team|
+        puts "Process team : #{team.slug}"
+        condition = {}
+        # - Annotations (create/update/destroy) [keep the following types -['tag', 'report_design', 'verification_status']-]
+        team.project_medias.find_in_batches(:batch_size => 2500) do |pms|
+          print '.'
+          pm_ids = pms.map(&:id)
+          Dynamic.where(annotated_type: 'ProjectMedia', annotated_id: pm_ids)
+          .where.not(annotation_type: ['tag', 'verification_status', 'report_design']).find_in_batches(:batch_size => 2500) do |ds|
+            print '.'
+            ds_ids = ds.map(&:id)
+            Version.from_partition(team.id).where(item_type: 'Dynamic', item_id: ds_ids).delete_all
+          end
+        end
+        # - TODO
+        # - Field (create/update) [keep the following field names -[language, verification_status_status] || , f.annotation_type =~ /^task_response/]-]
+        Rails.cache.write('check:migrate:delete_dynmic_fields_logs:team_id', team.id)
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
