@@ -1,28 +1,37 @@
 class CheckSearch
   def initialize(options, file = nil, team_id = Team.current.id)
-    # options include keywords, projects, tags, status, report status
+    # Options include keywords, projects, tags, status, report status
     options = begin JSON.parse(options) rescue {} end
     @options = options.clone.with_indifferent_access
     @options['input'] = options.clone
     @options['team_id'] = team_condition(team_id)
     @options['operator'] ||= 'AND' # AND or OR
-    # set sort options
+
+    # Set sort options
     smooch_bot_installed = TeamBotInstallation.where(team_id: @options['team_id'], user_id: BotUser.smooch_user&.id).exists?
     @options['sort'] ||= (smooch_bot_installed ? 'last_seen' : 'recent_added')
     @options['sort_type'] ||= 'desc'
-    # set show options
+
+    # Set show options
     @options['show'] ||= MEDIA_TYPES
-    # set show similar
+
+    # Set show similar
     @options['show_similar'] ||= false
     @options['eslimit'] ||= 50
     @options['esoffset'] ||= 0
     adjust_es_window_size
+
     # Check for non project
     @options['none_project'] = @options['projects'].include?('-1') unless @options['projects'].blank?
     adjust_project_filter
     adjust_channel_filter
     adjust_numeric_range_filter
     adjust_archived_filter
+
+    # Set fuzzy matching for keyword search, right now hard-coding with a Levenshtein Edit Distance of 1
+    # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html
+    @options['keyword'] = "#{@options['keyword']}~1" if !@options['keyword'].blank? && @options['fuzzy']
+
     # set es_id option
     @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['String', 'Integer'].include?(@options['id'].class.name)
     Project.current = Project.where(id: @options['projects'].last).last if @options['projects'].to_a.size == 1 && Project.current.nil?
