@@ -30,7 +30,7 @@ class CheckSearch
 
     # Set fuzzy matching for keyword search, right now hard-coding with a Levenshtein Edit Distance of 1
     # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html
-    @options['keyword'] = "#{@options['keyword']}~1" unless @options['keyword'].blank?
+    @options['keyword'] = "#{@options['keyword']}~1" if !@options['keyword'].blank? && @options['fuzzy']
 
     # set es_id option
     @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['String', 'Integer'].include?(@options['id'].class.name)

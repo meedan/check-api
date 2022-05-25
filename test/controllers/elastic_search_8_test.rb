@@ -439,11 +439,11 @@ class ElasticSearch8Test < ActionController::TestCase
       pm1 = create_project_media team: t, quote: 'Foobar 1', disable_es_callbacks: false
       pm2 = create_project_media team: t, quote: 'Fobar 2', disable_es_callbacks: false
       pm3 = create_project_media team: t, quote: 'Test 3', disable_es_callbacks: false
-      results = CheckSearch.new({ keyword: 'Foobar' }.to_json)
+      results = CheckSearch.new({ keyword: 'Foobar', fuzzy: true }.to_json)
       assert_equal [pm1.id, pm2.id].sort, results.medias.map(&:id).sort
-      results = CheckSearch.new({ keyword: 'Fobar' }.to_json)
+      results = CheckSearch.new({ keyword: 'Fobar', fuzzy: true }.to_json)
       assert_equal [pm1.id, pm2.id].sort, results.medias.map(&:id).sort
-      results = CheckSearch.new({ keyword: 'Test' }.to_json)
+      results = CheckSearch.new({ keyword: 'Test', fuzzy: true }.to_json)
       assert_equal [pm3.id], results.medias.map(&:id)
     end
   end
