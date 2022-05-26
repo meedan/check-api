@@ -154,11 +154,11 @@ class ActiveSupport::TestCase
   # This will run before any test
 
   def setup
-    # puts "Starting test #{self.class.name}/#{self.method_name}"
     [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship, Project, BotResource].each{ |klass| klass.delete_all }
     DynamicAnnotation::AnnotationType.where.not(annotation_type: 'metadata').delete_all
     DynamicAnnotation::FieldType.where.not(field_type: 'json').delete_all
     DynamicAnnotation::FieldInstance.where.not(name: 'metadata_value').delete_all
+    ENV['BOOTSNAP_CACHE_DIR'] = "#{Rails.root}/tmp/cache#{ENV['TEST_ENV_NUMBER']}"
     FileUtils.rm_rf(File.join(Rails.root, 'tmp', "cache<%= ENV['TEST_ENV_NUMBER'] %>", '*'))
     Rails.application.reload_routes!
     I18n.locale = :en
@@ -173,8 +173,6 @@ class ActiveSupport::TestCase
     WebMock.stub_request(:get, /#{CheckConfig.get('narcissus_url')}/).to_return(body: '{"url":"http://screenshot/test/test.png"}')
     WebMock.stub_request(:get, /api\.smooch\.io/)
     RequestStore.store[:skip_cached_field_update] = true
-    # Bot::Alegre.stubs(:request_api).returns({"success" => true})
-    # Bot::Alegre.stubs(:request_api).returns({"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
   end
 
   # This will run after any test
@@ -188,8 +186,6 @@ class ActiveSupport::TestCase
     User.current = nil
     RequestStore.clear!
     CONFIG.unstub(:[])
-    # Bot::Alegre.unstub(:request_api)
-    # puts "Finished test #{self.class.name}/#{self.method_name}"
   end
 
   def valid_flags_data(random = true)

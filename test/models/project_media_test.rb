@@ -2854,4 +2854,23 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 'Bar', pm.claim_description_context
     assert_not_nil pm.fact_check_published_on
   end
+
+  test "should cache if item is suggested or confirmed" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    main = create_project_media team: t
+    pm = create_project_media team: t
+    assert !pm.is_suggested
+    assert !pm.is_confirmed
+    r = create_relationship source_id: main.id, target_id: pm.id, relationship_type: Relationship.suggested_type
+    assert pm.is_suggested
+    assert !pm.is_confirmed
+    r.relationship_type = Relationship.confirmed_type
+    r.save!
+    assert !pm.is_suggested
+    assert pm.is_confirmed
+    r.destroy!
+    assert !pm.is_suggested
+    assert !pm.is_confirmed
+  end
 end
