@@ -49,6 +49,7 @@ namespace :check do
         delete_versions(team.id, condition)
         # - TiplineSubscription (create/update)
         condition[:item_type] = 'TiplineSubscription'
+        condition[:event] = ['create', 'update']
         delete_versions(team.id, condition)
         Rails.cache.write('check:migrate:delete_models_logs:team_id', team.id)
       end
