@@ -194,14 +194,38 @@ namespace :check do
           print '.'
           pm_ids = pms.map(&:id)
           Dynamic.where(annotated_type: 'ProjectMedia', annotated_id: pm_ids)
-          .where.not(annotation_type: ['tag', 'verification_status', 'report_design']).find_in_batches(:batch_size => 2500) do |ds|
+          .where.not(annotation_type: ['tag', 'verification_status', 'report_design']).find_in_batches(:batch_size => 2500) do |da|
             print '.'
-            ds_ids = ds.map(&:id)
-            Version.from_partition(team.id).where(item_type: 'Dynamic', item_id: ds_ids).delete_all
+            da_ids = da.map(&:id)
+            condition = { item_type: 'Dynamic', item_id: da_ids }
+            delete_versions(team.id, condition)
           end
         end
-        # - TODO
-        # - Field (create/update) [keep the following field names -[language, verification_status_status] || , f.annotation_type =~ /^task_response/]-]
+        # - Field (create/update) keep the following:
+        # field names - [language, verification_status_status, team_bot_response_formatted_data]
+        # || .annotation_type == 'archiver'
+        # || f.annotation_type =~ /^task_response/
+        team.project_medias.find_in_batches(:batch_size => 2500) do |pms|
+          print '.'
+          pm_ids = pms.map(&:id)
+          annotation_types = ['language', 'verification_status', 'team_bot_response', 'archiver']
+          Annotation.where(annotated_type: 'ProjectMedia', annotated_id: pm_ids)
+          .where.not(annotation_type: annotation_types)
+          .where.not('annotation_type LIKE ?', 'task_response%')
+          .find_in_batches(:batch_size => 2500) do |annotations|
+            print '.'
+            annotations_ids = annotations.map(&:id)
+            DynamicAnnotation::Field.where(annotation_id: annotations_ids)
+            .where.not(annotation_type: annotation_types)
+            .where.not('annotation_type LIKE ?', 'task_response%')
+            .find_in_batches(:batch_size => 2500) do |fields|
+              print '.'
+              f_ids = fields.map(&:id)
+              condition = { item_type: 'DynamicAnnotation::Field', item_id: f_ids }
+              delete_versions(team.id, condition)
+            end
+          end
+        end
         Rails.cache.write('check:migrate:delete_dynmic_fields_logs:team_id', team.id)
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
