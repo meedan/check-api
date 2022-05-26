@@ -66,9 +66,10 @@ namespace :check do
           pm_ids = pms.map(&:id)
           re_mapping = {}
           relationships = Relationship.where(source_id: pm_ids)
+          source_ids = relationships.map(&:source_id)
           relationships.collect{ |r| re_mapping[r.id] = { source: r.source_id, target: r.target_id}}
           source_meta = {}
-          ProjectMedia.select("project_medias.*, medias.type").where(id: relationships.map(&:source_id)).joins(:media).find_each do |pm|
+          ProjectMedia.select("project_medias.*, medias.type").where(id: source_ids).joins(:media).find_each do |pm|
             print '.'
             s_title = pm.title.gsub(/[?'"%]/,'')
             source_meta[pm.id] = {
@@ -82,7 +83,7 @@ namespace :check do
           versions = []
           deleted_ids = []
           Version.from_partition(team.id)
-          .where(item_id: relationships.map(&:id), item_type: 'Relationship', associated_type: 'ProjectMedia', associated_id: pm_ids)
+          .where(item_id: relationships.map(&:id), item_type: 'Relationship', associated_type: 'ProjectMedia', associated_id: source_ids)
           .find_each do |v|
             deleted_ids << v.id
             unless source_meta[v.associated_id].blank?
