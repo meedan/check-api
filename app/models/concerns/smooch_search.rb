@@ -29,6 +29,10 @@ module SmoochSearch
       Rails.cache.write("smooch:user_search_results:#{uid}", pmids)
     end
 
+    def get_saved_search_results_for_user(uid)
+      Rails.cache.read("smooch:user_search_results:#{uid}").to_a.collect{ |result_id| ProjectMedia.find(result_id) }
+    end
+
     def handle_search_error(uid, e, _language)
       self.send_message_to_user(uid, 'Error')
       sm = CheckStateMachine.new(uid)
@@ -43,7 +47,7 @@ module SmoochSearch
     end
 
     def submit_search_query_for_verification(uid, app_id, workflow, language)
-      self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, '', app_id, 'default_requests', nil, true, self.bundle_search_query(uid))
+      self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, '', app_id, 'irrelevant_search_result_requests', nil, true, self.bundle_search_query(uid))
       self.send_final_message_to_user(uid, self.get_menu_string('search_submit', language), workflow, language)
     end
 
