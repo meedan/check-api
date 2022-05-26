@@ -69,6 +69,15 @@ module ProjectMediaCachedFields
         update_on: [SIMILARITY_EVENT]
     end
 
+    { is_suggested: Relationship.suggested_type, is_confirmed: Relationship.confirmed_type }.each do |field_name, type|
+      cached_field field_name,
+        start_as: false,
+        update_es: false,
+        recalculate: proc { |pm| Relationship.where('relationship_type = ?', type.to_yaml).where(target_id: pm.id).exists? },
+        update_on: [SIMILARITY_EVENT]
+    end
+
+
     cached_field :related_count,
       start_as: 0,
       update_es: true,
