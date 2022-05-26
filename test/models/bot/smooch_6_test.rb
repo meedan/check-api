@@ -409,4 +409,18 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       assert_equal 0, redis.llen("smooch:search:#{uid}")
     end
   end
+
+  test "should timeout search results on tipline bot v2" do
+    @installation.set_smooch_disable_timeout = false
+    @installation.save!
+    uid = random_string
+    Bot::Smooch.save_search_results_for_user(uid, [create_project_media.id])
+    send_message_to_smooch_bot('Hello', uid)
+    sm = CheckStateMachine.new(uid)
+    sm.go_to_search_result
+    assert_equal 'search_result', sm.state.value
+
+    message = { 'authorId' => uid, '_id' => random_string }
+    assert_nil Bot::Smooch.timeout_smooch_menu(Time.now + 30.minutes, message, @app_id)
+  end
 end
