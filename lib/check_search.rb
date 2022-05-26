@@ -28,9 +28,10 @@ class CheckSearch
     adjust_numeric_range_filter
     adjust_archived_filter
 
-    # Set fuzzy matching for keyword search, right now hard-coding with a Levenshtein Edit Distance of 1
+    # Set fuzzy matching for keyword search, right now with automatic Levenshtein Edit Distance
     # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html
-    @options['keyword'] = "#{@options['keyword']}~1" if !@options['keyword'].blank? && @options['fuzzy']
+    # https://github.com/elastic/elasticsearch/issues/23366
+    @options['keyword'] = "#{@options['keyword']}~" if !@options['keyword'].blank? && @options['fuzzy']
 
     # set es_id option
     @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['String', 'Integer'].include?(@options['id'].class.name)
