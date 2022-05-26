@@ -528,8 +528,7 @@ class Bot::Smooch < BotUser
     elsif value == 'search_result_is_relevant'
       sm.reset
       self.bundle_message(message)
-      key = "smooch:user_search_results:#{uid}"
-      results = Rails.cache.read(key).to_a.collect{ |result_id| ProjectMedia.find(result_id) }
+      results = self.get_saved_search_results_for_user(uid)
       self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'relevant_search_result_requests', results, true, self.bundle_search_query(uid))
       self.send_final_message_to_user(uid, self.get_menu_string('search_result_is_relevant', language), workflow, language)
     elsif value =~ /^[a-z]{2}(_[A-Z]{2})?$/
@@ -1006,7 +1005,14 @@ class Bot::Smooch < BotUser
     return if stored_time > time
     sm = CheckStateMachine.new(uid)
     unless ['human_mode', 'waiting_for_message'].include?(sm.state.value)
-      self.bundle_messages(message['authorId'], message['_id'], app_id, 'timeout_requests', nil, true)
+      uid = message['authorId']
+      annotated = nil
+      type = 'timeout_requests'
+      if sm.state.value == 'search_result'
+        annotated = self.get_saved_search_results_for_user(uid)
+        type = 'timeout_search_requests'
+      end
+      self.bundle_messages(uid, message['_id'], app_id, type, annotated, true)
       self.send_resource_to_user_on_timeout(uid, workflow, language)
       sm.reset
     end
