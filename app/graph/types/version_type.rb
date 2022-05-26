@@ -30,6 +30,14 @@ VersionType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :task do
+    type -> { TaskType }
+
+    resolve ->(version, _args, _ctx) {
+      version.task
+    }
+  end
+
   field :tag do
     type -> { TagType }
 

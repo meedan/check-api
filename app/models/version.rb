@@ -99,8 +99,21 @@ class Version < Partitioned::ByForeignKey
   end
 
   def set_meta
-    item = self.item
-    self.meta = item.version_metadata(self.object_changes) if !item.nil? && item.respond_to?(:version_metadata)
+    if self.meta.blank?
+      item = self.item
+      self.meta = item.version_metadata(self.object_changes) if !item.nil? && item.respond_to?(:version_metadata)
+    end
+  end
+
+  def task
+    task = nil
+    if self.item && self.item_type == 'DynamicAnnotation::Field'
+      annotation = self.item.annotation
+      if annotation && annotation.annotation_type =~ /response/ && annotation.annotated_type == 'Task'
+        task = Task.where(id: annotation.annotated_id).last
+      end
+    end
+    task
   end
 
   def deserialize_change(d)
@@ -112,7 +125,7 @@ class Version < Partitioned::ByForeignKey
   end
 
   def object_changes_json
-    changes = self.object_changes ? JSON.parse(self.object_changes) : {}
+    changes = begin JSON.parse(self.object_changes) rescue {} end
     if changes['data'] && changes['data'].is_a?(Array)
       changes['data'].collect!{ |d| d.is_a?(String) ? self.deserialize_change(d) : d }
     end
@@ -129,7 +142,7 @@ class Version < Partitioned::ByForeignKey
       self.get_associated_from_annotation(self.event_type, self.item)
     when 'create_projectmedia', 'update_projectmedia'
       [self.item.class.name, self.item_id.to_i]
-    when 'create_relationship', 'destroy_relationship'
+    when 'create_relationship', 'update_relationship', 'destroy_relationship'
       self.get_associated_from_relationship
     when 'create_assignment', 'destroy_assignment'
       self.get_associated_from_assignment
@@ -150,8 +163,8 @@ class Version < Partitioned::ByForeignKey
 
   def get_associated_from_core_annotation(annotation)
     associated = [nil, nil]
-    if annotation && annotation.annotated_type == 'ProjectMedia'
-      associated = [annotation.annotated_type, annotation.annotated_id.to_i]
+    if annotation && ['ProjectMedia', 'Task'].include?(annotation.annotated_type)
+      associated = annotation.annotation_type =~ /response/ && annotation.annotated_type == 'Task' ? ['ProjectMedia', annotation.annotated.annotated_id.to_i] : [annotation.annotated_type, annotation.annotated_id.to_i]
     end
     associated
   end
@@ -163,7 +176,7 @@ class Version < Partitioned::ByForeignKey
 
   def get_associated_from_relationship
     r = self.item
-    r.nil? ? [nil, nil] : ['ProjectMedia', r.source_id]
+    r.nil? ? [nil, nil] : ['ProjectMedia', r.target_id]
   end
 
   def get_associated_from_assignment

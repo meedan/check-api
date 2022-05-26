@@ -25,6 +25,7 @@ class ProjectMedia < ApplicationRecord
 
   before_validation :set_team_id, :set_channel, :set_project_id, on: :create
   after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks, :create_claim_description_and_fact_check, :create_tags
+  after_create :add_source_creation_log, unless: proc { |pm| pm.source_id.blank? }
   after_commit :apply_rules_and_actions_on_create, :set_quote_metadata, :notify_team_bots_create, on: [:create]
   after_commit :create_relationship, on: [:update]
   after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :add_remove_team_tasks, :move_similar_item, :send_move_to_slack_notification

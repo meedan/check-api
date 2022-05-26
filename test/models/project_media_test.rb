@@ -684,10 +684,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_team_user user: u, team: t, role: 'admin'
     pm = nil
     User.current = u
-    assert_difference 'PaperTrail::Version.count', 1 do
+    assert_difference 'PaperTrail::Version.count', 2 do
       pm = create_project_media team: t, media: m, user: u, skip_autocreate_source: false
     end
-    assert_equal 1, pm.versions.count
+    assert_equal 2, pm.versions.count
     User.current = nil
   end
 
@@ -709,14 +709,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
       info = { title: 'Foo' }; pm.analysis = info; pm.save!
       info = { title: 'Bar' }; pm.analysis = info; pm.save!
 
-      assert_equal ["create_dynamic", "create_dynamicannotationfield", "create_projectmedia", "create_tag", "update_dynamicannotationfield"].sort, pm.get_versions_log.map(&:event_type).sort
-      assert_equal 4, pm.get_versions_log_count
+      assert_equal [
+        "create_dynamic", "create_dynamicannotationfield", "create_projectmedia",
+        "create_projectmedia", "create_tag", "update_dynamicannotationfield"
+      ].sort, pm.get_versions_log.map(&:event_type).sort
+      assert_equal 5, pm.get_versions_log_count
       c.destroy
-      assert_equal 4, pm.get_versions_log_count
+      assert_equal 5, pm.get_versions_log_count
       tg.destroy
-      assert_equal 5, pm.get_versions_log_count
+      assert_equal 6, pm.get_versions_log_count
       f.destroy
-      assert_equal 5, pm.get_versions_log_count
+      assert_equal 6, pm.get_versions_log_count
     end
   end
 
@@ -1612,7 +1615,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm = create_project_media project: p, media: m, user: u
       pm.source_id = create_source(team_id: t.id).id
       pm.save
-      assert_equal 2, pm.versions.count
+      assert_equal 3, pm.versions.count
     end
     version = pm.versions.last
     version.update_attribute('associated_id', 100)

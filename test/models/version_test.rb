@@ -58,6 +58,26 @@ class VersionTest < ActiveSupport::TestCase
     assert_not_nil v.whodunnit
   end
 
+  test "should get task" do
+    Version.delete_all
+    v = create_version
+    assert_nil v.task
+    at = create_annotation_type annotation_type: 'task_response'
+    ft2 = create_field_type field_type: 'text'
+    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
+    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'note'
+    t = create_task
+    u = create_user is_admin: true
+    User.current = u
+    t = Task.find(t.id)
+    t.response = { annotation_type: 'task_response', set_fields: { response: 'Test', note: 'Test' }.to_json }.to_json
+    t.save!
+    Version.from_partition(t.team&.id).where(item_type: 'DynamicAnnotation::Field').each do |version|
+      assert_equal(t, version.task) if version.item.annotation.annotation_type =~ /response/
+    end
+    User.current = nil
+  end
+
   test "should get changes as JSON" do
     u = create_user
     t = create_team
