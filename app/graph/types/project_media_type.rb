@@ -37,12 +37,16 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :channel, JsonStringType
   field :cluster_id, types.Int
   field :cluster, ClusterType
+  field :is_suggested, types.Boolean
+  field :is_confirmed, types.Boolean
+
   field :claim_description, ClaimDescriptionType do
     resolve -> (project_media, _args, _ctx) {
       pm = Relationship.where('relationship_type = ?', Relationship.confirmed_type.to_yaml).where(target_id: project_media.id).first&.source || project_media
       pm.claim_description
     }
   end
+
   field :is_read, types.Boolean do
     argument :by_me, types.Boolean
 
