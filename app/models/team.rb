@@ -575,6 +575,10 @@ class Team < ApplicationRecord
     sources
   end
 
+  def data_report
+    Rails.cache.read("data:report:#{self.id}")
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/team_private.rb

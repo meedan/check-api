@@ -57,7 +57,7 @@ def get_statistics(start_date, end_date, slug, platform, language)
   # Number of conversations
   value1 = unique_requests_count(project_media_requests(slug, platform, start_date, end_date, language))
   value2 = team_requests(slug, platform, start_date, end_date, language).count
-  data << (value1 + value2).to_s
+  data << value1 + value2
 
   # Average number of end-user messages per day
   numbers_of_messages = []
@@ -113,17 +113,17 @@ def get_statistics(start_date, end_date, slug, platform, language)
 
   # Number of new published reports created in Check (e.g., native, not imported)
   # NOTE: For all platforms
-  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date).where("data LIKE '%language: #{language}%'").where('annotations.annotator_id != ?', BotUser.fetch_user.id).count.to_s
+  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date).where("data LIKE '%language: #{language}%'").where('annotations.annotator_id != ?', BotUser.fetch_user.id).count
 
   # Number of published imported reports
   # NOTE: For all languages and platforms
-  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date, 'annotations.annotator_id' => BotUser.fetch_user.id).count.to_s
+  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date, 'annotations.annotator_id' => BotUser.fetch_user.id).count
 
   # Number of queries answered with a report
-  data << reports_received(slug, platform, start_date, end_date, language).group('pm.id').count.size.to_s
+  data << reports_received(slug, platform, start_date, end_date, language).group('pm.id').count.size
 
   # Number of reports sent to users
-  data << reports_received(slug, platform, start_date, end_date, language).count.to_s
+  data << reports_received(slug, platform, start_date, end_date, language).count
 
   # Number of unique users who received a report
   data << reports_received(slug, platform, start_date, end_date, language).collect{ |f| JSON.parse(f.annotation.load.get_field_value('smooch_data'))['authorId'] }.uniq.size
@@ -155,23 +155,36 @@ def get_statistics(start_date, end_date, slug, platform, language)
       rescue
         nil
       end
-    end.reject{ |v| v.blank? }.uniq.size.to_s
+    end.reject{ |v| v.blank? }.uniq.size
   end
 
   # Number of new newsletter subscriptions
-  data << TiplineSubscription.where(created_at: start_date..end_date, platform: platform_name, language: language).where('teams.slug' => slug).joins(:team).count.to_s
+  data << TiplineSubscription.where(created_at: start_date..end_date, platform: platform_name, language: language).where('teams.slug' => slug).joins(:team).count
 
   # Number of newsletter subscription cancellations
-  data << Version.from_partition(team.id).where(created_at: start_date..end_date, team_id: team.id, item_type: 'TiplineSubscription', event_type: 'destroy_tiplinesubscription').where('object LIKE ?', "%#{platform_name}%").where('object LIKE ?', '%"language":"' + language + '"%').count.to_s
+  data << Version.from_partition(team.id).where(created_at: start_date..end_date, team_id: team.id, item_type: 'TiplineSubscription', event_type: 'destroy_tiplinesubscription').where('object LIKE ?', "%#{platform_name}%").where('object LIKE ?', '%"language":"' + language + '"%').count
 
   # Current number of newsletter subscribers
-  data << TiplineSubscription.where(created_at: start_date.ago(100.years)..end_date, platform: platform_name, language: language).where('teams.slug' => slug).joins(:team).count.to_s
+  data << TiplineSubscription.where(created_at: start_date.ago(100.years)..end_date, platform: platform_name, language: language).where('teams.slug' => slug).joins(:team).count
 
   # Total number of imported reports
   # NOTE: For all languages and platforms
-  # data << ProjectMedia.joins(:team).where('teams.slug' => slug, 'created_at' => start_date..end_date, 'user_id' => BotUser.fetch_user.id).count.to_s
+  # data << ProjectMedia.joins(:team).where('teams.slug' => slug, 'created_at' => start_date..end_date, 'user_id' => BotUser.fetch_user.id).count
 
   puts data.join(',')
+  data
+end
+
+def cache_team_data(team, header, rows)
+  data = []
+  rows.each do |row|
+    entry = {}
+    header.each_with_index do |column, i|
+      entry[column] = row[i]
+    end
+    data << entry
+  end
+  Rails.cache.write("data:report:#{team.id}", data)
 end
 
 namespace :check do
@@ -224,6 +237,7 @@ namespace :check do
 
         slugs.each do |slug|
           team = Team.find_by_slug(slug)
+          team_rows = []
           TeamBotInstallation.where(team: team, user: BotUser.smooch_user).last.smooch_enabled_integrations.keys.each do |platform|
             team.get_languages.each do |language|
               if group_by_month == 1
@@ -235,14 +249,15 @@ namespace :check do
                   (year_start_month..year_end_month).to_a.each do |month|
                     time = Time.parse("#{year}-#{month}-01")
                     next if team.created_at > time.end_of_month
-                    get_statistics(time.beginning_of_month, time.end_of_month, slug, platform, language)
+                    team_rows << get_statistics(time.beginning_of_month, time.end_of_month, slug, platform, language)
                   end
                 end
               else
-                get_statistics(Time.parse("#{start_year}-#{start_month}-01"), Time.parse("#{end_year}-#{end_month}-01").end_of_month, slug, platform, language)
+                team_rows << get_statistics(Time.parse("#{start_year}-#{start_month}-01"), Time.parse("#{end_year}-#{end_month}-01").end_of_month, slug, platform, language)
               end
             end
           end
+          cache_team_data(team, header, team_rows)
         end
       end
       ActiveRecord::Base.logger = old_logger
