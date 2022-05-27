@@ -113,11 +113,11 @@ def get_statistics(start_date, end_date, slug, platform, language)
 
   # Number of new published reports created in Check (e.g., native, not imported)
   # NOTE: For all platforms
-  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date).where("data LIKE '%language: #{language}%'").where('annotations.annotator_id != ?', BotUser.fetch_user.id).count.to_s
+  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date).where("data LIKE '%language: #{language}%'").where("data LIKE '%state: published%'").where('annotations.annotator_id != ?', BotUser.fetch_user.id).count.to_s
 
   # Number of published imported reports
   # NOTE: For all languages and platforms
-  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date, 'annotations.annotator_id' => BotUser.fetch_user.id).count.to_s
+  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date, 'annotations.annotator_id' => BotUser.fetch_user.id).where("data LIKE '%state: published%'").count.to_s
 
   # Number of queries answered with a report
   data << reports_received(slug, platform, start_date, end_date, language).group('pm.id').count.size.to_s
