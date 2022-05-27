@@ -39,6 +39,10 @@ def team_requests(slug, platform, start_date, end_date, language)
   base.joins("INNER JOIN teams t ON annotations.annotated_type = 'Team' AND t.id = annotations.annotated_id")
 end
 
+def unique_requests_count(relation)
+  relation.group("fs.value_json #>> '{source,originalMessageId}'").count.size
+end
+
 def get_statistics(start_date, end_date, slug, platform, language)
   platform_name = Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[platform]
   month = nil
@@ -47,10 +51,11 @@ def get_statistics(start_date, end_date, slug, platform, language)
   else
     month = "#{Date::MONTHNAMES[start_date.month]} #{start_date.year}"
   end
-  data = [Team.find_by_slug(slug).name, platform_name, language, month]
+  id = [slug, platform_name, language, month].join('-').downcase.gsub(/[_ ]+/, '-')
+  data = [id, Team.find_by_slug(slug).name, platform_name, language, month]
 
   # Number of conversations
-  value1 = project_media_requests(slug, platform, start_date, end_date, language).count
+  value1 = unique_requests_count(project_media_requests(slug, platform, start_date, end_date, language))
   value2 = team_requests(slug, platform, start_date, end_date, language).count
   data << (value1 + value2).to_s
 
@@ -83,22 +88,36 @@ def get_statistics(start_date, end_date, slug, platform, language)
   # Number of returning users (at least one session in the current month, and at least one session in the last previous 2 months)
   data << DynamicAnnotation::Field.where(field_name: 'smooch_data', created_at: start_date.ago(2.months)..start_date).where("value_json->>'authorId' IN (?) AND value_json->>'language' = ?", uids, language).collect{ |f| f.value_json['authorId'] }.uniq.size
 
-  # Number of positive search results
-  data << project_media_requests(slug, platform, start_date, end_date, language, 'relevant_search_result_requests').count.to_s
-
-  # Number of negative search results
-  data << project_media_requests(slug, platform, start_date, end_date, language, 'default_requests').where('pm.archived' => 0).count.to_s
+  # SEARCH
+  # 1. All searches (2 + 3)
+  # 2. Positive search results (4 + 5 + 6)
+  # 3. Negative search results
+  # 4. Relevant feedback
+  # 5. Irrelevant feedback
+  # 6. No feedback
+  search4 = unique_requests_count(project_media_requests(slug, platform, start_date, end_date, language, 'relevant_search_result_requests'))
+  search5 = project_media_requests(slug, platform, start_date, end_date, language, 'irrelevant_search_result_requests').count
+  search6 = unique_requests_count(project_media_requests(slug, platform, start_date, end_date, language, 'timeout_search_requests'))
+  search2 = search4 + search5 + search6
+  search3 = project_media_requests(slug, platform, start_date, end_date, language, 'default_requests').count
+  search1 = search2 + search3
+  data << search1
+  data << search2
+  data << search3
+  data << search4
+  data << search5
+  data << search6
 
   # Number of valid queries
-  data << project_media_requests(slug, platform, start_date, end_date, language).where('pm.archived' => 0).count.to_s
+  data << unique_requests_count(project_media_requests(slug, platform, start_date, end_date, language).where('pm.archived' => 0))
 
   # Number of new published reports created in Check (e.g., native, not imported)
   # NOTE: For all platforms
-  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date).where("data LIKE '%language: #{language}%'").where.not('pm.user_id' => BotUser.fetch_user.id).count.to_s
+  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date).where("data LIKE '%language: #{language}%'").where('annotations.annotator_id != ?', BotUser.fetch_user.id).count.to_s
 
   # Number of published imported reports
   # NOTE: For all languages and platforms
-  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug, 'pm.user_id' => BotUser.fetch_user.id).where('annotations.created_at' => start_date..end_date).count.to_s
+  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date, 'annotations.annotator_id' => BotUser.fetch_user.id).count.to_s
 
   # Number of queries answered with a report
   data << reports_received(slug, platform, start_date, end_date, language).group('pm.id').count.size.to_s
@@ -174,6 +193,7 @@ namespace :check do
         puts 'Please provide a list of workspace slugs'
       else
         header = [
+          'ID',
           'Org',
           'Platform',
           'Language',
@@ -182,9 +202,13 @@ namespace :check do
           'Average messages per day',
           'Unique users',
           'Returning users',
-          'Positive search results',
-          'Negative search results',
-          'Valid queries received (not in trash)',
+          'Searches',
+          'Positive searches',
+          'Negative searches',
+          'Search feedback positive',
+          'Search feedback negative',
+          'Search no feedback',
+          'Valid new queries',
           'Published native reports',
           'Published imported reports',
           'Queries answered with a report',
