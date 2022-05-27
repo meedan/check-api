@@ -51,7 +51,8 @@ def get_statistics(start_date, end_date, slug, platform, language)
   else
     month = "#{Date::MONTHNAMES[start_date.month]} #{start_date.year}"
   end
-  data = [Team.find_by_slug(slug).name, platform_name, language, month]
+  id = [slug, platform_name, language, month].join('-').downcase.gsub(/[_ ]+/, '-')
+  data = [id, Team.find_by_slug(slug).name, platform_name, language, month]
 
   # Number of conversations
   value1 = unique_requests_count(project_media_requests(slug, platform, start_date, end_date, language))
@@ -192,6 +193,7 @@ namespace :check do
         puts 'Please provide a list of workspace slugs'
       else
         header = [
+          'ID',
           'Org',
           'Platform',
           'Language',
