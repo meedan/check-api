@@ -563,7 +563,7 @@ class ElasticSearch7Test < ActionController::TestCase
       pm2 = create_project_media team: t, quote: 'claim b', channel: { main: CheckChannels::ChannelCodes::ZAPIER }, disable_es_callbacks: false
       # tipline items
       pm3 = create_project_media team: t, channel: { main: CheckChannels::ChannelCodes::WHATSAPP }, disable_es_callbacks: false
-      pm.channel = { main: CheckChannels::ChannelCodes::MANUAL, others: [CheckChannels::ChannelCodes::WHATSAPP] }
+      pm.channel = { main: CheckChannels::ChannelCodes::MANUAL, others: [CheckChannels::ChannelCodes::WHATSAPP, CheckChannels::ChannelCodes::MESSENGER] }
       pm.save!
       sleep 2
       results = CheckSearch.new({ channels: [CheckChannels::ChannelCodes::MANUAL] }.to_json)
@@ -572,6 +572,8 @@ class ElasticSearch7Test < ActionController::TestCase
       assert_equal [pm.id, pm3.id], results.medias.map(&:id).sort
       results = CheckSearch.new({ channels: [CheckChannels::ChannelCodes::WHATSAPP, CheckChannels::ChannelCodes::ZAPIER] }.to_json)
       assert_equal [pm.id, pm2.id, pm3.id], results.medias.map(&:id).sort
+      results = CheckSearch.new({ channels: [CheckChannels::ChannelCodes::MESSENGER] }.to_json)
+      assert_equal [pm.id], results.medias.map(&:id)
       # filter by any tipline
       results = CheckSearch.new({ channels: ['any_tipline'] }.to_json)
       assert_equal [pm.id, pm3.id], results.medias.map(&:id).sort
