@@ -320,8 +320,9 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     ProjectMedia.any_instance.unstub(:analysis_published_article_url)
   end
 
-  test "should update channel for manually matched items" do
+  test "should update channel for all items" do
     pm = create_project_media team: @team
+    pm2 = create_project_media team: @team, channel: { main: CheckChannels::ChannelCodes::WHATSAPP }
     Sidekiq::Testing.inline! do
       message = {
         type: 'text',
@@ -339,9 +340,44 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
         },
       }
       Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm)
+      message = {
+        type: 'text',
+        text: random_string,
+        role: 'appUser',
+        received: 1573082583.219,
+        name: random_string,
+        authorId: random_string,
+        '_id': random_string,
+        source: {
+          originalMessageId: random_string,
+          originalMessageTimestamp: 1573082582,
+          type: 'messenger',
+          integrationId: random_string
+        },
+      }
+      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm)
       # verifiy new channel value
-      data = {"main" => CheckChannels::ChannelCodes::MANUAL, "others" => [CheckChannels::ChannelCodes::WHATSAPP]}
+      data = {"main" => CheckChannels::ChannelCodes::MANUAL, "others" => [CheckChannels::ChannelCodes::WHATSAPP, CheckChannels::ChannelCodes::MESSENGER]}
       assert_equal data, pm.reload.channel
+      message = {
+        type: 'text',
+        text: random_string,
+        role: 'appUser',
+        received: 1573082583.219,
+        name: random_string,
+        authorId: random_string,
+        '_id': random_string,
+        source: {
+          originalMessageId: random_string,
+          originalMessageTimestamp: 1573082582,
+          type: 'messenger',
+          integrationId: random_string
+        },
+      }
+      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm2)
+      # verifiy new channel value
+      data = {"main" => CheckChannels::ChannelCodes::WHATSAPP, "others" => [CheckChannels::ChannelCodes::MESSENGER]}
+      assert_equal data, pm2.reload.channel
     end
   end
 
