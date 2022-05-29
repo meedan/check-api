@@ -155,7 +155,7 @@ namespace :check do
               value.each do |v|
                 others << Bot::Smooch.get_smooch_channel(v.value_json)
               end
-              pm_channel.with_indifferent_access[:others] = others.uniq
+              pm_channel["others"] = others.uniq
               # PG item
               pg_items << { id: id, channel: pm_channel }
               # ES item
