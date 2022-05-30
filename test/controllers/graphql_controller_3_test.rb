@@ -855,14 +855,22 @@ class GraphqlController3Test < ActionController::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'admin'
     pm = create_project_media team: t
+    pm2 = create_project_media team: t
     authenticate_with_user(u)
     create_dynamic_annotation annotation_type: 'smooch', annotated: pm, set_fields: { smooch_data: { 'authorId' => random_string }.to_json }.to_json
     create_dynamic_annotation annotation_type: 'smooch', annotated: pm, set_fields: { smooch_data: { 'authorId' => random_string }.to_json }.to_json
+    create_dynamic_annotation annotation_type: 'smooch', annotated: pm2, set_fields: { smooch_data: { 'authorId' => random_string }.to_json }.to_json
+    r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     query = "query { project_media(ids: \"#{pm.id}\") { requests(first: 10) { edges { node { dbid } } } } }"
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']['requests']['edges']
-    assert_equal 2, data.length
+    assert_equal 3, data.length
+    query = "query { project_media(ids: \"#{pm2.id}\") { requests(first: 10) { edges { node { dbid } } } } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['project_media']['requests']['edges']
+    assert_equal 1, data.length
   end
 
   test "should get related items if filters are null" do
