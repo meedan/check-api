@@ -30,6 +30,7 @@ class ProjectMedia < ApplicationRecord
   after_commit :create_relationship, on: [:update]
   after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :add_remove_team_tasks, :move_similar_item, :send_move_to_slack_notification
   after_update :apply_rules_and_actions_on_update, if: proc { |pm| pm.saved_changes.keys.include?('read') }
+  after_update :apply_delete_for_ever, if: proc { |pm| pm.saved_change_to_archived? && pm.archived == CheckArchivedFlags::FlagCodes::TRASHED }
   after_destroy :destroy_related_medias
 
   notifies_pusher on: [:save, :destroy],
@@ -375,6 +376,12 @@ class ProjectMedia < ApplicationRecord
     pm_ids = Relationship.confirmed_parent(self).id == self.id ? self.related_items_ids : [self.id]
     sm_ids = Annotation.where(annotation_type: 'smooch', annotated_type: 'ProjectMedia', annotated_id: pm_ids).map(&:id)
     sm_ids.blank? ? [] : DynamicAnnotation::Field.where(annotation_id: sm_ids, field_name: 'smooch_data')
+  end
+
+  def self.delete_forever(updated_at, id)
+    # Check item still exists and Trashed
+    pm = ProjectMedia.where(id: id, archived: CheckArchivedFlags::FlagCodes::TRASHED).where('updated_at <= ?', updated_at).last
+    pm.destroy unless pm.nil?
   end
 
   protected

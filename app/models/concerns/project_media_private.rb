@@ -142,4 +142,8 @@ module ProjectMediaPrivate
     value_was = self.channel_was.with_indifferent_access[:main].to_i
     errors.add(:channel, I18n.t(:"errors.messages.invalid_project_media_channel_update")) if value != value_was
   end
+
+  def apply_delete_for_ever
+    ProjectMedia.delay_for(CheckConfig.get('empty_trash_interval', 30.days)).delete_forever(self.updated_at, self.id)
+  end
 end

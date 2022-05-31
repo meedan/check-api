@@ -147,12 +147,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     with_current_user_and_team(u2, t) do
       pm.save!
     end
-    # TODO : fix by Sawy
-    # assert_nothing_raised do
-    #   with_current_user_and_team(u2, t) do
-    #     pm.destroy!
-    #   end
-    # end
   end
 
   test "queries for relationship source" do
@@ -2872,5 +2866,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
     r.destroy!
     assert !pm.is_suggested
     assert !pm.is_confirmed
+  end
+
+  test "should delete for ever trashed items" do
+    t = create_team
+    pm = create_project_media team: t
+    Sidekiq::Testing.inline! do
+      pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
+      pm.save!
+    end
+    assert_nil ProjectMedia.find_by_id(pm.id)
   end
 end
