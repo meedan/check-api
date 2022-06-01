@@ -51,6 +51,17 @@ module ProjectMediaCreators
     self.analysis = { file_title: title }
   end
 
+  def add_source_creation_log
+    create_log = Version.from_partition(self.team_id).where(item_id: self.id, item_type: 'ProjectMedia', event_type: 'create_projectmedia').last
+    # Log extra event to show this log in UI `Source {name} add by {author}`
+    unless create_log.nil?
+      source_log = create_log.dup
+      source_log.meta = { add_source: true, source_name: self.source&.name }.to_json
+      source_log.skip_check_ability = true
+      source_log.save!
+    end
+  end
+
   protected
 
   def create_with_file(media_type = 'UploadedImage')

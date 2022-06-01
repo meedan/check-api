@@ -42,7 +42,6 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_fieldsets, JsonStringType
   field :list_columns, JsonStringType
   field :get_data_report_url, types.String
-  field :get_tasks_enabled, types.Boolean
   field :url, types.String
   field :get_tipline_inbox_filters, JsonStringType
   field :get_suggested_matches_filters, JsonStringType

@@ -1,5 +1,5 @@
 class TeamBotInstallation < TeamUser
-  include Versioned
+  has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at], versions: { class_name: 'Version' }, if: proc { |_x| User.current.present? }
 
   mount_uploaders :file, ImageUploader
   serialize :file, JSON

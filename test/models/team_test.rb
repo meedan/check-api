@@ -84,22 +84,6 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should create version when team is created" do
-    User.current = create_user
-    t = create_team
-    assert_equal 1, t.versions.size
-    User.current = nil
-  end
-
-  test "should create version when team is updated" do
-    User.current = create_user(is_admin: true)
-    t = create_team
-    t.logo = random_string
-    t.save!
-    assert_equal 2, t.versions.size
-    User.current = nil
-  end
-
   test "should have users" do
     t = create_team
     u1 = create_user
@@ -1108,7 +1092,6 @@ class TeamTest < ActiveSupport::TestCase
   test "should match rule based on status" do
     RequestStore.store[:skip_cached_field_update] = false
     create_verification_status_stuff
-    create_task_status_stuff(false)
     setup_elasticsearch
     t = create_team
     p0 = create_project team: t
@@ -2672,5 +2655,16 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal [t.id, t2.id], t.country_teams.keys.sort
     assert_equal [t.name, t2.name].sort, t.country_teams.values.sort
     assert_empty t4.country_teams
+  end
+
+  test "should return number of items" do
+    t = create_team
+    single = create_project_media team: t
+    main = create_project_media team: t
+    suggested = create_project_media team: t
+    confirmed = create_project_media team: t
+    create_relationship source_id: main.id, target_id: suggested.id, relationship_type: Relationship.suggested_type
+    create_relationship source_id: main.id, target_id: confirmed.id, relationship_type: Relationship.confirmed_type
+    assert_equal 3, t.reload.medias_count
   end
 end

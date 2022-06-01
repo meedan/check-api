@@ -15,7 +15,6 @@ class Project < ApplicationRecord
 
   attr_accessor :project_media_ids_were, :previous_project_group_id, :previous_default_project_id, :items_destination_project_id
 
-  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
   belongs_to :user, optional: true
   belongs_to :team, optional: true
   belongs_to :project_group, optional: true
@@ -27,7 +26,7 @@ class Project < ApplicationRecord
   before_validation :generate_token, on: :create
 
   after_commit :send_slack_notification, on: [:create, :update]
-  after_commit :update_elasticsearch_data, on: :update
+  after_update :update_elasticsearch_data, if: proc { |p| p.saved_change_to_team_id? }
   after_update :archive_or_restore_project_medias_if_needed
   after_update :keep_only_one_default_folder, if: proc { |p| p.saved_change_to_is_default? }
   before_destroy :move_project_medias
@@ -296,12 +295,9 @@ class Project < ApplicationRecord
 
   def update_elasticsearch_data
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    v = Version.from_partition(self.team_id).where(item_id: self.id, item_type: self.class.name).last
-    unless v.nil? || v.changeset['team_id'].blank?
-      data = {'team_id' => self.team_id}
-      options = { keys: data.keys, data: data }
-      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_doc_team')
-    end
+    data = {'team_id' => self.team_id}
+    options = { keys: data.keys, data: data }
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_doc_team')
   end
 
   def archive_or_restore_project_medias_if_needed

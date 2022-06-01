@@ -6,8 +6,8 @@ module SmoochSearch
   module ClassMethods
     # This method runs in background
     def search(app_id, uid, language, message, team_id, workflow)
+      platform = self.get_platform_from_message(message)
       begin
-        self.get_platform_from_message(message)
         sm = CheckStateMachine.new(uid)
         self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
         results = self.get_search_results(uid, message, team_id, language)
@@ -18,8 +18,7 @@ module SmoochSearch
           self.send_search_results_to_user(uid, results)
           sm.go_to_search_result
           self.save_search_results_for_user(uid, results.map(&:id))
-          sleep 7 # Be sure that the user has enough time to take a look at the results before answering if they are relevant
-          self.send_message_for_state(uid, workflow, 'search_result', language)
+          self.delay_for(1.second).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, 1)
         end
       rescue StandardError => e
         self.handle_search_error(uid, e, language)
@@ -28,6 +27,10 @@ module SmoochSearch
 
     def save_search_results_for_user(uid, pmids)
       Rails.cache.write("smooch:user_search_results:#{uid}", pmids)
+    end
+
+    def get_saved_search_results_for_user(uid)
+      Rails.cache.read("smooch:user_search_results:#{uid}").to_a.collect{ |result_id| ProjectMedia.find(result_id) }
     end
 
     def handle_search_error(uid, e, _language)
@@ -44,7 +47,7 @@ module SmoochSearch
     end
 
     def submit_search_query_for_verification(uid, app_id, workflow, language)
-      self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, '', app_id, 'default_requests', nil, true, self.bundle_search_query(uid))
+      self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, '', app_id, 'irrelevant_search_result_requests', nil, true, self.bundle_search_query(uid))
       self.send_final_message_to_user(uid, self.get_menu_string('search_submit', language), workflow, language)
     end
 
@@ -117,8 +120,8 @@ module SmoochSearch
           filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) if after
           results = CheckSearch.new(filters.to_json, nil, team_ids).medias
           Rails.logger.info "[Smooch Bot] Keyword search got #{results.count} results (only main items) while looking for '#{text}' after date #{after.inspect} for teams #{team_ids}"
-          results = CheckSearch.new(filters.merge({ show_similar: true }).to_json, nil, team_ids).medias if results.empty?
-          Rails.logger.info "[Smooch Bot] Keyword search got #{results.count} results (including secondary items) while looking for '#{text}' after date #{after.inspect} for teams #{team_ids}"
+          results = CheckSearch.new(filters.merge({ show_similar: true, fuzzy: true }).to_json, nil, team_ids).medias if results.empty?
+          Rails.logger.info "[Smooch Bot] Keyword search got #{results.count} results (including secondary items and using fuzzy matching) while looking for '#{text}' after date #{after.inspect} for teams #{team_ids}"
         else
           alegre_results = Bot::Alegre.get_merged_similar_items(pm, { value: self.get_text_similarity_threshold }, Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text, team_ids)
           results = self.parse_search_results_from_alegre(alegre_results, after)
@@ -134,11 +137,33 @@ module SmoochSearch
     end
 
     def send_search_results_to_user(uid, results)
+      redis = Redis.new(REDIS_CONFIG)
       results = results.collect { |r| Relationship.confirmed_parent(r) }.uniq
       results.each do |result|
         report = result.get_dynamic_annotation('report_design')
-        self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report&.report_design_image_url }) if report && report.report_design_field_value('use_visual_card')
-        self.send_message_to_user(uid, report.report_design_text) if report && !report.report_design_field_value('use_visual_card') && report.report_design_field_value('use_text_message')
+        response = nil
+        response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report&.report_design_image_url }) if report && report.report_design_field_value('use_visual_card')
+        response = self.send_message_to_user(uid, report.report_design_text) if report && !report.report_design_field_value('use_visual_card') && report.report_design_field_value('use_text_message')
+        id = self.get_id_from_send_response(response)
+        redis.rpush("smooch:search:#{uid}", id) unless id.blank?
+      end
+    end
+
+    def user_received_search_result(message)
+      uid = message['appUser']['_id']
+      id = message['message']['_id']
+      redis = Redis.new(REDIS_CONFIG)
+      redis.lrem("smooch:search:#{uid}", 0, id) if redis.exists("smooch:search:#{uid}") == 1
+    end
+
+    def ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, attempts)
+      RequestStore.store[:smooch_bot_platform] = platform
+      redis = Redis.new(REDIS_CONFIG)
+      if redis.llen("smooch:search:#{uid}") == 0 && CheckStateMachine.new(uid).state.value == 'search_result'
+        self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
+        self.send_message_for_state(uid, workflow, 'search_result', language)
+      else
+        self.delay_for(1.second).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, attempts + 1) if attempts < 30 # Try for 30 seconds
       end
     end
   end

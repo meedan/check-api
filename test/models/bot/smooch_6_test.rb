@@ -320,8 +320,9 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     ProjectMedia.any_instance.unstub(:analysis_published_article_url)
   end
 
-  test "should update channel for manually matched items" do
+  test "should update channel for all items" do
     pm = create_project_media team: @team
+    pm2 = create_project_media team: @team, channel: { main: CheckChannels::ChannelCodes::WHATSAPP }
     Sidekiq::Testing.inline! do
       message = {
         type: 'text',
@@ -339,9 +340,44 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
         },
       }
       Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm)
+      message = {
+        type: 'text',
+        text: random_string,
+        role: 'appUser',
+        received: 1573082583.219,
+        name: random_string,
+        authorId: random_string,
+        '_id': random_string,
+        source: {
+          originalMessageId: random_string,
+          originalMessageTimestamp: 1573082582,
+          type: 'messenger',
+          integrationId: random_string
+        },
+      }
+      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm)
       # verifiy new channel value
-      data = {"main" => CheckChannels::ChannelCodes::MANUAL, "others" => [CheckChannels::ChannelCodes::WHATSAPP]}
+      data = {"main" => CheckChannels::ChannelCodes::MANUAL, "others" => [CheckChannels::ChannelCodes::WHATSAPP, CheckChannels::ChannelCodes::MESSENGER]}
       assert_equal data, pm.reload.channel
+      message = {
+        type: 'text',
+        text: random_string,
+        role: 'appUser',
+        received: 1573082583.219,
+        name: random_string,
+        authorId: random_string,
+        '_id': random_string,
+        source: {
+          originalMessageId: random_string,
+          originalMessageTimestamp: 1573082582,
+          type: 'messenger',
+          integrationId: random_string
+        },
+      }
+      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm2)
+      # verifiy new channel value
+      data = {"main" => CheckChannels::ChannelCodes::WHATSAPP, "others" => [CheckChannels::ChannelCodes::MESSENGER]}
+      assert_equal data, pm2.reload.channel
     end
   end
 
@@ -379,5 +415,48 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       }
     }.to_json
     assert Bot::Smooch.run(payload)
+  end
+
+  test "should send feedback message after user receive search results" do
+    uid = random_string
+    CheckStateMachine.new(uid).go_to_search_result
+    id = random_string
+    redis = Redis.new(REDIS_CONFIG)
+    redis.rpush("smooch:search:#{uid}", id)
+    assert_equal 1, redis.llen("smooch:search:#{uid}")
+    Bot::Smooch.ask_for_feedback_when_all_search_results_are_received(@app_id, 'en', {}, uid, 'WhatsApp', 1)
+    Sidekiq::Testing.inline! do
+      payload = {
+        trigger: 'message:delivery:channel',
+        app: {
+          '_id': @app_id
+        },
+        version: 'v1.1',
+        source: { type: 'whatsapp' },
+        conversation: { '_id': random_string },
+        message: { '_id': id },
+        appUser: {
+          '_id': uid,
+          'conversationStarted': true
+        }
+      }.to_json
+      assert Bot::Smooch.run(payload)
+      Bot::Smooch.ask_for_feedback_when_all_search_results_are_received(@app_id, 'en', {}, uid, 'WhatsApp', 1)
+      assert_equal 0, redis.llen("smooch:search:#{uid}")
+    end
+  end
+
+  test "should timeout search results on tipline bot v2" do
+    @installation.set_smooch_disable_timeout = false
+    @installation.save!
+    uid = random_string
+    Bot::Smooch.save_search_results_for_user(uid, [create_project_media.id])
+    send_message_to_smooch_bot('Hello', uid)
+    sm = CheckStateMachine.new(uid)
+    sm.go_to_search_result
+    assert_equal 'search_result', sm.state.value
+
+    message = { 'authorId' => uid, '_id' => random_string }
+    assert_nil Bot::Smooch.timeout_smooch_menu(Time.now + 30.minutes, message, @app_id)
   end
 end

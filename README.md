@@ -5,11 +5,3 @@
 [![Travis](https://travis-ci.org/meedan/check-api.svg?branch=develop)](https://travis-ci.org/meedan/check-api/)
 
 Part of the [Check platform](https://meedan.com/check). Refer to the [main repository](https://github.com/meedan/check) for instructions.
-
-
-#### Misc
-
-To update a given Team of `ID` to use a model of `MODEL_NAME` when storing and marking content as similar within the `Alegre` service:
-```
-bundle exec rake check:set_language_model_for_alegre_team_bot_installation['[ID]','[MODEL_NAME]']
-```

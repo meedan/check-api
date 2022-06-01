@@ -107,39 +107,6 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal [c2a.id, c2b.id].sort, s2.reload.annotations.map(&:id).sort
   end
 
-  test "should create version when comment is created" do
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'admin'
-    p = create_project team: t
-    pm = create_project_media project: p
-    with_current_user_and_team(u, t) do
-      c = create_comment(text: 'test', annotated: pm)
-      assert_equal 1, c.versions.count
-      v = c.versions.last
-      assert_equal 'create', v.event
-    end
-  end
-
-  test "should create version when comment is updated" do
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'admin'
-    p = create_project team: t
-    pm = create_project_media project: p
-    with_current_user_and_team(u, t) do
-      c = create_comment(text: 'foo', annotated: pm, annotator: u)
-      c = Comment.last
-      c.text = 'bar'
-      c.disable_es_callbacks = true
-      c.save!
-      assert_equal 2, c.versions.count
-      v = PaperTrail::Version.last
-      assert_equal 'update', v.event
-      assert_equal({"data"=>[{"text"=>"foo"}, {"text"=>"bar"}]}, v.changeset)
-    end
-  end
-
   test "should get columns as array" do
     assert_kind_of Array, Comment.columns
   end

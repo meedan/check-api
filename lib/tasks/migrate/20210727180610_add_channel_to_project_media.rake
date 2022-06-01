@@ -125,5 +125,55 @@ namespace :check do
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
+
+    task fix_channel_for_tipline_items: :environment do
+      started = Time.now.to_i
+      index_alias = CheckElasticSearchModel.get_index_alias
+      client = $repository.client
+      smooch = User.where(login: 'smooch').last
+      tiplines = CheckChannels::ChannelCodes.all_channels['TIPLINE']
+      # Get latest team id
+      last_team_id = Rails.cache.read('check:migrate:fix_channel_for_tipline_items:team_id') || 0
+      Team.where('id > ?', last_team_id).find_each do |team|
+        puts "Processing team #{team.slug} ..."
+        # set channel for smooch items
+        unless smooch.nil?
+          smooch.project_medias.where(team_id: team.id).find_in_batches(:batch_size => 2500) do |pms|
+            print '.'
+            ids = pms.map(&:id)
+            pg_items = []
+            es_body = []
+            data = DynamicAnnotation::Field.select('dynamic_annotation_fields.id, value_json, pm.id as pm_id, pm.channel')
+            .where(field_name: 'smooch_data', annotation_type: 'smooch')
+            .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id AND a.annotated_type = 'ProjectMedia'")
+            .joins("INNER JOIN project_medias pm ON a.annotated_id = pm.id")
+            .where('a.annotated_id IN (?)', ids).group_by(&:pm_id)
+            data.each do |id, value|
+              print '.'
+              pm_channel = value.first.channel
+              others = pm_channel.with_indifferent_access[:others] || []
+              value.each do |v|
+                others << Bot::Smooch.get_smooch_channel(v.value_json)
+              end
+              pm_channel["others"] = others.uniq
+              # PG item
+              pg_items << { id: id, channel: pm_channel }
+              # ES item
+              doc_id =  Base64.encode64("ProjectMedia/#{id}")
+              fields = { 'channel' => pm_channel.values.flatten.uniq.map(&:to_i) }
+              es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
+            end
+            # Update PG items
+            ProjectMedia.import(pg_items, recursive: false, validate: false, on_duplicate_key_update: [:channel])
+            # Update ES items
+            client.bulk body: es_body unless es_body.blank?
+          end
+        end
+        # log last team id
+        Rails.cache.write('check:migrate:fix_channel_for_tipline_items:team_id', team.id)
+      end
+      minutes = ((Time.now.to_i - started) / 60).to_i
+      puts "[#{Time.now}] Done in #{minutes} minutes."
+    end
   end
 end

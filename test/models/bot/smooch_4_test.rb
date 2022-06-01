@@ -377,15 +377,15 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     t = create_team
     with_current_user_and_team(u, t) do
       d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_data: { 'authorId' => whatsapp_uid }.to_json }.to_json
-      assert_equal '+55 12 3456-7890', d.get_field('smooch_data').versions.last.smooch_user_external_identifier
+      assert_equal '+55 12 3456-7890', d.get_field('smooch_data').smooch_user_external_identifier
       d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_data: { 'authorId' => twitter_uid }.to_json }.to_json
-      assert_equal '@foobar', d.get_field('smooch_data').versions.last.smooch_user_external_identifier
+      assert_equal '@foobar', d.get_field('smooch_data').smooch_user_external_identifier
       d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_data: { 'authorId' => facebook_uid }.to_json }.to_json
-      assert_equal '123456', d.get_field('smooch_data').versions.last.smooch_user_external_identifier
+      assert_equal '123456', d.get_field('smooch_data').smooch_user_external_identifier
       d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_data: { 'authorId' => telegram_uid }.to_json }.to_json
-      assert_equal '@barfoo', d.get_field('smooch_data').versions.last.smooch_user_external_identifier
+      assert_equal '@barfoo', d.get_field('smooch_data').smooch_user_external_identifier
       d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_data: { 'authorId' => other_uid }.to_json }.to_json
-      assert_equal '', d.get_field('smooch_data').versions.last.smooch_user_external_identifier
+      assert_equal '', d.get_field('smooch_data').smooch_user_external_identifier
     end
   end
 
@@ -596,7 +596,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
 
   test "should not create duplicated project media and media on team" do
     Sidekiq::Testing.inline! do
-      # video
+      # Video
       message = {
         type: 'file',
         text: random_string,
@@ -623,6 +623,14 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
        Bot::Smooch.save_message(message.to_json, @app_id)
       end
       assert_equal medias_count, Media.count
+    end
+  end
+
+  test "should send only visual card to user" do
+    pm = create_project_media
+    publish_report(pm, {}, nil, { use_text_message: false })
+    assert_nothing_raised do
+      Bot::Smooch.send_report_to_user(random_string, { 'received' => Time.now.to_i }, pm, 'report')
     end
   end
 end

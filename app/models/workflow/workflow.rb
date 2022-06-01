@@ -1,7 +1,7 @@
 module Workflow
   class Workflow
     def self.workflows
-      [::Workflow::VerificationStatus, ::Workflow::TaskStatus]
+      [::Workflow::VerificationStatus]
     end
 
     def self.workflow_ids

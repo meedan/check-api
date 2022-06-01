@@ -442,7 +442,7 @@ GEM
       connection_pool (~> 2.2)
     netrc (0.11.0)
     nio4r (2.5.8)
-    nokogiri (1.13.4)
+    nokogiri (1.13.6)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
     numerizer (0.1.1)
@@ -534,7 +534,7 @@ GEM
     pusher-signature (0.1.8)
     raabro (1.4.0)
     racc (1.6.0)
-    rack (2.2.3)
+    rack (2.2.3.1)
     rack-cors (1.0.6)
       rack (>= 1.6.0)
     rack-protection (2.2.0)
@@ -871,7 +871,7 @@ DEPENDENCIES
   minitest-retry
   mocha (= 1.2.1)
   multi_json (= 1.15.0)
-  nokogiri (= 1.13.4)
+  nokogiri (= 1.13.6)
   omniauth-facebook
   omniauth-google-oauth2!
   omniauth-slack
@@ -879,6 +879,7 @@ DEPENDENCIES
   open_uri_redirections
   pact-consumer-minitest
   paper_trail (= 10.3.1)
+  parallel
   parallel_tests
   parse-cron
   partitioned!
@@ -891,7 +892,7 @@ DEPENDENCIES
   phony_rails
   puma
   pusher
-  rack (= 2.2.3)
+  rack (= 2.2.3.1)
   rack-cors (= 1.0.6)
   rack-protection (= 2.2.0)
   railroady

@@ -1,6 +1,6 @@
 class DynamicAnnotation::Field < ApplicationRecord
   include CheckElasticSearch
-  include Versioned
+  has_paper_trail on: [:create, :update], save_changes: true, ignore: [:updated_at, :created_at], if: proc { |f| User.current.present? && (['verification_status_status', 'team_bot_response_formatted_data', 'language'].include?(f.field_name) || f.annotation_type == 'archiver' || f.annotation_type =~ /^task_response/) }, versions: { class_name: 'Version' }
 
   attr_accessor :disable_es_callbacks
 
@@ -40,6 +40,11 @@ class DynamicAnnotation::Field < ApplicationRecord
 
   def team
     self.annotation.team
+  end
+
+  def associated_graphql_id
+    annotation = self.annotation
+    Base64.encode64("#{annotation.annotated_type}/#{annotation.annotated_id}")
   end
 
   protected

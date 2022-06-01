@@ -35,7 +35,11 @@ class Version < Partitioned::ByForeignKey
   end
 
   def project_media
-    self.item.project_media if self.item.respond_to?(:project_media)
+    obj = self.item
+    if obj.class.name != 'ProjectMedia'
+      obj = self.item.respond_to?(:project_media) ? self.item.project_media : nil
+    end
+    obj
   end
 
   def associated_graphql_id
@@ -95,33 +99,10 @@ class Version < Partitioned::ByForeignKey
   end
 
   def set_meta
-    item = self.item
-    self.meta = item.version_metadata(self.object_changes) if !item.nil? && item.respond_to?(:version_metadata)
-  end
-
-  def projects
-    ret = []
-    if (self.item_type == 'ProjectMedia' && self.event == 'update') || self.event_type == 'copy_projectmedia'
-      ret = get_from_object_changes(:project)
+    if self.meta.blank?
+      item = self.item
+      self.meta = item.version_metadata(self.object_changes) if !item.nil? && item.respond_to?(:version_metadata)
     end
-    ret
-  end
-
-  def teams
-    ret = []
-    ret = get_from_object_changes(:team) if self.event_type == 'copy_projectmedia'
-    ret
-  end
-
-  def get_from_object_changes(item)
-    ret = []
-    item = item.to_s
-    changes = self.get_object_changes
-    if changes["#{item}_id"]
-      ret = changes["#{item}_id"].collect{ |pid| item.classify.constantize.where(id: pid).last }
-      ret = [] if ret.include?(nil)
-    end
-    ret
   end
 
   def task
@@ -144,7 +125,7 @@ class Version < Partitioned::ByForeignKey
   end
 
   def object_changes_json
-    changes = self.object_changes ? JSON.parse(self.object_changes) : {}
+    changes = begin JSON.parse(self.object_changes) rescue {} end
     if changes['data'] && changes['data'].is_a?(Array)
       changes['data'].collect!{ |d| d.is_a?(String) ? self.deserialize_change(d) : d }
     end
@@ -157,14 +138,18 @@ class Version < Partitioned::ByForeignKey
 
   def get_associated
     case self.event_type
-    when 'create_comment', 'create_tag', 'create_task', 'update_task', 'create_dynamic', 'update_dynamic', 'destroy_comment', 'destroy_tag', 'destroy_task', 'create_dynamicannotationfield', 'update_dynamicannotationfield'
+    when 'create_tag', 'create_dynamic', 'update_dynamic', 'destroy_tag', 'create_dynamicannotationfield', 'update_dynamicannotationfield'
       self.get_associated_from_annotation(self.event_type, self.item)
-    when 'update_projectmedia', 'copy_projectmedia'
+    when 'create_projectmedia', 'update_projectmedia'
       [self.item.class.name, self.item_id.to_i]
-    when 'create_relationship', 'destroy_relationship'
+    when 'create_relationship', 'update_relationship', 'destroy_relationship'
       self.get_associated_from_relationship
     when 'create_assignment', 'destroy_assignment'
       self.get_associated_from_assignment
+    when 'create_claimdescription', 'update_claimdescription'
+      ['ProjectMedia', self.item.project_media_id]
+    when 'create_factcheck'
+      ['ProjectMedia', self.item.claim_description.project_media_id]
     end
   end
 
@@ -185,17 +170,13 @@ class Version < Partitioned::ByForeignKey
   end
 
   def get_associated_from_dynamic_annotation
-    if self.item.is_a?(DynamicAnnotation::Field) && self.item.field_name =~ /^(suggestion|review)_/
-      task = begin Task.find(self.item.annotation.annotated_id) rescue nil end
-      return ['Task', task.id] unless task.nil?
-    end
     annotation = self.item.annotation if self.item
     self.get_associated_from_core_annotation(annotation)
   end
 
   def get_associated_from_relationship
     r = self.item
-    r.nil? ? [nil, nil] : ['ProjectMedia', r.source_id]
+    r.nil? ? [nil, nil] : ['ProjectMedia', r.target_id]
   end
 
   def get_associated_from_assignment
