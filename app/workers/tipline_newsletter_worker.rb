@@ -14,6 +14,7 @@ class TiplineNewsletterWorker
             TiplineSubscription.where(language: language, team_id: team_id).each do |ts|
               log team_id, language, "Sending newsletter to subscriber ##{ts.id}..."
               begin
+                RequestStore.store[:smooch_bot_platform] = ts.platform
                 introduction = newsletter['smooch_newsletter_introduction'].to_s.gsub('{date}', date).gsub('{channel}', ts.platform)
                 content = Bot::Smooch.build_newsletter_content(newsletter, language, team_id).gsub('{date}', date).gsub('{channel}', ts.platform)
                 Bot::Smooch.get_installation { |i| i.id == tbi.id }
@@ -25,8 +26,11 @@ class TiplineNewsletterWorker
                 log team_id, language, "Could not send newsletter to subscriber ##{ts.id}: #{e.message}"
               end
             end
+            User.current = BotUser.smooch_user
+            tbi.skip_check_ability = true
             newsletter['smooch_newsletter_last_sent_at'] = Time.now
             tbi.save!
+            User.current = nil
           else
             log team_id, language, 'Not sending newsletter because content has not changed since the last delivery'
           end

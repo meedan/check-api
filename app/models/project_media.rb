@@ -1,11 +1,12 @@
 class ProjectMedia < ApplicationRecord
   attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :skip_rules, :set_claim_description, :set_fact_check, :set_tags
 
+  has_paper_trail on: [:create, :update], only: [:source_id], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
+
   include ProjectAssociation
   include ProjectMediaAssociations
   include ProjectMediaCreators
   include ProjectMediaEmbed
-  include Versioned
   include ValidationsHelper
   include ProjectMediaPrivate
   include ProjectMediaCachedFields
@@ -24,6 +25,7 @@ class ProjectMedia < ApplicationRecord
 
   before_validation :set_team_id, :set_channel, :set_project_id, on: :create
   after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks, :create_claim_description_and_fact_check, :create_tags
+  after_create :add_source_creation_log, unless: proc { |pm| pm.source_id.blank? }
   after_commit :apply_rules_and_actions_on_create, :set_quote_metadata, :notify_team_bots_create, on: [:create]
   after_commit :create_relationship, on: [:update]
   after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :add_remove_team_tasks, :move_similar_item, :send_move_to_slack_notification
@@ -361,6 +363,18 @@ class ProjectMedia < ApplicationRecord
       sources = main_s.merge(sources)
     end
     sources.to_json
+  end
+
+  def version_metadata(_changes)
+    meta = { source_name: self.source&.name }
+    meta.to_json
+  end
+
+  def get_requests
+    # Get related items for parent item
+    pm_ids = Relationship.confirmed_parent(self).id == self.id ? self.related_items_ids : [self.id]
+    sm_ids = Annotation.where(annotation_type: 'smooch', annotated_type: 'ProjectMedia', annotated_id: pm_ids).map(&:id)
+    sm_ids.blank? ? [] : DynamicAnnotation::Field.where(annotation_id: sm_ids, field_name: 'smooch_data')
   end
 
   protected

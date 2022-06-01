@@ -20,7 +20,7 @@ module SmoochResources
         message << "*#{resource['smooch_custom_resource_title']}*" unless resource['smooch_custom_resource_title'].to_s.strip.blank?
         message << resource['smooch_custom_resource_body'] unless resource['smooch_custom_resource_body'].to_s.strip.blank?
         unless resource['smooch_custom_resource_feed_url'].blank?
-          message << Rails.cache.fetch("smooch:rss_feed:#{Digest::MD5.hexdigest(resource['smooch_custom_resource_feed_url'])}:#{resource['smooch_custom_resource_number_of_articles']}", force: no_cache) do
+          message << Rails.cache.fetch("smooch:rss_feed:#{Digest::MD5.hexdigest(resource['smooch_custom_resource_feed_url'])}:#{resource['smooch_custom_resource_number_of_articles']}", force: no_cache, expires_in: 15.minutes) do
             self.render_articles_from_rss_feed(resource['smooch_custom_resource_feed_url'], resource['smooch_custom_resource_number_of_articles'])
           end
         end
@@ -54,6 +54,7 @@ module SmoochResources
           end unless feed.nil?
         end
       rescue StandardError => e
+        output << url.to_s
         Rails.logger.info "Could not parse RSS feed from URL #{url}, error was: #{e.message}"
       end
       output.join("\n\n")

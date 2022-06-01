@@ -140,8 +140,8 @@ module SmoochMessages
       RequestStore.store[:smooch_bot_platform]
     end
 
-    def save_message_later_and_reply_to_user(message, app_id, send_message = true)
-      self.save_message_later(message, app_id)
+    def save_message_later_and_reply_to_user(message, app_id, send_message = true, type = 'default_requests')
+      self.save_message_later(message, app_id, type)
       workflow = self.get_workflow(message['language'])
       uid = message['authorId']
       self.send_message_to_user(uid, utmize_urls(workflow['smooch_message_smooch_bot_message_confirmed'], 'resource')) if send_message
@@ -174,7 +174,7 @@ module SmoochMessages
       end
     end
 
-    def process_message(message, app_id, send_message = true)
+    def process_message(message, app_id, send_message = true, type = 'default_requests')
       message['language'] = self.get_user_language(message)
 
       return if !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
@@ -184,12 +184,12 @@ module SmoochMessages
       if pm_id.nil?
         is_supported = self.supported_message?(message)
         if is_supported.slice(:type, :size).all?{ |_k, v| v }
-          self.save_message_later_and_reply_to_user(message, app_id, send_message)
+          self.save_message_later_and_reply_to_user(message, app_id, send_message, type)
         else
           self.send_error_message(message, is_supported)
         end
       else
-        self.save_message_later_and_reply_to_user(message, app_id, send_message)
+        self.save_message_later_and_reply_to_user(message, app_id, send_message, type)
       end
     end
 
@@ -226,9 +226,10 @@ module SmoochMessages
 
     def handle_bundle_messages(type, list, last, app_id, annotated, send_message = true)
       bundle = self.bundle_list_of_messages(list, last)
-      if type == 'default_requests'
-        self.process_message(bundle, app_id, send_message)
-      elsif ['timeout_requests', 'menu_options_requests', 'resource_requests', 'relevant_search_result_requests'].include?(type)
+      if ['default_requests', 'irrelevant_search_result_requests'].include?(type)
+        self.process_message(bundle, app_id, send_message, type)
+      end
+      if ['timeout_requests', 'menu_options_requests', 'resource_requests', 'relevant_search_result_requests', 'timeout_search_requests'].include?(type)
         key = "smooch:banned:#{bundle['authorId']}"
         if Rails.cache.read(key).nil?
           [annotated].flatten.uniq.each { |a| self.save_message_later(bundle, app_id, type, a) }
@@ -280,10 +281,10 @@ module SmoochMessages
       self.get_installation(self.installation_setting_id_keys, app_id)
       Team.current = Team.where(id: self.config['team_id']).last
       annotated = nil
-      if ['default_requests', 'timeout_requests', 'resource_requests'].include?(request_type)
-        message['archived'] = request_type == 'default_requests' ? self.default_archived_flag : CheckArchivedFlags::FlagCodes::UNCONFIRMED
+      if ['default_requests', 'timeout_requests', 'resource_requests', 'irrelevant_search_result_requests'].include?(request_type)
+        message['archived'] = ['default_requests', 'irrelevant_search_result_requests'].include?(request_type) ? self.default_archived_flag : CheckArchivedFlags::FlagCodes::UNCONFIRMED
         annotated = self.create_project_media_from_message(message)
-      elsif ['menu_options_requests', 'relevant_search_result_requests'].include?(request_type)
+      elsif ['menu_options_requests', 'relevant_search_result_requests', 'timeout_search_requests'].include?(request_type)
         annotated = annotated_obj
       end
 
@@ -296,6 +297,7 @@ module SmoochMessages
       self.smooch_save_annotations(message, annotated, app_id, author, request_type, annotated_obj)
 
       # If item is published (or parent item), send a report right away
+      self.get_platform_from_message(message)
       self.send_report_to_user(message['authorId'], message, annotated, message['language'], 'fact_check_report') if self.should_try_to_send_report?(request_type, annotated)
     end
 
@@ -309,8 +311,8 @@ module SmoochMessages
       result = self.smooch_api_get_messages(app_id, message['authorId'])
       fields[:smooch_conversation_id] = result.conversation.id unless result.nil? || result.conversation.nil?
       self.create_smooch_annotations(annotated, author, fields)
-      # update channel if annotated is manual item
-      if annotated.get_main_channel == CheckChannels::ChannelCodes::MANUAL
+      # update channel values for ProjectMedia items
+      if annotated.class.name == 'ProjectMedia'
         channel_value = self.get_smooch_channel(message)
         unless channel_value.blank?
           others = annotated.channel.with_indifferent_access[:others] || []
@@ -350,7 +352,7 @@ module SmoochMessages
     end
 
     def should_try_to_send_report?(request_type, annotated)
-      request_type == 'default_requests' && (annotated.respond_to?(:is_being_created) && !annotated.is_being_created)
+      ['default_requests', 'irrelevant_search_result_requests'].include?(request_type) && (annotated.respond_to?(:is_being_created) && !annotated.is_being_created)
     end
 
     def utmize_urls(text, source)

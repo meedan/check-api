@@ -25,7 +25,7 @@ class Bot::Smooch < BotUser
   include SmoochTurnio
   include SmoochStrings
   include SmoochMenus
-  include SmoochVersions
+  include SmoochFields
 
   ::ProjectMedia.class_eval do
     attr_accessor :smooch_message
@@ -288,6 +288,7 @@ class Bot::Smooch < BotUser
         true
       when 'message:delivery:channel'
         self.user_received_report(json)
+        self.user_received_search_result(json)
         true
       else
         false
@@ -527,8 +528,7 @@ class Bot::Smooch < BotUser
     elsif value == 'search_result_is_relevant'
       sm.reset
       self.bundle_message(message)
-      key = "smooch:user_search_results:#{uid}"
-      results = Rails.cache.read(key).to_a.collect{ |result_id| ProjectMedia.find(result_id) }
+      results = self.get_saved_search_results_for_user(uid)
       self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'relevant_search_result_requests', results, true, self.bundle_search_query(uid))
       self.send_final_message_to_user(uid, self.get_menu_string('search_result_is_relevant', language), workflow, language)
     elsif value =~ /^[a-z]{2}(_[A-Z]{2})?$/
@@ -883,6 +883,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.send_correction_to_user(data, pm, subscribed_at, last_published_at, action, published_count = 0)
+    self.get_platform_from_message(data)
     uid = data['authorId']
     lang = data['language']
     # User received a report before
@@ -912,14 +913,13 @@ class Bot::Smooch < BotUser
         Rails.logger.info "[Smooch Bot] Sent report introduction to user #{uid} for item with ID #{pm.id}, response was: #{smooch_intro_response.to_json}"
         sleep 1
       end
-      if report.report_design_field_value('use_visual_card', lang)
-        last_smooch_response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url(lang) })
-        Rails.logger.info "[Smooch Bot] Sent report visual card to user #{uid} for item with ID #{pm.id}, response was: #{last_smooch_response.to_json}"
-      end
       if report.report_design_field_value('use_text_message', lang)
         workflow = self.get_workflow(lang)
         last_smooch_response = self.send_final_message_to_user(uid, report.report_design_text(lang), workflow, lang)
         Rails.logger.info "[Smooch Bot] Sent text report to user #{uid} for item with ID #{pm.id}, response was: #{last_smooch_response.to_json}"
+      elsif report.report_design_field_value('use_visual_card', lang)
+        last_smooch_response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url(lang) })
+        Rails.logger.info "[Smooch Bot] Sent report visual card to user #{uid} for item with ID #{pm.id}, response was: #{last_smooch_response.to_json}"
       end
       self.save_smooch_response(last_smooch_response, parent, data['received'], fallback_template, lang)
     end
@@ -941,6 +941,7 @@ class Bot::Smooch < BotUser
     return if parent.nil? || child.nil?
     child.get_annotations('smooch').find_each do |annotation|
       data = JSON.parse(annotation.load.get_field_value('smooch_data'))
+      self.get_platform_from_message(data)
       self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
       self.send_report_to_user(data['authorId'], data, parent, data['language'], 'fact_check_report')
     end
@@ -1004,7 +1005,14 @@ class Bot::Smooch < BotUser
     return if stored_time > time
     sm = CheckStateMachine.new(uid)
     unless ['human_mode', 'waiting_for_message'].include?(sm.state.value)
-      self.bundle_messages(message['authorId'], message['_id'], app_id, 'timeout_requests', nil, true)
+      uid = message['authorId']
+      annotated = nil
+      type = 'timeout_requests'
+      if sm.state.value == 'search_result'
+        annotated = self.get_saved_search_results_for_user(uid)
+        type = 'timeout_search_requests'
+      end
+      self.bundle_messages(uid, message['_id'], app_id, type, annotated, true)
       self.send_resource_to_user_on_timeout(uid, workflow, language)
       sm.reset
     end
