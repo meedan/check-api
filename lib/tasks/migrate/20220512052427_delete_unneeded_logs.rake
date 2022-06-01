@@ -49,6 +49,7 @@ namespace :check do
         delete_versions(team.id, condition)
         # - TiplineSubscription (create/update)
         condition[:item_type] = 'TiplineSubscription'
+        condition[:event] = ['create', 'update']
         delete_versions(team.id, condition)
         Rails.cache.write('check:migrate:delete_models_logs:team_id', team.id)
       end
@@ -115,7 +116,7 @@ namespace :check do
       Team.where('id > ?', last_team_id).find_each do |team|
         puts "Processing team : #{team.slug}"
         source_mapping = {}
-        team.sources.collect{ |s| source_mapping[s.id] = s.name }
+        team.sources.collect{ |s| source_mapping[s.id] = s.name.gsub(/[?'"%]/,'') }
         team.project_medias.find_in_batches(:batch_size => 2500) do |pms|
           ids = pms.map(&:id)
           # handle create event logs
