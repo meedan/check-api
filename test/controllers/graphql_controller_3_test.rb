@@ -1182,7 +1182,7 @@ class GraphqlController3Test < ActionController::TestCase
 
       query = 'mutation { createProjectMediaUser(input: { clientMutationId: "1", project_media_id: ' + pm.id.to_s + ', read: true }) { project_media { is_read } } }'
       post :create, params: { query: query, team: pm.team.slug }
-      assert_response 400
+      assert_response 409
     end
   end
 
