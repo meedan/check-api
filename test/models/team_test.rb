@@ -1281,7 +1281,7 @@ class TeamTest < ActiveSupport::TestCase
     create_project_media project: p2, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED
     create_project_media
     t = t.reload
-    assert_equal 3, t.medias_count
+    assert_equal 4, t.medias_count
     assert_equal 2, t.trash_count
     assert_equal 1, t.unconfirmed_count
   end
