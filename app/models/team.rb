@@ -48,24 +48,12 @@ class Team < ApplicationRecord
     CheckConfig.get('checkdesk_client') + '/' + self.slug
   end
 
-  def team
-    self
-  end
-
   def members_count
     self.team_users.where(status: 'member').permissioned(self).count
   end
 
   def projects_count
     self.projects.allowed(self).permissioned.count
-  end
-
-  def country_teams
-    data = {}
-    unless self.country.nil?
-      Team.where(country: self.country).find_each{ |t| data[t.id] = t.name }
-    end
-    data
   end
 
   def as_json(_options = {})
@@ -81,10 +69,6 @@ class Team < ApplicationRecord
 
   def owners(role, statuses = TeamUser.status_types)
     self.users.where({ 'team_users.role': role, 'team_users.status': statuses })
-  end
-
-  def recent_projects
-    self.projects
   end
 
   def team_graphql_id
