@@ -54,10 +54,10 @@ module Api
           render json: result
 
         # Mutations are not batched, so we can return errors in the root
-        rescue ActiveRecord::RecordInvalid, RuntimeError, ActiveRecord::RecordNotUnique, NameError, GraphQL::Batch::NestedError => e
+        rescue ActiveRecord::RecordInvalid, RuntimeError, NameError, GraphQL::Batch::NestedError => e
           @output = parse_json_exception(e)
           render json: @output, status: 400
-        rescue ActiveRecord::StaleObjectError => e
+        rescue ActiveRecord::StaleObjectError, ActiveRecord::RecordNotUnique => e
           @output = format_error_message(e)
           render json: @output, status: 409
         end
