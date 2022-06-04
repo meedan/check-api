@@ -48,24 +48,12 @@ class Team < ApplicationRecord
     CheckConfig.get('checkdesk_client') + '/' + self.slug
   end
 
-  def team
-    self
-  end
-
   def members_count
     self.team_users.where(status: 'member').permissioned(self).count
   end
 
   def projects_count
     self.projects.allowed(self).permissioned.count
-  end
-
-  def country_teams
-    data = {}
-    unless self.country.nil?
-      Team.where(country: self.country).find_each{ |t| data[t.id] = t.name }
-    end
-    data
   end
 
   def as_json(_options = {})
@@ -81,10 +69,6 @@ class Team < ApplicationRecord
 
   def owners(role, statuses = TeamUser.status_types)
     self.users.where({ 'team_users.role': role, 'team_users.status': statuses })
-  end
-
-  def recent_projects
-    self.projects
   end
 
   def team_graphql_id
@@ -175,9 +159,12 @@ class Team < ApplicationRecord
     self.send(:set_language, language)
   end
 
+  def clear_list_columns_cache
+    self.get_languages.to_a.each { |l| Rails.cache.delete("list_columns:team:#{l}:#{self.id}") }
+  end
+
   def list_columns=(columns)
-    # Clear list_columns cache
-    Rails.cache.delete_matched("list_columns:team:*:#{self.id}")
+    self.clear_list_columns_cache
     columns = columns.is_a?(String) ? JSON.parse(columns) : columns
     self.send(:set_list_columns, columns)
   end
@@ -375,9 +362,7 @@ class Team < ApplicationRecord
   end
 
   def list_columns
-    key = "list_columns:team:#{I18n.locale}:#{self.id}"
-    columns = Rails.cache.read(key)
-    if columns.blank?
+    Rails.cache.fetch("list_columns:team:#{I18n.locale}:#{self.id}") do
       show_columns = self.get_list_columns || Team.default_list_columns.select{ |c| c[:show] }.collect{ |c| c[:key] }
       columns = []
       Team.default_list_columns.each do |column|
@@ -396,10 +381,8 @@ class Team < ApplicationRecord
         index = show_columns.index(column[:key])
         index.nil? ? show_columns.size : index
       end
-      # write the cache
-      Rails.cache.write(key, columns) unless columns.blank?
+      columns
     end
-    columns
   end
 
   def self.reindex_statuses_after_deleting_status(ids_json, fallback_status_id)
