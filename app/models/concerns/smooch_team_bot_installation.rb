@@ -34,6 +34,7 @@ module SmoochTeamBotInstallation
         end
       end
 
+      # This method runs in background
       def self.reset_smooch_users_states(team_id)
         Rails.cache.delete_matched("smooch:user_language:#{team_id}:*:confirmed")
         DynamicAnnotation::Field.joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN teams t ON t.id = a.annotated_id AND a.annotated_type = 'Team'").where(field_name: 'smooch_user_id', 't.id' => team_id).find_each { |f| CheckStateMachine.new(f.value).reset }

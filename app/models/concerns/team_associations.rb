@@ -19,6 +19,10 @@ module TeamAssociations
     has_annotations
   end
 
+  def team
+    self
+  end
+
   def team_bot_installations
     TeamBotInstallation.where(id: self.team_users.where(type: 'TeamBotInstallation').map(&:id))
   end
@@ -33,5 +37,17 @@ module TeamAssociations
       bots << bot.id if bot.get_team_author_id == self.id
     end
     BotUser.where(id: bots.uniq)
+  end
+
+  def country_teams
+    data = {}
+    unless self.country.nil?
+      Team.where(country: self.country).find_each{ |t| data[t.id] = t.name }
+    end
+    data
+  end
+
+  def recent_projects
+    self.projects
   end
 end
