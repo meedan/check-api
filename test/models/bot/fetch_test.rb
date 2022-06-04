@@ -192,7 +192,7 @@ class Bot::FetchTest < ActiveSupport::TestCase
     assert_equal "Earth isn't flat", r.report_design_field_value('headline', 'en')
     assert_equal "Scientific evidences show that Earth is round", r.report_design_field_value('description', 'en')
     assert_equal "Earth isn't flat", r.report_design_field_value('title', 'en')
-    assert_equal "Scientific evidences show that Earth is round\n\nhttps://external.site/claim_review", r.report_design_field_value('text', 'en')
+    assert_equal "Scientific evidences show that Earth is round", r.report_design_field_value('text', 'en')
   end
 
   test "should notify Airbrake if can't import a claim review" do
