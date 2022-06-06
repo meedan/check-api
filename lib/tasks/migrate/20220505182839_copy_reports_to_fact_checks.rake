@@ -10,8 +10,9 @@ namespace :check do
           next if pm.nil?
           begin
             if pm.claim_description.nil? || pm.claim_description.fact_check.nil?
-              cd = pm.claim_description || ClaimDescription.create!(project_media: pm, description: '​', user: report.annotator)
-              fields = { user: report.annotator, skip_report_update: true }
+              user = report.annotator || Version.from_partition(pm.team_id).where(item_id: report.id.to_s, item_type: ['Annotation', 'Dynamic']).first&.user
+              cd = pm.claim_description || ClaimDescription.create!(project_media: pm, description: '​', user: user)
+              fields = { user: user, skip_report_update: true }
               if report.report_design_field_value('use_text_message')
                 fields.merge!({
                   title: report.report_design_field_value('title'),
