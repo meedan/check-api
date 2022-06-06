@@ -43,7 +43,7 @@ def unique_requests_count(relation)
   relation.group("fs.value_json #>> '{source,originalMessageId}'").count.size
 end
 
-def get_statistics(start_date, end_date, slug, platform, language)
+def get_statistics(start_date, end_date, slug, platform, language, outfile)
   platform_name = Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[platform]
   month = nil
   if start_date.month != end_date.month || start_date.year != end_date.year
@@ -171,11 +171,41 @@ def get_statistics(start_date, end_date, slug, platform, language)
   # NOTE: For all languages and platforms
   # data << ProjectMedia.joins(:team).where('teams.slug' => slug, 'created_at' => start_date..end_date, 'user_id' => BotUser.fetch_user.id).count.to_s
 
-  puts data.join(',')
+  outfile.puts(data.join(','))
 end
 
 namespace :check do
   namespace :data do
+
+    bucket_name = 'check-batch-task-statistics'
+    region = 'eu-west-1'
+    s3_client = Aws::S3::Client.new(region: region)
+
+    def object_uploaded?(s3_client, bucket_name, object_key, file_path)
+      response = s3_client.put_object(
+        acl: 'public-read',
+        key: object_key,
+        body: File.read(file_path),
+        bucket: bucket_name,
+        content_type: 'text/csv'
+      )
+
+      response = s3_client.put_object(
+        bucket: bucket_name,
+        key: object_key,
+        body: File.read(file_path)
+      )
+      if response.etag
+        #s3_client.put_object_acl(acl: 'public-read', key: file_path, bucket: bucket_name)
+        return true
+      else
+        return false
+      end
+    rescue StandardError => e
+      puts "Error uploading S3 object: #{e.message}"
+      return false
+    end
+
     desc 'Generate some statistics about some workspaces'
     task statistics: :environment do |_t, params|
       old_logger = ActiveRecord::Base.logger
@@ -192,6 +222,7 @@ namespace :check do
       if slugs.empty?
         puts 'Please provide a list of workspace slugs'
       else
+        outfile = File.open("/tmp/statistics.csv", "w")
         header = [
           'ID',
           'Org',
@@ -220,7 +251,7 @@ namespace :check do
           'Newsletter cancellations',
           'Current subscribers'
         ]
-        puts header.join(',')
+        outfile.puts(header.join(','))
 
         slugs.each do |slug|
           team = Team.find_by_slug(slug)
@@ -235,15 +266,29 @@ namespace :check do
                   (year_start_month..year_end_month).to_a.each do |month|
                     time = Time.parse("#{year}-#{month}-01")
                     next if team.created_at > time.end_of_month
-                    get_statistics(time.beginning_of_month, time.end_of_month, slug, platform, language)
+                    get_statistics(time.beginning_of_month, time.end_of_month, slug, platform, language, outfile)
                   end
                 end
               else
-                get_statistics(Time.parse("#{start_year}-#{start_month}-01"), Time.parse("#{end_year}-#{end_month}-01").end_of_month, slug, platform, language)
+                get_statistics(Time.parse("#{start_year}-#{start_month}-01"), Time.parse("#{end_year}-#{end_month}-01").end_of_month, slug, platform, language, outfile)
               end
             end
           end
         end
+
+        outfile.close
+
+        if defined?(ENV.fetch('STATISTICS_S3_DIR'))
+          puts 'Starting upload for statistics.csv'
+          file_path = '/tmp/statistics.csv'
+          object_key = "#{ENV['STATISTICS_S3_DIR']}/statistics.csv"
+          if object_uploaded?(s3_client, bucket_name, object_key, file_path)
+            puts 'Uploaded statistics.csv'
+          else
+            puts 'Error uploading statistics.csv to S3. Check credentials?'
+          end
+        end
+
       end
       ActiveRecord::Base.logger = old_logger
     end
