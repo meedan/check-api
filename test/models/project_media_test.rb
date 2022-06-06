@@ -2667,6 +2667,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should detach similar items when trash parent item" do
     setup_elasticsearch
+    RequestStore.store[:skip_delete_for_ever] = true
     t = create_team
     default_folder = t.default_folder
     p = create_project team: t

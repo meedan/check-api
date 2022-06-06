@@ -144,6 +144,7 @@ module ProjectMediaPrivate
   end
 
   def apply_delete_for_ever
+    return if RequestStore.store[:skip_delete_for_ever]
     ProjectMedia.delay_for(CheckConfig.get('empty_trash_interval', 30.days)).delete_forever(self.updated_at, self.id)
   end
 end

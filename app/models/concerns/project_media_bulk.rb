@@ -37,7 +37,7 @@ module ProjectMediaBulk
       ProjectMedia.where(id: ids, team_id: team&.id).update_all(update_columns)
 
       # Enqueue in delete_forever
-      if archived == CheckArchivedFlags::FlagCodes::TRASHED
+      if archived == CheckArchivedFlags::FlagCodes::TRASHED && !RequestStore.store[:skip_delete_for_ever]
         ids.each{ |pm_id| ProjectMedia.delay_for(CheckConfig.get('empty_trash_interval', 30.days)).delete_forever(updated_at, pm_id) }
       end
 
