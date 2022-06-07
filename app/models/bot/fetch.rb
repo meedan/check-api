@@ -222,9 +222,10 @@ class Bot::Fetch < BotUser
       fc = FactCheck.new
       fc.skip_check_ability = true
       fc.claim_description = cd
-      fc.title = self.get_title(claim_review)
-      fc.summary = self.parse_text(claim_review['text'].to_s.blank? ? claim_review['headline'] : claim_review['text'])
-      fc.url = claim_review['url'].to_s
+      fc.title = self.get_title(claim_review).truncate(140)
+      summary = self.parse_text(claim_review['text'].to_s.blank? ? claim_review['headline'] : claim_review['text'])
+      fc.summary = summary.to_s.truncate(620)
+      fc.url = claim_review['url'].to_s.truncate(140)
       fc.user = user
       fc.skip_report_update = true
       fc.save!
@@ -284,14 +285,17 @@ class Bot::Fetch < BotUser
       end
       date = claim_review['datePublished'].blank? ? Time.now : Time.parse(claim_review['datePublished'])
       language = team.default_language
+      title = self.get_title(claim_review).truncate(140)
+      summary = self.parse_text(claim_review['text']).truncate(620)
       fields = {
         state: auto_publish_reports ? 'published' : 'paused',
         options: [{
           language: language,
           status_label: pm.status_i18n(pm.reload.last_verification_status),
-          description: self.parse_text(claim_review['text']),
-          title: self.get_title(claim_review),
-          headline: self.get_title(claim_review).truncate(85),
+          description: summary,
+          title: title,
+          published_article_url: claim_review['url'].truncate(140),
+          headline: title,
           use_visual_card: false,
           image: '',
           use_introduction: false,
@@ -299,7 +303,7 @@ class Bot::Fetch < BotUser
           theme_color: pm.reload.last_status_color,
           url: '',
           use_text_message: true,
-          text: [self.parse_text(claim_review['text']).truncate(760 - claim_review['url'].to_s.size), claim_review['url']].join("\n\n"),
+          text: summary,
           date: report.report_design_date(date.to_date, language)
         }]
       }

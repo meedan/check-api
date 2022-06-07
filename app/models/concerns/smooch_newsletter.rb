@@ -30,7 +30,7 @@ module SmoochNewsletter
               next_date_and_time = begin next_date_and_time_utc.in_time_zone(newsletter['smooch_newsletter_timezone'].gsub(/ .*$/, '')) rescue next_date_and_time_utc end
               information[language] = {
                 subscribers_count: TiplineSubscription.where(team_id: self.team_id, language: language).count,
-                next_date_and_time: I18n.l(next_date_and_time, locale: language.to_s.tr('_', '-'), format: :long),
+                next_date_and_time: I18n.l(next_date_and_time, locale: language.to_s.tr('_', '-'), format: :long) + " - #{newsletter['smooch_newsletter_timezone']}",
                 paused: !Bot::Smooch.newsletter_content_changed?(newsletter, language, self.team_id)
               }
             end

@@ -43,7 +43,7 @@ def unique_requests_count(relation)
   relation.group("fs.value_json #>> '{source,originalMessageId}'").count.size
 end
 
-def get_statistics(start_date, end_date, slug, platform, language)
+def get_statistics(start_date, end_date, slug, platform, language, outfile)
   platform_name = Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[platform]
   month = nil
   if start_date.month != end_date.month || start_date.year != end_date.year
@@ -57,7 +57,7 @@ def get_statistics(start_date, end_date, slug, platform, language)
   # Number of conversations
   value1 = unique_requests_count(project_media_requests(slug, platform, start_date, end_date, language))
   value2 = team_requests(slug, platform, start_date, end_date, language).count
-  data << value1 + value2
+  data << (value1 + value2)
 
   # Average number of end-user messages per day
   numbers_of_messages = []
@@ -113,11 +113,11 @@ def get_statistics(start_date, end_date, slug, platform, language)
 
   # Number of new published reports created in Check (e.g., native, not imported)
   # NOTE: For all platforms
-  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date).where("data LIKE '%language: #{language}%'").where('annotations.annotator_id != ?', BotUser.fetch_user.id).count
+  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date).where("data LIKE '%language: #{language}%'").where("data LIKE '%state: published%'").where('annotations.annotator_id != ?', BotUser.fetch_user.id).count
 
   # Number of published imported reports
   # NOTE: For all languages and platforms
-  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date, 'annotations.annotator_id' => BotUser.fetch_user.id).count
+  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date, 'annotations.annotator_id' => BotUser.fetch_user.id).where("data LIKE '%state: published%'").count
 
   # Number of queries answered with a report
   data << reports_received(slug, platform, start_date, end_date, language).group('pm.id').count.size
@@ -142,20 +142,20 @@ def get_statistics(start_date, end_date, slug, platform, language)
 
   # Number of newsletters sent
   # NOTE: For all platforms
-  # NOTE: Only starting from May 17, 2022
+  # NOTE: Only starting from June 1, 2022
   team = Team.find_by_slug(slug)
-  if end_date < Time.parse('2022-05-18')
+  if end_date < Time.parse('2022-06-01')
     data << '-'
   else
     tbi = TeamBotInstallation.where(team: team, user: BotUser.smooch_user).last
-    data << Version.from_partition(team.id).where(created_at: start_date..end_date, item_id: tbi.id.to_s, item_type: ['TeamUser', 'TeamBotInstallation']).collect do |v|
+    data << Version.from_partition(team.id).where(whodunnit: BotUser.smooch_user.id.to_s, created_at: start_date..end_date, item_id: tbi.id.to_s, item_type: ['TeamUser', 'TeamBotInstallation']).collect do |v|
       begin
         workflow = YAML.load(JSON.parse(v.object_after)['settings'])['smooch_workflows'].select{ |w| w['smooch_workflow_language'] == language }.first
         workflow['smooch_newsletter']['smooch_newsletter_last_sent_at']
       rescue
         nil
       end
-    end.reject{ |v| v.blank? }.uniq.size
+    end.reject{ |t| t.blank? }.collect{ |t| Time.parse(t.to_s).to_s }.uniq.size
   end
 
   # Number of new newsletter subscriptions
@@ -171,26 +171,60 @@ def get_statistics(start_date, end_date, slug, platform, language)
   # NOTE: For all languages and platforms
   # data << ProjectMedia.joins(:team).where('teams.slug' => slug, 'created_at' => start_date..end_date, 'user_id' => BotUser.fetch_user.id).count
 
-  puts data.join(',')
+  outfile.puts(data.join(','))
   data
-end
-
-def cache_team_data(team, header, rows)
-  data = []
-  rows.each do |row|
-    entry = {}
-    header.each_with_index do |column, i|
-      entry[column] = row[i]
-    end
-    data << entry
-  end
-  Rails.cache.write("data:report:#{team.id}", data)
 end
 
 namespace :check do
   namespace :data do
     desc 'Generate some statistics about some workspaces'
     task statistics: :environment do |_t, params|
+      bucket_name = 'check-batch-task-statistics'
+      region = 'eu-west-1'
+      begin
+        s3_client = Aws::S3::Client.new(region: region)
+      rescue Aws::Sigv4::Errors::MissingCredentialsError
+        puts "Please provide the AWS credentials."
+        exit 1
+      end
+
+      def cache_team_data(team, header, rows)
+        data = []
+        rows.each do |row|
+          entry = {}
+          header.each_with_index do |column, i|
+            entry[column] = row[i]
+          end
+          data << entry
+        end
+        Rails.cache.write("data:report:#{team.id}", data)
+      end
+
+      def object_uploaded?(s3_client, bucket_name, object_key, file_path)
+        response = s3_client.put_object(
+          acl: 'public-read',
+          key: object_key,
+          body: File.read(file_path),
+          bucket: bucket_name,
+          content_type: 'text/csv'
+        )
+
+        response = s3_client.put_object(
+          bucket: bucket_name,
+          key: object_key,
+          body: File.read(file_path)
+        )
+        if response.etag
+          #s3_client.put_object_acl(acl: 'public-read', key: file_path, bucket: bucket_name)
+          return true
+        else
+          return false
+        end
+      rescue StandardError => e
+        puts "Error uploading S3 object: #{e.message}"
+        return false
+      end
+
       old_logger = ActiveRecord::Base.logger
       ActiveRecord::Base.logger = nil
       args = params.to_a
@@ -205,6 +239,7 @@ namespace :check do
       if slugs.empty?
         puts 'Please provide a list of workspace slugs'
       else
+        outfile = File.open("/tmp/statistics.csv", "w")
         header = [
           'ID',
           'Org',
@@ -233,7 +268,7 @@ namespace :check do
           'Newsletter cancellations',
           'Current subscribers'
         ]
-        puts header.join(',')
+        outfile.puts(header.join(','))
 
         slugs.each do |slug|
           team = Team.find_by_slug(slug)
@@ -249,15 +284,28 @@ namespace :check do
                   (year_start_month..year_end_month).to_a.each do |month|
                     time = Time.parse("#{year}-#{month}-01")
                     next if team.created_at > time.end_of_month
-                    team_rows << get_statistics(time.beginning_of_month, time.end_of_month, slug, platform, language)
+                    team_rows << get_statistics(time.beginning_of_month, time.end_of_month, slug, platform, language, outfile)
                   end
                 end
               else
-                team_rows << get_statistics(Time.parse("#{start_year}-#{start_month}-01"), Time.parse("#{end_year}-#{end_month}-01").end_of_month, slug, platform, language)
+                team_rows << get_statistics(Time.parse("#{start_year}-#{start_month}-01"), Time.parse("#{end_year}-#{end_month}-01").end_of_month, slug, platform, language, outfile)
               end
             end
           end
           cache_team_data(team, header, team_rows)
+        end
+
+        outfile.close
+
+        if defined?(ENV.fetch('STATISTICS_S3_DIR'))
+          puts 'Starting upload for statistics.csv'
+          file_path = '/tmp/statistics.csv'
+          object_key = "#{ENV['STATISTICS_S3_DIR']}/statistics.csv"
+          if object_uploaded?(s3_client, bucket_name, object_key, file_path)
+            puts 'Uploaded statistics.csv'
+          else
+            puts 'Error uploading statistics.csv to S3. Check credentials?'
+          end
         end
       end
       ActiveRecord::Base.logger = old_logger

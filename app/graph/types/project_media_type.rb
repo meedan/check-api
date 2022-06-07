@@ -179,8 +179,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   connection :requests, -> { DynamicAnnotationFieldType.connection_type } do
     resolve ->(project_media, _args, _ctx) {
-      sm_ids = project_media.get_annotations('smooch').map(&:id)
-      sm_ids.blank? ? [] : DynamicAnnotation::Field.where(annotation_id: sm_ids, field_name: 'smooch_data')
+      project_media.get_requests
     }
   end
 
