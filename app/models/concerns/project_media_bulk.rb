@@ -38,7 +38,8 @@ module ProjectMediaBulk
 
       # Enqueue in delete_forever
       if archived == CheckArchivedFlags::FlagCodes::TRASHED && !RequestStore.store[:skip_delete_for_ever]
-        ids.each{ |pm_id| ProjectMedia.delay_for(CheckConfig.get('empty_trash_interval', 30.days)).delete_forever(updated_at, pm_id) }
+        interval = CheckConfig.get('empty_trash_interval', 30).to_i
+        ids.each{ |pm_id| ProjectMedia.delay_for(interval.days).delete_forever(updated_at, pm_id) }
       end
 
       # Update "medias_count" cache of each list
