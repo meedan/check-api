@@ -176,38 +176,42 @@ end
 
 namespace :check do
   namespace :data do
-
-    bucket_name = 'check-batch-task-statistics'
-    region = 'eu-west-1'
-    s3_client = Aws::S3::Client.new(region: region)
-
-    def object_uploaded?(s3_client, bucket_name, object_key, file_path)
-      response = s3_client.put_object(
-        acl: 'public-read',
-        key: object_key,
-        body: File.read(file_path),
-        bucket: bucket_name,
-        content_type: 'text/csv'
-      )
-
-      response = s3_client.put_object(
-        bucket: bucket_name,
-        key: object_key,
-        body: File.read(file_path)
-      )
-      if response.etag
-        #s3_client.put_object_acl(acl: 'public-read', key: file_path, bucket: bucket_name)
-        return true
-      else
-        return false
-      end
-    rescue StandardError => e
-      puts "Error uploading S3 object: #{e.message}"
-      return false
-    end
-
     desc 'Generate some statistics about some workspaces'
     task statistics: :environment do |_t, params|
+      bucket_name = 'check-batch-task-statistics'
+      region = 'eu-west-1'
+      begin
+        s3_client = Aws::S3::Client.new(region: region)
+      rescue Aws::Sigv4::Errors::MissingCredentialsError
+        puts "Please provide the AWS credentials."
+        exit 1
+      end
+
+      def object_uploaded?(s3_client, bucket_name, object_key, file_path)
+        response = s3_client.put_object(
+          acl: 'public-read',
+          key: object_key,
+          body: File.read(file_path),
+          bucket: bucket_name,
+          content_type: 'text/csv'
+        )
+
+        response = s3_client.put_object(
+          bucket: bucket_name,
+          key: object_key,
+          body: File.read(file_path)
+        )
+        if response.etag
+          #s3_client.put_object_acl(acl: 'public-read', key: file_path, bucket: bucket_name)
+          return true
+        else
+          return false
+        end
+      rescue StandardError => e
+        puts "Error uploading S3 object: #{e.message}"
+        return false
+      end
+
       old_logger = ActiveRecord::Base.logger
       ActiveRecord::Base.logger = nil
       args = params.to_a
