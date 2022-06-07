@@ -57,7 +57,7 @@ def get_statistics(start_date, end_date, slug, platform, language)
   # Number of conversations
   value1 = unique_requests_count(project_media_requests(slug, platform, start_date, end_date, language))
   value2 = team_requests(slug, platform, start_date, end_date, language).count
-  data << (value1 + value2).to_s
+  data << (value1 + value2)
 
   # Average number of end-user messages per day
   numbers_of_messages = []
@@ -113,17 +113,17 @@ def get_statistics(start_date, end_date, slug, platform, language)
 
   # Number of new published reports created in Check (e.g., native, not imported)
   # NOTE: For all platforms
-  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date).where("data LIKE '%language: #{language}%'").where("data LIKE '%state: published%'").where('annotations.annotator_id != ?', BotUser.fetch_user.id).count.to_s
+  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date).where("data LIKE '%language: #{language}%'").where("data LIKE '%state: published%'").where('annotations.annotator_id != ?', BotUser.fetch_user.id).count
 
   # Number of published imported reports
   # NOTE: For all languages and platforms
-  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date, 'annotations.annotator_id' => BotUser.fetch_user.id).where("data LIKE '%state: published%'").count.to_s
+  data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date, 'annotations.annotator_id' => BotUser.fetch_user.id).where("data LIKE '%state: published%'").count
 
   # Number of queries answered with a report
-  data << reports_received(slug, platform, start_date, end_date, language).group('pm.id').count.size.to_s
+  data << reports_received(slug, platform, start_date, end_date, language).group('pm.id').count.size
 
   # Number of reports sent to users
-  data << reports_received(slug, platform, start_date, end_date, language).count.to_s
+  data << reports_received(slug, platform, start_date, end_date, language).count
 
   # Number of unique users who received a report
   data << reports_received(slug, platform, start_date, end_date, language).collect{ |f| JSON.parse(f.annotation.load.get_field_value('smooch_data'))['authorId'] }.uniq.size
@@ -142,34 +142,34 @@ def get_statistics(start_date, end_date, slug, platform, language)
 
   # Number of newsletters sent
   # NOTE: For all platforms
-  # NOTE: Only starting from May 17, 2022
+  # NOTE: Only starting from June 1, 2022
   team = Team.find_by_slug(slug)
-  if end_date < Time.parse('2022-05-18')
+  if end_date < Time.parse('2022-06-01')
     data << '-'
   else
     tbi = TeamBotInstallation.where(team: team, user: BotUser.smooch_user).last
-    data << Version.from_partition(team.id).where(created_at: start_date..end_date, item_id: tbi.id.to_s, item_type: ['TeamUser', 'TeamBotInstallation']).collect do |v|
+    data << Version.from_partition(team.id).where(whodunnit: BotUser.smooch_user.id.to_s, created_at: start_date..end_date, item_id: tbi.id.to_s, item_type: ['TeamUser', 'TeamBotInstallation']).collect do |v|
       begin
         workflow = YAML.load(JSON.parse(v.object_after)['settings'])['smooch_workflows'].select{ |w| w['smooch_workflow_language'] == language }.first
         workflow['smooch_newsletter']['smooch_newsletter_last_sent_at']
       rescue
         nil
       end
-    end.reject{ |v| v.blank? }.uniq.size.to_s
+    end.reject{ |t| t.blank? }.collect{ |t| Time.parse(t.to_s).to_s }.uniq.size
   end
 
   # Number of new newsletter subscriptions
-  data << TiplineSubscription.where(created_at: start_date..end_date, platform: platform_name, language: language).where('teams.slug' => slug).joins(:team).count.to_s
+  data << TiplineSubscription.where(created_at: start_date..end_date, platform: platform_name, language: language).where('teams.slug' => slug).joins(:team).count
 
   # Number of newsletter subscription cancellations
-  data << Version.from_partition(team.id).where(created_at: start_date..end_date, team_id: team.id, item_type: 'TiplineSubscription', event_type: 'destroy_tiplinesubscription').where('object LIKE ?', "%#{platform_name}%").where('object LIKE ?', '%"language":"' + language + '"%').count.to_s
+  data << Version.from_partition(team.id).where(created_at: start_date..end_date, team_id: team.id, item_type: 'TiplineSubscription', event_type: 'destroy_tiplinesubscription').where('object LIKE ?', "%#{platform_name}%").where('object LIKE ?', '%"language":"' + language + '"%').count
 
   # Current number of newsletter subscribers
-  data << TiplineSubscription.where(created_at: start_date.ago(100.years)..end_date, platform: platform_name, language: language).where('teams.slug' => slug).joins(:team).count.to_s
+  data << TiplineSubscription.where(created_at: start_date.ago(100.years)..end_date, platform: platform_name, language: language).where('teams.slug' => slug).joins(:team).count
 
   # Total number of imported reports
   # NOTE: For all languages and platforms
-  # data << ProjectMedia.joins(:team).where('teams.slug' => slug, 'created_at' => start_date..end_date, 'user_id' => BotUser.fetch_user.id).count.to_s
+  # data << ProjectMedia.joins(:team).where('teams.slug' => slug, 'created_at' => start_date..end_date, 'user_id' => BotUser.fetch_user.id).count
 
   puts data.join(',')
 end
