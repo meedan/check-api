@@ -10,7 +10,7 @@ namespace :check do
           next if pm.nil?
           begin
             if pm.claim_description.nil? || pm.claim_description.fact_check.nil?
-              user = report.annotator || Version.from_partition(pm.team_id).where(item_id: report.id.to_s, item_type: ['Annotation', 'Dynamic']).first&.user
+              user = report.annotator || Version.from_partition(pm.team_id).where(item_id: report.id.to_s, item_type: ['Annotation', 'Dynamic']).first&.user || BotUser.fetch_user
               cd = pm.claim_description || ClaimDescription.create!(project_media: pm, description: '​', user: user)
               fields = { user: user, skip_report_update: true }
               if report.report_design_field_value('use_text_message')
