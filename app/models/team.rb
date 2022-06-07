@@ -559,7 +559,9 @@ class Team < ApplicationRecord
   end
 
   def data_report
-    Rails.cache.read("data:report:#{self.id}")
+    data = Rails.cache.read("data:report:#{self.id}")
+    return nil if data.blank?
+    data.collect { |row| row.reject { |key, _value| key =~ /[sS]earch/ } }
   end
 
   # private
