@@ -60,6 +60,36 @@ end
 
 namespace :check do
   namespace :data do
+
+    bucket_name = 'check-batch-task-similarity'
+    region = 'eu-west-1'
+    s3_client = Aws::S3::Client.new(region: region)
+
+    def object_uploaded?(s3_client, bucket_name, object_key, file_path)
+      response = s3_client.put_object(
+        acl: 'public-read',
+        key: object_key,
+        body: File.read(file_path),
+        bucket: bucket_name,
+        content_type: 'application/json'
+      )
+
+      response = s3_client.put_object(
+        bucket: bucket_name,
+        key: object_key,
+        body: File.read(file_path)
+      )
+      if response.etag
+        #s3_client.put_object_acl(acl: 'public-read', key: file_path, bucket: bucket_name)
+        return true
+      else
+        return false
+      end
+    rescue StandardError => e
+      puts "Error uploading S3 object: #{e.message}"
+      return false
+    end
+
     desc 'Extract similarity data into CSV files.'
     task similarity: :environment do |_t, _params|
       # Accepted suggestions
@@ -68,11 +98,33 @@ namespace :check do
         "/tmp/accepted.json"
       )
 
+      if defined?(ENV.fetch('SIMILARITY_S3_DIR'))
+        puts 'Starting upload for accepted.json'
+        file_path = '/tmp/accepted.json'
+        object_key = "#{ENV['SIMILARITY_S3_DIR']}/accepted.json"
+        if object_uploaded?(s3_client, bucket_name, object_key, file_path)
+          puts 'Uploaded accepted.json'
+        else
+          puts 'Error uploading accepted.json to S3. Check credentials?'
+        end
+      end
+
       # Confirmed suggestions
       write_similarity_relationships_to_disk(
         Relationship.where('relationship_type = ?', Relationship.confirmed_type.to_yaml).where(user: BotUser.alegre_user).where('confirmed_by IS NULL'),
         "/tmp/confirmed.json"
       )
+
+      if defined?(ENV.fetch('SIMILARITY_S3_DIR'))
+        puts 'Starting upload for confirmed.json'
+        file_path = '/tmp/confirmed.json'
+        object_key = "#{ENV['SIMILARITY_S3_DIR']}/confirmed.json"
+        if object_uploaded?(s3_client, bucket_name, object_key, file_path)
+          puts 'Uploaded confirmed.json'
+        else
+          puts 'Error uploading confirmed.json to S3. Check credentials?'
+        end
+      end
 
       # Rejected suggestions
       write_archived_similarity_relationships_to_disk(
@@ -80,6 +132,16 @@ namespace :check do
         "/tmp/rejected.json"
       )
 
+      if defined?(ENV.fetch('SIMILARITY_S3_DIR'))
+        puts 'Starting upload for rejected.json'
+        file_path = '/tmp/rejected.json'
+        object_key = "#{ENV['SIMILARITY_S3_DIR']}/rejected.json"
+        if object_uploaded?(s3_client, bucket_name, object_key, file_path)
+          puts 'Uploaded rejected.json'
+        else
+          puts 'Error uploading rejected.json to S3. Check credentials?'
+        end
+      end
 
       # Manually created matches
       write_similarity_relationships_to_disk(
@@ -87,17 +149,51 @@ namespace :check do
         "/tmp/manual.json"
       )
 
+      if defined?(ENV.fetch('SIMILARITY_S3_DIR'))
+        puts 'Starting upload for manual.json'
+        file_path = '/tmp/manual.json'
+        object_key = "#{ENV['SIMILARITY_S3_DIR']}/manual.json"
+        if object_uploaded?(s3_client, bucket_name, object_key, file_path)
+          puts 'Uploaded manual.json'
+        else
+          puts 'Error uploading manual.json to S3. Check credentials?'
+        end
+      end
+
       # Manually detached matches
       write_archived_similarity_relationships_to_disk(
         "%confirmed_sibling%user_id\":[#{BotUser.alegre_user.id}%",
         "/tmp/detached.json"
       )
 
+      if defined?(ENV.fetch('SIMILARITY_S3_DIR'))
+        puts 'Starting upload for detached.json'
+        file_path = '/tmp/detached.json'
+        object_key = "#{ENV['SIMILARITY_S3_DIR']}/detached.json"
+        if object_uploaded?(s3_client, bucket_name, object_key, file_path)
+          puts 'Uploaded detached.json'
+        else
+          puts 'Error uploading detached.json to S3. Check credentials?'
+        end
+      end
+
       # Suggestions
       write_similarity_relationships_to_disk(
         Relationship.where('relationship_type = ?', Relationship.suggested_type.to_yaml),
         "/tmp/suggestions.json"
       )
+
+      if defined?(ENV.fetch('SIMILARITY_S3_DIR'))
+        puts 'Starting uploaded for suggestions.json'
+        file_path = '/tmp/suggestions.json'
+        object_key = "#{ENV['SIMILARITY_S3_DIR']}/suggestions.json"
+        if object_uploaded?(s3_client, bucket_name, object_key, file_path)
+          puts 'Uploaded suggestions.json'
+        else
+          puts 'Error uploading suggestions.json to S3. Check credentials?'
+        end
+      end
+
     end
   end
 end
