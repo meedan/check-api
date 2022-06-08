@@ -19,7 +19,7 @@ class ProjectMedia < ApplicationRecord
   validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }, on: :create
   validate :source_belong_to_team, unless: proc { |pm| pm.source_id.blank? || pm.is_being_copied }
   validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
-  validate :custom_channel_format
+  validate :custom_channel_format, :archived_in_allowed_values
   validate :channel_in_allowed_values, on: :create
   validate :channel_not_changed, on: :update
 
@@ -148,6 +148,7 @@ class ProjectMedia < ApplicationRecord
     perms["embed ProjectMedia"] = self.archived == CheckArchivedFlags::FlagCodes::NONE
     ability ||= Ability.new
     temp = Source.new(team_id: self.team_id)
+    perms["not_spam ProjectMedia"] = ability.can?(:not_spam, self)
     perms["restore ProjectMedia"] = ability.can?(:restore, self)
     perms["confirm ProjectMedia"] = ability.can?(:confirm, self)
     perms["lock Annotation"] = ability.can?(:lock_annotation, self)

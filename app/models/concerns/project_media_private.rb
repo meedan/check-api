@@ -126,6 +126,11 @@ module ProjectMediaPrivate
     errors.add(:channel, JSON::Validator.fully_validate(CUSTOM_CHANNEL_SCHEMA, self.channel)) if !JSON::Validator.validate(CUSTOM_CHANNEL_SCHEMA, self.channel)
   end
 
+  def archived_in_allowed_values
+    allowed_values = CheckArchivedFlags::FlagCodes.archived_codes.values
+    errors.add(:archived, I18n.t(:"errors.messages.invalid_project_media_archived_value")) unless allowed_values.include?(self.archived)
+  end
+
   def channel_in_allowed_values
     main = self.channel.with_indifferent_access[:main].to_i
     error = !CheckChannels::ChannelCodes::ALL.include?(main)

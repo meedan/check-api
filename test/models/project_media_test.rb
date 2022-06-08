@@ -421,7 +421,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media project: p, current_user: u
     perm_keys = [
       "read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment",
-      "create Tag", "create Task", "create Dynamic", "restore ProjectMedia", "confirm ProjectMedia",
+      "create Tag", "create Task", "create Dynamic", "not_spam ProjectMedia", "restore ProjectMedia", "confirm ProjectMedia",
       "embed ProjectMedia", "lock Annotation","update Status", "administer Content", "create Relationship",
       "create Source", "update Source", "create ClaimDescription"
     ].sort
@@ -2460,6 +2460,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should get extracted text" do
     pm = create_project_media
     assert_kind_of String, pm.extracted_text
+  end
+
+  test "should validate archived value" do
+    assert_difference 'ProjectMedia.count' do
+      create_project_media archived: CheckArchivedFlags::FlagCodes::SPAM
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_media archived: { main: 90 }
+    end
   end
 
   test "should validate channel value" do

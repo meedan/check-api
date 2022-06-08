@@ -66,7 +66,14 @@ module ProjectMediaBulk
 
       self.update_folder_cache(ids, target_project)
 
-      { team: team, project: project, check_search_project: project&.check_search_project, check_search_team: team.check_search_team, check_search_trash: team.check_search_trash }
+      {
+        team: team,
+        project: project,
+        check_search_project: project&.check_search_project,
+        check_search_team: team.check_search_team,
+        check_search_spam: team.check_search_spam,
+        check_search_trash: team.check_search_trash
+      }
     end
 
     def bulk_move(ids, project, team)
@@ -103,9 +110,15 @@ module ProjectMediaBulk
       team.notify_pusher_channel
       project.notify_pusher_channel
       project_was&.notify_pusher_channel
-      { team: team, project: project, check_search_project: project&.check_search_project,
-        project_was: project_was, check_search_project_was: project_was&.check_search_project,
-        check_search_team: team.check_search_team, check_search_trash: team.check_search_trash
+      {
+        team: team,
+        project: project,
+        check_search_project: project&.check_search_project,
+        project_was: project_was,
+        check_search_project_was: project_was&.check_search_project,
+        check_search_team: team.check_search_team,
+        check_search_spam: team.check_search_spam,
+        check_search_trash: team.check_search_trash
       }
     end
 

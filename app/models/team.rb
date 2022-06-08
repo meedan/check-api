@@ -199,6 +199,10 @@ class Team < ApplicationRecord
     end
   end
 
+  def spam
+    ProjectMedia.where({ team_id: self.id, archived: CheckArchivedFlags::FlagCodes::SPAM , sources_count: 0 })
+  end
+
   def trash
     ProjectMedia.where({ team_id: self.id, archived: CheckArchivedFlags::FlagCodes::TRASHED , sources_count: 0 })
   end
@@ -212,6 +216,10 @@ class Team < ApplicationRecord
       project_media: self.trash_count,
       annotation: self.trash.sum(:cached_annotations_count)
     }
+  end
+
+  def spam_count
+    self.spam.count
   end
 
   def trash_count
@@ -240,6 +248,10 @@ class Team < ApplicationRecord
 
   def check_search_unconfirmed
     check_search_filter({ 'archived' => CheckArchivedFlags::FlagCodes::UNCONFIRMED })
+  end
+
+  def check_search_spam
+    check_search_filter({ 'archived' => CheckArchivedFlags::FlagCodes::SPAM })
   end
 
   def public_team
@@ -278,6 +290,7 @@ class Team < ApplicationRecord
     relationship = Relationship.new(source: tmp, target: tmp)
     perms["empty Trash"] = ability.can?(:destroy, :trash)
     perms["invite Members"] = ability.can?(:invite_members, self)
+    perms["not_spam ProjectMedia"] = ability.can?(:not_spam, tmp)
     perms["restore ProjectMedia"] = ability.can?(:restore, tmp)
     perms["confirm ProjectMedia"] = ability.can?(:confirm, tmp)
     perms["update ProjectMedia"] = ability.can?(:update, ProjectMedia.new(team_id: self.id))

@@ -300,7 +300,7 @@ class TeamTest < ActiveSupport::TestCase
     perm_keys = [
       "bulk_create Tag", "bulk_update ProjectMedia", "create TagText", "read Team", "update Team",
       "destroy Team", "empty Trash", "create Project", "create ProjectMedia", "create Account", "create TeamUser",
-      "create User", "invite Members", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia",
+      "create User", "invite Members", "not_spam ProjectMedia", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia",
       "duplicate Team", "mange TagText", "mange TeamTask", "set_privacy Project", "update Relationship",
       "destroy Relationship"
     ].sort
