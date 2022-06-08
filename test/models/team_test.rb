@@ -641,6 +641,7 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should empty trash if has permissions" do
+    RequestStore.store[:skip_delete_for_ever] = true
     Sidekiq::Testing.inline! do
       t = create_team
       u = create_user
@@ -679,6 +680,7 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should get trash size" do
+    RequestStore.store[:skip_delete_for_ever] = true
     Sidekiq::Testing.inline!
     t = create_team
     u = create_user
@@ -2071,6 +2073,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should match rule when item is read" do
     RequestStore.store[:skip_cached_field_update] = false
+    RequestStore.store[:skip_delete_for_ever] = true
     t = create_team
     p = create_project team: t
     u = create_user
