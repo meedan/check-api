@@ -151,6 +151,6 @@ module ProjectMediaPrivate
   def apply_delete_for_ever
     return if RequestStore.store[:skip_delete_for_ever]
     interval = CheckConfig.get('empty_trash_interval', 30).to_i
-    ProjectMedia.delay_for(interval.days).delete_forever(self.updated_at, self.id)
+    ProjectMedia.delay_for(interval.days).delete_forever('trash', self.updated_at, self.id)
   end
 end

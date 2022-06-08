@@ -2714,6 +2714,46 @@ class ProjectMediaTest < ActiveSupport::TestCase
     result['project_id'] = p.id
   end
 
+  test "should detach similar items when spam parent item" do
+    setup_elasticsearch
+    RequestStore.store[:skip_delete_for_ever] = true
+    t = create_team
+    default_folder = t.default_folder
+    p = create_project team: t
+    pm = create_project_media project: p
+    pm1_c = create_project_media project: p
+    pm1_s = create_project_media project: p
+    pm2_s = create_project_media project: p
+    r = create_relationship source: pm, target: pm1_c, relationship_type: Relationship.confirmed_type
+    r2 = create_relationship source: pm, target: pm1_s, relationship_type: Relationship.suggested_type
+    r3 = create_relationship source: pm, target: pm2_s, relationship_type: Relationship.suggested_type
+    assert_difference 'Relationship.count', -2 do
+      pm.archived = CheckArchivedFlags::FlagCodes::SPAM
+      pm.save!
+    end
+    assert_raises ActiveRecord::RecordNotFound do
+      r2.reload
+    end
+    assert_raises ActiveRecord::RecordNotFound do
+      r3.reload
+    end
+    pm1_s = pm1_s.reload; pm2_s.reload
+    assert_equal CheckArchivedFlags::FlagCodes::SPAM, pm1_c.reload.archived
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm1_s.archived
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm2_s.archived
+    assert_equal p.id, pm1_s.project_id
+    assert_equal p.id, pm2_s.project_id
+    # Verify ES
+    result = $repository.find(get_es_id(pm1_c))
+    result['archived'] = CheckArchivedFlags::FlagCodes::SPAM
+    result = $repository.find(get_es_id(pm1_s))
+    result['archived'] = CheckArchivedFlags::FlagCodes::NONE
+    result['project_id'] = p.id
+    result = $repository.find(get_es_id(pm2_s))
+    result['archived'] = CheckArchivedFlags::FlagCodes::NONE
+    result['project_id'] = p.id
+  end
+
   test "should get cluster size" do
     pm = create_project_media
     assert_nil pm.reload.cluster

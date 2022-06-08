@@ -1271,8 +1271,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal p4.id, pm4.reload.project_id
   end
 
-  # test "should return number of items in trash, unconfirmed, spam and outside trash" do
-  test "sawy_test" do
+  test "should return number of items in trash, unconfirmed, spam and outside trash" do
     t = create_team
     p1 = create_project team: t
     p2 = create_project team: t
