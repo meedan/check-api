@@ -15,6 +15,7 @@ class Bot::SmoochRulesTest < ActiveSupport::TestCase
   end
 
   test "should route to project based on rules" do
+    RequestStore.store[:skip_delete_for_ever] = true
     s1 = @team.settings.clone
     s2 = @team.settings.clone
     p1 = create_project team: @team

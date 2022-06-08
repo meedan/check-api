@@ -141,7 +141,7 @@ module ProjectMediaCachedFields
       start_as: proc { |pm| pm.created_at.to_i },
       update_es: true,
       update_pg: true,
-      recalculate: proc { |pm| (Dynamic.where(annotation_type: 'smooch', annotated_id: pm.related_items_ids).order('created_at DESC').first&.created_at || ProjectMedia.find(pm.id).created_at).to_i },
+      recalculate: proc { |pm| (Dynamic.where(annotation_type: 'smooch', annotated_id: pm.related_items_ids).order('created_at DESC').first&.created_at || ProjectMedia.find_by_id(pm.id)&.created_at).to_i },
       update_on: [
         {
           model: Dynamic,

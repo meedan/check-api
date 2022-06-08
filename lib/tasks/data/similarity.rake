@@ -60,38 +60,42 @@ end
 
 namespace :check do
   namespace :data do
-
-    bucket_name = 'check-batch-task-similarity'
-    region = 'eu-west-1'
-    s3_client = Aws::S3::Client.new(region: region)
-
-    def object_uploaded?(s3_client, bucket_name, object_key, file_path)
-      response = s3_client.put_object(
-        acl: 'public-read',
-        key: object_key,
-        body: File.read(file_path),
-        bucket: bucket_name,
-        content_type: 'application/json'
-      )
-
-      response = s3_client.put_object(
-        bucket: bucket_name,
-        key: object_key,
-        body: File.read(file_path)
-      )
-      if response.etag
-        #s3_client.put_object_acl(acl: 'public-read', key: file_path, bucket: bucket_name)
-        return true
-      else
-        return false
-      end
-    rescue StandardError => e
-      puts "Error uploading S3 object: #{e.message}"
-      return false
-    end
-
     desc 'Extract similarity data into CSV files.'
     task similarity: :environment do |_t, _params|
+      bucket_name = 'check-batch-task-similarity'
+      region = 'eu-west-1'
+      begin
+        s3_client = Aws::S3::Client.new(region: region)
+      rescue Aws::Sigv4::Errors::MissingCredentialsError
+        puts "Please provide the AWS credentials."
+        exit 1
+      end
+
+      def object_uploaded?(s3_client, bucket_name, object_key, file_path)
+        response = s3_client.put_object(
+          acl: 'public-read',
+          key: object_key,
+          body: File.read(file_path),
+          bucket: bucket_name,
+          content_type: 'application/json'
+        )
+
+        response = s3_client.put_object(
+          bucket: bucket_name,
+          key: object_key,
+          body: File.read(file_path)
+        )
+        if response.etag
+          #s3_client.put_object_acl(acl: 'public-read', key: file_path, bucket: bucket_name)
+          return true
+        else
+          return false
+        end
+      rescue StandardError => e
+        puts "Error uploading S3 object: #{e.message}"
+        return false
+      end
+
       # Accepted suggestions
       write_similarity_relationships_to_disk(
         Relationship.where('relationship_type = ?', Relationship.confirmed_type.to_yaml).where(user: BotUser.alegre_user).where('confirmed_by IS NOT NULL'),
@@ -193,7 +197,6 @@ namespace :check do
           puts 'Error uploading suggestions.json to S3. Check credentials?'
         end
       end
-
     end
   end
 end

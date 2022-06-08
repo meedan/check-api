@@ -94,6 +94,7 @@ class GraphqlController4Test < ActionController::TestCase
   end
 
   test "should bulk-restore project medias from trash" do
+    RequestStore.store[:skip_delete_for_ever] = true
     @pms.each { |pm| pm.archived = CheckArchivedFlags::FlagCodes::TRASHED ; pm.save! }
     Sidekiq::Worker.drain_all
     sleep 1
@@ -115,6 +116,7 @@ class GraphqlController4Test < ActionController::TestCase
   end
 
   test "should bulk-restore project medias from trash and assign to list" do
+    RequestStore.store[:skip_delete_for_ever] = true
     add_to = create_project team: @t
     @pms.each { |pm| pm.archived = CheckArchivedFlags::FlagCodes::TRASHED ; pm.save! }
     Sidekiq::Worker.drain_all
