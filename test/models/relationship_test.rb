@@ -149,6 +149,7 @@ class RelationshipTest < ActiveSupport::TestCase
   end
 
   test "should archive or restore medias when source is archived or restored" do
+    RequestStore.store[:skip_delete_for_ever] = true
     s = create_project_media project: @project
     t1 = create_project_media project: @project
     t2 = create_project_media project: @project

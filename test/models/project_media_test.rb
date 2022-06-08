@@ -147,12 +147,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     with_current_user_and_team(u2, t) do
       pm.save!
     end
-    # TODO : fix by Sawy
-    # assert_nothing_raised do
-    #   with_current_user_and_team(u2, t) do
-    #     pm.destroy!
-    #   end
-    # end
   end
 
   test "queries for relationship source" do
@@ -2673,6 +2667,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should detach similar items when trash parent item" do
     setup_elasticsearch
+    RequestStore.store[:skip_delete_for_ever] = true
     t = create_team
     default_folder = t.default_folder
     p = create_project team: t
@@ -2872,5 +2867,33 @@ class ProjectMediaTest < ActiveSupport::TestCase
     r.destroy!
     assert !pm.is_suggested
     assert !pm.is_confirmed
+  end
+
+  test "should delete for ever trashed items" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    pm = create_project_media team: t
+    # Check that cached field exists (pick a key to verify the key deleted after destroy item)
+    cache_key = "check_cached_field:ProjectMedia:#{pm.id}:folder"
+    assert Rails.cache.exist?(cache_key)
+    Sidekiq::Testing.fake! do
+      pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
+      pm.save!
+    end
+    assert_not_nil ProjectMedia.find_by_id(pm.id)
+    Sidekiq::Worker.drain_all
+    assert_nil ProjectMedia.find_by_id(pm.id)
+    assert_not Rails.cache.exist?(cache_key)
+    # Restore item from trash before apply delete for ever
+    pm = create_project_media team: t
+    Sidekiq::Testing.fake! do
+      pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
+      pm.save!
+    end
+    assert_not_nil ProjectMedia.find_by_id(pm.id)
+    pm.archived = CheckArchivedFlags::FlagCodes::NONE
+    pm.save!
+    Sidekiq::Worker.drain_all
+    assert_not_nil ProjectMedia.find_by_id(pm.id)
   end
 end
