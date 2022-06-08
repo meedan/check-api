@@ -119,9 +119,11 @@ class Relationship < ApplicationRecord
   end
 
   def detach_to_list
-    pm = self.target
-    pm.project_id = self.add_to_project_id unless self.add_to_project_id.blank?
-    pm.save!
+    unless self.add_to_project_id.blank?
+      pm = self.target
+      pm.project_id = self.add_to_project_id
+      begin pm.save! rescue nil end
+    end
   end
 
   def is_being_confirmed?
