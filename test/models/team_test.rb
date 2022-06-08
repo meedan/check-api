@@ -1271,7 +1271,8 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal p4.id, pm4.reload.project_id
   end
 
-  test "should return number of items in trash, unconfirmed and outside trash" do
+  # test "should return number of items in trash, unconfirmed, spam and outside trash" do
+  test "sawy_test" do
     t = create_team
     p1 = create_project team: t
     p2 = create_project team: t
@@ -1281,9 +1282,12 @@ class TeamTest < ActiveSupport::TestCase
     create_project_media project: p1, archived: CheckArchivedFlags::FlagCodes::TRASHED
     create_project_media project: p1, archived: CheckArchivedFlags::FlagCodes::TRASHED
     create_project_media project: p2, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED
+    create_project_media project: p1, archived: CheckArchivedFlags::FlagCodes::SPAM
+    create_project_media project: p1, archived: CheckArchivedFlags::FlagCodes::SPAM
     create_project_media
     t = t.reload
     assert_equal 4, t.medias_count
+    assert_equal 2, t.spam_count
     assert_equal 2, t.trash_count
     assert_equal 1, t.unconfirmed_count
   end
