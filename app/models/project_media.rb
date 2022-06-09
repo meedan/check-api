@@ -19,7 +19,7 @@ class ProjectMedia < ApplicationRecord
   validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }, on: :create
   validate :source_belong_to_team, unless: proc { |pm| pm.source_id.blank? || pm.is_being_copied }
   validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
-  validate :custom_channel_format
+  validate :custom_channel_format, :archived_in_allowed_values
   validate :channel_in_allowed_values, on: :create
   validate :channel_not_changed, on: :update
 
@@ -148,6 +148,7 @@ class ProjectMedia < ApplicationRecord
     perms["embed ProjectMedia"] = self.archived == CheckArchivedFlags::FlagCodes::NONE
     ability ||= Ability.new
     temp = Source.new(team_id: self.team_id)
+    perms["not_spam ProjectMedia"] = ability.can?(:not_spam, self)
     perms["restore ProjectMedia"] = ability.can?(:restore, self)
     perms["confirm ProjectMedia"] = ability.can?(:confirm, self)
     perms["lock Annotation"] = ability.can?(:lock_annotation, self)
@@ -200,7 +201,7 @@ class ProjectMedia < ApplicationRecord
 
   def self.archive_or_restore_related_medias(archived, project_media_id, team)
     items = Relationship.where(source_id: project_media_id)
-    if archived == CheckArchivedFlags::FlagCodes::TRASHED
+    if archived == CheckArchivedFlags::FlagCodes::TRASHED || archived == CheckArchivedFlags::FlagCodes::SPAM
       # Trash action should archive confirmed items only
       items = items.where('relationship_type IN (?)', [Relationship.default_type.to_yaml, Relationship.confirmed_type.to_yaml])
       # Move similar items to default folder
@@ -209,6 +210,12 @@ class ProjectMedia < ApplicationRecord
     ids = items.map(&:target_id)
     # should bulk archive
     ProjectMedia.bulk_update(ids, { action: 'archived', params: { archived: archived }.to_json }, team)
+    # should enqueue spam children for delete forever
+    if archived == CheckArchivedFlags::FlagCodes::SPAM && !RequestStore.store[:skip_delete_for_ever]
+      interval = CheckConfig.get('empty_trash_interval', 30).to_i
+      updated_at = Time.now
+      ids.each{ |pm_id| ProjectMedia.delay_for(interval.days).delete_forever('spam', updated_at, pm_id, { parent_id: project_media_id }) }
+    end
   end
 
   def self.destroy_related_medias(project_media, user_id = nil)
@@ -378,10 +385,21 @@ class ProjectMedia < ApplicationRecord
     sm_ids.blank? ? [] : DynamicAnnotation::Field.where(annotation_id: sm_ids, field_name: 'smooch_data')
   end
 
-  def self.delete_forever(updated_at, id)
+  def self.delete_forever(type, updated_at, id, extra = {})
     # Check item still exists and Trashed
-    pm = ProjectMedia.where(id: id, archived: CheckArchivedFlags::FlagCodes::TRASHED).where('updated_at <= ?', updated_at).last
-    pm.destroy unless pm.nil?
+    archived = type == 'trash' ? CheckArchivedFlags::FlagCodes::TRASHED : CheckArchivedFlags::FlagCodes::SPAM
+    pm = ProjectMedia.where(id: id, archived: archived).where('updated_at <= ?', updated_at).last
+    unless pm.nil?
+      should_delete = true
+      if type == 'spam'
+        # Verify that relationship still exists
+        should_delete = Relationship.where(
+          source_id: extra.with_indifferent_access[:parent_id],
+          target_id: pm.id
+        ).exists?
+      end
+      pm.destroy if should_delete
+    end
   end
 
   protected

@@ -34,7 +34,7 @@ namespace :check do
         .find_in_batches(:batch_size => 2500) do |pms|
           pms.each do |pm|
             print '.'
-            ProjectMedia.delay_for(interval.days).delete_forever(pm.updated_at, pm.id)
+            ProjectMedia.delay_for(interval.days).delete_forever('trash', pm.updated_at, pm.id)
           end
         end
         # log last team id
