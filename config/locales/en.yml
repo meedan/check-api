@@ -105,6 +105,7 @@ en:
         `['en', 'ar', …]`
       invalid_project_media_channel_value: Sorry, channel value not supported
       invalid_project_media_channel_update: Sorry, you could not update channel value
+      invalid_project_media_archived_value: Sorry, archived value not supported
   activerecord:
     models:
       link: Link
