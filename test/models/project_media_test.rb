@@ -2945,4 +2945,44 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Sidekiq::Worker.drain_all
     assert_not_nil ProjectMedia.find_by_id(pm.id)
   end
+
+  test "should delete for ever spam items" do
+    t = create_team
+    pm_s = create_project_media team: t
+    pm_t1 = create_project_media team: t
+    pm_t2 = create_project_media team: t
+    pm_t3 = create_project_media team: t
+    r1 = create_relationship source_id: pm_s.id, target_id: pm_t1.id, relationship_type: Relationship.default_type
+    r2 = create_relationship source_id: pm_s.id, target_id: pm_t2.id, relationship_type: Relationship.confirmed_type
+    r3 = create_relationship source_id: pm_s.id, target_id: pm_t3.id, relationship_type: Relationship.suggested_type
+    Sidekiq::Testing.fake! do
+      pm_s.archived = CheckArchivedFlags::FlagCodes::SPAM
+      pm_s.save!
+    end
+    assert_not_nil ProjectMedia.find_by_id(pm_s.id)
+    assert_equal 4, ProjectMedia.where(id: [pm_s.id, pm_t1.id, pm_t2.id, pm_t3.id]).count
+    assert_equal 3, Relationship.where(id: [r1.id, r2.id, r3.id]).count
+    Sidekiq::Worker.drain_all
+    assert_equal CheckArchivedFlags::FlagCodes::SPAM, pm_s.reload.archived
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm_t3.reload.archived
+    assert_equal 0, Relationship.where(id: [r1.id, r2.id, r3.id]).count
+    assert_nil ProjectMedia.find_by_id(pm_t1.id)
+    assert_nil ProjectMedia.find_by_id(pm_t2.id)
+    # Restore item from spam before apply delete for ever
+    pm_s = create_project_media team: t
+    pm_t = create_project_media team: t
+    r = create_relationship source_id: pm_s.id, target_id: pm_t.id, relationship_type: Relationship.confirmed_type
+    Sidekiq::Testing.fake! do
+      pm_s.archived = CheckArchivedFlags::FlagCodes::TRASHED
+      pm_s.save!
+    end
+    assert_equal 2, ProjectMedia.where(id: [pm_s.id, pm_t.id]).count
+    Sidekiq::Testing.fake! do
+      pm_s.archived = CheckArchivedFlags::FlagCodes::NONE
+      pm_s.save!
+    end
+    Sidekiq::Worker.drain_all
+    assert_equal 2, ProjectMedia.where(id: [pm_s.id, pm_t.id], archived: CheckArchivedFlags::FlagCodes::NONE).count
+    assert_not_nil Relationship.where(id: r.id).last
+  end
 end

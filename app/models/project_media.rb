@@ -395,8 +395,7 @@ class ProjectMedia < ApplicationRecord
         # Verify that relationship still exists
         should_delete = Relationship.where(
           source_id: extra.with_indifferent_access[:parent_id],
-          target_id: pm.id,
-          relationship_type: Relationship.suggested_type
+          target_id: pm.id
         ).exists?
       end
       pm.destroy if should_delete
