@@ -17,18 +17,19 @@ module ProjectAssociation
   end
 
   def check_search_team
-    team = self.team
-    team.check_search_team
+    self.team.check_search_team
   end
 
   def check_search_trash
-    team = self.team
-    team.check_search_trash
+    self.team.check_search_trash
   end
 
   def check_search_unconfirmed
-    team = self.team
-    team.check_search_unconfirmed
+    self.team.check_search_unconfirmed
+  end
+
+  def check_search_spam
+    self.team.check_search_spam
   end
 
   def as_json(_options = {})
