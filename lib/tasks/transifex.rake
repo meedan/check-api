@@ -53,16 +53,13 @@ namespace :transifex do
 
   task download_tipline: [:environment, :login] do
     project = Transifex::Project.new('check-tiplines')
-    resource_slugs = project.resources.fetch.select{ |r| r['slug'] =~ /^hardcoded-bot-strings/ }.collect{ |r| r['slug'] }
-    langs = project.languages.fetch.collect{ |l| l['language_code'] } # + ['en'] Is + ['en'] necessary if translation coordinator is set?
+    langs = project.languages.fetch.collect{ |l| l['language_code'] }
     yaml = {}
     langs.each do |lang|
       yaml[lang] = {}
-      resource_slugs.each do |slug| # FIXME do not iterate resources - why not type resource name directly?
-        resource = project.resource(slug)
-        translations = YAML.load(resource.translation(lang).fetch['content'])
-        yaml[lang].merge!(translations['en'])
-      end
+      resource = project.resource('hardcoded-bot-strings')
+      translations = YAML.load(resource.translation(lang).fetch['content'])
+      yaml[lang].merge!(translations['en'])
     end
     path = File.join(Rails.root, 'config', "tipline_strings.yml")
     file = File.open(path, 'w+')

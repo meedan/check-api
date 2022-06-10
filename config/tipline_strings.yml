@@ -20,6 +20,27 @@ bn:
   subscribed: আপনি বর্তমানে আমাদের নিউজলেটারে সাবস্ক্রাইব করেছেন।
   unsubscribe_button_label: আনসাবস্ক্রাইব করুন
   unsubscribed: আপনি বর্তমানে আমাদের নিউজলেটার সদস্যতা নেই.
+en:
+  add_more_details_state_button_label: Add more
+  ask_if_ready_state_button_label: Cancel
+  confirm_preferred_language: Please confirm your preferred language
+  invalid_format: Sorry, the file you submitted is not supported format.
+  keep_subscription_button_label: Keep subscription
+  languages: Languages
+  languages_and_privacy_title: Languages and Privacy
+  main_menu: Main menu
+  main_state_button_label: Cancel
+  navigation_button: Use the buttons to navigate
+  privacy_statement: Privacy statement
+  privacy_title: Privacy
+  report_updated: 'The following fact-check has been *updated* with new information:'
+  search_result_is_not_relevant_button_label: 'No'
+  search_result_is_relevant_button_label: 'Yes'
+  search_state_button_label: Submit
+  subscribe_button_label: Subscribe
+  subscribed: You are currently subscribed to our newsletter.
+  unsubscribe_button_label: Unsubscribe
+  unsubscribed: You are currently not subscribed to our newsletter.
 fr:
   add_more_details_state_button_label: En ajouter
   ask_if_ready_state_button_label: Annuler
