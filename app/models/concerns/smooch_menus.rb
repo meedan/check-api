@@ -245,7 +245,7 @@ module SmoochMenus
       text = []
       options = []
       self.get_supported_languages.sort.each_with_index do |l, i|
-        text << self.get_menu_string(:confirm_preferred_language, l)
+        text << self.get_menu_string('confirm_preferred_language', l)
         options << {
           value: { state: 'main', keyword: (i + 1) }.to_json,
           label: ::CheckCldr.language_code_to_name(l, l).truncate(20)
@@ -253,7 +253,7 @@ module SmoochMenus
       end
       text = text.join("\n\n")
       if options.size > 3
-        self.send_message_to_user_with_single_section_menu(uid, text, options, self.get_menu_string(:languages, language))
+        self.send_message_to_user_with_single_section_menu(uid, text, options, self.get_menu_string('languages', language))
       else
         self.send_message_to_user_with_buttons(uid, text, options)
       end
