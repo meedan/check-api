@@ -207,4 +207,31 @@ class Bot::FetchTest < ActiveSupport::TestCase
     assert_equal "Earth isn't flat", Bot::Fetch::Import.parse_text("Earth isn&#39;t flat")
     assert_equal "Scientific evidences show that Earth is round, as per link.Please see this image: .", Bot::Fetch::Import.parse_text('<p>Scientific evidences show that <b>Earth</b> is round, as per <a href="http://test.com">link</a>.<br />Please see this image: <img src="http://image/image.jpg" alt="" />.</p>')
   end
+
+  test "should not import duplicate claim reviews" do
+    id = random_string
+    cr1 = @claim_review.deep_dup
+    cr1['identifier'] = id
+    cr2 = @claim_review.deep_dup
+    cr2['identifier'] = id
+    cr3 = @claim_review.deep_dup
+    cr3['identifier'] = id
+
+    assert_difference 'ProjectMedia.count' do
+      Bot::Fetch::Import.import_claim_review(cr1, @team.id, @bot.id, 'undetermined', {}, false)
+    end
+    assert_no_difference 'ProjectMedia.count' do
+      Bot::Fetch::Import.import_claim_review(cr2, @team.id, @bot.id, 'undetermined', {}, false)
+    end
+
+    # A race condition would bypass ActiveRecord validation and Redis semaphore, so let's be sure we have a unique index at the database level too (just for the same workspace)
+    Bot::Fetch::Import.stubs(:already_imported?).returns(false)
+    assert_no_difference 'ProjectMedia.count' do
+      Bot::Fetch::Import.import_claim_review(cr3, @team.id, @bot.id, 'undetermined', {}, false)
+    end
+    assert_difference 'ProjectMedia.count' do
+      Bot::Fetch::Import.import_claim_review(cr3, create_team.id, @bot.id, 'undetermined', {}, false)
+    end
+    Bot::Fetch::Import.unstub(:already_imported?)
+  end
 end
