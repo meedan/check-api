@@ -1,0 +1,45 @@
+---
+bn:
+  add_more_details_state_button_label: আরও তথ্য যোগ করুন
+  ask_if_ready_state_button_label: अभी नही
+  confirm_preferred_language: অনুগ্রহ করে আপনার পছন্দেসই ভাষা নিশ্চিত করুন
+  invalid_format: দুঃখিত, আপনার জমা দেওয়া ফাইলটি সমর্থিত ফর্মেটে নয়।
+  keep_subscription_button_label: সাবস্ক্রিপশন চালু রাখুন
+  languages: ভাষাগুলো
+  languages_and_privacy_title: ভাষা ও গোপনীয়তা
+  main_menu: মুখ্য মেন
+  main_state_button_label: अभी नही
+  navigation_button: নেভিগেট করতে বোতামগুলি ব্যবহার করুন
+  privacy_statement: গোপনীয়তা বিবৃতি
+  privacy_title: গোপনীয়তা
+  report_updated: 'নিম্নলিখিত ফ্যাক্ট-চেকটি নতুন তথ্যের সাথে *আপডেট* করা হয়েছে:'
+  search_result_is_not_relevant_button_label: না
+  search_result_is_relevant_button_label: হ্যাঁ
+  search_state_button_label: জমা করুন
+  subscribe_button_label: সাবস্ক্রাইব করুন
+  subscribed: আপনি বর্তমানে আমাদের নিউজলেটারে সাবস্ক্রাইব করেছেন।
+  unsubscribe_button_label: আনসাবস্ক্রাইব করুন
+  unsubscribed: আপনি বর্তমানে আমাদের নিউজলেটার সদস্যতা নেই.
+fr:
+  add_more_details_state_button_label: En ajouter
+  ask_if_ready_state_button_label: Annuler
+  confirm_preferred_language: Veuillez confirmer votre préférence de langue
+  invalid_format: Désolé, le fichier que vous avez envoyé n’est pas à un format en
+    charge.
+  keep_subscription_button_label: Rester abonné
+  languages: Langues
+  languages_and_privacy_title: Langues, confidentialité
+  main_menu: Menu principal
+  main_state_button_label: Annuler
+  navigation_button: Utilisez les boutons pour naviguer
+  privacy_statement: Avis de confidentialité
+  privacy_title: Confidentialité
+  report_updated: 'La vérification de faits suivante a été *mise à jour* avec de nouveaux
+    renseignements :'
+  search_result_is_not_relevant_button_label: Non
+  search_result_is_relevant_button_label: Oui
+  search_state_button_label: Envoyer
+  subscribe_button_label: M’abonner
+  subscribed: Vous êtes actuellement abonné à notre lettre d’information.
+  unsubscribe_button_label: Me désabonner
+  unsubscribed: Vous n’êtes actuellement pas abonné à notre lettre d’information.
