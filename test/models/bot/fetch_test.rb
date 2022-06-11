@@ -182,7 +182,7 @@ class Bot::FetchTest < ActiveSupport::TestCase
     end
     statuses = ['false', 'verified', 'in_progress']
     ['first', 'second', 'third'].each_with_index do |id, i|
-      d = DynamicAnnotation::Field.where(field_name: 'external_id', value: id).last
+      d = DynamicAnnotation::Field.where(field_name: 'external_id', value: "#{id}:#{@team.id}").last
       assert_not_nil d
       assert_equal statuses[i], d.annotation.annotated.last_status
       assert_equal "Earth isn't flat", d.annotation.annotated.title
