@@ -147,12 +147,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     with_current_user_and_team(u2, t) do
       pm.save!
     end
-    # TODO : fix by Sawy
-    # assert_nothing_raised do
-    #   with_current_user_and_team(u2, t) do
-    #     pm.destroy!
-    #   end
-    # end
   end
 
   test "queries for relationship source" do
@@ -427,7 +421,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media project: p, current_user: u
     perm_keys = [
       "read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment",
-      "create Tag", "create Task", "create Dynamic", "restore ProjectMedia", "confirm ProjectMedia",
+      "create Tag", "create Task", "create Dynamic", "not_spam ProjectMedia", "restore ProjectMedia", "confirm ProjectMedia",
       "embed ProjectMedia", "lock Annotation","update Status", "administer Content", "create Relationship",
       "create Source", "update Source", "create ClaimDescription"
     ].sort
@@ -2468,6 +2462,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_kind_of String, pm.extracted_text
   end
 
+  test "should validate archived value" do
+    assert_difference 'ProjectMedia.count' do
+      create_project_media archived: CheckArchivedFlags::FlagCodes::SPAM
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_media archived: { main: 90 }
+    end
+  end
+
   test "should validate channel value" do
     # validate channel create (should be in allowed values)
     assert_raises ActiveRecord::RecordInvalid do
@@ -2673,6 +2676,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should detach similar items when trash parent item" do
     setup_elasticsearch
+    RequestStore.store[:skip_delete_for_ever] = true
     t = create_team
     default_folder = t.default_folder
     p = create_project team: t
@@ -2702,6 +2706,46 @@ class ProjectMediaTest < ActiveSupport::TestCase
     # Verify ES
     result = $repository.find(get_es_id(pm1_c))
     result['archived'] = CheckArchivedFlags::FlagCodes::TRASHED
+    result = $repository.find(get_es_id(pm1_s))
+    result['archived'] = CheckArchivedFlags::FlagCodes::NONE
+    result['project_id'] = p.id
+    result = $repository.find(get_es_id(pm2_s))
+    result['archived'] = CheckArchivedFlags::FlagCodes::NONE
+    result['project_id'] = p.id
+  end
+
+  test "should detach similar items when spam parent item" do
+    setup_elasticsearch
+    RequestStore.store[:skip_delete_for_ever] = true
+    t = create_team
+    default_folder = t.default_folder
+    p = create_project team: t
+    pm = create_project_media project: p
+    pm1_c = create_project_media project: p
+    pm1_s = create_project_media project: p
+    pm2_s = create_project_media project: p
+    r = create_relationship source: pm, target: pm1_c, relationship_type: Relationship.confirmed_type
+    r2 = create_relationship source: pm, target: pm1_s, relationship_type: Relationship.suggested_type
+    r3 = create_relationship source: pm, target: pm2_s, relationship_type: Relationship.suggested_type
+    assert_difference 'Relationship.count', -2 do
+      pm.archived = CheckArchivedFlags::FlagCodes::SPAM
+      pm.save!
+    end
+    assert_raises ActiveRecord::RecordNotFound do
+      r2.reload
+    end
+    assert_raises ActiveRecord::RecordNotFound do
+      r3.reload
+    end
+    pm1_s = pm1_s.reload; pm2_s.reload
+    assert_equal CheckArchivedFlags::FlagCodes::SPAM, pm1_c.reload.archived
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm1_s.archived
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm2_s.archived
+    assert_equal p.id, pm1_s.project_id
+    assert_equal p.id, pm2_s.project_id
+    # Verify ES
+    result = $repository.find(get_es_id(pm1_c))
+    result['archived'] = CheckArchivedFlags::FlagCodes::SPAM
     result = $repository.find(get_es_id(pm1_s))
     result['archived'] = CheckArchivedFlags::FlagCodes::NONE
     result['project_id'] = p.id
@@ -2872,5 +2916,73 @@ class ProjectMediaTest < ActiveSupport::TestCase
     r.destroy!
     assert !pm.is_suggested
     assert !pm.is_confirmed
+  end
+
+  test "should delete for ever trashed items" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    pm = create_project_media team: t
+    # Check that cached field exists (pick a key to verify the key deleted after destroy item)
+    cache_key = "check_cached_field:ProjectMedia:#{pm.id}:folder"
+    assert Rails.cache.exist?(cache_key)
+    Sidekiq::Testing.fake! do
+      pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
+      pm.save!
+    end
+    assert_not_nil ProjectMedia.find_by_id(pm.id)
+    Sidekiq::Worker.drain_all
+    assert_nil ProjectMedia.find_by_id(pm.id)
+    assert_not Rails.cache.exist?(cache_key)
+    # Restore item from trash before apply delete for ever
+    pm = create_project_media team: t
+    Sidekiq::Testing.fake! do
+      pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
+      pm.save!
+    end
+    assert_not_nil ProjectMedia.find_by_id(pm.id)
+    pm.archived = CheckArchivedFlags::FlagCodes::NONE
+    pm.save!
+    Sidekiq::Worker.drain_all
+    assert_not_nil ProjectMedia.find_by_id(pm.id)
+  end
+
+  test "should delete for ever spam items" do
+    t = create_team
+    pm_s = create_project_media team: t
+    pm_t1 = create_project_media team: t
+    pm_t2 = create_project_media team: t
+    pm_t3 = create_project_media team: t
+    r1 = create_relationship source_id: pm_s.id, target_id: pm_t1.id, relationship_type: Relationship.default_type
+    r2 = create_relationship source_id: pm_s.id, target_id: pm_t2.id, relationship_type: Relationship.confirmed_type
+    r3 = create_relationship source_id: pm_s.id, target_id: pm_t3.id, relationship_type: Relationship.suggested_type
+    Sidekiq::Testing.fake! do
+      pm_s.archived = CheckArchivedFlags::FlagCodes::SPAM
+      pm_s.save!
+    end
+    assert_not_nil ProjectMedia.find_by_id(pm_s.id)
+    assert_equal 4, ProjectMedia.where(id: [pm_s.id, pm_t1.id, pm_t2.id, pm_t3.id]).count
+    assert_equal 3, Relationship.where(id: [r1.id, r2.id, r3.id]).count
+    Sidekiq::Worker.drain_all
+    assert_equal CheckArchivedFlags::FlagCodes::SPAM, pm_s.reload.archived
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm_t3.reload.archived
+    assert_equal 0, Relationship.where(id: [r1.id, r2.id, r3.id]).count
+    assert_nil ProjectMedia.find_by_id(pm_t1.id)
+    assert_nil ProjectMedia.find_by_id(pm_t2.id)
+    # Restore item from spam before apply delete for ever
+    pm_s = create_project_media team: t
+    pm_t = create_project_media team: t
+    r = create_relationship source_id: pm_s.id, target_id: pm_t.id, relationship_type: Relationship.confirmed_type
+    Sidekiq::Testing.fake! do
+      pm_s.archived = CheckArchivedFlags::FlagCodes::TRASHED
+      pm_s.save!
+    end
+    assert_equal 2, ProjectMedia.where(id: [pm_s.id, pm_t.id]).count
+    Sidekiq::Testing.fake! do
+      pm_s.archived = CheckArchivedFlags::FlagCodes::NONE
+      pm_s.save!
+    end
+    Sidekiq::Worker.drain_all
+    assert_equal 2, ProjectMedia.where(id: [pm_s.id, pm_t.id], archived: CheckArchivedFlags::FlagCodes::NONE).count
+    assert_not_nil Relationship.where(id: r.id).last
   end
 end
