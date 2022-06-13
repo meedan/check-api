@@ -59,7 +59,7 @@ namespace :transifex do
       yaml[lang] = {}
       resource = project.resource('hardcoded-bot-strings')
       translations = YAML.load(resource.translation(lang).fetch['content'])
-      yaml[lang].merge!(translations['en'])
+      yaml[lang].merge!(translations)
     end
     path = File.join(Rails.root, 'config', "tipline_strings.yml")
     file = File.open(path, 'w+')
