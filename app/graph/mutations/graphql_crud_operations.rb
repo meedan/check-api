@@ -107,7 +107,10 @@ class GraphqlCrudOperations
   def self.destroy_from_single_id(graphql_id, inputs, ctx, parents)
     obj = self.object_from_id(graphql_id)
     obj.keep_completed_tasks = inputs[:keep_completed_tasks] if obj.is_a?(TeamTask)
-    obj.add_to_project_id = inputs[:add_to_project_id] if obj.is_a?(Relationship)
+    if obj.is_a?(Relationship)
+      obj.add_to_project_id = inputs[:add_to_project_id]
+      obj.archive_target = inputs[:archive_target]
+    end
     obj.items_destination_project_id = inputs[:items_destination_project_id] if obj.is_a?(Project)
     obj.disable_es_callbacks = (Rails.env.to_s == 'test') if obj.respond_to?(:disable_es_callbacks)
     obj.respond_to?(:destroy_later) ? obj.destroy_later(ctx[:ability]) : ApplicationRecord.connection_pool.with_connection { obj.destroy }
@@ -275,7 +278,10 @@ class GraphqlCrudOperations
 
       input_field(:keep_completed_tasks, types.Boolean) if type == 'team_task'
 
-      input_field(:add_to_project_id, types.Int) if type == 'relationship'
+      if type == 'relationship'
+        input_field(:add_to_project_id, types.Int)
+        input_field(:archive_target, types.Int)
+      end
 
       input_field(:items_destination_project_id, types.Int) if type == 'project'
 
