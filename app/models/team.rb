@@ -519,7 +519,10 @@ class Team < ApplicationRecord
   def data_report
     data = Rails.cache.read("data:report:#{self.id}")
     return nil if data.blank?
-    data.collect { |row| row.reject { |key, _value| key =~ /[sS]earch/ } }
+    data.map.with_index do |row, i|
+      row['Month'] = "#{i + 1}. #{row['Month']}"
+      row.reject { |key, _value| key =~ /[sS]earch/ }
+    end
   end
 
   # private
