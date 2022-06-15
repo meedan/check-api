@@ -51,6 +51,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_trends_enabled, types.Boolean
   field :country, types.String
   field :country_teams, JsonStringType
+  field :data_report, JsonStringType
 
   field :public_team do
     type PublicTeamType
