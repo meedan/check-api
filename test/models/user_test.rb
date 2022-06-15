@@ -777,10 +777,6 @@ class UserTest < ActiveSupport::TestCase
     assert User.terms_last_updated_at_by_page(:tos) > 0
   end
 
-  test "should return the last time that the Smooch terms of service were updated" do
-    assert User.terms_last_updated_at_by_page(:tos_smooch) > 0
-  end
-
   test "should return the last time that the terms of privacy were updated" do
     assert User.terms_last_updated_at_by_page(:privacy_policy) > 0
   end
