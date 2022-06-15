@@ -172,6 +172,7 @@ def get_statistics(start_date, end_date, slug, platform, language, outfile)
   # data << ProjectMedia.joins(:team).where('teams.slug' => slug, 'created_at' => start_date..end_date, 'user_id' => BotUser.fetch_user.id).count
 
   outfile.puts(data.join(','))
+  data
 end
 
 namespace :check do
@@ -185,6 +186,18 @@ namespace :check do
       rescue Aws::Sigv4::Errors::MissingCredentialsError
         puts "Please provide the AWS credentials."
         exit 1
+      end
+
+      def cache_team_data(team, header, rows)
+        data = []
+        rows.each do |row|
+          entry = {}
+          header.each_with_index do |column, i|
+            entry[column] = row[i]
+          end
+          data << entry
+        end
+        Rails.cache.write("data:report:#{team.id}", data)
       end
 
       def object_uploaded?(s3_client, bucket_name, object_key, file_path)
@@ -259,6 +272,7 @@ namespace :check do
 
         slugs.each do |slug|
           team = Team.find_by_slug(slug)
+          team_rows = []
           TeamBotInstallation.where(team: team, user: BotUser.smooch_user).last.smooch_enabled_integrations.keys.each do |platform|
             team.get_languages.each do |language|
               if group_by_month == 1
@@ -270,14 +284,15 @@ namespace :check do
                   (year_start_month..year_end_month).to_a.each do |month|
                     time = Time.parse("#{year}-#{month}-01")
                     next if team.created_at > time.end_of_month
-                    get_statistics(time.beginning_of_month, time.end_of_month, slug, platform, language, outfile)
+                    team_rows << get_statistics(time.beginning_of_month, time.end_of_month, slug, platform, language, outfile)
                   end
                 end
               else
-                get_statistics(Time.parse("#{start_year}-#{start_month}-01"), Time.parse("#{end_year}-#{end_month}-01").end_of_month, slug, platform, language, outfile)
+                team_rows << get_statistics(Time.parse("#{start_year}-#{start_month}-01"), Time.parse("#{end_year}-#{end_month}-01").end_of_month, slug, platform, language, outfile)
               end
             end
           end
+          cache_team_data(team, header, team_rows)
         end
 
         outfile.close
@@ -292,7 +307,6 @@ namespace :check do
             puts 'Error uploading statistics.csv to S3. Check credentials?'
           end
         end
-
       end
       ActiveRecord::Base.logger = old_logger
     end
