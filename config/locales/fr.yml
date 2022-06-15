@@ -160,6 +160,7 @@ fr:
         improbable_phone: est un numéro invalide
         too_short:
           one: est trop court (au moins 1 caractère)
+          many: est trop court (au moins %{count} caractères)
           other: est trop court (au moins %{count} caractères)
   slack_webhook_format_wrong: Le point d’ancrage Web Slack est invalide. Le format
     `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX` est attendu
@@ -283,9 +284,11 @@ fr:
   oembed_credit: Ajouté par %{user} (%{role}) %{date}
   oembed_notes_count:
     one: Une note
+    many: "%{count} notes"
     other: "%{count} notes"
   oembed_completed_tasks_count:
     one: Une tâche est remplie
+    many: "%{count} tâches sont remplies"
     other: "%{count} tâches sont remplies"
   oembed_verification_tasks: Tâches
   oembed_tasks: Tâches
@@ -294,6 +297,7 @@ fr:
   oembed_collapse_all: Tout réduire
   oembed_resolved_tasks_count:
     one: Une tâche résolue
+    many: "%{count} tâches résolues"
     other: "%{count} tâches résolues"
   oembed_notes: Notes
   duplicate_source: La source existe déjà
