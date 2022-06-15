@@ -26,16 +26,15 @@ namespace :check do
       started = Time.now.to_i
       # Get latest team id
       interval = CheckConfig.get('empty_trash_interval', 30).to_i
-      deleted_date = Time.now - interval.days
+      updated_at = Time.now
       last_team_id = Rails.cache.read('check:migrate:enqueue_trashed_items_for_delete_forever:team_id') || 0
       Team.where('id > ?', last_team_id).find_each do |team|
         puts "Processing team [#{team.slug}]"
         team.project_medias.where(archived: CheckArchivedFlags::FlagCodes::TRASHED)
         .find_in_batches(:batch_size => 2500) do |pms|
-          pms.each do |pm|
-            print '.'
-            ProjectMedia.delay_for(interval.days).delete_forever('trash', pm.updated_at, pm.id)
-          end
+          print '.'
+          ids = pms.map(&:id)
+          ids.each{ |pm_id| ProjectMedia.delay_for(interval.days).delete_forever('trash', updated_at, pm_id) }
         end
         # log last team id
         Rails.cache.write('check:migrate:enqueue_trashed_items_for_delete_forever:team_id', team.id)
