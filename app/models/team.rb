@@ -516,6 +516,15 @@ class Team < ApplicationRecord
     sources
   end
 
+  def data_report
+    data = Rails.cache.read("data:report:#{self.id}")
+    return nil if data.blank?
+    data.map.with_index do |row, i|
+      row['Month'] = "#{i + 1}. #{row['Month']}"
+      row.reject { |key, _value| key =~ /[sS]earch/ }
+    end
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/team_private.rb
