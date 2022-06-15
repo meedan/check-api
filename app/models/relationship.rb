@@ -1,7 +1,7 @@
 class Relationship < ApplicationRecord
   include CheckElasticSearch
 
-  attr_accessor :is_being_copied, :add_to_project_id
+  attr_accessor :is_being_copied, :add_to_project_id, :archive_target
 
   belongs_to :source, class_name: 'ProjectMedia', optional: true
   belongs_to :target, class_name: 'ProjectMedia', optional: true
@@ -20,7 +20,7 @@ class Relationship < ApplicationRecord
   after_create :point_targets_to_new_source, :update_counters, prepend: true
   after_update :reset_counters, prepend: true
   after_update :propagate_inversion
-  before_destroy :detach_to_list
+  before_destroy :archive_detach_to_list
   after_destroy :update_counters, prepend: true
   after_commit :update_counter_and_elasticsearch, on: [:create, :update]
   after_commit :update_counters, :destroy_elasticsearch_relation, on: :destroy
@@ -118,10 +118,11 @@ class Relationship < ApplicationRecord
     self.relationship_type[:target] = type
   end
 
-  def detach_to_list
-    unless self.add_to_project_id.blank?
+  def archive_detach_to_list
+    unless self.add_to_project_id.blank? && self.archive_target.blank?
       pm = self.target
-      pm.project_id = self.add_to_project_id
+      pm.project_id = self.add_to_project_id unless self.add_to_project_id.blank?
+      pm.archived = self.archive_target if [CheckArchivedFlags::FlagCodes::TRASHED, CheckArchivedFlags::FlagCodes::SPAM].include?(self.archive_target)
       begin pm.save! rescue nil end
     end
   end
