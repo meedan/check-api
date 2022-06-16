@@ -40,7 +40,7 @@ module CheckBasicAbilities
     can :destroy, [Dynamic, Annotation], :annotation_type => 'metadata', :annotated_type => 'Source', :annotated_id => @user.frozen_source_id
     can :destroy, DynamicAnnotation::Field, annotation: { annotation_type: 'metadata', annotated_type: 'Source', annotated_id: @user.frozen_source_id }
 
-    can [:restore, :confirm], ProjectMedia do |obj|
+    can [:restore, :confirm, :not_spam], ProjectMedia do |obj|
       tmp = obj.dup
       tmp.archived = CheckArchivedFlags::FlagCodes::NONE
       can?(:update, tmp)

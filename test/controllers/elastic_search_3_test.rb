@@ -88,6 +88,7 @@ class ElasticSearch3Test < ActionController::TestCase
   end
 
   test "should filter by medias or archived" do
+    RequestStore.store[:skip_delete_for_ever] = true
     ft = create_field_type field_type: 'image_path', label: 'Image Path'
     at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
     create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false

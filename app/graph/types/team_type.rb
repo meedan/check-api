@@ -24,6 +24,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :search, CheckSearchType
   field :check_search_trash, CheckSearchType
   field :check_search_unconfirmed, CheckSearchType
+  field :check_search_spam, CheckSearchType
   field :trash_size, JsonStringType
   field :public_team_id, types.String
   field :permissions_info, JsonStringType
@@ -34,6 +35,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :slack_notifications_json_schema, types.String
   field :rules_search_fields_json_schema, JsonStringType
   field :medias_count, types.Int
+  field :spam_count, types.Int
   field :trash_count, types.Int
   field :unconfirmed_count, types.Int
   field :get_languages, types.String
@@ -49,6 +51,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_trends_enabled, types.Boolean
   field :country, types.String
   field :country_teams, JsonStringType
+  field :data_report, JsonStringType
 
   field :public_team do
     type PublicTeamType

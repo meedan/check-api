@@ -18,6 +18,12 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     create_flag_annotation_type
     create_extracted_text_annotation_type
     Sidekiq::Testing.inline!
+    Bot::Alegre.stubs(:should_get_similar_items_of_type?).returns(true)
+  end
+
+  def teardown
+    super
+    Bot::Alegre.unstub(:should_get_similar_items_of_type?)
   end
 
   test "should relate project media to similar items as video" do

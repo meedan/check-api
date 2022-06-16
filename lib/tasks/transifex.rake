@@ -28,7 +28,7 @@ namespace :transifex do
     puts "Set languages #{@langs.join(', ')} on #{apprb_path}."
   end
 
-  # Download translations from Transifex
+  # Download translations from Transifex - api resource
 
   task download: [:environment, :languages, :login] do
     project = Transifex::Project.new(TRANSIFEX_PROJECT_SLUG)
@@ -47,6 +47,25 @@ namespace :transifex do
       file.close
       puts "Downloaded translations from Transifex and saved as #{path}."
     end
+  end
+
+  # Download translations from Transifex - tipline resource
+
+  task download_tipline: [:environment, :login] do
+    project = Transifex::Project.new('check-tiplines')
+    langs = project.languages.fetch.collect{ |l| l['language_code'] }
+    yaml = {}
+    langs.each do |lang|
+      yaml[lang] = {}
+      resource = project.resource('hardcoded-bot-strings')
+      translations = YAML.load(resource.translation(lang).fetch['content'])
+      yaml[lang].merge!(translations)
+    end
+    path = File.join(Rails.root, 'config', "tipline_strings.yml")
+    file = File.open(path, 'w+')
+    file.puts yaml.to_yaml
+    file.close
+    puts "Downloaded translations from Transifex and saved as #{path}."
   end
 
   # Parse code for I18n.t() calls and update the strings on config/locales/en.yml

@@ -126,6 +126,11 @@ module ProjectMediaPrivate
     errors.add(:channel, JSON::Validator.fully_validate(CUSTOM_CHANNEL_SCHEMA, self.channel)) if !JSON::Validator.validate(CUSTOM_CHANNEL_SCHEMA, self.channel)
   end
 
+  def archived_in_allowed_values
+    allowed_values = CheckArchivedFlags::FlagCodes.archived_codes.values
+    errors.add(:archived, I18n.t(:"errors.messages.invalid_project_media_archived_value")) unless allowed_values.include?(self.archived)
+  end
+
   def channel_in_allowed_values
     main = self.channel.with_indifferent_access[:main].to_i
     error = !CheckChannels::ChannelCodes::ALL.include?(main)
@@ -141,5 +146,11 @@ module ProjectMediaPrivate
     value = self.channel.with_indifferent_access[:main].to_i
     value_was = self.channel_was.with_indifferent_access[:main].to_i
     errors.add(:channel, I18n.t(:"errors.messages.invalid_project_media_channel_update")) if value != value_was
+  end
+
+  def apply_delete_for_ever
+    return if RequestStore.store[:skip_delete_for_ever]
+    interval = CheckConfig.get('empty_trash_interval', 30).to_i
+    ProjectMedia.delay_for(interval.days).delete_forever('trash', self.updated_at, self.id)
   end
 end

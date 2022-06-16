@@ -972,6 +972,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should search for archived items" do
+    RequestStore.store[:skip_delete_for_ever] = true
     u = create_user
     authenticate_with_user(u)
     t = create_team slug: 'team'

@@ -43,7 +43,7 @@ def unique_requests_count(relation)
   relation.group("fs.value_json #>> '{source,originalMessageId}'").count.size
 end
 
-def get_statistics(start_date, end_date, slug, platform, language)
+def get_statistics(start_date, end_date, slug, platform, language, outfile)
   platform_name = Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[platform]
   month = nil
   if start_date.month != end_date.month || start_date.year != end_date.year
@@ -55,22 +55,26 @@ def get_statistics(start_date, end_date, slug, platform, language)
   data = [id, Team.find_by_slug(slug).name, platform_name, language, month]
 
   # Number of conversations
+  # FIXME: Should be a new conversation only after 15 minutes of inactivity
   value1 = unique_requests_count(project_media_requests(slug, platform, start_date, end_date, language))
   value2 = team_requests(slug, platform, start_date, end_date, language).count
   data << (value1 + value2)
 
-  # Average number of end-user messages per day
+  # Average number of messages per day
+  # Includes our responses, this is why we multiply numbers by 2
+  # TODO: Should we also count number of newsletters sent?
   numbers_of_messages = []
   project_media_requests(slug, platform, start_date, end_date, language).find_each do |a|
-    numbers_of_messages << JSON.parse(a.load.get_field_value('smooch_data'))['text'].to_s.split(Bot::Smooch::MESSAGE_BOUNDARY).size
+    numbers_of_messages << JSON.parse(a.load.get_field_value('smooch_data'))['text'].to_s.split(Bot::Smooch::MESSAGE_BOUNDARY).size * 2
   end
   team_requests(slug, platform, start_date, end_date, language).find_each do |a|
-    numbers_of_messages << JSON.parse(a.load.get_field_value('smooch_data'))['text'].to_s.split(Bot::Smooch::MESSAGE_BOUNDARY).size
+    numbers_of_messages << JSON.parse(a.load.get_field_value('smooch_data'))['text'].to_s.split(Bot::Smooch::MESSAGE_BOUNDARY).size * 2
   end
-  if numbers_of_messages.size == 0
+  numbers_of_messages = numbers_of_messages.sum + project_media_requests(slug, platform, start_date, end_date, language, 'relevant_search_result_requests').count # Includes search results too
+  if numbers_of_messages == 0
     data << 0
   else
-    data << (numbers_of_messages.sum / (start_date.to_date..end_date.to_date).count).to_i
+    data << (numbers_of_messages / (start_date.to_date..end_date.to_date).count).to_i
   end
   
   # Number of unique users
@@ -120,13 +124,16 @@ def get_statistics(start_date, end_date, slug, platform, language)
   data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date, 'annotations.annotator_id' => BotUser.fetch_user.id).where("data LIKE '%state: published%'").count
 
   # Number of queries answered with a report
-  data << reports_received(slug, platform, start_date, end_date, language).group('pm.id').count.size
+  data << reports_received(slug, platform, start_date, end_date, language).group('pm.id').count.size + project_media_requests(slug, platform, start_date, end_date, language, 'relevant_search_result_requests').group('pm.id').count.size
 
   # Number of reports sent to users
-  data << reports_received(slug, platform, start_date, end_date, language).count
+  data << reports_received(slug, platform, start_date, end_date, language).count + project_media_requests(slug, platform, start_date, end_date, language, 'relevant_search_result_requests').count
 
   # Number of unique users who received a report
-  data << reports_received(slug, platform, start_date, end_date, language).collect{ |f| JSON.parse(f.annotation.load.get_field_value('smooch_data'))['authorId'] }.uniq.size
+  data << [reports_received(slug, platform, start_date, end_date, language) + project_media_requests(slug, platform, start_date, end_date, language, 'relevant_search_result_requests')].flatten.collect do |f|
+    annotation = f.is_a?(Annotation) ? f : f.annotation
+    JSON.parse(annotation.load.get_field_value('smooch_data'))['authorId']
+  end.uniq.size
 
   # Average time to publishing
   times = []
@@ -171,13 +178,60 @@ def get_statistics(start_date, end_date, slug, platform, language)
   # NOTE: For all languages and platforms
   # data << ProjectMedia.joins(:team).where('teams.slug' => slug, 'created_at' => start_date..end_date, 'user_id' => BotUser.fetch_user.id).count
 
-  puts data.join(',')
+  outfile.puts(data.join(','))
+  data
 end
 
 namespace :check do
   namespace :data do
     desc 'Generate some statistics about some workspaces'
     task statistics: :environment do |_t, params|
+      bucket_name = 'check-batch-task-statistics'
+      region = 'eu-west-1'
+      begin
+        s3_client = Aws::S3::Client.new(region: region)
+      rescue Aws::Sigv4::Errors::MissingCredentialsError
+        puts "Please provide the AWS credentials."
+        exit 1
+      end
+
+      def cache_team_data(team, header, rows)
+        data = []
+        rows.each do |row|
+          entry = {}
+          header.each_with_index do |column, i|
+            entry[column] = row[i]
+          end
+          data << entry
+        end
+        Rails.cache.write("data:report:#{team.id}", data)
+      end
+
+      def object_uploaded?(s3_client, bucket_name, object_key, file_path)
+        response = s3_client.put_object(
+          acl: 'public-read',
+          key: object_key,
+          body: File.read(file_path),
+          bucket: bucket_name,
+          content_type: 'text/csv'
+        )
+
+        response = s3_client.put_object(
+          bucket: bucket_name,
+          key: object_key,
+          body: File.read(file_path)
+        )
+        if response.etag
+          #s3_client.put_object_acl(acl: 'public-read', key: file_path, bucket: bucket_name)
+          return true
+        else
+          return false
+        end
+      rescue StandardError => e
+        puts "Error uploading S3 object: #{e.message}"
+        return false
+      end
+
       old_logger = ActiveRecord::Base.logger
       ActiveRecord::Base.logger = nil
       args = params.to_a
@@ -192,6 +246,7 @@ namespace :check do
       if slugs.empty?
         puts 'Please provide a list of workspace slugs'
       else
+        outfile = File.open("/tmp/statistics.csv", "w")
         header = [
           'ID',
           'Org',
@@ -208,10 +263,10 @@ namespace :check do
           'Search feedback positive',
           'Search feedback negative',
           'Search no feedback',
-          'Valid new queries',
+          'Valid new requests',
           'Published native reports',
           'Published imported reports',
-          'Queries answered with a report',
+          'Requests answered with a report',
           'Reports sent to users',
           'Unique users who received a report',
           'Average (median) response time',
@@ -220,10 +275,11 @@ namespace :check do
           'Newsletter cancellations',
           'Current subscribers'
         ]
-        puts header.join(',')
+        outfile.puts(header.join(','))
 
         slugs.each do |slug|
           team = Team.find_by_slug(slug)
+          team_rows = []
           TeamBotInstallation.where(team: team, user: BotUser.smooch_user).last.smooch_enabled_integrations.keys.each do |platform|
             team.get_languages.each do |language|
               if group_by_month == 1
@@ -235,13 +291,27 @@ namespace :check do
                   (year_start_month..year_end_month).to_a.each do |month|
                     time = Time.parse("#{year}-#{month}-01")
                     next if team.created_at > time.end_of_month
-                    get_statistics(time.beginning_of_month, time.end_of_month, slug, platform, language)
+                    team_rows << get_statistics(time.beginning_of_month, time.end_of_month, slug, platform, language, outfile)
                   end
                 end
               else
-                get_statistics(Time.parse("#{start_year}-#{start_month}-01"), Time.parse("#{end_year}-#{end_month}-01").end_of_month, slug, platform, language)
+                team_rows << get_statistics(Time.parse("#{start_year}-#{start_month}-01"), Time.parse("#{end_year}-#{end_month}-01").end_of_month, slug, platform, language, outfile)
               end
             end
+          end
+          cache_team_data(team, header, team_rows)
+        end
+
+        outfile.close
+
+        if defined?(ENV.fetch('STATISTICS_S3_DIR'))
+          puts 'Starting upload for statistics.csv'
+          file_path = '/tmp/statistics.csv'
+          object_key = "#{ENV['STATISTICS_S3_DIR']}/statistics.csv"
+          if object_uploaded?(s3_client, bucket_name, object_key, file_path)
+            puts 'Uploaded statistics.csv'
+          else
+            puts 'Error uploading statistics.csv to S3. Check credentials?'
           end
         end
       end
