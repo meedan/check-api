@@ -19,6 +19,10 @@ module TeamAssociations
     has_annotations
   end
 
+  def team
+    self
+  end
+
   def team_bot_installations
     TeamBotInstallation.where(id: self.team_users.where(type: 'TeamBotInstallation').map(&:id))
   end
@@ -33,5 +37,72 @@ module TeamAssociations
       bots << bot.id if bot.get_team_author_id == self.id
     end
     BotUser.where(id: bots.uniq)
+  end
+
+  def country_teams
+    data = {}
+    unless self.country.nil?
+      Team.where(country: self.country).find_each{ |t| data[t.id] = t.name }
+    end
+    data
+  end
+
+  def recent_projects
+    self.projects
+  end
+
+  def spam
+    ProjectMedia.where({ team_id: self.id, archived: CheckArchivedFlags::FlagCodes::SPAM , sources_count: 0 })
+  end
+
+  def trash
+    ProjectMedia.where({ team_id: self.id, archived: CheckArchivedFlags::FlagCodes::TRASHED , sources_count: 0 })
+  end
+
+  def unconfirmed
+    ProjectMedia.where({ team_id: self.id, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED , sources_count: 0 })
+  end
+
+  def trash_size
+    {
+      project_media: self.trash_count,
+      annotation: self.trash.sum(:cached_annotations_count)
+    }
+  end
+
+  def spam_count
+    self.spam.count
+  end
+
+  def trash_count
+    self.trash.count
+  end
+
+  def unconfirmed_count
+    self.unconfirmed.count
+  end
+
+  def medias_count
+    ProjectMedia.where(team_id: self.id, archived: [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED]).joins("LEFT JOIN relationships r ON r.target_id = project_medias.id AND r.relationship_type = '#{Team.sanitize_sql(Relationship.confirmed_type.to_yaml)}'").where('r.id IS NULL').count
+  end
+
+  def check_search_team
+    check_search_filter
+  end
+
+  def search
+    self.check_search_team
+  end
+
+  def check_search_trash
+    check_search_filter({ 'archived' => CheckArchivedFlags::FlagCodes::TRASHED })
+  end
+
+  def check_search_unconfirmed
+    check_search_filter({ 'archived' => CheckArchivedFlags::FlagCodes::UNCONFIRMED })
+  end
+
+  def check_search_spam
+    check_search_filter({ 'archived' => CheckArchivedFlags::FlagCodes::SPAM })
   end
 end

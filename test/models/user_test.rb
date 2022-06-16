@@ -777,10 +777,6 @@ class UserTest < ActiveSupport::TestCase
     assert User.terms_last_updated_at_by_page(:tos) > 0
   end
 
-  test "should return the last time that the Smooch terms of service were updated" do
-    assert User.terms_last_updated_at_by_page(:tos_smooch) > 0
-  end
-
   test "should return the last time that the terms of privacy were updated" do
     assert User.terms_last_updated_at_by_page(:privacy_policy) > 0
   end
@@ -798,16 +794,14 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should return if user accepted terms" do
-    stub_configs({ 'tos_url' => 'https://meedan.com/en/check/check_tos.html' }) do
-      u = create_user
-      assert !u.reload.accepted_terms
-      u.last_accepted_terms_at = Time.parse('2018-08-01')
-      u.save!
-      assert !u.reload.accepted_terms
-      u.last_accepted_terms_at = Time.now
-      u.save!
-      assert u.reload.accepted_terms
-    end
+    u = create_user
+    assert !u.reload.accepted_terms
+    u.last_accepted_terms_at = Time.parse('2018-08-01')
+    u.save!
+    assert !u.reload.accepted_terms
+    u.last_accepted_terms_at = Time.now
+    u.save!
+    assert u.reload.accepted_terms
   end
 
   test "should accept terms" do

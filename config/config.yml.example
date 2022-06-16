@@ -65,9 +65,9 @@ development: &default
 
   # Legal documents settings
   #
-  tos_url: 'https://meedan.com/en/check/check_tos.html'
+  tos_url: 'https://meedan.com/legal/terms-of-service'
   tos_smooch_url: "{\"lang\":{\"en\":\"https://meedan.com/en/check/check_message_tos.html\",\"es\":\"https://meedan.com/es/check/check_message_tos.html\"}}"
-  privacy_policy_url: 'https://meedan.com/en/check/check_privacy.html'
+  privacy_policy_url: 'https://meedan.com/legal/privacy-policy'
   privacy_email: 'privacy@example.com'
 
   # 2FA/OTP settings

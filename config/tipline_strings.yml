@@ -1,0 +1,300 @@
+---
+bn:
+  add_more_details_state_button_label: আরও তথ্য যোগ করুন
+  ask_if_ready_state_button_label: अभी नही
+  confirm_preferred_language: অনুগ্রহ করে আপনার পছন্দেসই ভাষা নিশ্চিত করুন
+  invalid_format: দুঃখিত, আপনার জমা দেওয়া ফাইলটি সমর্থিত ফর্মেটে নয়।
+  keep_subscription_button_label: সাবস্ক্রিপশন চালু রাখুন
+  languages: ভাষাগুলো
+  languages_and_privacy_title: ভাষা ও গোপনীয়তা
+  main_menu: মুখ্য মেন
+  main_state_button_label: अभी नही
+  navigation_button: নেভিগেট করতে বোতামগুলি ব্যবহার করুন
+  privacy_statement: গোপনীয়তা বিবৃতি
+  privacy_title: গোপনীয়তা
+  report_updated: 'নিম্নলিখিত ফ্যাক্ট-চেকটি নতুন তথ্যের সাথে *আপডেট* করা হয়েছে:'
+  search_result_is_not_relevant_button_label: না
+  search_result_is_relevant_button_label: হ্যাঁ
+  search_state_button_label: জমা করুন
+  subscribe_button_label: সাবস্ক্রাইব করুন
+  subscribed: আপনি বর্তমানে আমাদের নিউজলেটারে সাবস্ক্রাইব করেছেন।
+  unsubscribe_button_label: আনসাবস্ক্রাইব করুন
+  unsubscribed: আপনি বর্তমানে আমাদের নিউজলেটার সদস্যতা নেই.
+en:
+  add_more_details_state_button_label: Add more
+  ask_if_ready_state_button_label: Cancel
+  confirm_preferred_language: Please confirm your preferred language
+  invalid_format: Sorry, the file you submitted is not supported format.
+  keep_subscription_button_label: Keep subscription
+  languages: Languages
+  languages_and_privacy_title: Languages and Privacy
+  main_menu: Main menu
+  main_state_button_label: Cancel
+  navigation_button: Use the buttons to navigate
+  privacy_statement: Privacy statement
+  privacy_title: Privacy
+  report_updated: 'The following fact-check has been *updated* with new information:'
+  search_result_is_not_relevant_button_label: 'No'
+  search_result_is_relevant_button_label: 'Yes'
+  search_state_button_label: Submit
+  subscribe_button_label: Subscribe
+  subscribed: You are currently subscribed to our newsletter.
+  unsubscribe_button_label: Unsubscribe
+  unsubscribed: You are currently not subscribed to our newsletter.
+fr:
+  add_more_details_state_button_label: En ajouter
+  ask_if_ready_state_button_label: Annuler
+  confirm_preferred_language: Veuillez confirmer votre préférence de langue
+  invalid_format: Désolé, le fichier que vous avez envoyé n’est pas à un format en
+    charge.
+  keep_subscription_button_label: Rester abonné
+  languages: Langues
+  languages_and_privacy_title: Langues, confidentialité
+  main_menu: Menu principal
+  main_state_button_label: Annuler
+  navigation_button: Utilisez les boutons pour naviguer
+  privacy_statement: Avis de confidentialité
+  privacy_title: Confidentialité
+  report_updated: 'La vérification de faits suivante a été *mise à jour* avec de nouveaux
+    renseignements :'
+  search_result_is_not_relevant_button_label: Non
+  search_result_is_relevant_button_label: Oui
+  search_state_button_label: Envoyer
+  subscribe_button_label: M’abonner
+  subscribed: Vous êtes actuellement abonné à notre lettre d’information.
+  unsubscribe_button_label: Me désabonner
+  unsubscribed: Vous n’êtes actuellement pas abonné à notre lettre d’information.
+de:
+  add_more_details_state_button_label: Mehr hinzufügen
+  ask_if_ready_state_button_label: Abbrechen
+  confirm_preferred_language: Bitte bestätigen Sie Ihre bevorzugte Sprache.
+  invalid_format: Verzeihung, dieses Dateiformat wird nicht unterstützt.
+  keep_subscription_button_label: Abo behalten
+  languages: Sprachen
+  languages_and_privacy_title: Sprachen und Datenschutz
+  main_menu: Hauptmenü
+  main_state_button_label: Abbrechen
+  navigation_button: Verwenden Sie die Schaltflächen zum Navigieren
+  privacy_statement: Datenschutzhinweis
+  privacy_title: Datenschutz
+  report_updated: 'Der folgende Faktencheck enthält eine *Aktualisierung* mit neuen
+    Informationen:'
+  search_result_is_not_relevant_button_label: Nein
+  search_result_is_relevant_button_label: Ja
+  search_state_button_label: Absenden
+  subscribe_button_label: Abonnieren
+  subscribed: Sie haben unseren Newsletter derzeit abonniert.
+  unsubscribe_button_label: Abbestellen
+  unsubscribed: Sie haben unseren Newsletter derzeit nicht abonniert.
+hi:
+  add_more_details_state_button_label: अधिक जानकारी जोड़ें
+  ask_if_ready_state_button_label: रद्द करें
+  confirm_preferred_language: कृ पया अपनी भाषा चुनें
+  invalid_format: क्षमा करें, आपके द्वारा जमा की गई फाइल समर्थित प्रारूप नहीं है।
+  keep_subscription_button_label: सब्सक्रिप्शन रखें
+  languages: भाषाएँ
+  languages_and_privacy_title: भाषाएँ एवं गोपनीयता
+  main_menu: मेन मेन्यू
+  main_state_button_label: रद्द करें
+  navigation_button: नेविगेट करने के लिए बटनों का उपयोग करें
+  privacy_statement: गोपनीयता कथन
+  privacy_title: गोपनीयता
+  report_updated: 'निम्नलिखित तथ्य-जाँच को नई जानकारी के साथ *अपडेट* किया गया है:'
+  search_result_is_not_relevant_button_label: नहीं
+  search_result_is_relevant_button_label: हाँ
+  search_state_button_label: जमा करें
+  subscribe_button_label: सब्स्क्राइब करें
+  subscribed: आपने इस समय हमारे न्यूज़लेटर को सब्स्क्राइब किया हुआ है।
+  unsubscribe_button_label: अनसब्स्क्राइब करें
+  unsubscribed: आपने वर्तमान में हमारे न्यूज़लेटर की सदस्यता नहीं ली है।
+id:
+  add_more_details_state_button_label: Tambah lebih banyak
+  ask_if_ready_state_button_label: Batalkan
+  confirm_preferred_language: Silakan konfirmasi bahasa pilihan Anda
+  invalid_format: Maaf, format berkas yang Anda kirimkan tidak didukung.
+  keep_subscription_button_label: Tetap berlangganan
+  languages: Bahasa
+  languages_and_privacy_title: Bahasa dan Privasi
+  main_menu: Menu utama
+  main_state_button_label: Batalkan
+  navigation_button: Gunakan tombol untuk mendapatkan navigasi
+  privacy_statement: Pernyataan privasi
+  privacy_title: Privasi
+  report_updated: 'Pengecekan fakta berikut telah *diperbarui* dengan informasi baru:'
+  search_result_is_not_relevant_button_label: Tidak
+  search_result_is_relevant_button_label: Ya
+  search_state_button_label: Serahkan
+  subscribe_button_label: Berlangganan
+  subscribed: Anda saat ini sedang berlangganan ke buletin kami.
+  unsubscribe_button_label: Brhenti brlangganan
+  unsubscribed: Saat ini Anda tidak berlangganan buletin kami.
+kn:
+  add_more_details_state_button_label: ಹೆಚ್ಚು ಸೇರಿಸಿ
+  ask_if_ready_state_button_label: ರದ್ದು
+  confirm_preferred_language: ನಿಮ್ಮ ಆಯ್ಕೆಯ ಭಾಷೆಯನ್ನು ಖಚಿತಪಡಿಸಿ
+  invalid_format: ಕ್ಷಮಿಸಿ, ನೀವು ಸಲ್ಲಿಸಿರುವ ಫೈಲ್ ಫಾರ್ಮ್ಯಾಟ್ ಅನ್ನು ಬೆಂಬಲಿಸಲಾಗುವುದಿಲ್ಲ.
+  keep_subscription_button_label: ಚಂದಾದಾರಿಕೆ ಇಟ್ಟುಕೊಳ್ಳಿ
+  languages: ಭಾಷೆಗಳು
+  languages_and_privacy_title: ಭಾಷೆಗಳು ಹಾಗು ಗೌಪ್ಯತೆ
+  main_menu: ಮುಖ್ಯ ಮೆನು
+  main_state_button_label: ರದ್ದು
+  navigation_button: ನ್ಯಾವಿಗೇಟ್ ಮಾಡಲು ಬಟನ್‌ಗಳನ್ನು ಬಳಸಿ
+  privacy_statement: ಗೌಪ್ಯತಾ ಹೇಳಿಕೆ
+  privacy_title: ಗೌಪ್ಯತೆ
+  report_updated: ಈ ಕೆಳಗಿನ ಫ್ಯಾಕ್ಟ್-ಚೆಕ್ ಅನ್ನು ಹೊಸ ಮಾಹಿತಿಯೊಂದಿಗೆ \"ಅಪ್ಡೇಟ್\" ಮಾಡಲಾಗಿದೆ
+  search_result_is_not_relevant_button_label: ಇಲ್ಲ
+  search_result_is_relevant_button_label: ಹೌದು
+  search_state_button_label: ಸಲ್ಲಿಸಿ
+  subscribe_button_label: ಸಬ್‌ಸ್ಕ್ರೈಬ್
+  subscribed: ನೀವು ಈಗ ನಮ್ಮ ನ್ಯೂಸ್ ಲೆಟರ್‌ಗೆ ಸಬ್‌ಸ್ಕ್ರೈಬ್ ಆಗಿರುತ್ತೀರಿ
+  unsubscribe_button_label: ಅನ್ಸಬ್‌ಸ್ಕ್ರೈಬ್
+  unsubscribed: ನೀವು ಪ್ರಸ್ತುತ ನಮ್ಮ ಸುದ್ದಿಪತ್ರಕ್ಕೆ ಚಂದಾದಾರರಾಗಿಲ್ಲ.
+mr:
+  add_more_details_state_button_label: अधिक माहिती जोडा
+  ask_if_ready_state_button_label: रद्द करा
+  confirm_preferred_language: कृपया आपल्या पसंतीच्या भाषेची खात्री करा
+  invalid_format: माफ करा, आपण सबमिट केलेली फाईल समर्थित स्वरुपात नाही.
+  keep_subscription_button_label: सबस्क्रिप्शन कायम ठेवा
+  languages: भाषा
+  languages_and_privacy_title: भाषा आणि गोपनीयता
+  main_menu: मुख्य मेन्यू
+  main_state_button_label: रद्द करा
+  navigation_button: नेव्हिगेट करण्यासाठी बटने वापरा
+  privacy_statement: गोपनीयता विधान
+  privacy_title: गोपनीयता
+  report_updated: खालील तथ्य-तपासणी नवीन माहितीसोबत *अपडेट* करण्यात आली आहे.
+  search_result_is_not_relevant_button_label: नाही
+  search_result_is_relevant_button_label: होय
+  search_state_button_label: जी हााँ, सवाल तैयार है
+  subscribe_button_label: सबस्क्राइब करा
+  subscribed: आपण सध्या आमचे वृत्तपत्र सबस्क्राइब केले आहे.
+  unsubscribe_button_label: अनसबस्क्राइब करा
+  unsubscribed: तुम्ही सध्या आमच्या वृत्तपत्राचे सदस्यत्व घेतलेले नाही.
+pa:
+  add_more_details_state_button_label: ਵਧੇਰੀ ਜਾਣਕਾਰੀ ਜੋੜੋ
+  ask_if_ready_state_button_label: ਰੱਦ ਕਰੋ
+  confirm_preferred_language: ਕਿਰਪਾ ਆਪਣੀ ਪਸੰਦ ਦੀ ਭਾਸ਼ਾ ਦੀ ਪੁਸ਼ਟੀ ਕਰੋ
+  invalid_format: ਮੁਆਫ ਕਰੋ, ਤੁਹਾਡੇ ਵੱਲੋਂ ਜਮ੍ਹਾ ਕੀਤੀ ਗਈ ਫਾਈਲ ਸਮਰਥਿਤ ਫਾਰਮੈਟ ਨਹੀਂ ਹੈ।
+  keep_subscription_button_label: ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਕਾਇਮ ਰੱਖੋ
+  languages: ਭਾਸ਼ਾਵਾਂ
+  languages_and_privacy_title: ਭਾਸ਼ਾਵਾਂ ਅਤੇ ਗੋਪਨੀਅਤਾ
+  main_menu: ਮੁੱਖ ਮੀਨੂ
+  main_state_button_label: ਰੱਦ ਕਰੋ
+  navigation_button: ਨੈਵੀਗੇਟ ਕਰਨ ਲਈ ਬਟਨਾਂ ਦੀ ਵਰਤੋਂ ਕਰੋ
+  privacy_statement: ਪਰਦੇਦਾਰੀ ਕਥਨ
+  privacy_title: ਗੋਪਨੀਅਤਾ
+  report_updated: 'ਹੇਠ ਲਿਖੀ ਤੱਥ-ਜਾਂਚ ਨੂੰ ਨਵੀਂ ਜਾਣਕਾਰੀ ਦੇ ਨਾਲ *ਅਪਡੇਟ* ਕੀਤਾ ਗਿਆ ਹੈ:'
+  search_result_is_not_relevant_button_label: ਨਹੀਂ
+  search_result_is_relevant_button_label: ਹਾਂ
+  search_state_button_label: ਜਮ੍ਹਾ ਕਰੋ
+  subscribe_button_label: ਸਬਸਕ੍ਰਾਈਬ ਕਰੋ
+  subscribed: ਤੁਸੀਂ ਇਸ ਸਮੇਂ ਸਾਡੇ ਨਿਊਜ਼ਲੈਟਰ ਨੂੰ ਸਬਸਕ੍ਰਾਈਬ ਕੀਤਾ ਹੋਇਆ ਹੈ
+  unsubscribe_button_label: ਅਨਸਬਸਕ੍ਰਾਈਬ ਕਰੋ
+  unsubscribed: ਤੁਸੀਂ ਵਰਤਮਾਨ ਵਿੱਚ ਸਾਡੇ ਨਿਊਜ਼ਲੈਟਰ ਦੀ ਗਾਹਕੀ ਨਹੀਂ ਲਈ ਹੈ।
+pt:
+  add_more_details_state_button_label: Adicionar mais
+  ask_if_ready_state_button_label: Cancelar
+  confirm_preferred_language: Por favor, confirme seu idioma de preferência
+  invalid_format: Desculpe, o formato do arquivo que você enviou não é compatível.
+  keep_subscription_button_label: Manter inscrição
+  languages: Idiomas
+  languages_and_privacy_title: Idiomas e privacidade
+  main_menu: Menu principal
+  main_state_button_label: Cancelar
+  navigation_button: Use os botões para navegar
+  privacy_statement: Política de privacidade
+  privacy_title: Privacidade
+  report_updated: 'A verificação de fatos a seguir foi *atualizada* com novas informações:'
+  search_result_is_not_relevant_button_label: Não
+  search_result_is_relevant_button_label: Sim
+  search_state_button_label: Enviar
+  subscribe_button_label: Inscrever-se
+  subscribed: Atualmente, você estás inscrito(a) em nosso boletim informativo.
+  unsubscribe_button_label: Desinscrever-se
+  unsubscribed: Atualmente, você não está inscrito(a) em nosso boletim informativo.
+es:
+  add_more_details_state_button_label: Añadir más
+  ask_if_ready_state_button_label: Cancelar
+  confirm_preferred_language: Por favor confirma tu idioma de preferencia
+  invalid_format: Lo sentimos, el archivo que has enviado está en un formato no admitido
+  keep_subscription_button_label: Mantener suscripción
+  languages: Idiomas
+  languages_and_privacy_title: Idiomas y Privacidad
+  main_menu: Menú principal
+  main_state_button_label: Cancelar
+  navigation_button: Usa el menú para ver más opciones
+  privacy_statement: Política de privacidad
+  privacy_title: Privacidad
+  report_updated: 'La siguiente verificación de hechos ha sido *actualizada* con nueva
+    información:'
+  search_result_is_not_relevant_button_label: 'No'
+  search_result_is_relevant_button_label: Si
+  search_state_button_label: Enviar
+  subscribe_button_label: Suscribirse
+  subscribed: Actualmente estás suscrita(o) a nuestro boletín.
+  unsubscribe_button_label: Cancelar suscripción
+  unsubscribed: Actualmente no estás suscrita(o) a nuestro boletín.
+ta:
+  add_more_details_state_button_label: கூடுதல் தகவல்ககள்
+  ask_if_ready_state_button_label: ரத்து செய்
+  confirm_preferred_language: உங்கள் விருப்ப மொழியை உறுதி செய்யவும்
+  invalid_format: மன்னிக்கவும், நீங்கள் சமர்ப்பித்த கோப்பின் வடிவம் ஆதரிக்கப்படவில்லை.
+  keep_subscription_button_label: சந்தாவை தொடர்
+  languages: மொழிகள்
+  languages_and_privacy_title: மொழிகள் & தனியுரிமை
+  main_menu: மெயின் மெனு
+  main_state_button_label: ரத்து செய்
+  navigation_button: நேவிகேட் செய்வதற்கு பட்டன்களை பயனபடுதவும்
+  privacy_statement: தனியுரிமை அறிக்கை
+  privacy_title: தனியுரிமை
+  report_updated: பின்வரும் தகவல் சரிபார்ப்பு புதிய தகவல்களுடன் *புதுப்பிக்கப்பட்டுள்ளது*.
+  search_result_is_not_relevant_button_label: இல்லை
+  search_result_is_relevant_button_label: ஆம்
+  search_state_button_label: சமர்ப்பி
+  subscribe_button_label: பதிவு செய்
+  subscribed: தற்சமயம் நீங்கள் எங்கள் செய்தி மடலைப் பெறுவதற்குப் பதிவு செய்திருக்கிறீர்கள்
+  unsubscribe_button_label: பதிவை ரத்து செய்
+  unsubscribed: தற்சமயம் நீங்கள் எங்கள் செய்தி மடலைப் பெறும் வசதியை ரத்து செய்து இருக்கிறீர்கள்
+te:
+  add_more_details_state_button_label: ఇంకా_చేర్ఛండి
+  ask_if_ready_state_button_label: రద్దు
+  confirm_preferred_language: మీరు ఎంచుకున్న భాషను కన్ఫర్మ్ చెయండి
+  invalid_format: క్షమించండి, మీరు సమర్పించిన ఫైల్ ఫార్మాట్‌కు మద్దతు లేదు.
+  keep_subscription_button_label: సబ్‌స్క్రిప్షన్ ఉంచండి
+  languages: భాషలు
+  languages_and_privacy_title: భాష & ప్రైవసీ
+  main_menu: ప్రధాన మెను
+  main_state_button_label: రద్దు
+  navigation_button: న్యావిగేట్ చెయడానికి బటన్‍లను వాడండి
+  privacy_statement: ప్రైవసీ స్టేట్మెంట్
+  privacy_title: గౌప్యత
+  report_updated: కింది వాస్తవ తనిఖీ కొత్త సమాచారంతో "నవీకరించబడింది"
+  search_result_is_not_relevant_button_label: లేదు
+  search_result_is_relevant_button_label: అవును
+  search_state_button_label: సమర్పించండి
+  subscribe_button_label: సబ్‌స్క్రైబ్
+  subscribed: మీరు ఇప్పుడు మా వార్తాలేఖకు సభ్యత్వాన్ని పొంది ఉన్నారు.
+  unsubscribe_button_label: అన్‌సబ్‌స్క్రైబ్
+  unsubscribed: మీరు ప్రస్తుతం మా వార్తాలేఖకు సభ్యత్వం పొందలేదు.
+ur:
+  add_more_details_state_button_label: مزید شامل کریں
+  ask_if_ready_state_button_label: منسوخ
+  confirm_preferred_language: براہ کرم اپنی پسندیدہ زبان کی تصدیق کریں۔
+  invalid_format: معذرت، آپ کی جمع کرائی گئی فائل سپورٹ فارمیٹ نہیں ہے۔
+  keep_subscription_button_label: رکنیت برقرار رکھیں
+  languages: زبانیں
+  languages_and_privacy_title: زبانیں اور رازداری
+  main_menu: مین مینو
+  main_state_button_label: منسوخ
+  navigation_button: نیویگیٹ کرنے کے لیے بٹنوں کا استعمال کریں۔
+  privacy_statement: رازداری کا بیان
+  privacy_title: رازداری
+  report_updated: درج ذیل حقائق کی جانچ کو نئی معلومات کے ساتھ *اپ ڈیٹ* کر دیا گیا
+    ہے۔
+  search_result_is_not_relevant_button_label: نہیں
+  search_result_is_relevant_button_label: جی ہاں
+  search_state_button_label: جمع کرائیں
+  subscribe_button_label: سبسکرائب
+  subscribed: آپ فی الحال ہمارے نیوز لیٹر کو سبسکرائب کر چکے ہیں۔
+  unsubscribe_button_label: رکنیت ختم کریں۔
+  unsubscribed: آپ نے فی الحال ہمارے نیوز لیٹر کو سبسکرائب نہیں کیا ہے۔

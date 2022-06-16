@@ -48,24 +48,12 @@ class Team < ApplicationRecord
     CheckConfig.get('checkdesk_client') + '/' + self.slug
   end
 
-  def team
-    self
-  end
-
   def members_count
     self.team_users.where(status: 'member').permissioned(self).count
   end
 
   def projects_count
     self.projects.allowed(self).permissioned.count
-  end
-
-  def country_teams
-    data = {}
-    unless self.country.nil?
-      Team.where(country: self.country).find_each{ |t| data[t.id] = t.name }
-    end
-    data
   end
 
   def as_json(_options = {})
@@ -81,10 +69,6 @@ class Team < ApplicationRecord
 
   def owners(role, statuses = TeamUser.status_types)
     self.users.where({ 'team_users.role': role, 'team_users.status': statuses })
-  end
-
-  def recent_projects
-    self.projects
   end
 
   def team_graphql_id
@@ -175,9 +159,12 @@ class Team < ApplicationRecord
     self.send(:set_language, language)
   end
 
+  def clear_list_columns_cache
+    self.get_languages.to_a.each { |l| Rails.cache.delete("list_columns:team:#{l}:#{self.id}") }
+  end
+
   def list_columns=(columns)
-    # Clear list_columns cache
-    Rails.cache.delete_matched("list_columns:team:*:#{self.id}")
+    self.clear_list_columns_cache
     columns = columns.is_a?(String) ? JSON.parse(columns) : columns
     self.send(:set_list_columns, columns)
   end
@@ -210,49 +197,6 @@ class Team < ApplicationRecord
         raise I18n.t(:permission_error, default: "Sorry, you are not allowed to do this")
       end
     end
-  end
-
-  def trash
-    ProjectMedia.where({ team_id: self.id, archived: CheckArchivedFlags::FlagCodes::TRASHED , sources_count: 0 })
-  end
-
-  def unconfirmed
-    ProjectMedia.where({ team_id: self.id, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED , sources_count: 0 })
-  end
-
-  def trash_size
-    {
-      project_media: self.trash_count,
-      annotation: self.trash.sum(:cached_annotations_count)
-    }
-  end
-
-  def trash_count
-    self.trash.count
-  end
-
-  def unconfirmed_count
-    self.unconfirmed.count
-  end
-
-  def medias_count
-    ProjectMedia.where(team_id: self.id, archived: CheckArchivedFlags::FlagCodes::NONE).joins("LEFT JOIN relationships r ON r.target_id = project_medias.id AND r.relationship_type = '#{Team.sanitize_sql(Relationship.confirmed_type.to_yaml)}'").where('r.id IS NULL').count
-  end
-
-  def check_search_team
-    check_search_filter
-  end
-
-  def search
-    self.check_search_team
-  end
-
-  def check_search_trash
-    check_search_filter({ 'archived' => CheckArchivedFlags::FlagCodes::TRASHED })
-  end
-
-  def check_search_unconfirmed
-    check_search_filter({ 'archived' => CheckArchivedFlags::FlagCodes::UNCONFIRMED })
   end
 
   def public_team
@@ -291,6 +235,7 @@ class Team < ApplicationRecord
     relationship = Relationship.new(source: tmp, target: tmp)
     perms["empty Trash"] = ability.can?(:destroy, :trash)
     perms["invite Members"] = ability.can?(:invite_members, self)
+    perms["not_spam ProjectMedia"] = ability.can?(:not_spam, tmp)
     perms["restore ProjectMedia"] = ability.can?(:restore, tmp)
     perms["confirm ProjectMedia"] = ability.can?(:confirm, tmp)
     perms["update ProjectMedia"] = ability.can?(:update, ProjectMedia.new(team_id: self.id))
@@ -375,9 +320,7 @@ class Team < ApplicationRecord
   end
 
   def list_columns
-    key = "list_columns:team:#{I18n.locale}:#{self.id}"
-    columns = Rails.cache.read(key)
-    if columns.blank?
+    Rails.cache.fetch("list_columns:team:#{I18n.locale}:#{self.id}") do
       show_columns = self.get_list_columns || Team.default_list_columns.select{ |c| c[:show] }.collect{ |c| c[:key] }
       columns = []
       Team.default_list_columns.each do |column|
@@ -396,10 +339,8 @@ class Team < ApplicationRecord
         index = show_columns.index(column[:key])
         index.nil? ? show_columns.size : index
       end
-      # write the cache
-      Rails.cache.write(key, columns) unless columns.blank?
+      columns
     end
-    columns
   end
 
   def self.reindex_statuses_after_deleting_status(ids_json, fallback_status_id)
@@ -573,6 +514,15 @@ class Team < ApplicationRecord
     sources = self.sources
     sources = sources.where('name ILIKE ?', "%#{keyword}%") unless keyword.blank?
     sources
+  end
+
+  def data_report
+    data = Rails.cache.read("data:report:#{self.id}")
+    return nil if data.blank?
+    data.map.with_index do |row, i|
+      row['Month'] = "#{i + 1}. #{row['Month']}"
+      row.reject { |key, _value| key =~ /[sS]earch/ }
+    end
   end
 
   # private

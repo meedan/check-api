@@ -37,6 +37,11 @@ module CheckCachedFields
           end
         end
       end
+
+      # Clear cached field from Redis
+      self.send :before_destroy, ->(_obj) do
+        Rails.cache.delete(self.class.check_cache_key(self.class, self.id, name))
+      end
     end
 
     def check_cache_key(klass, id, name)

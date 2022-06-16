@@ -157,6 +157,7 @@ pt:
         improbable_phone: é um número inválido
         too_short:
           one: é muito curto (mínimo de 1 caractere)
+          many: É muito curto (mínimo de %{count} caracteres)
           other: É muito curto (mínimo de %{count} caracteres)
   slack_webhook_format_wrong: Webhook do Slack inválido. O formato esperado é `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: é reservado
@@ -277,9 +278,11 @@ pt:
   oembed_credit: Adicionado por %{user} (%{role}) %{date}
   oembed_notes_count:
     one: Uma nota
+    many: "%{count} notas"
     other: "%{count} notas"
   oembed_completed_tasks_count:
     one: Uma tarefa concluída
+    many: "%{count} tarefas concluídas"
     other: "%{count} tarefas concluídas"
   oembed_verification_tasks: Tarefas
   oembed_tasks: Tarefas
@@ -288,6 +291,7 @@ pt:
   oembed_collapse_all: Recolher tudo
   oembed_resolved_tasks_count:
     one: Uma tarefa resolvida
+    many: "%{count} tarefas resolvidas"
     other: "%{count} tarefas resolvidas"
   oembed_notes: Notas
   duplicate_source: Esta fonte já existe
