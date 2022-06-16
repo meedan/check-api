@@ -194,7 +194,7 @@ module AlegreSimilarity
       project_medias = result.collect{ |r| self.extract_project_medias_from_context(r) } if !result.nil? && result.is_a?(Array)
       project_medias.each do |request_response|
         request_response.each do |pmid, score_with_context|
-          response[pmid] = score_with_context if self.should_include_id_in_result?(pmid, conditions)
+          response[pmid] ||= score_with_context if self.should_include_id_in_result?(pmid, conditions)
         end
       end unless project_medias.nil?
       response.reject{ |id, _score_with_context| id.blank? }
