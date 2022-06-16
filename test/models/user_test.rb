@@ -794,16 +794,14 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should return if user accepted terms" do
-    stub_configs({ 'tos_url' => 'https://meedan.com/en/check/check_tos.html' }) do
-      u = create_user
-      assert !u.reload.accepted_terms
-      u.last_accepted_terms_at = Time.parse('2018-08-01')
-      u.save!
-      assert !u.reload.accepted_terms
-      u.last_accepted_terms_at = Time.now
-      u.save!
-      assert u.reload.accepted_terms
-    end
+    u = create_user
+    assert !u.reload.accepted_terms
+    u.last_accepted_terms_at = Time.parse('2018-08-01')
+    u.save!
+    assert !u.reload.accepted_terms
+    u.last_accepted_terms_at = Time.now
+    u.save!
+    assert u.reload.accepted_terms
   end
 
   test "should accept terms" do
