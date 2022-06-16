@@ -55,22 +55,26 @@ def get_statistics(start_date, end_date, slug, platform, language, outfile)
   data = [id, Team.find_by_slug(slug).name, platform_name, language, month]
 
   # Number of conversations
+  # FIXME: Should be a new conversation only after 15 minutes of inactivity
   value1 = unique_requests_count(project_media_requests(slug, platform, start_date, end_date, language))
   value2 = team_requests(slug, platform, start_date, end_date, language).count
   data << (value1 + value2)
 
-  # Average number of end-user messages per day
+  # Average number of messages per day
+  # Includes our responses, this is why we multiply numbers by 2
+  # TODO: Should we also count number of newsletters sent?
   numbers_of_messages = []
   project_media_requests(slug, platform, start_date, end_date, language).find_each do |a|
-    numbers_of_messages << JSON.parse(a.load.get_field_value('smooch_data'))['text'].to_s.split(Bot::Smooch::MESSAGE_BOUNDARY).size
+    numbers_of_messages << JSON.parse(a.load.get_field_value('smooch_data'))['text'].to_s.split(Bot::Smooch::MESSAGE_BOUNDARY).size * 2
   end
   team_requests(slug, platform, start_date, end_date, language).find_each do |a|
-    numbers_of_messages << JSON.parse(a.load.get_field_value('smooch_data'))['text'].to_s.split(Bot::Smooch::MESSAGE_BOUNDARY).size
+    numbers_of_messages << JSON.parse(a.load.get_field_value('smooch_data'))['text'].to_s.split(Bot::Smooch::MESSAGE_BOUNDARY).size * 2
   end
-  if numbers_of_messages.size == 0
+  numbers_of_messages = numbers_of_messages.sum + project_media_requests(slug, platform, start_date, end_date, language, 'relevant_search_result_requests').count # Includes search results too
+  if numbers_of_messages == 0
     data << 0
   else
-    data << (numbers_of_messages.sum / (start_date.to_date..end_date.to_date).count).to_i
+    data << (numbers_of_messages / (start_date.to_date..end_date.to_date).count).to_i
   end
   
   # Number of unique users
@@ -120,13 +124,16 @@ def get_statistics(start_date, end_date, slug, platform, language, outfile)
   data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('annotations.created_at' => start_date..end_date, 'annotations.annotator_id' => BotUser.fetch_user.id).where("data LIKE '%state: published%'").count
 
   # Number of queries answered with a report
-  data << reports_received(slug, platform, start_date, end_date, language).group('pm.id').count.size
+  data << reports_received(slug, platform, start_date, end_date, language).group('pm.id').count.size + project_media_requests(slug, platform, start_date, end_date, language, 'relevant_search_result_requests').group('pm.id').count.size
 
   # Number of reports sent to users
-  data << reports_received(slug, platform, start_date, end_date, language).count
+  data << reports_received(slug, platform, start_date, end_date, language).count + project_media_requests(slug, platform, start_date, end_date, language, 'relevant_search_result_requests').count
 
   # Number of unique users who received a report
-  data << reports_received(slug, platform, start_date, end_date, language).collect{ |f| JSON.parse(f.annotation.load.get_field_value('smooch_data'))['authorId'] }.uniq.size
+  data << [reports_received(slug, platform, start_date, end_date, language) + project_media_requests(slug, platform, start_date, end_date, language, 'relevant_search_result_requests')].flatten.collect do |f|
+    annotation = f.is_a?(Annotation) ? f : f.annotation
+    JSON.parse(annotation.load.get_field_value('smooch_data'))['authorId']
+  end.uniq.size
 
   # Average time to publishing
   times = []
@@ -256,10 +263,10 @@ namespace :check do
           'Search feedback positive',
           'Search feedback negative',
           'Search no feedback',
-          'Valid new queries',
+          'Valid new requests',
           'Published native reports',
           'Published imported reports',
-          'Queries answered with a report',
+          'Requests answered with a report',
           'Reports sent to users',
           'Unique users who received a report',
           'Average (median) response time',
