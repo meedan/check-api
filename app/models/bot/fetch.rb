@@ -237,7 +237,7 @@ class Bot::Fetch < BotUser
       s.skip_notifications = true
       s.disable_es_callbacks = Rails.env.to_s == 'test'
       s.set_fields = {
-        external_id: "#{claim_review['identifier']}:#{pm.team_id}", # The same external_id can exist across teams
+        external_id: claim_review['identifier'].to_s,
         raw: claim_review.to_json
       }.to_json
       s.save!
@@ -309,7 +309,6 @@ class Bot::Fetch < BotUser
       }
       report.set_fields = fields.to_json
       report.action = 'save'
-      report.skip_check_ability = true
       report.save!
       FileUtils.rm_f(tmp_file_path) if tmp_file_path
     end
