@@ -2673,4 +2673,11 @@ class TeamTest < ActiveSupport::TestCase
     create_relationship source_id: main.id, target_id: confirmed.id, relationship_type: Relationship.confirmed_type
     assert_equal 3, t.reload.medias_count
   end
+
+  test "should return data report" do
+    t = create_team
+    assert_nil t.data_report
+    Rails.cache.write("data:report:#{t.id}", [{ 'Month' => 'Jan 2022', 'Search' => 1, 'Foo' => 2 }])
+    assert_equal([{ 'Month' => '1. Jan 2022', 'Foo' => 2 }], t.data_report)
+  end
 end

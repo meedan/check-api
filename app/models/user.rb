@@ -266,7 +266,9 @@ class User < ApplicationRecord
     }.with_indifferent_access
     return 0 unless mapping.has_key?(page)
     Rails.cache.fetch("last_updated_at:#{page}", expires_in: 24.hours) do
-      Time.parse(open(CheckConfig.get(mapping[page], nil, :json), read_timeout: 5, open_timeout: 5).read.gsub(/\R+/, ' ').gsub(/<[^>]+>/, ' ').gsub(/\s+/, ' ').gsub(/.*Last modified: ([^<]+).*/, '\1')).to_i
+      html = open(CheckConfig.get(mapping[page], nil, :json), read_timeout: 5, open_timeout: 5).read
+      date = ActionController::Base.helpers.strip_tags(html).gsub(/\s\s+/m, '|').match(/Last modified\|([^|]+)/)[1]
+      Time.parse(date).to_i
     end
   end
 
