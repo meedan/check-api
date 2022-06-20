@@ -112,7 +112,13 @@ module AnnotationBase
             annotated.save!(validate: false)
           end
         elsif annotated.is_a?(ProjectMedia)
-          annotated.update_columns(updated_at: Time.now) if ['comment', 'tag', 'verification_status'].include?(self.annotation_type) || self.annotation_type =~ /^task_response/
+          if ['report_design', 'tag', 'verification_status', 'archiver', 'language'].include?(self.annotation_type) || self.annotation_type =~ /^task_response/
+            updated_at = Time.now
+            annotated.update_columns(updated_at: updated_at)
+            # update elastic search
+            data = { 'updated_at' => updated_at.utc }
+            self.update_elasticsearch_doc(data.keys, data, annotated)
+          end
         end
       end
     end
