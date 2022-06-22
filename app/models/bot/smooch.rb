@@ -326,8 +326,10 @@ class Bot::Smooch < BotUser
     supported_languages = self.get_supported_languages
     guessed_language = nil
     if state == 'waiting_for_message'
-      guessed_language = self.get_language(message, default_language)
-      Rails.cache.fetch("smooch:user_language:#{uid}") { guessed_language }
+      Rails.cache.fetch("smooch:user_language:#{uid}") do
+        guessed_language = self.get_language(message, default_language)
+        guessed_language
+      end
     end
     user_language = Rails.cache.read("smooch:user_language:#{uid}") || guessed_language || default_language
     supported_languages.include?(user_language) ? user_language : default_language
@@ -404,7 +406,7 @@ class Bot::Smooch < BotUser
       self.bundle_message(message)
       has_main_menu = (workflow&.dig('smooch_state_main', 'smooch_menu_options').to_a.size > 0)
       if has_main_menu
-        self.start_flow(workflow, language, uid)
+        self.process_menu_option(message, state, app_id) || self.start_flow(workflow, language, uid)
       else
         self.clear_user_bundled_messages(uid)
         sm.go_to_query
@@ -457,7 +459,7 @@ class Bot::Smooch < BotUser
 
   def self.get_custom_menu_options(state, workflow, uid)
     options = workflow.dig("smooch_state_#{state}", 'smooch_menu_options').to_a.clone
-    if state == 'main' && self.is_v2?
+    if ['main', 'waiting_for_message'].include?(state) && self.is_v2?
       if self.should_ask_for_language_confirmation?(uid)
         options = []
         self.get_supported_languages.each_with_index do |l, i|
