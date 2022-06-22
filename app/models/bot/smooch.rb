@@ -406,7 +406,7 @@ class Bot::Smooch < BotUser
       self.bundle_message(message)
       has_main_menu = (workflow&.dig('smooch_state_main', 'smooch_menu_options').to_a.size > 0)
       if has_main_menu
-        self.process_menu_option(message, state, app_id) || self.start_flow(workflow, language, uid)
+        self.process_menu_option_or_send_greetings(message, state, app_id, workflow, language, uid)
       else
         self.clear_user_bundled_messages(uid)
         sm.go_to_query
@@ -424,6 +424,10 @@ class Bot::Smooch < BotUser
       self.bundle_message(message)
       self.go_to_state_and_ask_if_ready_to_submit(uid, language, workflow)
     end
+  end
+
+  def self.process_menu_option_or_send_greetings(message, state, app_id, workflow, language, uid)
+    self.process_menu_option(message, state, app_id) || self.start_flow(workflow, language, uid)
   end
 
   def self.time_to_send_request
