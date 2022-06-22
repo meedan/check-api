@@ -30,6 +30,14 @@ module CheckElasticSearch
     ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_doc')
   end
 
+  def update_recent_activity(obj)
+    # update `updated_at` date for both PG & ES
+    updated_at = Time.now
+    obj.update_columns(updated_at: updated_at)
+    data = { updated_at: updated_at.utc }
+    self.update_elasticsearch_doc(data.keys, data, obj)
+  end
+
   def update_elasticsearch_doc_bg(options)
     data = get_elasticsearch_data(options[:data])
     fields = {}
