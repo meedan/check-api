@@ -112,7 +112,6 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
   end
 
   test "should create smooch annotation for user requests" do
-    MESSAGE_BOUNDARY = "\u2063"
     setup_smooch_bot(true)
     Sidekiq::Testing.fake! do
       now = Time.now
@@ -134,9 +133,9 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
       end
       a = Dynamic.where(conditions).last
       f = a.get_field_value('smooch_data')
-      text  = JSON.parse(f)['text'].split("\n#{MESSAGE_BOUNDARY}")
+      text  = JSON.parse(f)['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
       # verify that all messages stored
-      assert_equal 3, text.size
+      assert_equal 4, text.size
       assert_equal '1', text.last
       send_message_to_smooch_bot(random_string, uid)
       assert_equal 'main', sm.state.value
@@ -150,9 +149,9 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
       end
       a = Dynamic.where(conditions).last
       f = a.get_field_value('smooch_data')
-      text  = JSON.parse(f)['text'].split("\n#{MESSAGE_BOUNDARY}")
+      text  = JSON.parse(f)['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
       # verify that all messages stored
-      assert_equal 5, text.size
+      assert_equal 6, text.size
       assert_equal '1', text.last
       send_message_to_smooch_bot(random_string, uid)
       assert_equal 'main', sm.state.value
