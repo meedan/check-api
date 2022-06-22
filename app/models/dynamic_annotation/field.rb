@@ -66,9 +66,8 @@ class DynamicAnnotation::Field < ApplicationRecord
       obj = self.annotation.project_media
       key = 'analysis_' + self.field_name.gsub('content', 'description')
       key = 'analysis_title' if self.field_name == 'file_title'
-      keys =  [key]
       data = { key => self.value }
-      self.update_elasticsearch_doc(keys, data, obj)
+      self.update_elasticsearch_doc(data.keys, data, obj)
     end
   end
 

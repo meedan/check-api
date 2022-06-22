@@ -32,7 +32,7 @@ module CheckElasticSearch
 
   def update_elasticsearch_doc_bg(options)
     data = get_elasticsearch_data(options[:data])
-    fields = { 'updated_at' => Time.now.utc }
+    fields = {}
     options[:keys].each do |k|
       unless data[k].nil?
         if data[k].class.to_s == 'Hash'
@@ -43,7 +43,7 @@ module CheckElasticSearch
         end
       end
     end
-    if fields.count > 1
+    if fields.count
       create_doc_if_not_exists(options)
       sleep 1
       client = $repository.client
