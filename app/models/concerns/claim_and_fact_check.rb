@@ -27,7 +27,15 @@ module ClaimAndFactCheck
     else
       values = { 'claim_description_content' => self.description }
     end
-    self.update_elasticsearch_doc(self.text_fields, values, self.project_media)
+    # touch project media to update `updated_at` date
+    pm = self.project_media
+    updated_at = Time.now
+    pm.update_columns(updated_at: updated_at)
+    # Update ES
+    text_fields = self.text_fields
+    text_fields << 'updated_at'
+    values['updated_at'] = updated_at.utc
+    self.update_elasticsearch_doc(text_fields, values, pm)
   end
 
   def send_to_alegre

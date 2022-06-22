@@ -17,20 +17,33 @@ module Workflow
         end
 
         def index_on_es_background
-          data = { self.annotation_type => { method: 'value', klass: self.class.name, id: self.id } }
-          self.update_elasticsearch_doc([self.annotation_type], data, self.annotation.annotated)
+          obj = self&.annotation&.annotated
+          if !obj.nil? && obj.class.name == 'ProjectMedia'
+            updated_at = Time.now
+            # Update PG
+            obj.update_columns(updated_at: updated_at)
+            data = {
+              self.annotation_type => { method: 'value', klass: self.class.name, id: self.id },
+              'updated_at' => updated_at.utc
+            }
+            self.update_elasticsearch_doc(data.keys, data, obj)
+          end
         end
 
         def index_on_es_foreground
           return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-          obj = self.annotation.annotated
-          options = {
-            keys: [self.annotation_type],
-            data: { self.annotation_type => self.value },
-            obj: obj,
-            doc_id:  Base64.encode64("#{obj.class.name}/#{obj.id}")
-          }
-          self.update_elasticsearch_doc_bg(options)
+          obj = self&.annotation&.annotated
+          if !obj.nil? && obj.class.name == 'ProjectMedia'
+            updated_at = Time.now
+            obj.update_columns(updated_at: updated_at)
+            options = {
+              keys: [self.annotation_type, 'updated_at'],
+              data: { self.annotation_type => self.value, 'updated_at' => updated_at.utc },
+              obj: obj,
+              doc_id:  Base64.encode64("#{obj.class.name}/#{obj.id}")
+            }
+            self.update_elasticsearch_doc_bg(options)
+          end
         end
 
         ::Workflow::Workflow.workflow_ids.each do |id|

@@ -32,7 +32,7 @@ module CheckElasticSearch
 
   def update_elasticsearch_doc_bg(options)
     data = get_elasticsearch_data(options[:data])
-    fields = { 'updated_at' => Time.now.utc }
+    fields = {}
     options[:keys].each do |k|
       unless data[k].nil?
         if data[k].class.to_s == 'Hash'
@@ -43,7 +43,7 @@ module CheckElasticSearch
         end
       end
     end
-    if fields.count > 1
+    if fields.count
       create_doc_if_not_exists(options)
       sleep 1
       client = $repository.client
@@ -75,20 +75,19 @@ module CheckElasticSearch
     key = options[:nested_key]
     if options[:op] == 'create_or_update'
       field_name = 'smooch'
-      source = "ctx._source.updated_at=params.updated_at;int s = 0;"+
-               "for (int i = 0; i < ctx._source.#{key}.size(); i++) {"+
+      source = "int s = 0;for (int i = 0; i < ctx._source.#{key}.size(); i++) {"+
                  "if(ctx._source.#{key}[i].#{field_name} != null){"+
                    "ctx._source.#{key}[i].#{field_name} += params.value.#{field_name};s = 1;break;}}"+
                "if (s == 0) {ctx._source.#{key}.add(params.value)}"
     elsif options[:op] == 'create'
-      source = "ctx._source.updated_at=params.updated_at;ctx._source.#{key}.add(params.value)"
+      source = "ctx._source.#{key}.add(params.value)"
     else
-      source = "ctx._source.updated_at=params.updated_at;for (int i = 0; i < ctx._source.#{key}.size(); i++) { if(ctx._source.#{key}[i].id == params.id){ctx._source.#{key}[i] = params.value;}}"
+      source = "for (int i = 0; i < ctx._source.#{key}.size(); i++) { if(ctx._source.#{key}[i].id == params.id){ctx._source.#{key}[i] = params.value;}}"
     end
     values = store_elasticsearch_data(options[:keys], options[:data])
     client = $repository.client
     client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], retry_on_conflict: 3,
-            body: { script: { source: source, params: { value: values, id: values['id'], updated_at: Time.now.utc } } }
+            body: { script: { source: source, params: { value: values, id: values['id'] } } }
   end
 
   def store_elasticsearch_data(keys, data)
@@ -166,13 +165,13 @@ module CheckElasticSearch
       source = ''
       if self.respond_to?(:annotation_type) && self.annotation_type == 'smooch'
         field_name = 'smooch'
-        source = "ctx._source.updated_at=params.updated_at;for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].#{field_name} != null){ctx._source.#{nested_type}[i].#{field_name} -= 1}}"
+        source = "for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].#{field_name} != null){ctx._source.#{nested_type}[i].#{field_name} -= 1}}"
 
       else
-        source = "ctx._source.updated_at=params.updated_at;for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == params.id){ctx._source.#{nested_type}.remove(i);}}"
+        source = "for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == params.id){ctx._source.#{nested_type}.remove(i);}}"
       end
       client.update index: CheckElasticSearchModel.get_index_alias, id: data[:doc_id], retry_on_conflict: 3,
-               body: { script: { source: source, params: { id: self.id, updated_at: Time.now.utc } } }
+               body: { script: { source: source, params: { id: self.id } } }
     rescue
       Rails.logger.info "[ES destroy] doc with id #{data[:doc_id]} not exists"
     end
