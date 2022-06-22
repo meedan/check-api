@@ -144,7 +144,7 @@ module SmoochMessages
       self.save_message_later(message, app_id, type)
       workflow = self.get_workflow(message['language'])
       uid = message['authorId']
-      self.send_message_to_user(uid, utmize_urls(workflow['smooch_message_smooch_bot_message_confirmed'], 'resource')) if send_message
+      self.send_message_to_user(uid, utmize_urls(workflow['smooch_message_smooch_bot_message_confirmed'], 'resource')) if send_message && !workflow.nil?
     end
 
     def message_hash(message)
