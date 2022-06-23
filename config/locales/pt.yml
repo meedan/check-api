@@ -102,6 +102,8 @@ pt:
         do canal.
       invalid_project_media_channel_update: Desculpe, não possível atualizar o valor
         do canal
+      invalid_project_media_archived_value: Desculpe, não há suporte para o valor
+        arquivado
   activerecord:
     models:
       link: Link

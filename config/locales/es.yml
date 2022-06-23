@@ -100,6 +100,8 @@ es:
       invalid_project_media_channel_value: Lo sentimos, el valor del canal no es compatible
       invalid_project_media_channel_update: Lo sentimos, no pudiste actualizar el
         valor del canal
+      invalid_project_media_archived_value: Lo sentimos, el valor archivado no es
+        compatible
   activerecord:
     models:
       link: Enlace
