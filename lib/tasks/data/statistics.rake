@@ -89,8 +89,8 @@ def get_statistics(start_date, end_date, slug, platform, language, outfile)
   team_requests(slug, platform, start_date, end_date, language).find_each do |a|
     numbers_of_messages << JSON.parse(a.load.get_field_value('smooch_data'))['text'].to_s.split(Bot::Smooch::MESSAGE_BOUNDARY).size * 2
   end
-  relevant_search_results = project_media_requests(slug, platform, start_date, end_date, language, 'relevant_search_result_requests').count
-  numbers_of_messages = numbers_of_messages.sum + relevant_search_results + (number_of_newsletters * number_of_subscribers)
+  search_results = project_media_requests(slug, platform, start_date, end_date, language, 'relevant_search_result_requests').count + project_media_requests(slug, platform, start_date, end_date, language, 'irrelevant_search_result_requests').count + project_media_requests(slug, platform, start_date, end_date, language, 'timeout_search_requests').count
+  numbers_of_messages = numbers_of_messages.sum + search_results + (number_of_newsletters * number_of_subscribers)
   if numbers_of_messages == 0
     data << 0
   else
