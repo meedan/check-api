@@ -113,11 +113,7 @@ module AnnotationBase
           end
         elsif annotated.is_a?(ProjectMedia)
           if ['report_design', 'tag', 'archiver', 'language'].include?(self.annotation_type)
-            updated_at = Time.now
-            annotated.update_columns(updated_at: updated_at)
-            # update elastic search
-            data = { 'updated_at' => updated_at.utc }
-            self.update_elasticsearch_doc(data.keys, data, annotated)
+            self.update_recent_activity(annotated)
           end
         end
       end

@@ -47,25 +47,18 @@ namespace :check do
           print '.'
           doc_id = Base64.encode64("ProjectMedia/#{obj.id}")
           data = {}
-          updated_at = []
           # comments
           comments = obj.annotations('comment')
           data['comments'] = comments.collect{|c| {id: c.id, text: c.text}}
-          # get maximum updated_at for recent_acitivty sort
-          max_updated_at = comments.max_by(&:updated_at)
-          updated_at << max_updated_at.updated_at unless max_updated_at.nil?
           # tags
           tags = obj.get_annotations('tag').map(&:load)
           data['tags'] = tags.collect{|t| {id: t.id, tag: t.tag_text}}
-          max_updated_at = tags.max_by(&:updated_at)
-          updated_at << max_updated_at.updated_at unless max_updated_at.nil?
           # Dynamics
           dynamics = []
           obj.annotations.where("annotation_type LIKE 'task_response%'").find_each do |d|
             d = d.load
             options = d.get_elasticsearch_options_dynamic
             dynamics << d.store_elasticsearch_data(options[:keys], options[:data])
-            updated_at << d.updated_at
           end
           data['dynamics'] = dynamics
           tasks = obj.annotations('task')
@@ -98,15 +91,11 @@ namespace :check do
           # 'task_comments'
           task_comments = Annotation.where(annotation_type: 'comment', annotated_type: 'Task', annotated_id: tasks_ids)
           data['task_comments'] = task_comments.collect{|c| {id: c.id, text: c.text}}
-          max_updated_at = task_comments.max_by(&:updated_at)
-          updated_at << max_updated_at.updated_at unless max_updated_at.nil?
           # 'assigned_user_ids'
           assignments_uids = Assignment.where(assigned_type: ['Annotation', 'Dynamic'])
           .joins('INNER JOIN annotations a ON a.id = assignments.assigned_id')
           .where('a.annotated_type = ? AND a.annotated_id = ?', 'ProjectMedia', obj.id).map(&:user_id)
           data['assigned_user_ids'] = assignments_uids.uniq
-          # recent_activity date
-          data['updated_at'] = updated_at.max
           es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: data } } }
         end
         response = client.bulk body: es_body unless es_body.blank?
