@@ -212,8 +212,8 @@ class VersionTest < ActiveSupport::TestCase
 
       # Concurrency
       user_pool = []
-      20.times { user_pool << create_user(is_admin: true) }
-      10.times do
+      4.times { user_pool << create_user(is_admin: true) }
+      2.times do
         threads = []
         @v1 = nil
         @v2 = nil
