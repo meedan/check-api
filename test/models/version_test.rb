@@ -211,20 +211,22 @@ class VersionTest < ActiveSupport::TestCase
       assert_equal 'update_tag', v.event_type
 
       # Concurrency
+      user_pool = []
+      20.times { user_pool << create_user(is_admin: true) }
       10.times do
         threads = []
         @v1 = nil
         @v2 = nil
         @tag = tag
         threads << Thread.start do
-          User.current = create_user(is_admin: true)
+          User.current = user_pool.pop
           tag1 = Tag.find(@tag.id)
           tag1.tag = random_string
           tag1.save_with_version!
           @v1 = tag1.version_object
         end
         threads << Thread.start do
-          User.current = create_user(is_admin: true)
+          User.current = user_pool.pop
           tag2 = Tag.find(@tag.id)
           tag2.tag = random_string
           tag2.save_with_version!
