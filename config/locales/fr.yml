@@ -105,6 +105,8 @@ fr:
         en charge
       invalid_project_media_channel_update: Désolé, il ne vous a pas été possible
         de mettre à jour la valeur du canal
+      invalid_project_media_archived_value: Désolé, la valeur archivée n’est pas prise
+        en charge
   activerecord:
     models:
       link: Lien
