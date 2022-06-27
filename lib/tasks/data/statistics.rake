@@ -60,9 +60,28 @@ def get_statistics(start_date, end_date, slug, platform, language, outfile)
   value2 = team_requests(slug, platform, start_date, end_date, language).count
   data << (value1 + value2)
 
+  # Number of newsletters sent
+  # NOTE: For all platforms
+  # NOTE: Only starting from June 1, 2022
+  team = Team.find_by_slug(slug)
+  number_of_newsletters = 0
+  if end_date >= Time.parse('2022-06-01')
+    tbi = TeamBotInstallation.where(team: team, user: BotUser.smooch_user).last
+    number_of_newsletters = Version.from_partition(team.id).where(whodunnit: BotUser.smooch_user.id.to_s, created_at: start_date..end_date, item_id: tbi.id.to_s, item_type: ['TeamUser', 'TeamBotInstallation']).collect do |v|
+      begin
+        workflow = YAML.load(JSON.parse(v.object_after)['settings'])['smooch_workflows'].select{ |w| w['smooch_workflow_language'] == language }.first
+        workflow['smooch_newsletter']['smooch_newsletter_last_sent_at']
+      rescue
+        nil
+      end
+    end.reject{ |t| t.blank? }.collect{ |t| Time.parse(t.to_s).to_s }.uniq.size
+  end
+
+  # Number of newsletter subscribers
+  number_of_subscribers = TiplineSubscription.where(created_at: start_date.ago(100.years)..end_date, platform: platform_name, language: language).where('teams.slug' => slug).joins(:team).count
+
   # Average number of messages per day
   # Includes our responses, this is why we multiply numbers by 2
-  # TODO: Should we also count number of newsletters sent?
   numbers_of_messages = []
   project_media_requests(slug, platform, start_date, end_date, language).find_each do |a|
     numbers_of_messages << JSON.parse(a.load.get_field_value('smooch_data'))['text'].to_s.split(Bot::Smooch::MESSAGE_BOUNDARY).size * 2
@@ -70,7 +89,8 @@ def get_statistics(start_date, end_date, slug, platform, language, outfile)
   team_requests(slug, platform, start_date, end_date, language).find_each do |a|
     numbers_of_messages << JSON.parse(a.load.get_field_value('smooch_data'))['text'].to_s.split(Bot::Smooch::MESSAGE_BOUNDARY).size * 2
   end
-  numbers_of_messages = numbers_of_messages.sum + project_media_requests(slug, platform, start_date, end_date, language, 'relevant_search_result_requests').count # Includes search results too
+  search_results = project_media_requests(slug, platform, start_date, end_date, language, 'relevant_search_result_requests').count + project_media_requests(slug, platform, start_date, end_date, language, 'irrelevant_search_result_requests').count + project_media_requests(slug, platform, start_date, end_date, language, 'timeout_search_requests').count
+  numbers_of_messages = numbers_of_messages.sum + search_results + (number_of_newsletters * number_of_subscribers)
   if numbers_of_messages == 0
     data << 0
   else
@@ -154,15 +174,7 @@ def get_statistics(start_date, end_date, slug, platform, language, outfile)
   if end_date < Time.parse('2022-06-01')
     data << '-'
   else
-    tbi = TeamBotInstallation.where(team: team, user: BotUser.smooch_user).last
-    data << Version.from_partition(team.id).where(whodunnit: BotUser.smooch_user.id.to_s, created_at: start_date..end_date, item_id: tbi.id.to_s, item_type: ['TeamUser', 'TeamBotInstallation']).collect do |v|
-      begin
-        workflow = YAML.load(JSON.parse(v.object_after)['settings'])['smooch_workflows'].select{ |w| w['smooch_workflow_language'] == language }.first
-        workflow['smooch_newsletter']['smooch_newsletter_last_sent_at']
-      rescue
-        nil
-      end
-    end.reject{ |t| t.blank? }.collect{ |t| Time.parse(t.to_s).to_s }.uniq.size
+    data << number_of_newsletters
   end
 
   # Number of new newsletter subscriptions

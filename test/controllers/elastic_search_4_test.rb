@@ -69,7 +69,7 @@ class ElasticSearch4Test < ActionController::TestCase
     pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
     pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
     pm3 = create_project_media project: p, media: m3, disable_es_callbacks: false
-    create_comment text: 'search_sort', annotated: pm1, disable_es_callbacks: false
+    create_tag tag: 'search_sort', annotated: pm1, disable_es_callbacks: false
     sleep 5
     # sort with keywords
     Team.current = t
@@ -169,7 +169,7 @@ class ElasticSearch4Test < ActionController::TestCase
     assert result.medias.map(&:id).include?(pm.id)
   end
 
-  test "should include tag status and comments in recent activity sort" do
+  test "should include tag and status in recent activity sort" do
     RequestStore.store[:skip_cached_field_update] = false
     t = create_team
     p = create_project team: t
@@ -185,13 +185,6 @@ class ElasticSearch4Test < ActionController::TestCase
     sleep 1
     result = CheckSearch.new({projects: [p.id], sort: "recent_activity"}.to_json)
     assert_equal [pm3.id, pm1.id, pm2.id], result.medias.map(&:id)
-    # include notes in recent activity sort
-    create_comment annotated: pm1, text: 'add comment', disable_es_callbacks: false
-    sleep 1
-    result = CheckSearch.new({projects: [p.id], sort: "recent_activity"}.to_json)
-    assert_equal [pm1.id, pm3.id, pm2.id], result.medias.map(&:id)
-    result = CheckSearch.new({projects: [p.id], sort: "recent_activity", sort_type: 'asc'}.to_json)
-    assert_equal [pm2.id, pm3.id, pm1.id], result.medias.map(&:id)
     # should sort by recent activity with project and status filters
     result = CheckSearch.new({projects: [p.id], verification_status: ['in_progress'], sort: "recent_activity"}.to_json)
     assert_equal 1, result.project_medias.count

@@ -133,11 +133,13 @@ class Assignment < ApplicationRecord
   def update_elasticsearch_assignment
     if ['Annotation', 'Dynamic'].include?(self.assigned_type) && self.assigned.annotation_type == 'verification_status'
       pm = self.assigned.annotated
-      uids = Assignment.where(assigned_type: self.assigned_type, assigned_id: self.assigned_id).map(&:user_id)
-      options = { keys: ['assigned_user_ids'], data: { 'assigned_user_ids' => uids }, obj: pm }
       # update updated_at for ProjectMedia for recent_activity sort
-      pm.update_columns(updated_at: Time.now)
-      ElasticSearchWorker.perform_in(1.second, YAML::dump(pm), YAML::dump(options), 'update_doc')
+      updated_at = Time.now
+      pm.update_columns(updated_at: updated_at)
+      # Update ES
+      uids = Assignment.where(assigned_type: self.assigned_type, assigned_id: self.assigned_id).map(&:user_id)
+      data = { 'assigned_user_ids' => uids, 'updated_at' => updated_at.utc }
+      self.update_elasticsearch_doc(data.keys, data, pm)
     end
   end
 end
