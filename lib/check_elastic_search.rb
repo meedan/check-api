@@ -23,15 +23,23 @@ module CheckElasticSearch
     $repository.refresh_index! if CheckConfig.get('elasticsearch_sync')
   end
 
-  def update_elasticsearch_doc(keys, data = {}, obj = nil)
+  def update_elasticsearch_doc(keys, data = {}, obj = nil, skip_get_data = false)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    options = { keys: keys, data: data }
+    options = { keys: keys, data: data, skip_get_data: skip_get_data }
     options[:obj] = obj unless obj.nil?
     ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_doc')
   end
 
+  def update_recent_activity(obj)
+    # update `updated_at` date for both PG & ES
+    updated_at = Time.now
+    obj.update_columns(updated_at: updated_at)
+    data = { updated_at: updated_at.utc }
+    self.update_elasticsearch_doc(data.keys, data, obj, true)
+  end
+
   def update_elasticsearch_doc_bg(options)
-    data = get_elasticsearch_data(options[:data])
+    data = get_elasticsearch_data(options[:data], options[:skip_get_data])
     fields = {}
     options[:keys].each do |k|
       unless data[k].nil?
@@ -119,8 +127,8 @@ module CheckElasticSearch
     ElasticSearchWorker.new.perform(YAML::dump(options[:obj]), YAML::dump({doc_id: doc_id}), 'create_doc') unless doc_exists?(doc_id)
   end
 
-  def get_elasticsearch_data(data)
-    responses_data = get_data_for_responses_fields
+  def get_elasticsearch_data(data, skip_get_data = false)
+    responses_data = get_data_for_responses_fields unless skip_get_data
     data = responses_data unless responses_data.blank?
     (data.blank? and self.respond_to?(:data)) ? self.data : data
   end
