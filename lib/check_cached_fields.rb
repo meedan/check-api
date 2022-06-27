@@ -10,19 +10,21 @@ module CheckCachedFields
 
     def cached_field(name, options = {})
       options = options.with_indifferent_access
+      interval = CheckConfig.get('cache_interval', 30).to_i
 
       if options[:start_as]
         klass = self
         self.send :after_create, ->(obj) do
           return if self.class.skip_cached_field_update?
           value = options[:start_as].is_a?(Proc) ? options[:start_as].call(obj) : options[:start_as]
-          Rails.cache.write(self.class.check_cache_key(self.class, self.id, name), value)
+          Rails.cache.write(self.class.check_cache_key(self.class, self.id, name), value, expires_in: interval.days)
           klass.index_and_pg_cached_field(options, value, name, obj) unless Rails.env == 'test'
         end
       end
 
       define_method name do |recalculate = false|
-        Rails.cache.fetch(self.class.check_cache_key(self.class, self.id, name), force: recalculate, race_condition_ttl: 30.seconds) do
+        Rails.cache.fetch(self.class.check_cache_key(self.class, self.id, name),force: recalculate,
+          race_condition_ttl: 30.seconds, expires_in: interval.days) do
           options[:recalculate].call(self)
         end
       end
@@ -73,9 +75,10 @@ module CheckCachedFields
       condition ||= proc { true }
       return unless condition.call(obj)
       recalculate = options[:recalculate]
+      interval = CheckConfig.get('cache_interval', 30).to_i
       self.where(id: ids.call(obj)).each do |target|
         value = callback == :recalculate ? recalculate.call(target) : callback.call(target, obj)
-        Rails.cache.write(self.check_cache_key(self, target.id, name), value)
+        Rails.cache.write(self.check_cache_key(self, target.id, name), value, expires_in: interval.days)
         # Update ES index and PG, if needed
         self.index_and_pg_cached_field(options, value, name, target)
       end
