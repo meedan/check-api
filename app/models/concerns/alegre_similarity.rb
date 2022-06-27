@@ -93,7 +93,7 @@ module AlegreSimilarity
     end
 
     def send_field_to_similarity_index(pm, field)
-      value = pm.send(field)
+      value = pm.send(field) if !pm.nil? && pm.respond_to?(field)
       if value.blank?
         self.delete_field_from_text_similarity_index(pm, field, true)
       elsif value.size > 1
