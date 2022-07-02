@@ -25,7 +25,7 @@ namespace :check do
         data << Annotation.joins("INNER JOIN teams t ON annotations.annotated_type = 'Team' AND annotations.annotated_id = t.id").where('t.slug' => slugs).where(annotation_type: 'smooch_user', created_at: start_date..end_date).count
       
         # Unique claims
-        data << Relationship.joins(relationship_join).where('t.slug' => slugs).where(created_at: start_date..end_date).confirmed.group(:source_id).count.size
+        data << (ProjectMedia.joins(:team).where('teams.slug' => slugs).where(created_at: start_date..end_date).count - Relationship.joins(relationship_join).where('t.slug' => slugs).where(created_at: start_date..end_date).confirmed.group(:target_id).count.size)
       
         # Reports sent to users
         data << DynamicAnnotation::Field.joins(field_join).where('t.slug' => slugs).where(field_name: 'smooch_report_received', created_at: start_date..end_date).count
