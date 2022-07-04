@@ -212,29 +212,27 @@ class VersionTest < ActiveSupport::TestCase
 
       # Concurrency
       user_pool = []
-      4.times { user_pool << create_user(is_admin: true) }
-      2.times do
-        threads = []
-        @v1 = nil
-        @v2 = nil
-        @tag = tag
-        threads << Thread.start do
-          User.current = user_pool.pop
-          tag1 = Tag.find(@tag.id)
-          tag1.tag = random_string
-          tag1.save_with_version!
-          @v1 = tag1.version_object
-        end
-        threads << Thread.start do
-          User.current = user_pool.pop
-          tag2 = Tag.find(@tag.id)
-          tag2.tag = random_string
-          tag2.save_with_version!
-          @v2 = tag2.version_object
-        end
-        threads.map(&:join)
-        assert_not_equal @v1.id, @v2.id
+      2.times { user_pool << create_user(is_admin: true) }
+      threads = []
+      @v1 = nil
+      @v2 = nil
+      @tag = tag
+      threads << Thread.start do
+        User.current = user_pool.pop
+        tag1 = Tag.find(@tag.id)
+        tag1.tag = random_string
+        tag1.save_with_version!
+        @v1 = tag1.version_object
       end
+      threads << Thread.start do
+        User.current = user_pool.pop
+        tag2 = Tag.find(@tag.id)
+        tag2.tag = random_string
+        tag2.save_with_version!
+        @v2 = tag2.version_object
+      end
+      threads.map(&:join)
+      assert_not_equal @v1.id, @v2.id
     end
   end
 end
