@@ -75,19 +75,40 @@ module SmoochTurnio
       type == 'voice' ? 'audio' : type
     end
 
+    def get_turnio_message_event(json)
+      event = 'unknown'
+      if json.dig('messages', 0, '_vnd', 'v1', 'direction') == 'inbound' || json.dig('messages', 0, 'from')
+        event = 'user_sent_message'
+      elsif json.dig('statuses', 0, 'status') == 'delivered'
+        event = 'user_received_message'
+      elsif json.dig('statuses', 0, 'status') == 'failed'
+        event = 'user_could_not_receive_message'
+      end
+      event
+    end
+
+    def get_turnio_message_text(message)
+      message.dig('text', 'body') || message.dig('interactive', 'list_reply', 'title') || message.dig('interactive', 'button_reply', 'title') || ''
+    end
+
+    def get_turnio_message_uid(message)
+      message.dig('_vnd', 'v1', 'author', 'id') || "#{self.config['turnio_secret']}:#{message['from']}"
+    end
+
     def preprocess_turnio_message(body)
       json = JSON.parse(body)
+      message_event = self.get_turnio_message_event(json)
 
       # Convert a message received from a WhatsApp user to the payload accepted by the Smooch Bot
-      if json.dig('messages', 0, '_vnd', 'v1', 'direction') == 'inbound' || json.dig('messages', 0, 'from')
+      if message_event == 'user_sent_message'
         message = json['messages'][0]
-        uid = message.dig('_vnd', 'v1', 'author', 'id') || "#{self.config['turnio_secret']}:#{json.dig('messages', 0, 'from')}"
+        uid = self.get_turnio_message_uid(message)
         messages = [{
           '_id': message['id'],
           authorId: uid,
           name: json['contacts'][0]['profile']['name'],
           type: self.convert_turnio_message_type(message['type']),
-          text: message.dig('text', 'body') || message.dig('interactive', 'list_reply', 'title') || message.dig('interactive', 'button_reply', 'title') || '',
+          text: self.get_turnio_message_text(message),
           source: { type: 'whatsapp' },
           received: message['timestamp'].to_i || Time.now.to_i,
           payload: message.dig('interactive', 'list_reply', 'id') || message.dig('interactive', 'button_reply', 'id'),
@@ -115,7 +136,7 @@ module SmoochTurnio
         }.with_indifferent_access
 
       # User received message
-      elsif json.dig('statuses', 0, 'status') == 'delivered'
+      elsif message_event == 'user_received_message'
         status = json['statuses'][0]
         {
           trigger: 'message:delivery:channel',
@@ -135,7 +156,7 @@ module SmoochTurnio
         }.with_indifferent_access
 
       # Could not deliver message (probably it's outside the 24-hours window)
-      elsif json.dig('statuses', 0, 'status') == 'failed'
+      elsif message_event == 'user_could_not_receive_message'
         status = json['statuses'][0]
         {
           trigger: 'message:delivery:failure',
@@ -232,13 +253,14 @@ module SmoochTurnio
       req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{self.config['turnio_token']}")
       req.body = payload.to_json
       response = http.request(req)
+      ret = nil
       if response.code.to_i < 400
-        return response
+        ret = response
       else
         e = SmoochBotDeliveryFailure.new("Could not send message to WhatsApp user! Response: #{response.body}")
         self.notify_error(e, { uid: uid, body: payload, error: e.message, response: response }, RequestStore[:request])
-        return nil
       end
+      ret
     end
   end
 end
