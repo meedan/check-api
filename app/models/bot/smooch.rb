@@ -244,7 +244,7 @@ class Bot::Smooch < BotUser
         key_that_has_value = k.to_s if keys.include?(k.to_s) && v == value
       end
       smooch_bot_installation = installation if (block_given? && yield(installation)) || !key_that_has_value.nil?
-      RequestStore.store[:smooch_bot_provider] = 'TURN' unless smooch_bot_installation&.get_turnio_secret&.blank?
+      RequestStore.store[:smooch_bot_provider] = 'TURN' unless smooch_bot_installation&.get_turnio_secret&.to_s.blank?
     end
     settings = smooch_bot_installation&.settings.to_h
     RequestStore.store[:smooch_bot_settings] = settings.with_indifferent_access.merge({ team_id: smooch_bot_installation&.team_id.to_i })

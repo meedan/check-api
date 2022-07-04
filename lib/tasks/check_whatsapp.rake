@@ -1,20 +1,20 @@
 require 'base64'
 require 'net/http'
 
-def call_whatsapp_api(endpoint, path, payload, token, verb = 'Post', auth_type = 'Bearer')
-  uri = URI("#{endpoint}/#{path}")
-  http = Net::HTTP.new(uri.host, uri.port)
-  http.use_ssl = uri.scheme == 'https'
-  http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-  req = "Net::HTTP::#{verb}".constantize.new(uri.request_uri, 'Content-Type' => 'application/json', 'Authorization' => "#{auth_type} #{token}")
-  req.body = payload.to_json if ['Post', 'Patch'].include?(verb)
-  response = http.request(req)
-  raise "Request to WhatsApp API failed with HTTP response code #{response.code} and body #{response.body}" if response.code.to_i >= 400
-  JSON.parse(response.body)
-end
-
 namespace :check do
   namespace :whatsapp do
+
+    def call_whatsapp_api(endpoint, path, payload, token, verb = 'Post', auth_type = 'Bearer')
+      uri = URI("#{endpoint}/#{path}")
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = uri.scheme == 'https'
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      req = "Net::HTTP::#{verb}".constantize.new(uri.request_uri, 'Content-Type' => 'application/json', 'Authorization' => "#{auth_type} #{token}")
+      req.body = payload.to_json if ['Post', 'Patch'].include?(verb)
+      response = http.request(req)
+      raise "Request to WhatsApp API failed with HTTP response code #{response.code} and body #{response.body}" if response.code.to_i >= 400
+      JSON.parse(response.body)
+    end
 
     # Generate token (valid for 7 days)
     # Each instance / phone number / tipline has its own endpoint, user and password
