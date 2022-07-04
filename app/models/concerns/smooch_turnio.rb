@@ -13,14 +13,14 @@ module SmoochTurnio
       end
     end
 
-    def get_whatsapp_installation(account_id)
+    def get_whatsapp_installation(phone, secret)
       self.get_installation do |i|
-        account_id == i.settings.with_indifferent_access['turnio_secret'].to_s
+        secret == i.settings.with_indifferent_access['turnio_secret'].to_s && phone == i.settings.with_indifferent_access['turnio_phone'].to_s
       end
     end
 
     def valid_turnio_request?(request)
-      valid = !self.get_whatsapp_installation(request.headers['HTTP_X_WA_ACCOUNT_ID']).nil? || !self.get_turnio_installation(request.headers['HTTP_X_TURN_HOOK_SIGNATURE'], request.raw_post).nil?
+      valid = !self.get_whatsapp_installation(request.headers['HTTP_X_WA_ACCOUNT_ID'], request.params[:secret]).nil? || !self.get_turnio_installation(request.headers['HTTP_X_TURN_HOOK_SIGNATURE'], request.raw_post).nil?
       RequestStore.store[:smooch_bot_provider] = 'TURN'
       valid
     end
@@ -59,11 +59,19 @@ module SmoochTurnio
       self.config['turnio_host'] || 'https://whatsapp.turn.io'
     end
 
-    def store_turnio_media(media_id, mime_type)
-      uri = URI("#{self.get_turnio_host}/v1/media/#{media_id}")
+    def turnio_http_connection(uri)
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = uri.scheme == 'https'
-      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      ca_file_path = File.join(Rails.root, 'tmp', "#{Digest::MD5.hexdigest(self.config['turnio_cacert'].to_s)}.crt")
+      File.atomic_write(ca_file_path) { |file| file.write(self.config['turnio_cacert'].to_s) } unless File.exist?(ca_file_path)
+      http.ca_file = ca_file_path
+      http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      http
+    end
+
+    def store_turnio_media(media_id, mime_type)
+      uri = URI("#{self.get_turnio_host}/v1/media/#{media_id}")
+      http = self.turnio_http_connection(uri)
       req = Net::HTTP::Get.new(uri.request_uri, 'Authorization' => "Bearer #{self.config['turnio_token']}")
       response = http.request(req)
       path = "turnio/#{media_id}"
@@ -92,7 +100,7 @@ module SmoochTurnio
     end
 
     def get_turnio_message_uid(message)
-      message.dig('_vnd', 'v1', 'author', 'id') || "#{self.config['turnio_secret']}:#{message['from']}"
+      message.dig('_vnd', 'v1', 'author', 'id') || "#{self.config['turnio_phone']}:#{message['from']}"
     end
 
     def preprocess_turnio_message(body)
@@ -149,7 +157,7 @@ module SmoochTurnio
             'type': 'text'
           },
           appUser: {
-            '_id': "#{self.config['turnio_secret']}:#{status['recipient_id']}",
+            '_id': "#{self.config['turnio_phone']}:#{status['recipient_id']}",
             'conversationStarted': true
           },
           turnIo: json
@@ -161,7 +169,7 @@ module SmoochTurnio
         {
           trigger: 'message:delivery:failure',
           app: {
-            '_id': self.config['turnio_secret']
+            '_id': self.config['turnio_phone']
           },
           destination: {
             type: 'whatsapp'
@@ -177,7 +185,7 @@ module SmoochTurnio
             'type': 'text'
           },
           appUser: {
-            '_id': "#{self.config['turnio_secret']}:#{status['recipient_id']}",
+            '_id': "#{self.config['turnio_phone']}:#{status['recipient_id']}",
             'conversationStarted': true
           },
           turnIo: json
@@ -204,9 +212,7 @@ module SmoochTurnio
     def turnio_upload_image(url)
       require 'open-uri'
       uri = URI("#{self.get_turnio_host}/v1/media")
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = uri.scheme == 'https'
-      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      http = self.turnio_http_connection(uri)
       req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'image/png', 'Authorization' => "Bearer #{self.config['turnio_token']}")
       req.body = open(url).read
       response = http.request(req)
@@ -217,7 +223,7 @@ module SmoochTurnio
       return if self.config['smooch_disabled'] && !force
       payload = {}
       account, to = uid.split(':')
-      return if account != self.config['turnio_secret']
+      return if account != self.config['turnio_phone']
       if text.is_a?(String)
         payload = {
           preview_url: !text.to_s.match(/https?:\/\//).nil?,
@@ -247,9 +253,7 @@ module SmoochTurnio
       payload.delete(:text) if payload[:type] == 'interactive'
       return if payload[:type] == 'text' && payload[:text][:body].blank?
       uri = URI("#{self.get_turnio_host}/v1/messages")
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = uri.scheme == 'https'
-      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      http = self.turnio_http_connection(uri)
       req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{self.config['turnio_token']}")
       req.body = payload.to_json
       response = http.request(req)

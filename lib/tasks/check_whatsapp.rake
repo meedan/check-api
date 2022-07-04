@@ -44,7 +44,7 @@ namespace :check do
     desc "Set profile picture for a WhatsApp account, for example: $ bundle exec rake 'check:whatsapp:set_profile_picture[endpoint,token,image_url]'"
     task set_profile_picture: :environment do |_t, args|
       endpoint, token, image_url = args.to_a
-      raise 'Please pass the endpoint URL, token and image URL as parameters... if you do not a token, generate one with check:whatsapp:generate_token' if endpoint.blank? || token.blank? || image_url.blank?
+      raise 'Please pass the endpoint URL, token and image URL as parameters... if you do not have a token, generate one with check:whatsapp:generate_token' if endpoint.blank? || token.blank? || image_url.blank?
       image_data = open(image_url).read
       response = call_whatsapp_api(endpoint, 'v1/settings/profile/photo', image_data, token, 'Post', 'Bearer', 'image/png')
       puts response.inspect
@@ -54,7 +54,7 @@ namespace :check do
     desc "Set profile 'About' text for a WhatsApp account, for example: $ bundle exec rake 'check:whatsapp:set_profile_text[endpoint,token,text]'"
     task set_profile_text: :environment do |_t, args|
       endpoint, token, text = args.to_a
-      raise 'Please pass the endpoint URL, token and text as parameters... if you do not a token, generate one with check:whatsapp:generate_token' if endpoint.blank? || token.blank? || text.blank?
+      raise 'Please pass the endpoint URL, token and text as parameters... if you do not have a token, generate one with check:whatsapp:generate_token' if endpoint.blank? || token.blank? || text.blank?
       response = call_whatsapp_api(endpoint, 'v1/settings/profile/about', { text: text }, token, 'Patch')
       puts response.inspect
     end
@@ -63,7 +63,7 @@ namespace :check do
     desc "Get settings (e.g., webhook) for a given instance, for example: $ bundle exec rake 'check:whatsapp:get_settings[endpoint,token]'"
     task get_settings: :environment do |_t, args|
       endpoint, token = args.to_a
-      raise 'Please pass the endpoint URL and token as parameters... if you do not a token, generate one with check:whatsapp:generate_token' if endpoint.blank? || token.blank?
+      raise 'Please pass the endpoint URL and token as parameters... if you do not have a token, generate one with check:whatsapp:generate_token' if endpoint.blank? || token.blank?
       response = call_whatsapp_api(endpoint, 'v1/settings/application', {}, token, 'Get')
       puts response.inspect
     end
@@ -72,7 +72,7 @@ namespace :check do
     desc "Set webhook for a given instance, for example: $ bundle exec rake 'check:whatsapp:set_webhook[endpoint,check-webhook-url,token]'"
     task set_webhook: :environment do |_t, args|
       endpoint, check_webhook_url, token = args.to_a
-      raise 'Please pass the endpoint URL, Check webhook URL (e.g., https://check-api.checkmedia.org/api/webhooks/smooch) and token as parameters... if you do not a token, generate one with check:whatsapp:generate_token' if endpoint.blank? || check_webhook_url.blank? || token.blank?
+      raise 'Please pass the endpoint URL, Check webhook URL (e.g., https://check-api.checkmedia.org/api/webhooks/smooch?secret=<generate-a-random-secret>) and token as parameters... if you do not have a token, generate one with check:whatsapp:generate_token' if endpoint.blank? || check_webhook_url.blank? || token.blank?
       response = call_whatsapp_api(endpoint, 'v1/settings/application', { webhooks: { url: check_webhook_url } }, token, 'Patch')
       puts response.inspect
     end

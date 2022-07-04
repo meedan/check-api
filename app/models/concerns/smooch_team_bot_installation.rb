@@ -63,7 +63,7 @@ module SmoochTeamBotInstallation
           return {
             whatsapp: {
               type: 'whatsapp',
-              phoneNumber: self.get_turnio_secret,
+              phoneNumber: self.get_turnio_phone.to_s,
               status: 'active'
             }
           }.with_indifferent_access if self.get_smooch_app_id.blank? && !self.get_turnio_secret.blank? # When using our own WhatsApp Business API (the secret is the phone number)
