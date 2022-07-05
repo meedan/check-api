@@ -14,9 +14,9 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   end
 
   test "should be valid only if the API key is valid" do
-    assert !Bot::Smooch.valid_request?(OpenStruct.new(headers: {}))
-    assert !Bot::Smooch.valid_request?(OpenStruct.new(headers: { 'X-API-Key' => 'foo' }))
-    assert Bot::Smooch.valid_request?(OpenStruct.new(headers: { 'X-API-Key' => 'test' }))
+    assert !Bot::Smooch.valid_request?(OpenStruct.new(headers: {}, params: {}))
+    assert !Bot::Smooch.valid_request?(OpenStruct.new(headers: { 'X-API-Key' => 'foo' }, params: {}))
+    assert Bot::Smooch.valid_request?(OpenStruct.new(headers: { 'X-API-Key' => 'test' }, params: {}))
   end
 
   test "should validate JSON schema" do
