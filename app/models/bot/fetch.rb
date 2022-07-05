@@ -225,7 +225,7 @@ class Bot::Fetch < BotUser
       fc.title = self.get_title(claim_review).truncate(140)
       summary = self.parse_text(claim_review['text'].to_s.blank? ? claim_review['headline'] : claim_review['text'])
       fc.summary = summary.to_s.truncate(620)
-      fc.url = claim_review['url'].to_s.truncate(140)
+      fc.url = claim_review['url'].to_s
       fc.user = user
       fc.skip_report_update = true
       fc.save!
@@ -294,7 +294,7 @@ class Bot::Fetch < BotUser
           status_label: pm.status_i18n(pm.reload.last_verification_status),
           description: summary,
           title: title,
-          published_article_url: claim_review['url'].truncate(140),
+          published_article_url: claim_review['url'],
           headline: title,
           use_visual_card: false,
           image: '',
