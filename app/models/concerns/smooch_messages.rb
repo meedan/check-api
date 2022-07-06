@@ -214,7 +214,7 @@ module SmoochMessages
         next if reject_payload && message['payload']
         if media.nil?
           media = message['mediaUrl']
-          bundle['type'] = message['type']
+          bundle['type'] = message['type'] if message['type'] != 'interactive'
           bundle['mediaUrl'] = media
         end
         text << message['mediaUrl'].to_s

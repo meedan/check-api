@@ -50,7 +50,4 @@ Rails.application.configure do
 
   # https://guides.rubyonrails.org/caching_with_rails.html#cache-stores
   config.cache_store = :file_store, "#{Rails.root}/tmp/cache#{ENV['TEST_ENV_NUMBER']}"
-
-  # https://github.com/Shopify/bootsnap/issues/110
-  ENV['BOOTSNAP_CACHE_DIR'] = "#{Rails.root}/tmp/cache#{ENV['TEST_ENV_NUMBER']}"
 end
