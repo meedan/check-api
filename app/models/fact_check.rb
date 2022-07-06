@@ -6,6 +6,8 @@ class FactCheck < ApplicationRecord
 
   belongs_to :claim_description
 
+  before_validation :set_language, on: :create
+
   validates_presence_of :user, :claim_description
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
   validates :url, length: { maximum: 140 }, allow_blank: true, allow_nil: true
@@ -23,6 +25,10 @@ class FactCheck < ApplicationRecord
   end
 
   private
+
+  def set_language
+    self.language = 'en' if self.language.blank?
+  end
 
   def update_report
     return if self.skip_report_update || !DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').exists?
