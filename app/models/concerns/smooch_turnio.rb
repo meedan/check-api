@@ -169,7 +169,7 @@ module SmoochTurnio
         {
           trigger: 'message:delivery:failure',
           app: {
-            '_id': self.config['turnio_phone']
+            '_id': self.config['turnio_secret']
           },
           destination: {
             type: 'whatsapp'
