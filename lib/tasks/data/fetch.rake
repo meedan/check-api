@@ -59,10 +59,9 @@ namespace :check do
           tbi.destroy! unless tbi.nil?
         end
         # Step 2
-        count = team.project_medias.where(channel: CheckChannels::ChannelCodes::FETCH).joins(:media).where('medias.type' => 'Blank').count
+        count = team.project_medias.where("channel->>'main' = ?", CheckChannels::ChannelCodes::FETCH.to_s).joins(:media).where('medias.type' => 'Blank').count
         puts "Step 2: destroying imported reports [#{count}] items "
-        team.project_medias.where(channel: CheckChannels::ChannelCodes::FETCH).joins(:media)
-        .where('medias.type' => 'Blank').find_each do |pm|
+        team.project_medias.where("channel->>'main' = ?", CheckChannels::ChannelCodes::FETCH.to_s).joins(:media).where('medias.type' => 'Blank').find_each do |pm|
           print '.'
           pm.destroy!
         end
