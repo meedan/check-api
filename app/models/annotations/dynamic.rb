@@ -150,11 +150,7 @@ class Dynamic < ApplicationRecord
           op = self.annotation_type =~ /choice/ ? 'update' : op
           keys = %w(id team_task_id value field_type fieldset date_value numeric_value)
           self.add_update_nested_obj({op: op, obj: pm, nested_key: 'task_responses', keys: keys})
-          # update `updated_at` date for both PG & ES
-          updated_at = Time.now
-          pm.update_columns(updated_at: updated_at)
-          data = { updated_at: updated_at.utc }
-          self.update_elasticsearch_doc(data.keys, data, pm)
+          self.update_recent_activity(pm)
         end
       end
     end

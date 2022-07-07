@@ -14,9 +14,9 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   end
 
   test "should be valid only if the API key is valid" do
-    assert !Bot::Smooch.valid_request?(OpenStruct.new(headers: {}))
-    assert !Bot::Smooch.valid_request?(OpenStruct.new(headers: { 'X-API-Key' => 'foo' }))
-    assert Bot::Smooch.valid_request?(OpenStruct.new(headers: { 'X-API-Key' => 'test' }))
+    assert !Bot::Smooch.valid_request?(OpenStruct.new(headers: {}, params: {}))
+    assert !Bot::Smooch.valid_request?(OpenStruct.new(headers: { 'X-API-Key' => 'foo' }, params: {}))
+    assert Bot::Smooch.valid_request?(OpenStruct.new(headers: { 'X-API-Key' => 'test' }, params: {}))
   end
 
   test "should validate JSON schema" do
@@ -655,15 +655,21 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   end
 
   test "should send message to turn.io user" do
+    @installation.set_turnio_secret = 'test'
+    @installation.set_turnio_phone = 'test'
+    @installation.set_turnio_token = 'token'
+    @installation.save!
+    Bot::Smooch.get_installation('turnio_secret', 'test')
     WebMock.stub_request(:post, 'https://whatsapp.turn.io/v1/messages').to_return(status: 200, body: '{}')
-    assert_not_nil Bot::Smooch.turnio_send_message_to_user('123456', 'Test')
+    assert_not_nil Bot::Smooch.turnio_send_message_to_user('test:123456', 'Test')
     WebMock.stub_request(:post, 'https://whatsapp.turn.io/v1/messages').to_return(status: 404, body: '{}')
-    assert_nil Bot::Smooch.turnio_send_message_to_user('123456', 'Test 2')
+    assert_nil Bot::Smooch.turnio_send_message_to_user('test:123456', 'Test 2')
   end
 
   test "should resend turn.io message" do
     WebMock.stub_request(:post, 'https://whatsapp.turn.io/v1/messages').to_return(status: 200, body: '{}')
     @installation.set_turnio_secret = 'test'
+    @installation.set_turnio_phone = 'test'
     @installation.set_turnio_token = 'test'
     @installation.save!
     Bot::Smooch.get_installation('turnio_secret', 'test')
@@ -675,10 +681,15 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   end
 
   test "should send media message to turn.io user" do
+    @installation.set_turnio_secret = 'test'
+    @installation.set_turnio_phone = 'test'
+    @installation.set_turnio_token = 'token'
+    @installation.save!
+    Bot::Smooch.get_installation('turnio_secret', 'test')
     WebMock.stub_request(:post, 'https://whatsapp.turn.io/v1/messages').to_return(status: 200, body: '{}')
     WebMock.stub_request(:post, 'https://whatsapp.turn.io/v1/media').to_return(status: 200, body: { media: [{ id: random_string }] }.to_json)
     url = random_url
     WebMock.stub_request(:get, url).to_return(status: 200, body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
-    assert_not_nil Bot::Smooch.turnio_send_message_to_user('123456', 'Test', { 'type' => 'image', 'mediaUrl' => url })
+    assert_not_nil Bot::Smooch.turnio_send_message_to_user('test:123456', 'Test', { 'type' => 'image', 'mediaUrl' => url })
   end
 end
