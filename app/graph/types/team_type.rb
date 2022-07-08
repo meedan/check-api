@@ -150,6 +150,13 @@ TeamType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :team_task do
+    type TeamTaskType
+    argument :dbid, !types.Int
+
+    resolve -> (team, args, _ctx) { team.team_tasks.where(id: args['dbid']).first }
+  end
+
   field :default_folder do
     type ProjectType
 
