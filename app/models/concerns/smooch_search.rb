@@ -133,7 +133,6 @@ module SmoochSearch
     end
 
     def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids)
-      results = []
       filters = { keyword: words.join('+'), eslimit: 3, report_status: ['published'] }
       filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) if after
       results = CheckSearch.new(filters.to_json, nil, team_ids).medias
