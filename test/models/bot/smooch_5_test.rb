@@ -378,5 +378,23 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     assert_equal [pm3, pm4, pm2], Bot::Smooch.parse_search_results_from_alegre(results, t.id)
     ProjectMedia.any_instance.unstub(:report_status)
   end
-  
+
+  test "should not search for empty link description" do
+    ProjectMedia.any_instance.stubs(:report_status).returns('published')
+
+    t = create_team
+    pm = create_project_media team: t
+    url = 'http://test.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => url })
+    CheckSearch.any_instance.stubs(:medias).returns([pm])
+
+    assert_equal [], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en')
+
+    ProjectMedia.any_instance.unstub(:report_status)
+    CheckSearch.any_instance.unstub(:medias)
+    Bot::Smooch.unstub(:bundle_list_of_messages)
+  end
 end
