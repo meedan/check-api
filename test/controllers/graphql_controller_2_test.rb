@@ -1105,4 +1105,23 @@ class GraphqlController2Test < ActionController::TestCase
       assert_response :success
     end
   end
+
+  test "should get team task" do
+    t = create_team
+    t2 = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+    tt = create_team_task team_id: t.id, order: 3
+
+    query = "query GetById { team(id: \"#{t.id}\") { team_task(dbid: #{tt.id}) { dbid } } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal tt.id, JSON.parse(@response.body)['data']['team']['team_task']['dbid']
+
+    query = "query GetById { team(id: \"#{t2.id}\") { team_task(dbid: #{tt.id}) { dbid } } }"
+    post :create, params: { query: query, team: t2.slug }
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['team']['team_task']
+  end
 end
