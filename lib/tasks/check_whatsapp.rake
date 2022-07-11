@@ -46,7 +46,7 @@ namespace :check do
     task generate_token: :environment do |_t, args|
       endpoint, user, token, team_slug = args.to_a
       raise 'Please pass the endpoint URL, user and token as parameters' if endpoint.blank? || user.blank? || token.blank?
-      auth = Base64.encode64("#{user}:#{token}").chomp
+      auth = Base64.encode64("#{user}:#{token}").gsub("\n", '')
       response = call_whatsapp_api(endpoint, 'v1/users/login', {}, auth, 'Post', 'Basic')
       token = response.dig('users', 0, 'token')
       puts token
