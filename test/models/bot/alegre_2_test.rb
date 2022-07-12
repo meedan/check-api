@@ -219,13 +219,9 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
       ]
     }.with_indifferent_access
     Bot::Alegre.stubs(:request_api).returns(response)
-    assert_nothing_raised do
-      assert_difference 'Relationship.count' do
-        Bot::Alegre.relate_project_media_to_similar_items(pm1a)
-      end
-    end
+    Bot::Alegre.relate_project_media_to_similar_items(pm1a)
+    Bot::Alegre.unstub(:request_api)
     assert_equal pm1b, Relationship.last.source
     assert_equal pm1a, Relationship.last.target
-    Bot::Alegre.unstub(:request_api)
   end
 end
