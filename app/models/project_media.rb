@@ -22,6 +22,7 @@ class ProjectMedia < ApplicationRecord
   validate :custom_channel_format, :archived_in_allowed_values
   validate :channel_in_allowed_values, on: :create
   validate :channel_not_changed, on: :update
+  validate :rate_limit_not_exceeded, on: :create
 
   before_validation :set_team_id, :set_channel, :set_project_id, on: :create
   after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks, :create_claim_description_and_fact_check, :create_tags

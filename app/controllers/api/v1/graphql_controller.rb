@@ -60,6 +60,9 @@ module Api
         rescue ActiveRecord::StaleObjectError, ActiveRecord::RecordNotUnique => e
           @output = format_error_message(e)
           render json: @output, status: 409
+        rescue Check::TooManyRequestsError => e
+          @output = format_error_message(e)
+          render json: @output, status: 429
         end
       end
 
@@ -134,7 +137,7 @@ module Api
       private
 
       def authenticate_graphql_user
-        params[:query].to_s.match(/^((query )|(mutation[^\{]*{\s*(resetPassword|changePassword|resendConfirmation|userDisconnectLoginAccount|)))/).nil? ? authenticate_user! : authenticate_user
+        params[:query].to_s.match(/^((query )|(mutation[^\{#]*{\s*(resetPassword|changePassword|resendConfirmation|userDisconnectLoginAccount)\())/).nil? ? authenticate_user! : authenticate_user
       end
 
       def load_ability
