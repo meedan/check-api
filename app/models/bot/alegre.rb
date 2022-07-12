@@ -84,9 +84,9 @@ class Bot::Alegre < BotUser
       end
     end
 
-    def self.get_language_from_extracted_text(id, type)
+    def self.get_language_from_extracted_text(id)
       annotation = Dynamic.find_by_id(id)
-      ::Bot::Alegre.get_language_from_text(annotation.annotated, annotation.get_field_value('text')) if annotation&.annotation_type == type
+      ::Bot::Alegre.get_language_from_text(annotation.annotated, annotation.get_field_value('text'))
     end
 
     private
@@ -101,19 +101,19 @@ class Bot::Alegre < BotUser
     end
 
     def match_similar_items_using_ocr
-      self.class.delay_for(15.seconds, retry: 5).match_similar_items_by_type(self.id, 'extracted_text')
+      self.class.delay_for(15.seconds, retry: 5).match_similar_items_by_type(self.id, 'extracted_text') if self.annotation_type == 'extracted_text'
     end
 
     def match_similar_items_using_transcription
-      self.class.delay_for(15.seconds, retry: 5).match_similar_items_by_type(self.id, 'transcription')
+      self.class.delay_for(15.seconds, retry: 5).match_similar_items_by_type(self.id, 'transcription') if self.annotation_type == 'transcription'
     end
 
     def get_language_from_ocr
-      self.class.delay_for(15.seconds, retry: 5).get_language_from_extracted_text(self.id, 'extracted_text')
+      self.class.delay_for(15.seconds, retry: 5).get_language_from_extracted_text(self.id) if self.annotation_type == 'extracted_text'
     end
 
     def get_language_from_transcription
-      self.class.delay_for(15.seconds, retry: 5).get_language_from_extracted_text(self.id, 'transcription')
+      self.class.delay_for(15.seconds, retry: 5).get_language_from_extracted_text(self.id) if self.annotation_type == 'transcription'
     end
   end
 
