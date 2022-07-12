@@ -852,7 +852,7 @@ class GraphqlController2Test < ActionController::TestCase
 
     query = "mutation duplicateTeam { duplicateTeam(input: { team_id: \"#{t.graphql_id}\" }) { team { id } } }"
     post :create, params: { query: query, team: t.slug }
-    assert_response 400
+    assert_response 401
 
     authenticate_with_user(u)
     query = "mutation duplicateTeam { duplicateTeam(input: { team_id: \"#{t.graphql_id}\" }) { team { id } } }"
