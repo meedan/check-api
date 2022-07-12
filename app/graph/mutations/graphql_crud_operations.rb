@@ -106,6 +106,7 @@ class GraphqlCrudOperations
   end
 
   def self.destroy_from_single_id(graphql_id, inputs, ctx, parents)
+    raise "This operation must be done by a signed-in user" if User.current.nil?
     obj = self.object_from_id(graphql_id)
     obj.keep_completed_tasks = inputs[:keep_completed_tasks] if obj.is_a?(TeamTask)
     if obj.is_a?(Relationship)
