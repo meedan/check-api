@@ -60,6 +60,9 @@ module Api
         rescue ActiveRecord::StaleObjectError, ActiveRecord::RecordNotUnique => e
           @output = format_error_message(e)
           render json: @output, status: 409
+        rescue Check::TooManyRequestsError => e
+          @output = format_error_message(e)
+          render json: @output, status: 429
         end
       end
 
