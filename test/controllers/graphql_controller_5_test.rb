@@ -461,6 +461,25 @@ class GraphqlController5Test < ActionController::TestCase
     assert !page_info['hasNextPage']
   end
 
+  test "should not create more items than what the rate limit allows" do
+    t = create_team
+    a = ApiKey.create!
+    a.rate_limits = { created_items_per_minute: 1 }
+    a.save!
+    b = create_bot_user api_key_id: a.id
+    create_team_user team: t, user: b
+    p = create_project team: t
+    authenticate_with_token(a)
+
+    query = 'mutation { createProjectMedia(input: { project_id: ' + p.id.to_s + ', quote: "Foo" }) { project_media { dbid } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+
+    query = 'mutation { createProjectMedia(input: { project_id: ' + p.id.to_s + ', quote: "Bar" }) { project_media { dbid } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response 429
+  end
+
   protected
 
   def assert_error_message(expected)
