@@ -19,6 +19,8 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     create_extracted_text_annotation_type
     Sidekiq::Testing.inline!
     Bot::Alegre.stubs(:should_get_similar_items_of_type?).returns(true)
+    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:media_file_url)
   end
 
   def teardown
@@ -52,15 +54,13 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
       ]
     })
     Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
-    assert_difference 'Relationship.count' do
-      Bot::Alegre.relate_project_media_to_similar_items(pm3)
-    end
+    Bot::Alegre.relate_project_media_to_similar_items(pm3)
+    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:media_file_url)
     r = Relationship.last
     assert_equal pm3, r.target
     assert_equal pm1, r.source
     assert_equal r.weight, 0.983167
-    Bot::Alegre.unstub(:request_api)
-    Bot::Alegre.unstub(:media_file_url)
   end
 
   test "should relate project media to similar items as audio" do
@@ -95,15 +95,13 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
       ]
     })
     Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
-    assert_difference 'Relationship.count' do
-      Bot::Alegre.relate_project_media_to_similar_items(pm3)
-    end
+    Bot::Alegre.relate_project_media_to_similar_items(pm3)
+    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:media_file_url)
     r = Relationship.last
     assert_equal pm3, r.target
     assert_equal pm1, r.source
     assert_equal r.weight, 0.983167
-    Bot::Alegre.unstub(:request_api)
-    Bot::Alegre.unstub(:media_file_url)
   end
 
   test "should relate project media to similar items as audio and also include audio from videos" do
@@ -138,15 +136,13 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
       ]
     })
     Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
-    assert_difference 'Relationship.count' do
-      Bot::Alegre.relate_project_media_to_similar_items(pm3)
-    end
+    Bot::Alegre.relate_project_media_to_similar_items(pm3)
+    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:media_file_url)
     r = Relationship.last
     assert_equal pm3, r.target
     assert_equal pm1, r.source
     assert_equal r.weight, 0.983167
-    Bot::Alegre.unstub(:request_api)
-    Bot::Alegre.unstub(:media_file_url)
   end
 
   test "should relate project media to similar items" do
@@ -171,15 +167,13 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
       ]
     })
     Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
-    assert_difference 'Relationship.count' do
-      Bot::Alegre.relate_project_media_to_similar_items(pm3)
-    end
+    Bot::Alegre.relate_project_media_to_similar_items(pm3)
+    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:media_file_url)
     r = Relationship.last
     assert_equal pm3, r.target
     assert_equal pm2, r.source
     assert_equal r.weight, 1
-    Bot::Alegre.unstub(:request_api)
-    Bot::Alegre.unstub(:media_file_url)
   end
 
   test "should handle similar items from different workspaces" do
