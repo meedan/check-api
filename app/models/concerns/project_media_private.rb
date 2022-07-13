@@ -153,4 +153,11 @@ module ProjectMediaPrivate
     interval = CheckConfig.get('empty_trash_interval', 30).to_i
     ProjectMedia.delay_for(interval.days).delete_forever('trash', self.updated_at, self.id)
   end
+
+  def rate_limit_not_exceeded
+    if ApiKey.current && ApiKey.current.respond_to?(:rate_limits)
+      limit = ApiKey.current.rate_limits.with_indifferent_access[:created_items_per_minute]
+      raise Check::TooManyRequestsError if limit && ProjectMedia.where(team_id: self.team_id, created_at: Time.now.ago(1.minute)..Time.now).count >= limit
+    end
+  end
 end
