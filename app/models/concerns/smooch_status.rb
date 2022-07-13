@@ -15,7 +15,7 @@ module SmoochStatus
         message = nil
         statuses[:statuses].to_a.each do |s|
           if s[:id] == status
-            message = s[:locales][language][:message] if s[:should_send_message]
+            message = s.dig(:locales, language, :message) if s[:should_send_message]
           end
         end
         message

@@ -112,7 +112,9 @@ module AnnotationBase
             annotated.save!(validate: false)
           end
         elsif annotated.is_a?(ProjectMedia)
-          annotated.update_columns(updated_at: Time.now) if ['comment', 'tag', 'verification_status'].include?(self.annotation_type) || self.annotation_type =~ /^task_response/
+          if ['report_design', 'tag', 'archiver', 'language'].include?(self.annotation_type)
+            self.update_recent_activity(annotated)
+          end
         end
       end
     end
@@ -126,7 +128,7 @@ module AnnotationBase
 
     def propagate_assignment_to(user)
       if self.annotation_type == 'verification_status'
-        self.annotated.get_annotations('task').map(&:load).select{ |task| task.responses.count == 0 || task.responses.select{ |r| r.annotator_id.to_i == user.id }.last.nil? }
+        self.annotated.get_annotations('task').map(&:load).select{ |task| task.responses.count == 0 || task.responses.select{ |r| r.annotator_id.to_i == user&.id }.last.nil? }
       else
         []
       end

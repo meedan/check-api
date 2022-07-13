@@ -127,7 +127,7 @@ class Dynamic < ApplicationRecord
   end
 
   def add_update_elasticsearch_dynamic(op)
-    return if self.disable_es_callbacks
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     handle_elasticsearch_response(op)
     handle_extracted_text(op)
     handle_report_published_at(op)
@@ -150,6 +150,7 @@ class Dynamic < ApplicationRecord
           op = self.annotation_type =~ /choice/ ? 'update' : op
           keys = %w(id team_task_id value field_type fieldset date_value numeric_value)
           self.add_update_nested_obj({op: op, obj: pm, nested_key: 'task_responses', keys: keys})
+          self.update_recent_activity(pm)
         end
       end
     end

@@ -23,16 +23,24 @@ module CheckElasticSearch
     $repository.refresh_index! if CheckConfig.get('elasticsearch_sync')
   end
 
-  def update_elasticsearch_doc(keys, data = {}, obj = nil)
+  def update_elasticsearch_doc(keys, data = {}, obj = nil, skip_get_data = false)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    options = { keys: keys, data: data }
+    options = { keys: keys, data: data, skip_get_data: skip_get_data }
     options[:obj] = obj unless obj.nil?
     ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_doc')
   end
 
+  def update_recent_activity(obj)
+    # update `updated_at` date for both PG & ES
+    updated_at = Time.now
+    obj.update_columns(updated_at: updated_at)
+    data = { updated_at: updated_at.utc }
+    self.update_elasticsearch_doc(data.keys, data, obj, true)
+  end
+
   def update_elasticsearch_doc_bg(options)
-    data = get_elasticsearch_data(options[:data])
-    fields = { 'updated_at' => Time.now.utc }
+    data = get_elasticsearch_data(options[:data], options[:skip_get_data])
+    fields = {}
     options[:keys].each do |k|
       unless data[k].nil?
         if data[k].class.to_s == 'Hash'
@@ -43,7 +51,7 @@ module CheckElasticSearch
         end
       end
     end
-    if fields.count > 1
+    if fields.count
       create_doc_if_not_exists(options)
       sleep 1
       client = $repository.client
@@ -75,20 +83,19 @@ module CheckElasticSearch
     key = options[:nested_key]
     if options[:op] == 'create_or_update'
       field_name = 'smooch'
-      source = "ctx._source.updated_at=params.updated_at;int s = 0;"+
-               "for (int i = 0; i < ctx._source.#{key}.size(); i++) {"+
+      source = "int s = 0;for (int i = 0; i < ctx._source.#{key}.size(); i++) {"+
                  "if(ctx._source.#{key}[i].#{field_name} != null){"+
                    "ctx._source.#{key}[i].#{field_name} += params.value.#{field_name};s = 1;break;}}"+
                "if (s == 0) {ctx._source.#{key}.add(params.value)}"
     elsif options[:op] == 'create'
-      source = "ctx._source.updated_at=params.updated_at;ctx._source.#{key}.add(params.value)"
+      source = "ctx._source.#{key}.add(params.value)"
     else
-      source = "ctx._source.updated_at=params.updated_at;for (int i = 0; i < ctx._source.#{key}.size(); i++) { if(ctx._source.#{key}[i].id == params.id){ctx._source.#{key}[i] = params.value;}}"
+      source = "for (int i = 0; i < ctx._source.#{key}.size(); i++) { if(ctx._source.#{key}[i].id == params.id){ctx._source.#{key}[i] = params.value;}}"
     end
     values = store_elasticsearch_data(options[:keys], options[:data])
     client = $repository.client
     client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], retry_on_conflict: 3,
-            body: { script: { source: source, params: { value: values, id: values['id'], updated_at: Time.now.utc } } }
+            body: { script: { source: source, params: { value: values, id: values['id'] } } }
   end
 
   def store_elasticsearch_data(keys, data)
@@ -120,8 +127,8 @@ module CheckElasticSearch
     ElasticSearchWorker.new.perform(YAML::dump(options[:obj]), YAML::dump({doc_id: doc_id}), 'create_doc') unless doc_exists?(doc_id)
   end
 
-  def get_elasticsearch_data(data)
-    responses_data = get_data_for_responses_fields
+  def get_elasticsearch_data(data, skip_get_data = false)
+    responses_data = get_data_for_responses_fields unless skip_get_data
     data = responses_data unless responses_data.blank?
     (data.blank? and self.respond_to?(:data)) ? self.data : data
   end
@@ -166,13 +173,13 @@ module CheckElasticSearch
       source = ''
       if self.respond_to?(:annotation_type) && self.annotation_type == 'smooch'
         field_name = 'smooch'
-        source = "ctx._source.updated_at=params.updated_at;for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].#{field_name} != null){ctx._source.#{nested_type}[i].#{field_name} -= 1}}"
+        source = "for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].#{field_name} != null){ctx._source.#{nested_type}[i].#{field_name} -= 1}}"
 
       else
-        source = "ctx._source.updated_at=params.updated_at;for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == params.id){ctx._source.#{nested_type}.remove(i);}}"
+        source = "for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == params.id){ctx._source.#{nested_type}.remove(i);}}"
       end
       client.update index: CheckElasticSearchModel.get_index_alias, id: data[:doc_id], retry_on_conflict: 3,
-               body: { script: { source: source, params: { id: self.id, updated_at: Time.now.utc } } }
+               body: { script: { source: source, params: { id: self.id } } }
     rescue
       Rails.logger.info "[ES destroy] doc with id #{data[:doc_id]} not exists"
     end

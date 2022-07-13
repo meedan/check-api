@@ -180,18 +180,10 @@ class ElasticSearch2Test < ActionController::TestCase
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p, disable_es_callbacks: false
-    # add comment
-    ElasticSearchWorker.clear
-    c = create_comment annotated: pm, disable_es_callbacks: false
-    assert_equal 2, ElasticSearchWorker.jobs.size
     # add tag
     ElasticSearchWorker.clear
     t = create_tag annotated: pm, disable_es_callbacks: false
-    assert_equal 2, ElasticSearchWorker.jobs.size
-    # destroy comment
-    ElasticSearchWorker.clear
-    c.destroy
-    assert_equal 1, ElasticSearchWorker.jobs.size
+    assert_equal 3, ElasticSearchWorker.jobs.size
     # destroy tag
     ElasticSearchWorker.clear
     t.destroy

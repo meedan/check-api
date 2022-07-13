@@ -186,11 +186,12 @@ module ProjectMediaBulk
         user_id: User.current&.id,
         assigned_ids: u_ids
       }
-      self.delay.run_bulk_assignment_create_callbacks(result.ids.map(&:to_i).to_json, status_mapping.to_json, extra_options.to_json)
+      self.delay.run_bulk_assignment_create_callbacks(result.ids.map(&:to_i).to_json, status_mapping.to_json, extra_options.to_json, User.current)
       { team: team }
     end
 
-    def run_bulk_assignment_create_callbacks(ids_json, status_mapping_json, extra_options_json)
+    def run_bulk_assignment_create_callbacks(ids_json, status_mapping_json, extra_options_json, current_user = User.current)
+      User.current ||= current_user
       ids = JSON.parse(ids_json)
       status_mapping = JSON.parse(status_mapping_json)
       extra_options = JSON.parse(extra_options_json)

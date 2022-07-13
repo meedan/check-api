@@ -203,6 +203,7 @@ class GraphqlCrudOperations
       fields.each { |field_name, field_type| input_field field_name, mapping[field_type] }
 
       return_field :ids, types[types.ID]
+      return_field(:updated_objects, types["#{klass.name}Type".constantize]) if update_or_destroy.to_s == 'update'
       GraphqlCrudOperations.define_parent_returns(parents).each{ |field_name, field_class| return_field(field_name, field_class) }
 
       resolve -> (_root, inputs, ctx) {
@@ -229,6 +230,7 @@ class GraphqlCrudOperations
           }
           method = method_mapping[update_or_destroy.to_sym]
           result = klass.send(method, sql_ids, filtered_inputs, Team.current)
+          result.merge!({ updated_objects: klass.where(id: sql_ids) }) if update_or_destroy.to_s == 'update'
           { ids: processed_ids }.merge(result)
         else
           raise CheckPermissions::AccessDenied, I18n.t(:permission_error)
