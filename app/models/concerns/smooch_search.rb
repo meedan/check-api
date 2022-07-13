@@ -111,17 +111,13 @@ module SmoochSearch
           Rails.logger.info "[Smooch Bot] Search query (URL): #{link.url}"
           result = ProjectMedia.joins(:media).where('medias.url' => link.url, 'project_medias.team_id' => team_ids).last
           return [result] if result&.report_status == 'published'
-          text = link.pender_data['description']
+          text = link.pender_data['description'].to_s
         end
+        return [] if text.blank?
         words = text.split(/\s+/)
         Rails.logger.info "[Smooch Bot] Search query (text): #{text}"
         if words.size <= self.max_number_of_words_for_keyword_search
-          filters = { keyword: words.join('+'), eslimit: 3, report_status: ['published'] }
-          filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) if after
-          results = CheckSearch.new(filters.to_json, nil, team_ids).medias
-          Rails.logger.info "[Smooch Bot] Keyword search got #{results.count} results (only main items) while looking for '#{text}' after date #{after.inspect} for teams #{team_ids}"
-          results = CheckSearch.new(filters.merge({ show_similar: true, fuzzy: true }).to_json, nil, team_ids).medias if results.empty?
-          Rails.logger.info "[Smooch Bot] Keyword search got #{results.count} results (including secondary items and using fuzzy matching) while looking for '#{text}' after date #{after.inspect} for teams #{team_ids}"
+          results = self.search_by_keywords_for_similar_published_fact_checks(words, after, team_ids)
         else
           alegre_results = Bot::Alegre.get_merged_similar_items(pm, { value: self.get_text_similarity_threshold }, Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text, team_ids)
           results = self.parse_search_results_from_alegre(alegre_results, after)
@@ -133,6 +129,16 @@ module SmoochSearch
         results = self.parse_search_results_from_alegre(alegre_results, after)
         Rails.logger.info "[Smooch Bot] Media similarity search got #{results.count} results while looking for '#{query}' after date #{after.inspect} for teams #{team_ids}"
       end
+      results
+    end
+
+    def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids)
+      filters = { keyword: words.join('+'), eslimit: 3, report_status: ['published'] }
+      filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) if after
+      results = CheckSearch.new(filters.to_json, nil, team_ids).medias
+      Rails.logger.info "[Smooch Bot] Keyword search got #{results.count} results (only main items) while looking for '#{words}' after date #{after.inspect} for teams #{team_ids}"
+      results = CheckSearch.new(filters.merge({ show_similar: true, fuzzy: true }).to_json, nil, team_ids).medias if results.empty?
+      Rails.logger.info "[Smooch Bot] Keyword search got #{results.count} results (including secondary items and using fuzzy matching) while looking for '#{words}' after date #{after.inspect} for teams #{team_ids}"
       results
     end
 

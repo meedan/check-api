@@ -60,6 +60,13 @@ module SmoochTeamBotInstallation
       # Return a hash of enabled integrations and their information
       def smooch_enabled_integrations(force = false)
         if self.bot_user.identifier == 'smooch'
+          return {
+            whatsapp: {
+              type: 'whatsapp',
+              phoneNumber: self.get_turnio_phone.to_s,
+              status: 'active'
+            }
+          }.with_indifferent_access if self.get_smooch_app_id.blank? && !self.get_turnio_secret.blank? # When using our own WhatsApp Business API (the secret is the phone number)
           Rails.cache.fetch("smooch_bot:#{self.team_id}:enabled_integrations", force: force) do
             api_instance = self.smooch_integrations_api_client
             integrations = {}
