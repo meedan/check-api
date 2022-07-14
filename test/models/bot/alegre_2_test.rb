@@ -35,14 +35,14 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
           context: [
             { team_id: @team.id.to_s, project_media_id: pm1.id.to_s }
           ],
-          score: '0.971234',
+          score: 0.971234,
           filename: '/app/persistent_disk/blah/12342.tmk'
         },
         {
           context: [
             { team_id: @team.id.to_s, project_media_id: pm2.id.to_s }
           ],
-          score: '0.983167',
+          score: 0.983167,
           filename: '/app/persistent_disk/blah/12343.tmk'
         }
       ]
@@ -73,7 +73,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
           context: [
             { team_id: @team.id.to_s, project_media_id: pm1.id.to_s }
           ],
-          score: '0.971234',
+          score: 0.971234,
         },
         {
           id: 2,
@@ -83,7 +83,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
           context: [
             { team_id: @team.id.to_s, project_media_id: pm2.id.to_s }
           ],
-          score: '0.983167',
+          score: 0.983167,
         }
       ]
     }.with_indifferent_access)
@@ -113,7 +113,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
           context: [
             { team_id: @team.id.to_s, project_media_id: pm1.id.to_s }
           ],
-          score: '0.971234',
+          score: 0.971234,
         },
         {
           id: 1,
@@ -123,7 +123,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
           context: [
             { team_id: @team.id.to_s, project_media_id: pm2.id.to_s, content_type: 'video' }
           ],
-          score: '0.983167',
+          score: 0.983167,
         }
       ]
     }.with_indifferent_access)
@@ -154,7 +154,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
             team_id: @team.id.to_s,
             project_media_id: pm1.id.to_s
           }],
-          score: 0.8
+          score: 1
         },
         {
           id: 2,
@@ -165,7 +165,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
             team_id: @team.id.to_s,
             project_media_id: pm2.id.to_s
           }],
-          score: 0.9
+          score: 0
         }
       ]
     }.with_indifferent_access)
