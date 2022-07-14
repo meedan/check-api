@@ -74,7 +74,7 @@ module SmoochResources
       rescue
         nil
       end
-      self.delay_for(15.minutes, retry: 0).refresh_rss_feeds_cache unless Rails.env.test? # Avoid infinite loop
+      self.delay_for(15.minutes, , { queue: 'smooch', retry: 0 }).refresh_rss_feeds_cache unless Rails.env.test? # Avoid infinite loop
     end
 
     def save_resources(team_id, settings)

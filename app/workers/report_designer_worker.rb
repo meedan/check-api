@@ -1,7 +1,7 @@
 class ReportDesignerWorker
   include Sidekiq::Worker
 
-  sidekiq_options queue: 'smooch', retry: 3
+  sidekiq_options queue: 'smooch_priority', retry: 3
   sidekiq_retry_in { |_count, _e| retry_in_callback }
   sidekiq_retries_exhausted { |msg, e| retries_exhausted_callback(msg, e) }
 
