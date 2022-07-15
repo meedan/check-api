@@ -138,7 +138,7 @@ module SmoochResend
     include FacebookMessengerResend
 
     def resend_message(message)
-      self.should_resend_message?(message) ? self.delay_for(1.second, { queue: 'smooch', retry: 0 }).resend_message_after_window(message.to_json) : self.log_resend_error(message)
+      self.should_resend_message?(message) ? self.delay_for(1.second, { queue: 'smooch_priority', retry: 0 }).resend_message_after_window(message.to_json) : self.log_resend_error(message)
     end
 
     def should_resend_message?(message)
