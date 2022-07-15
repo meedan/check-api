@@ -35,14 +35,14 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
           context: [
             { team_id: @team.id.to_s, project_media_id: pm1.id.to_s }
           ],
-          score: '0.971234',
+          score: 0.971234,
           filename: '/app/persistent_disk/blah/12342.tmk'
         },
         {
           context: [
             { team_id: @team.id.to_s, project_media_id: pm2.id.to_s }
           ],
-          score: '0.983167',
+          score: 0.983167,
           filename: '/app/persistent_disk/blah/12343.tmk'
         }
       ]
@@ -68,22 +68,22 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
         {
           id: 1,
           doc_id: random_string,
-          hash_value: '0101',
+          chromaprint_fingerprint: [6581800, 2386744, 2583368, 2488648, 6343163, 14978026, 300191082, 309757210, 304525578, 304386106, 841261098, 841785386],
           url: 'https://foo.com/bar.wav',
           context: [
             { team_id: @team.id.to_s, project_media_id: pm1.id.to_s }
           ],
-          score: '0.971234',
+          score: 0.971234,
         },
         {
           id: 2,
           doc_id: random_string,
-          hash_value: '0111',
+          chromaprint_fingerprint: [2386744, 2583368, 2488648, 6343163, 14978026, 300191082, 309757210, 304525578, 304386106, 841261098, 841785386, 858042410, 825593963, 823509230],
           url: 'https://bar.com/foo.wav',
           context: [
             { team_id: @team.id.to_s, project_media_id: pm2.id.to_s }
           ],
-          score: '0.983167',
+          score: 0.983167,
         }
       ]
     }.with_indifferent_access)
@@ -113,7 +113,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
           context: [
             { team_id: @team.id.to_s, project_media_id: pm1.id.to_s }
           ],
-          score: '0.971234',
+          score: 0.971234,
         },
         {
           id: 1,
@@ -123,7 +123,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
           context: [
             { team_id: @team.id.to_s, project_media_id: pm2.id.to_s, content_type: 'video' }
           ],
-          score: '0.983167',
+          score: 0.983167,
         }
       ]
     }.with_indifferent_access)
@@ -154,7 +154,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
             team_id: @team.id.to_s,
             project_media_id: pm1.id.to_s
           }],
-          score: 0.8
+          score: 0.5
         },
         {
           id: 2,
