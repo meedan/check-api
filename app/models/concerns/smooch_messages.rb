@@ -15,7 +15,7 @@ module SmoochMessages
       self.refresh_smooch_menu_timeout(message, app_id)
       redis = Redis.new(REDIS_CONFIG)
       key = "smooch:bundle:#{uid}"
-      self.delay_for(1.second).save_user_information(app_id, uid, payload.to_json) if redis.llen(key) == 0
+      self.delay_for(1.second, { queue: 'smooch' }).save_user_information(app_id, uid, payload.to_json) if redis.llen(key) == 0
       self.parse_message_based_on_state(message, app_id)
     end
 
