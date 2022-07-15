@@ -18,7 +18,7 @@ module SmoochSearch
           self.send_search_results_to_user(uid, results)
           sm.go_to_search_result
           self.save_search_results_for_user(uid, results.map(&:id))
-          self.delay_for(1.second).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, 1)
+          self.delay_for(1.second, { queue: 'smooch_priority' }).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, 1)
         end
       rescue StandardError => e
         self.handle_search_error(uid, e, language)
@@ -169,7 +169,7 @@ module SmoochSearch
         self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
         self.send_message_for_state(uid, workflow, 'search_result', language)
       else
-        self.delay_for(1.second).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, attempts + 1) if attempts < 30 # Try for 30 seconds
+        self.delay_for(1.second, { queue: 'smooch_priority' }).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, attempts + 1) if attempts < 30 # Try for 30 seconds
       end
     end
   end

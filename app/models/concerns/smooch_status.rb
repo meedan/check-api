@@ -44,7 +44,7 @@ module SmoochStatus
       def send_message
         pm = self.annotation.annotated
         return unless Bot::Smooch.team_has_smooch_bot_installed(pm)
-        ::Bot::Smooch.delay_for(1.second, { queue: 'smooch', retry: 0 }).send_message_on_status_change(pm.id, self.value, self.class.actor_session_id)
+        ::Bot::Smooch.delay_for(1.second, { queue: 'smooch_priority', retry: 0 }).send_message_on_status_change(pm.id, self.value, self.class.actor_session_id)
       end
     end
   end
