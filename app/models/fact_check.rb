@@ -6,7 +6,7 @@ class FactCheck < ApplicationRecord
 
   belongs_to :claim_description
 
-  before_validation :set_language, on: :create
+  before_validation :set_language, on: :create, if: proc { |fc| fc.language.blank? }
 
   validates_presence_of :user, :claim_description
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
@@ -26,7 +26,7 @@ class FactCheck < ApplicationRecord
   private
 
   def set_language
-    self.language = 'en' if self.language.blank?
+    self.language = Team.current.nil? ? 'en' : Team.current.default_language
   end
 
   def update_report
