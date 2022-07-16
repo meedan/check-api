@@ -71,6 +71,20 @@ class FactCheckTest < ActiveSupport::TestCase
     end
   end
 
+  test "should set default language" do
+    fc = create_fact_check
+    assert_equal 'en', fc.language
+    fc = create_fact_check language: 'ar'
+    assert_equal 'ar', fc.language
+    t = create_team
+    t.set_language = 'fr'
+    t.save!
+    Team.stubs(:current).returns(t)
+    fc = create_fact_check
+    assert_equal 'fr', fc.language
+    Team.unstub(:current)
+  end
+
   test "should not create a fact check if does not have permission" do
     t = create_team
     u = create_user
