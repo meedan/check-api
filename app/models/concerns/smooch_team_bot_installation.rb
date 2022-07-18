@@ -30,7 +30,7 @@ module SmoochTeamBotInstallation
           self.skip_save_images = true
           self.save!
           # Make sure that users will see the new image
-          self.class.delay_for(1.second).reset_smooch_users_states(self.team_id) if images_updated
+          self.class.delay_for(1.second, { queue: 'smooch' }).reset_smooch_users_states(self.team_id) if images_updated
         end
       end
 

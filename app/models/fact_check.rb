@@ -6,6 +6,8 @@ class FactCheck < ApplicationRecord
 
   belongs_to :claim_description
 
+  before_validation :set_language, on: :create, if: proc { |fc| fc.language.blank? }
+
   validates_presence_of :user, :claim_description
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
   validates :title, length: { maximum: 140 }, allow_blank: true, allow_nil: true
@@ -22,6 +24,10 @@ class FactCheck < ApplicationRecord
   end
 
   private
+
+  def set_language
+    self.language = Team.current.nil? ? 'en' : Team.current.default_language
+  end
 
   def update_report
     return if self.skip_report_update || !DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').exists?

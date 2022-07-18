@@ -66,7 +66,7 @@ class Bot::Smooch < BotUser
           s.status = status
           s.save!
         end
-        ::Bot::Smooch.delay_for(3.seconds).send_report_from_parent_to_child(parent.id, target.id)
+        ::Bot::Smooch.delay_for(3.seconds, { queue: 'smooch_priority' }).send_report_from_parent_to_child(parent.id, target.id)
       end
     end
 
@@ -81,11 +81,13 @@ class Bot::Smooch < BotUser
     after_destroy do
       if self.is_confirmed?
         target = self.target
-        s = target.annotations.where(annotation_type: 'verification_status').last&.load
-        status = ::Workflow::Workflow.options(target, 'verification_status')[:default]
-        if !s.nil? && s.status != status
-          s.status = status
-          s.save!
+        unless target.nil?
+          s = target.annotations.where(annotation_type: 'verification_status').last&.load
+          status = ::Workflow::Workflow.options(target, 'verification_status')[:default]
+          if !s.nil? && s.status != status
+            s.status = status
+            s.save!
+          end
         end
       end
     end
@@ -338,7 +340,7 @@ class Bot::Smooch < BotUser
       sm.go_to_ask_if_ready unless sm.state.value == 'ask_if_ready'
       self.ask_if_ready_to_submit(uid, workflow, 'ask_if_ready', language)
     else
-      self.delay_for(self.time_to_send_request, { queue: 'smooch_ping', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id)
+      self.delay_for(self.time_to_send_request, { queue: 'smooch', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id)
     end
   end
 
@@ -463,9 +465,9 @@ class Bot::Smooch < BotUser
     sm = CheckStateMachine.new(uid)
     self.bundle_message(message)
     new_state = value.gsub(/_state$/, '')
-    self.delay_for(self.time_to_send_request, { queue: 'smooch_ping', retry: false }).bundle_messages(uid, message['_id'], app_id) if new_state == 'query' && !self.is_v2?
+    self.delay_for(self.time_to_send_request, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id) if new_state == 'query' && !self.is_v2?
     sm.send("go_to_#{new_state}")
-    self.delay_for(1.seconds, { queue: 'smooch', retry: false }).search(app_id, uid, language, message, self.config['team_id'].to_i, workflow) if new_state == 'search'
+    self.delay_for(1.seconds, { queue: 'smooch_priority', retry: false }).search(app_id, uid, language, message, self.config['team_id'].to_i, workflow) if new_state == 'search'
     self.clear_user_bundled_messages(uid) if new_state == 'main'
     new_state == 'main' && self.is_v2? ? self.send_message_to_user_with_main_menu_appended(uid, self.get_menu_string('cancelled', language), workflow, language) : self.send_message_for_state(uid, workflow, new_state, language)
   end
@@ -932,9 +934,9 @@ class Bot::Smooch < BotUser
     if sm.state.value != 'human_mode'
       sm.enter_human_mode
       text = 'The bot has been de-activated for this conversation. You can now communicate directly to the user in this channel. To reactivate the bot, type `/check bot activate`. <http://help.checkmedia.org/en/articles/3336466-one-on-one-conversation-with-users-on-check-message|Learn about more features of the Slack integration here.>'
-      Bot::Slack.delay_for(1.second).send_message_to_slack_conversation(text, slack_data['token'], slack_data['channel'])
+      Bot::Slack.delay_for(1.second, { queue: 'smooch' }).send_message_to_slack_conversation(text, slack_data['token'], slack_data['channel'])
     end
-    self.delay_for(15.minutes).timeout_smooch_slack_human_conversation(uid, time)
+    self.delay_for(15.minutes, { queue: 'smooch' }).timeout_smooch_slack_human_conversation(uid, time)
   end
 
   def self.timeout_smooch_slack_human_conversation(uid, time)
@@ -952,7 +954,7 @@ class Bot::Smooch < BotUser
     uid = message['authorId']
     time = Time.now.to_f
     Rails.cache.write("smooch:last_message_from_user:#{uid}", time)
-    self.delay_for(15.minutes).timeout_smooch_menu(time, message, app_id)
+    self.delay_for(15.minutes, { queue: 'smooch' }).timeout_smooch_menu(time, message, app_id)
   end
 
   def self.timeout_smooch_menu(time, message, app_id)
