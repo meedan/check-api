@@ -10,28 +10,27 @@ namespace :check do
         'team_name', 'creator_name'
       ]
 
+      SLUG_GROUPS = [].each_slice(5).to_a
+
+      QUARTER = 1
+      MONTH = QUARTER * 3 
+      SLUGS = SLUG_GROUPS[0]
+
       started = Time.now.to_i
-      interval = CheckConfig.get('cache_interval', 30).to_i
-      cache_date = Time.now - interval.days
-      team_count = Team.count
-      team_counter = 0
-      Team.find_each do |team|
-        team_counter += 1
-        puts "[#{Time.now}] Processing team #{team_counter}/#{team_count}: #{team.slug}"
-        query = team.project_medias.where('updated_at > ?', cache_date)
-        pm_count = query.count
-        pm_counter = 0
-        query.find_each do |pm|
-          pm_counter += 1
-          failed = false
-          begin
-            pm.list_columns_values
-            CACHED_FIELDS.each { |field| pm.send(field) } # Just cache if it's not cached yet
-          rescue Exception => e
-            failed = e.message
-          end
-          puts "[#{Time.now}] Processed item #{pm_counter}/#{pm_count} from team #{team_counter}/#{team_count}: ##{pm.id} (#{failed ? 'failed with ' + e.message : 'success'})"
+      team_ids = Team.where(slug: SLUGS).map(&:id)
+      query = ProjectMedia.where(team_id: team_ids).where('archived != 1').where(created_at: Time.now.ago(MONTH.months)..Time.now.ago((MONTH - 3).months))
+      pm_count = query.count
+      pm_counter = 0
+      query.find_each do |pm|
+        pm_counter += 1
+        failed = false
+        begin
+          CACHED_FIELDS.each { |field| pm.send(field) } # Just cache if it's not cached yet
+          pm.list_columns_values
+        rescue Exception => e
+          failed = e.message
         end
+        puts "[#{Time.now}] Processed item #{pm_counter}/#{pm_count}: ##{pm.id} (#{failed ? 'failed with ' + e.message : 'success'})"
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
