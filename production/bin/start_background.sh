@@ -2,15 +2,15 @@
 
 # start_background.sh
 
-if [[ -z ${GITHUB_TOKEN+x} || -z ${DEPLOY_ENV+x} || -z ${APP+x} ]]; then
-	echo "GITHUB_TOKEN, DEPLOY_ENV and APP must be in the environment.   Exiting."
+if [[ -z ${DEPLOY_ENV+x} || -z ${APP+x} ]]; then
+	echo "DEPLOY_ENV and APP must be in the environment.   Exiting."
 	exit 1
 fi
 
-if [ ! -d "configurator" ]; then git clone -q https://${GITHUB_TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator; fi
-d=configurator/check/${DEPLOY_ENV}/${APP}/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
+# Create configuration from SSM and ENV settings
+bash /opt/bin/create_config.sh
 
-echo "starting static files server"
+echo "starting static files server in background"
 bundle exec ruby bin/static-files-server &
 
 echo "starting sidekiq"
