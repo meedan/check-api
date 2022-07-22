@@ -92,12 +92,12 @@ module AlegreSimilarity
       self.add_relationships(pm, self.get_similar_items(pm)) unless pm.is_blank?
     end
 
-    def send_field_to_similarity_index(pm, field)
+    def send_field_to_similarity_index(pm, field, extra_context)
       value = pm.send(field) if !pm.nil? && pm.respond_to?(field)
       if value.blank?
         self.delete_field_from_text_similarity_index(pm, field, true)
       elsif value.size > 1
-        self.send_to_text_similarity_index(pm, field, value, self.item_doc_id(pm, field))
+        self.send_to_text_similarity_index(pm, field, value, self.item_doc_id(pm, field), nil, extra_context)
       end
     end
 
@@ -112,7 +112,7 @@ module AlegreSimilarity
       })
     end
 
-    def send_to_text_similarity_index_package(pm, field, text, doc_id, model=nil)
+    def send_to_text_similarity_index_package(pm, field, text, doc_id, model=nil, extra_context={})
       model ||= self.indexing_model_to_use(pm)
       {
         doc_id: doc_id,
@@ -123,19 +123,19 @@ module AlegreSimilarity
           field: field,
           project_media_id: pm.id,
           has_custom_id: true
-        }
+        }.merge(extra_context)
       }
     end
 
-    def send_to_text_similarity_index(pm, field, text, doc_id, model=nil)
+    def send_to_text_similarity_index(pm, field, text, doc_id, model=nil, extra_context={})
       self.request_api(
         'post',
         '/text/similarity/',
-        self.send_to_text_similarity_index_package(pm, field, text, doc_id, model)
+        self.send_to_text_similarity_index_package(pm, field, text, doc_id, model, extra_context)
       )
     end
 
-    def send_to_media_similarity_index(pm)
+    def send_to_media_similarity_index(pm, extra_context={})
       type = nil
       if pm.report_type == 'uploadedimage'
         type = 'image'
@@ -152,7 +152,7 @@ module AlegreSimilarity
             team_id: pm.team_id,
             project_media_id: pm.id,
             has_custom_id: true
-          },
+          }.merge(extra_context),
           match_across_content_types: true,
         }
         self.request_api(
@@ -172,10 +172,10 @@ module AlegreSimilarity
       description.blank? ? {} : self.get_merged_similar_items(pm, threshold, ['original_description', 'report_text_content', 'report_visual_card_content', 'extracted_text', 'transcription', 'claim_description_content', 'fact_check_summary'], description)
     end
 
-    def get_merged_similar_items(pm, threshold, fields, value, team_ids = [pm&.team_id])
+    def get_merged_similar_items(pm, threshold, fields, value, team_ids = [pm&.team_id], add_published_key=false)
       output = {}
       fields.each do |field|
-        response = self.get_items_with_similar_text(pm, field, threshold, value, [self.default_matching_model, self.matching_model_to_use(pm)].flatten.uniq, team_ids)
+        response = self.get_items_with_similar_text(pm, field, threshold, value, [self.default_matching_model, self.matching_model_to_use(pm)].flatten.uniq, team_ids, add_published_key)
         output[field] = response unless response.blank?
       end
       es_matches = output.values.reduce({}, :merge)
@@ -205,12 +205,12 @@ module AlegreSimilarity
       !team_id || [team_id].flatten.include?(ProjectMedia.find_by_id(pmid)&.team_id)
     end
 
-    def get_items_with_similar_text(pm, field, threshold, text, models = nil, team_ids = [pm&.team_id])
+    def get_items_with_similar_text(pm, field, threshold, text, models = nil, team_ids = [pm&.team_id], add_published_key=false)
       models ||= [self.matching_model_to_use(pm)]
       self.get_items_from_similar_text(team_ids, text, field, threshold, models).reject{ |id, _score_with_context| pm&.id == id }
     end
 
-    def similar_texts_from_api_conditions(text, models, fuzzy, team_id, field, threshold, match_across_content_types=true)
+    def similar_texts_from_api_conditions(text, models, fuzzy, team_id, field, threshold, match_across_content_types=true, add_published_key = false)
       {
         text: text,
         models: [models].flatten.empty? ? nil : [models].flatten,
@@ -221,7 +221,7 @@ module AlegreSimilarity
       }
     end
 
-    def get_items_with_similar_media(media_url, threshold, team_id, path, query_or_body = 'body')
+    def get_items_with_similar_media(media_url, threshold, team_id, path, query_or_body = 'body', add_published_key = false)
       self.get_similar_items_from_api(
         path,
         self.similar_media_content_from_api_conditions(
@@ -234,10 +234,10 @@ module AlegreSimilarity
       )
     end
 
-    def similar_media_content_from_api_conditions(team_id, media_url, threshold, match_across_content_types=true)
+    def similar_media_content_from_api_conditions(team_id, media_url, threshold, match_across_content_types=true, add_published_key = false)
       {
         url: media_url,
-        context: self.build_context(team_id),
+        context: self.build_context(team_id, add_published_key),
         threshold: threshold[:value],
         match_across_content_types: match_across_content_types,
       }

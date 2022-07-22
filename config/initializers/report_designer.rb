@@ -4,28 +4,34 @@ Dynamic.class_eval do
   end
 
   after_save do
-    if self.annotation_type == 'report_design' && (self.action == 'save' || self.action =~ /publish/) && self.annotated&.claim_description
-      fc = self.annotated.claim_description.fact_check
-      user = self.annotator || User.current
-      fields = { user: user, skip_report_update: true }
-      if self.report_design_field_value('use_text_message')
-        fields.merge!({
-          title: self.report_design_field_value('title'),
-          summary: self.report_design_field_value('text'),
-          url: self.report_design_field_value('published_article_url')
-        })
-      elsif self.report_design_field_value('use_visual_card')
-        fields.merge!({
-          title: self.report_design_field_value('headline'),
-          summary: self.report_design_field_value('description'),
-          url: self.report_design_field_value('published_article_url')
-        })
-      end
-      if fc.nil?
-        FactCheck.create({ claim_description: self.annotated.claim_description }.merge(fields))
-      else
-        fields.each { |field, value| fc.send("#{field}=", value) }
-        fc.save
+    if self.annotation_type == 'report_design' && (self.action == 'save' || self.action =~ /publish/)
+      Bot::Alegre.delay_for(1.second, retry: 3).update_context(self.annotated.id, {published: self.report_design_field_value('state') == 'published'})
+      
+      
+      if self.annotated&.claim_description
+        fc = self.annotated.claim_description.fact_check
+        user = self.annotator || User.current
+        fields = { user: user, skip_report_update: true }
+        if self.report_design_field_value('use_text_message')
+          fields.merge!({
+            title: self.report_design_field_value('title'),
+            summary: self.report_design_field_value('text'),
+            url: self.report_design_field_value('published_article_url')
+          })
+        elsif self.report_design_field_value('use_visual_card')
+          fields.merge!({
+            title: self.report_design_field_value('headline'),
+            summary: self.report_design_field_value('description'),
+            url: self.report_design_field_value('published_article_url')
+          })
+        end
+        Bot::Fetch::Import.delay_for(1.second, { queue: 'fetch', retry: 3 }).import_claim_review(claim_review, installation.team_id, installation.user_id, installation.get_status_fallback, status_mapping, installation.get_auto_publish_reports)
+        if fc.nil?
+          FactCheck.create({ claim_description: self.annotated.claim_description }.merge(fields))
+        else
+          fields.each { |field, value| fc.send("#{field}=", value) }
+          fc.save
+        end
       end
     end
   end
