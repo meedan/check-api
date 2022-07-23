@@ -63,12 +63,12 @@ TeamType = GraphqlCrudOperations.define_default_type do
 
   field :verification_statuses do
     type JsonStringType
-    argument :items_count, types.Boolean
-    argument :published_reports_count, types.Boolean
+    argument :items_count_for_status, types.String
+    argument :published_reports_count_for_status, types.String
 
     resolve -> (team, args, _ctx) do
-      team = team.reload if args['items_count'] || args['published_reports_count']
-      team.send('verification_statuses', 'media', nil, args['items_count'], args['published_reports_count'])
+      team = team.reload if args['items_count_for_status'] || args['published_reports_count_for_status']
+      team.send('verification_statuses', 'media', nil, args['items_count_for_status'], args['published_reports_count_for_status'])
     end
   end
 
