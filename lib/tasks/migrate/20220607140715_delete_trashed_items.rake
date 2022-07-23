@@ -34,7 +34,7 @@ namespace :check do
         .find_in_batches(:batch_size => 2500) do |pms|
           print '.'
           ids = pms.map(&:id)
-          ids.each{ |pm_id| ProjectMedia.delay_for(interval.days).delete_forever('trash', updated_at, pm_id) }
+          ids.each{ |pm_id| ProjectMediaTrashWorker.perform_in(interval.days, 'trash', updated_at, pm_id) }
         end
         # log last team id
         Rails.cache.write('check:migrate:enqueue_trashed_items_for_delete_forever:team_id', team.id)
