@@ -1109,7 +1109,7 @@ class GraphqlController3Test < ActionController::TestCase
       ]
     }
 
-    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", language: "pt_BR", media_verification_statuses: ' + custom_statuses.to_json.to_json + ' }) { team { id, verification_statuses_with_counters: verification_statuses(items_count: true, published_reports_count: true), verification_statuses } } }'
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", language: "pt_BR", media_verification_statuses: ' + custom_statuses.to_json.to_json + ' }) { team { id, verification_statuses_with_counters: verification_statuses(items_count_for_status: "1", published_reports_count_for_status: "1"), verification_statuses } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     data = JSON.parse(@response.body).dig('data', 'updateTeam', 'team')
