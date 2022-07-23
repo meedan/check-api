@@ -64,7 +64,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_not_equal 'Custom Status 1', r1.reload.report_design_field_value('status_label', 'en')
     assert_not_equal 'Custom Status 3', r2.reload.report_design_field_value('status_label', 'en')
 
-    query = "mutation deleteTeamStatus { deleteTeamStatus(input: { clientMutationId: \"1\", team_id: \"#{t.graphql_id}\", status_id: \"id2\", fallback_status_id: \"id3\" }) { team { id, verification_statuses(items_count: true) } } }"
+    query = "mutation deleteTeamStatus { deleteTeamStatus(input: { clientMutationId: \"1\", team_id: \"#{t.graphql_id}\", status_id: \"id2\", fallback_status_id: \"id3\" }) { team { id, verification_statuses(items_count_for_status: \"id3\") } } }"
     post :create, params: { query: query, team: 'team' }
     assert_response :success
 
@@ -1015,24 +1015,18 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
     t = create_team slug: 'team'
     DynamicAnnotation::Field.delete_all
-    ['not_applicable', 'in_progress', 'false', 'verified'].each_with_index do |status, i|
-      (i + 1).times do
-        pm = create_project_media project: nil, team: t
-        s = pm.annotations.where(annotation_type: 'verification_status').last.load
-        s.status = status
-        s.save!
-        2.times { publish_report(pm) }
-      end
-    end
+    pm = create_project_media project: nil, team: t
+    s = pm.annotations.where(annotation_type: 'verification_status').last.load
+    s.status = 'false'
+    s.save!
+    2.times { publish_report(pm) }
     create_team_user user: u, team: t, role: 'admin'
-    query = "query GetById { team(id: \"#{t.id}\") { verification_statuses(items_count: true, published_reports_count: true) } }"
+    query = "query GetById { team(id: \"#{t.id}\") { verification_statuses(items_count_for_status: \"false\", published_reports_count_for_status: \"false\") } }"
     post :create, params: { query: query, team: 'team' }
     assert_response :success
     data = JSON.parse(@response.body)['data']['team']['verification_statuses']['statuses']
-    ['not_applicable', 'in_progress', 'false', 'verified'].each_with_index do |status, i|
-      assert_equal i + 1, data.select{ |s| s['id'] == status }[0]['items_count']
-      assert_equal 2 * (i + 1), data.select{ |s| s['id'] == status }[0]['published_reports_count']
-    end
+    assert_equal 1, data.select{ |s| s['id'] == 'false' }[0]['items_count']
+    assert_equal 2, data.select{ |s| s['id'] == 'false' }[0]['published_reports_count']
   end
 
   test "should get custom statuses with items count and published reports count" do
@@ -1051,24 +1045,18 @@ class GraphqlControllerTest < ActionController::TestCase
     t.set_media_verification_statuses(value)
     t.save!
     DynamicAnnotation::Field.delete_all
-    ['1', '2'].each do |status|
-      (status.to_i * 2).times do |i|
-        pm = create_project_media project: nil, team: t
-        s = pm.annotations.where(annotation_type: 'verification_status').last.load
-        s.status = status
-        s.save!
-        2.times { publish_report(pm) }
-      end
-    end
+    pm = create_project_media project: nil, team: t
+    s = pm.annotations.where(annotation_type: 'verification_status').last.load
+    s.status = '1'
+    s.save!
+    2.times { publish_report(pm) }
     create_team_user user: u, team: t, role: 'admin'
-    query = "query GetById { team(id: \"#{t.id}\") { verification_statuses(items_count: true, published_reports_count: true) } }"
+    query = "query GetById { team(id: \"#{t.id}\") { verification_statuses(items_count_for_status: \"1\", published_reports_count_for_status: \"1\") } }"
     post :create, params: { query: query, team: 'team' }
     assert_response :success
     data = JSON.parse(@response.body)['data']['team']['verification_statuses']['statuses']
-    ['1', '2'].each do |status|
-      assert_equal (status.to_i * 2), data.select{ |s| s['id'] == status }[0]['items_count']
-      assert_equal (status.to_i * 2 * 2), data.select{ |s| s['id'] == status }[0]['published_reports_count']
-    end
+    assert_equal 1, data.select{ |s| s['id'] == '1' }[0]['items_count']
+    assert_equal 2, data.select{ |s| s['id'] == '1' }[0]['published_reports_count']
   end
 
   test "should create metadata field with conditionalInfo key in option" do
