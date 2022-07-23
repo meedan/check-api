@@ -501,43 +501,42 @@ class CheckSearch
   def build_search_team_tasks_conditions
     conditions = []
     return conditions unless @options.has_key?('team_tasks') && @options['team_tasks'].class.name == 'Array'
+    @options['team_tasks'].delete_if{ |tt| tt['response'].blank? }
     @options['team_tasks'].each do |tt|
-      unless tt['response'].blank?
-        must_c = []
-        must_c << { term: { "task_responses.team_task_id": tt['id'] } } if tt.has_key?('id')
-        response_type = tt['response_type'] ||= 'choice'
-        if tt['response'] == 'NO_VALUE'
-          conditions << {
-            bool: {
-              must_not: [
-                {
-                  nested: {
-                    path: 'task_responses',
-                    query: {
-                      bool: {
-                        must: [
-                          { term: { 'task_responses.team_task_id': tt['id'] } },
-                          { exists: { field: 'task_responses.value' } }
-                        ]
-                      }
+      must_c = []
+      must_c << { term: { "task_responses.team_task_id": tt['id'] } } if tt.has_key?('id')
+      response_type = tt['response_type'] ||= 'choice'
+      if tt['response'] == 'NO_VALUE'
+        conditions << {
+          bool: {
+            must_not: [
+              {
+                nested: {
+                  path: 'task_responses',
+                  query: {
+                    bool: {
+                      must: [
+                        { term: { 'task_responses.team_task_id': tt['id'] } },
+                        { exists: { field: 'task_responses.value' } }
+                      ]
                     }
                   }
                 }
-              ]
-            }
+              }
+            ]
           }
-          next
-        elsif %w(ANY_VALUE NUMERIC_RANGE DATE_RANGE).include?(tt['response'])
-          method = "format_#{tt['response'].downcase}_team_tasks_field"
-          response_condition = self.send(method, tt)
-          must_c << response_condition unless response_condition.blank?
-        elsif response_type == 'choice'
-          must_c << format_choice_team_tasks_field(tt)
-        else
-          must_c << { match: { "task_responses.value": tt['response'] } }
-        end
-        conditions << { nested: { path: 'task_responses', query: { bool: { must: must_c } } } }
+        }
+        next
+      elsif %w(ANY_VALUE NUMERIC_RANGE DATE_RANGE).include?(tt['response'])
+        method = "format_#{tt['response'].downcase}_team_tasks_field"
+        response_condition = self.send(method, tt)
+        must_c << response_condition unless response_condition.blank?
+      elsif response_type == 'choice'
+        must_c << format_choice_team_tasks_field(tt)
+      else
+        must_c << { match: { "task_responses.value": tt['response'] } }
       end
+      conditions << { nested: { path: 'task_responses', query: { bool: { must: must_c } } } }
     end
     conditions
   end
