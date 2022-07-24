@@ -144,7 +144,7 @@ module CheckElasticSearch
         if field.field_name =~ /choice/
           value = field.selected_values_from_task_answer
         else
-          value = [field.value]
+          value = [field.value.to_s].flatten
         end
         data = { value: value, field_type: field.field_type }
         data.merge!({ date_value: DateTime.parse(field.value).utc }) if field.field_name =~ /datetime/

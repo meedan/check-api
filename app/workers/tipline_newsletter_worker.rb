@@ -1,7 +1,7 @@
 class TiplineNewsletterWorker
   include Sidekiq::Worker
 
-  sidekiq_options queue: 'smooch_priority', retry: 3
+  sidekiq_options queue: 'smooch_priority', retry: 0
 
   def perform(team_id, language)
     tbi = TeamBotInstallation.where(user_id: BotUser.smooch_user&.id.to_i, team_id: team_id.to_i).last
