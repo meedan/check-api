@@ -214,8 +214,8 @@ class ProjectMedia < ApplicationRecord
     # should enqueue spam children for delete forever
     if archived == CheckArchivedFlags::FlagCodes::SPAM && !RequestStore.store[:skip_delete_for_ever]
       interval = CheckConfig.get('empty_trash_interval', 30).to_i
-      updated_at = Time.now
-      ids.each{ |pm_id| ProjectMediaTrashWorker.perform_in(interval.days, 'spam', updated_at, pm_id, { parent_id: project_media_id }) }
+      options = { type: 'spam', updated_at: Time.now, extra: { parent_id: project_media_id }}
+      ids.each{ |pm_id| ProjectMediaTrashWorker.perform_in(interval.days, pm_id, YAML.dump(options)) }
     end
   end
 
