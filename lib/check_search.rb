@@ -501,12 +501,13 @@ class CheckSearch
   def build_search_team_tasks_conditions
     conditions = []
     return conditions unless @options.has_key?('team_tasks') && @options['team_tasks'].class.name == 'Array'
+    @options['team_tasks'].delete_if{ |tt| tt['response'].blank? }
     @options['team_tasks'].each do |tt|
       must_c = []
       must_c << { term: { "task_responses.team_task_id": tt['id'] } } if tt.has_key?('id')
       response_type = tt['response_type'] ||= 'choice'
       if tt['response'] == 'NO_VALUE'
-        return [{
+        conditions << {
           bool: {
             must_not: [
               {
@@ -524,7 +525,8 @@ class CheckSearch
               }
             ]
           }
-        }]
+        }
+        next
       elsif %w(ANY_VALUE NUMERIC_RANGE DATE_RANGE).include?(tt['response'])
         method = "format_#{tt['response'].downcase}_team_tasks_field"
         response_condition = self.send(method, tt)
