@@ -952,8 +952,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should index report data" do
-    WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
-    WebMock.stub_request(:post, 'http://alegre:5000/text/similarity/').to_return(body: {}.to_json)
+    WebMock.stub_request(:delete, 'http://alegre:3100/text/similarity/').to_return(body: {success: true}.to_json)
+    WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
     pm = create_project_media team: @team
     assert_nothing_raised do
       publish_report(pm)

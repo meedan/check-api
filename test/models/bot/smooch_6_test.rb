@@ -88,7 +88,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   end
 
   test "should submit query without details on tipline bot v2" do
-    WebMock.stub_request(:get, 'http://alegre:5000/text/similarity/').to_return(body: {}.to_json)
+    WebMock.stub_request(:get, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
     claim = 'This is a test claim'
     send_message 'hello', '1', '1', random_string, random_string, claim, random_string, random_string, '1'
     assert_saved_query_type 'default_requests'
@@ -157,7 +157,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   end
 
   test "should submit query with details on tipline bot v2" do
-    WebMock.stub_request(:get, 'http://alegre:5000/text/similarity/').to_return(body: {}.to_json)
+    WebMock.stub_request(:get, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
     claim = 'This is a test claim'
     send_message 'hello', '1', '1', random_string, '2', random_string, claim, '1'
     assert_saved_query_type 'default_requests'
