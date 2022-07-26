@@ -229,7 +229,9 @@ module AlegreSimilarity
         self.similar_media_content_from_api_conditions(
           team_id,
           media_url,
-          threshold
+          threshold,
+          true,
+          add_published_key
         ),
         threshold,
         query_or_body
