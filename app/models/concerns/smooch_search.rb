@@ -79,7 +79,7 @@ module SmoochSearch
 
     def get_text_similarity_threshold
       value = self.config.to_h['smooch_search_text_similarity_threshold'].to_f
-      value == 0.0 ? 0.9 : value
+      value == 0.0 ? 0.85 : value
     end
 
     def get_search_results(uid, last_message, team_id, language)
