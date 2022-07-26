@@ -633,7 +633,7 @@ class Bot::Alegre < BotUser
 
   def self.update_context(pm_id, context)
     pm = ProjectMedia.where(id: pm_id).last
-    
+    self.store_pm(pm, context)
   end
 
   class <<self

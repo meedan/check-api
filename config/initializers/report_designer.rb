@@ -6,8 +6,6 @@ Dynamic.class_eval do
   after_save do
     if self.annotation_type == 'report_design' && (self.action == 'save' || self.action =~ /publish/)
       Bot::Alegre.delay_for(1.second, retry: 3).update_context(self.annotated.id, {published: self.report_design_field_value('state') == 'published'})
-      
-      
       if self.annotated&.claim_description
         fc = self.annotated.claim_description.fact_check
         user = self.annotator || User.current
@@ -25,7 +23,6 @@ Dynamic.class_eval do
             url: self.report_design_field_value('published_article_url')
           })
         end
-        Bot::Fetch::Import.delay_for(1.second, { queue: 'fetch', retry: 3 }).import_claim_review(claim_review, installation.team_id, installation.user_id, installation.get_status_fallback, status_mapping, installation.get_auto_publish_reports)
         if fc.nil?
           FactCheck.create({ claim_description: self.annotated.claim_description }.merge(fields))
         else
