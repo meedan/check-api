@@ -5,10 +5,12 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   def setup
     super
     setup_smooch_bot
+    Bot::Alegre.stubs(:request_api).returns({ success: true })
   end
 
   def teardown
     super
+    Bot::Alegre.unstub(:request_api)
     CONFIG.unstub(:[])
     Bot::Smooch.unstub(:get_language)
   end

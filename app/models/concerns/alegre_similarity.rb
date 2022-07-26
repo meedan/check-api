@@ -92,7 +92,7 @@ module AlegreSimilarity
       self.add_relationships(pm, self.get_similar_items(pm)) unless pm.is_blank?
     end
 
-    def send_field_to_similarity_index(pm, field, extra_context)
+    def send_field_to_similarity_index(pm, field, extra_context={})
       value = pm.send(field) if !pm.nil? && pm.respond_to?(field)
       if value.blank?
         self.delete_field_from_text_similarity_index(pm, field, true)
