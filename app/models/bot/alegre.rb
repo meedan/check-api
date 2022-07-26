@@ -199,7 +199,7 @@ class Bot::Alegre < BotUser
     models ||= [self.matching_model_to_use(pm)]
     Hash[self.get_similar_items_from_api(
       '/text/similarity/',
-      self.similar_texts_from_api_conditions(text, models, fuzzy, team_ids, field, threshold, add_published_key),
+      self.similar_texts_from_api_conditions(text, models, fuzzy, team_ids, field, threshold, {add_published_key: true}),
       threshold
     ).collect{|k,v| [k, v.merge(model: v[:model]||Bot::Alegre.default_matching_model)]}]
   end

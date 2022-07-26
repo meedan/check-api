@@ -207,17 +207,19 @@ module AlegreSimilarity
 
     def get_items_with_similar_text(pm, field, threshold, text, models = nil, team_ids = [pm&.team_id], add_published_key=false)
       models ||= [self.matching_model_to_use(pm)]
-      self.get_items_from_similar_text(team_ids, text, field, threshold, models).reject{ |id, _score_with_context| pm&.id == id }
+      self.get_items_from_similar_text(team_ids, text, field, threshold, models, add_published_key).reject{ |id, _score_with_context| pm&.id == id }
     end
 
-    def similar_texts_from_api_conditions(text, models, fuzzy, team_id, field, threshold, match_across_content_types=true, add_published_key = false)
+    def similar_texts_from_api_conditions(text, models, fuzzy, team_id, field, threshold, opts={})
+      opts[:match_across_content_types] ||= true
+      opts[:add_published_key] ||= false
       {
         text: text,
         models: [models].flatten.empty? ? nil : [models].flatten,
         fuzzy: fuzzy == 'true' || fuzzy.to_i == 1,
-        context: self.build_context(team_id, field),
+        context: self.build_context(team_id, field, opts[:add_published_key]),
         threshold: threshold[:value],
-        match_across_content_types: match_across_content_types,
+        match_across_content_types: opts[:match_across_content_types],
       }
     end
 
