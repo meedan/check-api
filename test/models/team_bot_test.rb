@@ -605,12 +605,14 @@ class TeamBotTest < ActiveSupport::TestCase
     data = { event: 'publish_report' }
     publish_stub = WebMock.stub_request(:post, 'http://bot').with(body: hash_including(data)).to_return(body: 'ok')
 
+    Bot::Alegre.stubs(:request_api).returns({ success: true })
     with_current_user_and_team(nil, nil) do
       BotUser.init_event_queue
       publish_report(pm_1)
       publish_report(pm_2)
       BotUser.trigger_events
     end
+    Bot::Alegre.unstub(:request_api)
 
     assert_equal 2, WebMock::RequestRegistry.instance.times_executed(publish_stub.request_pattern)
     WebMock.allow_net_connect!
