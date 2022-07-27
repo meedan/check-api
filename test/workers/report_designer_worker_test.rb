@@ -8,10 +8,10 @@ class ReportDesignerWorkerTest < ActiveSupport::TestCase
   end
 
   test "should send message to Smooch users" do
+    Bot::Alegre.stubs(:request_api).returns({ success: true })
     Sidekiq::Testing.inline!
     r = publish_report
     Bot::Smooch.stubs(:send_report_to_users).once
-    Bot::Alegre.stubs(:request_api).returns({ success: true })
     assert_nothing_raised do
       ReportDesignerWorker.perform_async(r.id, 'publish')
     end
@@ -24,8 +24,8 @@ class ReportDesignerWorkerTest < ActiveSupport::TestCase
   end
 
   test "should save error after many retries" do
-    r = publish_report
     Bot::Alegre.stubs(:request_api).returns({ success: true })
+    r = publish_report
     assert r.get_field_value('last_error').blank?
     ReportDesignerWorker.retries_exhausted_callback({ 'args' => [r.id], 'error_message' => 'Test' }, StandardError.new)
     assert_match /Test/, r.reload.get_field_value('last_error')
