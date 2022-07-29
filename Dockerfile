@@ -40,9 +40,9 @@ RUN python -m pip install -U setuptools wheel
 WORKDIR /app
 COPY Gemfile /app/Gemfile
 COPY Gemfile.lock /app/Gemfile.lock
-RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc \
-    gem install bundler -v "< 2.0" \
-    && bundle install --jobs 20 --retry 5
+RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc && gem install bundler -v "< 2.0"
+RUN bundle config force_ruby_platform true
+RUN bundle install --jobs 20 --retry 5
 COPY . /app
 
 # remember the Rails console history
