@@ -13,9 +13,10 @@ echo "Starting application configuration. Processing ENV settings."
   if [ ! -f clean_db.yml ]; then
     cp clean_db.yml.example clean_db.yml
   fi
-  if [ ! -f config.yml ]; then
-    cp config.yml.example config.yml
-  fi
+# TEMP: don't copy default config as sanity check on SSM vars
+#  if [ ! -f config.yml ]; then
+#    cp config.yml.example config.yml
+#  fi
   if [ ! -f credentials.json ]; then
     cp credentials.json.example credentials.json
   fi
