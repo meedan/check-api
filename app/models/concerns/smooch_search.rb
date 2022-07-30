@@ -107,36 +107,42 @@ module SmoochSearch
     # "query" is either a piece of text of a media URL
     def search_for_similar_published_fact_checks(type, query, team_ids, after = nil)
       Rails.cache.fetch("smooch:search_results:#{self.normalized_query_hash(type, query, team_ids, after)}", expires_in: 2.hours) do
-        results = []
-        pm = nil
-        pm = ProjectMedia.new(team_id: team_ids[0]) if team_ids.size == 1 # We'll use the settings of a team instead of global settings when there is only one team
-        if type == 'text'
-          link = self.extract_url(query)
-          text = ::Bot::Smooch.extract_claim(query)
-          unless link.nil?
-            Rails.logger.info "[Smooch Bot] Search query (URL): #{link.url}"
-            result = ProjectMedia.joins(:media).where('medias.url' => link.url, 'project_medias.team_id' => team_ids).last
-            return [result] if result&.report_status == 'published'
-            text = link.pender_data['description'].to_s
-          end
-          return [] if text.blank?
-          words = text.split(/\s+/)
-          Rails.logger.info "[Smooch Bot] Search query (text): #{text}"
-          if words.size <= self.max_number_of_words_for_keyword_search
-            results = self.search_by_keywords_for_similar_published_fact_checks(words, after, team_ids)
-          else
-            alegre_results = Bot::Alegre.get_merged_similar_items(pm, { value: self.get_text_similarity_threshold }, Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text, team_ids)
-            results = self.parse_search_results_from_alegre(alegre_results, after)
-            Rails.logger.info "[Smooch Bot] Text similarity search got #{results.count} results while looking for '#{text}' after date #{after.inspect} for teams #{team_ids}"
-          end
-        else
-          threshold = Bot::Alegre.get_threshold_for_query(type, pm)[:value]
-          alegre_results = Bot::Alegre.get_items_with_similar_media(query, { value: threshold }, team_ids, "/#{type}/similarity/")
-          results = self.parse_search_results_from_alegre(alegre_results, after)
-          Rails.logger.info "[Smooch Bot] Media similarity search got #{results.count} results while looking for '#{query}' after date #{after.inspect} for teams #{team_ids}"
-        end
-        results
+        self.search_for_similar_published_fact_checks_no_cache(type, query, team_ids, after)
       end
+    end
+
+    # "type" is text, video, audio or image
+    # "query" is either a piece of text of a media URL
+    def search_for_similar_published_fact_checks_no_cache(type, query, team_ids, after = nil)
+      results = []
+      pm = nil
+      pm = ProjectMedia.new(team_id: team_ids[0]) if team_ids.size == 1 # We'll use the settings of a team instead of global settings when there is only one team
+      if type == 'text'
+        link = self.extract_url(query)
+        text = ::Bot::Smooch.extract_claim(query)
+        unless link.nil?
+          Rails.logger.info "[Smooch Bot] Search query (URL): #{link.url}"
+          result = ProjectMedia.joins(:media).where('medias.url' => link.url, 'project_medias.team_id' => team_ids).last
+          return [result] if result&.report_status == 'published'
+          text = link.pender_data['description'].to_s
+        end
+        return [] if text.blank?
+        words = text.split(/\s+/)
+        Rails.logger.info "[Smooch Bot] Search query (text): #{text}"
+        if words.size <= self.max_number_of_words_for_keyword_search
+          results = self.search_by_keywords_for_similar_published_fact_checks(words, after, team_ids)
+        else
+          alegre_results = Bot::Alegre.get_merged_similar_items(pm, { value: self.get_text_similarity_threshold }, Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text, team_ids)
+          results = self.parse_search_results_from_alegre(alegre_results, after)
+          Rails.logger.info "[Smooch Bot] Text similarity search got #{results.count} results while looking for '#{text}' after date #{after.inspect} for teams #{team_ids}"
+        end
+      else
+        threshold = Bot::Alegre.get_threshold_for_query(type, pm)[:value]
+        alegre_results = Bot::Alegre.get_items_with_similar_media(query, { value: threshold }, team_ids, "/#{type}/similarity/")
+        results = self.parse_search_results_from_alegre(alegre_results, after)
+        Rails.logger.info "[Smooch Bot] Media similarity search got #{results.count} results while looking for '#{query}' after date #{after.inspect} for teams #{team_ids}"
+      end
+      results
     end
 
     def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids)
