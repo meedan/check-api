@@ -416,6 +416,5 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
 
     ProjectMedia.any_instance.unstub(:report_status)
     CheckSearch.any_instance.unstub(:medias)
-    Bot::Smooch.unstub(:bundle_list_of_messages)
   end
 end

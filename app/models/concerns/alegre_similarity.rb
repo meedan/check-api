@@ -175,7 +175,7 @@ module AlegreSimilarity
     def get_merged_similar_items(pm, threshold, fields, value, team_ids = [pm&.team_id])
       output = {}
       fields.each do |field|
-        response = self.get_items_with_similar_text(pm, field, threshold, value, [self.default_matching_model, self.matching_model_to_use(pm)].flatten.uniq, team_ids)
+        response = self.get_items_with_similar_text(pm, field, threshold, value, [self.default_matching_model, self.matching_model_to_use(team_ids)].flatten.uniq, team_ids)
         output[field] = response unless response.blank?
       end
       es_matches = output.values.reduce({}, :merge)
@@ -206,14 +206,14 @@ module AlegreSimilarity
     end
 
     def get_items_with_similar_text(pm, field, threshold, text, models = nil, team_ids = [pm&.team_id])
-      models ||= [self.matching_model_to_use(pm)]
+      models ||= [self.matching_model_to_use(team_ids)].flatten
       self.get_items_from_similar_text(team_ids, text, field, threshold, models).reject{ |id, _score_with_context| pm&.id == id }
     end
 
     def similar_texts_from_api_conditions(text, models, fuzzy, team_id, field, threshold, match_across_content_types=true)
       {
         text: text,
-        models: [models].flatten.empty? ? nil : [models].flatten,
+        models: [models].flatten.empty? ? nil : [models].flatten.uniq,
         fuzzy: fuzzy == 'true' || fuzzy.to_i == 1,
         context: self.build_context(team_id, field),
         threshold: threshold[:value],
