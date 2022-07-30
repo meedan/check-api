@@ -397,4 +397,25 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     CheckSearch.any_instance.unstub(:medias)
     Bot::Smooch.unstub(:bundle_list_of_messages)
   end
+
+  test "should cache search results" do
+    ProjectMedia.any_instance.stubs(:report_status).returns('published')
+
+    t = create_team
+    pm = create_project_media team: t
+    CheckSearch.any_instance.stubs(:medias).returns([pm])
+    query = 'foo bar'
+
+    assert_queries '>', 1 do
+      assert_equal [pm], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id], nil)
+    end
+
+    assert_queries '=', 0 do
+      assert_equal [pm], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id], nil)
+    end
+
+    ProjectMedia.any_instance.unstub(:report_status)
+    CheckSearch.any_instance.unstub(:medias)
+    Bot::Smooch.unstub(:bundle_list_of_messages)
+  end
 end
