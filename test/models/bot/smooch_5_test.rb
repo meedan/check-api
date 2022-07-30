@@ -417,4 +417,28 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     ProjectMedia.any_instance.unstub(:report_status)
     CheckSearch.any_instance.unstub(:medias)
   end
+
+  test "should search for longest string between query and URL description" do
+    ProjectMedia.any_instance.stubs(:report_status).returns('published')
+
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    url = 'http://test.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item","description":"Foo bar"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => "Foo bar test #{url}" })
+    CheckSearch.any_instance.stubs(:medias).returns([pm1])
+    Bot::Alegre.stubs(:get_merged_similar_items).returns({ pm2.id => { score: 0.9, model: 'elasticsearch' } })
+
+    assert_equal [pm2], Bot::Smooch.get_search_results(random_string, {}, t.id, 'en')
+    Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => url })
+    assert_equal [pm1], Bot::Smooch.get_search_results(random_string, {}, t.id, 'en')
+
+    ProjectMedia.any_instance.unstub(:report_status)
+    CheckSearch.any_instance.unstub(:medias)
+    Bot::Smooch.unstub(:bundle_list_of_messages)
+    Bot::Alegre.unstub(:get_merged_similar_items)
+  end
 end

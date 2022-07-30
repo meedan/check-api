@@ -124,7 +124,7 @@ module SmoochSearch
           Rails.logger.info "[Smooch Bot] Search query (URL): #{link.url}"
           result = ProjectMedia.joins(:media).where('medias.url' => link.url, 'project_medias.team_id' => team_ids).last
           return [result] if result&.report_status == 'published'
-          text = link.pender_data['description'].to_s
+          text = [link.pender_data['description'].to_s, text].max_by(&:length)
         end
         return [] if text.blank?
         words = text.split(/\s+/)
