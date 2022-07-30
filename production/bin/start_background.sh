@@ -8,7 +8,7 @@ if [[ -z ${DEPLOY_ENV+x} || -z ${APP+x} ]]; then
 fi
 
 # Create configuration from SSM and ENV settings
-bash /opt/bin/create_config.sh
+bash /opt/bin/create_configs.sh
 
 # Setup puma server
 mkdir -p ${PWD}/tmp/pids
