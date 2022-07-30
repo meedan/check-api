@@ -21,7 +21,7 @@ development: &default
   # OPTIONAL AND RECOMMENDED
   # Use values below for local development
   #
-  alegre_host: 'http://alegre:5000'
+  alegre_host: 'http://alegre:3100'
   alegre_token: 'dev'
 
   # Alegre Similarity Thresholds
