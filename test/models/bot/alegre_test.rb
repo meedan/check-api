@@ -680,8 +680,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }
       ]
     })
-    Bot::Alegre.stubs(:matching_model_to_use).with(pm.team_id).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
-    response = Bot::Alegre.get_items_with_similar_title(pm, {key: 'text_elasticsearch_suggestion_threshold', value: 0.1, automatic: false})
+    Bot::Alegre.stubs(:matching_model_to_use).with([pm.team_id]).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
+    response = Bot::Alegre.get_items_with_similar_title(pm, { key: 'text_elasticsearch_suggestion_threshold', value: 0.1, automatic: false })
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
     Bot::Alegre.unstub(:matching_model_to_use)
