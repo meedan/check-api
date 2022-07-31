@@ -53,14 +53,6 @@ namespace :check do
           # tags
           tags = obj.get_annotations('tag').map(&:load)
           data['tags'] = tags.collect{|t| {id: t.id, tag: t.tag_text}}
-          # Dynamics
-          dynamics = []
-          obj.annotations.where("annotation_type LIKE 'task_response%'").find_each do |d|
-            d = d.load
-            options = d.get_elasticsearch_options_dynamic
-            dynamics << d.store_elasticsearch_data(options[:keys], options[:data])
-          end
-          data['dynamics'] = dynamics
           tasks = obj.annotations('task')
           tasks_ids = tasks.map(&:id)
           # 'task_responses'

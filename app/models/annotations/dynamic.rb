@@ -91,17 +91,6 @@ class Dynamic < ApplicationRecord
     self.get_field(name)&.value
   end
 
-  def get_elasticsearch_options_dynamic
-    options = {}
-    method = "get_elasticsearch_options_dynamic_annotation_#{self.annotation_type}"
-    if self.respond_to?(method)
-      options = self.send(method)
-    elsif self.fields.count > 0
-      options = {keys: ['indexable'], data: {}}
-    end
-    options
-  end
-
   def create_field(name, value)
     f = DynamicAnnotation::Field.new
     f.skip_check_ability = true
@@ -131,10 +120,6 @@ class Dynamic < ApplicationRecord
     handle_elasticsearch_response(op)
     handle_extracted_text(op)
     handle_report_published_at(op)
-    op = 'create_or_update' if annotation_type == 'smooch'
-    options = get_elasticsearch_options_dynamic
-    options.merge!({op: op, nested_key: 'dynamics'})
-    add_update_nested_obj(options)
   end
 
   def handle_elasticsearch_response(op)

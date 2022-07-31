@@ -201,86 +201,6 @@ class ElasticSearch2Test < ActionController::TestCase
     end
   end
 
-  test "should index and search by location" do
-    att = 'geolocation'
-    at = create_annotation_type annotation_type: att, label: 'Geolocation'
-    geotype = create_field_type field_type: 'geojson', label: 'GeoJSON'
-    create_field_instance annotation_type_object: at, name: 'geolocation', field_type_object: geotype
-    pm = create_project_media disable_es_callbacks: false
-    geo = {
-      type: 'Feature',
-      geometry: {
-        type: 'Point',
-        coordinates: [-12.9015866, -38.560239]
-      },
-      properties: {
-        name: 'Salvador, BA, Brazil'
-      }
-    }.to_json
-
-    fields = { geolocation: geo }.to_json
-    d = create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: fields, disable_es_callbacks: false
-
-    search = {
-      query: {
-        nested: {
-          path: 'dynamics',
-          query: {
-            bool: {
-              filter: {
-                geo_distance: {
-                  distance: '1000mi',
-                  "dynamics.location": {
-                    lat: -12.900,
-                    lon: -38.560
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    sleep 3
-
-    assert_equal 1, $repository.search(search).results.size
-  end
-
-  test "should index and search by datetime" do
-    att = 'datetime'
-    at = create_annotation_type annotation_type: att, label: 'Date Time'
-    datetime = create_field_type field_type: 'datetime', label: 'Date Time'
-    create_field_instance annotation_type_object: at, name: 'datetime', field_type_object: datetime
-    pm = create_project_media disable_es_callbacks: false
-    fields = { datetime: '2017-08-21 14:13:42' }.to_json
-    d = create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: fields, disable_es_callbacks: false
-
-    search = {
-      query: {
-        nested: {
-          path: 'dynamics',
-          query: {
-            bool: {
-              filter: {
-                range: {
-                  "dynamics.datetime": {
-                    lte: Time.parse('2017-08-22').to_i,
-                    gte: Time.parse('2017-08-20').to_i
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    sleep 5
-
-    assert_equal 1, $repository.search(search).results.size
-  end
-
   test "should index and search by language" do
     att = 'language'
     at = create_annotation_type annotation_type: att, label: 'Language'
@@ -298,24 +218,7 @@ class ElasticSearch2Test < ActionController::TestCase
 
     sleep languages.size * 2
 
-    languages.each do |code|
-      search = {
-        query: {
-          nested: {
-            path: 'dynamics',
-            query: {
-              term: {
-                "dynamics.language": code
-              }
-            }
-          }
-        }
-      }
-
-      results = $repository.search(search).results
-      assert_equal 1, results.size
-      assert_equal ids[code], results.first['annotated_id']
-    end
+    # TODO: Sawy filter by language
   end
 
   test "should filter by others and unidentified language" do

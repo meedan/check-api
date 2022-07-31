@@ -287,8 +287,8 @@ class CheckSearch
     custom_conditions.concat build_search_has_claim_conditions
     custom_conditions.concat build_search_range_filter(:es)
     custom_conditions.concat build_search_numeric_range_filter
-    dynamic_conditions = build_search_dynamic_annotation_conditions
-    check_search_concat_conditions(custom_conditions, dynamic_conditions)
+    language_conditions = build_search_language_conditions
+    check_search_concat_conditions(custom_conditions, language_conditions)
     team_tasks_conditions = build_search_team_tasks_conditions
     check_search_concat_conditions(custom_conditions, team_tasks_conditions)
     if @options['operator'].upcase == 'OR'
@@ -455,35 +455,10 @@ class CheckSearch
     @options['keyword_fields']['fields'].blank? || @options['keyword_fields']['fields'].include?(field)
   end
 
-  def build_search_dynamic_annotation_conditions
+  def build_search_language_conditions
     conditions = []
-    return conditions unless @options.has_key?('dynamic')
-    @options['dynamic'].each do |name, values|
-      next if values.blank?
-      method = "field_search_query_type_#{name}"
-      condition = nil
-      if Dynamic.respond_to?(method)
-        condition = Dynamic.send(method, values, @options['dynamic'])
-      # To be enabled for other dynamic filters
-      # else
-      #   queries = []
-      #   values.each do |value|
-      #     query = { term: { "dynamics.#{name}": value } }
-      #     queries << query
-      #   end
-      #   condition = {
-      #     nested: {
-      #       path: 'dynamics',
-      #       query: {
-      #         bool: {
-      #           should: queries
-      #         }
-      #       }
-      #     }
-      #   }
-      end
-      conditions << condition unless condition.nil?
-    end
+    return conditions unless @options.has_key?('language')
+    # TODO: sawy add language condition
     conditions
   end
 
