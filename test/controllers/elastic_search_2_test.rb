@@ -158,7 +158,7 @@ class ElasticSearch2Test < ActionController::TestCase
     # update title or description
     ElasticSearchWorker.clear
     pm.analysis = { title: 'title', content: 'description' }
-    assert_equal 4, ElasticSearchWorker.jobs.size
+    assert_equal 3, ElasticSearchWorker.jobs.size
     # destroy media
     ElasticSearchWorker.clear
     assert_equal 0, ElasticSearchWorker.jobs.size
@@ -183,7 +183,7 @@ class ElasticSearch2Test < ActionController::TestCase
     # add tag
     ElasticSearchWorker.clear
     t = create_tag annotated: pm, disable_es_callbacks: false
-    assert_equal 3, ElasticSearchWorker.jobs.size
+    assert_equal 2, ElasticSearchWorker.jobs.size
     # destroy tag
     ElasticSearchWorker.clear
     t.destroy
@@ -219,55 +219,6 @@ class ElasticSearch2Test < ActionController::TestCase
     sleep languages.size * 2
 
     # TODO: Sawy filter by language
-  end
-
-  test "should filter by others and unidentified language" do
-    t = create_team
-    p = create_project team: t
-    att = 'language'
-    at = create_annotation_type annotation_type: att, label: 'Language'
-    language = create_field_type field_type: 'language', label: 'Language'
-    create_field_instance annotation_type_object: at, name: 'language', field_type_object: language
-
-    languages = ['pt', 'en', 'es']
-    ids = {}
-    languages.each do |code|
-      pm = create_project_media project: p, disable_es_callbacks: false
-      create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: { language: code }.to_json, disable_es_callbacks: false
-      ids[code] = pm.id
-    end
-
-    ids['unidentified'] = []
-    n = 3
-    n.times do
-      pm = create_project_media project: p, disable_es_callbacks: false
-      ids['unidentified'] << pm.id
-    end
-    pm = create_project_media project: p, disable_es_callbacks: false
-    create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: { language: 'und' }.to_json, disable_es_callbacks: false
-    ids['unidentified'] << pm.id
-
-    sleep languages.size * 2
-
-    unidentified_query = {
-      dynamic: {
-        language: ["und"]
-      },
-      projects: [p.id]
-    }
-    result = CheckSearch.new(unidentified_query.to_json, nil, t.id)
-    assert_equal 4, result.medias.size
-    assert_equal ids['unidentified'].sort, result.medias.map(&:id).sort
-
-    other_query = {
-      dynamic: {
-        language: ["not:en,pt"]
-      },
-      projects: [p.id]
-    }
-    result = CheckSearch.new(other_query.to_json, nil, t.id)
-    assert_equal 1, result.medias.size
-    assert_equal ids['es'], result.medias.first.id
   end
 
   # Please add new tests to test/controllers/elastic_search_7_test.rb

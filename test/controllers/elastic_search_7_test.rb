@@ -7,36 +7,6 @@ class ElasticSearch7Test < ActionController::TestCase
     create_task_stuff
   end
 
-  test "should search for flag" do
-    create_flag_annotation_type
-    t = create_team
-    p = create_project team: t
-
-    pm1 = create_project_media project: p, disable_es_callbacks: false
-    data = valid_flags_data(false)
-    data[:flags]['spam'] = 3
-    create_flag annotated: pm1, disable_es_callbacks: false, set_fields: data.to_json
-
-    pm2 = create_project_media project: p, disable_es_callbacks: false
-    data = valid_flags_data(false)
-    data[:flags]['racy'] = 4
-    create_flag annotated: pm2, disable_es_callbacks: false, set_fields: data.to_json
-
-    sleep 5
-
-    result = CheckSearch.new({ dynamic: { flag_name: ['spam'], flag_value: ['3'] } }.to_json, nil, t.id)
-    assert_equal [pm1.id], result.medias.map(&:id)
-
-    result = CheckSearch.new({ dynamic: { flag_name: ['racy'], flag_value: ['4'] } }.to_json, nil, t.id)
-    assert_equal [pm2.id], result.medias.map(&:id)
-
-    result = CheckSearch.new({ dynamic: { flag_name: ['racy', 'spam'], flag_value: ['3', '4'] } }.to_json, nil, t.id)
-    assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
-
-    result = CheckSearch.new({ dynamic: { flag_name: ['adult'], flag_value: ['5'] } }.to_json, nil, t.id)
-    assert_equal [], result.medias
-  end
-
   test "should search by task responses" do
     t = create_team
     u = create_user
@@ -284,11 +254,7 @@ class ElasticSearch7Test < ActionController::TestCase
       assert_equal [pm2.id], result.medias.map(&:id)
       result = CheckSearch.new({keyword: 'Sawy', keyword_fields: {team_tasks: [tt2.id, tt3.id]}}.to_json)
       assert_equal [pm2.id, pm3.id], result.medias.map(&:id).sort
-      pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
-      create_comment annotated: pm_tt2, text: 'comment by Sawy', disable_es_callbacks: false
       sleep 2
-      result = CheckSearch.new({keyword: 'Sawy', keyword_fields: {team_tasks: [tt2.id]}}.to_json)
-      assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
       query = 'query Search { search(query: "{\"keyword\":\"Sawy\",\"keyword_fields\":{\"fields\":[\"task_answers\",\"metadata_answers\"],\"team_tasks\":[' + tt2.id.to_s + ']}}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
       post :create, params: { query: query }
       assert_response :success
@@ -296,7 +262,7 @@ class ElasticSearch7Test < ActionController::TestCase
       JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
         ids << id["node"]["dbid"]
       end
-      assert_equal [pm.id, pm2.id, pm3.id], ids.sort
+      assert_equal [pm2.id, pm3.id], ids.sort
     end
   end
 

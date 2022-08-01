@@ -7,32 +7,6 @@ class ElasticSearch6Test < ActionController::TestCase
   end
 
   [:asc, :desc].each do |order|
-    test "should filter and sort by most requested #{order}" do
-      t = create_team
-      p = create_project team: t
-
-      query = { sort: 'smooch', sort_type: order.to_s }
-
-      result = CheckSearch.new(query.to_json, nil, t.id)
-      assert_equal 0, result.medias.count
-
-      pm1 = create_project_media project: p, disable_es_callbacks: false
-      2.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm1, disable_es_callbacks: false }
-      pm2 = create_project_media project: p, disable_es_callbacks: false
-      4.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm2, disable_es_callbacks: false }
-      pm3 = create_project_media project: p, disable_es_callbacks: false
-      1.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm3, disable_es_callbacks: false }
-      pm4 = create_project_media project: p, disable_es_callbacks: false
-      3.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm4, disable_es_callbacks: false }
-      pm5 = create_project_media project: p, disable_es_callbacks: false
-      sleep 5
-
-      orders = {asc: [pm3, pm1, pm4, pm2, pm5], desc: [pm2, pm4, pm1, pm3, pm5]}
-      result = CheckSearch.new(query.to_json, nil, t.id)
-      assert_equal 5, result.medias.count
-      assert_equal orders[order.to_sym].map(&:id), result.medias.map(&:id)
-    end
-
     test "should sort by item title #{order}" do
       RequestStore.store[:skip_cached_field_update] = false
       pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
