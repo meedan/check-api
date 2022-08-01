@@ -147,7 +147,7 @@ module AlegreSimilarity
 
     def delete_from_index(pm, fields=nil, quiet=false)
       if self.get_pm_type(pm) == "text"
-        fields = ALL_TEXT_SIMILARITY_FIELDS if fields.nil?
+        fields = Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS if fields.nil?
         fields = fields.flatten.uniq
         fields.collect{|f| self.delete_field_from_text_similarity_index(pm, f, quiet)}
       else
@@ -156,7 +156,8 @@ module AlegreSimilarity
     end
 
     def delete_from_media_similarity_index(pm)
-      unless self.get_pm_type(pm) == "text"
+      type = self.get_pm_type(pm)
+      unless type == "text"
         params = {
           doc_id: self.item_doc_id(pm, type),
           url: self.media_file_url(pm),
@@ -172,7 +173,8 @@ module AlegreSimilarity
     end
 
     def send_to_media_similarity_index(pm)
-      unless self.get_pm_type(pm) == "text"
+      type = self.get_pm_type(pm)
+      unless type == "text"
         params = {
           doc_id: self.item_doc_id(pm, type),
           url: self.media_file_url(pm),
