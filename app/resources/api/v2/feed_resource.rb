@@ -17,6 +17,8 @@ module Api
       filter :query, apply: ->(records, _value, _options) { records }
       filter :after, apply: ->(records, _value, _options) { records }
 
+      paginator :none
+
       def self.records(options = {})
         team_ids = self.workspaces(options).map(&:id)
         filters = options[:filters] || {}
@@ -25,8 +27,12 @@ module Api
         after = filters.dig(:after, 0)
         after = Time.parse(after) unless after.blank?
         return ProjectMedia.none if team_ids.blank? || query.blank?
-        results = Bot::Smooch.search_for_similar_published_fact_checks(type, CGI.unescape(query), team_ids, after)
-        ProjectMedia.where(id: results.map(&:id))
+        Bot::Smooch.search_for_similar_published_fact_checks(type, CGI.unescape(query), team_ids, after)
+      end
+
+      # Make sure that we keep the same order returned by the "records" method above
+      def self.apply_sort(records, _order_options, _context = {})
+        ProjectMedia.where(id: records.map(&:id)).order(Arel.sql("array_position(ARRAY[#{records.map(&:id).join(', ')}], id)"))
       end
 
       def self.count(filters, options = {})
