@@ -53,9 +53,9 @@ namespace :check do
           # tags
           tags = obj.get_annotations('tag').map(&:load)
           data['tags'] = tags.collect{|t| {id: t.id, tag: t.tag_text}}
+          # 'task_responses'
           tasks = obj.annotations('task')
           tasks_ids = tasks.map(&:id)
-          # 'task_responses'
           team_task_ids = TeamTask.where(team_id: team.id).map(&:id)
           responses = Task.where('annotations.id' => tasks_ids)
           .where('task_team_task_id(annotations.annotation_type, annotations.data) IN (?)', team_task_ids)
@@ -79,10 +79,6 @@ namespace :check do
               data['task_responses'] << { id: item.id, team_task_id: item.team_task_id, fieldset: item.fieldset }
             end
           end
-
-          # 'task_comments'
-          task_comments = Annotation.where(annotation_type: 'comment', annotated_type: 'Task', annotated_id: tasks_ids)
-          data['task_comments'] = task_comments.collect{|c| {id: c.id, text: c.text}}
           # 'assigned_user_ids'
           assignments_uids = Assignment.where(assigned_type: ['Annotation', 'Dynamic'])
           .joins('INNER JOIN annotations a ON a.id = assignments.assigned_id')

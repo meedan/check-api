@@ -375,7 +375,7 @@ class CheckSearch
     keyword_c = []
     field_conditions = build_keyword_conditions_media_fields
     check_search_concat_conditions(keyword_c, field_conditions)
-    [['comments', 'text'], ['task_comments', 'text'], ['dynamics', 'indexable']].each do |pair|
+    [['comments', 'text']].each do |pair|
       keyword_c << {
         nested: {
           path: "#{pair[0]}",
@@ -435,7 +435,7 @@ class CheckSearch
     # add team task/metadata filter (ids)
     # should search in responses and comments
     if should_include_keyword_field?('team_tasks') && !@options['keyword_fields']['team_tasks'].blank?
-      [['task_responses', 'value'], ['task_comments', 'text']].each do |pair|
+      [['task_responses', 'value']].each do |pair|
         conditions << {
           nested: {
             path: pair[0],
@@ -549,17 +549,6 @@ class CheckSearch
         { SORT_MAPPING[@options['sort'].to_s] => @options['sort_type'].to_s.downcase.to_sym }
       ]
     end
-    [
-      {
-        "dynamics.#{@options['sort']}": {
-          order: @options['sort_type'],
-          unmapped_type: 'long',
-          nested: {
-            path: 'dynamics'
-          }
-        }
-      }
-    ]
   end
 
   def build_search_tags_conditions

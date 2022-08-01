@@ -38,14 +38,6 @@ class MediaSearch
         text: { type: 'text', analyzer: 'check'}
       }
     }
-    indexes :task_comments, {
-      type: 'nested',
-      properties: {
-        id: { type: 'text'},
-        team_task_id: { type: 'integer'},
-        text: { type: 'text', analyzer: 'check'}
-      }
-    }
     indexes :tags, {
       type: 'nested',
       properties: {

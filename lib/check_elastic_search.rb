@@ -17,7 +17,7 @@ module CheckElasticSearch
     ms.attributes[:media_published_at] = self.media_published_at
     ms.attributes[:source_id] = self.source_id
     # Intial nested objects with []
-    ['accounts', 'comments', 'tags', 'task_responses', 'task_comments', 'assigned_user_ids'].each{ |f| ms.attributes[f] = [] }
+    ['accounts', 'comments', 'tags', 'task_responses', 'assigned_user_ids'].each{ |f| ms.attributes[f] = [] }
     self.add_extra_elasticsearch_data(ms)
     $repository.save(ms)
     $repository.refresh_index! if CheckConfig.get('elasticsearch_sync')

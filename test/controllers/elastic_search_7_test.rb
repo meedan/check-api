@@ -268,9 +268,6 @@ class ElasticSearch7Test < ActionController::TestCase
       pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
       create_comment annotated: pm, text: 'item notepm', disable_es_callbacks: false
       create_comment annotated: pm2, text: 'item comment', disable_es_callbacks: false
-      create_comment annotated: pm_tt2, text: 'task notepm', disable_es_callbacks: false
-      create_comment annotated: pm2_tt, text: 'task comment', disable_es_callbacks: false
-      create_comment annotated: pm3_tt, text: 'task notepm', disable_es_callbacks: false
       sleep 2
       result = CheckSearch.new({keyword: 'Sawy'}.to_json)
       assert_equal [pm2.id, pm3.id], result.medias.map(&:id).sort
@@ -282,12 +279,6 @@ class ElasticSearch7Test < ActionController::TestCase
       assert_equal [pm2.id, pm3.id], result.medias.map(&:id).sort
       result = CheckSearch.new({keyword: 'item', keyword_fields: {fields: ['comments']}}.to_json)
       assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
-      result = CheckSearch.new({keyword: 'item', keyword_fields: {fields: ['task_comments']}}.to_json)
-      assert_empty result.medias.map(&:id)
-      result = CheckSearch.new({keyword: 'task', keyword_fields: {fields: ['task_comments']}}.to_json)
-      assert_equal [pm.id, pm2.id, pm3.id], result.medias.map(&:id).sort
-      result = CheckSearch.new({keyword: 'notepm', keyword_fields: {fields: ['comments', 'task_comments']}}.to_json)
-      assert_equal [pm.id, pm3.id], result.medias.map(&:id).sort
       # tests for group c
       result = CheckSearch.new({keyword: 'Sawy', keyword_fields: {team_tasks: [tt2.id]}}.to_json)
       assert_equal [pm2.id], result.medias.map(&:id)
