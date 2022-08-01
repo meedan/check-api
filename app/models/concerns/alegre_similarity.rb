@@ -112,6 +112,7 @@ module AlegreSimilarity
     def delete_from_text_similarity_index(doc_id, context, quiet=false)
       self.request_api('delete', '/text/similarity/', {
         doc_id: doc_id,
+        context: context,
         quiet: quiet
       })
     end
@@ -153,7 +154,7 @@ module AlegreSimilarity
         self.delete_from_media_similarity_index(pm)
       end
     end
-    
+
     def delete_from_media_similarity_index(pm)
       unless self.get_pm_type(pm) == "text"
         params = {
