@@ -159,7 +159,7 @@ module AlegreSimilarity
         params = {
           doc_id: self.item_doc_id(pm, type),
           url: self.media_file_url(pm),
-          quiet: quiet
+          quiet: quiet,
           context: self.get_context(pm),
         }
         self.request_api(
