@@ -151,11 +151,11 @@ module AlegreSimilarity
         fields = fields.flatten.uniq
         fields.collect{|f| self.delete_field_from_text_similarity_index(pm, f, quiet)}
       else
-        self.delete_from_media_similarity_index(pm)
+        self.delete_from_media_similarity_index(pm, quiet)
       end
     end
 
-    def delete_from_media_similarity_index(pm)
+    def delete_from_media_similarity_index(pm, quiet=false)
       type = self.get_pm_type(pm)
       unless type == "text"
         params = {
