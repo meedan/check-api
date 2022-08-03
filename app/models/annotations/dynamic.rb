@@ -183,11 +183,10 @@ class Dynamic < ApplicationRecord
       data = JSON.parse(self.set_fields)
       data.each do |field_name, value|
         next unless DynamicAnnotation::FieldInstance.where(name: field_name).exists?
-        unless value.blank?
-          f = create_field(field_name, value)
-          f.save!
-          @fields << f
-        end
+        value ||= ""
+        f = create_field(field_name, value)
+        f.save!
+        @fields << f
       end
     end
   end
@@ -198,14 +197,10 @@ class Dynamic < ApplicationRecord
       data = JSON.parse(self.set_fields)
       data.each do |field, value|
         next if value.blank?
-        f = fields.select{ |x| x.field_name == field }.last
-        if f.blank?
-          create_field(field, value)
-        else
-          f.value = value
-          f.skip_check_ability = self.skip_check_ability unless self.skip_check_ability.nil?
-          f.save!
-        end
+        f = fields.select{ |x| x.field_name == field }.last || create_field(field, nil)
+        f.value = value
+        f.skip_check_ability = self.skip_check_ability unless self.skip_check_ability.nil?
+        f.save!
       end
     end
   end
