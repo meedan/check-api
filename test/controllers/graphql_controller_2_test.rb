@@ -690,21 +690,19 @@ class GraphqlController2Test < ActionController::TestCase
     create_dynamic_annotation annotation_type: att, annotated: pm2, set_fields: { language: 'pt' }.to_json, disable_es_callbacks: false
 
     sleep 5
+    query = 'query CheckSearch { search(query: "{\"language\":[\"en\"]}") { id,medias(first:20){edges{node{dbid}}}}}';
+    post :create, params: { query: query, team: 'team' }
+    assert_response :success
+    pmids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+    assert_equal 1, pmids.size
+    assert_equal pm1.id, pmids[0]
 
-    # TODO: Sawy update language queery
-    # query = 'query CheckSearch { search(query: "{\"dynamic\":{\"language\":[\"en\"]}}") { id,medias(first:20){edges{node{dbid}}}}}';
-    # post :create, params: { query: query, team: 'team' }
-    # assert_response :success
-    # pmids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
-    # assert_equal 1, pmids.size
-    # assert_equal pm1.id, pmids[0]
-
-    # query = 'query CheckSearch { search(query: "{\"dynamic\":{\"language\":[\"pt\"]}}") { id,medias(first:20){edges{node{dbid}}}}}';
-    # post :create, params: { query: query, team: 'team' }
-    # assert_response :success
-    # pmids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
-    # assert_equal 1, pmids.size
-    # assert_equal pm2.id, pmids[0]
+    query = 'query CheckSearch { search(query: "{\"language\":[\"pt\"]}") { id,medias(first:20){edges{node{dbid}}}}}';
+    post :create, params: { query: query, team: 'team' }
+    assert_response :success
+    pmids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+    assert_equal 1, pmids.size
+    assert_equal pm2.id, pmids[0]
   end
 
   test "should not remove logo when update team" do

@@ -218,7 +218,19 @@ class ElasticSearch2Test < ActionController::TestCase
 
     sleep languages.size * 2
 
-    # TODO: Sawy filter by language
+    languages.each do |code|
+      search = {
+        query: {
+          terms: {
+            language: [code]
+          }
+        }
+      }
+
+      results = $repository.search(search).results
+      assert_equal 1, results.size
+      assert_equal ids[code], results.first['annotated_id']
+    end
   end
 
   # Please add new tests to test/controllers/elastic_search_7_test.rb

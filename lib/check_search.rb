@@ -149,7 +149,7 @@ class CheckSearch
     end
     query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     filters_blank = true
-    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
+    ['tags', 'keyword', 'rules', 'language', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
       'has_claim', 'cluster_teams', 'published_by', 'channels', 'cluster_published_reports'
     ].each do |filter|
       filters_blank = false unless @options[filter].blank?
@@ -256,7 +256,7 @@ class CheckSearch
   end
 
   def show_parent?
-    search_keys = ['verification_status', 'tags', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'channels', 'report_status']
+    search_keys = ['verification_status', 'tags', 'rules', 'language', 'team_tasks', 'assigned_to', 'channels', 'report_status']
     !@options['projects'].blank? && !@options['keyword'].blank? && (search_keys & @options.keys).blank?
   end
 
@@ -456,10 +456,8 @@ class CheckSearch
   end
 
   def build_search_language_conditions
-    conditions = []
-    return conditions unless @options.has_key?('language')
-    # TODO: sawy add language condition
-    conditions
+    return [] unless @options.has_key?('language')
+    [{ terms: { language: @options['language'] } }]
   end
 
   def build_search_has_claim_conditions

@@ -81,13 +81,7 @@ module CheckElasticSearch
     return if options[:doc_id].blank?
     create_doc_if_not_exists(options)
     key = options[:nested_key]
-    if options[:op] == 'create_or_update'
-      field_name = 'smooch'
-      source = "int s = 0;for (int i = 0; i < ctx._source.#{key}.size(); i++) {"+
-                 "if(ctx._source.#{key}[i].#{field_name} != null){"+
-                   "ctx._source.#{key}[i].#{field_name} += params.value.#{field_name};s = 1;break;}}"+
-               "if (s == 0) {ctx._source.#{key}.add(params.value)}"
-    elsif options[:op] == 'create'
+    if options[:op] == 'create'
       source = "ctx._source.#{key}.add(params.value)"
     else
       source = "for (int i = 0; i < ctx._source.#{key}.size(); i++) { if(ctx._source.#{key}[i].id == params.id){ctx._source.#{key}[i] = params.value;}}"
@@ -170,14 +164,7 @@ module CheckElasticSearch
     nested_type = data[:es_type]
     begin
       client = $repository.client
-      source = ''
-      if self.respond_to?(:annotation_type) && self.annotation_type == 'smooch'
-        field_name = 'smooch'
-        source = "for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].#{field_name} != null){ctx._source.#{nested_type}[i].#{field_name} -= 1}}"
-
-      else
-        source = "for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == params.id){ctx._source.#{nested_type}.remove(i);}}"
-      end
+      source = "for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == params.id){ctx._source.#{nested_type}.remove(i);}}"
       client.update index: CheckElasticSearchModel.get_index_alias, id: data[:doc_id], retry_on_conflict: 3,
                body: { script: { source: source, params: { id: self.id } } }
     rescue
