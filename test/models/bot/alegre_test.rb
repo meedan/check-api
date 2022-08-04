@@ -432,7 +432,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should get similar items" do
     p = create_project
     pm1 = create_project_media project: p
-    Bot::Alegre.stubs(:matching_model_to_use).with(pm1).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
+    Bot::Alegre.stubs(:matching_model_to_use).with(pm1.team_id).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
     response = Bot::Alegre.get_similar_items(pm1)
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:matching_model_to_use)
@@ -493,8 +493,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2 = create_project_media quote: "Blah2", team: @team
     pm2.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles' }
     pm2.save!
-    Bot::Alegre.stubs(:matching_model_to_use).with(pm).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
-    Bot::Alegre.stubs(:matching_model_to_use).with(pm2).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
+    Bot::Alegre.stubs(:matching_model_to_use).with([pm.team_id]).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
+    Bot::Alegre.stubs(:matching_model_to_use).with(pm2.team_id).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
     Bot::Alegre.stubs(:request_api).returns({"result" => [{
         "_index" => "alegre_similarity",
         "_type" => "_doc",
@@ -604,6 +604,19 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:request_api)
   end
 
+  test "should be able to request deletion from index for a media given specific field" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    p = create_project
+    pm = create_project_media project: p, media: create_uploaded_video
+    pm.media.type = "UploadedVideo"
+    pm.media.save!
+    pm.save!
+    Bot::Alegre.stubs(:request_api).returns(true)
+    assert Bot::Alegre.delete_from_index(pm)
+    Bot::Alegre.unstub(:request_api)
+  end
+
   test "should pass through the send audio to similarity index call" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
@@ -625,6 +638,28 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm.save!
     Bot::Alegre.stubs(:request_api).returns(true)
     assert Bot::Alegre.send_field_to_similarity_index(pm, 'description')
+    Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should be able to request deletion from index for a text given specific field" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah", team: @team
+    pm.analysis = { content: 'Description 1' }
+    pm.save!
+    Bot::Alegre.stubs(:request_api).returns(true)
+    assert Bot::Alegre.delete_from_index(pm, ['description'])
+    Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should be able to request deletion from index for a text given no fields" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah", team: @team
+    pm.analysis = { content: 'Description 1' }
+    pm.save!
+    Bot::Alegre.stubs(:request_api).returns(true)
+    assert Bot::Alegre.delete_from_index(pm)
     Bot::Alegre.unstub(:request_api)
   end
 
@@ -684,8 +719,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }
       ]
     })
-    Bot::Alegre.stubs(:matching_model_to_use).with(pm).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
-    response = Bot::Alegre.get_items_with_similar_title(pm, {key: 'text_elasticsearch_suggestion_threshold', value: 0.1, automatic: false})
+    Bot::Alegre.stubs(:matching_model_to_use).with([pm.team_id]).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
+    response = Bot::Alegre.get_items_with_similar_title(pm, { key: 'text_elasticsearch_suggestion_threshold', value: 0.1, automatic: false })
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
     Bot::Alegre.unstub(:matching_model_to_use)
@@ -722,7 +757,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         Bot::Alegre.stubs(:request_api).with("get", "/text/similarity/", {:text=>"Blah foo bar", :models=>["elasticsearch", Bot::Alegre::MEAN_TOKENS_MODEL], :fuzzy=>false, :context=>{:has_custom_id=>true, :field=>field, :team_id=>[pm.team_id]}, :threshold=>threshold, :match_across_content_types=>true}, "body").returns(response)
       end
     end
-    Bot::Alegre.stubs(:matching_model_to_use).with(pm).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
+    Bot::Alegre.stubs(:matching_model_to_use).with([pm.team_id]).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
+    Bot::Alegre.stubs(:matching_model_to_use).with(pm.team_id).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
     response = Bot::Alegre.relate_project_media_to_similar_items(pm)
     assert_equal response.model, Bot::Alegre::MEAN_TOKENS_MODEL
     assert_equal response.weight, 0.9
@@ -788,7 +824,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm.save!
     BotUser.stubs(:alegre_user).returns(User.new)
     TeamBotInstallation.stubs(:find_by_team_id_and_user_id).returns(TeamBotInstallation.new)
-    assert_equal Bot::Alegre.matching_model_to_use(pm), Bot::Alegre.default_matching_model
+    assert_equal Bot::Alegre.matching_model_to_use(pm.team_id), Bot::Alegre.default_matching_model
     BotUser.unstub(:alegre_user)
     TeamBotInstallation.unstub(:find_by_team_id_and_user_id)
   end
