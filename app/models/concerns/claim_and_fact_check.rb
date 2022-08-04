@@ -6,9 +6,13 @@ module ClaimAndFactCheck
   included do
     include CheckElasticSearch
 
+    has_paper_trail on: [:create, :update], ignore: [:updated_at, :created_at], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
+
     belongs_to :user
 
-    before_validation :set_user, on: :create
+    before_validation :set_user
+    validates_presence_of :user
+
     after_commit :index_in_elasticsearch, :send_to_alegre, :notify_bots, on: [:create, :update]
   end
 
