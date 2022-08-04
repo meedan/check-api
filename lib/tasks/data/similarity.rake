@@ -31,7 +31,7 @@ def write_archived_similarity_relationships_to_disk(object_change, filename)
   tids = Team.all.map(&:id)
   tids.each_with_index do |tid, i|
     j = 0
-    Version.from_partition(tid).where(item_type: 'Relationship', event: 'destroy').where('object_changes LIKE ?', object_change).find_each do |v|
+    Version.from_partition(tid).where(item_type: 'Relationship', event: 'destroy', created_at: Time.now.ago(3.months)..Time.now).where('object_changes LIKE ?', object_change).find_each do |v|
       j += 1
       puts "Team #{i+1} / #{tids.size}, version #{j}"
       r = JSON.parse(v.object)
