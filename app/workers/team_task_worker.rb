@@ -15,7 +15,7 @@ class TeamTaskWorker
       unless team_task.nil?
         Team.current = team_task.team
         method = "#{action}_teamwide_tasks_bg"
-        team_task.send(method, options) if team_task.respond_to?(fun)
+        team_task.send(method, options) if team_task.respond_to?(method)
       end
     elsif action == 'destroy'
       RequestStore.store[:skip_check_ability] = true
