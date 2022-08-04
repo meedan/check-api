@@ -98,9 +98,22 @@ module SmoochSearch
       results
     end
 
+    def normalized_query_hash(type, query, team_ids, after)
+      normalized_query = query.downcase.chomp.strip
+      Digest::MD5.hexdigest([type.to_s, normalized_query, [team_ids].flatten.join(','), after.to_s].join(':'))
+    end
+
     # "type" is text, video, audio or image
     # "query" is either a piece of text of a media URL
     def search_for_similar_published_fact_checks(type, query, team_ids, after = nil)
+      Rails.cache.fetch("smooch:search_results:#{self.normalized_query_hash(type, query, team_ids, after)}", expires_in: 2.hours) do
+        self.search_for_similar_published_fact_checks_no_cache(type, query, team_ids, after)
+      end
+    end
+
+    # "type" is text, video, audio or image
+    # "query" is either a piece of text of a media URL
+    def search_for_similar_published_fact_checks_no_cache(type, query, team_ids, after = nil)
       results = []
       pm = nil
       pm = ProjectMedia.new(team_id: team_ids[0]) if team_ids.size == 1 # We'll use the settings of a team instead of global settings when there is only one team
@@ -111,7 +124,7 @@ module SmoochSearch
           Rails.logger.info "[Smooch Bot] Search query (URL): #{link.url}"
           result = ProjectMedia.joins(:media).where('medias.url' => link.url, 'project_medias.team_id' => team_ids).last
           return [result] if result&.report_status == 'published'
-          text = link.pender_data['description'].to_s
+          text = [link.pender_data['description'].to_s, text.to_s.gsub(link.url, '').strip].max_by(&:length)
         end
         return [] if text.blank?
         words = text.split(/\s+/)
