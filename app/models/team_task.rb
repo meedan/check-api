@@ -177,7 +177,7 @@ class TeamTask < ApplicationRecord
 
   def update_tasks(columns)
     columns = columns.except(:type) if get_teamwide_tasks_with_answers.any?
-    TeamTask.get_teamwide_tasks().find_each do |t|
+    TeamTask.get_teamwide_tasks(self.id).find_each do |t|
       t.skip_check_ability = true
       t.update(columns)
     end
