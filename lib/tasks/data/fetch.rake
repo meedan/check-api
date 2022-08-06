@@ -1,32 +1,32 @@
-def parse_args(args)
-  data = {}
-  return data if args.blank?
-  args.each do |a|
-    arg = a.split('&')
-    arg.each do |pair|
-      key, value = pair.split(':')
-      data.merge!({ key => value })
-    end
-  end
-  data
-end
-
-def print_status_mapping(services, team)
-  puts "Fetch status..."
-  services.each do |service|
-    Bot::Fetch.supported_services.select{ |s| s['service'] == service }.last
-    params = { service: service, start_time: '1900-01-01', end_time: '2100-01-01', per_page: 10000 }
-    Bot::Fetch.call_fetch_api(:get, 'claim_reviews', params)
-    .collect{ |cr| cr.dig('reviewRating', 'alternateName') || cr.dig('reviewRating', 'ratingValue').to_s || '' }
-    .sort.uniq.reject{ |s| s.blank? }.each{ |s| puts "\"#{s}\" => \"\"," } ; nil
-  end
-  # Print list of Check statuses
-  puts "Check statuses..."
-  team.media_verification_statuses['statuses'].each{ |s| puts "#{s['id']}: #{s['label']}" } unless team.media_verification_statuses.nil?
-end
-
 namespace :check do
   namespace :fetch do
+    def parse_args(args)
+      data = {}
+      return data if args.blank?
+      args.each do |a|
+        arg = a.split('&')
+        arg.each do |pair|
+          key, value = pair.split(':')
+          data.merge!({ key => value })
+        end
+      end
+      data
+    end
+
+    def print_status_mapping(services, team)
+      puts "Fetch status..."
+      services.each do |service|
+        Bot::Fetch.supported_services.select{ |s| s['service'] == service }.last
+        params = { service: service, start_time: '1900-01-01', end_time: '2100-01-01', per_page: 10000 }
+        Bot::Fetch.call_fetch_api(:get, 'claim_reviews', params)
+        .collect{ |cr| cr.dig('reviewRating', 'alternateName') || cr.dig('reviewRating', 'ratingValue').to_s || '' }
+        .sort.uniq.reject{ |s| s.blank? }.each{ |s| puts "\"#{s}\" => \"\"," } ; nil
+      end
+      # Print list of Check statuses
+      puts "Check statuses..."
+      team.media_verification_statuses['statuses'].each{ |s| puts "#{s['id']}: #{s['label']}" } unless team.media_verification_statuses.nil?
+    end
+
     # bundle exec rails check:fetch:print_status_mapping['slug:team_slug&services:list|of|services']
     task print_status_mapping: :environment do |_t, args|
       data = parse_args args.extras
@@ -66,7 +66,6 @@ namespace :check do
           pm.destroy!
         end
         # Step 3
-        Rails.cache.delete_matched("fetch:claim_review_imported:#{team.id}:*")
         DynamicAnnotation::Field.joins("
           INNER JOIN annotations ON annotations.id = dynamic_annotation_fields.annotation_id
           INNER JOIN project_medias ON project_medias.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia'
@@ -87,13 +86,14 @@ namespace :check do
       end
     end
 
-    # bundle exec rails check:fetch:import['slug:team_slug&services:list|of|services']
+    # bundle exec rails check:fetch:import['slug:team_slug&services:list|of|services&force=1']
     task import: :environment do |_t, args|
       # This task depends on STATUS_MAPPING environment variable, something like `export STATUS_MAPPING=mapping.to_json`
       # The mapping is a hash, where the key is a Fetch status/rating and the value is an existing Check status identifier (not the label)
       data = parse_args args.extras
       slug = data['slug']
       services = data['services'].split('|')
+      force = data['force'].to_i # When "1", ignores existing imported articles and re-import them (e.g., it bypasses cache)
       team = Team.find_by_slug(slug)
       if slug.blank? || services.blank?
         puts "You should pass workspace slug and services to the rake task[check:fetch:import['slug:team_slug&services:list|of|services']"
@@ -120,7 +120,8 @@ namespace :check do
         Bot::Fetch.set_service(slug, services, "undetermined", status_mapping)
         services.each { |service| Bot::Fetch.call_fetch_api(:delete, 'subscribe', { service: service, url: Bot::Fetch.webhook_url(team) }) }
         services.each { |service| Bot::Fetch.call_fetch_api(:post, 'subscribe', { service: service, url: Bot::Fetch.webhook_url(team) }) }
-        Bot::Fetch::Import.delay(retry: 0).import_claim_reviews(TeamBotInstallation.where(user_id: BotUser.find_by_login('fetch').id, team_id: team.id).last.id)
+        tbi = TeamBotInstallation.where(user_id: BotUser.find_by_login('fetch').id, team_id: team.id).last.id
+        Bot::Fetch::Import.delay(retry: 0).import_claim_reviews(tbi, force)
       end
     end
   end
