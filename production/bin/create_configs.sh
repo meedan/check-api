@@ -26,24 +26,6 @@ echo "Starting application configuration. Processing ENV settings."
     cp sidekiq.yml.example sidekiq.yml
   fi
 
-  # For apollo engine proxy config, we use ENV set via SSM:
-  WORKTMP=$(mktemp)
-  if [[ -z ${apollo_proxy_config+x} ]]; then
-    echo "Error: missing apollo_proxy_config ENV setting. Using defaults."
-    ln apollo-engine-proxy.json.example apollo-engine-proxy.json
-  else
-    echo ${apollo_proxy_config} | base64 -d > $WORKTMP
-    if (( $? != 0 )); then
-      echo "Error: could not decode apollo_proxy_config ENV var: ${apollo_proxy_config} . Using defaults."
-      ln apollo-engine-proxy.json.example apollo-engine-proxy.json
-      rm $WORKTMP
-    else
-      echo "Using decoded apollo-engine-proxy configuration from ENV var: ${apollo_proxy_config} ."
-      mv $WORKTMP apollo-engine-proxy.json
-      sha1sum apollo-engine-proxy.json
-    fi
-  fi
-
   # For production environments we use a secret token initializer from SSM:
   WORKTMP=$(mktemp)
   if [[ -z ${initializers_secret_token+x} ]]; then
