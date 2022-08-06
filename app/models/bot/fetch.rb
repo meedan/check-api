@@ -134,7 +134,7 @@ class Bot::Fetch < BotUser
   # Mandatory fields in the imported ClaimReview: claim_review_headline, claim_review_url, created_at and id
 
   class Import
-    def self.import_claim_reviews(installation_id)
+    def self.import_claim_reviews(installation_id, force = false)
       installation = TeamBotInstallation.find(installation_id)
       RequestStore.store[:skip_notifications] = true
       User.current = user = installation.user
@@ -158,7 +158,7 @@ class Bot::Fetch < BotUser
             to2 = from2 + step.days
             params = { service: service_name, start_time: from2.strftime('%Y-%m-%d'), end_time: to2.strftime('%Y-%m-%d'), per_page: 10000 }
             Bot::Fetch.call_fetch_api(:get, 'claim_reviews', params).each do |claim_review|
-              self.import_claim_review(claim_review, team.id, user.id, status_fallback, status_mapping, auto_publish_reports)
+              self.import_claim_review(claim_review, team.id, user.id, status_fallback, status_mapping, auto_publish_reports, force)
               total += 1
             end
           end
@@ -167,10 +167,11 @@ class Bot::Fetch < BotUser
       end
     end
 
-    def self.import_claim_review(claim_review, team_id, user_id, status_fallback, status_mapping, auto_publish_reports)
+    def self.import_claim_review(claim_review, team_id, user_id, status_fallback, status_mapping, auto_publish_reports, force = false)
       begin
         user = User.find(user_id)
         team = Team.find(team_id)
+        Rails.cache.delete(self.semaphore_key(team_id, claim_review['identifier'])) if force
         unless self.already_imported?(claim_review, team)
           Rails.cache.write(self.semaphore_key(team_id, claim_review['identifier']), Time.now)
           ApplicationRecord.transaction do
