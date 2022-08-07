@@ -150,7 +150,7 @@ class CheckSearch
     query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     filters_blank = true
     ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
-      'has_claim', 'cluster_teams', 'published_by', 'channels', 'cluster_published_reports'
+      'has_claim', 'cluster_teams', 'published_by', 'annotated_by', 'channels', 'cluster_published_reports'
     ].each do |filter|
       filters_blank = false unless @options[filter].blank?
     end
@@ -279,6 +279,7 @@ class CheckSearch
     custom_conditions.concat build_search_tags_conditions
     custom_conditions.concat build_search_report_status_conditions
     custom_conditions.concat build_search_published_by_conditions
+    custom_conditions.concat build_search_annotated_by_conditions
     custom_conditions.concat build_search_cluster_published_reports_conditions
     custom_conditions.concat build_search_integer_terms_query('assigned_user_ids', 'assigned_to')
     custom_conditions.concat build_search_integer_terms_query('channel', 'channels')
@@ -648,6 +649,11 @@ class CheckSearch
   def build_search_published_by_conditions
     return [] if @options['published_by'].blank?
     [{ terms: { published_by: [@options['published_by']].flatten } }]
+  end
+
+  def build_search_annotated_by_conditions
+    return [] if @options['annotated_by'].blank?
+    [{ terms: { annotated_by: [@options['annotated_by']].flatten } }]
   end
 
   def build_search_cluster_published_reports_conditions
