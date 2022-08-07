@@ -21,6 +21,7 @@ class MediaSearch
     indexes :read, { type: 'integer' }
     indexes :created_at, { type: 'date' }
     indexes :updated_at, { type: 'date' }
+    indexes :language, { type: 'text', analyzer: 'keyword' }
     indexes :accounts, {
       type: 'nested',
       properties: {
@@ -37,36 +38,11 @@ class MediaSearch
         text: { type: 'text', analyzer: 'check'}
       }
     }
-    indexes :task_comments, {
-      type: 'nested',
-      properties: {
-        id: { type: 'text'},
-        team_task_id: { type: 'integer'},
-        text: { type: 'text', analyzer: 'check'}
-      }
-    }
     indexes :tags, {
       type: 'nested',
       properties: {
         id: { type: 'integer'},
         tag: { type: 'text', analyzer: 'check', fields: { raw: { type: 'text' } } }
-      }
-    }
-    indexes :dynamics, {
-      type: 'nested',
-      properties: {
-        id: { type: 'integer'},
-        datetime: { type: 'integer' },
-        location: { type: 'geo_point' },
-        indexable: { type: 'text', analyzer: 'check'},
-        language: { type: 'text', analyzer: 'keyword' },
-        smooch: { type: 'integer' },
-        flag_adult: { type: 'integer' },
-        flag_spoof: { type: 'integer' },
-        flag_medical: { type: 'integer' },
-        flag_violence: { type: 'integer' },
-        flag_racy: { type: 'integer' },
-        flag_spam: { type: 'integer' }
       }
     }
     indexes :task_responses, {

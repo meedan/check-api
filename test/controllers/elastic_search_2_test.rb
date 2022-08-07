@@ -158,7 +158,7 @@ class ElasticSearch2Test < ActionController::TestCase
     # update title or description
     ElasticSearchWorker.clear
     pm.analysis = { title: 'title', content: 'description' }
-    assert_equal 4, ElasticSearchWorker.jobs.size
+    assert_equal 3, ElasticSearchWorker.jobs.size
     # destroy media
     ElasticSearchWorker.clear
     assert_equal 0, ElasticSearchWorker.jobs.size
@@ -183,7 +183,7 @@ class ElasticSearch2Test < ActionController::TestCase
     # add tag
     ElasticSearchWorker.clear
     t = create_tag annotated: pm, disable_es_callbacks: false
-    assert_equal 3, ElasticSearchWorker.jobs.size
+    assert_equal 2, ElasticSearchWorker.jobs.size
     # destroy tag
     ElasticSearchWorker.clear
     t.destroy
@@ -199,86 +199,6 @@ class ElasticSearch2Test < ActionController::TestCase
       pm = create_project_media media: m, disable_es_callbacks: false
       assert ElasticSearchWorker.jobs.size > 0
     end
-  end
-
-  test "should index and search by location" do
-    att = 'geolocation'
-    at = create_annotation_type annotation_type: att, label: 'Geolocation'
-    geotype = create_field_type field_type: 'geojson', label: 'GeoJSON'
-    create_field_instance annotation_type_object: at, name: 'geolocation', field_type_object: geotype
-    pm = create_project_media disable_es_callbacks: false
-    geo = {
-      type: 'Feature',
-      geometry: {
-        type: 'Point',
-        coordinates: [-12.9015866, -38.560239]
-      },
-      properties: {
-        name: 'Salvador, BA, Brazil'
-      }
-    }.to_json
-
-    fields = { geolocation: geo }.to_json
-    d = create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: fields, disable_es_callbacks: false
-
-    search = {
-      query: {
-        nested: {
-          path: 'dynamics',
-          query: {
-            bool: {
-              filter: {
-                geo_distance: {
-                  distance: '1000mi',
-                  "dynamics.location": {
-                    lat: -12.900,
-                    lon: -38.560
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    sleep 3
-
-    assert_equal 1, $repository.search(search).results.size
-  end
-
-  test "should index and search by datetime" do
-    att = 'datetime'
-    at = create_annotation_type annotation_type: att, label: 'Date Time'
-    datetime = create_field_type field_type: 'datetime', label: 'Date Time'
-    create_field_instance annotation_type_object: at, name: 'datetime', field_type_object: datetime
-    pm = create_project_media disable_es_callbacks: false
-    fields = { datetime: '2017-08-21 14:13:42' }.to_json
-    d = create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: fields, disable_es_callbacks: false
-
-    search = {
-      query: {
-        nested: {
-          path: 'dynamics',
-          query: {
-            bool: {
-              filter: {
-                range: {
-                  "dynamics.datetime": {
-                    lte: Time.parse('2017-08-22').to_i,
-                    gte: Time.parse('2017-08-20').to_i
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    sleep 5
-
-    assert_equal 1, $repository.search(search).results.size
   end
 
   test "should index and search by language" do
@@ -301,13 +221,8 @@ class ElasticSearch2Test < ActionController::TestCase
     languages.each do |code|
       search = {
         query: {
-          nested: {
-            path: 'dynamics',
-            query: {
-              term: {
-                "dynamics.language": code
-              }
-            }
+          terms: {
+            language: [code]
           }
         }
       }
@@ -316,55 +231,6 @@ class ElasticSearch2Test < ActionController::TestCase
       assert_equal 1, results.size
       assert_equal ids[code], results.first['annotated_id']
     end
-  end
-
-  test "should filter by others and unidentified language" do
-    t = create_team
-    p = create_project team: t
-    att = 'language'
-    at = create_annotation_type annotation_type: att, label: 'Language'
-    language = create_field_type field_type: 'language', label: 'Language'
-    create_field_instance annotation_type_object: at, name: 'language', field_type_object: language
-
-    languages = ['pt', 'en', 'es']
-    ids = {}
-    languages.each do |code|
-      pm = create_project_media project: p, disable_es_callbacks: false
-      create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: { language: code }.to_json, disable_es_callbacks: false
-      ids[code] = pm.id
-    end
-
-    ids['unidentified'] = []
-    n = 3
-    n.times do
-      pm = create_project_media project: p, disable_es_callbacks: false
-      ids['unidentified'] << pm.id
-    end
-    pm = create_project_media project: p, disable_es_callbacks: false
-    create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: { language: 'und' }.to_json, disable_es_callbacks: false
-    ids['unidentified'] << pm.id
-
-    sleep languages.size * 2
-
-    unidentified_query = {
-      dynamic: {
-        language: ["und"]
-      },
-      projects: [p.id]
-    }
-    result = CheckSearch.new(unidentified_query.to_json, nil, t.id)
-    assert_equal 4, result.medias.size
-    assert_equal ids['unidentified'].sort, result.medias.map(&:id).sort
-
-    other_query = {
-      dynamic: {
-        language: ["not:en,pt"]
-      },
-      projects: [p.id]
-    }
-    result = CheckSearch.new(other_query.to_json, nil, t.id)
-    assert_equal 1, result.medias.size
-    assert_equal ids['es'], result.medias.first.id
   end
 
   # Please add new tests to test/controllers/elastic_search_7_test.rb
