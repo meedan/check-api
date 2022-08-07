@@ -2680,4 +2680,38 @@ class TeamTest < ActiveSupport::TestCase
     Rails.cache.write("data:report:#{t.id}", [{ 'Month' => 'Jan 2022', 'Search' => 1, 'Foo' => 2 }])
     assert_equal([{ 'Month' => '1. Jan 2022', 'Foo' => 2 }], t.data_report)
   end
+
+  test "should have feeds" do
+    t = create_team
+    f = create_feed
+    f.teams << t
+    assert_equal [f], t.feeds
+  end
+
+  test "should return if belongs to feed" do
+    f = create_feed
+    t = create_team
+    assert !t.is_part_of_feed?(f.id)
+    f.teams << t
+    assert t.is_part_of_feed?(f.id)
+  end
+
+  test "should return teams that share feeds" do
+    t1 = create_team
+    t2 = create_team
+    t3 = create_team
+    t4 = create_team
+    create_feed
+    f1 = create_feed
+    f1.teams << t1
+    f1.teams << t2
+    f2 = create_feed
+    f2.teams << t1
+    f2.teams << t3
+    f3 = create_feed
+    f3.teams << t2
+    f3.teams << t3
+    f3.teams << t4
+    assert_equal [t1, t2, t3].sort, t1.shared_teams.sort
+  end
 end

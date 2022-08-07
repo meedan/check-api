@@ -47,10 +47,6 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :url, types.String
   field :get_tipline_inbox_filters, JsonStringType
   field :get_suggested_matches_filters, JsonStringType
-  field :get_trends_filters, JsonStringType
-  field :get_trends_enabled, types.Boolean
-  field :country, types.String
-  field :country_teams, JsonStringType
   field :data_report, JsonStringType
 
   field :public_team do
@@ -154,7 +150,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
     type TeamTaskType
     argument :dbid, !types.Int
 
-    resolve -> (team, args, _ctx) { team.team_tasks.where(id: args['dbid']).first }
+    resolve -> (team, args, _ctx) { team.team_tasks.where(id: args['dbid'].to_i).last }
   end
 
   field :default_folder do
@@ -163,6 +159,26 @@ TeamType = GraphqlCrudOperations.define_default_type do
     resolve -> (team, _args, _ctx) { team.default_folder }
   end
 
+  field :feed do
+    type FeedType
+    argument :dbid, !types.Int
+
+    resolve -> (team, args, _ctx) { team.feeds.where(id: args['dbid'].to_i).last }
+  end
+
+  field :shared_teams do
+    type JsonStringType
+
+    resolve -> (team, _args, _ctx) {
+      data = {}
+      team.shared_teams.each do |team|
+        data[team.id] = team.name
+      end
+      data
+    }
+  end
+
   connection :saved_searches, SavedSearchType.connection_type
   connection :project_groups, ProjectGroupType.connection_type
+  connection :feeds, FeedType.connection_type
 end

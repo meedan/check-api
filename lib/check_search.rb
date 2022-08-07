@@ -33,8 +33,12 @@ class CheckSearch
     # https://github.com/elastic/elasticsearch/issues/23366
     @options['keyword'] = "#{@options['keyword']}~" if !@options['keyword'].blank? && @options['fuzzy']
 
-    # set es_id option
+    # Set es_id option
     @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['String', 'Integer'].include?(@options['id'].class.name)
+
+    # Apply feed filters 
+    @options.merge!(@feed.filters) if feed_query?
+
     Project.current = Project.where(id: @options['projects'].last).last if @options['projects'].to_a.size == 1 && Project.current.nil?
     @file = file
   end
@@ -53,9 +57,8 @@ class CheckSearch
   }
 
   def team_condition(team_id = nil)
-    if trends_query?
-      team = Team.find(team_id)
-      ProjectMedia.joins(:team).where('teams.country' => team.country).where.not(cluster_id: nil).group(:team_id).count.keys
+    if feed_query?
+      ProjectMedia.joins(:team).where('teams.id' => @feed.team_ids).where.not(cluster_id: nil).group(:team_id).count.keys
     else
       team_id || Team.current&.id
     end
@@ -73,7 +76,7 @@ class CheckSearch
 
   def team
     team_id = 0
-    if trends_query?
+    if feed_query?
       team_id = Team.current ? Team.current.id : @options['team_id'].first
     else
       team_id = @options['team_id']
@@ -210,8 +213,9 @@ class CheckSearch
     hash
   end
 
-  def trends_query?
-    @options['trends'] && Team.current.get_trends_enabled && Team.current.country
+  def feed_query?
+    @feed = (@options['feed_id'] && Team.current.is_part_of_feed?(@options['feed_id'])) ? Feed.find(@options['feed_id']) : nil
+    !@feed.nil?
   end
 
   def get_pg_results_for_media
@@ -247,7 +251,7 @@ class CheckSearch
       core_conditions.merge!({ 'project_medias.id' => ids })
     end
     relation = relation.distinct('project_medias.id').includes(:media).includes(:project).where(core_conditions)
-    relation = relation.joins('INNER JOIN clusters ON clusters.project_media_id = project_medias.id') if trends_query?
+    relation = relation.joins('INNER JOIN clusters ON clusters.project_media_id = project_medias.id') if feed_query?
     relation
   end
 
@@ -274,7 +278,7 @@ class CheckSearch
     custom_conditions << { terms: { read: @options['read'].map(&:to_i) } } if @options.has_key?('read')
     custom_conditions << { terms: { cluster_teams: @options['cluster_teams'] } } if @options.has_key?('cluster_teams')
     core_conditions << { term: { sources_count: 0 } } unless include_related_items
-    core_conditions << { range: { cluster_size: { gt: 0 } } } if trends_query?
+    core_conditions << { range: { cluster_size: { gt: 0 } } } if feed_query?
     custom_conditions.concat build_search_keyword_conditions
     custom_conditions.concat build_search_tags_conditions
     custom_conditions.concat build_search_report_status_conditions
@@ -332,7 +336,7 @@ class CheckSearch
       @options['projects'] = project_ids.empty? ? [0] : project_ids
     end
     # Also, adjust projects filter taking projects' privacy settings into account
-    if Team.current && !trends_query? && [@options['team_id']].flatten.size == 1
+    if Team.current && !feed_query? && [@options['team_id']].flatten.size == 1
       @options['projects'] = @options['projects'].blank? ? (Project.where(team_id: Team.current.id).allowed(Team.current).map(&:id) + [nil]) : Project.where(id: @options['projects']).allowed(Team.current).map(&:id)
     end
     @options['projects'] += [nil] if @options['none_project']
@@ -366,7 +370,7 @@ class CheckSearch
 
   def build_search_keyword_conditions
     return [] if @options["keyword"].blank? || @options["keyword"].class.name != 'String'
-    if trends_query? && @options["keyword"].split(/\s+/).size > 3
+    if feed_query? && @options["keyword"].split(/\s+/).size > 3
       result = Bot::Alegre.get_similar_texts([@options['team_id']].flatten, @options["keyword"])
       pmids = result.empty? ? [0] : result.keys
       return [{ bool: { must: [{ terms: { parent_id: pmids }}] }}]
@@ -626,7 +630,7 @@ class CheckSearch
 
   def build_search_report_status_conditions
     return [] if @options['report_status'].blank? || !@options['report_status'].is_a?(Array)
-    if trends_query?
+    if feed_query?
       conditions = []
       if (['published', 'unpublished'] - @options['report_status']).empty?
         conditions << { range: { cluster_published_reports_count: { gte: 0 } } }

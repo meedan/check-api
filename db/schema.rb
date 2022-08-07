@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_07_11_231024) do
+ActiveRecord::Schema.define(version: 2022_08_07_013653) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -183,8 +183,30 @@ ActiveRecord::Schema.define(version: 2022_07_11_231024) do
     t.bigint "claim_description_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "language", default: "", null: false
     t.index ["claim_description_id"], name: "index_fact_checks_on_claim_description_id"
+    t.index ["language"], name: "index_fact_checks_on_language"
     t.index ["user_id"], name: "index_fact_checks_on_user_id"
+  end
+
+  create_table "feed_teams", force: :cascade do |t|
+    t.bigint "team_id", null: false
+    t.bigint "feed_id", null: false
+    t.jsonb "filters", default: {}
+    t.jsonb "settings", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["feed_id"], name: "index_feed_teams_on_feed_id"
+    t.index ["team_id", "feed_id"], name: "index_feed_teams_on_team_id_and_feed_id", unique: true
+    t.index ["team_id"], name: "index_feed_teams_on_team_id"
+  end
+
+  create_table "feeds", force: :cascade do |t|
+    t.string "name", null: false
+    t.jsonb "filters", default: {}
+    t.jsonb "settings", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "login_activities", id: :serial, force: :cascade do |t|
@@ -488,7 +510,7 @@ ActiveRecord::Schema.define(version: 2022_07_11_231024) do
     t.boolean "completed_signup", default: true
     t.datetime "last_active_at"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
-    t.index ["email"], name: "index_users_on_email"
+    t.index ["email"], name: "index_users_on_email", unique: true, where: "((email IS NOT NULL) AND ((email)::text <> ''::text))"
     t.index ["invitation_token"], name: "index_users_on_invitation_token", unique: true
     t.index ["login"], name: "index_users_on_login"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
@@ -521,4 +543,6 @@ ActiveRecord::Schema.define(version: 2022_07_11_231024) do
   add_foreign_key "claim_descriptions", "users"
   add_foreign_key "fact_checks", "claim_descriptions"
   add_foreign_key "fact_checks", "users"
+  add_foreign_key "feed_teams", "feeds"
+  add_foreign_key "feed_teams", "teams"
 end

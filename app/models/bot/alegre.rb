@@ -160,9 +160,8 @@ class Bot::Alegre < BotUser
   end
 
   def self.set_cluster(pm, force = false)
-    team_ids = ProjectMedia.where.not(cluster_id: nil).group(:team_id).count.keys
     pm = ProjectMedia.find(pm.id)
-    return if (!pm.cluster_id.blank? || !team_ids.include?(pm.team_id)) && !force
+    return if (!pm.cluster_id.blank? || !ProjectMedia.where(team_id: pm.team_id).where.not(cluster_id: nil).exists?) && !force
     thresholds = {
       audio: { value: CheckConfig.get('audio_cluster_similarity_threshold', 0.8, :float) },
       video: { value: CheckConfig.get('video_cluster_similarity_threshold', 0.8, :float) },
