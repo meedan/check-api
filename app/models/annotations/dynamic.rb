@@ -117,67 +117,71 @@ class Dynamic < ApplicationRecord
 
   def add_update_elasticsearch_dynamic(op)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    if self.annotated_type == 'Task' && self.annotation_type =~ /^task_response/
-      handle_elasticsearch_response(op)
-      handle_annotated_by(op)
-    end
-    if self.annotated_type == 'ProjectMedia'
-      handle_extracted_text(op) if self.annotation_type == 'extracted_text'
-      handle_report_published_at if self.annotation_type == 'report_design'
-    end
+    handle_elasticsearch_response(op)
+    handle_annotated_by(op)
+    handle_extracted_text(op) if self.annotation_type == 'extracted_text'
+    handle_report_published_at if self.annotation_type == 'report_design'
   end
 
   def handle_elasticsearch_response(op)
-    task = self.annotated
-    # Index response for team tasks or free text tasks
-    if task&.annotated_type == 'ProjectMedia' && (task.team_task_id || self.annotation_type == 'task_response_free_text')
-      pm = task.project_media
-      if op == 'destroy'
-        handle_destroy_response(task, pm)
-      else
-        # OP will be update for choices tasks as it's already created in TASK model(add_elasticsearch_task)
-        op = self.annotation_type =~ /choice/ ? 'update' : op
-        keys = %w(id team_task_id value field_type fieldset date_value numeric_value)
-        self.add_update_nested_obj({op: op, obj: pm, nested_key: 'task_responses', keys: keys})
-        self.update_recent_activity(pm)
+    if self.annotated_type == 'Task' && self.annotation_type =~ /^task_response/
+      task = self.annotated
+      # Index response for team tasks or free text tasks
+      if task&.annotated_type == 'ProjectMedia' && (task.team_task_id || self.annotation_type == 'task_response_free_text')
+        pm = task.project_media
+        if op == 'destroy'
+          handle_destroy_response(task, pm)
+        else
+          # OP will be update for choices tasks as it's already created in TASK model(add_elasticsearch_task)
+          op = self.annotation_type =~ /choice/ ? 'update' : op
+          keys = %w(id team_task_id value field_type fieldset date_value numeric_value)
+          self.add_update_nested_obj({op: op, obj: pm, nested_key: 'task_responses', keys: keys})
+          self.update_recent_activity(pm)
+        end
       end
     end
   end
 
   def handle_extracted_text(op)
-    value = op == 'destroy' ? '' : self.data['text']
-    self.update_elasticsearch_doc(['extracted_text'], { 'extracted_text' => value }, self.annotated)
+    if self.annotated_type == 'ProjectMedia' && self.annotation_type == 'extracted_text'
+      value = op == 'destroy' ? '' : self.data['text']
+      self.update_elasticsearch_doc(['extracted_text'], { 'extracted_text' => value }, self.annotated)
+    end
   end
 
   def handle_report_published_at
-    data = { 'report_published_at' => self.data['last_published'] }
-    self.update_elasticsearch_doc(['report_published_at'], data, self.annotated)
+    if self.annotated_type == 'ProjectMedia' && self.annotation_type == 'report_design'
+      data = { 'report_published_at' => self.data['last_published'] }
+      self.update_elasticsearch_doc(['report_published_at'], data, self.annotated)
+    end
   end
 
   def handle_annotated_by(op)
-    task = self.annotated
-    if task&.annotated_type == 'ProjectMedia'
-      pm = task.project_media
-      key = "project_media:annotated_by:#{pm.id}"
-      uids = []
-      if Rails.cache.exist?(key)
-        uids = Rails.cache.read(key) || []
-      else
-        Annotation.select('a2.*')
-        .where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: pm.id)
-        .joins("INNER JOIN annotations a2 on annotations.id = a2.annotated_id")
-        .where("a2.annotation_type LIKE ?", 'task_response_%').find_each do |r|
-          uids << r['annotator_id']
+    if self.annotated_type == 'Task' && self.annotation_type =~ /^task_response/
+      task = self.annotated
+      if task&.annotated_type == 'ProjectMedia'
+        pm = task.project_media
+        key = "project_media:annotated_by:#{pm.id}"
+        uids = []
+        if Rails.cache.exist?(key)
+          uids = Rails.cache.read(key) || []
+        else
+          Annotation.select('a2.*')
+          .where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: pm.id)
+          .joins("INNER JOIN annotations a2 on annotations.id = a2.annotated_id")
+          .where("a2.annotation_type LIKE ?", 'task_response_%').find_each do |r|
+            uids << r['annotator_id']
+          end
         end
+        if op == 'destroy'
+          uids -= [self.annotator_id]
+        else
+          uids << self.annotator_id
+        end
+        uids.uniq!
+        Rails.cache.write(key, uids)
+        self.update_elasticsearch_doc(['annotated_by'], { 'annotated_by' => uids }, pm, true)
       end
-      if op == 'destroy'
-        uids -= [self.annotator_id]
-      else
-        uids << self.annotator_id
-      end
-      uids.uniq!
-      Rails.cache.write(key, uids)
-      self.update_elasticsearch_doc(['annotated_by'], { 'annotated_by' => uids }, pm, true)
     end
   end
 
