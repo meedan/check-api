@@ -78,6 +78,8 @@ class MediaSearch
 
     indexes :published_by, { type: 'long' }
 
+    indexes :annotated_by, { type: 'long' }
+
     indexes :reaction_count, { type: 'long' }
 
     indexes :comment_count, { type: 'long' }
