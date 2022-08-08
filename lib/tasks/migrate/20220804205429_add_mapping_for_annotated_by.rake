@@ -8,20 +8,22 @@ namespace :check do
       Team.where('id > ?', last_team_id).find_each do |team|
         team.project_medias.find_in_batches(:batch_size => 2500) do |pms|
           ids = pms.map(&:id)
-          Annotation.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: ids)
-          .find_in_batches(:batch_size => 2500) do |tasks|
-            es_body = []
-            # cache annotated_by value
-            annotated_ids = tasks.map(&:annotated_id)
-            ProjectMedia.where(id: annotated_ids).find_each do |pm|
-              print '.'
-              annotated_by = pm.annotated_by
-              doc_id = Base64.encode64("ProjectMedia/#{pm.id}")
-              fields = { 'annotated_by' => annotated_by }
-              es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
-            end
-            client.bulk body: es_body unless es_body.blank?
+          annotated_by_mapping = Hash.new {|hash, key| hash[key] = [] }
+          Annotation.select('annotations.annotated_id as pm_id, a2.*')
+          .where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: ids)
+          .joins("INNER JOIN annotations a2 on annotations.id = a2.annotated_id")
+          .where("a2.annotation_type LIKE ?", 'task_response_%').find_each do |r|
+            print '.'
+            annotated_by_mapping[r['pm_id']] << r['annotator_id']
           end
+          es_body = []
+          annotated_by_mapping.each do |pm_id, uids|
+            print '.'
+            doc_id = Base64.encode64("ProjectMedia/#{pm_id}")
+            fields = { 'annotated_by' => uids }
+            es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
+          end
+          client.bulk body: es_body unless es_body.blank?
         end
         Rails.cache.write('check:migrate:index_annotated_by:team_id', team.id)
       end
