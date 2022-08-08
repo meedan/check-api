@@ -160,7 +160,8 @@ class Team < ApplicationRecord
   end
 
   def clear_list_columns_cache
-    self.get_languages.to_a.each { |l| Rails.cache.delete("list_columns:team:#{l}:#{self.id}") }
+    languages = self.get_languages.to_a + I18n.available_locales.map(&:to_s)
+    languages.uniq.each { |l| Rails.cache.delete("list_columns:team:#{l}:#{self.id}") }
   end
 
   def list_columns=(columns)
