@@ -119,8 +119,8 @@ class Dynamic < ApplicationRecord
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     handle_elasticsearch_response(op)
     handle_annotated_by(op)
-    handle_extracted_text(op) if self.annotation_type == 'extracted_text'
-    handle_report_published_at if self.annotation_type == 'report_design'
+    handle_extracted_text(op)
+    handle_report_published_at
   end
 
   def handle_elasticsearch_response(op)
