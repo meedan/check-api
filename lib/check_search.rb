@@ -615,7 +615,13 @@ class CheckSearch
 
   def build_search_annotated_by_conditions
     return [] if @options['annotated_by'].blank?
-    [{ terms: { annotated_by: [@options['annotated_by']].flatten } }]
+    if @options['annotated_by_operator'].to_s.downcase == 'and'
+      and_c = []
+      @options['annotated_by'].each{ |a| and_c << { term: { annotated_by: { value: a } } } }
+      [{ bool: { must: and_c }}]
+    else
+      [{ terms: { annotated_by: [@options['annotated_by']].flatten } }]
+    end
   end
 
   def build_search_cluster_published_reports_conditions

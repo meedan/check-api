@@ -323,30 +323,6 @@ module ProjectMediaCachedFields
         },
       ]
 
-    cached_field :annotated_by,
-      start_as: [],
-      update_es: proc { |_pm, value| value },
-      recalculate: proc { |pm|
-        uids =[]
-        Annotation.select('a2.*')
-        .where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: pm.id)
-        .joins("INNER JOIN annotations a2 on annotations.id = a2.annotated_id").find_each do |r|
-          uids << r['annotator_id']
-        end
-        uids.uniq
-      },
-      update_on: [
-        {
-          model: Dynamic,
-          if: proc { |d| d.annotation_type =~ /^task_response/ },
-          affected_ids: proc { |d| d.annotated.project_media&.id },
-          events: {
-            save: :recalculate,
-            destroy: :recalculate
-          }
-        },
-      ]
-
     cached_field :type_of_media,
       start_as: proc { |pm| pm.media.type },
       update_es: proc { |_pm, value| Media.types.index(value) },
