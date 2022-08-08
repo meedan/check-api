@@ -58,7 +58,7 @@ class CheckSearch
 
   def team_condition(team_id = nil)
     if feed_query?
-      ProjectMedia.joins(:team).where('teams.id' => @feed.team_ids).where.not(cluster_id: nil).group(:team_id).count.keys
+      @feed.team_ids
     else
       team_id || Team.current&.id
     end

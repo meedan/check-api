@@ -152,10 +152,9 @@ class ElasticSearch8Test < ActionController::TestCase
   end
 
   test "should sort by cluster_size" do
-    # sort by cluster size(Similar media)
     t = create_team
-    t.country = 'Egypt'
-    t.set_trends_enabled = true
+    f = create_feed
+    f.teams << t
     t.save!
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
@@ -182,7 +181,7 @@ class ElasticSearch8Test < ActionController::TestCase
     c3.project_medias << pm3_1
     sleep 2
     with_current_user_and_team(u, t) do
-      query = { trends: true, country: true, sort: 'cluster_size' }
+      query = { feed_id: f.id, sort: 'cluster_size' }
       result = CheckSearch.new(query.to_json)
       assert_equal [pm2.id, pm1.id, pm3.id], result.medias.map(&:id)
       query[:sort_type] = 'asc'
@@ -191,14 +190,12 @@ class ElasticSearch8Test < ActionController::TestCase
     end
   end
 
-  test "should sort by requests_count" do
-    # sort by cluster_requests_count(Requests)
+  test "should sort by clusters requests count" do
     RequestStore.store[:skip_cached_field_update] = false
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     t = create_team
-    t.country = 'Egypt'
-    t.set_trends_enabled = true
-    t.save!
+    f = create_feed
+    f.teams << t
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     pm1 = create_project_media team: t
@@ -220,7 +217,7 @@ class ElasticSearch8Test < ActionController::TestCase
       es2 = $repository.find(get_es_id(pm2))
       assert_equal c1.requests_count(true), es1['cluster_requests_count']
       assert_equal c2.requests_count(true), es2['cluster_requests_count']
-      query = { trends: true, country: true, sort: 'cluster_requests_count' }
+      query = { feed_id: f.id, sort: 'cluster_requests_count' }
       result = CheckSearch.new(query.to_json)
       assert_equal [pm1.id, pm2.id], result.medias.map(&:id)
       query[:sort_type] = 'asc'
@@ -230,16 +227,12 @@ class ElasticSearch8Test < ActionController::TestCase
   end
 
   test "should sort by cluster_published_reports_count" do
-    # sort by cluster_published_reports_count(Report published)
     RequestStore.store[:skip_cached_field_update] = false
     t = create_team
-    t.country = 'Egypt'
-    t.set_trends_enabled = true
-    t.save!
     t2 = create_team
-    t2.country = 'Egypt'
-    t2.set_trends_enabled = true
-    t2.save!
+    f = create_feed
+    f.teams << t
+    f.teams << t2
     pm1 = create_project_media team: t
     c1 = create_cluster project_media: pm1
     c1.project_medias << pm1
@@ -253,28 +246,26 @@ class ElasticSearch8Test < ActionController::TestCase
     publish_report(pm1)
     sleep 2
     Team.stubs(:current).returns(t)
-    query = { trends: true, country: true, sort: 'cluster_published_reports_count' }
+    query = { feed_id: f.id, sort: 'cluster_published_reports_count' }
     result = CheckSearch.new(query.to_json)
     assert_equal [pm1.id, pm2.id], result.medias.map(&:id)
     query[:sort_type] = 'asc'
     result = CheckSearch.new(query.to_json)
     assert_equal [pm2.id, pm1.id], result.medias.map(&:id)
     # filter by published_by filter `cluster_published_reports`
-    query = { trends: true, country: true, cluster_published_reports: [t.id, t2.id]}
+    query = { feed_id: f.id, cluster_published_reports: [t.id, t2.id]}
     result = CheckSearch.new(query.to_json)
     assert_equal [pm1.id, pm2.id], result.medias.map(&:id).sort
-    query = { trends: true, country: true, cluster_published_reports: [t2.id]}
+    query = { feed_id: f.id, cluster_published_reports: [t2.id]}
     result = CheckSearch.new(query.to_json)
     assert_equal [pm1.id], result.medias.map(&:id)
     Team.unstub(:current)
   end
 
   test "should sort by cluster_first_item_at" do
-    # sort by cluster_first_item_at(Submitted)
     t = create_team
-    t.country = 'Egypt'
-    t.set_trends_enabled = true
-    t.save!
+    f = create_feed
+    f.teams << t
     Time.stubs(:now).returns(Time.new - 2.week)
     pm1 = create_project_media team: t
     c1 = create_cluster project_media: pm1
@@ -290,7 +281,7 @@ class ElasticSearch8Test < ActionController::TestCase
     Time.unstub(:now)
     sleep 2
     Team.stubs(:current).returns(t)
-    query = { trends: true, country: true, sort: 'cluster_first_item_at' }
+    query = { feed_id: f.id, sort: 'cluster_first_item_at' }
     result = CheckSearch.new(query.to_json)
     assert_equal [pm2.id, pm1.id, pm3.id], result.medias.map(&:id)
     query[:sort_type] = 'asc'
@@ -319,11 +310,12 @@ class ElasticSearch8Test < ActionController::TestCase
     end
   end
 
-  test "should filter trends by workspace" do
+  test "should filter feed by workspace" do
     RequestStore.store[:skip_cached_field_update] = false
-    t1 = create_team country: 'Egypt', set_trends_enabled: true
-    t2 = create_team country: 'Egypt', set_trends_enabled: true
-    t3 = create_team country: 'Egypt', set_trends_enabled: true
+    f = create_feed
+    t1 = create_team ; f.teams << t1
+    t2 = create_team ; f.teams << t2
+    t3 = create_team ; f.teams << t3
     pm1 = create_project_media team: t1
     c1 = create_cluster project_media: pm1
     c1.project_medias << pm1
@@ -336,7 +328,7 @@ class ElasticSearch8Test < ActionController::TestCase
     u = create_user
     create_team_user team: t1, user: u, role: 'admin'
     with_current_user_and_team(u, t1) do
-      query = { trends: true, country: true }
+      query = { feed_id: f.id }
       result = CheckSearch.new(query.to_json)
       assert_equal [pm1.id, pm2.id], result.medias.map(&:id).sort
       query[:cluster_teams] = [t1.id]
@@ -350,10 +342,12 @@ class ElasticSearch8Test < ActionController::TestCase
     end
   end
 
-  test "should filter trends by report status" do
+  test "should filter feed by report status" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    t = create_team country: 'Egypt', set_trends_enabled: true
+    t = create_team
+    f = create_feed
+    f.teams << t
     pm1 = create_project_media team: t
     c1 = create_cluster project_media: pm1
     c1.project_medias << pm1
@@ -365,7 +359,7 @@ class ElasticSearch8Test < ActionController::TestCase
     create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
       publish_report(pm1)
-      query = { trends: true, country: true, report_status: ['published', 'unpublished'] }
+      query = { feed_id: f.id, report_status: ['published', 'unpublished'] }
       result = CheckSearch.new(query.to_json)
       assert_equal [pm1.id, pm2.id], result.medias.map(&:id).sort
       query[:report_status] = ['published']

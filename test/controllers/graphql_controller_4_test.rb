@@ -695,9 +695,8 @@ class GraphqlController4Test < ActionController::TestCase
   test "should search by keyword and get similar texts" do
     setup_elasticsearch
     t = create_team
-    t.country = 'Brazil'
-    t.set_trends_enabled = true
-    t.save!
+    f = create_feed
+    f.teams << t
     u = create_user is_admin: true
     authenticate_with_user(u)
 
@@ -719,7 +718,7 @@ class GraphqlController4Test < ActionController::TestCase
     assert_equal pm1.id, JSON.parse(@response.body)['data']['search']['medias']['edges'][0]['node']['dbid']
 
     Bot::Alegre.stubs(:get_similar_texts).returns({ pm2.id => 0.8 })
-    query = 'query CheckSearch { search(query: "{\"trends\":true,\"keyword\":\"This is a test\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    query = 'query CheckSearch { search(query: "{\"feed_id\":' + f.id.to_s + ',\"keyword\":\"This is a test\"}") { medias(first: 20) { edges { node { dbid } } } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal 1, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
