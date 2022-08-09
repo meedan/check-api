@@ -79,10 +79,10 @@ class FactCheckTest < ActiveSupport::TestCase
     t = create_team
     t.set_language = 'fr'
     t.save!
-    Team.stubs(:current).returns(t)
-    fc = create_fact_check
+    pm = create_project_media team: t
+    cd = create_claim_description project_media: pm
+    fc = create_fact_check claim_description: cd
     assert_equal 'fr', fc.language
-    Team.unstub(:current)
   end
 
   test "should not create a fact check if does not have permission" do
