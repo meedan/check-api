@@ -25,7 +25,7 @@ class FactCheck < ApplicationRecord
   private
 
   def set_language
-    self.language = Team.current.nil? ? 'en' : Team.current.default_language
+    self.project_media.team.default_language || 'en'
   end
 
   def update_report
