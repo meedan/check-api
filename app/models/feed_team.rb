@@ -3,4 +3,8 @@ class FeedTeam < ApplicationRecord
 
   belongs_to :team
   belongs_to :feed
+
+  def sharing_enabled?
+    self.shared
+  end
 end

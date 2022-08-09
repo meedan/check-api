@@ -312,7 +312,7 @@ CheckSearch.class_eval do
   end
 
   def format_numeric_range_team_tasks_field(tt)
-    format_mumeric_range_condition('task_responses.numeric_value', tt['range'])
+    format_numeric_range_condition('task_responses.numeric_value', tt['range'])
   end
 
   def format_date_range_team_tasks_field(tt)

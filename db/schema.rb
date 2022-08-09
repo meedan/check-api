@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_08_07_013653) do
+ActiveRecord::Schema.define(version: 2022_08_09_210349) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -196,6 +196,7 @@ ActiveRecord::Schema.define(version: 2022_08_07_013653) do
     t.jsonb "settings", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "shared", default: false
     t.index ["feed_id"], name: "index_feed_teams_on_feed_id"
     t.index ["team_id", "feed_id"], name: "index_feed_teams_on_team_id_and_feed_id", unique: true
     t.index ["team_id"], name: "index_feed_teams_on_team_id"
@@ -207,6 +208,7 @@ ActiveRecord::Schema.define(version: 2022_08_07_013653) do
     t.jsonb "settings", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "published", default: false
   end
 
   create_table "login_activities", id: :serial, force: :cascade do |t|

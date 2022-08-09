@@ -181,7 +181,7 @@ class ElasticSearch8Test < ActionController::TestCase
     c3.project_medias << pm3_1
     sleep 2
     with_current_user_and_team(u, t) do
-      query = { feed_id: f.id, sort: 'cluster_size' }
+      query = { clusterize: true, feed_id: f.id, sort: 'cluster_size' }
       result = CheckSearch.new(query.to_json)
       assert_equal [pm2.id, pm1.id, pm3.id], result.medias.map(&:id)
       query[:sort_type] = 'asc'
@@ -217,7 +217,7 @@ class ElasticSearch8Test < ActionController::TestCase
       es2 = $repository.find(get_es_id(pm2))
       assert_equal c1.requests_count(true), es1['cluster_requests_count']
       assert_equal c2.requests_count(true), es2['cluster_requests_count']
-      query = { feed_id: f.id, sort: 'cluster_requests_count' }
+      query = { clusterize: true, feed_id: f.id, sort: 'cluster_requests_count' }
       result = CheckSearch.new(query.to_json)
       assert_equal [pm1.id, pm2.id], result.medias.map(&:id)
       query[:sort_type] = 'asc'
@@ -246,17 +246,17 @@ class ElasticSearch8Test < ActionController::TestCase
     publish_report(pm1)
     sleep 2
     Team.stubs(:current).returns(t)
-    query = { feed_id: f.id, sort: 'cluster_published_reports_count' }
+    query = { clusterize: true, feed_id: f.id, sort: 'cluster_published_reports_count' }
     result = CheckSearch.new(query.to_json)
     assert_equal [pm1.id, pm2.id], result.medias.map(&:id)
     query[:sort_type] = 'asc'
     result = CheckSearch.new(query.to_json)
     assert_equal [pm2.id, pm1.id], result.medias.map(&:id)
     # filter by published_by filter `cluster_published_reports`
-    query = { feed_id: f.id, cluster_published_reports: [t.id, t2.id]}
+    query = { clusterize: true, feed_id: f.id, cluster_published_reports: [t.id, t2.id]}
     result = CheckSearch.new(query.to_json)
     assert_equal [pm1.id, pm2.id], result.medias.map(&:id).sort
-    query = { feed_id: f.id, cluster_published_reports: [t2.id]}
+    query = { clusterize: true, feed_id: f.id, cluster_published_reports: [t2.id]}
     result = CheckSearch.new(query.to_json)
     assert_equal [pm1.id], result.medias.map(&:id)
     Team.unstub(:current)
@@ -281,7 +281,7 @@ class ElasticSearch8Test < ActionController::TestCase
     Time.unstub(:now)
     sleep 2
     Team.stubs(:current).returns(t)
-    query = { feed_id: f.id, sort: 'cluster_first_item_at' }
+    query = { clusterize: true, feed_id: f.id, sort: 'cluster_first_item_at' }
     result = CheckSearch.new(query.to_json)
     assert_equal [pm2.id, pm1.id, pm3.id], result.medias.map(&:id)
     query[:sort_type] = 'asc'
@@ -328,7 +328,7 @@ class ElasticSearch8Test < ActionController::TestCase
     u = create_user
     create_team_user team: t1, user: u, role: 'admin'
     with_current_user_and_team(u, t1) do
-      query = { feed_id: f.id }
+      query = { clusterize: true, feed_id: f.id }
       result = CheckSearch.new(query.to_json)
       assert_equal [pm1.id, pm2.id], result.medias.map(&:id).sort
       query[:cluster_teams] = [t1.id]
@@ -359,7 +359,7 @@ class ElasticSearch8Test < ActionController::TestCase
     create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
       publish_report(pm1)
-      query = { feed_id: f.id, report_status: ['published', 'unpublished'] }
+      query = { clusterize: true, feed_id: f.id, report_status: ['published', 'unpublished'] }
       result = CheckSearch.new(query.to_json)
       assert_equal [pm1.id, pm2.id], result.medias.map(&:id).sort
       query[:report_status] = ['published']
