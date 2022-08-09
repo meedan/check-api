@@ -29,7 +29,7 @@ class ProjectMedia < ApplicationRecord
   after_create :add_source_creation_log, unless: proc { |pm| pm.source_id.blank? }
   after_commit :apply_rules_and_actions_on_create, :set_quote_metadata, :notify_team_bots_create, on: [:create]
   after_commit :create_relationship, on: [:update]
-  after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :add_remove_team_tasks, :move_similar_item, :send_move_to_slack_notification
+  after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :move_similar_item, :send_move_to_slack_notification
   after_update :apply_rules_and_actions_on_update, if: proc { |pm| pm.saved_changes.keys.include?('read') }
   after_update :apply_delete_for_ever, if: proc { |pm| pm.saved_change_to_archived? && pm.archived == CheckArchivedFlags::FlagCodes::TRASHED }
   after_destroy :destroy_related_medias
@@ -243,17 +243,6 @@ class ProjectMedia < ApplicationRecord
     User.current = previous_user
   end
 
-  def add_destination_team_tasks(project_id)
-    tasks = self.team.auto_tasks(project_id)
-    existing_tasks = Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: self.id)
-      .where('task_team_task_id(annotations.annotation_type, annotations.data) IN (?)', tasks.map(&:id)) unless tasks.blank?
-    unless existing_tasks.blank?
-      tt_ids = existing_tasks.collect{|i| i.data['team_task_id']}
-      tasks.delete_if {|t| tt_ids.include?(t.id)}
-    end
-    self.create_auto_tasks(project_id, tasks) unless tasks.blank?
-  end
-
   def replace_by(new_pm)
     if self.team_id != new_pm.team_id
       raise I18n.t(:replace_by_media_in_the_same_team)
@@ -325,27 +314,6 @@ class ProjectMedia < ApplicationRecord
       end
     end
     values
-  end
-
-  def remove_related_team_tasks_bg(pid)
-    # Get team tasks that assigned to target list (pid)
-    tasks = TeamTask.where("project_ids like ?", "% #{pid}\n%")
-    # Get team tasks that assigned to current list
-    unless self.project_id.blank?
-      current_tasks = TeamTask.where("project_ids like ?", "% #{self.project_id}\n%")
-      tasks = tasks - current_tasks
-    end
-    # Get tasks with zero answer (should keep completed tasks)
-    Task.where('annotations.annotation_type' => 'task', 'annotations.annotated_type' => 'ProjectMedia', 'annotations.annotated_id' => self.id)
-    .where('task_team_task_id(annotations.annotation_type, annotations.data) IN (?)', tasks.map(&:id))
-    .joins("LEFT JOIN annotations responses ON responses.annotation_type LIKE 'task_response%'
-      AND responses.annotated_type = 'Task'
-      AND responses.annotated_id = annotations.id"
-      )
-    .where('responses.id' => nil).find_each do |t|
-      t.skip_check_ability = true
-      t.destroy
-    end
   end
 
   def user_can_see_project?(user = User.current)

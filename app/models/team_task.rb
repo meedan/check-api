@@ -52,9 +52,9 @@ class TeamTask < ApplicationRecord
     self.task_type = value
   end
 
-  def add_teamwide_tasks_bg(_options)
+  def add_teamwide_tasks_bg
     # add metadata to items or sources based on associated_type field
-    if self.fieldset == 'metadata' && self.associated_type == 'Source'
+    if self.associated_type == 'Source'
       add_to_sources
     else
       add_to_project_medias
@@ -142,19 +142,19 @@ class TeamTask < ApplicationRecord
       options: self.saved_change_to_options?
     }
     fields.delete_if{|_k, v| v == false || v.nil?}
-    TeamTaskWorker.perform_in(1.second, 'update', self.id, YAML::dump(User.current), YAML::dump(fields), YAML::dump({}), false, self.diff) unless fields.blank?
+    TeamTaskWorker.perform_in(1.second, 'update', self.id, YAML::dump(User.current), YAML::dump(fields), false, self.diff) unless fields.blank?
   end
 
   def delete_teamwide_tasks
     self.team&.clear_list_columns_cache
     self.keep_completed_tasks = self.keep_completed_tasks.nil? ? false : self.keep_completed_tasks
-    TeamTaskWorker.perform_in(1.second, 'destroy', self.id, YAML::dump(User.current), YAML::dump({}), YAML::dump({}), self.keep_completed_tasks)
+    TeamTaskWorker.perform_in(1.second, 'destroy', self.id, YAML::dump(User.current), YAML::dump({}), self.keep_completed_tasks)
   end
 
   def add_to_sources
     Source.where(team_id: self.team_id).find_each do |s|
       begin
-        s.create_auto_tasks(nil, [self])
+        s.create_auto_tasks([self])
       rescue StandardError => e
         team_task_notification_error(e, s)
       end
@@ -168,7 +168,7 @@ class TeamTask < ApplicationRecord
       AND task_team_task_id(a.annotation_type, a.data) = #{self.id}")
     .where("a.id" => nil).order(id: :desc).distinct.find_each do |pm|
       begin
-        pm.create_auto_tasks(nil, [self])
+        pm.create_auto_tasks([self])
       rescue StandardError => e
         team_task_notification_error(e, pm)
       end

@@ -93,15 +93,6 @@ module ProjectMediaPrivate
     errors.add(:base, "Source should belong to media team.") if self.team_id != self.source.team_id
   end
 
-  def add_remove_team_tasks
-    if self.saved_change_to_project_id?
-      # add new team tasks based on new project_id
-      self.add_destination_team_tasks(self.project_id)
-      # remove existing team tasks based on old project_id
-      TeamTaskWorker.perform_in(1.second, 'remove_from', self.project_id_before_last_save, YAML::dump(User.current), YAML::dump({ project_media_id: self.id }))
-    end
-  end
-
   def move_similar_item
     # move similar items to same project as main item
     if self.saved_change_to_project_id?
