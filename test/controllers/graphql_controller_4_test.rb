@@ -782,6 +782,16 @@ class GraphqlController4Test < ActionController::TestCase
     assert CheckS3.exist?("check_search/#{hash}")
   end
 
+  test "should get shared teams" do
+    t = create_team
+    f = create_feed
+    f.teams << t
+    query = "query { team(slug: \"#{t.slug}\") { shared_teams } }"
+    post :create, params: { query: query }
+    assert_equal({ t.id.to_s => t.name }, JSON.parse(@response.body).dig('data', 'team', 'shared_teams'))
+    assert_response :success
+  end
+
   protected
 
   def assert_error_message(expected)

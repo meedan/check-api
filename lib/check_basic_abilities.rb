@@ -86,7 +86,9 @@ module CheckBasicAbilities
     end
 
     can :read, Cluster do |obj|
-      ProjectMedia.joins(:team).where(cluster_id: obj.id, 'teams.id' => @context_team.shared_teams.map(&:id)).exists?
+      shared_team_ids = @context_team.shared_teams.map(&:id)
+      team_ids = (shared_team_ids & @user.cached_teams)
+      ProjectMedia.where(cluster_id: obj.id, team_id: shared_team_ids).exists? && !team_ids.empty?
     end
 
     can :read, BotUser do |obj|
@@ -108,7 +110,7 @@ module CheckBasicAbilities
     can [:read, :create], Shortener::ShortenedUrl
 
     can :read, Feed do |obj|
-      FeedTeam.where(feed: obj, team: @context_team).exists?
+      !(@user.cached_teams & obj.team_ids).empty?
     end
   end
 

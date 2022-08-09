@@ -36,8 +36,8 @@ class CheckSearch
     # Set es_id option
     @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['String', 'Integer'].include?(@options['id'].class.name)
 
-    # Apply feed filters 
-    @options.merge!(@feed.filters) if feed_query?
+    # Apply feed filters
+    apply_feed_filters
 
     Project.current = Project.where(id: @options['projects'].last).last if @options['projects'].to_a.size == 1 && Project.current.nil?
     @file = file
@@ -216,6 +216,10 @@ class CheckSearch
   def feed_query?
     @feed = (@options['feed_id'] && Team.current.is_part_of_feed?(@options['feed_id'])) ? Feed.find(@options['feed_id']) : nil
     !@feed.nil?
+  end
+
+  def apply_feed_filters
+    @options.merge!(@feed.filters) if feed_query?
   end
 
   def get_pg_results_for_media

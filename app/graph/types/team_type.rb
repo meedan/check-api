@@ -159,11 +159,12 @@ TeamType = GraphqlCrudOperations.define_default_type do
     resolve -> (team, _args, _ctx) { team.default_folder }
   end
 
-  field :feed do
-    type FeedType
+  field :feed, FeedType do
     argument :dbid, !types.Int
 
-    resolve -> (team, args, _ctx) { team.feeds.where(id: args['dbid'].to_i).last }
+    resolve -> (team, args, _ctx) {
+      team.get_feed(args['dbid'])
+    }
   end
 
   field :shared_teams do
@@ -171,8 +172,8 @@ TeamType = GraphqlCrudOperations.define_default_type do
 
     resolve -> (team, _args, _ctx) {
       data = {}
-      team.shared_teams.each do |team|
-        data[team.id] = team.name
+      team.shared_teams.each do |t|
+        data[t.id] = t.name
       end
       data
     }

@@ -526,6 +526,10 @@ class Team < ApplicationRecord
     FeedTeam.where(team_id: self.id, feed_id: feed_id).exists?
   end
 
+  def get_feed(feed_id)
+    self.feeds.where(id: feed_id.to_i).last
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/team_private.rb
