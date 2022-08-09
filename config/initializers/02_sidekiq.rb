@@ -9,10 +9,10 @@ Airbrake.add_filter(Airbrake::Sidekiq::RetryableJobsFilter.new)
 
 Sidekiq::Extensions.enable_delay!
 
-# Only enable CloudWatch metrics for QA and Live, not Travis or other
+# Only enable CloudWatch metrics for Live, not Travis or other
 # integration test environments.
 #
-if "#{ENV['DEPLOY_ENV']}" == 'qa' || "#{ENV['DEPLOY_ENV']}" == 'live'
+if "#{ENV['DEPLOY_ENV']}" == 'live'
   Sidekiq::CloudWatchMetrics.enable!(
     namespace: "sidekiq_checkapi_#{Rails.env}",
     additional_dimensions: { "ClusterName" => "Sidekiq-#{ENV['DEPLOY_ENV']}" } )

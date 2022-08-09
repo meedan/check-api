@@ -600,6 +600,19 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:request_api)
   end
 
+  test "should be able to request deletion from index for a media given specific field" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    p = create_project
+    pm = create_project_media project: p, media: create_uploaded_video
+    pm.media.type = "UploadedVideo"
+    pm.media.save!
+    pm.save!
+    Bot::Alegre.stubs(:request_api).returns(true)
+    assert Bot::Alegre.delete_from_index(pm)
+    Bot::Alegre.unstub(:request_api)
+  end
+
   test "should pass through the send audio to similarity index call" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
@@ -621,6 +634,28 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm.save!
     Bot::Alegre.stubs(:request_api).returns(true)
     assert Bot::Alegre.send_field_to_similarity_index(pm, 'description')
+    Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should be able to request deletion from index for a text given specific field" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah", team: @team
+    pm.analysis = { content: 'Description 1' }
+    pm.save!
+    Bot::Alegre.stubs(:request_api).returns(true)
+    assert Bot::Alegre.delete_from_index(pm, ['description'])
+    Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should be able to request deletion from index for a text given no fields" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah", team: @team
+    pm.analysis = { content: 'Description 1' }
+    pm.save!
+    Bot::Alegre.stubs(:request_api).returns(true)
+    assert Bot::Alegre.delete_from_index(pm)
     Bot::Alegre.unstub(:request_api)
   end
 

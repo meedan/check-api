@@ -149,8 +149,8 @@ class CheckSearch
     end
     query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     filters_blank = true
-    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
-      'has_claim', 'cluster_teams', 'published_by', 'channels', 'cluster_published_reports'
+    ['tags', 'keyword', 'rules', 'language', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
+      'has_claim', 'cluster_teams', 'published_by', 'annotated_by', 'channels', 'cluster_published_reports'
     ].each do |filter|
       filters_blank = false unless @options[filter].blank?
     end
@@ -256,7 +256,7 @@ class CheckSearch
   end
 
   def show_parent?
-    search_keys = ['verification_status', 'tags', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'channels', 'report_status']
+    search_keys = ['verification_status', 'tags', 'rules', 'language', 'team_tasks', 'assigned_to', 'channels', 'report_status']
     !@options['projects'].blank? && !@options['keyword'].blank? && (search_keys & @options.keys).blank?
   end
 
@@ -279,6 +279,7 @@ class CheckSearch
     custom_conditions.concat build_search_tags_conditions
     custom_conditions.concat build_search_report_status_conditions
     custom_conditions.concat build_search_published_by_conditions
+    custom_conditions.concat build_search_annotated_by_conditions
     custom_conditions.concat build_search_cluster_published_reports_conditions
     custom_conditions.concat build_search_integer_terms_query('assigned_user_ids', 'assigned_to')
     custom_conditions.concat build_search_integer_terms_query('channel', 'channels')
@@ -287,8 +288,8 @@ class CheckSearch
     custom_conditions.concat build_search_has_claim_conditions
     custom_conditions.concat build_search_range_filter(:es)
     custom_conditions.concat build_search_numeric_range_filter
-    dynamic_conditions = build_search_dynamic_annotation_conditions
-    check_search_concat_conditions(custom_conditions, dynamic_conditions)
+    language_conditions = build_search_language_conditions
+    check_search_concat_conditions(custom_conditions, language_conditions)
     team_tasks_conditions = build_search_team_tasks_conditions
     check_search_concat_conditions(custom_conditions, team_tasks_conditions)
     if @options['operator'].upcase == 'OR'
@@ -375,7 +376,7 @@ class CheckSearch
     keyword_c = []
     field_conditions = build_keyword_conditions_media_fields
     check_search_concat_conditions(keyword_c, field_conditions)
-    [['comments', 'text'], ['task_comments', 'text'], ['dynamics', 'indexable']].each do |pair|
+    [['comments', 'text']].each do |pair|
       keyword_c << {
         nested: {
           path: "#{pair[0]}",
@@ -435,7 +436,7 @@ class CheckSearch
     # add team task/metadata filter (ids)
     # should search in responses and comments
     if should_include_keyword_field?('team_tasks') && !@options['keyword_fields']['team_tasks'].blank?
-      [['task_responses', 'value'], ['task_comments', 'text']].each do |pair|
+      [['task_responses', 'value']].each do |pair|
         conditions << {
           nested: {
             path: pair[0],
@@ -455,36 +456,9 @@ class CheckSearch
     @options['keyword_fields']['fields'].blank? || @options['keyword_fields']['fields'].include?(field)
   end
 
-  def build_search_dynamic_annotation_conditions
-    conditions = []
-    return conditions unless @options.has_key?('dynamic')
-    @options['dynamic'].each do |name, values|
-      next if values.blank?
-      method = "field_search_query_type_#{name}"
-      condition = nil
-      if Dynamic.respond_to?(method)
-        condition = Dynamic.send(method, values, @options['dynamic'])
-      # To be enabled for other dynamic filters
-      # else
-      #   queries = []
-      #   values.each do |value|
-      #     query = { term: { "dynamics.#{name}": value } }
-      #     queries << query
-      #   end
-      #   condition = {
-      #     nested: {
-      #       path: 'dynamics',
-      #       query: {
-      #         bool: {
-      #           should: queries
-      #         }
-      #       }
-      #     }
-      #   }
-      end
-      conditions << condition unless condition.nil?
-    end
-    conditions
+  def build_search_language_conditions
+    return [] unless @options.has_key?('language')
+    [{ terms: { language: @options['language'] } }]
   end
 
   def build_search_has_claim_conditions
@@ -574,17 +548,6 @@ class CheckSearch
         { SORT_MAPPING[@options['sort'].to_s] => @options['sort_type'].to_s.downcase.to_sym }
       ]
     end
-    [
-      {
-        "dynamics.#{@options['sort']}": {
-          order: @options['sort_type'],
-          unmapped_type: 'long',
-          nested: {
-            path: 'dynamics'
-          }
-        }
-      }
-    ]
   end
 
   def build_search_tags_conditions
@@ -648,6 +611,17 @@ class CheckSearch
   def build_search_published_by_conditions
     return [] if @options['published_by'].blank?
     [{ terms: { published_by: [@options['published_by']].flatten } }]
+  end
+
+  def build_search_annotated_by_conditions
+    return [] if @options['annotated_by'].blank?
+    if @options['annotated_by_operator'].to_s.downcase == 'and'
+      and_c = []
+      @options['annotated_by'].each{ |a| and_c << { term: { annotated_by: { value: a } } } }
+      [{ bool: { must: and_c }}]
+    else
+      [{ terms: { annotated_by: [@options['annotated_by']].flatten } }]
+    end
   end
 
   def build_search_cluster_published_reports_conditions

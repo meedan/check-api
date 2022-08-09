@@ -102,14 +102,29 @@ module AlegreSimilarity
     end
 
     def delete_field_from_text_similarity_index(pm, field, quiet=false)
-      self.delete_from_text_similarity_index(self.item_doc_id(pm, field), quiet)
+      self.delete_from_text_similarity_index(
+        self.item_doc_id(pm, field),
+        self.get_context(pm, field),
+        quiet
+      )
     end
 
-    def delete_from_text_similarity_index(doc_id, quiet=false)
+    def delete_from_text_similarity_index(doc_id, context, quiet=false)
       self.request_api('delete', '/text/similarity/', {
         doc_id: doc_id,
+        context: context,
         quiet: quiet
       })
+    end
+
+    def get_context(pm, field=nil)
+      context = {
+        team_id: pm.team_id,
+        project_media_id: pm.id,
+        has_custom_id: true
+      }
+      context[:field] = field if field
+      context
     end
 
     def send_to_text_similarity_index_package(pm, field, text, doc_id, model=nil)
@@ -118,12 +133,7 @@ module AlegreSimilarity
         doc_id: doc_id,
         text: text,
         model: model,
-        context: {
-          team_id: pm.team_id,
-          field: field,
-          project_media_id: pm.id,
-          has_custom_id: true
-        }
+        context: self.get_context(pm, field)
       }
     end
 
@@ -135,24 +145,40 @@ module AlegreSimilarity
       )
     end
 
-    def send_to_media_similarity_index(pm)
-      type = nil
-      if pm.report_type == 'uploadedimage'
-        type = 'image'
-      elsif pm.report_type == 'uploadedvideo'
-        type = 'video'
-      elsif pm.report_type == 'uploadedaudio'
-        type = 'audio'
+    def delete_from_index(pm, fields=nil, quiet=false)
+      if self.get_pm_type(pm) == "text"
+        fields = Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS if fields.nil?
+        fields = fields.flatten.uniq
+        fields.collect{|f| self.delete_field_from_text_similarity_index(pm, f, quiet)}
+      else
+        self.delete_from_media_similarity_index(pm, quiet)
       end
-      unless type.blank?
+    end
+
+    def delete_from_media_similarity_index(pm, quiet=false)
+      type = self.get_pm_type(pm)
+      unless type == "text"
         params = {
           doc_id: self.item_doc_id(pm, type),
           url: self.media_file_url(pm),
-          context: {
-            team_id: pm.team_id,
-            project_media_id: pm.id,
-            has_custom_id: true
-          },
+          quiet: quiet,
+          context: self.get_context(pm),
+        }
+        self.request_api(
+          'delete',
+          "/#{type}/similarity/",
+          params
+        )
+      end
+    end
+
+    def send_to_media_similarity_index(pm)
+      type = self.get_pm_type(pm)
+      unless type == "text"
+        params = {
+          doc_id: self.item_doc_id(pm, type),
+          url: self.media_file_url(pm),
+          context: self.get_context(pm),
           match_across_content_types: true,
         }
         self.request_api(

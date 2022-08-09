@@ -1,6 +1,5 @@
 class FactCheck < ApplicationRecord
   include ClaimAndFactCheck
-  has_paper_trail on: [:create], ignore: [:updated_at, :created_at], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
 
   attr_accessor :skip_report_update
 
@@ -8,7 +7,7 @@ class FactCheck < ApplicationRecord
 
   before_validation :set_language, on: :create, if: proc { |fc| fc.language.blank? }
 
-  validates_presence_of :user, :claim_description
+  validates_presence_of :claim_description
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
   validates :title, length: { maximum: 140 }, allow_blank: true, allow_nil: true
   validates :summary, length: { maximum: 620 }, allow_blank: true, allow_nil: true
@@ -20,13 +19,13 @@ class FactCheck < ApplicationRecord
   end
 
   def project_media
-    self.claim_description.project_media
+    self.claim_description&.project_media
   end
 
   private
 
   def set_language
-    self.language = Team.current.nil? ? 'en' : Team.current.default_language
+    self.language = self.project_media&.team&.default_language || 'en'
   end
 
   def update_report

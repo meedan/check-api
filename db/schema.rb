@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_07_11_231024) do
+ActiveRecord::Schema.define(version: 2022_08_04_205429) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -183,7 +183,9 @@ ActiveRecord::Schema.define(version: 2022_07_11_231024) do
     t.bigint "claim_description_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "language", default: "", null: false
     t.index ["claim_description_id"], name: "index_fact_checks_on_claim_description_id"
+    t.index ["language"], name: "index_fact_checks_on_language"
     t.index ["user_id"], name: "index_fact_checks_on_user_id"
   end
 
@@ -488,7 +490,7 @@ ActiveRecord::Schema.define(version: 2022_07_11_231024) do
     t.boolean "completed_signup", default: true
     t.datetime "last_active_at"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
-    t.index ["email"], name: "index_users_on_email"
+    t.index ["email"], name: "index_users_on_email", unique: true, where: "((email IS NOT NULL) AND ((email)::text <> ''::text))"
     t.index ["invitation_token"], name: "index_users_on_invitation_token", unique: true
     t.index ["login"], name: "index_users_on_login"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
