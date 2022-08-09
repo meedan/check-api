@@ -19,13 +19,13 @@ class FactCheck < ApplicationRecord
   end
 
   def project_media
-    self.claim_description.project_media
+    self.claim_description&.project_media
   end
 
   private
 
   def set_language
-    self.project_media.team.default_language || 'en'
+    self.language = self.project_media&.team&.default_language || 'en'
   end
 
   def update_report
