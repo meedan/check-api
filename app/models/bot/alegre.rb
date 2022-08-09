@@ -25,8 +25,8 @@ class Bot::Alegre < BotUser
           'UploadedAudio' => 'audio',
           'UploadedImage' => 'image',
         }[self.media.type].to_s
-        threshold = thresholds.dig(media_type.to_sym, :value) || Bot::Alegre.get_threshold_for_query(media_type, self, true)[:value]
-        ids_and_scores = Bot::Alegre.get_items_with_similar_media(Bot::Alegre.media_file_url(self), { value: threshold }, team_ids, "/#{media_type}/similarity/").to_h
+        threshold = [{value: thresholds.dig(media_type.to_sym, :value)}] || Bot::Alegre.get_threshold_for_query(media_type, self, true)
+        ids_and_scores = Bot::Alegre.get_items_with_similar_media(Bot::Alegre.media_file_url(self), threshold, team_ids, "/#{media_type}/similarity/").to_h
       elsif self.is_text?
         ids_and_scores = {}
         threads = []
@@ -246,18 +246,20 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_threshold_for_query(media_type, pm, automatic = false)
-    similarity_method = media_type == 'text' ? 'elasticsearch' : 'hash'
+    similarity_methods = media_type == 'text' ? ['elasticsearch'] : ['hash']
     similarity_level = automatic ? 'matching' : 'suggestion'
     setting_type = 'threshold'
     if media_type == 'text' && !pm.nil?
       model = self.matching_model_to_use(pm.team_id)
-      similarity_method = 'vector' if model != Bot::Alegre::ELASTICSEARCH_MODEL
+      similarity_methods << 'vector' if model != Bot::Alegre::ELASTICSEARCH_MODEL
     end
-    key = "#{media_type}_#{similarity_method}_#{similarity_level}_#{setting_type}"
-    tbi = self.get_alegre_tbi(pm&.team_id)
-    settings = tbi.alegre_settings unless tbi.nil?
-    value = settings.blank? ? CheckConfig.get(key) : settings[key]
-    { value: value.to_f, key: key, automatic: automatic }
+    similarity_methods.collect do |similarity_method|
+      key = "#{media_type}_#{similarity_method}_#{similarity_level}_#{setting_type}"
+      tbi = self.get_alegre_tbi(pm&.team_id)
+      settings = tbi.alegre_settings unless tbi.nil?
+      value = settings.blank? ? CheckConfig.get(key) : settings[key]
+      { value: value.to_f, key: key, automatic: automatic }
+    end
   end
 
   def self.get_language(pm)
