@@ -615,40 +615,6 @@ class GraphqlController4Test < ActionController::TestCase
     assert_not_nil json_response.dig('data', 'team', 'team_bot_installations', 'edges', 0, 'node', 'smooch_newsletter_information')
   end
 
-  test "should search by keyword and get similar texts" do
-    setup_elasticsearch
-    t = create_team
-    f = create_feed
-    f.teams << t
-    u = create_user is_admin: true
-    authenticate_with_user(u)
-
-    m1 = create_claim_media quote: 'This is a test'
-    m2 = create_claim_media quote: 'Foo bar'
-    p = create_project team: t
-    pm1 = create_project_media disable_es_callbacks: false, media: m1, project: p
-    pm2 = create_project_media disable_es_callbacks: false, media: m2, project: p
-    c1 = create_cluster project_media: pm1
-    c2 = create_cluster project_media: pm2
-    c1.project_medias << pm1
-    c2.project_medias << pm2
-    sleep 5
-
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\"}") { medias(first: 20) { edges { node { dbid } } } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal 1, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
-    assert_equal pm1.id, JSON.parse(@response.body)['data']['search']['medias']['edges'][0]['node']['dbid']
-
-    Bot::Alegre.stubs(:get_similar_texts).returns({ pm2.id => 0.8 })
-    query = 'query CheckSearch { search(query: "{\"clusterize\":true,\"feed_id\":' + f.id.to_s + ',\"keyword\":\"This is a test\"}") { medias(first: 20) { edges { node { dbid } } } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal 1, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
-    assert_equal pm2.id, JSON.parse(@response.body)['data']['search']['medias']['edges'][0]['node']['dbid']
-    Bot::Alegre.unstub(:get_similar_texts)
-  end
-
   test "should search by similar image on PG" do
     t = create_team
     u = create_user is_admin: true
