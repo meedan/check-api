@@ -153,9 +153,9 @@ class ElasticSearch8Test < ActionController::TestCase
 
   test "should sort by cluster_size" do
     t = create_team
-    f = create_feed
+    f = create_feed 
     f.teams << t
-    t.save!
+    FeedTeam.update_all(shared: true)
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     pm1 = create_project_media team: t
@@ -196,6 +196,7 @@ class ElasticSearch8Test < ActionController::TestCase
     t = create_team
     f = create_feed
     f.teams << t
+    FeedTeam.update_all(shared: true)
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     pm1 = create_project_media team: t
@@ -233,6 +234,7 @@ class ElasticSearch8Test < ActionController::TestCase
     f = create_feed
     f.teams << t
     f.teams << t2
+    FeedTeam.update_all(shared: true)
     pm1 = create_project_media team: t
     c1 = create_cluster project_media: pm1
     c1.project_medias << pm1
@@ -266,6 +268,7 @@ class ElasticSearch8Test < ActionController::TestCase
     t = create_team
     f = create_feed
     f.teams << t
+    FeedTeam.update_all(shared: true)
     Time.stubs(:now).returns(Time.new - 2.week)
     pm1 = create_project_media team: t
     c1 = create_cluster project_media: pm1
@@ -316,6 +319,7 @@ class ElasticSearch8Test < ActionController::TestCase
     t1 = create_team ; f.teams << t1
     t2 = create_team ; f.teams << t2
     t3 = create_team ; f.teams << t3
+    FeedTeam.update_all(shared: true)
     pm1 = create_project_media team: t1
     c1 = create_cluster project_media: pm1
     c1.project_medias << pm1
@@ -348,6 +352,7 @@ class ElasticSearch8Test < ActionController::TestCase
     t = create_team
     f = create_feed
     f.teams << t
+    FeedTeam.update_all(shared: true)
     pm1 = create_project_media team: t
     c1 = create_cluster project_media: pm1
     c1.project_medias << pm1
