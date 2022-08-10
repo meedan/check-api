@@ -6,78 +6,7 @@ class ElasticSearch6Test < ActionController::TestCase
     setup_elasticsearch
   end
 
-  test "should index and sort by most requested" do
-    p = create_project
-
-    pm1 = create_project_media project: p, disable_es_callbacks: false
-    2.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm1, disable_es_callbacks: false }
-    sleep 5
-
-    pm2 = create_project_media project: p, disable_es_callbacks: false
-    4.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm2, disable_es_callbacks: false }
-    sleep 5
-
-    pm3 = create_project_media project: p, disable_es_callbacks: false
-    1.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm3, disable_es_callbacks: false }
-    sleep 5
-
-    pm4 = create_project_media project: p, disable_es_callbacks: false
-    3.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm4, disable_es_callbacks: false }
-    sleep 5
-
-    order = [pm3, pm1, pm4, pm2]
-    orders = {asc: order, desc: order.reverse}
-    orders.keys.each do |order|
-      search = {
-        sort: [
-          {
-            'dynamics.smooch': {
-              order: order,
-              nested: {
-                path: 'dynamics',
-              }
-            }
-          }
-        ],
-        query: {
-          match_all: {}
-        }
-      }
-      pms = []
-      $repository.search(search).results.each do |r|
-        pms << r['annotated_id'] if r['annotated_type'] == 'ProjectMedia'
-      end
-      assert_equal orders[order.to_sym].map(&:id), pms
-    end
-  end
-
   [:asc, :desc].each do |order|
-    test "should filter and sort by most requested #{order}" do
-      t = create_team
-      p = create_project team: t
-
-      query = { sort: 'smooch', sort_type: order.to_s }
-
-      result = CheckSearch.new(query.to_json, nil, t.id)
-      assert_equal 0, result.medias.count
-
-      pm1 = create_project_media project: p, disable_es_callbacks: false
-      2.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm1, disable_es_callbacks: false }
-      pm2 = create_project_media project: p, disable_es_callbacks: false
-      4.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm2, disable_es_callbacks: false }
-      pm3 = create_project_media project: p, disable_es_callbacks: false
-      1.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm3, disable_es_callbacks: false }
-      pm4 = create_project_media project: p, disable_es_callbacks: false
-      3.times { create_dynamic_annotation annotation_type: 'smooch', annotated: pm4, disable_es_callbacks: false }
-      pm5 = create_project_media project: p, disable_es_callbacks: false
-      sleep 5
-
-      orders = {asc: [pm3, pm1, pm4, pm2, pm5], desc: [pm2, pm4, pm1, pm3, pm5]}
-      result = CheckSearch.new(query.to_json, nil, t.id)
-      assert_equal 5, result.medias.count
-      assert_equal orders[order.to_sym].map(&:id), result.medias.map(&:id)
-    end
-
     test "should sort by item title #{order}" do
       RequestStore.store[:skip_cached_field_update] = false
       pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
@@ -117,22 +46,6 @@ class ElasticSearch6Test < ActionController::TestCase
       assert_equal 6, result.medias.count
       assert_equal orders[order.to_sym].map(&:id), result.medias.map(&:id)
     end
-  end
-
-  test "should decrease elasticsearch smooch when annotations is removed" do
-    p = create_project
-    pm = create_project_media project: p, disable_es_callbacks: false
-    s1 = create_dynamic_annotation annotation_type: 'smooch', annotated: pm, disable_es_callbacks: false
-    s2 = create_dynamic_annotation annotation_type: 'smooch', annotated: pm, disable_es_callbacks: false
-    sleep 3
-
-    result = $repository.find(get_es_id(pm))
-    assert_equal [2], result['dynamics'].select { |d| d.has_key?('smooch')}.map { |s| s['smooch']}
-    s1.destroy
-    sleep 1
-
-    result = $repository.find(get_es_id(pm))
-    assert_equal [1], result['dynamics'].select { |d| d.has_key?('smooch')}.map { |s| s['smooch']}
   end
 
   [:created_at, :updated_at, :last_seen].each do |field|
