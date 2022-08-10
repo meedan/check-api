@@ -509,19 +509,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should create auto tasks" do
     t = create_team
-    p1 = create_project team: t
-    p2 = create_project team: t
     create_team_task team_id: t.id
-    create_team_task team_id: t.id, project_ids: [p2.id]
     Sidekiq::Testing.inline! do
       assert_difference 'Task.length', 1 do
         pm1 = create_project_media team: t
-      end
-      assert_difference 'Task.length', 1 do
-        pm1 = create_project_media project: p1
-      end
-      assert_difference 'Task.length', 2 do
-        pm2 = create_project_media project: p2
       end
     end
   end
@@ -538,137 +529,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
         end
       end
     end
-  end
-
-  test "should add or remove team tasks when moving items" do
-    t =  create_team
-    p = create_project team: t
-    p2 = create_project team: t
-    tt = create_team_task team_id: t.id, project_ids: []
-    tt3 = create_team_task team_id: t.id, project_ids: [p2.id]
-    Team.stubs(:current).returns(t)
-    Sidekiq::Testing.inline! do
-      pm = nil
-      assert_difference 'Task.length', 1 do
-        pm = create_project_media team: t, project_id: p.id
-      end
-      assert_difference 'Task.length', 1 do
-        pm.project_id = p2.id
-        pm.save!
-      end
-      pm2 = nil
-      assert_difference 'Task.length', 2 do
-        pm2 = create_project_media team: t, project_id: p2.id
-      end
-      assert_difference 'Task.length', -1 do
-        pm2.project_id = p.id
-        pm2.save!
-      end
-      pm3 = nil
-      assert_difference 'Task.length', 1 do
-        pm3 = create_project_media team: t
-      end
-      assert_no_difference 'Task.length' do
-        pm3.project_id = p.id
-        pm3.save!
-      end
-      pm4 = nil
-      assert_difference 'Task.length', 1 do
-        pm4 = create_project_media team: t
-      end
-      assert_difference 'Task.length', 1 do
-        pm4.project_id = p2.id
-        pm4.save!
-      end
-    end
-    Team.unstub(:current)
-  end
-
-  test "should add or remove team tasks when moving items 2" do
-    t =  create_team
-    p = create_project team: t
-    p2 = create_project team: t
-    tt = create_team_task team_id: t.id, project_ids: [p.id, p2.id]
-    tt2 = create_team_task team_id: t.id, project_ids: [p.id, p2.id]
-    Team.stubs(:current).returns(t)
-    Sidekiq::Testing.inline! do
-      pm = nil
-      assert_difference 'Task.length', 2 do
-        pm = create_project_media team: t, project_id: p.id
-      end
-      assert_no_difference 'Task.length' do
-        pm.project_id = p2.id
-        pm.save!
-      end
-      assert_equal 2, pm.annotations('task').count
-      pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
-      pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
-      assert_not_nil pm_tt
-      assert_not_nil pm_tt2
-    end
-    Team.unstub(:current)
-  end
-
-  test "should add or remove team tasks when bulk-move items" do
-    t =  create_team
-    p = create_project team: t
-    p2 = create_project team: t
-    tt = create_team_task team_id: t.id, project_ids: []
-    tt2 = create_team_task team_id: t.id, project_ids: [p.id]
-    tt3 = create_team_task team_id: t.id, project_ids: [p2.id]
-    Team.stubs(:current).returns(t)
-    Sidekiq::Testing.inline! do
-      pm = nil
-      assert_difference 'Task.length', 1 do
-        pm = create_project_media team: t
-      end
-      pm2 = nil
-      assert_difference 'Task.length', 2 do
-        pm2 = create_project_media team: t, project_id: p.id
-      end
-      ids = [pm.id, pm2.id]
-      ProjectMedia.bulk_move(ids, p2, t)
-      pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
-      pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
-      pm_tt3 = pm.annotations('task').select{|t| t.team_task_id == tt3.id}.last
-      assert_not_nil pm_tt
-      assert_not_nil pm_tt3
-      assert_nil pm_tt2
-      pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
-      pm2_tt2 = pm2.annotations('task').select{|t| t.team_task_id == tt2.id}.last
-      pm2_tt3 = pm2.annotations('task').select{|t| t.team_task_id == tt3.id}.last
-      assert_not_nil pm2_tt
-      assert_not_nil pm2_tt3
-      assert_nil pm2_tt2
-    end
-    Team.unstub(:current)
-  end
-
-  test "should remove opened team tasks when remove_from project" do
-    t =  create_team
-    p = create_project team: t
-    p2 = create_project team: t
-    tt = create_team_task team_id: t.id, project_ids: []
-    tt2 = create_team_task team_id: t.id, project_ids: [p2.id]
-    tt3 = create_team_task team_id: t.id, project_ids: [p.id, p2.id]
-    Team.stubs(:current).returns(t)
-    Sidekiq::Testing.inline! do
-      pm = nil
-      assert_difference 'Task.length', 3 do
-        pm = create_project_media team: t, project_id: p2.id
-      end
-      # should keep completed tasks (task with answer)
-      assert_difference 'Task.length', 3 do
-        pm = create_project_media team: t, project_id: p2.id
-      end
-      pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
-      at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
-      ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-      fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
-      pm_tt2.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
-      pm_tt2.save!
-    end
-    Team.unstub(:current)
   end
 
   test "should have versions" do
@@ -1110,9 +970,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p = create_project team: t
     p2 = create_project team: t
     p3 = create_project team: t
-    create_team_task team_id: t.id, label: 'who?', task_type: 'free_text', mapping: { "type" => "free_text", "match" => "$.mentions[?(@['@type'] == 'Person')].name", "prefix" => "Suggested by Krzana: "}, project_ids: [p.id]
-    create_team_task team_id: t.id, label: 'where?', task_type: 'geolocation', mapping: { "type" => "geolocation", "match" => "$.mentions[?(@['@type'] == 'Place')]", "prefix" => ""}, project_ids: [p2.id]
-    create_team_task team_id: t.id, label: 'when?', type: 'datetime', mapping: { "type" => "datetime", "match" => "dateCreated", "prefix" => ""}, project_ids: [p3.id]
+    tt1 = create_team_task team_id: t.id, label: 'who?', task_type: 'free_text', mapping: { "type" => "free_text", "match" => "$.mentions[?(@['@type'] == 'Person')].name", "prefix" => "Suggested by Krzana: "}
+    tt2 = create_team_task team_id: t.id, label: 'where?', task_type: 'geolocation', mapping: { "type" => "geolocation", "match" => "$.mentions[?(@['@type'] == 'Place')]", "prefix" => ""}
+    tt3 = create_team_task team_id: t.id, label: 'when?', type: 'datetime', mapping: { "type" => "datetime", "match" => "dateCreated", "prefix" => ""}
 
     Sidekiq::Testing.inline! do
       pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
@@ -1122,7 +982,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       response = {'type':'media','data': {'url': url, 'type': 'item', 'raw': raw}}.to_json
       WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
       pm = create_project_media project: p, url: url
-      t = Task.where(annotation_type: 'task', annotated_id: pm.id).last
+      t = Task.where(annotation_type: 'task', annotated_id: pm.id).select{ |t| t.team_task_id == tt1.id }.last
       assert_nil t.first_response
 
       # test with non exist value
@@ -1131,7 +991,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       response = {'type':'media','data': {'url': url1, 'type': 'item', 'raw': raw}}.to_json
       WebMock.stub_request(:get, pender_url).with({ query: { url: url1 } }).to_return(body: response)
       pm1 = create_project_media project: p, url: url1
-      t = Task.where(annotation_type: 'task', annotated_id: pm1.id).last
+      t = Task.where(annotation_type: 'task', annotated_id: pm1.id).select{ |t| t.team_task_id == tt1.id }.last
       assert_nil t.first_response
 
       # test with empty value
@@ -1140,7 +1000,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       response = {'type':'media','data': {'url': url12, 'type': 'item', 'raw': raw}}.to_json
       WebMock.stub_request(:get, pender_url).with({ query: { url: url12 } }).to_return(body: response)
       pm12 = create_project_media project: p, url: url12
-      t = Task.where(annotation_type: 'task', annotated_id: pm12.id).last
+      t = Task.where(annotation_type: 'task', annotated_id: pm12.id).select{ |t| t.team_task_id == tt1.id }.last
       assert_nil t.first_response
 
       # test with single selection
@@ -1149,7 +1009,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       response = {'type':'media','data': {'url': url2, 'type': 'item', 'raw': raw}}.to_json
       WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: response)
       pm2 = create_project_media project: p, url: url2
-      t = Task.where(annotation_type: 'task', annotated_id: pm2.id).last
+      t = Task.where(annotation_type: 'task', annotated_id: pm2.id).select{ |t| t.team_task_id == tt1.id }.last
       assert_equal "Suggested by Krzana: first_name", t.first_response
 
       # test multiple selection (should get first one)
@@ -1158,7 +1018,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       response = {'type':'media','data': {'url': url3, 'type': 'item', 'raw': raw}}.to_json
       WebMock.stub_request(:get, pender_url).with({ query: { url: url3 } }).to_return(body: response)
       pm3 = create_project_media project: p, url: url3
-      t = Task.where(annotation_type: 'task', annotated_id: pm3.id).last
+      t = Task.where(annotation_type: 'task', annotated_id: pm3.id).select{ |t| t.team_task_id == tt1.id }.last
       assert_equal "Suggested by Krzana: first_name", t.first_response
 
       # test geolocation mapping
@@ -1169,7 +1029,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       response = {'type':'media','data': {'url': url4, 'type': 'item', 'raw': raw}}.to_json
       WebMock.stub_request(:get, pender_url).with({ query: { url: url4 } }).to_return(body: response)
       pm4 = create_project_media project: p2, url: url4
-      t = Task.where(annotation_type: 'task', annotated_id: pm4.id).last
+      t = Task.where(annotation_type: 'task', annotated_id: pm4.id).select{ |t| t.team_task_id == tt2.id }.last
       # assert_not_nil t.first_response
 
       # test datetime mapping
@@ -1178,7 +1038,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       response = {'type':'media','data': {'url': url5, 'type': 'item', 'raw': raw}}.to_json
       WebMock.stub_request(:get, pender_url).with({ query: { url: url5 } }).to_return(body: response)
       pm5 = create_project_media project: p3, url: url5
-      t = Task.where(annotation_type: 'task', annotated_id: pm5.id).last
+      t = Task.where(annotation_type: 'task', annotated_id: pm5.id).select{ |t| t.team_task_id == tt3.id }.last
       assert_not_nil t.first_response
     end
   end
@@ -2514,7 +2374,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal data, pm3.channel
     ApiKey.current = nil
   end
-  
+
   test "should not create duplicated media with for the same uploaded file" do
     team = create_team
     team2 = create_team
