@@ -206,6 +206,7 @@ class ElasticSearch9Test < ActionController::TestCase
   end
 
   test "should search by non or any for choices tasks" do
+    create_task_stuff
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
