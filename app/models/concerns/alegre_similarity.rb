@@ -240,7 +240,7 @@ module AlegreSimilarity
       if threshold.length == 1
         {threshold: threshold[0][:value]}
       else
-        {per_model_threshold: Hash[threshold.collect{|t| [t[:key], t[:value]]}]}
+        {per_model_threshold: Hash[threshold.collect{|t| [t[:model], t[:value]]}]}
       end
     end
 

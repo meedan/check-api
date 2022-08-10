@@ -247,18 +247,20 @@ class Bot::Alegre < BotUser
 
   def self.get_threshold_for_query(media_type, pm, automatic = false)
     similarity_methods = media_type == 'text' ? ['elasticsearch'] : ['hash']
+    models = similarity_methods
     similarity_level = automatic ? 'matching' : 'suggestion'
     setting_type = 'threshold'
     if media_type == 'text' && !pm.nil?
       model = self.matching_model_to_use(pm.team_id)
       similarity_methods << 'vector' if model != Bot::Alegre::ELASTICSEARCH_MODEL
+      models << model
     end
-    similarity_methods.collect do |similarity_method|
+    similarity_methods.zip(models).collect do |similarity_method, model|
       key = "#{media_type}_#{similarity_method}_#{similarity_level}_#{setting_type}"
       tbi = self.get_alegre_tbi(pm&.team_id)
       settings = tbi.alegre_settings unless tbi.nil?
       value = settings.blank? ? CheckConfig.get(key) : settings[key]
-      { value: value.to_f, key: key, automatic: automatic }
+      { value: value.to_f, key: key, automatic: automatic, model: model}
     end
   end
 
