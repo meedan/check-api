@@ -61,10 +61,10 @@ class TeamTask < ApplicationRecord
     end
   end
 
-  def update_teamwide_tasks_bg(options)
+  def update_teamwide_tasks_bg(fields, diff)
     # collect updated fields with new values
     columns = {}
-    options.each do |k, _v|
+    fields.each do |k, _v|
       attribute = self.read_attribute(k)
       # type is called `task_type` on TeamTask and `type` on Task
       k = :type if k == :task_type
@@ -72,6 +72,7 @@ class TeamTask < ApplicationRecord
     end
     unless columns.blank?
       update_tasks(columns)
+      update_task_answers(diff)
     end
   end
 
@@ -177,9 +178,44 @@ class TeamTask < ApplicationRecord
 
   def update_tasks(columns)
     columns = columns.except(:type) if get_teamwide_tasks_with_answers.any?
-    TeamTask.get_teamwide_tasks(self.id).find_each do |t|
-      t.skip_check_ability = true
-      t.update(columns)
+    TeamTask.get_teamwide_tasks(self.id).update_all(columns)
+  end
+
+  def update_task_answers(diff)
+    tasks = get_teamwide_tasks_with_answers
+    tasks.find_each do |t|
+      response = t.first_response_obj.load
+      field = response.get_fields.select{ |f| f.field_type == 'select' }.first
+      field_updated = false
+      diff.deleted.each do |deleted|
+        if field.value == deleted
+          field.value = nil
+          field_updated = true
+        else
+          parsed = begin JSON.parse(field.value) rescue { 'selected' => [] } end
+          if parsed['selected'].to_a.include?(deleted)
+            field.value = { selected: parsed['selected'].select{ |x| x != deleted } }.to_json
+            field_updated = true
+          end
+        end
+      end
+      diff.changed.each do |old, new|
+        if field.value == old
+          field.value = new
+          field_updated = true
+        else
+          parsed = begin JSON.parse(field.value) rescue { 'selected' => [] } end
+          if parsed['selected'].to_a.include?(old)
+            field.value = { selected: parsed['selected'].collect{ |x| x == old ? new : x } }.to_json
+            field_updated = true
+          end
+        end
+      end
+      if field_updated do
+        field.save!
+        response.updated_at = Time.now
+        response.save!
+      end
     end
   end
 
@@ -215,7 +251,7 @@ class TeamTask < ApplicationRecord
   end
 
   def can_change_task_type
-    if (self.task_type_changed? || self.options_changed?) && !tasks_with_answers_count.zero?
+    if (self.task_type_changed?) && !tasks_with_answers_count.zero?
       errors.add(:base, I18n.t(:cant_change_field_type_or_options_when_answered))
     end
   end
