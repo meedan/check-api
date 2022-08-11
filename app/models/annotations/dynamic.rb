@@ -118,8 +118,9 @@ class Dynamic < ApplicationRecord
   def add_update_elasticsearch_dynamic(op)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     handle_elasticsearch_response(op)
+    handle_annotated_by(op)
     handle_extracted_text(op)
-    handle_report_published_at(op)
+    handle_report_published_at
   end
 
   def handle_elasticsearch_response(op)
@@ -148,10 +149,39 @@ class Dynamic < ApplicationRecord
     end
   end
 
-  def handle_report_published_at(_op)
+  def handle_report_published_at
     if self.annotated_type == 'ProjectMedia' && self.annotation_type == 'report_design'
       data = { 'report_published_at' => self.data['last_published'] }
       self.update_elasticsearch_doc(['report_published_at'], data, self.annotated)
+    end
+  end
+
+  def handle_annotated_by(op)
+    if self.annotated_type == 'Task' && self.annotation_type =~ /^task_response/
+      task = self.annotated
+      if task&.annotated_type == 'ProjectMedia'
+        pm = task.project_media
+        key = "project_media:annotated_by:#{pm.id}"
+        uids = []
+        if Rails.cache.exist?(key)
+          uids = Rails.cache.read(key) || []
+        else
+          Annotation.select('a2.*')
+          .where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: pm.id)
+          .joins("INNER JOIN annotations a2 on annotations.id = a2.annotated_id")
+          .where("a2.annotation_type LIKE ?", 'task_response_%').find_each do |r|
+            uids << r['annotator_id']
+          end
+        end
+        if op == 'destroy'
+          uids -= [self.annotator_id]
+        else
+          uids << self.annotator_id
+        end
+        uids.uniq!
+        Rails.cache.write(key, uids)
+        self.update_elasticsearch_doc(['annotated_by'], { 'annotated_by' => uids }, pm, true)
+      end
     end
   end
 
@@ -167,10 +197,10 @@ class Dynamic < ApplicationRecord
   end
 
   def destroy_elasticsearch_dynamic_annotation
-    destroy_es_items('dynamics')
     # destroy task response
     handle_elasticsearch_response('destroy')
     handle_extracted_text('destroy')
+    handle_annotated_by('destroy')
   end
 
   def annotation_type_exists
