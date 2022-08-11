@@ -211,7 +211,7 @@ class TeamTask < ApplicationRecord
           end
         end
       end
-      if field_updated do
+      if field_updated
         field.save!
         response.updated_at = Time.now
         response.save!
