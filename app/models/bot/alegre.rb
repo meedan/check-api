@@ -247,7 +247,7 @@ class Bot::Alegre < BotUser
 
   def self.get_threshold_for_query(media_type, pm, automatic = false)
     similarity_methods = media_type == 'text' ? ['elasticsearch'] : ['hash']
-    models = similarity_methods
+    models = similarity_methods.dup
     similarity_level = automatic ? 'matching' : 'suggestion'
     setting_type = 'threshold'
     if media_type == 'text' && !pm.nil?
