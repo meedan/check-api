@@ -23,4 +23,8 @@ class Feed < ApplicationRecord
     end
     filters
   end
+
+  def current_feed_team
+    self.feed_teams.where(team_id: Team.current&.id).last
+  end
 end

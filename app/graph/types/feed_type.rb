@@ -6,4 +6,7 @@ FeedType = GraphqlCrudOperations.define_default_type do
 
   field :dbid, types.Int
   field :name, types.String
+  field :published, types.Boolean
+  field :filters, JsonStringType
+  field :current_feed_team, FeedTeamType
 end

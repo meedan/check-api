@@ -222,7 +222,7 @@ class CheckSearch
   end
 
   def clusterized_feed_query?
-    feed_query? && @options['clusterize']
+    feed_query? && @options['clusterize'] && !@feed.published
   end
 
   def get_pg_results_for_media
