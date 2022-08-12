@@ -70,10 +70,8 @@ class TeamTask < ApplicationRecord
       k = :type if k == :task_type
       columns[k] = attribute
     end
-    unless columns.blank?
-      update_tasks(columns)
-      update_task_answers(diff)
-    end
+    update_tasks(columns) unless columns.blank?
+    update_task_answers(diff) unless diff.blank?
   end
 
   def self.destroy_teamwide_tasks_bg(id, keep_completed_tasks)
@@ -178,7 +176,10 @@ class TeamTask < ApplicationRecord
 
   def update_tasks(columns)
     columns = columns.except(:type) if get_teamwide_tasks_with_answers.any?
-    TeamTask.get_teamwide_tasks(self.id).update_all(columns)
+    TeamTask.get_teamwide_tasks(self.id).find_each do |t|
+      t.skip_check_ability = true
+      t.update(columns)
+    end
   end
 
   def update_task_answers(diff)
@@ -187,19 +188,19 @@ class TeamTask < ApplicationRecord
       response = t.first_response_obj.load
       field = response.get_fields.select{ |f| f.field_type == 'select' }.first
       field_updated = false
-      diff.deleted.each do |deleted|
+      diff['deleted'].each do |deleted|
         if field.value == deleted
-          field.value = nil
+          field.value = ''
           field_updated = true
         else
           parsed = begin JSON.parse(field.value) rescue { 'selected' => [] } end
           if parsed['selected'].to_a.include?(deleted)
-            field.value = { selected: parsed['selected'].select{ |x| x != deleted } }.to_json
+            field.value = { selected: parsed['selected'].reject{ |x| x == deleted } }.to_json
             field_updated = true
           end
         end
       end
-      diff.changed.each do |old, new|
+      diff['changed'].each do |old, new|
         if field.value == old
           field.value = new
           field_updated = true
