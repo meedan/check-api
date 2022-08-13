@@ -737,6 +737,41 @@ class GraphqlController4Test < ActionController::TestCase
     assert_equal [], JSON.parse(@response.body)['data']['search']['medias']['edges']
   end
 
+  test "should get feed" do
+    t = create_team private: true
+    create_team_user(user: @u, team: t)
+    f = create_feed
+    query = "query { team(slug: \"#{t.slug}\") { feed(dbid: #{f.id}) { current_feed_team { dbid } } } }"
+
+    post :create, params: { query: query, team: t.slug }
+    assert_nil JSON.parse(@response.body).dig('data', 'team', 'feed')
+
+    with_current_user_and_team(nil, nil) { f.teams << t }
+    post :create, params: { query: query, team: t.slug }
+    assert_equal FeedTeam.where(feed: f, team: t).last.id, JSON.parse(@response.body).dig('data', 'team', 'feed', 'current_feed_team', 'dbid')
+  end
+
+  test "should update feed team" do
+    t1 = create_team private: true
+    create_team_user(user: @u, team: t1, role: 'admin')
+    t2 = create_team private: true
+    f = create_feed
+    f.teams << t1
+    f.teams << t2
+    ft1 = FeedTeam.where(team: t1, feed: f).last
+    ft2 = FeedTeam.where(team: t2, feed: f).last
+    assert !ft1.shared
+    assert !ft2.shared
+
+    query = "mutation { updateFeedTeam(input: { id: \"#{ft1.graphql_id}\", shared: true }) { feed_team { shared } } }"
+    post :create, params: { query: query, team: t1.slug }
+    assert ft1.reload.shared
+
+    query = "mutation { updateFeedTeam(input: { id: \"#{ft2.graphql_id}\", shared: true }) { feed_team { shared } } }"
+    post :create, params: { query: query, team: t2.slug }
+    assert !ft2.reload.shared
+  end
+
   protected
 
   def assert_error_message(expected)
