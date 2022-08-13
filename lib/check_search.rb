@@ -37,7 +37,7 @@ class CheckSearch
     @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['String', 'Integer'].include?(@options['id'].class.name)
 
     # Apply feed filters
-    apply_feed_filters
+    @options.merge!(@feed.get_feed_filters) if feed_query?
 
     Project.current = Project.where(id: @options['projects'].last).last if @options['projects'].to_a.size == 1 && Project.current.nil?
     @file = file
@@ -773,10 +773,6 @@ class CheckSearch
 
   def hit_es_for_range_filter
     !@options['range'].blank? && !(['last_seen', 'report_published_at', 'media_published_at'] & @options['range'].keys).blank?
-  end
-
-  def apply_feed_filters
-    @options.merge!(@feed.get_feed_filters) if feed_query?
   end
 
   def build_feed_conditions
