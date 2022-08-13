@@ -18,6 +18,8 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     Bot::Alegre.stubs(:should_get_similar_items_of_type?).returns(true)
     Bot::Alegre.unstub(:request_api)
     Bot::Alegre.unstub(:media_file_url)
+    @media_path = random_url
+    @params = { url: @media_path, context: { has_custom_id: true, team_id: @team.id }, threshold: 0.9, match_across_content_types: true }
   end
 
   def teardown
@@ -29,7 +31,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm1 = create_project_media team: @team, media: create_uploaded_video
     pm2 = create_project_media team: @team, media: create_uploaded_video
     pm3 = create_project_media team: @team, media: create_uploaded_video
-    Bot::Alegre.stubs(:request_api).returns({
+    Bot::Alegre.stubs(:request_api).with('get', '/video/similarity/', @params, 'body').returns({
       result: [
         {
           context: [
@@ -47,7 +49,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
         }
       ]
     }.with_indifferent_access)
-    Bot::Alegre.stubs(:media_file_url).with(pm3).returns('some/path')
+    Bot::Alegre.stubs(:media_file_url).with(pm3).returns(@media_path)
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm3)
     end
@@ -63,7 +65,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     pm2 = create_project_media team: @team, media: create_uploaded_audio
     pm3 = create_project_media team: @team, media: create_uploaded_audio
-    Bot::Alegre.stubs(:request_api).returns({
+    Bot::Alegre.stubs(:request_api).with('get', '/audio/similarity/', @params, 'body').returns({
       result: [
         {
           id: 1,
@@ -87,7 +89,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
         }
       ]
     }.with_indifferent_access)
-    Bot::Alegre.stubs(:media_file_url).with(pm3).returns('some/path')
+    Bot::Alegre.stubs(:media_file_url).with(pm3).returns(@media_path)
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm3)
     end
@@ -103,7 +105,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm1 = create_project_media team: @team, media: create_uploaded_video
     pm2 = create_project_media team: @team, media: create_uploaded_audio
     pm3 = create_project_media team: @team, media: create_uploaded_audio
-    Bot::Alegre.stubs(:request_api).returns({
+    Bot::Alegre.stubs(:request_api).with('get', '/audio/similarity/', @params, 'body').returns({
       result: [
         {
           id: 2,
@@ -127,7 +129,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
         }
       ]
     }.with_indifferent_access)
-    Bot::Alegre.stubs(:media_file_url).with(pm3).returns('some/path')
+    Bot::Alegre.stubs(:media_file_url).with(pm3).returns(@media_path)
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm3)
     end
@@ -143,7 +145,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm1 = create_project_media team: @team, media: create_uploaded_image
     pm2 = create_project_media team: @team, media: create_uploaded_image
     pm3 = create_project_media team: @team, media: create_uploaded_image
-    Bot::Alegre.stubs(:request_api).returns({
+    result = {
       result: [
         {
           id: 1,
@@ -168,8 +170,10 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
           score: 0.9
         }
       ]
-    }.with_indifferent_access)
-    Bot::Alegre.stubs(:media_file_url).with(pm3).returns('some/path')
+    }.with_indifferent_access
+    Bot::Alegre.stubs(:request_api).with('get', '/image/similarity/', @params.merge({ threshold: 0.89 }), 'body').returns(result)
+    Bot::Alegre.stubs(:request_api).with('get', '/image/similarity/', @params.merge({ threshold: 0.95 }), 'body').returns(result)
+    Bot::Alegre.stubs(:media_file_url).with(pm3).returns(@media_path)
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm3)
     end
@@ -217,7 +221,9 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
         }
       ]
     }.with_indifferent_access
-    Bot::Alegre.stubs(:request_api).returns(response)
+    Bot::Alegre.stubs(:media_file_url).with(pm1a).returns(@media_path)
+    Bot::Alegre.stubs(:request_api).with('get', '/image/similarity/', @params.merge({ threshold: 0.89 }), 'body').returns(response)
+    Bot::Alegre.stubs(:request_api).with('get', '/image/similarity/', @params.merge({ threshold: 0.95 }), 'body').returns(response)
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm1a)
     end
