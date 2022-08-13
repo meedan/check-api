@@ -113,7 +113,7 @@ namespace :check do
         end
       end
 
-      # Confirmed suggestions
+      # Automatically matched items
       write_similarity_relationships_to_disk(
         Relationship.where('relationship_type = ?', Relationship.confirmed_type.to_yaml).where(user: BotUser.alegre_user).where('confirmed_by IS NULL'),
         "/tmp/confirmed.json"
@@ -166,7 +166,7 @@ namespace :check do
 
       # Manually detached matches
       write_archived_similarity_relationships_to_disk(
-        "%confirmed_sibling%user_id\":[#{BotUser.alegre_user.id}%",
+        "%confirmed_sibling%user_id\":[#{BotUser.alegre_user.id}%\"confirmed_by\":[null%'",
         "/tmp/detached.json"
       )
 
