@@ -33,8 +33,7 @@ QueryType = GraphQL::ObjectType.define do
         upload_max_dimensions: "#{SizeValidator.config('max_width')}x#{SizeValidator.config('max_height')}",
         languages_supported: CheckCldr.localized_languages.to_json,
         terms_last_updated_at: User.terms_last_updated_at,
-        channels: CheckChannels::ChannelCodes.all_channels,
-        countries: Team.group(:country).count.keys.reject{ |c| c.blank? }.sort
+        channels: CheckChannels::ChannelCodes.all_channels
       })
     end
   end

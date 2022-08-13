@@ -146,10 +146,6 @@ class Team < ApplicationRecord
     self.send(:set_suggested_matches_filters, JSON.parse(suggested_matches_filters))
   end
 
-  def trends_filters=(trends_filters)
-    self.send(:set_trends_filters, JSON.parse(trends_filters))
-  end
-
   def languages=(languages)
     languages = languages.is_a?(String) ? JSON.parse(languages) : languages
     self.send(:set_languages, languages.uniq)
@@ -524,6 +520,14 @@ class Team < ApplicationRecord
       row['Month'] = "#{i + 1}. #{row['Month']}"
       row.reject { |key, _value| key =~ /[sS]earch/ }
     end
+  end
+
+  def is_part_of_feed?(feed_id)
+    FeedTeam.where(team_id: self.id, feed_id: feed_id).exists?
+  end
+
+  def get_feed(feed_id)
+    self.feeds.where(id: feed_id.to_i).last
   end
 
   # private
