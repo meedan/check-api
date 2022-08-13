@@ -15,8 +15,6 @@ class CheckSearch
     # Set show options
     @options['show'] ||= MEDIA_TYPES
 
-    # Set show similar
-    @options['show_similar'] ||= false
     @options['eslimit'] ||= 50
     @options['esoffset'] ||= 0
     adjust_es_window_size
