@@ -152,11 +152,10 @@ class ElasticSearch8Test < ActionController::TestCase
   end
 
   test "should sort by cluster_size" do
-    # sort by cluster size(Similar media)
     t = create_team
-    t.country = 'Egypt'
-    t.set_trends_enabled = true
-    t.save!
+    f = create_feed 
+    f.teams << t
+    FeedTeam.update_all(shared: true)
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     pm1 = create_project_media team: t
@@ -182,7 +181,7 @@ class ElasticSearch8Test < ActionController::TestCase
     c3.project_medias << pm3_1
     sleep 2
     with_current_user_and_team(u, t) do
-      query = { trends: true, country: true, sort: 'cluster_size' }
+      query = { clusterize: true, feed_id: f.id, sort: 'cluster_size' }
       result = CheckSearch.new(query.to_json)
       assert_equal [pm2.id, pm1.id, pm3.id], result.medias.map(&:id)
       query[:sort_type] = 'asc'
@@ -191,14 +190,13 @@ class ElasticSearch8Test < ActionController::TestCase
     end
   end
 
-  test "should sort by requests_count" do
-    # sort by cluster_requests_count(Requests)
+  test "should sort by clusters requests count" do
     RequestStore.store[:skip_cached_field_update] = false
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     t = create_team
-    t.country = 'Egypt'
-    t.set_trends_enabled = true
-    t.save!
+    f = create_feed
+    f.teams << t
+    FeedTeam.update_all(shared: true)
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     pm1 = create_project_media team: t
@@ -220,7 +218,7 @@ class ElasticSearch8Test < ActionController::TestCase
       es2 = $repository.find(get_es_id(pm2))
       assert_equal c1.requests_count(true), es1['cluster_requests_count']
       assert_equal c2.requests_count(true), es2['cluster_requests_count']
-      query = { trends: true, country: true, sort: 'cluster_requests_count' }
+      query = { clusterize: true, feed_id: f.id, sort: 'cluster_requests_count' }
       result = CheckSearch.new(query.to_json)
       assert_equal [pm1.id, pm2.id], result.medias.map(&:id)
       query[:sort_type] = 'asc'
@@ -230,16 +228,13 @@ class ElasticSearch8Test < ActionController::TestCase
   end
 
   test "should sort by cluster_published_reports_count" do
-    # sort by cluster_published_reports_count(Report published)
     RequestStore.store[:skip_cached_field_update] = false
     t = create_team
-    t.country = 'Egypt'
-    t.set_trends_enabled = true
-    t.save!
     t2 = create_team
-    t2.country = 'Egypt'
-    t2.set_trends_enabled = true
-    t2.save!
+    f = create_feed
+    f.teams << t
+    f.teams << t2
+    FeedTeam.update_all(shared: true)
     pm1 = create_project_media team: t
     c1 = create_cluster project_media: pm1
     c1.project_medias << pm1
@@ -253,28 +248,27 @@ class ElasticSearch8Test < ActionController::TestCase
     publish_report(pm1)
     sleep 2
     Team.stubs(:current).returns(t)
-    query = { trends: true, country: true, sort: 'cluster_published_reports_count' }
+    query = { clusterize: true, feed_id: f.id, sort: 'cluster_published_reports_count' }
     result = CheckSearch.new(query.to_json)
     assert_equal [pm1.id, pm2.id], result.medias.map(&:id)
     query[:sort_type] = 'asc'
     result = CheckSearch.new(query.to_json)
     assert_equal [pm2.id, pm1.id], result.medias.map(&:id)
     # filter by published_by filter `cluster_published_reports`
-    query = { trends: true, country: true, cluster_published_reports: [t.id, t2.id]}
+    query = { clusterize: true, feed_id: f.id, cluster_published_reports: [t.id, t2.id]}
     result = CheckSearch.new(query.to_json)
     assert_equal [pm1.id, pm2.id], result.medias.map(&:id).sort
-    query = { trends: true, country: true, cluster_published_reports: [t2.id]}
+    query = { clusterize: true, feed_id: f.id, cluster_published_reports: [t2.id]}
     result = CheckSearch.new(query.to_json)
     assert_equal [pm1.id], result.medias.map(&:id)
     Team.unstub(:current)
   end
 
   test "should sort by cluster_first_item_at" do
-    # sort by cluster_first_item_at(Submitted)
     t = create_team
-    t.country = 'Egypt'
-    t.set_trends_enabled = true
-    t.save!
+    f = create_feed
+    f.teams << t
+    FeedTeam.update_all(shared: true)
     Time.stubs(:now).returns(Time.new - 2.week)
     pm1 = create_project_media team: t
     c1 = create_cluster project_media: pm1
@@ -290,7 +284,7 @@ class ElasticSearch8Test < ActionController::TestCase
     Time.unstub(:now)
     sleep 2
     Team.stubs(:current).returns(t)
-    query = { trends: true, country: true, sort: 'cluster_first_item_at' }
+    query = { clusterize: true, feed_id: f.id, sort: 'cluster_first_item_at' }
     result = CheckSearch.new(query.to_json)
     assert_equal [pm2.id, pm1.id, pm3.id], result.medias.map(&:id)
     query[:sort_type] = 'asc'
@@ -299,204 +293,5 @@ class ElasticSearch8Test < ActionController::TestCase
     Team.unstub(:current)
   end
 
-  test "should filter items by has_claim" do
-    t = create_team
-    p = create_project team: t
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    with_current_user_and_team(u ,t) do
-      pm = create_project_media team: t, disable_es_callbacks: false
-      pm2 = create_project_media team: t, disable_es_callbacks: false
-      pm3 = create_project_media team: t, disable_es_callbacks: false
-      pm4 = create_project_media team: t, disable_es_callbacks: false
-      create_claim_description project_media: pm, disable_es_callbacks: false
-      create_claim_description project_media: pm3, disable_es_callbacks: false
-      sleep 2
-      results = CheckSearch.new({ has_claim: ['ANY_VALUE'] }.to_json)
-      assert_equal [pm.id, pm3.id], results.medias.map(&:id).sort
-      results = CheckSearch.new({ has_claim: ['NO_VALUE'] }.to_json)
-      assert_equal [pm2.id, pm4.id], results.medias.map(&:id).sort
-    end
-  end
-
-  test "should filter trends by workspace" do
-    RequestStore.store[:skip_cached_field_update] = false
-    t1 = create_team country: 'Egypt', set_trends_enabled: true
-    t2 = create_team country: 'Egypt', set_trends_enabled: true
-    t3 = create_team country: 'Egypt', set_trends_enabled: true
-    pm1 = create_project_media team: t1
-    c1 = create_cluster project_media: pm1
-    c1.project_medias << pm1
-    pm2 = create_project_media team: t2
-    c2 = create_cluster project_media: pm2
-    c2.project_medias << pm2
-    pm3 = create_project_media team: t3
-    c2.project_medias << pm3
-    sleep 2
-    u = create_user
-    create_team_user team: t1, user: u, role: 'admin'
-    with_current_user_and_team(u, t1) do
-      query = { trends: true, country: true }
-      result = CheckSearch.new(query.to_json)
-      assert_equal [pm1.id, pm2.id], result.medias.map(&:id).sort
-      query[:cluster_teams] = [t1.id]
-      result = CheckSearch.new(query.to_json)
-      assert_equal [pm1.id], result.medias.map(&:id)
-      query[:cluster_teams] = [t2.id, t3.id]
-      result = CheckSearch.new(query.to_json)
-      assert_equal [pm2.id], result.medias.map(&:id)
-      # Get current team
-      assert_equal t1, result.team
-    end
-  end
-
-  test "should filter trends by report status" do
-    create_verification_status_stuff
-    RequestStore.store[:skip_cached_field_update] = false
-    t = create_team country: 'Egypt', set_trends_enabled: true
-    pm1 = create_project_media team: t
-    c1 = create_cluster project_media: pm1
-    c1.project_medias << pm1
-    pm2 = create_project_media team: t
-    c2 = create_cluster project_media: pm2
-    c2.project_medias << pm2
-    sleep 2
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    with_current_user_and_team(u, t) do
-      publish_report(pm1)
-      query = { trends: true, country: true, report_status: ['published', 'unpublished'] }
-      result = CheckSearch.new(query.to_json)
-      assert_equal [pm1.id, pm2.id], result.medias.map(&:id).sort
-      query[:report_status] = ['published']
-      result = CheckSearch.new(query.to_json)
-      assert_equal [pm1.id], result.medias.map(&:id)
-      query[:report_status] = ['unpublished']
-      result = CheckSearch.new(query.to_json)
-      assert_equal [pm2.id], result.medias.map(&:id)
-    end
-  end
-
-  test "should cache and filter by published_by value" do
-    RequestStore.store[:skip_cached_field_update] = false
-    t = create_team
-    u = create_user
-    u2 = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    create_team_user team: t, user: u2, role: 'admin'
-    pm = create_project_media team: t
-    with_current_user_and_team(u, t) do
-      assert_queries(0, '=') { assert_empty pm.published_by }
-      r = publish_report(pm)
-      pm = ProjectMedia.find(pm.id)
-      data = {}
-      data[u.id] = u.name
-      assert_queries(0, '=') { assert_equal data, pm.published_by }
-      u.name = 'update name'
-      u.save!
-      pm = ProjectMedia.find(pm.id)
-      data[u.id] = 'update name'
-      assert_queries(0, '=') { assert_equal data, pm.published_by }
-      Rails.cache.clear
-      assert_queries(0, '>') { assert_equal data, pm.published_by }
-      pm2 = create_project_media team: t
-      sleep 2
-      result = $repository.find(get_es_id(pm))
-      assert_equal u.id, result['published_by']
-      result = $repository.find(get_es_id(pm2))
-      assert_equal 0, result['published_by']
-      # Filter by published by
-      result = CheckSearch.new({ published_by: [u.id] }.to_json)
-      assert_equal [pm.id], result.medias.map(&:id)
-      result = CheckSearch.new({ published_by: [u2.id] }.to_json)
-      assert_empty result.medias.map(&:id)
-      result = CheckSearch.new({ published_by: [u.id, u2.id] }.to_json)
-      assert_equal [pm.id], result.medias.map(&:id)
-      # pause report should reset published_by value
-      r = Dynamic.find(r.id)
-      r.set_fields = { state: 'paused' }.to_json
-      r.action = 'pause'
-      r.save!
-      pm = ProjectMedia.find(pm.id)
-      assert_queries(0, '=') { assert_empty pm.published_by }
-    end
-    # should log latest published_by user
-    with_current_user_and_team(u2, t) do
-      r = publish_report(pm)
-      pm = ProjectMedia.find(pm.id)
-      data = {}
-      data[u2.id] = u2.name
-      assert_queries(0, '=') { assert_equal data, pm.published_by }
-    end
-  end
-
-  test "should filter by annotated_by value" do
-    create_task_stuff
-    t = create_team
-    u = create_user
-    u2 = create_user
-    u3 = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    create_team_user team: t, user: u2, role: 'admin'
-    create_team_user team: t, user: u3, role: 'admin'
-    tt = create_team_task team_id: t.id, type: 'free_text'
-    tt2 = create_team_task team_id: t.id, type: 'single_choice', options: ['ans_a', 'ans_b', 'ans_c']
-    pm = create_project_media team: t, disable_es_callbacks: false
-    pm2 = create_project_media team: t, disable_es_callbacks: false
-    pm_tt = nil
-    with_current_user_and_team(u, t) do
-      pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
-      pm_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'answer by u' }.to_json }.to_json
-      pm_tt.save!
-      sleep 2
-      result = $repository.find(get_es_id(pm))
-      assert_equal [u.id], result['annotated_by']
-    end
-    with_current_user_and_team(u2, t) do
-      pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
-      pm_tt2.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: 'ans_a' }.to_json }.to_json
-      pm_tt2.save!
-      pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
-      pm2_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'answer by u2' }.to_json }.to_json
-      pm2_tt.save!
-    end
-    sleep 2
-    # Filter by annotated by
-    with_current_user_and_team(u, t) do
-      result = CheckSearch.new({ annotated_by: [u.id] }.to_json)
-      assert_equal [pm.id], result.medias.map(&:id)
-      result = CheckSearch.new({ annotated_by: [u2.id] }.to_json)
-      assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
-      result = CheckSearch.new({ annotated_by: [u3.id] }.to_json)
-      assert_empty result.medias.map(&:id)
-      result = CheckSearch.new({ annotated_by: [u.id, u2.id] }.to_json)
-      assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
-      result = CheckSearch.new({ annotated_by: [u.id, u2.id], annotated_by_operator: 'AND' }.to_json)
-      assert_equal [pm.id], result.medias.map(&:id)
-      # destroy response
-      r = pm_tt.first_response_obj
-      r.destroy
-      sleep 2
-      result = CheckSearch.new({ annotated_by: [u.id] }.to_json)
-      assert_empty result.medias.map(&:id)
-    end
-  end
-
-  test "should search for keywords with typos" do
-    t = create_team
-    p = create_project team: t
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    with_current_user_and_team(u ,t) do
-      pm1 = create_project_media team: t, quote: 'Foobar 1', disable_es_callbacks: false
-      pm2 = create_project_media team: t, quote: 'Fobar 2', disable_es_callbacks: false
-      pm3 = create_project_media team: t, quote: 'Test 3', disable_es_callbacks: false
-      results = CheckSearch.new({ keyword: 'Foobar', fuzzy: true }.to_json)
-      assert_equal [pm1.id, pm2.id].sort, results.medias.map(&:id).sort
-      results = CheckSearch.new({ keyword: 'Fobar', fuzzy: true }.to_json)
-      assert_equal [pm1.id, pm2.id].sort, results.medias.map(&:id).sort
-      results = CheckSearch.new({ keyword: 'Test', fuzzy: true }.to_json)
-      assert_equal [pm3.id], results.medias.map(&:id)
-    end
-  end
+  # Please add new tests to test/controllers/elastic_search_9_test.rb
 end

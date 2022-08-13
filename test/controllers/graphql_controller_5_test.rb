@@ -403,17 +403,19 @@ class GraphqlController5Test < ActionController::TestCase
 
   test "should get cluster information" do
     u = create_user is_admin: true
+    f = create_feed
     t = create_team
+    f.teams << t
     p = create_project team: t
     pm = create_project_media project: p
     c = create_cluster project_media: pm
     c.project_medias << pm
     c.project_medias << create_project_media
     authenticate_with_user(u)
-    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") {  cluster { first_item_at, last_item_at, claim_descriptions { edges { node { id } } }, items { edges { node { dbid } } } } } }'
+    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") {  cluster { first_item_at, last_item_at, claim_descriptions(feed_id: ' + f.id.to_s + ') { edges { node { id } } }, items(feed_id: ' + f.id.to_s + ') { edges { node { dbid } } } } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
-    assert_equal 2, JSON.parse(@response.body)['data']['project_media']['cluster']['items']['edges'].size
+    assert_equal 1, JSON.parse(@response.body)['data']['project_media']['cluster']['items']['edges'].size
   end
 
   test "should paginate folder items" do

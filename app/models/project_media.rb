@@ -327,6 +327,23 @@ class ProjectMedia < ApplicationRecord
     values
   end
 
+  def feed_columns_values
+    values = {}
+    columns = [
+      'fact_check_title',
+      'fact_check_summary',
+      'fact_check_url',
+      'tags_as_sentence',
+      'team_name',
+      'updated_at_timestamp',
+      'status'
+    ]
+    columns.each do |column|
+      values[column] = self.send(column)
+    end
+    values
+  end
+
   def remove_related_team_tasks_bg(pid)
     # Get team tasks that assigned to target list (pid)
     tasks = TeamTask.where("project_ids like ?", "% #{pid}\n%")

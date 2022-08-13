@@ -1347,11 +1347,6 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_not_nil JSON.parse(@response.body)['data']['updateTeam']['team']['get_suggested_matches_filters']
-    # Trends list
-    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", trends_filters: "{\"trends\":true,\"country\":true,\"show\":[\"claims\"]}" }) { team { get_trends_filters } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_not_nil JSON.parse(@response.body)['data']['updateTeam']['team']['get_trends_filters']
   end
 
   test "should get Smooch Bot RSS feed preview if has permissions" do

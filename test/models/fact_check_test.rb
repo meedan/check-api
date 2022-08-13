@@ -126,6 +126,7 @@ class FactCheckTest < ActiveSupport::TestCase
   end
 
   test "should keep report and fact-check in sync when text report is created and updated" do
+    RequestStore.store[:skip_cached_field_update] = false
     create_report_design_annotation_type
     u = create_user is_admin: true
     pm = create_project_media
@@ -149,6 +150,7 @@ class FactCheckTest < ActiveSupport::TestCase
   end
 
   test "should keep report and fact-check in sync when image report is created and updated" do
+    RequestStore.store[:skip_cached_field_update] = false
     create_report_design_annotation_type
     u = create_user is_admin: true
     pm = create_project_media
