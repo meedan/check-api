@@ -62,6 +62,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should link similar images, get flags and extract text" do
+    image_path = random_url
     ft = create_field_type field_type: 'image_path', label: 'Image Path'
     at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
     create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
@@ -78,24 +79,24 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       WebMock.stub_request(:get, 'http://alegre/image/similarity/').to_return(body: {
         "result": []
       }.to_json)
-      WebMock.stub_request(:get, 'http://alegre/image/classification/').with({ query: { uri: 'some/path' } }).to_return(body: {
+      WebMock.stub_request(:get, 'http://alegre/image/classification/').with({ query: { uri: image_path } }).to_return(body: {
         "result": valid_flags_data
       }.to_json)
-      WebMock.stub_request(:get, 'http://alegre/image/ocr/').with({ query: { url: 'some/path' } }).to_return(body: {
+      WebMock.stub_request(:get, 'http://alegre/image/ocr/').with({ query: { url: image_path } }).to_return(body: {
         "text": "Foo bar"
       }.to_json)
       WebMock.stub_request(:post, 'http://alegre/image/similarity/').to_return(body: 'success')
 
       # Similarity
       pm1 = create_project_media team: @pm.team, media: create_uploaded_image
-      Bot::Alegre.stubs(:media_file_url).returns("some/path")
+      Bot::Alegre.stubs(:media_file_url).returns(image_path)
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       Bot::Alegre.unstub(:media_file_url)
       context = [{
         "team_id" => pm1.team.id.to_s,
         "project_media_id" => pm1.id.to_s
       }]
-      WebMock.stub_request(:get, 'http://alegre/image/similarity/').to_return(body: {
+      WebMock.stub_request(:get, 'http://alegre/image/similarity/').with(body: /"url":"#{image_path}"/).to_return(body: {
         "result": [
           {
             "id": 1,
@@ -109,7 +110,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }.to_json)
       pm2 = create_project_media team: @pm.team, media: create_uploaded_image
       response = {pm1.id => {:score => 0, :context => context, :model=>nil, :source_field=>"image", :target_field => "image"}}
-      Bot::Alegre.stubs(:media_file_url).returns("some/path")
+      Bot::Alegre.stubs(:media_file_url).returns(image_path)
       assert_equal response, Bot::Alegre.get_items_with_similarity('image', pm2, Bot::Alegre.get_threshold_for_query('image', pm2))
 
       # Flags
@@ -118,7 +119,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         "result": valid_flags_data
       }.to_json)
       pm3 = create_project_media team: @pm.team, media: create_uploaded_image
-      Bot::Alegre.stubs(:media_file_url).returns("some/path")
+      Bot::Alegre.stubs(:media_file_url).returns(image_path)
       assert Bot::Alegre.run({ data: { dbid: pm3.id }, event: 'create_project_media' })
       assert_not_nil pm3.get_annotations('flag').last
       Bot::Alegre.unstub(:media_file_url)
@@ -126,7 +127,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       # Text extraction
       Bot::Alegre.unstub(:media_file_url)
       pm4 = create_project_media team: @pm.team, media: create_uploaded_image
-      Bot::Alegre.stubs(:media_file_url).returns("some/path")
+      Bot::Alegre.stubs(:media_file_url).returns(image_path)
       assert Bot::Alegre.run({ data: { dbid: pm4.id }, event: 'create_project_media' })
       extracted_text_annotation = pm4.get_annotations('extracted_text').last
       assert_equal 'Foo bar', extracted_text_annotation.data['text']
