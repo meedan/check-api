@@ -31,7 +31,7 @@ def write_archived_similarity_relationships_to_disk(object_change, filename)
   tids = Team.all.map(&:id)
   tids.each_with_index do |tid, i|
     j = 0
-    Version.from_partition(tid).where(item_type: 'Relationship', event: 'destroy', created_at: Time.now.ago(3.months)..Time.now).where('object_changes LIKE ?', object_change).find_each do |v|
+    Version.from_partition(tid).where(item_type: 'Relationship', event: 'destroy', created_at: Time.now.ago(12.weeks)..Time.now).where('object_changes SIMILAR TO ?', object_change).find_each do |v|
       j += 1
       puts "Team #{i+1} / #{tids.size}, version #{j}"
       r = JSON.parse(v.object)
@@ -130,9 +130,9 @@ namespace :check do
         end
       end
 
-      # Rejected suggestions
+      # Rejected suggestions -- either destroyed suggests or destoryed confirmed matches that started as a suggestion
       write_archived_similarity_relationships_to_disk(
-        '%suggested_sibling%',
+        "(%suggested\\_sibling%)|(%confirmed\\_sibling%user\\_id\":\\[#{BotUser.alegre_user.id}%\"confirmed\\_by\":\\[[0-9]%)",
         "/tmp/rejected.json"
       )
 
@@ -166,7 +166,7 @@ namespace :check do
 
       # Manually detached matches
       write_archived_similarity_relationships_to_disk(
-        "%confirmed_sibling%user_id\":[#{BotUser.alegre_user.id}%\"confirmed_by\":[null%'",
+        "%confirmed\\_sibling%user\\_id\":\\[4588%\"confirmed\\_by\":\\[null%",
         "/tmp/detached.json"
       )
 
