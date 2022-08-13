@@ -15,6 +15,8 @@ class CheckSearch
     # Set show options
     @options['show'] ||= MEDIA_TYPES
 
+    # Set show similar
+    @options['show_similar'] ||= false
     @options['eslimit'] ||= 50
     @options['esoffset'] ||= 0
     adjust_es_window_size
@@ -37,7 +39,7 @@ class CheckSearch
     # Apply feed filters
     @options.merge!(@feed.get_feed_filters) if feed_query?
 
-    Project.current = Project.where(id: @options['projects'].last).last if @options['projects'].to_a.size == 1 && Project.current.nil?
+    (Project.current ||= Project.where(id: @options['projects'].last).last) if @options['projects'].to_a.size == 1
     @file = file
   end
 
