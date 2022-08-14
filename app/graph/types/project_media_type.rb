@@ -25,6 +25,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :status, types.String
   field :share_count, types.Int
   field :list_columns_values, JsonStringType
+  field :feed_columns_values, JsonStringType
   field :report_status, types.String
   field :confirmed_as_similar_by_name, types.String
   field :added_as_similar_by_name, types.String
