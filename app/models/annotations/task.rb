@@ -263,7 +263,7 @@ DynamicAnnotation::Field.class_eval do
   def selected_values_from_task_answer
     if ['response_single_choice', 'response_multiple_choice'].include?(self.field_name)
       begin
-        [JSON.parse(self.value).values].flatten
+        [JSON.parse(self.value).values].flatten.reject(&:blank?)
       rescue
         [value]
       end
