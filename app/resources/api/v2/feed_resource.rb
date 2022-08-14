@@ -36,6 +36,7 @@ module Api
 
       # Make sure that we keep the same order returned by the "records" method above
       def self.apply_sort(records, _order_options, _context = {})
+        return ProjectMedia.none if records.size == 0
         ProjectMedia.where(id: records.map(&:id)).order(Arel.sql("array_position(ARRAY[#{records.map(&:id).join(', ')}], id)"))
       end
 
