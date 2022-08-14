@@ -16,18 +16,22 @@ module Api
       filter :type, default: 'text', apply: ->(records, _value, _options) { records }
       filter :query, apply: ->(records, _value, _options) { records }
       filter :after, apply: ->(records, _value, _options) { records }
+      filter :feed_id, apply: ->(records, _value, _options) { records }
 
       paginator :none
 
       def self.records(options = {})
         team_ids = self.workspaces(options).map(&:id)
+        Team.current ||= team_ids[0]
         filters = options[:filters] || {}
         query = filters.dig(:query, 0)
         type = filters.dig(:type, 0)
         after = filters.dig(:after, 0)
         after = Time.parse(after) unless after.blank?
-        return ProjectMedia.none if team_ids.blank? || query.blank?
-        Bot::Smooch.search_for_similar_published_fact_checks(type, CGI.unescape(query), team_ids, after)
+        feed_id = filters.dig(:feed_id, 0).to_i
+        return ProjectMedia.none if team_ids.blank? || query.blank? || !can_read_feed?(feed_id, team_ids)
+        query = CGI.unescape(query)
+        Bot::Smooch.search_for_similar_published_fact_checks(type, query, team_ids, after, feed_id)
       end
 
       # Make sure that we keep the same order returned by the "records" method above
@@ -37,6 +41,13 @@ module Api
 
       def self.count(filters, options = {})
         self.records(options.merge(filters: filters)).count
+      end
+
+      private
+
+      # The feed must be published and the teams for which this API key has access to must be part of the feed and sharing content with it
+      def self.can_read_feed?(feed_id, team_ids)
+        !Feed.where(id: feed_id, published: true).last.nil? && !(FeedTeam.where(feed_id: feed_id, shared: true).map(&:team_id) & team_ids).empty?
       end
     end
   end

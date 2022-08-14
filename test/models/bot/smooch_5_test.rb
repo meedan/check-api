@@ -441,4 +441,58 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     Bot::Smooch.unstub(:bundle_list_of_messages)
     Bot::Alegre.unstub(:get_merged_similar_items)
   end
+
+  test "should search for feed" do
+    RequestStore.store[:skip_cached_field_update] = false
+    setup_elasticsearch
+
+    # Create testing data
+    t1 = create_team
+    pm1a = create_project_media quote: 'Bar Test', team: t1 # Should be in search results
+    pm1b = create_project_media quote: 'Test 1A', team: t1 # Should not be in search results because doesn't match this team's filters
+    pm1c = create_project_media media: Blank.create!, team: t1 # Should not be in search results because doesn't match the feed filters
+    pm1d = create_project_media quote: 'Foo Bar', team: t1 # Should not be in keyword search results because doesn't match the query filter but should be in similarity search results because it's returned from Alegre
+    pm1e = create_project_media quote: 'Bar Test 2', team: t1 # Should not be in search results because it's not published
+    pm1f = create_project_media quote: 'Bar Test 3', team: t1 # Should not be in similarity search results because it's not returned by Alegre but should be in keyword search results
+    t2 = create_team
+    pm2 = create_project_media quote: 'Test 2', team: t2 # Should be in search results
+    t3 = create_team
+    pm3 = create_project_media quote: 'Test 3', team: t3 # Should not be in search results (team is part of feed but sharing is disabled)
+    t4 = create_team
+    pm4 = create_project_media quote: 'Test 4', team: t4 # Should not be in search results (team is not part of feed)
+    f1 = create_feed published: true, filters: { show: ['claims'] }
+    f1.teams << t1
+    f1.teams << t2
+    FeedTeam.update_all(shared: true)
+    f1.teams << t3
+    ft = FeedTeam.where(feed: f1, team: t1).last
+    ft.filters = { keyword: 'Bar' }
+    ft.save!
+    u = create_bot_user
+    [t1, t2, t3, t4].each { |t| TeamUser.create!(user: u, team: t, role: 'editor') }
+    alegre_results = {}
+    ProjectMedia.order('id ASC').all.each_with_index do |pm, i|
+      publish_report(pm) if pm.id != pm1e.id
+      alegre_results[pm.id] = { score: (1 - i / 10.0), model: 'elasticsearch' } if pm.id != pm1f.id
+    end
+    Bot::Alegre.stubs(:get_merged_similar_items).returns(alegre_results)
+    Bot::Alegre.stubs(:get_items_with_similar_media).returns(alegre_results)
+
+    # Get feed data scoped by teams that are part of the feed, taking into account the filters for the feed
+    # and for each team participating in the feed
+    with_current_user_and_team(u, t1) do
+
+      # Keyword search
+      assert_equal [pm1a, pm1f, pm2].sort, Bot::Smooch.search_for_similar_published_fact_checks('text', 'Test', [t1.id, t2.id, t3.id, t4.id], nil, f1.id).to_a.sort
+
+      # Text similarity search
+      assert_equal [pm1a, pm1d, pm2], Bot::Smooch.search_for_similar_published_fact_checks('text', 'This is a test', [t1.id, t2.id, t3.id, t4.id], nil, f1.id).to_a
+
+      # Media similarity search
+      assert_equal [pm1a, pm1d, pm2], Bot::Smooch.search_for_similar_published_fact_checks('image', random_url, [t1.id, t2.id, t3.id, t4.id], nil, f1.id).to_a
+    end
+
+    Bot::Alegre.unstub(:get_merged_similar_items)
+    Bot::Alegre.unstub(:get_items_with_similar_media)
+  end
 end
