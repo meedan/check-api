@@ -44,8 +44,6 @@ module Api
         self.records(options.merge(filters: filters)).count
       end
 
-      private
-
       # The feed must be published and the teams for which this API key has access to must be part of the feed and sharing content with it
       def self.can_read_feed?(feed_id, team_ids)
         !Feed.where(id: feed_id, published: true).last.nil? && !(FeedTeam.where(feed_id: feed_id, shared: true).map(&:team_id) & team_ids).empty?
