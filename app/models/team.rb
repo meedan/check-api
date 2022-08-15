@@ -310,6 +310,7 @@ class Team < ApplicationRecord
       # Update team statuses after deleting one of them
       settings = self.settings || {}
       statuses = settings.with_indifferent_access[:media_verification_statuses]
+      statuses ||= team.send('verification_statuses', 'media')
       statuses[:statuses] = statuses[:statuses].reject{ |s| s[:id] == status_id }
       self.set_media_verification_statuses = statuses
       self.save!
