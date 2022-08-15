@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_08_09_210349) do
+ActiveRecord::Schema.define(version: 2022_08_15_030811) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -342,6 +342,15 @@ ActiveRecord::Schema.define(version: 2022_08_09_210349) do
     t.index ["source_id", "target_id", "relationship_type"], name: "relationship_index", unique: true
   end
 
+  create_table "requests", force: :cascade do |t|
+    t.bigint "feed_id", null: false
+    t.string "request_type", null: false
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["feed_id"], name: "index_requests_on_feed_id"
+  end
+
   create_table "saved_searches", id: :serial, force: :cascade do |t|
     t.string "title", null: false
     t.integer "team_id", null: false
@@ -547,4 +556,5 @@ ActiveRecord::Schema.define(version: 2022_08_09_210349) do
   add_foreign_key "fact_checks", "users"
   add_foreign_key "feed_teams", "feeds"
   add_foreign_key "feed_teams", "teams"
+  add_foreign_key "requests", "feeds"
 end

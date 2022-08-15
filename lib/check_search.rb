@@ -279,6 +279,7 @@ class CheckSearch
   def medias_build_search_query(include_related_items = self.should_include_related_items?)
     core_conditions = []
     custom_conditions = []
+    core_conditions << { terms: { get_search_field => @options['project_media_ids'] } } unless @options['project_media_ids'].blank?
     core_conditions << { terms: { team_id: [@options['team_id']].flatten } } unless @options['team_id'].blank?
     core_conditions << { terms: { archived: @options['archived'] } }
     custom_conditions << { terms: { read: @options['read'].map(&:to_i) } } if @options.has_key?('read')
