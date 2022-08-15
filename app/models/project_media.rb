@@ -225,7 +225,7 @@ class ProjectMedia < ApplicationRecord
     relationships = Relationship.where(source_id: project_media_id)
     targets = relationships.map(&:target)
     relationships.destroy_all
-    targets.map(&:destroy)
+    targets.reject(&:nil?).map(&:destroy)
     user = User.where(id: user_id).last
     previous_user = User.current
     Relationship.where(target_id: project_media_id).each do |r|
@@ -312,6 +312,23 @@ class ProjectMedia < ApplicationRecord
         key = c[:key]
         values[key] = self.send(key)
       end
+    end
+    values
+  end
+
+  def feed_columns_values
+    values = {}
+    columns = [
+      'fact_check_title',
+      'fact_check_summary',
+      'fact_check_url',
+      'tags_as_sentence',
+      'team_name',
+      'updated_at_timestamp',
+      'status'
+    ]
+    columns.each do |column|
+      values[column] = self.send(column)
     end
     values
   end

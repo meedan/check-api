@@ -2845,4 +2845,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 2, ProjectMedia.where(id: [pm_s.id, pm_t.id], archived: CheckArchivedFlags::FlagCodes::NONE).count
     assert_not_nil Relationship.where(id: r.id).last
   end
+
+  test "should return cached values for feed data" do
+    pm = create_project_media
+    assert_kind_of Hash, pm.feed_columns_values
+  end
 end
