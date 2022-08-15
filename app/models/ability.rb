@@ -98,6 +98,9 @@ class Ability
       teams << v_obj_parent.team&.id if v_obj_parent
       teams.include?(@context_team.id)
     end
+    can :update, FeedTeam do |obj|
+      obj.team_id == @context_team.id
+    end
   end
 
   def collaborator_perms

@@ -61,6 +61,14 @@ module ProjectMediaCachedFields
       }
     }
 
+    FACT_CHECK_EVENT = {
+      model: FactCheck,
+      affected_ids: proc { |fc| [fc.claim_description.project_media] },
+      events: {
+        save: :recalculate
+      }
+    }
+
     { linked_items_count: 'confirmed', suggestions_count: 'suggested' }.each do |field_name, type|
       cached_field field_name,
         start_as: 0,
@@ -437,5 +445,23 @@ module ProjectMediaCachedFields
           }
         },
       ]
+
+    cached_field :fact_check_title,
+      start_as: nil,
+      update_es: false,
+      recalculate: proc { |pm| pm.claim_description&.fact_check&.title },
+      update_on: [FACT_CHECK_EVENT]
+
+    cached_field :fact_check_summary,
+      start_as: nil,
+      update_es: false,
+      recalculate: proc { |pm| pm.claim_description&.fact_check&.summary },
+      update_on: [FACT_CHECK_EVENT]
+
+    cached_field :fact_check_url,
+      start_as: nil,
+      update_es: false,
+      recalculate: proc { |pm| pm.claim_description&.fact_check&.url },
+      update_on: [FACT_CHECK_EVENT]
   end
 end

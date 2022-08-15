@@ -15,8 +15,15 @@ module TeamAssociations
     has_many :bot_resources, dependent: :destroy
     has_many :saved_searches, dependent: :destroy
     has_many :project_groups, dependent: :destroy
+    has_many :feed_teams, dependent: :destroy
+    has_many :feeds, through: :feed_teams
 
     has_annotations
+  end
+
+  # Teams that share feeds with this one
+  def shared_teams
+    self.feeds.map(&:teams).flatten.uniq
   end
 
   def team
@@ -37,14 +44,6 @@ module TeamAssociations
       bots << bot.id if bot.get_team_author_id == self.id
     end
     BotUser.where(id: bots.uniq)
-  end
-
-  def country_teams
-    data = {}
-    unless self.country.nil?
-      Team.where(country: self.country).find_each{ |t| data[t.id] = t.name }
-    end
-    data
   end
 
   def recent_projects

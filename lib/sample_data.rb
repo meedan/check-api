@@ -968,4 +968,17 @@ module SampleData
       claim_description: options[:claim_description] || create_claim_description
     }.merge(options))
   end
+
+  def create_feed(options = {})
+    Feed.create!({
+      name: random_string
+    }.merge(options))
+  end
+
+  def create_feed_team(options = {})
+    FeedTeam.create!({
+      feed: create_feed,
+      team: create_team
+    }.merge(options))
+  end
 end

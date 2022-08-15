@@ -131,7 +131,9 @@ class ClusterTest < ActiveSupport::TestCase
 
   test "should access cluster" do
     u = create_user
-    t1 = create_team country: 'Brazil'
+    t1 = create_team
+    f1 = create_feed
+    f1.teams << t1
     create_team_user user: u, team: t1
 
     # A cluster whose center is from the same team
@@ -139,20 +141,24 @@ class ClusterTest < ActiveSupport::TestCase
     c1 = create_cluster project_media: pm1
     c1.project_medias << pm1
 
-    # A cluster from another country
-    t2 = create_team country: 'USA'
+    # A cluster from another feed
+    t2 = create_team
+    f2 = create_feed
+    f2.teams << t2
     pm2 = create_project_media team: t2
     c2 = create_cluster project_media: pm2
     c2.project_medias << pm2
 
-    # A cluster from the same country without any item from the team
-    t3 = create_team country: 'Brazil'
+    # A cluster from the same feed without any item from the team
+    t3 = create_team
+    f1.teams << t3
     pm3 = create_project_media team: t3
     c3 = create_cluster project_media: pm3
     c3.project_medias << pm3
 
-    # A cluster from the same country with an item from the team
-    t4 = create_team country: 'Brazil'
+    # A cluster from the same feed with an item from the team
+    t4 = create_team
+    f1.teams << t4
     pm4 = create_project_media team: t4
     c4 = create_cluster project_media: pm4
     c4.project_medias << pm4
