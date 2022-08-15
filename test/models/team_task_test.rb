@@ -299,7 +299,7 @@ class TeamTaskTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
-  test "should not update type or options from teamwide tasks with answers" do
+  test "should not update type from teamwide tasks with answers" do
     t =  create_team
     p = create_project team: t
     Team.stubs(:current).returns(t)
@@ -315,14 +315,9 @@ class TeamTaskTest < ActiveSupport::TestCase
       fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
       pm2_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_task: 'Foo' }.to_json }.to_json
       pm2_tt.save!
-      # update type/options
-      # type and options can't be edited if tasks has answers
+      # update type
+      # type can't be edited if tasks has answers
       tt.task_type = 'multiple_choice'
-      assert_raises ActiveRecord::RecordInvalid do
-        tt.save!
-      end
-      tt.reload
-      tt.json_options = [{ label: 'Test' }].to_json
       assert_raises ActiveRecord::RecordInvalid do
         tt.save!
       end
