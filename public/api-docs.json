@@ -12,12 +12,19 @@
       "operations": [
         {
           "method": "GET",
-          "summary": "Get fact-checks that are similar to the input query and type.",
-          "notes": "Up to 3 fact-checks are returned. The scope of the search are the organizations that the provided API key has access to.",
+          "summary": "Get fact-checks from a feed that are similar to the input query and type.",
+          "notes": "Up to 3 fact-checks are returned. The scope of the search is the feed passed as argument and the organizations that the provided API key has access to.",
           "type": "FactCheck",
           "nickname": "getFeeds",
           "authorizations": {},
           "parameters": [
+            {
+              "name": "filter[feed_id]",
+              "description": "Feed ID. Numeric ID for the feed. The API key must have access to an organization that is sharing content with the feed and the feed must be published.",
+              "required": true,
+              "type": "integer",
+              "paramType": "query"
+            },
             {
               "name": "filter[type]",
               "description": "Query type. Supported values are text (default), audio, video and image.",
