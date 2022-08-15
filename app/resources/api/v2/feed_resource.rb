@@ -20,7 +20,7 @@ module Api
 
       paginator :none
 
-      def self.records(options = {})
+      def self.records(options = {}, skip_save_request = false)
         team_ids = self.workspaces(options).map(&:id)
         Team.current ||= team_ids[0]
         filters = options[:filters] || {}
@@ -31,7 +31,8 @@ module Api
         feed_id = filters.dig(:feed_id, 0).to_i
         return ProjectMedia.none if team_ids.blank? || query.blank? || !can_read_feed?(feed_id, team_ids)
         query = CGI.unescape(query)
-        Bot::Smooch.search_for_similar_published_fact_checks(type, query, team_ids, after, feed_id)
+        Feed.delay.save_request(feed_id, type, query) unless skip_save_request
+        Bot::Smooch.search_for_similar_published_fact_checks(type, query, Feed.find(feed_id).team_ids, after, feed_id)
       end
 
       # Make sure that we keep the same order returned by the "records" method above
@@ -41,7 +42,7 @@ module Api
       end
 
       def self.count(filters, options = {})
-        self.records(options.merge(filters: filters)).count
+        self.records(options.merge(filters: filters), true).count
       end
 
       # The feed must be published and the teams for which this API key has access to must be part of the feed and sharing content with it

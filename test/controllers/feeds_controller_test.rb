@@ -83,4 +83,15 @@ class FeedsControllerTest < ActionController::TestCase
     assert_response :success
     assert_equal 0, json_response['data'].size
   end
+
+  test "should save request query" do
+    Sidekiq::Testing.inline!
+    authenticate_with_token @a
+    assert_difference 'Request.count' do
+      get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
+    end
+    assert_response :success
+    assert_equal 2, json_response['data'].size
+    assert_equal 2, json_response['meta']['record-count']
+  end
 end

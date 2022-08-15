@@ -454,13 +454,22 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     pm1d = create_project_media quote: 'Foo Bar', team: t1 # Should not be in keyword search results because doesn't match the query filter but should be in similarity search results because it's returned from Alegre
     pm1e = create_project_media quote: 'Bar Test 2', team: t1 # Should not be in search results because it's not published
     pm1f = create_project_media quote: 'Bar Test 3', team: t1 # Should not be in similarity search results because it's not returned by Alegre but should be in keyword search results
+    url = random_url
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item","title":"Bar","description":"Bar"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url
+    pm1g = create_project_media media: l, team: t1 # Should be only in search results by URL
     t2 = create_team
-    pm2 = create_project_media quote: 'Test 2', team: t2 # Should be in search results
+    pm2a = create_project_media quote: 'Test 2', team: t2 # Should be in search results
+    pm2b = create_project_media media: l, team: t2 # Should be only in search results by URL
     t3 = create_team
-    pm3 = create_project_media quote: 'Test 3', team: t3 # Should not be in search results (team is part of feed but sharing is disabled)
+    pm3a = create_project_media quote: 'Test 3', team: t3 # Should not be in search results (team is part of feed but sharing is disabled)
+    pm3b = create_project_media media: l, team: t3 # Should not be in search results by URL
     t4 = create_team
-    pm4 = create_project_media quote: 'Test 4', team: t4 # Should not be in search results (team is not part of feed)
-    f1 = create_feed published: true, filters: { show: ['claims'] }
+    pm4a = create_project_media quote: 'Test 4', team: t4 # Should not be in search results (team is not part of feed)
+    pm4b = create_project_media media: l, team: t4 # Should not be in search results by URL
+    f1 = create_feed published: true, filters: { show: ['claims', 'links'] }
     f1.teams << t1
     f1.teams << t2
     FeedTeam.update_all(shared: true)
@@ -473,7 +482,7 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     alegre_results = {}
     ProjectMedia.order('id ASC').all.each_with_index do |pm, i|
       publish_report(pm) if pm.id != pm1e.id
-      alegre_results[pm.id] = { score: (1 - i / 10.0), model: 'elasticsearch' } if pm.id != pm1f.id
+      alegre_results[pm.id] = { score: (1 - i / 10.0), model: 'elasticsearch' } unless [pm1f, pm1g, pm2b].map(&:id).include?(pm.id)
     end
     Bot::Alegre.stubs(:get_merged_similar_items).returns(alegre_results)
     Bot::Alegre.stubs(:get_items_with_similar_media).returns(alegre_results)
@@ -483,13 +492,16 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     with_current_user_and_team(u, t1) do
 
       # Keyword search
-      assert_equal [pm1a, pm1f, pm2].sort, Bot::Smooch.search_for_similar_published_fact_checks('text', 'Test', [t1.id, t2.id, t3.id, t4.id], nil, f1.id).to_a.sort
+      assert_equal [pm1a, pm1f, pm2a].sort, Bot::Smooch.search_for_similar_published_fact_checks('text', 'Test', [t1.id, t2.id, t3.id, t4.id], nil, f1.id).to_a.sort
 
       # Text similarity search
-      assert_equal [pm1a, pm1d, pm2], Bot::Smooch.search_for_similar_published_fact_checks('text', 'This is a test', [t1.id, t2.id, t3.id, t4.id], nil, f1.id).to_a
+      assert_equal [pm1a, pm1d, pm2a], Bot::Smooch.search_for_similar_published_fact_checks('text', 'This is a test', [t1.id, t2.id, t3.id, t4.id], nil, f1.id).to_a
 
       # Media similarity search
-      assert_equal [pm1a, pm1d, pm2], Bot::Smooch.search_for_similar_published_fact_checks('image', random_url, [t1.id, t2.id, t3.id, t4.id], nil, f1.id).to_a
+      assert_equal [pm1a, pm1d, pm2a], Bot::Smooch.search_for_similar_published_fact_checks('image', random_url, [t1.id, t2.id, t3.id, t4.id], nil, f1.id).to_a
+
+      # URL search
+      assert_equal [pm1g, pm2b].sort, Bot::Smooch.search_for_similar_published_fact_checks('text', "Test with URL: #{url}", [t1.id, t2.id, t3.id, t4.id], nil, f1.id).to_a.sort
     end
 
     Bot::Alegre.unstub(:get_merged_similar_items)

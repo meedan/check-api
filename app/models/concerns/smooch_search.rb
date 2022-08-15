@@ -61,16 +61,22 @@ module SmoochSearch
       self.ask_if_ready_to_submit(uid, workflow, 'ask_if_ready', language)
     end
 
-    def parse_search_results_from_alegre(results, after = nil, feed_id = nil, team_ids = nil)
+    def filter_search_results(pms, after, feed_id, team_ids)
+      return [] if pms.empty?
       feed_results = []
       if feed_id && team_ids
-        filters = { feed_id: feed_id, project_media_ids: results.keys }
+        filters = { feed_id: feed_id, project_media_ids: pms.map(&:id) }
         filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) unless after.blank?
         feed_results = CheckSearch.new(filters.to_json, nil, team_ids).medias.to_a.map(&:id)
       end
-      results.sort_by{ |a| [a[1][:model] != Bot::Alegre::ELASTICSEARCH_MODEL ? 1 : 0, a[1][:score]] }.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }.select do |pm|
+      pms.select do |pm|
         (feed_id && feed_results.include?(pm&.id)) || (!feed_id && pm&.report_status == 'published' && pm&.updated_at.to_i > after.to_i)
-      end.uniq(&:id).first(3)
+      end
+    end
+
+    def parse_search_results_from_alegre(results, after = nil, feed_id = nil, team_ids = nil)
+      pms = results.sort_by{ |a| [a[1][:model] != Bot::Alegre::ELASTICSEARCH_MODEL ? 1 : 0, a[1][:score]] }.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }
+      filter_search_results(pms, after, feed_id, team_ids).uniq(&:id).first(3)
     end
 
     def date_filter(team_id)
@@ -130,8 +136,9 @@ module SmoochSearch
         text = ::Bot::Smooch.extract_claim(query)
         unless link.nil?
           Rails.logger.info "[Smooch Bot] Search query (URL): #{link.url}"
-          result = ProjectMedia.joins(:media).where('medias.url' => link.url, 'project_medias.team_id' => team_ids).last
-          return [result] if result&.report_status == 'published'
+          pms = ProjectMedia.joins(:media).where('medias.url' => link.url, 'project_medias.team_id' => team_ids).to_a
+          result = self.filter_search_results(pms, after, feed_id, team_ids)
+          return result unless result.empty?
           text = [link.pender_data['description'].to_s, text.to_s.gsub(link.url, '').strip].max_by(&:length)
         end
         return [] if text.blank?
