@@ -29,6 +29,10 @@ class Feed < ApplicationRecord
     self.feed_teams.where(team_id: Team.current&.id).last
   end
 
+  def teams_count
+    self.teams.count
+  end
+
   def self.save_request(feed_id, type, query)
     Request.create!(feed_id: feed_id, request_type: type, content: query, skip_check_ability: true)
   end
