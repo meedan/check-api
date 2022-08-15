@@ -225,7 +225,7 @@ class ProjectMedia < ApplicationRecord
     relationships = Relationship.where(source_id: project_media_id)
     targets = relationships.map(&:target)
     relationships.destroy_all
-    targets.map(&:destroy)
+    targets.reject(&:nil?).map(&:destroy)
     user = User.where(id: user_id).last
     previous_user = User.current
     Relationship.where(target_id: project_media_id).each do |r|
