@@ -214,8 +214,8 @@ class ProjectMedia < ApplicationRecord
     # should enqueue spam children for delete forever
     if archived == CheckArchivedFlags::FlagCodes::SPAM && !RequestStore.store[:skip_delete_for_ever]
       interval = CheckConfig.get('empty_trash_interval', 30).to_i
-      updated_at = Time.now
-      ids.each{ |pm_id| ProjectMedia.delay_for(interval.days).delete_forever('spam', updated_at, pm_id, { parent_id: project_media_id }) }
+      options = { type: 'spam', updated_at: Time.now, extra: { parent_id: project_media_id }}
+      ids.each{ |pm_id| ProjectMediaTrashWorker.perform_in(interval.days, pm_id, YAML.dump(options)) }
     end
   end
 
@@ -225,7 +225,7 @@ class ProjectMedia < ApplicationRecord
     relationships = Relationship.where(source_id: project_media_id)
     targets = relationships.map(&:target)
     relationships.destroy_all
-    targets.map(&:destroy)
+    targets.reject(&:nil?).map(&:destroy)
     user = User.where(id: user_id).last
     previous_user = User.current
     Relationship.where(target_id: project_media_id).each do |r|
@@ -327,6 +327,23 @@ class ProjectMedia < ApplicationRecord
     values
   end
 
+  def feed_columns_values
+    values = {}
+    columns = [
+      'fact_check_title',
+      'fact_check_summary',
+      'fact_check_url',
+      'tags_as_sentence',
+      'team_name',
+      'updated_at_timestamp',
+      'status'
+    ]
+    columns.each do |column|
+      values[column] = self.send(column)
+    end
+    values
+  end
+
   def remove_related_team_tasks_bg(pid)
     # Get team tasks that assigned to target list (pid)
     tasks = TeamTask.where("project_ids like ?", "% #{pid}\n%")
@@ -386,23 +403,6 @@ class ProjectMedia < ApplicationRecord
     sm_ids.blank? ? [] : DynamicAnnotation::Field.where(annotation_id: sm_ids, field_name: 'smooch_data')
   end
 
-  def self.delete_forever(type, updated_at, id, extra = {})
-    # Check item still exists and Trashed
-    archived = type == 'trash' ? CheckArchivedFlags::FlagCodes::TRASHED : CheckArchivedFlags::FlagCodes::SPAM
-    pm = ProjectMedia.where(id: id, archived: archived).where('updated_at <= ?', updated_at).last
-    unless pm.nil?
-      should_delete = true
-      if type == 'spam'
-        # Verify that relationship still exists
-        should_delete = Relationship.where(
-          source_id: extra.with_indifferent_access[:parent_id],
-          target_id: pm.id
-        ).exists?
-      end
-      pm.destroy if should_delete
-    end
-  end
-
   protected
 
   def set_es_account_data
@@ -431,6 +431,7 @@ class ProjectMedia < ApplicationRecord
     ms.attributes[:quote] = m.quote
     ms.attributes[:verification_status] = self.last_status
     ms.attributes[:channel] = self.channel.values.flatten.map(&:to_i)
+    ms.attributes[:language] = self.get_dynamic_annotation('language')&.get_field_value('language')
     # set fields with integer value
     fields_i = [
       'archived', 'sources_count', 'linked_items_count', 'share_count',

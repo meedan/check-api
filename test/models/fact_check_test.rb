@@ -71,6 +71,20 @@ class FactCheckTest < ActiveSupport::TestCase
     end
   end
 
+  test "should set default language" do
+    fc = create_fact_check
+    assert_equal 'en', fc.language
+    fc = create_fact_check language: 'ar'
+    assert_equal 'ar', fc.language
+    t = create_team
+    t.set_language = 'fr'
+    t.save!
+    pm = create_project_media team: t
+    cd = create_claim_description project_media: pm
+    fc = create_fact_check claim_description: cd
+    assert_equal 'fr', fc.language
+  end
+
   test "should not create a fact check if does not have permission" do
     t = create_team
     u = create_user
@@ -112,6 +126,7 @@ class FactCheckTest < ActiveSupport::TestCase
   end
 
   test "should keep report and fact-check in sync when text report is created and updated" do
+    RequestStore.store[:skip_cached_field_update] = false
     create_report_design_annotation_type
     u = create_user is_admin: true
     pm = create_project_media
@@ -135,6 +150,7 @@ class FactCheckTest < ActiveSupport::TestCase
   end
 
   test "should keep report and fact-check in sync when image report is created and updated" do
+    RequestStore.store[:skip_cached_field_update] = false
     create_report_design_annotation_type
     u = create_user is_admin: true
     pm = create_project_media

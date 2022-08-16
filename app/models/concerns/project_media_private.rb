@@ -151,7 +151,8 @@ module ProjectMediaPrivate
   def apply_delete_for_ever
     return if RequestStore.store[:skip_delete_for_ever]
     interval = CheckConfig.get('empty_trash_interval', 30).to_i
-    ProjectMedia.delay_for(interval.days).delete_forever('trash', self.updated_at, self.id)
+    options = { type: 'trash', updated_at: self.updated_at }
+    ProjectMediaTrashWorker.perform_in(interval.days, self.id, YAML.dump(options))
   end
 
   def rate_limit_not_exceeded

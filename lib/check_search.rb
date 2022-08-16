@@ -33,9 +33,13 @@ class CheckSearch
     # https://github.com/elastic/elasticsearch/issues/23366
     @options['keyword'] = "#{@options['keyword']}~" if !@options['keyword'].blank? && @options['fuzzy']
 
-    # set es_id option
+    # Set es_id option
     @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['String', 'Integer'].include?(@options['id'].class.name)
-    Project.current = Project.where(id: @options['projects'].last).last if @options['projects'].to_a.size == 1 && Project.current.nil?
+
+    # Apply feed filters
+    @options.merge!(@feed.get_feed_filters) if feed_query?
+
+    (Project.current ||= Project.where(id: @options['projects'].last).last) if @options['projects'].to_a.size == 1
     @file = file
   end
 
@@ -53,9 +57,8 @@ class CheckSearch
   }
 
   def team_condition(team_id = nil)
-    if trends_query?
-      team = Team.find(team_id)
-      ProjectMedia.joins(:team).where('teams.country' => team.country).where.not(cluster_id: nil).group(:team_id).count.keys
+    if feed_query?
+      FeedTeam.where(feed_id: @feed.id, team_id: Team.current.id).last.shared ? @feed.team_ids : [0] # Invalidate the query if the current team is not sharing content
     else
       team_id || Team.current&.id
     end
@@ -73,7 +76,7 @@ class CheckSearch
 
   def team
     team_id = 0
-    if trends_query?
+    if feed_query?
       team_id = Team.current ? Team.current.id : @options['team_id'].first
     else
       team_id = @options['team_id']
@@ -143,14 +146,15 @@ class CheckSearch
   end
 
   def should_hit_elasticsearch?
+    return true if feed_query?
     status_blank = true
     status_search_fields.each do |field|
       status_blank = false unless @options[field].blank?
     end
     query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     filters_blank = true
-    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
-      'has_claim', 'cluster_teams', 'published_by', 'channels', 'cluster_published_reports'
+    ['tags', 'keyword', 'rules', 'language', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
+      'has_claim', 'cluster_teams', 'published_by', 'annotated_by', 'channels', 'cluster_published_reports'
     ].each do |filter|
       filters_blank = false unless @options[filter].blank?
     end
@@ -210,8 +214,15 @@ class CheckSearch
     hash
   end
 
-  def trends_query?
-    @options['trends'] && Team.current.get_trends_enabled && Team.current.country
+  def feed_query?
+    if @feed.nil?
+      @feed = (@options['feed_id'] && Team.current.is_part_of_feed?(@options['feed_id'])) ? Feed.find(@options['feed_id']) : false
+    end
+    !!@feed
+  end
+
+  def clusterized_feed_query?
+    feed_query? && @options['clusterize'] && !@feed.published
   end
 
   def get_pg_results_for_media
@@ -247,7 +258,6 @@ class CheckSearch
       core_conditions.merge!({ 'project_medias.id' => ids })
     end
     relation = relation.distinct('project_medias.id').includes(:media).includes(:project).where(core_conditions)
-    relation = relation.joins('INNER JOIN clusters ON clusters.project_media_id = project_medias.id') if trends_query?
     relation
   end
 
@@ -256,7 +266,7 @@ class CheckSearch
   end
 
   def show_parent?
-    search_keys = ['verification_status', 'tags', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'channels', 'report_status']
+    search_keys = ['verification_status', 'tags', 'rules', 'language', 'team_tasks', 'assigned_to', 'channels', 'report_status']
     !@options['projects'].blank? && !@options['keyword'].blank? && (search_keys & @options.keys).blank?
   end
 
@@ -269,16 +279,18 @@ class CheckSearch
   def medias_build_search_query(include_related_items = self.should_include_related_items?)
     core_conditions = []
     custom_conditions = []
+    core_conditions << { terms: { get_search_field => @options['project_media_ids'] } } unless @options['project_media_ids'].blank?
     core_conditions << { terms: { team_id: [@options['team_id']].flatten } } unless @options['team_id'].blank?
     core_conditions << { terms: { archived: @options['archived'] } }
     custom_conditions << { terms: { read: @options['read'].map(&:to_i) } } if @options.has_key?('read')
     custom_conditions << { terms: { cluster_teams: @options['cluster_teams'] } } if @options.has_key?('cluster_teams')
     core_conditions << { term: { sources_count: 0 } } unless include_related_items
-    core_conditions << { range: { cluster_size: { gt: 0 } } } if trends_query?
+    core_conditions << { range: { cluster_size: { gt: 0 } } } if clusterized_feed_query?
     custom_conditions.concat build_search_keyword_conditions
     custom_conditions.concat build_search_tags_conditions
     custom_conditions.concat build_search_report_status_conditions
     custom_conditions.concat build_search_published_by_conditions
+    custom_conditions.concat build_search_annotated_by_conditions
     custom_conditions.concat build_search_cluster_published_reports_conditions
     custom_conditions.concat build_search_integer_terms_query('assigned_user_ids', 'assigned_to')
     custom_conditions.concat build_search_integer_terms_query('channel', 'channels')
@@ -287,17 +299,20 @@ class CheckSearch
     custom_conditions.concat build_search_has_claim_conditions
     custom_conditions.concat build_search_range_filter(:es)
     custom_conditions.concat build_search_numeric_range_filter
-    dynamic_conditions = build_search_dynamic_annotation_conditions
-    check_search_concat_conditions(custom_conditions, dynamic_conditions)
+    language_conditions = build_search_language_conditions
+    check_search_concat_conditions(custom_conditions, language_conditions)
     team_tasks_conditions = build_search_team_tasks_conditions
     check_search_concat_conditions(custom_conditions, team_tasks_conditions)
+    feed_conditions = build_feed_conditions
+    conditions = []
     if @options['operator'].upcase == 'OR'
       and_conditions = { bool: { must: core_conditions } }
       or_conditions = { bool: { should: custom_conditions } }
-      { bool: { must: [and_conditions, or_conditions] } }
+      conditions = [and_conditions, or_conditions, feed_conditions]
     else
-      { bool: { must: core_conditions + custom_conditions } }
+      conditions = [{ bool: { must: (core_conditions + custom_conditions) } }, feed_conditions]
     end
+    { bool: { must: conditions.reject{ |c| c.blank? } } }
   end
 
   def check_search_concat_conditions(base_condition, c)
@@ -312,7 +327,6 @@ class CheckSearch
   end
 
   private
-
 
   def adjust_es_window_size
     window_size = 10000
@@ -332,8 +346,9 @@ class CheckSearch
       @options['projects'] = project_ids.empty? ? [0] : project_ids
     end
     # Also, adjust projects filter taking projects' privacy settings into account
-    if Team.current && !trends_query? && [@options['team_id']].flatten.size == 1
-      @options['projects'] = @options['projects'].blank? ? (Project.where(team_id: Team.current.id).allowed(Team.current).map(&:id) + [nil]) : Project.where(id: @options['projects']).allowed(Team.current).map(&:id)
+    if Team.current && !feed_query? && [@options['team_id']].flatten.size == 1
+      t = Team.find(@options['team_id'])
+      @options['projects'] = @options['projects'].blank? ? (Project.where(team_id: t.id).allowed(t).map(&:id) + [nil]) : Project.where(id: @options['projects']).allowed(t).map(&:id)
     end
     @options['projects'] += [nil] if @options['none_project']
   end
@@ -366,16 +381,11 @@ class CheckSearch
 
   def build_search_keyword_conditions
     return [] if @options["keyword"].blank? || @options["keyword"].class.name != 'String'
-    if trends_query? && @options["keyword"].split(/\s+/).size > 3
-      result = Bot::Alegre.get_similar_texts([@options['team_id']].flatten, @options["keyword"])
-      pmids = result.empty? ? [0] : result.keys
-      return [{ bool: { must: [{ terms: { parent_id: pmids }}] }}]
-    end
     set_keyword_fields
     keyword_c = []
     field_conditions = build_keyword_conditions_media_fields
     check_search_concat_conditions(keyword_c, field_conditions)
-    [['comments', 'text'], ['task_comments', 'text'], ['dynamics', 'indexable']].each do |pair|
+    [['comments', 'text']].each do |pair|
       keyword_c << {
         nested: {
           path: "#{pair[0]}",
@@ -435,7 +445,7 @@ class CheckSearch
     # add team task/metadata filter (ids)
     # should search in responses and comments
     if should_include_keyword_field?('team_tasks') && !@options['keyword_fields']['team_tasks'].blank?
-      [['task_responses', 'value'], ['task_comments', 'text']].each do |pair|
+      [['task_responses', 'value']].each do |pair|
         conditions << {
           nested: {
             path: pair[0],
@@ -455,36 +465,9 @@ class CheckSearch
     @options['keyword_fields']['fields'].blank? || @options['keyword_fields']['fields'].include?(field)
   end
 
-  def build_search_dynamic_annotation_conditions
-    conditions = []
-    return conditions unless @options.has_key?('dynamic')
-    @options['dynamic'].each do |name, values|
-      next if values.blank?
-      method = "field_search_query_type_#{name}"
-      condition = nil
-      if Dynamic.respond_to?(method)
-        condition = Dynamic.send(method, values, @options['dynamic'])
-      # To be enabled for other dynamic filters
-      # else
-      #   queries = []
-      #   values.each do |value|
-      #     query = { term: { "dynamics.#{name}": value } }
-      #     queries << query
-      #   end
-      #   condition = {
-      #     nested: {
-      #       path: 'dynamics',
-      #       query: {
-      #         bool: {
-      #           should: queries
-      #         }
-      #       }
-      #     }
-      #   }
-      end
-      conditions << condition unless condition.nil?
-    end
-    conditions
+  def build_search_language_conditions
+    return [] unless @options.has_key?('language')
+    [{ terms: { language: @options['language'] } }]
   end
 
   def build_search_has_claim_conditions
@@ -501,12 +484,13 @@ class CheckSearch
   def build_search_team_tasks_conditions
     conditions = []
     return conditions unless @options.has_key?('team_tasks') && @options['team_tasks'].class.name == 'Array'
+    @options['team_tasks'].delete_if{ |tt| tt['response'].blank? }
     @options['team_tasks'].each do |tt|
       must_c = []
       must_c << { term: { "task_responses.team_task_id": tt['id'] } } if tt.has_key?('id')
       response_type = tt['response_type'] ||= 'choice'
       if tt['response'] == 'NO_VALUE'
-        return [{
+        conditions << {
           bool: {
             must_not: [
               {
@@ -524,7 +508,8 @@ class CheckSearch
               }
             ]
           }
-        }]
+        }
+        next
       elsif %w(ANY_VALUE NUMERIC_RANGE DATE_RANGE).include?(tt['response'])
         method = "format_#{tt['response'].downcase}_team_tasks_field"
         response_condition = self.send(method, tt)
@@ -572,17 +557,6 @@ class CheckSearch
         { SORT_MAPPING[@options['sort'].to_s] => @options['sort_type'].to_s.downcase.to_sym }
       ]
     end
-    [
-      {
-        "dynamics.#{@options['sort']}": {
-          order: @options['sort_type'],
-          unmapped_type: 'long',
-          nested: {
-            path: 'dynamics'
-          }
-        }
-      }
-    ]
   end
 
   def build_search_tags_conditions
@@ -624,7 +598,7 @@ class CheckSearch
 
   def build_search_report_status_conditions
     return [] if @options['report_status'].blank? || !@options['report_status'].is_a?(Array)
-    if trends_query?
+    if clusterized_feed_query?
       conditions = []
       if (['published', 'unpublished'] - @options['report_status']).empty?
         conditions << { range: { cluster_published_reports_count: { gte: 0 } } }
@@ -646,6 +620,17 @@ class CheckSearch
   def build_search_published_by_conditions
     return [] if @options['published_by'].blank?
     [{ terms: { published_by: [@options['published_by']].flatten } }]
+  end
+
+  def build_search_annotated_by_conditions
+    return [] if @options['annotated_by'].blank?
+    if @options['annotated_by_operator'].to_s.downcase == 'and'
+      and_c = []
+      @options['annotated_by'].each{ |a| and_c << { term: { annotated_by: { value: a } } } }
+      [{ bool: { must: and_c }}]
+    else
+      [{ terms: { annotated_by: [@options['annotated_by']].flatten } }]
+    end
   end
 
   def build_search_cluster_published_reports_conditions
@@ -760,13 +745,13 @@ class CheckSearch
     conditions = []
     return conditions if @options['range_numeric'].blank?
     @options['range_numeric'].each do |field, values|
-      range_condition = format_mumeric_range_condition(field, values)
+      range_condition = format_numeric_range_condition(field, values)
       conditions << range_condition unless range_condition.blank?
     end
     conditions
   end
 
-  def format_mumeric_range_condition(field, values)
+  def format_numeric_range_condition(field, values)
     condition = {}
     return condition if values.nil?
     min, max = values.dig('min'), values.dig('max')
@@ -789,5 +774,15 @@ class CheckSearch
 
   def hit_es_for_range_filter
     !@options['range'].blank? && !(['last_seen', 'report_published_at', 'media_published_at'] & @options['range'].keys).blank?
+  end
+
+  def build_feed_conditions
+    return {} unless feed_query?
+    conditions = []
+    @feed.get_team_filters.each do |filters|
+      team_id = filters['team_id'].to_i
+      conditions << CheckSearch.new(filters.to_json, nil, team_id).medias_build_search_query
+    end
+    { bool: { should: conditions } }
   end
 end

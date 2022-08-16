@@ -11,3 +11,4 @@
   - ["pusher", 1]
   - ["carrierwave", 1]
   - ["fetch", 1]
+  - ["trash", 1]

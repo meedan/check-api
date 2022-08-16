@@ -160,9 +160,9 @@ class Bot::Alegre < BotUser
   end
 
   def self.set_cluster(pm, force = false)
-    team_ids = ProjectMedia.where.not(cluster_id: nil).group(:team_id).count.keys
     pm = ProjectMedia.find(pm.id)
-    return if (!pm.cluster_id.blank? || !team_ids.include?(pm.team_id)) && !force
+    return if (!pm.cluster_id.blank? || !ProjectMedia.where(team_id: pm.team_id).where.not(cluster_id: nil).exists?) && !force
+    team_ids = ProjectMedia.where.not(cluster_id: nil).group(:team_id).count.keys
     thresholds = {
       audio: { value: CheckConfig.get('audio_cluster_similarity_threshold', 0.8, :float) },
       video: { value: CheckConfig.get('video_cluster_similarity_threshold', 0.8, :float) },
@@ -192,8 +192,7 @@ class Bot::Alegre < BotUser
     return {} if text.blank? || self.get_number_of_words(text) < 3
     field ||= ALL_TEXT_SIMILARITY_FIELDS
     threshold ||= self.get_threshold_for_query('text', nil, true)
-    pm = team_ids.size == 1 ? ProjectMedia.new(team_id: team_ids[0]) : nil
-    models ||= [self.matching_model_to_use(pm)]
+    models ||= [self.matching_model_to_use(team_ids)].flatten
     Hash[self.get_similar_items_from_api(
       '/text/similarity/',
       self.similar_texts_from_api_conditions(text, models, fuzzy, team_ids, field, threshold),
@@ -251,7 +250,7 @@ class Bot::Alegre < BotUser
     similarity_level = automatic ? 'matching' : 'suggestion'
     setting_type = 'threshold'
     if media_type == 'text' && !pm.nil?
-      model = self.matching_model_to_use(pm)
+      model = self.matching_model_to_use(pm.team_id)
       similarity_method = 'vector' if model != Bot::Alegre::ELASTICSEARCH_MODEL
     end
     key = "#{media_type}_#{similarity_method}_#{similarity_level}_#{setting_type}"
@@ -385,9 +384,14 @@ class Bot::Alegre < BotUser
     tbi.nil? ? self.default_model : tbi.get_alegre_model_in_use || self.default_model
   end
 
-  def self.matching_model_to_use(pm)
-    tbi = self.get_alegre_tbi(pm&.team_id)
-    tbi.nil? ? self.default_matching_model : tbi.get_text_similarity_model || self.default_matching_model
+  def self.matching_model_to_use(team_ids)
+    models = []
+    [team_ids].flatten.each do |team_id|
+      tbi = self.get_alegre_tbi(team_id)
+      model = (tbi.nil? ? self.default_matching_model : tbi.get_text_similarity_model || self.default_matching_model)
+      models << model unless models.include?(model)
+    end
+    models.size == 1 ? models[0] : models
   end
 
   def self.get_alegre_tbi(team_id)

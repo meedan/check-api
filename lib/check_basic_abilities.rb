@@ -86,7 +86,9 @@ module CheckBasicAbilities
     end
 
     can :read, Cluster do |obj|
-      ProjectMedia.joins(:team).where(cluster_id: obj.id, 'teams.country' => @context_team.country).exists?
+      shared_team_ids = @context_team.shared_teams.map(&:id)
+      team_ids = (shared_team_ids & @user.cached_teams)
+      ProjectMedia.where(cluster_id: obj.id, team_id: shared_team_ids).exists? && !team_ids.empty?
     end
 
     can :read, BotUser do |obj|
@@ -106,6 +108,14 @@ module CheckBasicAbilities
     cannot :find_by_json_fields, DynamicAnnotation::Field
 
     can [:read, :create], Shortener::ShortenedUrl
+
+    can :read, Feed do |obj|
+      !(@user.cached_teams & obj.team_ids).empty?
+    end
+
+    can :read, FeedTeam do |obj|
+      @user.cached_teams.include?(obj.team_id)
+    end
   end
 
   def annotation_perms_for_all_users

@@ -2653,16 +2653,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal t2, tt4.team
   end
 
-  test "should get teams with same country" do
-    t = create_team country: 'Egypt'
-    t2 = create_team country: 'Egypt'
-    t3 = create_team country: 'Brazil'
-    t4 = create_team
-    assert_equal [t.id, t2.id], t.country_teams.keys.sort
-    assert_equal [t.name, t2.name].sort, t.country_teams.values.sort
-    assert_empty t4.country_teams
-  end
-
   test "should return number of items" do
     t = create_team
     single = create_project_media team: t
@@ -2679,5 +2669,48 @@ class TeamTest < ActiveSupport::TestCase
     assert_nil t.data_report
     Rails.cache.write("data:report:#{t.id}", [{ 'Month' => 'Jan 2022', 'Search' => 1, 'Foo' => 2 }])
     assert_equal([{ 'Month' => '1. Jan 2022', 'Foo' => 2 }], t.data_report)
+  end
+
+  test "should have feeds" do
+    t = create_team
+    f = create_feed
+    f.teams << t
+    assert_equal [f], t.feeds
+  end
+
+  test "should return if belongs to feed" do
+    f = create_feed
+    t = create_team
+    assert !t.is_part_of_feed?(f.id)
+    f.teams << t
+    assert t.is_part_of_feed?(f.id)
+  end
+
+  test "should return teams that share feeds" do
+    t1 = create_team
+    t2 = create_team
+    t3 = create_team
+    t4 = create_team
+    create_feed
+    f1 = create_feed
+    f1.teams << t1
+    f1.teams << t2
+    f2 = create_feed
+    f2.teams << t1
+    f2.teams << t3
+    f3 = create_feed
+    f3.teams << t2
+    f3.teams << t3
+    f3.teams << t4
+    assert_equal [t1, t2, t3].sort, t1.shared_teams.sort
+  end
+
+  test "should return number of teams in a feed" do
+    f = create_feed
+    assert_equal 0, f.reload.teams_count
+    f.teams << create_team
+    assert_equal 1, f.reload.teams_count
+    f.teams << create_team
+    assert_equal 2, f.reload.teams_count
   end
 end

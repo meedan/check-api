@@ -23,16 +23,22 @@ ClusterType = GraphqlCrudOperations.define_default_type do
   end
 
   connection :items, -> { ProjectMediaType.connection_type } do
-    resolve -> (cluster, _args, ctx) {
+    argument :feed_id, !types.Int
+
+    resolve -> (cluster, args, ctx) {
       Cluster.find_if_can(cluster.id, ctx[:ability])
-      cluster.project_medias.joins(:team).where('teams.country' => Team.current.country)
+      feed = Feed.find_if_can(args['feed_id'].to_i, ctx[:ability])
+      cluster.project_medias.joins(:team).where('teams.id' => feed.team_ids)
     }
   end
 
   connection :claim_descriptions, -> { ClaimDescriptionType.connection_type } do
-    resolve -> (cluster, _args, ctx) {
+    argument :feed_id, !types.Int
+
+    resolve -> (cluster, args, ctx) {
       Cluster.find_if_can(cluster.id, ctx[:ability])
-      ClaimDescription.joins(project_media: :team).where('project_medias.cluster_id' => cluster.id, 'teams.country' => Team.current.country)
+      feed = Feed.find_if_can(args['feed_id'].to_i, ctx[:ability])
+      ClaimDescription.joins(project_media: :team).where('project_medias.cluster_id' => cluster.id, 'teams.id' => feed.team_ids)
     }
   end
 end

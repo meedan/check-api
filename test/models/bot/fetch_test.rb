@@ -31,14 +31,15 @@ class Bot::FetchTest < ActiveSupport::TestCase
       }
     }.with_indifferent_access
 
-    stub_configs({ 'fetch_url' => 'http://fetch:8000', 'fetch_token' => 'test', 'fetch_check_webhook_url' => 'http://check:5000' }, false)
+    stub_configs({ 'fetch_url' => 'http://fetch:8000', 'fetch_token' => 'test', 'fetch_check_webhook_url' => 'http://check:3100' }, false)
     WebMock.stub_request(:get, 'https://external.site/image.png').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
     WebMock.stub_request(:get, 'http://fetch:8000/services').to_return(body: { services: [{ service: 'test', count: 1, earliest: '2017-08-09', latest: '2017-08-09' }, { service: 'foo', count: 0, earliest: nil, latest: nil }]}.to_json)
-    WebMock.stub_request(:post, 'http://fetch:8000/subscribe').with(body: { service: 'test', url: 'http://check:5000/api/webhooks/fetch?team=fetch&token=test' }.to_json).to_return(body: '{}')
+    WebMock.stub_request(:post, 'http://fetch:8000/subscribe').with(body: { service: 'test', url: 'http://check:3100/api/webhooks/fetch?team=fetch&token=test' }.to_json).to_return(body: '{}')
     WebMock.stub_request(:get, 'http://fetch:8000/claim_reviews?end_time=2017-08-10&per_page=10000&service=test&start_time=2017-08-09').to_return(body: [@claim_review].to_json)
-    WebMock.stub_request(:post, 'http://fetch:8000/subscribe').with(body: { service: 'foo', url: 'http://check:5000/api/webhooks/fetch?team=fetch&token=test' }.to_json).to_return(body: '{}')
-    WebMock.stub_request(:delete, 'http://fetch:8000/subscribe').with(body: { service: 'test', url: 'http://check:5000/api/webhooks/fetch?team=fetch&token=test' }.to_json).to_return(body: '{}')
-    WebMock.stub_request(:post, 'http://alegre:5000/text/similarity/').to_return(body: {}.to_json)
+    WebMock.stub_request(:post, 'http://fetch:8000/subscribe').with(body: { service: 'foo', url: 'http://check:3100/api/webhooks/fetch?team=fetch&token=test' }.to_json).to_return(body: '{}')
+    WebMock.stub_request(:delete, 'http://fetch:8000/subscribe').with(body: { service: 'test', url: 'http://check:3100/api/webhooks/fetch?team=fetch&token=test' }.to_json).to_return(body: '{}')
+    WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
+    WebMock.stub_request(:delete, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
     
     create_verification_status_stuff
     create_report_design_annotation_type
@@ -153,7 +154,7 @@ class Bot::FetchTest < ActiveSupport::TestCase
   end
 
   test "should get webhook URL" do
-    assert_equal 'http://check:5000/api/webhooks/fetch?team=fetch&token=test', Bot::Fetch.webhook_url(@team)
+    assert_equal 'http://check:3100/api/webhooks/fetch?team=fetch&token=test', Bot::Fetch.webhook_url(@team)
   end
 
   test "should import claim reviews with report and correct status and ignore duplicates" do
@@ -185,8 +186,8 @@ class Bot::FetchTest < ActiveSupport::TestCase
       d = DynamicAnnotation::Field.where(field_name: 'external_id', value: "#{id}:#{@team.id}").last
       assert_not_nil d
       assert_equal statuses[i], d.annotation.annotated.last_status
-      assert_equal "Earth isn't flat", d.annotation.annotated.title
-      assert_equal "Scientific evidences show that Earth is round",  d.annotation.annotated.description
+      assert_equal "Earth isn't flat", d.annotation.annotated.fact_check_title
+      assert_equal "Scientific evidences show that Earth is round",  d.annotation.annotated.fact_check_summary
     end
     r = Dynamic.where(annotation_type: 'report_design').last
     assert_equal "Earth isn't flat", r.report_design_field_value('headline', 'en')

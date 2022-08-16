@@ -81,11 +81,13 @@ class Bot::Smooch < BotUser
     after_destroy do
       if self.is_confirmed?
         target = self.target
-        s = target.annotations.where(annotation_type: 'verification_status').last&.load
-        status = ::Workflow::Workflow.options(target, 'verification_status')[:default]
-        if !s.nil? && s.status != status
-          s.status = status
-          s.save!
+        unless target.nil?
+          s = target.annotations.where(annotation_type: 'verification_status').last&.load
+          status = ::Workflow::Workflow.options(target, 'verification_status')[:default]
+          if !s.nil? && s.status != status
+            s.status = status
+            s.save!
+          end
         end
       end
     end
