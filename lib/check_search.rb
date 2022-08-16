@@ -467,7 +467,7 @@ class CheckSearch
 
   def build_search_language_conditions
     return [] unless @options.has_key?('language')
-    [{ terms: { language: @options['language'] } }]
+    [{ terms: { item_language: @options['language'] } }]
   end
 
   def build_search_has_claim_conditions

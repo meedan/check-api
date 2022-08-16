@@ -222,7 +222,7 @@ class ElasticSearch2Test < ActionController::TestCase
       search = {
         query: {
           terms: {
-            language: [code]
+            item_language: [code]
           }
         }
       }

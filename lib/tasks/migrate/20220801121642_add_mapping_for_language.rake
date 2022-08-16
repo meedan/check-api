@@ -1,6 +1,6 @@
 namespace :check do
   namespace :migrate do
-    task index_language: :environment do
+    task index_item_language: :environment do
       started = Time.now.to_i
       index_alias = CheckElasticSearchModel.get_index_alias
       client = $repository.client
@@ -18,7 +18,7 @@ namespace :check do
             items.each do |f|
               doc_id = Base64.encode64("ProjectMedia/#{f['id']}")
               value = begin JSON.parse(f['value']) rescue f['value'] end
-              fields = { 'language' => value }
+              fields = { 'item_language' => value }
               es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
             end
           end

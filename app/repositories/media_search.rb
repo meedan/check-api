@@ -21,7 +21,7 @@ class MediaSearch
     indexes :read, { type: 'integer' }
     indexes :created_at, { type: 'date' }
     indexes :updated_at, { type: 'date' }
-    indexes :language, { type: 'text', analyzer: 'keyword' }
+    indexes :item_language, { type: 'text', analyzer: 'keyword' }
     indexes :accounts, {
       type: 'nested',
       properties: {

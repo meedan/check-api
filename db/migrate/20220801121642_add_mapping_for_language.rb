@@ -6,7 +6,7 @@ class AddMappingForLanguage < ActiveRecord::Migration[5.2]
       index: index_alias,
       body: {
         properties: {
-          language: { type: 'text', analyzer: 'keyword' }
+          item_language: { type: 'text', analyzer: 'keyword' }
         }
       }
     }

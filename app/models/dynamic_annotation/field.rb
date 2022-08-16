@@ -69,7 +69,7 @@ class DynamicAnnotation::Field < ApplicationRecord
       data = { key => self.value }
     elsif self.annotation_type == "language"
       # Handle language field
-      data = { 'language' => self.value }
+      data = { 'item_language' => self.value }
     end
     unless data.blank?
       obj = self.annotation.project_media
