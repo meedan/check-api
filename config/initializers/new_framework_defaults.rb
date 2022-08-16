@@ -21,3 +21,6 @@ Rails.application.config.active_record.belongs_to_required_by_default = false
 
 # Do not halt callback chains when a callback returns false. Previous versions had true.
 # ActiveSupport.halt_callback_chains_on_return_false = true
+
+# FIXME: Convert all serialized columns and remove the line below:
+Rails.application.config.active_record.use_yaml_unsafe_load = true

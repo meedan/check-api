@@ -808,22 +808,6 @@ class GraphqlController3Test < ActionController::TestCase
     assert_equal({ 't' => [10, 20] }, pm.get_annotations('comment').last.load.parsed_fragment)
   end
 
-  test "should search by flag without likelihood" do
-    create_flag_annotation_type
-    u = create_user is_admin: true
-    authenticate_with_user(u)
-    t = create_team
-    pm1 = create_project_media team: t, project: nil, disable_es_callbacks: false
-    pm2 = create_project_media team: t, project: nil, disable_es_callbacks: false
-    data = valid_flags_data(false)
-    create_flag annotated: pm1, disable_es_callbacks: false, set_fields: data.to_json
-    sleep 5
-    query = 'query { search(query: "{\"dynamic\":{\"flag_name\":[\"adult\"]}}") { medias(first: 10000) { edges { node { dbid } } } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
-  end
-
   test "should create tag and get tag text as parent" do
     u = create_user is_admin: true
     pm = create_project_media
@@ -1363,11 +1347,6 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_not_nil JSON.parse(@response.body)['data']['updateTeam']['team']['get_suggested_matches_filters']
-    # Trends list
-    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", trends_filters: "{\"trends\":true,\"country\":true,\"show\":[\"claims\"]}" }) { team { get_trends_filters } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_not_nil JSON.parse(@response.body)['data']['updateTeam']['team']['get_trends_filters']
   end
 
   test "should get Smooch Bot RSS feed preview if has permissions" do

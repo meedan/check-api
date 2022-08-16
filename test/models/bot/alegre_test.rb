@@ -61,79 +61,6 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
   end
 
-  test "should link similar images, get flags and extract text" do
-    ft = create_field_type field_type: 'image_path', label: 'Image Path'
-    at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
-    create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
-    WebMock.stub_request(:post, 'http://alegre/text/langid/').to_return(body: { 'result' => { 'language' => 'es' }}.to_json)
-    Bot::Alegre.unstub(:request_api)
-    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
-      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
-      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
-      WebMock.stub_request(:get, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
-      WebMock.stub_request(:post, 'http://alegre/image/similarity/').to_return(body: {
-        "success": true
-      }.to_json)
-      WebMock.stub_request(:get, 'http://alegre/image/similarity/').to_return(body: {
-        "result": []
-      }.to_json)
-      WebMock.stub_request(:get, 'http://alegre/image/classification/').with({ query: { uri: 'some/path' } }).to_return(body: {
-        "result": valid_flags_data
-      }.to_json)
-      WebMock.stub_request(:get, 'http://alegre/image/ocr/').with({ query: { url: 'some/path' } }).to_return(body: {
-        "text": "Foo bar"
-      }.to_json)
-      WebMock.stub_request(:post, 'http://alegre/image/similarity/').to_return(body: 'success')
-
-      # Similarity
-      pm1 = create_project_media team: @pm.team, media: create_uploaded_image
-      Bot::Alegre.stubs(:media_file_url).returns("some/path")
-      assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
-      Bot::Alegre.unstub(:media_file_url)
-      context = [{
-        "team_id" => pm1.team.id.to_s,
-        "project_media_id" => pm1.id.to_s
-      }]
-      WebMock.stub_request(:get, 'http://alegre/image/similarity/').to_return(body: {
-        "result": [
-          {
-            "id": 1,
-            "sha256": "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
-            "phash": 17399941807326929,
-            "url": "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
-            "context": context,
-            "score": 0
-          }
-        ]
-      }.to_json)
-      pm2 = create_project_media team: @pm.team, media: create_uploaded_image
-      response = {pm1.id => {:score => 0, :context => context, :model=>nil, :source_field=>"image", :target_field => "image"}}
-      Bot::Alegre.stubs(:media_file_url).returns("some/path")
-      assert_equal response, Bot::Alegre.get_items_with_similarity('image', pm2, Bot::Alegre.get_threshold_for_query('image', pm2))
-
-      # Flags
-      Bot::Alegre.unstub(:media_file_url)
-      WebMock.stub_request(:get, 'http://alegre/image/classification/').to_return(body: {
-        "result": valid_flags_data
-      }.to_json)
-      pm3 = create_project_media team: @pm.team, media: create_uploaded_image
-      Bot::Alegre.stubs(:media_file_url).returns("some/path")
-      assert Bot::Alegre.run({ data: { dbid: pm3.id }, event: 'create_project_media' })
-      assert_not_nil pm3.get_annotations('flag').last
-      Bot::Alegre.unstub(:media_file_url)
-
-      # Text extraction
-      Bot::Alegre.unstub(:media_file_url)
-      pm4 = create_project_media team: @pm.team, media: create_uploaded_image
-      Bot::Alegre.stubs(:media_file_url).returns("some/path")
-      assert Bot::Alegre.run({ data: { dbid: pm4.id }, event: 'create_project_media' })
-      extracted_text_annotation = pm4.get_annotations('extracted_text').last
-      assert_equal 'Foo bar', extracted_text_annotation.data['text']
-      Bot::Alegre.unstub(:media_file_url)
-    end
-  end
-
   test "should auto transcribe audio" do
     json_schema = {
       type: 'object',
@@ -428,7 +355,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should get similar items" do
     p = create_project
     pm1 = create_project_media project: p
-    Bot::Alegre.stubs(:matching_model_to_use).with(pm1).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
+    Bot::Alegre.stubs(:matching_model_to_use).with(pm1.team_id).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
     response = Bot::Alegre.get_similar_items(pm1)
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:matching_model_to_use)
@@ -489,8 +416,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2 = create_project_media quote: "Blah2", team: @team
     pm2.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles' }
     pm2.save!
-    Bot::Alegre.stubs(:matching_model_to_use).with(pm).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
-    Bot::Alegre.stubs(:matching_model_to_use).with(pm2).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
+    Bot::Alegre.stubs(:matching_model_to_use).with([pm.team_id]).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
+    Bot::Alegre.stubs(:matching_model_to_use).with(pm2.team_id).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
     Bot::Alegre.stubs(:request_api).returns({"result" => [{
         "_index" => "alegre_similarity",
         "_type" => "_doc",
@@ -600,6 +527,19 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:request_api)
   end
 
+  test "should be able to request deletion from index for a media given specific field" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    p = create_project
+    pm = create_project_media project: p, media: create_uploaded_video
+    pm.media.type = "UploadedVideo"
+    pm.media.save!
+    pm.save!
+    Bot::Alegre.stubs(:request_api).returns(true)
+    assert Bot::Alegre.delete_from_index(pm)
+    Bot::Alegre.unstub(:request_api)
+  end
+
   test "should pass through the send audio to similarity index call" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
@@ -621,6 +561,28 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm.save!
     Bot::Alegre.stubs(:request_api).returns(true)
     assert Bot::Alegre.send_field_to_similarity_index(pm, 'description')
+    Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should be able to request deletion from index for a text given specific field" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah", team: @team
+    pm.analysis = { content: 'Description 1' }
+    pm.save!
+    Bot::Alegre.stubs(:request_api).returns(true)
+    assert Bot::Alegre.delete_from_index(pm, ['description'])
+    Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should be able to request deletion from index for a text given no fields" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah", team: @team
+    pm.analysis = { content: 'Description 1' }
+    pm.save!
+    Bot::Alegre.stubs(:request_api).returns(true)
+    assert Bot::Alegre.delete_from_index(pm)
     Bot::Alegre.unstub(:request_api)
   end
 
@@ -680,8 +642,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }
       ]
     })
-    Bot::Alegre.stubs(:matching_model_to_use).with(pm).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
-    response = Bot::Alegre.get_items_with_similar_title(pm, {key: 'text_elasticsearch_suggestion_threshold', value: 0.1, automatic: false})
+    Bot::Alegre.stubs(:matching_model_to_use).with([pm.team_id]).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
+    response = Bot::Alegre.get_items_with_similar_title(pm, { key: 'text_elasticsearch_suggestion_threshold', value: 0.1, automatic: false })
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
     Bot::Alegre.unstub(:matching_model_to_use)
@@ -718,7 +680,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         Bot::Alegre.stubs(:request_api).with("get", "/text/similarity/", {:text=>"Blah foo bar", :models=>["elasticsearch", Bot::Alegre::MEAN_TOKENS_MODEL], :fuzzy=>false, :context=>{:has_custom_id=>true, :field=>field, :team_id=>[pm.team_id]}, :threshold=>threshold, :match_across_content_types=>true}, "body").returns(response)
       end
     end
-    Bot::Alegre.stubs(:matching_model_to_use).with(pm).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
+    Bot::Alegre.stubs(:matching_model_to_use).with([pm.team_id]).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
+    Bot::Alegre.stubs(:matching_model_to_use).with(pm.team_id).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
     response = Bot::Alegre.relate_project_media_to_similar_items(pm)
     assert_equal response.model, Bot::Alegre::MEAN_TOKENS_MODEL
     assert_equal response.weight, 0.9
@@ -784,7 +747,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm.save!
     BotUser.stubs(:alegre_user).returns(User.new)
     TeamBotInstallation.stubs(:find_by_team_id_and_user_id).returns(TeamBotInstallation.new)
-    assert_equal Bot::Alegre.matching_model_to_use(pm), Bot::Alegre.default_matching_model
+    assert_equal Bot::Alegre.matching_model_to_use(pm.team_id), Bot::Alegre.default_matching_model
     BotUser.unstub(:alegre_user)
     TeamBotInstallation.unstub(:find_by_team_id_and_user_id)
   end
@@ -952,8 +915,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should index report data" do
-    WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
-    WebMock.stub_request(:post, 'http://alegre:5000/text/similarity/').to_return(body: {}.to_json)
+    WebMock.stub_request(:delete, 'http://alegre:3100/text/similarity/').to_return(body: {success: true}.to_json)
+    WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
     pm = create_project_media team: @team
     assert_nothing_raised do
       publish_report(pm)

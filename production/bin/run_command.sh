@@ -9,7 +9,7 @@ if [[ -z ${GITHUB_TOKEN+x} || -z ${DEPLOY_ENV+x} ]]; then
 	exit 1
 fi
 
-if [ ! -d "configurator" ]; then git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator; fi
-d=configurator/check/${DEPLOY_ENV}/${APP}/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
+# Create configuration files based on SSM and ENV settings.
+bash /opt/bin/create_configs.sh
 
 $@
