@@ -184,38 +184,58 @@ class TeamTask < ApplicationRecord
 
   def update_task_answers(diff)
     tasks = get_teamwide_tasks_with_answers
-    tasks.find_each do |t|
-      response = t.first_response_obj.load
-      field = response.get_fields.select{ |f| f.field_type == 'select' }.first
-      field_updated = false
-      diff['deleted'].each do |deleted|
-        if field.value == deleted
-          field.value = ''
-          field_updated = true
-        else
-          parsed = begin JSON.parse(field.value) rescue { 'selected' => [] } end
-          if parsed['selected'].to_a.include?(deleted)
-            field.value = { selected: parsed['selected'].reject{ |x| x == deleted } }.to_json
-            field_updated = true
+    deleted = []
+    updated = []
+    response_ids = []
+    responses = Dynamic.where(annotation_type: "task_response_#{self.task_type}",annotated_type: "Task", annotated_id: tasks.map(&:id))
+    DynamicAnnotation::Field
+    .where(
+      annotation_id: responses.map(&:id),
+      annotation_type: "task_response_#{self.task_type}"
+      field_name: "response_#{self.task_type}",
+    ).find_each do |f|
+      if self.task_type == 'single_choice'
+        deleted << f.annotation_id if diff['deleted'].include?(f.value)
+        if diff['changed'].keys.include?(f.value)
+          updated << { id: f.id, value: diff['changed'][f.value] }
+          response_ids << f.annotation_id
+        end
+      else
+        parsed = begin JSON.parse(field.value) rescue { 'selected' => [] } end
+        # Handle delete options
+        unless (parsed['selected'].to_a & diff['deleted']).empty?
+          new_selected = parsed['selected'].to_a - diff['deleted']
+          # build new response
+          new_value = { 'selected' => new_selected, 'others' => parsed['others'] }
+          # if both selected and others are empty then delete response otherwise do an update
+          if new_value.values.reject(&:blank?).empty?
+            deleted << f.annotation_id
+          else
+            updated << { id: f.id, value: new_value.to_json }
+            response_ids << f.annotation_id
           end
         end
-      end
-      diff['changed'].each do |old, new|
-        if field.value == old
-          field.value = new
-          field_updated = true
-        else
-          parsed = begin JSON.parse(field.value) rescue { 'selected' => [] } end
-          if parsed['selected'].to_a.include?(old)
-            field.value = { selected: parsed['selected'].collect{ |x| x == old ? new : x } }.to_json
-            field_updated = true
-          end
+        # Handle update options
+        unless (parsed['selected'].to_a & diff['changed'].keys).empty?
+          new_selected = parsed['selected'].to_a.collect{ |x| diff['changed'].keys.include?(x) ? diff['changed'][x] : x }
+          updated << { id: f.id, value: { 'selected' => new_selected, 'others' => parsed['others'] }.to_json }
+          response_ids << f.annotation_id
         end
       end
-      if field_updated
-        field.save!
-        response.updated_at = Time.now
-        response.save!
+    end
+    Dynamic.where(id: deleted).destroy_all unless deleted.blank?
+    unless updated.blank?
+      # Update PG
+      DynamicAnnotation::Field.import(updated, on_duplicate_key_update: [:value], recursive: false, validate: false)
+      Dynamic.where(id: response_ids).update_all(updated_at: Time.now)
+      # Update ES
+      keys = %w(id team_task_id value field_type fieldset date_value numeric_value)
+      Dynamic.where(id: response_ids).find_each do |response|
+        # Fetch ProjectMedia and add ES job to update task_responses
+        # TODO: remove next two lines and try to get ProjectMedia with one query for all responses
+        task = response.annotated
+        pm = task.project_media
+        response.add_update_nested_obj({op: 'update', obj: pm, nested_key: 'task_responses', keys: keys})
       end
     end
   end
