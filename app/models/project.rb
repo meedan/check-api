@@ -297,7 +297,8 @@ class Project < ApplicationRecord
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     data = {'team_id' => self.team_id}
     options = { keys: data.keys, data: data }
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_doc_team')
+    model = { klass: self.class.name, id: self.id }
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc_team')
   end
 
   def archive_or_restore_project_medias_if_needed

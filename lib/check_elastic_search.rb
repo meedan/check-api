@@ -27,7 +27,8 @@ module CheckElasticSearch
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     options = { keys: keys, data: data, skip_get_data: skip_get_data }
     options[:obj] = obj unless obj.nil?
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_doc')
+    model = { klass: self.class.name, id: self.id }
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
   end
 
   def update_recent_activity(obj)
@@ -74,7 +75,8 @@ module CheckElasticSearch
 
   def add_update_nested_obj(options)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'create_update_doc_nested')
+    model = { klass: self.class.name, id: self.id }
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'create_update_doc_nested')
   end
 
   def create_update_nested_obj_bg(options)
@@ -118,7 +120,8 @@ module CheckElasticSearch
 
   def create_doc_if_not_exists(options)
     doc_id = options[:doc_id]
-    ElasticSearchWorker.new.perform(YAML::dump(options[:obj]), YAML::dump({doc_id: doc_id}), 'create_doc') unless doc_exists?(doc_id)
+    model = { klass: options[:obj].class.name, id: options[:obj].id }
+    ElasticSearchWorker.new.perform(YAML::dump(model), YAML::dump({doc_id: doc_id}), 'create_doc') unless doc_exists?(doc_id)
   end
 
   def get_elasticsearch_data(data, skip_get_data = false)

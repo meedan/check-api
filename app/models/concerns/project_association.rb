@@ -84,7 +84,8 @@ module ProjectAssociation
     def add_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
       options = { obj: self }
-      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'create_doc')
+      model = { klass: self.class.name, id: self.id }
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'create_doc')
     end
 
     def update_elasticsearch_data
@@ -104,7 +105,8 @@ module ProjectAssociation
         'updated_at' => obj.updated_at.utc
       }
       options = { keys: data.keys, data: data, obj: obj }
-      ElasticSearchWorker.perform_in(1.second, YAML::dump(obj), YAML::dump(options), 'update_doc')
+      model = { klass: obj.class.name, id: obj.id }
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
     end
 
     def destroy_elasticsearch_media

@@ -45,7 +45,8 @@ class Cluster < ApplicationRecord
       data: { 'cluster_published_reports_count' => data.size },
       obj: pm
     }
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(pm), YAML::dump(options), 'update_doc')
+    model = { klass: pm.class.name, id: pm.id }
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
     data
   end
 
@@ -123,7 +124,8 @@ class Cluster < ApplicationRecord
       'cluster_teams' => self.team_names.keys,
     }
     options = { keys: data.keys, data: data, obj: pm }
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(pm), YAML::dump(options), 'update_doc')
+    model = { klass: pm.class.name, id: pm.id }
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
   end
 
   def update_elasticsearch
@@ -132,6 +134,7 @@ class Cluster < ApplicationRecord
     data = {}
     keys.each { |k| data[k] = 0 }
     options = { keys: keys, data: data, obj: pm }
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(pm), YAML::dump(options), 'update_doc')
+    model = { klass: pm.class.name, id: pm.id }
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
   end
 end

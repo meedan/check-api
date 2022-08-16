@@ -113,7 +113,8 @@ module ActiveRecordExtensions
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     options = {es_type: es_type, type: type}
     options[:obj] = obj unless obj.nil?
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), type)
+    model = { klass: self.class.name, id: self.id }
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), type)
   end
 
   def parent_class_name
