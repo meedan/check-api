@@ -1,4 +1,4 @@
-name: gitlab-mirror
+name: GitLab Mirror
 
 on: 
   - push
@@ -14,6 +14,6 @@ jobs:
         fetch-depth: 0
     - uses: wangchucheng/git-repo-sync@v0.1.0
       with:
-        target-url: https://gitlab.com/meedan/check-api
+        target-url: https://gitlab.com/meedan/check-api.git/
         target-username: sonoransun
         target-token: ${{ secrets.GITLAB_ACCESS_TOKEN }}
