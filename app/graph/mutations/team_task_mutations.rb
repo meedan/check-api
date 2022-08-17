@@ -12,7 +12,7 @@ module TeamTaskMutations
     show_in_browser_extension: 'bool',
     conditional_info: 'str',
     required: 'bool',
-    diff: 'json',
+    options_diff: 'json',
   }
 
   create_fields = fields.merge({

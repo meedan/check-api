@@ -3,7 +3,7 @@ class TeamTaskWorker
 
   sidekiq_options :queue => :tsqueue
 
-  def perform(action, id, author, fields = YAML::dump({}), keep_completed_tasks = false, diff = {})
+  def perform(action, id, author, fields = YAML::dump({}), keep_completed_tasks = false, options_diff = {})
     RequestStore.store[:skip_notifications] = true
     user_current = User.current
     team_current = Team.current
@@ -15,7 +15,7 @@ class TeamTaskWorker
       return if team_task.nil?
       Team.current = team_task.team
       action == 'update' ?
-        team_task.update_teamwide_tasks_bg(fields, diff) : team_task.add_teamwide_tasks_bg
+        team_task.update_teamwide_tasks_bg(fields, options_diff) : team_task.add_teamwide_tasks_bg
     elsif action == 'destroy'
       RequestStore.store[:skip_check_ability] = true
       TeamTask.destroy_teamwide_tasks_bg(id, keep_completed_tasks)

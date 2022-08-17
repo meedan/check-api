@@ -1,7 +1,7 @@
 class TeamTask < ApplicationRecord
   include ErrorNotification
 
-  attr_accessor :keep_completed_tasks, :diff
+  attr_accessor :keep_completed_tasks, :options_diff
 
   before_validation :set_order, on: :create
 
@@ -61,7 +61,7 @@ class TeamTask < ApplicationRecord
     end
   end
 
-  def update_teamwide_tasks_bg(fields, diff)
+  def update_teamwide_tasks_bg(fields, options_diff)
     # collect updated fields with new values
     columns = {}
     fields.each do |k, _v|
@@ -71,7 +71,7 @@ class TeamTask < ApplicationRecord
       columns[k] = attribute
     end
     update_tasks(columns) unless columns.blank?
-    update_task_answers(diff) unless diff.blank?
+    update_task_answers(options_diff) unless options_diff.blank?
   end
 
   def self.destroy_teamwide_tasks_bg(id, keep_completed_tasks)
@@ -141,7 +141,7 @@ class TeamTask < ApplicationRecord
       options: self.saved_change_to_options?
     }
     fields.delete_if{|_k, v| v == false || v.nil?}
-    TeamTaskWorker.perform_in(1.second, 'update', self.id, YAML::dump(User.current), YAML::dump(fields), false, self.diff) unless fields.blank?
+    TeamTaskWorker.perform_in(1.second, 'update', self.id, YAML::dump(User.current), YAML::dump(fields), false, self.options_diff) unless fields.blank?
   end
 
   def delete_teamwide_tasks
@@ -183,7 +183,7 @@ class TeamTask < ApplicationRecord
   end
 
   # TODO: Handle update/delete 'other' option
-  def update_task_answers(diff)
+  def update_task_answers(options_diff)
     tasks = get_teamwide_tasks_with_answers
     deleted = []
     updated = []
@@ -192,20 +192,20 @@ class TeamTask < ApplicationRecord
     DynamicAnnotation::Field
     .where(
       annotation_id: responses.map(&:id),
-      annotation_type: "task_response_#{self.task_type}"
+      annotation_type: "task_response_#{self.task_type}",
       field_name: "response_#{self.task_type}",
     ).find_each do |f|
       if self.task_type == 'single_choice'
-        deleted << f.annotation_id if diff['deleted'].include?(f.value)
-        if diff['changed'].keys.include?(f.value)
-          updated << { id: f.id, value: diff['changed'][f.value] }
+        deleted << f.annotation_id if options_diff['deleted'].include?(f.value)
+        if options_diff['changed'].keys.include?(f.value)
+          updated << { id: f.id, value: options_diff['changed'][f.value] }
           response_ids << f.annotation_id
         end
       else
         parsed = begin JSON.parse(field.value) rescue { 'selected' => [] } end
         # Handle delete options
-        unless (parsed['selected'].to_a & diff['deleted']).empty?
-          new_selected = parsed['selected'].to_a - diff['deleted']
+        unless (parsed['selected'].to_a & options_diff['deleted']).empty?
+          new_selected = parsed['selected'].to_a - options_diff['deleted']
           # build new response
           new_value = { 'selected' => new_selected, 'other' => parsed['other'] }
           # if both selected and other are empty then delete response otherwise do an update
@@ -217,8 +217,8 @@ class TeamTask < ApplicationRecord
           end
         end
         # Handle update options
-        unless (parsed['selected'].to_a & diff['changed'].keys).empty?
-          new_selected = parsed['selected'].to_a.collect{ |x| diff['changed'].keys.include?(x) ? diff['changed'][x] : x }
+        unless (parsed['selected'].to_a & options_diff['changed'].keys).empty?
+          new_selected = parsed['selected'].to_a.collect{ |x| options_diff['changed'].keys.include?(x) ? options_diff['changed'][x] : x }
           new_value = { 'selected' => new_selected, 'other' => parsed['other'] }
           updated << { id: f.id, value: new_value.to_json }
           response_ids << f.annotation_id
@@ -228,7 +228,12 @@ class TeamTask < ApplicationRecord
     Dynamic.where(id: deleted).destroy_all unless deleted.blank?
     unless updated.blank?
       # Update PG
-      DynamicAnnotation::Field.import(updated, on_duplicate_key_update: [:value], recursive: false, validate: false)
+      updated.each do |u|
+        field = DynamicAnnotation::Field.find(u[:id])
+        field.value = u[:value]
+        field.save!
+      end
+      # DynamicAnnotation::Field.import(updated, on_duplicate_key_update: [:value], recursive: false, validate: false)
       Dynamic.where(id: response_ids).update_all(updated_at: Time.now)
       # Update ES
       keys = %w(id team_task_id value field_type fieldset date_value numeric_value)

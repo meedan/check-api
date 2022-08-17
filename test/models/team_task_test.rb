@@ -299,6 +299,41 @@ class TeamTaskTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
+  test "should update single_choice task with answers" do
+    create_task_stuff
+    t =  create_team
+    Team.stubs(:current).returns(t)
+    Sidekiq::Testing.inline! do
+      tt = create_team_task team_id: t.id, label: 'Foo or Faa', description: 'Foo', task_type: 'single_choice', options: [{ label: 'Foo'}, { label: 'Faa' }]
+      pm = create_project_media team: t
+      pm2 = create_project_media team: t
+      pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      assert_not_nil pm_tt
+      assert_not_nil pm2_tt
+      # add response to task for pm & pm2
+      pm_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: 'Foo' }.to_json }.to_json
+      pm_tt.save!
+      pm2_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: 'Faa' }.to_json }.to_json
+      pm2_tt.save!
+
+      r_id = pm_tt.reload.first_response_obj.id
+
+      # update title/description/
+      tt.json_options = [{ label: 'Food' }, { label: 'Feed' }, { label: 'Faad' }].to_json
+      tt.options_diff = { deleted: ['Foo'], changed: { Faa: 'Faad' }, added: ['Food', 'Feed'] }
+      tt.save!
+      assert_equal([{ 'label' => 'Food' }, { 'label'  => 'Feed' }, { 'label'  => 'Faad' }], tt.reload.options)
+      assert_nil Dynamic.where(id: r_id).last
+      assert_equal pm2_tt.reload.first_response, 'Faad'
+    end
+    Team.unstub(:current)
+  end
+
+  test "should update multiple_choice task with answers" do
+
+  end
+
   test "should not update type from teamwide tasks with answers" do
     t =  create_team
     p = create_project team: t
