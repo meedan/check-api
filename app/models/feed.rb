@@ -1,6 +1,7 @@
 class Feed < ApplicationRecord
   check_settings
 
+  has_many :requests
   has_many :feed_teams
   has_many :teams, through: :feed_teams
 
@@ -26,5 +27,13 @@ class Feed < ApplicationRecord
 
   def current_feed_team
     self.feed_teams.where(team_id: Team.current&.id).last
+  end
+
+  def teams_count
+    self.teams.count
+  end
+
+  def self.save_request(feed_id, type, query)
+    Request.create!(feed_id: feed_id, request_type: type, content: query, skip_check_ability: true)
   end
 end
