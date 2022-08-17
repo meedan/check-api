@@ -182,6 +182,7 @@ class TeamTask < ApplicationRecord
     end
   end
 
+  # TODO: Handle update/delete 'other' option
   def update_task_answers(diff)
     tasks = get_teamwide_tasks_with_answers
     deleted = []
@@ -206,8 +207,8 @@ class TeamTask < ApplicationRecord
         unless (parsed['selected'].to_a & diff['deleted']).empty?
           new_selected = parsed['selected'].to_a - diff['deleted']
           # build new response
-          new_value = { 'selected' => new_selected, 'others' => parsed['others'] }
-          # if both selected and others are empty then delete response otherwise do an update
+          new_value = { 'selected' => new_selected, 'other' => parsed['other'] }
+          # if both selected and other are empty then delete response otherwise do an update
           if new_value.values.reject(&:blank?).empty?
             deleted << f.annotation_id
           else
@@ -218,7 +219,8 @@ class TeamTask < ApplicationRecord
         # Handle update options
         unless (parsed['selected'].to_a & diff['changed'].keys).empty?
           new_selected = parsed['selected'].to_a.collect{ |x| diff['changed'].keys.include?(x) ? diff['changed'][x] : x }
-          updated << { id: f.id, value: { 'selected' => new_selected, 'others' => parsed['others'] }.to_json }
+          new_value = { 'selected' => new_selected, 'other' => parsed['other'] }
+          updated << { id: f.id, value: new_value.to_json }
           response_ids << f.annotation_id
         end
       end
