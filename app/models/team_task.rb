@@ -202,26 +202,27 @@ class TeamTask < ApplicationRecord
           response_ids << f.annotation_id
         end
       else
-        parsed = begin JSON.parse(field.value) rescue { 'selected' => [] } end
+        parsed = begin JSON.parse(f.value) rescue { 'selected' => [] } end
         # Handle delete options
+        new_value = parsed
         unless (parsed['selected'].to_a & options_diff['deleted']).empty?
           new_selected = parsed['selected'].to_a - options_diff['deleted']
           # build new response
           new_value = { 'selected' => new_selected, 'other' => parsed['other'] }
-          # if both selected and other are empty then delete response otherwise do an update
+        end
+        # Handle update options
+        unless (parsed['selected'].to_a & options_diff['changed'].keys).empty?
+          new_selected = new_value['selected'].to_a.collect{ |x| options_diff['changed'].keys.include?(x) ? options_diff['changed'][x] : x }
+          new_value = { 'selected' => new_selected, 'other' => parsed['other'] }
+        end
+        # if both selected and other are empty then delete response otherwise do an update
+        unless (new_value.values - parsed.values).empty?
           if new_value.values.reject(&:blank?).empty?
             deleted << f.annotation_id
           else
             updated << { id: f.id, value: new_value.to_json }
             response_ids << f.annotation_id
           end
-        end
-        # Handle update options
-        unless (parsed['selected'].to_a & options_diff['changed'].keys).empty?
-          new_selected = parsed['selected'].to_a.collect{ |x| options_diff['changed'].keys.include?(x) ? options_diff['changed'][x] : x }
-          new_value = { 'selected' => new_selected, 'other' => parsed['other'] }
-          updated << { id: f.id, value: new_value.to_json }
-          response_ids << f.annotation_id
         end
       end
     end

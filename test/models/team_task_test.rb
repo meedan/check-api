@@ -316,10 +316,8 @@ class TeamTaskTest < ActiveSupport::TestCase
       pm_tt.save!
       pm2_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: 'Faa' }.to_json }.to_json
       pm2_tt.save!
-
       r_id = pm_tt.reload.first_response_obj.id
-
-      # update title/description/
+      # update options
       tt.json_options = [{ label: 'Food' }, { label: 'Feed' }, { label: 'Faad' }].to_json
       tt.options_diff = { deleted: ['Foo'], changed: { Faa: 'Faad' }, added: ['Food', 'Feed'] }
       tt.save!
@@ -331,7 +329,61 @@ class TeamTaskTest < ActiveSupport::TestCase
   end
 
   test "should update multiple_choice task with answers" do
-
+    create_task_stuff
+    t =  create_team
+    Team.stubs(:current).returns(t)
+    Sidekiq::Testing.inline! do
+      tt = create_team_task team_id: t.id, label: 'Foo or Faa', description: 'Foo', task_type: 'multiple_choice', options: [{ label: 'Option A'}, { label: 'Option B' }, { label: 'Option C'}, { label: 'Other', other: true }]
+      pm = create_project_media team: t
+      pm2 = create_project_media team: t
+      pm3 = create_project_media team: t
+      pm4 = create_project_media team: t
+      pm5 = create_project_media team: t
+      pm6 = create_project_media team: t
+      pm7 = create_project_media team: t
+      pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm3_tt = pm3.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm4_tt = pm4.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm5_tt = pm5.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm6_tt = pm6.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm7_tt = pm7.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      # add response to tasks
+      pm_tt.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['Option B'], other: nil }.to_json }.to_json }.to_json
+      pm_tt.save!
+      pm2_tt.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['Option A', 'Option B'], other: nil }.to_json }.to_json }.to_json
+      pm2_tt.save!
+      pm3_tt.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['Option A'], other: nil }.to_json }.to_json }.to_json
+      pm3_tt.save!
+      pm4_tt.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['Option B'], other: 'Hello' }.to_json }.to_json }.to_json
+      pm4_tt.save!
+      pm5_tt.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['Option A', 'Option B'], other: 'Hello' }.to_json }.to_json }.to_json
+      pm5_tt.save!
+      pm6_tt.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: [], other: 'Hello' }.to_json }.to_json }.to_json
+      pm6_tt.save!
+      pm7_tt.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['Option C'], other: nil }.to_json }.to_json }.to_json
+      pm7_tt.save!
+      r_id = pm_tt.reload.first_response_obj.id
+      # update options
+      tt.json_options = [{ label: 'Option 1' }, { label: 'Option 2' }, { label: 'Option 3' }, { label: 'Option C' }, { label: 'Other', other: true }].to_json
+      tt.options_diff = { deleted: ['Option B'], changed: { 'Option A': 'Option 1' }, added: ['Option 2', 'Option 3'] }
+      tt.save!
+      assert_equal([{ 'label' => 'Option 1' }, { 'label' => 'Option 2' }, { 'label' => 'Option 3' }, { 'label' => 'Option C' }, { 'label' => 'Other', 'other' => true }], tt.reload.options)
+      assert_nil Dynamic.where(id: r_id).last
+      assert_equal 'Option 1', pm2_tt.reload.first_response
+      assert_equal 'Option 1', pm3_tt.reload.first_response
+      assert_equal 'Hello', pm4_tt.reload.first_response
+      assert_equal 'Option 1, Hello', pm5_tt.reload.first_response
+      assert_equal 'Hello', pm6_tt.reload.first_response
+      assert_equal 'Option C', pm7_tt.reload.first_response
+      # delete Other
+      # tt.json_options = [{ label: 'Option 1' }, { label: 'Option 2' }, { label: 'Option 3' }, { label: 'Option C' }].to_json
+      # tt.options_diff = { deleted: [], changed: {}, added: [], delete_other: true }
+      # tt.save!
+      # assert_equal nil, pm4_tt.reload.first_response
+      # assert_equal nil, pm6_tt.reload.first_response
+    end
+    Team.unstub(:current)
   end
 
   test "should not update type from teamwide tasks with answers" do
