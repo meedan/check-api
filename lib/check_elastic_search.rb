@@ -1,4 +1,7 @@
+require 'active_support/concern'
+
 module CheckElasticSearch
+  extend ActiveSupport::Concern
 
   def create_elasticsearch_doc_bg(_options)
     doc_id = Base64.encode64("#{self.class.name}/#{self.id}")
@@ -155,23 +158,25 @@ module CheckElasticSearch
     data.with_indifferent_access
   end
 
-  def destroy_elasticsearch_doc(data)
-    begin
-      $repository.delete(data[:doc_id])
-    rescue
-      Rails.logger.info "[ES destroy] doc with id #{data[:doc_id]} not exists"
+  module ClassMethods
+    def destroy_elasticsearch_doc(options)
+      begin
+        $repository.delete(options[:doc_id])
+      rescue
+        Rails.logger.info "[ES destroy] doc with id #{options[:doc_id]} not exists"
+      end
     end
-  end
 
-  def destroy_elasticsearch_doc_nested(data)
-    nested_type = data[:es_type]
-    begin
-      client = $repository.client
-      source = "for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == params.id){ctx._source.#{nested_type}.remove(i);}}"
-      client.update index: CheckElasticSearchModel.get_index_alias, id: data[:doc_id], retry_on_conflict: 3,
-               body: { script: { source: source, params: { id: self.id } } }
-    rescue
-      Rails.logger.info "[ES destroy] doc with id #{data[:doc_id]} not exists"
+    def destroy_elasticsearch_doc_nested(options)
+      nested_type = options[:es_type]
+      begin
+        client = $repository.client
+        source = "for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == params.id){ctx._source.#{nested_type}.remove(i);}}"
+        client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], retry_on_conflict: 3,
+                 body: { script: { source: source, params: { id: options[:model_id] } } }
+      rescue
+        Rails.logger.info "[ES destroy] doc with id #{options[:doc_id]} not exists"
+      end
     end
   end
 end

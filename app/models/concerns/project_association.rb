@@ -110,7 +110,7 @@ module ProjectAssociation
     end
 
     def destroy_elasticsearch_media
-      destroy_es_items(MediaSearch, 'destroy_doc')
+      destroy_es_items(MediaSearch, 'destroy_doc', self)
     end
 
     def is_being_copied

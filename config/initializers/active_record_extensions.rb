@@ -111,7 +111,7 @@ module ActiveRecordExtensions
 
   def destroy_es_items(es_type, type='destroy_doc_nested', obj=nil)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    options = {es_type: es_type, type: type}
+    options = { es_type: es_type, type: type }
     options[:obj] = obj unless obj.nil?
     model = { klass: self.class.name, id: self.id }
     ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), type)

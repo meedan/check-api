@@ -114,7 +114,7 @@ class Tag < ApplicationRecord
   end
 
   def destroy_elasticsearch_tag
-    destroy_es_items('tags')
+    destroy_es_items('tags', 'destroy_doc_nested', self.annotated)
   end
 
   def update_tags_count

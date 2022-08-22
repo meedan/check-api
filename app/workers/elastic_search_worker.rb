@@ -10,8 +10,8 @@ class ElasticSearchWorker
     model_data = begin YAML::load(model_data) rescue nil end
     unless model_data.nil?
       model = model_data[:klass].constantize.find_by_id model_data[:id]
-      unless model.nil?
-        options = set_options(model, options)
+      if !model.nil? || ['destroy_doc', 'destroy_doc_nested'].include?(type)
+        options = set_options(model, options, type)
         ops = {
           'create_doc' => 'create_elasticsearch_doc_bg',
           'update_doc' => 'update_elasticsearch_doc_bg',
@@ -21,7 +21,14 @@ class ElasticSearchWorker
           'destroy_doc_nested' => 'destroy_elasticsearch_doc_nested',
         }
         unless ops[type].nil?
-          model.send(ops[type], options) if should_perform_es_action?(type, options) && model.respond_to?(ops[type])
+          if should_perform_es_action?(type, options, model, ops[type])
+            if type == 'destroy_doc' || type == 'destroy_doc_nested'
+              options[:model_id] = model_data[:id]
+              model_data[:klass].constantize.send(ops[type],options)
+            else
+              model.send(ops[type], options)
+            end
+          end
         end
       end
     end
@@ -29,19 +36,22 @@ class ElasticSearchWorker
 
   private
 
-  def should_perform_es_action?(type, options)
+  def should_perform_es_action?(type, options, model, op)
     # Verify that object still exists in PG (should skip destroy operation)
     action = false
-    if type == 'destroy_doc' || type == 'update_doc_team'
+    if ['destroy_doc', 'destroy_doc_nested', 'update_doc_team'].include?(type)
       action = true
     elsif !options[:doc_id].blank? && options[:obj].class.name == 'ProjectMedia'
-      action = ProjectMedia.exists?(options[:obj].id)
+      action = ProjectMedia.exists?(options[:obj].id) && model.respond_to?(op)
     end
     action
   end
 
-  def set_options(model, options)
+  def set_options(model, options, type)
     options = YAML::load(options)
+    if ['destroy_doc', 'destroy_doc_nested'].include?(type)
+      options[:doc_id] = Base64.encode64("ProjectMedia/#{options[:obj].id}")
+    end
     options[:keys] = [] unless options.has_key?(:keys)
     options[:data] = {} unless options.has_key?(:data)
     options[:skip_get_data] = false unless options.has_key?(:skip_get_data)

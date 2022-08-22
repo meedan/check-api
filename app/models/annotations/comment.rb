@@ -103,6 +103,6 @@ class Comment < ApplicationRecord
   end
 
   def destroy_elasticsearch_comment
-    destroy_es_items('comments') if self.annotated_type == 'ProjectMedia'
+    destroy_es_items('comments', 'destroy_doc_nested', self.annotated) if self.annotated_type == 'ProjectMedia'
   end
 end
