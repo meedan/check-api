@@ -169,6 +169,21 @@ module ProjectMediaCachedFields
         }
       ]
 
+    cached_field :fact_check_title,
+      start_as: nil,
+      recalculate: proc { |pm| pm.claim_description&.fact_check&.title },
+      update_on: [FACT_CHECK_EVENT]
+
+    cached_field :fact_check_summary,
+      start_as: nil,
+      recalculate: proc { |pm| pm.claim_description&.fact_check&.summary },
+      update_on: [FACT_CHECK_EVENT]
+
+    cached_field :fact_check_url,
+      start_as: nil,
+      recalculate: proc { |pm| pm.claim_description&.fact_check&.url },
+      update_on: [FACT_CHECK_EVENT]
+
     cached_field :description,
       recalculate: proc { |pm| pm.get_description },
       update_on: title_or_description_update
@@ -440,20 +455,5 @@ module ProjectMediaCachedFields
           }
         },
       ]
-
-    cached_field :fact_check_title,
-      start_as: nil,
-      recalculate: proc { |pm| pm.claim_description&.fact_check&.title },
-      update_on: [FACT_CHECK_EVENT]
-
-    cached_field :fact_check_summary,
-      start_as: nil,
-      recalculate: proc { |pm| pm.claim_description&.fact_check&.summary },
-      update_on: [FACT_CHECK_EVENT]
-
-    cached_field :fact_check_url,
-      start_as: nil,
-      recalculate: proc { |pm| pm.claim_description&.fact_check&.url },
-      update_on: [FACT_CHECK_EVENT]
   end
 end
