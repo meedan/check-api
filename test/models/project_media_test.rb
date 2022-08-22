@@ -1795,6 +1795,38 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should cache title for imported items" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      pm = ProjectMedia.create!(
+        media: Blank.create!,
+        team: t,
+        user: u,
+        channel: { main: CheckChannels::ChannelCodes::FETCH }
+      )
+      cd = ClaimDescription.new
+      cd.skip_check_ability = true
+      cd.project_media = pm
+      cd.description = '-'
+      cd.user = u
+      cd.save!
+      fc_summary = 'fc_summary'
+      fc_title = 'fc_title'
+      fc = FactCheck.new
+      fc.claim_description = cd
+      fc.title = fc_title
+      fc.summary = fc_summary
+      fc.user = u
+      fc.skip_report_update = true
+      fc.save!
+      assert_equal fc_title, pm.title
+      assert_equal fc_summary, pm.description
+    end
+  end
+
   test "should cache description" do
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media quote: 'Description 0'
