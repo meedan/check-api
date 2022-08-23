@@ -50,7 +50,7 @@ module Check
     smtp_port = cfg['smtp_port'] || ENV['smtp_port']
     smtp_user = cfg['smtp_user'] || ENV['smtp_user']
     smtp_pass = cfg['smtp_pass'] || ENV['smtp_pass']
-    if smtp_user.blank? && smtp_pass.blank? && !Rails.env.test?
+    if !smtp_user.blank? && !smtp_pass.blank? && !Rails.env.test?
       config.action_mailer.smtp_settings = {
         address:              smtp_host,
         port:                 smtp_port,
