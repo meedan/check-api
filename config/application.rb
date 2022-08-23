@@ -39,17 +39,17 @@ module Check
     config.i18n.default_locale = 'en'
     config.i18n.enforce_available_locales = false
 
-    locale = cfg['locale'] || ENV['locale']
+    locale = ENV['locale'] || cfg['locale']
     if locale.blank?
       config.i18n.available_locales = ["ar","bn","fil","fr","de","hi","id","kn","ml","mr","pa","pt","ro","ru","es","sw","ta","te","ur","en"] # Do not change manually! Use `rake transifex:languages` instead, or set the `locale` key in your `config/config.yml`
     else
       config.i18n.available_locales = [locale].flatten
     end
 
-    smtp_host = cfg['smtp_host'] || ENV['smtp_host']
-    smtp_port = cfg['smtp_port'] || ENV['smtp_port']
-    smtp_user = cfg['smtp_user'] || ENV['smtp_user']
-    smtp_pass = cfg['smtp_pass'] || ENV['smtp_pass']
+    smtp_host = ENV['smtp_host'] || cfg['smtp_host']
+    smtp_port = ENV['smtp_port'] || cfg['smtp_port']
+    smtp_user = ENV['smtp_user'] || cfg['smtp_user']
+    smtp_pass = ENV['smtp_pass'] || cfg['smtp_pass']
     if !smtp_user.blank? && !smtp_pass.blank? && !Rails.env.test?
       config.action_mailer.smtp_settings = {
         address:              smtp_host,
@@ -61,8 +61,8 @@ module Check
       }
     end
 
-    allowed_origins = cfg['allowed_origins'] || ENV['allowed_origins']
-    authorization_header = cfg['authorization_header'] || ENV['authorization_header']
+    allowed_origins = ENV['allowed_origins'] || cfg['allowed_origins']
+    authorization_header = ENV['authorization_header'] || cfg['authorization_header']
     config.middleware.insert_before 0, Rack::Cors do
       allow do
         origins(/^(#{allowed_origins}|(moz|chrome)-extension:)|file:/)
@@ -78,6 +78,4 @@ module Check
       'Access-Control-Request-Method' => '*'
     })
   end
-
-
 end
