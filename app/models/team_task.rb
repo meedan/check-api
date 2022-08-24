@@ -198,7 +198,8 @@ class TeamTask < ApplicationRecord
       if self.task_type == 'single_choice'
         deleted << f.annotation_id if options_diff['deleted'].include?(f.value)
         if options_diff['changed'].keys.include?(f.value)
-          updated << { id: f.id, value: options_diff['changed'][f.value] }
+          f.value = options_diff['changed'][f.value]
+          updated << f
           response_ids << f.annotation_id
         end
       else
@@ -220,7 +221,8 @@ class TeamTask < ApplicationRecord
           if new_value.values.reject(&:blank?).empty?
             deleted << f.annotation_id
           else
-            updated << { id: f.id, value: new_value.to_json }
+            f.value = new_value.to_json
+            updated << f
             response_ids << f.annotation_id
           end
         end
@@ -229,21 +231,20 @@ class TeamTask < ApplicationRecord
     Dynamic.where(id: deleted).destroy_all unless deleted.blank?
     unless updated.blank?
       # Update PG
-      updated.each do |u|
-        field = DynamicAnnotation::Field.find(u[:id])
-        field.value = u[:value]
-        field.save!
-      end
-      # DynamicAnnotation::Field.import(updated, on_duplicate_key_update: [:value], recursive: false, validate: false)
+      DynamicAnnotation::Field.import(updated, on_duplicate_key_update: [:value], recursive: false, validate: false)
       Dynamic.where(id: response_ids).update_all(updated_at: Time.now)
       # Update ES
       keys = %w(id team_task_id value field_type fieldset date_value numeric_value)
+      r_tasks = Task.where(id: responses.map(&:annotated_id))
+      t_pm = {}
+      # Add mapping for tasks and it's ProjectMedia
+      r_tasks.find_each{ |r| t_pm[r.id] = r.annotated_id }
+      # collect related ProjectMedia records
+      pm_mapping = {}
+      ProjectMedia.where(id: r_tasks.map(&:annotated_id)).find_each{ |pm| pm_mapping[pm.id] = pm }
       Dynamic.where(id: response_ids).find_each do |response|
-        # Fetch ProjectMedia and add ES job to update task_responses
-        # TODO: remove next two lines and try to get ProjectMedia with one query for all responses
-        task = response.annotated
-        pm = task.project_media
-        response.add_update_nested_obj({op: 'update', obj: pm, nested_key: 'task_responses', keys: keys})
+        obj = pm_mapping[r_tasks[response.annotation_id.to_i]]
+        response.add_update_nested_obj({op: 'update', obj: obj, nested_key: 'task_responses', keys: keys})
       end
     end
   end
