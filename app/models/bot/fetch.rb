@@ -213,6 +213,9 @@ class Bot::Fetch < BotUser
     end
 
     def self.set_claim_and_fact_check(claim_review, pm, user)
+      current_user = User.current
+      User.current = user
+
       cd = ClaimDescription.new
       cd.skip_check_ability = true
       cd.project_media = pm
@@ -231,6 +234,8 @@ class Bot::Fetch < BotUser
       fc.skip_report_update = true
       fc.language = claim_review.dig('raw', 'language')
       fc.save!
+
+      User.current = current_user
     end
 
     def self.set_analysis(claim_review, pm)
