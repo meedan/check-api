@@ -56,10 +56,10 @@ module ClaimAndFactCheck
 
   module ClassMethods
     def send_to_alegre(id)
-      obj = self.find(id)
+      obj = self.find_by_id(id)
       obj.text_fields.each do |field|
         ::Bot::Alegre.send_field_to_similarity_index(obj.project_media, field)
-      end
+      end unless obj.nil?
     end
   end
 end

@@ -2703,4 +2703,13 @@ class TeamTest < ActiveSupport::TestCase
     f3.teams << t4
     assert_equal [t1, t2, t3].sort, t1.shared_teams.sort
   end
+
+  test "should return number of teams in a feed" do
+    f = create_feed
+    assert_equal 0, f.reload.teams_count
+    f.teams << create_team
+    assert_equal 1, f.reload.teams_count
+    f.teams << create_team
+    assert_equal 2, f.reload.teams_count
+  end
 end
