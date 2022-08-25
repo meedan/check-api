@@ -185,49 +185,15 @@ class TeamTask < ApplicationRecord
   # TODO: Handle update/delete 'other' option
   def update_task_answers(options_diff)
     tasks = get_teamwide_tasks_with_answers
-    deleted = []
-    updated = []
-    response_ids = []
     responses = Dynamic.where(annotation_type: "task_response_#{self.task_type}",annotated_type: "Task", annotated_id: tasks.map(&:id))
-    DynamicAnnotation::Field
-    .where(
+    conditions = {
       annotation_id: responses.map(&:id),
       annotation_type: "task_response_#{self.task_type}",
       field_name: "response_#{self.task_type}",
-    ).find_each do |f|
-      if self.task_type == 'single_choice'
-        deleted << f.annotation_id if options_diff['deleted'].include?(f.value)
-        if options_diff['changed'].keys.include?(f.value)
-          f.value = options_diff['changed'][f.value]
-          updated << f
-          response_ids << f.annotation_id
-        end
-      else
-        parsed = begin JSON.parse(f.value) rescue { 'selected' => [] } end
-        # Handle delete options
-        new_value = parsed
-        unless (parsed['selected'].to_a & options_diff['deleted']).empty?
-          new_selected = parsed['selected'].to_a - options_diff['deleted']
-          # build new response
-          new_value = { 'selected' => new_selected, 'other' => parsed['other'] }
-        end
-        # Handle update options
-        unless (parsed['selected'].to_a & options_diff['changed'].keys).empty?
-          new_selected = new_value['selected'].to_a.collect{ |x| options_diff['changed'].keys.include?(x) ? options_diff['changed'][x] : x }
-          new_value = { 'selected' => new_selected, 'other' => parsed['other'] }
-        end
-        # if both selected and other are empty then delete response otherwise do an update
-        unless (new_value.values - parsed.values).empty?
-          if new_value.values.reject(&:blank?).empty?
-            deleted << f.annotation_id
-          else
-            f.value = new_value.to_json
-            updated << f
-            response_ids << f.annotation_id
-          end
-        end
-      end
-    end
+    }
+    fields = DynamicAnnotation::Field.where(conditions)
+    method = "update_task_answers_#{self.task_type}"
+    deleted, updated, response_ids = self.send(method, fields, options_diff)
     Dynamic.where(id: deleted).destroy_all unless deleted.blank?
     unless updated.blank?
       # Update PG
@@ -247,6 +213,53 @@ class TeamTask < ApplicationRecord
         response.add_update_nested_obj({op: 'update', obj: obj, nested_key: 'task_responses', keys: keys})
       end
     end
+  end
+
+  def update_task_answers_single_choice(fields, options_diff)
+    deleted = []
+    updated = []
+    response_ids = []
+    fields.find_each do |f|
+      deleted << f.annotation_id if options_diff['deleted'].include?(f.value)
+      if options_diff['changed'].keys.include?(f.value)
+        f.value = options_diff['changed'][f.value]
+        updated << f
+        response_ids << f.annotation_id
+      end
+    end
+    return deleted, updated, response_ids
+  end
+
+  def update_task_answers_multiple_choice(fields, options_diff)
+    deleted = []
+    updated = []
+    response_ids = []
+    fields.find_each do |f|
+      parsed = begin JSON.parse(f.value) rescue { 'selected' => [] } end
+      # Handle delete options
+      new_value = parsed
+      unless (parsed['selected'].to_a & options_diff['deleted']).empty?
+        new_selected = parsed['selected'].to_a - options_diff['deleted']
+        # build new response
+        new_value = { 'selected' => new_selected, 'other' => parsed['other'] }
+      end
+      # Handle update options
+      unless (parsed['selected'].to_a & options_diff['changed'].keys).empty?
+        new_selected = new_value['selected'].to_a.collect{ |x| options_diff['changed'].keys.include?(x) ? options_diff['changed'][x] : x }
+        new_value = { 'selected' => new_selected, 'other' => parsed['other'] }
+      end
+      # if both selected and other are empty then delete response otherwise do an update
+      unless (new_value.values - parsed.values).empty?
+        if new_value.values.reject(&:blank?).empty?
+          deleted << f.annotation_id
+        else
+          f.value = new_value.to_json
+          updated << f
+          response_ids << f.annotation_id
+        end
+      end
+    end
+    return deleted, updated, response_ids
   end
 
   def self.get_teamwide_tasks(id)
