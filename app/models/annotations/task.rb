@@ -255,7 +255,7 @@ class Task < ApplicationRecord
 
   def destroy_elasticsearch_task
     # Remove task with answer from ES
-    self.destroy_es_items('task_responses', 'destroy_doc_nested', self.project_media)
+    self.destroy_es_items('task_responses', 'destroy_doc_nested', self.project_media) unless self.project_media.nil?
   end
 end
 

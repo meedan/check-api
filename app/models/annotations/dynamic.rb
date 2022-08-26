@@ -144,8 +144,9 @@ class Dynamic < ApplicationRecord
 
   def handle_extracted_text(op)
     if self.annotated_type == 'ProjectMedia' && self.annotation_type == 'extracted_text'
+      pm = self.annotated
       value = op == 'destroy' ? '' : self.data['text']
-      self.update_elasticsearch_doc(['extracted_text'], { 'extracted_text' => value }, self.annotated)
+      pm.update_elasticsearch_doc(['extracted_text'], { 'extracted_text' => value }, pm)
     end
   end
 
@@ -180,7 +181,7 @@ class Dynamic < ApplicationRecord
         end
         uids.uniq!
         Rails.cache.write(key, uids)
-        self.update_elasticsearch_doc(['annotated_by'], { 'annotated_by' => uids }, pm, true)
+        task.update_elasticsearch_doc(['annotated_by'], { 'annotated_by' => uids }, pm, true)
       end
     end
   end
