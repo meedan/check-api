@@ -262,7 +262,7 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     tbi.save!
     pm = create_project_media team: t
 
-    Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'image', 'mediaUrl' => 'https://image' })
+    Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'image', 'mediaUrl' => random_url })
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
     Bot::Alegre.stubs(:get_items_with_similar_media).returns({ pm.id => { score: 0.9, model: 'elasticsearch' } })

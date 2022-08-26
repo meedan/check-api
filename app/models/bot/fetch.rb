@@ -291,7 +291,7 @@ class Bot::Fetch < BotUser
         end
       end
       date = claim_review['datePublished'].blank? ? Time.now : Time.parse(claim_review['datePublished'])
-      language = claim_review.dig('raw', 'language') || team.default_language
+      language = team.default_language
       title = self.get_title(claim_review).truncate(140)
       summary = self.parse_text(claim_review['text']).truncate(620)
       fields = {
