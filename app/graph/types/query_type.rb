@@ -53,6 +53,7 @@ QueryType = GraphQL::ObjectType.define do
     description 'Information about the context team or the team from given id'
     argument :id, types.ID
     argument :slug, types.String
+    argument :random, types.String
     resolve -> (_obj, args, ctx) do
       tid = args['id'].to_i
       if !args['slug'].blank?
