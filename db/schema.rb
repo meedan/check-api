@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_08_16_170718) do
+ActiveRecord::Schema.define(version: 2022_08_25_223906) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -348,7 +348,11 @@ ActiveRecord::Schema.define(version: 2022_08_16_170718) do
     t.text "content", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "request_id"
+    t.integer "media_id"
     t.index ["feed_id"], name: "index_requests_on_feed_id"
+    t.index ["media_id"], name: "index_requests_on_media_id"
+    t.index ["request_id"], name: "index_requests_on_request_id"
   end
 
   create_table "saved_searches", id: :serial, force: :cascade do |t|
