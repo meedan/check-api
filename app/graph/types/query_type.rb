@@ -53,6 +53,9 @@ QueryType = GraphQL::ObjectType.define do
     description 'Information about the context team or the team from given id'
     argument :id, types.ID
     argument :slug, types.String
+    # random argument is for bypassing Relay cache. This is a temporary fix
+    # while we don't have our Relay code 100% up to date, which we expect will
+    # make this unnecessary. Fixes issue reported in CHECK-2331
     argument :random, types.String
     resolve -> (_obj, args, ctx) do
       tid = args['id'].to_i
