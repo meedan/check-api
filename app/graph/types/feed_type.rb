@@ -16,7 +16,7 @@ FeedType = GraphqlCrudOperations.define_default_type do
 
     resolve ->(feed, args, _ctx) {
       request_id = (args['request_id'].to_i == 0 ? nil : args['request_id'].to_i)
-      Request.where(request_id: request_id).or(Request.where(id: request_id)).order('requests_count DESC')
+      Request.where(request_id: request_id, feed_id: feed.id).or(Request.where(id: request_id, feed_id: feed.id)).order('requests_count DESC')
     }
   end
 end
