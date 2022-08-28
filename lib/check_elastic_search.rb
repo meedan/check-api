@@ -26,7 +26,7 @@ module CheckElasticSearch
     $repository.refresh_index! if CheckConfig.get('elasticsearch_sync')
   end
 
-  def update_elasticsearch_doc(keys, data = {}, pm_id, skip_get_data = false)
+  def update_elasticsearch_doc(keys, data = {}, pm_id = nil, skip_get_data = false)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     options = { keys: keys, data: data, pm_id: pm_id, skip_get_data: skip_get_data }
     model = { klass: self.class.name, id: self.id }
@@ -113,7 +113,7 @@ module CheckElasticSearch
 
   def get_es_doc_id(pm_id = nil)
     pm_id = get_es_doc_obj if pm_id.nil?
-    pm_id.blank? ? nil : Base64.encode64("ProjectMedia/#{pm_id}") : nil
+    pm_id.blank? ? nil : Base64.encode64("ProjectMedia/#{pm_id}")
   end
 
   def doc_exists?(id)
