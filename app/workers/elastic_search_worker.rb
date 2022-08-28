@@ -50,7 +50,7 @@ class ElasticSearchWorker
   def set_options(model, options, type)
     options = YAML::load(options)
     if ['destroy_doc', 'destroy_doc_nested'].include?(type)
-      options[:doc_id] = Base64.encode64("ProjectMedia/#{options[:obj].id}")
+      options[:doc_id] = Base64.encode64("ProjectMedia/#{options[:pm_id]}")
     end
     options[:keys] = [] unless options.has_key?(:keys)
     options[:data] = {} unless options.has_key?(:data)
