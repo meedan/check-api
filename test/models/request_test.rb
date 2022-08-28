@@ -5,6 +5,7 @@ class RequestTest < ActiveSupport::TestCase
     super
     Sidekiq::Testing.inline!
     Request.delete_all
+    WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
   end
 
   test "should create request" do
@@ -83,7 +84,9 @@ class RequestTest < ActiveSupport::TestCase
   end
 
   test "should get media for link" do
-    url = @url
+    url = random_url
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","foo":"1"}}')
     m1 = nil
     m2 = nil
     assert_difference 'Link.count' do
