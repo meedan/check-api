@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_08_25_223906) do
+ActiveRecord::Schema.define(version: 2022_08_28_210303) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -350,6 +350,9 @@ ActiveRecord::Schema.define(version: 2022_08_25_223906) do
     t.datetime "updated_at", null: false
     t.integer "request_id"
     t.integer "media_id"
+    t.integer "medias_count", default: 0, null: false
+    t.integer "requests_count", default: 0, null: false
+    t.datetime "last_submitted_at"
     t.index ["feed_id"], name: "index_requests_on_feed_id"
     t.index ["media_id"], name: "index_requests_on_media_id"
     t.index ["request_id"], name: "index_requests_on_request_id"

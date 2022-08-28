@@ -4,7 +4,9 @@ class Request < ApplicationRecord
   belongs_to :similar_to_request, foreign_key: :request_id, class_name: 'Request', optional: true
   has_many :similar_requests, foreign_key: :request_id, class_name: 'Request'
 
-  after_commit :send_to_alegre
+  before_validation :set_fields, on: :create
+  after_commit :send_to_alegre, on: :create
+  after_commit :update_fields, on: :update
 
   def similarity_threshold
     0.85 # FIXME: Adjust this value for text and image (eventually it can be a feed setting)
@@ -101,5 +103,22 @@ class Request < ApplicationRecord
 
   def send_to_alegre
     self.class.delay_for(1.second).send_to_alegre(self.id)
+  end
+
+  def set_fields
+    self.last_submitted_at = Time.now
+    self.medias_count = 1
+    self.requests_count = 1
+  end
+
+  # When a request is attached to another one, we update some fields of the "parent" request
+  def update_fields
+    request = self.similar_to_request
+    if self.saved_change_to_request_id? && !request.nil?
+      request.last_submitted_at = self.created_at
+      request.requests_count = request.similar_requests.count + 1
+      request.medias_count = Request.where(request_id: request.id).or(Request.where(id: request.id)).distinct.count(:media_id)
+      request.save!
+    end
   end
 end

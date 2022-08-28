@@ -160,4 +160,28 @@ class RequestTest < ActiveSupport::TestCase
     assert_equal [r2], r1.reload.similar_requests
     Bot::Alegre.unstub(:request_api)
   end
+
+  test "should set fields" do
+    r = create_request
+    assert_not_nil r.reload.last_submitted_at
+    assert_equal 1, r.reload.requests_count
+    assert_equal 1, r.reload.medias_count
+  end
+
+  test "should update fields" do
+    Bot::Alegre.stubs(:request_api).returns({})
+    m1 = create_uploaded_image
+    m2 = create_uploaded_image
+    r1 = create_request media: m1
+    r2 = create_request media: m1
+    r3 = create_request media: m2
+    r4 = create_request media: m2
+    r2.similar_to_request = r1 ; r2.save!
+    r3.similar_to_request = r1 ; r3.save!
+    r4.similar_to_request = r1 ; r4.save!
+    assert_equal r4.created_at.to_s, r1.reload.last_submitted_at.to_s
+    assert_equal 2, r1.reload.medias_count
+    assert_equal 4, r1.reload.requests_count
+    Bot::Alegre.unstub(:request_api)
+  end
 end
