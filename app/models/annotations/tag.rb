@@ -106,15 +106,20 @@ class Tag < ApplicationRecord
   end
 
   def add_elasticsearch_tag
-    add_update_nested_obj({ op: 'create', nested_key: 'tags', keys: ['tag'], data: { 'tag' => self.tag_text }})
+    add_update_es_tags('create')
   end
 
   def update_elasticsearch_tag
-    add_update_nested_obj({ op: 'update', nested_key: 'tags', keys: ['tag'], data: { 'tag' => self.tag_text }})
+    add_update_es_tags('update')
+  end
+
+  def add_update_es_tags(op)
+    data = { 'tag' => self.tag_text }
+    add_update_nested_obj({ op: op, nested_key: 'tags', keys: data.keys, data: data, pm_id: self.annotated_id }) if self.annotated_type == 'ProjectMedia'
   end
 
   def destroy_elasticsearch_tag
-    destroy_es_items('tags', 'destroy_doc_nested', self.annotated)
+    destroy_es_items('tags', 'destroy_doc_nested', self.annotated_id) if self.annotated_type == 'ProjectMedia'
   end
 
   def update_tags_count

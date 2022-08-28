@@ -34,12 +34,12 @@ namespace :check do
         keys = %w(project_id team_id created_at updated_at archived)
         data = {
           'project_id' => model.project_id,
-          'team_id' => model.project&.team_id&.to_i,
+          'team_id' => model.team_id&.to_i,
           'created_at' => model.created_at.to_i,
           'updated_at' => model.updated_at.to_i,
           'archived' => model.archived.to_i,
         }
-        options = { keys: keys, data: data, parent: model, obj: model, doc_id: model.get_es_doc_id(model) }
+        options = { keys: keys, data: data, parent: model, obj: model, doc_id: model.get_es_doc_id(model.id) }
         fields = { 'updated_at' => model.updated_at.utc }
         options[:keys].each{ |k| fields[k] = data[k] if !data[k].blank? }
         es_body << { update: { _index: index_alias, _id: options[:doc_id], data: { doc: fields } } }
@@ -60,11 +60,11 @@ namespace :check do
         keys = %w(project_id team_id created_at updated_at)
         data = {
           'project_id' => model.project_id,
-          'team_id' => model.project&.team_id&.to_i,
+          'team_id' => model.team_id&.to_i,
           'created_at' => model.created_at.to_i,
           'updated_at' => model.updated_at.to_i,
         }
-        options = { keys: keys, data: data, parent: model, obj: model, doc_id: model.get_es_doc_id(model) }
+        options = { keys: keys, data: data, parent: model, obj: model, doc_id: model.get_es_doc_id(model.id) }
         fields = { 'updated_at' => model.updated_at.utc }
         options[:keys].each{ |k| fields[k] = data[k] if !data[k].blank? }
         es_body << { update: { _index: index_alias, _id: options[:doc_id], data: { doc: fields } } }

@@ -55,8 +55,10 @@ class ElasticSearchWorker
     options[:keys] = [] unless options.has_key?(:keys)
     options[:data] = {} unless options.has_key?(:data)
     options[:skip_get_data] = false unless options.has_key?(:skip_get_data)
-    options[:obj] = model.get_es_doc_obj unless options.has_key?(:obj)
-    options[:doc_id] = model.get_es_doc_id(options[:obj]) unless options.has_key?(:doc_id)
+    unless options.has_key?(:doc_id)
+      options[:pm_id] = model.get_es_doc_obj unless options.has_key?(:pm_id)
+      options[:doc_id] = model.get_es_doc_id(options[:pm_id])
+    end
     options
   end
 end

@@ -109,10 +109,9 @@ module ActiveRecordExtensions
     bot.notify_slack(self, event) unless bot.nil?
   end
 
-  def destroy_es_items(es_type, type='destroy_doc_nested', obj=nil)
+  def destroy_es_items(es_type, type='destroy_doc_nested', pm_id)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    options = { es_type: es_type, type: type }
-    options[:obj] = obj unless obj.nil?
+    options = { es_type: es_type, type: type, pm_id: pm_id }
     model = { klass: self.class.name, id: self.id }
     ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), type)
   end

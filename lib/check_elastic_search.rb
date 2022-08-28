@@ -26,10 +26,9 @@ module CheckElasticSearch
     $repository.refresh_index! if CheckConfig.get('elasticsearch_sync')
   end
 
-  def update_elasticsearch_doc(keys, data = {}, obj = nil, skip_get_data = false)
+  def update_elasticsearch_doc(keys, data = {}, pm_id, skip_get_data = false)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    options = { keys: keys, data: data, skip_get_data: skip_get_data }
-    options[:obj] = obj unless obj.nil?
+    options = { keys: keys, data: data, pm_id: pm_id, skip_get_data: skip_get_data }
     model = { klass: self.class.name, id: self.id }
     ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
   end
@@ -39,7 +38,7 @@ module CheckElasticSearch
     updated_at = Time.now
     obj.update_columns(updated_at: updated_at)
     data = { updated_at: updated_at.utc }
-    self.update_elasticsearch_doc(data.keys, data, obj, true)
+    self.update_elasticsearch_doc(data.keys, data, obj.id, true)
   end
 
   def update_elasticsearch_doc_bg(options)
@@ -108,12 +107,13 @@ module CheckElasticSearch
 
   def get_es_doc_obj
     obj = self.is_annotation? ? self.annotated : self
-    obj.class.name == 'Cluster' ? obj.project_media : obj
+    obj = obj.class.name == 'Cluster' ? obj.project_media : obj
+    obj&.id
   end
 
-  def get_es_doc_id(obj = nil)
-    obj = get_es_doc_obj if obj.nil?
-    obj.class.name == 'ProjectMedia' ? Base64.encode64("#{obj.class.name}/#{obj.id}") : nil
+  def get_es_doc_id(pm_id = nil)
+    pm_id = get_es_doc_obj if pm_id.nil?
+    pm_id.blank? ? nil : Base64.encode64("ProjectMedia/#{pm_id}") : nil
   end
 
   def doc_exists?(id)
@@ -123,8 +123,8 @@ module CheckElasticSearch
 
   def create_doc_if_not_exists(options)
     doc_id = options[:doc_id]
-    model = { klass: options[:obj].class.name, id: options[:obj].id }
-    ElasticSearchWorker.new.perform(YAML::dump(model), YAML::dump({doc_id: doc_id}), 'create_doc') unless doc_exists?(doc_id)
+    model = { klass: 'ProjectMedia', id: options[:pm_id] }
+    ElasticSearchWorker.new.perform(YAML::dump(model), YAML::dump({ doc_id: doc_id }), 'create_doc') unless doc_exists?(doc_id)
   end
 
   def get_elasticsearch_data(data, skip_get_data = false)

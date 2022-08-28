@@ -58,7 +58,7 @@ namespace :check do
         pms.each do |pm|
           print "."
           comments = pm.annotations('comment')
-          doc_id = pm.get_es_doc_id(pm)
+          doc_id = pm.get_es_doc_id(pm.id)
           fields = { 'comments' => comments }
           es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
         end

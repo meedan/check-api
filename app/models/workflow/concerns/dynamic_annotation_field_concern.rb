@@ -26,7 +26,7 @@ module Workflow
               self.annotation_type => { method: 'value', klass: self.class.name, id: self.id },
               'updated_at' => updated_at.utc
             }
-            self.update_elasticsearch_doc(data.keys, data, obj)
+            self.update_elasticsearch_doc(data.keys, data, obj.id)
           end
         end
 

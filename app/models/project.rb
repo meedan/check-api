@@ -295,7 +295,7 @@ class Project < ApplicationRecord
 
   def update_elasticsearch_data
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    data = {'team_id' => self.team_id}
+    data = { 'team_id' => self.team_id }
     options = { keys: data.keys, data: data }
     model = { klass: self.class.name, id: self.id }
     ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc_team')
