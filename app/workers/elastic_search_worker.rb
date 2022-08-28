@@ -20,14 +20,12 @@ class ElasticSearchWorker
           'destroy_doc' => 'destroy_elasticsearch_doc',
           'destroy_doc_nested' => 'destroy_elasticsearch_doc_nested',
         }
-        unless ops[type].nil?
-          if should_perform_es_action?(type, options, model, ops[type])
-            if type == 'destroy_doc' || type == 'destroy_doc_nested'
-              options[:model_id] = model_data[:id]
-              model_data[:klass].constantize.send(ops[type],options)
-            else
-              model.send(ops[type], options)
-            end
+        if !ops[type].nil? && should_perform_es_action?(type, options, model, ops[type])
+          if type == 'destroy_doc' || type == 'destroy_doc_nested'
+            options[:model_id] = model_data[:id]
+            model_data[:klass].constantize.send(ops[type],options)
+          else
+            model.send(ops[type], options)
           end
         end
       end
@@ -41,8 +39,8 @@ class ElasticSearchWorker
     action = false
     if ['destroy_doc', 'destroy_doc_nested', 'update_doc_team'].include?(type)
       action = true
-    elsif !options[:doc_id].blank? && options[:obj].class.name == 'ProjectMedia'
-      action = ProjectMedia.exists?(options[:obj].id) && model.respond_to?(op)
+    elsif !options[:doc_id].blank? && !options[:pm_id].nil?
+      action = ProjectMedia.exists?(options[:pm_id]) && model.respond_to?(op)
     end
     action
   end
@@ -55,10 +53,8 @@ class ElasticSearchWorker
     options[:keys] = [] unless options.has_key?(:keys)
     options[:data] = {} unless options.has_key?(:data)
     options[:skip_get_data] = false unless options.has_key?(:skip_get_data)
-    unless options.has_key?(:doc_id)
-      options[:pm_id] = model.get_es_doc_obj unless options.has_key?(:pm_id)
-      options[:doc_id] = model.get_es_doc_id(options[:pm_id])
-    end
+    options[:pm_id] = model.get_es_doc_obj unless options.has_key?(:pm_id)
+    options[:doc_id] = model.get_es_doc_id(options[:pm_id]) unless options.has_key?(:doc_id)
     options
   end
 end
