@@ -180,6 +180,7 @@ class Bot::Fetch < BotUser
             self.set_analysis(claim_review, pm)
             self.set_claim_and_fact_check(claim_review, pm, user)
             self.create_report(claim_review, pm, team, user, auto_publish_reports)
+            self.create_tags(claim_review, pm, user)
           end
         end
       rescue StandardError => e
@@ -231,6 +232,16 @@ class Bot::Fetch < BotUser
       fc.skip_report_update = true
       fc.language = claim_review.dig('raw', 'language')
       fc.save!
+    end
+
+    def self.create_tags(claim_review, pm, user)
+      current_user = User.current
+      User.current = user
+      tags = claim_review['keywords'].to_s.split(',').map(&:strip).reject{ |r| r.blank? }
+      tags.each do |tag|
+        Tag.create(tag: tag, annotator: user, annotated: pm, skip_check_ability: true)
+      end
+      User.current = current_user
     end
 
     def self.set_analysis(claim_review, pm)
