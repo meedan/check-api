@@ -39,7 +39,7 @@ module Workflow
             options = {
               keys: [self.annotation_type, 'updated_at'],
               data: { self.annotation_type => self.value, 'updated_at' => updated_at.utc },
-              obj: obj,
+              pm_id: obj.id,
               doc_id:  Base64.encode64("#{obj.class.name}/#{obj.id}")
             }
             self.update_elasticsearch_doc_bg(options)
