@@ -981,4 +981,8 @@ module SampleData
       team: create_team
     }.merge(options))
   end
+
+  def create_request(options = {})
+    Request.create!({ content: random_string, request_type: 'text', feed: create_feed, media: create_valid_media }.merge(options))
+  end
 end
