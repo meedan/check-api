@@ -73,7 +73,7 @@ class DynamicAnnotation::Field < ApplicationRecord
     end
     unless data.blank?
       obj = self.annotation.project_media
-      self.update_elasticsearch_doc(data.keys, data, obj) unless data.blank?
+      self.update_elasticsearch_doc(data.keys, data, obj.id) unless obj.nil?
     end
   end
 

@@ -44,7 +44,7 @@ Dynamic.class_eval do
       elsif self.annotated_type == 'Media' && self.annotated.type == 'Link'
         self.annotated.project_medias.each do |pm|
           m = pm.get_annotations('metadata').last
-          self.update_elasticsearch_doc(keys, { 'title' => pm.title, 'description' => pm.description }, pm) if m.nil?
+          self.update_elasticsearch_doc(keys, { 'title' => pm.title, 'description' => pm.description }, pm.id) if m.nil?
         end
       end
     end
@@ -53,7 +53,7 @@ Dynamic.class_eval do
   def update_es_metadata_pm_annotation(keys, pm)
     data = {}
     keys.each { |k| data[k] = self.send(k) }
-    self.update_elasticsearch_doc(keys, data, pm)
+    self.update_elasticsearch_doc(keys, data, pm.id)
   end
 
   def metadata_for_registration_account(data)

@@ -39,6 +39,7 @@ class Bot::FetchTest < ActiveSupport::TestCase
     WebMock.stub_request(:post, 'http://fetch:8000/subscribe').with(body: { service: 'foo', url: 'http://check:3100/api/webhooks/fetch?team=fetch&token=test' }.to_json).to_return(body: '{}')
     WebMock.stub_request(:delete, 'http://fetch:8000/subscribe').with(body: { service: 'test', url: 'http://check:3100/api/webhooks/fetch?team=fetch&token=test' }.to_json).to_return(body: '{}')
     WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
+    WebMock.stub_request(:delete, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
     
     create_verification_status_stuff
     create_report_design_annotation_type
@@ -185,8 +186,8 @@ class Bot::FetchTest < ActiveSupport::TestCase
       d = DynamicAnnotation::Field.where(field_name: 'external_id', value: "#{id}:#{@team.id}").last
       assert_not_nil d
       assert_equal statuses[i], d.annotation.annotated.last_status
-      assert_equal "Earth isn't flat", d.annotation.annotated.title
-      assert_equal "Scientific evidences show that Earth is round",  d.annotation.annotated.description
+      assert_equal "Earth isn't flat", d.annotation.annotated.fact_check_title
+      assert_equal "Scientific evidences show that Earth is round",  d.annotation.annotated.fact_check_summary
     end
     r = Dynamic.where(annotation_type: 'report_design').last
     assert_equal "Earth isn't flat", r.report_design_field_value('headline', 'en')
@@ -233,5 +234,16 @@ class Bot::FetchTest < ActiveSupport::TestCase
       Bot::Fetch::Import.import_claim_review(cr3, create_team.id, @bot.id, 'undetermined', {}, false)
     end
     Bot::Fetch::Import.unstub(:already_imported?)
+  end
+
+  test "should import tags" do
+    id = random_string
+    cr = @claim_review.deep_dup
+    cr['identifier'] = id
+    cr['keywords'] = 'foo , bar,  foo bar '
+
+    assert_difference "Tag.where(annotation_type: 'tag').count", 3 do
+      Bot::Fetch::Import.import_claim_review(cr, @team.id, @bot.id, 'undetermined', {}, false)
+    end
   end
 end

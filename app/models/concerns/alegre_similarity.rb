@@ -174,7 +174,7 @@ module AlegreSimilarity
 
     def send_to_media_similarity_index(pm)
       type = self.get_pm_type(pm)
-      unless type == "text"
+      if ['audio', 'video', 'image'].include?(type)
         params = {
           doc_id: self.item_doc_id(pm, type),
           url: self.media_file_url(pm),

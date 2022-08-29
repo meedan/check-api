@@ -33,8 +33,7 @@ QueryType = GraphQL::ObjectType.define do
         upload_max_dimensions: "#{SizeValidator.config('max_width')}x#{SizeValidator.config('max_height')}",
         languages_supported: CheckCldr.localized_languages.to_json,
         terms_last_updated_at: User.terms_last_updated_at,
-        channels: CheckChannels::ChannelCodes.all_channels,
-        countries: Team.group(:country).count.keys.reject{ |c| c.blank? }.sort
+        channels: CheckChannels::ChannelCodes.all_channels
       })
     end
   end
@@ -54,6 +53,10 @@ QueryType = GraphQL::ObjectType.define do
     description 'Information about the context team or the team from given id'
     argument :id, types.ID
     argument :slug, types.String
+    # random argument is for bypassing Relay cache. This is a temporary fix
+    # while we don't have our Relay code 100% up to date, which we expect will
+    # make this unnecessary. Fixes issue reported in CHECK-2331
+    argument :random, types.String
     resolve -> (_obj, args, ctx) do
       tid = args['id'].to_i
       if !args['slug'].blank?

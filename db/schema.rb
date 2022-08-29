@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_08_04_205429) do
+ActiveRecord::Schema.define(version: 2022_08_28_210303) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -189,6 +189,28 @@ ActiveRecord::Schema.define(version: 2022_08_04_205429) do
     t.index ["user_id"], name: "index_fact_checks_on_user_id"
   end
 
+  create_table "feed_teams", force: :cascade do |t|
+    t.bigint "team_id", null: false
+    t.bigint "feed_id", null: false
+    t.jsonb "filters", default: {}
+    t.jsonb "settings", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "shared", default: false
+    t.index ["feed_id"], name: "index_feed_teams_on_feed_id"
+    t.index ["team_id", "feed_id"], name: "index_feed_teams_on_team_id_and_feed_id", unique: true
+    t.index ["team_id"], name: "index_feed_teams_on_team_id"
+  end
+
+  create_table "feeds", force: :cascade do |t|
+    t.string "name", null: false
+    t.jsonb "filters", default: {}
+    t.jsonb "settings", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "published", default: false
+  end
+
   create_table "login_activities", id: :serial, force: :cascade do |t|
     t.string "scope"
     t.string "strategy"
@@ -318,6 +340,22 @@ ActiveRecord::Schema.define(version: 2022_08_04_205429) do
     t.string "original_source_field"
     t.index ["relationship_type"], name: "index_relationships_on_relationship_type"
     t.index ["source_id", "target_id", "relationship_type"], name: "relationship_index", unique: true
+  end
+
+  create_table "requests", force: :cascade do |t|
+    t.bigint "feed_id", null: false
+    t.string "request_type", null: false
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "request_id"
+    t.integer "media_id"
+    t.integer "medias_count", default: 0, null: false
+    t.integer "requests_count", default: 0, null: false
+    t.datetime "last_submitted_at"
+    t.index ["feed_id"], name: "index_requests_on_feed_id"
+    t.index ["media_id"], name: "index_requests_on_media_id"
+    t.index ["request_id"], name: "index_requests_on_request_id"
   end
 
   create_table "saved_searches", id: :serial, force: :cascade do |t|
@@ -523,4 +561,7 @@ ActiveRecord::Schema.define(version: 2022_08_04_205429) do
   add_foreign_key "claim_descriptions", "users"
   add_foreign_key "fact_checks", "claim_descriptions"
   add_foreign_key "fact_checks", "users"
+  add_foreign_key "feed_teams", "feeds"
+  add_foreign_key "feed_teams", "teams"
+  add_foreign_key "requests", "feeds"
 end

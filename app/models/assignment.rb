@@ -139,7 +139,7 @@ class Assignment < ApplicationRecord
       # Update ES
       uids = Assignment.where(assigned_type: self.assigned_type, assigned_id: self.assigned_id).map(&:user_id)
       data = { 'assigned_user_ids' => uids, 'updated_at' => updated_at.utc }
-      self.update_elasticsearch_doc(data.keys, data, pm)
+      pm.update_elasticsearch_doc(data.keys, data, pm.id)
     end
   end
 end

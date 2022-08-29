@@ -61,8 +61,22 @@ module SmoochSearch
       self.ask_if_ready_to_submit(uid, workflow, 'ask_if_ready', language)
     end
 
-    def parse_search_results_from_alegre(results, after = nil)
-      results.sort_by{ |a| [a[1][:model] != Bot::Alegre::ELASTICSEARCH_MODEL ? 1 : 0, a[1][:score]] }.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }.select{ |pm| pm&.report_status == 'published' && pm&.updated_at.to_i > after.to_i }.uniq(&:id).first(3)
+    def filter_search_results(pms, after, feed_id, team_ids)
+      return [] if pms.empty?
+      feed_results = []
+      if feed_id && team_ids
+        filters = { feed_id: feed_id, project_media_ids: pms.map(&:id) }
+        filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) unless after.blank?
+        feed_results = CheckSearch.new(filters.to_json, nil, team_ids).medias.to_a.map(&:id)
+      end
+      pms.select do |pm|
+        (feed_id && feed_results.include?(pm&.id)) || (!feed_id && pm&.report_status == 'published' && pm&.updated_at.to_i > after.to_i)
+      end
+    end
+
+    def parse_search_results_from_alegre(results, after = nil, feed_id = nil, team_ids = nil)
+      pms = results.sort_by{ |a| [a[1][:model] != Bot::Alegre::ELASTICSEARCH_MODEL ? 1 : 0, a[1][:score]] }.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }
+      filter_search_results(pms, after, feed_id, team_ids).uniq(&:id).first(3)
     end
 
     def date_filter(team_id)
@@ -98,22 +112,22 @@ module SmoochSearch
       results
     end
 
-    def normalized_query_hash(type, query, team_ids, after)
+    def normalized_query_hash(type, query, team_ids, after, feed_id)
       normalized_query = query.downcase.chomp.strip
-      Digest::MD5.hexdigest([type.to_s, normalized_query, [team_ids].flatten.join(','), after.to_s].join(':'))
+      Digest::MD5.hexdigest([type.to_s, normalized_query, [team_ids].flatten.join(','), after.to_s, feed_id.to_i].join(':'))
     end
 
     # "type" is text, video, audio or image
     # "query" is either a piece of text of a media URL
-    def search_for_similar_published_fact_checks(type, query, team_ids, after = nil)
-      Rails.cache.fetch("smooch:search_results:#{self.normalized_query_hash(type, query, team_ids, after)}", expires_in: 2.hours) do
-        self.search_for_similar_published_fact_checks_no_cache(type, query, team_ids, after)
+    def search_for_similar_published_fact_checks(type, query, team_ids, after = nil, feed_id = nil)
+      Rails.cache.fetch("smooch:search_results:#{self.normalized_query_hash(type, query, team_ids, after, feed_id)}", expires_in: 2.hours) do
+        self.search_for_similar_published_fact_checks_no_cache(type, query, team_ids, after, feed_id)
       end
     end
 
     # "type" is text, video, audio or image
     # "query" is either a piece of text of a media URL
-    def search_for_similar_published_fact_checks_no_cache(type, query, team_ids, after = nil)
+    def search_for_similar_published_fact_checks_no_cache(type, query, team_ids, after = nil, feed_id = nil)
       results = []
       pm = nil
       pm = ProjectMedia.new(team_id: team_ids[0]) if team_ids.size == 1 # We'll use the settings of a team instead of global settings when there is only one team
@@ -122,32 +136,36 @@ module SmoochSearch
         text = ::Bot::Smooch.extract_claim(query)
         unless link.nil?
           Rails.logger.info "[Smooch Bot] Search query (URL): #{link.url}"
-          result = ProjectMedia.joins(:media).where('medias.url' => link.url, 'project_medias.team_id' => team_ids).last
-          return [result] if result&.report_status == 'published'
+          pms = ProjectMedia.joins(:media).where('medias.url' => link.url, 'project_medias.team_id' => team_ids).to_a
+          result = self.filter_search_results(pms, after, feed_id, team_ids)
+          return result unless result.empty?
           text = [link.pender_data['description'].to_s, text.to_s.gsub(link.url, '').strip].max_by(&:length)
         end
         return [] if text.blank?
         words = text.split(/\s+/)
         Rails.logger.info "[Smooch Bot] Search query (text): #{text}"
         if words.size <= self.max_number_of_words_for_keyword_search
-          results = self.search_by_keywords_for_similar_published_fact_checks(words, after, team_ids)
+          results = self.search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id)
         else
           alegre_results = Bot::Alegre.get_merged_similar_items(pm, { value: self.get_text_similarity_threshold }, Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text, team_ids)
-          results = self.parse_search_results_from_alegre(alegre_results, after)
+          results = self.parse_search_results_from_alegre(alegre_results, after, feed_id, team_ids)
           Rails.logger.info "[Smooch Bot] Text similarity search got #{results.count} results while looking for '#{text}' after date #{after.inspect} for teams #{team_ids}"
         end
       else
+        media_url = Twitter::TwitterText::Extractor.extract_urls(query)[0]
+        return [] if media_url.blank?
         threshold = Bot::Alegre.get_threshold_for_query(type, pm)[0][:value]
-        alegre_results = Bot::Alegre.get_items_with_similar_media(query, { value: threshold }, team_ids, "/#{type}/similarity/")
-        results = self.parse_search_results_from_alegre(alegre_results, after)
+        alegre_results = Bot::Alegre.get_items_with_similar_media(media_url, { value: threshold }, team_ids, "/#{type}/similarity/")
+        results = self.parse_search_results_from_alegre(alegre_results, after, feed_id, team_ids)
         Rails.logger.info "[Smooch Bot] Media similarity search got #{results.count} results while looking for '#{query}' after date #{after.inspect} for teams #{team_ids}"
       end
       results
     end
 
-    def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids)
-      filters = { keyword: words.join('+'), eslimit: 3, report_status: ['published'] }
-      filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) if after
+    def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id = nil)
+      filters = { keyword: words.join('+'), eslimit: 3 }
+      feed_id.blank? ? filters.merge!({ report_status: ['published'] }) : filters.merge!({ feed_id: feed_id })
+      filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) unless after.blank?
       results = CheckSearch.new(filters.to_json, nil, team_ids).medias
       Rails.logger.info "[Smooch Bot] Keyword search got #{results.count} results (only main items) while looking for '#{words}' after date #{after.inspect} for teams #{team_ids}"
       results = CheckSearch.new(filters.merge({ show_similar: true, fuzzy: true }).to_json, nil, team_ids).medias if results.empty?

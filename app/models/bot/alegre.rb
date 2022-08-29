@@ -160,9 +160,9 @@ class Bot::Alegre < BotUser
   end
 
   def self.set_cluster(pm, force = false)
-    team_ids = ProjectMedia.where.not(cluster_id: nil).group(:team_id).count.keys
     pm = ProjectMedia.find(pm.id)
-    return if (!pm.cluster_id.blank? || !team_ids.include?(pm.team_id)) && !force
+    return if (!pm.cluster_id.blank? || !ProjectMedia.where(team_id: pm.team_id).where.not(cluster_id: nil).exists?) && !force
+    team_ids = ProjectMedia.where.not(cluster_id: nil).group(:team_id).count.keys
     thresholds = {
       audio: { value: CheckConfig.get('audio_cluster_similarity_threshold', 0.8, :float) },
       video: { value: CheckConfig.get('video_cluster_similarity_threshold', 0.8, :float) },
@@ -204,7 +204,7 @@ class Bot::Alegre < BotUser
     if pm&.archived == CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS
       pm.update_column(:archived, CheckArchivedFlags::FlagCodes::NONE)
       sources_count = Relationship.where(target_id: pm.id).where('relationship_type = ?', Relationship.confirmed_type.to_yaml).count
-      pm.update_elasticsearch_doc(['archived', 'sources_count'], { 'archived' => CheckArchivedFlags::FlagCodes::NONE, 'sources_count' => sources_count }, pm)
+      pm.update_elasticsearch_doc(['archived', 'sources_count'], { 'archived' => CheckArchivedFlags::FlagCodes::NONE, 'sources_count' => sources_count }, pm.id)
     end
   end
 

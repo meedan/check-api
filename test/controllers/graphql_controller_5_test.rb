@@ -403,17 +403,19 @@ class GraphqlController5Test < ActionController::TestCase
 
   test "should get cluster information" do
     u = create_user is_admin: true
+    f = create_feed
     t = create_team
+    f.teams << t
     p = create_project team: t
     pm = create_project_media project: p
     c = create_cluster project_media: pm
     c.project_medias << pm
     c.project_medias << create_project_media
     authenticate_with_user(u)
-    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") {  cluster { first_item_at, last_item_at, claim_descriptions { edges { node { id } } }, items { edges { node { dbid } } } } } }'
+    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") {  cluster { first_item_at, last_item_at, claim_descriptions(feed_id: ' + f.id.to_s + ') { edges { node { id } } }, items(feed_id: ' + f.id.to_s + ') { edges { node { dbid } } } } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
-    assert_equal 2, JSON.parse(@response.body)['data']['project_media']['cluster']['items']['edges'].size
+    assert_equal 1, JSON.parse(@response.body)['data']['project_media']['cluster']['items']['edges'].size
   end
 
   test "should paginate folder items" do
@@ -478,6 +480,34 @@ class GraphqlController5Test < ActionController::TestCase
     query = 'mutation { createProjectMedia(input: { project_id: ' + p.id.to_s + ', quote: "Bar" }) { project_media { dbid } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response 429
+  end
+
+  test "should get feed" do
+    t = create_team
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+
+    f = create_feed
+    f.teams << t
+    FeedTeam.update_all(shared: true)
+
+    r1 = create_request feed: f
+    r2 = create_request feed: f
+    r2.similar_to_request = r1
+    r2.save!
+
+    query = "query { team { feed(dbid: #{f.id}) { requests(request_id: null, first: 100) { edges { node { dbid } } } } } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    response = JSON.parse(@response.body).dig('data', 'team', 'feed', 'requests', 'edges')
+    assert_equal 1, response.size
+    assert_equal r1.id, response.dig(0, 'node', 'dbid')
+
+    query = "query { team { feed(dbid: #{f.id}) { requests(request_id: #{r1.id}, first: 100) { edges { node { dbid } } } } } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    response = JSON.parse(@response.body).dig('data', 'team', 'feed', 'requests', 'edges')
+    assert_equal 2, response.size
   end
 
   protected

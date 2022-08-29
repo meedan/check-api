@@ -18,7 +18,7 @@ module CheckCachedFields
           return if self.class.skip_cached_field_update?
           value = options[:start_as].is_a?(Proc) ? options[:start_as].call(obj) : options[:start_as]
           Rails.cache.write(self.class.check_cache_key(self.class, self.id, name), value, expires_in: interval.days)
-          klass.index_and_pg_cached_field(options, value, name, obj) unless Rails.env == 'test'
+          klass.index_and_pg_cached_field(options, value, name, obj, 'create') unless Rails.env == 'test'
         end
       end
 
@@ -50,14 +50,15 @@ module CheckCachedFields
       "check_cached_field:#{klass}:#{id}:#{name}"
     end
 
-    def index_and_pg_cached_field(options, value, name, target)
+    def index_and_pg_cached_field(options, value, name, target, op)
       update_index = options[:update_es] || false
-      if update_index
+      if update_index && op == 'update'
         value = update_index.call(target, value) if update_index.is_a?(Proc)
         field_name = options[:es_field_name] || name
         es_options = { keys: [field_name], data: { field_name => value } }
-        es_options[:obj] = target if target.class.name == 'ProjectMedia'
-        ElasticSearchWorker.perform_in(1.second, YAML::dump(target), YAML::dump(es_options), 'update_doc')
+        es_options[:pm_id] = target.id if target.class.name == 'ProjectMedia'
+        model = { klass: target.class.name, id: target.id }
+        ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(es_options), 'update_doc')
       end
       update_pg = options[:update_pg] || false
       update_pg_cache_field(options, value, name, target) if update_pg
@@ -80,7 +81,7 @@ module CheckCachedFields
         value = callback == :recalculate ? recalculate.call(target) : callback.call(target, obj)
         Rails.cache.write(self.check_cache_key(self, target.id, name), value, expires_in: interval.days)
         # Update ES index and PG, if needed
-        self.index_and_pg_cached_field(options, value, name, target)
+        self.index_and_pg_cached_field(options, value, name, target, 'update')
       end
     end
   end

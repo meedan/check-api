@@ -28,5 +28,10 @@ workers 2
 worker_timeout 120
 EOF
 
-echo "Running API server with Puma at $puma and logile $LOGFILE"
-bundle exec puma -C ${puma} -t 4:32 -p 3300 -p 8000
+if [[ "$BATCH_JOB" != "true" ]]; then
+  echo "Running Puma API server at $puma with logile $LOGFILE"
+  bundle exec puma -C ${puma} -t 4:32 -p 3300 -p 8000
+else
+  echo "Completed batch job configuration. Calling batch_entrypoint."
+  bash scripts/batch-entrypoint.sh
+fi

@@ -1795,6 +1795,38 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should cache title for imported items" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      pm = ProjectMedia.create!(
+        media: Blank.create!,
+        team: t,
+        user: u,
+        channel: { main: CheckChannels::ChannelCodes::FETCH }
+      )
+      cd = ClaimDescription.new
+      cd.skip_check_ability = true
+      cd.project_media = pm
+      cd.description = '-'
+      cd.user = u
+      cd.save!
+      fc_summary = 'fc_summary'
+      fc_title = 'fc_title'
+      fc = FactCheck.new
+      fc.claim_description = cd
+      fc.title = fc_title
+      fc.summary = fc_summary
+      fc.user = u
+      fc.skip_report_update = true
+      fc.save!
+      assert_equal fc_title, pm.title
+      assert_equal fc_summary, pm.description
+    end
+  end
+
   test "should cache description" do
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media quote: 'Description 0'
@@ -2380,11 +2412,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should cache type of media" do
     RequestStore.store[:skip_cached_field_update] = false
+    setup_elasticsearch
     pm = create_project_media
     assert_queries(0, '=') { assert_equal 'Link', pm.type_of_media }
     Rails.cache.clear
     assert_queries(1, '=') { assert_equal 'Link', pm.type_of_media }
     assert_queries(0, '=') { assert_equal 'Link', pm.type_of_media }
+    sleep 1
+    es = $repository.find(get_es_id(pm))
+    assert_equal Media.types.index(pm.type_of_media), es['type_of_media']
   end
 
   test "should cache project title" do
@@ -2765,6 +2801,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should get cluster teams" do
+    RequestStore.store[:skip_cached_field_update] = false
+    setup_elasticsearch
     t1 = create_team
     t2 = create_team
     pm1 = create_project_media team: t1
@@ -2773,10 +2811,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
     c.project_medias << pm1
     assert_equal [t1.name], pm1.cluster.team_names.values
     assert_equal [t1.id], pm1.cluster.team_names.keys
+    sleep 2
+    id = get_es_id(pm1)
+    es = $repository.find(id)
+    assert_equal [t1.id], es['cluster_teams']
     pm2 = create_project_media team: t2
     c.project_medias << pm2
+    sleep 2
     assert_equal [t1.name, t2.name].sort, pm1.cluster.team_names.values.sort
     assert_equal [t1.id, t2.id].sort, pm1.cluster.team_names.keys.sort
+    es = $repository.find(id)
+    assert_equal [t1.id, t2.id], es['cluster_teams']
   end
 
   test "should cache sources list" do
@@ -2984,5 +3029,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Sidekiq::Worker.drain_all
     assert_equal 2, ProjectMedia.where(id: [pm_s.id, pm_t.id], archived: CheckArchivedFlags::FlagCodes::NONE).count
     assert_not_nil Relationship.where(id: r.id).last
+  end
+
+  test "should return cached values for feed data" do
+    pm = create_project_media
+    assert_kind_of Hash, pm.feed_columns_values
   end
 end

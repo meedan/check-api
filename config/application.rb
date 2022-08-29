@@ -39,29 +39,36 @@ module Check
     config.i18n.default_locale = 'en'
     config.i18n.enforce_available_locales = false
 
-    if cfg['locale'].blank?
+    locale = ENV['locale'] || cfg['locale']
+    if locale.blank?
       config.i18n.available_locales = ["ar","bn","fil","fr","de","hi","id","kn","ml","mr","pa","pt","ro","ru","es","sw","ta","te","ur","en"] # Do not change manually! Use `rake transifex:languages` instead, or set the `locale` key in your `config/config.yml`
     else
-      config.i18n.available_locales = [cfg['locale']].flatten
+      config.i18n.available_locales = [locale].flatten
     end
 
-    if !cfg['smtp_user'].blank? && !cfg['smtp_pass'].blank? && !Rails.env.test?
+    smtp_host = ENV['smtp_host'] || cfg['smtp_host']
+    smtp_port = ENV['smtp_port'] || cfg['smtp_port']
+    smtp_user = ENV['smtp_user'] || cfg['smtp_user']
+    smtp_pass = ENV['smtp_pass'] || cfg['smtp_pass']
+    if !smtp_user.blank? && !smtp_pass.blank? && !Rails.env.test?
       config.action_mailer.smtp_settings = {
-        address:              cfg['smtp_host'],
-        port:                 cfg['smtp_port'],
-        user_name:            cfg['smtp_user'],
-        password:             cfg['smtp_pass'],
+        address:              smtp_host,
+        port:                 smtp_port,
+        user_name:            smtp_user,
+        password:             smtp_pass,
         authentication:       'plain',
         enable_starttls_auto: true
       }
     end
 
+    allowed_origins = ENV['allowed_origins'] || cfg['allowed_origins']
+    authorization_header = ENV['authorization_header'] || cfg['authorization_header']
     config.middleware.insert_before 0, Rack::Cors do
       allow do
-        origins(/^(#{cfg['allowed_origins']}|(moz|chrome)-extension:)|file:/)
+        origins(/^(#{allowed_origins}|(moz|chrome)-extension:)|file:/)
         resource '*',
         credentials: true,
-        headers: [cfg['authorization_header'], 'Content-Type', 'Accept', 'X-Requested-With', 'Origin', 'Access-Control-Request-Method', 'Access-Control-Request-Headers', 'Credentials', 'X-Check-Client', 'X-Check-Team', 'X-API-Key', 'X-Timezone', 'Access-Control-Allow-Credentials'],
+        headers: [authorization_header, 'Content-Type', 'Accept', 'X-Requested-With', 'Origin', 'Access-Control-Request-Method', 'Access-Control-Request-Headers', 'Credentials', 'X-Check-Client', 'X-Check-Team', 'X-API-Key', 'X-Timezone', 'Access-Control-Allow-Credentials'],
         methods: [:get, :post, :put, :delete, :options]
       end
     end
@@ -71,6 +78,4 @@ module Check
       'Access-Control-Request-Method' => '*'
     })
   end
-
-
 end

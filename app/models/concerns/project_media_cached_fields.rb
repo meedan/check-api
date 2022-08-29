@@ -61,6 +61,14 @@ module ProjectMediaCachedFields
       }
     }
 
+    FACT_CHECK_EVENT = {
+      model: FactCheck,
+      affected_ids: proc { |fc| [fc.claim_description.project_media] },
+      events: {
+        save: :recalculate
+      }
+    }
+
     { linked_items_count: 'confirmed', suggestions_count: 'suggested' }.each do |field_name, type|
       cached_field field_name,
         start_as: 0,
@@ -72,7 +80,6 @@ module ProjectMediaCachedFields
     { is_suggested: Relationship.suggested_type, is_confirmed: Relationship.confirmed_type }.each do |field_name, type|
       cached_field field_name,
         start_as: false,
-        update_es: false,
         recalculate: proc { |pm| Relationship.where('relationship_type = ?', type.to_yaml).where(target_id: pm.id).exists? },
         update_on: [SIMILARITY_EVENT]
     end
@@ -161,6 +168,21 @@ module ProjectMediaCachedFields
           }
         }
       ]
+
+    cached_field :fact_check_title,
+      start_as: nil,
+      recalculate: proc { |pm| pm.claim_description&.fact_check&.title },
+      update_on: [FACT_CHECK_EVENT]
+
+    cached_field :fact_check_summary,
+      start_as: nil,
+      recalculate: proc { |pm| pm.claim_description&.fact_check&.summary },
+      update_on: [FACT_CHECK_EVENT]
+
+    cached_field :fact_check_url,
+      start_as: nil,
+      recalculate: proc { |pm| pm.claim_description&.fact_check&.url },
+      update_on: [FACT_CHECK_EVENT]
 
     cached_field :description,
       recalculate: proc { |pm| pm.get_description },
@@ -325,13 +347,11 @@ module ProjectMediaCachedFields
 
     cached_field :type_of_media,
       start_as: proc { |pm| pm.media.type },
-      update_es: proc { |_pm, value| Media.types.index(value) },
       recalculate: proc { |pm| pm.media.type },
       update_on: [] # Should never change
 
     cached_field :added_as_similar_by_name,
       start_as: nil,
-      update_es: false,
       recalculate: proc { |pm|
         user = Relationship.confirmed.where(target_id: pm.id).last&.user
         user && user == BotUser.alegre_user ? 'Check' : user&.name
@@ -349,7 +369,6 @@ module ProjectMediaCachedFields
 
     cached_field :confirmed_as_similar_by_name,
       start_as: nil,
-      update_es: false,
       recalculate: proc { |pm|
         r = Relationship.confirmed.where(target_id: pm.id).last
         r.nil? ? nil : User.find_by_id(r.confirmed_by.to_i)&.name
@@ -411,13 +430,11 @@ module ProjectMediaCachedFields
 
     cached_field :picture,
       start_as: proc { |pm| pm.lead_image },
-      update_es: false,
       recalculate: proc { |pm| pm.lead_image },
       update_on: [] # Never changes
 
     cached_field :team_name,
       start_as: proc { |pm| pm.team.name },
-      update_es: false,
       recalculate: proc { |pm| pm.team.name },
       update_on: [] # Never changes
 

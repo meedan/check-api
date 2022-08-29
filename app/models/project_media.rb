@@ -225,7 +225,7 @@ class ProjectMedia < ApplicationRecord
     relationships = Relationship.where(source_id: project_media_id)
     targets = relationships.map(&:target)
     relationships.destroy_all
-    targets.map(&:destroy)
+    targets.reject(&:nil?).map(&:destroy)
     user = User.where(id: user_id).last
     previous_user = User.current
     Relationship.where(target_id: project_media_id).each do |r|
@@ -327,6 +327,23 @@ class ProjectMedia < ApplicationRecord
     values
   end
 
+  def feed_columns_values
+    values = {}
+    columns = [
+      'fact_check_title',
+      'fact_check_summary',
+      'fact_check_url',
+      'tags_as_sentence',
+      'team_name',
+      'updated_at_timestamp',
+      'status'
+    ]
+    columns.each do |column|
+      values[column] = self.send(column)
+    end
+    values
+  end
+
   def remove_related_team_tasks_bg(pid)
     # Get team tasks that assigned to target list (pid)
     tasks = TeamTask.where("project_ids like ?", "% #{pid}\n%")
@@ -415,12 +432,20 @@ class ProjectMedia < ApplicationRecord
     ms.attributes[:verification_status] = self.last_status
     ms.attributes[:channel] = self.channel.values.flatten.map(&:to_i)
     ms.attributes[:language] = self.get_dynamic_annotation('language')&.get_field_value('language')
-    # set fields with integer value
+    # set fields with integer value including cached fields
     fields_i = [
       'archived', 'sources_count', 'linked_items_count', 'share_count',
-      'last_seen', 'demand', 'user_id', 'read'
+      'last_seen', 'demand', 'user_id', 'read', 'suggestions_count',
+      'related_count', 'reaction_count', 'comment_count', 'media_published_at'
     ]
     fields_i.each{ |f| ms.attributes[f] = self.send(f).to_i }
+    # add more cached fields
+    ms.attributes[:creator_name] = self.creator_name
+    ms.attributes[:tags_as_sentence] = self.tags_as_sentence.split(', ').size
+    ms.attributes[:report_status] = ['unpublished', 'paused', 'published'].index(self.report_status)
+    ms.attributes[:published_by] = self.published_by.keys.first || 0
+    ms.attributes[:type_of_media] = Media.types.index(self.type_of_media)
+    ms.attributes[:status_index] = self.status_ids.index(self.status)
   end
 
   # private
