@@ -235,4 +235,15 @@ class Bot::FetchTest < ActiveSupport::TestCase
     end
     Bot::Fetch::Import.unstub(:already_imported?)
   end
+
+  test "should import tags" do
+    id = random_string
+    cr = @claim_review.deep_dup
+    cr['identifier'] = id
+    cr['keywords'] = 'foo , bar,  foo bar '
+
+    assert_difference "Tag.where(annotation_type: 'tag').count", 3 do
+      Bot::Fetch::Import.import_claim_review(cr, @team.id, @bot.id, 'undetermined', {}, false)
+    end
+  end
 end
