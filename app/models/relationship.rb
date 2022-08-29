@@ -159,7 +159,7 @@ class Relationship < ApplicationRecord
       parent_id = action == 'destroy' ? self.target_id : self.source_id
       data['parent_id'] = parent_id
     end
-    self.update_elasticsearch_doc(data.keys, data, target)
+    self.update_elasticsearch_doc(data.keys, data, target.id)
   end
 
   private

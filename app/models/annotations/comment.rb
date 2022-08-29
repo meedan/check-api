@@ -98,11 +98,11 @@ class Comment < ApplicationRecord
   def add_update_elasticsearch_comment(op)
     # add item/task notes
     if self.annotated_type == 'ProjectMedia'
-      add_update_nested_obj({op: op, nested_key: 'comments', keys: ['text']})
+      add_update_nested_obj({ op: op, nested_key: 'comments', keys: ['text'], pm_id: self.annotated_id })
     end
   end
 
   def destroy_elasticsearch_comment
-    destroy_es_items('comments') if self.annotated_type == 'ProjectMedia'
+    destroy_es_items('comments', 'destroy_doc_nested', self.annotated_id) if self.annotated_type == 'ProjectMedia'
   end
 end

@@ -43,9 +43,10 @@ class Cluster < ApplicationRecord
     options = {
       keys: ['cluster_published_reports_count'],
       data: { 'cluster_published_reports_count' => data.size },
-      obj: pm
+      pm_id: pm.id
     }
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(pm), YAML::dump(options), 'update_doc')
+    model = { klass: pm.class.name, id: pm.id }
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
     data
   end
 
@@ -55,8 +56,6 @@ class Cluster < ApplicationRecord
 
   cached_field :team_names,
     start_as: proc { |c| c.get_team_names },
-    update_es: proc { |_c, value| value.keys },
-    es_field_name: :cluster_teams,
     recalculate: proc { |c| c.get_team_names },
     update_on: [] # Handled by an "after_add" callback above
 
@@ -122,8 +121,9 @@ class Cluster < ApplicationRecord
       'cluster_requests_count' => self.requests_count,
       'cluster_teams' => self.team_names.keys,
     }
-    options = { keys: data.keys, data: data, obj: pm }
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(pm), YAML::dump(options), 'update_doc')
+    options = { keys: data.keys, data: data, pm_id: pm.id }
+    model = { klass: pm.class.name, id: pm.id }
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
   end
 
   def update_elasticsearch
@@ -131,7 +131,8 @@ class Cluster < ApplicationRecord
     pm = self.project_media
     data = {}
     keys.each { |k| data[k] = 0 }
-    options = { keys: keys, data: data, obj: pm }
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(pm), YAML::dump(options), 'update_doc')
+    options = { keys: keys, data: data, pm_id: pm.id }
+    model = { klass: pm.class.name, id: pm.id }
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
   end
 end
