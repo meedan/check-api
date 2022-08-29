@@ -85,13 +85,17 @@ class FeedsControllerTest < ActionController::TestCase
   end
 
   test "should save request query" do
+    Bot::Alegre.stubs(:request_api).returns({})
     Sidekiq::Testing.inline!
     authenticate_with_token @a
     assert_difference 'Request.count' do
-      get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
+      assert_difference 'Media.count' do
+        get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
+      end
     end
     assert_response :success
     assert_equal 2, json_response['data'].size
     assert_equal 2, json_response['meta']['record-count']
+    Bot::Alegre.unstub(:request_api)
   end
 end
