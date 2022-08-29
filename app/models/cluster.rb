@@ -56,8 +56,6 @@ class Cluster < ApplicationRecord
 
   cached_field :team_names,
     start_as: proc { |c| c.get_team_names },
-    update_es: proc { |_c, value| value.keys },
-    es_field_name: :cluster_teams,
     recalculate: proc { |c| c.get_team_names },
     update_on: [] # Handled by an "after_add" callback above
 

@@ -347,7 +347,6 @@ module ProjectMediaCachedFields
 
     cached_field :type_of_media,
       start_as: proc { |pm| pm.media.type },
-      update_es: proc { |_pm, value| Media.types.index(value) },
       recalculate: proc { |pm| pm.media.type },
       update_on: [] # Should never change
 
