@@ -39,7 +39,7 @@ module ClaimAndFactCheck
     text_fields = self.text_fields
     text_fields << 'updated_at'
     values['updated_at'] = updated_at.utc
-    self.update_elasticsearch_doc(text_fields, values, pm)
+    self.update_elasticsearch_doc(text_fields, values, pm.id)
   end
 
   def send_to_alegre
