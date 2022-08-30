@@ -42,11 +42,6 @@ class TeamTaskTest < ActiveSupport::TestCase
     assert_kind_of Array, tt.options
   end
 
-  test "should serialize project ids as array" do
-    tt = create_team_task
-    assert_kind_of Array, tt.project_ids
-  end
-
   test "should set options as JSON" do
     tt = create_team_task
     tt.json_options = [{ label: 'Foo' }].to_json
