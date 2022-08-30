@@ -246,7 +246,7 @@ class RelationshipTest < ActiveSupport::TestCase
   test "should not crash if can't delete from ElasticSearch" do
     r = create_relationship
     assert_nothing_raised do
-      r.destroy_elasticsearch_doc({})
+      Relationship.destroy_elasticsearch_doc({})
     end
   end
 

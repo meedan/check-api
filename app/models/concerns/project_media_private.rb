@@ -39,10 +39,17 @@ module ProjectMediaPrivate
     a.skip_check_ability = true
     a.account_sources.each { |as| as.skip_check_ability = true }
     # Remove old account from ES
-    a.destroy_es_items('accounts', 'destroy_doc_nested', self)
+    a.destroy_es_items('accounts', 'destroy_doc_nested', self.id)
     a.destroy if a.medias.count == 0
     # update es
-    self.add_update_nested_obj({ op: 'create', nested_key: 'accounts', keys: %w(id title description username), data: self.set_es_account_data.first , obj: self})
+    options = {
+      op: 'create',
+      nested_key: 'accounts',
+      keys: %w(id title description username),
+      data: self.set_es_account_data.first,
+      pm_id: self.id
+    }
+    self.add_update_nested_obj(options)
   end
 
   def archive_or_restore_related_medias_if_needed
