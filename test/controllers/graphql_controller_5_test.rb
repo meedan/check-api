@@ -482,6 +482,34 @@ class GraphqlController5Test < ActionController::TestCase
     assert_response 429
   end
 
+  test "should get feed" do
+    t = create_team
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+
+    f = create_feed
+    f.teams << t
+    FeedTeam.update_all(shared: true)
+
+    r1 = create_request feed: f
+    r2 = create_request feed: f
+    r2.similar_to_request = r1
+    r2.save!
+
+    query = "query { team { feed(dbid: #{f.id}) { requests(request_id: null, first: 100) { edges { node { dbid } } } } } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    response = JSON.parse(@response.body).dig('data', 'team', 'feed', 'requests', 'edges')
+    assert_equal 1, response.size
+    assert_equal r1.id, response.dig(0, 'node', 'dbid')
+
+    query = "query { team { feed(dbid: #{f.id}) { requests(request_id: #{r1.id}, first: 100) { edges { node { dbid } } } } } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    response = JSON.parse(@response.body).dig('data', 'team', 'feed', 'requests', 'edges')
+    assert_equal 2, response.size
+  end
+
   protected
 
   def assert_error_message(expected)

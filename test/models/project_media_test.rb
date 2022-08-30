@@ -2272,11 +2272,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should cache type of media" do
     RequestStore.store[:skip_cached_field_update] = false
+    setup_elasticsearch
     pm = create_project_media
     assert_queries(0, '=') { assert_equal 'Link', pm.type_of_media }
     Rails.cache.clear
     assert_queries(1, '=') { assert_equal 'Link', pm.type_of_media }
     assert_queries(0, '=') { assert_equal 'Link', pm.type_of_media }
+    sleep 1
+    es = $repository.find(get_es_id(pm))
+    assert_equal Media.types.index(pm.type_of_media), es['type_of_media']
   end
 
   test "should cache project title" do
@@ -2657,6 +2661,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should get cluster teams" do
+    RequestStore.store[:skip_cached_field_update] = false
+    setup_elasticsearch
     t1 = create_team
     t2 = create_team
     pm1 = create_project_media team: t1
@@ -2665,10 +2671,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
     c.project_medias << pm1
     assert_equal [t1.name], pm1.cluster.team_names.values
     assert_equal [t1.id], pm1.cluster.team_names.keys
+    sleep 2
+    id = get_es_id(pm1)
+    es = $repository.find(id)
+    assert_equal [t1.id], es['cluster_teams']
     pm2 = create_project_media team: t2
     c.project_medias << pm2
+    sleep 2
     assert_equal [t1.name, t2.name].sort, pm1.cluster.team_names.values.sort
     assert_equal [t1.id, t2.id].sort, pm1.cluster.team_names.keys.sort
+    es = $repository.find(id)
+    assert_equal [t1.id, t2.id], es['cluster_teams']
   end
 
   test "should cache sources list" do

@@ -83,8 +83,9 @@ module ProjectAssociation
 
     def add_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-      options = { obj: self }
-      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'create_doc')
+      options = { pm_id: self.id }
+      model = { klass: self.class.name, id: self.id }
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'create_doc')
     end
 
     def update_elasticsearch_data
@@ -103,12 +104,13 @@ module ProjectAssociation
         'channel' => obj.channel.values.flatten.map(&:to_i),
         'updated_at' => obj.updated_at.utc
       }
-      options = { keys: data.keys, data: data, obj: obj }
-      ElasticSearchWorker.perform_in(1.second, YAML::dump(obj), YAML::dump(options), 'update_doc')
+      options = { keys: data.keys, data: data, pm_id: obj.id }
+      model = { klass: obj.class.name, id: obj.id }
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
     end
 
     def destroy_elasticsearch_media
-      destroy_es_items(MediaSearch, 'destroy_doc')
+      destroy_es_items(MediaSearch, 'destroy_doc', self.id)
     end
 
     def is_being_copied

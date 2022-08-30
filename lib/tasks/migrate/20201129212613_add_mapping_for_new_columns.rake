@@ -16,7 +16,7 @@ namespace :check do
         es_body = []
         pms.each do |pm|
           begin
-            doc_id = pm.get_es_doc_id(pm)
+            doc_id = pm.get_es_doc_id(pm.id)
             report_status = pm.report_status
             media_published_at = pm.media_published_at
             tags_as_sentence = pm.tags_as_sentence
