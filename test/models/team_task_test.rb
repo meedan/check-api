@@ -54,13 +54,6 @@ class TeamTaskTest < ActiveSupport::TestCase
     assert_equal([{ 'label' => 'Foo' }], tt.reload.options)
   end
 
-  test "should set project ids as JSON" do
-    tt = create_team_task
-    tt.json_project_ids = [1, 2].to_json
-    tt.save!
-    assert_equal [1, 2].sort, tt.reload.project_ids
-  end
-
   test "should belong to team" do
     t = create_team
     tt = create_team_task team_id: t.id
@@ -300,6 +293,7 @@ class TeamTaskTest < ActiveSupport::TestCase
   end
 
   test "should update single_choice task with answers" do
+    setup_elasticsearch
     create_task_stuff
     t =  create_team
     Team.stubs(:current).returns(t)
@@ -324,11 +318,20 @@ class TeamTaskTest < ActiveSupport::TestCase
       assert_equal([{ 'label' => 'Food' }, { 'label'  => 'Feed' }, { 'label'  => 'Faad' }], tt.reload.options)
       assert_nil Dynamic.where(id: r_id).last
       assert_equal pm2_tt.reload.first_response, 'Faad'
+      sleep 1
+      result = $repository.find(get_es_id(pm))['task_responses']
+      pm_sc = result.select{|r| r['team_task_id'] == tt.id}.first
+      assert_not pm_sc.keys.include?('value')
+      result = $repository.find(get_es_id(pm2))['task_responses']
+      pm2_sc = result.select{|r| r['team_task_id'] == tt.id}.first
+      assert pm2_sc.keys.include?('value')
+      assert_equal ['Faad'], pm2_sc['value']
     end
     Team.unstub(:current)
   end
 
   test "should update multiple_choice task with answers" do
+    setup_elasticsearch
     create_task_stuff
     t =  create_team
     Team.stubs(:current).returns(t)
@@ -376,6 +379,36 @@ class TeamTaskTest < ActiveSupport::TestCase
       assert_equal 'Option 1, Hello', pm5_tt.reload.first_response
       assert_equal 'Hello', pm6_tt.reload.first_response
       assert_equal 'Option C', pm7_tt.reload.first_response
+      sleep 1
+      # Verify ES data
+      result = $repository.find(get_es_id(pm))['task_responses']
+      pm_mc = result.select{|r| r['team_task_id'] == tt.id}.first
+      assert_not pm_mc.keys.include?('value')
+
+      result = $repository.find(get_es_id(pm2))['task_responses']
+      mc = result.select{|r| r['team_task_id'] == tt.id}.first
+      assert_equal ['Option 1'], mc['value']
+
+      result = $repository.find(get_es_id(pm3))['task_responses']
+      mc = result.select{|r| r['team_task_id'] == tt.id}.first
+      assert_equal ['Option 1'], mc['value']
+
+      result = $repository.find(get_es_id(pm4))['task_responses']
+      mc = result.select{|r| r['team_task_id'] == tt.id}.first
+      assert_equal ['Hello'], mc['value']
+
+      result = $repository.find(get_es_id(pm5))['task_responses']
+      mc = result.select{|r| r['team_task_id'] == tt.id}.first
+      assert_equal ['Option 1', 'Hello'].sort, mc['value'].sort
+
+      result = $repository.find(get_es_id(pm6))['task_responses']
+      mc = result.select{|r| r['team_task_id'] == tt.id}.first
+      assert_equal ['Hello'], mc['value']
+
+      result = $repository.find(get_es_id(pm7))['task_responses']
+      mc = result.select{|r| r['team_task_id'] == tt.id}.first
+      assert_equal ['Option C'], mc['value']
+
       # delete Other
       # tt.json_options = [{ label: 'Option 1' }, { label: 'Option 2' }, { label: 'Option 3' }, { label: 'Option C' }].to_json
       # tt.options_diff = { deleted: [], changed: {}, added: [], delete_other: true }
@@ -497,13 +530,17 @@ class TeamTaskTest < ActiveSupport::TestCase
     tt = create_team_task team_id: t.id
     # Project Media error
     ProjectMedia.any_instance.stubs(:create_auto_tasks).raises(StandardError)
-    tt.send(:add_to_project_medias)
+    assert_raises StandardError do
+      tt.add_to_project_medias
+    end
     ProjectMedia.any_instance.unstub(:create_auto_tasks)
     # Source error
     tt2 = create_team_task team_id: t.id, fieldset: 'metadata', associated_type: 'Source'
     create_source team: t
     Source.any_instance.stubs(:create_auto_tasks).raises(StandardError)
-    tt2.add_teamwide_tasks_bg
+    assert_raises StandardError do
+      tt2.add_to_sources
+    end
     Source.any_instance.unstub(:create_auto_tasks)
   end
 

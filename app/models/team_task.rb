@@ -11,7 +11,6 @@ class TeamTask < ApplicationRecord
   validate :can_change_task_type, on: :update
 
   serialize :options, Array
-  serialize :project_ids, Array
   serialize :mapping
 
   belongs_to :team, optional: true
@@ -23,25 +22,12 @@ class TeamTask < ApplicationRecord
 
   def as_json(_options = {})
     super.merge({
-      projects: self.project_ids,
       type: self.task_type
     }).with_indifferent_access
   end
 
   def json_options=(json)
     self.options = JSON.parse(json) unless json.blank?
-  end
-
-  def json_project_ids=(json)
-    self.project_ids = JSON.parse(json) unless json.blank?
-  end
-
-  def projects=(ids)
-    self.project_ids = ids
-  end
-
-  def projects
-    self.project_ids
   end
 
   def type
@@ -201,16 +187,11 @@ class TeamTask < ApplicationRecord
       Dynamic.where(id: response_ids).update_all(updated_at: Time.now)
       # Update ES
       keys = %w(id team_task_id value field_type fieldset date_value numeric_value)
-      r_tasks = Task.where(id: responses.map(&:annotated_id))
-      t_pm = {}
       # Add mapping for tasks and it's ProjectMedia
-      r_tasks.find_each{ |r| t_pm[r.id] = r.annotated_id }
-      # collect related ProjectMedia records
-      pm_mapping = {}
-      ProjectMedia.where(id: r_tasks.map(&:annotated_id)).find_each{ |pm| pm_mapping[pm.id] = pm }
+      t_pm = {}
+      Task.where(id: responses.map(&:annotated_id)).find_each{ |r| t_pm[r.id] = r.annotated_id }
       Dynamic.where(id: response_ids).find_each do |response|
-        obj = pm_mapping[r_tasks[response.annotation_id.to_i]]
-        response.add_update_nested_obj({op: 'update', obj: obj, nested_key: 'task_responses', keys: keys})
+        response.add_update_nested_obj({op: 'update', pm_id: t_pm[response.annotated_id.to_i], nested_key: 'task_responses', keys: keys})
       end
     end
   end
