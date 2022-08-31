@@ -252,8 +252,10 @@ class Bot::Alegre < BotUser
     setting_type = 'threshold'
     if media_type == 'text' && !pm.nil?
       model = self.matching_model_to_use(pm.team_id)
-      similarity_methods << 'vector' if model != Bot::Alegre::ELASTICSEARCH_MODEL
-      models << model
+      if model != Bot::Alegre::ELASTICSEARCH_MODEL
+        similarity_methods << 'vector'
+        models << model
+      end
     end
     similarity_methods.zip(models).collect do |similarity_method, model|
       key = "#{media_type}_#{similarity_method}_#{similarity_level}_#{setting_type}"
