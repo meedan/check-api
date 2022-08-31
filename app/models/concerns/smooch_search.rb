@@ -154,7 +154,7 @@ module SmoochSearch
       else
         media_url = Twitter::TwitterText::Extractor.extract_urls(query)[0]
         return [] if media_url.blank?
-        threshold = Bot::Alegre.get_threshold_for_query(type, pm)[:value]
+        threshold = Bot::Alegre.get_threshold_for_query(type, pm)[0][:value]
         alegre_results = Bot::Alegre.get_items_with_similar_media(media_url, { value: threshold }, team_ids, "/#{type}/similarity/")
         results = self.parse_search_results_from_alegre(alegre_results, after, feed_id, team_ids)
         Rails.logger.info "[Smooch Bot] Media similarity search got #{results.count} results while looking for '#{query}' after date #{after.inspect} for teams #{team_ids}"
