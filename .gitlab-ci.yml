@@ -50,6 +50,12 @@ deploy_qa:
     - taskArn=$(aws ecs run-task --cluster ecs-qa --task-definition qa-check-api-migration --query 'tasks[].taskArn' --output text)
     - echo "Migration task started - $taskArn"
     - aws ecs wait tasks-stopped --cluster ecs-qa --tasks $taskArn
+    - for NAME in `cat env.qa.names|grep -v database_config`; do echo -n "-s qa-check-api-migration $NAME /qa/check-api/$NAME " >> qa-check-api-sanitized-migration.env.args; done
+    - echo -n "-s qa-check-api-migration GITHUB_TOKEN arn:aws:secretsmanager:eu-west-1:848416313321:secret:GithubToken-Plain-BUhwIw" >> qa-check-api-sanitized-migration.env.args
+    - ecs update qa-check-api-migration --image qa-check-api-migration $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA --exclusive-env -e qa-check-api-migration APP check-api -e qa-check-api-migration DEPLOY_ENV qa -e qa-check-api-migration AWS_REGION $AWS_DEFAULT_REGION --exclusive-secrets `cat qa-check-api-sanitized-migration.env.args` -s qa-check-api-migration database_config /qa/check-api-migration/database_config
+    - taskArn=$(aws ecs run-task --cluster ecs-qa --task-definition qa-check-api-migration --query 'tasks[].taskArn' --output text)
+    - echo "Sanitized migration task started - $taskArn"
+    - aws ecs wait tasks-stopped --cluster ecs-qa --tasks $taskArn
     - for NAME in `cat env.qa.names`; do echo -n "-s qa-check-api-c $NAME /qa/check-api/$NAME " >> qa-check-api-c.env.args; done
     - echo -n "-s qa-check-api-c GITHUB_TOKEN arn:aws:secretsmanager:eu-west-1:848416313321:secret:GithubToken-Plain-BUhwIw" >> qa-check-api-c.env.args
     - ecs deploy ecs-qa qa-check-api --image qa-check-api-c $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA  --timeout 3600 --exclusive-env -e qa-check-api-c APP check-api -e qa-check-api-c DEPLOY_ENV qa -e qa-check-api-c AWS_REGION $AWS_DEFAULT_REGION --exclusive-secrets `cat qa-check-api-c.env.args`
