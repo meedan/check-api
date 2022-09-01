@@ -184,4 +184,19 @@ class RequestTest < ActiveSupport::TestCase
     assert_equal 4, r1.reload.requests_count
     Bot::Alegre.unstub(:request_api)
   end
+
+  test "should return medias" do
+    Bot::Alegre.stubs(:request_api).returns({})
+    create_request
+    create_uploaded_image
+    m1 = create_uploaded_image
+    r1 = create_request media: m1
+    m2 = create_uploaded_image
+    r2 = create_request media: m2
+    r2.similar_to_request = r1 ; r2.save!
+    r3 = create_request media: m2
+    r3.similar_to_request = r1 ; r3.save!
+    assert_equal [m1, m2].map(&:id).sort, r1.reload.medias.map(&:id).sort
+    Bot::Alegre.unstub(:request_api)
+  end
 end

@@ -34,6 +34,10 @@ class Request < ApplicationRecord
     end
   end
 
+  def medias
+    Media.distinct.joins(:requests).where('requests.request_id = ? OR medias.id = ?', self.id, self.media_id)
+  end
+
   def self.get_media_from_query(type, query)
     media = nil
     url = Twitter::TwitterText::Extractor.extract_urls(query)[0]
