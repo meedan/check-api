@@ -8,6 +8,7 @@ class Media < ApplicationRecord
   belongs_to :account, optional: true
   belongs_to :user, optional: true
   has_many :project_medias, dependent: :destroy
+  has_many :requests, dependent: :destroy
   has_annotations
 
   before_validation :set_type, :set_url_nil_if_empty, :set_user, on: :create

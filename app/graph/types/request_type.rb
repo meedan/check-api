@@ -5,7 +5,7 @@ RequestType = GraphqlCrudOperations.define_default_type do
   interfaces [NodeIdentification.interface]
 
   field :dbid, types.Int
-  field :last_submitted, types.String
+  field :last_submitted_at, types.String
   field :request_type, types.String
   field :content, types.String
   field :medias_count, types.Int
