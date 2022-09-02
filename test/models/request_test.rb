@@ -161,6 +161,19 @@ class RequestTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:request_api)
   end
 
+  test "should attach to similar link" do
+    Bot::Alegre.stubs(:request_api).returns(true)
+    f = create_feed
+    m = create_valid_media
+    create_request request_type: 'text', media: m
+    create_request request_type: 'text', feed: f
+    r1 = create_request request_type: 'text', media: m, feed: f
+    r2 = create_request request_type: 'text', media: m, feed: f
+    r2.attach_to_similar_request!
+    assert_equal r1, r2.reload.similar_to_request
+    assert_equal [r2], r1.reload.similar_requests
+  end
+
   test "should set fields" do
     r = create_request
     assert_not_nil r.reload.last_submitted_at
