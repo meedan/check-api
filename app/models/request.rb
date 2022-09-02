@@ -26,6 +26,8 @@ class Request < ApplicationRecord
     elsif ['UploadedImage', 'UploadedAudio', 'UploadedVideo'].include?(media.type)
       type = media.type.gsub(/^Uploaded/, '').downcase
       similar_request_id = ::Bot::Alegre.request_api('get', "/#{type}/similarity/", { url: media.file.file.public_url, threshold: threshold, context: context }).dig('result', 0, 'context', 0, 'request_id')
+    elsif media.type == 'Link'
+      similar_request_id = Request.where(media_id: media.id, feed_id: self.feed_id).order('id ASC').first
     end
     unless similar_request_id.blank?
       similar_request = Request.where(id: similar_request_id, feed_id: self.feed_id).last
