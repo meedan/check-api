@@ -17,7 +17,7 @@ namespace :check do
         puts "Processing team [#{team.slug}]"
         team.project_medias.where(archived: CheckArchivedFlags::FlagCodes::TRASHED)
         .where('updated_at <= ?', deleted_date)
-        .find_in_batches(:batch_size => 2500) do |pms|
+        .find_in_batches(:batch_size => 1225) do |pms|
           deleted_ids = pms.map(&:id)
           pms.each do |pm|
             print '.'
@@ -26,6 +26,7 @@ namespace :check do
           query = { terms: { annotated_id: deleted_ids } }
           options[:body] = { query: query }
           client.delete_by_query options
+          sleep 10
         end
         # log last team id
         Rails.cache.write('check:migrate:delete_trashed_items:team_id', team.id)
@@ -50,7 +51,7 @@ namespace :check do
       Team.where('id > ?', last_team_id).find_each do |team|
         puts "Processing team [#{team.slug}]"
         team.project_medias.where(archived: CheckArchivedFlags::FlagCodes::SPAM, sources_count: 0)
-        .find_in_batches(:batch_size => 2500) do |pms|
+        .find_in_batches(:batch_size => 1225) do |pms|
           ids = pms.map(&:id)
           # Get confirmed items
           target_ids = Relationship.confirmed.where(source_id: ids).map(&:target_id)
@@ -63,6 +64,7 @@ namespace :check do
           query = { terms: { annotated_id: deleted_ids } }
           options[:body] = { query: query }
           client.delete_by_query options
+          sleep 10
         end
         # log last team id
         Rails.cache.write('check:migrate:delete_spam_items:team_id', team.id)
