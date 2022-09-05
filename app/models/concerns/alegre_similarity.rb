@@ -237,10 +237,11 @@ module AlegreSimilarity
     end
 
     def get_threshold_hash_from_threshold(threshold)
+      threshold ||= []
       if threshold.length == 1
-        {threshold: threshold[0][:value]}
+        { threshold: threshold[0]&.dig(:value) }
       else
-        {per_model_threshold: Hash[threshold.collect{|t| [t[:model], t[:value]]}]}
+        { per_model_threshold: Hash[threshold.collect{|t| [t[:model], t[:value]]}] }
       end
     end
 
