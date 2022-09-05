@@ -162,6 +162,7 @@ module SmoochSearch
 
     def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id = nil)
       filters = { keyword: words.join('+'), eslimit: 3 }
+      filters.merge!({ sort: 'score' }) if words.size > 1 # We still want to be able to return the latest fact-checks if a meaninful query is not passed
       feed_id.blank? ? filters.merge!({ report_status: ['published'] }) : filters.merge!({ feed_id: feed_id })
       filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) unless after.blank?
       results = CheckSearch.new(filters.to_json, nil, team_ids).medias
