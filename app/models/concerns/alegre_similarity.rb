@@ -236,15 +236,23 @@ module AlegreSimilarity
       self.get_items_from_similar_text(team_ids, text, field, threshold, models).reject{ |id, _score_with_context| pm&.id == id }
     end
 
+    def get_threshold_hash_from_threshold(threshold)
+      threshold ||= []
+      if threshold.length == 1
+        { threshold: threshold[0]&.dig(:value) }
+      else
+        { per_model_threshold: Hash[threshold.collect{|t| [t[:model], t[:value]]}] }
+      end
+    end
+
     def similar_texts_from_api_conditions(text, models, fuzzy, team_id, field, threshold, match_across_content_types=true)
       {
         text: text,
         models: [models].flatten.empty? ? nil : [models].flatten.uniq,
         fuzzy: fuzzy == 'true' || fuzzy.to_i == 1,
         context: self.build_context(team_id, field),
-        threshold: threshold[:value],
         match_across_content_types: match_across_content_types,
-      }
+      }.merge(self.get_threshold_hash_from_threshold(threshold))
     end
 
     def get_items_with_similar_media(media_url, threshold, team_id, path, query_or_body = 'body')
@@ -264,9 +272,8 @@ module AlegreSimilarity
       {
         url: media_url,
         context: self.build_context(team_id),
-        threshold: threshold[:value],
         match_across_content_types: match_across_content_types,
-      }
+      }.merge(self.get_threshold_hash_from_threshold(threshold))
     end
   end
 end

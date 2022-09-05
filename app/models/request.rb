@@ -22,16 +22,24 @@ class Request < ApplicationRecord
     context = { feed_id: self.feed_id }
     threshold = self.similarity_threshold
     if media.type == 'Claim' && ::Bot::Alegre.get_number_of_words(media.quote) > 3
-      similar_request_id = ::Bot::Alegre.request_api('get', '/text/similarity/', { text: media.quote, threshold: threshold, context: context }).dig('result', 0, '_source', 'context', 'request_id')
+      params = { text: media.quote, threshold: threshold, context: context }
+      similar_request_id = ::Bot::Alegre.request_api('get', '/text/similarity/', params).dig('result').to_a.collect{ |result| result.dig('_source', 'context', 'request_id').to_i }.find{ |id| id != 0 && id != self.id }
     elsif ['UploadedImage', 'UploadedAudio', 'UploadedVideo'].include?(media.type)
       type = media.type.gsub(/^Uploaded/, '').downcase
-      similar_request_id = ::Bot::Alegre.request_api('get', "/#{type}/similarity/", { url: media.file.file.public_url, threshold: threshold, context: context }).dig('result', 0, 'context', 0, 'request_id')
+      params = { url: media.file.file.public_url, threshold: threshold, context: context }
+      similar_request_id = ::Bot::Alegre.request_api('get', "/#{type}/similarity/", params).dig('result').to_a.collect{ |result| result.dig('context').to_a.collect{ |c| c['request_id'].to_i } }.flatten.find{ |id| id != 0 && id != self.id }
+    elsif media.type == 'Link'
+      similar_request_id = Request.where(media_id: media.id, feed_id: self.feed_id).where.not(id: self.id).order('id ASC').first
     end
     unless similar_request_id.blank?
       similar_request = Request.where(id: similar_request_id, feed_id: self.feed_id).last
       self.similar_to_request = similar_request&.similar_to_request || similar_request
       self.save!
     end
+  end
+
+  def medias
+    Media.distinct.joins(:requests).where('requests.request_id = ? OR medias.id = ?', self.id, self.media_id)
   end
 
   def self.get_media_from_query(type, query)

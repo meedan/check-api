@@ -57,7 +57,7 @@ module Api
         ids = nil
         unless text.blank?
           fields = filters[:similarity_fields].blank? ? nil : filters[:similarity_fields].to_a.flatten
-          ids_and_scores = Bot::Alegre.get_similar_texts(organization_ids, text[0], fields, { value: threshold }, nil, filters.dig(:fuzzy, 0))
+          ids_and_scores = Bot::Alegre.get_similar_texts(organization_ids, text[0], fields, [{ value: threshold }], nil, filters.dig(:fuzzy, 0))
           RequestStore.store[:scores] = ids_and_scores # Store the scores so we can return them
           ids = ids_and_scores.keys.uniq
           ids = [0] if ids.blank?
@@ -100,7 +100,7 @@ module Api
         unless media.blank?
           media[0].rewind
           CheckS3.write(media_path, media[0].content_type.gsub(/^video/, 'application'), media[0].read)
-          ids_and_scores = Bot::Alegre.get_items_with_similar_media(CheckS3.public_url(media_path), { value: threshold }, organization_ids, "/#{media_type}/similarity/")
+          ids_and_scores = Bot::Alegre.get_items_with_similar_media(CheckS3.public_url(media_path), [{ value: threshold }], organization_ids, "/#{media_type}/similarity/")
           RequestStore.store[:scores] = ids_and_scores # Store the scores so we can return them
           ids = ids_and_scores.keys.uniq || [0]
           CheckS3.delete(media_path)

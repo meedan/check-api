@@ -179,7 +179,7 @@ QueryType = GraphQL::ObjectType.define do
 
   # Getters by ID
 
-  [:source, :user, :task, :tag_text, :bot_user, :project_group, :saved_search, :cluster].each do |type|
+  [:source, :user, :task, :tag_text, :bot_user, :project_group, :saved_search, :cluster, :feed, :request].each do |type|
     field type do
       type "#{type.to_s.camelize}Type".constantize
       description "Information about the #{type} with given id"
