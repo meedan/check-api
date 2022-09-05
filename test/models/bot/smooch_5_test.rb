@@ -507,4 +507,18 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     Bot::Alegre.unstub(:get_merged_similar_items)
     Bot::Alegre.unstub(:get_items_with_similar_media)
   end
+
+  test "should sort keyword search results by score" do
+    RequestStore.store[:skip_cached_field_update] = false
+    setup_elasticsearch
+
+    t = create_team
+    pm1 = create_project_media quote: 'Foo Bar', team: t
+    pm2 = create_project_media quote: 'Foo Bar Test', team: t
+    pm3 = create_project_media quote: 'Foo Bar Test Testing', team: t
+    [pm1, pm2, pm3].each { |pm| publish_report(pm) }
+    sleep 3 # Wait for ElasticSearch to index content
+
+    assert_equal [pm1.id, pm2.id, pm3.id], Bot::Smooch.search_for_similar_published_fact_checks('text', 'Foo Bar', [t.id]).to_a.map(&:id)
+  end
 end
