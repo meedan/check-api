@@ -17,15 +17,15 @@ namespace :check do
         puts "Processing team [#{team.slug}]"
         team.project_medias.where(archived: CheckArchivedFlags::FlagCodes::TRASHED)
         .where('updated_at <= ?', deleted_date)
-        .find_in_batches(:batch_size => 1225) do |pms|
+        .find_in_batches(:batch_size => 1000) do |pms|
           deleted_ids = pms.map(&:id)
+          query = { terms: { annotated_id: deleted_ids } }
+          options[:body] = { query: query }
+          client.delete_by_query options
           pms.each do |pm|
             print '.'
             pm.destroy!
           end
-          query = { terms: { annotated_id: deleted_ids } }
-          options[:body] = { query: query }
-          client.delete_by_query options
           sleep 10
         end
         # log last team id
@@ -51,19 +51,17 @@ namespace :check do
       Team.where('id > ?', last_team_id).find_each do |team|
         puts "Processing team [#{team.slug}]"
         team.project_medias.where(archived: CheckArchivedFlags::FlagCodes::SPAM, sources_count: 0)
-        .find_in_batches(:batch_size => 1225) do |pms|
+        .find_in_batches(:batch_size => 1000) do |pms|
           ids = pms.map(&:id)
           # Get confirmed items
           target_ids = Relationship.confirmed.where(source_id: ids).map(&:target_id)
-          deleted_ids = []
-          ProjectMedia.where(id: target_ids).each do |pm|
-            print '.'
-            deleted_ids << pm.id
-            pm.destroy!
-          end
-          query = { terms: { annotated_id: deleted_ids } }
+          query = { terms: { annotated_id: target_ids } }
           options[:body] = { query: query }
           client.delete_by_query options
+          ProjectMedia.where(id: target_ids).each do |pm|
+            print '.'
+            pm.destroy!
+          end
           sleep 10
         end
         # log last team id
