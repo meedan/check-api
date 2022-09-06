@@ -346,7 +346,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   end
 
   test "should not get invalid URL" do
-    assert_nil Bot::Smooch.extract_url('foo http://\foo.bar bar')
+    WebMock.disable_net_connect!
     assert_nil Bot::Smooch.extract_url('foo https://news...')
     assert_nil Bot::Smooch.extract_url('foo https://ha..?')
     assert_nil Bot::Smooch.extract_url('foo https://30th-JUNE-2019.*')
