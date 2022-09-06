@@ -139,7 +139,7 @@ module SmoochSearch
           pms = ProjectMedia.joins(:media).where('medias.url' => link.url, 'project_medias.team_id' => team_ids).to_a
           result = self.filter_search_results(pms, after, feed_id, team_ids)
           return result unless result.empty?
-          text = [link.pender_data['description'].to_s, text.to_s.gsub(link.url, '').strip].max_by(&:length)
+          text = [link.pender_data['description'].to_s, text.to_s.gsub(/https?:\/\/[^\s]+/, '').strip].max_by(&:length)
         end
         return [] if text.blank?
         words = text.split(/\s+/)
