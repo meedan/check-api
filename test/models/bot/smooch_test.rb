@@ -352,6 +352,9 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert_nil Bot::Smooch.extract_url('foo https://30th-JUNE-2019.*')
     assert_nil Bot::Smooch.extract_url('foo https://...')
     assert_nil Bot::Smooch.extract_url('foo https://*1.*')
+    URI.stubs(:parse).raises(URI::InvalidURIError)
+    assert_nil Bot::Smooch.extract_url('https://trigger-exception.com')
+    URI.unstub(:parse)
   end
 
   test "should send report to user" do
