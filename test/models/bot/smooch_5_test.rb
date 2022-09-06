@@ -521,4 +521,21 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
 
     assert_equal [pm1.id, pm2.id, pm3.id], Bot::Smooch.search_for_similar_published_fact_checks('text', 'Foo Bar', [t.id]).to_a.map(&:id)
   end
+
+  test "should search by URL" do
+    t = create_team
+    f = create_feed published: true
+    f.teams << t
+    FeedTeam.update_all(shared: true)
+
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"http://projetocomprova.com.br/publicações/tuite-engana-ao-dizer-que-o-stf-decidiu-que-voto-impresso-e-inconstitucional/","type":"item","title":"Foo","description":"Bar"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://projetocomprova.com.br/publica%C3%A7%C3%B5es/tuite-engana-ao-dizer-que-o-stf-decidiu-que-voto-impresso-e-inconstitucional/' } }).to_return(body: response)
+
+    assert_nothing_raised do
+      with_current_user_and_team(nil, t) do
+        Bot::Smooch.search_for_similar_published_fact_checks('text', 'https://projetocomprova.com.br/publica%C3%A7%C3%B5es/tuite-engana-ao-dizer-que-o-stf-decidiu-que-voto-impresso-e-inconstitucional/ ', [t.id], nil, f.id)
+      end
+    end
+  end
 end
