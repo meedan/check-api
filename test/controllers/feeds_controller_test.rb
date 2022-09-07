@@ -45,21 +45,23 @@ class FeedsControllerTest < ActionController::TestCase
   end
 
   test "should keep order" do
-    authenticate_with_token @a
+    Sidekiq::Testing.fake! do
+      authenticate_with_token @a
 
-    Bot::Smooch.stubs(:search_for_similar_published_fact_checks).returns([@pm1, @pm2])
-    get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
-    assert_response :success
-    assert_equal 'Foo', json_response['data'][0]['attributes']['organization']
-    assert_equal 'Bar', json_response['data'][1]['attributes']['organization']
+      Bot::Smooch.stubs(:search_for_similar_published_fact_checks).returns([@pm1, @pm2])
+      get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
+      assert_response :success
+      assert_equal 'Foo', json_response['data'][0]['attributes']['organization']
+      assert_equal 'Bar', json_response['data'][1]['attributes']['organization']
 
-    Bot::Smooch.stubs(:search_for_similar_published_fact_checks).returns([@pm2, @pm1])
-    get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
-    assert_response :success
-    assert_equal 'Bar', json_response['data'][0]['attributes']['organization']
-    assert_equal 'Foo', json_response['data'][1]['attributes']['organization']
+      Bot::Smooch.stubs(:search_for_similar_published_fact_checks).returns([@pm2, @pm1])
+      get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
+      assert_response :success
+      assert_equal 'Bar', json_response['data'][0]['attributes']['organization']
+      assert_equal 'Foo', json_response['data'][1]['attributes']['organization']
 
-    Bot::Smooch.unstub(:search_for_similar_published_fact_checks)
+      Bot::Smooch.unstub(:search_for_similar_published_fact_checks)
+    end
   end
 
   test "should return empty set if feed is not published" do
