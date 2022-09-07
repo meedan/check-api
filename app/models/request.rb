@@ -70,7 +70,7 @@ class Request < ApplicationRecord
     else
       if url.blank?
         text = ::Bot::Smooch.extract_claim(query)
-        media = Media.where(type: 'Claim', quote: text).last || Media.create!(type: 'Claim', quote: text)
+        media = Media.where(type: 'Claim').where('quote ILIKE ?', text).last || Media.create!(type: 'Claim', quote: text)
       else
         link = ::Bot::Smooch.extract_url(url) # Parse URL to get a normalized/canonical one
         url = (link ? link.url : url)
@@ -90,9 +90,11 @@ class Request < ApplicationRecord
       request_id: request.id
     }
     if media.type == 'Claim'
+      text = media.quote
+      return if text.length < 2
       params = {
         doc_id: doc_id,
-        text: media.quote,
+        text: text,
         model: request.similarity_model,
         context: context
       }
