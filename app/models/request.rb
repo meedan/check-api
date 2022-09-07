@@ -20,7 +20,6 @@ class Request < ApplicationRecord
 
   def attach_to_similar_request!
     media = self.media
-    similar_request_id = nil
     context = { feed_id: self.feed_id }
     threshold = self.similarity_threshold
     # First try to find an identical media

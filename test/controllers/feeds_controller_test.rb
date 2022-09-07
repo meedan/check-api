@@ -58,6 +58,8 @@ class FeedsControllerTest < ActionController::TestCase
     assert_response :success
     assert_equal 'Bar', json_response['data'][0]['attributes']['organization']
     assert_equal 'Foo', json_response['data'][1]['attributes']['organization']
+
+    Bot::Smooch.unstub(:search_for_similar_published_fact_checks)
   end
 
   test "should return empty set if feed is not published" do
