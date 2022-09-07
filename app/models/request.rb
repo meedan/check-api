@@ -8,6 +8,8 @@ class Request < ApplicationRecord
   after_commit :send_to_alegre, on: :create
   after_commit :update_fields, on: :update
 
+  validates_inclusion_of :request_type, in: ['audio', 'video', 'image', 'text']
+
   def similarity_threshold
     0.85 # FIXME: Adjust this value for text and image (eventually it can be a feed setting)
   end
@@ -18,18 +20,19 @@ class Request < ApplicationRecord
 
   def attach_to_similar_request!
     media = self.media
-    similar_request_id = nil
     context = { feed_id: self.feed_id }
     threshold = self.similarity_threshold
-    if media.type == 'Claim' && ::Bot::Alegre.get_number_of_words(media.quote) > 3
-      params = { text: media.quote, threshold: threshold, context: context }
-      similar_request_id = ::Bot::Alegre.request_api('get', '/text/similarity/', params).dig('result').to_a.collect{ |result| result.dig('_source', 'context', 'request_id').to_i }.find{ |id| id != 0 && id != self.id }
-    elsif ['UploadedImage', 'UploadedAudio', 'UploadedVideo'].include?(media.type)
-      type = media.type.gsub(/^Uploaded/, '').downcase
-      params = { url: media.file.file.public_url, threshold: threshold, context: context }
-      similar_request_id = ::Bot::Alegre.request_api('get', "/#{type}/similarity/", params).dig('result').to_a.collect{ |result| result.dig('context').to_a.collect{ |c| c['request_id'].to_i } }.flatten.find{ |id| id != 0 && id != self.id }
-    elsif media.type == 'Link'
-      similar_request_id = Request.where(media_id: media.id, feed_id: self.feed_id).where.not(id: self.id).order('id ASC').first
+    # First try to find an identical media
+    similar_request_id = Request.where(media_id: media.id, feed_id: self.feed_id).where.not(id: self.id).order('id ASC').first
+    if similar_request_id.nil?
+      if media.type == 'Claim' && ::Bot::Alegre.get_number_of_words(media.quote) > 3
+        params = { text: media.quote, threshold: threshold, context: context }
+        similar_request_id = ::Bot::Alegre.request_api('get', '/text/similarity/', params).dig('result').to_a.collect{ |result| result.dig('_source', 'context', 'request_id').to_i }.find{ |id| id != 0 && id != self.id }
+      elsif ['UploadedImage', 'UploadedAudio', 'UploadedVideo'].include?(media.type)
+        type = media.type.gsub(/^Uploaded/, '').downcase
+        params = { url: media.file.file.public_url, threshold: threshold, context: context }
+        similar_request_id = ::Bot::Alegre.request_api('get', "/#{type}/similarity/", params).dig('result').to_a.collect{ |result| result.dig('context').to_a.collect{ |c| c['request_id'].to_i } }.flatten.find{ |id| id != 0 && id != self.id }
+      end
     end
     unless similar_request_id.blank?
       similar_request = Request.where(id: similar_request_id, feed_id: self.feed_id).last
@@ -67,7 +70,7 @@ class Request < ApplicationRecord
     else
       if url.blank?
         text = ::Bot::Smooch.extract_claim(query)
-        media = Media.where(type: 'Claim', quote: text).last || Media.create!(type: 'Claim', quote: text)
+        media = Media.where(type: 'Claim').where('quote ILIKE ?', text).last || Media.create!(type: 'Claim', quote: text)
       else
         link = ::Bot::Smooch.extract_url(url) # Parse URL to get a normalized/canonical one
         url = (link ? link.url : url)
@@ -87,9 +90,11 @@ class Request < ApplicationRecord
       request_id: request.id
     }
     if media.type == 'Claim'
+      text = media.quote
+      return if text.length < 2
       params = {
         doc_id: doc_id,
-        text: media.quote,
+        text: text,
         model: request.similarity_model,
         context: context
       }

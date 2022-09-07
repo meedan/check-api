@@ -708,7 +708,7 @@ class Bot::Smooch < BotUser
   def self.extract_claim(text)
     claim = ''
     text.split(MESSAGE_BOUNDARY).each do |part|
-      claim = part.chomp if part.size > claim.size
+      claim = part.chomp.strip if part.size > claim.size
     end
     claim
   end
