@@ -689,6 +689,7 @@ class Bot::Smooch < BotUser
       url = urls.reject{ |u| urls_to_ignore.include?(u) }.first
       return nil if url.blank?
       url = 'https://' + url unless url =~ /^https?:\/\//
+      url = URI.escape(url)
       URI.parse(url)
       m = Link.new url: url
       m.validate_pender_result(false, true)
@@ -698,7 +699,8 @@ class Bot::Smooch < BotUser
       else
         m
       end
-    rescue URI::InvalidURIError
+    rescue URI::InvalidURIError => e
+      self.notify_error(e, { bot: 'Smooch', extra: { method: 'extract_url' } }, RequestStore[:request])
       nil
     end
   end

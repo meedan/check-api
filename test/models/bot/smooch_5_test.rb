@@ -534,7 +534,7 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
 
     assert_nothing_raised do
       with_current_user_and_team(nil, t) do
-        Bot::Smooch.search_for_similar_published_fact_checks('text', 'https://projetocomprova.com.br/publica%C3%A7%C3%B5es/tuite-engana-ao-dizer-que-o-stf-decidiu-que-voto-impresso-e-inconstitucional/ ', [t.id], nil, f.id)
+        Bot::Smooch.search_for_similar_published_fact_checks('text', 'https://projetocomprova.com.br/publicações/tuite-engana-ao-dizer-que-o-stf-decidiu-que-voto-impresso-e-inconstitucional/ ', [t.id], nil, f.id)
       end
     end
   end
