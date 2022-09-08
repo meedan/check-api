@@ -9,7 +9,8 @@ namespace :check do
         counter += 1
         failed = false
         begin
-          media = Request.get_media_from_query(r.request_type, r.content)
+          request_type = (['audio', 'video', 'image', 'text'].include?(r.request_type) ? r.request_type : 'text')
+          media = Request.get_media_from_query(request_type, r.content)
           r.update_columns({ media_id: media.id, last_submitted_at: r.created_at, medias_count: 1, requests_count: 1 })
           Request.send_to_alegre(r.id)
           sleep 1

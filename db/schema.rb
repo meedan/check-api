@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_08_28_210303) do
+ActiveRecord::Schema.define(version: 2022_09_08_064845) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -258,6 +258,16 @@ ActiveRecord::Schema.define(version: 2022_08_28_210303) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["team_id"], name: "index_project_groups_on_team_id"
+  end
+
+  create_table "project_media_requests", force: :cascade do |t|
+    t.bigint "project_media_id", null: false
+    t.bigint "request_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_media_id"], name: "index_project_media_requests_on_project_media_id"
+    t.index ["request_id", "project_media_id"], name: "index_project_media_requests_on_request_id_and_project_media_id", unique: true
+    t.index ["request_id"], name: "index_project_media_requests_on_request_id"
   end
 
   create_table "project_media_users", id: :serial, force: :cascade do |t|
@@ -563,5 +573,7 @@ ActiveRecord::Schema.define(version: 2022_08_28_210303) do
   add_foreign_key "fact_checks", "users"
   add_foreign_key "feed_teams", "feeds"
   add_foreign_key "feed_teams", "teams"
+  add_foreign_key "project_media_requests", "project_medias"
+  add_foreign_key "project_media_requests", "requests"
   add_foreign_key "requests", "feeds"
 end
