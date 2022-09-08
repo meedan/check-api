@@ -116,6 +116,10 @@ module CheckBasicAbilities
     can :read, FeedTeam do |obj|
       @user.cached_teams.include?(obj.team_id)
     end
+
+    can :read, Request do |obj|
+      !(@user.cached_teams & obj.feed.team_ids).empty?
+    end
   end
 
   def annotation_perms_for_all_users
