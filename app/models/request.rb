@@ -3,6 +3,8 @@ class Request < ApplicationRecord
   belongs_to :media
   belongs_to :similar_to_request, foreign_key: :request_id, class_name: 'Request', optional: true
   has_many :similar_requests, foreign_key: :request_id, class_name: 'Request'
+  has_many :project_media_requests
+  has_many :project_medias, through: :project_media_requests
 
   before_validation :set_fields, on: :create
   after_commit :send_to_alegre, on: :create
