@@ -5,6 +5,7 @@ class FeedsControllerTest < ActionController::TestCase
     @controller = Api::V2::FeedsController.new
     super
     RequestStore.store[:skip_cached_field_update] = false
+    [FeedTeam, Feed, ProjectMediaRequest, Request].each { |klass| klass.delete_all }
     create_verification_status_stuff
     @a = create_api_key
     @b = create_bot_user
@@ -45,19 +46,23 @@ class FeedsControllerTest < ActionController::TestCase
   end
 
   test "should keep order" do
-    authenticate_with_token @a
+    Sidekiq::Testing.fake! do
+      authenticate_with_token @a
 
-    Bot::Smooch.stubs(:search_for_similar_published_fact_checks).returns([@pm1, @pm2])
-    get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
-    assert_response :success
-    assert_equal 'Foo', json_response['data'][0]['attributes']['organization']
-    assert_equal 'Bar', json_response['data'][1]['attributes']['organization']
+      Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id, @t2.id], nil, @f.id).returns([@pm1, @pm2])
+      get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
+      assert_response :success
+      assert_equal 'Foo', json_response['data'][0]['attributes']['organization']
+      assert_equal 'Bar', json_response['data'][1]['attributes']['organization']
 
-    Bot::Smooch.stubs(:search_for_similar_published_fact_checks).returns([@pm2, @pm1])
-    get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
-    assert_response :success
-    assert_equal 'Bar', json_response['data'][0]['attributes']['organization']
-    assert_equal 'Foo', json_response['data'][1]['attributes']['organization']
+      Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id, @t2.id], nil, @f.id).returns([@pm2, @pm1])
+      get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
+      assert_response :success
+      assert_equal 'Bar', json_response['data'][0]['attributes']['organization']
+      assert_equal 'Foo', json_response['data'][1]['attributes']['organization']
+
+      Bot::Smooch.unstub(:search_for_similar_published_fact_checks)
+    end
   end
 
   test "should return empty set if feed is not published" do
@@ -96,6 +101,17 @@ class FeedsControllerTest < ActionController::TestCase
     assert_response :success
     assert_equal 2, json_response['data'].size
     assert_equal 2, json_response['meta']['record-count']
+    Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should save relationship between request and results" do
+    Bot::Alegre.stubs(:request_api).returns({})
+    Sidekiq::Testing.inline!
+    authenticate_with_token @a
+    assert_difference 'Request.count' do
+      get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
+    end
+    assert_response :success
     Bot::Alegre.unstub(:request_api)
   end
 end

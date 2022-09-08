@@ -139,7 +139,7 @@ module SmoochSearch
           pms = ProjectMedia.joins(:media).where('medias.url' => link.url, 'project_medias.team_id' => team_ids).to_a
           result = self.filter_search_results(pms, after, feed_id, team_ids)
           return result unless result.empty?
-          text = [link.pender_data['description'].to_s, text.to_s.gsub(link.url, '').strip].max_by(&:length)
+          text = [link.pender_data['description'].to_s, text.to_s.gsub(/https?:\/\/[^\s]+/, '').strip].max_by(&:length)
         end
         return [] if text.blank?
         words = text.split(/\s+/)
@@ -164,6 +164,7 @@ module SmoochSearch
 
     def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id = nil)
       filters = { keyword: words.join('+'), eslimit: 3 }
+      filters.merge!({ sort: 'score' }) if words.size > 1 # We still want to be able to return the latest fact-checks if a meaninful query is not passed
       feed_id.blank? ? filters.merge!({ report_status: ['published'] }) : filters.merge!({ feed_id: feed_id })
       filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) unless after.blank?
       results = CheckSearch.new(filters.to_json, nil, team_ids).medias

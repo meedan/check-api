@@ -11,8 +11,17 @@ RequestType = GraphqlCrudOperations.define_default_type do
   field :medias_count, types.Int
   field :requests_count, types.Int
   field :similar_to_request, RequestType
-  field :media, MediaType
   field :feed, FeedType
+
+  field :media do
+    type MediaType
+
+    resolve -> (request, _args, _ctx) {
+      RecordLoader.for(Media).load(request.media_id).then do |media|
+        media
+      end
+    }
+  end
 
   connection :medias, MediaType.connection_type
 
