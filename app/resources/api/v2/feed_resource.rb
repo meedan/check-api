@@ -31,8 +31,9 @@ module Api
         feed_id = filters.dig(:feed_id, 0).to_i
         return ProjectMedia.none if team_ids.blank? || query.blank? || !can_read_feed?(feed_id, team_ids)
         query = CGI.unescape(query)
-        Feed.delay.save_request(feed_id, type, query) unless skip_save_request
-        Bot::Smooch.search_for_similar_published_fact_checks(type, query, Feed.find(feed_id).team_ids, after, feed_id)
+        results = Bot::Smooch.search_for_similar_published_fact_checks(type, query, Feed.find(feed_id).team_ids, after, feed_id)
+        Feed.delay.save_request(feed_id, type, query, results.to_a) unless skip_save_request
+        results
       end
 
       # Make sure that we keep the same order returned by the "records" method above

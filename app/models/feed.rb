@@ -33,13 +33,20 @@ class Feed < ApplicationRecord
     self.teams.count
   end
 
-  # This takes some time to run because it involves external HTTP requests:
+  def requests_count
+    self.requests.count
+  end
+
+  # This takes some time to run because it involves external HTTP requests and writes to the database:
   # 1) If the query contains a media URL, it will be downloaded... if it contains some other URL, it will be sent to Pender
   # 2) Requests will be made to Alegre in order to index the request media and to look for similar requests
+  # 3) Save request in the database
+  # 4) Save relationships between request and results in the database
   # So please consider always calling this method in background.
-  def self.save_request(feed_id, type, query)
+  def self.save_request(feed_id, type, query, results)
     media = Request.get_media_from_query(type, query)
     request = Request.create!(feed_id: feed_id, request_type: type, content: query, media: media, skip_check_ability: true)
+    request.project_medias = results unless results.blank?
     request.attach_to_similar_request!
     request
   end
