@@ -32,7 +32,7 @@ module Api
         return ProjectMedia.none if team_ids.blank? || query.blank? || !can_read_feed?(feed_id, team_ids)
         query = CGI.unescape(query)
         results = Bot::Smooch.search_for_similar_published_fact_checks(type, query, Feed.find(feed_id).team_ids, after, feed_id)
-        Feed.delay.save_request(feed_id, type, query, results.to_a) unless skip_save_request
+        Feed.delay.save_request(feed_id, type, query, results.to_a.map(&:id)) unless skip_save_request
         results
       end
 

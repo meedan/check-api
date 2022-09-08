@@ -43,10 +43,12 @@ class Feed < ApplicationRecord
   # 3) Save request in the database
   # 4) Save relationships between request and results in the database
   # So please consider always calling this method in background.
-  def self.save_request(feed_id, type, query, results)
+  def self.save_request(feed_id, type, query, result_ids)
     media = Request.get_media_from_query(type, query)
     request = Request.create!(feed_id: feed_id, request_type: type, content: query, media: media, skip_check_ability: true)
-    request.project_medias = results unless results.blank?
+    unless result_ids.blank?
+      result_ids.each { |id| ProjectMediaRequest.create!(project_media_id: id, request_id: request.id, skip_check_ability: true) }
+    end
     request.attach_to_similar_request!
     request
   end
