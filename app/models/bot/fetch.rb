@@ -214,6 +214,9 @@ class Bot::Fetch < BotUser
     end
 
     def self.set_claim_and_fact_check(claim_review, pm, user)
+      current_user = User.current
+      User.current = user
+
       cd = ClaimDescription.new
       cd.skip_check_ability = true
       cd.project_media = pm
@@ -232,6 +235,18 @@ class Bot::Fetch < BotUser
       fc.skip_report_update = true
       fc.language = claim_review.dig('raw', 'language')
       fc.save!
+
+      User.current = current_user
+    end
+
+    def self.create_tags(claim_review, pm, user)
+      current_user = User.current
+      User.current = user
+      tags = claim_review['keywords'].to_s.split(',').map(&:strip).reject{ |r| r.blank? }
+      tags.each do |tag|
+        Tag.create(tag: tag, annotator: user, annotated: pm, skip_check_ability: true)
+      end
+      User.current = current_user
     end
 
     def self.create_tags(claim_review, pm, user)

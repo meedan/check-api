@@ -17,7 +17,7 @@ namespace :check do
       es_body = []
 
       ProjectMedia.find_each do |pm|
-        doc_id = pm.get_es_doc_id
+        doc_id = pm.get_es_doc_id(pm.id)
         source = "ctx._source.updated_at=params.updated_at;ctx._source.remove('recent_added');ctx._source.remove('recent_activity')"
         es_body << { update: { _index: index_alias, _id: doc_id,
                  data: { script: { source: source, params: { updated_at: Time.now.utc } } } } }

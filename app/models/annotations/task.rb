@@ -212,7 +212,7 @@ class Task < ApplicationRecord
     if self.type =~ /choice/ && self.team_task_id && self.annotated_type == 'ProjectMedia'
       pm = self.project_media
       data = { 'team_task_id' => self.team_task_id, 'fieldset' => self.fieldset }
-      self.add_update_nested_obj({op: op, obj: pm, nested_key: 'task_responses', keys: data.keys, data: data})
+      self.add_update_nested_obj({ op: op, pm_id: pm.id, nested_key: 'task_responses', keys: data.keys, data: data })
       self.update_recent_activity(pm)
     end
   end
@@ -255,7 +255,7 @@ class Task < ApplicationRecord
 
   def destroy_elasticsearch_task
     # Remove task with answer from ES
-    self.destroy_es_items('task_responses', 'destroy_doc_nested', self.project_media)
+    self.destroy_es_items('task_responses', 'destroy_doc_nested', self.project_media.id) unless self.project_media.nil?
   end
 end
 

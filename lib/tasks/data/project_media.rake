@@ -11,9 +11,9 @@
 #     This rake task to sync ES nested field and accept teamSlug and fieldName as args so the sync either
 #     by team or accross all teams
 # Rake tasks 1, 3 and 4 accept extra args
-#   - ids as args and should be YAML.dump([pm_ids])
+#   - ids as args and should be with `-` separator, i.e ids:1-2-3
 #   - start_date i.e start_date='12-04-1983'
-#   - end_date i.e end_date='12-04-1983'
+#   - end_date i.e end_date=12-04-1983
 
 namespace :check do
   namespace :project_media do
@@ -107,14 +107,15 @@ namespace :check do
       # Add ProjectMedia condition
       pm_condition = {}
       unless data_args['ids'].blank?
-        pm_ids = begin YAML.load(data_args['ids']) rescue {} end
+        pm_ids = begin data_args['ids'].split('-').map{ |s| s.to_i } rescue [] end
         pm_condition = { id: pm_ids } unless pm_ids.blank?
       end
       # Add date condition
-      start_date = begin DateTime.parse(data_args['start_date']) rescue Team.first.created_at end
-      end_date = begin DateTime.parse(data_args['end_date']) rescue Time.now end
-      pm_condition[:created_at] = start_date..end_date
-
+      unless data_args['start_date'].blank? && data_args['end_date'].blank?
+        start_date = begin DateTime.parse(data_args['start_date']) rescue Team.first.created_at end
+        end_date = begin DateTime.parse(data_args['end_date']) rescue Time.now end
+        pm_condition[:created_at] = start_date..end_date
+      end
       Team.where('id > ?', last_team_id).where(team_condition).find_each do |team|
         team.project_medias.where(pm_condition).find_in_batches(:batch_size => 2500) do |pms|
           es_body = []
@@ -203,13 +204,15 @@ namespace :check do
       # Add ProjectMedia condition
       pm_condition = {}
       unless data_args['ids'].blank?
-        pm_ids = begin YAML.load(data_args['ids']) rescue {} end
+        pm_ids = begin data_args['ids'].split('-').map{ |s| s.to_i } rescue [] end
         pm_condition = { id: pm_ids } unless pm_ids.blank?
       end
       # Add date condition
-      start_date = begin DateTime.parse(data_args['start_date']) rescue Team.first.created_at end
-      end_date = begin DateTime.parse(data_args['end_date']) rescue Time.now end
-      pm_condition[:created_at] = start_date..end_date
+      unless data_args['start_date'].blank? && data_args['end_date'].blank?
+        start_date = begin DateTime.parse(data_args['start_date']) rescue Team.first.created_at end
+        end_date = begin DateTime.parse(data_args['end_date']) rescue Time.now end
+        pm_condition[:created_at] = start_date..end_date
+      end
 
       field_i = [
         'team_id', 'project_id', 'archived', 'sources_count', 'user_id',
@@ -274,13 +277,15 @@ namespace :check do
       # Add ProjectMedia condition
       pm_condition = {}
       unless data_args['ids'].blank?
-        pm_ids = begin YAML.load(data_args['ids']) rescue {} end
+        pm_ids = begin data_args['ids'].split('-').map{ |s| s.to_i } rescue [] end
         pm_condition = { id: pm_ids } unless pm_ids.blank?
       end
       # Add date condition
-      start_date = begin DateTime.parse(data_args['start_date']) rescue Team.first.created_at end
-      end_date = begin DateTime.parse(data_args['end_date']) rescue Time.now end
-      pm_condition[:created_at] = start_date..end_date
+      unless data_args['start_date'].blank? && data_args['end_date'].blank?
+        start_date = begin DateTime.parse(data_args['start_date']) rescue Team.first.created_at end
+        end_date = begin DateTime.parse(data_args['end_date']) rescue Time.now end
+        pm_condition[:created_at] = start_date..end_date
+      end
 
       Team.where('id > ?', last_team_id).where(team_condition).find_each do |team|
         team.project_medias.where(pm_condition).find_in_batches(:batch_size => 2500) do |pms|

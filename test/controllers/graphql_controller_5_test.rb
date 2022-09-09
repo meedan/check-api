@@ -482,6 +482,111 @@ class GraphqlController5Test < ActionController::TestCase
     assert_response 429
   end
 
+  test "should get feed" do
+    t = create_team
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+
+    f = create_feed
+    f.teams << t
+    FeedTeam.update_all(shared: true)
+
+    r1 = create_request feed: f
+    r2 = create_request feed: f
+    r2.similar_to_request = r1
+    r2.save!
+
+    query = "query { team { feed(dbid: #{f.id}) { requests_count, requests(request_id: null, first: 100, offset: 0, sort: \"requests\", sort_type: \"asc\") { edges { node { dbid, media { id } } } } } } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    response = JSON.parse(@response.body).dig('data', 'team', 'feed', 'requests', 'edges')
+    assert_equal 1, response.size
+    assert_equal r1.id, response.dig(0, 'node', 'dbid')
+
+    query = "query { team { feed(dbid: #{f.id}) { requests_count, requests(request_id: #{r1.id}, first: 100, offset: 0, sort: \"requests\", sort_type: \"asc\") { edges { node { dbid, media { id } } } } } } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    response = JSON.parse(@response.body).dig('data', 'team', 'feed', 'requests', 'edges')
+    assert_equal 2, response.size
+  end
+
+  test "should get feed directly by id" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t
+    authenticate_with_user(u)
+
+    f1 = create_feed
+    f1.teams << t
+    f2 = create_feed
+    FeedTeam.update_all(shared: true)
+
+    query = "query { feed(id: \"#{f1.id}\") { dbid } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal f1.id, JSON.parse(@response.body).dig('data', 'feed', 'dbid')
+
+    query = "query { feed(id: \"#{f2.id}\") { dbid } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_nil JSON.parse(@response.body).dig('data', 'feed', 'dbid')
+  end
+
+  test "should get request directly by id" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t
+    authenticate_with_user(u)
+
+    f1 = create_feed
+    f1.teams << t
+    f2 = create_feed
+    FeedTeam.update_all(shared: true)
+
+    r1 = create_request feed: f1
+    r2 = create_request feed: f2
+
+    query = "query { request(id: \"#{r1.id}\") { dbid } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal r1.id, JSON.parse(@response.body).dig('data', 'request', 'dbid')
+
+    query = "query { request(id: \"#{r2.id}\") { dbid } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_nil JSON.parse(@response.body).dig('data', 'request', 'dbid')
+  end
+
+  test "should filter similar requests by media" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t
+    authenticate_with_user(u)
+
+    f = create_feed
+    f.teams << t
+    FeedTeam.update_all(shared: true)
+
+    r1 = create_request feed: f
+    r2 = create_request feed: f
+    r2.similar_to_request = r1
+    r2.save!
+    m = create_uploaded_image
+    r3 = create_request feed: f, media: m
+    r3.similar_to_request = r1
+    r3.save!
+
+    query = "query { request(id: \"#{r1.id}\") { similar_requests(first: 10) { edges { node { dbid } } } } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 2, JSON.parse(@response.body).dig('data', 'request', 'similar_requests', 'edges').size
+
+    query = "query { request(id: \"#{r1.id}\") { similar_requests(first: 10, media_id: #{m.id}) { edges { node { dbid } } } } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 1, JSON.parse(@response.body).dig('data', 'request', 'similar_requests', 'edges').size
+  end
+
   protected
 
   def assert_error_message(expected)

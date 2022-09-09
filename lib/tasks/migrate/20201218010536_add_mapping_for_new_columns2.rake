@@ -16,7 +16,7 @@ namespace :check do
         es_body = []
         pms.each do |pm|
           begin
-            doc_id = pm.get_es_doc_id(pm)
+            doc_id = pm.get_es_doc_id(pm.id)
             fields = {
               'comment_count' => pm.comment_count,
               'reaction_count' => pm.reaction_count,
