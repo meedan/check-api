@@ -39,7 +39,7 @@ module ClaimAndFactCheck
     text_fields = self.text_fields
     text_fields << 'updated_at'
     values['updated_at'] = updated_at.utc
-    self.update_elasticsearch_doc(text_fields, values, pm)
+    self.update_elasticsearch_doc(text_fields, values, pm.id)
   end
 
   def send_to_alegre
@@ -56,10 +56,10 @@ module ClaimAndFactCheck
 
   module ClassMethods
     def send_to_alegre(id)
-      obj = self.find(id)
+      obj = self.find_by_id(id)
       obj.text_fields.each do |field|
         ::Bot::Alegre.send_field_to_similarity_index(obj.project_media, field)
-      end
+      end unless obj.nil?
     end
   end
 end

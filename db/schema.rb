@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_08_15_030811) do
+ActiveRecord::Schema.define(version: 2022_09_08_064845) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -260,6 +260,16 @@ ActiveRecord::Schema.define(version: 2022_08_15_030811) do
     t.index ["team_id"], name: "index_project_groups_on_team_id"
   end
 
+  create_table "project_media_requests", force: :cascade do |t|
+    t.bigint "project_media_id", null: false
+    t.bigint "request_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_media_id"], name: "index_project_media_requests_on_project_media_id"
+    t.index ["request_id", "project_media_id"], name: "index_project_media_requests_on_request_id_and_project_media_id", unique: true
+    t.index ["request_id"], name: "index_project_media_requests_on_request_id"
+  end
+
   create_table "project_media_users", id: :serial, force: :cascade do |t|
     t.integer "project_media_id"
     t.integer "user_id"
@@ -347,7 +357,14 @@ ActiveRecord::Schema.define(version: 2022_08_15_030811) do
     t.text "content", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "request_id"
+    t.integer "media_id"
+    t.integer "medias_count", default: 0, null: false
+    t.integer "requests_count", default: 0, null: false
+    t.datetime "last_submitted_at"
     t.index ["feed_id"], name: "index_requests_on_feed_id"
+    t.index ["media_id"], name: "index_requests_on_media_id"
+    t.index ["request_id"], name: "index_requests_on_request_id"
   end
 
   create_table "saved_searches", id: :serial, force: :cascade do |t|
@@ -555,5 +572,7 @@ ActiveRecord::Schema.define(version: 2022_08_15_030811) do
   add_foreign_key "fact_checks", "users"
   add_foreign_key "feed_teams", "feeds"
   add_foreign_key "feed_teams", "teams"
+  add_foreign_key "project_media_requests", "project_medias"
+  add_foreign_key "project_media_requests", "requests"
   add_foreign_key "requests", "feeds"
 end

@@ -151,15 +151,17 @@ class Relationship < ApplicationRecord
   def update_elasticsearch_parent(action = 'create_or_update')
     return if self.is_default? || self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     # touch target to update `updated_at` date
-    updated_at = Time.now
     target =  self.target
-    target.update_columns(updated_at: updated_at)
-    data = { updated_at: updated_at.utc }
-    if self.is_confirmed?
-      parent_id = action == 'destroy' ? self.target_id : self.source_id
-      data['parent_id'] = parent_id
+    unless target.nil?
+      updated_at = Time.now
+      target.update_columns(updated_at: updated_at)
+      data = { updated_at: updated_at.utc }
+      if self.is_confirmed?
+        parent_id = action == 'destroy' ? self.target_id : self.source_id
+        data['parent_id'] = parent_id
+      end
+      self.update_elasticsearch_doc(data.keys, data, target.id)
     end
-    self.update_elasticsearch_doc(data.keys, data, target)
   end
 
   private
