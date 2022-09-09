@@ -139,7 +139,7 @@ module SmoochSearch
           pms = ProjectMedia.joins(:media).where('medias.url' => link.url, 'project_medias.team_id' => team_ids).to_a
           result = self.filter_search_results(pms, after, feed_id, team_ids)
           return result unless result.empty?
-          text = [link.pender_data['description'].to_s, text.to_s.gsub(link.url, '').strip].max_by(&:length)
+          text = [link.pender_data['description'].to_s, text.to_s.gsub(/https?:\/\/[^\s]+/, '').strip].max_by(&:length)
         end
         return [] if text.blank?
         words = text.split(/\s+/)
@@ -147,15 +147,15 @@ module SmoochSearch
         if words.size <= self.max_number_of_words_for_keyword_search
           results = self.search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id)
         else
-          alegre_results = Bot::Alegre.get_merged_similar_items(pm, { value: self.get_text_similarity_threshold }, Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text, team_ids)
+          alegre_results = Bot::Alegre.get_merged_similar_items(pm, [{ value: self.get_text_similarity_threshold }], Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text, team_ids)
           results = self.parse_search_results_from_alegre(alegre_results, after, feed_id, team_ids)
           Rails.logger.info "[Smooch Bot] Text similarity search got #{results.count} results while looking for '#{text}' after date #{after.inspect} for teams #{team_ids}"
         end
       else
         media_url = Twitter::TwitterText::Extractor.extract_urls(query)[0]
         return [] if media_url.blank?
-        threshold = Bot::Alegre.get_threshold_for_query(type, pm)[:value]
-        alegre_results = Bot::Alegre.get_items_with_similar_media(media_url, { value: threshold }, team_ids, "/#{type}/similarity/")
+        threshold = Bot::Alegre.get_threshold_for_query(type, pm)[0][:value]
+        alegre_results = Bot::Alegre.get_items_with_similar_media(media_url, [{ value: threshold }], team_ids, "/#{type}/similarity/")
         results = self.parse_search_results_from_alegre(alegre_results, after, feed_id, team_ids)
         Rails.logger.info "[Smooch Bot] Media similarity search got #{results.count} results while looking for '#{query}' after date #{after.inspect} for teams #{team_ids}"
       end
@@ -164,6 +164,7 @@ module SmoochSearch
 
     def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id = nil)
       filters = { keyword: words.join('+'), eslimit: 3 }
+      filters.merge!({ sort: 'score' }) if words.size > 1 # We still want to be able to return the latest fact-checks if a meaninful query is not passed
       feed_id.blank? ? filters.merge!({ report_status: ['published'] }) : filters.merge!({ feed_id: feed_id })
       filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) unless after.blank?
       results = CheckSearch.new(filters.to_json, nil, team_ids).medias

@@ -53,7 +53,7 @@ class CheckSearch
     'type_of_media' => 'type_of_media', 'title' => 'title_index', 'creator_name' => 'creator_name',
     'cluster_size' => 'cluster_size', 'cluster_first_item_at' => 'cluster_first_item_at',
     'cluster_last_item_at' => 'cluster_last_item_at', 'cluster_requests_count' => 'cluster_requests_count',
-    'cluster_published_reports_count' => 'cluster_published_reports_count'
+    'cluster_published_reports_count' => 'cluster_published_reports_count', 'score' => '_score'
   }
 
   def team_condition(team_id = nil)
@@ -252,7 +252,7 @@ class CheckSearch
         hash = CheckSearch.upload_file(@file)
         file_path = "check_search/#{hash}"
       end
-      threshold = Bot::Alegre.get_threshold_for_query(@options['file_type'], ProjectMedia.new(team_id: Team.current.id))[:value]
+      threshold = Bot::Alegre.get_threshold_for_query(@options['file_type'], ProjectMedia.new(team_id: Team.current.id))[0][:value]
       results = Bot::Alegre.get_items_with_similar_media(CheckS3.public_url(file_path), { value: threshold }, @options['team_id'], "/#{@options['file_type']}/similarity/")
       ids = results.blank? ? [0] : results.keys
       core_conditions.merge!({ 'project_medias.id' => ids })

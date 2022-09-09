@@ -161,6 +161,19 @@ class RequestTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:request_api)
   end
 
+  test "should attach to similar link" do
+    Bot::Alegre.stubs(:request_api).returns(true)
+    f = create_feed
+    m = create_valid_media
+    create_request request_type: 'text', media: m
+    create_request request_type: 'text', feed: f
+    r1 = create_request request_type: 'text', media: m, feed: f
+    r2 = create_request request_type: 'text', media: m, feed: f
+    r2.attach_to_similar_request!
+    assert_equal r1, r2.reload.similar_to_request
+    assert_equal [r2], r1.reload.similar_requests
+  end
+
   test "should set fields" do
     r = create_request
     assert_not_nil r.reload.last_submitted_at
@@ -182,6 +195,21 @@ class RequestTest < ActiveSupport::TestCase
     assert_equal r4.created_at.to_s, r1.reload.last_submitted_at.to_s
     assert_equal 2, r1.reload.medias_count
     assert_equal 4, r1.reload.requests_count
+    Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should return medias" do
+    Bot::Alegre.stubs(:request_api).returns({})
+    create_request
+    create_uploaded_image
+    m1 = create_uploaded_image
+    r1 = create_request media: m1
+    m2 = create_uploaded_image
+    r2 = create_request media: m2
+    r2.similar_to_request = r1 ; r2.save!
+    r3 = create_request media: m2
+    r3.similar_to_request = r1 ; r3.save!
+    assert_equal [m1, m2].map(&:id).sort, r1.reload.medias.map(&:id).sort
     Bot::Alegre.unstub(:request_api)
   end
 end
