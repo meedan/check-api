@@ -326,7 +326,7 @@ namespace :check do
           feed.teams.each do |team|
             row = [feed.name, team.name]
             row << ProjectMedia.where(id: pmids, team_id: team.id).count
-            row << ProjectMediaRequest.joins(:project_media).where('project_medias.id' => pmids, 'project_medias.team_id' => team.id).group(:request_id).count.size
+            row << ProjectMediaRequest.joins(:project_media, :request).where('project_medias.id' => pmids, 'project_medias.team_id' => team.id).where('requests.content != ?', '.').group(:request_id).count.size
             row << FactCheck.joins(claim_description: :project_media).where('project_medias.id' => pmids, 'project_medias.team_id' => team.id).where.not(url: nil).count
             outfile.puts(row.join(','))
           end
