@@ -1,4 +1,25 @@
 ---
+am:
+  add_more_details_state_button_label: ተጨማሪ አክል
+  ask_if_ready_state_button_label: ሰርዝ
+  confirm_preferred_language: እባክዎ የመረጡትን ቋንቋ ያረጋግጡ
+  invalid_format: ይቅርታ፣ ያስገቡት ፋይል ቅርጸት አይደገፍም።
+  keep_subscription_button_label: የደንበኝነት ምዝገባን አስቀጥል
+  languages: ቋንቋዎች
+  languages_and_privacy_title: ቋንቋዎች እና ግላዊነት
+  main_menu: ዋና ምናሌ
+  main_state_button_label: ሰርዝ
+  navigation_button: ለመንቀሳቀስ አዝራሮቹን ይጠቀሙ
+  privacy_statement: የግላዊነት ሐተታ
+  privacy_title: ግላዊነት
+  report_updated: የሚከተለው የእውነታ ማረጋገጫ በአዲስ መረጃ *ዘምኗል*።
+  search_result_is_not_relevant_button_label: አይ
+  search_result_is_relevant_button_label: አዎ
+  search_state_button_label: አስገባ
+  subscribe_button_label: ለደንበኝነት ተመዝገብ
+  subscribed: በአሁኑ ጊዜ ለጋዜጣ ደብዳቤዎቻችን የደንበኝነት ምዝገባ አልዎት።
+  unsubscribe_button_label: ከደንበኝነት ምዝገባ ውጣ
+  unsubscribed: በአሁኑ ጊዜ ለጋዜጣ ደብዳቤዎቻችን የደንበኝነት ምዝገባ የልዎትም።
 bn:
   add_more_details_state_button_label: আরও তথ্য যোগ করুন
   ask_if_ready_state_button_label: अभी नही
@@ -209,7 +230,7 @@ pt:
   search_result_is_relevant_button_label: Sim
   search_state_button_label: Enviar
   subscribe_button_label: Inscrever-se
-  subscribed: Atualmente, você estás inscrito(a) em nosso boletim informativo.
+  subscribed: Atualmente, você está inscrito(a) em nosso boletim informativo.
   unsubscribe_button_label: Desinscrever-se
   unsubscribed: Atualmente, você não está inscrito(a) em nosso boletim informativo.
 es:
@@ -234,6 +255,27 @@ es:
   subscribed: Actualmente estás suscrita(o) a nuestro boletín.
   unsubscribe_button_label: Cancelar suscripción
   unsubscribed: Actualmente no estás suscrita(o) a nuestro boletín.
+sw:
+  add_more_details_state_button_label: Ongeza zaidi
+  ask_if_ready_state_button_label: Ghairi
+  confirm_preferred_language: Tafadhali thibitisha lugha unayopendelea
+  invalid_format: 'Samahani, faili uliyowasilisha haihimili muundo. '
+  keep_subscription_button_label: Endeleza usajili
+  languages: Lugha
+  languages_and_privacy_title: Lugha na faragha
+  main_menu: Menyu kuu
+  main_state_button_label: Ghairi
+  navigation_button: Tumia vitufe kurambaza
+  privacy_statement: Taarifa ya faragha
+  privacy_title: Faragha
+  report_updated: 'Ukaguzi wa ukweli ufuatao *umesasishwa* na taarifa mpya:'
+  search_result_is_not_relevant_button_label: Hapana
+  search_result_is_relevant_button_label: Ndio
+  search_state_button_label: 'Wasilisha '
+  subscribe_button_label: Jiunge
+  subscribed: Kwa sasa umejiunga na jarida letu.
+  unsubscribe_button_label: Jiondoe
+  unsubscribed: Kwa sasa umejiondoa kutoka jarida letu.
 ta:
   add_more_details_state_button_label: கூடுதல் தகவல்ககள்
   ask_if_ready_state_button_label: ரத்து செய்
