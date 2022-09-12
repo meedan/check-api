@@ -258,7 +258,7 @@ namespace :check do
       if slugs.empty?
         puts 'Please provide a list of workspace slugs'
       else
-        outfile = File.open("/tmp/statistics.csv", "w")
+        outfile = File.open('/tmp/statistics.csv', 'w')
         header = [
           'ID',
           'Org',
@@ -313,17 +313,36 @@ namespace :check do
           end
           cache_team_data(team, header, team_rows)
         end
-
         outfile.close
 
-        if defined?(ENV.fetch('STATISTICS_S3_DIR'))
-          puts 'Starting upload for statistics.csv'
-          file_path = '/tmp/statistics.csv'
-          object_key = "#{ENV['STATISTICS_S3_DIR']}/statistics.csv"
-          if object_uploaded?(s3_client, bucket_name, object_key, file_path)
-            puts 'Uploaded statistics.csv'
-          else
-            puts 'Error uploading statistics.csv to S3. Check credentials?'
+        outfile = File.open('/tmp/feed.csv', 'w')
+        header = ['Feed', 'Workspace', 'Number of items shared', 'Number of requests associated with any items shared', 'Number of fact-checks published with URL']
+        outfile.puts(header.join(','))
+        Feed.all.each do |feed|
+          next if feed.teams.empty?
+          Team.current = feed.teams.first
+          pmids = CheckSearch.new({ feed_id: feed.id, eslimit: 10000 }.to_json).medias.map(&:id).uniq
+          Team.current = nil
+          feed.teams.each do |team|
+            row = [feed.name, team.name]
+            row << ProjectMedia.where(id: pmids, team_id: team.id).count
+            row << ProjectMediaRequest.joins(:project_media).where('project_medias.id' => pmids, 'project_medias.team_id' => team.id).group(:request_id).count.size
+            row << FactCheck.joins(claim_description: :project_media).where('project_medias.id' => pmids, 'project_medias.team_id' => team.id).where.not(url: nil).count
+            outfile.puts(row.join(','))
+          end
+        end
+        outfile.close
+
+        ['statistics', 'feed'].each do |outfile|
+          if defined?(ENV.fetch('STATISTICS_S3_DIR'))
+            puts "Starting upload for #{outfile}.csv"
+            file_path = "/tmp/#{outfile}.csv"
+            object_key = "#{ENV['STATISTICS_S3_DIR']}/#{outfile}.csv"
+            if object_uploaded?(s3_client, bucket_name, object_key, file_path)
+              puts "Uploaded #{outfile}.csv"
+            else
+              puts "Error uploading #{outfile}.csv to S3. Check credentials?"
+            end
           end
         end
       end
