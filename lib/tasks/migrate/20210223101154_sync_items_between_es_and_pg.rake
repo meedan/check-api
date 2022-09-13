@@ -20,7 +20,7 @@ namespace :check do
           query = { term: { team_id: { value: t.id } } }
           search_after = [0]
           while true
-            result = $repository.search(query: query, sort: sort, search_after: search_after, size: 5000)
+            result = $repository.search(_source: 'annotated_id', query: query, sort: sort, search_after: search_after, size: 10000).results
             es_ids = result.collect{ |i| i['annotated_id'] }.uniq
             break if es_ids.empty?
             pg_ids = ProjectMedia.where(team_id: t.id, id: es_ids).map(&:id)
@@ -30,7 +30,7 @@ namespace :check do
               options[:body] = { query: query }
               client.delete_by_query options
             end
-            search_after = [es_ids.max]
+            search_after = [pg_ids.max]
           end
         end
       end
