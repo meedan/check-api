@@ -180,7 +180,8 @@ class Version < Partitioned::ByForeignKey
   end
 
   def get_associated_from_assignment
-    self.get_associated_from_core_annotation(self.item.assigned) if self.item.assigned_type == 'Annotation'
+    item = self.item
+    self.get_associated_from_core_annotation(item.assigned) if !item.nil? && item.assigned_type == 'Annotation'
   end
 
   def set_project_association

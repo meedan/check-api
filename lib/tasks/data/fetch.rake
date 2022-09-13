@@ -60,10 +60,27 @@ namespace :check do
         end
         # Step 2
         count = team.project_medias.where("channel->>'main' = ?", CheckChannels::ChannelCodes::FETCH.to_s).joins(:media).where('medias.type' => 'Blank').count
-        puts "Step 2: destroying imported reports [#{count}] items "
-        team.project_medias.where("channel->>'main' = ?", CheckChannels::ChannelCodes::FETCH.to_s).joins(:media).where('medias.type' => 'Blank').find_each do |pm|
-          print '.'
-          pm.destroy!
+        if count > 0
+          puts "Step 2: destroying imported reports [#{count}] items "
+          RequestStore.store[:disable_es_callbacks] = true
+          client = $repository.client
+          options = { index: CheckElasticSearchModel.get_index_alias }
+          team.project_medias
+          .where("channel->>'main' = ?", CheckChannels::ChannelCodes::FETCH.to_s)
+          .joins(:media)
+          .where('medias.type' => 'Blank')
+          .find_in_batches(:batch_size => 1000) do |pms|
+            print '.'
+            deleted_ids = pms.map(&:id)
+            query = { terms: { annotated_id: deleted_ids } }
+            options[:body] = { query: query }
+            client.delete_by_query options
+            pms.each do |pm|
+              print '.'
+              pm.destroy!
+            end
+          end
+          RequestStore.store[:disable_es_callbacks] = false
         end
         # Step 3
         DynamicAnnotation::Field.joins("
