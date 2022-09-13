@@ -525,17 +525,13 @@ class TeamTaskTest < ActiveSupport::TestCase
     tt = create_team_task team_id: t.id
     # Project Media error
     ProjectMedia.any_instance.stubs(:create_auto_tasks).raises(StandardError)
-    assert_raises StandardError do
-      tt.add_to_project_medias
-    end
+    tt.add_teamwide_tasks_bg
     ProjectMedia.any_instance.unstub(:create_auto_tasks)
     # Source error
     tt2 = create_team_task team_id: t.id, fieldset: 'metadata', associated_type: 'Source'
     create_source team: t
     Source.any_instance.stubs(:create_auto_tasks).raises(StandardError)
-    assert_raises StandardError do
-      tt2.add_to_sources
-    end
+    tt2.add_teamwide_tasks_bg
     Source.any_instance.unstub(:create_auto_tasks)
   end
 
