@@ -37,6 +37,10 @@ class Feed < ApplicationRecord
     self.requests.count
   end
 
+  def root_requests_count
+    self.requests.where(request_id: nil).count
+  end
+
   # This takes some time to run because it involves external HTTP requests and writes to the database:
   # 1) If the query contains a media URL, it will be downloaded... if it contains some other URL, it will be sent to Pender
   # 2) Requests will be made to Alegre in order to index the request media and to look for similar requests
