@@ -21,8 +21,7 @@ module SmoochTos
     id: 'Kami tidak akan pernah membagikan informasi pengenal pribadi Anda. Balas dengan angka 9 untuk membaca pernyataan Privasi dan Tujuan kami.',
     de: 'Wir werden Daten, mit denen Sie identifiziert werden können, niemals weitergeben. Drücken Sie 9, um unsere Datenschutzbestimmungen zu lesen.',
     fr: "Nous ne partagerons jamais vos informations personnellement identifiables. Répondez 9 pour lire notre déclaration de confidentialité et d'objectif.",
-    es: '',
-    be: ''
+    es: ''
   }
 
   CONTENT = {
@@ -251,22 +250,6 @@ module SmoochTos
       Por favor ten en cuenta que los sitios web a los que enlazamos tendrán su propia política de privacidad.
 
       Si no deseas que tus aportes se utilicen en este trabajo, por favor no contribuyas a nuestro sistema.
-    },
-
-    be: %{
-      গোপনীয়তা এবং উদ্দেশ্য
-
-      %{team} %{channel} টিপলাইনে স্বাগতম।
-
-      যাচাইকরণের জন্য আপনার জিজ্ঞাসা জমা দিতে আপনি এই নম্বরটি ব্যবহার করতে পারেন।
-
-      আপনার ডেটা নিরাপদ থাকে। আপনার ব্যক্তিগত তথ্য সুরক্ষিত রাখতে এবং %{channel} ব্যক্তিগত ও সুরক্ষিত রাখার জন্য আমরা আমাদের দায়িত্বকে গুরুত্বসহকারে গ্রহণ করি; এই পরিষেবাটি প্রদান এবং উন্নত করা ব্যতীত আপনার ব্যক্তিগতভাবে সনাক্তকরণযোগ্য তথ্য (PII) শেয়ার, বিক্রয় বা অন্যথায় ব্যবহার করব না।
-
-      ভবিষ্যতে যত তাড়াতাড়ি সম্ভব ভাইরাল হওয়া ভুল তথ্য সনাক্ত করার জন্য, আমরা এই টিপলাইন থেকে অ- PII সামগ্রীটি পরীক্ষিত গবেষক এবং সত্য-যাচাইয়ের অংশীদারদের সাথে শেয়ার করতে পারি।
-
-      অনুগ্রহ করে মনে রাখবেন যে আমরা যে ওয়েবসাইটগুলির সাথে লিঙ্ক করি সেগুলির নিজস্ব গোপনীয়তা নীতি থাকবে।
-
-      আপনি যদি না চান যে এই কাজে আপনার সাবমিশনগুলি ব্যবহার হক তবে দয়া করে আমাদের সিস্টেমে অবদান করবেন না।
     }
   }
 
