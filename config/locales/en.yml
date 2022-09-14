@@ -759,6 +759,7 @@ en:
   list_column_tags_as_sentence: Tags
   list_column_media_published_at: Media published
   list_column_published_by: Report published by
+  list_column_fact_check_published_at: Fact check published at
   list_column_related_count: Related
   list_column_suggestions_count: Suggested matches
   list_column_folder: Folder
