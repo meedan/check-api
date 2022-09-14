@@ -763,6 +763,7 @@ en:
   list_column_suggestions_count: Suggested matches
   list_column_folder: Folder
   list_column_creator_name: Created by
+  list_column_fact_check_title: Fact check
   list_column_team_name: Workspace
   list_column_sources_as_sentence: Source
   go_back_to_check: Go back to Check
