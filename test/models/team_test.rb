@@ -2356,7 +2356,7 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     2.times { create_team_task(team_id: t.id, fieldset: 'metadata', associated_type: 'ProjectMedia') }
     2.times { create_team_task(team_id: t.id, fieldset: 'metadata', associated_type: 'Source') }
-    assert_equal 22, t.list_columns.size
+    assert_equal 23, t.list_columns.size
   end
 
   test "should match rule by title with spaces" do
