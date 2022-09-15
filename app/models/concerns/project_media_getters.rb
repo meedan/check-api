@@ -141,10 +141,6 @@ module ProjectMediaGetters
     self.claim_description&.context
   end
 
-  def fact_check_published_on
-    self.claim_description&.fact_check&.updated_at
-  end
-
   def get_title
     title = self.original_title
     [self.analysis['file_title'], self.analysis['title'], self.fact_check_title, self.claim_description_content].each do |value|
