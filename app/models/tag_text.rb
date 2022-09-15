@@ -65,8 +65,8 @@ class TagText < ApplicationRecord
   def delete_associated_rule
     team = self.team
     rules = team.get_rules
-    old_count = rules.count
     unless rules.blank?
+      old_count = rules.count
       # This name created by check-web
       rule_name = "Rule for tag \"#{self.text}\""
       rules.delete_if{|r| r['name'] == rule_name}
