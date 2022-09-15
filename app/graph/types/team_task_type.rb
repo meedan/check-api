@@ -8,7 +8,6 @@ TeamTaskType = GraphqlCrudOperations.define_default_type do
   field :label, types.String
   field :description, types.String
   field :options, JsonStringType
-  field :project_ids, JsonStringType
   field :required, types.Boolean
   field :team_id, types.Int
   field :team, TeamType
