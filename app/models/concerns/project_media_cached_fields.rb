@@ -185,8 +185,8 @@ module ProjectMediaCachedFields
       update_on: [FACT_CHECK_EVENT]
 
     cached_field :fact_check_published_on,
-      start_as: nil,
-      recalculate: proc { |pm| pm.claim_description&.fact_check&.updated_at },
+      start_as: 0,
+      recalculate: proc { |pm| pm.claim_description&.fact_check&.updated_at.to_i },
       update_on: [FACT_CHECK_EVENT]
 
     cached_field :description,
