@@ -16,7 +16,6 @@ development: &default
   elasticsearch_index:
   elasticsearch_log: true
   elasticsearch_sync: false
-  pghero_enabled: false
 
   # WARNING For production, don't use a wildcard: set the allowed domains explicitly as a regular expression, e.g.
   # '(https?://.*\.?(meedan.com|meedan.org))'
