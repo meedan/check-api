@@ -22,14 +22,14 @@ am:
   unsubscribed: በአሁኑ ጊዜ ለጋዜጣ ደብዳቤዎቻችን የደንበኝነት ምዝገባ የልዎትም።
 bn:
   add_more_details_state_button_label: আরও তথ্য যোগ করুন
-  ask_if_ready_state_button_label: अभी नही
+  ask_if_ready_state_button_label: বাতিল
   confirm_preferred_language: অনুগ্রহ করে আপনার পছন্দেসই ভাষা নিশ্চিত করুন
   invalid_format: দুঃখিত, আপনার জমা দেওয়া ফাইলটি সমর্থিত ফর্মেটে নয়।
   keep_subscription_button_label: সাবস্ক্রিপশন চালু রাখুন
   languages: ভাষাগুলো
   languages_and_privacy_title: ভাষা ও গোপনীয়তা
   main_menu: মুখ্য মেন
-  main_state_button_label: अभी नही
+  main_state_button_label: বাতিল
   navigation_button: নেভিগেট করতে বোতামগুলি ব্যবহার করুন
   privacy_statement: গোপনীয়তা বিবৃতি
   privacy_title: গোপনীয়তা
