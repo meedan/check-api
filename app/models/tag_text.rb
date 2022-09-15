@@ -9,7 +9,7 @@ class TagText < ApplicationRecord
   validates_presence_of :text
   validates_presence_of :team_id
 
-  after_destroy :destroy_tags_in_background
+  after_destroy :destroy_tags_in_background, :delete_associated_rule
   after_update :update_tags_in_background, :delete_if_marked_for_deletion
 
   belongs_to :team, optional: true
@@ -60,6 +60,22 @@ class TagText < ApplicationRecord
 
   def destroy_tags_in_background
     TagText.delay_for(1.second).destroy_tags(self.id, self.team_id)
+  end
+
+  def delete_associated_rule
+    team = self.team
+    rules = team.get_rules
+    old_count = rules.count
+    unless rules.blank?
+      # This name created by check-web
+      rule_name = "Rule for tag \"#{self.text}\""
+      rules.delete_if{|r| r['name'] == rule_name}
+      if rules.count != old_count
+        team.set_rules = rules
+        team.skip_check_ability
+        team.save!
+      end
+    end
   end
 
   def update_tags_in_background
