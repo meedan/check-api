@@ -462,6 +462,11 @@ class Team < ApplicationRecord
         show: false
       },
       {
+        key: 'fact_check_published_on',
+        label: I18n.t(:list_column_fact_check_published_on),
+        show: false
+      },
+      {
         key: 'comment_count',
         label: I18n.t(:list_column_comment_count),
         show: false
@@ -499,6 +504,11 @@ class Team < ApplicationRecord
       {
         key: 'sources_as_sentence',
         label: I18n.t(:list_column_sources_as_sentence),
+        show: false
+      },
+      {
+        key: 'fact_check_title',
+        label: I18n.t(:list_column_fact_check_title),
         show: false
       }
     ]
