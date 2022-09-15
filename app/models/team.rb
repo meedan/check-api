@@ -462,8 +462,8 @@ class Team < ApplicationRecord
         show: false
       },
       {
-        key: 'fact_check_published_at',
-        label: I18n.t(:list_column_fact_check_published_at),
+        key: 'fact_check_published_on',
+        label: I18n.t(:list_column_fact_check_published_on),
         show: false
       },
       {
