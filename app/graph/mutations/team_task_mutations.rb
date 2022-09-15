@@ -4,7 +4,6 @@ module TeamTaskMutations
     task_type: 'str',
     description: 'str',
     json_options: 'str',
-    json_project_ids: 'str',
     json_schema: 'str',
     keep_completed_tasks: 'bool',
     order: 'int',
@@ -12,7 +11,8 @@ module TeamTaskMutations
     associated_type: 'str',
     show_in_browser_extension: 'bool',
     conditional_info: 'str',
-    required: 'bool'
+    required: 'bool',
+    options_diff: 'json',
   }
 
   create_fields = fields.merge({

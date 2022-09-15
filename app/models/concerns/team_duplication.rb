@@ -156,9 +156,7 @@ module TeamDuplication
     def self.store_clones
       @clones.each do |clone|
         if !clone[:original].is_a?(Team)
-          if clone[:original].is_a?(TeamTask)
-            clone[:clone].project_ids = clone[:clone].project_ids.collect{ |pid| @project_id_map[pid] }
-          elsif clone[:original].is_a?(Project)
+          if clone[:original].is_a?(Project)
             clone[:clone].team_id = @team_id
           elsif clone[:original].is_a?(SavedSearch)
             clone[:clone].filters = self.update_saved_search_filters(clone[:clone].filters)

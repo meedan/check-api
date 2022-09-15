@@ -12,7 +12,7 @@ module ProjectMediaCreators
   private
 
   def create_team_tasks
-    self.create_auto_tasks(self.project_id)
+    self.create_auto_tasks
   end
 
   def create_annotation
