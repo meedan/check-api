@@ -1302,6 +1302,20 @@ class GraphqlController3Test < ActionController::TestCase
     assert_equal t2.id, JSON.parse(@response.body)['data']['team']['team_tasks']['edges'][0]['node']['dbid'].to_i
   end
 
+  test "should update task options" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'admin'
+    tt = create_team_task team_id: t.id, label: 'Select one', type: 'single_choice', options: ['ans_a', 'ans_b', 'ans_c']
+    pm = create_project_media team: t
+    authenticate_with_user(u)
+    query = 'mutation { updateTeamTask(input: { clientMutationId: "1", id: "' + tt.graphql_id + '", label: "Select only one", json_options: "[ \"bli\", \"blo\", \"bla\" ]", options_diff: "{ \"deleted\": [\"ans_c\"], \"changed\": { \"ans_a\": \"bli\", \"ans_b\": \"blo\" }, \"added\": \"bla\" }" }) { team_task { label } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 'Select only one', tt.reload.label
+    assert_equal ['bli', 'blo', 'bla'], tt.options
+  end
+
   test "should replace blank project media by another" do
     u = create_user
     t = create_team
