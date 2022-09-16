@@ -47,11 +47,11 @@ class Request < ApplicationRecord
     Media.distinct.joins(:requests).where('requests.request_id = ? OR medias.id = ?', self.id, self.media_id)
   end
 
-  def self.get_media_from_query(type, query, feed_id = nil)
+  def self.get_media_from_query(type, query, fid = nil)
     media = nil
     url = Twitter::TwitterText::Extractor.extract_urls(query)[0]
     if ['audio', 'image', 'video'].include?(type.to_s) && !url.blank?
-      media_url = Bot::Smooch.save_locally_and_return_url(url, type, feed_id)
+      media_url = Bot::Smooch.save_locally_and_return_url(url, type, fid)
       open(media_url) do |f|
         data = f.read
         hash = Digest::MD5.hexdigest(data)
