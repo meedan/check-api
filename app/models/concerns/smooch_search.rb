@@ -154,12 +154,33 @@ module SmoochSearch
       else
         media_url = Twitter::TwitterText::Extractor.extract_urls(query)[0]
         return [] if media_url.blank?
+        media_url = self.save_locally_and_return_url(media_url, type, feed_id) unless feed_id.nil?
         threshold = Bot::Alegre.get_threshold_for_query(type, pm)[0][:value]
         alegre_results = Bot::Alegre.get_items_with_similar_media(media_url, [{ value: threshold }], team_ids, "/#{type}/similarity/")
         results = self.parse_search_results_from_alegre(alegre_results, after, feed_id, team_ids)
         Rails.logger.info "[Smooch Bot] Media similarity search got #{results.count} results while looking for '#{query}' after date #{after.inspect} for teams #{team_ids}"
       end
       results
+    end
+
+    def save_locally_and_return_url(media_url, type, feed_id)
+      feed = Feed.find_by_id(feed_id)
+      return media_url if feed.nil?
+      headers = feed.get_media_headers.to_h
+      return media_url if headers.blank?
+      mime = {
+        image: 'image/jpeg',
+        audio: 'audio/ogg',
+        video: 'video/mp4'
+      }[type.to_sym]
+      uri = URI(media_url)
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = uri.scheme == 'https'
+      req = Net::HTTP::Get.new(uri.request_uri, headers)
+      response = http.request(req)
+      path = "feed/#{feed.id}/#{SecureRandom.hex}"
+      CheckS3.write(path, mime, response.body)
+      CheckS3.public_url(path)
     end
 
     def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id = nil)
