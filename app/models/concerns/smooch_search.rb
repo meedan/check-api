@@ -154,7 +154,7 @@ module SmoochSearch
       else
         media_url = Twitter::TwitterText::Extractor.extract_urls(query)[0]
         return [] if media_url.blank?
-        media_url = self.save_locally_and_return_url(media_url, type, feed_id) unless feed_id.nil?
+        media_url = self.save_locally_and_return_url(media_url, type, feed_id)
         threshold = Bot::Alegre.get_threshold_for_query(type, pm)[0][:value]
         alegre_results = Bot::Alegre.get_items_with_similar_media(media_url, [{ value: threshold }], team_ids, "/#{type}/similarity/")
         results = self.parse_search_results_from_alegre(alegre_results, after, feed_id, team_ids)
@@ -164,7 +164,7 @@ module SmoochSearch
     end
 
     def save_locally_and_return_url(media_url, type, feed_id)
-      feed = Feed.find_by_id(feed_id)
+      feed = Feed.find_by_id(feed_id.to_i)
       return media_url if feed.nil?
       headers = feed.get_media_headers.to_h
       return media_url if headers.blank?
