@@ -13,6 +13,7 @@ namespace :check do
       deleted_date = date_value - interval.days
       # Get latest team id
       last_team_id = Rails.cache.read('check:migrate:delete_trashed_items:team_id') || 0
+      failed_items = []
       Team.where('id > ?', last_team_id).find_each do |team|
         puts "Processing team [#{team.slug}]"
         team.project_medias.where(archived: CheckArchivedFlags::FlagCodes::TRASHED)
@@ -24,7 +25,7 @@ namespace :check do
           client.delete_by_query options
           pms.each do |pm|
             print '.'
-            pm.destroy!
+            begin pm.destroy! rescue failed_items << pm.id end
           end
           sleep 10
         end
@@ -32,6 +33,7 @@ namespace :check do
         Rails.cache.write('check:migrate:delete_trashed_items:team_id', team.id)
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
+      puts "Failed to destroy items with ids: #{failed_items.inspect}" if failed_items.count > 0
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
 
@@ -48,6 +50,7 @@ namespace :check do
       deleted_date = date_value - interval.days
       # Get latest team id
       last_team_id = Rails.cache.read('check:migrate:delete_spam_items:team_id') || 0
+      failed_items = []
       Team.where('id > ?', last_team_id).find_each do |team|
         puts "Processing team [#{team.slug}]"
         team.project_medias.where(archived: CheckArchivedFlags::FlagCodes::SPAM, sources_count: 0)
@@ -60,7 +63,7 @@ namespace :check do
           client.delete_by_query options
           ProjectMedia.where(id: target_ids).each do |pm|
             print '.'
-            pm.destroy!
+            begin pm.destroy! rescue failed_items << pm.id end
           end
           sleep 10
         end
@@ -68,6 +71,7 @@ namespace :check do
         Rails.cache.write('check:migrate:delete_spam_items:team_id', team.id)
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
+      puts "Failed to destroy items with ids: #{failed_items.inspect}" if failed_items.count > 0
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
 
