@@ -12,6 +12,34 @@ class Request < ApplicationRecord
 
   validates_inclusion_of :request_type, in: ['audio', 'video', 'image', 'text']
 
+  cached_field :fact_checked_by,
+    start_as: proc { |r| '' },
+    update_es: false,
+    recalculate: proc { |r|
+      team_names = []
+      media_ids = [r.media_id] + r.similar_requests.map(&:media_id)
+      pmids = ProjectMedia.where(media_id: media_ids.uniq, team_id: r.feed.team_ids).map(&:id)
+      Annotation.where(annotation_type: 'report_design', annotated_id: pmids).where('data LIKE ?', '%state: published%').each do |published_report|
+        team_names << published_report.annotated.team.name
+      end
+      team_names.uniq.sort.join(', ')
+    },
+    update_on: [
+      {
+        model: Dynamic,
+        if: proc { |d| d.annotation_type == 'report_design' },
+        affected_ids: proc { |d|
+          request = Request.where(media_id: d.annotated.media_id).first
+          request = request.similar_to_request || request
+          [request.id]
+        },
+        events: {
+          save: :recalculate
+        }
+      },
+      ProjectMedia::SIMILARITY_EVENT
+    ]
+
   def similarity_threshold
     0.85 # FIXME: Adjust this value for text and image (eventually it can be a feed setting)
   end
@@ -45,6 +73,30 @@ class Request < ApplicationRecord
 
   def medias
     Media.distinct.joins(:requests).where('requests.request_id = ? OR medias.id = ?', self.id, self.media_id)
+  end
+
+  def subscribed
+    !self.webhook_url.blank?
+  end
+
+  def call_webhook(title, _summary, url)
+    return unless self.subscribed
+    payload = {
+      flowVariables: { # FIXME: This is specific for a usecase, it should be more generic
+        title: title,
+        link: url
+      }
+    }.to_json
+    uri = URI(self.webhook_url)
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = uri.scheme == 'https'
+    request = Net::HTTP::Post.new(uri.path)
+    request.body = payload
+    request['Content-Type'] = 'application/json'
+    http.request(request)
+    self.last_called_webhook_at = Time.now
+    self.webhook_url = nil
+    self.save!
   end
 
   def self.get_media_from_query(type, query, fid = nil)
@@ -125,6 +177,7 @@ class Request < ApplicationRecord
     self.last_submitted_at = Time.now
     self.medias_count = 1
     self.requests_count = 1
+    self.subscriptions_count = 1 if self.subscribed
   end
 
   # When a request is attached to another one, we update some fields of the "parent" request
@@ -133,7 +186,13 @@ class Request < ApplicationRecord
     if self.saved_change_to_request_id? && !request.nil?
       request.last_submitted_at = self.created_at
       request.requests_count = request.similar_requests.count + 1
+      request.subscriptions_count += 1 if self.subscribed
       request.medias_count = Request.where(request_id: request.id).or(Request.where(id: request.id)).distinct.count(:media_id)
+      request.save!
+    end
+    if self.saved_change_to_webhook_url?
+      request ||= self
+      request.subscriptions_count -= 1 unless self.subscribed
       request.save!
     end
   end
