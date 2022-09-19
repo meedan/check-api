@@ -524,7 +524,9 @@ class TeamTaskTest < ActiveSupport::TestCase
     # Source error
     tt = create_team_task team_id: t.id, fieldset: 'metadata', associated_type: 'Source'
     Source.any_instance.stubs(:create_auto_tasks).raises(StandardError)
-    tt.add_teamwide_tasks_bg
+    Sidekiq::Testing.inline! do
+      tt.add_teamwide_tasks_bg
+    end
     Source.any_instance.unstub(:create_auto_tasks)
   end
 
@@ -534,7 +536,9 @@ class TeamTaskTest < ActiveSupport::TestCase
     tt = create_team_task team_id: t.id, fieldset: 'metadata', associated_type: 'ProjectMedia'
     # Project Media error
     ProjectMedia.any_instance.stubs(:create_auto_tasks).raises(StandardError)
-    tt.add_teamwide_tasks_bg
+    Sidekiq::Testing.inline! do
+      tt.add_teamwide_tasks_bg
+    end
     ProjectMedia.any_instance.unstub(:create_auto_tasks)
   end
 

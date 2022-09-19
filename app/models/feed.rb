@@ -71,9 +71,7 @@ class Feed < ApplicationRecord
       # Make sure that item is in feed
       if request.feed.item_belongs_to_feed?(pm)
         request.call_webhook(title, summary, url)
-        request.similar_requests.each do |similar_request|
-          similar_request.call_webhook(title, summary, url)
-        end
+        request.similar_requests.find_each { |similar_request| similar_request.call_webhook(title, summary, url) }
       end
     end
   end
