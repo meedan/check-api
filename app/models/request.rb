@@ -13,7 +13,7 @@ class Request < ApplicationRecord
   validates_inclusion_of :request_type, in: ['audio', 'video', 'image', 'text']
 
   cached_field :fact_checked_by,
-    start_as: proc { |r| '' },
+    start_as: proc { |_r| '' },
     update_es: false,
     recalculate: proc { |r|
       team_names = []
