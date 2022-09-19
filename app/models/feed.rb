@@ -67,11 +67,15 @@ class Feed < ApplicationRecord
 
   # This makes one HTTP request for each request, so please consider calling this method in background
   def self.notify_subscribers(pm, title, summary, url)
-    Request.joins(feed: :feed_teams).where('feed_teams.team_id' => pm.team_id, 'requests.media_id' => pm.media_id, 'requests.request_id' => nil).where('requests.webhook_url IS NOT NULL').find_each do |request|
-      # Make sure that item is in feed
-      if request.feed.item_belongs_to_feed?(pm)
-        request.call_webhook(title, summary, url)
-        request.similar_requests.find_each { |similar_request| similar_request.call_webhook(title, summary, url) }
+    pm.team.feeds.each do |feed|
+      if feed.item_belongs_to_feed?(pm)
+        # Find cluster
+        request = Request.where(feed_id: feed.id, media_id: pm.media_id).last
+        unless request.nil?
+          request = request.similar_to_request || request
+          request.call_webhook(title, summary, url)
+          request.similar_requests.find_each { |similar_request| similar_request.call_webhook(title, summary, url) }
+        end
       end
     end
   end
