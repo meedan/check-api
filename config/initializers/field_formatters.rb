@@ -44,7 +44,7 @@ DynamicAnnotation::Field.class_eval do
   def response_value(field_value)
     value = nil
     begin
-      value = JSON.parse(field_value)
+      value = JSON.parse(field_value).to_h
     rescue
       return field_value
     end
