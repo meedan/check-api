@@ -79,11 +79,12 @@ class Request < ApplicationRecord
     !self.webhook_url.blank?
   end
 
-  def call_webhook(title, _summary, url)
+  def call_webhook(title, summary, url)
     return unless self.subscribed
     payload = {
       flowVariables: { # FIXME: This is specific for a usecase, it should be more generic
         title: title,
+        summary: summary,
         link: url
       }
     }.to_json
@@ -93,6 +94,7 @@ class Request < ApplicationRecord
     request = Net::HTTP::Post.new(uri.path)
     request.body = payload
     request['Content-Type'] = 'application/json'
+    self.feed.get_media_headers.to_h.each { |header_name, header_value| request[header_name] = header_value }
     http.request(request)
     self.last_called_webhook_at = Time.now
     self.webhook_url = nil
