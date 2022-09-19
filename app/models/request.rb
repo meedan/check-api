@@ -30,8 +30,8 @@ class Request < ApplicationRecord
         if: proc { |d| d.annotation_type == 'report_design' },
         affected_ids: proc { |d|
           request = Request.where(media_id: d.annotated.media_id).first
-          request = request.similar_to_request || request
-          [request.id]
+          request = request&.similar_to_request || request
+          request ? [request.id] : []
         },
         events: {
           save: :recalculate
