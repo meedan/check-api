@@ -316,19 +316,25 @@ namespace :check do
         outfile.close
 
         outfile = File.open('/tmp/feed.csv', 'w')
-        header = ['Feed', 'Workspace', 'Number of items shared', 'Number of requests associated with any items shared', 'Number of fact-checks published with URL']
+        header = ['Feed', 'Feed type', 'Workspace', 'Week', 'Number of items shared', 'Number of requests associated with any items shared', 'Number of fact-checks published with URL']
         outfile.puts(header.join(','))
         Feed.all.each do |feed|
           next if feed.teams.empty?
           Team.current = feed.teams.first
           pmids = CheckSearch.new({ feed_id: feed.id, eslimit: 10000 }.to_json).medias.map(&:id).uniq
           Team.current = nil
+          feed_type = (feed.published ? 'Distribution' : 'Collaborative')
           feed.teams.each do |team|
-            row = [feed.name, team.name]
-            row << ProjectMedia.where(id: pmids, team_id: team.id).count
-            row << ProjectMediaRequest.joins(:project_media, :request).where('project_medias.id' => pmids, 'project_medias.team_id' => team.id).where('requests.content != ?', '.').group(:request_id).count.size
-            row << FactCheck.joins(claim_description: :project_media).where('project_medias.id' => pmids, 'project_medias.team_id' => team.id).where.not(url: nil).count
-            outfile.puts(row.join(','))
+            date = feed.created_at.beginning_of_week
+            begin
+              from, to = date.beginning_of_week, date.end_of_week
+              row = [feed.name, feed_type, team.name, date.strftime('%Y-%m-%d')]
+              row << ProjectMedia.where(id: pmids, team_id: team.id, created_at: from..to).count
+              row << ProjectMediaRequest.joins(:project_media, :request).where('project_medias.id' => pmids, 'project_medias.team_id' => team.id, 'requests.created_at' => from..to).where('requests.content != ?', '.').group(:request_id).count.size
+              row << FactCheck.joins(claim_description: :project_media).where('project_medias.id' => pmids, 'project_medias.team_id' => team.id, 'fact_checks.created_at' => from..to).where.not(url: nil).count
+              outfile.puts(row.join(','))
+              date += 1.week
+            end while date <= Time.now
           end
         end
         outfile.close

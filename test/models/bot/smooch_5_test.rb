@@ -538,4 +538,15 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should store media" do
+    f = create_feed
+    f.set_media_headers = { 'Authorization' => 'App 123456' }
+    f.save!
+    media_url = random_url
+    WebMock.stub_request(:get, media_url).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
+    local_media_url = Bot::Smooch.save_locally_and_return_url(media_url, 'image', f.id)
+    assert_match /^http/, local_media_url
+    assert_not_equal media_url, local_media_url
+  end
 end

@@ -924,7 +924,7 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
     assert_equal ['A'], t.team_tasks.map(&:label)
-    task = '{\"fieldset\":\"tasks\",\"label\":\"B\",\"task_type\":\"free_text\",\"description\":\"\",\"projects\":[],\"options\":[]}'
+    task = '{\"fieldset\":\"tasks\",\"label\":\"B\",\"task_type\":\"free_text\",\"description\":\"\",\"options\":[]}'
     query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", remove_auto_task: "A", add_auto_task: "' + task + '" }) { team { id } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
