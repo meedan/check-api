@@ -5,6 +5,7 @@ class ClaimDescription < ApplicationRecord
   has_one :fact_check, dependent: :destroy
 
   validates_presence_of :project_media
+  validates_uniqueness_of :project_media_id
 
   # FIXME: Required by GraphQL API
   def fact_checks
