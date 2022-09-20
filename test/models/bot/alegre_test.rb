@@ -198,10 +198,6 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.decode_item_doc_id("Y2hlY2stcHJvamVjdF9tZWRpYS01NTQ1NzEtdmlkZW8"), ["check", "project_media", "554571", "video" ]
   end
 
-<<<<<<< HEAD
-
-=======
->>>>>>> ef2d24c2eef9c8409f6b05ea60e9fdf238c60fc9
   test "should not replace when parent is blank" do
     p = create_project
     pm1 = create_project_media project: p, is_image: true
