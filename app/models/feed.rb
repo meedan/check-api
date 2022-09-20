@@ -73,8 +73,8 @@ class Feed < ApplicationRecord
         request = Request.where(feed_id: feed.id, media_id: pm.media_id).last
         unless request.nil?
           request = request.similar_to_request || request
-          request.call_webhook(title, summary, url)
-          request.similar_requests.find_each { |similar_request| similar_request.call_webhook(title, summary, url) }
+          request.call_webhook(pm, title, summary, url)
+          request.similar_requests.find_each { |similar_request| similar_request.call_webhook(pm, title, summary, url) }
         end
       end
     end

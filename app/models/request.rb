@@ -79,7 +79,7 @@ class Request < ApplicationRecord
     !self.webhook_url.blank?
   end
 
-  def call_webhook(title, summary, url)
+  def call_webhook(pm, title, summary, url)
     return unless self.subscribed
     payload = {
       flowVariables: { # FIXME: This is specific for a usecase, it should be more generic
@@ -99,6 +99,7 @@ class Request < ApplicationRecord
     self.last_called_webhook_at = Time.now
     self.webhook_url = nil
     self.save!
+    ProjectMediaRequest.create(project_media_id: pm.id, request_id: self.id, skip_check_ability: true)
   end
 
   def self.get_media_from_query(type, query, fid = nil)
