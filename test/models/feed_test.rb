@@ -60,4 +60,12 @@ class FeedTest < ActiveSupport::TestCase
     assert a.can?(:read, f1)
     assert !a.can?(:read, f2)
   end
+
+  test "should get number of root requests" do
+    f = create_feed
+    r = create_request feed: f
+    create_request feed: f, request_id: r.id
+    assert_equal 2, f.requests_count
+    assert_equal 1, f.root_requests_count
+  end
 end

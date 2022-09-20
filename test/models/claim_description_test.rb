@@ -55,6 +55,16 @@ class ClaimDescriptionTest < ActiveSupport::TestCase
     assert_equal pm, cd.project_media
     assert_equal cd, pm.claim_description
     assert_equal [cd], pm.claim_descriptions
+    assert_raises ActiveRecord::RecordInvalid do
+      create_claim_description project_media: pm
+    end
+    cd = ClaimDescription.new
+    cd.description = random_string,
+    cd.context = random_string,
+    cd.project_media = pm
+    assert_raises ActiveRecord::NotNullViolation do
+      cd.save(validate: false)
+    end
   end
 
   test "should have a fact check" do

@@ -759,10 +759,12 @@ en:
   list_column_tags_as_sentence: Tags
   list_column_media_published_at: Media published
   list_column_published_by: Report published by
+  list_column_fact_check_published_on: Fact check published at
   list_column_related_count: Related
   list_column_suggestions_count: Suggested matches
   list_column_folder: Folder
   list_column_creator_name: Created by
+  list_column_fact_check_title: Fact check
   list_column_team_name: Workspace
   list_column_sources_as_sentence: Source
   go_back_to_check: Go back to Check

@@ -9,12 +9,6 @@ Rails.application.routes.draw do
     mount Sidekiq::Web => '/sidekiq'
   end
 
-  if CheckConfig.get('pghero_enabled')
-    authenticate :api_user, -> (user) { user.is_admin } do
-      mount PgHero::Engine, at: 'pghero'
-    end
-  end
-
   namespace :api, defaults: { format: 'json' } do
     # Call v2 API by passing header: 'Accept: application/vnd.api+json'
     scope module: :v2, constraints: ApiConstraints.new(version: 2, default: false) do

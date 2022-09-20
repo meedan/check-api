@@ -1,7 +1,7 @@
 class TeamTask < ApplicationRecord
   include ErrorNotification
 
-  attr_accessor :keep_completed_tasks
+  attr_accessor :keep_completed_tasks, :options_diff
 
   before_validation :set_order, on: :create
 
@@ -11,7 +11,6 @@ class TeamTask < ApplicationRecord
   validate :can_change_task_type, on: :update
 
   serialize :options, Array
-  serialize :project_ids, Array
   serialize :mapping
 
   belongs_to :team, optional: true
@@ -23,25 +22,12 @@ class TeamTask < ApplicationRecord
 
   def as_json(_options = {})
     super.merge({
-      projects: self.project_ids,
       type: self.task_type
     }).with_indifferent_access
   end
 
   def json_options=(json)
     self.options = JSON.parse(json) unless json.blank?
-  end
-
-  def json_project_ids=(json)
-    self.project_ids = JSON.parse(json) unless json.blank?
-  end
-
-  def projects=(ids)
-    self.project_ids = ids
-  end
-
-  def projects
-    self.project_ids
   end
 
   def type
@@ -52,36 +38,26 @@ class TeamTask < ApplicationRecord
     self.task_type = value
   end
 
-  def add_teamwide_tasks_bg(_options, _projects, _keep_completed_tasks)
+  def add_teamwide_tasks_bg
     # add metadata to items or sources based on associated_type field
-    if self.fieldset == 'metadata' && self.associated_type == 'Source'
+    if self.associated_type == 'Source'
       add_to_sources
     else
-      # items related to added projects
-      condition = self.project_ids.blank? ? { team_id: self.team_id } : { project_id: self.project_ids }
-      handle_add_projects(condition)
+      add_to_project_medias
     end
   end
 
-  def update_teamwide_tasks_bg(options, projects, keep_completed_tasks)
-    # get project medias for deleted projects
-    handle_remove_projects(projects) unless projects.blank?
+  def update_teamwide_tasks_bg(fields, options_diff)
     # collect updated fields with new values
     columns = {}
-    options.each do |k, _v|
+    fields.each do |k, _v|
       attribute = self.read_attribute(k)
       # type is called `task_type` on TeamTask and `type` on Task
       k = :type if k == :task_type
       columns[k] = attribute
     end
-    unless columns.blank?
-      update_tasks(columns, keep_completed_tasks)
-    end
-    # items related to added projects
-    unless projects.blank?
-      condition, excluded_ids = build_add_remove_project_condition('add', projects)
-      handle_add_projects(condition, excluded_ids) unless condition.blank?
-    end
+    update_tasks(columns) unless columns.blank?
+    update_task_answers(options_diff) unless options_diff.blank?
   end
 
   def self.destroy_teamwide_tasks_bg(id, keep_completed_tasks)
@@ -139,110 +115,132 @@ class TeamTask < ApplicationRecord
 
   def add_teamwide_tasks
     self.team&.clear_list_columns_cache
-    projects = { new: self.project_ids }
-    TeamTaskWorker.perform_in(1.second, 'add', self.id, YAML::dump(User.current), YAML::dump({}), YAML::dump(projects))
+    TeamTaskWorker.perform_in(1.second, 'add', self.id, YAML::dump(User.current))
   end
 
   def update_teamwide_tasks
     self.team&.clear_list_columns_cache
-    options = {
+    fields = {
       label: self.saved_change_to_label?,
       description: self.saved_change_to_description?,
       task_type: self.saved_change_to_task_type?,
       options: self.saved_change_to_options?
     }
-    options.delete_if{|_k, v| v == false || v.nil?}
-    projects = {}
-    if self.saved_change_to_project_ids?
-      projects = {
-        old: self.project_ids_before_last_save,
-        new: self.project_ids,
-      }
-    end
-    self.keep_completed_tasks = self.keep_completed_tasks.nil? ? true : self.keep_completed_tasks
-    TeamTaskWorker.perform_in(1.second, 'update', self.id, YAML::dump(User.current), YAML::dump(options), YAML::dump(projects), self.keep_completed_tasks) unless options.blank? && projects.blank?
+    fields.delete_if{|_k, v| v == false || v.nil?}
+    TeamTaskWorker.perform_in(1.second, 'update', self.id, YAML::dump(User.current), YAML::dump(fields), false, self.options_diff) unless fields.blank?
   end
 
   def delete_teamwide_tasks
     self.team&.clear_list_columns_cache
     self.keep_completed_tasks = self.keep_completed_tasks.nil? ? false : self.keep_completed_tasks
-    TeamTaskWorker.perform_in(1.second, 'destroy', self.id, YAML::dump(User.current), YAML::dump({}), YAML::dump({}), self.keep_completed_tasks)
+    TeamTaskWorker.perform_in(1.second, 'destroy', self.id, YAML::dump(User.current), YAML::dump({}), self.keep_completed_tasks)
   end
 
   def add_to_sources
     Source.where(team_id: self.team_id).find_each do |s|
       begin
-        s.create_auto_tasks(nil, [self])
+        s.create_auto_tasks([self])
       rescue StandardError => e
         team_task_notification_error(e, s)
       end
     end
   end
 
-  def handle_remove_projects(projects)
-    condition, excluded_ids = build_add_remove_project_condition('remove', projects)
-    unless condition.blank?
-      Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia')
-      .joins("INNER JOIN project_medias pm ON annotations.annotated_id = pm.id")
-      .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', self.id)
-      .where(condition)
-      .where("pm.project_id NOT IN (?) OR pm.project_id IS NULL", excluded_ids)
-      .find_each { |t| t.destroy }
-    end
-  end
-
-  def build_add_remove_project_condition(action, projects)
-    # This method to build conditions based on add/remove action
-    if_key, else_key = action == 'add' ? [:new, :old] : [:old, :new]
-    prefix = action == 'add' ? '' : 'pm.'
-    condition = {}
-    excluded_ids = [0]
-    if projects[if_key].blank?
-      condition = { "#{prefix}team_id": self.team_id }
-      excluded_ids = projects[else_key]
-    elsif !projects[else_key].blank?
-      condition = { "#{prefix}project_id": projects[if_key] }
-    end
-    [condition, excluded_ids]
-  end
-
-  def update_tasks(columns, keep_completed_tasks)
-    columns = columns.except(:type, :options) if get_teamwide_tasks_with_answers.any?
-    # update tasks with zero answer
-    update_tasks_with_zero_answer(columns)
-    # handle tasks with answers
-    update_tasks_with_answer(columns) unless keep_completed_tasks
-  end
-
-  def update_tasks_with_zero_answer(columns)
-    TeamTask.get_teamwide_tasks_zero_answers(self.id).find_each do |t|
-      t.skip_check_ability = true
-      t.update(columns)
-    end
-  end
-
-  def update_tasks_with_answer(columns)
-    get_teamwide_tasks_with_answers.find_each do |t|
-      t.skip_check_ability = true
-      t.update(columns)
-    end
-  end
-
-  def handle_add_projects(condition, excluded_ids = [0])
-    # bypass trashed items
-    condition.merge!({ archived: CheckArchivedFlags::FlagCodes::NONE })
-    ProjectMedia.where(condition)
-    .where("project_medias.project_id NOT IN (?) OR project_medias.project_id IS NULL", excluded_ids)
+  def add_to_project_medias
+    ProjectMedia.where({ team_id: self.team_id, archived: CheckArchivedFlags::FlagCodes::NONE })
     .joins("LEFT JOIN annotations a ON a.annotation_type = 'task' AND a.annotated_type = 'ProjectMedia'
       AND a.annotated_id = project_medias.id
       AND task_team_task_id(a.annotation_type, a.data) = #{self.id}")
     .where("a.id" => nil).order(id: :desc).distinct.find_each do |pm|
       begin
-        pm.create_auto_tasks(nil, [self])
+        pm.create_auto_tasks([self])
       rescue StandardError => e
         team_task_notification_error(e, pm)
       end
     end
+  end
+
+  def update_tasks(columns)
+    columns = columns.except(:type) if get_teamwide_tasks_with_answers.any?
+    TeamTask.get_teamwide_tasks(self.id).find_each do |t|
+      t.skip_check_ability = true
+      t.update(columns)
+    end
+  end
+
+  # TODO: Handle update/delete 'other' option
+  def update_task_answers(options_diff)
+    tasks = get_teamwide_tasks_with_answers
+    responses = Dynamic.where(annotation_type: "task_response_#{self.task_type}",annotated_type: "Task", annotated_id: tasks.map(&:id))
+    conditions = {
+      annotation_id: responses.map(&:id),
+      annotation_type: "task_response_#{self.task_type}",
+      field_name: "response_#{self.task_type}",
+    }
+    fields = DynamicAnnotation::Field.where(conditions)
+    method = "update_task_answers_#{self.task_type}"
+    deleted, updated, response_ids = self.send(method, fields, options_diff)
+    Dynamic.where(id: deleted).destroy_all unless deleted.blank?
+    unless updated.blank?
+      # Update PG
+      DynamicAnnotation::Field.import(updated, on_duplicate_key_update: [:value], recursive: false, validate: false)
+      Dynamic.where(id: response_ids).update_all(updated_at: Time.now)
+      # Update ES
+      keys = %w(id team_task_id value field_type fieldset date_value numeric_value)
+      # Add mapping for tasks and it's ProjectMedia
+      t_pm = {}
+      Task.where(id: responses.map(&:annotated_id)).find_each{ |r| t_pm[r.id] = r.annotated_id }
+      Dynamic.where(id: response_ids).find_each do |response|
+        response.add_update_nested_obj({op: 'update', pm_id: t_pm[response.annotated_id.to_i], nested_key: 'task_responses', keys: keys})
+      end
+    end
+  end
+
+  def update_task_answers_single_choice(fields, options_diff)
+    deleted = []
+    updated = []
+    response_ids = []
+    fields.find_each do |f|
+      deleted << f.annotation_id if options_diff['deleted'].include?(f.value)
+      if options_diff['changed'].keys.include?(f.value)
+        f.value = options_diff['changed'][f.value]
+        updated << f
+        response_ids << f.annotation_id
+      end
+    end
+    return deleted, updated, response_ids
+  end
+
+  def update_task_answers_multiple_choice(fields, options_diff)
+    deleted = []
+    updated = []
+    response_ids = []
+    fields.find_each do |f|
+      parsed = begin JSON.parse(f.value) rescue { 'selected' => [] } end
+      # Handle delete options
+      new_value = parsed
+      unless (parsed['selected'].to_a & options_diff['deleted']).empty?
+        new_selected = parsed['selected'].to_a - options_diff['deleted']
+        # build new response
+        new_value = { 'selected' => new_selected, 'other' => parsed['other'] }
+      end
+      # Handle update options
+      unless (parsed['selected'].to_a & options_diff['changed'].keys).empty?
+        new_selected = new_value['selected'].to_a.collect{ |x| options_diff['changed'].keys.include?(x) ? options_diff['changed'][x] : x }
+        new_value = { 'selected' => new_selected, 'other' => parsed['other'] }
+      end
+      # if both selected and other are empty then delete response otherwise do an update
+      unless (new_value.values - parsed.values).empty?
+        if new_value.values.reject(&:blank?).empty?
+          deleted << f.annotation_id
+        else
+          f.value = new_value.to_json
+          updated << f
+          response_ids << f.annotation_id
+        end
+      end
+    end
+    return deleted, updated, response_ids
   end
 
   def self.get_teamwide_tasks(id)
@@ -277,7 +275,7 @@ class TeamTask < ApplicationRecord
   end
 
   def can_change_task_type
-    if (self.task_type_changed? || self.options_changed?) && !tasks_with_answers_count.zero?
+    if (self.task_type_changed?) && !tasks_with_answers_count.zero?
       errors.add(:base, I18n.t(:cant_change_field_type_or_options_when_answered))
     end
   end

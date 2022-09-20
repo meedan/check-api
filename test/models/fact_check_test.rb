@@ -61,6 +61,17 @@ class FactCheckTest < ActiveSupport::TestCase
     fc = create_fact_check claim_description: cd
     assert_equal cd, fc.claim_description
     assert_equal fc, cd.fact_check
+    assert_raises ActiveRecord::RecordInvalid do
+      create_fact_check claim_description: cd
+    end
+    fc = FactCheck.new
+    fc.summary = random_string
+    fc.url = random_url
+    fc.title = random_string
+    fc.claim_description = cd
+    assert_raises ActiveRecord::NotNullViolation do
+      fc.save(validate: false)
+    end
   end
 
   test "should provide a valid URL" do

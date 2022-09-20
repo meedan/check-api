@@ -78,6 +78,45 @@ class TagTextTest < ActiveSupport::TestCase
     end
   end
 
+  test "should destroy associated rule when tag text is destroyed" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      tag_text = create_tag_text text: 'test rule', team_id: t.id
+      rules = []
+      rules << {
+        "name": "Rule for tag \"#{tag_text.text}\"",
+        "project_ids": "",
+        "rules": {
+          "operator": "and",
+          "groups": [
+            {
+              "operator": "and",
+              "conditions": [
+                {
+                  "rule_definition": "title_contains_keyword",
+                  "rule_value": "Foo"
+                }
+              ]
+            }
+          ]
+        },
+        "actions": [
+          {
+            "action_definition": "add_tag",
+            "action_value": "test rule"
+          }
+        ]
+      }
+      t.rules = rules.to_json
+      t.save!
+      assert_equal 1, t.reload.get_rules.count
+      tag_text.reload.destroy!
+      assert_equal 0, t.reload.get_rules.count
+    end
+  end
+
   test "should update tags when tag text is updated" do
     t = create_team
     p = create_project team: t

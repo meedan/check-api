@@ -11,6 +11,7 @@ FeedType = GraphqlCrudOperations.define_default_type do
   field :current_feed_team, FeedTeamType
   field :teams_count, types.Int
   field :requests_count, types.Int
+  field :root_requests_count, types.Int
 
   connection :requests, -> { RequestType.connection_type } do
     argument :request_id, types.Int

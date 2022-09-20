@@ -497,7 +497,7 @@ class GraphqlController2Test < ActionController::TestCase
     tt2 = create_team_task team_id: t.id, order: 5
     tt3 = create_team_task team_id: t.id, label: 'Foo'
 
-    query = "query GetById { team(id: \"#{t.id}\") { team_tasks { edges { node { label, dbid, type, order, description, options, project_ids, required, team_id, team { slug } } } } } }"
+    query = "query GetById { team(id: \"#{t.id}\") { team_tasks { edges { node { label, dbid, type, order, description, options, required, team_id, team { slug } } } } } }"
     post :create, params: { query: query, team: t.slug }
 
     assert_response :success

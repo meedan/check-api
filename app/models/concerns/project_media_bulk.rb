@@ -90,9 +90,6 @@ module ProjectMediaBulk
 
       self.update_folder_cache(ids, project)
 
-      # Other callbacks to run in background
-      ProjectMedia.delay.run_bulk_update_team_tasks(pmp_mapping, User.current&.id)
-
       # ElasticSearch
       script = { source: "ctx._source.project_id = params.project_id", params: { project_id: project.id } }
       self.bulk_reindex(ids.to_json, script)
@@ -121,21 +118,6 @@ module ProjectMediaBulk
         check_search_spam: team.check_search_spam,
         check_search_trash: team.check_search_trash
       }
-    end
-
-    def run_bulk_update_team_tasks(pmp_mapping, user_id)
-      ids = pmp_mapping.keys
-      current_user = User.current
-      User.current = User.find_by_id(user_id.to_i)
-      ProjectMedia.where(id: ids).where.not(archived: CheckArchivedFlags::FlagCodes::TRASHED).each do |pm|
-        if pm.project_id != pmp_mapping[pm.id]
-          # Remove existing team tasks based on old project_id
-          pm.remove_related_team_tasks_bg(pmp_mapping[pm.id]) unless pmp_mapping[pm.id].blank?
-          # Add new team tasks based on new project_id
-          pm.add_destination_team_tasks(pm.project_id)
-        end
-      end
-      User.current = current_user
     end
 
     def bulk_reindex(ids_json, script)
