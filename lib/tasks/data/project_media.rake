@@ -304,5 +304,101 @@ namespace :check do
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
+
+    # bundle exec rails check:project_media:index_pg_items['slug:team_slug&ids:1-2-3']
+    task index_pg_items: :environment do |_t, args|
+      data_args = parse_args args.extras
+      started = Time.now.to_i
+      # Add Team condition
+      team_condition = {}
+      if data_args['slug'].blank?
+        last_team_id = 0 #Rails.cache.read('check:project_media:index_pg_items:team_id') || 0
+      else
+        last_team_id = 0
+        team_condition = { slug: data_args['slug'] } unless data_args['slug'].blank?
+      end
+      # Add ProjectMedia condition
+      pm_condition = {}
+      unless data_args['ids'].blank?
+        pm_ids = begin data_args['ids'].split('-').map{ |s| s.to_i } rescue [] end
+        pm_condition = { id: pm_ids } unless pm_ids.blank?
+      end
+      index_alias = CheckElasticSearchModel.get_index_alias
+      client = $repository.client
+      options = {
+        index: index_alias,
+        conflicts: 'proceed'
+      }
+      failures = []
+      Team.where('id > ?', last_team_id).where(team_condition).find_each do |team|
+        team.project_medias.where(pm_condition).find_in_batches(:batch_size => 1000) do |pms|
+          # delete existing items.
+          options[:body] = { query: { terms: { annotated_id: pms.map(&:id) } } }
+          client.delete_by_query options
+          es_body = []
+          pms.each do |obj|
+            print '.'
+            obj.create_elasticsearch_doc_bg({})
+            # append nested objects
+            doc_id = Base64.encode64("ProjectMedia/#{obj.id}")
+            data = {}
+            # comments
+            comments = obj.annotations('comment')
+            data['comments'] = comments.collect{|c| {id: c.id, text: c.text}}
+            # tags
+            tags = obj.get_annotations('tag').map(&:load)
+            data['tags'] = tags.collect{|t| {id: t.id, tag: t.tag_text}}
+            # 'task_responses'
+            tasks = obj.annotations('task')
+            tasks_ids = tasks.map(&:id)
+            team_task_ids = TeamTask.where(team_id: team.id).map(&:id)
+            responses = Task.where('annotations.id' => tasks_ids)
+            .where('task_team_task_id(annotations.annotation_type, annotations.data) IN (?)', team_task_ids)
+            .joins("INNER JOIN annotations responses ON responses.annotation_type LIKE 'task_response%'
+              AND responses.annotated_type = 'Task'
+              AND responses.annotated_id = annotations.id"
+              )
+            data['task_responses'] = responses.collect{ |tr| {
+                id: tr.id,
+                fieldset: tr.fieldset,
+                field_type: tr.type,
+                team_task_id: tr.team_task_id,
+                value: tr.first_response
+              }
+            }
+            # add TeamTask of type choice with no answer
+            no_response_ids = tasks_ids - responses.map(&:id)
+            Task.where(id: no_response_ids)
+            .where('task_team_task_id(annotations.annotation_type, annotations.data) IN (?)', team_task_ids).find_each do |item|
+              if item.type =~ /choice/
+                data['task_responses'] << { id: item.id, team_task_id: item.team_task_id, fieldset: item.fieldset }
+              end
+            end
+            # 'assigned_user_ids'
+            assignments_uids = Assignment.where(assigned_type: ['Annotation', 'Dynamic'])
+            .joins('INNER JOIN annotations a ON a.id = assignments.assigned_id')
+            .where('a.annotated_type = ? AND a.annotated_id = ?', 'ProjectMedia', obj.id).map(&:user_id)
+            data['assigned_user_ids'] = assignments_uids.uniq
+            es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: data } } }
+          end
+          sleep 20
+          response = client.bulk body: es_body unless es_body.blank?
+          if response['errors']
+            response['items'].select { |i| i.dig('error') }.each do |item|
+              update = item['update']
+              failures << { doc_id: update['_id'], status: update['status'], error: update['error']['type'] }
+            end
+          end
+        end
+        Rails.cache.write('check:project_media:index_pg_items:team_id', team.id) if data_args['slug'].blank?
+      end
+      if failures.size > 0
+        puts "Failed to index #{failed_items.size} items"
+        Rails.cache.write('check:project_media:index_pg_items:failures', failures)
+        pp failed_items
+      end
+      minutes = ((Time.now.to_i - started) / 60).to_i
+      puts "[#{Time.now}] Done in #{minutes} minutes."
+    end
   end
 end
