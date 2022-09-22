@@ -249,6 +249,7 @@ namespace :check do
                           end
 
             fields = { "#{es_field_name}" => field_value }
+            fields["title"] = field_value if field_name == 'title'
             es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
           end
           client.bulk body: es_body unless es_body.blank?
