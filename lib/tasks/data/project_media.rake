@@ -188,7 +188,7 @@ namespace :check do
       # TODO: add mapping if PG field name not same as ES field name
       es_fields_mapping = {
         'title' => 'title_index',
-        'status' => 'verification_status'
+        'status' => 'status_index'
       }
       es_field_name = es_fields_mapping[field_name].blank? ? field_name : es_fields_mapping[field_name]
       index_alias = CheckElasticSearchModel.get_index_alias
@@ -232,6 +232,8 @@ namespace :check do
                             ['unpublished', 'paused', 'published'].index(value)
                           elsif field_name == 'status'
                             pm.status_ids.index(value)
+                          elsif field_name == 'verification_status'
+                            pm.status
                           elsif field_name == 'tags_as_sentence'
                             value.split(', ').size
                           elsif field_name == 'published_by'
