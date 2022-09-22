@@ -115,7 +115,7 @@ ActiveRecord::Schema.define(version: 2022_09_19_011554) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "context"
-    t.index ["project_media_id"], name: "index_claim_descriptions_on_project_media_id"
+    t.index ["project_media_id"], name: "index_claim_descriptions_on_project_media_id", unique: true
     t.index ["user_id"], name: "index_claim_descriptions_on_user_id"
   end
 
@@ -184,7 +184,7 @@ ActiveRecord::Schema.define(version: 2022_09_19_011554) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "language", default: "", null: false
-    t.index ["claim_description_id"], name: "index_fact_checks_on_claim_description_id"
+    t.index ["claim_description_id"], name: "index_fact_checks_on_claim_description_id", unique: true
     t.index ["language"], name: "index_fact_checks_on_language"
     t.index ["user_id"], name: "index_fact_checks_on_user_id"
   end
