@@ -81,8 +81,10 @@ class Request < ApplicationRecord
 
   def call_webhook(pm, title, summary, url)
     return unless self.subscribed
+    # FIXME: This payload format is specific for one usecase, it should be more generic
     payload = {
-      flowVariables: { # FIXME: This is specific for a usecase, it should be more generic
+      personData: {},
+      flowVariables: {
         title: title,
         summary: summary,
         link: url
@@ -91,7 +93,7 @@ class Request < ApplicationRecord
     uri = URI(self.webhook_url)
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = uri.scheme == 'https'
-    request = Net::HTTP::Post.new(uri.path)
+    request = Net::HTTP::Post.new("#{uri.path}?#{uri.query}")
     request.body = payload
     request['Content-Type'] = 'application/json'
     self.feed.get_media_headers.to_h.each { |header_name, header_value| request[header_name] = header_value }
