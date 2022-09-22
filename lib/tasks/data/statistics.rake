@@ -198,6 +198,15 @@ namespace :check do
         data
       end
 
+      def get_feed_statistics(pmids, feed, team, from, to)
+        data = []
+        data << Request.where(feed_id: feed.id, created_at: from..to).count
+        data << ProjectMedia.where(id: pmids, team_id: team.id, updated_at: from..to).count
+        data << ProjectMediaRequest.joins(:project_media, :request).where('project_medias.id' => pmids, 'project_medias.team_id' => team.id, 'requests.created_at' => from..to).where('requests.content != ?', '.').group(:request_id).count.size
+        data << FactCheck.joins(claim_description: :project_media).where('project_medias.id' => pmids, 'project_medias.team_id' => team.id, 'fact_checks.created_at' => from..to).where.not(url: nil).count
+        data
+      end
+
       bucket_name = 'check-batch-task-statistics'
       region = 'eu-west-1'
       begin
@@ -315,31 +324,41 @@ namespace :check do
         end
         outfile.close
 
-        outfile = File.open('/tmp/feed.csv', 'w')
-        header = ['Feed', 'Feed type', 'Workspace', 'Week', 'Number of items shared', 'Number of requests associated with any items shared', 'Number of fact-checks published with URL']
-        outfile.puts(header.join(','))
-        Feed.all.each do |feed|
-          next if feed.teams.empty?
-          Team.current = feed.teams.first
-          pmids = CheckSearch.new({ feed_id: feed.id, eslimit: 10000 }.to_json).medias.map(&:id).uniq
-          Team.current = nil
-          feed_type = (feed.published ? 'Distribution' : 'Collaborative')
-          feed.teams.each do |team|
-            date = feed.created_at.beginning_of_week
-            begin
-              from, to = date.beginning_of_week, date.end_of_week
-              row = [feed.name, feed_type, team.name, date.strftime('%Y-%m-%d')]
-              row << ProjectMedia.where(id: pmids, team_id: team.id, created_at: from..to).count
-              row << ProjectMediaRequest.joins(:project_media, :request).where('project_medias.id' => pmids, 'project_medias.team_id' => team.id, 'requests.created_at' => from..to).where('requests.content != ?', '.').group(:request_id).count.size
-              row << FactCheck.joins(claim_description: :project_media).where('project_medias.id' => pmids, 'project_medias.team_id' => team.id, 'fact_checks.created_at' => from..to).where.not(url: nil).count
-              outfile.puts(row.join(','))
-              date += 1.week
-            end while date <= Time.now
+        ['day', 'week'].each do |period|
+          outfile = File.open("/tmp/feed_#{period}.csv", 'w')
+          header = ['Feed', 'Feed type', 'Workspace', period.capitalize, 'Number of feed requests', 'Number of items shared', 'Number of requests associated with any items shared', 'Number of fact-checks published with URL']
+          outfile.puts(header.join(','))
+          Feed.all.each do |feed|
+            next if feed.teams.empty?
+            Team.current = feed.teams.first
+            pmids = CheckSearch.new({ feed_id: feed.id, eslimit: 10000 }.to_json).medias.map(&:id).uniq
+            Team.current = nil
+            feed_type = (feed.published ? 'Distribution' : 'Collaborative')
+            feed.teams.each do |team|
+              date = nil
+              begin
+                from = nil
+                to = nil
+                # Cold start
+                if date.nil?
+                  from = ProjectMedia.first.created_at
+                  to = feed.created_at.end_of_day
+                  date = to
+                else
+                  from = date.send("beginning_of_#{period}")
+                  to = date.send("end_of_#{period}")
+                end
+                row = [feed.name, feed_type, team.name, date.strftime('%Y-%m-%d')]
+                row << get_feed_statistics(pmids, feed, team, from, to)
+                outfile.puts(row.flatten.join(','))
+                date += 1.send(period)
+              end while date <= Time.now
+            end
           end
+          outfile.close
         end
-        outfile.close
 
-        ['statistics', 'feed'].each do |outfile|
+        ['statistics', 'feed_day', 'feed_week'].each do |outfile|
           if defined?(ENV.fetch('STATISTICS_S3_DIR'))
             puts "Starting upload for #{outfile}.csv"
             file_path = "/tmp/#{outfile}.csv"
