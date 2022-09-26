@@ -21,7 +21,12 @@ FeedType = GraphqlCrudOperations.define_default_type do
 
     resolve ->(feed, args, _ctx) {
       request_id = (args['request_id'].to_i == 0 ? nil : args['request_id'].to_i)
-      sort = { 'requests' => 'requests_count', 'medias' => 'medias_count', 'last_submitted' => 'last_submitted_at' }[args['sort'].to_s] || 'last_submitted_at'
+      sort = {
+        'requests' => 'requests_count',
+        'medias' => 'medias_count',
+        'last_submitted' => 'last_submitted_at',
+        'subscriptions' => 'subscriptions_count'
+      }[args['sort'].to_s] || 'last_submitted_at'
       sort_type = args['sort_type'].to_s.downcase == 'asc' ? 'ASC' : 'DESC'
       query = Request.where(request_id: request_id, feed_id: feed.id)
       query = query.or(Request.where(id: request_id, feed_id: feed.id)) unless request_id.nil?

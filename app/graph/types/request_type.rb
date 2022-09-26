@@ -8,8 +8,12 @@ RequestType = GraphqlCrudOperations.define_default_type do
   field :last_submitted_at, types.String
   field :request_type, types.String
   field :content, types.String
+  field :last_called_webhook_at, types.String
+  field :fact_checked_by, types.String
+  field :subscribed, types.Boolean
   field :medias_count, types.Int
   field :requests_count, types.Int
+  field :subscriptions_count, types.Int
   field :similar_to_request, RequestType
   field :feed, FeedType
 

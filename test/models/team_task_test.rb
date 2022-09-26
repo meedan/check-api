@@ -511,22 +511,29 @@ class TeamTaskTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
-  test "should notify error when handling team tasks" do
+  test "should notify error when handling team tasks for sources" do
     t = create_team
-    p = create_project team: t
-    p2 = create_project team: t
-    pm = create_project_media project: p
-    tt = create_team_task team_id: t.id, project_ids: [p2.id]
+    pm = create_project_media team: t
+    create_source team: t
+    # Source error
+    tt = create_team_task team_id: t.id, fieldset: 'metadata', associated_type: 'Source'
+    Source.any_instance.stubs(:create_auto_tasks).raises(StandardError)
+    Sidekiq::Testing.inline! do
+      tt.add_teamwide_tasks_bg
+    end
+    Source.any_instance.unstub(:create_auto_tasks)
+  end
+
+  test "should notify error when handling team tasks for project medias" do
+    t = create_team
+    pm = create_project_media team: t
+    tt = create_team_task team_id: t.id, fieldset: 'metadata', associated_type: 'ProjectMedia'
     # Project Media error
     ProjectMedia.any_instance.stubs(:create_auto_tasks).raises(StandardError)
-    tt.send(:handle_add_projects, { 'project_id': p.id })
+    Sidekiq::Testing.inline! do
+      tt.add_teamwide_tasks_bg
+    end
     ProjectMedia.any_instance.unstub(:create_auto_tasks)
-    # Source error
-    tt2 = create_team_task team_id: t.id, fieldset: 'metadata', associated_type: 'Source'
-    create_source team: t
-    Source.any_instance.stubs(:create_auto_tasks).raises(StandardError)
-    tt2.add_teamwide_tasks_bg({}, [], false);
-    Source.any_instance.unstub(:create_auto_tasks)
   end
 
   test "should have valid fieldset" do

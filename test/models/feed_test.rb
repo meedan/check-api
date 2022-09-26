@@ -68,4 +68,29 @@ class FeedTest < ActiveSupport::TestCase
     assert_equal 2, f.requests_count
     assert_equal 1, f.root_requests_count
   end
+
+  test "should notify subscribers" do
+    Sidekiq::Testing.inline!
+    url = URI.join(random_url, "user/#{random_number}")
+    WebMock.stub_request(:post, url)
+    f = create_feed published: true
+    t = create_team
+    f.teams << t
+    FeedTeam.update_all shared: true
+    m = create_uploaded_image
+
+    r = create_request feed: f, media: m, webhook_url: url
+
+    assert_not_nil r.reload.webhook_url
+    assert_nil r.reload.last_called_webhook_at
+
+    pm = create_project_media team: t, media: m
+    CheckSearch.any_instance.stubs(:medias).returns([pm])
+    publish_report(pm)
+
+    assert_nil r.reload.webhook_url
+    assert_not_nil r.reload.last_called_webhook_at
+
+    CheckSearch.any_instance.unstub(:medias)
+  end
 end
