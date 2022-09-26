@@ -10,8 +10,6 @@ class FactCheck < ApplicationRecord
   validates_presence_of :claim_description
   validates_uniqueness_of :claim_description_id
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
-  validates :title, length: { maximum: 140 }, allow_blank: true, allow_nil: true
-  validates :summary, length: { maximum: 620 }, allow_blank: true, allow_nil: true
 
   after_save :update_report
 
