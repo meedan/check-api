@@ -212,4 +212,56 @@ class RequestTest < ActiveSupport::TestCase
     assert_equal [m1, m2].map(&:id).sort, r1.reload.medias.map(&:id).sort
     Bot::Alegre.unstub(:request_api)
   end
+
+  test "should cache team names that fact-checked a request" do
+    Bot::Alegre.stubs(:request_api).returns({})
+    RequestStore.store[:skip_cached_field_update] = false
+    f = create_feed
+    t1 = create_team
+    t2 = create_team name: 'Foo'
+    t3 = create_team name: 'Bar'
+    f.teams << t2
+    f.teams << t3
+    m = create_uploaded_image
+    r = create_request feed: f, media: m
+    assert_equal '', r.reload.fact_checked_by
+    publish_report(create_project_media(team: t1, media: m))
+    assert_equal '', r.reload.fact_checked_by
+    publish_report(create_project_media(team: t2, media: m))
+    assert_equal 'Foo', r.reload.fact_checked_by
+    publish_report(create_project_media(team: t3, media: m))
+    assert_equal 'Bar, Foo', r.reload.fact_checked_by
+    Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should return if there is a subscription for a request" do
+    r = create_request
+    assert !r.reload.subscribed
+    r.webhook_url = random_url
+    r.save!
+    assert r.reload.subscribed
+  end
+
+  test "should keep number of subscriptions" do
+    r = create_request
+    assert_equal 0, r.reload.subscriptions_count
+    r1 = create_request webhook_url: random_url
+    assert_equal 1, r1.reload.subscriptions_count
+    r2 = create_request webhook_url: random_url
+    r2.similar_to_request = r1
+    r2.save!
+    assert_equal 2, r1.reload.subscriptions_count
+    r3 = create_request
+    r3.similar_to_request = r1
+    r3.save!
+    assert_equal 2, r1.reload.subscriptions_count
+    r2 = Request.find(r2.id)
+    r2.webhook_url = nil
+    r2.save!
+    assert_equal 1, r1.reload.subscriptions_count
+    r1 = Request.find(r1.id)
+    r1.webhook_url = nil
+    r1.save!
+    assert_equal 0, r1.reload.subscriptions_count
+  end
 end

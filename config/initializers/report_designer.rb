@@ -4,29 +4,42 @@ Dynamic.class_eval do
   end
 
   after_save do
-    if self.annotation_type == 'report_design' && (self.action == 'save' || self.action =~ /publish/) && self.annotated&.claim_description
-      fc = self.annotated.claim_description.fact_check
+    title = nil
+    summary = nil
+    url = nil
+    pm = self.annotated
+    if self.annotation_type == 'report_design' && (self.action == 'save' || self.action =~ /publish/) && pm&.claim_description
+      fc = pm.claim_description.fact_check
       user = self.annotator || User.current
       fields = { user: user, skip_report_update: true }
       if self.report_design_field_value('use_text_message')
+        title = self.report_design_field_value('title')
+        summary = self.report_design_field_value('text')
+        url = self.report_design_field_value('published_article_url')
         fields.merge!({
-          title: self.report_design_field_value('title'),
-          summary: self.report_design_field_value('text'),
-          url: self.report_design_field_value('published_article_url')
+          title: title,
+          summary: summary,
+          url: url
         })
       elsif self.report_design_field_value('use_visual_card')
+        title = self.report_design_field_value('headline')
+        summary = self.report_design_field_value('description')
+        url = self.report_design_field_value('published_article_url')
         fields.merge!({
-          title: self.report_design_field_value('headline'),
-          summary: self.report_design_field_value('description'),
-          url: self.report_design_field_value('published_article_url')
+          title: title,
+          summary: summary,
+          url: url
         })
       end
       if fc.nil?
-        FactCheck.create({ claim_description: self.annotated.claim_description }.merge(fields))
+        FactCheck.create({ claim_description: pm.claim_description }.merge(fields))
       else
         fields.each { |field, value| fc.send("#{field}=", value) }
         fc.save
       end
+    end
+    if self.annotation_type == 'report_design' && self.action =~ /publish/
+      Feed.delay_for(1.minute, retry: 0).notify_subscribers(pm, title, summary, url) # Need to be sure that the item is indexed in the feed before notifying
     end
   end
 
