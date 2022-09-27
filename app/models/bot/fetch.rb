@@ -309,7 +309,7 @@ class Bot::Fetch < BotUser
         state: auto_publish_reports ? 'published' : 'paused',
         options: [{
           language: language,
-          status_label: pm.status_i18n(pm.reload.last_verification_status),
+          status_label: pm.status_i18n(pm.reload.last_verification_status, { locale: language }),
           description: summary,
           title: title,
           published_article_url: claim_review['url'],
