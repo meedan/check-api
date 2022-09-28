@@ -394,6 +394,11 @@ class Bot::Alegre < BotUser
     tbi.nil? ? self.default_model : tbi.get_alegre_model_in_use || self.default_model
   end
 
+  def self.language_for_similarity(team_id)
+    tbi = self.get_alegre_tbi(team_id)
+    tbi.nil? ? nil : tbi.get_language_for_similarity
+  end
+
   def self.matching_model_to_use(team_ids)
     models = []
     [team_ids].flatten.each do |team_id|

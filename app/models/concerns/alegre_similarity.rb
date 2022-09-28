@@ -129,12 +129,15 @@ module AlegreSimilarity
 
     def send_to_text_similarity_index_package(pm, field, text, doc_id, model=nil)
       model ||= self.indexing_model_to_use(pm)
-      {
+      language = self.language_for_similarity(pm&.team_id)
+      params = {
         doc_id: doc_id,
         text: text,
         model: model,
         context: self.get_context(pm, field)
       }
+      params[:language] = language if !language.nil?
+      params
     end
 
     def send_to_text_similarity_index(pm, field, text, doc_id, model=nil)
@@ -246,13 +249,15 @@ module AlegreSimilarity
     end
 
     def similar_texts_from_api_conditions(text, models, fuzzy, team_id, field, threshold, match_across_content_types=true)
-      {
+      params = {
         text: text,
         models: [models].flatten.empty? ? nil : [models].flatten.uniq,
         fuzzy: fuzzy == 'true' || fuzzy.to_i == 1,
         context: self.build_context(team_id, field),
         match_across_content_types: match_across_content_types,
       }.merge(self.get_threshold_hash_from_threshold(threshold))
+      language = self.language_for_similarity(team_id)
+      params[:language] = language if !language.nil?
     end
 
     def get_items_with_similar_media(media_url, threshold, team_id, path, query_or_body = 'body')
