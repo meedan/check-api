@@ -780,7 +780,6 @@ id:
   list_column_share_count: Dibagikan di FB
   list_column_reaction_count: Reaksi di FB
   list_column_comment_count: Komentar di FB
-  list_column_linked_items_count: Media yang mirip
   list_column_type: Tipe
   list_column_status: Status
   list_column_created_at: Diserahkan
@@ -791,7 +790,7 @@ id:
   list_column_media_published_at: Media yang diterbitkan
   list_column_published_by: Laporan diterbitkan oleh
   list_column_related_count: Terkait
-  list_column_suggestions_count: Kecocokan yang disarankan
+  list_column_suggestions_count: Media yang disarankan
   list_column_folder: Folder
   list_column_creator_name: Dibuat oleh
   list_column_team_name: Ruang kerja
