@@ -221,13 +221,6 @@ development: &default
   #
   google_analytics_code: # '<GOOGLE ANAYTICS CODE>'
 
-  # Honeycomb analytics service https://www.honeycomb.io
-  #
-  # OPTIONAL
-  #
-  honeycomb_key: # '<HONEYCOMB KEY>'
-  honeycomb_dataset: # '<HONEYCOMB DATASET>'
-
   # CloudFlare caching https://support.cloudflare.com/hc/en-us/categories/200275248-Caching
   #
   # OPTIONAL
@@ -235,6 +228,17 @@ development: &default
   cloudflare_auth_email: # '<CLOUDFLARE AUTH EMAIL>'
   cloudflare_auth_key: # '<CLOUDFLARE AUTH KEY>'
   cloudflare_zone: # '<CLOUDFLARE ZONE>'
+
+  # Open Telemetry configuration, for reporting to Honeycomb
+  # See initializers/open_telemetry.rb for usage.
+  #
+  # OPTIONAL (set to report to Honeycomb Dev environment from local)
+  #
+  otel_exporter_otlp_endpoint: # "https://api.honeycomb.io"
+  otel_exporter_otlp_headers: # "x-honeycomb-team=<DEV API KEY>"
+  otel_service_name: # "check-api"
+  otel_resource_attributes:
+    # developer.name: <DEVELOPER_NAME>
 
 test:
   <<: *default
@@ -260,6 +264,8 @@ test:
   transifex_project:
   storage_public_endpoint: 'http://localhost:9000/check-api-test'
   storage_bucket: 'check-api-test'
+  otel_exporter_otlp_endpoint:
+  otel_exporter_otlp_headers:
 
   # Facebook social login
   #
