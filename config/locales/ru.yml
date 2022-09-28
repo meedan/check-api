@@ -676,7 +676,6 @@ ru:
   list_column_share_count: Репосты FB
   list_column_reaction_count: Реакции FB
   list_column_comment_count: Комментарии FB
-  list_column_linked_items_count: Похожие медиа-файлы
   list_column_type: Тип
   list_column_status: Статус
   list_column_created_at: Отправлено
@@ -686,7 +685,6 @@ ru:
   list_column_tags_as_sentence: Тэги
   list_column_media_published_at: Опубликовано
   list_column_related_count: Связанные
-  list_column_suggestions_count: Suggested matches
   list_column_creator_name: Автор
   list_column_team_name: Группа
   list_column_sources_as_sentence: Источник

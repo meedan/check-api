@@ -108,11 +108,11 @@ ar:
       task: المهمة
       comment: ملحوظة
       project_media: العنصر
-      media: عنصر
+      media: العنصر
       project: مجلد
       team: مساحة العمل
       user: المستخدم(ة)
-      source: مصدر
+      source: المصدر
       project_source: المصدر
     attributes:
       tag:
@@ -162,8 +162,8 @@ ar:
     https://hooks.slack.com/services/XXXXX/XXXXXXXXXX »
   slug_is_reserved: مأخوذ
   invalid_media_item: العنصر غير صالح
-  invalid_default_status_for_custom_verification_status: المُعَرِّف لحالة التحقق الإفتراضية
-    غير صالح
+  invalid_default_status_for_custom_verification_status: إن المُعَرِّف الافتراضي لحالة
+    التحقق غير صالح
   invalid_active_status_for_custom_verification_status: مُعَرِّف الحالة الفعّالة غير
     صالح
   invalid_label_for_custom_verification_status: علامة الحالة مطلوبة
@@ -176,14 +176,14 @@ ar:
     fields:
       assigned: المُكَلَّف
       unassigned: أُزيل التكليف عن
-      project: مجلد
+      project: المجلد
       source: المصدر
       status: الحالة
       status_previous: الحالة السابقة
       related_to: 'ذي صلة مع '
       view_button: عرض %{type} في %{app}
       project_source: المصدر
-      project_media: 'الإجابة من '
+      project_media: العنصر
       attribution: تمّت الإجابة بواسطة
     messages:
       analysis_verification_status_status_changed: 'قام%{user} بتغيير الحالة إلى:
@@ -224,10 +224,10 @@ ar:
       user_invited: تمت دعوة %{user} الى مساحة العمل %{team}
       user_banned: تم حظر %{user} من مساحة العمل %{team}
   mail_view_welcome: مرحباً بكم في %{app_name}
-  mail_view_register: 'أنت على وشك الانتهاء من تسجيل حسابك على %{app_name}! يرجى تأكيد
+  mail_view_register: 'إنك على وشك الانتهاء من تسجيل حسابك على %{app_name}! يرجى تأكيد
     بريدك الإلكتروني بالضّغط على الرّابط التالي:'
   mail_confirm_button: تأكيد الحساب
-  slack_restricted_join_to_members: عذراً ، لا يمكنك الانضمام إلى %{team_name} حيث
+  slack_restricted_join_to_members: عذراً، لا يمكنك الانضمام إلى %{team_name} حيث
     أنه محصور على أعضاء مساحات عمل %{teams} على Slack.
   admin:
     actions:
@@ -241,8 +241,8 @@ ar:
         menu: تكرار مساحة العمل
         done: تم التّكرار
         are_you_sure_you_want_to_copy_team:
-          html: هل أنت متأكدة من رغبتك في تكرار مساحة العمل <strong>%{team}</strong>؟
-            سيتم نسخ جميع البيانات المرتبطة كذلك.
+          html: هل تأكدت من رغبتك في تكرار مساحة العمل <strong>%{team}</strong>؟ سيتم
+            نسخ جميع البيانات المرتبطة كذلك.
         the_team_is_being_copied: تكرار مساحة العمل جارٍ
         url_when_ready:
           html: فور جاهزيّتها ، ستكون مساحة العمل المُكررة متاحة في <strong>%{copy_url}</strong>
@@ -352,11 +352,11 @@ ar:
   error_login_2fa: " يُرجى إكمال تسجيل الدخول بإضافة رمز المصادقة."
   error_record_not_found: 'لم يتم العثور على %{type} #%{id} '
   mails_notifications:
-    greeting: مرحباً %{username}
-    greeting_anonymous: مرحباً
+    greeting: مرحباً يا %{username}،
+    greeting_anonymous: مرحباً !
     project_view: عرض المجلد
     unsubscribe: إلغاء الاشتراك
-    unsubscribe_link: "%{unsubscribe} من هذه الإخطارات"
+    unsubscribe_link: "%{unsubscribe} من هذه الإشعارات"
     copyright_html: '%{app_name} من <a href="https://meedan.com">Meedan</a>'
     register:
       subject: حساب جديد لك على %{app_name}
@@ -416,7 +416,7 @@ ar:
       status: الحالة
       media_h: العنصر
     media_status:
-      label: عنصر
+      label: العنصر
       subject: "[%{team} - %{project}] تم تصنيف حالة العنصر أنه %{status}"
       header_title: تم تحديث حالة العنصر
       header_text: لقد حُدثَت حالة عنصر في المجلد %{project}، التابع لـ %{team}، من
@@ -603,14 +603,14 @@ ar:
     user_not_authorized: للأسف، لا يُسمَح لك تكرار هذا الفريق.
   team_import:
     invalid_google_spreadsheet_url: رابط جدول البيانات غير صالح %{spreadsheet_url}
-    not_found_google_spreadsheet_url: جدول بيانات غير موجود في %{spreadsheet_url}
-    cannot_authenticate_with_the_credentials: لا يمكن المصادقة على Google Drive بييانات
+    not_found_google_spreadsheet_url: جدول البيانات غير موجود في %{spreadsheet_url}
+    cannot_authenticate_with_the_credentials: لا يمكن المصادقة على Google Drive ببيانات
       المرور الحالية. يرجى تبليغ فريق الدعم عن هذه الحادثة.
     team_not_present: لم يتم العثور على مساحة العمل الحالية أثناء استيراد البيانات.
       يرجى تبليغ فريق الدعم عن هذه الحادثة.
     user_not_present: لم يتم العثور على المستخدم(ة) الحالي(ة) أثناء استيراد البيانات.
       يرجى تبليغ فريق الدعم عن هذه الحادثة.
-    user_not_authorized: عذراً ، ليس مسموح لك استيراد البيانات لمساحة العمل هذه.
+    user_not_authorized: عذراً ، لا يُسمَح لك باستيراد البيانات لمساحة العمل هذه.
     invalid_project: مجلد غير صالح %{project}
     invalid_user: المؤلف غير صالح %{user}
     invalid_status: حالة غير صالحة %{status}
@@ -723,10 +723,10 @@ ar:
   flag_medical: حالات (أو إجراءات) طبية
   flag_violence: عنف
   flag_racy: جنسي
-  flag_spam: إعلانية مؤذية
+  flag_spam: إعلان مزعج
   annotation_type_flag_name_label: المؤشّر
   annotation_type_flag_value_label: احتمالية المؤشّر
-  flag_likelihood_0: غير معروف
+  flag_likelihood_0: مجهول
   flag_likelihood_1: منخفض (سيجري الكشف عن محتوى أقل)
   flag_likelihood_2: مُستبعد
   flag_likelihood_3: متوسط (سيتم اكتشاف بعض المحتويات)
@@ -741,8 +741,8 @@ ar:
     يرجى تقديم حالة احتياطية
   embed_no_content_yet: إنشاء التقرير جار. قد تستغرق هذه العملية بضع دقائق. يرجى إعادة
     تحميل الصفحة.
-  language_format_invalid: تنسيق اللغة غير صالح. يجب أن تكون بصيغة كود ISO 639-1.
-  languages_format_invalid: تنسيق اللغات غير صالح. يجب أن تكون على شكل قائمة بكود
+  language_format_invalid: تنسيق اللغة غير صالح. يجب أن تكون بالترميز  ISO 639-1.
+  languages_format_invalid: تنسيق اللغات غير صالح. يجب أن تكون على شكل قائمة بالترميز
     ISO 639-1
   cant_change_status_if_item_is_published: عذراً ، لا يمكن تغيير الحالة بينما التقرير
     منشور
@@ -760,7 +760,6 @@ ar:
   list_column_share_count: مشاركات فيسبوك
   list_column_reaction_count: تفاعلات فيسبوك
   list_column_comment_count: تعليقات فيسبوك
-  list_column_linked_items_count: المواد الإعلامية المتشابهة
   list_column_type: النوع
   list_column_status: الحالة
   list_column_created_at: تم الإرسال
@@ -771,7 +770,7 @@ ar:
   list_column_media_published_at: تاريخ نشر المادة الإعلامية
   list_column_published_by: تم نشر التقرير بواسطة
   list_column_related_count: ذات صلة
-  list_column_suggestions_count: المتطابقات المقترحة
+  list_column_suggestions_count: المواد الإعلامية المقترحة
   list_column_folder: مجلد
   list_column_creator_name: تم الإنشاء بواسطة
   list_column_team_name: مساحة العمل
