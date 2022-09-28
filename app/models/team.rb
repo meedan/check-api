@@ -116,12 +116,8 @@ class Team < ApplicationRecord
     self.team_users.where(user_id: User.current.id).last unless User.current.nil?
   end
 
-  def auto_tasks(project_id, associated_type = 'ProjectMedia')
-    tasks = []
-    self.team_tasks.where(associated_type: associated_type).order(order: :asc, id: :asc).each do |task|
-      tasks << task if task.project_ids.include?(project_id) || task.project_ids.blank?
-    end
-    tasks
+  def auto_tasks(associated_type = 'ProjectMedia')
+    self.team_tasks.where(associated_type: associated_type).order(order: :asc, id: :asc)
   end
 
   def add_auto_task=(task)
@@ -242,10 +238,8 @@ class Team < ApplicationRecord
     perms["set_privacy Project"] = ability.can?(:set_privacy, project)
     perms["update Relationship"] = ability.can?(:update, relationship)
     perms["destroy Relationship"] = ability.can?(:destroy, relationship)
-    # FIXME fix typo
-    perms["mange TagText"] = ability.can?(:manage, tag_text)
-    # FIXME fix typo
-    perms["mange TeamTask"] = ability.can?(:manage, team_task)
+    perms["manage TagText"] = ability.can?(:manage, tag_text)
+    perms["manage TeamTask"] = ability.can?(:manage, team_task)
     perms
   end
 
@@ -462,6 +456,11 @@ class Team < ApplicationRecord
         show: false
       },
       {
+        key: 'fact_check_published_on',
+        label: I18n.t(:list_column_fact_check_published_on),
+        show: false
+      },
+      {
         key: 'comment_count',
         label: I18n.t(:list_column_comment_count),
         show: false
@@ -499,6 +498,11 @@ class Team < ApplicationRecord
       {
         key: 'sources_as_sentence',
         label: I18n.t(:list_column_sources_as_sentence),
+        show: false
+      },
+      {
+        key: 'fact_check_title',
+        label: I18n.t(:list_column_fact_check_title),
         show: false
       }
     ]

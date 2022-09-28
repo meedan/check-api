@@ -667,7 +667,6 @@ sw:
   list_column_share_count: Shiriki za FB
   list_column_reaction_count: Hisia za FB
   list_column_comment_count: Maoni ya FB
-  list_column_linked_items_count: Vyombo vya habari sawa
   list_column_type: Aina
   list_column_status: Hali
   list_column_created_at: Imewasilishwa
@@ -677,7 +676,6 @@ sw:
   list_column_tags_as_sentence: Lebo
   list_column_media_published_at: Imechapishwa kwenye vyombo vya habari
   list_column_related_count: Inayohusiana
-  list_column_suggestions_count: Mechi zilizopendekezwa
   list_column_creator_name: Imetengenezwa na
   list_column_team_name: Ulingo wa kazi
   list_column_sources_as_sentence: Chanzo

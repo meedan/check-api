@@ -227,10 +227,10 @@ class Bot::Fetch < BotUser
       fc = FactCheck.new
       fc.skip_check_ability = true
       fc.claim_description = cd
-      fc.title = self.get_title(claim_review).truncate(140)
-      summary = self.parse_text(claim_review['text'].to_s.blank? ? claim_review['headline'] : claim_review['text'])
-      fc.summary = summary.to_s.truncate(620)
+      fc.title = self.get_title(claim_review).to_s
       fc.url = claim_review['url'].to_s
+      summary = self.parse_text(claim_review['text'].to_s.blank? ? claim_review['headline'] : claim_review['text'])
+      fc.summary = summary.to_s.truncate(900 - fc.title.size - fc.url.size)
       fc.user = user
       fc.skip_report_update = true
       fc.language = claim_review.dig('raw', 'language')
@@ -309,7 +309,7 @@ class Bot::Fetch < BotUser
         state: auto_publish_reports ? 'published' : 'paused',
         options: [{
           language: language,
-          status_label: pm.status_i18n(pm.reload.last_verification_status),
+          status_label: pm.status_i18n(pm.reload.last_verification_status, { locale: language }),
           description: summary,
           title: title,
           published_article_url: claim_review['url'],

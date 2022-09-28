@@ -79,7 +79,11 @@ class Bot::Alegre < BotUser
           match_id, _score_with_context = matches.first
           match = ProjectMedia.find_by_id(match_id)
           existing_parent = Relationship.where(target_id: match_id).where('relationship_type IN (?)', [Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml]).first
-          Bot::Alegre.create_relationship((existing_parent && existing_parent.source) || match, pm, Hash[matches], Relationship.suggested_type, match, Relationship.suggested_type)
+          hashed_matches = Hash[matches]
+          if existing_parent && existing_parent.source
+            hashed_matches[existing_parent.source.id] ||= hashed_matches[match.id]
+          end
+          Bot::Alegre.create_relationship((existing_parent && existing_parent.source) || match, pm, hashed_matches, Relationship.suggested_type, match, Relationship.suggested_type)
         end
       end
     end
@@ -373,7 +377,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.item_doc_id(object, field_name)
-    Base64.encode64(["check", object.class.to_s.underscore, object.id, field_name].join("-")).strip.delete("\n").delete("=")
+    Base64.encode64(["check", object.class.to_s.underscore, object&.id, field_name].join("-")).strip.delete("\n").delete("=")
   end
 
   def self.decode_item_doc_id(doc_id)
