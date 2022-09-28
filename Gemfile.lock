@@ -686,7 +686,7 @@ GEM
     peek-rblineprof (0.2.0)
       peek
       rblineprof
-    pg (0.18.4)
+    pg (1.4.3)
     pg_query (1.3.0)
     phony (2.19.9)
     phony_rails (0.15.0)
@@ -1054,7 +1054,7 @@ DEPENDENCIES
   peek (= 1.1.0)
   peek-rblineprof
   pender_client!
-  pg (~> 0.18.0)
+  pg (~> 1.1)
   pg_query (~> 1.3)
   phony_rails
   puma

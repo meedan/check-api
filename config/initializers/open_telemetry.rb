@@ -40,6 +40,7 @@ if Check::OpenTelemetry.enabled?
     c.use 'OpenTelemetry::Instrumentation::GraphQL'
     c.use 'OpenTelemetry::Instrumentation::HttpClient'
     c.use 'OpenTelemetry::Instrumentation::Net::HTTP'
+    c.use 'OpenTelemetry::Instrumentation::PG'
     c.use 'OpenTelemetry::Instrumentation::Rails'
     c.use 'OpenTelemetry::Instrumentation::Redis'
     c.use 'OpenTelemetry::Instrumentation::RestClient'
