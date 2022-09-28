@@ -692,7 +692,6 @@ fil:
   list_column_share_count: Mga Share sa FB
   list_column_reaction_count: Mga Reaksyon sa FB
   list_column_comment_count: Mga Komento sa FB
-  list_column_linked_items_count: Katulad na media
   list_column_type: Uri
   list_column_status: Status
   list_column_created_at: Isinumite
@@ -702,7 +701,6 @@ fil:
   list_column_tags_as_sentence: Mga tag
   list_column_media_published_at: Nailathala ang media
   list_column_related_count: Magkaugnay
-  list_column_suggestions_count: Mga iminumungkahing tugma
   list_column_creator_name: Ginawa ni
   list_column_team_name: Workspace
   list_column_sources_as_sentence: Source

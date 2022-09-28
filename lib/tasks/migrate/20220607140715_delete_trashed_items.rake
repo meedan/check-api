@@ -58,9 +58,11 @@ namespace :check do
           ids = pms.map(&:id)
           # Get confirmed items
           target_ids = Relationship.confirmed.where(source_id: ids).map(&:target_id)
-          query = { terms: { annotated_id: target_ids } }
-          options[:body] = { query: query }
-          client.delete_by_query options
+          if target_ids.count
+            query = { terms: { annotated_id: target_ids } }
+            options[:body] = { query: query }
+            client.delete_by_query options
+          end
           ProjectMedia.where(id: target_ids).each do |pm|
             print '.'
             begin pm.destroy! rescue failed_items << pm.id end

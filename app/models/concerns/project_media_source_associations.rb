@@ -3,12 +3,12 @@ require 'active_support/concern'
 module ProjectMediaSourceAssociations
   extend ActiveSupport::Concern
 
-  def create_auto_tasks(project_id = nil, tasks = [])
+  def create_auto_tasks(tasks = [])
     team = self.team
     return if team.nil? || team.is_being_copied
     self.set_tasks_responses ||= {}
     if tasks.blank?
-      tasks = self.team.auto_tasks(project_id, self.class.name)
+      tasks = self.team.auto_tasks(self.class.name)
     end
     created = []
     tasks.each do |task|

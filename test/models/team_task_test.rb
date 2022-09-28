@@ -42,23 +42,11 @@ class TeamTaskTest < ActiveSupport::TestCase
     assert_kind_of Array, tt.options
   end
 
-  test "should serialize project ids as array" do
-    tt = create_team_task
-    assert_kind_of Array, tt.project_ids
-  end
-
   test "should set options as JSON" do
     tt = create_team_task
     tt.json_options = [{ label: 'Foo' }].to_json
     tt.save!
     assert_equal([{ 'label' => 'Foo' }], tt.reload.options)
-  end
-
-  test "should set project ids as JSON" do
-    tt = create_team_task
-    tt.json_project_ids = [1, 2].to_json
-    tt.save!
-    assert_equal [1, 2].sort, tt.reload.project_ids
   end
 
   test "should belong to team" do
@@ -73,11 +61,6 @@ class TeamTaskTest < ActiveSupport::TestCase
     assert_equal 'free_text', tt.as_json[:type]
   end
 
-  test "should get projects" do
-    tt = create_team_task project_ids: [1, 2]
-    assert_equal [1, 2], tt.projects
-  end
-
   test "should get type" do
     tt = create_team_task task_type: 'free_text'
     assert_equal 'free_text', tt.type
@@ -89,8 +72,8 @@ class TeamTaskTest < ActiveSupport::TestCase
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
       pm = create_project_media team: t, source: s
-      tt = create_team_task team_id: t.id, project_ids: [], fieldset: 'metadata', associated_type: 'Source', description: 'Foo', options: [{ label: 'Foo' }]
-      tt2 = create_team_task team_id: t.id, project_ids: [], fieldset: 'metadata', associated_type: 'ProjectMedia', description: 'Foo2', options: [{ label: 'Foo2' }]
+      tt = create_team_task team_id: t.id, fieldset: 'metadata', associated_type: 'Source', description: 'Foo', options: [{ label: 'Foo' }]
+      tt2 = create_team_task team_id: t.id, fieldset: 'metadata', associated_type: 'ProjectMedia', description: 'Foo2', options: [{ label: 'Foo2' }]
       pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
       pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
       assert_nil pm_tt
@@ -133,29 +116,25 @@ class TeamTaskTest < ActiveSupport::TestCase
 
   test "should add teamwide task to existing items" do
     t =  create_team
-    p = create_project team: t
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
-      pm = create_project_media project: p
-      pm3 = create_project_media team: t
-      tt = create_team_task team_id: t.id, project_ids: [p.id], order: 2, description: 'Foo', options: [{ label: 'Foo' }]
-      tt2 = create_team_task team_id: t.id, project_ids: [p.id], order: 1, description: 'Foo2', options: [{ label: 'Foo2' }]
+      pm = create_project_media team: t
+      pm2 = create_project_media team: t
+      tt = create_team_task team_id: t.id, order: 2, description: 'Foo', options: [{ label: 'Foo' }]
+      tt2 = create_team_task team_id: t.id, order: 1, description: 'Foo2', options: [{ label: 'Foo2' }]
       pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
       pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
-      pm3_tt = pm3.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm2_tt2 = pm2.annotations('task').select{|t| t.team_task_id == tt2.id}.last
       assert_not_nil pm_tt
       assert_not_nil pm_tt2
+      assert_not_nil pm2_tt
+      assert_not_nil pm2_tt2
       assert_equal pm_tt.order, tt.order
       assert_equal pm_tt2.order, tt2.order
-      assert_nil pm3_tt
-      # update project list to all items
-      assert_difference 'Task.length', 1 do
-        tt.json_project_ids = [].to_json
-        tt.save!
-      end
+
       assert_equal 1, pm.annotations('task').select{|t| t.team_task_id == tt.id}.count
-      pm3_tt = pm3.annotations('task').select{|t| t.team_task_id == tt.id}.last
-      assert_not_nil pm3_tt
+      assert_equal 1, pm.annotations('task').select{|t| t.team_task_id == tt2.id}.count
     end
     Team.unstub(:current)
   end
@@ -170,7 +149,7 @@ class TeamTaskTest < ActiveSupport::TestCase
     p2 = create_project team: t
     Sidekiq::Testing.inline! do
       pm = create_project_media project: p, archived: 1
-      tt =create_team_task team_id: t.id, project_ids: [p2.id]
+      tt =create_team_task team_id: t.id
       pm2 = create_project_media project: p2
       # Assign task to user and archive the item
       pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
@@ -180,44 +159,13 @@ class TeamTaskTest < ActiveSupport::TestCase
       pm2.save!
       with_current_user_and_team(u, t) do
         assert_no_difference 'Task.length' do
-          create_team_task team_id: t.id, project_ids: [p.id]
+          create_team_task team_id: t.id
         end
         assert_nothing_raised do
           tt.destroy
         end
       end
     end
-  end
-
-  test "should add or remove teamwide task to items related to team" do
-    t =  create_team
-    p = create_project team: t
-    p2 = create_project team: t
-    Team.stubs(:current).returns(t)
-    Sidekiq::Testing.inline! do
-      pm = create_project_media project: p
-      pm2 = create_project_media project: p2
-      pm3 = create_project_media team: t
-      tt = nil
-      assert_difference 'Task.length', 3 do
-        tt = create_team_task team_id: t.id, project_ids: [], description: 'Foo', options: [{ label: 'Foo' }]
-      end
-      # update project list to specfic list
-      assert_difference 'Task.length', -2 do
-        tt.json_project_ids = [p.id].to_json
-        tt.save!
-      end
-      assert_no_difference 'Task.length' do
-        tt.json_project_ids = [p2.id].to_json
-        tt.save!
-      end
-      assert_equal 1, pm2.annotations('task').select{|t| t.team_task_id == tt.id}.count
-      assert_difference 'Task.length', 2 do
-        tt.json_project_ids = [].to_json
-        tt.save!
-      end
-    end
-    Team.unstub(:current)
   end
 
   test "should skip check permission for background tasks" do
@@ -230,7 +178,7 @@ class TeamTaskTest < ActiveSupport::TestCase
       tt = nil
       with_current_user_and_team(u, t) do
         p = create_project team: t
-        tt = create_team_task team_id: t.id, project_ids: [p.id], description: 'Foo', options: [{ label: 'Foo' }]
+        tt = create_team_task team_id: t.id, description: 'Foo', options: [{ label: 'Foo' }]
         pm = create_project_media project: p
         pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
         assert_not_nil pm_tt
@@ -247,17 +195,15 @@ class TeamTaskTest < ActiveSupport::TestCase
 
   test "should update teamwide tasks with zero answers" do
     t =  create_team
-    p = create_project team: t
-    p2 = create_project team: t
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
-      pm = create_project_media project: p
-      create_project_media project: p, archived: 1
-      tt = create_team_task team_id: t.id, project_ids: [p2.id], description: 'Foo', task_type: 'single_choice', options: [{ label: 'Foo' }]
-      pm2 = create_project_media project: p2
+      create_project_media team: t, archived: 1
+      tt = create_team_task team_id: t.id, description: 'Foo', task_type: 'single_choice', options: [{ label: 'Foo' }]
+      pm = create_project_media team: t
+      pm2 = create_project_media team: t
       pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
       pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
-      assert_nil pm_tt
+      assert_not_nil pm_tt
       assert_not_nil pm2_tt
       # update title
       tt.label = 'update label'; tt.save!
@@ -298,94 +244,182 @@ class TeamTaskTest < ActiveSupport::TestCase
       assert_equal 'update desc2', pm2_tt.description
       assert_equal 'single_choice', pm2_tt.type
       assert_equal([{ 'label' => 'Test2' }], pm2_tt.options)
-      # test add/remove projects
-      tt.json_project_ids = [p.id].to_json
-      tt.save!
       pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm2_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
       assert_not_nil pm_tt
-      assert_raises ActiveRecord::RecordNotFound do
-        pm2_tt.reload
-      end
+      assert_not_nil pm2_tt
     end
     Team.unstub(:current)
   end
 
-  test "should update teamwide tasks with answers" do
+  test "should update teamwide tasks with or without answers" do
     t =  create_team
-    p = create_project team: t
-    p2 = create_project team: t
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
-      pm = create_project_media project: p
-      tt = create_team_task team_id: t.id, project_ids: [p2.id], label: 'Foo', description: 'Foo', task_type: 'single_choice', options: [{ label: 'Foo' }]
-      pm2 = create_project_media project: p2
-      pm3 = create_project_media project: p2
-      pm4 = create_project_media project: p2
+      tt = create_team_task team_id: t.id, label: 'Foo', description: 'Foo', task_type: 'single_choice', options: [{ label: 'Foo' }]
+      pm = create_project_media team: t
+      pm2 = create_project_media team: t
       pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
       pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
-      pm3_tt = pm3.annotations('task').select{|t| t.team_task_id == tt.id}.last
-      pm4_tt = pm4.annotations('task').select{|t| t.team_task_id == tt.id}.last
-      assert_nil pm_tt
+      assert_not_nil pm_tt
       assert_not_nil pm2_tt
-      assert_not_nil pm3_tt
-      assert_not_nil pm4_tt
       # add response to task for pm2 & pm4
       at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
       ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
       fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
       pm2_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
       pm2_tt.save!
-      pm4_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
-      pm4_tt.save!
       # update title/description/
       tt.label = 'update label'
       tt.description = 'update desc'
-      tt.keep_completed_tasks = true
       tt.save!
+      pm_tt = pm_tt.reload
+      assert_equal 'update label', pm_tt.label
+      assert_equal 'update desc', pm_tt.description
+      assert_equal 'single_choice', pm_tt.type
+      assert_equal([{ 'label' => 'Foo' }], pm_tt.options)
       pm2_tt = pm2_tt.reload
-      assert_equal 'Foo', pm2_tt.label
-      assert_equal 'Foo', pm2_tt.description
+      assert_equal 'update label', pm2_tt.label
+      assert_equal 'update desc', pm2_tt.description
       assert_equal 'single_choice', pm2_tt.type
       assert_equal([{ 'label' => 'Foo' }], pm2_tt.options)
-      pm3_tt = pm3_tt.reload
-      assert_equal 'update label', pm3_tt.label
-      assert_equal 'update desc', pm3_tt.description
-      assert_equal 'single_choice', pm3_tt.type
-      assert_equal([{ 'label' => 'Foo' }], pm3_tt.options)
-      pm4_tt = pm4_tt.reload
-      assert_equal 'Foo', pm4_tt.label
-      assert_equal 'Foo', pm4_tt.description
-      assert_equal 'single_choice', pm4_tt.type
-      assert_equal([{ 'label' => 'Foo' }], pm4_tt.options)
-      # test add/remove projects
-      tt.json_project_ids = [p.id].to_json
-      tt.save!
-      pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
-      assert_not_nil pm_tt
-      assert_raises ActiveRecord::RecordNotFound do
-        pm2_tt.reload
-      end
-      assert_raises ActiveRecord::RecordNotFound do
-        pm3_tt.reload
-      end
-      assert_raises ActiveRecord::RecordNotFound do
-        pm4_tt.reload
-      end
-      # test back to all lists
-      assert_difference 'Task.length', 3 do
-        tt.json_project_ids = [].to_json
-        tt.save!
-      end
     end
     Team.unstub(:current)
   end
 
-  test "should not update type or options from teamwide tasks with answers" do
+  test "should update single_choice task with answers" do
+    setup_elasticsearch
+    create_task_stuff
+    t =  create_team
+    Team.stubs(:current).returns(t)
+    Sidekiq::Testing.inline! do
+      tt = create_team_task team_id: t.id, label: 'Foo or Faa', description: 'Foo', task_type: 'single_choice', options: [{ label: 'Foo'}, { label: 'Faa' }]
+      pm = create_project_media team: t
+      pm2 = create_project_media team: t
+      pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      assert_not_nil pm_tt
+      assert_not_nil pm2_tt
+      # add response to task for pm & pm2
+      pm_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: 'Foo' }.to_json }.to_json
+      pm_tt.save!
+      pm2_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: 'Faa' }.to_json }.to_json
+      pm2_tt.save!
+      r_id = pm_tt.reload.first_response_obj.id
+      # update options
+      tt.json_options = [{ label: 'Food' }, { label: 'Feed' }, { label: 'Faad' }].to_json
+      tt.options_diff = { deleted: ['Foo'], changed: { Faa: 'Faad' }, added: ['Food', 'Feed'] }
+      tt.save!
+      assert_equal([{ 'label' => 'Food' }, { 'label'  => 'Feed' }, { 'label'  => 'Faad' }], tt.reload.options)
+      assert_nil Dynamic.where(id: r_id).last
+      assert_equal pm2_tt.reload.first_response, 'Faad'
+      sleep 1
+      result = $repository.find(get_es_id(pm))['task_responses']
+      pm_sc = result.select{|r| r['team_task_id'] == tt.id}.first
+      assert_not pm_sc.keys.include?('value')
+      result = $repository.find(get_es_id(pm2))['task_responses']
+      pm2_sc = result.select{|r| r['team_task_id'] == tt.id}.first
+      assert pm2_sc.keys.include?('value')
+      assert_equal ['Faad'], pm2_sc['value']
+    end
+    Team.unstub(:current)
+  end
+
+  test "should update multiple_choice task with answers" do
+    setup_elasticsearch
+    create_task_stuff
+    t =  create_team
+    Team.stubs(:current).returns(t)
+    Sidekiq::Testing.inline! do
+      tt = create_team_task team_id: t.id, label: 'Foo or Faa', description: 'Foo', task_type: 'multiple_choice', options: [{ label: 'Option A'}, { label: 'Option B' }, { label: 'Option C'}, { label: 'Other', other: true }]
+      pm = create_project_media team: t
+      pm2 = create_project_media team: t
+      pm3 = create_project_media team: t
+      pm4 = create_project_media team: t
+      pm5 = create_project_media team: t
+      pm6 = create_project_media team: t
+      pm7 = create_project_media team: t
+      pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm3_tt = pm3.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm4_tt = pm4.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm5_tt = pm5.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm6_tt = pm6.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm7_tt = pm7.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      # add response to tasks
+      pm_tt.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['Option B'], other: nil }.to_json }.to_json }.to_json
+      pm_tt.save!
+      pm2_tt.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['Option A', 'Option B'], other: nil }.to_json }.to_json }.to_json
+      pm2_tt.save!
+      pm3_tt.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['Option A'], other: nil }.to_json }.to_json }.to_json
+      pm3_tt.save!
+      pm4_tt.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['Option B'], other: 'Hello' }.to_json }.to_json }.to_json
+      pm4_tt.save!
+      pm5_tt.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['Option A', 'Option B'], other: 'Hello' }.to_json }.to_json }.to_json
+      pm5_tt.save!
+      pm6_tt.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: [], other: 'Hello' }.to_json }.to_json }.to_json
+      pm6_tt.save!
+      pm7_tt.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['Option C'], other: nil }.to_json }.to_json }.to_json
+      pm7_tt.save!
+      r_id = pm_tt.reload.first_response_obj.id
+      # update options
+      tt.json_options = [{ label: 'Option 1' }, { label: 'Option 2' }, { label: 'Option 3' }, { label: 'Option C' }, { label: 'Other', other: true }].to_json
+      tt.options_diff = { deleted: ['Option B'], changed: { 'Option A': 'Option 1' }, added: ['Option 2', 'Option 3'] }
+      tt.save!
+      assert_equal([{ 'label' => 'Option 1' }, { 'label' => 'Option 2' }, { 'label' => 'Option 3' }, { 'label' => 'Option C' }, { 'label' => 'Other', 'other' => true }], tt.reload.options)
+      assert_nil Dynamic.where(id: r_id).last
+      assert_equal 'Option 1', pm2_tt.reload.first_response
+      assert_equal 'Option 1', pm3_tt.reload.first_response
+      assert_equal 'Hello', pm4_tt.reload.first_response
+      assert_equal 'Option 1, Hello', pm5_tt.reload.first_response
+      assert_equal 'Hello', pm6_tt.reload.first_response
+      assert_equal 'Option C', pm7_tt.reload.first_response
+      sleep 1
+      # Verify ES data
+      result = $repository.find(get_es_id(pm))['task_responses']
+      pm_mc = result.select{|r| r['team_task_id'] == tt.id}.first
+      assert_not pm_mc.keys.include?('value')
+
+      result = $repository.find(get_es_id(pm2))['task_responses']
+      mc = result.select{|r| r['team_task_id'] == tt.id}.first
+      assert_equal ['Option 1'], mc['value']
+
+      result = $repository.find(get_es_id(pm3))['task_responses']
+      mc = result.select{|r| r['team_task_id'] == tt.id}.first
+      assert_equal ['Option 1'], mc['value']
+
+      result = $repository.find(get_es_id(pm4))['task_responses']
+      mc = result.select{|r| r['team_task_id'] == tt.id}.first
+      assert_equal ['Hello'], mc['value']
+
+      result = $repository.find(get_es_id(pm5))['task_responses']
+      mc = result.select{|r| r['team_task_id'] == tt.id}.first
+      assert_equal ['Option 1', 'Hello'].sort, mc['value'].sort
+
+      result = $repository.find(get_es_id(pm6))['task_responses']
+      mc = result.select{|r| r['team_task_id'] == tt.id}.first
+      assert_equal ['Hello'], mc['value']
+
+      result = $repository.find(get_es_id(pm7))['task_responses']
+      mc = result.select{|r| r['team_task_id'] == tt.id}.first
+      assert_equal ['Option C'], mc['value']
+
+      # delete Other
+      # tt.json_options = [{ label: 'Option 1' }, { label: 'Option 2' }, { label: 'Option 3' }, { label: 'Option C' }].to_json
+      # tt.options_diff = { deleted: [], changed: {}, added: [], delete_other: true }
+      # tt.save!
+      # assert_equal nil, pm4_tt.reload.first_response
+      # assert_equal nil, pm6_tt.reload.first_response
+    end
+    Team.unstub(:current)
+  end
+
+  test "should not update type from teamwide tasks with answers" do
     t =  create_team
     p = create_project team: t
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
-      tt = create_team_task team_id: t.id, project_ids: [], label: 'Foo', description: 'Foo', task_type: 'single_choice', options: [{ label: 'Foo' }]
+      tt = create_team_task team_id: t.id, label: 'Foo', description: 'Foo', task_type: 'single_choice', options: [{ label: 'Foo' }]
       pm = create_project_media project: p
       pm2 = create_project_media project: p
       pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
@@ -396,14 +430,9 @@ class TeamTaskTest < ActiveSupport::TestCase
       fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
       pm2_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_task: 'Foo' }.to_json }.to_json
       pm2_tt.save!
-      # update type/options
-      # type and options can't be edited if tasks has answers
+      # update type
+      # type can't be edited if tasks has answers
       tt.task_type = 'multiple_choice'
-      assert_raises ActiveRecord::RecordInvalid do
-        tt.save!
-      end
-      tt.reload
-      tt.json_options = [{ label: 'Test' }].to_json
       assert_raises ActiveRecord::RecordInvalid do
         tt.save!
       end
@@ -413,10 +442,10 @@ class TeamTaskTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
-  test "should update or delete teamwide tasks based on keep_completed_tasks attr" do
+  test "should delete teamwide tasks based on keep_completed_tasks attr" do
     t =  create_team
     p = create_project team: t
-    tt = create_team_task team_id: t.id, project_ids: [], label: 'Foo', description: 'Foo', options: [{ label: 'Foo' }]
+    tt = create_team_task team_id: t.id, label: 'Foo', description: 'Foo', options: [{ label: 'Foo' }]
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
       pm = create_project_media project: p
@@ -428,32 +457,9 @@ class TeamTaskTest < ActiveSupport::TestCase
       fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
       pm2_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
       pm2_tt.save!
-      # update title/description/options
-      # keep completed tasks
-      tt.label = 'update label'
-      tt.description = 'update desc'
-      tt.keep_completed_tasks = true
-      tt.save!
-      pm_tt = pm_tt.reload
-      assert_equal 'update label', pm_tt.label
-      assert_equal 'update desc', pm_tt.description
-      pm2_tt = pm2_tt.reload
-      assert_equal 'Foo', pm2_tt.label
-      assert_equal 'Foo', pm2_tt.description
-      # apply changes to completed tasks
-      tt.label = 'update label2'
-      tt.description = 'update desc2'
-      tt.keep_completed_tasks = false
-      tt.save!
-      pm_tt = pm_tt.reload
-      assert_equal 'update label2', pm_tt.label
-      assert_equal 'update desc2', pm_tt.description
-      pm2_tt = pm2_tt.reload
-      assert_equal 'update label2', pm_tt.label
-      assert_equal 'update desc2', pm_tt.description
       # delete - keep completed tasks
       tt.keep_completed_tasks = true
-      tt.destroy
+      tt.destroy!
       assert_raises ActiveRecord::RecordNotFound do
         pm_tt.reload
       end
@@ -468,7 +474,7 @@ class TeamTaskTest < ActiveSupport::TestCase
     t =  create_team
     p = create_project team: t
     Team.stubs(:current).returns(t)
-    tt = create_team_task team_id: t.id, project_ids: [p.id]
+    tt = create_team_task team_id: t.id
     Sidekiq::Testing.inline! do
       pm = create_project_media project: p
       pm2 = create_project_media project: p
@@ -511,22 +517,29 @@ class TeamTaskTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
-  test "should notify error when handling team tasks" do
+  test "should notify error when handling team tasks for sources" do
     t = create_team
-    p = create_project team: t
-    p2 = create_project team: t
-    pm = create_project_media project: p
-    tt = create_team_task team_id: t.id, project_ids: [p2.id]
+    pm = create_project_media team: t
+    create_source team: t
+    # Source error
+    tt = create_team_task team_id: t.id, fieldset: 'metadata', associated_type: 'Source'
+    Source.any_instance.stubs(:create_auto_tasks).raises(StandardError)
+    Sidekiq::Testing.inline! do
+      tt.add_teamwide_tasks_bg
+    end
+    Source.any_instance.unstub(:create_auto_tasks)
+  end
+
+  test "should notify error when handling team tasks for project medias" do
+    t = create_team
+    pm = create_project_media team: t
+    tt = create_team_task team_id: t.id, fieldset: 'metadata', associated_type: 'ProjectMedia'
     # Project Media error
     ProjectMedia.any_instance.stubs(:create_auto_tasks).raises(StandardError)
-    tt.send(:handle_add_projects, { 'project_id': p.id })
+    Sidekiq::Testing.inline! do
+      tt.add_teamwide_tasks_bg
+    end
     ProjectMedia.any_instance.unstub(:create_auto_tasks)
-    # Source error
-    tt2 = create_team_task team_id: t.id, fieldset: 'metadata', associated_type: 'Source'
-    create_source team: t
-    Source.any_instance.stubs(:create_auto_tasks).raises(StandardError)
-    tt2.add_teamwide_tasks_bg({}, [], false);
-    Source.any_instance.unstub(:create_auto_tasks)
   end
 
   test "should have valid fieldset" do
@@ -664,7 +677,7 @@ class TeamTaskTest < ActiveSupport::TestCase
     }
     t.rules = rules.to_json
     t.save!
-    tt = create_team_task team_id: t.id, project_ids: []
+    tt = create_team_task team_id: t.id
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
       pm = nil
@@ -673,7 +686,7 @@ class TeamTaskTest < ActiveSupport::TestCase
       end
       pm_tasks = pm.annotations('task').select{|t| t.team_task_id == tt.id}
       assert_equal 1, pm_tasks.count
-      tt2 = create_team_task team_id: t.id, project_ids: [p.id]
+      tt2 = create_team_task team_id: t.id
       pm2 = nil
       assert_difference 'Task.length', 2 do
         pm2 = create_project_media team: t, quote: 'another test by sawy'
@@ -691,7 +704,7 @@ class TeamTaskTest < ActiveSupport::TestCase
     p = create_project team: t
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
-      tt = create_team_task team_id: t.id, project_ids: [], label: 'Foo', description: 'Foo', task_type: 'single_choice', options: [{ label: 'Foo' }]
+      tt = create_team_task team_id: t.id, label: 'Foo', description: 'Foo', task_type: 'single_choice', options: [{ label: 'Foo' }]
       pm = create_project_media project: p
       pm2 = create_project_media project: p
       pm3 = create_project_media project: p

@@ -301,7 +301,7 @@ class TeamTest < ActiveSupport::TestCase
       "bulk_create Tag", "bulk_update ProjectMedia", "create TagText", "read Team", "update Team",
       "destroy Team", "empty Trash", "create Project", "create ProjectMedia", "create Account", "create TeamUser",
       "create User", "invite Members", "not_spam ProjectMedia", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia",
-      "duplicate Team", "mange TagText", "mange TeamTask", "set_privacy Project", "update Relationship",
+      "duplicate Team", "manage TagText", "manage TeamTask", "set_privacy Project", "update Relationship",
       "destroy Relationship"
     ].sort
 
@@ -972,11 +972,10 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should return team tasks" do
     t = create_team
-    p = create_project team: t
-    create_team_task team_id: t.id, project_ids: [p.id + 1]
-    assert t.auto_tasks(p.id).empty?
-    tt = create_team_task team_id: t.id, project_ids: [p.id]
-    assert_equal [tt], t.auto_tasks(p.id)
+    create_team_task team_id: t.id + 1
+    assert t.auto_tasks().empty?
+    tt = create_team_task team_id: t.id
+    assert_equal [tt], t.auto_tasks()
   end
 
   test "should destroy team tasks when team is destroyed" do
@@ -2356,7 +2355,7 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     2.times { create_team_task(team_id: t.id, fieldset: 'metadata', associated_type: 'ProjectMedia') }
     2.times { create_team_task(team_id: t.id, fieldset: 'metadata', associated_type: 'Source') }
-    assert_equal 22, t.list_columns.size
+    assert_equal 24, t.list_columns.size
   end
 
   test "should match rule by title with spaces" do

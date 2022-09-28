@@ -514,8 +514,6 @@ GEM
       rblineprof
     pg (0.18.4)
     pg_query (1.3.0)
-    pghero (2.8.1)
-      activerecord (>= 5)
     phony (2.19.9)
     phony_rails (0.15.0)
       activesupport (>= 3.0)
@@ -882,7 +880,6 @@ DEPENDENCIES
   pender_client!
   pg (~> 0.18.0)
   pg_query (~> 1.3)
-  pghero (= 2.8.1)
   phony_rails
   puma
   pusher
