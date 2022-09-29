@@ -246,7 +246,7 @@ class Dynamic < ApplicationRecord
   def mandatory_fields_are_set
     if !self.set_fields.blank? && self.annotation_type != 'dynamic'
       annotation_type = DynamicAnnotation::AnnotationType.where(annotation_type: self.annotation_type).last
-      fields_set = JSON.parse(self.set_fields)&.keys
+      fields_set = begin JSON.parse(self.set_fields)&.keys rescue nil end
       fields_set ||= []
       mandatory_fields = annotation_type.schema.reject{ |instance| instance.optional }.map(&:name)
       errors.add(:base, I18n.t('errors.messages.annotation_mandatory_fields')) unless (mandatory_fields - fields_set).empty?
