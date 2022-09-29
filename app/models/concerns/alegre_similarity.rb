@@ -258,6 +258,7 @@ module AlegreSimilarity
       }.merge(self.get_threshold_hash_from_threshold(threshold))
       language = self.language_for_similarity(team_id)
       params[:language] = language if !language.nil?
+      params
     end
 
     def get_items_with_similar_media(media_url, threshold, team_id, path, query_or_body = 'body')
