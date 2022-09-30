@@ -587,9 +587,8 @@ class GraphqlController5Test < ActionController::TestCase
     assert_equal 1, JSON.parse(@response.body).dig('data', 'request', 'similar_requests', 'edges').size
   end
 
-  test "on create: sends graphql query to observability provider when client enabled" do
+  test "on create: sends graphql query to observability provider" do
     query = 'query { search(query: "{}") { number_of_results } }'
-    Check::OpenTelemetry.stubs(:enabled?).returns(true)
 
     fake_span = MiniTest::Mock.new
     fake_span.expect :set_attribute, :return_value do |attr_name, val|
@@ -602,10 +601,7 @@ class GraphqlController5Test < ActionController::TestCase
     fake_span.verify
   end
 
-  test "on batch: sends graphql query to observability provider when client enabled" do
-    query = 'query { search(query: "{}") { number_of_results } }'
-    Check::OpenTelemetry.stubs(:enabled?).returns(true)
-
+  test "on batch: sends graphql query to observability provider" do
     query = [
       { query: "query { team(slug: \"#{@t.slug}\") { name } }", variables: {}, id: "q1" },
       { query: "query { team(slug: \"#{@t.slug}\") { name } }", variables: {}, id: "q2" },

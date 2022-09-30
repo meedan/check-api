@@ -116,9 +116,9 @@ GEM
       tzinfo (~> 1.1)
     addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
-    airbrake (11.0.1)
-      airbrake-ruby (~> 5.1)
-    airbrake-ruby (5.2.1)
+    airbrake (13.0.3)
+      airbrake-ruby (~> 6.0)
+    airbrake-ruby (6.2.0)
       rbtree3 (~> 0.5)
     ansi (1.5.0)
     apollo-tracing (1.5.0)
@@ -974,7 +974,7 @@ DEPENDENCIES
   activerecord (= 5.2.8.1)
   activerecord-import (= 1.1.0)
   activerecord-redshift-adapter
-  airbrake (= 11.0.1)
+  airbrake (~> 13.0.0)
   apollo-tracing (= 1.5.0)
   authtrail
   awesome_print
