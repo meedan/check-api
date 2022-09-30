@@ -54,6 +54,7 @@ class TeamBotInstallation < TeamUser
     settings['text_similarity_model'] = self.get_text_similarity_model || Bot::Alegre.default_matching_model
     settings['alegre_model_in_use'] = self.get_alegre_model_in_use || Bot::Alegre.default_model
     settings['similarity_date_threshold'] = self.get_similarity_date_threshold
+    settings['language_for_similarity'] = self.get_language_for_similarity
     settings
   end
 
