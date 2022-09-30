@@ -549,4 +549,24 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     assert_match /^http/, local_media_url
     assert_not_equal media_url, local_media_url
   end
+
+  test "should perform fuzzy matching on keyword search" do
+    RequestStore.store[:skip_cached_field_update] = false
+    setup_elasticsearch
+
+    t = create_team
+    pm1 = create_project_media quote: 'A segurança das urnas está provada.', team: t
+    pm2 = create_project_media quote: 'Segurança pública é tema de debate.', team: t
+    [pm1, pm2].each { |pm| publish_report(pm) }
+    sleep 3 # Wait for ElasticSearch to index content
+
+    [
+      'Segurança das urnas',
+      'Segurança dad urnas',
+      'Segurança das urna',
+      'Seguranca das urnas'
+    ].each do |query|
+      assert_equal [pm1.id], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id]).to_a.map(&:id)
+    end
+  end
 end
