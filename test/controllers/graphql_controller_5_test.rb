@@ -610,13 +610,13 @@ class GraphqlController5Test < ActionController::TestCase
       { query: "query { team(slug: \"#{@t.slug}\") { name } }", variables: {}, id: "q1" },
       { query: "query { team(slug: \"#{@t.slug}\") { name } }", variables: {}, id: "q2" },
       { query: "query { team(slug: \"#{@t.slug}\") { name } }", variables: {}, id: "q3" }
-    ].to_json
+    ]
 
     fake_span = MiniTest::Mock.new
     fake_span.expect(:set_attribute, :return_value) { |attr_name, val| attr_name == 'app.graphql.query' && val == query }
 
     OpenTelemetry::Trace.stub(:current_span, fake_span) do
-      post :batch, params: { _json: query }
+      post :batch, params: { _json: query.to_json }
     end
 
     fake_span.verify

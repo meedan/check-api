@@ -44,7 +44,7 @@ class ApplicationController < ActionController::Base
     return unless Check::OpenTelemetry.enabled?
  
     current_span = OpenTelemetry::Trace.current_span
-    current_span.set_attribute(attribute_name, value)
+    current_span.set_attribute(attribute_name, value.to_s)
   end
 
   protected
