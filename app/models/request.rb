@@ -110,7 +110,7 @@ class Request < ApplicationRecord
   end
 
   def title
-    self.request_type == 'text' ? '' : [self.request_type, self.feed_name, self.media_id].join('-').gsub(' ', '-')
+    self.request_type == 'text' ? '' : [self.request_type, self.feed_name, self.media_id].join('-').tr(' ', '-')
   end
 
   def self.get_media_from_query(type, query, fid = nil)

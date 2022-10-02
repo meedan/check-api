@@ -18,22 +18,18 @@ RequestType = GraphqlCrudOperations.define_default_type do
   field :similar_to_request, RequestType
 
   field :feed do
-    type FeedType
+    type -> { FeedType }
 
     resolve -> (request, _args, _ctx) {
-      RecordLoader.for(Feed).load(request.feed_id).then do |feed|
-        feed
-      end
+      RecordLoader.for(Feed).load(request.feed_id)
     }
   end
 
   field :media do
-    type MediaType
+    type -> { MediaType }
 
     resolve -> (request, _args, _ctx) {
-      RecordLoader.for(Media).load(request.media_id).then do |media|
-        media
-      end
+      RecordLoader.for(Media).load(request.media_id)
     }
   end
 
