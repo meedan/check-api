@@ -2895,4 +2895,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media
     assert_kind_of Hash, pm.feed_columns_values
   end
+
+  test "should set a custom title" do
+    m = create_uploaded_image
+    pm = create_project_media set_title: 'Foo', media: m
+    assert_equal 'Foo', pm.title
+  end
 end

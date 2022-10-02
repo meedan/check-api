@@ -40,6 +40,11 @@ class Request < ApplicationRecord
       ProjectMedia::SIMILARITY_EVENT
     ]
 
+  cached_field :feed_name,
+    start_as: proc { |r| r.feed.name },
+    recalculate: proc { |r| r.feed.name },
+    update_on: [] # Never changes
+
   def similarity_threshold
     0.85 # FIXME: Adjust this value for text and image (eventually it can be a feed setting)
   end
@@ -102,6 +107,10 @@ class Request < ApplicationRecord
     self.webhook_url = nil
     self.save!
     ProjectMediaRequest.create(project_media_id: pm.id, request_id: self.id, skip_check_ability: true)
+  end
+
+  def title
+    self.request_type == 'text' ? '' : [self.request_type, self.feed_name, self.media_id].join('-').tr(' ', '-')
   end
 
   def self.get_media_from_query(type, query, fid = nil)

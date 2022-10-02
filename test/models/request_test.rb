@@ -264,4 +264,15 @@ class RequestTest < ActiveSupport::TestCase
     r1.save!
     assert_equal 0, r1.reload.subscriptions_count
   end
+
+  test "should have a title" do
+    assert_kind_of String, create_request.title
+  end
+
+  test "should cache feed name" do
+    RequestStore.store[:skip_cached_field_update] = false
+    f = create_feed name: 'Foo'
+    r = create_request feed: f
+    assert_equal 'Foo', r.feed_name(true)
+  end
 end
