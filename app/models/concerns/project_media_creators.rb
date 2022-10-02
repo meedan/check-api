@@ -35,7 +35,9 @@ module ProjectMediaCreators
 
   def set_title_for_files
     title = nil
-    if self.user&.login == 'smooch' && ['UploadedVideo', 'UploadedImage', 'UploadedAudio'].include?(self.media.type)
+    if self.set_title
+      title = self.set_title
+    elsif self.user&.login == 'smooch' && ['UploadedVideo', 'UploadedImage', 'UploadedAudio'].include?(self.media.type)
       type_count = Media.where(type: self.media.type).joins("INNER JOIN project_medias pm ON medias.id = pm.media_id")
       .where("pm.team_id = ?", self.team&.id).count
       type = self.media.type.sub('Uploaded', '').downcase
