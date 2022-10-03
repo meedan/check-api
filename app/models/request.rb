@@ -1,3 +1,6 @@
+class FeedRequestError < StandardError
+end
+
 class Request < ApplicationRecord
   belongs_to :feed
   belongs_to :media
@@ -102,7 +105,10 @@ class Request < ApplicationRecord
     request.body = payload
     request['Content-Type'] = 'application/json'
     self.feed.get_media_headers.to_h.each { |header_name, header_value| request[header_name] = header_value }
-    http.request(request)
+    response = http.request(request)
+    log = "[Feed Request] Called webhook #{self.webhook_url} for request ##{self.id} and project media ##{pm.id} with title '#{title}', summary '#{summary}' and URL '#{url}', and the response was #{response.code}: '#{response.body}'."
+    Rails.logger.info(log)
+    Airbrake.notify(FeedRequestError.new(log)) if response.code.to_i >= 400 && Airbrake.configured?
     self.last_called_webhook_at = Time.now
     self.webhook_url = nil
     self.save!
