@@ -52,7 +52,7 @@ module Workflow
             self.workflow_options[:statuses].each do |option|
               value = option[:label] if option[:id] == self.value
             end
-            value || self.value.titleize
+            value || begin self.value.titleize rescue nil end
           end
         end
 
