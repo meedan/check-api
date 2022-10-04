@@ -304,6 +304,8 @@ module ProjectMediaBulk
       tag_pm = {}
       tags.each{ |t| tag_pm[t.id] = t.annotated_id }
       tags.delete_all
+      # clear cached field
+      ids.each{ |pm_id| Rails.cache.delete("check_cached_field:ProjectMedia:#{pm_id}:tags_as_sentence") }
       self.delay.run_bulk_remove_tags_callbacks(ids.to_json, tag_text_ids.to_json, tag_pm.to_json)
       { team: team, check_search_team: team.check_search_team }
     end
