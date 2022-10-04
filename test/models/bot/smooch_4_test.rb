@@ -584,7 +584,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
 
   test "should get default TOS message" do
     assert_kind_of String, Bot::Smooch.get_message_for_language(Bot::Smooch::GREETING, 'en')
-    assert_kind_of String, Bot::Smooch.get_message_for_language(Bot::Smooch::CONTENT, 'en')
+    assert_kind_of String, Bot::Smooch.get_string('privacy_and_purpose', 'en')
   end
 
   test "should sanitize settings" do
