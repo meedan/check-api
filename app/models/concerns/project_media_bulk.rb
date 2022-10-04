@@ -22,6 +22,8 @@ module ProjectMediaBulk
         self.bulk_assign(ids, params[:assigned_to_ids], params[:assignment_message], team)
       when 'update_status'
         self.bulk_update_status(ids, params[:status], team)
+      when 'remove_tags'
+        self.bulk_remove_tags(ids, params[:tags_text], team)
       end
     end
 
@@ -292,6 +294,46 @@ module ProjectMediaBulk
       end
       sql += sql_values.join(", ")
       ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_array, sql))
+    end
+
+    def bulk_remove_tags(ids, tags_text, team)
+      tag_text_ids = tags_text.to_s.split(',').map(&:to_i)
+      tags_c = tag_text_ids.collect{|id| { tag: id }.with_indifferent_access.to_yaml }
+      # Load tags
+      tags = Tag.where(annotation_type: 'tag', annotated_type: 'ProjectMedia', annotated_id: ids).where('data IN (?)', tags_c)
+      tag_pm = {}
+      tags.each{ |t| tag_pm[t.id] = t.annotated_id }
+      tags.delete_all
+      self.delay.run_bulk_remove_tags_callbacks(ids.to_json, tag_text_ids.to_json, tag_pm.to_json)
+      { team: team, check_search_team: team.check_search_team }
+    end
+
+    def run_bulk_remove_tags_callbacks(ids_json, tag_text_ids_json, tag_pm_json)
+      ids = JSON.parse(ids_json)
+      tag_text_ids = JSON.parse(tag_text_ids_json)
+      tag_pm = JSON.parse(tag_pm_json)
+      # update ES
+      tag_pm.each do |t_id, pm_id|
+        options = { es_type: 'tags', doc_id: Base64.encode64("ProjectMedia/#{pm_id}"), model_id: t_id.to_i }
+        Tag.destroy_elasticsearch_doc_nested(options)
+      end
+      # Update tags count
+      TagText.where(id: tag_text_ids).find_each do |tag_text|
+        tag_text.update_column(:tags_count, tag_text.calculate_tags_count)
+      end
+      # Update tags_as_sentence cached field
+      index_alias = CheckElasticSearchModel.get_index_alias
+      client = $repository.client
+      es_body = []
+      field_name = 'tags_as_sentence'
+      ProjectMedia.where(id: ids).find_each do |pm|
+        value = pm.send(field_name, true)
+        field_value = value.split(', ').size
+        fields = { "#{field_name}" => field_value }
+        doc_id = Base64.encode64("ProjectMedia/#{pm.id}")
+        es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
+      end
+      client.bulk body: es_body unless es_body.blank?
     end
   end
 end
