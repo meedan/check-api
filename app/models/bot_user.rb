@@ -271,7 +271,7 @@ class BotUser < User
             },
             content: {
               type: 'string',
-              default: Bot::Smooch::CONTENT
+              default: {}
             }
           }
         end
