@@ -20,6 +20,41 @@ am:
   subscribed: በአሁኑ ጊዜ ለጋዜጣ ደብዳቤዎቻችን የደንበኝነት ምዝገባ አልዎት።
   unsubscribe_button_label: ከደንበኝነት ምዝገባ ውጣ
   unsubscribed: በአሁኑ ጊዜ ለጋዜጣ ደብዳቤዎቻችን የደንበኝነት ምዝገባ የልዎትም።
+ar:
+  add_more_details_state_button_label: أضف المزيد
+  ask_if_ready_state_button_label: إلغاء
+  confirm_preferred_language: الرجاء إختيار اللغة
+  invalid_format: عذراً، هذا النوع من الملفات غير مدعوم على منصتنا
+  keep_subscription_button_label: الإبقاء على الإشتراك
+  languages: اللغات
+  languages_and_privacy_title: اللغات والخصوصية
+  main_menu: القائمة الرئيسية
+  main_state_button_label: إلغاء
+  navigation_button: استخدم الأزرار للتنقل
+  privacy_and_purpose: |-
+    الخصوصية والغرض
+
+    أهلاً بكم منصّة بلاغات %{team} %{channel}.
+
+    يمكنكم استخدام هذا الرقم لإرسال إستفساراتكم.
+
+    بياناتكم آمنة. نتعامل بجدّية مع واجب حماية معلوماتكم الشخصية والحفاظ على الخصوصية والأمان في قناة %{channel}؛ لن نشارك أبداً معلومات التعريف الشخصية (PII) الخاصة بكم ولن نقوم ببيعها أو استخدامها بأي طريقة أخرى باستثناء توفير هذه الخدمة وتحسينها.
+
+    بهدف اكتشاف المعلومات المضلّلة الواسعة الإنتشار في أسرع وقت ممكن، قد نشارك من منصة التبليغات محتوى لا يتضمن معلومات التعريف الشخصية (non-PII) لمشاركته مع باحثين موثوقين وشركاء في مجال التحقق من الأخبار.
+
+    يرجى أخذ العلم أن المواقع التي نشارك روابطها لديها سياسة خصوصية خاصة بها.
+
+    إذا كنتم لا ترغبون باستخدام بلاغاتكم في هذا البرنامج، نرجو منكم عدم المشاركة في نظامنا.
+  privacy_statement: بيان الخصوصية
+  privacy_title: الخصوصية
+  report_updated: 'تمّ *تحديث* هذا المقال مع توافر معلومات جديدة: '
+  search_result_is_not_relevant_button_label: كلا
+  search_result_is_relevant_button_label: نعم
+  search_state_button_label: إرسال
+  subscribe_button_label: إشترك
+  subscribed: أنت مشترك حالياً في نشرتنا الإخبارية.
+  unsubscribe_button_label: إلغاء الاشتراك
+  unsubscribed: أنت غير مشترك حالياً في نشرتنا الإخبارية.
 bn:
   add_more_details_state_button_label: আরও তথ্য যোগ করুন
   ask_if_ready_state_button_label: বাতিল
@@ -107,6 +142,39 @@ de:
   subscribed: Sie haben unseren Newsletter derzeit abonniert.
   unsubscribe_button_label: Abbestellen
   unsubscribed: Sie haben unseren Newsletter derzeit nicht abonniert.
+gu:
+  add_more_details_state_button_label: વધુ ઉમેરો
+  ask_if_ready_state_button_label: રદ કરો
+  confirm_preferred_language: કૃપા કરીને તમારી ભાષા પસંદ કરો
+  invalid_format: માફ કરશો, તમે જમા કરેલી વિગતો ફોર્મેટ અનુરૂપ નથી
+  keep_subscription_button_label: સબ્સ્ક્રિપ્શન ચાલુ રાખો
+  languages: ભાષાઓ
+  languages_and_privacy_title: ભાષા અને ગોપનીયતા
+  main_menu: મુખ્ય મેનુ
+  main_state_button_label: રદ કરો
+  navigation_button: નેવિગેટ કરવા માટે બટનોનો ઉપયોગ કરો
+  privacy_and_purpose: |-
+    ગોપનીયતા અને હેતુ
+
+    %{team} %{channel} ટિપલાઇનમાં આપનું સ્વાગત છે.
+
+    તમે ફેક્ટચેકટ માટે તમારી ક્વેરી સબમિટ કરવા માટે આ નંબરનો ઉપયોગ કરી શકો છો.
+
+    અમે તમારી માહિતીને સુરક્ષિત રાખીશું. અમે તમારી વ્યક્તિગત માહિતીને સુરક્ષિત રાખવા અને %{channel} ને ખાનગી અને સુરક્ષિત રાખવાની અમારી જવાબદારીને ગંભીરતા નિભાવીએ છીએ. તમારી વ્યક્તિગત ઓળખ છતી ન થાય તેથી તમારી અંગત માહિતીને ક્યારેય શેર, વેચાણ અથવા અન્યથા ઉપયોગ કરવામાં આવશે નહીં.
+
+    ભવિષ્યમાં શક્ય તેટલી વહેલી તકે વાઈરલ ખોટી માહિતી શોધવા માટે સંશોધકો અને ફેકટચેકરો પણ કાર્યરત છે. અમે તમને વેબસાઇટ્સનીલિંક આપીએ છીએ તેની પણ પ્રાઇવસી પોલિસી પણ છે.
+
+    જો તમે આ કામમાં તમારું યોગદાન આપવા માગતા નથી, તો કૃપા કરીને અમારી સિસ્ટમમાં યોગદાન આપશો નહીં.
+  privacy_statement: ગોપનીયતાનું નિવેદન
+  privacy_title: ગોપનીયતા
+  report_updated: અત્રે દર્શાવેલી તથ્ય઼-તપાસ નવી માહિતી સાથે *અપડેટ* કરવામાં આવી છે
+  search_result_is_not_relevant_button_label: ના
+  search_result_is_relevant_button_label: હા
+  search_state_button_label: સબમિટ કરો
+  subscribe_button_label: સબ્સ્ક્રાઈબ કરો
+  subscribed: તમે હાલમાં અમારા ન્યૂઝલેટરનાં સબ્સ્ક્રાઈબર છો.
+  unsubscribe_button_label: અનસબ્સ્ક્રાઈબ કરો
+  unsubscribed: તમે હાલમાં અમારા ન્યૂઝલેટરનાં સબ્સ્ક્રાઈબર નથી.
 hi:
   add_more_details_state_button_label: अधिक जानकारी जोड़ें
   ask_if_ready_state_button_label: रद्द करें
