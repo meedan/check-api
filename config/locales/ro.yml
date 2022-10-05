@@ -697,7 +697,6 @@ ro:
   list_column_share_count: Partajări FB
   list_column_reaction_count: Reacții FB
   list_column_comment_count: Comentarii FB
-  list_column_linked_items_count: Medii similare
   list_column_type: Tip
   list_column_status: Stare
   list_column_created_at: Transmis
@@ -707,7 +706,7 @@ ro:
   list_column_tags_as_sentence: Etichete
   list_column_media_published_at: Medii publicate
   list_column_related_count: Asociate
-  list_column_suggestions_count: Potriviri sugerate
+  list_column_suggestions_count: Medii recomandate
   list_column_creator_name: Creat de
   list_column_team_name: Spațiu de lucru
   list_column_sources_as_sentence: Sursă

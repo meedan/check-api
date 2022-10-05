@@ -9,7 +9,8 @@ module ProjectMediaMutations
     set_claim_description: 'str',
     set_fact_check: 'json',
     set_tasks_responses: 'json',
-    set_tags: 'json'
+    set_tags: 'json',
+    set_title: 'str'
   }
 
   create_fields = fields.merge({

@@ -241,6 +241,26 @@ class GraphqlController4Test < ActionController::TestCase
     end
   end
 
+  test "should bulk-update project medias tags" do
+    u = create_user
+    create_team_user team: @t, user: u, role: 'admin'
+    authenticate_with_user(u)
+    sports = create_tag_text team_id: @t.id, text: 'sports'
+    news = create_tag_text team_id: @t.id, text: 'news'
+    pm1_t = create_tag annotated: @pm1, tag: sports.id
+    pm2_t = create_tag annotated: @pm2, tag: news.id
+    assert_equal [pm1_t], sports.reload.tags.to_a
+    assert_equal [pm2_t], news.reload.tags.to_a
+    tag_text_ids = [sports.id, news.id].join(', ')
+    Sidekiq::Testing.inline! do
+      query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "remove_tags", params: "{\"tags_text\":\"' + tag_text_ids + '\"}"}) { ids, team { dbid } } }'
+      post :create, params: { query: query, team: @t.slug }
+      assert_response :success
+      assert_empty sports.reload.tags.to_a
+      assert_empty news.reload.tags.to_a
+    end
+  end
+
   test "should not bulk-move project medias from a list to another if not allowed" do
     u = create_user
     authenticate_with_user(u)

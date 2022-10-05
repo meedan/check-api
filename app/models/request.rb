@@ -1,3 +1,6 @@
+class FeedRequestError < StandardError
+end
+
 class Request < ApplicationRecord
   belongs_to :feed
   belongs_to :media
@@ -39,6 +42,11 @@ class Request < ApplicationRecord
       },
       ProjectMedia::SIMILARITY_EVENT
     ]
+
+  cached_field :feed_name,
+    start_as: proc { |r| r.feed.name },
+    recalculate: proc { |r| r.feed.name },
+    update_on: [] # Never changes
 
   def similarity_threshold
     0.85 # FIXME: Adjust this value for text and image (eventually it can be a feed setting)
@@ -97,11 +105,18 @@ class Request < ApplicationRecord
     request.body = payload
     request['Content-Type'] = 'application/json'
     self.feed.get_media_headers.to_h.each { |header_name, header_value| request[header_name] = header_value }
-    http.request(request)
+    response = http.request(request)
+    log = "[Feed Request] Called webhook #{self.webhook_url} for request ##{self.id} and project media ##{pm.id} with title '#{title}', summary '#{summary}' and URL '#{url}', and the response was #{response.code}: '#{response.body}'."
+    Rails.logger.info(log)
+    Airbrake.notify(FeedRequestError.new(log)) if response.code.to_i >= 400 && Airbrake.configured?
     self.last_called_webhook_at = Time.now
     self.webhook_url = nil
     self.save!
     ProjectMediaRequest.create(project_media_id: pm.id, request_id: self.id, skip_check_ability: true)
+  end
+
+  def title
+    self.request_type == 'text' ? '' : [self.request_type, self.feed_name, self.media_id].join('-').tr(' ', '-')
   end
 
   def self.get_media_from_query(type, query, fid = nil)

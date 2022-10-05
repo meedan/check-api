@@ -12,7 +12,10 @@ module HasFile
   end
 
   def image_path(version = nil)
-    self.file_url(version).to_s
+    # This never changes, so let's cache it
+    Rails.cache.fetch("media:image:path:#{self.id}:#{version}") do
+      self.file_url(version).to_s
+    end
   end
 
   def file_path

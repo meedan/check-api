@@ -781,7 +781,6 @@ es:
   list_column_share_count: Compartidas en FB
   list_column_reaction_count: Reacciones en FB
   list_column_comment_count: Comentarios en FB
-  list_column_linked_items_count: Medios similares
   list_column_type: Tipo
   list_column_status: Estado
   list_column_created_at: Presentado
@@ -792,7 +791,7 @@ es:
   list_column_media_published_at: Medios publicados
   list_column_published_by: Informe publicado por
   list_column_related_count: Relacionado(s)
-  list_column_suggestions_count: Coincidencias sugeridas
+  list_column_suggestions_count: Medios sugeridos
   list_column_folder: Carpeta
   list_column_creator_name: Creado por
   list_column_team_name: Área de trabajo

@@ -25,7 +25,8 @@ FeedType = GraphqlCrudOperations.define_default_type do
         'requests' => 'requests_count',
         'medias' => 'medias_count',
         'last_submitted' => 'last_submitted_at',
-        'subscriptions' => 'subscriptions_count'
+        'subscriptions' => 'subscriptions_count',
+        'media_type' => 'request_type'
       }[args['sort'].to_s] || 'last_submitted_at'
       sort_type = args['sort_type'].to_s.downcase == 'asc' ? 'ASC' : 'DESC'
       query = Request.where(request_id: request_id, feed_id: feed.id)

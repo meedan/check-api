@@ -783,7 +783,6 @@ pt:
   list_column_share_count: Compartilhamentos do Facebook
   list_column_reaction_count: Reações no Facebook
   list_column_comment_count: Comentários no Facebook
-  list_column_linked_items_count: Mídia semelhante
   list_column_type: Tipo
   list_column_status: Status
   list_column_created_at: Enviado
@@ -794,7 +793,7 @@ pt:
   list_column_media_published_at: Mídia publicada
   list_column_published_by: Relatório publicado por
   list_column_related_count: Relacionado
-  list_column_suggestions_count: Correspondências sugeridas
+  list_column_suggestions_count: Mídias sugeridas
   list_column_folder: Pasta
   list_column_creator_name: Criado por
   list_column_team_name: Espaço de trabalho
