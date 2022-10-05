@@ -2901,4 +2901,71 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media set_title: 'Foo', media: m
     assert_equal 'Foo', pm.title
   end
+
+  test "should bulk remove tags" do
+    setup_elasticsearch
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      pm = create_project_media team: t
+      pm2 = create_project_media team: t
+      pm3 = create_project_media team: t
+      sports = create_tag_text team_id: t.id, text: 'sports'
+      news = create_tag_text team_id: t.id, text: 'news'
+      economic = create_tag_text team_id: t.id, text: 'economic'
+      # Tag pm
+      pm_t1 = create_tag annotated: pm, tag: sports.id, disable_es_callbacks: false
+      pm_t2 = create_tag annotated: pm, tag: news.id, disable_es_callbacks: false
+      pm_t3 = create_tag annotated: pm, tag: economic.id, disable_es_callbacks: false
+      # Tag pm2
+      pm2_t1 = create_tag annotated: pm2, tag: sports.id, disable_es_callbacks: false
+      pm2_t2 = create_tag annotated: pm2, tag: news.id, disable_es_callbacks: false
+      # Tag pm3
+      pm3_t1 = create_tag annotated: pm3, tag: sports.id, disable_es_callbacks: false
+      sleep 2
+      assert_equal 3, sports.reload.tags_count
+      assert_equal 2, news.reload.tags_count
+      assert_equal 1, economic.reload.tags_count
+      assert_equal [pm_t1, pm2_t1, pm3_t1].sort, sports.reload.tags.to_a.sort
+      assert_equal [pm_t2, pm2_t2].sort, news.reload.tags.to_a.sort
+      assert_equal [pm_t3], economic.reload.tags.to_a
+      assert_equal 'sports, news, economic', pm.tags_as_sentence
+      assert_equal 'sports, news', pm2.tags_as_sentence
+      assert_equal 'sports', pm3.tags_as_sentence
+      result = $repository.find(get_es_id(pm))
+      assert_equal 3, result['tags_as_sentence']
+      assert_equal [pm_t1.id, pm_t2.id, pm_t3.id], result['tags'].collect{|t| t['id']}.sort
+      result = $repository.find(get_es_id(pm2))
+      assert_equal 2, result['tags_as_sentence']
+      assert_equal [pm2_t1.id, pm2_t2.id], result['tags'].collect{|t| t['id']}.sort
+      result = $repository.find(get_es_id(pm3))
+      assert_equal 1, result['tags_as_sentence']
+      assert_equal [pm3_t1.id], result['tags'].collect{|t| t['id']}
+      # apply bulk-remove
+      ids = [pm.id, pm2.id, pm3.id]
+      updates = { action: 'remove_tags', params: { tags_text: "#{sports.id}, #{economic.id}" }.to_json }
+      ProjectMedia.bulk_update(ids, updates, t)
+      sleep 2
+      assert_equal 0, sports.reload.tags_count
+      assert_equal 2, news.reload.tags_count
+      assert_equal 0, economic.reload.tags_count
+      assert_empty sports.reload.tags.to_a
+      assert_equal [pm_t2, pm2_t2].sort, news.reload.tags.to_a.sort
+      assert_empty economic.reload.tags.to_a
+      assert_equal 'news', pm.tags_as_sentence
+      assert_equal 'news', pm2.tags_as_sentence
+      assert_empty pm3.tags_as_sentence
+      result = $repository.find(get_es_id(pm))
+      assert_equal 1, result['tags_as_sentence']
+      assert_equal [pm_t2.id], result['tags'].collect{|t| t['id']}
+      result = $repository.find(get_es_id(pm2))
+      assert_equal 1, result['tags_as_sentence']
+      assert_equal [pm2_t2.id], result['tags'].collect{|t| t['id']}
+      result = $repository.find(get_es_id(pm3))
+      assert_equal 0, result['tags_as_sentence']
+      assert_empty result['tags'].collect{|t| t['id']}
+    end
+  end
 end
