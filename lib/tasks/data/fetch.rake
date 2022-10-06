@@ -17,7 +17,8 @@ namespace :check do
       puts "Fetch status..."
       services.each do |service|
         Bot::Fetch.supported_services.select{ |s| s['service'] == service }.last
-        Bot::Fetch.get_claim_reviews({ service: service, start_time: '1900-01-01', end_time: '2100-01-01'})
+        params = { service: service, start_time: '1900-01-01', end_time: '2100-01-01', per_page: 10000 }
+        Bot::Fetch.call_fetch_api(:get, 'claim_reviews', params)
         .collect{ |cr| cr.dig('reviewRating', 'alternateName') || cr.dig('reviewRating', 'ratingValue').to_s || '' }
         .sort.uniq.reject{ |s| s.blank? }.each{ |s| puts "\"#{s}\" => \"\"," } ; nil
       end
