@@ -107,10 +107,13 @@ class Bot::Fetch < BotUser
 
   def self.get_claim_reviews(params)
     offset = 0
+    finished = false
     claim_reviews = []
-    while offset < 9000
-      Bot::Fetch.call_fetch_api(:get, 'claim_reviews', params.merge(per_page: 1000, offset: offset)).collect{|cr| claim_reviews << cr}
+    while offset < 9000 && !finished
+      response = Bot::Fetch.call_fetch_api(:get, 'claim_reviews', params.merge(per_page: 1000, offset: offset))
+      response.collect{|cr| claim_reviews << cr}
       offset += 1000
+      finished = true if response.length < 1000
     end
     claim_reviews
   end
