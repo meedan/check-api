@@ -211,4 +211,14 @@ class FactCheckTest < ActiveSupport::TestCase
     assert_equal 'Updated fact-check summary', r.report_design_field_value('description')
     assert_equal 'http://fact.check/updated', r.report_design_field_value('published_article_url')
   end
+
+  test "should save fact-check for audio" do
+    create_report_design_annotation_type
+    a = create_uploaded_audio
+    pm = create_project_media media: a
+    cd = create_claim_description project_media: pm
+    assert_nothing_raised do
+      create_fact_check claim_description: cd
+    end
+  end
 end
