@@ -25,7 +25,7 @@ module Api
         team_ids = self.workspaces(options).map(&:id)
         Team.current ||= team_ids[0]
         filters = options[:filters] || {}
-        query = filters.dig(:query, 0)
+        query = filters.dig(:query).to_a.join(',')
         type = filters.dig(:type, 0)
         webhook_url = filters.dig(:webhook_url, 0)
         after = filters.dig(:after, 0)
