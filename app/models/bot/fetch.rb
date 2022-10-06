@@ -105,6 +105,16 @@ class Bot::Fetch < BotUser
     self.call_fetch_api(:get, :services)['services']
   end
 
+  def self.get_claim_reviews(params)
+    offset = 0
+    claim_reviews = []
+    while offset < 9000
+      Bot::Fetch.call_fetch_api(:get, 'claim_reviews', params.merge(per_page: 1000, offset: offset)).collect{|cr| claim_reviews << cr}
+      offset += 1000
+    end
+    claim_reviews
+  end
+
   def self.call_fetch_api(verb, endpoint, params = {})
     response = OpenStruct.new(body: '{}')
     if verb == :get
@@ -156,8 +166,7 @@ class Bot::Fetch < BotUser
           (from.to_i..to.to_i).step(step.days).each do |current_timestamp|
             from2 = Time.at(current_timestamp)
             to2 = from2 + step.days
-            params = { service: service_name, start_time: from2.strftime('%Y-%m-%d'), end_time: to2.strftime('%Y-%m-%d'), per_page: 10000 }
-            Bot::Fetch.call_fetch_api(:get, 'claim_reviews', params).each do |claim_review|
+            Bot::Fetch.get_claim_reviews({ service: service_name, start_time: from2.strftime('%Y-%m-%d'), end_time: to2.strftime('%Y-%m-%d')}).each do |claim_review|
               self.import_claim_review(claim_review, team.id, user.id, status_fallback, status_mapping, auto_publish_reports, force)
               total += 1
             end
