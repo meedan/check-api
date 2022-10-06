@@ -568,5 +568,7 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     ].each do |query|
       assert_equal [pm1.id], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id]).to_a.map(&:id)
     end
+
+    assert_equal [], Bot::Smooch.search_for_similar_published_fact_checks('text', 'Segurando', [t.id]).to_a.map(&:id)
   end
 end
