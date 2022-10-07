@@ -88,7 +88,7 @@ module SmoochSearch
 
     def max_number_of_words_for_keyword_search
       value = self.config.to_h['smooch_search_max_keyword'].to_i
-      value == 0 ? 10 : value
+      value == 0 ? 3 : value
     end
 
     def get_text_similarity_threshold
