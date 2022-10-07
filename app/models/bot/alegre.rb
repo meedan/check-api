@@ -416,6 +416,11 @@ class Bot::Alegre < BotUser
   end
 
   def self.request_api(method, path, params = {}, query_or_body = 'body', retries = 3)
+    # Release database connection while Alegre API is being called
+    if RequestStore.store[:pause_database_connection]
+      ActiveRecord::Base.clear_active_connections!
+      ActiveRecord::Base.connection.close
+    end
     uri = URI(CheckConfig.get('alegre_host') + path)
     klass = 'Net::HTTP::' + method.capitalize
     request = klass.constantize.new(uri.path, 'Content-Type' => 'application/json')
@@ -432,6 +437,7 @@ class Bot::Alegre < BotUser
       Rails.logger.info("[Alegre Bot] Alegre Bot request: (#{method}, #{path}, #{params.inspect}, #{query_or_body}, #{retries})")
       response_body = response.body
       Rails.logger.info("[Alegre Bot] Alegre response: #{response_body.inspect}")
+      ActiveRecord::Base.connection.reconnect! if RequestStore.store[:pause_database_connection]
       JSON.parse(response_body)
     rescue StandardError => e
       if retries > 0
