@@ -39,7 +39,7 @@ class DynamicAnnotation::Field < ApplicationRecord
   end
 
   def team
-    self.annotation.team
+    self.annotation&.team
   end
 
   def associated_graphql_id
