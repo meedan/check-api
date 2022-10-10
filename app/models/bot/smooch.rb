@@ -890,7 +890,8 @@ class Bot::Smooch < BotUser
   end
 
   def self.get_id_from_send_response(response)
-    RequestStore.store[:smooch_bot_provider] == 'TURN' ? JSON.parse(response.body).dig('messages', 0, 'id') : response&.message&.id
+    response_body = begin JSON.parse(response&.body) rescue nil end
+    RequestStore.store[:smooch_bot_provider] == 'TURN' ? response_body&.dig('messages', 0, 'id') : response&.message&.id
   end
 
   def self.save_smooch_response(response, pm, query_date, fallback_template = nil, lang = 'en', custom = {})
