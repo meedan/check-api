@@ -105,15 +105,16 @@ class Bot::Fetch < BotUser
     self.call_fetch_api(:get, :services)['services']
   end
 
-  def self.get_claim_reviews(params)
+  def self.get_claim_reviews(params, offset=0, per_page=100)
+    max = 10000
     offset = 0
     finished = false
     claim_reviews = []
-    while offset < 9000 && !finished
-      response = Bot::Fetch.call_fetch_api(:get, 'claim_reviews', params.merge(per_page: 1000, offset: offset))
+    while offset+per_page <= max && !finished
+      response = Bot::Fetch.call_fetch_api(:get, 'claim_reviews', params.merge(per_page: per_page, offset: offset, include_raw: false))
       response.collect{|cr| claim_reviews << cr}
-      offset += 1000
-      finished = true if response.length < 1000
+      offset += per_page
+      finished = true if response.length < per_page
     end
     claim_reviews
   end
@@ -245,7 +246,7 @@ class Bot::Fetch < BotUser
       fc.summary = summary.to_s.truncate(900 - fc.title.size - fc.url.size)
       fc.user = user
       fc.skip_report_update = true
-      fc.language = claim_review.dig('raw', 'language')
+      fc.language = claim_review['inLanguage']
       fc.save!
 
       User.current = current_user
