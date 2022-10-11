@@ -172,7 +172,7 @@ class Bot::FetchTest < ActiveSupport::TestCase
     cr3['reviewRating']['alternateName'] = 'Not Mapped'
     cr3['identifier'] = 'third'
     WebMock.stub_request(:get, 'http://fetch:8000/services').to_return(body: { services: [{ service: 'foo', count: 4, earliest: '2017-08-09', latest: '2017-08-09' }]}.to_json)
-    WebMock.stub_request(:get, 'http://fetch:8000/claim_reviews?end_time=2017-08-10&include_raw=false&offset=0&per_page=100&service=test&start_time=2017-08-09').to_return(body: [cr1, cr1, cr2, cr3].to_json)
+    WebMock.stub_request(:get, 'http://fetch:8000/claim_reviews?end_time=2017-08-10&include_raw=false&offset=0&per_page=100&service=foo&start_time=2017-08-09').to_return(body: [cr1, cr1, cr2, cr3].to_json)
     assert_difference "ProjectMedia.where(team_id: #{@team.id}).count", 3 do
       assert_difference 'Dynamic.where(annotation_type: "report_design").count', 3 do
         assert_difference 'DynamicAnnotation::Field.where(field_name: "external_id").count', 3 do
