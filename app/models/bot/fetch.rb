@@ -269,8 +269,13 @@ class Bot::Fetch < BotUser
         status = mapped_status unless mapped_status.blank?
       end
       s = pm.last_status_obj
-      s.status = status
-      s.save!
+      begin
+        s.status = status
+        s.save!
+      rescue
+        s.status = status_fallback
+        s.save!
+      end
     end
 
     def self.get_image_file(image_url)
