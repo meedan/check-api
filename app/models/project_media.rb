@@ -250,48 +250,51 @@ class ProjectMedia < ApplicationRecord
       raise I18n.t(:replace_blank_media_only)
     else
       # Save the new item
-      analysis = self.analysis
       new_pm.updated_at = Time.now
       new_pm.skip_check_ability = true
       new_pm.channel = { main: CheckChannels::ChannelCodes::FETCH }
       new_pm.save(validate: false) # To skip channel validation
-      new_pm.analysis = { title: analysis['title'], content: analysis['content'] }
-      # Point the claim
+
+      # Point the claim and consequently the fact-check
+      new_pm = ProjectMedia.find(new_pm.id)
       new_pm.claim_description = self.claim_description
+      new_pm.save!
+
+      # All annotations from the old item should point to the new item
+      # Remove any status and report from the new item
+      Annotation.where(annotation_type: ['verification_status', 'report_design'], annotated_type: 'ProjectMedia', annotated_id: new_pm.id).delete_all
+      Annotation.where(annotated_type: 'ProjectMedia', annotated_id: self.id).update_all(annotated_id: new_pm.id)
+
+      # All versions from the old item should point to the new item
+      Version.from_partition(self.team_id).where(associated_type: 'ProjectMedia', associated_id: self.id).update_all(annotated_id: new_pm.id)
+
+      # All relationships from the old item should point to the new item
+      Relationship.where(source_id: self.id).update_all(source_id: new_pm.id)
+
+      # Clear cached fields
+      new_pm.clear_cached_fields
+
       # Update creator_name cached field
       Rails.cache.write("check_cached_field:ProjectMedia:#{new_pm.id}:creator_name", 'Import')
+
       # Apply other stuff in background
-      self.delay.apply_replace_by(self, new_pm)
+      self.delay_for(5.seconds).apply_replace_by(self.id, new_pm.id)
     end
   end
 
-  def apply_replace_by(old_pm, new_pm)
-    id = new_pm.id
-    ProjectMedia.transaction do
-      current_user = User.current
-      current_team = Team.current
-      User.current = Team.current = nil
-      analysis = old_pm.analysis
-      # Remove any status and report from the new item
-      Annotation.where(
-        annotation_type: ['verification_status', 'report_design'],
-        annotated_type: 'ProjectMedia', annotated_id: new_pm.id
-      ).find_each do |a|
-        a.skip_check_ability = true
-        a.destroy!
-      end
-      # All annotations from the old item should point to the new item
-      Annotation.where(annotated_type: 'ProjectMedia', annotated_id: self.id).update_all(annotated_id: id)
-      # Destroy the old item
-      old_pm.skip_check_ability = true
-      old_pm.destroy!
-      # Save analysis to new item
-      new_pm.analysis = { title: analysis['title'], content: analysis['content'] }
-      User.current = current_user
-      Team.current = current_team
-      # Send a published report if any
-      ::Bot::Smooch.send_report_from_parent_to_child(new_pm.id, new_pm.id)
-    end
+  def apply_replace_by(old_pm_id, new_pm_id)
+    old_pm = ProjectMedia.find(old_pm_id)
+    new_pm = ProjectMedia.find(new_pm_id)
+
+    # Send the old item to the trash
+    old_pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
+    old_pm.skip_check_ability = true
+    old_pm.save!
+
+    # Re-index both old and new items
+
+    # Send a published report if any
+    ::Bot::Smooch.send_report_from_parent_to_child(new_pm.id, new_pm.id)
   end
 
   def method_missing(method, *args, &block)
