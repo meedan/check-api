@@ -85,7 +85,7 @@ module ProjectMediaCreators
     team = self.team || Team.current
     pender_key = team.get_pender_key if team
     url = Link.normalized(self.url, pender_key)
-    Link.find_by(url: url) || Link.create!(url: url, pender_key: pender_key)
+    Link.find_by(url: url) || Link.create(url: url, pender_key: pender_key)
   end
 
   def create_media
