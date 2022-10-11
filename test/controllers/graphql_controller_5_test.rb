@@ -587,37 +587,6 @@ class GraphqlController5Test < ActionController::TestCase
     assert_equal 1, JSON.parse(@response.body).dig('data', 'request', 'similar_requests', 'edges').size
   end
 
-  test "on create: sends graphql query to observability provider" do
-    query = 'query { search(query: "{}") { number_of_results } }'
-
-    fake_span = MiniTest::Mock.new
-    fake_span.expect :set_attribute, :return_value do |attr_name, val|
-      attr_name == 'app.graphql.query' && val == query
-    end
-
-    OpenTelemetry::Trace.stub(:current_span, fake_span) do
-      post :create, params: { query: query, team: @t.slug }
-    end
-    fake_span.verify
-  end
-
-  test "on batch: sends graphql query to observability provider" do
-    query = [
-      { query: "query { team(slug: \"#{@t.slug}\") { name } }", variables: {}, id: "q1" },
-      { query: "query { team(slug: \"#{@t.slug}\") { name } }", variables: {}, id: "q2" },
-      { query: "query { team(slug: \"#{@t.slug}\") { name } }", variables: {}, id: "q3" }
-    ]
-
-    fake_span = MiniTest::Mock.new
-    fake_span.expect(:set_attribute, :return_value) { |attr_name, val| attr_name == 'app.graphql.query' && val == query }
-
-    OpenTelemetry::Trace.stub(:current_span, fake_span) do
-      post :batch, params: { _json: query.to_json }
-    end
-
-    fake_span.verify
-  end
-
   protected
 
   def assert_error_message(expected)

@@ -239,6 +239,7 @@ development: &default
   otel_service_name: # "check-api"
   otel_resource_attributes:
     # developer.name: <DEVELOPER_NAME>
+  otel_log_level: info
 
 test:
   <<: *default
@@ -266,6 +267,7 @@ test:
   storage_bucket: 'check-api-test'
   otel_exporter_otlp_endpoint:
   otel_exporter_otlp_headers:
+  otel_log_level: error
 
   # Facebook social login
   #

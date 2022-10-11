@@ -28,8 +28,10 @@ module Check
       # ENV['OTEL_TRACES_EXPORTER'] = 'console'
 
       ::OpenTelemetry::SDK.configure do |c|
-        c.service_name = CheckConfig.get('otel_service_name') || 'pender'
+        c.service_name = CheckConfig.get('otel_service_name') || 'check-api'
 
+        # Keep this in sync with test_helper, to make sure we track
+        # any potential issues coming from instrumentation libraries
         c.use 'OpenTelemetry::Instrumentation::ActiveSupport'
         c.use 'OpenTelemetry::Instrumentation::Rack'
         c.use 'OpenTelemetry::Instrumentation::ActionPack'

@@ -25,7 +25,6 @@ require 'sample_data'
 require 'parallel_tests/test/runtime_logger'
 require 'sidekiq/testing'
 require 'minitest/retry'
-require 'minitest/mock'
 require 'pact/consumer/minitest'
 require 'rspec/rails'
 require 'mocha/minitest'
@@ -78,14 +77,6 @@ class ActiveSupport::TestCase
 
   include SampleData
   include Minitest::Hooks
-
-  # Supplement Open Telemetry config to capture spans in test
-  # https://github.com/open-telemetry/opentelemetry-ruby-contrib/blob/main/.instrumentation_generator/templates/test/test_helper.rb
-  exporter = OpenTelemetry::SDK::Trace::Export::InMemorySpanExporter.new
-  span_processor = OpenTelemetry::SDK::Trace::Export::SimpleSpanProcessor.new(exporter)
-  OpenTelemetry::SDK.configure do |c|
-    c.add_span_processor span_processor
-  end
 
   def json_response
     JSON.parse(@response.body)
@@ -153,6 +144,7 @@ class ActiveSupport::TestCase
     super
 
     create_metadata_stuff
+    @exporter = Check::OpenTelemetryTestConfig.current_exporter
     # URL mocked by pender-client
     @url = 'https://www.youtube.com/user/MeedanTube'
   end
