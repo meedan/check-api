@@ -2097,7 +2097,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       RequestStore.store[:skip_clear_cache] = true
       old = create_project_media team: t, media: Blank.create!, channel: { main: CheckChannels::ChannelCodes::FETCH }, disable_es_callbacks: false
-      old.analysis = { title: 'imported item' }
       old_r = publish_report(old)
       old_s = old.last_status_obj
       new = create_project_media team: t, media: create_uploaded_video, disable_es_callbacks: false
@@ -2110,14 +2109,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_equal old_r, new.get_dynamic_annotation('report_design')
       assert_equal old_s, new.get_dynamic_annotation('verification_status')
       new = new.reload
-      assert_equal 'imported item', new.analysis['title']
       assert_equal 'Import', new.creator_name
       data = { "main" => CheckChannels::ChannelCodes::FETCH }
       assert_equal data, new.channel
       # Verify ES
       result = $repository.find(get_es_id(new))
       assert_equal [CheckChannels::ChannelCodes::FETCH], result['channel']
-      assert_equal 'imported item', result['analysis_title']
     end
   end
 
