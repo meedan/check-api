@@ -105,6 +105,20 @@ class Bot::Fetch < BotUser
     self.call_fetch_api(:get, :services)['services']
   end
 
+  def self.get_claim_reviews(params, offset=0, per_page=100)
+    max = 10000
+    offset = 0
+    finished = false
+    claim_reviews = []
+    while offset+per_page <= max && !finished
+      response = Bot::Fetch.call_fetch_api(:get, 'claim_reviews', params.merge(per_page: per_page, offset: offset, include_raw: false))
+      response.collect{|cr| claim_reviews << cr}
+      offset += per_page
+      finished = true if response.length < per_page
+    end
+    claim_reviews
+  end
+
   def self.call_fetch_api(verb, endpoint, params = {})
     response = OpenStruct.new(body: '{}')
     if verb == :get
@@ -147,8 +161,8 @@ class Bot::Fetch < BotUser
         if service_info['count'] > 0
           # Paginate by date in a way that we have more or less 1000 items per "page"
           n = (service_info['count'].to_f / 1000).ceil
-          from = Time.parse(service_info['earliest'])
-          to = Time.parse(service_info['latest'])
+          from = Time.parse(service_info['earliest']).yesterday
+          to = Time.parse(service_info['latest']).tomorrow
           days = ((to - from) / 86400.0).ceil
           step = (days.to_f / n).ceil
           step = 1 if step == 0
@@ -156,8 +170,7 @@ class Bot::Fetch < BotUser
           (from.to_i..to.to_i).step(step.days).each do |current_timestamp|
             from2 = Time.at(current_timestamp)
             to2 = from2 + step.days
-            params = { service: service_name, start_time: from2.strftime('%Y-%m-%d'), end_time: to2.strftime('%Y-%m-%d'), per_page: 10000 }
-            Bot::Fetch.call_fetch_api(:get, 'claim_reviews', params).each do |claim_review|
+            Bot::Fetch.get_claim_reviews({ service: service_name, start_time: from2.strftime('%Y-%m-%d'), end_time: to2.strftime('%Y-%m-%d')}).each do |claim_review|
               self.import_claim_review(claim_review, team.id, user.id, status_fallback, status_mapping, auto_publish_reports, force)
               total += 1
             end
@@ -233,7 +246,7 @@ class Bot::Fetch < BotUser
       fc.summary = summary.to_s.truncate(900 - fc.title.size - fc.url.size)
       fc.user = user
       fc.skip_report_update = true
-      fc.language = claim_review.dig('raw', 'language')
+      fc.language = claim_review['inLanguage']
       fc.save!
 
       User.current = current_user
@@ -269,8 +282,13 @@ class Bot::Fetch < BotUser
         status = mapped_status unless mapped_status.blank?
       end
       s = pm.last_status_obj
-      s.status = status
-      s.save!
+      begin
+        s.status = status
+        s.save!
+      rescue
+        s.status = status_fallback
+        s.save!
+      end
     end
 
     def self.get_image_file(image_url)
