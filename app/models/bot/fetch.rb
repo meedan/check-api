@@ -147,8 +147,8 @@ class Bot::Fetch < BotUser
         if service_info['count'] > 0
           # Paginate by date in a way that we have more or less 1000 items per "page"
           n = (service_info['count'].to_f / 1000).ceil
-          from = Time.parse(service_info['earliest'])
-          to = Time.parse(service_info['latest'])
+          from = Time.parse(service_info['earliest']).yesterday
+          to = Time.parse(service_info['latest']).tomorrow
           days = ((to - from) / 86400.0).ceil
           step = (days.to_f / n).ceil
           step = 1 if step == 0
