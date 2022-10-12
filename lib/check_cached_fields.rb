@@ -3,14 +3,24 @@ module CheckCachedFields
     base.send :extend, ClassMethods
   end
 
+  def clear_cached_fields
+    self.class.cached_fields.each { |name| Rails.cache.delete(self.class.check_cache_key(self.class, self.id, name)) }
+  end
+
   module ClassMethods
     def skip_cached_field_update?
       RequestStore.store[:skip_cached_field_update]
     end
 
+    def cached_fields
+      @@cached_fields.to_a.uniq.sort
+    end
+
     def cached_field(name, options = {})
       options = options.with_indifferent_access
       interval = CheckConfig.get('cache_interval', 30).to_i
+      @@cached_fields ||= []
+      @@cached_fields << name
 
       if options[:start_as]
         klass = self
