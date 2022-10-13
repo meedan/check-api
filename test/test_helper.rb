@@ -21,13 +21,13 @@ ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
 require 'webmock/minitest'
-require 'mocha/test_unit'
 require 'sample_data'
 require 'parallel_tests/test/runtime_logger'
 require 'sidekiq/testing'
 require 'minitest/retry'
 require 'pact/consumer/minitest'
 require 'rspec/rails'
+require 'mocha/minitest'
 Minitest::Retry.use!
 
 class ActionController::TestCase
@@ -142,6 +142,8 @@ class ActiveSupport::TestCase
 
   def before_all
     super
+
+    mocha_setup
     create_metadata_stuff
     ApolloTracing.stubs(:start_proxy)
     Pusher::Client.any_instance.stubs(:trigger)
