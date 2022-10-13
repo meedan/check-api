@@ -207,7 +207,7 @@ module AlegreSimilarity
       unless pm.nil?
         # Set matched fields to use in short-text suggestion
         pm.alegre_matched_fields ||= []
-        pm.alegre_matched_fields.concat(output.keys)
+        pm.alegre_matched_fields.concat(output.values.collect{|x| x[:context]["field"]})
       end
       es_matches
     end
