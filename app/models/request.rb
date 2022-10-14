@@ -15,34 +15,6 @@ class Request < ApplicationRecord
 
   validates_inclusion_of :request_type, in: ['audio', 'video', 'image', 'text']
 
-  cached_field :fact_checked_by,
-    start_as: proc { |_r| '' },
-    update_es: false,
-    recalculate: proc { |r|
-      team_names = []
-      media_ids = [r.media_id] + r.similar_requests.map(&:media_id)
-      pmids = ProjectMedia.where(media_id: media_ids.uniq, team_id: r.feed.team_ids).map(&:id)
-      Annotation.where(annotation_type: 'report_design', annotated_id: pmids).where('data LIKE ?', '%state: published%').each do |published_report|
-        team_names << published_report.annotated.team.name
-      end
-      team_names.uniq.sort.join(', ')
-    },
-    update_on: [
-      {
-        model: Dynamic,
-        if: proc { |d| d.annotation_type == 'report_design' },
-        affected_ids: proc { |d|
-          request = Request.where(media_id: d.annotated.media_id).first
-          request = request&.similar_to_request || request
-          request ? [request.id] : []
-        },
-        events: {
-          save: :recalculate
-        }
-      },
-      ProjectMedia::SIMILARITY_EVENT
-    ]
-
   cached_field :feed_name,
     start_as: proc { |r| r.feed.name },
     recalculate: proc { |r| r.feed.name },
@@ -117,6 +89,36 @@ class Request < ApplicationRecord
 
   def title
     self.request_type == 'text' ? '' : [self.request_type, self.feed_name, self.media_id].join('-').tr(' ', '-')
+  end
+
+  def fact_checked_by(force = false)
+    id = self.request_id || self.id
+    Rails.cache.fetch("request:#{id}:fact_checked_by", force: force) do
+      r = Request.find(id)
+      team_names = []
+
+      # Workspaces that published a fact-check / report for any media in that cluster and that is part of the feed
+      media_ids = [r.media_id] + r.similar_requests.map(&:media_id)
+      team_ids = r.feed.feed_teams.where(shared: true).map(&:team_id)
+      pmids = (ProjectMedia.where(media_id: media_ids.uniq, team_id: team_ids).map(&:id) & r.feed.project_media_ids(team_ids.first))
+      Annotation.where(annotation_type: 'report_design', annotated_id: pmids).where('data LIKE ?', '%state: published%').each do |published_report|
+        team_names << published_report.annotated.team.name
+      end
+
+      # Workspaces that returned results for any request in this cluster
+      team_names.concat(ProjectMediaRequest.joins(:project_media).where(request_id: r.similar_requests.map(&:id)).group('project_medias.team_id').count.keys.uniq.collect{ |id| Team.find(id).name })
+
+      team_names = team_names.uniq.sort
+      r.update_column(:fact_checked_by_count, team_names.size)
+
+      team_names.join(', ')
+    end
+  end
+
+  def self.update_fact_checked_by(pm)
+    request = Request.where(media_id: pm.media_id).first
+    request = request&.similar_to_request || request
+    request.fact_checked_by(true)
   end
 
   def self.get_media_from_query(type, query, fid = nil)
