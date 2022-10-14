@@ -11,7 +11,11 @@ unless Rails.env.test?
     CheckConfig.get('otel_exporter_otlp_headers'),
     ENV['CHECK_SKIP_HONEYCOMB']
   ).configure!(
-    CheckConfig.get('otel_resource_attributes')
+    CheckConfig.get('otel_resource_attributes'),
+    sampling_config: {
+      sampler: CheckConfig.get('otel_traces_sampler'),
+      rate: CheckConfig.get('otel_custom_sampling_rate')
+    }
   )
 else
   Check::OpenTelemetryTestConfig.configure!

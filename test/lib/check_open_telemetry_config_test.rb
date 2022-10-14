@@ -1,13 +1,28 @@
 require_relative '../test_helper'
 require_relative '../../lib/check_open_telemetry_config'
 
+# Testing the real config
 class OpenTelemetryConfigTest < ActiveSupport::TestCase
-  test "configures open telemetry to report remotely when exporting enabled" do
-    env_var_original_state = {}
-    Check::OpenTelemetryConfig::ENV_CONFIG.map do|env_var|
-      return unless ENV[env_var]
-      env_var_original_state[env_var] = ENV.delete(env_var)
+  ENV_CONFIG_TO_RESET = %w(
+    OTEL_TRACES_EXPORTER
+    OTEL_EXPORTER_OTLP_ENDPOINT
+    OTEL_EXPORTER_OTLP_HEADERS
+    OTEL_RESOURCE_ATTRIBUTES
+    OTEL_TRACES_SAMPLER
+    OTEL_TRACES_SAMPLER_ARG
+  )
+
+  def cache_and_clear_env
+    {}.tap do |original_state|
+      ENV_CONFIG_TO_RESET.each do|env_var|
+        next unless ENV[env_var]
+        original_state[env_var] = ENV.delete(env_var)
+      end
     end
+  end
+
+  test "configures open telemetry to report remotely when exporting enabled" do
+    env_var_original_state = cache_and_clear_env
 
     Check::OpenTelemetryConfig.new('https://fake.com','foo=bar').configure!({'developer.name' => 'piglet'})
 
@@ -20,18 +35,29 @@ class OpenTelemetryConfigTest < ActiveSupport::TestCase
   end
 
   test "configures open telemetry to have nil exporter when exporting disabled, and leaves other exporter settings blank" do
-    env_var_original_state = {}
-    Check::OpenTelemetryConfig::ENV_CONFIG.map do|env_var|
-      return unless ENV[env_var]
-      env_var_original_state[env_var] = ENV.delete(env_var)
-    end
+    env_var_original_state = cache_and_clear_env
 
     Check::OpenTelemetryConfig.new('','').configure!({'developer.name' => 'piglet'})
 
-    assert ENV['OTEL_TRACES_EXPORTER'].nil?
-    assert_empty ENV['OTEL_EXPORTER_OTLP_ENDPOINT']
-    assert_empty ENV['OTEL_EXPORTER_OTLP_HEADERS']
+    assert_equal 'none', ENV['OTEL_TRACES_EXPORTER']
+    assert_nil ENV['OTEL_EXPORTER_OTLP_ENDPOINT']
+    assert_nil ENV['OTEL_EXPORTER_OTLP_HEADERS']
     assert_equal 'developer.name=piglet', ENV['OTEL_RESOURCE_ATTRIBUTES']
+  ensure
+    env_var_original_state.each{|env_var, original_state| ENV[env_var] = original_state}
+  end
+
+  test "sets provided sampling config in the environment" do
+    env_var_original_state = cache_and_clear_env
+
+    Check::OpenTelemetryConfig.new('https://fake.com','foo=bar').configure!(
+      {'developer.name' => 'piglet' },
+      sampling_config: { sampler: 'traceidratio', rate: '2' }
+    )
+
+    assert_equal 'traceidratio', ENV['OTEL_TRACES_SAMPLER']
+    assert_equal '0.5', ENV['OTEL_TRACES_SAMPLER_ARG']
+    assert_equal 'developer.name=piglet,SampleRate=2', ENV['OTEL_RESOURCE_ATTRIBUTES']
   ensure
     env_var_original_state.each{|env_var, original_state| ENV[env_var] = original_state}
   end

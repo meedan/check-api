@@ -9,36 +9,16 @@ module Check
       
         # By default this discards spans. To enable recording for test purposes, 
         # set the following in the test setup block:
-        # 
-        # @exporter.recording = true
-        # (@exporter is set in test_helper#setup)
+        #     Check::OpenTelemetryTestConfig.current_exporter.recording = true
         @exporter = OpenTelemetry::SDK::Trace::Export::InMemorySpanExporter.new(recording: false)
         OpenTelemetry::SDK.configure do |c|
+          c.service_name = 'test-check-api'
           c.add_span_processor(OpenTelemetry::SDK::Trace::Export::SimpleSpanProcessor.new(@exporter))
       
-          # Keep this in sync with Check::OpenTelemetryConfig, to make sure we track
-          # any potential issues coming from instrumentation libraries
-          c.use 'OpenTelemetry::Instrumentation::ActiveSupport'
-          c.use 'OpenTelemetry::Instrumentation::Rack'
-          c.use 'OpenTelemetry::Instrumentation::ActionPack'
-          c.use 'OpenTelemetry::Instrumentation::ActiveJob'
-          c.use 'OpenTelemetry::Instrumentation::ActiveRecord'
-          c.use 'OpenTelemetry::Instrumentation::ActionView'
-          c.use 'OpenTelemetry::Instrumentation::AwsSdk'
-          c.use 'OpenTelemetry::Instrumentation::HTTP'
-          c.use 'OpenTelemetry::Instrumentation::ConcurrentRuby'
-          c.use 'OpenTelemetry::Instrumentation::Ethon'
-          c.use 'OpenTelemetry::Instrumentation::Excon'
-          c.use 'OpenTelemetry::Instrumentation::Faraday'
-          c.use 'OpenTelemetry::Instrumentation::GraphQL'
-          c.use 'OpenTelemetry::Instrumentation::HttpClient'
-          c.use 'OpenTelemetry::Instrumentation::Net::HTTP'
-          c.use 'OpenTelemetry::Instrumentation::PG'
-          c.use 'OpenTelemetry::Instrumentation::Rails'
-          c.use 'OpenTelemetry::Instrumentation::Redis'
-          c.use 'OpenTelemetry::Instrumentation::RestClient'
-          c.use 'OpenTelemetry::Instrumentation::Sidekiq'
-          c.use 'OpenTelemetry::Instrumentation::Sinatra'
+          # Keep Open Telemetry instrumentation in sync across environments,
+          # so that we can catch any problems arising from instrumentation libraries
+          # and configuration
+          Check::OpenTelemetryConfig.configure_instrumentation!(c)
         end
         @exporter
       end

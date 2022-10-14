@@ -27,3 +27,12 @@ If you would like to see data reported from your local machine, do the following
 1. In the config key `otel_exporter_otlp_headers`, set `x-honeycomb-team` to a Honeycomb API key for the Development environment (a sandbox where we put anything). This can be found in the [Honeycomb web interface](https://ui.honeycomb.io/meedan/environments/dev/api_keys). To track your own reported info, be sure to set the `otel_resource_attributes.developer.name` key in `config.yml` to your own name or unique identifier (e.g. `christa`). You will need this to filter information on Honeycomb.
 1. Restart the server
 1. See reported information in Development environment on Honeycomb
+
+#### Configuring sampling
+
+To enable sampling for Honeycomb, set the following configuration (either in `config.yml` locally, or via environment for deployments):
+
+* `otel_traces_sampler` to a supported sampler. See the Open Telemetry documentaiton for supported values.
+* `otel_custom_sampling_rate` to an integer value. This will be used to calculate and set OTEL_TRACES_SAMPLER_ARG (1 / `<sample_rate>`) and to append sampler-related value to `OTEL_RESOURCE_ATTRIBUTES` (as `SampleRate=<sample_rate>`).
+
+**Note**: If sampling behavior is changed in Check API, we will also need to update the behavior to match in any other application reporting to Honeycomb. More [here](https://docs.honeycomb.io/getting-data-in/opentelemetry/ruby/#sampling)
