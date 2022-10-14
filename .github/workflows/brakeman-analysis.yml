@@ -16,7 +16,10 @@ jobs:
   brakeman-scan:
     name: Brakeman Scan
     runs-on: ubuntu-latest
-    permissions: read-all
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
     steps:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
