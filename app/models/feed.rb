@@ -42,8 +42,10 @@ class Feed < ApplicationRecord
   end
 
   def project_media_ids(team_id)
+    team = Team.find_by_id(team_id.to_i)
+    return [] if team.nil?
     current_team = Team.current
-    Team.current = Team.find(team_id)
+    Team.current = team
     ids = CheckSearch.new({ feed_id: self.id, eslimit: 10000 }.to_json, nil, team_id).medias.map(&:id) # FIXME: Limited at 10000
     Team.current = current_team
     ids
