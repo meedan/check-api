@@ -14,6 +14,7 @@ RequestType = GraphqlCrudOperations.define_default_type do
   field :medias_count, types.Int
   field :requests_count, types.Int
   field :subscriptions_count, types.Int
+  field :project_medias_count, types.Int
   field :title, types.String
   field :similar_to_request, RequestType
 
@@ -39,7 +40,7 @@ RequestType = GraphqlCrudOperations.define_default_type do
     argument :media_id, types.Int
 
     resolve ->(request, args, _ctx) {
-      requests = request.similar_requests
+      requests = request.similar_requests.where(webhook_url: nil, last_called_webhook_at: nil)
       requests = requests.where(media_id: args['media_id'].to_i) unless args['media_id'].blank?
       requests
     }
