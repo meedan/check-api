@@ -781,6 +781,7 @@ es:
   list_column_share_count: Compartidas en FB
   list_column_reaction_count: Reacciones en FB
   list_column_comment_count: Comentarios en FB
+  list_column_linked_items_count: Medios coincidentes
   list_column_type: Tipo
   list_column_status: Estado
   list_column_created_at: Presentado
