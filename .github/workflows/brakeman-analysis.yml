@@ -10,12 +10,13 @@ on:
     # The branches below must be a subset of the branches above
     branches: [ develop ]
   schedule:
-    - cron: '38 14 * * 2'
+    - cron: '38 14 * * 2'  
 
 jobs:
   brakeman-scan:
     name: Brakeman Scan
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
