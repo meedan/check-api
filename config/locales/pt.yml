@@ -783,6 +783,7 @@ pt:
   list_column_share_count: Compartilhamentos do Facebook
   list_column_reaction_count: Reações no Facebook
   list_column_comment_count: Comentários no Facebook
+  list_column_linked_items_count: Mídia correspondente
   list_column_type: Tipo
   list_column_status: Status
   list_column_created_at: Enviado
@@ -792,10 +793,12 @@ pt:
   list_column_tags_as_sentence: Tags
   list_column_media_published_at: Mídia publicada
   list_column_published_by: Relatório publicado por
+  list_column_fact_check_published_on: Verificação de fatos publicada em
   list_column_related_count: Relacionado
   list_column_suggestions_count: Mídias sugeridas
   list_column_folder: Pasta
   list_column_creator_name: Criado por
+  list_column_fact_check_title: Verificação de fatos
   list_column_team_name: Espaço de trabalho
   list_column_sources_as_sentence: Fonte
   go_back_to_check: Voltar ao Check
