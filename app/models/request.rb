@@ -106,7 +106,7 @@ class Request < ApplicationRecord
       end
 
       # Workspaces that returned results for any request in this cluster
-      team_names.concat(ProjectMediaRequest.joins(:project_media).where(request_id: r.similar_requests.map(&:id).concat([r.id])).group('project_medias.team_id').count.keys.uniq.collect{ |id| Team.find(id).name })
+      team_names.concat(ProjectMediaRequest.joins(:project_media).where(request_id: r.similar_requests.map(&:id).concat([r.id])).group('project_medias.team_id').count.keys.uniq.collect{ |tid| Team.find(tid).name })
 
       team_names = team_names.uniq.sort
       r.update_column(:fact_checked_by_count, team_names.size)
