@@ -39,7 +39,9 @@ Dynamic.class_eval do
       end
     end
     if self.annotation_type == 'report_design' && self.action =~ /publish/
-      Feed.delay_for(1.minute, retry: 0).notify_subscribers(pm, title, summary, url) # Need to be sure that the item is indexed in the feed before notifying
+      # Wait for 1 minute to be sure that the item is indexed in the feed
+      Feed.delay_for(1.minute, retry: 0).notify_subscribers(pm, title, summary, url)
+      Request.delay_for(1.minute, retry: 0).update_fact_checked_by(pm)
     end
   end
 
