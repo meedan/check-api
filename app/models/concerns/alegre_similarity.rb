@@ -203,7 +203,7 @@ module AlegreSimilarity
 
     def get_merged_similar_items(pm, threshold, fields, value, team_ids = [pm&.team_id])
       output = self.get_items_with_similar_text(pm, fields, threshold, value, [self.default_matching_model, self.matching_model_to_use(team_ids)].flatten.uniq, team_ids)
-      es_matches = output.reject{|k,v| v.blank?}
+      es_matches = output.reject{|_,v| v.blank?}
       unless pm.nil?
         # Set matched fields to use in short-text suggestion
         pm.alegre_matched_fields ||= []
