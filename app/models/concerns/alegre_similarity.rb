@@ -202,16 +202,12 @@ module AlegreSimilarity
     end
 
     def get_merged_similar_items(pm, threshold, fields, value, team_ids = [pm&.team_id])
-      output = {}
-      fields.each do |field|
-        response = self.get_items_with_similar_text(pm, field, threshold, value, [self.default_matching_model, self.matching_model_to_use(team_ids)].flatten.uniq, team_ids)
-        output[field] = response unless response.blank?
-      end
-      es_matches = output.values.reduce({}, :merge)
+      output = self.get_items_with_similar_text(pm, fields, threshold, value, [self.default_matching_model, self.matching_model_to_use(team_ids)].flatten.uniq, team_ids)
+      es_matches = output.reject{|_,v| v.blank?}
       unless pm.nil?
         # Set matched fields to use in short-text suggestion
         pm.alegre_matched_fields ||= []
-        pm.alegre_matched_fields.concat(output.keys)
+        pm.alegre_matched_fields.concat(output.values.collect{|x| x[:context]["field"]})
       end
       es_matches
     end
@@ -234,9 +230,9 @@ module AlegreSimilarity
       !team_id || [team_id].flatten.include?(ProjectMedia.find_by_id(pmid)&.team_id)
     end
 
-    def get_items_with_similar_text(pm, field, threshold, text, models = nil, team_ids = [pm&.team_id])
+    def get_items_with_similar_text(pm, fields, threshold, text, models = nil, team_ids = [pm&.team_id])
       models ||= [self.matching_model_to_use(team_ids)].flatten
-      self.get_items_from_similar_text(team_ids, text, field, threshold, models).reject{ |id, _score_with_context| pm&.id == id }
+      self.get_items_from_similar_text(team_ids, text, fields, threshold, models).reject{ |id, _score_with_context| pm&.id == id }
     end
 
     def get_threshold_hash_from_threshold(threshold)
@@ -248,12 +244,12 @@ module AlegreSimilarity
       end
     end
 
-    def similar_texts_from_api_conditions(text, models, fuzzy, team_id, field, threshold, match_across_content_types=true)
+    def similar_texts_from_api_conditions(text, models, fuzzy, team_id, fields, threshold, match_across_content_types=true)
       params = {
         text: text,
         models: [models].flatten.empty? ? nil : [models].flatten.uniq,
         fuzzy: fuzzy == 'true' || fuzzy.to_i == 1,
-        context: self.build_context(team_id, field),
+        context: self.build_context(team_id, fields),
         match_across_content_types: match_across_content_types,
       }.merge(self.get_threshold_hash_from_threshold(threshold))
       language = self.language_for_similarity(team_id)
