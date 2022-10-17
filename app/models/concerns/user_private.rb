@@ -6,10 +6,15 @@ module UserPrivate
   private
 
   def create_source_and_account
+    source_name = self.name
+    unless Team.current.nil?
+      s = Source.get_duplicate(source_name, Team.current)
+      source_name += "-#{Time.now.to_i}" unless s.nil?
+    end
     source = Source.new
     source.user = self
-    source.name = self.name
-    source.slogan = self.name
+    source.name = source_name
+    source.slogan = source_name
     source.skip_check_ability = true
     source.save!
     self.update_columns(source_id: source.id)
