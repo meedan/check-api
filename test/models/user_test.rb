@@ -1399,4 +1399,14 @@ class UserTest < ActiveSupport::TestCase
     end
     User.current = nil
   end
+
+  test "should create users with same name" do
+    t = create_team
+    Team.stubs(:current).returns(t)
+    u = create_user name: 'sawy'
+    assert_equal 'sawy', u.reload.source.name
+    u2 = create_user name: 'sawy'
+    assert_match /sawy/, u2.reload.source.name
+    Team.unstub(:current)
+  end
 end
