@@ -1,14 +1,16 @@
----
 :redis_host: 'redis'
 :redis_port: 6379
 :redis_database: 0
 :queues:
-  - ["default", 1]
-  - ["esqueue", 1]
-  - ["tsqueue", 1]
-  - ["smooch", 1]
-  - ["smooch_ping", 1]
-  - ["pusher", 1]
-  - ["carrierwave", 1]
-  - ["fetch", 1]
-  - ["trash", 1]
+  - smooch_priority
+  - smooch
+  - carrierwave
+  - esqueue
+  - tsqueue
+  - default
+  - cache
+  - fetch
+  - pusher
+  - trash
+  - feed
+:concurrency: 15
