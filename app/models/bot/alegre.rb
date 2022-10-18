@@ -191,15 +191,15 @@ class Bot::Alegre < BotUser
     text.gsub(/[^\p{L}\s]/u, '').strip.chomp.split(/\s+/).size
   end
 
-  def self.get_items_from_similar_text(team_id, text, field = nil, threshold = nil, models = nil, fuzzy = false)
+  def self.get_items_from_similar_text(team_id, text, fields = nil, threshold = nil, models = nil, fuzzy = false)
     team_ids = [team_id].flatten
     return {} if text.blank? || self.get_number_of_words(text) < 3
-    field ||= ALL_TEXT_SIMILARITY_FIELDS
+    fields ||= ALL_TEXT_SIMILARITY_FIELDS
     threshold ||= self.get_threshold_for_query('text', nil, true)
     models ||= [self.matching_model_to_use(team_ids)].flatten
     Hash[self.get_similar_items_from_api(
       '/text/similarity/',
-      self.similar_texts_from_api_conditions(text, models, fuzzy, team_ids, field, threshold),
+      self.similar_texts_from_api_conditions(text, models, fuzzy, team_ids, fields, threshold),
       threshold
     ).collect{|k,v| [k, v.merge(model: v[:model]||Bot::Alegre.default_matching_model)]}]
   end
@@ -480,9 +480,9 @@ class Bot::Alegre < BotUser
     (search_result.with_indifferent_access.dig('_score')||search_result.with_indifferent_access.dig('score'))
   end
 
-  def self.build_context(team_id, field = nil)
+  def self.build_context(team_id, fields = nil)
     context = { has_custom_id: true }
-    context[:field] = field unless field.blank?
+    context[:field] = fields unless [fields].flatten.compact.reject(&:blank?).empty?
     context[:team_id] = team_id unless team_id.blank?
     context
   end

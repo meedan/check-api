@@ -127,8 +127,11 @@ class GraphqlCrudOperations
 
   def self.object_from_id(graphql_id)
     type, id = CheckGraphql.decode_id(graphql_id)
-    obj = type.constantize.where(id: id).last
-    obj = obj.load if obj.respond_to?(:load)
+    obj = nil
+    unless type.blank? || id.blank?
+      obj = type.constantize.where(id: id).last
+      obj = obj.load if obj.respond_to?(:load)
+    end
     obj
   end
 

@@ -197,7 +197,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
     resolve -> (project_media, _args, _ctx) {
       obj = project_media.last_status_obj
-      obj.is_a?(Dynamic) ? obj : obj.load
+      obj.is_a?(Dynamic) ? obj : obj.load unless obj.nil?
     }
   end
 
