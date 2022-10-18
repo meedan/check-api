@@ -35,7 +35,7 @@ ar:
   privacy_and_purpose: |-
     الخصوصية والغرض
 
-    أهلاً بكم منصّة بلاغات %{team} %{channel}.
+    أهلاً بكم في منصّة بلاغات %{team} %{channel}.
 
     يمكنكم استخدام هذا الرقم لإرسال إستفساراتكم.
 
@@ -204,7 +204,7 @@ gu:
   ask_if_ready_state_button_label: રદ કરો
   confirm_preferred_language: કૃપા કરીને તમારી ભાષા પસંદ કરો
   invalid_format: માફ કરશો, તમે જમા કરેલી વિગતો ફોર્મેટ અનુરૂપ નથી
-  keep_subscription_button_label: સબ્સ્ક્રિપ્શન ચાલુ રાખો
+  keep_subscription_button_label: ચાલુ રાખો
   languages: ભાષાઓ
   languages_and_privacy_title: ભાષા અને ગોપનીયતા
   main_menu: મુખ્ય મેનુ
@@ -472,7 +472,7 @@ es:
   report_updated: 'La siguiente verificación de hechos ha sido *actualizada* con nueva
     información:'
   search_result_is_not_relevant_button_label: 'No'
-  search_result_is_relevant_button_label: Si
+  search_result_is_relevant_button_label: Sí
   search_state_button_label: Enviar
   subscribe_button_label: Suscribirse
   subscribed: Actualmente estás suscrita(o) a nuestro boletín.
@@ -500,6 +500,28 @@ sw:
   subscribed: Kwa sasa umejiunga na jarida letu.
   unsubscribe_button_label: Jiondoe
   unsubscribed: Kwa sasa umejiondoa kutoka jarida letu.
+tl:
+  add_more_details_state_button_label: ''
+  ask_if_ready_state_button_label: ''
+  confirm_preferred_language: ''
+  invalid_format: ''
+  keep_subscription_button_label: ''
+  languages: ''
+  languages_and_privacy_title: ''
+  main_menu: ''
+  main_state_button_label: ''
+  navigation_button: ''
+  privacy_and_purpose: ''
+  privacy_statement: ''
+  privacy_title: ''
+  report_updated: ''
+  search_result_is_not_relevant_button_label: ''
+  search_result_is_relevant_button_label: ''
+  search_state_button_label: ''
+  subscribe_button_label: ''
+  subscribed: ''
+  unsubscribe_button_label: ''
+  unsubscribed: ''
 ta:
   add_more_details_state_button_label: கூடுதல் தகவல்ககள்
   ask_if_ready_state_button_label: ரத்து செய்

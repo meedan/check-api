@@ -137,6 +137,12 @@ namespace :check do
                             value
                           end
             fields = { "#{es_field_name}" => field_value }
+            # add extra fields to ES
+            if field_name == 'title'
+              fields["title"] = field_value
+            elsif field_name == 'status'
+              fields["verification_status"] = pm.status
+            end
             es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
           end
           client.bulk body: es_body unless es_body.blank?
@@ -225,15 +231,13 @@ namespace :check do
           es_body = []
           pms.each do |pm|
             print '.'
-            value = pm.send(field_name)
+            value = pm.send(field_name) if pm.respond_to?(field_name)
             doc_id = Base64.encode64("ProjectMedia/#{pm.id}")
 
             field_value = if field_name == 'report_status'
                             ['unpublished', 'paused', 'published'].index(value)
                           elsif field_name == 'status'
                             pm.status_ids.index(value)
-                          elsif field_name == 'verification_status'
-                            pm.status
                           elsif field_name == 'tags_as_sentence'
                             value.split(', ').size
                           elsif field_name == 'published_by'
@@ -249,7 +253,12 @@ namespace :check do
                           end
 
             fields = { "#{es_field_name}" => field_value }
-            fields["title"] = field_value if field_name == 'title'
+            # add extra fields to ES
+            if field_name == 'title'
+              fields["title"] = field_value
+            elsif field_name == 'status'
+              fields["verification_status"] = pm.status
+            end
             es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
           end
           client.bulk body: es_body unless es_body.blank?

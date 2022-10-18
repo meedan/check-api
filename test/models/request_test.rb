@@ -220,17 +220,32 @@ class RequestTest < ActiveSupport::TestCase
     t1 = create_team
     t2 = create_team name: 'Foo'
     t3 = create_team name: 'Bar'
+    t4 = create_team name: 'Test'
+    t5 = create_team name: 'Baz'
     f.teams << t2
     f.teams << t3
+    f.teams << t4
+    FeedTeam.update_all(shared: true)
+    f.teams << t5
     m = create_uploaded_image
     r = create_request feed: f, media: m
     assert_equal '', r.reload.fact_checked_by
+    assert_equal 0, r.reload.fact_checked_by_count
     publish_report(create_project_media(team: t1, media: m))
     assert_equal '', r.reload.fact_checked_by
+    assert_equal 0, r.reload.fact_checked_by_count
     publish_report(create_project_media(team: t2, media: m))
     assert_equal 'Foo', r.reload.fact_checked_by
+    assert_equal 1, r.reload.fact_checked_by_count
     publish_report(create_project_media(team: t3, media: m))
     assert_equal 'Bar, Foo', r.reload.fact_checked_by
+    assert_equal 2, r.reload.fact_checked_by_count
+    publish_report(create_project_media(team: t5, media: m))
+    assert_equal 'Bar, Foo', r.reload.fact_checked_by
+    assert_equal 2, r.reload.fact_checked_by_count
+    ProjectMediaRequest.create!(project_media: create_project_media(team: t4), request: r)
+    assert_equal 'Bar, Foo, Test', r.reload.fact_checked_by
+    assert_equal 3, r.reload.fact_checked_by_count
     Bot::Alegre.unstub(:request_api)
   end
 

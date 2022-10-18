@@ -41,11 +41,18 @@ class Feed < ApplicationRecord
     self.requests.where(request_id: nil).count
   end
 
-  def item_belongs_to_feed?(pm)
+  def project_media_ids(team_id)
+    team = Team.find_by_id(team_id.to_i)
+    return [] if team.nil?
     current_team = Team.current
-    Team.current = Team.find(pm.team_id)
-    items = CheckSearch.new({ feed_id: self.id, eslimit: 10000 }.to_json, nil, pm.team_id).medias.map(&:id)
+    Team.current = team
+    ids = CheckSearch.new({ feed_id: self.id, eslimit: 10000 }.to_json, nil, team_id).medias.map(&:id) # FIXME: Limited at 10000
     Team.current = current_team
+    ids
+  end
+
+  def item_belongs_to_feed?(pm)
+    items = self.project_media_ids(pm.team_id)
     items.include?(pm.id)
   end
 
@@ -58,10 +65,10 @@ class Feed < ApplicationRecord
   def self.save_request(feed_id, type, query, webhook_url, result_ids)
     media = Request.get_media_from_query(type, query, feed_id)
     request = Request.create!(feed_id: feed_id, request_type: type, content: query, webhook_url: webhook_url, media: media, skip_check_ability: true)
+    request.attach_to_similar_request!
     unless result_ids.blank?
       result_ids.each { |id| ProjectMediaRequest.create!(project_media_id: id, request_id: request.id, skip_check_ability: true) }
     end
-    request.attach_to_similar_request!
     request
   end
 

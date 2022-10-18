@@ -213,10 +213,12 @@ namespace :check do
 
       def get_feed_statistics(pmids, feed, team, from, to)
         data = []
-        data << Request.where(feed_id: feed.id, created_at: from..to).count
+        data << Request.where(feed_id: feed.id, created_at: from..to, webhook_url: nil, last_called_webhook_at: nil).count
         data << ProjectMedia.where(id: pmids, team_id: team.id, updated_at: from..to).count
         data << ProjectMediaRequest.joins(:project_media, :request).where('project_medias.id' => pmids, 'project_medias.team_id' => team.id, 'requests.created_at' => from..to).where('requests.content != ?', '.').group(:request_id).count.size
         data << FactCheck.joins(claim_description: :project_media).where('project_medias.id' => pmids, 'project_medias.team_id' => team.id, 'fact_checks.created_at' => from..to).where.not(url: nil).count
+        data << Request.where(feed_id: feed.id, created_at: from..to).where('webhook_url IS NOT NULL OR last_called_webhook_at IS NOT NULL').count
+        data << Request.where(feed_id: feed.id, created_at: from..to).where.not(last_called_webhook_at: nil).count
         data
       end
 
@@ -341,7 +343,7 @@ namespace :check do
 
         ['day', 'week'].each do |period|
           outfile = File.open("/tmp/feed_#{period}.csv", 'w')
-          header = ['Feed', 'Feed type', 'Workspace', period.capitalize, 'Number of feed requests', 'Number of items shared', 'Number of requests associated with any items shared', 'Number of fact-checks published with URL']
+          header = ['Feed', 'Feed type', 'Workspace', period.capitalize, 'Number of feed requests', 'Number of items shared', 'Number of requests associated with any items shared', 'Number of fact-checks published with URL', 'Number of subscriptions', 'Number of notifications']
           outfile.puts(header.join(','))
           Feed.all.each do |feed|
             next if feed.teams.empty?

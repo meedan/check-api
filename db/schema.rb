@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_09_19_011554) do
+ActiveRecord::Schema.define(version: 2022_10_14_185439) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -365,6 +365,8 @@ ActiveRecord::Schema.define(version: 2022_09_19_011554) do
     t.string "webhook_url"
     t.datetime "last_called_webhook_at"
     t.integer "subscriptions_count", default: 0, null: false
+    t.integer "fact_checked_by_count", default: 0, null: false
+    t.integer "project_medias_count", default: 0, null: false
     t.index ["feed_id"], name: "index_requests_on_feed_id"
     t.index ["media_id"], name: "index_requests_on_media_id"
     t.index ["request_id"], name: "index_requests_on_request_id"
