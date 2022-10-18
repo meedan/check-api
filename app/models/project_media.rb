@@ -256,6 +256,7 @@ class ProjectMedia < ApplicationRecord
         new_pm.skip_check_ability = true
         new_pm.channel = { main: CheckChannels::ChannelCodes::FETCH }
         new_pm.claim_description = self.claim_description
+        new_pm.skip_check_ability = true
         new_pm.save(validate: false) # To skip channel validation
 
         # Point the claim and consequently the fact-check
@@ -290,11 +291,6 @@ class ProjectMedia < ApplicationRecord
   def self.apply_replace_by(old_pm_id, new_pm_id)
     old_pm = ProjectMedia.find(old_pm_id)
     new_pm = ProjectMedia.find(new_pm_id)
-    # Remove old item tasks
-    Annotation.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: old_pm.id).find_each do |t|
-      t.skip_check_ability = true
-      t.destroy!
-    end
     # Merge tags
     new_item_tags = new_pm.annotations('tag').map(&:tag)
     unless new_item_tags.blank?
