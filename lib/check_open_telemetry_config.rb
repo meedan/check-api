@@ -38,6 +38,9 @@ module Check
     end
 
     def configure!(resource_attributes, sampling_config: nil)
+      resource_attributes ||= {}
+      sampling_config ||= {}
+
       configure_exporting!
       sampling_attributes = configure_sampling!(sampling_config)
 
@@ -70,7 +73,7 @@ module Check
 
     def configure_sampling!(sampling_config)
       additional_attributes = {}
-      if sampling_config && sampling_config[:sampler]
+      if sampling_config[:sampler]
         ENV['OTEL_TRACES_SAMPLER'] = sampling_config[:sampler]
         
         begin

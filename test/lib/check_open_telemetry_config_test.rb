@@ -62,6 +62,15 @@ class OpenTelemetryConfigTest < ActiveSupport::TestCase
     env_var_original_state.each{|env_var, original_state| ENV[env_var] = original_state}
   end
 
+  test "gracefully handles unset attributes" do
+    env_var_original_state = cache_and_clear_env
+
+    Check::OpenTelemetryConfig.new('https://fake.com','foo=bar').configure!(nil)
+    assert ENV['OTEL_RESOURCE_ATTRIBUTES'].blank?
+  ensure
+    env_var_original_state.each{|env_var, original_state| ENV[env_var] = original_state}
+  end
+
   # exporting_disabled?
   test "should disable exporting if any required config missing" do
     assert Check::OpenTelemetryConfig.new(nil, nil).send(:exporting_disabled?)
