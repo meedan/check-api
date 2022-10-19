@@ -1,5 +1,5 @@
 require 'error_codes'
-
+require 'tracing_service'
 class ApplicationController < ActionController::Base
   include HttpAcceptLanguage::AutoLocale
 
@@ -38,11 +38,6 @@ class ApplicationController < ActionController::Base
   def render_unauthorized
     render_error 'Unauthorized', 'UNAUTHORIZED', 401
     logger.warn message: 'unauthorized', status: 401
-  end
-
-  def add_otel_attribute_to_span(attribute_name, value)
-    current_span = OpenTelemetry::Trace.current_span
-    current_span.set_attribute(attribute_name, value.to_s)
   end
 
   protected

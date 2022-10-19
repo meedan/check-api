@@ -14,7 +14,7 @@ module Api
       after_action :trigger_bot_events
 
       def create
-        add_otel_attribute_to_span('app.graphql.query', params[:query])
+        TracingService.add_attribute_to_current_span('app.graphql.query', params[:query])
         parse_graphql_result do |context|
           query_string = params[:query]
           query_variables = prepare_query_variables(params[:variables])
@@ -23,7 +23,7 @@ module Api
       end
 
       def batch
-        add_otel_attribute_to_span('app.graphql.query', params[:_json])
+        TracingService.add_attribute_to_current_span('app.graphql.query', params[:_json])
         parse_graphql_result do |context|
           queries = params[:_json].map do |param|
             {
