@@ -140,7 +140,7 @@ class Version < Partitioned::ByForeignKey
     case self.event_type
     when 'create_tag', 'create_dynamic', 'update_dynamic', 'destroy_tag', 'create_dynamicannotationfield', 'update_dynamicannotationfield'
       self.get_associated_from_annotation(self.event_type, self.item)
-    when 'create_projectmedia', 'update_projectmedia'
+    when 'create_projectmedia', 'update_projectmedia', 'destroy_projectmedia'
       [self.item.class.name, self.item_id.to_i]
     when 'create_relationship', 'update_relationship', 'destroy_relationship'
       self.get_associated_from_relationship

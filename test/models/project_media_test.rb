@@ -542,6 +542,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm = create_project_media team: t, media: m, user: u, skip_autocreate_source: false
     end
     assert_equal 2, pm.versions.count
+    pm.destroy!
+    v = Version.from_partition(t.id).where(item_type: 'ProjectMedia', item_id: pm.id, event: 'destroy').last
+    assert_not_nil v
     User.current = nil
   end
 
