@@ -21,13 +21,13 @@ ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
 require 'webmock/minitest'
-require 'mocha/test_unit'
 require 'sample_data'
 require 'parallel_tests/test/runtime_logger'
 require 'sidekiq/testing'
 require 'minitest/retry'
 require 'pact/consumer/minitest'
 require 'rspec/rails'
+require 'mocha/minitest'
 Minitest::Retry.use!
 
 class ActionController::TestCase
@@ -142,11 +142,8 @@ class ActiveSupport::TestCase
 
   def before_all
     super
+
     create_metadata_stuff
-    ApolloTracing.stubs(:start_proxy)
-    Pusher::Client.any_instance.stubs(:trigger)
-    Pusher::Client.any_instance.stubs(:post)
-    ProjectMedia.any_instance.stubs(:clear_caches).returns(nil)
     # URL mocked by pender-client
     @url = 'https://www.youtube.com/user/MeedanTube'
   end
@@ -173,6 +170,13 @@ class ActiveSupport::TestCase
     WebMock.stub_request(:get, /#{CheckConfig.get('narcissus_url')}/).to_return(body: '{"url":"http://screenshot/test/test.png"}')
     WebMock.stub_request(:get, /api\.smooch\.io/)
     RequestStore.store[:skip_cached_field_update] = true
+
+    # Set up stubs on per-test basis so that we don't accidentally
+    # create a shared state for stubbing and unstubbing
+    ApolloTracing.stubs(:start_proxy)
+    Pusher::Client.any_instance.stubs(:trigger)
+    Pusher::Client.any_instance.stubs(:post)
+    ProjectMedia.any_instance.stubs(:clear_caches).returns(nil)
   end
 
   # This will run after any test
