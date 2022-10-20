@@ -18,6 +18,7 @@ group :test do
   gem 'rails-controller-testing'
   gem 'pact-consumer-minitest'
   gem 'rspec-rails', '4.0.1'
+  gem 'mocha', '~>1.14.0'
 end
 
 group :doc do
@@ -33,7 +34,6 @@ group :development do
 end
 
 gem 'webmock'
-gem 'mocha', '1.2.1'
 gem 'pender_client', git: 'https://github.com/meedan/pender-client.git', ref: '89c9072'
 gem 'sqlite3', '1.3.13', require: false
 gem 'lograge'
