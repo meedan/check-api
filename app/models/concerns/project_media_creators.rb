@@ -147,7 +147,7 @@ module ProjectMediaCreators
     ]
   end
 
-  def create_relationship(type = Relationship.default_type)
+  def create_relationship(type = Relationship.confirmed_type)
     unless self.related_to_id.nil?
       related = ProjectMedia.where(id: self.related_to_id).last
       unless related.nil?
