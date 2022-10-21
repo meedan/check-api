@@ -14,12 +14,18 @@ namespace :transifex do
     puts "Logged in as #{CheckConfig.get('transifex_user')} on Transifex."
   end
 
-  # Get the supported languages from Transifex
+  # Get the supported languages on Transifex and update config/application.rb accordingly
 
   task languages: [:environment, :login] do
     project = Transifex::Project.new(TRANSIFEX_PROJECT_SLUG)
     @langs = project.languages.fetch.collect{ |l| l['language_code'] } + ['en']
-    puts "Got languages #{@langs.join(', ')}."
+    apprb_path = File.join(Rails.root, 'config', 'application.rb')
+    apprb_contents = File.read(apprb_path)
+    apprb = File.open(apprb_path, 'w+')
+    disclaimer = 'Do not change manually! Use `rake transifex:languages` instead, or set the `locale` key in your `config/config.yml`'
+    apprb.puts apprb_contents.gsub(/config\.i18n\.available_locales = \[[^\]]*\] # #{disclaimer}/, "config.i18n.available_locales = #{@langs.to_json} # #{disclaimer}")
+    apprb.close
+    puts "Set languages #{@langs.join(', ')} on #{apprb_path}."
   end
 
   # Download translations from Transifex - api resource
