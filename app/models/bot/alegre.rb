@@ -608,6 +608,9 @@ class Bot::Alegre < BotUser
   def self.can_create_relationship?(source, target, relationship_type)
     return false if source.nil? || target.nil?
     return false if self.is_suggested_to_trash(source, target, relationship_type)
+    # Make sure that items imported from shared feed are not related automatically to anything,
+    # since multiple medias can be imported at the same time, so the imported medias should form a cluster themselves
+    return false if target.is_imported_from_shared_feed?
     return true
   end
 
