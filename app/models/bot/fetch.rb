@@ -53,7 +53,7 @@ class Bot::Fetch < BotUser
       User.current = installation.user
       Team.current = installation.team
       status_mapping = installation.get_status_mapping.blank? ? nil : JSON.parse(installation.get_status_mapping, { quirks_mode: true })
-      FetchWorker.perform_in(1.second, claim_review, installation.team_id, installation.user_id, installation.get_status_fallback, status_mapping, installation.get_auto_publish_reports)
+      Bot::Fetch::Import.delay_for(1.second, { queue: 'fetch', retry: 3 }).import_claim_review(claim_review, installation.team_id, installation.user_id, installation.get_status_fallback, status_mapping, installation.get_auto_publish_reports)
       true
     rescue StandardError => e
       Rails.logger.error("[Fetch Bot] Exception: #{e.message}")
