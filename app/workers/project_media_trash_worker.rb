@@ -8,8 +8,8 @@ class ProjectMediaTrashWorker
     # Check item still exists and Trashed
     type = options[:type] || 'trash'
     archived = type == 'trash' ? CheckArchivedFlags::FlagCodes::TRASHED : CheckArchivedFlags::FlagCodes::SPAM
-    pm = ProjectMedia.where(id: id, archived: archived).where('updated_at <= ?', options[:updated_at]).last
-    unless pm.nil?
+    pm = ProjectMedia.where(id: id, archived: archived).last
+    if !pm.nil? && pm.updated_at.to_i <= options[:updated_at].to_i
       should_delete = true
       if type == 'spam'
         extra = options[:extra] || {}
@@ -19,7 +19,7 @@ class ProjectMediaTrashWorker
           target_id: pm.id
         ).exists?
       end
-      pm.destroy if should_delete
+      pm.destroy! if should_delete
     end
   end
 end
