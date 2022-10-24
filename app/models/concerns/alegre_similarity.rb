@@ -149,6 +149,7 @@ module AlegreSimilarity
     end
 
     def delete_from_index(pm, fields=nil, quiet=false)
+      return if pm.nil?
       if self.get_pm_type(pm) == "text"
         fields = Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS if fields.nil?
         fields = fields.flatten.uniq

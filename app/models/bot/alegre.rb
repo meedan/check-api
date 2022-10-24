@@ -55,6 +55,7 @@ class Bot::Alegre < BotUser
 
     def self.send_annotation_data_to_similarity_index(pm_id, annotation_type)
       pm = ProjectMedia.find_by_id(pm_id)
+      return if pm.nil?
       if annotation_type == 'report_design'
         REPORT_TEXT_SIMILARITY_FIELDS.each do |field|
           Bot::Alegre.send_field_to_similarity_index(pm, field)
