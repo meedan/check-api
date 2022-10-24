@@ -17,6 +17,7 @@ RequestType = GraphqlCrudOperations.define_default_type do
   field :project_medias_count, types.Int
   field :title, types.String
   field :similar_to_request, RequestType
+  field :media_type, types.String
 
   field :feed do
     type -> { FeedType }
