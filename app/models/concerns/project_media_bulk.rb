@@ -41,7 +41,7 @@ module ProjectMediaBulk
       # Enqueue in delete_forever
       if archived == CheckArchivedFlags::FlagCodes::TRASHED && !RequestStore.store[:skip_delete_for_ever]
         interval = CheckConfig.get('empty_trash_interval', 30).to_i
-        options = { type: 'trash', updated_at: updated_at }
+        options = { type: 'trash', updated_at: updated_at.to_i }
         ids.each{ |pm_id| ProjectMediaTrashWorker.perform_in(interval.days, pm_id, YAML.dump(options)) }
       end
 
