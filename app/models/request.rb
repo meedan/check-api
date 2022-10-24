@@ -20,6 +20,11 @@ class Request < ApplicationRecord
     recalculate: proc { |r| r.feed.name },
     update_on: [] # Never changes
 
+  cached_field :media_type,
+    start_as: proc { |r| r.media&.type },
+    recalculate: proc { |r| r.media&.type },
+    update_on: [] # Never changes
+
   def similarity_threshold
     0.85 # FIXME: Adjust this value for text and image (eventually it can be a feed setting)
   end
