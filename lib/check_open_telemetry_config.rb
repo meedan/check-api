@@ -54,7 +54,7 @@ module Check
     end
 
     private
-    
+
     def configure_exporting!
       if exporting_disabled?
         ENV['OTEL_TRACES_EXPORTER'] = 'none'
@@ -75,7 +75,7 @@ module Check
       additional_attributes = {}
       if sampling_config[:sampler]
         ENV['OTEL_TRACES_SAMPLER'] = sampling_config[:sampler]
-        
+
         begin
           rate_as_ratio = (1 / Float(sampling_config[:rate])).to_s
           additional_attributes.merge!('SampleRate' => sampling_config[:rate])
@@ -89,14 +89,14 @@ module Check
       end
       additional_attributes
     end
-    
+
     def exporting_disabled?
       @endpoint.blank? || @headers.blank? || @is_disabled
     end
-    
+
     def format_attributes(hash)
       return unless hash
-      
+
       hash.map{ |k, v| "#{k}=#{v}"}.join(',')
     end
   end
