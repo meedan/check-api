@@ -1,5 +1,5 @@
 require 'error_codes'
-
+require 'tracing_service'
 class ApplicationController < ActionController::Base
   include HttpAcceptLanguage::AutoLocale
 
