@@ -58,12 +58,12 @@ module Check
     def configure_exporting!
       if exporting_disabled?
         ENV['OTEL_TRACES_EXPORTER'] = 'none'
-        Rails.logger.info(message: '[otel] Open Telemetry exporting is disabled. To change this, check app configuration')
+        Rails.logger.info('[otel] Open Telemetry exporting is disabled. To change this, check app configuration')
       else
         ENV['OTEL_TRACES_EXPORTER'] = 'otlp'
         ENV['OTEL_EXPORTER_OTLP_ENDPOINT'] = @endpoint
         ENV['OTEL_EXPORTER_OTLP_HEADERS'] = @headers
-        Rails.logger.info(message: "[otel] Open Telemetry configured to export to #{@endpoint}")
+        Rails.logger.info("[otel] Open Telemetry configured to export to #{@endpoint}")
       end
 
       # The line below can be uncommented to log traces to console rather than report them remotely
