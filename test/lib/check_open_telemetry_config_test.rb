@@ -62,6 +62,25 @@ class OpenTelemetryConfigTest < ActiveSupport::TestCase
     env_var_original_state.each{|env_var, original_state| ENV[env_var] = original_state}
   end
 
+  test "does not set the sampler arguments when sampling config cannot be set properly" do
+    env_var_original_state = cache_and_clear_env
+
+    Check::OpenTelemetryConfig.new('https://fake.com','foo=bar').configure!(
+      {'developer.name' => 'piglet' },
+      sampling_config: { sampler: 'traceidratio', rate: 'asdf' }
+    )
+
+    #
+    assert_nil ENV['OTEL_TRACES_SAMPLER_ARG']
+    assert_equal 'developer.name=piglet', ENV['OTEL_RESOURCE_ATTRIBUTES']
+
+    # Keeps sampler, since it could be something like alwayson or alwaysoff, which does
+    # not require a sample rate
+    assert_equal 'traceidratio', ENV['OTEL_TRACES_SAMPLER']
+  ensure
+    env_var_original_state.each{|env_var, original_state| ENV[env_var] = original_state}
+  end
+
   test "gracefully handles unset attributes" do
     env_var_original_state = cache_and_clear_env
 
