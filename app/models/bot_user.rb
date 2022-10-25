@@ -174,7 +174,8 @@ class BotUser < User
         http.use_ssl = true if self.get_request_url =~ /^https:/
         request = Net::HTTP::Post.new(uri.request_uri, headers)
         request.body = data.to_json
-        http.request(request)
+        response = http.request(request)
+        Rails.logger.info "[BotUser] Notified bot #{self.id} with payload '#{data.to_json}', the response was (#{response.code}): '#{response.body}'"
       end
     rescue StandardError => e
       Rails.logger.error("[BotUser] Error calling bot #{self.identifier}: #{e.message}")
