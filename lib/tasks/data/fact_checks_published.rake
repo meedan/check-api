@@ -1,4 +1,4 @@
-# bundle exec rake check:data:fact_checks_published[from,to,workspace.slugs.separated.by.dots]
+# bundle exec rake check:data:fact_checks_published[from..to,workspace.slugs.separated.by.dots]
 
 namespace :check do
   namespace :data do
@@ -7,9 +7,19 @@ namespace :check do
       old_logger = ActiveRecord::Base.logger
       ActiveRecord::Base.logger = nil
 
-      from, to, slugs = params.to_a
-      from = Time.parse(from).beginning_of_day
-      to = Time.parse(to).end_of_day
+      def parse_period(value)
+        if value == 'today'
+          [Time.now.beginning_of_day, Time.now.end_of_day]
+        elsif value == 'yesterday'
+          [Time.now.yesterday.beginning_of_day, Time.now.yesterday.end_of_day]
+        else
+          from, to = value.split('..')
+          [Time.parse(from).beginning_of_day, Time.parse(to).end_of_day]
+        end
+      end
+
+      period, slugs = params.to_a
+      from, to = parse_period(period)
       slugs = slugs.split('.')
 
       filepath = "/tmp/#{Digest::MD5.hexdigest([from.strftime("%Y-%m-%d"), to.strftime("%Y-%m-%d"), slugs].flatten.join('-'))}.csv"
