@@ -11,7 +11,7 @@ namespace :check do
       from = Time.parse(from).beginning_of_day
       to = Time.parse(to).end_of_day
       slugs = slugs.split('.')
-      
+
       filepath = "/tmp/#{Digest::MD5.hexdigest([from.strftime("%Y-%m-%d"), to.strftime("%Y-%m-%d"), slugs].flatten.join('-'))}.csv"
       puts "Getting published fact-checks from #{from} to #{to} for workspaces #{slugs} and saving to #{filepath}."
       output = File.open(filepath, 'w+')
