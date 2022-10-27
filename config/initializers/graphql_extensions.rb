@@ -29,8 +29,20 @@ module GraphQL
         @edge_nodes = @edge_nodes.map(&:load) if @field.name == 'annotations'
         @edge_nodes
       end
+
+      def total_count
+        @nodes.limit(nil).reorder(nil).offset(nil).count
+      end
     end
 
     BaseConnection.register_connection_implementation(ActiveRecord::Relation, PermissionedConnection)
+  end
+
+  class BaseType
+    def connection_type
+      @connection_type ||= define_connection do
+        field :totalCount, types.Int, property: :total_count
+      end
+    end
   end
 end

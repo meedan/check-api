@@ -18,9 +18,29 @@ FeedType = GraphqlCrudOperations.define_default_type do
     argument :offset, types.Int
     argument :sort, types.String
     argument :sort_type, types.String
+    # Filters
+    argument :medias_count_min, types.Int
+    argument :medias_count_max, types.Int
+    argument :requests_count_min, types.Int
+    argument :requests_count_max, types.Int
+    argument :created_at_from, types.String
+    argument :created_at_to, types.String
 
     resolve ->(feed, args, _ctx) {
       request_id = (args['request_id'].to_i == 0 ? nil : args['request_id'].to_i)
+
+      query = Request.where(request_id: request_id, feed_id: feed.id)
+      query = query.or(Request.where(id: request_id, feed_id: feed.id)) unless request_id.nil?
+
+      # Filters
+      query = query.where('medias_count >= ?', args['medias_count_min'].to_i) unless args['medias_count_min'].blank?
+      query = query.where('medias_count <= ?', args['medias_count_max'].to_i) unless args['medias_count_max'].blank?
+      query = query.where('requests_count >= ?', args['requests_count_min'].to_i) unless args['requests_count_min'].blank?
+      query = query.where('requests_count <= ?', args['requests_count_max'].to_i) unless args['requests_count_max'].blank?
+      query = query.where('created_at >= ?', Time.parse(args['created_at_from'])) unless args['created_at_from'].blank?
+      query = query.where('created_at <= ?', Time.parse(args['created_at_to'])) unless args['created_at_to'].blank?
+
+      # Sort
       sort = {
         'requests' => 'requests_count',
         'medias' => 'medias_count',
@@ -31,9 +51,8 @@ FeedType = GraphqlCrudOperations.define_default_type do
         'fact_checks' => 'project_medias_count'
       }[args['sort'].to_s] || 'last_submitted_at'
       sort_type = args['sort_type'].to_s.downcase == 'asc' ? 'ASC' : 'DESC'
-      query = Request.where(request_id: request_id, feed_id: feed.id)
       query = query.joins(:media) if sort == 'medias.type'
-      query = query.or(Request.where(id: request_id, feed_id: feed.id)) unless request_id.nil?
+
       query.order(sort => sort_type).offset(args['offset'].to_i)
     }
   end
