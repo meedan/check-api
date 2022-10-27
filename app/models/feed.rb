@@ -74,6 +74,10 @@ class Feed < ApplicationRecord
       query = query.where(condition, args[key].to_i) unless args[key].blank?
     end
     query = query.where('requests.created_at' => Range.new(*format_times_search_range_filter(JSON.parse(args['request_created_at']), nil))) unless args['request_created_at'].blank?
+    query = query.where('requests.content ILIKE ?', "%#{args['keyword']}%") unless args['keyword'].blank?
+    query = query.joins(:project_media_requests) if args['fact_checked_by'].to_s == 'ANY'
+    query = query.joins(:project_medias).where('project_medias.team_id' => Team.current&.id&.to_i) if args['fact_checked_by'].to_s == 'MINE'
+    query = query.left_joins(:project_media_requests).where(project_media_requests: { id: nil }) if args['fact_checked_by'].to_s == 'NONE'
 
     # Sort
     sort = {
@@ -88,7 +92,7 @@ class Feed < ApplicationRecord
     sort_type = args['sort_type'].to_s.downcase == 'asc' ? 'ASC' : 'DESC'
     query = query.joins(:media) if sort == 'medias.type'
 
-    query.order(sort => sort_type).offset(args['offset'].to_i)
+    query.order(sort => sort_type).offset(args['offset'].to_i).distinct('requests.id')
   end
 
   # This takes some time to run because it involves external HTTP requests and writes to the database:

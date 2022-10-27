@@ -24,6 +24,8 @@ FeedType = GraphqlCrudOperations.define_default_type do
     argument :requests_count_min, types.Int
     argument :requests_count_max, types.Int
     argument :request_created_at, types.String # JSON
+    argument :fact_checked_by, types.String
+    argument :keyword, types.String
 
     resolve ->(feed, args, _ctx) {
       feed.search(args)
