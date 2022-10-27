@@ -65,10 +65,14 @@ class Feed < ApplicationRecord
     query = query.or(Request.where(id: request_id, feed_id: self.id)) unless request_id.nil?
 
     # Filters
-    query = query.where('medias_count >= ?', args['medias_count_min'].to_i) unless args['medias_count_min'].blank?
-    query = query.where('medias_count <= ?', args['medias_count_max'].to_i) unless args['medias_count_max'].blank?
-    query = query.where('requests_count >= ?', args['requests_count_min'].to_i) unless args['requests_count_min'].blank?
-    query = query.where('requests_count <= ?', args['requests_count_max'].to_i) unless args['requests_count_max'].blank?
+    {
+      'medias_count_min' => 'medias_count >= ?',
+      'medias_count_max' => 'medias_count <= ?',
+      'requests_count_min' => 'requests_count >= ?',
+      'requests_count_max' => 'requests_count <= ?'
+    }.each do |key, condition|
+      query = query.where(condition, args[key].to_i) unless args[key].blank?
+    end
     query = query.where('requests.created_at' => Range.new(*format_times_search_range_filter(JSON.parse(args['request_created_at']), nil))) unless args['request_created_at'].blank?
 
     # Sort
