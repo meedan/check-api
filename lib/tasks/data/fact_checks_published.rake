@@ -1,4 +1,4 @@
-# bundle exec rake check:data:fact_checks_published[from..to,workspace.slugs.separated.by.dots]
+# bundle exec rake check:data:fact_checks_published[output-file-prefix,from..to,workspace.slugs.separated.by.dots]
 
 namespace :check do
   namespace :data do
@@ -18,11 +18,11 @@ namespace :check do
         end
       end
 
-      period, slugs = params.to_a
+      prefix, period, slugs = params.to_a
       from, to = parse_period(period)
       slugs = slugs.split('.')
 
-      filepath = "/tmp/#{Digest::MD5.hexdigest([from.strftime("%Y-%m-%d"), to.strftime("%Y-%m-%d"), slugs].flatten.join('-'))}.csv"
+      filepath = "/tmp/#{prefix}-#{from.strftime('%Y-%m-%d')}.csv"
       puts "Getting published fact-checks from #{from} to #{to} for workspaces #{slugs} and saving to #{filepath}."
       output = File.open(filepath, 'w+')
 
