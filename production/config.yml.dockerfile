@@ -158,12 +158,16 @@ development: &default
   #
   google_analytics_code: # '<GOOGLE ANAYTICS CODE>'
 
-  # Honeycomb analytics service https://www.honeycomb.io
+  # Open Telemetry configuration, for reporting to Honeycomb
+  # See initializers/open_telemetry.rb for usage.
   #
-  # OPTIONAL
+  # OPTIONAL (set to report to Honeycomb Dev environment from local)
   #
-  honeycomb_key: # '<HONEYCOMB KEY>'
-  honeycomb_dataset: # '<HONEYCOMB DATASET>'
+  otel_exporter_otlp_endpoint: # "https://api.honeycomb.io"
+  otel_exporter_otlp_headers: # "x-honeycomb-team=<DEV API KEY>"
+  otel_service_name: # "check-api"
+  otel_resource_attributes:
+    # developer.name: <DEVELOPER_NAME>
 
   # DEPRECATED
   #
@@ -174,6 +178,8 @@ development: &default
   cc_deville_host:
   cc_deville_token:
   cc_deville_httpauth:
+  honeycomb_key:
+  honeycomb_dataset:
 
 test:
   <<: *default
@@ -204,6 +210,8 @@ test:
     secret_key: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
     bucket: 'check-api-test'
     bucket_region: 'us-east-1'
+  otel_exporter_otlp_endpoint:
+  otel_exporter_otlp_headers:
 
   # Facebook social login
   #

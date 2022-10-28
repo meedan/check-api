@@ -55,6 +55,7 @@ class Bot::Alegre < BotUser
 
     def self.send_annotation_data_to_similarity_index(pm_id, annotation_type)
       pm = ProjectMedia.find_by_id(pm_id)
+      return if pm.nil?
       if annotation_type == 'report_design'
         REPORT_TEXT_SIMILARITY_FIELDS.each do |field|
           Bot::Alegre.send_field_to_similarity_index(pm, field)
@@ -608,6 +609,9 @@ class Bot::Alegre < BotUser
   def self.can_create_relationship?(source, target, relationship_type)
     return false if source.nil? || target.nil?
     return false if self.is_suggested_to_trash(source, target, relationship_type)
+    # Make sure that items imported from shared feed are not related automatically to anything,
+    # since multiple medias can be imported at the same time, so the imported medias should form a cluster themselves
+    return false if target.is_imported_from_shared_feed?
     return true
   end
 

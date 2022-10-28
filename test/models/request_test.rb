@@ -290,4 +290,13 @@ class RequestTest < ActiveSupport::TestCase
     r = create_request feed: f
     assert_equal 'Foo', r.feed_name(true)
   end
+
+  test "should cache media type" do
+    Bot::Alegre.stubs(:request_api).returns({})
+    RequestStore.store[:skip_cached_field_update] = false
+    m = create_uploaded_image
+    r = create_request media: m
+    assert_equal 'UploadedImage', r.media_type(true)
+    Bot::Alegre.unstub(:request_api)
+  end
 end

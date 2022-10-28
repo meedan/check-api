@@ -1,4 +1,6 @@
 class Feed < ApplicationRecord
+  include SearchHelper
+
   check_settings
 
   has_many :requests
@@ -54,6 +56,43 @@ class Feed < ApplicationRecord
   def item_belongs_to_feed?(pm)
     items = self.project_media_ids(pm.team_id)
     items.include?(pm.id)
+  end
+
+  def search(args = {})
+    query = Request.where(request_id: args['request_id'], feed_id: self.id)
+    query = query.or(Request.where(id: args['request_id'], feed_id: self.id)) unless args['request_id'].nil?
+
+    # Filters
+    # Filters by number range
+    {
+      'medias_count_min' => 'medias_count >= ?',
+      'medias_count_max' => 'medias_count <= ?',
+      'requests_count_min' => 'requests_count >= ?',
+      'requests_count_max' => 'requests_count <= ?'
+    }.each do |key, condition|
+      query = query.where(condition, args[key].to_i) unless args[key].blank?
+    end
+    # Filters by "Fact-checked by"
+    query = query.where('requests.fact_checked_by_count > 0') if args['fact_checked_by'].to_s == 'ANY'
+    query = query.where('requests.fact_checked_by_count' => 0) if args['fact_checked_by'].to_s == 'NONE'
+    # Other filters
+    query = query.where('requests.last_submitted_at' => Range.new(*format_times_search_range_filter(JSON.parse(args['request_created_at']), nil))) unless args['request_created_at'].blank?
+    query = query.where('requests.content ILIKE ?', "%#{args['keyword']}%") unless args['keyword'].blank?
+
+    # Sort
+    sort = {
+      'requests' => 'requests_count',
+      'medias' => 'medias_count',
+      'last_submitted' => 'last_submitted_at',
+      'subscriptions' => 'subscriptions_count',
+      'media_type' => 'medias.type',
+      'fact_checked_by' => 'fact_checked_by_count',
+      'fact_checks' => 'project_medias_count'
+    }[args['sort'].to_s] || 'last_submitted_at'
+    sort_type = args['sort_type'].to_s.downcase == 'asc' ? 'ASC' : 'DESC'
+    query = query.joins(:media) if sort == 'medias.type'
+
+    query.order(sort => sort_type).offset(args['offset'].to_i)
   end
 
   # This takes some time to run because it involves external HTTP requests and writes to the database:

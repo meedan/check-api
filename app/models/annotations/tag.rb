@@ -77,7 +77,7 @@ class Tag < ApplicationRecord
       t = Tag.find_by_id(id)
       callbacks.each do |callback|
         t.send(callback)
-      end
+      end unless t.nil?
     end
     # fill the tag cache
     pmids = JSON.parse(pmids_json)

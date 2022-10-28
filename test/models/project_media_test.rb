@@ -542,6 +542,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm = create_project_media team: t, media: m, user: u, skip_autocreate_source: false
     end
     assert_equal 2, pm.versions.count
+    pm.destroy!
+    v = Version.from_partition(t.id).where(item_type: 'ProjectMedia', item_id: pm.id, event: 'destroy').last
+    assert_not_nil v
     User.current = nil
   end
 
@@ -2093,6 +2096,16 @@ class ProjectMediaTest < ActiveSupport::TestCase
     setup_elasticsearch
     t = create_team
     u = create_user
+    u2 = create_user
+    create_team_user team: t, user: u2
+    at = create_annotation_type annotation_type: 'task_response_single_choice', label: 'Task'
+    ft1 = create_field_type field_type: 'single_choice', label: 'Single Choice'
+    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+    tag_a = create_tag_text team_id: t.id
+    tag_b = create_tag_text team_id: t.id
+    tag_c = create_tag_text team_id: t.id
+    tt = create_team_task team_id: t.id, task_type: 'single_choice', options: [{ label: 'Foo'}, { label: 'Faa' }]
+    tt2 = create_team_task team_id: t.id, task_type: 'single_choice', options: [{ label: 'Optiona a'}, { label: 'Option b' }]
     create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
       RequestStore.store[:skip_clear_cache] = true
@@ -2102,6 +2115,23 @@ class ProjectMediaTest < ActiveSupport::TestCase
       new = create_project_media team: t, media: create_uploaded_video, disable_es_callbacks: false
       new_r = publish_report(new)
       new_s = new.last_status_obj
+      old_tag_a = create_tag tag: tag_a.id, annotated: old
+      old_tag_b = create_tag tag: tag_b.id, annotated: old
+      new_tag_a = create_tag tag: tag_a.id, annotated: new
+      new_tag_c = create_tag tag: tag_c.id, annotated: new
+      # add task response
+      new_tt = new.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      new_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_task: 'Foo' }.to_json }.to_json
+      new_tt.save!
+      new_tt2 = new.annotations('task').select{|t| t.team_task_id == tt2.id}.last
+      # add comments
+      old_c = create_comment annotated: old
+      new_c = create_comment annotated: new
+      # assign to
+      s = new.last_verification_status_obj
+      s = Dynamic.find(s.id)
+      s.assigned_to_ids = u2.id.to_s
+      s.save!
       old.replace_by(new)
       assert_nil ProjectMedia.find_by_id(old.id)
       assert_nil Annotation.find_by_id(new_s.id)
@@ -2112,9 +2142,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_equal 'Import', new.creator_name
       data = { "main" => CheckChannels::ChannelCodes::FETCH }
       assert_equal data, new.channel
+      assert_equal 3, new.annotations('tag').count
+      assert_equal 2, new.annotations('comment').count
       # Verify ES
       result = $repository.find(get_es_id(new))
       assert_equal [CheckChannels::ChannelCodes::FETCH], result['channel']
+      assert_equal [old_c.id, new_c.id], result['comments'].collect{ |c| c['id'] }.sort
+      assert_equal [new_tag_a.id, new_tag_c.id, old_tag_b.id].sort, result['tags'].collect{ |tag| tag['id'] }.sort
+      assert_equal [new_tt.id, new_tt2.id].sort, result['task_responses'].collect{ |task| task['id'] }.sort
+      assert_equal [u2.id], result['assigned_user_ids']
     end
   end
 
