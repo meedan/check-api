@@ -59,12 +59,11 @@ class Feed < ApplicationRecord
   end
 
   def search(args = {})
-    request_id = (args['request_id'].to_i == 0 ? nil : args['request_id'].to_i)
-
-    query = Request.where(request_id: request_id, feed_id: self.id)
-    query = query.or(Request.where(id: request_id, feed_id: self.id)) unless request_id.nil?
+    query = Request.where(request_id: args['request_id'], feed_id: self.id)
+    query = query.or(Request.where(id: args['request_id'], feed_id: self.id)) unless args['request_id'].nil?
 
     # Filters
+    # Filters by number range
     {
       'medias_count_min' => 'medias_count >= ?',
       'medias_count_max' => 'medias_count <= ?',
@@ -73,11 +72,12 @@ class Feed < ApplicationRecord
     }.each do |key, condition|
       query = query.where(condition, args[key].to_i) unless args[key].blank?
     end
-    query = query.where('requests.created_at' => Range.new(*format_times_search_range_filter(JSON.parse(args['request_created_at']), nil))) unless args['request_created_at'].blank?
+    # Filters by "Fact-checked by"
+    query = query.where('requests.fact_checked_by_count > 0') if args['fact_checked_by'].to_s == 'ANY'
+    query = query.where('requests.fact_checked_by_count' => 0) if args['fact_checked_by'].to_s == 'NONE'
+    # Other filters
+    query = query.where('requests.last_submitted_at' => Range.new(*format_times_search_range_filter(JSON.parse(args['request_created_at']), nil))) unless args['request_created_at'].blank?
     query = query.where('requests.content ILIKE ?', "%#{args['keyword']}%") unless args['keyword'].blank?
-    query = query.joins(:project_media_requests) if args['fact_checked_by'].to_s == 'ANY'
-    query = query.joins(:project_medias).where('project_medias.team_id' => Team.current&.id&.to_i) if args['fact_checked_by'].to_s == 'MINE'
-    query = query.left_joins(:project_media_requests).where(project_media_requests: { id: nil }) if args['fact_checked_by'].to_s == 'NONE'
 
     # Sort
     sort = {
@@ -92,7 +92,7 @@ class Feed < ApplicationRecord
     sort_type = args['sort_type'].to_s.downcase == 'asc' ? 'ASC' : 'DESC'
     query = query.joins(:media) if sort == 'medias.type'
 
-    query.order(sort => sort_type).offset(args['offset'].to_i).distinct('requests.id')
+    query.order(sort => sort_type).offset(args['offset'].to_i)
   end
 
   # This takes some time to run because it involves external HTTP requests and writes to the database:
