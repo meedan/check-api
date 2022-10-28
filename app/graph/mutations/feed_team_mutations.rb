@@ -3,6 +3,7 @@ module FeedTeamMutations
 
   update_fields = {
     filters: 'json',
+    requests_filters: 'json',
     shared: 'bool',
   }
 

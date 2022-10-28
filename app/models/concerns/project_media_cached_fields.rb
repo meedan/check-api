@@ -249,15 +249,15 @@ module ProjectMediaCachedFields
 
     cached_field :tags_as_sentence,
       start_as: proc { |_pm| '' },
-      update_es: proc { |_pm, value| value.split(', ').size },
-      recalculate: proc { |pm| pm.get_annotations('tag').map(&:load).map(&:tag_text).join(', ') },
+      update_es: proc { |_pm, value| value.split(', ').uniq.size },
+      recalculate: proc { |pm| pm.get_annotations('tag').map(&:load).map(&:tag_text).uniq.join(', ') },
       update_on: [
         {
           model: Tag,
           affected_ids: proc { |t| [t.annotated_id.to_i] },
           events: {
-            save: proc { |pm, t| pm.tags_as_sentence.split(', ').concat([t.tag_text]).join(', ') },
-            destroy: proc { |pm, t| pm.tags_as_sentence.split(', ').reject{ |tt| tt == t.tag_text }.join(', ') }
+            save: proc { |pm, t| pm.tags_as_sentence.split(', ').concat([t.tag_text]).uniq.join(', ') },
+            destroy: proc { |pm, t| pm.tags_as_sentence.split(', ').reject{ |tt| tt == t.tag_text }.uniq.join(', ') }
           }
         }
       ]

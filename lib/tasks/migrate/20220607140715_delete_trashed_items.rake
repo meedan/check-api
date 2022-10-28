@@ -84,7 +84,7 @@ namespace :check do
       date_value = date_arg.blank? ? Time.now : DateTime.parse(date_arg)
       interval = CheckConfig.get('empty_trash_interval', 30).to_i
       deleted_date = date_value - interval.days
-      options = { type: 'trash', updated_at: deleted_date }
+      options = { type: 'trash', updated_at: deleted_date.to_i }
       # Get latest team id
       last_team_id = Rails.cache.read('check:migrate:enqueue_trashed_items_for_delete_forever:team_id') || 0
       Team.where('id > ?', last_team_id).find_each do |team|

@@ -16,6 +16,7 @@ class Relationship < ApplicationRecord
   validate :target_not_pulished_report, on: :create
   validates :relationship_type, uniqueness: { scope: [:source_id, :target_id], message: :already_exists }, on: :create
 
+  before_create :destroy_suggest_item
   after_create :move_to_same_project_as_main, prepend: true
   after_create :point_targets_to_new_source, :update_counters, prepend: true
   after_update :reset_counters, prepend: true
@@ -267,6 +268,14 @@ class Relationship < ApplicationRecord
       secondary.project_id = main.project_id
       secondary.save!
       CheckNotification::InfoMessages.send('moved_to_private_folder', item_title: secondary.title) unless secondary.reload.user_can_see_project?(secondary.user)
+    end
+  end
+
+  def destroy_suggest_item
+    # Check if same item already exists as a suggested item
+    if self.relationship_type.to_json == Relationship.confirmed_type.to_json
+      Relationship.where(source_id: self.source_id, target_id: self.target_id)
+      .where('relationship_type = ?', Relationship.suggested_type.to_yaml).destroy_all
     end
   end
 end

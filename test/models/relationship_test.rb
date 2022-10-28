@@ -463,4 +463,14 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_equal [s.id, t.id].sort, s_c.reload.project_media_ids.sort
     User.unstub(:current)
   end
+
+  test "should remove suggested relation when same items added as similar" do
+    team = create_team
+    s = create_project_media team: team
+    t = create_project_media team: team
+    r = create_relationship source_id: s.id, target_id: t.id, relationship_type: Relationship.suggested_type
+    r2 = create_relationship source_id: s.id, target_id: t.id, relationship_type: Relationship.confirmed_type
+    assert_nil Relationship.where(id: r.id).last
+    assert_not_nil Relationship.where(id: r2.id).last
+  end
 end
