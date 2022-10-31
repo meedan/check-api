@@ -41,7 +41,7 @@ class Request < ApplicationRecord
     similar_request_id = Request.where(media_id: media.id, feed_id: self.feed_id).where.not(id: self.id).order('id ASC').first
     if similar_request_id.nil?
       if media.type == 'Claim' && ::Bot::Alegre.get_number_of_words(media.quote) > 1
-        params = { text: media.quote, threshold: {::Bot::Alegre::ELASTICSEARCH_MODEL => 0.85, ::Bot::Alegre::MEAN_TOKENS_MODEL =>  0.9}, context: context }
+        params = { text: media.quote, per_model_threshold: {::Bot::Alegre::ELASTICSEARCH_MODEL => 0.85, ::Bot::Alegre::MEAN_TOKENS_MODEL =>  0.9}, context: context }
         similar_request_id = ::Bot::Alegre.request_api('get', '/text/similarity/', params)&.dig('result').to_a.collect{ |result| result&.dig('_source', 'context', 'request_id').to_i }.find{ |id| id != 0 && id != self.id }
       elsif ['UploadedImage', 'UploadedAudio', 'UploadedVideo'].include?(media.type)
         type = media.type.gsub(/^Uploaded/, '').downcase
