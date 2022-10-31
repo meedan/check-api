@@ -42,20 +42,11 @@ namespace :check do
       def object_uploaded?(s3_client, bucket_name, object_key, file_path)
         puts "Attempting S3 upload to #{bucket_name} for key #{object_key} ..."
         response = s3_client.put_object(
-          acl: 'public-read',
-          key: object_key,
-          body: File.read(file_path),
-          bucket: bucket_name,
-          content_type: 'application/json'
-        )
-
-        response = s3_client.put_object(
           bucket: bucket_name,
           key: object_key,
           body: File.read(file_path)
         )
         if response.etag
-          #s3_client.put_object_acl(acl: 'public-read', key: file_path, bucket: bucket_name)
           return true
         else
           return false
