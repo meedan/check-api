@@ -258,20 +258,11 @@ namespace :check do
 
       def object_uploaded?(s3_client, bucket_name, object_key, file_path)
         response = s3_client.put_object(
-          acl: 'public-read',
-          key: object_key,
-          body: File.read(file_path),
-          bucket: bucket_name,
-          content_type: 'text/csv'
-        )
-
-        response = s3_client.put_object(
           bucket: bucket_name,
           key: object_key,
           body: File.read(file_path)
         )
         if response.etag
-          #s3_client.put_object_acl(acl: 'public-read', key: file_path, bucket: bucket_name)
           return true
         else
           return false

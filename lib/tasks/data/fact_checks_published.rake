@@ -18,11 +18,37 @@ namespace :check do
         end
       end
 
+      bucket_name = ENV.fetch('FACT_CHECKS_S3_BUCKET')
+      region = 'eu-west-1'
+      begin
+        s3_client = Aws::S3::Client.new(region: region)
+      rescue Aws::Sigv4::Errors::MissingCredentialsError
+        puts "Please provide the AWS credentials."
+        exit 1
+      end
+
+      def object_uploaded?(s3_client, bucket_name, object_key, file_path)
+        response = s3_client.put_object(
+          bucket: bucket_name,
+          key: object_key,
+          body: File.read(file_path)
+        )
+        if response.etag
+          return true
+        else
+          return false
+        end
+      rescue StandardError => e
+        puts "Error uploading S3 object: #{e.message}"
+        return false
+      end
+
       prefix, period, slugs = params.to_a
       from, to = parse_period(period)
       slugs = slugs.split('.')
 
-      filepath = "/tmp/#{prefix}-#{from.strftime('%Y-%m-%d')}.csv"
+      filename = "#{prefix}-#{from.strftime('%Y-%m-%d')}.csv"
+      filepath = "/tmp/#{filename}"
       puts "Getting published fact-checks from #{from} to #{to} for workspaces #{slugs} and saving to #{filepath}."
       output = File.open(filepath, 'w+')
 
@@ -51,6 +77,14 @@ namespace :check do
 
       puts 'Finished!'
       output.close
+
+      puts "Starting upload for #{filename}"
+      if object_uploaded?(s3_client, bucket_name, filename, filepath)
+        puts "Uploaded #{filename}"
+      else
+        puts "Error uploading #{filename} to S3. Check credentials?"
+      end
+
       ActiveRecord::Base.logger = old_logger
     end
   end
