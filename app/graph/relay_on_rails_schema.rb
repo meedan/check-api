@@ -1,4 +1,4 @@
-RelayOnRailsSchema = GraphQL::Schema.define do
+class RelayOnRailsSchema < GraphQL::Schema
   query QueryType
   mutation MutationType
   use GraphQL::Batch
@@ -16,18 +16,18 @@ RelayOnRailsSchema = GraphQL::Schema.define do
   #   }
   # end
 
-  resolve_type -> (_type, object, _ctx) do
+  def self.resolve_type(_type, object, _ctx)
     klass = (object.respond_to?(:type) && object.type) ? object.type : object.class_name
     klass = 'Task' if Task.task_types.include?(klass)
     klass = 'User' if object.class.name == 'User'
     "#{klass}Type".constantize
   end
 
-  id_from_object -> (obj, type, ctx) {
+  def self.id_from_object(obj, type, ctx)
     CheckGraphql.id_from_object(obj, type, ctx)
-  }
+  end
 
-  object_from_id -> (id, ctx) do
+  def self.object_from_id(id, ctx)
     CheckGraphql.object_from_id(id, ctx)
   end
 

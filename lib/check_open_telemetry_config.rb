@@ -19,7 +19,7 @@ module Check
         config.use 'OpenTelemetry::Instrumentation::Ethon'
         config.use 'OpenTelemetry::Instrumentation::Excon'
         config.use 'OpenTelemetry::Instrumentation::Faraday'
-        # config.use 'OpenTelemetry::Instrumentation::GraphQL', schemas: [RelayOnRailsSchema]
+        config.use 'OpenTelemetry::Instrumentation::GraphQL', schemas: [RelayOnRailsSchema]
         config.use 'OpenTelemetry::Instrumentation::HttpClient'
         config.use 'OpenTelemetry::Instrumentation::Net::HTTP'
         config.use 'OpenTelemetry::Instrumentation::PG'
