@@ -682,13 +682,14 @@ class GraphqlController4Test < ActionController::TestCase
 
     path = File.join(Rails.root, 'test', 'data', 'rails.png')
     file = Rack::Test::UploadedFile.new(path, 'image/png')
-    query = 'mutation { searchUpload(input: {}) { file_handle } }'
+    query = 'mutation { searchUpload(input: {}) { file_handle, file_url } }'
     post :create, params: { query: query, team: t.slug, file: file }
     assert_response :success
-    puts @response.body
-    hash = JSON.parse(@response.body)['data']['searchUpload']['file_handle']
+    data = JSON.parse(@response.body)['data']['searchUpload']
+    hash = data['file_handle']
     assert_kind_of String, hash
     assert CheckS3.exist?("check_search/#{hash}")
+    assert_not_nil data['file_url']
   end
 
   test "should get shared teams" do
