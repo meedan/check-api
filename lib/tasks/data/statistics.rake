@@ -1,4 +1,4 @@
-# bundle exec rake check:data:statistics[start_year,start_month,end_year (0 = current year),end_month (0 = current month),group_by_month (0 = no grouping or 1 = grouping),workspace_slugs_as_a_dot_separated_values_string]
+# bundle exec rake check:data:statistics[workspace_slugs_as_a_dot_separated_values_string]
 
 require 'open-uri'
 include ActionView::Helpers::DateHelper
@@ -7,6 +7,8 @@ namespace :check do
   namespace :data do
     desc 'Generate some statistics about some workspaces'
     task statistics: :environment do |_t, params|
+      STATISTICS_OUTPUT_DIR = File.join(Rails.root, 'tmp')
+
       def requests(slug, platform, start_date, end_date, language, type = nil)
         relation = Annotation
           .where(annotation_type: 'smooch')
@@ -49,14 +51,8 @@ namespace :check do
 
       def get_statistics(start_date, end_date, slug, platform, language, outfile)
         platform_name = Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[platform]
-        month = nil
-        if start_date.month != end_date.month || start_date.year != end_date.year
-          month = "#{Date::MONTHNAMES[start_date.month]} #{start_date.year} - #{Date::MONTHNAMES[end_date.month]} #{end_date.year}"
-        else
-          month = "#{Date::MONTHNAMES[start_date.month]} #{start_date.year}"
-        end
-        id = [slug, platform_name, language, month].join('-').downcase.gsub(/[_ ]+/, '-')
-        data = [id, Team.find_by_slug(slug).name, platform_name, language, month]
+        id = [slug, platform_name, language, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d')].join('-').downcase.gsub(/[_ ]+/, '-')
+        data = [id, Team.find_by_slug(slug).name, platform_name, language, start_date.strftime('%Y-%m-%d')]
 
         # Number of conversations
         # FIXME: Should be a new conversation only after 15 minutes of inactivity
@@ -272,126 +268,117 @@ namespace :check do
         return false
       end
 
+      def upload_file(s3_client, bucket_name, outfile)
+        if defined?(ENV.fetch('STATISTICS_S3_DIR'))
+          puts "Starting upload for #{outfile}.csv"
+          file_path = "#{STATISTICS_OUTPUT_DIR}/#{outfile}.csv"
+          object_key = "#{ENV['STATISTICS_S3_DIR']}/#{outfile}.csv"
+          if object_uploaded?(s3_client, bucket_name, object_key, file_path)
+            puts "Uploaded #{outfile}.csv"
+          else
+            puts "Error uploading #{outfile}.csv to S3. Check credentials?"
+          end
+        end
+      end
+
       old_logger = ActiveRecord::Base.logger
       ActiveRecord::Base.logger = nil
-      args = params.to_a
-      start_year = args[0].to_i
-      start_month = args[1].to_i
-      end_year = args[2].to_i
-      end_year = Time.now.year if end_year == 0
-      end_month = args[3].to_i
-      end_month = Time.now.month if end_month == 0
-      group_by_month = args[4].to_i
-      slugs = args[5].to_s.split('.')
+      slugs = params.to_a.first.to_s.split('.')
       if slugs.empty?
         puts 'Please provide a list of workspace slugs'
       else
-        outfile = File.open('/tmp/statistics.csv', 'w')
-        header = [
-          'ID',
-          'Org',
-          'Platform',
-          'Language',
-          'Month',
-          'Conversations',
-          'Average number of conversations per day',
-          'Number of messages sent',
-          'Average messages per day',
-          'Unique users',
-          'Returning users',
-          'Searches',
-          'Positive searches',
-          'Negative searches',
-          'Search feedback positive',
-          'Search feedback negative',
-          'Search no feedback',
-          'Valid new requests',
-          'Published native reports',
-          'Published imported reports',
-          'Requests answered with a report',
-          'Reports sent to users',
-          'Unique users who received a report',
-          'Average (median) response time',
-          'Unique newsletters sent',
-          'New newsletter subscriptions',
-          'Newsletter cancellations',
-          'Current subscribers'
-        ]
-        outfile.puts(header.join(','))
+        threads = []
+        ['day', 'week', 'month'].each do |period|
+          threads << Thread.new do
+            filename = "tipline-statistics-#{period}"
+            outfile = File.open("#{STATISTICS_OUTPUT_DIR}/#{filename}.csv", 'w+')
+            header = [
+              'ID',
+              'Org',
+              'Platform',
+              'Language',
+              period.capitalize,
+              'Conversations',
+              'Average number of conversations per day',
+              'Number of messages sent',
+              'Average messages per day',
+              'Unique users',
+              'Returning users',
+              'Searches',
+              'Positive searches',
+              'Negative searches',
+              'Search feedback positive',
+              'Search feedback negative',
+              'Search no feedback',
+              'Valid new requests',
+              'Published native reports',
+              'Published imported reports',
+              'Requests answered with a report',
+              'Reports sent to users',
+              'Unique users who received a report',
+              'Average (median) response time',
+              'Unique newsletters sent',
+              'New newsletter subscriptions',
+              'Newsletter cancellations',
+              'Current subscribers'
+            ]
+            outfile.puts(header.join(','))
 
-        slugs.each do |slug|
-          team = Team.find_by_slug(slug)
-          team_rows = []
-          TeamBotInstallation.where(team: team, user: BotUser.smooch_user).last.smooch_enabled_integrations.keys.each do |platform|
-            team.get_languages.each do |language|
-              if group_by_month == 1
-                (start_year..end_year).to_a.each do |year|
-                  year_start_month = 1
-                  year_start_month = start_month if year == start_year
-                  year_end_month = 12
-                  year_end_month = end_month if year == end_year
-                  (year_start_month..year_end_month).to_a.each do |month|
-                    time = Time.parse("#{year}-#{month}-01")
-                    next if team.created_at > time.end_of_month
-                    team_rows << get_statistics(time.beginning_of_month, time.end_of_month, slug, platform, language, outfile)
+            slugs.each do |slug|
+              team = Team.find_by_slug(slug)
+              team_rows = []
+              date = nil
+              begin
+                date = team.created_at.beginning_of_day if date.nil?
+                from = date.send("beginning_of_#{period}")
+                to = date.send("end_of_#{period}")
+                puts "[#{Time.now}] Generating #{period} tipline statistics for #{team.name} (#{from})"
+                TeamBotInstallation.where(team: team, user: BotUser.smooch_user).last.smooch_enabled_integrations.keys.each do |platform|
+                  team.get_languages.each do |language|
+                    team_rows << get_statistics(from, to, slug, platform, language, outfile)
                   end
                 end
-              else
-                team_rows << get_statistics(Time.parse("#{start_year}-#{start_month}-01"), Time.parse("#{end_year}-#{end_month}-01").end_of_month, slug, platform, language, outfile)
-              end
+                date += 1.send(period)
+              end while date <= Time.now
+              cache_team_data(team, header, team_rows) if period == 'month'
             end
-          end
-          cache_team_data(team, header, team_rows)
-        end
-        outfile.close
 
-        ['day', 'week'].each do |period|
-          outfile = File.open("/tmp/feed_#{period}.csv", 'w')
-          header = ['Feed', 'Feed type', 'Workspace', period.capitalize, 'Number of feed requests', 'Number of items shared', 'Number of requests associated with any items shared', 'Number of fact-checks published with URL', 'Number of subscriptions', 'Number of notifications']
-          outfile.puts(header.join(','))
-          Feed.all.each do |feed|
+            outfile.close
+            upload_file(s3_client, bucket_name, filename)
+          end
+        end
+        threads.map(&:join)
+
+        feeds = Feed.all
+        ['day', 'week', 'month'].each do |period|
+          header = ['Workspace', period.capitalize, 'Number of feed requests', 'Number of items shared', 'Number of requests associated with any items shared', 'Number of fact-checks published with URL', 'Number of subscriptions', 'Number of notifications']
+          feeds.each do |feed|
             next if feed.teams.empty?
+            filename = "feed-#{feed.name.parameterize}-#{period}"
+            outfile = File.open("#{STATISTICS_OUTPUT_DIR}/#{filename}.csv", 'w')
+            outfile.puts(header.join(','))
             Team.current = feed.teams.first
             pmids = CheckSearch.new({ feed_id: feed.id, eslimit: 10000 }.to_json).medias.map(&:id).uniq
             Team.current = nil
-            feed_type = (feed.published ? 'Distribution' : 'Collaborative')
             feed.teams.each do |team|
               date = nil
               begin
-                from = nil
-                to = nil
-                # Cold start
-                if date.nil?
-                  from = ProjectMedia.first.created_at
-                  to = feed.created_at.end_of_day
-                  date = to
-                else
-                  from = date.send("beginning_of_#{period}")
-                  to = date.send("end_of_#{period}")
-                end
-                row = [feed.name, feed_type, team.name, date.strftime('%Y-%m-%d')]
+                date = team.created_at.beginning_of_day if date.nil?
+                from = date.send("beginning_of_#{period}")
+                to = date.send("end_of_#{period}")
+                puts "[#{Time.now}] Generating #{period} feed statistics for #{team.name} (#{from})"
+                row = [team.name, from.strftime('%Y-%m-%d')]
                 row << get_feed_statistics(pmids, feed, team, from, to)
                 outfile.puts(row.flatten.join(','))
                 date += 1.send(period)
               end while date <= Time.now
             end
-          end
-          outfile.close
-        end
-
-        ['statistics', 'feed_day', 'feed_week'].each do |outfile|
-          if defined?(ENV.fetch('STATISTICS_S3_DIR'))
-            puts "Starting upload for #{outfile}.csv"
-            file_path = "/tmp/#{outfile}.csv"
-            object_key = "#{ENV['STATISTICS_S3_DIR']}/#{outfile}.csv"
-            if object_uploaded?(s3_client, bucket_name, object_key, file_path)
-              puts "Uploaded #{outfile}.csv"
-            else
-              puts "Error uploading #{outfile}.csv to S3. Check credentials?"
-            end
+            outfile.close
+            upload_file(s3_client, bucket_name, filename)
           end
         end
       end
+
       ActiveRecord::Base.logger = old_logger
     end
   end
