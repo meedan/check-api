@@ -174,7 +174,6 @@ class ActiveSupport::TestCase
 
     # Set up stubs on per-test basis so that we don't accidentally
     # create a shared state for stubbing and unstubbing
-    ApolloTracing.stubs(:start_proxy)
     Pusher::Client.any_instance.stubs(:trigger)
     Pusher::Client.any_instance.stubs(:post)
     ProjectMedia.any_instance.stubs(:clear_caches).returns(nil)
