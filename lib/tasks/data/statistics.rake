@@ -329,7 +329,7 @@ namespace :check do
               team_rows = []
               date = nil
               begin
-                date = team.created_at.beginning_of_day if date.nil?
+                date = ProjectMedia.where(team_id: team.id, user_id: BotUser.smooch_user.id).created_at.beginning_of_day if date.nil?
                 from = date.send("beginning_of_#{period}")
                 to = date.send("end_of_#{period}")
                 puts "[#{Time.now}] Generating #{period} tipline statistics for #{team.name} (#{from})"
