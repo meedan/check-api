@@ -120,7 +120,7 @@ class GraphqlCrudOperations
     deleted_id = obj.respond_to?(:graphql_deleted_id) ? obj.graphql_deleted_id : graphql_id
     ret = { deletedId: deleted_id }
 
-    parents.each { |parent| ret[parent.to_sym] = obj.send(parent) }
+    parents.each { |parent| ret[parent.to_sym] = obj.send(parent) } unless obj.nil?
 
     ret
   end
