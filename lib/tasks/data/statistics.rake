@@ -361,9 +361,10 @@ namespace :check do
             pmids = CheckSearch.new({ feed_id: feed.id, eslimit: 10000 }.to_json).medias.map(&:id).uniq
             Team.current = nil
             feed.teams.each do |team|
+              next if FeedTeam.where(feed: feed, team: team, shared: true).last.nil?
               date = nil
               begin
-                date = team.created_at.beginning_of_day if date.nil?
+                date = feed.created_at.beginning_of_day if date.nil?
                 from = date.send("beginning_of_#{period}")
                 to = date.send("end_of_#{period}")
                 puts "[#{Time.now}] Generating #{period} feed statistics for #{team.name} (#{from})"
