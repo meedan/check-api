@@ -660,9 +660,10 @@ class GraphqlController4Test < ActionController::TestCase
     authenticate_with_user(u)
 
     m = create_claim_media quote: 'Test'
-    p = create_project team: t
-    pm = create_project_media disable_es_callbacks: false, media: m, project: p
-    sleep 5
+    m2 = create_claim_media quote: 'Another Test'
+    pm = create_project_media team: t, media: m
+    pm2 = create_project_media team: t, media: m2
+    sleep 2
 
     Bot::Alegre.stubs(:get_items_with_similar_media).returns({ pm.id => 0.8 })
     path = File.join(Rails.root, 'test', 'data', 'rails.png')
