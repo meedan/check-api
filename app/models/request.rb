@@ -25,23 +25,15 @@ class Request < ApplicationRecord
     recalculate: proc { |r| r.media&.type },
     update_on: [] # Never changes
 
-  def similarity_threshold
-    0.85 # FIXME: Adjust this value for text and image (eventually it can be a feed setting)
-  end
-
-  def similarity_model
-    ::Bot::Alegre::ELASTICSEARCH_MODEL # FIXME: Use vector models too (eventually it can be a feed setting)
-  end
-
   def attach_to_similar_request!
     media = self.media
     context = { feed_id: self.feed_id }
-    threshold = self.similarity_threshold
+    threshold = 0.85
     # First try to find an identical media
     similar_request_id = Request.where(media_id: media.id, feed_id: self.feed_id).where.not(id: self.id).order('id ASC').first
     if similar_request_id.nil?
       if media.type == 'Claim' && ::Bot::Alegre.get_number_of_words(media.quote) > 1
-        params = { text: media.quote, per_model_threshold: {::Bot::Alegre::ELASTICSEARCH_MODEL => 0.85, ::Bot::Alegre::MEAN_TOKENS_MODEL =>  0.9}, context: context }
+        params = { text: media.quote, per_model_threshold: { ::Bot::Alegre::ELASTICSEARCH_MODEL => 0.85, ::Bot::Alegre::MEAN_TOKENS_MODEL =>  0.9 }, context: context }
         similar_request_id = ::Bot::Alegre.request_api('get', '/text/similarity/', params)&.dig('result').to_a.collect{ |result| result&.dig('_source', 'context', 'request_id').to_i }.find{ |id| id != 0 && id != self.id }
       elsif ['UploadedImage', 'UploadedAudio', 'UploadedVideo'].include?(media.type)
         type = media.type.gsub(/^Uploaded/, '').downcase
@@ -131,7 +123,7 @@ class Request < ApplicationRecord
     url = Twitter::TwitterText::Extractor.extract_urls(query)[0]
     if ['audio', 'image', 'video'].include?(type.to_s) && !url.blank?
       media_url = Bot::Smooch.save_locally_and_return_url(url, type, fid)
-      open(media_url) do |f|
+      URI.open(media_url) do |f|
         data = f.read
         hash = Digest::MD5.hexdigest(data)
         extension = { audio: 'mp3', image: 'jpeg', video: 'mp4' }[type.to_sym]

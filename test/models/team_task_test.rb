@@ -537,7 +537,9 @@ class TeamTaskTest < ActiveSupport::TestCase
     # Project Media error
     ProjectMedia.any_instance.stubs(:create_auto_tasks).raises(StandardError)
     Sidekiq::Testing.inline! do
-      tt.add_teamwide_tasks_bg
+      assert_no_difference 'Task.count' do
+        tt.add_teamwide_tasks_bg
+      end
     end
     ProjectMedia.any_instance.unstub(:create_auto_tasks)
   end
