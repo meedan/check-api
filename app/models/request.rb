@@ -39,6 +39,7 @@ class Request < ApplicationRecord
         params = { text: media.quote, models: self.similarity_models_and_thresholds.keys(), per_model_threshold: self.similarity_models_and_thresholds, context: context }
         similar_request_id = ::Bot::Alegre.request_api('get', '/text/similarity/', params)&.dig('result').to_a.collect{ |result| result&.dig('_source', 'context', 'request_id').to_i }.find{ |id| id != 0 && id != self.id }
       elsif ['UploadedImage', 'UploadedAudio', 'UploadedVideo'].include?(media.type)
+        threshold = 0.85
         type = media.type.gsub(/^Uploaded/, '').downcase
         params = { url: media.file.file.public_url, threshold: threshold, context: context }
         similar_request_id = ::Bot::Alegre.request_api('get', "/#{type}/similarity/", params)&.dig('result').to_a.collect{ |result| result&.dig('context').to_a.collect{ |c| c['request_id'].to_i } }.flatten.find{ |id| id != 0 && id != self.id }
@@ -172,7 +173,7 @@ class Request < ApplicationRecord
       params = {
         doc_id: doc_id,
         text: text,
-        models: self.similarity_models_and_thresholds.keys(),
+        models: request.similarity_models_and_thresholds.keys(),
         context: context
       }
       ::Bot::Alegre.request_api('post', '/text/similarity/', params)
