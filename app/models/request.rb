@@ -28,7 +28,7 @@ class Request < ApplicationRecord
   def similarity_models_and_thresholds
     { ::Bot::Alegre::ELASTICSEARCH_MODEL => 0.85, ::Bot::Alegre::MEAN_TOKENS_MODEL =>  0.9 } # FIXME: This shoudl be feed settings
   end
-  
+
   def attach_to_similar_request!
     media = self.media
     context = { feed_id: self.feed_id }
