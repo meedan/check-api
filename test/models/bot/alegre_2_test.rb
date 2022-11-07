@@ -306,4 +306,12 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
       Bot::Alegre.unstub(:media_file_url)
     end
   end
+
+  test "should pause database connection when calling Alegre" do
+    RequestStore.store[:pause_database_connection] = true
+    assert_nothing_raised do
+      Bot::Alegre.request_api('post', '/text/langid/')
+    end
+    RequestStore.store[:pause_database_connection] = false
+  end
 end
