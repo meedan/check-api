@@ -121,8 +121,6 @@ GEM
     airbrake-ruby (6.2.0)
       rbtree3 (~> 0.5)
     ansi (1.5.0)
-    apollo-tracing (1.5.0)
-      graphql (>= 1.7.0, < 2)
     arel (9.0.0)
     ast (2.4.2)
     attr_encrypted (3.1.0)
@@ -975,7 +973,6 @@ DEPENDENCIES
   activerecord-import (= 1.1.0)
   activerecord-redshift-adapter
   airbrake (~> 13.0.0)
-  apollo-tracing (= 1.5.0)
   authtrail
   awesome_print
   aws-sdk-s3 (= 1.46.0)

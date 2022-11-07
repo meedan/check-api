@@ -81,10 +81,10 @@ class Bot::Alegre < BotUser
           match = ProjectMedia.find_by_id(match_id)
           existing_parent = Relationship.where(target_id: match_id).where('relationship_type IN (?)', [Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml]).first
           hashed_matches = Hash[matches]
-          if existing_parent && existing_parent.source
+          if existing_parent&.source
             hashed_matches[existing_parent.source.id] ||= hashed_matches[match.id]
           end
-          Bot::Alegre.create_relationship((existing_parent && existing_parent.source) || match, pm, hashed_matches, Relationship.suggested_type, match, Relationship.suggested_type)
+          Bot::Alegre.create_relationship(existing_parent&.source || match, pm, hashed_matches, Relationship.suggested_type, match, Relationship.suggested_type)
         end
       end
     end
@@ -262,12 +262,12 @@ class Bot::Alegre < BotUser
         models << model
       end
     end
-    similarity_methods.zip(models).collect do |similarity_method, model|
+    similarity_methods.zip(models).collect do |similarity_method, model_name|
       key = "#{media_type}_#{similarity_method}_#{similarity_level}_#{setting_type}"
       tbi = self.get_alegre_tbi(pm&.team_id)
       settings = tbi.alegre_settings unless tbi.nil?
       value = settings.blank? ? CheckConfig.get(key) : settings[key]
-      { value: value.to_f, key: key, automatic: automatic, model: model}
+      { value: value.to_f, key: key, automatic: automatic, model: model_name }
     end
   end
 

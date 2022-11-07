@@ -248,4 +248,17 @@ class Bot::FetchTest < ActiveSupport::TestCase
       Bot::Fetch::Import.import_claim_review(cr, @team.id, @bot.id, 'undetermined', {}, false)
     end
   end
+
+  test "should fallback to default status if status can't be set" do
+    claim_review = { 'reviewRating' => { 'alternateName' => 'foo' } }
+    status_mapping = { 'foo' => 'bar' }
+    status_fallback = 'verified'
+    pm = create_project_media
+
+    assert_equal 'undetermined', pm.reload.last_status
+
+    Bot::Fetch::Import.set_status(claim_review, pm, status_fallback, status_mapping)
+
+    assert_equal 'verified', pm.reload.last_status
+  end
 end
