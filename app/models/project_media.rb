@@ -255,14 +255,10 @@ class ProjectMedia < ApplicationRecord
         new_pm.updated_at = Time.now
         new_pm.skip_check_ability = true
         new_pm.channel = { main: CheckChannels::ChannelCodes::FETCH }
+        # Point the claim and consequently the fact-check
         new_pm.claim_description = self.claim_description
         new_pm.skip_check_ability = true
         new_pm.save(validate: false) # To skip channel validation
-
-        # Point the claim and consequently the fact-check
-        # new_pm = ProjectMedia.find(new_pm.id)
-        # new_pm.claim_description = self.claim_description
-        # new_pm.save!
 
         # All annotations from the old item should point to the new item
         # Remove any status and report from the new item
@@ -289,29 +285,24 @@ class ProjectMedia < ApplicationRecord
   end
 
   def self.apply_replace_by(old_pm_id, new_pm_id)
-    old_pm = ProjectMedia.find(old_pm_id)
-    new_pm = ProjectMedia.find(new_pm_id)
-    # Merge tags
-    new_item_tags = new_pm.annotations('tag').map(&:tag)
-    unless new_item_tags.blank?
-      deleted_tags = []
-      old_pm.annotations('tag').find_each do |tag|
-        deleted_tags << tag.id if new_item_tags.include?(tag.tag)
+    old_pm = ProjectMedia.find_by_id(old_pm_id)
+    new_pm = ProjectMedia.find_by_id(new_pm_id)
+    unless new_pm.nil?
+      # Merge tags
+      new_item_tags = new_pm.annotations('tag').map(&:tag)
+      unless new_item_tags.blank? || old_pm.nil?
+        deleted_tags = []
+        old_pm.annotations('tag').find_each do |tag|
+          deleted_tags << tag.id if new_item_tags.include?(tag.tag)
+        end
+        Annotation.where(id: deleted_tags).delete_all
       end
-      Annotation.where(id: deleted_tags).delete_all
+      Annotation.where(annotation_type: 'tag', annotated_type: 'ProjectMedia', annotated_id: old_pm_id).update_all(annotated_id: new_pm.id)
+      # Re-index new items in ElasticSearch
+      new_pm.create_elasticsearch_doc_bg({ force_creation: true })
     end
-    Annotation.where(annotation_type: 'tag', annotated_type: 'ProjectMedia', annotated_id: old_pm.id).update_all(annotated_id: new_pm.id)
-
-    # Send the old item to the trash
-    Dynamic.create!(annotation_type: 'verification_status', annotated: old_pm, set_fields: { verification_status_status: new_pm.status }.to_json)
-    old_pm.clear_cached_fields
-    old_pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
-    old_pm.skip_check_ability = true
-    old_pm.save!
-
-    # Re-index both old and new items in ElasticSearch
-    new_pm.create_elasticsearch_doc_bg({ force_creation: true })
-    old_pm.create_elasticsearch_doc_bg({ force_creation: true })
+    # Destroy old item
+    old_pm.destroy! unless old_pm.nil?
     # Send a published report if any
     ::Bot::Smooch.send_report_from_parent_to_child(new_pm.id, new_pm.id)
   end
