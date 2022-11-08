@@ -3,18 +3,6 @@ class RelayOnRailsSchema < GraphQL::Schema
   mutation MutationType
   use GraphQL::Batch
   lazy_resolve(Concurrent::Future, :value)
-  # Slow fields should be resolved this way:
-  # field :slow_field, types.String do
-  #   resolve -> (obj, _args, ctx) {
-  #     team = Team.current
-  #     user = User.current
-  #     Concurrent::Future.execute(executor: POOL) {
-  #       Team.current = team
-  #       User.current = user
-  #       <your code here>
-  #     }
-  #   }
-  # end
 
   def self.resolve_type(_type, object, _ctx)
     klass = (object.respond_to?(:type) && object.type) ? object.type : object.class_name
@@ -37,6 +25,30 @@ class RelayOnRailsSchema < GraphQL::Schema
 
   rescue_from CheckPermissions::AccessDenied do |err, _obj, _args, _ctx, _field|
     raise GraphQL::ExecutionError.new(err.message, options: { code: ::LapisConstants::ErrorCodes::ID_NOT_FOUND })
+  end
+
+  # FOR TESTS ONLY:
+  # This method is to help us regenerate the GraphQL schema when we make
+  # database modifications to annotation types
+  #
+  # Only meant to be used when we make schema-impacting database modifications
+  # in tests, otherwise should rely on default behavior for schema to more
+  # closely match dev & deployed behavior
+  #
+  # Approach taken from:
+  # https://github.com/rmosolgo/graphql-ruby/issues/2225
+  def self.reload_mutations!
+    unless Rails.env.test?
+      raise "Reloadable schema only meant to be used in test environment"
+    end
+
+    @graphql_definition = nil
+
+    ::Object.send(:remove_const, :MutationType) if defined?(MutationType)
+    load "#{Rails.root}/app/graphql/types/mutation_type.rb"
+
+    # Reset graphql_definition
+    mutation MutationType
   end
 end
 

@@ -97,6 +97,8 @@ MutationType = GraphQL::ObjectType.define do
   field :destroyRelationship, field: RelationshipMutations::Destroy.field
 
   DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_type).each do |type|
+    DynamicAnnotation::AnnotationTypeManager.define_type(type)
+
     klass = type.camelize
     field "createDynamicAnnotation#{klass}".to_sym, field: "DynamicAnnotation#{klass}Mutations::Create".constantize.field
     field "updateDynamicAnnotation#{klass}".to_sym, field: "DynamicAnnotation#{klass}Mutations::Update".constantize.field
