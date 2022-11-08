@@ -6,7 +6,7 @@ module SmoochResend
   # WhatsApp requires pre-approved, pre-defined message templates for messages send outside the 24h window
   module WhatsAppResend
     def should_resend_whatsapp_message?(message)
-      message.dig('destination', 'type') == 'whatsapp' && message.dig('error', 'underlyingError', 'errors', 0, 'code') == 470
+      message.dig('destination', 'type') == 'whatsapp' && [470, 131047].include?(message.dig('error', 'underlyingError', 'errors', 0, 'code'))
     end
 
     def resend_whatsapp_message_after_window(message, original)

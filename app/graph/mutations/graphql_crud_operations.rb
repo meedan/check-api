@@ -115,20 +115,23 @@ class GraphqlCrudOperations
     end
     obj.items_destination_project_id = inputs[:items_destination_project_id] if obj.is_a?(Project)
     obj.disable_es_callbacks = (Rails.env.to_s == 'test') if obj.respond_to?(:disable_es_callbacks)
-    obj.respond_to?(:destroy_later) ? obj.destroy_later(ctx[:ability]) : ApplicationRecord.connection_pool.with_connection { obj.destroy }
+    obj.respond_to?(:destroy_later) ? obj.destroy_later(ctx[:ability]) : ApplicationRecord.connection_pool.with_connection { obj&.destroy }
 
     deleted_id = obj.respond_to?(:graphql_deleted_id) ? obj.graphql_deleted_id : graphql_id
     ret = { deletedId: deleted_id }
 
-    parents.each { |parent| ret[parent.to_sym] = obj.send(parent) }
+    parents.each { |parent| ret[parent.to_sym] = obj.send(parent) } unless obj.nil?
 
     ret
   end
 
   def self.object_from_id(graphql_id)
     type, id = CheckGraphql.decode_id(graphql_id)
-    obj = type.constantize.where(id: id).last
-    obj = obj.load if obj.respond_to?(:load)
+    obj = nil
+    unless type.blank? || id.blank?
+      obj = type.constantize.where(id: id).last
+      obj = obj.load if obj.respond_to?(:load)
+    end
     obj
   end
 

@@ -137,6 +137,12 @@ namespace :check do
                             value
                           end
             fields = { "#{es_field_name}" => field_value }
+            # add extra fields to ES
+            if field_name == 'title'
+              fields["title"] = field_value
+            elsif field_name == 'status'
+              fields["verification_status"] = pm.status
+            end
             es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
           end
           client.bulk body: es_body unless es_body.blank?
@@ -188,7 +194,7 @@ namespace :check do
       # TODO: add mapping if PG field name not same as ES field name
       es_fields_mapping = {
         'title' => 'title_index',
-        'status' => 'verification_status'
+        'status' => 'status_index'
       }
       es_field_name = es_fields_mapping[field_name].blank? ? field_name : es_fields_mapping[field_name]
       index_alias = CheckElasticSearchModel.get_index_alias
@@ -225,7 +231,7 @@ namespace :check do
           es_body = []
           pms.each do |pm|
             print '.'
-            value = pm.send(field_name)
+            value = pm.send(field_name) if pm.respond_to?(field_name)
             doc_id = Base64.encode64("ProjectMedia/#{pm.id}")
 
             field_value = if field_name == 'report_status'
@@ -247,6 +253,12 @@ namespace :check do
                           end
 
             fields = { "#{es_field_name}" => field_value }
+            # add extra fields to ES
+            if field_name == 'title'
+              fields["title"] = field_value
+            elsif field_name == 'status'
+              fields["verification_status"] = pm.status
+            end
             es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
           end
           client.bulk body: es_body unless es_body.blank?
@@ -300,6 +312,37 @@ namespace :check do
           client.bulk body: es_body unless es_body.blank?
         end
         Rails.cache.write('check:project_media:sync_es_nested_field:team_id', team.id) if data_args['slug'].blank?
+      end
+      minutes = ((Time.now.to_i - started) / 60).to_i
+      puts "[#{Time.now}] Done in #{minutes} minutes."
+    end
+
+    # bundle exec rails check:project_media:index_pg_items['slug:team_slug&ids:1-2-3']
+    task index_pg_items: :environment do |_t, args|
+      data_args = parse_args args.extras
+      started = Time.now.to_i
+      # Add Team condition
+      team_condition = {}
+      if data_args['slug'].blank?
+        last_team_id = 0 #Rails.cache.read('check:project_media:index_pg_items:team_id') || 0
+      else
+        last_team_id = 0
+        team_condition = { slug: data_args['slug'] } unless data_args['slug'].blank?
+      end
+      # Add ProjectMedia condition
+      pm_condition = {}
+      unless data_args['ids'].blank?
+        pm_ids = begin data_args['ids'].split('-').map{ |s| s.to_i } rescue [] end
+        pm_condition = { id: pm_ids } unless pm_ids.blank?
+      end
+      Team.where('id > ?', last_team_id).where(team_condition).find_each do |team|
+        team.project_medias.where(pm_condition).find_in_batches(:batch_size => 1000) do |pms|
+          pms.each do |obj|
+            print '.'
+            obj.create_elasticsearch_doc_bg({ force_creation: true })
+          end
+        end
+        Rails.cache.write('check:project_media:index_pg_items:team_id', team.id) if data_args['slug'].blank?
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."

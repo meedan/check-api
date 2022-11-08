@@ -3,9 +3,14 @@ require 'active_support/concern'
 module CheckElasticSearch
   extend ActiveSupport::Concern
 
-  def create_elasticsearch_doc_bg(_options)
+  def create_elasticsearch_doc_bg(options)
     doc_id = Base64.encode64("#{self.class.name}/#{self.id}")
-    return if doc_exists?(doc_id)
+    is_exist = doc_exists?(doc_id)
+    return if is_exist && !options[:force_creation]
+    if is_exist && options[:force_creation]
+      ms = $repository.find(doc_id)
+      $repository.delete(ms)
+    end
     ms = ElasticItem.new
     ms.attributes[:id] = doc_id
     # TODO: Sawy remove annotation_type field
@@ -21,6 +26,7 @@ module CheckElasticSearch
     ms.attributes[:source_id] = self.source_id
     # Intial nested objects with []
     ['accounts', 'comments', 'tags', 'task_responses', 'assigned_user_ids'].each{ |f| ms.attributes[f] = [] }
+    self.add_nested_objects(ms) if options[:force_creation]
     self.add_extra_elasticsearch_data(ms)
     $repository.save(ms)
     $repository.refresh_index! if CheckConfig.get('elasticsearch_sync')

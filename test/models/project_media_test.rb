@@ -542,6 +542,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm = create_project_media team: t, media: m, user: u, skip_autocreate_source: false
     end
     assert_equal 2, pm.versions.count
+    pm.destroy!
+    v = Version.from_partition(t.id).where(item_type: 'ProjectMedia', item_id: pm.id, event: 'destroy').last
+    assert_not_nil v
     User.current = nil
   end
 
@@ -2093,16 +2096,42 @@ class ProjectMediaTest < ActiveSupport::TestCase
     setup_elasticsearch
     t = create_team
     u = create_user
+    u2 = create_user
+    create_team_user team: t, user: u2
+    at = create_annotation_type annotation_type: 'task_response_single_choice', label: 'Task'
+    ft1 = create_field_type field_type: 'single_choice', label: 'Single Choice'
+    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+    tag_a = create_tag_text team_id: t.id
+    tag_b = create_tag_text team_id: t.id
+    tag_c = create_tag_text team_id: t.id
+    tt = create_team_task team_id: t.id, task_type: 'single_choice', options: [{ label: 'Foo'}, { label: 'Faa' }]
+    tt2 = create_team_task team_id: t.id, task_type: 'single_choice', options: [{ label: 'Optiona a'}, { label: 'Option b' }]
     create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
       RequestStore.store[:skip_clear_cache] = true
       old = create_project_media team: t, media: Blank.create!, channel: { main: CheckChannels::ChannelCodes::FETCH }, disable_es_callbacks: false
-      old.analysis = { title: 'imported item' }
       old_r = publish_report(old)
       old_s = old.last_status_obj
       new = create_project_media team: t, media: create_uploaded_video, disable_es_callbacks: false
       new_r = publish_report(new)
       new_s = new.last_status_obj
+      old_tag_a = create_tag tag: tag_a.id, annotated: old
+      old_tag_b = create_tag tag: tag_b.id, annotated: old
+      new_tag_a = create_tag tag: tag_a.id, annotated: new
+      new_tag_c = create_tag tag: tag_c.id, annotated: new
+      # add task response
+      new_tt = new.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      new_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_task: 'Foo' }.to_json }.to_json
+      new_tt.save!
+      new_tt2 = new.annotations('task').select{|t| t.team_task_id == tt2.id}.last
+      # add comments
+      old_c = create_comment annotated: old
+      new_c = create_comment annotated: new
+      # assign to
+      s = new.last_verification_status_obj
+      s = Dynamic.find(s.id)
+      s.assigned_to_ids = u2.id.to_s
+      s.save!
       old.replace_by(new)
       assert_nil ProjectMedia.find_by_id(old.id)
       assert_nil Annotation.find_by_id(new_s.id)
@@ -2110,14 +2139,18 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_equal old_r, new.get_dynamic_annotation('report_design')
       assert_equal old_s, new.get_dynamic_annotation('verification_status')
       new = new.reload
-      assert_equal 'imported item', new.analysis['title']
       assert_equal 'Import', new.creator_name
       data = { "main" => CheckChannels::ChannelCodes::FETCH }
       assert_equal data, new.channel
+      assert_equal 3, new.annotations('tag').count
+      assert_equal 2, new.annotations('comment').count
       # Verify ES
       result = $repository.find(get_es_id(new))
       assert_equal [CheckChannels::ChannelCodes::FETCH], result['channel']
-      assert_equal 'imported item', result['analysis_title']
+      assert_equal [old_c.id, new_c.id], result['comments'].collect{ |c| c['id'] }.sort
+      assert_equal [new_tag_a.id, new_tag_c.id, old_tag_b.id].sort, result['tags'].collect{ |tag| tag['id'] }.sort
+      assert_equal [new_tt.id, new_tt2.id].sort, result['task_responses'].collect{ |task| task['id'] }.sort
+      assert_equal [u2.id], result['assigned_user_ids']
     end
   end
 
@@ -2894,5 +2927,78 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should return cached values for feed data" do
     pm = create_project_media
     assert_kind_of Hash, pm.feed_columns_values
+  end
+
+  test "should set a custom title" do
+    m = create_uploaded_image
+    pm = create_project_media set_title: 'Foo', media: m
+    assert_equal 'Foo', pm.title
+  end
+
+  test "should bulk remove tags" do
+    setup_elasticsearch
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      pm = create_project_media team: t
+      pm2 = create_project_media team: t
+      pm3 = create_project_media team: t
+      sports = create_tag_text team_id: t.id, text: 'sports'
+      news = create_tag_text team_id: t.id, text: 'news'
+      economic = create_tag_text team_id: t.id, text: 'economic'
+      # Tag pm
+      pm_t1 = create_tag annotated: pm, tag: sports.id, disable_es_callbacks: false
+      pm_t2 = create_tag annotated: pm, tag: news.id, disable_es_callbacks: false
+      pm_t3 = create_tag annotated: pm, tag: economic.id, disable_es_callbacks: false
+      # Tag pm2
+      pm2_t1 = create_tag annotated: pm2, tag: sports.id, disable_es_callbacks: false
+      pm2_t2 = create_tag annotated: pm2, tag: news.id, disable_es_callbacks: false
+      # Tag pm3
+      pm3_t1 = create_tag annotated: pm3, tag: sports.id, disable_es_callbacks: false
+      sleep 2
+      assert_equal 3, sports.reload.tags_count
+      assert_equal 2, news.reload.tags_count
+      assert_equal 1, economic.reload.tags_count
+      assert_equal [pm_t1, pm2_t1, pm3_t1].sort, sports.reload.tags.to_a.sort
+      assert_equal [pm_t2, pm2_t2].sort, news.reload.tags.to_a.sort
+      assert_equal [pm_t3], economic.reload.tags.to_a
+      assert_equal 'sports, news, economic', pm.tags_as_sentence
+      assert_equal 'sports, news', pm2.tags_as_sentence
+      assert_equal 'sports', pm3.tags_as_sentence
+      result = $repository.find(get_es_id(pm))
+      assert_equal 3, result['tags_as_sentence']
+      assert_equal [pm_t1.id, pm_t2.id, pm_t3.id], result['tags'].collect{|t| t['id']}.sort
+      result = $repository.find(get_es_id(pm2))
+      assert_equal 2, result['tags_as_sentence']
+      assert_equal [pm2_t1.id, pm2_t2.id], result['tags'].collect{|t| t['id']}.sort
+      result = $repository.find(get_es_id(pm3))
+      assert_equal 1, result['tags_as_sentence']
+      assert_equal [pm3_t1.id], result['tags'].collect{|t| t['id']}
+      # apply bulk-remove
+      ids = [pm.id, pm2.id, pm3.id]
+      updates = { action: 'remove_tags', params: { tags_text: "#{sports.id}, #{economic.id}" }.to_json }
+      ProjectMedia.bulk_update(ids, updates, t)
+      sleep 2
+      assert_equal 0, sports.reload.tags_count
+      assert_equal 2, news.reload.tags_count
+      assert_equal 0, economic.reload.tags_count
+      assert_empty sports.reload.tags.to_a
+      assert_equal [pm_t2, pm2_t2].sort, news.reload.tags.to_a.sort
+      assert_empty economic.reload.tags.to_a
+      assert_equal 'news', pm.tags_as_sentence
+      assert_equal 'news', pm2.tags_as_sentence
+      assert_empty pm3.tags_as_sentence
+      result = $repository.find(get_es_id(pm))
+      assert_equal 1, result['tags_as_sentence']
+      assert_equal [pm_t2.id], result['tags'].collect{|t| t['id']}
+      result = $repository.find(get_es_id(pm2))
+      assert_equal 1, result['tags_as_sentence']
+      assert_equal [pm2_t2.id], result['tags'].collect{|t| t['id']}
+      result = $repository.find(get_es_id(pm3))
+      assert_equal 0, result['tags_as_sentence']
+      assert_empty result['tags'].collect{|t| t['id']}
+    end
   end
 end

@@ -10,8 +10,6 @@ class FactCheck < ApplicationRecord
   validates_presence_of :claim_description
   validates_uniqueness_of :claim_description_id
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
-  validates :title, length: { maximum: 140 }, allow_blank: true, allow_nil: true
-  validates :summary, length: { maximum: 620 }, allow_blank: true, allow_nil: true
 
   after_save :update_report
 
@@ -45,7 +43,7 @@ class FactCheck < ApplicationRecord
         introduction: reports.report_design_team_setting_value('introduction', language).to_s,
         status_label: pm.status_i18n(pm.last_verification_status, { locale: language }),
         theme_color: pm.last_status_color,
-        image: pm.lead_image
+        image: pm.lead_image.to_s
       }
       data[:options] << report
     end

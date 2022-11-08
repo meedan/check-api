@@ -45,4 +45,11 @@ class FeedTeamTest < ActiveSupport::TestCase
     assert_equal t, ft.reload.team
     assert_equal f, ft.reload.feed
   end
+
+  test "should set requests filters" do
+    ft = create_feed_team
+    ft.requests_filters = { foo: 'bar' }
+    ft.save!
+    assert_equal 'bar', ft.reload.get_requests_filters[:foo]
+  end
 end

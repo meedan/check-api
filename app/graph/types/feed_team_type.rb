@@ -11,4 +11,5 @@ FeedTeamType = GraphqlCrudOperations.define_default_type do
   field :team_id, types.Int
   field :feed_id, types.Int
   field :shared, types.Boolean
+  field :requests_filters, JsonStringType, property: :get_requests_filters
 end

@@ -503,7 +503,7 @@ class GraphqlController5Test < ActionController::TestCase
     assert_equal 1, response.size
     assert_equal r1.id, response.dig(0, 'node', 'dbid')
 
-    query = "query { team { feed(dbid: #{f.id}) { requests_count, requests(request_id: #{r1.id}, first: 100, offset: 0, sort: \"requests\", sort_type: \"asc\") { edges { node { dbid, media { id } } } } } } }"
+    query = "query { team { feed(dbid: #{f.id}) { requests_count, requests(request_id: #{r1.id}, first: 100, offset: 0, sort: \"requests\", sort_type: \"asc\") { edges { node { dbid, feed { name }, media { id } } } } } } }"
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     response = JSON.parse(@response.body).dig('data', 'team', 'feed', 'requests', 'edges')

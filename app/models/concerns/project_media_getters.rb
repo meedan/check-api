@@ -39,6 +39,10 @@ module ProjectMediaGetters
     self.is_image? || self.is_audio? || self.is_video?
   end
 
+  def is_imported_from_shared_feed?
+    self.channel.to_h['main'] == ::CheckChannels::ChannelCodes::SHARED_DATABASE
+  end
+
   def report_type
     self.media.class.name.downcase
   end

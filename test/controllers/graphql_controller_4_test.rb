@@ -241,6 +241,26 @@ class GraphqlController4Test < ActionController::TestCase
     end
   end
 
+  test "should bulk-update project medias tags" do
+    u = create_user
+    create_team_user team: @t, user: u, role: 'admin'
+    authenticate_with_user(u)
+    sports = create_tag_text team_id: @t.id, text: 'sports'
+    news = create_tag_text team_id: @t.id, text: 'news'
+    pm1_t = create_tag annotated: @pm1, tag: sports.id
+    pm2_t = create_tag annotated: @pm2, tag: news.id
+    assert_equal [pm1_t], sports.reload.tags.to_a
+    assert_equal [pm2_t], news.reload.tags.to_a
+    tag_text_ids = [sports.id, news.id].join(', ')
+    Sidekiq::Testing.inline! do
+      query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "remove_tags", params: "{\"tags_text\":\"' + tag_text_ids + '\"}"}) { ids, team { dbid } } }'
+      post :create, params: { query: query, team: @t.slug }
+      assert_response :success
+      assert_empty sports.reload.tags.to_a
+      assert_empty news.reload.tags.to_a
+    end
+  end
+
   test "should not bulk-move project medias from a list to another if not allowed" do
     u = create_user
     authenticate_with_user(u)
@@ -640,9 +660,10 @@ class GraphqlController4Test < ActionController::TestCase
     authenticate_with_user(u)
 
     m = create_claim_media quote: 'Test'
-    p = create_project team: t
-    pm = create_project_media disable_es_callbacks: false, media: m, project: p
-    sleep 5
+    m2 = create_claim_media quote: 'Another Test'
+    pm = create_project_media team: t, media: m
+    pm2 = create_project_media team: t, media: m2
+    sleep 2
 
     Bot::Alegre.stubs(:get_items_with_similar_media).returns({ pm.id => 0.8 })
     path = File.join(Rails.root, 'test', 'data', 'rails.png')
@@ -662,13 +683,14 @@ class GraphqlController4Test < ActionController::TestCase
 
     path = File.join(Rails.root, 'test', 'data', 'rails.png')
     file = Rack::Test::UploadedFile.new(path, 'image/png')
-    query = 'mutation { searchUpload(input: {}) { file_handle } }'
+    query = 'mutation { searchUpload(input: {}) { file_handle, file_url } }'
     post :create, params: { query: query, team: t.slug, file: file }
     assert_response :success
-    puts @response.body
-    hash = JSON.parse(@response.body)['data']['searchUpload']['file_handle']
+    data = JSON.parse(@response.body)['data']['searchUpload']
+    hash = data['file_handle']
     assert_kind_of String, hash
     assert CheckS3.exist?("check_search/#{hash}")
+    assert_not_nil data['file_url']
   end
 
   test "should get shared teams" do

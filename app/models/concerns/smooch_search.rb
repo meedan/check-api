@@ -190,8 +190,10 @@ module SmoochSearch
       filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) unless after.blank?
       results = CheckSearch.new(filters.to_json, nil, team_ids).medias
       Rails.logger.info "[Smooch Bot] Keyword search got #{results.count} results (only main items) while looking for '#{words}' after date #{after.inspect} for teams #{team_ids}"
-      results = CheckSearch.new(filters.merge({ show_similar: true, fuzzy: true }).to_json, nil, team_ids).medias if results.empty?
-      Rails.logger.info "[Smooch Bot] Keyword search got #{results.count} results (including secondary items and using fuzzy matching) while looking for '#{words}' after date #{after.inspect} for teams #{team_ids}"
+      if results.empty?
+        results = CheckSearch.new(filters.merge({ keyword: words.collect{ |w| "+#{w}~1" }.join(' '), show_similar: true }).to_json, nil, team_ids).medias
+        Rails.logger.info "[Smooch Bot] Keyword search got #{results.count} results (including secondary items and using fuzzy matching) while looking for '#{words}' after date #{after.inspect} for teams #{team_ids}"
+      end
       results
     end
 
@@ -201,8 +203,8 @@ module SmoochSearch
       results.each do |result|
         report = result.get_dynamic_annotation('report_design')
         response = nil
-        response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report&.report_design_image_url }) if report && report.report_design_field_value('use_visual_card')
-        response = self.send_message_to_user(uid, report.report_design_text) if report && !report.report_design_field_value('use_visual_card') && report.report_design_field_value('use_text_message')
+        response = self.send_message_to_user(uid, report.report_design_text) if report && report.report_design_field_value('use_text_message')
+        response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report&.report_design_image_url }) if report && !report.report_design_field_value('use_text_message') && report.report_design_field_value('use_visual_card')
         id = self.get_id_from_send_response(response)
         redis.rpush("smooch:search:#{uid}", id) unless id.blank?
       end

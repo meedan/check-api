@@ -465,7 +465,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }
       ]
     })
-    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', [{key: 'text_elasticsearch_suggestion_threshold', model: 'elasticsearch', value: 0.7, automatic: false}], 'blah')
+    response = Bot::Alegre.get_items_with_similar_text(pm, ['title'], [{key: 'text_elasticsearch_suggestion_threshold', model: 'elasticsearch', value: 0.7, automatic: false}], 'blah')
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
   end
@@ -495,7 +495,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }
       ]
     })
-    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', [{key: 'text_elasticsearch_matching_threshold', model: 'elasticsearch', value: 0.7, automatic: true}], 'blah foo bar')
+    response = Bot::Alegre.get_items_with_similar_text(pm, ['title'], [{key: 'text_elasticsearch_matching_threshold', model: 'elasticsearch', value: 0.7, automatic: true}], 'blah foo bar')
     assert_equal response.class, Hash
     assert_not_empty response
     Bot::Alegre.unstub(:request_api)
@@ -678,7 +678,9 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     [0.7, 0.75,0.875,0.9,0.95].each do |threshold|
       [0.7, 0.75,0.875,0.9,0.95].each do |threshold2|
         ["original_title","original_description","report_text_title","transcription","extracted_text","report_text_content","report_visual_card_title","claim_description_content","fact_check_summary","report_visual_card_content","fact_check_title"].each do |field|
-          Bot::Alegre.stubs(:request_api).with("get", "/text/similarity/", {:text=>"Blah foo bar", :models=>["elasticsearch", Bot::Alegre::MEAN_TOKENS_MODEL], :fuzzy=>false, :context=>{:has_custom_id=>true, :field=>field, :team_id=>[pm.team_id]}, :per_model_threshold=>{"elasticsearch"=>threshold, Bot::Alegre::MEAN_TOKENS_MODEL=>threshold2}, :match_across_content_types=>true}, "body").returns(response)
+          Bot::Alegre.stubs(:request_api).with("get", "/text/similarity/", {:text=>"Blah foo bar", :models=>["elasticsearch", Bot::Alegre::MEAN_TOKENS_MODEL], :fuzzy=>false, :context=>{:has_custom_id=>true, :field=>['original_title', 'report_text_title', 'report_visual_card_title', 'fact_check_title'], :team_id=>[pm.team_id]}, :per_model_threshold=>{"elasticsearch"=>threshold, Bot::Alegre::MEAN_TOKENS_MODEL=>threshold2}, :match_across_content_types=>true}, "body").returns(response)
+          Bot::Alegre.stubs(:request_api).with("get", "/text/similarity/", {:text=>"Blah foo bar", :models=>["elasticsearch", Bot::Alegre::MEAN_TOKENS_MODEL], :fuzzy=>false, :context=>{:has_custom_id=>true, :field=>['original_description', 'report_text_content', 'report_visual_card_content', 'extracted_text', 'transcription', 'claim_description_content', 'fact_check_summary'], :team_id=>[pm.team_id]}, :per_model_threshold=>{"elasticsearch"=>threshold, Bot::Alegre::MEAN_TOKENS_MODEL=>threshold2}, :match_across_content_types=>true}, "body").returns(response)
+          
         end
       end
     end

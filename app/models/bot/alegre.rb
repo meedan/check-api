@@ -55,6 +55,7 @@ class Bot::Alegre < BotUser
 
     def self.send_annotation_data_to_similarity_index(pm_id, annotation_type)
       pm = ProjectMedia.find_by_id(pm_id)
+      return if pm.nil?
       if annotation_type == 'report_design'
         REPORT_TEXT_SIMILARITY_FIELDS.each do |field|
           Bot::Alegre.send_field_to_similarity_index(pm, field)
@@ -79,7 +80,11 @@ class Bot::Alegre < BotUser
           match_id, _score_with_context = matches.first
           match = ProjectMedia.find_by_id(match_id)
           existing_parent = Relationship.where(target_id: match_id).where('relationship_type IN (?)', [Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml]).first
-          Bot::Alegre.create_relationship((existing_parent && existing_parent.source) || match, pm, Hash[matches], Relationship.suggested_type, match, Relationship.suggested_type)
+          hashed_matches = Hash[matches]
+          if existing_parent&.source
+            hashed_matches[existing_parent.source.id] ||= hashed_matches[match.id]
+          end
+          Bot::Alegre.create_relationship(existing_parent&.source || match, pm, hashed_matches, Relationship.suggested_type, match, Relationship.suggested_type)
         end
       end
     end
@@ -187,15 +192,15 @@ class Bot::Alegre < BotUser
     text.gsub(/[^\p{L}\s]/u, '').strip.chomp.split(/\s+/).size
   end
 
-  def self.get_items_from_similar_text(team_id, text, field = nil, threshold = nil, models = nil, fuzzy = false)
+  def self.get_items_from_similar_text(team_id, text, fields = nil, threshold = nil, models = nil, fuzzy = false)
     team_ids = [team_id].flatten
     return {} if text.blank? || self.get_number_of_words(text) < 3
-    field ||= ALL_TEXT_SIMILARITY_FIELDS
+    fields ||= ALL_TEXT_SIMILARITY_FIELDS
     threshold ||= self.get_threshold_for_query('text', nil, true)
     models ||= [self.matching_model_to_use(team_ids)].flatten
     Hash[self.get_similar_items_from_api(
       '/text/similarity/',
-      self.similar_texts_from_api_conditions(text, models, fuzzy, team_ids, field, threshold),
+      self.similar_texts_from_api_conditions(text, models, fuzzy, team_ids, fields, threshold),
       threshold
     ).collect{|k,v| [k, v.merge(model: v[:model]||Bot::Alegre.default_matching_model)]}]
   end
@@ -257,12 +262,12 @@ class Bot::Alegre < BotUser
         models << model
       end
     end
-    similarity_methods.zip(models).collect do |similarity_method, model|
+    similarity_methods.zip(models).collect do |similarity_method, model_name|
       key = "#{media_type}_#{similarity_method}_#{similarity_level}_#{setting_type}"
       tbi = self.get_alegre_tbi(pm&.team_id)
       settings = tbi.alegre_settings unless tbi.nil?
       value = settings.blank? ? CheckConfig.get(key) : settings[key]
-      { value: value.to_f, key: key, automatic: automatic, model: model}
+      { value: value.to_f, key: key, automatic: automatic, model: model_name }
     end
   end
 
@@ -390,6 +395,11 @@ class Bot::Alegre < BotUser
     tbi.nil? ? self.default_model : tbi.get_alegre_model_in_use || self.default_model
   end
 
+  def self.language_for_similarity(team_id)
+    tbi = self.get_alegre_tbi(team_id)
+    tbi.nil? ? nil : tbi.get_language_for_similarity
+  end
+
   def self.matching_model_to_use(team_ids)
     models = []
     [team_ids].flatten.each do |team_id|
@@ -407,6 +417,11 @@ class Bot::Alegre < BotUser
   end
 
   def self.request_api(method, path, params = {}, query_or_body = 'body', retries = 3)
+    # Release database connection while Alegre API is being called
+    if RequestStore.store[:pause_database_connection]
+      ActiveRecord::Base.clear_active_connections!
+      ActiveRecord::Base.connection.close
+    end
     uri = URI(CheckConfig.get('alegre_host') + path)
     klass = 'Net::HTTP::' + method.capitalize
     request = klass.constantize.new(uri.path, 'Content-Type' => 'application/json')
@@ -423,6 +438,7 @@ class Bot::Alegre < BotUser
       Rails.logger.info("[Alegre Bot] Alegre Bot request: (#{method}, #{path}, #{params.inspect}, #{query_or_body}, #{retries})")
       response_body = response.body
       Rails.logger.info("[Alegre Bot] Alegre response: #{response_body.inspect}")
+      ActiveRecord::Base.connection.reconnect! if RequestStore.store[:pause_database_connection]
       JSON.parse(response_body)
     rescue StandardError => e
       if retries > 0
@@ -465,9 +481,9 @@ class Bot::Alegre < BotUser
     (search_result.with_indifferent_access.dig('_score')||search_result.with_indifferent_access.dig('score'))
   end
 
-  def self.build_context(team_id, field = nil)
+  def self.build_context(team_id, fields = nil)
     context = { has_custom_id: true }
-    context[:field] = field unless field.blank?
+    context[:field] = fields unless [fields].flatten.compact.reject(&:blank?).empty?
     context[:team_id] = team_id unless team_id.blank?
     context
   end
@@ -593,6 +609,9 @@ class Bot::Alegre < BotUser
   def self.can_create_relationship?(source, target, relationship_type)
     return false if source.nil? || target.nil?
     return false if self.is_suggested_to_trash(source, target, relationship_type)
+    # Make sure that items imported from shared feed are not related automatically to anything,
+    # since multiple medias can be imported at the same time, so the imported medias should form a cluster themselves
+    return false if target.is_imported_from_shared_feed?
     return true
   end
 

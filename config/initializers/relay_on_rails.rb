@@ -1,10 +1,7 @@
-require 'apollo/tracing'
-
 RelayOnRailsSchema = GraphQL::Schema.define do
   query QueryType
   mutation MutationType
   use GraphQL::Batch
-  use(ApolloTracing.new) if File.exist?(File.join(Rails.root, 'config', 'apollo-engine-proxy.json'))
   lazy_resolve(Concurrent::Future, :value)
   # Slow fields should be resolved this way:
   # field :slow_field, types.String do
@@ -60,6 +57,7 @@ class CheckGraphql
   def self.object_from_id(id, ctx)
     type_name, id = CheckGraphql.decode_id(id)
     obj = nil
+    return obj if type_name.blank?
     if type_name == 'About'
       name = Rails.application.class.parent_name
       obj = OpenStruct.new({ name: name, version: VERSION, id: 1, type: 'About' })

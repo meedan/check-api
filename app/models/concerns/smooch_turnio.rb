@@ -117,7 +117,7 @@ module SmoochTurnio
           name: json['contacts'][0]['profile']['name'],
           type: self.convert_turnio_message_type(message['type']),
           text: self.get_turnio_message_text(message),
-          source: { type: 'whatsapp' },
+          source: { type: 'whatsapp', originalMessageId: message['id'] },
           received: message['timestamp'].to_i || Time.now.to_i,
           payload: message.dig('interactive', 'list_reply', 'id') || message.dig('interactive', 'button_reply', 'id'),
           quotedMessage: { content: { '_id' => message.dig('context', 'id') } }

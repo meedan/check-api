@@ -17,6 +17,7 @@ module Api
       filter :query, apply: ->(records, _value, _options) { records }
       filter :after, apply: ->(records, _value, _options) { records }
       filter :feed_id, apply: ->(records, _value, _options) { records }
+      filter :webhook_url, apply: ->(records, _value, _options) { records }
 
       paginator :none
 
@@ -24,15 +25,19 @@ module Api
         team_ids = self.workspaces(options).map(&:id)
         Team.current ||= team_ids[0]
         filters = options[:filters] || {}
-        query = filters.dig(:query, 0)
+        query = filters.dig(:query).to_a.join(',')
         type = filters.dig(:type, 0)
+        webhook_url = filters.dig(:webhook_url, 0)
         after = filters.dig(:after, 0)
         after = Time.parse(after) unless after.blank?
         feed_id = filters.dig(:feed_id, 0).to_i
         return ProjectMedia.none if team_ids.blank? || query.blank? || !can_read_feed?(feed_id, team_ids)
         query = CGI.unescape(query)
-        results = Bot::Smooch.search_for_similar_published_fact_checks(type, query, Feed.find(feed_id).team_ids, after, feed_id)
-        Feed.delay(retry: 0).save_request(feed_id, type, query, results.to_a.map(&:id)) unless skip_save_request
+        feed = Feed.find(feed_id)
+        RequestStore.store[:pause_database_connection] = true # Release database connection during Bot::Alegre.request_api
+        RequestStore.store[:smooch_bot_settings] = feed.get_smooch_bot_settings.to_h
+        results = Bot::Smooch.search_for_similar_published_fact_checks(type, query, feed.team_ids, after, feed_id)
+        Feed.delay({ retry: 0, queue: 'feed' }).save_request(feed_id, type, query, webhook_url, results.to_a.map(&:id)) unless skip_save_request
         results
       end
 

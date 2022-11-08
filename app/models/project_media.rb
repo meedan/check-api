@@ -1,7 +1,7 @@
 class ProjectMedia < ApplicationRecord
-  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :skip_rules, :set_claim_description, :set_fact_check, :set_tags
+  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :skip_rules, :set_claim_description, :set_fact_check, :set_tags, :set_title
 
-  has_paper_trail on: [:create, :update], only: [:source_id], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
+  has_paper_trail on: [:create, :update, :destroy], only: [:source_id], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -214,7 +214,7 @@ class ProjectMedia < ApplicationRecord
     # should enqueue spam children for delete forever
     if archived == CheckArchivedFlags::FlagCodes::SPAM && !RequestStore.store[:skip_delete_for_ever]
       interval = CheckConfig.get('empty_trash_interval', 30).to_i
-      options = { type: 'spam', updated_at: Time.now, extra: { parent_id: project_media_id }}
+      options = { type: 'spam', updated_at: Time.now.to_i, extra: { parent_id: project_media_id }}
       ids.each{ |pm_id| ProjectMediaTrashWorker.perform_in(interval.days, pm_id, YAML.dump(options)) }
     end
   end
@@ -244,54 +244,67 @@ class ProjectMedia < ApplicationRecord
   end
 
   def replace_by(new_pm)
+    return if self.id == new_pm.id
     if self.team_id != new_pm.team_id
       raise I18n.t(:replace_by_media_in_the_same_team)
     elsif self.media.media_type != 'blank'
       raise I18n.t(:replace_blank_media_only)
     else
-      # Save the new item
-      analysis = self.analysis
-      new_pm.updated_at = Time.now
-      new_pm.skip_check_ability = true
-      new_pm.channel = { main: CheckChannels::ChannelCodes::FETCH }
-      new_pm.save(validate: false) # To skip channel validation
-      new_pm.analysis = { title: analysis['title'], content: analysis['content'] }
-      # Point the claim
-      new_pm.claim_description = self.claim_description
+      ProjectMedia.transaction do
+        # Save the new item
+        new_pm.updated_at = Time.now
+        new_pm.skip_check_ability = true
+        new_pm.channel = { main: CheckChannels::ChannelCodes::FETCH }
+        # Point the claim and consequently the fact-check
+        new_pm.claim_description = self.claim_description
+        new_pm.skip_check_ability = true
+        new_pm.save(validate: false) # To skip channel validation
+
+        # All annotations from the old item should point to the new item
+        # Remove any status and report from the new item
+        Annotation.where(annotation_type: ['verification_status', 'report_design'], annotated_type: 'ProjectMedia', annotated_id: new_pm.id).delete_all
+        Annotation.where(annotated_type: 'ProjectMedia', annotated_id: self.id).where.not(annotation_type: ['tag', 'task']).update_all(annotated_id: new_pm.id)
+
+        # All versions from the old item should point to the new item
+        Version.from_partition(self.team_id).where(associated_type: 'ProjectMedia', associated_id: self.id).update_all(associated_id: new_pm.id)
+        Version.from_partition(self.team_id).where(item_type: 'ProjectMedia', item_id: self.id).update_all(item_id: new_pm.id)
+
+        # All relationships from the old item should point to the new item
+        Relationship.where(source_id: self.id).update_all(source_id: new_pm.id)
+      end
+
+      # Clear cached fields
+      new_pm.clear_cached_fields
+
       # Update creator_name cached field
       Rails.cache.write("check_cached_field:ProjectMedia:#{new_pm.id}:creator_name", 'Import')
+
       # Apply other stuff in background
-      self.delay.apply_replace_by(self, new_pm)
+      self.class.delay_for(5.seconds).apply_replace_by(self.id, new_pm.id)
     end
   end
 
-  def apply_replace_by(old_pm, new_pm)
-    id = new_pm.id
-    ProjectMedia.transaction do
-      current_user = User.current
-      current_team = Team.current
-      User.current = Team.current = nil
-      analysis = old_pm.analysis
-      # Remove any status and report from the new item
-      Annotation.where(
-        annotation_type: ['verification_status', 'report_design'],
-        annotated_type: 'ProjectMedia', annotated_id: new_pm.id
-      ).find_each do |a|
-        a.skip_check_ability = true
-        a.destroy!
+  def self.apply_replace_by(old_pm_id, new_pm_id)
+    old_pm = ProjectMedia.find_by_id(old_pm_id)
+    new_pm = ProjectMedia.find_by_id(new_pm_id)
+    unless new_pm.nil?
+      # Merge tags
+      new_item_tags = new_pm.annotations('tag').map(&:tag)
+      unless new_item_tags.blank? || old_pm.nil?
+        deleted_tags = []
+        old_pm.annotations('tag').find_each do |tag|
+          deleted_tags << tag.id if new_item_tags.include?(tag.tag)
+        end
+        Annotation.where(id: deleted_tags).delete_all
       end
-      # All annotations from the old item should point to the new item
-      Annotation.where(annotated_type: 'ProjectMedia', annotated_id: self.id).update_all(annotated_id: id)
-      # Destroy the old item
-      old_pm.skip_check_ability = true
-      old_pm.destroy!
-      # Save analysis to new item
-      new_pm.analysis = { title: analysis['title'], content: analysis['content'] }
-      User.current = current_user
-      Team.current = current_team
-      # Send a published report if any
-      ::Bot::Smooch.send_report_from_parent_to_child(new_pm.id, new_pm.id)
+      Annotation.where(annotation_type: 'tag', annotated_type: 'ProjectMedia', annotated_id: old_pm_id).update_all(annotated_id: new_pm.id)
+      # Re-index new items in ElasticSearch
+      new_pm.create_elasticsearch_doc_bg({ force_creation: true })
     end
+    # Destroy old item
+    old_pm.destroy! unless old_pm.nil?
+    # Send a published report if any
+    ::Bot::Smooch.send_report_from_parent_to_child(new_pm.id, new_pm.id)
   end
 
   def method_missing(method, *args, &block)
@@ -414,6 +427,49 @@ class ProjectMedia < ApplicationRecord
     ms.attributes[:published_by] = self.published_by.keys.first || 0
     ms.attributes[:type_of_media] = Media.types.index(self.type_of_media)
     ms.attributes[:status_index] = self.status_ids.index(self.status)
+    ms.attributes[:fact_check_title] = self.fact_check_title
+    ms.attributes[:fact_check_summary] = self.fact_check_summary
+    ms.attributes[:claim_description_content] = self.claim_description&.description
+  end
+
+  def add_nested_objects(ms)
+    # comments
+    comments = self.annotations('comment')
+    ms.attributes[:comments] = comments.collect{|c| {id: c.id, text: c.text}}
+    # tags
+    tags = self.get_annotations('tag').map(&:load)
+    ms.attributes[:tags] = tags.collect{|t| {id: t.id, tag: t.tag_text}}
+    # 'task_responses'
+    tasks = self.annotations('task')
+    tasks_ids = tasks.map(&:id)
+    team_task_ids = TeamTask.where(team_id: team.id).map(&:id)
+    responses = Task.where('annotations.id' => tasks_ids)
+    .where('task_team_task_id(annotations.annotation_type, annotations.data) IN (?)', team_task_ids)
+    .joins("INNER JOIN annotations responses ON responses.annotation_type LIKE 'task_response%'
+      AND responses.annotated_type = 'Task'
+      AND responses.annotated_id = annotations.id"
+      )
+    ms.attributes[:task_responses] = responses.collect{ |tr| {
+        id: tr.id,
+        fieldset: tr.fieldset,
+        field_type: tr.type,
+        team_task_id: tr.team_task_id,
+        value: tr.first_response
+      }
+    }
+    # add TeamTask of type choice with no answer
+    no_response_ids = tasks_ids - responses.map(&:id)
+    Task.where(id: no_response_ids)
+    .where('task_team_task_id(annotations.annotation_type, annotations.data) IN (?)', team_task_ids).find_each do |item|
+      if item.type =~ /choice/
+        ms.attributes[:task_responses] << { id: item.id, team_task_id: item.team_task_id, fieldset: item.fieldset }
+      end
+    end
+    # 'assigned_user_ids'
+    assignments_uids = Assignment.where(assigned_type: ['Annotation', 'Dynamic'])
+    .joins('INNER JOIN annotations a ON a.id = assignments.assigned_id')
+    .where('a.annotated_type = ? AND a.annotated_id = ?', 'ProjectMedia', self.id).map(&:user_id)
+    ms.attributes[:assigned_user_ids] = assignments_uids.uniq
   end
 
   # private

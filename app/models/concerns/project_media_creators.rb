@@ -35,7 +35,9 @@ module ProjectMediaCreators
 
   def set_title_for_files
     title = nil
-    if self.user&.login == 'smooch' && ['UploadedVideo', 'UploadedImage', 'UploadedAudio'].include?(self.media.type)
+    if self.set_title
+      title = self.set_title
+    elsif self.user&.login == 'smooch' && ['UploadedVideo', 'UploadedImage', 'UploadedAudio'].include?(self.media.type)
       type_count = Media.where(type: self.media.type).joins("INNER JOIN project_medias pm ON medias.id = pm.media_id")
       .where("pm.team_id = ?", self.team&.id).count
       type = self.media.type.sub('Uploaded', '').downcase
@@ -82,8 +84,8 @@ module ProjectMediaCreators
   def create_link
     team = self.team || Team.current
     pender_key = team.get_pender_key if team
-    url = Link.normalized(self.url, pender_key)
-    Link.find_by(url: url) || Link.create(url: url, pender_key: pender_key)
+    url_from_pender = Link.normalized(self.url, pender_key)
+    Link.find_by(url: url_from_pender) || Link.create(url: self.url, pender_key: pender_key)
   end
 
   def create_media
@@ -145,7 +147,7 @@ module ProjectMediaCreators
     ]
   end
 
-  def create_relationship(type = Relationship.default_type)
+  def create_relationship(type = Relationship.confirmed_type)
     unless self.related_to_id.nil?
       related = ProjectMedia.where(id: self.related_to_id).last
       unless related.nil?

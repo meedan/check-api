@@ -7,14 +7,13 @@ module Api
 
       skip_before_action :authenticate_from_token!
 
-      before_action :start_apollo_if_needed, only: [:create, :batch]
       before_action :authenticate_graphql_user, only: [:create, :batch]
       before_action :set_current_user, :update_last_active_at, :load_context_team, :set_current_team, :set_timezone, :load_ability, :init_bot_events
 
       after_action :trigger_bot_events
 
       def create
-        Honeycomb.add_field('graphql_query', params[:query]) unless CheckConfig.get('honeycomb_key').blank?
+        TracingService.add_attribute_to_current_span('app.graphql.query', params[:query])
         parse_graphql_result do |context|
           query_string = params[:query]
           query_variables = prepare_query_variables(params[:variables])
@@ -23,7 +22,7 @@ module Api
       end
 
       def batch
-        Honeycomb.add_field('graphql_query', params[:_json]) unless CheckConfig.get('honeycomb_key').blank?
+        TracingService.add_attribute_to_current_span('app.graphql.query', params[:_json])
         parse_graphql_result do |context|
           queries = params[:_json].map do |param|
             {
@@ -56,6 +55,7 @@ module Api
         # Mutations are not batched, so we can return errors in the root
         rescue ActiveRecord::RecordInvalid, RuntimeError, NameError, GraphQL::Batch::NestedError => e
           @output = parse_json_exception(e)
+          Airbrake.notify(e) if Airbrake.configured?
           render json: @output, status: 400
         rescue ActiveRecord::StaleObjectError, ActiveRecord::RecordNotUnique => e
           @output = format_error_message(e)
@@ -164,20 +164,6 @@ module Api
 
       def set_timezone
         @context_timezone = request.headers['X-Timezone']
-      end
-
-      def start_apollo_if_needed
-        if File.exist?('config/apollo-engine-proxy.json')
-          port = JSON.parse(File.read('config/apollo-engine-proxy.json'))['frontends'][0]['port']
-          if system('lsof', "-i:#{port}", out: '/dev/null')
-            @started_apollo = false
-            Rails.logger.info "[Apollo] [#{Time.now}] Already running, nothing to do."
-          else
-            Rails.logger.info "[Apollo] [#{Time.now}] Not running, starting..."
-            ApolloTracing.start_proxy('config/apollo-engine-proxy.json')
-            @started_apollo = true
-          end
-        end
       end
 
       def init_bot_events

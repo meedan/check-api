@@ -40,13 +40,15 @@ class Cluster < ApplicationRecord
     Team.where(id: tids).find_each { |t| data[t.id] = t.name }
     # update ES count field
     pm = self.project_media
-    options = {
-      keys: ['cluster_published_reports_count'],
-      data: { 'cluster_published_reports_count' => data.size },
-      pm_id: pm.id
-    }
-    model = { klass: pm.class.name, id: pm.id }
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
+    unless pm.nil?
+      options = {
+        keys: ['cluster_published_reports_count'],
+        data: { 'cluster_published_reports_count' => data.size },
+        pm_id: pm.id
+      }
+      model = { klass: pm.class.name, id: pm.id }
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
+    end
     data
   end
 

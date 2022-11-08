@@ -60,19 +60,19 @@ module SmoochTeamBotInstallation
       # Return a hash of enabled integrations and their information
       def smooch_enabled_integrations(force = false)
         if self.bot_user.identifier == 'smooch'
-          return {
+          smooch_integrations = Rails.cache.fetch("smooch_bot:#{self.team_id}:enabled_integrations", force: force) do
+            integrations = {}
+            begin self.smooch_integrations_api_client.list_integrations(self.get_smooch_app_id, {}).integrations.select{ |i| i.status == 'active' }.each{ |i| integrations[i.type] = i.to_hash.reject{ |k| ['tier', 'envName', 'consumerKey', 'accessTokenKey'].include?(k.to_s) } } rescue {} end
+            integrations.with_indifferent_access
+          end
+          smooch_integrations.merge!({
             whatsapp: {
               type: 'whatsapp',
               phoneNumber: self.get_turnio_phone.to_s,
               status: 'active'
             }
-          }.with_indifferent_access if self.get_smooch_app_id.blank? && !self.get_turnio_secret.blank? # When using our own WhatsApp Business API (the secret is the phone number)
-          Rails.cache.fetch("smooch_bot:#{self.team_id}:enabled_integrations", force: force) do
-            api_instance = self.smooch_integrations_api_client
-            integrations = {}
-            begin api_instance.list_integrations(self.get_smooch_app_id, {}).integrations.select{ |i| i.status == 'active' }.each{ |i| integrations[i.type] = i.to_hash.reject{ |k| ['tier', 'envName', 'consumerKey', 'accessTokenKey'].include?(k.to_s) } } rescue {} end
-            integrations.with_indifferent_access
-          end
+          }) unless self.get_turnio_secret.blank?
+          smooch_integrations.with_indifferent_access
         end
       end
 
