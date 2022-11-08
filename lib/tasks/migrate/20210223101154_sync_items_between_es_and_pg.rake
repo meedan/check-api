@@ -1,6 +1,6 @@
 namespace :check do
   namespace :migrate do
-    # bundle exec rake check:sync_check_items_es_and_pg[team_slug1, team_slug2, ...]
+    # bundle exec rake check:migrate:sync_check_items_es_and_pg[team_slug1, team_slug2, ...]
     task sync_check_items_es_and_pg: :environment do |_t, args|
       started = Time.now.to_i
       slugs = args.extras
@@ -26,11 +26,11 @@ namespace :check do
             pg_ids = ProjectMedia.where(team_id: t.id, id: es_ids).map(&:id)
             diff = es_ids - pg_ids
             if diff.count
-              query = { bool: { must: [{ term: { team_id: { value: t.id } } }, { terms: { annotated_id: diff } }] } }
-              options[:body] = { query: query }
+              delete_query = { bool: { must: [{ term: { team_id: { value: t.id } } }, { terms: { annotated_id: diff } }] } }
+              options[:body] = { query: delete_query }
               client.delete_by_query options
             end
-            search_after = [pg_ids.max]
+            search_after = [es_ids.max]
           end
         end
       end
@@ -39,6 +39,7 @@ namespace :check do
     end
 
     # list all workspaces that have a different count between PG & ES
+    # bundle exec rake check:migrate:sync_check_items_workspace_lists[team_slug1, team_slug2, ...]
     task sync_check_items_workspace_lists: :environment do |_t, args|
       slugs = args.extras
       client = $repository.client
