@@ -108,7 +108,6 @@ class ActiveSupport::TestCase
     User.current = nil
     MediaSearch.delete_index
     MediaSearch.create_index
-    Rails.stubs(:env).returns('development'.inquiry)
     RequestStore.store[:disable_es_callbacks] = false
     create_verification_status_stuff
     sleep 2

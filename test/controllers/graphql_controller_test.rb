@@ -909,7 +909,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     create_annotation_type_and_fields('Syrian Archive Data', { 'Id' => ['Id', false] })
     p = create_project team: @team
-    fields = '{\"annotation_type\":\"syrian_archive_data\",\"set_fields\":\"{\\\"syrian_archive_data_id\\\":\\\"123456\\\"}\"}'
+    fields = '{\"annotation_type\":\"syrian_archive_data\",\"set_fields\":\"{\\\\\"syrian_archive_data_id\\\\\":\\\\\"123456\\\\\"}\"}'
     query = 'mutation create { createProjectMedia(input: { url: "", media_type: "Claim", quote: "Test", clientMutationId: "1", set_annotation: "' + fields + '", project_id: ' + p.id.to_s + ' }) { project_media { id } } }'
     post :create, params: { query: query, team: @team.slug }
     assert_response :success
