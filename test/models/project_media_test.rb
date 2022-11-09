@@ -1712,6 +1712,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     # sortable fields are [linked_items_count, last_seen and share_count]
     setup_elasticsearch
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
+    Rails.stubs(:env).returns('development'.inquiry)
     team = create_team
     p = create_project team: team
     pm = create_project_media team: team, project_id: p.id, disable_es_callbacks: false
