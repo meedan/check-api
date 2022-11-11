@@ -26,9 +26,9 @@ class Request < ApplicationRecord
     update_on: [] # Never changes
 
   def text_similarity_settings # FIXME: This shoudl be feed settings
-    { 
-        ::Bot::Alegre::ELASTICSEARCH_MODEL => {"threshold"=>0.85, "min_words"=>4}, 
-        ::Bot::Alegre::MEAN_TOKENS_MODEL =>  {"threshold"=>0.9, "min_words"=>2}
+    {
+      ::Bot::Alegre::ELASTICSEARCH_MODEL => {"threshold"=>0.85, "min_words"=>4},
+      ::Bot::Alegre::MEAN_TOKENS_MODEL =>  {"threshold"=>0.9, "min_words"=>2}
     }
   end
 
@@ -40,13 +40,13 @@ class Request < ApplicationRecord
     if similar_request_id.nil?
       if media.type == 'Claim'
         words=::Bot::Alegre.get_number_of_words(media.quote)
-        models_thresholds=self.text_similarity_settings.reject{|k,v| v["min_words"]>words}
+        models_thresholds=self.text_similarity_settings.reject{|_k,v| v["min_words"]>words}
         if models_thresholds.count > 0
-            params = { text: media.quote, models: models_thresholds.keys(), per_model_threshold: models_thresholds.transform_values{|v| v["threshold"]}, context: context }
-            similar_request_id = ::Bot::Alegre.request_api('get', '/text/similarity/', params)&.dig('result').to_a.collect{ |result| result&.dig('_source', 'context', 'request_id').to_i }.find{ |id| id != 0 && id != self.id }
+          params = { text: media.quote, models: models_thresholds.keys(), per_model_threshold: models_thresholds.transform_values{|v| v["threshold"]}, context: context }
+          similar_request_id = ::Bot::Alegre.request_api('get', '/text/similarity/', params)&.dig('result').to_a.collect{ |result| result&.dig('_source', 'context', 'request_id').to_i }.find{ |id| id != 0 && id != self.id }
         end
       elsif ['UploadedImage', 'UploadedAudio', 'UploadedVideo'].include?(media.type)
-        threshold = 0.85
+        threshold = 0.85 #FIXME: Should be feed setting
         type = media.type.gsub(/^Uploaded/, '').downcase
         params = { url: media.file.file.public_url, threshold: threshold, context: context }
         similar_request_id = ::Bot::Alegre.request_api('get', "/#{type}/similarity/", params)&.dig('result').to_a.collect{ |result| result&.dig('context').to_a.collect{ |c| c['request_id'].to_i } }.flatten.find{ |id| id != 0 && id != self.id }
