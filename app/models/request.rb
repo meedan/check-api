@@ -25,8 +25,11 @@ class Request < ApplicationRecord
     recalculate: proc { |r| r.media&.type },
     update_on: [] # Never changes
 
-  def similarity_models_and_thresholds
-    { ::Bot::Alegre::ELASTICSEARCH_MODEL => 0.85, ::Bot::Alegre::MEAN_TOKENS_MODEL =>  0.9 } # FIXME: This shoudl be feed settings
+  def text_similarity_settings # FIXME: This shoudl be feed settings
+    {
+      ::Bot::Alegre::ELASTICSEARCH_MODEL => {"threshold"=>0.85, "min_words"=>4},
+      ::Bot::Alegre::MEAN_TOKENS_MODEL =>  {"threshold"=>0.9, "min_words"=>2}
+    }
   end
 
   def attach_to_similar_request!
@@ -35,11 +38,15 @@ class Request < ApplicationRecord
     # First try to find an identical media
     similar_request_id = Request.where(media_id: media.id, feed_id: self.feed_id).where.not(id: self.id).order('id ASC').first
     if similar_request_id.nil?
-      if media.type == 'Claim' && ::Bot::Alegre.get_number_of_words(media.quote) > 1
-        params = { text: media.quote, models: self.similarity_models_and_thresholds.keys(), per_model_threshold: self.similarity_models_and_thresholds, context: context }
-        similar_request_id = ::Bot::Alegre.request_api('get', '/text/similarity/', params)&.dig('result').to_a.collect{ |result| result&.dig('_source', 'context', 'request_id').to_i }.find{ |id| id != 0 && id != self.id }
+      if media.type == 'Claim'
+        words=::Bot::Alegre.get_number_of_words(media.quote)
+        models_thresholds=self.text_similarity_settings.reject{|_k,v| v["min_words"]>words}
+        if models_thresholds.count > 0
+          params = { text: media.quote, models: models_thresholds.keys(), per_model_threshold: models_thresholds.transform_values{|v| v["threshold"]}, context: context }
+          similar_request_id = ::Bot::Alegre.request_api('get', '/text/similarity/', params)&.dig('result').to_a.collect{ |result| result&.dig('_source', 'context', 'request_id').to_i }.find{ |id| id != 0 && id != self.id }
+        end
       elsif ['UploadedImage', 'UploadedAudio', 'UploadedVideo'].include?(media.type)
-        threshold = 0.85
+        threshold = 0.85 #FIXME: Should be feed setting
         type = media.type.gsub(/^Uploaded/, '').downcase
         params = { url: media.file.file.public_url, threshold: threshold, context: context }
         similar_request_id = ::Bot::Alegre.request_api('get', "/#{type}/similarity/", params)&.dig('result').to_a.collect{ |result| result&.dig('context').to_a.collect{ |c| c['request_id'].to_i } }.flatten.find{ |id| id != 0 && id != self.id }
@@ -173,7 +180,7 @@ class Request < ApplicationRecord
       params = {
         doc_id: doc_id,
         text: text,
-        models: request.similarity_models_and_thresholds.keys(),
+        models: request.text_similarity_settings.keys(),
         context: context
       }
       ::Bot::Alegre.request_api('post', '/text/similarity/', params)
