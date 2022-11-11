@@ -1,9 +1,15 @@
 # A convenience wrapper class for Open Telemetry
 class TracingService
   class << self
-    def add_attribute_to_current_span(attribute_name, value)
+    def add_attributes_to_current_span(attributes)
       current_span = OpenTelemetry::Trace.current_span
-      current_span.set_attribute(attribute_name, value.to_s)
+      current_span.add_attributes(format_attributes(attributes))
+    end
+
+    private
+
+    def format_attributes(attributes)
+      attributes.compact
     end
   end
 end
