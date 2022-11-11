@@ -429,20 +429,31 @@ class Bot::Smooch < BotUser
     if ['main', 'waiting_for_message'].include?(state) && self.is_v2?
       if self.should_ask_for_language_confirmation?(uid)
         options = []
-        self.get_supported_languages.each_with_index do |l, i|
+        i = 0
+        self.get_supported_languages.each do |l|
+          i += 1
+          i += 1 if i == 9 # 9 is reserved for the privacy policy
           options << {
-            'smooch_menu_option_keyword' => [l, i + 1].join(','),
+            'smooch_menu_option_keyword' => [l, i].join(','),
             'smooch_menu_option_value' => l
           }
         end
       else
         allowed_types = ['query_state', 'subscription_state', 'custom_resource']
         options = options.reject{ |o| !allowed_types.include?(o['smooch_menu_option_value']) }.concat(workflow.dig('smooch_state_secondary', 'smooch_menu_options').to_a.clone.select{ |o| allowed_types.include?(o['smooch_menu_option_value']) })
-        self.get_supported_languages.reject{ |l| l == workflow['smooch_workflow_language'] }.sort.each do |l|
+        language_options = self.get_supported_languages.reject { |l| l == workflow['smooch_workflow_language'] }.sort
+        if (language_options.size + options.size) >= 10
           options << {
-            'smooch_menu_option_keyword' => l,
-            'smooch_menu_option_value' => l
+            'smooch_menu_option_keyword' => 'choose_language',
+            'smooch_menu_option_value' => 'choose_language'
           }
+        else
+          language_options.each do |l|
+            options << {
+              'smooch_menu_option_keyword' => l,
+              'smooch_menu_option_value' => l
+            }
+          end
         end
         all_options = []
         keyword = 0
@@ -508,6 +519,9 @@ class Bot::Smooch < BotUser
       self.bundle_message(message)
       self.send_greeting(uid, workflow)
       self.send_message_for_state(uid, workflow, 'main', value)
+    elsif value == 'choose_language'
+      self.reset_user_language(uid)
+      self.ask_for_language_confirmation(workflow, language, uid, false)
     end
   end
 
