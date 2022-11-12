@@ -15,6 +15,9 @@ namespace :test do
       end
       coverage_dir 'coverage'
     end
+    SimpleCov.at_exit do
+      SimpleCov.result.format!
+    end
     Rake::Task['test'].execute
   end
 end

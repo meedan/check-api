@@ -54,8 +54,8 @@ module SmoochMenus
           number_of_options += 1
           counter = self.get_next_menu_item_number(counter)
         end
+        rows = self.adjust_language_options(rows, language, number_of_options)
       end
-      rows = self.adjust_language_options(rows, language, number_of_options)
       rows << {
         id: { state: 'main', keyword: '9' }.to_json,
         title: self.get_menu_string('privacy_statement', language, 24)
@@ -272,10 +272,14 @@ module SmoochMenus
         }
       end
       text = text.join("\n\n")
-      self.send_message_to_user(uid, text) if with_text
-      sleep 1
-      options.each_slice(3).to_a.each do |sub_options|
-        self.send_message_to_user_with_buttons(uid, '🌐​', sub_options)
+      if ['Telegram', 'Viber', 'Facebook Messenger'].include?(self.request_platform)
+        self.send_message_to_user_with_single_section_menu(uid, text, options, self.get_menu_string('languages', language))
+      else
+        self.send_message_to_user(uid, text) if with_text
+        sleep 1
+        options.each_slice(3).to_a.each do |sub_options|
+          self.send_message_to_user_with_buttons(uid, '🌐​', sub_options)
+        end
       end
     end
 

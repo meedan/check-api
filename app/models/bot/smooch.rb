@@ -431,8 +431,7 @@ class Bot::Smooch < BotUser
         options = []
         i = 0
         self.get_supported_languages.each do |l|
-          i += 1
-          i += 1 if i == 9 # 9 is reserved for the privacy policy
+          i = self.get_next_menu_item_number(i)
           options << {
             'smooch_menu_option_keyword' => [l, i].join(','),
             'smooch_menu_option_value' => l
@@ -457,10 +456,8 @@ class Bot::Smooch < BotUser
         end
         all_options = []
         keyword = 0
-        options.each do |o|
-          next if o.blank?
-          keyword += 1
-          keyword += 1 if keyword == 9 # Reserved for "privacy statement"
+        options.reject{ |o| o.blank? }.each do |o|
+          keyword = self.get_next_menu_item_number(keyword)
           o2 = o.clone
           o2['smooch_menu_option_keyword'] = keyword.to_s
           all_options << o2
