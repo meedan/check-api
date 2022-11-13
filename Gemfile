@@ -8,7 +8,7 @@ group :development, :test do
 end
 
 group :test do
-  gem 'parallel_tests'
+  gem 'parallel_tests', '3.13.0'
   gem 'minitest', '5.14.4'
   gem 'minitest-hooks'
   gem 'simplecov', '0.17.0', require: false

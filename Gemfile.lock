@@ -673,7 +673,7 @@ GEM
       activerecord (>= 4.2)
       request_store (~> 1.1)
     parallel (1.22.0)
-    parallel_tests (2.31.0)
+    parallel_tests (3.13.0)
       parallel
     parse-cron (0.1.4)
     parser (2.7.2.0)
@@ -1045,7 +1045,7 @@ DEPENDENCIES
   pact-consumer-minitest
   paper_trail (= 10.3.1)
   parallel
-  parallel_tests
+  parallel_tests (= 3.13.0)
   parse-cron
   partitioned!
   peek (= 1.1.0)
