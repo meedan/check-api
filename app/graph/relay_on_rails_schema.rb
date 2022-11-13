@@ -40,16 +40,6 @@ class RelayOnRailsSchema < GraphQL::Schema
   def self.reload_mutations!(restart_coverage = false)
     raise "Reloadable schema only meant to be used in test environment" unless Rails.env.test?
 
-    # Make sure that coverage results are preserved once mutations are reloaded
-    # https://github.com/simplecov-ruby/simplecov/issues/389
-    if restart_coverage
-      require 'simplecov'
-      SimpleCov.result
-      SimpleCov.start do
-        command_name "#{command_name}1"
-      end
-    end
-
     @graphql_definition = nil
 
     ::Object.send(:remove_const, :MutationType) if defined?(MutationType)
