@@ -15,7 +15,8 @@ SimpleCov.start 'rails' do
     !file.filename.match(/\/lib\/sample_data\.rb$/).nil? ||
     !file.filename.match(/\/lib\/middleware_sidekiq_server_retry\.rb$/).nil? ||
     !file.filename.match(/\/lib\/tasks\/data\/[^.]+\.rb$/).nil? ||
-    !file.filename.match(/\/app\/graph\/types\/mutation_type\.rb$/).nil?
+    !file.filename.match(/\/app\/graph\/types\/mutation_type\.rb$/).nil? ||
+    !file.filename.match(/\/app\/graphql\/types\/mutation_type\.rb$/).nil?
   end
   coverage_dir 'coverage'
 end
