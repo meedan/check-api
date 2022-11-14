@@ -37,7 +37,7 @@ class RelayOnRailsSchema < GraphQL::Schema
   #
   # Approach taken from:
   # https://github.com/rmosolgo/graphql-ruby/issues/2225
-  def self.reload_mutations!(restart_coverage = false)
+  def self.reload_mutations!
     raise "Reloadable schema only meant to be used in test environment" unless Rails.env.test?
 
     @graphql_definition = nil

@@ -724,4 +724,15 @@ class TeamTaskTest < ActiveSupport::TestCase
     end
     Team.unstub(:current)
   end
+
+  test "should notify error when adding team tasks for project medias" do
+    t = create_team
+    pm = create_project_media team: t
+    tt = create_team_task team_id: t.id, fieldset: 'metadata', associated_type: 'ProjectMedia'
+    assert_equal 0, pm.get_annotations('task').count
+    ProjectMedia.any_instance.stubs(:create_auto_tasks).raises(StandardError)
+    tt.send(:add_to_project_medias)
+    ProjectMedia.any_instance.unstub(:create_auto_tasks)
+    assert_equal 0, pm.get_annotations('task').count
+  end
 end
