@@ -152,9 +152,11 @@ class TeamTask < ApplicationRecord
       AND a.annotated_id = project_medias.id
       AND task_team_task_id(a.annotation_type, a.data) = #{self.id}")
     .where("a.id" => nil).order(id: :desc).distinct.find_each do |pm|
-      pm.create_auto_tasks([self])
-    rescue StandardError => e
-      team_task_notification_error(e, pm)
+      begin
+        pm.create_auto_tasks([self])
+      rescue StandardError => e
+        team_task_notification_error(e, pm)
+      end
     end
   end
 
