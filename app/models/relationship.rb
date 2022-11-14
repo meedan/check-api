@@ -14,9 +14,10 @@ class Relationship < ApplicationRecord
   before_validation :set_cluster, if: :is_being_confirmed?, on: :update
   validate :relationship_type_is_valid, :items_are_from_the_same_team
   validate :target_not_pulished_report, on: :create
+  validate :similar_item_exists, on: :create, if: proc { |r| r.relationship_type.to_json == Relationship.suggested_type.to_json }
   validates :relationship_type, uniqueness: { scope: [:source_id, :target_id], message: :already_exists }, on: :create
 
-  before_create :destroy_suggest_item
+  before_create :destroy_suggest_item, if: proc { |r| r.relationship_type.to_json == Relationship.confirmed_type.to_json }
   after_create :move_to_same_project_as_main, prepend: true
   after_create :point_targets_to_new_source, :update_counters, prepend: true
   after_update :reset_counters, prepend: true
@@ -211,6 +212,12 @@ class Relationship < ApplicationRecord
     end
   end
 
+  def similar_item_exists
+    r = Relationship.where(source_id: self.source_id, target_id: self.target_id)
+    .where('relationship_type = ?', Relationship.confirmed_type.to_yaml).last
+    errors.add(:base, I18n.t(:similar_item_exists)) unless r.nil?
+  end
+
   def point_targets_to_new_source
     # Get existing targets for the source
     target_ids = Relationship.where(source_id: self.source_id, relationship_type: self.relationship_type).map(&:target_id)
@@ -273,9 +280,7 @@ class Relationship < ApplicationRecord
 
   def destroy_suggest_item
     # Check if same item already exists as a suggested item
-    if self.relationship_type.to_json == Relationship.confirmed_type.to_json
-      Relationship.where(source_id: self.source_id, target_id: self.target_id)
-      .where('relationship_type = ?', Relationship.suggested_type.to_yaml).destroy_all
-    end
+    Relationship.where(source_id: self.source_id, target_id: self.target_id)
+    .where('relationship_type = ?', Relationship.suggested_type.to_yaml).destroy_all
   end
 end
