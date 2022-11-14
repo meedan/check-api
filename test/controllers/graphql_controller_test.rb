@@ -1108,7 +1108,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should reload mutations" do
     assert_nothing_raised do
-      RelayOnRailsSchema.reload_mutations!(true)
+      RelayOnRailsSchema.reload_mutations!
     end
   end
 end
