@@ -400,6 +400,41 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     assert_state 'main'
   end
 
+  test "should change language on non-WhatsApp platforms on tipline bot v2" do
+    send_message_to_smooch_bot('hello', @uid, { 'source' => { 'type' => 'telegram' } })
+    send_message_to_smooch_bot('1', @uid, { 'source' => { 'type' => 'telegram' } })
+    send_message_to_smooch_bot('6', @uid, { 'source' => { 'type' => 'telegram' } })
+    assert_state 'main'
+    assert_user_language 'en'
+
+    send_message_to_smooch_bot('hello', @uid, { 'source' => { 'type' => 'telegram' } })
+    send_message_to_smooch_bot('7', @uid, { 'source' => { 'type' => 'telegram' } })
+    assert_state 'main'
+    assert_user_language 'pt'
+  end
+
+  test "should handle more than 10 supported languages on tipline bot v2" do
+    langs = ['en', 'pt', 'es', 'fr', 'de', 'ar', 'hi', 'bn', 'fi', 'da', 'nl']
+    @team.set_languages langs
+    @team.save!
+    settings = @installation.settings.clone
+    langs.each_with_index do |l, i|
+      next if i < 2
+      settings['smooch_workflows'][i] = @settings['smooch_workflows'][0].clone.merge({ 'smooch_workflow_language' => l })
+    end
+    @installation.settings = settings
+    @installation.save!
+    Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
+
+    send_message 'hello', '1'
+    assert_state 'main'
+    assert_user_language 'en'
+
+    send_message '6'
+    assert_state 'main'
+    assert_user_language nil
+  end
+
   test "should auto-start conversation" do
     payload = {
       trigger: 'conversation:start',
