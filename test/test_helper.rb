@@ -11,7 +11,8 @@ unless ARGV.include?('-n')
     add_filter do |file|
       (!file.filename.match(/\/app\/controllers\/[^\/]+\.rb$/).nil? && file.filename.match(/application_controller\.rb$/).nil?) ||
       !file.filename.match(/\/app\/controllers\/concerns\/[^\/]+_doc\.rb$/).nil? ||
-      !file.filename.match(/\/lib\/sample_data\.rb$/).nil?
+      !file.filename.match(/\/lib\/sample_data\.rb$/).nil? ||
+      !file.filename.match(/\/app\/graph\/types\/mutation_type\.rb$/).nil?
     end
     coverage_dir 'coverage'
   end

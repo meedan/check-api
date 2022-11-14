@@ -1105,4 +1105,10 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
     assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
   end
+
+  test "should reload mutations" do
+    assert_nothing_raised do
+      RelayOnRailsSchema.reload_mutations!
+    end
+  end
 end
