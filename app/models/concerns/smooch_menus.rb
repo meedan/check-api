@@ -264,8 +264,7 @@ module SmoochMenus
       i = 0
       self.get_supported_languages.sort.each do |l|
         text << self.get_menu_string('confirm_preferred_language', l)
-        i += 1
-        i += 1 if i == 9 # 9 is reserved for privacy policy
+        i = self.get_next_menu_item_number(i)
         options << {
           value: { state: 'main', keyword: i.to_s }.to_json,
           label: ::CheckCldr.language_code_to_name(l, l).truncate(20)
@@ -273,6 +272,7 @@ module SmoochMenus
       end
       text = text.join("\n\n")
       if ['Telegram', 'Viber', 'Facebook Messenger'].include?(self.request_platform)
+        text = '🌐​' unless with_text
         self.send_message_to_user_with_single_section_menu(uid, text, options, self.get_menu_string('languages', language))
       else
         self.send_message_to_user(uid, text) if with_text
