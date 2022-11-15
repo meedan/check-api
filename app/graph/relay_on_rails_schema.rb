@@ -38,9 +38,7 @@ class RelayOnRailsSchema < GraphQL::Schema
   # Approach taken from:
   # https://github.com/rmosolgo/graphql-ruby/issues/2225
   def self.reload_mutations!
-    unless Rails.env.test?
-      raise "Reloadable schema only meant to be used in test environment"
-    end
+    raise "Reloadable schema only meant to be used in test environment" unless Rails.env.test?
 
     @graphql_definition = nil
 
@@ -59,11 +57,7 @@ class CheckGraphql
   end
 
   def self.decode_id(id)
-    begin
-      Base64.decode64(id).split('/')
-    rescue
-      [nil, nil]
-    end
+    begin Base64.decode64(id).split('/') rescue [nil, nil] end
   end
 
   def self.object_from_id(id, ctx)
