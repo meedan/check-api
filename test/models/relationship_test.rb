@@ -472,5 +472,8 @@ class RelationshipTest < ActiveSupport::TestCase
     r2 = create_relationship source_id: s.id, target_id: t.id, relationship_type: Relationship.confirmed_type
     assert_nil Relationship.where(id: r.id).last
     assert_not_nil Relationship.where(id: r2.id).last
+    assert_raises ActiveRecord::RecordInvalid do
+      create_relationship source_id: s.id, target_id: t.id, relationship_type: Relationship.suggested_type
+    end
   end
 end
