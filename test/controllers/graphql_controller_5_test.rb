@@ -587,7 +587,7 @@ class GraphqlController5Test < ActionController::TestCase
     assert_equal 1, JSON.parse(@response.body).dig('data', 'request', 'similar_requests', 'edges').size
   end
 
-  test "should bulk-accept suggested items" do
+  test "should bulk-accept or reject suggested items" do
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
@@ -607,6 +607,11 @@ class GraphqlController5Test < ActionController::TestCase
     assert_equal Relationship.confirmed_type, r1.reload.relationship_type
     assert_equal Relationship.confirmed_type, r2.reload.relationship_type
     assert_equal Relationship.confirmed_type, r3.reload.relationship_type
+    query = 'mutation { destroyRelationships(input: { clientMutationId: "1", ids: ' + ids + ', source_id: ' + pm_s.id.to_s + ' }) { ids, source_project_media { dbid } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    count = Relationship.where(id: [r1.id, r2.id, r3.id]).count
+    assert_equal 0, count
   end
 
   protected
