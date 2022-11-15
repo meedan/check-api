@@ -225,7 +225,13 @@ class GraphqlCrudOperations
         end
 
         ability = ctx[:ability] || Ability.new
-        if ability.can?("bulk_#{update_or_destroy}".to_sym, klass.new(team: Team.current))
+        obj_ability = klass.new
+        obj_ability.team = Team.current if obj_ability.respond_to?(:team=)
+        if obj_ability.class.name == 'Relationship'
+          obj_ability.source = ProjectMedia.new(team: Team.current)
+          obj_ability.target = ProjectMedia.new(team: Team.current)
+        end
+        if ability.can?("bulk_#{update_or_destroy}".to_sym, obj_ability)
           filtered_inputs = inputs.to_h.reject{ |k, _v| ['ids', 'clientMutationId'].include?(k.to_s) }.with_indifferent_access
           method_mapping = {
             update: :bulk_update,

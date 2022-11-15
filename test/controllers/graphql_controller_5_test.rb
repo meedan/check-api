@@ -587,6 +587,28 @@ class GraphqlController5Test < ActionController::TestCase
     assert_equal 1, JSON.parse(@response.body).dig('data', 'request', 'similar_requests', 'edges').size
   end
 
+  test "should bulk-accept suggested items" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    authenticate_with_user(u)
+    pm_s = create_project_media team: t
+    pm_t1 = create_project_media team: t
+    pm_t2 = create_project_media team: t
+    pm_t3 = create_project_media team: t
+    r1 = create_relationship source_id: pm_s.id, target_id: pm_t1.id, relationship_type: Relationship.suggested_type
+    r2 = create_relationship source_id: pm_s.id, target_id: pm_t2.id, relationship_type: Relationship.suggested_type
+    r3 = create_relationship source_id: pm_s.id, target_id: pm_t3.id, relationship_type: Relationship.suggested_type
+    relations = [r1, r2, r3]
+    ids = relations.map(&:graphql_id).to_json
+    query = 'mutation { updateRelationships(input: { clientMutationId: "1", ids: ' + ids + ', action: "accept", source_id: ' + pm_s.id.to_s + ' }) { ids, source_project_media { dbid } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal Relationship.confirmed_type, r1.reload.relationship_type
+    assert_equal Relationship.confirmed_type, r2.reload.relationship_type
+    assert_equal Relationship.confirmed_type, r3.reload.relationship_type
+  end
+
   protected
 
   def assert_error_message(expected)
