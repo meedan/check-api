@@ -135,8 +135,6 @@ class Relationship < ApplicationRecord
     self.send(method).to_json == Relationship.suggested_type.to_json && self.relationship_type.to_json == Relationship.confirmed_type.to_json
   end
 
-  protected
-
   def update_counters
     return if self.is_default? || self.source.nil? || self.target.nil?
     source = self.source
@@ -150,6 +148,8 @@ class Relationship < ApplicationRecord
     source.targets_count = Relationship.where(source_id: source.id).where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).count
     source.save!
   end
+
+  protected
 
   def update_elasticsearch_parent(action = 'create_or_update')
     return if self.is_default? || self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
