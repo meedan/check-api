@@ -56,6 +56,41 @@ ar:
   subscribed: أنت مشترك حالياً في نشرتنا الإخبارية.
   unsubscribe_button_label: إلغاء الاشتراك
   unsubscribed: أنت غير مشترك حالياً في نشرتنا الإخبارية.
+bho:
+  add_more_details_state_button_label: और जोड़ी
+  ask_if_ready_state_button_label: निरस्त करी
+  confirm_preferred_language: आपन पसंदीदा भाषा चुनीं
+  invalid_format: क्षमा करी, ई फाइल उपयुक्त फॉर्मेट में नाही बा
+  keep_subscription_button_label: सब्सक्रिप्शन जारी रखीं
+  languages: भाषा
+  languages_and_privacy_title: भाषा और गोपनीयता
+  main_menu: मेन मेन्यू
+  main_state_button_label: निरस्त करी
+  navigation_button: नेविगेट करे खातिर बटन के इस्तेमाल करी
+  privacy_and_purpose: |-
+    गोपनीयता और उद्देश्य
+
+    टिपलाइन %{team} %{channel} में आपके स्वागत बा
+
+    आप ए नंबर के इस्तेमाल कइके हमनी के सत्यापन खातिर कौनो सोशल मीडिया पोस्ट या व्हाट्सएप फॉरवर्ड भेज सकेनी.
+
+    राउर डेटा हमनी के साथ सुरक्षित बा. रउरे निजी जानकारी के सुरक्षा के जिम्मेदारी हमनी के बहुत गंभीरता से लेनी. हमनी के अपने सेवा के सुधार के अलावा रउरे personally identifiable information के ना ते केहू के साथ शेयर कईल जाई और ना ही एके कब्बो बेचल जाई.
+
+    भ्रामक जानकारी के जल्द से जल्द पहचान खातिर रउरे personally identifiable information के अलावा कुछ जानकारी प्रतिष्ठित रिसर्चर या फैक्ट चेकिंग पार्टनर के साथ शेयर कईल जा सकेला.
+
+    कृपया ध्यान देई कि हमनी के जवने वेबसाइट के लिंक करेनी ओकर आपन निजी गोपनीयता नीति हो सकेला.
+
+    अगर आप चाहत बानी कि रउरे submissions के इस्तेमाल हमनी के अपने काम में ना करी ते कृपया करके हमनी के पद्धति में योगदान ना करी.
+  privacy_statement: गोपनीयता कथन
+  privacy_title: गोपनीयता
+  report_updated: ए फैक्ट चेक में नया जानकारी के साथ अपडेट कईल गईल बा.
+  search_result_is_not_relevant_button_label: नाही
+  search_result_is_relevant_button_label: हां
+  search_state_button_label: प्रस्तुत करी
+  subscribe_button_label: सब्सक्राइब करी
+  subscribed: आपके पास हमनी के न्यूज़लेटर के सब्सक्रिप्शन बा.
+  unsubscribe_button_label: अनसब्सक्राइब
+  unsubscribed: आपके पास हमनी के न्यूज़लेटर के सब्सक्रिप्शन नाही बा.
 bn:
   add_more_details_state_button_label: আরও তথ্য যোগ করুন
   ask_if_ready_state_button_label: বাতিল

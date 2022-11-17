@@ -1,4 +1,6 @@
 class CheckCldr
+  LANGUAGE_FORMAT_REGEXP = /^[a-z]{2,3}([_-][a-zA-Z0-9]{2,4})?$/
+
   def self.load
     data = {}
     Dir.foreach(File.join(Rails.root, 'data')) do |file|

@@ -508,7 +508,7 @@ class Bot::Smooch < BotUser
       results = self.get_saved_search_results_for_user(uid)
       self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'relevant_search_result_requests', results, true, self.bundle_search_query(uid))
       self.send_final_message_to_user(uid, self.get_menu_string('search_result_is_relevant', language), workflow, language)
-    elsif value =~ /^[a-z]{2}(_[A-Z]{2})?$/
+    elsif value =~ CheckCldr::LANGUAGE_FORMAT_REGEXP
       Rails.cache.write("smooch:user_language:#{uid}", value)
       Rails.cache.write("smooch:user_language:#{self.config['team_id']}:#{uid}:confirmed", value)
       sm.send('go_to_main')
