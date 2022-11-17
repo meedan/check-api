@@ -80,6 +80,7 @@ module RelationshipBulk
         fields = { updated_at: r.updated_at.utc, parent_id: r.source_id }
         es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
         # Add versions
+        r.relationship_type = Relationship.confirmed_type.to_yaml
         v_object = r.dup
         v_object.id = r.id
         v_object.relationship_type = Relationship.suggested_type.to_yaml
@@ -167,6 +168,10 @@ module RelationshipBulk
           event: 'destroy',
           whodunnit: whodunnit,
           object: v_object.to_json,
+          object_after: {}.to_json,
+          object_changes: {
+            relationship_type: [Relationship.suggested_type.to_yaml, nil],
+          }.to_json,
           meta: version_metadata,
           event_type: 'destroy_relationship',
           associated_id: target_id,
