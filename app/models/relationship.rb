@@ -1,5 +1,6 @@
 class Relationship < ApplicationRecord
   include CheckElasticSearch
+  include RelationshipBulk
 
   attr_accessor :is_being_copied, :add_to_project_id, :archive_target
 
@@ -14,10 +15,10 @@ class Relationship < ApplicationRecord
   before_validation :set_cluster, if: :is_being_confirmed?, on: :update
   validate :relationship_type_is_valid, :items_are_from_the_same_team
   validate :target_not_pulished_report, on: :create
-  validate :similar_item_exists, on: :create, if: proc { |r| r.relationship_type.to_json == Relationship.suggested_type.to_json }
+  validate :similar_item_exists, on: :create, if: proc { |r| r.is_suggested? }
   validates :relationship_type, uniqueness: { scope: [:source_id, :target_id], message: :already_exists }, on: :create
 
-  before_create :destroy_suggest_item, if: proc { |r| r.relationship_type.to_json == Relationship.confirmed_type.to_json }
+  before_create :destroy_suggest_item, if: proc { |r| r.is_confirmed? }
   after_create :move_to_same_project_as_main, prepend: true
   after_create :point_targets_to_new_source, :update_counters, prepend: true
   after_update :reset_counters, prepend: true
@@ -134,8 +135,6 @@ class Relationship < ApplicationRecord
     self.send(method).to_json == Relationship.suggested_type.to_json && self.relationship_type.to_json == Relationship.confirmed_type.to_json
   end
 
-  protected
-
   def update_counters
     return if self.is_default? || self.source.nil? || self.target.nil?
     source = self.source
@@ -149,6 +148,8 @@ class Relationship < ApplicationRecord
     source.targets_count = Relationship.where(source_id: source.id).where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).count
     source.save!
   end
+
+  protected
 
   def update_elasticsearch_parent(action = 'create_or_update')
     return if self.is_default? || self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
