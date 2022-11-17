@@ -20,17 +20,7 @@ module RelationshipBulk
         end
         relationships = Relationship.where(id: ids, source_id: source_id)
         relationships.update_all(update_columns)
-        # Move targets to a specific project.
-        unless updates[:add_to_project_id].blank?
-          target_ids = relationships.map(&:target_id)
-          ProjectMedia.bulk_update(target_ids, { action: 'move_to', params: { move_to: updates[:add_to_project_id] }.to_json }, team)
-        end
-        # Clear cached fields
-        cached_fields = ['linked_items_count', 'suggestions_count', 'report_status', 'demand', 'last_seen']
-        cached_fields.each do |name|
-          Rails.cache.delete("check_cached_field:ProjectMedia:#{pm_source.id}:#{name}")
-          ids.each { |id| Rails.cache.delete("check_cached_field:ProjectMedia:#{id}:#{name}") }
-        end
+        delete_cached_field(pm_source.id, ids)
         # Run callbacks in background
         extra_options = {
           team_id: team&.id,
@@ -49,6 +39,12 @@ module RelationshipBulk
       relationship_target = {}
       relationships.find_each{ |r| relationship_target[r.id] = r.target_id}
       relationships.delete_all
+      target_ids = relationship_target.values
+      # Move targets to a specific project.
+      unless updates[:add_to_project_id].blank?
+        ProjectMedia.bulk_update(target_ids, { action: 'move_to', params: { move_to: updates[:add_to_project_id] }.to_json }, team)
+      end
+      delete_cached_field(pm_source.id, target_ids)
       # Run callbacks in background
       extra_options = {
         team_id: team&.id,
@@ -57,6 +53,15 @@ module RelationshipBulk
       }
       self.delay.run_destroy_callbacks(relationship_target.to_json, extra_options.to_json)
       { source_project_media: pm_source }
+    end
+
+    def delete_cached_field(source_id, target_ids)
+      # Clear cached fields
+      cached_fields = ['linked_items_count', 'suggestions_count', 'report_status', 'related_count', 'demand', 'last_seen']
+      cached_fields.each do |name|
+        Rails.cache.delete("check_cached_field:ProjectMedia:#{source_id}:#{name}")
+        target_ids.each { |id| Rails.cache.delete("check_cached_field:ProjectMedia:#{id}:#{name}") }
+      end
     end
 
     def run_update_callbacks(ids_json, extra_options_json)
@@ -68,14 +73,15 @@ module RelationshipBulk
       index_alias = CheckElasticSearchModel.get_index_alias
       es_body = []
       versions = []
-      callbacks = [:reset_counters, :update_counters, :set_cluster]
+      callbacks = [:reset_counters, :update_counters, :set_cluster, :propagate_inversion]
       Relationship.where(id: ids, source_id: extra_options['source_id']).find_each do |r|
         # ES fields
         doc_id = Base64.encode64("ProjectMedia/#{r.target_id}")
         fields = { updated_at: r.updated_at.utc, parent_id: r.source_id }
         es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
         # Add versions
-        v_object = r
+        v_object = r.dup
+        v_object.id = r.id
         v_object.relationship_type = Relationship.suggested_type.to_yaml
         v_object.confirmed_by = nil
         v_object.confirmed_at = nil
@@ -141,13 +147,12 @@ module RelationshipBulk
       # Update ES
       options = {
         index: CheckElasticSearchModel.get_index_alias,
-        conflicts: 'proceed'
+        conflicts: 'proceed',
+        body: {
+          script: { source: "ctx._source.updated_at = params.updated_at", params: { updated_at: Time.now.utc } },
+          query: { terms: { annotated_id: target_ids } }
+        }
       }
-      body = {
-        script: { source: "ctx._source.updated_at = params.updated_at", params: { updated_at: Time.now.utc } },
-        query: { terms: { annotated_id: target_ids } }
-      }
-      options[:body] = body
       $repository.client.update_by_query options
       versions = []
       relationship_target.each do |r_id, target_id|
