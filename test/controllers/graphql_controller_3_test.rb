@@ -1059,23 +1059,23 @@ class GraphqlController3Test < ActionController::TestCase
     assert_nil t.reload.get_language
     assert_nil t.reload.get_languages
 
-    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", language: "por" }) { team { id } } }'
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", language: "port" }) { team { id } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response 400
 
-    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", languages: "[\"por\"]" }) { team { id } } }'
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", languages: "[\"port\"]" }) { team { id } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response 400
 
     assert_nil t.reload.get_language
     assert_nil t.reload.get_languages
 
-    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", language: "pt_BR", languages: "[\"es\", \"pt\"]" }) { team { id } } }'
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", language: "pt_BR", languages: "[\"es\", \"pt\", \"bho\"]" }) { team { id } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
 
     assert_equal 'pt_BR', t.reload.get_language
-    assert_equal ['es', 'pt'], t.reload.get_languages
+    assert_equal ['es', 'pt', 'bho'], t.reload.get_languages
   end
 
   test "should define team custom statuses" do
