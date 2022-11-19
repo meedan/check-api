@@ -210,7 +210,7 @@ class GraphqlCrudOperations
       GraphqlCrudOperations.define_parent_returns(parents).each{ |field_name, field_class| return_field(field_name, field_class) }
 
       resolve -> (_root, inputs, ctx) {
-        self.apply_bulk_update_or_destroy(inputs, ctx)
+        GraphqlCrudOperations.apply_bulk_update_or_destroy(inputs, ctx, update_or_destroy, klass)
       }
     end
   end
@@ -223,7 +223,7 @@ class GraphqlCrudOperations
     self.define_bulk_update_or_destroy(:destroy, klass, fields, parents)
   end
 
-  def self.apply_bulk_update_or_destroy(inputs, ctx)
+  def self.apply_bulk_update_or_destroy(inputs, ctx, update_or_destroy, klass)
     if inputs[:ids].size > 10000
       raise I18n.t(:bulk_operation_limit_error, limit: 10000)
     end
