@@ -59,14 +59,14 @@ module SmoochResend
             'fact_check_report' => [name, title, query_date],
             'fact_check_report_updated' => [name, title]
           }
-          last_smooch_response = self.send_message_to_user(uid, self.format_template_message("#{template}_with_button", params[template], nil, title, language)) unless image.blank?
+          last_smooch_response = self.send_message_to_user(uid, self.format_template_message("#{template}_with_button", params[template], nil, title, language))
           id = self.get_id_from_send_response(last_smooch_response)
           Rails.cache.write("smooch:original:#{id}", "report:#{pm.id}:#{query_date.to_i}") # This way if "Receive update" or "Receive fact-check" is clicked, the message can be sent
         else
           last_smooch_response = self.send_message_to_user(uid, self.format_template_message("#{template}_image_only", [query_date], image, image, language)) unless image.blank?
           last_smooch_response = self.send_message_to_user(uid, self.format_template_message("#{template}_text_only", [query_date, text], nil, text, language)) unless text.blank?
+          self.save_smooch_response(last_smooch_response, pm, query_date, 'fact_check_report', language)
         end
-        self.save_smooch_response(last_smooch_response, pm, query_date, 'fact_check_report', language)
         return true
       end
       false
@@ -98,13 +98,13 @@ module SmoochResend
       language = original['language']
       uid = message['appUser']['_id']
       date = I18n.l(Time.now.to_date, locale: language.to_s.tr('_', '-'), format: :long)
-      introduction = original['introduction']
+      introduction = original['introduction'].to_s
       params = [date, introduction]
       template_name = 'newsletter'
       if self.template_exists?('newsletter_with_button')
         template_name = 'newsletter_with_button'
         name = self.get_user_name_from_uid(uid)
-        params = [name, query_date, introduction]
+        params = [name, date, introduction]
       end
       response = self.send_message_to_user(uid, self.format_template_message(template_name, params, nil, introduction, language))
       id = self.get_id_from_send_response(response)
@@ -112,8 +112,8 @@ module SmoochResend
       return true
     end
 
-    def send_report_on_template_button_click(message, uid, language, info)
-      self.send_report_to_user(uid, { 'received' => info[2] }, ProjectMedia.find_by_id(info[1]), language, nil)
+    def send_report_on_template_button_click(_message, uid, language, info)
+      self.send_report_to_user(uid, { 'received' => info[2].to_i }, ProjectMedia.find_by_id(info[1].to_i), language, nil)
     end
 
     def send_message_on_template_button_click(_message, uid, language, info)
