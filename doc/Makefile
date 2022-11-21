@@ -7,7 +7,7 @@ INKSCAPE = inkscape -b 'rgb(255,255,255)'
 RUNNER = bundle exec rails
 BEXEC = bundle exec
 
-all: controllers_brief.png controllers_complete.png models_brief.png models_complete.png api.txt licenses.csv api-docs.json api.md graphql.md structure.sql
+all: controllers_brief.png controllers_complete.png models_brief.png models_complete.png api.txt licenses.csv api-docs.json api.md structure.sql
 
 controllers_brief.png: controllers_brief.svg
 	$(INKSCAPE) --export-png='controllers_brief.png' controllers_brief.svg

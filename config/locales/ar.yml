@@ -497,7 +497,6 @@ ar:
     privacy_plain: المزيد عن سياسة الخصوصية
   archive_keep_backup: خزنة الفيديوهات
   archive_pender_archive: لقطة للشاشة
-  archive_archive_is: Archive.is
   archive_archive_org: Archive.org
   workflow_status_is_not_valid: 'حالة غير صالحة: ''%{status}'' (يجب أن تكون واحدة
     من %{valid})'
