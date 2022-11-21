@@ -16,7 +16,7 @@ class CheckCldr
     code = code.to_s.gsub(/[_-].*$/, '')
     locale ||= :en
     locale = locale.to_s.gsub(/[_-].*$/, '')
-    name = CLDR_LANGUAGES.dig(locale, code.to_s) || CLDR_LANGUAGES.dig(locale, :en)
+    name = CLDR_LANGUAGES.dig(locale, code) || CLDR_LANGUAGES.dig('en', code)
     name.blank? ? code : name.mb_chars.capitalize
   end
 
