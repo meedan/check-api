@@ -538,6 +538,7 @@ class RelationshipTest < ActiveSupport::TestCase
   test "should inherit report when pinning new main item" do
     t = create_team
     pm1 = create_project_media team: t
+    create_claim_description project_media: pm1
     pm2 = create_project_media team: t
     r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     publish_report(pm1)
