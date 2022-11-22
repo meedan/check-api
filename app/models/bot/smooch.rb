@@ -354,13 +354,8 @@ class Bot::Smooch < BotUser
 
     state = self.send_message_if_disabled_and_return_state(uid, workflow, state)
 
-    # Shortcut
-    if self.message_is_a_newsletter_request?(message)
-      newsletter_language = self.newsletter_request(message, language)[:language]
-      newsletter_workflow = self.get_workflow(newsletter_language)
-      date = I18n.l(Time.now.to_date, locale: newsletter_language.to_s.tr('_', '-'), format: :long)
-      newsletter = Bot::Smooch.build_newsletter_content(newsletter_workflow['smooch_newsletter'], newsletter_language, self.config['team_id'], false).gsub('{date}', date).gsub('{channel}', self.get_platform_from_message(message))
-      Bot::Smooch.send_final_message_to_user(uid, newsletter, newsletter_workflow, newsletter_language)
+    if self.clicked_on_template_button?(message)
+      self.template_button_click_callback(message, uid, language)
       return true
     end
 
