@@ -534,4 +534,21 @@ class RelationshipTest < ActiveSupport::TestCase
       assert_equal p.id, pm_t3.reload.project_id
     end
   end
+
+  test "should inherit report when pinning new main item" do
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
+    publish_report(pm1)
+    assert_not_nil pm1.get_dynamic_annotation('report_design')
+    assert_nil pm2.get_dynamic_annotation('report_design')
+
+    r = Relationship.find(r.id)
+    r.source_id = pm2.id
+    r.target_id = pm1.id
+    r.save!
+    assert_nil pm1.get_dynamic_annotation('report_design')
+    assert_not_nil pm2.get_dynamic_annotation('report_design')
+  end
 end

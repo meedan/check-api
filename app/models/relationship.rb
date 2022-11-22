@@ -190,7 +190,19 @@ class Relationship < ApplicationRecord
   def propagate_inversion
     if self.source_id_before_last_save == self.target_id && self.target_id_before_last_save == self.source_id
       ids = Relationship.where(source_id: self.target_id).map(&:id).join(',')
+      report = Dynamic.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia', annotated_id: self.source_id_before_last_save).last
+      unless report.nil?
+        report.annotated_id = self.source_id
+        report.save!
+      end
+      claim = ClaimDescription.where(project_media_id: self.source_id_before_last_save).last
+      unless claim.nil?
+        claim.project_media_id = self.source_id
+        claim.save!
+      end
       Relationship.where(source_id: self.target_id).update_all({ source_id: self.source_id })
+      self.source&.clear_cached_fields
+      self.target&.clear_cached_fields
       Relationship.delay_for(1.second).propagate_inversion(ids, self.source_id)
     end
   end
