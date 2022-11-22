@@ -485,7 +485,6 @@ en:
     privacy_plain: Learn more about our Privacy Policy
   archive_keep_backup: Video Vault
   archive_pender_archive: Screenshot
-  archive_archive_is: Archive.is
   archive_archive_org: Archive.org
   workflow_status_is_not_valid: 'Invalid status: ''%{status}'' (should be one of %{valid})'
   workflow_status_permission_error: Sorry, you are not allowed to change this status.
