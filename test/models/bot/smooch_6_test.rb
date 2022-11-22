@@ -592,4 +592,28 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       assert_nil Rails.cache.read("smooch:original:#{@msgid}")
     end
   end
+
+  test "should get user name from id" do
+    create_annotation_type_and_fields('Smooch User', { 'Data' => ['JSON', true], 'ID' => ['String', true] })
+
+    # Self-hosted WhatsApp Business API / Turn.io
+    uid1 = random_string
+    data1 = { id: uid1, raw: { profile: { name: 'Foo Bar' }, wa_id: 123456 }, identifier: uid1 }
+    create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_id: uid1, smooch_user_data: data1.to_json }.to_json
+
+    # Smooch
+    uid2 = random_string
+    data2 = { id: uid2, raw: { '_id': uid2, givenName: 'Foo' }, identifier: uid2 }
+    create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_id: uid2, smooch_user_data: data2.to_json }.to_json
+
+    # Other
+    uid3 = random_string
+    data3 = { id: uid3, identifier: uid3 }
+    create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_id: uid3, smooch_user_data: data3.to_json }.to_json
+
+    assert_equal 'Foo Bar', Bot::Smooch.get_user_name_from_uid(uid1)
+    assert_equal 'Foo', Bot::Smooch.get_user_name_from_uid(uid2)
+    assert_equal '-', Bot::Smooch.get_user_name_from_uid(random_string)
+    assert_equal '-', Bot::Smooch.get_user_name_from_uid(uid3)
+  end
 end

@@ -32,8 +32,14 @@ module SmoochResend
     end
 
     def get_user_name_from_uid(uid)
-      # TODO
-      uid
+      Rails.cache.fetch("smooch:name:#{uid}") do
+        begin
+          user_data = JSON.parse(DynamicAnnotation::Field.where(value: uid, field_name: 'smooch_user_id').first.annotation.load.get_field_value('smooch_user_data'))
+          user_data.dig('raw', 'profile', 'name') || user_data.dig('raw', 'givenName') || '-'
+        rescue
+          '-'
+        end
+      end
     end
 
     def resend_rules_message_after_window(message, original)
