@@ -7,12 +7,21 @@ class ApplicationController < ActionController::Base
   skip_before_action :verify_authenticity_token
 
   before_action :configure_permitted_parameters, if: :devise_controller?
+  before_action :add_info_to_trace
 
   # app/controllers/application_controller.rb
   def append_info_to_payload(payload)
     super
     payload[:request_id] = request.uuid
     payload[:user_id] = current_api_user.id if current_api_user
+  end
+
+  def add_info_to_trace
+    TracingService.add_attributes_to_current_span(
+      'app.user.id' => current_api_user&.id,
+      'app.user.team_id' => current_api_user&.current_team_id,
+      'app.api_key' => ApiKey.current&.id,
+    )
   end
 
   private

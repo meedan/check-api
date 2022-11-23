@@ -176,6 +176,7 @@ class BotUser < User
         request.body = data.to_json
         response = http.request(request)
         Rails.logger.info "[BotUser] Notified bot #{self.id} with payload '#{data.to_json}', the response was (#{response.code}): '#{response.body}'"
+        response
       end
     rescue StandardError => e
       Rails.logger.error("[BotUser] Error calling bot #{self.identifier}: #{e.message}")

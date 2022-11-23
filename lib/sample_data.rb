@@ -707,6 +707,7 @@ module SampleData
     at.json_schema = options[:json_schema] if at.respond_to?('json_schema=') && options.has_key?(:json_schema)
     at.skip_check_ability = true
     at.save!
+    RelayOnRailsSchema.reload_mutations!
     at
   end
 

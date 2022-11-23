@@ -1989,14 +1989,14 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     t.set_language nil
     t.save!
-    ['pT', 'pt-BR', 'portuguese', 'por', 'pt_BRA'].each do |l|
+    ['pT', 'portuguese'].each do |l|
       assert_raises ActiveRecord::RecordInvalid do
         t.language = l
         t.save!
       end
       assert_nil t.reload.get_language
     end
-    ['pt', 'pt_BR'].each do |l|
+    ['pt', 'bho', 'pt_BR', 'pt-BR', 'zh-Hans'].each do |l|
       assert_nothing_raised do
         t.language = l
         t.save!
@@ -2009,14 +2009,14 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     t.set_languages nil
     t.save!
-    ['pT', 'pt-BR', 'portuguese', 'por', 'pt_BRA'].each do |l|
+    ['pT', 'portuguese'].each do |l|
       assert_raises ActiveRecord::RecordInvalid do
         t.languages = ['en', l]
         t.save!
       end
       assert_nil t.reload.get_languages
     end
-    ['pt', 'pt_BR'].each do |l|
+    ['pt', 'bho', 'pt_BR', 'pt-BR', 'zh-Hans'].each do |l|
       assert_nothing_raised do
         t.languages = ['en', l]
         t.save!

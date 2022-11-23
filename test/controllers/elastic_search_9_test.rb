@@ -118,6 +118,7 @@ class ElasticSearch9Test < ActionController::TestCase
     create_flag_annotation_type
     create_extracted_text_annotation_type
     Bot::Alegre.unstub(:request_api)
+    Rails.stubs(:env).returns('development'.inquiry)
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
       WebMock.stub_request(:post, 'http://alegre/text/langid/').to_return(body: { 'result' => { 'language' => 'es' }}.to_json)
@@ -380,4 +381,4 @@ class ElasticSearch9Test < ActionController::TestCase
   end
 
   # Please add new tests to test/controllers/elastic_search_10_test.rb
-end 
+end

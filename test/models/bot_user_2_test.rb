@@ -84,4 +84,21 @@ class BotUser2Test < ActiveSupport::TestCase
     assert j.has_key?('error')
     RelayOnRailsSchema.unstub(:execute)
   end
+
+  test "should notify bot and get response" do
+    url = random_url
+    WebMock.stub_request(:post, url).to_return(body: { success: true, foo: 'bar' }.to_json)
+    team = create_team
+    team_bot = create_team_bot team_author_id: team.id, set_events: [{ event: 'create_project_media', graphql: nil }], set_request_url: url
+
+    data = {
+      event: 'create_project_media',
+      team: team,
+      time: Time.now,
+      data: nil,
+      user_id: team_bot.id,
+    }
+
+    assert_equal 'bar', JSON.parse(team_bot.call(data).body)['foo']
+  end
 end

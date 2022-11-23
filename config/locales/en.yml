@@ -485,7 +485,6 @@ en:
     privacy_plain: Learn more about our Privacy Policy
   archive_keep_backup: Video Vault
   archive_pender_archive: Screenshot
-  archive_archive_is: Archive.is
   archive_archive_org: Archive.org
   workflow_status_is_not_valid: 'Invalid status: ''%{status}'' (should be one of %{valid})'
   workflow_status_permission_error: Sorry, you are not allowed to change this status.
@@ -725,6 +724,7 @@ en:
   flag_likelihood_7: Manual
   relationship_not_same_team: Related items must exist in the same workspace
   target_is_published: Target should not have a published report
+  similar_item_exists: Sorry, this item already added as a similar item.
   bulk_operation_limit_error: Sorry, the maximum number of items to be processed at
     once is %{limit}
   must_provide_fallback_when_deleting_status_in_use: This status is being used, so
