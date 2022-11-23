@@ -354,13 +354,8 @@ class Bot::Smooch < BotUser
 
     state = self.send_message_if_disabled_and_return_state(uid, workflow, state)
 
-    # Shortcut
-    if self.message_is_a_newsletter_request?(message)
-      newsletter_language = self.newsletter_request(message, language)[:language]
-      newsletter_workflow = self.get_workflow(newsletter_language)
-      date = I18n.l(Time.now.to_date, locale: newsletter_language.to_s.tr('_', '-'), format: :long)
-      newsletter = Bot::Smooch.build_newsletter_content(newsletter_workflow['smooch_newsletter'], newsletter_language, self.config['team_id'], false).gsub('{date}', date).gsub('{channel}', self.get_platform_from_message(message))
-      Bot::Smooch.send_final_message_to_user(uid, newsletter, newsletter_workflow, newsletter_language)
+    if self.clicked_on_template_button?(message)
+      self.template_button_click_callback(message, uid, language)
       return true
     end
 
@@ -429,27 +424,35 @@ class Bot::Smooch < BotUser
     if ['main', 'waiting_for_message'].include?(state) && self.is_v2?
       if self.should_ask_for_language_confirmation?(uid)
         options = []
-        self.get_supported_languages.each_with_index do |l, i|
+        i = 0
+        self.get_supported_languages.each do |l|
+          i = self.get_next_menu_item_number(i)
           options << {
-            'smooch_menu_option_keyword' => [l, i + 1].join(','),
+            'smooch_menu_option_keyword' => [l, i].join(','),
             'smooch_menu_option_value' => l
           }
         end
       else
         allowed_types = ['query_state', 'subscription_state', 'custom_resource']
         options = options.reject{ |o| !allowed_types.include?(o['smooch_menu_option_value']) }.concat(workflow.dig('smooch_state_secondary', 'smooch_menu_options').to_a.clone.select{ |o| allowed_types.include?(o['smooch_menu_option_value']) })
-        self.get_supported_languages.reject{ |l| l == workflow['smooch_workflow_language'] }.sort.each do |l|
+        language_options = self.get_supported_languages.reject { |l| l == workflow['smooch_workflow_language'] }.sort
+        if (language_options.size + options.size) >= 10
           options << {
-            'smooch_menu_option_keyword' => l,
-            'smooch_menu_option_value' => l
+            'smooch_menu_option_keyword' => 'choose_language',
+            'smooch_menu_option_value' => 'choose_language'
           }
+        else
+          language_options.each do |l|
+            options << {
+              'smooch_menu_option_keyword' => l,
+              'smooch_menu_option_value' => l
+            }
+          end
         end
         all_options = []
         keyword = 0
-        options.each do |o|
-          next if o.blank?
-          keyword += 1
-          keyword += 1 if keyword == 9 # Reserved for "privacy statement"
+        options.reject{ |o| o.blank? }.each do |o|
+          keyword = self.get_next_menu_item_number(keyword)
           o2 = o.clone
           o2['smooch_menu_option_keyword'] = keyword.to_s
           all_options << o2
@@ -500,7 +503,7 @@ class Bot::Smooch < BotUser
       results = self.get_saved_search_results_for_user(uid)
       self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'relevant_search_result_requests', results, true, self.bundle_search_query(uid))
       self.send_final_message_to_user(uid, self.get_menu_string('search_result_is_relevant', language), workflow, language)
-    elsif value =~ /^[a-z]{2}(_[A-Z]{2})?$/
+    elsif value =~ CheckCldr::LANGUAGE_FORMAT_REGEXP
       Rails.cache.write("smooch:user_language:#{uid}", value)
       Rails.cache.write("smooch:user_language:#{self.config['team_id']}:#{uid}:confirmed", value)
       sm.send('go_to_main')
@@ -508,6 +511,9 @@ class Bot::Smooch < BotUser
       self.bundle_message(message)
       self.send_greeting(uid, workflow)
       self.send_message_for_state(uid, workflow, 'main', value)
+    elsif value == 'choose_language'
+      self.reset_user_language(uid)
+      self.ask_for_language_confirmation(workflow, language, uid, false)
     end
   end
 

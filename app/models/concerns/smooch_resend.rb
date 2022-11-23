@@ -27,6 +27,21 @@ module SmoochResend
       return self.resend_slack_message_after_window(message)
     end
 
+    def template_exists?(name)
+      !self.config["smooch_template_name_for_#{name}"].to_s.strip.blank?
+    end
+
+    def get_user_name_from_uid(uid)
+      Rails.cache.fetch("smooch:name:#{uid}") do
+        begin
+          user_data = JSON.parse(DynamicAnnotation::Field.where(value: uid, field_name: 'smooch_user_id').first.annotation.load.get_field_value('smooch_user_data'))
+          user_data.dig('raw', 'profile', 'name') || user_data.dig('raw', 'givenName') || '-'
+        rescue
+          '-'
+        end
+      end
+    end
+
     def resend_rules_message_after_window(message, original)
       template = original['fallback_template']
       language = self.get_user_language(message)
@@ -40,12 +55,24 @@ module SmoochResend
     def resend_whatsapp_report_after_window(message, original)
       pm = ProjectMedia.where(id: original['project_media_id']).last
       report = self.get_report_data_to_be_resent(message, original)
+      uid = message['appUser']['_id']
       unless report.nil?
         template = original['fallback_template']
-        language, query_date, text, image = report.values_at(:language, :query_date, :text, :image)
-        last_smooch_response = self.send_message_to_user(message['appUser']['_id'], self.format_template_message("#{template}_image_only", [query_date], image, image, language)) unless image.blank?
-        last_smooch_response = self.send_message_to_user(message['appUser']['_id'], self.format_template_message("#{template}_text_only", [query_date, text], nil, text, language)) unless text.blank?
-        self.save_smooch_response(last_smooch_response, pm, query_date, 'fact_check_report', language)
+        language, query_date, text, image, title = report.values_at(:language, :query_date, :text, :image, :title)
+        if self.template_exists?("#{template}_with_button")
+          name = self.get_user_name_from_uid(uid)
+          params = {
+            'fact_check_report' => [name, title, query_date],
+            'fact_check_report_updated' => [name, title]
+          }
+          last_smooch_response = self.send_message_to_user(uid, self.format_template_message("#{template}_with_button", params[template], nil, title, language))
+          id = self.get_id_from_send_response(last_smooch_response)
+          Rails.cache.write("smooch:original:#{id}", "report:#{pm.id}:#{query_date.to_i}") # This way if "Receive update" or "Receive fact-check" is clicked, the message can be sent
+        else
+          last_smooch_response = self.send_message_to_user(uid, self.format_template_message("#{template}_image_only", [query_date], image, image, language)) unless image.blank?
+          last_smooch_response = self.send_message_to_user(uid, self.format_template_message("#{template}_text_only", [query_date, text], nil, text, language)) unless text.blank?
+          self.save_smooch_response(last_smooch_response, pm, query_date, 'fact_check_report', language)
+        end
         return true
       end
       false
@@ -53,25 +80,77 @@ module SmoochResend
 
     def resend_slack_message_after_window(message)
       text = self.get_original_slack_message_text_to_be_resent(message)
+      uid = message['appUser']['_id']
       if text
-        language = self.get_user_language({ 'authorId' => message['appUser']['_id'] })
-        date = Rails.cache.read("smooch:last_message_from_user:#{message['appUser']['_id']}").to_i || Time.now.to_i
+        language = self.get_user_language({ 'authorId' => uid })
+        date = Rails.cache.read("smooch:last_message_from_user:#{uid}").to_i || Time.now.to_i
         query_date = I18n.l(Time.at(date), locale: language, format: :short)
-        self.send_message_to_user(message['appUser']['_id'], self.format_template_message('more_information_needed_text_only', [query_date, text], nil, text, language))
+        params = [query_date, text]
+        template_name = 'more_information_needed_text_only'
+        if self.template_exists?('more_information_with_button')
+          template_name = 'more_information_with_button'
+          name = self.get_user_name_from_uid(uid)
+          params = [name, query_date]
+        end
+        response = self.send_message_to_user(uid, self.format_template_message(template_name, params, nil, text, language))
+        id = self.get_id_from_send_response(response)
+        Rails.cache.write("smooch:original:#{id}", "message:#{text}") # This way if "Receive message" is clicked, the message can be sent
         return true
       end
       false
     end
 
     def resend_newsletter_after_window(message, original)
-      template_name = self.config['smooch_template_name_for_newsletter']
       language = original['language']
+      uid = message['appUser']['_id']
       date = I18n.l(Time.now.to_date, locale: language.to_s.tr('_', '-'), format: :long)
-      introduction = original['introduction']
-      response = self.send_message_to_user(message['appUser']['_id'], self.format_template_message(template_name, [date, introduction], nil, introduction, language))
+      introduction = original['introduction'].to_s
+      params = [date, introduction]
+      template_name = 'newsletter'
+      if self.template_exists?('newsletter_with_button')
+        template_name = 'newsletter_with_button'
+        name = self.get_user_name_from_uid(uid)
+        params = [name, date, introduction]
+      end
+      response = self.send_message_to_user(uid, self.format_template_message(template_name, params, nil, introduction, language))
       id = self.get_id_from_send_response(response)
       Rails.cache.write("smooch:original:#{id}", "newsletter:#{language}") # This way if "Read now" is clicked, the newsletter can be sent
       return true
+    end
+
+    def send_report_on_template_button_click(_message, uid, language, info)
+      self.send_report_to_user(uid, { 'received' => info[2].to_i }, ProjectMedia.find_by_id(info[1].to_i), language, nil)
+    end
+
+    def send_message_on_template_button_click(_message, uid, language, info)
+      self.send_final_message_to_user(uid, info[1], self.get_workflow(language), language)
+    end
+
+    def clicked_on_template_button?(message)
+      ['newsletter', 'report', 'message'].include?(self.get_information_from_clicked_template_button(message).first.to_s)
+    end
+
+    def get_information_from_clicked_template_button(message, delete = false)
+      quoted_id = message.dig('quotedMessage', 'content', '_id')
+      unless quoted_id.blank?
+        info = Rails.cache.read("smooch:original:#{quoted_id}").to_s.split(':')
+        Rails.cache.delete("smooch:original:#{quoted_id}") if delete
+        return info
+      end
+      []
+    end
+
+    def template_button_click_callback(message, uid, language)
+      info = self.get_information_from_clicked_template_button(message, true)
+      type = info.first
+      case type
+      when 'newsletter'
+        self.send_newsletter_on_template_button_click(message, uid, language, info)
+      when 'report'
+        self.send_report_on_template_button_click(message, uid, language, info)
+      when 'message'
+        self.send_message_on_template_button_click(message, uid, language, info)
+      end
     end
   end
 
@@ -197,6 +276,7 @@ module SmoochResend
         data[:introduction] = report.report_design_field_value('use_introduction', language) ? report.report_design_introduction({ 'received' => original['query_date'].to_i }, language).to_s : nil
         data[:text] = report.report_design_field_value('use_text_message', language) ? report.report_design_text(language).to_s : nil
         data[:image] = report.report_design_field_value('use_visual_card', language) ? report.report_design_image_url(language).to_s : nil
+        data[:title] = report.report_design_field_value('title', language).to_s
       end
       data
     end

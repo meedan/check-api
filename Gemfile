@@ -8,10 +8,10 @@ group :development, :test do
 end
 
 group :test do
-  gem 'parallel_tests'
+  gem 'parallel_tests', '3.13.0'
   gem 'minitest', '5.14.4'
   gem 'minitest-hooks'
-  gem 'simplecov', '0.17.1', require: false
+  gem 'simplecov', '0.17.0', require: false
   gem 'simplecov-console', require: false
   gem 'codeclimate-test-reporter', '1.0.7', require: nil
   gem 'minitest-retry'
@@ -52,7 +52,7 @@ gem 'carrierwave', '~> 1.3'
 gem 'phony_rails'
 gem 'airbrake', '~> 13.0.0'
 gem 'responders'
-gem 'graphql', '1.8.0.pre10'
+gem 'graphql', '~>1.9.0'
 gem 'devise', '4.8'
 gem 'devise-i18n', '1.10.0'
 gem 'devise-two-factor', '4.0.2'

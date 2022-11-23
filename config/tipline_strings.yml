@@ -56,6 +56,76 @@ ar:
   subscribed: أنت مشترك حالياً في نشرتنا الإخبارية.
   unsubscribe_button_label: إلغاء الاشتراك
   unsubscribed: أنت غير مشترك حالياً في نشرتنا الإخبارية.
+as:
+  add_more_details_state_button_label: আৰু যোগ কৰক
+  ask_if_ready_state_button_label: বাতিল কৰক
+  confirm_preferred_language: অনুগ্ৰহ কৰি আপোনাৰ পছন্দৰ ভাষা নিশ্চিত কৰক
+  invalid_format: ক্ষমা কৰিব, আপুনি জমা দিয়া ফাইলটো বিশ্লেষণ সাধ্য নহয়
+  keep_subscription_button_label: চাবস্ক্ৰিপচন ৰাখক
+  languages: ভাষাসমূহ
+  languages_and_privacy_title: ভাষা আৰু গোপনীয়তা
+  main_menu: মূল মেনু
+  main_state_button_label: বাতিল কৰক
+  navigation_button: নেভিগেট কৰিবলৈ বুটামসমূহ ব্যৱহাৰ কৰক
+  privacy_and_purpose: |-
+    গোপনীয়তা আৰু উদ্দেশ্য
+
+    %{team} %{channel} টিপলাইনলৈ আপোনাক স্বাগতম।
+
+    আপুনি এই নম্বৰটো ব্যৱহাৰ কৰি আপোনাৰ প্ৰশ্ন সত্যাপনৰ বাবে জমা দিব পাৰে।
+
+    আপোনাৰ তথ্য সুৰক্ষিত। আপোনাৰ তথ্য সুৰক্ষিত ৰখাৰ আৰু %{channel} ব্যক্তিগত আৰু সুৰক্ষিত ৰখাৰ দায়িত্ব আমি গুৰুত্বসহকাৰে লওঁ; এই সেৱা প্ৰদান আৰু উন্নত কৰাৰ বাহিৰে আপোনাৰ ব্যক্তিগতভাৱে চিনাক্তকৰণযোগ্য তথ্য (PII) কেতিয়াও ভাগ-বতৰা, বিক্ৰী বা অন্যথা ব্যৱহাৰ কৰা নহব ।
+
+    ভৱিষ্যতে যিমান পাৰি সোনকালে ভুল তথ্য ধৰা পেলাবলৈ আমি এই টিপলাইনৰ পৰা নন-পিআইআই (non-PII) বিষয়বস্তু গৱেষক আৰু তথ্য পৰীক্ষা কৰা আন সংস্থাৰ সৈতে শ্বেয়াৰ কৰিব পাৰো।
+
+    অনুগ্ৰহ কৰি মন কৰক যে আমি লিংক কৰা ৱেবছাইটসমূহৰ নিজস্ব গোপনীয়তা নীতি থাকিব।
+
+    যদি আপুনি আপোনাৰ জমা দিয়া তথ্য সমূহ এই কামত ব্যৱহাৰ কৰা নিবিচাৰে, অনুগ্ৰহ কৰি আমাৰ ব্যৱস্থাপ্ৰণালীত অৰিহণা নিদিব ।
+  privacy_statement: গোপনীয়তা সংক্ৰান্ত বিবৃতি
+  privacy_title: গোপনীয়তা
+  report_updated: 'নিম্নলিখিত তথ্য-পৰীক্ষাক নতুন তথ্যৰ সৈতে আপডেট কৰা হৈছে:'
+  search_result_is_not_relevant_button_label: নহয়
+  search_result_is_relevant_button_label: হয়
+  search_state_button_label: দাখিল কৰক
+  subscribe_button_label: চাবস্ক্ৰাইব কৰক
+  subscribed: বৰ্তমান আপুনি আমাৰ নিউজ লেটাৰ চাবস্ক্ৰাইব কৰি আছে
+  unsubscribe_button_label: আনচাবস্ক্ৰাইব কৰক
+  unsubscribed: বৰ্তমান আপুনি আমাৰ নিউজ লেটাৰ চাবস্ক্ৰাইব কৰা নাই।
+bho:
+  add_more_details_state_button_label: और जोड़ी
+  ask_if_ready_state_button_label: निरस्त करी
+  confirm_preferred_language: आपन पसंदीदा भाषा चुनीं
+  invalid_format: क्षमा करी, ई फाइल उपयुक्त फॉर्मेट में नाही बा
+  keep_subscription_button_label: सब्सक्रिप्शन जारी रखीं
+  languages: भाषा
+  languages_and_privacy_title: भाषा और गोपनीयता
+  main_menu: मेन मेन्यू
+  main_state_button_label: निरस्त करी
+  navigation_button: नेविगेट करे खातिर बटन के इस्तेमाल करी
+  privacy_and_purpose: |-
+    गोपनीयता और उद्देश्य
+
+    टिपलाइन %{team} %{channel} में आपके स्वागत बा
+
+    आप ए नंबर के इस्तेमाल कइके हमनी के सत्यापन खातिर कौनो सोशल मीडिया पोस्ट या व्हाट्सएप फॉरवर्ड भेज सकेनी.
+
+    राउर डेटा हमनी के साथ सुरक्षित बा. रउरे निजी जानकारी के सुरक्षा के जिम्मेदारी हमनी के बहुत गंभीरता से लेनी. हमनी के अपने सेवा के सुधार के अलावा रउरे personally identifiable information के ना ते केहू के साथ शेयर कईल जाई और ना ही एके कब्बो बेचल जाई.
+
+    भ्रामक जानकारी के जल्द से जल्द पहचान खातिर रउरे personally identifiable information के अलावा कुछ जानकारी प्रतिष्ठित रिसर्चर या फैक्ट चेकिंग पार्टनर के साथ शेयर कईल जा सकेला.
+
+    कृपया ध्यान देई कि हमनी के जवने वेबसाइट के लिंक करेनी ओकर आपन निजी गोपनीयता नीति हो सकेला.
+
+    अगर आप चाहत बानी कि रउरे submissions के इस्तेमाल हमनी के अपने काम में ना करी ते कृपया करके हमनी के पद्धति में योगदान ना करी.
+  privacy_statement: गोपनीयता कथन
+  privacy_title: गोपनीयता
+  report_updated: ए फैक्ट चेक में नया जानकारी के साथ अपडेट कईल गईल बा.
+  search_result_is_not_relevant_button_label: नाही
+  search_result_is_relevant_button_label: हां
+  search_state_button_label: प्रस्तुत करी
+  subscribe_button_label: सब्सक्राइब करी
+  subscribed: आपके पास हमनी के न्यूज़लेटर के सब्सक्रिप्शन बा.
+  unsubscribe_button_label: अनसब्सक्राइब
+  unsubscribed: आपके पास हमनी के न्यूज़लेटर के सब्सक्रिप्शन नाही बा.
 bn:
   add_more_details_state_button_label: আরও তথ্য যোগ করুন
   ask_if_ready_state_button_label: বাতিল
@@ -91,6 +161,41 @@ bn:
   subscribed: আপনি বর্তমানে আমাদের নিউজলেটারে সাবস্ক্রাইব করেছেন।
   unsubscribe_button_label: আনসাবস্ক্রাইব করুন
   unsubscribed: আপনি বর্তমানে আমাদের নিউজলেটার সদস্যতা নেই.
+bn_BD:
+  add_more_details_state_button_label: আরো যোগ করুণ
+  ask_if_ready_state_button_label: বাতিল
+  confirm_preferred_language: আপনার পছন্দের ভাষা নিশ্চিত করুন
+  invalid_format: দুঃখিত, আপনার জমা দেওয়া ফাইলটি সাপোর্টেড ফর্মেটে নয়।
+  keep_subscription_button_label: সাবস্ক্রিপশন রাখুন
+  languages: ভাষাগুলি
+  languages_and_privacy_title: ভাষা এবং গোপনীয়তা
+  main_menu: মেইন মেন্যু
+  main_state_button_label: বাতিল
+  navigation_button: নেভিগেট করতে এই বাটন ব্যবহার করুণ
+  privacy_and_purpose: |-
+    গোপনীয়তা এবং উদ্দেশ্য
+
+    %{team} %{channel} টিপলাইনে আপনাকে স্বাগতম।
+
+    যাচাইয়ের জন্য আপনার প্রশ্ন জমা দিতে এই নম্বরটি ব্যবহার করতে পারেন।
+
+    আপনার ডাটা নিরাপদ। আমরা আপনার ব্যক্তিগত তথ্য রক্ষা করার এবং %{channel}কে ব্যক্তিগত ও সুরক্ষিত রাখার জন্য আমাদের দায়িত্বকে গুরুত্ব সহকারে গ্রহণ করি; এই সেবা প্রদান এবং উন্নত করা ছাড়া আপনার ব্যক্তি শনাক্তকরণযোগ্য তথ্য (PII) শেয়ার, বিক্রি বা অন্যথায় ব্যবহার করা হবে না।
+
+    ভবিষ্যতে যত দ্রুত ভাইরাল ভুল তথ্য শনাক্ত করার জন্য, আমরা এই টিপলাইন থেকে নন-পিআইআই বিষয়বস্তুগুলো গবেষক এবং ফ্যাক্ট চেকিং পার্টনারদের সাথে শেয়ার করতে পারি।
+
+    দয়া করে মনে রাখবেন যে ওয়েবসাইটগুলিতে আমরা লিঙ্ক করি তাদের নিজস্ব গোপনীয়তা নীতি থাকবে৷
+
+    আপনি যদি আপনার জমাকৃত তথ্য এই কাজে ব্যবহার করতে না চান তবে অনুগ্রহ করে এটি ব্যবহার করবেন না
+  privacy_statement: গোপনীয়তার বিবৃতি
+  privacy_title: গোপনীয়তা
+  report_updated: 'নিম্নলিখিত ফ্যাক্ট-চেকটি নতুন তথ্য সহ *আপডেট* করা হয়েছে:'
+  search_result_is_not_relevant_button_label: না
+  search_result_is_relevant_button_label: হ্যাঁ
+  search_state_button_label: সাবমিট
+  subscribe_button_label: সাবস্ক্রাইব
+  subscribed: আপনি বর্তমানে আমাদের নিউজলেটারে সাবস্ক্রাইব করেছেন।
+  unsubscribe_button_label: আনসাবস্ক্রাইব
+  unsubscribed: আপনি বর্তমানে আমাদের নিউজলেটারে সাবস্ক্রাইব করেন নি।
 en:
   add_more_details_state_button_label: Add more
   ask_if_ready_state_button_label: Cancel
@@ -337,6 +442,73 @@ kn:
   subscribed: ನೀವು ಈಗ ನಮ್ಮ ನ್ಯೂಸ್ ಲೆಟರ್‌ಗೆ ಸಬ್‌ಸ್ಕ್ರೈಬ್ ಆಗಿರುತ್ತೀರಿ
   unsubscribe_button_label: ಅನ್ಸಬ್‌ಸ್ಕ್ರೈಬ್
   unsubscribed: ನೀವು ಪ್ರಸ್ತುತ ನಮ್ಮ ಸುದ್ದಿಪತ್ರಕ್ಕೆ ಚಂದಾದಾರರಾಗಿಲ್ಲ.
+ks:
+  add_more_details_state_button_label: بییہ جوڑیو
+  ask_if_ready_state_button_label: منسوخ کریو
+  confirm_preferred_language: مہربانی کرتھِ کریو زبانِ ہُند انتخاب
+  invalid_format: معافی دیو، تُہنز سوزنہ آمژ فائل چھنہ فارمیٹ مطابق
+  keep_subscription_button_label: سبسکرپشن تھائیو
+  languages: 'زبان '
+  languages_and_privacy_title: زبانہ تہ رازداری
+  main_menu: مین مینیو
+  main_state_button_label: منسوخ کریو
+  navigation_button: برونہہ پکنہ خاطرء کریو بٹن استعمال
+  privacy_and_purpose: |-
+    رازداری تہ مقصد
+
+    %{team} %{channel} ٹَپلائن پیٹھ چُھ تُہند خآرمقدم
+
+    پننہِ کوائری ہندِ تصدیق خاطرء ہیکیو توہیِ یمہِ تمبرکُ استعمال کرتھِ
+
+    تُہند ڈیٹا چُھ محفوظ۔ اسہِ چھِ تُہنز ذاتی معلومات تہ %{channel} ذاتی تہ محفوظ تھاونہ خاطرء ذمہ داری نِوان۔ اسہِ نہ کرو تُہنزِ ذاتی معلوماتن سودا تہ کرو کُنی تہ طریقہ تُہنز ذاتی معلومات (PII) استعمال۔ اسہِ دمو معلومات تہ بناوؤ مزید موثر۔
+
+    مستقبلس منز وائرل غلط معلوماتن ہُند جلد از جلد پتہ لگاونہ خاطرء کرو اسہِ پڑتال کرتھ ریسرچ تہ فیکٹ چیک پارٹنر سان غار-PII کنٹینٹ یمہ ٹپلائن پیٹھ شیئر۔
+
+    مہربانی کرتھِ تھایئو یاد، وئب سائٹن یمن ساتِ اسہِ لنک چھِ ہیکن پننِ رازداری ہنز پالیسی استھِ۔
+
+    اگر توہیِ ہژھان چِھو نہ سانِ کامِ منز پننِ گزارشات شاملِ کرنِ، مہربانی کرتھ مہ کریو سانسِ سسٹمس پننِ کنٹری بیوشن۔
+  privacy_statement: رازداری بیان
+  privacy_title: رازداری
+  report_updated: درج زیلکُ فیکٹ چیک چُھ آمتُ تازء معلومات ساتِ "اپڈیٹ" کرنہ۔
+  search_result_is_not_relevant_button_label: نا
+  search_result_is_relevant_button_label: آؤ
+  search_state_button_label: سوزیو
+  subscribe_button_label: سبسکرائب
+  subscribed: توہی چھو سون نیوز لیٹر سبسکرائب
+  unsubscribe_button_label: انسبسکرایب
+  unsubscribed: توہی چھو نہ سآنس نیوز لیٹرس سبسکرایب کینہہ۔
+ml:
+  add_more_details_state_button_label: കൂടുതൽ ചേർക്കുക
+  ask_if_ready_state_button_label: റദ്ദാക്കുക
+  confirm_preferred_language: നിങ്ങൾ തിരഞ്ഞെടുത്ത ഭാഷ സ്ഥിരീകരിക്കുക
+  invalid_format: ക്ഷമിക്കണം, നിങ്ങൾ സമർപ്പിച്ച ഫയൽ പിന്തുണയ്ക്കുന്ന ഫോർമാറ്റിൽ അല്ല.
+  keep_subscription_button_label: സബ്സ്ക്രിപ്ഷൻ തുടരാം
+  languages: ഭാഷകൾ
+  languages_and_privacy_title: ഭാഷകളും സ്വകാര്യതയും
+  main_menu: പ്രധാന മെനു
+  main_state_button_label: റദ്ദാക്കുക
+  navigation_button: നാവിഗേറ്റ് ചെയ്യാൻ ബട്ടണുകൾ ഉപയോഗിക്കുക
+  privacy_and_purpose: "സ്വകാര്യതയും ഉദ്ദേശ്യവും \n\n%{team} %{channel} ടിപ്‌ലൈനിലേക്ക്
+    സ്വാഗതം\n\nസ്ഥിരീകരണത്തിനും അന്വേഷണത്തിനും ഈ നമ്പർ ഉപയോഗിക്കാം\n\nനിങ്ങളുടെ ഡാറ്റ
+    സുരക്ഷിതമാണ്. സ്വകാര്യ വിവരങ്ങൾ സംരക്ഷിക്കുന്നതിനും %{channel} അവ സുരക്ഷിതമായും
+    സൂക്ഷിക്കുന്നതിനുമുള്ള ഉത്തരവാദിത്തം ഞങ്ങൾ ഗൗരവമായി എടുക്കുന്നു; ഈ സേവനം നൽകുന്നതിനും
+    മെച്ചപ്പെടുത്തുന്നതിനുമല്ലാതെ ഒരിക്കലും നിങ്ങളെ വ്യക്തിപരമായി തിരിച്ചറിയാവുന്ന
+    വിവരങ്ങൾ (PII) പങ്കിടുകയോ വിൽക്കുകയോ ഉപയോഗിക്കുകയോ ചെയ്യില്ല.\n\nഭാവിയിൽ വൈറലായ
+    വ്യാജ വിവരങ്ങൾ വേഗം കണ്ടെത്തുന്നതിന്, ഈ ടിപ്‌ലൈനിൽ നിന്നുള്ള നോൺ-പിഐഐ ഉള്ളടക്കം
+    ഞങ്ങൾ വിശ്വാസ്യതയുള്ള ഗവേഷകരുമായും വസ്തുതാ പരിശോധന പങ്കാളികളുമായും പങ്കിട്ടേക്കാം.\n\nഞങ്ങൾ
+    ലിങ്ക് ചെയ്യുന്ന വെബ്‌സൈറ്റുകൾക്ക് സ്വന്തം സ്വകാര്യതാ നയം ഉണ്ടാവാം എന്നറിയുക.\n\nനിങ്ങൾ
+    സമർപ്പിക്കുന്നവ അതിന് ഉപയോഗിക്കാൻ താൽപ്പര്യമില്ലെങ്കിൽ, ദയവായി ഞങ്ങളുടെ സിസ്റ്റത്തിലേക്ക്
+    അവ അയയ്ക്കരുത്."
+  privacy_statement: സ്വകാര്യതാ പ്രസ്താവന
+  privacy_title: സ്വകാര്യത
+  report_updated: 'ഇനിപ്പറയുന്ന വസ്തുതാ പരിശോധന പുതിയ വിവരങ്ങൾ *അപ്‌ഡേറ്റ് ചെയ്‌തു*:'
+  search_result_is_not_relevant_button_label: അല്ല
+  search_result_is_relevant_button_label: അതെ
+  search_state_button_label: സമർപ്പിക്കുക
+  subscribe_button_label: സബ്സ്ക്രൈബ് ചെയ്യുക
+  subscribed: നിങ്ങൾ ഞങ്ങളുടെ ന്യൂസ് ലെറ്റർ സബ്സ്ക്രൈബ് ചെയ്തിട്ടുണ്ട്
+  unsubscribe_button_label: സബ്സ്ക്രിപ്ഷൻ വേണ്ട
+  unsubscribed: നിങ്ങൾ ഞങ്ങളുടെ ന്യൂസ് ലെറ്റർ അൺസബ്സ്ക്രൈബ് ചെയ്തു
 mr:
   add_more_details_state_button_label: अधिक माहिती जोडा
   ask_if_ready_state_button_label: रद्द करा
@@ -372,6 +544,41 @@ mr:
   subscribed: आपण सध्या आमचे वृत्तपत्र सबस्क्राइब केले आहे.
   unsubscribe_button_label: अनसबस्क्राइब करा
   unsubscribed: तुम्ही सध्या आमच्या वृत्तपत्राचे सदस्यत्व घेतलेले नाही.
+ne:
+  add_more_details_state_button_label: थप गर्नुहोस्
+  ask_if_ready_state_button_label: रद्द गर्नुहोस्
+  confirm_preferred_language: कृपया आफ्नो मनपर्ने भाषा पुष्टि गर्नुहोस्
+  invalid_format: माफ गर्नुहोस्, तपाईंले पेश गर्नुभएको फाइल ढाँचा समर्थित छैन।
+  keep_subscription_button_label: सदस्यता राख्नुहोस्
+  languages: भाषाहरु
+  languages_and_privacy_title: भाषा र गोपनीयता
+  main_menu: मुख्य सूची
+  main_state_button_label: रद्द गर्नुहोस्
+  navigation_button: नेभिगेट गर्न बटनहरू प्रयोग गर्नुहोस्
+  privacy_and_purpose: |-
+    गोपनीयता र उद्देश्य
+
+    %{team} %{channel} टिपलाइनमा स्वागत छ।
+
+    प्रमाणिकरणको लागि तपाइँको प्रश्न पेश गर्न तपाइँ यो नम्बर प्रयोग गर्न सक्नुहुन्छ।
+
+    तपाईको डाटा सुरक्षित छ। हामी तपाईंको व्यक्तिगत जानकारी सुरक्षित गर्न र %{channel} गोप्य र सुरक्षित राख्ने हाम्रो जिम्मेवारीलाई गम्भीरताका साथ लिन्छौं; यो सेवा प्रदान गर्न र सुधार गर्न बाहेक तपाईंको व्यक्तिगत रूपमा पहिचान योग्य जानकारी (पीआइएलएल) साझेदारी, बिक्री वा अन्यथा प्रयोग गर्दैन।
+
+    भाइरल गलत जानकारीलाई भविष्यमा सकेसम्म चाँडो पत्ता लगाउन, हामी यस टिपलाइनबाट गैर-पीआइएलएल सामग्रीहरू जाँच गरिएका अनुसन्धानकर्ताहरू र तथ्य जाँच गर्ने साझेदारहरूसँग साझेदारी गर्न सक्छौं।
+
+    कृपया ध्यान दिनुहोस् कि हामीले लिङ्क गर्ने वेबसाइटहरूको आफ्नै गोपनीयता नीति हुनेछ।
+
+    यदि तपाइँ तपाइँको सबमिशनहरू यस काममा प्रयोग गर्न चाहनुहुन्न भने कृपया हाम्रो प्रणालीमा योगदान नगर्नुहोस्।
+  privacy_statement: गोपनीयता कथन
+  privacy_title: गोपनीयता
+  report_updated: 'निम्न तथ्य-जाँचलाई नयाँ जानकारीको साथ *अद्यावधिक* गरिएको छ:'
+  search_result_is_not_relevant_button_label: छैन
+  search_result_is_relevant_button_label: हो
+  search_state_button_label: पेश गर्नुहोस्
+  subscribe_button_label: सदस्यता लिनुहोस्
+  subscribed: तपाईंले हाल हाम्रो न्यूजलेटरको सदस्यता लिनुभएको छ।
+  unsubscribe_button_label: ''
+  unsubscribed: तपाईंले हाल हाम्रो न्यूजलेटरको सदस्यता लिनुभएको छैन।
 pa:
   add_more_details_state_button_label: ਵਧੇਰੀ ਜਾਣਕਾਰੀ ਜੋੜੋ
   ask_if_ready_state_button_label: ਰੱਦ ਕਰੋ
@@ -442,6 +649,41 @@ pt:
   subscribed: Atualmente, você está inscrito(a) em nosso boletim informativo.
   unsubscribe_button_label: Desinscrever-se
   unsubscribed: Atualmente, você não está inscrito(a) em nosso boletim informativo.
+si:
+  add_more_details_state_button_label: තව එකතු කරන්න
+  ask_if_ready_state_button_label: අවලංගු කරන්න
+  confirm_preferred_language: කරුණාකර ඔබ කැමති භාෂාව තහවුරු කරන්න
+  invalid_format: සමාවන්න, ඔබ ඉදිරිපත් කළ ෆයිල් එකේ වර්ගය මේ සඳහා සහය දක්වන්නේ නැත.
+  keep_subscription_button_label: ''
+  languages: භාෂා
+  languages_and_privacy_title: භාෂා සහ පෞද්ගලිකත්වය
+  main_menu: ප්‍රධාන මෙනුව
+  main_state_button_label: අවලංගු කරන්න
+  navigation_button: බොත්තම් භාවිතා කරමින් ඉහළ පහළ යන්න
+  privacy_and_purpose: |-
+    පෞද්ගලිකත්වය සහ අරමුණ
+
+    %{team} %{channel} ටිප්ලයින් වෙත සාදරයෙන් පිළිගනිමු.
+
+    සත්‍යාපනය කිරීමට අවශ්‍ය ඔබගේ ප්‍රශ්න ඉදිරිපත් කිරීමට මෙම අංකය භාවිත කළ හැක.
+
+    ඔබගේ දත්ත ආරක්ෂිතයි. ඔබගේ පුද්ගලික තොරතුරු ආරක්ෂා කිරීම සහ %{channel} පුද්ගලිකව සහ සුරක්ෂිතව තබාගැනීමේ වගකීම අපි ප්‍රමුඛ කොට සලකමු; මෙම සේවාව සැපයීමට සහ වැඩිදියුණු කිරීමට හැර කිසි විටෙක ඔබේ පුද්ගලිකව හඳුනාගත හැකි තොරතුරු (PII) බෙදාගැනීම, විකිණීම හෝ වෙනත් ආකාරයකින් භාවිතා නොකරනු ඇත.
+
+    ඉදිරියේ දී ද වේගයෙන් පැතිරෙන වැරදි තොරතුරු හැකි ඉක්මනින් අනාවරණය කර ගැනීම සඳහා, අපි මෙම ටයිප්ලයින් වෙතින් PII නොවන අන්තර්ගතයන් පරීක්ෂා කළ පර්යේෂකයන් සහ කරුණු පරීක්ෂා කිරීමේ හවුල්කරුවන් සමඟ බෙදා ගත හැකිය.
+
+    අප සම්බන්ධ කරන වෙබ් අඩවි වලට ඔවුන්ගේම රහස්‍යතා ප්‍රතිපත්තියක් ඇති බව කරුණාවෙන් සලකන්න.
+
+    මෙම කාර්යයේදී ඔබගේ ඉදිරිපත් කිරීම් භාවිතා කිරීමට ඔබට අවශ්‍ය නැතිනම්, කරුණාකර අපගේ පද්ධතියට දායක නොවන්න.
+  privacy_statement: රහස්‍යතා ප්‍රකාශය
+  privacy_title: පෞද්ගලිකත්වය
+  report_updated: 'පහත කරුණු පරීක්ෂාව නව තොරතුරු සමඟ *යාවත්කාලීන* කර ඇත:'
+  search_result_is_not_relevant_button_label: නැත
+  search_result_is_relevant_button_label: ඔව්
+  search_state_button_label: ඉදිරිපත් කරන්න
+  subscribe_button_label: ''
+  subscribed: අපගේ පුවත් ලිපි ලබාගැනීමට ඔබ කැමැත්ත පළකර ඇත
+  unsubscribe_button_label: දායක නොවන්න
+  unsubscribed: අපගේ පුවත් ලිපි ලබාගැනීමට ඔබ මෙතෙක් (සබ්ස්ක්‍රයිබ්) කැමැත්ත පළකර නොමැත.
 es:
   add_more_details_state_button_label: Añadir más
   ask_if_ready_state_button_label: Cancelar

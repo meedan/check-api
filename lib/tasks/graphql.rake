@@ -1,11 +1,17 @@
 namespace :lapis do
   namespace :graphql do
     task schema: :environment do
-      path = File.join(Rails.root, 'public', 'relay.json')
-      File.open(path, 'w+') do |f|
-        f.write(JSON.generate(RelayOnRailsSchema.execute(GraphQL::Introspection::INTROSPECTION_QUERY)))
-      end
-      puts "Check your GraphQL/Relay schema at #{path}"
+      require "graphql/rake_task"
+
+      GraphQL::RakeTask.new(
+        load_schema: ->(_task) {
+          require File.expand_path("../../config/environment", __dir__)
+          RelayOnRailsSchema
+        },
+        directory: "./public",
+        json_outfile: "relay.json"
+      )
+      Rake::Task["graphql:schema:json"].invoke
     end
   end
 end

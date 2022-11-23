@@ -11,7 +11,9 @@ unless ARGV.include?('-n')
     add_filter do |file|
       (!file.filename.match(/\/app\/controllers\/[^\/]+\.rb$/).nil? && file.filename.match(/application_controller\.rb$/).nil?) ||
       !file.filename.match(/\/app\/controllers\/concerns\/[^\/]+_doc\.rb$/).nil? ||
-      !file.filename.match(/\/lib\/sample_data\.rb$/).nil?
+      !file.filename.match(/\/lib\/sample_data\.rb$/).nil? ||
+      !file.filename.match(/\/app\/graph\/types\/mutation_type\.rb$/).nil? ||
+      !file.filename.match(/\/app\/graphql\/types\/mutation_type\.rb$/).nil?
     end
     coverage_dir 'coverage'
   end
@@ -108,7 +110,6 @@ class ActiveSupport::TestCase
     User.current = nil
     MediaSearch.delete_index
     MediaSearch.create_index
-    Rails.stubs(:env).returns('development')
     RequestStore.store[:disable_es_callbacks] = false
     create_verification_status_stuff
     sleep 2

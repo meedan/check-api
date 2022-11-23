@@ -11,6 +11,7 @@ module SmoochMenus
     def send_message_to_user_with_main_menu_appended(uid, text, workflow, language)
       main = []
       counter = 1
+      number_of_options = 0
 
       # Main section and secondary menu
       allowed_types = ['query_state', 'subscription_state', 'custom_resource']
@@ -28,6 +29,7 @@ module SmoochMenus
           }
           row[:description] = option['smooch_menu_option_description'].to_s.truncate(72) unless option['smooch_menu_option_description'].blank?
           rows << row
+          number_of_options += 1
           counter = self.get_next_menu_item_number(counter)
         end
         section_title = workflow[state].to_h['smooch_menu_title'] || (i + 1).to_s
@@ -44,18 +46,20 @@ module SmoochMenus
       if languages.size > 1
         title = self.get_menu_string('languages_and_privacy_title', language, 24)
         languages.reject{ |l| l == language }.sort.each do |l|
-          code = l.gsub(/_.*$/, '')
           rows << {
             id: { state: 'main', keyword: counter.to_s }.to_json,
-            title: ::CheckCldr.language_code_to_name(code, code).truncate(24)
+            title: ::CheckCldr.language_code_to_name(l, l).truncate(24)
           }
+          number_of_options += 1
           counter = self.get_next_menu_item_number(counter)
         end
+        rows = self.adjust_language_options(rows, language, number_of_options)
       end
       rows << {
         id: { state: 'main', keyword: '9' }.to_json,
         title: self.get_menu_string('privacy_statement', language, 24)
       }
+      number_of_options += 1
       main << {
         title: title,
         rows: rows
@@ -110,6 +114,17 @@ module SmoochMenus
       self.send_message_to_user(uid, fallback.join("\n"), extra)
     end
 
+    def adjust_language_options(rows, language, number_of_options)
+      # WhatsApp just supports up to 10 options, so if we already have 10, we need to replace the
+      # individual language options by a single "Languages" option (because we still have the "Privacy and Policy" option)
+      new_rows = rows.dup
+      new_rows = [{
+        id: { state: 'main', keyword: JSON.parse(rows.first[:id])['keyword'] }.to_json,
+        title: '🌐 ' + self.get_menu_string('languages', language, 24)
+      }] if number_of_options >= 10
+      new_rows
+    end
+
     def get_next_menu_item_number(current)
       counter = current
       counter += 1
@@ -136,7 +151,8 @@ module SmoochMenus
         search_submit: 'Thank you for your feedback. Journalists on our team have been notified and you will receive an update in this thread if a new fact-check is published.',
         search_result_is_relevant: 'Thank you! Spread the word about this tipline to help us fight misinformation! *insert_entry_point_link*',
         newsletter_optin_optout: '{subscription_status}',
-        option_not_available: 'Option not available.'
+        option_not_available: 'Option not available.',
+        languages: 'Languages'
       }[key.to_sym] || key
       label.truncate(truncate_at)
     end
@@ -240,22 +256,29 @@ module SmoochMenus
       "#{value}. #{option[label_key]}#{description}"
     end
 
-    def ask_for_language_confirmation(_workflow, language, uid)
+    def ask_for_language_confirmation(_workflow, language, uid, with_text = true)
       self.reset_user_language(uid)
       text = []
       options = []
-      self.get_supported_languages.sort.each_with_index do |l, i|
+      i = 0
+      self.get_supported_languages.sort.each do |l|
         text << self.get_menu_string('confirm_preferred_language', l)
+        i = self.get_next_menu_item_number(i)
         options << {
-          value: { state: 'main', keyword: (i + 1) }.to_json,
+          value: { state: 'main', keyword: i.to_s }.to_json,
           label: ::CheckCldr.language_code_to_name(l, l).truncate(20)
         }
       end
       text = text.join("\n\n")
-      if options.size > 3
+      if ['Telegram', 'Viber', 'Facebook Messenger'].include?(self.request_platform)
+        text = '🌐​' unless with_text
         self.send_message_to_user_with_single_section_menu(uid, text, options, self.get_menu_string('languages', language))
       else
-        self.send_message_to_user_with_buttons(uid, text, options)
+        self.send_message_to_user(uid, text) if with_text
+        sleep 1
+        options.each_slice(3).to_a.each do |sub_options|
+          self.send_message_to_user_with_buttons(uid, '🌐​', sub_options)
+        end
       end
     end
 

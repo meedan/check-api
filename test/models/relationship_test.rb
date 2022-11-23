@@ -472,5 +472,84 @@ class RelationshipTest < ActiveSupport::TestCase
     r2 = create_relationship source_id: s.id, target_id: t.id, relationship_type: Relationship.confirmed_type
     assert_nil Relationship.where(id: r.id).last
     assert_not_nil Relationship.where(id: r2.id).last
+    assert_raises ActiveRecord::RecordInvalid do
+      create_relationship source_id: s.id, target_id: t.id, relationship_type: Relationship.suggested_type
+    end
+  end
+
+  test "should verify versions and ES for bulk-update" do
+    setup_elasticsearch
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      pm_s = create_project_media team: t
+      pm_t1 = create_project_media team: t
+      pm_t2 = create_project_media team: t
+      pm_t3 = create_project_media team: t
+      r1 = create_relationship source_id: pm_s.id, target_id: pm_t1.id, relationship_type: Relationship.suggested_type
+      r2 = create_relationship source_id: pm_s.id, target_id: pm_t2.id, relationship_type: Relationship.suggested_type
+      r3 = create_relationship source_id: pm_s.id, target_id: pm_t3.id, relationship_type: Relationship.suggested_type
+      relations = [r1, r2]
+      ids = relations.map(&:id)
+      updates = { action: "accept", source_id: pm_s.id }
+      assert_difference 'Version.count', 2 do
+        Relationship.bulk_update(ids, updates, t)
+      end
+      assert_equal Relationship.suggested_type, r3.reload.relationship_type
+      # Verify confirmed_by
+      assert_equal [u.id], Relationship.where(id: ids).map(&:confirmed_by).uniq
+      sleep 2
+      # Verify ES
+      es_t = $repository.find(get_es_id(pm_t1))
+      assert_equal r1.source_id, es_t['parent_id']
+      assert_equal pm_t1.reload.sources_count, es_t['sources_count']
+      assert_equal 1, pm_t1.reload.sources_count
+    end
+  end
+
+  test "should bulk-reject similar items" do
+    setup_elasticsearch
+    t = create_team
+    u = create_user
+    p = create_project team: t
+    p2 = create_project team: t
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      pm_s = create_project_media team: t, project: p
+      pm_t1 = create_project_media team: t, project: p
+      pm_t2 = create_project_media team: t, project: p
+      pm_t3 = create_project_media team: t, project: p
+      r1 = create_relationship source_id: pm_s.id, target_id: pm_t1.id, relationship_type: Relationship.suggested_type
+      r2 = create_relationship source_id: pm_s.id, target_id: pm_t2.id, relationship_type: Relationship.suggested_type
+      r3 = create_relationship source_id: pm_s.id, target_id: pm_t3.id, relationship_type: Relationship.suggested_type
+      relations = [r1, r2]
+      ids = relations.map(&:id)
+      updates = { source_id: pm_s.id, add_to_project_id: p2.id }
+      assert_difference 'Version.count', 2 do
+        Relationship.bulk_destroy(ids, updates, t)
+      end
+      assert_equal p2.id, pm_t1.reload.project_id
+      assert_equal p2.id, pm_t2.reload.project_id
+      assert_equal p.id, pm_t3.reload.project_id
+    end
+  end
+
+  test "should inherit report when pinning new main item" do
+    t = create_team
+    pm1 = create_project_media team: t
+    create_claim_description project_media: pm1
+    pm2 = create_project_media team: t
+    r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
+    publish_report(pm1)
+    assert_not_nil pm1.get_dynamic_annotation('report_design')
+    assert_nil pm2.get_dynamic_annotation('report_design')
+
+    r = Relationship.find(r.id)
+    r.source_id = pm2.id
+    r.target_id = pm1.id
+    r.save!
+    assert_nil pm1.get_dynamic_annotation('report_design')
+    assert_not_nil pm2.get_dynamic_annotation('report_design')
   end
 end

@@ -71,6 +71,50 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     !Rails.cache.read("smooch:user_language:#{@uid}") == language
   end
 
+  def send_message_outside_24_hours_window(template, pm = nil)
+    message_id = random_string
+    response = OpenStruct.new(message: OpenStruct.new(id: message_id))
+    Bot::Smooch.save_smooch_response(response, pm, Time.now.to_i, template, 'en')
+
+    @msgid = random_string
+    response = OpenStruct.new(message: OpenStruct.new(id: @msgid))
+    Bot::Smooch.stubs(:send_message_to_user).returns(response)
+    assert_nil Rails.cache.read("smooch:original:#{@msgid}")
+
+    payload = {
+      trigger: 'message:delivery:failure',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      appUser: {
+        '_id': @uid,
+        conversationStarted: true
+      },
+      destination: {
+        type: 'whatsapp'
+      },
+      error: {
+        code: 'uncategorized_error',
+        underlyingError: {
+          errors: [
+            {
+              code: 470,
+              title: 'Message sent more than 24 hours after the user last interaction.'
+            }
+          ]
+        }
+      },
+      message: {
+        '_id': message_id
+      },
+      timestamp: Time.now.to_f
+    }.to_json
+
+    assert Bot::Smooch.run(payload)
+    assert_not_nil Rails.cache.read("smooch:original:#{@msgid}")
+  end
+
   test "should use v2" do
     assert Bot::Smooch.is_v2?
   end
@@ -400,6 +444,41 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     assert_state 'main'
   end
 
+  test "should change language on non-WhatsApp platforms on tipline bot v2" do
+    send_message_to_smooch_bot('hello', @uid, { 'source' => { 'type' => 'telegram' } })
+    send_message_to_smooch_bot('1', @uid, { 'source' => { 'type' => 'telegram' } })
+    send_message_to_smooch_bot('6', @uid, { 'source' => { 'type' => 'telegram' } })
+    assert_state 'main'
+    assert_user_language 'en'
+
+    send_message_to_smooch_bot('hello', @uid, { 'source' => { 'type' => 'telegram' } })
+    send_message_to_smooch_bot('7', @uid, { 'source' => { 'type' => 'telegram' } })
+    assert_state 'main'
+    assert_user_language 'pt'
+  end
+
+  test "should handle more than 10 supported languages on tipline bot v2" do
+    langs = ['en', 'pt', 'es', 'fr', 'de', 'ar', 'hi', 'bn', 'fi', 'da', 'nl']
+    @team.set_languages langs
+    @team.save!
+    settings = @installation.settings.clone
+    langs.each_with_index do |l, i|
+      next if i < 2
+      settings['smooch_workflows'][i] = @settings['smooch_workflows'][0].clone.merge({ 'smooch_workflow_language' => l })
+    end
+    @installation.settings = settings
+    @installation.save!
+    Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
+
+    send_message 'hello', '1'
+    assert_state 'main'
+    assert_user_language 'en'
+
+    send_message '6'
+    assert_state 'main'
+    assert_user_language nil
+  end
+
   test "should auto-start conversation" do
     payload = {
       trigger: 'conversation:start',
@@ -458,5 +537,83 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
 
     message = { 'authorId' => uid, '_id' => random_string }
     assert_nil Bot::Smooch.timeout_smooch_menu(Time.now + 30.minutes, message, @app_id)
+  end
+
+  test "should send report notification with button after 24 hours window" do
+    Sidekiq::Testing.inline! do
+      @installation.set_smooch_template_name_for_fact_check_report_with_button = 'report_with_button'
+      @installation.save!
+      pm = create_project_media team: @team
+      publish_report(pm)
+
+      send_message_outside_24_hours_window('fact_check_report', pm)
+
+      send_message_to_smooch_bot('Receive fact-check', @uid, { 'quotedMessage' => { 'content' => { '_id' => @msgid } } })
+      assert_nil Rails.cache.read("smooch:original:#{@msgid}")
+    end
+  end
+
+  test "should send report update notification with button after 24 hours window" do
+    Sidekiq::Testing.inline! do
+      @installation.set_smooch_template_name_for_fact_check_report_updated_with_button = 'report_updated_with_button'
+      @installation.save!
+      pm = create_project_media team: @team
+      publish_report(pm)
+
+      send_message_outside_24_hours_window('fact_check_report_updated', pm)
+
+      send_message_to_smooch_bot('Receive update', @uid, { 'quotedMessage' => { 'content' => { '_id' => @msgid } } })
+      assert_nil Rails.cache.read("smooch:original:#{@msgid}")
+    end
+  end
+
+  test "should send newsletter notification with button after 24 hours window" do
+    WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(body: '<rss></rss>')
+    Sidekiq::Testing.inline! do
+      @installation.set_smooch_template_name_for_newsletter_with_button = 'newsletter_with_button'
+      @installation.save!
+
+      send_message_outside_24_hours_window('newsletter')
+
+      send_message_to_smooch_bot('Read now', @uid, { 'quotedMessage' => { 'content' => { '_id' => @msgid } } })
+      assert_nil Rails.cache.read("smooch:original:#{@msgid}")
+    end
+  end
+
+  test "should send Slack message notification with button after 24 hours window" do
+    Sidekiq::Testing.inline! do
+      Bot::Smooch.stubs(:get_original_slack_message_text_to_be_resent).returns(random_string)
+      @installation.set_smooch_template_name_for_more_information_with_button = 'more_information_with_button'
+      @installation.save!
+
+      send_message_outside_24_hours_window('more_information')
+
+      send_message_to_smooch_bot('Receive message', @uid, { 'quotedMessage' => { 'content' => { '_id' => @msgid } } })
+      assert_nil Rails.cache.read("smooch:original:#{@msgid}")
+    end
+  end
+
+  test "should get user name from id" do
+    create_annotation_type_and_fields('Smooch User', { 'Data' => ['JSON', true], 'ID' => ['String', true] })
+
+    # Self-hosted WhatsApp Business API / Turn.io
+    uid1 = random_string
+    data1 = { id: uid1, raw: { profile: { name: 'Foo Bar' }, wa_id: 123456 }, identifier: uid1 }
+    create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_id: uid1, smooch_user_data: data1.to_json }.to_json
+
+    # Smooch
+    uid2 = random_string
+    data2 = { id: uid2, raw: { '_id': uid2, givenName: 'Foo' }, identifier: uid2 }
+    create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_id: uid2, smooch_user_data: data2.to_json }.to_json
+
+    # Other
+    uid3 = random_string
+    data3 = { id: uid3, identifier: uid3 }
+    create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_id: uid3, smooch_user_data: data3.to_json }.to_json
+
+    assert_equal 'Foo Bar', Bot::Smooch.get_user_name_from_uid(uid1)
+    assert_equal 'Foo', Bot::Smooch.get_user_name_from_uid(uid2)
+    assert_equal '-', Bot::Smooch.get_user_name_from_uid(random_string)
+    assert_equal '-', Bot::Smooch.get_user_name_from_uid(uid3)
   end
 end

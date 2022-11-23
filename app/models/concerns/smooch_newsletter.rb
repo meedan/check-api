@@ -103,17 +103,12 @@ module SmoochNewsletter
       "#{time_utc.min} #{time_utc.hour} * * #{cron_day}"
     end
 
-    def message_is_a_newsletter_request?(message)
-      self.newsletter_request(message)[:type] == 'newsletter'
-    end
-
-    def newsletter_request(message, language = nil)
-      quoted_id = message.dig('quotedMessage', 'content', '_id')
-      unless quoted_id.blank?
-        original = Rails.cache.read("smooch:original:#{quoted_id}").to_s.split(':')
-        return { type: original[0], language: original[1] || language }
-      end
-      {}
+    def send_newsletter_on_template_button_click(message, uid, language, info)
+      newsletter_language = info[1] || language
+      newsletter_workflow = self.get_workflow(newsletter_language)
+      date = I18n.l(Time.now.to_date, locale: newsletter_language.to_s.tr('_', '-'), format: :long)
+      newsletter = Bot::Smooch.build_newsletter_content(newsletter_workflow['smooch_newsletter'], newsletter_language, self.config['team_id'], false).gsub('{date}', date).gsub('{channel}', self.get_platform_from_message(message))
+      Bot::Smooch.send_final_message_to_user(uid, newsletter, newsletter_workflow, newsletter_language)
     end
   end
 end
