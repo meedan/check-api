@@ -161,6 +161,41 @@ bn:
   subscribed: আপনি বর্তমানে আমাদের নিউজলেটারে সাবস্ক্রাইব করেছেন।
   unsubscribe_button_label: আনসাবস্ক্রাইব করুন
   unsubscribed: আপনি বর্তমানে আমাদের নিউজলেটার সদস্যতা নেই.
+bn_BD:
+  add_more_details_state_button_label: আরো যোগ করুণ
+  ask_if_ready_state_button_label: বাতিল
+  confirm_preferred_language: আপনার পছন্দের ভাষা নিশ্চিত করুন
+  invalid_format: দুঃখিত, আপনার জমা দেওয়া ফাইলটি সাপোর্টেড ফর্মেটে নয়।
+  keep_subscription_button_label: সাবস্ক্রিপশন রাখুন
+  languages: ভাষাগুলি
+  languages_and_privacy_title: ভাষা এবং গোপনীয়তা
+  main_menu: মেইন মেন্যু
+  main_state_button_label: বাতিল
+  navigation_button: নেভিগেট করতে এই বাটন ব্যবহার করুণ
+  privacy_and_purpose: |-
+    গোপনীয়তা এবং উদ্দেশ্য
+
+    %{team} %{channel} টিপলাইনে আপনাকে স্বাগতম।
+
+    যাচাইয়ের জন্য আপনার প্রশ্ন জমা দিতে এই নম্বরটি ব্যবহার করতে পারেন।
+
+    আপনার ডাটা নিরাপদ। আমরা আপনার ব্যক্তিগত তথ্য রক্ষা করার এবং %{channel}কে ব্যক্তিগত ও সুরক্ষিত রাখার জন্য আমাদের দায়িত্বকে গুরুত্ব সহকারে গ্রহণ করি; এই সেবা প্রদান এবং উন্নত করা ছাড়া আপনার ব্যক্তি শনাক্তকরণযোগ্য তথ্য (PII) শেয়ার, বিক্রি বা অন্যথায় ব্যবহার করা হবে না।
+
+    ভবিষ্যতে যত দ্রুত ভাইরাল ভুল তথ্য শনাক্ত করার জন্য, আমরা এই টিপলাইন থেকে নন-পিআইআই বিষয়বস্তুগুলো গবেষক এবং ফ্যাক্ট চেকিং পার্টনারদের সাথে শেয়ার করতে পারি।
+
+    দয়া করে মনে রাখবেন যে ওয়েবসাইটগুলিতে আমরা লিঙ্ক করি তাদের নিজস্ব গোপনীয়তা নীতি থাকবে৷
+
+    আপনি যদি আপনার জমাকৃত তথ্য এই কাজে ব্যবহার করতে না চান তবে অনুগ্রহ করে এটি ব্যবহার করবেন না
+  privacy_statement: গোপনীয়তার বিবৃতি
+  privacy_title: গোপনীয়তা
+  report_updated: 'নিম্নলিখিত ফ্যাক্ট-চেকটি নতুন তথ্য সহ *আপডেট* করা হয়েছে:'
+  search_result_is_not_relevant_button_label: না
+  search_result_is_relevant_button_label: হ্যাঁ
+  search_state_button_label: সাবমিট
+  subscribe_button_label: সাবস্ক্রাইব
+  subscribed: আপনি বর্তমানে আমাদের নিউজলেটারে সাবস্ক্রাইব করেছেন।
+  unsubscribe_button_label: আনসাবস্ক্রাইব
+  unsubscribed: আপনি বর্তমানে আমাদের নিউজলেটারে সাবস্ক্রাইব করেন নি।
 en:
   add_more_details_state_button_label: Add more
   ask_if_ready_state_button_label: Cancel

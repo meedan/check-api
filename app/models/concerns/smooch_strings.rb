@@ -8,8 +8,7 @@ module SmoochStrings
 
   module ClassMethods
     def get_string(key, language)
-      language = language.gsub(/[-_].*$/, '')
-      strings = TIPLINE_STRINGS[language] || TIPLINE_STRINGS['en']
+      strings = TIPLINE_STRINGS[language] || TIPLINE_STRINGS[language.gsub(/[-_].*$/, '')] || TIPLINE_STRINGS['en']
       strings[key] || key
     end
   end
