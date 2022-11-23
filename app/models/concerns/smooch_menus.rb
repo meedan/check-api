@@ -46,10 +46,9 @@ module SmoochMenus
       if languages.size > 1
         title = self.get_menu_string('languages_and_privacy_title', language, 24)
         languages.reject{ |l| l == language }.sort.each do |l|
-          code = l.gsub(/_.*$/, '')
           rows << {
             id: { state: 'main', keyword: counter.to_s }.to_json,
-            title: ::CheckCldr.language_code_to_name(code, code).truncate(24)
+            title: ::CheckCldr.language_code_to_name(l, l).truncate(24)
           }
           number_of_options += 1
           counter = self.get_next_menu_item_number(counter)
