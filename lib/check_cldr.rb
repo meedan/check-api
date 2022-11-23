@@ -13,10 +13,11 @@ class CheckCldr
   end
 
   def self.language_code_to_name(code, locale = I18n.locale)
-    code = code.to_s.gsub(/[_-].*$/, '')
+    code = code.to_s.gsub('_', '-')
+    short_code = code.to_s.gsub(/[_-].*$/, '')
+    short_locale = locale.to_s.gsub(/[_-].*$/, '')
     locale ||= :en
-    locale = locale.to_s.gsub(/[_-].*$/, '')
-    name = CLDR_LANGUAGES.dig(locale, code) || CLDR_LANGUAGES.dig('en', code)
+    name = CLDR_LANGUAGES.dig(locale, code) || CLDR_LANGUAGES.dig(short_locale, code) || CLDR_LANGUAGES.dig('en', short_code)
     name.blank? ? code : name.mb_chars.capitalize
   end
 
