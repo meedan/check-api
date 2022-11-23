@@ -13,7 +13,7 @@ class CheckCldr
   end
 
   def self.language_code_to_name(code, locale = I18n.locale)
-    code = code.to_s.gsub('_', '-')
+    code = code.to_s.tr('_', '-')
     short_code = code.to_s.gsub(/[_-].*$/, '')
     short_locale = locale.to_s.gsub(/[_-].*$/, '')
     locale ||= :en
