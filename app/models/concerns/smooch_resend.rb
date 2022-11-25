@@ -58,7 +58,7 @@ module SmoochResend
       uid = message['appUser']['_id']
       unless report.nil?
         template = original['fallback_template']
-        language, query_date, text, image, title = report.values_at(:language, :query_date, :text, :image, :title)
+        language, query_date, query_date_i, text, image, title = report.values_at(:language, :query_date, :query_date_i, :text, :image, :title)
         if self.template_exists?("#{template}_with_button")
           name = self.get_user_name_from_uid(uid)
           params = {
@@ -67,7 +67,7 @@ module SmoochResend
           }
           last_smooch_response = self.send_message_to_user(uid, self.format_template_message("#{template}_with_button", params[template], nil, title, language))
           id = self.get_id_from_send_response(last_smooch_response)
-          Rails.cache.write("smooch:original:#{id}", "report:#{pm.id}:#{query_date.to_i}") # This way if "Receive update" or "Receive fact-check" is clicked, the message can be sent
+          Rails.cache.write("smooch:original:#{id}", "report:#{pm.id}:#{query_date_i}") # This way if "Receive update" or "Receive fact-check" is clicked, the message can be sent
         else
           last_smooch_response = self.send_message_to_user(uid, self.format_template_message("#{template}_image_only", [query_date], image, image, language)) unless image.blank?
           last_smooch_response = self.send_message_to_user(uid, self.format_template_message("#{template}_text_only", [query_date, text], nil, text, language)) unless text.blank?
@@ -273,6 +273,7 @@ module SmoochResend
         data = {}
         data[:language] = language = self.get_user_language({ 'authorId' => message['appUser']['_id'] })
         data[:query_date] = I18n.l(Time.at(original['query_date'].to_i), locale: language, format: :short)
+        data[:query_date_i] = original['query_date'].to_i
         data[:introduction] = report.report_design_field_value('use_introduction', language) ? report.report_design_introduction({ 'received' => original['query_date'].to_i }, language).to_s : nil
         data[:text] = report.report_design_field_value('use_text_message', language) ? report.report_design_text(language).to_s : nil
         data[:image] = report.report_design_field_value('use_visual_card', language) ? report.report_design_image_url(language).to_s : nil
