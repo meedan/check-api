@@ -112,7 +112,7 @@ class WebhooksControllerTest < ActionController::TestCase
 
     assert_equal '425', response.code
     assert_match /not found/, response.body
-    assert_equal '13', JSON.parse(response.body)['errors'].first['code']
+    assert_equal 13, JSON.parse(response.body)['errors'].first['code']
     f = JSON.parse(pm.get_annotations('archiver').last.load.get_field_value('pender_archive_response'))
     assert_equal [], f.keys
   end
@@ -133,7 +133,7 @@ class WebhooksControllerTest < ActionController::TestCase
 
     assert_equal '425', response.code
     assert_match /not found/, response.body
-    assert_equal '13', JSON.parse(response.body)['errors'].first['code']
+    assert_equal 13, JSON.parse(response.body)['errors'].first['code']
   end
 
   test "should return error and not save Pender response through webhook if there is no annotation" do
@@ -163,7 +163,7 @@ class WebhooksControllerTest < ActionController::TestCase
 
     assert_equal '425', response.code
     assert_match /not found/, response.body
-    assert_equal '13', JSON.parse(response.body)['errors'].first['code']
+    assert_equal 13, JSON.parse(response.body)['errors'].first['code']
   end
 
   test "should not save Pender response through webhook if team is not allowed" do

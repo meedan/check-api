@@ -20,7 +20,7 @@ module Api
         begin
           response = bot&.webhook(request)
         rescue Bot::Keep::ObjectNotReadyError => e
-          render_error(e.message, 'MISSING_OBJECT', 425) and return
+          render_error(e.message, 'OBJECT_NOT_READY', 425) and return
         end
         render_success 'success', response
       end
