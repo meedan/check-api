@@ -8,7 +8,7 @@ class Bot::Keep < BotUser
     end
 
     def message
-      "#{@object_type.camelize} not found. If link was submitted recently, try again later."
+      "#{@object_type} not found. If link was submitted recently, try again later."
     end
   end
 
@@ -66,7 +66,7 @@ class Bot::Keep < BotUser
     payload = JSON.parse(request.raw_post)
     if payload['url']
       link = Link.where(url: payload['url']).last
-      raise ObjectNotReadyError.new('link') unless link
+      raise ObjectNotReadyError.new('Link') unless link
 
       if payload['type'] == 'metrics'
         Bot::Keep.update_metrics(link, payload['metrics'])
@@ -81,12 +81,13 @@ class Bot::Keep < BotUser
         m.save!
 
         project_media = ProjectMedia.where(media_id: link.id)
-        raise ObjectNotReadyError.new('project_media') unless project_media.count > 0
+        raise ObjectNotReadyError.new('ProjectMedia') unless project_media.count > 0
 
         project_media.find_each do |pm|
           annotation = pm.annotations.where(annotation_type: 'archiver').last
+          raise ObjectNotReadyError.new('Archiver annotation for ProjectMedia') if annotation.nil?
 
-          unless annotation.nil? || !DynamicAnnotation::Field.where(field_name: "#{type}_response", annotation_id: annotation.id).exists?
+          unless !DynamicAnnotation::Field.where(field_name: "#{type}_response", annotation_id: annotation.id).exists?
             annotation = annotation.load
             annotation.skip_check_ability = true
             annotation.disable_es_callbacks = Rails.env.to_s == 'test'

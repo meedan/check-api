@@ -112,6 +112,7 @@ class WebhooksControllerTest < ActionController::TestCase
 
     assert_equal '425', response.code
     assert_match /not found/, response.body
+    assert_equal '13', JSON.parse(response.body)['errors'].first['code']
     f = JSON.parse(pm.get_annotations('archiver').last.load.get_field_value('pender_archive_response'))
     assert_equal [], f.keys
   end
@@ -132,6 +133,7 @@ class WebhooksControllerTest < ActionController::TestCase
 
     assert_equal '425', response.code
     assert_match /not found/, response.body
+    assert_equal '13', JSON.parse(response.body)['errors'].first['code']
   end
 
   test "should return error and not save Pender response through webhook if there is no annotation" do
@@ -152,10 +154,6 @@ class WebhooksControllerTest < ActionController::TestCase
     tbi.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p
-    pm.create_all_archive_annotations
-    archiver = pm.get_annotations('archiver').last
-    a = DynamicAnnotation::Field.where(field_name: 'pender_archive_response', annotation_id: archiver.id).last
-    a.destroy
 
     payload = { url: url, screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
     sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CheckConfig.get('secret_token'), payload)
@@ -165,6 +163,7 @@ class WebhooksControllerTest < ActionController::TestCase
 
     assert_equal '425', response.code
     assert_match /not found/, response.body
+    assert_equal '13', JSON.parse(response.body)['errors'].first['code']
   end
 
   test "should not save Pender response through webhook if team is not allowed" do

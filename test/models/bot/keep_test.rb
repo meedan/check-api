@@ -210,6 +210,6 @@ class IsolatedBotKeepTest < ActiveSupport::TestCase
       Bot::Keep.webhook(fake_request(url))
     end
 
-    assert_match /Annotation not found/, error.message
+    assert_match /Archiver annotation for ProjectMedia not found/, error.message
   end
 end
