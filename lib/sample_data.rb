@@ -333,26 +333,24 @@ module SampleData
         last_error: { type: 'string', default: '' },
         last_published: { type: 'string', default: '' },
         options: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              use_introduction: { type: 'boolean', default: false },
-              introduction: { type: 'string', default: '' },
-              use_visual_card: { type: 'boolean', default: false },
-              visual_card_url: { type: 'string', default: '' },
-              image: { type: 'string', default: '' },
-              headline: { type: 'string', default: '' },
-              description: { type: 'string', default: '' },
-              status_label: { type: 'string', default: '' },
-              previous_published_status_label: { type: 'string', default: '' },
-              theme_color: { type: 'string', default: '' },
-              url: { type: 'string', default: '' },
-              use_text_message: { type: 'boolean', default: false },
-              title: { type: 'string', default: '' },
-              text: { type: 'string', default: '' },
-              date: { type: 'string', default: '' }
-            }
+          type: 'object',
+          properties: {
+            use_introduction: { type: 'boolean', default: false },
+            introduction: { type: 'string', default: '' },
+            use_visual_card: { type: 'boolean', default: false },
+            visual_card_url: { type: 'string', default: '' },
+            image: { type: 'string', default: '' },
+            headline: { type: 'string', default: '' },
+            description: { type: 'string', default: '' },
+            status_label: { type: 'string', default: '' },
+            previous_published_status_label: { type: 'string', default: '' },
+            theme_color: { type: 'string', default: '' },
+            url: { type: 'string', default: '' },
+            use_text_message: { type: 'boolean', default: false },
+            title: { type: 'string', default: '' },
+            language: { type: 'string', default: '' },
+            text: { type: 'string', default: '' },
+            date: { type: 'string', default: '' }
           }
         }
       }
