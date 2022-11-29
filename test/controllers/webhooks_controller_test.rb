@@ -166,12 +166,16 @@ class WebhooksControllerTest < ActionController::TestCase
     assert_equal 13, JSON.parse(response.body)['errors'].first['code']
   end
 
+  # This represents a team uninstalling Keep on a workspace. We probably want to
+  # raise a 404 or something similar, but for simplicity sake (for now) we return 425
+  # like the other expected-to-be-resolved-with-time issues since even though we don't
+  # expect this to be resolved with time we also don't expect it to happen often
   test "should not save Pender response through webhook if team is not allowed" do
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     url = 'http://test.com'
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-    response = '{"type":"media","data":{"url":"' + url + '","type":"item","archives":{}}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    pender_response = '{"type":"media","data":{"url":"' + url + '","type":"item","archives":{}}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: pender_response)
     l = create_link url: url
     t = create_team
     t.set_limits_keep = false
@@ -185,7 +189,11 @@ class WebhooksControllerTest < ActionController::TestCase
     payload = { url: url, screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
     sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CheckConfig.get('secret_token'), payload)
     @request.headers['X-Signature'] = sig
+
     post :index, params: { name: :keep }, body: payload
-    assert_response :success
+
+    assert_equal '425', response.code
+    assert_match /not found/, response.body
+    assert_equal 13, JSON.parse(response.body)['errors'].first['code']
   end
 end
