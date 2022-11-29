@@ -33,9 +33,8 @@ class FactCheck < ApplicationRecord
     reports = pm.get_dynamic_annotation('report_design') || Dynamic.new(annotation_type: 'report_design', annotated: pm)
     data = reports.data ? reports.data.with_indifferent_access : {}.with_indifferent_access
     language = data[:default_language] || pm.team.default_language || 'en'
-    report = data[:options].to_a.find{ |o| o[:language] == language }
+    report = data[:options]
     unless report
-      data[:options] ||= []
       report = {
         language: language,
         use_text_message: true,
@@ -45,7 +44,6 @@ class FactCheck < ApplicationRecord
         theme_color: pm.last_status_color,
         image: pm.lead_image.to_s
       }
-      data[:options] << report
     end
     report.merge!({
       title: self.title.to_s.strip,
@@ -54,6 +52,7 @@ class FactCheck < ApplicationRecord
       description: self.summary.to_s.strip,
       published_article_url: self.url
     })
+    data[:options] = report
     reports.annotator = self.user || User.current
     reports.set_fields = data.to_json
     reports.save!

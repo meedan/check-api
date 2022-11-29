@@ -146,13 +146,13 @@ class FactCheckTest < ActiveSupport::TestCase
     assert_nil pm.reload.fact_check_summary
     assert_nil pm.reload.published_url
 
-    d = create_dynamic_annotation annotation_type: 'report_design', annotator: u, annotated: pm, set_fields: { options: [{ language: 'en', use_text_message: true, title: 'Text report created title', text: 'Text report created summary', published_article_url: 'http://text.report/created' }] }.to_json, action: 'save'
+    d = create_dynamic_annotation annotation_type: 'report_design', annotator: u, annotated: pm, set_fields: { options: { language: 'en', use_text_message: true, title: 'Text report created title', text: 'Text report created summary', published_article_url: 'http://text.report/created' } }.to_json, action: 'save'
     assert_equal 'Text report created title', pm.reload.fact_check_title
     assert_equal 'Text report created summary', pm.reload.fact_check_summary
     assert_equal 'http://text.report/created', pm.reload.published_url
 
     d = Dynamic.find(d.id)
-    d.set_fields = { options: [{ language: 'en', use_text_message: true, title: 'Text report updated title', text: 'Text report updated summary', published_article_url: 'http://text.report/updated' }] }.to_json
+    d.set_fields = { options: { language: 'en', use_text_message: true, title: 'Text report updated title', text: 'Text report updated summary', published_article_url: 'http://text.report/updated' } }.to_json
     d.action = 'publish'
     d.save!
     assert_equal 'Text report updated title', pm.reload.fact_check_title
@@ -170,13 +170,13 @@ class FactCheckTest < ActiveSupport::TestCase
     assert_nil pm.reload.fact_check_summary
     assert_nil pm.reload.published_url
 
-    d = create_dynamic_annotation annotation_type: 'report_design', annotator: u, annotated: pm, set_fields: { options: [{ language: 'en', use_visual_card: true, headline: 'Image report created title', description: 'Image report created summary' }] }.to_json, action: 'save'
+    d = create_dynamic_annotation annotation_type: 'report_design', annotator: u, annotated: pm, set_fields: { options: { language: 'en', use_visual_card: true, headline: 'Image report created title', description: 'Image report created summary' } }.to_json, action: 'save'
     assert_equal 'Image report created title', pm.reload.fact_check_title
     assert_equal 'Image report created summary', pm.reload.fact_check_summary
     assert_nil pm.reload.published_url
 
     d = Dynamic.find(d.id)
-    d.set_fields = { options: [{ language: 'en', use_visual_card: true, headline: 'Image report updated title', description: 'Image report updated summary' }] }.to_json
+    d.set_fields = { options: { language: 'en', use_visual_card: true, headline: 'Image report updated title', description: 'Image report updated summary' } }.to_json
     d.action = 'publish'
     d.save!
     assert_equal 'Image report updated title', pm.reload.fact_check_title
