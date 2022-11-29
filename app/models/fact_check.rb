@@ -50,7 +50,8 @@ class FactCheck < ApplicationRecord
       headline: self.title.to_s.strip,
       text: self.summary.to_s.strip,
       description: self.summary.to_s.strip,
-      published_article_url: self.url
+      published_article_url: self.url,
+      language: self.language
     })
     data[:options] = report
     reports.annotator = self.user || User.current
