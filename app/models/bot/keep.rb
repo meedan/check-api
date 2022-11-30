@@ -1,4 +1,16 @@
+require 'byebug'
+
 class Bot::Keep < BotUser
+  class ObjectNotReadyError < StandardError
+    def initialize(object_type = 'object')
+      @object_type = object_type
+      super
+    end
+
+    def message
+      "#{@object_type} not found. If link was submitted recently, try again later."
+    end
+  end
 
   check_settings
 
@@ -54,29 +66,33 @@ class Bot::Keep < BotUser
     payload = JSON.parse(request.raw_post)
     if payload['url']
       link = Link.where(url: payload['url']).last
-      unless link.nil?
-        if payload['type'] == 'metrics'
-          Bot::Keep.update_metrics(link, payload['metrics'])
-        else
-          type = Bot::Keep.archiver_to_annotation_type(payload['type'])
-          response = Bot::Keep.set_response_based_on_pender_data(type, payload) || { error: true }
-          m = link.metadata_annotation
-          data = JSON.parse(m.get_field_value('metadata_value'))
-          data['archives'] ||= {}
-          data['archives'][payload['type']] = response
-          m.set_fields = { metadata_value: data.to_json }.to_json
-          m.save!
+      raise ObjectNotReadyError.new('Link') unless link
 
-          ProjectMedia.where(media_id: link.id).find_each do |pm|
-            annotation = pm.annotations.where(annotation_type: 'archiver').last
+      if payload['type'] == 'metrics'
+        Bot::Keep.update_metrics(link, payload['metrics'])
+      else
+        type = Bot::Keep.archiver_to_annotation_type(payload['type'])
+        response = Bot::Keep.set_response_based_on_pender_data(type, payload) || { error: true }
+        m = link.metadata_annotation
+        data = JSON.parse(m.get_field_value('metadata_value'))
+        data['archives'] ||= {}
+        data['archives'][payload['type']] = response
+        m.set_fields = { metadata_value: data.to_json }.to_json
+        m.save!
 
-            unless annotation.nil? || !DynamicAnnotation::Field.where(field_name: "#{type}_response", annotation_id: annotation.id).exists?
-              annotation = annotation.load
-              annotation.skip_check_ability = true
-              annotation.disable_es_callbacks = Rails.env.to_s == 'test'
-              annotation.set_fields = { "#{type}_response" => response.to_json }.to_json
-              annotation.save!
-            end
+        project_media = ProjectMedia.where(media_id: link.id)
+        raise ObjectNotReadyError.new('ProjectMedia') unless project_media.count > 0
+
+        project_media.find_each do |pm|
+          annotation = pm.annotations.where(annotation_type: 'archiver').last
+          raise ObjectNotReadyError.new('Archiver annotation for ProjectMedia') if annotation.nil?
+
+          unless !DynamicAnnotation::Field.where(field_name: "#{type}_response", annotation_id: annotation.id).exists?
+            annotation = annotation.load
+            annotation.skip_check_ability = true
+            annotation.disable_es_callbacks = Rails.env.to_s == 'test'
+            annotation.set_fields = { "#{type}_response" => response.to_json }.to_json
+            annotation.save!
           end
         end
       end
