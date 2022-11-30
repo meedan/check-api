@@ -11,24 +11,22 @@ Dynamic.class_eval do
     if self.annotation_type == 'report_design' && (self.action == 'save' || self.action =~ /publish/) && pm&.claim_description
       fc = pm.claim_description.fact_check
       user = self.annotator || User.current
-      fields = { user: user, skip_report_update: true }
+      url = self.report_design_field_value('published_article_url')
+      language = self.report_design_field_value('language')
+      fields = { user: user, skip_report_update: true , url: url, language: language }
       if self.report_design_field_value('use_text_message')
         title = self.report_design_field_value('title')
         summary = self.report_design_field_value('text')
-        url = self.report_design_field_value('published_article_url')
         fields.merge!({
           title: title,
           summary: summary,
-          url: url
         })
       elsif self.report_design_field_value('use_visual_card')
         title = self.report_design_field_value('headline')
         summary = self.report_design_field_value('description')
-        url = self.report_design_field_value('published_article_url')
         fields.merge!({
           title: title,
           summary: summary,
-          url: url
         })
       end
       if fc.nil?

@@ -141,23 +141,26 @@ class FactCheckTest < ActiveSupport::TestCase
     create_report_design_annotation_type
     u = create_user is_admin: true
     pm = create_project_media
-    create_claim_description project_media: pm
+    cd = create_claim_description project_media: pm
     assert_nil pm.reload.fact_check_title
     assert_nil pm.reload.fact_check_summary
     assert_nil pm.reload.published_url
 
     d = create_dynamic_annotation annotation_type: 'report_design', annotator: u, annotated: pm, set_fields: { options: { language: 'en', use_text_message: true, title: 'Text report created title', text: 'Text report created summary', published_article_url: 'http://text.report/created' } }.to_json, action: 'save'
+    fc = cd.fact_check
     assert_equal 'Text report created title', pm.reload.fact_check_title
     assert_equal 'Text report created summary', pm.reload.fact_check_summary
     assert_equal 'http://text.report/created', pm.reload.published_url
+    assert_equal 'en', fc.reload.language
 
     d = Dynamic.find(d.id)
-    d.set_fields = { options: { language: 'en', use_text_message: true, title: 'Text report updated title', text: 'Text report updated summary', published_article_url: 'http://text.report/updated' } }.to_json
+    d.set_fields = { options: { language: 'fr', use_text_message: true, title: 'Text report updated title', text: 'Text report updated summary', published_article_url: 'http://text.report/updated' } }.to_json
     d.action = 'publish'
     d.save!
     assert_equal 'Text report updated title', pm.reload.fact_check_title
     assert_equal 'Text report updated summary', pm.reload.fact_check_summary
     assert_equal 'http://text.report/updated', pm.reload.published_url
+    assert_equal 'fr', fc.reload.language
   end
 
   test "should keep report and fact-check in sync when image report is created and updated" do
@@ -191,18 +194,20 @@ class FactCheckTest < ActiveSupport::TestCase
     cd = create_claim_description project_media: pm
     assert_nil pm.get_dynamic_annotation('report_design')
 
-    fc = create_fact_check title: 'Created fact-check title', summary: 'Created fact-check summary', url: 'http://fact.check/created', user: u, claim_description: cd
+    fc = create_fact_check language: 'en', title: 'Created fact-check title', summary: 'Created fact-check summary', url: 'http://fact.check/created', user: u, claim_description: cd
     r = pm.reload.get_dynamic_annotation('report_design')
     assert_equal 'Created fact-check title', r.report_design_field_value('title')
     assert_equal 'Created fact-check title', r.report_design_field_value('headline')
     assert_equal 'Created fact-check summary', r.report_design_field_value('text')
     assert_equal 'Created fact-check summary', r.report_design_field_value('description')
     assert_equal 'http://fact.check/created', r.report_design_field_value('published_article_url')
+    assert_equal 'en', r.report_design_field_value('language')
 
     fc = FactCheck.find(fc.id)
     fc.title = 'Updated fact-check title'
     fc.summary = 'Updated fact-check summary'
     fc.url = 'http://fact.check/updated'
+    fc.language = 'fr'
     fc.save!
     r = pm.get_dynamic_annotation('report_design')
     assert_equal 'Updated fact-check title', r.report_design_field_value('title')
@@ -210,6 +215,7 @@ class FactCheckTest < ActiveSupport::TestCase
     assert_equal 'Updated fact-check summary', r.report_design_field_value('text')
     assert_equal 'Updated fact-check summary', r.report_design_field_value('description')
     assert_equal 'http://fact.check/updated', r.report_design_field_value('published_article_url')
+    assert_equal 'fr', r.report_design_field_value('language')
   end
 
   test "should save fact-check for audio" do
