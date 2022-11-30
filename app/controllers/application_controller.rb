@@ -41,7 +41,7 @@ class ApplicationController < ActionController::Base
                    }],
                  },
                  status: status
-    logger.error message: message, status: 400
+    logger.error message: message, status: status
   end
 
   def render_unauthorized
