@@ -325,7 +325,7 @@ class Bot::Fetch < BotUser
       summary = self.parse_text(claim_review['text']).truncate(620)
       fields = {
         state: auto_publish_reports ? 'published' : 'paused',
-        options: [{
+        options: {
           language: language,
           status_label: pm.status_i18n(pm.reload.last_verification_status, { locale: language }),
           description: summary,
@@ -341,7 +341,7 @@ class Bot::Fetch < BotUser
           use_text_message: true,
           text: summary,
           date: report.report_design_date(date.to_date, language)
-        }]
+        }
       }
       report.set_fields = fields.to_json
       report.action = 'save'
