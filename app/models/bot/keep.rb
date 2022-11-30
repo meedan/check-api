@@ -1,5 +1,3 @@
-require 'byebug'
-
 class Bot::Keep < BotUser
   class ObjectNotReadyError < StandardError
     def initialize(object_type = 'object')
