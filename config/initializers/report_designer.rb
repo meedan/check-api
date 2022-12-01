@@ -175,12 +175,11 @@ Dynamic.class_eval do
     end
   end
 
-  # TODO: Review by Sawy
   def copy_report_image_paths
     return unless self.saved_change_to_file?
     fields = self.set_fields || '{}'
     data = { 'options' => {} }.merge(JSON.parse(fields))
-    image = self.file
+    image = self.file.first
     unless image.nil?
       url = begin image.file.public_url rescue nil end
       data['options']['image'] = url unless url.nil?
