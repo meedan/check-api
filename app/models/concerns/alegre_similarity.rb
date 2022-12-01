@@ -29,9 +29,9 @@ module AlegreSimilarity
         else
           Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 3/5] ProjectMedia can be checked for similar items"
         end
-        suggested_or_confirmed = Bot::Alegre.get_items_with_similarity(type, pm, Bot::Alegre.get_threshold_for_query(type, pm, false, Bot::Alegre.get_min_es_score_from_options(options))
+        suggested_or_confirmed = Bot::Alegre.get_items_with_similarity(type, pm, Bot::Alegre.get_threshold_for_query(type, pm, false, Bot::Alegre.get_min_es_score_from_options(options)))
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 4/5] suggested_or_confirmed for #{pm.id} is #{suggested_or_confirmed.inspect}")
-        confirmed = Bot::Alegre.get_items_with_similarity(type, pm, Bot::Alegre.get_threshold_for_query(type, pm, true, Bot::Alegre.get_min_es_score_from_options(options))
+        confirmed = Bot::Alegre.get_items_with_similarity(type, pm, Bot::Alegre.get_threshold_for_query(type, pm, true, Bot::Alegre.get_min_es_score_from_options(options)))
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 5/5] confirmed for #{pm.id} is #{confirmed.inspect}")
         Bot::Alegre.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
       else
