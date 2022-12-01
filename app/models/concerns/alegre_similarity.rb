@@ -249,7 +249,7 @@ module AlegreSimilarity
       end
     end
 
-    def get_threshold_hash_from_threshold(threshold)
+    def get_min_es_score_from_threshold(threshold)
       threshold ||= []
       threshold.select{|t| t[:model] == Bot::Alegre::ELASTICSEARCH_MODEL}.collect{|x| x[:min_es_score]}.sort.last || Bot::Alegre::DEFAULT_ES_SCORE
     end
@@ -264,7 +264,7 @@ module AlegreSimilarity
       }.merge(self.get_threshold_hash_from_threshold(threshold))
       language = self.language_for_similarity(team_id)
       params[:language] = language if !language.nil?
-      params[:min_es_score] = self.get_threshold_hash_from_threshold(threshold)
+      params[:min_es_score] = self.get_min_es_score_from_threshold(threshold)
       params
     end
 
