@@ -654,7 +654,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.get_threshold_hash_from_threshold([{model: "foo", value: 0.9}, {model: "bar", value: 0.7}]), {:per_model_threshold=>{"foo"=>0.9, "bar"=>0.7}}
   end
 
-  test "should get_threshold_hash_from_threshold successfully" do
+  test "should get_threshold_for_query successfully" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media quote: "Blah", team: @team
