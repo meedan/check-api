@@ -148,7 +148,7 @@ class Bot::Fetch < BotUser
   # Mandatory fields in the imported ClaimReview: claim_review_headline, claim_review_url, created_at and id
 
   class Import
-    def self.import_claim_reviews(installation_id, force = false)
+    def self.import_claim_reviews(installation_id, force = false, maximum = nil)
       installation = TeamBotInstallation.find(installation_id)
       RequestStore.store[:skip_notifications] = true
       User.current = user = installation.user
@@ -171,6 +171,7 @@ class Bot::Fetch < BotUser
             from2 = Time.at(current_timestamp)
             to2 = from2 + step.days
             Bot::Fetch.get_claim_reviews({ service: service_name, start_time: from2.strftime('%Y-%m-%d'), end_time: to2.strftime('%Y-%m-%d')}).each do |claim_review|
+              next if !maximum.nil? && total >= maximum
               self.import_claim_review(claim_review, team.id, user.id, status_fallback, status_mapping, auto_publish_reports, force)
               total += 1
             end
