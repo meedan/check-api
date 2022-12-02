@@ -571,7 +571,6 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
 
     assert_equal [], Bot::Smooch.search_for_similar_published_fact_checks('text', 'Segurando', [t.id]).to_a.map(&:id)
   end
-end
 
   test "should *not* perform fuzzy matching on keyword search when query is emoji only" do
     RequestStore.store[:skip_cached_field_update] = false

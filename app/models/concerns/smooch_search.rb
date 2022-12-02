@@ -191,7 +191,7 @@ module SmoochSearch
       results = CheckSearch.new(filters.to_json, nil, team_ids).medias
       Rails.logger.info "[Smooch Bot] Keyword search got #{results.count} results (only main items) while looking for '#{words}' after date #{after.inspect} for teams #{team_ids}"
       if results.empty? and not words.join().gsub(/\P{L}/u, ' ').strip().blank?
-        results = CheckSearch.new(filters.merge({ keyword: words.collect{ |w| "+#{w}~1" }.join(' '), show_similar: true }).to_json, nil, team_ids).medias
+        results = CheckSearch.new(filters.merge({ keyword: words.collect{ |w| w =~ /^\P{L}$/u ? "+#{w}" : "+#{w}~1" }.join(' '), show_similar: true }).to_json, nil, team_ids).medias
         Rails.logger.info "[Smooch Bot] Keyword search got #{results.count} results (including secondary items and using fuzzy matching) while looking for '#{words}' after date #{after.inspect} for teams #{team_ids}"
       end
       results
