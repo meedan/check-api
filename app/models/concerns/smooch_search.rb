@@ -113,7 +113,7 @@ module SmoochSearch
     end
 
     def normalized_query_hash(type, query, team_ids, after, feed_id)
-      normalized_query = query.downcase.chomp.strip
+      normalized_query = query.downcase.chomp.strip unless query.nil?
       Digest::MD5.hexdigest([type.to_s, normalized_query, [team_ids].flatten.join(','), after.to_s, feed_id.to_i].join(':'))
     end
 
