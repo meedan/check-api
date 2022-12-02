@@ -140,5 +140,40 @@ namespace :check do
         Bot::Fetch::Import.delay(retry: 0).import_claim_reviews(tbi, force)
       end
     end
+
+    # bundle exec rails check:fetch:import_sample['services:list|of|services&size=10']
+    task import_sample: :environment do |_t, args|
+      # This task depends on STATUS_MAPPING environment variable, something like `export STATUS_MAPPING=mapping.to_json`
+      # The mapping is a hash, where the key is a Fetch status/rating and the value is an existing Check status identifier (not the label)
+      data = parse_args args.extras
+      services = data['services'].split('|')
+      size = data['size'] ? data['size'].to_i : 10
+      team = Team.create!(name: "Fetch Import Sample #{Time.now.to_i}")
+      if services.blank?
+        puts "You should pass service list to the rake task[check:fetch:import['services:list|of|services']"
+        exit
+      end
+      # Get status mapping
+      # You must set the status mapping as an environment variable in JSON format (e.g., `export STATUS_MAPPING=mapping.to_json`)
+      # The mapping is a hash, where the key is a Fetch status/rating and the value is an existing Check status identifier (not the label)
+      begin
+        status_mapping = JSON.parse(ENV["STATUS_MAPPING"])
+      rescue JSON::ParserError,TypeError
+        raise "Couldn't parse a status mapping. Please pass in a JSON status mapping into the STATUS_MAPPING environment variable."
+      end
+      # Install Fetch bot
+      fetch_user = BotUser.find_by_login('fetch')
+      tbi_fetch = TeamBotInstallation.where(user_id: fetch_user.id, team_id: team.id).last
+      if tbi_fetch.nil?
+        tbi = TeamBotInstallation.new
+        tbi.user = fetch_user
+        tbi.team = team
+        tbi.save!
+      end
+      Bot::Fetch.set_service(slug, services, 'undetermined', status_mapping)
+      tbi = TeamBotInstallation.where(user_id: BotUser.find_by_login('fetch').id, team_id: team.id).last.id
+      Bot::Fetch::Import.import_claim_reviews(tbi, true, size)
+      puts "A sample of #{size} articles were imported from Fetch service(s) #{services.join(', ')} to https://checkmedia.org/#{team.slug}/imported-fact-checks."
+    end
   end
 end
