@@ -399,7 +399,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should generate correct text conditions for api request" do
     conditions = Bot::Alegre.similar_texts_from_api_conditions("blah", "elasticsearch", 'true', 1, 'original_title', [{value: 0.7, key: 'text_elasticsearch_suggestion_threshold', model: 'elasticsearch', automatic: false}])
-    assert_equal conditions, {:text=>"blah", :models=>["elasticsearch"], :fuzzy=>true, :context=>{:has_custom_id=>true, :field=>"original_title", :team_id=>1}, :threshold=>0.7, :match_across_content_types=>true}
+    assert_equal conditions, {:text=>"blah", :models=>["elasticsearch"], :fuzzy=>true, :context=>{:has_custom_id=>true, :field=>"original_title", :team_id=>1}, :threshold=>0.7, :min_es_score=>10, :match_across_content_types=>true}
   end
 
   test "should generate correct media conditions for api request" do
@@ -680,7 +680,6 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         ["original_title","original_description","report_text_title","transcription","extracted_text","report_text_content","report_visual_card_title","claim_description_content","fact_check_summary","report_visual_card_content","fact_check_title"].each do |field|
           Bot::Alegre.stubs(:request_api).with("get", "/text/similarity/", {:text=>"Blah foo bar", :models=>["elasticsearch", Bot::Alegre::MEAN_TOKENS_MODEL], :fuzzy=>false, :min_es_score => 10, :context=>{:has_custom_id=>true, :field=>['original_title', 'report_text_title', 'report_visual_card_title', 'fact_check_title'], :team_id=>[pm.team_id]}, :per_model_threshold=>{"elasticsearch"=>threshold, Bot::Alegre::MEAN_TOKENS_MODEL=>threshold2}, :match_across_content_types=>true}, "body").returns(response)
           Bot::Alegre.stubs(:request_api).with("get", "/text/similarity/", {:text=>"Blah foo bar", :models=>["elasticsearch", Bot::Alegre::MEAN_TOKENS_MODEL], :fuzzy=>false, :min_es_score => 10, :context=>{:has_custom_id=>true, :field=>['original_description', 'report_text_content', 'report_visual_card_content', 'extracted_text', 'transcription', 'claim_description_content', 'fact_check_summary'], :team_id=>[pm.team_id]}, :per_model_threshold=>{"elasticsearch"=>threshold, Bot::Alegre::MEAN_TOKENS_MODEL=>threshold2}, :match_across_content_types=>true}, "body").returns(response)
-          
         end
       end
     end
