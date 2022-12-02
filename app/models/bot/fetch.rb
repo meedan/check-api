@@ -227,6 +227,15 @@ class Bot::Fetch < BotUser
       self.parse_text(title.to_s)
     end
 
+    def self.get_summary(claim_review)
+      url = claim_review['url'].to_s
+      title = self.get_title(claim_review).to_s
+      text = claim_review['text'].to_s.blank? ? claim_review['headline'] : claim_review['text']
+      return '' if text.to_s == title.to_s || text.blank?
+      summary = self.parse_text(text)
+      summary.to_s.truncate(900 - title.size - url.size)
+    end
+
     def self.set_claim_and_fact_check(claim_review, pm, user)
       current_user = User.current
       User.current = user
@@ -243,8 +252,7 @@ class Bot::Fetch < BotUser
       fc.claim_description = cd
       fc.title = self.get_title(claim_review).to_s
       fc.url = claim_review['url'].to_s
-      summary = self.parse_text(claim_review['text'].to_s.blank? ? claim_review['headline'] : claim_review['text'])
-      fc.summary = summary.to_s.truncate(900 - fc.title.size - fc.url.size)
+      fc.summary = self.get_summary(claim_review).to_s
       fc.user = user
       fc.skip_report_update = true
       fc.language = claim_review['inLanguage']
