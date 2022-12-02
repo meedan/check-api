@@ -572,3 +572,32 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     assert_equal [], Bot::Smooch.search_for_similar_published_fact_checks('text', 'Segurando', [t.id]).to_a.map(&:id)
   end
 end
+
+  test "should *not* perform fuzzy matching on keyword search when query is emoji only" do
+    RequestStore.store[:skip_cached_field_update] = false
+    setup_elasticsearch
+
+    t = create_team
+    pm = create_project_media quote: '🤣 word', team: t
+    publish_report(pm)
+    sleep 3 # Wait for ElasticSearch to index content
+
+    [
+      '🤣',  #Direct match
+      '🤣 word', #Direct match
+      'word 🤣', #Direct match
+      'ward', #Fuzzy match (non-emoji)
+      '🤣 ward', #Fuzzy match (non-emoji)
+    ].each do |query|
+      assert_equal [pm.id], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id]).to_a.map(&:id)
+    end
+
+    [
+      '🤣🌞', #No match
+      '🌞', #No match
+      '🤣 🌞' #No match (we only perform AND)
+    ].each do |query|
+      assert_equal [], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id]).to_a.map(&:id)
+    end
+  end
+end
