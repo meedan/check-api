@@ -261,4 +261,18 @@ class Bot::FetchTest < ActiveSupport::TestCase
 
     assert_equal 'verified', pm.reload.last_status
   end
+
+  test "should return empty summary if it is equal to the title" do
+    claim_review = {
+      'text' => 'Foo',
+      'headline' => 'Foo'
+    }
+    assert_equal '', Bot::Fetch::Import.get_summary(claim_review)
+
+    claim_review = {
+      'text' => 'Foo',
+      'headline' => 'Bar'
+    }
+    assert_equal 'Foo', Bot::Fetch::Import.get_summary(claim_review)
+  end
 end
