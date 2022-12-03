@@ -1,0 +1,9 @@
+# Security Policy
+
+## Supported Versions
+
+Branches `develop` and `master` are patched for security vulnerabilities.
+
+## Reporting a Vulnerability
+
+Please report (suspected) security vulnerabilities to check@meedan.com. You will receive a response from us within 48 hours. If the issue is confirmed, we will release a patch as soon as possible depending on complexity but historically within a few days.
