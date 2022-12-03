@@ -1,6 +1,6 @@
-# rake check:migrate:clusterize_requests[feed_id,force]
+# rake check:data:clusterize_requests[feed_id,force]
 namespace :check do
-  namespace :migrate do
+  namespace :data do
     task clusterize_requests: :environment do |_t, params|
       feed_id = params.to_a.first.to_i
       force = (params.to_a.last.to_i == 1)
