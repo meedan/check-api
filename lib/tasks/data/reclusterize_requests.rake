@@ -46,9 +46,8 @@ namespace :check do
         i += 1
         failed = false
         begin
-          Request.send_to_alegre(r.id)
-          r = Request.find(r.id)
           r.attach_to_similar_request!
+          Request.send_to_alegre(r.id)
         rescue Exception => e
           failed = e.message
         end

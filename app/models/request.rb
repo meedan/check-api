@@ -14,6 +14,7 @@ class Request < ApplicationRecord
   after_commit :update_fields, on: :update
 
   validates_inclusion_of :request_type, in: ['audio', 'video', 'image', 'text']
+  validate :no_circular_dependency
 
   cached_field :feed_name,
     start_as: proc { |r| r.feed.name },
@@ -25,10 +26,11 @@ class Request < ApplicationRecord
     recalculate: proc { |r| r.media&.type },
     update_on: [] # Never changes
 
-  def text_similarity_settings # FIXME: This shoudl be feed settings
+  # FIXME: These should be feed settings
+  def text_similarity_settings
     {
-      ::Bot::Alegre::ELASTICSEARCH_MODEL => {"threshold"=>0.85, "min_words"=>4},
-      ::Bot::Alegre::MEAN_TOKENS_MODEL =>  {"threshold"=>0.9, "min_words"=>2}
+      ::Bot::Alegre::ELASTICSEARCH_MODEL => { 'threshold' => 0.85, 'min_words' => 4 },
+      ::Bot::Alegre::MEAN_TOKENS_MODEL =>  { 'threshold' => 0.9, 'min_words' => 2 }
     }
   end
 
@@ -39,10 +41,10 @@ class Request < ApplicationRecord
     similar_request_id = Request.where(media_id: media.id, feed_id: self.feed_id).where.not(id: self.id).order('id ASC').first
     if similar_request_id.nil?
       if media.type == 'Claim'
-        words=::Bot::Alegre.get_number_of_words(media.quote)
-        models_thresholds=self.text_similarity_settings.reject{|_k,v| v["min_words"]>words}
+        words = ::Bot::Alegre.get_number_of_words(media.quote)
+        models_thresholds = self.text_similarity_settings.reject{ |_k, v| v['min_words'] > words }
         if models_thresholds.count > 0
-          params = { text: media.quote, models: models_thresholds.keys(), per_model_threshold: models_thresholds.transform_values{|v| v["threshold"]}, context: context }
+          params = { text: media.quote, models: models_thresholds.keys, per_model_threshold: models_thresholds.transform_values{ |v| v['threshold'] }, context: context }
           similar_request_id = ::Bot::Alegre.request_api('get', '/text/similarity/', params)&.dig('result').to_a.collect{ |result| result&.dig('_source', 'context', 'request_id').to_i }.find{ |id| id != 0 && id != self.id }
         end
       elsif ['UploadedImage', 'UploadedAudio', 'UploadedVideo'].include?(media.type)
@@ -55,7 +57,7 @@ class Request < ApplicationRecord
     unless similar_request_id.blank?
       similar_request = Request.where(id: similar_request_id, feed_id: self.feed_id).last
       self.similar_to_request = similar_request&.similar_to_request || similar_request
-      self.save!
+      self.save! if self.request_id != self.id
     end
   end
 
@@ -225,5 +227,9 @@ class Request < ApplicationRecord
       request.subscriptions_count -= 1 unless self.subscribed
       request.save!
     end
+  end
+
+  def no_circular_dependency
+    errors.add(:request_id) if !self.request_id.nil? && self.request_id == self.id
   end
 end
