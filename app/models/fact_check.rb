@@ -10,6 +10,7 @@ class FactCheck < ApplicationRecord
   validates_presence_of :claim_description
   validates_uniqueness_of :claim_description_id
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
+  validate :language_in_allowed_values
 
   after_save :update_report
 
@@ -25,6 +26,11 @@ class FactCheck < ApplicationRecord
 
   def set_language
     self.language = self.project_media&.team&.default_language || 'en'
+  end
+
+  def language_in_allowed_values
+    allowed_languages = self.project_media&.team&.get_languages || ['en']
+    errors.add(:language, I18n.t(:"errors.messages.invalid_fact_check_language_value")) unless allowed_languages.include?(self.language)
   end
 
   def update_report

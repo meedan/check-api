@@ -85,15 +85,18 @@ class FactCheckTest < ActiveSupport::TestCase
   test "should set default language" do
     fc = create_fact_check
     assert_equal 'en', fc.language
-    fc = create_fact_check language: 'ar'
-    assert_equal 'ar', fc.language
     t = create_team
     t.set_language = 'fr'
+    t.set_languages(['fr'])
     t.save!
     pm = create_project_media team: t
     cd = create_claim_description project_media: pm
     fc = create_fact_check claim_description: cd
     assert_equal 'fr', fc.language
+    # Validate language
+    assert_raises ActiveRecord::RecordInvalid do
+      create_fact_check claim_description: cd, language: 'en'
+    end
   end
 
   test "should not create a fact check if does not have permission" do
