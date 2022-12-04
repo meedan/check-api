@@ -330,4 +330,12 @@ class RequestTest < ActiveSupport::TestCase
     assert_equal 'UploadedImage', r.media_type(true)
     Bot::Alegre.unstub(:request_api)
   end
+
+  test "should not have a circular dependency" do
+    r = create_request
+    assert_raises ActiveRecord::RecordInvalid do
+      r.similar_to_request = r
+      r.save!
+    end
+  end
 end
