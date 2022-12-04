@@ -148,7 +148,7 @@ class Bot::Fetch < BotUser
   # Mandatory fields in the imported ClaimReview: claim_review_headline, claim_review_url, created_at and id
 
   class Import
-    def self.import_claim_reviews(installation_id, force = false)
+    def self.import_claim_reviews(installation_id, force = false, maximum = nil)
       installation = TeamBotInstallation.find(installation_id)
       RequestStore.store[:skip_notifications] = true
       User.current = user = installation.user
@@ -171,6 +171,7 @@ class Bot::Fetch < BotUser
             from2 = Time.at(current_timestamp)
             to2 = from2 + step.days
             Bot::Fetch.get_claim_reviews({ service: service_name, start_time: from2.strftime('%Y-%m-%d'), end_time: to2.strftime('%Y-%m-%d')}).each do |claim_review|
+              next if !maximum.nil? && total >= maximum
               self.import_claim_review(claim_review, team.id, user.id, status_fallback, status_mapping, auto_publish_reports, force)
               total += 1
             end
@@ -226,6 +227,15 @@ class Bot::Fetch < BotUser
       self.parse_text(title.to_s)
     end
 
+    def self.get_summary(claim_review)
+      url = claim_review['url'].to_s
+      title = self.get_title(claim_review).to_s
+      text = claim_review['text'].to_s.blank? ? claim_review['headline'] : claim_review['text']
+      return '' if text.to_s == title.to_s || text.blank?
+      summary = self.parse_text(text)
+      summary.to_s.truncate(900 - title.size - url.size)
+    end
+
     def self.set_claim_and_fact_check(claim_review, pm, user)
       current_user = User.current
       User.current = user
@@ -242,8 +252,7 @@ class Bot::Fetch < BotUser
       fc.claim_description = cd
       fc.title = self.get_title(claim_review).to_s
       fc.url = claim_review['url'].to_s
-      summary = self.parse_text(claim_review['text'].to_s.blank? ? claim_review['headline'] : claim_review['text'])
-      fc.summary = summary.to_s.truncate(900 - fc.title.size - fc.url.size)
+      fc.summary = self.get_summary(claim_review).to_s
       fc.user = user
       fc.skip_report_update = true
       fc.language = claim_review['inLanguage']

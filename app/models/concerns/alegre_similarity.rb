@@ -14,7 +14,11 @@ module AlegreSimilarity
       (!tbi || tbi.send("get_#{key}").nil?) ? (CheckConfig.get(key, true).to_s == 'true') : tbi.send("get_#{key}")
     end
 
-    def get_similar_items(pm)
+    def get_min_es_score_from_options(options)
+      options[:min_es_score] || Bot::Alegre::DEFAULT_ES_SCORE
+    end
+
+    def get_similar_items(pm, options={})
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 1/5] Getting similar items"
       type = Bot::Alegre.get_pm_type(pm)
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 2/5] Type is #{type.blank? ? "blank" : type}"
@@ -25,9 +29,9 @@ module AlegreSimilarity
         else
           Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 3/5] ProjectMedia can be checked for similar items"
         end
-        suggested_or_confirmed = Bot::Alegre.get_items_with_similarity(type, pm, Bot::Alegre.get_threshold_for_query(type, pm))
+        suggested_or_confirmed = Bot::Alegre.get_items_with_similarity(type, pm, Bot::Alegre.get_threshold_for_query(type, pm, false, Bot::Alegre.get_min_es_score_from_options(options)))
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 4/5] suggested_or_confirmed for #{pm.id} is #{suggested_or_confirmed.inspect}")
-        confirmed = Bot::Alegre.get_items_with_similarity(type, pm, Bot::Alegre.get_threshold_for_query(type, pm, true))
+        confirmed = Bot::Alegre.get_items_with_similarity(type, pm, Bot::Alegre.get_threshold_for_query(type, pm, true, Bot::Alegre.get_min_es_score_from_options(options)))
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 5/5] confirmed for #{pm.id} is #{confirmed.inspect}")
         Bot::Alegre.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
       else
@@ -245,6 +249,11 @@ module AlegreSimilarity
       end
     end
 
+    def get_min_es_score_from_threshold(threshold)
+      threshold ||= []
+      threshold.select{|t| t[:model] == Bot::Alegre::ELASTICSEARCH_MODEL}.collect{|x| x[:min_es_score]}.sort.last || Bot::Alegre::DEFAULT_ES_SCORE
+    end
+
     def similar_texts_from_api_conditions(text, models, fuzzy, team_id, fields, threshold, match_across_content_types=true)
       params = {
         text: text,
@@ -255,6 +264,7 @@ module AlegreSimilarity
       }.merge(self.get_threshold_hash_from_threshold(threshold))
       language = self.language_for_similarity(team_id)
       params[:language] = language if !language.nil?
+      params[:min_es_score] = self.get_min_es_score_from_threshold(threshold)
       params
     end
 
