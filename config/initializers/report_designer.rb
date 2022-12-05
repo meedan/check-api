@@ -33,7 +33,8 @@ Dynamic.class_eval do
         FactCheck.create({ claim_description: pm.claim_description }.merge(fields))
       else
         fields.each { |field, value| fc.send("#{field}=", value) }
-        fc.save
+        fc.skip_check_ability = true
+        fc.save!
       end
     end
     if self.annotation_type == 'report_design' && self.action =~ /publish/

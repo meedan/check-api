@@ -143,7 +143,10 @@ class FactCheckTest < ActiveSupport::TestCase
     RequestStore.store[:skip_cached_field_update] = false
     create_report_design_annotation_type
     u = create_user is_admin: true
-    pm = create_project_media
+    t = create_team
+    t.set_languages = ['en', 'fr']
+    t.save!
+    pm = create_project_media team: t
     cd = create_claim_description project_media: pm
     assert_nil pm.reload.fact_check_title
     assert_nil pm.reload.fact_check_summary
@@ -192,8 +195,11 @@ class FactCheckTest < ActiveSupport::TestCase
 
   test "should keep report and fact-check in sync when fact-check is created and updated" do
     create_report_design_annotation_type
+    t = create_team
+    t.set_languages = ['en', 'fr']
+    t.save!
     u = create_user is_admin: true
-    pm = create_project_media
+    pm = create_project_media team: t
     cd = create_claim_description project_media: pm
     assert_nil pm.get_dynamic_annotation('report_design')
 
