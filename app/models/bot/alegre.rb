@@ -268,8 +268,8 @@ class Bot::Alegre < BotUser
       tbi = self.get_alegre_tbi(pm&.team_id)
       settings = tbi.alegre_settings unless tbi.nil?
       value = settings.blank? ? CheckConfig.get(key) : settings[key]
-      threshold = { value: value.to_f, key: key, automatic: automatic, model: model}
-      threshold[:min_es_score] = min_es_score if model == "elasticsearch"
+      threshold = { value: value.to_f, key: key, automatic: automatic, model: model_name}
+      threshold[:min_es_score] = min_es_score if model_name == "elasticsearch"
       threshold
     end
   end
