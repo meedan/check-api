@@ -1030,22 +1030,18 @@ class GraphqlController3Test < ActionController::TestCase
     assert_nil JSON.parse(@response.body)['data']['me']['team_user']
   end
 
-  test "should create report with multiple images" do
+  test "should create report with image" do
     create_report_design_annotation_type
     u = create_user is_admin: true
     pm = create_project_media
     authenticate_with_user(u)
-    path1 = File.join(Rails.root, 'test', 'data', 'rails.png')
-    path2 = File.join(Rails.root, 'test', 'data', 'rails2.png')
-    file1 = Rack::Test::UploadedFile.new(path1, 'image/png')
-    file2 = Rack::Test::UploadedFile.new(path2, 'image/png')
-    query = 'mutation create { createDynamicAnnotationReportDesign(input: { action: "save", clientMutationId: "1", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", set_fields: "{\"options\":[{\"language\":\"en\"},{\"language\":\"es\",\"image\":\"http://test.com/test.png\"},{\"language\":\"pt\"}]}" }) { dynamic { dbid } } }'
-    post :create, params: { query: query, file: { '2' => file2, '0' => file1 } }
+    path = File.join(Rails.root, 'test', 'data', 'rails.png')
+    file = Rack::Test::UploadedFile.new(path, 'image/png')
+    query = 'mutation create { createDynamicAnnotationReportDesign(input: { action: "save", clientMutationId: "1", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", set_fields: "{\"options\":{\"language\":\"en\"}}" }) { dynamic { dbid } } }'
+    post :create, params: { query: query, file: [file] }
     assert_response :success
     d = Dynamic.find(JSON.parse(@response.body)['data']['createDynamicAnnotationReportDesign']['dynamic']['dbid']).data.with_indifferent_access
-    assert_match /rails\.png/, d[:options][0]['image']
-    assert_match /^http/, d[:options][1]['image']
-    assert_match /rails2\.png/, d[:options][2]['image']
+    assert_match /rails\.png/, d[:options]['image']
   end
 
   test "should define team languages settings" do

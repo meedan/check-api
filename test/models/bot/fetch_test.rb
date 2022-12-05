@@ -192,10 +192,10 @@ class Bot::FetchTest < ActiveSupport::TestCase
       assert_equal "Scientific evidences show that Earth is round",  d.annotation.annotated.fact_check_summary
     end
     r = Dynamic.where(annotation_type: 'report_design').last
-    assert_equal "Earth isn't flat", r.report_design_field_value('headline', 'en')
-    assert_equal "Scientific evidences show that Earth is round", r.report_design_field_value('description', 'en')
-    assert_equal "Earth isn't flat", r.report_design_field_value('title', 'en')
-    assert_equal "Scientific evidences show that Earth is round", r.report_design_field_value('text', 'en')
+    assert_equal "Earth isn't flat", r.report_design_field_value('headline')
+    assert_equal "Scientific evidences show that Earth is round", r.report_design_field_value('description')
+    assert_equal "Earth isn't flat", r.report_design_field_value('title')
+    assert_equal "Scientific evidences show that Earth is round", r.report_design_field_value('text')
   end
 
   test "should notify Airbrake if can't import a claim review" do

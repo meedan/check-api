@@ -349,12 +349,10 @@ class Team < ApplicationRecord
         pm = ProjectMedia.find(id)
         data = report.data.clone.with_indifferent_access
         data[:state] = 'paused'
-        data[:options].each_with_index do |option, i|
-          data[:options][i].merge!({
-            theme_color: pm.status_color(fallback_status_id),
-            status_label: pm.status_i18n(fallback_status_id, { locale: option[:language] })
-          })
-        end
+        data[:options].merge!({
+          theme_color: pm.status_color(fallback_status_id),
+          status_label: pm.status_i18n(fallback_status_id, { locale: data[:options][:language] })
+        })
         report.data = data
         report.save!
       end

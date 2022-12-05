@@ -20,17 +20,12 @@ class ReportDesignerWorker
   def perform(id, action)
     d = Dynamic.where(id: id).last
     return if d.nil?
-    data = d.data.with_indifferent_access
-    data[:options].each_with_index do |option, i|
-      d.report_image_generate_png(i) if d.report_design_field_value('use_visual_card', option[:language])
-    end
+    d.report_image_generate_png if d.report_design_field_value('use_visual_card')
     pm = ProjectMedia.where(id: d.annotated_id).last
     ::Bot::Smooch.send_report_to_users(pm, action) unless pm.nil?
     d = Dynamic.where(id: id).last
     data = d.data.with_indifferent_access
-    data[:options].each_with_index do |option, i|
-      data[:options][i][:previous_published_status_label] = option[:status_label].to_s
-    end
+    data[:options][:previous_published_status_label] = data[:options][:status_label].to_s
     data[:first_published] ||= Time.now.to_i.to_s
     data[:last_published] = Time.now.to_i.to_s
     data[:published_count] = data[:published_count].to_i + 1
