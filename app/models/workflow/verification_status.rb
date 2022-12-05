@@ -103,12 +103,10 @@ class Workflow::VerificationStatus < Workflow::Base
       unless report.nil?
         report = report.load
         data = report.data.clone.with_indifferent_access
-        data[:options].each_with_index do |option, i|
-          data[:options][i].merge!({
-            theme_color: pm.last_status_color,
-            status_label: pm.status_i18n(pm.last_verification_status, { locale: option[:language] })
-          })
-        end
+        data[:options].merge!({
+          theme_color: pm.last_status_color,
+          status_label: pm.status_i18n(pm.last_verification_status, { locale: data[:options][:language] })
+        })
         report.data = data
         report.save!
       end

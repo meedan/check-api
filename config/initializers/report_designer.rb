@@ -11,31 +11,30 @@ Dynamic.class_eval do
     if self.annotation_type == 'report_design' && (self.action == 'save' || self.action =~ /publish/) && pm&.claim_description
       fc = pm.claim_description.fact_check
       user = self.annotator || User.current
-      fields = { user: user, skip_report_update: true }
+      url = self.report_design_field_value('published_article_url')
+      language = self.report_design_field_value('language')
+      fields = { user: user, skip_report_update: true , url: url, language: language }
       if self.report_design_field_value('use_text_message')
         title = self.report_design_field_value('title')
         summary = self.report_design_field_value('text')
-        url = self.report_design_field_value('published_article_url')
         fields.merge!({
           title: title,
           summary: summary,
-          url: url
         })
       elsif self.report_design_field_value('use_visual_card')
         title = self.report_design_field_value('headline')
         summary = self.report_design_field_value('description')
-        url = self.report_design_field_value('published_article_url')
         fields.merge!({
           title: title,
           summary: summary,
-          url: url
         })
       end
       if fc.nil?
         FactCheck.create({ claim_description: pm.claim_description }.merge(fields))
       else
         fields.each { |field, value| fc.send("#{field}=", value) }
-        fc.save
+        fc.skip_check_ability = true
+        fc.save!
       end
     end
     if self.annotation_type == 'report_design' && self.action =~ /publish/
@@ -47,8 +46,8 @@ Dynamic.class_eval do
 
   def report_design_introduction(data, language)
     if self.annotation_type == 'report_design'
-      introduction = self.report_design_field_value('introduction', language).to_s
-      introduction = introduction.gsub('{{status}}', self.report_design_field_value('status_label', language).to_s)
+      introduction = self.report_design_field_value('introduction').to_s
+      introduction = introduction.gsub('{{status}}', self.report_design_field_value('status_label').to_s)
       introduction = introduction.gsub('{{query_date}}', self.report_design_date(Time.at(data['received']).to_date, language)) if data['received']
       introduction
     end
@@ -78,10 +77,10 @@ Dynamic.class_eval do
   def report_design_text(language = nil)
     if self.annotation_type == 'report_design'
       text = []
-      title = self.report_design_field_value('title', language)
+      title = self.report_design_field_value('title')
       text << "*#{title.strip}*" unless title.blank?
-      text << Bot::Smooch.utmize_urls(self.report_design_field_value('text', language).to_s, 'report')
-      url = self.report_design_field_value('published_article_url', language)
+      text << Bot::Smooch.utmize_urls(self.report_design_field_value('text').to_s, 'report')
+      url = self.report_design_field_value('published_article_url')
       text << Bot::Smooch.utmize_urls(url, 'report') unless url.blank?
       unless language.nil?
         footer = self.report_design_text_footer(language)
@@ -91,22 +90,14 @@ Dynamic.class_eval do
     end
   end
 
-  def report_design_field_value(field, language = nil)
-    value = nil
-    default = nil
-    if self.annotation_type == 'report_design'
-      data = self.data.with_indifferent_access
-      default_language = data[:default_language] || self.annotated&.team&.default_language || 'en'
-      data[:options].to_a.each do |option|
-        value = option[field] if option[:language] == language
-        default = option[field] if option[:language] == default_language
-      end
-    end
-    value.blank? ? default : value
+  def report_design_field_value(field)
+    return nil unless self.annotation_type == 'report_design'
+    data = self.data.with_indifferent_access
+    data[:options].blank? ? nil : data[:options][field]
   end
 
-  def report_design_image_url(language = nil)
-    self.annotation_type == 'report_design' ? Dynamic.find(self.id).report_design_field_value('visual_card_url', language) : nil
+  def report_design_image_url
+    self.annotation_type == 'report_design' ? Dynamic.find(self.id).report_design_field_value('visual_card_url') : nil
   end
 
   def adjust_report_design_image_url(url)
@@ -123,10 +114,10 @@ Dynamic.class_eval do
     twitter = self.report_design_team_setting_value('twitter', language)
     telegram = self.report_design_team_setting_value('telegram', language)
     {
-      title: self.report_design_field_value('headline', language),
-      status: self.report_design_field_value('status_label', language),
-      description: self.report_design_field_value('description', language),
-      url: self.report_design_field_value('url', language),
+      title: self.report_design_field_value('headline'),
+      status: self.report_design_field_value('status_label'),
+      description: self.report_design_field_value('description'),
+      url: self.report_design_field_value('url'),
       whatsapp: self.report_design_team_setting_value('whatsapp', language),
       facebook: facebook.blank? ? nil : "m.me/#{facebook}",
       twitter: twitter.blank? ? nil : "@#{twitter}",
@@ -136,18 +127,18 @@ Dynamic.class_eval do
     }
   end
 
-  def report_image_generate_png(option_index)
+  def report_image_generate_png
     if self.annotation_type == 'report_design'
       team = self.annotated&.team
       data = self.data.with_indifferent_access
-      language = data[:options][option_index][:language]
+      language = data[:options][:language]
 
       # Get the template and generate the HTML
       FileUtils.mkdir_p(File.join(Rails.root, 'public', 'report_design'))
       template = team.get_report_design_image_template
       doc = Nokogiri::HTML(template)
       body = doc.at_css('body')
-      overlay = self.report_design_field_value('dark_overlay', language) ? 'dark' : 'light'
+      overlay = self.report_design_field_value('dark_overlay') ? 'dark' : 'light'
       body['class'] = ['report', language.to_s, overlay].join(' ')
       html = doc.at_css('html')
       html['lang'] = language.to_s
@@ -155,14 +146,14 @@ Dynamic.class_eval do
         el = doc.at_css('#' + key.to_s)
         value.blank? ? el.remove : el.add_child(value)
       end
-      date = self.report_design_field_value('date', language)
+      date = self.report_design_field_value('date')
       doc.at_css('#date').content = date || self.report_design_date(self.updated_at.to_date, language)
       avatar = self.adjust_report_design_image_url(team.avatar)
-      image = self.adjust_report_design_image_url(self.report_design_field_value('image', language))
+      image = self.adjust_report_design_image_url(self.report_design_field_value('image'))
       temp_name = 'temp-' + self.id.to_s + '-' + language + '.html'
       temp = File.join(Rails.root, 'public', 'report_design', temp_name)
       output = File.open(temp, 'w+')
-      output.puts doc.to_s.gsub(/#CCCCCC/, self.report_design_field_value('theme_color', language).to_s).gsub('%IMAGE_URL%', image.to_s).gsub('%AVATAR_URL%', avatar.to_s)
+      output.puts doc.to_s.gsub(/#CCCCCC/, self.report_design_field_value('theme_color').to_s).gsub('%IMAGE_URL%', image.to_s).gsub('%AVATAR_URL%', avatar.to_s)
       output.close
 
       # Upload the HTML to S3
@@ -177,7 +168,7 @@ Dynamic.class_eval do
       response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') { |http| http.request(request) }
       screenshot = JSON.parse(response.body)['url']
       raise "Unexpected response from screenshot service for request #{uri}: #{response.body}" unless screenshot =~ /^http/
-      data[:options][option_index][:visual_card_url] = screenshot
+      data[:options][:visual_card_url] = screenshot
       self.set_fields = data.to_json
       self.save!
       FileUtils.rm_f temp
@@ -188,11 +179,11 @@ Dynamic.class_eval do
   def copy_report_image_paths
     return unless self.saved_change_to_file?
     fields = self.set_fields || '{}'
-    data = { 'options' => [] }.merge(JSON.parse(fields))
-    self.file.each_with_index do |image, i|
-      next if image.blank?
+    data = { 'options' => {} }.merge(JSON.parse(fields))
+    image = self.file.first
+    unless image.nil?
       url = begin image.file.public_url rescue nil end
-      data['options'][i]['image'] = url unless url.nil?
+      data['options']['image'] = url unless url.nil?
     end
     self.set_fields = data.to_json
     self.action = nil
