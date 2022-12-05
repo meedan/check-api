@@ -661,7 +661,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm.analysis = { title: 'Title 1' }
     pm.save!
     Bot::Alegre.stubs(:matching_model_to_use).with(pm.team_id).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
-    assert_equal Bot::Alegre.get_threshold_for_query("text", ProjectMedia.last), [{:value=>0.7, :key=>"text_elasticsearch_suggestion_threshold", :automatic=>false, :model=>"xlm-r-bert-base-nli-stsb-mean-tokens"}, {:value=>0.75, :key=>"text_vector_suggestion_threshold", :automatic=>false, :model=>"xlm-r-bert-base-nli-stsb-mean-tokens"}]
+    assert_equal Bot::Alegre.get_threshold_for_query("text", ProjectMedia.last), [{:value=>0.7, :key=>"text_elasticsearch_suggestion_threshold", :automatic=>false, :model=>"elasticsearch", :min_es_score=>10}, {:value=>0.75, :key=>"text_vector_suggestion_threshold", :automatic=>false, :model=>"xlm-r-bert-base-nli-stsb-mean-tokens"}]
     Bot::Alegre.unstub(:matching_model_to_use)
   end
 
