@@ -25,7 +25,7 @@ class FactCheck < ApplicationRecord
   private
 
   def set_language
-    languages = self.project_media&.team&.default_languages || ['en']
+    languages = self.project_media&.team&.get_languages || ['en']
     self.language = languages.length == 1 ? languages.first : 'und'
   end
 

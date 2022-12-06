@@ -13,7 +13,7 @@ namespace :check do
           Dynamic.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia', annotated_id: ids).find_each do |report|
             print '.'
             data = report.data.with_indifferent_access
-            options = data[:options] || []
+            options = [data[:options]].flatten || []
             data[:options] = options.length ? options.shift : {}
             selected_option = nil
             if options.length && data[:options][:title].blank? && data[:options][:text].blank?
@@ -29,6 +29,9 @@ namespace :check do
               failed_items << report.id
             end
           end
+          # Update fact check to sync report language
+          cd_ids = ClaimDescription.where(project_media_id: ids).map(&:id)
+          FactCheck.where(claim_description_id: cd_ids).update_all(language: report_language)
         end
         Rails.cache.write('check:migrate:adjust_report_design_schema:team_id', team.id)
       end
