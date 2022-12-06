@@ -24,7 +24,6 @@ module Check
         config.use 'OpenTelemetry::Instrumentation::Net::HTTP'
         config.use 'OpenTelemetry::Instrumentation::PG'
         config.use 'OpenTelemetry::Instrumentation::Rails'
-        config.use 'OpenTelemetry::Instrumentation::Redis'
         config.use 'OpenTelemetry::Instrumentation::RestClient'
         config.use 'OpenTelemetry::Instrumentation::Sidekiq'
         config.use 'OpenTelemetry::Instrumentation::Sinatra'
