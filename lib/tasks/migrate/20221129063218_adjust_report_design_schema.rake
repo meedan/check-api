@@ -1,58 +1,36 @@
-class AdjustReportDesignSchema < ActiveRecord::Migration[5.2]
-  def change
-    RequestStore.store[:skip_rules] = true
-
-    at = DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').last
-    unless at.nil?
-      json_schema = at.json_schema.clone.with_indifferent_access
-      options_schema = json_schema[:properties][:options][:items]
-      json_schema[:properties][:options] = options_schema
-      
-      at.json_schema = json_schema
-      at.save!
-
-      # We need to do this in the migration, otherwise the app can be inconsistent
-
-      n = Dynamic.where(annotation_type: 'report_design').count
-      i = 0
-      Dynamic.where(annotation_type: 'report_design').find_each do |report|
-        i += 1
-        puts "[#{Time.now}] (#{i}/#{n}) Updating report with ID #{report.id}..."
-        data = report.data.with_indifferent_access
-        data[:options] = data[:options].first
-        report.data = data
-        report.save!
-      end
-    end
-
-    RequestStore.store[:skip_rules] = false
-  end
-end
 namespace :check do
   namespace :migrate do
     task adjust_report_design_schema: :environment do
       started = Time.now.to_i
       RequestStore.store[:skip_rules] = true
-      n = Dynamic.where(annotation_type: 'report_design').count
-      i = 0
+      last_team_id = Rails.cache.read('check:migrate:adjust_report_design_schema:team_id') || 0
       failed_items = []
-      Dynamic.where(annotation_type: 'report_design').find_each do |report|
-        i += 1
-        puts "[#{Time.now}] (#{i}/#{n}) Updating report with ID #{report.id}..."
-        data = report.data.with_indifferent_access
-        options = data[:options] || []
-        data[:options] = options.length ? options.shift : {}
-        selected_option = nil
-        if options.length && data[:options][:title].blank? && data[:options][:text].blank?
-          selected_option = options.find{|e| !e[:title].blank? || !e[:text].blank? }
+      Team.where('id > ?', last_team_id).find_each do |team|
+        team_languages = team&.get_languages || ['en']
+        report_language = team_languages.length == 1 ? team_languages.first : 'und'
+        team.project_medias.find_in_batches(:batch_size => 2500) do |pms|
+          ids = pms.map(&:id)
+          Dynamic.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia', annotated_id: ids).find_each do |report|
+            print '.'
+            data = report.data.with_indifferent_access
+            options = data[:options] || []
+            data[:options] = options.length ? options.shift : {}
+            selected_option = nil
+            if options.length && data[:options][:title].blank? && data[:options][:text].blank?
+              selected_option = options.find{|e| !e[:title].blank? || !e[:text].blank? }
+            end
+            data[:options] = selected_option unless selected_option.nil?
+            # set report language
+            data[:options][:language] = report_language
+            report.data = data
+            begin
+              report.save!
+            rescue
+              failed_items << report.id
+            end
+          end
         end
-        data[:options] = selected_option unless selected_option.nil?       
-        report.data = data
-        begin
-          report.save!
-        rescue
-          failed_items << report.id
-        end
+        Rails.cache.write('check:migrate:adjust_report_design_schema:team_id', team.id)
       end
       RequestStore.store[:skip_rules] = false
       minutes = ((Time.now.to_i - started) / 60).to_i
