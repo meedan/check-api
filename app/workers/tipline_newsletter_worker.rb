@@ -20,7 +20,7 @@ class TiplineNewsletterWorker
                 introduction = newsletter['smooch_newsletter_introduction'].to_s.gsub('{date}', date).gsub('{channel}', ts.platform)
                 content = Bot::Smooch.build_newsletter_content(newsletter, language, team_id).gsub('{date}', date).gsub('{channel}', ts.platform)
                 Bot::Smooch.get_installation { |i| i.id == tbi.id }
-                response = Bot::Smooch.send_final_message_to_user(ts.uid, content, workflow, language)
+                response = Bot::Smooch.send_final_messages_to_user(ts.uid, content, workflow, language)
                 Bot::Smooch.save_smooch_response(response, nil, nil, 'newsletter', language, { introduction: introduction })
                 log team_id, language, "Newsletter sent to subscriber ##{ts.id}, response: #{response.inspect}"
                 count += 1

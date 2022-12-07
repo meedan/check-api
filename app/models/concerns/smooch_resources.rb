@@ -26,7 +26,7 @@ module SmoochResources
         end
       end
       message = self.utmize_urls(message.join("\n\n"), 'resource')
-      self.send_final_message_to_user(uid, message, workflow, language) unless message.blank?
+      self.send_final_messages_to_user(uid, message, workflow, language) unless message.blank?
     end
 
     def send_resource_to_user(uid, workflow, option, language)
