@@ -8,7 +8,7 @@ namespace :check do
       Team.where('id > ?', last_team_id).find_each do |team|
         team_languages = team&.get_languages || ['en']
         report_language = team_languages.length == 1 ? team_languages.first : 'und'
-        team.project_medias.find_in_batches(:batch_size => 2500) do |pms|
+        team.project_medias.find_in_batches(:batch_size => 1000) do |pms|
           ids = pms.map(&:id)
           Dynamic.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia', annotated_id: ids).find_each do |report|
             print '.'
@@ -30,8 +30,7 @@ namespace :check do
             end
           end
           # Update fact check to sync report language
-          cd_ids = ClaimDescription.where(project_media_id: ids).map(&:id)
-          FactCheck.where(claim_description_id: cd_ids).update_all(language: report_language)
+          FactCheck.joins(:claim_description).where('claim_descriptions.project_media_id IN (?)', ids).update_all(language: report_language)
         end
         Rails.cache.write('check:migrate:adjust_report_design_schema:team_id', team.id)
       end
