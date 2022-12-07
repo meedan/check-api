@@ -25,11 +25,13 @@ class FactCheck < ApplicationRecord
   private
 
   def set_language
-    self.language = self.project_media&.team&.default_language || 'en'
+    languages = self.project_media&.team&.get_languages || ['en']
+    self.language = languages.length == 1 ? languages.first : 'und'
   end
 
   def language_in_allowed_values
     allowed_languages = self.project_media&.team&.get_languages || ['en']
+    allowed_languages << 'und'
     errors.add(:language, I18n.t(:"errors.messages.invalid_fact_check_language_value")) unless allowed_languages.include?(self.language)
   end
 

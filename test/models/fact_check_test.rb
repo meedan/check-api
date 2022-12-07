@@ -97,6 +97,13 @@ class FactCheckTest < ActiveSupport::TestCase
     assert_raises ActiveRecord::RecordInvalid do
       create_fact_check claim_description: cd, language: 'en'
     end
+    # should set language `und` when workspace has more than one language
+    t.set_languages(['en', 'fr'])
+    t.save!
+    pm = create_project_media team: t
+    cd = create_claim_description project_media: pm
+    fc = create_fact_check claim_description: cd
+    assert_equal 'und', fc.language
   end
 
   test "should not create a fact check if does not have permission" do
