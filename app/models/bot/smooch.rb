@@ -885,7 +885,7 @@ class Bot::Smooch < BotUser
       end
       if report.report_design_field_value('use_text_message')
         workflow = self.get_workflow(lang)
-        last_smooch_response = self.send_final_message_to_user(uid, report.report_design_text(lang), workflow, lang)
+        last_smooch_response = self.send_final_messages_to_user(uid, report.report_design_text(lang), workflow, lang)
         Rails.logger.info "[Smooch Bot] Sent text report to user #{uid} for item with ID #{pm.id}, response was: #{last_smooch_response.to_json}"
       elsif report.report_design_field_value('use_visual_card')
         last_smooch_response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url })

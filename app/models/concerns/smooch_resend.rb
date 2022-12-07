@@ -123,7 +123,7 @@ module SmoochResend
     end
 
     def send_message_on_template_button_click(_message, uid, language, info)
-      self.send_final_message_to_user(uid, info[1], self.get_workflow(language), language)
+      self.send_final_messages_to_user(uid, info[1], self.get_workflow(language), language)
     end
 
     def clicked_on_template_button?(message)

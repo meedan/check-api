@@ -64,6 +64,16 @@ module SmoochMessages
       end
     end
 
+    def send_final_messages_to_user(uid, text, workflow, language)
+      response = self.send_message_to_user(uid, text)
+      if self.is_v2?
+        CheckStateMachine.new(uid).go_to_main
+        sleep 1
+        response = self.send_message_to_user_with_main_menu_appended(uid, self.get_string('navigation_button', language), workflow, language)
+      end
+      response
+    end
+
     def send_message_for_state(uid, workflow, state, language, pretext = '')
       message = self.utmize_urls(self.get_message_for_state(workflow, state, language, uid).to_s, 'resource')
       text = [pretext, message].reject{ |part| part.blank? }.join("\n\n")
