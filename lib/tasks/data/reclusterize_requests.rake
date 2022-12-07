@@ -1,4 +1,4 @@
-# rake check:data:clusterize_requests[feed_id,force]
+# rake check:migrate:clusterize_requests[feed_id,force]
 namespace :check do
   namespace :migrate do
     task clusterize_requests: :environment do |_t, params|
