@@ -275,8 +275,8 @@ module SmoochMenus
         self.send_message_to_user_with_single_section_menu(uid, text, options, self.get_menu_string('languages', language))
       else
         self.send_message_to_user(uid, text) if with_text
-        sleep 1
         options.each_slice(3).to_a.each do |sub_options|
+          sleep 1 # Try to deliver languages in the correct order
           self.send_message_to_user_with_buttons(uid, '🌐​', sub_options)
         end
       end
