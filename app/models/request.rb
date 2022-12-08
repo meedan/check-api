@@ -44,13 +44,13 @@ class Request < ApplicationRecord
         words = ::Bot::Alegre.get_number_of_words(media.quote)
         models_thresholds = self.text_similarity_settings.reject{ |_k, v| v['min_words'] > words }
         if models_thresholds.count > 0
-          params = { text: media.quote, models: models_thresholds.keys, per_model_threshold: models_thresholds.transform_values{ |v| v['threshold'] }, context: context }
+          params = { text: media.quote, models: models_thresholds.keys, per_model_threshold: models_thresholds.transform_values{ |v| v['threshold'] }, limit: 10000, context: context }
           similar_request_id = ::Bot::Alegre.request_api('get', '/text/similarity/', params)&.dig('result').to_a.collect{ |result| result&.dig('_source', 'context', 'request_id').to_i }.find{ |id| id != 0 && id < self.id }
         end
       elsif ['UploadedImage', 'UploadedAudio', 'UploadedVideo'].include?(media.type)
         threshold = 0.85 #FIXME: Should be feed setting
         type = media.type.gsub(/^Uploaded/, '').downcase
-        params = { url: media.file.file.public_url, threshold: threshold, context: context }
+        params = { url: media.file.file.public_url, threshold: threshold, limit: 10000, context: context }
         similar_request_id = ::Bot::Alegre.request_api('get', "/#{type}/similarity/", params)&.dig('result').to_a.collect{ |result| result&.dig('context').to_a.collect{ |c| c['request_id'].to_i } }.flatten.find{ |id| id != 0 && id < self.id }
       end
     end
