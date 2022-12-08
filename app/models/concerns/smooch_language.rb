@@ -37,7 +37,7 @@ module SmoochLanguage
         l = w['smooch_workflow_language']
         languages << l if team_languages.include?(l)
       end
-      languages.sort
+      languages
     end
 
     def should_ask_for_language_confirmation?(uid)
