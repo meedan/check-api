@@ -724,7 +724,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     a = create_dynamic_annotation annotator: u2, annotated: pm, annotation_type: 'test', set_fields: { test: 'Test' }.to_json
     RequestStore.store[:disable_es_callbacks] = true
     with_current_user_and_team(u, t) do
-      pm.disable_es_callbacks = true
       pm.destroy
     end
     RequestStore.store[:disable_es_callbacks] = false
@@ -2824,6 +2823,34 @@ class ProjectMediaTest < ActiveSupport::TestCase
           pm.destroy!
         end
       end
+    end
+  end
+
+  test "should delete project_media_requests and requests when item is deleted" do
+    t = create_team
+    m1 = create_claim_media
+    pm = create_project_media team: t, media: m1
+    r1 = create_request media: m1
+    r2 = create_request
+    r3 = create_request
+    create_project_media_request project_media_id: pm.id, request_id: r1.id
+    create_project_media_request project_media_id: pm.id, request_id: r2.id
+    create_project_media_request project_media_id: pm.id, request_id: r3.id
+    assert_difference 'ProjectMedia.count', -1 do
+      assert_difference 'ProjectMediaRequest.count', -3 do
+        assert_no_difference 'Request.count' do
+          Sidekiq::Testing.inline! do
+            pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
+            pm.save!
+          end
+        end
+      end
+    end
+    t2 = create_team
+    pm2 = create_project_media team: t2, media: m1
+    create_project_media_request project_media_id: pm2.id, request_id: r1.id
+    assert_nothing_raised do
+      r1.destroy!
     end
   end
 
