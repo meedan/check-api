@@ -435,7 +435,7 @@ class Bot::Smooch < BotUser
       else
         allowed_types = ['query_state', 'subscription_state', 'custom_resource']
         options = options.reject{ |o| !allowed_types.include?(o['smooch_menu_option_value']) }.concat(workflow.dig('smooch_state_secondary', 'smooch_menu_options').to_a.clone.select{ |o| allowed_types.include?(o['smooch_menu_option_value']) })
-        language_options = self.get_supported_languages.reject { |l| l == workflow['smooch_workflow_language'] }.sort
+        language_options = self.get_supported_languages.reject { |l| l == workflow['smooch_workflow_language'] }
         if (language_options.size + options.size) >= 10
           options << {
             'smooch_menu_option_keyword' => 'choose_language',
