@@ -984,4 +984,19 @@ module SampleData
   def create_request(options = {})
     Request.create!({ content: random_string, request_type: 'text', feed: create_feed, media: create_valid_media }.merge(options))
   end
+
+  def create_project_media_request(options = {})
+    project_media_id = options[:project_media_id] || create_project_media.id
+    request_id = options[:request_id] || create_request.id
+    options = {
+      project_media_id: project_media_id,
+      request_id: request_id,
+    }.merge(options)
+    pmr = ProjectMediaRequest.new
+    options.each do |key, value|
+      pmr.send("#{key}=", value) if pmr.respond_to?("#{key}=")
+    end
+    pmr.save!
+    pmr
+  end
 end

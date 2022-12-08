@@ -5,6 +5,7 @@ module ProjectMediaAssociations
 
   included do
     include AnnotationBase::Association
+    include ErrorNotification
 
     belongs_to :media, optional: true
     belongs_to :user, optional: true
@@ -15,6 +16,7 @@ module ProjectMediaAssociations
     has_many :sources, through: :target_relationships, source: :source
     has_many :targets, through: :source_relationships, source: :target
     has_many :project_media_users, dependent: :destroy
+    has_many :project_media_requests, dependent: :destroy
     has_one :claim_description, dependent: :destroy
     belongs_to :cluster, counter_cache: true, optional: true
     belongs_to :source, optional: true
