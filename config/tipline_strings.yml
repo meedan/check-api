@@ -2,6 +2,7 @@
 am:
   add_more_details_state_button_label: ተጨማሪ አክል
   ask_if_ready_state_button_label: ሰርዝ
+  cancelled: እሺ!
   confirm_preferred_language: እባክዎ የመረጡትን ቋንቋ ያረጋግጡ
   invalid_format: ይቅርታ፣ ያስገቡት ፋይል ቅርጸት አይደገፍም።
   keep_subscription_button_label: የደንበኝነት ምዝገባን አስቀጥል
@@ -24,6 +25,7 @@ am:
 ar:
   add_more_details_state_button_label: أضف المزيد
   ask_if_ready_state_button_label: إلغاء
+  cancelled: موافق!
   confirm_preferred_language: الرجاء إختيار اللغة
   invalid_format: عذراً، هذا النوع من الملفات غير مدعوم على منصتنا
   keep_subscription_button_label: الإبقاء على الإشتراك
@@ -59,6 +61,7 @@ ar:
 as:
   add_more_details_state_button_label: আৰু যোগ কৰক
   ask_if_ready_state_button_label: বাতিল কৰক
+  cancelled: ঠিক আছে!
   confirm_preferred_language: অনুগ্ৰহ কৰি আপোনাৰ পছন্দৰ ভাষা নিশ্চিত কৰক
   invalid_format: ক্ষমা কৰিব, আপুনি জমা দিয়া ফাইলটো বিশ্লেষণ সাধ্য নহয়
   keep_subscription_button_label: চাবস্ক্ৰিপচন ৰাখক
@@ -129,6 +132,7 @@ bho:
 bn:
   add_more_details_state_button_label: আরও তথ্য যোগ করুন
   ask_if_ready_state_button_label: বাতিল
+  cancelled: ঠিক আছে!
   confirm_preferred_language: অনুগ্রহ করে আপনার পছন্দেসই ভাষা নিশ্চিত করুন
   invalid_format: দুঃখিত, আপনার জমা দেওয়া ফাইলটি সমর্থিত ফর্মেটে নয়।
   keep_subscription_button_label: সাবস্ক্রিপশন চালু রাখুন
@@ -164,6 +168,7 @@ bn:
 bn_BD:
   add_more_details_state_button_label: আরো যোগ করুণ
   ask_if_ready_state_button_label: বাতিল
+  cancelled: ঠিক আছে!
   confirm_preferred_language: আপনার পছন্দের ভাষা নিশ্চিত করুন
   invalid_format: দুঃখিত, আপনার জমা দেওয়া ফাইলটি সাপোর্টেড ফর্মেটে নয়।
   keep_subscription_button_label: সাবস্ক্রিপশন রাখুন
@@ -199,6 +204,7 @@ bn_BD:
 en:
   add_more_details_state_button_label: Add more
   ask_if_ready_state_button_label: Cancel
+  cancelled: Ok!
   confirm_preferred_language: Please confirm your preferred language
   invalid_format: Sorry, the file you submitted is not supported format.
   keep_subscription_button_label: Keep subscription
@@ -234,6 +240,7 @@ en:
 fr:
   add_more_details_state_button_label: En ajouter
   ask_if_ready_state_button_label: Annuler
+  cancelled: D'accord!
   confirm_preferred_language: Veuillez confirmer votre préférence de langue
   invalid_format: Désolé, le fichier que vous avez envoyé n’est pas à un format en
     charge.
@@ -271,6 +278,7 @@ fr:
 de:
   add_more_details_state_button_label: Mehr hinzufügen
   ask_if_ready_state_button_label: Abbrechen
+  cancelled: OK!
   confirm_preferred_language: Bitte bestätigen Sie Ihre bevorzugte Sprache.
   invalid_format: Verzeihung, dieses Dateiformat wird nicht unterstützt.
   keep_subscription_button_label: Abo behalten
@@ -307,6 +315,7 @@ de:
 gu:
   add_more_details_state_button_label: વધુ ઉમેરો
   ask_if_ready_state_button_label: રદ કરો
+  cancelled: બરાબર!
   confirm_preferred_language: કૃપા કરીને તમારી ભાષા પસંદ કરો
   invalid_format: માફ કરશો, તમે જમા કરેલી વિગતો ફોર્મેટ અનુરૂપ નથી
   keep_subscription_button_label: ચાલુ રાખો
@@ -340,6 +349,7 @@ gu:
 hi:
   add_more_details_state_button_label: अधिक जानकारी जोड़ें
   ask_if_ready_state_button_label: रद्द करें
+  cancelled: ठीक!
   confirm_preferred_language: कृ पया अपनी भाषा चुनें
   invalid_format: क्षमा करें, आपके द्वारा जमा की गई फाइल समर्थित प्रारूप नहीं है।
   keep_subscription_button_label: सब्सक्रिप्शन रखें
@@ -375,6 +385,7 @@ hi:
 id:
   add_more_details_state_button_label: Tambah lebih banyak
   ask_if_ready_state_button_label: Batalkan
+  cancelled: Oke!
   confirm_preferred_language: Silakan konfirmasi bahasa pilihan Anda
   invalid_format: Maaf, format berkas yang Anda kirimkan tidak didukung.
   keep_subscription_button_label: Tetap berlangganan
@@ -410,6 +421,7 @@ id:
 kn:
   add_more_details_state_button_label: ಹೆಚ್ಚು ಸೇರಿಸಿ
   ask_if_ready_state_button_label: ರದ್ದು
+  cancelled: ಸರಿ!
   confirm_preferred_language: ನಿಮ್ಮ ಆಯ್ಕೆಯ ಭಾಷೆಯನ್ನು ಖಚಿತಪಡಿಸಿ
   invalid_format: ಕ್ಷಮಿಸಿ, ನೀವು ಸಲ್ಲಿಸಿರುವ ಫೈಲ್ ಫಾರ್ಮ್ಯಾಟ್ ಅನ್ನು ಬೆಂಬಲಿಸಲಾಗುವುದಿಲ್ಲ.
   keep_subscription_button_label: ಚಂದಾದಾರಿಕೆ ಇಟ್ಟುಕೊಳ್ಳಿ
@@ -445,6 +457,7 @@ kn:
 ks:
   add_more_details_state_button_label: بییہ جوڑیو
   ask_if_ready_state_button_label: منسوخ کریو
+  cancelled: ''
   confirm_preferred_language: مہربانی کرتھِ کریو زبانِ ہُند انتخاب
   invalid_format: معافی دیو، تُہنز سوزنہ آمژ فائل چھنہ فارمیٹ مطابق
   keep_subscription_button_label: سبسکرپشن تھائیو
@@ -480,6 +493,7 @@ ks:
 ml:
   add_more_details_state_button_label: കൂടുതൽ ചേർക്കുക
   ask_if_ready_state_button_label: റദ്ദാക്കുക
+  cancelled: ശരി!
   confirm_preferred_language: നിങ്ങൾ തിരഞ്ഞെടുത്ത ഭാഷ സ്ഥിരീകരിക്കുക
   invalid_format: ക്ഷമിക്കണം, നിങ്ങൾ സമർപ്പിച്ച ഫയൽ പിന്തുണയ്ക്കുന്ന ഫോർമാറ്റിൽ അല്ല.
   keep_subscription_button_label: സബ്സ്ക്രിപ്ഷൻ തുടരാം
@@ -512,6 +526,7 @@ ml:
 mr:
   add_more_details_state_button_label: अधिक माहिती जोडा
   ask_if_ready_state_button_label: रद्द करा
+  cancelled: ठीक आहे!
   confirm_preferred_language: कृपया आपल्या पसंतीच्या भाषेची खात्री करा
   invalid_format: माफ करा, आपण सबमिट केलेली फाईल समर्थित स्वरुपात नाही.
   keep_subscription_button_label: सबस्क्रिप्शन कायम ठेवा
@@ -547,6 +562,7 @@ mr:
 ne:
   add_more_details_state_button_label: थप गर्नुहोस्
   ask_if_ready_state_button_label: रद्द गर्नुहोस्
+  cancelled: ठिक छ!
   confirm_preferred_language: कृपया आफ्नो मनपर्ने भाषा पुष्टि गर्नुहोस्
   invalid_format: माफ गर्नुहोस्, तपाईंले पेश गर्नुभएको फाइल ढाँचा समर्थित छैन।
   keep_subscription_button_label: सदस्यता राख्नुहोस्
@@ -582,6 +598,7 @@ ne:
 pa:
   add_more_details_state_button_label: ਵਧੇਰੀ ਜਾਣਕਾਰੀ ਜੋੜੋ
   ask_if_ready_state_button_label: ਰੱਦ ਕਰੋ
+  cancelled: ਠੀਕ ਹੈ!
   confirm_preferred_language: ਕਿਰਪਾ ਆਪਣੀ ਪਸੰਦ ਦੀ ਭਾਸ਼ਾ ਦੀ ਪੁਸ਼ਟੀ ਕਰੋ
   invalid_format: ਮੁਆਫ ਕਰੋ, ਤੁਹਾਡੇ ਵੱਲੋਂ ਜਮ੍ਹਾ ਕੀਤੀ ਗਈ ਫਾਈਲ ਸਮਰਥਿਤ ਫਾਰਮੈਟ ਨਹੀਂ ਹੈ।
   keep_subscription_button_label: ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਕਾਇਮ ਰੱਖੋ
@@ -617,6 +634,7 @@ pa:
 pt:
   add_more_details_state_button_label: Adicionar mais
   ask_if_ready_state_button_label: Cancelar
+  cancelled: OK!
   confirm_preferred_language: Por favor, confirme seu idioma de preferência
   invalid_format: Desculpe, o formato do arquivo que você enviou não é compatível.
   keep_subscription_button_label: Manter inscrição
@@ -652,6 +670,7 @@ pt:
 si:
   add_more_details_state_button_label: තව එකතු කරන්න
   ask_if_ready_state_button_label: අවලංගු කරන්න
+  cancelled: හරි!
   confirm_preferred_language: කරුණාකර ඔබ කැමති භාෂාව තහවුරු කරන්න
   invalid_format: සමාවන්න, ඔබ ඉදිරිපත් කළ ෆයිල් එකේ වර්ගය මේ සඳහා සහය දක්වන්නේ නැත.
   keep_subscription_button_label: ''
@@ -687,6 +706,7 @@ si:
 es:
   add_more_details_state_button_label: Añadir más
   ask_if_ready_state_button_label: Cancelar
+  cancelled: "¡OK!"
   confirm_preferred_language: Por favor confirma tu idioma de preferencia
   invalid_format: Lo sentimos, el archivo que has enviado está en un formato no admitido
   keep_subscription_button_label: Mantener suscripción
@@ -723,6 +743,7 @@ es:
 sw:
   add_more_details_state_button_label: Ongeza zaidi
   ask_if_ready_state_button_label: Ghairi
+  cancelled: Sawa!
   confirm_preferred_language: Tafadhali thibitisha lugha unayopendelea
   invalid_format: 'Samahani, faili uliyowasilisha haihimili muundo. '
   keep_subscription_button_label: Endeleza usajili
@@ -745,6 +766,7 @@ sw:
 tl:
   add_more_details_state_button_label: ''
   ask_if_ready_state_button_label: ''
+  cancelled: ''
   confirm_preferred_language: ''
   invalid_format: ''
   keep_subscription_button_label: ''
@@ -767,6 +789,7 @@ tl:
 ta:
   add_more_details_state_button_label: கூடுதல் தகவல்ககள்
   ask_if_ready_state_button_label: ரத்து செய்
+  cancelled: சரி!
   confirm_preferred_language: உங்கள் விருப்ப மொழியை உறுதி செய்யவும்
   invalid_format: மன்னிக்கவும், நீங்கள் சமர்ப்பித்த கோப்பின் வடிவம் ஆதரிக்கப்படவில்லை.
   keep_subscription_button_label: சந்தாவை தொடர்
@@ -805,6 +828,7 @@ ta:
 te:
   add_more_details_state_button_label: ఇంకా_చేర్ఛండి
   ask_if_ready_state_button_label: రద్దు
+  cancelled: అలాగే!
   confirm_preferred_language: మీరు ఎంచుకున్న భాషను కన్ఫర్మ్ చెయండి
   invalid_format: క్షమించండి, మీరు సమర్పించిన ఫైల్ ఫార్మాట్‌కు మద్దతు లేదు.
   keep_subscription_button_label: సబ్‌స్క్రిప్షన్ ఉంచండి
@@ -840,6 +864,7 @@ te:
 ur:
   add_more_details_state_button_label: مزید شامل کریں
   ask_if_ready_state_button_label: منسوخ
+  cancelled: ٹھیک ہے!
   confirm_preferred_language: براہ کرم اپنی پسندیدہ زبان کی تصدیق کریں۔
   invalid_format: معذرت، آپ کی جمع کرائی گئی فائل سپورٹ فارمیٹ نہیں ہے۔
   keep_subscription_button_label: رکنیت برقرار رکھیں
