@@ -251,7 +251,7 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.get_threshold_for_query(media_type, pm, automatic = false, min_es_score=10)
+  def self.get_threshold_for_query(media_type, pm, automatic = false)
     similarity_methods = media_type == 'text' ? ['elasticsearch'] : ['hash']
     models = similarity_methods.dup
     similarity_level = automatic ? 'matching' : 'suggestion'
@@ -268,9 +268,7 @@ class Bot::Alegre < BotUser
       tbi = self.get_alegre_tbi(pm&.team_id)
       settings = tbi.alegre_settings unless tbi.nil?
       value = settings.blank? ? CheckConfig.get(key) : settings[key]
-      threshold = { value: value.to_f, key: key, automatic: automatic, model: model_name}
-      threshold[:min_es_score] = min_es_score if model_name == "elasticsearch"
-      threshold
+      { value: value.to_f, key: key, automatic: automatic, model: model_name}
     end
   end
 
