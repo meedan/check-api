@@ -55,6 +55,7 @@ class TeamBotInstallation < TeamUser
     settings['alegre_model_in_use'] = self.get_alegre_model_in_use || Bot::Alegre.default_model
     settings['similarity_date_threshold'] = self.get_similarity_date_threshold
     settings['language_for_similarity'] = self.get_language_for_similarity
+    settings['min_es_score'] = self.get_min_es_score
     settings
   end
 
