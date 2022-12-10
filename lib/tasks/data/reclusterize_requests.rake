@@ -39,14 +39,14 @@ namespace :check do
       end
 
       # Clusterize
-      query = Request.where(request_id: nil, feed_id: feed_id).order('id ASC')
+      query = Request.where(request_id: nil, feed_id: feed_id).order('id ASC') #Add request_type:'text' to only recluster text items
       n = query.count
       i = 0
       query.find_each do |r|
         i += 1
         failed = false
         begin
-          r.attach_to_similar_request!
+          r.attach_to_similar_request!(alegre_limit = 10000)
           Request.send_to_alegre(r.id)
         rescue Exception => e
           failed = e.message
