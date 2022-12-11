@@ -983,7 +983,7 @@ class Bot::Smooch < BotUser
         annotated = self.get_saved_search_results_for_user(uid)
         type = 'timeout_search_requests'
       end
-      self.send_resource_to_user_on_timeout(uid, workflow, language)
+      self.send_message_to_user_on_timeout(uid, workflow, language)
       self.bundle_messages(uid, message['_id'], app_id, type, annotated, true)
       sm.reset
     end

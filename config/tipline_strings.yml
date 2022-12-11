@@ -213,6 +213,7 @@ en:
   main_menu: Main menu
   main_state_button_label: Cancel
   navigation_button: Use the buttons to navigate
+  timeout: Thank you for reaching out to us! Type any key to start a new conversation.
   privacy_and_purpose: |-
     Privacy and Purpose
 

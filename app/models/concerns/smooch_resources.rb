@@ -35,11 +35,11 @@ module SmoochResources
       resource.blank? ? nil : BotResource.find_by_uuid(resource['smooch_custom_resource_id'])
     end
 
-    def send_resource_to_user_on_timeout(uid, workflow, language)
+    def send_message_to_user_on_timeout(uid, workflow, language)
       redis = Redis.new(REDIS_CONFIG)
       user_messages_count = redis.llen("smooch:bundle:#{uid}")
-      resource = workflow['smooch_message_smooch_bot_no_action'] unless workflow.blank?
-      self.send_rss_to_user(uid, resource, workflow, language, true) if !resource.blank? && user_messages_count > 0
+      message = workflow['timeout'] || self.get_string(:timeout, language)
+      self.send_final_messages_to_user(uid, message, workflow, language) if user_messages_count > 0
     end
 
     def render_articles_from_rss_feed(url, count = 3)
