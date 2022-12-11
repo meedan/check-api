@@ -1,7 +1,7 @@
 
 require 'active_support/concern'
 
-TIPLINE_STRINGS = YAML.load(File.read(File.join(Rails.root, 'config', 'tipline_strings.yml')))
+TIPLINE_STRINGS = YAML.load(File.read(File.join(Rails.root, 'config', 'tipline_strings.yml'))).with_indifferent_access
 
 module SmoochStrings
   extend ActiveSupport::Concern
