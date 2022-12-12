@@ -36,10 +36,13 @@ module SmoochResources
     end
 
     def send_message_to_user_on_timeout(uid, workflow, language)
+      sm = CheckStateMachine.new(uid)
       redis = Redis.new(REDIS_CONFIG)
       user_messages_count = redis.llen("smooch:bundle:#{uid}")
-      message = workflow['timeout'] || self.get_string(:timeout, language)
-      self.send_final_messages_to_user(uid, message, workflow, language) if user_messages_count > 0
+      message = workflow['timeout']
+      message = self.get_string(:timeout, language) if message.blank?
+      self.send_message_to_user(uid, message) if user_messages_count > 0 && sm.state.value != 'main'
+      sm.reset
     end
 
     def render_articles_from_rss_feed(url, count = 3)
