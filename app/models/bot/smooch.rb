@@ -970,7 +970,6 @@ class Bot::Smooch < BotUser
     self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
     return if self.config['smooch_disable_timeout']
     language = self.get_user_language(message)
-    workflow = self.get_workflow(language)
     uid = message['authorId']
     stored_time = Rails.cache.read("smooch:last_message_from_user:#{uid}").to_i
     return if stored_time > time
@@ -983,7 +982,7 @@ class Bot::Smooch < BotUser
         annotated = self.get_saved_search_results_for_user(uid)
         type = 'timeout_search_requests'
       end
-      self.send_message_to_user_on_timeout(uid, workflow, language)
+      self.send_message_to_user_on_timeout(uid, language)
       self.bundle_messages(uid, message['_id'], app_id, type, annotated, true)
       sm.reset
     end

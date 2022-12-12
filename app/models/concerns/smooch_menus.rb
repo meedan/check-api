@@ -140,7 +140,8 @@ module SmoochMenus
       # - Button label: 20 characters
       # - Body: 1024 characters
       workflow = self.get_workflow(language) || {}
-      label = workflow[key.to_s] || {
+      custom_label = workflow.with_indifferent_access[key.to_s]
+      default_label = {
         # Default values for customizable strings
         ask_if_ready_state: 'Are you ready to submit?',
         add_more_details_state: 'Please add more content.',
@@ -153,7 +154,8 @@ module SmoochMenus
         option_not_available: 'Option not available.',
         timeout: 'Thank you for reaching out to us! Type any key to start a new conversation.'
       }[key.to_sym] || key
-      label.truncate(truncate_at)
+      label = custom_label.blank? ? default_label : custom_label
+      label.to_s.truncate(truncate_at)
     end
 
     def send_message_to_user_with_buttons(uid, text, options)
