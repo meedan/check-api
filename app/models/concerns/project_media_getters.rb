@@ -108,9 +108,8 @@ module ProjectMediaGetters
     self.analysis.dig('date_published')
   end
 
-  def report_field_value(field, language = nil)
-    default_language = self.team&.default_language || 'en'
-    self.get_dynamic_annotation('report_design')&.report_design_field_value(field.to_s, language || default_language)
+  def report_field_value(field)
+    self.get_dynamic_annotation('report_design')&.report_design_field_value(field.to_s)
   end
 
   def report_text_title

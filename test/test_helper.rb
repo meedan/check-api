@@ -12,6 +12,7 @@ unless ARGV.include?('-n')
       (!file.filename.match(/\/app\/controllers\/[^\/]+\.rb$/).nil? && file.filename.match(/application_controller\.rb$/).nil?) ||
       !file.filename.match(/\/app\/controllers\/concerns\/[^\/]+_doc\.rb$/).nil? ||
       !file.filename.match(/\/lib\/sample_data\.rb$/).nil? ||
+      !file.filename.match(/\/lib\/tasks\//).nil? ||
       !file.filename.match(/\/app\/graph\/types\/mutation_type\.rb$/).nil? ||
       !file.filename.match(/\/app\/graphql\/types\/mutation_type\.rb$/).nil?
     end
@@ -1072,7 +1073,7 @@ class ActiveSupport::TestCase
     r = create_dynamic_annotation annotation_type: 'report_design', annotated: pm
     default_data = {
       state: 'paused',
-      options: [{
+      options: {
         language: 'en',
         status_label: random_string,
         use_introduction: true,
@@ -1089,7 +1090,7 @@ class ActiveSupport::TestCase
         published_article_url: random_url,
         use_disclaimer: true,
         disclaimer: random_string
-      }.merge(option_data)]
+      }.merge(option_data)
     }
     r.set_fields = default_data.merge(data).to_json
     r.action = action

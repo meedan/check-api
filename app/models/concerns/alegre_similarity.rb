@@ -245,6 +245,10 @@ module AlegreSimilarity
       end
     end
 
+    def get_min_es_score(team_id)
+      self.get_alegre_tbi(team_id)&.get_min_es_score || Bot::Alegre::DEFAULT_ES_SCORE
+    end
+
     def similar_texts_from_api_conditions(text, models, fuzzy, team_id, fields, threshold, match_across_content_types=true)
       params = {
         text: text,
@@ -255,6 +259,7 @@ module AlegreSimilarity
       }.merge(self.get_threshold_hash_from_threshold(threshold))
       language = self.language_for_similarity(team_id)
       params[:language] = language if !language.nil?
+      params[:min_es_score] = self.get_min_es_score(team_id)
       params
     end
 

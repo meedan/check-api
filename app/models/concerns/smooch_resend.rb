@@ -123,7 +123,7 @@ module SmoochResend
     end
 
     def send_message_on_template_button_click(_message, uid, language, info)
-      self.send_final_message_to_user(uid, info[1], self.get_workflow(language), language)
+      self.send_final_messages_to_user(uid, info[1], self.get_workflow(language), language)
     end
 
     def clicked_on_template_button?(message)
@@ -274,10 +274,10 @@ module SmoochResend
         data[:language] = language = self.get_user_language({ 'authorId' => message['appUser']['_id'] })
         data[:query_date] = I18n.l(Time.at(original['query_date'].to_i), locale: language, format: :short)
         data[:query_date_i] = original['query_date'].to_i
-        data[:introduction] = report.report_design_field_value('use_introduction', language) ? report.report_design_introduction({ 'received' => original['query_date'].to_i }, language).to_s : nil
-        data[:text] = report.report_design_field_value('use_text_message', language) ? report.report_design_text(language).to_s : nil
-        data[:image] = report.report_design_field_value('use_visual_card', language) ? report.report_design_image_url(language).to_s : nil
-        data[:title] = report.report_design_field_value('title', language).to_s
+        data[:introduction] = report.report_design_field_value('use_introduction') ? report.report_design_introduction({ 'received' => original['query_date'].to_i }, language).to_s : nil
+        data[:text] = report.report_design_field_value('use_text_message') ? report.report_design_text(language).to_s : nil
+        data[:image] = report.report_design_field_value('use_visual_card') ? report.report_design_image_url.to_s : nil
+        data[:title] = report.report_design_field_value('title').to_s
       end
       data
     end

@@ -333,26 +333,24 @@ module SampleData
         last_error: { type: 'string', default: '' },
         last_published: { type: 'string', default: '' },
         options: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              use_introduction: { type: 'boolean', default: false },
-              introduction: { type: 'string', default: '' },
-              use_visual_card: { type: 'boolean', default: false },
-              visual_card_url: { type: 'string', default: '' },
-              image: { type: 'string', default: '' },
-              headline: { type: 'string', default: '' },
-              description: { type: 'string', default: '' },
-              status_label: { type: 'string', default: '' },
-              previous_published_status_label: { type: 'string', default: '' },
-              theme_color: { type: 'string', default: '' },
-              url: { type: 'string', default: '' },
-              use_text_message: { type: 'boolean', default: false },
-              title: { type: 'string', default: '' },
-              text: { type: 'string', default: '' },
-              date: { type: 'string', default: '' }
-            }
+          type: 'object',
+          properties: {
+            use_introduction: { type: 'boolean', default: false },
+            introduction: { type: 'string', default: '' },
+            use_visual_card: { type: 'boolean', default: false },
+            visual_card_url: { type: 'string', default: '' },
+            image: { type: 'string', default: '' },
+            headline: { type: 'string', default: '' },
+            description: { type: 'string', default: '' },
+            status_label: { type: 'string', default: '' },
+            previous_published_status_label: { type: 'string', default: '' },
+            theme_color: { type: 'string', default: '' },
+            url: { type: 'string', default: '' },
+            use_text_message: { type: 'boolean', default: false },
+            title: { type: 'string', default: '' },
+            language: { type: 'string', default: '' },
+            text: { type: 'string', default: '' },
+            date: { type: 'string', default: '' }
           }
         }
       }
@@ -707,7 +705,7 @@ module SampleData
     at.json_schema = options[:json_schema] if at.respond_to?('json_schema=') && options.has_key?(:json_schema)
     at.skip_check_ability = true
     at.save!
-    RelayOnRailsSchema.reload_mutations!
+    RelayOnRailsSchema.reload_mutations! if ENV['RAILS_ENV'] == 'test'
     at
   end
 
@@ -985,5 +983,20 @@ module SampleData
 
   def create_request(options = {})
     Request.create!({ content: random_string, request_type: 'text', feed: create_feed, media: create_valid_media }.merge(options))
+  end
+
+  def create_project_media_request(options = {})
+    project_media_id = options[:project_media_id] || create_project_media.id
+    request_id = options[:request_id] || create_request.id
+    options = {
+      project_media_id: project_media_id,
+      request_id: request_id,
+    }.merge(options)
+    pmr = ProjectMediaRequest.new
+    options.each do |key, value|
+      pmr.send("#{key}=", value) if pmr.respond_to?("#{key}=")
+    end
+    pmr.save!
+    pmr
   end
 end

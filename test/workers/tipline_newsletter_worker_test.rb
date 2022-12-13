@@ -18,11 +18,11 @@ class TiplineNewsletterWorkerTest < ActiveSupport::TestCase
   end
 
   test "should not crash if error happens when sending newsletter to some subscriber" do
-    Bot::Smooch.stubs(:send_final_message_to_user).raises(StandardError)
+    Bot::Smooch.stubs(:send_final_messages_to_user).raises(StandardError)
     assert_nothing_raised do
       TiplineNewsletterWorker.perform_async(@team.id, 'en')
     end
-    Bot::Smooch.unstub(:send_final_message_to_user)
+    Bot::Smooch.unstub(:send_final_messages_to_user)
   end
 
   test "should skip sending newsletter if content hasn't changed" do

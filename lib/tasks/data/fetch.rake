@@ -148,7 +148,7 @@ namespace :check do
       data = parse_args args.extras
       services = data['services'].split('|')
       size = data['size'] ? data['size'].to_i : 10
-      team = Team.create!(name: "Fetch Import Sample #{Time.now.to_i}")
+      team = Team.create!(name: "Fetch Import Sample #{Time.now.to_i}", slug: "fetch-import-sample-#{Time.now.to_i}")
       if services.blank?
         puts "You should pass service list to the rake task[check:fetch:import['services:list|of|services']"
         exit
@@ -170,7 +170,7 @@ namespace :check do
         tbi.team = team
         tbi.save!
       end
-      Bot::Fetch.set_service(slug, services, 'undetermined', status_mapping)
+      Bot::Fetch.set_service(team.slug, services, 'undetermined', status_mapping)
       tbi = TeamBotInstallation.where(user_id: BotUser.find_by_login('fetch').id, team_id: team.id).last.id
       Bot::Fetch::Import.import_claim_reviews(tbi, true, size)
       puts "A sample of #{size} articles were imported from Fetch service(s) #{services.join(', ')} to https://checkmedia.org/#{team.slug}/imported-fact-checks."
