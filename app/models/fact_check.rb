@@ -10,6 +10,7 @@ class FactCheck < ApplicationRecord
   validates_presence_of :claim_description
   validates_uniqueness_of :claim_description_id
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
+  validate :language_in_allowed_values
 
   after_save :update_report
 
@@ -24,7 +25,14 @@ class FactCheck < ApplicationRecord
   private
 
   def set_language
-    self.language = self.project_media&.team&.default_language || 'en'
+    languages = self.project_media&.team&.get_languages || ['en']
+    self.language = languages.length == 1 ? languages.first : 'und'
+  end
+
+  def language_in_allowed_values
+    allowed_languages = self.project_media&.team&.get_languages || ['en']
+    allowed_languages << 'und'
+    errors.add(:language, I18n.t(:"errors.messages.invalid_fact_check_language_value")) unless allowed_languages.include?(self.language)
   end
 
   def update_report
@@ -33,9 +41,8 @@ class FactCheck < ApplicationRecord
     reports = pm.get_dynamic_annotation('report_design') || Dynamic.new(annotation_type: 'report_design', annotated: pm)
     data = reports.data ? reports.data.with_indifferent_access : {}.with_indifferent_access
     language = data[:default_language] || pm.team.default_language || 'en'
-    report = data[:options].to_a.find{ |o| o[:language] == language }
+    report = data[:options]
     unless report
-      data[:options] ||= []
       report = {
         language: language,
         use_text_message: true,
@@ -45,15 +52,16 @@ class FactCheck < ApplicationRecord
         theme_color: pm.last_status_color,
         image: pm.lead_image.to_s
       }
-      data[:options] << report
     end
     report.merge!({
       title: self.title.to_s.strip,
       headline: self.title.to_s.strip,
       text: self.summary.to_s.strip,
       description: self.summary.to_s.strip,
-      published_article_url: self.url
+      published_article_url: self.url,
+      language: self.language
     })
+    data[:options] = report
     reports.annotator = self.user || User.current
     reports.set_fields = data.to_json
     reports.save!

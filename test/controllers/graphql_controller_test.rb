@@ -59,10 +59,10 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal [], CheckSearch.new({ verification_status: ['id3'] }.to_json, nil, t.id).medias.map(&:id)
     assert_equal 'published', r1.reload.get_field_value('state')
     assert_equal 'published', r2.reload.get_field_value('state')
-    assert_not_equal 'red', r1.reload.report_design_field_value('theme_color', 'en')
-    assert_not_equal 'blue', r2.reload.report_design_field_value('theme_color', 'en')
-    assert_not_equal 'Custom Status 1', r1.reload.report_design_field_value('status_label', 'en')
-    assert_not_equal 'Custom Status 3', r2.reload.report_design_field_value('status_label', 'en')
+    assert_not_equal 'red', r1.reload.report_design_field_value('theme_color')
+    assert_not_equal 'blue', r2.reload.report_design_field_value('theme_color')
+    assert_not_equal 'Custom Status 1', r1.reload.report_design_field_value('status_label')
+    assert_not_equal 'Custom Status 3', r2.reload.report_design_field_value('status_label')
 
     query = "mutation deleteTeamStatus { deleteTeamStatus(input: { clientMutationId: \"1\", team_id: \"#{t.graphql_id}\", status_id: \"id2\", fallback_status_id: \"id3\" }) { team { id, verification_statuses(items_count_for_status: \"id3\") } } }"
     post :create, params: { query: query, team: 'team' }
@@ -80,10 +80,10 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal [], t.reload.get_media_verification_statuses[:statuses].select{ |s| s[:id] == 'id2' }
     assert_equal 'published', r1.reload.get_field_value('state')
     assert_equal 'paused', r2.reload.get_field_value('state')
-    assert_not_equal 'red', r1.reload.report_design_field_value('theme_color', 'en')
-    assert_equal 'green', r2.reload.report_design_field_value('theme_color', 'en')
-    assert_not_equal 'Custom Status 1', r1.reload.report_design_field_value('status_label', 'en')
-    assert_equal 'Custom Status 3', r2.reload.report_design_field_value('status_label', 'en')
+    assert_not_equal 'red', r1.reload.report_design_field_value('theme_color')
+    assert_equal 'green', r2.reload.report_design_field_value('theme_color')
+    assert_not_equal 'Custom Status 1', r1.reload.report_design_field_value('status_label')
+    assert_equal 'Custom Status 3', r2.reload.report_design_field_value('status_label')
   end
 
   test "should access GraphQL query if not authenticated" do

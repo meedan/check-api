@@ -2601,12 +2601,12 @@ class TeamTest < ActiveSupport::TestCase
     s = pm.last_verification_status_obj
     s.status = '2'
     s.save!
-    assert_equal 'Custom Status 2', r.reload.data.dig('options', 0, 'status_label')
+    assert_equal 'Custom Status 2', r.reload.data.dig('options', 'status_label')
     t = Team.find(t.id)
     value[:statuses][1][:locales][:en][:label] = 'Custom Status 2 Changed'
     t.media_verification_statuses = value
     t.save!
-    assert_equal 'Custom Status 2 Changed', r.reload.data.dig('options', 0, 'status_label')
+    assert_equal 'Custom Status 2 Changed', r.reload.data.dig('options', 'status_label')
   end
 
   test "should add trashed link to duplicated team" do

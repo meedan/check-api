@@ -19,7 +19,13 @@ class ProjectMediaTrashWorker
           target_id: pm.id
         ).exists?
       end
-      pm.destroy! if should_delete
+      if should_delete
+        begin
+          pm.destroy!
+        rescue StandardError => e
+          pm.class.notify_error(e, { item_type: pm.class.name, item_id: pm.id }, RequestStore[:request])
+        end
+      end
     end
   end
 end

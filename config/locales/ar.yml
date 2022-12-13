@@ -759,6 +759,7 @@ ar:
   list_column_share_count: مشاركات فيسبوك
   list_column_reaction_count: تفاعلات فيسبوك
   list_column_comment_count: تعليقات فيسبوك
+  list_column_linked_items_count: المواد إعلامية مطابقة
   list_column_type: النوع
   list_column_status: الحالة
   list_column_created_at: تم الإرسال
@@ -768,10 +769,12 @@ ar:
   list_column_tags_as_sentence: الوسوم
   list_column_media_published_at: تاريخ نشر المادة الإعلامية
   list_column_published_by: تم نشر التقرير بواسطة
+  list_column_fact_check_published_on: لقد نُشر التقصي من الحقيقة بتاريخ
   list_column_related_count: ذات صلة
   list_column_suggestions_count: المواد الإعلامية المقترحة
   list_column_folder: مجلد
   list_column_creator_name: تم الإنشاء بواسطة
+  list_column_fact_check_title: تقصي الحقائق
   list_column_team_name: مساحة العمل
   list_column_sources_as_sentence: المصدر
   go_back_to_check: العودة إلى Check

@@ -64,6 +64,16 @@ module SmoochMessages
       end
     end
 
+    def send_final_messages_to_user(uid, text, workflow, language)
+      response = self.send_message_to_user(uid, text)
+      if self.is_v2?
+        CheckStateMachine.new(uid).go_to_main
+        sleep 1
+        response = self.send_message_to_user_with_main_menu_appended(uid, self.get_string('navigation_button', language), workflow, language)
+      end
+      response
+    end
+
     def send_message_for_state(uid, workflow, state, language, pretext = '')
       message = self.utmize_urls(self.get_message_for_state(workflow, state, language, uid).to_s, 'resource')
       text = [pretext, message].reject{ |part| part.blank? }.join("\n\n")
@@ -97,7 +107,7 @@ module SmoochMessages
         end
         options << {
           value: { keyword: keyword }.to_json,
-          label: self.get_menu_string("#{key}_button_label", language, 20)
+          label: self.get_string("#{key}_button_label", language, 20)
         }
       end
       options.size > 0 ? self.send_message_to_user_with_buttons(uid, text, options) : self.send_message_to_user(uid, text)
@@ -112,15 +122,15 @@ module SmoochMessages
       end
       message << self.subscription_message(uid, language) if state.to_s == 'subscription'
       message << workflow.dig("smooch_state_#{state}", 'smooch_menu_message') if state != 'main' || !is_v2
-      message << self.get_menu_string("#{state}_state", language) if ['search', 'search_result', 'add_more_details', 'ask_if_ready'].include?(state.to_s)
+      message << self.get_custom_string("#{state}_state", language) if ['search', 'search_result', 'add_more_details', 'ask_if_ready'].include?(state.to_s)
       message.reject{ |m| m.blank? }.join("\n\n")
     end
 
     def subscription_message(uid, language, subscribed = nil, full_message = true)
       subscribed = subscribed.nil? ? !TiplineSubscription.where(team_id: self.config['team_id'], uid: uid, language: language).last.nil? : subscribed
-      status = subscribed ? self.get_menu_string('subscribed', language.gsub(/[-_].*$/, '')) : self.get_menu_string('unsubscribed', language.gsub(/[-_].*$/, ''))
+      status = subscribed ? self.get_string('subscribed', language.gsub(/[-_].*$/, '')) : self.get_string('unsubscribed', language.gsub(/[-_].*$/, ''))
       status = "*#{status}*"
-      full_message ? self.get_menu_string('newsletter_optin_optout', language).gsub('{subscription_status}', status) : status
+      full_message ? self.get_custom_string('newsletter_optin_optout', language).gsub('{subscription_status}', status) : status
     end
 
     def send_message_if_disabled_and_return_state(uid, workflow, state)

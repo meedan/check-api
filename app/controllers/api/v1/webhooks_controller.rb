@@ -16,7 +16,12 @@ module Api
         unless bot.valid_request?(request)
           render_error('Invalid request', 'UNKNOWN') and return
         end
-        response = bot.webhook(request) if bot.respond_to?(:webhook)
+
+        begin
+          response = bot&.webhook(request)
+        rescue Bot::Keep::ObjectNotReadyError => e
+          render_error(e.message, 'OBJECT_NOT_READY', 425) and return
+        end
         render_success 'success', response
       end
     end
