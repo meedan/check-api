@@ -372,7 +372,7 @@ class Bot::Smooch < BotUser
       end
     when 'main', 'secondary', 'subscription', 'search_result'
       unless self.process_menu_option(message, state, app_id)
-        self.send_message_for_state(uid, workflow, state, language, workflow['smooch_message_smooch_bot_option_not_available'] || self.get_string(:option_not_available, language))
+        self.send_message_for_state(uid, workflow, state, language, self.get_custom_string(:option_not_available, language))
       end
     when 'search'
       self.send_message_to_user(uid, self.get_message_for_state(workflow, state, language, uid))
@@ -472,7 +472,7 @@ class Bot::Smooch < BotUser
     sm.send("go_to_#{new_state}")
     self.delay_for(1.seconds, { queue: 'smooch_priority', retry: false }).search(app_id, uid, language, message, self.config['team_id'].to_i, workflow) if new_state == 'search'
     self.clear_user_bundled_messages(uid) if new_state == 'main'
-    new_state == 'main' && self.is_v2? ? self.send_message_to_user_with_main_menu_appended(uid, self.get_menu_string('cancelled', language), workflow, language) : self.send_message_for_state(uid, workflow, new_state, language)
+    new_state == 'main' && self.is_v2? ? self.send_message_to_user_with_main_menu_appended(uid, self.get_string('cancelled', language), workflow, language) : self.send_message_for_state(uid, workflow, new_state, language)
   end
 
   def self.process_menu_option_value(value, option, message, language, workflow, app_id)
@@ -502,7 +502,7 @@ class Bot::Smooch < BotUser
       self.bundle_message(message)
       results = self.get_saved_search_results_for_user(uid)
       self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'relevant_search_result_requests', results, true, self.bundle_search_query(uid))
-      self.send_final_message_to_user(uid, self.get_menu_string('search_result_is_relevant', language), workflow, language)
+      self.send_final_message_to_user(uid, self.get_custom_string('search_result_is_relevant', language), workflow, language)
     elsif value =~ CheckCldr::LANGUAGE_FORMAT_REGEXP
       Rails.cache.write("smooch:user_language:#{uid}", value)
       Rails.cache.write("smooch:user_language:#{self.config['team_id']}:#{uid}:confirmed", value)
@@ -970,7 +970,6 @@ class Bot::Smooch < BotUser
     self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
     return if self.config['smooch_disable_timeout']
     language = self.get_user_language(message)
-    workflow = self.get_workflow(language)
     uid = message['authorId']
     stored_time = Rails.cache.read("smooch:last_message_from_user:#{uid}").to_i
     return if stored_time > time
@@ -983,7 +982,7 @@ class Bot::Smooch < BotUser
         annotated = self.get_saved_search_results_for_user(uid)
         type = 'timeout_search_requests'
       end
-      self.send_message_to_user_on_timeout(uid, workflow, language)
+      self.send_message_to_user_on_timeout(uid, language)
       self.bundle_messages(uid, message['_id'], app_id, type, annotated, true)
       sm.reset
     end
