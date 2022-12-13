@@ -13,7 +13,7 @@ module SmoochSearch
         results = self.get_search_results(uid, message, team_id, language)
         if results.empty?
           self.bundle_messages(uid, '', app_id, 'default_requests', nil, true)
-          self.send_final_message_to_user(uid, self.get_menu_string('search_no_results', language), workflow, language)
+          self.send_final_message_to_user(uid, self.get_custom_string('search_no_results', language), workflow, language)
         else
           self.send_search_results_to_user(uid, results)
           sm.go_to_search_result
@@ -48,7 +48,7 @@ module SmoochSearch
 
     def submit_search_query_for_verification(uid, app_id, workflow, language)
       self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, '', app_id, 'irrelevant_search_result_requests', nil, true, self.bundle_search_query(uid))
-      self.send_final_message_to_user(uid, self.get_menu_string('search_submit', language), workflow, language)
+      self.send_final_message_to_user(uid, self.get_custom_string('search_submit', language), workflow, language)
     end
 
     def ask_if_ready_to_submit(uid, workflow, state, language)

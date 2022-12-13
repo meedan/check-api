@@ -35,12 +35,11 @@ module SmoochResources
       resource.blank? ? nil : BotResource.find_by_uuid(resource['smooch_custom_resource_id'])
     end
 
-    def send_message_to_user_on_timeout(uid, workflow, language)
+    def send_message_to_user_on_timeout(uid, language)
       sm = CheckStateMachine.new(uid)
       redis = Redis.new(REDIS_CONFIG)
       user_messages_count = redis.llen("smooch:bundle:#{uid}")
-      message = workflow['timeout']
-      message = self.get_string(:timeout, language) if message.blank?
+      message = self.get_custom_string(:timeout, language)
       self.send_message_to_user(uid, message) if user_messages_count > 0 && sm.state.value != 'main'
       sm.reset
     end
