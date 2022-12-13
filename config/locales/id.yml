@@ -779,6 +779,7 @@ id:
   list_column_share_count: Dibagikan di FB
   list_column_reaction_count: Reaksi di FB
   list_column_comment_count: Komentar di FB
+  list_column_linked_items_count: Media yang cocok
   list_column_type: Tipe
   list_column_status: Status
   list_column_created_at: Diserahkan
@@ -788,10 +789,12 @@ id:
   list_column_tags_as_sentence: Label-label
   list_column_media_published_at: Media yang diterbitkan
   list_column_published_by: Laporan diterbitkan oleh
+  list_column_fact_check_published_on: Pengecekan fakta diterbitkan pada
   list_column_related_count: Terkait
   list_column_suggestions_count: Media yang disarankan
   list_column_folder: Folder
   list_column_creator_name: Dibuat oleh
+  list_column_fact_check_title: Pengecekan fakta
   list_column_team_name: Ruang kerja
   list_column_sources_as_sentence: Sumber
   go_back_to_check: Kembali ke Check

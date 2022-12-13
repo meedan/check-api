@@ -790,10 +790,12 @@ es:
   list_column_tags_as_sentence: Etiquetas
   list_column_media_published_at: Medios publicados
   list_column_published_by: Informe publicado por
+  list_column_fact_check_published_on: Verificación de hechos publicada el
   list_column_related_count: Relacionado(s)
   list_column_suggestions_count: Medios sugeridos
   list_column_folder: Carpeta
   list_column_creator_name: Creado por
+  list_column_fact_check_title: Verificación de hechos
   list_column_team_name: Área de trabajo
   list_column_sources_as_sentence: Fuente
   go_back_to_check: Regresar a Check

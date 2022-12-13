@@ -813,12 +813,12 @@ fr:
   list_column_tags_as_sentence: Étiquettes
   list_column_media_published_at: Média publié
   list_column_published_by: Rapport publié par
-  list_column_fact_check_published_on: Vérification des faits publiés à
+  list_column_fact_check_published_on: Vérification de faits publiés le
   list_column_related_count: Associés
   list_column_suggestions_count: Médias suggérés
   list_column_folder: Dossier
   list_column_creator_name: Créé par
-  list_column_fact_check_title: Vérification des faits
+  list_column_fact_check_title: Vérification de faits
   list_column_team_name: Espace de travail
   list_column_sources_as_sentence: Source
   go_back_to_check: Retourner à Check
