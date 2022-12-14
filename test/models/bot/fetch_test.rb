@@ -275,4 +275,37 @@ class Bot::FetchTest < ActiveSupport::TestCase
     }
     assert_equal 'Foo', Bot::Fetch::Import.get_summary(claim_review)
   end
+
+  test "should set factcheck language" do
+    id = random_string
+    cr = @claim_review.deep_dup
+    cr['identifier'] = id
+    cr['inLanguage'] = 'ar'
+    Bot::Fetch::Import.import_claim_review(cr, @team.id, @bot.id, 'undetermined', {}, false)
+    pm = ProjectMedia.last
+    cd = pm.claim_description
+    fc = cd.fact_check
+    assert_equal 'en', fc.language
+    @team.set_languages(['en', 'fr'])
+    @team.save!
+    # Verify language with multilanguages team
+    id = random_string
+    cr = @claim_review.deep_dup
+    cr['identifier'] = id
+    cr['inLanguage'] = 'ar'
+    Bot::Fetch::Import.import_claim_review(cr, @team.id, @bot.id, 'undetermined', {}, false)
+    pm = ProjectMedia.last
+    cd = pm.claim_description
+    fc = cd.fact_check
+    assert_equal 'und', fc.language
+    id = random_string
+    cr = @claim_review.deep_dup
+    cr['identifier'] = id
+    cr['inLanguage'] = 'fr'
+    Bot::Fetch::Import.import_claim_review(cr, @team.id, @bot.id, 'undetermined', {}, false)
+    pm = ProjectMedia.last
+    cd = pm.claim_description
+    fc = cd.fact_check
+    assert_equal 'fr', fc.language
+  end
 end
