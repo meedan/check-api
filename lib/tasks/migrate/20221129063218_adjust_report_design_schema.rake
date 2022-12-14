@@ -11,19 +11,21 @@ namespace :check do
           ids = pms.map(&:id)
           items = []
           Dynamic.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia', annotated_id: ids).find_each do |report|
-            print '.'
             data = report.data.with_indifferent_access
-            options = [data[:options]].flatten || []
-            data[:options] = options.length ? options.shift : {}
-            selected_option = nil
-            if options.length && data[:options][:title].blank? && data[:options][:text].blank?
-              selected_option = options.find{|e| !e[:title].blank? || !e[:text].blank? }
+            unless data.blank?
+              puts "[#{Time.now}] Updating report with ID #{report.id}..."
+              options = data[:options] ? [data[:options]].flatten : []
+              data[:options] = options.length > 0 ? options.shift : {}
+              selected_option = nil
+              if options.length > 0 && data[:options][:title].blank? && data[:options][:text].blank?
+                selected_option = options.find{|e| !e[:title].blank? || !e[:text].blank? }
+              end
+              data[:options] = selected_option unless selected_option.nil?
+              # set report language
+              data[:options][:language] = report_language
+              report.data = data
+              items << report
             end
-            data[:options] = selected_option unless selected_option.nil?
-            # set report language
-            data[:options][:language] = report_language
-            report.data = data
-            items << report
           end
           # Import items with existing ids to make update
           Dynamic.import(items, recursive: false, validate: false, on_duplicate_key_update: [:data])
