@@ -731,8 +731,8 @@ GEM
       activesupport (>= 4.2.0)
       nokogiri (>= 1.6)
     rails-graphql-generator (0.1.0)
-    rails-html-sanitizer (1.4.3)
-      loofah (~> 2.3)
+    rails-html-sanitizer (1.4.4)
+      loofah (~> 2.19, >= 2.19.1)
     railties (5.2.8.1)
       actionpack (= 5.2.8.1)
       activesupport (= 5.2.8.1)
@@ -1063,7 +1063,7 @@ DEPENDENCIES
   rails (= 5.2.8.1)
   rails-controller-testing
   rails-graphql-generator
-  rails-html-sanitizer (= 1.4.3)
+  rails-html-sanitizer (= 1.4.4)
   rails-i18n!
   rdoc (= 6.3.2)
   redis-namespace
