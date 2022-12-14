@@ -281,7 +281,9 @@ class Bot::FetchTest < ActiveSupport::TestCase
     cr = @claim_review.deep_dup
     cr['identifier'] = id
     cr['inLanguage'] = 'ar'
-    Bot::Fetch::Import.import_claim_review(cr, @team.id, @bot.id, 'undetermined', {}, false)
+    assert_difference 'FactCheck.count' do
+      Bot::Fetch::Import.import_claim_review(cr, @team.id, @bot.id, 'undetermined', {}, false)
+    end
     pm = ProjectMedia.last
     cd = pm.claim_description
     fc = cd.fact_check
@@ -293,7 +295,9 @@ class Bot::FetchTest < ActiveSupport::TestCase
     cr = @claim_review.deep_dup
     cr['identifier'] = id
     cr['inLanguage'] = 'ar'
-    Bot::Fetch::Import.import_claim_review(cr, @team.id, @bot.id, 'undetermined', {}, false)
+    assert_difference 'FactCheck.count' do
+      Bot::Fetch::Import.import_claim_review(cr, @team.id, @bot.id, 'undetermined', {}, false)
+    end
     pm = ProjectMedia.last
     cd = pm.claim_description
     fc = cd.fact_check
@@ -302,7 +306,9 @@ class Bot::FetchTest < ActiveSupport::TestCase
     cr = @claim_review.deep_dup
     cr['identifier'] = id
     cr['inLanguage'] = 'fr'
-    Bot::Fetch::Import.import_claim_review(cr, @team.id, @bot.id, 'undetermined', {}, false)
+    assert_difference 'FactCheck.count' do
+      Bot::Fetch::Import.import_claim_review(cr, @team.id, @bot.id, 'undetermined', {}, false)
+    end
     pm = ProjectMedia.last
     cd = pm.claim_description
     fc = cd.fact_check
