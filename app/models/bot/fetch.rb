@@ -192,7 +192,7 @@ class Bot::Fetch < BotUser
             pm = self.create_project_media(team, user)
             self.set_status(claim_review, pm, status_fallback, status_mapping)
             self.set_analysis(claim_review, pm)
-            self.set_claim_and_fact_check(claim_review, pm, user)
+            self.set_claim_and_fact_check(claim_review, pm, user, team)
             self.create_report(claim_review, pm, team, user, auto_publish_reports)
             self.create_tags(claim_review, pm, user)
           end
@@ -236,17 +236,21 @@ class Bot::Fetch < BotUser
       summary.to_s.truncate(900 - title.size - url.size)
     end
 
-    def self.set_claim_and_fact_check(claim_review, pm, user)
+    def self.set_claim_and_fact_check(claim_review, pm, user, team)
       current_user = User.current
       User.current = user
-
       cd = ClaimDescription.new
       cd.skip_check_ability = true
       cd.project_media = pm
       cd.description = claim_review['claimReviewed'].to_s.blank? ? '-' : self.parse_text(claim_review['claimReviewed'])
       cd.user = user
       cd.save!
-
+      # Get FactCheck language
+      fc_language = nil
+      unless claim_review['inLanguage'].blank?
+        languages = team.get_languages || ['en']
+        fc_language = languages.include?(claim_review['inLanguage']) ? claim_review['inLanguage'] : nil
+      end
       fc = FactCheck.new
       fc.skip_check_ability = true
       fc.claim_description = cd
@@ -255,9 +259,8 @@ class Bot::Fetch < BotUser
       fc.summary = self.get_summary(claim_review).to_s
       fc.user = user
       fc.skip_report_update = true
-      fc.language = claim_review['inLanguage']
+      fc.language = fc_language
       fc.save!
-
       User.current = current_user
     end
 
