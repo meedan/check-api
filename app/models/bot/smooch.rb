@@ -523,10 +523,13 @@ class Bot::Smooch < BotUser
     new_state = nil
     # v2 (buttons and lists)
     unless message['payload'].blank?
+      typed = nil
       payload = begin JSON.parse(message['payload']) rescue {} end
-      new_state = payload['state']
-      sm.send("go_to_#{new_state}") if new_state && new_state != sm.state.value
-      typed = payload['keyword']
+      if payload.class == Hash
+        new_state = payload['state']
+        sm.send("go_to_#{new_state}") if new_state && new_state != sm.state.value
+        typed = payload['keyword']
+      end
     end
     [typed.to_s.downcase.strip, new_state]
   end
