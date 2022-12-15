@@ -2613,10 +2613,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     default_folder = t.default_folder
     p = create_project team: t
-    pm = create_project_media project: p
-    pm1_c = create_project_media project: p
-    pm1_s = create_project_media project: p
-    pm2_s = create_project_media project: p
+    pm = create_project_media project: p, disable_es_callbacks: false
+    pm1_c = create_project_media project: p, disable_es_callbacks: false
+    pm1_s = create_project_media project: p, disable_es_callbacks: false
+    pm2_s = create_project_media project: p, disable_es_callbacks: false
     r = create_relationship source: pm, target: pm1_c, relationship_type: Relationship.confirmed_type
     r2 = create_relationship source: pm, target: pm1_s, relationship_type: Relationship.suggested_type
     r3 = create_relationship source: pm, target: pm2_s, relationship_type: Relationship.suggested_type
@@ -2638,13 +2638,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal p.id, pm2_s.project_id
     # Verify ES
     result = $repository.find(get_es_id(pm1_c))
-    result['archived'] = CheckArchivedFlags::FlagCodes::TRASHED
+    assert_equal CheckArchivedFlags::FlagCodes::TRASHED, result['archived']
     result = $repository.find(get_es_id(pm1_s))
-    result['archived'] = CheckArchivedFlags::FlagCodes::NONE
-    result['project_id'] = p.id
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, result['archived']
+    assert_equal p.id, result['project_id']
     result = $repository.find(get_es_id(pm2_s))
-    result['archived'] = CheckArchivedFlags::FlagCodes::NONE
-    result['project_id'] = p.id
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, result['archived']
+    assert_equal p.id, result['project_id']
   end
 
   test "should detach similar items when spam parent item" do
@@ -2653,10 +2653,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     default_folder = t.default_folder
     p = create_project team: t
-    pm = create_project_media project: p
-    pm1_c = create_project_media project: p
-    pm1_s = create_project_media project: p
-    pm2_s = create_project_media project: p
+    pm = create_project_media project: p, disable_es_callbacks: false
+    pm1_c = create_project_media project: p, disable_es_callbacks: false
+    pm1_s = create_project_media project: p, disable_es_callbacks: false
+    pm2_s = create_project_media project: p, disable_es_callbacks: false
     r = create_relationship source: pm, target: pm1_c, relationship_type: Relationship.confirmed_type
     r2 = create_relationship source: pm, target: pm1_s, relationship_type: Relationship.suggested_type
     r3 = create_relationship source: pm, target: pm2_s, relationship_type: Relationship.suggested_type
@@ -2678,13 +2678,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal p.id, pm2_s.project_id
     # Verify ES
     result = $repository.find(get_es_id(pm1_c))
-    result['archived'] = CheckArchivedFlags::FlagCodes::SPAM
+    assert_equal CheckArchivedFlags::FlagCodes::SPAM, result['archived']
     result = $repository.find(get_es_id(pm1_s))
-    result['archived'] = CheckArchivedFlags::FlagCodes::NONE
-    result['project_id'] = p.id
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, result['archived']
+    assert_equal p.id, result['project_id']
     result = $repository.find(get_es_id(pm2_s))
-    result['archived'] = CheckArchivedFlags::FlagCodes::NONE
-    result['project_id'] = p.id
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, result['archived']
+    assert_equal p.id, result['project_id']
   end
 
   test "should get cluster size" do
