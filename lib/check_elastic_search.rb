@@ -70,7 +70,7 @@ module CheckElasticSearch
 
   # Get a fresh data based on data(Hash)
   def get_fresh_value(data)
-    value = nil
+    value = data['default']
     klass = data['klass']
     obj = klass.constantize.find_by_id data['id'] unless klass.blank?
     unless obj.nil?
