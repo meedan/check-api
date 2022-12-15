@@ -963,11 +963,12 @@ class Bot::Smooch < BotUser
     uid = message['authorId']
     time = Time.now.to_f
     Rails.cache.write("smooch:last_message_from_user:#{uid}", time)
-    self.delay_for(15.minutes, { queue: 'smooch' }).timeout_smooch_menu(time, message, app_id)
+    self.delay_for(15.minutes, { queue: 'smooch' }).timeout_smooch_menu(time, message, app_id, RequestStore.store[:smooch_bot_provider])
   end
 
-  def self.timeout_smooch_menu(time, message, app_id)
+  def self.timeout_smooch_menu(time, message, app_id, provider)
     self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
+    RequestStore.store[:smooch_bot_provider] = provider
     return if self.config['smooch_disable_timeout']
     language = self.get_user_language(message)
     uid = message['authorId']
