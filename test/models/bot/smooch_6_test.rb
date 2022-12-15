@@ -536,7 +536,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     assert_equal 'search_result', sm.state.value
 
     message = { 'authorId' => uid, '_id' => random_string }
-    assert_nil Bot::Smooch.timeout_smooch_menu(Time.now + 30.minutes, message, @app_id)
+    assert_nil Bot::Smooch.timeout_smooch_menu(Time.now + 30.minutes, message, @app_id, 'ZENDESK')
   end
 
   test "should send report notification with button after 24 hours window" do
