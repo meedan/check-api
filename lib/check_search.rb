@@ -69,9 +69,9 @@ class CheckSearch
   def pusher_channel
     obj = nil
     if @options['parent'] && @options['parent']['type'] == 'project'
-      obj = Project.find_by_id(@options['parent']['id']).pusher_channel
+      obj = Project.find_by_id(@options['parent']['id'])
     elsif @options['parent'] && @options['parent']['type'] == 'team'
-      obj = Team.where(slug: @options['parent']['slug']).last.pusher_channel
+      obj = Team.where(slug: @options['parent']['slug']).last
     end
     obj.nil? ? nil : obj.pusher_channel
   end
