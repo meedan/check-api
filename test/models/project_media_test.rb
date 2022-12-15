@@ -1286,9 +1286,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t1 = create_project_media team: t, disable_es_callbacks: false
     t2 = create_project_media team: t, disable_es_callbacks: false
     t3 = create_project_media team: t, disable_es_callbacks: false
-    create_relationship source_id: s1.id, target_id: t1.id
-    create_relationship source_id: s2.id, target_id: t2.id, relationship_type: Relationship.confirmed_type, disable_es_callbacks: false
-    create_relationship source_id: s3.id, target_id: t3.id, relationship_type: Relationship.suggested_type, disable_es_callbacks: false
+    r1 = create_relationship source_id: s1.id, target_id: t1.id, disable_es_callbacks: false
+    r2 = create_relationship source_id: s2.id, target_id: t2.id, relationship_type: Relationship.confirmed_type, disable_es_callbacks: false
+    r3 = create_relationship source_id: s3.id, target_id: t3.id, relationship_type: Relationship.suggested_type, disable_es_callbacks: false
     sleep 2
     t1_es = $repository.find(get_es_id(t1))
     assert_equal t1.id, t1_es['parent_id']
@@ -1296,6 +1296,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal s2.id, t2_es['parent_id']
     t3_es = $repository.find(get_es_id(t3))
     assert_equal t3.id, t3_es['parent_id']
+    r2.destroy!
+    sleep 2
+    t2_es = $repository.find(get_es_id(t2))
+    assert_equal t2.id, t2_es['parent_id']
   end
 
   test "should validate media source" do
