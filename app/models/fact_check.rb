@@ -39,15 +39,18 @@ class FactCheck < ApplicationRecord
     return if self.skip_report_update || !DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').exists?
     pm = self.project_media
     reports = pm.get_dynamic_annotation('report_design') || Dynamic.new(annotation_type: 'report_design', annotated: pm)
-    data = reports.data ? reports.data.with_indifferent_access : {}.with_indifferent_access
-    language = data[:default_language] || pm.team.default_language || 'en'
+    data = reports.data.to_h.with_indifferent_access
     report = data[:options]
+    language = self.language || pm.team.default_language || 'en'
+    report_language = report.to_h.with_indifferent_access[:language]
+    default_use_introduction = !!reports.report_design_team_setting_value('use_introduction', language)
+    default_introduction = reports.report_design_team_setting_value('introduction', language).to_s
     unless report
       report = {
         language: language,
         use_text_message: true,
-        use_introduction: !!reports.report_design_team_setting_value('use_introduction', language),
-        introduction: reports.report_design_team_setting_value('introduction', language).to_s,
+        use_introduction: default_use_introduction,
+        introduction: default_introduction,
         status_label: pm.status_i18n(pm.last_verification_status, { locale: language }),
         theme_color: pm.last_status_color,
         image: pm.lead_image.to_s
@@ -61,6 +64,7 @@ class FactCheck < ApplicationRecord
       published_article_url: self.url,
       language: self.language
     })
+    report.merge!({ use_introduction: default_use_introduction, introduction: default_introduction }) if language != report_language && !default_introduction.blank?
     data[:options] = report
     reports.annotator = self.user || User.current
     reports.set_fields = data.to_json
