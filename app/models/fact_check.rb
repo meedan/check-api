@@ -39,7 +39,7 @@ class FactCheck < ApplicationRecord
     return if self.skip_report_update || !DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').exists?
     pm = self.project_media
     reports = pm.get_dynamic_annotation('report_design') || Dynamic.new(annotation_type: 'report_design', annotated: pm)
-    data = reports.data ? reports.data.with_indifferent_access : {}.with_indifferent_access
+    data = reports.data.to_h.with_indifferent_access
     report = data[:options]
     language = self.language || pm.team.default_language || 'en'
     report_language = report.to_h.with_indifferent_access[:language]
