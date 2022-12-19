@@ -616,4 +616,15 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     assert_equal '-', Bot::Smooch.get_user_name_from_uid(random_string)
     assert_equal '-', Bot::Smooch.get_user_name_from_uid(uid3)
   end
+
+  test "should not duplicate messages when saving" do
+    @team.set_languages ['en']
+    @team.save!
+    url = 'http://localhost'
+    send_message url, '1', url, '1'
+    assert_state 'search'
+    Sidekiq::Worker.drain_all
+    d = Dynamic.where(annotation_type: 'smooch').last
+    assert_equal 2, JSON.parse(d.get_field_value('smooch_data'))['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}").select{ |x| x.chomp.strip == url }.size
+  end
 end

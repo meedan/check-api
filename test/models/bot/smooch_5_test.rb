@@ -134,8 +134,8 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
       a = Dynamic.where(conditions).last
       f = a.get_field_value('smooch_data')
       text  = JSON.parse(f)['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
-      # verify that all messages stored
-      assert_equal 4, text.size
+      # Verify that all messages were stored
+      assert_equal 3, text.size
       assert_equal '1', text.last
       send_message_to_smooch_bot(random_string, uid)
       assert_equal 'main', sm.state.value
@@ -151,7 +151,7 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
       f = a.get_field_value('smooch_data')
       text  = JSON.parse(f)['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
       # verify that all messages stored
-      assert_equal 6, text.size
+      assert_equal 5, text.size
       assert_equal '1', text.last
       send_message_to_smooch_bot(random_string, uid)
       assert_equal 'main', sm.state.value
