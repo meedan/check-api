@@ -1,6 +1,6 @@
 require 'opentelemetry/sdk'
 require 'opentelemetry/exporter/otlp'
-require 'opentelemetry/instrumentation/all'
+require 'opentelemetry/instrumentation'
 module Check
   class OpenTelemetryConfig
     class << self
