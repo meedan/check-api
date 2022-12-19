@@ -36,7 +36,7 @@ module SmoochMessages
     def list_of_bundled_messages_from_user(uid)
       redis = Redis.new(REDIS_CONFIG)
       key = "smooch:bundle:#{uid}"
-      redis.lrange(key, 0, redis.llen(key))
+      redis.lrange(key, 0, redis.llen(key)).to_a.uniq
     end
 
     def bundle_messages(uid, id, app_id, type = 'default_requests', annotated = nil, force = false, bundle = nil)
