@@ -1644,6 +1644,23 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should move update cached field to background" do
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media
+    assert pm.respond_to?(:status)
+    s = pm.last_verification_status_obj
+    Sidekiq::Testing.inline! do
+      s.status = 'verified'
+      s.save!
+    end
+    assert_queries 0, '=' do
+      assert_equal 'verified', pm.status
+    end
+    assert_queries(0, '>') do
+      assert_equal 'verified', pm.status(true)
+    end
+  end
+
   test "should cache title" do
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media quote: 'Title 0'

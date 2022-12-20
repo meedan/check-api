@@ -52,7 +52,7 @@ module CheckCachedFields
               # clear cached fields in foreground
               ids.each { |id| Rails.cache.delete(klass.check_cache_key(klass, id, name)) }
               # update cached field in background
-              klass.update_cached_field(name, obj, ids, callback, options)
+              klass.delay_for(1.second).update_cached_field(name, obj, ids, callback, options)
             end
           end
         end
