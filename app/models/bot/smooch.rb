@@ -74,11 +74,11 @@ class Bot::Smooch < BotUser
     end
 
     after_create do
-      self.delay_for(1.seconds, { queue: 'smooch_priority'}).inherit_status_and_send_report(self.id)
+      self.class.delay_for(1.seconds, { queue: 'smooch_priority'}).inherit_status_and_send_report(self.id)
     end
 
     after_update do
-       self.delay_for(1.seconds, { queue: 'smooch_priority'}).inherit_status_and_send_report(self.id) if self.suggestion_accepted?
+      self.class.delay_for(1.seconds, { queue: 'smooch_priority'}).inherit_status_and_send_report(self.id) if self.suggestion_accepted?
     end
 
     after_destroy do

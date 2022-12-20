@@ -91,7 +91,6 @@ module CheckCachedFields
     end
 
     def update_cached_field(name, obj, ids, callback, options)
-      puts "I am here ................"
       recalculate = options[:recalculate]
       interval = CheckConfig.get('cache_interval', 30).to_i
       self.where(id: ids).each do |target|
