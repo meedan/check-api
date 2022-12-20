@@ -45,7 +45,15 @@ module CheckCachedFields
         update_on[:events].each do |event, callback|
           model.send "after_#{event}", ->(obj) do
             return if klass.skip_cached_field_update?
-            klass.update_cached_field(name, obj, update_on[:if], update_on[:affected_ids], callback, options)
+            condition = update_on[:if] || proc { true }
+            return unless condition.call(obj)
+            ids = update_on[:affected_ids].call(obj)
+            unless ids.blank?
+              # clear cached fields in foreground
+              ids.each { |id| Rails.cache.delete(klass.check_cache_key(klass, id, name)) }
+              # update cached field in background
+              klass.update_cached_field(name, obj, ids, callback, options)
+            end
           end
         end
       end
@@ -82,12 +90,11 @@ module CheckCachedFields
       end
     end
 
-    def update_cached_field(name, obj, condition, ids, callback, options)
-      condition ||= proc { true }
-      return unless condition.call(obj)
+    def update_cached_field(name, obj, ids, callback, options)
+      puts "I am here ................"
       recalculate = options[:recalculate]
       interval = CheckConfig.get('cache_interval', 30).to_i
-      self.where(id: ids.call(obj)).each do |target|
+      self.where(id: ids).each do |target|
         value = callback == :recalculate ? recalculate.call(target) : callback.call(target, obj)
         Rails.cache.write(self.check_cache_key(self, target.id, name), value, expires_in: interval.days)
         # Update ES index and PG, if needed
