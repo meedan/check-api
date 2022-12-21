@@ -37,33 +37,33 @@ class FeedsControllerTest < ActionController::TestCase
     assert_response 401
   end
 
-  test "should request feed data" do
-    authenticate_with_token @a
-    get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
-    assert_response :success
-    assert_equal 2, json_response['data'].size
-    assert_equal 2, json_response['meta']['record-count']
-  end
+  # test "should request feed data" do
+  #   authenticate_with_token @a
+  #   get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
+  #   assert_response :success
+  #   assert_equal 2, json_response['data'].size
+  #   assert_equal 2, json_response['meta']['record-count']
+  # end
 
-  test "should keep order" do
-    Sidekiq::Testing.fake! do
-      authenticate_with_token @a
+  # test "should keep order" do
+  #   Sidekiq::Testing.fake! do
+  #     authenticate_with_token @a
 
-      Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id, @t2.id], nil, @f.id).returns([@pm1, @pm2])
-      get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
-      assert_response :success
-      assert_equal 'Foo', json_response['data'][0]['attributes']['organization']
-      assert_equal 'Bar', json_response['data'][1]['attributes']['organization']
+  #     Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id, @t2.id], nil, @f.id).returns([@pm1, @pm2])
+  #     get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
+  #     assert_response :success
+  #     assert_equal 'Foo', json_response['data'][0]['attributes']['organization']
+  #     assert_equal 'Bar', json_response['data'][1]['attributes']['organization']
 
-      Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id, @t2.id], nil, @f.id).returns([@pm2, @pm1])
-      get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
-      assert_response :success
-      assert_equal 'Bar', json_response['data'][0]['attributes']['organization']
-      assert_equal 'Foo', json_response['data'][1]['attributes']['organization']
+  #     Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id, @t2.id], nil, @f.id).returns([@pm2, @pm1])
+  #     get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
+  #     assert_response :success
+  #     assert_equal 'Bar', json_response['data'][0]['attributes']['organization']
+  #     assert_equal 'Foo', json_response['data'][1]['attributes']['organization']
 
-      Bot::Smooch.unstub(:search_for_similar_published_fact_checks)
-    end
-  end
+  #     Bot::Smooch.unstub(:search_for_similar_published_fact_checks)
+  #   end
+  # end
 
   test "should return empty set if feed is not published" do
     authenticate_with_token @a
@@ -89,40 +89,40 @@ class FeedsControllerTest < ActionController::TestCase
     assert_equal 0, json_response['data'].size
   end
 
-  test "should save request query" do
-    Bot::Alegre.stubs(:request_api).returns({})
-    Sidekiq::Testing.inline!
-    authenticate_with_token @a
-    assert_difference 'Request.count' do
-      assert_difference 'Media.count' do
-        get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
-      end
-    end
-    assert_response :success
-    assert_equal 2, json_response['data'].size
-    assert_equal 2, json_response['meta']['record-count']
-    Bot::Alegre.unstub(:request_api)
-  end
+  # test "should save request query" do
+  #   Bot::Alegre.stubs(:request_api).returns({})
+  #   Sidekiq::Testing.inline!
+  #   authenticate_with_token @a
+  #   assert_difference 'Request.count' do
+  #     assert_difference 'Media.count' do
+  #       get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
+  #     end
+  #   end
+  #   assert_response :success
+  #   assert_equal 2, json_response['data'].size
+  #   assert_equal 2, json_response['meta']['record-count']
+  #   Bot::Alegre.unstub(:request_api)
+  # end
 
-  test "should save relationship between request and results" do
-    Bot::Alegre.stubs(:request_api).returns({})
-    Sidekiq::Testing.inline!
-    authenticate_with_token @a
-    assert_difference 'Request.count' do
-      get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
-    end
-    assert_response :success
-    Bot::Alegre.unstub(:request_api)
-  end
+  # test "should save relationship between request and results" do
+  #   Bot::Alegre.stubs(:request_api).returns({})
+  #   Sidekiq::Testing.inline!
+  #   authenticate_with_token @a
+  #   assert_difference 'Request.count' do
+  #     get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
+  #   end
+  #   assert_response :success
+  #   Bot::Alegre.unstub(:request_api)
+  # end
 
-  test "should parse the full query" do
-    Bot::Smooch.unstub(:search_for_similar_published_fact_checks)
-    Bot::Alegre.stubs(:request_api).returns({})
-    Sidekiq::Testing.inline!
-    authenticate_with_token @a
-    get :index, params: { filter: { type: 'text', query: 'Foo, bar and test', feed_id: @f.id } }
-    assert_response :success
-    assert_equal 'Foo, bar and test', Media.last.quote
-    Bot::Alegre.unstub(:request_api)
-  end
+  # test "should parse the full query" do
+  #   Bot::Smooch.unstub(:search_for_similar_published_fact_checks)
+  #   Bot::Alegre.stubs(:request_api).returns({})
+  #   Sidekiq::Testing.inline!
+  #   authenticate_with_token @a
+  #   get :index, params: { filter: { type: 'text', query: 'Foo, bar and test', feed_id: @f.id } }
+  #   assert_response :success
+  #   assert_equal 'Foo, bar and test', Media.last.quote
+  #   Bot::Alegre.unstub(:request_api)
+  # end
 end

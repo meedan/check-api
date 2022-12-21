@@ -14,40 +14,40 @@ class GraphqlController2Test < ActionController::TestCase
     create_verification_status_stuff
   end
 
-  test "should have a different id for public team" do
-    authenticate_with_user
-    t = create_team slug: 'team', name: 'Team'
-    post :create, params: { query: 'query PublicTeam { public_team { id, trash_count, pusher_channel } }', team: 'team' }
-    assert_response :success
-    assert_equal Base64.encode64("PublicTeam/#{t.id}"), JSON.parse(@response.body)['data']['public_team']['id']
-  end
+  # test "should have a different id for public team" do
+  #   authenticate_with_user
+  #   t = create_team slug: 'team', name: 'Team'
+  #   post :create, params: { query: 'query PublicTeam { public_team { id, trash_count, pusher_channel } }', team: 'team' }
+  #   assert_response :success
+  #   assert_equal Base64.encode64("PublicTeam/#{t.id}"), JSON.parse(@response.body)['data']['public_team']['id']
+  # end
 
-  test "should search as anonymous user" do
-    t = create_team slug: 'team', private: false
-    p = create_project team: t
-    2.times do
-      pm = create_project_media project: p, disable_es_callbacks: false
-    end
-    sleep 2
+  # test "should search as anonymous user" do
+  #   t = create_team slug: 'team', private: false
+  #   p = create_project team: t
+  #   2.times do
+  #     pm = create_project_media project: p, disable_es_callbacks: false
+  #   end
+  #   sleep 2
 
-    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,log_count,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+  #   query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,log_count,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
-    post :create, params: { query: query, team: 'team' }
-    assert_response :success
-    assert_equal 2, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
-  end
+  #   post :create, params: { query: query, team: 'team' }
+  #   assert_response :success
+  #   assert_equal 2, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+  # end
 
-  test "should read attribution" do
-    t, p, pm = assert_task_response_attribution
-    u = create_user is_admin: true
-    authenticate_with_user(u)
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { first_response { attribution { edges { node { name } } } } } } } } }"
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['project_media']
-    users = data['tasks']['edges'][0]['node']['first_response']['attribution']['edges'].collect{ |u| u['node']['name'] }
-    assert_equal ['User 1', 'User 3'].sort, users.sort
-  end
+  # test "should read attribution" do
+  #   t, p, pm = assert_task_response_attribution
+  #   u = create_user is_admin: true
+  #   authenticate_with_user(u)
+  #   query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { first_response { attribution { edges { node { name } } } } } } } } }"
+  #   post :create, params: { query: query, team: t.slug }
+  #   assert_response :success
+  #   data = JSON.parse(@response.body)['data']['project_media']
+  #   users = data['tasks']['edges'][0]['node']['first_response']['attribution']['edges'].collect{ |u| u['node']['name'] }
+  #   assert_equal ['User 1', 'User 3'].sort, users.sort
+  # end
 
   test "should create team and return user and team_userEdge" do
     authenticate_with_user
