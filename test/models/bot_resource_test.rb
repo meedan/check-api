@@ -5,33 +5,33 @@ class BotResourceTest < ActiveSupport::TestCase
     super
   end
 
-  test "should create bot resource" do
-    assert_difference 'BotResource.count' do
-      create_bot_resource
-    end
-  end
+  # test "should create bot resource" do
+  #   assert_difference 'BotResource.count' do
+  #     create_bot_resource
+  #   end
+  # end
 
-  test "should not create bot resource with empty uuid" do
-    assert_no_difference 'BotResource.count' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_bot_resource uuid: nil
-      end
-      assert_raises ActiveRecord::RecordInvalid do
-        create_bot_resource uuid: ''
-      end
-    end
-  end
+  # test "should not create bot resource with empty uuid" do
+  #   assert_no_difference 'BotResource.count' do
+  #     assert_raises ActiveRecord::RecordInvalid do
+  #       create_bot_resource uuid: nil
+  #     end
+  #     assert_raises ActiveRecord::RecordInvalid do
+  #       create_bot_resource uuid: ''
+  #     end
+  #   end
+  # end
 
-  test "should not create bot resource with empty title" do
-    assert_no_difference 'BotResource.count' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_bot_resource title: nil
-      end
-      assert_raises ActiveRecord::RecordInvalid do
-        create_bot_resource title: ''
-      end
-    end
-  end
+  # test "should not create bot resource with empty title" do
+  #   assert_no_difference 'BotResource.count' do
+  #     assert_raises ActiveRecord::RecordInvalid do
+  #       create_bot_resource title: nil
+  #     end
+  #     assert_raises ActiveRecord::RecordInvalid do
+  #       create_bot_resource title: ''
+  #     end
+  #   end
+  # end
 
   test "should belong to team" do
     t = create_team
