@@ -58,14 +58,12 @@ class Cluster < ApplicationRecord
 
   cached_field :team_names,
     start_as: proc { |c| c.get_team_names },
-    recalculate: proc { |c| c.get_team_names },
     update_on: [] # Handled by an "after_add" callback above
 
   cached_field :fact_checked_by_team_names,
     start_as: proc { |c| c.get_names_of_teams_that_fact_checked_it },
-    update_es: proc { |_c, value| value.keys },
+    update_es: true,
     es_field_name: :cluster_published_reports,
-    recalculate: proc { |c| c.get_names_of_teams_that_fact_checked_it },
     update_on: [
       # Also handled by an "after_add" callback above
       {
@@ -82,18 +80,46 @@ class Cluster < ApplicationRecord
     start_as: proc { |c| c.get_requests_count },
     update_es: true,
     es_field_name: :cluster_requests_count,
-    recalculate: proc { |c| c.get_requests_count },
     update_on: [
         {
           model: Dynamic,
           if: proc { |d| d.annotation_type == 'smooch' && d.annotated_type == 'ProjectMedia' },
           affected_ids: proc { |d| ProjectMedia.where(id: d.annotated.related_items_ids).group(:cluster_id).count.keys.reject{ |cid| cid.nil? } },
           events: {
-            create: proc { |c, _d| c.requests_count + 1 },
-            destroy: proc { |c, _d| c.requests_count - 1 }
+            create: :update_on,
+            destroy: :update_on
           }
         }
       ]
+
+  def self.cached_field_recalculate_team_names(target, _obj)
+    target.get_team_names
+  end
+
+  def self.cached_field_recalculate_fact_checked_by_team_names(target, _obj)
+    target.get_names_of_teams_that_fact_checked_it
+  end
+
+  def self.cached_field_recalculate_requests_count(target, _obj)
+    target.get_requests_count
+  end
+
+  def self.cached_field_update_on_create_dynmic_requests_count(target, _obj)
+    target.requests_count + 1
+  end
+
+  def self.cached_field_update_on_destroy_dynmic_requests_count(target, _obj)
+    target.requests_count - 1
+  end
+
+  def cached_field_es_value(target, name, value)
+    case name.to_s
+    when 'fact_checked_by_team_names'
+      value.keys
+    else
+      value
+    end
+  end
 
   private
 

@@ -1586,144 +1586,139 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should cache number of linked items" do
     RequestStore.store[:skip_cached_field_update] = false
-    t = create_team
-    pm = create_project_media team: t
-    assert_queries(0, '=') { assert_equal(0, pm.linked_items_count) }
-    pm2 = create_project_media team: t
-    assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
-    create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
-    assert_queries(0, '=') { assert_equal(1, pm.linked_items_count) }
-    assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
-    pm3 = create_project_media team: t
-    assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count) }
-    r = create_relationship source_id: pm.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
-    assert_queries(0, '=') { assert_equal(2, pm.linked_items_count) }
-    assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
-    assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count) }
-    r.destroy!
-    assert_queries(0, '=') { assert_equal(1, pm.linked_items_count) }
-    assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
-    assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count) }
-    assert_queries(0, '>') { assert_equal(1, pm.linked_items_count(true)) }
+    Sidekiq::Testing.inline! do
+      t = create_team
+      pm = create_project_media team: t
+      assert_queries(0, '=') { assert_equal(0, pm.linked_items_count) }
+      pm2 = create_project_media team: t
+      assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
+      create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
+      assert_queries(0, '=') { assert_equal(1, pm.linked_items_count) }
+      assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
+      pm3 = create_project_media team: t
+      assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count) }
+      r = create_relationship source_id: pm.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
+      assert_queries(0, '=') { assert_equal(2, pm.linked_items_count) }
+      assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
+      assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count) }
+      r.destroy!
+      assert_queries(0, '=') { assert_equal(1, pm.linked_items_count) }
+      assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
+      assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count) }
+      assert_queries(0, '>') { assert_equal(1, pm.linked_items_count(true)) }
+    end
   end
 
   test "should cache number of requests" do
     RequestStore.store[:skip_cached_field_update] = false
-    team = create_team
-    pm = create_project_media team: team
-    t = t0 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm).created_at.to_i
-    assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
-    sleep 1
-    pm2 = create_project_media team: team
-    r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
-    t = pm2.created_at.to_i
-    assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
-    sleep 1
-    t = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2).created_at.to_i
-    assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
-    r.destroy!
-    assert_queries(0, '=') { assert_equal(t0, pm.last_seen) }
-    assert_queries(0, '>') { assert_equal(t0, pm.last_seen(true)) }
+    Sidekiq::Testing.inline! do
+      team = create_team
+      pm = create_project_media team: team
+      t = t0 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm).created_at.to_i
+      assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
+      sleep 1
+      pm2 = create_project_media team: team
+      r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
+      t = pm2.created_at.to_i
+      assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
+      sleep 1
+      t = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2).created_at.to_i
+      assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
+      r.destroy!
+      assert_queries(0, '=') { assert_equal(t0, pm.last_seen) }
+      assert_queries(0, '>') { assert_equal(t0, pm.last_seen(true)) }
+    end
   end
 
   test "should cache status" do
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media
-    assert pm.respond_to?(:status)
-    assert_queries 0, '=' do
-      assert_equal 'undetermined', pm.status
-    end
-    s = pm.last_verification_status_obj
-    s.status = 'verified'
-    s.save!
-    assert_queries 0, '=' do
-      assert_equal 'verified', pm.status
-    end
-    assert_queries(0, '>') do
-      assert_equal 'verified', pm.status(true)
-    end
-  end
-
-  test "should move update cached field to background" do
-    RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media
-    assert pm.respond_to?(:status)
-    s = pm.last_verification_status_obj
     Sidekiq::Testing.inline! do
+      pm = create_project_media
+      assert pm.respond_to?(:status)
+      assert_queries 0, '=' do
+        assert_equal 'undetermined', pm.status
+      end
+      s = pm.last_verification_status_obj
       s.status = 'verified'
       s.save!
-    end
-    assert_queries 0, '=' do
-      assert_equal 'verified', pm.status
-    end
-    assert_queries(0, '>') do
-      assert_equal 'verified', pm.status(true)
+      assert_queries 0, '=' do
+        assert_equal 'verified', pm.status
+      end
+      assert_queries(0, '>') do
+        assert_equal 'verified', pm.status(true)
+      end
     end
   end
 
   test "should cache title" do
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: 'Title 0'
-    assert_equal 'Title 0', pm.title
-    cd = create_claim_description project_media: pm, description: 'Title 1'
-    assert_queries 0, '=' do
-      assert_equal 'Title 1', pm.title
-    end
-    create_fact_check claim_description: cd, title: 'Title 2'
-    assert_queries 0, '=' do
-      assert_equal 'Title 1', pm.title
-    end
-    assert_queries(0, '>') do
-      assert_equal 'Title 1', pm.reload.title(true)
+    Sidekiq::Testing.inline! do
+      pm = create_project_media quote: 'Title 0'
+      assert_equal 'Title 0', pm.title
+      cd = create_claim_description project_media: pm, description: 'Title 1'
+      assert_queries 0, '=' do
+        assert_equal 'Title 1', pm.title
+      end
+      create_fact_check claim_description: cd, title: 'Title 2'
+      assert_queries 0, '=' do
+        assert_equal 'Title 1', pm.title
+      end
+      assert_queries(0, '>') do
+        assert_equal 'Title 1', pm.reload.title(true)
+      end
     end
   end
 
   test "should cache title for imported items" do
     RequestStore.store[:skip_cached_field_update] = false
-    t = create_team
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    with_current_user_and_team(u, t) do
-      pm = ProjectMedia.create!(
-        media: Blank.create!,
-        team: t,
-        user: u,
-        channel: { main: CheckChannels::ChannelCodes::FETCH }
-      )
-      cd = ClaimDescription.new
-      cd.skip_check_ability = true
-      cd.project_media = pm
-      cd.description = '-'
-      cd.user = u
-      cd.save!
-      fc_summary = 'fc_summary'
-      fc_title = 'fc_title'
-      fc = FactCheck.new
-      fc.claim_description = cd
-      fc.title = fc_title
-      fc.summary = fc_summary
-      fc.user = u
-      fc.skip_report_update = true
-      fc.save!
-      assert_equal fc_title, pm.title
-      assert_equal fc_summary, pm.description
+    Sidekiq::Testing.inline! do
+      t = create_team
+      u = create_user
+      create_team_user team: t, user: u, role: 'admin'
+      with_current_user_and_team(u, t) do
+        pm = ProjectMedia.create!(
+          media: Blank.create!,
+          team: t,
+          user: u,
+          channel: { main: CheckChannels::ChannelCodes::FETCH }
+        )
+        cd = ClaimDescription.new
+        cd.skip_check_ability = true
+        cd.project_media = pm
+        cd.description = '-'
+        cd.user = u
+        cd.save!
+        fc_summary = 'fc_summary'
+        fc_title = 'fc_title'
+        fc = FactCheck.new
+        fc.claim_description = cd
+        fc.title = fc_title
+        fc.summary = fc_summary
+        fc.user = u
+        fc.skip_report_update = true
+        fc.save!
+        assert_equal fc_title, pm.title
+        assert_equal fc_summary, pm.description
+      end
     end
   end
 
   test "should cache description" do
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: 'Description 0'
-    assert_equal 'Description 0', pm.description
-    cd = create_claim_description description: 'Description 1', project_media: pm
-    assert_queries 0, '=' do
-      assert_equal 'Description 1', pm.description
-    end
-    create_fact_check claim_description: cd, summary: 'Description 2'
-    assert_queries 0, '=' do
-      assert_equal 'Description 1', pm.description
-    end
-    assert_queries(0, '>') do
-      assert_equal 'Description 1', pm.reload.description(true)
+    Sidekiq::Testing.inline! do
+      pm = create_project_media quote: 'Description 0'
+      assert_equal 'Description 0', pm.description
+      cd = create_claim_description description: 'Description 1', project_media: pm
+      assert_queries 0, '=' do
+        assert_equal 'Description 1', pm.description
+      end
+      create_fact_check claim_description: cd, summary: 'Description 2'
+      assert_queries 0, '=' do
+        assert_equal 'Description 1', pm.description
+      end
+      assert_queries(0, '>') do
+        assert_equal 'Description 1', pm.reload.description(true)
+      end
     end
   end
 
@@ -2249,30 +2244,32 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should cache published value" do
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media
-    pm2 = create_project_media team: pm.team
-    create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
-    assert_queries(0, '=') { assert_equal 'unpublished', pm.report_status }
-    assert_queries(0, '=') { assert_equal 'unpublished', pm2.report_status }
-    r = publish_report(pm)
-    pm = ProjectMedia.find(pm.id)
-    assert_queries(0, '=') { assert_equal 'published', pm.report_status }
-    assert_queries(0, '=') { assert_equal 'published', pm2.report_status }
-    r = Dynamic.find(r.id)
-    r.set_fields = { state: 'paused' }.to_json
-    r.action = 'pause'
-    r.save!
-    pm = ProjectMedia.find(pm.id)
-    assert_queries(0, '=') { assert_equal 'paused', pm.report_status }
-    assert_queries(0, '=') { assert_equal 'paused', pm2.report_status }
-    Rails.cache.clear
-    assert_queries(0, '>') { assert_equal 'paused', pm.report_status }
-    pm3 = create_project_media team: pm.team
-    assert_queries(0, '=') { assert_equal 'unpublished', pm3.report_status }
-    r = create_relationship source_id: pm.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
-    assert_queries(0, '=') { assert_equal 'paused', pm3.report_status }
-    r.destroy!
-    assert_queries(0, '=') { assert_equal 'unpublished', pm3.report_status }
+    Sidekiq::Testing.inline! do
+      pm = create_project_media
+      pm2 = create_project_media team: pm.team
+      create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
+      assert_queries(0, '=') { assert_equal 'unpublished', pm.report_status }
+      assert_queries(0, '=') { assert_equal 'unpublished', pm2.report_status }
+      r = publish_report(pm)
+      pm = ProjectMedia.find(pm.id)
+      assert_queries(0, '=') { assert_equal 'published', pm.report_status }
+      assert_queries(0, '=') { assert_equal 'published', pm2.report_status }
+      r = Dynamic.find(r.id)
+      r.set_fields = { state: 'paused' }.to_json
+      r.action = 'pause'
+      r.save!
+      pm = ProjectMedia.find(pm.id)
+      assert_queries(0, '=') { assert_equal 'paused', pm.report_status }
+      assert_queries(0, '=') { assert_equal 'paused', pm2.report_status }
+      Rails.cache.clear
+      assert_queries(0, '>') { assert_equal 'paused', pm.report_status }
+      pm3 = create_project_media team: pm.team
+      assert_queries(0, '=') { assert_equal 'unpublished', pm3.report_status }
+      r = create_relationship source_id: pm.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
+      assert_queries(0, '=') { assert_equal 'paused', pm3.report_status }
+      r.destroy!
+      assert_queries(0, '=') { assert_equal 'unpublished', pm3.report_status }
+    end
   end
 
   test "should cache tags list" do
@@ -2311,17 +2308,19 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should cache number of related items" do
     RequestStore.store[:skip_cached_field_update] = false
-    t = create_team
-    pm1 = create_project_media team: t
-    pm2 = create_project_media team: t
-    assert_queries(0, '=') { assert_equal 0, pm1.related_count }
-    assert_queries(0, '=') { assert_equal 0, pm2.related_count }
-    r = create_relationship source_id: pm1.id, target_id: pm2.id
-    assert_queries(0, '=') { assert_equal 1, pm1.related_count }
-    assert_queries(0, '=') { assert_equal 1, pm2.related_count }
-    r.destroy!
-    assert_queries(0, '=') { assert_equal 0, pm1.related_count }
-    assert_queries(0, '=') { assert_equal 0, pm2.related_count }
+    Sidekiq::Testing.inline! do
+      t = create_team
+      pm1 = create_project_media team: t
+      pm2 = create_project_media team: t
+      assert_queries(0, '=') { assert_equal 0, pm1.related_count }
+      assert_queries(0, '=') { assert_equal 0, pm2.related_count }
+      r = create_relationship source_id: pm1.id, target_id: pm2.id
+      assert_queries(0, '=') { assert_equal 1, pm1.related_count }
+      assert_queries(0, '=') { assert_equal 1, pm2.related_count }
+      r.destroy!
+      assert_queries(0, '=') { assert_equal 0, pm1.related_count }
+      assert_queries(0, '=') { assert_equal 0, pm2.related_count }
+    end
   end
 
   test "should cache type of media" do
@@ -2563,41 +2562,45 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should cache picture and creator name" do
     RequestStore.store[:skip_cached_field_update] = false
-    u = create_user
-    pm = create_project_media channel: { main: CheckChannels::ChannelCodes::MANUAL }, user: u
-    # picture
-    assert_queries(0, '=') { assert_equal('', pm.picture) }
-    assert_queries(0, '>') { assert_equal('', pm.picture(true)) }
-    # creator name
-    assert_queries(0, '=') { assert_equal(u.name, pm.creator_name) }
-    assert_queries(0, '>') { assert_equal(u.name, pm.creator_name(true)) }
+    Sidekiq::Testing.inline! do
+      u = create_user
+      pm = create_project_media channel: { main: CheckChannels::ChannelCodes::MANUAL }, user: u
+      # picture
+      assert_queries(0, '=') { assert_equal('', pm.picture) }
+      assert_queries(0, '>') { assert_equal('', pm.picture(true)) }
+      # creator name
+      assert_queries(0, '=') { assert_equal(u.name, pm.creator_name) }
+      assert_queries(0, '>') { assert_equal(u.name, pm.creator_name(true)) }
+    end
   end
 
   test "should get creator name based on channel" do
     RequestStore.store[:skip_cached_field_update] = false
-    u = create_user
-    pm = create_project_media user: u
-    assert_equal pm.creator_name, u.name
-    pm2 = create_project_media user: u, channel: { main: CheckChannels::ChannelCodes::WHATSAPP }
-    assert_equal pm2.creator_name, 'Tipline'
-    pm3 = create_project_media user: u, channel: { main: CheckChannels::ChannelCodes::FETCH }
-    assert_equal pm3.creator_name, 'Import'
-    # update cache based on user update
-    u.name = 'update name'
-    u.save!
-    assert_equal pm.creator_name, 'update name'
-    assert_equal pm.creator_name(true), 'update name'
-    assert_equal pm2.creator_name, 'Tipline'
-    assert_equal pm2.creator_name(true), 'Tipline'
-    assert_equal pm3.creator_name, 'Import'
-    assert_equal pm3.creator_name(true), 'Import'
-    User.delete_check_user(u)
-    assert_equal pm.creator_name, 'Anonymous'
-    assert_equal pm.reload.creator_name(true), 'Anonymous'
-    assert_equal pm2.creator_name, 'Tipline'
-    assert_equal pm2.creator_name(true), 'Tipline'
-    assert_equal pm3.creator_name, 'Import'
-    assert_equal pm3.creator_name(true), 'Import'
+    Sidekiq::Testing.inline! do
+      u = create_user
+      pm = create_project_media user: u
+      assert_equal pm.creator_name, u.name
+      pm2 = create_project_media user: u, channel: { main: CheckChannels::ChannelCodes::WHATSAPP }
+      assert_equal pm2.creator_name, 'Tipline'
+      pm3 = create_project_media user: u, channel: { main: CheckChannels::ChannelCodes::FETCH }
+      assert_equal pm3.creator_name, 'Import'
+      # update cache based on user update
+      u.name = 'update name'
+      u.save!
+      assert_equal pm.creator_name, 'update name'
+      assert_equal pm.creator_name(true), 'update name'
+      assert_equal pm2.creator_name, 'Tipline'
+      assert_equal pm2.creator_name(true), 'Tipline'
+      assert_equal pm3.creator_name, 'Import'
+      assert_equal pm3.creator_name(true), 'Import'
+      User.delete_check_user(u)
+      assert_equal pm.creator_name, 'Anonymous'
+      assert_equal pm.reload.creator_name(true), 'Anonymous'
+      assert_equal pm2.creator_name, 'Tipline'
+      assert_equal pm2.creator_name(true), 'Tipline'
+      assert_equal pm3.creator_name, 'Import'
+      assert_equal pm3.creator_name(true), 'Import'
+    end
   end
 
   test "should create blank item" do

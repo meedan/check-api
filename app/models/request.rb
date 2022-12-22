@@ -18,13 +18,19 @@ class Request < ApplicationRecord
 
   cached_field :feed_name,
     start_as: proc { |r| r.feed.name },
-    recalculate: proc { |r| r.feed.name },
     update_on: [] # Never changes
 
   cached_field :media_type,
     start_as: proc { |r| r.media&.type },
-    recalculate: proc { |r| r.media&.type },
     update_on: [] # Never changes
+
+  def self.cached_field_recalculate_feed_name(target, _obj)
+    target.feed.name
+  end
+
+  def self.cached_field_recalculate_media_type(target, _obj)
+    target.media&.type
+  end
 
   # FIXME: These should be feed settings
   def text_similarity_settings
