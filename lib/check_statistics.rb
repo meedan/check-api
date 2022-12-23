@@ -1,5 +1,36 @@
 module CheckStatistics
   class << self
+    HEADERS = [
+      'ID',
+      'Org',
+      'Platform',
+      'Language',
+      'Month',
+      'Conversations',
+      'Average number of conversations per day',
+      'Number of messages sent',
+      'Average messages per day',
+      'Unique users',
+      'Returning users',
+      'Searches',
+      'Positive searches',
+      'Negative searches',
+      'Search feedback positive',
+      'Search feedback negative',
+      'Search no feedback',
+      'Valid new requests',
+      'Published native reports',
+      'Published imported reports',
+      'Requests answered with a report',
+      'Reports sent to users',
+      'Unique users who received a report',
+      'Average (median) response time',
+      'Unique newsletters sent',
+      'New newsletter subscriptions',
+      'Newsletter cancellations',
+      'Current subscribers'
+    ].freeze
+
     def requests(slug, platform, start_date, end_date, language, type = nil)
       relation = Annotation
         .where(annotation_type: 'smooch')
@@ -40,9 +71,23 @@ module CheckStatistics
       relation.group("fs.value_json #>> '{source,originalMessageId}'").count.size
     end
 
-    def get_statistics(start_date, end_date, slug, platform, language)
+    def get_team_statistics_for_month(date, team)
+      from = date.beginning_of_month
+      to = date.end_of_month
+
+      team_rows = []
+      puts "[#{Time.now}] Generating month tipline statistics for #{team.name} (#{from})"
+      TeamBotInstallation.where(team: team, user: BotUser.smooch_user).last.smooch_enabled_integrations.keys.each do |platform|
+        team.get_languages.each do |language|
+          team_rows << CheckStatistics.generate_statistics_row(from, to, team.slug, platform, language)
+        end
+      end
+      data_to_hash(team_rows)
+    end
+
+    def generate_statistics_row(start_date, end_date, slug, platform, language)
       platform_name = Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[platform]
-      id = [slug, platform_name, language, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d')].join('-').downcase.gsub(/[_ ]+/, '-')
+      id = get_id(slug, platform_name, start_date, end_date, language)
       data = [id, Team.find_by_slug(slug).name, platform_name, language, start_date.strftime('%Y-%m-%d')]
 
       # Number of conversations
@@ -201,16 +246,24 @@ module CheckStatistics
       data
     end
 
-    def cache_team_data(team, header, rows)
+    def data_to_hash(data_rows)
       data = []
-      rows.each do |row|
+      data_rows.each do |row|
         entry = {}
-        header.each_with_index do |column, i|
+        HEADERS.each_with_index do |column, i|
           entry[column] = row[i]
         end
         data << entry
       end
+      data
+    end
+
+    def cache_team_data(team, data)
       Rails.cache.write("data:report:#{team.id}", data)
+    end
+
+    def get_id(slug, platform_name, start_date, end_date, language)
+      [slug, platform_name, language, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d')].join('-').downcase.gsub(/[_ ]+/, '-')
     end
   end
 end
