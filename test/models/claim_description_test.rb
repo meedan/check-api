@@ -13,16 +13,18 @@ class ClaimDescriptionTest < ActiveSupport::TestCase
   end
 
   test "should have versions" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u, role: 'admin'
-    pm = create_project_media team: t
-    with_current_user_and_team(u, t) do
-      cd = nil
-      assert_difference 'PaperTrail::Version.count', 1 do
-        cd = create_claim_description project_media: pm, user: u
+    with_versioning do
+      u = create_user
+      t = create_team
+      create_team_user team: t, user: u, role: 'admin'
+      pm = create_project_media team: t
+      with_current_user_and_team(u, t) do
+        cd = nil
+        assert_difference 'PaperTrail::Version.count', 1 do
+          cd = create_claim_description project_media: pm, user: u
+        end
+        assert_equal 1, cd.versions.count
       end
-      assert_equal 1, cd.versions.count
     end
   end
 
