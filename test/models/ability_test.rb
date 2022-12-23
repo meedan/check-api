@@ -263,48 +263,52 @@ class AbilityTest < ActiveSupport::TestCase
 
     test "should #{role} destroy annotation versions" do
       create_verification_status_stuff
-      u = create_user
-      t = create_team
-      tu = create_team_user team: t, user: u, role: role
-      p = create_project team: t
-      pm = create_project_media project: p
-      with_current_user_and_team(u, t) do
-        s = create_status annotated: pm, status: 'verified'
-        tag = create_tag annotated: pm
-        s_v = s.versions.last
-        tag_v = tag.versions.last
-        ability = Ability.new
-        # Status versions
-        assert ability.can?(:create, s_v)
-        assert ability.cannot?(:update, s_v)
-        assert ability.can?(:destroy, s_v)
-        # Tag versions
-        assert ability.can?(:create, tag_v)
-        assert ability.cannot?(:update, tag_v)
-        assert ability.can?(:destroy, tag_v)
+      with_versioning do
+        u = create_user
+        t = create_team
+        tu = create_team_user team: t, user: u, role: role
+        p = create_project team: t
+        pm = create_project_media project: p
+        with_current_user_and_team(u, t) do
+          s = create_status annotated: pm, status: 'verified'
+          tag = create_tag annotated: pm
+          s_v = s.versions.last
+          tag_v = tag.versions.last
+          ability = Ability.new
+          # Status versions
+          assert ability.can?(:create, s_v)
+          assert ability.cannot?(:update, s_v)
+          assert ability.can?(:destroy, s_v)
+          # Tag versions
+          assert ability.can?(:create, tag_v)
+          assert ability.cannot?(:update, tag_v)
+          assert ability.can?(:destroy, tag_v)
+        end
       end
     end
 
     test "#{role} should edit own annotation and destroy any annotation from trash and should destroy respective log entry" do
-      t = create_team
-      u = create_user
-      tu = create_team_user team: t, user: u, role: role
-      p = create_project team: t
-      pm = create_project_media project: p
-      tag = create_tag annotated: pm, annotator: u
-      tag2 = create_tag annotated: pm
-      with_current_user_and_team(u, t) do
-        ability = Ability.new
-        assert ability.can?(:update, tag)
-        assert ability.can?(:destroy, tag)
-        assert ability.can?(:update, tag2)
-        assert ability.can?(:destroy, tag2)
-        tag.destroy!
-        v = Version.last
-        assert ability.can?(:destroy, v)
-        tag2.destroy!
-        v = Version.last
-        assert ability.can?(:destroy, v)
+      with_versioning do
+        t = create_team
+        u = create_user
+        tu = create_team_user team: t, user: u, role: role
+        p = create_project team: t
+        pm = create_project_media project: p
+        tag = create_tag annotated: pm, annotator: u
+        tag2 = create_tag annotated: pm
+        with_current_user_and_team(u, t) do
+          ability = Ability.new
+          assert ability.can?(:update, tag)
+          assert ability.can?(:destroy, tag)
+          assert ability.can?(:update, tag2)
+          assert ability.can?(:destroy, tag2)
+          tag.destroy!
+          v = Version.last
+          assert ability.can?(:destroy, v)
+          tag2.destroy!
+          v = Version.last
+          assert ability.can?(:destroy, v)
+        end
       end
     end
   end
@@ -924,22 +928,24 @@ class AbilityTest < ActiveSupport::TestCase
   end
 
   test "collaborator should edit and destroy own annotation from trash but should not destroy respective log entry" do
-    t = create_team
-    u = create_user
-    tu = create_team_user team: t, user: u, role: 'collaborator'
-    p = create_project team: t
-    pm = create_project_media project: p
-    c = create_comment annotated: pm, annotator: u
-    c2 = create_comment annotated: pm
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:update, c)
-      assert ability.can?(:destroy, c)
-      assert ability.can?(:update, c2)
-      assert ability.can?(:destroy, c2)
-      c.destroy!
-      v = PaperTrail::Version.last
-      assert ability.cannot?(:destroy, v)
+    with_versioning do
+      t = create_team
+      u = create_user
+      tu = create_team_user team: t, user: u, role: 'collaborator'
+      p = create_project team: t
+      pm = create_project_media project: p
+      c = create_comment annotated: pm, annotator: u
+      c2 = create_comment annotated: pm
+      with_current_user_and_team(u, t) do
+        ability = Ability.new
+        assert ability.can?(:update, c)
+        assert ability.can?(:destroy, c)
+        assert ability.can?(:update, c2)
+        assert ability.can?(:destroy, c2)
+        c.destroy!
+        v = PaperTrail::Version.last
+        assert ability.cannot?(:destroy, v)
+      end
     end
   end
 

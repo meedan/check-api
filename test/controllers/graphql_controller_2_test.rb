@@ -753,14 +753,16 @@ class GraphqlController2Test < ActionController::TestCase
 
   test "should get version from global id" do
     authenticate_with_user
-    v = create_version
-    t = Team.last
-    id = Base64.encode64("Version/#{v.id}")
-    q = assert_queries 9, '<=' do
-      post :create, params: { query: "query Query { node(id: \"#{id}\") { id } }", team: t.slug }
+    with_versioning do
+      v = create_version
+      t = Team.last
+      id = Base64.encode64("Version/#{v.id}")
+      q = assert_queries 10, '<=' do
+        post :create, params: { query: "query Query { node(id: \"#{id}\") { id } }", team: t.slug }
+      end
+      assert !q.include?('SELECT  "versions".* FROM "versions" WHERE "versions"."id" = $1 LIMIT 1')
+      assert q.include?("SELECT  \"versions\".* FROM \"versions_partitions\".\"p#{t.id}\" \"versions\" WHERE \"versions\".\"id\" = $1 ORDER BY \"versions\".\"id\" DESC LIMIT $2")
     end
-    assert !q.include?('SELECT  "versions".* FROM "versions" WHERE "versions"."id" = $1 LIMIT 1')
-    assert q.include?("SELECT  \"versions\".* FROM \"versions_partitions\".\"p#{t.id}\" \"versions\" WHERE \"versions\".\"id\" = $1 ORDER BY \"versions\".\"id\" DESC LIMIT $2")
   end
 
   test "should empty trash" do

@@ -60,25 +60,27 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should create version when status is updated" do
-    create_verification_status_stuff
-    st = nil
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'admin'
-    p = create_project team: t
-    pm = create_project_media project: p
-    with_current_user_and_team(u, t) do
-      st = create_status(status: 'undetermined', annotated: pm)
-      assert_equal 1, st.get_field('verification_status_status').versions.count
-      st = Dynamic.where(annotation_type: 'verification_status').last
-      st.disable_es_callbacks = true
-      st.status = 'verified'
-      st.save!
-      assert_equal 2, st.get_field('verification_status_status').versions.count
+    with_versioning do
+      create_verification_status_stuff
+      st = nil
+      u = create_user
+      t = create_team
+      create_team_user user: u, team: t, role: 'admin'
+      p = create_project team: t
+      pm = create_project_media project: p
+      with_current_user_and_team(u, t) do
+        st = create_status(status: 'undetermined', annotated: pm)
+        assert_equal 1, st.get_field('verification_status_status').versions.count
+        st = Dynamic.where(annotation_type: 'verification_status').last
+        st.disable_es_callbacks = true
+        st.status = 'verified'
+        st.save!
+        assert_equal 2, st.get_field('verification_status_status').versions.count
+      end
+      v = PaperTrail::Version.last
+      assert_equal 'update', v.event
+      assert_equal({"value"=>["undetermined", "verified"]}, v.changeset)
     end
-    v = PaperTrail::Version.last
-    assert_equal 'update', v.event
-    assert_equal({"value"=>["undetermined", "verified"]}, v.changeset)
   end
 
   test "should get columns as array" do

@@ -604,12 +604,15 @@ module SampleData
   end
 
   def create_version(options = {})
-    t = create_team
-    claim = create_claim_media skip_check_ability: true
-    User.current = options[:user] || create_user
-    pm = create_project_media team: t, media: claim, skip_check_ability: true
-    v = pm.versions.from_partition(t.id).where(item_type: 'ProjectMedia').last
-    User.current = nil
+    v = nil
+    with_versioning do
+      t = create_team
+      claim = create_claim_media skip_check_ability: true
+      User.current = options[:user] || create_user
+      pm = create_project_media team: t, media: claim, skip_check_ability: true
+      v = pm.versions.from_partition(t.id).where(item_type: 'ProjectMedia').last
+      User.current = nil
+    end
     v
   end
 
