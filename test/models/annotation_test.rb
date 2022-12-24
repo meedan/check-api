@@ -187,19 +187,21 @@ class AnnotationTest < ActiveSupport::TestCase
   end
 
   test "should create version when annotation is destroyed" do
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t
-    p = create_project team: t
-    pm = create_project_media project: p
-    tag = create_tag annotated: pm, annotator: u
-    with_current_user_and_team(u, t) do
-      assert_difference 'PaperTrail::Version.count' do
-        tag.destroy
+    with_versioning do
+      u = create_user
+      t = create_team
+      create_team_user user: u, team: t
+      p = create_project team: t
+      pm = create_project_media project: p
+      tag = create_tag annotated: pm, annotator: u
+      with_current_user_and_team(u, t) do
+        assert_difference 'PaperTrail::Version.count' do
+          tag.destroy
+        end
       end
+      v = PaperTrail::Version.last
+      assert_equal pm.id, v.associated_id
     end
-    v = PaperTrail::Version.last
-    assert_equal pm.id, v.associated_id
   end
 
   test "should reset archive response" do
@@ -324,27 +326,29 @@ class AnnotationTest < ActiveSupport::TestCase
   end
 
   test "should save metadata in annotation" do
-    u = create_user
-    t = create_team
-    tu = create_team_user user: u, team: t, status: 'member', role: 'admin'
-    p = create_project team: t
-    pm = create_project_media project: p
-    u1 = create_user name: 'Foo'
-    u2 = create_user name: 'Bar'
-    create_team_user user: u1, team: t, status: 'member'
-    create_team_user user: u2, team: t, status: 'member'
-    tk = create_task annotated: pm, annotator: u
-    tk = Task.find(tk.id)
-    with_current_user_and_team(u, t) do
-      tk.assign_user(u1.id)
-      tk.assign_user(u2.id)
+    with_versioning do
+      u = create_user
+      t = create_team
+      tu = create_team_user user: u, team: t, status: 'member', role: 'admin'
+      p = create_project team: t
+      pm = create_project_media project: p
+      u1 = create_user name: 'Foo'
+      u2 = create_user name: 'Bar'
+      create_team_user user: u1, team: t, status: 'member'
+      create_team_user user: u2, team: t, status: 'member'
+      tk = create_task annotated: pm, annotator: u
+      tk = Task.find(tk.id)
+      with_current_user_and_team(u, t) do
+        tk.assign_user(u1.id)
+        tk.assign_user(u2.id)
+      end
+      v = tk.assignments.first.versions.last
+      m = JSON.parse(v.meta)
+      assert_equal m['user_name'], 'Foo'
+      v = tk.assignments.last.versions.last
+      m = JSON.parse(v.meta)
+      assert_equal m['user_name'], 'Bar'
     end
-    v = tk.assignments.first.versions.last
-    m = JSON.parse(v.meta)
-    assert_equal m['user_name'], 'Foo'
-    v = tk.assignments.last.versions.last
-    m = JSON.parse(v.meta)
-    assert_equal m['user_name'], 'Bar'
   end
 
   test "should get project media for annotation" do

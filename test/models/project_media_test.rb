@@ -532,51 +532,55 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should have versions" do
-    t = create_team
-    m = create_valid_media team: t
-    u = create_user
-    create_team_user user: u, team: t, role: 'admin'
-    pm = nil
-    User.current = u
-    assert_difference 'PaperTrail::Version.count', 2 do
-      pm = create_project_media team: t, media: m, user: u, skip_autocreate_source: false
+    with_versioning do
+      t = create_team
+      m = create_valid_media team: t
+      u = create_user
+      create_team_user user: u, team: t, role: 'admin'
+      pm = nil
+      User.current = u
+      assert_difference 'PaperTrail::Version.count', 2 do
+        pm = create_project_media team: t, media: m, user: u, skip_autocreate_source: false
+      end
+      assert_equal 2, pm.versions.count
+      pm.destroy!
+      v = Version.from_partition(t.id).where(item_type: 'ProjectMedia', item_id: pm.id, event: 'destroy').last
+      assert_not_nil v
+      User.current = nil
     end
-    assert_equal 2, pm.versions.count
-    pm.destroy!
-    v = Version.from_partition(t.id).where(item_type: 'ProjectMedia', item_id: pm.id, event: 'destroy').last
-    assert_not_nil v
-    User.current = nil
   end
 
   test "should get log" do
-    m = create_valid_media
-    u = create_user
-    t = create_team
-    p = create_project team: t
-    p2 = create_project team: t
-    create_team_user user: u, team: t, role: 'admin'
+    with_versioning do
+      m = create_valid_media
+      u = create_user
+      t = create_team
+      p = create_project team: t
+      p2 = create_project team: t
+      create_team_user user: u, team: t, role: 'admin'
 
-    with_current_user_and_team(u, t) do
-      pm = create_project_media project: p, media: m, user: u
-      c = create_comment annotated: pm
-      tg = create_tag annotated: pm
-      f = create_flag annotated: pm
-      s = pm.annotations.where(annotation_type: 'verification_status').last.load
-      s.status = 'In Progress'; s.save!
-      info = { title: 'Foo' }; pm.analysis = info; pm.save!
-      info = { title: 'Bar' }; pm.analysis = info; pm.save!
+      with_current_user_and_team(u, t) do
+        pm = create_project_media project: p, media: m, user: u
+        c = create_comment annotated: pm
+        tg = create_tag annotated: pm
+        f = create_flag annotated: pm
+        s = pm.annotations.where(annotation_type: 'verification_status').last.load
+        s.status = 'In Progress'; s.save!
+        info = { title: 'Foo' }; pm.analysis = info; pm.save!
+        info = { title: 'Bar' }; pm.analysis = info; pm.save!
 
-      assert_equal [
-        "create_dynamic", "create_dynamicannotationfield", "create_projectmedia",
-        "create_projectmedia", "create_tag", "update_dynamicannotationfield"
-      ].sort, pm.get_versions_log.map(&:event_type).sort
-      assert_equal 5, pm.get_versions_log_count
-      c.destroy
-      assert_equal 5, pm.get_versions_log_count
-      tg.destroy
-      assert_equal 6, pm.get_versions_log_count
-      f.destroy
-      assert_equal 6, pm.get_versions_log_count
+        assert_equal [
+          "create_dynamic", "create_dynamicannotationfield", "create_projectmedia",
+          "create_projectmedia", "create_tag", "update_dynamicannotationfield"
+        ].sort, pm.get_versions_log.map(&:event_type).sort
+        assert_equal 5, pm.get_versions_log_count
+        c.destroy
+        assert_equal 5, pm.get_versions_log_count
+        tg.destroy
+        assert_equal 6, pm.get_versions_log_count
+        f.destroy
+        assert_equal 6, pm.get_versions_log_count
+      end
     end
   end
 
@@ -1467,23 +1471,25 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should destroy project media when associated_id on version is not valid" do
-    m = create_valid_media
-    t = create_team
-    p = create_project team: t
-    u = create_user
-    create_team_user user: u, team: t, role: 'admin'
-    pm = nil
-    with_current_user_and_team(u, t) do
-      pm = create_project_media project: p, media: m, user: u
-      pm.source_id = create_source(team_id: t.id).id
-      pm.save
-      assert_equal 3, pm.versions.count
-    end
-    version = pm.versions.last
-    version.update_attribute('associated_id', 100)
+    with_versioning do
+      m = create_valid_media
+      t = create_team
+      p = create_project team: t
+      u = create_user
+      create_team_user user: u, team: t, role: 'admin'
+      pm = nil
+      with_current_user_and_team(u, t) do
+        pm = create_project_media project: p, media: m, user: u
+        pm.source_id = create_source(team_id: t.id).id
+        pm.save
+        assert_equal 3, pm.versions.count
+      end
+      version = pm.versions.last
+      version.update_attribute('associated_id', 100)
 
-    assert_nothing_raised do
-      pm.destroy
+      assert_nothing_raised do
+        pm.destroy
+      end
     end
   end
 
