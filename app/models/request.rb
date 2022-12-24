@@ -18,18 +18,20 @@ class Request < ApplicationRecord
 
   cached_field :feed_name,
     start_as: proc { |r| r.feed.name },
+    recalculate: :recalculate_feed_name,
     update_on: [] # Never changes
 
   cached_field :media_type,
     start_as: proc { |r| r.media&.type },
+    recalculate: :recalculate_media_type,
     update_on: [] # Never changes
 
-  def self.cached_field_recalculate_feed_name(target, _obj)
-    target.feed.name
+  def recalculate_feed_name
+    self.feed.name
   end
 
-  def self.cached_field_recalculate_media_type(target, _obj)
-    target.media&.type
+  def recalculate_media_type
+    self.media&.type
   end
 
   # FIXME: These should be feed settings

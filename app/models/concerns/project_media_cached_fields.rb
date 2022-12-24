@@ -47,232 +47,6 @@ module ProjectMediaCachedFields
         }
       ]
     end
-
-    def cached_field_es_value(target, name, value)
-      case name.to_s
-      when 'report_status'
-        ['unpublished', 'paused', 'published'].index(value)
-      when 'status'
-        target.status_ids.index(value)
-      when 'tags_as_sentence'
-        value.split(', ').uniq.size
-      when 'published_by'
-        value.keys.first || 0
-      when 'type_of_media'
-        Media.types.index(value)
-      else
-        value
-      end
-    end
-
-    def cached_field_recalculate_linked_items_count(target, obj)
-      Relationship.send('confirmed').where(source_id: target.id).count
-    end
-
-    def cached_field_recalculate_suggestions_count(target, obj)
-      Relationship.send('suggested').where(source_id: target.id).count
-    end
-
-    def cached_field_recalculate_is_suggested(target, obj)
-      Relationship.where('relationship_type = ?', Relationship.suggested_type.to_yaml).where(target_id: target.id).exists?
-    end
-
-    def cached_field_recalculate_is_confirmed(target, obj)
-      Relationship.where('relationship_type = ?', Relationship.confirmed_type.to_yaml).where(target_id: target.id).exists?
-    end
-
-    def cached_field_recalculate_related_count(target, obj)
-      Relationship.default.where('source_id = ? OR target_id = ?', target.id, target.id).count
-    end
-
-    def cached_field_recalculate_requests_count(target, obj)
-      Dynamic.where(annotation_type: 'smooch', annotated_id: target.id).count
-    end
-
-    def cached_field_update_on_create_dynamic_requests_count(target, obj)
-      target.requests_count + 1
-    end
-
-    def cached_field_update_on_destroy_dynamic_requests_count(target, obj)
-      target.requests_count - 1
-    end
-
-    def cached_field_recalculate_demand(target, obj)
-      n = 0
-      target.related_items_ids.collect{ |id| n += ProjectMedia.new(id: id).requests_count }
-      n
-    end
-
-    def cached_field_update_on_create_dynmic_demand(target, obj)
-      target.demand + 1
-    end
-
-    def cached_field_recalculate_last_seen(target, obj)
-      (Dynamic.where(annotation_type: 'smooch', annotated_id: target.related_items_ids).order('created_at DESC').first&.created_at || ProjectMedia.find_by_id(target.id)&.created_at).to_i
-    end
-
-    def cached_field_update_on_create_dynamic_last_seen(target, obj)
-      obj.created_at.to_i
-    end
-
-    def cached_field_update_on_save_relationship_last_seen(target, obj)
-      [obj.source&.last_seen.to_i, obj.target&.last_seen.to_i].max
-    end
-
-    def cached_field_recalculate_fact_check_title(target, obj)
-      target.claim_description&.fact_check&.title
-    end
-
-    def cached_field_recalculate_fact_check_summary(target, obj)
-      target.claim_description&.fact_check&.summary
-    end
-
-    def cached_field_recalculate_fact_check_url(target, obj)
-      target.claim_description&.fact_check&.url
-    end
-
-    def cached_field_recalculate_fact_check_published_on(target, obj)
-      target.claim_description&.fact_check&.updated_at.to_i
-    end
-
-    def cached_field_recalculate_description(target, obj)
-      target.get_description
-    end
-
-    def cached_field_recalculate_title(target, obj)
-      target.get_title
-    end
-
-    def cached_field_recalculate_status(target, obj)
-      target.last_verification_status
-    end
-
-    def cached_field_update_on_save_dynamic_annotation_field_status(target, obj)
-      obj.value
-    end
-
-    def cached_field_recalculate_share(target, obj)
-      metric = :share
-      begin JSON.parse(target.get_annotations('metrics').last.load.get_field_value('metrics_data'))['facebook']["#{metric}_count"] rescue 0 end
-    end
-
-    def cached_field_recalculate_reaction(target, obj)
-      metric = :reaction
-      begin JSON.parse(target.get_annotations('metrics').last.load.get_field_value('metrics_data'))['facebook']["#{metric}_count"] rescue 0 end
-    end
-
-    def cached_field_recalculate_comment(target, obj)
-      metric = :comment
-      begin JSON.parse(target.get_annotations('metrics').last.load.get_field_value('metrics_data'))['facebook']["#{metric}_count"] rescue 0 end
-    end
-
-    def cached_field_recalculate_report_status(target, obj)
-      Relationship.confirmed_parent(target).get_dynamic_annotation('report_design')&.get_field_value('state') || 'unpublished'
-    end
-
-    def cached_field_update_on_save_dynamic_report_status(target, obj)
-      obj.data.with_indifferent_access[:state]
-    end
-
-    def cached_field_recalculate_tags_as_sentence(target, obj)
-      target.get_annotations('tag').map(&:load).map(&:tag_text).uniq.join(', ')
-    end
-
-    def cached_field_update_on_save_tag_tags_as_sentence(target, obj)
-      target.tags_as_sentence.split(', ').concat([obj.tag_text]).uniq.join(', ')
-    end
-
-    def cached_field_update_on_destroy_tag_tags_as_sentence(target, obj)
-      target.tags_as_sentence.split(', ').reject{ |tt| tt == obj.tag_text }.uniq.join(', ')
-    end
-
-    def cached_field_recalculate_sources_as_sentence(target, obj)
-      target.get_project_media_sources
-    end
-
-    def cached_field_recalculate_media_published_at(target, obj)
-      target.published_at.to_i
-    end
-
-    def cached_field_recalculate_published_by(target, obj)
-      d = target.get_dynamic_annotation('report_design')
-      annotator = d && d['data']['state'] == 'published' ? d.annotator : nil
-      value = annotator.nil? ? {} : { annotator.id => annotator.name }
-    end
-
-    def cached_field_update_on_save_dynmic_published_by(target, obj)
-      annotator = obj['data']['state'] == 'published' ? obj.annotator : nil
-      annotator.nil? ? {} : { annotator.id => annotator.name }
-    end
-
-    def cached_field_update_on_update_user_published_by(target, obj)
-      { obj.id => obj.name }
-    end
-
-    def cached_field_recalculate_type_of_media(target, obj)
-      target.media.type
-    end
-
-    def cached_field_recalculate_added_as_similar_by_name(target, obj)
-      user = Relationship.confirmed.where(target_id: target.id).last&.user
-      user && user == BotUser.alegre_user ? 'Check' : user&.name
-    end
-
-    def cached_field_update_on_create_relationship_added_as_similar_by_name(target, obj)
-      obj.user && obj.user == BotUser.alegre_user ? 'Check' : obj.user&.name
-    end
-
-    def cached_field_update_on_destroy_relationship_added_as_similar_by_name(target, obj)
-      nil
-    end
-
-    def cached_field_recalculate_confirmed_as_similar_by_name(target, obj)
-      # Could also get it from version:
-      # Version.from_partition(pm.team_id).where(item_type: 'Relationship', item_id: r.id.to_s)
-      # .where("object_changes LIKE '%suggested_sibling%confirmed_sibling%'").last&.user&.name
-      r = Relationship.confirmed.where(target_id: target.id).last
-      r.nil? ? nil : User.find_by_id(r.confirmed_by.to_i)&.name
-    end
-
-    def cached_field_update_on_save_relationship_confirmed_as_similar_by_name(target, obj)
-      User.current&.name
-    end
-
-    def cached_field_update_on_destroy_relationship_confirmed_as_similar_by_name(target, obj)
-      nil
-    end
-
-    def cached_field_recalculate_folder(target, obj)
-      target.project&.title.to_s
-    end
-
-    def cached_field_update_on_save_project_folder(target, obj)
-      obj.title
-    end
-
-    def cached_field_recalculate_show_warning_cover(target, obj)
-      target.get_dynamic_annotation('flag')&.get_field_value('show_cover') || false
-    end
-
-    def cached_field_update_on_save_dynmic_show_warning_cover(target, obj)
-      obj.data.with_indifferent_access[:show_cover]
-    end
-
-    def cached_field_recalculate_picture(target, obj)
-      target.lead_image
-    end
-
-    def cached_field_recalculate_team_name(target, obj)
-      target.team.name
-    end
-
-    def cached_field_recalculate_creator_name(target, obj)
-      target.get_creator_name
-    end
-
-    def cached_field_update_on_update_user_creator_name(target, obj)
-      obj.name
-    end
   end
 
   included do
@@ -295,16 +69,18 @@ module ProjectMediaCachedFields
       }
     }
 
-    { linked_items_count: 'confirmed', suggestions_count: 'suggested' }.each do |field_name, type|
+    { linked_items_count: 'confirmed', suggestions_count: 'suggested' }.each do |field_name, _type|
       cached_field field_name,
         start_as: 0,
         update_es: true,
+        recalculate: :"recalculate_#{field_name}",
         update_on: [SIMILARITY_EVENT]
     end
 
     { is_suggested: Relationship.suggested_type, is_confirmed: Relationship.confirmed_type }.each do |field_name, type|
       cached_field field_name,
         start_as: false,
+        recalculate: :"recalculate_#{field_name}",
         update_on: [SIMILARITY_EVENT]
     end
 
@@ -312,6 +88,7 @@ module ProjectMediaCachedFields
     cached_field :related_count,
       start_as: 0,
       update_es: true,
+      recalculate: :recalculate_related_count,
       update_on: [
         {
           model: Relationship,
@@ -326,14 +103,15 @@ module ProjectMediaCachedFields
 
     cached_field :requests_count,
       start_as: 0,
+      recalculate: :recalculate_requests_count,
       update_on: [
         {
           model: Dynamic,
           if: proc { |d| d.annotation_type == 'smooch' && d.annotated_type == 'ProjectMedia' },
           affected_ids: proc { |d| [d.annotated_id] },
           events: {
-            create: :update_on,
-            destroy: :update_on,
+            create: :cached_field_project_media_requests_count_create,
+            destroy: :cached_field_project_media_requests_count_destroy,
           }
         }
       ]
@@ -341,13 +119,14 @@ module ProjectMediaCachedFields
     cached_field :demand,
       start_as: 0,
       update_es: true,
+      recalculate: :recalculate_demand,
       update_on: [
         {
           model: Dynamic,
           if: proc { |d| d.annotation_type == 'smooch' && d.annotated_type == 'ProjectMedia' },
           affected_ids: proc { |d| d.annotated.related_items_ids },
           events: {
-            create: :update_on,
+            create: :cached_field_project_media_demand_create,
           }
         },
         {
@@ -365,13 +144,14 @@ module ProjectMediaCachedFields
       start_as: proc { |pm| pm.created_at.to_i },
       update_es: true,
       update_pg: true,
+      recalculate: :recalculate_last_seen,
       update_on: [
         {
           model: Dynamic,
           if: proc { |d| d.annotation_type == 'smooch' && d.annotated_type == 'ProjectMedia' },
           affected_ids: proc { |d| d.annotated&.related_items_ids.to_a },
           events: {
-            create: :update_on,
+            create: :cached_field_project_media_last_seen_create,
           }
         },
         {
@@ -379,7 +159,7 @@ module ProjectMediaCachedFields
           if: proc { |r| r.is_confirmed? },
           affected_ids: proc { |r| r.source&.related_items_ids.to_a },
           events: {
-            save: :update_on,
+            save: :cached_field_project_media_last_seen_save,
             destroy: :recalculate
           }
         }
@@ -387,38 +167,45 @@ module ProjectMediaCachedFields
 
     cached_field :fact_check_title,
       start_as: nil,
+      recalculate: :recalculate_fact_check_title,
       update_on: [FACT_CHECK_EVENT]
 
     cached_field :fact_check_summary,
       start_as: nil,
+      recalculate: :recalculate_fact_check_summary,
       update_on: [FACT_CHECK_EVENT]
 
     cached_field :fact_check_url,
       start_as: nil,
+      recalculate: :recalculate_fact_check_url,
       update_on: [FACT_CHECK_EVENT]
 
     cached_field :fact_check_published_on,
       start_as: 0,
+      recalculate: :recalculate_fact_check_published_on,
       update_on: [FACT_CHECK_EVENT]
 
     cached_field :description,
+      recalculate: :recalculate_description,
       update_on: title_or_description_update
 
     cached_field :title,
       update_es: true,
       es_field_name: :title_index,
+      recalculate: :recalculate_title,
       update_on: title_or_description_update
 
     cached_field :status,
-      update_es: true,
+      update_es: :cached_field_status_es,
       es_field_name: :status_index,
+      recalculate: :recalculate_status,
       update_on: [
         {
           model: DynamicAnnotation::Field,
           if: proc { |f| f.field_name == 'verification_status_status' },
           affected_ids: proc { |f| [f.annotation&.annotated_id.to_i] },
           events: {
-            save: :update_on,
+            save: :cached_field_project_media_status_save,
           }
         }
       ]
@@ -427,6 +214,7 @@ module ProjectMediaCachedFields
       cached_field "#{metric}_count".to_sym,
         start_as: 0,
         update_es: true,
+        recalculate: :"recalculate_#{metric}",
         update_on: [
           {
             model: DynamicAnnotation::Field,
@@ -441,14 +229,15 @@ module ProjectMediaCachedFields
 
     cached_field :report_status,
       start_as: proc { |_pm| 'unpublished' },
-      update_es: true,
+      update_es: :cached_field_report_status_es,
+      recalculate: :recalculate_report_status,
       update_on: [
         {
           model: Dynamic,
           if: proc { |d| d.annotation_type == 'report_design' },
           affected_ids: proc { |d| d.annotated.related_items_ids },
           events: {
-            save: :update_on,
+            save: :cached_field_project_media_report_status_save,
           }
         },
         SIMILARITY_EVENT
@@ -456,20 +245,22 @@ module ProjectMediaCachedFields
 
     cached_field :tags_as_sentence,
       start_as: proc { |_pm| '' },
-      update_es: true,
+      update_es: :cached_field_tags_as_sentence_es,
+      recalculate: :recalculate_tags_as_sentence,
       update_on: [
         {
           model: Tag,
           affected_ids: proc { |t| [t.annotated_id.to_i] },
           events: {
-            save: :update_on,
-            destroy: :update_on,
+            save: :cached_field_project_media_tags_as_sentence_save,
+            destroy: :cached_field_project_media_tags_as_sentence_destroy,
           }
         }
       ]
 
     cached_field :sources_as_sentence,
       start_as: proc { |_pm| '' },
+      recalculate: :recalculate_sources_as_sentence,
       update_on: [
         {
           model: ProjectMedia,
@@ -506,6 +297,7 @@ module ProjectMediaCachedFields
     cached_field :media_published_at,
       start_as: proc { |pm| pm.published_at.to_i },
       update_es: true,
+      recalculate: :recalculate_media_published_at,
       update_on: [
         {
           model: Link,
@@ -518,14 +310,15 @@ module ProjectMediaCachedFields
 
     cached_field :published_by,
       start_as: {},
-      update_es: true,
+      update_es: :cached_field_published_by_es,
+      recalculate: :recalculate_published_by,
       update_on: [
         {
           model: Dynamic,
           if: proc { |d| d.annotation_type == 'report_design' },
           affected_ids: proc { |d| d.annotated_id },
           events: {
-            save: :update_on,
+            save: :cached_field_project_media_published_by_save,
           }
         },
         {
@@ -541,50 +334,54 @@ module ProjectMediaCachedFields
           },
           if: proc { |u| u.saved_change_to_name? },
           events: {
-            update: :update_on,
+            update: :cached_field_project_media_published_by_update,
           }
         },
       ]
 
     cached_field :type_of_media,
       start_as: proc { |pm| pm.media.type },
+      recalculate: :recalculate_type_of_media,
       update_on: [] # Should never change
 
     cached_field :added_as_similar_by_name,
       start_as: nil,
+      recalculate: :recalculate_added_as_similar_by_name,
       update_on: [
         {
           model: Relationship,
           affected_ids: proc { |r| [r.target_id] },
           events: {
-            create: :update_on,
-            destroy: :update_on,
+            create: :cached_field_project_media_added_as_similar_by_name_create,
+            destroy: :cached_field_project_media_added_as_similar_by_name_destroy,
           }
         }
       ]
 
     cached_field :confirmed_as_similar_by_name,
       start_as: nil,
+      recalculate: :recalculate_confirmed_as_similar_by_name,
       update_on: [
         {
           model: Relationship,
           affected_ids: proc { |r| [r.target_id] },
           if: proc { |r| r.is_being_confirmed? },
           events: {
-            save: :update_on,
+            save: :cached_field_project_media_confirmed_as_similar_by_name_save,
           }
         },
         {
           model: Relationship,
           affected_ids: proc { |r| [r.target_id] },
           events: {
-            destroy: :update_on,
+            destroy: :cached_field_project_media_confirmed_as_similar_by_name_destroy,
           }
         }
       ]
 
     cached_field :folder,
       start_as: proc { |pm| pm.project&.title.to_s },
+      recalculate: :recalculate_folder,
       update_on: [
         {
           model: ProjectMedia,
@@ -598,35 +395,39 @@ module ProjectMediaCachedFields
           model: Project,
           affected_ids: proc { |p| p.project_media_ids.empty? ? p.project_media_ids_were.to_a : p.project_media_ids },
           events: {
-            save: :update_on,
+            save: :cached_field_project_media_folder_save,
           }
         }
       ]
 
     cached_field :show_warning_cover,
       start_as: false,
+      recalculate: :recalculate_show_warning_cover,
       update_on: [
         {
           model: Dynamic,
           if: proc { |d| d.annotation_type == 'flag' },
           affected_ids: proc { |d| d.annotated_id },
           events: {
-            save: :update_on,
+            save: :cached_field_project_media_show_warning_cover_save,
           }
         },
       ]
 
     cached_field :picture,
       start_as: proc { |pm| pm.lead_image },
+      recalculate: :recalculate_picture,
       update_on: [] # Never changes
 
     cached_field :team_name,
       start_as: proc { |pm| pm.team.name },
+      recalculate: :recalculate_team_name,
       update_on: [] # Never changes
 
     cached_field :creator_name,
       start_as: proc { |pm| pm.get_creator_name },
       update_es: true,
+      recalculate: :recalculate_creator_name,
       update_on: [
         {
           model: User,
@@ -635,9 +436,246 @@ module ProjectMediaCachedFields
           },
           if: proc { |u| u.saved_change_to_name? },
           events: {
-            update: :update_on,
+            update: :cached_field_project_media_creator_name_update,
           }
         },
       ]
+
+    def recalculate_linked_items_count
+      Relationship.send('confirmed').where(source_id: self.id).count
+    end
+
+    def recalculate_suggestions_count
+      Relationship.send('suggested').where(source_id: self.id).count
+    end
+
+    def recalculate_is_suggested
+      Relationship.where('relationship_type = ?', Relationship.suggested_type.to_yaml).where(target_id: self.id).exists?
+    end
+
+    def recalculate_is_confirmed
+      Relationship.where('relationship_type = ?', Relationship.confirmed_type.to_yaml).where(target_id: self.id).exists?
+    end
+
+    def recalculate_related_count
+      Relationship.default.where('source_id = ? OR target_id = ?', self.id, self.id).count
+    end
+
+    def recalculate_requests_count
+      Dynamic.where(annotation_type: 'smooch', annotated_id: self.id).count
+    end
+
+    def recalculate_demand
+      n = 0
+      self.related_items_ids.collect{ |id| n += ProjectMedia.new(id: id).requests_count }
+      n
+    end
+
+    def recalculate_last_seen
+      (Dynamic.where(annotation_type: 'smooch', annotated_id: self.related_items_ids).order('created_at DESC').first&.created_at || ProjectMedia.find_by_id(self.id)&.created_at).to_i
+    end
+
+    def recalculate_fact_check_title
+      self.claim_description&.fact_check&.title
+    end
+
+    def recalculate_fact_check_summary
+      self.claim_description&.fact_check&.summary
+    end
+
+    def recalculate_fact_check_url
+      self.claim_description&.fact_check&.url
+    end
+
+    def recalculate_fact_check_published_on
+      self.claim_description&.fact_check&.updated_at.to_i
+    end
+
+    def recalculate_description
+      self.get_description
+    end
+
+    def recalculate_title
+      self.get_title
+    end
+
+    def recalculate_status
+      self.last_verification_status
+    end
+
+    def recalculate_share
+      metric = :share
+      begin JSON.parse(self.get_annotations('metrics').last.load.get_field_value('metrics_data'))['facebook']["#{metric}_count"] rescue 0 end
+    end
+
+    def recalculate_reaction
+      metric = :reaction
+      begin JSON.parse(self.get_annotations('metrics').last.load.get_field_value('metrics_data'))['facebook']["#{metric}_count"] rescue 0 end
+    end
+
+    def recalculate_comment
+      metric = :comment
+      begin JSON.parse(self.get_annotations('metrics').last.load.get_field_value('metrics_data'))['facebook']["#{metric}_count"] rescue 0 end
+    end
+
+    def recalculate_report_status
+      Relationship.confirmed_parent(self).get_dynamic_annotation('report_design')&.get_field_value('state') || 'unpublished'
+    end
+
+    def recalculate_tags_as_sentence
+      self.get_annotations('tag').map(&:load).map(&:tag_text).uniq.join(', ')
+    end
+
+    def recalculate_sources_as_sentence
+      self.get_project_media_sources
+    end
+
+    def recalculate_media_published_at
+      self.published_at.to_i
+    end
+
+    def recalculate_published_by
+      d = self.get_dynamic_annotation('report_design')
+      annotator = d && d['data']['state'] == 'published' ? d.annotator : nil
+      value = annotator.nil? ? {} : { annotator.id => annotator.name }
+    end
+
+    def recalculate_type_of_media
+      self.media.type
+    end
+
+    def recalculate_added_as_similar_by_name
+      user = Relationship.confirmed.where(target_id: self.id).last&.user
+      user && user == BotUser.alegre_user ? 'Check' : user&.name
+    end
+
+    def recalculate_confirmed_as_similar_by_name
+      # Could also get it from version:
+      # Version.from_partition(pm.team_id).where(item_type: 'Relationship', item_id: r.id.to_s)
+      # .where("object_changes LIKE '%suggested_sibling%confirmed_sibling%'").last&.user&.name
+      r = Relationship.confirmed.where(target_id: self.id).last
+      r.nil? ? nil : User.find_by_id(r.confirmed_by.to_i)&.name
+    end
+
+    def recalculate_folder
+      self.project&.title.to_s
+    end
+
+    def recalculate_show_warning_cover
+      self.get_dynamic_annotation('flag')&.get_field_value('show_cover') || false
+    end
+
+    def recalculate_picture
+      self.lead_image
+    end
+
+    def recalculate_team_name
+      self.team.name
+    end
+
+    def recalculate_creator_name
+      self.get_creator_name
+    end
+
+    def cached_field_status_es(value)
+      self.status_ids.index(value)
+    end
+
+    def cached_field_report_status_es(value)
+      ['unpublished', 'paused', 'published'].index(value)
+    end
+
+    def cached_field_tags_as_sentence_es(value)
+      value.split(', ').uniq.size
+    end
+
+    def cached_field_published_by_es(value)
+      value.keys.first || 0
+    end
+  end
+
+  DynamicAnnotation::Field.class_eval do
+    def cached_field_project_media_status_save(_target)
+      self.value
+    end
+  end
+
+  Dynamic.class_eval do
+    def cached_field_project_media_requests_count_create(target)
+      target.requests_count + 1
+    end
+
+    def cached_field_project_media_requests_count_destroy(target)
+      target.requests_count - 1
+    end
+
+    def cached_field_project_media_demand_create(target)
+      target.demand + 1
+    end
+
+    def cached_field_project_media_last_seen_create(_target)
+      self.created_at.to_i
+    end
+
+    def cached_field_project_media_report_status_save(_target)
+      self.data.with_indifferent_access[:state]
+    end
+
+    def cached_field_project_media_published_by_save(_target)
+      annotator = self['data']['state'] == 'published' ? self.annotator : nil
+      annotator.nil? ? {} : { annotator.id => annotator.name }
+    end
+
+    def cached_field_project_media_show_warning_cover_save(_target)
+      self.data.with_indifferent_access[:show_cover]
+    end
+  end
+
+  Relationship.class_eval do
+    def cached_field_project_media_last_seen_save(_target)
+      [self.source&.last_seen.to_i, self.target&.last_seen.to_i].max
+    end
+
+    def cached_field_project_media_added_as_similar_by_name_create(_target)
+      self.user && self.user == BotUser.alegre_user ? 'Check' : self.user&.name
+    end
+
+    def cached_field_project_media_added_as_similar_by_name_destroy(_target)
+      nil
+    end
+
+    def cached_field_project_media_confirmed_as_similar_by_name_save(_target)
+      User.current&.name
+    end
+
+    def cached_field_project_media_confirmed_as_similar_by_name_destroy(_target)
+      nil
+    end
+  end
+
+  User.class_eval do
+    def cached_field_project_media_published_by_update(_target)
+      { self.id => self.name }
+    end
+
+    def cached_field_project_media_creator_name_update(_target)
+      self.name
+    end
+  end
+
+  Project.class_eval do
+    def cached_field_project_media_folder_save(_target)
+      self.title
+    end
+  end
+
+  Tag.class_eval do
+    def cached_field_project_media_tags_as_sentence_save(target)
+      target.tags_as_sentence.split(', ').concat([self.tag_text]).uniq.join(', ')
+    end
+
+    def cached_field_project_media_tags_as_sentence_destroy(target)
+      target.tags_as_sentence.split(', ').reject{ |tt| tt == self.tag_text }.uniq.join(', ')
+    end
   end
 end

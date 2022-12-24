@@ -58,12 +58,14 @@ class Cluster < ApplicationRecord
 
   cached_field :team_names,
     start_as: proc { |c| c.get_team_names },
+    recalculate: :recalculate_team_names,
     update_on: [] # Handled by an "after_add" callback above
 
   cached_field :fact_checked_by_team_names,
     start_as: proc { |c| c.get_names_of_teams_that_fact_checked_it },
-    update_es: true,
+    update_es: :cached_field_fact_checked_by_team_names_es,
     es_field_name: :cluster_published_reports,
+    recalculate: :recalculate_fact_checked_by_team_names,
     update_on: [
       # Also handled by an "after_add" callback above
       {
@@ -80,45 +82,33 @@ class Cluster < ApplicationRecord
     start_as: proc { |c| c.get_requests_count },
     update_es: true,
     es_field_name: :cluster_requests_count,
+    recalculate: :recalculate_requests_count,
     update_on: [
         {
           model: Dynamic,
           if: proc { |d| d.annotation_type == 'smooch' && d.annotated_type == 'ProjectMedia' },
           affected_ids: proc { |d| ProjectMedia.where(id: d.annotated.related_items_ids).group(:cluster_id).count.keys.reject{ |cid| cid.nil? } },
           events: {
-            create: :update_on,
-            destroy: :update_on
+            create: :cached_field_cluster_requests_count_create,
+            destroy: :cached_field_cluster_requests_count_destroy
           }
         }
       ]
 
-  def self.cached_field_recalculate_team_names(target, _obj)
-    target.get_team_names
+  def recalculate_team_names
+    self.get_team_names
   end
 
-  def self.cached_field_recalculate_fact_checked_by_team_names(target, _obj)
-    target.get_names_of_teams_that_fact_checked_it
+  def recalculate_fact_checked_by_team_names
+    self.get_names_of_teams_that_fact_checked_it
   end
 
-  def self.cached_field_recalculate_requests_count(target, _obj)
-    target.get_requests_count
+  def recalculate_requests_count
+    self.get_requests_count
   end
 
-  def self.cached_field_update_on_create_dynmic_requests_count(target, _obj)
-    target.requests_count + 1
-  end
-
-  def self.cached_field_update_on_destroy_dynmic_requests_count(target, _obj)
-    target.requests_count - 1
-  end
-
-  def cached_field_es_value(target, name, value)
-    case name.to_s
-    when 'fact_checked_by_team_names'
-      value.keys
-    else
-      value
-    end
+  def cached_field_fact_checked_by_team_names_es(value)
+    value.keys
   end
 
   private
@@ -162,5 +152,15 @@ class Cluster < ApplicationRecord
     options = { keys: keys, data: data, pm_id: pm.id }
     model = { klass: pm.class.name, id: pm.id }
     ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
+  end
+end
+
+Dynamic.class_eval do
+  def cached_field_cluster_requests_count_create(target)
+    target.requests_count + 1
+  end
+
+  def cached_field_cluster_requests_count_destroy(target)
+    target.requests_count - 1
   end
 end

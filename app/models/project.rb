@@ -45,6 +45,7 @@ class Project < ApplicationRecord
 
   cached_field :medias_count,
     start_as: 0,
+    recalculate: :recalculate_medias_count,
     update_on: [
       {
         model: Relationship,
@@ -73,8 +74,8 @@ class Project < ApplicationRecord
       },
     ]
 
-  def self.cached_field_recalculate_medias_count(target, _obj)
-    ProjectMedia.where(project_id: target.id, archived: [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED]).joins("LEFT JOIN relationships r ON r.target_id = project_medias.id AND r.relationship_type = '#{Project.sanitize_sql(Relationship.confirmed_type.to_yaml)}'").where('r.id IS NULL').count
+  def recalculate_medias_count
+    ProjectMedia.where(project_id: self.id, archived: [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED]).joins("LEFT JOIN relationships r ON r.target_id = project_medias.id AND r.relationship_type = '#{Project.sanitize_sql(Relationship.confirmed_type.to_yaml)}'").where('r.id IS NULL').count
   end
 
   def check_search_team

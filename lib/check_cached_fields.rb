@@ -35,9 +35,7 @@ module CheckCachedFields
       define_method name do |recalculate = false|
         Rails.cache.fetch(self.class.check_cache_key(self.class, self.id, name),force: recalculate,
           race_condition_ttl: 30.seconds, expires_in: interval.days) do
-          # get callback method for recalculate
-          recalculate_method = "cached_field_recalculate_#{name}"
-          self.class.send(recalculate_method, self, nil) if self.class.respond_to?(recalculate_method)
+          self.send(options[:recalculate]) if self.respond_to?(options[:recalculate])
         end
       end
 
@@ -59,11 +57,9 @@ module CheckCachedFields
                 es_field_name: options[:es_field_name],
                 update_pg: options[:update_pg],
                 pg_field_name: options[:pg_field_name],
-                model: model,
-                event: event,
-                callback: callback,
+                recalculate: options[:recalculate],
               }
-              klass.delay_for(1.second).update_cached_field(name, obj, ids, new_options)
+              klass.delay_for(1.second).update_cached_field(name, obj, ids, callback, new_options)
             end
           end
         end
@@ -79,19 +75,10 @@ module CheckCachedFields
       "check_cached_field:#{klass}:#{id}:#{name}"
     end
 
-    def check_cache_method_suggestions(prefix, action, model, name)
-      model = model.to_s.underscore.parameterize.underscore
-      [
-        "cached_field_#{prefix}_#{action}_#{model}_#{name}",
-        "cached_field_#{prefix}_#{action}_#{name}",
-        "cached_field_#{prefix}_#{name}",
-      ]
-    end
-
     def index_and_pg_cached_field(options, value, name, target, op)
       update_index = options[:update_es] || false
       if update_index && op == 'update'
-        value = self.cached_field_es_value(target, name, value)
+        value = target.send(update_index, value) if update_index.is_a?(Symbol) && target.respond_to?(update_index)
         field_name = options[:es_field_name] || name
         es_options = { keys: [field_name], data: { field_name => value } }
         es_options[:pm_id] = target.id if target.class.name == 'ProjectMedia'
@@ -110,22 +97,14 @@ module CheckCachedFields
       end
     end
 
-    def update_cached_field(name, obj, ids, options)
-      callback = nil
-      self.check_cache_method_suggestions(options[:callback], options[:event], options[:model], name).each do |method_name|
-        if self.respond_to?(method_name)
-          callback = method_name
-          break;
-        end
-      end
-      if callback
-        interval = CheckConfig.get('cache_interval', 30).to_i
-        self.where(id: ids).each do |target|
-          value = self.send(callback, target, obj)
-          Rails.cache.write(self.check_cache_key(self, target.id, name), value, expires_in: interval.days)
-          # Update ES index and PG, if needed
-          self.index_and_pg_cached_field(options, value, name, target, 'update')
-        end
+    def update_cached_field(name, obj, ids, callback, options)
+      recalculate = options[:recalculate]
+      interval = CheckConfig.get('cache_interval', 30).to_i
+      self.where(id: ids).each do |target|
+        value = callback == :recalculate ? target.send(recalculate) : obj.send(callback, target)
+        Rails.cache.write(self.check_cache_key(self, target.id, name), value, expires_in: interval.days)
+        # Update ES index and PG, if needed
+        self.index_and_pg_cached_field(options, value, name, target, 'update')
       end
     end
   end
