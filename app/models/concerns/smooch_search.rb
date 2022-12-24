@@ -199,12 +199,16 @@ module SmoochSearch
 
     def send_search_results_to_user(uid, results)
       redis = Redis.new(REDIS_CONFIG)
-      results = results.collect { |r| Relationship.confirmed_parent(r) }.uniq
-      results.each do |result|
-        report = result.get_dynamic_annotation('report_design')
+      language = self.cached_user_language(uid)
+      reports = results.collect{ |r| Relationship.confirmed_parent(r).get_dynamic_annotation('report_design') }.uniq.select{ |r| r&.should_send_report_in_this_language?(language) }
+      if reports.find{ |r| r.report_design_field_value('language') != language }
+        self.send_message_to_user(uid, self.get_string(:no_results_in_language, language))
+        sleep 1
+      end
+      reports.each do |report|
         response = nil
-        response = self.send_message_to_user(uid, report.report_design_text) if report && report.report_design_field_value('use_text_message')
-        response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report&.report_design_image_url }) if report && !report.report_design_field_value('use_text_message') && report.report_design_field_value('use_visual_card')
+        response = self.send_message_to_user(uid, report.report_design_text) if report.report_design_field_value('use_text_message')
+        response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url }) if !report.report_design_field_value('use_text_message') && report.report_design_field_value('use_visual_card')
         id = self.get_id_from_send_response(response)
         redis.rpush("smooch:search:#{uid}", id) unless id.blank?
       end
