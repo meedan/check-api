@@ -77,7 +77,7 @@ module ProjectMediaCachedFields
         update_on: [SIMILARITY_EVENT]
     end
 
-    { is_suggested: Relationship.suggested_type, is_confirmed: Relationship.confirmed_type }.each do |field_name, type|
+    { is_suggested: Relationship.suggested_type, is_confirmed: Relationship.confirmed_type }.each do |field_name, _type|
       cached_field field_name,
         start_as: false,
         recalculate: :"recalculate_#{field_name}",
@@ -110,8 +110,8 @@ module ProjectMediaCachedFields
           if: proc { |d| d.annotation_type == 'smooch' && d.annotated_type == 'ProjectMedia' },
           affected_ids: proc { |d| [d.annotated_id] },
           events: {
-            create: :cached_field_project_media_requests_count_create,
-            destroy: :cached_field_project_media_requests_count_destroy,
+            create: :recalculate,
+            destroy: :recalculate,
           }
         }
       ]
@@ -126,7 +126,7 @@ module ProjectMediaCachedFields
           if: proc { |d| d.annotation_type == 'smooch' && d.annotated_type == 'ProjectMedia' },
           affected_ids: proc { |d| d.annotated.related_items_ids },
           events: {
-            create: :cached_field_project_media_demand_create,
+            create: :recalculate,
           }
         },
         {
@@ -472,7 +472,12 @@ module ProjectMediaCachedFields
     end
 
     def recalculate_last_seen
-      (Dynamic.where(annotation_type: 'smooch', annotated_id: self.related_items_ids).order('created_at DESC').first&.created_at || ProjectMedia.find_by_id(self.id)&.created_at).to_i
+      ids = self.related_items_ids
+      v1 = Dynamic.where(annotation_type: 'smooch', annotated_id: ids).order('created_at DESC').last&.created_at || 0
+      v2 = ProjectMedia.where(id: ids).map(&:created_at).max || 0
+      value = [v1, v2].max
+      value = ProjectMedia.find_by_id(self.id)&.created_at if value == 0 || value.nil?
+      value.to_i
     end
 
     def recalculate_fact_check_title
@@ -504,17 +509,18 @@ module ProjectMediaCachedFields
     end
 
     def recalculate_share
-      metric = :share
-      begin JSON.parse(self.get_annotations('metrics').last.load.get_field_value('metrics_data'))['facebook']["#{metric}_count"] rescue 0 end
+      recalculate_metric_fields(:share)
     end
 
     def recalculate_reaction
-      metric = :reaction
-      begin JSON.parse(self.get_annotations('metrics').last.load.get_field_value('metrics_data'))['facebook']["#{metric}_count"] rescue 0 end
+      recalculate_metric_fields(:reaction)
     end
 
     def recalculate_comment
-      metric = :comment
+      recalculate_metric_fields(:comment)
+    end
+
+    def recalculate_metric_fields(metric)
       begin JSON.parse(self.get_annotations('metrics').last.load.get_field_value('metrics_data'))['facebook']["#{metric}_count"] rescue 0 end
     end
 
@@ -537,7 +543,7 @@ module ProjectMediaCachedFields
     def recalculate_published_by
       d = self.get_dynamic_annotation('report_design')
       annotator = d && d['data']['state'] == 'published' ? d.annotator : nil
-      value = annotator.nil? ? {} : { annotator.id => annotator.name }
+      annotator.nil? ? {} : { annotator.id => annotator.name }
     end
 
     def recalculate_type_of_media
@@ -601,18 +607,6 @@ module ProjectMediaCachedFields
   end
 
   Dynamic.class_eval do
-    def cached_field_project_media_requests_count_create(target)
-      target.requests_count + 1
-    end
-
-    def cached_field_project_media_requests_count_destroy(target)
-      target.requests_count - 1
-    end
-
-    def cached_field_project_media_demand_create(target)
-      target.demand + 1
-    end
-
     def cached_field_project_media_last_seen_create(_target)
       self.created_at.to_i
     end

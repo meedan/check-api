@@ -28,7 +28,13 @@ module CheckCachedFields
           return if self.class.skip_cached_field_update?
           value = options[:start_as].is_a?(Proc) ? options[:start_as].call(obj) : options[:start_as]
           Rails.cache.write(self.class.check_cache_key(self.class, self.id, name), value, expires_in: interval.days)
-          klass.index_and_pg_cached_field({ update_es: options[:update_es], es_field_name: options[:es_field_name] }, value, name, obj, 'create') unless Rails.env == 'test'
+          index_options = {
+            update_es: options[:update_es],
+            es_field_name: options[:es_field_name],
+            update_pg: options[:update_pg],
+            pg_field_name: options[:pg_field_name],
+          }
+          klass.index_and_pg_cached_field(index_options, value, name, obj, 'create') unless Rails.env == 'test'
         end
       end
 
@@ -52,14 +58,14 @@ module CheckCachedFields
               # clear cached fields in foreground
               [ids].flatten.each { |id| Rails.cache.delete(klass.check_cache_key(klass, id, name)) }
               # update cached field in background
-              new_options = {
+              index_options = {
                 update_es: options[:update_es],
                 es_field_name: options[:es_field_name],
                 update_pg: options[:update_pg],
                 pg_field_name: options[:pg_field_name],
                 recalculate: options[:recalculate],
               }
-              klass.delay_for(1.second).update_cached_field(name, obj, ids, callback, new_options)
+              klass.delay_for(1.second).update_cached_field(name, obj, ids, callback, index_options)
             end
           end
         end
