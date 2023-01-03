@@ -447,6 +447,9 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_equal r.source_id, es_t['parent_id']
     assert_equal pm_t.reload.sources_count, es_t['sources_count']
     assert_equal 1, pm_t.reload.sources_count
+    r.destroy!
+    es_t = $repository.find(get_es_id(pm_t))
+    assert_equal pm_t.id, es_t['parent_id']
   end
 
   test "should set cluster" do

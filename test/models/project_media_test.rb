@@ -1640,6 +1640,22 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should cache show warning cover" do
+    RequestStore.store[:skip_cached_field_update] = false
+    Sidekiq::Testing.inline! do
+      team = create_team
+      pm = create_project_media team: team
+      assert_not pm.show_warning_cover
+      flag = create_flag annotated: pm
+      flag.set_fields = { show_cover: true }.to_json
+      flag.save!
+      assert pm.show_warning_cover
+      puts "Data :: #{pm.show_warning_cover}"
+      assert_queries(0, '=') { assert_equal(true, pm.show_warning_cover) }
+      assert_queries(0, '>') { assert_equal(true, pm.show_warning_cover(true)) }
+    end
+  end
+
   test "should cache status" do
     RequestStore.store[:skip_cached_field_update] = false
     Sidekiq::Testing.inline! do

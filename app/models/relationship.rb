@@ -153,10 +153,6 @@ class Relationship < ApplicationRecord
     self.source_id
   end
 
-  def destroy_parent_id
-    self.target_id
-  end
-
   protected
 
   def update_elasticsearch_parent(action = 'create_or_update')
