@@ -16,12 +16,14 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
   test "should update cached field when request is created or deleted" do
     RequestStore.store[:skip_cached_field_update] = false
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', true] })
-    pm = create_project_media
-    assert_equal 0, pm.reload.requests_count
-    d = create_dynamic_annotation annotation_type: 'smooch', annotated: pm
-    assert_equal 1, pm.reload.requests_count
-    d.destroy
-    assert_equal 0, pm.reload.requests_count
+    Sidekiq::Testing.inline! do
+      pm = create_project_media
+      assert_equal 0, pm.reload.requests_count
+      d = create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+      assert_equal 1, pm.reload.requests_count
+      d.destroy
+      assert_equal 0, pm.reload.requests_count
+    end
   end
 
   test "should go through menus" do

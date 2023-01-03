@@ -56,26 +56,29 @@ class Bot::Smooch < BotUser
       self.relationship_type_before_last_save.to_json == Relationship.suggested_type.to_json && self.is_confirmed?
     end
 
-    def inherit_status_and_send_report
-      target = self.target
-      parent = self.source
-      if ::Bot::Smooch.team_has_smooch_bot_installed(target) && self.is_confirmed?
-        s = target.annotations.where(annotation_type: 'verification_status').last&.load
-        status = parent.last_verification_status
-        if !s.nil? && s.status != status
-          s.status = status
-          s.save!
+    def self.inherit_status_and_send_report(rid)
+      relationship = Relationship.find_by_id(rid)
+      unless relationship.nil?
+        target = relationship.target
+        parent = relationship.source
+        if ::Bot::Smooch.team_has_smooch_bot_installed(target) && relationship.is_confirmed?
+          s = target.annotations.where(annotation_type: 'verification_status').last&.load
+          status = parent.last_verification_status
+          if !s.nil? && s.status != status
+            s.status = status
+            s.save!
+          end
+          ::Bot::Smooch.send_report_from_parent_to_child(parent.id, target.id)
         end
-        ::Bot::Smooch.delay_for(3.seconds, { queue: 'smooch_priority' }).send_report_from_parent_to_child(parent.id, target.id)
       end
     end
 
     after_create do
-      self.inherit_status_and_send_report
+      self.class.delay_for(1.seconds, { queue: 'smooch_priority'}).inherit_status_and_send_report(self.id)
     end
 
     after_update do
-      self.inherit_status_and_send_report if self.suggestion_accepted?
+      self.class.delay_for(1.seconds, { queue: 'smooch_priority'}).inherit_status_and_send_report(self.id) if self.suggestion_accepted?
     end
 
     after_destroy do
