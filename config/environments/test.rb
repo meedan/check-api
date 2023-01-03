@@ -57,6 +57,6 @@ Rails.application.configure do
   # Disable PaperTrail by default on tests
   # https://github.com/paper-trail-gem/paper_trail#7-testing
   config.after_initialize do
-    PaperTrail.enabled = false
+    PaperTrail.enabled = ENV['PAPERTRAIL_ENABLED'] || false
   end
 end
