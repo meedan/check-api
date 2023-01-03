@@ -949,6 +949,20 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
+  test "collaborator should destroy project media version" do
+    with_versioning do
+      t = create_team
+      u = create_user
+      tu = create_team_user team: t, user: u, role: 'collaborator'
+      with_current_user_and_team(u, t) do
+        ability = Ability.new
+        pm = create_project_media team: t
+        v = pm.versions.last
+        assert ability.can?(:destroy, v)
+      end
+    end
+  end
+
   test "collaborator should not send to trash, edit or destroy team" do
     t = create_team
     u = create_user
