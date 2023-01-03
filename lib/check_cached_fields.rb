@@ -51,22 +51,7 @@ module CheckCachedFields
         update_on[:events].each do |event, callback|
           model.send "after_#{event}", ->(obj) do
             return if klass.skip_cached_field_update?
-            condition = update_on[:if] || proc { true }
-            return unless condition.call(obj)
-            ids = update_on[:affected_ids].call(obj)
-            unless ids.blank?
-              # clear cached fields in foreground
-              [ids].flatten.each { |id| Rails.cache.delete(klass.check_cache_key(klass, id, name)) }
-              # update cached field in background
-              index_options = {
-                update_es: options[:update_es],
-                es_field_name: options[:es_field_name],
-                update_pg: options[:update_pg],
-                pg_field_name: options[:pg_field_name],
-                recalculate: options[:recalculate],
-              }
-              klass.delay_for(1.second).update_cached_field(name, obj, ids, callback, index_options)
-            end
+            klass.update_cached_field(name, obj, update_on[:if], update_on[:affected_ids], callback, options)
           end
         end
       end
@@ -103,7 +88,26 @@ module CheckCachedFields
       end
     end
 
-    def update_cached_field(name, obj, ids, callback, options)
+    def update_cached_field(name, obj, condition, ids, callback, options)
+      condition ||= proc { true }
+      return unless condition.call(obj)
+      ids = ids.call(obj)
+      unless ids.blank?
+        # clear cached fields in foreground
+        [ids].flatten.each { |id| Rails.cache.delete(self.check_cache_key(self, id, name)) }
+        # update cached field in background
+        index_options = {
+          update_es: options[:update_es],
+          es_field_name: options[:es_field_name],
+          update_pg: options[:update_pg],
+          pg_field_name: options[:pg_field_name],
+          recalculate: options[:recalculate],
+        }
+        self.delay_for(1.second).update_cached_field_bg(name, obj, ids, callback, index_options)
+      end
+    end
+
+    def update_cached_field_bg(name, obj, ids, callback, options)
       recalculate = options[:recalculate]
       interval = CheckConfig.get('cache_interval', 30).to_i
       self.where(id: ids).each do |target|

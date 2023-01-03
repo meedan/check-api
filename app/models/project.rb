@@ -75,7 +75,7 @@ class Project < ApplicationRecord
     ]
 
   def recalculate_medias_count
-    ProjectMedia.where(project_id: self.id, archived: [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED]).joins("LEFT JOIN relationships r ON r.target_id = project_medias.id AND r.relationship_type = '#{Project.sanitize_sql(Relationship.confirmed_type.to_yaml)}'").where('r.id IS NULL').count
+    self.team.medias_count(self)
   end
 
   def check_search_team
