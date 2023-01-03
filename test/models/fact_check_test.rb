@@ -151,55 +151,59 @@ class FactCheckTest < ActiveSupport::TestCase
   test "should keep report and fact-check in sync when text report is created and updated" do
     RequestStore.store[:skip_cached_field_update] = false
     create_report_design_annotation_type
-    u = create_user is_admin: true
-    t = create_team
-    t.set_languages = ['en', 'fr']
-    t.save!
-    pm = create_project_media team: t
-    cd = create_claim_description project_media: pm
-    assert_nil pm.reload.fact_check_title
-    assert_nil pm.reload.fact_check_summary
-    assert_nil pm.reload.published_url
+    Sidekiq::Testing.inline! do
+      u = create_user is_admin: true
+      t = create_team
+      t.set_languages = ['en', 'fr']
+      t.save!
+      pm = create_project_media team: t
+      cd = create_claim_description project_media: pm
+      assert_nil pm.reload.fact_check_title
+      assert_nil pm.reload.fact_check_summary
+      assert_nil pm.reload.published_url
 
-    d = create_dynamic_annotation annotation_type: 'report_design', annotator: u, annotated: pm, set_fields: { options: { language: 'en', use_text_message: true, title: 'Text report created title', text: 'Text report created summary', published_article_url: 'http://text.report/created' } }.to_json, action: 'save'
-    fc = cd.fact_check
-    assert_equal 'Text report created title', pm.reload.fact_check_title
-    assert_equal 'Text report created summary', pm.reload.fact_check_summary
-    assert_equal 'http://text.report/created', pm.reload.published_url
-    assert_equal 'en', fc.reload.language
+      d = create_dynamic_annotation annotation_type: 'report_design', annotator: u, annotated: pm, set_fields: { options: { language: 'en', use_text_message: true, title: 'Text report created title', text: 'Text report created summary', published_article_url: 'http://text.report/created' } }.to_json, action: 'save'
+      fc = cd.fact_check
+      assert_equal 'Text report created title', pm.reload.fact_check_title
+      assert_equal 'Text report created summary', pm.reload.fact_check_summary
+      assert_equal 'http://text.report/created', pm.reload.published_url
+      assert_equal 'en', fc.reload.language
 
-    d = Dynamic.find(d.id)
-    d.set_fields = { options: { language: 'fr', use_text_message: true, title: 'Text report updated title', text: 'Text report updated summary', published_article_url: 'http://text.report/updated' } }.to_json
-    d.action = 'publish'
-    d.save!
-    assert_equal 'Text report updated title', pm.reload.fact_check_title
-    assert_equal 'Text report updated summary', pm.reload.fact_check_summary
-    assert_equal 'http://text.report/updated', pm.reload.published_url
-    assert_equal 'fr', fc.reload.language
+      d = Dynamic.find(d.id)
+      d.set_fields = { options: { language: 'fr', use_text_message: true, title: 'Text report updated title', text: 'Text report updated summary', published_article_url: 'http://text.report/updated' } }.to_json
+      d.action = 'publish'
+      d.save!
+      assert_equal 'Text report updated title', pm.reload.fact_check_title
+      assert_equal 'Text report updated summary', pm.reload.fact_check_summary
+      assert_equal 'http://text.report/updated', pm.reload.published_url
+      assert_equal 'fr', fc.reload.language
+    end
   end
 
   test "should keep report and fact-check in sync when image report is created and updated" do
     RequestStore.store[:skip_cached_field_update] = false
     create_report_design_annotation_type
-    u = create_user is_admin: true
-    pm = create_project_media
-    create_claim_description project_media: pm
-    assert_nil pm.reload.fact_check_title
-    assert_nil pm.reload.fact_check_summary
-    assert_nil pm.reload.published_url
+    Sidekiq::Testing.inline! do
+      u = create_user is_admin: true
+      pm = create_project_media
+      create_claim_description project_media: pm
+      assert_nil pm.reload.fact_check_title
+      assert_nil pm.reload.fact_check_summary
+      assert_nil pm.reload.published_url
 
-    d = create_dynamic_annotation annotation_type: 'report_design', annotator: u, annotated: pm, set_fields: { options: { language: 'en', use_visual_card: true, headline: 'Image report created title', description: 'Image report created summary' } }.to_json, action: 'save'
-    assert_equal 'Image report created title', pm.reload.fact_check_title
-    assert_equal 'Image report created summary', pm.reload.fact_check_summary
-    assert_nil pm.reload.published_url
+      d = create_dynamic_annotation annotation_type: 'report_design', annotator: u, annotated: pm, set_fields: { options: { language: 'en', use_visual_card: true, headline: 'Image report created title', description: 'Image report created summary' } }.to_json, action: 'save'
+      assert_equal 'Image report created title', pm.reload.fact_check_title
+      assert_equal 'Image report created summary', pm.reload.fact_check_summary
+      assert_nil pm.reload.published_url
 
-    d = Dynamic.find(d.id)
-    d.set_fields = { options: { language: 'en', use_visual_card: true, headline: 'Image report updated title', description: 'Image report updated summary' } }.to_json
-    d.action = 'publish'
-    d.save!
-    assert_equal 'Image report updated title', pm.reload.fact_check_title
-    assert_equal 'Image report updated summary', pm.reload.fact_check_summary
-    assert_nil pm.reload.published_url
+      d = Dynamic.find(d.id)
+      d.set_fields = { options: { language: 'en', use_visual_card: true, headline: 'Image report updated title', description: 'Image report updated summary' } }.to_json
+      d.action = 'publish'
+      d.save!
+      assert_equal 'Image report updated title', pm.reload.fact_check_title
+      assert_equal 'Image report updated summary', pm.reload.fact_check_summary
+      assert_nil pm.reload.published_url
+    end
   end
 
   test "should keep report and fact-check in sync when fact-check is created and updated" do
