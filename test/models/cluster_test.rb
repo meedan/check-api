@@ -98,23 +98,28 @@ class ClusterTest < ActiveSupport::TestCase
     ProjectMedia.any_instance.unstub(:similar_items_ids_and_scores)
   end
 
-  # TODO: fix by Sawy
-  # test "should get requests count" do
-  #   create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', true] })
-  #   ProjectMedia.any_instance.stubs(:requests_count).returns(2)
-  #   Sidekiq::Testing.inline! do
-  #     c = create_cluster
-  #     2.times { c.project_medias << create_project_media }
-  #     assert_equal 4, c.requests_count
-  #     RequestStore.store[:skip_cached_field_update] = false
-  #     pm = c.project_medias.last
-  #     d = Dynamic.create! annotation_type: 'smooch', annotated: pm
-  #     assert_equal 5, c.requests_count
-  #     d.destroy!
-  #     assert_equal 4, c.requests_count
-  #   end
-  #   ProjectMedia.any_instance.unstub(:requests_count)
-  # end
+  test "should get requests count" do
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', true] })
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    Sidekiq::Testing.inline! do
+      c = create_cluster
+      pm = create_project_media team: t
+      2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm) }
+      pm2 = create_project_media team: t
+      2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2) }
+      c.project_medias << pm
+      c.project_medias << pm2
+      assert_equal 4, c.requests_count
+      assert_equal 4, c.requests_count(true)
+      d = create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+      assert_equal 5, c.requests_count
+      assert_equal 5, c.requests_count(true)
+      d.destroy!
+      assert_equal 4, c.requests_count
+      assert_equal 4, c.requests_count(true)
+    end
+  end
 
   test "should get teams that fact-checked the item" do
     c = create_cluster

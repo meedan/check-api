@@ -89,8 +89,8 @@ class Cluster < ApplicationRecord
           if: proc { |d| d.annotation_type == 'smooch' && d.annotated_type == 'ProjectMedia' },
           affected_ids: proc { |d| ProjectMedia.where(id: d.annotated.related_items_ids).group(:cluster_id).count.keys.reject{ |cid| cid.nil? } },
           events: {
-            create: :recalculate,
-            destroy: :recalculate
+            create: :cached_field_cluster_requests_count_create,
+            destroy: :cached_field_cluster_requests_count_destroy
           }
         }
       ]
@@ -152,5 +152,16 @@ class Cluster < ApplicationRecord
     options = { keys: keys, data: data, pm_id: pm.id }
     model = { klass: pm.class.name, id: pm.id }
     ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
+  end
+end
+
+
+Dynamic.class_eval do
+  def cached_field_cluster_requests_count_create(target)
+    target.requests_count + 1
+  end
+
+  def cached_field_cluster_requests_count_destroy(target)
+    target.requests_count - 1
   end
 end
