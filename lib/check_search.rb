@@ -155,7 +155,7 @@ class CheckSearch
     end
     query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     filters_blank = true
-    ['tags', 'keyword', 'rules', 'language', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
+    ['tags', 'keyword', 'rules', 'language', 'fc_languages', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
       'has_claim', 'cluster_teams', 'published_by', 'annotated_by', 'channels', 'cluster_published_reports'
     ].each do |filter|
       filters_blank = false unless @options[filter].blank?
@@ -272,7 +272,7 @@ class CheckSearch
   end
 
   def show_parent?
-    search_keys = ['verification_status', 'tags', 'rules', 'language', 'team_tasks', 'assigned_to', 'channels', 'report_status']
+    search_keys = ['verification_status', 'tags', 'rules', 'language', 'fc_languages', 'team_tasks', 'assigned_to', 'channels', 'report_status']
     !@options['projects'].blank? && !@options['keyword'].blank? && (search_keys & @options.keys).blank?
   end
 
@@ -308,6 +308,7 @@ class CheckSearch
     custom_conditions.concat build_search_numeric_range_filter
     language_conditions = build_search_language_conditions
     check_search_concat_conditions(custom_conditions, language_conditions)
+    custom_conditions.concat build_search_fact_check_language_conditions
     team_tasks_conditions = build_search_team_tasks_conditions
     check_search_concat_conditions(custom_conditions, team_tasks_conditions)
     feed_conditions = build_feed_conditions
@@ -475,6 +476,11 @@ class CheckSearch
   def build_search_language_conditions
     return [] unless @options.has_key?('language')
     [{ terms: { language: @options['language'] } }]
+  end
+
+  def build_search_fact_check_language_conditions
+    return [] unless @options.has_key?('fc_languages')
+    [{ terms: { fact_check_languages: @options['fc_languages'] } }]
   end
 
   def build_search_has_claim_conditions
