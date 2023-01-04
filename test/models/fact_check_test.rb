@@ -85,16 +85,19 @@ class FactCheckTest < ActiveSupport::TestCase
   end
 
   test "should set default language" do
+    setup_elasticsearch
     fc = create_fact_check
     assert_equal 'en', fc.language
     t = create_team
     t.set_language = 'fr'
     t.set_languages(['fr'])
     t.save!
-    pm = create_project_media team: t
-    cd = create_claim_description project_media: pm
-    fc = create_fact_check claim_description: cd
+    pm = create_project_media team: t, disable_es_callbacks: false
+    cd = create_claim_description project_media: pm, disable_es_callbacks: false
+    fc = create_fact_check claim_description: cd, disable_es_callbacks: false
     assert_equal 'fr', fc.language
+    result = $repository.find(get_es_id(pm))
+    assert_equal ['fr'], result['fact_check_languages']
     # Validate language
     assert_raises ActiveRecord::RecordInvalid do
       create_fact_check claim_description: cd, language: 'en'
@@ -102,10 +105,23 @@ class FactCheckTest < ActiveSupport::TestCase
     # should set language `und` when workspace has more than one language
     t.set_languages(['en', 'fr'])
     t.save!
-    pm = create_project_media team: t
-    cd = create_claim_description project_media: pm
-    fc = create_fact_check claim_description: cd
+    pm = create_project_media team: t, disable_es_callbacks: false
+    cd = create_claim_description project_media: pm, disable_es_callbacks: false
+    fc = create_fact_check claim_description: cd, disable_es_callbacks: false
     assert_equal 'und', fc.language
+    result = $repository.find(get_es_id(pm))
+    assert_equal ['und'], result['fact_check_languages']
+    # update language
+    fc.language = 'en'
+    fc.disable_es_callbacks = false
+    fc.save!
+    result = $repository.find(get_es_id(pm))
+    assert_equal ['en'], result['fact_check_languages']
+    # delete fact check
+    fc.disable_es_callbacks = false
+    fc.destroy!
+    result = $repository.find(get_es_id(pm))
+    assert_equal [], result['fact_check_languages']
   end
 
   test "should not create a fact check if does not have permission" do
