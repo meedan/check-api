@@ -561,4 +561,20 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_nil pm1.get_dynamic_annotation('report_design')
     assert_not_nil pm2.get_dynamic_annotation('report_design')
   end
+
+  test "should pin item when both have claims" do
+    t = create_team
+    pm1 = create_project_media team: t
+    create_claim_description project_media: pm1
+    pm2 = create_project_media team: t
+    create_claim_description project_media: pm2
+    r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
+
+    assert_nothing_raised do
+      r = Relationship.find(r.id)
+      r.source_id = pm2.id
+      r.target_id = pm1.id
+      r.save!
+    end
+  end
 end
