@@ -336,9 +336,7 @@ class GraphqlCrudOperations
       global_id_field :id
 
       field :permissions, types.String do
-        resolve -> (obj, _args, ctx) {
-          obj.permissions(ctx[:ability])
-        }
+        resolve -> (obj, _args, ctx) { obj.permissions(ctx[:ability]) }
       end
 
       field :created_at, types.String do
@@ -476,9 +474,7 @@ class GraphqlCrudOperations
       GraphqlCrudOperations.define_annotation_fields.each { |name| field name, types.String }
 
       field :permissions, types.String do
-        resolve -> (annotation, _args, ctx) {
-          annotation.permissions(ctx[:ability], annotation.annotation_type_class)
-        }
+        resolve -> (annotation, _args, ctx) { annotation.permissions(ctx[:ability], annotation.annotation_type_class) }
       end
 
       field :created_at, types.String do resolve -> (annotation, _args, _ctx) { annotation.created_at.to_i.to_s } end
@@ -488,9 +484,7 @@ class GraphqlCrudOperations
       fields.each { |name, _field_type| field name, types.String }
 
       connection :medias, -> { ProjectMediaType.connection_type } do
-        resolve ->(annotation, _args, _ctx) {
-          annotation.entity_objects
-        }
+        resolve ->(annotation, _args, _ctx) { annotation.entity_objects }
       end
       instance_exec :annotator, AnnotatorType, &GraphqlCrudOperations.annotation_fields
       instance_exec :version, VersionType, &GraphqlCrudOperations.annotation_fields
