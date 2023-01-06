@@ -205,7 +205,7 @@ class Relationship < ApplicationRecord
       claim = ClaimDescription.where(project_media_id: self.source_id_before_last_save).last
       unless claim.nil?
         claim.project_media_id = self.source_id
-        claim.save!
+        claim.save
       end
       Relationship.where(source_id: self.target_id).update_all({ source_id: self.source_id })
       self.source&.clear_cached_fields
