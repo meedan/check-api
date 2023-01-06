@@ -6,7 +6,12 @@ class StatisticsTest < ActiveSupport::TestCase
   def after_all; end
   def setup
     Check::Application.load_tasks
+
+    Team.delete_all
+    TeamBotInstallation.delete_all
+    ProjectMedia.delete_all
   end
+
   def teardown; end
 
   test "check:data:statistics caches statistics data for any workspaces with tipline data" do
@@ -17,9 +22,9 @@ class StatisticsTest < ActiveSupport::TestCase
     3.times{|i| create_project_media(user: other_team_user, claim: "Claim: other team #{i}", team: other_team, created_at: fake_current_date) }
 
     tipline_team = create_team(slug: 'test-team')
+    tipline_team.set_languages(['en', 'es'])
+    tipline_team.save!
     create_team_bot_installation(team_id: tipline_team.id, user_id: BotUser.smooch_user.id)
-    create_tipline_subscription(team_id: tipline_team.id, platform: 'WhatsApp', language: 'en')
-    create_tipline_subscription(team_id: tipline_team.id, platform: 'Telegram', language: 'es')
     3.times{|i| create_project_media(user: BotUser.smooch_user, claim: "Claim: correct team #{i}", team: tipline_team, created_at: fake_current_date) }
 
     start_of_month = DateTime.new(2022,5,1,0,0,0).beginning_of_month
@@ -27,10 +32,12 @@ class StatisticsTest < ActiveSupport::TestCase
 
     TeamBotInstallation.any_instance.stubs(:smooch_enabled_integrations).returns({whatsapp: 'foo'})
     CheckStatistics.expects(:get_statistics).with(start_of_month, end_of_month, 'test-team', :whatsapp, 'en').returns(['id-1234'])
+    CheckStatistics.expects(:get_statistics).with(start_of_month, end_of_month, 'test-team', :whatsapp, 'es').returns(['id-1234'])
 
     assert_nil Rails.cache.read("data:report:#{tipline_team.id}")
 
     travel_to fake_current_date
+
     Rake::Task['check:data:statistics'].invoke
 
     assert_nil Rails.cache.read("data:report:#{other_team.id}")
