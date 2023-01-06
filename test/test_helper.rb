@@ -81,6 +81,7 @@ class ActiveSupport::TestCase
 
   include SampleData
   include Minitest::Hooks
+  include ActiveSupport::Testing::TimeHelpers
 
   def json_response
     JSON.parse(@response.body)
