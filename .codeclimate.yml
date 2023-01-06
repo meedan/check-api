@@ -69,3 +69,4 @@ exclude_patterns:
 - "**.js"
 - ".codeclimate.yml"
 - "app/models/concerns/smooch_strings.rb"
+- "lib/check_statistics.rb"
