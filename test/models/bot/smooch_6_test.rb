@@ -630,7 +630,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
 
   test "should get search results in different languages" do
     pm = create_project_media
-    publish_report(pm, {}, nil, { language: 'pt' })
+    publish_report(pm, {}, nil, { language: 'pt', use_visual_card: false })
     Bot::Smooch.stubs(:get_search_results).returns([pm])
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar', '1'
