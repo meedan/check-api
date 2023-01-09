@@ -627,4 +627,14 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     d = Dynamic.where(annotation_type: 'smooch').last
     assert_equal 2, JSON.parse(d.get_field_value('smooch_data'))['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}").select{ |x| x.chomp.strip == url }.size
   end
+
+  test "should get search results in different languages" do
+    pm = create_project_media
+    publish_report(pm, {}, nil, { language: 'pt' })
+    Bot::Smooch.stubs(:get_search_results).returns([pm])
+    Sidekiq::Testing.inline! do
+      send_message 'hello', '1', '1', 'Foo bar', '1'
+    end
+    Bot::Smooch.unstub(:get_search_results)
+  end
 end
