@@ -629,12 +629,30 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   end
 
   test "should get search results in different languages" do
-    pm = create_project_media
+    tbi = create_team_bot_installation team_id: @team.id, user_id: create_bot_user(name: 'Alegre', login: 'alegre', approved: true).id
+    tbi.set_single_language_fact_checks_enabled = false
+    tbi.save!
+    pm = create_project_media team: @team
     publish_report(pm, {}, nil, { language: 'pt', use_visual_card: false })
     Bot::Smooch.stubs(:get_search_results).returns([pm])
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar', '1'
     end
     Bot::Smooch.unstub(:get_search_results)
+    assert_not_nil Rails.cache.read("smooch:user_search_results:#{@uid}")
+  end
+
+  test "should not get search results in different languages" do
+    tbi = create_team_bot_installation team_id: @team.id, user_id: create_bot_user(name: 'Alegre', login: 'alegre', approved: true).id
+    tbi.set_single_language_fact_checks_enabled = true
+    tbi.save!
+    pm = create_project_media team: @team
+    publish_report(pm, {}, nil, { language: 'pt', use_visual_card: false })
+    Bot::Smooch.stubs(:get_search_results).returns([pm])
+    Sidekiq::Testing.inline! do
+      send_message 'hello', '1', '1', 'Foo bar', '1'
+    end
+    Bot::Smooch.unstub(:get_search_results)
+    assert_nil Rails.cache.read("smooch:user_search_results:#{@uid}")
   end
 end
