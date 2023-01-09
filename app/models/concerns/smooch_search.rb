@@ -105,7 +105,7 @@ module SmoochSearch
         after = self.date_filter(team_id)
         query = message['text']
         query = message['mediaUrl'] unless type == 'text'
-        results = self.search_for_similar_published_fact_checks(type, query, [team_id], after)
+        results = self.search_for_similar_published_fact_checks(type, query, [team_id], after, nil, language)
       rescue StandardError => e
         self.handle_search_error(uid, e, language)
       end
@@ -119,15 +119,15 @@ module SmoochSearch
 
     # "type" is text, video, audio or image
     # "query" is either a piece of text of a media URL
-    def search_for_similar_published_fact_checks(type, query, team_ids, after = nil, feed_id = nil)
+    def search_for_similar_published_fact_checks(type, query, team_ids, after = nil, feed_id = nil, language = nil)
       Rails.cache.fetch("smooch:search_results:#{self.normalized_query_hash(type, query, team_ids, after, feed_id)}", expires_in: 2.hours) do
-        self.search_for_similar_published_fact_checks_no_cache(type, query, team_ids, after, feed_id)
+        self.search_for_similar_published_fact_checks_no_cache(type, query, team_ids, after, feed_id, language)
       end
     end
 
     # "type" is text, video, audio or image
     # "query" is either a piece of text of a media URL
-    def search_for_similar_published_fact_checks_no_cache(type, query, team_ids, after = nil, feed_id = nil)
+    def search_for_similar_published_fact_checks_no_cache(type, query, team_ids, after = nil, feed_id = nil, language = nil)
       results = []
       pm = nil
       pm = ProjectMedia.new(team_id: team_ids[0]) if team_ids.size == 1 # We'll use the settings of a team instead of global settings when there is only one team
@@ -145,7 +145,7 @@ module SmoochSearch
         words = text.split(/\s+/)
         Rails.logger.info "[Smooch Bot] Search query (text): #{text}"
         if words.size <= self.max_number_of_words_for_keyword_search
-          results = self.search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id)
+          results = self.search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id, language)
         else
           alegre_results = Bot::Alegre.get_merged_similar_items(pm, [{ value: self.get_text_similarity_threshold }], Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text, team_ids)
           results = self.parse_search_results_from_alegre(alegre_results, after, feed_id, team_ids)
@@ -183,8 +183,16 @@ module SmoochSearch
       CheckS3.public_url(path)
     end
 
-    def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id = nil)
+    def should_restrict_by_language?(team_ids)
+      return false if team_ids.size > 1
+      team = Team.find(team_ids[0])
+      return false if team.get_languages.to_a.size < 2
+      !!TeamBotInstallation.where(team_id: team.id, user: BotUser.alegre_user).last&.get_single_language_fact_checks_enabled
+    end
+
+    def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id = nil, language = nil)
       filters = { keyword: words.join('+'), eslimit: 3 }
+      filters.merge!({ fc_languages: [language] }) if should_restrict_by_language?(team_ids)
       filters.merge!({ sort: 'score' }) if words.size > 1 # We still want to be able to return the latest fact-checks if a meaninful query is not passed
       feed_id.blank? ? filters.merge!({ report_status: ['published'] }) : filters.merge!({ feed_id: feed_id })
       filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) unless after.blank?
