@@ -30,6 +30,7 @@ class TeamBotInstallation < TeamUser
       audio_similarity_enabled
       date_similarity_threshold_enabled
       transcription_similarity_enabled
+      single_language_fact_checks_enabled
     )
     boolean_keys.each{ |k| settings[k] = self.send("get_#{k}").nil? ? (CheckConfig.get(k, true).to_s == 'true') : self.send("get_#{k}") }
     threshold_keys = %w(
