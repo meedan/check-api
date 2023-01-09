@@ -15,7 +15,7 @@ module SmoochSearch
           self.bundle_messages(uid, '', app_id, 'default_requests', nil, true)
           self.send_final_message_to_user(uid, self.get_custom_string('search_no_results', language), workflow, language)
         else
-          self.send_search_results_to_user(uid, results)
+          self.send_search_results_to_user(uid, results, team_id)
           sm.go_to_search_result
           self.save_search_results_for_user(uid, results.map(&:id))
           self.delay_for(1.second, { queue: 'smooch_priority' }).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, 1)
@@ -112,15 +112,15 @@ module SmoochSearch
       results
     end
 
-    def normalized_query_hash(type, query, team_ids, after, feed_id)
+    def normalized_query_hash(type, query, team_ids, after, feed_id, language)
       normalized_query = query.downcase.chomp.strip unless query.nil?
-      Digest::MD5.hexdigest([type.to_s, normalized_query, [team_ids].flatten.join(','), after.to_s, feed_id.to_i].join(':'))
+      Digest::MD5.hexdigest([type.to_s, normalized_query, [team_ids].flatten.join(','), after.to_s, feed_id.to_i, language.to_s].join(':'))
     end
 
     # "type" is text, video, audio or image
     # "query" is either a piece of text of a media URL
     def search_for_similar_published_fact_checks(type, query, team_ids, after = nil, feed_id = nil, language = nil)
-      Rails.cache.fetch("smooch:search_results:#{self.normalized_query_hash(type, query, team_ids, after, feed_id)}", expires_in: 2.hours) do
+      Rails.cache.fetch("smooch:search_results:#{self.normalized_query_hash(type, query, team_ids, after, feed_id, language)}", expires_in: 2.hours) do
         self.search_for_similar_published_fact_checks_no_cache(type, query, team_ids, after, feed_id, language)
       end
     end
@@ -205,11 +205,12 @@ module SmoochSearch
       results
     end
 
-    def send_search_results_to_user(uid, results)
+    def send_search_results_to_user(uid, results, team_id)
+      team = Team.find(team_id)
       redis = Redis.new(REDIS_CONFIG)
       language = self.cached_user_language(uid)
       reports = results.collect{ |r| Relationship.confirmed_parent(r).get_dynamic_annotation('report_design') }.uniq.select{ |r| r&.should_send_report_in_this_language?(language) }
-      if reports.find{ |r| r.report_design_field_value('language') != language }
+      if team.get_languages.to_a.size > 1 && reports.find{ |r| r.report_design_field_value('language') != language } && !reports.find{ |r| r.report_design_field_value('language') == language }
         self.send_message_to_user(uid, self.get_string(:no_results_in_language, language))
         sleep 1
       end
