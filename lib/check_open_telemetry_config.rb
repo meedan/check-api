@@ -29,6 +29,10 @@ module Check
         config.use 'OpenTelemetry::Instrumentation::Sidekiq'
         config.use 'OpenTelemetry::Instrumentation::Sinatra'
       end
+
+      def tracer
+        @tracer ||= OpenTelemetry.tracer_provider.tracer('check-api')
+      end
     end
 
     def initialize(endpoint, headers, is_disabled = nil)

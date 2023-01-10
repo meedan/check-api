@@ -31,8 +31,8 @@ class StatisticsTest < ActiveSupport::TestCase
     end_of_month = DateTime.new(2022,5,31,23,59,59).end_of_month
 
     TeamBotInstallation.any_instance.stubs(:smooch_enabled_integrations).returns({whatsapp: 'foo'})
-    CheckStatistics.expects(:get_statistics).with(start_of_month, end_of_month, 'test-team', :whatsapp, 'en').returns(['id-1234'])
-    CheckStatistics.expects(:get_statistics).with(start_of_month, end_of_month, 'test-team', :whatsapp, 'es').returns(['id-1234'])
+    CheckStatistics.expects(:get_statistics).with(start_of_month, end_of_month, tipline_team.id, :whatsapp, 'en').returns(['id-1234'])
+    CheckStatistics.expects(:get_statistics).with(start_of_month, end_of_month, tipline_team.id, :whatsapp, 'es').returns(['id-1234'])
 
     assert_nil Rails.cache.read("data:report:#{tipline_team.id}")
 
