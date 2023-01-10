@@ -10,7 +10,11 @@ module SmoochSearch
       begin
         sm = CheckStateMachine.new(uid)
         self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
-        results = self.get_search_results(uid, message, team_id, language)
+        results = self.get_search_results(uid, message, team_id, language).select do |pm|
+          pm = Relationship.confirmed_parent(pm)
+          report = pm.get_dynamic_annotation('report_design')
+          !!report&.should_send_report_in_this_language?(language)
+        end.uniq
         if results.empty?
           self.bundle_messages(uid, '', app_id, 'default_requests', nil, true)
           self.send_final_message_to_user(uid, self.get_custom_string('search_no_results', language), workflow, language)
@@ -209,7 +213,7 @@ module SmoochSearch
       team = Team.find(team_id)
       redis = Redis.new(REDIS_CONFIG)
       language = self.cached_user_language(uid)
-      reports = results.collect{ |r| Relationship.confirmed_parent(r).get_dynamic_annotation('report_design') }.uniq.select{ |r| r&.should_send_report_in_this_language?(language) }
+      reports = results.collect{ |r| r.get_dynamic_annotation('report_design') }
       if team.get_languages.to_a.size > 1 && reports.find{ |r| r.report_design_field_value('language') != language } && !reports.find{ |r| r.report_design_field_value('language') == language }
         self.send_message_to_user(uid, self.get_string(:no_results_in_language, language))
         sleep 1
