@@ -20,3 +20,6 @@ unless Rails.env.test?
 else
   Check::OpenTelemetryTestConfig.configure!
 end
+
+# For creating manual instrumentation spans
+CheckTracer = Check::OpenTelemetryConfig.tracer

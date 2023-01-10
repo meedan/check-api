@@ -70,7 +70,6 @@ class OpenTelemetryConfigTest < ActiveSupport::TestCase
       sampling_config: { sampler: 'traceidratio', rate: 'asdf' }
     )
 
-    #
     assert_nil ENV['OTEL_TRACES_SAMPLER_ARG']
     assert_equal 'developer.name=piglet', ENV['OTEL_RESOURCE_ATTRIBUTES']
 
@@ -90,7 +89,18 @@ class OpenTelemetryConfigTest < ActiveSupport::TestCase
     env_var_original_state.each{|env_var, original_state| ENV[env_var] = original_state}
   end
 
-  # exporting_disabled?
+  # .tracer
+  test "returns a configured tracer" do
+    env_var_original_state = cache_and_clear_env
+
+    tracer = Check::OpenTelemetryConfig.tracer
+
+    assert tracer.is_a?(OpenTelemetry::Trace::Tracer)
+  ensure
+    env_var_original_state.each{|env_var, original_state| ENV[env_var] = original_state}
+  end
+
+  # .exporting_disabled?
   test "should disable exporting if any required config missing" do
     assert Check::OpenTelemetryConfig.new(nil, nil).send(:exporting_disabled?)
     assert Check::OpenTelemetryConfig.new('https://fake.com', '').send(:exporting_disabled?)
@@ -102,7 +112,7 @@ class OpenTelemetryConfigTest < ActiveSupport::TestCase
     assert Check::OpenTelemetryConfig.new('https://fake.com', 'foo=bar', 'true').send(:exporting_disabled?)
   end
 
-  # format_attributes
+  # .format_attributes
   test "should format attributes from hash to string, if present" do
     assert !Check::OpenTelemetryConfig.new(nil,nil).send(:format_attributes, nil)
 

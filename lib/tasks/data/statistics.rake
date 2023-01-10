@@ -44,22 +44,22 @@ namespace :check do
       ]
 
       team_ids.each_with_index do |team_id, index|
+        team = Team.find(team_id)
         team_rows = []
         date = nil
         begin
-          team = Team.find(team_id)
-          date = ProjectMedia.where(team: team, user: BotUser.smooch_user).order('id ASC').first.created_at.beginning_of_day if date.nil?
+          date = ProjectMedia.where(team_id: team_id, user: BotUser.smooch_user).order('id ASC').first.created_at.beginning_of_day if date.nil?
           from = date.beginning_of_month
           to = date.end_of_month
-          puts "[#{Time.now}] Generating month tipline statistics for #{team.name} (#{from}). (#{index + 1} / #{team_ids.length})"
-          TeamBotInstallation.where(team: team, user: BotUser.smooch_user).last.smooch_enabled_integrations.keys.each do |platform|
+          puts "[#{Time.now}] Generating month tipline statistics for team with ID #{team_id} (#{from}). (#{index + 1} / #{team_ids.length})"
+          TeamBotInstallation.where(team_id: team_id, user: BotUser.smooch_user).last.smooch_enabled_integrations.keys.each do |platform|
             team.get_languages.each do |language|
-              team_rows << CheckStatistics.get_statistics(from, to, team.slug, platform, language)
+              team_rows << CheckStatistics.get_statistics(from, to, team_id, platform, language)
             end
           end
           date += 1.month
         end while date <= Time.now
-        CheckStatistics.cache_team_data(team, header, team_rows)
+        CheckStatistics.cache_team_data(team_id, header, team_rows)
       end
 
       ActiveRecord::Base.logger = old_logger
