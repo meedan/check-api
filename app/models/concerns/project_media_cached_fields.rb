@@ -472,12 +472,15 @@ module ProjectMediaCachedFields
     end
 
     def recalculate_last_seen
-      value = Dynamic.where(annotation_type: 'smooch', annotated_id: ids).order('created_at DESC').last&.created_at ||
+      # If it’s not a main item (so, single or child, a.k.a. “confirmed match” or “suggestion”), then last_seen is related only to smooch annotations (requests) related to that ProjectMedia.
+      value = Dynamic.where(annotation_type: 'smooch', annotated_id: self.id).order('created_at DESC').last&.created_at ||
         ProjectMedia.find_by_id(self.id)&.created_at || 0
+
       # If it’s a main/parent item, last_seen is related to any request (smooch annotation) to that own ProjectMedia or any similar/child ProjectMedia
       if self.is_parent
-        v2 = ProjectMedia.where(id: self.related_items_ids).map(&:created_at).max || 0
-        value = [value, v2].max
+        ids = self.related_items_ids
+        value = Dynamic.where(annotation_type: 'smooch', annotated_id: ids).order('created_at DESC').last&.created_at ||
+          ProjectMedia.where(id: ids)&.order('created_at DESC').last&.created_at || 0
       end
       value.to_i
     end
