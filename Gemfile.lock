@@ -538,6 +538,9 @@ GEM
       opentelemetry-instrumentation-active_record (~> 0.4.0)
       opentelemetry-instrumentation-active_support (~> 0.2.0)
       opentelemetry-instrumentation-base (~> 0.21.0)
+    opentelemetry-instrumentation-rake (0.1.0)
+      opentelemetry-api (~> 1.0)
+      opentelemetry-instrumentation-base (~> 0.21.0)
     opentelemetry-instrumentation-restclient (0.20.0)
       opentelemetry-api (~> 1.0)
       opentelemetry-common (~> 0.19.3)
@@ -975,6 +978,7 @@ DEPENDENCIES
   opentelemetry-instrumentation-pg
   opentelemetry-instrumentation-rack
   opentelemetry-instrumentation-rails
+  opentelemetry-instrumentation-rake
   opentelemetry-instrumentation-restclient
   opentelemetry-instrumentation-sidekiq
   opentelemetry-instrumentation-sinatra
