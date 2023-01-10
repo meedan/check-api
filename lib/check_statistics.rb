@@ -41,7 +41,8 @@ module CheckStatistics
     end
 
     def get_statistics(start_date, end_date, team_id, platform, language)
-      CheckTracer.in_span('CheckStatistics.get_statistics', attributes: { "app.team.id" => team_id, "app.attr.platform" => platform, "app.attr.language" => language}) do |span|
+      tracing_attributes = { "app.team.id" => team_id, "app.attr.platform" => platform, "app.attr.language" => language}
+      CheckTracer.in_span('CheckStatistics.get_statistics', attributes: tracing_attributes) do
         team = Team.find(team_id)
 
         platform_name = Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[platform]
@@ -49,7 +50,7 @@ module CheckStatistics
         data = [id, team.name, platform_name, language, start_date.strftime('%Y-%m-%d')]
 
         conversations = nil
-        CheckTracer.in_span('number_of_conversations') do
+        CheckTracer.in_span('CheckStatistics#number_of_conversations', attributes: tracing_attributes) do
           # Number of conversations
           # FIXME: Should be a new conversation only after 15 minutes of inactivity
           value1 = unique_requests_count(project_media_requests(team_id, platform, start_date, end_date, language))
@@ -58,13 +59,13 @@ module CheckStatistics
           data << conversations
         end
 
-        CheckTracer.in_span('conversations_per_day') do
+        CheckTracer.in_span('CheckStatistics#conversations_per_day', attributes: tracing_attributes) do
           # Average number of conversations per day
           data << (conversations / (start_date.to_date..end_date.to_date).count).to_i
         end
 
         number_of_newsletters = 0
-        CheckTracer.in_span('number_of_newsletters_sent') do
+        CheckTracer.in_span('CheckStatistics#number_of_newsletters_sent', attributes: tracing_attributes) do
           # Number of newsletters sent
           # NOTE: For all platforms
           # NOTE: Only starting from June 1, 2022
@@ -81,7 +82,7 @@ module CheckStatistics
           end
         end
 
-        CheckTracer.in_span('number_of_messages_sent') do
+        CheckTracer.in_span('CheckStatistics#number_of_messages_sent', attributes: tracing_attributes) do
           # Number of newsletter subscribers
           number_of_subscribers = TiplineSubscription.where(created_at: start_date.ago(100.years)..end_date, platform: platform_name, language: language).where('teams.id' => team_id).joins(:team).count
 
@@ -113,7 +114,7 @@ module CheckStatistics
         end
 
         uids = []
-        CheckTracer.in_span('number_of_unique_users') do
+        CheckTracer.in_span('CheckStatistics#number_of_unique_users', attributes: tracing_attributes) do
           # Number of unique users
           project_media_requests(team_id, platform, start_date, end_date, language).find_each do |a|
             uid = begin JSON.parse(a.load.get_field_value('smooch_data'))['authorId'] rescue nil end
@@ -126,12 +127,12 @@ module CheckStatistics
           data << uids.size
         end
 
-        CheckTracer.in_span('number_of_returning_users') do
+        CheckTracer.in_span('CheckStatistics#number_of_returning_users', attributes: tracing_attributes) do
           # Number of returning users (at least one session in the current month, and at least one session in the last previous 2 months)
           data << DynamicAnnotation::Field.where(field_name: 'smooch_data', created_at: start_date.ago(2.months)..start_date).where("value_json->>'authorId' IN (?) AND value_json->>'language' = ?", uids, language).collect{ |f| f.value_json['authorId'] }.uniq.size
         end
 
-        CheckTracer.in_span('search') do
+        CheckTracer.in_span('CheckStatistics#search', attributes: tracing_attributes) do
           # SEARCH
           # 1. All searches (2 + 3)
           # 2. Positive search results (4 + 5 + 6)
@@ -153,34 +154,34 @@ module CheckStatistics
           data << search6
         end
 
-        CheckTracer.in_span('number_of_valid_queries') do
+        CheckTracer.in_span('CheckStatistics#number_of_valid_queries', attributes: tracing_attributes) do
           # Number of valid queries
           data << unique_requests_count(project_media_requests(team_id, platform, start_date, end_date, language).where('pm.archived' => 0))
         end
 
-        CheckTracer.in_span('number_of_new_published_reports') do
+        CheckTracer.in_span('CheckStatistics#number_of_new_published_reports', attributes: tracing_attributes) do
           # Number of new published reports created in Check (e.g., native, not imported)
           # NOTE: For all platforms
           data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.id' => team_id).where('annotations.created_at' => start_date..end_date).where("data LIKE '%language: #{language}%'").where("data LIKE '%state: published%'").where('annotations.annotator_id NOT IN (?)', [BotUser.fetch_user.id, BotUser.alegre_user.id]).count
         end
 
-        CheckTracer.in_span('number_of_published_imported_reports') do
+        CheckTracer.in_span('CheckStatistics#number_of_published_imported_reports', attributes: tracing_attributes) do
           # Number of published imported reports
           # NOTE: For all languages and platforms
           data << Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.id' => team_id).where('annotations.created_at' => start_date..end_date, 'annotations.annotator_id' => [BotUser.fetch_user.id, BotUser.alegre_user.id]).where("data LIKE '%state: published%'").count
         end
 
-        CheckTracer.in_span('number_of_queries_answered_with_report') do
+        CheckTracer.in_span('CheckStatistics#number_of_queries_answered_with_report', attributes: tracing_attributes) do
           # Number of queries answered with a report
           data << reports_received(team_id, platform, start_date, end_date, language).group('pm.id').count.size + project_media_requests(team_id, platform, start_date, end_date, language, 'relevant_search_result_requests').group('pm.id').count.size
         end
 
-        CheckTracer.in_span('number_of_reports_sent_to_users') do
+        CheckTracer.in_span('CheckStatistics#number_of_reports_sent_to_users', attributes: tracing_attributes) do
           # Number of reports sent to users
           data << reports_received(team_id, platform, start_date, end_date, language).count + project_media_requests(team_id, platform, start_date, end_date, language, 'relevant_search_result_requests').count
         end
 
-        CheckTracer.in_span('number_of_unique_users_who_received_report') do
+        CheckTracer.in_span('CheckStatistics#number_of_unique_users_who_received_report', attributes: tracing_attributes) do
           # Number of unique users who received a report
           data << [reports_received(team_id, platform, start_date, end_date, language) + project_media_requests(team_id, platform, start_date, end_date, language, 'relevant_search_result_requests')].flatten.collect do |f|
             annotation = f.is_a?(Annotation) ? f : f.annotation
@@ -188,7 +189,7 @@ module CheckStatistics
           end.uniq.size
         end
 
-        CheckTracer.in_span('average_time_to_publishing') do
+        CheckTracer.in_span('CheckStatistics#average_time_to_publishing', attributes: tracing_attributes) do
           # Average time to publishing
           times = []
           reports_received(team_id, platform, start_date, end_date, language).find_each do |f|
@@ -202,7 +203,7 @@ module CheckStatistics
           end
         end
 
-        CheckTracer.in_span('number_of_newsletters_sent') do
+        CheckTracer.in_span('CheckStatistics#number_of_newsletters_sent', attributes: tracing_attributes) do
           # Number of newsletters sent
           # NOTE: For all platforms
           # NOTE: Only starting from June 1, 2022
@@ -213,7 +214,7 @@ module CheckStatistics
           end
         end
 
-        CheckTracer.in_span('number_of_new_newsletter_subscriptions') do
+        CheckTracer.in_span('CheckStatistics#number_of_new_newsletter_subscriptions', attributes: tracing_attributes) do
           # Number of new newsletter subscriptions
           # We were not storing versions for created TiplineSubscription after they got deleted
           if end_date < Time.parse('2023-01-01')
@@ -223,17 +224,17 @@ module CheckStatistics
           end
         end
 
-        CheckTracer.in_span('number_of_newsletter_subscription_cancellations') do
+        CheckTracer.in_span('CheckStatistics#number_of_newsletter_subscription_cancellations', attributes: tracing_attributes) do
           # Number of newsletter subscription cancellations
           data << Version.from_partition(team_id).where(created_at: start_date..end_date, team_id: team_id, item_type: 'TiplineSubscription', event_type: 'destroy_tiplinesubscription').where('object LIKE ?', "%#{platform_name}%").where('object LIKE ?', '%"language":"' + language + '"%').count
         end
 
-        CheckTracer.in_span('number_of_current_newsletter_subscribers') do
+        CheckTracer.in_span('CheckStatistics#number_of_current_newsletter_subscribers', attributes: tracing_attributes) do
           # Current number of newsletter subscribers
           data << TiplineSubscription.where(created_at: start_date.ago(100.years)..end_date, platform: platform_name, language: language).where('teams.id' => team_id).joins(:team).count
         end
 
-        # CheckTracer.in_span('number_of_imported_reports') do
+        # CheckTracer.in_span('CheckStatistics#number_of_imported_reports', attributes: tracing_attributes) do
           # Total number of imported reports
           # NOTE: For all languages and platforms
           # data << ProjectMedia.joins(:team).where('teams.id' => team_id, 'created_at' => start_date..end_date, 'user_id' => BotUser.fetch_user.id).count
