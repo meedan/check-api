@@ -535,6 +535,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   test "should timeout search results on tipline bot v2" do
     @installation.set_smooch_disable_timeout = false
     @installation.save!
+    Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
     uid = random_string
     Bot::Smooch.save_search_results_for_user(uid, [create_project_media.id])
     send_message_to_smooch_bot('Hello', uid)
@@ -543,7 +544,8 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     assert_equal 'search_result', sm.state.value
 
     message = { 'authorId' => uid, '_id' => random_string }
-    assert_nil Bot::Smooch.timeout_smooch_menu(Time.now + 30.minutes, message, @app_id, 'ZENDESK')
+    Bot::Smooch.timeout_smooch_menu((Time.now + 30.minutes).to_i, message, @app_id, 'ZENDESK')
+    assert_equal 'waiting_for_message', sm.state.value
   end
 
   test "should send report notification with button after 24 hours window" do
