@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_01_03_125636) do
+ActiveRecord::Schema.define(version: 2023_01_06_220307) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -239,6 +239,32 @@ ActiveRecord::Schema.define(version: 2023_01_03_125636) do
     t.string "type"
     t.string "file"
     t.index ["url"], name: "index_medias_on_url", unique: true
+  end
+
+  create_table "monthly_team_statistics", force: :cascade do |t|
+    t.integer "conversations"
+    t.integer "average_messages_per_day"
+    t.integer "unique_users"
+    t.integer "returning_users"
+    t.integer "valid_new_requests"
+    t.integer "published_native_reports"
+    t.integer "published_imported_reports"
+    t.integer "requests_answered_with_report"
+    t.integer "reports_sent_to_users"
+    t.integer "unique_users_who_received_report"
+    t.integer "median_response_time"
+    t.integer "unique_newsletters_sent"
+    t.integer "new_newsletter_subscriptions"
+    t.integer "newsletter_cancellations"
+    t.integer "current_subscribers"
+    t.datetime "start_date"
+    t.datetime "end_date"
+    t.string "platform"
+    t.string "language"
+    t.bigint "team_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["team_id"], name: "index_monthly_team_statistics_on_team_id"
   end
 
   create_table "pghero_query_stats", id: :serial, force: :cascade do |t|
@@ -579,6 +605,7 @@ ActiveRecord::Schema.define(version: 2023_01_03_125636) do
   add_foreign_key "fact_checks", "users"
   add_foreign_key "feed_teams", "feeds"
   add_foreign_key "feed_teams", "teams"
+  add_foreign_key "monthly_team_statistics", "teams"
   add_foreign_key "project_media_requests", "project_medias"
   add_foreign_key "project_media_requests", "requests"
   add_foreign_key "requests", "feeds"

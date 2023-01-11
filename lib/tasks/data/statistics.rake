@@ -12,37 +12,6 @@ namespace :check do
 
       team_ids = Team.joins(:project_medias).where(project_medias: { user: BotUser.smooch_user }).distinct.pluck(:id)
       puts "[#{Time.now}] Detected #{team_ids.length} teams with tipline data"
-      header = [
-        'ID',
-        'Org',
-        'Platform',
-        'Language',
-        'Month',
-        'Conversations',
-        'Average number of conversations per day',
-        'Number of messages sent',
-        'Average messages per day',
-        'Unique users',
-        'Returning users',
-        'Searches',
-        'Positive searches',
-        'Negative searches',
-        'Search feedback positive',
-        'Search feedback negative',
-        'Search no feedback',
-        'Valid new requests',
-        'Published native reports',
-        'Published imported reports',
-        'Requests answered with a report',
-        'Reports sent to users',
-        'Unique users who received a report',
-        'Average (median) response time',
-        'Unique newsletters sent',
-        'New newsletter subscriptions',
-        'Newsletter cancellations',
-        'Current subscribers'
-      ]
-
       team_ids.each_with_index do |team_id, index|
         team = Team.find(team_id)
         team_rows = []
@@ -54,12 +23,12 @@ namespace :check do
           puts "[#{Time.now}] Generating month tipline statistics for team with ID #{team_id} (#{from}). (#{index + 1} / #{team_ids.length})"
           TeamBotInstallation.where(team_id: team_id, user: BotUser.smooch_user).last.smooch_enabled_integrations.keys.each do |platform|
             team.get_languages.each do |language|
-              team_rows << CheckStatistics.get_statistics(from, to, team_id, platform, language)
+              row_attributes = CheckStatistics.get_statistics(from, to, team_id, platform, language)
+              MonthlyTeamStatistic.create!(row_attributes.merge!(team: team))
             end
           end
           date += 1.month
         end while date <= Time.now
-        CheckStatistics.cache_team_data(team_id, header, team_rows)
       end
 
       ActiveRecord::Base.logger = old_logger
