@@ -219,7 +219,7 @@ en:
   main_menu: Main menu
   main_state_button_label: Cancel
   navigation_button: Use the buttons to navigate
-  no_results_in_language: 'No results could be found in this language. Here are some results in other languages that may be relevant.'
+  no_results_in_language: 'No results could be found in %{language}. Here are some results in other languages that may be relevant.'
   privacy_and_purpose: |-
     Privacy and Purpose
 
@@ -661,7 +661,7 @@ pt:
   main_menu: Menu principal
   main_state_button_label: Cancelar
   navigation_button: Use os botões para navegar
-  no_results_in_language: 'Nenhum resultado encontrado para este idioma. Aqui estão alguns resultados em outros idiomas que podem ser relevantes.'
+  no_results_in_language: 'Nenhum resultado encontrado em português. Aqui estão alguns resultados em outros idiomas que podem ser relevantes.'
   privacy_and_purpose: |-
     Política de Privacidade
 
