@@ -2,6 +2,7 @@ class MonthlyTeamStatistic < ApplicationRecord
   belongs_to :team
 
   validates_presence_of :start_date, :end_date, :team, :platform, :language
+  validates :start_date, uniqueness: { scope: [:platform, :language, :team] }
 
   include ActionView::Helpers::DateHelper
 
@@ -9,7 +10,7 @@ class MonthlyTeamStatistic < ApplicationRecord
   FIELD_MAPPINGS = {
     id: "ID",
     org: "Org", # model method
-    platform: "Platform",
+    platform_name: "Platform", # model method
     language: "Language",
     month: "Month", # model method
     conversations: 'Conversations',
@@ -49,5 +50,9 @@ class MonthlyTeamStatistic < ApplicationRecord
 
   def formatted_median_response_time
     distance_of_time_in_words(median_response_time) if median_response_time
+  end
+
+  def platform_name
+    Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[platform]
   end
 end

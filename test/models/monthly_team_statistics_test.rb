@@ -23,6 +23,17 @@ class MonthlyTeamStatisticTest < ActiveSupport::TestCase
     assert stat.valid?
   end
 
+  test "is invalid if not unique for team, platform, language, and start_date" do
+    team = create_team
+    create_monthly_team_statistic(team: team, platform: 'whatsapp', language: 'en', start_date: DateTime.new(2022,1,2))
+
+    stat = MonthlyTeamStatistic.new(team: team, platform: 'whatsapp', language: 'en', start_date: DateTime.new(2022,1,2), end_date: DateTime.new(2022,2,3))
+    assert !stat.valid?
+
+    stat.start_date = DateTime.new(2022,2,3)
+    assert stat.valid?
+  end
+
   test ".formatted_hash presents data with human-readable keys" do
     team = create_team(name: "Fake team")
 
@@ -53,7 +64,7 @@ class MonthlyTeamStatisticTest < ActiveSupport::TestCase
 
     assert_equal hash["ID"], stat.id
     assert_equal hash["Org"], "Fake team"
-    assert_equal hash["Platform"], "whatsapp"
+    assert_equal hash["Platform"], "WhatsApp"
     assert_equal hash["Language"], "en"
     assert_equal hash["Month"], "Apr 2020"
     assert_equal hash["Conversations"], 1
@@ -103,5 +114,11 @@ class MonthlyTeamStatisticTest < ActiveSupport::TestCase
     stat = MonthlyTeamStatistic.create(team: team, unique_newsletters_sent: nil)
 
     assert_equal '-', stat.formatted_hash["Unique newsletters sent"]
+  end
+
+  test ".platform_name sets human-readable name for platform" do
+    stat = MonthlyTeamStatistic.new(platform: 'whatsapp')
+
+    assert_equal "WhatsApp", stat.platform_name
   end
 end

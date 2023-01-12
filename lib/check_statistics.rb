@@ -47,13 +47,13 @@ module CheckStatistics
       CheckTracer.in_span('CheckStatistics.get_statistics', attributes: tracing_attributes) do
         team = Team.find(team_id)
 
-        platform_name = Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[platform]
         statistics = {
-          platform: platform_name,
+          platform: platform,
           language: language,
           start_date: start_date,
           end_date: end_date,
         }
+        platform_name = Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[platform]
 
         conversations = nil
         CheckTracer.in_span('CheckStatistics#conversations', attributes: tracing_attributes) do
@@ -80,7 +80,7 @@ module CheckStatistics
                 nil
               end
             end.reject{ |t| t.blank? }.collect{ |t| Time.parse(t.to_s).to_s }.uniq.size
-            statistics[:unique_newsletters_sent] = end_date
+            statistics[:unique_newsletters_sent] = number_of_newsletters
           end
         end
 

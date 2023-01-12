@@ -21,8 +21,9 @@ class CreateMonthlyTeamStatistics < ActiveRecord::Migration[5.2]
       t.datetime :end_date
       t.string :platform
       t.string :language
-      t.references :team, null: false, foreign_key: true, index: true
+      t.references :team, null: false, index: true
       t.timestamps null: false
+      t.index [:team_id, :platform, :language, :start_date], unique: true, name: 'index_monthly_stats_team_platform_language_start'
     end
   end
 end

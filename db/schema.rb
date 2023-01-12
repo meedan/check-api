@@ -264,6 +264,7 @@ ActiveRecord::Schema.define(version: 2023_01_06_220307) do
     t.bigint "team_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["team_id", "platform", "language", "start_date"], name: "index_monthly_stats_team_platform_language_start", unique: true
     t.index ["team_id"], name: "index_monthly_team_statistics_on_team_id"
   end
 
@@ -605,7 +606,6 @@ ActiveRecord::Schema.define(version: 2023_01_06_220307) do
   add_foreign_key "fact_checks", "users"
   add_foreign_key "feed_teams", "feeds"
   add_foreign_key "feed_teams", "teams"
-  add_foreign_key "monthly_team_statistics", "teams"
   add_foreign_key "project_media_requests", "project_medias"
   add_foreign_key "project_media_requests", "requests"
   add_foreign_key "requests", "feeds"
