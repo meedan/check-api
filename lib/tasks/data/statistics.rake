@@ -11,55 +11,37 @@ namespace :check do
       ActiveRecord::Base.logger = nil
 
       team_ids = Team.joins(:project_medias).where(project_medias: { user: BotUser.smooch_user }).distinct.pluck(:id)
-      puts "[#{Time.now}] Detected #{team_ids.length} teams with tipline data"
-      header = [
-        'ID',
-        'Org',
-        'Platform',
-        'Language',
-        'Month',
-        'Conversations',
-        'Average number of conversations per day',
-        'Number of messages sent',
-        'Average messages per day',
-        'Unique users',
-        'Returning users',
-        'Searches',
-        'Positive searches',
-        'Negative searches',
-        'Search feedback positive',
-        'Search feedback negative',
-        'Search no feedback',
-        'Valid new requests',
-        'Published native reports',
-        'Published imported reports',
-        'Requests answered with a report',
-        'Reports sent to users',
-        'Unique users who received a report',
-        'Average (median) response time',
-        'Unique newsletters sent',
-        'New newsletter subscriptions',
-        'Newsletter cancellations',
-        'Current subscribers'
-      ]
-
+      current_time = Time.now
+      puts "[#{current_time}] Detected #{team_ids.length} teams with tipline data"
       team_ids.each_with_index do |team_id, index|
         team = Team.find(team_id)
         team_rows = []
-        date = nil
+        date = ProjectMedia.where(team_id: team_id, user: BotUser.smooch_user).order('created_at ASC').first&.created_at&.beginning_of_day
         begin
-          date = ProjectMedia.where(team_id: team_id, user: BotUser.smooch_user).order('id ASC').first.created_at.beginning_of_day if date.nil?
-          from = date.beginning_of_month
-          to = date.end_of_month
-          puts "[#{Time.now}] Generating month tipline statistics for team with ID #{team_id} (#{from}). (#{index + 1} / #{team_ids.length})"
+          month_start = date.beginning_of_month
+          month_end = date.end_of_month
+
+          puts "[#{current_time}] Generating month tipline statistics for team with ID #{team_id} (#{month_start}). (#{index + 1} / #{team_ids.length})"
           TeamBotInstallation.where(team_id: team_id, user: BotUser.smooch_user).last.smooch_enabled_integrations.keys.each do |platform|
             team.get_languages.each do |language|
-              team_rows << CheckStatistics.get_statistics(from, to, team_id, platform, language)
+              # Complete month - skip
+              next unless MonthlyTeamStatistic.where(team_id: team_id, platform: platform, language: language, start_date: month_start, end_date: month_end).blank?
+
+              period_end = current_time < month_end ? current_time : month_end
+              row_attributes = CheckStatistics.get_statistics(month_start, period_end, team_id, platform, language)
+
+              partial_month = MonthlyTeamStatistic.find_by(team_id: team_id, platform: platform, language: language, start_date: month_start)
+              if partial_month.present?
+                # Partial month - update
+                partial_month.update!(row_attributes.merge!(team: team))
+              else
+                # Empty month - create
+                MonthlyTeamStatistic.create!(row_attributes.merge!(team: team))
+              end
             end
           end
           date += 1.month
-        end while date <= Time.now
-        CheckStatistics.cache_team_data(team_id, header, team_rows)
+        end while date <= current_time
       end
 
       ActiveRecord::Base.logger = old_logger
