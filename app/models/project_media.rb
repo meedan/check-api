@@ -201,7 +201,7 @@ class ProjectMedia < ApplicationRecord
   end
 
   def is_parent
-    Relationship.where('source_id = ?', self.id).size > 0
+    Relationship.where('source_id = ?', self.id).exists?
   end
 
   def self.archive_or_restore_related_medias(archived, project_media_id, team)

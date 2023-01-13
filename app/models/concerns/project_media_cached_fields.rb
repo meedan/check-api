@@ -159,7 +159,7 @@ module ProjectMediaCachedFields
           if: proc { |r| r.is_confirmed? },
           affected_ids: proc { |r| r.source&.related_items_ids.to_a },
           events: {
-            save: :cached_field_project_media_last_seen_save,
+            save: :recalculate,
             destroy: :recalculate
           }
         }
@@ -631,10 +631,6 @@ module ProjectMediaCachedFields
   end
 
   Relationship.class_eval do
-    def cached_field_project_media_last_seen_save(_target)
-      [self.source&.last_seen.to_i, self.target&.last_seen.to_i].max
-    end
-
     def cached_field_project_media_added_as_similar_by_name_create(_target)
       self.user && self.user == BotUser.alegre_user ? 'Check' : self.user&.name
     end
