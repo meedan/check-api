@@ -12,7 +12,7 @@ namespace :check do
 
       team_ids = Team.joins(:project_medias).where(project_medias: { user: BotUser.smooch_user }).distinct.pluck(:id)
       current_time = Time.now
-      puts "[#{current_time}] Detected #{team_ids.length} teams with tipline data"
+      puts "[#{Time.now}] Detected #{team_ids.length} teams with tipline data"
       team_ids.each_with_index do |team_id, index|
         team = Team.find(team_id)
         team_rows = []
@@ -21,7 +21,7 @@ namespace :check do
           month_start = date.beginning_of_month
           month_end = date.end_of_month
 
-          puts "[#{current_time}] Generating month tipline statistics for team with ID #{team_id} (#{month_start}). (#{index + 1} / #{team_ids.length})"
+          puts "[#{Time.now}] Generating month tipline statistics for team with ID #{team_id} (#{month_start}). (#{index + 1} / #{team_ids.length})"
           TeamBotInstallation.where(team_id: team_id, user: BotUser.smooch_user).last.smooch_enabled_integrations.keys.each do |platform|
             team.get_languages.each do |language|
               # Complete month - skip
