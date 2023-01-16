@@ -23,7 +23,7 @@ namespace :check do
 
           puts "[#{Time.now}] Generating month tipline statistics for team with ID #{team_id} (#{month_start}). (#{index + 1} / #{team_ids.length})"
           TeamBotInstallation.where(team_id: team_id, user: BotUser.smooch_user).last.smooch_enabled_integrations.keys.each do |platform|
-            team.get_languages.each do |language|
+            team.get_languages.to_a.each do |language|
               # Complete month - skip
               next unless MonthlyTeamStatistic.where(team_id: team_id, platform: platform, language: language, start_date: month_start, end_date: month_end).blank?
 
