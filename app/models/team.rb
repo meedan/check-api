@@ -29,6 +29,7 @@ class Team < ApplicationRecord
   after_create :add_user_to_team, :add_default_bots_to_team, :create_default_folder
   after_update :archive_or_restore_projects_if_needed
   after_save :update_reports_if_labels_changed, on: :update
+  after_save :update_reports_if_languages_changed, on: :update
   before_destroy :anonymize_sources_and_accounts
   after_destroy :reset_current_team
 
@@ -387,6 +388,46 @@ class Team < ApplicationRecord
 
       # Update reports
       self.update_reports_after_changing_statuses(pmids.to_json, status_id)
+    end
+  end
+
+  def self.update_reports_if_languages_changed(team_id, languages)
+    result = FactCheck.select('pm.id as pm_id, fact_checks.id as fc_id').where(language: languages)
+    .joins(:claim_description).joins("INNER JOIN project_medias pm ON pm.id = claim_descriptions.project_media_id")
+    .where('pm.team_id = ?', team_id)
+    unless result.blank?
+      team = Team.find_by_id(team_id)
+      team_languages = team&.get_languages || ['en']
+      report_language = team_languages.length == 1 ? team_languages.first : 'und'
+      fc_ids = result.map(&:fc_id)
+      pm_ids = result.map(&:pm_id)
+      # Update fact-check
+      FactCheck.where(id: fc_ids).update_all(language: report_language)
+      Dynamic.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia', annotated_id: pm_ids)
+      .find_in_batches(:batch_size => 1000) do |items|
+        rows = []
+        items.each do |report|
+          data = report.data.with_indifferent_access
+          unless data.blank?
+            data[:options][:language] = report_language
+            report.data = data
+            rows << report
+          end
+        end
+        # Import items with existing ids to make update
+        Dynamic.import(items, recursive: false, validate: false, on_duplicate_key_update: [:data])
+        # Update ES
+        annotated_ids = items.map(&:annotated_id)
+        options = {
+          index: CheckElasticSearchModel.get_index_alias,
+          conflicts: 'proceed',
+          body: {
+            script: { source: "ctx._source.fact_check_languages = params.lang", params: { lang: [report_language] } },
+            query: { terms: { annotated_id: annotated_ids } }
+          }
+        }
+        $repository.client.update_by_query options
+      end
     end
   end
 
