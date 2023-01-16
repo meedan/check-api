@@ -367,7 +367,7 @@ module ProjectMediaCachedFields
           affected_ids: proc { |r| [r.target_id] },
           if: proc { |r| r.is_being_confirmed? },
           events: {
-            save: :cached_field_project_media_confirmed_as_similar_by_name_save,
+            save: :recalculate,
           }
         },
         {
@@ -637,10 +637,6 @@ module ProjectMediaCachedFields
 
     def cached_field_project_media_added_as_similar_by_name_destroy(_target)
       nil
-    end
-
-    def cached_field_project_media_confirmed_as_similar_by_name_save(_target)
-      User.current&.name
     end
 
     def cached_field_project_media_confirmed_as_similar_by_name_destroy(_target)

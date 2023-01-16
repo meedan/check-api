@@ -866,10 +866,8 @@ class Bot::Smooch < BotUser
     if subscribed_at.to_i < last_published_at.to_i && published_count > 0
       if ['publish', 'republish_and_resend'].include?(action)
         workflow = self.get_workflow(lang)
-        message = workflow['smooch_message_smooch_bot_result_changed'] || self.get_string(:report_updated, lang)
-        self.send_message_to_user(uid, message) unless message.blank?
-        sleep 1
-        self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated')
+        pre_message = workflow['smooch_message_smooch_bot_result_changed'] || self.get_string(:report_updated, lang)
+        self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated', pre_message)
       end
     # First report
     else
@@ -877,11 +875,15 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.send_report_to_user(uid, data, pm, lang = 'en', fallback_template = nil)
+  def self.send_report_to_user(uid, data, pm, lang = 'en', fallback_template = nil, pre_message = nil)
     parent = Relationship.confirmed_parent(pm)
     report = parent.get_dynamic_annotation('report_design')
     Rails.logger.info "[Smooch Bot] Sending report to user #{uid} for item with ID #{pm.id}..."
-    if report&.get_field_value('state') == 'published' && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(parent.archived)
+    if report&.get_field_value('state') == 'published' && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(parent.archived) && report.should_send_report_in_this_language?(lang)
+      unless pre_message.blank?
+        self.send_message_to_user(uid, pre_message)
+        sleep 1
+      end
       last_smooch_response = nil
       if report.report_design_field_value('use_introduction')
         introduction = report.report_design_introduction(data, lang)

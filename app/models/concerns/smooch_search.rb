@@ -10,12 +10,16 @@ module SmoochSearch
       begin
         sm = CheckStateMachine.new(uid)
         self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
-        results = self.get_search_results(uid, message, team_id, language)
+        results = self.get_search_results(uid, message, team_id, language).select do |pm|
+          pm = Relationship.confirmed_parent(pm)
+          report = pm.get_dynamic_annotation('report_design')
+          !!report&.should_send_report_in_this_language?(language)
+        end.uniq
         if results.empty?
           self.bundle_messages(uid, '', app_id, 'default_requests', nil, true)
           self.send_final_message_to_user(uid, self.get_custom_string('search_no_results', language), workflow, language)
         else
-          self.send_search_results_to_user(uid, results)
+          self.send_search_results_to_user(uid, results, team_id)
           sm.go_to_search_result
           self.save_search_results_for_user(uid, results.map(&:id))
           self.delay_for(1.second, { queue: 'smooch_priority' }).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, 1)
@@ -105,29 +109,29 @@ module SmoochSearch
         after = self.date_filter(team_id)
         query = message['text']
         query = message['mediaUrl'] unless type == 'text'
-        results = self.search_for_similar_published_fact_checks(type, query, [team_id], after)
+        results = self.search_for_similar_published_fact_checks(type, query, [team_id], after, nil, language)
       rescue StandardError => e
         self.handle_search_error(uid, e, language)
       end
       results
     end
 
-    def normalized_query_hash(type, query, team_ids, after, feed_id)
+    def normalized_query_hash(type, query, team_ids, after, feed_id, language)
       normalized_query = query.downcase.chomp.strip unless query.nil?
-      Digest::MD5.hexdigest([type.to_s, normalized_query, [team_ids].flatten.join(','), after.to_s, feed_id.to_i].join(':'))
+      Digest::MD5.hexdigest([type.to_s, normalized_query, [team_ids].flatten.join(','), after.to_s, feed_id.to_i, language.to_s].join(':'))
     end
 
     # "type" is text, video, audio or image
     # "query" is either a piece of text of a media URL
-    def search_for_similar_published_fact_checks(type, query, team_ids, after = nil, feed_id = nil)
-      Rails.cache.fetch("smooch:search_results:#{self.normalized_query_hash(type, query, team_ids, after, feed_id)}", expires_in: 2.hours) do
-        self.search_for_similar_published_fact_checks_no_cache(type, query, team_ids, after, feed_id)
+    def search_for_similar_published_fact_checks(type, query, team_ids, after = nil, feed_id = nil, language = nil)
+      Rails.cache.fetch("smooch:search_results:#{self.normalized_query_hash(type, query, team_ids, after, feed_id, language)}", expires_in: 2.hours) do
+        self.search_for_similar_published_fact_checks_no_cache(type, query, team_ids, after, feed_id, language)
       end
     end
 
     # "type" is text, video, audio or image
     # "query" is either a piece of text of a media URL
-    def search_for_similar_published_fact_checks_no_cache(type, query, team_ids, after = nil, feed_id = nil)
+    def search_for_similar_published_fact_checks_no_cache(type, query, team_ids, after = nil, feed_id = nil, language = nil)
       results = []
       pm = nil
       pm = ProjectMedia.new(team_id: team_ids[0]) if team_ids.size == 1 # We'll use the settings of a team instead of global settings when there is only one team
@@ -145,7 +149,7 @@ module SmoochSearch
         words = text.split(/\s+/)
         Rails.logger.info "[Smooch Bot] Search query (text): #{text}"
         if words.size <= self.max_number_of_words_for_keyword_search
-          results = self.search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id)
+          results = self.search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id, language)
         else
           alegre_results = Bot::Alegre.get_merged_similar_items(pm, [{ value: self.get_text_similarity_threshold }], Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text, team_ids)
           results = self.parse_search_results_from_alegre(alegre_results, after, feed_id, team_ids)
@@ -183,8 +187,16 @@ module SmoochSearch
       CheckS3.public_url(path)
     end
 
-    def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id = nil)
+    def should_restrict_by_language?(team_ids)
+      return false if team_ids.size > 1
+      team = Team.find(team_ids[0])
+      return false if team.get_languages.to_a.size < 2
+      !!TeamBotInstallation.where(team_id: team.id, user: BotUser.alegre_user).last&.get_single_language_fact_checks_enabled
+    end
+
+    def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id = nil, language = nil)
       filters = { keyword: words.join('+'), eslimit: 3 }
+      filters.merge!({ fc_languages: [language] }) if should_restrict_by_language?(team_ids)
       filters.merge!({ sort: 'score' }) if words.size > 1 # We still want to be able to return the latest fact-checks if a meaninful query is not passed
       feed_id.blank? ? filters.merge!({ report_status: ['published'] }) : filters.merge!({ feed_id: feed_id })
       filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) unless after.blank?
@@ -197,14 +209,19 @@ module SmoochSearch
       results
     end
 
-    def send_search_results_to_user(uid, results)
+    def send_search_results_to_user(uid, results, team_id)
+      team = Team.find(team_id)
       redis = Redis.new(REDIS_CONFIG)
-      results = results.collect { |r| Relationship.confirmed_parent(r) }.uniq
-      results.each do |result|
-        report = result.get_dynamic_annotation('report_design')
+      language = self.cached_user_language(uid)
+      reports = results.collect{ |r| r.get_dynamic_annotation('report_design') }
+      if team.get_languages.to_a.size > 1 && reports.find{ |r| r.report_design_field_value('language') != language } && !reports.find{ |r| r.report_design_field_value('language') == language }
+        self.send_message_to_user(uid, self.get_string(:no_results_in_language, language).gsub('%{language}', CheckCldr.language_code_to_name(language)))
+        sleep 1
+      end
+      reports.each do |report|
         response = nil
-        response = self.send_message_to_user(uid, report.report_design_text) if report && report.report_design_field_value('use_text_message')
-        response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report&.report_design_image_url }) if report && !report.report_design_field_value('use_text_message') && report.report_design_field_value('use_visual_card')
+        response = self.send_message_to_user(uid, report.report_design_text) if report.report_design_field_value('use_text_message')
+        response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url }) if !report.report_design_field_value('use_text_message') && report.report_design_field_value('use_visual_card')
         id = self.get_id_from_send_response(response)
         redis.rpush("smooch:search:#{uid}", id) unless id.blank?
       end

@@ -43,7 +43,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
 
   def teardown
     super
-    Sidekiq::Worker.drain_all
+    Sidekiq::Worker.clear_all
     Sidekiq::Testing.inline!
   end
 
@@ -209,7 +209,9 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   end
 
   test "should submit query and get relevant text keyword search results on tipline bot v2" do
-    CheckSearch.any_instance.stubs(:medias).returns([create_project_media])
+    pm = create_project_media(team: @team)
+    publish_report(pm, {}, nil, { language: 'en', use_visual_card: false })
+    CheckSearch.any_instance.stubs(:medias).returns([pm])
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar', '1'
       assert_state 'search_result'
@@ -224,7 +226,9 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   test "should submit query and get relevant text similarity search results on tipline bot v2" do
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
-    Bot::Alegre.stubs(:get_merged_similar_items).returns({ create_project_media.id => { score: 0.9 } })
+    pm = create_project_media(team: @team)
+    publish_report(pm, {}, nil, { language: 'en', use_visual_card: false })
+    Bot::Alegre.stubs(:get_merged_similar_items).returns({ pm.id => { score: 0.9 } })
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar foo bar foo bar', '1'
       assert_state 'search_result'
@@ -239,6 +243,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   end
 
   test "should submit query and get relevant image search results on tipline bot v2" do
+    publish_report(@search_result, {}, nil, { language: 'en', use_visual_card: false })
     image_url = random_url
     WebMock.stub_request(:get, image_url).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
@@ -276,7 +281,9 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   end
 
   test "should submit query and not get relevant text keyword search results on tipline bot v2" do
-    CheckSearch.any_instance.stubs(:medias).returns([create_project_media])
+    pm = create_project_media(team: @team)
+    publish_report(pm, {}, nil, { language: 'en', use_visual_card: false })
+    CheckSearch.any_instance.stubs(:medias).returns([pm])
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar', '1'
       assert_state 'search_result'
@@ -528,6 +535,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   test "should timeout search results on tipline bot v2" do
     @installation.set_smooch_disable_timeout = false
     @installation.save!
+    Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
     uid = random_string
     Bot::Smooch.save_search_results_for_user(uid, [create_project_media.id])
     send_message_to_smooch_bot('Hello', uid)
@@ -536,7 +544,8 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     assert_equal 'search_result', sm.state.value
 
     message = { 'authorId' => uid, '_id' => random_string }
-    assert_nil Bot::Smooch.timeout_smooch_menu(Time.now + 30.minutes, message, @app_id, 'ZENDESK')
+    Bot::Smooch.timeout_smooch_menu((Time.now + 30.minutes).to_i, message, @app_id, 'ZENDESK')
+    assert_equal 'waiting_for_message', sm.state.value
   end
 
   test "should send report notification with button after 24 hours window" do
@@ -626,5 +635,33 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     Sidekiq::Worker.drain_all
     d = Dynamic.where(annotation_type: 'smooch').last
     assert_equal 2, JSON.parse(d.get_field_value('smooch_data'))['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}").select{ |x| x.chomp.strip == url }.size
+  end
+
+  test "should get search results in different languages" do
+    tbi = create_team_bot_installation team_id: @team.id, user_id: create_bot_user(name: 'Alegre', login: 'alegre', approved: true).id
+    tbi.set_single_language_fact_checks_enabled = false
+    tbi.save!
+    pm = create_project_media team: @team
+    publish_report(pm, {}, nil, { language: 'pt', use_visual_card: false })
+    Bot::Smooch.stubs(:get_search_results).returns([pm])
+    Sidekiq::Testing.inline! do
+      send_message 'hello', '1', '1', 'Foo bar', '1'
+    end
+    Bot::Smooch.unstub(:get_search_results)
+    assert_not_nil Rails.cache.read("smooch:user_search_results:#{@uid}")
+  end
+
+  test "should not get search results in different languages" do
+    tbi = create_team_bot_installation team_id: @team.id, user_id: create_bot_user(name: 'Alegre', login: 'alegre', approved: true).id
+    tbi.set_single_language_fact_checks_enabled = true
+    tbi.save!
+    pm = create_project_media team: @team
+    publish_report(pm, {}, nil, { language: 'pt', use_visual_card: false })
+    Bot::Smooch.stubs(:get_search_results).returns([pm])
+    Sidekiq::Testing.inline! do
+      send_message 'hello', '1', '1', 'Foo bar', '1'
+    end
+    Bot::Smooch.unstub(:get_search_results)
+    assert_nil Rails.cache.read("smooch:user_search_results:#{@uid}")
   end
 end

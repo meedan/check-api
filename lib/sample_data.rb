@@ -1002,4 +1002,16 @@ module SampleData
     pmr.save!
     pmr
   end
+
+  def create_monthly_team_statistic(options = {})
+    attributes = {
+      team: options[:team] || create_team,
+      platform: 'WhatsApp',
+      language: 'en',
+      start_date: DateTime.new(2022,1,1),
+      end_date: DateTime.new(2022,1,31)
+    }.merge(options)
+
+    MonthlyTeamStatistic.create!(attributes)
+  end
 end

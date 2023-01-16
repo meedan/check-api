@@ -14,7 +14,8 @@ unless ARGV.include?('-n')
       !file.filename.match(/\/lib\/sample_data\.rb$/).nil? ||
       !file.filename.match(/\/lib\/tasks\//).nil? ||
       !file.filename.match(/\/app\/graph\/types\/mutation_type\.rb$/).nil? ||
-      !file.filename.match(/\/app\/graphql\/types\/mutation_type\.rb$/).nil?
+      !file.filename.match(/\/app\/graphql\/types\/mutation_type\.rb$/).nil? ||
+      !file.filename.match(/\/lib\/check_statistics\.rb$/).nil?
     end
     coverage_dir 'coverage'
   end
@@ -80,6 +81,7 @@ class ActiveSupport::TestCase
 
   include SampleData
   include Minitest::Hooks
+  include ActiveSupport::Testing::TimeHelpers
 
   def json_response
     JSON.parse(@response.body)
