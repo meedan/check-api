@@ -14,29 +14,36 @@ namespace :check do
       current_time = Time.now
       puts "[#{Time.now}] Detected #{team_ids.length} teams with tipline data"
       team_ids.each_with_index do |team_id, index|
-        team = Team.find(team_id)
-        team_rows = []
+        tipline_bot = TeamBotInstallation.where(team_id: team_id, user: BotUser.smooch_user).last
+        if tipline_bot.nil?
+          puts "[#{Time.now}] No tipline bot installed for team #{team_id}; skipping team"
+          next
+        end
+
         date = ProjectMedia.where(team_id: team_id, user: BotUser.smooch_user).order('created_at ASC').first&.created_at&.beginning_of_day
         begin
+          team = Team.find(team_id)
           month_start = date.beginning_of_month
           month_end = date.end_of_month
 
-          puts "[#{Time.now}] Generating month tipline statistics for team with ID #{team_id} (#{month_start}). (#{index + 1} / #{team_ids.length})"
-          TeamBotInstallation.where(team_id: team_id, user: BotUser.smooch_user).last.smooch_enabled_integrations.keys.each do |platform|
+          puts "[#{Time.now}] Generating month tipline statistics for team with ID #{team_id}. (#{index + 1} / #{team_ids.length})"
+          tipline_bot.smooch_enabled_integrations.keys.each do |platform|
             team.get_languages.to_a.each do |language|
-              # Complete month - skip
-              next unless MonthlyTeamStatistic.where(team_id: team_id, platform: platform, language: language, start_date: month_start, end_date: month_end).blank?
+              if MonthlyTeamStatistic.where(team_id: team_id, platform: platform, language: language, start_date: month_start, end_date: month_end).any?
+                puts "[#{Time.now}] #{team_id} #{month_start} #{platform} #{language}: Complete statistics found; skipping month"
+                next
+              end
 
               period_end = current_time < month_end ? current_time : month_end
-              row_attributes = CheckStatistics.get_statistics(month_start, period_end, team_id, platform, language)
+              row_attributes = CheckStatistics.get_statistics(month_start.to_date, period_end, team_id, platform, language)
 
               partial_month = MonthlyTeamStatistic.find_by(team_id: team_id, platform: platform, language: language, start_date: month_start)
               if partial_month.present?
-                # Partial month - update
-                partial_month.update!(row_attributes.merge!(team: team))
+                puts "[#{Time.now}]#{team_id} #{month_start.to_date} #{platform} #{language}: Partial statistics found; updating month"
+                partial_month.update!(row_attributes.merge!(team_id: team_id))
               else
-                # Empty month - create
-                MonthlyTeamStatistic.create!(row_attributes.merge!(team: team))
+                puts "[#{Time.now}] #{team_id} #{month_start.to_date} #{platform} #{language}: No statistics found; creating month"
+                MonthlyTeamStatistic.create!(row_attributes.merge!(team_id: team_id))
               end
             end
           end

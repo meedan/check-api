@@ -73,9 +73,12 @@ class StatisticsTest < ActiveSupport::TestCase
 
     assert_equal 0, MonthlyTeamStatistic.where(team: @tipline_team).count
 
-    Rake::Task['check:data:statistics'].invoke
+    out, err = capture_io do
+      Rake::Task['check:data:statistics'].invoke
+    end
     Rake::Task['check:data:statistics'].reenable
 
+    assert err.blank?
     # One for each language
     assert_equal 2, MonthlyTeamStatistic.where(team: @tipline_team).count
 
@@ -129,9 +132,12 @@ class StatisticsTest < ActiveSupport::TestCase
 
     assert_equal 0, MonthlyTeamStatistic.where(team: @tipline_team).count
 
-    Rake::Task['check:data:statistics'].invoke
+    out, err = capture_io do
+      Rake::Task['check:data:statistics'].invoke
+    end
     Rake::Task['check:data:statistics'].reenable
 
+    assert err.blank?
     assert_equal 2, MonthlyTeamStatistic.where(team: @tipline_team).count
   end
 
@@ -168,8 +174,12 @@ class StatisticsTest < ActiveSupport::TestCase
     assert_equal current_statistics.end_date, @current_date - 1.day
     assert_equal 1, current_statistics.conversations
 
-    Rake::Task['check:data:statistics'].invoke
+    out, err = capture_io do
+      Rake::Task['check:data:statistics'].invoke
+    end
     Rake::Task['check:data:statistics'].reenable
+
+    assert err.blank?
 
     current_statistics.reload
     assert_equal 2, MonthlyTeamStatistic.where(team: @tipline_team).count
@@ -185,11 +195,28 @@ class StatisticsTest < ActiveSupport::TestCase
 
     travel_to @current_date
 
-    assert_equal 0, MonthlyTeamStatistic.where(team: @tipline_team).count
-
-    Rake::Task['check:data:statistics'].invoke
+    out, err = capture_io do
+      Rake::Task['check:data:statistics'].invoke
+    end
     Rake::Task['check:data:statistics'].reenable
 
+    assert err.blank?
+    assert_equal 0, MonthlyTeamStatistic.where(team: @tipline_team).count
+  end
+
+  test "skips generating statistics for teams without a team bot installation" do
+    TeamBotInstallation.delete_all
+
+    CheckStatistics.expects(:get_statistics).never
+
+    travel_to @current_date
+
+    out, err = capture_io do
+      Rake::Task['check:data:statistics'].invoke
+    end
+    Rake::Task['check:data:statistics'].reenable
+
+    assert err.blank?
     assert_equal 0, MonthlyTeamStatistic.where(team: @tipline_team).count
   end
 end
