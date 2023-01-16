@@ -105,6 +105,15 @@ module TeamPrivate
     self.class.delay_for(1.second).update_reports_if_labels_changed(self.id, statuses_were, statuses)
   end
 
+  def update_reports_if_languages_changed
+    languages = self.settings.to_h.with_indifferent_access[:languages]
+    languages_were = self.settings_before_last_save.to_h.with_indifferent_access[:languages]
+    if languages && languages_were
+      diff = languages_were - languages
+      self.class.delay_for(1.second).update_reports_if_languages_changed(self.id, diff) unless diff.blank?
+    end
+  end
+
   def create_default_folder
     return if self.is_being_copied
     p = Project.new
