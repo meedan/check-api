@@ -2712,4 +2712,52 @@ class TeamTest < ActiveSupport::TestCase
     f.teams << create_team
     assert_equal 2, f.reload.teams_count
   end
+
+  test "should update fact-check and reports after delete existing language" do
+    setup_elasticsearch
+    create_report_design_annotation_type
+    t = create_team
+    t.set_languages(["en", "ar", "fr"])
+    t.save!
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+      with_current_user_and_team(u, t) do
+      pm = create_project_media team: t, disable_es_callbacks: false
+      cd = create_claim_description project_media: pm, disable_es_callbacks: false
+      fc = create_fact_check claim_description: cd, language: 'fr'
+      fields = { state: 'published', options: { language: 'fr', image: '' } }.to_json
+      d = create_dynamic_annotation annotation_type: 'report_design', set_fields: fields, action: 'save', annotated: pm
+      assert_equal 'fr', fc.language
+      sleep 2
+      result = $repository.find(get_es_id(pm))
+      assert_equal ['fr'], result['fact_check_languages']
+      # Verify delete language (workspace with multi-language after deletion)
+      t.set_languages(["en", "ar"])
+      t.save!
+      assert_equal 'und', fc.reload.language
+      data = d.reload.data.with_indifferent_access
+      assert_equal 'und', data[:options][:language]
+      sleep 2
+      result = $repository.find(get_es_id(pm))
+      assert_equal ['und'], result['fact_check_languages']
+      # Verify delete language (workspace with one language after deletion)
+      pm = create_project_media team: t, disable_es_callbacks: false
+      cd = create_claim_description project_media: pm, disable_es_callbacks: false
+      fc = create_fact_check claim_description: cd, language: 'ar'
+      fields = { state: 'published', options: { language: 'ar', image: '' } }.to_json
+      d = create_dynamic_annotation annotation_type: 'report_design', set_fields: fields, action: 'save', annotated: pm
+      assert_equal 'ar', fc.language
+      sleep 2
+      result = $repository.find(get_es_id(pm))
+      assert_equal ['ar'], result['fact_check_languages']
+      t.set_languages(["en"])
+      t.save!
+      assert_equal 'en', fc.reload.language
+      data = d.reload.data.with_indifferent_access
+      assert_equal 'en', data[:options][:language]
+      sleep 2
+      result = $repository.find(get_es_id(pm))
+      assert_equal ['en'], result['fact_check_languages']
+    end
+  end
 end
