@@ -1,28 +1,4 @@
 ---
-am:
-  add_more_details_state_button_label: ተጨማሪ አክል
-  ask_if_ready_state_button_label: ሰርዝ
-  cancelled: እሺ!
-  confirm_preferred_language: እባክዎ የመረጡትን ቋንቋ ያረጋግጡ
-  invalid_format: ይቅርታ፣ ያስገቡት ፋይል ቅርጸት አይደገፍም።
-  keep_subscription_button_label: የደንበኝነት ምዝገባን አስቀጥል
-  languages: ቋንቋዎች
-  languages_and_privacy_title: ቋንቋዎች እና ግላዊነት
-  main_menu: ዋና ምናሌ
-  main_state_button_label: ሰርዝ
-  navigation_button: ለመንቀሳቀስ አዝራሮቹን ይጠቀሙ
-  no_results_in_language: ''
-  privacy_and_purpose: ''
-  privacy_statement: የግላዊነት ሐተታ
-  privacy_title: ግላዊነት
-  report_updated: የሚከተለው የእውነታ ማረጋገጫ በአዲስ መረጃ *ዘምኗል*።
-  search_result_is_not_relevant_button_label: አይ
-  search_result_is_relevant_button_label: አዎ
-  search_state_button_label: አስገባ
-  subscribe_button_label: ለደንበኝነት ተመዝገብ
-  subscribed: በአሁኑ ጊዜ ለጋዜጣ ደብዳቤዎቻችን የደንበኝነት ምዝገባ አልዎት።
-  unsubscribe_button_label: ከደንበኝነት ምዝገባ ውጣ
-  unsubscribed: በአሁኑ ጊዜ ለጋዜጣ ደብዳቤዎቻችን የደንበኝነት ምዝገባ የልዎትም።
 ar:
   add_more_details_state_button_label: أضف المزيد
   ask_if_ready_state_button_label: إلغاء
@@ -207,6 +183,43 @@ bn_BD:
   subscribed: আপনি বর্তমানে আমাদের নিউজলেটারে সাবস্ক্রাইব করেছেন।
   unsubscribe_button_label: আনসাবস্ক্রাইব
   unsubscribed: আপনি বর্তমানে আমাদের নিউজলেটারে সাবস্ক্রাইব করেন নি।
+zh_CN:
+  add_more_details_state_button_label: 添加
+  ask_if_ready_state_button_label: 取消
+  cancelled: 已取消
+  confirm_preferred_language: 请确认您选择的语言
+  invalid_format: 抱歉，您提交的文件格式不符。
+  keep_subscription_button_label: 保持订阅状态
+  languages: 语言
+  languages_and_privacy_title: 语言与隐私
+  main_menu: 主菜单
+  main_state_button_label: 取消
+  navigation_button: 使用按键浏览
+  no_results_in_language: ''
+  privacy_and_purpose: |-
+    隐私与用途
+
+    欢迎来到%{team} %{channel}提示热线。
+
+    您可以使用这个号码提交您的查询，以便核实。
+
+    您的数据是安全的。我们认真履行职责，保护您的个人信息，保持%{channel} 的私密性和安全性；除了提供和改进这项服务外，我们绝不会分享、出售或以其他方式使用您的个人身份信息（PII）。
+
+    为了在未来尽早发现病毒性传播的错误信息，我们可能会与经过审查的研究人员和事实核查伙伴分享本提示热线的非PII内容。
+
+    请注意，我们链接的网站将有自己的隐私政策。
+
+    如果您不希望在此项工作中使用您提交的材料，请不要向系统投稿。
+  privacy_statement: 隐私声明
+  privacy_title: 隐私
+  report_updated: 以下事实核查*已更新*新内容：
+  search_result_is_not_relevant_button_label: 否
+  search_result_is_relevant_button_label: 是
+  search_state_button_label: 提交
+  subscribe_button_label: 订阅
+  subscribed: 您当前已订阅简报。
+  unsubscribe_button_label: 取消订阅
+  unsubscribed: 您当前已取消订阅简报。
 en:
   add_more_details_state_button_label: Add more
   ask_if_ready_state_button_label: Cancel
@@ -219,7 +232,8 @@ en:
   main_menu: Main menu
   main_state_button_label: Cancel
   navigation_button: Use the buttons to navigate
-  no_results_in_language: 'No results could be found in %{language}. Here are some results in other languages that may be relevant.'
+  no_results_in_language: No results could be found in %{language}. Here are some
+    results in other languages that may be relevant.
   privacy_and_purpose: |-
     Privacy and Purpose
 
@@ -470,7 +484,7 @@ kn:
 ks:
   add_more_details_state_button_label: بییہ جوڑیو
   ask_if_ready_state_button_label: منسوخ کریو
-  cancelled: ''
+  cancelled: اوکے
   confirm_preferred_language: مہربانی کرتھِ کریو زبانِ ہُند انتخاب
   invalid_format: معافی دیو، تُہنز سوزنہ آمژ فائل چھنہ فارمیٹ مطابق
   keep_subscription_button_label: سبسکرپشن تھائیو
@@ -661,7 +675,8 @@ pt:
   main_menu: Menu principal
   main_state_button_label: Cancelar
   navigation_button: Use os botões para navegar
-  no_results_in_language: 'Nenhum resultado encontrado em português. Aqui estão alguns resultados em outros idiomas que podem ser relevantes.'
+  no_results_in_language: Nenhum resultado encontrado em português. Aqui estão alguns
+    resultados em outros idiomas que podem ser relevantes.
   privacy_and_purpose: |-
     Política de Privacidade
 
@@ -761,30 +776,6 @@ es:
   subscribed: Actualmente estás suscrita(o) a nuestro boletín.
   unsubscribe_button_label: Cancelar suscripción
   unsubscribed: Actualmente no estás suscrita(o) a nuestro boletín.
-sw:
-  add_more_details_state_button_label: Ongeza zaidi
-  ask_if_ready_state_button_label: Ghairi
-  cancelled: Sawa!
-  confirm_preferred_language: Tafadhali thibitisha lugha unayopendelea
-  invalid_format: 'Samahani, faili uliyowasilisha haihimili muundo. '
-  keep_subscription_button_label: Endeleza usajili
-  languages: Lugha
-  languages_and_privacy_title: Lugha na faragha
-  main_menu: Menyu kuu
-  main_state_button_label: Ghairi
-  navigation_button: Tumia vitufe kurambaza
-  no_results_in_language: ''
-  privacy_and_purpose: ''
-  privacy_statement: Taarifa ya faragha
-  privacy_title: Faragha
-  report_updated: 'Ukaguzi wa ukweli ufuatao *umesasishwa* na taarifa mpya:'
-  search_result_is_not_relevant_button_label: Hapana
-  search_result_is_relevant_button_label: Ndio
-  search_state_button_label: 'Wasilisha '
-  subscribe_button_label: Jiunge
-  subscribed: Kwa sasa umejiunga na jarida letu.
-  unsubscribe_button_label: Jiondoe
-  unsubscribed: Kwa sasa umejiondoa kutoka jarida letu.
 tl:
   add_more_details_state_button_label: ''
   ask_if_ready_state_button_label: ''
