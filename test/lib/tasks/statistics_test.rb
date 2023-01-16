@@ -176,4 +176,20 @@ class StatisticsTest < ActiveSupport::TestCase
     assert_equal current_statistics.end_date, @current_date
     assert_equal 2, current_statistics.conversations
   end
+
+  test "skips generating statistics for teams without languages configured" do
+    @tipline_team.set_languages(nil)
+    @tipline_team.save!
+
+    CheckStatistics.expects(:get_statistics).never
+
+    travel_to @current_date
+
+    assert_equal 0, MonthlyTeamStatistic.where(team: @tipline_team).count
+
+    Rake::Task['check:data:statistics'].invoke
+    Rake::Task['check:data:statistics'].reenable
+
+    assert_equal 0, MonthlyTeamStatistic.where(team: @tipline_team).count
+  end
 end
