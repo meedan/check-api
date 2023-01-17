@@ -310,14 +310,14 @@ class GraphqlController2Test < ActionController::TestCase
     User.current = nil
   end
 
-  test "should get approved bots, current user and current team" do
+  test "should get listed bots, current user and current team" do
     BotUser.delete_all
     authenticate_with_user
-    tb1 = create_team_bot set_approved: true
-    tb2 = create_team_bot set_approved: false
-    query = "query read { root { current_user { id }, current_team { id }, team_bots_approved { edges { node { dbid } } } } }"
+    tb1 = create_team_bot set_listed: true
+    tb2 = create_team_bot set_listed: false
+    query = "query read { root { current_user { id }, current_team { id }, team_bots_listed { edges { node { dbid } } } } }"
     post :create, params: { query: query }
-    edges = JSON.parse(@response.body)['data']['root']['team_bots_approved']['edges']
+    edges = JSON.parse(@response.body)['data']['root']['team_bots_listed']['edges']
     assert_equal [tb1.id], edges.collect{ |e| e['node']['dbid'] }
   end
 
