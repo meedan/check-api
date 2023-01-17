@@ -2663,9 +2663,19 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 3, t.reload.medias_count
   end
 
-  test "should return data report with chronologically ordered items" do
+  test "should default to Rails cache for data report if monthly team statistics not present" do
     t = create_team
     assert_nil t.data_report
+
+    Rails.cache.write("data:report:#{t.id}", [{ 'Month' => 'Jan 2022', 'Search' => 1, 'Foo' => 2 }])
+    assert_equal([{ 'Month' => '1. Jan 2022', 'Foo' => 2 }], t.data_report)
+  end
+
+  test "should return data report with chronologically ordered items, preferring the MonthlyTeamStatistics when present" do
+    t = create_team
+    assert_nil t.data_report
+
+    Rails.cache.write("data:report:#{t.id}", [{ 'Month' => 'Jan 2022', 'Conversations' => 200 }])
 
     create_monthly_team_statistic(team: t, start_date: DateTime.new(2022, 2, 1), conversations: 3)
     create_monthly_team_statistic(team: t, start_date: DateTime.new(2022, 1, 1), conversations: 2)

@@ -559,14 +559,22 @@ class Team < ApplicationRecord
 
   def data_report
     monthly_statisitcs = MonthlyTeamStatistic.where(team: team).order('start_date ASC')
-    return nil if monthly_statisitcs.blank?
+    if monthly_statisitcs.present?
+      index = 1
+      monthly_statisitcs.map do |stat|
+        hash = stat.formatted_hash
+        hash['Month'] = "#{index}. #{hash['Month']}"
+        index += 1
+        hash
+      end
+    else
+      data = Rails.cache.read("data:report:#{self.id}")
+      return nil if data.blank?
 
-    index = 1
-    monthly_statisitcs.map do |stat|
-      hash = stat.formatted_hash
-      hash['Month'] = "#{index}. #{hash['Month']}"
-      index += 1
-      hash
+      data.map.with_index do |row, i|
+        row['Month'] = "#{i + 1}. #{row['Month']}"
+        row.reject { |key, _value| key =~ /[sS]earch/ || ['Average number of conversations per day', 'Number of messages sent'].include?(key) }
+      end
     end
   end
 
