@@ -500,7 +500,7 @@ en:
     to create a bot
   bot_not_approved_for_installation: Sorry, this bot was not approved so it can't
     be installed
-  only_admins_can_approve_bots: Sorry, only system administrators can approve bots
+  only_admins_can_approve_or_list_bots: Sorry, only system administrators can approve or list bots
   could_not_save_related_bot_data: Sorry, could not add the bot to this workspace
   bot_cant_add_response_to_task: Sorry, a bot can't answer a task directly - please
     send an answer suggestion instead

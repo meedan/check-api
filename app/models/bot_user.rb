@@ -43,6 +43,7 @@ class BotUser < User
   }
 
   scope :not_approved, -> { where('settings LIKE ?', '%approved: false%') }
+  scope :listed, -> { where('settings LIKE ?', '%listed: true%') }
 
   before_validation :set_team_author_id
   before_validation :format_settings
@@ -57,7 +58,7 @@ class BotUser < User
   validates :api_key_id, presence: true, uniqueness: true
   validate :request_url_format
   validate :events_is_valid
-  validate :can_approve
+  validate :can_approve_or_list
 
   belongs_to :api_key, dependent: :destroy, optional: true
   belongs_to :source, dependent: :destroy, optional: true
@@ -354,10 +355,12 @@ class BotUser < User
     end
   end
 
-  def can_approve
-    approved = self.settings.to_h.with_indifferent_access[:approved]
-    approved_was = self.settings_was.to_h.with_indifferent_access[:approved]
-    errors.add(:base, I18n.t(:only_admins_can_approve_bots)) if User.current.present? && !User.current.is_admin? && approved == true && approved_was != true
+  def can_approve_or_list
+    [:approved, :listed].each do |attribute|
+      current = self.settings.to_h.with_indifferent_access[attribute]
+      previous = self.settings_was.to_h.with_indifferent_access[attribute]
+      errors.add(:base, I18n.t(:only_admins_can_approve_or_list_bots)) if User.current.present? && !User.current.is_admin? && current == true && previous != true
+    end
   end
 
   def format_settings
