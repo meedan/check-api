@@ -21,12 +21,12 @@ namespace :check do
         end
 
         date = ProjectMedia.where(team_id: team_id, user: BotUser.smooch_user).order('created_at ASC').first&.created_at&.beginning_of_day
+        puts "[#{Time.now}] Generating month tipline statistics for team with ID #{team_id}. (#{index + 1} / #{team_ids.length})"
         begin
           team = Team.find(team_id)
           month_start = date.beginning_of_month
           month_end = date.end_of_month
 
-          puts "[#{Time.now}] Generating month tipline statistics for team with ID #{team_id}. (#{index + 1} / #{team_ids.length})"
           tipline_bot.smooch_enabled_integrations.keys.each do |platform|
             team.get_languages.to_a.each do |language|
               if MonthlyTeamStatistic.where(team_id: team_id, platform: platform, language: language, start_date: month_start, end_date: month_end).any?
