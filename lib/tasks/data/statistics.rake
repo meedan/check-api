@@ -21,16 +21,20 @@ namespace :check do
         end
 
         date = ProjectMedia.where(team_id: team_id, user: BotUser.smooch_user).order('created_at ASC').first&.created_at&.beginning_of_day
+        team = Team.find(team_id)
+        languages = team.get_languages.to_a
+        platforms = tipline_bot.smooch_enabled_integrations.keys
+
+        team_stats = Hash.new(0)
         puts "[#{Time.now}] Generating month tipline statistics for team with ID #{team_id}. (#{index + 1} / #{team_ids.length})"
         begin
-          team = Team.find(team_id)
           month_start = date.beginning_of_month
           month_end = date.end_of_month
 
-          tipline_bot.smooch_enabled_integrations.keys.each do |platform|
-            team.get_languages.to_a.each do |language|
+          platforms.each do |platform|
+            languages.each do |language|
               if MonthlyTeamStatistic.where(team_id: team_id, platform: platform, language: language, start_date: month_start, end_date: month_end).any?
-                puts "[#{Time.now}] #{team_id} #{month_start} #{platform} #{language}: Complete statistics found; skipping month"
+                team_stats[:skipped] += 1
                 next
               end
 
@@ -39,16 +43,18 @@ namespace :check do
 
               partial_month = MonthlyTeamStatistic.find_by(team_id: team_id, platform: platform, language: language, start_date: month_start)
               if partial_month.present?
-                puts "[#{Time.now}]#{team_id} #{month_start.to_date} #{platform} #{language}: Partial statistics found; updating month"
+                team_stats[:updated] += 1
                 partial_month.update!(row_attributes.merge!(team_id: team_id))
               else
-                puts "[#{Time.now}] #{team_id} #{month_start.to_date} #{platform} #{language}: No statistics found; creating month"
+                team_stats[:created] += 1
                 MonthlyTeamStatistic.create!(row_attributes.merge!(team_id: team_id))
               end
             end
           end
           date += 1.month
         end while date <= current_time
+
+        puts "[#{Time.now}] Stats summary for team with ID #{team_id}: #{team_stats.map{|k,v| "#{k} - #{v}" }.join("; ") }. Platforms: #{platforms.join(',')}. Languages: #{languages.join(', ')}"
       end
 
       ActiveRecord::Base.logger = old_logger
