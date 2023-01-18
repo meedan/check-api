@@ -122,4 +122,37 @@ class BaseApiControllerTest < ActionController::TestCase
     get :ping, params: {}
     assert_response :success
   end
+
+  test "should send basic tracing information for authenticated user" do
+    team = create_team
+    user = create_user name: 'Test User'
+    create_team_user user: user, team: team
+    user.current_team_id = team.id
+    user.save!
+
+    authenticate_with_user(user)
+
+    TracingService.expects(:add_attributes_to_current_span).with({
+      'app.user.id' => user.id,
+      'app.user.team_id' => team.id,
+      'app.api_key' => nil
+    })
+
+    get :me, params: {}
+  end
+
+  test "should send basic tracing information for api key" do
+    api_key = create_api_key
+    ApiKey.current = api_key
+
+    authenticate_with_token(api_key)
+
+    TracingService.expects(:add_attributes_to_current_span).with({
+      'app.user.id' => nil,
+      'app.user.team_id' => nil,
+      'app.api_key' => api_key.id
+    })
+
+    get :version, params: {}
+  end
 end

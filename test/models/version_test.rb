@@ -7,18 +7,20 @@ class VersionTest < ActiveSupport::TestCase
   end
 
   test "should have annotation" do
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t
-    u = User.find(u.id)
-    p = create_project team: t
-    pm = create_project_media project: p
-    User.current = u
-    tg = create_tag annotated: pm
-    User.current = nil
-    v = tg.versions.last
-    assert_equal tg, v.annotation.load
-    assert_nil create_version.annotation
+    with_versioning do
+      u = create_user
+      t = create_team
+      create_team_user user: u, team: t
+      u = User.find(u.id)
+      p = create_project team: t
+      pm = create_project_media project: p
+      User.current = u
+      tg = create_tag annotated: pm
+      User.current = nil
+      v = tg.versions.last
+      assert_equal tg, v.annotation.load
+      assert_nil create_version.annotation
+    end
   end
 
   test "should have user" do
@@ -36,18 +38,20 @@ class VersionTest < ActiveSupport::TestCase
   end
 
   test "should apply changes" do
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'admin'
-    u = User.find(u.id)
-    p = create_project team: t
-    pm = create_project_media project: p
-    User.current = u
-    tg = create_tag annotated: pm, tag: 'Foo', annotator: u
-    tg.tag = 'Bar'
-    tg.save!
-    User.current = nil
-    assert_equal tg.tag, JSON.parse(tg.versions.last.object_after)['data']['tag']
+    with_versioning do
+      u = create_user
+      t = create_team
+      create_team_user user: u, team: t, role: 'admin'
+      u = User.find(u.id)
+      p = create_project team: t
+      pm = create_project_media project: p
+      User.current = u
+      tg = create_tag annotated: pm, tag: 'Foo', annotator: u
+      tg.tag = 'Bar'
+      tg.save!
+      User.current = nil
+      assert_equal tg.tag, JSON.parse(tg.versions.last.object_after)['data']['tag']
+    end
   end
 
   test "should set user" do
@@ -59,55 +63,61 @@ class VersionTest < ActiveSupport::TestCase
   end
 
   test "should get task" do
-    Version.delete_all
-    v = create_version
-    assert_nil v.task
-    at = create_annotation_type annotation_type: 'task_response'
-    ft2 = create_field_type field_type: 'text'
-    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
-    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'note'
-    t = create_task
-    u = create_user is_admin: true
-    User.current = u
-    t = Task.find(t.id)
-    t.response = { annotation_type: 'task_response', set_fields: { response: 'Test', note: 'Test' }.to_json }.to_json
-    t.save!
-    Version.from_partition(t.team&.id).where(item_type: 'DynamicAnnotation::Field').each do |version|
-      assert_equal(t, version.task) if version.item.annotation.annotation_type =~ /response/
+    with_versioning do
+      Version.delete_all
+      v = create_version
+      assert_nil v.task
+      at = create_annotation_type annotation_type: 'task_response'
+      ft2 = create_field_type field_type: 'text'
+      create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
+      create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'note'
+      t = create_task
+      u = create_user is_admin: true
+      User.current = u
+      t = Task.find(t.id)
+      t.response = { annotation_type: 'task_response', set_fields: { response: 'Test', note: 'Test' }.to_json }.to_json
+      t.save!
+      Version.from_partition(t.team&.id).where(item_type: 'DynamicAnnotation::Field').each do |version|
+        assert_equal(t, version.task) if version.item.annotation.annotation_type =~ /response/
+      end
+      User.current = nil
     end
-    User.current = nil
   end
 
   test "should get changes as JSON" do
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'admin'
-    u = User.find(u.id)
-    p = create_project team: t
-    pm = create_project_media project: p
-    User.current = u
-    tg = create_tag annotated: pm, tag: 'Foo', annotator: u
-    tag_a = tg.reload.tag
-    tg.tag = 'Bar'
-    tg.save!
-    tag_b = tg.reload.tag
-    assert_equal "{\"data\":[{\"tag\":#{tag_a}},{\"tag\":#{tag_b}}]}", tg.reload.versions.last.object_changes_json
+    with_versioning do
+      u = create_user
+      t = create_team
+      create_team_user user: u, team: t, role: 'admin'
+      u = User.find(u.id)
+      p = create_project team: t
+      pm = create_project_media project: p
+      User.current = u
+      tg = create_tag annotated: pm, tag: 'Foo', annotator: u
+      tag_a = tg.reload.tag
+      tg.tag = 'Bar'
+      tg.save!
+      tag_b = tg.reload.tag
+      assert_equal "{\"data\":[{\"tag\":#{tag_a}},{\"tag\":#{tag_b}}]}", tg.reload.versions.last.object_changes_json
+    end
   end
 
   test "should set event type" do
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'admin'
-    u = User.find(u.id)
-    p = create_project team: t
-    pm = create_project_media project: p
-    User.current = u
-    tg = create_tag annotated: pm, tag: 'Foo', annotator: u
-    tg = Tag.last
-    tg.tag = 'Bar'
-    tg.save!
-    User.current = nil
-    assert_equal 'update_tag', tg.reload.versions.last.event_type
+    with_versioning do
+      u = create_user
+      t = create_team
+      create_team_user user: u, team: t, role: 'admin'
+      u = User.find(u.id)
+      p = create_project team: t
+      pm = create_project_media project: p
+      User.current = u
+      tg = create_tag annotated: pm, tag: 'Foo', annotator: u
+      tg = Tag.last
+      tg.tag = 'Bar'
+      tg.save!
+      User.current = nil
+      assert_equal 'update_tag', tg.reload.versions.last.event_type
+    end
   end
 
   test "should skip ability" do
@@ -141,14 +151,16 @@ class VersionTest < ActiveSupport::TestCase
 
 
   test "should destroy version" do
-    u = create_user is_admin: true
-    t = create_team
-    p = create_project team: t
-    create_team_user team: t, user: u, role: 'admin'
-    with_current_user_and_team(u, t) do
-      pm = create_project_media team: t
-      v = pm.versions.last
-      v.destroy!
+    with_versioning do
+      u = create_user is_admin: true
+      t = create_team
+      p = create_project team: t
+      create_team_user team: t, user: u, role: 'admin'
+      with_current_user_and_team(u, t) do
+        pm = create_project_media team: t
+        v = pm.versions.last
+        v.destroy!
+      end
     end
   end
 
@@ -163,16 +175,18 @@ class VersionTest < ActiveSupport::TestCase
   end
 
   test "should get project media" do
-    v = create_version
-    assert_not_nil v.project_media
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'admin'
-    with_current_user_and_team(u, t) do
-      pm = create_project_media team: t
-      tg = create_tag annotated: pm
-      v = tg.versions.last
+    with_versioning do
+      v = create_version
       assert_not_nil v.project_media
+      u = create_user
+      t = create_team
+      create_team_user user: u, team: t, role: 'admin'
+      with_current_user_and_team(u, t) do
+        pm = create_project_media team: t
+        tg = create_tag annotated: pm
+        v = tg.versions.last
+        assert_not_nil v.project_media
+      end
     end
   end
 
@@ -188,51 +202,28 @@ class VersionTest < ActiveSupport::TestCase
   end
 
   test "should return version from action" do
-    u = create_user is_admin: true
-    t = create_team
-    create_team_user user: u, team: t
-    pm = create_project_media team: t
-    with_current_user_and_team(u, t) do
-      tag = nil
-      assert_difference 'Version.count' do
-        tag = Tag.new annotated: pm, annotator: u, tag: random_string
-        tag.save_with_version!
+    with_versioning do
+      u = create_user is_admin: true
+      t = create_team
+      create_team_user user: u, team: t
+      pm = create_project_media team: t
+      with_current_user_and_team(u, t) do
+        tag = nil
+        assert_difference 'Version.count' do
+          tag = Tag.new annotated: pm, annotator: u, tag: random_string
+          tag.save_with_version!
+        end
+        v = tag.version_object
+        assert_equal 'create_tag', v.event_type
+        tag = Tag.find(tag.id)
+        assert_nil tag.version_object
+        tag.tag = random_string
+        assert_difference 'Version.count' do
+          tag.save_with_version!
+        end
+        v = tag.version_object
+        assert_equal 'update_tag', v.event_type
       end
-      v = tag.version_object
-      assert_equal 'create_tag', v.event_type
-      tag = Tag.find(tag.id)
-      assert_nil tag.version_object
-      tag.tag = random_string
-      assert_difference 'Version.count' do
-        tag.save_with_version!
-      end
-      v = tag.version_object
-      assert_equal 'update_tag', v.event_type
-
-      # Concurrency
-      # FIXME: Currently flaky with "Waited 5 seconds"
-      # user_pool = []
-      # 2.times { user_pool << create_user(is_admin: true) }
-      # threads = []
-      # @v1 = nil
-      # @v2 = nil
-      # @tag = tag
-      # threads << Thread.start do
-      #   User.current = user_pool.pop
-      #   tag1 = Tag.find(@tag.id)
-      #   tag1.tag = random_string
-      #   tag1.save_with_version!
-      #   @v1 = tag1.version_object
-      # end
-      # threads << Thread.start do
-      #   User.current = user_pool.pop
-      #   tag2 = Tag.find(@tag.id)
-      #   tag2.tag = random_string
-      #   tag2.save_with_version!
-      #   @v2 = tag2.version_object
-      # end
-      # threads.map(&:join)
-      # assert_not_equal @v1.id, @v2.id
     end
   end
 end

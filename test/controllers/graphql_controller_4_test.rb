@@ -192,52 +192,56 @@ class GraphqlController4Test < ActionController::TestCase
   end
 
   test "should bulk-assign project medias" do
-    u = create_user
-    create_team_user team: @t, user: u
-    u1 = create_user
-    create_team_user team: @t, user: u1
-    u2 = create_user
-    create_team_user team: @t, user: u2
-    u3 = create_user
-    status = @pm1.last_status_obj
-    with_current_user_and_team(u, @t) do
-        Assignment.create!(assigned_type: 'Annotation', assigned_id: status.id, user_id: u.id)
-    end
-    pm1_assignments = Annotation.joins(:assignments).where(
-        'annotations.annotated_type' => 'ProjectMedia',
-        'annotations.annotated_id' => @pm1.id,
-        'annotations.annotation_type' => 'verification_status'
-        ).count
-    assert_equal 1, pm1_assignments
-    assigned_to_ids = [u1.id, u2.id, u3.id].join(', ')
-    assert_equal 1, @pm1.get_versions_log(['create_assignment']).size
-    Sidekiq::Testing.inline! do
-      query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "assigned_to_ids", params: "{\"assignment_message\":\"add custom message\",\"assigned_to_ids\":\"' + assigned_to_ids + '\"}"}) { ids, team { dbid } } }'
-      assert_difference 'Assignment.count', 6 do
-        post :create, params: { query: query, team: @t.slug }
-        assert_response :success
+    with_versioning do
+      u = create_user
+      create_team_user team: @t, user: u
+      u1 = create_user
+      create_team_user team: @t, user: u1
+      u2 = create_user
+      create_team_user team: @t, user: u2
+      u3 = create_user
+      status = @pm1.last_status_obj
+      with_current_user_and_team(u, @t) do
+          Assignment.create!(assigned_type: 'Annotation', assigned_id: status.id, user_id: u.id)
       end
       pm1_assignments = Annotation.joins(:assignments).where(
           'annotations.annotated_type' => 'ProjectMedia',
           'annotations.annotated_id' => @pm1.id,
           'annotations.annotation_type' => 'verification_status'
           ).count
-      assert_equal 3, pm1_assignments
-      assert_equal 3, @pm1.get_versions_log(['create_assignment']).size
+      assert_equal 1, pm1_assignments
+      assigned_to_ids = [u1.id, u2.id, u3.id].join(', ')
+      assert_equal 1, @pm1.get_versions_log(['create_assignment']).size
+      Sidekiq::Testing.inline! do
+        query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "assigned_to_ids", params: "{\"assignment_message\":\"add custom message\",\"assigned_to_ids\":\"' + assigned_to_ids + '\"}"}) { ids, team { dbid } } }'
+        assert_difference 'Assignment.count', 6 do
+          post :create, params: { query: query, team: @t.slug }
+          assert_response :success
+        end
+        pm1_assignments = Annotation.joins(:assignments).where(
+            'annotations.annotated_type' => 'ProjectMedia',
+            'annotations.annotated_id' => @pm1.id,
+            'annotations.annotation_type' => 'verification_status'
+            ).count
+        assert_equal 3, pm1_assignments
+        assert_equal 3, @pm1.get_versions_log(['create_assignment']).size
+      end
     end
   end
 
   test "should bulk-update project medias status" do
-    u = create_user
-    create_team_user team: @t, user: u, role: 'admin'
-    authenticate_with_user(u)
-    assert_equal 0, @pm1.get_versions_log(['update_dynamicannotationfield']).size
-    Sidekiq::Testing.inline! do
-      query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "update_status", params: "{\"status\":\"in_progress\"}"}) { ids, team { dbid } } }'
-      post :create, params: { query: query, team: @t.slug }
-      assert_response :success
-      assert_equal 'in_progress', @pm1.last_status
-      assert_equal 1, @pm1.get_versions_log(['update_dynamicannotationfield']).size
+    with_versioning do
+      u = create_user
+      create_team_user team: @t, user: u, role: 'admin'
+      authenticate_with_user(u)
+      assert_equal 0, @pm1.get_versions_log(['update_dynamicannotationfield']).size
+      Sidekiq::Testing.inline! do
+        query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "update_status", params: "{\"status\":\"in_progress\"}"}) { ids, team { dbid } } }'
+        post :create, params: { query: query, team: @t.slug }
+        assert_response :success
+        assert_equal 'in_progress', @pm1.last_status
+        assert_equal 1, @pm1.get_versions_log(['update_dynamicannotationfield']).size
+      end
     end
   end
 

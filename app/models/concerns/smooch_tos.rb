@@ -29,7 +29,7 @@ module SmoochTos
     end
 
     def get_custom_message_for_language(workflow, key)
-      message = workflow.dig('smooch_message_smooch_bot_tos', key)
+      message = workflow&.dig('smooch_message_smooch_bot_tos', key)
       message.blank? ? nil : message
     end
 

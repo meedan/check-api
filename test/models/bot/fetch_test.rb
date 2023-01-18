@@ -192,10 +192,10 @@ class Bot::FetchTest < ActiveSupport::TestCase
       assert_equal "Scientific evidences show that Earth is round",  d.annotation.annotated.fact_check_summary
     end
     r = Dynamic.where(annotation_type: 'report_design').last
-    assert_equal "Earth isn't flat", r.report_design_field_value('headline', 'en')
-    assert_equal "Scientific evidences show that Earth is round", r.report_design_field_value('description', 'en')
-    assert_equal "Earth isn't flat", r.report_design_field_value('title', 'en')
-    assert_equal "Scientific evidences show that Earth is round", r.report_design_field_value('text', 'en')
+    assert_equal "Earth isn't flat", r.report_design_field_value('headline')
+    assert_equal "Scientific evidences show that Earth is round", r.report_design_field_value('description')
+    assert_equal "Earth isn't flat", r.report_design_field_value('title')
+    assert_equal "Scientific evidences show that Earth is round", r.report_design_field_value('text')
   end
 
   test "should notify Airbrake if can't import a claim review" do
@@ -260,5 +260,58 @@ class Bot::FetchTest < ActiveSupport::TestCase
     Bot::Fetch::Import.set_status(claim_review, pm, status_fallback, status_mapping)
 
     assert_equal 'verified', pm.reload.last_status
+  end
+
+  test "should return empty summary if it is equal to the title" do
+    claim_review = {
+      'text' => 'Foo',
+      'headline' => 'Foo'
+    }
+    assert_equal '', Bot::Fetch::Import.get_summary(claim_review)
+
+    claim_review = {
+      'text' => 'Foo',
+      'headline' => 'Bar'
+    }
+    assert_equal 'Foo', Bot::Fetch::Import.get_summary(claim_review)
+  end
+
+  test "should set factcheck language" do
+    id = random_string
+    cr = @claim_review.deep_dup
+    cr['identifier'] = id
+    cr['inLanguage'] = 'ar'
+    assert_difference 'FactCheck.count' do
+      Bot::Fetch::Import.import_claim_review(cr, @team.id, @bot.id, 'undetermined', {}, false)
+    end
+    pm = ProjectMedia.last
+    cd = pm.claim_description
+    fc = cd.fact_check
+    assert_equal 'en', fc.language
+    @team.set_languages(['en', 'fr'])
+    @team.save!
+    # Verify language with multilanguages team
+    id = random_string
+    cr = @claim_review.deep_dup
+    cr['identifier'] = id
+    cr['inLanguage'] = 'ar'
+    assert_difference 'FactCheck.count' do
+      Bot::Fetch::Import.import_claim_review(cr, @team.id, @bot.id, 'undetermined', {}, false)
+    end
+    pm = ProjectMedia.last
+    cd = pm.claim_description
+    fc = cd.fact_check
+    assert_equal 'und', fc.language
+    id = random_string
+    cr = @claim_review.deep_dup
+    cr['identifier'] = id
+    cr['inLanguage'] = 'fr'
+    assert_difference 'FactCheck.count' do
+      Bot::Fetch::Import.import_claim_review(cr, @team.id, @bot.id, 'undetermined', {}, false)
+    end
+    pm = ProjectMedia.last
+    cd = pm.claim_description
+    fc = cd.fact_check
+    assert_equal 'fr', fc.language
   end
 end

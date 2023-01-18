@@ -131,7 +131,7 @@ class RequestTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:request_api)
   end
 
-  test "should attach to similar text" do
+  test "should attach to similar text long" do
     Bot::Alegre.stubs(:request_api).returns(true)
     f = create_feed
     m1 = Media.create! type: 'Claim', quote: 'Foo bar foo bar'
@@ -139,10 +139,41 @@ class RequestTest < ActiveSupport::TestCase
     m2 = Media.create! type: 'Claim', quote: 'Foo bar foo bar 2'
     r2 = create_request media: m2, feed: f
     response = { 'result' => [{ '_source' => { 'context' => { 'request_id' => r1.id } } }] }
-    Bot::Alegre.stubs(:request_api).with('get', '/text/similarity/', { text: 'Foo bar foo bar 2', models: [::Bot::Alegre::ELASTICSEARCH_MODEL, ::Bot::Alegre::MEAN_TOKENS_MODEL], per_model_threshold: {::Bot::Alegre::ELASTICSEARCH_MODEL => 0.85, ::Bot::Alegre::MEAN_TOKENS_MODEL =>  0.9}, context: { feed_id: f.id } }).returns(response)
+    Bot::Alegre.stubs(:request_api).with('get', '/text/similarity/', { text: 'Foo bar foo bar 2', models: [::Bot::Alegre::ELASTICSEARCH_MODEL, ::Bot::Alegre::MEAN_TOKENS_MODEL], per_model_threshold: {::Bot::Alegre::ELASTICSEARCH_MODEL => 0.85, ::Bot::Alegre::MEAN_TOKENS_MODEL =>  0.9}, limit: 20, context: { feed_id: f.id } }).returns(response)
     r2.attach_to_similar_request!
+    #Alegre should be called with ES and vector model for request with 4 or more words
     assert_equal r1, r2.reload.similar_to_request
     assert_equal [r2], r1.reload.similar_requests
+    Bot::Alegre.unstub(:request_api)
+  end
+  
+  test "should attach to similar text short" do
+    Bot::Alegre.stubs(:request_api).returns(true)
+    f = create_feed
+    m1 = Media.create! type: 'Claim', quote: 'Foo bar foo bar'
+    r1 = create_request media: m1, feed: f
+    m2 = Media.create! type: 'Claim', quote: 'Foo bar 2'
+    r2 = create_request media: m2, feed: f
+    response = { 'result' => [{ '_source' => { 'context' => { 'request_id' => r1.id } } }] }
+    Bot::Alegre.stubs(:request_api).with('get', '/text/similarity/', { text: 'Foo bar 2', models: [::Bot::Alegre::MEAN_TOKENS_MODEL], per_model_threshold: {::Bot::Alegre::MEAN_TOKENS_MODEL =>  0.9}, limit: 20, context: { feed_id: f.id } }).returns(response)
+    r2.attach_to_similar_request!
+    #Alegre should only be called with vector models for 2 or 3 word request
+    assert_equal r1, r2.reload.similar_to_request
+    assert_equal [r2], r1.reload.similar_requests
+    Bot::Alegre.unstub(:request_api)
+  end
+  
+  test "should not attach to similar text short" do
+    Bot::Alegre.stubs(:request_api).returns(true)
+    f = create_feed
+    m1 = Media.create! type: 'Claim', quote: 'Foo bar foo bar'
+    r1 = create_request media: m1, feed: f
+    m2 = Media.create! type: 'Claim', quote: 'Foo'
+    r2 = create_request media: m2, feed: f
+    r2.attach_to_similar_request!
+    # Alegre should not be called for a one word request
+    assert_not_equal r1, r2.reload.similar_to_request
+    assert_not_equal [r2], r1.reload.similar_requests
     Bot::Alegre.unstub(:request_api)
   end
 
@@ -154,7 +185,7 @@ class RequestTest < ActiveSupport::TestCase
     m2 = create_uploaded_image
     r2 = create_request request_type: 'image', media: m2, feed: f
     response = { 'result' => [{ 'context' => [{ 'request_id' => r1.id }] }] }
-    Bot::Alegre.stubs(:request_api).with('get', '/image/similarity/', { url: m2.file.file.public_url, threshold: 0.85, context: { feed_id: f.id } }).returns(response)
+    Bot::Alegre.stubs(:request_api).with('get', '/image/similarity/', { url: m2.file.file.public_url, threshold: 0.85, limit: 20, context: { feed_id: f.id } }).returns(response)
     r2.attach_to_similar_request!
     assert_equal r1, r2.reload.similar_to_request
     assert_equal [r2], r1.reload.similar_requests
@@ -298,5 +329,13 @@ class RequestTest < ActiveSupport::TestCase
     r = create_request media: m
     assert_equal 'UploadedImage', r.media_type(true)
     Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should not have a circular dependency" do
+    r = create_request
+    assert_raises ActiveRecord::RecordInvalid do
+      r.similar_to_request = r
+      r.save!
+    end
   end
 end

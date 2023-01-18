@@ -19,14 +19,14 @@ module ValidationsHelper
   def language_format
     language = self.get_language
     unless language.blank?
-      errors.add(:base, I18n.t(:language_format_invalid)) unless language =~ /^[a-z]{2}(_[A-Z]{2})?$/
+      errors.add(:base, I18n.t(:language_format_invalid)) unless language =~ CheckCldr::LANGUAGE_FORMAT_REGEXP
     end
   end
 
   def languages_format
     languages = self.get_languages
     unless languages.blank?
-      errors.add(:base, I18n.t(:languages_format_invalid)) if !languages.is_a?(Array) || !languages.reject{ |l| l =~ /^[a-z]{2}(_[A-Z]{2})?$/ }.empty?
+      errors.add(:base, I18n.t(:languages_format_invalid)) if !languages.is_a?(Array) || !languages.reject{ |l| l =~ CheckCldr::LANGUAGE_FORMAT_REGEXP }.empty?
     end
   end
 

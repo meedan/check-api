@@ -449,7 +449,6 @@ sw:
     privacy_plain: Jifunze zaidii kuhusu Sera yetu ya Faragha
   archive_keep_backup: Video ya maelezo
   archive_pender_archive: Kielezo skrini
-  archive_archive_is: Archive.is
   archive_archive_org: Archive.org
   workflow_status_is_not_valid: 'Hali batili: ''%{status}'' (inapaswa kuwa moja ya
     %{valid})'

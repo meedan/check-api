@@ -32,6 +32,18 @@ module ActiveRecordExtensions
       end
       query
     end
+
+    def bulk_import_versions(versions, team_id)
+      keys = versions.first.keys
+      columns_sql = "(#{keys.map { |name| "\"#{name}\"" }.join(',')})"
+      sql = "INSERT INTO versions_partitions.p#{team_id} #{columns_sql} VALUES "
+      sql_values = []
+      versions.each do |version|
+        sql_values << "(#{version.values.map{|v| "'#{v}'"}.join(", ")})"
+      end
+      sql += sql_values.join(", ")
+      ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_array, sql))
+    end
   end
 
   # Used to migrate data from CD2 to this
@@ -75,7 +87,7 @@ module ActiveRecordExtensions
 
   def destroy_annotations_and_versions
     if PaperTrail.request.enabled_for_model?(self.class_name.constantize)
-      Version.from_partition(self.team&.id).where(item_type: self.class_name, item_id: self.id.to_s).delete_all
+      Version.from_partition(self.team&.id).where(item_type: self.class_name, item_id: self.id.to_s).delete_all if self.class_name != 'TiplineSubscription'
       # Handle destroy callback for version `decrement_project_association_annotations_count`
       if self.respond_to?(:cached_annotations_count)
         value = Version.from_partition(self.team&.id)

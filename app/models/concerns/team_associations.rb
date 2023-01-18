@@ -17,6 +17,7 @@ module TeamAssociations
     has_many :project_groups, dependent: :destroy
     has_many :feed_teams, dependent: :destroy
     has_many :feeds, through: :feed_teams
+    has_many :monthly_team_statistics # No "dependent: :destroy" because we want to retain statistics
 
     has_annotations
   end
@@ -81,8 +82,15 @@ module TeamAssociations
     self.unconfirmed.count
   end
 
-  def medias_count
-    ProjectMedia.where(team_id: self.id, archived: [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED]).joins("LEFT JOIN relationships r ON r.target_id = project_medias.id AND r.relationship_type = '#{Team.sanitize_sql(Relationship.confirmed_type.to_yaml)}'").where('r.id IS NULL').count
+  def medias_count(obj = nil)
+    obj ||= self
+    key = obj.class.name == 'Team' ? 'team_id' : 'project_id'
+    conditions = { archived: [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED] }
+    conditions[key] = obj.id
+    relationship_type = Team.sanitize_sql(Relationship.confirmed_type.to_yaml)
+    ProjectMedia.where(conditions)
+    .joins("LEFT JOIN relationships r ON r.target_id = project_medias.id AND r.relationship_type = '#{relationship_type}'")
+    .where('r.id IS NULL').count
   end
 
   def check_search_team

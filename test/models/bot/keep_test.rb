@@ -153,14 +153,63 @@ class Bot::KeepTest < ActiveSupport::TestCase
     t.save!
 
     BotUser.delete_all
-    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_archive_org_enabled', type: 'boolean' }, { name: 'archive_archive_is_enabled', type: 'boolean' }, { name: 'archive_video_archiver_enabled', type: 'boolean' }], set_approved: true
+    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_archive_org_enabled', type: 'boolean' }, { name: 'archive_perma_cc_enabled', type: 'boolean' }, { name: 'archive_video_archiver_enabled', type: 'boolean' }], set_approved: true
     tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     assert_equal '', Team.find(t.id).enabled_archivers
 
     tbi.set_archive_archive_org_enabled = true
-    tbi.set_archive_archive_is_enabled = true
+    tbi.set_archive_perma_cc_enabled = true
     tbi.set_archive_video_archiver_enabled = false
     tbi.save!
-    assert_equal 'archive_org,archive_is', Team.find(t.id).enabled_archivers
+    assert_equal 'archive_org,perma_cc', Team.find(t.id).enabled_archivers
+  end
+end
+
+class IsolatedBotKeepTest < ActiveSupport::TestCase
+  def setup; end
+  def teardown; end
+
+  def fake_request(url)
+    request = OpenStruct.new(headers: {}, env: {}, raw_post: nil)
+    request.raw_post = {'url' => 'https://example.com/foo', 'type' => 'perma_cc' }.to_json
+    request
+  end
+
+  test ".webhook archiving raises error when link not available for URL" do
+    error = assert_raises Bot::Keep::ObjectNotReadyError do
+      Bot::Keep.webhook(fake_request('https://example.com/foo'))
+    end
+
+    assert_match /Link not found/, error.message
+  end
+
+  test ".webhook archiving raises error when project media not available for link" do
+    url = 'https://example.com/foo'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    pender_response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: pender_response)
+
+    create_link(url: url)
+
+    error = assert_raises Bot::Keep::ObjectNotReadyError do
+      Bot::Keep.webhook(fake_request(url))
+    end
+
+    assert_match /ProjectMedia not found/, error.message
+  end
+
+  test ".webhook archiving raises error when annotation not available for annotation type" do
+    url = 'https://example.com/foo'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    pender_response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: pender_response)
+
+    create_project_media(url: url)
+
+    error = assert_raises Bot::Keep::ObjectNotReadyError do
+      Bot::Keep.webhook(fake_request(url))
+    end
+
+    assert_match /Archiver annotation for ProjectMedia not found/, error.message
   end
 end

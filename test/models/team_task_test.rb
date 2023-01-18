@@ -115,7 +115,7 @@ class TeamTaskTest < ActiveSupport::TestCase
   end
 
   test "should add teamwide task to existing items" do
-    t =  create_team
+    t = create_team
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
       pm = create_project_media team: t
@@ -140,7 +140,7 @@ class TeamTaskTest < ActiveSupport::TestCase
   end
 
   test "should bypass trashed items" do
-    t =  create_team
+    t = create_team
     u = create_user
     u2 = create_user
     create_team_user team: t, user: u, role: 'admin'
@@ -169,7 +169,7 @@ class TeamTaskTest < ActiveSupport::TestCase
   end
 
   test "should skip check permission for background tasks" do
-    t =  create_team
+    t = create_team
     u = create_user
     u2 = create_user
     create_team_user user: u, team: t, role: 'admin'
@@ -194,7 +194,7 @@ class TeamTaskTest < ActiveSupport::TestCase
   end
 
   test "should update teamwide tasks with zero answers" do
-    t =  create_team
+    t = create_team
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
       create_project_media team: t, archived: 1
@@ -253,7 +253,7 @@ class TeamTaskTest < ActiveSupport::TestCase
   end
 
   test "should update teamwide tasks with or without answers" do
-    t =  create_team
+    t = create_team
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
       tt = create_team_task team_id: t.id, label: 'Foo', description: 'Foo', task_type: 'single_choice', options: [{ label: 'Foo' }]
@@ -290,7 +290,7 @@ class TeamTaskTest < ActiveSupport::TestCase
   test "should update single_choice task with answers" do
     setup_elasticsearch
     create_task_stuff
-    t =  create_team
+    t = create_team
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
       tt = create_team_task team_id: t.id, label: 'Foo or Faa', description: 'Foo', task_type: 'single_choice', options: [{ label: 'Foo'}, { label: 'Faa' }]
@@ -328,7 +328,7 @@ class TeamTaskTest < ActiveSupport::TestCase
   test "should update multiple_choice task with answers" do
     setup_elasticsearch
     create_task_stuff
-    t =  create_team
+    t = create_team
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
       tt = create_team_task team_id: t.id, label: 'Foo or Faa', description: 'Foo', task_type: 'multiple_choice', options: [{ label: 'Option A'}, { label: 'Option B' }, { label: 'Option C'}, { label: 'Other', other: true }]
@@ -415,7 +415,7 @@ class TeamTaskTest < ActiveSupport::TestCase
   end
 
   test "should not update type from teamwide tasks with answers" do
-    t =  create_team
+    t = create_team
     p = create_project team: t
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
@@ -443,7 +443,7 @@ class TeamTaskTest < ActiveSupport::TestCase
   end
 
   test "should delete teamwide tasks based on keep_completed_tasks attr" do
-    t =  create_team
+    t = create_team
     p = create_project team: t
     tt = create_team_task team_id: t.id, label: 'Foo', description: 'Foo', options: [{ label: 'Foo' }]
     Team.stubs(:current).returns(t)
@@ -471,7 +471,7 @@ class TeamTaskTest < ActiveSupport::TestCase
   end
 
   test "should destroy teamwide tasks" do
-    t =  create_team
+    t = create_team
     p = create_project team: t
     Team.stubs(:current).returns(t)
     tt = create_team_task team_id: t.id
@@ -702,7 +702,7 @@ class TeamTaskTest < ActiveSupport::TestCase
   end
 
   test "should count teamwide tasks" do
-    t =  create_team
+    t = create_team
     p = create_project team: t
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
@@ -723,5 +723,17 @@ class TeamTaskTest < ActiveSupport::TestCase
       assert_equal 1, tt.tasks_with_answers_count
     end
     Team.unstub(:current)
+  end
+
+  test "should notify error when adding team tasks to project medias" do
+    t = create_team
+    pm = create_project_media team: t
+    tt = create_team_task team_id: t.id, fieldset: 'metadata', associated_type: 'ProjectMedia'
+    Task.delete_all
+    assert_equal 0, pm.get_annotations('task').count
+    ProjectMedia.any_instance.stubs(:create_auto_tasks).raises(StandardError)
+    tt.send(:add_to_project_medias)
+    ProjectMedia.any_instance.unstub(:create_auto_tasks)
+    assert_equal 0, pm.get_annotations('task').count
   end
 end

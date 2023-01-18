@@ -10,6 +10,7 @@ class Bot::Alegre < BotUser
   INDIAN_MODEL = 'indian-sbert'
   FILIPINO_MODEL = 'paraphrase-filipino-mpnet-base-v2'
   ELASTICSEARCH_MODEL = 'elasticsearch'
+  DEFAULT_ES_SCORE = 10
 
   REPORT_TEXT_SIMILARITY_FIELDS = ['report_text_title', 'report_text_content', 'report_visual_card_title', 'report_visual_card_content']
   ALL_TEXT_SIMILARITY_FIELDS = REPORT_TEXT_SIMILARITY_FIELDS + ['original_title', 'original_description', 'extracted_text', 'transcription', 'claim_description_content', 'fact_check_title', 'fact_check_summary']
@@ -267,7 +268,7 @@ class Bot::Alegre < BotUser
       tbi = self.get_alegre_tbi(pm&.team_id)
       settings = tbi.alegre_settings unless tbi.nil?
       value = settings.blank? ? CheckConfig.get(key) : settings[key]
-      { value: value.to_f, key: key, automatic: automatic, model: model_name }
+      { value: value.to_f, key: key, automatic: automatic, model: model_name}
     end
   end
 

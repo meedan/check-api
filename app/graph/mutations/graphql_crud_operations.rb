@@ -15,7 +15,7 @@ class GraphqlCrudOperations
   end
 
   def self.safe_save(obj, attrs, parents = [], inputs = {})
-    raise "This operation must be done by a signed-in user" if User.current.nil?
+    raise "This operation must be done by a signed-in user" if User.current.nil? && ApiKey.current.nil?
     attrs.each do |key, value|
       method = key == 'clientMutationId' ? 'client_mutation_id=' : "#{key}="
       obj.send(method, value) if obj.respond_to?(method)
@@ -210,40 +210,54 @@ class GraphqlCrudOperations
       GraphqlCrudOperations.define_parent_returns(parents).each{ |field_name, field_class| return_field(field_name, field_class) }
 
       resolve -> (_root, inputs, ctx) {
-        if inputs[:ids].size > 10000
-          raise I18n.t(:bulk_operation_limit_error, limit: 10000)
-        end
-
-        sql_ids = []
-        processed_ids = []
-        inputs[:ids].to_a.each do |graphql_id|
-          type, id = CheckGraphql.decode_id(graphql_id)
-          if type == klass.name
-            sql_ids << id
-            processed_ids << graphql_id
-          end
-        end
-
-        ability = ctx[:ability] || Ability.new
-        if ability.can?("bulk_#{update_or_destroy}".to_sym, klass.new(team: Team.current))
-          filtered_inputs = inputs.to_h.reject{ |k, _v| ['ids', 'clientMutationId'].include?(k.to_s) }.with_indifferent_access
-          method_mapping = {
-            update: :bulk_update,
-            destroy: :bulk_destroy
-          }
-          method = method_mapping[update_or_destroy.to_sym]
-          result = klass.send(method, sql_ids, filtered_inputs, Team.current)
-          result.merge!({ updated_objects: klass.where(id: sql_ids) }) if update_or_destroy.to_s == 'update'
-          { ids: processed_ids }.merge(result)
-        else
-          raise CheckPermissions::AccessDenied, I18n.t(:permission_error)
-        end
+        GraphqlCrudOperations.apply_bulk_update_or_destroy(inputs, ctx, update_or_destroy, klass)
       }
     end
   end
 
   def self.define_bulk_update(klass, fields, parents)
     self.define_bulk_update_or_destroy(:update, klass, fields, parents)
+  end
+
+  def self.define_bulk_destroy(klass, fields, parents)
+    self.define_bulk_update_or_destroy(:destroy, klass, fields, parents)
+  end
+
+  def self.apply_bulk_update_or_destroy(inputs, ctx, update_or_destroy, klass)
+    if inputs[:ids].size > 10000
+      raise I18n.t(:bulk_operation_limit_error, limit: 10000)
+    end
+
+    sql_ids = []
+    processed_ids = []
+    inputs[:ids].to_a.each do |graphql_id|
+      type, id = CheckGraphql.decode_id(graphql_id)
+      if type == klass.name
+        sql_ids << id
+        processed_ids << graphql_id
+      end
+    end
+
+    ability = ctx[:ability] || Ability.new
+    obj_ability = klass.new
+    obj_ability.team = Team.current if obj_ability.respond_to?(:team=)
+    if obj_ability.class.name == 'Relationship'
+      obj_ability.source = ProjectMedia.new(team: Team.current)
+      obj_ability.target = ProjectMedia.new(team: Team.current)
+    end
+    if ability.can?("bulk_#{update_or_destroy}".to_sym, obj_ability)
+      filtered_inputs = inputs.to_h.reject{ |k, _v| ['ids', 'clientMutationId'].include?(k.to_s) }.with_indifferent_access
+      method_mapping = {
+        update: :bulk_update,
+        destroy: :bulk_destroy
+      }
+      method = method_mapping[update_or_destroy.to_sym]
+      result = klass.send(method, sql_ids, filtered_inputs, Team.current)
+      result.merge!({ updated_objects: klass.where(id: sql_ids) }) if update_or_destroy.to_s == 'update'
+      { ids: processed_ids }.merge(result)
+    else
+      raise CheckPermissions::AccessDenied, I18n.t(:permission_error)
+    end
   end
 
   def self.define_bulk_create(klass, fields, parents)
@@ -322,9 +336,7 @@ class GraphqlCrudOperations
       global_id_field :id
 
       field :permissions, types.String do
-        resolve -> (obj, _args, ctx) {
-          obj.permissions(ctx[:ability])
-        }
+        resolve -> (obj, _args, ctx) { obj.permissions(ctx[:ability]) }
       end
 
       field :created_at, types.String do
@@ -462,9 +474,7 @@ class GraphqlCrudOperations
       GraphqlCrudOperations.define_annotation_fields.each { |name| field name, types.String }
 
       field :permissions, types.String do
-        resolve -> (annotation, _args, ctx) {
-          annotation.permissions(ctx[:ability], annotation.annotation_type_class)
-        }
+        resolve -> (annotation, _args, ctx) { annotation.permissions(ctx[:ability], annotation.annotation_type_class) }
       end
 
       field :created_at, types.String do resolve -> (annotation, _args, _ctx) { annotation.created_at.to_i.to_s } end
@@ -474,9 +484,7 @@ class GraphqlCrudOperations
       fields.each { |name, _field_type| field name, types.String }
 
       connection :medias, -> { ProjectMediaType.connection_type } do
-        resolve ->(annotation, _args, _ctx) {
-          annotation.entity_objects
-        }
+        resolve ->(annotation, _args, _ctx) { annotation.entity_objects }
       end
       instance_exec :annotator, AnnotatorType, &GraphqlCrudOperations.annotation_fields
       instance_exec :version, VersionType, &GraphqlCrudOperations.annotation_fields

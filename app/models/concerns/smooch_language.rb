@@ -16,8 +16,12 @@ module SmoochLanguage
           guessed_language
         end
       end
-      user_language = Rails.cache.read("smooch:user_language:#{uid}") || guessed_language || default_language
+      user_language = self.cached_user_language(uid) || guessed_language || default_language
       supported_languages.include?(user_language) ? user_language : default_language
+    end
+
+    def cached_user_language(uid)
+      Rails.cache.read("smooch:user_language:#{uid}")
     end
 
     def reset_user_language(uid)
@@ -37,7 +41,7 @@ module SmoochLanguage
         l = w['smooch_workflow_language']
         languages << l if team_languages.include?(l)
       end
-      languages.sort
+      languages
     end
 
     def should_ask_for_language_confirmation?(uid)

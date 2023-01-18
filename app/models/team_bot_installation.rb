@@ -30,6 +30,7 @@ class TeamBotInstallation < TeamUser
       audio_similarity_enabled
       date_similarity_threshold_enabled
       transcription_similarity_enabled
+      single_language_fact_checks_enabled
     )
     boolean_keys.each{ |k| settings[k] = self.send("get_#{k}").nil? ? (CheckConfig.get(k, true).to_s == 'true') : self.send("get_#{k}") }
     threshold_keys = %w(
@@ -55,6 +56,7 @@ class TeamBotInstallation < TeamUser
     settings['alegre_model_in_use'] = self.get_alegre_model_in_use || Bot::Alegre.default_model
     settings['similarity_date_threshold'] = self.get_similarity_date_threshold
     settings['language_for_similarity'] = self.get_language_for_similarity
+    settings['min_es_score'] = self.get_min_es_score
     settings
   end
 

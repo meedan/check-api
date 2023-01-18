@@ -33,7 +33,7 @@ module Workflow
                   locales: {
                     type: 'object',
                     patternProperties: {
-                      '^[a-z]{2}$': {
+                      '^[a-z]{2,3}$': {
                         type: 'object',
                         required: ['label', 'description'],
                         properties: {

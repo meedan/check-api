@@ -15,4 +15,15 @@ class ProjectMediaTrashWorkerTest < ActiveSupport::TestCase
     pm = ProjectMedia.find_by_id(id)
     assert_nil pm
   end
+
+  test "should notify error when destroy item" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'collaborator'
+    with_current_user_and_team(u, t) do
+      pm = create_project_media
+      pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
+      pm.save!
+    end
+  end
 end

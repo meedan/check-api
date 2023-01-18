@@ -11,7 +11,11 @@ unless ARGV.include?('-n')
     add_filter do |file|
       (!file.filename.match(/\/app\/controllers\/[^\/]+\.rb$/).nil? && file.filename.match(/application_controller\.rb$/).nil?) ||
       !file.filename.match(/\/app\/controllers\/concerns\/[^\/]+_doc\.rb$/).nil? ||
-      !file.filename.match(/\/lib\/sample_data\.rb$/).nil?
+      !file.filename.match(/\/lib\/sample_data\.rb$/).nil? ||
+      !file.filename.match(/\/lib\/tasks\//).nil? ||
+      !file.filename.match(/\/app\/graph\/types\/mutation_type\.rb$/).nil? ||
+      !file.filename.match(/\/app\/graphql\/types\/mutation_type\.rb$/).nil? ||
+      !file.filename.match(/\/lib\/check_statistics\.rb$/).nil?
     end
     coverage_dir 'coverage'
   end
@@ -77,6 +81,7 @@ class ActiveSupport::TestCase
 
   include SampleData
   include Minitest::Hooks
+  include ActiveSupport::Testing::TimeHelpers
 
   def json_response
     JSON.parse(@response.body)
@@ -108,7 +113,6 @@ class ActiveSupport::TestCase
     User.current = nil
     MediaSearch.delete_index
     MediaSearch.create_index
-    Rails.stubs(:env).returns('development')
     RequestStore.store[:disable_es_callbacks] = false
     create_verification_status_stuff
     sleep 2
@@ -190,6 +194,19 @@ class ActiveSupport::TestCase
     User.current = nil
     RequestStore.clear!
     CONFIG.unstub(:[])
+  end
+
+  def with_versioning
+    was_enabled = PaperTrail.enabled?
+    was_enabled_for_request = PaperTrail.request.enabled?
+    PaperTrail.enabled = true
+    PaperTrail.request.enabled = true
+    begin
+      yield
+    ensure
+      PaperTrail.enabled = was_enabled
+      PaperTrail.request.enabled = was_enabled_for_request
+    end
   end
 
   def valid_flags_data(random = true)
@@ -1071,7 +1088,7 @@ class ActiveSupport::TestCase
     r = create_dynamic_annotation annotation_type: 'report_design', annotated: pm
     default_data = {
       state: 'paused',
-      options: [{
+      options: {
         language: 'en',
         status_label: random_string,
         use_introduction: true,
@@ -1088,7 +1105,7 @@ class ActiveSupport::TestCase
         published_article_url: random_url,
         use_disclaimer: true,
         disclaimer: random_string
-      }.merge(option_data)]
+      }.merge(option_data)
     }
     r.set_fields = default_data.merge(data).to_json
     r.action = action

@@ -284,18 +284,6 @@ module ProjectMediaBulk
       bulk_import_versions(versions, team_id) if versions.size > 0
     end
 
-    def bulk_import_versions(versions, team_id)
-      keys = versions.first.keys
-      columns_sql = "(#{keys.map { |name| "\"#{name}\"" }.join(',')})"
-      sql = "INSERT INTO versions_partitions.p#{team_id} #{columns_sql} VALUES "
-      sql_values = []
-      versions.each do |version|
-        sql_values << "(#{version.values.map{|v| "'#{v}'"}.join(", ")})"
-      end
-      sql += sql_values.join(", ")
-      ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_array, sql))
-    end
-
     def bulk_remove_tags(ids, tags_text, team)
       tag_text_ids = tags_text.to_s.split(',').map(&:to_i)
       tags_c = tag_text_ids.collect{|id| { tag: id }.with_indifferent_access.to_yaml }

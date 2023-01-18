@@ -1,6 +1,7 @@
 require 'transifex'
 
-TRANSIFEX_PROJECT_SLUG = 'check-2'
+TRANSIFEX_CHECKUI_PROJECT_SLUG = 'check-2'
+TRANSIFEX_TIPLINES_PROJECT_SLUG = 'check-tiplines'
 
 namespace :transifex do
 
@@ -17,23 +18,26 @@ namespace :transifex do
   # Get the supported languages on Transifex and update config/application.rb accordingly
 
   task languages: [:environment, :login] do
-    project = Transifex::Project.new(TRANSIFEX_PROJECT_SLUG)
-    @langs = project.languages.fetch.collect{ |l| l['language_code'] } + ['en']
+    project = Transifex::Project.new(TRANSIFEX_CHECKUI_PROJECT_SLUG)
+    @langs_ui = project.languages.fetch.collect{ |l| l['language_code'] } + ['en']
+    project = Transifex::Project.new(TRANSIFEX_TIPLINES_PROJECT_SLUG)
+    @langs_tl = project.languages.fetch.collect{ |l| l['language_code'] }
+    langs = (@langs_ui + @langs_tl).uniq
     apprb_path = File.join(Rails.root, 'config', 'application.rb')
     apprb_contents = File.read(apprb_path)
     apprb = File.open(apprb_path, 'w+')
     disclaimer = 'Do not change manually! Use `rake transifex:languages` instead, or set the `locale` key in your `config/config.yml`'
-    apprb.puts apprb_contents.gsub(/config\.i18n\.available_locales = \[[^\]]*\] # #{disclaimer}/, "config.i18n.available_locales = #{@langs.to_json} # #{disclaimer}")
+    apprb.puts apprb_contents.gsub(/config\.i18n\.available_locales = \[[^\]]*\] # #{disclaimer}/, "config.i18n.available_locales = #{langs.to_json} # #{disclaimer}")
     apprb.close
-    puts "Set languages #{@langs.join(', ')} on #{apprb_path}."
+    puts "Set languages #{langs.join(', ')} on #{apprb_path}."
   end
 
   # Download translations from Transifex - api resource
 
   task download: [:environment, :languages, :login] do
-    project = Transifex::Project.new(TRANSIFEX_PROJECT_SLUG)
+    project = Transifex::Project.new(TRANSIFEX_CHECKUI_PROJECT_SLUG)
     resource_slugs = project.resources.fetch.select{ |r| r['slug'] =~ /^api/ }.collect{ |r| r['slug'] }
-    @langs.each do |lang|
+    @langs_ui.each do |lang|
       yaml = {}
       yaml[lang] = {}
       resource_slugs.each do |slug|
@@ -52,10 +56,10 @@ namespace :transifex do
   # Download translations from Transifex - tipline resource
 
   task download_tipline: [:environment, :login] do
-    project = Transifex::Project.new('check-tiplines')
-    langs = project.languages.fetch.collect{ |l| l['language_code'] }
+    project = Transifex::Project.new(TRANSIFEX_TIPLINES_PROJECT_SLUG)
+    @langs_tl = project.languages.fetch.collect{ |l| l['language_code'] }
     yaml = {}
-    langs.each do |lang|
+    @langs_tl.each do |lang|
       yaml[lang] = {}
       resource = project.resource('hardcoded-bot-strings')
       translations = YAML.load(resource.translation(lang).fetch['content'])
@@ -91,7 +95,7 @@ namespace :transifex do
   # Update or create the resource on Transifex
 
   task upload: [:environment, :login] do
-    project = Transifex::Project.new(TRANSIFEX_PROJECT_SLUG)
+    project = Transifex::Project.new(TRANSIFEX_CHECKUI_PROJECT_SLUG)
     resource = nil
 
     begin

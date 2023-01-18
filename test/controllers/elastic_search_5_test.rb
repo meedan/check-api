@@ -124,15 +124,17 @@ class ElasticSearch5Test < ActionController::TestCase
     id = p.id
     p.title = 'Change title'; p.save!
     Sidekiq::Testing.inline! do
-      pm = create_project_media project: p, disable_es_callbacks: false
-      c = create_comment annotated: pm, disable_es_callbacks: false
-      sleep 1
-      result = $repository.find(get_es_id(pm))
-      p.destroy
-      assert_equal 0, ProjectMedia.where(project_id: id).count
-      assert_equal 1, ProjectMedia.where(id: pm.id).count
-      assert_equal 2, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
-      assert_equal 0, PaperTrail::Version.where(item_id: id, item_type: 'Project').count
+      with_versioning do
+        pm = create_project_media project: p, disable_es_callbacks: false
+        c = create_comment annotated: pm, disable_es_callbacks: false
+        sleep 1
+        result = $repository.find(get_es_id(pm))
+        p.destroy
+        assert_equal 0, ProjectMedia.where(project_id: id).count
+        assert_equal 1, ProjectMedia.where(id: pm.id).count
+        assert_equal 2, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
+        assert_equal 0, PaperTrail::Version.where(item_id: id, item_type: 'Project').count
+      end
     end
   end
 

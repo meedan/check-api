@@ -252,13 +252,14 @@ class ProjectMedia < ApplicationRecord
     else
       ProjectMedia.transaction do
         # Save the new item
+        RequestStore.store[:skip_check_ability] = true
         new_pm.updated_at = Time.now
         new_pm.skip_check_ability = true
         new_pm.channel = { main: CheckChannels::ChannelCodes::FETCH }
         # Point the claim and consequently the fact-check
         new_pm.claim_description = self.claim_description
-        new_pm.skip_check_ability = true
         new_pm.save(validate: false) # To skip channel validation
+        RequestStore.store[:skip_check_ability] = false
 
         # All annotations from the old item should point to the new item
         # Remove any status and report from the new item

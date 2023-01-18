@@ -10,8 +10,11 @@ class FactCheck < ApplicationRecord
   validates_presence_of :claim_description
   validates_uniqueness_of :claim_description_id
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
+  validate :language_in_allowed_values
 
   after_save :update_report
+  after_commit :update_elasticsearch_data, on: [:create, :update], if: proc { |c| c.saved_change_to_language? }
+  after_commit :destroy_elasticsearch_data, on: :destroy
 
   def text_fields
     ['fact_check_title', 'fact_check_summary']
@@ -24,38 +27,69 @@ class FactCheck < ApplicationRecord
   private
 
   def set_language
-    self.language = self.project_media&.team&.default_language || 'en'
+    languages = self.project_media&.team&.get_languages || ['en']
+    self.language = languages.length == 1 ? languages.first : 'und'
+  end
+
+  def language_in_allowed_values
+    allowed_languages = self.project_media&.team&.get_languages || ['en']
+    allowed_languages << 'und'
+    errors.add(:language, I18n.t(:"errors.messages.invalid_fact_check_language_value")) unless allowed_languages.include?(self.language)
   end
 
   def update_report
     return if self.skip_report_update || !DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').exists?
     pm = self.project_media
     reports = pm.get_dynamic_annotation('report_design') || Dynamic.new(annotation_type: 'report_design', annotated: pm)
-    data = reports.data ? reports.data.with_indifferent_access : {}.with_indifferent_access
-    language = data[:default_language] || pm.team.default_language || 'en'
-    report = data[:options].to_a.find{ |o| o[:language] == language }
+    data = reports.data.to_h.with_indifferent_access
+    report = data[:options]
+    language = self.language || pm.team.default_language || 'en'
+    report_language = report.to_h.with_indifferent_access[:language]
+    default_use_introduction = !!reports.report_design_team_setting_value('use_introduction', language)
+    default_introduction = reports.report_design_team_setting_value('introduction', language).to_s
     unless report
-      data[:options] ||= []
       report = {
         language: language,
         use_text_message: true,
-        use_introduction: !!reports.report_design_team_setting_value('use_introduction', language),
-        introduction: reports.report_design_team_setting_value('introduction', language).to_s,
+        use_introduction: default_use_introduction,
+        introduction: default_introduction,
         status_label: pm.status_i18n(pm.last_verification_status, { locale: language }),
         theme_color: pm.last_status_color,
         image: pm.lead_image.to_s
       }
-      data[:options] << report
     end
     report.merge!({
       title: self.title.to_s.strip,
       headline: self.title.to_s.strip,
       text: self.summary.to_s.strip,
       description: self.summary.to_s.strip,
-      published_article_url: self.url
+      published_article_url: self.url,
+      language: self.language
     })
+    report.merge!({ use_introduction: default_use_introduction, introduction: default_introduction }) if language != report_language && !default_introduction.blank?
+    data[:options] = report
     reports.annotator = self.user || User.current
     reports.set_fields = data.to_json
     reports.save!
+  end
+
+  def update_elasticsearch_data
+    self.update_elasticsearch_parent
+  end
+
+  def destroy_elasticsearch_data
+    self.update_elasticsearch_parent('destroy')
+  end
+
+  protected
+
+  def update_elasticsearch_parent(action = 'create_or_update')
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    pm = self.project_media
+    unless pm.nil?
+      es_value = action == 'destroy' ? [] : [self.language]
+      data = { 'fact_check_languages' =>  es_value }
+      pm.update_elasticsearch_doc(data.keys, data, pm.id, true)
+    end
   end
 end

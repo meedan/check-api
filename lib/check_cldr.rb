@@ -1,4 +1,6 @@
 class CheckCldr
+  LANGUAGE_FORMAT_REGEXP = /^[a-z]{2,3}([_-][a-zA-Z0-9]{2,4})?$/
+
   def self.load
     data = {}
     Dir.foreach(File.join(Rails.root, 'data')) do |file|
@@ -11,10 +13,11 @@ class CheckCldr
   end
 
   def self.language_code_to_name(code, locale = I18n.locale)
-    code = code.to_s.gsub(/[_-].*$/, '')
+    code = code.to_s.tr('_', '-')
+    short_code = code.to_s.gsub(/[_-].*$/, '')
+    short_locale = locale.to_s.gsub(/[_-].*$/, '')
     locale ||= :en
-    locale = locale.to_s.gsub(/[_-].*$/, '')
-    name = CLDR_LANGUAGES.dig(locale, code.to_s) || CLDR_LANGUAGES.dig(locale, :en)
+    name = CLDR_LANGUAGES.dig(locale, code) || CLDR_LANGUAGES.dig(short_locale, code) || CLDR_LANGUAGES.dig('en', short_code)
     name.blank? ? code : name.mb_chars.capitalize
   end
 

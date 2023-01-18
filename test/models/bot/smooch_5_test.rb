@@ -16,12 +16,14 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
   test "should update cached field when request is created or deleted" do
     RequestStore.store[:skip_cached_field_update] = false
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', true] })
-    pm = create_project_media
-    assert_equal 0, pm.reload.requests_count
-    d = create_dynamic_annotation annotation_type: 'smooch', annotated: pm
-    assert_equal 1, pm.reload.requests_count
-    d.destroy
-    assert_equal 0, pm.reload.requests_count
+    Sidekiq::Testing.inline! do
+      pm = create_project_media
+      assert_equal 0, pm.reload.requests_count
+      d = create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+      assert_equal 1, pm.reload.requests_count
+      d.destroy
+      assert_equal 0, pm.reload.requests_count
+    end
   end
 
   test "should go through menus" do
@@ -134,8 +136,8 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
       a = Dynamic.where(conditions).last
       f = a.get_field_value('smooch_data')
       text  = JSON.parse(f)['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
-      # verify that all messages stored
-      assert_equal 4, text.size
+      # Verify that all messages were stored
+      assert_equal 3, text.size
       assert_equal '1', text.last
       send_message_to_smooch_bot(random_string, uid)
       assert_equal 'main', sm.state.value
@@ -151,7 +153,7 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
       f = a.get_field_value('smooch_data')
       text  = JSON.parse(f)['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
       # verify that all messages stored
-      assert_equal 6, text.size
+      assert_equal 5, text.size
       assert_equal '1', text.last
       send_message_to_smooch_bot(random_string, uid)
       assert_equal 'main', sm.state.value
@@ -570,5 +572,33 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     end
 
     assert_equal [], Bot::Smooch.search_for_similar_published_fact_checks('text', 'Segurando', [t.id]).to_a.map(&:id)
+  end
+
+  test "should *not* perform fuzzy matching on keyword search when query is emoji only" do
+    RequestStore.store[:skip_cached_field_update] = false
+    setup_elasticsearch
+
+    t = create_team
+    pm = create_project_media quote: '🤣 word', team: t
+    publish_report(pm)
+    sleep 3 # Wait for ElasticSearch to index content
+
+    [
+      '🤣',  #Direct match
+      '🤣 word', #Direct match
+      'word 🤣', #Direct match
+      'ward', #Fuzzy match (non-emoji)
+      '🤣 ward', #Fuzzy match (non-emoji)
+    ].each do |query|
+      assert_equal [pm.id], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id]).to_a.map(&:id)
+    end
+
+    [
+      '🤣🌞', #No match
+      '🌞', #No match
+      '🤣 🌞' #No match (we only perform AND)
+    ].each do |query|
+      assert_equal [], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id]).to_a.map(&:id)
+    end
   end
 end

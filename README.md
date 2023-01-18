@@ -36,3 +36,10 @@ To enable sampling for Honeycomb, set the following configuration (either in `co
 * `otel_custom_sampling_rate` to an integer value. This will be used to calculate and set OTEL_TRACES_SAMPLER_ARG (1 / `<sample_rate>`) and to append sampler-related value to `OTEL_RESOURCE_ATTRIBUTES` (as `SampleRate=<sample_rate>`).
 
 **Note**: If sampling behavior is changed in Check API, we will also need to update the behavior to match in any other application reporting to Honeycomb. More [here](https://docs.honeycomb.io/getting-data-in/opentelemetry/ruby/#sampling)
+
+#### Environment overrides
+
+Often for rake tasks or background jobs, we will either want none of the data (skip reporting) or all of the data (skip sampling). For these cases we can set specific environment variables:
+
+* To skip reporting to Honeycomb, set `CHECK_SKIP_HONEYCOMB` to `true`
+* To skip sampling data we want to report to Honeycomb, set `CHECK_SKIP_HONEYCOMB_SAMPLING` to `true`

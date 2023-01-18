@@ -104,7 +104,7 @@ class Ability
   end
 
   def collaborator_perms
-    can [:cud], Relationship, { source: { team_id: @context_team.id }, target: { team_id: @context_team.id } }
+    can [:cud, :bulk_update, :bulk_destroy], Relationship, { source: { team_id: @context_team.id }, target: { team_id: @context_team.id } }
     can [:create, :update], ProjectMedia do |obj|
       (obj.related_to_team?(@context_team) || TeamUser.where(user_id: @user.id, status: 'member', team_id: obj.team_id).exists?) && obj.user_can_see_project?(@user)
     end

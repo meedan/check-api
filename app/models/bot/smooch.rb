@@ -32,7 +32,7 @@ class Bot::Smooch < BotUser
     attr_accessor :smooch_message
 
     def report_image
-      self.get_dynamic_annotation('report_design')&.report_design_image_url(nil)
+      self.get_dynamic_annotation('report_design')&.report_design_image_url
     end
 
     def get_deduplicated_smooch_annotations
@@ -56,26 +56,29 @@ class Bot::Smooch < BotUser
       self.relationship_type_before_last_save.to_json == Relationship.suggested_type.to_json && self.is_confirmed?
     end
 
-    def inherit_status_and_send_report
-      target = self.target
-      parent = self.source
-      if ::Bot::Smooch.team_has_smooch_bot_installed(target) && self.is_confirmed?
-        s = target.annotations.where(annotation_type: 'verification_status').last&.load
-        status = parent.last_verification_status
-        if !s.nil? && s.status != status
-          s.status = status
-          s.save!
+    def self.inherit_status_and_send_report(rid)
+      relationship = Relationship.find_by_id(rid)
+      unless relationship.nil?
+        target = relationship.target
+        parent = relationship.source
+        if ::Bot::Smooch.team_has_smooch_bot_installed(target) && relationship.is_confirmed?
+          s = target.annotations.where(annotation_type: 'verification_status').last&.load
+          status = parent.last_verification_status
+          if !s.nil? && s.status != status
+            s.status = status
+            s.save!
+          end
+          ::Bot::Smooch.send_report_from_parent_to_child(parent.id, target.id)
         end
-        ::Bot::Smooch.delay_for(3.seconds, { queue: 'smooch_priority' }).send_report_from_parent_to_child(parent.id, target.id)
       end
     end
 
     after_create do
-      self.inherit_status_and_send_report
+      self.class.delay_for(1.seconds, { queue: 'smooch_priority'}).inherit_status_and_send_report(self.id)
     end
 
     after_update do
-      self.inherit_status_and_send_report if self.suggestion_accepted?
+      self.class.delay_for(1.seconds, { queue: 'smooch_priority'}).inherit_status_and_send_report(self.id) if self.suggestion_accepted?
     end
 
     after_destroy do
@@ -354,13 +357,8 @@ class Bot::Smooch < BotUser
 
     state = self.send_message_if_disabled_and_return_state(uid, workflow, state)
 
-    # Shortcut
-    if self.message_is_a_newsletter_request?(message)
-      newsletter_language = self.newsletter_request(message, language)[:language]
-      newsletter_workflow = self.get_workflow(newsletter_language)
-      date = I18n.l(Time.now.to_date, locale: newsletter_language.to_s.tr('_', '-'), format: :long)
-      newsletter = Bot::Smooch.build_newsletter_content(newsletter_workflow['smooch_newsletter'], newsletter_language, self.config['team_id'], false).gsub('{date}', date).gsub('{channel}', self.get_platform_from_message(message))
-      Bot::Smooch.send_final_message_to_user(uid, newsletter, newsletter_workflow, newsletter_language)
+    if self.clicked_on_template_button?(message)
+      self.template_button_click_callback(message, uid, language)
       return true
     end
 
@@ -377,7 +375,7 @@ class Bot::Smooch < BotUser
       end
     when 'main', 'secondary', 'subscription', 'search_result'
       unless self.process_menu_option(message, state, app_id)
-        self.send_message_for_state(uid, workflow, state, language, workflow['smooch_message_smooch_bot_option_not_available'] || self.get_string(:option_not_available, language))
+        self.send_message_for_state(uid, workflow, state, language, self.get_custom_string(:option_not_available, language))
       end
     when 'search'
       self.send_message_to_user(uid, self.get_message_for_state(workflow, state, language, uid))
@@ -429,27 +427,35 @@ class Bot::Smooch < BotUser
     if ['main', 'waiting_for_message'].include?(state) && self.is_v2?
       if self.should_ask_for_language_confirmation?(uid)
         options = []
-        self.get_supported_languages.each_with_index do |l, i|
+        i = 0
+        self.get_supported_languages.each do |l|
+          i = self.get_next_menu_item_number(i)
           options << {
-            'smooch_menu_option_keyword' => [l, i + 1].join(','),
+            'smooch_menu_option_keyword' => [l, i].join(','),
             'smooch_menu_option_value' => l
           }
         end
       else
         allowed_types = ['query_state', 'subscription_state', 'custom_resource']
         options = options.reject{ |o| !allowed_types.include?(o['smooch_menu_option_value']) }.concat(workflow.dig('smooch_state_secondary', 'smooch_menu_options').to_a.clone.select{ |o| allowed_types.include?(o['smooch_menu_option_value']) })
-        self.get_supported_languages.reject{ |l| l == workflow['smooch_workflow_language'] }.sort.each do |l|
+        language_options = self.get_supported_languages.reject { |l| l == workflow['smooch_workflow_language'] }
+        if (language_options.size + options.size) >= 10
           options << {
-            'smooch_menu_option_keyword' => l,
-            'smooch_menu_option_value' => l
+            'smooch_menu_option_keyword' => 'choose_language',
+            'smooch_menu_option_value' => 'choose_language'
           }
+        else
+          language_options.each do |l|
+            options << {
+              'smooch_menu_option_keyword' => l,
+              'smooch_menu_option_value' => l
+            }
+          end
         end
         all_options = []
         keyword = 0
-        options.each do |o|
-          next if o.blank?
-          keyword += 1
-          keyword += 1 if keyword == 9 # Reserved for "privacy statement"
+        options.reject{ |o| o.blank? }.each do |o|
+          keyword = self.get_next_menu_item_number(keyword)
           o2 = o.clone
           o2['smooch_menu_option_keyword'] = keyword.to_s
           all_options << o2
@@ -469,7 +475,7 @@ class Bot::Smooch < BotUser
     sm.send("go_to_#{new_state}")
     self.delay_for(1.seconds, { queue: 'smooch_priority', retry: false }).search(app_id, uid, language, message, self.config['team_id'].to_i, workflow) if new_state == 'search'
     self.clear_user_bundled_messages(uid) if new_state == 'main'
-    new_state == 'main' && self.is_v2? ? self.send_message_to_user_with_main_menu_appended(uid, self.get_menu_string('cancelled', language), workflow, language) : self.send_message_for_state(uid, workflow, new_state, language)
+    new_state == 'main' && self.is_v2? ? self.send_message_to_user_with_main_menu_appended(uid, self.get_string('cancelled', language), workflow, language) : self.send_message_for_state(uid, workflow, new_state, language)
   end
 
   def self.process_menu_option_value(value, option, message, language, workflow, app_id)
@@ -499,8 +505,8 @@ class Bot::Smooch < BotUser
       self.bundle_message(message)
       results = self.get_saved_search_results_for_user(uid)
       self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'relevant_search_result_requests', results, true, self.bundle_search_query(uid))
-      self.send_final_message_to_user(uid, self.get_menu_string('search_result_is_relevant', language), workflow, language)
-    elsif value =~ /^[a-z]{2}(_[A-Z]{2})?$/
+      self.send_final_message_to_user(uid, self.get_custom_string('search_result_is_relevant', language), workflow, language)
+    elsif value =~ CheckCldr::LANGUAGE_FORMAT_REGEXP
       Rails.cache.write("smooch:user_language:#{uid}", value)
       Rails.cache.write("smooch:user_language:#{self.config['team_id']}:#{uid}:confirmed", value)
       sm.send('go_to_main')
@@ -508,6 +514,9 @@ class Bot::Smooch < BotUser
       self.bundle_message(message)
       self.send_greeting(uid, workflow)
       self.send_message_for_state(uid, workflow, 'main', value)
+    elsif value == 'choose_language'
+      self.reset_user_language(uid)
+      self.ask_for_language_confirmation(workflow, language, uid, false)
     end
   end
 
@@ -517,10 +526,13 @@ class Bot::Smooch < BotUser
     new_state = nil
     # v2 (buttons and lists)
     unless message['payload'].blank?
-      payload = JSON.parse(message['payload'])
-      new_state = payload['state']
-      sm.send("go_to_#{new_state}") if new_state && new_state != sm.state.value
-      typed = payload['keyword']
+      typed = nil
+      payload = begin JSON.parse(message['payload']) rescue {} end
+      if payload.class == Hash
+        new_state = payload['state']
+        sm.send("go_to_#{new_state}") if new_state && new_state != sm.state.value
+        typed = payload['keyword']
+      end
     end
     [typed.to_s.downcase.strip, new_state]
   end
@@ -854,10 +866,8 @@ class Bot::Smooch < BotUser
     if subscribed_at.to_i < last_published_at.to_i && published_count > 0
       if ['publish', 'republish_and_resend'].include?(action)
         workflow = self.get_workflow(lang)
-        message = workflow['smooch_message_smooch_bot_result_changed'] || self.get_string(:report_updated, lang)
-        self.send_message_to_user(uid, message) unless message.blank?
-        sleep 1
-        self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated')
+        pre_message = workflow['smooch_message_smooch_bot_result_changed'] || self.get_string(:report_updated, lang)
+        self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated', pre_message)
       end
     # First report
     else
@@ -865,24 +875,28 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.send_report_to_user(uid, data, pm, lang = 'en', fallback_template = nil)
+  def self.send_report_to_user(uid, data, pm, lang = 'en', fallback_template = nil, pre_message = nil)
     parent = Relationship.confirmed_parent(pm)
     report = parent.get_dynamic_annotation('report_design')
     Rails.logger.info "[Smooch Bot] Sending report to user #{uid} for item with ID #{pm.id}..."
-    if report&.get_field_value('state') == 'published' && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(parent.archived)
+    if report&.get_field_value('state') == 'published' && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(parent.archived) && report.should_send_report_in_this_language?(lang)
+      unless pre_message.blank?
+        self.send_message_to_user(uid, pre_message)
+        sleep 1
+      end
       last_smooch_response = nil
-      if report.report_design_field_value('use_introduction', lang)
+      if report.report_design_field_value('use_introduction')
         introduction = report.report_design_introduction(data, lang)
         smooch_intro_response = self.send_message_to_user(uid, introduction)
         Rails.logger.info "[Smooch Bot] Sent report introduction to user #{uid} for item with ID #{pm.id}, response was: #{smooch_intro_response.to_json}"
         sleep 1
       end
-      if report.report_design_field_value('use_text_message', lang)
+      if report.report_design_field_value('use_text_message')
         workflow = self.get_workflow(lang)
-        last_smooch_response = self.send_final_message_to_user(uid, report.report_design_text(lang), workflow, lang)
+        last_smooch_response = self.send_final_messages_to_user(uid, report.report_design_text(lang), workflow, lang)
         Rails.logger.info "[Smooch Bot] Sent text report to user #{uid} for item with ID #{pm.id}, response was: #{last_smooch_response.to_json}"
-      elsif report.report_design_field_value('use_visual_card', lang)
-        last_smooch_response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url(lang) })
+      elsif report.report_design_field_value('use_visual_card')
+        last_smooch_response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url })
         Rails.logger.info "[Smooch Bot] Sent report visual card to user #{uid} for item with ID #{pm.id}, response was: #{last_smooch_response.to_json}"
       end
       self.save_smooch_response(last_smooch_response, parent, data['received'], fallback_template, lang)
@@ -957,14 +971,14 @@ class Bot::Smooch < BotUser
     uid = message['authorId']
     time = Time.now.to_f
     Rails.cache.write("smooch:last_message_from_user:#{uid}", time)
-    self.delay_for(15.minutes, { queue: 'smooch' }).timeout_smooch_menu(time, message, app_id)
+    self.delay_for(15.minutes, { queue: 'smooch' }).timeout_smooch_menu(time, message, app_id, RequestStore.store[:smooch_bot_provider])
   end
 
-  def self.timeout_smooch_menu(time, message, app_id)
+  def self.timeout_smooch_menu(time, message, app_id, provider)
     self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
+    RequestStore.store[:smooch_bot_provider] = provider
     return if self.config['smooch_disable_timeout']
     language = self.get_user_language(message)
-    workflow = self.get_workflow(language)
     uid = message['authorId']
     stored_time = Rails.cache.read("smooch:last_message_from_user:#{uid}").to_i
     return if stored_time > time
@@ -977,8 +991,8 @@ class Bot::Smooch < BotUser
         annotated = self.get_saved_search_results_for_user(uid)
         type = 'timeout_search_requests'
       end
+      self.send_message_to_user_on_timeout(uid, language)
       self.bundle_messages(uid, message['_id'], app_id, type, annotated, true)
-      self.send_resource_to_user_on_timeout(uid, workflow, language)
       sm.reset
     end
   end

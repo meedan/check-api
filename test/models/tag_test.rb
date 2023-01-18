@@ -67,16 +67,18 @@ class TagTest < ActiveSupport::TestCase
   end
 
   test "should create version when tag is created" do
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'admin'
-    p = create_project team: t
-    pm = create_project_media project: p
-    with_current_user_and_team(u, t) do
-      tag = create_tag(tag: 'test', annotated: pm)
-      assert_equal 1, tag.versions.count
-      v = tag.versions.last
-      assert_equal 'create', v.event
+    with_versioning do
+      u = create_user
+      t = create_team
+      create_team_user user: u, team: t, role: 'admin'
+      p = create_project team: t
+      pm = create_project_media project: p
+      with_current_user_and_team(u, t) do
+        tag = create_tag(tag: 'test', annotated: pm)
+        assert_equal 1, tag.versions.count
+        v = tag.versions.last
+        assert_equal 'create', v.event
+      end
     end
   end
 

@@ -110,4 +110,33 @@ class ElasticSearch10Test < ActionController::TestCase
       assert_empty result.medias.map(&:id)
     end
   end
+
+  test "should filter items by fact check language" do
+    t = create_team
+    t.set_languages(['en', 'fr'])
+    t.save!
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u ,t) do
+      pm = create_project_media team: t, quote: 'claim a', disable_es_callbacks: false
+      cd = create_claim_description project_media: pm, disable_es_callbacks: false
+      create_fact_check claim_description: cd, language: 'en', disable_es_callbacks: false
+      pm2 = create_project_media team: t, disable_es_callbacks: false
+      cd = create_claim_description project_media: pm2, disable_es_callbacks: false
+      create_fact_check claim_description: cd, language: 'en', disable_es_callbacks: false
+      pm3 = create_project_media team: t, disable_es_callbacks: false
+      cd = create_claim_description project_media: pm3, disable_es_callbacks: false
+      create_fact_check claim_description: cd, language: 'fr', disable_es_callbacks: false
+      pm4 = create_project_media team: t, disable_es_callbacks: false
+      cd = create_claim_description project_media: pm4, disable_es_callbacks: false
+      create_fact_check claim_description: cd, disable_es_callbacks: false
+      sleep 2
+      results = CheckSearch.new({ fc_languages: ['en', 'fr'] }.to_json)
+      assert_equal [pm.id, pm2.id, pm3.id], results.medias.map(&:id).sort
+      results = CheckSearch.new({ fc_languages: ['fr', 'und'] }.to_json)
+      assert_equal [pm3.id, pm4.id], results.medias.map(&:id).sort
+      results = CheckSearch.new({ keyword: 'claim', fc_languages: ['en', 'fr'] }.to_json)
+      assert_equal [pm.id], results.medias.map(&:id)
+    end
+  end
 end

@@ -1,5 +1,6 @@
 class Relationship < ApplicationRecord
   include CheckElasticSearch
+  include RelationshipBulk
 
   attr_accessor :is_being_copied, :add_to_project_id, :archive_target
 
@@ -14,9 +15,10 @@ class Relationship < ApplicationRecord
   before_validation :set_cluster, if: :is_being_confirmed?, on: :update
   validate :relationship_type_is_valid, :items_are_from_the_same_team
   validate :target_not_pulished_report, on: :create
+  validate :similar_item_exists, on: :create, if: proc { |r| r.is_suggested? }
   validates :relationship_type, uniqueness: { scope: [:source_id, :target_id], message: :already_exists }, on: :create
 
-  before_create :destroy_suggest_item
+  before_create :destroy_suggest_item, if: proc { |r| r.is_confirmed? }
   after_create :move_to_same_project_as_main, prepend: true
   after_create :point_targets_to_new_source, :update_counters, prepend: true
   after_update :reset_counters, prepend: true
@@ -133,8 +135,6 @@ class Relationship < ApplicationRecord
     self.send(method).to_json == Relationship.suggested_type.to_json && self.relationship_type.to_json == Relationship.confirmed_type.to_json
   end
 
-  protected
-
   def update_counters
     return if self.is_default? || self.source.nil? || self.target.nil?
     source = self.source
@@ -149,6 +149,12 @@ class Relationship < ApplicationRecord
     source.save!
   end
 
+  def create_or_update_parent_id
+    self.source_id
+  end
+
+  protected
+
   def update_elasticsearch_parent(action = 'create_or_update')
     return if self.is_default? || self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     # touch target to update `updated_at` date
@@ -157,11 +163,14 @@ class Relationship < ApplicationRecord
       updated_at = Time.now
       target.update_columns(updated_at: updated_at)
       data = { updated_at: updated_at.utc }
-      if self.is_confirmed?
-        parent_id = action == 'destroy' ? self.target_id : self.source_id
-        data['parent_id'] = parent_id
-      end
-      self.update_elasticsearch_doc(data.keys, data, target.id)
+      data['parent_id'] = {
+        method: "#{action}_parent_id",
+        klass: self.class.name,
+        id: self.id,
+        default: target_id,
+        type: 'int'
+      } if self.is_confirmed?
+      target.update_elasticsearch_doc(data.keys, data, target.id, true)
     end
   end
 
@@ -188,7 +197,19 @@ class Relationship < ApplicationRecord
   def propagate_inversion
     if self.source_id_before_last_save == self.target_id && self.target_id_before_last_save == self.source_id
       ids = Relationship.where(source_id: self.target_id).map(&:id).join(',')
+      report = Dynamic.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia', annotated_id: self.source_id_before_last_save).last
+      unless report.nil?
+        report.annotated_id = self.source_id
+        report.save!
+      end
+      claim = ClaimDescription.where(project_media_id: self.source_id_before_last_save).last
+      unless claim.nil?
+        claim.project_media_id = self.source_id
+        claim.save
+      end
       Relationship.where(source_id: self.target_id).update_all({ source_id: self.source_id })
+      self.source&.clear_cached_fields
+      self.target&.clear_cached_fields
       Relationship.delay_for(1.second).propagate_inversion(ids, self.source_id)
     end
   end
@@ -209,6 +230,12 @@ class Relationship < ApplicationRecord
       state = self.target.get_annotations('report_design').last&.load&.get_field_value('state')
       errors.add(:base, I18n.t(:target_is_published)) if state == 'published'
     end
+  end
+
+  def similar_item_exists
+    r = Relationship.where(source_id: self.source_id, target_id: self.target_id)
+    .where('relationship_type = ?', Relationship.confirmed_type.to_yaml).last
+    errors.add(:base, I18n.t(:similar_item_exists)) unless r.nil?
   end
 
   def point_targets_to_new_source
@@ -273,9 +300,7 @@ class Relationship < ApplicationRecord
 
   def destroy_suggest_item
     # Check if same item already exists as a suggested item
-    if self.relationship_type.to_json == Relationship.confirmed_type.to_json
-      Relationship.where(source_id: self.source_id, target_id: self.target_id)
-      .where('relationship_type = ?', Relationship.suggested_type.to_yaml).destroy_all
-    end
+    Relationship.where(source_id: self.source_id, target_id: self.target_id)
+    .where('relationship_type = ?', Relationship.suggested_type.to_yaml).destroy_all
   end
 end
