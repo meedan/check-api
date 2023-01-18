@@ -48,7 +48,8 @@ as:
   main_menu: মূল মেনু
   main_state_button_label: বাতিল কৰক
   navigation_button: নেভিগেট কৰিবলৈ বুটামসমূহ ব্যৱহাৰ কৰক
-  no_results_in_language: ''
+  no_results_in_language: "%{language} ত কোনো ফলাফল পোৱা নগ'ল। ইয়াত আন ভাষাত কিছুমান
+    ফলাফল দিয়া হ’ল যিবোৰ প্ৰাসংগিক হ’ব পাৰে।"
   privacy_and_purpose: |-
     গোপনীয়তা আৰু উদ্দেশ্য
 
@@ -498,8 +499,8 @@ ks:
   main_menu: مین مینیو
   main_state_button_label: منسوخ کریو
   navigation_button: برونہہ پکنہ خاطرء کریو بٹن استعمال
-  no_results_in_language: آسہ میول نہ کانہہ تہ نتیجہ %{language} منز۔ یمہ چھ کینہہ نتیجہ
-    باقی زبانن منز۔
+  no_results_in_language: آسہ میول نہ کانہہ تہ نتیجہ %{language} منز۔ یمہ چھ کینہہ
+    نتیجہ باقی زبانن منز۔
   privacy_and_purpose: |-
     رازداری تہ مقصد
 
@@ -717,13 +718,14 @@ si:
   cancelled: හරි!
   confirm_preferred_language: කරුණාකර ඔබ කැමති භාෂාව තහවුරු කරන්න
   invalid_format: සමාවන්න, ඔබ ඉදිරිපත් කළ ෆයිල් එකේ වර්ගය මේ සඳහා සහය දක්වන්නේ නැත.
-  keep_subscription_button_label: ''
+  keep_subscription_button_label: දායකත්වය තබා ගන්න
   languages: භාෂා
   languages_and_privacy_title: භාෂා සහ පෞද්ගලිකත්වය
   main_menu: ප්‍රධාන මෙනුව
   main_state_button_label: අවලංගු කරන්න
   navigation_button: බොත්තම් භාවිතා කරමින් ඉහළ පහළ යන්න
-  no_results_in_language: ''
+  no_results_in_language: "%{language} භාෂාවෙන් ප්‍රතිඵල කිසිවක් සොයාගැනීමට නොහැකි
+    විය. වෙනත් භාෂාවන්හි, ඔබට අදාළ විය හැකි ප්‍රතිඵල කිහිපයක් බලන්න"
   privacy_and_purpose: |-
     පෞද්ගලිකත්වය සහ අරමුණ
 
@@ -744,7 +746,7 @@ si:
   search_result_is_not_relevant_button_label: නැත
   search_result_is_relevant_button_label: ඔව්
   search_state_button_label: ඉදිරිපත් කරන්න
-  subscribe_button_label: ''
+  subscribe_button_label: දායක වන්න
   subscribed: අපගේ පුවත් ලිපි ලබාගැනීමට ඔබ කැමැත්ත පළකර ඇත
   unsubscribe_button_label: දායක නොවන්න
   unsubscribed: අපගේ පුවත් ලිපි ලබාගැනීමට ඔබ මෙතෙක් (සබ්ස්ක්‍රයිබ්) කැමැත්ත පළකර නොමැත.
