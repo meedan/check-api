@@ -664,4 +664,19 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     Bot::Smooch.unstub(:get_search_results)
     assert_nil Rails.cache.read("smooch:user_search_results:#{@uid}")
   end
+
+  test "should not import duplicate smooch user id field" do
+    create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
+    app_id = random_string
+    id = random_string
+    phone = random_string
+    name = random_string
+    fields = { smooch_user_id: id, smooch_user_app_id: app_id, smooch_user_data: { phone: phone, app_name: name }.to_json }
+    create_dynamic_annotation annotation_type: 'smooch_user', set_fields: fields.to_json
+    f_count = DynamicAnnotation::Field.where(field_name: 'smooch_user_id', value: id).count
+    assert_equal 1, f_count
+    assert_raises ActiveRecord::RecordNotUnique do
+      create_dynamic_annotation annotation_type: 'smooch_user', set_fields: fields.to_json
+    end
+  end
 end
