@@ -1,28 +1,4 @@
 ---
-am:
-  add_more_details_state_button_label: ተጨማሪ አክል
-  ask_if_ready_state_button_label: ሰርዝ
-  cancelled: እሺ!
-  confirm_preferred_language: እባክዎ የመረጡትን ቋንቋ ያረጋግጡ
-  invalid_format: ይቅርታ፣ ያስገቡት ፋይል ቅርጸት አይደገፍም።
-  keep_subscription_button_label: የደንበኝነት ምዝገባን አስቀጥል
-  languages: ቋንቋዎች
-  languages_and_privacy_title: ቋንቋዎች እና ግላዊነት
-  main_menu: ዋና ምናሌ
-  main_state_button_label: ሰርዝ
-  navigation_button: ለመንቀሳቀስ አዝራሮቹን ይጠቀሙ
-  no_results_in_language: ''
-  privacy_and_purpose: ''
-  privacy_statement: የግላዊነት ሐተታ
-  privacy_title: ግላዊነት
-  report_updated: የሚከተለው የእውነታ ማረጋገጫ በአዲስ መረጃ *ዘምኗል*።
-  search_result_is_not_relevant_button_label: አይ
-  search_result_is_relevant_button_label: አዎ
-  search_state_button_label: አስገባ
-  subscribe_button_label: ለደንበኝነት ተመዝገብ
-  subscribed: በአሁኑ ጊዜ ለጋዜጣ ደብዳቤዎቻችን የደንበኝነት ምዝገባ አልዎት።
-  unsubscribe_button_label: ከደንበኝነት ምዝገባ ውጣ
-  unsubscribed: በአሁኑ ጊዜ ለጋዜጣ ደብዳቤዎቻችን የደንበኝነት ምዝገባ የልዎትም።
 ar:
   add_more_details_state_button_label: أضف المزيد
   ask_if_ready_state_button_label: إلغاء
@@ -72,7 +48,8 @@ as:
   main_menu: মূল মেনু
   main_state_button_label: বাতিল কৰক
   navigation_button: নেভিগেট কৰিবলৈ বুটামসমূহ ব্যৱহাৰ কৰক
-  no_results_in_language: ''
+  no_results_in_language: "%{language} ত কোনো ফলাফল পোৱা নগ'ল। ইয়াত আন ভাষাত কিছুমান
+    ফলাফল দিয়া হ’ল যিবোৰ প্ৰাসংগিক হ’ব পাৰে।"
   privacy_and_purpose: |-
     গোপনীয়তা আৰু উদ্দেশ্য
 
@@ -108,7 +85,7 @@ bho:
   main_menu: मेन मेन्यू
   main_state_button_label: निरस्त करी
   navigation_button: नेविगेट करे खातिर बटन के इस्तेमाल करी
-  no_results_in_language: ''
+  no_results_in_language: '%{language} में कवनों परिणाम नाही प्राप्त भईल. दूसरे भाषा में एही से मिलत जुलत परिणाम ईहा देखीं'
   privacy_and_purpose: |-
     गोपनीयता और उद्देश्य
 
@@ -145,7 +122,8 @@ bn:
   main_menu: মুখ্য মেন
   main_state_button_label: বাতিল
   navigation_button: নেভিগেট করতে বোতামগুলি ব্যবহার করুন
-  no_results_in_language: ''
+  no_results_in_language: কোনো ফলাফল পাওয়া যায়নি %{language}-এ । এখানে অন্যান্য
+    ভাষায় কিছু প্রাসঙ্গিক ফলাফল রয়েছে।
   privacy_and_purpose: |-
     গোপনীয়তা এবং উদ্দেশ্য
 
@@ -182,7 +160,8 @@ bn_BD:
   main_menu: মেইন মেন্যু
   main_state_button_label: বাতিল
   navigation_button: নেভিগেট করতে এই বাটন ব্যবহার করুণ
-  no_results_in_language: ''
+  no_results_in_language: কোনো ফলাফল পাওয়া যায়নি %{language}-এ । এখানে অন্যান্য
+    ভাষায় কিছু প্রাসঙ্গিক ফলাফল রয়েছে।
   privacy_and_purpose: |-
     গোপনীয়তা এবং উদ্দেশ্য
 
@@ -207,6 +186,43 @@ bn_BD:
   subscribed: আপনি বর্তমানে আমাদের নিউজলেটারে সাবস্ক্রাইব করেছেন।
   unsubscribe_button_label: আনসাবস্ক্রাইব
   unsubscribed: আপনি বর্তমানে আমাদের নিউজলেটারে সাবস্ক্রাইব করেন নি।
+zh_CN:
+  add_more_details_state_button_label: 添加
+  ask_if_ready_state_button_label: 取消
+  cancelled: 已取消
+  confirm_preferred_language: 请确认您选择的语言
+  invalid_format: 抱歉，您提交的文件格式不符。
+  keep_subscription_button_label: 保持订阅状态
+  languages: 语言
+  languages_and_privacy_title: 语言与隐私
+  main_menu: 主菜单
+  main_state_button_label: 取消
+  navigation_button: 使用按键浏览
+  no_results_in_language: ''
+  privacy_and_purpose: |-
+    隐私与用途
+
+    欢迎来到%{team} %{channel}提示热线。
+
+    您可以使用这个号码提交您的查询，以便核实。
+
+    您的数据是安全的。我们认真履行职责，保护您的个人信息，保持%{channel} 的私密性和安全性；除了提供和改进这项服务外，我们绝不会分享、出售或以其他方式使用您的个人身份信息（PII）。
+
+    为了在未来尽早发现病毒性传播的错误信息，我们可能会与经过审查的研究人员和事实核查伙伴分享本提示热线的非PII内容。
+
+    请注意，我们链接的网站将有自己的隐私政策。
+
+    如果您不希望在此项工作中使用您提交的材料，请不要向系统投稿。
+  privacy_statement: 隐私声明
+  privacy_title: 隐私
+  report_updated: 以下事实核查*已更新*新内容：
+  search_result_is_not_relevant_button_label: 否
+  search_result_is_relevant_button_label: 是
+  search_state_button_label: 提交
+  subscribe_button_label: 订阅
+  subscribed: 您当前已订阅简报。
+  unsubscribe_button_label: 取消订阅
+  unsubscribed: 您当前已取消订阅简报。
 en:
   add_more_details_state_button_label: Add more
   ask_if_ready_state_button_label: Cancel
@@ -219,7 +235,8 @@ en:
   main_menu: Main menu
   main_state_button_label: Cancel
   navigation_button: Use the buttons to navigate
-  no_results_in_language: 'No results could be found in %{language}. Here are some results in other languages that may be relevant.'
+  no_results_in_language: No results could be found in %{language}. Here are some
+    results in other languages that may be relevant.
   privacy_and_purpose: |-
     Privacy and Purpose
 
@@ -333,7 +350,8 @@ gu:
   main_menu: મુખ્ય મેનુ
   main_state_button_label: રદ કરો
   navigation_button: નેવિગેટ કરવા માટે બટનોનો ઉપયોગ કરો
-  no_results_in_language: ''
+  no_results_in_language: "%{language} માં કોઈ પરિણામો મળી શક્યા નથી. અહીં અન્ય ભાષાઓમાં
+    કેટલાક પરિણામો છે જે સંબંધિત હોઈ શકે છે."
   privacy_and_purpose: |-
     ગોપનીયતા અને હેતુ
 
@@ -368,7 +386,8 @@ hi:
   main_menu: मेन मेन्यू
   main_state_button_label: रद्द करें
   navigation_button: नेविगेट करने के लिए बटनों का उपयोग करें
-  no_results_in_language: ''
+  no_results_in_language: "%{language} में कोई परिणाम प्राप्त नहीं हुआ. दूसरी भाषा
+    में इसी से संबंधित परिणाम यहां देखें"
   privacy_and_purpose: |-
     गोपनीयता और उद्देश्य
 
@@ -442,7 +461,8 @@ kn:
   main_menu: ಮುಖ್ಯ ಮೆನು
   main_state_button_label: ರದ್ದು
   navigation_button: ನ್ಯಾವಿಗೇಟ್ ಮಾಡಲು ಬಟನ್‌ಗಳನ್ನು ಬಳಸಿ
-  no_results_in_language: ''
+  no_results_in_language: "%{language} ನಲ್ಲಿ ಯಾವುದೇ ಫಲಿತಾಂಶಗಳು ಕಂಡು ಬಂದಿಲ್ಲ. ಇತರ ಭಾಷೆಗೆ
+    ಸಂಬಂಧಿಸಿದ ಕೆಲವು ಫಲಿತಾಂಶಗಳು ಇಲ್ಲಿವೆ."
   privacy_and_purpose: |-
     ಗೌಪ್ಯತೆ ಹಾಗೂ ಉದ್ದೇಶ
 
@@ -470,7 +490,7 @@ kn:
 ks:
   add_more_details_state_button_label: بییہ جوڑیو
   ask_if_ready_state_button_label: منسوخ کریو
-  cancelled: ''
+  cancelled: اوکے
   confirm_preferred_language: مہربانی کرتھِ کریو زبانِ ہُند انتخاب
   invalid_format: معافی دیو، تُہنز سوزنہ آمژ فائل چھنہ فارمیٹ مطابق
   keep_subscription_button_label: سبسکرپشن تھائیو
@@ -479,7 +499,8 @@ ks:
   main_menu: مین مینیو
   main_state_button_label: منسوخ کریو
   navigation_button: برونہہ پکنہ خاطرء کریو بٹن استعمال
-  no_results_in_language: ''
+  no_results_in_language: آسہ میول نہ کانہہ تہ نتیجہ %{language} منز۔ یمہ چھ کینہہ
+    نتیجہ باقی زبانن منز۔
   privacy_and_purpose: |-
     رازداری تہ مقصد
 
@@ -516,7 +537,8 @@ ml:
   main_menu: പ്രധാന മെനു
   main_state_button_label: റദ്ദാക്കുക
   navigation_button: നാവിഗേറ്റ് ചെയ്യാൻ ബട്ടണുകൾ ഉപയോഗിക്കുക
-  no_results_in_language: ''
+  no_results_in_language: മലയാളത്തിൽ ൽ ഫലങ്ങളൊന്നും കണ്ടെത്താനായില്ല. പ്രസക്തമായേക്കാവുന്ന
+    മറ്റ് ഭാഷകളിലെ ചില ഫലങ്ങൾ ഇതാ.
   privacy_and_purpose: "സ്വകാര്യതയും ഉദ്ദേശ്യവും \n\n%{team} %{channel} ടിപ്‌ലൈനിലേക്ക്
     സ്വാഗതം\n\nസ്ഥിരീകരണത്തിനും അന്വേഷണത്തിനും ഈ നമ്പർ ഉപയോഗിക്കാം\n\nനിങ്ങളുടെ ഡാറ്റ
     സുരക്ഷിതമാണ്. സ്വകാര്യ വിവരങ്ങൾ സംരക്ഷിക്കുന്നതിനും %{channel} അവ സുരക്ഷിതമായും
@@ -550,7 +572,8 @@ mr:
   main_menu: मुख्य मेन्यू
   main_state_button_label: रद्द करा
   navigation_button: नेव्हिगेट करण्यासाठी बटने वापरा
-  no_results_in_language: ''
+  no_results_in_language: "%{language} मध्ये कोणतेही परिणाम आढळले नाहीत. हे इतर भाषांमधील
+    काही परिणाम आहेत जे कदाचित शोधाशी संबंधित असतील."
   privacy_and_purpose: |-
     गोपनीयता आणि उद्देश
 
@@ -587,7 +610,8 @@ ne:
   main_menu: मुख्य सूची
   main_state_button_label: रद्द गर्नुहोस्
   navigation_button: नेभिगेट गर्न बटनहरू प्रयोग गर्नुहोस्
-  no_results_in_language: ''
+  no_results_in_language: "%{language} मा कुनै नतिजा फेला परेन । अन्य भाषामा सान्दर्भिक
+    हुन सक्ने केही परिणाम यहाँ छन् ।"
   privacy_and_purpose: |-
     गोपनीयता र उद्देश्य
 
@@ -624,7 +648,8 @@ pa:
   main_menu: ਮੁੱਖ ਮੀਨੂ
   main_state_button_label: ਰੱਦ ਕਰੋ
   navigation_button: ਨੈਵੀਗੇਟ ਕਰਨ ਲਈ ਬਟਨਾਂ ਦੀ ਵਰਤੋਂ ਕਰੋ
-  no_results_in_language: ''
+  no_results_in_language: "%{language} ਵਿੱਚ ਕੋਈ ਨਤੀਜਾ ਨਹੀਂ ਮਿਲਿਆ ਹੈ। ਦੂਜੀ ਭਾਸ਼ਾ ਵਿੱਚ
+    ਇਸ ਨਾਲ ਸੰਬੰਧਿਤ ਨਤੀਜੇ ਇਥੇ ਦੇਖੋ"
   privacy_and_purpose: |-
     ਪਰਦੇਦਾਰੀ ਅਤੇ ਉਦੇਸ਼
 
@@ -661,7 +686,8 @@ pt:
   main_menu: Menu principal
   main_state_button_label: Cancelar
   navigation_button: Use os botões para navegar
-  no_results_in_language: 'Nenhum resultado encontrado em português. Aqui estão alguns resultados em outros idiomas que podem ser relevantes.'
+  no_results_in_language: Nenhum resultado encontrado em português. Aqui estão alguns
+    resultados em outros idiomas que podem ser relevantes.
   privacy_and_purpose: |-
     Política de Privacidade
 
@@ -692,13 +718,14 @@ si:
   cancelled: හරි!
   confirm_preferred_language: කරුණාකර ඔබ කැමති භාෂාව තහවුරු කරන්න
   invalid_format: සමාවන්න, ඔබ ඉදිරිපත් කළ ෆයිල් එකේ වර්ගය මේ සඳහා සහය දක්වන්නේ නැත.
-  keep_subscription_button_label: ''
+  keep_subscription_button_label: දායකත්වය තබා ගන්න
   languages: භාෂා
   languages_and_privacy_title: භාෂා සහ පෞද්ගලිකත්වය
   main_menu: ප්‍රධාන මෙනුව
   main_state_button_label: අවලංගු කරන්න
   navigation_button: බොත්තම් භාවිතා කරමින් ඉහළ පහළ යන්න
-  no_results_in_language: ''
+  no_results_in_language: "%{language} භාෂාවෙන් ප්‍රතිඵල කිසිවක් සොයාගැනීමට නොහැකි
+    විය. වෙනත් භාෂාවන්හි, ඔබට අදාළ විය හැකි ප්‍රතිඵල කිහිපයක් බලන්න"
   privacy_and_purpose: |-
     පෞද්ගලිකත්වය සහ අරමුණ
 
@@ -719,7 +746,7 @@ si:
   search_result_is_not_relevant_button_label: නැත
   search_result_is_relevant_button_label: ඔව්
   search_state_button_label: ඉදිරිපත් කරන්න
-  subscribe_button_label: ''
+  subscribe_button_label: දායක වන්න
   subscribed: අපගේ පුවත් ලිපි ලබාගැනීමට ඔබ කැමැත්ත පළකර ඇත
   unsubscribe_button_label: දායක නොවන්න
   unsubscribed: අපගේ පුවත් ලිපි ලබාගැනීමට ඔබ මෙතෙක් (සබ්ස්ක්‍රයිබ්) කැමැත්ත පළකර නොමැත.
@@ -761,30 +788,6 @@ es:
   subscribed: Actualmente estás suscrita(o) a nuestro boletín.
   unsubscribe_button_label: Cancelar suscripción
   unsubscribed: Actualmente no estás suscrita(o) a nuestro boletín.
-sw:
-  add_more_details_state_button_label: Ongeza zaidi
-  ask_if_ready_state_button_label: Ghairi
-  cancelled: Sawa!
-  confirm_preferred_language: Tafadhali thibitisha lugha unayopendelea
-  invalid_format: 'Samahani, faili uliyowasilisha haihimili muundo. '
-  keep_subscription_button_label: Endeleza usajili
-  languages: Lugha
-  languages_and_privacy_title: Lugha na faragha
-  main_menu: Menyu kuu
-  main_state_button_label: Ghairi
-  navigation_button: Tumia vitufe kurambaza
-  no_results_in_language: ''
-  privacy_and_purpose: ''
-  privacy_statement: Taarifa ya faragha
-  privacy_title: Faragha
-  report_updated: 'Ukaguzi wa ukweli ufuatao *umesasishwa* na taarifa mpya:'
-  search_result_is_not_relevant_button_label: Hapana
-  search_result_is_relevant_button_label: Ndio
-  search_state_button_label: 'Wasilisha '
-  subscribe_button_label: Jiunge
-  subscribed: Kwa sasa umejiunga na jarida letu.
-  unsubscribe_button_label: Jiondoe
-  unsubscribed: Kwa sasa umejiondoa kutoka jarida letu.
 tl:
   add_more_details_state_button_label: ''
   ask_if_ready_state_button_label: ''
@@ -821,7 +824,8 @@ ta:
   main_menu: மெயின் மெனு
   main_state_button_label: ரத்து செய்
   navigation_button: நேவிகேட் செய்வதற்கு பட்டன்களை பயனபடுதவும்
-  no_results_in_language: ''
+  no_results_in_language: "%{language} மொழியில் எந்தவொரு முடிவும் கிடைக்கவில்லை. இது
+    தொடர்பான மற்ற மொழி முடிவுகளை இங்கே காணுங்கள்."
   privacy_and_purpose: |-
     தனியுரிமை மற்றும் நோக்கம்
 
@@ -861,7 +865,8 @@ te:
   main_menu: ప్రధాన మెను
   main_state_button_label: రద్దు
   navigation_button: న్యావిగేట్ చెయడానికి బటన్‍లను వాడండి
-  no_results_in_language: ''
+  no_results_in_language: "%{language}లో సంబంధిత ఫాక్ట్- చెక్ ఏదీ దొరకలేదు. ఇతర భాషలలో
+    దీనికి సంబంధితంగా ఉండే అవకాశం ఉన్న సమాచారం ఇది."
   privacy_and_purpose: |-
     గౌప్యత మరియు ప్రయోజనం
 
@@ -898,7 +903,8 @@ ur:
   main_menu: مین مینو
   main_state_button_label: منسوخ
   navigation_button: نیویگیٹ کرنے کے لیے بٹنوں کا استعمال کریں۔
-  no_results_in_language: ''
+  no_results_in_language: "%{language}میں کوئی نتیجہ نہیں ملا۔ اس سلسلے میں دوسری
+    زبانوں میں کچھ نتائج ہیں جو شاید متعلقہ ہوں۔"
   privacy_and_purpose: |-
     پرائیویسی اور مقصد
 
