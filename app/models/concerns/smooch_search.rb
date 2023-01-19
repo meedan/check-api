@@ -215,7 +215,7 @@ module SmoochSearch
       language = self.cached_user_language(uid)
       reports = results.collect{ |r| r.get_dynamic_annotation('report_design') }
       if team.get_languages.to_a.size > 1 && reports.find{ |r| r.report_design_field_value('language') != language } && !reports.find{ |r| r.report_design_field_value('language') == language }
-        self.send_message_to_user(uid, self.get_string(:no_results_in_language, language).gsub('%{language}', CheckCldr.language_code_to_name(language)))
+        self.send_message_to_user(uid, self.get_string(:no_results_in_language, language).gsub('%{language}', CheckCldr.language_code_to_name(language, language)))
         sleep 1
       end
       reports.each do |report|
