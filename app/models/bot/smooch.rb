@@ -663,8 +663,7 @@ class Bot::Smooch < BotUser
   def self.send_error_message(message, is_supported)
     m_type = is_supported[:m_type] || 'file'
     max_size = "Uploaded#{m_type.camelize}".constantize.max_size_readable
-    workflow = self.get_workflow(message['language'])
-    error_message = is_supported[:type] == false ? (workflow['smooch_message_smooch_bot_message_type_unsupported'] || self.get_string(:invalid_format, message['language'])) : I18n.t(:smooch_bot_message_size_unsupported, { max_size: max_size, locale: message['language'].gsub(/[-_].*$/, '') })
+    error_message = is_supported[:type] == false ? self.get_string(:invalid_format, message['language']) : I18n.t(:smooch_bot_message_size_unsupported, { max_size: max_size, locale: message['language'].gsub(/[-_].*$/, '') })
     self.send_message_to_user(message['authorId'], error_message)
   end
 
@@ -865,9 +864,7 @@ class Bot::Smooch < BotUser
     # User received a report before
     if subscribed_at.to_i < last_published_at.to_i && published_count > 0
       if ['publish', 'republish_and_resend'].include?(action)
-        workflow = self.get_workflow(lang)
-        pre_message = workflow['smooch_message_smooch_bot_result_changed'] || self.get_string(:report_updated, lang)
-        self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated', pre_message)
+        self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated', self.get_string(:report_updated, lang))
       end
     # First report
     else
