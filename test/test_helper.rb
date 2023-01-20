@@ -14,7 +14,8 @@ unless ARGV.include?('-n')
       !file.filename.match(/\/lib\/sample_data\.rb$/).nil? ||
       !file.filename.match(/\/lib\/tasks\//).nil? ||
       !file.filename.match(/\/app\/graph\/types\/mutation_type\.rb$/).nil? ||
-      !file.filename.match(/\/app\/graphql\/types\/mutation_type\.rb$/).nil?
+      !file.filename.match(/\/app\/graphql\/types\/mutation_type\.rb$/).nil? ||
+      !file.filename.match(/\/lib\/check_statistics\.rb$/).nil?
     end
     coverage_dir 'coverage'
   end
@@ -80,6 +81,7 @@ class ActiveSupport::TestCase
 
   include SampleData
   include Minitest::Hooks
+  include ActiveSupport::Testing::TimeHelpers
 
   def json_response
     JSON.parse(@response.body)
@@ -192,6 +194,19 @@ class ActiveSupport::TestCase
     User.current = nil
     RequestStore.clear!
     CONFIG.unstub(:[])
+  end
+
+  def with_versioning
+    was_enabled = PaperTrail.enabled?
+    was_enabled_for_request = PaperTrail.request.enabled?
+    PaperTrail.enabled = true
+    PaperTrail.request.enabled = true
+    begin
+      yield
+    ensure
+      PaperTrail.enabled = was_enabled
+      PaperTrail.request.enabled = was_enabled_for_request
+    end
   end
 
   def valid_flags_data(random = true)

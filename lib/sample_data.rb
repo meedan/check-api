@@ -604,12 +604,15 @@ module SampleData
   end
 
   def create_version(options = {})
-    t = create_team
-    claim = create_claim_media skip_check_ability: true
-    User.current = options[:user] || create_user
-    pm = create_project_media team: t, media: claim, skip_check_ability: true
-    v = pm.versions.from_partition(t.id).where(item_type: 'ProjectMedia').last
-    User.current = nil
+    v = nil
+    with_versioning do
+      t = create_team
+      claim = create_claim_media skip_check_ability: true
+      User.current = options[:user] || create_user
+      pm = create_project_media team: t, media: claim, skip_check_ability: true
+      v = pm.versions.from_partition(t.id).where(item_type: 'ProjectMedia').last
+      User.current = nil
+    end
     v
   end
 
@@ -998,5 +1001,17 @@ module SampleData
     end
     pmr.save!
     pmr
+  end
+
+  def create_monthly_team_statistic(options = {})
+    attributes = {
+      team: options[:team] || create_team,
+      platform: 'WhatsApp',
+      language: 'en',
+      start_date: DateTime.new(2022,1,1),
+      end_date: DateTime.new(2022,1,31)
+    }.merge(options)
+
+    MonthlyTeamStatistic.create!(attributes)
   end
 end

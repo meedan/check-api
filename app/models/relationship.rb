@@ -149,6 +149,10 @@ class Relationship < ApplicationRecord
     source.save!
   end
 
+  def create_or_update_parent_id
+    self.source_id
+  end
+
   protected
 
   def update_elasticsearch_parent(action = 'create_or_update')
@@ -159,11 +163,14 @@ class Relationship < ApplicationRecord
       updated_at = Time.now
       target.update_columns(updated_at: updated_at)
       data = { updated_at: updated_at.utc }
-      if self.is_confirmed?
-        parent_id = action == 'destroy' ? self.target_id : self.source_id
-        data['parent_id'] = parent_id
-      end
-      self.update_elasticsearch_doc(data.keys, data, target.id)
+      data['parent_id'] = {
+        method: "#{action}_parent_id",
+        klass: self.class.name,
+        id: self.id,
+        default: target_id,
+        type: 'int'
+      } if self.is_confirmed?
+      target.update_elasticsearch_doc(data.keys, data, target.id, true)
     end
   end
 
@@ -198,7 +205,7 @@ class Relationship < ApplicationRecord
       claim = ClaimDescription.where(project_media_id: self.source_id_before_last_save).last
       unless claim.nil?
         claim.project_media_id = self.source_id
-        claim.save!
+        claim.save
       end
       Relationship.where(source_id: self.target_id).update_all({ source_id: self.source_id })
       self.source&.clear_cached_fields

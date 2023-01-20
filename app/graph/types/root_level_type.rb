@@ -18,9 +18,9 @@ RootLevelType = GraphQL::ObjectType.define do
     }
   end
 
-  connection :team_bots_approved, BotUserType.connection_type do
+  connection :team_bots_listed, BotUserType.connection_type do
     resolve -> (_object, _args, _ctx) {
-      BotUser.all.select{ |b| b.get_approved }
+      BotUser.listed
     }
   end
 end

@@ -13,17 +13,19 @@ class FactCheckTest < ActiveSupport::TestCase
   end
 
   test "should have versions" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u, role: 'admin'
-    pm = create_project_media team: t
-    cd = create_claim_description project_media: pm, user: u
-    with_current_user_and_team(u, t) do
-      fc = nil
-      assert_difference 'PaperTrail::Version.count', 1 do
-        fc = create_fact_check claim_description: cd, user: u
+    with_versioning do
+      u = create_user
+      t = create_team
+      create_team_user team: t, user: u, role: 'admin'
+      pm = create_project_media team: t
+      cd = create_claim_description project_media: pm, user: u
+      with_current_user_and_team(u, t) do
+        fc = nil
+        assert_difference 'PaperTrail::Version.count', 1 do
+          fc = create_fact_check claim_description: cd, user: u
+        end
+        assert_equal 1, fc.versions.count
       end
-      assert_equal 1, fc.versions.count
     end
   end
 
@@ -83,16 +85,19 @@ class FactCheckTest < ActiveSupport::TestCase
   end
 
   test "should set default language" do
+    setup_elasticsearch
     fc = create_fact_check
     assert_equal 'en', fc.language
     t = create_team
     t.set_language = 'fr'
     t.set_languages(['fr'])
     t.save!
-    pm = create_project_media team: t
-    cd = create_claim_description project_media: pm
-    fc = create_fact_check claim_description: cd
+    pm = create_project_media team: t, disable_es_callbacks: false
+    cd = create_claim_description project_media: pm, disable_es_callbacks: false
+    fc = create_fact_check claim_description: cd, disable_es_callbacks: false
     assert_equal 'fr', fc.language
+    result = $repository.find(get_es_id(pm))
+    assert_equal ['fr'], result['fact_check_languages']
     # Validate language
     assert_raises ActiveRecord::RecordInvalid do
       create_fact_check claim_description: cd, language: 'en'
@@ -100,10 +105,23 @@ class FactCheckTest < ActiveSupport::TestCase
     # should set language `und` when workspace has more than one language
     t.set_languages(['en', 'fr'])
     t.save!
-    pm = create_project_media team: t
-    cd = create_claim_description project_media: pm
-    fc = create_fact_check claim_description: cd
+    pm = create_project_media team: t, disable_es_callbacks: false
+    cd = create_claim_description project_media: pm, disable_es_callbacks: false
+    fc = create_fact_check claim_description: cd, disable_es_callbacks: false
     assert_equal 'und', fc.language
+    result = $repository.find(get_es_id(pm))
+    assert_equal ['und'], result['fact_check_languages']
+    # update language
+    fc.language = 'en'
+    fc.disable_es_callbacks = false
+    fc.save!
+    result = $repository.find(get_es_id(pm))
+    assert_equal ['en'], result['fact_check_languages']
+    # delete fact check
+    fc.disable_es_callbacks = false
+    fc.destroy!
+    result = $repository.find(get_es_id(pm))
+    assert_equal [], result['fact_check_languages']
   end
 
   test "should not create a fact check if does not have permission" do
@@ -149,55 +167,59 @@ class FactCheckTest < ActiveSupport::TestCase
   test "should keep report and fact-check in sync when text report is created and updated" do
     RequestStore.store[:skip_cached_field_update] = false
     create_report_design_annotation_type
-    u = create_user is_admin: true
-    t = create_team
-    t.set_languages = ['en', 'fr']
-    t.save!
-    pm = create_project_media team: t
-    cd = create_claim_description project_media: pm
-    assert_nil pm.reload.fact_check_title
-    assert_nil pm.reload.fact_check_summary
-    assert_nil pm.reload.published_url
+    Sidekiq::Testing.inline! do
+      u = create_user is_admin: true
+      t = create_team
+      t.set_languages = ['en', 'fr']
+      t.save!
+      pm = create_project_media team: t
+      cd = create_claim_description project_media: pm
+      assert_nil pm.reload.fact_check_title
+      assert_nil pm.reload.fact_check_summary
+      assert_nil pm.reload.published_url
 
-    d = create_dynamic_annotation annotation_type: 'report_design', annotator: u, annotated: pm, set_fields: { options: { language: 'en', use_text_message: true, title: 'Text report created title', text: 'Text report created summary', published_article_url: 'http://text.report/created' } }.to_json, action: 'save'
-    fc = cd.fact_check
-    assert_equal 'Text report created title', pm.reload.fact_check_title
-    assert_equal 'Text report created summary', pm.reload.fact_check_summary
-    assert_equal 'http://text.report/created', pm.reload.published_url
-    assert_equal 'en', fc.reload.language
+      d = create_dynamic_annotation annotation_type: 'report_design', annotator: u, annotated: pm, set_fields: { options: { language: 'en', use_text_message: true, title: 'Text report created title', text: 'Text report created summary', published_article_url: 'http://text.report/created' } }.to_json, action: 'save'
+      fc = cd.fact_check
+      assert_equal 'Text report created title', pm.reload.fact_check_title
+      assert_equal 'Text report created summary', pm.reload.fact_check_summary
+      assert_equal 'http://text.report/created', pm.reload.published_url
+      assert_equal 'en', fc.reload.language
 
-    d = Dynamic.find(d.id)
-    d.set_fields = { options: { language: 'fr', use_text_message: true, title: 'Text report updated title', text: 'Text report updated summary', published_article_url: 'http://text.report/updated' } }.to_json
-    d.action = 'publish'
-    d.save!
-    assert_equal 'Text report updated title', pm.reload.fact_check_title
-    assert_equal 'Text report updated summary', pm.reload.fact_check_summary
-    assert_equal 'http://text.report/updated', pm.reload.published_url
-    assert_equal 'fr', fc.reload.language
+      d = Dynamic.find(d.id)
+      d.set_fields = { options: { language: 'fr', use_text_message: true, title: 'Text report updated title', text: 'Text report updated summary', published_article_url: 'http://text.report/updated' } }.to_json
+      d.action = 'publish'
+      d.save!
+      assert_equal 'Text report updated title', pm.reload.fact_check_title
+      assert_equal 'Text report updated summary', pm.reload.fact_check_summary
+      assert_equal 'http://text.report/updated', pm.reload.published_url
+      assert_equal 'fr', fc.reload.language
+    end
   end
 
   test "should keep report and fact-check in sync when image report is created and updated" do
     RequestStore.store[:skip_cached_field_update] = false
     create_report_design_annotation_type
-    u = create_user is_admin: true
-    pm = create_project_media
-    create_claim_description project_media: pm
-    assert_nil pm.reload.fact_check_title
-    assert_nil pm.reload.fact_check_summary
-    assert_nil pm.reload.published_url
+    Sidekiq::Testing.inline! do
+      u = create_user is_admin: true
+      pm = create_project_media
+      create_claim_description project_media: pm
+      assert_nil pm.reload.fact_check_title
+      assert_nil pm.reload.fact_check_summary
+      assert_nil pm.reload.published_url
 
-    d = create_dynamic_annotation annotation_type: 'report_design', annotator: u, annotated: pm, set_fields: { options: { language: 'en', use_visual_card: true, headline: 'Image report created title', description: 'Image report created summary' } }.to_json, action: 'save'
-    assert_equal 'Image report created title', pm.reload.fact_check_title
-    assert_equal 'Image report created summary', pm.reload.fact_check_summary
-    assert_nil pm.reload.published_url
+      d = create_dynamic_annotation annotation_type: 'report_design', annotator: u, annotated: pm, set_fields: { options: { language: 'en', use_visual_card: true, headline: 'Image report created title', description: 'Image report created summary' } }.to_json, action: 'save'
+      assert_equal 'Image report created title', pm.reload.fact_check_title
+      assert_equal 'Image report created summary', pm.reload.fact_check_summary
+      assert_nil pm.reload.published_url
 
-    d = Dynamic.find(d.id)
-    d.set_fields = { options: { language: 'en', use_visual_card: true, headline: 'Image report updated title', description: 'Image report updated summary' } }.to_json
-    d.action = 'publish'
-    d.save!
-    assert_equal 'Image report updated title', pm.reload.fact_check_title
-    assert_equal 'Image report updated summary', pm.reload.fact_check_summary
-    assert_nil pm.reload.published_url
+      d = Dynamic.find(d.id)
+      d.set_fields = { options: { language: 'en', use_visual_card: true, headline: 'Image report updated title', description: 'Image report updated summary' } }.to_json
+      d.action = 'publish'
+      d.save!
+      assert_equal 'Image report updated title', pm.reload.fact_check_title
+      assert_equal 'Image report updated summary', pm.reload.fact_check_summary
+      assert_nil pm.reload.published_url
+    end
   end
 
   test "should keep report and fact-check in sync when fact-check is created and updated" do

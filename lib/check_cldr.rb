@@ -13,7 +13,7 @@ class CheckCldr
   end
 
   def self.language_code_to_name(code, locale = I18n.locale)
-    code = code.to_s.tr('_', '-')
+    code = code.to_s.tr('_', '-') # match locale format in check-api/data directory
     short_code = code.to_s.gsub(/[_-].*$/, '')
     short_locale = locale.to_s.gsub(/[_-].*$/, '')
     locale ||= :en

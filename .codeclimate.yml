@@ -54,6 +54,7 @@ exclude_patterns:
 - "app/jobs"
 - "app/models/ability.rb"
 - "app/models/concerns/smooch_tos.rb"
+- "app/models/concerns/project_media_cached_fields.rb"
 - "config/"
 - "data"
 - "db/"
@@ -68,3 +69,4 @@ exclude_patterns:
 - "**.js"
 - ".codeclimate.yml"
 - "app/models/concerns/smooch_strings.rb"
+- "lib/check_statistics.rb"

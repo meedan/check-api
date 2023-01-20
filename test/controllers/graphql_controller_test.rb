@@ -264,20 +264,22 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read project media versions to find previous project" do
-    authenticate_with_user
-    p = create_project team: @team
-    p2 = create_project team: @team
-    pm = create_project_media project: p
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
-    post :create, params: { query: query, team: @team.slug }
-    assert_response :success
-    assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
-    pm.project_id = p2.id
-    pm.save!
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
-    post :create, params: { query: query, team: @team.slug }
-    assert_response :success
-    assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
+    with_versioning do
+      authenticate_with_user
+      p = create_project team: @team
+      p2 = create_project team: @team
+      pm = create_project_media project: p
+      query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
+      post :create, params: { query: query, team: @team.slug }
+      assert_response :success
+      assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
+      pm.project_id = p2.id
+      pm.save!
+      query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
+      post :create, params: { query: query, team: @team.slug }
+      assert_response :success
+      assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
+    end
   end
 
   test "should create project" do
@@ -508,23 +510,25 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should get project media annotations" do
-    u = create_user
-    authenticate_with_user(u)
-    t = create_team slug: 'team'
-    create_team_user user: u, team: t
-    p = create_project team: t
-    m = create_media
-    create_annotation_type annotation_type: 'test'
-    pm = nil
-    with_current_user_and_team(u, t) do
-      pm = create_project_media project: p, media: m
-      create_tag annotated: pm, annotator: u
-      create_dynamic_annotation annotated: pm, annotator: u, annotation_type: 'test'
+    with_versioning do
+      u = create_user
+      authenticate_with_user(u)
+      t = create_team slug: 'team'
+      create_team_user user: u, team: t
+      p = create_project team: t
+      m = create_media
+      create_annotation_type annotation_type: 'test'
+      pm = nil
+      with_current_user_and_team(u, t) do
+        pm = create_project_media project: p, media: m
+        create_tag annotated: pm, annotator: u
+        create_dynamic_annotation annotated: pm, annotator: u, annotation_type: 'test'
+      end
+      query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count(annotation_type: \"comment\"), user { name }, tags(first: 1) { edges { node { tag } } }, project { title }, log(first: 1000) { edges { node { event_type, object_after, updated_at, created_at, meta, object_changes_json, user { name }, annotation { id, created_at, updated_at }, task { id }, tag { id } } } } } }"
+      post :create, params: { query: query, team: 'team' }
+      assert_response :success
+      assert_not_equal 0, JSON.parse(@response.body)['data']['project_media']['log']['edges'].size
     end
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count(annotation_type: \"comment\"), user { name }, tags(first: 1) { edges { node { tag } } }, project { title }, log(first: 1000) { edges { node { event_type, object_after, updated_at, created_at, meta, object_changes_json, user { name }, annotation { id, created_at, updated_at }, task { id }, tag { id } } } } } }"
-    post :create, params: { query: query, team: 'team' }
-    assert_response :success
-    assert_not_equal 0, JSON.parse(@response.body)['data']['project_media']['log']['edges'].size
   end
 
   test "should get permissions for child objects" do
