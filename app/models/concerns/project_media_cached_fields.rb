@@ -479,8 +479,9 @@ module ProjectMediaCachedFields
       # If it’s a main/parent item, last_seen is related to any request (smooch annotation) to that own ProjectMedia or any similar/child ProjectMedia
       if self.is_parent
         ids = self.related_items_ids
-        value = Dynamic.where(annotation_type: 'smooch', annotated_id: ids).order('created_at DESC').last&.created_at ||
-          ProjectMedia.where(id: ids)&.order('created_at DESC').last&.created_at || 0
+        v1 = Dynamic.where(annotation_type: 'smooch', annotated_id: ids).order('created_at DESC').last&.created_at || 0
+        v2 = ProjectMedia.where(id: ids)&.order('created_at DESC').last&.created_at || 0
+        value = [v1, v2].max
       end
       value.to_i
     end

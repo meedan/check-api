@@ -1633,8 +1633,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
       # pm2.last_seen should equal pm2.created_at if no tipline request (aka 'smooch' annotation)
       assert_queries(0, '=') { assert_equal(t2, pm2.last_seen) }
       r1 = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
-      # pm is now a parent and pm2 its child with no smooch annotation, so pm.last_seen should match the parent smooch annotation created_at
-      assert_queries(0, '=') { assert_equal(t1, pm.last_seen) }
+      # pm is now a parent and pm2 its child with no smooch annotation, so pm.last_seen should match pm2.created_at
+      assert_queries(0, '=') { assert_equal(t2, pm.last_seen) }
       # adding a smooch annotation to pm2 should update parent last_seen
       t3 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2).created_at.to_i
       assert_queries(0, '=') { assert_equal(t3, pm.last_seen) }
