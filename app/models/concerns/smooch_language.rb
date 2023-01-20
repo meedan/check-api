@@ -16,8 +16,12 @@ module SmoochLanguage
           guessed_language
         end
       end
-      user_language = Rails.cache.read("smooch:user_language:#{uid}") || guessed_language || default_language
+      user_language = self.cached_user_language(uid) || guessed_language || default_language
       supported_languages.include?(user_language) ? user_language : default_language
+    end
+
+    def cached_user_language(uid)
+      Rails.cache.read("smooch:user_language:#{uid}")
     end
 
     def reset_user_language(uid)

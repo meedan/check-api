@@ -56,26 +56,29 @@ class Bot::Smooch < BotUser
       self.relationship_type_before_last_save.to_json == Relationship.suggested_type.to_json && self.is_confirmed?
     end
 
-    def inherit_status_and_send_report
-      target = self.target
-      parent = self.source
-      if ::Bot::Smooch.team_has_smooch_bot_installed(target) && self.is_confirmed?
-        s = target.annotations.where(annotation_type: 'verification_status').last&.load
-        status = parent.last_verification_status
-        if !s.nil? && s.status != status
-          s.status = status
-          s.save!
+    def self.inherit_status_and_send_report(rid)
+      relationship = Relationship.find_by_id(rid)
+      unless relationship.nil?
+        target = relationship.target
+        parent = relationship.source
+        if ::Bot::Smooch.team_has_smooch_bot_installed(target) && relationship.is_confirmed?
+          s = target.annotations.where(annotation_type: 'verification_status').last&.load
+          status = parent.last_verification_status
+          if !s.nil? && s.status != status
+            s.status = status
+            s.save!
+          end
+          ::Bot::Smooch.send_report_from_parent_to_child(parent.id, target.id)
         end
-        ::Bot::Smooch.delay_for(3.seconds, { queue: 'smooch_priority' }).send_report_from_parent_to_child(parent.id, target.id)
       end
     end
 
     after_create do
-      self.inherit_status_and_send_report
+      self.class.delay_for(1.seconds, { queue: 'smooch_priority'}).inherit_status_and_send_report(self.id)
     end
 
     after_update do
-      self.inherit_status_and_send_report if self.suggestion_accepted?
+      self.class.delay_for(1.seconds, { queue: 'smooch_priority'}).inherit_status_and_send_report(self.id) if self.suggestion_accepted?
     end
 
     after_destroy do
@@ -523,10 +526,13 @@ class Bot::Smooch < BotUser
     new_state = nil
     # v2 (buttons and lists)
     unless message['payload'].blank?
+      typed = nil
       payload = begin JSON.parse(message['payload']) rescue {} end
-      new_state = payload['state']
-      sm.send("go_to_#{new_state}") if new_state && new_state != sm.state.value
-      typed = payload['keyword']
+      if payload.class == Hash
+        new_state = payload['state']
+        sm.send("go_to_#{new_state}") if new_state && new_state != sm.state.value
+        typed = payload['keyword']
+      end
     end
     [typed.to_s.downcase.strip, new_state]
   end
@@ -657,8 +663,7 @@ class Bot::Smooch < BotUser
   def self.send_error_message(message, is_supported)
     m_type = is_supported[:m_type] || 'file'
     max_size = "Uploaded#{m_type.camelize}".constantize.max_size_readable
-    workflow = self.get_workflow(message['language'])
-    error_message = is_supported[:type] == false ? (workflow['smooch_message_smooch_bot_message_type_unsupported'] || self.get_string(:invalid_format, message['language'])) : I18n.t(:smooch_bot_message_size_unsupported, { max_size: max_size, locale: message['language'].gsub(/[-_].*$/, '') })
+    error_message = is_supported[:type] == false ? self.get_string(:invalid_format, message['language']) : I18n.t(:smooch_bot_message_size_unsupported, { max_size: max_size, locale: message['language'].gsub(/[-_].*$/, '') })
     self.send_message_to_user(message['authorId'], error_message)
   end
 
@@ -859,11 +864,7 @@ class Bot::Smooch < BotUser
     # User received a report before
     if subscribed_at.to_i < last_published_at.to_i && published_count > 0
       if ['publish', 'republish_and_resend'].include?(action)
-        workflow = self.get_workflow(lang)
-        message = workflow['smooch_message_smooch_bot_result_changed'] || self.get_string(:report_updated, lang)
-        self.send_message_to_user(uid, message) unless message.blank?
-        sleep 1
-        self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated')
+        self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated', self.get_string(:report_updated, lang))
       end
     # First report
     else
@@ -871,11 +872,15 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.send_report_to_user(uid, data, pm, lang = 'en', fallback_template = nil)
+  def self.send_report_to_user(uid, data, pm, lang = 'en', fallback_template = nil, pre_message = nil)
     parent = Relationship.confirmed_parent(pm)
     report = parent.get_dynamic_annotation('report_design')
     Rails.logger.info "[Smooch Bot] Sending report to user #{uid} for item with ID #{pm.id}..."
-    if report&.get_field_value('state') == 'published' && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(parent.archived)
+    if report&.get_field_value('state') == 'published' && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(parent.archived) && report.should_send_report_in_this_language?(lang)
+      unless pre_message.blank?
+        self.send_message_to_user(uid, pre_message)
+        sleep 1
+      end
       last_smooch_response = nil
       if report.report_design_field_value('use_introduction')
         introduction = report.report_design_introduction(data, lang)

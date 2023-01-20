@@ -50,4 +50,13 @@ Rails.application.configure do
 
   # https://guides.rubyonrails.org/caching_with_rails.html#cache-stores
   config.cache_store = :file_store, "#{Rails.root}/tmp/cache#{ENV['TEST_ENV_NUMBER']}"
+
+  # Highlight code that triggered database queries in logs.
+  config.active_record.verbose_query_logs = true
+
+  # Disable PaperTrail by default on tests
+  # https://github.com/paper-trail-gem/paper_trail#7-testing
+  config.after_initialize do
+    PaperTrail.enabled = ENV['PAPERTRAIL_ENABLED'] || false
+  end
 end

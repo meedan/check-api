@@ -56984,7 +56984,7 @@
               "deprecationReason": null
             },
             {
-              "name": "team_bots_approved",
+              "name": "team_bots_listed",
               "description": null,
               "args": [
                 {

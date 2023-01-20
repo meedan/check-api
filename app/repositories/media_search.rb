@@ -121,5 +121,7 @@ class MediaSearch
     indexes :cluster_requests_count, { type: 'long' }
 
     indexes :cluster_teams, { type: 'long' }
+
+    indexes :fact_check_languages, { type: 'keyword', normalizer: 'check' }
   end
 end

@@ -36,7 +36,7 @@ module SmoochMessages
     def list_of_bundled_messages_from_user(uid)
       redis = Redis.new(REDIS_CONFIG)
       key = "smooch:bundle:#{uid}"
-      redis.lrange(key, 0, redis.llen(key))
+      redis.lrange(key, 0, redis.llen(key)).to_a.uniq
     end
 
     def bundle_messages(uid, id, app_id, type = 'default_requests', annotated = nil, force = false, bundle = nil)
@@ -128,7 +128,7 @@ module SmoochMessages
 
     def subscription_message(uid, language, subscribed = nil, full_message = true)
       subscribed = subscribed.nil? ? !TiplineSubscription.where(team_id: self.config['team_id'], uid: uid, language: language).last.nil? : subscribed
-      status = subscribed ? self.get_string('subscribed', language.gsub(/[-_].*$/, '')) : self.get_string('unsubscribed', language.gsub(/[-_].*$/, ''))
+      status = subscribed ? self.get_string('subscribed', language) : self.get_string('unsubscribed', language)
       status = "*#{status}*"
       full_message ? self.get_custom_string('newsletter_optin_optout', language).gsub('{subscription_status}', status) : status
     end

@@ -87,7 +87,7 @@ module ActiveRecordExtensions
 
   def destroy_annotations_and_versions
     if PaperTrail.request.enabled_for_model?(self.class_name.constantize)
-      Version.from_partition(self.team&.id).where(item_type: self.class_name, item_id: self.id.to_s).delete_all
+      Version.from_partition(self.team&.id).where(item_type: self.class_name, item_id: self.id.to_s).delete_all if self.class_name != 'TiplineSubscription'
       # Handle destroy callback for version `decrement_project_association_annotations_count`
       if self.respond_to?(:cached_annotations_count)
         value = Version.from_partition(self.team&.id)

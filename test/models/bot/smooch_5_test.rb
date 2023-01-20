@@ -16,12 +16,14 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
   test "should update cached field when request is created or deleted" do
     RequestStore.store[:skip_cached_field_update] = false
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', true] })
-    pm = create_project_media
-    assert_equal 0, pm.reload.requests_count
-    d = create_dynamic_annotation annotation_type: 'smooch', annotated: pm
-    assert_equal 1, pm.reload.requests_count
-    d.destroy
-    assert_equal 0, pm.reload.requests_count
+    Sidekiq::Testing.inline! do
+      pm = create_project_media
+      assert_equal 0, pm.reload.requests_count
+      d = create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+      assert_equal 1, pm.reload.requests_count
+      d.destroy
+      assert_equal 0, pm.reload.requests_count
+    end
   end
 
   test "should go through menus" do
@@ -134,8 +136,8 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
       a = Dynamic.where(conditions).last
       f = a.get_field_value('smooch_data')
       text  = JSON.parse(f)['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
-      # verify that all messages stored
-      assert_equal 4, text.size
+      # Verify that all messages were stored
+      assert_equal 3, text.size
       assert_equal '1', text.last
       send_message_to_smooch_bot(random_string, uid)
       assert_equal 'main', sm.state.value
@@ -151,7 +153,7 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
       f = a.get_field_value('smooch_data')
       text  = JSON.parse(f)['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
       # verify that all messages stored
-      assert_equal 6, text.size
+      assert_equal 5, text.size
       assert_equal '1', text.last
       send_message_to_smooch_bot(random_string, uid)
       assert_equal 'main', sm.state.value

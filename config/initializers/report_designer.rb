@@ -196,4 +196,11 @@ Dynamic.class_eval do
       DynamicAnnotation::Field.joins(:annotation).where(field_name: 'smooch_report_received', 'annotations.annotated_type' => 'ProjectMedia', 'annotations.annotated_id' => pmids).count
     end
   end
+
+  def should_send_report_in_this_language?(language)
+    team = self.annotated.team
+    return true if team.get_languages.to_a.size < 2
+    should_send_report_in_different_language = !TeamBotInstallation.where(team_id: team.id, user: BotUser.alegre_user).last&.get_single_language_fact_checks_enabled
+    self.annotation_type == 'report_design' && (self.report_design_field_value('language') == language || should_send_report_in_different_language)
+  end
 end

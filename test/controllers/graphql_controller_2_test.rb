@@ -310,14 +310,14 @@ class GraphqlController2Test < ActionController::TestCase
     User.current = nil
   end
 
-  test "should get approved bots, current user and current team" do
+  test "should get listed bots, current user and current team" do
     BotUser.delete_all
     authenticate_with_user
-    tb1 = create_team_bot set_approved: true
-    tb2 = create_team_bot set_approved: false
-    query = "query read { root { current_user { id }, current_team { id }, team_bots_approved { edges { node { dbid } } } } }"
+    tb1 = create_team_bot set_listed: true
+    tb2 = create_team_bot set_listed: false
+    query = "query read { root { current_user { id }, current_team { id }, team_bots_listed { edges { node { dbid } } } } }"
     post :create, params: { query: query }
-    edges = JSON.parse(@response.body)['data']['root']['team_bots_approved']['edges']
+    edges = JSON.parse(@response.body)['data']['root']['team_bots_listed']['edges']
     assert_equal [tb1.id], edges.collect{ |e| e['node']['dbid'] }
   end
 
@@ -753,14 +753,16 @@ class GraphqlController2Test < ActionController::TestCase
 
   test "should get version from global id" do
     authenticate_with_user
-    v = create_version
-    t = Team.last
-    id = Base64.encode64("Version/#{v.id}")
-    q = assert_queries 9, '<=' do
-      post :create, params: { query: "query Query { node(id: \"#{id}\") { id } }", team: t.slug }
+    with_versioning do
+      v = create_version
+      t = Team.last
+      id = Base64.encode64("Version/#{v.id}")
+      q = assert_queries 10, '<=' do
+        post :create, params: { query: "query Query { node(id: \"#{id}\") { id } }", team: t.slug }
+      end
+      assert !q.include?('SELECT  "versions".* FROM "versions" WHERE "versions"."id" = $1 LIMIT 1')
+      assert q.include?("SELECT  \"versions\".* FROM \"versions_partitions\".\"p#{t.id}\" \"versions\" WHERE \"versions\".\"id\" = $1 ORDER BY \"versions\".\"id\" DESC LIMIT $2")
     end
-    assert !q.include?('SELECT  "versions".* FROM "versions" WHERE "versions"."id" = $1 LIMIT 1')
-    assert q.include?("SELECT  \"versions\".* FROM \"versions_partitions\".\"p#{t.id}\" \"versions\" WHERE \"versions\".\"id\" = $1 ORDER BY \"versions\".\"id\" DESC LIMIT $2")
   end
 
   test "should empty trash" do
