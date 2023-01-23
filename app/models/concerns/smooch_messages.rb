@@ -64,11 +64,11 @@ module SmoochMessages
       end
     end
 
-    def send_final_messages_to_user(uid, text, workflow, language)
+    def send_final_messages_to_user(uid, text, workflow, language, interval = 1)
       response = self.send_message_to_user(uid, text)
       if self.is_v2?
         CheckStateMachine.new(uid).go_to_main
-        sleep 1
+        sleep(interval)
         response = self.send_message_to_user_with_main_menu_appended(uid, self.get_string('navigation_button', language), workflow, language)
       end
       response
