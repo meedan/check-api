@@ -139,4 +139,56 @@ class ElasticSearch10Test < ActionController::TestCase
       assert_equal [pm.id], results.medias.map(&:id)
     end
   end
+
+  test "should filter items by non project and read-unread" do
+    t = create_team
+    p = create_project team: t
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u ,t) do
+      pm = create_project_media team: t, disable_es_callbacks: false
+      pm2 = create_project_media project: p, disable_es_callbacks: false
+      pm3 = create_project_media team: t, quote: 'claim a', disable_es_callbacks: false
+      results = CheckSearch.new({ projects: ['-1'] }.to_json)
+      # result should return empty as now all items should have a project CHECK-1150
+      assert_empty results.medias.map(&:id)
+      results = CheckSearch.new({ projects: [p.id, '-1'] }.to_json)
+      assert_equal [pm2.id], results.medias.map(&:id)
+      results = CheckSearch.new({ keyword: 'claim', projects: ['-1'] }.to_json)
+      assert_empty results.medias.map(&:id)
+      # test read/unread
+      pm.read = true
+      pm.save!
+      results = CheckSearch.new({ read: ['1'] }.to_json)
+      assert_equal [pm.id], results.medias.map(&:id)
+      results = CheckSearch.new({ read: ['0'] }.to_json)
+      assert_equal [pm2.id, pm3.id], results.medias.map(&:id).sort
+      results = CheckSearch.new({ keyword: 'claim', read: ['0'] }.to_json)
+      assert_equal [pm3.id], results.medias.map(&:id)
+    end
+  end
+
+  test "should sort items by creator name" do
+    t = create_team
+    p = create_project team: t
+    # create users with capital and small letters to verify sort with case insensitive
+    u1 = create_user name: 'ahmad'
+    u2 = create_user name: 'Ali'
+    u3 = create_user name: 'Zahra'
+    u4 = create_user name: 'Zein'
+    create_team_user team: t, user: u1
+    create_team_user team: t, user: u2
+    create_team_user team: t, user: u3
+    create_team_user team: t, user: u4
+    RequestStore.store[:skip_cached_field_update] = false
+    pm1 = create_project_media project: p, user: u1
+    pm2 = create_project_media project: p, user: u2
+    pm3 = create_project_media project: p, user: u3
+    pm4 = create_project_media project: p, user: u4
+    sleep 2
+    result = CheckSearch.new({ projects: [p.id], sort: 'creator_name', sort_type: 'asc' }.to_json, nil, t.id)
+    assert_equal [pm1.id, pm2.id, pm3.id, pm4.id], result.medias.map(&:id)
+    result = CheckSearch.new({ projects: [p.id], sort: 'creator_name', sort_type: 'desc' }.to_json, nil, t.id)
+    assert_equal [pm4.id, pm3.id, pm2.id, pm1.id], result.medias.map(&:id)
+  end
 end

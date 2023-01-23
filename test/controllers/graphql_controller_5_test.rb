@@ -616,6 +616,51 @@ class GraphqlController5Test < ActionController::TestCase
     assert_equal 0, count
   end
 
+  test "should return if item is read" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    ProjectMediaUser.create! user: u, project_media: pm1, read: true
+    pm2 = create_project_media project: p
+    ProjectMediaUser.create! user: create_user, project_media: pm2, read: true
+    pm3 = create_project_media project: p
+    authenticate_with_user(u)
+
+    {
+      pm1.id => [true, true],
+      pm2.id => [true, false],
+      pm3.id => [false, false]
+    }.each do |id, values|
+      ids = [id, p.id, t.id].join(',')
+      query = 'query { project_media(ids: "' + ids + '") { read_by_someone: is_read, read_by_me: is_read(by_me: true) } }'
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      data = JSON.parse(@response.body)['data']['project_media']
+      assert_equal values[0], data['read_by_someone']
+      assert_equal values[1], data['read_by_me']
+    end
+  end
+
+  test "should update archived media by owner" do
+    pm = create_project_media team: @t, archived: CheckArchivedFlags::FlagCodes::TRASHED
+    query = "mutation { updateProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm.graphql_id}\"}) { project_media { permissions } } }"
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['updateProjectMedia']['project_media']
+    permissions = JSON.parse(data['permissions'])
+    assert_equal true, permissions['update ProjectMedia']
+  end
+
+  test "should not bulk-send project medias to trash if there are more than 10.000 ids" do
+    ids = []
+    10001.times { ids << random_string }
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', action: "archived", params: "{\"archived:\": 1}" }) { ids, team { dbid } } }'
+    post :create, params: { query: query, team: @t.slug }
+    assert_response 400
+    assert_error_message 'maximum'
+  end
+
   protected
 
   def assert_error_message(expected)

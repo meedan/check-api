@@ -4,6 +4,7 @@ require 'error_codes'
 class GraphqlController2Test < ActionController::TestCase
   def setup
     @controller = Api::V1::GraphqlController.new
+    @url = 'https://www.youtube.com/user/MeedanTube'
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
     super
@@ -484,105 +485,6 @@ class GraphqlController2Test < ActionController::TestCase
     assert_equal tt2.id, data['team_tasks']['edges'][1]['node']['dbid']
     assert_equal tt3.id, data['team_tasks']['edges'][2]['node']['dbid']
   end
-
-  # test "should not import spreadsheet if URL is not present" do
-  #   t = create_team
-  #   u = create_user
-  #   create_team_user user: u, team: t, role: 'admin'
-
-  #   authenticate_with_user(u)
-
-  #   query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", team_id: #{t.id}, user_id: #{u.id} }) { success } }"
-  #   post :create, query: query, team: t.slug
-  #   sleep 1
-  #   assert_response :success
-  #   response = JSON.parse(@response.body)
-  #   assert response.has_key?('errors')
-  #   assert_match /invalid value/, response['errors'].first['message']
-  # end
-
-  # test "should not import spreadsheet if team_id is not present" do
-  #   t = create_team
-  #   u = create_user
-  #   create_team_user user: u, team: t, role: 'admin'
-
-  #   authenticate_with_user(u)
-
-  #   spreadsheet_url = "https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0"
-  #   query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\", user_id: #{u.id} }) { success } }"
-  #   post :create, query: query, team: t.slug
-  #   sleep 1
-  #   assert_response :success
-  #   response = JSON.parse(@response.body)
-  #   assert response.has_key?('errors')
-  #   assert_match /invalid value/, response['errors'].first['message']
-  # end
-
-  # test "should not import spreadsheet if user_id is not present" do
-  #   t = create_team
-  #   u = create_user
-  #   create_team_user user: u, team: t, role: 'admin'
-
-  #   authenticate_with_user(u)
-
-  #   spreadsheet_url = "https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0"
-  #   query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\", team_id: #{t.id} }) { success } }"
-  #   post :create, query: query, team: t.slug
-  #   sleep 1
-  #   assert_response :success
-  #   response = JSON.parse(@response.body)
-  #   assert response.has_key?('errors')
-  #   assert_match /invalid value/, response['errors'].first['message']
-  # end
-
-  # test "should not import spreadsheet if URL is invalid" do
-  #   t = create_team
-  #   u = create_user
-  #   create_team_user user: u, team: t, role: 'admin'
-
-  #   authenticate_with_user(u)
-
-  #   [' ', 'https://example.com'].each do |url|
-  #     query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{url}\", team_id: #{t.id}, user_id: #{u.id} }) { success } }"
-  #     post :create, query: query, team: t.slug
-  #     sleep 1
-  #     assert_response 400
-  #     response = JSON.parse(@response.body)
-  #     assert_includes response.keys, 'errors'
-  #     error_info = response['errors'].first
-  #     assert_equal 'INVALID_VALUE', error_info['code']
-  #   end
-  # end
-
-  # test "should not import spreadsheet if id not found" do
-  #   t = create_team
-  #   u = create_user
-  #   create_team_user user: u, team: t, role: 'admin'
-
-  #   authenticate_with_user(u)
-  #   spreadsheet_url = "https://docs.google.com/spreadsheets/d/invalid_spreadsheet/edit#gid=0"
-  #   query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\", team_id: #{t.id}, user_id: #{u.id} }) { success } }"
-
-  #   post :create, query: query, team: t.slug
-  #   assert_response 400
-  #   response = JSON.parse(@response.body)
-  #   error_info = response['errors'].first
-  #   assert_equal 'INVALID_VALUE', error_info['code']
-  #   assert_match /File not found/, error_info['data']['error_message']
-  # end
-
-  # test "should import spreadsheet if inputs are valid" do
-  #   t = create_team
-  #   u = create_user
-  #   create_team_user user: u, team: t, role: 'admin'
-
-  #   authenticate_with_user(u)
-  #   spreadsheet_url = "https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0"
-  #   query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\", team_id: #{t.id}, user_id: #{u.id} }) { success } }"
-  #   post :create, query: query, team: t.slug
-  #   assert_response :success
-  #   assert_equal({"success" => true}, JSON.parse(@response.body)['data']['importSpreadsheet'])
-  # end
 
   test "should read project media user if not annotator" do
     u = create_user
@@ -1101,5 +1003,203 @@ class GraphqlController2Test < ActionController::TestCase
     post :create, params: { query: query, team: t2.slug }
     assert_response :success
     assert_nil JSON.parse(@response.body)['data']['team']['team_task']
+  end
+
+  test "should return suggested similar items count" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'admin'
+    authenticate_with_user(u)
+    p = create_project team: t
+    p1 = create_project_media project: p
+    p1a = create_project_media project: p
+    p1b = create_project_media project: p
+    create_relationship source_id: p1.id, target_id: p1a.id, relationship_type: Relationship.suggested_type
+    create_relationship source_id: p1.id, target_id: p1b.id, relationship_type: Relationship.suggested_type
+    p2 = create_project_media project: p
+    p2a = create_project_media project: p
+    p2b = create_project_media project: p
+    create_relationship source_id: p2.id, target_id: p2a.id
+    create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: Relationship.suggested_type
+    post :create, params: { query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { suggested_similar_items_count } }", team: t.slug }; false
+    assert_equal 2, JSON.parse(@response.body)['data']['project_media']['suggested_similar_items_count']
+  end
+
+  test "should return confirmed similar items count" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'admin'
+    authenticate_with_user(u)
+    p = create_project team: t
+    p1 = create_project_media project: p
+    p1a = create_project_media project: p
+    p1b = create_project_media project: p
+    create_relationship source_id: p1.id, target_id: p1a.id, relationship_type: Relationship.confirmed_type
+    create_relationship source_id: p1.id, target_id: p1b.id, relationship_type: Relationship.confirmed_type
+    p2 = create_project_media project: p
+    p2a = create_project_media project: p
+    p2b = create_project_media project: p
+    create_relationship source_id: p2.id, target_id: p2a.id
+    create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: Relationship.confirmed_type
+    post :create, params: { query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { confirmed_similar_items_count } }", team: t.slug }; false
+    assert_equal 2, JSON.parse(@response.body)['data']['project_media']['confirmed_similar_items_count']
+  end
+
+  test "should sort search by metadata value where items without metadata value show first on ascending order" do
+    RequestStore.store[:skip_cached_field_update] = false
+    at = create_annotation_type annotation_type: 'task_response_free_text'
+    create_field_instance annotation_type_object: at, name: 'response_free_text'
+    u = create_user is_admin: true
+    t = create_team
+    create_team_user team: t, user: u
+    tt1 = create_team_task fieldset: 'metadata', team_id: t.id
+    tt2 = create_team_task fieldset: 'metadata', team_id: t.id
+    t.list_columns = ["task_value_#{tt1.id}", "task_value_#{tt2.id}"]
+    t.save!
+    pm1 = create_project_media team: t, disable_es_callbacks: false
+    pm2 = create_project_media team: t, disable_es_callbacks: false
+    pm3 = create_project_media team: t, disable_es_callbacks: false
+    pm4 = create_project_media team: t, disable_es_callbacks: false
+
+    m = pm1.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt1.id }.last
+    m.disable_es_callbacks = false
+    m.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'B' }.to_json }.to_json
+    m.save!
+    m = pm3.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt1.id }.last
+    m.disable_es_callbacks = false
+    m.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'A' }.to_json }.to_json
+    m.save!
+    m = pm4.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt1.id }.last
+    m.disable_es_callbacks = false
+    m.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'C' }.to_json }.to_json
+    m.save!
+    sleep 5
+
+    m = pm1.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt2.id }.last
+    m.disable_es_callbacks = false
+    m.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'C' }.to_json }.to_json
+    m.save!
+    m = pm2.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt2.id }.last
+    m.disable_es_callbacks = false
+    m.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'B' }.to_json }.to_json
+    m.save!
+    m = pm4.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt2.id }.last
+    m.disable_es_callbacks = false
+    m.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'A' }.to_json }.to_json
+    m.save!
+    sleep 5
+
+    authenticate_with_user(u)
+
+    query = 'query CheckSearch { search(query: "{\"sort\":\"task_value_' + tt1.id.to_s + '\",\"sort_type\":\"asc\"}") {medias(first:20){edges{node{dbid}}}}}'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+    assert_equal 4, results.size
+    assert_equal pm2.id, results.first
+
+    query = 'query CheckSearch { search(query: "{\"sort\":\"task_value_' + tt2.id.to_s + '\",\"sort_type\":\"asc\"}") {medias(first:20){edges{node{dbid}}}}}'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+    assert_equal 4, results.size
+    assert_equal pm3.id, results.first
+
+    query = 'query CheckSearch { search(query: "{\"sort\":\"task_value_' + tt1.id.to_s + '\",\"sort_type\":\"desc\"}") {medias(first:20){edges{node{dbid}}}}}'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+    assert_equal 4, results.size
+    assert_equal pm2.id, results.last
+
+    query = 'query CheckSearch { search(query: "{\"sort\":\"task_value_' + tt2.id.to_s + '\",\"sort_type\":\"desc\"}") {medias(first:20){edges{node{dbid}}}}}'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+    assert_equal 4, results.size
+    assert_equal pm3.id, results.last
+  end
+
+  test "should load permissions for GraphQL" do
+    pm1 = create_project_media
+    pm2 = create_project_media
+    User.current = create_user
+    PermissionsLoader.any_instance.stubs(:fulfill).returns(nil)
+    assert_kind_of Array, PermissionsLoader.new(nil).perform([pm1.id, pm2.id])
+    PermissionsLoader.any_instance.unstub(:fulfill)
+    User.current = nil
+  end
+
+  test "should not get Smooch Bot RSS feed preview if not logged in" do
+    u = create_user
+    t = create_team
+    b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id
+    tu = create_team_user team: t, user: u, role: 'admin'
+    url = random_url
+    output = "Foo\nhttp://foo\n\nBar\nhttp://bar"
+    query = 'query { node(id: "' + tbi.graphql_id + '") { ... on TeamBotInstallation { smooch_bot_preview_rss_feed(rss_feed_url: "' + url + '", number_of_articles: 3) } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_match /Sorry/, @response.body
+  end
+
+  test "should return similar items" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'admin'
+    authenticate_with_user(u)
+    p = create_project team: t
+    p1 = create_project_media project: p
+    p1a = create_project_media project: p
+    p1b = create_project_media project: p
+    create_relationship source_id: p1.id, target_id: p1a.id, relationship_type: Relationship.suggested_type
+    create_relationship source_id: p1.id, target_id: p1b.id, relationship_type: Relationship.suggested_type
+    p2 = create_project_media project: p
+    p2a = create_project_media project: p
+    p2b = create_project_media project: p
+    create_relationship source_id: p2.id, target_id: p2a.id
+    create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: Relationship.suggested_type
+    post :create, params: { query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { is_main, is_secondary, is_confirmed_similar_to_another_item, suggested_main_item { id }, confirmed_main_item { id }, default_relationships_count, default_relationships(first: 10000) { edges { node { dbid } } }, confirmed_similar_relationships(first: 10000) { edges { node { dbid } } }, suggested_similar_relationships(first: 10000) { edges { node { target { dbid } } } } } }", team: t.slug }
+    assert_equal [p1a.id, p1b.id].sort, JSON.parse(@response.body)['data']['project_media']['suggested_similar_relationships']['edges'].collect{ |x| x['node']['target']['dbid'] }.sort
+  end
+
+  test "should get Smooch Bot RSS feed preview if has permissions" do
+    rss = %{
+      <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+        <channel>
+          <title>Test</title>
+          <link>http://test.com/rss.xml</link>
+          <description>Test</description>
+          <language>en</language>
+          <lastBuildDate>Fri, 09 Oct 2020 18:00:48 GMT</lastBuildDate>
+          <managingEditor>test@test.com (editors)</managingEditor>
+          <item>
+            <title>Foo</title>
+            <description>This is the description.</description>
+            <pubDate>Wed, 11 Apr 2018 15:25:00 GMT</pubDate>
+            <link>http://foo</link>
+          </item>
+          <item>
+            <title>Bar</title>
+            <description>This is the description.</description>
+            <pubDate>Wed, 10 Apr 2018 15:25:00 GMT</pubDate>
+            <link>http://bar</link>
+          </item>
+        </channel>
+      </rss>
+    }
+    u = create_user
+    t = create_team
+    b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id
+    tu = create_team_user team: t, user: u, role: 'admin'
+    authenticate_with_user(u)
+    url = random_url
+    WebMock.stub_request(:get, url).to_return(status: 200, body: rss)
+    output = "Foo\nhttp://foo\n\nBar\nhttp://bar"
+    query = 'query { node(id: "' + tbi.graphql_id + '") { ... on TeamBotInstallation { smooch_bot_preview_rss_feed(rss_feed_url: "' + url + '", number_of_articles: 3) } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_no_match /Sorry/, @response.body
+    assert_equal output, JSON.parse(@response.body)['data']['node']['smooch_bot_preview_rss_feed']
   end
 end

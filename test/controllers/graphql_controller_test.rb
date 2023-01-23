@@ -1115,4 +1115,119 @@ class GraphqlControllerTest < ActionController::TestCase
       RelayOnRailsSchema.reload_mutations!
     end
   end
+
+  test "should replace blank project media by another" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'admin'
+    old = create_project_media team: t, media: Blank.create!
+    r = publish_report(old)
+    new = create_project_media team: t
+    authenticate_with_user(u)
+
+    query = 'mutation { replaceProjectMedia(input: { clientMutationId: "1", project_media_to_be_replaced_id: "' + old.graphql_id + '", new_project_media_id: "' + new.graphql_id + '" }) { old_project_media_deleted_id, new_project_media { dbid } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['replaceProjectMedia']
+    assert_equal old.graphql_id, data['old_project_media_deleted_id']
+    assert_equal new.id, data['new_project_media']['dbid']
+    assert_nil ProjectMedia.find_by_id(old.id)
+    assert_equal r, new.get_dynamic_annotation('report_design')
+  end
+
+  test "should set and get Slack settings for team" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'admin'
+    authenticate_with_user(u)
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", slack_notifications: "[{\"label\":\"not #1\",\"event_type\":\"any_activity\",\"slack_channel\":\"#list\"}]" }) { team { get_slack_notifications } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body)['data']['updateTeam']['team']['get_slack_notifications']
+  end
+
+  test "should set and get special list filters for team" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'admin'
+    authenticate_with_user(u)
+    # Tipline list
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", tipline_inbox_filters: "{\"read\":[\"0\"],\"projects\":[\"-1\"]}" }) { team { get_tipline_inbox_filters } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body)['data']['updateTeam']['team']['get_tipline_inbox_filters']
+    # Suggested match list
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", suggested_matches_filters: "{\"projects\":[\"-1\"],\"suggestions_count\":{\"min\":5,\"max\":10}}" }) { team { get_suggested_matches_filters } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body)['data']['updateTeam']['team']['get_suggested_matches_filters']
+  end
+
+  test "should get item tasks by fieldset" do
+    u = create_user is_admin: true
+    t = create_team
+    pm = create_project_media team: t
+    t1 = create_task annotated: pm, fieldset: 'tasks'
+    t2 = create_task annotated: pm, fieldset: 'metadata'
+    ids = [pm.id, nil, t.id].join(',')
+    authenticate_with_user(u)
+
+    query = 'query { project_media(ids: "' + ids + '") { tasks(fieldset: "tasks", first: 1000) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal t1.id, JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']['dbid'].to_i
+
+    query = 'query { project_media(ids: "' + ids + '") { tasks(fieldset: "metadata", first: 1000) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal t2.id, JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']['dbid'].to_i
+    s = create_source team: t
+    t3 = create_task annotated: s, fieldset: 'metadata'
+    query = 'query { source(id: "' + s.id.to_s + '") { tasks(fieldset: "metadata", first: 1000) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal t3.id, JSON.parse(@response.body)['data']['source']['tasks']['edges'][0]['node']['dbid'].to_i
+  end
+
+  test "should get team tasks by fieldset" do
+    u = create_user is_admin: true
+    t = create_team
+    t1 = create_team_task team_id: t.id, fieldset: 'tasks'
+    t2 = create_team_task team_id: t.id, fieldset: 'metadata'
+    authenticate_with_user(u)
+
+    query = 'query { team { team_tasks(fieldset: "tasks", first: 1000) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal t1.id, JSON.parse(@response.body)['data']['team']['team_tasks']['edges'][0]['node']['dbid'].to_i
+
+    query = 'query { team { team_tasks(fieldset: "metadata", first: 1000) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal t2.id, JSON.parse(@response.body)['data']['team']['team_tasks']['edges'][0]['node']['dbid'].to_i
+  end
+
+  test "should update task options" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'admin'
+    tt = create_team_task team_id: t.id, label: 'Select one', type: 'single_choice', options: ['ans_a', 'ans_b', 'ans_c']
+    pm = create_project_media team: t
+    authenticate_with_user(u)
+    query = 'mutation { updateTeamTask(input: { clientMutationId: "1", id: "' + tt.graphql_id + '", label: "Select only one", json_options: "[ \"bli\", \"blo\", \"bla\" ]", options_diff: "{ \"deleted\": [\"ans_c\"], \"changed\": { \"ans_a\": \"bli\", \"ans_b\": \"blo\" }, \"added\": \"bla\" }" }) { team_task { label } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 'Select only one', tt.reload.label
+    assert_equal ['bli', 'blo', 'bla'], tt.options
+  end
+  
+  test "should get team fieldsets" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    t = create_team
+    query = 'query { team { get_fieldsets } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_kind_of Array, JSON.parse(@response.body)['data']['team']['get_fieldsets']
+  end
 end
