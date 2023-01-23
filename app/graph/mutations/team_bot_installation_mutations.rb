@@ -5,7 +5,8 @@ module TeamBotInstallationMutations
   }
 
   update_fields = {
-    json_settings: 'str'
+    json_settings: 'str',
+    lock_version: 'int'
   }
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('team_bot_installation', create_fields, update_fields, ['team', 'bot_user'])
