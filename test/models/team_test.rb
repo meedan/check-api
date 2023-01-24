@@ -2672,7 +2672,7 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should return data report with chronologically ordered items, preferring the MonthlyTeamStatistics when present" do
-    t = create_team
+    t = create_team(name: 'Test team')
     assert_nil t.data_report
 
     Rails.cache.write("data:report:#{t.id}", [{ 'Month' => 'Jan 2022', 'Conversations' => 200 }])
@@ -2681,10 +2681,12 @@ class TeamTest < ActiveSupport::TestCase
     create_monthly_team_statistic(team: t, start_date: DateTime.new(2022, 1, 1), conversations: 2)
 
     data_report = t.data_report
+    first_stat = data_report.first
 
     assert_equal 2, data_report.length
-    assert_equal '1. Jan 2022', data_report.first['Month']
-    assert_equal 2, data_report.first['Conversations']
+    assert_equal '1. Jan 2022', first_stat['Month']
+    assert_equal 'Test team', first_stat['Org']
+    assert_equal 2, first_stat['Conversations']
   end
 
   test "should have feeds" do
