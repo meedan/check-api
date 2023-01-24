@@ -1,7 +1,7 @@
 class CheckSearch
   include SearchHelper
 
-  def initialize(options, file = nil, team_id = Team.current.id)
+  def initialize(options, file = nil, team_id = Team.current&.id)
     # Options include keywords, projects, tags, status, report status
     options = begin JSON.parse(options) rescue {} end
     @options = options.clone.with_indifferent_access
@@ -60,7 +60,7 @@ class CheckSearch
 
   def team_condition(team_id = nil)
     if feed_query?
-      FeedTeam.where(feed_id: @feed.id, team_id: Team.current.id).last.shared ? @feed.team_ids : [0] # Invalidate the query if the current team is not sharing content
+      FeedTeam.where(feed_id: @feed.id, team_id: Team.current&.id).last.shared ? @feed.team_ids : [0] # Invalidate the query if the current team is not sharing content
     else
       team_id || Team.current&.id
     end
