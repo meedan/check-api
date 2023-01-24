@@ -741,98 +741,6 @@ class GraphqlController3Test < ActionController::TestCase
     end
   end
 
-  test "should check permission before setting Slack channel URL" do
-    create_annotation_type_and_fields('Smooch User', {
-      'Slack Channel Url' => ['Text', true]
-    })
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
-    d = create_dynamic_annotation annotated: p, annotation_type: 'smooch_user'
-    u2 = create_user
-    authenticate_with_user(u2)
-    query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "' + d.id.to_s + '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + random_url+ '\"}" }) { annotation { dbid } } }'
-    post :create, params: { query: query }
-    assert_response 400
-  end
-
-  test "should delete tag" do
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'admin'
-    authenticate_with_user(u)
-    p = create_project team: t
-    pm = create_project_media project: p
-    tg = create_tag annotated: pm
-    id = Base64.encode64("Tag/#{tg.id}")
-    query = 'mutation destroy { destroyTag(input: { clientMutationId: "1", id: "' + id + '" }) { deletedId } }'
-    post :create, params: { query: query }
-    assert_response :success
-  end
-
-  test "should create relationship" do
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'admin'
-    authenticate_with_user(u)
-    pm1 = create_project_media team: t
-    pm2 = create_project_media team: t
-    assert_difference 'Relationship.count' do
-      query = 'mutation { createRelationship(input: { clientMutationId: "1", source_id: ' + pm1.id.to_s + ', target_id: ' + pm2.id.to_s + ', relationship_type: "{\"source\":\"full_video\",\"target\":\"clip\"}" }) { relationship { dbid } } }'
-      post :create, params: { query: query }
-    end
-    assert_response :success
-  end
-
-  test "should get statuses from team" do
-    u = create_user is_admin: true
-    t = create_team
-    authenticate_with_user(u)
-    query = "query { team(slug: \"#{t.slug}\") { verification_statuses } }"
-    post :create, params: { query: query }
-    assert_response :success
-    assert_not_nil JSON.parse(@response.body)['data']['team']['verification_statuses']
-  end
-
-  test "should create comment with fragment" do
-    u = create_user is_admin: true
-    pm = create_project_media
-    authenticate_with_user(u)
-    query = 'mutation { createComment(input: { fragment: "t=10,20", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", text: "Test" }) { comment { parsed_fragment } } }'
-    assert_difference 'Comment.length', 1 do
-      post :create, params: { query: query, team: pm.team.slug }
-    end
-    assert_response :success
-    assert_equal({ 't' => [10, 20] }, JSON.parse(@response.body)['data']['createComment']['comment']['parsed_fragment'])
-    assert_equal({ 't' => [10, 20] }, pm.get_annotations('comment').last.load.parsed_fragment)
-  end
-
-  test "should create tag and get tag text as parent" do
-    u = create_user is_admin: true
-    pm = create_project_media
-    authenticate_with_user(u)
-    query = 'mutation { createTag(input: { annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", tag: "Test" }) { tag_text_object { text } } }'
-    assert_difference 'Tag.length', 1 do
-      post :create, params: { query: query, team: pm.team.slug }
-    end
-    assert_response :success
-    assert_equal 'Test', JSON.parse(@response.body)['data']['createTag']['tag_text_object']['text']
-  end
-
-  test "should get comments from media" do
-    u = create_user is_admin: true
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    c = create_comment annotated: pm, fragment: 't=10,20'
-    authenticate_with_user(u)
-    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { comments(first: 10) { edges { node { parsed_fragment } } } } }"
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal({ 't' => [10, 20] }, JSON.parse(@response.body)['data']['project_media']['comments']['edges'][0]['node']['parsed_fragment'])
-  end
-
   test "should get requests from media" do
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     u = create_user is_admin: true
@@ -918,6 +826,49 @@ class GraphqlController3Test < ActionController::TestCase
     assert_response :success
     assert_not_nil JSON.parse(@response.body)['data']['search']
     assert_nil JSON.parse(@response.body)['errors']
+  end
+
+  test "should filter by user in ElasticSearch" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t
+    pm = create_project_media team: t, quote: 'This is a test', media: nil, user: u, disable_es_callbacks: false
+    create_project_media team: t, user: u, disable_es_callbacks: false
+    create_project_media team: t, disable_es_callbacks: false
+    sleep 1
+    authenticate_with_user(u)
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"test\",\"users\":[' + u.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+
+    assert_response :success
+    assert_equal [pm.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+  end
+
+  test "should filter by read in ElasticSearch" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t
+    pm1 = create_project_media team: t, quote: 'This is a test', media: nil, read: true, disable_es_callbacks: false
+    pm2 = create_project_media team: t, quote: 'This is another test', media: nil, disable_es_callbacks: false
+    pm3 = create_project_media quote: 'This is another test', media: nil, disable_es_callbacks: false
+    sleep 1
+    authenticate_with_user(u)
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"test\",\"read\":[1]}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"test\",\"read\":[0]}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"test\"}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
   end
 
 end

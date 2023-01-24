@@ -314,6 +314,49 @@ class GraphqlController4Test < ActionController::TestCase
     assert_equal p4.title, Rails.cache.read("check_cached_field:ProjectMedia:#{t_pm2.id}:folder")
   end
 
+  test "should not get Smooch Bot RSS feed preview if not owner" do
+    u = create_user
+    t = create_team
+    b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id
+    tu = create_team_user team: t, user: u, role: 'collaborator'
+    authenticate_with_user(u)
+    url = random_url
+    output = "Foo\nhttp://foo\n\nBar\nhttp://bar"
+    query = 'query { node(id: "' + tbi.graphql_id + '") { ... on TeamBotInstallation { smooch_bot_preview_rss_feed(rss_feed_url: "' + url + '", number_of_articles: 3) } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_match /Sorry/, @response.body
+  end
+
+  test "should not get Smooch Bot RSS feed preview if not member of the team" do
+    u = create_user
+    t = create_team
+    b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id
+    tu = create_team_user team: t, user: u, role: 'admin'
+    authenticate_with_user(create_user)
+    url = random_url
+    output = "Foo\nhttp://foo\n\nBar\nhttp://bar"
+    query = 'query { node(id: "' + tbi.graphql_id + '") { ... on TeamBotInstallation { smooch_bot_preview_rss_feed(rss_feed_url: "' + url + '", number_of_articles: 3) } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_match /Sorry/, @response.body
+  end
+
+  test "should update project media source" do
+    s = create_source team: @t
+    s2 = create_source team: @t
+    pm = create_project_media team: @t, source_id: s.id, skip_autocreate_source: false
+    pm2 = create_project_media team: @t, source_id: s2.id, skip_autocreate_source: false
+    assert_equal s.id, pm.source_id
+    query = "mutation { updateProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm.graphql_id}\", source_id: #{s2.id}}) { project_media { source { dbid, medias_count, medias(first: 10) { edges { node { dbid } } } } } } }"
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['updateProjectMedia']['project_media']
+    assert_equal s2.id, data['source']['dbid']
+    assert_equal 2, data['source']['medias_count']
+    assert_equal 2, data['source']['medias']['edges'].size
+  end
+
   protected
 
   def assert_error_message(expected)
