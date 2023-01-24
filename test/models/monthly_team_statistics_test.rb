@@ -63,7 +63,6 @@ class MonthlyTeamStatisticTest < ActiveSupport::TestCase
     hash = stat.formatted_hash
 
     assert_equal hash["ID"], stat.id
-    assert_equal hash["Org"], "Fake team"
     assert_equal hash["Platform"], "WhatsApp"
     assert_equal hash["Language"], "en"
     assert_equal hash["Month"], "Apr 2020"
@@ -100,13 +99,6 @@ class MonthlyTeamStatisticTest < ActiveSupport::TestCase
     stat = MonthlyTeamStatistic.new(start_date: DateTime.new(2020,04,15))
 
     assert_equal "Apr 2020", stat.month
-  end
-
-  test ".org returns the team name" do
-    team = create_team(name: "Fake team")
-    stat = MonthlyTeamStatistic.create(team: team)
-
-    assert_equal "Fake team", stat.org
   end
 
   test "sets default of - if value is not present" do
