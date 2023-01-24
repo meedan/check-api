@@ -147,8 +147,7 @@ QueryType = GraphQL::ObjectType.define do
 
     resolve -> (_obj, args, ctx) do
       team = Team.find_if_can(Team.current&.id.to_i, ctx[:ability])
-      team_id = team.nil? ? nil : team.id
-      CheckSearch.new(args['query'], ctx[:file], team_id)
+      CheckSearch.new(args['query'], ctx[:file], team&.id)
     end
   end
 
