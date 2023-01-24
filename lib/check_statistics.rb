@@ -94,11 +94,17 @@ module CheckStatistics
         CheckTracer.in_span('CheckStatistics#average_messages_per_day', attributes: tracing_attributes) do
           numbers_of_messages = []
           project_media_requests(team_id, platform, start_date, end_date, language).find_each do |a|
-            n = JSON.parse(a.load.get_field_value('smooch_data'))['text'].to_s.split(Bot::Smooch::MESSAGE_BOUNDARY).size
+            smooch_data = a.load.get_field_value('smooch_data')
+            parsed_smooch_data = begin JSON.parse(smooch_data) rescue smooch_data end
+
+            n = parsed_smooch_data['text'].to_s.split(Bot::Smooch::MESSAGE_BOUNDARY).size
             numbers_of_messages << n * 2
           end
           team_requests(team_id, platform, start_date, end_date, language).find_each do |a|
-            n = JSON.parse(a.load.get_field_value('smooch_data'))['text'].to_s.split(Bot::Smooch::MESSAGE_BOUNDARY).size
+            smooch_data = a.load.get_field_value('smooch_data')
+            parsed_smooch_data = begin JSON.parse(smooch_data) rescue smooch_data end
+
+            n = parsed_smooch_data['text'].to_s.split(Bot::Smooch::MESSAGE_BOUNDARY).size
             numbers_of_messages << n * 2
           end
           search_results = project_media_requests(team_id, platform, start_date, end_date, language, 'relevant_search_result_requests').count + project_media_requests(team_id, platform, start_date, end_date, language, 'irrelevant_search_result_requests').count + project_media_requests(team_id, platform, start_date, end_date, language, 'timeout_search_requests').count
