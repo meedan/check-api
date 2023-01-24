@@ -9,7 +9,6 @@ class MonthlyTeamStatistic < ApplicationRecord
   # Mapping of attributes to human-readable descriptions
   FIELD_MAPPINGS = {
     id: "ID",
-    org: "Org", # model method
     platform_name: "Platform", # model method
     language: "Language",
     month: "Month", # model method
@@ -40,10 +39,6 @@ class MonthlyTeamStatistic < ApplicationRecord
 
   # Below methods must match a key in FIELD_MAPPINGS to be included in
   # the .formatted_hash output
-  def org
-    team.name
-  end
-
   def month
     start_date&.strftime('%b %Y')
   end
