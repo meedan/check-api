@@ -121,7 +121,7 @@ module SmoochMessages
         message << self.tos_message(workflow, language) unless is_v2
       end
       message << self.subscription_message(uid, language) if state.to_s == 'subscription'
-      message << workflow.dig("smooch_state_#{state}", 'smooch_menu_message') if state != 'main' || !is_v2
+      message << workflow&.dig("smooch_state_#{state}", 'smooch_menu_message') if state != 'main' || !is_v2
       message << self.get_custom_string("#{state}_state", language) if ['search', 'search_result', 'add_more_details', 'ask_if_ready'].include?(state.to_s)
       message.reject{ |m| m.blank? }.join("\n\n")
     end
