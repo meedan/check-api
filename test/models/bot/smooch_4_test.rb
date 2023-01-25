@@ -633,4 +633,45 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
       Bot::Smooch.send_report_to_user(random_string, { 'received' => Time.now.to_i }, pm, 'report')
     end
   end
+
+  test "should search for longest string between query and URL description" do
+    ProjectMedia.any_instance.stubs(:report_status).returns('published')
+
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    url = 'http://test.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item","description":"Foo bar"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => "Foo bar foo bar #{url}" })
+    CheckSearch.any_instance.stubs(:medias).returns([pm1])
+    Bot::Alegre.stubs(:get_merged_similar_items).returns({ pm2.id => { score: 0.9, model: 'elasticsearch' } })
+
+    assert_equal [pm2], Bot::Smooch.get_search_results(random_string, {}, t.id, 'en')
+    Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => "Test #{url}" })
+    assert_equal [pm1], Bot::Smooch.get_search_results(random_string, {}, t.id, 'en')
+
+    ProjectMedia.any_instance.unstub(:report_status)
+    CheckSearch.any_instance.unstub(:medias)
+    Bot::Smooch.unstub(:bundle_list_of_messages)
+    Bot::Alegre.unstub(:get_merged_similar_items)
+  end
+
+  test "should search by URL" do
+    t = create_team
+    f = create_feed published: true
+    f.teams << t
+    FeedTeam.update_all(shared: true)
+
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"http://projetocomprova.com.br/publicações/tuite-engana-ao-dizer-que-o-stf-decidiu-que-voto-impresso-e-inconstitucional/","type":"item","title":"Foo","description":"Bar"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://projetocomprova.com.br/publica%C3%A7%C3%B5es/tuite-engana-ao-dizer-que-o-stf-decidiu-que-voto-impresso-e-inconstitucional/' } }).to_return(body: response)
+
+    assert_nothing_raised do
+      with_current_user_and_team(nil, t) do
+        Bot::Smooch.search_for_similar_published_fact_checks('text', 'https://projetocomprova.com.br/publicações/tuite-engana-ao-dizer-que-o-stf-decidiu-que-voto-impresso-e-inconstitucional/ ', [t.id], nil, f.id)
+      end
+    end
+  end
 end
