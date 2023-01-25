@@ -679,4 +679,17 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       create_dynamic_annotation annotation_type: 'smooch_user', set_fields: fields.to_json
     end
   end
+
+  test "should avoid race condition on newsletter delivery" do
+    @installation.set_smooch_disable_timeout = false
+    @installation.save!
+    Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
+
+    assert_no_difference 'ProjectMedia.count' do
+      Sidekiq::Testing.fake! do
+        send_message_to_smooch_bot('Read now', @uid, { 'quotedMessage' => { 'content' => { '_id' => random_string } } })
+      end
+      Sidekiq::Worker.drain_all
+    end
+  end
 end

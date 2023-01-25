@@ -39,8 +39,13 @@ module SmoochMessages
       redis.lrange(key, 0, redis.llen(key)).to_a.uniq
     end
 
+    def bundle_contains_only_a_timeout_button_event(list, type)
+      list.size == 1 && !list[0]['quotedMessage'].blank? && type == 'timeout_requests' && list[0]['payload'].blank?
+    end
+
     def bundle_messages(uid, id, app_id, type = 'default_requests', annotated = nil, force = false, bundle = nil)
       list = bundle || self.list_of_bundled_messages_from_user(uid)
+      return if bundle_contains_only_a_timeout_button_event(list, type) # Don't store a request that is just a reaction to a button
       unless list.empty?
         last = JSON.parse(list.last)
         if last['_id'] == id || ['menu_options_requests'].include?(type) || force
