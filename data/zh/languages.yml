@@ -1,5 +1,5 @@
-zh: 
-  languages: 
+zh:
+  languages:
     aa: 阿法文
     ab: 阿布哈西亚文
     ace: 亚齐文
@@ -571,6 +571,7 @@ zh:
     zen: 泽纳加文
     zgh: 标准摩洛哥塔马塞特文
     zh: 中文
+    zh-CN: 中文
     zh-Hans: 简体中文
     zh-Hant: 繁体中文
     znd: 赞德文
