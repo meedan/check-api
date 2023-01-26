@@ -472,18 +472,12 @@ module ProjectMediaCachedFields
     end
 
     def recalculate_last_seen
-      # If it’s not a main item (so, single or child, a.k.a. “confirmed match” or “suggestion”), then last_seen is related only to smooch annotations (requests) related to that ProjectMedia.
-      value = Dynamic.where(annotation_type: 'smooch', annotated_id: self.id).order('created_at DESC').last&.created_at ||
-        ProjectMedia.find_by_id(self.id)&.created_at || 0
-
       # If it’s a main/parent item, last_seen is related to any request (smooch annotation) to that own ProjectMedia or any similar/child ProjectMedia
-      if self.is_parent
-        ids = self.related_items_ids
-        v1 = Dynamic.where(annotation_type: 'smooch', annotated_id: ids).order('created_at DESC').last&.created_at || 0
-        v2 = ProjectMedia.where(id: ids)&.order('created_at DESC').last&.created_at || 0
-        value = [v1, v2].max
-      end
-      value.to_i
+      # If it’s not a main item (so, single or child, a.k.a. “confirmed match” or “suggestion”), then last_seen is related only to smooch annotations (requests) related to that ProjectMedia.
+      ids = self.is_parent ? self.related_items_ids : self.id
+      v1 = Dynamic.where(annotation_type: 'smooch', annotated_id: ids).order('created_at DESC').first&.created_at || 0
+      v2 = ProjectMedia.where(id: ids).order('created_at DESC').first&.created_at || 0
+      [v1, v2].max.to_i
     end
 
     def recalculate_fact_check_title
