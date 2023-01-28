@@ -126,7 +126,7 @@ module SmoochMessages
         message << self.tos_message(workflow, language) unless is_v2
       end
       message << self.subscription_message(uid, language) if state.to_s == 'subscription'
-      message << workflow&.dig("smooch_state_#{state}", 'smooch_menu_message') if state != 'main' || !is_v2
+      message << self.get_custom_string(["smooch_state_#{state}", 'smooch_menu_message'], language) if state != 'main' || !is_v2
       message << self.get_custom_string("#{state}_state", language) if ['search', 'search_result', 'add_more_details', 'ask_if_ready'].include?(state.to_s)
       message.reject{ |m| m.blank? }.join("\n\n")
     end
@@ -140,7 +140,7 @@ module SmoochMessages
 
     def send_message_if_disabled_and_return_state(uid, workflow, state)
       disabled = self.config['smooch_disabled']
-      self.send_message_to_user(uid, workflow['smooch_message_smooch_bot_disabled'], {}, true) if disabled
+      self.send_message_to_user(uid, self.get_custom_string('smooch_message_smooch_bot_disabled', workflow['smooch_workflow_language']), {}, true) if disabled
       disabled ? 'disabled' : state
     end
 
