@@ -44,5 +44,6 @@ if File.exist?(file)
 
   Sidekiq.configure_client do |config|
     config.redis = redis_config
+    config.logger.level = Logger::WARN if Rails.env.test?
   end
 end
