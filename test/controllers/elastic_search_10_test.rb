@@ -191,4 +191,36 @@ class ElasticSearch10Test < ActionController::TestCase
     result = CheckSearch.new({ projects: [p.id], sort: 'creator_name', sort_type: 'desc' }.to_json, nil, t.id)
     assert_equal [pm4.id, pm3.id, pm2.id, pm1.id], result.medias.map(&:id)
   end
+
+  test "should index and search by language" do
+    att = 'language'
+    at = create_annotation_type annotation_type: att, label: 'Language'
+    language = create_field_type field_type: 'language', label: 'Language'
+    create_field_instance annotation_type_object: at, name: 'language', field_type_object: language
+
+    languages = ['pt', 'en', 'ar', 'es', 'pt-BR', 'pt-PT']
+    ids = {}
+
+    languages.each do |code|
+      pm = create_project_media disable_es_callbacks: false
+      d = create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: { language: code }.to_json, disable_es_callbacks: false
+      ids[code] = pm.id
+    end
+
+    sleep languages.size * 2
+
+    languages.each do |code|
+      search = {
+        query: {
+          terms: {
+            language: [code]
+          }
+        }
+      }
+
+      results = $repository.search(search).results
+      assert_equal 1, results.size
+      assert_equal ids[code], results.first['annotated_id']
+    end
+  end
 end

@@ -6,39 +6,6 @@ class ElasticSearch2Test < ActionController::TestCase
     setup_elasticsearch
   end
   
-  test "should get teams" do
-    u = create_user
-    t = create_team
-    with_current_user_and_team(u, t) do
-      s = CheckSearch.new({}.to_json)
-      assert_equal [], s.teams
-      assert_equal t.id, s.team.id
-    end
-  end
-
-  test "should update elasticsearch after move project to other team" do
-    u = create_user
-    t = create_team
-    t2 = create_team
-    u.is_admin = true; u.save!
-    p = create_project team: t
-    m = create_valid_media
-    User.stubs(:current).returns(u)
-    Sidekiq::Testing.inline! do
-      pm = create_project_media project: p, media: m, disable_es_callbacks: false
-      pm2 = create_project_media project: p, quote: 'Claim', disable_es_callbacks: false
-      sleep 2
-      results = $repository.search(query: { match: { team_id: t.id } }).results
-      assert_equal [pm.id, pm2.id], results.collect{|i| i['annotated_id']}.sort
-      p.team_id = t2.id; p.save!
-      sleep 2
-      results = $repository.search(query: { match: { team_id: t.id } }).results
-      assert_equal [], results.collect{|i| i['annotated_id']}
-      results = $repository.search(query: { match: { team_id: t2.id } }).results
-      assert_equal [pm.id, pm2.id], results.collect{|i| i['annotated_id']}.sort
-    end
-  end
-
   test "should update elasticsearch after move media to other projects" do
     t = create_team
     u = create_user
@@ -198,38 +165,6 @@ class ElasticSearch2Test < ActionController::TestCase
       assert_equal 0, ElasticSearchWorker.jobs.size
       pm = create_project_media media: m, disable_es_callbacks: false
       assert ElasticSearchWorker.jobs.size > 0
-    end
-  end
-
-  test "should index and search by language" do
-    att = 'language'
-    at = create_annotation_type annotation_type: att, label: 'Language'
-    language = create_field_type field_type: 'language', label: 'Language'
-    create_field_instance annotation_type_object: at, name: 'language', field_type_object: language
-
-    languages = ['pt', 'en', 'ar', 'es', 'pt-BR', 'pt-PT']
-    ids = {}
-
-    languages.each do |code|
-      pm = create_project_media disable_es_callbacks: false
-      d = create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: { language: code }.to_json, disable_es_callbacks: false
-      ids[code] = pm.id
-    end
-
-    sleep languages.size * 2
-
-    languages.each do |code|
-      search = {
-        query: {
-          terms: {
-            language: [code]
-          }
-        }
-      }
-
-      results = $repository.search(search).results
-      assert_equal 1, results.size
-      assert_equal ids[code], results.first['annotated_id']
     end
   end
 

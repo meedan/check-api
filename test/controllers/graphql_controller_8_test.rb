@@ -360,18 +360,6 @@ class GraphqlController8Test < ActionController::TestCase
     assert_equal({ 't' => [10, 20] }, pm.get_annotations('comment').last.load.parsed_fragment)
   end
 
-  test "should create tag and get tag text as parent" do
-    u = create_user is_admin: true
-    pm = create_project_media
-    authenticate_with_user(u)
-    query = 'mutation { createTag(input: { annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", tag: "Test" }) { tag_text_object { text } } }'
-    assert_difference 'Tag.length', 1 do
-      post :create, params: { query: query, team: pm.team.slug }
-    end
-    assert_response :success
-    assert_equal 'Test', JSON.parse(@response.body)['data']['createTag']['tag_text_object']['text']
-  end
-
   test "should get comments from media" do
     u = create_user is_admin: true
     t = create_team
@@ -384,8 +372,6 @@ class GraphqlController8Test < ActionController::TestCase
     assert_response :success
     assert_equal({ 't' => [10, 20] }, JSON.parse(@response.body)['data']['project_media']['comments']['edges'][0]['node']['parsed_fragment'])
   end
-
-
 
   protected
 

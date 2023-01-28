@@ -86,74 +86,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal 'Custom Status 3', r2.reload.report_design_field_value('status_label')
   end
 
-  test "should access GraphQL query if not authenticated" do
-    post :create, params: { query: 'query Query { about { name, version } }' }
-    assert_response 200
-  end
-
-  test "should not access GraphQL mutation if not authenticated" do
-    post :create, params: { query: 'mutation Test' }
-    assert_response 401
-  end
-
-  test "should access About if not authenticated" do
-    post :create, params: { query: 'query About { about { name, version } }' }
-    assert_response :success
-  end
-
-  test "should access GraphQL if authenticated" do
-    authenticate_with_user
-    post :create, params: { query: 'query Query { about { name, version, upload_max_size, upload_extensions, upload_max_dimensions, upload_min_dimensions, terms_last_updated_at } }', variables: '{"foo":"bar"}' }
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['about']
-    assert_kind_of String, data['name']
-    assert_kind_of String, data['version']
-  end
-
-  test "should not access GraphQL if authenticated as a bot" do
-    authenticate_with_user(create_bot_user)
-    post :create, params: { query: 'query Query { about { name, version, upload_max_size, upload_extensions, upload_max_dimensions, upload_min_dimensions } }', variables: '{"foo":"bar"}' }
-    assert_response 401
-  end
-
-  test "should get node from global id" do
-    authenticate_with_user
-    id = Base64.encode64('About/1')
-    post :create, params: { query: "query Query { node(id: \"#{id}\") { id } }" }
-    assert_equal id, JSON.parse(@response.body)['data']['node']['id']
-  end
-
-  test "should get current user" do
-    u = create_user name: 'Test User'
-    authenticate_with_user(u)
-    post :create, params: { query: 'query Query { me { source_id, token, is_admin, current_project { id }, name, bot { id } } }' }
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['me']
-    assert_equal 'Test User', data['name']
-  end
-
-  test "should get current user if logged in with token" do
-    u = create_user name: 'Test User'
-    authenticate_with_user_token(u.token)
-    post :create, params: { query: 'query Query { me { name } }' }
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['me']
-    assert_equal 'Test User', data['name']
-  end
-
-  test "should return 404 if object does not exist" do
-    authenticate_with_user
-    post :create, params: { query: 'query GetById { project_media(ids: "99999,99999") { id } }' }
-    assert_response :success
-  end
-
-  test "should set context team" do
-    authenticate_with_user
-    t = create_team slug: 'context'
-    post :create, params: { query: 'query Query { about { name, version } }', team: 'context' }
-    assert_equal t, assigns(:context_team)
-  end
-
   # Test CRUD operations for each model
 
   test "should create account source" do
@@ -370,6 +302,14 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_get_by_id('team', 'name', 'Test')
   end
 
+  test "should get access denied on source by id" do
+    authenticate_with_user
+    s = create_source user: create_user
+    query = "query GetById { source(id: \"#{s.id}\") { name } }"
+    post :create, params: { query: query }
+    assert_response 200
+  end
+
   test "should refresh account" do
     u = create_user
     authenticate_with_user(u)
@@ -387,47 +327,6 @@ class GraphqlControllerTest < ActionController::TestCase
       post :create, params: { query: query }
       assert_response :success
     end
-  end
-
-  test "should get access denied on source by id" do
-    authenticate_with_user
-    s = create_source user: create_user
-    query = "query GetById { source(id: \"#{s.id}\") { name } }"
-    post :create, params: { query: query }
-    assert_response 200
-  end
-
-  test "should get team by context" do
-    authenticate_with_user
-    t = create_team slug: 'context', name: 'Context Team'
-    post :create, params: { query: 'query Team { team { name } }', team: 'context' }
-    assert_response :success
-    assert_equal 'Context Team', JSON.parse(@response.body)['data']['team']['name']
-  end
-
-  test "should get public team by context" do
-    authenticate_with_user
-    t1 = create_team slug: 'team1', name: 'Team 1'
-    t2 = create_team slug: 'team2', name: 'Team 2'
-    post :create, params: { query: 'query PublicTeam { public_team { name } }', team: 'team1' }
-    assert_response :success
-    assert_equal 'Team 1', JSON.parse(@response.body)['data']['public_team']['name']
-  end
-
-  test "should get public team by slug" do
-    authenticate_with_user
-    t1 = create_team slug: 'team1', name: 'Team 1'
-    t2 = create_team slug: 'team2', name: 'Team 2'
-    post :create, params: { query: 'query PublicTeam { public_team(slug: "team2") { name } }', team: 'team1' }
-    assert_response :success
-    assert_equal 'Team 2', JSON.parse(@response.body)['data']['public_team']['name']
-  end
-
-  test "should not get team by context" do
-    authenticate_with_user
-    Team.delete_all
-    post :create, params: { query: 'query Team { team { name } }', team: 'test' }
-    assert_response :success
   end
 
   test "should not get teams marked as deleted" do
@@ -478,35 +377,6 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
     post :create, params: { query: query }
     assert_response :success
-  end
-
-  test "should update current team based on context team" do
-    u = create_user
-
-    t1 = create_team slug: 'team1'
-    create_team_user user: u, team: t1
-    t2 = create_team slug: 'team2'
-    t3 = create_team slug: 'team3'
-    create_team_user user: u, team: t3
-
-    u.current_team_id = t1.id
-    u.save!
-
-    assert_equal t1, u.reload.current_team
-
-    authenticate_with_user(u)
-
-    post :create, params: { query: 'query Query { me { name } }', team: 'team1' }
-    assert_response :success
-    assert_equal t1, u.reload.current_team
-
-    post :create, params: { query: 'query Query { me { name } }', team: 'team2' }
-    assert_response :success
-    assert_equal t1, u.reload.current_team
-
-    post :create, params: { query: 'query Query { me { name } }', team: 'team3' }
-    assert_response :success
-    assert_equal t3, u.reload.current_team
   end
 
   test "should get project media annotations" do
@@ -568,21 +438,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal t.name, JSON.parse(@response.body)['data']['project_media']['team']['name']
   end
 
-  test "should return 404 if public team does not exist" do
-    authenticate_with_user
-    Team.delete_all
-    post :create, params: { query: 'query PublicTeam { public_team { name } }', team: 'foo' }
-    assert_response :success
-  end
-
-  test "should return null if public team is not found" do
-    authenticate_with_user
-    Team.delete_all
-    post :create, params: { query: 'query FindPublicTeam { find_public_team(slug: "foo") { name } }', team: 'foo' }
-    assert_response :success
-    assert_nil JSON.parse(@response.body)['data']['find_public_team']
-  end
-
   test "should run few queries to get project data" do
     n = 18 # Number of media items to be created
     m = 5 # Number of annotations per media
@@ -633,14 +488,6 @@ class GraphqlControllerTest < ActionController::TestCase
       post :create, params: { query: query, file: file }
     end
     assert_response :success
-  end
-
-  test "should get team by slug" do
-    authenticate_with_user
-    t = create_team slug: 'context', name: 'Context Team'
-    post :create, params: { query: 'query Team { team(slug: "context") { name } }' }
-    assert_response :success
-    assert_equal 'Context Team', JSON.parse(@response.body)['data']['team']['name']
   end
 
   test "should get ordered medias" do
@@ -1075,159 +922,4 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "should get number of results without similar items" do
-    u = create_user
-    authenticate_with_user(u)
-    t = create_team slug: 'team'
-    create_team_user user: u, team: t
-    p = create_project team: t
-    pm1 = create_project_media project: p, quote: 'Test 1 Bar', disable_es_callbacks: false
-    pm2 = create_project_media project: p, quote: 'Test 2 Foo', disable_es_callbacks: false
-    create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type, disable_es_callbacks: false
-    pm3 = create_project_media project: p, quote: 'Test 3 Bar', disable_es_callbacks: false
-    pm4 = create_project_media project: p, quote: 'Test 4 Foo', disable_es_callbacks: false
-    create_relationship source_id: pm3.id, target_id: pm4.id, relationship_type: Relationship.confirmed_type, disable_es_callbacks: false
-    sleep 1
-
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\"}") { number_of_results } }' 
-    post :create, params: { query: query, team: 'team' }
-    assert_response :success
-    assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
-
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"show_similar\":false}") { number_of_results } }' 
-    post :create, params: { query: query, team: 'team' }
-    assert_response :success
-    assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
-
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"show_similar\":true}") { number_of_results } }' 
-    post :create, params: { query: query, team: 'team' }
-    assert_response :success
-    assert_equal 4, JSON.parse(@response.body)['data']['search']['number_of_results']
-
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Foo\",\"show_similar\":false}") { number_of_results } }' 
-    post :create, params: { query: query, team: 'team' }
-    assert_response :success
-    assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
-  end
-
-  test "should reload mutations" do
-    assert_nothing_raised do
-      RelayOnRailsSchema.reload_mutations!
-    end
-  end
-
-  test "should replace blank project media by another" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u, role: 'admin'
-    old = create_project_media team: t, media: Blank.create!
-    r = publish_report(old)
-    new = create_project_media team: t
-    authenticate_with_user(u)
-
-    query = 'mutation { replaceProjectMedia(input: { clientMutationId: "1", project_media_to_be_replaced_id: "' + old.graphql_id + '", new_project_media_id: "' + new.graphql_id + '" }) { old_project_media_deleted_id, new_project_media { dbid } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['replaceProjectMedia']
-    assert_equal old.graphql_id, data['old_project_media_deleted_id']
-    assert_equal new.id, data['new_project_media']['dbid']
-    assert_nil ProjectMedia.find_by_id(old.id)
-    assert_equal r, new.get_dynamic_annotation('report_design')
-  end
-
-  test "should set and get Slack settings for team" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u, role: 'admin'
-    authenticate_with_user(u)
-    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", slack_notifications: "[{\"label\":\"not #1\",\"event_type\":\"any_activity\",\"slack_channel\":\"#list\"}]" }) { team { get_slack_notifications } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_not_nil JSON.parse(@response.body)['data']['updateTeam']['team']['get_slack_notifications']
-  end
-
-  test "should set and get special list filters for team" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u, role: 'admin'
-    authenticate_with_user(u)
-    # Tipline list
-    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", tipline_inbox_filters: "{\"read\":[\"0\"],\"projects\":[\"-1\"]}" }) { team { get_tipline_inbox_filters } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_not_nil JSON.parse(@response.body)['data']['updateTeam']['team']['get_tipline_inbox_filters']
-    # Suggested match list
-    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", suggested_matches_filters: "{\"projects\":[\"-1\"],\"suggestions_count\":{\"min\":5,\"max\":10}}" }) { team { get_suggested_matches_filters } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_not_nil JSON.parse(@response.body)['data']['updateTeam']['team']['get_suggested_matches_filters']
-  end
-
-  test "should get item tasks by fieldset" do
-    u = create_user is_admin: true
-    t = create_team
-    pm = create_project_media team: t
-    t1 = create_task annotated: pm, fieldset: 'tasks'
-    t2 = create_task annotated: pm, fieldset: 'metadata'
-    ids = [pm.id, nil, t.id].join(',')
-    authenticate_with_user(u)
-
-    query = 'query { project_media(ids: "' + ids + '") { tasks(fieldset: "tasks", first: 1000) { edges { node { dbid } } } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal t1.id, JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']['dbid'].to_i
-
-    query = 'query { project_media(ids: "' + ids + '") { tasks(fieldset: "metadata", first: 1000) { edges { node { dbid } } } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal t2.id, JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']['dbid'].to_i
-    s = create_source team: t
-    t3 = create_task annotated: s, fieldset: 'metadata'
-    query = 'query { source(id: "' + s.id.to_s + '") { tasks(fieldset: "metadata", first: 1000) { edges { node { dbid } } } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal t3.id, JSON.parse(@response.body)['data']['source']['tasks']['edges'][0]['node']['dbid'].to_i
-  end
-
-  test "should get team tasks by fieldset" do
-    u = create_user is_admin: true
-    t = create_team
-    t1 = create_team_task team_id: t.id, fieldset: 'tasks'
-    t2 = create_team_task team_id: t.id, fieldset: 'metadata'
-    authenticate_with_user(u)
-
-    query = 'query { team { team_tasks(fieldset: "tasks", first: 1000) { edges { node { dbid } } } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal t1.id, JSON.parse(@response.body)['data']['team']['team_tasks']['edges'][0]['node']['dbid'].to_i
-
-    query = 'query { team { team_tasks(fieldset: "metadata", first: 1000) { edges { node { dbid } } } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal t2.id, JSON.parse(@response.body)['data']['team']['team_tasks']['edges'][0]['node']['dbid'].to_i
-  end
-
-  test "should update task options" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u, role: 'admin'
-    tt = create_team_task team_id: t.id, label: 'Select one', type: 'single_choice', options: ['ans_a', 'ans_b', 'ans_c']
-    pm = create_project_media team: t
-    authenticate_with_user(u)
-    query = 'mutation { updateTeamTask(input: { clientMutationId: "1", id: "' + tt.graphql_id + '", label: "Select only one", json_options: "[ \"bli\", \"blo\", \"bla\" ]", options_diff: "{ \"deleted\": [\"ans_c\"], \"changed\": { \"ans_a\": \"bli\", \"ans_b\": \"blo\" }, \"added\": \"bla\" }" }) { team_task { label } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal 'Select only one', tt.reload.label
-    assert_equal ['bli', 'blo', 'bla'], tt.options
-  end
-  
-  test "should get team fieldsets" do
-    u = create_user is_admin: true
-    authenticate_with_user(u)
-    t = create_team
-    query = 'query { team { get_fieldsets } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_kind_of Array, JSON.parse(@response.body)['data']['team']['get_fieldsets']
-  end
 end

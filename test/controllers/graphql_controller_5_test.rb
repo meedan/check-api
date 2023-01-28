@@ -413,6 +413,18 @@ class GraphqlController5Test < ActionController::TestCase
     assert_error_message 'maximum'
   end
 
+  test "should create tag and get tag text as parent" do
+    u = create_user is_admin: true
+    pm = create_project_media
+    authenticate_with_user(u)
+    query = 'mutation { createTag(input: { annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", tag: "Test" }) { tag_text_object { text } } }'
+    assert_difference 'Tag.length', 1 do
+      post :create, params: { query: query, team: pm.team.slug }
+    end
+    assert_response :success
+    assert_equal 'Test', JSON.parse(@response.body)['data']['createTag']['tag_text_object']['text']
+  end
+
   protected
 
   def assert_error_message(expected)

@@ -326,7 +326,159 @@ class GraphqlController9Test < ActionController::TestCase
       assert_match /Sorry/, @response.body
     end
 
-    
+    test "should get timezone from header" do
+      authenticate_with_user
+      @request.headers['X-Timezone'] = 'America/Bahia'
+      t = create_team slug: 'context'
+      post :create, params: { query: 'query Query { me { name } }' }
+      assert_equal 'America/Bahia', assigns(:context_timezone)
+    end
+  
+    test "should get dynamic annotation field" do
+      create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
+      name = random_string
+      phone = random_string
+      u = create_user
+      t = create_team
+      create_team_user team: t, user: u, role: 'editor'
+      p = create_project team: t
+      pm = create_project_media project: p
+      d = create_dynamic_annotation annotated: pm, annotation_type: 'smooch_user', set_fields: { smooch_user_id: random_string, smooch_user_app_id: random_string, smooch_user_data: { phone: phone, app_name: name }.to_json }.to_json
+      authenticate_with_token
+      query = 'query { dynamic_annotation_field(query: "{\"field_name\": \"smooch_user_data\", \"json\": { \"phone\": \"' + phone + '\", \"app_name\": \"' + name + '\" } }") { annotation { dbid } } }'
+      post :create, params: { query: query }
+      assert_response :success
+      assert_equal d.id.to_s, JSON.parse(@response.body)['data']['dynamic_annotation_field']['annotation']['dbid']
+    end
+  
+    test "should not get dynamic annotation field if does not have permission" do
+      create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
+      name = random_string
+      phone = random_string
+      u = create_user
+      t = create_team
+      create_team_user team: t, user: u, role: 'editor'
+      p = create_project team: t
+      pm = create_project_media project: p
+      d = create_dynamic_annotation annotated: pm, annotation_type: 'smooch_user', set_fields: { smooch_user_id: random_string, smooch_user_app_id: random_string, smooch_user_data: { phone: phone, app_name: name }.to_json }.to_json
+      authenticate_with_user(u)
+      query = 'query { dynamic_annotation_field(query: "{\"field_name\": \"smooch_user_data\", \"json\": { \"phone\": \"' + phone + '\", \"app_name\": \"' + name + '\" } }") { annotation { dbid } } }'
+      post :create, params: { query: query }
+      assert_response :success
+      assert_nil JSON.parse(@response.body)['data']['dynamic_annotation_field']
+    end
+
+    test "should not get dynamic annotation field if parameters do not match" do
+      create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
+      name = random_string
+      phone = random_string
+      u = create_user
+      t = create_team
+      create_team_user team: t, user: u, role: 'editor'
+      p = create_project team: t
+      pm = create_project_media project: p
+      d = create_dynamic_annotation annotated: pm, annotation_type: 'smooch_user', set_fields: { smooch_user_id: random_string, smooch_user_app_id: random_string, smooch_user_data: { phone: phone, app_name: name }.to_json }.to_json
+      authenticate_with_user(u)
+      query = 'query { dynamic_annotation_field(query: "{\"field_name\": \"smooch_user_data\", \"json\": { \"phone\": \"' + phone + '\", \"app_name\": \"' + random_string + '\" } }") { annotation { dbid } } }'
+      post :create, params: { query: query }
+      assert_response :success
+      assert_nil JSON.parse(@response.body)['data']['dynamic_annotation_field']
+    end
+
+    test "should handle nested error" do
+      u = create_user
+      t = create_team
+      create_team_user team: t, user: u
+      authenticate_with_user(u)
+      p = create_project team: t
+      pm = create_project_media project: p
+      RelayOnRailsSchema.stubs(:execute).raises(GraphQL::Batch::NestedError)
+      query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
+      post :create, params: { query: query, team: t.slug }
+      assert_response 400
+      RelayOnRailsSchema.unstub(:execute)
+    end
+
+    test "should change role of bot" do
+      u = create_user is_admin: true
+      i = create_team_bot_installation
+      authenticate_with_user(u)
+  
+      id = Base64.encode64("TeamUser/#{i.id}")
+      query = 'mutation update { updateTeamUser(input: { clientMutationId: "1", id: "' + id + '", role: "editor" }) { team_user { id } } }'
+      post :create, params: { query: query, team: i.team.slug }
+      assert_response :success
+    end
+
+    test "should handle user 2FA" do
+      u = create_user password: 'test1234'
+      t = create_team
+      create_team_user team: t, user: u
+      authenticate_with_user(u)
+      u.two_factor
+      # generate backup codes with valid uid
+      query = "mutation generateTwoFactorBackupCodes { generateTwoFactorBackupCodes(input: { clientMutationId: \"1\", id: #{u.id} }) { success, codes } }"
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      assert_equal 5, JSON.parse(@response.body)['data']['generateTwoFactorBackupCodes']['codes'].size
+      # generate backup codes with invalid uid
+      invalid_uid = u.id + rand(10..100)
+      query = "mutation generateTwoFactorBackupCodes { generateTwoFactorBackupCodes(input: { clientMutationId: \"1\", id: #{invalid_uid} }) { success, codes } }"
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      # Enable/Disable 2FA
+      query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: \"1\", id: #{u.id}, otp_required: #{true}, password: \"test1234\", qrcode: \"#{u.current_otp}\" }) { success }}"
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      assert u.reload.otp_required_for_login?
+      query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: \"1\", id: #{u.id}, otp_required: #{false}, password: \"test1234\" }) { success }}"
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      assert_not u.reload.otp_required_for_login?
+      # Disable with invalid uid
+      query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: \"1\", id: #{invalid_uid}, otp_required: #{false}, password: \"test1234\" }) { success }}"
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+    end
+
+    test "should return project medias with provided URL that user has access to" do
+      l = create_valid_media
+      u = create_user
+      t = create_team
+      t2 = create_team
+      create_team_user team: t, user: u
+      create_team_user team: t2, user: u
+      authenticate_with_user(u)
+      p1 = create_project team: t
+      p2 = create_project team: t2
+      pm1 = create_project_media project: p1, media: l
+      pm2 = create_project_media project: p2, media: l
+      pm3 = create_project_media media: l
+      query = "query GetById { project_medias(url: \"#{l.url}\", first: 10000) { edges { node { dbid } } } }"
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      assert_equal [pm1.id], JSON.parse(@response.body)['data']['project_medias']['edges'].collect{ |x| x['node']['dbid'] }
+    end
+  
+    test "should return project medias when provided URL is not normalized and it exists on db" do
+      url = 'http://www.atarde.uol.com.br/bahia/salvador/noticias/2089363-comunidades-recebem-caminhao-da-biometria-para-regularizacao-eleitoral'
+      url_normalized = 'http://www.atarde.com.br/bahia/salvador/noticias/2089363-comunidades-recebem-caminhao-da-biometria-para-regularizacao-eleitoral'
+      pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url_normalized + '","type":"item"}}')
+      m = create_media url: url
+      u = create_user
+      t = create_team
+      create_team_user team: t, user: u
+      authenticate_with_user(u)
+      p = create_project team: t
+      pm = create_project_media project: p, media: m
+      query = "query GetById { project_medias(url: \"#{url}\", first: 10000) { edges { node { dbid } } } }"
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      assert_equal [pm.id], JSON.parse(@response.body)['data']['project_medias']['edges'].collect{ |x| x['node']['dbid'] }
+    end
+
+
 
     protected
 

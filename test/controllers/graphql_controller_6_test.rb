@@ -246,6 +246,53 @@ class GraphqlController6Test < ActionController::TestCase
     assert_equal [], JSON.parse(@response.body)['data']['search']['medias']['edges']
   end
 
+  test "should send GraphQL queries in batch" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    t1 = create_team slug: 'batch-1', name: 'Batch 1'
+    t2 = create_team slug: 'batch-2', name: 'Batch 2'
+    t3 = create_team slug: 'batch-3', name: 'Batch 3'
+    post :batch, params: { _json: [
+      { query: 'query { team(slug: "batch-1") { name } }', variables: {}, id: 'q1' },
+      { query: 'query { team(slug: "batch-2") { name } }', variables: {}, id: 'q2' },
+      { query: 'query { team(slug: "batch-3") { name } }', variables: {}, id: 'q3' }
+    ]}
+    result = JSON.parse(@response.body)
+    assert_equal 'Batch 1', result.find{ |t| t['id'] == 'q1' }['payload']['data']['team']['name']
+    assert_equal 'Batch 2', result.find{ |t| t['id'] == 'q2' }['payload']['data']['team']['name']
+    assert_equal 'Batch 3', result.find{ |t| t['id'] == 'q3' }['payload']['data']['team']['name']
+  end
+
+  test "should update tag" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'collaborator'
+    authenticate_with_user(u)
+    p = create_project team: t
+    pm = create_project_media project: p
+    tg = create_tag annotated: pm
+    id = Base64.encode64("Tag/#{tg.id}")
+    query = 'mutation update { updateTag(input: { clientMutationId: "1", id: "' + id + '", fragment: "t=1,2" }) { tag { id } } }'
+    post :create, params: { query: query }
+    assert_response :success
+  end
+
+  test "should return updated offset from PG" do
+    RequestStore.store[:skip_cached_field_update] = false
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    t = create_team
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    query = 'query CheckSearch { search(query: "{\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + '],\"id\":' + pm1.id.to_s + ',\"esoffset\":0,\"eslimit\":1}") {item_navigation_offset,medias(first:20){edges{node{dbid}}}}}'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    response = JSON.parse(@response.body)['data']['search']
+    assert_equal pm1.id, response['medias']['edges'][0]['node']['dbid']
+    assert_equal 1, response['item_navigation_offset']
+  end
+
   protected
 
   def assert_error_message(expected)

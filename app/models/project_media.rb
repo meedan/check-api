@@ -200,6 +200,10 @@ class ProjectMedia < ApplicationRecord
     Relationship.where('source_id = ? OR target_id = ?', self.id, self.id)
   end
 
+  def is_parent
+    Relationship.where('source_id = ?', self.id).exists?
+  end
+
   def self.archive_or_restore_related_medias(archived, project_media_id, team)
     items = Relationship.where(source_id: project_media_id)
     if archived == CheckArchivedFlags::FlagCodes::TRASHED || archived == CheckArchivedFlags::FlagCodes::SPAM
