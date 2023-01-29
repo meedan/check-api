@@ -397,9 +397,6 @@ class ProjectMedia < ApplicationRecord
   end
 
   def add_extra_elasticsearch_data(ms)
-    analysis = self.analysis
-    analysis_title = analysis['title'].blank? ? nil : analysis['title']
-    file_title = analysis['file_title'].blank? ? nil : analysis['file_title']
     m = self.media
     ms.attributes[:associated_type] = m.type
     ms.attributes[:url] = m.url
@@ -408,9 +405,6 @@ class ProjectMedia < ApplicationRecord
     # initiate title_index with same title value for sorting by title purpose
     ms.attributes[:title_index] = self.title
     ms.attributes[:description] = self.original_description
-    ms.attributes[:analysis_title] = analysis_title || file_title
-    ms.attributes[:analysis_description] = self.analysis_description
-    ms.attributes[:quote] = m.quote
     ms.attributes[:verification_status] = self.last_status
     ms.attributes[:channel] = self.channel.values.flatten.map(&:to_i)
     ms.attributes[:language] = self.get_dynamic_annotation('language')&.get_field_value('language')

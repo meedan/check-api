@@ -62,12 +62,7 @@ class DynamicAnnotation::Field < ApplicationRecord
   def add_update_elasticsearch_field
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     data = {}
-    # Handle analysis fields (title/ description)
-    if self.annotation_type == "verification_status" && ['file_title', 'title', 'content'].include?(self.field_name)
-      key = 'analysis_' + self.field_name.gsub('content', 'description')
-      key = 'analysis_title' if self.field_name == 'file_title'
-      data = { key => self.value }
-    elsif self.annotation_type == "language"
+    if self.annotation_type == "language"
       # Handle language field
       data = { 'language' => self.value }
     end
