@@ -35,254 +35,6 @@ class GraphqlController5Test < ActionController::TestCase
     authenticate_with_user(@u)
   end
 
-  # Make sure that testing data is ordered by creation date since all values for the "order" attribute are null
-  test "should return ordered data" do
-    assert_equal [@tt1, @tt2, @tt3].map(&:id), @t.ordered_team_tasks('tasks').map(&:id)
-    assert_equal [@tm1, @tm2, @tm3].map(&:id), @t.ordered_team_tasks('metadata').map(&:id)
-    [@tt1, @tt2, @tt3, @tm1, @tm2, @tm3].each { |t| assert_nil t.reload.order }
-    assert_equal [@t1, @t2, @t3].map(&:id), @pm.ordered_tasks('tasks').map(&:id)
-    assert_equal [@m1, @m2, @m3].map(&:id), @pm.ordered_tasks('metadata').map(&:id)
-    [@t1, @t2, @t3, @m1, @m2, @m3].each { |t| assert_nil t.reload.order }
-  end
-
-  test "should not move team task up" do
-    t = create_team private: true
-    tt = create_team_task team_id: t.id
-    query = 'mutation { moveTeamTaskUp(input: { clientMutationId: "1", id: "' + tt.graphql_id + '" }) { team_task { order }, team { team_tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_error_message "Not Found"
-  end
-
-  test "should not move team task down" do
-    t = create_team private: true
-    tt = create_team_task team_id: t.id
-    query = 'mutation { moveTeamTaskDown(input: { clientMutationId: "1", id: "' + tt.graphql_id + '" }) { team_task { order }, team { team_tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_error_message "Not Found"
-  end
-
-  test "should move team task up" do
-    query = 'mutation { moveTeamTaskUp(input: { clientMutationId: "1", id: "' + @tt2.graphql_id + '" }) { team_task { order }, team { team_tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, params: { query: query, team: @t.slug }
-    assert_response :success
-    assert_equal 1, @tt2.reload.order
-    assert_equal 2, @tt1.reload.order
-    data = JSON.parse(@response.body)['data']['moveTeamTaskUp']
-    assert_equal 1, data['team_task']['order']
-    tasks = data['team']['team_tasks']['edges']
-    assert_equal 1, tasks[0]['node']['order']
-    assert_equal 2, tasks[1]['node']['order']
-    assert_equal 3, tasks[2]['node']['order']
-    assert_equal @tt2.id, tasks[0]['node']['dbid']
-    assert_equal @tt1.id, tasks[1]['node']['dbid']
-    assert_equal @tt3.id, tasks[2]['node']['dbid']
-  end
-
-  test "should move team task down" do
-    query = 'mutation { moveTeamTaskDown(input: { clientMutationId: "1", id: "' + @tt2.graphql_id + '" }) { team_task { order }, team { team_tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, params: { query: query, team: @t.slug }
-    assert_response :success
-    assert_equal 3, @tt2.reload.order
-    assert_equal 2, @tt3.reload.order
-    data = JSON.parse(@response.body)['data']['moveTeamTaskDown']
-    assert_equal 3, data['team_task']['order']
-    tasks = data['team']['team_tasks']['edges']
-    assert_equal 1, tasks[0]['node']['order']
-    assert_equal 2, tasks[1]['node']['order']
-    assert_equal 3, tasks[2]['node']['order']
-    assert_equal @tt1.id, tasks[0]['node']['dbid']
-    assert_equal @tt3.id, tasks[1]['node']['dbid']
-    assert_equal @tt2.id, tasks[2]['node']['dbid']
-  end
-
-  test "should move team metadata up" do
-    query = 'mutation { moveTeamTaskUp(input: { clientMutationId: "1", id: "' + @tm2.graphql_id + '" }) { team_task { order }, team { team_tasks(fieldset: "metadata", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, params: { query: query, team: @t.slug }
-    assert_response :success
-    assert_equal 1, @tm2.reload.order
-    assert_equal 2, @tm1.reload.order
-    data = JSON.parse(@response.body)['data']['moveTeamTaskUp']
-    assert_equal 1, data['team_task']['order']
-    tasks = data['team']['team_tasks']['edges']
-    assert_equal 1, tasks[0]['node']['order']
-    assert_equal 2, tasks[1]['node']['order']
-    assert_equal 3, tasks[2]['node']['order']
-    assert_equal @tm2.id, tasks[0]['node']['dbid']
-    assert_equal @tm1.id, tasks[1]['node']['dbid']
-    assert_equal @tm3.id, tasks[2]['node']['dbid']
-  end
-
-  test "should move team metadata down" do
-    query = 'mutation { moveTeamTaskDown(input: { clientMutationId: "1", id: "' + @tm2.graphql_id + '" }) { team_task { order }, team { team_tasks(fieldset: "metadata", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, params: { query: query, team: @t.slug }
-    assert_response :success
-    assert_equal 3, @tm2.reload.order
-    assert_equal 2, @tm3.reload.order
-    data = JSON.parse(@response.body)['data']['moveTeamTaskDown']
-    assert_equal 3, data['team_task']['order']
-    tasks = data['team']['team_tasks']['edges']
-    assert_equal 1, tasks[0]['node']['order']
-    assert_equal 2, tasks[1]['node']['order']
-    assert_equal 3, tasks[2]['node']['order']
-    assert_equal @tm1.id, tasks[0]['node']['dbid']
-    assert_equal @tm3.id, tasks[1]['node']['dbid']
-    assert_equal @tm2.id, tasks[2]['node']['dbid']
-  end
-
-  test "should not move task up" do
-    t = create_team private: true
-    pm = create_project_media team: t
-    tk = create_task annotated: pm
-    query = 'mutation { moveTaskUp(input: { clientMutationId: "1", id: "' + tk.graphql_id + '" }) { task { order }, project_media { tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_error_message "Not Found"
-  end
-
-  test "should not move task down" do
-    t = create_team private: true
-    pm = create_project_media team: t
-    tk = create_task annotated: pm
-    query = 'mutation { moveTaskDown(input: { clientMutationId: "1", id: "' + tk.graphql_id + '" }) { task { order }, project_media { tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_error_message "Not Found"
-  end
-
-  test "should move task up" do
-    query = 'mutation { moveTaskUp(input: { clientMutationId: "1", id: "' + @t2.graphql_id + '" }) { task { order }, project_media { tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, params: { query: query, team: @t.slug }
-    assert_response :success
-    assert_equal 1, @t2.reload.order
-    assert_equal 2, @t1.reload.order
-    data = JSON.parse(@response.body)['data']['moveTaskUp']
-    assert_equal 1, data['task']['order']
-    tasks = data['project_media']['tasks']['edges']
-    assert_equal 1, tasks[0]['node']['order']
-    assert_equal 2, tasks[1]['node']['order']
-    assert_equal 3, tasks[2]['node']['order']
-    assert_equal @t2.id.to_s, tasks[0]['node']['dbid']
-    assert_equal @t1.id.to_s, tasks[1]['node']['dbid']
-    assert_equal @t3.id.to_s, tasks[2]['node']['dbid']
-  end
-
-  test "should move task down" do
-    query = 'mutation { moveTaskDown(input: { clientMutationId: "1", id: "' + @t2.graphql_id + '" }) { task { order }, project_media { tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, params: { query: query, team: @t.slug }
-    assert_response :success
-    assert_equal 3, @t2.reload.order
-    assert_equal 2, @t3.reload.order
-    data = JSON.parse(@response.body)['data']['moveTaskDown']
-    assert_equal 3, data['task']['order']
-    tasks = data['project_media']['tasks']['edges']
-    assert_equal 1, tasks[0]['node']['order']
-    assert_equal 2, tasks[1]['node']['order']
-    assert_equal 3, tasks[2]['node']['order']
-    assert_equal @t1.id.to_s, tasks[0]['node']['dbid']
-    assert_equal @t3.id.to_s, tasks[1]['node']['dbid']
-    assert_equal @t2.id.to_s, tasks[2]['node']['dbid']
-  end
-
-  test "should move metadata up" do
-    query = 'mutation { moveTaskUp(input: { clientMutationId: "1", id: "' + @m2.graphql_id + '" }) { task { order }, project_media { tasks(fieldset: "metadata", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, params: { query: query, team: @t.slug }
-    assert_response :success
-    assert_equal 1, @m2.reload.order
-    assert_equal 2, @m1.reload.order
-    data = JSON.parse(@response.body)['data']['moveTaskUp']
-    assert_equal 1, data['task']['order']
-    tasks = data['project_media']['tasks']['edges']
-    assert_equal 1, tasks[0]['node']['order']
-    assert_equal 2, tasks[1]['node']['order']
-    assert_equal 3, tasks[2]['node']['order']
-    assert_equal @m2.id.to_s, tasks[0]['node']['dbid']
-    assert_equal @m1.id.to_s, tasks[1]['node']['dbid']
-    assert_equal @m3.id.to_s, tasks[2]['node']['dbid']
-  end
-
-  test "should move metadata down" do
-    query = 'mutation { moveTaskDown(input: { clientMutationId: "1", id: "' + @m2.graphql_id + '" }) { task { order }, project_media { tasks(fieldset: "metadata", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, params: { query: query, team: @t.slug }
-    assert_response :success
-    assert_equal 3, @m2.reload.order
-    assert_equal 2, @m3.reload.order
-    data = JSON.parse(@response.body)['data']['moveTaskDown']
-    assert_equal 3, data['task']['order']
-    tasks = data['project_media']['tasks']['edges']
-    assert_equal 1, tasks[0]['node']['order']
-    assert_equal 2, tasks[1]['node']['order']
-    assert_equal 3, tasks[2]['node']['order']
-    assert_equal @m1.id.to_s, tasks[0]['node']['dbid']
-    assert_equal @m3.id.to_s, tasks[1]['node']['dbid']
-    assert_equal @m2.id.to_s, tasks[2]['node']['dbid']
-  end
-
-  test "should add files to task and remove files from task" do
-    t0 = create_task annotated: @pm, fieldset: 'tasks', task_type: 'file_upload' ; sleep 1
-    t0.response = { annotation_type: 'task_response' }.to_json
-    t0.save!
-    assert_equal 0, t0.reload.first_response_obj.file_data.size
-
-    query = 'mutation { addFilesToTask(input: { clientMutationId: "1", id: "' + t0.graphql_id + '" }) { task { id } } }'
-    post :create, params: { query: query, file: { '0' => @f1 }, team: @t.slug }
-    assert_response :success
-    assert_equal 1, t0.reload.first_response_obj.file_data[:file_urls].size
-    assert_equal ['rails.png'], t0.reload.first_response_obj.file_data[:file_urls].collect{ |f| f.split('/').last }
-
-    query = 'mutation { addFilesToTask(input: { clientMutationId: "1", id: "' + t0.graphql_id + '" }) { task { id } } }'
-    post :create, params: { query: query, file: { '0' => @f2, '1' => @f3 }, team: @t.slug }
-    assert_response :success
-    assert_equal 3, t0.reload.first_response_obj.file_data[:file_urls].size
-    assert_equal ['rails.png', 'rails2.png', 'rails.mp4'].sort, t0.reload.first_response_obj.file_data[:file_urls].collect{ |f| f.split('/').last }.sort
-
-    query = 'mutation { removeFilesFromTask(input: { clientMutationId: "1", id: "' + t0.graphql_id + '", filenames: ["rails.mp4", "rails.png"] }) { task { id } } }'
-    post :create, params: { query: query, team: @t.slug }
-    assert_response :success
-    assert_equal 1, t0.reload.first_response_obj.file_data[:file_urls].size
-    assert_equal ['rails2.png'], t0.reload.first_response_obj.file_data[:file_urls].collect{ |f| f.split('/').last }
-  end
-
-  test "should transcribe audio" do
-    ft = DynamicAnnotation::FieldType.where(field_type: 'language').last || create_field_type(field_type: 'language', label: 'Language')
-    at = create_annotation_type annotation_type: 'language', label: 'Language'
-    create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
-    Sidekiq::Testing.inline! do
-      t = create_team
-      pm = create_project_media team: t, media: create_uploaded_audio(file: 'rails.mp3')
-      url = Bot::Alegre.media_file_url(pm)
-      s3_url = url.gsub(/^https?:\/\/[^\/]+/, "s3://#{CheckConfig.get('storage_bucket')}")
-
-      Bot::Alegre.unstub(:request_api)
-      Bot::Alegre.stubs(:request_api).returns({ success: true })
-      Bot::Alegre.stubs(:request_api).with('post', '/audio/transcription/', { url: s3_url, job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }).returns({ 'job_status' => 'IN_PROGRESS' })
-      Bot::Alegre.stubs(:request_api).with('get', '/audio/transcription/', { job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }).returns({ 'job_status' => 'COMPLETED', 'transcription' => 'Foo bar' })
-      WebMock.stub_request(:post, 'http://alegre/text/langid/').to_return(body: { 'result' => { 'language' => 'es' }}.to_json)
-
-      json_schema = {
-        type: 'object',
-        required: ['job_name'],
-        properties: {
-          text: { type: 'string' },
-          job_name: { type: 'string' },
-          last_response: { type: 'object' }
-        }
-      }
-      create_annotation_type_and_fields('Transcription', {}, json_schema)
-      b = create_bot_user login: 'alegre', name: 'Alegre', approved: true
-      b.install_to!(t)
-      WebMock.stub_request(:get, Bot::Alegre.media_file_url(pm)).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
-
-      query = 'mutation { transcribeAudio(input: { clientMutationId: "1", id: "' + pm.graphql_id + '" }) { project_media { id }, annotation { data } } }'
-      post :create, params: { query: query, team: t.slug }
-      assert_response :success
-      assert_equal 'Foo bar', JSON.parse(@response.body)['data']['transcribeAudio']['annotation']['data']['text']
-
-      Bot::Alegre.unstub(:request_api)
-    end
-  end
-
   test "should find similar items to media item" do
     t = create_team
     p = create_project team: t
@@ -614,6 +366,63 @@ class GraphqlController5Test < ActionController::TestCase
     assert_response :success
     count = Relationship.where(id: [r1.id, r2.id, r3.id]).count
     assert_equal 0, count
+  end
+
+  test "should return if item is read" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    ProjectMediaUser.create! user: u, project_media: pm1, read: true
+    pm2 = create_project_media project: p
+    ProjectMediaUser.create! user: create_user, project_media: pm2, read: true
+    pm3 = create_project_media project: p
+    authenticate_with_user(u)
+
+    {
+      pm1.id => [true, true],
+      pm2.id => [true, false],
+      pm3.id => [false, false]
+    }.each do |id, values|
+      ids = [id, p.id, t.id].join(',')
+      query = 'query { project_media(ids: "' + ids + '") { read_by_someone: is_read, read_by_me: is_read(by_me: true) } }'
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      data = JSON.parse(@response.body)['data']['project_media']
+      assert_equal values[0], data['read_by_someone']
+      assert_equal values[1], data['read_by_me']
+    end
+  end
+
+  test "should update archived media by owner" do
+    pm = create_project_media team: @t, archived: CheckArchivedFlags::FlagCodes::TRASHED
+    query = "mutation { updateProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm.graphql_id}\"}) { project_media { permissions } } }"
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['updateProjectMedia']['project_media']
+    permissions = JSON.parse(data['permissions'])
+    assert_equal true, permissions['update ProjectMedia']
+  end
+
+  test "should not bulk-send project medias to trash if there are more than 10.000 ids" do
+    ids = []
+    10001.times { ids << random_string }
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', action: "archived", params: "{\"archived:\": 1}" }) { ids, team { dbid } } }'
+    post :create, params: { query: query, team: @t.slug }
+    assert_response 400
+    assert_error_message 'maximum'
+  end
+
+  test "should create tag and get tag text as parent" do
+    u = create_user is_admin: true
+    pm = create_project_media
+    authenticate_with_user(u)
+    query = 'mutation { createTag(input: { annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", tag: "Test" }) { tag_text_object { text } } }'
+    assert_difference 'Tag.length', 1 do
+      post :create, params: { query: query, team: pm.team.slug }
+    end
+    assert_response :success
+    assert_equal 'Test', JSON.parse(@response.body)['data']['createTag']['tag_text_object']['text']
   end
 
   protected

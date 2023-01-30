@@ -86,74 +86,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal 'Custom Status 3', r2.reload.report_design_field_value('status_label')
   end
 
-  test "should access GraphQL query if not authenticated" do
-    post :create, params: { query: 'query Query { about { name, version } }' }
-    assert_response 200
-  end
-
-  test "should not access GraphQL mutation if not authenticated" do
-    post :create, params: { query: 'mutation Test' }
-    assert_response 401
-  end
-
-  test "should access About if not authenticated" do
-    post :create, params: { query: 'query About { about { name, version } }' }
-    assert_response :success
-  end
-
-  test "should access GraphQL if authenticated" do
-    authenticate_with_user
-    post :create, params: { query: 'query Query { about { name, version, upload_max_size, upload_extensions, upload_max_dimensions, upload_min_dimensions, terms_last_updated_at } }', variables: '{"foo":"bar"}' }
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['about']
-    assert_kind_of String, data['name']
-    assert_kind_of String, data['version']
-  end
-
-  test "should not access GraphQL if authenticated as a bot" do
-    authenticate_with_user(create_bot_user)
-    post :create, params: { query: 'query Query { about { name, version, upload_max_size, upload_extensions, upload_max_dimensions, upload_min_dimensions } }', variables: '{"foo":"bar"}' }
-    assert_response 401
-  end
-
-  test "should get node from global id" do
-    authenticate_with_user
-    id = Base64.encode64('About/1')
-    post :create, params: { query: "query Query { node(id: \"#{id}\") { id } }" }
-    assert_equal id, JSON.parse(@response.body)['data']['node']['id']
-  end
-
-  test "should get current user" do
-    u = create_user name: 'Test User'
-    authenticate_with_user(u)
-    post :create, params: { query: 'query Query { me { source_id, token, is_admin, current_project { id }, name, bot { id } } }' }
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['me']
-    assert_equal 'Test User', data['name']
-  end
-
-  test "should get current user if logged in with token" do
-    u = create_user name: 'Test User'
-    authenticate_with_user_token(u.token)
-    post :create, params: { query: 'query Query { me { name } }' }
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['me']
-    assert_equal 'Test User', data['name']
-  end
-
-  test "should return 404 if object does not exist" do
-    authenticate_with_user
-    post :create, params: { query: 'query GetById { project_media(ids: "99999,99999") { id } }' }
-    assert_response :success
-  end
-
-  test "should set context team" do
-    authenticate_with_user
-    t = create_team slug: 'context'
-    post :create, params: { query: 'query Query { about { name, version } }', team: 'context' }
-    assert_equal t, assigns(:context_team)
-  end
-
   # Test CRUD operations for each model
 
   test "should create account source" do
@@ -370,6 +302,14 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_get_by_id('team', 'name', 'Test')
   end
 
+  test "should get access denied on source by id" do
+    authenticate_with_user
+    s = create_source user: create_user
+    query = "query GetById { source(id: \"#{s.id}\") { name } }"
+    post :create, params: { query: query }
+    assert_response 200
+  end
+
   test "should refresh account" do
     u = create_user
     authenticate_with_user(u)
@@ -387,47 +327,6 @@ class GraphqlControllerTest < ActionController::TestCase
       post :create, params: { query: query }
       assert_response :success
     end
-  end
-
-  test "should get access denied on source by id" do
-    authenticate_with_user
-    s = create_source user: create_user
-    query = "query GetById { source(id: \"#{s.id}\") { name } }"
-    post :create, params: { query: query }
-    assert_response 200
-  end
-
-  test "should get team by context" do
-    authenticate_with_user
-    t = create_team slug: 'context', name: 'Context Team'
-    post :create, params: { query: 'query Team { team { name } }', team: 'context' }
-    assert_response :success
-    assert_equal 'Context Team', JSON.parse(@response.body)['data']['team']['name']
-  end
-
-  test "should get public team by context" do
-    authenticate_with_user
-    t1 = create_team slug: 'team1', name: 'Team 1'
-    t2 = create_team slug: 'team2', name: 'Team 2'
-    post :create, params: { query: 'query PublicTeam { public_team { name } }', team: 'team1' }
-    assert_response :success
-    assert_equal 'Team 1', JSON.parse(@response.body)['data']['public_team']['name']
-  end
-
-  test "should get public team by slug" do
-    authenticate_with_user
-    t1 = create_team slug: 'team1', name: 'Team 1'
-    t2 = create_team slug: 'team2', name: 'Team 2'
-    post :create, params: { query: 'query PublicTeam { public_team(slug: "team2") { name } }', team: 'team1' }
-    assert_response :success
-    assert_equal 'Team 2', JSON.parse(@response.body)['data']['public_team']['name']
-  end
-
-  test "should not get team by context" do
-    authenticate_with_user
-    Team.delete_all
-    post :create, params: { query: 'query Team { team { name } }', team: 'test' }
-    assert_response :success
   end
 
   test "should not get teams marked as deleted" do
@@ -478,35 +377,6 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
     post :create, params: { query: query }
     assert_response :success
-  end
-
-  test "should update current team based on context team" do
-    u = create_user
-
-    t1 = create_team slug: 'team1'
-    create_team_user user: u, team: t1
-    t2 = create_team slug: 'team2'
-    t3 = create_team slug: 'team3'
-    create_team_user user: u, team: t3
-
-    u.current_team_id = t1.id
-    u.save!
-
-    assert_equal t1, u.reload.current_team
-
-    authenticate_with_user(u)
-
-    post :create, params: { query: 'query Query { me { name } }', team: 'team1' }
-    assert_response :success
-    assert_equal t1, u.reload.current_team
-
-    post :create, params: { query: 'query Query { me { name } }', team: 'team2' }
-    assert_response :success
-    assert_equal t1, u.reload.current_team
-
-    post :create, params: { query: 'query Query { me { name } }', team: 'team3' }
-    assert_response :success
-    assert_equal t3, u.reload.current_team
   end
 
   test "should get project media annotations" do
@@ -568,21 +438,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal t.name, JSON.parse(@response.body)['data']['project_media']['team']['name']
   end
 
-  test "should return 404 if public team does not exist" do
-    authenticate_with_user
-    Team.delete_all
-    post :create, params: { query: 'query PublicTeam { public_team { name } }', team: 'foo' }
-    assert_response :success
-  end
-
-  test "should return null if public team is not found" do
-    authenticate_with_user
-    Team.delete_all
-    post :create, params: { query: 'query FindPublicTeam { find_public_team(slug: "foo") { name } }', team: 'foo' }
-    assert_response :success
-    assert_nil JSON.parse(@response.body)['data']['find_public_team']
-  end
-
   test "should run few queries to get project data" do
     n = 18 # Number of media items to be created
     m = 5 # Number of annotations per media
@@ -633,14 +488,6 @@ class GraphqlControllerTest < ActionController::TestCase
       post :create, params: { query: query, file: file }
     end
     assert_response :success
-  end
-
-  test "should get team by slug" do
-    authenticate_with_user
-    t = create_team slug: 'context', name: 'Context Team'
-    post :create, params: { query: 'query Team { team(slug: "context") { name } }' }
-    assert_response :success
-    assert_equal 'Context Team', JSON.parse(@response.body)['data']['team']['name']
   end
 
   test "should get ordered medias" do
@@ -1075,44 +922,4 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "should get number of results without similar items" do
-    u = create_user
-    authenticate_with_user(u)
-    t = create_team slug: 'team'
-    create_team_user user: u, team: t
-    p = create_project team: t
-    pm1 = create_project_media project: p, quote: 'Test 1 Bar', disable_es_callbacks: false
-    pm2 = create_project_media project: p, quote: 'Test 2 Foo', disable_es_callbacks: false
-    create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type, disable_es_callbacks: false
-    pm3 = create_project_media project: p, quote: 'Test 3 Bar', disable_es_callbacks: false
-    pm4 = create_project_media project: p, quote: 'Test 4 Foo', disable_es_callbacks: false
-    create_relationship source_id: pm3.id, target_id: pm4.id, relationship_type: Relationship.confirmed_type, disable_es_callbacks: false
-    sleep 1
-
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\"}") { number_of_results } }' 
-    post :create, params: { query: query, team: 'team' }
-    assert_response :success
-    assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
-
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"show_similar\":false}") { number_of_results } }' 
-    post :create, params: { query: query, team: 'team' }
-    assert_response :success
-    assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
-
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"show_similar\":true}") { number_of_results } }' 
-    post :create, params: { query: query, team: 'team' }
-    assert_response :success
-    assert_equal 4, JSON.parse(@response.body)['data']['search']['number_of_results']
-
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Foo\",\"show_similar\":false}") { number_of_results } }' 
-    post :create, params: { query: query, team: 'team' }
-    assert_response :success
-    assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
-  end
-
-  test "should reload mutations" do
-    assert_nothing_raised do
-      RelayOnRailsSchema.reload_mutations!
-    end
-  end
 end

@@ -32,6 +32,7 @@ require 'minitest/retry'
 require 'pact/consumer/minitest'
 require 'rspec/rails'
 require 'mocha/minitest'
+require "csv"
 Minitest::Retry.use!
 
 class ActionController::TestCase
@@ -146,11 +147,30 @@ class ActiveSupport::TestCase
 
   def before_all
     super
+    @start = Time.now
 
     create_metadata_stuff
     @exporter = Check::OpenTelemetryTestConfig.current_exporter
     # URL mocked by pender-client
     @url = 'https://www.youtube.com/user/MeedanTube'
+  end
+
+  after(:all) do
+    testClass = []
+    @finish = Time.now
+    @diff = @finish - @start
+    puts("#{self.class.name}::: runtime = #{@diff.to_s}")
+    puts
+    puts "{ENV['TEST_ENV_NUMBER']}: #{ENV['TEST_ENV_NUMBER']}"
+    puts
+    # file = File.open("./controllers_v2__#{ENV['TEST_ENV_NUMBER']}.txt", 'a')
+    # file.puts("#{self.class.name}::: runtime = #{@diff.to_s}")
+    # file.close
+    # testClass.push(self.class.name)
+    # testClass.push(@diff)
+    # CSV.open("./controllers_v2__#{ENV['TEST_ENV_NUMBER']}.csv", "a") do |csv|
+    #   csv << testClass
+    # end
   end
 
   # This will run before any test

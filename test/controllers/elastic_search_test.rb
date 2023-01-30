@@ -287,5 +287,35 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal t.pusher_channel, cs.pusher_channel
   end
 
+  test "should search by numeric range for tasks" do
+    number = create_field_type field_type: 'number', label: 'Number'
+    at = create_annotation_type annotation_type: 'task_response_number', label: 'Task Response Number'
+    create_field_instance annotation_type_object: at, name: 'response_number', label: 'Response', field_type_object: number, optional: true
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    tt = create_team_task team_id: t.id, type: 'number'
+    with_current_user_and_team(u ,t) do
+      pm = create_project_media team: t, disable_es_callbacks: false
+      pm2 = create_project_media team: t, disable_es_callbacks: false
+      pm3 = create_project_media team: t, disable_es_callbacks: false
+      pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm2_tt.response = { annotation_type: 'task_response_number', set_fields: { response_number: 2 }.to_json }.to_json
+      pm2_tt.save!
+      pm3_tt = pm3.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm3_tt.response = { annotation_type: 'task_response_number', set_fields: { response_number: 4 }.to_json }.to_json
+      pm3_tt.save!
+      sleep 2
+      results = CheckSearch.new({ team_tasks: [{ id: tt.id, response: 'NUMERIC_RANGE', range: { min: 2 }}]}.to_json)
+      assert_equal [pm2.id, pm3.id], results.medias.map(&:id).sort
+      results = CheckSearch.new({ team_tasks: [{ id: tt.id, response: 'NUMERIC_RANGE', range: { min: 2, max: 5 }}]}.to_json)
+      assert_equal [pm2.id, pm3.id], results.medias.map(&:id).sort
+      results = CheckSearch.new({ team_tasks: [{ id: tt.id, response: 'NUMERIC_RANGE', range: { min: 2, max: 3 }}]}.to_json)
+      assert_equal [pm2.id], results.medias.map(&:id)
+      results = CheckSearch.new({ team_tasks: [{ id: tt.id, response: 'NUMERIC_RANGE', range: { min: 3, max: 5 }}]}.to_json)
+      assert_equal [pm3.id], results.medias.map(&:id)
+    end
+  end
+
   # Please add new tests to test/controllers/elastic_search_7_test.rb
 end
