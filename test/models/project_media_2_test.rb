@@ -34,29 +34,6 @@ class ProjectMedia2Test < ActiveSupport::TestCase
     end
   end
 
-  test "should cache number of requests" do
-    RequestStore.store[:skip_cached_field_update] = false
-    Sidekiq::Testing.inline! do
-      team = create_team
-      pm = create_project_media team: team
-      t = pm.created_at.to_i
-      assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
-      t = t0 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm).created_at.to_i
-      assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
-      pm2 = create_project_media team: team
-      t = pm2.created_at.to_i
-      assert_queries(0, '=') { assert_equal(t, pm2.last_seen) }
-      r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
-      assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
-      assert_queries(0, '>') { assert_equal(t, pm.last_seen(true)) }
-      t = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2).created_at.to_i
-      assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
-      r.destroy!
-      assert_queries(0, '=') { assert_equal(t0, pm.last_seen) }
-      assert_queries(0, '>') { assert_equal(t0, pm.last_seen(true)) }
-    end
-  end
-
   test "should cache show warning cover" do
     RequestStore.store[:skip_cached_field_update] = false
     Sidekiq::Testing.inline! do

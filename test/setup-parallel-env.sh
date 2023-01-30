@@ -11,6 +11,7 @@ TEST_ENV_NUMBER=2 bundle exec rails runner 'index = CheckConfig.get("elasticsear
 TEST_ENV_NUMBER=3 bundle exec rails runner 'index = CheckConfig.get("elasticsearch_index") ; MediaSearch.delete_index(index) ; MediaSearch.create_index(index, true) ; puts "Created ElasticSearch index named #{index}"'
 TEST_ENV_NUMBER=4 bundle exec rails runner 'index = CheckConfig.get("elasticsearch_index") ; MediaSearch.delete_index(index) ; MediaSearch.create_index(index, true) ; puts "Created ElasticSearch index named #{index}"'
 TEST_ENV_NUMBER=5 bundle exec rails runner 'index = CheckConfig.get("elasticsearch_index") ; MediaSearch.delete_index(index) ; MediaSearch.create_index(index, true) ; puts "Created ElasticSearch index named #{index}"'
+TEST_ENV_NUMBER=6 bundle exec rails runner 'index = CheckConfig.get("elasticsearch_index") ; MediaSearch.delete_index(index) ; MediaSearch.create_index(index, true) ; puts "Created ElasticSearch index named #{index}"'
 sleep 10
 
 echo 'Setting up parallel databases...'
@@ -22,6 +23,7 @@ TEST_ENV_NUMBER=2 bundle exec rake db:drop db:create db:migrate &
 TEST_ENV_NUMBER=3 bundle exec rake db:drop db:create db:migrate &
 TEST_ENV_NUMBER=4 bundle exec rake db:drop db:create db:migrate &
 TEST_ENV_NUMBER=5 bundle exec rake db:drop db:create db:migrate &
+TEST_ENV_NUMBER=6 bundle exec rake db:drop db:create db:migrate &
 
 for job in `jobs -p`
 do
