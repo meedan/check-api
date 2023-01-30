@@ -151,7 +151,7 @@ module ProjectMediaCachedFields
           if: proc { |d| d.annotation_type == 'smooch' && d.annotated_type == 'ProjectMedia' },
           affected_ids: proc { |d| d.annotated&.related_items_ids.to_a },
           events: {
-            create: :cached_field_project_media_last_seen_create,
+            create: :recalculate,
           }
         },
         {
@@ -607,10 +607,6 @@ module ProjectMediaCachedFields
   end
 
   Dynamic.class_eval do
-    def cached_field_project_media_last_seen_create(_target)
-      self.created_at.to_i
-    end
-
     def cached_field_project_media_report_status_save(_target)
       self.data.with_indifferent_access[:state]
     end
