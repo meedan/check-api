@@ -19,15 +19,6 @@ class MediaSearch
     indexes :created_at, { type: 'date' }
     indexes :updated_at, { type: 'date' }
     indexes :language, { type: 'text', analyzer: 'keyword' }
-    indexes :accounts, {
-      type: 'nested',
-      properties: {
-        id: { type: 'integer'},
-        username: { type: 'text', analyzer: 'check'},
-        title: { type: 'text', analyzer: 'check'},
-        description: { type: 'text', analyzer: 'check'}
-      }
-    }
     indexes :comments, {
       type: 'nested',
       properties: {
@@ -103,9 +94,13 @@ class MediaSearch
 
     indexes :claim_description_content, { type: 'text', analyzer: 'check' }
 
+    indexes :claim_description_context, { type: 'text', analyzer: 'check' }
+
     indexes :fact_check_title, { type: 'text', analyzer: 'check' }
 
     indexes :fact_check_summary, { type: 'text', analyzer: 'check' }
+
+    indexes :fact_check_url, { type: 'text', analyzer: 'check' }
 
     indexes :cluster_first_item_at, { type: 'long' }
 
@@ -120,5 +115,7 @@ class MediaSearch
     indexes :cluster_teams, { type: 'long' }
 
     indexes :fact_check_languages, { type: 'keyword', normalizer: 'check' }
+
+    indexes :source_name, { type: 'text', analyzer: 'check' }
   end
 end

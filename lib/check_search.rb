@@ -417,7 +417,7 @@ class CheckSearch
   def build_keyword_conditions_media_fields
     es_fields = []
     conditions = []
-    %w(title description url claim_description_content fact_check_title fact_check_summary).each do |f|
+    %w(title description url claim_description_content fact_check_title fact_check_summary claim_description_context fact_check_url source_name).each do |f|
       es_fields << f if should_include_keyword_field?(f)
     end
     es_fields << 'extracted_text' if should_include_keyword_field?('description')

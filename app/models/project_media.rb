@@ -424,7 +424,10 @@ class ProjectMedia < ApplicationRecord
     ms.attributes[:status_index] = self.status_ids.index(self.status)
     ms.attributes[:fact_check_title] = self.fact_check_title
     ms.attributes[:fact_check_summary] = self.fact_check_summary
+    ms.attributes[:fact_check_url] = self.fact_check_url
     ms.attributes[:claim_description_content] = self.claim_description&.description
+    ms.attributes[:claim_description_context] = self.claim_description&.context
+    ms.attributes[:source_name] = self.source&.name
   end
 
   def add_nested_objects(ms)

@@ -13,7 +13,8 @@ module ClaimAndFactCheck
     before_validation :set_user
     validates_presence_of :user
 
-    after_commit :index_in_elasticsearch, :send_to_alegre, :notify_bots, on: [:create, :update]
+    after_commit :update_elasticsearch_data, :send_to_alegre, :notify_bots, on: [:create, :update]
+    after_commit :destroy_elasticsearch_data, on: :destroy
   end
 
   def text_fields
@@ -24,22 +25,12 @@ module ClaimAndFactCheck
     self.user = User.current unless User.current.nil?
   end
 
-  def index_in_elasticsearch
-    values = {}
-    if self.class.name == 'FactCheck'
-      values = { 'fact_check_title' => self.title, 'fact_check_summary' => self.summary }
-    else
-      values = { 'claim_description_content' => self.description }
-    end
-    # touch project media to update `updated_at` date
-    pm = self.project_media
-    updated_at = Time.now
-    pm.update_columns(updated_at: updated_at)
-    # Update ES
-    text_fields = self.text_fields
-    text_fields << 'updated_at'
-    values['updated_at'] = updated_at.utc
-    self.update_elasticsearch_doc(text_fields, values, pm.id)
+  def update_elasticsearch_data
+    self.index_in_elasticsearch
+  end
+
+  def destroy_elasticsearch_data
+    self.index_in_elasticsearch('destroy')
   end
 
   def send_to_alegre
@@ -52,6 +43,38 @@ module ClaimAndFactCheck
       'FactCheck' => 'save_fact_check'
     }[self.class.name]
     BotUser.enqueue_event(event, self.project_media.team_id, self)
+  end
+
+  protected
+
+  def index_in_elasticsearch(action = 'create_or_update')
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    data = {}
+    if self.class.name == 'FactCheck'
+      data = action == 'destroy' ? {
+        'fact_check_title' => '', 'fact_check_summary' => '', 'fact_check_url' => '', 'fact_check_languages' => ''
+      } : {
+        'fact_check_title' => self.title,
+        'fact_check_summary' => self.summary,
+        'fact_check_url' => self.url,
+        'fact_check_languages' => [self.language]
+      }
+    else
+      data = action == 'destroy' ? {
+        'claim_description_content' => '',
+        'claim_description_context' => ''
+      } : {
+        'claim_description_content' => self.description,
+        'claim_description_context' => self.context
+      }
+    end
+    # touch project media to update `updated_at` date
+    pm = self.project_media
+    updated_at = Time.now
+    pm.update_columns(updated_at: updated_at)
+    # Update ES
+    data['updated_at'] = updated_at.utc
+    pm.update_elasticsearch_doc(data.keys, data, pm.id, true)
   end
 
   module ClassMethods
