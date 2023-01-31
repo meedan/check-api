@@ -261,6 +261,42 @@ en:
   subscribed: You are currently subscribed to our newsletter.
   unsubscribe_button_label: Unsubscribe
   unsubscribed: You are currently not subscribed to our newsletter.
+fil:
+  add_more_details_state_button_label: Dagdagan pa
+  ask_if_ready_state_button_label: Kanselahin
+  cancelled: Ok!
+  confirm_preferred_language: Kumpirmahin ang gusto mong wika
+  invalid_format: Paumanhin, hindi suportado ang file na iyong ipinadala.
+  keep_subscription_button_label: Manatiling konektado
+  languages: Mga Wika
+  languages_and_privacy_title: Mga Wika at Privacy
+  main_menu: Main menu
+  main_state_button_label: Kanselahin
+  navigation_button: Gamitin ang mga button para mag-navigate
+  no_results_in_language: Walang makitang resulta sa %{language}. Ito ang mga resulta
+    sa ibang wika na puwedeng nauugnay sa.
+  privacy_and_purpose: "PRIVACY AT LAYUNIN \n\nWelcome sa %{team} %{channel} tipline.\n\nPuwede
+    mong gamitin ang number na ito para magpadala ng mga bagay na gusto mong ipa-fact-check.
+    \n\nAng data mo ay ligtas. Seryoso kami sa aming responsibilidad na alagaan ang
+    iyong personal na impormasyon at panatilihing ang %{channel} ay pribado at ligtas;
+    hindi kailanman ipamamahagi, ibebenta o gagamitin sa ibang layunin ang impormasyon
+    na nakapagtutukoy sa iyo (personally identifiable information o PII) maliban para
+    maibigay at mapabuti ang serbisyong ito.\n\nPara ma-detect sa lalong mabilis na
+    paraan ang kumakalat na misinformation, posibleng ibahagi namin ang content na
+    hindi PII mula sa tip line na ito sa mga nasuring mananaliksik at fact-checking
+    partner. \n\nPaalala na ang mga website na aming ili-link ay may kanya-kanyang
+    patakaran sa privacy. \n\nKung hindi mo nais na magamit ang mga isinumite mong
+    impormasyon sa gawaing ito, mangyaring huwag mag-ambag sa aming system."
+  privacy_statement: Patakaran sa Privacy
+  privacy_title: Privacy
+  report_updated: 'Ang fact-check na ito ay *inupdate* kasunod ng bagong impormasyon:'
+  search_result_is_not_relevant_button_label: Hindi
+  search_result_is_relevant_button_label: Oo
+  search_state_button_label: Ipadala
+  subscribe_button_label: Mag-subscribe
+  subscribed: Ikaw ay kasalukuyang naka-subscribe sa aming newsletter.
+  unsubscribe_button_label: Mag-unsubscribe
+  unsubscribed: Hindi ka na naka-subscribe sa aming newsletter.
 fr:
   add_more_details_state_button_label: En ajouter
   ask_if_ready_state_button_label: Annuler
