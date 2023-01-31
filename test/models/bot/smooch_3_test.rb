@@ -394,4 +394,27 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     is_supported = Bot::Smooch.supported_message?(message)
     assert is_supported.slice(:type, :size).all?{ |_k, v| v }
   end
+
+  test "should perform fuzzy matching on keyword search" do
+    RequestStore.store[:skip_cached_field_update] = false
+    setup_elasticsearch
+
+    t = create_team
+    pm1 = create_project_media quote: 'A segurança das urnas está provada.', team: t
+    pm2 = create_project_media quote: 'Segurança pública é tema de debate.', team: t
+    [pm1, pm2].each { |pm| publish_report(pm) }
+    sleep 3 # Wait for ElasticSearch to index content
+
+    [
+      'Segurança das urnas',
+      'Segurança dad urnas',
+      'Segurança das urna',
+      'Seguranca das urnas'
+    ].each do |query|
+      assert_equal [pm1.id], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id]).to_a.map(&:id)
+    end
+
+    assert_equal [], Bot::Smooch.search_for_similar_published_fact_checks('text', 'Segurando', [t.id]).to_a.map(&:id)
+  end
+  
 end
