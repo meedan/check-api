@@ -52,7 +52,10 @@ module ClaimAndFactCheck
     data = {}
     if self.class.name == 'FactCheck'
       data = action == 'destroy' ? {
-        'fact_check_title' => '', 'fact_check_summary' => '', 'fact_check_url' => '', 'fact_check_languages' => ''
+        'fact_check_title' => '',
+        'fact_check_summary' => '',
+        'fact_check_url' => '',
+        'fact_check_languages' => []
       } : {
         'fact_check_title' => self.title,
         'fact_check_summary' => self.summary,
@@ -70,11 +73,14 @@ module ClaimAndFactCheck
     end
     # touch project media to update `updated_at` date
     pm = self.project_media
-    updated_at = Time.now
-    pm.update_columns(updated_at: updated_at)
-    # Update ES
-    data['updated_at'] = updated_at.utc
-    pm.update_elasticsearch_doc(data.keys, data, pm.id, true)
+    pm = ProjectMedia.find_by_id(pm.id)
+    unless pm.nil?
+      updated_at = Time.now
+      pm.update_columns(updated_at: updated_at)
+      # Update ES
+      data['updated_at'] = updated_at.utc
+      pm.update_elasticsearch_doc(data.keys, data, pm.id, true)
+    end
   end
 
   module ClassMethods
