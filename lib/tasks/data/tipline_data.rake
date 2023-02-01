@@ -50,7 +50,8 @@ namespace :check do
         'Requests'
       ]
 
-      o = File.open("tipline-data-#{team.slug}-#{Time.now.strftime('%Y-%m-%d')}.csv", 'w+')
+      puts "[#{Time.now}] Exporting tipline users data..."
+      o = File.open(File.join(Rails.root, 'tmp', "tipline-data-#{team.slug}-#{Time.now.strftime('%Y-%m-%d')}.csv"), 'w+')
       output_row(o, header)
       query = Dynamic.where(annotation_type: 'smooch_user', annotated_type: 'Team', annotated_id: team.id)
       i = 0
@@ -86,8 +87,56 @@ namespace :check do
         end
         output_row(o, row) if first
       end
-
       o.close
+
+      header = [
+        'ID',
+        'Published',
+        'Unpublished',
+        'Claim',
+        'Context',
+        'Title',
+        'URL',
+        'Summary',
+        'Media content',
+        'Media ID'
+      ]
+
+      puts "[#{Time.now}] Exporting fact-checks..."
+      o = File.open(File.join(Rails.root, 'tmp', "tipline-content-#{team.slug}-#{Time.now.strftime('%Y-%m-%d')}.csv"), 'w+')
+      output_row(o, header)
+      query = Dynamic.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia').joins('INNER JOIN project_medias pm ON pm.id = annotations.annotated_id').where('pm.team_id' => team.id)
+      i = 0
+      n = query.count
+      query.find_each do |report|
+        i += 1
+        puts "[#{Time.now}] #{i}/#{n}"
+        data = report.data.to_h.with_indifferent_access
+        row = []
+        row << report.id
+        row << (data['last_published'].blank? ? '' : Time.at(data['last_published'].to_i))
+        row << (data['state'] != 'published' ? report.updated_at : '')
+        pm = report.annotated
+        row << pm.claim_description_content
+        row << pm.claim_description_context
+        row << pm.fact_check_title
+        row << pm.fact_check_url
+        row << pm.fact_check_summary
+        row << (pm.media.url || pm.media.quote || pm.media.file&.file&.public_url || pm.original_title || '')
+        row << pm.id
+        output_row(o, row)
+        Relationship.where(relationship_type: Relationship.confirmed_type, source_id: pm.id).find_each do |relationship|
+          pm2 = relationship.target
+          next if pm2.nil?
+          media = pm2.media
+          media_content = (media.url || media.quote || media.file&.file&.public_url || '')
+          row = ['', '', '', '', '', '', '', '', media_content, pm2.id]
+          output_row(o, row)
+        end
+      end
+      o.close
+      puts "[#{Time.now}] Done. Output is in tmp/."
+
       ActiveRecord::Base.logger = old_logger
     end
   end
