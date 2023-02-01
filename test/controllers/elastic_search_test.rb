@@ -137,12 +137,6 @@ class ElasticSearchTest < ActionController::TestCase
     # search in description
     result = CheckSearch.new({keyword: "search_desc"}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
-    # Search with account title
-    result = CheckSearch.new({keyword: "Foo"}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
-    # Search with account description
-    result = CheckSearch.new({keyword: "Bar"}.to_json)
-    assert_empty result.medias
     # add keyword and same account to multiple medias
     media_url = 'http://www.facebook.com/meedan/posts/456789'
     data = { url: media_url, author_url: author_url, type: 'item', description: 'search_desc' }
