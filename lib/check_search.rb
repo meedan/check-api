@@ -420,7 +420,8 @@ class CheckSearch
     %w(title description url claim_description_content fact_check_title fact_check_summary claim_description_context fact_check_url source_name).each do |f|
       es_fields << f if should_include_keyword_field?(f)
     end
-    es_fields << 'extracted_text' if should_include_keyword_field?('description')
+    es_fields << 'analysis_title' if should_include_keyword_field?('title')
+    es_fields.concat(['extracted_text', 'analysis_description']) if should_include_keyword_field?('description')
     conditions << { simple_query_string: { query: @options["keyword"], fields: es_fields, default_operator: "AND" } } unless es_fields.blank?
     conditions
   end

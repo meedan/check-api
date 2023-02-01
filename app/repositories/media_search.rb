@@ -11,7 +11,9 @@ class MediaSearch
     indexes :associated_type, { type: 'keyword' }
     indexes :title, { type: 'text', analyzer: 'check' }
     indexes :description, { type: 'text', analyzer: 'check' }
+    indexes :analysis_title, { type: 'text', analyzer: 'check' }
     indexes :title_index, { type: 'keyword', normalizer: 'check' } # For sorting by item title
+    indexes :analysis_description, { type: 'text', analyzer: 'check' }
     indexes :archived, { type: 'integer' }
     indexes :sources_count, { type: 'integer' }
     indexes :user_id, { type: 'integer' }
