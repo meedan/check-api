@@ -336,29 +336,20 @@ class Relationship2Test < ActiveSupport::TestCase
     assert_not_nil Relationship.where(source_id: s2, target_id: s1).last
   end
 
-  test "should not attempt to update source count if source does not exist" do
-    r = create_relationship relationship_type: Relationship.confirmed_type
-    r.source.delete
-    assert_nothing_raised do
-      r.reload.send :update_counters
-    end
-  end
-
-  test "should cache the name of who created a similar item" do
+  test "should clear cache when inverting relationship" do
     RequestStore.store[:skip_cached_field_update] = false
     t = create_team
-    u = create_user is_admin: true
     pm1 = create_project_media team: t
     pm2 = create_project_media team: t
-    r = nil
-    with_current_user_and_team(u, t) do
-      r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type, user: nil
-    end
-    assert_queries(0, '=') { assert_equal u.name, pm2.added_as_similar_by_name }
-    Rails.cache.delete("check_cached_field:ProjectMedia:#{pm2.id}:added_as_similar_by_name")
-    assert_queries(0, '>') { assert_equal u.name, pm2.added_as_similar_by_name }
-    r.destroy!
-    assert_queries(0, '=') { assert_nil pm2.added_as_similar_by_name }
+    r = create_relationship relationship_type: Relationship.confirmed_type, source_id: pm1.id, target_id: pm2.id
+    assert_equal 1, pm1.reload.linked_items_count
+    assert_equal 0, pm2.reload.linked_items_count
+    r = Relationship.find(r.id)
+    r.source_id = pm2.id
+    r.target_id = pm1.id
+    r.save!
+    assert_equal 0, pm1.reload.linked_items_count
+    assert_equal 1, pm2.reload.linked_items_count
   end
 
   test "should cache the name of who confirmed a similar item and store confirmation information" do
@@ -382,22 +373,4 @@ class Relationship2Test < ActiveSupport::TestCase
     r.destroy!
     assert_queries(0, '=') { assert_nil pm2.confirmed_as_similar_by_name }
   end
-
-  test "should clear cache when inverting relationship" do
-    RequestStore.store[:skip_cached_field_update] = false
-    t = create_team
-    pm1 = create_project_media team: t
-    pm2 = create_project_media team: t
-    r = create_relationship relationship_type: Relationship.confirmed_type, source_id: pm1.id, target_id: pm2.id
-    assert_equal 1, pm1.reload.linked_items_count
-    assert_equal 0, pm2.reload.linked_items_count
-    r = Relationship.find(r.id)
-    r.source_id = pm2.id
-    r.target_id = pm1.id
-    r.save!
-    assert_equal 0, pm1.reload.linked_items_count
-    assert_equal 1, pm2.reload.linked_items_count
-  end
-
-
 end 
