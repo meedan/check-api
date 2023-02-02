@@ -114,7 +114,7 @@ class DynamicAnnotation::Field < ApplicationRecord
     elsif self.annotation_type == 'smooch' && self.field_name == 'smooch_data'
       data = {
         'username' => self.value_json['name'],
-        'identifier' => self.smooch_user_external_identifier,
+        'identifier' => self.smooch_user_external_identifier&.gsub(/[[:space:]|-]/, ''),
         'content' => self.value_json['text'],
       } if op != 'destroy'
       do_index = true

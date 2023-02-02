@@ -412,6 +412,8 @@ class CheckSearch
   def set_keyword_fields
     @options['keyword_fields'] ||= {}
     @options['keyword_fields']['fields'] = [] unless @options['keyword_fields'].has_key?('fields')
+    # add requests identifier if user check username request field
+    @options['keyword_fields']['fields'] << 'identifier' if @options['keyword_fields']['fields'].include?('username')
   end
 
   def build_keyword_conditions_media_fields

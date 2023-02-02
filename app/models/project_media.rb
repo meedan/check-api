@@ -481,7 +481,7 @@ class ProjectMedia < ApplicationRecord
     fields = DynamicAnnotation::Field.joins(:annotation)
     .where(
       field_name: 'smooch_data',
-      'annotations.annotated_id' => obj.id,
+      'annotations.annotated_id' => self.id,
       'annotations.annotation_type' => 'smooch',
       'annotations.annotated_type' => 'ProjectMedia'
       )

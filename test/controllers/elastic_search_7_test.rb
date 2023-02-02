@@ -172,7 +172,7 @@ class ElasticSearch7Test < ActionController::TestCase
     assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
   end
 
-  test "should filter keyword by tite description tags and notes fields" do
+  test "should filter by keyword and tite description tags and notes fields fields" do
     create_verification_status_stuff(false)
     t = create_team
     p = create_project team: t
