@@ -9,6 +9,15 @@ class AddMappingForKeywordSearchFields < ActiveRecord::Migration[5.2]
           claim_description_context: { type: 'text', analyzer: 'check' },
           fact_check_url: { type: 'text', analyzer: 'check' },
           source_name: { type: 'text', analyzer: 'check' },
+          requests: {
+            type: 'nested',
+            properties: {
+              id: { type: 'integer'},
+              username: { type: 'text', analyzer: 'check'},
+              identifier: { type: 'text', analyzer: 'check'},
+              content: { type: 'text', analyzer: 'check'},
+            }
+          },
         }
       }
     }

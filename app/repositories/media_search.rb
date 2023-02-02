@@ -48,6 +48,16 @@ class MediaSearch
       }
     }
 
+    indexes :requests, {
+      type: 'nested',
+      properties: {
+        id: { type: 'integer'},
+        username: { type: 'text', analyzer: 'check'},
+        identifier: { type: 'text', analyzer: 'check'},
+        content: { type: 'text', analyzer: 'check'},
+      }
+    }
+
     indexes :linked_items_count, { type: 'long' }
 
     indexes :last_seen, { type: 'long' }

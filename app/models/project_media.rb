@@ -477,6 +477,20 @@ class ProjectMedia < ApplicationRecord
     .joins('INNER JOIN annotations a ON a.id = assignments.assigned_id')
     .where('a.annotated_type = ? AND a.annotated_id = ?', 'ProjectMedia', self.id).map(&:user_id)
     ms.attributes[:assigned_user_ids] = assignments_uids.uniq
+    # 'requests'
+    fields = DynamicAnnotation::Field.joins(:annotation)
+    .where(
+      field_name: 'smooch_data',
+      'annotations.annotated_id' => obj.id,
+      'annotations.annotation_type' => 'smooch',
+      'annotations.annotated_type' => 'ProjectMedia'
+      )
+    ms.attributes[:requests] = fields.collect{ |field| {
+      id: field.id,
+      username: field.value_json['name'],
+      identifier: field.smooch_user_external_identifier,
+      content: field.value_json['text'],
+    }}
   end
 
   # private

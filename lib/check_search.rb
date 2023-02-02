@@ -393,7 +393,7 @@ class CheckSearch
     keyword_c = []
     field_conditions = build_keyword_conditions_media_fields
     check_search_concat_conditions(keyword_c, field_conditions)
-    [['comments', 'text']].each do |pair|
+    [['comments', 'text'], ['requests', 'username'], ['requests', 'identifier'], ['requests', 'content']].each do |pair|
       keyword_c << {
         nested: {
           path: "#{pair[0]}",
