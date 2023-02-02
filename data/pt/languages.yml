@@ -1,5 +1,5 @@
-pt: 
-  languages: 
+pt:
+  languages:
     aa: afar
     ab: abcázio
     ace: achém
@@ -376,9 +376,9 @@ pt:
     pra: "idioma prácrito"
     pro: "provençal arcaico"
     ps: pushto
-    pt: português
-    pt-BR: "português do Brasil"
-    pt-PT: "português europeu"
+    pt: Português
+    pt-BR: "Português do Brasil"
+    pt-PT: "Português Europeu"
     qu: quíchua
     raj: rajastani
     rap: rapanui
