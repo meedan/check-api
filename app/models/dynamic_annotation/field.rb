@@ -99,43 +99,39 @@ class DynamicAnnotation::Field < ApplicationRecord
 
   def index_field_elastic_search(op)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    obj = self.annotation&.project_media
+    unless obj.nil?
+      apply_field_index(obj, op)
+      apply_nested_field_index(obj, op)
+    end
+  end
+
+  def apply_field_index(obj, op)
     data = {}
-    do_index = false
     # Handle analysis fields (title/ description)
     if self.annotation_type == "verification_status" && ['file_title', 'title', 'content'].include?(self.field_name)
       key = 'analysis_' + self.field_name.gsub('content', 'description')
       key = 'analysis_title' if self.field_name == 'file_title'
       data = op == 'destroy' ? { key => '' } : { key => self.value }
-      do_index = true
     elsif self.annotation_type == "language"
       # Handle language field
       data = op == 'destroy' ? { 'language' => '' } : { 'language' => self.value }
-      do_index = true
-    elsif self.annotation_type == 'smooch' && self.field_name == 'smooch_data'
-      data = {
-        'username' => self.value_json['name'],
-        'identifier' => self.smooch_user_external_identifier&.gsub(/[[:space:]|-]/, ''),
-        'content' => self.value_json['text'],
-      } if op != 'destroy'
-      do_index = true
     end
-    apply_field_index(data, op) if do_index
+    obj.update_elasticsearch_doc(data.keys, data, obj.id, true) unless data.blank?
   end
 
-  def apply_field_index(data, op)
-    obj = self.annotation.project_media
-    unless obj.nil?
-      if self.field_name == 'smooch_data'
-        # This is a nested field in ES so call two different methods for create/update and destroy
-        if op == 'destroy'
-          destroy_es_items('requests', 'destroy_doc_nested', obj.id)
-        else
-          options = { op: op, pm_id: obj.id, nested_key: 'requests', keys: data.keys, data: data, skip_get_data: true }
-          self.add_update_nested_obj(options)
-        end
+  def apply_nested_field_index(obj, op)
+    if self.field_name == 'smooch_data'
+      if op == 'destroy'
+        destroy_es_items('requests', 'destroy_doc_nested', obj.id)
       else
-        # This is a regular field so call an update method for parent(ProjectMedia)
-        obj.update_elasticsearch_doc(data.keys, data, obj.id, true)
+        data = {
+          'username' => self.value_json['name'],
+          'identifier' => self.smooch_user_external_identifier&.gsub(/[[:space:]|-]/, ''),
+          'content' => self.value_json['text'],
+        }
+        options = { op: op, pm_id: obj.id, nested_key: 'requests', keys: data.keys, data: data, skip_get_data: true }
+        self.add_update_nested_obj(options)
       end
     end
   end
