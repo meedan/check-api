@@ -407,7 +407,6 @@ class ProjectMedia < ApplicationRecord
     m = self.media
     ms.attributes[:associated_type] = m.type
     ms.attributes[:url] = m.url
-    ms.attributes[:accounts] = self.set_es_account_data unless m.account.nil?
     ms.attributes[:title] = self.original_title
     # initiate title_index with same title value for sorting by title purpose
     ms.attributes[:title_index] = self.title

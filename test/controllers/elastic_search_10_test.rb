@@ -253,10 +253,13 @@ class ElasticSearch10Test < ActionController::TestCase
 
   test "should filter by keyword and requests fields" do
     # Reuests fields are username, identifier and content
-    t = create_team
-    pm = create_project_media team: t
-    pm2 = create_project_media team: t2
     create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'Data' => ['JSON', false] })
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    pm = create_project_media team: t
+    pm2 = create_project_media team: t
     whatsapp_uid = random_string
     whatsapp_data = {
       '_id' => random_string,
@@ -297,19 +300,17 @@ class ElasticSearch10Test < ActionController::TestCase
       }]
     }
     create_dynamic_annotation annotated: pm2, annotation_type: 'smooch_user', set_fields: { smooch_user_id: twitter_uid, smooch_user_data: { raw: twitter_data }.to_json }.to_json
-    u = create_user is_admin: true
-    t = create_team
     with_current_user_and_team(u, t) do
       wa_smooch_data = { 'authorId' => whatsapp_uid, 'text' => 'smooch_request a', 'name' => 'wa_user' }
-      create_dynamic_annotation annotated: pm, annotation_type: 'smooch', set_fields: { smooch_data: wa_smooch_data.to_json }.to_json
+      create_dynamic_annotation annotated: pm, annotation_type: 'smooch', set_fields: { smooch_data: wa_smooch_data.to_json }.to_json, disable_es_callbacks: false
       twitter_smooch_data = { 'authorId' => twitter_uid, 'text' => 'smooch_request b', 'name' => 'melsawy' }
-      create_dynamic_annotation annotated: pm2, annotation_type: 'smooch', set_fields: { smooch_data: twitter_smooch_data.to_json }.to_json
+      create_dynamic_annotation annotated: pm2, annotation_type: 'smooch', set_fields: { smooch_data: twitter_smooch_data.to_json }.to_json, disable_es_callbacks: false
       sleep 2
-      result = CheckSearch.new({keyword: 'smooch_request', keyword_fields: {fields: ['content']}}.to_json)
+      result = CheckSearch.new({keyword: 'smooch_request', keyword_fields: {fields: ['request_content']}}.to_json)
       assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
-      result = CheckSearch.new({keyword: 'melsawy', keyword_fields: {fields: ['username']}}.to_json)
+      result = CheckSearch.new({keyword: 'melsawy', keyword_fields: {fields: ['request_username']}}.to_json)
       assert_equal [pm2.id], result.medias.map(&:id)
-      result = CheckSearch.new({keyword: '551234567890', keyword_fields: {fields: ['username']}}.to_json)
+      result = CheckSearch.new({keyword: '551234567890', keyword_fields: {fields: ['request_username']}}.to_json)
       assert_equal [pm.id], result.medias.map(&:id)
     end
   end

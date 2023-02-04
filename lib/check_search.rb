@@ -393,19 +393,28 @@ class CheckSearch
     keyword_c = []
     field_conditions = build_keyword_conditions_media_fields
     check_search_concat_conditions(keyword_c, field_conditions)
-    [['comments', 'text'], ['requests', 'username'], ['requests', 'identifier'], ['requests', 'content']].each do |pair|
+    # Search in comments
+    keyword_c << {
+      nested: {
+        path: "comments",
+        query: {
+          simple_query_string: { query: @options["keyword"], fields: ["comments.text"], default_operator: "AND" }
+        }
+      }
+    } if should_include_keyword_field?('comments')
+    # Search in requests
+    [['request_username', 'username'], ['request_identifier', 'identifier'], ['request_content', 'content']].each do |pair|
       keyword_c << {
         nested: {
-          path: "#{pair[0]}",
+          path: "requests",
           query: {
-            simple_query_string: { query: @options["keyword"], fields: ["#{pair[0]}.#{pair[1]}"], default_operator: "AND" }
+            simple_query_string: { query: @options["keyword"], fields: ["requests.#{pair[1]}"], default_operator: "AND" }
           }
         }
       } if should_include_keyword_field?(pair[0])
     end
-
+    # Search in tags
     keyword_c << search_tags_query(@options["keyword"].split(' ')) if should_include_keyword_field?('tags')
-
     [{ bool: { should: keyword_c } }]
   end
 
@@ -413,7 +422,7 @@ class CheckSearch
     @options['keyword_fields'] ||= {}
     @options['keyword_fields']['fields'] = [] unless @options['keyword_fields'].has_key?('fields')
     # add requests identifier if user check username request field
-    @options['keyword_fields']['fields'] << 'identifier' if @options['keyword_fields']['fields'].include?('username')
+    @options['keyword_fields']['fields'] << 'request_identifier' if @options['keyword_fields']['fields'].include?('request_username')
   end
 
   def build_keyword_conditions_media_fields

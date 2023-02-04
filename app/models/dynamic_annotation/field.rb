@@ -119,21 +119,23 @@ class DynamicAnnotation::Field < ApplicationRecord
       } if op != 'destroy'
       do_index = true
     end
-    if do_index
-      obj = self.annotation.project_media
-      unless obj.nil?
-        if self.field_name == 'smooch_data'
-          # This is a nested field in ES so call two different methods for create/update and destroy
-          if op == 'destroy'
-            destroy_es_items('requests', 'destroy_doc_nested', obj.id)
-          else
-            options = { op: op, pm_id: obj.id, nested_key: 'requests', keys: data.keys, data: data, skip_get_data: true }
-            self.add_update_nested_obj(options)
-          end
+    apply_field_index(data, op) if do_index
+  end
+
+  def apply_field_index(data, op)
+    obj = self.annotation.project_media
+    unless obj.nil?
+      if self.field_name == 'smooch_data'
+        # This is a nested field in ES so call two different methods for create/update and destroy
+        if op == 'destroy'
+          destroy_es_items('requests', 'destroy_doc_nested', obj.id)
         else
-          # This is a regular field so call an update method for parent(ProjectMedia)
-          obj.update_elasticsearch_doc(data.keys, data, obj.id, true)
+          options = { op: op, pm_id: obj.id, nested_key: 'requests', keys: data.keys, data: data, skip_get_data: true }
+          self.add_update_nested_obj(options)
         end
+      else
+        # This is a regular field so call an update method for parent(ProjectMedia)
+        obj.update_elasticsearch_doc(data.keys, data, obj.id, true)
       end
     end
   end
