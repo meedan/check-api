@@ -189,7 +189,7 @@ class ProjectMedia < ApplicationRecord
   end
 
   def self.get_similar_relationships(project_media, relationship_type)
-    Relationship.where(source_id: project_media.relationship_source(relationship_type).id).where('relationship_type = ?', relationship_type.to_yaml).order('weight DESC')
+    Relationship.where(source_id: project_media.relationship_source(relationship_type).id).where('relationship_type = ?', relationship_type.to_yaml).order('created_at DESC')
   end
 
   def get_default_relationships
