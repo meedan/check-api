@@ -100,6 +100,7 @@ module ProjectAssociation
         'read' => obj.read.to_i,
         'media_published_at' => obj.media_published_at,
         'source_id' => obj.source_id,
+        'source_name' => obj.source&.name,
         'project_id' => obj.project_id,
         'channel' => obj.channel.values.flatten.map(&:to_i),
         'updated_at' => obj.updated_at.utc

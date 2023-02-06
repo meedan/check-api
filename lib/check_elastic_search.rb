@@ -25,7 +25,7 @@ module CheckElasticSearch
     ms.attributes[:media_published_at] = self.media_published_at
     ms.attributes[:source_id] = self.source_id
     # Intial nested objects with []
-    ['accounts', 'comments', 'tags', 'task_responses', 'assigned_user_ids'].each{ |f| ms.attributes[f] = [] }
+    ['comments', 'tags', 'task_responses', 'assigned_user_ids', 'requests'].each{ |f| ms.attributes[f] = [] }
     self.add_nested_objects(ms) if options[:force_creation]
     self.add_extra_elasticsearch_data(ms)
     $repository.save(ms)
