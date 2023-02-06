@@ -15326,6 +15326,16 @@
               "defaultValue": null
             },
             {
+              "name": "description",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "name",
               "description": null,
               "type": {
@@ -15350,16 +15360,6 @@
                   "name": "String",
                   "ofType": null
                 }
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "description",
-              "description": null,
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
               },
               "defaultValue": null
             }
@@ -75985,7 +75985,7 @@
               "defaultValue": null
             },
             {
-              "name": "name",
+              "name": "description",
               "description": null,
               "type": {
                 "kind": "SCALAR",
@@ -75995,7 +75995,7 @@
               "defaultValue": null
             },
             {
-              "name": "description",
+              "name": "name",
               "description": null,
               "type": {
                 "kind": "SCALAR",

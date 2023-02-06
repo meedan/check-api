@@ -13,7 +13,7 @@ module SmoochSearch
         results = self.get_search_results(uid, message, team_id, language).select do |pm|
           pm = Relationship.confirmed_parent(pm)
           report = pm.get_dynamic_annotation('report_design')
-          !!report&.should_send_report_in_this_language?(language)
+          !report.nil? && !!report.should_send_report_in_this_language?(language)
         end.uniq
         if results.empty?
           self.bundle_messages(uid, '', app_id, 'default_requests', nil, true)

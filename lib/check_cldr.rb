@@ -18,7 +18,7 @@ class CheckCldr
     short_locale = locale.to_s.gsub(/[_-].*$/, '')
     locale ||= :en
     name = CLDR_LANGUAGES.dig(locale, code) || CLDR_LANGUAGES.dig(short_locale, code) || CLDR_LANGUAGES.dig('en', short_code)
-    name.blank? ? code : name.mb_chars.capitalize
+    name.blank? ? code : name
   end
 
   def self.localized_languages(locale = I18n.locale)

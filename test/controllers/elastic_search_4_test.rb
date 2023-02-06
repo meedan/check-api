@@ -10,13 +10,8 @@ class ElasticSearch4Test < ActionController::TestCase
     t = create_team
     p = create_project team: t
     p2 = create_project team: t
-    info = { title: 'report_title' }
-    m = create_valid_media
-    m2 = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    pm.analysis = info
-    pm2 = create_project_media project: p2, media: m2, disable_es_callbacks: false
-    pm2.analysis = info
+    pm = create_project_media project: p, quote: 'report_title', disable_es_callbacks: false
+    pm2 = create_project_media project: p2, quote: 'report_title', disable_es_callbacks: false
     create_tag tag: 'sports', annotated: pm, disable_es_callbacks: false
     create_tag tag: 'sports', annotated: pm2, disable_es_callbacks: false
     create_status status: 'verified', annotated: pm, disable_es_callbacks: false
@@ -146,17 +141,11 @@ class ElasticSearch4Test < ActionController::TestCase
   test "should search for hashtag" do
     t = create_team
     p = create_project team: t
-    info = { title: 'report title' }
-    m = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    pm.analysis = info
+    pm = create_project_media project: p, quote: 'report title', disable_es_callbacks: false
     create_tag tag: '#monkey', annotated: pm, disable_es_callbacks: false
-    info2 = { title: 'report #title' }
-    m2 = create_valid_media
-    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-    pm2.analysis = info2
+    pm2 = create_project_media project: p, quote: 'report #title', disable_es_callbacks: false
     create_tag tag: 'monkey', annotated: pm2, disable_es_callbacks: false
-    sleep 10
+    sleep 2
     Team.current = t
     result = CheckSearch.new({tags: ['monkey']}.to_json)
     assert_equal [pm2.id, pm.id].sort, result.medias.map(&:id).sort

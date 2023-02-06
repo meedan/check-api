@@ -223,4 +223,105 @@ class ElasticSearch10Test < ActionController::TestCase
       assert_equal ids[code], results.first['annotated_id']
     end
   end
+
+  test "should filter by keyword and claim context fact-check url and source name fields" do
+    t = create_team
+    pm = create_project_media team: t, quote: 'search_title a'
+    pm2 = create_project_media team: t, quote: 'search_title b'
+    pm3 = create_project_media team: t, quote: 'search_title c'
+    # add claim context to pm
+    create_claim_description project_media: pm, context: 'claim_context a'
+    # add fact-check url to pm2
+    url = random_url
+    cd = create_claim_description project_media: pm2, context: 'claim_context b'
+    fc = create_fact_check claim_description: cd, url: url
+    # add source to pm3
+    s = create_source team: t, name: 'media_source'
+    pm3.source_id = s.id
+    pm3.disable_es_callbacks = false
+    pm3.save!
+    sleep 2
+    result = CheckSearch.new({keyword: 'search_title'}.to_json, nil, t.id)
+    assert_equal [pm.id, pm2.id, pm3.id], result.medias.map(&:id).sort
+    result = CheckSearch.new({keyword: 'claim_context', keyword_fields: {fields: ['claim_description_context']}}.to_json, nil, t.id)
+    assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
+    result = CheckSearch.new({keyword: url, keyword_fields: {fields: ['fact_check_url']}}.to_json, nil, t.id)
+    assert_equal [pm2.id], result.medias.map(&:id)
+    result = CheckSearch.new({keyword: 'media_source', keyword_fields: {fields: ['source_name']}}.to_json, nil, t.id)
+    assert_equal [pm3.id], result.medias.map(&:id)
+  end
+
+  test "should filter by keyword and requests fields" do
+    # Reuests fields are username, identifier and content
+    create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'Data' => ['JSON', false] })
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    pm = create_project_media team: t
+    pm2 = create_project_media team: t
+    whatsapp_uid = random_string
+    whatsapp_data = {
+      '_id' => random_string,
+      'givenName' => 'Foo',
+      'surname' => 'Bar',
+      'signedUpAt' => '2019-01-30T03:47:33.740Z',
+      'properties' => {},
+      'conversationStarted' => true,
+      'clients' => [{
+        'id' => random_string,
+        'active' => true,
+        'lastSeen' => '2020-10-01T15:41:20.877Z',
+        'platform' => 'whatsapp',
+        'displayName' => '+55 12 3456-7890',
+        'raw' => { 'from' => '551234567890', 'profile' => { 'name' => 'Foo Bar' } }
+      }],
+      'pendingClients' => []
+    }
+    create_dynamic_annotation annotated: pm, annotation_type: 'smooch_user', set_fields: { smooch_user_id: whatsapp_uid, smooch_user_data: { raw: whatsapp_data }.to_json }.to_json
+    twitter_uid = random_string
+    twitter_data = {
+      'clients' => [{
+        'id' => random_string,
+        'active' => true,
+        'lastSeen' => '2020-10-02T16:55:59.211Z',
+        'platform' => 'twitter',
+        'displayName' => 'Foo Bar',
+        'info' => {
+          'avatarUrl' => random_url
+        },
+        'raw' => {
+          'location' => random_string,
+          'screen_name' => 'foobar',
+          'name' => 'Foo Bar',
+          'id_str' => random_string,
+          'id' => random_string
+        }
+      }]
+    }
+    create_dynamic_annotation annotated: pm2, annotation_type: 'smooch_user', set_fields: { smooch_user_id: twitter_uid, smooch_user_data: { raw: twitter_data }.to_json }.to_json
+    with_current_user_and_team(u, t) do
+      wa_smooch_data = { 'authorId' => whatsapp_uid, 'text' => 'smooch_request a', 'name' => 'wa_user' }
+      smooch_pm = create_dynamic_annotation annotated: pm, annotation_type: 'smooch', set_fields: { smooch_data: wa_smooch_data.to_json }.to_json, disable_es_callbacks: false
+      twitter_smooch_data = { 'authorId' => twitter_uid, 'text' => 'smooch_request b', 'name' => 'melsawy' }
+      smooch_pm2 = create_dynamic_annotation annotated: pm2, annotation_type: 'smooch', set_fields: { smooch_data: twitter_smooch_data.to_json }.to_json, disable_es_callbacks: false
+      sleep 2
+      result = CheckSearch.new({keyword: 'smooch_request', keyword_fields: {fields: ['request_content']}}.to_json)
+      assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
+      result = CheckSearch.new({keyword: 'melsawy', keyword_fields: {fields: ['request_username']}}.to_json)
+      assert_equal [pm2.id], result.medias.map(&:id)
+      result = CheckSearch.new({keyword: '551234567890', keyword_fields: {fields: ['request_username']}}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      # Verify destroy smooch_data
+      smooch_pm.destroy!
+      sleep 2
+      es_pm = $repository.find(get_es_id(pm))
+      assert_empty es_pm['requests']
+      # Verify create requests when force re-index
+      pm2.create_elasticsearch_doc_bg({ force_creation: true })
+      sleep 2
+      es_pm2 = $repository.find(get_es_id(pm2))
+      assert_equal 1, es_pm2['requests'].length
+    end
+  end
 end
