@@ -104,7 +104,7 @@ class StatisticsTest < ActiveSupport::TestCase
   end
 
   test "generates statistics data for each month in tipline history when absent" do
-    create_project_media(user: BotUser.smooch_user, claim: "Claim: previous month", team: @tipline_team, created_at: @current_date - 1.month)
+    create_project_media(user: BotUser.smooch_user, claim: "Claim: previous month", team: @tipline_team, created_at: @current_date - (1.month - 2.weeks))
 
     # Full month - past
     start_of_previous_month = (@current_date - 1.month).beginning_of_month
