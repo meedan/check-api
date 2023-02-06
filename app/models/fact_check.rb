@@ -13,8 +13,6 @@ class FactCheck < ApplicationRecord
   validate :language_in_allowed_values
 
   after_save :update_report
-  after_commit :update_elasticsearch_data, on: [:create, :update], if: proc { |c| c.saved_change_to_language? }
-  after_commit :destroy_elasticsearch_data, on: :destroy
 
   def text_fields
     ['fact_check_title', 'fact_check_summary']
@@ -71,25 +69,5 @@ class FactCheck < ApplicationRecord
     reports.annotator = self.user || User.current
     reports.set_fields = data.to_json
     reports.save!
-  end
-
-  def update_elasticsearch_data
-    self.update_elasticsearch_parent
-  end
-
-  def destroy_elasticsearch_data
-    self.update_elasticsearch_parent('destroy')
-  end
-
-  protected
-
-  def update_elasticsearch_parent(action = 'create_or_update')
-    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    pm = self.project_media
-    unless pm.nil?
-      es_value = action == 'destroy' ? [] : [self.language]
-      data = { 'fact_check_languages' =>  es_value }
-      pm.update_elasticsearch_doc(data.keys, data, pm.id, true)
-    end
   end
 end

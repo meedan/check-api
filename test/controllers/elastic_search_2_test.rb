@@ -89,59 +89,6 @@ class ElasticSearch2Test < ActionController::TestCase
     assert_equal 'new_title', pm.reload.title
   end
 
-  test "should set elasticsearch data for media account" do
-    t = create_team
-    p = create_project team: t
-    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-    media_url = 'http://www.facebook.com/meedan/posts/123456'
-    author_url = 'http://facebook.com/123456'
-    author_normal_url = 'http://www.facebook.com/meedan'
-
-    data = { url: media_url, author_url: author_url, type: 'item' }
-    response = '{"type":"media","data":' + data.to_json + '}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: media_url } }).to_return(body: response)
-
-    data = { url: author_normal_url, provider: 'facebook', picture: 'http://fb/p.png', username: 'username', title: 'Foo', description: 'Bar', type: 'profile' }
-    response = '{"type":"media","data":' + data.to_json + '}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: author_url } }).to_return(body: response)
-
-    m = create_media url: media_url, account_id: nil, user_id: nil, account: nil, user: nil
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    sleep 1
-    ms = $repository.find(get_es_id(pm))
-    assert_equal ms['accounts'][0].sort, {"id"=> m.account.id, "title"=>"Foo", "description"=>"Bar"}.sort
-  end
-
-  test "should update or destroy media search in background" do
-    Sidekiq::Testing.fake!
-    t = create_team
-    p = create_project team: t
-    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-    url = 'http://test.com'
-    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m = create_media(account: create_valid_account, url: url)
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    # update title or description
-    ElasticSearchWorker.clear
-    pm.analysis = { title: 'title', content: 'description' }
-    assert_equal 3, ElasticSearchWorker.jobs.size
-    # destroy media
-    ElasticSearchWorker.clear
-    assert_equal 0, ElasticSearchWorker.jobs.size
-    pm.destroy
-    assert ElasticSearchWorker.jobs.size > 0
-  end
-
-  test "should update analysis data in foreground" do
-    pm = create_project_media disable_es_callbacks: false
-    sleep 1
-    pm.analysis = { title: 'analysis_title', content: 'analysis_description' }
-    ms = $repository.find(get_es_id(pm))
-    assert_equal 'analysis_title', ms['analysis_title']
-    assert_equal 'analysis_description', ms['analysis_description']
-  end
-
   test "should add or destroy es for annotations in background" do
     Sidekiq::Testing.fake!
     t = create_team

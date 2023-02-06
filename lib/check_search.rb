@@ -393,79 +393,47 @@ class CheckSearch
     keyword_c = []
     field_conditions = build_keyword_conditions_media_fields
     check_search_concat_conditions(keyword_c, field_conditions)
-    [['comments', 'text']].each do |pair|
+    # Search in comments
+    keyword_c << {
+      nested: {
+        path: "comments",
+        query: {
+          simple_query_string: { query: @options["keyword"], fields: ["comments.text"], default_operator: "AND" }
+        }
+      }
+    } if should_include_keyword_field?('comments')
+    # Search in requests
+    [['request_username', 'username'], ['request_identifier', 'identifier'], ['request_content', 'content']].each do |pair|
       keyword_c << {
         nested: {
-          path: "#{pair[0]}",
+          path: "requests",
           query: {
-            simple_query_string: { query: @options["keyword"], fields: ["#{pair[0]}.#{pair[1]}"], default_operator: "AND" }
+            simple_query_string: { query: @options["keyword"], fields: ["requests.#{pair[1]}"], default_operator: "AND" }
           }
         }
       } if should_include_keyword_field?(pair[0])
     end
-
+    # Search in tags
     keyword_c << search_tags_query(@options["keyword"].split(' ')) if should_include_keyword_field?('tags')
-
-    keyword_c << {
-      nested: {
-        path: "accounts",
-        query: { simple_query_string: { query: @options["keyword"], fields: %w(accounts.username accounts.title), default_operator: "AND" }}
-      }
-    } if should_include_keyword_field?('accounts')
-
-    team_tasks_c = build_keyword_conditions_team_tasks
-    check_search_concat_conditions(keyword_c, team_tasks_c)
-
     [{ bool: { should: keyword_c } }]
   end
 
   def set_keyword_fields
     @options['keyword_fields'] ||= {}
     @options['keyword_fields']['fields'] = [] unless @options['keyword_fields'].has_key?('fields')
-    @options['keyword_fields']['fields'] << 'team_tasks' if @options['keyword_fields'].has_key?('team_tasks')
+    # add requests identifier if user check username request field
+    @options['keyword_fields']['fields'] << 'request_identifier' if @options['keyword_fields']['fields'].include?('request_username')
   end
 
   def build_keyword_conditions_media_fields
     es_fields = []
     conditions = []
-    %w(title description quote analysis_title analysis_description url extracted_text claim_description_content fact_check_title fact_check_summary).each do |f|
+    %w(title description url claim_description_content fact_check_title fact_check_summary claim_description_context fact_check_url source_name).each do |f|
       es_fields << f if should_include_keyword_field?(f)
     end
+    es_fields << 'analysis_title' if should_include_keyword_field?('title')
+    es_fields.concat(['extracted_text', 'analysis_description']) if should_include_keyword_field?('description')
     conditions << { simple_query_string: { query: @options["keyword"], fields: es_fields, default_operator: "AND" } } unless es_fields.blank?
-    conditions
-  end
-
-  def build_keyword_conditions_team_tasks
-    conditions = []
-    # add tasks/metadata answers
-    {'task_answers' => 'tasks', 'metadata_answers' => 'metadata'}.each do |f, v|
-      conditions << {
-        nested: {
-          path: "task_responses",
-          query: { bool: { must: [
-              { simple_query_string: { query: @options["keyword"], fields: ["task_responses.value"], default_operator: "AND" } },
-              { term: { "task_responses.fieldset": { value: v } } }
-            ]
-          } }
-        }
-      } if should_include_keyword_field?(f)
-    end
-    # add team task/metadata filter (ids)
-    # should search in responses and comments
-    if should_include_keyword_field?('team_tasks') && !@options['keyword_fields']['team_tasks'].blank?
-      [['task_responses', 'value']].each do |pair|
-        conditions << {
-          nested: {
-            path: pair[0],
-            query: { bool: { must: [
-                { terms: { "#{pair[0]}.team_task_id": @options['keyword_fields']['team_tasks'] } },
-                { match: { "#{pair[0]}.#{pair[1]}": @options["keyword"] } }
-              ]
-            } }
-          }
-        }
-      end
-    end
     conditions
   end
 
