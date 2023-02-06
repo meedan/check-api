@@ -391,15 +391,6 @@ class ProjectMedia < ApplicationRecord
 
   protected
 
-  def set_es_account_data
-    data = {}
-    a = self.media.account
-    metadata = a.metadata
-    ['title', 'description'].each{ |k| data[k] = metadata[k] unless metadata[k].blank? } unless metadata.nil?
-    data['id'] = a.id unless data.blank?
-    [data]
-  end
-
   def add_extra_elasticsearch_data(ms)
     analysis = self.analysis
     analysis_title = analysis['title'].blank? ? nil : analysis['title']
