@@ -52,7 +52,8 @@ namespace :check do
             end
           end
           date += 1.month
-        end while date <= current_time
+        # Protect against generating stats for the future, by bailing if start of the start of first day of month is later than time rake task was run
+        end while date.beginning_of_month <= current_time
 
         puts "[#{Time.now}] Stats summary for team with ID #{team_id}: #{team_stats.map{|k,v| "#{k} - #{v}" }.join("; ") }. Platforms: #{platforms.join(',')}. Languages: #{languages.join(', ')}"
       end
