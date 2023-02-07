@@ -83,7 +83,7 @@ namespace :check do
         fields.collect{ |field| {
           id: field.id,
           username: field.value_json['name'],
-          identifier: field.smooch_user_external_identifier,
+          identifier: field.smooch_user_external_identifier.value&.gsub(/[[:space:]|-]/, ''),
           content: field.value_json['text'],
         }}
       end
