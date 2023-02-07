@@ -6,7 +6,7 @@ end
 
 namespace :check do
   desc "Evaluate metrics for checkthat workspace on QA (usage: bundle exec rake check::evaluate_qa_checkthat_similarity_metrics)"
-  task :evaluate_qa_checkthat_similarity_metrics
+  task :evaluate_qa_checkthat_similarity_metrics do
     team = Team.find_by_slug("checkthat-evaluation")
     user = BotUser.fetch_user
     answer_map = Hash[CSV.read("data/research/CT2022-Task2A-EN-Train_QRELs.tsv", col_sep: "\t").collect{|x| [x[0], x[2]]}]
