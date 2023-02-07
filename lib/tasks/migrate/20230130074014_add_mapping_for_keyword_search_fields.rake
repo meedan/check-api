@@ -60,5 +60,30 @@ namespace :check do
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
+
+    task initiate_item_requests: :environment do
+      # This rake task to index source name
+      started = Time.now.to_i
+      client = $repository.client
+      options = {
+        index: CheckElasticSearchModel.get_index_alias,
+        conflicts: 'proceed'
+      }
+      last_team_id = Rails.cache.read('check:migrate:initiate_item_requests:team_id') || 0
+      Team.where('id > ?', last_team_id).find_each do |team|
+        print '.'
+        body = {
+          script: {
+            source: "ctx._source.requests = params.requests", params: { requests: [] }
+          },
+          query: { term: { team_id: team.id } }
+        }
+        options[:body] = body
+        client.update_by_query options
+        Rails.cache.write('check:migrate:initiate_item_requests:team_id', team.id)
+      end
+      minutes = ((Time.now.to_i - started) / 60).to_i
+      puts "[#{Time.now}] Done in #{minutes} minutes."
+    end
   end
 end
