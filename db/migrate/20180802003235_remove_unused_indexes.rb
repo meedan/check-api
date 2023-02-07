@@ -11,6 +11,5 @@ class RemoveUnusedIndexes < ActiveRecord::Migration[4.2]
     remove_index :sources, name: "index_sources_on_team_id"
     remove_index :sources, name: "index_sources_on_user_id"
     remove_index :users, name: "index_users_on_source_id"
-    remove_index :contacts, name: "index_contacts_on_team_id"
   end
 end
