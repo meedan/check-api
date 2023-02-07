@@ -1,13 +1,5 @@
 class AddExtraIndexes < ActiveRecord::Migration[4.2]
   def change
-    # Team
-    remove_index :teams, name: "index_teams_on_id"
-    # Account
-    add_index :accounts, :user_id
-    # ProjectMedia
-    remove_index :project_medias, name: "index_project_medias_on_id"
-    remove_index :project_medias, name: "index_project_medias_on_team_id"
-    add_index :project_medias, [:team_id, :archived, :sources_count]
     # User
     remove_index :users, name: "index_users_on_id"
     add_index :users, :login
