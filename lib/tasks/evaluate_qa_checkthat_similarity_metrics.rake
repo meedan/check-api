@@ -34,9 +34,8 @@ namespace :check do
   end
   
   desc "Import claims for checkthat workspace on QA (usage: bundle exec rake check::import_qa_checkthat_similarity_metrics)"
-  task :import_qa_checkthat_similarity_metrics
+  task :import_qa_checkthat_similarity_metrics do
     require File.expand_path('./config/environment', File.dirname(__FILE__))
-  
     team = Team.find_by_slug("checkthat-evaluation")
     user = BotUser.fetch_user
     User.current = user
