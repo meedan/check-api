@@ -546,424 +546,227 @@ class GraphqlController10Test < ActionController::TestCase
     assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
   end
 
-  test "should get OCR" do
-    b = create_alegre_bot(name: 'alegre', login: 'alegre')
-    b.approve!
-    create_extracted_text_annotation_type
-    Bot::Alegre.unstub(:request_api)
-    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      Sidekiq::Testing.fake! do
-        WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
-        WebMock.stub_request(:get, 'http://alegre/image/ocr/').with({ query: { url: "some/path" } }).to_return(body: { text: 'Foo bar' }.to_json)
-        WebMock.stub_request(:get, 'http://alegre/text/similarity/')
-
-        u = create_user
-        t = create_team
-        create_team_user user: u, team: t, role: 'admin'
-        authenticate_with_user(u)
-
-        Bot::Alegre.unstub(:media_file_url)
-        pm = create_project_media team: t, media: create_uploaded_image
-        Bot::Alegre.stubs(:media_file_url).with(pm).returns('some/path')
-
-        query = 'mutation ocr { extractText(input: { clientMutationId: "1", id: "' + pm.graphql_id + '" }) { project_media { id } } }'
-        post :create, params: { query: query, team: t.slug }
-        assert_response :success
-
-        extracted_text_annotation = pm.get_annotations('extracted_text').last
-        assert_equal 'Foo bar', extracted_text_annotation.data['text']
-        Bot::Alegre.unstub(:media_file_url)
-      end
-    end
-  end
-
-  test "should avoid n+1 queries problem" do
-    n = 2 # Number of media items to be created
-    m = 2 # Number of annotations per media
-    u = create_user
-    authenticate_with_user(u)
-    t = create_team slug: 'team'
-    create_team_user user: u, team: t
-    p = create_project team: t
-    with_current_user_and_team(u, t) do
-      n.times do
-        pm = create_project_media project: p, disable_es_callbacks: false
-        m.times { create_comment annotated: pm, annotator: u, disable_es_callbacks: false }
-      end
-    end
-    sleep 4
-
-    query = "query { search(query: \"{}\") { medias(first: 10000) { edges { node { dbid, media { dbid } } } } } }"
-
-    # This number should be always CONSTANT regardless the number of medias and annotations above
-    assert_queries (19), '<=' do
-      post :create, params: { query: query, team: 'team' }
-    end
-
-    assert_response :success
-    assert_equal n, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
-  end
-
-  test "should get project information fast" do
-    RequestStore.store[:skip_cached_field_update] = false
-    n = 3 # Number of media items to be created
-    m = 2 # Number of annotations per media (doesn't matter in this case because we use the cached count - using random values to make sure it remains consistent)
-    u = create_user
-    authenticate_with_user(u)
-    t = create_team slug: 'team'
-    create_team_task team_id: t.id
-    create_tag_text team_id: t.id
-    create_team_bot_installation team_id: t.id
-    create_team_user user: u, team: t
-    p = create_project team: t
-    n.times do
-      pm = create_project_media project: p, user: create_user, disable_es_callbacks: false
-      s = create_source
-      create_account_source source: s, disable_es_callbacks: false
-      m.times { create_comment annotated: pm, annotator: create_user, disable_es_callbacks: false }
-    end
-    create_project_media project: p, user: u, disable_es_callbacks: false
-    pm = create_project_media project: p, disable_es_callbacks: false
-    pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
-    pm.save!
-    sleep 10
-
-    # Current search query used by the frontend
-    query = %{query CheckSearch {
-      search(query: "{}") {
-        id
-        pusher_channel
-        number_of_results
-        team {
-          id
-          dbid
-          name
-          slug
-          verification_statuses
-          pusher_channel
-          dynamic_search_fields_json_schema
-          rules_search_fields_json_schema
-          medias_count
-          permissions
-          search_id
-          list_columns
-          team_tasks(first: 10000) {
-            edges {
-              node {
-                id
-                dbid
-                fieldset
-                label
-                options
-                type
-              }
-            }
-          }
-          tag_texts(first: 10000) {
-            edges {
-              node {
-                text
-              }
-            }
-          }
-          projects(first: 10000) {
-            edges {
-              node {
-                title
-                dbid
-                id
-                description
-              }
-            }
-          }
-          users(first: 10000) {
-            edges {
-              node {
-                id
-                dbid
-                name
-              }
-            }
-          }
-          check_search_trash {
-            id
-            number_of_results
-          }
-          check_search_unconfirmed {
-            id
-            number_of_results
-          }
-          public_team {
-            id
-            trash_count
-            unconfirmed_count
-          }
-          search {
-            id
-            number_of_results
-          }
-          team_bot_installations(first: 10000) {
-            edges {
-              node {
-                id
-                team_bot: bot_user {
-                  id
-                  identifier
-                }
-              }
-            }
-          }
-        }
-        medias(first: 20) {
-          edges {
-            node {
-              id
-              dbid
-              picture
-              title
-              description
-              is_read
-              list_columns_values
-              team {
-                verification_statuses
-              }
-            }
-          }
-        }
-      }
-    }}
-
-    # Make sure we only run queries for the 20 first items
-    assert_queries 100, '<=' do
-      post :create, params: { query: query, team: 'team' }
-    end
-
-    assert_response :success
-    assert_equal 4, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
-  end
-
-    test "should delete custom status" do
-    setup_elasticsearch
-    RequestStore.store[:skip_cached_field_update] = false
-    u = create_user
-    authenticate_with_user(u)
-    t = create_team slug: 'team'
-    create_team_user user: u, team: t, role: 'admin'
-    value = {
-      label: 'Field label',
-      active: 'id1',
-      default: 'id1',
-      statuses: [
-        { id: 'id1', locales: { en: { label: 'Custom Status 1', description: 'The meaning of this status' } }, style: { color: 'red' } },
-        { id: 'id2', locales: { en: { label: 'Custom Status 2', description: 'The meaning of that status' } }, style: { color: 'blue' } },
-        { id: 'id3', locales: { en: { label: 'Custom Status 3', description: 'The meaning of that status' } }, style: { color: 'green' } }
-      ]
-    }
-    t.set_media_verification_statuses(value)
-    t.save!
-    pm1 = create_project_media project: nil, team: t
-    s = pm1.annotations.where(annotation_type: 'verification_status').last.load
-    s.status = 'id1'
-    s.disable_es_callbacks = false
-    s.save!
-    r1 = publish_report(pm1)
-    pm2 = create_project_media project: nil, team: t
-    s = pm2.annotations.where(annotation_type: 'verification_status').last.load
-    s.status = 'id2'
-    s.disable_es_callbacks = false
-    s.save!
-    r2 = publish_report(pm2)
-
-    assert_equal 'id1', pm1.reload.last_status
-    assert_equal 'id2', pm2.reload.last_status
-    assert_queries(0, '=') do
-      assert_equal 'id1', pm1.status
-      assert_equal 'id2', pm2.status
-    end
-    assert_not_equal [], t.reload.get_media_verification_statuses[:statuses].select{ |s| s[:id] == 'id2' }
-    sleep 5
-    assert_equal [pm2.id], CheckSearch.new({ verification_status: ['id2'] }.to_json, nil, t.id).medias.map(&:id)
-    assert_equal [], CheckSearch.new({ verification_status: ['id3'] }.to_json, nil, t.id).medias.map(&:id)
-    assert_equal 'published', r1.reload.get_field_value('state')
-    assert_equal 'published', r2.reload.get_field_value('state')
-    assert_not_equal 'red', r1.reload.report_design_field_value('theme_color')
-    assert_not_equal 'blue', r2.reload.report_design_field_value('theme_color')
-    assert_not_equal 'Custom Status 1', r1.reload.report_design_field_value('status_label')
-    assert_not_equal 'Custom Status 3', r2.reload.report_design_field_value('status_label')
-
-    query = "mutation deleteTeamStatus { deleteTeamStatus(input: { clientMutationId: \"1\", team_id: \"#{t.graphql_id}\", status_id: \"id2\", fallback_status_id: \"id3\" }) { team { id, verification_statuses(items_count_for_status: \"id3\") } } }"
-    post :create, params: { query: query, team: 'team' }
-    assert_response :success
-
-    assert_equal 'id1', pm1.reload.last_status
-    assert_equal 'id3', pm2.reload.last_status
-    assert_queries(0, '=') do
-      assert_equal 'id1', pm1.status
-      assert_equal 'id3', pm2.status
-    end
-    sleep 5
-    assert_equal [], CheckSearch.new({ verification_status: ['id2'] }.to_json, nil, t.id).medias.map(&:id)
-    assert_equal [pm2.id], CheckSearch.new({ verification_status: ['id3'] }.to_json, nil, t.id).medias.map(&:id)
-    assert_equal [], t.reload.get_media_verification_statuses[:statuses].select{ |s| s[:id] == 'id2' }
-    assert_equal 'published', r1.reload.get_field_value('state')
-    assert_equal 'paused', r2.reload.get_field_value('state')
-    assert_not_equal 'red', r1.reload.report_design_field_value('theme_color')
-    assert_equal 'green', r2.reload.report_design_field_value('theme_color')
-    assert_not_equal 'Custom Status 1', r1.reload.report_design_field_value('status_label')
-    assert_equal 'Custom Status 3', r2.reload.report_design_field_value('status_label')
-  end
-
-  test "should access GraphQL query if not authenticated" do
-    post :create, params: { query: 'query Query { about { name, version } }' }
-    assert_response 200
-  end
-
   test "should not access GraphQL mutation if not authenticated" do
     post :create, params: { query: 'mutation Test' }
     assert_response 401
   end
 
-  test "should access About if not authenticated" do
-    post :create, params: { query: 'query About { about { name, version } }' }
-    assert_response :success
-  end
-
-  test "should access GraphQL if authenticated" do
-    authenticate_with_user
-    post :create, params: { query: 'query Query { about { name, version, upload_max_size, upload_extensions, upload_max_dimensions, upload_min_dimensions, terms_last_updated_at } }', variables: '{"foo":"bar"}' }
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['about']
-    assert_kind_of String, data['name']
-    assert_kind_of String, data['version']
-  end
-
-  test "should not access GraphQL if authenticated as a bot" do
-    authenticate_with_user(create_bot_user)
-    post :create, params: { query: 'query Query { about { name, version, upload_max_size, upload_extensions, upload_max_dimensions, upload_min_dimensions } }', variables: '{"foo":"bar"}' }
-    assert_response 401
-  end
-
-  test "should get node from global id" do
-    authenticate_with_user
-    id = Base64.encode64('About/1')
-    post :create, params: { query: "query Query { node(id: \"#{id}\") { id } }" }
-    assert_equal id, JSON.parse(@response.body)['data']['node']['id']
-  end
-
-  test "should get current user" do
-    u = create_user name: 'Test User'
+  test "should get project media assignments" do
+    u = create_user
+    u2 = create_user
+    t = create_team
+    create_team_user user: u, team: t, status: 'member'
+    create_team_user user: u2, team: t, status: 'member'
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    pm3 = create_project_media project: p
+    pm4 = create_project_media project: p
+    s1 = create_status status: 'in_progress', annotated: pm1
+    s2 = create_status status: 'in_progress', annotated: pm2
+    s3 = create_status status: 'in_progress', annotated: pm3
+    s4 = create_status status: 'verified', annotated: pm4
+    t1 = create_task annotated: pm1
+    t2 = create_task annotated: pm3
+    s1.assign_user(u.id)
+    s2.assign_user(u.id)
+    s3.assign_user(u.id)
+    s4.assign_user(u2.id)
     authenticate_with_user(u)
-    post :create, params: { query: 'query Query { me { source_id, token, is_admin, current_project { id }, name, bot { id } } }' }
+    post :create, params: { query: "query GetById { user(id: \"#{u.id}\") { assignments(first: 10) { edges { node { dbid, assignments(first: 10, user_id: #{u.id}, annotation_type: \"task\") { edges { node { dbid } } } } } } } }" }
     assert_response :success
-    data = JSON.parse(@response.body)['data']['me']
-    assert_equal 'Test User', data['name']
+    data = JSON.parse(@response.body)['data']['user']
+    assert_equal [pm3.id, pm2.id, pm1.id], data['assignments']['edges'].collect{ |x| x['node']['dbid'] }
+    assert_equal [t2.id], data['assignments']['edges'][0]['node']['assignments']['edges'].collect{ |x| x['node']['dbid'].to_i }
+    assert_equal [], data['assignments']['edges'][1]['node']['assignments']['edges']
+    assert_equal [t1.id], data['assignments']['edges'][2]['node']['assignments']['edges'].collect{ |x| x['node']['dbid'].to_i }
   end
 
-  test "should get current user if logged in with token" do
-    u = create_user name: 'Test User'
-    authenticate_with_user_token(u.token)
-    post :create, params: { query: 'query Query { me { name } }' }
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['me']
-    assert_equal 'Test User', data['name']
-  end
-
-  test "should return 404 if object does not exist" do
+  test "should not get private team by slug" do
     authenticate_with_user
-    post :create, params: { query: 'query GetById { project_media(ids: "99999,99999") { id } }' }
-    assert_response :success
+    create_team slug: 'team', name: 'Team', private: true
+    post :create, params: { query: 'query Team { team(slug: "team") { name, public_team { id } } }' }
+    assert_response 200
+    assert_equal "Not Found", JSON.parse(@response.body)['errors'][0]['message']
   end
 
-  test "should set context team" do
+  test "should get team with arabic slug" do
     authenticate_with_user
-    t = create_team slug: 'context'
-    post :create, params: { query: 'query Query { about { name, version } }', team: 'context' }
+    t = create_team slug: 'المصالحة', name: 'Arabic Team'
+    post :create, params: { query: 'query Query { about { name, version } }', team: '%D8%A7%D9%84%D9%85%D8%B5%D8%A7%D9%84%D8%AD%D8%A9' }
+    assert_response :success
     assert_equal t, assigns(:context_team)
   end
 
-  test "should get team by context" do
-    authenticate_with_user
-    t = create_team slug: 'context', name: 'Context Team'
-    post :create, params: { query: 'query Team { team { name } }', team: 'context' }
-    assert_response :success
-    assert_equal 'Context Team', JSON.parse(@response.body)['data']['team']['name']
-  end
-
-  test "should get public team by context" do
-    authenticate_with_user
-    t1 = create_team slug: 'team1', name: 'Team 1'
-    t2 = create_team slug: 'team2', name: 'Team 2'
-    post :create, params: { query: 'query PublicTeam { public_team { name } }', team: 'team1' }
-    assert_response :success
-    assert_equal 'Team 1', JSON.parse(@response.body)['data']['public_team']['name']
-  end
-
-  test "should get public team by slug" do
-    authenticate_with_user
-    t1 = create_team slug: 'team1', name: 'Team 1'
-    t2 = create_team slug: 'team2', name: 'Team 2'
-    post :create, params: { query: 'query PublicTeam { public_team(slug: "team2") { name } }', team: 'team1' }
-    assert_response :success
-    assert_equal 'Team 2', JSON.parse(@response.body)['data']['public_team']['name']
-  end
-
-  test "should not get team by context" do
-    authenticate_with_user
-    Team.delete_all
-    post :create, params: { query: 'query Team { team { name } }', team: 'test' }
-    assert_response :success
-  end
-
-  test "should update current team based on context team" do
+  test "should not create duplicated tag" do
     u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+    p = create_project team: t
+    pm = create_project_media project: p
+    query = 'mutation create { createTag(input: { clientMutationId: "1", tag: "egypt", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '"}) { tag { id } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    post :create, params: { query: query }
+    assert_response 400
+    assert_match /Tag already exists/, @response.body
+  end
 
-    t1 = create_team slug: 'team1'
-    create_team_user user: u, team: t1
-    t2 = create_team slug: 'team2'
-    t3 = create_team slug: 'team3'
-    create_team_user user: u, team: t3
+  test "should change status if collaborator" do
+    create_verification_status_stuff
+    u = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'collaborator'
+    create_team_user team: create_team, user: u, role: 'admin'
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    s = pm.last_verification_status_obj
+    s = Dynamic.find(s.id)
+    f = s.get_field('verification_status_status')
+    assert_equal 'undetermined', f.reload.value
+    authenticate_with_user(u)
 
-    u.current_team_id = t1.id
-    u.save!
+    id = Base64.encode64("Dynamic/#{s.id}")
+    query = 'mutation update { updateDynamic(input: { clientMutationId: "1", id: "' + id + '", set_fields: "{\"verification_status_status\":\"verified\"}" }) { project_media { id } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 'verified', f.reload.value
+  end
 
-    assert_equal t1, u.reload.current_team
+  test "should assign status if collaborator" do
+    create_verification_status_stuff
+    u = create_user
+    u2 = create_user
+    t = create_team
+    tu = create_team_user team: t, user: u, role: 'collaborator'
+    create_team_user team: t, user: u2, role: 'collaborator'
+    create_team_user team: create_team, user: u, role: 'admin'
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m
+    s = pm.last_verification_status_obj
+    s = Dynamic.find(s.id)
+    f = s.get_field('verification_status_status')
+    assert_equal 'undetermined', f.reload.value
+    authenticate_with_user(u)
+
+    id = Base64.encode64("Dynamic/#{s.id}")
+    query = 'mutation update { updateDynamic(input: { clientMutationId: "1", id: "' + id + '", assigned_to_ids: "' + u2.id.to_s + '" }) { project_media { id } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 'undetermined', f.reload.value
+  end
+
+  test "should get relationship from global id" do
+    authenticate_with_user
+    pm = create_project_media
+    id = Base64.encode64("Relationships/#{pm.id}")
+    id2 = Base64.encode64("ProjectMedia/#{pm.id}")
+    post :create, params: { query: "query Query { node(id: \"#{id}\") { id } }" }
+    assert_equal id2, JSON.parse(@response.body)['data']['node']['id']
+  end
+
+  test "should create related report" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    u = create_user
+    create_team_user user: u, team: t, role: 'collaborator'
+    authenticate_with_user(u)
+    query = 'mutation create { createProjectMedia(input: { url: "", quote: "X", media_type: "Claim", clientMutationId: "1", related_to_id: ' + pm.id.to_s + ' }) { check_search_team { number_of_results }, project_media { id } } }'
+    assert_difference 'Relationship.count' do
+      post :create, params: { query: query, team: t }
+    end
+    assert_response :success
+  end
+
+  test "should return permissions of sibling report" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'admin'
+    p = create_project team: t
+    pm = create_project_media project: p
+    pm1 = create_project_media project: p, user: u
+    create_relationship source_id: pm.id, target_id: pm1.id
+    pm1.archived = CheckArchivedFlags::FlagCodes::TRASHED
+    pm1.save!
 
     authenticate_with_user(u)
 
-    post :create, params: { query: 'query Query { me { name } }', team: 'team1' }
-    assert_response :success
-    assert_equal t1, u.reload.current_team
+    query = "query GetById { project_media(ids: \"#{pm1.id},#{p.id}\") {permissions,source{permissions}}}"
+    post :create, params: { query: query, team: t.slug }
 
-    post :create, params: { query: 'query Query { me { name } }', team: 'team2' }
-    assert_response :success
-    assert_equal t1, u.reload.current_team
-
-    post :create, params: { query: 'query Query { me { name } }', team: 'team3' }
-    assert_response :success
-    assert_equal t3, u.reload.current_team
-  end
-
-  test "should return 404 if public team does not exist" do
-    authenticate_with_user
-    Team.delete_all
-    post :create, params: { query: 'query PublicTeam { public_team { name } }', team: 'foo' }
     assert_response :success
   end
 
-  test "should return null if public team is not found" do
-    authenticate_with_user
-    Team.delete_all
-    post :create, params: { query: 'query FindPublicTeam { find_public_team(slug: "foo") { name } }', team: 'foo' }
+  test "should create dynamic annotation type" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+
+    query = 'mutation create { createDynamicAnnotationMetadata(input: { annotated_id: "' + pm.id.to_s + '", clientMutationId: "1", annotated_type: "ProjectMedia", set_fields: "{\"metadata_value\":\"test\"}" }) { dynamic { id, annotation_type } } }'
+
+    assert_difference 'Dynamic.count' do
+      post :create, params: { query: query, team: t }
+    end
+    assert_equal 'metadata', JSON.parse(@response.body)['data']['createDynamicAnnotationMetadata']['dynamic']['annotation_type']
     assert_response :success
-    assert_nil JSON.parse(@response.body)['data']['find_public_team']
   end
 
-  test "should get team by slug" do
-    authenticate_with_user
-    t = create_team slug: 'context', name: 'Context Team'
-    post :create, params: { query: 'query Team { team(slug: "context") { name } }' }
-    assert_response :success
-    assert_equal 'Context Team', JSON.parse(@response.body)['data']['team']['name']
-  end
+  test "should not search without permission" do
+    t1 = create_team private: true
+    t2 = create_team private: true
+    t3 = create_team private: false
+    u = create_user
+    create_team_user team: t2, user: u
+    pm1 = create_project_media team: t1, project: nil
+    pm2 = create_project_media team: t2, project: nil
+    pm3a = create_project_media team: t3, project: nil
+    pm3b = create_project_media team: t3, project: nil
+    query = 'query { search(query: "{}") { number_of_results, medias(first: 10) { edges { node { dbid, permissions } } } } }'
 
+    # Anonymous user searching across all teams
+    post :create, params: { query: query }
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['search']
+    assert_not_nil JSON.parse(@response.body)['errors']
+
+    # Anonymous user searching for a public team
+    post :create, params: { query: query, team: t3.slug }
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body)['data']['search']
+    assert_nil JSON.parse(@response.body)['errors']
+
+    # Anonymous user searching for a team
+    post :create, params: { query: query, team: t1.slug }
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['search']
+    assert_not_nil JSON.parse(@response.body)['errors']
+
+    # Unpermissioned user searching across all teams
+    authenticate_with_user(u)
+    post :create, params: { query: query, team: t1.slug }
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['search']
+    assert_not_nil JSON.parse(@response.body)['errors']
+
+    # Unpermissioned user searching for a team
+    authenticate_with_user(u)
+    post :create, params: { query: query, team: t1.slug }
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['search']
+    assert_not_nil JSON.parse(@response.body)['errors']
+
+    # Permissioned user searching for a team
+    authenticate_with_user(u)
+    post :create, params: { query: query, team: t2.slug }
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body)['data']['search']
+    assert_nil JSON.parse(@response.body)['errors']
+  end
 end
