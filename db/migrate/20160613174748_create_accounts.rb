@@ -3,7 +3,7 @@ class CreateAccounts < ActiveRecord::Migration[4.2]
     create_table :accounts do |t|
       t.belongs_to :user, index: true
       t.belongs_to :team
-      t.string :url, unique: true
+      t.string :url
       t.text :omniauth_info
       t.string :uid
       t.string :provider
@@ -12,5 +12,6 @@ class CreateAccounts < ActiveRecord::Migration[4.2]
       t.timestamps null: false
     end
     add_index :accounts, [:uid, :provider, :token, :email]
+    add_index :accounts, :url, unique: true
   end
 end
