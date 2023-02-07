@@ -7,6 +7,7 @@ class ElasticSearch8Test < ActionController::TestCase
   end
 
   # FIXME : These three tests are taking 15 minutes to run. we should refactor to reduce the runtime
+  # Reference: CV2-2699
 
   [:linked_items_count, :suggestions_count, :demand].each do |field|
     test "should filter by #{field} numeric range" do

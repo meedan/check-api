@@ -314,4 +314,270 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     end
     RequestStore.store[:pause_database_connection] = false
   end
+
+  test "should get items with similar title" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah", team: @team
+    pm.analysis = { title: 'Title 1' }
+    pm.save!
+    pm2 = create_project_media quote: "Blah2", team: @team
+    pm2.analysis = { title: 'Title 1' }
+    pm2.save!
+    Bot::Alegre.stubs(:request_api).returns({"result" => [{
+        "_index" => "alegre_similarity",
+        "_type" => "_doc",
+        "_id" => "tMXj53UB36CYclMPXp14",
+        "_score" => 0.9,
+        "_source" => {
+          "content" => "Bautista began his wrestling career in 1999, and signed with the World Wrestling Federation (WWF, now WWE) in 2000. From 2002 to 2010, he gained fame under the ring name Batista and became a six-time world champion by winning the World Heavyweight Championship four times and the WWE Championship twice. He holds the record for the longest reign as World Heavyweight Champion at 282 days and has also won the World Tag Team Championship three times (twice with Ric Flair and once with John Cena) and the WWE Tag Team Championship once (with Rey Mysterio). He was the winner of the 2005 Royal Rumble match and went on to headline WrestleMania 21, one of the top five highest-grossing pay-per-view events in professional wrestling history",
+          "context" => {
+            "team_id" => pm2.team.id.to_s,
+            "field" => "title",
+            "project_media_id" => pm2.id.to_s
+          }
+        }
+      }
+      ]
+    })
+    response = Bot::Alegre.get_items_with_similar_title(pm, Bot::Alegre.get_threshold_for_query('text', pm))
+    assert_equal response.class, Hash
+    Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should respond to a media_file_url request" do
+    p = create_project
+    m = create_uploaded_image
+    pm1 = create_project_media project: p, is_image: true, media: m
+    assert_equal Bot::Alegre.media_file_url(pm1).class, String
+  end
+
+  test "should return an alegre indexing model" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah", team: @team
+    pm.analysis = { content: 'Description 1' }
+    pm.save!
+    BotUser.stubs(:alegre_user).returns(User.new)
+    TeamBotInstallation.stubs(:find_by_team_id_and_user_id).returns(TeamBotInstallation.new)
+    assert_equal Bot::Alegre.indexing_model_to_use(pm), Bot::Alegre.default_model
+    BotUser.unstub(:alegre_user)
+    TeamBotInstallation.unstub(:find_by_team_id_and_user_id)
+  end
+
+  test "should not get similar texts for texts with up to 2 words" do
+    assert_equal({}, Bot::Alegre.get_items_from_similar_text(random_number, 'Foo bar'))
+  end
+
+  test "should match rule by extracted text" do
+    t = create_team
+    create_tag_text text: 'test', team_id: t.id
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "extracted_text_contains_keyword",
+                "rule_value": "Foo"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "add_tag",
+          "action_value": "test"
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    pm = create_project_media team: t
+    create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm, set_fields: { text: 'Foo' }.to_json
+    assert_equal ['test'], pm.get_annotations('tag').map(&:load).map(&:tag_text)
+  end
+
+  test "should be able to request deletion from index for a text given no fields" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah", team: @team
+    pm.analysis = { content: 'Description 1' }
+    pm.save!
+    Bot::Alegre.stubs(:request_api).returns(true)
+    assert Bot::Alegre.delete_from_index(pm)
+    Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should get items with similar description" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah", team: @team
+    pm.analysis = { content: 'Description 1' }
+    pm.save!
+    pm2 = create_project_media quote: "Blah2", team: @team
+    pm2.analysis = { content: 'Description 1' }
+    pm2.save!
+    Bot::Alegre.stubs(:request_api).returns({
+      "result" => [
+        {
+          "_source" => {
+            "id" => 1,
+            "sha256" => "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
+            "phash" => 17399941807326929,
+            "url" => "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
+            "context" => [{
+              "team_id" => pm2.team.id.to_s,
+              "project_media_id" => pm2.id.to_s
+            }],
+          },
+          "_score" => 0.9
+        }
+      ]
+    })
+    response = Bot::Alegre.get_items_with_similar_description(pm, Bot::Alegre.get_threshold_for_query('text', pm))
+    assert_equal response.class, Hash
+    Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should get items with similar title when using non-elasticsearch matching model" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah", team: @team
+    pm.analysis = { title: 'This is some more longer title that has enough text to be worth checking Title 1' }
+    pm.save!
+    pm2 = create_project_media quote: "Blah2", team: @team
+    pm2.analysis = { title: 'Title 1' }
+    pm2.save!
+    Bot::Alegre.stubs(:request_api).returns({"result" => [{
+        "_index" => "alegre_similarity",
+        "_type" => "_doc",
+        "_id" => "tMXj53UB36CYclMPXp14",
+        "_score" => 0.9,
+        "_source" => {
+          "content" => "Bautista began his wrestling career in 1999, and signed with the World Wrestling Federation (WWF, now WWE) in 2000. From 2002 to 2010, he gained fame under the ring name Batista and became a six-time world champion by winning the World Heavyweight Championship four times and the WWE Championship twice. He holds the record for the longest reign as World Heavyweight Champion at 282 days and has also won the World Tag Team Championship three times (twice with Ric Flair and once with John Cena) and the WWE Tag Team Championship once (with Rey Mysterio). He was the winner of the 2005 Royal Rumble match and went on to headline WrestleMania 21, one of the top five highest-grossing pay-per-view events in professional wrestling history",
+          "context" => {
+            "team_id" => pm2.team.id.to_s,
+            "field" => "title",
+            "project_media_id" => pm2.id.to_s
+          }
+        }
+      }
+      ]
+    })
+    Bot::Alegre.stubs(:matching_model_to_use).with([pm.team_id]).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
+    response = Bot::Alegre.get_items_with_similar_title(pm, [{ key: 'text_elasticsearch_suggestion_threshold', model: 'elasticsearch', value: 0.1, automatic: false }])
+    assert_equal response.class, Hash
+    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:matching_model_to_use)
+  end
+
+  test "should get_threshold_hash_from_threshold successfully" do
+    assert_equal Bot::Alegre.get_threshold_hash_from_threshold([{value: 0.9}]), {:threshold=>0.9}
+    assert_equal Bot::Alegre.get_threshold_hash_from_threshold([{model: "foo", value: 0.9}, {model: "bar", value: 0.7}]), {:per_model_threshold=>{"foo"=>0.9, "bar"=>0.7}}
+  end
+
+  test "should get_threshold_for_query successfully" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah", team: @team
+    pm.analysis = { title: 'Title 1' }
+    pm.save!
+    Bot::Alegre.stubs(:matching_model_to_use).with(pm.team_id).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
+    assert_equal Bot::Alegre.get_threshold_for_query("text", ProjectMedia.last), [{:value=>0.7, :key=>"text_elasticsearch_suggestion_threshold", :automatic=>false, :model=>"elasticsearch"}, {:value=>0.75, :key=>"text_vector_suggestion_threshold", :automatic=>false, :model=>"xlm-r-bert-base-nli-stsb-mean-tokens"}]
+    Bot::Alegre.unstub(:matching_model_to_use)
+  end
+
+  test "should match imported report" do
+    pm = create_project_media team: @team
+    pm2 = create_project_media team: @team, media: Blank.create!, channel: { main: CheckChannels::ChannelCodes::FETCH }
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => {:score=>0.9, :context=>{"team_id"=>@team.id, "field"=>"original_description", "project_media_id"=>pm2.id, "has_custom_id"=>true}, :model=>"elasticsearch"}})
+    assert_equal [pm2.id], Bot::Alegre.get_similar_items(pm).keys
+    assert_no_difference 'ProjectMedia.count' do
+      assert_difference 'Relationship.count' do
+        Bot::Alegre.relate_project_media_to_similar_items(pm)
+      end
+    end
+    Bot::Alegre.unstub(:get_items_with_similar_description)
+  end
+
+  test "should set cluster" do
+    c1 = create_cluster
+    c2 = create_cluster
+    pm1 = create_project_media team: @team, cluster_id: c1.id
+    pm2 = create_project_media team: @team, cluster_id: c2.id
+
+    ProjectMedia.any_instance.stubs(:similar_items_ids_and_scores).returns({ pm1.id => { score: 0.9 }, pm2.id => { score: 0.8 } })
+    pm3 = create_project_media team: @team
+    Bot::Alegre.set_cluster(pm3)
+    assert_equal c1.id, pm3.reload.cluster_id
+
+    ProjectMedia.any_instance.stubs(:similar_items_ids_and_scores).returns({})
+    pm4 = create_project_media team: @team
+    assert_difference 'Cluster.count' do
+      Bot::Alegre.set_cluster(pm4)
+    end
+
+    ProjectMedia.any_instance.unstub(:similar_items_ids_and_scores)
+  end
+
+  test "should get number of words" do
+    assert_equal 4, Bot::Alegre.get_number_of_words('58 This   is a test !!! 123 😊')
+    assert_equal 1, Bot::Alegre.get_number_of_words(random_url)
+  end
+
+  test "should be able to request deletion from index for a media given specific field" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    p = create_project
+    pm = create_project_media project: p, media: create_uploaded_video
+    pm.media.type = "UploadedVideo"
+    pm.media.save!
+    pm.save!
+    Bot::Alegre.stubs(:request_api).returns(true)
+    assert Bot::Alegre.delete_from_index(pm)
+    Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should pass through the send audio to similarity index call" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    p = create_project
+    pm = create_project_media project: p, media: create_uploaded_audio
+    pm.media.type = "UploadedAudio"
+    pm.media.save!
+    pm.save!
+    Bot::Alegre.stubs(:request_api).returns(true)
+    assert Bot::Alegre.send_to_media_similarity_index(pm)
+    Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should pass through the send to description similarity index call" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah", team: @team
+    pm.analysis = { content: 'Description 1' }
+    pm.save!
+    Bot::Alegre.stubs(:request_api).returns(true)
+    assert Bot::Alegre.send_field_to_similarity_index(pm, 'description')
+    Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should be able to request deletion from index for a text given specific field" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah", team: @team
+    pm.analysis = { content: 'Description 1' }
+    pm.save!
+    Bot::Alegre.stubs(:request_api).returns(true)
+    assert Bot::Alegre.delete_from_index(pm, ['description'])
+    Bot::Alegre.unstub(:request_api)
+  end
+
 end

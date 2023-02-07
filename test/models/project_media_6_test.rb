@@ -1,0 +1,392 @@
+require_relative '../test_helper'
+
+class ProjectMedia6Test < ActiveSupport::TestCase
+  def setup
+    require 'sidekiq/testing'
+    Sidekiq::Testing.fake!
+    super
+    create_team_bot login: 'keep', name: 'Keep'
+    create_verification_status_stuff
+  end
+
+  test "should get creator name based on channel" do
+    RequestStore.store[:skip_cached_field_update] = false
+    Sidekiq::Testing.inline! do
+      u = create_user
+      pm = create_project_media user: u
+      assert_equal pm.creator_name, u.name
+      pm2 = create_project_media user: u, channel: { main: CheckChannels::ChannelCodes::WHATSAPP }
+      assert_equal pm2.creator_name, 'Tipline'
+      pm3 = create_project_media user: u, channel: { main: CheckChannels::ChannelCodes::FETCH }
+      assert_equal pm3.creator_name, 'Import'
+      # update cache based on user update
+      u.name = 'update name'
+      u.save!
+      assert_equal pm.creator_name, 'update name'
+      assert_equal pm.creator_name(true), 'update name'
+      assert_equal pm2.creator_name, 'Tipline'
+      assert_equal pm2.creator_name(true), 'Tipline'
+      assert_equal pm3.creator_name, 'Import'
+      assert_equal pm3.creator_name(true), 'Import'
+      User.delete_check_user(u)
+      assert_equal pm.creator_name, 'Anonymous'
+      assert_equal pm.reload.creator_name(true), 'Anonymous'
+      assert_equal pm2.creator_name, 'Tipline'
+      assert_equal pm2.creator_name(true), 'Tipline'
+      assert_equal pm3.creator_name, 'Import'
+      assert_equal pm3.creator_name(true), 'Import'
+    end
+  end
+
+  test "should create blank item" do
+    assert_difference 'ProjectMedia.count' do
+      assert_difference 'Blank.count' do
+        ProjectMedia.create! media_type: 'Blank', team: create_team
+      end
+    end
+  end
+
+  test "should convert old hash" do
+    t = create_team
+    pm = create_project_media team: t
+    Team.any_instance.stubs(:settings).returns(ActionController::Parameters.new({ media_verification_statuses: { statuses: [] } }))
+    assert_nothing_raised do
+      pm.custom_statuses
+    end
+    Team.any_instance.unstub(:settings)
+  end
+
+  test "should assign item to default project if project not set" do
+    t = create_team
+    pm = create_project_media team: t
+    assert_equal pm.project, t.default_folder
+  end
+
+  test "should detach similar items when trash parent item" do
+    setup_elasticsearch
+    RequestStore.store[:skip_delete_for_ever] = true
+    t = create_team
+    default_folder = t.default_folder
+    p = create_project team: t
+    pm = create_project_media project: p, disable_es_callbacks: false
+    pm1_c = create_project_media project: p, disable_es_callbacks: false
+    pm1_s = create_project_media project: p, disable_es_callbacks: false
+    pm2_s = create_project_media project: p, disable_es_callbacks: false
+    r = create_relationship source: pm, target: pm1_c, relationship_type: Relationship.confirmed_type
+    r2 = create_relationship source: pm, target: pm1_s, relationship_type: Relationship.suggested_type
+    r3 = create_relationship source: pm, target: pm2_s, relationship_type: Relationship.suggested_type
+    assert_difference 'Relationship.count', -2 do
+      pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
+      pm.save!
+    end
+    assert_raises ActiveRecord::RecordNotFound do
+      r2.reload
+    end
+    assert_raises ActiveRecord::RecordNotFound do
+      r3.reload
+    end
+    pm1_s = pm1_s.reload; pm2_s.reload
+    assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm1_c.reload.archived
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm1_s.archived
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm2_s.archived
+    assert_equal p.id, pm1_s.project_id
+    assert_equal p.id, pm2_s.project_id
+    # Verify ES
+    result = $repository.find(get_es_id(pm1_c))
+    assert_equal CheckArchivedFlags::FlagCodes::TRASHED, result['archived']
+    result = $repository.find(get_es_id(pm1_s))
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, result['archived']
+    assert_equal p.id, result['project_id']
+    result = $repository.find(get_es_id(pm2_s))
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, result['archived']
+    assert_equal p.id, result['project_id']
+  end
+
+  test "should detach similar items when spam parent item" do
+    setup_elasticsearch
+    RequestStore.store[:skip_delete_for_ever] = true
+    t = create_team
+    default_folder = t.default_folder
+    p = create_project team: t
+    pm = create_project_media project: p, disable_es_callbacks: false
+    pm1_c = create_project_media project: p, disable_es_callbacks: false
+    pm1_s = create_project_media project: p, disable_es_callbacks: false
+    pm2_s = create_project_media project: p, disable_es_callbacks: false
+    r = create_relationship source: pm, target: pm1_c, relationship_type: Relationship.confirmed_type
+    r2 = create_relationship source: pm, target: pm1_s, relationship_type: Relationship.suggested_type
+    r3 = create_relationship source: pm, target: pm2_s, relationship_type: Relationship.suggested_type
+    assert_difference 'Relationship.count', -2 do
+      pm.archived = CheckArchivedFlags::FlagCodes::SPAM
+      pm.save!
+    end
+    assert_raises ActiveRecord::RecordNotFound do
+      r2.reload
+    end
+    assert_raises ActiveRecord::RecordNotFound do
+      r3.reload
+    end
+    pm1_s = pm1_s.reload; pm2_s.reload
+    assert_equal CheckArchivedFlags::FlagCodes::SPAM, pm1_c.reload.archived
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm1_s.archived
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm2_s.archived
+    assert_equal p.id, pm1_s.project_id
+    assert_equal p.id, pm2_s.project_id
+    # Verify ES
+    result = $repository.find(get_es_id(pm1_c))
+    assert_equal CheckArchivedFlags::FlagCodes::SPAM, result['archived']
+    result = $repository.find(get_es_id(pm1_s))
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, result['archived']
+    assert_equal p.id, result['project_id']
+    result = $repository.find(get_es_id(pm2_s))
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, result['archived']
+    assert_equal p.id, result['project_id']
+  end
+
+  test "should get cluster size" do
+    pm = create_project_media
+    assert_nil pm.reload.cluster
+    c = create_cluster
+    c.project_medias << pm
+    assert_equal 1, pm.reload.cluster.size
+    c.project_medias << create_project_media
+    assert_equal 2, pm.reload.cluster.size
+  end
+
+  test "should get cluster teams" do
+    RequestStore.store[:skip_cached_field_update] = false
+    setup_elasticsearch
+    t1 = create_team
+    t2 = create_team
+    pm1 = create_project_media team: t1
+    assert_nil pm1.cluster
+    c = create_cluster project_media: pm1
+    c.project_medias << pm1
+    assert_equal [t1.name], pm1.cluster.team_names.values
+    assert_equal [t1.id], pm1.cluster.team_names.keys
+    sleep 2
+    id = get_es_id(pm1)
+    es = $repository.find(id)
+    assert_equal [t1.id], es['cluster_teams']
+    pm2 = create_project_media team: t2
+    c.project_medias << pm2
+    sleep 2
+    assert_equal [t1.name, t2.name].sort, pm1.cluster.team_names.values.sort
+    assert_equal [t1.id, t2.id].sort, pm1.cluster.team_names.keys.sort
+    es = $repository.find(id)
+    assert_equal [t1.id, t2.id], es['cluster_teams']
+  end
+
+  test "should complete media if there are pending tasks" do
+    pm = create_project_media
+    s = pm.last_verification_status_obj
+    create_task annotated: pm, required: true
+    assert_equal 'undetermined', s.reload.get_field('verification_status_status').status
+    assert_nothing_raised do
+      s.status = 'verified'
+      s.save!
+    end
+  end
+
+  test "should get account from author URL" do
+    s = create_source
+    pm = create_project_media
+    assert_nothing_raised do
+      pm.send :account_from_author_url, @url, s
+    end
+  end
+
+  test "should not move media to active status if status is locked" do
+    pm = create_project_media
+    assert_equal 'undetermined', pm.last_verification_status
+    s = pm.last_verification_status_obj
+    s.locked = true
+    s.save!
+    create_task annotated: pm, disable_update_status: false
+    assert_equal 'undetermined', pm.reload.last_verification_status
+  end
+
+  test "should have status permission" do
+    u = create_user
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    with_current_user_and_team(u, t) do
+      permissions = JSON.parse(pm.permissions)
+      assert permissions.has_key?('update Status')
+    end
+  end
+
+  test "should not crash if media does not have status" do
+    pm = create_project_media
+    Annotation.delete_all
+    assert_nothing_raised do
+      assert_nil pm.last_verification_status_obj
+    end
+  end
+
+  test "should have relationships and parent and children reports" do
+    p = create_project
+    s1 = create_project_media project: p
+    s2 = create_project_media project: p
+    t1 = create_project_media project: p
+    t2 = create_project_media project: p
+    create_project_media project: p
+    create_relationship source_id: s1.id, target_id: t1.id
+    create_relationship source_id: s2.id, target_id: t2.id
+    assert_equal [t1], s1.targets
+    assert_equal [t2], s2.targets
+    assert_equal [s1], t1.sources
+    assert_equal [s2], t2.sources
+  end
+
+  test "should return related" do
+    pm = create_project_media
+    pm2 = create_project_media
+    assert_nil pm.related_to
+    pm.related_to_id = pm2.id
+    assert_equal pm2, pm.related_to
+  end
+
+  test "should include extra attributes in serialized object" do
+    pm = create_project_media
+    pm.related_to_id = 1
+    dump = YAML::dump(pm)
+    assert_match /related_to_id/, dump
+  end
+
+  test "should skip screenshot archiver" do
+    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+    l = create_link
+    t = create_team
+    t.save!
+    BotUser.delete_all
+    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], set_approved: true
+    tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
+    tbi.set_archive_pender_archive_enabled = false
+    tbi.save!
+    pm = create_project_media project: create_project(team: t), media: l
+    assert pm.should_skip_create_archive_annotation?('pender_archive')
+  end
+
+  test "should destroy project media when associated_id on version is not valid" do
+    with_versioning do
+      m = create_valid_media
+      t = create_team
+      p = create_project team: t
+      u = create_user
+      create_team_user user: u, team: t, role: 'admin'
+      pm = nil
+      with_current_user_and_team(u, t) do
+        pm = create_project_media project: p, media: m, user: u
+        pm.source_id = create_source(team_id: t.id).id
+        pm.save
+        assert_equal 3, pm.versions.count
+      end
+      version = pm.versions.last
+      version.update_attribute('associated_id', 100)
+
+      assert_nothing_raised do
+        pm.destroy
+      end
+    end
+  end
+
+  # https://errbit.test.meedan.com/apps/581a76278583c6341d000b72/problems/5ca644ecf023ba001260e71d
+  # https://errbit.test.meedan.com/apps/581a76278583c6341d000b72/problems/5ca4faa1f023ba001260dbae
+  test "should create claim with Indian characters" do
+    str1 = "_Buy Redmi Note 5 Pro Mobile at *2999 Rs* (95�\u0000off) in Flash Sale._\r\n\r\n*Grab this offer now, Deal valid only for First 1,000 Customers. Visit here to Buy-* http://sndeals.win/"
+    str2 = "*प्रधानमंत्री छात्रवृति योजना 2019*\n\n*Scholarship Form for 10th or 12th Open Now*\n\n*Scholarship Amount*\n1.50-60�\u0000- Rs. 5000/-\n2.60-80�\u0000- Rs. 10000/-\n3.Above 80�\u0000- Rs. 25000/-\n\n*सभी 10th और 12th के बच्चो व उनके अभिभावकों को ये SMS भेजे ताकि सभी बच्चे इस योजना का लाभ ले सके*\n\n*Click Here for Apply:*\nhttps://bit.ly/2l71tWl"
+    [str1, str2].each do |str|
+      assert_difference 'ProjectMedia.count' do
+        m = create_claim_media quote: str
+        create_project_media media: m
+      end
+    end
+  end
+
+  test "should not create project media with unsafe URL" do
+    WebMock.disable_net_connect! allow: [CheckConfig.get('storage_endpoint')]
+    url = 'http://unsafe.com/'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"error","data":{"code":12}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
+    assert_raises RuntimeError do
+      pm = create_project_media media: nil, url: url
+      assert_equal 12, pm.media.pender_error_code
+    end
+  end
+
+  test "should get metadata" do
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    url = 'https://twitter.com/test/statuses/123456'
+    response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'title' => 'Media Title', 'description' => 'Media Description' } }.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url
+    pm = create_project_media media: l
+    assert_equal 'Media Title', l.metadata['title']
+    assert_equal 'Media Description', l.metadata['description']
+    assert_equal 'Media Title', pm.media.metadata['title']
+    assert_equal 'Media Description', pm.media.metadata['description']
+    pm.analysis = { title: 'Project Media Title', content: 'Project Media Description' }
+    pm.save!
+    l = Media.find(l.id)
+    pm = ProjectMedia.find(pm.id)
+    assert_equal 'Media Title', l.metadata['title']
+    assert_equal 'Media Description', l.metadata['description']
+    assert_equal 'Project Media Title', pm.analysis['title']
+    assert_equal 'Project Media Description', pm.analysis['content']
+  end
+
+  test "should cache and sort by demand" do
+    setup_elasticsearch
+    RequestStore.store[:skip_cached_field_update] = false
+    team = create_team
+    p = create_project team: team
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
+    pm = create_project_media team: team, project_id: p.id, disable_es_callbacks: false
+    ms_pm = get_es_id(pm)
+    assert_queries(0, '=') { assert_equal(0, pm.demand) }
+    create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+    assert_queries(0, '=') { assert_equal(1, pm.demand) }
+    pm2 = create_project_media team: team, project_id: p.id, disable_es_callbacks: false
+    ms_pm2 = get_es_id(pm2)
+    assert_queries(0, '=') { assert_equal(0, pm2.demand) }
+    2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2) }
+    assert_queries(0, '=') { assert_equal(2, pm2.demand) }
+    # test sorting
+    result = $repository.find(ms_pm)
+    assert_equal result['demand'], 1
+    result = $repository.find(ms_pm2)
+    assert_equal result['demand'], 2
+    result = CheckSearch.new({projects: [p.id], sort: 'demand'}.to_json, nil, team.id)
+    assert_equal [pm2.id, pm.id], result.medias.map(&:id)
+    result = CheckSearch.new({projects: [p.id], sort: 'demand', sort_type: 'asc'}.to_json, nil, team.id)
+    assert_equal [pm.id, pm2.id], result.medias.map(&:id)
+    r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
+    assert_equal 1, pm.reload.requests_count
+    assert_equal 2, pm2.reload.requests_count
+    assert_queries(0, '=') { assert_equal(3, pm.demand) }
+    assert_queries(0, '=') { assert_equal(3, pm2.demand) }
+    pm3 = create_project_media team: team, project_id: p.id
+    ms_pm3 = get_es_id(pm3)
+    assert_queries(0, '=') { assert_equal(0, pm3.demand) }
+    2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm3) }
+    assert_queries(0, '=') { assert_equal(2, pm3.demand) }
+    create_relationship source_id: pm.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
+    assert_queries(0, '=') { assert_equal(5, pm.demand) }
+    assert_queries(0, '=') { assert_equal(5, pm2.demand) }
+    assert_queries(0, '=') { assert_equal(5, pm3.demand) }
+    create_dynamic_annotation annotation_type: 'smooch', annotated: pm3
+    assert_queries(0, '=') { assert_equal(6, pm.demand) }
+    assert_queries(0, '=') { assert_equal(6, pm2.demand) }
+    assert_queries(0, '=') { assert_equal(6, pm3.demand) }
+    r.destroy!
+    assert_queries(0, '=') { assert_equal(4, pm.demand) }
+    assert_queries(0, '=') { assert_equal(2, pm2.demand) }
+    assert_queries(0, '=') { assert_equal(4, pm3.demand) }
+    assert_queries(0, '>') { assert_equal(4, pm.demand(true)) }
+    assert_queries(0, '>') { assert_equal(2, pm2.demand(true)) }
+    assert_queries(0, '>') { assert_equal(4, pm3.demand(true)) }
+  end
+end

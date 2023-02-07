@@ -15,17 +15,8 @@ class GraphqlController7Test < ActionController::TestCase
     @t = create_team
     @u = create_user
     @tu = create_team_user team: @t, user: @u, role: 'admin'
-    @p1 = create_project team: @t
-    @p2 = create_project team: @t
-    @p3 = create_project team: @t
-    @ps = [@p1, @p2, @p3]
-    @pm1 = create_project_media team: @t, disable_es_callbacks: false, project: @p1
-    @pm2 = create_project_media team: @t, disable_es_callbacks: false, project: @p2
-    @pm3 = create_project_media team: @t, disable_es_callbacks: false, project: @p3
     Sidekiq::Worker.drain_all
     sleep 1
-    @pms = [@pm1, @pm2, @pm3]
-    @ids = @pms.map(&:graphql_id).to_json
     authenticate_with_user(@u)
   end
 
@@ -279,22 +270,164 @@ class GraphqlController7Test < ActionController::TestCase
     assert_equal 4.0, alegre_settings['text_length_matching_threshold']
   end
 
+  test "should have a different id for public team" do
+    authenticate_with_user
+    t = create_team slug: 'team', name: 'Team'
+    post :create, params: { query: 'query PublicTeam { public_team { id, trash_count, pusher_channel } }', team: 'team' }
+    assert_response :success
+    assert_equal Base64.encode64("PublicTeam/#{t.id}"), JSON.parse(@response.body)['data']['public_team']['id']
+  end
+
+  test "should search as anonymous user" do
+    t = create_team slug: 'team', private: false
+    p = create_project team: t
+    2.times do
+      pm = create_project_media project: p, disable_es_callbacks: false
+    end
+    sleep 2
+
+    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,log_count,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+
+    post :create, params: { query: query, team: 'team' }
+    assert_response :success
+    assert_equal 2, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+  end
+
+  test "should read attribution" do
+    t, p, pm = assert_task_response_attribution
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { first_response { attribution { edges { node { name } } } } } } } } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['project_media']
+    users = data['tasks']['edges'][0]['node']['first_response']['attribution']['edges'].collect{ |u| u['node']['name'] }
+    assert_equal ['User 1', 'User 3'].sort, users.sort
+  end
+
+  test "should create team and return user and team_userEdge" do
+    authenticate_with_user
+    query = 'mutation create { createTeam(input: { clientMutationId: "1", name: "Test", slug: "' + random_string + '") { user { id }, team_userEdge } }'
+    post :create, params: { query: query }
+    assert_response :success
+  end
+
+  test "should return 409 on conflict" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'admin'
+    s = create_source user: u, team: t
+    s.name = 'Changed'
+    s.save!
+    assert_equal 1, s.reload.lock_version
+    authenticate_with_user(u)
+    query = 'mutation update { updateSource(input: { clientMutationId: "1", name: "Changed again", lock_version: 0, id: "' + s.reload.graphql_id + '"}) { source { id } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response 409
+  end
+
+  test "should parse JSON exception" do
+    url = 'http://test.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    PenderClient::Mock.mock_medias_returns_parsed_data(CheckConfig.get('pender_url_private')) do
+      WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s, CheckConfig.get('storage_endpoint')]
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+
+      u = create_user
+      t = create_team
+      create_team_user user: u, team: t, role: 'admin'
+      p = create_project team: t
+      authenticate_with_user(u)
+
+      query = 'mutation { createProjectMedia(input: { clientMutationId: "1", url: "' + url + '"}) { project_media { id } } }'
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+
+      post :create, params: { query: query, team: t.slug }
+      assert_response 400
+      ret = JSON.parse(@response.body)
+      assert_includes ret.keys, 'errors'
+      error_info = ret['errors'].first
+      assert_equal error_info.keys.sort, ['code', 'data', 'message'].sort
+      assert_equal ::LapisConstants::ErrorCodes::DUPLICATED, error_info['code']
+      assert_kind_of Integer, error_info['data']['team_id']
+      assert_kind_of Integer, error_info['data']['id']
+      assert_equal 'media', error_info['data']['type']
+    end
+  end
+
+  test "should get user confirmed" do
+    u = create_user
+    authenticate_with_user(u)
+    post :create, params: { query: "query GetById { user(id: \"#{u.id}\") { confirmed  } }" }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['user']
+    assert data['confirmed']
+  end
+
+  test "should get timezone from header" do
+    authenticate_with_user
+    @request.headers['X-Timezone'] = 'America/Bahia'
+    t = create_team slug: 'context'
+    post :create, params: { query: 'query Query { me { name } }' }
+    assert_equal 'America/Bahia', assigns(:context_timezone)
+  end
+
+  test "should handle nested error" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    authenticate_with_user(u)
+    p = create_project team: t
+    pm = create_project_media project: p
+    RelayOnRailsSchema.stubs(:execute).raises(GraphQL::Batch::NestedError)
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response 400
+    RelayOnRailsSchema.unstub(:execute)
+  end
+
+  test "should return project medias with provided URL that user has access to" do
+    l = create_valid_media
+    u = create_user
+    t = create_team
+    t2 = create_team
+    create_team_user team: t, user: u
+    create_team_user team: t2, user: u
+    authenticate_with_user(u)
+    p1 = create_project team: t
+    p2 = create_project team: t2
+    pm1 = create_project_media project: p1, media: l
+    pm2 = create_project_media project: p2, media: l
+    pm3 = create_project_media media: l
+    query = "query GetById { project_medias(url: \"#{l.url}\", first: 10000) { edges { node { dbid } } } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal [pm1.id], JSON.parse(@response.body)['data']['project_medias']['edges'].collect{ |x| x['node']['dbid'] }
+  end
+
+  test "should return project medias when provided URL is not normalized and it exists on db" do
+    url = 'http://www.atarde.uol.com.br/bahia/salvador/noticias/2089363-comunidades-recebem-caminhao-da-biometria-para-regularizacao-eleitoral'
+    url_normalized = 'http://www.atarde.com.br/bahia/salvador/noticias/2089363-comunidades-recebem-caminhao-da-biometria-para-regularizacao-eleitoral'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url_normalized + '","type":"item"}}')
+    m = create_media url: url
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    authenticate_with_user(u)
+    p = create_project team: t
+    pm = create_project_media project: p, media: m
+    query = "query GetById { project_medias(url: \"#{url}\", first: 10000) { edges { node { dbid } } } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal [pm.id], JSON.parse(@response.body)['data']['project_medias']['edges'].collect{ |x| x['node']['dbid'] }
+  end
+
   protected
 
   def assert_error_message(expected)
     assert_match /#{expected}/, JSON.parse(@response.body)['errors'][0]['message']
-  end
-
-  def search_results(filters)
-    sleep 1
-    $repository.search(query: { bool: { must: [{ term: filters }, { term: { team_id: @t.id } }] } }).results.collect{|i| i['annotated_id']}.sort
-  end
-
-  def assert_search_finds_all(filters)
-    assert_equal @pms.map(&:id).sort, search_results(filters)
-  end
-
-  def assert_search_finds_none(filters)
-    assert_equal [], search_results(filters)
   end
 end

@@ -15,17 +15,8 @@ class GraphqlController6Test < ActionController::TestCase
     @t = create_team
     @u = create_user
     @tu = create_team_user team: @t, user: @u, role: 'admin'
-    @p1 = create_project team: @t
-    @p2 = create_project team: @t
-    @p3 = create_project team: @t
-    @ps = [@p1, @p2, @p3]
-    @pm1 = create_project_media team: @t, disable_es_callbacks: false, project: @p1
-    @pm2 = create_project_media team: @t, disable_es_callbacks: false, project: @p2
-    @pm3 = create_project_media team: @t, disable_es_callbacks: false, project: @p3
     Sidekiq::Worker.drain_all
     sleep 1
-    @pms = [@pm1, @pm2, @pm3]
-    @ids = @pms.map(&:graphql_id).to_json
     authenticate_with_user(@u)
   end
 
@@ -293,22 +284,4 @@ class GraphqlController6Test < ActionController::TestCase
     assert_equal 1, response['item_navigation_offset']
   end
 
-  protected
-
-  def assert_error_message(expected)
-    assert_match /#{expected}/, JSON.parse(@response.body)['errors'][0]['message']
-  end
-
-  def search_results(filters)
-    sleep 1
-    $repository.search(query: { bool: { must: [{ term: filters }, { term: { team_id: @t.id } }] } }).results.collect{|i| i['annotated_id']}.sort
-  end
-
-  def assert_search_finds_all(filters)
-    assert_equal @pms.map(&:id).sort, search_results(filters)
-  end
-
-  def assert_search_finds_none(filters)
-    assert_equal [], search_results(filters)
-  end
 end
