@@ -710,219 +710,82 @@ class ProjectMedia4Test < ActiveSupport::TestCase
       pm.save!
     end
   end
-
-  test "should complete media if there are pending tasks" do
+  
+  test "should return cached values for feed data" do
     pm = create_project_media
-    s = pm.last_verification_status_obj
-    create_task annotated: pm, required: true
-    assert_equal 'undetermined', s.reload.get_field('verification_status_status').status
-    assert_nothing_raised do
-      s.status = 'verified'
-      s.save!
-    end
+    assert_kind_of Hash, pm.feed_columns_values
   end
 
-  test "should get account from author URL" do
-    s = create_source
-    pm = create_project_media
-    assert_nothing_raised do
-      pm.send :account_from_author_url, @url, s
-    end
+  test "should set a custom title" do
+    m = create_uploaded_image
+    pm = create_project_media set_title: 'Foo', media: m
+    assert_equal 'Foo', pm.title
   end
 
-  test "should not move media to active status if status is locked" do
-    pm = create_project_media
-    assert_equal 'undetermined', pm.last_verification_status
-    s = pm.last_verification_status_obj
-    s.locked = true
-    s.save!
-    create_task annotated: pm, disable_update_status: false
-    assert_equal 'undetermined', pm.reload.last_verification_status
-  end
-
-  test "should have status permission" do
-    u = create_user
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    with_current_user_and_team(u, t) do
-      permissions = JSON.parse(pm.permissions)
-      assert permissions.has_key?('update Status')
-    end
-  end
-
-  test "should not crash if media does not have status" do
-    pm = create_project_media
-    Annotation.delete_all
-    assert_nothing_raised do
-      assert_nil pm.last_verification_status_obj
-    end
-  end
-
-  test "should have relationships and parent and children reports" do
-    p = create_project
-    s1 = create_project_media project: p
-    s2 = create_project_media project: p
-    t1 = create_project_media project: p
-    t2 = create_project_media project: p
-    create_project_media project: p
-    create_relationship source_id: s1.id, target_id: t1.id
-    create_relationship source_id: s2.id, target_id: t2.id
-    assert_equal [t1], s1.targets
-    assert_equal [t2], s2.targets
-    assert_equal [s1], t1.sources
-    assert_equal [s2], t2.sources
-  end
-
-  test "should return related" do
-    pm = create_project_media
-    pm2 = create_project_media
-    assert_nil pm.related_to
-    pm.related_to_id = pm2.id
-    assert_equal pm2, pm.related_to
-  end
-
-  test "should include extra attributes in serialized object" do
-    pm = create_project_media
-    pm.related_to_id = 1
-    dump = YAML::dump(pm)
-    assert_match /related_to_id/, dump
-  end
-
-  test "should skip screenshot archiver" do
-    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
-    l = create_link
-    t = create_team
-    t.save!
-    BotUser.delete_all
-    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], set_approved: true
-    tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
-    tbi.set_archive_pender_archive_enabled = false
-    tbi.save!
-    pm = create_project_media project: create_project(team: t), media: l
-    assert pm.should_skip_create_archive_annotation?('pender_archive')
-  end
-
-  test "should destroy project media when associated_id on version is not valid" do
-    with_versioning do
-      m = create_valid_media
-      t = create_team
-      p = create_project team: t
-      u = create_user
-      create_team_user user: u, team: t, role: 'admin'
-      pm = nil
-      with_current_user_and_team(u, t) do
-        pm = create_project_media project: p, media: m, user: u
-        pm.source_id = create_source(team_id: t.id).id
-        pm.save
-        assert_equal 3, pm.versions.count
-      end
-      version = pm.versions.last
-      version.update_attribute('associated_id', 100)
-
-      assert_nothing_raised do
-        pm.destroy
-      end
-    end
-  end
-
-  # https://errbit.test.meedan.com/apps/581a76278583c6341d000b72/problems/5ca644ecf023ba001260e71d
-  # https://errbit.test.meedan.com/apps/581a76278583c6341d000b72/problems/5ca4faa1f023ba001260dbae
-  test "should create claim with Indian characters" do
-    str1 = "_Buy Redmi Note 5 Pro Mobile at *2999 Rs* (95�\u0000off) in Flash Sale._\r\n\r\n*Grab this offer now, Deal valid only for First 1,000 Customers. Visit here to Buy-* http://sndeals.win/"
-    str2 = "*प्रधानमंत्री छात्रवृति योजना 2019*\n\n*Scholarship Form for 10th or 12th Open Now*\n\n*Scholarship Amount*\n1.50-60�\u0000- Rs. 5000/-\n2.60-80�\u0000- Rs. 10000/-\n3.Above 80�\u0000- Rs. 25000/-\n\n*सभी 10th और 12th के बच्चो व उनके अभिभावकों को ये SMS भेजे ताकि सभी बच्चे इस योजना का लाभ ले सके*\n\n*Click Here for Apply:*\nhttps://bit.ly/2l71tWl"
-    [str1, str2].each do |str|
-      assert_difference 'ProjectMedia.count' do
-        m = create_claim_media quote: str
-        create_project_media media: m
-      end
-    end
-  end
-
-  test "should not create project media with unsafe URL" do
-    WebMock.disable_net_connect! allow: [CheckConfig.get('storage_endpoint')]
-    url = 'http://unsafe.com/'
-    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-    response = '{"type":"error","data":{"code":12}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
-    assert_raises RuntimeError do
-      pm = create_project_media media: nil, url: url
-      assert_equal 12, pm.media.pender_error_code
-    end
-  end
-
-  test "should get metadata" do
-    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-    url = 'https://twitter.com/test/statuses/123456'
-    response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'title' => 'Media Title', 'description' => 'Media Description' } }.to_json
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    l = create_link url: url
-    pm = create_project_media media: l
-    assert_equal 'Media Title', l.metadata['title']
-    assert_equal 'Media Description', l.metadata['description']
-    assert_equal 'Media Title', pm.media.metadata['title']
-    assert_equal 'Media Description', pm.media.metadata['description']
-    pm.analysis = { title: 'Project Media Title', content: 'Project Media Description' }
-    pm.save!
-    l = Media.find(l.id)
-    pm = ProjectMedia.find(pm.id)
-    assert_equal 'Media Title', l.metadata['title']
-    assert_equal 'Media Description', l.metadata['description']
-    assert_equal 'Project Media Title', pm.analysis['title']
-    assert_equal 'Project Media Description', pm.analysis['content']
-  end
-
-  test "should cache and sort by demand" do
+  test "should bulk remove tags" do
     setup_elasticsearch
     RequestStore.store[:skip_cached_field_update] = false
-    team = create_team
-    p = create_project team: team
-    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
-    pm = create_project_media team: team, project_id: p.id, disable_es_callbacks: false
-    ms_pm = get_es_id(pm)
-    assert_queries(0, '=') { assert_equal(0, pm.demand) }
-    create_dynamic_annotation annotation_type: 'smooch', annotated: pm
-    assert_queries(0, '=') { assert_equal(1, pm.demand) }
-    pm2 = create_project_media team: team, project_id: p.id, disable_es_callbacks: false
-    ms_pm2 = get_es_id(pm2)
-    assert_queries(0, '=') { assert_equal(0, pm2.demand) }
-    2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2) }
-    assert_queries(0, '=') { assert_equal(2, pm2.demand) }
-    # test sorting
-    result = $repository.find(ms_pm)
-    assert_equal result['demand'], 1
-    result = $repository.find(ms_pm2)
-    assert_equal result['demand'], 2
-    result = CheckSearch.new({projects: [p.id], sort: 'demand'}.to_json, nil, team.id)
-    assert_equal [pm2.id, pm.id], result.medias.map(&:id)
-    result = CheckSearch.new({projects: [p.id], sort: 'demand', sort_type: 'asc'}.to_json, nil, team.id)
-    assert_equal [pm.id, pm2.id], result.medias.map(&:id)
-    r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
-    assert_equal 1, pm.reload.requests_count
-    assert_equal 2, pm2.reload.requests_count
-    assert_queries(0, '=') { assert_equal(3, pm.demand) }
-    assert_queries(0, '=') { assert_equal(3, pm2.demand) }
-    pm3 = create_project_media team: team, project_id: p.id
-    ms_pm3 = get_es_id(pm3)
-    assert_queries(0, '=') { assert_equal(0, pm3.demand) }
-    2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm3) }
-    assert_queries(0, '=') { assert_equal(2, pm3.demand) }
-    create_relationship source_id: pm.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
-    assert_queries(0, '=') { assert_equal(5, pm.demand) }
-    assert_queries(0, '=') { assert_equal(5, pm2.demand) }
-    assert_queries(0, '=') { assert_equal(5, pm3.demand) }
-    create_dynamic_annotation annotation_type: 'smooch', annotated: pm3
-    assert_queries(0, '=') { assert_equal(6, pm.demand) }
-    assert_queries(0, '=') { assert_equal(6, pm2.demand) }
-    assert_queries(0, '=') { assert_equal(6, pm3.demand) }
-    r.destroy!
-    assert_queries(0, '=') { assert_equal(4, pm.demand) }
-    assert_queries(0, '=') { assert_equal(2, pm2.demand) }
-    assert_queries(0, '=') { assert_equal(4, pm3.demand) }
-    assert_queries(0, '>') { assert_equal(4, pm.demand(true)) }
-    assert_queries(0, '>') { assert_equal(2, pm2.demand(true)) }
-    assert_queries(0, '>') { assert_equal(4, pm3.demand(true)) }
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      pm = create_project_media team: t
+      pm2 = create_project_media team: t
+      pm3 = create_project_media team: t
+      sports = create_tag_text team_id: t.id, text: 'sports'
+      news = create_tag_text team_id: t.id, text: 'news'
+      economic = create_tag_text team_id: t.id, text: 'economic'
+      # Tag pm
+      pm_t1 = create_tag annotated: pm, tag: sports.id, disable_es_callbacks: false
+      pm_t2 = create_tag annotated: pm, tag: news.id, disable_es_callbacks: false
+      pm_t3 = create_tag annotated: pm, tag: economic.id, disable_es_callbacks: false
+      # Tag pm2
+      pm2_t1 = create_tag annotated: pm2, tag: sports.id, disable_es_callbacks: false
+      pm2_t2 = create_tag annotated: pm2, tag: news.id, disable_es_callbacks: false
+      # Tag pm3
+      pm3_t1 = create_tag annotated: pm3, tag: sports.id, disable_es_callbacks: false
+      sleep 2
+      assert_equal 3, sports.reload.tags_count
+      assert_equal 2, news.reload.tags_count
+      assert_equal 1, economic.reload.tags_count
+      assert_equal [pm_t1, pm2_t1, pm3_t1].sort, sports.reload.tags.to_a.sort
+      assert_equal [pm_t2, pm2_t2].sort, news.reload.tags.to_a.sort
+      assert_equal [pm_t3], economic.reload.tags.to_a
+      assert_equal 'sports, news, economic'.split(', ').sort, pm.tags_as_sentence.split(', ').sort
+      assert_equal 'sports, news'.split(', ').sort, pm2.tags_as_sentence.split(', ').sort
+      assert_equal 'sports', pm3.tags_as_sentence
+      result = $repository.find(get_es_id(pm))
+      assert_equal 3, result['tags_as_sentence']
+      assert_equal [pm_t1.id, pm_t2.id, pm_t3.id], result['tags'].collect{|t| t['id']}.sort
+      result = $repository.find(get_es_id(pm2))
+      assert_equal 2, result['tags_as_sentence']
+      assert_equal [pm2_t1.id, pm2_t2.id], result['tags'].collect{|t| t['id']}.sort
+      result = $repository.find(get_es_id(pm3))
+      assert_equal 1, result['tags_as_sentence']
+      assert_equal [pm3_t1.id], result['tags'].collect{|t| t['id']}
+      # apply bulk-remove
+      ids = [pm.id, pm2.id, pm3.id]
+      updates = { action: 'remove_tags', params: { tags_text: "#{sports.id}, #{economic.id}" }.to_json }
+      ProjectMedia.bulk_update(ids, updates, t)
+      sleep 2
+      assert_equal 0, sports.reload.tags_count
+      assert_equal 2, news.reload.tags_count
+      assert_equal 0, economic.reload.tags_count
+      assert_empty sports.reload.tags.to_a
+      assert_equal [pm_t2, pm2_t2].sort, news.reload.tags.to_a.sort
+      assert_empty economic.reload.tags.to_a
+      assert_equal 'news', pm.tags_as_sentence
+      assert_equal 'news', pm2.tags_as_sentence
+      assert_empty pm3.tags_as_sentence
+      result = $repository.find(get_es_id(pm))
+      assert_equal 1, result['tags_as_sentence']
+      assert_equal [pm_t2.id], result['tags'].collect{|t| t['id']}
+      result = $repository.find(get_es_id(pm2))
+      assert_equal 1, result['tags_as_sentence']
+      assert_equal [pm2_t2.id], result['tags'].collect{|t| t['id']}
+      result = $repository.find(get_es_id(pm3))
+      assert_equal 0, result['tags_as_sentence']
+      assert_empty result['tags'].collect{|t| t['id']}
+    end
   end
-
 end

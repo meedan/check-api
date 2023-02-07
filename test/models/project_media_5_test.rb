@@ -927,5 +927,4 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       pm.send(random_string)
     end
   end
-
 end

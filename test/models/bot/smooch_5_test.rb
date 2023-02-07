@@ -13,6 +13,8 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     Bot::Smooch.unstub(:get_language)
   end
 
+  # This test is taking 8 minutes to run. We should refactor it to reduce the runtime
+  # Reference: CV2-2699
   test "should search for feed" do
     RequestStore.store[:skip_cached_field_update] = false
     setup_elasticsearch
