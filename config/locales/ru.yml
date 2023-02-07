@@ -478,8 +478,6 @@ ru:
     бота
   bot_not_approved_for_installation: Извините, этот бот не был одобрен, поэтому не
     может быть добавлен
-  only_admins_can_approve_bots: Извините, только суперадминистраторы могут одобрять
-    ботов
   could_not_save_related_bot_data: Извините, не удалось добавить бота в этот проект
   bot_cant_add_response_to_task: Извините, бот не может отвечать на вопросы — вместо
     этого можно предложить ответ
@@ -675,6 +673,7 @@ ru:
   list_column_share_count: Репосты FB
   list_column_reaction_count: Реакции FB
   list_column_comment_count: Комментарии FB
+  list_column_linked_items_count: Медиа
   list_column_type: Тип
   list_column_status: Статус
   list_column_created_at: Отправлено

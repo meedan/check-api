@@ -98,6 +98,7 @@ ar:
       invalid_project_media_channel_value: عذرا، لا ندعم هذه الغرفة
       invalid_project_media_channel_update: عذراً، لقد تعذر عليك تحديث الغرفة
       invalid_project_media_archived_value: عذرا، إن القيم المؤرشفة غير مدعومة
+      invalid_fact_check_language_value: عذرا، قيمة اللغة غير مدعومة
   activerecord:
     models:
       link: رابط
@@ -510,7 +511,6 @@ ar:
   bot_team_id_mandatory_to_create: عذراً ، يجب اختيار مساحة العمل قبل إضافة بوت
   bot_not_approved_for_installation: عذراً ، لا يمكن تثبيت هذا البوت ﻷنه لم تتم الموافقة
     عليه
-  only_admins_can_approve_bots: عذراً ، الموافقة على البوت متاحة لمسؤولي النظام فقط
   could_not_save_related_bot_data: عذراً ، لم نتمكّن من إضافة البوت لمساحة العمل هذه
   bot_cant_add_response_to_task: 'عذراً، لا يمكن للبوت الإجابة عن مهمّة بشكل مباشر
     - ولكن، يمكن إرسال اقتراح ﻹجابة '
@@ -734,6 +734,7 @@ ar:
   flag_likelihood_7: يدوي
   relationship_not_same_team: يجب أن تكون العناصر ذات الصلة  في مساحة العمل ذاتها
   target_is_published: لا يمكن أن يكون للمستهدف تقرير منشور
+  similar_item_exists: عذرا، لقد أضيف بالفعل هذا العنصر على أنه عنصر مشابه.
   bulk_operation_limit_error: عذراً، الحد الأقصى لعدد العناصر التى يمكن معالجتها في
     آنِ واحد هو %{limit}
   must_provide_fallback_when_deleting_status_in_use: هذه الحالة مستخدمة حاليّاً، لِحذفها،
@@ -759,7 +760,7 @@ ar:
   list_column_share_count: مشاركات فيسبوك
   list_column_reaction_count: تفاعلات فيسبوك
   list_column_comment_count: تعليقات فيسبوك
-  list_column_linked_items_count: المواد إعلامية مطابقة
+  list_column_linked_items_count: المواد الإعلامية
   list_column_type: النوع
   list_column_status: الحالة
   list_column_created_at: تم الإرسال
@@ -771,7 +772,6 @@ ar:
   list_column_published_by: تم نشر التقرير بواسطة
   list_column_fact_check_published_on: لقد نُشر التقصي من الحقيقة بتاريخ
   list_column_related_count: ذات صلة
-  list_column_suggestions_count: المواد الإعلامية المقترحة
   list_column_folder: مجلد
   list_column_creator_name: تم الإنشاء بواسطة
   list_column_fact_check_title: تقصي الحقائق

@@ -107,6 +107,8 @@ fr:
         de mettre à jour la valeur du canal
       invalid_project_media_archived_value: Désolé, la valeur archivée n’est pas prise
         en charge
+      invalid_fact_check_language_value: Désolé, la valeur de langue n’est pas prise
+        en charge
   activerecord:
     models:
       link: Lien
@@ -538,8 +540,6 @@ fr:
     afin de créer un robot
   bot_not_approved_for_installation: Désolé, ce robot n’a pas été approuvé et il ne
     peut donc pas être installé
-  only_admins_can_approve_bots: Désolé, seuls les administrateurs système peuvent
-    approuver les robots
   could_not_save_related_bot_data: Désolé, il n’a pas été possible d’ajouter le robot
     à cet espace de travail
   bot_cant_add_response_to_task: Désolé, un robot ne peut pas répondre directement
@@ -776,6 +776,7 @@ fr:
   relationship_not_same_team: Les éléments associés doivent exister dans le même espace
     de travail
   target_is_published: La cible ne devrait pas avoir de rapport publié
+  similar_item_exists: Désolé, cet élément est déjà ajouté en tant qu’élément semblable
   bulk_operation_limit_error: Désolé, le nombre maximal d’éléments à traiter à la
     fois est %{limit}
   must_provide_fallback_when_deleting_status_in_use: Ce état est déjà utilisé, vous
@@ -803,7 +804,7 @@ fr:
   list_column_share_count: Partages sur Facebook
   list_column_reaction_count: Réactions sur Facebook
   list_column_comment_count: Commentaires sur Facebook
-  list_column_linked_items_count: Médias correspondants
+  list_column_linked_items_count: Média
   list_column_type: Type
   list_column_status: État
   list_column_created_at: Envoyé
@@ -815,7 +816,6 @@ fr:
   list_column_published_by: Rapport publié par
   list_column_fact_check_published_on: Vérification de faits publiés le
   list_column_related_count: Associés
-  list_column_suggestions_count: Médias suggérés
   list_column_folder: Dossier
   list_column_creator_name: Créé par
   list_column_fact_check_title: Vérification de faits
