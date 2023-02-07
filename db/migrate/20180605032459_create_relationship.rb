@@ -21,7 +21,6 @@ class CreateRelationship < ActiveRecord::Migration[4.2]
       t.timestamps null: false
     end
 
-    add_index :relationships, :relationship_type
     add_index :relationships, [:source_id, :target_id, :relationship_type], unique: true, name: 'relationship_index'
   end
 end
