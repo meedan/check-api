@@ -125,9 +125,10 @@ class DynamicAnnotation::Field < ApplicationRecord
       if op == 'destroy'
         destroy_es_items('requests', 'destroy_doc_nested', obj.id)
       else
+        identifier = begin self.smooch_user_external_identifier&.value rescue self.smooch_user_external_identifier end
         data = {
           'username' => self.value_json['name'],
-          'identifier' => self.smooch_user_external_identifier&.gsub(/[[:space:]|-]/, ''),
+          'identifier' => identifier&.gsub(/[[:space:]|-]/, ''),
           'content' => self.value_json['text'],
         }
         options = { op: op, pm_id: obj.id, nested_key: 'requests', keys: data.keys, data: data, skip_get_data: true }
