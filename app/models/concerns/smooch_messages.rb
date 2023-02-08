@@ -39,8 +39,13 @@ module SmoochMessages
       redis.lrange(key, 0, redis.llen(key)).to_a.uniq
     end
 
+    def bundle_contains_only_a_timeout_button_event(list, type)
+      list.size == 1 && !list[0]['quotedMessage'].blank? && type == 'timeout_requests' && list[0]['payload'].blank?
+    end
+
     def bundle_messages(uid, id, app_id, type = 'default_requests', annotated = nil, force = false, bundle = nil)
       list = bundle || self.list_of_bundled_messages_from_user(uid)
+      return if bundle_contains_only_a_timeout_button_event(list, type) # Don't store a request that is just a reaction to a button
       unless list.empty?
         last = JSON.parse(list.last)
         if last['_id'] == id || ['menu_options_requests'].include?(type) || force
@@ -64,11 +69,11 @@ module SmoochMessages
       end
     end
 
-    def send_final_messages_to_user(uid, text, workflow, language)
+    def send_final_messages_to_user(uid, text, workflow, language, interval = 1)
       response = self.send_message_to_user(uid, text)
       if self.is_v2?
         CheckStateMachine.new(uid).go_to_main
-        sleep 1
+        sleep(interval)
         response = self.send_message_to_user_with_main_menu_appended(uid, self.get_string('navigation_button', language), workflow, language)
       end
       response
@@ -121,7 +126,7 @@ module SmoochMessages
         message << self.tos_message(workflow, language) unless is_v2
       end
       message << self.subscription_message(uid, language) if state.to_s == 'subscription'
-      message << workflow.dig("smooch_state_#{state}", 'smooch_menu_message') if state != 'main' || !is_v2
+      message << self.get_custom_string(["smooch_state_#{state}", 'smooch_menu_message'], language) if state != 'main' || !is_v2
       message << self.get_custom_string("#{state}_state", language) if ['search', 'search_result', 'add_more_details', 'ask_if_ready'].include?(state.to_s)
       message.reject{ |m| m.blank? }.join("\n\n")
     end
@@ -135,7 +140,7 @@ module SmoochMessages
 
     def send_message_if_disabled_and_return_state(uid, workflow, state)
       disabled = self.config['smooch_disabled']
-      self.send_message_to_user(uid, workflow['smooch_message_smooch_bot_disabled'], {}, true) if disabled
+      self.send_message_to_user(uid, self.get_custom_string('smooch_message_smooch_bot_disabled', workflow['smooch_workflow_language']), {}, true) if disabled
       disabled ? 'disabled' : state
     end
 

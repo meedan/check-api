@@ -72,15 +72,20 @@ namespace :check do
         tags.collect{|t| {id: t.id, tag: t.tag_text}}
       end
 
-      def self.accounts(_team, obj)
-        a = obj.media.account
-        return [] if a.blank?
-        metadata = a.metadata || {}
-        [{
-          id: a.id,
-          title: metadata['title'],
-          description: metadata['description'],
-        }]
+      def self.requests(team, obj)
+        fields = DynamicAnnotation::Field.joins(:annotation)
+        .where(
+          field_name: 'smooch_data',
+          'annotations.annotated_id' => obj.id,
+          'annotations.annotation_type' => 'smooch',
+          'annotations.annotated_type' => 'ProjectMedia'
+          )
+        fields.collect{ |field| {
+          id: field.id,
+          username: field.value_json['name'],
+          identifier: field.smooch_user_external_identifier.value&.gsub(/[[:space:]|-]/, ''),
+          content: field.value_json['text'],
+        }}
       end
     end
     # bundle exec rails check:project_media:recalculate_cached_field['slug:team_slug&field:field_name']

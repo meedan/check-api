@@ -1,5 +1,5 @@
-es: 
-  languages: 
+es:
+  languages:
     aa: afar
     ab: abjasio
     ace: acehnés
@@ -150,9 +150,9 @@ es:
     en-US: "inglés estadounidense"
     enm: "inglés medieval"
     eo: esperanto
-    es: español
-    es-419: "español de América"
-    es-ES: "español de España"
+    es: Español
+    es-419: "Español de América"
+    es-ES: "Español de España"
     et: estonio
     eu: vasco
     ewo: ewondo

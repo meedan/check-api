@@ -679,4 +679,30 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       create_dynamic_annotation annotation_type: 'smooch_user', set_fields: fields.to_json
     end
   end
+
+  test "should avoid race condition on newsletter delivery" do
+    @installation.set_smooch_disable_timeout = false
+    @installation.save!
+    Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
+
+    assert_no_difference 'ProjectMedia.count' do
+      Sidekiq::Testing.fake! do
+        send_message_to_smooch_bot('Read now', @uid, { 'quotedMessage' => { 'content' => { '_id' => random_string } } })
+      end
+      Sidekiq::Worker.drain_all
+    end
+  end
+
+  test "should ask for feedback even when confirmation is not received" do
+    uid = random_string
+    CheckStateMachine.new(uid).go_to_search_result
+    id = random_string
+    redis = Redis.new(REDIS_CONFIG)
+    redis.rpush("smooch:search:#{uid}", id)
+    assert_equal 1, redis.llen("smooch:search:#{uid}")
+    Sidekiq::Testing.inline! do
+      Bot::Smooch.ask_for_feedback_when_all_search_results_are_received(@app_id, 'en', {}, uid, 'WhatsApp', 1)
+    end
+    assert_equal 0, redis.llen("smooch:search:#{uid}")
+  end
 end

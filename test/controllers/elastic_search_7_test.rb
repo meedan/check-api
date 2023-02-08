@@ -172,7 +172,7 @@ class ElasticSearch7Test < ActionController::TestCase
     assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
   end
 
-  test "should filter keyword by fields group a" do
+  test "should filter by keyword and tite description tags and notes fields fields" do
     create_verification_status_stuff(false)
     t = create_team
     p = create_project team: t
@@ -201,68 +201,102 @@ class ElasticSearch7Test < ActionController::TestCase
     assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
     result = CheckSearch.new({keyword: 'search_desc', keyword_fields: {fields: ['description']}}.to_json, nil, t.id)
     assert_equal [pm.id], result.medias.map(&:id)
-    result = CheckSearch.new({keyword: 'override_title', keyword_fields: {fields: ['analysis_title']}}.to_json, nil, t.id)
+    result = CheckSearch.new({keyword: 'override_title', keyword_fields: {fields: ['title']}}.to_json, nil, t.id)
     assert_equal [pm2.id], result.medias.map(&:id)
-    result = CheckSearch.new({keyword: 'search_title', keyword_fields: {fields: ['analysis_title']}}.to_json, nil, t.id)
-    assert_empty result.medias
-    result = CheckSearch.new({keyword: 'override_description', keyword_fields: {fields: ['analysis_description']}}.to_json, nil, t.id)
+    result = CheckSearch.new({keyword: 'override_description', keyword_fields: {fields: ['description']}}.to_json, nil, t.id)
     assert_equal [pm2.id], result.medias.map(&:id)
     result = CheckSearch.new({keyword: 'search_title', keyword_fields: {fields: ['tags']}}.to_json, nil, t.id)
     assert_equal [pm3.id], result.medias.map(&:id)
     result = CheckSearch.new({keyword: 'another_desc', keyword_fields: {fields:['description', 'tags']}}.to_json, nil, t.id)
     assert_equal [pm2.id, pm3.id], result.medias.map(&:id).sort
+    create_comment annotated: pm, text: 'item notepm', disable_es_callbacks: false
+    create_comment annotated: pm2, text: 'item comment', disable_es_callbacks: false
+    sleep 2
+    result = CheckSearch.new({keyword: 'item', keyword_fields: {fields: ['comments']}}.to_json)
+    assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
   end
 
-  test "should filter keyword by fields group b" do
+  test "should search by media url" do
+    url = 'http://test.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item","title": "media_title"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
-    tt = create_team_task team_id: t.id, type: 'single_choice', options: ['Foo', 'Bar', 'ans_c']
-    tt2 = create_team_task team_id: t.id, type: 'free_text'
-    tt3 = create_team_task team_id: t.id, type: 'free_text', fieldset: 'metadata'
     with_current_user_and_team(u ,t) do
-      pm = create_project_media team: t, disable_es_callbacks: false
-      pm2 = create_project_media team: t, disable_es_callbacks: false
-      pm3 = create_project_media team: t, disable_es_callbacks: false
-      pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
-      pm_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: 'Foo' }.to_json }.to_json
-      pm_tt.save!
-      # test with free text
-      pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt2.id}.last
-      pm2_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'Foo by Sawy' }.to_json }.to_json
-      pm2_tt.save!
-      pm3_tt = pm3.annotations('task').select{|t| t.team_task_id == tt3.id}.last
-      pm3_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'Bar by Sawy' }.to_json }.to_json
-      pm3_tt.save!
-      # add task/item notes
-      pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
-      create_comment annotated: pm, text: 'item notepm', disable_es_callbacks: false
-      create_comment annotated: pm2, text: 'item comment', disable_es_callbacks: false
+      pm = create_project_media team: t, url: url, disable_es_callbacks: false
       sleep 2
-      result = CheckSearch.new({keyword: 'Sawy'}.to_json)
-      assert_equal [pm2.id, pm3.id], result.medias.map(&:id).sort
-      result = CheckSearch.new({keyword: 'Foo', keyword_fields: {fields:['task_answers']}}.to_json)
-      assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
-      result = CheckSearch.new({keyword: 'Sawy', keyword_fields: {fields: ['metadata_answers']}}.to_json)
-      assert_equal [pm3.id], result.medias.map(&:id)
-      result = CheckSearch.new({keyword: 'Sawy', keyword_fields: {fields: ['task_answers', 'metadata_answers']}}.to_json)
-      assert_equal [pm2.id, pm3.id], result.medias.map(&:id).sort
-      result = CheckSearch.new({keyword: 'item', keyword_fields: {fields: ['comments']}}.to_json)
-      assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
-      # tests for group c
-      result = CheckSearch.new({keyword: 'Sawy', keyword_fields: {team_tasks: [tt2.id]}}.to_json)
-      assert_equal [pm2.id], result.medias.map(&:id)
-      result = CheckSearch.new({keyword: 'Sawy', keyword_fields: {team_tasks: [tt2.id, tt3.id]}}.to_json)
-      assert_equal [pm2.id, pm3.id], result.medias.map(&:id).sort
+      result = $repository.find(get_es_id(pm))['url']
+      assert_equal result, url
+      results = CheckSearch.new({ keyword: 'test.com' }.to_json)
+      assert_equal [pm.id], results.medias.map(&:id)
+      results = CheckSearch.new({ keyword: 'test2.com' }.to_json)
+      assert_empty results.medias.map(&:id)
+      results = CheckSearch.new({keyword: 'test.com', keyword_fields: {fields: ['url']}}.to_json)
+      assert_equal [pm.id], results.medias.map(&:id)
+      results = CheckSearch.new({keyword: 'test.com', keyword_fields: {fields: ['title']}}.to_json)
+      assert_empty results.medias.map(&:id)
+    end
+  end
+
+  test "should filter items by channel" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u ,t) do
+      pm = create_project_media team: t, quote: 'claim a', channel: { main: CheckChannels::ChannelCodes::MANUAL }, disable_es_callbacks: false
+      pm2 = create_project_media team: t, channel: { main: CheckChannels::ChannelCodes::FETCH }, disable_es_callbacks: false
+      pm3 = create_project_media team: t, channel: { main: CheckChannels::ChannelCodes::API }, disable_es_callbacks: false
+      pm4 = create_project_media team: t, quote: 'claim b', channel: { main: CheckChannels::ChannelCodes::ZAPIER }, disable_es_callbacks: false
+      # tipline items
+      pm5 = create_project_media team: t, channel: { main: CheckChannels::ChannelCodes::WHATSAPP }, disable_es_callbacks: false
+      pm6 = create_project_media team: t, channel: { main: CheckChannels::ChannelCodes::MESSENGER }, disable_es_callbacks: false
+      pm7 = create_project_media team: t, channel: { main: CheckChannels::ChannelCodes::TWITTER }, disable_es_callbacks: false
+      pm8 = create_project_media team: t, channel: { main: CheckChannels::ChannelCodes::TELEGRAM }, disable_es_callbacks: false
+      pm9 = create_project_media team: t, channel: { main: CheckChannels::ChannelCodes::VIBER }, disable_es_callbacks: false
+      pm10 = create_project_media team: t, channel: { main: CheckChannels::ChannelCodes::LINE }, disable_es_callbacks: false
+      tipline_ids = [pm5.id, pm6.id, pm7.id, pm8.id, pm9.id, pm10.id]
       sleep 2
-      query = 'query Search { search(query: "{\"keyword\":\"Sawy\",\"keyword_fields\":{\"fields\":[\"task_answers\",\"metadata_answers\"],\"team_tasks\":[' + tt2.id.to_s + ']}}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
-      post :create, params: { query: query }
-      assert_response :success
-      ids = []
-      JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-        ids << id["node"]["dbid"]
-      end
-      assert_equal [pm2.id, pm3.id], ids.sort
+      # Hit PG
+      results = CheckSearch.new({ channels: [CheckChannels::ChannelCodes::MANUAL] }.to_json)
+      assert_equal [pm.id], results.medias.map(&:id)
+      results = CheckSearch.new({ channels: [CheckChannels::ChannelCodes::MANUAL, CheckChannels::ChannelCodes::API] }.to_json)
+      assert_equal [pm.id, pm3.id], results.medias.map(&:id).sort
+      # Hit ES
+      results = CheckSearch.new({ keyword: 'claim', channels: [CheckChannels::ChannelCodes::MANUAL, CheckChannels::ChannelCodes::API] }.to_json)
+      assert_equal [pm.id], results.medias.map(&:id)
+      # filter by any tipline
+      results = CheckSearch.new({ channels: ['any_tipline'] }.to_json)
+      assert_equal tipline_ids, results.medias.map(&:id).sort
+      results = CheckSearch.new({ channels: ['any_tipline', CheckChannels::ChannelCodes::MANUAL, CheckChannels::ChannelCodes::TWITTER] }.to_json)
+      assert_equal tipline_ids.concat([pm.id]).sort, results.medias.map(&:id).sort
+    end
+  end
+
+  test "should filter items by channel in main and others" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u ,t) do
+      pm = create_project_media team: t, quote: 'claim a', channel: { main: CheckChannels::ChannelCodes::MANUAL }, disable_es_callbacks: false
+      pm2 = create_project_media team: t, quote: 'claim b', channel: { main: CheckChannels::ChannelCodes::ZAPIER }, disable_es_callbacks: false
+      # tipline items
+      pm3 = create_project_media team: t, channel: { main: CheckChannels::ChannelCodes::WHATSAPP }, disable_es_callbacks: false
+      pm.channel = { main: CheckChannels::ChannelCodes::MANUAL, others: [CheckChannels::ChannelCodes::WHATSAPP, CheckChannels::ChannelCodes::MESSENGER] }
+      pm.save!
+      sleep 2
+      results = CheckSearch.new({ channels: [CheckChannels::ChannelCodes::MANUAL] }.to_json)
+      assert_equal [pm.id], results.medias.map(&:id)
+      results = CheckSearch.new({ channels: [CheckChannels::ChannelCodes::WHATSAPP] }.to_json)
+      assert_equal [pm.id, pm3.id], results.medias.map(&:id).sort
+      results = CheckSearch.new({ channels: [CheckChannels::ChannelCodes::WHATSAPP, CheckChannels::ChannelCodes::ZAPIER] }.to_json)
+      assert_equal [pm.id, pm2.id, pm3.id], results.medias.map(&:id).sort
+      results = CheckSearch.new({ channels: [CheckChannels::ChannelCodes::MESSENGER] }.to_json)
+      assert_equal [pm.id], results.medias.map(&:id)
+      # filter by any tipline
+      results = CheckSearch.new({ channels: ['any_tipline'] }.to_json)
+      assert_equal [pm.id, pm3.id], results.medias.map(&:id).sort
     end
   end
 

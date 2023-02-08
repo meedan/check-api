@@ -198,4 +198,25 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
     assert tbi.reload.get_smooch_workflows[0]['smooch_greeting_image'].blank?
     assert_match /rails.png/, tbi.reload.get_smooch_workflows[1]['smooch_greeting_image']
   end
+
+  test "should not edit same instance concurrently" do
+    tbi = create_team_bot_installation
+    assert_equal 0, tbi.lock_version
+    assert_nothing_raised do
+      tbi.json_settings = '{"foo":"bar"}'
+      tbi.save!
+    end
+    assert_equal 1, tbi.reload.lock_version
+    assert_raises ActiveRecord::StaleObjectError do
+      tbi.lock_version = 0
+      tbi.json_settings = '{"foo":"bar2"}'
+      tbi.save!
+    end
+    assert_equal 1, tbi.reload.lock_version
+    assert_nothing_raised do
+      tbi.lock_version = 0
+      tbi.updated_at = Time.now + 1
+      tbi.save!
+    end
+  end
 end

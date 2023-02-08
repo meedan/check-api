@@ -38,10 +38,8 @@ module ProjectMediaCreators
     if self.set_title
       title = self.set_title
     elsif self.user&.login == 'smooch' && ['UploadedVideo', 'UploadedImage', 'UploadedAudio'].include?(self.media.type)
-      type_count = Media.where(type: self.media.type).joins("INNER JOIN project_medias pm ON medias.id = pm.media_id")
-      .where("pm.team_id = ?", self.team&.id).count
       type = self.media.type.sub('Uploaded', '').downcase
-      title = "#{type}-#{self.team&.slug}-#{type_count}"
+      title = "#{type}-#{self.team&.slug}-#{self.id}"
     else
       # Get original file name first
       title = File.basename(self.file.original_filename, '.*') if !self.file.blank? && self.file.respond_to?(:original_filename)

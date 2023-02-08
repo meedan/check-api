@@ -394,4 +394,72 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     is_supported = Bot::Smooch.supported_message?(message)
     assert is_supported.slice(:type, :size).all?{ |_k, v| v }
   end
+
+  test "should perform fuzzy matching on keyword search" do
+    RequestStore.store[:skip_cached_field_update] = false
+    setup_elasticsearch
+
+    t = create_team
+    pm1 = create_project_media quote: 'A segurança das urnas está provada.', team: t
+    pm2 = create_project_media quote: 'Segurança pública é tema de debate.', team: t
+    [pm1, pm2].each { |pm| publish_report(pm) }
+    sleep 3 # Wait for ElasticSearch to index content
+
+    [
+      'Segurança das urnas',
+      'Segurança dad urnas',
+      'Segurança das urna',
+      'Seguranca das urnas'
+    ].each do |query|
+      assert_equal [pm1.id], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id]).to_a.map(&:id)
+    end
+
+    assert_equal [], Bot::Smooch.search_for_similar_published_fact_checks('text', 'Segurando', [t.id]).to_a.map(&:id)
+  end
+  
+  test "should get turn.io installation" do
+    @installation.set_turnio_secret = 'secret'
+    @installation.set_turnio_token = 'token'
+    @installation.save!
+    assert_equal @installation, Bot::Smooch.get_turnio_installation('PzqzmGtlarsXrz6xRD7WwI74//n+qDkVkJ0bQhrsib4=', '{"foo":"bar"}')
+  end
+
+  test "should send message to turn.io user" do
+    @installation.set_turnio_secret = 'test'
+    @installation.set_turnio_phone = 'test'
+    @installation.set_turnio_token = 'token'
+    @installation.save!
+    Bot::Smooch.get_installation('turnio_secret', 'test')
+    WebMock.stub_request(:post, 'https://whatsapp.turn.io/v1/messages').to_return(status: 200, body: '{}')
+    assert_not_nil Bot::Smooch.turnio_send_message_to_user('test:123456', 'Test')
+    WebMock.stub_request(:post, 'https://whatsapp.turn.io/v1/messages').to_return(status: 404, body: '{}')
+    assert_nil Bot::Smooch.turnio_send_message_to_user('test:123456', 'Test 2')
+  end
+
+  test "should resend turn.io message" do
+    WebMock.stub_request(:post, 'https://whatsapp.turn.io/v1/messages').to_return(status: 200, body: '{}')
+    @installation.set_turnio_secret = 'test'
+    @installation.set_turnio_phone = 'test'
+    @installation.set_turnio_token = 'test'
+    @installation.save!
+    Bot::Smooch.get_installation('turnio_secret', 'test')
+    pm = create_project_media team: @team
+    publish_report(pm)
+    Rails.cache.write('smooch:original:987654', { project_media_id: pm.id, fallback_template: 'fact_check_report_text_only', language: 'en', query_date: Time.now.to_i }.to_json)
+    payload = { statuses: [{ id: '987654', recipient_id: '123456', status: 'failed', timestamp: Time.now.to_i.to_s }]}
+    assert Bot::Smooch.run(payload.to_json)
+  end
+
+  test "should send media message to turn.io user" do
+    @installation.set_turnio_secret = 'test'
+    @installation.set_turnio_phone = 'test'
+    @installation.set_turnio_token = 'token'
+    @installation.save!
+    Bot::Smooch.get_installation('turnio_secret', 'test')
+    WebMock.stub_request(:post, 'https://whatsapp.turn.io/v1/messages').to_return(status: 200, body: '{}')
+    WebMock.stub_request(:post, 'https://whatsapp.turn.io/v1/media').to_return(status: 200, body: { media: [{ id: random_string }] }.to_json)
+    url = random_url
+    WebMock.stub_request(:get, url).to_return(status: 200, body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
+    assert_not_nil Bot::Smooch.turnio_send_message_to_user('test:123456', 'Test', { 'type' => 'image', 'mediaUrl' => url })
+  end
 end
