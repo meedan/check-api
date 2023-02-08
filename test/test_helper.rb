@@ -32,6 +32,7 @@ require 'minitest/retry'
 require 'pact/consumer/minitest'
 require 'rspec/rails'
 require 'mocha/minitest'
+require "csv"
 Minitest::Retry.use!
 
 class ActionController::TestCase
@@ -146,6 +147,7 @@ class ActiveSupport::TestCase
 
   def before_all
     super
+    @start = Time.now
 
     create_metadata_stuff
     @exporter = Check::OpenTelemetryTestConfig.current_exporter

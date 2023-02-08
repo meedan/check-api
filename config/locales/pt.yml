@@ -104,6 +104,8 @@ pt:
         do canal
       invalid_project_media_archived_value: Desculpe, não há suporte para o valor
         arquivado
+      invalid_fact_check_language_value: Desculpe, não há suporte para o valor do
+        idioma
   activerecord:
     models:
       link: Link
@@ -525,7 +527,6 @@ pt:
     para criar um bot
   bot_not_approved_for_installation: Desculpe, este bot não foi aprovado e por isso
     não pode ser instalado
-  only_admins_can_approve_bots: Desculpe, apenas admins do sistema podem aprovar bots
   could_not_save_related_bot_data: Desculpe, não foi possível adicionar o bot a esse
     espaço de trabalho
   bot_cant_add_response_to_task: Desculpe, um bot não pode responder a uma tarefa
@@ -755,6 +756,7 @@ pt:
   relationship_not_same_team: Itens relacionados devem existir no mesmo espaço de
     trabalho
   target_is_published: O alvo não deve ter um relatório publicado
+  similar_item_exists: Desculpe, este item já foi adicionado como um item semelhante.
   bulk_operation_limit_error: Desculpe, o número máximo de itens a serem processados
     de uma só vez é %{limit}
   must_provide_fallback_when_deleting_status_in_use: Esse status está sendo usado,
@@ -782,7 +784,7 @@ pt:
   list_column_share_count: Compartilhamentos do Facebook
   list_column_reaction_count: Reações no Facebook
   list_column_comment_count: Comentários no Facebook
-  list_column_linked_items_count: Mídia correspondente
+  list_column_linked_items_count: Mídia
   list_column_type: Tipo
   list_column_status: Status
   list_column_created_at: Enviado
@@ -794,7 +796,6 @@ pt:
   list_column_published_by: Relatório publicado por
   list_column_fact_check_published_on: Verificação de fatos publicada em
   list_column_related_count: Relacionado
-  list_column_suggestions_count: Mídias sugeridas
   list_column_folder: Pasta
   list_column_creator_name: Criado por
   list_column_fact_check_title: Verificação de fatos

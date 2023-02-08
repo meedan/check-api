@@ -1,4 +1,6 @@
 class TeamBotInstallation < TeamUser
+  include CustomLock
+
   has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at], versions: { class_name: 'Version' }, if: proc { |_x| User.current.present? }
 
   mount_uploaders :file, ImageUploader
@@ -11,6 +13,8 @@ class TeamBotInstallation < TeamUser
   validate :settings_follow_schema, on: :update
 
   check_settings
+
+  custom_optimistic_locking include_attributes: [:settings]
 
   def json_settings=(json)
     self.settings = JSON.parse(json)

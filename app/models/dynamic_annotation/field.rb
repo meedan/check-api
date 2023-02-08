@@ -15,7 +15,9 @@ class DynamicAnnotation::Field < ApplicationRecord
 
   validate :field_format
 
-  after_commit :add_update_elasticsearch_field, on: [:create, :update]
+  after_commit :add_elasticsearch_field, on: :create
+  after_commit :update_elasticsearch_field, on: :update
+  after_commit :destroy_elasticsearch_field, on: :destroy
 
   # pairs = { key => value, ... }
   def self.find_in_json(pairs)
@@ -47,34 +49,18 @@ class DynamicAnnotation::Field < ApplicationRecord
     Base64.encode64("#{annotation.annotated_type}/#{annotation.annotated_id}")
   end
 
-  protected
-
-  def method_suggestions(prefix)
-    [
-      "field_#{prefix}_#{self.annotation.annotation_type}_#{self.field_name}",
-      "field_#{prefix}_name_#{self.field_name}",
-      "field_#{prefix}_type_#{self.field_instance.field_type}",
-    ]
-  end
-
   private
 
-  def add_update_elasticsearch_field
-    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    data = {}
-    # Handle analysis fields (title/ description)
-    if self.annotation_type == "verification_status" && ['file_title', 'title', 'content'].include?(self.field_name)
-      key = 'analysis_' + self.field_name.gsub('content', 'description')
-      key = 'analysis_title' if self.field_name == 'file_title'
-      data = { key => self.value }
-    elsif self.annotation_type == "language"
-      # Handle language field
-      data = { 'language' => self.value }
-    end
-    unless data.blank?
-      obj = self.annotation.project_media
-      self.update_elasticsearch_doc(data.keys, data, obj.id) unless obj.nil?
-    end
+  def add_elasticsearch_field
+    index_field_elastic_search('create')
+  end
+
+  def update_elasticsearch_field
+    index_field_elastic_search('update')
+  end
+
+  def destroy_elasticsearch_field
+    index_field_elastic_search('destroy')
   end
 
   def field_format
@@ -97,6 +83,56 @@ class DynamicAnnotation::Field < ApplicationRecord
         self.value_json = JSON.parse(self.value.to_s)
       rescue JSON::ParserError
         self.value_json = self.value
+      end
+    end
+  end
+
+  protected
+
+  def method_suggestions(prefix)
+    [
+      "field_#{prefix}_#{self.annotation.annotation_type}_#{self.field_name}",
+      "field_#{prefix}_name_#{self.field_name}",
+      "field_#{prefix}_type_#{self.field_instance.field_type}",
+    ]
+  end
+
+  def index_field_elastic_search(op)
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    obj = self.annotation&.project_media
+    unless obj.nil?
+      apply_field_index(obj, op)
+      apply_nested_field_index(obj, op)
+    end
+  end
+
+  def apply_field_index(obj, op)
+    data = {}
+    # Handle analysis fields (title/ description)
+    if self.annotation_type == "verification_status" && ['file_title', 'title', 'content'].include?(self.field_name)
+      key = 'analysis_' + self.field_name.gsub('content', 'description')
+      key = 'analysis_title' if self.field_name == 'file_title'
+      data = op == 'destroy' ? { key => '' } : { key => self.value }
+    elsif self.annotation_type == "language"
+      # Handle language field
+      data = op == 'destroy' ? { 'language' => '' } : { 'language' => self.value }
+    end
+    obj.update_elasticsearch_doc(data.keys, data, obj.id, true) unless data.blank?
+  end
+
+  def apply_nested_field_index(obj, op)
+    if self.field_name == 'smooch_data'
+      if op == 'destroy'
+        destroy_es_items('requests', 'destroy_doc_nested', obj.id)
+      else
+        identifier = begin self.smooch_user_external_identifier&.value rescue self.smooch_user_external_identifier end
+        data = {
+          'username' => self.value_json['name'],
+          'identifier' => identifier&.gsub(/[[:space:]|-]/, ''),
+          'content' => self.value_json['text'],
+        }
+        options = { op: op, pm_id: obj.id, nested_key: 'requests', keys: data.keys, data: data, skip_get_data: true }
+        self.add_update_nested_obj(options)
       end
     end
   end

@@ -192,8 +192,8 @@ development: &default
   # REQUIRED for Google social login https://developers.google.com/identity/protocols/oauth2
   # On authorized redirect URIs set the callback http://localhost:3000/api/users/auth/google_oauth2/callback
   #
-  google_client_id: # '<GOOGLE CLIENT ID>'
-  google_client_secret: # '<GOOGLE CLIENT SECRET>'
+  google_client_id: 'SECRET'
+  google_client_secret: 'SECRET'
   google_auth_redirect_uri: 'http://localhost:3000/api/users/auth/google_oauth2/callback'
   google_credentials_path: '/app/config/credentials.json'
 

@@ -189,7 +189,7 @@ class ProjectMedia < ApplicationRecord
   end
 
   def self.get_similar_relationships(project_media, relationship_type)
-    Relationship.where(source_id: project_media.relationship_source(relationship_type).id).where('relationship_type = ?', relationship_type.to_yaml).order('weight DESC')
+    Relationship.where(source_id: project_media.relationship_source(relationship_type).id).where('relationship_type = ?', relationship_type.to_yaml).order('created_at DESC')
   end
 
   def get_default_relationships
@@ -198,6 +198,10 @@ class ProjectMedia < ApplicationRecord
 
   def relationships
     Relationship.where('source_id = ? OR target_id = ?', self.id, self.id)
+  end
+
+  def is_parent
+    Relationship.where('source_id = ?', self.id).exists?
   end
 
   def self.archive_or_restore_related_medias(archived, project_media_id, team)
@@ -387,15 +391,6 @@ class ProjectMedia < ApplicationRecord
 
   protected
 
-  def set_es_account_data
-    data = {}
-    a = self.media.account
-    metadata = a.metadata
-    ['title', 'description'].each{ |k| data[k] = metadata[k] unless metadata[k].blank? } unless metadata.nil?
-    data['id'] = a.id unless data.blank?
-    [data]
-  end
-
   def add_extra_elasticsearch_data(ms)
     analysis = self.analysis
     analysis_title = analysis['title'].blank? ? nil : analysis['title']
@@ -403,14 +398,12 @@ class ProjectMedia < ApplicationRecord
     m = self.media
     ms.attributes[:associated_type] = m.type
     ms.attributes[:url] = m.url
-    ms.attributes[:accounts] = self.set_es_account_data unless m.account.nil?
     ms.attributes[:title] = self.original_title
     # initiate title_index with same title value for sorting by title purpose
     ms.attributes[:title_index] = self.title
     ms.attributes[:description] = self.original_description
     ms.attributes[:analysis_title] = analysis_title || file_title
     ms.attributes[:analysis_description] = self.analysis_description
-    ms.attributes[:quote] = m.quote
     ms.attributes[:verification_status] = self.last_status
     ms.attributes[:channel] = self.channel.values.flatten.map(&:to_i)
     ms.attributes[:language] = self.get_dynamic_annotation('language')&.get_field_value('language')
@@ -430,7 +423,10 @@ class ProjectMedia < ApplicationRecord
     ms.attributes[:status_index] = self.status_ids.index(self.status)
     ms.attributes[:fact_check_title] = self.fact_check_title
     ms.attributes[:fact_check_summary] = self.fact_check_summary
+    ms.attributes[:fact_check_url] = self.fact_check_url
     ms.attributes[:claim_description_content] = self.claim_description&.description
+    ms.attributes[:claim_description_context] = self.claim_description&.context
+    ms.attributes[:source_name] = self.source&.name
   end
 
   def add_nested_objects(ms)
@@ -471,6 +467,20 @@ class ProjectMedia < ApplicationRecord
     .joins('INNER JOIN annotations a ON a.id = assignments.assigned_id')
     .where('a.annotated_type = ? AND a.annotated_id = ?', 'ProjectMedia', self.id).map(&:user_id)
     ms.attributes[:assigned_user_ids] = assignments_uids.uniq
+    # 'requests'
+    fields = DynamicAnnotation::Field.joins(:annotation)
+    .where(
+      field_name: 'smooch_data',
+      'annotations.annotated_id' => self.id,
+      'annotations.annotation_type' => 'smooch',
+      'annotations.annotated_type' => 'ProjectMedia'
+      )
+    ms.attributes[:requests] = fields.collect{ |field| {
+      id: field.id,
+      username: field.value_json['name'],
+      identifier: field.smooch_user_external_identifier,
+      content: field.value_json['text'],
+    }}
   end
 
   # private

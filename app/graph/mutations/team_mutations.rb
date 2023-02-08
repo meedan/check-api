@@ -1,17 +1,17 @@
 module TeamMutations
-  create_fields = {
+  fields = {
     archived: 'int',
     private: 'bool',
-    name: '!str',
-    slug: '!str',
     description: 'str'
   }
 
-  update_fields = {
-    archived: 'int',
-    private: 'bool',
+  create_fields = fields.merge({
+    name: '!str',
+    slug: '!str'
+  })
+
+  update_fields = fields.merge({
     name: 'str',
-    description: 'str',
     slack_notifications_enabled: 'str',
     slack_webhook: 'str',
     add_auto_task: 'json',
@@ -27,7 +27,7 @@ module TeamMutations
     list_columns: 'json',
     tipline_inbox_filters: 'str',
     suggested_matches_filters: 'str'
-  }
+  })
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('team', create_fields, update_fields, ['check_search_team', 'check_search_trash', 'check_search_spam', 'check_search_unconfirmed', 'public_team'])
 end

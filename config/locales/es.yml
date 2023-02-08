@@ -102,6 +102,7 @@ es:
         valor del canal
       invalid_project_media_archived_value: Lo sentimos, el valor archivado no es
         compatible
+      invalid_fact_check_language_value: Lo sentimos, valor de idioma no admitido
   activerecord:
     models:
       link: Enlace
@@ -517,8 +518,6 @@ es:
     para crear un bot
   bot_not_approved_for_installation: 'Lo sentimos, este bot no fue aprobado y por
     eso no se puede instalar '
-  only_admins_can_approve_bots: Lo sentimos, solo los administradores del sistema
-    pueden aprobar bots
   could_not_save_related_bot_data: Lo sentimos, no se pudo agregar el bot a esta área
     de trabajo
   bot_cant_add_response_to_task: Lo sentimos, un bot no puede responder una tarea
@@ -753,6 +752,7 @@ es:
   relationship_not_same_team: Los elementos relacionados deben existir en el misma
     área de trabajo
   target_is_published: El objetivo no debe tener un informe publicado
+  similar_item_exists: Lo sentimos, este ítem ya fue agregado como un ítem similar.
   bulk_operation_limit_error: Lo sentimos, el número máximo de elementos que se procesarán
     a la vez es %{limit}
   must_provide_fallback_when_deleting_status_in_use: Este estado se está utilizando,
@@ -780,7 +780,7 @@ es:
   list_column_share_count: Compartidas en FB
   list_column_reaction_count: Reacciones en FB
   list_column_comment_count: Comentarios en FB
-  list_column_linked_items_count: Medios coincidentes
+  list_column_linked_items_count: Medio
   list_column_type: Tipo
   list_column_status: Estado
   list_column_created_at: Presentado
@@ -792,7 +792,6 @@ es:
   list_column_published_by: Informe publicado por
   list_column_fact_check_published_on: Verificación de hechos publicada el
   list_column_related_count: Relacionado(s)
-  list_column_suggestions_count: Medios sugeridos
   list_column_folder: Carpeta
   list_column_creator_name: Creado por
   list_column_fact_check_title: Verificación de hechos
