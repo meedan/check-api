@@ -1,4 +1,4 @@
-class AddMetaToVersions < ActiveRecord::Migration[4.2]
+class AddColumnsAndIndexToVersions < ActiveRecord::Migration[4.2]
   def change
     # Add column
     add_column :versions, :meta, :text

@@ -3,7 +3,7 @@ class CreateTeams < ActiveRecord::Migration[4.2]
     create_table :teams do |t|
       t.string :name
       t.string :logo
-      t.boolean :private, default: true
+      t.boolean :private, default: true, null: false
       t.integer :archived, default: 0, index: true
       t.string :country, index: true
       t.text :description
