@@ -3,9 +3,7 @@ class DeviseCreateUsers < ActiveRecord::Migration[4.2]
     create_table :users do |t|
       t.string :name, null: false, default: ''
       t.string :login, null: false, default: ''
-      t.string :profile_image, null: false, default: ''
-      t.string :uuid, null: false, default: ''
-      t.string :provider, null: false, default: ''
+      
       t.string :token, null: false, default: ''
       t.boolean :default, default: false
 
@@ -48,6 +46,21 @@ class DeviseCreateUsers < ActiveRecord::Migration[4.2]
       t.integer :invited_by_id
       t.string :invited_by_type
 
+      t.datetime :last_accepted_terms_at
+      t.string :image
+      t.string :type, default: nil
+      t.integer :source_id, index: true
+      t.boolean :is_active, default: true
+      t.boolean :is_admin, default: false
+      t.integer :current_project_id, :integer
+      t.text :settings
+      t.datetime :last_active_at
+      t.text :cached_teams
+      t.integer :current_team_id
+      t.boolean :completed_signup, default: true
+      t.integer :api_key_id
+      t.string :unconfirmed_email
+
       t.timestamps null: false
     end
 
@@ -57,5 +70,7 @@ class DeviseCreateUsers < ActiveRecord::Migration[4.2]
     add_index :users, [:provider, :uuid], unique: true
     add_index :users, :token, unique: true
     add_index :users, :invitation_token, :unique => true
+    add_index :users, :email
+    add_index :users, :type
   end
 end
