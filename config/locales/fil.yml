@@ -487,8 +487,6 @@ fil:
     makagawa ng bot
   bot_not_approved_for_installation: Paumanhin, hindi naaprubahan ang bot na ito kaya
     hindi ito ma-install
-  only_admins_can_approve_bots: Paumanhin, mga system administrator lang ang pwedeng
-    mag-approve ng bot
   could_not_save_related_bot_data: Paumanhin, hindi maidagdag ang bot sa workspace
     na ito
   bot_cant_add_response_to_task: Paumanhin, hindi direktang nakasasagot ng gawain
@@ -691,6 +689,7 @@ fil:
   list_column_share_count: Mga Share sa FB
   list_column_reaction_count: Mga Reaksyon sa FB
   list_column_comment_count: Mga Komento sa FB
+  list_column_linked_items_count: Media
   list_column_type: Uri
   list_column_status: Status
   list_column_created_at: Isinumite

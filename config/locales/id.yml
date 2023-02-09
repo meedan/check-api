@@ -105,6 +105,7 @@ id:
       invalid_project_media_channel_update: Maaf, Anda tidak dapat memperbarui nilai
         saluran
       invalid_project_media_archived_value: Maaf, nilai yang diarsipkan tidak didukung
+      invalid_fact_check_language_value: Maaf, bahasa tidak didukung
   activerecord:
     models:
       link: Tautan
@@ -519,8 +520,6 @@ id:
     membuat bot
   bot_not_approved_for_installation: Maaf, bot ini tidak disetujui sehingga tidak
     dapat dipasang
-  only_admins_can_approve_bots: Maaf, hanya administrator sistem yang dapat menyetujui
-    bot
   could_not_save_related_bot_data: Maaf, tidak dapat menambah bot ke dalam ruang kerja
     ini
   bot_cant_add_response_to_task: Maaf, bot tidak dapat menjawab tugas secara langsung
@@ -753,6 +752,7 @@ id:
   relationship_not_same_team: Perihal terkait harus berada di dalam ruang kerja yang
     sama
   target_is_published: Target seharusnya tidak memiliki laporan yang diterbitkan
+  similar_item_exists: Maaf, perihal ini sudah ditambahkan sebagai perihal yang mirip.
   bulk_operation_limit_error: Maaf, jumlah maksimal perihal yang dapat diproses saat
     bersamaan adalah %{limit}
   must_provide_fallback_when_deleting_status_in_use: Status ini sedang digunakan,
@@ -779,7 +779,7 @@ id:
   list_column_share_count: Dibagikan di FB
   list_column_reaction_count: Reaksi di FB
   list_column_comment_count: Komentar di FB
-  list_column_linked_items_count: Media yang cocok
+  list_column_linked_items_count: Media
   list_column_type: Tipe
   list_column_status: Status
   list_column_created_at: Diserahkan
@@ -791,7 +791,6 @@ id:
   list_column_published_by: Laporan diterbitkan oleh
   list_column_fact_check_published_on: Pengecekan fakta diterbitkan pada
   list_column_related_count: Terkait
-  list_column_suggestions_count: Media yang disarankan
   list_column_folder: Folder
   list_column_creator_name: Dibuat oleh
   list_column_fact_check_title: Pengecekan fakta

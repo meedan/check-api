@@ -448,4 +448,29 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     end
   end
 
+  test "should sort keyword search results by score" do
+    RequestStore.store[:skip_cached_field_update] = false
+    setup_elasticsearch
+
+    t = create_team
+    pm1 = create_project_media quote: 'Foo Bar', team: t
+    pm2 = create_project_media quote: 'Foo Bar Test', team: t
+    pm3 = create_project_media quote: 'Foo Bar Test Testing', team: t
+    [pm1, pm2, pm3].each { |pm| publish_report(pm) }
+    sleep 3 # Wait for ElasticSearch to index content
+
+    assert_equal [pm1.id, pm2.id, pm3.id], Bot::Smooch.search_for_similar_published_fact_checks('text', 'Foo Bar', [t.id]).to_a.map(&:id)
+  end
+
+  test "should store media" do
+    f = create_feed
+    f.set_media_headers = { 'Authorization' => 'App 123456' }
+    f.save!
+    media_url = random_url
+    WebMock.stub_request(:get, media_url).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
+    local_media_url = Bot::Smooch.save_locally_and_return_url(media_url, 'image', f.id)
+    assert_match /^http/, local_media_url
+    assert_not_equal media_url, local_media_url
+  end
+
 end
