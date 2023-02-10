@@ -148,8 +148,8 @@ class Bot::Alegre < BotUser
         self.send_to_media_similarity_index(pm)
         self.send_field_to_similarity_index(pm, 'original_title')
         self.send_field_to_similarity_index(pm, 'original_description')
-        self.get_extracted_text(pm)
         self.relate_project_media_to_similar_items(pm)
+        self.get_extracted_text(pm)
         self.get_flags(pm)
         self.auto_transcription(pm)
         self.set_cluster(pm)
@@ -375,7 +375,10 @@ class Bot::Alegre < BotUser
 
   def self.media_file_url(pm)
     # FIXME Ugly hack to get a usable URL in docker-compose development environment.
-    ENV['RAILS_ENV'] != 'development' ? pm.media.file.file.public_url : "#{CheckConfig.get('storage_endpoint')}/#{CheckConfig.get('storage_bucket')}/#{pm.media.file.file.path}"
+    url = (ENV['RAILS_ENV'] != 'development' ? pm.media.file.file.public_url : "#{CheckConfig.get('storage_endpoint')}/#{CheckConfig.get('storage_bucket')}/#{pm.media.file.file.path}")
+    # FIXME: Another hack mostly for local development and CI environments... a way to expose media URLs as public URLs
+    url = url.gsub(/^https?:\/\/[^\/]+/, CheckConfig.get('similarity_media_file_url_host')) unless CheckConfig.get('similarity_media_file_url_host').blank?
+    url
   end
 
   def self.item_doc_id(object, field_name)
