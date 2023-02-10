@@ -45,7 +45,7 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
     assert_equal "check:migrate:reindex_event__a_b:pm_id", ReindexAlegreWorkspace.new.cache_key("a", "b")
     assert_equal true, ReindexAlegreWorkspace.new.write_last_id("a", "b", 1)
     assert_equal 1, ReindexAlegreWorkspace.new.get_last_id("a", "b")
-    assert_equal 1, ReindexAlegreWorkspace.new.clear_last_id("a", "b")
+    assert_equal true, ReindexAlegreWorkspace.new.clear_last_id("a", "b")
   end
 
   test "makes sure get_default_query queries project medias" do
@@ -56,7 +56,7 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
     package = {
       :doc_id=>Bot::Alegre.item_doc_id(@pm, "title"),
       :text=>"Some text",
-      :model=>"xlm-r-bert-base-nli-stsb-mean-tokens",
+      :model=>"elasticsearch",
       :context=>{
         :team_id=>@pm.team_id,
         :project_media_id=>@pm.id,
@@ -88,7 +88,7 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
   end
   
   test "reindexes all project_medias" do
-    response = ReindexAlegreWorkspace.new.reindex_project_medias(@team.id, ReindexAlegreWorkspace.new.get_default_query(@team.id, 0), "a")
+    response = ReindexAlegreWorkspace.new.reindex_project_medias(ReindexAlegreWorkspace.new.get_default_query(@team.id, 0), "a")
     assert_equal Array, response.class
   end
 end
