@@ -9,7 +9,7 @@ class ReindexAlegreWorkspace
 
   sidekiq_options queue: 'alegre', retry: 0
 
-  def perform(team_id, reindex_event_id=nil)
+  def perform(team_id, event_id=nil)
     query = get_default_query(team_id)
     reindex_event_id ||= Digest::MD5.hexdigest(query.to_sql)
     run_reindex(query, event_id)

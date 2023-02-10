@@ -20,11 +20,15 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
     create_extracted_text_annotation_type
     Sidekiq::Testing.inline!
     Bot::Alegre.stubs(:request_api).with('post', '/text/bulk_similarity/', anything).returns("done")
+    BotUser.stubs(:alegre_user).returns(User.new)
+    TeamBotInstallation.stubs(:find_by_team_id_and_user_id).returns(TeamBotInstallation.new)
   end
 
   def teardown
     super
     Bot::Alegre.unstub(:request_api)
+    BotUser.unstub(:alegre_user)
+    TeamBotInstallation.unstub(:find_by_team_id_and_user_id)
   end
 
   test "should trigger reindex" do
@@ -39,7 +43,7 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
 
   test "checks cache_key functionality" do
     assert_equal "check:migrate:reindex_event__a_b:pm_id", ReindexAlegreWorkspace.new.cache_key("a", "b")
-    assert_equal "OK", ReindexAlegreWorkspace.new.write_last_id("a", "b", 1)
+    assert_equal true, ReindexAlegreWorkspace.new.write_last_id("a", "b", 1)
     assert_equal 1, ReindexAlegreWorkspace.new.get_last_id("a", "b")
     assert_equal 1, ReindexAlegreWorkspace.new.clear_last_id("a", "b")
   end
