@@ -72,7 +72,7 @@ class ReindexAlegreWorkspace
     running_bucket
   end
 
-  def process_team(team_id, query, event_id)
+  def process_team(running_bucket, team_id, query, event_id)
     tb = BotUser.alegre_user.team_bot_installations.where(team_id: team_id).first
     models = [tb.get_alegre_model_in_use, Bot::Alegre::ELASTICSEARCH_MODEL].compact.uniq
     last_id = get_last_id(event_id, team_id)
@@ -93,7 +93,7 @@ class ReindexAlegreWorkspace
     started = Time.now.to_i
     running_bucket = []
     query.distinct.pluck(:team_id).each do |team_id|
-      running_bucket = process_team(team_id, query, event_id)
+      running_bucket = process_team(running_bucket, team_id, query, event_id)
     end
     running_bucket
   end

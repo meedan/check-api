@@ -79,7 +79,7 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
   end
 
   test "processes a team" do
-    response = ReindexAlegreWorkspace.new.process_team(@team.id, ReindexAlegreWorkspace.new.get_default_query(@team.id, 0), "a")
+    response = ReindexAlegreWorkspace.new.process_team([], @team.id, ReindexAlegreWorkspace.new.get_default_query(@team.id, 0), "a")
     assert_equal Array, response.class
   end
   
