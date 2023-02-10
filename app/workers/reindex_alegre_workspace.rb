@@ -72,24 +72,30 @@ class ReindexAlegreWorkspace
     running_bucket
   end
 
+  def process_team(team_id, query, event_id)
+    tb = BotUser.alegre_user.team_bot_installations.where(team_id: team_id).first
+    models = [tb.get_alegre_model_in_use, Bot::Alegre::ELASTICSEARCH_MODEL].compact.uniq
+    last_id = get_last_id(event_id, team_id)
+    query.where(team_id: team_id).order(:id).find_in_batches(:batch_size => 2500) do |pms|
+      pms.each do |pm|
+        get_request_docs_for_project_media(pm, models) do |request_doc|
+          running_bucket << request_doc
+        end
+      end
+      running_bucket = check_for_write(running_bucket, event_id, team_id)
+    end
+    running_bucket = check_for_write(running_bucket, event_id, team_id, true)
+    clear_last_id(event_id, team_id)
+    running_bucket
+  end
+
   def reindex_project_medias(query, event_id)
     started = Time.now.to_i
     running_bucket = []
     query.distinct.pluck(:team_id).each do |team_id|
-      tb = BotUser.alegre_user.team_bot_installations.where(team_id: team_id).first
-      models = [tb.get_alegre_model_in_use, Bot::Alegre::ELASTICSEARCH_MODEL].compact.uniq
-      last_id = get_last_id(event_id, team_id)
-      query.where(team_id: team_id).order(:id).find_in_batches(:batch_size => 2500) do |pms|
-        pms.each do |pm|
-          get_request_docs_for_project_media(pm, models) do |request_doc|
-            running_bucket << request_doc
-          end
-        end
-        check_for_write(running_bucket, event_id, team_id)
-      end
-      check_for_write(running_bucket, event_id, team_id, true)
-      clear_last_id(event_id, team_id)
+      running_bucket = process_team(team_id, query, event_id)
     end
+    running_bucket
   end
 
   private
