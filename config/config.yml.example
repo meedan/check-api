@@ -269,6 +269,7 @@ test:
   transifex_password:
   transifex_project:
   storage_public_endpoint: 'http://localhost:9000/check-api-test'
+  storage_asset_host: 'http://localhost:9000/check-api-test'
   storage_bucket: 'check-api-test'
   otel_log_level: error
   otel_traces_sampler:
