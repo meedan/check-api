@@ -566,6 +566,102 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert t2 > t1
   end
 
+  test "should save a single tipline message in background when user receives report" do
+    # For full expected response, see docs at
+    # https://docs.smooch.io/rest/v1/#trigger---messagedeliverychannel
+    payload = {
+      trigger: 'message:delivery:channel',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      appUser: {
+        '_id': random_string,
+        conversationStarted: true
+      },
+      message: {
+        '_id': @msg_id
+      },
+      destination: {
+        type: "whatsapp"
+      },
+      timestamp: 1444348338
+    }.to_json
+
+    Sidekiq::Testing.fake! do
+      assert_equal TiplineMessage.where(team: @team).count, 0
+
+      # Run with data, see that job is queued but not yet created
+      assert_equal 0, SmoochTiplineMessageWorker.jobs.size
+
+      Bot::Smooch.run(payload)
+
+      assert SmoochTiplineMessageWorker.jobs.size > 0
+      assert_equal TiplineMessage.where(team: @team).count, 0
+
+      # Verify that TiplineMessage is created in background
+      Sidekiq::Worker.drain_all
+      assert_equal TiplineMessage.where(team: @team).count, 1
+
+      tm = TiplineMessage.last
+      assert_equal @msg_id, tm.external_id
+    end
+
+    # Re-run with same data, see that it does not save
+    Sidekiq::Testing.inline! do
+      Bot::Smooch.run(payload)
+      assert_equal TiplineMessage.where(team: @team).count, 1
+    end
+  end
+
+  test "should save tipline messages in background when user sends a message" do
+    user_id = random_string
+
+    # For full expected response, see docs at
+    # https://docs.smooch.io/rest/v1/#trigger---messageappuser-text
+    payload = {
+      "trigger": "message:appUser",
+      "app": {
+          "_id": @app_id
+      },
+      "messages": [
+        {
+          "_id": @msg_id,
+          "authorId": user_id,
+          "received": 1444348338.704,
+          "type": "text",
+          "source": {
+              "type": "whatsapp"
+          }
+        }
+      ],
+      "appUser": {
+          "_id": user_id,
+          "conversationStarted": true
+      },
+      version: 'v1.1'
+    }.to_json
+
+    Sidekiq::Testing.fake! do
+      assert_equal TiplineMessage.where(team: @team).count, 0
+
+      # Run with data, see that job is queued but not yet created
+      assert_equal 0, SmoochTiplineMessageWorker.jobs.size
+
+      Bot::Smooch.run(payload)
+
+      assert SmoochTiplineMessageWorker.jobs.size > 0
+      assert_equal TiplineMessage.where(team: @team).count, 0
+
+      # Verify that TiplineMessage is created in background
+      Sidekiq::Worker.drain_all
+      assert_equal TiplineMessage.where(team: @team).count, 1
+
+      tm = TiplineMessage.last
+      assert_equal @msg_id, tm.external_id
+    end
+  end
+
   test "should add utm_source parameter to URLs" do
     input = 'Go to https://x.com and http://meedan.com/?lang=en and http://meedan.com/en/website?a=1&b=2 and http://meedan.com/en/ and http://meedan.com/en and finally meedan.com. Thanks.Everyone !'
     expected = 'Go to https://x.com?utm_source=check_test and http://meedan.com/?lang=en&utm_source=check_test and http://meedan.com/en/website?a=1&b=2&utm_source=check_test and http://meedan.com/en/?utm_source=check_test and http://meedan.com/en?utm_source=check_test and finally meedan.com?utm_source=check_test. Thanks.Everyone !'

@@ -10,6 +10,7 @@ class Bot::Smooch < BotUser
 
   SUPPORTED_INTEGRATION_NAMES = { 'whatsapp' => 'WhatsApp', 'messenger' => 'Facebook Messenger', 'twitter' => 'Twitter', 'telegram' => 'Telegram', 'viber' => 'Viber', 'line' => 'LINE' }
   SUPPORTED_INTEGRATIONS = SUPPORTED_INTEGRATION_NAMES.keys
+  SUPPORTED_TRIGGER_MAPPING = { 'message:appUser' => :incoming, 'message:delivery:channel' => :outgoing }
 
   check_settings
 
@@ -277,6 +278,7 @@ class Bot::Smooch < BotUser
       when 'message:appUser'
         json['messages'].each do |message|
           self.parse_message(message, json['app']['_id'], json)
+          SmoochTiplineMessageWorker.perform_async(message, json)
         end
         true
       when 'message:delivery:failure'
@@ -295,6 +297,7 @@ class Bot::Smooch < BotUser
       when 'message:delivery:channel'
         self.user_received_report(json)
         self.user_received_search_result(json)
+        SmoochTiplineMessageWorker.perform_async(json['message'], json)
         true
       else
         false

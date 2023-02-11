@@ -144,11 +144,20 @@ module SmoochMessages
       disabled ? 'disabled' : state
     end
 
+    # Used for incoming messages (e.g. message:appUser)
+    # where full message contents available
     def get_platform_from_message(message)
       type = message.dig('source', 'type')
       platform = type ? ::Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[type].to_s : 'Unknown'
       RequestStore.store[:smooch_bot_platform] = platform
       platform
+    end
+
+    # Used for outgoing messages (e.g. message:delivery:channel) where
+    # message contents are truncated
+    def get_platform_from_payload(payload)
+      type = payload.dig('destination', 'type')
+      type ? ::Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[type].to_s : 'Unknown'
     end
 
     def request_platform
