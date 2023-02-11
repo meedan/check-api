@@ -20,7 +20,7 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
     create_extracted_text_annotation_type
     Sidekiq::Testing.inline!
     Bot::Alegre.stubs(:request_api).with('post', '/text/bulk_similarity/', anything).returns("done")
-    BotUser.stubs(:alegre_user).returns(User.new)
+    BotUser.stubs(:alegre_user).returns(BotUser.new)
     TeamBotInstallation.stubs(:find_by_team_id_and_user_id).returns(TeamBotInstallation.new)
   end
 
