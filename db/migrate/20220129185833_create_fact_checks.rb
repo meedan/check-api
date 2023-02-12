@@ -9,5 +9,7 @@ class CreateFactChecks < ActiveRecord::Migration[5.2]
       t.string :language, null: false, default: "", index: true
       t.timestamps
     end
+    remove_index :fact_checks, name: "index_fact_checks_on_claim_description_id"
+    add_index :fact_checks, :claim_description_id, unique: true
   end
 end

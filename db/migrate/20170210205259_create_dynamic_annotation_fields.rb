@@ -12,6 +12,6 @@ class CreateDynamicAnnotationFields < ActiveRecord::Migration[4.2]
 
     add_index :dynamic_annotation_fields, [:annotation_id, :field_name]
     add_index :dynamic_annotation_fields, :value_json, using: :gin
-    add_index :dynamic_annotation_fields, :value, name: 'index_task_reference', where: "field_type = 'task_reference'"
+    add_index :dynamic_annotation_fields, :value, name: 'index_status', where: "field_name = 'verification_status_status'"
   end
 end
