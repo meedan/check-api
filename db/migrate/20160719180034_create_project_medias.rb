@@ -16,7 +16,6 @@ class CreateProjectMedias < ActiveRecord::Migration[4.2]
       t.integer :last_seen, index: true
       t.timestamps null: false
     end
-    add_index :project_medias, :id
     add_index :project_medias, [:team_id, :archived, :sources_count]
   end
 end

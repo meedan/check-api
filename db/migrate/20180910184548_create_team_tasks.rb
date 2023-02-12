@@ -10,8 +10,8 @@ class CreateTeamTasks < ActiveRecord::Migration[4.2]
       t.boolean :required, default: false
       t.integer :team_id, null: false
       t.integer :order, default: 0
-      t.string :associated_type, null: false, default: "ProjectMedia", index: true
-      t.string :fieldset, null: false, default: "", index: true
+      t.string :associated_type, null: false, default: "ProjectMedia"
+      t.string :fieldset, null: false, default: ""
       t.boolean :show_in_browser_extension, null: false, default: true
       t.string :json_schema
       t.text :conditional_info
