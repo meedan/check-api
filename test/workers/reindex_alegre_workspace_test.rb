@@ -23,6 +23,7 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
     @tbi.user = BotUser.alegre_user
     @tbi.team = @p.team
     @tbi.save
+    Bot::Alegre.stubs(:get_alegre_tbi).returns(TeamBotInstallation.new)
     Sidekiq::Testing.inline!
     Bot::Alegre.stubs(:request_api).with('post', '/text/bulk_similarity/', anything).returns("done")
   end
@@ -30,6 +31,7 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
   def teardown
     super
     [@tbi, @pm, @m, @p, @team, @bot].collect(&:destroy)
+    Bot::Alegre.unstub(:get_alegre_tbi)
     Bot::Alegre.unstub(:request_api)
   end
 

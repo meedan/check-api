@@ -74,7 +74,7 @@ class ReindexAlegreWorkspace
 
   def process_team(running_bucket, team_id, query, event_id)
     tb = BotUser.alegre_user.team_bot_installations.where(team_id: team_id).first
-    models = [tb.get_alegre_model_in_use, Bot::Alegre::ELASTICSEARCH_MODEL].compact.uniq
+    models = [Bot::Alegre.get_alegre_tbi(team_id).get_alegre_model_in_use, Bot::Alegre::ELASTICSEARCH_MODEL].compact.uniq
     last_id = get_last_id(event_id, team_id)
     query.where(team_id: team_id).order(:id).find_in_batches(:batch_size => 2500) do |pms|
       pms.each do |pm|
