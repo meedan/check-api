@@ -20,19 +20,19 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   end
 
   test "should validate JSON schema" do
-    payload = '{"trigger":"message:appUser","app":{"_id":"' + @app_id + '"},"version":"v1.1","messages":[{"type":"text","text":"This is a test","role":"appUser","received":1546269763.141,"name":"Foo Bar","authorId":"22bd83d736b4eb15eec863ec","_id":"6d3b3443c03bb3111e88c6ec","source":{"type":"whatsapp","integrationId":"6d193e6d91130000222756e4"}}],"appUser":{"_id":"22bd83d736b4eb15eec863ec","conversationStarted":true}}'
+    payload = '{"trigger":"message:appUser","app":{"_id":"' + @app_id + '"},"version":"v1.1","messages":[{"type":"text","text":"This is a test","role":"appUser","received":1546269763.141,"name":"Foo Bar","authorId":"22bd83d736b4eb15eec863ec","_id":"6d3b3443c03bb3111e88c6ec1","source":{"type":"whatsapp","integrationId":"6d193e6d91130000222756e4"}}],"appUser":{"_id":"22bd83d736b4eb15eec863ec","conversationStarted":true}}'
     assert Bot::Smooch.run(payload)
-    payload = '{"trigger":"message:appUser","app":{"_id":"' + @app_id + '"},"version":"v1.1","messages":[{"text":"This is a test","role":"appUser","received":1546269763.141,"name":"Foo Bar","authorId":"22bd83d736b4eb15eec863ec","_id":"6d3b3443c03bb3111e88c6ec","source":{"type":"whatsapp","integrationId":"6d193e6d91130000222756e4"}}],"appUser":{"_id":"22bd83d736b4eb15eec863ec","conversationStarted":true}}'
+    payload = '{"trigger":"message:appUser","app":{"_id":"' + @app_id + '"},"version":"v1.1","messages":[{"text":"This is a test","role":"appUser","received":1546269763.141,"name":"Foo Bar","authorId":"22bd83d736b4eb15eec863ec","_id":"6d3b3443c03bb3111e88c6ec2","source":{"type":"whatsapp","integrationId":"6d193e6d91130000222756e4"}}],"appUser":{"_id":"22bd83d736b4eb15eec863ec","conversationStarted":true}}'
     assert !Bot::Smooch.run(payload)
     assert !Bot::Smooch.run('not a json')
   end
 
   test "should add channel for smooch bot" do
-    payload = '{"trigger":"message:appUser","app":{"_id":"' + @app_id + '"},"version":"v1.1","messages":[{"type":"text","text":"This is a test","role":"appUser","received":1546269763.141,"name":"Foo Bar","authorId":"22bd83d736b4eb15eec863ec","_id":"6d3b3443c03bb3111e88c6ec","source":{"type":"whatsapp","integrationId":"6d193e6d91130000222756e4"}}],"appUser":{"_id":"22bd83d736b4eb15eec863ec","conversationStarted":true}}'
+    payload = '{"trigger":"message:appUser","app":{"_id":"' + @app_id + '"},"version":"v1.1","messages":[{"type":"text","text":"This is a test","role":"appUser","received":1546269763.141,"name":"Foo Bar","authorId":"22bd83d736b4eb15eec863ec","_id":"6d3b3443c03bb3111e88c6ec1","source":{"type":"whatsapp","integrationId":"6d193e6d91130000222756e4"}}],"appUser":{"_id":"22bd83d736b4eb15eec863ec","conversationStarted":true}}'
     assert Bot::Smooch.run(payload)
     # Verirfy channel value
     assert CheckChannels::ChannelCodes::WHATSAPP, ProjectMedia.last.channel
-    payload = '{"trigger":"message:appUser","app":{"_id":"' + @app_id + '"},"version":"v1.1","messages":[{"type":"audio", "mediaUrl":"' + @audio_url + '","text":"This is a test","role":"appUser","received":1546269763.141,"name":"Foo Bar","authorId":"22bd83d736b4eb15eec863ec","_id":"6d3b3443c03bb3111e88c6ec","source":{"type":"messenger","integrationId":"6d193e6d91130000222756e4"}}],"appUser":{"_id":"22bd83d736b4eb15eec863ec","conversationStarted":true}}'
+    payload = '{"trigger":"message:appUser","app":{"_id":"' + @app_id + '"},"version":"v1.1","messages":[{"type":"audio", "mediaUrl":"' + @audio_url + '","text":"This is a test","role":"appUser","received":1546269763.141,"name":"Foo Bar","authorId":"22bd83d736b4eb15eec863ec2","_id":"6d3b3443c03bb3111e88c6ec","source":{"type":"messenger","integrationId":"6d193e6d91130000222756e4"}}],"appUser":{"_id":"22bd83d736b4eb15eec863ec","conversationStarted":true}}'
     assert Bot::Smooch.run(payload)
     # Verirfy channel value
     assert CheckChannels::ChannelCodes::MESSENGER, ProjectMedia.last.channel
@@ -543,9 +543,9 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': msg_id
       },
       timestamp: Time.now.to_f
-    }.to_json
+    }
 
-    assert Bot::Smooch.run(payload)
+    assert Bot::Smooch.run(payload.to_json)
     f1 = DynamicAnnotation::Field.where(field_name: 'smooch_report_received').last
     assert_not_nil f1
     t1 = f1.value
@@ -555,15 +555,18 @@ class Bot::SmoochTest < ActiveSupport::TestCase
 
     sleep 1
 
-    assert Bot::Smooch.run(payload)
-    f2 = DynamicAnnotation::Field.where(field_name: 'smooch_report_received').last
-    assert_equal f1, f2
-    t2 = f2.value
-    assert_equal t2, df.reload.smooch_report_received_at
-    assert_equal t2, df.reload.smooch_report_update_received_at
-    assert_equal 1, r.reload.sent_count
+    # Process TiplineMessage creation in background to avoid duplication exception
+    Sidekiq::Testing.fake! do
+      assert Bot::Smooch.run(payload.to_json)
+      f2 = DynamicAnnotation::Field.where(field_name: 'smooch_report_received').last
+      assert_equal f1, f2
+      t2 = f2.value
+      assert_equal t2, df.reload.smooch_report_received_at
+      assert_equal t2, df.reload.smooch_report_update_received_at
+      assert_equal 1, r.reload.sent_count
 
-    assert t2 > t1
+      assert t2 > t1
+    end
   end
 
   test "should save a single tipline message in background when user receives report" do
