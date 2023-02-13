@@ -22,7 +22,7 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
     tbi.set_text_similarity_enabled = true
     tbi.user = BotUser.alegre_user
     tbi.team = p.team
-    tbi.save!
+    tbi.save
     Sidekiq::Testing.inline!
     Bot::Alegre.stubs(:request_api).with('post', '/text/bulk_similarity/', anything).returns("done")
   end
