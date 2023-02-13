@@ -18,17 +18,18 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
     @pm = create_project_media project: p, media: m
     create_flag_annotation_type
     create_extracted_text_annotation_type
+    tbi = TeamBotInstallation.new
+    tbi.set_text_similarity_enabled = true
+    tbi.user = BotUser.alegre_user
+    tbi.team = p.team
+    tbi.save!
     Sidekiq::Testing.inline!
     Bot::Alegre.stubs(:request_api).with('post', '/text/bulk_similarity/', anything).returns("done")
-    BotUser.stubs(:alegre_user).returns(BotUser.new)
-    TeamBotInstallation.stubs(:find_by_team_id_and_user_id).returns(TeamBotInstallation.new)
   end
 
   def teardown
     super
     Bot::Alegre.unstub(:request_api)
-    BotUser.unstub(:alegre_user)
-    TeamBotInstallation.unstub(:find_by_team_id_and_user_id)
   end
 
   test "should trigger reindex" do
