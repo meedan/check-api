@@ -9,26 +9,27 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
     create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
     @bot = create_alegre_bot(name: "alegre", login: "alegre")
     @bot.approve!
-    p = create_project
-    p.team.set_languages = ['en','pt','es']
-    p.team.save!
-    @bot.install_to!(p.team)
-    @team = p.team
-    m = create_claim_media quote: 'I like apples'
-    @pm = create_project_media project: p, media: m
+    @p = create_project
+    @p.team.set_languages = ['en','pt','es']
+    @p.team.save!
+    @bot.install_to!(@p.team)
+    @team = @p.team
+    @m = create_claim_media quote: 'I like apples'
+    @pm = create_project_media project: @p, media: @m
     create_flag_annotation_type
     create_extracted_text_annotation_type
-    tbi = TeamBotInstallation.new
-    tbi.set_text_similarity_enabled = true
-    tbi.user = BotUser.alegre_user
-    tbi.team = p.team
-    tbi.save
+    @tbi = TeamBotInstallation.new
+    @tbi.set_text_similarity_enabled = true
+    @tbi.user = BotUser.alegre_user
+    @tbi.team = @p.team
+    @tbi.save
     Sidekiq::Testing.inline!
     Bot::Alegre.stubs(:request_api).with('post', '/text/bulk_similarity/', anything).returns("done")
   end
 
   def teardown
     super
+    [@tbi, @pm, @m, @p, @team, @bot].collect(&:destroy)
     Bot::Alegre.unstub(:request_api)
   end
 
