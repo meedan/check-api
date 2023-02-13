@@ -7,32 +7,44 @@ class TiplineMessage < ApplicationRecord
   validates_presence_of :team, :uid, :platform, :language, :direction, :sent_at, :payload
   validates :sent_at, uniqueness: { scope: [:team, :uid, :platform, :language, :direction] }
 
-  def self.from_smooch_payload(msg, payload)
-    general_attributes = {
-      uid: payload.dig('appUser', '_id'),
-      external_id: msg['_id'],
-      language: Bot::Smooch.get_user_language(msg),
-      team_id: Bot::Smooch.config[:team_id],
-      payload: payload.to_json
-    }
+  class << self
+    def from_smooch_payload(msg, payload)
+      general_attributes = {
+        uid: payload.dig('appUser', '_id'),
+        external_id: msg['_id'],
+        language: Bot::Smooch.get_user_language(msg),
+        team_id: Bot::Smooch.config[:team_id],
+        payload: payload.to_json
+      }
 
-    trigger_attributes = case payload['trigger']
-                          when 'message:appUser'
-                            {
-                              direction: :incoming,
-                              sent_at: Time.at(msg['received']),
-                              platform: Bot::Smooch.get_platform_from_message(msg),
-                            }
-                          when 'message:delivery:channel'
-                            {
-                              direction: :outgoing,
-                              sent_at: Time.at(payload['timestamp']),
-                              platform: Bot::Smooch.get_platform_from_payload(payload),
-                            }
-                          else
-                            {}
-                          end
+      trigger_attributes = case payload['trigger']
+                            when 'message:appUser'
+                              {
+                                direction: :incoming,
+                                sent_at: parse_timestamp(msg['received']),
+                                platform: Bot::Smooch.get_platform_from_message(msg),
+                              }
+                            when 'message:delivery:channel'
+                              {
+                                direction: :outgoing,
+                                sent_at: parse_timestamp(payload['timestamp']),
+                                platform: Bot::Smooch.get_platform_from_payload(payload),
+                              }
+                            else
+                              {}
+                            end
 
-    new(general_attributes.merge(trigger_attributes))
+      new(general_attributes.merge(trigger_attributes))
+    end
+
+    private
+
+    def parse_timestamp(epoch_time)
+      begin
+        Time.at(epoch_time)
+      rescue TypeError => e
+        Time.now
+      end
+    end
   end
 end

@@ -138,4 +138,37 @@ class TiplineMessageTest < ActiveSupport::TestCase
   assert_equal Time.at(1444348338.704), tm.sent_at
   assert_equal payload, JSON.parse(tm.payload)
  end
+
+ # This is to protect against any failures to parse time data - if it's missing,
+ # or if the format cannot be parsed. So far we have only seen this in test,
+ # but it seems possible in production. If we fall back, we do use our uniqueness
+ # protection that is intended to prevent duplicates on race conditions
+ test "defaults to current time for sent_at if parsing fails" do
+  setup_smooch_bot
+
+  msg = { "_id": @msg_id }.as_json
+  # payload is missing the timestamp key
+  payload = {
+    "trigger": "message:delivery:channel",
+    "app": {
+        "_id": @app_id
+    },
+    "appUser": {
+        "_id": random_string,
+    },
+    "conversation": {
+        "_id": "105e47578be874292d365ee8"
+    },
+    "destination": {
+        "type": "whatsapp"
+    },
+    "isFinalEvent": false,
+    "externalMessages": [],
+    "message": msg,
+    "version": "v1.1"
+  }.as_json
+
+  tm = TiplineMessage.from_smooch_payload(msg, payload)
+  assert tm.sent_at.present?
+ end
 end
