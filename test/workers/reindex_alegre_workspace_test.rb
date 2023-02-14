@@ -91,6 +91,23 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
     assert_equal Array, response.class
   end
   
+  test "tests the parallel request_api" do
+    package = {
+      :doc_id=>Bot::Alegre.item_doc_id(@pm, "title"),
+      :text=>"Some text",
+      :model=>"elasticsearch",
+      :context=>{
+        :team_id=>@pm.team_id,
+        :project_media_id=>@pm.id,
+        :has_custom_id=>true,
+        :field=>"title"
+      },
+      :models=>["elasticsearch"]
+    }
+    response = ReindexAlegreWorkspace.new.check_for_write(1.upto(30).collect{|x| package}, "a", @team.id, true, 1)
+    assert_equal Array, response.class
+  end
+
   test "reindexes all project_medias" do
     response = ReindexAlegreWorkspace.new.reindex_project_medias(ReindexAlegreWorkspace.new.get_default_query(@team.id, 0), "a")
     assert_equal Array, response.class

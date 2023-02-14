@@ -61,9 +61,9 @@ class ReindexAlegreWorkspace
     end
   end
 
-  def check_for_write(running_bucket, event_id, team_id, write_remains=false)
+  def check_for_write(running_bucket, event_id, team_id, write_remains=false, in_processes=3)
     if running_bucket.length > 500 || write_remains
-      Parallel.map(running_bucket.each_slice(30).to_a, in_processes: 3) do |bucket_slice|
+      Parallel.map(running_bucket.each_slice(30).to_a, in_processes: in_processes) do |bucket_slice|
         Bot::Alegre.request_api('post', '/text/bulk_similarity/', { documents: bucket_slice })
       end
       write_last_id(event_id, team_id, running_bucket.last[:context][:project_media_id])
