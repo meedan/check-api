@@ -9,7 +9,7 @@ class ReindexAlegreWorkspace
 
   sidekiq_options queue: 'alegre', retry: 0
 
-  def perform(team_id, reindex_event_id=nil)
+  def perform(team_id, event_id=nil)
     query = get_default_query(team_id)
     reindex_event_id ||= Digest::MD5.hexdigest(query.to_sql)
     run_reindex(query, event_id)
@@ -61,9 +61,9 @@ class ReindexAlegreWorkspace
     end
   end
 
-  def check_for_write(running_bucket, event_id, team_id, write_remains=false)
+  def check_for_write(running_bucket, event_id, team_id, write_remains=false, in_processes=3)
     if running_bucket.length > 500 || write_remains
-      Parallel.map(running_bucket.each_slice(30).to_a, in_processes: 3) do |bucket_slice|
+      Parallel.map(running_bucket.each_slice(30).to_a, in_processes: in_processes) do |bucket_slice|
         Bot::Alegre.request_api('post', '/text/bulk_similarity/', { documents: bucket_slice })
       end
       write_last_id(event_id, team_id, running_bucket.last[:context][:project_media_id])
@@ -72,24 +72,35 @@ class ReindexAlegreWorkspace
     running_bucket
   end
 
+  def models_for_team(team_id)
+    [
+      Bot::Alegre.get_alegre_tbi(team_id).get_alegre_model_in_use,
+      Bot::Alegre::ELASTICSEARCH_MODEL
+    ].compact.uniq
+  end
+
+  def process_team(running_bucket, team_id, query, event_id)
+    last_id = get_last_id(event_id, team_id)
+    query.where(team_id: team_id).order(:id).find_in_batches(:batch_size => 2500) do |pms|
+      pms.each do |pm|
+        get_request_docs_for_project_media(pm, models_for_team(team_id)) do |request_doc|
+          running_bucket << request_doc
+        end
+      end
+      running_bucket = check_for_write(running_bucket, event_id, team_id)
+    end
+    running_bucket = check_for_write(running_bucket, event_id, team_id, true)
+    clear_last_id(event_id, team_id)
+    running_bucket
+  end
+
   def reindex_project_medias(query, event_id)
     started = Time.now.to_i
     running_bucket = []
     query.distinct.pluck(:team_id).each do |team_id|
-      tb = BotUser.alegre_user.team_bot_installations.where(team_id: team_id).first
-      models = [tb.get_alegre_model_in_use, Bot::Alegre::ELASTICSEARCH_MODEL].compact.uniq
-      last_id = get_last_id(event_id, team_id)
-      query.where(team_id: team_id).order(:id).find_in_batches(:batch_size => 2500) do |pms|
-        pms.each do |pm|
-          get_request_docs_for_project_media(pm, models) do |request_doc|
-            running_bucket << request_doc
-          end
-        end
-        check_for_write(running_bucket, event_id, team_id)
-      end
-      check_for_write(running_bucket, event_id, team_id, true)
-      clear_last_id(event_id, team_id)
+      running_bucket = process_team(running_bucket, team_id, query, event_id)
     end
+    running_bucket
   end
 
   private
