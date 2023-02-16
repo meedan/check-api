@@ -1,6 +1,7 @@
 class CreateTiplineMessages < ActiveRecord::Migration[5.2]
   def change
     create_table :tipline_messages do |t|
+      t.string :event
       t.integer :direction, default: 0
       t.string :language
       t.string :platform

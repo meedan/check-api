@@ -199,9 +199,10 @@ module SmoochMessages
     end
 
     def process_message(message, app_id, send_message = true, type = 'default_requests')
-      message['language'] = self.get_user_language(message)
+      uid = message['authorId']
+      message['language'] = self.get_user_language(uid)
 
-      return if !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
+      return if !Rails.cache.read("smooch:banned:#{uid}").nil?
 
       hash = self.message_hash(message)
       pm_id = Rails.cache.read("smooch:message:#{hash}")

@@ -511,6 +511,7 @@ ActiveRecord::Schema.define(version: 2023_02_16_030351) do
   end
 
   create_table "tipline_messages", force: :cascade do |t|
+    t.string "event"
     t.integer "direction", default: 0
     t.string "language"
     t.string "platform"

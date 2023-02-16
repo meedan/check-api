@@ -18,7 +18,7 @@ class TiplineMessageTest < ActiveSupport::TestCase
                            external_id: 'message-id-12345',
                            uid: 'user-id-12345',
                            sent_at: DateTime.now,
-                           platform: "telegram",
+                           platform: "Telegram",
                            language: "en",
                            payload: {foo: 'bar'}.to_json)
 
@@ -170,5 +170,12 @@ class TiplineMessageTest < ActiveSupport::TestCase
 
   tm = TiplineMessage.from_smooch_payload(msg, payload)
   assert tm.sent_at.present?
+ end
+
+ test "sets event when passed" do
+    setup_smooch_bot
+    
+    tp = TiplineMessage.from_smooch_payload({},{}, 'newsletter_send')
+    assert_equal 'newsletter_send', tp.event
  end
 end

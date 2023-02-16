@@ -8,12 +8,15 @@ class TiplineMessage < ApplicationRecord
   validates :sent_at, uniqueness: { scope: [:team, :uid, :platform, :language, :direction] }
 
   class << self
-    def from_smooch_payload(msg, payload)
+    def from_smooch_payload(msg, payload, event = nil)
+      uid = payload.dig('appUser', '_id')
+      team = Team.find(Bot::Smooch.config['team_id'])
       general_attributes = {
-        uid: payload.dig('appUser', '_id'),
+        uid: uid,
         external_id: msg['_id'],
-        language: Bot::Smooch.get_user_language(msg),
-        team_id: Bot::Smooch.config[:team_id],
+        team: team,
+        event: event,
+        language: Bot::Smooch.get_user_language(uid),
         payload: payload.to_json
       }
 

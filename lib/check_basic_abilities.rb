@@ -99,6 +99,10 @@ module CheckBasicAbilities
       obj.user_id == @user.id
     end
 
+    can [:read, :create], TiplineMessage do |obj|
+      @user.cached_teams.include?(obj.team_id)
+    end
+
     annotation_perms_for_all_users
 
     cannot :manage, ApiKey
