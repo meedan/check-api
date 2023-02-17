@@ -88,15 +88,6 @@ class Relationship2Test < ActiveSupport::TestCase
         create_relationship source_id: s.id, target_id: t.id, relationship_type: name
       end
     end
-    assert_nothing_raised do
-      create_relationship source_id: s.id, target_id: t2.id, relationship_type: name
-    end
-    assert_nothing_raised do
-      create_relationship source_id: s2.id, target_id: t.id, relationship_type: name
-    end
-    assert_nothing_raised do
-      create_relationship source_id: s.id, target_id: t.id
-    end
   end
 
   test "should start with targets count zero" do
@@ -328,9 +319,9 @@ class Relationship2Test < ActiveSupport::TestCase
     s2 = create_project_media team: t
     t = create_project_media team: t
     create_relationship source_id: s1.id, target_id: t.id, relationship_type: Relationship.confirmed_type
-    create_relationship source_id: s2.id, target_id: t.id, relationship_type: Relationship.confirmed_type
     create_relationship source_id: s2.id, target_id: s1.id, relationship_type: Relationship.confirmed_type
-    assert_equal 2, Relationship.where(source_id: s2).count
+    assert_equal 0, Relationship.where(source_id: s1.id).count
+    assert_equal 2, Relationship.where(source_id: s2.id).count
     assert_nil Relationship.where(source_id: s1, target_id: t).last
     assert_not_nil Relationship.where(source_id: s2, target_id: t).last
     assert_not_nil Relationship.where(source_id: s2, target_id: s1).last
@@ -373,4 +364,17 @@ class Relationship2Test < ActiveSupport::TestCase
     r.destroy!
     assert_queries(0, '=') { assert_nil pm2.confirmed_as_similar_by_name }
   end
-end 
+
+  test "should not save duplicate values for target_id column" do
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    pm3 = create_project_media team: t
+    assert_nothing_raised do
+      create_relationship source_id: pm1.id, target_id: pm3.id
+    end
+    assert_raises 'ActiveRecord::RecordNotUnique' do
+      create_relationship source_id: pm2.id, target_id: pm3.id
+    end
+  end
+end
