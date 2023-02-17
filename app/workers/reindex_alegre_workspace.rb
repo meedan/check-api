@@ -82,8 +82,7 @@ class ReindexAlegreWorkspace
   end
 
   def process_team(running_bucket, team_id, query, event_id)
-    last_id = get_last_id(event_id, team_id)
-    query.where(team_id: team_id).order(:id).find_in_batches(:batch_size => 2500) do |pms|
+    query.where(team_id: team_id).where("id > ?", get_last_id(event_id, team_id)).order(:id).find_in_batches(:batch_size => 2500) do |pms|
       pms.each do |pm|
         get_request_docs_for_project_media(pm, models_for_team(team_id)) do |request_doc|
           running_bucket << request_doc
@@ -112,4 +111,3 @@ class ReindexAlegreWorkspace
     Rails.logger.info "[Alegre Bot] [Reindex] [Event #{event_id}] [#{Time.now}] #{message}"
   end
 end
-

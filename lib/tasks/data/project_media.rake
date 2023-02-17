@@ -329,7 +329,7 @@ namespace :check do
       # Add Team condition
       team_condition = {}
       if data_args['slug'].blank?
-        last_team_id = 0 #Rails.cache.read('check:project_media:index_pg_items:team_id') || 0
+        last_team_id = Rails.cache.read('check:project_media:index_pg_items:team_id') || 0
       else
         last_team_id = 0
         team_condition = { slug: data_args['slug'] } unless data_args['slug'].blank?
