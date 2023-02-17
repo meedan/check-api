@@ -17,7 +17,6 @@ group :test do
   gem 'minitest-retry'
   gem 'rails-controller-testing'
   gem 'pact-consumer-minitest'
-  gem 'rspec-rails', '4.0.1'
   gem 'mocha', '~>1.14.0'
 end
 

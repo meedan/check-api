@@ -355,7 +355,7 @@ class CheckSearch
     end
     # Also, adjust projects filter taking projects' privacy settings into account
     if Team.current && !feed_query? && [@options['team_id']].flatten.size == 1
-      t = Team.find(@options['team_id'])
+      t = Team.find([@options['team_id']].flatten.first)
       @options['projects'] = @options['projects'].blank? ? (Project.where(team_id: t.id).allowed(t).map(&:id) + [nil]) : Project.where(id: @options['projects']).allowed(t).map(&:id)
     end
     @options['projects'] += [nil] if @options['none_project']

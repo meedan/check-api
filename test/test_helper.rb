@@ -30,7 +30,6 @@ require 'parallel_tests/test/runtime_logger'
 require 'sidekiq/testing'
 require 'minitest/retry'
 require 'pact/consumer/minitest'
-require 'rspec/rails'
 require 'mocha/minitest'
 require "csv"
 Minitest::Retry.use!

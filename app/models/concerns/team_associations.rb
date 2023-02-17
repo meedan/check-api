@@ -18,6 +18,7 @@ module TeamAssociations
     has_many :feed_teams, dependent: :destroy
     has_many :feeds, through: :feed_teams
     has_many :monthly_team_statistics # No "dependent: :destroy" because we want to retain statistics
+    has_many :tipline_messages
 
     has_annotations
   end

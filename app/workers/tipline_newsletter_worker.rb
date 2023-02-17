@@ -46,6 +46,6 @@ class TiplineNewsletterWorker
   private
 
   def log(team_id, language, message)
-    Rails.logger.info "[Smooch Bot] [Newsletter] [Team ##{team_id}] [Language #{language}] [#{Time.now}] #{message}"
+    logger.info "[Smooch Bot] [Newsletter] [Team ##{team_id}] [Language #{language}] [#{Time.now}] #{message}"
   end
 end
