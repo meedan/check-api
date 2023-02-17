@@ -2,7 +2,7 @@
 # ReindexAlegreWorkspace.perform_async(team_id)
 #
 # vector_768_ids = File.read("offending_ids_team_id_10.txt").split("\n").collect(&:to_i)
-# ReindexAlegreWorkspace.new.run_reindex(ProjectMedia.where(id: vector_768_ids), "team_id_10_vector_768_rebuild")
+# run_reindex(ProjectMedia.where(id: vector_768_ids), "team_id_10_vector_768_rebuild")
 
 class ReindexAlegreWorkspace
   include Sidekiq::Worker
@@ -11,7 +11,7 @@ class ReindexAlegreWorkspace
 
   def perform(team_id, event_id=nil)
     query = get_default_query(team_id)
-    reindex_event_id ||= Digest::MD5.hexdigest(query.to_sql)
+    event_id ||= Digest::MD5.hexdigest(query.to_sql)
     run_reindex(query, event_id)
   end
   
@@ -63,9 +63,11 @@ class ReindexAlegreWorkspace
 
   def check_for_write(running_bucket, event_id, team_id, write_remains=false, in_processes=3)
     if running_bucket.length > 500 || write_remains
+      log(event_id, 'Writing to Alegre...')
       Parallel.map(running_bucket.each_slice(30).to_a, in_processes: in_processes) do |bucket_slice|
         Bot::Alegre.request_api('post', '/text/bulk_similarity/', { documents: bucket_slice })
       end
+      log(event_id, 'Wrote to Alegre.')
       write_last_id(event_id, team_id, running_bucket.last[:context][:project_media_id])
       running_bucket = []
     end
@@ -85,9 +87,10 @@ class ReindexAlegreWorkspace
       pms.each do |pm|
         get_request_docs_for_project_media(pm, models_for_team(team_id)) do |request_doc|
           running_bucket << request_doc
+          log(event_id, "Bucket size is #{running_bucket.length}") if running_bucket.length % 50 == 0
+          running_bucket = check_for_write(running_bucket, event_id, team_id)
         end
       end
-      running_bucket = check_for_write(running_bucket, event_id, team_id)
     end
     running_bucket = check_for_write(running_bucket, event_id, team_id, true)
     clear_last_id(event_id, team_id)
