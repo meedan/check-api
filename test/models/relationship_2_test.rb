@@ -373,4 +373,17 @@ class Relationship2Test < ActiveSupport::TestCase
     r.destroy!
     assert_queries(0, '=') { assert_nil pm2.confirmed_as_similar_by_name }
   end
-end 
+
+  test "should not save duplicate values for target_id column" do
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    pm3 = create_project_media team: t
+    assert_nothing_raised do
+      create_relationship source_id: pm1.id, target_id: pm3.id
+    end
+    assert_raises 'ActiveRecord::RecordNotUnique' do
+      create_relationship source_id: pm2.id, target_id: pm3.id
+    end
+  end
+end
