@@ -18,7 +18,7 @@ class MonthlyTeamStatisticTest < ActiveSupport::TestCase
     assert !stat.valid?
 
     team = create_team(name: "Fake team")
-    stat = MonthlyTeamStatistic.new(team: team, start_date: DateTime.now, end_date: DateTime.now, platform: "Telegram", language: "en")
+    stat = MonthlyTeamStatistic.new(team: team, start_date: DateTime.now, end_date: DateTime.now, platform: "telegram", language: "en")
 
     assert stat.valid?
   end

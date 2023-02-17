@@ -144,11 +144,20 @@ module SmoochMessages
       disabled ? 'disabled' : state
     end
 
+    # Used for incoming messages (e.g. message:appUser)
+    # where full message contents available
     def get_platform_from_message(message)
       type = message.dig('source', 'type')
       platform = type ? ::Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[type].to_s : 'Unknown'
       RequestStore.store[:smooch_bot_platform] = platform
       platform
+    end
+
+    # Used for outgoing messages (e.g. message:delivery:channel) where
+    # message contents are truncated
+    def get_platform_from_payload(payload)
+      type = payload.dig('destination', 'type')
+      type ? ::Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[type].to_s : 'Unknown'
     end
 
     def request_platform
@@ -190,9 +199,10 @@ module SmoochMessages
     end
 
     def process_message(message, app_id, send_message = true, type = 'default_requests')
-      message['language'] = self.get_user_language(message)
+      uid = message['authorId']
+      message['language'] = self.get_user_language(uid)
 
-      return if !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
+      return if !Rails.cache.read("smooch:banned:#{uid}").nil?
 
       hash = self.message_hash(message)
       pm_id = Rails.cache.read("smooch:message:#{hash}")

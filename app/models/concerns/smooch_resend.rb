@@ -44,11 +44,12 @@ module SmoochResend
 
     def resend_rules_message_after_window(message, original)
       template = original['fallback_template']
-      language = self.get_user_language(message)
+      uid = message['appUser']['_id']
+      language = self.get_user_language(uid)
       query_date = I18n.l(Time.at(original['query_date'].to_i), locale: language, format: :short)
       placeholders = [query_date, original['message']]
       fallback = original['message']
-      self.send_message_to_user(message['appUser']['_id'], self.format_template_message(template, placeholders, nil, fallback, language))
+      self.send_message_to_user(uid, self.format_template_message(template, placeholders, nil, fallback, language))
       true
     end
 
@@ -82,7 +83,7 @@ module SmoochResend
       text = self.get_original_slack_message_text_to_be_resent(message)
       uid = message['appUser']['_id']
       if text
-        language = self.get_user_language({ 'authorId' => uid })
+        language = self.get_user_language(uid)
         date = Rails.cache.read("smooch:last_message_from_user:#{uid}").to_i || Time.now.to_i
         query_date = I18n.l(Time.at(date), locale: language, format: :short)
         params = [query_date, text]
@@ -271,7 +272,7 @@ module SmoochResend
       data = nil
       if report&.get_field_value('state') == 'published'
         data = {}
-        data[:language] = language = self.get_user_language({ 'authorId' => message['appUser']['_id'] })
+        data[:language] = language = self.get_user_language(message['appUser']['_id'])
         data[:query_date] = I18n.l(Time.at(original['query_date'].to_i), locale: language, format: :short)
         data[:query_date_i] = original['query_date'].to_i
         data[:introduction] = report.report_design_field_value('use_introduction') ? report.report_design_introduction({ 'received' => original['query_date'].to_i }, language).to_s : nil
