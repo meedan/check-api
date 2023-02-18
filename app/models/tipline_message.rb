@@ -21,21 +21,21 @@ class TiplineMessage < ApplicationRecord
       }
 
       trigger_attributes = case payload['trigger']
-                            when 'message:appUser'
-                              {
-                                direction: :incoming,
-                                sent_at: parse_timestamp(msg['received']),
-                                platform: Bot::Smooch.get_platform_from_message(msg),
-                              }
-                            when 'message:delivery:channel'
-                              {
-                                direction: :outgoing,
-                                sent_at: parse_timestamp(payload['timestamp']),
-                                platform: Bot::Smooch.get_platform_from_payload(payload),
-                              }
-                            else
-                              {}
-                            end
+                           when 'message:appUser'
+                             {
+                               direction: :incoming,
+                               sent_at: parse_timestamp(msg['received']),
+                               platform: Bot::Smooch.get_platform_from_message(msg),
+                             }
+                           when 'message:delivery:channel'
+                             {
+                               direction: :outgoing,
+                               sent_at: parse_timestamp(payload['timestamp']),
+                               platform: Bot::Smooch.get_platform_from_payload(payload),
+                             }
+                           else
+                             {}
+                           end
 
       new(general_attributes.merge(trigger_attributes))
     end
@@ -45,7 +45,7 @@ class TiplineMessage < ApplicationRecord
     def parse_timestamp(epoch_time)
       begin
         Time.at(epoch_time)
-      rescue TypeError => e
+      rescue TypeError
         Time.now
       end
     end

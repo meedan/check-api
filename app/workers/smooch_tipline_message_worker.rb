@@ -18,7 +18,9 @@ class SmoochTiplineMessageWorker
     cached_message = Rails.cache.read("smooch:original:#{message_json.dig('_id')}")
     begin
       event = JSON.parse(cached_message).dig('fallback_template')
-    rescue TypeError, JSON::ParserError => e; end
+    rescue TypeError, JSON::ParserError
+      event = nil
+    end
 
     tm = TiplineMessage.from_smooch_payload(message_json, payload_json, event)
     tm.save
