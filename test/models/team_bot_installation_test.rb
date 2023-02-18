@@ -219,4 +219,32 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
       tbi.save!
     end
   end
+
+  test "should not set Smooch Bot WhatsApp token if not a super-admin" do
+    t = create_team
+    u1 = create_user is_admin: true
+    create_team_user user: u1, team: t, role: 'admin'
+    u2 = create_user is_admin: false
+    create_team_user user: u2, team: t, role: 'admin'
+    b = create_team_bot login: 'smooch', set_approved: true
+    tbi = create_team_bot_installation user_id: b.id, team_id: t.id, settings: { turnio_token: 'abc123', turnio_secret: 'test' }
+    assert_equal 'test', tbi.reload.get_turnio_secret
+    assert_equal 'abc123', tbi.reload.get_turnio_token
+
+    with_current_user_and_team(u1, t) do
+      tbi = TeamBotInstallation.find(tbi.id)
+      tbi.settings = { turnio_token: 'def456', turnio_secret: 'foo' }
+      tbi.save!
+      assert_equal 'foo', tbi.reload.get_turnio_secret
+      assert_equal 'def456', tbi.reload.get_turnio_token
+    end
+
+    with_current_user_and_team(u2, t) do
+      tbi = TeamBotInstallation.find(tbi.id)
+      tbi.settings = { turnio_token: 'ghi789', turnio_secret: 'bar' }
+      tbi.save!
+      assert_equal 'bar', tbi.reload.get_turnio_secret
+      assert_equal 'def456', tbi.reload.get_turnio_token
+    end
+  end
 end
