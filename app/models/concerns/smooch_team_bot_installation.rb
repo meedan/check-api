@@ -7,6 +7,15 @@ module SmoochTeamBotInstallation
     TeamBotInstallation.class_eval do
       attr_accessor :skip_save_images
 
+      # Only super-admins can change WhatsApp token
+      before_validation do
+        if self.bot_user.identifier == 'smooch'
+          if User.current && !User.current.is_admin? && self.settings.to_h.with_indifferent_access['turnio_token'].to_s != self.settings_was.to_h.with_indifferent_access['turnio_token'].to_s
+            self.set_turnio_token = self.settings_was.to_h.with_indifferent_access['turnio_token']
+          end
+        end
+      end
+
       # Save Twitter/Facebook token and authorization URL
       after_create do
         if self.bot_user.identifier == 'smooch'
