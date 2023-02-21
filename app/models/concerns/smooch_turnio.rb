@@ -160,6 +160,7 @@ module SmoochTurnio
             '_id': "#{self.config['turnio_phone']}:#{status['recipient_id'] || status.dig('message', 'recipient_id')}",
             'conversationStarted': true
           },
+          timestamp: status['timestamp'].to_i,
           turnIo: json
         }.with_indifferent_access
 
@@ -188,6 +189,7 @@ module SmoochTurnio
             '_id': "#{self.config['turnio_phone']}:#{status['recipient_id'] || status.dig('message', 'recipient_id')}",
             'conversationStarted': true
           },
+          timestamp: status['timestamp'].to_i,
           turnIo: json
         }.with_indifferent_access
 

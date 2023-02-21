@@ -45,6 +45,7 @@ class SmoochTurnioTest < ActiveSupport::TestCase
     assert_equal 'gBGGFBmZaYRvAglfBtKPeos4sV4', message['message']['_id']
     assert_equal 'secret-12345', message['app']['_id']
     assert_equal 'phone-12345:15551234567', message['appUser']['_id']
+    assert_equal 1676930082, message['timestamp']
     assert message['turnIo']
   end
 
@@ -81,6 +82,7 @@ class SmoochTurnioTest < ActiveSupport::TestCase
     assert_equal 'secret-12345', message['app']['_id']
     assert_equal 'phone-12345:15551234567', message['appUser']['_id']
     assert_equal 470, message.dig('error', 'underlyingError', 'errors', 0, 'code')
+    assert_equal 1676930082, message['timestamp']
     assert message['turnIo']
   end
 end
