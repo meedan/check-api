@@ -157,7 +157,7 @@ module SmoochTurnio
             'type': 'text'
           },
           appUser: {
-            '_id': "#{self.config['turnio_phone']}:#{status['recipient_id']}",
+            '_id': "#{self.config['turnio_phone']}:#{status['recipient_id'] || status.dig('message', 'recipient_id')}",
             'conversationStarted': true
           },
           turnIo: json
@@ -185,7 +185,7 @@ module SmoochTurnio
             'type': 'text'
           },
           appUser: {
-            '_id': "#{self.config['turnio_phone']}:#{status['recipient_id']}",
+            '_id': "#{self.config['turnio_phone']}:#{status['recipient_id'] || status.dig('message', 'recipient_id')}",
             'conversationStarted': true
           },
           turnIo: json
