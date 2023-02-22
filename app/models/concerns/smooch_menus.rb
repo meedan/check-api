@@ -8,10 +8,12 @@ module SmoochMenus
       self.config['smooch_version'] == 'v2'
     end
 
-    def send_message_to_user_with_main_menu_appended(uid, text, workflow, language)
+    def send_message_to_user_with_main_menu_appended(uid, text, workflow, language, app_id = nil)
+      self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
       main = []
       counter = 1
       number_of_options = 0
+      workflow ||= self.get_workflow(language)
 
       # Main section and secondary menu
       allowed_types = ['query_state', 'subscription_state', 'custom_resource']
