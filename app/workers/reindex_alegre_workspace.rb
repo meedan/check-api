@@ -100,7 +100,7 @@ class ReindexAlegreWorkspace
       end
     end
     # make sure to process any leftover items less than batch size
-    running_bucket = check_for_write(running_bucket, event_id, team_id, write_remains=true)
+    running_bucket = check_for_write(running_bucket, event_id, team_id, write_remains: true)
     clear_last_id(event_id, team_id)
     running_bucket
   end
