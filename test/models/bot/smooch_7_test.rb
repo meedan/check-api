@@ -472,5 +472,4 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     assert_match /^http/, local_media_url
     assert_not_equal media_url, local_media_url
   end
-
 end
