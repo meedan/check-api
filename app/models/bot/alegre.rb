@@ -400,6 +400,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.language_for_similarity(team_id)
+    # get language from team settings (team bot instalation)
     tbi = self.get_alegre_tbi(team_id)
     tbi.nil? ? nil : tbi.get_language_for_similarity
   end
