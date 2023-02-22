@@ -10,12 +10,12 @@ class AddUniqueIndexToRelationshipTargetId < ActiveRecord::Migration[5.2]
         relationships = Relationship.where(target_id: pm_id).to_a
         # Keep the relationship whose model is image, video or audio... if none, keep the first one
         keep = relationships.find{ |r| ['image', 'video', 'audio'].include?(r.model) } || relationships.first
-        raise "No relationship to keeo for target_id #{pm_id}!" if keep.nil?
+        raise "No relationship to keep for target_id #{pm_id}!" if keep.nil?
         relationships.each do |relationship|
           if relationship.id == keep.id
-            puts "  Keeping relationship ##{r.id}"
+            puts "  Keeping relationship ##{relationship.id}"
           else
-            puts "  Deleting relationship ##{r.id}"
+            puts "  Deleting relationship ##{relationship.id}"
             relationship.destroy!
           end
         end
