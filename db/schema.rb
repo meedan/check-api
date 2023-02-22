@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_01_30_074014) do
+ActiveRecord::Schema.define(version: 2023_02_16_030351) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -383,6 +383,7 @@ ActiveRecord::Schema.define(version: 2023_01_30_074014) do
     t.datetime "updated_at", null: false
     t.index ["relationship_type"], name: "index_relationships_on_relationship_type"
     t.index ["source_id", "target_id", "relationship_type"], name: "relationship_index", unique: true
+    t.index ["target_id"], name: "index_relationships_on_target_id", unique: true
   end
 
   create_table "requests", force: :cascade do |t|
@@ -509,6 +510,24 @@ ActiveRecord::Schema.define(version: 2023_01_30_074014) do
     t.index ["country"], name: "index_teams_on_country"
     t.index ["inactive"], name: "index_teams_on_inactive"
     t.index ["slug"], name: "unique_team_slugs", unique: true
+  end
+
+  create_table "tipline_messages", force: :cascade do |t|
+    t.string "event"
+    t.integer "direction", default: 0
+    t.string "language"
+    t.string "platform"
+    t.datetime "sent_at"
+    t.string "uid"
+    t.string "external_id"
+    t.jsonb "payload", default: {}
+    t.bigint "team_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["external_id"], name: "index_tipline_messages_on_external_id", unique: true
+    t.index ["team_id", "uid", "platform", "language", "sent_at", "direction"], name: "index_tipline_message_uniqueness", unique: true
+    t.index ["team_id"], name: "index_tipline_messages_on_team_id"
+    t.index ["uid"], name: "index_tipline_messages_on_uid"
   end
 
   create_table "tipline_subscriptions", id: :serial, force: :cascade do |t|
