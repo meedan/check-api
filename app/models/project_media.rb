@@ -396,7 +396,12 @@ class ProjectMedia < ApplicationRecord
     analysis_title = analysis['title'].blank? ? nil : analysis['title']
     file_title = analysis['file_title'].blank? ? nil : analysis['file_title']
     m = self.media
-    ms.attributes[:associated_type] = m.type
+    associated_type = m.type
+    if m.type == 'Link'
+      provider = m.metadata['provider']
+      associated_type = ['instagram', 'twitter', 'youtube', 'facebook', 'tiktok'].include?(provider) ? provider : 'weblink'
+    end
+    ms.attributes[:associated_type] = associated_type
     ms.attributes[:url] = m.url
     ms.attributes[:title] = self.original_title
     # initiate title_index with same title value for sorting by title purpose
