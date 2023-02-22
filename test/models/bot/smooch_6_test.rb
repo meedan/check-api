@@ -705,4 +705,13 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     end
     assert_equal 0, redis.llen("smooch:search:#{uid}")
   end
+
+  test "should send main menu in background if interval is greater than 1" do
+    Sidekiq::Worker.clear_all
+    Sidekiq::Testing.fake! do
+      assert_equal 0, Sidekiq::Worker.jobs.size
+      Bot::Smooch.send_final_messages_to_user(@uid, 'Test', nil, 'en', 5)
+      assert_equal 1, Sidekiq::Worker.jobs.size
+    end
+  end
 end
