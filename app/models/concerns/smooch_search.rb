@@ -74,7 +74,7 @@ module SmoochSearch
         feed_results = CheckSearch.new(filters.to_json, nil, team_ids).medias.to_a.map(&:id)
       end
       pms.select do |pm|
-        (feed_id && feed_results.include?(pm&.id)) || (!feed_id && pm&.report_status == 'published' && pm&.updated_at.to_i > after.to_i)
+        (feed_id && feed_results.include?(pm&.id)) || (!feed_id && pm&.report_status == 'published' && pm&.updated_at.to_i > after.to_i && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(pm&.archived))
       end
     end
 
