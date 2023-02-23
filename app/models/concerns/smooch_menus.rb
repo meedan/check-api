@@ -8,8 +8,8 @@ module SmoochMenus
       self.config['smooch_version'] == 'v2'
     end
 
-    def send_message_to_user_with_main_menu_appended(uid, text, workflow, language, app_id = nil)
-      self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
+    def send_message_to_user_with_main_menu_appended(uid, text, workflow, language, tbi_id = nil)
+      self.get_installation { |i| i.id == tbi_id } if self.config.blank?
       main = []
       counter = 1
       number_of_options = 0
