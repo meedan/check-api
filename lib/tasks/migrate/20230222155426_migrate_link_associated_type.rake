@@ -5,7 +5,7 @@ namespace :check do
       started = Time.now.to_i
       index_alias = CheckElasticSearchModel.get_index_alias
       client = $repository.client
-      last_team_id = 0 #Rails.cache.read('check:migrate:index_link_associated_type:team_id') || 0
+      last_team_id = Rails.cache.read('check:migrate:index_link_associated_type:team_id') || 0
       Team.where('id > ?', last_team_id).find_each do |team|
         puts "Processing team #{team.slug} ..."
         team.project_medias.joins(:media).where('medias.type = ?', 'Link').find_in_batches(:batch_size => 1000) do |pms|
