@@ -101,7 +101,7 @@ class ElasticSearch3Test < ActionController::TestCase
     create_project_media project: p, media: m, disable_es_callbacks: false
     i = create_uploaded_image
     create_project_media project: p, media: i, disable_es_callbacks: false
-    sleep 5
+    sleep 2
     Team.current = t
     result = CheckSearch.new({}.to_json)
     assert_equal 3, result.medias.count
@@ -109,12 +109,12 @@ class ElasticSearch3Test < ActionController::TestCase
     result = CheckSearch.new({ show: ['claims'] }.to_json)
     assert_equal 1, result.medias.count
     # filter by links
-    result = CheckSearch.new({ show: ['links'] }.to_json)
+    result = CheckSearch.new({ show: ['weblink'] }.to_json)
     assert_equal 1, result.medias.count
     # filter by images
     result = CheckSearch.new({ show: ['images'] }.to_json)
     assert_equal 1, result.medias.count
-    result = CheckSearch.new({ show: ['claims', 'links', 'images'] }.to_json)
+    result = CheckSearch.new({ show: ['claims', 'weblink', 'images'] }.to_json)
     assert_equal 3, result.medias.count
     # filter by archived
     pm.archived = CheckArchivedFlags::FlagCodes::TRASHED

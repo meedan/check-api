@@ -45,7 +45,7 @@ class CheckSearch
     @file = file
   end
 
-  MEDIA_TYPES = %w[claims links images videos audios blank]
+  MEDIA_TYPES = %w[claims twitter youtube tiktok instagram facebook weblink images videos audios blank]
   SORT_MAPPING = {
     'recent_activity' => 'updated_at', 'recent_added' => 'created_at', 'demand' => 'demand',
     'related' => 'linked_items_count', 'last_seen' => 'last_seen', 'share_count' => 'share_count',
@@ -632,7 +632,12 @@ class CheckSearch
     unless @options['show'].blank?
       types_mapping = {
         'claims' => ['Claim'],
-        'links' => 'Link',
+        'facebook' => 'facebook',
+        'instagram' => 'instagram',
+        'tiktok' => 'tiktok',
+        'twitter' => 'twitter',
+        'youtube' => 'youtube',
+        'weblink' => 'weblink',
         'images' => 'UploadedImage',
         'videos' => 'UploadedVideo',
         'audios' => 'UploadedAudio',
