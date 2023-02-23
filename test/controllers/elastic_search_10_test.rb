@@ -324,4 +324,67 @@ class ElasticSearch10Test < ActionController::TestCase
       assert_equal 1, es_pm2['requests'].length
     end
   end
+
+  test "should filter by link types" do
+    t = create_team
+    # Youtube
+    url = random_url
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item", "provider": "youtube", "title":"Bar","description":"Bar"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l_youtube = create_link url: url
+    pm_youtube = create_project_media team: t, media: l_youtube, disable_es_callbacks: false
+    # Twitter
+    url = random_url
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item", "provider": "twitter", "title":"Bar","description":"Bar"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l_twitter = create_link url: url
+    pm_twitter = create_project_media team: t, media: l_twitter, disable_es_callbacks: false
+    # Facebook
+    url = random_url
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item", "provider": "facebook", "title":"Bar","description":"Bar"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l_facebook = create_link url: url
+    pm_facebook = create_project_media team: t, media: l_facebook, disable_es_callbacks: false
+    # Instagram
+    url = random_url
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item", "provider": "instagram", "title":"Bar","description":"Bar"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l_instagram = create_link url: url
+    pm_instagram = create_project_media team: t, media: l_instagram, disable_es_callbacks: false
+    # tiktok
+    url = random_url
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item", "provider": "tiktok", "title":"Bar","description":"Bar"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l_tiktok = create_link url: url
+    pm_tiktok = create_project_media team: t, media: l_tiktok, disable_es_callbacks: false
+    # weblink
+    url = random_url
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item", "provider": "page", "title":"Bar","description":"Bar"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l_weblink = create_link url: url
+    pm_weblink = create_project_media team: t, media: l_weblink, disable_es_callbacks: false
+    sleep 2
+    result = CheckSearch.new({show: ['youtube']}.to_json, nil, t.id)
+    assert_equal [pm_youtube.id], result.medias.map(&:id)
+    result = CheckSearch.new({show: ['twitter']}.to_json, nil, t.id)
+    assert_equal [pm_twitter.id], result.medias.map(&:id)
+    result = CheckSearch.new({show: ['facebook']}.to_json, nil, t.id)
+    assert_equal [pm_facebook.id], result.medias.map(&:id)
+    result = CheckSearch.new({show: ['instagram']}.to_json, nil, t.id)
+    assert_equal [pm_instagram.id], result.medias.map(&:id)
+    result = CheckSearch.new({show: ['tiktok']}.to_json, nil, t.id)
+    assert_equal [pm_tiktok.id], result.medias.map(&:id)
+    result = CheckSearch.new({show: ['weblink']}.to_json, nil, t.id)
+    assert_equal [pm_weblink.id], result.medias.map(&:id)
+    result = CheckSearch.new({show: ['youtube', 'twitter', 'facebook', 'instagram', 'tiktok', 'weblink']}.to_json, nil, t.id)
+    assert_equal [pm_youtube.id, pm_twitter.id, pm_facebook.id, pm_instagram.id, pm_tiktok.id, pm_weblink.id].sort, result.medias.map(&:id).sort
+    result = CheckSearch.new({}.to_json, nil, t.id)
+    assert_equal [pm_youtube.id, pm_twitter.id, pm_facebook.id, pm_instagram.id, pm_tiktok.id, pm_weblink.id].sort, result.medias.map(&:id).sort
+  end
 end
