@@ -13,12 +13,13 @@ class TiplineNewsletterWorker
           log team_id, language, 'Preparing newsletter to be sent...'
           if !newsletter.nil? && Bot::Smooch.newsletter_content_changed?(newsletter, language, team_id)
             date = I18n.l(Time.now.to_date, locale: language.to_s.tr('_', '-'), format: :long)
-            TiplineSubscription.where(language: language, team_id: team_id).each do |ts|
+            content = Bot::Smooch.build_newsletter_content(newsletter, language, team_id).gsub('{date}', date)
+            TiplineSubscription.where(language: language, team_id: team_id).find_each do |ts|
               log team_id, language, "Sending newsletter to subscriber ##{ts.id}..."
               begin
                 RequestStore.store[:smooch_bot_platform] = ts.platform
                 introduction = newsletter['smooch_newsletter_introduction'].to_s.gsub('{date}', date).gsub('{channel}', ts.platform)
-                content = Bot::Smooch.build_newsletter_content(newsletter, language, team_id).gsub('{date}', date).gsub('{channel}', ts.platform)
+                content = content.gsub('{channel}', ts.platform)
                 Bot::Smooch.get_installation { |i| i.id == tbi.id }
                 response = Bot::Smooch.send_final_messages_to_user(ts.uid, content, workflow, language, 5)
                 Bot::Smooch.save_smooch_response(response, nil, nil, 'newsletter', language, { introduction: introduction })

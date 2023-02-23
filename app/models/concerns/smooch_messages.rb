@@ -72,9 +72,14 @@ module SmoochMessages
     def send_final_messages_to_user(uid, text, workflow, language, interval = 1)
       response = self.send_message_to_user(uid, text)
       if self.is_v2?
+        label = self.get_string('navigation_button', language)
         CheckStateMachine.new(uid).go_to_main
-        sleep(interval)
-        response = self.send_message_to_user_with_main_menu_appended(uid, self.get_string('navigation_button', language), workflow, language)
+        if interval > 1
+          self.delay_for(interval.seconds, { queue: 'smooch' }).send_message_to_user_with_main_menu_appended(uid, label, nil, language, self.config['smooch_app_id'])
+        else
+          sleep(interval)
+          response = self.send_message_to_user_with_main_menu_appended(uid, label, workflow, language)
+        end
       end
       response
     end
