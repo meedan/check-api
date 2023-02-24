@@ -253,7 +253,7 @@ class Bot::Smooch < BotUser
       RequestStore.store[:smooch_bot_provider] = 'TURN' unless smooch_bot_installation&.get_turnio_secret&.to_s.blank?
     end
     settings = smooch_bot_installation&.settings.to_h
-    RequestStore.store[:smooch_bot_settings] = settings.with_indifferent_access.merge({ team_id: smooch_bot_installation&.team_id.to_i })
+    RequestStore.store[:smooch_bot_settings] = settings.with_indifferent_access.merge({ team_id: smooch_bot_installation&.team_id.to_i, installation_id: smooch_bot_installation&.id })
     smooch_bot_installation
   end
 

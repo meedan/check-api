@@ -13546,6 +13546,16 @@
                 "ofType": null
               },
               "defaultValue": null
+            },
+            {
+              "name": "set_status",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
             }
           ],
           "interfaces": null,

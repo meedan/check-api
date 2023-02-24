@@ -10,7 +10,8 @@ module ProjectMediaMutations
     set_fact_check: 'json',
     set_tasks_responses: 'json',
     set_tags: 'json',
-    set_title: 'str'
+    set_title: 'str',
+    set_status: 'str' # Status identifier (for example, "in_progress")
   }
 
   create_fields = fields.merge({
