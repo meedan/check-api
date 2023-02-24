@@ -183,10 +183,29 @@ module ProjectMediaCreators
 
   def create_claim_description_and_fact_check
     cd = ClaimDescription.create!(description: self.set_claim_description, project_media: self, skip_check_ability: true) unless self.set_claim_description.blank?
-    FactCheck.create!(title: self.set_fact_check['title'], summary: self.set_fact_check['summary'], claim_description: cd, skip_check_ability: true) unless self.set_fact_check.blank?
+    fc = nil
+    unless self.set_fact_check.blank?
+      fc = FactCheck.create!({
+        title: self.set_fact_check['title'],
+        summary: self.set_fact_check['summary'],
+        language: self.set_fact_check['language'],
+        url: self.set_fact_check['url'],
+        claim_description: cd,
+        skip_check_ability: true
+      })
+    end
+    fc
   end
 
   def create_tags
     self.set_tags.each { |tag| Tag.create!(annotated: self, tag: tag, skip_check_ability: true) } unless self.set_tags.blank?
+  end
+
+  def create_status
+    unless self.set_status.blank?
+      s = self.last_status_obj
+      s.status = self.set_status
+      s.save!
+    end
   end
 end
