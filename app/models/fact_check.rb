@@ -1,7 +1,7 @@
 class FactCheck < ApplicationRecord
   include ClaimAndFactCheck
 
-  attr_accessor :skip_report_update
+  attr_accessor :skip_report_update, :publish_report
 
   belongs_to :claim_description
 
@@ -66,6 +66,7 @@ class FactCheck < ApplicationRecord
     })
     report.merge!({ use_introduction: default_use_introduction, introduction: default_introduction }) if language != report_language && !default_introduction.blank?
     data[:options] = report
+    data[:state] = (self.publish_report ? 'published' : 'paused')
     reports.annotator = self.user || User.current
     reports.set_fields = data.to_json
     reports.save!
