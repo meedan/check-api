@@ -537,7 +537,7 @@ class GraphqlCrudOperations
 end
 
 JsonStringType = GraphQL::ScalarType.define do
-  name "JsonStringType"
-  coerce_input -> (val, _ctx) { JSON.parse(val) }
+  name 'JsonStringType'
+  coerce_input -> (val, _ctx) { begin JSON.parse(val) rescue val end }
   coerce_result -> (val, _ctx) { val.as_json }
 end
