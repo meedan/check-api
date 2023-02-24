@@ -389,4 +389,16 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     assert_queries(0, '>') { assert_equal(2, pm2.demand(true)) }
     assert_queries(0, '>') { assert_equal(4, pm3.demand(true)) }
   end
+
+  test "should create status and fact-check when creating an item" do
+    u = create_user is_admin: true
+    t = create_team
+    assert_difference 'FactCheck.count' do
+      assert_difference "Annotation.where(annotation_type: 'verification_status').count" do
+        with_current_user_and_team(u, t) do
+          create_project_media set_status: 'false', set_fact_check: { title: 'Foo', description: 'Bar', url: random_url, language: 'en' }, set_claim_description: 'Test', team: t
+        end
+      end
+    end
+  end
 end
