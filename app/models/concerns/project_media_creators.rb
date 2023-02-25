@@ -190,6 +190,7 @@ module ProjectMediaCreators
         summary: self.set_fact_check['summary'],
         language: self.set_fact_check['language'],
         url: self.set_fact_check['url'],
+        publish_report: !!self.set_fact_check['publish_report'],
         claim_description: cd,
         skip_check_ability: true
       })
@@ -199,13 +200,5 @@ module ProjectMediaCreators
 
   def create_tags
     self.set_tags.each { |tag| Tag.create!(annotated: self, tag: tag, skip_check_ability: true) } unless self.set_tags.blank?
-  end
-
-  def create_status
-    unless self.set_status.blank?
-      s = self.last_status_obj
-      s.status = self.set_status
-      s.save!
-    end
   end
 end
