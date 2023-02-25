@@ -55,7 +55,7 @@ module Workflow
             unless type.nil? || workflow_id == 'task_status'
               fields = {}
               type.schema.each do |fi|
-                fields[fi.name.to_sym] = fi.name == "#{workflow_id}_status" ? ::Workflow::Workflow.options(self, workflow_id)[:default] : fi.default_value
+                fields[fi.name.to_sym] = fi.name == "#{workflow_id}_status" ? (self.set_status || ::Workflow::Workflow.options(self, workflow_id)[:default]) : fi.default_value
               end
 
               next if self.team.is_being_copied
