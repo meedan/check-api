@@ -384,6 +384,8 @@ class ElasticSearch10Test < ActionController::TestCase
     assert_equal [pm_weblink.id], result.medias.map(&:id)
     result = CheckSearch.new({show: ['youtube', 'twitter', 'facebook', 'instagram', 'tiktok', 'weblink']}.to_json, nil, t.id)
     assert_equal [pm_youtube.id, pm_twitter.id, pm_facebook.id, pm_instagram.id, pm_tiktok.id, pm_weblink.id].sort, result.medias.map(&:id).sort
+    result = CheckSearch.new({show: ['links']}.to_json, nil, t.id)
+    assert_equal [pm_youtube.id, pm_twitter.id, pm_facebook.id, pm_instagram.id, pm_tiktok.id, pm_weblink.id].sort, result.medias.map(&:id).sort
     result = CheckSearch.new({}.to_json, nil, t.id)
     assert_equal [pm_youtube.id, pm_twitter.id, pm_facebook.id, pm_instagram.id, pm_tiktok.id, pm_weblink.id].sort, result.medias.map(&:id).sort
   end
