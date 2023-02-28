@@ -127,6 +127,8 @@ module ProjectMediaCreators
       self.media_type = 'Link'
     elsif !self.quote.blank?
       self.media_type = 'Claim'
+    elsif self.file.blank?
+      self.media_type = 'Blank'
     end
   end
 

@@ -453,4 +453,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 2, ProjectMedia.where(id: [pm_s.id, pm_t.id], archived: CheckArchivedFlags::FlagCodes::NONE).count
     assert_not_nil Relationship.where(id: r.id).last
   end
+
+  test "should create a blank item by default" do
+    assert_difference 'Blank.count' do
+      create_project_media media: nil
+    end
+  end
 end
