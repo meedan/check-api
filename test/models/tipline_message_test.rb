@@ -174,7 +174,7 @@ class TiplineMessageTest < ActiveSupport::TestCase
 
  test "sets event when passed" do
     setup_smooch_bot
-    
+
     tp = TiplineMessage.from_smooch_payload({},{}, 'newsletter_send')
     assert_equal 'newsletter_send', tp.event
  end
