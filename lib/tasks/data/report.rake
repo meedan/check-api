@@ -2,7 +2,7 @@
 
 namespace :check do
   namespace :data do
-    desc 'Generate data for the annual report. Usage: rake check:data:report[year,slugs]'
+    desc 'Generate data for the annual report. Usage: rake check:data:report[year]'
     task report: :environment do |_t, params|
       def get_statistics(start_date, end_date, slugs)
         data = []
@@ -46,7 +46,7 @@ namespace :check do
       ActiveRecord::Base.logger = nil
       year = params.to_a.first.to_i
       time = Time.parse("#{year}-01-01")
-      slugs = params.to_a[1] ? params.to_a[1].split('.') : Team.where('created_at < ?', time.end_of_year).map(&:slug)
+      slugs = Team.joins(:project_medias).where(project_medias: { user: BotUser.smooch_user }).distinct.pluck(:slug)
       header = [
         'Claims matched automatically',
         'Claims matched manually',
