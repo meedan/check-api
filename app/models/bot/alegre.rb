@@ -493,7 +493,14 @@ class Bot::Alegre < BotUser
   end
 
   def self.return_prioritized_matches(pm_id_scores)
-    pm_id_scores.sort_by{|k,v| [Bot::Alegre::ELASTICSEARCH_MODEL != v[:model] ? 1 : 0, v[:score], -k]}.reverse
+    if pm_id_scores.is_a?(Hash)
+      pm_id_scores.sort_by{|k,v| [Bot::Alegre::ELASTICSEARCH_MODEL != v[:model] ? 1 : 0, v[:score], -k]}.reverse
+    elsif pm_id_scores.is_a?(Array)
+      pm_id_scores.sort_by{|v| [Bot::Alegre::ELASTICSEARCH_MODEL != v[:model] ? 1 : 0, v[:score]]}.reverse
+    else
+      Rails.logger.error("[Alegre Bot] Unknown variable type in return_prioritized_matches: ##{pm_id_scores.class}")
+      pm_id_scores
+    end
   end
 
   def self.add_relationships(pm, pm_id_scores)
