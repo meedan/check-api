@@ -236,13 +236,16 @@ module AlegreSimilarity
       response.each do |pm, contexts|
         #contexts=contexts.sort_by{|v| [Bot::Alegre::ELASTICSEARCH_MODEL != v[:model]? 1 : 0, v[:score]]}
         contexts=self.return_prioritized_matches(contexts)
-        fields=contexts.collect{|c| c.dig(:context,"field")}
-        models=contexts.collect{|c| c[:model]}
         best_context=contexts.first
-        best_context[:context]||={}
-        best_context[:context]["contexts_count"]=contexts.count
-        best_context[:context]["field"]=fields.uniq.join("|")
-        best_context[:model]=models.uniq.join("|")
+        #TODO: For images at least, context is an array.
+        if contexts.count>0 and (contexts[0].dig(:context)&.is_a?(Hash) or contexts[0].dig(:context).nil?)
+          fields=contexts.collect{|c| c.dig(:context,"field")}
+          models=contexts.collect{|c| c[:model]}
+          best_context[:context]||={}
+          best_context[:context]["contexts_count"]=contexts.count
+          best_context[:context]["field"]=fields.uniq.join("|")
+          best_context[:model]=models.uniq.join("|")
+        end
         collapsed_response[pm]=best_context
       end unless response.nil?
       collapsed_response
