@@ -500,6 +500,7 @@ class Bot::Alegre < BotUser
       pm_id_scores.sort_by{|v| [Bot::Alegre::ELASTICSEARCH_MODEL != v[:model] ? 1 : 0, v[:score]]}.reverse
     else
       Rails.logger.error("[Alegre Bot] Unknown variable type in return_prioritized_matches: ##{pm_id_scores.class}")
+      pm_id_scores
     end
   end
 
