@@ -374,17 +374,17 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       "_index"=>"alegre_similarity",
       "_type"=>"_doc",
       "_id"=>"i8XY53UB36CYclMPF5wC",
-      "_score"=>100.60148,
+      "_score"=>100,
       "_source"=> {
         "content"=>
           "Bautista began his wrestling career in 1999, and signed with the World Wrestling Federation (WWF, now WWE) in 2000. From 2002 to 2010, he gained fame under the ring name Batista and became a six-time world champion by winning the World Heavyweight Championship four times and the WWE Championship twice. He holds the record for the longest reign as World Heavyweight Champion at 282 days and has also won the World Tag Team Championship three times (twice with Ric Flair and once with John Cena) and the WWE Tag Team Championship once (with Rey Mysterio). He was the winner of the 2005 Royal Rumble match and went on to headline WrestleMania 21, one of the top five highest-grossing pay-per-view events in professional wrestling history",
-        "context"=>{"team_id"=>1692, "field"=>"title", "project_media_id"=>1932}
+        "context"=>{"team_id"=>1692, "field"=>"description", "project_media_id"=>1932}
       }
     }, {
       "_index"=>"alegre_similarity",
       "_type"=>"_doc",
       "_id"=>"tMXj53UB36CYclMPXp14",
-      "_score"=>100.60148,
+      "_score"=>200,
       "_source"=>
        {
          "content"=>
@@ -393,7 +393,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     }}]})
     response = Bot::Alegre.get_similar_items_from_api("blah", {})
     assert_equal response.class, Hash
-    assert_equal response, {1932=>{:score=>100.60148, :context=>{"team_id"=>1692, "field"=>"title", "project_media_id"=>1932}, :model=>nil}}
+    assert_equal response, {1932=>{:score=>200, :context=>{"team_id"=>1692, "field"=>"title|description", "project_media_id"=>1932, "contexts_count"=>2}, :model=>nil}}
     Bot::Alegre.unstub(:request_api)
   end
 

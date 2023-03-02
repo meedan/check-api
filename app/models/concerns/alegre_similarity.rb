@@ -220,10 +220,36 @@ module AlegreSimilarity
       project_medias = result.collect{ |r| self.extract_project_medias_from_context(r) } if !result.nil? && result.is_a?(Array)
       project_medias.each do |request_response|
         request_response.each do |pmid, score_with_context|
-          response[pmid] ||= score_with_context if self.should_include_id_in_result?(pmid, conditions)
+          if self.should_include_id_in_result?(pmid, conditions)
+            if response.include?(pmid)
+              response[pmid].append(score_with_context)
+            else
+              response[pmid] = [score_with_context]
+            end
+          end
         end
       end unless project_medias.nil?
-      response.reject{ |id, _score_with_context| id.blank? }
+      response=response.reject{ |id, _score_with_context| id.blank? }
+      # TODO: For now, this function will return one context per ProjectMedia
+      # so that it does not change the previous spec
+      collapsed_response={}
+      response.each do |pm, contexts|
+        #contexts=contexts.sort_by{|v| [Bot::Alegre::ELASTICSEARCH_MODEL != v[:model]? 1 : 0, v[:score]]}
+        contexts=self.return_prioritized_matches(contexts)
+        best_context=contexts.first
+        #TODO: For images at least, context is an array.
+        if contexts.count>0 and (contexts[0].dig(:context)&.is_a?(Hash) or contexts[0].dig(:context).nil?)
+          fields=contexts.collect{|c| c.dig(:context,"field")}
+          models=contexts.collect{|c| c[:model]}
+          best_context[:context]||={}
+          best_context[:context]["contexts_count"]=contexts.count
+          best_context[:context]["field"]=fields.uniq.join("|")
+          best_context[:model]=models.uniq.join("|")
+          best_context[:model]=nil if best_context[:model].length==0
+        end
+        collapsed_response[pm]=best_context
+      end unless response.nil?
+      collapsed_response
     end
 
     def should_include_id_in_result?(pmid, conditions)
