@@ -245,6 +245,7 @@ module AlegreSimilarity
           best_context[:context]["contexts_count"]=contexts.count
           best_context[:context]["field"]=fields.uniq.join("|")
           best_context[:model]=models.uniq.join("|")
+          best_context[:model]=nil if best_context[:model].length==0
         end
         collapsed_response[pm]=best_context
       end unless response.nil?
