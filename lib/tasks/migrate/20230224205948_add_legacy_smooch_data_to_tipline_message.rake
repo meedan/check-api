@@ -54,14 +54,14 @@ class MigratedTiplineMessageHelper
       tipline_messages
     end
 
-    def append_to_cache(team_id)
-      completed_ids = self.read_cache || []
+    def append_to_cache(team_id, cutoff_time)
+      completed_ids = self.read_cache(cutoff_time) || []
       completed_ids << team_id
-      Rails.cache.write("smooch_data_migration:completed_team_ids", completed_ids)
+      Rails.cache.write("smooch_data_migration:completed_team_ids:#{cutoff_time}", completed_ids)
     end
 
-    def read_cache
-      Rails.cache.read("smooch_data_migration:completed_team_ids")
+    def read_cache(cutoff_time)
+      Rails.cache.read("smooch_data_migration:completed_team_ids:#{cutoff_time}")
     end
   end
 end
@@ -115,6 +115,9 @@ namespace :check do
         end
       end
 
+      old_logger = ActiveRecord::Base.logger
+      ActiveRecord::Base.logger = nil
+
       task_started_at = Time.now
       # Time when we first began storing TiplineMessages, at which point we will have duplicated new
       # TiplineMessage data and old-version Annotation data
@@ -128,7 +131,12 @@ namespace :check do
               where(project_medias: { user: BotUser.smooch_user }).
               distinct.pluck(:id)
 
-      completed_team_ids = MigratedTiplineMessageHelper.read_cache
+      # A simple caching to skip teams we've already generated all data for. It only caches when a full team
+      # has been generated, so doesn't account for failures. It is also versioned so that if we run multiple
+      # times before we get our first non-legacy TiplineMessage we will run from scratch.
+      #
+      # Tasks below are idempotent due to the unique external_ids, so it's okay if we run multiple times.
+      completed_team_ids = MigratedTiplineMessageHelper.read_cache(cutoff_time)
       puts "[#{Time.now}] #{tipline_team_ids.length} teams found with data for active tiplines: #{tipline_team_ids}"
       if completed_team_ids
         remaining_team_ids = tipline_team_ids - completed_team_ids
@@ -207,10 +215,12 @@ namespace :check do
           result = MigratedTiplineMessage.import(newsletter_messages, on_duplicate_key_ignore: true)
           puts "[#{Time.now}] Saved #{result.ids.count} of #{newsletter_messages.size} in this batch of newsletters sent."
         end
-        MigratedTiplineMessageHelper.append_to_cache(team_id)
+        MigratedTiplineMessageHelper.append_to_cache(team_id, cutoff_time)
       end
 
       puts "[#{Time.now}] Done in #{Time.now.to_i - task_started_at.to_i} seconds."
+
+      ActiveRecord::Base.logger = old_logger
     end
   end
 end
