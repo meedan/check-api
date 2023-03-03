@@ -178,6 +178,9 @@ namespace :check do
                   language = smooch_workflow['smooch_workflow_language']
                   sent_time = smooch_workflow['smooch_newsletter']['smooch_newsletter_last_sent_at']
 
+                  # Attempt to parse the timestamp - if not valid then will hit rescue and continue
+                  Time.parse(sent_time) unless sent_time.acts_like?(:time)
+
                   sent_newsletters_by_language[language] ||= []
                   sent_newsletters_by_language[language] << sent_time.to_s
                 end
