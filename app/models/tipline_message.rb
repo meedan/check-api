@@ -3,9 +3,14 @@ class TiplineMessage < ApplicationRecord
 
   belongs_to :team
 
-  validates_uniqueness_of :external_id
-  validates_presence_of :team, :uid, :platform, :language, :direction, :sent_at, :payload
-  validates :sent_at, uniqueness: { scope: [:team, :uid, :platform, :language, :direction] }
+  validates :external_id, uniqueness: true, presence: true
+  validates_presence_of :team, :uid, :platform, :language, :direction, :sent_at
+
+  # The following behaviors are only for importing historic annotation data
+  with_options unless: :imported_from_legacy_smooch_data? do |new_data|
+    new_data.validates :sent_at, uniqueness: { scope: [:team, :uid, :platform, :language, :direction] }
+    new_data.validates_presence_of :payload
+  end
 
   class << self
     def from_smooch_payload(msg, payload, event = nil)
@@ -17,7 +22,8 @@ class TiplineMessage < ApplicationRecord
         team: team,
         event: event,
         language: Bot::Smooch.get_user_language(uid),
-        payload: payload.to_json
+        payload: payload,
+        imported_from_legacy_smooch_data: false,
       }
 
       trigger_attributes = case payload['trigger']
