@@ -112,6 +112,13 @@ namespace :check do
             end
         
             result_obj = JSON.parse(res.body)
+
+            if result_obj['hits'].nil?
+              puts("\tNo reults for team_id #{tb.team_id}")
+              has_more_pages = false
+              next
+            end
+
             items = result_obj['hits']['hits']
 
             puts("\tRetrived page of #{items.length} items with only old index")
