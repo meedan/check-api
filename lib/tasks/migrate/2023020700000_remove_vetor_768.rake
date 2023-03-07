@@ -93,7 +93,7 @@ namespace :check do
           puts "[#{Time.now}] Starting fetching context list from ES for team_id :#{tb.team_id} "
 
           req = Net::HTTP::Post.new(uri)
-          req.basic_auth(ES_URL, ES_PWD)
+          req.basic_auth(ES_USER, ES_PWD)
           req['Content-Type'] = 'application/json'
 
           # keep track of max sort id for ES pagination
@@ -114,7 +114,8 @@ namespace :check do
             result_obj = JSON.parse(res.body)
 
             if result_obj['hits'].nil?
-              puts("\tNo reults for team_id #{tb.team_id}")
+              puts("\tMissing results for team_id #{tb.team_id}")
+              puts(res)
               has_more_pages = false
               next
             end
