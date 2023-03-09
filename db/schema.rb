@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_02_24_205948) do
+ActiveRecord::Schema.define(version: 2023_03_09_200728) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -524,9 +524,6 @@ ActiveRecord::Schema.define(version: 2023_02_24_205948) do
     t.bigint "team_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "imported_from_legacy_smooch_data", default: false
-    t.jsonb "legacy_smooch_data", default: {}
-    t.string "legacy_smooch_message_text"
     t.index ["external_id"], name: "index_tipline_messages_on_external_id", unique: true
     t.index ["team_id"], name: "index_tipline_messages_on_team_id"
     t.index ["uid"], name: "index_tipline_messages_on_uid"
