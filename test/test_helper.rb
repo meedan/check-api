@@ -1,7 +1,22 @@
 require 'minitest/hooks/test'
 
-# Avoid coverage report when running a single test
-unless ARGV.include?('-n')
+ENV['RAILS_ENV'] ||= 'test'
+
+require File.expand_path('../../config/environment', __FILE__)
+require 'rails/test_help'
+require 'webmock/minitest'
+require 'sample_data'
+require 'parallel_tests/test/runtime_logger'
+require 'sidekiq/testing'
+require 'minitest/retry'
+require 'pact/consumer/minitest'
+require 'mocha/minitest'
+require "csv"
+
+# Avoid coverage report and test re-running when running a single test
+unless ENV['MINIMAL_TEST_RUN'] || ARGV.include?('-n')
+  Minitest::Retry.use!
+
   require 'simplecov'
   puts 'Starting coverage...'
   SimpleCov.start 'rails' do
@@ -20,19 +35,6 @@ unless ARGV.include?('-n')
     coverage_dir 'coverage'
   end
 end
-
-ENV['RAILS_ENV'] ||= 'test'
-require File.expand_path('../../config/environment', __FILE__)
-require 'rails/test_help'
-require 'webmock/minitest'
-require 'sample_data'
-require 'parallel_tests/test/runtime_logger'
-require 'sidekiq/testing'
-require 'minitest/retry'
-require 'pact/consumer/minitest'
-require 'mocha/minitest'
-require "csv"
-Minitest::Retry.use!
 
 class ActionController::TestCase
   include Devise::Test::ControllerHelpers
