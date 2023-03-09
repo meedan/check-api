@@ -151,10 +151,10 @@ module SmoochMessages
 
     # Used for incoming messages (e.g. message:appUser)
     # where full message contents available
-    def get_platform_from_message(message, skip_store: false)
+    def get_platform_from_message(message)
       type = message.dig('source', 'type')
       platform = type ? ::Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[type].to_s : 'Unknown'
-      RequestStore.store[:smooch_bot_platform] = platform if skip_store
+      RequestStore.store[:smooch_bot_platform] = platform
       platform
     end
 
