@@ -34,7 +34,7 @@ module CheckCachedFields
             update_pg: options[:update_pg],
             pg_field_name: options[:pg_field_name],
           }
-          klass.index_and_pg_cached_field(index_options, value, name, obj, 'create') unless Rails.env == 'test'
+          klass.delay_for(1.second).create_cached_field(index_options, value, name, obj) unless Rails.env == 'test'
         end
       end
 
@@ -74,10 +74,14 @@ module CheckCachedFields
         es_options = { keys: [field_name], data: { field_name => value } }
         es_options[:pm_id] = target.id if target.class.name == 'ProjectMedia'
         model = { klass: target.class.name, id: target.id }
-        ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(es_options), 'update_doc')
+        ElasticSearchWorker.new.perform(YAML::dump(model), YAML::dump(es_options), 'update_doc')
       end
       update_pg = options[:update_pg] || false
       update_pg_cache_field(options, value, name, target) if update_pg
+    end
+
+    def create_cached_field(index_options, value, name, obj)
+      self.index_and_pg_cached_field(index_options, value, name, obj, 'create')
     end
 
     def update_pg_cache_field(options, value, name, target)
