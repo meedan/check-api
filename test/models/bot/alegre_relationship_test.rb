@@ -114,7 +114,7 @@ class Bot::AlegreRelationshipTest < ActiveSupport::TestCase
         pm3 = create_project_media project: p # the new item to be suggested
         test_relationship = Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.suggested_type}})
         # check that it was created
-        assert_equal( test_relationship nil)
+        assert_equal( test_relationship, nil)
  
     end
 
