@@ -41,19 +41,19 @@ class Bot::AlegreRelationshipTest < ActiveSupport::TestCase
         pm2 = create_project_media project: p
         test_relationship = Bot::Alegre.add_relationships(pm2, {pm1.id => {score: 1, relationship_type: Relationship.suggested_type}})
         # check that it was created
-        assert test_relationship != nil
+        assert test_relationship.present?
         # check that it links the appropriate ids
         assert_equal( test_relationship.source, pm1)
         assert_equal( test_relationship.target, pm2)
     end
 
-    test 'item confirmd to single other item will link' do
+    test 'item confirmed to single other item will link' do
         p = create_project
         pm1 = create_project_media project: p
         pm2 = create_project_media project: p
         test_relationship = Bot::Alegre.add_relationships(pm2, {pm1.id => {score: 1, relationship_type: Relationship.confirmed_type}})
         # check that it was created
-        assert test_relationship != nil
+        assert test_relationship.present?
         # check that it links the appropriate ids
         assert_equal( test_relationship.source, pm1)
         assert_equal( test_relationship.target, pm2)
@@ -68,7 +68,7 @@ class Bot::AlegreRelationshipTest < ActiveSupport::TestCase
         pm3 = create_project_media project: p # the new item to be suggested
         test_relationship = Bot::Alegre.add_relationships(pm3, {pm1.id => {score: 1, relationship_type: Relationship.suggested_type}})
         # check that it was created
-        assert test_relationship != nil
+        assert test_relationship.present?
         # check that it links the appropriate ids
         assert_equal( test_relationship.source, pm1)
         assert_equal( test_relationship.target, pm3)
@@ -83,7 +83,7 @@ class Bot::AlegreRelationshipTest < ActiveSupport::TestCase
         pm3 = create_project_media project: p # the new item to be suggested
         test_relationship = Bot::Alegre.add_relationships(pm3, {pm1.id => {score: 1, relationship_type: Relationship.confirmed_type}})
         # check that it was created
-        assert test_relationship != nil
+        assert test_relationship.present?
         # check that it links the appropriate ids
         assert_equal( test_relationship.source, pm1)
         assert_equal( test_relationship.target, pm3)
@@ -98,7 +98,7 @@ class Bot::AlegreRelationshipTest < ActiveSupport::TestCase
         pm3 = create_project_media project: p # the new item to be suggested
         test_relationship = Bot::Alegre.add_relationships(pm3, {pm1.id => {score: 1, relationship_type: Relationship.suggested_type}})
         # check that it was created
-        assert test_relationship != nil
+        assert test_relationship.present?
         # check that it links the appropriate ids
         assert_equal( test_relationship.source, pm1)
         assert_equal( test_relationship.target, pm3)
@@ -113,8 +113,10 @@ class Bot::AlegreRelationshipTest < ActiveSupport::TestCase
 
         pm3 = create_project_media project: p # the new item to be suggested
         test_relationship = Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.suggested_type}})
-        # check that it was created
-        assert_equal( test_relationship, nil)
+        # check that it was not created
+        assert_nil( test_relationship)
+        # check that it doesn't exist
+        assert Relationship.where(target_id: pm2.id, source_id: pm3.id).first.nil?
  
     end
 
@@ -127,7 +129,7 @@ class Bot::AlegreRelationshipTest < ActiveSupport::TestCase
         pm3 = create_project_media project: p # the new item to be suggested
         test_relationship = Bot::Alegre.add_relationships(pm3, {pm1.id => {score: 1, relationship_type: Relationship.confirmed_type}})
         # check that it was created
-        assert test_relationship != nil
+        assert test_relationship.present?
         # check that it links the appropriate ids
         assert_equal( test_relationship.source, pm1)
         assert_equal( test_relationship.target, pm3)
@@ -144,9 +146,9 @@ class Bot::AlegreRelationshipTest < ActiveSupport::TestCase
         pm3 = create_project_media project: p # the new item to be suggested
         test_relationship = Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
         # check that it was created
-        assert test_relationship != nil
-        # check that it links the parent
-        assert_equal( test_relationship.source, pm1)
+        assert test_relationship.present?
+        # check that it links to the child
+        assert_equal( test_relationship.source, pm2)
         assert_equal( test_relationship.target, pm3)
 
         # check that the original link is removed
@@ -154,7 +156,7 @@ class Bot::AlegreRelationshipTest < ActiveSupport::TestCase
 
     end
 
-    test 'item confirmed to child of confrimed pair will link to parent' do
+    test 'item confirmed to child of confirmed pair will link to parent' do
         # the links are good, but rewrite it as a link to the parent
         p = create_project
         pm1 = create_project_media project: p # parent
@@ -164,13 +166,13 @@ class Bot::AlegreRelationshipTest < ActiveSupport::TestCase
         pm3 = create_project_media project: p # the new item to be suggested
         test_relationship = Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
         # check that it was created
-        assert test_relationship != nil
+        assert test_relationship.present?
         # check that it links the parent (not the child)
         assert_equal( test_relationship.source, pm1)
         assert_equal( test_relationship.target, pm3)
     end
 
-    test 'item suggested to child of confrimed pair will link to parent' do
+    test 'item suggested to child of confirmed pair will link to parent' do
         # the links are good, but rewrite it as a link to the parent
         p = create_project
         pm1 = create_project_media project: p # parent
@@ -180,7 +182,7 @@ class Bot::AlegreRelationshipTest < ActiveSupport::TestCase
         pm3 = create_project_media project: p # the new item to be suggested
         test_relationship = Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.suggested_type}})
         # check that it was created
-        assert test_relationship != nil
+        assert test_relationship.present?
         # check that it links the parent (not the child)
         assert_equal( test_relationship.source, pm1)
         assert_equal( test_relationship.target, pm3)

@@ -548,7 +548,7 @@ class Bot::Alegre < BotUser
 
   def self.add_relationships(pm, pm_id_scores)
     """
-    Evalute the scores of (possible) matches to existing ProjectMedia and determine the best represetation to store
+    Evalute the scores of (possible) matches to existing ProjectMedia and determine the best represetation to store.
     Clusters of similar PM are represented by storing links between each member item to a single representative 'parent' PM.
     When new relationships are proposed to 'children' in a cluster, they may be re-represented as a link to the 'parent'
     but the original proposal is also stored. 
@@ -583,37 +583,45 @@ class Bot::Alegre < BotUser
           {}, RequestStore[:request])
       end 
       # Take the first source as the parent (A).
-      # 1. A is confirmed to B and C is suggested to B: type of the relationship between A and C is: suggested
-      # 2. A is confirmed to B and C is confirmed to B: type of the relationship between A and C is: confirmed
-      # 3. A is suggested to B and C is suggested to B: type of the relationship between A and C is: IGNORE
-      # 4. A is suggested to B and C is confirmed to B: type of the relationship between A and C is: FORM NEW RELATIONSHIP
+      # 1. A is confirmed to B and C is suggested to B: type of the relationship between A and C is: suggested to A
+      # 2. A is confirmed to B and C is confirmed to B: type of the relationship between A and C is: confirmed to A
+      # 3. A is suggested to B and C is suggested to B: type of the relationship between A and C is: IGNORE (don't suggest to suggest)
+      # 4. A is suggested to B and C is confirmed to B: type of the relationship between A and C is: FORM NEW RELATIONSHIP, break old
       parent_relationship = parent_relationships.first
       proposed_relationship_is_confirmed = pm_id_scores[proposed_id][:relationship_type] == Relationship.confirmed_type
       new_type = Relationship.suggested_type
 
       # if relationship to parent was suggested, and new relationship is also suggested
       # we don't want to record this any more
-      if !parent_relationship.is_confirmed? && !proposed_relationship_is_confirmed
-        Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 3/6] [Relationships WARNING] ignoring suggested relationship pm_id, pm_id_scores, parent_id #{[pm.id, pm_id_scores, proposed_id].inspect}"
+      if !parent_relationship.is_confirmed? & !proposed_relationship_is_confirmed
+        Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 3/6] [Relationships WARNING] ignoring suggested relationship pm_id, pm_id_scores, parent_id #{
+          [pm.id, pm_id_scores, proposed_id].inspect}"
         return
       end
 
-      if parent_relationship.is_confirmed? && proposed_relationship_is_confirmed
-        new_type = Relationship.confirmed_type
+      # relationships look great, but the proposed match should be replaced by a match to its parent
+      if parent_relationship.is_confirmed? 
+        if proposed_relationship_is_confirmed
+          new_type = Relationship.confirmed_type
+        end
+        original_parent_id = proposed_id
+        parent_id = parent_relationship.source_id
+        original_relationship = pm_id_scores[original_parent_id]
+        pm_id_scores[parent_id] = pm_id_scores[original_parent_id]
+        pm_id_scores[parent_id][:relationship_type] = new_type if pm_id_scores[parent_id]
       end
 
       # if the relationship to parent was only suggested, but new relationship is confirmed
-      if !parent_relationship.is_confirmed? && proposed_relationship_is_confirmed
+      if !parent_relationship.is_confirmed? & proposed_relationship_is_confirmed
         new_type = Relationship.confirmed_type
-        # TODO: break the old parent relationship
+        # break the old parent relationship involving proposed_id, make the proposed_id into a new parent
+        Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 3/6] [Relationships NOTE] removing suggested relationship pm_id, parent_id #{
+          [parent_relationship.source_id, parent_relationship.target_id].inspect}"
+        parent_relationship.destroy
+        parent_id = proposed_id
       end
 
-      # the proposed match is being replaced by a match to its parent
-      original_parent_id = proposed_id
-      parent_id = parent_relationship.source_id
-      original_relationship = pm_id_scores[original_parent_id]
-      pm_id_scores[parent_id] = pm_id_scores[original_parent_id]
-      pm_id_scores[parent_id][:relationship_type] = new_type if pm_id_scores[parent_id]
+      
     else
       # the proposed match has no previous relationships, so we accept it as a parent
       parent_id = proposed_id
@@ -624,7 +632,7 @@ class Bot::Alegre < BotUser
 
   def self.add_relationship(pm, pm_id_scores, parent_id, original_parent_id=nil, original_relationship=nil)
     # Better be safe than sorry.
-    return if parent_id == pm.id
+    return false if parent_id == pm.id
     parent = ProjectMedia.find_by_id(parent_id)
     original_parent = ProjectMedia.find_by_id(original_parent_id)
     return false if parent.nil?
