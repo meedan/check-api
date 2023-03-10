@@ -505,47 +505,6 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.add_relationships_OLD(pm, pm_id_scores)
-    Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 1/6] Adding relationships for #{pm_id_scores.inspect}"
-    return if pm_id_scores.blank? || pm_id_scores.keys.include?(pm.id)
-
-    # Take first match as being the best potential parent.
-    # Conditions to check for a valid parent in 2-level hierarchy:
-    # - If it's a child, get its parent.
-    # - If it's a parent, use it.
-    # - If it has no existing relationship, use it.
-    # make K negative so that we bias towards older IDs
-    parent_id = self.return_prioritized_matches(pm_id_scores).first.first
-    parent_relationships = Relationship.where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).where(target_id: parent_id).all
-    Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 2/6] Number of parent relationships #{parent_relationships.count}"
-    original_parent_id = nil
-    original_relationship = nil
-    if parent_relationships.length > 0
-      # Sanity check: if there are multiple parents, something is wrong in the dataset.
-      if parent_relationships.length > 1
-        self.notify_error(StandardError.new("[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships ERROR] Found multiple similarity relationship parents for ProjectMedia #{parent_id}"), 
-          {}, RequestStore[:request])
-      end 
-      # Take the first source as the parent (A).
-      # 1. A is confirmed to B and C is suggested to B: type of the relationship between A and C is: suggested
-      # 2. A is confirmed to B and C is confirmed to B: type of the relationship between A and C is: confirmed
-      # 3. A is suggested to B and C is suggested to B: type of the relationship between A and C is: suggested
-      # 4. A is suggested to B and C is confirmed to B: type of the relationship between A and C is: suggested
-      parent_relationship = parent_relationships.first
-      new_type = Relationship.suggested_type
-      if parent_relationship.is_confirmed? && pm_id_scores[parent_id][:relationship_type] == Relationship.confirmed_type
-        new_type = Relationship.confirmed_type
-      end
-      original_parent_id = parent_id
-      parent_id = parent_relationship.source_id
-      original_relationship = pm_id_scores[original_parent_id]
-      pm_id_scores[parent_id] = pm_id_scores[original_parent_id]
-      pm_id_scores[parent_id][:relationship_type] = new_type if pm_id_scores[parent_id]
-    end
-    Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 3/6] Adding relationship for following pm_id, pm_id_scores, parent_id #{[pm.id, pm_id_scores, parent_id].inspect}"
-    self.add_relationship(pm, pm_id_scores, parent_id, original_parent_id, original_relationship)
-  end
-
   def self.add_relationships(pm, pm_id_scores)
     """
     Evalute the scores of (possible) matches to existing ProjectMedia and determine the best represetation to store.
@@ -592,7 +551,7 @@ class Bot::Alegre < BotUser
       new_type = Relationship.suggested_type
 
       # if relationship to parent was suggested, and new relationship is also suggested
-      # we don't want to record this any more
+      # we don't want to record this any more https://meedan.atlassian.net/browse/CV2-2675
       if !parent_relationship.is_confirmed? & !proposed_relationship_is_confirmed
         Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 3/6] [Relationships WARNING] ignoring suggested relationship pm_id, pm_id_scores, parent_id #{
           [pm.id, pm_id_scores, proposed_id].inspect}"
