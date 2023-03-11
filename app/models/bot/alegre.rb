@@ -545,12 +545,12 @@ class Bot::Alegre < BotUser
       # 1. A is confirmed to B and C is suggested to B: type of the relationship between A and C is: suggested to A
       # 2. A is confirmed to B and C is confirmed to B: type of the relationship between A and C is: confirmed to A
       # 3. A is suggested to B and C is suggested to B: type of the relationship between A and C is: IGNORE (don't suggest to suggest)
-      # 4. A is suggested to B and C is confirmed to B: type of the relationship between A and C is: FORM NEW RELATIONSHIP, break old
+      # 4. A is suggested to B and C is confirmed to B: type of the relationship between A and C is: form new relationship to B, break old relation to A
       parent_relationship = parent_relationships.first
       proposed_relationship_is_confirmed = pm_id_scores[proposed_id][:relationship_type] == Relationship.confirmed_type
       new_type = Relationship.suggested_type
 
-      # if relationship to parent was suggested, and new relationship is also suggested
+      # (3) if relationship to parent was suggested, and new relationship is also suggested
       # we don't want to record this any more https://meedan.atlassian.net/browse/CV2-2675
       if !parent_relationship.is_confirmed? & !proposed_relationship_is_confirmed
         Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 3/6] [Relationships WARNING] ignoring suggested relationship pm_id, pm_id_scores, parent_id #{
@@ -558,7 +558,7 @@ class Bot::Alegre < BotUser
         return
       end
 
-      # relationships look great, but the proposed match should be replaced by a match to its parent
+      # (1,2) relationships look great, but the proposed match should be replaced by a match to its parent
       if parent_relationship.is_confirmed? 
         if proposed_relationship_is_confirmed
           new_type = Relationship.confirmed_type
@@ -570,7 +570,7 @@ class Bot::Alegre < BotUser
         pm_id_scores[parent_id][:relationship_type] = new_type if pm_id_scores[parent_id]
       end
 
-      # if the relationship to parent was only suggested, but new relationship is confirmed
+      # (4) if the relationship to parent was only suggested, but new relationship is confirmed
       if !parent_relationship.is_confirmed? & proposed_relationship_is_confirmed
         new_type = Relationship.confirmed_type
         # break the old parent relationship involving proposed_id, make the proposed_id into a new parent
@@ -580,7 +580,6 @@ class Bot::Alegre < BotUser
         parent_id = proposed_id
       end
 
-      
     else
       # the proposed match has no previous relationships, so we accept it as a parent
       parent_id = proposed_id
