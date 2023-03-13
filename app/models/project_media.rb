@@ -127,17 +127,19 @@ class ProjectMedia < ApplicationRecord
   end
 
   def refresh_media=(_refresh)
-    Bot::Keep.archiver_annotation_types.each do |type|
-      a = self.annotations.where(annotation_type: 'archiver').last
-      a.nil? ? self.create_archive_annotation(type) : self.reset_archive_response(a, type)
+    if self.media.type == 'Link'
+      Bot::Keep.archiver_annotation_types.each do |type|
+        a = self.annotations.where(annotation_type: 'archiver').last
+        a.nil? ? self.create_archive_annotation(type) : self.reset_archive_response(a, type)
+      end
+      team = self.team
+      pender_key = team.get_pender_key if team
+      self.media.pender_key = pender_key
+      self.media.refresh_pender_data
+      self.updated_at = Time.now
+      # update account if we have a new author_url
+      update_media_account
     end
-    team = self.team
-    pender_key = team.get_pender_key if team
-    self.media.pender_key = pender_key
-    self.media.refresh_pender_data
-    self.updated_at = Time.now
-    # update account if we have a new author_url
-    update_media_account if self.media.type == 'Link'
   end
 
   def get_dynamic_annotation(type)
