@@ -64,7 +64,9 @@ class ReindexAlegreWorkspace
   def check_for_write(running_bucket, event_id, team_id, write_remains=false, in_processes=3)
     if running_bucket.length > 500 || write_remains
       Parallel.map(running_bucket.each_slice(30).to_a, in_processes: in_processes) { |bucket_slice| Bot::Alegre.request_api('post', '/text/bulk_similarity/', { documents: bucket_slice }) }
-      write_last_id(event_id, team_id, running_bucket.last[:context][:project_media_id])
+      log(event_id, 'Wrote to Alegre.')
+      # track state in case job needs to restart
+      write_last_id(event_id, team_id, running_bucket.last[:context][:project_media_id]) if running_bucket.length > 0 && running_bucket.last[:context]
       running_bucket = []
     end
     running_bucket
