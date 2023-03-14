@@ -34,7 +34,8 @@ module ProjectMediaCreators
     when 'Link'
       set_title_for_links
     when 'Claim'
-      self.analysis = { title: media.quote }
+      title = self.user&.login == 'smooch' ? build_tipline_title('text') : media.quote
+      self.analysis = { title: title }
     when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
       set_title_for_files
     end
