@@ -492,7 +492,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     end
   end
 
-  test "should set automatic title links" do
+  test "should set automatic title for links" do
     m = create_uploaded_image file: 'rails.png'
     v = create_uploaded_video file: 'rails.mp4'
     a = create_uploaded_audio file: 'rails.mp3'
@@ -567,6 +567,25 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       assert_equal "tiktok", pm_tiktok.title
       pm_weblink = create_project_media team: team, media: l_weblink
       assert_equal "weblink", pm_weblink.title
+    end
+  end
+
+  test "should set automatic title for claims" do
+    bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true
+    u = create_user
+    team = create_team slug: 'workspace-slug'
+    create_team_user team: team, user: bot, role: 'admin'
+    create_team_user team: team, user: u, role: 'admin'
+    # test with smooch user
+    with_current_user_and_team(bot, team) do
+      pm = create_project_media team: team, quote: random_string
+      assert_equal "text-#{team.slug}-#{pm.id}", pm.title
+    end
+    # test with non smooch user
+    with_current_user_and_team(u, team) do
+      quote = random_string
+      pm = create_project_media team: team, quote: quote
+      assert_equal quote, pm.title
     end
   end
 

@@ -136,7 +136,8 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     claim = 'This is a test claim'
     send_message 'hello', '1', '1', random_string, random_string, claim, random_string, random_string, '1'
     assert_saved_query_type 'default_requests'
-    assert_equal claim, ProjectMedia.last.title
+    pm = ProjectMedia.last
+    assert_equal "text-#{@team.slug}-#{pm.id}", pm.title
   end
 
   test "should subscribe and unsubscribe to newsletter on tipline bot v2" do
@@ -205,7 +206,8 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     claim = 'This is a test claim'
     send_message 'hello', '1', '1', random_string, '2', random_string, claim, '1'
     assert_saved_query_type 'default_requests'
-    assert_equal claim, ProjectMedia.last.title
+    pm = ProjectMedia.last
+    assert_equal "text-#{@team.slug}-#{pm.id}", pm.title
   end
 
   test "should submit query and get relevant text keyword search results on tipline bot v2" do
