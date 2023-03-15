@@ -1,17 +1,36 @@
 namespace :check do
   namespace :migrate do
-    task index_link_associated_type: :environment do
+    task migrate_tipline_links_title_format: :environment do
       # This rake task to index source name
       started = Time.now.to_i
       index_alias = CheckElasticSearchModel.get_index_alias
       client = $repository.client
-      last_team_id = Rails.cache.read('check:migrate:index_link_associated_type:team_id') || 0
+      last_team_id = Rails.cache.read('check:migrate:migrate_tipline_links_associated_type:team_id') || 0
+      # Get smooch user so I can collect tipline items
+      smooch_bot = User.where(login: 'smooch').last
       Team.where('id > ?', last_team_id).find_each do |team|
         puts "Processing team #{team.slug} ..."
         team.project_medias.joins(:media).where('medias.type = ?', 'Link').find_in_batches(:batch_size => 1000) do |pms|
           es_body = []
           media_mapping = {}
           pms.each{ |pm| media_mapping[pm.media_id] = pm.id }
+          # Get verification_status annotation so I can do a bulk-import for analysis title
+          pm_ids = pms.map(&:id)
+          pm_vs_mapping = {}
+          tipline_items = ProjectMedia.where(id: pm_ids, user_id: smooch_bot.id).map(&:id)
+          Annotation.where(annotation_type: 'verification_status', annotated_type: 'ProjectMedia', annotated_id: tipline_items)
+          .find_each do |vs|
+            print '.'
+            pm_vs_mapping[vs.annotated_id] = {
+              annotation_id: vs.id,
+              annotation_type: 'verification_status',
+              field_type: 'text',
+              created_at: vs.created_at,
+              updated_at: vs.updated_at,
+              value_json: {}
+            }
+          end
+          title_fields = []
           ids = pms.map(&:media_id)
           DynamicAnnotation::Field
           .select('dynamic_annotation_fields.id, dynamic_annotation_fields.value as value, a.annotated_id as media_id')
@@ -26,11 +45,79 @@ namespace :check do
             provider = value['provider']
             associated_type = ['instagram', 'twitter', 'youtube', 'facebook', 'tiktok'].include?(provider) ? provider : 'weblink'
             fields = { 'associated_type' => associated_type }
+            if tipline_items.include?(pm_id)
+              analysis_title = "#{associated_type}-#{team.slug}-#{pm_id}"
+              fields['analysis_title'] = analysis_title
+              # analysis field data
+              title_fields << pm_vs_mapping[pm_id].merge({ value: analysis_title, field_name: 'title' }) unless pm_vs_mapping[pm_id].blank?
+            end
             es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
           end
           client.bulk body: es_body unless es_body.blank?
+          # Delete existing analysis_title before create new records
+          DynamicAnnotation::Field.where(annotation_type: 'verification_status',field_name: 'title')
+          .joins('INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id')
+          .where('a.annotated_type = ? AND a.annotated_id IN (?)', 'ProjectMedia', tipline_items).delete_all
+          # Import new records
+          DynamicAnnotation::Field.import title_fields, validate: false, recursive: false, timestamps: false unless title_fields.blank?
+          # Clear title cached field to enforce creating a new one with updated value
+          tipline_items.each{ |pm_id| Rails.cache.delete("check_cached_field:ProjectMedia:#{pm_id}:title") }
         end
-        Rails.cache.write('check:migrate:index_link_associated_type:team_id', team.id)
+        Rails.cache.write('check:migrate:migrate_tipline_links_associated_type:team_id', team.id)
+      end
+      minutes = ((Time.now.to_i - started) / 60).to_i
+      puts "[#{Time.now}] Done in #{minutes} minutes."
+    end
+
+    task migrate_tipline_claims_title_format: :environment do
+      # This rake task to index source name
+      started = Time.now.to_i
+      index_alias = CheckElasticSearchModel.get_index_alias
+      client = $repository.client
+      last_team_id = Rails.cache.read('check:migrate:migrate_tipline_claims_associated_type:team_id') || 0
+      # Get smooch user so I can collect tipline items
+      smooch_bot = User.where(login: 'smooch').last
+      Team.where('id > ?', last_team_id).find_each do |team|
+        puts "Processing team #{team.slug} ..."
+        team.project_medias.where(user_id: smooch_bot.id).joins(:media).where('medias.type = ?', 'Claim').find_in_batches(:batch_size => 1000) do |pms|
+          es_body = []
+          title_fields = []
+          # Get verification_status annotation so I can do a bulk-import for analysis title
+          pm_ids = pms.map(&:id)
+          pm_vs_mapping = {}
+          Annotation.where(annotation_type: 'verification_status', annotated_type: 'ProjectMedia', annotated_id: pm_ids)
+          .find_each do |vs|
+            print '.'
+            pm_vs_mapping[vs.annotated_id] = {
+              annotation_id: vs.id,
+              annotation_type: 'verification_status',
+              field_type: 'text',
+              created_at: vs.created_at,
+              updated_at: vs.updated_at,
+              field_name: 'title',
+              value_json: {}
+            }
+          end
+          pms.each do |raw|
+            print '.'
+            doc_id = Base64.encode64("ProjectMedia/#{raw.id}")
+            analysis_title = "text-#{team.slug}-#{raw.id}"
+            fields = { 'analysis_title' => analysis_title }
+            # analysis field data
+            title_fields << pm_vs_mapping[raw.id].merge({ value: analysis_title }) unless pm_vs_mapping[raw.id].blank?
+            es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
+          end
+          client.bulk body: es_body unless es_body.blank?
+          # Delete existing analysis_title before create new records
+          DynamicAnnotation::Field.where(annotation_type: 'verification_status',field_name: 'title')
+          .joins('INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id')
+          .where('a.annotated_type = ? AND a.annotated_id IN (?)', 'ProjectMedia', pm_ids).delete_all
+          # Import new records
+          DynamicAnnotation::Field.import title_fields, validate: false, recursive: false, timestamps: false unless title_fields.blank?
+          # Clear title cached field to enforce creating a new one with updated value
+          pm_ids.each{ |pm_id| Rails.cache.delete("check_cached_field:ProjectMedia:#{pm_id}:title") }
+        end
+        Rails.cache.write('check:migrate:migrate_tipline_claims_associated_type:team_id', team.id)
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
