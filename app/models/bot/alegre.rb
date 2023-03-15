@@ -555,7 +555,7 @@ class Bot::Alegre < BotUser
       if !parent_relationship.is_confirmed? & !proposed_relationship_is_confirmed
         Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 3/6] [Relationships WARNING] ignoring suggested relationship pm_id, pm_id_scores, parent_id #{
           [pm.id, pm_id_scores, proposed_id].inspect}"
-        return
+        return nil
       end
 
       # (1,2) relationships look great, but the proposed match should be replaced by a match to its parent
@@ -590,10 +590,10 @@ class Bot::Alegre < BotUser
 
   def self.add_relationship(pm, pm_id_scores, parent_id, original_parent_id=nil, original_relationship=nil)
     # Better be safe than sorry.
-    return false if parent_id == pm.id
+    return nil if parent_id == pm.id
     parent = ProjectMedia.find_by_id(parent_id)
     original_parent = ProjectMedia.find_by_id(original_parent_id)
-    return false if parent.nil?
+    return nil if parent.nil?
     if parent.is_blank?
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 4/6] Parent is blank, creating suggested relationship"
       self.create_relationship(parent, pm, pm_id_scores, Relationship.suggested_type, original_parent, original_relationship)
@@ -613,7 +613,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.create_relationship(source, target, pm_id_scores, relationship_type, original_source=nil, original_relationship_type=nil)
-    return if !self.can_create_relationship?(source, target, relationship_type)
+    return nil if !self.can_create_relationship?(source, target, relationship_type)
     r = Relationship.where(source_id: source.id, target_id: target.id)
     .where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).last
     if r.nil?
