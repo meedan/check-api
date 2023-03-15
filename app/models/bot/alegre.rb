@@ -576,7 +576,7 @@ class Bot::Alegre < BotUser
         # break the old parent relationship involving proposed_id, make the proposed_id into a new parent
         Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 3/6] [Relationships NOTE] removing suggested relationship pm_id, parent_id #{
           [parent_relationship.source_id, parent_relationship.target_id].inspect}"
-        parent_relationship.destroy
+        parent_relationship.destroy!
         parent_id = proposed_id
       end
 
