@@ -156,7 +156,7 @@ namespace :check do
             end
 
             # puts("reindexing project media ids #{pm_ids} for team_id #{tb.team_id}")
-            puts("\treindexing #{pm_ids.length} project media ids for team_id #{tb.team_id} (#{updated_count} total updates requested)")
+            puts("\treindexing #{pm_ids.length} project media ids for team_id #{tb.team_id} (#{updated_count} previous updates requested)")
             # we will use ReindexAlegreWorkspace run_reindex, pushing one team at a time
             # because ProjectMedia ids are only unique within team
             query = ProjectMedia.where(team_id: tb.team_id).where(id: pm_ids)
