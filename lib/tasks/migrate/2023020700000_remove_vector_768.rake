@@ -82,9 +82,6 @@ namespace :check do
         # loop over the team ids, so we can chunk up by team workspace
         BotUser.alegre_user.team_bot_installations.find_each do |tb|
 
-          # DEBUG: hardcode the team id because only [1,2] in local dev
-          # tb.team_id = 30
-
           # we can't use Bot::Alegre.request_api because that talks to postgres and doesn't know about ES indexes
           # so we are directly constructing an ES query to find the records we need to reindex
           # NOTE: this is not how we should normally talk to ES, use the Alegre service endpoint instead if possible
@@ -159,7 +156,7 @@ namespace :check do
             end
 
             # puts("reindexing project media ids #{pm_ids} for team_id #{tb.team_id}")
-            puts("\treindexing #{pm_ids.length} project media ids  for team_id #{tb.team_id}")
+            puts("\treindexing #{pm_ids.length} project media ids for team_id #{tb.team_id} (#{updated_count} previous updates requested)")
             # we will use ReindexAlegreWorkspace run_reindex, pushing one team at a time
             # because ProjectMedia ids are only unique within team
             query = ProjectMedia.where(team_id: tb.team_id).where(id: pm_ids)
