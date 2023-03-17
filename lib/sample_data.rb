@@ -938,6 +938,19 @@ module SampleData
     br.reload
   end
 
+  def create_tipline_message(options = {})
+    TiplineMessage.create!({
+      uid: random_string,
+      team_id: create_team.id,
+      language: 'en',
+      platform: 'WhatsApp',
+      direction: :incoming,
+      external_id: random_string,
+      sent_at: DateTime.now,
+      payload: {'foo' => 'bar'},
+    }.merge(options))
+  end
+
   def create_tipline_subscription(options = {})
     TiplineSubscription.create!({
       uid: random_string,
