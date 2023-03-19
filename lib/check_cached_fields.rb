@@ -31,6 +31,7 @@ module CheckCachedFields
           index_options = {
             update_es: options[:update_es],
             es_field_name: options[:es_field_name],
+            es_type: options[:es_type],
             update_pg: options[:update_pg],
             pg_field_name: options[:pg_field_name],
           }
@@ -66,12 +67,12 @@ module CheckCachedFields
       "check_cached_field:#{klass}:#{id}:#{name}"
     end
 
-    def index_and_pg_cached_field(options, value, name, target, op)
+    def index_and_pg_cached_field(options, value, name, target)
       update_index = options[:update_es] || false
-      if update_index && op == 'update'
+      if update_index
         value = target.send(update_index, value) if update_index.is_a?(Symbol) && target.respond_to?(update_index)
         field_name = options[:es_field_name] || name
-        es_options = { keys: [field_name], data: { field_name => value } }
+        es_options = { keys: [field_name], data: { field_name => { method: name, klass: target.class.name, id: target.id, type: options[:es_type] } } }
         es_options[:pm_id] = target.id if target.class.name == 'ProjectMedia'
         model = { klass: target.class.name, id: target.id }
         ElasticSearchWorker.new.perform(YAML::dump(model), YAML::dump(es_options), 'update_doc')
@@ -81,7 +82,7 @@ module CheckCachedFields
     end
 
     def create_cached_field(index_options, value, name, obj)
-      self.index_and_pg_cached_field(index_options, value, name, obj, 'create')
+      self.index_and_pg_cached_field(index_options, value, name, obj)
     end
 
     def update_pg_cache_field(options, value, name, target)
@@ -103,6 +104,7 @@ module CheckCachedFields
         index_options = {
           update_es: options[:update_es],
           es_field_name: options[:es_field_name],
+          es_type: options[:es_type],
           update_pg: options[:update_pg],
           pg_field_name: options[:pg_field_name],
           recalculate: options[:recalculate],
@@ -118,7 +120,7 @@ module CheckCachedFields
         value = callback == :recalculate ? target.send(recalculate) : obj.send(callback, target)
         Rails.cache.write(self.check_cache_key(self, target.id, name), value, expires_in: interval.days)
         # Update ES index and PG, if needed
-        self.index_and_pg_cached_field(options, value, name, target, 'update')
+        self.index_and_pg_cached_field(options, value, name, target)
       end
     end
   end

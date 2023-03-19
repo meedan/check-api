@@ -73,6 +73,7 @@ module ProjectMediaCachedFields
       cached_field field_name,
         start_as: 0,
         update_es: true,
+        es_type: 'int',
         recalculate: :"recalculate_#{field_name}",
         update_on: [SIMILARITY_EVENT]
     end
@@ -88,6 +89,7 @@ module ProjectMediaCachedFields
     cached_field :related_count,
       start_as: 0,
       update_es: true,
+      es_type: 'int',
       recalculate: :recalculate_related_count,
       update_on: [
         {
@@ -119,6 +121,7 @@ module ProjectMediaCachedFields
     cached_field :demand,
       start_as: 0,
       update_es: true,
+      es_type: 'int',
       recalculate: :recalculate_demand,
       update_on: [
         {
@@ -143,6 +146,7 @@ module ProjectMediaCachedFields
     cached_field :last_seen,
       start_as: proc { |pm| pm.created_at.to_i },
       update_es: true,
+      es_type: 'int',
       update_pg: true,
       recalculate: :recalculate_last_seen,
       update_on: [
@@ -197,6 +201,7 @@ module ProjectMediaCachedFields
 
     cached_field :status,
       update_es: :cached_field_status_es,
+      es_type: 'int',
       es_field_name: :status_index,
       recalculate: :recalculate_status,
       update_on: [
@@ -214,6 +219,7 @@ module ProjectMediaCachedFields
       cached_field "#{metric}_count".to_sym,
         start_as: 0,
         update_es: true,
+        es_type: 'int',
         recalculate: :"recalculate_#{metric}",
         update_on: [
           {
@@ -230,6 +236,7 @@ module ProjectMediaCachedFields
     cached_field :report_status,
       start_as: proc { |_pm| 'unpublished' },
       update_es: :cached_field_report_status_es,
+      es_type: 'int',
       recalculate: :recalculate_report_status,
       update_on: [
         {
@@ -246,6 +253,7 @@ module ProjectMediaCachedFields
     cached_field :tags_as_sentence,
       start_as: proc { |_pm| '' },
       update_es: :cached_field_tags_as_sentence_es,
+      es_type: 'int',
       recalculate: :recalculate_tags_as_sentence,
       update_on: [
         {
@@ -297,6 +305,7 @@ module ProjectMediaCachedFields
     cached_field :media_published_at,
       start_as: proc { |pm| pm.published_at.to_i },
       update_es: true,
+      es_type: 'int',
       recalculate: :recalculate_media_published_at,
       update_on: [
         {
@@ -311,6 +320,7 @@ module ProjectMediaCachedFields
     cached_field :published_by,
       start_as: {},
       update_es: :cached_field_published_by_es,
+      es_type: 'int',
       recalculate: :recalculate_published_by,
       update_on: [
         {

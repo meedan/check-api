@@ -65,6 +65,7 @@ class Cluster < ApplicationRecord
     start_as: proc { |c| c.get_names_of_teams_that_fact_checked_it },
     update_es: :cached_field_fact_checked_by_team_names_es,
     es_field_name: :cluster_published_reports,
+    es_type: 'int',
     recalculate: :recalculate_fact_checked_by_team_names,
     update_on: [
       # Also handled by an "after_add" callback above
@@ -81,6 +82,7 @@ class Cluster < ApplicationRecord
   cached_field :requests_count,
     start_as: proc { |c| c.get_requests_count },
     update_es: true,
+    es_type: 'int',
     es_field_name: :cluster_requests_count,
     recalculate: :recalculate_requests_count,
     update_on: [
