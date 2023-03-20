@@ -71,8 +71,8 @@ class GraphqlController6Test < ActionController::TestCase
     create_team_user team: t, user: u, role: 'admin'
     authenticate_with_user(u)
 
-    pm1 = create_project_media team: t, project: p1, read: true
-    pm2 = create_project_media team: t, project: p2, read: false
+    pm1 = create_project_media team: t, project: p1, read: true, disable_es_callbacks: false
+    pm2 = create_project_media team: t, project: p2, read: false, disable_es_callbacks: false
 
     query = 'query CheckSearch { search(query: "{\"operator\":\"AND\",\"read\":[1],\"projects\":[' + p2.id.to_s + '],\"report_status\":\"unpublished\"}") { medias(first: 20) { edges { node { dbid } } } } }'
     post :create, params: { query: query, team: t.slug }

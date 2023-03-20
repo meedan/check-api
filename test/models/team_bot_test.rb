@@ -276,6 +276,7 @@ class TeamBotTest < ActiveSupport::TestCase
   end
 
   test "should call bot over event subscription" do
+    RequestStore.store[:disable_es_callbacks] = true
     t = create_team name: 'Test Team'
     p1 = create_project team: t, title: 'Test Project'
     p2 = create_project team: t, title: 'Another Test Project'
@@ -296,7 +297,7 @@ class TeamBotTest < ActiveSupport::TestCase
         create_project_media project: p2
       end
     end
-
+    RequestStore.store[:disable_es_callbacks] = false
     WebMock.allow_net_connect!
   end
 
@@ -321,6 +322,7 @@ class TeamBotTest < ActiveSupport::TestCase
   end
 
   test "should enqueue bot notifications" do
+    RequestStore.store[:disable_es_callbacks] = true
     t = create_team
     p = create_project team: t, title: 'Test Project'
     tb = create_team_bot team_author_id: t.id, set_events: [{ event: 'create_project_media', graphql: 'team { slug }' }, { event: 'update_project_media', graphql: 'team { slug }' }], set_request_url: 'http://bot'
@@ -347,7 +349,7 @@ class TeamBotTest < ActiveSupport::TestCase
 
       assert_equal 1, WebMock::RequestRegistry.instance.times_executed(update_stub.request_pattern)
     end
-
+    RequestStore.store[:disable_es_callbacks] = false
     WebMock.allow_net_connect!
   end
 
