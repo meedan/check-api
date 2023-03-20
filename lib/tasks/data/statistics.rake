@@ -46,15 +46,15 @@ namespace :check do
               row_attributes = CheckStatistics.get_statistics(month_start.to_date, period_end, team_id, platform, language)
 
               # Start date for new conversation calculation, with optional override for testing
-              cutoff_date = args.ignore_convo_cutoff ? DateTime.new(2023,1,1) : DateTime.new(2023,4,1)
-              CheckTracer.in_span("Check::TiplineMessageStatistics.monthly_conversations", attributes: tracing_attributes) do
-                row_attributes[:conversations_24hr] = tipline_message_statistics.monthly_conversations(
-                  Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[platform],
-                  language,
-                  month_start,
-                  period_end,
-                  cutoff_date
-                )
+              if args.ignore_convo_cutoff || month_start >= DateTime.new(2023,4,1)
+                CheckTracer.in_span("Check::TiplineMessageStatistics.monthly_conversations", attributes: tracing_attributes) do
+                  row_attributes[:conversations_24hr] = tipline_message_statistics.monthly_conversations(
+                    Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[platform],
+                    language,
+                    month_start,
+                    period_end
+                  )
+                end
               end
 
               partial_month = MonthlyTeamStatistic.find_by(team_id: team_id, platform: platform, language: language, start_date: month_start)
