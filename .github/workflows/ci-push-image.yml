@@ -47,20 +47,14 @@ jobs:
         IMAGE_TAG: ${{ github.sha }}
       run: |
         BRANCH=$(echo "${GITHUB_REF#refs/*/}" | sed 's/.*\///')
-        # push with git sha
+        # push with git sha and branch
         echo "Pushing to $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
         docker buildx build \
           --cache-from "type=local,src=/tmp/.buildx-cache" \
           --cache-to "type=local,dest=/tmp/.buildx-cache-new" \
+          --platform "linux/amd64,linux/arm64" \
           --output "type=image,push=true" \
           --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-          --file ./Dockerfile ./
-        # push docker tag to indicate branch
-        echo "Pushing to $ECR_REGISTRY/$ECR_REPOSITORY:$BRANCH"
-        docker buildx build \
-          --cache-from "type=local,src=/tmp/.buildx-cache" \
-          --cache-to "type=local,dest=/tmp/.buildx-cache-new" \
-          --output "type=image,push=true" \
           --tag $ECR_REGISTRY/$ECR_REPOSITORY:$BRANCH \
           --file ./Dockerfile ./
 
