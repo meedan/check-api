@@ -81,12 +81,16 @@ module CheckCachedFields
     def index_and_pg_cached_field(options, value, name, target)
       update_index = options[:update_es] || false
       if update_index
-        value = target.send(update_index, value) if update_index.is_a?(Symbol) && target.respond_to?(update_index)
-        field_name = options[:es_field_name] || name
-        es_options = { keys: [field_name], data: { field_name => value } }
-        es_options[:pm_id] = target.id if target.class.name == 'ProjectMedia'
-        model = { klass: target.class.name, id: target.id }
-        ElasticSearchWorker.new.perform(YAML::dump(model), YAML::dump(es_options), 'update_doc')
+        # Make sure doc exists in ES as we did document update
+        doc_id = target.get_es_doc_id(target.id)
+        if target.doc_exists?(doc_id)
+          value = target.send(update_index, value) if update_index.is_a?(Symbol) && target.respond_to?(update_index)
+          field_name = options[:es_field_name] || name
+          es_options = { keys: [field_name], data: { field_name => value } }
+          es_options[:pm_id] = target.id if target.class.name == 'ProjectMedia'
+          model = { klass: target.class.name, id: target.id }
+          ElasticSearchWorker.new.perform(YAML::dump(model), YAML::dump(es_options), 'update_doc')
+        end
       end
       update_pg = options[:update_pg] || false
       update_pg_cache_field(options, value, name, target) if update_pg
