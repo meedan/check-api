@@ -156,9 +156,9 @@ class Bot::SlackTest < ActiveSupport::TestCase
   end
 
   test "should update message on Slack thread when title is changed" do
+    RequestStore.store[:disable_es_callbacks] = true
     create_verification_status_stuff(false)
     WebMock.disable_net_connect! allow: [CheckConfig.get('storage_endpoint')]
-    RequestStore.store[:disable_es_callbacks] = true
     stub = WebMock.stub_request(:get, /^https:\/\/slack\.com\/api\/chat\./).to_return(body: 'ok')
     pm = create_project_media
     3.times do
@@ -172,15 +172,15 @@ class Bot::SlackTest < ActiveSupport::TestCase
         pm.save!
       end
     end
-    RequestStore.store[:disable_es_callbacks] = false
     assert_equal 12, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
+    RequestStore.store[:disable_es_callbacks] = false
     WebMock.allow_net_connect!
   end
 
   test "should not through error for slack notification if attachments fields is nil" do
+    RequestStore.store[:disable_es_callbacks] = true
     create_verification_status_stuff(false)
     WebMock.disable_net_connect! allow: [CheckConfig.get('storage_endpoint')]
-    RequestStore.store[:disable_es_callbacks] = true
     stub = WebMock.stub_request(:get, /^https:\/\/slack\.com\/api\/chat\./).to_return(body: 'ok')
     pm = create_project_media
     a = [{ fields: [{}, {}, {}, nil, {}, {}] }].to_json
@@ -192,8 +192,8 @@ class Bot::SlackTest < ActiveSupport::TestCase
         pm.save!
       end
     end
-    RequestStore.store[:disable_es_callbacks] = false
     assert_equal 4, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
+    RequestStore.store[:disable_es_callbacks] = false
     WebMock.allow_net_connect!
   end
 

@@ -80,9 +80,10 @@ module CheckCachedFields
 
     def index_and_pg_cached_field(options, value, name, target)
       update_index = options[:update_es] || false
-      if update_index
+      if update_index && !target.disable_es_callbacks && !RequestStore.store[:disable_es_callbacks]
         # Make sure doc exists in ES as we did document update
-        doc_id = target.get_es_doc_id(target.id)
+        pm_id = target.get_es_doc_obj
+        doc_id = target.get_es_doc_id(pm_id)
         if target.doc_exists?(doc_id)
           value = target.send(update_index, value) if update_index.is_a?(Symbol) && target.respond_to?(update_index)
           field_name = options[:es_field_name] || name
