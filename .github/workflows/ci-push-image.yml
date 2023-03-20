@@ -61,5 +61,5 @@ jobs:
     - name: Reset cache
       id: reset-cache
       run: |
-        rm -rf /tmp/.buildx-cachGe
+        rm -rf /tmp/.buildx-cache
         mv /tmp/.buildx-cache-new /tmp/.buildx-cache
