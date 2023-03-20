@@ -15,16 +15,16 @@ module Check
         Rails.cache.delete_matched(/check:statistics:conversations:index:/)
       end
 
-      def cache_read(uid, language, platform)
-        Rails.cache.read(cache_key(uid, language, platform))
+      def cache_read(team_id, uid, language, platform)
+        Rails.cache.read(cache_key(team_id, uid, language, platform))
       end
 
-      def cache_reset(uid, language, platform)
-        Rails.cache.delete(cache_key(uid, language, platform))
+      def cache_reset(team_id, uid, language, platform)
+        Rails.cache.delete(cache_key(team_id, uid, language, platform))
       end
 
-      def cache_key(uid, language, platform)
-        "check:statistics:conversations:index:#{uid}-#{language}-#{platform}"
+      def cache_key(team_id, uid, language, platform)
+        "check:statistics:conversations:index:#{team_id}-#{uid}-#{language}-#{platform}"
       end
 
       def date_to_string(date)
@@ -43,7 +43,7 @@ module Check
       monthly_convos = 0
 
       monthly_uids.each do |uid|
-        cached_convo_index = cache_read(uid, language, platform)
+        cached_convo_index = cache_read(@team_id, uid, language, platform)
         messages = TiplineMessage.where(uid: uid, language: language, platform: platform, sent_at: (cached_convo_index || earliest_record)..range_end).order(:sent_at)
         next unless messages.any?
 
@@ -67,7 +67,7 @@ module Check
 
         # Mark the most recent conversation start we got to on this round.
         # Only update cache when calculating full months, since we'll want to re-calculate partial months.
-        cache_write(uid, language, platform, @conversation_start_index) if range_end == range_start.end_of_month
+        cache_write(@team_id, uid, language, platform, @conversation_start_index) if range_end == range_start.end_of_month
       end
 
       monthly_convos
@@ -75,8 +75,8 @@ module Check
 
     private
 
-    def cache_write(uid, language, platform, time)
-      Rails.cache.write(cache_key(uid, language, platform), time)
+    def cache_write(team_id, uid, language, platform, time)
+      Rails.cache.write(cache_key(team_id, uid, language, platform), time)
     end
 
     def track_conversation!(conversation_start)

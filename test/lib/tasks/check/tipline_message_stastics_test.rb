@@ -43,8 +43,8 @@ class TiplineMessageStatisticsTest < ActiveSupport::TestCase
     recent_convo_2 = create_tipline_message(team_id: @team_1.id, uid: 'abcdef', platform: "Telegram", language: "en", sent_at: @time) # 3, different uid
 
     Check::TiplineMessageStatistics.new(@team_1.id).monthly_conversations("Telegram", "en", @time.beginning_of_month, @time.end_of_month)
-    assert_equal recent_convo_1.sent_at, Check::TiplineMessageStatistics.cache_read("12345", "en", "Telegram")
-    assert_equal recent_convo_2.sent_at, Check::TiplineMessageStatistics.cache_read("abcdef", "en", "Telegram")
+    assert_equal recent_convo_1.sent_at, Check::TiplineMessageStatistics.cache_read(@team_1.id, "12345", "en", "Telegram")
+    assert_equal recent_convo_2.sent_at, Check::TiplineMessageStatistics.cache_read(@team_1.id, "abcdef", "en", "Telegram")
   end
 
   test ".monthly_conversations does not cache a conversation index when only calculating for a partial month" do
@@ -52,8 +52,8 @@ class TiplineMessageStatisticsTest < ActiveSupport::TestCase
     recent_convo_2 = create_tipline_message(team_id: @team_1.id, uid: 'abcdef', platform: "Telegram", language: "en", sent_at: @time) # 3, different uid
 
     Check::TiplineMessageStatistics.new(@team_1.id).monthly_conversations("Telegram", "en", @time.beginning_of_month, (@time.end_of_month - 1.day))
-    assert_nil Check::TiplineMessageStatistics.cache_read("12345", "en", "Telegram")
-    assert_nil Check::TiplineMessageStatistics.cache_read("abcdef", "en", "Telegram")
+    assert_nil Check::TiplineMessageStatistics.cache_read(@team_1.id, "12345", "en", "Telegram")
+    assert_nil Check::TiplineMessageStatistics.cache_read(@team_1.id, "abcdef", "en", "Telegram")
   end
 
   test ".monthly_conversations uses the cached conversation index as the starting point for calcluations when present" do
