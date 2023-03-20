@@ -70,7 +70,7 @@ module CheckCachedFields
         value = target.send(update_index, value) if update_index.is_a?(Symbol) && target.respond_to?(update_index)
         field_name = options[:es_field_name] || name
         es_options = { keys: [field_name], data: { field_name => value } }
-        # es_options[:pm_id] = target.id if target.class.name == 'ProjectMedia'
+        es_options[:pm_id] = target.id if target.class.name == 'ProjectMedia'
         model = { klass: target.class.name, id: target.id }
         ElasticSearchWorker.new.perform(YAML::dump(model), YAML::dump(es_options), 'update_doc')
       end
