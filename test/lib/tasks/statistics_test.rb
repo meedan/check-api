@@ -75,7 +75,7 @@ class StatisticsTest < ActiveSupport::TestCase
     assert_equal 0, MonthlyTeamStatistic.where(team: @tipline_team).count
 
     out, err = capture_io do
-      Rake::Task['check:data:statistics'].invoke(true)
+      Rake::Task['check:data:statistics'].invoke
     end
     Rake::Task['check:data:statistics'].reenable
 
@@ -220,5 +220,58 @@ class StatisticsTest < ActiveSupport::TestCase
 
     assert err.blank?
     assert_equal 0, MonthlyTeamStatistic.where(team: @tipline_team).count
+  end
+
+  test "skips generating conversations for months before april 1 2023" do
+    date = DateTime.new(2023,01,01)
+
+    create_project_media(user: BotUser.smooch_user, team: @tipline_team, created_at: date + 2.weeks)
+
+    CheckStatistics.stubs(:get_statistics).returns(
+      {
+        platform: 'whatsapp',
+        language: 'en',
+        start_date: date,
+        end_date: date,
+      }
+    )
+
+    travel_to DateTime.new(2023,01,01)
+
+    out, err = capture_io do
+      Rake::Task['check:data:statistics'].invoke
+    end
+    Rake::Task['check:data:statistics'].reenable
+
+    conversations = MonthlyTeamStatistic.where(team: @tipline_team).pluck(:conversations_24hr).uniq
+    assert_equal 1, conversations.count
+    assert_nil conversations.first
+  end
+
+  test "allows generating conversations for months before april 1 2023, with argument" do
+    date = DateTime.new(2023,01,01)
+
+    create_project_media(user: BotUser.smooch_user, team: @tipline_team, created_at: date + 2.weeks)
+
+    CheckStatistics.stubs(:get_statistics).returns(
+      {
+        platform: 'whatsapp',
+        language: 'en',
+        start_date: date,
+        end_date: date,
+      }
+    )
+
+    travel_to DateTime.new(2023,01,01)
+
+    out, err = capture_io do
+      # pass in ignore_convo_cutoff: true
+      Rake::Task['check:data:statistics'].invoke(true)
+    end
+    Rake::Task['check:data:statistics'].reenable
+
+    conversations = MonthlyTeamStatistic.where(team: @tipline_team).pluck(:conversations_24hr).uniq
+    assert_equal 1, conversations.count
+    assert !conversations.first.nil?
   end
 end
