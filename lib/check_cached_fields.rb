@@ -34,14 +34,26 @@ module CheckCachedFields
             update_pg: options[:update_pg],
             pg_field_name: options[:pg_field_name],
           }
-          klass.delay_for(1.second).create_cached_field(index_options, value, name, obj) unless Rails.env == 'test'
+          klass.delay_for(1.second).index_cached_field(index_options, value, name, obj) unless Rails.env == 'test'
         end
       end
 
       define_method name do |recalculate = false|
         Rails.cache.fetch(self.class.check_cache_key(self.class, self.id, name),force: recalculate,
           race_condition_ttl: 30.seconds, expires_in: interval.days) do
-          self.send(options[:recalculate]) if self.respond_to?(options[:recalculate])
+          if self.respond_to?(options[:recalculate])
+            value = self.send(options[:recalculate])
+            unless value.blank?
+              index_options = {
+                update_es: options[:update_es],
+                es_field_name: options[:es_field_name],
+                update_pg: options[:update_pg],
+                pg_field_name: options[:pg_field_name],
+              }
+              self.class.delay_for(1.second).index_cached_field(index_options, value, name, self)
+            end
+            value
+          end
         end
       end
 
@@ -66,9 +78,9 @@ module CheckCachedFields
       "check_cached_field:#{klass}:#{id}:#{name}"
     end
 
-    def index_and_pg_cached_field(options, value, name, target, op)
+    def index_and_pg_cached_field(options, value, name, target)
       update_index = options[:update_es] || false
-      if update_index && op == 'update'
+      if update_index
         value = target.send(update_index, value) if update_index.is_a?(Symbol) && target.respond_to?(update_index)
         field_name = options[:es_field_name] || name
         es_options = { keys: [field_name], data: { field_name => value } }
@@ -80,8 +92,8 @@ module CheckCachedFields
       update_pg_cache_field(options, value, name, target) if update_pg
     end
 
-    def create_cached_field(index_options, value, name, obj)
-      self.index_and_pg_cached_field(index_options, value, name, obj, 'create')
+    def index_cached_field(index_options, value, name, obj)
+      self.index_and_pg_cached_field(index_options, value, name, obj)
     end
 
     def update_pg_cache_field(options, value, name, target)
@@ -118,7 +130,7 @@ module CheckCachedFields
         value = callback == :recalculate ? target.send(recalculate) : obj.send(callback, target)
         Rails.cache.write(self.check_cache_key(self, target.id, name), value, expires_in: interval.days)
         # Update ES index and PG, if needed
-        self.index_and_pg_cached_field(options, value, name, target, 'update')
+        self.index_and_pg_cached_field(options, value, name, target)
       end
     end
   end
