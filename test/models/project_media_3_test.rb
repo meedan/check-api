@@ -95,12 +95,12 @@ class ProjectMedia3Test < ActiveSupport::TestCase
   test "should cache type of media" do
     RequestStore.store[:skip_cached_field_update] = false
     setup_elasticsearch
-    pm = create_project_media
+    pm = create_project_media disable_es_callbacks: false
     assert_queries(0, '=') { assert_equal 'Link', pm.type_of_media }
     Rails.cache.clear
     assert_queries(1, '=') { assert_equal 'Link', pm.type_of_media }
     assert_queries(0, '=') { assert_equal 'Link', pm.type_of_media }
-    sleep 1
+    sleep 2
     es = $repository.find(get_es_id(pm))
     assert_equal Media.types.index(pm.type_of_media), es['type_of_media']
   end

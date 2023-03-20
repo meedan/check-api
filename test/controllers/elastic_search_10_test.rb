@@ -13,7 +13,7 @@ class ElasticSearch10Test < ActionController::TestCase
     u2 = create_user
     create_team_user team: t, user: u, role: 'admin'
     create_team_user team: t, user: u2, role: 'admin'
-    pm = create_project_media team: t
+    pm = create_project_media team: t, disable_es_callbacks: false
     with_current_user_and_team(u, t) do
       assert_queries(0, '=') { assert_empty pm.published_by }
       r = publish_report(pm)
@@ -28,7 +28,7 @@ class ElasticSearch10Test < ActionController::TestCase
       assert_queries(0, '=') { assert_equal data, pm.published_by }
       Rails.cache.clear
       assert_queries(0, '>') { assert_equal data, pm.published_by }
-      pm2 = create_project_media team: t
+      pm2 = create_project_media team: t, disable_es_callbacks: false
       sleep 2
       result = $repository.find(get_es_id(pm))
       assert_equal u.id, result['published_by']
@@ -181,10 +181,10 @@ class ElasticSearch10Test < ActionController::TestCase
     create_team_user team: t, user: u3
     create_team_user team: t, user: u4
     RequestStore.store[:skip_cached_field_update] = false
-    pm1 = create_project_media project: p, user: u1
-    pm2 = create_project_media project: p, user: u2
-    pm3 = create_project_media project: p, user: u3
-    pm4 = create_project_media project: p, user: u4
+    pm1 = create_project_media project: p, user: u1, disable_es_callbacks: false
+    pm2 = create_project_media project: p, user: u2, disable_es_callbacks: false
+    pm3 = create_project_media project: p, user: u3, disable_es_callbacks: false
+    pm4 = create_project_media project: p, user: u4, disable_es_callbacks: false
     sleep 2
     result = CheckSearch.new({ projects: [p.id], sort: 'creator_name', sort_type: 'asc' }.to_json, nil, t.id)
     assert_equal [pm1.id, pm2.id, pm3.id, pm4.id], result.medias.map(&:id)
