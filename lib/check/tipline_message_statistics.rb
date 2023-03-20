@@ -36,15 +36,14 @@ module Check
     # - `platform`` wants to be human readable platform_name, e.g. WhatsApp instead of whatsapp
     # - `range_start` should be beginning of the month we want to return a calculation for
     # - `range_end` should be the end of the same month above that we want to return a calculation for, or partial time if that month is in-progress
-    # - `earliest_record` will always be April 1, 2023 in real environments because that's when we start using this model
-    #     to calculate conversations. however, we need a way to test it before that date so want to be able to pass override
-    def monthly_conversations(platform, language, range_start, range_end, earliest_record = DateTime.new(2023,4,1))
+    def monthly_conversations(platform, language, range_start, range_end)
       monthly_uids = TiplineMessage.where(team_id: @team_id, language: language, platform: platform, sent_at: range_start..range_end).pluck(:uid).uniq
       monthly_convos = 0
 
       monthly_uids.each do |uid|
         cached_convo_index = cache_read(@team_id, uid, language, platform)
-        messages = TiplineMessage.where(uid: uid, language: language, platform: platform, sent_at: (cached_convo_index || earliest_record)..range_end).order(:sent_at)
+        arbitrary_cutoff = DateTime.new(2022,1,1)
+        messages = TiplineMessage.where(uid: uid, language: language, platform: platform, sent_at: (cached_convo_index || arbitrary_cutoff)..range_end).order(:sent_at)
         next unless messages.any?
 
         @conversation_start_index = cached_convo_index || messages.first.sent_at

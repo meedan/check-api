@@ -58,14 +58,18 @@ class TiplineMessageStatisticsTest < ActiveSupport::TestCase
 
   test ".monthly_conversations uses the cached conversation index as the starting point for calcluations when present" do
     month_boundary = DateTime.new(2023,5,1,12)
-    create_tipline_message(team_id: @team_1.id, uid: '12345', platform: "Telegram", language: "en", sent_at: month_boundary - 13.hours) # 1, april
-    create_tipline_message(team_id: @team_1.id, uid: '12345', platform: "Telegram", language: "en", sent_at: month_boundary + 1.hour) # skipped, same day
-    create_tipline_message(team_id: @team_1.id, uid: '12345', platform: "Telegram", language: "en", sent_at: month_boundary + 1.week) # 1, may
+    create_tipline_message(team_id: @team_1.id, uid: '12345', platform: "Telegram", language: "en", sent_at: month_boundary - 13.hours) # 1, April 30, 2023 - 23:00
+    create_tipline_message(team_id: @team_1.id, uid: '12345', platform: "Telegram", language: "en", sent_at: month_boundary + 2.hours) # skipped, same day (May 1, 2023 - 1:00)
+    create_tipline_message(team_id: @team_1.id, uid: '12345', platform: "Telegram", language: "en", sent_at: month_boundary + 1.week) # 1, May
 
     assert_equal 1, Check::TiplineMessageStatistics.new(@team_1.id).monthly_conversations("Telegram", "en", (month_boundary - 1.month).beginning_of_month, (month_boundary - 1.month).end_of_month) # April
-    # For the test below, we send in a May 1st cutoff so that it would not be able to re-calculate the conversation index from scratch,
-    # and instead we can be sure that it is relying from the cached version set in the line above
-    assert_equal 1, Check::TiplineMessageStatistics.new(@team_1.id).monthly_conversations("Telegram", "en", month_boundary.beginning_of_month, month_boundary.end_of_month, month_boundary) # May
+    # For the test below, we see what the default value is and then alter the Rails cache to May, so that we can
+    # be sure that it is calculating conversation totals from the cached version. Basically, in place of a spy
+    assert_equal DateTime.new(2023, 4, 30, 23), Check::TiplineMessageStatistics.cache_read(@team_1.id, '12345', 'en', 'Telegram')
+    assert_equal 1, Check::TiplineMessageStatistics.new(@team_1.id).monthly_conversations("Telegram", "en", month_boundary.beginning_of_month, month_boundary.end_of_month) # May
+
+    Rails.cache.write(Check::TiplineMessageStatistics.cache_key(@team_1.id, '12345', 'en', 'Telegram'), DateTime.new(2023,5,1,0))
+    assert_equal 2, Check::TiplineMessageStatistics.new(@team_1.id).monthly_conversations("Telegram", "en", month_boundary.beginning_of_month, month_boundary.end_of_month) # May
   end
 
   test ".monthly_conversations returns 0 if there are no UIDs who have sent messages that month" do
