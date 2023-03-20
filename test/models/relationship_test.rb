@@ -94,6 +94,7 @@ class RelationshipTest < ActiveSupport::TestCase
   test "should verify versions and ES for bulk-update" do
     with_versioning do
       setup_elasticsearch
+      RequestStore.store[:skip_cached_field_update] = false
       t = create_team
       u = create_user
       create_team_user team: t, user: u, role: 'admin'
@@ -105,6 +106,11 @@ class RelationshipTest < ActiveSupport::TestCase
         r1 = create_relationship source_id: pm_s.id, target_id: pm_t1.id, relationship_type: Relationship.suggested_type
         r2 = create_relationship source_id: pm_s.id, target_id: pm_t2.id, relationship_type: Relationship.suggested_type
         r3 = create_relationship source_id: pm_s.id, target_id: pm_t3.id, relationship_type: Relationship.suggested_type
+        # Verify cached fields
+        sleep 2
+        es_s = $repository.find(get_es_id(pm_s))
+        assert_equal 3, pm_s.suggestions_count
+        assert_equal pm_s.suggestions_count, es_s['suggestions_count']
         relations = [r1, r2]
         ids = relations.map(&:id)
         updates = { action: "accept", source_id: pm_s.id }
@@ -112,14 +118,21 @@ class RelationshipTest < ActiveSupport::TestCase
           Relationship.bulk_update(ids, updates, t)
         end
         assert_equal Relationship.suggested_type, r3.reload.relationship_type
+        assert_equal Relationship.confirmed_type, r1.reload.relationship_type
+        assert_equal Relationship.confirmed_type, r2.reload.relationship_type
         # Verify confirmed_by
         assert_equal [u.id], Relationship.where(id: ids).map(&:confirmed_by).uniq
+        # Verify cached fields
+        assert_equal 1, pm_s.suggestions_count
+        assert_equal 1, pm_s.suggestions_count(true)
         sleep 2
         # Verify ES
+        es_s = $repository.find(get_es_id(pm_s))
         es_t = $repository.find(get_es_id(pm_t1))
         assert_equal r1.source_id, es_t['parent_id']
         assert_equal pm_t1.reload.sources_count, es_t['sources_count']
         assert_equal 1, pm_t1.reload.sources_count
+        assert_equal pm_s.suggestions_count, es_s['suggestions_count']
       end
     end
   end
