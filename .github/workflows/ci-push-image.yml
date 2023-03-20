@@ -1,10 +1,10 @@
-name: Build and Push
+name: Build and Push To ECR
 
 on:
   push:
-    branches:
-      - '!develop'
-      - '!master'
+    branches-ignore:
+      - 'develop'
+      - 'master'
 
 jobs:
   build-test-deploy:
