@@ -25,7 +25,7 @@ module CheckCachedFields
       if options[:start_as]
         klass = self
         self.send :after_create, ->(obj) do
-          klass.create_cached_field(options, value, name, obj)
+          klass.create_cached_field(options, name, obj)
         end
       end
 
@@ -108,7 +108,7 @@ module CheckCachedFields
       end
     end
 
-    def create_cached_field(options, value, name, obj)
+    def create_cached_field(options, name, obj)
       return if self.class.skip_cached_field_update?
       value = options[:start_as].is_a?(Proc) ? options[:start_as].call(obj) : options[:start_as]
       Rails.cache.write(self.class.check_cache_key(self.class, self.id, name), value, expires_in: interval.days)

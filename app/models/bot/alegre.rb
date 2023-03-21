@@ -510,10 +510,10 @@ class Bot::Alegre < BotUser
     Evalute the scores of (possible) matches to existing ProjectMedia and determine the best represetation to store.
     Clusters of similar PM are represented by storing links between each member item to a single representative 'parent' PM.
     When new relationships are proposed to 'children' in a cluster, they may be re-represented as a link to the 'parent'
-    but the original proposal is also stored. 
-    
+    but the original proposal is also stored.
+
     Relationships can have types 'suggested' or 'confirmed' depending on scores.
-    When a newly proposed relationship to a 'child' is stronger than the child's previous link to its parent, 
+    When a newly proposed relationship to a 'child' is stronger than the child's previous link to its parent,
     the old relationship may be removed to form a new cluster.
     """
     Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 1/6] Adding relationships for #{pm_id_scores.inspect}"
@@ -538,9 +538,9 @@ class Bot::Alegre < BotUser
     if parent_relationships.length > 0
       # Sanity check: if there are multiple parents, something is wrong in the dataset.
       if parent_relationships.length > 1
-        self.notify_error(StandardError.new("[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships ERROR] Found multiple similarity relationship parents for proposed link to ProjectMedia #{proposed_id}"), 
+        self.notify_error(StandardError.new("[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships ERROR] Found multiple similarity relationship parents for proposed link to ProjectMedia #{proposed_id}"),
           {}, RequestStore[:request])
-      end 
+      end
       # Take the first source as the parent (A).
       # 1. A is confirmed to B and C is suggested to B: type of the relationship between A and C is: suggested to A
       # 2. A is confirmed to B and C is confirmed to B: type of the relationship between A and C is: confirmed to A
@@ -559,7 +559,7 @@ class Bot::Alegre < BotUser
       end
 
       # (1,2) relationships look great, but the proposed match should be replaced by a match to its parent
-      if parent_relationship.is_confirmed? 
+      if parent_relationship.is_confirmed?
         if proposed_relationship_is_confirmed
           new_type = Relationship.confirmed_type
         end
@@ -572,7 +572,6 @@ class Bot::Alegre < BotUser
 
       # (4) if the relationship to parent was only suggested, but new relationship is confirmed
       if !parent_relationship.is_confirmed? & proposed_relationship_is_confirmed
-        new_type = Relationship.confirmed_type
         # break the old parent relationship involving proposed_id, make the proposed_id into a new parent
         Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 3/6] [Relationships NOTE] removing suggested relationship pm_id, parent_id #{
           [parent_relationship.source_id, parent_relationship.target_id].inspect}"
