@@ -109,9 +109,10 @@ module CheckCachedFields
     end
 
     def create_cached_field(options, name, obj)
-      return if self.class.skip_cached_field_update?
+      return if self.skip_cached_field_update?
+      interval = CheckConfig.get('cache_interval', 30).to_i
       value = options[:start_as].is_a?(Proc) ? options[:start_as].call(obj) : options[:start_as]
-      Rails.cache.write(self.class.check_cache_key(self.class, self.id, name), value, expires_in: interval.days)
+      Rails.cache.write(self.check_cache_key(self, obj.id, name), value, expires_in: interval.days)
       self.index_cached_field(options, value, name, obj) unless Rails.env == 'test'
     end
 

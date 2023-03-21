@@ -506,16 +506,15 @@ class Bot::Alegre < BotUser
   end
 
   def self.add_relationships(pm, pm_id_scores)
-    """
-    Evalute the scores of (possible) matches to existing ProjectMedia and determine the best represetation to store.
-    Clusters of similar PM are represented by storing links between each member item to a single representative 'parent' PM.
-    When new relationships are proposed to 'children' in a cluster, they may be re-represented as a link to the 'parent'
-    but the original proposal is also stored.
+    # Evalute the scores of (possible) matches to existing ProjectMedia and determine the best represetation to store.
+    # Clusters of similar PM are represented by storing links between each member item to a single representative 'parent' PM.
+    # When new relationships are proposed to 'children' in a cluster, they may be re-represented as a link to the 'parent'
+    # but the original proposal is also stored.
 
-    Relationships can have types 'suggested' or 'confirmed' depending on scores.
-    When a newly proposed relationship to a 'child' is stronger than the child's previous link to its parent,
-    the old relationship may be removed to form a new cluster.
-    """
+    # Relationships can have types 'suggested' or 'confirmed' depending on scores.
+    # When a newly proposed relationship to a 'child' is stronger than the child's previous link to its parent,
+    # the old relationship may be removed to form a new cluster.
+
     Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 1/6] Adding relationships for #{pm_id_scores.inspect}"
     return if pm_id_scores.blank? || pm_id_scores.keys.include?(pm.id)
 
