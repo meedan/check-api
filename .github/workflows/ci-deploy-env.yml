@@ -6,6 +6,7 @@ on:
       - 'develop'
       - 'master'
       - '*deploy/*'
+      - 'CV2-477-custom-entrypoint-batch'
 
 jobs:
   build-test-deploy:
