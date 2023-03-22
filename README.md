@@ -43,7 +43,3 @@ Often for rake tasks or background jobs, we will either want none of the data (s
 
 * To skip reporting to Honeycomb, set `CHECK_SKIP_HONEYCOMB` to `true`
 * To skip sampling data we want to report to Honeycomb, set `CHECK_SKIP_HONEYCOMB_SAMPLING` to `true`
-
-## Testing
-
-Running tests with argument `-n` (used for running an individual test via `ruby`) or environment variable `MINIMAL_TEST_RUN` set to true (i.e. `MINIMAL_TEST_RUN=true bin/rails test test/models/tipline_message_test.rb`) will force tests not to retry and skip generating a coverage report. This is intended to speed up individual runs of tests locally.
