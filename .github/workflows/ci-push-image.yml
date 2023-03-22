@@ -9,6 +9,7 @@ on:
 jobs:
   build-push:
     runs-on: ubuntu-latest
+    environment: QA
 
     outputs:
       image: ${{ steps.build-image.outputs.image }}
