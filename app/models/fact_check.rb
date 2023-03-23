@@ -10,7 +10,7 @@ class FactCheck < ApplicationRecord
   validates_presence_of :claim_description
   validates_uniqueness_of :claim_description_id
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
-  validate :language_in_allowed_values
+  validate :language_in_allowed_values, :title_or_summary_exists
 
   after_save :update_report
 
@@ -33,6 +33,10 @@ class FactCheck < ApplicationRecord
     allowed_languages = self.project_media&.team&.get_languages || ['en']
     allowed_languages << 'und'
     errors.add(:language, I18n.t(:"errors.messages.invalid_fact_check_language_value")) unless allowed_languages.include?(self.language)
+  end
+
+  def title_or_summary_exists
+    errors.add(:base, I18n.t(:"errors.messages.fact_check_empty_title_and_summary")) if self.title.blank? && self.summary.blank?
   end
 
   def update_report
