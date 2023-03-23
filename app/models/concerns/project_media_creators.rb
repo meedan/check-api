@@ -186,12 +186,13 @@ module ProjectMediaCreators
     cd = ClaimDescription.create!(description: self.set_claim_description, project_media: self, skip_check_ability: true) unless self.set_claim_description.blank?
     fc = nil
     unless self.set_fact_check.blank?
+      fact_check = self.set_fact_check.with_indifferent_access
       fc = FactCheck.create!({
-        title: self.set_fact_check['title'],
-        summary: self.set_fact_check['summary'],
-        language: self.set_fact_check['language'],
-        url: self.set_fact_check['url'],
-        publish_report: !!self.set_fact_check['publish_report'],
+        title: fact_check['title'],
+        summary: fact_check['summary'],
+        language: fact_check['language'],
+        url: fact_check['url'],
+        publish_report: !!fact_check['publish_report'],
         claim_description: cd,
         skip_check_ability: true
       })
