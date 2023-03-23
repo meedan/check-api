@@ -31,7 +31,7 @@ class FactCheckTest < ActiveSupport::TestCase
 
   test "should create fact check without optional fields" do
     assert_difference 'FactCheck.count' do
-      create_fact_check url: nil, title: nil, summary: nil
+      create_fact_check url: nil, title: random_string, summary: nil
     end
   end
 
