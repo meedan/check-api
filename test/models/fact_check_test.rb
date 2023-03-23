@@ -31,7 +31,7 @@ class FactCheckTest < ActiveSupport::TestCase
 
   test "should create fact check without optional fields" do
     assert_difference 'FactCheck.count' do
-      create_fact_check url: nil, title: nil, summary: nil
+      create_fact_check url: nil, title: random_string, summary: nil
     end
   end
 
@@ -264,5 +264,31 @@ class FactCheckTest < ActiveSupport::TestCase
     assert_nothing_raised do
       create_fact_check claim_description: cd
     end
+  end
+
+  test "should validate title or summary exist" do
+    fc = create_fact_check
+    assert_nothing_raised do
+      fc.title = ''
+      fc.save!
+    end
+    assert_empty fc.reload.title
+    assert_raises ActiveRecord::RecordInvalid do
+      fc.summary = ''
+      fc.save!
+    end
+    assert_not_empty fc.reload.summary
+    fc.title = random_string
+    fc.save!
+    assert_nothing_raised do
+      fc.summary = ''
+      fc.save!
+    end
+    assert_empty fc.reload.summary
+    assert_raises ActiveRecord::RecordInvalid do
+      fc.title = ''
+      fc.save!
+    end
+    assert_not_empty fc.reload.title
   end
 end
