@@ -475,6 +475,7 @@ class ProjectMedia < ApplicationRecord
     .where('a.annotated_type = ? AND a.annotated_id = ?', 'ProjectMedia', self.id).map(&:user_id)
     ms.attributes[:assigned_user_ids] = assignments_uids.uniq
     # 'requests'
+    requests = []
     fields = DynamicAnnotation::Field.joins(:annotation)
     .where(
       field_name: 'smooch_data',
@@ -484,13 +485,14 @@ class ProjectMedia < ApplicationRecord
       )
     fields.each do |field|
       identifier = begin field.smooch_user_external_identifier&.value rescue field.smooch_user_external_identifier end
-      ms.attributes[:requests] << {
+      requests << {
         id: field.id,
         username: field.value_json['name'],
         identifier: identifier&.gsub(/[[:space:]|-]/, ''),
         content: field.value_json['text'],
       }
     end
+    ms.attributes[:requests] = requests
   end
 
   # private
