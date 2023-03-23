@@ -3,6 +3,7 @@
 :redis_database: 0
 :queues:
   - smooch_priority
+  - mail
   - smooch
   - carrierwave
   - esqueue

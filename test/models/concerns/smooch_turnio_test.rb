@@ -7,82 +7,129 @@ class FakeSmoochTurnio
     # Mock out config, which is normally set in the Smooch class as
     # RequestStore.store[:smooch_bot_settings]
     def config
-      {'turnio_secret' => 'secret-12345', 'turnio_phone' => 'phone-12345'}
+      { "turnio_secret" => "secret-12345", "turnio_phone" => "phone-12345" }
     end
   end
 end
 
 class SmoochTurnioTest < ActiveSupport::TestCase
-  test "#preprocess_turnio_message processes delivered messages, including falling back to message recipient_id when top-level is not available" do
+  test "#preprocess_turnio_message coerces sent messages into Smooch payload format (text)" do
     payload = {
-      "statuses": [
+      contacts: [{ profile: { name: "example username" }, wa_id: "15551234567" }],
+      messages: [
         {
-          "conversation": {
-            "id": "fcd809f3194ed089c83d09129d664623",
-            "origin": {
-              "type": "user_initiated"
-            }
+          from: "15551234567",
+          id: "id-example-123456",
+          text: {
+            body: "Hi"
           },
-          "id": "gBGGFBmZaYRvAglfBtKPeos4sV4",
-          "message": {
-            "recipient_id": "15551234567"
-          },
-          "pricing": {
-            "billable": true,
-            "category": "user_initiated",
-            "pricing_model": "CBP"
-          },
-          "status": "delivered",
-          "timestamp": "1676930082",
-          "type": "message"
+          timestamp: "1677027447",
+          type: "text"
         }
       ]
     }
 
-    message = FakeSmoochTurnio.preprocess_turnio_message(payload.to_json)
+    new_payload = FakeSmoochTurnio.preprocess_turnio_message(payload.to_json)
+    message = new_payload['messages'][0]
 
-    assert_equal 'message:delivery:channel', message['trigger']
-    assert_equal 'gBGGFBmZaYRvAglfBtKPeos4sV4', message['message']['_id']
-    assert_equal 'secret-12345', message['app']['_id']
-    assert_equal 'phone-12345:15551234567', message['appUser']['_id']
-    assert_equal 1676930082, message['timestamp']
-    assert message['turnIo']
+    assert_equal 'message:appUser', new_payload['trigger']
+    assert_equal 'secret-12345', new_payload['app']['_id']
+    assert new_payload['turnIo']
+
+    assert_equal 'id-example-123456', message['_id']
+    assert_equal 'text', message['type']
+    assert_equal 'phone-12345:15551234567', message['authorId']
+    assert_equal 'example username', message['name']
+    assert_equal 'Hi', message['text']
+    assert_equal 'whatsapp', message['source']['type']
+    assert_equal 'id-example-123456', message['source']['originalMessageId']
+    assert_equal 1677027447, message['received']
   end
 
-  test "#preprocess_turnio_message processes delivery failures, including falling back to message recipient_id when top-level is not available" do
+  test "#preprocess_turnio_message coerces delivered messages into Smooch payload format, including falling back to message recipient_id when top-level is not available" do
     payload = {
-      "statuses": [
+      statuses: [
         {
-          "conversation": {
-            "id": "fcd809f3194ed089c83d09129d664623",
-            "origin": {
-              "type": "user_initiated"
+          conversation: {
+            id: "fcd809f3194ed089c83d09129d664623",
+            origin: {
+              type: "user_initiated"
             }
           },
-          "id": "gBGGFBmZaYRvAglfBtKPeos4sV4",
-          "message": {
-            "recipient_id": "15551234567"
+          id: "gBGGFBmZaYRvAglfBtKPeos4sV4",
+          message: {
+            recipient_id: "15551234567"
           },
-          "pricing": {
-            "billable": true,
-            "category": "user_initiated",
-            "pricing_model": "CBP"
+          pricing: {
+            billable: true,
+            category: "user_initiated",
+            pricing_model: "CBP"
           },
-          "status": "failed",
-          "timestamp": "1676930082",
-          "type": "message"
+          status: "delivered",
+          timestamp: "1676930082",
+          type: "message"
         }
       ]
     }
 
     message = FakeSmoochTurnio.preprocess_turnio_message(payload.to_json)
 
-    assert_equal 'message:delivery:failure', message['trigger']
-    assert_equal 'gBGGFBmZaYRvAglfBtKPeos4sV4', message['message']['_id']
+    assert_equal "message:delivery:channel", message["trigger"]
+    assert_equal "gBGGFBmZaYRvAglfBtKPeos4sV4", message["message"]["_id"]
+    assert_equal "secret-12345", message["app"]["_id"]
+    assert_equal "phone-12345:15551234567", message["appUser"]["_id"]
+    assert_equal "whatsapp", message["destination"]["type"]
+    assert_equal 1676930082, message["timestamp"]
+    assert message["turnIo"]
+  end
+
+  test "#preprocess_turnio_message coerces failed messages into Smooch payload format, including falling back to message recipient_id when top-level is not available" do
+    payload = {
+      statuses: [
+        {
+          conversation: {
+            id: "fcd809f3194ed089c83d09129d664623",
+            origin: {
+              type: "user_initiated"
+            }
+          },
+          id: "gBGGFBmZaYRvAglfBtKPeos4sV4",
+          message: {
+            recipient_id: "15551234567"
+          },
+          pricing: {
+            billable: true,
+            category: "user_initiated",
+            pricing_model: "CBP"
+          },
+          status: "failed",
+          timestamp: "1676930082",
+          type: "message"
+        }
+      ]
+    }
+
+    message = FakeSmoochTurnio.preprocess_turnio_message(payload.to_json)
+
+    assert_equal "message:delivery:failure", message["trigger"]
+    assert_equal "gBGGFBmZaYRvAglfBtKPeos4sV4", message["message"]["_id"]
+    assert_equal "secret-12345", message["app"]["_id"]
+    assert_equal "phone-12345:15551234567", message["appUser"]["_id"]
+    assert_equal 470, message.dig("error", "underlyingError", "errors", 0, "code")
+    assert_equal "whatsapp", message["destination"]["type"]
+    assert_equal 1676930082, message["timestamp"]
+    assert message["turnIo"]
+  end
+
+  test "#preprocess_turnio_message coerces messages of unrecognized type into valid json" do
+    payload = {}
+
+    message = FakeSmoochTurnio.preprocess_turnio_message(payload.to_json)
+
+    assert_equal 'message:other', message['trigger']
     assert_equal 'secret-12345', message['app']['_id']
-    assert_equal 'phone-12345:15551234567', message['appUser']['_id']
-    assert_equal 470, message.dig('error', 'underlyingError', 'errors', 0, 'code')
-    assert_equal 1676930082, message['timestamp']
+    assert_equal '', message['appUser']['_id']
+    assert message['appUser']['conversationStarted']
     assert message['turnIo']
   end
 end

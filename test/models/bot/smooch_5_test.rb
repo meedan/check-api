@@ -42,7 +42,7 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     t4 = create_team
     pm4a = create_project_media quote: 'Test 4', team: t4 # Should not be in search results (team is not part of feed)
     pm4b = create_project_media media: l, team: t4 # Should not be in search results by URL
-    f1 = create_feed published: true, filters: { show: ['claims', 'links'] }
+    f1 = create_feed published: true, filters: { show: ['claims', 'weblink'] }
     f1.teams << t1
     f1.teams << t2
     FeedTeam.update_all(shared: true)

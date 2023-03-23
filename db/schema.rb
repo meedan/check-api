@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_02_16_030351) do
+ActiveRecord::Schema.define(version: 2023_03_10_202330) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -268,6 +268,7 @@ ActiveRecord::Schema.define(version: 2023_02_16_030351) do
     t.bigint "team_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "conversations_24hr"
     t.index ["team_id", "platform", "language", "start_date"], name: "index_monthly_stats_team_platform_language_start", unique: true
     t.index ["team_id"], name: "index_monthly_team_statistics_on_team_id"
   end
@@ -353,6 +354,7 @@ ActiveRecord::Schema.define(version: 2023_02_16_030351) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["id"], name: "index_projects_on_id"
+    t.index ["is_default"], name: "index_projects_on_is_default"
     t.index ["privacy"], name: "index_projects_on_privacy"
     t.index ["project_group_id"], name: "index_projects_on_project_group_id"
     t.index ["team_id"], name: "index_projects_on_team_id"
@@ -509,6 +511,23 @@ ActiveRecord::Schema.define(version: 2023_02_16_030351) do
     t.index ["country"], name: "index_teams_on_country"
     t.index ["inactive"], name: "index_teams_on_inactive"
     t.index ["slug"], name: "unique_team_slugs", unique: true
+  end
+
+  create_table "tipline_messages", force: :cascade do |t|
+    t.string "event"
+    t.integer "direction", default: 0
+    t.string "language"
+    t.string "platform"
+    t.datetime "sent_at"
+    t.string "uid"
+    t.string "external_id"
+    t.jsonb "payload", default: {}
+    t.bigint "team_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["external_id"], name: "index_tipline_messages_on_external_id", unique: true
+    t.index ["team_id"], name: "index_tipline_messages_on_team_id"
+    t.index ["uid"], name: "index_tipline_messages_on_uid"
   end
 
   create_table "tipline_subscriptions", id: :serial, force: :cascade do |t|

@@ -151,6 +151,9 @@ module SmoochTurnio
           app: {
             '_id': self.config['turnio_secret']
           },
+          destination: {
+            type: 'whatsapp'
+          },
           version: 'v1.1',
           message: {
             '_id': status['id'],

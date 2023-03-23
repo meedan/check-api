@@ -18,7 +18,7 @@ class MonthlyTeamStatisticTest < ActiveSupport::TestCase
     assert !stat.valid?
 
     team = create_team(name: "Fake team")
-    stat = MonthlyTeamStatistic.new(team: team, start_date: DateTime.now, end_date: DateTime.now, platform: "Telegram", language: "en")
+    stat = MonthlyTeamStatistic.new(team: team, start_date: DateTime.now, end_date: DateTime.now, platform: "telegram", language: "en")
 
     assert stat.valid?
   end
@@ -43,7 +43,8 @@ class MonthlyTeamStatisticTest < ActiveSupport::TestCase
       language: "en",
       start_date: DateTime.new(2020,4,1),
       end_date: DateTime.new(2020,4,15),
-      conversations: 1,
+      conversations: 1, # deprecated, not included in .formatted_hash
+      conversations_24hr: 23,
       average_messages_per_day: 2,
       unique_users: 3,
       returning_users: 4,
@@ -66,7 +67,7 @@ class MonthlyTeamStatisticTest < ActiveSupport::TestCase
     assert_equal hash["Platform"], "WhatsApp"
     assert_equal hash["Language"], "en"
     assert_equal hash["Month"], "Apr 2020"
-    assert_equal hash["Conversations"], 1
+    assert_equal hash["Conversations"], 23
     assert_equal hash["Average messages per day"], 2
     assert_equal hash["Unique users"], 3
     assert_equal hash["Returning users"], 4

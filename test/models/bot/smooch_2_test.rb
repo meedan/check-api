@@ -216,42 +216,42 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
     response = '{"type":"error","data":{"code":12}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
-    messages = [
-      {
-        '_id': random_string,
-        authorId: uid,
-        type: 'text'
-      }
-    ]
-    payload = {
-      trigger: 'message:appUser',
-      app: {
-        '_id': @app_id
-      },
-      version: 'v1.1',
-      messages: messages,
-      appUser: {
-        '_id': random_string,
-        'conversationStarted': true
-      }
-    }
 
-    payload[:messages][0][:text] = random_string
+    def unique_payload(uid, message_text)
+      {
+        trigger: 'message:appUser',
+        app: {
+          '_id': @app_id
+        },
+        version: 'v1.1',
+        messages: [
+          {
+            '_id': random_string,
+            authorId: uid,
+            type: 'text',
+            text: message_text
+          }
+        ],
+        appUser: {
+          '_id': random_string,
+          'conversationStarted': true
+        }
+      }
+    end
+
     assert_nil Rails.cache.read("smooch:banned:#{uid}")
     assert_difference 'ProjectMedia.count' do
-      assert Bot::Smooch.run(payload.to_json)
+      assert Bot::Smooch.run(unique_payload(uid, random_string).to_json)
     end
 
-    payload[:messages][0][:text] = url
     assert_nil Rails.cache.read("smooch:banned:#{uid}")
     assert_no_difference 'ProjectMedia.count' do
-      assert Bot::Smooch.run(payload.to_json)
+      assert Bot::Smooch.run(unique_payload(uid, url).to_json)
     end
 
-    payload[:messages][0][:text] = random_string
     assert_not_nil Rails.cache.read("smooch:banned:#{uid}")
     assert_no_difference 'ProjectMedia.count' do
-      assert Bot::Smooch.run(payload.to_json)
+      assert Bot::Smooch.run(unique_payload(uid, random_string).to_json)
     end
   end
 

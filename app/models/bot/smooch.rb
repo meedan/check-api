@@ -10,6 +10,7 @@ class Bot::Smooch < BotUser
 
   SUPPORTED_INTEGRATION_NAMES = { 'whatsapp' => 'WhatsApp', 'messenger' => 'Facebook Messenger', 'twitter' => 'Twitter', 'telegram' => 'Telegram', 'viber' => 'Viber', 'line' => 'LINE' }
   SUPPORTED_INTEGRATIONS = SUPPORTED_INTEGRATION_NAMES.keys
+  SUPPORTED_TRIGGER_MAPPING = { 'message:appUser' => :incoming, 'message:delivery:channel' => :outgoing }
 
   check_settings
 
@@ -277,6 +278,7 @@ class Bot::Smooch < BotUser
       when 'message:appUser'
         json['messages'].each do |message|
           self.parse_message(message, json['app']['_id'], json)
+          SmoochTiplineMessageWorker.perform_async(message, json)
         end
         true
       when 'message:delivery:failure'
@@ -295,6 +297,7 @@ class Bot::Smooch < BotUser
       when 'message:delivery:channel'
         self.user_received_report(json)
         self.user_received_search_result(json)
+        SmoochTiplineMessageWorker.perform_async(json['message'], json)
         true
       else
         false
@@ -351,7 +354,7 @@ class Bot::Smooch < BotUser
     uid = message['authorId']
     sm = CheckStateMachine.new(uid)
     state = sm.state.value
-    language = self.get_user_language(message, state)
+    language = self.get_user_language(uid, message, state)
     workflow = self.get_workflow(language)
     message['language'] = language
 
@@ -540,7 +543,7 @@ class Bot::Smooch < BotUser
   def self.process_menu_option(message, state, app_id)
     uid = message['authorId']
     sm = CheckStateMachine.new(uid)
-    language = self.get_user_language(message, state)
+    language = self.get_user_language(uid, message, state)
     workflow = self.get_workflow(language)
     typed, new_state = self.get_typed_message(message, sm)
     state = new_state if new_state
@@ -975,8 +978,8 @@ class Bot::Smooch < BotUser
     self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
     RequestStore.store[:smooch_bot_provider] = provider
     return if self.config['smooch_disable_timeout']
-    language = self.get_user_language(message)
     uid = message['authorId']
+    language = self.get_user_language(uid)
     stored_time = Rails.cache.read("smooch:last_message_from_user:#{uid}").to_i
     return if stored_time > time
     sm = CheckStateMachine.new(uid)

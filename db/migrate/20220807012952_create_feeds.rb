@@ -4,6 +4,7 @@ class CreateFeeds < ActiveRecord::Migration[5.2]
       t.string :name, null: false
       t.jsonb :filters, default: {}
       t.jsonb :settings, default: {}
+      t.boolean :published, default: false
       t.timestamps
     end
   end

@@ -5,6 +5,7 @@ class CreateFeedTeams < ActiveRecord::Migration[5.2]
       t.references :feed, null: false, foreign_key: true, index: true
       t.jsonb :filters, default: {}
       t.jsonb :settings, default: {}
+      t.boolean :shared, default: false
       t.timestamps
     end
     add_index :feed_teams, [:team_id, :feed_id], unique: true
