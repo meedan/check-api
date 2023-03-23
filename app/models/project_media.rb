@@ -446,7 +446,7 @@ class ProjectMedia < ApplicationRecord
     # 'task_responses'
     tasks = self.annotations('task')
     tasks_ids = tasks.map(&:id)
-    team_task_ids = TeamTask.where(team_id: team.id).map(&:id)
+    team_task_ids = TeamTask.where(team_id: self.team_id).map(&:id)
     responses = Task.where('annotations.id' => tasks_ids)
     .where('task_team_task_id(annotations.annotation_type, annotations.data) IN (?)', team_task_ids)
     .joins("INNER JOIN annotations responses ON responses.annotation_type LIKE 'task_response%'
@@ -482,12 +482,15 @@ class ProjectMedia < ApplicationRecord
       'annotations.annotation_type' => 'smooch',
       'annotations.annotated_type' => 'ProjectMedia'
       )
-    ms.attributes[:requests] = fields.collect{ |field| {
-      id: field.id,
-      username: field.value_json['name'],
-      identifier: field.smooch_user_external_identifier,
-      content: field.value_json['text'],
-    }}
+    fields.each do |field|
+      identifier = begin field.smooch_user_external_identifier&.value rescue field.smooch_user_external_identifier end
+      ms.attributes[:requests] << {
+        id: field.id,
+        username: field.value_json['name'],
+        identifier: identifier&.gsub(/[[:space:]|-]/, ''),
+        content: field.value_json['text'],
+      }
+    end
   end
 
   # private
