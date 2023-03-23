@@ -34,7 +34,7 @@ module CheckCachedFields
           race_condition_ttl: 30.seconds, expires_in: interval.days) do
           if self.respond_to?(options[:recalculate])
             value = self.send(options[:recalculate])
-            self.class.index_cached_field(options, value, name, self) unless value.blank?
+            self.class.index_cached_field(options, value, name, self)
             value
           end
         end

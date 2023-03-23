@@ -396,7 +396,7 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     assert_difference 'FactCheck.count' do
       assert_difference "Annotation.where(annotation_type: 'verification_status').count" do
         with_current_user_and_team(u, t) do
-          create_project_media set_status: 'false', set_fact_check: { title: 'Foo', description: 'Bar', url: random_url, language: 'en' }, set_claim_description: 'Test', team: t
+          create_project_media set_status: 'false', set_fact_check: { title: 'Foo', summary: 'Bar', url: random_url, language: 'en' }, set_claim_description: 'Test', team: t
         end
       end
     end
