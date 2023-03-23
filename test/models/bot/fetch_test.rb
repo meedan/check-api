@@ -218,4 +218,26 @@ class Bot::FetchTest < ActiveSupport::TestCase
     fc = cd.fact_check
     assert_equal 'fr', fc.language
   end
+
+  test "cache item title for imported items" do
+    RequestStore.store[:skip_cached_field_update] = false
+    text = "Earth isn't flat"
+    Bot::Fetch::Import.delay(retry: 0).import_claim_reviews(@installation.id)
+    pm = ProjectMedia.last
+    assert_equal text, pm.title
+    assert_equal text, pm.fact_check_title
+    assert_equal text, pm.title(true)
+    assert_equal text, pm.fact_check_title(true)
+  end
+
+  test "rollback everything if fact check can not be saved" do
+    cr = @claim_review.deep_dup
+    cr['identifier'] = random_string
+    cr['url'] = 'foo'
+    assert_no_difference 'ProjectMedia.count' do
+      assert_no_difference 'FactCheck.count' do
+        Bot::Fetch::Import.import_claim_review(cr, @team.id, @bot.id, 'undetermined', {}, false)     
+      end
+    end
+  end
 end

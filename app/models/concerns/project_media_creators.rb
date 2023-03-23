@@ -29,17 +29,25 @@ module ProjectMediaCreators
   end
 
   def set_quote_metadata
-    self.analysis = { title: self.media.quote } unless self.media.quote.blank?
-    set_title_for_files unless self.media.file.blank?
+    media = self.media
+    case media.type
+    when 'Link'
+      set_title_for_links
+    when 'Claim'
+      title = self.user&.login == 'smooch' ? build_tipline_title('text') : media.quote
+      self.analysis = { title: title }
+    when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
+      set_title_for_files
+    end
   end
 
   def set_title_for_files
     title = nil
     if self.set_title
       title = self.set_title
-    elsif self.user&.login == 'smooch' && ['UploadedVideo', 'UploadedImage', 'UploadedAudio'].include?(self.media.type)
+    elsif self.user&.login == 'smooch'
       type = self.media.type.sub('Uploaded', '').downcase
-      title = "#{type}-#{self.team&.slug}-#{self.id}"
+      title = build_tipline_title(type)
     else
       # Get original file name first
       title = File.basename(self.file.original_filename, '.*') if !self.file.blank? && self.file.respond_to?(:original_filename)
@@ -48,7 +56,20 @@ module ProjectMediaCreators
         title = File.basename(file_path, File.extname(file_path))
       end
     end
-    self.analysis = { file_title: title }
+    self.analysis = { file_title: title } unless title.blank?
+  end
+
+  def set_title_for_links
+    if self.user&.login == 'smooch'
+      provider = self.media.metadata['provider']
+      type = ['instagram', 'twitter', 'youtube', 'facebook', 'tiktok'].include?(provider) ? provider : 'weblink'
+      title = build_tipline_title(type)
+      self.analysis = { title: title }
+    end
+  end
+
+  def build_tipline_title(type)
+    "#{type}-#{self.team&.slug}-#{self.id}"
   end
 
   def add_source_creation_log

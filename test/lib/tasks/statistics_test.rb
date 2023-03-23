@@ -15,16 +15,16 @@ class StatisticsTest < ActiveSupport::TestCase
     TeamBotInstallation.delete_all
     ProjectMedia.delete_all
 
-    @current_date = DateTime.new(2022,5,15,5,30,00)
-    @start_of_month =  DateTime.new(2022,5,1,0,0,0).beginning_of_month
-    @end_of_month = DateTime.new(2022,5,31,23,59,59).end_of_month
+    @current_date = DateTime.new(2023,5,15,5,30,00)
+    @start_of_month =  DateTime.new(2023,5,1,0,0,0).beginning_of_month
+    @end_of_month = DateTime.new(2023,5,31,23,59,59).end_of_month
 
     # Create data for tipline team
     @tipline_team = create_team(slug: 'test-team')
     create_team_bot_installation(team_id: @tipline_team.id, user_id: BotUser.smooch_user.id)
     3.times{|i| create_project_media(user: BotUser.smooch_user, claim: "Claim: correct team #{i}", team: @tipline_team, created_at: @current_date) }
 
-    TeamBotInstallation.any_instance.stubs(:smooch_enabled_integrations).returns({whatsapp: 'foo'})
+    TeamBotInstallation.any_instance.stubs(:smooch_enabled_integrations).returns({'whatsapp' => 'foo'})
   end
 
   def teardown
@@ -38,8 +38,9 @@ class StatisticsTest < ActiveSupport::TestCase
     non_tipline_team = create_team(slug: 'other-team')
     non_tipline_team_user = create_user(team: non_tipline_team)
     3.times{|i| create_project_media(user: non_tipline_team_user, claim: "Claim: other team #{i}", team: non_tipline_team, created_at: @current_date) }
+    3.times{|i| create_tipline_message(team_id: @tipline_team.id, platform: 'WhatsApp', language: 'en', sent_at: @current_date - 1.day)}
 
-    CheckStatistics.expects(:get_statistics).with(@start_of_month, @current_date, @tipline_team.id, :whatsapp, 'en').returns(
+    CheckStatistics.expects(:get_statistics).with(@start_of_month, @current_date, @tipline_team.id, 'whatsapp', 'en').returns(
       {
         platform: 'whatsapp',
         language: 'en',
@@ -62,7 +63,7 @@ class StatisticsTest < ActiveSupport::TestCase
         current_subscribers: 15,
       }
     )
-    CheckStatistics.expects(:get_statistics).with(@start_of_month, @current_date, @tipline_team.id, :whatsapp, 'es').returns({
+    CheckStatistics.expects(:get_statistics).with(@start_of_month, @current_date, @tipline_team.id, 'whatsapp', 'es').returns({
       platform: 'whatsapp',
       language: 'es',
       start_date: @start_of_month,
@@ -99,6 +100,7 @@ class StatisticsTest < ActiveSupport::TestCase
     assert_equal 13, stats.new_newsletter_subscriptions
     assert_equal 14, stats.newsletter_cancellations
     assert_equal 15, stats.current_subscribers
+    assert_equal 3, stats.conversations_24hr
 
     assert_equal MonthlyTeamStatistic.last.conversations, 200
   end
@@ -109,9 +111,9 @@ class StatisticsTest < ActiveSupport::TestCase
     # Full month - past
     start_of_previous_month = (@current_date - 1.month).beginning_of_month
     end_of_previous_month = (@current_date - 1.month).end_of_month
-    CheckStatistics.expects(:get_statistics).with(start_of_previous_month, end_of_previous_month, @tipline_team.id, :whatsapp, 'en').returns(
+    CheckStatistics.expects(:get_statistics).with(start_of_previous_month, end_of_previous_month, @tipline_team.id, 'whatsapp', 'en').returns(
       {
-        platform: :whatsapp,
+        platform: 'whatsapp',
         language: 'en',
         start_date: start_of_previous_month,
         end_date: end_of_previous_month,
@@ -119,9 +121,9 @@ class StatisticsTest < ActiveSupport::TestCase
     )
 
     # Partial month - current
-    CheckStatistics.expects(:get_statistics).with(@start_of_month, @current_date, @tipline_team.id, :whatsapp, 'en').returns(
+    CheckStatistics.expects(:get_statistics).with(@start_of_month, @current_date, @tipline_team.id, 'whatsapp', 'en').returns(
       {
-        platform: :whatsapp,
+        platform: 'whatsapp',
         language: 'en',
         start_date: @start_of_month,
         end_date: @current_date,
@@ -158,9 +160,9 @@ class StatisticsTest < ActiveSupport::TestCase
                                                        language: 'en',
                                                        conversations: 1)
 
-    CheckStatistics.expects(:get_statistics).with(@start_of_month, @current_date, @tipline_team.id, :whatsapp, 'en').returns(
+    CheckStatistics.expects(:get_statistics).with(@start_of_month, @current_date, @tipline_team.id, 'whatsapp', 'en').returns(
       {
-        platform: :whatsapp,
+        platform: 'whatsapp',
         language: 'en',
         start_date: @start_of_month,
         end_date: @current_date,
@@ -218,5 +220,58 @@ class StatisticsTest < ActiveSupport::TestCase
 
     assert err.blank?
     assert_equal 0, MonthlyTeamStatistic.where(team: @tipline_team).count
+  end
+
+  test "skips generating conversations for months before april 1 2023" do
+    date = DateTime.new(2023,01,01)
+
+    create_project_media(user: BotUser.smooch_user, team: @tipline_team, created_at: date + 2.weeks)
+
+    CheckStatistics.stubs(:get_statistics).returns(
+      {
+        platform: 'whatsapp',
+        language: 'en',
+        start_date: date,
+        end_date: date,
+      }
+    )
+
+    travel_to DateTime.new(2023,01,01)
+
+    out, err = capture_io do
+      Rake::Task['check:data:statistics'].invoke
+    end
+    Rake::Task['check:data:statistics'].reenable
+
+    conversations = MonthlyTeamStatistic.where(team: @tipline_team).pluck(:conversations_24hr).uniq
+    assert_equal 1, conversations.count
+    assert_nil conversations.first
+  end
+
+  test "allows generating conversations for months before april 1 2023, with argument" do
+    date = DateTime.new(2023,01,01)
+
+    create_project_media(user: BotUser.smooch_user, team: @tipline_team, created_at: date + 2.weeks)
+
+    CheckStatistics.stubs(:get_statistics).returns(
+      {
+        platform: 'whatsapp',
+        language: 'en',
+        start_date: date,
+        end_date: date,
+      }
+    )
+
+    travel_to DateTime.new(2023,01,01)
+
+    out, err = capture_io do
+      # pass in ignore_convo_cutoff: true
+      Rake::Task['check:data:statistics'].invoke(true)
+    end
+    Rake::Task['check:data:statistics'].reenable
+
+    conversations = MonthlyTeamStatistic.where(team: @tipline_team).pluck(:conversations_24hr).uniq
+    assert_equal 1, conversations.count
+    assert !conversations.first.nil?
   end
 end

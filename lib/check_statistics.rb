@@ -40,10 +40,9 @@ module CheckStatistics
       relation.group("fs.value_json #>> '{source,originalMessageId}'").count.size
     end
 
-    def get_statistics(start_date, end_date, team_id, platform, language)
+    def get_statistics(start_date, end_date, team_id, platform, language, tracing_attributes = {})
       # attributes in statistics hash must correspond to database fields on MonthlyTeamStatistic
       statistics = {}
-      tracing_attributes = { "app.team.id" => team_id, "app.attr.platform" => platform, "app.attr.language" => language}
       CheckTracer.in_span('CheckStatistics.get_statistics', attributes: tracing_attributes) do
         team = Team.find(team_id)
 

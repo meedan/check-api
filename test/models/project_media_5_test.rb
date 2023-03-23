@@ -492,6 +492,103 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     end
   end
 
+  test "should set automatic title for links" do
+    m = create_uploaded_image file: 'rails.png'
+    v = create_uploaded_video file: 'rails.mp4'
+    a = create_uploaded_audio file: 'rails.mp3'
+    bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true
+    u = create_user
+    team = create_team slug: 'workspace-slug'
+    create_team_user team: team, user: bot, role: 'admin'
+    create_team_user team: team, user: u, role: 'admin'
+    # Youtube
+    url = random_url
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item", "provider": "youtube", "title":"youtube"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l_youtube = create_link url: url
+    # Twitter
+    url = random_url
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item", "provider": "twitter", "title":"twitter"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l_twitter = create_link url: url
+    # Facebook
+    url = random_url
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item", "provider": "facebook", "title":"facebook"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l_facebook = create_link url: url
+    # Instagram
+    url = random_url
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item", "provider": "instagram", "title":"instagram"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l_instagram = create_link url: url
+    # tiktok
+    url = random_url
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item", "provider": "tiktok", "title":"tiktok"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l_tiktok = create_link url: url
+    # weblink
+    url = random_url
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item", "provider": "page", "title":"weblink"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l_weblink = create_link url: url
+    # test with smooch user
+    with_current_user_and_team(bot, team) do
+      pm_youtube = create_project_media team: team, media: l_youtube
+      assert_equal "youtube-#{team.slug}-#{pm_youtube.id}", pm_youtube.title
+      pm_twitter = create_project_media team: team, media: l_twitter
+      assert_equal "twitter-#{team.slug}-#{pm_twitter.id}", pm_twitter.title
+      pm_facebook = create_project_media team: team, media: l_facebook
+      assert_equal "facebook-#{team.slug}-#{pm_facebook.id}", pm_facebook.title
+      pm_instagram = create_project_media team: team, media: l_instagram
+      assert_equal "instagram-#{team.slug}-#{pm_instagram.id}", pm_instagram.title
+      pm_tiktok = create_project_media team: team, media: l_tiktok
+      assert_equal "tiktok-#{team.slug}-#{pm_tiktok.id}", pm_tiktok.title
+      pm_weblink = create_project_media team: team, media: l_weblink
+      assert_equal "weblink-#{team.slug}-#{pm_weblink.id}", pm_weblink.title
+      [pm_youtube, pm_twitter, pm_facebook, pm_instagram, pm_tiktok, pm_weblink].each{|pm| pm.destroy!}
+    end
+    # test with non smooch user
+    with_current_user_and_team(u, team) do
+      pm_youtube = create_project_media team: team, media: l_youtube
+      assert_equal "youtube", pm_youtube.title
+      pm_twitter = create_project_media team: team, media: l_twitter
+      assert_equal "twitter", pm_twitter.title
+      pm_facebook = create_project_media team: team, media: l_facebook
+      assert_equal "facebook", pm_facebook.title
+      pm_instagram = create_project_media team: team, media: l_instagram
+      assert_equal "instagram", pm_instagram.title
+      pm_tiktok = create_project_media team: team, media: l_tiktok
+      assert_equal "tiktok", pm_tiktok.title
+      pm_weblink = create_project_media team: team, media: l_weblink
+      assert_equal "weblink", pm_weblink.title
+    end
+  end
+
+  test "should set automatic title for claims" do
+    bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true
+    u = create_user
+    team = create_team slug: 'workspace-slug'
+    create_team_user team: team, user: bot, role: 'admin'
+    create_team_user team: team, user: u, role: 'admin'
+    # test with smooch user
+    with_current_user_and_team(bot, team) do
+      pm = create_project_media team: team, quote: random_string
+      assert_equal "text-#{team.slug}-#{pm.id}", pm.title
+    end
+    # test with non smooch user
+    with_current_user_and_team(u, team) do
+      quote = random_string
+      pm = create_project_media team: team, quote: quote
+      assert_equal quote, pm.title
+    end
+  end
+
   test "should protect attributes from mass assignment" do
     raw_params = { project: create_project, user: create_user }
     params = ActionController::Parameters.new(raw_params)

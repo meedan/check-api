@@ -45,7 +45,7 @@ class CheckSearch
     @file = file
   end
 
-  MEDIA_TYPES = %w[claims links images videos audios blank]
+  MEDIA_TYPES = %w[claims links twitter youtube tiktok instagram facebook weblink images videos audios blank]
   SORT_MAPPING = {
     'recent_activity' => 'updated_at', 'recent_added' => 'created_at', 'demand' => 'demand',
     'related' => 'linked_items_count', 'last_seen' => 'last_seen', 'share_count' => 'share_count',
@@ -355,7 +355,7 @@ class CheckSearch
     end
     # Also, adjust projects filter taking projects' privacy settings into account
     if Team.current && !feed_query? && [@options['team_id']].flatten.size == 1
-      t = Team.find(@options['team_id'])
+      t = Team.find([@options['team_id']].flatten.first)
       @options['projects'] = @options['projects'].blank? ? (Project.where(team_id: t.id).allowed(t).map(&:id) + [nil]) : Project.where(id: @options['projects']).allowed(t).map(&:id)
     end
     @options['projects'] += [nil] if @options['none_project']
@@ -628,17 +628,22 @@ class CheckSearch
 
   def build_search_doc_conditions
     doc_c = []
-
     unless @options['show'].blank?
       types_mapping = {
         'claims' => ['Claim'],
-        'links' => 'Link',
+        'links' => ['facebook', 'instagram', 'tiktok', 'twitter', 'youtube', 'weblink'],
+        'facebook' => 'facebook',
+        'instagram' => 'instagram',
+        'tiktok' => 'tiktok',
+        'twitter' => 'twitter',
+        'youtube' => 'youtube',
+        'weblink' => 'weblink',
         'images' => 'UploadedImage',
         'videos' => 'UploadedVideo',
         'audios' => 'UploadedAudio',
         'blank' => 'Blank',
       }
-      types = @options['show'].collect{ |type| types_mapping[type] }.flatten
+      types = @options['show'].collect{ |type| types_mapping[type] }.flatten.uniq
       doc_c << { terms: { 'associated_type': types } }
     end
 

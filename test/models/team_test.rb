@@ -1160,8 +1160,8 @@ class TeamTest < ActiveSupport::TestCase
 
     Rails.cache.write("data:report:#{t.id}", [{ 'Month' => 'Jan 2022', 'Conversations' => 200 }])
 
-    create_monthly_team_statistic(team: t, start_date: DateTime.new(2022, 2, 1), conversations: 3)
-    create_monthly_team_statistic(team: t, start_date: DateTime.new(2022, 1, 1), conversations: 2)
+    create_monthly_team_statistic(team: t, start_date: DateTime.new(2022, 2, 1), conversations_24hr: 3)
+    create_monthly_team_statistic(team: t, start_date: DateTime.new(2022, 1, 1), conversations_24hr: 2)
 
     data_report = t.data_report
     first_stat = data_report.first

@@ -25,10 +25,7 @@ module CheckCachedFields
       if options[:start_as]
         klass = self
         self.send :after_create, ->(obj) do
-          return if self.class.skip_cached_field_update?
-          value = options[:start_as].is_a?(Proc) ? options[:start_as].call(obj) : options[:start_as]
-          Rails.cache.write(self.class.check_cache_key(self.class, self.id, name), value, expires_in: interval.days)
-          klass.index_cached_field(options, value, name, obj) unless Rails.env == 'test'
+          klass.create_cached_field(options, name, obj)
         end
       end
 
@@ -48,7 +45,6 @@ module CheckCachedFields
         klass = self
         update_on[:events].each do |event, callback|
           model.send "after_#{event}", ->(obj) do
-            return if klass.skip_cached_field_update?
             klass.update_cached_field(name, obj, update_on[:if], update_on[:affected_ids], callback, options)
           end
         end
@@ -112,7 +108,16 @@ module CheckCachedFields
       end
     end
 
+    def create_cached_field(options, name, obj)
+      return if self.skip_cached_field_update?
+      interval = CheckConfig.get('cache_interval', 30).to_i
+      value = options[:start_as].is_a?(Proc) ? options[:start_as].call(obj) : options[:start_as]
+      Rails.cache.write(self.check_cache_key(self, obj.id, name), value, expires_in: interval.days)
+      self.index_cached_field(options, value, name, obj) unless Rails.env == 'test'
+    end
+
     def update_cached_field(name, obj, condition, ids, callback, options)
+      return if self.skip_cached_field_update?
       condition ||= proc { true }
       return unless condition.call(obj)
       ids = ids.call(obj)

@@ -65,10 +65,10 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
       assert_equal 'main', sm.state.value
       send_message_to_smooch_bot('1', uid)
       assert_equal 'secondary', sm.state.value
-      assert_equal 'en', Bot::Smooch.get_user_language({ 'authorId' => uid })
+      assert_equal 'en', Bot::Smooch.get_user_language(uid)
       send_message_to_smooch_bot('3', uid)
       assert_equal 'main', sm.state.value
-      assert_equal 'pt', Bot::Smooch.get_user_language({ 'authorId' => uid })
+      assert_equal 'pt', Bot::Smooch.get_user_language(uid)
       send_message_to_smooch_bot('um', uid)
       assert_equal 'query', sm.state.value
     end

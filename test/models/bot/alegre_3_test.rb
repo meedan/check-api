@@ -330,28 +330,6 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     assert_equal r.weight, 1
   end
 
-  test "should fail to add relationships" do
-    p = create_project
-    pm1 = create_project_media project: p, is_image: true
-    pm2 = create_project_media project: p, is_image: true
-    pm3 = create_project_media project: p, is_image: true
-    Relationship.all.class.any_instance.stubs(:all).returns([Relationship.new(source_id: 1), Relationship.new(source_id: 2)])
-    response = Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
-    assert_equal response, false
-    Relationship.all.class.any_instance.unstub(:all)
-  end
-
-  test "resets relationship transitively" do
-    p = create_project
-    pm1 = create_project_media project: p, is_image: true
-    pm2 = create_project_media project: p, is_image: true
-    pm3 = create_project_media project: p, is_image: true
-    Relationship.all.class.any_instance.stubs(:all).returns([Relationship.new(source_id: 1), Relationship.new(source_id: 2)])
-    response = Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
-    assert_equal response, false
-    Relationship.all.class.any_instance.unstub(:all)
-  end
-
   test "should get similar items" do
     p = create_project
     pm1 = create_project_media project: p

@@ -151,6 +151,7 @@ class Bot::Fetch < BotUser
     def self.import_claim_reviews(installation_id, force = false, maximum = nil)
       installation = TeamBotInstallation.find(installation_id)
       RequestStore.store[:skip_notifications] = true
+      RequestStore.store[:skip_cached_field_update] = false
       User.current = user = installation.user
       Team.current = team = installation.team
       status_fallback = installation.get_status_fallback
