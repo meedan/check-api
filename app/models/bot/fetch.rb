@@ -224,7 +224,7 @@ class Bot::Fetch < BotUser
     end
 
     def self.get_title(claim_review)
-      title = claim_review['headline'] || claim_review['claimReviewed']
+      title = claim_review['headline'].blank? ? claim_review['claimReviewed'] : claim_review['headline']
       self.parse_text(title.to_s)
     end
 
