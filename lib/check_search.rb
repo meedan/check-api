@@ -643,7 +643,7 @@ class CheckSearch
         'audios' => 'UploadedAudio',
         'blank' => 'Blank',
       }
-      types = @options['show'].collect{ |type| types_mapping[type] }.flatten.uniq
+      types = @options['show'].collect{ |type| types_mapping[type] }.flatten.uniq.compact
       doc_c << { terms: { 'associated_type': types } }
     end
 
