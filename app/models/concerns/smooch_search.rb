@@ -220,8 +220,8 @@ module SmoochSearch
       end
       reports.each do |report|
         response = nil
-        response = self.send_message_to_user(uid, report.report_design_text) if report.report_design_field_value('use_text_message')
-        response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url }) if !report.report_design_field_value('use_text_message') && report.report_design_field_value('use_visual_card')
+        response = self.send_message_to_user(uid, report.report_design_text) if report&.report_design_field_value('use_text_message')
+        response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url }) if !report&.report_design_field_value('use_text_message') && report&.report_design_field_value('use_visual_card')
         id = self.get_id_from_send_response(response)
         redis.rpush("smooch:search:#{uid}", id) unless id.blank?
       end
