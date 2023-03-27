@@ -1,10 +1,10 @@
 require 'digest'
 require 'check_state_machine'
 
-class SmoochBotDeliveryFailure < StandardError
-end
-
 class Bot::Smooch < BotUser
+  class MessageDeliveryToSmoochUserError < StandardError; end
+  class MessageDeliveryToWhatsAppUserError < StandardError; end
+  class MessageDeliveryToFinalUserError < StandardError; end
 
   MESSAGE_BOUNDARY = "\u2063"
 
