@@ -2,7 +2,6 @@ require 'active_support/concern'
 
 module TeamDuplication
   extend ActiveSupport::Concern
-  include ErrorNotification
 
   included do
     attr_accessor :mapping, :original_team, :copy_team

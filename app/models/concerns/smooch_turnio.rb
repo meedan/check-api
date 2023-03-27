@@ -266,8 +266,8 @@ module SmoochTurnio
       if response.code.to_i < 400
         ret = response
       else
-        e = SmoochBotDeliveryFailure.new("Could not send message to WhatsApp user! Response: #{response.body}")
-        self.notify_error(e, { uid: uid, body: payload, error: e.message, response: response }, RequestStore[:request])
+        e = SmoochBotDeliveryFailure.new("Could not send message to WhatsApp user")
+        CheckSentry.notify(e, { uid: uid, body: response.body, payload: payload, error: e.message, response: response })
       end
       ret
     end

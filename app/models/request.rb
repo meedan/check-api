@@ -98,7 +98,7 @@ class Request < ApplicationRecord
     response = http.request(request)
     log = "[Feed Request] Called webhook #{self.webhook_url} for request ##{self.id} and project media ##{pm.id} with title '#{title}', summary '#{summary}' and URL '#{url}', and the response was #{response.code}: '#{response.body}'."
     Rails.logger.info(log)
-    Airbrake.notify(FeedRequestError.new(log)) if response.code.to_i >= 400 && Airbrake.configured?
+    CheckSentry.notify(FeedRequestError.new(log)) if response.code.to_i >= 400
     self.last_called_webhook_at = Time.now
     self.webhook_url = nil
     self.save!

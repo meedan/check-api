@@ -157,7 +157,7 @@ class Bot::Alegre < BotUser
       end
     rescue StandardError => e
       Rails.logger.error("[Alegre Bot] Exception for event `#{body['event']}`: #{e.message}")
-      self.notify_error(e, { bot: self.name, body: body }, RequestStore[:request])
+      CheckSentry.notify(e, { bot: self.name, body: body })
     end
 
     self.unarchive_if_archived(pm)
@@ -537,8 +537,7 @@ class Bot::Alegre < BotUser
     if parent_relationships.length > 0
       # Sanity check: if there are multiple parents, something is wrong in the dataset.
       if parent_relationships.length > 1
-        self.notify_error(StandardError.new("[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships ERROR] Found multiple similarity relationship parents for proposed link to ProjectMedia #{proposed_id}"),
-          {}, RequestStore[:request])
+        CheckSentry.notify(StandardError.new("[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships ERROR] Found multiple similarity relationship parents for proposed link to ProjectMedia #{proposed_id}"))
       end
       # Take the first source as the parent (A).
       # 1. A is confirmed to B and C is suggested to B: type of the relationship between A and C is: suggested to A
@@ -682,7 +681,7 @@ class Bot::Alegre < BotUser
   end
   def self.throw_airbrake_notify_if_bad_relationship(relationship, pm_id_scores, relationship_type)
     if relationship.model.nil? || relationship.weight.nil? || relationship.source_field.nil? || relationship.target_field.nil? || ![MEAN_TOKENS_MODEL, INDIAN_MODEL, FILIPINO_MODEL, ELASTICSEARCH_MODEL, 'audio', 'image', 'video'].include?(relationship.model)
-      Airbrake.notify(Bot::Alegre::Error.new("[Alegre] Bad relationship was stored without required metadata"), {trace: Thread.current.backtrace.join("\n"), relationship: relationship.attributes, relationship_type: relationship_type, pm_id_scores: pm_id_scores}) if Airbrake.configured?
+      CheckSentry.notify(Bot::Alegre::Error.new("[Alegre] Bad relationship was stored without required metadata"), {trace: Thread.current.backtrace.join("\n"), relationship: relationship.attributes, relationship_type: relationship_type, pm_id_scores: pm_id_scores})
     end
   end
 
