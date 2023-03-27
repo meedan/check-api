@@ -36,13 +36,14 @@ module ActiveRecordExtensions
     def bulk_import_versions(versions, team_id)
       keys = versions.first.keys
       columns_sql = "(#{keys.map { |name| "\"#{name}\"" }.join(',')})"
-      sql = "INSERT INTO versions_partitions.p#{team_id} #{columns_sql} VALUES "
+      table_name = "versions_partitions.p#{team_id}"
+      sql = "INSERT INTO #{table_name} #{columns_sql} VALUES "
       sql_values = []
       versions.each do |version|
         sql_values << "(#{version.values.map{|v| "'#{v}'"}.join(", ")})"
       end
       sql += sql_values.join(", ")
-      ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_array, sql))
+      ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_assignment, sql, table_name))
     end
   end
 
