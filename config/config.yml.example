@@ -124,14 +124,14 @@ development: &default
   #
   short_url_host: 'http://localhost:3000'
 
-  # Exception reporting using Airbrake or API equivalent https://airbrake.io/
+  # Exception reporting using Sentry
   #
-  # OPTIONAL
+  # REQUIRED for deployed environments
+  # OPTIONAL for development
   #
-  aribrake_host: # '<AIRBRAKE HOST>'
-  aribrake_port: # '<AIRBRAKE PORT>'
-  aribrake_project_key: # '<AIRBRAKE PROJECT KEY>'
-  aribrake_environment: # '<AIRBRAKE ENVIRONMENT>'
+  sentry_dsn: # '<SENTRY_DSN>'
+  sentry_environment: # dev
+  sentry_traces_sample_rate: # 0
 
   # Email settings
   #
@@ -273,6 +273,7 @@ test:
   storage_bucket: 'check-api-test'
   otel_log_level: error
   otel_traces_sampler:
+  sentry_dsn:
 
   # Facebook social login
   #

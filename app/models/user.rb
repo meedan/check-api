@@ -7,7 +7,6 @@ class User < ApplicationRecord
   include UserInvitation
   include UserMultiAuthLogin
   include UserTwoFactorAuth
-  include ErrorNotification
 
   belongs_to :source, optional: true
   has_many :team_users, dependent: :destroy
@@ -279,7 +278,7 @@ class User < ApplicationRecord
       tos > pp ? tos : pp
     rescue
       e = StandardError.new('Could not read the last time that terms of service or privacy policy were updated')
-      self.notify_error(e, {}, RequestStore[:request])
+      CheckSentry.notify(e, {})
       0
     end
   end

@@ -8,7 +8,24 @@ Part of the [Check platform](https://meedan.com/check). Refer to the [main repos
 
 ## Development
 
-### Observability
+## Error reporting
+
+We use Sentry for tracking exceptions in our application.
+
+By default we unset `sentry_dsn` in the `config.yml`, which prevents
+information from being reported to Sentry. If you would like to see data reported from your local machine, set `sentry_dsn` to the value provided for Pender in the Sentry app.
+
+Additional configuration:
+
+**In config.yml**
+  * `sentry_dsn` - the secret that allows us to send information to Sentry, available in the Sentry web app. Scoped to a service (e.g. Check API)
+  * `sentry_environment` - the environment reported to Sentry (e.g. dev, QA, live)
+  * `sentry_traces_sample_rate` - not currently used, since we don't use Sentry for tracing. Set to 0 in config as result.
+
+**In `02_sentry.rb`**
+  * `config.excluded_exceptions` - a list of exception classes that we don't want to send to Sentry
+
+## Observability
 
 We use Honeycomb for monitoring information about our application. It is currently configured to report to suppress Honeycomb
 reporting when the open telemetry required config is unset, which we would expect in development and test environments; however it is
@@ -28,7 +45,7 @@ If you would like to see data reported from your local machine, do the following
 1. Restart the server
 1. See reported information in Development environment on Honeycomb
 
-#### Configuring sampling
+### Configuring sampling
 
 To enable sampling for Honeycomb, set the following configuration (either in `config.yml` locally, or via environment for deployments):
 
@@ -37,7 +54,7 @@ To enable sampling for Honeycomb, set the following configuration (either in `co
 
 **Note**: If sampling behavior is changed in Check API, we will also need to update the behavior to match in any other application reporting to Honeycomb. More [here](https://docs.honeycomb.io/getting-data-in/opentelemetry/ruby/#sampling)
 
-#### Environment overrides
+### Environment overrides
 
 Often for rake tasks or background jobs, we will either want none of the data (skip reporting) or all of the data (skip sampling). For these cases we can set specific environment variables:
 

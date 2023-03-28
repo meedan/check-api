@@ -23,7 +23,7 @@ class ProjectMediaTrashWorker
         begin
           pm.destroy!
         rescue StandardError => e
-          pm.class.notify_error(e, { item_type: pm.class.name, item_id: pm.id }, RequestStore[:request])
+          CheckSentry.notify(e, { item_type: pm.class.name, item_id: pm.id })
         end
       end
     end

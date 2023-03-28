@@ -14,15 +14,12 @@ class CheckNotificationTest < ActiveSupport::TestCase
     end
   end
 
-  test "should notify airbrake and not call Pusher when send notification with undefined info" do
-    Airbrake.stubs(:configured?).returns(true)
-    Airbrake.stubs(:notify).returns('notified airbrake')
+  test "should notify sentry and not call Pusher when send notification with undefined info" do
+    CheckSentry.stubs(:notify).returns('notified sentry')
     Sidekiq::Testing.fake! do
       assert_equal 0, CheckPusher::Worker.jobs.size
-      assert_equal 'notified airbrake', CheckNotification::InfoMessages.send('unexistent_info_code')
+      assert_equal 'notified sentry', CheckNotification::InfoMessages.send('unexistent_info_code')
       assert_equal 0, CheckPusher::Worker.jobs.size
     end
-    Airbrake.unstub(:configured?)
-    Airbrake.unstub(:notify)
   end
 end

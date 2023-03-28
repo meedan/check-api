@@ -1,11 +1,8 @@
 file = File.join(Rails.root, 'config', "sidekiq-#{Rails.env}.yml")
 file = File.join(Rails.root, 'config', 'sidekiq.yml') unless File.exist?(file)
 require File.join(Rails.root, 'lib', 'middleware_sidekiq_server_retry')
-require 'airbrake/sidekiq'
 require "sidekiq"
 require "sidekiq/cloudwatchmetrics"
-
-Airbrake.add_filter(Airbrake::Sidekiq::RetryableJobsFilter.new)
 
 Sidekiq::Extensions.enable_delay!
 Sidekiq::CloudWatchMetrics.enable!(
@@ -49,4 +46,5 @@ if File.exist?(file)
     config.redis = redis_config
     config.logger.level = Logger::WARN if Rails.env.test?
   end
+
 end
