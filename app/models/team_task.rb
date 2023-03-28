@@ -1,6 +1,4 @@
 class TeamTask < ApplicationRecord
-  include ErrorNotification
-
   attr_accessor :keep_completed_tasks, :options_diff
 
   before_validation :set_order, on: :create
@@ -293,7 +291,7 @@ class TeamTask < ApplicationRecord
   end
 
   def team_task_notification_error(e, obj)
-    TeamTask.notify_error(e, { team_task_id: self.id, item_type: obj.class.name, item_id: obj.id }, RequestStore[:request] )
+    CheckSentry.notify(e, { team_task_id: self.id, item_type: obj.class.name, item_id: obj.id })
     Rails.logger.error "[Team Task] Could not add team task [#{self.id}] to a #{obj.class.name} [#{obj.id}]: #{e.message} #{e.backtrace.join("\n")}"
   end
 end

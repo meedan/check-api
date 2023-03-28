@@ -123,6 +123,31 @@ class BaseApiControllerTest < ActionController::TestCase
     assert_response :success
   end
 
+  test "should set user information in Sentry for authenticated user" do
+    team = create_team
+    user = create_user name: 'Test User'
+    create_team_user user: user, team: team
+    user.current_team_id = team.id
+    user.save!
+
+    authenticate_with_user(user)
+
+    CheckSentry.expects(:set_user_info).with(user.id, team_id: team.id, api_key: nil)
+
+    get :me, params: {}
+  end
+
+  test "should set API key information in Sentry for token-authenticated call" do
+    api_key = create_api_key
+    ApiKey.current = api_key
+
+    authenticate_with_token(api_key)
+
+    CheckSentry.expects(:set_user_info).with(nil, team_id: nil, api_key: api_key.id)
+
+    get :version, params: {}
+  end
+
   test "should send basic tracing information for authenticated user" do
     team = create_team
     user = create_user name: 'Test User'
