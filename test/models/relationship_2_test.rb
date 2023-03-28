@@ -333,14 +333,14 @@ class Relationship2Test < ActiveSupport::TestCase
     pm1 = create_project_media team: t
     pm2 = create_project_media team: t
     r = create_relationship relationship_type: Relationship.confirmed_type, source_id: pm1.id, target_id: pm2.id
-    assert_equal 1, pm1.reload.linked_items_count
-    assert_equal 0, pm2.reload.linked_items_count
+    assert_equal 2, pm1.reload.linked_items_count
+    assert_equal 1, pm2.reload.linked_items_count
     r = Relationship.find(r.id)
     r.source_id = pm2.id
     r.target_id = pm1.id
     r.save!
-    assert_equal 0, pm1.reload.linked_items_count
-    assert_equal 1, pm2.reload.linked_items_count
+    assert_equal 1, pm1.reload.linked_items_count
+    assert_equal 2, pm2.reload.linked_items_count
   end
 
   test "should cache the name of who confirmed a similar item and store confirmation information" do

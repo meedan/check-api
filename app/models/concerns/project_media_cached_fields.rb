@@ -69,14 +69,6 @@ module ProjectMediaCachedFields
       }
     }
 
-    { linked_items_count: 'confirmed', suggestions_count: 'suggested' }.each do |field_name, _type|
-      cached_field field_name,
-        start_as: 0,
-        update_es: true,
-        recalculate: :"recalculate_#{field_name}",
-        update_on: [SIMILARITY_EVENT]
-    end
-
     { is_suggested: Relationship.suggested_type, is_confirmed: Relationship.confirmed_type }.each do |field_name, _type|
       cached_field field_name,
         start_as: false,
@@ -84,6 +76,17 @@ module ProjectMediaCachedFields
         update_on: [SIMILARITY_EVENT]
     end
 
+    cached_field :linked_items_count,
+      start_as: proc { |pm| pm.media.type == 'Blank' ? 0 : 1 },
+      update_es: true,
+      recalculate: :recalculate_linked_items_count,
+      update_on: [SIMILARITY_EVENT]
+
+    cached_field :suggestions_count,
+      start_as: 0,
+      update_es: true,
+      recalculate: :recalculate_suggestions_count,
+      update_on: [SIMILARITY_EVENT]
 
     cached_field :related_count,
       start_as: 0,
@@ -442,7 +445,9 @@ module ProjectMediaCachedFields
       ]
 
     def recalculate_linked_items_count
-      Relationship.send('confirmed').where(source_id: self.id).count
+      count = Relationship.send('confirmed').where(source_id: self.id).count
+      count += 1 unless self.media.type == 'Blank'
+      count
     end
 
     def recalculate_suggestions_count
