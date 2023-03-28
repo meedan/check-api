@@ -1,4 +1,6 @@
 class Dynamic < ApplicationRecord
+  class DuplicateFieldError < ActiveRecord::RecordNotUnique; end
+
   include AnnotationBase
 
   mount_uploaders :file, ImageUploader
@@ -231,7 +233,11 @@ class Dynamic < ApplicationRecord
         f = fields.select{ |x| x.field_name == field }.last || create_field(field, nil)
         f.value = value
         f.skip_check_ability = self.skip_check_ability unless self.skip_check_ability.nil?
-        f.save!
+        begin
+          f.save!
+        rescue ActiveRecord::RecordNotUnique => e
+          raise DuplicateFieldError.new(e)
+        end
       end
     end
   end

@@ -21,8 +21,8 @@ class CcDevilleTest < ActiveSupport::TestCase
   test "should clear cache from Cloudflare" do
     stub_configs({ 'cloudflare_auth_email' => 'foo.com', 'cloudflare_auth_key' => 'bar', 'cloudflare_zone' => 'baz' }) do
       mocked_method = MiniTest::Mock.new
-      mocked_method.expect :call, :return_value, [String]
-      Rails.logger.stub :error, mocked_method do
+      mocked_method.expect :call, :return_value, [CcDeville::CloudflareResponseError, Hash]
+      CheckSentry.stub :notify, mocked_method do
         CcDeville.clear_cache_for_url('http://test.com')
       end
       assert_nothing_raised do
@@ -30,8 +30,8 @@ class CcDevilleTest < ActiveSupport::TestCase
       end
       WebMock.stub_request(:post, /api\.cloudflare\.com/).to_return(body: { "success": true }.to_json)
       mocked_method = MiniTest::Mock.new
-      mocked_method.expect :call, :return_value, [String]
-      Rails.logger.stub :error, mocked_method do
+      mocked_method.expect :call, :return_value, [CcDeville::CloudflareResponseError, Hash]
+      CheckSentry.stub :notify, mocked_method do
         CcDeville.clear_cache_for_url('http://qa.checkmedia.org')
       end
       assert_raises MockExpectationError do
@@ -49,8 +49,9 @@ class CcDevilleTest < ActiveSupport::TestCase
     }.to_json)
     stub_configs({ 'cloudflare_auth_email' => 'foo', 'cloudflare_auth_key' => 'bar', 'cloudflare_zone' => 'baz' }) do
       mocked_method = MiniTest::Mock.new
-      mocked_method.expect :call, :return_value, [String]
-      Rails.logger.stub :error, mocked_method do
+      mocked_method.expect :call, :return_value, [CcDeville::CloudflareResponseError, Hash]
+
+      CheckSentry.stub :notify, mocked_method do
         CcDeville.clear_cache_for_url('http://test.com')
       end
       assert_nothing_raised do
@@ -60,11 +61,11 @@ class CcDevilleTest < ActiveSupport::TestCase
   end
 
   test "should handle connection errors to Cloudflare" do
-    WebMock.stub_request(:post, /api\.cloudflare\.com/).to_raise(StandardError)
+    WebMock.stub_request(:post, /api\.cloudflare\.com/).to_raise(StandardError.new('test message'))
     stub_configs({ 'cloudflare_auth_email' => 'foo', 'cloudflare_auth_key' => 'bar', 'cloudflare_zone' => 'baz' }) do
       mocked_method = MiniTest::Mock.new
-      mocked_method.expect :call, :return_value, [String]
-      Rails.logger.stub :error, mocked_method do
+      mocked_method.expect :call, :return_value, [StandardError, Hash]
+      CheckSentry.stub :notify, mocked_method do
         CcDeville.clear_cache_for_url('http://test.com')
       end
       assert_nothing_raised do
