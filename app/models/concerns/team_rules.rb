@@ -206,7 +206,6 @@ module TeamRules
   included do
     include ::TeamRules::Rules
     include ::TeamRules::Actions
-    include ErrorNotification
 
     validate :rules_names, :rules_regular_expressions_are_valid
 
@@ -318,7 +317,7 @@ module TeamRules
         end
       end
     rescue StandardError => e
-      Airbrake.notify(e, params: { team: self.name, project_media_id: pm.id, method: 'apply_rules_and_actions' }) if Airbrake.configured?
+      CheckSentry.notify(e, params: { team: self.name, project_media_id: pm.id, method: 'apply_rules_and_actions' })
       Rails.logger.info "[Team Rules] Exception when applying rules to project media #{pm.id} for team #{self.id}"
     end
   end

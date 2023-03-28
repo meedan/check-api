@@ -68,15 +68,14 @@ development: &default
     bucket_region: 'us-east-1'
     path_style:
 
-  # Exception reporting using Airbrake or API equivalent https://airbrake.io/
+  # Exception reporting using Sentry
   #
-  # OPTIONAL
+  # REQUIRED for deployed environments
+  # OPTIONAL for development
   #
-  airbrake:
-    host: # '<AIRBRAKE HOST>'
-    port: # '<AIRBRAKE PORT>'
-    project_key: # '<AIRBRAKE PROJECT KEY>'
-    environment: # '<AIRBRAKE ENVIRONMENT>'
+  sentry_dsn: # '<SENTRY_DSN>'
+  sentry_environment: # dev
+  sentry_traces_sample_rate: # 0
 
   # Email settings
   #

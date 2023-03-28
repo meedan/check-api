@@ -57,7 +57,7 @@ class Bot::Fetch < BotUser
       true
     rescue StandardError => e
       Rails.logger.error("[Fetch Bot] Exception: #{e.message}")
-      self.notify_error(e, { bot: 'Fetch', claim_review: claim_review, installation: installation.id }, RequestStore[:request])
+      CheckSentry.notify(e, { bot: 'Fetch', claim_review: claim_review, installation: installation.id })
       false
     end
   end
@@ -177,7 +177,7 @@ class Bot::Fetch < BotUser
               total += 1
             end
           end
-          Airbrake.notify(Bot::Fetch::Error.new("[Fetch] The number of imported claim reviews (#{total}) is different from the expected (#{service_info['count']})")) if Airbrake.configured? && total != service_info['count']
+          CheckSentry.notify(Bot::Fetch::Error.new("[Fetch] The number of imported claim reviews (#{total}) is different from the expected (#{service_info['count']})")) if total != service_info['count']
         end
       end
     end
@@ -200,7 +200,7 @@ class Bot::Fetch < BotUser
         end
       rescue StandardError => e
         Rails.cache.delete(self.semaphore_key(team_id, claim_review['identifier']))
-        Airbrake.notify(e, { context: 'Fetch Bot', claim_review: claim_review, team_id: team_id }) if Airbrake.configured?
+        CheckSentry.notify(e, { context: 'Fetch Bot', claim_review: claim_review, team_id: team_id })
       end
     end
 

@@ -1254,16 +1254,13 @@ class Team2Test < ActiveSupport::TestCase
     c = create_claim_media account: create_valid_account({team: t})
     c.account.sources << s
     pm1 = pm2 = pm3 = pm4 = nil
-    Airbrake.stubs(:configured?).returns(true)
-    Airbrake.stubs(:notify).raises(StandardError)
+    CheckSentry.stubs(:notify).raises(StandardError)
     with_current_user_and_team(u, t) do
       pm1 = create_project_media media: c, project: p0
       pm2 = create_project_media media: create_uploaded_video, project: p0
       pm3 = create_project_media media: create_uploaded_image, project: p0
       pm4 = create_project_media media: create_link({team: t}), project: p0
     end
-    Airbrake.unstub(:configured?)
-    Airbrake.unstub(:notify)
     assert_equal p1.id, pm1.reload.project_id
     assert_equal p2.id, pm2.reload.project_id
     assert_equal p3.id, pm3.reload.project_id

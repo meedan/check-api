@@ -5,7 +5,6 @@ module ProjectMediaAssociations
 
   included do
     include AnnotationBase::Association
-    include ErrorNotification
 
     belongs_to :media, optional: true
     belongs_to :user, optional: true

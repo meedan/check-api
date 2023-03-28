@@ -41,7 +41,7 @@ class Bot::FetchTest < ActiveSupport::TestCase
     WebMock.stub_request(:delete, 'http://fetch:8000/subscribe').with(body: { service: 'test', url: 'http://check:3100/api/webhooks/fetch?team=fetch&token=test' }.to_json).to_return(body: '{}')
     WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
     WebMock.stub_request(:delete, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
-    
+
     create_verification_status_stuff
     create_report_design_annotation_type
     @team = create_team slug: 'fetch'
@@ -102,12 +102,9 @@ class Bot::FetchTest < ActiveSupport::TestCase
     assert_equal "Scientific evidences show that Earth is round", r.report_design_field_value('text')
   end
 
-  test "should notify Airbrake if can't import a claim review" do
-    Airbrake.stubs(:configured?).returns(true)
-    Airbrake.expects(:notify).once
+  test "should notify Sentry if can't import a claim review" do
+    CheckSentry.expects(:notify).once
     Bot::Fetch::Import.import_claim_review({}, 0, 0, random_string, {}, false)
-    Airbrake.unstub(:configured?)
-    Airbrake.unstub(:notify)
   end
 
   test "should strip HTML tags and decode HTML entities" do
