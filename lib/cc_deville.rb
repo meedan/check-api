@@ -1,4 +1,6 @@
 class CcDeville
+  class CloudflareResponseError < StandardError; end
+
   def self.clear_cache_for_url(url)
     if CheckConfig.get('cloudflare_auth_email')
       # https://api.cloudflare.com/#zone-purge-files-by-url
@@ -14,9 +16,8 @@ class CcDeville
       http.use_ssl = uri.scheme == 'https'
       begin
         res = JSON.parse(http.request(req).body)
-        raise StandardError.new "#{res['errors'][0]['code']} #{res['errors'][0]['message']}" if !res['success']
+        raise CloudflareResponseError.new "#{res['errors'][0]['code']} #{res['errors'][0]['message']}" if !res['success']
       rescue StandardError => e
-        Rails.logger.error "[Cloudflare] #{e.message}"
         CheckSentry.notify(e, params: { url: url })
       end
     end
