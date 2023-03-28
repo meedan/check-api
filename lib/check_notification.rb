@@ -23,7 +23,7 @@ module CheckNotification
         CheckPusher::Worker.perform_async(["check-api-session-channel-#{actor_session_id}"], 'info_message', info_message.to_json, actor_session_id)
       rescue StandardError => e
         Rails.logger.info "[CheckNotification] Exception sending notification to Pusher"
-        Airbrake.notify(e, params: info) if Airbrake.configured?
+        CheckSentry.notify(e, params: info)
       end
     end
   end
