@@ -217,7 +217,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     pm2 = create_project_media project: p, is_image: true
     pm3 = create_project_media project: p, is_image: true
     create_relationship source_id: pm3.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
-    Bot::Alegre.throw_airbrake_notify_if_bad_relationship(Relationship.last, {ball: 1}, "boop")
+    Bot::Alegre.report_exception_if_bad_relationship(Relationship.last, {ball: 1}, "boop")
   end
 
   test "should store relationship for lower-scoring match that's from a preferred model, but is latest ID" do
