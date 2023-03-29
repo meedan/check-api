@@ -283,7 +283,7 @@ class GraphqlController3Test < ActionController::TestCase
       assert_equal 'Test', pm['title']
       assert_equal 'Test', pm['description']
       assert_equal 0, pm['virality']
-      assert_equal 1, pm['linked_items_count']
+      assert_equal 2, pm['linked_items_count']
       assert_equal 'UploadedImage', pm['type']
       assert_not_equal pm['first_seen'], pm['last_seen']
       assert_equal 2, pm['demand']
