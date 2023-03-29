@@ -226,7 +226,10 @@ module SmoochResend
     end
 
     def log_resend_error(message)
-      CheckSentry.notify(Bot::Smooch::MessageDeliveryToFinalUserError.new, message) if message['isFinalEvent']
+      if message['isFinalEvent']
+        error = Bot::Smooch::MessageDeliveryError.new('Could not deliver message to final user!')
+        CheckSentry.notify(error, error: message.dig('error'), uid: message.dig('appUser', '_id'), smooch_app_id: message.dig('app', '_id'), timestamp: message.dig('timestamp'))
+      end
     end
 
     def template_locale_options(team_slug = nil)
