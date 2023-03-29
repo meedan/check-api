@@ -2,9 +2,7 @@ require 'digest'
 require 'check_state_machine'
 
 class Bot::Smooch < BotUser
-  class MessageDeliveryToSmoochUserError < StandardError; end
-  class MessageDeliveryToWhatsAppUserError < StandardError; end
-  class MessageDeliveryToFinalUserError < StandardError; end
+  class MessageDeliveryError < StandardError; end
 
   MESSAGE_BOUNDARY = "\u2063"
 
@@ -303,15 +301,15 @@ class Bot::Smooch < BotUser
         false
       end
     rescue StandardError => e
-      self.handle_exception(e, body)
+      self.handle_exception(e)
       false
     end
   end
 
-  def self.handle_exception(e, extra = {})
+  def self.handle_exception(e)
     raise(e) if Rails.env.development?
     Rails.logger.error("[Smooch Bot] Exception: #{e.message}")
-    CheckSentry.notify(e, { bot: 'Smooch', extra: extra })
+    CheckSentry.notify(e, { bot: 'Smooch' })
     raise(e) if e.is_a?(AASM::InvalidTransition) # Race condition: return 500 so Smooch can retry it later
   end
 
