@@ -31,7 +31,7 @@ RUN apt-get update -qq && apt-get install -y curl
 #
 # SYSTEM CONFIG
 #
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
 
 # dependencies
 #RUN add-apt-repository ppa:mc3man/trusty-media -y
