@@ -28,14 +28,10 @@ ENV LANGUAGE C.UTF-8
 RUN useradd ${DEPLOYUSER} -s /bin/bash -m
 
 RUN apt-get update -qq && apt-get install -y curl
-#
-# SYSTEM CONFIG
-#
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 
 # dependencies
 #RUN add-apt-repository ppa:mc3man/trusty-media -y
-RUN apt-get update -qq && apt-get install -y libidn11-dev lsof nodejs git build-essential libpq-dev sqlite3 libsqlite3-dev graphicsmagick \
+RUN apt-get update -qq && apt-get install -y libidn11-dev lsof git build-essential libpq-dev sqlite3 libsqlite3-dev graphicsmagick \
      ffmpegthumbnailer libtag1-dev lz4 ffmpeg
 
 # CMD and helper scripts
@@ -65,10 +61,6 @@ RUN bundle install --jobs 20 --retry 5 --deployment --without test development
 COPY --chown=checkdeploy:www-data . ${DEPLOYDIR}
 
 USER ${DEPLOYUSER}
-RUN cp production/config.yml.dockerfile config/config.yml && \
-    printf "production:\n adapter: sqlite3\n database: /tmp/db.sqlite\n" > config/database.yml && \
-    AWS_REGION=null AWS_SECRET_ACCESS_KEY=null AWS_ACCESS_KEY_ID=null SECRET_KEY_BASE=null bundle exec rake assets:precompile && \
-    rm config/config.yml
 
 EXPOSE 3300
 ENTRYPOINT ["/opt/bin/start.sh"]

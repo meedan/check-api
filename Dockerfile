@@ -14,8 +14,6 @@ ENV LANGUAGE C.UTF-8
 
 RUN apt-get update -qq && apt-get install -y --no-install-recommends curl
 
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
-
 # sqlite3, lz4: for check:data:export_team task
 RUN apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
@@ -29,7 +27,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     libtag1-dev \
     libsqlite3-dev \
     lz4 \
-    nodejs \
     sqlite3 \
     lsof \
     python-pip
