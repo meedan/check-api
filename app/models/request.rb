@@ -96,9 +96,10 @@ class Request < ApplicationRecord
     request['Content-Type'] = 'application/json'
     self.feed.get_media_headers.to_h.each { |header_name, header_value| request[header_name] = header_value }
     response = http.request(request)
-    log = "[Feed Request] Called webhook #{self.webhook_url} for request ##{self.id} and project media ##{pm.id} with title '#{title}', summary '#{summary}' and URL '#{url}', and the response was #{response.code}: '#{response.body}'."
-    Rails.logger.info(log)
-    CheckSentry.notify(FeedRequestError.new(log)) if response.code.to_i >= 400
+    Rails.logger.info("[Feed Request] Called webhook #{self.webhook_url} for request ##{self.id} and project media ##{pm.id} with title '#{title}', summary '#{summary}' and URL '#{url}', and the response was #{response.code}: '#{response.body}'.")
+    if response.code.to_i >= 400
+      CheckSentry.notify(FeedRequestError.new("#{response.code} error calling webhook #{self.webhook_url}"), request_id: self.id, project_media_id: pm.id, url: url, response_body: response.body)
+    end
     self.last_called_webhook_at = Time.now
     self.webhook_url = nil
     self.save!
