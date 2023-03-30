@@ -318,7 +318,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   field :is_main, types.Boolean do
     resolve -> (project_media, _args, _ctx) {
-      project_media.linked_items_count > 0 || project_media.suggestions_count > 0
+      project_media.linked_items_count > 1 || project_media.suggestions_count > 0
     }
   end
 
