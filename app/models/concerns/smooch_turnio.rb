@@ -267,7 +267,14 @@ module SmoochTurnio
         ret = response
       else
         e = Bot::Smooch::MessageDeliveryError.new('Could not send message to WhatsApp user!')
-        CheckSentry.notify(e, { uid: uid, smooch_body: response.body, smooch_response: response })
+        response_body = begin JSON.parse(response.body) rescue {} end
+        CheckSentry.notify(e, {
+          uid: uid,
+          errors: response_body.dig('errors'),
+          type: payload.dig(:type),
+          template_name: payload.dig(:template, :name),
+          template_tanguage: payload.dig(:template, :language, :code)
+        })
       end
       ret
     end
