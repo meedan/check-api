@@ -25,7 +25,7 @@ class CheckSentryTest < ActiveSupport::TestCase
     error = StandardError.new('test error')
 
     scope_mock = mock('scope')
-    scope_mock.expects(:set_context).with('application', {'user.team_id' => 1, 'api_key' => nil})
+    scope_mock.expects(:set_context).with('application', {'user.team_id' => 1, 'api_key_id' => nil})
 
     Sentry.expects(:set_user).with(id: 5)
     Sentry.stubs(:configure_scope).yields(scope_mock).returns(true)
@@ -37,11 +37,11 @@ class CheckSentryTest < ActiveSupport::TestCase
     error = StandardError.new('test error')
 
     scope_mock = mock('scope')
-    scope_mock.expects(:set_context).with('application', {'user.team_id' => nil, 'api_key' => 3})
+    scope_mock.expects(:set_context).with('application', {'user.team_id' => nil, 'api_key_id' => 3})
 
     Sentry.expects(:set_user).with(id: nil)
     Sentry.stubs(:configure_scope).yields(scope_mock).returns(true)
 
-    CheckSentry.set_user_info(nil, api_key: 3)
+    CheckSentry.set_user_info(nil, api_key_id: 3)
   end
 end
