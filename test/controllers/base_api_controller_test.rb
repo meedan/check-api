@@ -132,7 +132,7 @@ class BaseApiControllerTest < ActionController::TestCase
 
     authenticate_with_user(user)
 
-    CheckSentry.expects(:set_user_info).with(user.id, team_id: team.id, api_key: nil)
+    CheckSentry.expects(:set_user_info).with(user.id, team_id: team.id, api_key_id: nil)
 
     get :me, params: {}
   end
@@ -143,7 +143,7 @@ class BaseApiControllerTest < ActionController::TestCase
 
     authenticate_with_token(api_key)
 
-    CheckSentry.expects(:set_user_info).with(nil, team_id: nil, api_key: api_key.id)
+    CheckSentry.expects(:set_user_info).with(nil, team_id: nil, api_key_id: api_key.id)
 
     get :version, params: {}
   end
@@ -160,7 +160,7 @@ class BaseApiControllerTest < ActionController::TestCase
     TracingService.expects(:add_attributes_to_current_span).with({
       'app.user.id' => user.id,
       'app.user.team_id' => team.id,
-      'app.api_key' => nil
+      'app.api_key_id' => nil
     })
 
     get :me, params: {}
@@ -175,7 +175,7 @@ class BaseApiControllerTest < ActionController::TestCase
     TracingService.expects(:add_attributes_to_current_span).with({
       'app.user.id' => nil,
       'app.user.team_id' => nil,
-      'app.api_key' => api_key.id
+      'app.api_key_id' => api_key.id
     })
 
     get :version, params: {}
