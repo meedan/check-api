@@ -10,13 +10,13 @@ class CheckSentry
       end
     end
 
-    def set_user_info(id, team_id: nil, api_key: nil)
+    def set_user_info(id, team_id: nil, api_key_id: nil)
       Sentry.set_user(id: id)
 
-      if team_id || api_key
+      if team_id || api_key_id
         # .configure_scope sets contextual information for entire event lifecycle
         Sentry.configure_scope do |scope|
-          scope.set_context('application', {'user.team_id' => team_id, 'api_key' => api_key})
+          scope.set_context('application', {'user.team_id' => team_id, 'api_key_id' => api_key_id})
         end
       end
     end
