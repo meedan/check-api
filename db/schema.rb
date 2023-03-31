@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_03_10_202330) do
+ActiveRecord::Schema.define(version: 2023_03_31_222716) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -528,6 +528,24 @@ ActiveRecord::Schema.define(version: 2023_03_10_202330) do
     t.index ["external_id"], name: "index_tipline_messages_on_external_id", unique: true
     t.index ["team_id"], name: "index_tipline_messages_on_team_id"
     t.index ["uid"], name: "index_tipline_messages_on_uid"
+  end
+
+  create_table "tipline_newsletters", force: :cascade do |t|
+    t.string "introduction", null: false
+    t.string "rss_feed_url"
+    t.text "first_article"
+    t.text "second_article"
+    t.text "third_article"
+    t.integer "number_of_articles", default: 0, null: false
+    t.string "send_every"
+    t.string "timezone"
+    t.time "time"
+    t.datetime "last_sent_at"
+    t.string "language"
+    t.bigint "team_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["team_id"], name: "index_tipline_newsletters_on_team_id"
   end
 
   create_table "tipline_subscriptions", id: :serial, force: :cascade do |t|

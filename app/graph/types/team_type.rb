@@ -182,4 +182,5 @@ TeamType = GraphqlCrudOperations.define_default_type do
   connection :saved_searches, SavedSearchType.connection_type
   connection :project_groups, ProjectGroupType.connection_type
   connection :feeds, FeedType.connection_type
+  connection :tipline_newsletters, TiplineNewsletterType.connection_type
 end
