@@ -1,7 +1,7 @@
 require 'typhoeus'
 require 'typhoeus/adapters/faraday'
 
-if ENV['ELASTICSEARCH_URL'].is_set?
+unless ENV['ELASTICSEARCH_URL'] == ""
   # NOTE: We may want to initialize explicitly with url: set for future compatibility.
   client = Elasticsearch::Client.new(log: (CheckConfig.get('elasticsearch_log').to_i == 1)) do |f|
     f.adapter :typhoeus
