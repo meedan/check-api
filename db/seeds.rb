@@ -19,8 +19,7 @@ p 'Making Team User...'
 create_team_user(team: team, user: user, role: 'admin')
 
 p 'Making Medias...'
-# link_media_link = 'https://meedan.com/post/exploring-the-use-of-offline-games-for-media-literacy-and-misinformation-education'
-link_media_link = 'https://meedan.com/post/meedan-partner-fatabyyano-launches-tipline-for-earthquake-crisis-response'
+link_media_link = 'https://meedan.com/post/nawa-newsroom-2022-journalism-students-explore-disinformation-open-source-verification-tools-and-media-monitoring'
 
 claim_media = create_claim_media(user_id: user.id, quote: Faker::Quotes::Shakespeare.hamlet_quote)
 link_media = Link.create!(user_id: user.id, url: link_media_link)
@@ -30,13 +29,45 @@ video_media = UploadedVideo.create!(user_id: user.id, file: File.open(File.join(
 
 [claim_media, link_media, audio_media, image_media, video_media].each { |claim_type| create_project_media(user_id: user.id, project: project, team: team, media: claim_type) }
 
-p "Created — user: #{user_name} — email: #{user.email} — password : #{user_password}"
-
-# create claims
-# create fact-checks
+p 'Making claim description and fact_check...'
 project_media = ProjectMedia.create!(project: project, team: team, media: Blank.create!)
-# fact_check_link = 'https://meedan.com/post/op-ed-heres-what-were-considering-in-the-lead-up-to-the-supreme-courts-decisions-on-the-future-of-the-internet'
-fact_check_link = 'https://meedan.com/post/meedan-impact-story-using-ai-to-investigate-weapons-trafficking-and-human-rights-violations'
+fact_check_link ='https://meedan.com/post/meedan-launches-collaborative-effort-to-address-misinformation-on-whatsapp-during-brazils-presidential-election'
 
 claim_description = ClaimDescription.create!(description: Faker::Lorem.paragraph(sentence_count: 10), context: Faker::Lorem.sentence, user: user, project_media: project_media)
 fact_check_media = create_fact_check(summary: Faker::Company.catch_phrase, url: fact_check_link, title: Faker::Company.name, user: user, claim_description: claim_description)
+
+p 'Making Relationship...'
+# claims
+claim_media_1 = create_claim_media(user_id: user.id, quote: 'Garlic can help you fight covid')
+claim_media_2 = create_claim_media(user_id: user.id, quote: 'Garlic can help you fight covid')
+claim_media_3 = create_claim_media(user_id: user.id, quote: 'Tea with garlic is a covid treatment')
+claim_media_4 = create_claim_media(user_id: user.id, quote: 'Tea is a great covid treatment')
+
+project_media_1 = create_project_media(user_id: user.id, project: project, team: team, media: claim_media_1) 
+project_media_2 = create_project_media(user_id: user.id, project: project, team: team, media: claim_media_2) 
+project_media_3 = create_project_media(user_id: user.id, project: project, team: team, media: claim_media_3) 
+project_media_4 = create_project_media(user_id: user.id, project: project, team: team, media: claim_media_4) 
+
+create_relationship(source_id: project_media_1.id, target_id: project_media_2.id, relationship_type: Relationship.confirmed_type)
+create_relationship(source_id: project_media_3.id, target_id: project_media_4.id, relationship_type: Relationship.suggested_type)
+
+# images
+image_media_1 = UploadedImage.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.png')))
+image_media_2 = UploadedImage.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.png')))
+
+project_media_5 = create_project_media(user_id: user.id, project: project, team: team, media: image_media_1) 
+project_media_6 = create_project_media(user_id: user.id, project: project, team: team, media: image_media_2) 
+
+create_relationship(source_id: project_media_5.id, target_id: project_media_6.id, relationship_type: Relationship.confirmed_type)
+
+# audio
+audio_media_1 = UploadedAudio.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
+audio_media_2 = UploadedAudio.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
+
+project_media_7 = create_project_media(user_id: user.id, project: project, team: team, media: audio_media_1) 
+project_media_8 = create_project_media(user_id: user.id, project: project, team: team, media: audio_media_2) 
+
+create_relationship(source_id: project_media_7.id, target_id: project_media_8.id)
+
+
+p "Created — user: #{user_name} — email: #{user.email} — password : #{user_password}"
