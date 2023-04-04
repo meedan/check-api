@@ -5,20 +5,21 @@ class TiplineNewsletterWorker
 
   def perform(team_id, language)
     tbi = TeamBotInstallation.where(user_id: BotUser.smooch_user&.id.to_i, team_id: team_id.to_i).last
+    newsletter = Bot::Smooch.get_newsletter(team_id, language)
+    log(team_id, language, 'Not sending newsletter because it does not exist or is not enabled') unless newsletter&.enabled
     count = 0
     unless tbi.nil?
       tbi.settings['smooch_workflows'].to_a.each do |workflow|
         if workflow['smooch_workflow_language'] == language
-          newsletter = workflow['smooch_newsletter']
           log team_id, language, 'Preparing newsletter to be sent...'
-          if !newsletter.nil? && Bot::Smooch.newsletter_content_changed?(newsletter, language, team_id)
+          if !newsletter.nil? && newsletter.content_has_changed?
             date = I18n.l(Time.now.to_date, locale: language.to_s.tr('_', '-'), format: :long)
-            content = Bot::Smooch.build_newsletter_content(newsletter, language, team_id).gsub('{date}', date)
+            content = newsletter.build_content.gsub('{date}', date)
             TiplineSubscription.where(language: language, team_id: team_id).find_each do |ts|
               log team_id, language, "Sending newsletter to subscriber ##{ts.id}..."
               begin
                 RequestStore.store[:smooch_bot_platform] = ts.platform
-                introduction = newsletter['smooch_newsletter_introduction'].to_s.gsub('{date}', date).gsub('{channel}', ts.platform)
+                introduction = newsletter.introduction.to_s.gsub('{date}', date).gsub('{channel}', ts.platform)
                 content = content.gsub('{channel}', ts.platform)
                 Bot::Smooch.get_installation { |i| i.id == tbi.id }
                 response = Bot::Smooch.send_final_messages_to_user(ts.uid, content, workflow, language, 5)
@@ -30,9 +31,9 @@ class TiplineNewsletterWorker
               end
             end
             User.current = BotUser.smooch_user
-            tbi.skip_check_ability = true
-            newsletter['smooch_newsletter_last_sent_at'] = Time.now
-            tbi.save!
+            newsletter.skip_check_ability = true
+            newsletter.last_sent_at = Time.now
+            newsletter.save!
             User.current = nil
           else
             log team_id, language, 'Not sending newsletter because content has not changed since the last delivery'

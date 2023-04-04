@@ -12,6 +12,7 @@ class CreateTiplineNewsletters < ActiveRecord::Migration[5.2]
       t.time :time
       t.datetime :last_sent_at
       t.string :language
+      t.boolean :enabled, null: false, default: false
       t.references :team, null: false, index: true
       t.timestamps null: false
     end

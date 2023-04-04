@@ -15,5 +15,6 @@ TiplineNewsletterType = GraphqlCrudOperations.define_default_type do
   field :timezone, types.String
   field :time, types.String
   field :language, types.String
+  field :enabled, types.Boolean
   field :team, TeamType
 end

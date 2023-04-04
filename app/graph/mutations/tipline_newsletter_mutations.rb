@@ -9,7 +9,8 @@ module TiplineNewsletterMutations
     send_every: 'str',
     timezone: 'str',
     time: 'str',
-    language: 'str'
+    language: 'str',
+    enabled: 'bool'
   }
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('tipline_newsletter', fields, fields, ['tipline_newsletter'])

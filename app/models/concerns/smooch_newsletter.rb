@@ -5,33 +5,19 @@ module SmoochNewsletter
 
   module ClassMethods
     TeamBotInstallation.class_eval do
-      # Re-create the Sidekiq job
-      after_save do
-        if self.bot_user.identifier == 'smooch'
-          self.settings['smooch_workflows'].to_a.each do |workflow|
-            if Bot::Smooch.newsletter_is_set?(workflow)
-              newsletter = workflow['smooch_newsletter']
-              name = "newsletter:job:team:#{self.team_id}:#{workflow['smooch_workflow_language']}"
-              Sidekiq::Cron::Job.destroy(name)
-              Sidekiq::Cron::Job.create(name: name, cron: Bot::Smooch.newsletter_cron(newsletter), class: 'TiplineNewsletterWorker', args: [self.team_id, workflow['smooch_workflow_language']])
-            end
-          end
-        end
-      end
-
       def smooch_newsletter_information
         information = {} # Per language
         if self.bot_user.identifier == 'smooch'
           self.settings['smooch_workflows'].to_a.each do |workflow|
-            if Bot::Smooch.newsletter_is_set?(workflow)
-              newsletter = workflow['smooch_newsletter']
-              language = workflow['smooch_workflow_language']
-              next_date_and_time_utc = CronParser.new(Bot::Smooch.newsletter_cron(newsletter)).next(Time.now).to_datetime
-              next_date_and_time = begin next_date_and_time_utc.in_time_zone(newsletter['smooch_newsletter_timezone'].gsub(/ .*$/, '')) rescue next_date_and_time_utc end
+            language = workflow['smooch_workflow_language']
+            newsletter = Bot::Smooch.get_newsletter(self.team_id, language)
+            unless newsletter.nil?
+              next_date_and_time_utc = CronParser.new(newsletter.cron_notation).next(Time.now).to_datetime
+              next_date_and_time = begin next_date_and_time_utc.in_time_zone(newsletter.timezone.gsub(/ .*$/, '')) rescue next_date_and_time_utc end
               information[language] = {
                 subscribers_count: TiplineSubscription.where(team_id: self.team_id, language: language).count,
-                next_date_and_time: I18n.l(next_date_and_time, locale: language.to_s.tr('_', '-'), format: :long) + " - #{newsletter['smooch_newsletter_timezone']}",
-                paused: !Bot::Smooch.newsletter_content_changed?(newsletter, language, self.team_id)
+                next_date_and_time: I18n.l(next_date_and_time, locale: language.to_s.tr('_', '-'), format: :long) + " - #{newsletter.timezone}",
+                paused: newsletter.content_has_changed?
               }
             end
           end
@@ -57,58 +43,17 @@ module SmoochNewsletter
       self.clear_user_bundled_messages(uid)
     end
 
-    def newsletter_is_set?(workflow)
-      workflow['smooch_newsletter'] && workflow['smooch_newsletter']['smooch_newsletter_time'] && workflow['smooch_newsletter']['smooch_newsletter_timezone'] && workflow['smooch_newsletter']['smooch_newsletter_day']
-    end
-
-    def build_newsletter_content(newsletter, language, team_id, cache = true)
-      content = ''
-      unless newsletter.blank?
-        content = newsletter['smooch_newsletter_body'] unless newsletter['smooch_newsletter_body'].blank?
-        content = Bot::Smooch.render_articles_from_rss_feed(newsletter['smooch_newsletter_feed_url'], newsletter['smooch_newsletter_number_of_articles']) unless newsletter['smooch_newsletter_feed_url'].blank?
-        content = [newsletter['smooch_newsletter_introduction'], content].reject{ |text| text.blank? }.join("\n\n")
-      end
-      Rails.cache.write("newsletter:content_hash:team:#{team_id}:#{language}", Digest::MD5.hexdigest(content)) if cache
-      content
-    end
-
-    def newsletter_content_changed?(newsletter, language, team_id)
-      Rails.cache.read("newsletter:content_hash:team:#{team_id}:#{language}").to_s != Digest::MD5.hexdigest(Bot::Smooch.build_newsletter_content(newsletter, language, team_id, false).to_s)
-    end
-
-    def newsletter_cron(newsletter)
-      hour = newsletter['smooch_newsletter_time'].to_i
-      # If an offset is being passed, it's in the new format
-      if newsletter['smooch_newsletter_timezone'].match?(/\W\d\d:\d\d/)
-        timezone = newsletter['smooch_newsletter_timezone'].match(/\W\d\d:\d\d/)
-      else
-        timezone = newsletter['smooch_newsletter_timezone'].to_s.upcase
-      end
-      # Mapping for old-style timezones not supported by Ruby's DateTime
-      timezone = {
-        'PHT' => '+0800',
-        'CAT' => '+0200'
-      }[timezone] || timezone
-      time_set = DateTime.parse("#{hour}:00 #{timezone}")
-      time_utc = time_set.utc
-      cron_day = nil
-      if newsletter['smooch_newsletter_day'] == 'everyday'
-        cron_day = '*'
-      else
-        days = (0..6).to_a
-        day = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].index(newsletter['smooch_newsletter_day'])
-        day += (time_utc.strftime('%w').to_i - time_set.strftime('%w').to_i)
-        cron_day = days[day]
-      end
-      "#{time_utc.min} #{time_utc.hour} * * #{cron_day}"
+    def get_newsletter(team_id, language)
+      TiplineNewsletter.where(team_id: team_id, language: language).last
     end
 
     def send_newsletter_on_template_button_click(message, uid, language, info)
       newsletter_language = info[1] || language
       newsletter_workflow = self.get_workflow(newsletter_language)
       date = I18n.l(Time.now.to_date, locale: newsletter_language.to_s.tr('_', '-'), format: :long)
-      newsletter = Bot::Smooch.build_newsletter_content(newsletter_workflow['smooch_newsletter'], newsletter_language, self.config['team_id'], false).gsub('{date}', date).gsub('{channel}', self.get_platform_from_message(message))
-      Bot::Smooch.send_final_messages_to_user(uid, newsletter, newsletter_workflow, newsletter_language)
+      newsletter = self.get_newsletter(self.config['team_id'], newsletter_language)
+      content = newsletter.build_content(false).gsub('{date}', date).gsub('{channel}', self.get_platform_from_message(message))
+      Bot::Smooch.send_final_messages_to_user(uid, content, newsletter_workflow, newsletter_language)
     end
   end
 end

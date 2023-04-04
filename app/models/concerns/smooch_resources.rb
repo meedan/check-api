@@ -4,6 +4,8 @@ module SmoochResources
   extend ActiveSupport::Concern
 
   module ClassMethods
+    include RssFeedHelper
+
     TeamBotInstallation.class_eval do
       # Save resources (should we delete too? for now no, because requests can reference them)
       # FIXME: Check API clients should handle it directly
@@ -45,21 +47,7 @@ module SmoochResources
     end
 
     def render_articles_from_rss_feed(url, count = 3)
-      require 'rss'
-      require 'open-uri'
-      output = []
-      begin
-        open(url.to_s.strip) do |rss|
-          feed = RSS::Parser.parse(rss, false)
-          feed.items.first(count).each do |item|
-            output << item.title.strip + "\n" + item.link.strip
-          end unless feed.nil?
-        end
-      rescue StandardError => e
-        output << url.to_s
-        Rails.logger.info "Could not parse RSS feed from URL #{url}, error was: #{e.message}"
-      end
-      output.join("\n\n")
+      self.get_articles_from_rss_feed(url, count).join("\n\n")
     end
 
     def refresh_rss_feeds_cache
