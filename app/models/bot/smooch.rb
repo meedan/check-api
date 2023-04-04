@@ -22,6 +22,7 @@ class Bot::Smooch < BotUser
   include SmoochSearch
   include SmoochZendesk
   include SmoochTurnio
+  include SmoochCapi
   include SmoochStrings
   include SmoochMenus
   include SmoochFields
@@ -256,7 +257,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.valid_request?(request)
-    self.valid_zendesk_request?(request) || self.valid_turnio_request?(request)
+    self.valid_zendesk_request?(request) || self.valid_turnio_request?(request) || self.valid_capi_request?(request)
   end
 
   def self.config
@@ -273,6 +274,8 @@ class Bot::Smooch < BotUser
       json = self.preprocess_message(body)
       JSON::Validator.validate!(SMOOCH_PAYLOAD_JSON_SCHEMA, json)
       case json['trigger']
+      when 'capi:verification'
+        'capi:verification'
       when 'message:appUser'
         json['messages'].each do |message|
           self.parse_message(message, json['app']['_id'], json)

@@ -198,6 +198,8 @@ module SmoochMessages
     def preprocess_message(body)
       if RequestStore.store[:smooch_bot_provider] == 'TURN'
         self.preprocess_turnio_message(body)
+      elsif RequestStore.store[:smooch_bot_provider] == 'CAPI'
+        self.preprocess_capi_message(body)
       else
         JSON.parse(body)
       end
