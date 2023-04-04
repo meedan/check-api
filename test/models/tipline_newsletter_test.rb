@@ -17,6 +17,12 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
   def teardown
   end
 
+  test 'should persist tipline newsletter' do
+    assert_difference 'TiplineNewsletter.count' do
+      create_tipline_newsletter
+    end
+  end
+
   test 'should be a valid newsletter' do
     assert @newsletter.valid?
   end
@@ -53,5 +59,63 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     assert_not @newsletter.valid?
     @newsletter.language = 'en'
     assert @newsletter.valid?
+  end
+
+  test 'should format newsletter time as cron' do
+    # Offset
+    newsletter = TiplineNewsletter.new(
+      time: Time.parse('10:00'),
+      timezone: 'America/Chicago (GMT-05:00)',
+      send_every: 'friday'
+    )
+    assert_equal '0 15 * * 5', newsletter.cron_notation
+
+    # Offset, other direction
+    newsletter = TiplineNewsletter.new(
+      time: Time.parse('10:00'),
+      timezone: 'Indian/Maldives (GMT+05:00)',
+      send_every: 'friday'
+    )
+    assert_equal '0 5 * * 5', newsletter.cron_notation
+
+    # Non-integer hours offset, but still same day as UTC
+    newsletter = TiplineNewsletter.new(
+      time: Time.parse('19:00'),
+      timezone: 'Asia/Kolkata (GMT+05:30)',
+      send_every: 'sunday'
+    )
+    assert_equal '30 13 * * 0', newsletter.cron_notation
+
+    # Non-integer hours offset and not same day as UTC
+    newsletter = TiplineNewsletter.new(
+      time: Time.parse('1:00'),
+      timezone: 'Asia/Kolkata (GMT+05:30)',
+      send_every: 'sunday'
+    )
+    assert_equal '30 19 * * 6', newsletter.cron_notation
+
+    # Integer hours offset and not same day as UTC
+    newsletter = TiplineNewsletter.new(
+      time: Time.parse('23:00'),
+      timezone: 'America/Los Angeles (GMT-07:00)',
+      send_every: 'sunday'
+    )
+    assert_equal '0 6 * * 1', newsletter.cron_notation
+
+    # Everyday
+    newsletter = TiplineNewsletter.new(
+      time: Time.parse('10:00'),
+      timezone: 'America/New York (GMT-04:00)',
+      send_every: 'everyday'
+    )
+    assert_equal '0 14 * * *', newsletter.cron_notation
+
+    # Legacy 3 letter codes
+    newsletter = TiplineNewsletter.new(
+      time: Time.parse('10:00'),
+      timezone: 'EST',
+      send_every: 'sunday'
+    )
+    assert_equal '0 15 * * 0', newsletter.cron_notation
   end
 end

@@ -1027,4 +1027,18 @@ module SampleData
 
     MonthlyTeamStatistic.create!(attributes)
   end
+
+  def create_tipline_newsletter(options = {})
+    TiplineNewsletter.create!({
+      send_every: 'monday',
+      introduction: 'Test',
+      time: Time.parse('10:00'),
+      timezone: 'BRT',
+      first_article: 'Foo',
+      second_article: 'Bar',
+      number_of_articles: 2,
+      language: 'en',
+      team: create_team
+    }.merge(options))
+  end
 end

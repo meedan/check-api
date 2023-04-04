@@ -39,6 +39,14 @@ class TiplineNewsletter < ApplicationRecord
     "#{time_utc.min} #{time_utc.hour} * * #{cron_day}"
   end
 
+  def body
+    content = []
+    [:first_article, :second_article, :third_article].each do |article|
+      content << self.public_send(article)
+    end
+    content.reject{ |article| article.blank? }.join("\n\n")
+  end
+
   def build_content(cache_hash = true)
     content = ''
     content = self.body unless self.body.blank?
