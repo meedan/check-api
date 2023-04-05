@@ -55,30 +55,47 @@ create_team_user(team: team, user: user, role: 'admin')
 p 'Making Medias...'
 medias = []
 
-p 'Making Claims...'
+p 'Making Medias: Claims...'
 10.times { medias.push(Claim.create!(user_id: user.id, quote: Faker::Quotes::Shakespeare.hamlet_quote)) }
 
-p 'Making Links...'
+p 'Making Medias: Links...'
 data[:link_media_links].each { |link_media_link| medias.push(Link.create!(user_id: user.id, url: link_media_link)) }
 
-p 'Making Audios...'
+p 'Making Medias: Audios...'
 data[:audios].each { |audio| medias.push(UploadedAudio.create!(user_id: user.id, file: open_file(audio))) }
 
-p 'Making Images...'
+p 'Making Medias: Images...'
 data[:images].each { |image| medias.push(UploadedImage.create!(user_id: user.id, file: open_file(image)))} 
 
-p 'Making Videos...'
+p 'Making Medias: Videos...'
 data[:videos].each { |video| medias.push(UploadedVideo.create!(user_id: user.id, file: open_file(video))) }
 
 p 'Making Project Medias for medias...'
 medias.each { |media| ProjectMedia.create!(user_id: user.id, project: project, team: team, media: media) }
 
 
-p 'Making claim description and fact_check...'
-data[:fact_check_links].each { |fact_check_link| create_fact_check(summary: Faker::Company.catch_phrase, url: fact_check_link, title: Faker::Company.name, user: user, claim_description: ClaimDescription.create!(description: Faker::Lorem.paragraph(sentence_count: 10), context: Faker::Lorem.sentence, user: user, project_media: ProjectMedia.create!(project: project, team: team, media: Blank.create!))) }
+p 'Making Claim Descriptions and Fact Checks...'
+def fact_check_attributes(fact_check_link, user, project, team)
+    {
+      summary: Faker::Company.catch_phrase,
+      url: fact_check_link,
+      title: Faker::Company.name,
+      user: user,
+      claim_description: create_claim_description(user, project, team)
+    }
+end
 
-p 'Making Relationship...'
-# claims
+def create_blank(project, team)
+    ProjectMedia.create!(project: project, team: team, media: Blank.create!)
+end
+
+def create_claim_description(user, project, team)
+    ClaimDescription.create!(description: Faker::Lorem.paragraph(sentence_count: 10), context: Faker::Lorem.sentence, user: user, project_media: create_blank(project, team))
+end
+
+data[:fact_check_links].each { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
+
+p 'Making Relationship between Claims...'
 claims = []
 project_medias_for_claims = []
 data[:quotes].each { |quote| claims.push(Claim.create!(user_id: user.id, quote: quote)) }
@@ -88,12 +105,12 @@ Relationship.create!(source_id: project_medias_for_claims[0].id, target_id: proj
 Relationship.create!(source_id: project_medias_for_claims[0].id, target_id: project_medias_for_claims[2].id, relationship_type: Relationship.confirmed_type)
 Relationship.create!(source_id: project_medias_for_claims[3].id, target_id: project_medias_for_claims[4].id, relationship_type: Relationship.suggested_type)
 
-# images
+p 'Making Relationship between Images...'
 project_medias_for_images = []
 2.times { project_medias_for_images.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedImage.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.png'))))) }
 Relationship.create!(source_id: project_medias_for_images[0].id, target_id: project_medias_for_images[1].id, relationship_type: Relationship.confirmed_type)
 
-# audio
+p 'Making Relationship between Audios...'
 project_medias_for_audio = []
 2.times { project_medias_for_audio.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedAudio.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.mp3'))))) }
 Relationship.create!(source_id: project_medias_for_audio[0].id, target_id: project_medias_for_audio[1].id, relationship_type: Relationship.confirmed_type)
