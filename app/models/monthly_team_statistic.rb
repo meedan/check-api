@@ -12,7 +12,6 @@ class MonthlyTeamStatistic < ApplicationRecord
     platform_name: "Platform", # model method
     language: "Language",
     month: "Month", # model method
-    conversations_24hr: 'Conversations',
     average_messages_per_day: 'Average messages per day',
     unique_users: 'Unique users',
     returning_users: 'Returning users',
