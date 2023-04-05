@@ -1,6 +1,8 @@
 include SampleData
 require "faker"
 
+Rails.cache.clear
+
 data = {
     team_name: Faker::Company.name,
     user_name: Faker::Name.first_name.downcase,
@@ -40,7 +42,7 @@ def open_file(file)
 end
 
 p '...Seeding...'
-p 'Making Team...'
+p 'Making Team / Workspace...'
 team = create_team(name: Faker::Company.name)
 
 p 'Making User...'
@@ -115,6 +117,93 @@ project_medias_for_audio = []
 2.times { project_medias_for_audio.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedAudio.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.mp3'))))) }
 Relationship.create!(source_id: project_medias_for_audio[0].id, target_id: project_medias_for_audio[1].id, relationship_type: Relationship.confirmed_type)
 
+p 'Making Tipline requests...'
+10.times do
+    claim_media = Claim.create!(user_id: user.id, quote: Faker::Lorem.paragraph(sentence_count: 10))
+    project_media = ProjectMedia.create!(project: project, team: team, media: claim_media)
 
+    tipline_user_name = Faker::Name.first_name.downcase
+    tipline_user_surname = Faker::Name.last_name
+    tipline_text = Faker::Lorem.paragraph(sentence_count: 10)
+    phone = [ Faker::PhoneNumber.phone_number, Faker::PhoneNumber.cell_phone, Faker::PhoneNumber.cell_phone_in_e164, Faker::PhoneNumber.phone_number_with_country_code, Faker::PhoneNumber.cell_phone_with_country_code].sample
+    uid = random_string
+
+    # Tipline user
+    smooch_user_data = {
+    'id': uid,
+    'raw': {
+        '_id': uid,
+        'givenName': tipline_user_name,
+        'surname': tipline_user_surname,
+        'signedUpAt': Time.now.to_s,
+        'properties': {},
+        'conversationStarted': true,
+        'clients': [
+        {
+            'id': random_string,
+            'status': 'active',
+            'externalId': phone,
+            'active': true,
+            'lastSeen': Time.now.to_s,
+            'platform': 'whatsapp',
+            'integrationId': random_string,
+            'displayName': phone,
+            'raw': {
+            'profile': {
+                'name': tipline_user_name
+            },
+            'from': phone
+            }
+        }
+        ],
+        'pendingClients': []
+    },
+    'identifier': random_string,
+    'app_name': random_string
+    }
+
+    fields = {
+    smooch_user_id: uid,
+    smooch_user_app_id: random_string,
+    smooch_user_data: smooch_user_data.to_json
+    }
+
+    Dynamic.create!(annotation_type: 'smooch_user', annotated: team, annotator: BotUser.smooch_user, set_fields: fields.to_json)
+
+    # Tipline request
+    smooch_data = {
+    'role': 'appUser',
+    'source': {
+        'type': 'whatsapp',
+        'id': random_string,
+        'integrationId': random_string,
+        'originalMessageId': random_string,
+        'originalMessageTimestamp': Time.now.to_i
+    },
+    'authorId': uid,
+    'name': tipline_user_name,
+    '_id': random_string,
+    'type': 'text',
+    'received': Time.now.to_f,
+    'text': tipline_text,
+    'language': 'en',
+    'mediaUrl': nil,
+    'mediaSize': 0,
+    'archived': 3,
+    'app_id': random_string
+    }
+
+    fields = {
+    smooch_request_type: 'default_requests',
+    smooch_data: smooch_data.to_json
+    }
+
+    a = Dynamic.new(annotation_type: 'smooch', annotated: project_media, annotator: BotUser.smooch_user)
+    a.set_fields = fields.to_json
+    a.save!
+end
+
+# ##########
 p "Created — user: #{data[:user_name]} — email: #{user.email} — password : #{data[:user_password]}"
+
 
