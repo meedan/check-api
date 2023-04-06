@@ -1,7 +1,7 @@
 module RssFeedHelper
   require 'rss'
   require 'open-uri'
-  
+
   def get_articles_from_rss_feed(url, count = 3)
     output = []
     begin
