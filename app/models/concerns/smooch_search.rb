@@ -192,7 +192,7 @@ module SmoochSearch
       team = Team.find(team_ids[0])
       return false if team.get_languages.to_a.size < 2
       tbi = TeamBotInstallation.where(team_id: team.id, user: BotUser.alegre_user).last
-      !!tbi&.alegre_settings.dig('single_language_fact_checks_enabled')
+      !!tbi&.alegre_settings&.dig('single_language_fact_checks_enabled')
     end
 
     def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id = nil, language = nil)

@@ -201,7 +201,7 @@ Dynamic.class_eval do
     team = self.annotated.team
     return true if team.get_languages.to_a.size < 2
     tbi = TeamBotInstallation.where(team_id: team.id, user: BotUser.alegre_user).last
-    should_send_report_in_different_language = !tbi&.alegre_settings.dig('single_language_fact_checks_enabled')
+    should_send_report_in_different_language = !tbi&.alegre_settings&.dig('single_language_fact_checks_enabled')
     self.annotation_type == 'report_design' && (self.report_design_field_value('language') == language || should_send_report_in_different_language)
   end
 end
