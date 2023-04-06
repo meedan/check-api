@@ -536,9 +536,7 @@ class Bot::Alegre < BotUser
 
     if parent_relationships.length > 0
       # Sanity check: if there are multiple parents, something is wrong in the dataset.
-      if parent_relationships.length > 1
-        CheckSentry.notify(StandardError.new("[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships ERROR] Found multiple similarity relationship parents for proposed link to ProjectMedia #{proposed_id}"))
-      end
+      CheckSentry.notify(StandardError.new("[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships ERROR] Found multiple similarity relationship parents for proposed link to ProjectMedia #{proposed_id}")) if parent_relationships.length > 1
       # Take the first source as the parent (A).
       # 1. A is confirmed to B and C is suggested to B: type of the relationship between A and C is: suggested to A
       # 2. A is confirmed to B and C is confirmed to B: type of the relationship between A and C is: confirmed to A
