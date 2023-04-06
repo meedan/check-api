@@ -215,7 +215,6 @@ module SmoochSearch
       redis = Redis.new(REDIS_CONFIG)
       language = self.cached_user_language(uid)
       reports = results.collect{ |r| r.get_dynamic_annotation('report_design') }
-      # if team.get_languages.to_a.size > 1 && reports.find{ |r| r&.report_design_field_value('language') != language } && !reports.find{ |r| r&.report_design_field_value('language') == language }
       # Get reports languages
       reports_language = reports.map{|r| r&.report_design_field_value('language')}.uniq
       if team.get_languages.to_a.size > 1 && reports_language.size > 1 && !reports_language.include?(language)
