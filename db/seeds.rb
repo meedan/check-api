@@ -28,11 +28,6 @@ data = {
         'https://meedan.com/post/op-ed-heres-what-were-considering-in-the-lead-up-to-the-supreme-courts-decisions-on-the-future-of-the-internet',
         'https://meedan.com/post/meedan-impact-story-using-ai-to-investigate-weapons-trafficking-and-human-rights-violations',
         'https://meedan.com/post/meedan-partner-fatabyyano-launches-tipline-for-earthquake-crisis-response',
-        'https://meedan.com/post/feminist-publication-magdalene-investigates-beauty-misinformation-on-social-media',
-        'https://meedan.com/post/meedan-announces-earthquake-crisis-response-for-media-covering-turkey-and-syria',
-        'https://meedan.com/post/meedan-labs-welcomes-orlando-watson-and-louis-moynihan-as-senior-advisors',
-        'https://meedan.com/post/meedan-supported-fact-checking-consortium-in-india-welcomes-five-new-members-ahead-of-india-elections',
-        'https://meedan.com/post/five-trends-we-found-on-whatsapp-during-the-2022-brazil-elections'
     ],
     quotes: ['Garlic can help you fight covid', 'Tea with garlic is a covid treatment', 'If you have covid you should eat garlic', 'Are you allergic to garlic?', 'Vampires can\'t eat garlic']
 }
@@ -55,28 +50,41 @@ p 'Making Team User...'
 create_team_user(team: team, user: user, role: 'admin')
 
 p 'Making Medias...'
-medias = []
+def create_project_medias(user, project, team, n_medias = 9)
+    Media.last(n_medias).each { |media| ProjectMedia.create!(user_id: user.id, project: project, team: team, media: media) }
+end
 
-p 'Making Medias: Claims...'
-10.times { medias.push(Claim.create!(user_id: user.id, quote: Faker::Quotes::Shakespeare.hamlet_quote)) }
+def add_claim_descriptions_and_fact_checks(user,n_project_medias = 6, n_claim_descriptions = 3)
+    ProjectMedia.last(n_project_medias).each { |project_media| ClaimDescription.create!(description: Faker::Lorem.paragraph(sentence_count: 10), context: Faker::Lorem.sentence, user: user, project_media: project_media) }
+    ClaimDescription.last(n_claim_descriptions).each { |claim_description| FactCheck.create!(summary: Faker::Company.catch_phrase, title: Faker::Company.name, user: user, claim_description: claim_description) }
+end
 
-p 'Making Medias: Links...'
-data[:link_media_links].each { |link_media_link| medias.push(Link.create!(user_id: user.id, url: link_media_link)) }
+p 'Making Medias and Project Medias: Claims...'
+9.times { Claim.create!(user_id: user.id, quote: Faker::Quotes::Shakespeare.hamlet_quote) }
+create_project_medias(user, project, team)
+add_claim_descriptions_and_fact_checks(user)
 
-p 'Making Medias: Audios...'
-data[:audios].each { |audio| medias.push(UploadedAudio.create!(user_id: user.id, file: open_file(audio))) }
+p 'Making Medias and Project Medias: Links...'
+data[:link_media_links].each { |link_media_link| Link.create!(user_id: user.id, url: link_media_link) }
+create_project_medias(user, project, team)
+add_claim_descriptions_and_fact_checks(user)
 
-p 'Making Medias: Images...'
-data[:images].each { |image| medias.push(UploadedImage.create!(user_id: user.id, file: open_file(image)))} 
+p 'Making Medias and Project Medias: Audios...'
+data[:audios].each { |audio| UploadedAudio.create!(user_id: user.id, file: open_file(audio)) }
+create_project_medias(user, project, team, 5)
+add_claim_descriptions_and_fact_checks(user, 5, 3)
 
-p 'Making Medias: Videos...'
-data[:videos].each { |video| medias.push(UploadedVideo.create!(user_id: user.id, file: open_file(video))) }
+p 'Making Medias and Project Medias: Images...'
+data[:images].each { |image| UploadedImage.create!(user_id: user.id, file: open_file(image))} 
+create_project_medias(user, project, team, 7)
+add_claim_descriptions_and_fact_checks(user, 7, 3)
 
-p 'Making Project Medias for medias...'
-medias.each { |media| ProjectMedia.create!(user_id: user.id, project: project, team: team, media: media) }
+p 'Making Medias and Project Medias: Videos...'
+data[:videos].each { |video| UploadedVideo.create!(user_id: user.id, file: open_file(video)) }
+create_project_medias(user, project, team, 2)
+add_claim_descriptions_and_fact_checks(user, 2, 1)
 
-
-p 'Making Claim Descriptions and Fact Checks...'
+p 'Making Claim Descriptions and Fact Checks: Imported Fact Checks...'
 def fact_check_attributes(fact_check_link, user, project, team)
     {
       summary: Faker::Company.catch_phrase,
@@ -98,14 +106,14 @@ end
 data[:fact_check_links].each { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
 
 p 'Making Relationship between Claims...'
-claims = []
-project_medias_for_claims = []
-data[:quotes].each { |quote| claims.push(Claim.create!(user_id: user.id, quote: quote)) }
-claims.each { |claim| project_medias_for_claims.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: claim))}
+relationship_claims = []
+project_medias_for_relationship_claims = []
+data[:quotes].each { |quote| relationship_claims.push(Claim.create!(user_id: user.id, quote: quote)) }
+relationship_claims.each { |claim| project_medias_for_relationship_claims.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: claim))}
 
-Relationship.create!(source_id: project_medias_for_claims[0].id, target_id: project_medias_for_claims[1].id, relationship_type: Relationship.confirmed_type)
-Relationship.create!(source_id: project_medias_for_claims[0].id, target_id: project_medias_for_claims[2].id, relationship_type: Relationship.confirmed_type)
-Relationship.create!(source_id: project_medias_for_claims[3].id, target_id: project_medias_for_claims[4].id, relationship_type: Relationship.suggested_type)
+Relationship.create!(source_id: project_medias_for_relationship_claims[0].id, target_id: project_medias_for_relationship_claims[1].id, relationship_type: Relationship.confirmed_type)
+Relationship.create!(source_id: project_medias_for_relationship_claims[0].id, target_id: project_medias_for_relationship_claims[2].id, relationship_type: Relationship.confirmed_type)
+Relationship.create!(source_id: project_medias_for_relationship_claims[3].id, target_id: project_medias_for_relationship_claims[4].id, relationship_type: Relationship.suggested_type)
 
 p 'Making Relationship between Images...'
 project_medias_for_images = []
