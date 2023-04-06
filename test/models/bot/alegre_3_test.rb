@@ -502,4 +502,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     Bot::Alegre.unstub(:request_api)
   end
 
+  test "should not resort matches if format is unknown" do
+    assert_equal 'Foo', Bot::Alegre.return_prioritized_matches('Foo')
+  end
 end

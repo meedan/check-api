@@ -113,4 +113,12 @@ class MonthlyTeamStatisticTest < ActiveSupport::TestCase
 
     assert_equal "WhatsApp", stat.platform_name
   end
+
+  test "should handle cache" do
+    team_id, uid, language, platform = 1, 'foo', 'en', 'whatsapp'
+    Rails.cache.write(Check::TiplineMessageStatistics.cache_key(team_id, uid, language, platform), 'Bar')
+    assert_equal 'Bar', Check::TiplineMessageStatistics.cache_read(team_id, uid, language, platform)
+    Check::TiplineMessageStatistics.cache_reset(team_id, uid, language, platform)
+    assert_nil Check::TiplineMessageStatistics.cache_read(team_id, uid, language, platform)
+  end
 end
