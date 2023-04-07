@@ -227,8 +227,9 @@ module SmoochResend
 
     def log_resend_error(message)
       if message['isFinalEvent']
-        error = Bot::Smooch::MessageDeliveryError.new('Could not deliver message to final user!')
-        CheckSentry.notify(error, error: message.dig('error'), uid: message.dig('appUser', '_id'), smooch_app_id: message.dig('app', '_id'), timestamp: message.dig('timestamp'))
+        api_error = message.dig('error')
+        exception = Bot::Smooch::FinalMessageDeliveryError.new("(#{api_error&.dig('code')}) #{api_error&.dig('message')}")
+        CheckSentry.notify(exception, error: api_error, uid: message.dig('appUser', '_id'), smooch_app_id: message.dig('app', '_id'), timestamp: message.dig('timestamp'))
       end
     end
 
