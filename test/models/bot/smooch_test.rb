@@ -332,6 +332,44 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert Bot::Smooch.run(payload)
   end
 
+  test "should send a final failure message with code to Sentry" do
+    uid = random_string
+
+    error_hash = {
+      code: 'forbidden',
+      message: 'Forbidden',
+      underlyingError: {
+        description: 'Forbidden: user is deactivated',
+        error_code: 403,
+        ok: 'False'
+      }
+    }.with_indifferent_access
+
+    payload = {
+      trigger: 'message:delivery:failure',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      appUser: {
+        '_id': uid,
+        conversationStarted: true
+      },
+      error: error_hash,
+      message: {
+        '_id': @msg_id,
+      },
+      isFinalEvent: true,
+      timestamp: Time.now.to_f
+    }
+
+    mock_error = mock('error')
+    Bot::Smooch::FinalMessageDeliveryError.expects(:new).with('(forbidden) Forbidden').returns(mock_error)
+    CheckSentry.expects(:notify).with(mock_error, has_entries(error: error_hash, uid: uid, smooch_app_id: @app_id, timestamp: kind_of(Float)))
+
+    assert Bot::Smooch.run(payload.to_json)
+  end
+
   test "should have different configurations per thread" do
     threads = []
     threads << Thread.start do
