@@ -224,4 +224,20 @@ class RelationshipTest < ActiveSupport::TestCase
     r.destroy!
     assert_queries(0, '=') { assert_nil pm2.added_as_similar_by_name }
   end
+
+  test "should avoid circular relationship" do
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    assert_nothing_raised do
+      create_relationship source_id: pm1.id, target_id: pm2.id
+    end
+    assert_raises 'ActiveRecord::RecordNotUnique' do
+      create_relationship source_id: pm2.id, target_id: pm1.id
+    end
+    pm3 = create_project_media
+    assert_raises 'ActiveRecord::RecordInvalid' do
+      create_relationship source_id: pm3.id, target_id: pm3.id
+    end
+  end
 end
