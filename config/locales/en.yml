@@ -726,6 +726,7 @@ en:
   flag_likelihood_5: High (more content will be detected)
   flag_likelihood_7: Manual
   relationship_not_same_team: Related items must exist in the same workspace
+  item_cant_be_related_to_itself: "Item can't be related to itself"
   target_is_published: Target should not have a published report
   similar_item_exists: Sorry, this item already added as a similar item.
   bulk_operation_limit_error: Sorry, the maximum number of items to be processed at
