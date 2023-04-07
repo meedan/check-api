@@ -94,13 +94,6 @@ namespace :check do
       started = Time.now.to_i
       field_name = data_args['field']
       raise "You must set field name as args for rake task Aborting." if field_name.blank?
-      es_fields_mapping = {
-        'title' => 'title_index',
-        'status' => 'status_index'
-      }
-      es_field_name = es_fields_mapping[field_name].blank? ? field_name : es_fields_mapping[field_name]
-      index_alias = CheckElasticSearchModel.get_index_alias
-      client = $repository.client
       # Add team condition
       team_condition = {}
       if data_args['slug'].blank?
@@ -127,30 +120,7 @@ namespace :check do
           pms.each do |pm|
             print '.'
             value = pm.send(field_name, true)
-            doc_id = Base64.encode64("ProjectMedia/#{pm.id}")
-            field_value = if field_name == 'report_status'
-                            ['unpublished', 'paused', 'published'].index(value)
-                          elsif field_name == 'status'
-                            pm.status_ids.index(value)
-                          elsif field_name == 'tags_as_sentence'
-                            value.split(', ').size
-                          elsif field_name == 'published_by'
-                            value.keys.first || 0
-                          elsif field_name == 'type_of_media'
-                            Media.types.index(value)
-                          else
-                            value
-                          end
-            fields = { "#{es_field_name}" => field_value }
-            # add extra fields to ES
-            if field_name == 'title'
-              fields["title"] = field_value
-            elsif field_name == 'status'
-              fields["verification_status"] = pm.status
-            end
-            es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
           end
-          client.bulk body: es_body unless es_body.blank?
         end
         Rails.cache.write('check:project_media:recalculate_cached_field:team_id', team.id) if data_args['slug'].blank?
       end
