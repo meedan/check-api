@@ -3,6 +3,9 @@ require 'check_state_machine'
 
 class Bot::Smooch < BotUser
   class MessageDeliveryError < StandardError; end
+  class FinalMessageDeliveryError < MessageDeliveryError; end
+  class TurnioMessageDeliveryError < MessageDeliveryError; end
+  class SmoochMessageDeliveryError < MessageDeliveryError; end
 
   MESSAGE_BOUNDARY = "\u2063"
 
