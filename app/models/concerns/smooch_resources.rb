@@ -4,8 +4,6 @@ module SmoochResources
   extend ActiveSupport::Concern
 
   module ClassMethods
-    include RssFeedHelper
-
     TeamBotInstallation.class_eval do
       # Save resources (should we delete too? for now no, because requests can reference them)
       # FIXME: Check API clients should handle it directly
@@ -47,7 +45,8 @@ module SmoochResources
     end
 
     def render_articles_from_rss_feed(url, count = 3)
-      self.get_articles_from_rss_feed(url, count).join("\n\n")
+      rss_feed = RssFeed.new(url)
+      rss_feed.get_articles(count).join("\n\n")
     end
 
     def refresh_rss_feeds_cache

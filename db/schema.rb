@@ -540,11 +540,12 @@ ActiveRecord::Schema.define(version: 2023_03_31_222716) do
     t.string "timezone"
     t.time "time"
     t.datetime "last_sent_at"
-    t.string "language"
+    t.string "language", null: false
     t.boolean "enabled", default: false, null: false
     t.bigint "team_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["team_id", "language"], name: "index_tipline_newsletters_on_team_id_and_language", unique: true
     t.index ["team_id"], name: "index_tipline_newsletters_on_team_id"
   end
 

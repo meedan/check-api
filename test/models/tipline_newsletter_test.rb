@@ -9,6 +9,7 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
       number_of_articles: 3,
       send_every: 'everyday',
       timezone: 'UTC',
+      time: Time.parse('10:00'),
       language: 'en',
       team: @team
     )
@@ -32,8 +33,8 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     assert_not @newsletter.valid?
   end
 
-  test 'should have team' do
-    @newsletter.team = nil
+  test 'should have language' do
+    @newsletter.language = nil
     assert_not @newsletter.valid?
   end
 
@@ -59,6 +60,38 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     assert_not @newsletter.valid?
     @newsletter.language = 'en'
     assert @newsletter.valid?
+  end
+
+  test 'should build newsletter with static content from articles' do
+    @newsletter.introduction = 'Foo'
+    @newsletter.first_article = 'Bar'
+    @newsletter.rss_feed_url = nil
+    assert_equal "Foo\n\nBar", @newsletter.build_content
+  end
+
+  test 'should build newsletter with dynamic content from RSS feed' do
+    @newsletter.introduction = 'Foo'
+    @newsletter.rss_feed_url = create_rss_feed.url
+    assert_equal "Foo\n\nFoo\nhttp://foo\n\nBar\nhttp://bar", @newsletter.build_content
+  end
+
+  test 'should track if content has changed' do
+    @newsletter.first_article = 'Foo'
+    @newsletter.rss_feed_url = nil
+    @newsletter.build_content
+    assert !@newsletter.content_has_changed?
+    @newsletter.first_article = 'Bar'
+    assert @newsletter.content_has_changed?
+  end
+
+  test 'should not have more than one newsletter for the same team and language' do
+    assert_difference 'TiplineNewsletter.count' do
+      @newsletter.save!
+    end
+    assert_raises ActiveRecord::RecordNotUnique do
+      newsletter = @newsletter.dup
+      newsletter.save!
+    end
   end
 
   test 'should format newsletter time as cron' do

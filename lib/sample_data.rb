@@ -1041,4 +1041,34 @@ module SampleData
       team: create_team
     }.merge(options))
   end
+
+  def create_rss_feed(custom_url = nil)
+    url = custom_url || random_url
+    rss = %{
+      <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+        <channel>
+          <title>Test</title>
+          <link>http://test.com/rss.xml</link>
+          <description>Test</description>
+          <language>en</language>
+          <lastBuildDate>Fri, 09 Oct 2020 18:00:48 GMT</lastBuildDate>
+          <managingEditor>test@test.com (editors)</managingEditor>
+          <item>
+            <title>Foo</title>
+            <description>This is the description.</description>
+            <pubDate>Wed, 11 Apr 2018 15:25:00 GMT</pubDate>
+            <link>http://foo</link>
+          </item>
+          <item>
+            <title>Bar</title>
+            <description>This is the description.</description>
+            <pubDate>Wed, 10 Apr 2018 15:25:00 GMT</pubDate>
+            <link>http://bar</link>
+          </item>
+        </channel>
+      </rss>
+    }
+    WebMock.stub_request(:get, url).to_return(status: 200, body: rss)
+    RssFeed.new(url)
+  end
 end

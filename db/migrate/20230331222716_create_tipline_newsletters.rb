@@ -11,10 +11,11 @@ class CreateTiplineNewsletters < ActiveRecord::Migration[5.2]
       t.string :timezone
       t.time :time
       t.datetime :last_sent_at
-      t.string :language
+      t.string :language, null: false
       t.boolean :enabled, null: false, default: false
       t.references :team, null: false, index: true
       t.timestamps null: false
     end
+    add_index :tipline_newsletters, [:team_id, :language], unique: true
   end
 end
