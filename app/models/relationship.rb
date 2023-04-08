@@ -16,6 +16,7 @@ class Relationship < ApplicationRecord
   validate :relationship_type_is_valid, :items_are_from_the_same_team
   validate :target_not_pulished_report, on: :create
   validate :similar_item_exists, on: :create, if: proc { |r| r.is_suggested? }
+  validate :cant_be_related_to_itself
   validates :relationship_type, uniqueness: { scope: [:source_id, :target_id], message: :already_exists }, on: :create
 
   before_create :destroy_suggest_item, if: proc { |r| r.is_confirmed? }
@@ -302,5 +303,9 @@ class Relationship < ApplicationRecord
     # Check if same item already exists as a suggested item
     Relationship.where(source_id: self.source_id, target_id: self.target_id)
     .where('relationship_type = ?', Relationship.suggested_type.to_yaml).destroy_all
+  end
+
+  def cant_be_related_to_itself
+    errors.add(:base, I18n.t(:item_cant_be_related_to_itself)) if self.source_id == self.target_id
   end
 end
