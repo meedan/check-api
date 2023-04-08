@@ -29,4 +29,11 @@ class TiplineNewsletterWorkerTest < ActiveSupport::TestCase
     assert_equal 1, TiplineNewsletterWorker.new.perform(@team.id, 'en')
     assert_equal 0, TiplineNewsletterWorker.new.perform(@team.id, 'en')
   end
+
+  test "should not send newsletter if it's not enabled" do
+    tn = TiplineNewsletter.where(team: @team, language: 'en').last
+    tn.enabled = false
+    tn.save!
+    assert_equal 0, TiplineNewsletterWorker.new.perform(@team.id, 'en')
+  end
 end

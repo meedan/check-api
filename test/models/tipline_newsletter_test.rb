@@ -94,6 +94,15 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     end
   end
 
+  test 'should create newsletter for current team' do
+    t = create_team
+    Team.current = t
+    @newsletter.team = nil
+    assert @newsletter.valid?
+    assert_equal t, @newsletter.team
+    Team.current = nil
+  end
+
   test 'should format newsletter time as cron' do
     # Offset
     newsletter = TiplineNewsletter.new(

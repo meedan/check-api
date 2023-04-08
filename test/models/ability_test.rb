@@ -1270,4 +1270,21 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:read, pmu2)
     end
   end
+
+  test "permissions for tipline newsletter" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    tn1 = create_tipline_newsletter(team: t)
+    tn2 = create_tipline_newsletter
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:create, tn1)
+      assert ability.can?(:update, tn1)
+      assert ability.can?(:destroy, tn1)
+      assert ability.cannot?(:create, tn2)
+      assert ability.cannot?(:update, tn2)
+      assert ability.cannot?(:destroy, tn2)
+    end
+  end
 end

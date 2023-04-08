@@ -8,7 +8,7 @@ class TiplineNewsletterWorker
     newsletter = Bot::Smooch.get_newsletter(team_id, language)
     log(team_id, language, 'Not sending newsletter because it does not exist or is not enabled') unless newsletter&.enabled
     count = 0
-    unless tbi.nil?
+    if !tbi.nil? && newsletter&.enabled
       tbi.settings['smooch_workflows'].to_a.each do |workflow|
         if workflow['smooch_workflow_language'] == language
           log team_id, language, 'Preparing newsletter to be sent...'

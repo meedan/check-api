@@ -1038,6 +1038,7 @@ module SampleData
       second_article: 'Bar',
       number_of_articles: 2,
       language: 'en',
+      enabled: true,
       team: create_team
     }.merge(options))
   end

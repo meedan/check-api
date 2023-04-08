@@ -2,6 +2,8 @@ class TiplineNewsletter < ApplicationRecord
   belongs_to :team
   has_paper_trail on: [:create, :destroy], save_changes: true, ignore: [:updated_at, :created_at], versions: { class_name: 'Version' }
 
+  before_validation :set_team
+
   validates_presence_of :introduction, :team, :language
   validates_format_of :rss_feed_url, with: URI.regexp, allow_blank: true, allow_nil: true
   validates_inclusion_of :number_of_articles, in: 0..3
@@ -84,5 +86,9 @@ class TiplineNewsletter < ApplicationRecord
       content = rss_feed.get_articles(self.number_of_articles).join("\n\n")
     end
     content
+  end
+
+  def set_team
+    self.team ||= Team.current
   end
 end
