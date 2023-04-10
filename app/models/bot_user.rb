@@ -44,11 +44,11 @@ class BotUser < User
   scope :not_approved, -> { where('settings LIKE ?', '%approved: false%') }
   scope :listed, -> { where('settings LIKE ?', '%listed: true%') }
 
-  before_validation :set_team_author_id
+  before_validation :set_default_team_author_id
   before_validation :format_settings
-  before_validation :set_version
+  before_validation :set_default_version
   before_validation :set_fields
-  before_validation :set_identifier, on: :create
+  before_validation :set_default_identifier, on: :create
   before_validation :create_api_key, on: :create
   after_create :add_to_team
   after_update :update_role_if_changed
@@ -384,7 +384,7 @@ class BotUser < User
     end
   end
 
-  def set_identifier
+  def set_default_identifier
     if !self.name.blank? && self.identifier.blank?
       id = ['bot', self.name.parameterize.underscore].join('_')
       count = BotUser.where(login: id).count
@@ -421,11 +421,11 @@ class BotUser < User
     TeamBotInstallation.where(user_id: self.id).update_all(role: self.get_role) if self.get_role
   end
 
-  def set_version
+  def set_default_version
     self.set_version('0.0.1') if self.get_version.blank?
   end
 
-  def set_team_author_id
+  def set_default_team_author_id
     self.team_author_id = Team.current&.id if self.team_author_id.blank?
   end
 
