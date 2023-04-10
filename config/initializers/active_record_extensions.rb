@@ -58,7 +58,7 @@ module ActiveRecordExtensions
         f_name = File.basename file_name, f_extn
         file = Tempfile.new([f_name, f_extn])
         file.binmode # note that our tempfile must be in binary mode
-        file.write open(value).read
+        file.write File.open(value).read
         file.rewind
         file
       end

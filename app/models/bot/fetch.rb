@@ -308,7 +308,7 @@ class Bot::Fetch < BotUser
       tmp = nil
       unless image_url.blank?
         tmp = File.join(Rails.root, 'tmp', "image-#{SecureRandom.hex}")
-        open(URI.escape(image_url)) do |i|
+        URI.open(URI.escape(image_url)) do |i|
           File.open(tmp, 'wb') do |f|
             f.write(i.read)
           end
