@@ -103,6 +103,17 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     Team.current = nil
   end
 
+  test 'should have deliveries' do
+    delivery = TiplineNewsletterDelivery.create!(
+      recipients_count: 100,
+      content: 'Test',
+      started_sending_at: Time.now.ago(1.minute),
+      finished_sending_at: Time.now,
+      tipline_newsletter: @newsletter
+    )
+    assert_equal [delivery], @newsletter.tipline_newsletter_deliveries
+  end
+
   test 'should format newsletter time as cron' do
     # Offset
     newsletter = TiplineNewsletter.new(

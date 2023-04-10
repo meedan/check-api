@@ -1,5 +1,7 @@
 class TiplineNewsletter < ApplicationRecord
   belongs_to :team
+  has_many :tipline_newsletter_deliveries
+
   has_paper_trail on: [:create, :destroy], save_changes: true, ignore: [:updated_at, :created_at], versions: { class_name: 'Version' }
 
   before_validation :set_team

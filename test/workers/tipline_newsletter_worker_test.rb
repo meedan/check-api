@@ -36,4 +36,10 @@ class TiplineNewsletterWorkerTest < ActiveSupport::TestCase
     tn.save!
     assert_equal 0, TiplineNewsletterWorker.new.perform(@team.id, 'en')
   end
+
+  test "should save a delivery event when newsletter is sent" do
+    assert_difference 'TiplineNewsletterDelivery.count' do
+      TiplineNewsletterWorker.new.perform(@team.id, 'en')
+    end
+  end
 end

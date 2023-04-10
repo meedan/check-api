@@ -13,8 +13,11 @@ class TiplineNewsletterWorker
         if workflow['smooch_workflow_language'] == language
           log team_id, language, 'Preparing newsletter to be sent...'
           if !newsletter.nil? && newsletter.content_has_changed?
+
+            # If there is new content to be sent, send it to all subscribers
             date = I18n.l(Time.now.to_date, locale: language.to_s.tr('_', '-'), format: :long)
             content = newsletter.build_content.gsub('{date}', date)
+            start = Time.now
             TiplineSubscription.where(language: language, team_id: team_id).find_each do |ts|
               log team_id, language, "Sending newsletter to subscriber ##{ts.id}..."
               begin
@@ -30,11 +33,19 @@ class TiplineNewsletterWorker
                 log team_id, language, "Could not send newsletter to subscriber ##{ts.id}: #{e.message}"
               end
             end
-            User.current = BotUser.smooch_user
-            newsletter.skip_check_ability = true
-            newsletter.last_sent_at = Time.now
-            newsletter.save!
-            User.current = nil
+            finish = Time.now
+
+            # Save a delivery event for this newsletter
+            TiplineNewsletterDelivery.create!({
+              recipients_count: count,
+              content: content,
+              started_sending_at: start,
+              finished_sending_at: finish,
+              tipline_newsletter: newsletter
+            })
+
+            # Save the last time this newsletter was sent
+            newsletter.update_column(:last_sent_at, Time.now)
           else
             log team_id, language, 'Not sending newsletter because content has not changed since the last delivery'
           end
