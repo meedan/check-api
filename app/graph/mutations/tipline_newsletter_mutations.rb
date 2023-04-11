@@ -1,16 +1,11 @@
 module TiplineNewsletterMutations
   fields = {
     introduction: 'str',
-    header_type: 'str',
-    header_overlay_text: 'str',
+    header_type: 'str', header_overlay_text: 'str',
     rss_feed_url: 'str',
-    first_article: 'str',
-    second_article: 'str',
-    third_article: 'str',
+    first_article: 'str', second_article: 'str', third_article: 'str',
     number_of_articles: 'int',
-    send_every: 'str',
-    timezone: 'str',
-    time: 'str',
+    send_every: 'str', timezone: 'str', time: 'str',
     language: 'str',
     enabled: 'bool'
   }
