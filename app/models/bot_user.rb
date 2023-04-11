@@ -1,5 +1,4 @@
 class BotUser < User
-  include ErrorNotification
   include CheckPusher
 
   EVENTS = ['create_project_media', 'update_project_media', 'create_source', 'update_source', 'update_annotation_own', 'publish_report',
@@ -156,7 +155,7 @@ class BotUser < User
       JSON.parse(result.to_json)['data']['node']
     rescue StandardError => e
       Rails.logger.error("[BotUser] Error performing GraphQL query: #{e.message}")
-      self.class.notify_error(e, { bot_user: self.id, team_id: team.id, object_class: klass, object_id: object.id, query: query, result: result }, RequestStore[:request] )
+      CheckSentry.notify(e, { bot_user: self.id, team_id: team.id, object_class: klass, object_id: object.id, query: query })
       { error: "Error performing GraphQL query" }.with_indifferent_access
     end
   end
@@ -181,7 +180,8 @@ class BotUser < User
       end
     rescue StandardError => e
       Rails.logger.error("[BotUser] Error calling bot #{self.identifier}: #{e.message}")
-      self.class.notify_error(e, { bot: self.id, uri: uri, data: data })
+      data.delete(:data) # Prevent sending potentially sensitive data to Sentry
+      CheckSentry.notify(e, { bot: self.id, uri: uri, data: data })
       User.current = nil
       Team.current = nil
     end

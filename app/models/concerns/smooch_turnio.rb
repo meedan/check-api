@@ -224,6 +224,10 @@ module SmoochTurnio
       JSON.parse(response.body).dig('media', 0, 'id')
     end
 
+    def turnio_safely_parse_response_body(response)
+      begin JSON.parse(response.body) rescue {} end
+    end
+
     def turnio_send_message_to_user(uid, text, extra = {}, force = false)
       return if self.config['smooch_disabled'] && !force
       payload = {}
@@ -266,8 +270,18 @@ module SmoochTurnio
       if response.code.to_i < 400
         ret = response
       else
-        e = SmoochBotDeliveryFailure.new("Could not send message to WhatsApp user! Response: #{response.body}")
-        self.notify_error(e, { uid: uid, body: payload, error: e.message, response: response }, RequestStore[:request])
+        response_body = self.turnio_safely_parse_response_body(response)
+        errors = response_body.dig('errors')
+        errors.to_a.each do |error|
+          e = Bot::Smooch::TurnioMessageDeliveryError.new("(#{error.dig('code')}) #{error.dig('title')}")
+          CheckSentry.notify(e, {
+            uid: uid,
+            error: error,
+            type: payload.dig(:type),
+            template_name: payload.dig(:template, :name),
+            template_language: payload.dig(:template, :language, :code)
+          })
+        end
       end
       ret
     end

@@ -191,7 +191,8 @@ module SmoochSearch
       return false if team_ids.size > 1
       team = Team.find(team_ids[0])
       return false if team.get_languages.to_a.size < 2
-      !!TeamBotInstallation.where(team_id: team.id, user: BotUser.alegre_user).last&.get_single_language_fact_checks_enabled
+      tbi = TeamBotInstallation.where(team_id: team.id, user: BotUser.alegre_user).last
+      !!tbi&.alegre_settings&.dig('single_language_fact_checks_enabled')
     end
 
     def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id = nil, language = nil)
@@ -214,14 +215,16 @@ module SmoochSearch
       redis = Redis.new(REDIS_CONFIG)
       language = self.cached_user_language(uid)
       reports = results.collect{ |r| r.get_dynamic_annotation('report_design') }
-      if team.get_languages.to_a.size > 1 && reports.find{ |r| r&.report_design_field_value('language') != language } && !reports.find{ |r| r&.report_design_field_value('language') == language }
+      # Get reports languages
+      reports_language = reports.map{|r| r&.report_design_field_value('language')}.uniq
+      if team.get_languages.to_a.size > 1 && !reports_language.include?(language)
         self.send_message_to_user(uid, self.get_string(:no_results_in_language, language).gsub('%{language}', CheckCldr.language_code_to_name(language, language)))
         sleep 1
       end
       reports.each do |report|
         response = nil
-        response = self.send_message_to_user(uid, report.report_design_text) if report.report_design_field_value('use_text_message')
-        response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url }) if !report.report_design_field_value('use_text_message') && report.report_design_field_value('use_visual_card')
+        response = self.send_message_to_user(uid, report.report_design_text) if report&.report_design_field_value('use_text_message')
+        response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url }) if !report&.report_design_field_value('use_text_message') && report&.report_design_field_value('use_visual_card')
         id = self.get_id_from_send_response(response)
         redis.rpush("smooch:search:#{uid}", id) unless id.blank?
       end

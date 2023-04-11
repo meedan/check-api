@@ -44,7 +44,7 @@ class MonthlyTeamStatisticTest < ActiveSupport::TestCase
       start_date: DateTime.new(2020,4,1),
       end_date: DateTime.new(2020,4,15),
       conversations: 1, # deprecated, not included in .formatted_hash
-      conversations_24hr: 23,
+      conversations_24hr: 23, # removed for now
       average_messages_per_day: 2,
       unique_users: 3,
       returning_users: 4,
@@ -67,7 +67,6 @@ class MonthlyTeamStatisticTest < ActiveSupport::TestCase
     assert_equal hash["Platform"], "WhatsApp"
     assert_equal hash["Language"], "en"
     assert_equal hash["Month"], "Apr 2020"
-    assert_equal hash["Conversations"], 23
     assert_equal hash["Average messages per day"], 2
     assert_equal hash["Unique users"], 3
     assert_equal hash["Returning users"], 4
@@ -113,5 +112,13 @@ class MonthlyTeamStatisticTest < ActiveSupport::TestCase
     stat = MonthlyTeamStatistic.new(platform: 'whatsapp')
 
     assert_equal "WhatsApp", stat.platform_name
+  end
+
+  test "should handle cache" do
+    team_id, uid, language, platform = 1, 'foo', 'en', 'whatsapp'
+    Rails.cache.write(Check::TiplineMessageStatistics.cache_key(team_id, uid, language, platform), 'Bar')
+    assert_equal 'Bar', Check::TiplineMessageStatistics.cache_read(team_id, uid, language, platform)
+    Check::TiplineMessageStatistics.cache_reset(team_id, uid, language, platform)
+    assert_nil Check::TiplineMessageStatistics.cache_read(team_id, uid, language, platform)
   end
 end

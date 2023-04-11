@@ -1,7 +1,7 @@
 include SampleData
 require "faker"
 
-!Rails.env.development? || raise('To run the seeds file you should be in the development environment')
+Rails.env.development? || raise('To run the seeds file you should be in the development environment')
 
 Rails.cache.clear
 

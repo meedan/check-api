@@ -75,9 +75,17 @@ module SmoochZendesk
       begin
         api_instance.post_message(app_id, uid, message_post_body)
       rescue SmoochApi::ApiError => e
+        response_body = begin JSON.parse(e.response_body) rescue {} end
         Rails.logger.error("[Smooch Bot] Exception when sending message #{params.inspect}: #{e.response_body}")
-        e2 = SmoochBotDeliveryFailure.new('Could not send message to Smooch user!')
-        self.notify_error(e2, { smooch_app_id: app_id, uid: uid, body: params, smooch_response: e.response_body }, RequestStore[:request])
+
+        error = response_body.dig('error')
+        e2 = Bot::Smooch::SmoochMessageDeliveryError.new("(#{error&.dig('code')}) #{error&.dig('description')}")
+        CheckSentry.notify(e2, {
+          smooch_app_id: app_id,
+          uid: uid,
+          smooch_body: params,
+          errors: error
+        })
         nil
       end
     end

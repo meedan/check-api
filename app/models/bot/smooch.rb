@@ -1,10 +1,11 @@
 require 'digest'
 require 'check_state_machine'
 
-class SmoochBotDeliveryFailure < StandardError
-end
-
 class Bot::Smooch < BotUser
+  class MessageDeliveryError < StandardError; end
+  class FinalMessageDeliveryError < MessageDeliveryError; end
+  class TurnioMessageDeliveryError < MessageDeliveryError; end
+  class SmoochMessageDeliveryError < MessageDeliveryError; end
 
   MESSAGE_BOUNDARY = "\u2063"
 
@@ -303,15 +304,15 @@ class Bot::Smooch < BotUser
         false
       end
     rescue StandardError => e
-      self.handle_exception(e, body)
+      self.handle_exception(e)
       false
     end
   end
 
-  def self.handle_exception(e, extra = {})
+  def self.handle_exception(e)
     raise(e) if Rails.env.development?
     Rails.logger.error("[Smooch Bot] Exception: #{e.message}")
-    self.notify_error(e, { bot: 'Smooch', extra: extra }, RequestStore[:request])
+    CheckSentry.notify(e, { bot: 'Smooch' })
     raise(e) if e.is_a?(AASM::InvalidTransition) # Race condition: return 500 so Smooch can retry it later
   end
 
@@ -714,7 +715,7 @@ class Bot::Smooch < BotUser
         m
       end
     rescue URI::InvalidURIError => e
-      self.notify_error(e, { bot: 'Smooch', extra: { method: 'extract_url' } }, RequestStore[:request])
+      CheckSentry.notify(e, { bot: 'Smooch', extra: { method: 'extract_url' } })
       nil
     end
   end

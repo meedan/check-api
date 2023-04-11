@@ -107,6 +107,7 @@ en:
       invalid_project_media_channel_update: Sorry, you could not update channel value
       invalid_project_media_archived_value: Sorry, archived value not supported
       invalid_fact_check_language_value: Sorry, language value not supported
+      fact_check_empty_title_and_summary: Sorry, you should fill title or summary
   activerecord:
     models:
       link: Link
@@ -725,6 +726,7 @@ en:
   flag_likelihood_5: High (more content will be detected)
   flag_likelihood_7: Manual
   relationship_not_same_team: Related items must exist in the same workspace
+  item_cant_be_related_to_itself: "Item can't be related to itself"
   target_is_published: Target should not have a published report
   similar_item_exists: Sorry, this item already added as a similar item.
   bulk_operation_limit_error: Sorry, the maximum number of items to be processed at

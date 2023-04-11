@@ -210,17 +210,14 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     end
   end
 
-  test "should notify Airbrake if there's a bad relationship" do
-    Airbrake.stubs(:configured?).returns(true)
-    Airbrake.expects(:notify).once
+  test "should notify Sentry if there's a bad relationship" do
+    CheckSentry.expects(:notify).once
     p = create_project
     pm1 = create_project_media project: p, is_image: true
     pm2 = create_project_media project: p, is_image: true
     pm3 = create_project_media project: p, is_image: true
     create_relationship source_id: pm3.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
-    Bot::Alegre.throw_airbrake_notify_if_bad_relationship(Relationship.last, {ball: 1}, "boop")
-    Airbrake.unstub(:configured?)
-    Airbrake.unstub(:notify)
+    Bot::Alegre.report_exception_if_bad_relationship(Relationship.last, {ball: 1}, "boop")
   end
 
   test "should store relationship for lower-scoring match that's from a preferred model, but is latest ID" do
@@ -505,4 +502,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     Bot::Alegre.unstub(:request_api)
   end
 
+  test "should not resort matches if format is unknown" do
+    assert_equal 'Foo', Bot::Alegre.return_prioritized_matches('Foo')
+  end
 end
