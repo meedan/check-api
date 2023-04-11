@@ -62,7 +62,7 @@ namespace :check do
     task set_profile_picture: :environment do |_t, args|
       endpoint, token, image_url = args.to_a
       raise 'Please pass the endpoint URL, token and image URL as parameters... if you do not have a token, generate one with check:whatsapp:generate_token' if endpoint.blank? || token.blank? || image_url.blank?
-      image_data = URI.open(image_url).read
+      image_data = URI(image_url).open.read
       response = call_whatsapp_api(endpoint, 'v1/settings/profile/photo', image_data, token, 'Post', 'Bearer', 'image/png')
       puts response.inspect
     end

@@ -182,7 +182,7 @@ module SmoochMessages
       when 'text'
         hash = Digest::MD5.hexdigest(self.get_text_from_message(message))
       when 'image', 'file'
-        URI.open(message['mediaUrl']) do |f|
+        URI(message['mediaUrl']).open do |f|
           hash = Digest::MD5.hexdigest(f.read)
         end
       end

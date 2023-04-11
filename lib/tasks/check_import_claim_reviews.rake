@@ -14,7 +14,7 @@ namespace :check do
 
     # Parse the input data
 
-    data = URI.open(data_url) { |f| JSON.parse(f.read) }
+    data = File.open(data_url) { |f| JSON.parse(f.read) }
     puts "Going to import #{data.size} claims..."
 
     i = 0
@@ -28,7 +28,7 @@ namespace :check do
       image = item.dig('raw_claim', 'image')
       tmp = File.join(Rails.root, 'tmp', 'image')
       if image
-        URI.open(image['url']) do |i|
+        URI(image['url']).open do |i|
           File.open(tmp, 'wb') do |f|
             f.write(i.read)
           end

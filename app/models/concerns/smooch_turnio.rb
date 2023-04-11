@@ -219,7 +219,7 @@ module SmoochTurnio
       uri = URI("#{self.get_turnio_host}/v1/media")
       http = self.turnio_http_connection(uri)
       req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'image/png', 'Authorization' => "Bearer #{self.config['turnio_token']}")
-      req.body = URI.open(url).read
+      req.body = URI(url).open.read
       response = http.request(req)
       JSON.parse(response.body).dig('media', 0, 'id')
     end
