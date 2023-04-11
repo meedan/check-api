@@ -338,4 +338,12 @@ class RequestTest < ActiveSupport::TestCase
       r.save!
     end
   end
+
+  test "should notify in case of error when calling webhook" do
+    url = random_url
+    request = create_request webhook_url: url
+    WebMock.stub_request(:post, url).to_return(status: 400)
+    CheckSentry.expects(:notify).once
+    request.call_webhook(ProjectMedia.new, 'Foo', 'Bar', 'http://test.test')
+  end
 end
