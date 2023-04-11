@@ -542,6 +542,9 @@ ActiveRecord::Schema.define(version: 2023_04_09_221750) do
 
   create_table "tipline_newsletters", force: :cascade do |t|
     t.string "introduction", null: false
+    t.string "header_type", default: "none", null: false
+    t.string "header_file"
+    t.string "header_overlay_text"
     t.string "rss_feed_url"
     t.text "first_article"
     t.text "second_article"

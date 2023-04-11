@@ -4,6 +4,8 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
   def setup
     @team = create_team
     @newsletter = TiplineNewsletter.new(
+      header_type: 'image',
+      header_overlay_text: 'Test',
       introduction: 'Test introduction',
       rss_feed_url: 'https://example.com/feed',
       number_of_articles: 3,
@@ -112,6 +114,18 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
       tipline_newsletter: @newsletter
     )
     assert_equal [delivery], @newsletter.tipline_newsletter_deliveries
+  end
+
+  test 'should have a valid header type' do
+    @newsletter.header_type = 'video'
+    assert @newsletter.valid?
+    @newsletter.header_type = 'foo'
+    assert !@newsletter.valid?
+  end
+
+  test 'should have a header file' do
+    newsletter = create_tipline_newsletter header_file: 'rails.png'
+    assert_match /^http/, newsletter.header_file_url
   end
 
   test 'should format newsletter time as cron' do

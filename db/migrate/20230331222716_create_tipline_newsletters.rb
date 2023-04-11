@@ -2,6 +2,9 @@ class CreateTiplineNewsletters < ActiveRecord::Migration[5.2]
   def change
     create_table :tipline_newsletters do |t|
       t.string :introduction, null: false
+      t.string :header_type, null: false, default: 'none'
+      t.string :header_file
+      t.string :header_overlay_text
       t.string :rss_feed_url
       t.text :first_article
       t.text :second_article

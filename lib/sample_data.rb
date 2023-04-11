@@ -1029,7 +1029,7 @@ module SampleData
   end
 
   def create_tipline_newsletter(options = {})
-    TiplineNewsletter.create!({
+    newsletter = TiplineNewsletter.new({
       send_every: 'monday',
       introduction: 'Test',
       time: Time.parse('10:00'),
@@ -1041,6 +1041,13 @@ module SampleData
       enabled: true,
       team: create_team
     }.merge(options))
+    unless options[:header_file].blank?
+      File.open(File.join(Rails.root, 'test', 'data', options[:header_file])) do |f|
+        newsletter.file = f
+      end
+    end
+    newsletter.save!
+    newsletter
   end
 
   def create_rss_feed(custom_url = nil)

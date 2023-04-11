@@ -4,6 +4,8 @@ class TiplineNewsletter < ApplicationRecord
 
   has_paper_trail on: [:create, :destroy], save_changes: true, ignore: [:updated_at, :created_at], versions: { class_name: 'Version' }
 
+  mount_uploader :header_file, FileUploader
+
   before_validation :set_team
 
   validates_presence_of :introduction, :team, :language
@@ -11,8 +13,14 @@ class TiplineNewsletter < ApplicationRecord
   validates_inclusion_of :number_of_articles, in: 0..3
   validates_inclusion_of :send_every, in: ['everyday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
   validates_inclusion_of :language, in: ->(newsletter) { newsletter.team.get_languages.to_a }
+  validates_inclusion_of :header_type, in: ['none', 'link_preview', 'audio', 'video', 'image']
 
   after_save :reschedule_delivery
+
+  # File uploads through GraphQL require this setter
+  def file=(file)
+    self.header_file = file
+  end
 
   # Represent a newsletter local schedule in UNIX UTC cron notation
   def cron_notation
