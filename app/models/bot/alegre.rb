@@ -294,7 +294,7 @@ class Bot::Alegre < BotUser
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] [Auto Transcription 4/5] Proceeding with auto transcription because item has #{pm.requests_count} requests, which is equal or above the minimum of #{min_requests}")
         url = self.media_file_url(pm)
         tempfile = Tempfile.new('transcription', binmode: true)
-        tempfile.write(File.open(url).read)
+        tempfile.write(Kernel.open(url).read)
         tempfile.close
         media = FFMPEG::Movie.new(tempfile.path)
         min, max = settings['transcription_minimum_duration'].to_f, settings['transcription_maximum_duration'].to_f
@@ -363,7 +363,7 @@ class Bot::Alegre < BotUser
     annotation = nil
     if pm.report_type == 'uploadedaudio' || pm.report_type == 'uploadedvideo'
       url = self.media_file_url(pm)
-      job_name = Digest::MD5.hexdigest(File.open(url).read)
+      job_name = Digest::MD5.hexdigest(Kernel.open(url).read)
       s3_url = url.gsub(/^https?:\/\/[^\/]+/, "s3://#{CheckConfig.get('storage_bucket')}")
       result = self.request_api('post', '/audio/transcription/', { url: s3_url, job_name: job_name })
       annotation = self.save_annotation(pm, 'transcription', { text: '', job_name: job_name, last_response: result }) if result
