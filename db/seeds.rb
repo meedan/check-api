@@ -8,16 +8,6 @@ data = {
     user_name: Faker::Name.first_name.downcase,
     user_password: Faker::Internet.password(min_length: 8),
     link_media_links: [
-        # 'https://meedan.com/post/q-a-with-watching-western-sahara-bringing-one-of-the-worlds-most-invisible-crises-to-the-spotlight-through-citizen-journalism-and-cinema', 
-        # 'https://meedan.com/post/q-a-with-meedan-partner-digital-rights-foundation-on-digital-rights-and-gender-violence-in-south-asia', 
-        # 'https://meedan.com/post/meedan-supports-hyperlocal-efforts-to-tackle-climate-misinformation',
-        # 'https://meedan.com/post/users-are-moving-to-the-decentralized-web-after-musks-twitter-takeover-heres-what-that-means-for-verification',
-        # 'https://meedan.com/post/five-content-moderation-takeaways-from-elon-musks-twitter-takeover',
-        # 'https://meedan.com/post/meedan-supports-spanish-language-fact-checking-on-whatsapp-ahead-of-u-s-midterms',
-        # 'https://meedan.com/post/save-alaa-abdel-fatah',
-        # 'https://meedan.com/post/announcing-the-2021-meedan-annual-report',
-        # 'https://meedan.com/post/meedan-and-national-democratic-institute-release-recommendations-for-ending-online-violence-against-women-in-politics',
-        # 'https://meedan.com/post/q-a-with-cite-a-zimbabwean-innovation-hub-tracking-promises-by-politicians',
         'https://meedan.com/post/addressing-misinformation-across-countries-a-pioneering-collaboration-between-taiwan-factcheck-center-vera-files',
         'https://meedan.com/post/entre-becos-a-women-led-hyperlocal-newsletter-from-the-peripheries-of-brazil',
         'https://meedan.com/post/check-global-launches-independent-media-response-fund-tackles-on-climate-misinformation',
@@ -30,15 +20,10 @@ data = {
         'https://meedan.com/post/welcome-smriti-singh-our-research-intern',
 
     ],
-    audios: ['e-item.mp3', 'rails.mp3', 'with_cover.mp3', 'with_cover.ogg', 'with_cover.wav'],
-    images: ['large-image.jpg', 'maçã.png', 'rails-photo.jpg', 'rails.png', 'rails2.png', 'ruby-big.png', 'ruby-small.png'],
-    videos: ['d-item.mp4', 'rails.mp4'],
+    audios: ['e-item.mp3', 'rails.mp3', 'with_cover.mp3', 'with_cover.ogg', 'with_cover.wav', 'e-item.mp3', 'rails.mp3', 'with_cover.mp3', 'with_cover.ogg'],
+    images: ['large-image.jpg', 'maçã.png', 'rails-photo.jpg', 'rails.png', 'rails2.png', 'ruby-big.png', 'ruby-small.png', 'ruby-big.png', 'ruby-small.png'],
+    videos: ['d-item.mp4', 'rails.mp4', 'd-item.mp4', 'rails.mp4', 'd-item.mp4', 'rails.mp4', 'd-item.mp4', 'rails.mp4', 'd-item.mp4'],
     fact_check_links: [
-        # 'https://meedan.com/post/addressing-global-challenges-through-regional-interventions', 
-        # 'https://meedan.com/post/exploring-the-use-of-offline-games-for-media-literacy-and-misinformation-education', 
-        # 'https://meedan.com/post/op-ed-heres-what-were-considering-in-the-lead-up-to-the-supreme-courts-decisions-on-the-future-of-the-internet',
-        # 'https://meedan.com/post/meedan-impact-story-using-ai-to-investigate-weapons-trafficking-and-human-rights-violations',
-        # 'https://meedan.com/post/meedan-partner-fatabyyano-launches-tipline-for-earthquake-crisis-response',
         'https://meedan.com/post/welcome-haramoun-hamieh-our-program-manager-for-nawa',
         'https://meedan.com/post/strengthening-fact-checking-with-media-literacy-technology-and-collaboration',
         'https://meedan.com/post/highlights-from-the-work-of-meedans-partners-on-international-fact-checking',
@@ -70,8 +55,17 @@ def create_project_medias(user, project, team, n_medias = 9)
     Media.last(n_medias).each { |media| ProjectMedia.create!(user_id: user.id, project: project, team: team, media: media) }
 end
 
+def humanize_link(link)
+    path = URI.parse(link).path
+    path.remove('/post/').underscore.humanize
+end
+
+def create_description(project_media)
+    Media.last.type == "Link" ? humanize_link(Media.find(project_media.media_id).url) : Faker::Company.catch_phrase
+end
+
 def add_claim_descriptions_and_fact_checks(user,n_project_medias = 6, n_claim_descriptions = 3)
-    ProjectMedia.last(n_project_medias).each { |project_media| ClaimDescription.create!(description: Faker::Company.catch_phrase, context: Faker::Lorem.sentence, user: user, project_media: project_media) }
+    ProjectMedia.last(n_project_medias).each { |project_media| ClaimDescription.create!(description: create_description(project_media), context: Faker::Lorem.sentence, user: user, project_media: project_media) }
     ClaimDescription.last(n_claim_descriptions).each { |claim_description| FactCheck.create!(summary: Faker::Company.catch_phrase, title: Faker::Company.name, user: user, claim_description: claim_description) }
 end
 
@@ -85,25 +79,20 @@ data[:link_media_links].each { |link_media_link| Link.create!(user_id: user.id, 
 create_project_medias(user, project, team)
 add_claim_descriptions_and_fact_checks(user)
 
-# if I want to try to add the link to the claim description for links, this might help:
-# uri = URI.parse(Link.last.url)
-# path = uri.path
-# path.remove('/post/').underscore.humanize
-
 p 'Making Medias and Project Medias: Audios...'
 data[:audios].each { |audio| UploadedAudio.create!(user_id: user.id, file: open_file(audio)) }
-create_project_medias(user, project, team, 5)
-add_claim_descriptions_and_fact_checks(user, 5, 3)
+create_project_medias(user, project, team)
+add_claim_descriptions_and_fact_checks(user)
 
 p 'Making Medias and Project Medias: Images...'
 data[:images].each { |image| UploadedImage.create!(user_id: user.id, file: open_file(image))} 
-create_project_medias(user, project, team, 7)
-add_claim_descriptions_and_fact_checks(user, 7, 3)
+create_project_medias(user, project, team)
+add_claim_descriptions_and_fact_checks(user)
 
 p 'Making Medias and Project Medias: Videos...'
 data[:videos].each { |video| UploadedVideo.create!(user_id: user.id, file: open_file(video)) }
-create_project_medias(user, project, team, 2)
-add_claim_descriptions_and_fact_checks(user, 2, 1)
+create_project_medias(user, project, team)
+add_claim_descriptions_and_fact_checks(user)
 
 p 'Making Claim Descriptions and Fact Checks: Imported Fact Checks...'
 def fact_check_attributes(fact_check_link, user, project, team)
