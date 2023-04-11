@@ -1,13 +1,26 @@
 module TiplineNewsletterMutations
   fields = {
+    enabled: 'bool',
     introduction: 'str',
-    header_type: 'str', header_overlay_text: 'str',
-    rss_feed_url: 'str',
-    first_article: 'str', second_article: 'str', third_article: 'str',
-    number_of_articles: 'int',
-    send_every: 'str', timezone: 'str', time: 'str',
     language: 'str',
-    enabled: 'bool'
+
+    # Header
+    header_type: 'str',
+    header_overlay_text: 'str',
+
+    # Dynamic newsletter: RSS Feed
+    rss_feed_url: 'str',
+    number_of_articles: 'int',
+
+    # Static newsletter: Articles
+    first_article: 'str',
+    second_article: 'str',
+    third_article: 'str',
+
+    # Schedule
+    send_every: 'str',
+    timezone: 'str',
+    time: 'str'
   }
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('tipline_newsletter', fields, fields, ['tipline_newsletter'])
