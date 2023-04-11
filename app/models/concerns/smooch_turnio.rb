@@ -272,7 +272,7 @@ module SmoochTurnio
       else
         response_body = self.turnio_safely_parse_response_body(response)
         errors = response_body.dig('errors')
-        (errors || []).each do |error|
+        errors.to_a.each do |error|
           e = Bot::Smooch::TurnioMessageDeliveryError.new("(#{error.dig('code')}) #{error.dig('title')}")
           CheckSentry.notify(e, {
             uid: uid,
