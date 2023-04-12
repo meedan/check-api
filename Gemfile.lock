@@ -243,7 +243,9 @@ GEM
     execjs (2.8.1)
     expgen (0.1.1)
       parslet
-    faraday (1.10.3)
+    faker (2.22.0)
+      i18n (>= 1.8.11, < 2)
+    faraday (1.10.0)
       faraday-em_http (~> 1.0)
       faraday-em_synchrony (~> 1.0)
       faraday-excon (~> 1.1)
@@ -916,6 +918,7 @@ DEPENDENCIES
   elasticsearch-persistence (= 7.1.1)
   elasticsearch-transport (= 7.10.1)
   execjs
+  faker
   ffi (= 1.9.24)
   file_validators
   filesize
