@@ -1,4 +1,4 @@
-FROM ruby:2.6.6-slim
+FROM ruby:2.7.7-slim
 MAINTAINER Meedan <sysops@meedan.com>
 
 # the Rails stage can be overridden from the caller
@@ -31,10 +31,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     lz4 \
     nodejs \
     sqlite3 \
-    lsof \
-    python-pip
-
-RUN python -m pip install -U setuptools wheel
+    lsof
 
 # install our app
 WORKDIR /app
