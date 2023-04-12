@@ -11,7 +11,7 @@ class RssFeed
 
   def get_articles(count = 3)
     output = []
-    URI.open(@url.to_s.strip) do |rss|
+    URI(@url.to_s.strip).open do |rss|
       feed = RSS::Parser.parse(rss, false)
       unless feed.nil?
         feed.items.first(count).each do |item|
