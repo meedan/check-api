@@ -30,6 +30,7 @@ group :development do
   gem 'awesome_print', require: false
   gem 'thin', require: false
   gem 'htmlentities', require: false
+  gem 'faker'
 end
 
 gem 'webmock'
@@ -100,7 +101,6 @@ gem 'sprockets', '3.7.2'
 gem 'pg_query', '~> 1.3'
 gem 'multi_json', '1.15.0'
 gem 'json-schema', '2.5.0'
-gem 'ffi', '1.9.24'
 gem 'google_drive'
 gem 'activerecord-import', '1.1.0'
 gem 'redis-rails'
@@ -170,7 +170,6 @@ gem 'opentelemetry-instrumentation-rake'
 gem 'opentelemetry-instrumentation-restclient'
 gem 'opentelemetry-instrumentation-sidekiq'
 gem 'opentelemetry-instrumentation-sinatra'
-
 gem 'sentry-ruby'
 gem 'sentry-rails'
 gem 'sentry-sidekiq'
