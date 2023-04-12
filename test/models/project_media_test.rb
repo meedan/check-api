@@ -298,11 +298,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     create_team_task team_id: t.id, label: 'Upload a file', task_type: 'file_upload'
     Sidekiq::Testing.inline! do
+      pm = nil
       assert_difference 'Task.length', 1 do
         pm = create_project_media team: t, set_tasks_responses: { 'upload_a_file' => url }
-        task = pm.annotations('task').last
-        assert task.existing_files.size > 0
       end
+      task = pm.annotations('task').last
+      assert task.existing_files.size > 0
     end
   end
 
