@@ -145,7 +145,7 @@ class Request < ApplicationRecord
     url = Twitter::TwitterText::Extractor.extract_urls(query)[0]
     if ['audio', 'image', 'video'].include?(type.to_s) && !url.blank?
       media_url = Bot::Smooch.save_locally_and_return_url(url, type, fid)
-      URI.open(media_url) do |f|
+      URI(media_url).open do |f|
         data = f.read
         hash = Digest::MD5.hexdigest(data)
         extension = { audio: 'mp3', image: 'jpeg', video: 'mp4' }[type.to_sym]

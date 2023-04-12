@@ -1,5 +1,5 @@
 # check-api
-FROM ruby:2.6.6-slim
+FROM ruby:2.7.7-slim
 MAINTAINER sysops@meedan.com
 
 ENV DEPLOYUSER=checkdeploy \
