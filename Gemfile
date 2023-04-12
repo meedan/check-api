@@ -30,6 +30,7 @@ group :development do
   gem 'awesome_print', require: false
   gem 'thin', require: false
   gem 'htmlentities', require: false
+  gem 'faker'
 end
 
 gem 'webmock'
@@ -58,9 +59,9 @@ gem 'devise_invitable', '2.0.5'
 gem 'omniauth-twitter'
 gem 'omniauth-facebook'
 gem 'omniauth-slack'
-gem 'elasticsearch', '~> 7.x'
-gem 'elasticsearch-api', '~> 7.x'
-gem 'elasticsearch-transport', '~> 7.x'
+gem 'elasticsearch', '7.10.1'
+gem 'elasticsearch-api', '7.10.1'
+gem 'elasticsearch-transport', '7.10.1'
 gem 'elasticsearch-model', '7.1.1'
 gem 'elasticsearch-persistence', '7.1.1'
 gem 'paper_trail', '13.0.0'
@@ -170,7 +171,13 @@ gem 'opentelemetry-instrumentation-rake'
 gem 'opentelemetry-instrumentation-restclient'
 gem 'opentelemetry-instrumentation-sidekiq'
 gem 'opentelemetry-instrumentation-sinatra'
+<<<<<<< HEAD
 
 gem 'sentry-ruby'
 gem 'sentry-rails'
 gem 'sentry-sidekiq'
+=======
+gem 'sentry-ruby'
+gem 'sentry-rails'
+gem 'sentry-sidekiq'
+>>>>>>> develop

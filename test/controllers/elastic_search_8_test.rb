@@ -48,9 +48,8 @@ class ElasticSearch8Test < ActionController::TestCase
       "2": [pm3.id],
       "3": [],
     }
-
     # query with numeric range only
-    [:linked_items_count, :suggestions_count, :demand].each do |field|
+    [:suggestions_count, :demand].each do |field|
       query = { projects: [p.id], "#{field}": { max: 5 } }
       min_mapping.each do |min, items|
         query[field][:min] = min.to_s
@@ -67,6 +66,34 @@ class ElasticSearch8Test < ActionController::TestCase
       # Query with max and min
       query[field][:min] = 1
       query[field][:max] = 2
+      result = CheckSearch.new(query.to_json, nil, p.team_id)
+      assert_equal [pm2.id, pm3.id].sort, result.medias.map(&:id).sort
+    end
+    # Verify linked_items_count
+    min_mapping = {
+      "1": [pm1.id, pm2.id, pm3.id, t_pm2.id, t_pm3.id, t2_pm3.id],
+      "2": [pm2.id, pm3.id],
+      "3": [pm3.id],
+      "4": [],
+    }
+    # query with numeric range only
+    [:linked_items_count].each do |field|
+      query = { projects: [p.id], "#{field}": { max: 5 } }
+      min_mapping.each do |min, items|
+        query[field][:min] = min.to_s
+        result = CheckSearch.new(query.to_json, nil, p.team_id)
+        assert_equal items.sort, result.medias.map(&:id).sort
+      end
+      # query with numeric range and keyword
+      query[:keyword] = 'Test'
+      min_mapping.each do |min, items|
+        query[field][:min] = min.to_s
+        result = CheckSearch.new(query.to_json, nil, p.team_id)
+        assert_equal items.sort, result.medias.map(&:id).sort
+      end
+      # Query with max and min
+      query[field][:min] = 2
+      query[field][:max] = 3
       result = CheckSearch.new(query.to_json, nil, p.team_id)
       assert_equal [pm2.id, pm3.id].sort, result.medias.map(&:id).sort
     end

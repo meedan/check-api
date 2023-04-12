@@ -79,9 +79,8 @@ module CheckCachedFields
       update_index = options[:update_es] || false
       if update_index && !target.disable_es_callbacks && !RequestStore.store[:disable_es_callbacks]
         # Make sure doc exists in ES as we did document update
-        pm_id = target.get_es_doc_obj
-        doc_id = target.get_es_doc_id(pm_id)
-        update = target.doc_exists?(doc_id)
+        doc_id = target.get_es_doc_id
+        update = target.doc_exists?(doc_id) unless doc_id.blank?
       end
       update
     end
