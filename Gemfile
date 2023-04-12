@@ -171,13 +171,6 @@ gem 'opentelemetry-instrumentation-rake'
 gem 'opentelemetry-instrumentation-restclient'
 gem 'opentelemetry-instrumentation-sidekiq'
 gem 'opentelemetry-instrumentation-sinatra'
-<<<<<<< HEAD
-
 gem 'sentry-ruby'
 gem 'sentry-rails'
 gem 'sentry-sidekiq'
-=======
-gem 'sentry-ruby'
-gem 'sentry-rails'
-gem 'sentry-sidekiq'
->>>>>>> develop
