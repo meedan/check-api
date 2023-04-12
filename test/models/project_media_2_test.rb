@@ -14,23 +14,23 @@ class ProjectMedia2Test < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       t = create_team
       pm = create_project_media team: t
-      assert_queries(0, '=') { assert_equal(0, pm.linked_items_count) }
+      assert_queries(0, '=') { assert_equal(1, pm.linked_items_count) }
       pm2 = create_project_media team: t
-      assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
+      assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
       create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
-      assert_queries(0, '=') { assert_equal(1, pm.linked_items_count) }
-      assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
-      pm3 = create_project_media team: t
-      assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count) }
-      r = create_relationship source_id: pm.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
       assert_queries(0, '=') { assert_equal(2, pm.linked_items_count) }
-      assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
-      assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count) }
+      assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
+      pm3 = create_project_media team: t
+      assert_queries(0, '=') { assert_equal(1, pm3.linked_items_count) }
+      r = create_relationship source_id: pm.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
+      assert_queries(0, '=') { assert_equal(3, pm.linked_items_count) }
+      assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
+      assert_queries(0, '=') { assert_equal(1, pm3.linked_items_count) }
       r.destroy!
-      assert_queries(0, '=') { assert_equal(1, pm.linked_items_count) }
-      assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
-      assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count) }
-      assert_queries(0, '>') { assert_equal(1, pm.linked_items_count(true)) }
+      assert_queries(0, '=') { assert_equal(2, pm.linked_items_count) }
+      assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
+      assert_queries(0, '=') { assert_equal(1, pm3.linked_items_count) }
+      assert_queries(0, '>') { assert_equal(2, pm.linked_items_count(true)) }
     end
   end
 
@@ -152,7 +152,7 @@ class ProjectMedia2Test < ActiveSupport::TestCase
     p = create_project team: team
     pm = create_project_media team: team, project_id: p.id, disable_es_callbacks: false
     result = $repository.find(get_es_id(pm))
-    assert_equal 0, result['linked_items_count']
+    assert_equal 1, result['linked_items_count']
     assert_equal pm.created_at.to_i, result['last_seen']
     assert_equal pm.reload.last_seen, pm.read_attribute(:last_seen)
     t = t0 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm).created_at.to_i
@@ -165,8 +165,8 @@ class ProjectMedia2Test < ActiveSupport::TestCase
     t = pm2.created_at.to_i
     result = $repository.find(get_es_id(pm))
     result2 = $repository.find(get_es_id(pm2))
-    assert_equal 1, result['linked_items_count']
-    assert_equal 0, result2['linked_items_count']
+    assert_equal 2, result['linked_items_count']
+    assert_equal 1, result2['linked_items_count']
     assert_equal t, result['last_seen']
     assert_equal pm.reload.last_seen, pm.read_attribute(:last_seen)
 
@@ -181,8 +181,8 @@ class ProjectMedia2Test < ActiveSupport::TestCase
     assert_equal pm.reload.last_seen, pm.read_attribute(:last_seen)
     result = $repository.find(get_es_id(pm))
     result2 = $repository.find(get_es_id(pm2))
-    assert_equal 0, result['linked_items_count']
-    assert_equal 0, result2['linked_items_count']
+    assert_equal 1, result['linked_items_count']
+    assert_equal 1, result2['linked_items_count']
   end
 
   test "should get team" do
