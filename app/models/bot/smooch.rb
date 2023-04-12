@@ -238,7 +238,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.installation_setting_id_keys
-    ['smooch_app_id', 'turnio_secret']
+    ['smooch_app_id', 'turnio_secret', 'capi_whatsapp_business_account_id']
   end
 
   def self.get_installation(key = nil, value = nil)
@@ -253,6 +253,7 @@ class Bot::Smooch < BotUser
       end
       smooch_bot_installation = installation if (block_given? && yield(installation)) || !key_that_has_value.nil?
       RequestStore.store[:smooch_bot_provider] = 'TURN' unless smooch_bot_installation&.get_turnio_secret&.to_s.blank?
+      RequestStore.store[:smooch_bot_provider] = 'CAPI' unless smooch_bot_installation&.get_capi_whatsapp_business_account_id&.to_s.blank?
     end
     settings = smooch_bot_installation&.settings.to_h
     RequestStore.store[:smooch_bot_settings] = settings.with_indifferent_access.merge({ team_id: smooch_bot_installation&.team_id.to_i, installation_id: smooch_bot_installation&.id })
@@ -593,6 +594,8 @@ class Bot::Smooch < BotUser
   def self.api_get_user_data(uid, payload)
     if RequestStore.store[:smooch_bot_provider] == 'TURN'
       self.turnio_api_get_user_data(uid, payload)
+    elsif RequestStore.store[:smooch_bot_provider] == 'CAPI'
+      self.capi_api_get_user_data(uid, payload)
     else
       self.zendesk_api_get_user_data(uid)
     end
@@ -601,6 +604,8 @@ class Bot::Smooch < BotUser
   def self.api_get_app_name(app_id)
     if RequestStore.store[:smooch_bot_provider] == 'TURN'
       self.turnio_api_get_app_name
+    elsif RequestStore.store[:smooch_bot_provider] == 'CAPI'
+      self.capi_api_get_app_name
     else
       self.zendesk_api_get_app_data(app_id).app.name
     end
@@ -675,8 +680,11 @@ class Bot::Smooch < BotUser
   end
 
   def self.send_message_to_user(uid, text, extra = {}, force = false)
+    return if self.config['smooch_disabled'] && !force
     if RequestStore.store[:smooch_bot_provider] == 'TURN'
       self.turnio_send_message_to_user(uid, text, extra, force)
+    elsif RequestStore.store[:smooch_bot_provider] == 'CAPI'
+      self.capi_send_message_to_user(uid, text, extra, force)
     else
       self.zendesk_send_message_to_user(uid, text, extra, force)
     end
@@ -1005,13 +1013,13 @@ class Bot::Smooch < BotUser
     team_bot_installation.apply_default_settings
     team_bot_installation.reset_smooch_authorization_token
     if blast_secret_settings
-      team_bot_installation.settings.delete('smooch_app_id')
-      team_bot_installation.settings.delete('smooch_secret_key_key_id')
-      team_bot_installation.settings.delete('smooch_secret_key_secret')
-      team_bot_installation.settings.delete('smooch_webhook_secret')
-      team_bot_installation.settings.delete('turnio_secret')
-      team_bot_installation.settings.delete('turnio_token')
-      team_bot_installation.settings.delete('turnio_host')
+      [
+       'capi_whatsapp_business_account_id', 'capi_verify_token', 'capi_permanent_token', 'capi_phone_number_id', 'capi_phone_number', # CAPI
+       'smooch_app_id', 'smooch_secret_key_key_id', 'smooch_secret_key_secret', 'smooch_webhook_secret', # Smooch
+       'turnio_secret', 'turnio_token', 'turnio_host' # On-prem
+      ].each do |key|
+        team_bot_installation.settings.delete(key)
+      end
     end
     team_bot_installation
   end

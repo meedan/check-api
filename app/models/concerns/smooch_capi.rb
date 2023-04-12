@@ -23,6 +23,14 @@ module SmoochCapi
         verify_token == i.settings.with_indifferent_access['capi_verify_token'].to_s
       end.present?
     end
+
+    def capi_api_get_app_name
+      'CAPI'
+    end
+
+    def capi_api_get_user_data(uid, payload)
+      payload['capi'].to_h.dig('entry', 0, 'changes', 0, 'value', 'contacts', 0).to_h.merge({ clients: [{ platform: 'whatsapp', displayName: uid }] })
+    end
     
     def get_capi_uid(value)
       "#{value.dig('metadata', 'display_phone_number')}:#{value.dig('contacts', 0, 'wa_id')}"
@@ -91,6 +99,59 @@ module SmoochCapi
           capi: json
         }.with_indifferent_access
       end
+    end
+
+    def capi_send_message_to_user(uid, text, extra, force)
+      payload = {}
+      account, to = uid.split(':')
+      return if account != self.config['capi_phone_number']
+      if text.is_a?(String)
+        payload = {
+          messaging_product: 'whatsapp',
+          recipient_type: 'individual',
+          to: to,
+          type: 'text',
+          text: {
+            preview_url: !text.to_s.match(/https?:\/\//).nil?,
+            body: text
+          }
+        }
+      else
+        payload = { to: to }.merge(text)
+      end
+      # FIXME: Make it work with images
+      # if extra['type'] == 'image'
+      #   media_id = self.turnio_upload_image(extra['mediaUrl'])
+      #   payload = {
+      #     recipient_type: 'individual',
+      #     to: to,
+      #     type: 'image',
+      #     image: {
+      #       id: media_id,
+      #       caption: text.to_s
+      #     }
+      #   }
+      # end
+      payload.merge!(extra.dig(:override, :whatsapp, :payload).to_h)
+      payload.delete(:text) if payload[:type] == 'interactive'
+      return if payload[:type] == 'text' && payload[:text][:body].blank?
+      uri = URI("https://graph.facebook.com/v15.0/#{self.config['capi_phone_number_id']}/messages")
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = uri.scheme == 'https'
+      req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{self.config['capi_permanent_token']}")
+      req.body = payload.to_json
+      response = http.request(req)
+      ret = nil
+      if response.code.to_i < 400
+        ret = response
+      else
+        # FIXME: Notify Sentry
+      end
+      ret
+    end
+
+    def capi_format_template_message(namespace, template, fallback, locale, image, placeholders)
+      # TODO
     end
   end
 end

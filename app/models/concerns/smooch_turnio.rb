@@ -229,7 +229,6 @@ module SmoochTurnio
     end
 
     def turnio_send_message_to_user(uid, text, extra = {}, force = false)
-      return if self.config['smooch_disabled'] && !force
       payload = {}
       account, to = uid.split(':')
       return if account != self.config['turnio_phone']

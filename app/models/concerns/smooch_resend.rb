@@ -247,6 +247,8 @@ module SmoochResend
       locale = (!language.blank? && [self.config['smooch_template_locales']].flatten.include?(language)) ? language : default_language
       if RequestStore.store[:smooch_bot_provider] == 'TURN'
         self.turnio_format_template_message(namespace, template, fallback, locale, image, placeholders)
+      elsif RequestStore.store[:smooch_bot_provider] == 'CAPI'
+        self.capi_format_template_message(namespace, template, fallback, locale, image, placeholders)
       else
         self.zendesk_format_template_message(namespace, template, fallback, locale, image, placeholders, header)
       end
