@@ -36,15 +36,20 @@ module SmoochCapi
       "#{value.dig('metadata', 'display_phone_number')}:#{value.dig('contacts', 0, 'wa_id')}"
     end
 
+    def get_capi_message_text(message)
+      message.dig('text', 'body') || message.dig('interactive', 'list_reply', 'title') || message.dig('interactive', 'button_reply', 'title') || ''
+    end
+
     def preprocess_capi_message(body)
       json = begin JSON.parse(body) rescue {} end
+      app_id = self.config['capi_whatsapp_business_account_id']
 
       # If body is empty and the request is valid, then this is a webhook verification
       if json.blank?
         {
           trigger: 'capi:verification',
           app: {
-            '_id': ''
+            '_id': app_id
           },
           version: 'v1.1',
           messages: [],
@@ -54,7 +59,8 @@ module SmoochCapi
           }
         }.with_indifferent_access
 
-      elsif json.dig('entry', 0, 'changes', 0, 'field') == 'messages'
+      # User sent a message
+      elsif json.dig('entry', 0, 'changes', 0, 'value', 'messages')
         value = json.dig('entry', 0, 'changes', 0, 'value')
         uid = self.get_capi_uid(value)
         message = value.dig('messages', 0)
@@ -63,16 +69,16 @@ module SmoochCapi
           authorId: uid,
           name: value.dig('contacts', 0, 'profile', 'name'),
           type: message['type'],
-          text: message.dig('text', 'body'),
+          text: self.get_capi_message_text(message),
           source: { type: 'whatsapp', originalMessageId: message['id'] },
           received: message['timestamp'].to_i || Time.now.to_i,
-          payload: '', # TODO
-          quotedMessage: {} # TODO
+          payload: message.dig('interactive', 'list_reply', 'id') || message.dig('interactive', 'button_reply', 'id'),
+          quotedMessage: { content: { '_id' => message.dig('context', 'id') } }
         }]
         {
           trigger: 'message:appUser',
           app: {
-            '_id': self.config['capi_whatsapp_business_account_id']
+            '_id': app_id
           },
           version: 'v1.1',
           messages: messages,
@@ -83,12 +89,36 @@ module SmoochCapi
           capi: json
         }.with_indifferent_access
 
+      # User received message
+      elsif json.dig('entry', 0, 'changes', 0, 'value', 'statuses', 0, 'status') == 'delivered'
+        status = json.dig('entry', 0, 'changes', 0, 'value', 'statuses', 0)
+        {
+          trigger: 'message:delivery:channel',
+          app: {
+            '_id': app_id
+          },
+          destination: {
+            type: 'whatsapp'
+          },
+          version: 'v1.1',
+          message: {
+            '_id': status['id'],
+            'type': 'text'
+          },
+          appUser: {
+            '_id': "#{self.config['capi_phone_number']}:#{status['recipient_id'] || status.dig('message', 'recipient_id')}",
+            'conversationStarted': true
+          },
+          timestamp: status['timestamp'].to_i,
+          capi: json
+        }.with_indifferent_access
+
       # Fallback to be sure that we at least have a valid payload
       else
         {
           trigger: 'message:other',
           app: {
-            '_id': self.config['capi_whatsapp_business_account_id']
+            '_id': app_id
           },
           version: 'v1.1',
           messages: [],
