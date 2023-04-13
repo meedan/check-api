@@ -8,10 +8,10 @@ module SmoochCapi
       valid = false
       if request.params['hub.mode'] == 'subscribe'
         valid = self.verified_capi_installation?(request.params['hub.verify_token'])
-      else
+      elsif !request.params['token'].blank?
         valid = self.get_installation do |i|
           settings = i.settings.with_indifferent_access
-          request.params['token'] == settings['capi_verify_token'] && request.params.dig('entry', 0, 'id') == settings['capi_whatsapp_business_account_id']
+          request.params['token'] == settings['capi_verify_token'] && request.params.dig('entry', 0, 'id') == settings['capi_whatsapp_business_account_id'] && !settings['capi_whatsapp_business_account_id'].blank?
         end.present?
       end
       RequestStore.store[:smooch_bot_provider] = 'CAPI' if valid
