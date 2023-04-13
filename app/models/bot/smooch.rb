@@ -101,15 +101,6 @@ class Bot::Smooch < BotUser
 
   ::Dynamic.class_eval do
     after_save do
-      if self.annotation_type == 'report_design'
-        action = self.action
-        self.copy_report_image_paths if action == 'save' || action =~ /publish/
-        if action =~ /publish/
-          ReportDesignerWorker.perform_in(1.second, self.id, action)
-        end
-      end
-    end
-    after_save do
       if self.annotation_type == 'smooch_user'
         id = self.get_field_value('smooch_user_id')
         unless id.blank?
