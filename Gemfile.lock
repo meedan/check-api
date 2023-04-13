@@ -111,11 +111,6 @@ GEM
       activesupport (= 6.0.6.1)
     activerecord-import (1.1.0)
       activerecord (>= 3.2)
-    activerecord-redshift-adapter (0.9.12)
-      activerecord (>= 3.0.0)
-      activesupport (>= 3.0.0)
-      arel (>= 3.0.0)
-      pg
     activestorage (6.0.6.1)
       actionpack (= 6.0.6.1)
       activejob (= 6.0.6.1)
@@ -130,7 +125,6 @@ GEM
     addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
     ansi (1.5.0)
-    arel (9.0.0)
     ast (2.4.2)
     attr_encrypted (3.1.0)
       encryptor (~> 3.0.0)
@@ -916,7 +910,6 @@ PLATFORMS
 DEPENDENCIES
   aasm
   activerecord-import (= 1.1.0)
-  activerecord-redshift-adapter
   authtrail
   awesome_print
   aws-sdk-s3 (= 1.46.0)

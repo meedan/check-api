@@ -126,7 +126,6 @@ gem 'aws-sdk-s3', '1.46.0'
 gem 'execjs'
 gem 'carrierwave-video-thumbnailer'
 gem 'carrierwave_backgrounder', git: 'https://github.com/meedan/carrierwave_backgrounder'
-gem 'activerecord-redshift-adapter'
 gem 'partitioned', git: 'https://github.com/AirHelp/partitioned', branch: 'rails-6'
 gem 'bumbler', require: false
 gem 'swagger-docs', '0.2.9'

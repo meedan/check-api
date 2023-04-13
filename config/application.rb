@@ -10,6 +10,8 @@ module Check
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 5.0
+    # config.autoloader = :zeitwerk
+    # config.load_defaults 6.0
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration can go into files in config/initializers
@@ -77,5 +79,7 @@ module Check
       'Access-Control-Allow-Credentials' => 'true',
       'Access-Control-Request-Method' => '*'
     })
+
+    config.active_record.yaml_column_permitted_classes = [Time, Symbol]
   end
 end
