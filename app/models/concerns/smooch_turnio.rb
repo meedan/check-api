@@ -228,7 +228,7 @@ module SmoochTurnio
       begin JSON.parse(response.body) rescue {} end
     end
 
-    def turnio_send_message_to_user(uid, text, extra = {}, force = false)
+    def turnio_send_message_to_user(uid, text, extra = {}, _force = false)
       payload = {}
       account, to = uid.split(':')
       return if account != self.config['turnio_phone']

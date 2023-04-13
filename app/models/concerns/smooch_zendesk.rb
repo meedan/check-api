@@ -48,7 +48,7 @@ module SmoochZendesk
       SmoochApi::ApiClient.new(config)
     end
 
-    def zendesk_send_message_to_user(uid, text, extra = {}, force = false)
+    def zendesk_send_message_to_user(uid, text, extra = {}, _force = false)
       api_client = self.zendesk_api_client
       api_instance = SmoochApi::ConversationApi.new(api_client)
       app_id = self.config['smooch_app_id']

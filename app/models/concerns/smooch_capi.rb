@@ -31,7 +31,7 @@ module SmoochCapi
     def capi_api_get_user_data(uid, payload)
       payload['capi'].to_h.dig('entry', 0, 'changes', 0, 'value', 'contacts', 0).to_h.merge({ clients: [{ platform: 'whatsapp', displayName: uid }] })
     end
-    
+
     def get_capi_uid(value)
       "#{value.dig('metadata', 'display_phone_number')}:#{value.dig('contacts', 0, 'wa_id')}"
     end
@@ -131,7 +131,7 @@ module SmoochCapi
       end
     end
 
-    def capi_send_message_to_user(uid, text, extra, force)
+    def capi_send_message_to_user(uid, text, extra, _force = false)
       payload = {}
       account, to = uid.split(':')
       return if account != self.config['capi_phone_number']
