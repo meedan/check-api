@@ -37,7 +37,25 @@ module SmoochCapi
     end
 
     def get_capi_message_text(message)
-      message.dig('text', 'body') || message.dig('interactive', 'list_reply', 'title') || message.dig('interactive', 'button_reply', 'title') || ''
+      message.dig('text', 'body') || message.dig('interactive', 'list_reply', 'title') || message.dig('interactive', 'button_reply', 'title') || message.dig(message['type'], 'caption') || ''
+    end
+
+    def store_capi_media(media_id, mime_type)
+      uri = URI("https://graph.facebook.com/v15.0/#{media_id}")
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      req = Net::HTTP::Get.new(uri.request_uri, 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{self.config['capi_permanent_token']}")
+      response = http.request(req)
+      media_url = JSON.parse(response.body)['url']
+
+      uri = URI(media_url)
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      req = Net::HTTP::Get.new(uri.request_uri, 'Authorization' => "Bearer #{self.config['capi_permanent_token']}")
+      response = http.request(req)
+      path = "capi/#{media_id}"
+      CheckS3.write(path, mime_type, response.body)
+      CheckS3.public_url(path)
     end
 
     def preprocess_capi_message(body)
@@ -75,6 +93,13 @@ module SmoochCapi
           payload: message.dig('interactive', 'list_reply', 'id') || message.dig('interactive', 'button_reply', 'id'),
           quotedMessage: { content: { '_id' => message.dig('context', 'id') } }
         }]
+        if ['audio', 'video', 'image', 'file', 'voice'].include?(message['type'])
+          mime_type = message.dig(message['type'], 'mime_type').to_s.gsub(/;.*$/, '')
+          messages[0].merge!({
+            mediaUrl: self.store_capi_media(message.dig(message['type'], 'id'), mime_type),
+            mediaType: mime_type
+          })
+        end
         {
           trigger: 'message:appUser',
           app: {
