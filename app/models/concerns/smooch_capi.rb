@@ -168,19 +168,18 @@ module SmoochCapi
       else
         payload = { to: to }.merge(text)
       end
-      # FIXME: Make it work with images
-      # if extra['type'] == 'image'
-      #   media_id = self.turnio_upload_image(extra['mediaUrl'])
-      #   payload = {
-      #     recipient_type: 'individual',
-      #     to: to,
-      #     type: 'image',
-      #     image: {
-      #       id: media_id,
-      #       caption: text.to_s
-      #     }
-      #   }
-      # end
+      if extra['type'] == 'image'
+        payload = {
+          messaging_product: 'whatsapp',
+          recipient_type: 'individual',
+          to: to,
+          type: 'image',
+          image: {
+            link: extra['mediaUrl'],
+            caption: text.to_s
+          }
+        }
+      end
       payload.merge!(extra.dig(:override, :whatsapp, :payload).to_h)
       payload.delete(:text) if payload[:type] == 'interactive'
       return if payload[:type] == 'text' && payload[:text][:body].blank?
