@@ -245,10 +245,11 @@ module SmoochResend
       template = self.config["smooch_template_name_for_#{template_name}"] || template_name
       default_language = Team.where(id: self.config['team_id'].to_i).last&.default_language
       locale = (!language.blank? && [self.config['smooch_template_locales']].flatten.include?(language)) ? language : default_language
+      safe_placeholders = placeholders.collect{ |placeholder| placeholder.blank? ? '-' : placeholder } # Placeholders are mandatory in WhatsApp templates, so let's be sure they are not blank
       if RequestStore.store[:smooch_bot_provider] == 'TURN'
-        self.turnio_format_template_message(namespace, template, fallback, locale, image, placeholders)
+        self.turnio_format_template_message(namespace, template, fallback, locale, image, safe_placeholders)
       else
-        self.zendesk_format_template_message(namespace, template, fallback, locale, image, placeholders, header)
+        self.zendesk_format_template_message(namespace, template, fallback, locale, image, safe_placeholders, header)
       end
     end
 

@@ -419,4 +419,9 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     CheckSentry.expects(:notify).once
     Bot::Smooch.log_resend_error({ 'isFinalEvent' => true })
   end
+
+  test "should be sure that template placeholders are not blank" do
+    template_message = Bot::Smooch.format_template_message('test', ['foo', nil, 'bar'], nil, 'fallback', 'en')
+    assert_match 'body_text=[[foo]]body_text=[[-]]body_text=[[bar]]', template_message
+  end
 end
