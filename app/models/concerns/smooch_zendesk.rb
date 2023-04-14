@@ -99,7 +99,7 @@ module SmoochZendesk
         output << "#{key}=[[#{value}]]"
       end
       placeholders.each do |placeholder|
-        output << "body_text=[[#{placeholder.gsub(/\s+/, ' ')}]]"
+        output << "body_text=[[#{placeholder.to_s.gsub(/\s+/, ' ')}]]"
       end
       output << '))&'
       output.join('')
