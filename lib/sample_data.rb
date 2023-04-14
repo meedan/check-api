@@ -1037,6 +1037,7 @@ module SampleData
       first_article: 'Foo',
       second_article: 'Bar',
       number_of_articles: 2,
+      footer: 'Test',
       language: 'en',
       enabled: true,
       team: create_team

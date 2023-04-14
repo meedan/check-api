@@ -12,6 +12,7 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
       send_every: 'everyday',
       timezone: 'UTC',
       time: Time.parse('10:00'),
+      footer: 'Test',
       language: 'en',
       team: @team
     )

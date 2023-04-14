@@ -16042,6 +16042,16 @@
               "defaultValue": null
             },
             {
+              "name": "footer",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "send_every",
               "description": null,
               "type": {
@@ -63215,6 +63225,20 @@
               "deprecationReason": null
             },
             {
+              "name": "footer",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "header_file_url",
               "description": null,
               "args": [
@@ -77668,6 +77692,16 @@
             },
             {
               "name": "third_article",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "footer",
               "description": null,
               "type": {
                 "kind": "SCALAR",

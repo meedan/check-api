@@ -17,6 +17,9 @@ module TiplineNewsletterMutations
     second_article: 'str',
     third_article: 'str',
 
+    # Footer
+    footer: 'str',
+
     # Schedule
     send_every: 'str',
     timezone: 'str',
