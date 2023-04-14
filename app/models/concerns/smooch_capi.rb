@@ -93,7 +93,7 @@ module SmoochCapi
           payload: message.dig('interactive', 'list_reply', 'id') || message.dig('interactive', 'button_reply', 'id'),
           quotedMessage: { content: { '_id' => message.dig('context', 'id') } }
         }]
-        messages[0].merge!(self.convert_media_information(message))
+        messages[0].merge!(Bot::Smooch.convert_media_information(message))
         {
           trigger: 'message:appUser',
           app: {
