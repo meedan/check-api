@@ -816,6 +816,26 @@ class Bot::Smooch < BotUser
     type || message['mediaType']
   end
 
+  def self.store_media(media_id, mime_type)
+    if RequestStore.store[:smooch_bot_provider] == 'TURN'
+      self.store_turnio_media(media_id, mime_type)
+    elsif RequestStore.store[:smooch_bot_provider] == 'CAPI'
+      self.store_capi_media(media_id, mime_type)
+    end
+  end
+
+  def self.convert_media_information(message)
+    if ['audio', 'video', 'image', 'file', 'voice'].include?(message['type'])
+      mime_type = message.dig(message['type'], 'mime_type').to_s.gsub(/;.*$/, '')
+      {
+        mediaUrl: self.store_media(message.dig(message['type'], 'id'), mime_type),
+        mediaType: mime_type
+      }
+    else
+      {}
+    end
+  end
+
   def self.save_media_message(message)
     message = self.adjust_media_type(message)
     allowed_types = { 'image' => 'jpeg', 'video' => 'mp4', 'audio' => 'mp3' }

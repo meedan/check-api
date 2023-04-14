@@ -122,13 +122,7 @@ module SmoochTurnio
           payload: message.dig('interactive', 'list_reply', 'id') || message.dig('interactive', 'button_reply', 'id'),
           quotedMessage: { content: { '_id' => message.dig('context', 'id') } }
         }]
-        if ['audio', 'video', 'image', 'file', 'voice'].include?(message['type'])
-          mime_type = message.dig(message['type'], 'mime_type').to_s.gsub(/;.*$/, '')
-          messages[0].merge!({
-            mediaUrl: self.store_turnio_media(message.dig(message['type'], 'id'), mime_type),
-            mediaType: mime_type
-          })
-        end
+        messages[0].merge!(self.convert_media_information(message))
         {
           trigger: 'message:appUser',
           app: {
