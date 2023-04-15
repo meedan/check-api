@@ -200,6 +200,7 @@ module SmoochCapi
 
     def capi_format_template_message(namespace, template, fallback, locale, image, placeholders)
       # TODO
+      ''
     end
   end
 end
