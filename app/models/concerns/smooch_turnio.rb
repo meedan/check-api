@@ -259,7 +259,7 @@ module SmoochTurnio
       if response.code.to_i < 400
         ret = response
       else
-        response_body = self.safely_parse_response_body(response)
+        response_body = Bot::Smooch.safely_parse_response_body(response)
         errors = response_body&.dig('errors')
         errors.to_a.each do |error|
           e = Bot::Smooch::TurnioMessageDeliveryError.new("(#{error.dig('code')}) #{error.dig('title')}")
