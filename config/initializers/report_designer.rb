@@ -4,6 +4,14 @@ Dynamic.class_eval do
   end
 
   after_save do
+    if self.annotation_type == 'report_design'
+      action = self.action
+      self.copy_report_image_paths if action == 'save' || action =~ /publish/
+      if action =~ /publish/
+        ReportDesignerWorker.perform_in(1.second, self.id, action)
+      end
+    end
+
     title = nil
     summary = nil
     url = nil
@@ -37,6 +45,7 @@ Dynamic.class_eval do
         fc.save!
       end
     end
+
     if self.annotation_type == 'report_design' && self.action =~ /publish/
       # Wait for 1 minute to be sure that the item is indexed in the feed
       Feed.delay_for(1.minute, retry: 0).notify_subscribers(pm, title, summary, url)
