@@ -19,6 +19,7 @@ module Api
 
         begin
           response = bot&.webhook(request)
+          render(plain: request.params['hub.challenge'], status: 200) and return if response == 'capi:verification'
         rescue Bot::Keep::ObjectNotReadyError => e
           render_error(e.message, 'OBJECT_NOT_READY', 425) and return
         end

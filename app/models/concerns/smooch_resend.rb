@@ -248,6 +248,8 @@ module SmoochResend
       safe_placeholders = placeholders.collect{ |placeholder| placeholder.blank? ? '-' : placeholder } # Placeholders are mandatory in WhatsApp templates, so let's be sure they are not blank
       if RequestStore.store[:smooch_bot_provider] == 'TURN'
         self.turnio_format_template_message(namespace, template, fallback, locale, image, safe_placeholders)
+      elsif RequestStore.store[:smooch_bot_provider] == 'CAPI'
+        self.capi_format_template_message(namespace, template, fallback, locale, image, safe_placeholders)
       else
         self.zendesk_format_template_message(namespace, template, fallback, locale, image, safe_placeholders, header)
       end
