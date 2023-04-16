@@ -132,6 +132,36 @@ module SmoochCapi
           capi: json
         }.with_indifferent_access
 
+      # User didn't receive message because 24 hours have passed since the last message from the user
+      elsif json.dig('entry', 0, 'changes', 0, 'value', 'statuses', 0, 'status') == 'failed'
+        status = json.dig('entry', 0, 'changes', 0, 'value', 'statuses', 0)
+        error_code = status.dig('errors', 0, 'code')
+        {
+          trigger: 'message:delivery:failure',
+          app: {
+            '_id': app_id
+          },
+          destination: {
+            type: 'whatsapp'
+          },
+          error: {
+            underlyingError: {
+              errors: [{ code: error_code }]
+            }
+          },
+          version: 'v1.1',
+          message: {
+            '_id': status['id'],
+            'type': 'text'
+          },
+          appUser: {
+            '_id': "#{self.config['capi_phone_number']}:#{status['recipient_id'] || status.dig('message', 'recipient_id')}",
+            'conversationStarted': true
+          },
+          timestamp: status['timestamp'].to_i,
+          capi: json
+        }.with_indifferent_access
+
       # Fallback to be sure that we at least have a valid payload
       else
         {
@@ -166,7 +196,11 @@ module SmoochCapi
           }
         }
       else
-        payload = { to: to }.merge(text)
+        payload = {
+          messaging_product: 'whatsapp',
+          recipient_type: 'individual',
+          to: to
+        }.merge(text)
       end
       if extra['type'] == 'image'
         payload = {
@@ -193,14 +227,37 @@ module SmoochCapi
       if response.code.to_i < 400
         ret = response
       else
-        # FIXME: Notify Sentry
+        # FIXME: Understand different errors that can be returned from Cloud API and have specific reports
+        # response_body = self.safely_parse_response_body(response)
+        e = Bot::Smooch::CapiMessageDeliveryError.new('Could not send message using WhatsApp Cloud API')
+        CheckSentry.notify(e, {
+          uid: uid,
+          type: payload.dig(:type),
+          template_name: payload.dig(:template, :name),
+          template_language: payload.dig(:template, :language, :code)
+        })
       end
       ret
     end
 
-    def capi_format_template_message(namespace, template, fallback, locale, image, placeholders)
-      # TODO
-      ''
+    def capi_format_template_message(_namespace, template, _fallback, locale, image, placeholders)
+      components = []
+      components << { type: 'header', parameters: [{ type: 'image', image: { link: image } }] } unless image.blank?
+      body = []
+      placeholders.each do |placeholder|
+        body << { type: 'text', text: placeholder.to_s.gsub(/\s+/, ' ') }
+      end
+      components << { type: 'body', parameters: body } unless body.empty?
+      {
+        type: 'template',
+        template: {
+          name: template,
+          language: {
+            code: locale
+          },
+          components: components
+        }
+      }
     end
   end
 end

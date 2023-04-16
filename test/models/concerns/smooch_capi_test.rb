@@ -93,13 +93,49 @@ class SmoochCapiTest < ActiveSupport::TestCase
         }]
       }]
     }.to_json
+
+    @message_delivery_error_payload = {
+      object: 'whatsapp_business_account',
+      entry: [
+        {
+          id: '987654',
+          changes: [
+            {
+              value: {
+                messaging_product: 'whatsapp',
+                metadata: {
+                  display_phone_number: '123456',
+                  phone_number_id: '012345'
+                },
+                statuses: [
+                  {
+                    id: 'wamid.123456',
+                    status: 'failed',
+                    timestamp: Time.now.to_i.to_s,
+                    recipient_id: '654321',
+                    errors: [
+                      {
+                        code: 131047,
+                        title: 'Message failed to send because more than 24 hours have passed since the customer last replied to this number.',
+                        href: 'https://developers.facebook.com/docs/whatsapp/cloud-api/support/error-codes/'
+                      }
+                    ]
+                  }
+                ]
+              },
+              field: 'messages'
+            }
+          ]
+        }
+      ]
+    }.to_json
   end
 
   def teardown
   end
 
   test 'should format template message' do
-    assert_kind_of String, Bot::Smooch.format_template_message('template_name', ['foo', 'bar'], nil, 'fallback', 'en')
+    assert_kind_of Hash, Bot::Smooch.format_template_message('template_name', ['foo', 'bar'], nil, 'fallback', 'en')
   end
 
   test 'should process verification request' do
@@ -121,6 +157,12 @@ class SmoochCapiTest < ActiveSupport::TestCase
     preprocessed_message = Bot::Smooch.preprocess_message(@message_delivery_payload)
     assert_equal @uid, preprocessed_message.dig('appUser', '_id') 
     assert_equal 'message:delivery:channel', preprocessed_message[:trigger]
+  end
+
+  test 'should preprocess failed message delivery event' do
+    preprocessed_message = Bot::Smooch.preprocess_message(@message_delivery_error_payload)
+    assert_equal @uid, preprocessed_message.dig('appUser', '_id') 
+    assert_equal 'message:delivery:failure', preprocessed_message[:trigger]
   end
 
   test 'should preprocess fallback message' do
@@ -145,6 +187,12 @@ class SmoochCapiTest < ActiveSupport::TestCase
   test 'should send image message to user' do
     WebMock.stub_request(:post, 'https://graph.facebook.com/v15.0/123456/messages').to_return(status: 200, body: { id: '123456' }.to_json)
     assert_equal 200, Bot::Smooch.send_message_to_user(@uid, 'Test', { 'type' => 'image', 'mediaUrl' => 'https://test.test/image.png' }).code.to_i
+  end
+
+  test 'should report delivery error to Sentry' do
+    CheckSentry.expects(:notify).once
+    WebMock.stub_request(:post, 'https://graph.facebook.com/v15.0/123456/messages').to_return(status: 400, body: { error: 'Error' }.to_json)
+    Bot::Smooch.send_message_to_user(@uid, 'Test')
   end
 
   test 'should store media' do

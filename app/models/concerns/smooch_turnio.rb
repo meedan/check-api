@@ -218,10 +218,6 @@ module SmoochTurnio
       JSON.parse(response.body).dig('media', 0, 'id')
     end
 
-    def turnio_safely_parse_response_body(response)
-      begin JSON.parse(response.body) rescue {} end
-    end
-
     def turnio_send_message_to_user(uid, text, extra = {}, _force = false)
       payload = {}
       account, to = uid.split(':')
@@ -263,8 +259,8 @@ module SmoochTurnio
       if response.code.to_i < 400
         ret = response
       else
-        response_body = self.turnio_safely_parse_response_body(response)
-        errors = response_body.dig('errors')
+        response_body = self.safely_parse_response_body(response)
+        errors = response_body&.dig('errors')
         errors.to_a.each do |error|
           e = Bot::Smooch::TurnioMessageDeliveryError.new("(#{error.dig('code')}) #{error.dig('title')}")
           CheckSentry.notify(e, {

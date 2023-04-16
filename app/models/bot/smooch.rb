@@ -6,6 +6,7 @@ class Bot::Smooch < BotUser
   class FinalMessageDeliveryError < MessageDeliveryError; end
   class TurnioMessageDeliveryError < MessageDeliveryError; end
   class SmoochMessageDeliveryError < MessageDeliveryError; end
+  class CapiMessageDeliveryError < MessageDeliveryError; end
 
   MESSAGE_BOUNDARY = "\u2063"
 
@@ -926,8 +927,12 @@ class Bot::Smooch < BotUser
     end
   end
 
+  def self.safely_parse_response_body(response)
+    begin JSON.parse(response.body) rescue nil end
+  end
+
   def self.get_id_from_send_response(response)
-    response_body = begin JSON.parse(response&.body) rescue nil end
+    response_body = self.safely_parse_response_body(response)
     (RequestStore.store[:smooch_bot_provider] == 'TURN' || RequestStore.store[:smooch_bot_provider] == 'CAPI') ? response_body&.dig('messages', 0, 'id') : response&.message&.id
   end
 
