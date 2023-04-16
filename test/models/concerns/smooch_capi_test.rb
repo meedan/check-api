@@ -58,6 +58,41 @@ class SmoochCapiTest < ActiveSupport::TestCase
         }
       ]
     }.to_json
+
+    @message_delivery_payload = {
+      object: 'whatsapp_business_account',
+      entry: [{
+        id: '987654',
+        changes: [{
+          value: {
+            messaging_product: 'whatsapp',
+            metadata: {
+              display_phone_number: '123456',
+              phone_number_id: '012345'
+            },
+            statuses: [{
+              id: 'wamid.123456',
+              recipient_id: '654321',
+              status: 'delivered',
+              timestamp: Time.now.to_i.to_s,
+              conversation: {
+                id: '987654',
+                expiration_timestamp: Time.now.tomorrow.to_i.to_s,
+                origin: {
+                  type: 'user_initiated'
+                }
+              },
+              pricing: {
+                pricing_model: 'CBP',
+                billable: true,
+                category: 'user_initiated'
+              }
+            }]
+          },
+          field: 'messages'
+        }]
+      }]
+    }.to_json
   end
 
   def teardown
@@ -78,21 +113,57 @@ class SmoochCapiTest < ActiveSupport::TestCase
 
   test 'should preprocess incoming text message' do
     preprocessed_message = Bot::Smooch.preprocess_message(@incoming_text_message_payload)
+    assert_equal @uid, preprocessed_message.dig('appUser', '_id')
+    assert_equal 'message:appUser', preprocessed_message[:trigger]
+  end
+
+  test 'should preprocess message delivery event' do
+    preprocessed_message = Bot::Smooch.preprocess_message(@message_delivery_payload)
     assert_equal @uid, preprocessed_message.dig('appUser', '_id') 
+    assert_equal 'message:delivery:channel', preprocessed_message[:trigger]
+  end
+
+  test 'should preprocess fallback message' do
+    preprocessed_message = Bot::Smooch.preprocess_message({ foo: 'bar' }.to_json)
+    assert_equal 'message:other', preprocessed_message[:trigger]
   end
 
   test 'should get app name' do
     assert_equal 'CAPI', Bot::Smooch.api_get_app_name('app_id')
   end
 
-  test 'should send message' do
+  test 'should send text message' do
     WebMock.stub_request(:post, 'https://graph.facebook.com/v15.0/123456/messages').to_return(status: 200, body: { id: '123456' }.to_json)
     assert_equal 200, Bot::Smooch.send_message_to_user(@uid, 'Test').code.to_i
+  end
+
+  test 'should send interactive message to user' do
+    WebMock.stub_request(:post, 'https://graph.facebook.com/v15.0/123456/messages').to_return(status: 200, body: { id: '123456' }.to_json)
+    assert_equal 200, Bot::Smooch.send_message_to_user(@uid, { type: 'interactive' }).code.to_i
+  end
+
+  test 'should send image message to user' do
+    WebMock.stub_request(:post, 'https://graph.facebook.com/v15.0/123456/messages').to_return(status: 200, body: { id: '123456' }.to_json)
+    assert_equal 200, Bot::Smooch.send_message_to_user(@uid, 'Test', { 'type' => 'image', 'mediaUrl' => 'https://test.test/image.png' }).code.to_i
   end
 
   test 'should store media' do
     WebMock.stub_request(:get, 'https://graph.facebook.com/v15.0/123456').to_return(status: 200, body: { url: 'https://wa.test/media' }.to_json)
     WebMock.stub_request(:get, 'https://wa.test/media').to_return(status: 200, body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
     assert_match /capi\/123456/, Bot::Smooch.store_media('123456', 'image/png')
+  end
+
+  test 'should validate Cloud API request' do
+    b = BotUser.smooch_user || create_team_bot(name: 'Smooch', login: 'smooch', set_approved: true)
+    create_team_bot_installation user_id: b.id, settings: @config
+
+    request = OpenStruct.new(params: { 'hub.mode' => 'subscribe', 'hub.verify_token' => '123456' })
+    assert Bot::Smooch.valid_capi_request?(request)
+
+    request = OpenStruct.new(params: { 'token' => '123456', 'entry' => [{ 'id' => '123456' }] })
+    assert Bot::Smooch.valid_capi_request?(request)
+
+    request = OpenStruct.new(params: { 'token' => '654321', 'entry' => [{ 'id' => '654321' }] })
+    assert !Bot::Smooch.valid_capi_request?(request)
   end
 end
