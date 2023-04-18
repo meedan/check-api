@@ -424,7 +424,7 @@ GEM
     mini_magick (4.10.1)
     mini_mime (1.1.2)
     mini_portile2 (2.8.1)
-    minitest (5.14.4)
+    minitest (5.18.0)
     minitest-hooks (1.5.0)
       minitest (> 5.3)
     minitest-retry (0.2.2)
@@ -965,7 +965,7 @@ DEPENDENCIES
   lograge
   loofah (= 2.19.1)
   mini_magick (= 4.10.1)
-  minitest (= 5.14.4)
+  minitest (~> 5.14)
   minitest-hooks
   minitest-retry
   mocha (~> 2.0)
