@@ -48,8 +48,7 @@ module SmoochZendesk
       SmoochApi::ApiClient.new(config)
     end
 
-    def zendesk_send_message_to_user(uid, text, extra = {}, force = false)
-      return if self.config['smooch_disabled'] && !force
+    def zendesk_send_message_to_user(uid, text, extra = {}, _force = false)
       api_client = self.zendesk_api_client
       api_instance = SmoochApi::ConversationApi.new(api_client)
       app_id = self.config['smooch_app_id']
@@ -100,7 +99,7 @@ module SmoochZendesk
         output << "#{key}=[[#{value}]]"
       end
       placeholders.each do |placeholder|
-        output << "body_text=[[#{placeholder.gsub(/\s+/, ' ')}]]"
+        output << "body_text=[[#{placeholder.to_s.gsub(/\s+/, ' ')}]]"
       end
       output << '))&'
       output.join('')
