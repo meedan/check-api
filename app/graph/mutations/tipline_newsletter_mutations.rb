@@ -26,5 +26,5 @@ module TiplineNewsletterMutations
     time: 'str'
   }
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('tipline_newsletter', fields, fields, ['tipline_newsletter'])
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('tipline_newsletter', fields, fields, ['team'])
 end

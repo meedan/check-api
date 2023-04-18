@@ -83,7 +83,7 @@ class Ability
     can [:cud], DynamicAnnotation::Field do |obj|
       obj.annotation.team&.id == @context_team.id
     end
-    can [:cud], [Account, Source, TiplineNewsletter], :team_id => @context_team.id
+    can [:create, :update, :read, :destroy], [Account, Source, TiplineNewsletter], :team_id => @context_team.id
     can [:cud], AccountSource, source: { team: { team_users: { team_id: @context_team.id }}}
     %w(annotation comment dynamic task tag).each do |annotation_type|
       can [:cud], annotation_type.classify.constantize do |obj|
