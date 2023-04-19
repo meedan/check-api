@@ -54,6 +54,7 @@ namespace :check do
       Team.where('id > ?', last_team_id).find_each do |team|
         puts "Processing team [#{team.slug}]"
         team.project_medias.where(archived: CheckArchivedFlags::FlagCodes::SPAM, sources_count: 0)
+        .where('updated_at <= ?', deleted_date)
         .find_in_batches(:batch_size => 1000) do |pms|
           ids = pms.map(&:id)
           # Get confirmed items
