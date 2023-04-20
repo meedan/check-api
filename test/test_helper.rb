@@ -142,9 +142,20 @@ class ActiveSupport::TestCase
     end
   end
 
+  def setup_database_partitions
+    begin
+      Version.create_infrastructure
+      Version.create_new_partition_tables([0])
+    rescue
+      puts "Partitions already enabled. Continuing..."
+    end
+  end
+
   # This will run before all tests
 
   def before_all
+    setup_database_partitions
+
     super
     @start = Time.now
 

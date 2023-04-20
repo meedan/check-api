@@ -120,7 +120,7 @@ gem 'aws-sdk-s3', '1.46.0'
 gem 'execjs'
 gem 'carrierwave-video-thumbnailer'
 gem 'carrierwave_backgrounder', git: 'https://github.com/meedan/carrierwave_backgrounder'
-gem 'partitioned', git: 'https://github.com/AirHelp/partitioned', branch: 'rails-6'
+gem 'partitioned', git: 'https://github.com/meedan/partitioned', branch: 'rails-6'
 gem 'bumbler', require: false
 gem 'swagger-docs', '0.2.9'
 gem 'ruby-progressbar', '~> 1.10', '>= 1.10.1'
@@ -136,6 +136,9 @@ gem 'streamio-ffmpeg'
 gem 'rdoc', '6.3.2'
 gem 'geocoder', '1.6.4'
 gem 'parallel'
+gem 'fx'
+
+# Telemetry and exception reporting
 gem 'opentelemetry-sdk'
 gem 'opentelemetry-exporter-otlp'
 gem 'opentelemetry-instrumentation-action_pack'
