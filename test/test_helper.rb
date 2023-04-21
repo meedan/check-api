@@ -32,7 +32,11 @@ require 'minitest/retry'
 require 'pact/consumer/minitest'
 require 'mocha/minitest'
 require "csv"
-Minitest::Retry.use!
+
+Dir[Rails.root.join("test/support/**/*.rb")].each {|f| require f}
+
+# Minitest::Retry.use!
+TestDatabaseHelper.setup_database_partitions!
 
 class ActionController::TestCase
   include Devise::Test::ControllerHelpers
@@ -77,8 +81,6 @@ class ActiveRecord::Base
 end
 
 class ActiveSupport::TestCase
-  ActiveRecord::Migration.check_pending!
-
   include SampleData
   include Minitest::Hooks
   include ActiveSupport::Testing::TimeHelpers
@@ -142,20 +144,9 @@ class ActiveSupport::TestCase
     end
   end
 
-  def setup_database_partitions
-    begin
-      Version.create_infrastructure
-      Version.create_new_partition_tables([0])
-    rescue
-      puts "Partitions already enabled. Continuing..."
-    end
-  end
-
   # This will run before all tests
 
   def before_all
-    setup_database_partitions
-
     super
     @start = Time.now
 
@@ -1160,20 +1151,6 @@ class ActiveSupport::TestCase
   def media_filename(filename, extension = true)
     File.open(File.join(Rails.root, 'test', 'data', filename)) do |f|
       return Media.filename(f, extension)
-    end
-  end
-end
-
-class MockedClamavClient
-  def initialize(response_type)
-    @response_type = response_type
-  end
-
-  def execute(_input)
-    if @response_type == 'virus'
-      ClamAV::VirusResponse.new(nil, nil)
-    else
-      ClamAV::SuccessResponse.new(nil)
     end
   end
 end

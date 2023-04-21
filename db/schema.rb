@@ -37,7 +37,7 @@ ActiveRecord::Schema.define(version: 2023_04_20_165704) do
         BEGIN
           IF event_type = 'create_dynamicannotationfield' OR event_type = 'update_dynamicannotationfield'
           THEN
-            SELECT REGEXP_REPLACE(object_after, '^.*field_name":"([^"]+).*$', '\\1') INTO name;
+            SELECT REGEXP_REPLACE(object_after, '^.*field_name":"([^"]+).*$', '\1') INTO name;
           ELSE
             SELECT '' INTO name;
           END IF;
@@ -56,7 +56,7 @@ ActiveRecord::Schema.define(version: 2023_04_20_165704) do
         BEGIN
           IF event_type = 'create_dynamic' OR event_type = 'update_dynamic'
           THEN
-            SELECT REGEXP_REPLACE(object_after, '^.*annotation_type":"([^"]+).*$', '\\1') INTO name;
+            SELECT REGEXP_REPLACE(object_after, '^.*annotation_type":"([^"]+).*$', '\1') INTO name;
           ELSE
             SELECT '' INTO name;
           END IF;
@@ -75,7 +75,7 @@ ActiveRecord::Schema.define(version: 2023_04_20_165704) do
         BEGIN
           IF annotation_type = 'task' AND data LIKE '%team_task_id: %'
           THEN
-            SELECT REGEXP_REPLACE(data, '^.*team_task_id: ([0-9]+).*$', '\\1')::int INTO team_task_id;
+            SELECT REGEXP_REPLACE(data, '^.*team_task_id: ([0-9]+).*$', '\1')::int INTO team_task_id;
           ELSE
             SELECT NULL INTO team_task_id;
           END IF;
@@ -94,7 +94,7 @@ ActiveRecord::Schema.define(version: 2023_04_20_165704) do
         BEGIN
           IF annotation_type = 'task' AND data LIKE '%fieldset: %'
           THEN
-            SELECT REGEXP_REPLACE(data, '^.*fieldset: ([0-9a-z_]+).*$', '\\1') INTO fieldset;
+            SELECT REGEXP_REPLACE(data, '^.*fieldset: ([0-9a-z_]+).*$', '\1') INTO fieldset;
           ELSE
             SELECT NULL INTO fieldset;
           END IF;
