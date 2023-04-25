@@ -126,7 +126,7 @@ class Task < ApplicationRecord
   def get_file_from_uri(params)
     file_url = begin JSON.parse(params['set_fields'])['response_file_upload'] rescue '' end
     unless file_url.blank?
-      open(file_url) do |f|
+      URI(file_url).open do |f|
         data = f.read
         filepath = File.join(Rails.root, 'tmp', "#{Digest::MD5.hexdigest(data)}.png")
         File.atomic_write(filepath) { |file| file.write(data) }

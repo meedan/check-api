@@ -59,9 +59,9 @@ class Relationship < ApplicationRecord
     source = self.source
     source.nil? ? nil : {
       source: {
-        title: source.title,
+        title: ActiveRecord::Base.connection.quote_string(source.title),
         type: source.report_type,
-        url: source.full_url,
+        url: ActiveRecord::Base.connection.quote_string(source.full_url),
         by_check: by_check,
       }
     }.to_json
