@@ -418,7 +418,8 @@ GEM
       minitest (> 5.3)
     minitest-retry (0.2.2)
       minitest (>= 5.0)
-    mocha (1.14.0)
+    mocha (2.0.2)
+      ruby2_keywords (>= 0.0.5)
     msgpack (1.4.5)
     multi_json (1.15.0)
     multi_xml (0.6.0)
@@ -948,7 +949,7 @@ DEPENDENCIES
   minitest (= 5.14.4)
   minitest-hooks
   minitest-retry
-  mocha (~> 1.14.0)
+  mocha (~> 2.0)
   multi_json (= 1.15.0)
   nokogiri (= 1.14.3)
   omniauth-facebook
