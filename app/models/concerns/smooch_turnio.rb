@@ -122,13 +122,7 @@ module SmoochTurnio
           payload: message.dig('interactive', 'list_reply', 'id') || message.dig('interactive', 'button_reply', 'id'),
           quotedMessage: { content: { '_id' => message.dig('context', 'id') } }
         }]
-        if ['audio', 'video', 'image', 'file', 'voice'].include?(message['type'])
-          mime_type = message.dig(message['type'], 'mime_type').to_s.gsub(/;.*$/, '')
-          messages[0].merge!({
-            mediaUrl: self.store_turnio_media(message.dig(message['type'], 'id'), mime_type),
-            mediaType: mime_type
-          })
-        end
+        messages[0].merge!(Bot::Smooch.convert_media_information(message))
         {
           trigger: 'message:appUser',
           app: {
@@ -219,17 +213,12 @@ module SmoochTurnio
       uri = URI("#{self.get_turnio_host}/v1/media")
       http = self.turnio_http_connection(uri)
       req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'image/png', 'Authorization' => "Bearer #{self.config['turnio_token']}")
-      req.body = open(url).read
+      req.body = URI(url).open.read
       response = http.request(req)
       JSON.parse(response.body).dig('media', 0, 'id')
     end
 
-    def turnio_safely_parse_response_body(response)
-      begin JSON.parse(response.body) rescue {} end
-    end
-
-    def turnio_send_message_to_user(uid, text, extra = {}, force = false)
-      return if self.config['smooch_disabled'] && !force
+    def turnio_send_message_to_user(uid, text, extra = {}, _force = false)
       payload = {}
       account, to = uid.split(':')
       return if account != self.config['turnio_phone']
@@ -270,8 +259,8 @@ module SmoochTurnio
       if response.code.to_i < 400
         ret = response
       else
-        response_body = self.turnio_safely_parse_response_body(response)
-        errors = response_body.dig('errors')
+        response_body = Bot::Smooch.safely_parse_response_body(response)
+        errors = response_body&.dig('errors')
         errors.to_a.each do |error|
           e = Bot::Smooch::TurnioMessageDeliveryError.new("(#{error.dig('code')}) #{error.dig('title')}")
           CheckSentry.notify(e, {

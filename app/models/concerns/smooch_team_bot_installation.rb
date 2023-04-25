@@ -81,6 +81,13 @@ module SmoochTeamBotInstallation
               status: 'active'
             }
           }) unless self.get_turnio_secret.blank?
+          smooch_integrations.merge!({
+            whatsapp: {
+              type: 'whatsapp',
+              phoneNumber: self.get_capi_phone_number.to_s,
+              status: 'active'
+            }
+          }) unless self.get_capi_whatsapp_business_account_id.blank?
           smooch_integrations.with_indifferent_access
         end
       end

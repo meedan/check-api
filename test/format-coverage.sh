@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pip install --user awscli
+apt-get install -y awscli
 
 if [ "$TRAVIS_PULL_REQUEST" == "false" ]
 then

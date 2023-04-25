@@ -182,7 +182,7 @@ module SmoochMessages
       when 'text'
         hash = Digest::MD5.hexdigest(self.get_text_from_message(message))
       when 'image', 'file'
-        open(message['mediaUrl']) do |f|
+        URI(message['mediaUrl']).open do |f|
           hash = Digest::MD5.hexdigest(f.read)
         end
       end
@@ -198,6 +198,8 @@ module SmoochMessages
     def preprocess_message(body)
       if RequestStore.store[:smooch_bot_provider] == 'TURN'
         self.preprocess_turnio_message(body)
+      elsif RequestStore.store[:smooch_bot_provider] == 'CAPI'
+        self.preprocess_capi_message(body)
       else
         JSON.parse(body)
       end
@@ -387,7 +389,8 @@ module SmoochMessages
 
     def utmize_urls(text, source)
       entities = Twitter::TwitterText::Extractor.extract_urls_with_indices(text, extract_url_without_protocol: true)
-      Twitter::TwitterText::Rewriter.rewrite_entities(text, entities) do |entity, _codepoints|
+      # Ruby 2.7 freezes the empty string from nil.to_s, which causes an error within the rewriter
+      Twitter::TwitterText::Rewriter.rewrite_entities(text || '', entities) do |entity, _codepoints|
         url = entity[:url]
         begin
           uri = URI.parse(url)
