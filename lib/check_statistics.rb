@@ -41,9 +41,12 @@ module CheckStatistics
     end
 
     def number_of_newsletters_sent(team_id, start_date, end_date, language)
+      return unless end_date >= Time.parse('2022-06-01')
+
       smooch = BotUser.smooch_user
-      team = Team.find(team_id)
-      tbi = TeamBotInstallation.where(team: team, user: smooch).last
+      tbi = TeamBotInstallation.where(team_id: team_id, user: smooch).last
+      return unless tbi
+
       times = Version.from_partition(team_id).where(whodunnit: smooch.id.to_s, created_at: start_date..end_date, item_id: tbi.id.to_s, item_type: ['TeamUser', 'TeamBotInstallation']).collect do |v|
         begin
           workflow = YAML.load(JSON.parse(v.object_after)['settings'])['smooch_workflows'].select{ |w| w['smooch_workflow_language'] == language }.first
@@ -84,10 +87,8 @@ module CheckStatistics
           # Number of newsletters sent
           # NOTE: For all platforms
           # NOTE: Only starting from June 1, 2022
-          if end_date >= Time.parse('2022-06-01')
-            number_of_newsletters = number_of_newsletters_sent(team_id, start_date, end_date, language)
-            statistics[:unique_newsletters_sent] = number_of_newsletters
-          end
+          number_of_newsletters = number_of_newsletters_sent(team_id, start_date, end_date, language)
+          statistics[:unique_newsletters_sent] = number_of_newsletters
         end
 
         current_newsletter_subscribers = nil
