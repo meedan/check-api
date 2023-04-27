@@ -42,4 +42,20 @@ class TiplineNewsletterWorkerTest < ActiveSupport::TestCase
       TiplineNewsletterWorker.new.perform(@team.id, 'en')
     end
   end
+
+  test "should calculate number of newsletters sent" do
+    travel_to DateTime.new(2023, 01, 05)
+    rss = '<rss version="1"><channel><title>x</title><link>x</link><item><title>y</title><link>y</link></item></channel></rss>'
+    WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(status: 200, body: rss)
+    TiplineNewsletterWorker.new.perform(@team.id, 'en')
+    assert_equal 1, CheckStatistics.number_of_newsletters_sent(@team.id, Time.parse('2023-01-01'), Time.parse('2023-01-31'), 'en')
+
+    travel_to DateTime.new(2023, 02, 10)
+    rss = '<rss version="1"><channel><title>x</title><link>x</link><item><title>z</title><link>z</link></item></channel></rss>'
+    WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(status: 200, body: rss)
+    TiplineNewsletterWorker.new.perform(@team.id, 'en')
+    assert_equal 1, CheckStatistics.number_of_newsletters_sent(@team.id, Time.parse('2023-02-01'), Time.parse('2023-02-28'), 'en')
+
+    assert_equal 2, CheckStatistics.number_of_newsletters_sent(@team.id, Time.parse('2023-01-01'), Time.parse('2023-03-01'), 'en')
+  end
 end
