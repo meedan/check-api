@@ -1,4 +1,6 @@
 class TiplineNewsletter < ApplicationRecord
+  SCHEDULE_DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+
   belongs_to :team
   has_many :tipline_newsletter_deliveries
 
@@ -8,13 +10,15 @@ class TiplineNewsletter < ApplicationRecord
 
   before_validation :set_team
 
+  serialize :send_every, JSON # List of days of the week
+
   validates_presence_of :send_every, :time, :timezone
   validates_presence_of :introduction, :team, :language
   validates_format_of :rss_feed_url, with: URI.regexp, allow_blank: true, allow_nil: true
   validates_inclusion_of :number_of_articles, in: 0..3, allow_blank: true, allow_nil: true
-  validates_inclusion_of :send_every, in: ['everyday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
   validates_inclusion_of :language, in: ->(newsletter) { newsletter.team.get_languages.to_a }
   validates_inclusion_of :header_type, in: ['none', 'link_preview', 'audio', 'video', 'image']
+  validate :send_every_is_a_list_of_days_of_the_week
 
   after_save :reschedule_delivery
 
@@ -43,14 +47,19 @@ class TiplineNewsletter < ApplicationRecord
     time_utc = time_set.utc
 
     cron_day = nil
-    if self.send_every == 'everyday'
+    # Everyday
+    if self.send_every.uniq.sort == SCHEDULE_DAYS.sort
       cron_day = '*'
     else
-      days = (0..6).to_a
-      day = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].index(self.send_every)
-      # Get the right day in UTC... for example, a Saturday in a timezone can be a Sunday in UTC
-      day += (time_utc.strftime('%w').to_i - time_set.strftime('%w').to_i)
-      cron_day = days[day]
+      cron_day = []
+      self.send_every.each do |send_every|
+        days = (0..6).to_a
+        day = SCHEDULE_DAYS.index(send_every)
+        # Get the right day in UTC... for example, a Saturday in a timezone can be a Sunday in UTC
+        day += (time_utc.strftime('%w').to_i - time_set.strftime('%w').to_i)
+        cron_day << days[day]
+      end
+      cron_day = cron_day.join(',')
     end
 
     "#{time_utc.min} #{time_utc.hour} * * #{cron_day}"
@@ -101,5 +110,11 @@ class TiplineNewsletter < ApplicationRecord
 
   def set_team
     self.team ||= Team.current
+  end
+
+  def send_every_is_a_list_of_days_of_the_week
+    if !self.send_every.is_a?(Array) || !(self.send_every - SCHEDULE_DAYS).empty?
+      errors.add(:send_every, I18n.t(:send_every_must_be_a_list_of_days_of_the_week))
+    end
   end
 end

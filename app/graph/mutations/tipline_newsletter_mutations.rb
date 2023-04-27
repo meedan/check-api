@@ -21,7 +21,7 @@ module TiplineNewsletterMutations
     footer: 'str',
 
     # Schedule
-    send_every: 'str',
+    send_every: 'json',
     timezone: 'str',
     time: 'str'
   }

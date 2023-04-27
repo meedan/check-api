@@ -17,7 +17,8 @@ namespace :check do
               newsletter.second_article = articles[1]
               newsletter.third_article = articles[2]
               newsletter.number_of_articles = [[workflow.dig('smooch_newsletter', 'smooch_newsletter_number_of_articles').to_i, articles.size].max, 3].min
-              newsletter.send_every = workflow.dig('smooch_newsletter', 'smooch_newsletter_day')
+              newsletter.send_every = [workflow.dig('smooch_newsletter', 'smooch_newsletter_day')]
+              newsletter.send_every = TiplineNewsletter::SCHEDULE_DAYS if newsletter.send_every[0] == 'everyday'
               newsletter.timezone = workflow.dig('smooch_newsletter', 'smooch_newsletter_timezone')
               newsletter.time = Time.parse("#{workflow.dig('smooch_newsletter', 'smooch_newsletter_time')}:00")
               newsletter.last_sent_at = workflow.dig('smooch_newsletter', 'smooch_newsletter_last_sent_at')

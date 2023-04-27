@@ -9,7 +9,7 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
       introduction: 'Test introduction',
       rss_feed_url: 'https://example.com/feed',
       number_of_articles: 3,
-      send_every: 'everyday',
+      send_every: ['monday'],
       timezone: 'UTC',
       time: Time.parse('10:00'),
       footer: 'Test',
@@ -54,7 +54,9 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
   end
 
   test 'should have a valid day' do
-    @newsletter.send_every = 'invalid_day'
+    @newsletter.send_every = 'tuesday'
+    assert_not @newsletter.valid?
+    @newsletter.send_every = ['invalid_day']
     assert_not @newsletter.valid?
   end
 
@@ -134,7 +136,7 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     newsletter = TiplineNewsletter.new(
       time: Time.parse('10:00'),
       timezone: 'America/Chicago (GMT-05:00)',
-      send_every: 'friday'
+      send_every: ['friday']
     )
     assert_equal '0 15 * * 5', newsletter.cron_notation
 
@@ -142,7 +144,7 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     newsletter = TiplineNewsletter.new(
       time: Time.parse('10:00'),
       timezone: 'Indian/Maldives (GMT+05:00)',
-      send_every: 'friday'
+      send_every: ['friday']
     )
     assert_equal '0 5 * * 5', newsletter.cron_notation
 
@@ -150,7 +152,7 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     newsletter = TiplineNewsletter.new(
       time: Time.parse('19:00'),
       timezone: 'Asia/Kolkata (GMT+05:30)',
-      send_every: 'sunday'
+      send_every: ['sunday']
     )
     assert_equal '30 13 * * 0', newsletter.cron_notation
 
@@ -158,7 +160,7 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     newsletter = TiplineNewsletter.new(
       time: Time.parse('1:00'),
       timezone: 'Asia/Kolkata (GMT+05:30)',
-      send_every: 'sunday'
+      send_every: ['sunday']
     )
     assert_equal '30 19 * * 6', newsletter.cron_notation
 
@@ -166,7 +168,7 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     newsletter = TiplineNewsletter.new(
       time: Time.parse('23:00'),
       timezone: 'America/Los Angeles (GMT-07:00)',
-      send_every: 'sunday'
+      send_every: ['sunday']
     )
     assert_equal '0 6 * * 1', newsletter.cron_notation
 
@@ -174,7 +176,7 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     newsletter = TiplineNewsletter.new(
       time: Time.parse('10:00'),
       timezone: 'America/New York (GMT-04:00)',
-      send_every: 'everyday'
+      send_every: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
     )
     assert_equal '0 14 * * *', newsletter.cron_notation
 
@@ -182,8 +184,16 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     newsletter = TiplineNewsletter.new(
       time: Time.parse('10:00'),
       timezone: 'EST',
-      send_every: 'sunday'
+      send_every: ['sunday']
     )
     assert_equal '0 15 * * 0', newsletter.cron_notation
+
+    # Multiple days of the week
+    newsletter = TiplineNewsletter.new(
+      time: Time.parse('10:00'),
+      timezone: 'America/New York (GMT-04:00)',
+      send_every: ['monday', 'wednesday', 'friday']
+    )
+    assert_equal '0 14 * * 1,3,5', newsletter.cron_notation
   end
 end

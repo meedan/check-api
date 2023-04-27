@@ -14,7 +14,7 @@ TiplineNewsletterType = GraphqlCrudOperations.define_default_type do
   field :second_article, types.String
   field :third_article, types.String
   field :number_of_articles, types.Int
-  field :send_every, types.String
+  field :send_every, JsonStringType
   field :timezone, types.String
   field :time, types.String
   field :footer, types.String

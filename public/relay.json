@@ -16056,7 +16056,7 @@
               "description": null,
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "defaultValue": null
@@ -63404,7 +63404,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -77729,7 +77729,7 @@
               "description": null,
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "defaultValue": null
