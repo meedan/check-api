@@ -315,7 +315,7 @@ class GraphqlController9Test < ActionController::TestCase
   end
 
   test "should create tipline newsletter" do
-    query = 'mutation create { createTiplineNewsletter(input: { clientMutationId: "1", introduction: "Test", language: "en", time: "10:00", send_every: "monday", timezone: "America/Los_Angeles" }) { tipline_newsletter { id } } }'
+    query = 'mutation create { createTiplineNewsletter(input: { clientMutationId: "1", introduction: "Test", language: "en", time: "10:00", send_every: ["monday"], timezone: "America/Los_Angeles" }) { tipline_newsletter { id } } }'
     assert_difference 'TiplineNewsletter.count' do
       post :create, params: { query: query, team: @t.slug }
     end

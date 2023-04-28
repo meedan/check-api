@@ -1005,7 +1005,7 @@ class ActiveSupport::TestCase
     WebMock.stub_request(:get, /check_message_tos/).to_return({ body: '<h1>Check Message Terms of Service</h1><p class="meta">Last modified: August 7, 2019</p>' })
     Bot::Smooch.stubs(:save_user_information).returns(nil)
     create_tipline_newsletter(
-      send_every: 'monday',
+      send_every: ['monday'],
       time: Time.parse('10:00'),
       timezone: 'BRT',
       introduction: 'Test',
