@@ -315,7 +315,11 @@ class BotUser < User
     return if object.nil? || team.nil?
     team.team_bot_installations.each do |team_bot_installation|
       bot = team_bot_installation.bot_user
-      bot.notify_about_event(event, object, team, team_bot_installation) if bot.subscribed_to?(event) && (target_bot.blank? || bot.id == target_bot.id)
+      begin
+        bot.notify_about_event(event, object, team, team_bot_installation) if bot.subscribed_to?(event) && (target_bot.blank? || bot.id == target_bot.id)
+      rescue StandardError => e
+        CheckSentry.notify(e, { event: event, team_bot_installation_id:team_bot_installation.id})
+      end
     end
   end
 
