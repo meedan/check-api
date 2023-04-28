@@ -18,7 +18,7 @@ class CcDeville
         res = JSON.parse(http.request(req).body)
         raise CloudflareResponseError.new "#{res['errors'][0]['code']} #{res['errors'][0]['message']}" if !res['success']
       rescue StandardError => e
-        CheckSentry.notify(e, params: { url: url })
+        CheckSentry.notify(e, url: url)
       end
     end
   end

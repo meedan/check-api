@@ -34,6 +34,10 @@ require 'mocha/minitest'
 require 'csv'
 Minitest::Retry.use!
 
+Dir[Rails.root.join("test/support/**/*.rb")].each {|f| require f}
+
+TestDatabaseHelper.setup_database_partitions!
+
 class ActionController::TestCase
   include Devise::Test::ControllerHelpers
 end
@@ -77,8 +81,6 @@ class ActiveRecord::Base
 end
 
 class ActiveSupport::TestCase
-  ActiveRecord::Migration.check_pending!
-
   include SampleData
   include Minitest::Hooks
   include ActiveSupport::Testing::TimeHelpers
@@ -395,29 +397,7 @@ class ActiveSupport::TestCase
     assert_equal value, data[field]
   end
 
-  def setup_smooch_bot(menu = false, extra_settings = {})
-    DynamicAnnotation::AnnotationType.delete_all
-    DynamicAnnotation::FieldInstance.delete_all
-    DynamicAnnotation::FieldType.delete_all
-    DynamicAnnotation::Field.delete_all
-    create_verification_status_stuff
-    create_annotation_type_and_fields('Smooch', {
-      'Data' => ['JSON', false],
-      'Report Received' => ['Timestamp', true],
-      'Request Type' => ['Text', true],
-      'Resource Id' => ['Text', true]
-    })
-    create_annotation_type_and_fields('Smooch Response', { 'Data' => ['JSON', true] })
-    create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
-    WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
-    Sidekiq::Testing.inline!
-    @app_id = random_string
-    @msg_id = random_string
-    SmoochApi::ConversationApi.any_instance.stubs(:post_message).returns(OpenStruct.new({ message: OpenStruct.new({ id: @msg_id }) }))
-    @team = create_team
-    @project = create_project team_id: @team.id
-    @bid = random_string
-    BotUser.delete_all
+  def create_smooch_bot
     settings = [
       {
         "name": "smooch_workflows",
@@ -851,7 +831,35 @@ class ActiveSupport::TestCase
         }
       }
     ]
-    @bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: settings, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
+    create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: settings, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
+  end
+
+  def setup_smooch_bot(menu = false, extra_settings = {})
+    DynamicAnnotation::AnnotationType.delete_all
+    DynamicAnnotation::FieldInstance.delete_all
+    DynamicAnnotation::FieldType.delete_all
+    DynamicAnnotation::Field.delete_all
+    create_verification_status_stuff
+    create_annotation_type_and_fields('Smooch', {
+      'Data' => ['JSON', false],
+      'Report Received' => ['Timestamp', true],
+      'Request Type' => ['Text', true],
+      'Resource Id' => ['Text', true]
+    })
+    create_annotation_type_and_fields('Smooch Response', { 'Data' => ['JSON', true] })
+    create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
+    WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
+    Sidekiq::Testing.inline!
+    @app_id = random_string
+    @msg_id = random_string
+    SmoochApi::ConversationApi.any_instance.stubs(:post_message).returns(OpenStruct.new({ message: OpenStruct.new({ id: @msg_id }) }))
+    @team = create_team
+    @project = create_project team_id: @team.id
+    @bid = random_string
+    BotUser.delete_all
+
+    @bot = create_smooch_bot
+
     @pm_for_menu_option = create_project_media(project: @project)
     @settings = {
       'smooch_webhook_secret' => 'test',
@@ -1115,20 +1123,6 @@ class ActiveSupport::TestCase
   def media_filename(filename, extension = true)
     File.open(File.join(Rails.root, 'test', 'data', filename)) do |f|
       return Media.filename(f, extension)
-    end
-  end
-end
-
-class MockedClamavClient
-  def initialize(response_type)
-    @response_type = response_type
-  end
-
-  def execute(_input)
-    if @response_type == 'virus'
-      ClamAV::VirusResponse.new(nil, nil)
-    else
-      ClamAV::SuccessResponse.new(nil)
     end
   end
 end

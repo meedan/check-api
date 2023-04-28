@@ -14,7 +14,7 @@ class ReportDesignerWorker
     d = Dynamic.find(id)
     d.set_fields = d.data.merge({ last_error: "[#{Time.now}] #{msg['error_message']}" }).to_json
     d.save!
-    CheckSentry.notify(e, { method: 'ReportDesignerWorker::retries_exhausted_callback', dynamic_annotation_id: id, error_message: msg['error_message'] })
+    CheckSentry.notify(e, method: 'ReportDesignerWorker::retries_exhausted_callback', dynamic_annotation_id: id, error_message: msg['error_message'])
   end
 
   def perform(id, action)
