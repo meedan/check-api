@@ -678,7 +678,7 @@ class Bot::Alegre < BotUser
     )
     Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 6/6] Sent Check notification with message type and opts of #{[message_type, message_opts].inspect}"
   end
-  
+
   def self.relationship_model_not_allowed(relationship_model)
     allowed_models = [MEAN_TOKENS_MODEL, INDIAN_MODEL, FILIPINO_MODEL, ELASTICSEARCH_MODEL, 'audio', 'image', 'video']
     models = relationship_model.split("|")

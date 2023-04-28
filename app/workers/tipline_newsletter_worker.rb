@@ -29,7 +29,9 @@ class TiplineNewsletterWorker
                 log team_id, language, "Could not send newsletter to subscriber ##{ts.id}: #{e.message}"
               end
             end
+            tbi = TeamBotInstallation.find(tbi.id)
             User.current = BotUser.smooch_user
+            newsletter = tbi.settings['smooch_workflows'].to_a.find{ |workflow| workflow['smooch_workflow_language'] == language }['smooch_newsletter']
             tbi.skip_check_ability = true
             newsletter['smooch_newsletter_last_sent_at'] = Time.now
             tbi.save!
