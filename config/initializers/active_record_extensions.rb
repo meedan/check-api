@@ -91,8 +91,10 @@ module ActiveRecordExtensions
       Version.from_partition(self.team&.id).where(item_type: self.class_name, item_id: self.id.to_s).delete_all if self.class_name != 'TiplineSubscription'
       # Handle destroy callback for version `decrement_project_association_annotations_count`
       if self.respond_to?(:cached_annotations_count)
-        value = Version.from_partition(self.team&.id)
-        .where.not(event_type: 'create_dynamicannotationfield', associated_type: nil, associated_id: nil).count
+        value = Version.from_partition(self.team&.id).
+          where.not(event_type: 'create_dynamicannotationfield').
+          where.not(associated_type: nil).
+          where.not(associated_id: nil).count
         count = self.cached_annotations_count - value
         self.update_columns(cached_annotations_count: count)
       end

@@ -74,7 +74,7 @@ module UserMultiAuthLogin
           user.set_source_image
         end
       rescue StandardError => e
-        CheckSentry.notify(e, { user_id: user.id })
+        CheckSentry.notify(e, user_id: user.id)
         Rails.logger.info "Could not create account for user ##{user.id}: #{e.message}"
       end
     end

@@ -317,7 +317,7 @@ module TeamRules
         end
       end
     rescue StandardError => e
-      CheckSentry.notify(e, params: { team: self.name, project_media_id: pm.id, method: 'apply_rules_and_actions' })
+      CheckSentry.notify(e, team: self.name, project_media_id: pm.id, method: 'apply_rules_and_actions')
       Rails.logger.info "[Team Rules] Exception when applying rules to project media #{pm.id} for team #{self.id}"
     end
   end

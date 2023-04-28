@@ -59,4 +59,11 @@ Rails.application.configure do
   # Use an evented file watcher to asynchronously detect changes in source code,
   # routes, locales, etc. This feature depends on the listen gem.
   config.file_watcher = ActiveSupport::EventedFileUpdateChecker
+
+  cfg = YAML.load_file("#{Rails.root}/config/config.yml")[Rails.env]
+  if cfg['whitelisted_hosts']
+    config.hosts.concat(cfg['whitelisted_hosts'].split(','))
+  else
+    puts '[WARNING] config.hosts not provided. Only requests from localhost are allowed. To change, update `whitelisted_hosts` in config.yml'
+  end
 end

@@ -291,7 +291,7 @@ class TeamTask < ApplicationRecord
   end
 
   def team_task_notification_error(e, obj)
-    CheckSentry.notify(e, { team_task_id: self.id, item_type: obj.class.name, item_id: obj.id })
+    CheckSentry.notify(e, team_task_id: self.id, item_type: obj.class.name, item_id: obj.id)
     Rails.logger.error "[Team Task] Could not add team task [#{self.id}] to a #{obj.class.name} [#{obj.id}]: #{e.message} #{e.backtrace.join("\n")}"
   end
 end
