@@ -241,8 +241,8 @@ module SmoochResend
 
     def format_template_message(template_name, placeholders, image, fallback, language, header = nil)
       namespace = self.config['smooch_template_namespace']
-      return '' if namespace.blank?
       template = self.config["smooch_template_name_for_#{template_name}"] || template_name
+      return '' if namespace.blank? || template.blank?
       default_language = Team.where(id: self.config['team_id'].to_i).last&.default_language
       locale = (!language.blank? && [self.config['smooch_template_locales']].flatten.include?(language)) ? language : default_language
       safe_placeholders = placeholders.collect{ |placeholder| placeholder.blank? ? '-' : placeholder } # Placeholders are mandatory in WhatsApp templates, so let's be sure they are not blank
