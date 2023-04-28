@@ -31,7 +31,7 @@ class TiplineNewsletterWorker
             end
             tbi = TeamBotInstallation.find(tbi.id)
             User.current = BotUser.smooch_user
-            newsletter = tbi.settings['smooch_workflows'].to_a.find{ |workflow| workflow['smooch_workflow_language'] == language }['smooch_newsletter']
+            newsletter = tbi.settings['smooch_workflows'].to_a.find{ |w| w['smooch_workflow_language'] == language }['smooch_newsletter']
             tbi.skip_check_ability = true
             newsletter['smooch_newsletter_last_sent_at'] = Time.now
             tbi.save!
