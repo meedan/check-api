@@ -33,7 +33,6 @@ RUN apt-get update -qq && apt-get install -y curl
 #
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 
-# sqlite3, lz4: for check:data:export_team task
 RUN apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
     ffmpegthumbnailer \
@@ -44,10 +43,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     # inotify-tools \
     libpq-dev \
     libtag1-dev \
-    libsqlite3-dev \
-    lz4 \
     nodejs \
-    sqlite3 \
     lsof
 
 # CMD and helper scripts
@@ -79,10 +75,6 @@ RUN bundle install --jobs 20 --retry 5 --deployment --without test development
 COPY --chown=checkdeploy:www-data . ${DEPLOYDIR}
 
 USER ${DEPLOYUSER}
-RUN cp production/config.yml.dockerfile config/config.yml && \
-    printf "production:\n adapter: sqlite3\n database: /tmp/db.sqlite\n" > config/database.yml && \
-    AWS_REGION=null AWS_SECRET_ACCESS_KEY=null AWS_ACCESS_KEY_ID=null SECRET_KEY_BASE=null bundle exec rake assets:precompile && \
-    rm config/config.yml
 
 EXPOSE 3300
 ENTRYPOINT ["/opt/bin/start.sh"]
