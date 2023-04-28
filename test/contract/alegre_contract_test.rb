@@ -4,6 +4,12 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
   include Pact::Consumer::Minitest
 
   def setup
+    # Set up annotation types that we need that were previously provided by migrations
+    create_metadata_stuff
+    create_extracted_text_annotation_type
+    create_flag_annotation_type
+    create_annotation_type(annotation_type: 'language')
+
     p = create_project
     m = create_claim_media quote: 'I like apples'
     @pm = create_project_media project: p, media: m
@@ -104,7 +110,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
       Bot::Alegre.unstub(:media_file_url)
     end
   end
-  
+
   test "should link similar images" do
     stub_configs({ 'alegre_host' => 'http://localhost:3100' }) do
       stub_similarity_requests(@url)
@@ -118,7 +124,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
       with(
         method: :get,
         path: '/image/similarity/',
-        query: { 
+        query: {
           url: @url,
           threshold: "0.89",
           context: {}
@@ -141,9 +147,9 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
             }
           ]
         }
-        
+
       )
-      conditions = {url: @url, threshold: 0.89} 
+      conditions = {url: @url, threshold: 0.89}
       Bot::Alegre.get_similar_items_from_api('/image/similarity/', conditions, 0.89, 'query')
     end
   end

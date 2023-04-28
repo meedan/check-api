@@ -143,10 +143,13 @@ module ProjectMediaEmbed
   end
 
   def html(options = {})
-    av = ActionView::Base.new(Rails.root.join('app', 'views'))
     options = options.permit(options.keys) if options.respond_to?(:permit)
-    av.assign({ project_media: self, source_author: self.source_author }.merge(options))
-    av.render(template: 'project_medias/oembed.html.erb', layout: nil)
+
+    ApplicationController.render(
+      assigns: { project_media: self, source_author: self.source_author }.merge(options),
+      template: 'project_medias/oembed.html.erb',
+      layout: nil
+    )
   end
 
   def last_status_color

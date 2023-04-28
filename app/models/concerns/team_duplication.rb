@@ -22,11 +22,12 @@ module TeamDuplication
           :saved_searches,
           :tag_texts,
           :team_tasks
-        ] do |original, copy|
+        ],
+        preprocessor: -> (original, copy) {
           next if original.is_a?(Version)
           @clones << { original: original, clone: copy }
           self.alter_copy_by_type(original, copy)
-        end
+        }
         self.process_team_bot_installations(t, team)
         team = self.modify_settings(t, team)
         team = self.update_team_rules(team)

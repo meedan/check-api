@@ -1,6 +1,6 @@
 class CheckSentry
   class << self
-    def notify(e, data = {})
+    def notify(e, **data)
       Rails.logger.error e
 
       # .with_scope sets contextual information only for this send

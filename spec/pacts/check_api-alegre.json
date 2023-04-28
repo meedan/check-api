@@ -7,12 +7,12 @@
   },
   "interactions": [
     {
-      "description": "a request to link similar images",
+      "description": "a request to extract text",
       "providerState": "an image URL",
       "request": {
         "method": "get",
-        "path": "/image/similarity/",
-        "query": "url=https%3A%2F%2Fi.imgur.com%2FewGClFQ.png&threshold=0.89"
+        "path": "/image/ocr/",
+        "query": "url=https%3A%2F%2Fi.imgur.com%2FewGClFQ.png"
       },
       "response": {
         "status": 200,
@@ -20,17 +20,7 @@
           "Content-Type": "application/json"
         },
         "body": {
-          "result": [
-            {
-              "id": 1,
-              "sha256": "9bb1b8da9eec7caaea50099ba0488a1bdd221305a327097057fb8f626b6ba39b",
-              "phash": 26558343354958209,
-              "url": "https://i.imgur.com/ewGClFQ.png",
-              "context": {
-              },
-              "score": 0
-            }
-          ]
+          "text": "X X X\n3\nTranslate this sentence\nو عندي وقت في الساعة العاشرة.\n"
         }
       }
     },
@@ -69,24 +59,6 @@
       }
     },
     {
-      "description": "a request to extract text",
-      "providerState": "an image URL",
-      "request": {
-        "method": "get",
-        "path": "/image/ocr/",
-        "query": "url=https%3A%2F%2Fi.imgur.com%2FewGClFQ.png"
-      },
-      "response": {
-        "status": 200,
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "text": "X X X\n3\nTranslate this sentence\nو عندي وقت في الساعة العاشرة.\n"
-        }
-      }
-    },
-    {
       "description": "a request to get image flags",
       "providerState": "an image URL",
       "request": {
@@ -110,6 +82,34 @@
               "spam": 0
             }
           }
+        }
+      }
+    },
+    {
+      "description": "a request to link similar images",
+      "providerState": "an image URL",
+      "request": {
+        "method": "get",
+        "path": "/image/similarity/",
+        "query": "url=https%3A%2F%2Fi.imgur.com%2FewGClFQ.png&threshold=0.89"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": [
+            {
+              "id": 1,
+              "sha256": "9bb1b8da9eec7caaea50099ba0488a1bdd221305a327097057fb8f626b6ba39b",
+              "phash": 26558343354958209,
+              "url": "https://i.imgur.com/ewGClFQ.png",
+              "context": {
+              },
+              "score": 0
+            }
+          ]
         }
       }
     }

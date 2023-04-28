@@ -308,7 +308,7 @@ class Bot::Smooch < BotUser
   def self.handle_exception(e)
     raise(e) if Rails.env.development?
     Rails.logger.error("[Smooch Bot] Exception: #{e.message}")
-    CheckSentry.notify(e, { bot: 'Smooch' })
+    CheckSentry.notify(e, bot: 'Smooch')
     raise(e) if e.is_a?(AASM::InvalidTransition) # Race condition: return 500 so Smooch can retry it later
   end
 
@@ -718,7 +718,7 @@ class Bot::Smooch < BotUser
         m
       end
     rescue URI::InvalidURIError => e
-      CheckSentry.notify(e, { bot: 'Smooch', extra: { method: 'extract_url' } })
+      CheckSentry.notify(e, bot: 'Smooch', extra: { method: 'extract_url' })
       nil
     end
   end

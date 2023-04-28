@@ -281,7 +281,7 @@ class User < ApplicationRecord
       tos > pp ? tos : pp
     rescue StandardError => e
       error = ToSOrPrivacyPolicyReadError.new(e)
-      CheckSentry.notify(error, {})
+      CheckSentry.notify(error)
       0
     end
   end

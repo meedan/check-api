@@ -28,8 +28,8 @@ class Team < ApplicationRecord
   before_validation :set_default_fieldsets, on: :create
   after_create :add_user_to_team, :add_default_bots_to_team, :create_default_folder
   after_update :archive_or_restore_projects_if_needed
-  after_save :update_reports_if_labels_changed, on: :update
-  after_save :update_reports_if_languages_changed, on: :update
+  after_update :update_reports_if_labels_changed
+  after_update :update_reports_if_languages_changed
   before_destroy :anonymize_sources_and_accounts
   after_destroy :reset_current_team
 

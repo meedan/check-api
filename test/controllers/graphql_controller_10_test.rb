@@ -287,8 +287,8 @@ class GraphqlController10Test < ActionController::TestCase
       q = assert_queries 10, '<=' do
         post :create, params: { query: "query Query { node(id: \"#{id}\") { id } }", team: t.slug }
       end
-      assert !q.include?('SELECT  "versions".* FROM "versions" WHERE "versions"."id" = $1 LIMIT 1')
-      assert q.include?("SELECT  \"versions\".* FROM \"versions_partitions\".\"p#{t.id}\" \"versions\" WHERE \"versions\".\"id\" = $1 ORDER BY \"versions\".\"id\" DESC LIMIT $2")
+      assert !q.include?('SELECT "versions".* FROM "versions" WHERE "versions"."id" = $1 LIMIT 1')
+      assert q.include?("SELECT \"versions\".* FROM \"versions_partitions\".\"p#{t.id}\" \"versions\" WHERE \"versions\".\"id\" = $1 ORDER BY \"versions\".\"id\" DESC LIMIT $2")
     end
   end
 
