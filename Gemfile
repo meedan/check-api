@@ -35,7 +35,6 @@ end
 
 gem 'webmock'
 gem 'pender_client', git: 'https://github.com/meedan/pender-client.git', ref: '89c9072'
-gem 'sqlite3', '1.3.13', require: false
 gem 'lograge'
 gem 'rails', '~> 6.0.0'
 gem 'pg', '~> 1.1'
