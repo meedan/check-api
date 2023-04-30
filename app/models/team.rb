@@ -587,6 +587,30 @@ class Team < ApplicationRecord
     self.feeds.where(id: feed_id.to_i).last
   end
 
+  # A newsletter header type is available only if there are WhatsApp templates for it
+  def available_newsletter_header_types
+    available = []
+    tbi = TeamBotInstallation.where(team_id: self.id, user_id: BotUser.smooch_user&.id.to_i).last
+    unless tbi.nil?
+      ['none', 'image', 'video', 'audio', 'link_preview'].each do |header_type|
+        mapped_header_type = {
+          'none' => 'none',
+          'image' => 'image',
+          'video' => 'video',
+          'audio' => 'audio',
+          'link_preview' => 'none'
+        }[header_type]
+        if !tbi.send("get_smooch_template_name_for_newsletter_#{mapped_header_type}_no_articles").blank? &&
+           !tbi.send("get_smooch_template_name_for_newsletter_#{mapped_header_type}_one_articles").blank? &&
+           !tbi.send("get_smooch_template_name_for_newsletter_#{mapped_header_type}_two_articles").blank? &&
+           !tbi.send("get_smooch_template_name_for_newsletter_#{mapped_header_type}_three_articles").blank?
+           available << header_type
+        end
+      end
+    end
+    available
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/team_private.rb

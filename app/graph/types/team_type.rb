@@ -48,6 +48,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_tipline_inbox_filters, JsonStringType
   field :get_suggested_matches_filters, JsonStringType
   field :data_report, JsonStringType
+  field :available_newsletter_header_types, JsonStringType # List of header type strings
 
   field :public_team do
     type PublicTeamType
