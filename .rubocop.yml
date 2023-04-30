@@ -124,7 +124,7 @@ AllCops:
   # is specified in the Gemfile or gems.rb file, RuboCop reads the final value
   # from the lock file.) If the Ruby version is still unresolved, RuboCop will
   # use the oldest officially supported Ruby version (currently Ruby 2.3).
-  TargetRubyVersion: ~
+  TargetRubyVersion: 2.7.7
 
 #################### Bundler ###############################
 
