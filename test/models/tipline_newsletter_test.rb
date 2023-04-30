@@ -7,6 +7,7 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
       header_type: 'image',
       header_overlay_text: 'Test',
       introduction: 'Test introduction',
+      content_type: 'rss',
       rss_feed_url: 'https://example.com/feed',
       number_of_articles: 3,
       send_every: ['monday'],
@@ -68,9 +69,9 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
   end
 
   test 'should build newsletter with static content from articles' do
+    @newsletter.content_type = 'static'
     @newsletter.introduction = 'Foo'
     @newsletter.first_article = 'Bar'
-    @newsletter.rss_feed_url = nil
     assert_equal "Foo\n\nBar", @newsletter.build_content
   end
 
@@ -81,6 +82,7 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
   end
 
   test 'should track if content has changed' do
+    @newsletter.content_type = 'static'
     @newsletter.first_article = 'Foo'
     @newsletter.rss_feed_url = nil
     @newsletter.build_content
@@ -166,7 +168,16 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     end
   end
 
-  test 'should format newsletter time as cron' do
+  test 'should have a valid content type' do
+    @newsletter.content_type = 'static'
+    assert @newsletter.valid?
+    @newsletter.content_type = 'rss'
+    assert @newsletter.valid?
+    @newsletter.content_type = 'foo'
+    assert !@newsletter.valid?
+  end
+
+  test 'should format RSS newsletter time as cron' do
     # Offset
     newsletter = TiplineNewsletter.new(
       time: Time.parse('10:32'),
@@ -230,5 +241,47 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
       send_every: ['monday', 'wednesday', 'friday']
     )
     assert_equal '0 14 * * 1,3,5', newsletter.cron_notation
+  end
+
+  test 'should format static newsletter time UTC date time object' do
+    # Offset
+    newsletter = TiplineNewsletter.new(
+      time: Time.parse('10:32'),
+      timezone: 'America/Chicago (GMT-05:00)',
+      send_on: Date.parse('2023-10-30')
+    )
+    assert_equal '2023-10-30 15:32', newsletter.scheduled_time.strftime("%Y-%m-%d %H:%M")
+
+    # Offset, other direction
+    newsletter = TiplineNewsletter.new(
+      time: Time.parse('10:00'),
+      timezone: 'Indian/Maldives (GMT+05:00)',
+      send_on: Date.parse('2023-10-30')
+    )
+    assert_equal '2023-10-30 05:00', newsletter.scheduled_time.strftime("%Y-%m-%d %H:%M")
+
+    # Non-integer hours offset, but still same day as UTC
+    newsletter = TiplineNewsletter.new(
+      time: Time.parse('19:00'),
+      timezone: 'Asia/Kolkata (GMT+05:30)',
+      send_on: Date.parse('2023-10-30')
+    )
+    assert_equal '2023-10-30 13:30', newsletter.scheduled_time.strftime("%Y-%m-%d %H:%M")
+
+    # Non-integer hours offset and one day before in UTC
+    newsletter = TiplineNewsletter.new(
+      time: Time.parse('1:00'),
+      timezone: 'Asia/Kolkata (GMT+05:30)',
+      send_on: Date.parse('2023-10-30')
+    )
+    assert_equal '2023-10-29 19:30', newsletter.scheduled_time.strftime("%Y-%m-%d %H:%M")
+
+    # Integer hours offset and one day after in UTC
+    newsletter = TiplineNewsletter.new(
+      time: Time.parse('23:00'),
+      timezone: 'America/Los Angeles (GMT-07:00)',
+      send_on: Date.parse('2023-12-31')
+    )
+    assert_equal '2024-01-01 06:00', newsletter.scheduled_time.strftime("%Y-%m-%d %H:%M")
   end
 end

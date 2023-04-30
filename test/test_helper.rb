@@ -1017,6 +1017,7 @@ class ActiveSupport::TestCase
       time: Time.parse('10:00'),
       timezone: 'BRT',
       introduction: 'Test',
+      content_type: 'rss',
       rss_feed_url: 'http://test.com/feed.rss',
       number_of_articles: 3,
       team: @team,

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_04_30_002714) do
+ActiveRecord::Schema.define(version: 2023_04_30_133545) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -669,6 +669,8 @@ ActiveRecord::Schema.define(version: 2023_04_30_002714) do
     t.string "footer"
     t.integer "last_scheduled_by_id"
     t.datetime "last_scheduled_at"
+    t.date "send_on"
+    t.string "content_type", default: "static", null: false
     t.index ["team_id", "language"], name: "index_tipline_newsletters_on_team_id_and_language", unique: true
     t.index ["team_id"], name: "index_tipline_newsletters_on_team_id"
   end

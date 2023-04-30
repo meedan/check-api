@@ -8,6 +8,9 @@ module TiplineNewsletterMutations
     header_type: 'str',
     header_overlay_text: 'str',
 
+    # Content
+    content_type: 'str',
+
     # Dynamic newsletter: RSS Feed
     rss_feed_url: 'str',
     number_of_articles: 'int',
@@ -22,6 +25,7 @@ module TiplineNewsletterMutations
 
     # Schedule
     send_every: 'json',
+    send_on: 'str',
     timezone: 'str',
     time: 'str'
   }

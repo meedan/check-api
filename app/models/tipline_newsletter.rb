@@ -12,12 +12,13 @@ class TiplineNewsletter < ApplicationRecord
 
   serialize :send_every, JSON # List of days of the week
 
-  validates_presence_of :send_every, :time, :timezone
+  validates_presence_of :time, :timezone
   validates_presence_of :introduction, :team, :language
   validates_format_of :rss_feed_url, with: URI.regexp, allow_blank: true, allow_nil: true
   validates_inclusion_of :number_of_articles, in: 0..3, allow_blank: true, allow_nil: true
   validates_inclusion_of :language, in: ->(newsletter) { newsletter.team.get_languages.to_a }
   validates_inclusion_of :header_type, in: ['none', 'link_preview', 'audio', 'video', 'image']
+  validates_inclusion_of :content_type, in: ['static', 'rss']
   validate :send_every_is_a_list_of_days_of_the_week
 
   after_save :reschedule_delivery
@@ -27,8 +28,9 @@ class TiplineNewsletter < ApplicationRecord
     self.header_file = file
   end
 
-  # Represent a newsletter local schedule in UNIX UTC cron notation
-  def cron_notation
+  def parsed_timezone
+    timezone = self.timezone
+
     # If an offset is being passed, then it's in the new format... we used to support timezone names
     if self.timezone.match?(/\W\d\d:\d\d/)
       timezone = self.timezone.match(/\W\d\d:\d\d/)
@@ -37,10 +39,15 @@ class TiplineNewsletter < ApplicationRecord
     end
 
     # Mapping for old-style timezones not supported by Ruby's DateTime
-    timezone = {
+    {
       'PHT' => '+0800',
       'CAT' => '+0200'
     }[timezone] || timezone
+  end
+
+  # Represent an RSS newsletter local schedule in UNIX UTC cron notation
+  def cron_notation
+    timezone = self.parsed_timezone
     time_set = DateTime.parse("#{self.time.hour}:#{self.time.min} #{timezone}")
     time_utc = time_set.utc
 
@@ -61,6 +68,11 @@ class TiplineNewsletter < ApplicationRecord
     end
 
     "#{time_utc.min} #{time_utc.hour} * * #{cron_day}"
+  end
+
+  # Represent a static newsletter local schedule in UNIX UTC date object
+  def scheduled_time
+    DateTime.parse("#{self.send_on&.strftime("%Y-%m-%d")} #{self.time.hour}:#{self.time.min} #{self.parsed_timezone}").utc
   end
 
   # Concatenates all articles to form the static body of a newsletter
@@ -99,15 +111,18 @@ class TiplineNewsletter < ApplicationRecord
   def reschedule_delivery
     name = "newsletter:job:team:#{self.team_id}:#{self.language}"
     Sidekiq::Cron::Job.destroy(name)
-    Sidekiq::Cron::Job.create(name: name, cron: self.cron_notation, class: 'TiplineNewsletterWorker', args: [self.team_id, self.language])
+    if self.content_type == 'rss'
+      Sidekiq::Cron::Job.create(name: name, cron: self.cron_notation, class: 'TiplineNewsletterWorker', args: [self.team_id, self.language])
+    elsif self.content_type == 'static'
+      TiplineNewsletterWorker.perform_at(self.scheduled_time, self.team_id, self.language)
+    end
   end
 
   def static_content_or_rss_feed_content
     content = ''
-    unless self.body.blank?
+    if self.content_type == 'static' && !self.body.blank?
       content = self.body
-    end
-    unless self.rss_feed_url.blank?
+    elsif self.content_type == 'rss' && !self.rss_feed_url.blank?
       rss_feed = RssFeed.new(self.rss_feed_url)
       content = rss_feed.get_articles(self.number_of_articles).join("\n\n")
     end

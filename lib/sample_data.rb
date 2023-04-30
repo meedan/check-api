@@ -1031,9 +1031,11 @@ module SampleData
   def create_tipline_newsletter(options = {})
     newsletter = TiplineNewsletter.new({
       send_every: ['monday'],
+      send_on: Date.parse('2023-12-25'),
       introduction: 'Test',
       time: Time.parse('10:00'),
       timezone: 'BRT',
+      content_type: 'static',
       first_article: 'Foo',
       second_article: 'Bar',
       number_of_articles: 2,
