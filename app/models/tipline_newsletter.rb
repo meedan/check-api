@@ -8,7 +8,7 @@ class TiplineNewsletter < ApplicationRecord
 
   mount_uploader :header_file, FileUploader
 
-  before_validation :set_team
+  before_validation :set_team, :set_last_scheduled_information
 
   serialize :send_every, JSON # List of days of the week
 
@@ -29,8 +29,6 @@ class TiplineNewsletter < ApplicationRecord
 
   # Represent a newsletter local schedule in UNIX UTC cron notation
   def cron_notation
-    hour = self.time.hour
-
     # If an offset is being passed, then it's in the new format... we used to support timezone names
     if self.timezone.match?(/\W\d\d:\d\d/)
       timezone = self.timezone.match(/\W\d\d:\d\d/)
@@ -43,7 +41,7 @@ class TiplineNewsletter < ApplicationRecord
       'PHT' => '+0800',
       'CAT' => '+0200'
     }[timezone] || timezone
-    time_set = DateTime.parse("#{hour}:00 #{timezone}")
+    time_set = DateTime.parse("#{self.time.hour}:#{self.time.min} #{timezone}")
     time_utc = time_set.utc
 
     cron_day = nil
@@ -88,6 +86,14 @@ class TiplineNewsletter < ApplicationRecord
     Rails.cache.read(self.content_hash_key).to_s != Digest::MD5.hexdigest(self.build_content(false))
   end
 
+  def subscribers_count
+    TiplineSubscription.where(team_id: self.team_id, language: self.language).count
+  end
+
+  def last_scheduled_by
+    User.find_by_id(self.last_scheduled_by_id)
+  end
+
   private
 
   def reschedule_delivery
@@ -115,6 +121,13 @@ class TiplineNewsletter < ApplicationRecord
   def send_every_is_a_list_of_days_of_the_week
     if !self.send_every.is_a?(Array) || !(self.send_every - SCHEDULE_DAYS).empty?
       errors.add(:send_every, I18n.t(:send_every_must_be_a_list_of_days_of_the_week))
+    end
+  end
+
+  def set_last_scheduled_information
+    if self.enabled_was == false && self.enabled == true
+      self.last_scheduled_by_id = User.current&.id
+      self.last_scheduled_at = Time.now
     end
   end
 end

@@ -131,14 +131,49 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     assert_match /^http/, newsletter.header_file_url
   end
 
+  test 'should return number of subscribers' do
+    newsletter = create_tipline_newsletter
+    assert_equal 0, newsletter.subscribers_count
+    create_tipline_subscription(team_id: newsletter.team_id, language: newsletter.language)
+    assert_equal 1, newsletter.subscribers_count
+  end
+
+  test 'should save information about last user who scheduled or paused a newsletter' do
+    u = create_user
+    u2 = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'editor'
+    create_team_user team: t, user: u2, role: 'editor'
+    newsletter = nil
+    with_current_user_and_team(u, t) do
+      newsletter = create_tipline_newsletter team: t, enabled: false
+      assert_nil newsletter.reload.last_scheduled_by
+      assert_nil newsletter.reload.last_scheduled_at
+      newsletter = TiplineNewsletter.find(newsletter.id) ; newsletter.introduction = random_string ; newsletter.save!
+      assert_nil newsletter.reload.last_scheduled_by
+      assert_nil newsletter.reload.last_scheduled_at
+      newsletter = TiplineNewsletter.find(newsletter.id) ; newsletter.enabled = true ; newsletter.save!
+      assert_equal u, newsletter.reload.last_scheduled_by
+      assert_not_nil newsletter.reload.last_scheduled_at
+    end
+    with_current_user_and_team(u2, t) do
+      newsletter = TiplineNewsletter.find(newsletter.id) ; newsletter.enabled = false ; newsletter.save!
+      assert_equal u, newsletter.reload.last_scheduled_by
+      newsletter = TiplineNewsletter.find(newsletter.id) ; newsletter.introduction = random_string ; newsletter.save!
+      assert_equal u, newsletter.reload.last_scheduled_by
+      newsletter = TiplineNewsletter.find(newsletter.id) ; newsletter.enabled = true ; newsletter.save!
+      assert_equal u2, newsletter.reload.last_scheduled_by
+    end
+  end
+
   test 'should format newsletter time as cron' do
     # Offset
     newsletter = TiplineNewsletter.new(
-      time: Time.parse('10:00'),
+      time: Time.parse('10:32'),
       timezone: 'America/Chicago (GMT-05:00)',
       send_every: ['friday']
     )
-    assert_equal '0 15 * * 5', newsletter.cron_notation
+    assert_equal '32 15 * * 5', newsletter.cron_notation
 
     # Offset, other direction
     newsletter = TiplineNewsletter.new(

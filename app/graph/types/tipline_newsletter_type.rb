@@ -16,9 +16,16 @@ TiplineNewsletterType = GraphqlCrudOperations.define_default_type do
   field :number_of_articles, types.Int
   field :send_every, JsonStringType
   field :timezone, types.String
-  field :time, types.String
+  field :time, types.String do
+    resolve -> (newsletter, _args, _ctx) {
+      newsletter.time.strftime("%H:%M")
+    }
+  end
+  field :subscribers_count, types.Int
   field :footer, types.String
   field :language, types.String
   field :enabled, types.Boolean
   field :team, TeamType
+  field :last_scheduled_at, types.Int
+  field :last_scheduled_by, UserType
 end
