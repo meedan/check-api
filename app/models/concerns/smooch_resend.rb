@@ -227,8 +227,9 @@ module SmoochResend
 
     def log_resend_error(message)
       if message['isFinalEvent']
-        error = Bot::Smooch::MessageDeliveryError.new('Could not deliver message to final user!')
-        CheckSentry.notify(error, error: message.dig('error'), uid: message.dig('appUser', '_id'), smooch_app_id: message.dig('app', '_id'), timestamp: message.dig('timestamp'))
+        api_error = message.dig('error')
+        exception = Bot::Smooch::FinalMessageDeliveryError.new("(#{api_error&.dig('code')}) #{api_error&.dig('message')}")
+        CheckSentry.notify(exception, error: api_error, uid: message.dig('appUser', '_id'), smooch_app_id: message.dig('app', '_id'), timestamp: message.dig('timestamp'))
       end
     end
 
@@ -240,14 +241,17 @@ module SmoochResend
 
     def format_template_message(template_name, placeholders, image, fallback, language, header = nil)
       namespace = self.config['smooch_template_namespace']
-      return '' if namespace.blank?
       template = self.config["smooch_template_name_for_#{template_name}"] || template_name
+      return '' if namespace.blank? || template.blank?
       default_language = Team.where(id: self.config['team_id'].to_i).last&.default_language
       locale = (!language.blank? && [self.config['smooch_template_locales']].flatten.include?(language)) ? language : default_language
+      safe_placeholders = placeholders.collect{ |placeholder| placeholder.blank? ? '-' : placeholder } # Placeholders are mandatory in WhatsApp templates, so let's be sure they are not blank
       if RequestStore.store[:smooch_bot_provider] == 'TURN'
-        self.turnio_format_template_message(namespace, template, fallback, locale, image, placeholders)
+        self.turnio_format_template_message(namespace, template, fallback, locale, image, safe_placeholders)
+      elsif RequestStore.store[:smooch_bot_provider] == 'CAPI'
+        self.capi_format_template_message(namespace, template, fallback, locale, image, safe_placeholders)
       else
-        self.zendesk_format_template_message(namespace, template, fallback, locale, image, placeholders, header)
+        self.zendesk_format_template_message(namespace, template, fallback, locale, image, safe_placeholders, header)
       end
     end
 

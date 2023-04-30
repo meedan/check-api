@@ -89,15 +89,19 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       WebMock.stub_request(:get, 'http://alegre/audio/similarity/').to_return(body: {
         "result": []
       }.to_json)
+
+      media_file_url = 'https://example.com/test/data/rails.mp3'
+      s3_file_url = "s3://check-api-test/test/data/rails.mp3"
+      WebMock.stub_request(:get, media_file_url).to_return(body: File.new(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
+      Bot::Alegre.stubs(:media_file_url).returns(media_file_url)
+
       pm1 = create_project_media team: @pm.team, media: create_uploaded_audio(file: 'rails.mp3')
-      url = File.join(Rails.root, 'test', 'data', 'rails.mp3')
       WebMock.stub_request(:post, 'http://alegre/audio/transcription/').with({
-        body: { url: url, job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }.to_json
+        body: { url: s3_file_url, job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }.to_json
       }).to_return(body: { 'job_status' => 'IN_PROGRESS' }.to_json)
       WebMock.stub_request(:get, 'http://alegre/audio/transcription/').with(
         body: { job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }
       ).to_return(body: { 'job_status' => 'COMPLETED', 'transcription' => 'Foo bar' }.to_json)
-      Bot::Alegre.stubs(:media_file_url).returns(url)
       # Verify with transcription_similarity_enabled = false
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       a = pm1.annotations('transcription').last
@@ -124,7 +128,6 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       a = pm1.annotations('transcription').last
       assert_equal 'Foo bar', a.data['text']
-      Bot::Alegre.unstub(:media_file_url)
     end
   end
 
@@ -502,4 +505,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     Bot::Alegre.unstub(:request_api)
   end
 
+  test "should not resort matches if format is unknown" do
+    assert_equal 'Foo', Bot::Alegre.return_prioritized_matches('Foo')
+  end
 end

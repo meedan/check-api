@@ -57,7 +57,7 @@ class Bot::Fetch < BotUser
       true
     rescue StandardError => e
       Rails.logger.error("[Fetch Bot] Exception: #{e.message}")
-      CheckSentry.notify(e, { bot: 'Fetch', claim_review: claim_review, installation: installation.id })
+      CheckSentry.notify(e, bot: 'Fetch', claim_review: claim_review, installation: installation.id)
       false
     end
   end
@@ -200,7 +200,7 @@ class Bot::Fetch < BotUser
         end
       rescue StandardError => e
         Rails.cache.delete(self.semaphore_key(team_id, claim_review['identifier']))
-        CheckSentry.notify(e, { context: 'Fetch Bot', claim_review: claim_review, team_id: team_id })
+        CheckSentry.notify(e, context: 'Fetch Bot', claim_review: claim_review, team_id: team_id)
       end
     end
 
@@ -308,7 +308,7 @@ class Bot::Fetch < BotUser
       tmp = nil
       unless image_url.blank?
         tmp = File.join(Rails.root, 'tmp', "image-#{SecureRandom.hex}")
-        open(URI.escape(image_url)) do |i|
+        URI(URI.escape(image_url)).open do |i|
           File.open(tmp, 'wb') do |f|
             f.write(i.read)
           end

@@ -1,5 +1,5 @@
 # check-api
-FROM ruby:2.6.6-slim
+FROM ruby:2.7.7-slim
 MAINTAINER sysops@meedan.com
 
 ENV DEPLOYUSER=checkdeploy \
@@ -29,10 +29,17 @@ RUN useradd ${DEPLOYUSER} -s /bin/bash -m
 
 RUN apt-get update -qq && apt-get install -y curl
 
-# dependencies
-#RUN add-apt-repository ppa:mc3man/trusty-media -y
-RUN apt-get update -qq && apt-get install -y libidn11-dev lsof git build-essential libpq-dev sqlite3 libsqlite3-dev graphicsmagick \
-     ffmpegthumbnailer libtag1-dev lz4 ffmpeg
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    build-essential \
+    ffmpegthumbnailer \
+    ffmpeg \
+    git \
+    graphicsmagick \
+    libidn11-dev \
+    # inotify-tools \
+    libpq-dev \
+    libtag1-dev \
+    lsof
 
 # CMD and helper scripts
 COPY --chown=root:root production/bin /opt/bin
@@ -53,6 +60,8 @@ USER ${DEPLOYUSER}
 # so we mimic `--chown=${DEPLOYUSER}:www-data`
 COPY --chown=checkdeploy:www-data Gemfile ${DEPLOYDIR}/Gemfile
 COPY --chown=checkdeploy:www-data Gemfile.lock ${DEPLOYDIR}/Gemfile.lock
+RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc && gem install bundler -v "< 2.0"
+RUN bundle config force_ruby_platform true
 RUN bundle install --jobs 20 --retry 5 --deployment --without test development
 
 # copy in the code

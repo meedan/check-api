@@ -48,8 +48,7 @@ module SmoochZendesk
       SmoochApi::ApiClient.new(config)
     end
 
-    def zendesk_send_message_to_user(uid, text, extra = {}, force = false)
-      return if self.config['smooch_disabled'] && !force
+    def zendesk_send_message_to_user(uid, text, extra = {}, _force = false)
       api_client = self.zendesk_api_client
       api_instance = SmoochApi::ConversationApi.new(api_client)
       app_id = self.config['smooch_app_id']
@@ -75,9 +74,17 @@ module SmoochZendesk
       begin
         api_instance.post_message(app_id, uid, message_post_body)
       rescue SmoochApi::ApiError => e
+        response_body = begin JSON.parse(e.response_body) rescue {} end
         Rails.logger.error("[Smooch Bot] Exception when sending message #{params.inspect}: #{e.response_body}")
-        e2 = Bot::Smooch::MessageDeliveryError.new('Could not send message to Smooch user')
-        CheckSentry.notify(e2, { smooch_app_id: app_id, uid: uid, body: params, smooch_response: e.response_body })
+
+        error = response_body.dig('error')
+        e2 = Bot::Smooch::SmoochMessageDeliveryError.new("(#{error&.dig('code')}) #{error&.dig('description')}")
+        CheckSentry.notify(e2,
+          smooch_app_id: app_id,
+          uid: uid,
+          smooch_body: params,
+          errors: error
+        )
         nil
       end
     end
@@ -92,7 +99,7 @@ module SmoochZendesk
         output << "#{key}=[[#{value}]]"
       end
       placeholders.each do |placeholder|
-        output << "body_text=[[#{placeholder.gsub(/\s+/, ' ')}]]"
+        output << "body_text=[[#{placeholder.to_s.gsub(/\s+/, ' ')}]]"
       end
       output << '))&'
       output.join('')

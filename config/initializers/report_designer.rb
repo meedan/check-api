@@ -4,6 +4,14 @@ Dynamic.class_eval do
   end
 
   after_save do
+    if self.annotation_type == 'report_design'
+      action = self.action
+      self.copy_report_image_paths if action == 'save' || action =~ /publish/
+      if action =~ /publish/
+        ReportDesignerWorker.perform_in(1.second, self.id, action)
+      end
+    end
+
     title = nil
     summary = nil
     url = nil
@@ -37,6 +45,7 @@ Dynamic.class_eval do
         fc.save!
       end
     end
+
     if self.annotation_type == 'report_design' && self.action =~ /publish/
       # Wait for 1 minute to be sure that the item is indexed in the feed
       Feed.delay_for(1.minute, retry: 0).notify_subscribers(pm, title, summary, url)
@@ -200,7 +209,8 @@ Dynamic.class_eval do
   def should_send_report_in_this_language?(language)
     team = self.annotated.team
     return true if team.get_languages.to_a.size < 2
-    should_send_report_in_different_language = !TeamBotInstallation.where(team_id: team.id, user: BotUser.alegre_user).last&.get_single_language_fact_checks_enabled
+    tbi = TeamBotInstallation.where(team_id: team.id, user: BotUser.alegre_user).last
+    should_send_report_in_different_language = !tbi&.alegre_settings&.dig('single_language_fact_checks_enabled')
     self.annotation_type == 'report_design' && (self.report_design_field_value('language') == language || should_send_report_in_different_language)
   end
 end

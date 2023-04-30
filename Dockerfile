@@ -1,4 +1,4 @@
-FROM ruby:2.6.6-slim
+FROM ruby:2.7.7-slim
 MAINTAINER Meedan <sysops@meedan.com>
 
 # the Rails stage can be overridden from the caller
@@ -14,7 +14,6 @@ ENV LANGUAGE C.UTF-8
 
 RUN apt-get update -qq && apt-get install -y --no-install-recommends curl
 
-# sqlite3, lz4: for check:data:export_team task
 RUN apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
     ffmpegthumbnailer \
@@ -25,13 +24,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     inotify-tools \
     libpq-dev \
     libtag1-dev \
-    libsqlite3-dev \
-    lz4 \
-    sqlite3 \
-    lsof \
-    python-pip
-
-RUN python -m pip install -U setuptools wheel
+    lsof
 
 # install our app
 WORKDIR /app

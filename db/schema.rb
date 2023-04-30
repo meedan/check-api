@@ -2,18 +2,125 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# Note that this schema.rb definition is the authoritative source for your
-# database schema. If you need to create the application database on another
-# system, you should be using db:schema:load, not running all the migrations
-# from scratch. The latter is a flawed and unsustainable approach (the more migrations
-# you'll amass, the slower it'll run and the greater likelihood for issues).
+# This file is the source Rails uses to define your schema when running `rails
+# db:schema:load`. When creating a new database, `rails db:schema:load` tends to
+# be faster and is potentially less error prone than running all of your
+# migrations from scratch. Old migrations may fail to apply correctly if those
+# migrations use external dependencies or application code.
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_03_10_202330) do
+ActiveRecord::Schema.define(version: 2023_04_20_165704) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_function :always_fail_on_insert, sql_definition: <<-'SQL'
+      CREATE OR REPLACE FUNCTION public.always_fail_on_insert(table_name text)
+       RETURNS boolean
+       LANGUAGE plpgsql
+      AS $function$
+                 BEGIN
+                   RAISE EXCEPTION 'partitioned table "%" does not support direct inserts, you should be inserting directly into child tables', table_name;
+                   RETURN false;
+                 END;
+                $function$
+  SQL
+  create_function :version_field_name, sql_definition: <<-'SQL'
+      CREATE OR REPLACE FUNCTION public.version_field_name(event_type text, object_after text)
+       RETURNS text
+       LANGUAGE plpgsql
+       IMMUTABLE
+      AS $function$
+        DECLARE
+          name TEXT;
+        BEGIN
+          IF event_type = 'create_dynamicannotationfield' OR event_type = 'update_dynamicannotationfield'
+          THEN
+            SELECT REGEXP_REPLACE(object_after, '^.*field_name":"([^"]+).*$', '\1') INTO name;
+          ELSE
+            SELECT '' INTO name;
+          END IF;
+          RETURN name;
+        END;
+        $function$
+  SQL
+  create_function :version_annotation_type, sql_definition: <<-'SQL'
+      CREATE OR REPLACE FUNCTION public.version_annotation_type(event_type text, object_after text)
+       RETURNS text
+       LANGUAGE plpgsql
+       IMMUTABLE
+      AS $function$
+        DECLARE
+          name TEXT;
+        BEGIN
+          IF event_type = 'create_dynamic' OR event_type = 'update_dynamic'
+          THEN
+            SELECT REGEXP_REPLACE(object_after, '^.*annotation_type":"([^"]+).*$', '\1') INTO name;
+          ELSE
+            SELECT '' INTO name;
+          END IF;
+          RETURN name;
+        END;
+        $function$
+  SQL
+  create_function :task_team_task_id, sql_definition: <<-'SQL'
+      CREATE OR REPLACE FUNCTION public.task_team_task_id(annotation_type text, data text)
+       RETURNS integer
+       LANGUAGE plpgsql
+       IMMUTABLE
+      AS $function$
+        DECLARE
+          team_task_id INTEGER;
+        BEGIN
+          IF annotation_type = 'task' AND data LIKE '%team_task_id: %'
+          THEN
+            SELECT REGEXP_REPLACE(data, '^.*team_task_id: ([0-9]+).*$', '\1')::int INTO team_task_id;
+          ELSE
+            SELECT NULL INTO team_task_id;
+          END IF;
+          RETURN team_task_id;
+        END;
+        $function$
+  SQL
+  create_function :task_fieldset, sql_definition: <<-'SQL'
+      CREATE OR REPLACE FUNCTION public.task_fieldset(annotation_type text, data text)
+       RETURNS text
+       LANGUAGE plpgsql
+       IMMUTABLE
+      AS $function$
+        DECLARE
+          fieldset TEXT;
+        BEGIN
+          IF annotation_type = 'task' AND data LIKE '%fieldset: %'
+          THEN
+            SELECT REGEXP_REPLACE(data, '^.*fieldset: ([0-9a-z_]+).*$', '\1') INTO fieldset;
+          ELSE
+            SELECT NULL INTO fieldset;
+          END IF;
+          RETURN fieldset;
+        END;
+        $function$
+  SQL
+  create_function :dynamic_annotation_fields_value, sql_definition: <<-'SQL'
+      CREATE OR REPLACE FUNCTION public.dynamic_annotation_fields_value(field_name character varying, value text)
+       RETURNS text
+       LANGUAGE plpgsql
+       IMMUTABLE
+      AS $function$
+        DECLARE
+          dynamic_field_value TEXT;
+        BEGIN
+          IF field_name = 'external_id' OR field_name = 'smooch_user_id' OR field_name = 'verification_status_status'
+          THEN
+            SELECT value INTO dynamic_field_value;
+          ELSE
+            SELECT NULL INTO dynamic_field_value;
+          END IF;
+          RETURN dynamic_field_value;
+        END;
+        $function$
+  SQL
 
   create_table "account_sources", id: :serial, force: :cascade do |t|
     t.integer "account_id"
@@ -382,6 +489,7 @@ ActiveRecord::Schema.define(version: 2023_03_10_202330) do
     t.jsonb "details", default: "{}"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index "LEAST(source_id, target_id), GREATEST(source_id, target_id)", name: "relationships_least_greatest_idx", unique: true
     t.index ["relationship_type"], name: "index_relationships_on_relationship_type"
     t.index ["source_id", "target_id", "relationship_type"], name: "relationship_index", unique: true
     t.index ["target_id"], name: "index_relationships_on_target_id", unique: true

@@ -40,6 +40,24 @@ module CheckStatistics
       relation.group("fs.value_json #>> '{source,originalMessageId}'").count.size
     end
 
+    def number_of_newsletters_sent(team_id, start_date, end_date, language)
+      return unless end_date >= Time.parse('2022-06-01')
+
+      smooch = BotUser.smooch_user
+      tbi = TeamBotInstallation.where(team_id: team_id, user: smooch).last
+      return unless tbi
+
+      times = Version.from_partition(team_id).where(whodunnit: smooch.id.to_s, created_at: start_date..end_date, item_id: tbi.id.to_s, item_type: ['TeamUser', 'TeamBotInstallation']).collect do |v|
+        begin
+          workflow = YAML.load(JSON.parse(v.object_after)['settings'])['smooch_workflows'].select{ |w| w['smooch_workflow_language'] == language }.first
+          workflow['smooch_newsletter']['smooch_newsletter_last_sent_at']
+        rescue
+          nil
+        end
+      end.reject{ |t| t.blank? }.collect{ |t| Time.parse(t.to_s) }.select{ |t| t >= start_date && t <= end_date }.collect{ |t| t.to_s }.uniq
+      times.size
+    end
+
     def get_statistics(start_date, end_date, team_id, platform, language, tracing_attributes = {})
       # attributes in statistics hash must correspond to database fields on MonthlyTeamStatistic
       statistics = {}
@@ -69,18 +87,8 @@ module CheckStatistics
           # Number of newsletters sent
           # NOTE: For all platforms
           # NOTE: Only starting from June 1, 2022
-          if end_date >= Time.parse('2022-06-01')
-            tbi = TeamBotInstallation.where(team: team, user: BotUser.smooch_user).last
-            number_of_newsletters = Version.from_partition(team_id).where(whodunnit: BotUser.smooch_user.id.to_s, created_at: start_date..end_date, item_id: tbi.id.to_s, item_type: ['TeamUser', 'TeamBotInstallation']).collect do |v|
-              begin
-                workflow = YAML.load(JSON.parse(v.object_after)['settings'])['smooch_workflows'].select{ |w| w['smooch_workflow_language'] == language }.first
-                workflow['smooch_newsletter']['smooch_newsletter_last_sent_at']
-              rescue
-                nil
-              end
-            end.reject{ |t| t.blank? }.collect{ |t| Time.parse(t.to_s).to_s }.uniq.size
-            statistics[:unique_newsletters_sent] = number_of_newsletters
-          end
+          number_of_newsletters = number_of_newsletters_sent(team_id, start_date, end_date, language)
+          statistics[:unique_newsletters_sent] = number_of_newsletters
         end
 
         current_newsletter_subscribers = nil

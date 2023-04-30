@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative '../../test_helper'
 
 class FakeSmoochTurnio
   include SmoochTurnio
@@ -131,5 +131,41 @@ class SmoochTurnioTest < ActiveSupport::TestCase
     assert_equal '', message['appUser']['_id']
     assert message['appUser']['conversationStarted']
     assert message['turnIo']
+  end
+
+  test "#turnio_send_message_to_user sends a Sentry error for each error returned on failed response" do
+    errors = [
+      {
+        code: 2000,
+        details: { body: "number of localizable_params (3) does not match the expected number of params (1)" },
+        href: "https://developers.facebook.com/docs/whatsapp/faq#faq_1612022582274564",
+        title: "Number of parameters does not match the expected number of params"
+      },
+      {
+        code: 4000,
+        details: { body: "some sort of fake error" },
+        href: "https://example.com/errors",
+        title: "Facebook returns an array so presumably this happens in real life"
+      }
+    ]
+    WebMock.stub_request(:post, 'https://whatsapp.turn.io/v1/messages').to_return(status: 500, body: "{\"errors\": #{errors.to_json}}")
+
+    mock_error = mock('error')
+    Bot::Smooch::TurnioMessageDeliveryError.expects(:new).with('(2000) Number of parameters does not match the expected number of params').returns(mock_error)
+    Bot::Smooch::TurnioMessageDeliveryError.expects(:new).with('(4000) Facebook returns an array so presumably this happens in real life').returns(mock_error)
+    CheckSentry.expects(:notify).with(mock_error, uid: 'phone-12345:123456', error: errors[0].with_indifferent_access, type: 'template', template_name: 'template_123', template_language: 'en')
+    CheckSentry.expects(:notify).with(mock_error, uid: 'phone-12345:123456', error: errors[1].with_indifferent_access, type: 'template', template_name: 'template_123', template_language: 'en')
+
+    FakeSmoochTurnio.turnio_send_message_to_user('phone-12345:123456',
+      {
+        type: 'template',
+        template: {
+          name: 'template_123',
+          language: {
+            code: 'en'
+          }
+        }
+      }
+    )
   end
 end

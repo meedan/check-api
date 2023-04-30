@@ -1,3 +1,5 @@
+require 'open-uri'
+
 class Bot::Alegre < BotUser
   check_settings
   class Error < ::StandardError
@@ -157,7 +159,7 @@ class Bot::Alegre < BotUser
       end
     rescue StandardError => e
       Rails.logger.error("[Alegre Bot] Exception for event `#{body['event']}`: #{e.message}")
-      CheckSentry.notify(e, { bot: self.name, body: body })
+      CheckSentry.notify(e, bot: self.name, body: body)
     end
 
     self.unarchive_if_archived(pm)
@@ -294,7 +296,7 @@ class Bot::Alegre < BotUser
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] [Auto Transcription 4/5] Proceeding with auto transcription because item has #{pm.requests_count} requests, which is equal or above the minimum of #{min_requests}")
         url = self.media_file_url(pm)
         tempfile = Tempfile.new('transcription', binmode: true)
-        tempfile.write(open(url).read)
+        tempfile.write(URI(url).open.read)
         tempfile.close
         media = FFMPEG::Movie.new(tempfile.path)
         min, max = settings['transcription_minimum_duration'].to_f, settings['transcription_maximum_duration'].to_f
@@ -363,7 +365,7 @@ class Bot::Alegre < BotUser
     annotation = nil
     if pm.report_type == 'uploadedaudio' || pm.report_type == 'uploadedvideo'
       url = self.media_file_url(pm)
-      job_name = Digest::MD5.hexdigest(open(url).read)
+      job_name = Digest::MD5.hexdigest(URI(url).open.read)
       s3_url = url.gsub(/^https?:\/\/[^\/]+/, "s3://#{CheckConfig.get('storage_bucket')}")
       result = self.request_api('post', '/audio/transcription/', { url: s3_url, job_name: job_name })
       annotation = self.save_annotation(pm, 'transcription', { text: '', job_name: job_name, last_response: result }) if result
@@ -535,10 +537,7 @@ class Bot::Alegre < BotUser
     original_relationship = nil
 
     if parent_relationships.length > 0
-      # Sanity check: if there are multiple parents, something is wrong in the dataset.
-      if parent_relationships.length > 1
-        CheckSentry.notify(StandardError.new("[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships ERROR] Found multiple similarity relationship parents for proposed link to ProjectMedia #{proposed_id}"))
-      end
+      # There will be at maximum one parent, because there is a unique index for the target_id column.
       # Take the first source as the parent (A).
       # 1. A is confirmed to B and C is suggested to B: type of the relationship between A and C is: suggested to A
       # 2. A is confirmed to B and C is confirmed to B: type of the relationship between A and C is: confirmed to A
@@ -679,9 +678,16 @@ class Bot::Alegre < BotUser
     )
     Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 6/6] Sent Check notification with message type and opts of #{[message_type, message_opts].inspect}"
   end
+
+  def self.relationship_model_not_allowed(relationship_model)
+    allowed_models = [MEAN_TOKENS_MODEL, INDIAN_MODEL, FILIPINO_MODEL, ELASTICSEARCH_MODEL, 'audio', 'image', 'video']
+    models = relationship_model.split("|")
+    models.length != (allowed_models&models).length
+  end
+
   def self.report_exception_if_bad_relationship(relationship, pm_id_scores, relationship_type)
-    if relationship.model.nil? || relationship.weight.nil? || relationship.source_field.nil? || relationship.target_field.nil? || ![MEAN_TOKENS_MODEL, INDIAN_MODEL, FILIPINO_MODEL, ELASTICSEARCH_MODEL, 'audio', 'image', 'video'].include?(relationship.model)
-      CheckSentry.notify(Bot::Alegre::Error.new("[Alegre] Bad relationship was stored without required metadata"), {trace: Thread.current.backtrace.join("\n"), relationship: relationship.attributes, relationship_type: relationship_type, pm_id_scores: pm_id_scores})
+    if relationship.model.nil? || relationship.weight.nil? || relationship.source_field.nil? || relationship.target_field.nil? || self.relationship_model_not_allowed(relationship.model)
+      CheckSentry.notify(Bot::Alegre::Error.new("[Alegre] Bad relationship was stored without required metadata"), **{trace: Thread.current.backtrace.join("\n"), relationship: relationship.attributes, relationship_type: relationship_type, pm_id_scores: pm_id_scores})
     end
   end
 

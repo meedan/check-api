@@ -1,4 +1,8 @@
+require 'open-uri'
+
 class User < ApplicationRecord
+  class ToSOrPrivacyPolicyReadError < StandardError; end
+
   self.inheritance_column = :type
   attr_accessor :skip_confirmation_mail, :from_omniauth_login, :frozen_account_ids, :frozen_source_id
 
@@ -257,7 +261,6 @@ class User < ApplicationRecord
   end
 
   def self.terms_last_updated_at_by_page(page)
-    require 'open-uri'
     mapping = {
       tos: 'tos_url',
       tos_smooch: 'tos_smooch_url',
@@ -265,7 +268,7 @@ class User < ApplicationRecord
     }.with_indifferent_access
     return 0 unless mapping.has_key?(page)
     Rails.cache.fetch("last_updated_at:#{page}", expires_in: 24.hours) do
-      html = open(CheckConfig.get(mapping[page], nil, :json), read_timeout: 5, open_timeout: 5).read
+      html = URI(CheckConfig.get(mapping[page], nil, :json)).open(read_timeout: 5, open_timeout: 5).read
       date = ActionController::Base.helpers.strip_tags(html).match(/Last modified(?<modified_date>(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s\d{1,2},\s\d{2,4})/)["modified_date"]
       Time.parse(date).to_i
     end
@@ -276,9 +279,9 @@ class User < ApplicationRecord
       tos = User.terms_last_updated_at_by_page(:tos)
       pp = User.terms_last_updated_at_by_page(:privacy_policy)
       tos > pp ? tos : pp
-    rescue
-      e = StandardError.new('Could not read the last time that terms of service or privacy policy were updated')
-      CheckSentry.notify(e, {})
+    rescue StandardError => e
+      error = ToSOrPrivacyPolicyReadError.new(e)
+      CheckSentry.notify(error)
       0
     end
   end
