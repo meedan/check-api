@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 group :development, :test do
   gem 'byebug', require: false
-  gem 'rubocop', '0.49.0', require: false
+  gem 'rubocop', '0.77.0', require: false
   gem 'rails-graphql-generator', require: false
   gem 'listen', require: false
 end
@@ -136,6 +136,7 @@ gem 'rdoc', '6.3.2'
 gem 'geocoder', '1.6.4'
 gem 'parallel'
 gem 'fx'
+gem 'unicode-display_width', '1.6.0'
 
 # Telemetry and exception reporting
 gem 'opentelemetry-sdk'
