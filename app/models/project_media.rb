@@ -3,7 +3,7 @@ class ProjectMedia < ApplicationRecord
 
   has_paper_trail on: [:create, :update, :destroy], only: [:source_id], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
 
-  include ProjectAssociation 
+  include ProjectAssociation
   include ProjectMediaAssociations
   include ProjectMediaCreators
   include ProjectMediaEmbed
