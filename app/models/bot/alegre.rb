@@ -681,7 +681,7 @@ class Bot::Alegre < BotUser
 
   def self.relationship_model_not_allowed(relationship_model)
     allowed_models = [MEAN_TOKENS_MODEL, INDIAN_MODEL, FILIPINO_MODEL, ELASTICSEARCH_MODEL, 'audio', 'image', 'video']
-    models = relationship_model.split("|").collect{|m| m.split("/").first}
+    models = relationship_model.split("|").collect{ |m| m.split('/').first }
     models.length != (allowed_models&models).length
   end
 
