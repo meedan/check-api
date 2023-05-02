@@ -95,7 +95,7 @@ create_project_medias(user, project, team)
 add_claim_descriptions_and_fact_checks(user)
 
 p 'Making Medias and Project Medias: Links...'
-data[:link_media_links].each { |link_media_link| Link.create!(user_id: user.id, url: link_media_link) }
+data[:link_media_links].each { |link_media_link| Link.create!(user_id: user.id, url: link_media_link+"?timestamp=#{Time.now.to_f}") }
 create_project_medias(user, project, team)
 add_claim_descriptions_and_fact_checks(user)
 
@@ -115,7 +115,7 @@ create_project_medias(user, project, team)
 add_claim_descriptions_and_fact_checks(user)
 
 p 'Making Claim Descriptions and Fact Checks: Imported Fact Checks...'
-data[:fact_check_links].each { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
+data[:fact_check_links].each { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link+"?timestamp=#{Time.now.to_f}", user, project, team)) }
 
 p 'Making Relationship between Claims...'
 relationship_claims = []
