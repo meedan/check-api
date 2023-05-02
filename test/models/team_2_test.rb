@@ -670,8 +670,8 @@ class Team2Test < ActiveSupport::TestCase
       3.times { pm = create_project_media(project: p); pm.archived = true; pm.save! }
       2.times { create_project_media(project: p) }
       with_current_user_and_team(u, t) do
-        assert_raises RuntimeError do
-          assert_no_difference 'ProjectMedia.count' do
+        assert_no_difference 'ProjectMedia.count' do
+          assert_raises RuntimeError do
             t.empty_trash = 1
           end
         end
