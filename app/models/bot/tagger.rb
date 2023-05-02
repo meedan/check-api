@@ -56,7 +56,7 @@ class Bot::Tagger < BotUser
       end
     rescue StandardError => e
       Rails.logger.error("[AutoTagger Bot] Exception for event `#{body['event']}`: #{e.message}")
-      self.notify_error(e, { bot: self.name, body: body }, RequestStore[:request])
+      CheckSentry.notify(e, bot: self.name, body: body)
     end
 
     handled
