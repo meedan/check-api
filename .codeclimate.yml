@@ -29,6 +29,7 @@ plugins:
     enabled: false
   rubocop:
     enabled: true
+    channel: rubocop-0-77
     config: .rubocop.yml
     exclude_fingerprints:
     - c46545507dd9c0ee0b06ade73f99824e
