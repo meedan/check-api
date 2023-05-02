@@ -43,8 +43,13 @@ Rails.application.configure do
   # ActionMailer::Base.deliveries array.
   config.action_mailer.delivery_method = :test
 
-  # Print deprecation notices to the stderr.
-  config.active_support.deprecation = :stderr
+  # Rails deprecation warnings are noisy, so we silence them in test mode
+  # for now so that we don't muck up CI. We will need to come up with a
+  # different approach in future, since this is one of the more useful places
+  # we currently see them.
+  #
+  # The usual default is :stderr
+  config.active_support.deprecation = :silence # :stderr
 
   # Raises error for missing translations.
   # config.action_view.raise_on_missing_translations = true
