@@ -22,6 +22,7 @@ class StatisticsTest < ActiveSupport::TestCase
     @end_of_month = DateTime.new(2023,5,31,23,59,59).end_of_month
 
     # Create data for tipline team
+    create_metadata_stuff
     smooch_bot = create_smooch_bot
     @tipline_team = create_team(slug: 'test-team')
     create_team_bot_installation(team_id: @tipline_team.id, user_id: smooch_bot.id)
