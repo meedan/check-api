@@ -1,3 +1,5 @@
+require "active_support/core_ext/integer/time"
+
 # The test environment is used exclusively to run your application's
 # test suite. You never need to work with it otherwise. Remember that
 # your test database is "scratch space" for the test suite and is wiped
@@ -30,7 +32,7 @@ Rails.application.configure do
   # Disable request forgery protection in test environment.
   config.action_controller.allow_forgery_protection = false
 
-  # Store uploaded files on the local file system in a temporary directory
+  # Store uploaded files on the local file system in a temporary directory.
   # config.active_storage.service = :test
 
   config.action_mailer.perform_caching = false
@@ -47,14 +49,26 @@ Rails.application.configure do
   # Raises error for missing translations.
   # config.action_view.raise_on_missing_translations = true
 
-  # http://guides.rubyonrails.org/configuring.html#configuring-middleware
-  config.allow_concurrency = true
+  # Raise exceptions for disallowed deprecations.
+  config.active_support.disallowed_deprecation = :raise
+
+  # Tell Active Support which deprecation messages to disallow.
+  config.active_support.disallowed_deprecation_warnings = []
 
   # https://guides.rubyonrails.org/caching_with_rails.html#cache-stores
   config.cache_store = :file_store, "#{Rails.root}/tmp/cache#{ENV['TEST_ENV_NUMBER']}"
 
+  # Raises error for missing translations.
+  # config.i18n.raise_on_missing_translations = true
+
+  # Annotate rendered view with file names.
+  # config.action_view.annotate_rendered_view_with_filenames = true
+
   # Highlight code that triggered database queries in logs.
   config.active_record.verbose_query_logs = true
+
+  # http://guides.rubyonrails.org/configuring.html#configuring-middleware
+  config.allow_concurrency = true
 
   # Disable PaperTrail by default on tests
   # https://github.com/paper-trail-gem/paper_trail#7-testing
