@@ -96,9 +96,13 @@ ActiveRecord::Base.transaction do
   add_claim_descriptions_and_fact_checks(user)
 
   p 'Making Medias and Project Medias: Links...'
-  data[:link_media_links].each { |link_media_link| Link.create!(user_id: user.id, url: link_media_link+"?timestamp=#{Time.now.to_f}") }
-  create_project_medias(user, project, team)
-  add_claim_descriptions_and_fact_checks(user)
+  begin
+    data[:link_media_links].each { |link_media_link| Link.create!(user_id: user.id, url: link_media_link+"?timestamp=#{Time.now.to_f}") }
+    create_project_medias(user, project, team)
+    add_claim_descriptions_and_fact_checks(user)
+  rescue
+    puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links, Please make sure Pender is working properly and running."
+  end
 
   p 'Making Medias and Project Medias: Audios...'
   data[:audios].each { |audio| UploadedAudio.create!(user_id: user.id, file: open_file(audio)) }
@@ -116,7 +120,11 @@ ActiveRecord::Base.transaction do
   add_claim_descriptions_and_fact_checks(user)
 
   p 'Making Claim Descriptions and Fact Checks: Imported Fact Checks...'
-  data[:fact_check_links].each { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link+"?timestamp=#{Time.now.to_f}", user, project, team)) }
+  begin
+    data[:fact_check_links].each { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link+"?timestamp=#{Time.now.to_f}", user, project, team)) }
+  rescue
+    puts "Couldn't create Imported Fact Checks. Other medias will still be created. \nIn order to create Imported Fact Checks, Please make sure Pender is working properly and running."
+  end
 
   p 'Making Relationship between Claims...'
   relationship_claims = []
