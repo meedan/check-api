@@ -30,13 +30,13 @@ class Bot::Tagger < BotUser
       ignore_autotags=settings["ignore_autotags"]
       pm = ProjectMedia.where(id: body.dig(:data, :dbid)).last
       if body.dig(:event) == 'create_project_media' && !pm.nil?
-        Rails.logger.info("[AutoTagger Bot] [ProjectMedia ##{pm.id}] This item was just created, processing...") 
-        results=Bot::Alegre.get_items_with_similar_text(pm, Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, 
+        Rails.logger.info("[AutoTagger Bot] [ProjectMedia ##{pm.id}] This item was just created, processing...")
+        results=Bot::Alegre.get_items_with_similar_text(pm, Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS,
           [{ value: threshold }], pm.title, [Bot::Alegre.matching_model_to_use(pm.team_id)].flatten.reject{|m| m==Bot::Alegre::ELASTICSEARCH_MODEL})
         Rails.logger.info("[AutoTagger Bot] [ProjectMedia ##{pm.id}] #{results.length} nearest neighbors #{results.keys()}")
         Rails.logger.info("[AutoTagger Bot] [ProjectMedia ##{pm.id}] Results: #{results}")
         tag_counts=results.map{|nn_pm,_| ProjectMedia.find(nn_pm).get_annotations('tag')}.flatten.map{|t| self.get_tag_text(t[:data][:tag],auto_tag_prefix,ignore_autotags)}.group_by(&:itself).transform_values(&:count)
-        tag_counts=tag_counts.reject{|t|t==nil}.sort_by{|k,v| v}
+        tag_counts=tag_counts.reject{|t|t==nil}.sort_by{|_k,v| v}
         Rails.logger.info("[AutoTagger Bot] [ProjectMedia ##{pm.id}] Tag distribution #{tag_counts}")
         if tag_counts.length > 0
           max_count=tag_counts.last[1]
@@ -44,7 +44,7 @@ class Bot::Tagger < BotUser
             Rails.logger.info("[AutoTagger Bot] [ProjectMedia ##{pm.id}] Max count #{max_count} is less than minimum required to apply a tag")
             return false
           end
-          most_common_tags=tag_counts.reject{|k,v| v < max_count}
+          most_common_tags=tag_counts.reject{|_k,v| v < max_count}
           Rails.logger.info("[AutoTagger Bot] [ProjectMedia ##{pm.id}] Most common tags #{most_common_tags}")
           most_common_tags.each do |tag|
             Tag.create!(annotated:pm, annotator: BotUser.get_user('tagger'), tag: auto_tag_prefix+tag[0])
@@ -61,5 +61,5 @@ class Bot::Tagger < BotUser
 
     handled
   end
-  
+
 end
