@@ -24,7 +24,7 @@ class CreateAutoTaggerBot < ActiveRecord::Migration[5.2]
     tb.set_settings [
       { name: 'auto_tag_prefix', label: 'Emoji prefix', description: 'Emoji to be placed in front of autotags', type: 'string', default: '⚡' },
       { name: 'threshold', label: 'threshold', description: 'Search similarity threshold (0-100)', type: 'integer', default: 70 },
-      { name: 'ignore_autotags', label: 'Ingore auto-tags?', description:'If enabled, autotags will not be considered in finding the most common tag', type: 'boolean', default: false },
+      { name: 'ignore_autotags', label: 'Ignore auto-tags?', description:'If enabled, autotags will not be considered in finding the most common tag', type: 'boolean', default: false },
       { name: 'minimum_count', label: 'Minimum count', description:'Minimum number of times a tag must appear to be applied', type: 'integer', default: 0 }
     ]
     tb.set_approved true
