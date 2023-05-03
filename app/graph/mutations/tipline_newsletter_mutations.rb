@@ -2,33 +2,45 @@ module TiplineNewsletterMutations
   fields = {
     enabled: 'bool',
     introduction: 'str',
-    language: 'str',
+    language: 'str'
+  }
 
-    # Header
+  # Header
+  fields.merge!({
     header_type: 'str',
-    header_overlay_text: 'str',
+    header_overlay_text: 'str'
+  })
 
-    # Content
-    content_type: 'str',
+  # Content
+  fields.merge!({
+    content_type: 'str'
+  })
 
-    # Dynamic newsletter: RSS Feed
+  # Dynamic newsletter: RSS Feed
+  fields.merge!({
     rss_feed_url: 'str',
-    number_of_articles: 'int',
+    number_of_articles: 'int'
+  })
 
-    # Static newsletter: Articles
+  # Static newsletter: Articles
+  fields.merge!({
     first_article: 'str',
     second_article: 'str',
-    third_article: 'str',
+    third_article: 'str'
+  })
 
-    # Footer
-    footer: 'str',
+  # Footer
+  fields.merge!({
+    footer: 'str'
+  })
 
-    # Schedule
+  # Schedule
+  fields.merge!({
     send_every: 'json',
     send_on: 'str',
     timezone: 'str',
     time: 'str'
-  }
+  })
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('tipline_newsletter', fields, fields, ['team'])
 end

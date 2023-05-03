@@ -604,7 +604,7 @@ class Team < ApplicationRecord
            !tbi.send("get_smooch_template_name_for_newsletter_#{mapped_header_type}_one_articles").blank? &&
            !tbi.send("get_smooch_template_name_for_newsletter_#{mapped_header_type}_two_articles").blank? &&
            !tbi.send("get_smooch_template_name_for_newsletter_#{mapped_header_type}_three_articles").blank?
-           available << header_type
+          available << header_type
         end
       end
     end
