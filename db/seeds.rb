@@ -75,8 +75,12 @@ def create_claim_description(user, project, team)
   ClaimDescription.create!(description: Faker::Company.catch_phrase, context: Faker::Lorem.sentence, user: user, project_media: create_blank(project, team))
 end
 
-ActiveRecord::Base.transaction do
-  p '...Seeding...'
+puts "If you want to create a new user: press 1 then enter"
+puts "If you want to add more data to an existing user: press 2 then enter"
+print ">> "
+answer = STDIN.gets.chomp
+
+if answer == "1"
   p 'Making Team / Workspace...'
   team = create_team(name: Faker::Company.name)
 
@@ -88,7 +92,21 @@ ActiveRecord::Base.transaction do
 
   p 'Making Team User...'
   create_team_user(team: team, user: user, role: 'admin')
+end
 
+if answer == "2"
+  puts "Type user name then press enter"
+  print ">> "
+  name = STDIN.gets.chomp.downcase
+
+  puts "Fetching User, Project, Team User and Team..."
+  user = User.find_by(name: name)
+  project = Project.find_by(user_id: user.id)
+  team_user = TeamUser.find_by(user_id: user.id)
+  team = Team.find_by(id: team_user.team_id)
+end
+
+ActiveRecord::Base.transaction do
   p 'Making Medias...'
   p 'Making Medias and Project Medias: Claims...'
   9.times { Claim.create!(user_id: user.id, quote: Faker::Quotes::Shakespeare.hamlet_quote) }
@@ -126,25 +144,27 @@ ActiveRecord::Base.transaction do
     puts "Couldn't create Imported Fact Checks. Other medias will still be created. \nIn order to create Imported Fact Checks, Please make sure Pender is working properly and running."
   end
 
-  p 'Making Relationship between Claims...'
-  relationship_claims = []
-  project_medias_for_relationship_claims = []
-  data[:quotes].each { |quote| relationship_claims.push(Claim.create!(user_id: user.id, quote: quote)) }
-  relationship_claims.each { |claim| project_medias_for_relationship_claims.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: claim))}
+  if answer == "1"
+    p 'Making Relationship between Claims...'
+    relationship_claims = []
+    project_medias_for_relationship_claims = []
+    data[:quotes].each { |quote| relationship_claims.push(Claim.create!(user_id: user.id, quote: quote)) }
+    relationship_claims.each { |claim| project_medias_for_relationship_claims.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: claim))}
 
-  Relationship.create!(source_id: project_medias_for_relationship_claims[0].id, target_id: project_medias_for_relationship_claims[1].id, relationship_type: Relationship.confirmed_type)
-  Relationship.create!(source_id: project_medias_for_relationship_claims[0].id, target_id: project_medias_for_relationship_claims[2].id, relationship_type: Relationship.confirmed_type)
-  Relationship.create!(source_id: project_medias_for_relationship_claims[3].id, target_id: project_medias_for_relationship_claims[4].id, relationship_type: Relationship.suggested_type)
+    Relationship.create!(source_id: project_medias_for_relationship_claims[0].id, target_id: project_medias_for_relationship_claims[1].id, relationship_type: Relationship.confirmed_type)
+    Relationship.create!(source_id: project_medias_for_relationship_claims[0].id, target_id: project_medias_for_relationship_claims[2].id, relationship_type: Relationship.confirmed_type)
+    Relationship.create!(source_id: project_medias_for_relationship_claims[3].id, target_id: project_medias_for_relationship_claims[4].id, relationship_type: Relationship.suggested_type)
 
-  p 'Making Relationship between Images...'
-  project_medias_for_images = []
-  2.times { project_medias_for_images.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedImage.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.png'))))) }
-  Relationship.create!(source_id: project_medias_for_images[0].id, target_id: project_medias_for_images[1].id, relationship_type: Relationship.confirmed_type)
+    p 'Making Relationship between Images...'
+    project_medias_for_images = []
+    2.times { project_medias_for_images.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedImage.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.png'))))) }
+    Relationship.create!(source_id: project_medias_for_images[0].id, target_id: project_medias_for_images[1].id, relationship_type: Relationship.confirmed_type)
 
-  p 'Making Relationship between Audios...'
-  project_medias_for_audio = []
-  2.times { project_medias_for_audio.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedAudio.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.mp3'))))) }
-  Relationship.create!(source_id: project_medias_for_audio[0].id, target_id: project_medias_for_audio[1].id, relationship_type: Relationship.confirmed_type)
+    p 'Making Relationship between Audios...'
+    project_medias_for_audio = []
+    2.times { project_medias_for_audio.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedAudio.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.mp3'))))) }
+    Relationship.create!(source_id: project_medias_for_audio[0].id, target_id: project_medias_for_audio[1].id, relationship_type: Relationship.confirmed_type)
+  end
 
   p 'Making Tipline requests...'
   9.times do
@@ -234,5 +254,11 @@ ActiveRecord::Base.transaction do
 
   add_claim_descriptions_and_fact_checks(user)
 
-  p "Created — user: #{data[:user_name]} — email: #{user.email} — password : #{data[:user_password]}"
+  if answer == "1"
+    puts "Created — user: #{data[:user_name]} — email: #{user.email} — password : #{data[:user_password]}"
+  end
+
+  if answer == "2"
+    puts "Data added to user: #{user}"
+  end
 end
