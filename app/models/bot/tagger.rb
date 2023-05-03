@@ -8,7 +8,7 @@ class Bot::Tagger < BotUser
   def self.get_tag_text(tag_id,auto_tag_prefix,ignore_autotags)
     tag=TagText.find_by_id(tag_id).text
     if tag.nil? || (ignore_autotags && tag[0]==auto_tag_prefix)
-      tag=nil
+      return nil
     else
       tag[0]==auto_tag_prefix ? tag[1..] : tag
     end
