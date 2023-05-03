@@ -45,7 +45,7 @@ end
 
 def humanize_link(link)
   path = URI.parse(link).path
-    path.remove('/post/').underscore.humanize
+  path.remove('/post/').underscore.humanize
 end
 
 def create_description(project_media)
@@ -80,33 +80,33 @@ puts "If you want to add more data to an existing user: press 2 then enter"
 print ">> "
 answer = STDIN.gets.chomp
 
-if answer == "1"
-  p 'Making Team / Workspace...'
-  team = create_team(name: Faker::Company.name)
-
-  p 'Making User...'
-  user = create_user(name: data[:user_name], login: data[:user_name], password: data[:user_password], password_confirmation: data[:user_password], email: Faker::Internet.safe_email(name: data[:user_name]), is_admin: true)
-
-  p 'Making Project...'
-  project = create_project(title: team.name, team_id: team.id, user: user, description: '')
-
-  p 'Making Team User...'
-  create_team_user(team: team, user: user, role: 'admin')
-end
-
-if answer == "2"
-  puts "Type user name then press enter"
-  print ">> "
-  name = STDIN.gets.chomp.downcase
-
-  puts "Fetching User, Project, Team User and Team..."
-  user = User.find_by(name: name)
-  project = Project.find_by(user_id: user.id)
-  team_user = TeamUser.find_by(user_id: user.id)
-  team = Team.find_by(id: team_user.team_id)
-end
-
 ActiveRecord::Base.transaction do
+  if answer == "1"
+    p 'Making Team / Workspace...'
+    team = create_team(name: Faker::Company.name)
+  
+    p 'Making User...'
+    user = create_user(name: data[:user_name], login: data[:user_name], password: data[:user_password], password_confirmation: data[:user_password], email: Faker::Internet.safe_email(name: data[:user_name]), is_admin: true)
+  
+    p 'Making Project...'
+    project = create_project(title: team.name, team_id: team.id, user: user, description: '')
+  
+    p 'Making Team User...'
+    create_team_user(team: team, user: user, role: 'admin')
+  end
+  
+  if answer == "2"
+    puts "Type user name then press enter"
+    print ">> "
+    name = STDIN.gets.chomp.downcase
+  
+    puts "Fetching User, Project, Team User and Team..."
+    user = User.find_by(name: name)
+    project = Project.find_by(user_id: user.id)
+    team_user = TeamUser.find_by(user_id: user.id)
+    team = Team.find_by(id: team_user.team_id)
+  end
+  
   p 'Making Medias...'
   p 'Making Medias and Project Medias: Claims...'
   9.times { Claim.create!(user_id: user.id, quote: Faker::Quotes::Shakespeare.hamlet_quote) }
@@ -119,7 +119,7 @@ ActiveRecord::Base.transaction do
     create_project_medias(user, project, team)
     add_claim_descriptions_and_fact_checks(user)
   rescue
-    puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links, Please make sure Pender is working properly and running."
+    puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
   end
 
   p 'Making Medias and Project Medias: Audios...'
@@ -141,7 +141,7 @@ ActiveRecord::Base.transaction do
   begin
     data[:fact_check_links].each { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link+"?timestamp=#{Time.now.to_f}", user, project, team)) }
   rescue
-    puts "Couldn't create Imported Fact Checks. Other medias will still be created. \nIn order to create Imported Fact Checks, Please make sure Pender is working properly and running."
+    puts "Couldn't create Imported Fact Checks. Other medias will still be created. \nIn order to create Imported Fact Checks make sure Pender is running."
   end
 
   if answer == "1"
