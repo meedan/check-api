@@ -24,8 +24,9 @@ class TiplineNewsletter < ApplicationRecord
   after_save :reschedule_delivery
 
   # File uploads through GraphQL require this setter
+  # Accepts an array or a single file, but persists only one file
   def file=(file)
-    self.header_file = file
+    self.header_file = [file].flatten.first
   end
 
   def parsed_timezone
