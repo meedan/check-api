@@ -68,7 +68,7 @@ def fact_check_attributes(fact_check_link, user, project, team)
 end
 
 def create_blank(project, team)
-  ProjectMedia.create!(project: project, team: team, media: Blank.create!)
+  ProjectMedia.create!(project: project, team: team, media: Blank.create!, channel:  { main: CheckChannels::ChannelCodes::FETCH })
 end
 
 def create_claim_description(user, project, team)
@@ -82,38 +82,38 @@ answer = STDIN.gets.chomp
 
 ActiveRecord::Base.transaction do
   if answer == "1"
-    p 'Making Team / Workspace...'
+    puts 'Making Team / Workspace...'
     team = create_team(name: Faker::Company.name)
-  
-    p 'Making User...'
+
+    puts 'Making User...'
     user = create_user(name: data[:user_name], login: data[:user_name], password: data[:user_password], password_confirmation: data[:user_password], email: Faker::Internet.safe_email(name: data[:user_name]), is_admin: true)
-  
-    p 'Making Project...'
+
+    puts 'Making Project...'
     project = create_project(title: team.name, team_id: team.id, user: user, description: '')
-  
-    p 'Making Team User...'
+
+    puts 'Making Team User...'
     create_team_user(team: team, user: user, role: 'admin')
   end
-  
+
   if answer == "2"
     puts "Type user name then press enter"
     print ">> "
     name = STDIN.gets.chomp.downcase
-  
+
     puts "Fetching User, Project, Team User and Team..."
     user = User.find_by(name: name)
     project = Project.find_by(user_id: user.id)
     team_user = TeamUser.find_by(user_id: user.id)
     team = Team.find_by(id: team_user.team_id)
   end
-  
-  p 'Making Medias...'
-  p 'Making Medias and Project Medias: Claims...'
+
+  puts 'Making Medias...'
+  puts 'Making Medias and Project Medias: Claims...'
   9.times { Claim.create!(user_id: user.id, quote: Faker::Quotes::Shakespeare.hamlet_quote) }
   create_project_medias(user, project, team)
   add_claim_descriptions_and_fact_checks(user)
 
-  p 'Making Medias and Project Medias: Links...'
+  puts 'Making Medias and Project Medias: Links...'
   begin
     data[:link_media_links].each { |link_media_link| Link.create!(user_id: user.id, url: link_media_link+"?timestamp=#{Time.now.to_f}") }
     create_project_medias(user, project, team)
@@ -122,30 +122,26 @@ ActiveRecord::Base.transaction do
     puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
   end
 
-  p 'Making Medias and Project Medias: Audios...'
+  puts 'Making Medias and Project Medias: Audios...'
   data[:audios].each { |audio| UploadedAudio.create!(user_id: user.id, file: open_file(audio)) }
   create_project_medias(user, project, team)
   add_claim_descriptions_and_fact_checks(user)
 
-  p 'Making Medias and Project Medias: Images...'
+  puts 'Making Medias and Project Medias: Images...'
   data[:images].each { |image| UploadedImage.create!(user_id: user.id, file: open_file(image))}
   create_project_medias(user, project, team)
   add_claim_descriptions_and_fact_checks(user)
 
-  p 'Making Medias and Project Medias: Videos...'
+  puts 'Making Medias and Project Medias: Videos...'
   data[:videos].each { |video| UploadedVideo.create!(user_id: user.id, file: open_file(video)) }
   create_project_medias(user, project, team)
   add_claim_descriptions_and_fact_checks(user)
 
-  p 'Making Claim Descriptions and Fact Checks: Imported Fact Checks...'
-  begin
-    data[:fact_check_links].each { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link+"?timestamp=#{Time.now.to_f}", user, project, team)) }
-  rescue
-    puts "Couldn't create Imported Fact Checks. Other medias will still be created. \nIn order to create Imported Fact Checks make sure Pender is running."
-  end
+  puts 'Making Claim Descriptions and Fact Checks: Imported Fact Checks...'
+    data[:fact_check_links].each { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
 
   if answer == "1"
-    p 'Making Relationship between Claims...'
+    puts 'Making Relationship between Claims...'
     relationship_claims = []
     project_medias_for_relationship_claims = []
     data[:quotes].each { |quote| relationship_claims.push(Claim.create!(user_id: user.id, quote: quote)) }
@@ -155,18 +151,18 @@ ActiveRecord::Base.transaction do
     Relationship.create!(source_id: project_medias_for_relationship_claims[0].id, target_id: project_medias_for_relationship_claims[2].id, relationship_type: Relationship.confirmed_type)
     Relationship.create!(source_id: project_medias_for_relationship_claims[3].id, target_id: project_medias_for_relationship_claims[4].id, relationship_type: Relationship.suggested_type)
 
-    p 'Making Relationship between Images...'
+    puts 'Making Relationship between Images...'
     project_medias_for_images = []
     2.times { project_medias_for_images.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedImage.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.png'))))) }
     Relationship.create!(source_id: project_medias_for_images[0].id, target_id: project_medias_for_images[1].id, relationship_type: Relationship.confirmed_type)
 
-    p 'Making Relationship between Audios...'
+    puts 'Making Relationship between Audios...'
     project_medias_for_audio = []
     2.times { project_medias_for_audio.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedAudio.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.mp3'))))) }
     Relationship.create!(source_id: project_medias_for_audio[0].id, target_id: project_medias_for_audio[1].id, relationship_type: Relationship.confirmed_type)
   end
 
-  p 'Making Tipline requests...'
+  puts 'Making Tipline requests...'
   9.times do
     claim_media = Claim.create!(user_id: user.id, quote: Faker::Lorem.paragraph(sentence_count: 10))
       project_media = ProjectMedia.create!(project: project, team: team, media: claim_media, channel: { main: CheckChannels::ChannelCodes::WHATSAPP })
@@ -259,6 +255,6 @@ ActiveRecord::Base.transaction do
   end
 
   if answer == "2"
-    puts "Data added to user: #{user}"
+    puts "Data added to user: #{user.name}"
   end
 end
