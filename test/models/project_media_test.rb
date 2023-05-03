@@ -250,7 +250,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       result.delete(s_a.id)
       result[new_s1.id] = new_s1.name
       pm = ProjectMedia.find(pm.id)
-      assert_queries(0, '=') { assert_equal result.keys.sort.map(&:to_s), JSON.parse(pm.sources_as_sentence).keys.sort }
+      assert_queries(0, '=') { assert_equal result.keys.map(&:to_s).sort, JSON.parse(pm.sources_as_sentence).keys.sort }
       # Verify update source for similar item
       result_similar = {}
       result_similar[s_c.id] = s_c.name
