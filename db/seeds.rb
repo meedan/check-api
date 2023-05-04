@@ -145,26 +145,24 @@ ActiveRecord::Base.transaction do
   puts 'Making Claim Descriptions and Fact Checks: Imported Fact Checks...'
   data[:fact_check_links].each { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
 
-  if answer == "1"
-    puts 'Making Relationship between Claims...'
-    project_medias_for_relationship_claims = []
-    relationship_claims = data[:quotes].map { |quote| Claim.create!(user_id: user.id, quote: quote) }
-    relationship_claims.each { |claim| project_medias_for_relationship_claims.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: claim))}
+  puts 'Making Relationship between Claims...'
+  project_medias_for_relationship_claims = []
+  relationship_claims = data[:quotes].map { |quote| Claim.create!(user_id: user.id, quote: quote) }
+  relationship_claims.each { |claim| project_medias_for_relationship_claims.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: claim))}
 
-    Relationship.create!(source_id: project_medias_for_relationship_claims[0].id, target_id: project_medias_for_relationship_claims[1].id, relationship_type: Relationship.confirmed_type)
-    Relationship.create!(source_id: project_medias_for_relationship_claims[0].id, target_id: project_medias_for_relationship_claims[2].id, relationship_type: Relationship.confirmed_type)
-    Relationship.create!(source_id: project_medias_for_relationship_claims[3].id, target_id: project_medias_for_relationship_claims[4].id, relationship_type: Relationship.suggested_type)
+  Relationship.create!(source_id: project_medias_for_relationship_claims[0].id, target_id: project_medias_for_relationship_claims[1].id, relationship_type: Relationship.confirmed_type)
+  Relationship.create!(source_id: project_medias_for_relationship_claims[0].id, target_id: project_medias_for_relationship_claims[2].id, relationship_type: Relationship.confirmed_type)
+  Relationship.create!(source_id: project_medias_for_relationship_claims[3].id, target_id: project_medias_for_relationship_claims[4].id, relationship_type: Relationship.suggested_type)
 
-    puts 'Making Relationship between Images...'
-    project_medias_for_images = []
-    2.times { project_medias_for_images.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedImage.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.png'))))) }
-    Relationship.create!(source_id: project_medias_for_images[0].id, target_id: project_medias_for_images[1].id, relationship_type: Relationship.confirmed_type)
+  puts 'Making Relationship between Images...'
+  project_medias_for_images = []
+  2.times { project_medias_for_images.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedImage.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.png'))))) }
+  Relationship.create!(source_id: project_medias_for_images[0].id, target_id: project_medias_for_images[1].id, relationship_type: Relationship.confirmed_type)
 
-    puts 'Making Relationship between Audios...'
-    project_medias_for_audio = []
-    2.times { project_medias_for_audio.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedAudio.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.mp3'))))) }
-    Relationship.create!(source_id: project_medias_for_audio[0].id, target_id: project_medias_for_audio[1].id, relationship_type: Relationship.confirmed_type)
-  end
+  puts 'Making Relationship between Audios...'
+  project_medias_for_audio = []
+  2.times { project_medias_for_audio.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedAudio.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.mp3'))))) }
+  Relationship.create!(source_id: project_medias_for_audio[0].id, target_id: project_medias_for_audio[1].id, relationship_type: Relationship.confirmed_type)
 
   puts 'Making Tipline requests...'
   9.times do
