@@ -19,7 +19,7 @@ Rails.application.configure do
     require 'sidekiq/middleware/i18n'
     redis_config = YAML.load_file(file)
     redis_url = { host: redis_config[:redis_host], port: redis_config[:redis_port], db: redis_config[:redis_database], namespace: "cache_checkapi_#{Rails.env}" }
-    config.cache_store = :redis_store, redis_url
+    config.cache_store = :redis_cache_store, redis_url
   end
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
