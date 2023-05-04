@@ -147,9 +147,8 @@ ActiveRecord::Base.transaction do
 
   if answer == "1"
     puts 'Making Relationship between Claims...'
-    relationship_claims = []
     project_medias_for_relationship_claims = []
-    data[:quotes].each { |quote| relationship_claims.push(Claim.create!(user_id: user.id, quote: quote)) }
+    relationship_claims = data[:quotes].map { |quote| Claim.create!(user_id: user.id, quote: quote) }
     relationship_claims.each { |claim| project_medias_for_relationship_claims.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: claim))}
 
     Relationship.create!(source_id: project_medias_for_relationship_claims[0].id, target_id: project_medias_for_relationship_claims[1].id, relationship_type: Relationship.confirmed_type)
