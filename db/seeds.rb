@@ -94,15 +94,22 @@ ActiveRecord::Base.transaction do
     puts 'Making Team User...'
     create_team_user(team: team, user: user, role: 'admin')
   elsif answer == "2"
-    puts "Type user name then press enter"
+    puts "Type user email then press enter"
     print ">> "
-    name = STDIN.gets.chomp.downcase
+    email = STDIN.gets.chomp
 
     puts "Fetching User, Project, Team User and Team..."
-    user = User.find_by(name: name)
-    project = Project.find_by(user_id: user.id)
-    team_user = TeamUser.find_by(user_id: user.id)
-    team = Team.find_by(id: team_user.team_id)
+    user = User.find_by(email: email)
+
+    if TeamUser.find_by(user_id: user.id).nil?
+      team = create_team(name: Faker::Company.name)
+      project = create_project(title: team.name, team_id: team.id, user: user, description: '')
+      create_team_user(team: team, user: user, role: 'admin')
+    else 
+      team_user = TeamUser.find_by(user_id: user.id)
+      team = Team.find_by(id: team_user.team_id)
+      project = Project.find_by(user_id: user.id) 
+    end
   end
 
   puts 'Making Medias...'
@@ -251,6 +258,6 @@ ActiveRecord::Base.transaction do
   if answer == "1"
     puts "Created — user: #{data[:user_name]} — email: #{user.email} — password : #{data[:user_password]}"
   elsif answer == "2"
-    puts "Data added to user: #{user.name}"
+    puts "Data added to user: #{user.email}"
   end
 end
