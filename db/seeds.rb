@@ -101,14 +101,14 @@ ActiveRecord::Base.transaction do
     puts "Fetching User, Project, Team User and Team..."
     user = User.find_by(email: email)
 
-    if TeamUser.find_by(user_id: user.id).nil?
+    if user.team_users.first.nil?
       team = create_team(name: Faker::Company.name)
       project = create_project(title: team.name, team_id: team.id, user: user, description: '')
       create_team_user(team: team, user: user, role: 'admin')
     else 
-      team_user = TeamUser.find_by(user_id: user.id)
-      team = Team.find_by(id: team_user.team_id)
-      project = Project.find_by(user_id: user.id) 
+      team_user = user.team_users.first
+      team = team_user.team
+      project = user.projects.first
     end
   end
 
@@ -143,7 +143,7 @@ ActiveRecord::Base.transaction do
   add_claim_descriptions_and_fact_checks(user)
 
   puts 'Making Claim Descriptions and Fact Checks: Imported Fact Checks...'
-    data[:fact_check_links].each { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
+  data[:fact_check_links].each { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
 
   if answer == "1"
     puts 'Making Relationship between Claims...'
