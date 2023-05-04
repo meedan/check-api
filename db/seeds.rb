@@ -93,9 +93,7 @@ ActiveRecord::Base.transaction do
 
     puts 'Making Team User...'
     create_team_user(team: team, user: user, role: 'admin')
-  end
-
-  if answer == "2"
+  elsif answer == "2"
     puts "Type user name then press enter"
     print ">> "
     name = STDIN.gets.chomp.downcase
@@ -252,9 +250,7 @@ ActiveRecord::Base.transaction do
 
   if answer == "1"
     puts "Created — user: #{data[:user_name]} — email: #{user.email} — password : #{data[:user_password]}"
-  end
-
-  if answer == "2"
+  elsif answer == "2"
     puts "Data added to user: #{user.name}"
   end
 end
