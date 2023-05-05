@@ -13,13 +13,12 @@ module SmoochResend
       # Exit if there is no template namespace
       return false if self.config['smooch_template_namespace'].blank?
 
-      # This is a report that was created or updated, or a message send by a rule action, or a newsletter
+      # This is a report that was created or updated, or a message send by a rule action
       unless original.blank?
         original = JSON.parse(original)
         output = nil
         output = self.resend_whatsapp_report_after_window(message, original) if original['fallback_template'] =~ /report/
         output = self.resend_rules_message_after_window(message, original) if original['fallback_template'] == 'fact_check_status'
-        output = self.resend_newsletter_after_window(message, original) if original['fallback_template'] == 'newsletter'
         return output unless output.nil?
       end
 
@@ -101,24 +100,6 @@ module SmoochResend
       false
     end
 
-    def resend_newsletter_after_window(message, original)
-      language = original['language']
-      uid = message['appUser']['_id']
-      date = I18n.l(Time.now.to_date, locale: language.to_s.tr('_', '-'), format: :long)
-      introduction = original['introduction'].to_s
-      params = [date, introduction]
-      template_name = 'newsletter'
-      if self.template_exists?('newsletter_with_button')
-        template_name = 'newsletter_with_button'
-        name = self.get_user_name_from_uid(uid)
-        params = [name, date, introduction]
-      end
-      response = self.send_message_to_user(uid, self.format_template_message(template_name, params, nil, introduction, language))
-      id = self.get_id_from_send_response(response)
-      Rails.cache.write("smooch:original:#{id}", "newsletter:#{language}") # This way if "Read now" is clicked, the newsletter can be sent
-      return true
-    end
-
     def send_report_on_template_button_click(_message, uid, language, info)
       self.send_report_to_user(uid, { 'received' => info[2].to_i }, ProjectMedia.find_by_id(info[1].to_i), language, nil)
     end
@@ -128,7 +109,7 @@ module SmoochResend
     end
 
     def clicked_on_template_button?(message)
-      ['newsletter', 'report', 'message'].include?(self.get_information_from_clicked_template_button(message).first.to_s)
+      ['report', 'message'].include?(self.get_information_from_clicked_template_button(message).first.to_s)
     end
 
     def get_information_from_clicked_template_button(message, delete = false)
@@ -145,8 +126,6 @@ module SmoochResend
       info = self.get_information_from_clicked_template_button(message, true)
       type = info.first
       case type
-      when 'newsletter'
-        self.send_newsletter_on_template_button_click(message, uid, language, info)
       when 'report'
         self.send_report_on_template_button_click(message, uid, language, info)
       when 'message'
