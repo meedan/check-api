@@ -40,6 +40,7 @@ module Check
 
     cfg = YAML.load_file("#{Rails.root}/config/config.yml")[Rails.env]
 
+    # i18n
     config.i18n.fallbacks = ['en']
     config.i18n.default_locale = 'en'
     config.i18n.enforce_available_locales = false
@@ -51,6 +52,18 @@ module Check
       config.i18n.available_locales = [locale].flatten
     end
 
+    # Cache configuration
+    sidekiq_config_for_env = File.join(Rails.root, 'config', "sidekiq-#{Rails.env}.yml")
+    sidekiq_config = File.exist?(sidekiq_config_for_env) ? sidekiq_config_for_env : File.join(Rails.root, 'config', "sidekiq.yml")
+
+    if File.exist?(sidekiq_config) && !Rails.env.test?
+      require 'sidekiq/middleware/i18n'
+      redis_config = YAML.load_file(sidekiq_config)
+      redis_url = { host: redis_config[:redis_host], port: redis_config[:redis_port], db: redis_config[:redis_database], namespace: "cache_checkapi_#{Rails.env}" }
+      config.cache_store = :redis_cache_store, redis_url
+    end
+
+    # actionmailer config
     smtp_host = ENV['smtp_host'] || cfg['smtp_host']
     smtp_port = ENV['smtp_port'] || cfg['smtp_port']
     smtp_user = ENV['smtp_user'] || cfg['smtp_user']
@@ -65,7 +78,9 @@ module Check
         enable_starttls_auto: true
       }
     end
+    config.action_mailer.default_url_options = { host: ENV['smtp_default_url_host'] || cfg['smtp_default_url_host'] }
 
+    # CORS config
     allowed_origins = ENV['allowed_origins'] || cfg['allowed_origins']
     authorization_header = ENV['authorization_header'] || cfg['authorization_header']
     config.middleware.insert_before 0, Rack::Cors do
