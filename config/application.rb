@@ -78,7 +78,7 @@ module Check
         enable_starttls_auto: true
       }
     end
-    config.action_mailer.default_url_options = { host: ENV.fetch('smtp_default_url_host', cfg['smtp_default_url_host']) }
+    config.action_mailer.default_url_options = { host: ENV['smtp_default_url_host'] || cfg['smtp_default_url_host'] }
 
     # CORS config
     allowed_origins = ENV['allowed_origins'] || cfg['allowed_origins']
