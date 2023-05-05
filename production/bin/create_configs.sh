@@ -85,24 +85,6 @@ echo "Starting application configuration. Processing ENV settings."
     fi
   fi
 
-  # Populate production environment config from SSM:
-  WORKTMP=$(mktemp)
-  if [[ -z ${environments_production+x} ]]; then
-    missing_configs="$missing_configs environments_production,"
-    echo "Error: missing environments_production ENV setting. Using defaults."
-  else
-    echo ${environments_production} | base64 -d > $WORKTMP
-    if (( $? != 0 )); then
-      missing_configs="$missing_configs environments_production,"
-      echo "Error: could not decode ENV var: ${environments_production} . Using defaults."
-      rm $WORKTMP
-    else
-      echo "Using decoded database config from ENV var: ${environments_production} ."
-      mv $WORKTMP environments/production.rb
-      sha1sum environments/production.rb
-    fi
-  fi
-
   # Populate credentials from SSM:
   WORKTMP=$(mktemp)
   if [[ -z ${credentials_config+x} ]]; then
