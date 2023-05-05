@@ -2,7 +2,7 @@ require 'open-uri'
 include ActionView::Helpers::DateHelper
 
 module Check::Statistics
-  class ArgumentError < ArgumentError; end
+  class ArgumentError < ::ArgumentError; end
 end
 
 namespace :check do

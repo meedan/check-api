@@ -1,6 +1,3 @@
-require 'check_open_telemetry_config'
-require 'check_open_telemetry_test_config'
-
 # Lines immediately below set any environment config that should
 # be applied to all environments
 ENV['OTEL_LOG_LEVEL'] = CheckConfig.get('otel_log_level')

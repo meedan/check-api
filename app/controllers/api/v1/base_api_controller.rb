@@ -14,7 +14,7 @@ module Api
       respond_to :json
 
       def version
-        name = "#{Rails.application.class.parent_name} v#{VERSION}"
+        name = "#{Rails.application.class.module_parent_name} v#{VERSION}"
         render_success 'version', name
       end
 

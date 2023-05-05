@@ -13,7 +13,7 @@ QueryType = GraphQL::ObjectType.define do
     description 'Information about the application'
     resolve -> (_obj, _args, _ctx) do
       OpenStruct.new({
-        name: Rails.application.class.parent_name,
+        name: Rails.application.class.module_parent_name,
         version: VERSION,
         id: 1,
         type: 'About',

@@ -38,16 +38,16 @@ class Relationship2Test < ActiveSupport::TestCase
   end
 
   test "should not save if source is missing" do
-    assert_raises ActiveRecord::StatementInvalid do
-      assert_no_difference 'Relationship.count' do
+    assert_no_difference 'Relationship.count' do
+      assert_raises ActiveRecord::StatementInvalid do
         create_relationship source_id: nil
       end
     end
   end
 
   test "should not save if target is missing" do
-    assert_raises ActiveRecord::StatementInvalid do
-      assert_no_difference 'Relationship.count' do
+    assert_no_difference 'Relationship.count' do
+      assert_raises ActiveRecord::StatementInvalid do
         create_relationship target_id: nil
       end
     end
@@ -65,8 +65,8 @@ class Relationship2Test < ActiveSupport::TestCase
   end
 
   test "should validate relationship type" do
-    assert_raises ActiveRecord::RecordInvalid do
-      assert_no_difference 'Relationship.count' do
+    assert_no_difference 'Relationship.count' do
+      assert_raises ActiveRecord::RecordInvalid do
         create_relationship relationship_type: { foo: 'foo', bar: 'bar' }
         create_relationship relationship_type: { source: 1, target: 2 }
         create_relationship relationship_type: 'invalid'
@@ -83,8 +83,8 @@ class Relationship2Test < ActiveSupport::TestCase
     t2 = create_project_media project: @project
     name = { source: 'duplicates', target: 'duplicate_of' }
     create_relationship source_id: s.id, target_id: t.id, relationship_type: name
-    assert_raises ActiveRecord::RecordInvalid do
-      assert_no_difference 'Relationship.count' do
+    assert_no_difference 'Relationship.count' do
+      assert_raises ActiveRecord::RecordInvalid do
         create_relationship source_id: s.id, target_id: t.id, relationship_type: name
       end
     end

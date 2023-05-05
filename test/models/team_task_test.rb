@@ -13,8 +13,8 @@ class TeamTaskTest < ActiveSupport::TestCase
   end
 
   test "should not have empty label" do
-    assert_raises ActiveRecord::RecordInvalid do
-      assert_no_difference 'TeamTask.count' do
+    assert_no_difference 'TeamTask.count' do
+      assert_raises ActiveRecord::RecordInvalid do
         create_team_task label: nil
         create_team_task label: ''
       end
@@ -22,16 +22,16 @@ class TeamTaskTest < ActiveSupport::TestCase
   end
 
   test "should not have team task without team" do
-    assert_raises ActiveRecord::RecordInvalid do
-      assert_no_difference 'TeamTask.count' do
+    assert_no_difference 'TeamTask.count' do
+      assert_raises ActiveRecord::RecordInvalid do
         create_team_task team_id: nil
       end
     end
   end
 
   test "should not create team task with invalid type" do
-    assert_raises ActiveRecord::RecordInvalid do
-      assert_no_difference 'TeamTask.count' do
+    assert_no_difference 'TeamTask.count' do
+      assert_raises ActiveRecord::RecordInvalid do
         create_team_task task_type: 'foo_bar'
       end
     end
