@@ -80,8 +80,8 @@ class ClusterTest < ActiveSupport::TestCase
     pm = create_project_media
     c = create_cluster
     c.project_medias << pm
-    assert_raises ActiveRecord::RecordInvalid do
-      assert_no_difference 'Cluster.count' do
+    assert_no_difference 'Cluster.count' do
+      assert_raises ActiveRecord::RecordInvalid do
         create_cluster project_media: pm
       end
     end

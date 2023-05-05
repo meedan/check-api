@@ -1,5 +1,4 @@
 require 'digest'
-require 'check_state_machine'
 
 class Bot::Smooch < BotUser
   class MessageDeliveryError < StandardError; end

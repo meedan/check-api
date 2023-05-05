@@ -63,7 +63,7 @@ module UserPrivate
       provider = u.get_user_provider(self.email)
       RegistrationMailer.delay.duplicate_email_detection(self, provider) if self.new_record?
     else
-      self.errors.messages.clear
+      self.errors.clear
       errors.add(:base, I18n.t(:banned_user, app_name: CheckConfig.get('app_name'), support_email: CheckConfig.get('support_email')))
     end
   end
