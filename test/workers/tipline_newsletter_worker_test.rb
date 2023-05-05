@@ -18,11 +18,11 @@ class TiplineNewsletterWorkerTest < ActiveSupport::TestCase
   end
 
   test "should not crash if error happens when sending newsletter to some subscriber" do
-    Bot::Smooch.stubs(:send_final_messages_to_user).raises(StandardError)
+    Bot::Smooch.stubs(:send_message_to_user).raises(StandardError)
     assert_nothing_raised do
       TiplineNewsletterWorker.perform_async(@team.id, 'en')
     end
-    Bot::Smooch.unstub(:send_final_messages_to_user)
+    Bot::Smooch.unstub(:send_message_to_user)
   end
 
   test "should skip sending newsletter if content hasn't changed" do
@@ -35,6 +35,17 @@ class TiplineNewsletterWorkerTest < ActiveSupport::TestCase
     tn.enabled = false
     tn.save!
     assert_equal 0, TiplineNewsletterWorker.new.perform(@team.id, 'en')
+  end
+
+  test "should not send two newsletters if rescheduled" do
+    Sidekiq::Testing.fake! do
+      tn = TiplineNewsletter.where(team: @team, language: 'en').last
+      tn.content_type = 'static'
+      tn.enabled = true
+      tn.updated_at = Time.now
+      tn.save!
+      assert_equal 0, TiplineNewsletterWorker.new.perform(@team.id, 'en')
+    end
   end
 
   test "should save a delivery event when newsletter is sent" do

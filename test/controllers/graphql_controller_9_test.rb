@@ -315,7 +315,7 @@ class GraphqlController9Test < ActionController::TestCase
   end
 
   test "should create tipline newsletter" do
-    query = 'mutation create { createTiplineNewsletter(input: { clientMutationId: "1", introduction: "Test", language: "en", time: "10:00", send_every: ["monday"], timezone: "America/Los_Angeles" }) { tipline_newsletter { id, time, send_on } } }'
+    query = 'mutation create { createTiplineNewsletter(input: { clientMutationId: "1", introduction: "Test", language: "en", time: "10:00", send_every: ["monday"], timezone: "America/Los_Angeles" }) { tipline_newsletter { id, time, send_on, enabled } } }'
     assert_difference 'TiplineNewsletter.count' do
       post :create, params: { query: query, team: @t.slug }
     end
@@ -324,7 +324,7 @@ class GraphqlController9Test < ActionController::TestCase
 
   test "should update tipline newsletter" do
     tn = create_tipline_newsletter team: @t
-    query = 'mutation update { updateTiplineNewsletter(input: { clientMutationId: "1", introduction: "Updated", id: "' + tn.graphql_id + '" }) { tipline_newsletter { id, time, send_on } } }'
+    query = 'mutation update { updateTiplineNewsletter(input: { clientMutationId: "1", introduction: "Updated", id: "' + tn.graphql_id + '" }) { tipline_newsletter { id, time, send_on, enabled } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_equal 'Updated', tn.reload.introduction

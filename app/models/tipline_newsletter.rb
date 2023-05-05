@@ -76,17 +76,8 @@ class TiplineNewsletter < ApplicationRecord
     DateTime.parse("#{self.send_on&.strftime("%Y-%m-%d")} #{self.time.hour}:#{self.time.min} #{self.parsed_timezone}").utc
   end
 
-  # Concatenates all articles to form the static body of a newsletter
-  def body
-    content = []
-    [:first_article, :second_article, :third_article].each do |article|
-      content << self.public_send(article)
-    end
-    content.reject{ |article| article.blank? }.join("\n\n")
-  end
-
   def build_content(cache_hash = true)
-    content = [self.introduction, static_content_or_rss_feed_content].reject{ |text| text.blank? }.join("\n\n")
+    content = [self.introduction, self.body].reject{ |text| text.blank? }.join("\n\n")
     Rails.cache.write(self.content_hash_key, Digest::MD5.hexdigest(content)) if cache_hash
     content
   end
@@ -107,27 +98,44 @@ class TiplineNewsletter < ApplicationRecord
     User.find_by_id(self.last_scheduled_by_id)
   end
 
+  def whatsapp_template_name
+    number = ['no', 'one', 'two', 'three'][self.articles.size]
+    type = {
+      'none' => 'none',
+      'image' => 'image',
+      'video' => 'video',
+      'audio' => 'audio',
+      'link_preview' => 'none'
+    }[self.header_type]
+    "newsletter_#{type}_#{number}_articles"
+  end
+
+  def articles
+    articles = []
+    if self.content_type == 'static'
+      [:first_article, :second_article, :third_article].each do |article|
+        articles << self.public_send(article)
+      end
+    elsif self.content_type == 'rss' && !self.rss_feed_url.blank?
+      articles = RssFeed.new(self.rss_feed_url).get_articles(self.number_of_articles)
+    end
+    articles.reject{ |article| article.blank? }.first(self.number_of_articles)
+  end
+
+  def body
+    self.articles.join("\n\n")
+  end
+
   private
 
   def reschedule_delivery
     name = "newsletter:job:team:#{self.team_id}:#{self.language}"
     Sidekiq::Cron::Job.destroy(name)
     if self.content_type == 'rss'
-      Sidekiq::Cron::Job.create(name: name, cron: self.cron_notation, class: 'TiplineNewsletterWorker', args: [self.team_id, self.language])
+      Sidekiq::Cron::Job.create(name: name, cron: self.cron_notation, class: 'TiplineNewsletterWorker', args: [self.team_id, self.language, Time.now.to_i])
     elsif self.content_type == 'static'
-      TiplineNewsletterWorker.perform_at(self.scheduled_time, self.team_id, self.language)
+      TiplineNewsletterWorker.perform_at(self.scheduled_time, self.team_id, self.language, Time.now.to_i)
     end
-  end
-
-  def static_content_or_rss_feed_content
-    content = ''
-    if self.content_type == 'static' && !self.body.blank?
-      content = self.body
-    elsif self.content_type == 'rss' && !self.rss_feed_url.blank?
-      rss_feed = RssFeed.new(self.rss_feed_url)
-      content = rss_feed.get_articles(self.number_of_articles).join("\n\n")
-    end
-    content
   end
 
   def set_team

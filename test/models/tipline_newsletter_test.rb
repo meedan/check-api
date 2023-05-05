@@ -168,6 +168,11 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     end
   end
 
+  test 'should return WhatsApp template name' do
+    @newsletter.content_type = 'static'
+    assert_equal 'newsletter_image_no_articles', @newsletter.whatsapp_template_name
+  end
+
   test 'should have a valid content type' do
     @newsletter.content_type = 'static'
     assert @newsletter.valid?
