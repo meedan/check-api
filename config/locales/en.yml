@@ -83,7 +83,7 @@ en:
     messages:
       invalid_password: Invalid password
       invalid_qrcode: Invalid validation code
-      extension_white_list_error: 'cannot have type %{extension}, allowed types: %{allowed_types}'
+      extension_white_list_error: 'cannot be of type %{extension}, allowed types: %{allowed_types}'
       invalid_size: must be between %{min_width}x%{min_height} and %{max_width}x%{max_height}
         pixels
       mini_magick_processing_error: 'Sorry, we failed to process the image. The error

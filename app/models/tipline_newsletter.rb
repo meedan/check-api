@@ -1,6 +1,8 @@
 class TiplineNewsletter < ApplicationRecord
   SCHEDULE_DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
 
+  include TiplineNewsletterImage
+
   belongs_to :team
   has_many :tipline_newsletter_deliveries
 
@@ -20,13 +22,15 @@ class TiplineNewsletter < ApplicationRecord
   validates_inclusion_of :header_type, in: ['none', 'link_preview', 'audio', 'video', 'image']
   validates_inclusion_of :content_type, in: ['static', 'rss']
   validate :send_every_is_a_list_of_days_of_the_week
+  validate :header_file_is_supported_by_whatsapp
 
   after_save :reschedule_delivery
+  after_commit :convert_header_file, on: [:create, :update]
 
   # File uploads through GraphQL require this setter
   # Accepts an array or a single file, but persists only one file
   def file=(file)
-    self.header_file = [file].flatten.first
+    self.header_file = @file = [file].flatten.first
   end
 
   def parsed_timezone
@@ -153,5 +157,26 @@ class TiplineNewsletter < ApplicationRecord
       self.last_scheduled_by_id = User.current&.id
       self.last_scheduled_at = Time.now
     end
+  end
+
+  def header_file_is_supported_by_whatsapp
+    if self.header_type && @file
+      case self.header_type
+      when 'image'
+        self.validate_header_file_image
+      else
+        # Nothing to validate
+      end
+    end
+  end
+
+  def convert_header_file
+    new_url = nil
+
+    if self.should_convert_header_image?
+      new_url = self.convert_header_file_image
+    end
+
+    self.update_column(:header_media_url, new_url) unless new_url.nil?
   end
 end
