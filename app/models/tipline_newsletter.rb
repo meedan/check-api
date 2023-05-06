@@ -30,7 +30,8 @@ class TiplineNewsletter < ApplicationRecord
   # File uploads through GraphQL require this setter
   # Accepts an array or a single file, but persists only one file
   def file=(file)
-    self.header_file = @file = [file].flatten.first
+    @file_set = true
+    self.header_file = [file].flatten.first
   end
 
   def parsed_timezone
@@ -130,6 +131,17 @@ class TiplineNewsletter < ApplicationRecord
     self.articles.join("\n\n")
   end
 
+  def self.convert_header_file(id, file_set)
+    newsletter = TiplineNewsletter.find(id)
+    new_url = nil
+
+    if newsletter.should_convert_header_image?(file_set)
+      new_url = newsletter.convert_header_file_image
+    end
+
+    newsletter.update_column(:header_media_url, new_url) unless new_url.nil?
+  end
+
   private
 
   def reschedule_delivery
@@ -160,7 +172,7 @@ class TiplineNewsletter < ApplicationRecord
   end
 
   def header_file_is_supported_by_whatsapp
-    if self.header_type && @file
+    if self.header_type && @file_set
       case self.header_type
       when 'image'
         self.validate_header_file_image
@@ -171,12 +183,6 @@ class TiplineNewsletter < ApplicationRecord
   end
 
   def convert_header_file
-    new_url = nil
-
-    if self.should_convert_header_image?
-      new_url = self.convert_header_file_image
-    end
-
-    self.update_column(:header_media_url, new_url) unless new_url.nil?
+    self.class.delay_for(1.second).convert_header_file(self.id, @file_set)
   end
 end

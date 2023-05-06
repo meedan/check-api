@@ -12,9 +12,9 @@ module TiplineNewsletterImage
     errors.add(:header_file, I18n.t('errors.messages.extension_white_list_error', { extension: type, allowed_types: allowed_types.join(', ') })) unless allowed_types.include?(type)
   end
 
-  def should_convert_header_image?
+  def should_convert_header_image?(file_set)
     # New file or new overlay text
-    self.header_type == 'image' && (@file || self.previous_changes.keys.include?('header_overlay_text'))
+    self.header_type == 'image' && (file_set || self.previous_changes.keys.include?('header_overlay_text'))
   end
 
   def convert_header_file_image
