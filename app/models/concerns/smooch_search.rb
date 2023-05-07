@@ -213,7 +213,7 @@ module SmoochSearch
     def send_search_results_to_user(uid, results, team_id)
       team = Team.find(team_id)
       redis = Redis.new(REDIS_CONFIG)
-      language = self.cached_user_language(uid)
+      language = self.get_user_language(uid, {}, nil, team_id)
       reports = results.collect{ |r| r.get_dynamic_annotation('report_design') }
       # Get reports languages
       reports_language = reports.map{|r| r&.report_design_field_value('language')}.uniq
