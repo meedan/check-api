@@ -14,11 +14,8 @@ class DynamicAnnotation::AnnotationType < ApplicationRecord
   private
 
   def annotation_type_is_available
-    begin
-      self.annotation_type.camelize.constantize
+    if Object.const_defined?(self.annotation_type.camelize)
       errors.add(:annotation_type, 'is not available')
-    rescue NameError
-      # Not defined
     end
   end
 end
