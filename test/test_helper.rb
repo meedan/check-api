@@ -32,10 +32,10 @@ require 'minitest/retry'
 require 'pact/consumer/minitest'
 require 'mocha/minitest'
 require 'csv'
-Minitest::Retry.use!
 
 Dir[Rails.root.join("test/support/**/*.rb")].each {|f| require f}
 
+Minitest::Retry.use!
 TestDatabaseHelper.setup_database_partitions!
 
 class ActionController::TestCase
