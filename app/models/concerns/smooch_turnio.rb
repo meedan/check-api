@@ -33,9 +33,9 @@ module SmoochTurnio
       'TURN.IO'
     end
 
-    def turnio_format_template_message(namespace, template, _fallback, locale, image, placeholders)
+    def turnio_format_template_message(namespace, template, _fallback, locale, file_url, placeholders, file_type = 'image')
       components = []
-      components << { type: 'header', parameters: [{ type: 'image', image: { link: image } }] } unless image.blank?
+      components << { type: 'header', parameters: [{ type: file_type, file_type => { link: file_url } }] } unless file_url.blank?
       body = []
       placeholders.each do |placeholder|
         body << { type: 'text', text: placeholder.gsub(/\s+/, ' ') }

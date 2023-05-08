@@ -130,9 +130,12 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
   end
 
   test 'should have a header file' do
-    newsletter = create_tipline_newsletter header_type: 'image', header_file: 'rails.png'
-    assert_match /^http/, newsletter.header_file_url
-    assert_match /^http/, newsletter.header_media_url
+    Sidekiq::Testing.inline! do
+      TiplineNewsletter.any_instance.stubs(:new_file_uploaded?).returns(true)
+      newsletter = create_tipline_newsletter header_type: 'image', header_file: 'rails.png'
+      assert_match /^http/, newsletter.header_file_url
+      assert_match /^http/, newsletter.reload.header_media_url
+    end
   end
 
   test 'should return number of subscribers' do
@@ -182,6 +185,16 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     assert @newsletter.valid?
     @newsletter.content_type = 'foo'
     assert !@newsletter.valid?
+  end
+
+  test 'should convert video header file' do
+    WebMock.stub_request(:get, /:9000/).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp4')))
+    TiplineNewsletter.any_instance.stubs(:new_file_uploaded?).returns(true)
+    Sidekiq::Testing.inline! do
+      newsletter = create_tipline_newsletter header_type: 'video', header_file: 'rails.mp4'
+      assert_match /^http/, newsletter.header_file_url
+      assert_match /^http/, newsletter.reload.header_media_url
+    end
   end
 
   test 'should format RSS newsletter time as cron' do

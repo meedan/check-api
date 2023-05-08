@@ -218,7 +218,7 @@ module SmoochResend
       languages.blank? ? ['en'] : languages
     end
 
-    def format_template_message(template_name, placeholders, image, fallback, language, header = nil)
+    def format_template_message(template_name, placeholders, file_url, fallback, language, file_type = 'image')
       namespace = self.config['smooch_template_namespace']
       template = self.config["smooch_template_name_for_#{template_name}"] || template_name
       return '' if namespace.blank? || template.blank?
@@ -226,11 +226,11 @@ module SmoochResend
       locale = (!language.blank? && [self.config['smooch_template_locales']].flatten.include?(language)) ? language : default_language
       safe_placeholders = placeholders.collect{ |placeholder| placeholder.blank? ? '-' : placeholder } # Placeholders are mandatory in WhatsApp templates, so let's be sure they are not blank
       if RequestStore.store[:smooch_bot_provider] == 'TURN'
-        self.turnio_format_template_message(namespace, template, fallback, locale, image, safe_placeholders)
+        self.turnio_format_template_message(namespace, template, fallback, locale, file_url, safe_placeholders, file_type)
       elsif RequestStore.store[:smooch_bot_provider] == 'CAPI'
-        self.capi_format_template_message(namespace, template, fallback, locale, image, safe_placeholders)
+        self.capi_format_template_message(namespace, template, fallback, locale, file_url, safe_placeholders, file_type)
       else
-        self.zendesk_format_template_message(namespace, template, fallback, locale, image, safe_placeholders, header)
+        self.zendesk_format_template_message(namespace, template, fallback, locale, file_url, safe_placeholders, file_type)
       end
     end
 

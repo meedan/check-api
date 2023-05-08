@@ -8,13 +8,13 @@ module TiplineNewsletterImage
     size_in_mb = (self.header_file.file.size.to_f / (1000 * 1000))
     allowed_types = ['png', 'jpg', 'jpeg']
     type = self.header_file.file.extension.downcase
-    errors.add(:base, I18n.t('errors.messages.image_too_large', { max_size: '5MB'})) if size_in_mb > 5
+    errors.add(:base, I18n.t('errors.messages.image_too_large', { max_size: '5MB' })) if size_in_mb > 5.0
     errors.add(:header_file, I18n.t('errors.messages.extension_white_list_error', { extension: type, allowed_types: allowed_types.join(', ') })) unless allowed_types.include?(type)
   end
 
-  def should_convert_header_image?(file_set)
+  def should_convert_header_image?
     # New file or new overlay text
-    self.header_type == 'image' && (file_set || self.previous_changes.keys.include?('header_overlay_text'))
+    self.header_type == 'image' && (self.new_file_uploaded? || self.previous_changes.keys.include?('header_overlay_text'))
   end
 
   def convert_header_file_image

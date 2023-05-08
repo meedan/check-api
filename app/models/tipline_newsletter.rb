@@ -2,6 +2,7 @@ class TiplineNewsletter < ApplicationRecord
   SCHEDULE_DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
 
   include TiplineNewsletterImage
+  include TiplineNewsletterVideo
 
   belongs_to :team
   has_many :tipline_newsletter_deliveries
@@ -32,6 +33,10 @@ class TiplineNewsletter < ApplicationRecord
   def file=(file)
     @file_set = true
     self.header_file = [file].flatten.first
+  end
+
+  def new_file_uploaded?
+    !!@file_set
   end
 
   def parsed_timezone
@@ -131,12 +136,15 @@ class TiplineNewsletter < ApplicationRecord
     self.articles.join("\n\n")
   end
 
-  def self.convert_header_file(id, file_set)
+  def self.convert_header_file(id)
     newsletter = TiplineNewsletter.find(id)
     new_url = nil
 
-    if newsletter.should_convert_header_image?(file_set)
+    case newsletter.header_type
+    when 'image'
       new_url = newsletter.convert_header_file_image
+    when 'video'
+      new_url = newsletter.convert_header_file_video
     end
 
     newsletter.update_column(:header_media_url, new_url) unless new_url.nil?
@@ -172,17 +180,20 @@ class TiplineNewsletter < ApplicationRecord
   end
 
   def header_file_is_supported_by_whatsapp
-    if self.header_type && @file_set
+    if self.header_type && self.new_file_uploaded?
       case self.header_type
       when 'image'
         self.validate_header_file_image
-      else
-        # Nothing to validate
+      when 'video'
+        self.validate_header_file_video
       end
     end
   end
 
   def convert_header_file
-    self.class.delay_for(1.second).convert_header_file(self.id, @file_set)
+    if self.should_convert_header_image? ||
+       self.should_convert_header_video?
+      self.class.delay_for(1.second, retry: 3).convert_header_file(self.id)
+    end
   end
 end
