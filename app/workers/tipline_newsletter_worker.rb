@@ -25,8 +25,6 @@ class TiplineNewsletterWorker
 
     # Send newsletter
     log team_id, language, 'Preparing newsletter to be sent...'
-    date = I18n.l(Time.now.to_date, locale: language.to_s.tr('_', '-'), format: :long)
-    content = newsletter.build_content
     start = Time.now
     TiplineSubscription.where(language: language, team_id: team_id).find_each do |ts|
       log team_id, language, "Sending newsletter to subscriber ##{ts.id}..."
@@ -34,10 +32,7 @@ class TiplineNewsletterWorker
         RequestStore.store[:smooch_bot_platform] = ts.platform
         Bot::Smooch.get_installation { |i| i.id == tbi.id }
 
-        file_url = ['image', 'audio', 'video'].include?(newsletter.header_type) ? newsletter.header_media_url : nil
-        file_type = ['image', 'audio', 'video'].include?(newsletter.header_type) ? newsletter.header_type : nil
-        template_message = Bot::Smooch.format_template_message(newsletter.whatsapp_template_name, [date, newsletter.articles].flatten, file_url, content, language, file_type)
-        response = Bot::Smooch.send_message_to_user(ts.uid, template_message)
+        response = Bot::Smooch.send_message_to_user(ts.uid, newsletter.format_as_template_message)
 
         log team_id, language, "Newsletter sent to subscriber ##{ts.id}, response: (#{response.code}) #{response.body}"
         count += 1
@@ -50,7 +45,7 @@ class TiplineNewsletterWorker
     # Save a delivery event for this newsletter
     TiplineNewsletterDelivery.create!({
       recipients_count: count,
-      content: content,
+      content: newsletter.build_content,
       started_sending_at: start,
       finished_sending_at: finish,
       tipline_newsletter: newsletter

@@ -87,9 +87,9 @@ class TiplineNewsletter < ApplicationRecord
   end
 
   def build_content(cache_hash = true)
-    content = [self.introduction, self.body].reject{ |text| text.blank? }.join("\n\n")
-    Rails.cache.write(self.content_hash_key, Digest::MD5.hexdigest(content)) if cache_hash
-    content
+    @content ||= [self.introduction, self.body].reject{ |text| text.blank? }.join("\n\n")
+    Rails.cache.write(self.content_hash_key, Digest::MD5.hexdigest(@content)) if cache_hash
+    @content
   end
 
   def content_hash_key
@@ -134,6 +134,13 @@ class TiplineNewsletter < ApplicationRecord
 
   def body
     self.articles.join("\n\n")
+  end
+
+  def format_as_template_message
+    date = I18n.l(Time.now.to_date, locale: self.language.to_s.tr('_', '-'), format: :long)
+    file_url = ['image', 'audio', 'video'].include?(self.header_type) ? self.header_media_url : nil
+    file_type = ['image', 'audio', 'video'].include?(self.header_type) ? self.header_type : nil
+    Bot::Smooch.format_template_message(self.whatsapp_template_name, [date, self.articles].flatten, file_url, self.build_content, self.language, file_type)
   end
 
   def self.convert_header_file(id)

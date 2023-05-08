@@ -83,13 +83,15 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
   end
 
   test 'should track if content has changed' do
-    @newsletter.content_type = 'static'
-    @newsletter.first_article = 'Foo'
-    @newsletter.rss_feed_url = nil
-    @newsletter.build_content
-    assert !@newsletter.content_has_changed?
-    @newsletter.first_article = 'Bar'
-    assert @newsletter.content_has_changed?
+    newsletter = create_tipline_newsletter content_type: 'static', first_article: 'Foo', rss_feed_url: nil
+    newsletter.build_content
+    assert !newsletter.content_has_changed?
+    newsletter = TiplineNewsletter.find(newsletter.id)
+    assert !newsletter.content_has_changed?
+    newsletter = TiplineNewsletter.find(newsletter.id)
+    newsletter.first_article = 'Bar'
+    newsletter.save!
+    assert newsletter.content_has_changed?
   end
 
   test 'should not have more than one newsletter for the same team and language' do
