@@ -5,11 +5,7 @@ module TiplineNewsletterImage
 
   # PNG or JPG less than 5 MB
   def validate_header_file_image
-    size_in_mb = (self.header_file.file.size.to_f / (1000 * 1000))
-    allowed_types = ['png', 'jpg', 'jpeg']
-    type = self.header_file.file.extension.downcase
-    errors.add(:base, I18n.t('errors.messages.image_too_large', { max_size: '5MB' })) if size_in_mb > 5.0
-    errors.add(:header_file, I18n.t('errors.messages.extension_white_list_error', { extension: type, allowed_types: allowed_types.join(', ') })) unless allowed_types.include?(type)
+    self.validate_header_file(5, ['png', 'jpg', 'jpeg'], 'errors.messages.image_too_large')
   end
 
   def should_convert_header_image?

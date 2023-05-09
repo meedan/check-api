@@ -2,7 +2,6 @@ require_relative '../test_helper'
 
 class TiplineNewsletterTest < ActiveSupport::TestCase
   def setup
-    WebMock.stub_request(:get, /#{CheckConfig.get('narcissus_url')}/).to_return(body: '{"url":"http://screenshot/test/test.png"}')
     @team = create_team
     @newsletter = TiplineNewsletter.new(
       header_type: 'image',
@@ -204,6 +203,17 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     TiplineNewsletter.any_instance.stubs(:new_file_uploaded?).returns(true)
     Sidekiq::Testing.inline! do
       newsletter = create_tipline_newsletter header_type: 'audio', header_file: 'rails.mp3'
+      assert_match /^http/, newsletter.header_file_url
+      assert_match /^http/, newsletter.reload.header_media_url
+    end
+  end
+
+  test 'should convert image header file' do
+    WebMock.stub_request(:get, /:9000/).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
+    WebMock.stub_request(:get, /#{CheckConfig.get('narcissus_url')}/).to_return(body: '{"url":"http://screenshot/test/test.png"}')
+    TiplineNewsletter.any_instance.stubs(:new_file_uploaded?).returns(true)
+    Sidekiq::Testing.inline! do
+      newsletter = create_tipline_newsletter header_type: 'image', header_file: 'rails.png', header_overlay_text: 'Test'
       assert_match /^http/, newsletter.header_file_url
       assert_match /^http/, newsletter.reload.header_media_url
     end

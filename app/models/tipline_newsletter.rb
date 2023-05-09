@@ -160,6 +160,28 @@ class TiplineNewsletter < ApplicationRecord
     newsletter.update_column(:header_media_url, new_url) unless new_url.nil?
   end
 
+  def convert_header_file_audio_or_video(type)
+    options = nil
+    if type == 'audio'
+      cover_path = File.join(Rails.root, 'public', 'images', 'newsletter_audio_header.png')
+      options = ['-loop', '1', '-i', cover_path, '-c:a', 'aac', '-c:v', 'libx264', '-shortest']
+    elsif type == 'video'
+      options = { video_codec: 'libx264', audio_codec: 'aac' }
+    end
+    now = Time.now.to_i
+    input = File.open(File.join(Rails.root, 'tmp', "newsletter-#{type}-input-#{self.id}-#{now}"), 'wb')
+    input.puts(URI(self.header_file_url).open.read)
+    input.close
+    output_path = File.join(Rails.root, 'tmp', "newsletter-#{type}-output-#{self.id}-#{now}.mp4")
+    video = FFMPEG::Movie.new(input.path)
+    video.transcode(output_path, options)
+    path = "newsletter/video/newsletter-#{type}-#{self.id}-#{now}"
+    CheckS3.write(path, 'video/mp4', File.read(output_path))
+    FileUtils.rm_f input.path
+    FileUtils.rm_f output_path
+    CheckS3.public_url(path)
+  end
+
   private
 
   def reschedule_delivery
@@ -206,5 +228,12 @@ class TiplineNewsletter < ApplicationRecord
     if self.should_convert_header_image? || self.should_convert_header_video? || self.should_convert_header_audio?
       self.class.delay_for(1.second, retry: 3).convert_header_file(self.id)
     end
+  end
+
+  def validate_header_file(max_size, allowed_types, message)
+    size_in_mb = (self.header_file.file.size.to_f / (1000 * 1000))
+    type = self.header_file.file.extension.downcase
+    errors.add(:base, I18n.t(message, { max_size: "#{max_size}MB" })) if size_in_mb > max_size.to_f
+    errors.add(:header_file, I18n.t('errors.messages.extension_white_list_error', { extension: type, allowed_types: allowed_types.join(', ') })) unless allowed_types.include?(type)
   end
 end
