@@ -166,7 +166,7 @@ ActiveRecord::Schema.define(version: 2023_05_02_001038) do
     t.index "task_fieldset((annotation_type)::text, data)", name: "task_fieldset", where: "((annotation_type)::text = 'task'::text)"
     t.index "task_team_task_id((annotation_type)::text, data)", name: "task_team_task_id", where: "((annotation_type)::text = 'task'::text)"
     t.index ["annotated_type", "annotated_id"], name: "index_annotations_on_annotated_type_and_annotated_id"
-    t.index ["annotation_type"], name: "index_annotation_type_order"
+    t.index ["annotation_type"], name: "index_annotation_type_order", opclass: :varchar_pattern_ops
     t.index ["annotation_type"], name: "index_annotations_on_annotation_type"
   end
 

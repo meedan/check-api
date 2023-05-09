@@ -23,6 +23,7 @@ class Link < Media
       pender_data = self.get_saved_pender_data
       path = pender_data['picture']
     rescue
+      path = ''
     end
     path.to_s
   end
