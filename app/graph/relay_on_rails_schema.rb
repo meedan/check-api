@@ -65,7 +65,7 @@ class CheckGraphql
     obj = nil
     return obj if type_name.blank?
     if type_name == 'About'
-      name = Rails.application.class.parent_name
+      name = Rails.application.class.module_parent_name
       obj = OpenStruct.new({ name: name, version: VERSION, id: 1, type: 'About' })
     elsif ['Relationships', 'RelationshipsSource', 'RelationshipsTarget'].include?(type_name)
       obj = ProjectMedia.find_if_can(id)
