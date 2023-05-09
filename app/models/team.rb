@@ -597,7 +597,7 @@ class Team < ApplicationRecord
           'none' => 'none',
           'image' => 'image',
           'video' => 'video',
-          'audio' => 'audio',
+          'audio' => 'video', # WhatsApp doesn't support audio header, so we convert it to video
           'link_preview' => 'none'
         }[header_type]
         if !tbi.send("get_smooch_template_name_for_newsletter_#{mapped_header_type}_no_articles").blank? &&

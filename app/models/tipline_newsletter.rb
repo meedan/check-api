@@ -3,6 +3,7 @@ class TiplineNewsletter < ApplicationRecord
 
   include TiplineNewsletterImage
   include TiplineNewsletterVideo
+  include TiplineNewsletterAudio
 
   belongs_to :team
   has_many :tipline_newsletter_deliveries
@@ -114,7 +115,7 @@ class TiplineNewsletter < ApplicationRecord
       'none' => 'none',
       'image' => 'image',
       'video' => 'video',
-      'audio' => 'audio',
+      'audio' => 'video', # WhatsApp doesn't support audio header, so we convert it to video
       'link_preview' => 'none'
     }[self.header_type]
     "newsletter_#{type}_#{number}_articles"
@@ -139,7 +140,7 @@ class TiplineNewsletter < ApplicationRecord
   def format_as_template_message
     date = I18n.l(Time.now.to_date, locale: self.language.to_s.tr('_', '-'), format: :long)
     file_url = ['image', 'audio', 'video'].include?(self.header_type) ? self.header_media_url : nil
-    file_type = ['image', 'audio', 'video'].include?(self.header_type) ? self.header_type : nil
+    file_type = { 'image' => 'image', 'video' => 'video', 'audio' => 'video' }[self.header_type]
     Bot::Smooch.format_template_message(self.whatsapp_template_name, [date, self.articles].flatten, file_url, self.build_content, self.language, file_type)
   end
 
@@ -152,6 +153,8 @@ class TiplineNewsletter < ApplicationRecord
       new_url = newsletter.convert_header_file_image
     when 'video'
       new_url = newsletter.convert_header_file_video
+    when 'audio'
+      new_url = newsletter.convert_header_file_audio
     end
 
     newsletter.update_column(:header_media_url, new_url) unless new_url.nil?
@@ -193,13 +196,14 @@ class TiplineNewsletter < ApplicationRecord
         self.validate_header_file_image
       when 'video'
         self.validate_header_file_video
+      when 'audio'
+        self.validate_header_file_audio
       end
     end
   end
 
   def convert_header_file
-    if self.should_convert_header_image? ||
-       self.should_convert_header_video?
+    if self.should_convert_header_image? || self.should_convert_header_video? || self.should_convert_header_audio?
       self.class.delay_for(1.second, retry: 3).convert_header_file(self.id)
     end
   end
