@@ -587,4 +587,10 @@ class MediaTest < ActiveSupport::TestCase
     })
     assert_equal 'a3ac7ddabb263c2d00b73e8177d15c8d.mp4', Media.filename(uploaded_video)
   end
+
+  test "should return empty string if there is no picture" do
+    Link.any_instance.stubs(:get_saved_pender_data).returns([])
+    l = create_valid_media
+    assert_equal '', l.picture
+  end
 end
