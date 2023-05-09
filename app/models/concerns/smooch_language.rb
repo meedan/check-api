@@ -4,10 +4,9 @@ module SmoochLanguage
   extend ActiveSupport::Concern
 
   module ClassMethods
-    def get_user_language(uid, message = {}, state = nil, team_id = nil)
-      team_id ||= self.config['team_id']
-      team = Team.find_by_id(team_id)
-      default_language = team&.default_language
+    def get_user_language(uid, message = {}, state = nil)
+      team = Team.find(self.config['team_id'])
+      default_language = team.default_language
       supported_languages = self.get_supported_languages
       guessed_language = nil
       if state == 'waiting_for_message'
