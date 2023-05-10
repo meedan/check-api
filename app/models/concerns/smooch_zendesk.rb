@@ -79,12 +79,12 @@ module SmoochZendesk
 
         error = response_body.dig('error')
         e2 = Bot::Smooch::SmoochMessageDeliveryError.new("(#{error&.dig('code')}) #{error&.dig('description')}")
-        CheckSentry.notify(e2, {
+        CheckSentry.notify(e2,
           smooch_app_id: app_id,
           uid: uid,
           smooch_body: params,
           errors: error
-        })
+        )
         nil
       end
     end

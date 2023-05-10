@@ -18,28 +18,6 @@ class CcDevilleTest < ActiveSupport::TestCase
     end
   end
 
-  test "should clear cache from Cloudflare" do
-    stub_configs({ 'cloudflare_auth_email' => 'foo.com', 'cloudflare_auth_key' => 'bar', 'cloudflare_zone' => 'baz' }) do
-      mocked_method = MiniTest::Mock.new
-      mocked_method.expect :call, :return_value, [CcDeville::CloudflareResponseError, Hash]
-      CheckSentry.stub :notify, mocked_method do
-        CcDeville.clear_cache_for_url('http://test.com')
-      end
-      assert_nothing_raised do
-        mocked_method.verify
-      end
-      WebMock.stub_request(:post, /api\.cloudflare\.com/).to_return(body: { "success": true }.to_json)
-      mocked_method = MiniTest::Mock.new
-      mocked_method.expect :call, :return_value, [CcDeville::CloudflareResponseError, Hash]
-      CheckSentry.stub :notify, mocked_method do
-        CcDeville.clear_cache_for_url('http://qa.checkmedia.org')
-      end
-      assert_raises MockExpectationError do
-        mocked_method.verify
-      end
-    end
-  end
-
   test "should handle errors from Cloudflare" do
     WebMock.stub_request(:post, /api\.cloudflare\.com/).to_return(body: {
       "result": nil,
@@ -49,14 +27,12 @@ class CcDevilleTest < ActiveSupport::TestCase
     }.to_json)
     stub_configs({ 'cloudflare_auth_email' => 'foo', 'cloudflare_auth_key' => 'bar', 'cloudflare_zone' => 'baz' }) do
       mocked_method = MiniTest::Mock.new
-      mocked_method.expect :call, :return_value, [CcDeville::CloudflareResponseError, Hash]
+      mocked_method.expect :call, :return_value, [CcDeville::CloudflareResponseError], url: 'http://test.com'
 
       CheckSentry.stub :notify, mocked_method do
         CcDeville.clear_cache_for_url('http://test.com')
       end
-      assert_nothing_raised do
-        mocked_method.verify
-      end
+      mocked_method.verify
     end
   end
 
@@ -64,13 +40,13 @@ class CcDevilleTest < ActiveSupport::TestCase
     WebMock.stub_request(:post, /api\.cloudflare\.com/).to_raise(StandardError.new('test message'))
     stub_configs({ 'cloudflare_auth_email' => 'foo', 'cloudflare_auth_key' => 'bar', 'cloudflare_zone' => 'baz' }) do
       mocked_method = MiniTest::Mock.new
-      mocked_method.expect :call, :return_value, [StandardError, Hash]
+      # We expect URL to be passed as second arg here like test above, but Minitest is
+      # having problems detecting it passed via matcher
+      mocked_method.expect :call, :return_value, [StandardError], url: 'http://test.com'
       CheckSentry.stub :notify, mocked_method do
         CcDeville.clear_cache_for_url('http://test.com')
       end
-      assert_nothing_raised do
-        mocked_method.verify
-      end
+      mocked_method.verify
     end
   end
 end

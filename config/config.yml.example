@@ -79,6 +79,15 @@ development: &default
   #
   two_factor_key: "a2ab0425f2cfa4243110e343bc865653aea941b91819e754c9a82a0115266add" # '<Google two factor key>'
 
+  # Whitelisted hosts used in development to avoid DNS rebinding.
+  # localhost and 0.0.0.0 are allowed by default
+  #
+  # REQUIRED in development
+  #
+  # https://edgeguides.rubyonrails.org/upgrading_ruby_on_rails.html#new-config-hosts-setting
+  #
+  whitelisted_hosts: 'api'
+
   # File storage on S3 or API equivalent
   #
   # REQUIRED
@@ -144,6 +153,7 @@ development: &default
   smtp_port: 587
   smtp_user: # '<GMAIL USERNAME>'
   smtp_pass: # '<GMAIL PASSWORD>'
+  smtp_default_url_host: 'http://localhost:3333' # Used to construct URLs for links in email
 
   # Pusher notification service https://pusher.com/channels
   #

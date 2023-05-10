@@ -27,7 +27,8 @@ module SmoochTeamBotInstallation
       # Save greeting images
       after_save do
         if self.bot_user&.identifier == 'smooch' && !self.skip_save_images && self.respond_to?(:saved_change_to_file?) && self.saved_change_to_file?
-          workflows = self.get_smooch_workflows
+          tbi = TeamBotInstallation.find(self.id) # Refresh lock version
+          workflows = tbi.get_smooch_workflows
           images_updated = false
           self.file.each_with_index do |image, i|
             next if image.blank?
@@ -35,9 +36,9 @@ module SmoochTeamBotInstallation
             workflows[i]['smooch_greeting_image'] = url
             images_updated = true
           end
-          self.set_smooch_workflows = workflows
-          self.skip_save_images = true
-          self.save!
+          tbi.set_smooch_workflows = workflows
+          tbi.skip_save_images = true
+          tbi.save!
           # Make sure that users will see the new image
           self.class.delay_for(1.second, { queue: 'smooch' }).reset_smooch_users_states(self.team_id) if images_updated
         end

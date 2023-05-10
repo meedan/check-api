@@ -155,7 +155,7 @@ class BotUser < User
       JSON.parse(result.to_json)['data']['node']
     rescue StandardError => e
       Rails.logger.error("[BotUser] Error performing GraphQL query: #{e.message}")
-      CheckSentry.notify(e, { bot_user: self.id, team_id: team.id, object_class: klass, object_id: object.id, query: query })
+      CheckSentry.notify(e, bot_user: self.id, team_id: team.id, object_class: klass, object_id: object.id, query: query)
       { error: "Error performing GraphQL query" }.with_indifferent_access
     end
   end
@@ -181,7 +181,7 @@ class BotUser < User
     rescue StandardError => e
       Rails.logger.error("[BotUser] Error calling bot #{self.identifier}: #{e.message}")
       data.delete(:data) # Prevent sending potentially sensitive data to Sentry
-      CheckSentry.notify(e, { bot: self.id, uri: uri, data: data })
+      CheckSentry.notify(e, bot: self.id, uri: uri, data: data)
       User.current = nil
       Team.current = nil
     end

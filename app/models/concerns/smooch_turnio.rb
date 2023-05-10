@@ -263,13 +263,13 @@ module SmoochTurnio
         errors = response_body&.dig('errors')
         errors.to_a.each do |error|
           e = Bot::Smooch::TurnioMessageDeliveryError.new("(#{error.dig('code')}) #{error.dig('title')}")
-          CheckSentry.notify(e, {
+          CheckSentry.notify(e,
             uid: uid,
             error: error,
             type: payload.dig(:type),
             template_name: payload.dig(:template, :name),
             template_language: payload.dig(:template, :language, :code)
-          })
+          )
         end
       end
       ret

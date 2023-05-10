@@ -21,21 +21,21 @@ class TagTextTest < ActiveSupport::TestCase
       end
     end
     t = create_team
-    assert_nothing_raised do
-      assert_difference 'TagText.count' do
+    assert_difference 'TagText.count' do
+      assert_nothing_raised do
         create_tag_text text: 'test', team_id: t.id
       end
     end
-    assert_raises ActiveRecord::RecordInvalid do
-      assert_no_difference 'TagText.count' do
+    assert_no_difference 'TagText.count' do
+      assert_raises ActiveRecord::RecordInvalid do
         create_tag_text text: 'test', team_id: t.id
       end
     end
   end
 
   test "should not have empty tag" do
-    assert_raises ActiveRecord::RecordInvalid do
-      assert_no_difference 'TagText.count' do
+    assert_no_difference 'TagText.count' do
+      assert_raises ActiveRecord::RecordInvalid do
         create_tag_text text: nil
         create_tag_text text: ''
       end
@@ -43,8 +43,8 @@ class TagTextTest < ActiveSupport::TestCase
   end
 
   test "should not have tag without team" do
-    assert_raises ActiveRecord::RecordInvalid do
-      assert_no_difference 'TagText.count' do
+    assert_no_difference 'TagText.count' do
+      assert_raises ActiveRecord::RecordInvalid do
         create_tag_text team_id: nil
       end
     end

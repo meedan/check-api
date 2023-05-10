@@ -1,6 +1,5 @@
 require 'error_codes'
 require 'tracing_service'
-require 'check_sentry'
 
 class ApplicationController < ActionController::Base
   include HttpAcceptLanguage::AutoLocale
