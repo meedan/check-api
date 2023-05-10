@@ -22,8 +22,5 @@ workers 2
 worker_timeout 120
 EOF
 
-echo "starting static files server in background"
-bundle exec ruby bin/static-files-server &
-
 echo "starting sidekiq"
-bundle exec sidekiq 
+bundle exec sidekiq
