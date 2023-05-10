@@ -154,7 +154,7 @@ class Request < ApplicationRecord
         media_type = "Uploaded#{type.camelize}"
         File.atomic_write(filepath) { |file| file.write(data) }
         media = Media.where(type: media_type, file: filename).last
-        if media.nil?
+        if media.nil? && File.exist?(filepath)
           media = Media.new(type: media_type)
           File.open(filepath) do |f2|
             media.file = f2
