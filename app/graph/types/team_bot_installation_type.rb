@@ -6,7 +6,11 @@ TeamBotInstallationType = GraphqlCrudOperations.define_default_type do
 
   field :json_settings, types.String
 
-  field :lock_version, types.Int
+  field :lock_version, types.Int do
+    resolve -> (team_bot_installation, _args, _ctx) {
+      team_bot_installation.reload.lock_version
+    }
+  end
 
   field :bot_user do
     type -> { BotUserType }
