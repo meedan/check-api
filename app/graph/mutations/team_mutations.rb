@@ -26,7 +26,9 @@ module TeamMutations
     languages: 'json',
     list_columns: 'json',
     tipline_inbox_filters: 'str',
-    suggested_matches_filters: 'str'
+    suggested_matches_filters: 'str',
+    outgoing_urls_utm_code: 'str',
+    shorten_outgoing_urls: 'bool'
   })
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('team', create_fields, update_fields, ['check_search_team', 'check_search_trash', 'check_search_spam', 'check_search_unconfirmed', 'public_team'])

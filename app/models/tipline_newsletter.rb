@@ -7,8 +7,8 @@ class TiplineNewsletter < ApplicationRecord
 
   belongs_to :team
   has_many :tipline_newsletter_deliveries
-
   has_paper_trail on: [:create, :destroy], save_changes: true, ignore: [:updated_at, :created_at], versions: { class_name: 'Version' }
+  has_shortened_urls
 
   mount_uploader :header_file, FileUploader
 
@@ -130,7 +130,13 @@ class TiplineNewsletter < ApplicationRecord
     elsif self.content_type == 'rss' && !self.rss_feed_url.blank?
       articles = RssFeed.new(self.rss_feed_url).get_articles(self.number_of_articles)
     end
-    articles.reject{ |article| article.blank? }.first(self.number_of_articles)
+    articles.reject{ |article| article.blank? }.first(self.number_of_articles).collect do |article|
+      if self.team.get_shorten_outgoing_urls || self.content_type == 'rss'
+        UrlRewriter.shorten_and_utmize_urls(article, self.team.get_outgoing_urls_utm_code || 'check_newsletter', self)
+      else
+        article
+      end
+    end
   end
 
   def body
@@ -141,7 +147,8 @@ class TiplineNewsletter < ApplicationRecord
     date = I18n.l(Time.now.to_date, locale: self.language.to_s.tr('_', '-'), format: :long)
     file_url = ['image', 'audio', 'video'].include?(self.header_type) ? self.header_media_url : nil
     file_type = { 'image' => 'image', 'video' => 'video', 'audio' => 'video' }[self.header_type]
-    Bot::Smooch.format_template_message(self.whatsapp_template_name, [date, self.articles].flatten, file_url, self.build_content, self.language, file_type)
+    params = [date, self.articles].flatten.reject{ |param| param.blank? }
+    Bot::Smooch.format_template_message(self.whatsapp_template_name, params, file_url, self.build_content, self.language, file_type)
   end
 
   def self.convert_header_file(id)

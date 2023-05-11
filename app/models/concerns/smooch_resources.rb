@@ -15,6 +15,7 @@ module SmoochResources
     end
 
     def send_rss_to_user(uid, resource, workflow, language, no_cache = false)
+      team = Team.find(self.config['team_id'].to_i)
       message = []
       unless resource.blank?
         message << "*#{resource['smooch_custom_resource_title']}*" unless resource['smooch_custom_resource_title'].to_s.strip.blank?
@@ -25,7 +26,8 @@ module SmoochResources
           end
         end
       end
-      message = self.utmize_urls(message.join("\n\n"), 'resource')
+      message = message.join("\n\n")
+      message = UrlRewriter.shorten_and_utmize_urls(message, team.get_outgoing_urls_utm_code || 'check_resource') if team.get_shorten_outgoing_urls
       self.send_final_messages_to_user(uid, message, workflow, language) unless message.blank?
     end
 
@@ -46,7 +48,9 @@ module SmoochResources
 
     def render_articles_from_rss_feed(url, count = 3)
       rss_feed = RssFeed.new(url)
-      rss_feed.get_articles(count).join("\n\n")
+      content = rss_feed.get_articles(count).join("\n\n")
+      team = Team.current
+      team&.get_shorten_outgoing_urls ? UrlRewriter.shorten_and_utmize_urls(content, team.get_outgoing_urls_utm_code || 'rss_preview') : content
     end
 
     def refresh_rss_feeds_cache
