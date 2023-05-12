@@ -3,6 +3,8 @@ include ActionView::Helpers::DateHelper
 
 module Check::Statistics
   class ArgumentError < ::ArgumentError; end
+  class CalculationError < ::StandardError; end
+  class IncompleteRunError < ::StandardError; end
 end
 
 namespace :check do
@@ -13,6 +15,7 @@ namespace :check do
       old_logger = ActiveRecord::Base.logger
       ActiveRecord::Base.logger = nil
 
+      errors = []
       team_ids = Team.joins(:project_medias).where(project_medias: { user: BotUser.smooch_user }).distinct.pluck(:id)
       current_time = DateTime.now
       puts "[#{Time.now}] Detected #{team_ids.length} teams with tipline data"
@@ -42,32 +45,38 @@ namespace :check do
                 next
               end
 
-
               period_end = current_time < month_end ? current_time : month_end
               tracing_attributes = { "app.team.id" => team_id, "app.attr.platform" => platform, "app.attr.language" => language}
 
               row_attributes = {}
-              row_attributes = CheckStatistics.get_statistics(month_start.to_date, period_end, team_id, platform, language)
+              begin
+                row_attributes = CheckStatistics.get_statistics(month_start.to_date, period_end, team_id, platform, language)
 
-              # Start date for new conversation calculation, with optional override for testing
-              if args.ignore_convo_cutoff || month_start >= DateTime.new(2023,4,1)
-                CheckTracer.in_span("Check::TiplineMessageStatistics.monthly_conversations", attributes: tracing_attributes) do
-                  row_attributes[:conversations_24hr] = tipline_message_statistics.monthly_conversations(
-                    Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[platform],
-                    language,
-                    month_start,
-                    period_end
-                  )
+                # Start date for new conversation calculation, with optional override for testing
+                if args.ignore_convo_cutoff || month_start >= DateTime.new(2023,4,1)
+                  CheckTracer.in_span("Check::TiplineMessageStatistics.monthly_conversations", attributes: tracing_attributes) do
+                    row_attributes[:conversations_24hr] = tipline_message_statistics.monthly_conversations(
+                      Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[platform],
+                      language,
+                      month_start,
+                      period_end
+                    )
+                  end
                 end
-              end
 
-              partial_month = MonthlyTeamStatistic.find_by(team_id: team_id, platform: platform, language: language, start_date: month_start)
-              if partial_month.present?
-                team_stats[:updated] += 1
-                partial_month.update!(row_attributes.merge!(team_id: team_id))
-              else
-                team_stats[:created] += 1
-                MonthlyTeamStatistic.create!(row_attributes.merge!(team_id: team_id))
+                partial_month = MonthlyTeamStatistic.find_by(team_id: team_id, platform: platform, language: language, start_date: month_start)
+                if partial_month.present?
+                  partial_month.update!(row_attributes.merge!(team_id: team_id))
+                  team_stats[:updated] += 1
+                else
+                  MonthlyTeamStatistic.create!(row_attributes.merge!(team_id: team_id))
+                  team_stats[:created] += 1
+                end
+              rescue StandardError => e
+                error = Check::Statistics::CalculationError.new(e)
+                errors.push(error)
+                CheckSentry.notify(error, team_id: team_id, platform: platform, language: language, start_date: month_start, end_date: period_end)
+                team_stats[:errored] += 1
               end
             end
           end
@@ -79,6 +88,7 @@ namespace :check do
       end
 
       ActiveRecord::Base.logger = old_logger
+      raise Check::Statistics::IncompleteRunError.new("Failed to calculate #{errors.length} monthly team statistics") if errors.any?
     end
 
     # bundle exec rake check:data:regenerate_statistics[unique_newsletters_sent]

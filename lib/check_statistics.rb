@@ -82,7 +82,7 @@ module CheckStatistics
           statistics[:conversations] = conversations
         end
 
-        number_of_newsletters = 0
+        number_of_newsletters = nil
         CheckTracer.in_span('CheckStatistics#unique_newsletters_sent', attributes: tracing_attributes) do
           # Number of newsletters sent
           # NOTE: For all platforms
@@ -117,7 +117,8 @@ module CheckStatistics
           search_results = project_media_requests(team_id, platform, start_date, end_date, language, 'relevant_search_result_requests').count + project_media_requests(team_id, platform, start_date, end_date, language, 'irrelevant_search_result_requests').count + project_media_requests(team_id, platform, start_date, end_date, language, 'timeout_search_requests').count
 
           # Average number of messages per day
-          number_of_messages = numbers_of_messages.sum + search_results + (number_of_newsletters * current_newsletter_subscribers)
+          number_of_messages = numbers_of_messages.sum + search_results
+          number_of_messages += (number_of_newsletters * current_newsletter_subscribers) if (number_of_newsletters && current_newsletter_subscribers)
           if number_of_messages == 0
             statistics[:average_messages_per_day] = 0
           else
