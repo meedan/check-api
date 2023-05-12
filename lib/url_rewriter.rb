@@ -15,11 +15,12 @@ class UrlRewriter
     end
   end
 
-  def self.shorten_and_utmize_urls(text, source = 'check', owner = nil)
+  def self.shorten_and_utmize_urls(text, source = nil, owner = nil)
     entities = Twitter::TwitterText::Extractor.extract_urls_with_indices(text, extract_url_without_protocol: true)
     # Ruby 2.7 freezes the empty string from nil.to_s, which causes an error within the rewriter
     Twitter::TwitterText::Rewriter.rewrite_entities(text || '', entities) do |entity, _codepoints|
-      self.shorten(self.utmize(entity[:url], source), owner)
+      url = source.blank? ? entity[:url] : self.utmize(entity[:url], source)
+      self.shorten(url, owner)
     end
   end
 end

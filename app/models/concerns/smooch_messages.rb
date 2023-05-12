@@ -87,7 +87,7 @@ module SmoochMessages
     def send_message_for_state(uid, workflow, state, language, pretext = '')
       team = Team.find(self.config['team_id'].to_i)
       message = self.get_message_for_state(workflow, state, language, uid).to_s
-      message = UrlRewriter.shorten_and_utmize_urls(message, team.get_outgoing_urls_utm_code || 'check_resource') if team.get_shorten_outgoing_urls
+      message = UrlRewriter.shorten_and_utmize_urls(message, team.get_outgoing_urls_utm_code) if team.get_shorten_outgoing_urls
       text = [pretext, message].reject{ |part| part.blank? }.join("\n\n")
       if self.is_v2?
         if self.should_ask_for_language_confirmation?(uid)
@@ -177,7 +177,7 @@ module SmoochMessages
       uid = message['authorId']
       team = Team.find(self.config['team_id'].to_i)
       text = workflow['smooch_message_smooch_bot_message_confirmed'].to_s
-      text = UrlRewriter.shorten_and_utmize_urls(text, team.get_outgoing_urls_utm_code || 'check_resource') if team.get_shorten_outgoing_urls
+      text = UrlRewriter.shorten_and_utmize_urls(text, team.get_outgoing_urls_utm_code) if team.get_shorten_outgoing_urls
       self.send_message_to_user(uid, text) if send_message && !workflow.nil?
     end
 

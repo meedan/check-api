@@ -132,7 +132,7 @@ class TiplineNewsletter < ApplicationRecord
     end
     articles.reject{ |article| article.blank? }.first(self.number_of_articles).collect do |article|
       if self.team.get_shorten_outgoing_urls || self.content_type == 'rss'
-        UrlRewriter.shorten_and_utmize_urls(article, self.team.get_outgoing_urls_utm_code || 'check_newsletter', self)
+        UrlRewriter.shorten_and_utmize_urls(article, self.team.get_outgoing_urls_utm_code, self)
       else
         article
       end

@@ -27,7 +27,7 @@ module SmoochResources
         end
       end
       message = message.join("\n\n")
-      message = UrlRewriter.shorten_and_utmize_urls(message, team.get_outgoing_urls_utm_code || 'check_resource') if team.get_shorten_outgoing_urls
+      message = UrlRewriter.shorten_and_utmize_urls(message, team.get_outgoing_urls_utm_code) if team.get_shorten_outgoing_urls
       self.send_final_messages_to_user(uid, message, workflow, language) unless message.blank?
     end
 
@@ -50,7 +50,7 @@ module SmoochResources
       rss_feed = RssFeed.new(url)
       content = rss_feed.get_articles(count).join("\n\n")
       team = Team.current
-      team&.get_shorten_outgoing_urls ? UrlRewriter.shorten_and_utmize_urls(content, team.get_outgoing_urls_utm_code || 'rss_preview') : content
+      team&.get_shorten_outgoing_urls ? UrlRewriter.shorten_and_utmize_urls(content, team.get_outgoing_urls_utm_code) : content
     end
 
     def refresh_rss_feeds_cache
