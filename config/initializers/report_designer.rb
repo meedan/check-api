@@ -85,12 +85,16 @@ Dynamic.class_eval do
 
   def report_design_text(language = nil)
     if self.annotation_type == 'report_design'
+      team = self.annotated.team
       text = []
       title = self.report_design_field_value('title')
       text << "*#{title.strip}*" unless title.blank?
-      text << Bot::Smooch.utmize_urls(self.report_design_field_value('text').to_s, 'report')
+      text << self.report_design_field_value('text').to_s
       url = self.report_design_field_value('published_article_url')
-      text << Bot::Smooch.utmize_urls(url, 'report') unless url.blank?
+      text << url unless url.blank?
+      text = text.collect do |part|
+        UrlRewriter.shorten_and_utmize_urls(part, team.get_outgoing_urls_utm_code || 'check_report') if team.get_shorten_outgoing_urls
+      end
       unless language.nil?
         footer = self.report_design_text_footer(language)
         text << footer if !footer.blank? && self.report_design_team_setting_value('use_signature', language)
