@@ -4,8 +4,7 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
   def setup
     @team = create_team
     @newsletter = TiplineNewsletter.new(
-      header_type: 'image',
-      header_overlay_text: 'Test',
+      header_type: 'none',
       introduction: 'Test introduction',
       content_type: 'rss',
       rss_feed_url: 'https://example.com/feed',
@@ -176,7 +175,7 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
 
   test 'should return WhatsApp template name' do
     @newsletter.content_type = 'static'
-    assert_equal 'newsletter_image_no_articles', @newsletter.whatsapp_template_name
+    assert_equal 'newsletter_none_no_articles', @newsletter.whatsapp_template_name
   end
 
   test 'should have a valid content type' do

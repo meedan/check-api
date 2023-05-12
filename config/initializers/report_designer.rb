@@ -93,7 +93,7 @@ Dynamic.class_eval do
       url = self.report_design_field_value('published_article_url')
       text << url unless url.blank?
       text = text.collect do |part|
-        UrlRewriter.shorten_and_utmize_urls(part, team.get_outgoing_urls_utm_code || 'check_report') if team.get_shorten_outgoing_urls
+        team.get_shorten_outgoing_urls ? UrlRewriter.shorten_and_utmize_urls(part, team.get_outgoing_urls_utm_code || 'check_report') : part
       end
       unless language.nil?
         footer = self.report_design_text_footer(language)
