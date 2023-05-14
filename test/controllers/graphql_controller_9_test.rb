@@ -330,6 +330,15 @@ class GraphqlController9Test < ActionController::TestCase
     assert_equal 'Updated', tn.reload.introduction
   end
 
+  test "should return tipline newsletter errors as an array" do
+    query = 'mutation create { createTiplineNewsletter(input: { clientMutationId: "1", language: "en", time: "10:00", send_every: ["holiday"], timezone: "America/Los_Angeles" }) { tipline_newsletter { id, time, send_on, enabled } } }'
+    assert_no_difference 'TiplineNewsletter.count' do
+      post :create, params: { query: query, team: @t.slug }
+    end
+    assert_response 400
+    assert_equal ['introduction', 'send_every'], JSON.parse(@response.body)['errors'][0]['data'].keys.sort
+  end
+
   protected
 
   def assert_error_message(expected)
