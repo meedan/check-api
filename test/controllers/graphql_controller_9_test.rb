@@ -339,6 +339,18 @@ class GraphqlController9Test < ActionController::TestCase
     assert_equal ['introduction', 'send_every'], JSON.parse(@response.body)['errors'][0]['data'].keys.sort
   end
 
+  test "should update team link management settings" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    t = create_team
+
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", shorten_outgoing_urls: true, outgoing_urls_utm_code: "test" }) { team { id } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert t.reload.get_shorten_outgoing_urls
+    assert_equal 'test', t.reload.get_outgoing_urls_utm_code
+  end
+
   protected
 
   def assert_error_message(expected)

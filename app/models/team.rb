@@ -152,6 +152,14 @@ class Team < ApplicationRecord
     self.send(:set_language, language)
   end
 
+  def outgoing_urls_utm_code=(code)
+    self.set_outgoing_urls_utm_code = code
+  end
+
+  def shorten_outgoing_urls=(bool)
+    self.set_shorten_outgoing_urls = bool
+  end
+
   def clear_list_columns_cache
     languages = self.get_languages.to_a + I18n.available_locales.map(&:to_s)
     languages.uniq.each { |l| Rails.cache.delete("list_columns:team:#{l}:#{self.id}") }

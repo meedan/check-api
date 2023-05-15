@@ -49,8 +49,8 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_suggested_matches_filters, JsonStringType
   field :data_report, JsonStringType
   field :available_newsletter_header_types, JsonStringType # List of header type strings
-  field :outgoing_urls_utm_code, types.String
-  field :shorten_outgoing_urls, types.Boolean
+  field :get_outgoing_urls_utm_code, types.String
+  field :get_shorten_outgoing_urls, types.Boolean
 
   field :public_team do
     type PublicTeamType
