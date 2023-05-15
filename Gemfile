@@ -5,6 +5,7 @@ group :development, :test do
   gem 'rubocop', '0.77.0', require: false
   gem 'rails-graphql-generator', require: false
   gem 'listen', require: false
+  gem 'deprecation_toolkit', require: false
 end
 
 group :test do

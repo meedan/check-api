@@ -192,6 +192,8 @@ GEM
     declarative (0.0.20)
     deep_cloneable (3.2.0)
       activerecord (>= 3.1.0, < 8)
+    deprecation_toolkit (2.0.3)
+      activesupport (>= 5.2)
     devise (4.9.2)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
@@ -890,6 +892,7 @@ DEPENDENCIES
   concurrent-ruby
   connection_pool
   deep_cloneable (>= 3.1)
+  deprecation_toolkit
   devise (~> 4.8)
   devise-i18n (~> 1.10.0)
   devise-two-factor (~> 4.0.2)
