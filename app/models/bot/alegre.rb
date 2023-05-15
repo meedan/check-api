@@ -11,6 +11,7 @@ class Bot::Alegre < BotUser
   MEAN_TOKENS_MODEL = 'xlm-r-bert-base-nli-stsb-mean-tokens'
   INDIAN_MODEL = 'indian-sbert'
   FILIPINO_MODEL = 'paraphrase-filipino-mpnet-base-v2'
+  OPENAI_ADA_MODEL = 'openai-text-embedding-ada-002'
   ELASTICSEARCH_MODEL = 'elasticsearch'
   DEFAULT_ES_SCORE = 10
 
@@ -680,7 +681,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.relationship_model_not_allowed(relationship_model)
-    allowed_models = [MEAN_TOKENS_MODEL, INDIAN_MODEL, FILIPINO_MODEL, ELASTICSEARCH_MODEL, 'audio', 'image', 'video']
+    allowed_models = [MEAN_TOKENS_MODEL, INDIAN_MODEL, FILIPINO_MODEL, OPENAI_ADA_MODEL, ELASTICSEARCH_MODEL, 'audio', 'image', 'video']
     models = relationship_model.split("|").collect{ |m| m.split('/').first }
     models.length != (allowed_models&models).length
   end
