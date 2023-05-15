@@ -147,8 +147,9 @@ class TiplineNewsletter < ApplicationRecord
     date = I18n.l(Time.now.to_date, locale: self.language.to_s.tr('_', '-'), format: :long)
     file_url = ['image', 'audio', 'video'].include?(self.header_type) ? self.header_media_url : nil
     file_type = { 'image' => 'image', 'video' => 'video', 'audio' => 'video' }[self.header_type]
-    params = [date, self.articles].flatten.reject{ |param| param.blank? }
-    Bot::Smooch.format_template_message(self.whatsapp_template_name, params, file_url, self.build_content, self.language, file_type)
+    params = [date, self.introduction, self.articles].flatten.reject{ |param| param.blank? }
+    preview_url = (self.header_type == 'link_preview')
+    Bot::Smooch.format_template_message(self.whatsapp_template_name, params, file_url, self.build_content, self.language, file_type, preview_url)
   end
 
   def self.convert_header_file(id)
