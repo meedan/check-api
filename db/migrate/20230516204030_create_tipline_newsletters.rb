@@ -20,6 +20,7 @@ class CreateTiplineNewsletters < ActiveRecord::Migration[5.2]
       t.datetime :last_sent_at
       t.datetime :last_scheduled_at
       t.integer :last_scheduled_by_id
+      t.string :last_delivery_error
       t.string :language, null: false
       t.boolean :enabled, null: false, default: false
       t.references :team, null: false, index: true

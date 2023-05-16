@@ -63403,6 +63403,20 @@
               "deprecationReason": null
             },
             {
+              "name": "last_error",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "last_scheduled_at",
               "description": null,
               "args": [

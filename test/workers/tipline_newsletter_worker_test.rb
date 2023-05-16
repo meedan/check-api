@@ -69,4 +69,9 @@ class TiplineNewsletterWorkerTest < ActiveSupport::TestCase
 
     assert_equal 2, CheckStatistics.number_of_newsletters_sent(@team.id, Time.parse('2023-01-01'), Time.parse('2023-03-01'), 'en')
   end
+
+  test "should skip sending newsletter if RSS content can't be loaded" do
+    TiplineNewsletter.any_instance.stubs(:content_has_changed?).raises(RssFeed::RssLoadError)
+    assert_equal 0, TiplineNewsletterWorker.new.perform(@team.id, 'en')
+  end
 end

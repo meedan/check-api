@@ -217,6 +217,7 @@ class TiplineNewsletter < ApplicationRecord
     if self.enabled_was == false && self.enabled == true
       self.last_scheduled_by_id = User.current&.id
       self.last_scheduled_at = Time.now
+      self.last_delivery_error = nil
     end
   end
 

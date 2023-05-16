@@ -9,11 +9,20 @@ class TiplineNewsletterWorker
     count = 0
     return count if tbi.nil? || newsletter.nil? || !newsletter.enabled
 
-    # For RSS newsletter, if content hasn't changed, don't send the newsletter (actually, pause it)
-    if newsletter.content_type == 'rss' && !newsletter.content_has_changed?
+    # For RSS newsletter, if content hasn't changed or RSS can't be loaded, don't send the newsletter (actually, pause it)
+    begin
+      if newsletter.content_type == 'rss' && !newsletter.content_has_changed?
+        newsletter.enabled = false
+        newsletter.last_delivery_error = 'CONTENT_HASNT_CHANGED'
+        newsletter.save!
+        log team_id, language, "RSS newsletter not sent because the content hasn't changed"
+        return count
+      end
+    rescue RssFeed::RssLoadError
       newsletter.enabled = false
+      newsletter.last_delivery_error = 'RSS_ERROR'
       newsletter.save!
-      log team_id, language, "RSS newsletter not sent because the content hasn't changed"
+      log team_id, language, "RSS newsletter not sent because RSS feed could not be loaded from #{newsletter.rss_feed_url}"
       return count
     end
 
