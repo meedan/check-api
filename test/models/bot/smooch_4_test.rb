@@ -426,7 +426,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     output = "Foo\nhttp://foo\n\nBar\nhttp://bar"
     assert_equal output, Bot::Smooch.render_articles_from_rss_feed(url)
     WebMock.stub_request(:get, url).to_return(status: 404, body: 'not valid RSS')
-    assert_raises OpenURI::HTTPError do
+    assert_raises RssFeed::RssLoadError do
       Bot::Smooch.render_articles_from_rss_feed(url)
     end
   end
