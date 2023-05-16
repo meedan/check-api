@@ -35,5 +35,5 @@ TiplineNewsletterType = GraphqlCrudOperations.define_default_type do
   field :last_scheduled_at, types.Int
   field :last_scheduled_by, UserType
   field :last_sent_at, types.Int
-  field :last_error, types.String
+  field :last_delivery_error, types.String
 end

@@ -63403,7 +63403,7 @@
               "deprecationReason": null
             },
             {
-              "name": "last_error",
+              "name": "last_delivery_error",
               "description": null,
               "args": [
 
