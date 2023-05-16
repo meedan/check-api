@@ -7,7 +7,7 @@ class TiplineNewsletter < ApplicationRecord
 
   belongs_to :team
   has_many :tipline_newsletter_deliveries
-  has_paper_trail on: [:create, :destroy], save_changes: true, ignore: [:updated_at, :created_at], versions: { class_name: 'Version' }
+  has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at], versions: { class_name: 'Version' }, if: proc { |_x| User.current.present? }
   has_shortened_urls
 
   mount_uploader :header_file, FileUploader
@@ -168,6 +168,7 @@ class TiplineNewsletter < ApplicationRecord
     newsletter.update_column(:header_media_url, new_url) unless new_url.nil?
   end
 
+  # Converts an audio or video file to a video with the specific codecs supported by WhatsApp
   def convert_header_file_audio_or_video(type)
     options = nil
     if type == 'audio'
