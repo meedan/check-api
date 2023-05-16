@@ -6,8 +6,7 @@ class TiplineNewsletterWorker
   def perform(team_id, language, job_created_at = 0)
     tbi = TeamBotInstallation.where(user_id: BotUser.smooch_user&.id.to_i, team_id: team_id.to_i).last
     newsletter = Bot::Smooch.get_newsletter(team_id, language)
-    count = 0
-    return count if tbi.nil? || newsletter.nil? || !newsletter.enabled
+    return 0 if tbi.nil? || !newsletter&.enabled
 
     # For RSS newsletter, if content hasn't changed or RSS can't be loaded, don't send the newsletter (actually, pause it)
     begin
@@ -16,23 +15,24 @@ class TiplineNewsletterWorker
         newsletter.last_delivery_error = 'CONTENT_HASNT_CHANGED'
         newsletter.save!
         log team_id, language, "RSS newsletter not sent because the content hasn't changed"
-        return count
+        return 0
       end
     rescue RssFeed::RssLoadError
       newsletter.enabled = false
       newsletter.last_delivery_error = 'RSS_ERROR'
       newsletter.save!
       log team_id, language, "RSS newsletter not sent because RSS feed could not be loaded from #{newsletter.rss_feed_url}"
-      return count
+      return 0
     end
 
     # For static newsletter, ignore if there is a newer scheduled newsletter
     if newsletter.content_type == 'static' && newsletter.updated_at.to_i > job_created_at
       log team_id, language, "Static newsletter not sent because it was rescheduled"
-      return count
+      return 0
     end
 
     # Send newsletter
+    count = 0
     log team_id, language, 'Preparing newsletter to be sent...'
     start = Time.now
     TiplineSubscription.where(language: language, team_id: team_id).find_each do |ts|
