@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_05_06_195729) do
+ActiveRecord::Schema.define(version: 2023_05_15_204040) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -648,30 +648,30 @@ ActiveRecord::Schema.define(version: 2023_05_06_195729) do
   end
 
   create_table "tipline_newsletters", force: :cascade do |t|
-    t.string "introduction", null: false
     t.string "header_type", default: "none", null: false
     t.string "header_file"
     t.string "header_overlay_text"
+    t.string "header_media_url"
+    t.string "introduction", null: false
+    t.string "content_type", default: "static", null: false
     t.string "rss_feed_url"
     t.text "first_article"
     t.text "second_article"
     t.text "third_article"
     t.integer "number_of_articles", default: 0, null: false
+    t.string "footer"
     t.string "send_every"
+    t.date "send_on"
     t.string "timezone"
     t.time "time"
     t.datetime "last_sent_at"
+    t.datetime "last_scheduled_at"
+    t.integer "last_scheduled_by_id"
     t.string "language", null: false
     t.boolean "enabled", default: false, null: false
     t.bigint "team_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "footer"
-    t.integer "last_scheduled_by_id"
-    t.datetime "last_scheduled_at"
-    t.date "send_on"
-    t.string "content_type", default: "static", null: false
-    t.string "header_media_url"
     t.index ["team_id", "language"], name: "index_tipline_newsletters_on_team_id_and_language", unique: true
     t.index ["team_id"], name: "index_tipline_newsletters_on_team_id"
   end
