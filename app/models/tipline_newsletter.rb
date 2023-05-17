@@ -18,7 +18,8 @@ class TiplineNewsletter < ApplicationRecord
 
   validates_presence_of :time, :timezone
   validates_presence_of :introduction, :team, :language
-  validates_format_of :rss_feed_url, with: URI.regexp, allow_blank: true, allow_nil: true
+  validates_presence_of :send_on, if: ->(newsletter) { newsletter.content_type == 'static' }
+  validates_format_of :rss_feed_url, with: URI.regexp, if: ->(newsletter) { newsletter.content_type == 'rss' }
   validates_inclusion_of :number_of_articles, in: 0..3, allow_blank: true, allow_nil: true
   validates_inclusion_of :language, in: ->(newsletter) { newsletter.team.get_languages.to_a }
   validates_inclusion_of :header_type, in: ['none', 'link_preview', 'audio', 'video', 'image']

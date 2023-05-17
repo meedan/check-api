@@ -179,9 +179,10 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
   end
 
   test 'should have a valid content type' do
-    @newsletter.content_type = 'static'
-    assert @newsletter.valid?
     @newsletter.content_type = 'rss'
+    assert @newsletter.valid?
+    @newsletter.content_type = 'static'
+    @newsletter.send_on = Date.parse('2023-01-25')
     assert @newsletter.valid?
     @newsletter.content_type = 'foo'
     assert !@newsletter.valid?
