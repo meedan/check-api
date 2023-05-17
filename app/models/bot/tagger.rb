@@ -6,7 +6,7 @@ class Bot::Tagger < BotUser
   end
 
   def self.get_tag_text(tag_id,auto_tag_prefix,ignore_autotags)
-    tag=TagText.find_by_id(tag_id).text
+    tag=TagText.find_by_id(tag_id)&.text
     if tag.nil? || (ignore_autotags && tag[0]==auto_tag_prefix)
       return nil
     else
@@ -14,10 +14,16 @@ class Bot::Tagger < BotUser
     end
   end
 
+  def self.log(message, pm_id = nil, level = Logger::INFO)
+    prefix = "[AutoTagger Bot] "
+    prefix += "[ProjectMedia ##{pm_id}] " if pm_id
+    Rails.logger.log(level, "#{prefix} #{message}")
+  end
+
   def self.run(body)
-    Rails.logger.info("[AutoTagger Bot] Received event with body of #{body}")
+    self.log("Received event with body of #{body}", level = Logger::INFO)
     if CheckConfig.get('alegre_host').blank?
-      Rails.logger.warn("[AutoTagger Bot] Skipping events because `alegre_host` config is blank")
+      self.log("Skipping events because `alegre_host` config is blank", level = Logger::DEBUG)
       return false
     end
 
@@ -30,33 +36,44 @@ class Bot::Tagger < BotUser
       ignore_autotags=settings["ignore_autotags"]
       pm = ProjectMedia.where(id: body.dig(:data, :dbid)).last
       if body.dig(:event) == 'create_project_media' && !pm.nil?
-        Rails.logger.info("[AutoTagger Bot] [ProjectMedia ##{pm.id}] This item was just created, processing...")
+        self.log("This item was just created, processing...", pm_id = pm.id, level = Logger::INFO)
+        # Search all text fields for all items in the workspace using only the cofigured vector model
+        # The ProjectMedia's title is the query
+        # Do not use Elasticsearch. The threshold to use comes from the Tagger bot settings.
+        # Method signature: get_items_with_similar_text(pm, fields, threshold, query_text, models, team_ids = [pm&.team_id])
         results=Bot::Alegre.get_items_with_similar_text(pm, Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS,
           [{ value: threshold }], pm.title, [Bot::Alegre.matching_model_to_use(pm.team_id)].flatten.reject{|m| m==Bot::Alegre::ELASTICSEARCH_MODEL})
-        Rails.logger.info("[AutoTagger Bot] [ProjectMedia ##{pm.id}] #{results.length} nearest neighbors #{results.keys()}")
-        Rails.logger.info("[AutoTagger Bot] [ProjectMedia ##{pm.id}] Results: #{results}")
-        tag_counts=results.map{|nn_pm,_| ProjectMedia.find(nn_pm).get_annotations('tag')}.flatten.map{|t| self.get_tag_text(t[:data][:tag],auto_tag_prefix,ignore_autotags)}.group_by(&:itself).transform_values(&:count)
-        tag_counts=tag_counts.reject{|t|t==nil}.sort_by{|_k,v| v}
-        Rails.logger.info("[AutoTagger Bot] [ProjectMedia ##{pm.id}] Tag distribution #{tag_counts}")
+        self.log("#{results.length} nearest neighbors #{results.keys()}", pm_id = pm.id, level = Logger::INFO)
+        self.log("Results: #{results}", pm_id = pm.id, level = Logger::INFO)
+
+        # For each nearest neighbor, get the tags.
+        tag_counts=results.map{|nn_pm,_| ProjectMedia.find(nn_pm).get_annotations('tag')}.flatten
+        # Transform from tag objects to strings and counts
+        tag_counts=tag_counts.map{|t| self.get_tag_text(t[:data][:tag],auto_tag_prefix,ignore_autotags)}.group_by(&:itself).transform_values(&:count)
+        # Reject any nil tags
+        tag_counts=tag_counts.reject{|k,_v|k==nil}.sort_by{|_k,v| v}
+        # tag_counts is now an array of arrays with counts e.g., [['nature', 1], ['sport', 2]]
+        self.log("Tag distribution #{tag_counts}", pm_id = pm.id, level = Logger::INFO)
         if tag_counts.length > 0
           max_count=tag_counts.last[1]
           if max_count<settings["minimum_count"]
-            Rails.logger.info("[AutoTagger Bot] [ProjectMedia ##{pm.id}] Max count #{max_count} is less than minimum required to apply a tag")
+            self.log("Max count #{max_count} is less than minimum required to apply a tag", pm_id = pm.id, level = Logger::INFO)
             return false
           end
           most_common_tags=tag_counts.reject{|_k,v| v < max_count}
-          Rails.logger.info("[AutoTagger Bot] [ProjectMedia ##{pm.id}] Most common tags #{most_common_tags}")
+          self.log("Most common tags #{most_common_tags}", pm_id = pm.id, level = Logger::INFO)
           most_common_tags.each do |tag|
             Tag.create!(annotated:pm, annotator: BotUser.get_user('tagger'), tag: auto_tag_prefix+tag[0])
           end
         else
-          Rails.logger.info("[AutoTagger Bot] [ProjectMedia ##{pm.id}] No most common tag")
+          self.log("No most common tag", pm_id = pm.id, level = Logger::INFO)
         end
         handled = true
       end
     rescue StandardError => e
-      Rails.logger.error("[AutoTagger Bot] Exception for event `#{body['event']}`: #{e.message}")
-      CheckSentry.notify(e, bot: self.name, body: body)
+      error = Error.new(e)
+      Rails.logger.error("[AutoTagger Bot] Exception for event `#{body['event']}`: #{error.class} - #{error.message}")
+      CheckSentry.notify(error, bot: self.name, body: body)
     end
 
     handled
