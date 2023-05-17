@@ -1,5 +1,5 @@
-namespace :check
-  namespace :migrate
+namespace :check do
+  namespace :migrate do
     task add_newsletter_template_names_to_smooch_bot: :environment do |_t, _args|
       tb = BotUser.smooch_user
       unless tb.nil?
