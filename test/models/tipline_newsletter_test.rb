@@ -219,6 +219,39 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     end
   end
 
+  test 'should delete temporary files even if cannot convert image header file' do
+    WebMock.stub_request(:get, /:9000/).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
+    WebMock.stub_request(:get, /#{CheckConfig.get('narcissus_url')}/).to_return(body: 'ERROR')
+    TiplineNewsletter.any_instance.stubs(:new_file_uploaded?).returns(true)
+    Sidekiq::Testing.inline! do
+      newsletter = create_tipline_newsletter header_type: 'image', header_file: 'rails.png', header_overlay_text: 'Test'
+      temp_name = 'temp-' + newsletter.id.to_s + '-' + newsletter.language + '.html'
+      assert !File.exist?(File.join(Rails.root, 'public', 'newsletter', temp_name))
+      assert !CheckS3.exist?("newsletter/#{temp_name}")
+    end
+  end
+
+  test 'should pass file type and URL to template only if header type is a media' do
+    WebMock.stub_request(:get, /:9000/).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
+    WebMock.stub_request(:get, /#{CheckConfig.get('narcissus_url')}/).to_return(body: '{"url":"http://screenshot/test/test.png"}')
+    TiplineNewsletter.any_instance.stubs(:new_file_uploaded?).returns(true)
+    Bot::Smooch.stubs(:config).returns({ 'smooch_template_namespace' => 'test' })
+    Sidekiq::Testing.inline! do
+      newsletter = create_tipline_newsletter header_type: 'image', header_file: 'rails.png', content_type: 'static', header_overlay_text: 'Test'
+      assert_match /header_image/, newsletter.reload.format_as_template_message
+    end
+  end
+
+  test 'should delete temporary files even if cannot convert audio or video header file' do
+    WebMock.stub_request(:get, /:9000/).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp4')))
+    TiplineNewsletter.any_instance.stubs(:new_file_uploaded?).returns(true)
+    FFMPEG::Movie.any_instance.stubs(:transcode).raises(StandardError)
+    Sidekiq::Testing.inline! do
+      newsletter = create_tipline_newsletter header_type: 'video', header_file: 'rails.mp4'
+      assert_nil newsletter.reload.header_media_url
+    end
+  end
+
   test 'should format RSS newsletter time as cron' do
     # Offset
     newsletter = TiplineNewsletter.new(

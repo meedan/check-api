@@ -1,5 +1,12 @@
 class TiplineNewsletter < ApplicationRecord
   SCHEDULE_DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+  HEADER_TYPE_MAPPING = {
+    'none' => 'none',
+    'image' => 'image',
+    'video' => 'video',
+    'audio' => 'video', # WhatsApp doesn't support audio header, so we convert it to video
+    'link_preview' => 'none'
+  }
 
   include TiplineNewsletterImage
   include TiplineNewsletterVideo
@@ -112,13 +119,7 @@ class TiplineNewsletter < ApplicationRecord
 
   def whatsapp_template_name
     number = ['no', 'one', 'two', 'three'][self.articles.size]
-    type = {
-      'none' => 'none',
-      'image' => 'image',
-      'video' => 'video',
-      'audio' => 'video', # WhatsApp doesn't support audio header, so we convert it to video
-      'link_preview' => 'none'
-    }[self.header_type]
+    type = HEADER_TYPE_MAPPING[self.header_type]
     "newsletter_#{type}_#{number}_articles"
   end
 
@@ -146,8 +147,11 @@ class TiplineNewsletter < ApplicationRecord
 
   def format_as_template_message
     date = I18n.l(Time.now.to_date, locale: self.language.to_s.tr('_', '-'), format: :long)
-    file_url = ['image', 'audio', 'video'].include?(self.header_type) ? self.header_media_url : nil
-    file_type = { 'image' => 'image', 'video' => 'video', 'audio' => 'video' }[self.header_type]
+    file_url = file_type = nil
+    if ['image', 'audio', 'video'].include?(self.header_type)
+      file_url = self.header_media_url
+      file_type = HEADER_TYPE_MAPPING[self.header_type]
+    end
     params = [date, self.introduction, self.articles].flatten.reject{ |param| param.blank? }
     preview_url = (self.header_type == 'link_preview')
     Bot::Smooch.format_template_message(self.whatsapp_template_name, params, file_url, self.build_content, self.language, file_type, preview_url)
@@ -178,18 +182,27 @@ class TiplineNewsletter < ApplicationRecord
     elsif type == 'video'
       options = { video_codec: 'libx264', audio_codec: 'aac' }
     end
-    now = Time.now.to_i
-    input = File.open(File.join(Rails.root, 'tmp', "newsletter-#{type}-input-#{self.id}-#{now}"), 'wb')
-    input.puts(URI(self.header_file_url).open.read)
-    input.close
-    output_path = File.join(Rails.root, 'tmp', "newsletter-#{type}-output-#{self.id}-#{now}.mp4")
-    video = FFMPEG::Movie.new(input.path)
-    video.transcode(output_path, options)
-    path = "newsletter/video/newsletter-#{type}-#{self.id}-#{now}"
-    CheckS3.write(path, 'video/mp4', File.read(output_path))
-    FileUtils.rm_f input.path
-    FileUtils.rm_f output_path
-    CheckS3.public_url(path)
+    url = nil
+    input = nil
+    output_path = nil
+    begin
+      now = Time.now.to_i
+      input = File.open(File.join(Rails.root, 'tmp', "newsletter-#{type}-input-#{self.id}-#{now}"), 'wb')
+      input.puts(URI(self.header_file_url).open.read)
+      input.close
+      output_path = File.join(Rails.root, 'tmp', "newsletter-#{type}-output-#{self.id}-#{now}.mp4")
+      video = FFMPEG::Movie.new(input.path)
+      video.transcode(output_path, options)
+      path = "newsletter/video/newsletter-#{type}-#{self.id}-#{now}"
+      CheckS3.write(path, 'video/mp4', File.read(output_path))
+      url = CheckS3.public_url(path)
+    rescue StandardError => e
+      CheckSentry.notify(e)
+    ensure
+      FileUtils.rm_f input.path
+      FileUtils.rm_f output_path
+    end
+    url
   end
 
   private

@@ -52,13 +52,14 @@ class TiplineNewsletterWorker
     finish = Time.now
 
     # Save a delivery event for this newsletter
-    TiplineNewsletterDelivery.create!({
+    event_saved = TiplineNewsletterDelivery.create({
       recipients_count: count,
       content: newsletter.build_content,
       started_sending_at: start,
       finished_sending_at: finish,
       tipline_newsletter: newsletter
     })
+    CheckSentry.notify(TiplineNewsletterDeliveryError.new("Could not save delivery event for newsletter #{newsletter.id}")) unless event_saved
 
     # Save the last time this newsletter was sent
     newsletter.update_column(:last_sent_at, Time.now)
