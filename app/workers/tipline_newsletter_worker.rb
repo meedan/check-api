@@ -4,9 +4,9 @@ class TiplineNewsletterWorker
   sidekiq_options queue: 'smooch_priority', retry: 0
 
   def perform(team_id, language, job_created_at = 0)
-    tbi = TeamBotInstallation.where(user_id: BotUser.smooch_user&.id.to_i, team_id: team_id.to_i).last
+    tbi = TeamBotInstallation.where(user_id: BotUser.smooch_user.id, team_id: team_id.to_i).last
     newsletter = Bot::Smooch.get_newsletter(team_id, language)
-    return 0 if tbi.nil? || !newsletter&.enabled
+    return 0 unless newsletter&.enabled
 
     # For RSS newsletter, if content hasn't changed or RSS can't be loaded, don't send the newsletter (actually, pause it)
     begin
