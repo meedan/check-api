@@ -315,7 +315,7 @@ class GraphqlController9Test < ActionController::TestCase
   end
 
   test "should create tipline newsletter" do
-    query = 'mutation create { createTiplineNewsletter(input: { clientMutationId: "1", introduction: "Test", language: "en", time: "10:00", send_every: ["monday"], timezone: "America/Los_Angeles" }) { tipline_newsletter { id, time, send_on, enabled } } }'
+    query = 'mutation create { createTiplineNewsletter(input: { clientMutationId: "1", content_type: "rss", rss_feed_url: "https://meedan.com/feed.xml", introduction: "Test", language: "en", time: "10:00", send_every: ["monday"], timezone: "America/Los_Angeles" }) { tipline_newsletter { id, time, send_on, enabled } } }'
     assert_difference 'TiplineNewsletter.count' do
       post :create, params: { query: query, team: @t.slug }
     end
@@ -331,12 +331,12 @@ class GraphqlController9Test < ActionController::TestCase
   end
 
   test "should return tipline newsletter errors as an array" do
-    query = 'mutation create { createTiplineNewsletter(input: { clientMutationId: "1", language: "en", time: "10:00", send_every: ["holiday"], timezone: "America/Los_Angeles" }) { tipline_newsletter { id, time, send_on, enabled } } }'
+    query = 'mutation create { createTiplineNewsletter(input: { clientMutationId: "1", content_type: "rss", language: "en", time: "10:00", send_every: ["holiday"], timezone: "America/Los_Angeles" }) { tipline_newsletter { id, time, send_on, enabled } } }'
     assert_no_difference 'TiplineNewsletter.count' do
       post :create, params: { query: query, team: @t.slug }
     end
     assert_response 400
-    assert_equal ['introduction', 'send_every'], JSON.parse(@response.body)['errors'][0]['data'].keys.sort
+    assert_equal ['introduction', 'rss_feed_url', 'send_every'], JSON.parse(@response.body)['errors'][0]['data'].keys.sort
   end
 
   test "should update team link management settings" do
