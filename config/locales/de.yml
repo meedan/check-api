@@ -1,2 +1,24 @@
 ---
-de: {}
+de:
+  devise:
+    mailer:
+      reset_password_instructions:
+        subject: "%{app_name} Anweisungen zum Zurücksetzen des Passworts"
+        header_title: Anfrage zum Zurücksetzen des Passworts
+        header_text: Wir haben Ihre Anfrage zum Zurücksetzen Ihres %{app_name} Passworts erhalten.
+        action: Setze dein Passwort zurück
+        expiry: Diese Anfrage läuft in %{expire} Stunden ab.
+        instruction_1: Klicken Sie hier, um eine neue Anfrage zu stellen.
+        instruction_2: Wenn Sie diese Anfrage nicht gestellt haben oder Schwierigkeiten beim Zurücksetzen haben
+          Um Ihr Passwort einzugeben, kontaktieren Sie uns bitte unter %{support_email}.
+      invitation_instructions:
+        subject: "%{user} habe Sie zum Mitmachen eingeladen arbeitsplatz %{team}"
+        hello: Hallo %{name}
+        someone_invited_you_default:
+          html: "%{name} hat Sie zum Mitmachen eingeladen arbeitsplatz %{team} als %{role}."
+        someone_invited_you_custom:
+          html: "%{name} hat Sie zum Mitmachen eingeladen arbeitsplatz %{team} als %{role}, Sprichwort:"
+        accept: Die Einladung annehmen
+        accept_until: Diese Einladung läuft am ab %{due_date}.
+        ignore: Wenn Sie die Einladung nicht annehmen möchten, ignorieren Sie diese E-Mail bitte.
+        app_team: "%{app} Arbeitsplatz"
