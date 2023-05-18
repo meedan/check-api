@@ -4,8 +4,9 @@ class TiplineNewsletterWorker
   sidekiq_options queue: 'smooch_priority', retry: 0
 
   def perform(team_id, language, job_created_at = 0)
+    tbi = TeamBotInstallation.where(user_id: BotUser.smooch_user&.id.to_i, team_id: team_id.to_i).last
     newsletter = Bot::Smooch.get_newsletter(team_id, language)
-    return 0 unless newsletter&.enabled
+    return 0 if tbi.nil? || !newsletter&.enabled
 
     # For RSS newsletter, if content hasn't changed or RSS can't be loaded, don't send the newsletter (actually, pause it)
     begin
@@ -34,12 +35,11 @@ class TiplineNewsletterWorker
     count = 0
     log team_id, language, 'Preparing newsletter to be sent...'
     start = Time.now
-    tbi = TeamBotInstallation.where(user_id: BotUser.smooch_user&.id.to_i, team_id: team_id.to_i).last
     TiplineSubscription.where(language: language, team_id: team_id).find_each do |ts|
       log team_id, language, "Sending newsletter to subscriber ##{ts.id}..."
       begin
         RequestStore.store[:smooch_bot_platform] = ts.platform
-        Bot::Smooch.get_installation { |i| i.id == tbi&.id }
+        Bot::Smooch.get_installation { |i| i.id == tbi.id }
 
         response = Bot::Smooch.send_message_to_user(ts.uid, newsletter.format_as_template_message)
 
@@ -52,14 +52,7 @@ class TiplineNewsletterWorker
     finish = Time.now
 
     # Save a delivery event for this newsletter
-    event_saved = TiplineNewsletterDelivery.create({
-      recipients_count: count,
-      content: newsletter.build_content,
-      started_sending_at: start,
-      finished_sending_at: finish,
-      tipline_newsletter: newsletter
-    })
-    CheckSentry.notify(TiplineNewsletterDeliveryError.new("Could not save delivery event for newsletter #{newsletter.id}")) unless event_saved
+    save_delivery_event(newsletter, count, start, finish)
 
     # Save the last time this newsletter was sent
     newsletter.update_column(:last_sent_at, Time.now)
@@ -76,5 +69,16 @@ class TiplineNewsletterWorker
 
   def log(team_id, language, message)
     logger.info "[Smooch Bot] [Newsletter] [Team ##{team_id}] [Language #{language}] [#{Time.now}] #{message}"
+  end
+
+  def save_delivery_event(newsletter, count, start, finish)
+    event = TiplineNewsletterDelivery.new({
+      recipients_count: count,
+      content: newsletter.build_content,
+      started_sending_at: start,
+      finished_sending_at: finish,
+      tipline_newsletter: newsletter
+    })
+    CheckSentry.notify(TiplineNewsletterDeliveryError.new("Could not save delivery event for newsletter #{newsletter.id}")) unless event.save
   end
 end
