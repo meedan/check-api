@@ -49,7 +49,7 @@ TeamBotInstallationType = GraphqlCrudOperations.define_default_type do
     resolve -> (obj, args, ctx) do
       return nil unless obj.bot_user.login == 'smooch'
       ability = ctx[:ability] || Ability.new
-      if ability.can?(:preview_rss_feed, Team.current)
+      if ability.can?(:preview_rss_feed, Team.current) && !args[:rss_feed_url].blank?
         Bot::Smooch.render_articles_from_rss_feed(args[:rss_feed_url], args[:number_of_articles])
       else
         I18n.t(:cant_preview_rss_feed)
