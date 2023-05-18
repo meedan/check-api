@@ -22,3 +22,69 @@ de:
         accept_until: Diese Einladung läuft am ab %{due_date}.
         ignore: Wenn Sie die Einladung nicht annehmen möchten, ignorieren Sie diese E-Mail bitte.
         app_team: "%{app} Arbeitsplatz"
+  mails_notifications:
+    greeting: Hallo %{username},
+    greeting_anonymous: Hallo!
+    project_view: Ordner anzeigen
+    unsubscribe: Abbestellen
+    unsubscribe_link: "%{unsubscribe} aus diesen Benachrichtigungen"
+    copyright_html: '%{app_name} von <a href="https://meedan.com">Meedan</a>'
+    register:
+      subject: Neues Konto für Sie %{app_name}
+      header_text: |-
+        Sie haben sich erfolgreich angemeldet %{app_name}!
+        <br>
+        Um sich auf der Website anzumelden, folgen Sie einfach diesem Link: %{url}. Geben Sie diese E-Mail-Adresse und dieses Passwort ein: %{password}
+      login_button: Einloggen in %{app_name}
+      footer_text: Vielen Dank für Ihre Teilnahme und einen schönen Tag!
+    duplicated:
+      subject: Ihre Anmeldemethode für %{app_name}
+      header_title: Doppeltes Konto
+      one_email: |-
+        <p>Dies ist nur eine freundliche Erinnerung, um sicherzustellen, dass Sie angemeldet sind %{app_name}.</p>
+         <p>Was ist passiert: Sie haben versucht, sich bei %{app_name} mit einem %{user_provider}-basierten Konto anzumelden, das mit %{user_email} verknüpft ist.
+         Diese E-Mail-Adresse ist jedoch bereits mit einem %{duplicate_provider}-basierten Konto in %{app_name} verknüpft.</p>
+         <p>Was als nächstes zu tun ist: Melden Sie sich mit %{duplicate_provider} an.</p>
+         <p>Dann werden Sie mit dem Konto angemeldet, das Sie zuvor verwendet haben.
+         Wenn Sie weitere Hilfe benötigen, senden Sie bitte eine E-Mail an %{support_email}.</p>
+      both_emails: |-
+       <p>Dies ist nur eine freundliche Erinnerung, um sicherzustellen, dass Sie bei %{app_name} angemeldet sind.</p>
+         <p>Was ist passiert: Sie haben versucht, ein neues E-Mail-Konto auf %{app_name} zu erstellen, aber dieses Konto existiert bereits.</p>
+         <p>Versuchen Sie, sich mit Ihrer E-Mail-Adresse und Ihrem Passwort anzumelden, anstatt ein neues Konto zu erstellen.</p>
+         <p>Dann werden Sie mit dem Konto angemeldet, das Sie zuvor verwendet haben. Wenn Sie weitere Hilfe benötigen, senden Sie bitte eine E-Mail an %{support_email}.</p>
+      email: email
+    invitation:
+      title: Neue Einladung
+    delete_user:
+      subject: "[%{team}] Ein Benutzer wurde gelöscht"
+      header_title: Benutzer gelöscht
+      header_text: Ein Benutzerkonto wurde gelöscht und dessen Inhalt neu zugewiesen %{anonymous}
+        Benutzer %{id}
+      anonymous: anonym
+  mail_security:
+    device_subject: 'Sicherheitswarnung: Neue Anmeldung bei %{app_name} von %{browser} auf %{platform}'
+    ip_subject: 'Sicherheitswarnung: Neue oder ungewöhnliche %{app_name} Anmeldung'
+    failed_subject: 'Sicherheitswarnung: Fehlgeschlagene Anmeldeversuche %{app_name}'
+    ip: Sie haben sich angemeldet von %{location}
+    device: Sie haben sich angemeldet von %{browser} An %{platform}
+    devise_name: "%{browser} An %{platform}"
+    failed: Es wurden fehlgeschlagene Anmeldeversuche festgestellt
+    password_text: Setzen Sie Ihr Passwort sofort zurück.
+    device_text: Anscheinend haben Sie sich kürzlich bei Ihrem %{app_name}-Konto angemeldet
+       ein neues Gerät. Wenn das nicht Sie waren, sollten Sie %{change_password}
+    ip_text: Anscheinend haben Sie sich kürzlich bei Ihrem %{app_name}-Konto angemeldet
+       einen neuen Standort. Wenn das nicht Sie waren, sollten Sie %{change_password}
+    failed_text: Es sieht so aus, als ob mehrere Versuche unternommen wurden, sich bei Ihrem %{app_name} anzumelden
+       Konto. Wenn Sie das waren, können Sie diese E-Mail getrost ignorieren. Wenn das nicht der Fall wäre
+       Sie, dann sollten Sie %{change_password}
+    time_h: Zeit
+    device_h: Gerät
+    location_h: Standort
+    location_disclaimer: "* Der Standort ist eine ungefähre Angabe basierend auf der IP-Adresse, von der er stammt
+       aus."
+    ip_h: IP Address
+    privacy: "%{manage} your email notifications • Learn more about our %{privacy}"
+    privacy_text: Datenschutz Bestimmungen
+    manage_text: Verwalten
+    privace_manage_plain: Verwalten Sie Ihre E-Mail-Benachrichtigungen
+    privacy_plain: Verwalten Sie Ihre E-Mail-Benachrichtigungen
