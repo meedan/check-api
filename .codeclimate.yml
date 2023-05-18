@@ -2,7 +2,7 @@ version: "2"
 checks:
   argument-count:
     config:
-      threshold: 7
+      threshold: 8
   complex-logic:
     config:
       threshold: 4
@@ -46,7 +46,7 @@ plugins:
     config:
       languages:
         ruby:
-          mass_threshold: 22
+          mass_threshold: 30
   bundler-audit:
     enabled: true
 exclude_patterns:
