@@ -213,7 +213,7 @@ class TiplineNewsletter < ApplicationRecord
     if self.content_type == 'rss'
       Sidekiq::Cron::Job.create(name: name, cron: self.cron_notation, class: 'TiplineNewsletterWorker', args: [self.team_id, self.language, Time.now.to_i])
     elsif self.content_type == 'static'
-      TiplineNewsletterWorker.perform_at(self.scheduled_time, self.team_id, self.language, Time.now.to_i)
+      TiplineNewsletterWorker.perform_at(self.scheduled_time, self.team_id, self.language, Time.now.to_i) if self.scheduled_time > Time.now
     end
   end
 
