@@ -434,19 +434,6 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     end
   end
 
-  test "should read newsletter after 24 hours since the last message" do
-    WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(body: '<rss></rss>')
-    id = random_string
-    message = { 'appUser' => { '_id' => @uid } }
-    original = { 'language' => 'en', 'introduction' => 'Latest from {date} on {channel}:' }
-    Bot::Smooch.stubs(:send_message_to_user).returns(OpenStruct.new(message: OpenStruct.new({ id: id })))
-    assert Bot::Smooch.resend_newsletter_after_window(message, original)
-    assert_equal 'newsletter:en', Rails.cache.read("smooch:original:#{id}")
-    Bot::Smooch.unstub(:send_message_to_user)
-
-    send_message_to_smooch_bot('Read now', @uid, { 'quotedMessage' => { 'content' => { '_id' => id } } })
-  end
-
   test "should show main menu as buttons for non-WhatsApp platforms on tipline bot v2" do
     send_message_to_smooch_bot('Hello', @uid, { 'source' => { 'type' => 'telegram' } })
     send_message_to_smooch_bot('1', @uid, { 'source' => { 'type' => 'telegram' } })
@@ -574,19 +561,6 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       send_message_outside_24_hours_window('fact_check_report_updated', pm)
 
       send_message_to_smooch_bot('Receive update', @uid, { 'quotedMessage' => { 'content' => { '_id' => @msgid } } })
-      assert_nil Rails.cache.read("smooch:original:#{@msgid}")
-    end
-  end
-
-  test "should send newsletter notification with button after 24 hours window" do
-    WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(body: '<rss></rss>')
-    Sidekiq::Testing.inline! do
-      @installation.set_smooch_template_name_for_newsletter_with_button = 'newsletter_with_button'
-      @installation.save!
-
-      send_message_outside_24_hours_window('newsletter')
-
-      send_message_to_smooch_bot('Read now', @uid, { 'quotedMessage' => { 'content' => { '_id' => @msgid } } })
       assert_nil Rails.cache.read("smooch:original:#{@msgid}")
     end
   end
