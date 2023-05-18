@@ -55,7 +55,12 @@ module CheckStatistics
           nil
         end
       end.reject{ |t| t.blank? }.collect{ |t| Time.parse(t.to_s) }.select{ |t| t >= start_date && t <= end_date }.collect{ |t| t.to_s }.uniq
-      times.size
+      old_count = times.size
+
+      newsletter = TiplineNewsletter.where(team_id: team_id, language: language).last
+      new_count = newsletter.nil? ? 0 : TiplineNewsletterDelivery.where(tipline_newsletter: newsletter, created_at: start_date..end_date).count
+
+      old_count + new_count
     end
 
     def get_statistics(start_date, end_date, team_id, platform, language, tracing_attributes = {})
