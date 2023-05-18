@@ -99,7 +99,8 @@ class RelationshipTest < ActiveSupport::TestCase
       u = create_user
       create_team_user team: t, user: u, role: 'admin'
       with_current_user_and_team(u, t) do
-        pm_s = create_project_media team: t
+        # Try to create an item with title that trigger a version metadata error(CV2-2910)
+        pm_s = create_project_media team: t, quote: "Rahul Gandhi's interaction with Indian?param:test&Journalists Association in London"
         pm_t1 = create_project_media team: t
         pm_t2 = create_project_media team: t
         pm_t3 = create_project_media team: t
