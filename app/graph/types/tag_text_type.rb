@@ -1,10 +1,11 @@
-TagTextType = GraphqlCrudOperations.define_default_type do
-  name 'TagText'
-  description 'Tag text type'
+module Types
+  class TagTextType < DefaultObject
+    description 'Tag text type'
 
-  interfaces [NodeIdentification.interface]
+    implements GraphQL::Types::Relay::NodeField
 
-  field :dbid, types.Int
-  field :text, types.String
-  field :tags_count, types.Int
+    field :dbid, Integer, null: true
+    field :text, String, null: true
+    field :tags_count, Integer, null: true
+  end
 end

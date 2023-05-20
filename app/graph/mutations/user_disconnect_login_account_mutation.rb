@@ -7,7 +7,7 @@ UserDisconnectLoginAccountMutation = GraphQL::Relay::Mutation.define do
 
   return_field :success, types.Boolean
 
-  return_field :user, UserType
+  return_field :user, Types::UserType
 
   resolve -> (_root, inputs, _ctx) {
     user = User.current

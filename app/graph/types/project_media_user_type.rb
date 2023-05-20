@@ -1,12 +1,13 @@
-ProjectMediaUserType = GraphqlCrudOperations.define_default_type do
-  name 'ProjectMediaUser'
-  description 'A mapping between users and project medias'
+module Types
+  class ProjectMediaUserType < DefaultObject
+    description "A mapping between users and project medias"
 
-  interfaces [NodeIdentification.interface]
+    implements GraphQL::Types::Relay::NodeField
 
-  field :project_media_id, types.Int
-  field :user_id, types.Int
-  field :project_media, ProjectMediaType
-  field :user, UserType
-  field :read, types.Boolean
+    field :project_media_id, Integer, null: true
+    field :user_id, Integer, null: true
+    field :project_media, ProjectMediaType, null: true
+    field :user, UserType, null: true
+    field :read, Boolean, null: true
+  end
 end

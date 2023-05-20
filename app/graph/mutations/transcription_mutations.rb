@@ -2,8 +2,8 @@ module TranscriptionMutations
   TranscribeAudio = GraphQL::Relay::Mutation.define do
     name 'TranscribeAudio'
 
-    return_field :project_media, ProjectMediaType
-    return_field :annotation, DynamicType
+    return_field :project_media, Types::ProjectMediaType
+    return_field :annotation, Types::DynamicType
 
     input_field :id, !types.ID
 

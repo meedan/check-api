@@ -1,1 +1,5 @@
-FlagType = GraphqlCrudOperations.define_annotation_type('flag', { flag: 'str' })
+module Types
+  class FlagType < AnnotationObject
+    field :flag, String, null: true
+  end
+end

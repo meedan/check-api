@@ -1,47 +1,53 @@
-SourceType = GraphqlCrudOperations.define_default_type do
-  name 'Source'
-  description 'Source type'
+require "inclusions/task_and_annotation_fields"
 
-  interfaces [NodeIdentification.interface]
+module Types
+  class SourceType < DefaultObject
+    include ::TaskAndAnnotationFields
 
-  field :image, types.String
-  field :description, !types.String
-  field :name, !types.String
-  field :dbid, types.Int
-  field :user_id, types.Int
-  field :permissions, types.String
-  field :pusher_channel, types.String
-  field :lock_version, types.Int
-  field :medias_count, types.Int
-  field :accounts_count, types.Int
-  field :overridden, JsonStringType
-  field :archived, types.Int
+    description "Source type"
 
-  connection :accounts, -> { AccountType.connection_type } do
-    resolve ->(source, _args, _ctx) { source.accounts }
+    implements GraphQL::Types::Relay::NodeField
+
+    field :image, String, null: true
+    field :description, String, null: false
+    field :name, String, null: false
+    field :dbid, Integer, null: true
+    field :user_id, Integer, null: true
+    field :permissions, String, null: true
+    field :pusher_channel, String, null: true
+    field :lock_version, Integer, null: true
+    field :medias_count, Integer, null: true
+    field :accounts_count, Integer, null: true
+    field :overridden, Types::JsonString, null: true
+    field :archived, Integer, null: true
+
+    field :accounts, AccountType.connection_type, null: true, connection: true
+
+    def accounts
+      object.accounts
+    end
+
+    field :account_sources,
+          AccountSourceType.connection_type,
+          null: true,
+          connection: true
+
+    def account_sources
+      object.account_sources.order(id: :asc)
+    end
+
+    field :medias, ProjectMediaType.connection_type, null: true, connection: true
+
+    def medias
+      object.media
+    end
+
+    field :medias_count, Integer, null: true, resolve: ->(source, _args, _ctx) { source.medias_count }
+
+    field :collaborators, UserType.connection_type, null: true, connection: true
+
+    def collaborators
+      object.collaborators
+    end
   end
-
-  connection :account_sources, -> { AccountSourceType.connection_type } do
-    resolve ->(source, _args, _ctx) {
-      source.account_sources.order(id: :asc)
-    }
-  end
-
-  connection :medias, -> { ProjectMediaType.connection_type } do
-    resolve ->(source, _args, _ctx) { source.media }
-  end
-
-  field :medias_count, types.Int do
-    resolve -> (source, _args, _ctx) { source.medias_count }
-  end
-
-  connection :collaborators, -> { UserType.connection_type } do
-    resolve ->(source, _args, _ctx) { source.collaborators }
-  end
-
-  instance_exec :source, &GraphqlCrudOperations.field_annotations
-
-  instance_exec :source, &GraphqlCrudOperations.field_annotations_count
-
-  instance_exec :source, &GraphqlCrudOperations.field_tasks
 end

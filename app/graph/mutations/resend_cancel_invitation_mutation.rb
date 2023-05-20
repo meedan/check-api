@@ -7,7 +7,7 @@ ResendCancelInvitationMutation = GraphQL::Relay::Mutation.define do
 
   return_field :success, types.Boolean
 
-  return_field :team, TeamType
+  return_field :team, Types::TeamType
 
   resolve -> (_root, inputs, _ctx) {
     user = User.find_user_by_email(inputs[:email])

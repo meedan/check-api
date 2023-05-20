@@ -1,31 +1,32 @@
-AboutType = GraphQL::ObjectType.define do
-  name 'About'
-  description 'Information about the application'
-  interfaces [NodeIdentification.interface]
-  global_id_field :id
+module Types
+  class AboutType < DefaultObject
+    description "Information about the application"
 
-  field :name, types.String, 'Application name'
-  field :version, types.String, 'Application version'
-  field :upload_max_dimensions, types.String, 'Maximum image dimensions'
-  field :upload_min_dimensions, types.String, 'Minimum image dimensions'
-  field :languages_supported, types.String, 'Supported languages'
-  field :terms_last_updated_at, types.Int, 'Terms last update date'
+    implements GraphQL::Types::Relay::NodeField
 
-  field :upload_extensions, types[types.String], 'Allowed upload types'
-  field :file_extensions, types[types.String], 'Allowed file types'
-  field :video_extensions, types[types.String], 'Allowed video types'
-  field :audio_extensions, types[types.String], 'Allowed audio types'
+    field :name, String, "Application name", null: true
+    field :version, String, "Application version", null: true
+    field :upload_max_dimensions, String, "Maximum image dimensions", null: true
+    field :upload_min_dimensions, String, "Minimum image dimensions", null: true
+    field :languages_supported, String, "Supported languages", null: true
+    field :terms_last_updated_at, Integer, "Terms last update date", null: true
 
-  field :upload_max_size, types.String, 'Maximum upload size, in human-readable format'
-  field :file_max_size, types.String, 'Maximum file upload size, in human-readable format'
-  field :video_max_size, types.String, 'Maximum video upload size, in human-readable format'
-  field :audio_max_size, types.String, 'Maximum audio upload size, in human-readable format'
+    field :upload_extensions, [String, null: true], "Allowed upload types", null: true
+    field :file_extensions, [String, null: true], "Allowed file types", null: true
+    field :video_extensions, [String, null: true], "Allowed video types", null: true
+    field :audio_extensions, [String, null: true], "Allowed audio types", null: true
 
-  field :upload_max_size_in_bytes, types.Int, 'Maximum upload size, in bytes'
-  field :file_max_size_in_bytes, types.Int, 'Maximum file upload size, in bytes'
-  field :video_max_size_in_bytes, types.Int, 'Maximum video upload size, in bytes'
-  field :audio_max_size_in_bytes, types.Int, 'Maximum audio upload size, in bytes'
+    field :upload_max_size, String, "Maximum upload size, in human-readable format", null: true
+    field :file_max_size, String, "Maximum file upload size, in human-readable format", null: true
+    field :video_max_size, String, "Maximum video upload size, in human-readable format", null: true
+    field :audio_max_size, String, "Maximum audio upload size, in human-readable format", null: true
 
-  field :channels, JsonStringType, 'List check channels'
-  field :countries, JsonStringType, 'List of workspace countries'
+    field :upload_max_size_in_bytes, Integer, "Maximum upload size, in bytes", null: true
+    field :file_max_size_in_bytes, Integer, "Maximum file upload size, in bytes", null: true
+    field :video_max_size_in_bytes, Integer, "Maximum video upload size, in bytes", null: true
+    field :audio_max_size_in_bytes, Integer, "Maximum audio upload size, in bytes", null: true
+
+    field :channels, JsonString, "List check channels", null: true
+    field :countries, JsonString, "List of workspace countries", null: true
+  end
 end

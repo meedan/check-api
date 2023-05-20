@@ -1,26 +1,30 @@
-RootLevelType = GraphQL::ObjectType.define do
-  name 'RootLevel'
-  description 'Unassociated root object queries'
+module Types
+  class RootLevelType < BaseObject
+    description "Unassociated root object queries"
 
-  interfaces [NodeIdentification.interface]
+    implements GraphQL::Types::Relay::NodeField
+  
+    global_id_field :id
 
-  global_id_field :id
+    field :current_user, UserType, null: true
 
-  field :current_user, UserType do
-    resolve -> (_object, _args, _ctx) {
+    def current_user
       User.current
-    }
-  end
+    end
 
-  field :current_team, TeamType do
-    resolve -> (_object, _args, _ctx) {
+    field :current_team, TeamType, null: true
+
+    def current_team
       Team.current
-    }
-  end
+    end
 
-  connection :team_bots_listed, BotUserType.connection_type do
-    resolve -> (_object, _args, _ctx) {
+    field :team_bots_listed,
+          BotUserType.connection_type,
+          null: true,
+          connection: true
+
+    def team_bots_listed
       BotUser.listed
-    }
+    end
   end
 end

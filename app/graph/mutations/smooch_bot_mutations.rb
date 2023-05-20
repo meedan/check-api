@@ -6,7 +6,7 @@ module SmoochBotMutations
     input_field :set_fields, !types.String
 
     return_field :success, types.Boolean
-    return_field :annotation, AnnotationType
+    return_field :annotation, Types::AnnotationType
 
     resolve -> (_root, inputs, _ctx) {
       annotation = Dynamic.where(id: inputs[:id], annotation_type: 'smooch_user').last
@@ -27,7 +27,7 @@ module SmoochBotMutations
     input_field :integration_type, !types.String
     input_field :params, !types.String, 'JSON string with additional parameters specific for this integration'
 
-    return_field :team_bot_installation, TeamBotInstallationType
+    return_field :team_bot_installation, Types::TeamBotInstallationType
 
     resolve -> (_root, inputs, ctx) {
       _type_name, id = CheckGraphql.decode_id(inputs['team_bot_installation_id'])
@@ -43,7 +43,7 @@ module SmoochBotMutations
     input_field :team_bot_installation_id, !types.String
     input_field :integration_type, !types.String
 
-    return_field :team_bot_installation, TeamBotInstallationType
+    return_field :team_bot_installation, Types::TeamBotInstallationType
 
     resolve -> (_root, inputs, ctx) {
       _type_name, id = CheckGraphql.decode_id(inputs['team_bot_installation_id'])

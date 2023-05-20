@@ -1,30 +1,29 @@
-TeamTaskType = GraphqlCrudOperations.define_default_type do
-  name 'TeamTask'
-  description 'Team task type'
+module Types
+  class TeamTaskType < DefaultObject
+    description "Team task type"
 
-  interfaces [NodeIdentification.interface]
+    implements GraphQL::Types::Relay::NodeField
 
-  field :dbid, types.Int
-  field :label, types.String
-  field :description, types.String
-  field :options, JsonStringType
-  field :required, types.Boolean
-  field :team_id, types.Int
-  field :team, TeamType
-  field :json_schema, types.String
-  field :order, types.Int
-  field :fieldset, types.String
-  field :associated_type, types.String
-  field :show_in_browser_extension, types.Boolean
-  field :conditional_info, types.String
-  field :tasks_count, types.Int
-  field :tasks_with_answers_count, types.Int
+    field :dbid, Integer, null: true
+    field :label, String, null: true
+    field :description, String, null: true
+    field :options, Types::JsonString, null: true
+    field :required, Boolean, null: true
+    field :team_id, Integer, null: true
+    field :team, TeamType, null: true
+    field :json_schema, String, null: true
+    field :order, Integer, null: true
+    field :fieldset, String, null: true
+    field :associated_type, String, null: true
+    field :show_in_browser_extension, Boolean, null: true
+    field :conditional_info, String, null: true
+    field :tasks_count, Integer, null: true
+    field :tasks_with_answers_count, Integer, null: true
 
-  field :type do
-    type types.String
+    field :type, String, null: true
 
-    resolve -> (task, _args, _ctx) {
-      task.task_type
-    }
+    def type
+      object.task_type
+    end
   end
 end

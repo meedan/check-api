@@ -4,7 +4,7 @@ module OcrMutations
 
     input_field :id, !types.ID
 
-    return_field :project_media, ProjectMediaType
+    return_field :project_media, Types::ProjectMediaType
 
     resolve -> (_root, inputs, ctx) {
       pm = GraphqlCrudOperations.object_from_id_if_can(inputs['id'], ctx['ability'])

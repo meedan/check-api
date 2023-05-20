@@ -1,18 +1,18 @@
-AnnotationType = GraphqlCrudOperations.define_annotation_type('annotation', { content: 'str' }) do
-  field :project_media do
-    type ProjectMediaType
+module Types
+  class AnnotationType < AnnotationObject
+    field :annotation, String, null: true
 
-    resolve -> (annotation, _args, _ctx) { annotation.annotated_type == 'ProjectMedia' ? annotation.annotated : nil }
+    field :project_media, ProjectMediaType, null: true, resolve: ->(annotation, _args, _ctx) do
+      annotation.annotated if annotation.annotated_type == "ProjectMedia"
+    end
+
+    field :attribution, UserType.connection_type, null: true, connection: true, resolve: ->(annotation, _args, _ctx) {
+                ids = annotation.attribution.split(",").map(&:to_i)
+                User.where(id: ids)
+              }
+
+    field :lock_version, Integer, null: true
+
+    field :locked, Boolean, null: true
   end
-
-  connection :attribution, -> { UserType.connection_type } do
-    resolve ->(annotation, _args, _ctx) {
-      ids = annotation.attribution.split(',').map(&:to_i)
-      User.where(id: ids)
-    }
-  end
-
-  field :lock_version, types.Int
-
-  field :locked, types.Boolean
 end

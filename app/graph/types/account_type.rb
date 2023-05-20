@@ -1,30 +1,33 @@
-AccountType = GraphqlCrudOperations.define_default_type do
-  name 'Account'
-  description 'Account type'
+module Types
+  class AccountType < DefaultObject
+    description "Account type"
 
-  interfaces [NodeIdentification.interface]
+    implements GraphQL::Types::Relay::NodeField
 
-  field :data, types.String
-  field :dbid, types.Int
-  field :url, !types.String
-  field :provider, types.String
-  field :uid, types.String
-  field :user_id, types.Int
-  field :permissions, types.String
-  field :image, types.String
-  field :user do
-    type UserType
+    field :data, String, null: true
+    field :dbid, Integer, null: true
+    field :url, String, null: false
+    field :provider, String, null: true
+    field :uid, String, null: true
+    field :user_id, Integer, null: true
+    field :permissions, String, null: true
+    field :image, String, null: true
+    field :user, UserType, null: true
 
-    resolve -> (account, _args, _ctx) { account.user }
-  end
+    def user
+      object.user
+    end
 
-  connection :medias, -> { MediaType.connection_type } do
-    resolve -> (account, _args, _ctx) { account.medias }
-  end
+    field :medias, MediaType.connection_type, null: true, connection: true
 
-  field :metadata do
-    type JsonStringType
+    def medias
+      object.medias
+    end
 
-    resolve ->(account, _args, _ctx) { account.metadata }
+    field :metadata, JsonString, null: true
+
+    def metadata
+      object.metadata
+    end
   end
 end

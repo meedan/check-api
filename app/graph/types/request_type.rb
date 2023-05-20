@@ -1,49 +1,46 @@
-RequestType = GraphqlCrudOperations.define_default_type do
-  name 'Request'
-  description 'Request type'
+module Types
+  class RequestType < DefaultObject
+    description 'Request type'
 
-  interfaces [NodeIdentification.interface]
+    implements GraphQL::Types::Relay::NodeField
 
-  field :dbid, types.Int
-  field :last_submitted_at, types.Int
-  field :request_type, types.String
-  field :content, types.String
-  field :last_called_webhook_at, types.String
-  field :fact_checked_by, types.String
-  field :subscribed, types.Boolean
-  field :medias_count, types.Int
-  field :requests_count, types.Int
-  field :subscriptions_count, types.Int
-  field :project_medias_count, types.Int
-  field :title, types.String
-  field :similar_to_request, RequestType
-  field :media_type, types.String
+    field :dbid, Integer, null: true
+    field :last_submitted_at, Integer, null: true
+    field :request_type, String, null: true
+    field :content, String, null: true
+    field :last_called_webhook_at, String, null: true
+    field :fact_checked_by, String, null: true
+    field :subscribed, Boolean, null: true
+    field :medias_count, Integer, null: true
+    field :requests_count, Integer, null: true
+    field :subscriptions_count, Integer, null: true
+    field :project_medias_count, Integer, null: true
+    field :title, String, null: true
+    field :similar_to_request, RequestType, null: true
+    field :media_type, String, null: true
 
-  field :feed do
-    type -> { FeedType }
+    field :feed, Types::FeedType, null: true
 
-    resolve -> (request, _args, _ctx) {
-      RecordLoader.for(Feed).load(request.feed_id)
-    }
-  end
+    def feed
+      RecordLoader.for(Feed).load(object.feed_id)
+    end
 
-  field :media do
-    type -> { MediaType }
+    field :media, MediaType, null: true
 
-    resolve -> (request, _args, _ctx) {
-      RecordLoader.for(Media).load(request.media_id)
-    }
-  end
+    def media
+      RecordLoader.for(Media).load(object.media_id)
+    end
 
-  connection :medias, MediaType.connection_type
+    field :medias, MediaType.connection_type, null: true, connection: true
 
-  connection :similar_requests, -> { RequestType.connection_type } do
-    argument :media_id, types.Int
+    field :similar_requests, RequestType.connection_type, null: true, connection: true do
+      argument :media_id, Integer, required: false
+    end
 
-    resolve ->(request, args, _ctx) {
-      requests = request.similar_requests.where(webhook_url: nil, last_called_webhook_at: nil)
-      requests = requests.where(media_id: args['media_id'].to_i) unless args['media_id'].blank?
+    def similar_requests(**args)
+      requests = object.similar_requests.where(webhook_url: nil, last_called_webhook_at: nil)
+      requests = requests.where(media_id: args[:media_id].to_i) unless args[:media_id].blank?
       requests
-    }
+    end
   end
 end

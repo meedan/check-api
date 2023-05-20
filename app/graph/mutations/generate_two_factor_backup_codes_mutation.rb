@@ -4,7 +4,7 @@ GenerateTwoFactorBackupCodesMutation = GraphQL::Relay::Mutation.define do
   input_field :id, !types.Int
 
   return_field :success, types.Boolean
-  return_field :codes, JsonStringType
+  return_field :codes, Types::JsonString
 
   resolve -> (_root, inputs, _ctx) {
     user = User.where(id: inputs[:id]).last

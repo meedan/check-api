@@ -7,7 +7,7 @@ UserTwoFactorAuthenticationMutation = GraphQL::Relay::Mutation.define do
   input_field :otp_required, types.Boolean
 
   return_field :success, types.Boolean
-  return_field :user, UserType
+  return_field :user, Types::UserType
 
   resolve -> (_root, inputs, _ctx) {
     user = User.where(id: inputs[:id]).last

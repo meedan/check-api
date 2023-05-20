@@ -23,9 +23,9 @@ module DynamicAnnotation::AnnotationTypeManager
         Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('dynamic_annotation_#{type}', create_fields, update_fields, parents) unless defined? Create
       end
 
-      DynamicAnnotation#{klass}Type = GraphqlCrudOperations.define_annotation_type('dynamic_annotation_#{type}', {}) do
-        field :lock_version, types.Int
-      end unless defined? DynamicAnnotation#{klass}Type
+      class Types::DynamicAnnotation#{klass}Type < Types::AnnotationObject
+        field :lock_version, Integer, null: true
+      end unless defined? Types::DynamicAnnotation#{klass}Type
     TES
   end
 end

@@ -1,189 +1,224 @@
-TeamType = GraphqlCrudOperations.define_default_type do
-  name 'Team'
-  description 'Team type'
+module Types
+  class TeamType < DefaultObject
+    description "Team type"
 
-  interfaces [NodeIdentification.interface]
+    implements GraphQL::Types::Relay::NodeField
 
-  field :archived, types.Int
-  field :private, types.Boolean
-  field :avatar, types.String
-  field :name, !types.String
-  field :slug, !types.String
-  field :description, types.String
-  field :dbid, types.Int
-  field :members_count, types.Int
-  field :projects_count, types.Int
-  field :permissions, types.String
-  field :get_slack_notifications_enabled, types.String
-  field :get_slack_webhook, types.String
-  field :get_embed_whitelist, types.String
-  field :get_report_design_image_template, types.String
-  field :get_status_target_turnaround, types.String
-  field :pusher_channel, types.String
-  field :search_id, types.String
-  field :search, CheckSearchType
-  field :check_search_trash, CheckSearchType
-  field :check_search_unconfirmed, CheckSearchType
-  field :check_search_spam, CheckSearchType
-  field :trash_size, JsonStringType
-  field :public_team_id, types.String
-  field :permissions_info, JsonStringType
-  field :dynamic_search_fields_json_schema, JsonStringType
-  field :get_slack_notifications, JsonStringType
-  field :get_rules, JsonStringType
-  field :rules_json_schema, types.String
-  field :slack_notifications_json_schema, types.String
-  field :rules_search_fields_json_schema, JsonStringType
-  field :medias_count, types.Int
-  field :spam_count, types.Int
-  field :trash_count, types.Int
-  field :unconfirmed_count, types.Int
-  field :get_languages, types.String
-  field :get_language, types.String
-  field :get_report, JsonStringType
-  field :get_fieldsets, JsonStringType
-  field :list_columns, JsonStringType
-  field :get_data_report_url, types.String
-  field :url, types.String
-  field :get_tipline_inbox_filters, JsonStringType
-  field :get_suggested_matches_filters, JsonStringType
-  field :data_report, JsonStringType
-  field :available_newsletter_header_types, JsonStringType # List of header type strings
-  field :get_outgoing_urls_utm_code, types.String
-  field :get_shorten_outgoing_urls, types.Boolean
+    field :archived, Integer, null: true
+    field :private, Boolean, null: true
+    field :avatar, String, null: true
+    field :name, String, null: false
+    field :slug, String, null: false
+    field :description, String, null: true
+    field :dbid, Integer, null: true
+    field :members_count, Integer, null: true
+    field :projects_count, Integer, null: true
+    field :permissions, String, null: true
+    field :get_slack_notifications_enabled, String, null: true
+    field :get_slack_webhook, String, null: true
+    field :get_embed_whitelist, String, null: true
+    field :get_report_design_image_template, String, null: true
+    field :get_status_target_turnaround, String, null: true
+    field :pusher_channel, String, null: true
+    field :search_id, String, null: true
+    field :search, CheckSearchType, null: true
+    field :check_search_trash, CheckSearchType, null: true
+    field :check_search_unconfirmed, CheckSearchType, null: true
+    field :check_search_spam, CheckSearchType, null: true
+    field :trash_size, JsonString, null: true
+    field :public_team_id, String, null: true
+    field :permissions_info, JsonString, null: true
+    field :dynamic_search_fields_json_schema, JsonString, null: true
+    field :get_slack_notifications, JsonString, null: true
+    field :get_rules, JsonString, null: true
+    field :rules_json_schema, String, null: true
+    field :slack_notifications_json_schema, String, null: true
+    field :rules_search_fields_json_schema, JsonString, null: true
+    field :medias_count, Integer, null: true
+    field :spam_count, Integer, null: true
+    field :trash_count, Integer, null: true
+    field :unconfirmed_count, Integer, null: true
+    field :get_languages, String, null: true
+    field :get_language, String, null: true
+    field :get_report, JsonString, null: true
+    field :get_fieldsets, JsonString, null: true
+    field :list_columns, JsonString, null: true
+    field :get_data_report_url, String, null: true
+    field :url, String, null: true
+    field :get_tipline_inbox_filters, JsonString, null: true
+    field :get_suggested_matches_filters, JsonString, null: true
+    field :data_report, JsonString, null: true
+    field :available_newsletter_header_types, JsonString, null: true # List of header type strings
+    field :get_outgoing_urls_utm_code, String, null: true
+    field :get_shorten_outgoing_urls, Boolean, null: true
 
-  field :public_team do
-    type PublicTeamType
+    field :public_team, PublicTeamType, null: true
 
-    resolve -> (team, _args, _ctx) do
-      team
+    def public_team
+      object
     end
-  end
 
-  field :verification_statuses do
-    type JsonStringType
-    argument :items_count_for_status, types.String
-    argument :published_reports_count_for_status, types.String
-
-    resolve -> (team, args, _ctx) do
-      team = team.reload if args['items_count_for_status'] || args['published_reports_count_for_status']
-      team.send('verification_statuses', 'media', nil, args['items_count_for_status'], args['published_reports_count_for_status'])
+    field :verification_statuses, JsonString, null: true do
+      argument :items_count_for_status, String, required: false
+      argument :published_reports_count_for_status, String, required: false
     end
-  end
 
-  field :team_bot_installation do
-    type TeamBotInstallationType
-    argument :bot_identifier, !types.String
-
-    resolve -> (team, args, _ctx) do
-      TeamBotInstallation.where(user_id: BotUser.get_user(args['bot_identifier'])&.id, team_id: team.id).first
+    def verification_statuses(**args)
+      object = object.reload if args[:items_count_for_status] ||
+        args[:published_reports_count_for_status]
+      object.send(
+        "verification_statuses",
+        "media",
+        nil,
+        args[:items_count_for_status],
+        args[:published_reports_count_for_status]
+      )
     end
-  end
 
-  connection :team_users, -> { TeamUserType.connection_type } do
-    argument :status, types[types.String]
+    field :team_bot_installation, TeamBotInstallationType, null: true do
+      argument :bot_identifier, String, required: true
+    end
 
-    resolve -> (team, args, _ctx) {
-      status = args['status'] || 'member'
-      team.team_users.where({ status: status }).order('id ASC')
-    }
-  end
+    def team_bot_installation(**args)
+      TeamBotInstallation.where(
+        user_id: BotUser.get_user(args[:bot_identifier])&.id,
+        team_id: object.id
+      ).first
+    end
 
-  connection :join_requests, -> { TeamUserType.connection_type } do
-    resolve -> (team, _args, _ctx) { team.team_users.where({ status: 'requested' }) }
-  end
+    field :team_users,
+          TeamUserType.connection_type,
+          null: true,
+          connection: true do
+      argument :status, [String, null: true], required: false
+    end
 
-  connection :users, -> { UserType.connection_type } do
-    resolve -> (team, _args, _ctx) {
-      team.users
-    }
-  end
+    def team_users(**args)
+      status = args[:status] || "member"
+      object.team_users.where({ status: status }).order("id ASC")
+    end
 
-  connection :projects, -> { ProjectType.connection_type } do
-    resolve ->(team, _args, _ctx) {
-      team.recent_projects.allowed(team)
-    }
-  end
+    field :join_requests,
+          TeamUserType.connection_type,
+          null: true,
+          connection: true
 
-  field :sources_count, types.Int do
-    argument :keyword, types.String
+    def join_requests
+      object.team_users.where({ status: "requested" })
+    end
 
-    resolve ->(team, args, _ctx) {
-      team.sources_by_keyword(args['keyword']).count
-    }
-  end
+    field :users, UserType.connection_type, null: true, connection: true
 
-  connection :sources, -> { SourceType.connection_type } do
-    argument :keyword, types.String
+    def users
+      object.users
+    end
 
-    resolve ->(team, args, _ctx) {
-      team.sources_by_keyword(args['keyword'])
-    }
-  end
+    field :projects, ProjectType.connection_type, null: true, connection: true
 
-  connection :team_bots, -> { BotUserType.connection_type } do
-    resolve ->(team, _args, _ctx) {
-      team.team_bots
-    }
-  end
+    def projects
+      object.recent_projects.allowed(object)
+    end
 
-  connection :team_bot_installations, -> { TeamBotInstallationType.connection_type } do
-    resolve ->(team, _args, _ctx) {
-      team.team_bot_installations
-    }
-  end
+    field :sources_count, Integer, null: true do
+      argument :keyword, String, required: false
+    end
 
-  connection :tag_texts, -> { TagTextType.connection_type } do
-    resolve ->(team, _args, _ctx) {
-      team.tag_texts
-    }
-  end
+    def sources_count(**args)
+      object.sources_by_keyword(args[:keyword]).count
+    end
 
-  connection :team_tasks, -> { TeamTaskType.connection_type } do
-    argument :fieldset, types.String
+    field :sources, SourceType.connection_type, null: true, connection: true do
+      argument :keyword, String, required: false
+    end
 
-    resolve ->(team, args, _ctx) {
-      tasks = team.team_tasks.order(order: :asc, id: :asc)
-      tasks = tasks.where(fieldset: args['fieldset']) unless args['fieldset'].blank?
+    def sources(**args)
+      object.sources_by_keyword(args[:keyword])
+    end
+
+    field :team_bots,
+          BotUserType.connection_type,
+          null: true,
+          connection: true
+
+    def team_bots
+      object.team_bots
+    end
+
+    field :team_bot_installations,
+          TeamBotInstallationType.connection_type,
+          null: true,
+          connection: true
+
+    def team_bot_installations
+      object.team_bot_installations
+    end
+
+    field :tag_texts,
+          TagTextType.connection_type,
+          null: true,
+          connection: true
+
+    def tag_texts
+      object.tag_texts
+    end
+
+    field :team_tasks,
+          TeamTaskType.connection_type,
+          null: true,
+          connection: true do
+      argument :fieldset, String, required: false
+    end
+
+    def team_tasks(**args)
+      tasks = object.team_tasks.order(order: :asc, id: :asc)
+      tasks = tasks.where(fieldset: args[:fieldset]) unless args[
+        :fieldset
+      ].blank?
       tasks
-    }
-  end
+    end
 
-  field :team_task do
-    type TeamTaskType
-    argument :dbid, !types.Int
+    field :team_task, TeamTaskType, null: true do
+      argument :dbid, Integer, required: true
+    end
 
-    resolve -> (team, args, _ctx) { team.team_tasks.where(id: args['dbid'].to_i).last }
-  end
+    def team_task(**args)
+      object.team_tasks.where(id: args[:dbid].to_i).last
+    end
 
-  field :default_folder do
-    type ProjectType
+    field :default_folder, ProjectType, null: true
 
-    resolve -> (team, _args, _ctx) { team.default_folder }
-  end
+    def default_folder
+      object.default_folder
+    end
 
-  field :feed, FeedType do
-    argument :dbid, !types.Int
+    field :feed, FeedType, null: true do
+      argument :dbid, Integer, required: true
+    end
 
-    resolve -> (team, args, _ctx) {
-      team.get_feed(args['dbid'])
-    }
-  end
+    def feed(**args)
+      object.get_feed(args[:dbid])
+    end
 
-  field :shared_teams do
-    type JsonStringType
+    field :shared_teams, JsonString, null: true
 
-    resolve -> (team, _args, _ctx) {
+    def shared_teams
       data = {}
-      team.shared_teams.each do |t|
-        data[t.id] = t.name
-      end
+      object.shared_teams.each { |t| data[t.id] = t.name }
       data
-    }
-  end
+    end
 
-  connection :saved_searches, SavedSearchType.connection_type
-  connection :project_groups, ProjectGroupType.connection_type
-  connection :feeds, FeedType.connection_type
-  connection :tipline_newsletters, TiplineNewsletterType.connection_type
+    field :saved_searches,
+          SavedSearchType.connection_type,
+          null: true,
+          connection: true
+    field :project_groups,
+          ProjectGroupType.connection_type,
+          null: true,
+          connection: true
+    field :feeds, FeedType.connection_type, null: true, connection: true
+    field :tipline_newsletters,
+          TiplineNewsletterType.connection_type,
+          null: true,
+          connection: true
+  end
 end

@@ -3,11 +3,11 @@ UserInvitationMutation = GraphQL::Relay::Mutation.define do
 
   input_field :invitation, types.String
 
-  input_field :members, !JsonStringType
+  input_field :members, !Types::JsonString
 
-  return_field :errors, JsonStringType
+  return_field :errors, Types::JsonString
 
-  return_field :team, TeamType
+  return_field :team, Types::TeamType
 
   resolve -> (_root, inputs, _ctx) {
     messages = User.send_user_invitation(inputs[:members], inputs[:invitation])

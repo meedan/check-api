@@ -1,122 +1,140 @@
-UserType = GraphqlCrudOperations.define_default_type do
-  name 'User'
-  description 'User type'
+module Types
+  class UserType < DefaultObject
+    description "User type"
 
-  interfaces [NodeIdentification.interface]
+    implements GraphQL::Types::Relay::NodeField
 
-  field :dbid, types.Int
-  field :email, types.String
-  field :unconfirmed_email, types.String
-  field :providers, JsonStringType
-  field :uuid, types.String
-  field :profile_image, types.String
-  field :login, types.String
-  field :name, types.String
-  field :current_team_id, types.Int
-  field :permissions, types.String
-  field :jsonsettings, types.String
-  field :number_of_teams, types.Int
-  field :get_send_email_notifications, types.Boolean
-  field :get_send_successful_login_notifications, types.Boolean
-  field :get_send_failed_login_notifications, types.Boolean
-  field :bot_events, types.String
-  field :is_bot, types.Boolean
-  field :is_active, types.Boolean
-  field :two_factor, JsonStringType
-  field :settings, JsonStringType
-  field :accepted_terms, types.Boolean
-  field :last_accepted_terms_at, types.String
-  field :team_ids, types[types.Int]
-  field :user_teams, types.String
-  field :last_active_at, types.Int
-  field :completed_signup, types.Boolean
+    field :dbid, Integer, null: true
+    field :email, String, null: true
+    field :unconfirmed_email, String, null: true
+    field :providers, JsonString, null: true
+    field :uuid, String, null: true
+    field :profile_image, String, null: true
+    field :login, String, null: true
+    field :name, String, null: true
+    field :current_team_id, Integer, null: true
+    field :permissions, String, null: true
+    field :jsonsettings, String, null: true
+    field :number_of_teams, Integer, null: true
+    field :get_send_email_notifications, Boolean, null: true
+    field :get_send_successful_login_notifications, Boolean, null: true
+    field :get_send_failed_login_notifications, Boolean, null: true
+    field :bot_events, String, null: true
+    field :is_bot, Boolean, null: true
+    field :is_active, Boolean, null: true
+    field :two_factor, JsonString, null: true
+    field :settings, JsonString, null: true
+    field :accepted_terms, Boolean, null: true
+    field :last_accepted_terms_at, String, null: true
+    field :team_ids, [Integer, null: true], null: true
+    field :user_teams, String, null: true
+    field :last_active_at, Integer, null: true
+    field :completed_signup, Boolean, null: true
 
-  field :source_id do
-    type types.Int
-    resolve -> (user, _args, _ctx) do
-      user.source.id
+    field :source_id, Integer, null: true
+
+    def source_id
+      object.source.id
     end
-  end
 
-  field :token do
-    type types.String
-    resolve -> (user, _args, _ctx) do
-      user.token if user == User.current
+    field :token, String, null: true
+
+    def token
+      object.token if object == User.current
     end
-  end
 
-  field :is_admin do
-    type types.Boolean
-    resolve -> (user, _args, _ctx) do
-      user.is_admin if user == User.current
+    field :is_admin, Boolean, null: true
+
+    def is_admin
+      object.is_admin if object == User.current
     end
-  end
 
-  field :current_project do
-    type ProjectType
-    resolve -> (user, _args, _ctx) do
-      user.current_project
+    field :current_project, ProjectType, null: true
+
+    def current_project
+      object.current_project
     end
-  end
 
-  field :confirmed do
-    type types.Boolean
-    resolve -> (user, _args, _ctx) do
-      user.is_confirmed?
+    field :confirmed, Boolean, null: true
+
+    def confirmed
+      object.is_confirmed?
     end
-  end
 
-  field :source do
-    type SourceType
-    resolve -> (user, _args, _ctx) { Source.find(user.source_id) }
-  end
+    field :source, SourceType, null: true
 
-  field :current_team do
-    type TeamType
-    resolve -> (user, _args, _ctx) { user.current_team }
-  end
-
-  field :bot do
-    type BotUserType
-    resolve -> (user, _args, _ctx) do
-      user if user.is_bot
+    def source
+      Source.find(object.source_id)
     end
-  end
 
-  field :team_user do
-    type TeamUserType
-    argument :team_slug, !types.String
-    resolve ->(user, args, _ctx) {
-      TeamUser.joins(:team).where('teams.slug' => args['team_slug'], user_id: user.id).last
-    }
-  end
+    field :current_team, TeamType, null: true
 
-  connection :teams, -> { TeamType.connection_type } do
-    resolve ->(user, _args, _ctx) { user.teams }
-  end
+    def current_team
+      object.current_team
+    end
 
-  connection :team_users, -> { TeamUserType.connection_type } do
-    argument :status, types.String
+    field :bot, BotUserType, null: true
 
-    resolve ->(user, args, _ctx) { team_users = user.team_users ; team_users = team_users.where(status: args['status']) if args['status'] ; team_users }
-  end
+    def bot
+      object if object.is_bot
+    end
 
-  connection :annotations, -> { AnnotationType.connection_type } do
-    argument :type, types.String
+    field :team_user, TeamUserType, null: true do
+      argument :team_slug, String, required: true
+    end
 
-    resolve ->(user, args, _ctx) { type = args['type'] ; type.blank? ? user.annotations : user.annotations(type) }
-  end
+    def team_user(**args)
+      TeamUser
+        .joins(:team)
+        .where("teams.slug" => args[:team_slug], :user_id => object.id)
+        .last
+    end
 
-  connection :assignments, -> { ProjectMediaType.connection_type } do
-    argument :team_id, types.Int
+    field :teams, TeamType.connection_type, null: true, connection: true
 
-    resolve ->(user, args, _ctx) {
-      pms = Annotation.project_media_assigned_to_user(user).order('id DESC')
-      team_id = args['team_id'].to_i
+    def teams
+      object.teams
+    end
+
+    field :team_users,
+          TeamUserType.connection_type,
+          null: true,
+          connection: true do
+      argument :status, String, required: false
+    end
+
+    def team_users(**args)
+      team_users = object.team_users
+      team_users = team_users.where(status: args[:status]) if args[:status]
+      team_users
+    end
+
+    field :annotations,
+          AnnotationType.connection_type,
+          null: true,
+          connection: true do
+      argument :type, String, required: false
+    end
+
+    def annotations(**args)
+      type = args[:type]
+      type.blank? ? object.annotations : object.annotations(type)
+    end
+
+    field :assignments,
+          ProjectMediaType.connection_type,
+          null: true,
+          connection: true do
+      argument :team_id, Integer, required: false
+    end
+
+    def assignments(**args)
+      pms = Annotation.project_media_assigned_to_user(object).order("id DESC")
+      team_id = args[:team_id].to_i
       pms = pms.where(team_id: team_id) if team_id > 0
       # TODO: remove finished items
       # pms.reject { |pm| pm.is_finished? }
       pms
-    }
+    end
   end
 end

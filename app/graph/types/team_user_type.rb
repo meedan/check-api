@@ -1,35 +1,32 @@
-TeamUserType = GraphqlCrudOperations.define_default_type do
-  name 'TeamUser'
-  description 'TeamUser type'
+module Types
+  class TeamUserType < DefaultObject
+    description "TeamUser type"
 
-  interfaces [NodeIdentification.interface]
+    implements GraphQL::Types::Relay::NodeField
 
-  field :dbid, types.Int
-  field :user_id, types.Int
-  field :team_id, types.Int
-  field :status, types.String
-  field :role, types.String
-  field :permissions, types.String
+    field :dbid, Integer, null: true
+    field :user_id, Integer, null: true
+    field :team_id, Integer, null: true
+    field :status, String, null: true
+    field :role, String, null: true
+    field :permissions, String, null: true
 
-  field :team do
-    type TeamType
+    field :team, TeamType, null: true
 
-    resolve -> (team_user, _args, _ctx) { team_user.team }
-  end
+    def team
+      object.team
+    end
 
-  field :user do
-    type UserType
+    field :user, UserType, null: true
 
-    resolve -> (team_user, _args, _ctx) {
-      team_user.user
-    }
-  end
+    def user
+      object.user
+    end
 
-  field :invited_by do
-    type UserType
+    field :invited_by, UserType, null: true
 
-    resolve -> (team_user, _args, _ctx) {
-      User.find_by_id(team_user.invited_by_id)
-    }
+    def invited_by
+      User.find_by_id(object.invited_by_id)
+    end
   end
 end

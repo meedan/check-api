@@ -5,7 +5,7 @@ DuplicateTeamMutation = GraphQL::Relay::Mutation.define do
   input_field :custom_slug, types.String
   input_field :custom_name, types.String
 
-  return_field :team, TeamType
+  return_field :team, Types::TeamType
 
   resolve -> (_root, inputs, ctx) {
     _type_name, id = CheckGraphql.decode_id(inputs['team_id'])

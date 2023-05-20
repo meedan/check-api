@@ -1,336 +1,378 @@
-ProjectMediaType = GraphqlCrudOperations.define_default_type do
-  name 'ProjectMedia'
-  description 'ProjectMedia type'
+require "inclusions/task_and_annotation_fields"
 
-  interfaces [NodeIdentification.interface]
+module Types
+  class ProjectMediaType < DefaultObject
+    include ::TaskAndAnnotationFields
 
-  field :media_id, types.Int
-  field :user_id, types.Int
-  field :url, types.String
-  field :full_url, types.String
-  field :quote, types.String
-  field :oembed_metadata, types.String
-  field :dbid, types.Int
-  field :archived, types.Int
-  field :author_role, types.String
-  field :report_type, types.String
-  field :title, types.String
-  field :description, types.String
-  field :picture, types.String
-  field :virality, types.Int
-  field :requests_count, types.Int
-  field :demand, types.Int
-  field :linked_items_count, types.Int
-  field :last_seen, types.String
-  field :status, types.String
-  field :share_count, types.Int
-  field :list_columns_values, JsonStringType
-  field :feed_columns_values, JsonStringType
-  field :report_status, types.String
-  field :confirmed_as_similar_by_name, types.String
-  field :added_as_similar_by_name, types.String
-  field :project_id, types.Int
-  field :source_id, types.Int
-  field :project_group, ProjectGroupType
-  field :show_warning_cover, types.Boolean
-  field :creator_name, types.String
-  field :team_name, types.String
-  field :channel, JsonStringType
-  field :cluster_id, types.Int
-  field :cluster, ClusterType
-  field :is_suggested, types.Boolean
-  field :is_confirmed, types.Boolean
+    description "ProjectMedia type"
 
-  field :claim_description, ClaimDescriptionType do
-    resolve -> (project_media, _args, _ctx) {
-      pm = Relationship.where('relationship_type = ?', Relationship.confirmed_type.to_yaml).where(target_id: project_media.id).first&.source || project_media
+    implements GraphQL::Types::Relay::NodeField
+
+    field :media_id, Integer, null: true
+    field :user_id, Integer, null: true
+    field :url, String, null: true
+    field :full_url, String, null: true
+    field :quote, String, null: true
+    field :oembed_metadata, String, null: true
+    field :dbid, Integer, null: true
+    field :archived, Integer, null: true
+    field :author_role, String, null: true
+    field :report_type, String, null: true
+    field :title, String, null: true
+    field :description, String, null: true
+    field :picture, String, null: true
+    field :virality, Integer, null: true
+    field :requests_count, Integer, null: true
+    field :demand, Integer, null: true
+    field :linked_items_count, Integer, null: true
+    field :last_seen, String, null: true
+    field :status, String, null: true
+    field :share_count, Integer, null: true
+    field :list_columns_values, JsonString, null: true
+    field :feed_columns_values, JsonString, null: true
+    field :report_status, String, null: true
+    field :confirmed_as_similar_by_name, String, null: true
+    field :added_as_similar_by_name, String, null: true
+    field :project_id, Integer, null: true
+    field :source_id, Integer, null: true
+    field :project_group, ProjectGroupType, null: true
+    field :show_warning_cover, Boolean, null: true
+    field :creator_name, String, null: true
+    field :team_name, String, null: true
+    field :channel, JsonString, null: true
+    field :cluster_id, Integer, null: true
+    field :cluster, ClusterType, null: true
+    field :is_suggested, Boolean, null: true
+    field :is_confirmed, Boolean, null: true
+
+    field :claim_description, ClaimDescriptionType, null: true
+
+    def claim_description
+      pm =
+        Relationship
+          .where("relationship_type = ?", Relationship.confirmed_type.to_yaml)
+          .where(target_id: object.id)
+          .first
+          &.source || object
       pm.claim_description
-    }
-  end
+    end
 
-  field :is_read, types.Boolean do
-    argument :by_me, types.Boolean
+    field :is_read, Boolean, null: true do
+      argument :by_me, Boolean, required: false
+    end
 
-    resolve -> (project_media, args, _ctx) {
+    def is_read(**args)
       if args[:by_me]
-        !ProjectMediaUser.where(project_media_id: project_media.id, user_id: User.current&.id, read: true).last.nil?
+        !ProjectMediaUser
+          .where(
+            project_media_id: object.id,
+            user_id: User.current&.id,
+            read: true
+          )
+          .last
+          .nil?
       else
-        project_media.read
+        object.read
       end
-    }
-  end
+    end
 
-  field :type, types.String  do
-    resolve -> (project_media, _args, _ctx) {
-      project_media.type_of_media
-    }
-  end
+    field :type, String, null: true
 
-  field :permissions, types.String do
-    resolve -> (project_media, _args, ctx) {
-      PermissionsLoader.for(ctx[:ability]).load(project_media.id).then do |pm|
-        pm.cached_permissions || pm.permissions
-      end
-    }
-  end
+    def type
+      object.type_of_media
+    end
 
-  field :tasks_count, JsonStringType do
-    resolve -> (project_media, _args, _ctx) {
+    field :permissions, String, null: true
+
+    def permissions
+      PermissionsLoader
+        .for(context[:ability])
+        .load(object.id)
+        .then { |pm| pm.cached_permissions || pm.permissions }
+    end
+
+    field :tasks_count, JsonString, null: true
+
+    def tasks_count
       {
-        all: project_media.all_tasks.size,
-        open: project_media.open_tasks.size,
-        completed: project_media.completed_tasks.size
-      }
-    }
-  end
-
-  field :domain do
-    type types.String
-
-    resolve -> (project_media, _args, _ctx) {
-      RecordLoader.for(Media).load(project_media.media_id).then do |media|
-        media.respond_to?(:domain) ? media.domain : ''
-      end
-    }
-  end
-
-  field :pusher_channel do
-    type types.String
-
-    resolve -> (project_media, _args, _ctx) {
-      RecordLoader.for(Media).load(project_media.media_id).then do |media|
-        media.pusher_channel
-      end
-    }
-  end
-
-  { media: :account }.each do |key, value|
-    type = "#{value.to_s.capitalize}Type".constantize
-    field value do
-      type -> { type }
-
-      resolve -> (project_media, _args, _ctx) {
-        RecordLoader.for(key.to_s.capitalize.constantize).load(project_media.send("#{key}_id")).then do |obj|
-          RecordLoader.for(value.to_s.capitalize.constantize).load(obj.send("#{value}_id"))
-        end
+        all: object.all_tasks.size,
+        open: object.open_tasks.size,
+        completed: object.completed_tasks.size
       }
     end
-  end
 
-  field :team do
-    type -> { TeamType }
+    field :domain, String, null: true
 
-    resolve -> (project_media, _args, _ctx) {
-      RecordLoader.for(Team).load(project_media.team_id)
-    }
-  end
+    def domain
+      RecordLoader
+        .for(Media)
+        .load(object.media_id)
+        .then { |media| media.respond_to?(:domain) ? media.domain : "" }
+    end
 
-  field :project do
-    type -> { ProjectType }
+    field :pusher_channel, String, null: true
 
-    resolve -> (project_media, _args, _ctx) {
-      RecordLoader.for(Project).load(project_media.project_id)
-    }
-  end
+    def pusher_channel
+      RecordLoader
+        .for(Media)
+        .load(object.media_id)
+        .then { |media| media.pusher_channel }
+    end
 
-  field :media do
-    type -> { MediaType }
+    field :account, AccountType, null: true
 
-    resolve -> (project_media, _args, _ctx) {
-      RecordLoader.for(Media).load(project_media.media_id)
-    }
-  end
+    def account
+      RecordLoader
+        .for(Media)
+        .load(object.media_id)
+        .then { |obj| RecordLoader.for(Account).load(obj.account_id) }
+    end
 
-  field :user do
-    type -> { UserType }
+    field :team, TeamType, null: true
 
-    resolve -> (project_media, _args, ctx) {
-      RecordLoader.for(User).load(project_media.user_id).then do |user|
-        ability = ctx[:ability] || Ability.new
-        user if ability.can?(:read, user)
-      end
-    }
-  end
+    def team
+      RecordLoader.for(Team).load(object.team_id)
+    end
 
-  field :source do
-    type -> { SourceType }
-    resolve -> (project_media, _args, _ctx) { RecordLoader.for(Source).load(project_media.source_id) }
-  end
+    field :project, ProjectType, null: true
 
-  instance_exec :project_media, &GraphqlCrudOperations.field_log
+    def project
+      RecordLoader.for(Project).load(object.project_id)
+    end
 
-  instance_exec :project_media, &GraphqlCrudOperations.field_log_count
+    field :media, MediaType, null: true
 
-  connection :tags, -> { TagType.connection_type } do
-    resolve ->(project_media, _args, _ctx) {
-      project_media.get_annotations('tag').map(&:load)
-    }
-  end
+    def media
+      RecordLoader.for(Media).load(object.media_id)
+    end
 
-  instance_exec :project_media, &GraphqlCrudOperations.field_tasks
+    field :user, UserType, null: true
 
-  connection :comments, -> { CommentType.connection_type } do
-    resolve ->(project_media, _args, _ctx) {
-      project_media.get_annotations('comment').map(&:load)
-    }
-  end
+    def user
+      RecordLoader
+        .for(User)
+        .load(object.user_id)
+        .then do |user|
+          ability = context[:ability] || Ability.new
+          user if ability.can?(:read, user)
+        end
+    end
 
-  connection :requests, -> { DynamicAnnotationFieldType.connection_type } do
-    resolve ->(project_media, _args, _ctx) {
-      project_media.get_requests
-    }
-  end
+    field :source, SourceType, null: true
 
-  field :last_status do
-    type types.String
+    def source
+      RecordLoader.for(Source).load(object.source_id)
+    end
 
-    resolve ->(project_media, _args, _ctx) {
-      project_media.last_status
-    }
-  end
+    field :log, VersionType.connection_type, null: true, connection: true, resolve: ->(obj, args, _ctx) {
+        obj.get_versions_log(
+          args["event_types"],
+          args["field_names"],
+          args["annotation_types"],
+          args["who_dunnit"],
+          args["include_related"]
+        )
+      } do
+      argument :event_types, String, required: false
+      argument :field_names,  String, required: false
+      argument :annotation_types, String, required: false
+      argument :who_dunnit, String, required: false
+      argument :include_related, Boolean, required: false
+    end
 
-  field :last_status_obj do
-    type -> { DynamicType }
+    field :log_count, Integer, null: true, resolve: ->(obj, _args, _ctx) { obj.get_versions_log_count }
 
-    resolve -> (project_media, _args, _ctx) {
-      obj = project_media.last_status_obj
+    field :tags, TagType.connection_type, null: true, connection: true
+
+    def tags
+      object.get_annotations("tag").map(&:load)
+    end
+
+    field :comments, CommentType.connection_type, null: true, connection: true
+
+    def comments
+      object.get_annotations("comment").map(&:load)
+    end
+
+    field :requests,
+          DynamicAnnotationFieldType.connection_type,
+          null: true,
+          connection: true
+
+    def requests
+      object.get_requests
+    end
+
+    field :last_status, String, null: true
+
+    def last_status
+      object.last_status
+    end
+
+    field :last_status_obj, DynamicType, null: true
+
+    def last_status_obj
+      obj = object.last_status_obj
       obj.is_a?(Dynamic) ? obj : obj.load unless obj.nil?
-    }
-  end
+    end
 
-  instance_exec :project_media, &GraphqlCrudOperations.field_published
+    field :published,
+          String,
+          null: true,
+          resolve: ->(obj, _args, _ctx) { obj.created_at.to_i.to_s }
 
-  field :language do
-    type types.String
+    field :language, String, null: true
 
-    resolve ->(project_media, _args, _ctx) {
-      project_media.get_dynamic_annotation('language')&.get_field('language')&.send(:to_s)
-    }
-  end
+    def language
+      object.get_dynamic_annotation("language")&.get_field "language"&.send(
+                     :to_s
+                   )
+    end
 
-  field :language_code do
-    type types.String
+    field :language_code, String, null: true
 
-    resolve ->(project_media, _args, _ctx) {
-      project_media.get_dynamic_annotation('language')&.get_field_value('language')
-    }
-  end
+    def language_code
+      object.get_dynamic_annotation("language")&.get_field_value("language")
+    end
 
-  field :annotation do
-    type -> { AnnotationType }
-    argument :annotation_type, !types.String
+    field :annotation, "Types::AnnotationType", null: true do
+      argument :annotation_type, String, required: true
+    end
 
-    resolve ->(project_media, args, _ctx) {
-      project_media.get_dynamic_annotation(args['annotation_type'])
-    }
-  end
+    def annotation(**args)
+      object.get_dynamic_annotation(args[:annotation_type])
+    end
 
-  instance_exec :project_media, &GraphqlCrudOperations.field_annotations
+    field :field_value, String, null: true do
+      argument :annotation_type_field_name, String, required: true
+    end
 
-  instance_exec :project_media, &GraphqlCrudOperations.field_annotations_count
-
-  field :field_value do
-    type types.String
-    argument :annotation_type_field_name, !types.String
-
-    resolve ->(project_media, args, _ctx) {
-      annotation_type, field_name = args['annotation_type_field_name'].to_s.split(':')
+    def field_value(**args)
+      annotation_type, field_name =
+        args[:annotation_type_field_name].to_s.split(":")
       if !annotation_type.blank? && !field_name.blank?
-        annotation = project_media.get_dynamic_annotation(annotation_type)
+        annotation = object.get_dynamic_annotation(annotation_type)
         annotation.nil? ? nil : annotation.get_field_value(field_name)
       end
-    }
-  end
-
-  connection :assignments, -> { AnnotationType.connection_type } do
-    argument :user_id, !types.Int
-    argument :annotation_type, !types.String
-
-    resolve ->(project_media, args, _ctx) {
-      Annotation.joins(:assignments).where('annotations.annotated_type' => 'ProjectMedia', 'annotations.annotated_id' => project_media.id, 'assignments.user_id' => args['user_id'], 'annotations.annotation_type' => args['annotation_type'])
-    }
-  end
-
-  DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_type).each do |type|
-    connection "dynamic_annotations_#{type}".to_sym, -> { DynamicType.connection_type } do
-      resolve ->(project_media, _args, _ctx) { project_media.get_annotations(type) }
     end
 
-    field "dynamic_annotation_#{type}".to_sym do
-      type -> { DynamicType }
-      resolve -> (project_media, _args, _ctx) { project_media.get_dynamic_annotation(type) }
+    field :assignments,
+          "AnnotationType.connection_type",
+          null: true,
+          connection: true do
+      argument :user_id, Integer, required: true
+      argument :annotation_type, String, required: true
     end
-  end
 
-  connection :suggested_similar_relationships, -> { RelationshipType.connection_type } do
-    resolve -> (project_media, _args, _ctx) {
-      ProjectMedia.get_similar_relationships(project_media, Relationship.suggested_type)
-    }
-  end
+    def assignments(**args)
+      Annotation.joins(:assignments).where(
+        "annotations.annotated_type" => "ProjectMedia",
+        "annotations.annotated_id" => object.id,
+        "assignments.user_id" => args[:user_id],
+        "annotations.annotation_type" => args[:annotation_type]
+      )
+    end
 
-  field :suggested_similar_items_count, types.Int do
-    resolve -> (project_media, _args, _ctx) {
-      ProjectMedia.get_similar_items(project_media, Relationship.suggested_type).count
-    }
-  end
+    DynamicAnnotation::AnnotationType
+      .select("annotation_type")
+      .map(&:annotation_type)
+      .each do |type|
+        field "dynamic_annotations_#{type}".to_sym, DynamicType.connection_type, null: true, connection: true, resolve: ->(project_media, _args, _ctx) { project_media.get_annotations(type) }
+        field "dynamic_annotation_#{type}".to_sym, DynamicType, null: true, resolve: ->(project_media, _args, _ctx) { project_media.get_dynamic_annotation(type) }
+      end
 
-  field :suggested_main_item, ProjectMediaType do
-    resolve -> (project_media, _args, _ctx) {
-      Relationship.where('relationship_type = ?', Relationship.suggested_type.to_yaml).where(target_id: project_media.id).first&.source
-    }
-  end
+    field :suggested_similar_relationships,
+          RelationshipType.connection_type,
+          null: true,
+          connection: true
 
-  connection :confirmed_similar_relationships, -> { RelationshipType.connection_type } do
-    resolve -> (project_media, _args, _ctx) {
-      ProjectMedia.get_similar_relationships(project_media, Relationship.confirmed_type)
-    }
-  end
+    def suggested_similar_relationships
+      ProjectMedia.get_similar_relationships(
+        object,
+        Relationship.suggested_type
+      )
+    end
 
-  field :confirmed_similar_items_count, types.Int do
-    resolve -> (project_media, _args, _ctx) {
-      ProjectMedia.get_similar_items(project_media, Relationship.confirmed_type).count
-    }
-  end
+    field :suggested_similar_items_count, Integer, null: true
 
-  field :is_confirmed_similar_to_another_item, types.Boolean do
-    resolve -> (project_media, _args, _ctx) {
-      Relationship.confirmed_parent(project_media).id != project_media.id
-    }
-  end
+    def suggested_similar_items_count
+      ProjectMedia.get_similar_items(object, Relationship.suggested_type).count
+    end
 
-  field :confirmed_main_item, ProjectMediaType do
-    resolve -> (project_media, _args, _ctx) {
-      Relationship.confirmed_parent(project_media)
-    }
-  end
+    field :suggested_main_item, ProjectMediaType, null: true
 
-  connection :default_relationships, -> { RelationshipType.connection_type } do
-    resolve -> (project_media, _args, _ctx) {
-      project_media.get_default_relationships.order('id DESC')
-    }
-  end
+    def suggested_main_item
+      Relationship
+        .where("relationship_type = ?", Relationship.suggested_type.to_yaml)
+        .where(target_id: object.id)
+        .first
+        &.source
+    end
 
-  field :default_relationships_count, types.Int do
-    resolve -> (project_media, _args, _ctx) {
-      project_media.get_default_relationships.count
-    }
-  end
+    field :confirmed_similar_relationships,
+          RelationshipType.connection_type,
+          null: true,
+          connection: true
 
-  field :is_main, types.Boolean do
-    resolve -> (project_media, _args, _ctx) {
-      project_media.linked_items_count > 1 || project_media.suggestions_count > 0
-    }
-  end
+    def confirmed_similar_relationships
+      ProjectMedia.get_similar_relationships(
+        object,
+        Relationship.confirmed_type
+      )
+    end
 
-  field :is_secondary, types.Boolean do
-    resolve -> (project_media, _args, _ctx) {
-      project_media.sources_count > 0
-    }
-  end
+    field :confirmed_similar_items_count, Integer, null: true
 
-  connection :similar_items, -> { ProjectMediaType.connection_type } do
-    resolve -> (project_media, _args, _ctx) {
-      project_media.similar_items
-    }
+    def confirmed_similar_items_count
+      ProjectMedia.get_similar_items(object, Relationship.confirmed_type).count
+    end
+
+    field :is_confirmed_similar_to_another_item, Boolean, null: true
+
+    def is_confirmed_similar_to_another_item
+      Relationship.confirmed_parent(object).id != object.id
+    end
+
+    field :confirmed_main_item, ProjectMediaType, null: true
+
+    def confirmed_main_item
+      Relationship.confirmed_parent(object)
+    end
+
+    field :default_relationships,
+          RelationshipType.connection_type,
+          null: true,
+          connection: true
+
+    def default_relationships
+      object.get_default_relationships.order("id DESC")
+    end
+
+    field :default_relationships_count, Integer, null: true
+
+    def default_relationships_count
+      object.get_default_relationships.count
+    end
+
+    field :is_main, Boolean, null: true
+
+    def is_main
+      object.linked_items_count > 1 || object.suggestions_count > 0
+    end
+
+    field :is_secondary, Boolean, null: true
+
+    def is_secondary
+      object.sources_count > 0
+    end
+
+    field :similar_items,
+          ProjectMediaType.connection_type,
+          null: true,
+          connection: true
+
+    def similar_items
+      object.similar_items
+    end
   end
 end

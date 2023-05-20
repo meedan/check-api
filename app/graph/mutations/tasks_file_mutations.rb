@@ -4,7 +4,7 @@ module TasksFileMutations
 
     input_field :id, !types.ID
 
-    return_field :task, TaskType
+    return_field :task, Types::TaskType
 
     resolve -> (_root, inputs, ctx) {
       task = GraphqlCrudOperations.object_from_id_if_can(inputs['id'], ctx['ability'])
@@ -22,7 +22,7 @@ module TasksFileMutations
     input_field :id, !types.ID
     input_field :filenames, types[types.String]
 
-    return_field :task, TaskType
+    return_field :task, Types::TaskType
 
     resolve -> (_root, inputs, ctx) {
       task = GraphqlCrudOperations.object_from_id_if_can(inputs['id'], ctx['ability'])

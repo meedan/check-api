@@ -1,39 +1,40 @@
-TiplineNewsletterType = GraphqlCrudOperations.define_default_type do
-  name 'TiplineNewsletter'
-  description 'TiplineNewsletter type'
+module Types
+  class TiplineNewsletterType < DefaultObject
+    description 'TiplineNewsletter type'
 
-  interfaces [NodeIdentification.interface]
+    implements GraphQL::Types::Relay::NodeField
 
-  field :dbid, types.Int
-  field :introduction, types.String
-  field :header_type, types.String
-  field :header_file_url, types.String
-  field :header_overlay_text, types.String
-  field :content_type, types.String
-  field :rss_feed_url, types.String
-  field :first_article, types.String
-  field :second_article, types.String
-  field :third_article, types.String
-  field :number_of_articles, types.Int
-  field :send_every, JsonStringType
-  field :send_on, types.String do
-    resolve -> (newsletter, _args, _ctx) {
-      newsletter.send_on ? newsletter.send_on.strftime("%Y-%m-%d") : nil
-    }
+    field :dbid, Integer, null: true
+    field :introduction, String, null: true
+    field :header_type, String, null: true
+    field :header_file_url, String, null: true
+    field :header_overlay_text, String, null: true
+    field :content_type, String, null: true
+    field :rss_feed_url, String, null: true
+    field :first_article, String, null: true
+    field :second_article, String, null: true
+    field :third_article, String, null: true
+    field :number_of_articles, Integer, null: true
+    field :send_every, JsonString, null: true
+    field :send_on, String, null: true
+
+    def send_on
+      object.send_on ? object.send_on.strftime("%Y-%m-%d") : nil
+    end
+    field :timezone, String, null: true
+    field :time, String, null: true
+
+    def time
+      object.time.strftime("%H:%M")
+    end
+    field :subscribers_count, Integer, null: true
+    field :footer, String, null: true
+    field :language, String, null: true
+    field :enabled, Boolean, null: true
+    field :team, TeamType, null: true
+    field :last_scheduled_at, Integer, null: true
+    field :last_scheduled_by, UserType, null: true
+    field :last_sent_at, Integer, null: true
+    field :last_delivery_error, String, null: true
   end
-  field :timezone, types.String
-  field :time, types.String do
-    resolve -> (newsletter, _args, _ctx) {
-      newsletter.time.strftime("%H:%M")
-    }
-  end
-  field :subscribers_count, types.Int
-  field :footer, types.String
-  field :language, types.String
-  field :enabled, types.Boolean
-  field :team, TeamType
-  field :last_scheduled_at, types.Int
-  field :last_scheduled_by, UserType
-  field :last_sent_at, types.Int
-  field :last_delivery_error, types.String
 end

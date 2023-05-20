@@ -1,58 +1,59 @@
-TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', type: 'str', annotated_type: 'str', description: 'str', json_schema: 'str', slug: 'str' }) do
-  field :first_response do
-    type AnnotationType
+module Types
+  class TaskType < AnnotationObject
+    field :label, String, null: true
+    field :type, String, null: true
+    field :annotated_type, String, null: true
+    field :description, String, null: true
+    field :json_schema, String, null: true
+    field :slug, String, null: true
 
-    resolve -> (task, _args, _ctx) {
-      obj = task.load || task
+    field :first_response, "Types::AnnotationType", null: true
+
+    def first_response
+      obj = object.load || object
       obj.nil? ? nil : obj.first_response_obj
-    }
-  end
+    end
 
-  field :first_response_value do
-    type types.String
+    field :first_response_value, String, null: true
 
-    resolve -> (task, _args, _ctx) {
-      obj = task.load || task
+    def first_response_value
+      obj = object.load || object
       obj.nil? ? "" : obj.first_response
-    }
-  end
+    end
 
-  field :jsonoptions do
-    type types.String
+    field :jsonoptions, String, null: true
 
-    resolve -> (task, _args, _ctx) {
-      obj = task.load || task
+    def jsonoptions
+      obj = object.load || object
       obj.jsonoptions unless obj.nil?
-    }
-  end
+    end
 
-  field :options do
-    type JsonStringType
+    field :options, JsonString, null: true
 
-    resolve -> (task, _args, _ctx) {
-      obj = task.load || task
+    def options
+      obj = object.load || object
       obj.options unless obj.nil?
-    }
+    end
+
+    field :project_media, ProjectMediaType, null: true
+
+    def project_media
+      obj = object.load || object
+      if !obj.nil? && obj.annotated_type == "ProjectMedia"
+        obj.annotated
+      end
+    end
+
+    field :team_task_id, Integer, null: true
+
+    field :team_task, TeamTaskType, null: true
+
+    field :order, Integer, null: true
+
+    field :fieldset, String, null: true
+
+    field :show_in_browser_extension, Boolean, null: true
+
+    field :responses, "AnnotationType.connection_type", null: true, connection: true
   end
-
-  field :project_media do
-    type ProjectMediaType
-
-    resolve -> (task, _args, _ctx) {
-      obj = task.load || task
-      obj.annotated if !obj.nil? && obj.annotated_type == 'ProjectMedia'
-    }
-  end
-
-  field :team_task_id, types.Int
-
-  field :team_task, TeamTaskType
-
-  field :order, types.Int
-
-  field :fieldset, types.String
-
-  field :show_in_browser_extension, types.Boolean
-
-  connection :responses, -> { AnnotationType.connection_type }
 end

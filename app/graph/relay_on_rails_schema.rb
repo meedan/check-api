@@ -1,7 +1,10 @@
 class RelayOnRailsSchema < GraphQL::Schema
-  query QueryType
+  query Types::QueryType
   mutation MutationType
+
   use GraphQL::Batch
+  use GraphQL::Analysis::AST
+
   lazy_resolve(Concurrent::Future, :value)
 
   def self.resolve_type(_type, object, _ctx)

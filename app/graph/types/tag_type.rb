@@ -1,3 +1,9 @@
-TagType = GraphqlCrudOperations.define_annotation_type('tag', { tag: 'str', tag_text: 'str', fragment: 'str' }) do
-  field :tag_text_object, TagTextType
+module Types
+  class TagType < AnnotationObject
+    field :tag, String, null: true
+    field :tag_text, String, null: true
+    field :fragment, String, null: true
+
+    field :tag_text_object, TagTextType, null: true
+  end
 end

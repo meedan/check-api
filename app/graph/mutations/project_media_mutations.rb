@@ -43,7 +43,7 @@ module ProjectMediaMutations
     input_field :new_project_media_id, !types.ID
 
     return_field :old_project_media_deleted_id, types.ID
-    return_field :new_project_media, ProjectMediaType
+    return_field :new_project_media, Types::ProjectMediaType
 
     resolve -> (_root, inputs, ctx) {
       old = GraphqlCrudOperations.object_from_id_if_can(inputs['project_media_to_be_replaced_id'], ctx['ability'])

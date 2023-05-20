@@ -6,8 +6,8 @@ module TasksOrderMutations
 
         input_field :id, !types.ID
 
-        return_field object_name, "#{object_name.to_s.camelize}Type".constantize
-        return_field parent_name, "#{parent_name.to_s.camelize}Type".constantize
+        return_field object_name, "Types::#{object_name.to_s.camelize}Type".constantize
+        return_field parent_name, "Types::#{parent_name.to_s.camelize}Type".constantize
 
         resolve -> (_root, inputs, ctx) {
           object = GraphqlCrudOperations.object_from_id_if_can(inputs['id'], ctx['ability'])

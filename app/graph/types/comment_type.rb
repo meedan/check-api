@@ -1,1 +1,5 @@
-CommentType = GraphqlCrudOperations.define_annotation_type('comment', { text: 'str' })
+module Types
+  class CommentType < AnnotationObject
+    field :text, String, null: true
+  end
+end
