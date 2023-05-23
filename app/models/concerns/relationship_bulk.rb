@@ -57,7 +57,11 @@ module RelationshipBulk
 
     def delete_cached_field(source_id, target_ids)
       # Clear cached fields
-      cached_fields = ['linked_items_count', 'suggestions_count', 'report_status', 'related_count', 'demand', 'last_seen']
+      # List fields with `model: Relationship`
+      cached_fields = [
+        'is_suggested', 'is_confirmed', 'linked_items_count', 'suggestions_count','report_status','related_count',
+        'demand', 'last_seen', 'sources_as_sentence', 'added_as_similar_by_name', 'confirmed_as_similar_by_name'
+      ]
       cached_fields.each do |name|
         Rails.cache.delete("check_cached_field:ProjectMedia:#{source_id}:#{name}")
         target_ids.each { |id| Rails.cache.delete("check_cached_field:ProjectMedia:#{id}:#{name}") }
