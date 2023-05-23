@@ -139,6 +139,7 @@ class RelationshipTest < ActiveSupport::TestCase
   end
 
   test "should bulk-reject similar items" do
+    RequestStore.store[:skip_cached_field_update] = false
     with_versioning do
       setup_elasticsearch
       t = create_team
@@ -163,6 +164,9 @@ class RelationshipTest < ActiveSupport::TestCase
         assert_equal p2.id, pm_t1.reload.project_id
         assert_equal p2.id, pm_t2.reload.project_id
         assert_equal p.id, pm_t3.reload.project_id
+        # Verify cached fields
+        assert_not pm_t1.is_suggested
+        assert_not pm_t1.is_suggested(true)
       end
     end
   end
