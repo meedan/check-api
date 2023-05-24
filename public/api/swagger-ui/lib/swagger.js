@@ -843,7 +843,7 @@
         param = _ref[_i];
         if (param.paramType === 'path') {
           if (args[param.name]) {
-            reg = new RegExp('\{' + param.name + '[^\}]*\}', 'gi');
+            reg = new RegExp('{' + param.name + '[^}]*}', 'gi');
             url = url.replace(reg, encodeURIComponent(args[param.name]));
             delete args[param.name];
           } else {
