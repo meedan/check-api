@@ -10,6 +10,7 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
       rss_feed_url: 'https://example.com/feed',
       number_of_articles: 3,
       send_every: ['monday'],
+      send_on: Time.parse('2025-01-01'),
       timezone: 'UTC',
       time: Time.parse('10:00'),
       footer: 'Test',
@@ -33,6 +34,11 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
 
   test 'should have introduction' do
     @newsletter.introduction = ''
+    assert_not @newsletter.valid?
+  end
+
+  test 'should have introduction with maximum length' do
+    @newsletter.introduction = random_string(181)
     assert_not @newsletter.valid?
   end
 
@@ -72,6 +78,35 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     @newsletter.introduction = 'Foo'
     @newsletter.first_article = 'Bar'
     assert_equal "Foo\n\nBar", @newsletter.build_content
+  end
+
+  test 'should validate maximum length of articles' do
+    @newsletter.content_type = 'static'
+    @newsletter.introduction = 'Foo'
+
+    # 1 article
+    @newsletter.number_of_articles = 1
+    @newsletter.first_article = random_string(694)
+    assert @newsletter.valid?
+    @newsletter.first_article = random_string(695)
+    assert_not @newsletter.valid?
+
+    # 2 articles
+    @newsletter.number_of_articles = 2
+    @newsletter.first_article = random_string(345)
+    @newsletter.second_article = random_string(345)
+    assert @newsletter.valid?
+    @newsletter.first_article = random_string(346)
+    assert_not @newsletter.valid?
+
+    # 3 articles
+    @newsletter.number_of_articles = 3
+    @newsletter.first_article = random_string(230)
+    @newsletter.second_article = random_string(230)
+    @newsletter.third_article = random_string(230)
+    assert @newsletter.valid?
+    @newsletter.first_article = random_string(231)
+    assert_not @newsletter.valid?
   end
 
   test 'should build newsletter with dynamic content from RSS feed' do
