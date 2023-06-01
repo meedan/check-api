@@ -382,9 +382,9 @@ GEM
       activesupport (>= 4)
       railties (>= 4)
       request_store (~> 1.0)
-    loofah (2.19.1)
+    loofah (2.21.2)
       crass (~> 1.0.2)
-      nokogiri (>= 1.5.9)
+      nokogiri (>= 1.12.0)
     mail (2.8.1)
       mini_mime (>= 0.1.1)
       net-imap
@@ -411,7 +411,7 @@ GEM
     mime-types-data (3.2022.0105)
     mini_magick (4.10.1)
     mini_mime (1.1.2)
-    mini_portile2 (2.8.1)
+    mini_portile2 (2.8.2)
     minitest (5.18.0)
     minitest-hooks (1.5.0)
       minitest (> 5.3)
@@ -923,7 +923,7 @@ DEPENDENCIES
   jwt
   listen
   lograge
-  loofah (= 2.19.1)
+  loofah (~> 2.0, >= 2.0.3)
   mini_magick (= 4.10.1)
   minitest (~> 5.14)
   minitest-hooks

@@ -99,7 +99,8 @@ class RelationshipTest < ActiveSupport::TestCase
       u = create_user
       create_team_user team: t, user: u, role: 'admin'
       with_current_user_and_team(u, t) do
-        pm_s = create_project_media team: t
+        # Try to create an item with title that trigger a version metadata error(CV2-2910)
+        pm_s = create_project_media team: t, quote: "Rahul Gandhi's interaction with Indian?param:test&Journalists Association in London"
         pm_t1 = create_project_media team: t
         pm_t2 = create_project_media team: t
         pm_t3 = create_project_media team: t
@@ -138,6 +139,7 @@ class RelationshipTest < ActiveSupport::TestCase
   end
 
   test "should bulk-reject similar items" do
+    RequestStore.store[:skip_cached_field_update] = false
     with_versioning do
       setup_elasticsearch
       t = create_team
@@ -162,6 +164,9 @@ class RelationshipTest < ActiveSupport::TestCase
         assert_equal p2.id, pm_t1.reload.project_id
         assert_equal p2.id, pm_t2.reload.project_id
         assert_equal p.id, pm_t3.reload.project_id
+        # Verify cached fields
+        assert_not pm_t1.is_suggested
+        assert_not pm_t1.is_suggested(true)
       end
     end
   end

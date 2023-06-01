@@ -48,6 +48,9 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_tipline_inbox_filters, JsonStringType
   field :get_suggested_matches_filters, JsonStringType
   field :data_report, JsonStringType
+  field :available_newsletter_header_types, JsonStringType # List of header type strings
+  field :get_outgoing_urls_utm_code, types.String
+  field :get_shorten_outgoing_urls, types.Boolean
 
   field :public_team do
     type PublicTeamType
@@ -182,4 +185,5 @@ TeamType = GraphqlCrudOperations.define_default_type do
   connection :saved_searches, SavedSearchType.connection_type
   connection :project_groups, ProjectGroupType.connection_type
   connection :feeds, FeedType.connection_type
+  connection :tipline_newsletters, TiplineNewsletterType.connection_type
 end
