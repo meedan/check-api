@@ -302,7 +302,7 @@ class Team2Test < ActiveSupport::TestCase
       "destroy Team", "empty Trash", "create Project", "create ProjectMedia", "create Account", "create TeamUser",
       "create User", "invite Members", "not_spam ProjectMedia", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia",
       "duplicate Team", "manage TagText", "manage TeamTask", "set_privacy Project", "update Relationship",
-      "destroy Relationship"
+      "destroy Relationship", "create TiplineNewsletter"
     ].sort
 
     # load permissions as owner
@@ -1522,4 +1522,17 @@ class Team2Test < ActiveSupport::TestCase
     assert_equal 0, p2.reload.project_medias.count
   end
 
+  test 'should have a header type available only if there are templates for it' do
+    t = create_team
+    bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: {}, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
+    bot.install_to!(t)
+    tbi = TeamBotInstallation.where(team: t, user: bot).last
+    assert_equal [], t.available_newsletter_header_types
+    tbi.set_smooch_template_name_for_newsletter_none_no_articles = 'template_1'
+    tbi.set_smooch_template_name_for_newsletter_none_one_articles = 'template_2'
+    tbi.set_smooch_template_name_for_newsletter_none_two_articles = 'template_3'
+    tbi.set_smooch_template_name_for_newsletter_none_three_articles = 'template_4'
+    tbi.save!
+    assert_equal ['none', 'link_preview'], t.available_newsletter_header_types
+  end
 end

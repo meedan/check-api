@@ -285,64 +285,6 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     SmoochApi::IntegrationApi.any_instance.unstub(:create_integration)
   end
 
-  test "should format newsletter time as cron" do
-    # Offset
-    settings = {
-      'smooch_newsletter_time' => '10',
-      'smooch_newsletter_timezone' => 'America/Chicago (GMT-05:00)',
-      'smooch_newsletter_day' => 'friday'
-    }
-    assert_equal '0 15 * * 5', Bot::Smooch.newsletter_cron(settings)
-
-    # Offset, other direction
-    settings = {
-      'smooch_newsletter_time' => '10',
-      'smooch_newsletter_timezone' => 'Indian/Maldives (GMT+05:00)',
-      'smooch_newsletter_day' => 'friday'
-    }
-    assert_equal '0 5 * * 5', Bot::Smooch.newsletter_cron(settings)
-
-    # Non-integer hours offset, but still same day as UTC
-    settings = {
-      'smooch_newsletter_time' => '19',
-      'smooch_newsletter_timezone' => 'Asia/Kolkata (GMT+05:30)',
-      'smooch_newsletter_day' => 'sunday'
-    }
-    assert_equal '30 13 * * 0', Bot::Smooch.newsletter_cron(settings)
-
-    # Non-integer hours offset and not same day as UTC
-    settings = {
-      'smooch_newsletter_time' => '1',
-      'smooch_newsletter_timezone' => 'Asia/Kolkata (GMT+05:30)',
-      'smooch_newsletter_day' => 'sunday'
-    }
-    assert_equal '30 19 * * 6', Bot::Smooch.newsletter_cron(settings)
-
-    # Integer hours offset and not same day as UTC
-    settings = {
-      'smooch_newsletter_time' => '23',
-      'smooch_newsletter_timezone' => 'America/Los Angeles (GMT-07:00)',
-      'smooch_newsletter_day' => 'sunday'
-    }
-    assert_equal '0 6 * * 1', Bot::Smooch.newsletter_cron(settings)
-
-    # Everyday
-    settings = {
-      'smooch_newsletter_time' => '10',
-      'smooch_newsletter_timezone' => 'America/New York (GMT-04:00)',
-      'smooch_newsletter_day' => 'everyday'
-    }
-    assert_equal '0 14 * * *', Bot::Smooch.newsletter_cron(settings)
-
-    # Legacy 3 letter codes
-    settings = {
-      'smooch_newsletter_time' => '10',
-      'smooch_newsletter_timezone' => 'EST',
-      'smooch_newsletter_day' => 'sunday'
-    }
-    assert_equal '0 15 * * 0', Bot::Smooch.newsletter_cron(settings)
-  end
-
   test "should not timeout after subscribing to newsletter" do
     setup_smooch_bot(true)
     @team.set_languages ['de']

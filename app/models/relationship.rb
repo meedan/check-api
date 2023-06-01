@@ -57,14 +57,14 @@ class Relationship < ApplicationRecord
   def version_metadata(_object_changes = nil)
     by_check = BotUser.alegre_user&.id == User.current&.id
     source = self.source
-    source.nil? ? nil : {
+    source.nil? ? nil : ActiveRecord::Base.connection.quote_string({
       source: {
-        title: ActiveRecord::Base.connection.quote_string(source.title),
+        title: source.title,
         type: source.report_type,
-        url: ActiveRecord::Base.connection.quote_string(source.full_url),
+        url: source.full_url,
         by_check: by_check,
       }
-    }.to_json
+    }.to_json)
   end
 
   def self.confirmed_parent(pm)

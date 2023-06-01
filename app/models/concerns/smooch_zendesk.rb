@@ -90,10 +90,9 @@ module SmoochZendesk
     end
 
     # https://docs.smooch.io/guide/whatsapp#shorthand-syntax
-    def zendesk_format_template_message(namespace, template, fallback, locale, image, placeholders, header = nil)
+    def zendesk_format_template_message(namespace, template, fallback, locale, file_url, placeholders, file_type)
       data = { namespace: namespace, template: template, fallback: fallback, language: locale }
-      data['header_image'] = image unless image.blank?
-      data['header_text'] = header unless header.blank?
+      data['header_image'] = file_url if file_type == 'image' && !file_url.blank?
       output = ['&((']
       data.each do |key, value|
         output << "#{key}=[[#{value}]]"

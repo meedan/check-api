@@ -83,7 +83,7 @@ en:
     messages:
       invalid_password: Invalid password
       invalid_qrcode: Invalid validation code
-      extension_white_list_error: 'cannot have type %{extension}, allowed types: %{allowed_types}'
+      extension_white_list_error: 'cannot be of type %{extension}, allowed types: %{allowed_types}'
       invalid_size: must be between %{min_width}x%{min_height} and %{max_width}x%{max_height}
         pixels
       mini_magick_processing_error: 'Sorry, we failed to process the image. The error
@@ -800,6 +800,7 @@ en:
     %{content}
 
     To stop receiving this newsletter, type "%{unsubscribe}".
+  send_every_must_be_a_list_of_days_of_the_week: The schedule must be a list of days of the week.
   info:
     messages:
       sent_to_trash_by_rule: '"%{item_title}" has been sent to trash by an automation
