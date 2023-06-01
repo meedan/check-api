@@ -132,6 +132,7 @@ development: &default
   # REQUIRED to build short URLs
   #
   short_url_host: 'http://localhost:3000'
+  short_url_host_display: 'http://localhost:3000'
 
   # Exception reporting using Sentry
   #
