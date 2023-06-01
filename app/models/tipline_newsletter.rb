@@ -7,6 +7,11 @@ class TiplineNewsletter < ApplicationRecord
     'audio' => 'video', # WhatsApp doesn't support audio header, so we convert it to video
     'link_preview' => 'none'
   }
+  MAXIMUM_ARTICLE_LENGTH = { # Number of articles => Maximum length for each article
+    1 => 694,
+    2 => 345,
+    3 => 230
+  }
 
   include TiplineNewsletterImage
   include TiplineNewsletterVideo
@@ -25,12 +30,16 @@ class TiplineNewsletter < ApplicationRecord
 
   validates_presence_of :time, :timezone
   validates_presence_of :introduction, :team, :language
+  validates :introduction, length: { maximum: 180 }
   validates_presence_of :send_on, if: ->(newsletter) { newsletter.content_type == 'static' }
   validates_format_of :rss_feed_url, with: URI.regexp, if: ->(newsletter) { newsletter.content_type == 'rss' }
   validates_inclusion_of :number_of_articles, in: 0..3, allow_blank: true, allow_nil: true
   validates_inclusion_of :language, in: ->(newsletter) { newsletter.team.get_languages.to_a }
   validates_inclusion_of :header_type, in: ['none', 'link_preview', 'audio', 'video', 'image']
   validates_inclusion_of :content_type, in: ['static', 'rss']
+  validates :first_article, length: { maximum: proc { |newsletter| MAXIMUM_ARTICLE_LENGTH[newsletter.number_of_articles].to_i } }, allow_blank: true, allow_nil: true
+  validates :second_article, length: { maximum: proc { |newsletter| MAXIMUM_ARTICLE_LENGTH[newsletter.number_of_articles].to_i } }, allow_blank: true, allow_nil: true
+  validates :third_article, length: { maximum: proc { |newsletter| MAXIMUM_ARTICLE_LENGTH[newsletter.number_of_articles].to_i } }, allow_blank: true, allow_nil: true
   validate :send_every_is_a_list_of_days_of_the_week
   validate :header_file_is_supported_by_whatsapp
 
