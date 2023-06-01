@@ -246,7 +246,7 @@ Metrics/ParameterLists:
   Description: 'Avoid parameter lists longer than three or four parameters.'
   StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#too-many-params'
   Enabled: true
-  Max: 7
+  Max: 8
 
 Metrics/PerceivedComplexity:
   Description: >-
