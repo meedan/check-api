@@ -31,4 +31,15 @@ class UrlRewriterTest < ActiveSupport::TestCase
       assert_equal output, UrlRewriter.shorten_and_utmize_urls(input, 'test')
     end
   end
+
+  test 'should add https:// to URLs' do
+    stub_configs({ 'short_url_host_display' => 'https://chck.media' }) do
+      UrlRewriter.shorten_and_utmize_urls('Visit meedan.com/check/pt now', nil)
+    end
+    assert_equal 'https://meedan.com/check/pt', Shortener::ShortenedUrl.last.url
+    stub_configs({ 'short_url_host_display' => 'https://chck.media' }) do
+      UrlRewriter.shorten_and_utmize_urls('Visit https://meedan.com/check/en now', nil)
+    end
+    assert_equal 'https://meedan.com/check/en', Shortener::ShortenedUrl.last.url
+  end
 end
