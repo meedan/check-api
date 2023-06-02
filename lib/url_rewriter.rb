@@ -21,6 +21,7 @@ class UrlRewriter
     # Ruby 2.7 freezes the empty string from nil.to_s, which causes an error within the rewriter
     Twitter::TwitterText::Rewriter.rewrite_entities(text || '', entities) do |entity, _codepoints|
       url = source.blank? ? entity[:url] : self.utmize(entity[:url], source)
+      url = "https://#{url}" unless url =~ /^https?:\/\//
       self.shorten(url, owner)
     end
   end
