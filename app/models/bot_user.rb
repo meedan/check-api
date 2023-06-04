@@ -175,7 +175,11 @@ class BotUser < User
         request = Net::HTTP::Post.new(uri.request_uri, headers)
         request.body = data.to_json
         response = http.request(request)
-        Rails.logger.info "[BotUser] Notified bot #{self.id} with payload '#{data.to_json}', the response was (#{response.code}): '#{response.body}'"
+        # Log data with team_id only to avoid Encoding::CompatibilityError
+        logged_data = data.dup
+        logged_data.delete(:team)
+        logged_data[:team_id] = data[:team].id
+        Rails.logger.info "[BotUser] Notified bot #{self.id} with payload '#{logged_data.to_json}', the response was (#{response.code}): '#{response.body}'"
         response
       end
     rescue StandardError => e

@@ -21,11 +21,13 @@ class SizeValidator < ActiveModel::EachValidator
     if !value.nil? && !value.path.blank?
       return unless File.exist?(value.path)
       w, h = ::MiniMagick::Image.open(value.path)[:dimensions]
-      record.errors[attribute] << I18n.t(:"errors.messages.invalid_size",
-        min_width: SizeValidator.config('min_width'),
-        min_height: SizeValidator.config('min_height'),
-        max_width: SizeValidator.config('max_width'),
-        max_height: SizeValidator.config('max_height')
+      record.errors.add(attribute.to_sym,
+        I18n.t(:"errors.messages.invalid_size",
+          min_width: SizeValidator.config('min_width'),
+          min_height: SizeValidator.config('min_height'),
+          max_width: SizeValidator.config('max_width'),
+          max_height: SizeValidator.config('max_height')
+        )
       ) if invalid_size?(w, h)
     end
   end

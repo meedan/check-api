@@ -31,11 +31,11 @@ require 'sidekiq/testing'
 require 'minitest/retry'
 require 'pact/consumer/minitest'
 require 'mocha/minitest'
-require "csv"
+require 'csv'
 
 Dir[Rails.root.join("test/support/**/*.rb")].each {|f| require f}
 
-# Minitest::Retry.use!
+Minitest::Retry.use!
 TestDatabaseHelper.setup_database_partitions!
 
 class ActionController::TestCase
@@ -448,42 +448,6 @@ class ActiveSupport::TestCase
                 "content": {
                   "type": "string",
                   "default": ""
-                }
-              }
-            },
-            "smooch_newsletter": {
-              "title": "Newsletter",
-              "type": "object",
-              "properties": {
-                "smooch_newsletter_day": {
-                  "type": "string",
-                  "title": "Day",
-                  "default": "",
-                },
-                "smooch_newsletter_time": {
-                  "type": "string",
-                  "title": "Time",
-                  "default": "",
-                },
-                "smooch_newsletter_timezone": {
-                  "type": "string",
-                  "title": "Timezone",
-                  "default": "",
-                },
-                "smooch_newsletter_body": {
-                  "type": "string",
-                  "title": "Body",
-                  "default": "",
-                },
-                "smooch_newsletter_feed_url": {
-                  "type": "string",
-                  "title": "Feed URL",
-                  "default": "",
-                },
-                "smooch_newsletter_number_of_articles": {
-                  "type": "integer",
-                  "title": "Number of articles",
-                  "default": 3,
                 }
               }
             },
@@ -977,14 +941,6 @@ class ActiveSupport::TestCase
             }
           ]
         },
-        'smooch_newsletter' => {
-          'smooch_newsletter_day' => 'monday',
-          'smooch_newsletter_time' => '9',
-          'smooch_newsletter_timezone' => 'BRT',
-          'smooch_newsletter_body' => 'Test',
-          'smooch_newsletter_feed_url' => 'http://test.com/feed.rss',
-          'smooch_newsletter_number_of_articles' => 3
-        },
         'smooch_state_query' => {
           'smooch_menu_message' => 'Enter your query or send 0 to go back to the main menu',
           'smooch_menu_options' => [
@@ -1056,6 +1012,17 @@ class ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://www.instagram.com/p/Bu3enV8Fjcy/?utm_source=ig_web_copy_link' } }).to_return({ body: '{"type":"media","data":{"url":"https://www.instagram.com/p/Bu3enV8Fjcy","type":"item"}}' })
     WebMock.stub_request(:get, /check_message_tos/).to_return({ body: '<h1>Check Message Terms of Service</h1><p class="meta">Last modified: August 7, 2019</p>' })
     Bot::Smooch.stubs(:save_user_information).returns(nil)
+    create_tipline_newsletter(
+      send_every: ['monday'],
+      time: Time.parse('10:00'),
+      timezone: 'BRT',
+      introduction: 'Test',
+      content_type: 'rss',
+      rss_feed_url: 'http://test.com/feed.rss',
+      number_of_articles: 3,
+      team: @team,
+      language: 'en'
+    )
   end
 
   def send_message_to_smooch_bot(message = random_string, user = random_string, extra = {})

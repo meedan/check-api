@@ -223,10 +223,7 @@ module SmoochCapi
       req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{self.config['capi_permanent_token']}")
       req.body = payload.to_json
       response = http.request(req)
-      ret = nil
-      if response.code.to_i < 400
-        ret = response
-      else
+      if response.code.to_i >= 400
         # FIXME: Understand different errors that can be returned from Cloud API and have specific reports
         # response_body = self.safely_parse_response_body(response)
         e = Bot::Smooch::CapiMessageDeliveryError.new('Could not send message using WhatsApp Cloud API')
@@ -234,15 +231,16 @@ module SmoochCapi
           uid: uid,
           type: payload.dig(:type),
           template_name: payload.dig(:template, :name),
-          template_language: payload.dig(:template, :language, :code)
+          template_language: payload.dig(:template, :language, :code),
+          error: response.body
         )
       end
-      ret
+      response
     end
 
-    def capi_format_template_message(_namespace, template, _fallback, locale, image, placeholders)
+    def capi_format_template_message(_namespace, template, _fallback, locale, file_url, placeholders, file_type = 'image', preview_url = true)
       components = []
-      components << { type: 'header', parameters: [{ type: 'image', image: { link: image } }] } unless image.blank?
+      components << { type: 'header', parameters: [{ type: file_type, file_type => { link: file_url } }] } unless file_url.blank?
       body = []
       placeholders.each do |placeholder|
         body << { type: 'text', text: placeholder.to_s.gsub(/\s+/, ' ') }
@@ -250,6 +248,7 @@ module SmoochCapi
       components << { type: 'body', parameters: body } unless body.empty?
       {
         type: 'template',
+        preview_url: preview_url,
         template: {
           name: template,
           language: {

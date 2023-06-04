@@ -55,7 +55,12 @@ module CheckStatistics
           nil
         end
       end.reject{ |t| t.blank? }.collect{ |t| Time.parse(t.to_s) }.select{ |t| t >= start_date && t <= end_date }.collect{ |t| t.to_s }.uniq
-      times.size
+      old_count = times.size
+
+      newsletter = TiplineNewsletter.where(team_id: team_id, language: language).last
+      new_count = newsletter.nil? ? 0 : TiplineNewsletterDelivery.where(tipline_newsletter: newsletter, created_at: start_date..end_date).count
+
+      old_count + new_count
     end
 
     def get_statistics(start_date, end_date, team_id, platform, language, tracing_attributes = {})
@@ -82,7 +87,7 @@ module CheckStatistics
           statistics[:conversations] = conversations
         end
 
-        number_of_newsletters = 0
+        number_of_newsletters = nil
         CheckTracer.in_span('CheckStatistics#unique_newsletters_sent', attributes: tracing_attributes) do
           # Number of newsletters sent
           # NOTE: For all platforms
@@ -117,7 +122,8 @@ module CheckStatistics
           search_results = project_media_requests(team_id, platform, start_date, end_date, language, 'relevant_search_result_requests').count + project_media_requests(team_id, platform, start_date, end_date, language, 'irrelevant_search_result_requests').count + project_media_requests(team_id, platform, start_date, end_date, language, 'timeout_search_requests').count
 
           # Average number of messages per day
-          number_of_messages = numbers_of_messages.sum + search_results + (number_of_newsletters * current_newsletter_subscribers)
+          number_of_messages = numbers_of_messages.sum + search_results
+          number_of_messages += (number_of_newsletters * current_newsletter_subscribers) if (number_of_newsletters && current_newsletter_subscribers)
           if number_of_messages == 0
             statistics[:average_messages_per_day] = 0
           else

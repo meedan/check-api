@@ -22,6 +22,7 @@ class StatisticsTest < ActiveSupport::TestCase
     @end_of_month = DateTime.new(2023,5,31,23,59,59).end_of_month
 
     # Create data for tipline team
+    create_metadata_stuff
     smooch_bot = create_smooch_bot
     @tipline_team = create_team(slug: 'test-team')
     create_team_bot_installation(team_id: @tipline_team.id, user_id: smooch_bot.id)
@@ -249,6 +250,39 @@ class StatisticsTest < ActiveSupport::TestCase
     conversations = MonthlyTeamStatistic.where(team: @tipline_team).pluck(:conversations_24hr).uniq
     assert_equal 1, conversations.count
     assert_nil conversations.first
+  end
+
+  test "check:data:statistics logs errors and reports to sentry, but continues calculating" do
+    create_project_media(user: BotUser.smooch_user, claim: "Claim: correct team", team: @tipline_team, created_at: @current_date - 2.months)
+
+    # Month 1
+    CheckStatistics.stubs(:get_statistics).raises(StandardError.new('test error 1'))
+    # Month 2
+    CheckStatistics.stubs(:get_statistics).raises(StandardError.new('test error 2'))
+    # Month 3
+    CheckStatistics.expects(:get_statistics).with(@start_of_month, @current_date, @tipline_team.id, 'whatsapp', 'en').returns(
+      {
+        platform: 'whatsapp',
+        language: 'en',
+        start_date: @start_of_month,
+        end_date: @current_date,
+      }
+    )
+
+    CheckSentry.expects(:notify).twice
+
+    travel_to @current_date
+
+    assert_equal 0, MonthlyTeamStatistic.where(team: @tipline_team).count
+
+    assert_raises Check::Statistics::IncompleteRunError do
+      out, err = capture_io do
+        Rake::Task['check:data:statistics'].invoke
+      end
+    end
+    Rake::Task['check:data:statistics'].reenable
+
+    assert_equal 1, MonthlyTeamStatistic.where(team: @tipline_team).count
   end
 
   test "check:data:statistics allows generating conversations for months before april 1 2023, with argument" do

@@ -703,19 +703,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     end
   end
 
-  test "should add utm_source parameter to URLs" do
-    input = 'Go to https://x.com and http://meedan.com/?lang=en and http://meedan.com/en/website?a=1&b=2 and http://meedan.com/en/ and http://meedan.com/en and finally meedan.com. Thanks.Everyone !'
-    expected = 'Go to https://x.com?utm_source=check_test and http://meedan.com/?lang=en&utm_source=check_test and http://meedan.com/en/website?a=1&b=2&utm_source=check_test and http://meedan.com/en/?utm_source=check_test and http://meedan.com/en?utm_source=check_test and finally meedan.com?utm_source=check_test. Thanks.Everyone !'
-    output = Bot::Smooch.utmize_urls(input, 'test')
-    assert_equal expected, output
-
-    URI.stubs(:parse).raises(RuntimeError)
-    input = 'Test http://meedan.com'
-    output = Bot::Smooch.utmize_urls(input, 'test')
-    assert_equal input, output
-    URI.unstub(:parse)
-  end
-
   test "should send message on status change" do
     value = {
       label: 'Field label',

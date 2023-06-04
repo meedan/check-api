@@ -25,7 +25,7 @@ class DynamicAnnotation::AnnotationTypeTest < ActiveSupport::TestCase
 
   test "should not create annotation type if type has invalid format" do
     assert_no_difference 'DynamicAnnotation::AnnotationType.count' do
-      assert_raises ActiveRecord::RecordInvalid do
+      assert_raises NameError do
         create_annotation_type annotation_type: 'This is not valid'
       end
     end

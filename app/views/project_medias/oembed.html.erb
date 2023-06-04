@@ -6,8 +6,8 @@
     <title><%= @project_media.title %></title>
     <link href="<%= CheckConfig.get('checkdesk_base_url') %>/css/oembed.css?t=201904021148" rel="stylesheet" type="text/css">
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-linkify/2.1.8/linkify.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-linkify/2.1.8/linkify-jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-linkify/2.1.8/linkify.min.js" integrity="sha256-b8aRDYEOoOLGpyaXMI3N2nWUbjSeQ2QxzKjmPnCa4yA=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-linkify/2.1.8/linkify-jquery.min.js" integrity="sha256-F70q7AGz3CYOo2UIkomPSg5xAnO52dJ646kytZ7lSEQ=" crossorigin="anonymous"></script>
     <script>
       var locales = <%= I18n.available_locales.to_json.html_safe %>;
     </script>
