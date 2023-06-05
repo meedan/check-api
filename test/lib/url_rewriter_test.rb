@@ -9,7 +9,7 @@ class UrlRewriterTest < ActiveSupport::TestCase
 
   test 'should shorten URL' do
     url = nil
-    stub_configs({ 'short_url_host' => 'https://chck.media' }) do
+    stub_configs({ 'short_url_host_display' => 'https://chck.media' }) do
       url = UrlRewriter.shorten('https://meedan.com/check', nil)
     end
     assert_match /^https:\/\/chck.media\/[^\/]{8}/, url
@@ -27,8 +27,19 @@ class UrlRewriterTest < ActiveSupport::TestCase
     Shortener::ShortenedUrl.any_instance.stubs(:unique_key).returns('1234xyzw')
     input = 'Hey, visit https://meedan.com and https://checkmedia.org/check?lang=en :)'
     output = 'Hey, visit https://chck.media/1234xyzw and https://chck.media/1234xyzw :)'
-    stub_configs({ 'short_url_host' => 'https://chck.media' }) do
+    stub_configs({ 'short_url_host_display' => 'https://chck.media' }) do
       assert_equal output, UrlRewriter.shorten_and_utmize_urls(input, 'test')
     end
+  end
+
+  test 'should add https:// to URLs' do
+    stub_configs({ 'short_url_host_display' => 'https://chck.media' }) do
+      UrlRewriter.shorten_and_utmize_urls('Visit meedan.com/check/pt now', nil)
+    end
+    assert_equal 'https://meedan.com/check/pt', Shortener::ShortenedUrl.last.url
+    stub_configs({ 'short_url_host_display' => 'https://chck.media' }) do
+      UrlRewriter.shorten_and_utmize_urls('Visit https://meedan.com/check/en now', nil)
+    end
+    assert_equal 'https://meedan.com/check/en', Shortener::ShortenedUrl.last.url
   end
 end
