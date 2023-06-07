@@ -42,6 +42,7 @@ class TiplineNewsletter < ApplicationRecord
   validates :third_article, length: { maximum: proc { |newsletter| MAXIMUM_ARTICLE_LENGTH[newsletter.number_of_articles].to_i } }, allow_blank: true, allow_nil: true, if: proc { |newsletter| newsletter.number_of_articles == 3 }
   validate :send_every_is_a_list_of_days_of_the_week
   validate :header_file_is_supported_by_whatsapp
+  validate :not_scheduled_for_the_past
 
   after_save :reschedule_delivery
   after_commit :convert_header_file, on: [:create, :update]
@@ -268,5 +269,11 @@ class TiplineNewsletter < ApplicationRecord
     type = self.header_file.file.extension.downcase
     errors.add(:base, I18n.t(message, { max_size: "#{max_size}MB" })) if size_in_mb > max_size.to_f
     errors.add(:header_file, I18n.t('errors.messages.extension_white_list_error', { extension: type, allowed_types: allowed_types.join(', ') })) unless allowed_types.include?(type)
+  end
+
+  def not_scheduled_for_the_past
+    if self.content_type == 'static' && self.scheduled_time.past?
+      errors.add(:send_on, I18n.t(:send_on_must_be_in_the_future))
+    end
   end
 end
