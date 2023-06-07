@@ -217,9 +217,15 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     @newsletter.content_type = 'rss'
     assert @newsletter.valid?
     @newsletter.content_type = 'static'
-    @newsletter.send_on = Date.parse('2023-01-25')
+    @newsletter.send_on = Time.now.tomorrow
     assert @newsletter.valid?
     @newsletter.content_type = 'foo'
+    assert !@newsletter.valid?
+  end
+
+  test 'should not schedule for the past' do
+    @newsletter.content_type = 'static'
+    @newsletter.send_on = Date.parse('2023-05-01')
     assert !@newsletter.valid?
   end
 
