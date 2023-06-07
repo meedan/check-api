@@ -898,7 +898,6 @@ DEPENDENCIES
   elasticsearch-model (= 7.1.1)
   elasticsearch-persistence (= 7.1.1)
   elasticsearch-transport (= 7.10.1)
-  execjs
   faker
   file_validators
   filesize
