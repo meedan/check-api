@@ -1,17 +1,15 @@
-module Types
-  class RelationshipType < BaseObject
-    description 'A relationship between two items'
-    implements GraphQL::Types::Relay::NodeField
+class RelationshipType < BaseObject
+  description "A relationship between two items"
+  implements NodeIdentification.interface
 
-    global_id_field :id
+  global_id_field :id
 
-    field :dbid, Integer, null: true
-    field :target_id, Integer, null: true
-    field :source_id, Integer, null: true
-    field :permissions, String, null: true
-    field :relationship_type, String, null: true
+  field :dbid, Integer, null: true
+  field :target_id, Integer, null: true
+  field :source_id, Integer, null: true
+  field :permissions, String, null: true
+  field :relationship_type, String, null: true
 
-    field :target, ProjectMediaType, null: true
-    field :source, ProjectMediaType, null: true
-  end
+  field :target, ProjectMediaType, null: true
+  field :source, ProjectMediaType, null: true
 end

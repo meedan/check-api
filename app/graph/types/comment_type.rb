@@ -1,5 +1,3 @@
-module Types
-  class CommentType < AnnotationObject
-    field :text, String, null: true
-  end
+class CommentType < AnnotationObject
+  field :text, String, null: true
 end

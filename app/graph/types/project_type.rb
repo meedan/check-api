@@ -1,44 +1,43 @@
-module Types
-  class ProjectType < DefaultObject
-    description "Project type"
+class ProjectType < DefaultObject
+  description "Project type"
 
-    implements GraphQL::Types::Relay::NodeField
+  implements NodeIdentification.interface
 
-    field :avatar, String, null: true
-    field :description, String, null: true
-    field :title, String, null: false
-    field :dbid, Integer, null: true
-    field :permissions, String, null: true
-    field :pusher_channel, String, null: true
-    field :medias_count, Integer, null: true
-    field :search_id, String, null: true
-    field :url, String, null: true
-    field :search, CheckSearchType, null: true
-    field :team, TeamType, null: true
-    field :project_group_id, Integer, null: true
-    field :project_group, ProjectGroupType, null: true
-    field :privacy, Integer, null: true
-    field :is_default, Boolean, null: true
+  field :avatar, String, null: true
+  field :description, String, null: true
+  field :title, String, null: false
+  field :dbid, Integer, null: true
+  field :permissions, String, null: true
+  field :pusher_channel, String, null: true
+  field :medias_count, Integer, null: true
+  field :search_id, String, null: true
+  field :url, String, null: true
+  field :search, CheckSearchType, null: true
+  field :team, TeamType, null: true
+  field :project_group_id, Integer, null: true
+  field :project_group, ProjectGroupType, null: true
+  field :privacy, Integer, null: true
+  field :is_default, Boolean, null: true
 
-    field :assignments_count, Integer, null: true
+  field :assignments_count, Integer, null: true
 
-    def assignments_count
-      object.reload.assignments_count
-    end
+  def assignments_count
+    object.reload.assignments_count
+  end
 
-    field :project_medias,
-          ProjectMediaType.connection_type,
-          null: true,
-          connection: true
+  field :project_medias,
+        ProjectMediaType.connection_type,
+        null: true
 
-    def project_medias
-      object.project_medias.order("id DESC")
-    end
+  def project_medias
+    object.project_medias.order("id DESC")
+  end
 
-    field :assigned_users, UserType.connection_type, null: true, connection: true
+  field :assigned_users,
+        UserType.connection_type,
+        null: true
 
-    def assigned_users
-      object.assigned_users
-    end
+  def assigned_users
+    object.assigned_users
   end
 end

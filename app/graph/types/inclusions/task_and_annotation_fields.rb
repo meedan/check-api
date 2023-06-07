@@ -4,9 +4,8 @@ module TaskAndAnnotationFields
     base.class_eval do
       # .field_annotations
       field :annotations,
-            Types::AnnotationUnion.connection_type,
-            null: true,
-            connection: true do
+            "AnnotationUnion.connection_type",
+            null: true do
         argument :annotation_type, String, required: true
       end
 
@@ -16,7 +15,7 @@ module TaskAndAnnotationFields
       end
 
       # .field_tasks
-      field :tasks, Types::TaskType.connection_type, null: true, connection: true do
+      field :tasks, "TaskType.connection_type", null: true do
         argument :fieldset, String, required: false
       end
     end

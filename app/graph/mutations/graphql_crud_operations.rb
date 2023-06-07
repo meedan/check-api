@@ -9,7 +9,7 @@ class GraphqlCrudOperations
         "id" => types.ID,
         "!id" => !types.ID,
         "bool" => types.Boolean,
-        "json" => Types::JsonString
+        "json" => JsonString
       }.freeze
     end
   end
@@ -158,23 +158,23 @@ class GraphqlCrudOperations
         input_field field_name, mapping[field_type]
       end
 
-      klass = "Types::#{type.camelize}Type".constantize
+      klass = "#{type.camelize}Type".constantize
       return_field type.to_sym, klass
 
       return_field(:affectedId, types.ID) if type.to_s == "project_media"
 
       if type.to_s == "team"
-        return_field(:team_userEdge, Types::TeamUserType.edge_type)
-        return_field(:user, Types::UserType)
+        return_field(:team_userEdge, TeamUserType.edge_type)
+        return_field(:user, UserType)
       end
 
       if type =~ /^dynamic_annotation_/
-        return_field :dynamic, Types::DynamicType
-        return_field :dynamicEdge, Types::DynamicType.edge_type
+        return_field :dynamic, DynamicType
+        return_field :dynamicEdge, DynamicType.edge_type
       end
 
       if %w[task comment].include?(type.to_s) || type =~ /dynamic/
-        return_field("versionEdge".to_sym, Types::VersionType.edge_type)
+        return_field("versionEdge".to_sym, VersionType.edge_type)
       end
 
       return_field type.to_sym, klass
@@ -208,7 +208,7 @@ class GraphqlCrudOperations
 
       return_field :ids, types[types.ID]
       if update_or_destroy.to_s == "update"
-        return_field(:updated_objects, types["Types::#{klass.name}Type".constantize])
+        return_field(:updated_objects, types["#{klass.name}Type".constantize])
       end
       GraphqlCrudOperations
         .define_parent_returns(parents)
@@ -361,7 +361,7 @@ class GraphqlCrudOperations
       ].include?(parent)
       parentclass = "TagText" if parent == "tag_text_object"
       parentclass = "Project" if parent == "previous_default_project"
-      fields[parent.to_sym] = "Types::#{parentclass}Type".constantize
+      fields[parent.to_sym] = "#{parentclass}Type".constantize
     end
     fields
   end
@@ -374,8 +374,18 @@ class GraphqlCrudOperations
   )
     update_fields = create_fields if update_fields.empty?
     [
-      GraphqlCrudOperations.define_create_or_update("create", type, create_fields, parents),
-      GraphqlCrudOperations.define_create_or_update("update", type, update_fields, parents),
+      GraphqlCrudOperations.define_create_or_update(
+        "create",
+        type,
+        create_fields,
+        parents
+      ),
+      GraphqlCrudOperations.define_create_or_update(
+        "update",
+        type,
+        update_fields,
+        parents
+      ),
       GraphqlCrudOperations.define_destroy(type, parents)
     ]
   end

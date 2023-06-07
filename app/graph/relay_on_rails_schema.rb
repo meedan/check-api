@@ -1,8 +1,11 @@
 class RelayOnRailsSchema < GraphQL::Schema
-  query Types::QueryType
+  query QueryType
   mutation MutationType
 
   use GraphQL::Batch
+
+  # Opt in to the new runtime (default in future graphql-ruby versions)
+  # use GraphQL::Execution::Interpreter
   use GraphQL::Analysis::AST
 
   lazy_resolve(Concurrent::Future, :value)

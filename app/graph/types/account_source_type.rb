@@ -1,22 +1,20 @@
-module Types
-  class AccountSourceType < DefaultObject
-    description "AccountSource type"
+class AccountSourceType < DefaultObject
+  description "AccountSource type"
 
-    implements GraphQL::Types::Relay::NodeField
+  implements NodeIdentification.interface
 
-    field :account_id, Integer, null: true
-    field :source_id, Integer, null: true
+  field :account_id, Integer, null: true
+  field :source_id, Integer, null: true
 
-    field :source, SourceType, null: true
+  field :source, SourceType, null: true
 
-    def source
-      object.source
-    end
+  def source
+    object.source
+  end
 
-    field :account, AccountType, null: true
+  field :account, AccountType, null: true
 
-    def account
-      object.account
-    end
+  def account
+    object.account
   end
 end

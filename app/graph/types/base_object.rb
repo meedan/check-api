@@ -1,2 +1,2 @@
-class Types::BaseObject < GraphQL::Schema::Object
+class BaseObject < GraphQL::Schema::Object
 end

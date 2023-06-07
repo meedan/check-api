@@ -1,32 +1,30 @@
-module Types
-  class TeamUserType < DefaultObject
-    description "TeamUser type"
+class TeamUserType < DefaultObject
+  description "TeamUser type"
 
-    implements GraphQL::Types::Relay::NodeField
+  implements NodeIdentification.interface
 
-    field :dbid, Integer, null: true
-    field :user_id, Integer, null: true
-    field :team_id, Integer, null: true
-    field :status, String, null: true
-    field :role, String, null: true
-    field :permissions, String, null: true
+  field :dbid, Integer, null: true
+  field :user_id, Integer, null: true
+  field :team_id, Integer, null: true
+  field :status, String, null: true
+  field :role, String, null: true
+  field :permissions, String, null: true
 
-    field :team, TeamType, null: true
+  field :team, TeamType, null: true
 
-    def team
-      object.team
-    end
+  def team
+    object.team
+  end
 
-    field :user, UserType, null: true
+  field :user, UserType, null: true
 
-    def user
-      object.user
-    end
+  def user
+    object.user
+  end
 
-    field :invited_by, UserType, null: true
+  field :invited_by, UserType, null: true
 
-    def invited_by
-      User.find_by_id(object.invited_by_id)
-    end
+  def invited_by
+    User.find_by_id(object.invited_by_id)
   end
 end

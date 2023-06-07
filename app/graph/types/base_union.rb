@@ -1,2 +1,2 @@
-class Types::BaseUnion < GraphQL::Schema::Union
+class BaseUnion < GraphQL::Schema::Union
 end
