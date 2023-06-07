@@ -1,8 +1,12 @@
 class UrlRewriter
   def self.shorten(url, owner)
-    key = Shortener::ShortenedUrl.generate(url, owner: owner).unique_key
-    host = CheckConfig.get('short_url_host_display') || CheckConfig.get('short_url_host')
-    host + '/' + key
+    begin
+      key = Shortener::ShortenedUrl.generate(url, owner: owner).unique_key
+      host = CheckConfig.get('short_url_host_display') || CheckConfig.get('short_url_host')
+      host + '/' + key
+    rescue
+      url
+    end
   end
 
   def self.utmize(url, source)
