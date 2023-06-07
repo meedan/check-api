@@ -223,6 +223,13 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     assert !@newsletter.valid?
   end
 
+  test 'should allow zero articles' do
+    @newsletter.content_type = 'static'
+    @newsletter.number_of_articles = 0
+    @newsletter.first_article = 'Foo'
+    assert @newsletter.valid?
+  end
+
   test 'should convert video header file' do
     WebMock.stub_request(:get, /:9000/).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp4')))
     TiplineNewsletter.any_instance.stubs(:new_file_uploaded?).returns(true)
