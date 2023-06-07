@@ -800,7 +800,8 @@ en:
     %{content}
 
     To stop receiving this newsletter, type "%{unsubscribe}".
-  send_every_must_be_a_list_of_days_of_the_week: The schedule must be a list of days of the week.
+  send_every_must_be_a_list_of_days_of_the_week: must be a list of days of the week.
+  send_on_must_be_in_the_future: can't be in the past.
   info:
     messages:
       sent_to_trash_by_rule: '"%{item_title}" has been sent to trash by an automation
