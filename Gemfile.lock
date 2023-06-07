@@ -240,7 +240,6 @@ GEM
       ffi (>= 1.15.0)
     eventmachine (1.2.7)
     excon (0.92.1)
-    execjs (2.8.1)
     expgen (0.1.1)
       parslet
     faker (2.22.0)

@@ -14,8 +14,6 @@ ENV LANGUAGE C.UTF-8
 
 RUN apt-get update -qq && apt-get install -y --no-install-recommends curl
 
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
-
 RUN apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
     ffmpegthumbnailer \
@@ -26,7 +24,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     inotify-tools \
     libpq-dev \
     libtag1-dev \
-    nodejs \
     lsof
 
 # install our app
