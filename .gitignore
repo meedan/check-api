@@ -9,7 +9,6 @@ config/sidekiq-test.yml
 config/clean_db.yml
 *.sw*
 *~
-public/assets
 public/uploads
 public/uploads/tmp
 !public/uploads/tmp/.gitkeep
