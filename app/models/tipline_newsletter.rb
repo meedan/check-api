@@ -62,7 +62,7 @@ class TiplineNewsletter < ApplicationRecord
     timezone = self.timezone
 
     # If an offset is being passed, then it's in the new format... we used to support timezone names
-    if self.timezone.match?(/\W\d\d:\d\d/)
+    if self.timezone.to_s.match?(/\W\d\d:\d\d/)
       timezone = self.timezone.match(/\W\d\d:\d\d/)
     else
       timezone = self.timezone.to_s.upcase
@@ -273,7 +273,9 @@ class TiplineNewsletter < ApplicationRecord
 
   def not_scheduled_for_the_past
     if self.content_type == 'static' && self.scheduled_time.past?
-      errors.add(:send_on, I18n.t(:send_on_must_be_in_the_future))
+      field = :send_on
+      field = :time if self.scheduled_time.strftime('%Y-%m-%d') == Time.now.utc.strftime('%Y-%m-%d')
+      errors.add(field, I18n.t(:send_on_must_be_in_the_future))
     end
   end
 end

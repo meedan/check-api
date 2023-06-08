@@ -224,7 +224,8 @@ module SmoochResend
       return '' if namespace.blank? || template.blank?
       default_language = Team.where(id: self.config['team_id'].to_i).last&.default_language
       locale = (!language.blank? && [self.config['smooch_template_locales']].flatten.include?(language)) ? language : default_language
-      safe_placeholders = placeholders.collect{ |placeholder| placeholder.blank? ? '-' : placeholder } # Placeholders are mandatory in WhatsApp templates, so let's be sure they are not blank
+      # Placeholders are mandatory in WhatsApp templates, so let's be sure they are not blank and don't contain spaces, which can mess up with formatting, like bold
+      safe_placeholders = placeholders.collect{ |placeholder| placeholder.blank? ? '-' : placeholder.strip }
       if RequestStore.store[:smooch_bot_provider] == 'TURN'
         self.turnio_format_template_message(namespace, template, fallback, locale, file_url, safe_placeholders, file_type, preview_url)
       elsif RequestStore.store[:smooch_bot_provider] == 'CAPI'
