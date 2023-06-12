@@ -16,6 +16,6 @@ module RelationshipMutations
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('relationship', create_fields, update_fields, ['source_project_media', 'target_project_media'])
 
-  BulkUpdate = GraphqlCrudOperations.define_bulk_update(Relationship, { action: '!str', source_id: "!int" }, ['source_project_media'])
-  BulkDestroy = GraphqlCrudOperations.define_bulk_destroy(Relationship, { source_id: "!int", add_to_project_id: "int" }, ['source_project_media'])
+  BulkUpdate = GraphqlCrudOperations.define_bulk_update_or_destroy(:update, Relationship, { action: '!str', source_id: "!int" }, ['source_project_media'])
+  BulkDestroy = GraphqlCrudOperations.define_bulk_update_or_destroy(:destroy, Relationship, { source_id: "!int", add_to_project_id: "int" }, ['source_project_media'])
 end

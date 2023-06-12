@@ -87,7 +87,8 @@ module ProjectMediaMutations
     end
 
   BulkUpdate =
-    GraphqlCrudOperations.define_bulk_update(
+    GraphqlCrudOperations.define_bulk_update_or_destroy(
+      :update,
       ProjectMedia,
       { action: "!str", params: "str" },
       %w[

@@ -148,49 +148,6 @@ class GraphqlCrudOperations
     self.crud_operation("destroy", obj, inputs, ctx, parents, returns)
   end
 
-  def self.define_create_or_update(action, type, fields, parents = [])
-    GraphQL::Relay::Mutation.define do
-      mapping = instance_exec(&GraphqlCrudOperations.type_mapping)
-      name "#{action.camelize}#{type.camelize}"
-
-      input_field :id, types.ID if action == "update"
-      fields.each do |field_name, field_type|
-        input_field field_name, mapping[field_type]
-      end
-
-      klass = "#{type.camelize}Type".constantize
-      return_field type.to_sym, klass
-
-      return_field(:affectedId, types.ID) if type.to_s == "project_media"
-
-      if type.to_s == "team"
-        return_field(:team_userEdge, TeamUserType.edge_type)
-        return_field(:user, UserType)
-      end
-
-      if type =~ /^dynamic_annotation_/
-        return_field :dynamic, DynamicType
-        return_field :dynamicEdge, DynamicType.edge_type
-      end
-
-      if %w[task comment].include?(type.to_s) || type =~ /dynamic/
-        return_field("versionEdge".to_sym, VersionType.edge_type)
-      end
-
-      return_field type.to_sym, klass
-      return_field "#{type}Edge".to_sym, klass.edge_type
-      GraphqlCrudOperations
-        .define_parent_returns(parents)
-        .each do |field_name, field_class|
-          return_field(field_name, field_class)
-        end
-
-      resolve ->(_root, inputs, ctx) {
-                GraphqlCrudOperations.send(action, type, inputs, ctx, parents)
-              }
-    end
-  end
-
   def self.define_bulk_update_or_destroy(
     update_or_destroy,
     klass,
@@ -225,14 +182,6 @@ class GraphqlCrudOperations
                 )
               }
     end
-  end
-
-  def self.define_bulk_update(klass, fields, parents)
-    self.define_bulk_update_or_destroy(:update, klass, fields, parents)
-  end
-
-  def self.define_bulk_destroy(klass, fields, parents)
-    self.define_bulk_update_or_destroy(:destroy, klass, fields, parents)
   end
 
   def self.apply_bulk_update_or_destroy(inputs, ctx, update_or_destroy, klass)
@@ -272,74 +221,6 @@ class GraphqlCrudOperations
       { ids: processed_ids }.merge(result)
     else
       raise CheckPermissions::AccessDenied, I18n.t(:permission_error)
-    end
-  end
-
-  def self.define_bulk_create(klass, fields, parents)
-    input_type = "Create#{klass.name.pluralize}BulkInput"
-    definition =
-      GraphQL::InputObjectType.define do
-        mapping = instance_exec(&GraphqlCrudOperations.type_mapping)
-        name(input_type)
-        fields.each do |field_name, field_type|
-          argument field_name, mapping[field_type]
-        end
-      end
-    Object.const_set input_type, definition
-
-    GraphQL::Relay::Mutation.define do
-      name "Create#{klass.name.pluralize}"
-
-      input_field :inputs, types[input_type.constantize]
-
-      GraphqlCrudOperations
-        .define_parent_returns(parents)
-        .each do |field_name, field_class|
-          return_field(field_name, field_class)
-        end
-
-      resolve ->(_root, input, ctx) {
-                if input[:inputs].size > 10_000
-                  raise I18n.t(:bulk_operation_limit_error, limit: 10_000)
-                end
-
-                ability = ctx[:ability] || Ability.new
-                if ability.can?(:bulk_create, klass.new(team: Team.current))
-                  klass.bulk_create(input["inputs"], Team.current)
-                else
-                  raise CheckPermissions::AccessDenied,
-                        I18n.t(:permission_error)
-                end
-              }
-    end
-  end
-
-  def self.define_destroy(type, parents = [])
-    GraphQL::Relay::Mutation.define do
-      name "Destroy#{type.camelize}"
-
-      input_field :id, types.ID
-
-      input_field(:keep_completed_tasks, types.Boolean) if type == "team_task"
-
-      if type == "relationship"
-        input_field(:add_to_project_id, types.Int)
-        input_field(:archive_target, types.Int)
-      end
-
-      input_field(:items_destination_project_id, types.Int) if type == "project"
-
-      return_field :deletedId, types.ID
-
-      GraphqlCrudOperations
-        .define_parent_returns(parents)
-        .each do |field_name, field_class|
-          return_field(field_name, field_class)
-        end
-
-      resolve ->(_root, inputs, ctx) {
-                GraphqlCrudOperations.destroy(type, inputs, ctx, parents)
-              }
     end
   end
 
@@ -388,6 +269,78 @@ class GraphqlCrudOperations
       ),
       GraphqlCrudOperations.define_destroy(type, parents)
     ]
+  end
+
+  def self.define_create_or_update(action, type, fields, parents = [])
+    GraphQL::Relay::Mutation.define do
+      mapping = instance_exec(&GraphqlCrudOperations.type_mapping)
+      name "#{action.camelize}#{type.camelize}"
+
+      input_field :id, types.ID if action == "update"
+      fields.each do |field_name, field_type|
+        input_field field_name, mapping[field_type]
+      end
+
+      klass = "#{type.camelize}Type".constantize
+      return_field type.to_sym, klass
+
+      return_field(:affectedId, types.ID) if type.to_s == "project_media"
+
+      if type.to_s == "team"
+        return_field(:team_userEdge, TeamUserType.edge_type)
+        return_field(:user, UserType)
+      end
+
+      if type =~ /^dynamic_annotation_/
+        return_field :dynamic, DynamicType
+        return_field :dynamicEdge, DynamicType.edge_type
+      end
+
+      if %w[task comment].include?(type.to_s) || type =~ /dynamic/
+        return_field("versionEdge".to_sym, VersionType.edge_type)
+      end
+
+      return_field type.to_sym, klass
+      return_field "#{type}Edge".to_sym, klass.edge_type
+      GraphqlCrudOperations
+        .define_parent_returns(parents)
+        .each do |field_name, field_class|
+          return_field(field_name, field_class)
+        end
+
+      resolve ->(_root, inputs, ctx) {
+                GraphqlCrudOperations.send(action, type, inputs, ctx, parents)
+              }
+    end
+  end
+
+  def self.define_destroy(type, parents = [])
+    GraphQL::Relay::Mutation.define do
+      name "Destroy#{type.camelize}"
+
+      input_field :id, types.ID
+
+      input_field(:keep_completed_tasks, types.Boolean) if type == "team_task"
+
+      if type == "relationship"
+        input_field(:add_to_project_id, types.Int)
+        input_field(:archive_target, types.Int)
+      end
+
+      input_field(:items_destination_project_id, types.Int) if type == "project"
+
+      return_field :deletedId, types.ID
+
+      GraphqlCrudOperations
+        .define_parent_returns(parents)
+        .each do |field_name, field_class|
+          return_field(field_name, field_class)
+        end
+
+      resolve ->(_root, inputs, ctx) {
+                GraphqlCrudOperations.destroy(type, inputs, ctx, parents)
+              }
+    end
   end
 
   def self.define_annotation_mutation_fields
