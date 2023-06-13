@@ -19,8 +19,8 @@ module CheckStatistics
     def reports_received(team_id, platform, start_date, end_date, language)
       DynamicAnnotation::Field
         .where(field_name: 'smooch_report_received')
-        .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id INNER JOIN dynamic_annotation_fields fs ON fs.annotation_id = a.id AND fs.field_name = 'smooch_data'")
-        .where('t.id' => team_id)
+        .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia' INNER JOIN dynamic_annotation_fields fs ON fs.annotation_id = a.id AND fs.field_name = 'smooch_data'")
+        .where('pm.team_id' => team_id)
         .where("fs.value_json->'source'->>'type' = ?", platform)
         .where("fs.value_json->>'language' = ?", language)
         .where('dynamic_annotation_fields.created_at' => start_date..end_date)
@@ -158,13 +158,13 @@ module CheckStatistics
         CheckTracer.in_span('CheckStatistics#published_native_reports', attributes: tracing_attributes) do
           # Number of new published reports created in Check (e.g., native, not imported)
           # NOTE: For all platforms
-          statistics[:published_native_reports] = Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.id' => team_id).where('annotations.created_at' => start_date..end_date).where("data LIKE '%language: #{language}%'").where("data LIKE '%state: published%'").where('annotations.annotator_id NOT IN (?)', [BotUser.fetch_user.id, BotUser.alegre_user.id]).count
+          statistics[:published_native_reports] = Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia'").where('pm.team_id' => team_id).where('annotations.created_at' => start_date..end_date).where("data LIKE '%language: #{language}%'").where("data LIKE '%state: published%'").where('annotations.annotator_id NOT IN (?)', [BotUser.fetch_user.id, BotUser.alegre_user.id]).count
         end
 
         CheckTracer.in_span('CheckStatistics#published_imported_reports', attributes: tracing_attributes) do
           # Number of published imported reports
           # NOTE: For all languages and platforms
-          statistics[:published_imported_reports] = Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.id' => team_id).where('annotations.created_at' => start_date..end_date, 'annotations.annotator_id' => [BotUser.fetch_user.id, BotUser.alegre_user.id]).where("data LIKE '%state: published%'").count
+          statistics[:published_imported_reports] = Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia'").where('pm.team_id' => team_id).where('annotations.created_at' => start_date..end_date, 'annotations.annotator_id' => [BotUser.fetch_user.id, BotUser.alegre_user.id]).where("data LIKE '%state: published%'").count
         end
 
         CheckTracer.in_span('CheckStatistics#requests_answerwed_with_report', attributes: tracing_attributes) do
