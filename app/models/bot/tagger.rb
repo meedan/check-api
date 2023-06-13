@@ -30,7 +30,7 @@ class Bot::Tagger < BotUser
     handled = false
     pm = nil
     begin
-      settings=JSON.parse(body["settings"])
+      settings=JSON.parse(body[:settings])
       auto_tag_prefix=settings["auto_tag_prefix"]
       threshold=settings["threshold"]/100.0
       ignore_autotags=settings["ignore_autotags"]
