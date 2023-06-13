@@ -5,7 +5,7 @@ class Bot::Tagger < BotUser
   class Error < ::StandardError
   end
 
-  def self.get_tag_text(tag_id,auto_tag_prefix,ignore_autotags)
+  def self.get_tag_text(tag_id, auto_tag_prefix, ignore_autotags)
     tag=TagText.find_by_id(tag_id)&.text
     if tag.nil? || (ignore_autotags && tag[0]==auto_tag_prefix)
       return nil
