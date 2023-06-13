@@ -217,12 +217,25 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     @newsletter.content_type = 'rss'
     assert @newsletter.valid?
     @newsletter.content_type = 'static'
-    @newsletter.send_on = Date.parse('2023-01-25')
+    @newsletter.send_on = Time.now.tomorrow
     assert @newsletter.valid?
     @newsletter.content_type = 'foo'
     assert !@newsletter.valid?
   end
 
+  test 'should allow zero articles' do
+    @newsletter.content_type = 'static'
+    @newsletter.number_of_articles = 0
+    @newsletter.first_article = 'Foo'
+    assert @newsletter.valid?
+  end
+    
+  test 'should not schedule for the past' do
+    @newsletter.content_type = 'static'
+    @newsletter.send_on = Date.parse('2023-05-01')
+    assert !@newsletter.valid?
+  end
+  
   test 'should convert video header file' do
     WebMock.stub_request(:get, /:9000/).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp4')))
     TiplineNewsletter.any_instance.stubs(:new_file_uploaded?).returns(true)

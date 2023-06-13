@@ -42,4 +42,12 @@ class UrlRewriterTest < ActiveSupport::TestCase
     end
     assert_equal 'https://meedan.com/check/en', Shortener::ShortenedUrl.last.url
   end
+
+  test 'should fallback to long URL if shortening fails' do
+    Shortener::ShortenedUrl.stubs(:generate).returns(nil)
+    url = random_url
+    assert_nothing_raised do
+      assert_equal url, UrlRewriter.shorten(url, nil)
+    end
+  end
 end
