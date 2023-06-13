@@ -80,6 +80,7 @@ class Bot::TaggerTest < ActiveSupport::TestCase
   Bot::Tagger.run(settings)
   tags = pm_q1.get_annotations('tag').map{|t| Bot::Tagger.get_tag_text(t[:data][:tag], "", false)}
   assert_equal true, tags.include?(@auto_tag_prefix+"nature")
+  assert_equal false, tags.include?(@auto_tag_prefix+"sport")
 
   pm_q2 = create_project_media quote: "test2", team: @team
   assert_equal [], pm_q2.get_annotations('tag')
@@ -100,8 +101,8 @@ class Bot::TaggerTest < ActiveSupport::TestCase
   assert_equal [], pm_q3.get_annotations('tag')
 
   # Restub to not return anything
-  Bot::Alegre.unstub(:request_api)
-  Bot::Alegre.stubs(:request_api).returns({"result" => [{}]})
+  Bot::Alegre.unstub(:get_items_with_similar_text)
+  Bot::Alegre.stubs(:get_items_with_similar_text).returns({})
 
   # No tags should be added when there are no neighbours
   settings[:data][:dbid]=pm_q3.id
@@ -110,7 +111,7 @@ class Bot::TaggerTest < ActiveSupport::TestCase
   assert_equal [], pm_q3.get_annotations('tag')
 
   # Final unstub
-  Bot::Alegre.unstub(:request_api)
+  Bot::Alegre.unstub(:get_items_with_similar_text)
   end
 
 end
