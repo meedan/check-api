@@ -37,11 +37,12 @@ class TiplineNewsletter < ApplicationRecord
   validates_inclusion_of :language, in: ->(newsletter) { newsletter.team.get_languages.to_a }
   validates_inclusion_of :header_type, in: ['none', 'link_preview', 'audio', 'video', 'image']
   validates_inclusion_of :content_type, in: ['static', 'rss']
-  validates :first_article, length: { maximum: proc { |newsletter| MAXIMUM_ARTICLE_LENGTH[newsletter.number_of_articles].to_i } }, allow_blank: true, allow_nil: true
-  validates :second_article, length: { maximum: proc { |newsletter| MAXIMUM_ARTICLE_LENGTH[newsletter.number_of_articles].to_i } }, allow_blank: true, allow_nil: true
-  validates :third_article, length: { maximum: proc { |newsletter| MAXIMUM_ARTICLE_LENGTH[newsletter.number_of_articles].to_i } }, allow_blank: true, allow_nil: true
+  validates :first_article, length: { maximum: proc { |newsletter| MAXIMUM_ARTICLE_LENGTH[newsletter.number_of_articles].to_i } }, allow_blank: true, allow_nil: true, if: proc { |newsletter| newsletter.number_of_articles >= 1 }
+  validates :second_article, length: { maximum: proc { |newsletter| MAXIMUM_ARTICLE_LENGTH[newsletter.number_of_articles].to_i } }, allow_blank: true, allow_nil: true, if: proc { |newsletter| newsletter.number_of_articles >= 2 }
+  validates :third_article, length: { maximum: proc { |newsletter| MAXIMUM_ARTICLE_LENGTH[newsletter.number_of_articles].to_i } }, allow_blank: true, allow_nil: true, if: proc { |newsletter| newsletter.number_of_articles == 3 }
   validate :send_every_is_a_list_of_days_of_the_week
   validate :header_file_is_supported_by_whatsapp
+  validate :not_scheduled_for_the_past
 
   after_save :reschedule_delivery
   after_commit :convert_header_file, on: [:create, :update]
@@ -61,7 +62,7 @@ class TiplineNewsletter < ApplicationRecord
     timezone = self.timezone
 
     # If an offset is being passed, then it's in the new format... we used to support timezone names
-    if self.timezone.match?(/\W\d\d:\d\d/)
+    if self.timezone.to_s.match?(/\W\d\d:\d\d/)
       timezone = self.timezone.match(/\W\d\d:\d\d/)
     else
       timezone = self.timezone.to_s.upcase
@@ -268,5 +269,13 @@ class TiplineNewsletter < ApplicationRecord
     type = self.header_file.file.extension.downcase
     errors.add(:base, I18n.t(message, { max_size: "#{max_size}MB" })) if size_in_mb > max_size.to_f
     errors.add(:header_file, I18n.t('errors.messages.extension_white_list_error', { extension: type, allowed_types: allowed_types.join(', ') })) unless allowed_types.include?(type)
+  end
+
+  def not_scheduled_for_the_past
+    if self.content_type == 'static' && self.scheduled_time.past?
+      field = :send_on
+      field = :time if self.scheduled_time.strftime('%Y-%m-%d') == Time.now.utc.strftime('%Y-%m-%d')
+      errors.add(field, I18n.t(:send_on_must_be_in_the_future))
+    end
   end
 end
