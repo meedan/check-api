@@ -5,13 +5,28 @@ FeedType = GraphqlCrudOperations.define_default_type do
   interfaces [NodeIdentification.interface]
 
   field :dbid, types.Int
+  field :user_id, types.Int
   field :name, types.String
+  field :description, types.String
   field :published, types.Boolean
   field :filters, JsonStringType
   field :current_feed_team, FeedTeamType
   field :teams_count, types.Int
   field :requests_count, types.Int
   field :root_requests_count, types.Int
+  field :tags, JsonStringType
+  field :licenses, types[types.Int]
+
+  field :user do
+    type -> { UserType }
+
+    resolve -> (feed, _args, ctx) {
+      RecordLoader.for(User).load(feed.user_id).then do |user|
+        ability = ctx[:ability] || Ability.new
+        user if ability.can?(:read, user)
+      end
+    }
+  end
 
   connection :requests, -> { RequestType.connection_type } do
     argument :request_id, types.Int

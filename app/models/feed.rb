@@ -23,6 +23,13 @@ class Feed < ApplicationRecord
     filters
   end
 
+  # def filters=(filters)
+  #   ss = self.saved_search
+  #   ss.filters = filters
+  #   ss.skip_check_ability = true
+  #   ss.save!
+  # end
+
   def filters
     self.saved_search.filters
   end

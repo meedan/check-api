@@ -6,4 +6,5 @@ class SavedSearch < ApplicationRecord
 
   belongs_to :team, optional: true
   has_many :feeds
+  has_many :feed_teams
 end

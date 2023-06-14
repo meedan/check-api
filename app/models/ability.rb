@@ -59,6 +59,9 @@ class Ability
     can [:update, :destroy], TeamUser, team_id: @context_team.id
     can :duplicate, Team, :id => @context_team.id
     can :set_privacy, Project, :team_id => @context_team.id
+    can :cud, Feed do |obj|
+      obj.team_ids.include?(@context_team.id)
+    end
   end
 
   def editor_perms
