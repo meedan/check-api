@@ -14,7 +14,9 @@ class GraphqlCrudOperations
     end
   end
 
-  def self.safe_save(obj, attrs, parents = [], inputs = {})
+  # Uses obj
+  # Doesn't use inputs or parents, just passes through
+  def self.safe_save(obj, attrs, parents = [])
     if User.current.nil? && ApiKey.current.nil?
       raise "This operation must be done by a signed-in user"
     end
@@ -27,11 +29,11 @@ class GraphqlCrudOperations
 
     name = obj.class_name.underscore
     { name.to_sym => obj }.merge(
-      GraphqlCrudOperations.define_returns(obj, inputs, parents)
+      GraphqlCrudOperations.define_returns(obj, parents)
     )
   end
 
-  def self.define_returns(obj, _inputs, parents)
+  def self.define_returns(obj, parents)
     ret = {}
     name = obj.class_name.underscore
     parents.each do |parent_name|
@@ -94,16 +96,16 @@ class GraphqlCrudOperations
     self.safe_save(obj, attrs, parents)
   end
 
-  def self.crud_operation(operation, obj, inputs, ctx, parents, _returns = {})
-    if inputs[:id] || obj
-      self.send(
-        "#{operation}_from_single_id",
-        inputs[:id] || obj.graphql_id,
-        inputs,
-        ctx,
-        parents
-      )
+  def self.update_from_single_id(id, inputs, ctx, parents)
+    obj = self.object_from_id_and_context(id, ctx)
+    obj.file = ctx[:file] if !ctx[:file].blank?
+
+    attrs = inputs.keys.inject({}) do |memo, key|
+      memo[key] = inputs[key] unless key == 'id'
+      memo
     end
+
+    self.safe_save(obj, attrs, parents)
   end
 
   def self.object_from_id_and_context(id, ctx)
@@ -112,11 +114,11 @@ class GraphqlCrudOperations
     obj
   end
 
-  def self.update(_type, inputs, ctx, parents = [])
+  def self.update(inputs, ctx, parents = [])
     obj = self.object_from_id_and_context(inputs[:id], ctx)
-    returns =
-      obj.nil? ? {} : GraphqlCrudOperations.define_returns(obj, inputs, parents)
-    self.crud_operation("update", obj, inputs, ctx, parents, returns)
+    return unless inputs[:id] || obj
+
+    self.update_from_single_id(inputs[:id] || obj.graph_id, inputs, ctx, parents)
   end
 
   def self.object_from_id(graphql_id)
@@ -136,16 +138,30 @@ class GraphqlCrudOperations
     obj
   end
 
-  def self.destroy(_type, inputs, ctx, parents = [])
-    returns = {}
+  # Can delete _type
+  def self.destroy(inputs, ctx, parents = [])
     obj = self.object_from_id(inputs[:id])
-    unless obj.nil?
-      parents.each do |parent|
-        parent_obj = obj.send(parent)
-        returns[parent.to_sym] = parent_obj
-      end
+    self.destroy_from_single_id(obj, inputs, ctx, parents)
+  end
+
+  def self.destroy_from_single_id(graphql_id, inputs, ctx, parents)
+    raise "This operation must be done by a signed-in user" if User.current.nil?
+    obj = self.object_from_id(graphql_id)
+    obj.keep_completed_tasks = inputs[:keep_completed_tasks] if obj.is_a?(TeamTask)
+    if obj.is_a?(Relationship)
+      obj.add_to_project_id = inputs[:add_to_project_id]
+      obj.archive_target = inputs[:archive_target]
     end
-    self.crud_operation("destroy", obj, inputs, ctx, parents, returns)
+    obj.items_destination_project_id = inputs[:items_destination_project_id] if obj.is_a?(Project)
+    obj.disable_es_callbacks = (Rails.env.to_s == 'test') if obj.respond_to?(:disable_es_callbacks)
+    obj.respond_to?(:destroy_later) ? obj.destroy_later(ctx[:ability]) : ApplicationRecord.connection_pool.with_connection { obj&.destroy }
+
+    deleted_id = obj.respond_to?(:graphql_deleted_id) ? obj.graphql_deleted_id : graphql_id
+    ret = { deletedId: deleted_id }
+
+    parents.each { |parent| ret[parent.to_sym] = obj.send(parent) } unless obj.nil?
+
+    ret
   end
 
   def self.define_bulk_update_or_destroy(
@@ -338,7 +354,7 @@ class GraphqlCrudOperations
         end
 
       resolve ->(_root, inputs, ctx) {
-                GraphqlCrudOperations.destroy(type, inputs, ctx, parents)
+                GraphqlCrudOperations.destroy(inputs, ctx, parents)
               }
     end
   end

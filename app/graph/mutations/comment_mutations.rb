@@ -1,6 +1,45 @@
 module CommentMutations
-  create_fields = GraphqlCrudOperations.define_annotation_mutation_fields.merge({ text: '!str' })
-  update_fields = GraphqlCrudOperations.define_annotation_mutation_fields.merge({ text: 'str' })
+  module MutationProperties
+    def mutation_target
+      :comment
+    end
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('comment', create_fields, update_fields, ['project_media', 'source', 'project', 'task', 'version'])
+    def parents
+      ['project_media', 'source', 'project', 'task', 'version'].freeze
+    end
+  end
+
+  module SharedCreateAndUpdateFields
+    extend ActiveSupport::Concern
+
+    included do
+      field :versionEdge, VersionType.edge_type, null: true
+
+      argument :fragment, String, required: false
+      argument :annotated_id, String, required: false
+      argument :annotated_type, String, required: false
+    end
+  end
+
+  class Create < BaseUpdateOrCreateMutation
+    extend MutationProperties
+    extend SharedCreateAndUpdateFields
+
+    define_create_behavior(self, self.mutation_target, self.parents)
+
+    argument :text, String, required: true
+  end
+
+  class Update < BaseUpdateOrCreateMutation
+    extend MutationProperties
+    extend SharedCreateAndUpdateFields
+
+    define_update_behavior(self, self.mutation_target, self.parents)
+
+    argument :text, String, required: false
+  end
+
+  class Destroy < BaseDestroyMutation
+    extend MutationProperties
+  end
 end
