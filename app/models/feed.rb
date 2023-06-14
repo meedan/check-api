@@ -6,14 +6,25 @@ class Feed < ApplicationRecord
   has_many :requests
   has_many :feed_teams
   has_many :teams, through: :feed_teams
+  belongs_to :user, optional: true
+  belongs_to :saved_search, optional: true
+
+  before_validation :set_user, on: :create
+  validates_presence_of :name, :description
+  validate :licenses_in_allowed_values
 
   PROHIBITED_FILTERS = ['team_id', 'feed_id', 'clusterize']
+  LICENSES = { 1 => 'academic', 2 => 'commercial', 3 => 'open_source' }
 
   # Filters for the whole feed: applies to all data from all teams
   def get_feed_filters
     filters = self.filters.to_h.reject{ |k, _v| PROHIBITED_FILTERS.include?(k.to_s) }
     filters.merge!({ 'report_status' => ['published'] }) if self.published
     filters
+  end
+
+  def filters
+    self.saved_search.filters
   end
 
   # Filters defined by each team
@@ -123,6 +134,18 @@ class Feed < ApplicationRecord
           request.similar_requests.find_each { |similar_request| similar_request.call_webhook(pm, title, summary, url) }
         end
       end
+    end
+  end
+
+  private
+
+  def set_user
+    self.user ||= User.current
+  end
+
+  def licenses_in_allowed_values
+    unless (self.licenses - LICENSES.keys).empty?
+      errors.add(:licenses, I18n.t(:"errors.messages.invalid_feed_licenses_value"))
     end
   end
 end
