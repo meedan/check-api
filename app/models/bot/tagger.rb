@@ -21,9 +21,9 @@ class Bot::Tagger < BotUser
   end
 
   def self.run(body)
-    self.log("Received event with body of #{body}", level = Logger::INFO)
+    self.log("Received event with body of #{body}", nil, Logger::INFO)
     if CheckConfig.get('alegre_host').blank?
-      self.log("Skipping events because `alegre_host` config is blank", level = Logger::DEBUG)
+      self.log("Skipping events because `alegre_host` config is blank", nil, Logger::DEBUG)
       return false
     end
 
@@ -36,15 +36,15 @@ class Bot::Tagger < BotUser
       ignore_autotags=settings["ignore_autotags"]
       pm = ProjectMedia.where(id: body.dig(:data, :dbid)).last
       if body.dig(:event) == 'create_project_media' && !pm.nil?
-        self.log("This item was just created, processing...", pm_id = pm.id, level = Logger::INFO)
+        self.log("This item was just created, processing...", pm.id, Logger::INFO)
         # Search all text fields for all items in the workspace using only the cofigured vector model
         # The ProjectMedia's title is the query
         # Do not use Elasticsearch. The threshold to use comes from the Tagger bot settings.
         # Method signature: get_items_with_similar_text(pm, fields, threshold, query_text, models, team_ids = [pm&.team_id])
         results=Bot::Alegre.get_items_with_similar_text(pm, Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS,
           [{ value: threshold }], pm.title, [Bot::Alegre.matching_model_to_use(pm.team_id)].flatten.reject{|m| m==Bot::Alegre::ELASTICSEARCH_MODEL})
-        self.log("#{results.length} nearest neighbors #{results.keys()}", pm_id = pm.id, level = Logger::INFO)
-        self.log("Results: #{results}", pm_id = pm.id, level = Logger::INFO)
+        self.log("#{results.length} nearest neighbors #{results.keys()}", pm.id, Logger::INFO)
+        self.log("Results: #{results}", pm.id, Logger::INFO)
 
         # For each nearest neighbor, get the tags.
         tag_counts=results.map{|nn_pm,_| ProjectMedia.find(nn_pm).get_annotations('tag')}.flatten
@@ -53,20 +53,20 @@ class Bot::Tagger < BotUser
         # Reject any nil tags
         tag_counts=tag_counts.reject{|k,_v|k==nil}.sort_by{|_k,v| v}
         # tag_counts is now an array of arrays with counts e.g., [['nature', 1], ['sport', 2]]
-        self.log("Tag distribution #{tag_counts}", pm_id = pm.id, level = Logger::INFO)
+        self.log("Tag distribution #{tag_counts}", pm.id, Logger::INFO)
         if tag_counts.length > 0
           max_count=tag_counts.last[1]
           if max_count<settings["minimum_count"]
-            self.log("Max count #{max_count} is less than minimum required to apply a tag", pm_id = pm.id, level = Logger::INFO)
+            self.log("Max count #{max_count} is less than minimum required to apply a tag", pm.id, Logger::INFO)
             return false
           end
           most_common_tags=tag_counts.reject{|_k,v| v < max_count}
-          self.log("Most common tags #{most_common_tags}", pm_id = pm.id, level = Logger::INFO)
+          self.log("Most common tags #{most_common_tags}", pm.id, Logger::INFO)
           most_common_tags.each do |tag|
             Tag.create!(annotated:pm, annotator: BotUser.get_user('tagger'), tag: auto_tag_prefix+tag[0])
           end
         else
-          self.log("No most common tag", pm_id = pm.id, level = Logger::INFO)
+          self.log("No most common tag", pm.id, Logger::INFO)
         end
         handled = true
       end
