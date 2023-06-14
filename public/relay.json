@@ -60771,6 +60771,20 @@
               "deprecationReason": null
             },
             {
+              "name": "get_language_detection",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "get_languages",
               "description": null,
               "args": [
@@ -77074,6 +77088,16 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "JsonStringType",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "language_detection",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
                 "ofType": null
               },
               "defaultValue": null

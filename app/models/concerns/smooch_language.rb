@@ -11,7 +11,7 @@ module SmoochLanguage
       guessed_language = nil
       if state == 'waiting_for_message'
         Rails.cache.fetch("smooch:user_language:#{uid}") do
-          guessed_language = self.get_language(message, default_language)
+          guessed_language = team.get_language_detection ? self.get_language(message, default_language) : default_language
           guessed_language
         end
       end
