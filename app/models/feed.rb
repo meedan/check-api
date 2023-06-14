@@ -10,8 +10,9 @@ class Feed < ApplicationRecord
   belongs_to :saved_search, optional: true
 
   before_validation :set_user, on: :create
-  validates_presence_of :name, :description
+  validates_presence_of :name, :licenses
   validate :licenses_in_allowed_values
+  validate :saved_search_belongs_to_feed_teams
 
   PROHIBITED_FILTERS = ['team_id', 'feed_id', 'clusterize']
   LICENSES = { 1 => 'academic', 2 => 'commercial', 3 => 'open_source' }
@@ -23,15 +24,8 @@ class Feed < ApplicationRecord
     filters
   end
 
-  # def filters=(filters)
-  #   ss = self.saved_search
-  #   ss.filters = filters
-  #   ss.skip_check_ability = true
-  #   ss.save!
-  # end
-
   def filters
-    self.saved_search.filters
+    self.saved_search&.filters
   end
 
   # Filters defined by each team
@@ -153,6 +147,13 @@ class Feed < ApplicationRecord
   def licenses_in_allowed_values
     unless (self.licenses - LICENSES.keys).empty?
       errors.add(:licenses, I18n.t(:"errors.messages.invalid_feed_licenses_value"))
+    end
+  end
+
+  def saved_search_belongs_to_feed_teams
+    unless saved_search_id.blank?
+      team_ids = self.feed_team_ids.blank? ? [Team.current&.id] : self.feed_team_ids
+      errors.add(:saved_search_id, I18n.t(:"errors.messages.invalid_feed_saved_search_value")) unless team_ids.include?(self.saved_search.team_id)
     end
   end
 end

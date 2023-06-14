@@ -24,11 +24,53 @@ class FeedTest < ActiveSupport::TestCase
   #   end
   # end
 
-  # TODO: fix by sawy
-  # test "should have filters" do
-  #   f = create_feed filters: { foo: 'bar' }
-  #   assert_equal 'bar', f.reload.filters['foo']
+  # test "should set user" do
+  #   u = create_user
+  #   User.stubs(:current).returns(u)
+  #   f = create_feed
+  #   assert_equal u.id, f.reload.user_id
+  #   User.unstub(:current)
   # end
+
+  test "should set tags" do
+    tags = { "tag_a" => "tag_a", "tag_b" => "tag_b" }
+    f = create_feed tags: tags
+    assert_equal tags, f.reload.tags
+  end
+
+  test "should validate licenses" do
+    assert_raises ActiveRecord::RecordInvalid do
+      create_feed licenses: []
+    end
+    assert_difference 'Feed.count' do
+      create_feed licenses: [1, 2]
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_feed licenses: [1, 4]
+    end
+  end
+
+  test "should have a list that belong to feed teams" do
+    t = create_team
+    ss = create_saved_search team: t
+    Team.stubs(:current).returns(t)
+    assert_difference 'Feed.count' do
+      create_feed saved_search: ss
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_feed saved_search: create_saved_search
+    end
+    Team.unstub(:current)
+  end
+
+  test "should get feed filters" do
+    t = create_team
+    ss = create_saved_search team: t, filters: { foo: 'bar' }
+    Team.stubs(:current).returns(t)
+    f = create_feed saved_search: ss
+    assert_equal 'bar', f.reload.filters['foo']
+    Team.unstub(:current)
+  end
 
   test "should have settings" do
     f = create_feed settings: { foo: 'bar' }
@@ -45,12 +87,9 @@ class FeedTest < ActiveSupport::TestCase
     assert_equal [t], f.reload.teams
   end
 
-  test "should have name and description" do
+  test "should have name" do
     assert_raises ActiveRecord::RecordInvalid do
       create_feed name: nil
-    end
-    assert_raises ActiveRecord::RecordInvalid do
-      create_feed description: nil
     end
   end
 
@@ -81,29 +120,28 @@ class FeedTest < ActiveSupport::TestCase
     assert_equal 1, f.root_requests_count
   end
 
-  # TODO: fix by sawy
-  # test "should notify subscribers" do
-  #   Sidekiq::Testing.inline!
-  #   url = URI.join(random_url, "user/#{random_number}")
-  #   WebMock.stub_request(:post, url)
-  #   f = create_feed published: true
-  #   t = create_team
-  #   f.teams << t
-  #   FeedTeam.update_all shared: true
-  #   m = create_uploaded_image
+  test "should notify subscribers" do
+    Sidekiq::Testing.inline!
+    url = URI.join(random_url, "user/#{random_number}")
+    WebMock.stub_request(:post, url)
+    f = create_feed published: true
+    t = create_team
+    f.teams << t
+    FeedTeam.update_all shared: true
+    m = create_uploaded_image
 
-  #   r = create_request feed: f, media: m, webhook_url: url
+    r = create_request feed: f, media: m, webhook_url: url
 
-  #   assert_not_nil r.reload.webhook_url
-  #   assert_nil r.reload.last_called_webhook_at
+    assert_not_nil r.reload.webhook_url
+    assert_nil r.reload.last_called_webhook_at
 
-  #   pm = create_project_media team: t, media: m
-  #   CheckSearch.any_instance.stubs(:medias).returns([pm])
-  #   publish_report(pm)
+    pm = create_project_media team: t, media: m
+    CheckSearch.any_instance.stubs(:medias).returns([pm])
+    publish_report(pm)
 
-  #   assert_nil r.reload.webhook_url
-  #   assert_not_nil r.reload.last_called_webhook_at
+    assert_nil r.reload.webhook_url
+    assert_not_nil r.reload.last_called_webhook_at
 
-  #   CheckSearch.any_instance.unstub(:medias)
-  # end
+    CheckSearch.any_instance.unstub(:medias)
+  end
 end

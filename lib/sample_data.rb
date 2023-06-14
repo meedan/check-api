@@ -987,7 +987,7 @@ module SampleData
   def create_feed(options = {})
     Feed.create!({
       name: random_string,
-      description: random_string
+      licenses: [1],
     }.merge(options))
   end
 

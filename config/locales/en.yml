@@ -109,6 +109,7 @@ en:
       invalid_fact_check_language_value: Sorry, language value not supported
       fact_check_empty_title_and_summary: Sorry, you should fill title or summary
       invalid_feed_licenses_value: Sorry, licenses value not supported
+      invalid_feed_saved_search_value: Sorry, list should belong to one of feeds team
   activerecord:
     models:
       link: Link

@@ -26,7 +26,9 @@ class FeedTeamTest < ActiveSupport::TestCase
   end
 
   test "should have filters" do
-    ft = create_feed_team filters: { foo: 'bar' }
+    t = create_team
+    ss = create_saved_search team_id: t.id, filters: { foo: 'bar'}
+    ft = create_feed_team team_id: t.id, filters: { foo: 'bar' }
     assert_equal 'bar', ft.reload.filters['foo']
   end
 
