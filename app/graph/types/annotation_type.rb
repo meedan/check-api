@@ -1,4 +1,8 @@
 class AnnotationType < AnnotationObject
+  def type
+    'annotation'.freeze
+  end
+
   field :annotation, String, null: true
 
   field :project_media, ProjectMediaType, null: true, resolve: ->(annotation, _args, _ctx) do

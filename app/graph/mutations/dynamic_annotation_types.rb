@@ -24,6 +24,10 @@ module DynamicAnnotation::AnnotationTypeManager
       end
 
       class DynamicAnnotation#{klass}Type < AnnotationObject
+        def type
+          'dynamic_annotation_#{type}'.freeze
+        end
+
         field :lock_version, Integer, null: true
       end unless defined? DynamicAnnotation#{klass}Type
     TES

@@ -1,4 +1,6 @@
 class AnnotationObject < BaseObject
+  class MissingSubclassImplementationError < NoMethodError; end
+
   implements NodeIdentification.interface
 
   field :id, ID, null: false
@@ -9,8 +11,11 @@ class AnnotationObject < BaseObject
   field :content, String, null: true
   field :dbid, String, null: true
 
+  def type
+    raise MissingSubclassImplementationError.new("#{self.class} must implement .type")
+  end
+
   def id
-    # TODO
     object.relay_id(type)
   end
 

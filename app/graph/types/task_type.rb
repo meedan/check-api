@@ -1,4 +1,8 @@
 class TaskType < AnnotationObject
+  def type
+    'task'.freeze
+  end
+
   field :label, String, null: true
   field :type, String, null: true
   field :annotated_type, String, null: true
