@@ -8,11 +8,16 @@ class Feed < ApplicationRecord
   has_many :teams, through: :feed_teams
   belongs_to :user, optional: true
   belongs_to :saved_search, optional: true
+  belongs_to :team, optional: true
 
-  before_validation :set_user, on: :create
+  serialize :tags, JSON
+
+  before_validation :set_user_and_team, on: :create
   validates_presence_of :name, :licenses
   validate :licenses_in_allowed_values
   validate :saved_search_belongs_to_feed_teams
+
+  after_create :create_feed_team
 
   PROHIBITED_FILTERS = ['team_id', 'feed_id', 'clusterize']
   LICENSES = { 1 => 'academic', 2 => 'commercial', 3 => 'open_source' }
@@ -140,8 +145,9 @@ class Feed < ApplicationRecord
 
   private
 
-  def set_user
+  def set_user_and_team
     self.user ||= User.current
+    self.team ||= Team.current
   end
 
   def licenses_in_allowed_values
@@ -152,8 +158,13 @@ class Feed < ApplicationRecord
 
   def saved_search_belongs_to_feed_teams
     unless saved_search_id.blank?
-      team_ids = self.feed_team_ids.blank? ? [Team.current&.id] : self.feed_team_ids
-      errors.add(:saved_search_id, I18n.t(:"errors.messages.invalid_feed_saved_search_value")) unless team_ids.include?(self.saved_search.team_id)
+      team_ids = self.feed_teams.map(&:team_id)
+      team_ids << self.team_id
+      errors.add(:saved_search_id, I18n.t(:"errors.messages.invalid_feed_saved_search_value")) unless team_ids.uniq.include?(self.saved_search.team_id)
     end
+  end
+
+  def create_feed_team
+    self.teams << Team.current unless Team.current.nil?
   end
 end

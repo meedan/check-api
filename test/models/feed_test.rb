@@ -12,28 +12,34 @@ class FeedTest < ActiveSupport::TestCase
     end
   end
 
-  # TODO: fix by sawy (change permission check)
-  # test "should not create feed if logged in user" do
-  #   u = create_user
-  #   t = create_team
-  #   create_team_user team: t, user: u, role: 'admin'
-  #   with_current_user_and_team(u, t) do
-  #     assert_raises StandardError do
-  #       create_feed
-  #     end
-  #   end
-  # end
+  test "should not create feed if logged in user" do
+    u = create_user
+    t = create_team
+    with_current_user_and_team(u, t) do
+      assert_raises StandardError do
+        create_feed
+      end
+    end
+  end
 
-  # test "should set user" do
-  #   u = create_user
-  #   User.stubs(:current).returns(u)
-  #   f = create_feed
-  #   assert_equal u.id, f.reload.user_id
-  #   User.unstub(:current)
-  # end
+  test "should set user and team" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      f = nil
+      assert_difference 'FeedTeam.count' do
+        f = create_feed
+      end
+      f = f.reload
+      assert_equal u.id, f.user_id
+      assert_equal t.id, f.team_id
+      assert_equal [t.id], f.feed_teams.map(&:team_id)
+    end
+  end
 
   test "should set tags" do
-    tags = { "tag_a" => "tag_a", "tag_b" => "tag_b" }
+    tags = ['tag_a', 'tag_b']
     f = create_feed tags: tags
     assert_equal tags, f.reload.tags
   end

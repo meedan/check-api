@@ -323,10 +323,12 @@ ActiveRecord::Schema.define(version: 2023_06_14_111206) do
     t.datetime "updated_at", null: false
     t.bigint "saved_search_id"
     t.bigint "user_id"
+    t.bigint "team_id"
     t.text "description"
-    t.jsonb "tags", default: {}
+    t.string "tags"
     t.integer "licenses", default: [], array: true
     t.index ["saved_search_id"], name: "index_feeds_on_saved_search_id"
+    t.index ["team_id"], name: "index_feeds_on_team_id"
     t.index ["user_id"], name: "index_feeds_on_user_id"
   end
 
