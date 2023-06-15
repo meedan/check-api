@@ -16,6 +16,8 @@ FeedType = GraphqlCrudOperations.define_default_type do
   field :root_requests_count, types.Int
   field :tags, JsonStringType
   field :licenses, types[types.Int]
+  field :saved_search_id, types.Int
+  field :team_id, types.Int
 
   field :user do
     type -> { UserType }
@@ -25,6 +27,22 @@ FeedType = GraphqlCrudOperations.define_default_type do
         ability = ctx[:ability] || Ability.new
         user if ability.can?(:read, user)
       end
+    }
+  end
+
+  field :team do
+    type -> { TeamType }
+
+    resolve -> (feed, _args, _ctx) {
+      RecordLoader.for(Team).load(feed.team_id)
+    }
+  end
+
+  field :saved_search do
+    type -> { SavedSearchType }
+
+    resolve -> (feed, _args, _ctx) {
+      RecordLoader.for(SavedSearch).load(feed.saved_search_id)
     }
   end
 
