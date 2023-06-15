@@ -227,21 +227,22 @@ class GraphqlController8Test < ActionController::TestCase
     assert_equal FeedTeam.where(feed: f, team: t).last.id, JSON.parse(@response.body).dig('data', 'team', 'feed', 'current_feed_team', 'dbid')
   end
 
-  # TODO: fix by Sawy
-  # test "should create feed" do
-  #   t = create_team
-  #   u = create_user
-  #   create_team_user user: u, team: t, role: 'admin'
-  #   ss = create_saved_search team: t, filters: { foo: 'bar' }
-  #   authenticate_with_user(u)
-  #   assert_difference 'Feed.count' do
-  #     tags = ['tag_a', 'tag_b'].to_json
-  #     query = 'mutation { createFeed(input: { clientMutationId: "1",tags: ' + tags + ', saved_search_id: ' + ss.id.to_s + ', name: "FeedTitle", description: "FeedDescription" }) { feed { name, description, published, filters, tags, licenses, team_id, saved_search_id, team { dbid }, saved_search { dbid } } } }'
-  #     post :create, params: { query: query, team: t.slug }
-  #     assert_response :success
-  #   end
-  # end
+  test "should create feed" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    ss = create_saved_search team: t, filters: { foo: 'bar' }
+    authenticate_with_user(u)
+    assert_difference 'Feed.count' do
+      tags = ['tag_a', 'tag_b'].to_json
+      licenses = [1, 2].to_json
+      query = 'mutation { createFeed(input: { clientMutationId: "1",tags: ' + tags + ', licenses: ' + licenses + ', saved_search_id: ' + ss.id.to_s + ', name: "FeedTitle", description: "FeedDescription" }) { feed { name, description, published, filters, tags, licenses, team_id, saved_search_id, team { dbid }, saved_search { dbid } } } }'
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+    end
+  end
 
+  # TODO: fix by Sawy
   # test "should update feed" do
   #   t = create_team
   #   u = create_user

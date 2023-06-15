@@ -9,6 +9,8 @@ class GraphqlCrudOperations
         'id' => types.ID,
         '!id' => !types.ID,
         'bool' => types.Boolean,
+        'array_int' => types[types.Int],
+        '!array_int' => !types[types.Int],
         'json' => JsonStringType
       }.freeze
     end

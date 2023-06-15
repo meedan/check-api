@@ -4,11 +4,11 @@ module FeedMutations
     tags: 'json',
     saved_search_id: 'int',
     published: 'bool',
-    licenses: 'int',
   }
 
   create_fields = fields.merge({
     name: '!str',
+    licenses: '!array_int',
   })
 
   update_fields = fields.merge({
