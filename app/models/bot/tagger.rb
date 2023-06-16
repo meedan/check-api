@@ -48,10 +48,11 @@ class Bot::Tagger < BotUser
 
         # For each nearest neighbor, get the tags.
         tag_counts=results.map{|nn_pm,_| ProjectMedia.find(nn_pm).get_annotations('tag')}.flatten
-        # Transform from tag objects to strings and counts
-        tag_counts=tag_counts.map{|t| self.get_tag_text(t[:data][:tag],auto_tag_prefix,ignore_autotags)}.group_by(&:itself).transform_values(&:count)
-        # Reject any nil tags
-        tag_counts=tag_counts.reject{|k,_v|k==nil}.sort_by{|_k,v| v}
+        # Transform from tag objects to strings
+        # .compact removes any nil values returned by get_tag_text
+        tag_counts=tag_counts.map{|t| self.get_tag_text(t[:data][:tag],auto_tag_prefix,ignore_autotags)}.compact
+        # Convert to counts and sort by the counts (low to high)
+        tag_counts=tag_counts.group_by(&:itself).transform_values(&:count).sort_by{|_k,v| v}
         # tag_counts is now an array of arrays with counts e.g., [['nature', 1], ['sport', 2]]
         self.log("Tag distribution #{tag_counts}", pm.id, Logger::INFO)
         if tag_counts.length > 0
