@@ -242,19 +242,19 @@ class GraphqlController8Test < ActionController::TestCase
     end
   end
 
-  # TODO: fix by Sawy
-  # test "should update feed" do
-  #   t = create_team
-  #   u = create_user
-  #   create_team_user user: u, team: t, role: 'admin'
-  #   ss = create_saved_search team: t, filters: { foo: 'bar' }
-  #   authenticate_with_user(u)
-  #   f = create_feed team_id: t.id
-  #   query = "mutation { updateFeed(input: { id: \"#{f.graphql_id}\", published: true }) { feed { published, saved_search_id } } }"
-  #   post :create, params: { query: query, team: t.slug }
-  #   assert_response :success
-  #   pp JSON.parse(@response.body)
-  # end
+  test "should update feed" do
+    t1 = create_team private: true
+    create_team_user(user: @u, team: t1, role: 'admin')
+    f = create_feed team_id: t1.id
+    ss = create_saved_search team_id: t1.id
+    assert_not f.reload.published
+    query = "mutation { updateFeed(input: { id: \"#{f.graphql_id}\", published: true, saved_search_id: #{ss.id} }) { feed { published, saved_search_id } } }"
+    post :create, params: { query: query, team: t1.slug }
+    assert_response :success
+    data = JSON.parse(@response.body).dig('data', 'updateFeed', 'feed')
+    assert data['published']
+    assert ss.id, data['saved_search_id']
+  end
 
   test "should update feed team" do
     t1 = create_team private: true

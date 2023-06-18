@@ -161,6 +161,6 @@ class Feed < ApplicationRecord
   end
 
   def create_feed_team
-    self.teams << Team.current unless Team.current.nil?
+    self.teams << self.team unless self.team.nil?
   end
 end
