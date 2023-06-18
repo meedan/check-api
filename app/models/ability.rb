@@ -60,9 +60,7 @@ class Ability
     can :duplicate, Team, :id => @context_team.id
     can :set_privacy, Project, :team_id => @context_team.id
     can :cud, Feed do |obj|
-      team_ids = obj.feed_teams.map(&:team_id)
-      team_ids << obj.team_id
-      team_ids.include?(@context_team.id)
+      obj.get_team_ids.include?(@context_team.id)
     end
     can [:create, :destroy], FeedTeam, team_id: @context_team.id
   end

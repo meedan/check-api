@@ -130,7 +130,6 @@ MutationType = GraphQL::ObjectType.define do
 
   field :createFeed, field: FeedMutations::Create.field
   field :updateFeed, field: FeedMutations::Update.field
-  field :destroyFeed, field: FeedMutations::Destroy.field
 
   field :updateFeedTeam, field: FeedTeamMutations::Update.field
 

@@ -6,6 +6,7 @@ FeedType = GraphqlCrudOperations.define_default_type do
 
   field :dbid, types.Int
   field :user_id, types.Int
+  field :team_id, types.Int
   field :name, types.String
   field :description, types.String
   field :published, types.Boolean
@@ -14,16 +15,15 @@ FeedType = GraphqlCrudOperations.define_default_type do
   field :teams_count, types.Int
   field :requests_count, types.Int
   field :root_requests_count, types.Int
-  field :tags, JsonStringType
+  field :tags, types[types.String]
   field :licenses, types[types.Int]
   field :saved_search_id, types.Int
-  field :team_id, types.Int
 
   field :user do
     type -> { UserType }
 
     resolve -> (feed, _args, ctx) {
-      RecordLoader.for(User).load(feed.user_id).then do |user|
+      feed.user.then do |user|
         ability = ctx[:ability] || Ability.new
         user if ability.can?(:read, user)
       end
@@ -34,7 +34,7 @@ FeedType = GraphqlCrudOperations.define_default_type do
     type -> { TeamType }
 
     resolve -> (feed, _args, _ctx) {
-      RecordLoader.for(Team).load(feed.team_id)
+      feed.team
     }
   end
 
@@ -42,7 +42,7 @@ FeedType = GraphqlCrudOperations.define_default_type do
     type -> { SavedSearchType }
 
     resolve -> (feed, _args, _ctx) {
-      RecordLoader.for(SavedSearch).load(feed.saved_search_id)
+      feed.saved_search
     }
   end
 

@@ -1,7 +1,7 @@
 module FeedMutations
   fields = {
     description: 'str',
-    tags: 'json',
+    tags: 'array_str',
     saved_search_id: 'int',
     published: 'bool',
   }

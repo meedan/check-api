@@ -236,7 +236,7 @@ class GraphqlController8Test < ActionController::TestCase
     assert_difference 'Feed.count' do
       tags = ['tag_a', 'tag_b'].to_json
       licenses = [1, 2].to_json
-      query = 'mutation { createFeed(input: { clientMutationId: "1",tags: ' + tags + ', licenses: ' + licenses + ', saved_search_id: ' + ss.id.to_s + ', name: "FeedTitle", description: "FeedDescription" }) { feed { name, description, published, filters, tags, licenses, team_id, saved_search_id, team { dbid }, saved_search { dbid } } } }'
+      query = 'mutation { createFeed(input: { clientMutationId: "1",tags: ' + tags + ', licenses: ' + licenses + ', saved_search_id: ' + ss.id.to_s + ', name: "FeedTitle", description: "FeedDescription" }) { feed { name, description, published, filters, tags, licenses, team_id, saved_search_id, team { dbid }, user { dbid }, saved_search { dbid } } } }'
       post :create, params: { query: query, team: t.slug }
       assert_response :success
     end
