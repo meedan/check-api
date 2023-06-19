@@ -260,6 +260,7 @@ class GraphqlController8Test < ActionController::TestCase
     t1 = create_team private: true
     create_team_user(user: @u, team: t1, role: 'admin')
     t2 = create_team private: true
+    ss = create_saved_search team_id: t1.id
     f = create_feed
     f.teams << t1
     f.teams << t2
@@ -268,9 +269,10 @@ class GraphqlController8Test < ActionController::TestCase
     assert !ft1.shared
     assert !ft2.shared
 
-    query = "mutation { updateFeedTeam(input: { id: \"#{ft1.graphql_id}\", shared: true }) { feed_team { shared } } }"
+    query = "mutation { updateFeedTeam(input: { id: \"#{ft1.graphql_id}\", shared: true, saved_search_id: #{ss.id} }) { feed_team { shared, saved_search { dbid } } } }"
     post :create, params: { query: query, team: t1.slug }
     assert ft1.reload.shared
+    assert_equal ss.id, ft1.reload.saved_search_id
 
     query = "mutation { updateFeedTeam(input: { id: \"#{ft2.graphql_id}\", shared: true }) { feed_team { shared } } }"
     post :create, params: { query: query, team: t2.slug }

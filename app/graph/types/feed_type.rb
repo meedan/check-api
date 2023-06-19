@@ -27,13 +27,7 @@ FeedType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :saved_search do
-    type -> { SavedSearchType }
-
-    resolve -> (feed, _args, _ctx) {
-      feed.saved_search
-    }
-  end
+  instance_exec :feed, &GraphqlCrudOperations.field_saved_search
 
   connection :requests, -> { RequestType.connection_type } do
     argument :request_id, types.Int

@@ -455,6 +455,18 @@ class GraphqlCrudOperations
     end
   end
 
+  def self.field_saved_search
+    proc do |_classname|
+      field :saved_search do
+        type -> { SavedSearchType }
+
+        resolve -> (obj, _args, _ctx) {
+          obj.saved_search
+        }
+      end
+    end
+  end
+
   def self.define_annotation_fields
     [:annotation_type, :annotated_id, :annotated_type, :content, :dbid]
   end
