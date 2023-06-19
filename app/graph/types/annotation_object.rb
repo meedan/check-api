@@ -1,6 +1,8 @@
 class AnnotationObject < BaseObject
   class MissingSubclassImplementationError < NoMethodError; end
 
+  field_class SnakeCaseField
+
   implements NodeIdentification.interface
 
   field :id, ID, null: false

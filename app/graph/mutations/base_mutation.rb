@@ -17,12 +17,11 @@ class BaseMutation < GraphQL::Schema::RelayClassicMutation
       subclass.field :deletedId, GraphQL::Types::ID, null: true
 
       type_class = "#{mutation_target.to_s.camelize}Type".constantize
-
-      subclass.field mutation_target, type_class, camelize: true, null: true
+      subclass.field mutation_target, type_class, camelize: false, null: true
       subclass.field "#{type_class}Edge", type_class.edge_type, null: true
 
       parents.each do |parent_field|
-        subclass.field parent_field.to_sym, "#{parent_field.camelize}Type", camelize: true, null: true
+        subclass.field parent_field.to_sym, "#{parent_field.camelize}Type", null: true
       end
 
       subclass.define_method :resolve do |**inputs|
@@ -54,7 +53,7 @@ class BaseMutation < GraphQL::Schema::RelayClassicMutation
       subclass.graphql_name "#{action.camelize}#{mutation_target.camelize}"
 
       type_class = "#{mutation_target.camelize}Type".constantize
-      subclass.field mutation_target, type_class, camelize: true, null: true
+      subclass.field mutation_target, type_class, null: true
       subclass.field "#{type_class}Edge", type_class.edge_type, null: true
 
       # NEED TO FIGURE OUT WHAT TO DO WITH THIS
@@ -71,9 +70,7 @@ class BaseMutation < GraphQL::Schema::RelayClassicMutation
         # fields
       # end
       parents.each do |parent_field|
-        # camelize: true is required to prevent GraphQL from converting :some_thing into :someThing. Our
-        #   GraphQL API expects snakecase (:some_thing)
-        subclass.field parent_field.to_sym, "#{parent_field.camelize}Type", camelize: true, null: true
+        subclass.field parent_field.to_sym, "#{parent_field.camelize}Type", null: true
       end
 
       subclass.define_method :resolve do |**inputs|
