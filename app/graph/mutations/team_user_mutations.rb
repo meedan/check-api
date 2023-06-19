@@ -1,17 +1,34 @@
 module TeamUserMutations
-  create_fields = {
-    user_id: '!int',
-    team_id: '!int',
-    status: '!str',
-    role: 'str'
-  }
+  MUTATION_TARGET = 'team_user'.freeze
+  PARENTS = ['user','team'].freeze
 
-  update_fields = {
-    user_id: 'int',
-    team_id: 'int',
-    status: 'str',
-    role: 'str'
-  }
+  module SharedCreateAndUpdateFields
+    extend ActiveSupport::Concern
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('team_user', create_fields, update_fields, ['user','team'])
+    included do
+      argument :role, String, required: false
+
+      # TODO: extract as TeamAttributes module
+      field :team_userEdge, TeamUserType.edge_type, camelize: false, null: true
+      field :user, UserType, null: true
+    end
+  end
+
+  class Create < CreateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :user_id, Integer, required: true, camelize: false
+    argument :team_id, Integer, required: true, camelize: false
+    argument :status, String, required: true
+  end
+
+  class Update < UpdateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :user_id, Integer, required: false, camelize: false
+    argument :team_id, Integer, required: false, camelize: false
+    argument :status, String, required: false
+  end
+
+  class Destroy < DestroyMutation; end
 end

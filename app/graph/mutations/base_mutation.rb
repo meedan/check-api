@@ -29,6 +29,7 @@ class BaseMutation < GraphQL::Schema::RelayClassicMutation
       # HANDLE IN CLASSES
       # return_field(:affectedId, types.ID) if type.to_s == 'project_media'
 
+      # TODO: extract as TeamAttributes module
       # if type.to_s == 'team'
       #   return_field(:team_userEdge, TeamUserType.edge_type)
       #   return_field(:user, UserType)
