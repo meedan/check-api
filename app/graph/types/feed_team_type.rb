@@ -5,6 +5,7 @@ FeedTeamType = GraphqlCrudOperations.define_default_type do
   interfaces [NodeIdentification.interface]
 
   field :dbid, types.Int
+  field :filters, JsonStringType
   field :saved_search_id, types.Int
   field :team, TeamType
   field :feed, FeedType
