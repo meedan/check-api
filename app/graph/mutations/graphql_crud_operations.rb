@@ -4,8 +4,12 @@ class GraphqlCrudOperations
       {
         'str' => types.String,
         '!str' => !types.String,
+        'array_str' => types[types.String],
+        '!array_str' => !types[types.String],
         'int' => types.Int,
         '!int' => !types.Int,
+        'array_int' => types[types.Int],
+        '!array_int' => !types[types.Int],
         'id' => types.ID,
         '!id' => !types.ID,
         'bool' => types.Boolean,
@@ -446,6 +450,18 @@ class GraphqlCrudOperations
 
         resolve ->(obj, _args, _ctx) {
           obj.get_versions_log_count
+        }
+      end
+    end
+  end
+
+  def self.field_saved_search
+    proc do |_classname|
+      field :saved_search do
+        type -> { SavedSearchType }
+
+        resolve -> (obj, _args, _ctx) {
+          obj.saved_search
         }
       end
     end
