@@ -14,21 +14,17 @@ module CommentMutations
     end
   end
 
-  class Create < BaseMutation
+  class Create < CreateMutation
     include SharedCreateAndUpdateFields
-    define_create_behavior(self, MUTATION_TARGET, PARENTS)
 
     argument :text, String, required: false
   end
 
-  class Update < BaseMutation
+  class Update < UpdateMutation
     include SharedCreateAndUpdateFields
-    define_update_behavior(self, MUTATION_TARGET, PARENTS)
 
     argument :text, String, required: true
   end
 
-  class Destroy < BaseMutation
-    define_destroy_behavior(self, MUTATION_TARGET, PARENTS)
-  end
+  class Destroy < DestroyMutation; end
 end

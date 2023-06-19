@@ -1,23 +1,34 @@
 module SourceMutations
-  create_fields = {
-    avatar: 'str',
-    slogan: '!str',
-    name: '!str',
-    user_id: 'int',
-    add_to_project_media_id: 'int',
-    urls: 'str',
-    validate_primary_link_exist: 'bool'
-  }
+  MUTATION_TARGET = 'source'.freeze
+  PARENTS = ['project_media'].freeze
 
-  update_fields = {
-    avatar: 'str',
-    slogan: 'str',
-    name: 'str',
-    refresh_accounts: 'int',
-    user_id: 'int',
-    add_to_project_media_id: 'int',
-    lock_version: 'int'
-  }
+  module SharedCreateAndUpdateFields
+    extend ActiveSupport::Concern
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('source', create_fields, update_fields, ['project_media'])
+    included do
+      argument :avatar, String, required: false
+      argument :user_id, Integer, required: false, camelize: false
+      argument :add_to_project_media_id, Integer, required: false, camelize: false
+    end
+  end
+
+  class Create < CreateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :slogan, String, required: true
+    argument :name, String, required: true
+    argument :urls, String, required: false
+    argument :validate_primary_link_exist, Boolean, required: false
+  end
+
+  class Update < UpdateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :slogan, String, required: false
+    argument :name, String, required: false
+    argument :refresh_accounts, Integer, required: false, camelize: false
+    argument :lock_version, Integer, required: false, camelize: false
+  end
+
+  class Destroy < DestroyMutation; end
 end

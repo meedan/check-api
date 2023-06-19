@@ -101,7 +101,7 @@ class GraphqlCrudOperations
     obj.file = ctx[:file] if !ctx[:file].blank?
 
     attrs = inputs.keys.inject({}) do |memo, key|
-      memo[key] = inputs[key] unless key == 'id'
+      memo[key] = inputs[key] unless key.to_sym == :id
       memo
     end
 
@@ -118,7 +118,7 @@ class GraphqlCrudOperations
     obj = self.object_from_id_and_context(inputs[:id], ctx)
     return unless inputs[:id] || obj
 
-    self.update_from_single_id(inputs[:id] || obj.graph_id, inputs, ctx, parents)
+    self.update_from_single_id(inputs[:id] || obj.graphql_id, inputs, ctx, parents)
   end
 
   def self.object_from_id(graphql_id)
@@ -144,9 +144,8 @@ class GraphqlCrudOperations
     self.destroy_from_single_id(obj, inputs, ctx, parents)
   end
 
-  def self.destroy_from_single_id(graphql_id, inputs, ctx, parents)
+  def self.destroy_from_single_id(obj, inputs, ctx, parents)
     raise "This operation must be done by a signed-in user" if User.current.nil?
-    obj = self.object_from_id(graphql_id)
     obj.keep_completed_tasks = inputs[:keep_completed_tasks] if obj.is_a?(TeamTask)
     if obj.is_a?(Relationship)
       obj.add_to_project_id = inputs[:add_to_project_id]

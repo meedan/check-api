@@ -13,9 +13,9 @@ class MutationType < BaseObject
   field :update_comment, mutation: CommentMutations::Update
   field :destroy_comment, mutation: CommentMutations::Destroy
 
-#   field :create_source, field: SourceMutations::Create.field
-#   field :update_source, field: SourceMutations::Update.field
-#   field :destroy_source, field: SourceMutations::Destroy.field
+  field :create_source, mutation: SourceMutations::Create
+  field :update_source, mutation: SourceMutations::Update
+  field :destroy_source, mutation: SourceMutations::Destroy
 
 #   field :create_team_user, field: TeamUserMutations::Create.field
 #   field :update_team_user, field: TeamUserMutations::Update.field
