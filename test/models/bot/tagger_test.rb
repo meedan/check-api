@@ -114,4 +114,14 @@ class Bot::TaggerTest < ActiveSupport::TestCase
   Bot::Alegre.unstub(:get_items_with_similar_text)
   end
 
+  test "should not do anything if Alegre is not configured" do
+    stub_configs({ 'alegre_host' => nil }) do
+      assert !Bot::Tagger.run('test')
+    end
+  end
+
+  test "should notify Sentry if an unexpected error happens" do
+    CheckSentry.expects(:notify).once
+    Bot::Tagger.run('invalid payload')
+  end
 end
