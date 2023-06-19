@@ -44,13 +44,11 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     pm4b = create_project_media media: l, team: t4 # Should not be in search results by URL
     ss = create_saved_search team_id: t1.id, filters: { show: ['claims', 'weblink'] }
     f1 = create_feed team_id: t1.id, published: true
-    f1.teams << t1
     f1.teams << t2
     FeedTeam.update_all(shared: true)
     f1.teams << t3
     ft_ss = create_saved_search team_id: t1.id, filters: { keyword: 'Bar' }
     ft = FeedTeam.where(feed: f1, team: t1).last
-    # ft.filters = { keyword: 'Bar' }
     ft.saved_search = ft_ss
     ft.save!
     u = create_bot_user

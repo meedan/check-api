@@ -19,17 +19,6 @@ FeedType = GraphqlCrudOperations.define_default_type do
   field :licenses, types[types.Int]
   field :saved_search_id, types.Int
 
-  field :user do
-    type -> { UserType }
-
-    resolve -> (feed, _args, ctx) {
-      feed.user.then do |user|
-        ability = ctx[:ability] || Ability.new
-        user if ability.can?(:read, user)
-      end
-    }
-  end
-
   field :team do
     type -> { TeamType }
 
