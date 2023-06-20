@@ -1,23 +1,36 @@
 module TeamTaskMutations
-  update_fields = {
-    label: '!str',
-    task_type: 'str',
-    description: 'str',
-    json_options: 'str',
-    json_schema: 'str',
-    keep_completed_tasks: 'bool',
-    order: 'int',
-    fieldset: 'str',
-    associated_type: 'str',
-    show_in_browser_extension: 'bool',
-    conditional_info: 'str',
-    required: 'bool',
-    options_diff: 'json',
-  }
+  MUTATION_TARGET = 'team_task'.freeze
+  PARENTS = ['team'].freeze
 
-  create_fields = update_fields.merge({
-    team_id: '!int'
-  })
+  module SharedCreateAndUpdateFields
+    extend ActiveSupport::Concern
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('team_task', create_fields, update_fields, ['team'])
+    included do
+      argument :label, String, required: true
+      argument :description, String, required: false
+      argument :order, Integer, required: false
+      argument :fieldset, String, required: false
+      argument :required, GraphQL::Types::Boolean, required: false
+      argument :task_type, String, required: false, camelize: false
+      argument :json_options, String, required: false, camelize: false
+      argument :json_schema, String, required: false, camelize: false
+      argument :keep_completed_tasks, GraphQL::Types::Boolean, required: false, camelize: false
+      argument :associated_type, String, required: false, camelize: false
+      argument :show_in_browser_extension, GraphQL::Types::Boolean, required: false, camelize: false
+      argument :conditional_info, String, required: false, camelize: false
+      argument :options_diff, JsonString, required: false, camelize: false
+    end
+  end
+
+  class Create < CreateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :team_id, Integer, required: true, camelize: false
+  end
+
+  class Update < UpdateMutation
+    include SharedCreateAndUpdateFields
+  end
+
+  class Destroy < DestroyMutation; end
 end

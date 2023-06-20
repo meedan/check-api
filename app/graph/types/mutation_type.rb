@@ -101,9 +101,9 @@ class MutationType < BaseObject
 #   field :update_tag_text, field: TagTextMutations::Update.field
 #   field :destroy_tag_text, field: TagTextMutations::Destroy.field
 
-#   field :create_team_task, field: TeamTaskMutations::Create.field
-#   field :update_team_task, field: TeamTaskMutations::Update.field
-#   field :destroy_team_task, field: TeamTaskMutations::Destroy.field
+  field :create_team_task, mutation: TeamTaskMutations::Create
+  field :update_team_task, mutation: TeamTaskMutations::Update
+  field :destroy_team_task, mutation: TeamTaskMutations::Destroy
   field :move_team_task_up, mutation: TasksOrderMutations::MoveTeamTaskUp
   field :move_team_task_down, mutation: TasksOrderMutations::MoveTeamTaskDown
 
