@@ -142,9 +142,9 @@ class MutationType < BaseObject
   field :create_claim_description, mutation: ClaimDescriptionMutations::Create
   field :update_claim_description, mutation: ClaimDescriptionMutations::Update
 
-#   field :create_fact_check, field: FactCheckMutations::Create.field
-#   field :update_fact_check, field: FactCheckMutations::Update.field
-#   field :destroy_fact_check, field: FactCheckMutations::Destroy.field
+  field :create_fact_check, mutation: FactCheckMutations::Create
+  field :update_fact_check, mutation: FactCheckMutations::Update
+  field :destroy_fact_check, mutation: FactCheckMutations::Destroy
 
 #   field :update_feed_team, field: FeedTeamMutations::Update.field
 
