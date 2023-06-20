@@ -64,8 +64,8 @@ class MutationType < BaseObject
   field :create_task, mutation: TaskMutations::Create
   field :update_task, mutation: TaskMutations::Update
   field :destroy_task, mutation: TaskMutations::Destroy
-#   field :move_task_up, field: TasksOrderMutations::MoveTaskUp.field
-#   field :move_task_down, field: TasksOrderMutations::MoveTaskDown.field
+  field :move_task_up, mutation: TasksOrderMutations::MoveTaskUp
+  field :move_task_down, mutation: TasksOrderMutations::MoveTaskDown
 #   field :add_files_to_task, field: TasksFileMutations::AddFilesToTask.field
 #   field :remove_files_from_task,
 #         field: TasksFileMutations::RemoveFilesFromTask.field
@@ -104,8 +104,8 @@ class MutationType < BaseObject
 #   field :create_team_task, field: TeamTaskMutations::Create.field
 #   field :update_team_task, field: TeamTaskMutations::Update.field
 #   field :destroy_team_task, field: TeamTaskMutations::Destroy.field
-#   field :move_team_task_up, field: TasksOrderMutations::MoveTeamTaskUp.field
-#   field :move_team_task_down, field: TasksOrderMutations::MoveTeamTaskDown.field
+  field :move_team_task_up, mutation: TasksOrderMutations::MoveTeamTaskUp
+  field :move_team_task_down, mutation: TasksOrderMutations::MoveTeamTaskDown
 
 #   field :create_relationship, field: RelationshipMutations::Create.field
 #   field :update_relationship, field: RelationshipMutations::Update.field

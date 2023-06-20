@@ -1,30 +1,52 @@
 module TasksOrderMutations
-  class Generator
-    def self.define_move_mutation(object_name, parent_name, direction)
-      GraphQL::Relay::Mutation.define do
-        name "Move#{object_name.to_s.camelize}#{direction.capitalize}"
+  class BaseMoveMutation < BaseMutation
+    argument :id, ID, required: true
 
-        input_field :id, !types.ID
-
-        return_field object_name, "#{object_name.to_s.camelize}Type".constantize
-        return_field parent_name, "#{parent_name.to_s.camelize}Type".constantize
-
-        resolve ->(_root, inputs, ctx) {
-                  object =
-                    GraphqlCrudOperations.object_from_id_if_can(
-                      inputs["id"],
-                      ctx["ability"]
-                    )
-                  parent = object.send(parent_name)
-                  object.send("move_#{direction}")
-                  { object_name => object, parent_name => parent }
-                }
-      end
+    def move(object, inputs, context, object_field, parent_field)
+      object = GraphqlCrudOperations.object_from_id_if_can(
+        inputs[:id],
+        context[:ability]
+      )
+      parent = object.send(parent_field)
+      yield(object) # any changes that must be made on object
+      pp object.order
+      { object_field => object, parent_field => parent }
     end
   end
 
-  MoveTaskUp = Generator.define_move_mutation(:task, :project_media, :up)
-  MoveTaskDown = Generator.define_move_mutation(:task, :project_media, :down)
-  MoveTeamTaskUp = Generator.define_move_mutation(:team_task, :team, :up)
-  MoveTeamTaskDown = Generator.define_move_mutation(:team_task, :team, :down)
+  class MoveTaskUp < BaseMoveMutation
+    field :task, TaskType, null: true
+    field :project_media, ProjectMediaType, null: true, camelize: false
+
+    def resolve(**inputs)
+      move(object, inputs, context, :task, :project_media) { |obj| obj.move_up }
+    end
+  end
+
+  class MoveTaskDown < BaseMoveMutation
+    field :task, TaskType, null: true
+    field :project_media, ProjectMediaType, null: true, camelize: false
+
+    def resolve(**inputs)
+      move(object, inputs, context, :task, :project_media) { |obj| obj.move_down }
+    end
+  end
+
+  class MoveTeamTaskUp < BaseMoveMutation
+    field :team_task, TeamTaskType, null: true, camelize: false
+    field :team, TeamType, null: true
+
+    def resolve(**inputs)
+      move(object, inputs, context, :team_task, :task) { |obj| obj.move_up }
+    end
+  end
+
+  class MoveTeamTaskDown < BaseMoveMutation
+    field :team_task, TeamTaskType, null: true, camelize: false
+    field :team, TeamType, null: true
+
+    def resolve(**inputs)
+      move(object, inputs, context, :team_task, :task) { |obj| obj.move_down }
+    end
+  end
 end
