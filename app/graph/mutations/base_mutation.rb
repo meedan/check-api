@@ -9,20 +9,6 @@ class BaseMutation < GraphQL::Schema::RelayClassicMutation
       subclass.field mutation_target, type_class, null: true, camelize: false
       subclass.field "#{type_class}Edge", type_class.edge_type, null: true
 
-      # NEED TO FIGURE OUT WHAT TO DO WITH THIS
-      # GraphqlCrudOperations.define_parent_returns(parents).each{ |field_name, field_class| return_field(field_name, field_class) }
-      # def parent_type_returns(parents)
-        # fields = {}
-        # parents.each do |parent|
-        #   parentclass = parent =~ /^check_search_/ ? 'CheckSearch' : parent.gsub(/_was$/, '').camelize
-        #   parentclass = 'ProjectMedia' if ['related_to', 'source_project_media', 'target_project_media'].include?(parent)
-        #   parentclass = 'TagText' if parent == 'tag_text_object'
-        #   parentclass = 'Project' if parent == 'previous_default_project'
-        #   fields[parent.to_sym] = "#{parentclass}Type".constantize
-        # end
-        # fields
-      # end
-      # TODO: Extract with update/create behavior
       set_parent_returns(subclass, parents)
 
       # HANDLE IN CLASSES / think this is done
@@ -42,6 +28,17 @@ class BaseMutation < GraphQL::Schema::RelayClassicMutation
       # return_field("versionEdge".to_sym, VersionType.edge_type) if ['task', 'comment'].include?(type.to_s) || type =~ /dynamic/
     end
 
+    # def parent_type_returns(parents)
+      # fields = {}
+      # parents.each do |parent|
+      #   parentclass = parent =~ /^check_search_/ ? 'CheckSearch' : parent.gsub(/_was$/, '').camelize
+      #   parentclass = 'ProjectMedia' if ['related_to', 'source_project_media', 'target_project_media'].include?(parent)
+      #   parentclass = 'TagText' if parent == 'tag_text_object'
+      #   parentclass = 'Project' if parent == 'previous_default_project'
+      #   fields[parent.to_sym] = "#{parentclass}Type".constantize
+      # end
+      # fields
+    # end
     def set_parent_returns(klass, parents)
       parents.each do |parent_field|
         # If a return type has been manually specified, use that.

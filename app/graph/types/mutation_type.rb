@@ -61,7 +61,7 @@ class MutationType < BaseObject
   field :extract_text, mutation: OcrMutations::ExtractText
   field :transcribe_audio, mutation: TranscriptionMutations::TranscribeAudio
 
-#   field :destroy_version, field: VersionMutations::Destroy.field
+  field :destroy_version, mutation: VersionMutations::Destroy
 
 #   field :create_dynamic, field: DynamicMutations::Create.field
 #   field :update_dynamic, field: DynamicMutations::Update.field

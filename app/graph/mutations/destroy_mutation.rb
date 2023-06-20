@@ -14,23 +14,7 @@ class DestroyMutation < BaseMutation
       subclass.field mutation_target, type_class, camelize: false, null: true
       subclass.field "#{type_class}Edge", type_class.edge_type, null: true
 
-      # TODO: Extract with update/create behavior
-      parents.each do |parent_field|
-        # If a return type has been manually specified, use that.
-        # Otherwise, use the default (e.g. ProjectType for Project)
-        #
-        # This allows for specifying parents as:
-        # PARENTS = ['team', my_team: TeamType], which would be same as:
-        # PARENTS = [team: TeamType, my_team: TeamType]
-        if parent_field.is_a?(Hash)
-          parent_values = parent_field
-          parent_field = parent_values.keys.first
-          parent_type = parent_values[parent_field]
-        else
-          parent_type = "#{parent_field.to_s.camelize}Type".constantize
-        end
-        subclass.field parent_field.to_sym, parent_type, null: true, camelize: false
-      end
+      set_parent_returns(subclass, parents)
 
       subclass.define_method :resolve do |**inputs|
         ::GraphqlCrudOperations.destroy(inputs, context, parents)
