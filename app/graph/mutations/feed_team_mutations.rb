@@ -1,11 +1,10 @@
 module FeedTeamMutations
-  create_fields = {}
+  MUTATION_TARGET = 'feed_team'.freeze
+  PARENTS = ['feed'].freeze
 
-  update_fields = {
-    filters: 'json',
-    requests_filters: 'json',
-    shared: 'bool',
-  }
-
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('feed_team', create_fields, update_fields, ['feed'])
+  class Update < UpdateMutation
+    argument :filters, JsonString, required: false
+    argument :shared, String, required: false
+    argument :requests_filters, Boolean, required: false, camelize: false
+  end
 end

@@ -140,7 +140,7 @@ class MutationType < BaseObject
   field :update_fact_check, mutation: FactCheckMutations::Update
   field :destroy_fact_check, mutation: FactCheckMutations::Destroy
 
-#   field :update_feed_team, field: FeedTeamMutations::Update.field
+  field :update_feed_team, mutation: FeedTeamMutations::Update
 
   field :create_tipline_newsletter, mutation: TiplineNewsletterMutations::Create
   field :update_tipline_newsletter, mutation: TiplineNewsletterMutations::Update
