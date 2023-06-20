@@ -1,10 +1,36 @@
 module TagMutations
-  # create_fields = { fragment: "str", annotated_id: "str", annotated_type: "str" }.merge({ tag: '!str' })
-  create_fields = GraphqlCrudOperations.define_annotation_mutation_fields.merge({ tag: '!str' })
-  # update_fields = { fragment: "str", annotated_id: "str", annotated_type: "str" }.merge({ tag: 'str' })
-  update_fields = GraphqlCrudOperations.define_annotation_mutation_fields.merge({ tag: 'str' })
+  MUTATION_TARGET = 'tag'.freeze
+  PARENTS = [
+    'source',
+    'project_media',
+    'team',
+    { tag_text_object: TagText },
+  ].freeze
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('tag', create_fields, update_fields, ['source', 'project_media', 'team', 'tag_text_object'])
+  module SharedCreateAndUpdateFields
+    extend ActiveSupport::Concern
+
+    included do
+      # TODO: Extract these into annotation mutation module
+      argument :fragment, String, required: false
+      argument :annotated_id, String, required: false, camelize: false
+      argument :annotated_type, String, required: false, camelize: false
+    end
+  end
+
+  class Create < CreateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :tag, String, required: true
+  end
+
+  class Update < UpdateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :tag, String, required: false
+  end
+
+  class Destroy < DestroyMutation; end
 
   CreateTagMutationsBulkInput = GraphQL::InputObjectType.define do
     name "CreateTagMutationsBulkInput"

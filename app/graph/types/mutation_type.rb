@@ -47,13 +47,13 @@ class MutationType < BaseObject
   field :destroy_project_media, mutation: ProjectMediaMutations::Destroy
   field :replace_project_media, mutation: ProjectMediaMutations::Replace
 
-#   field :create_user, field: UserMutations::Create.field
-#   field :update_user, field: UserMutations::Update.field
-#   field :destroy_user, field: UserMutations::Destroy.field
+  field :create_user, mutation: UserMutations::Create
+  field :update_user, mutation: UserMutations::Update
+  field :destroy_user, mutation: UserMutations::Destroy
 
-#   field :create_tag, field: TagMutations::Create.field
-#   field :update_tag, field: TagMutations::Update.field
-#   field :destroy_tag, field: TagMutations::Destroy.field
+  field :create_tag, mutation: TagMutations::Create
+  field :update_tag, mutation: TagMutations::Update
+  field :destroy_tag, mutation: TagMutations::Destroy
 #   field :create_tags, field: TagMutations::BulkCreate.field
 
 #   field :create_annotation, field: AnnotationMutations::Create.field
