@@ -104,9 +104,9 @@ class MutationType < BaseObject
   field :move_team_task_up, mutation: TasksOrderMutations::MoveTeamTaskUp
   field :move_team_task_down, mutation: TasksOrderMutations::MoveTeamTaskDown
 
-#   field :create_relationship, field: RelationshipMutations::Create.field
-#   field :update_relationship, field: RelationshipMutations::Update.field
-#   field :destroy_relationship, field: RelationshipMutations::Destroy.field
+  field :create_relationship, mutation: RelationshipMutations::Create
+  field :update_relationship, mutation: RelationshipMutations::Update
+  field :destroy_relationship, mutation: RelationshipMutations::Destroy
 #   field :update_relationships, field: RelationshipMutations::BulkUpdate.field
 #   field :destroy_relationships, field: RelationshipMutations::BulkDestroy.field
 

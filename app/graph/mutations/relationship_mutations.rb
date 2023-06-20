@@ -1,20 +1,32 @@
 module RelationshipMutations
-  create_fields = {
-    source_id: 'int',
-    target_id: 'int',
-    relationship_type: 'json',
-    relationship_source_type: 'str',
-    relationship_target_type: 'str'
-  }
+  MUTATION_TARGET = 'relationship'.freeze
+  PARENTS = [
+    { source_project_media: ProjectMediaType },
+    { target_project_media: ProjectMediaType },
+  ].freeze
 
-  update_fields = {
-    source_id: 'int',
-    target_id: 'int',
-    relationship_source_type: 'str',
-    relationship_target_type: 'str'
-  }
+  module SharedCreateAndUpdateFields
+    extend ActiveSupport::Concern
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('relationship', create_fields, update_fields, ['source_project_media', 'target_project_media'])
+    included do
+      argument :source_id, Integer, required: false, camelize: false
+      argument :target_id, Integer, required: false, camelize: false
+      argument :relationship_source_type, String, required: false, camelize: false
+      argument :relationship_target_type, String, required: false, camelize: false
+    end
+  end
+
+  class Create < CreateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :relationship_type, JsonString, required: false, camelize: false
+  end
+
+  class Update < UpdateMutation
+    include SharedCreateAndUpdateFields
+  end
+
+  class Destroy < DestroyMutation; end
 
   BulkUpdate = GraphqlCrudOperations.define_bulk_update_or_destroy(:update, Relationship, { action: '!str', source_id: "!int" }, ['source_project_media'])
   BulkDestroy = GraphqlCrudOperations.define_bulk_update_or_destroy(:destroy, Relationship, { source_id: "!int", add_to_project_id: "int" }, ['source_project_media'])
