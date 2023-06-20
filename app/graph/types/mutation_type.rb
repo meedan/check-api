@@ -28,8 +28,8 @@ class MutationType < BaseObject
   field :update_team, mutation: TeamMutations::Update
   field :destroy_team, mutation: TeamMutations::Destroy
 
-#   field :delete_team_status, field: DeleteTeamStatusMutation.field
-#   field :duplicate_team, field: DuplicateTeamMutation.field
+  field :delete_team_status, mutation: DeleteTeamStatusMutation
+  field :duplicate_team, mutation: DuplicateTeamMutation
 
 #   field :update_account, field: AccountMutations::Update.field
 

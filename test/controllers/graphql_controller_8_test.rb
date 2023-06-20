@@ -558,7 +558,7 @@ class GraphqlController8Test < ActionController::TestCase
     assert_equal 4, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
   end
 
-    test "should delete custom status" do
+  test "should delete custom status" do
     setup_elasticsearch
     RequestStore.store[:skip_cached_field_update] = false
     u = create_user

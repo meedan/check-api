@@ -365,7 +365,7 @@ class GraphqlController10Test < ActionController::TestCase
     assert_response :success
   end
 
-    test "should filter by link published date" do
+  test "should filter by link published date" do
     RequestStore.store[:skip_cached_field_update] = false
     u = create_user
     t = create_team
