@@ -94,9 +94,9 @@ class MutationType < BaseObject
 #   field :smooch_bot_remove_integration,
 #         field: SmoochBotMutations::RemoveIntegration.field
 
-#   field :create_tag_text, field: TagTextMutations::Create.field
-#   field :update_tag_text, field: TagTextMutations::Update.field
-#   field :destroy_tag_text, field: TagTextMutations::Destroy.field
+  field :create_tag_text, mutation: TagTextMutations::Create
+  field :update_tag_text, mutation: TagTextMutations::Update
+  field :destroy_tag_text, mutation: TagTextMutations::Destroy
 
   field :create_team_task, mutation: TeamTaskMutations::Create
   field :update_team_task, mutation: TeamTaskMutations::Update
