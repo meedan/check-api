@@ -83,12 +83,9 @@ class MutationType < BaseObject
 #   field :generate_two_factor_backup_codes,
 #         field: GenerateTwoFactorBackupCodesMutation.field
 
-#   field :create_team_bot_installation,
-#         field: TeamBotInstallationMutations::Create.field
-#   field :update_team_bot_installation,
-#         field: TeamBotInstallationMutations::Update.field
-#   field :destroy_team_bot_installation,
-#         field: TeamBotInstallationMutations::Destroy.field
+  field :create_team_bot_installation, mutation: TeamBotInstallationMutations::Create
+  field :update_team_bot_installation, mutation: TeamBotInstallationMutations::Update
+  field :destroy_team_bot_installation, mutation: TeamBotInstallationMutations::Destroy
 
 #   field :smooch_bot_add_slack_channel_url,
 #         field: SmoochBotMutations::AddSlackChannelUrl.field
