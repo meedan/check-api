@@ -58,7 +58,7 @@ class MutationType < BaseObject
 
   field :create_annotation, mutation: AnnotationMutations::Create
   field :destroy_annotation, mutation: AnnotationMutations::Destroy
-#   field :extract_text, field: OcrMutations::ExtractText.field
+  field :extract_text, mutation: OcrMutations::ExtractText
 #   field :transcribe_audio, field: TranscriptionMutations::TranscribeAudio.field
 
 #   field :destroy_version, field: VersionMutations::Destroy.field

@@ -1,20 +1,16 @@
 module OcrMutations
-  ExtractText =
-    GraphQL::Relay::Mutation.define do
-      name "ExtractText"
+  class ExtractText < BaseMutation
+    argument :id, ID, required: true
 
-      input_field :id, !types.ID
+    field :project_media, ProjectMediaType, null: true, camelize: false
 
-      return_field :project_media, ProjectMediaType
-
-      resolve ->(_root, inputs, ctx) {
-                pm =
-                  GraphqlCrudOperations.object_from_id_if_can(
-                    inputs["id"],
-                    ctx["ability"]
-                  )
-                Bot::Alegre.get_extracted_text(pm)
-                { project_media: pm }
-              }
+    def resolve(**inputs)
+      pm = GraphqlCrudOperations.object_from_id_if_can(
+        inputs[:id],
+        context[:ability]
+      )
+      Bot::Alegre.get_extracted_text(pm)
+      { project_media: pm }
     end
+  end
 end
