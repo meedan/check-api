@@ -1,6 +1,13 @@
 module TeamMutations
   MUTATION_TARGET = 'team'.freeze
-  PARENTS = ['public_team'].freeze
+  PARENTS = [
+    'public_team',
+    # TODO: consolidate parent class logic if present elsewhere
+    { check_search_team: CheckSearchType },
+    { check_search_trash: CheckSearchType },
+    { check_search_spam: CheckSearchType },
+    { check_search_unconfirmed: CheckSearchType },
+  ].freeze
 
   module SharedCreateAndUpdateFields
     extend ActiveSupport::Concern
@@ -13,13 +20,6 @@ module TeamMutations
       # TODO: extract as TeamAttributes module
       field :team_userEdge, TeamUserType.edge_type, camelize: false, null: true
       field :user, UserType, null: true
-
-      # previous parent fields: 'check_search_team', 'check_search_trash', 'check_search_spam', 'check_search_unconfirmed'
-      # TODO: extract to module
-      field :check_search_term, CheckSearchType, null: true
-      field :check_search_trash, CheckSearchType, null: true
-      field :check_search_spam, CheckSearchType, null: true
-      field :check_search_unconfirmed, CheckSearchType, null: true
     end
   end
 

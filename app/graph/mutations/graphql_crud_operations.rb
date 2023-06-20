@@ -37,6 +37,7 @@ class GraphqlCrudOperations
     ret = {}
     name = obj.class_name.underscore
     parents.each do |parent_name|
+      parent_name = parent_name.keys.first if parent_name.is_a?(Hash)
       child, parent = obj, obj.send(parent_name)
       parent = obj.version_object if parent_name == "version"
       unless parent.nil?

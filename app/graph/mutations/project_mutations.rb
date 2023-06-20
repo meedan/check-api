@@ -1,22 +1,43 @@
 module ProjectMutations
-  create_fields = {
-    description: 'str',
-    title: '!str',
-    team_id: 'int',
-    project_group_id: 'int'
-  }
+  MUTATION_TARGET = 'project'.freeze
+  PARENTS = [
+    'team',
+    'project_group',
+    # TODO: consolidate parent class logic if present elsewhere
+    { check_search_team: CheckSearchType },
+    { previous_default_project: ProjectType },
+    { project_group_was: ProjectGroupType },
+  ].freeze
 
-  update_fields = {
-    description: 'str',
-    title: 'str',
-    assigned_to_ids: 'str',
-    assignment_message: 'str',
-    project_group_id: 'int',
-    previous_project_group_id: 'int',
-    previous_default_project_id: 'int',
-    privacy: 'int',
-    is_default: 'bool'
-  }
+  module SharedCreateAndUpdateFields
+    extend ActiveSupport::Concern
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('project', create_fields, update_fields, ['team', 'check_search_team', 'project_group', 'project_group_was', 'previous_default_project'])
+    included do
+      argument :description, String, required: false
+      argument :project_group_id, Integer, required: false, camelize: false
+    end
+  end
+
+  class Create < CreateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :title, String, required: true
+    argument :team_id, Integer, required: false, camelize: false
+  end
+
+  class Update < UpdateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :title, String, required: false
+    argument :assigned_to_ids, String, required: false, camelize: false
+    argument :assignment_message, String, required: false, camelize: false
+    argument :previous_project_group_id, Integer, required: false, camelize: false
+    argument :previous_default_project_id, Integer, required: false, camelize: false
+    argument :privacy, Integer, required: false
+    argument :is_default, Boolean, required: false, camelize: false
+  end
+
+  class Destroy < DestroyMutation
+    argument :items_destination_project_id, Integer, required: false, camelize: false
+  end
 end

@@ -37,9 +37,9 @@ class MutationType < BaseObject
   field :update_account_source, mutation: AccountSourceMutations::Update
   field :destroy_account_source, mutation: AccountSourceMutations::Destroy
 
-#   field :create_project, field: ProjectMutations::Create.field
-#   field :update_project, field: ProjectMutations::Update.field
-#   field :destroy_project, field: ProjectMutations::Destroy.field
+  field :create_project, mutation: ProjectMutations::Create
+  field :update_project, mutation: ProjectMutations::Update
+  field :destroy_project, mutation: ProjectMutations::Destroy
 
 #   field :create_project_media, field: ProjectMediaMutations::Create.field
 #   field :update_project_media, field: ProjectMediaMutations::Update.field
