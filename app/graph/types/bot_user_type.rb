@@ -6,9 +6,29 @@ class BotUserType < DefaultObject
   field :avatar, String, null: true
   field :name, String, null: true
   field :get_description, String, null: true
+
+  def get_description
+    object.get_description
+  end
+
   field :get_version, String, null: true
+
+  def get_version
+    object.get_version
+  end
+
   field :get_source_code_url, String, null: true
+
+  def get_source_code_url
+    object.get_source_code_url
+  end
+
   field :get_role, String, null: true
+
+  def get_role
+    object.get_role
+  end
+
   field :identifier, String, null: true
   field :login, String, null: true
   field :dbid, Integer, null: true

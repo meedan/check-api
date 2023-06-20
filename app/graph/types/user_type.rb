@@ -16,8 +16,23 @@ class UserType < DefaultObject
   field :jsonsettings, String, null: true
   field :number_of_teams, Integer, null: true
   field :get_send_email_notifications, Boolean, null: true
+
+  def get_send_email_notifications
+    obj.get_send_email_notifications
+  end
+
   field :get_send_successful_login_notifications, Boolean, null: true
+
+  def get_send_successful_login_notifications
+    obj.get_send_successful_login_notifications
+  end
+
   field :get_send_failed_login_notifications, Boolean, null: true
+
+  def get_send_failed_login_notifications
+    obj.get_send_failed_login_notifications
+  end
+
   field :bot_events, String, null: true
   field :is_bot, Boolean, null: true
   field :is_active, Boolean, null: true

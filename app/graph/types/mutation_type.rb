@@ -9,6 +9,9 @@ require File.join(
 class MutationType < BaseObject
   graphql_name "MutationType"
 
+  # Override snakecase by default in BaseObject, so that mutations are in camelcase
+  field_class GraphQL::Schema::Field
+
   field :create_comment, mutation: CommentMutations::Create
   field :update_comment, mutation: CommentMutations::Update
   field :destroy_comment, mutation: CommentMutations::Destroy
@@ -21,9 +24,10 @@ class MutationType < BaseObject
   field :update_team_user, mutation: TeamUserMutations::Update
   field :destroy_team_user, mutation: TeamUserMutations::Destroy
 
-#   field :create_team, field: TeamMutations::Create.field
-#   field :update_team, field: TeamMutations::Update.field
-#   field :destroy_team, field: TeamMutations::Destroy.field
+  field :create_team, mutation: TeamMutations::Create
+  field :update_team, mutation: TeamMutations::Update
+  field :destroy_team, mutation: TeamMutations::Destroy
+
 #   field :delete_team_status, field: DeleteTeamStatusMutation.field
 #   field :duplicate_team, field: DuplicateTeamMutation.field
 

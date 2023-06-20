@@ -7,10 +7,6 @@ module TeamUserMutations
 
     included do
       argument :role, String, required: false
-
-      # TODO: extract as TeamAttributes module
-      field :team_userEdge, TeamUserType.edge_type, camelize: false, null: true
-      field :user, UserType, null: true
     end
   end
 

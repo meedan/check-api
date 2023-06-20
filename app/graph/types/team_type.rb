@@ -14,10 +14,35 @@ class TeamType < DefaultObject
   field :projects_count, Integer, null: true
   field :permissions, String, null: true
   field :get_slack_notifications_enabled, String, null: true
+
+  def get_slack_notifications_enabled
+    object.get_slack_notifications_enabled
+  end
+
   field :get_slack_webhook, String, null: true
+
+  def get_slack_webhook
+    object.get_slack_webhook
+  end
+
   field :get_embed_whitelist, String, null: true
+
+  def get_embed_whitelist
+    object.get_embed_whitelist
+  end
+
   field :get_report_design_image_template, String, null: true
+
+  def get_report_design_image_template
+    object.get_report_design_image_template
+  end
+
   field :get_status_target_turnaround, String, null: true
+
+  def get_status_target_turnaround
+    object.get_status_target_turnaround
+  end
+
   field :pusher_channel, String, null: true
   field :search_id, String, null: true
   field :search, CheckSearchType, null: true
@@ -29,7 +54,17 @@ class TeamType < DefaultObject
   field :permissions_info, JsonString, null: true
   field :dynamic_search_fields_json_schema, JsonString, null: true
   field :get_slack_notifications, JsonString, null: true
+
+  def get_slack_notifications
+    object.get_slack_notifications
+  end
+
   field :get_rules, JsonString, null: true
+
+  def get_rules
+    object.get_rules
+  end
+
   field :rules_json_schema, String, null: true
   field :slack_notifications_json_schema, String, null: true
   field :rules_search_fields_json_schema, JsonString, null: true
@@ -38,18 +73,62 @@ class TeamType < DefaultObject
   field :trash_count, Integer, null: true
   field :unconfirmed_count, Integer, null: true
   field :get_languages, String, null: true
+
+  def get_languages
+    object.get_languages
+  end
+
   field :get_language, String, null: true
+
+  def get_language
+    object.get_language
+  end
+
   field :get_report, JsonString, null: true
+
+  def get_report
+    object.get_report
+  end
+
   field :get_fieldsets, JsonString, null: true
+
+  def get_fieldsets
+    object.get_fieldsets
+  end
+
   field :list_columns, JsonString, null: true
   field :get_data_report_url, String, null: true
+
+  def get_data_report_url
+    object.get_data_report_url
+  end
+
   field :url, String, null: true
   field :get_tipline_inbox_filters, JsonString, null: true
+
+  def get_tipline_inbox_filters
+    object.get_tipline_inbox_filters
+  end
+
   field :get_suggested_matches_filters, JsonString, null: true
+
+  def get_suggested_matches_filters
+    object.get_suggested_matches_filters
+  end
+
   field :data_report, JsonString, null: true
   field :available_newsletter_header_types, JsonString, null: true # List of header type strings
   field :get_outgoing_urls_utm_code, String, null: true
+
+  def get_outgoing_urls_utm_code
+    object.get_outgoing_urls_utm_code
+  end
+
   field :get_shorten_outgoing_urls, Boolean, null: true
+
+  def get_shorten_outgoing_urls
+    object.get_shorten_outgoing_urls
+  end
 
   field :public_team, PublicTeamType, null: true
 

@@ -1,38 +1,59 @@
 module TeamMutations
-  fields = {
-    archived: 'int',
-    private: 'bool',
-    description: 'str'
-  }
+  MUTATION_TARGET = 'team'.freeze
+  PARENTS = ['public_team'].freeze
 
-  create_fields = fields.merge({
-    name: '!str',
-    slug: '!str'
-  })
+  module SharedCreateAndUpdateFields
+    extend ActiveSupport::Concern
 
-  settings_fields = {
-    slack_notifications_enabled: 'str',
-    slack_webhook: 'str',
-    slack_notifications: 'str',
-    language: 'str',
-    languages: 'json',
-    list_columns: 'json',
-    tipline_inbox_filters: 'str',
-    suggested_matches_filters: 'str',
-    outgoing_urls_utm_code: 'str',
-    shorten_outgoing_urls: 'bool'
-  }
+    included do
+      argument :archived, Integer, required: false
+      argument :private, GraphQL::Types::Boolean, required: false
+      argument :description, String, required: false
 
-  update_fields = fields.merge(settings_fields).merge({
-    name: 'str',
-    add_auto_task: 'json',
-    media_verification_statuses: 'json',
-    set_team_tasks: 'json',
-    rules: 'str',
-    remove_auto_task: 'str', # label
-    empty_trash: 'int',
-    report: 'json',
-  })
+      # TODO: extract as TeamAttributes module
+      field :team_userEdge, TeamUserType.edge_type, camelize: false, null: true
+      field :user, UserType, null: true
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('team', create_fields, update_fields, ['check_search_team', 'check_search_trash', 'check_search_spam', 'check_search_unconfirmed', 'public_team'])
+      # previous parent fields: 'check_search_team', 'check_search_trash', 'check_search_spam', 'check_search_unconfirmed'
+      # TODO: extract to module
+      field :check_search_term, CheckSearchType, null: true
+      field :check_search_trash, CheckSearchType, null: true
+      field :check_search_spam, CheckSearchType, null: true
+      field :check_search_unconfirmed, CheckSearchType, null: true
+    end
+  end
+
+  class Create < CreateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :name, String, required: true
+    argument :slug, String, required: true
+  end
+
+  class Update < UpdateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :name, String, required: false
+    argument :add_auto_task, JsonString, required: false, camelize: false
+    argument :media_verification_statuses, JsonString, required: false, camelize: false
+    argument :set_team_tasks, JsonString, required: false, camelize: false
+    argument :rules, String, required: false
+    argument :remove_auto_task, String, required: false, camelize: false # label
+    argument :empty_trash, Integer, required: false, camelize: false
+    argument :report, JsonString, required: false
+
+    # Settings fields
+    argument :slack_notifications_enabled, String, required: false, camelize: false
+    argument :slack_webhook, String, required: false, camelize: false
+    argument :slack_notifications, String, required: false, camelize: false
+    argument :language, String, required: false
+    argument :languages, JsonString, required: false
+    argument :list_columns, JsonString, required: false, camelize: false
+    argument :tipline_inbox_filters, String, required: false, camelize: false
+    argument :suggested_matches_filters, String, required: false, camelize: false
+    argument :outgoing_urls_utm_code, String, required: false, camelize: false
+    argument :shorten_outgoing_urls, Boolean, required: false, camelize: false
+  end
+
+  class Destroy < DestroyMutation; end
 end
