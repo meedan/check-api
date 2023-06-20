@@ -18,7 +18,7 @@ class GraphqlController8Test < ActionController::TestCase
     authenticate_with_user(@u)
   end
 
-    test "should create and retrieve clips" do
+  test "should create and retrieve clips" do
     json_schema = {
       type: 'object',
       required: ['label'],

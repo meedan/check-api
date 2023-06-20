@@ -1,10 +1,4 @@
-require File.join(
-          Rails.root,
-          "app",
-          "graph",
-          "mutations",
-          "dynamic_annotation_types"
-        )
+require File.join(Rails.root,"app","graph","mutations","dynamic_annotation_types")
 
 class MutationType < BaseObject
   graphql_name "MutationType"
@@ -63,9 +57,9 @@ class MutationType < BaseObject
 
   field :destroy_version, mutation: VersionMutations::Destroy
 
-#   field :create_dynamic, field: DynamicMutations::Create.field
-#   field :update_dynamic, field: DynamicMutations::Update.field
-#   field :destroy_dynamic, field: DynamicMutations::Destroy.field
+  field :create_dynamic, mutation: DynamicMutations::Create
+  field :update_dynamic, mutation: DynamicMutations::Update
+  field :destroy_dynamic, mutation: DynamicMutations::Destroy
 
 #   field :create_task, field: TaskMutations::Create.field
 #   field :update_task, field: TaskMutations::Update.field
