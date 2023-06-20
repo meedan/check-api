@@ -61,9 +61,9 @@ class MutationType < BaseObject
   field :update_dynamic, mutation: DynamicMutations::Update
   field :destroy_dynamic, mutation: DynamicMutations::Destroy
 
-#   field :create_task, field: TaskMutations::Create.field
-#   field :update_task, field: TaskMutations::Update.field
-#   field :destroy_task, field: TaskMutations::Destroy.field
+  field :create_task, mutation: TaskMutations::Create
+  field :update_task, mutation: TaskMutations::Update
+  field :destroy_task, mutation: TaskMutations::Destroy
 #   field :move_task_up, field: TasksOrderMutations::MoveTaskUp.field
 #   field :move_task_down, field: TasksOrderMutations::MoveTaskDown.field
 #   field :add_files_to_task, field: TasksFileMutations::AddFilesToTask.field
