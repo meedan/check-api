@@ -4,7 +4,7 @@ module TagMutations
     'source',
     'project_media',
     'team',
-    { tag_text_object: TagText },
+    { tag_text_object: TagTextType },
   ].freeze
 
   module SharedCreateAndUpdateFields
@@ -32,39 +32,37 @@ module TagMutations
 
   class Destroy < DestroyMutation; end
 
-  CreateTagMutationsBulkInput = GraphQL::InputObjectType.define do
-    name "CreateTagMutationsBulkInput"
-
-    argument :fragment, types.String
-    argument :annotated_id, types.String
-    argument :annotated_type, types.String
-    argument :tag, !types.String
+  class CreateTagMutationsBulkInput < BaseInputObject
+    argument :fragment, String, required: false
+    argument :annotated_id, String, required: false, camelize: false
+    argument :annotated_type, String, required: false, camelize: false
+    argument :tag, String, required: true
   end
 
-  # BulkCreate = GraphqlCrudOperations.define_bulk_create(Tag, create_fields, ['team', 'check_search_team'])
-  BulkCreate = GraphQL::Relay::Mutation.define do
-    name "CreateTagMutations"
+  class BulkCreate < BaseMutation
+    include SharedCreateAndUpdateFields
 
-    input_field :inputs, types[CreateTagMutationsBulkInput]
+    graphql_name "CreateTagMutations"
 
-    GraphqlCrudOperations
-      .define_parent_returns(['team', 'check_search_team'])
-      .each do |field_name, field_class|
-        return_field(field_name, field_class)
+    argument :inputs, [CreateTagMutationsBulkInput], required: false
+
+    parents = [
+      'team',
+      { check_search_team: CheckSearchType }
+    ].freeze
+    set_parent_returns(self, parents)
+
+    def resolve(**input)
+      if input[:inputs].size > 10_000
+        raise I18n.t(:bulk_operation_limit_error, limit: 10_000)
       end
 
-    resolve ->(_root, input, ctx) {
-              if input[:inputs].size > 10_000
-                raise I18n.t(:bulk_operation_limit_error, limit: 10_000)
-              end
-
-              ability = ctx[:ability] || Ability.new
-              if ability.can?(:bulk_create, Tag.new(team: Team.current))
-                Tag.bulk_create(input["inputs"], Team.current)
-              else
-                raise CheckPermissions::AccessDenied,
-                      I18n.t(:permission_error)
-              end
-            }
+      ability = context[:ability] || Ability.new
+      if ability.can?(:bulk_create, Tag.new(team: Team.current))
+        Tag.bulk_create(input[:inputs], Team.current)
+      else
+        raise CheckPermissions::AccessDenied, I18n.t(:permission_error)
+      end
+    end
   end
 end

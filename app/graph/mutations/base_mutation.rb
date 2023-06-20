@@ -42,7 +42,7 @@ class BaseMutation < GraphQL::Schema::RelayClassicMutation
       # return_field("versionEdge".to_sym, VersionType.edge_type) if ['task', 'comment'].include?(type.to_s) || type =~ /dynamic/
     end
 
-    def set_parent_returns(subclass, parents)
+    def set_parent_returns(klass, parents)
       parents.each do |parent_field|
         # If a return type has been manually specified, use that.
         # Otherwise, use the default (e.g. ProjectType for Project)
@@ -57,7 +57,7 @@ class BaseMutation < GraphQL::Schema::RelayClassicMutation
         else
           parent_type = "#{parent_field.to_s.camelize}Type".constantize
         end
-        subclass.field parent_field.to_sym, parent_type, null: true, camelize: false
+        klass.field parent_field.to_sym, parent_type, null: true, camelize: false
       end
     end
   end
