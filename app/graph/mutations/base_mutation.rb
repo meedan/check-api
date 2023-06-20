@@ -20,11 +20,7 @@ class BaseMutation < GraphQL::Schema::RelayClassicMutation
       #   return_field(:user, UserType)
       # end
 
-      # if type =~ /^dynamic_annotation_/
-      #   return_field :dynamic, DynamicType
-      #   return_field :dynamicEdge, DynamicType.edge_type
-      # end
-
+      # HANDLE IN CLASSES / think this is done
       # return_field("versionEdge".to_sym, VersionType.edge_type) if ['task', 'comment'].include?(type.to_s) || type =~ /dynamic/
     end
 

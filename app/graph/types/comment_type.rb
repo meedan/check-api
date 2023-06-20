@@ -1,7 +1,5 @@
 class CommentType < AnnotationObject
-  def type
-    'comment'.freeze
-  end
+  define_shared_behavior(self, 'comment')
 
   field :text, String, null: true
 end

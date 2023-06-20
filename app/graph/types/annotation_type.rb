@@ -1,16 +1,12 @@
 class AnnotationType < AnnotationObject
-  def type
-    'annotation'.freeze
-  end
-
   field :annotation, String, null: true
 
-  field :project_media, ProjectMediaType, null: true, resolve: ->(annotation, _args, _ctx) do
-    annotation.annotated if annotation.annotated_type == "ProjectMedia"
+  field :project_media, ProjectMediaType, null: true, resolve: ->(**_inputs) do
+    object.annotated if object.annotated_type == "ProjectMedia"
   end
 
-  field :attribution, UserType.connection_type, null: true, resolve: ->(annotation, _args, _ctx) {
-              ids = annotation.attribution.split(",").map(&:to_i)
+  field :attribution, UserType.connection_type, null: true, resolve: ->(**_inputs) {
+              ids = object.attribution.split(",").map(&:to_i)
               User.where(id: ids)
             }
 

@@ -1,7 +1,5 @@
 class TagType < AnnotationObject
-  def type
-    'tag'.freeze
-  end
+  define_shared_behavior(self, 'tag')
 
   field :tag, String, null: true
   field :tag_text, String, null: true

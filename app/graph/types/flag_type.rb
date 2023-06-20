@@ -1,7 +1,5 @@
 class FlagType < AnnotationObject
-  def type
-    'flag'.freeze
-  end
+  define_shared_behavior(self, 'flag')
 
   field :flag, String, null: true
 end

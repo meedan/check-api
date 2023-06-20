@@ -119,14 +119,14 @@ class MutationType < BaseObject
 #   field :update_relationships, field: RelationshipMutations::BulkUpdate.field
 #   field :destroy_relationships, field: RelationshipMutations::BulkDestroy.field
 
-#   DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_type).each do |type|
-#     DynamicAnnotation::AnnotationTypeManager.define_type(type)
+  DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_type).each do |type|
+    DynamicAnnotation::AnnotationTypeManager.generate_mutation_classes_for_annotation_type(type)
 
-#     klass = type.camelize
-#     field "createDynamicAnnotation#{klass}".to_sym, field: "DynamicAnnotation#{klass}Mutations::Create".constantize.field
-#     field "updateDynamicAnnotation#{klass}".to_sym, field: "DynamicAnnotation#{klass}Mutations::Update".constantize.field
-#     field "destroyDynamicAnnotation#{klass}".to_sym, field: "DynamicAnnotation#{klass}Mutations::Destroy".constantize.field
-#   end
+    klass = type.camelize
+    field "createDynamicAnnotation#{klass}".to_sym, mutation: "DynamicAnnotation#{klass}Mutations::Create".constantize
+    field "updateDynamicAnnotation#{klass}".to_sym, mutation: "DynamicAnnotation#{klass}Mutations::Update".constantize
+    field "destroyDynamicAnnotation#{klass}".to_sym, mutation: "DynamicAnnotation#{klass}Mutations::Destroy".constantize
+  end
 
 #   field :create_project_media_user,
 #         field: ProjectMediaUserMutations::Create.field

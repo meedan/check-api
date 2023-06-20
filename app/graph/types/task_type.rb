@@ -1,7 +1,5 @@
 class TaskType < AnnotationObject
-  def type
-    'task'.freeze
-  end
+  define_shared_behavior(self, 'task')
 
   field :label, String, null: true
   field :type, String, null: true

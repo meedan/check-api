@@ -1,7 +1,5 @@
 class DynamicType < AnnotationObject
-  def type
-    'dynamic'.freeze
-  end
+  define_shared_behavior(self, 'dynamic')
 
   field :lock_version, Integer, null: true
   field :sent_count, Integer, null: true # For "report_design" annotations

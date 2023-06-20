@@ -1,5 +1,9 @@
 class AnnotationObject < BaseObject
-  class MissingSubclassImplementationError < NoMethodError; end
+  class << self
+    def define_shared_behavior(subclass, mutation_target)
+      subclass.class_variable_set(:@@mutation_target, mutation_target)
+    end
+  end
 
   implements NodeIdentification.interface
 
@@ -11,12 +15,8 @@ class AnnotationObject < BaseObject
   field :content, String, null: true
   field :dbid, String, null: true
 
-  def type
-    raise MissingSubclassImplementationError.new("#{self.class} must implement .type")
-  end
-
   def id
-    object.relay_id(type)
+    object.relay_id(self.class.class_variable_get(:@@mutation_target))
   end
 
   field :permissions, String, null: true
