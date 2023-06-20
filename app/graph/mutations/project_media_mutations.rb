@@ -87,22 +87,39 @@ module ProjectMediaMutations
     end
   end
 
-  BulkUpdate =
-    GraphqlCrudOperations.define_bulk_update_or_destroy(
-      :update,
-      ProjectMedia,
-      { action: "!str", params: "str" },
-      %w[
-        team
-        project
-        check_search_project
-        project_was
-        check_search_project_was
-        check_search_team
-        check_search_trash
-        check_search_spam
-        check_search_unconfirmed
-        project_group
-      ]
-    )
+  class BulkUpdate < BaseMutation
+    graphql_name "UpdateProjectMedias"
+
+    argument :ids, [ID], required: true
+    argument :action, String, required: true
+    argument :params, String, required: false
+
+    field :ids, [ID], null: false # not sure about false
+    field :updated_objects, [ProjectMediaType], null: false
+
+    # This only doesn't have related_to - is that meaningful?
+    parents = [
+      'team',
+      'project',
+      'project_group',
+      # TODO: consolidate parent class logic if present elsewhere
+      { project_was: ProjectType },
+      { check_search_project: CheckSearchType },
+      { check_search_project_was: CheckSearchType },
+      { check_search_team: CheckSearchType },
+      { check_search_trash: CheckSearchType },
+      { check_search_spam: CheckSearchType },
+      { check_search_unconfirmed: CheckSearchType },
+    ]
+    set_parent_returns(self, parents)
+
+    def resolve(**inputs)
+      GraphqlCrudOperations.apply_bulk_update_or_destroy(
+        inputs,
+        context,
+        'update',
+        ProjectMedia
+      )
+    end
+  end
 end

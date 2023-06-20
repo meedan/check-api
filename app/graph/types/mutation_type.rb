@@ -43,7 +43,7 @@ class MutationType < BaseObject
 
   field :create_project_media, mutation: ProjectMediaMutations::Create
   field :update_project_media, mutation: ProjectMediaMutations::Update
-  #   field :update_project_medias, field: ProjectMediaMutations::BulkUpdate.field
+  field :update_project_medias, mutation: ProjectMediaMutations::BulkUpdate
   field :destroy_project_media, mutation: ProjectMediaMutations::Destroy
   field :replace_project_media, mutation: ProjectMediaMutations::Replace
 

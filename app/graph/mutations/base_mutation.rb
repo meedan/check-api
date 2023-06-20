@@ -23,22 +23,7 @@ class BaseMutation < GraphQL::Schema::RelayClassicMutation
         # fields
       # end
       # TODO: Extract with update/create behavior
-      parents.each do |parent_field|
-        # If a return type has been manually specified, use that.
-        # Otherwise, use the default (e.g. ProjectType for Project)
-        #
-        # This allows for specifying parents as:
-        # PARENTS = ['team', my_team: TeamType], which would be same as:
-        # PARENTS = [team: TeamType, my_team: TeamType]
-        if parent_field.is_a?(Hash)
-          parent_values = parent_field
-          parent_field = parent_values.keys.first
-          parent_type = parent_values[parent_field]
-        else
-          parent_type = "#{parent_field.to_s.camelize}Type".constantize
-        end
-        subclass.field parent_field.to_sym, parent_type, null: true, camelize: false
-      end
+      set_parent_returns(subclass, parents)
 
       # HANDLE IN CLASSES / think this is done
       # return_field(:affectedId, types.ID) if type.to_s == 'project_media'
@@ -55,6 +40,25 @@ class BaseMutation < GraphQL::Schema::RelayClassicMutation
       # end
 
       # return_field("versionEdge".to_sym, VersionType.edge_type) if ['task', 'comment'].include?(type.to_s) || type =~ /dynamic/
+    end
+
+    def set_parent_returns(subclass, parents)
+      parents.each do |parent_field|
+        # If a return type has been manually specified, use that.
+        # Otherwise, use the default (e.g. ProjectType for Project)
+        #
+        # This allows for specifying parents as:
+        # PARENTS = ['team', my_team: TeamType], which would be same as:
+        # PARENTS = [team: TeamType, my_team: TeamType]
+        if parent_field.is_a?(Hash)
+          parent_values = parent_field
+          parent_field = parent_values.keys.first
+          parent_type = parent_values[parent_field]
+        else
+          parent_type = "#{parent_field.to_s.camelize}Type".constantize
+        end
+        subclass.field parent_field.to_sym, parent_type, null: true, camelize: false
+      end
     end
   end
 end
