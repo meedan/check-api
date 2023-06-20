@@ -129,9 +129,9 @@ class MutationType < BaseObject
 #   field :destroy_project_media_user,
 #         field: ProjectMediaUserMutations::Destroy.field
 
-#   field :create_saved_search, field: SavedSearchMutations::Create.field
-#   field :update_saved_search, field: SavedSearchMutations::Update.field
-#   field :destroy_saved_search, field: SavedSearchMutations::Destroy.field
+  field :create_saved_search, mutation: SavedSearchMutations::Create
+  field :update_saved_search, mutation: SavedSearchMutations::Update
+  field :destroy_saved_search, mutation: SavedSearchMutations::Destroy
 
 #   field :create_project_group, field: ProjectGroupMutations::Create.field
 #   field :update_project_group, field: ProjectGroupMutations::Update.field

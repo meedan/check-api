@@ -21,9 +21,6 @@ class DestroyMutation < BaseMutation
       end
 
       # HANDLE IN CLASS
-      # input_field(:keep_completed_tasks, types.Boolean) if type == "team_task"
-
-      # HANDLE IN CLASS
       # if type == "relationship"
       #   input_field(:add_to_project_id, types.Int)
       #   input_field(:archive_target, types.Int)
