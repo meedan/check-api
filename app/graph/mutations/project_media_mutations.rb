@@ -1,61 +1,65 @@
 module ProjectMediaMutations
-  fields = { media_id: "int", related_to_id: "int" }
+  MUTATION_TARGET = 'project_media'.freeze
+  PARENTS = [
+    'project',
+    'team',
+    'project_group',
+    # TODO: consolidate parent class logic if present elsewhere
+    { project_was: ProjectType },
+    { check_search_project: CheckSearchType },
+    { check_search_project_was: CheckSearchType },
+    { check_search_team: CheckSearchType },
+    { check_search_trash: CheckSearchType },
+    { check_search_spam: CheckSearchType },
+    { check_search_unconfirmed: CheckSearchType },
+    { related_to: ProjectMediaType },
+  ].freeze
 
-  set_fields = {
-    set_annotation: "str",
-    set_claim_description: "str",
-    set_fact_check: "json",
-    set_tasks_responses: "json",
-    set_tags: "json",
-    set_title: "str",
-    set_status: "str" # Status identifier (for example, "in_progress")
-  }
+  module SharedCreateAndUpdateFields
+    extend ActiveSupport::Concern
 
-  create_fields =
-    fields.merge(
-      {
-        url: "str",
-        quote: "str",
-        quote_attributions: "str",
-        project_id: "int",
-        media_id: "int",
-        team_id: "int",
-        channel: "json",
-        media_type: "str"
-      }
-    ).merge(set_fields)
+    included do
+      argument :media_id, Integer, required: false, camelize: false
+      argument :related_to_id, Integer, required: false, camelize: false
 
-  update_fields =
-    fields.merge(
-      {
-        refresh_media: "int",
-        archived: "int",
-        previous_project_id: "int",
-        project_id: "int",
-        source_id: "int",
-        read: "bool"
-      }
-    )
+      field :affectedId, GraphQL::Types::ID, null: true
+    end
+  end
 
-  Create, Update, Destroy =
-    GraphqlCrudOperations.define_crud_operations(
-      "project_media",
-      create_fields,
-      update_fields,
-      %w[
-        project
-        check_search_project
-        project_was
-        check_search_project_was
-        check_search_team
-        check_search_trash
-        check_search_spam
-        check_search_unconfirmed
-        related_to
-        team
-        project_group
-      ]
-    )
+  class Create < CreateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :url, String, required: false
+    argument :quote, String, required: false
+    argument :quote_attributions, String, required: false, camelize: false
+    argument :project_id, Integer, required: false, camelize: false
+    argument :media_id, Integer, required: false, camelize: false
+    argument :team_id, Integer, required: false, camelize: false
+    argument :channel, JsonString, required: false
+    argument :media_type, String, required: false, camelize: false
+
+    # Set fields
+    argument :set_annotation, String, required: false, camelize: false
+    argument :set_claim_description, String, required: false, camelize: false
+    argument :set_fact_check, JsonString, required: false, camelize: false
+    argument :set_tasks_responses, JsonString, required: false, camelize: false
+    argument :set_tags, JsonString, required: false, camelize: false
+    argument :set_title, String, required: false, camelize: false
+    argument :set_status, String, required: false, camelize: false # Status identifier (for example, "in_progress")
+  end
+
+  class Update < UpdateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :refresh_media, Integer, required: false, camelize: false
+    argument :archived, Integer, required: false
+    argument :previous_project_id, Integer, required: false, camelize: false
+    argument :project_id, Integer, required: false, camelize: false
+    argument :source_id, Integer, required: false, camelize: false
+    argument :read, Boolean, required: false
+  end
+
+  class Destroy < DestroyMutation; end
 
   Replace =
     GraphQL::Relay::Mutation.define do

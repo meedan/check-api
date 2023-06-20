@@ -6,7 +6,7 @@ class BaseMutation < GraphQL::Schema::RelayClassicMutation
       subclass.graphql_name "#{action.camelize}#{mutation_target.camelize}"
 
       type_class = "#{mutation_target.camelize}Type".constantize
-      subclass.field mutation_target, type_class, null: true
+      subclass.field mutation_target, type_class, null: true, camelize: false
       subclass.field "#{type_class}Edge", type_class.edge_type, null: true
 
       # NEED TO FIGURE OUT WHAT TO DO WITH THIS
@@ -40,10 +40,10 @@ class BaseMutation < GraphQL::Schema::RelayClassicMutation
         subclass.field parent_field.to_sym, parent_type, null: true, camelize: false
       end
 
-      # HANDLE IN CLASSES
+      # HANDLE IN CLASSES / think this is done
       # return_field(:affectedId, types.ID) if type.to_s == 'project_media'
 
-      # TODO: extract as TeamAttributes module
+      # TODO: extract as TeamAttributes module / think this is done
       # if type.to_s == 'team'
       #   return_field(:team_userEdge, TeamUserType.edge_type)
       #   return_field(:user, UserType)
