@@ -142,8 +142,6 @@ class MutationType < BaseObject
 
 #   field :update_feed_team, field: FeedTeamMutations::Update.field
 
-#   field :create_tipline_newsletter,
-#         field: TiplineNewsletterMutations::Create.field
-#   field :update_tipline_newsletter,
-#         field: TiplineNewsletterMutations::Update.field
+  field :create_tipline_newsletter, mutation: TiplineNewsletterMutations::Create
+  field :update_tipline_newsletter, mutation: TiplineNewsletterMutations::Update
 end
