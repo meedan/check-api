@@ -1,14 +1,27 @@
 module AccountSourceMutations
-  create_fields = {
-    account_id: 'int',
-    source_id: '!int',
-    url: 'str'
-  }
+  MUTATION_TARGET = 'account_source'.freeze
+  PARENTS = ['source'].freeze
 
-  update_fields = {
-    account_id: 'int',
-    source_id: 'int'
-  }
+  module SharedCreateAndUpdateFields
+    extend ActiveSupport::Concern
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('account_source', create_fields, update_fields, ['source'])
+    included do
+      argument :account_id, Integer, required: false, camelize: false
+    end
+  end
+
+  class Create < CreateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :source_id, Integer, required: false, camelize: false
+    argument :url, String, required: true
+  end
+
+  class Update < UpdateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :source_id, Integer, required: true, camelize: false
+  end
+
+  class Destroy < DestroyMutation; end
 end

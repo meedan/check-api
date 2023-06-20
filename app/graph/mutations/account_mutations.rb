@@ -1,8 +1,8 @@
 module AccountMutations
+  MUTATION_TARGET = 'account'.freeze
+  PARENTS = [].freeze
 
-  update_fields = {
-    refresh_account: 'int'
-  }
-
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('account', {}, update_fields)
+  class Update < UpdateMutation
+    argument :refresh_account, Int, required: false, camelize: false
+  end
 end

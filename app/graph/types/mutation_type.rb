@@ -31,11 +31,11 @@ class MutationType < BaseObject
   field :delete_team_status, mutation: DeleteTeamStatusMutation
   field :duplicate_team, mutation: DuplicateTeamMutation
 
-#   field :update_account, field: AccountMutations::Update.field
+  field :update_account, mutation: AccountMutations::Update
 
-#   field :create_account_source, field: AccountSourceMutations::Create.field
-#   field :update_account_source, field: AccountSourceMutations::Update.field
-#   field :destroy_account_source, field: AccountSourceMutations::Destroy.field
+  field :create_account_source, mutation: AccountSourceMutations::Create
+  field :update_account_source, mutation: AccountSourceMutations::Update
+  field :destroy_account_source, mutation: AccountSourceMutations::Destroy
 
 #   field :create_project, field: ProjectMutations::Create.field
 #   field :update_project, field: ProjectMutations::Update.field
