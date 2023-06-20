@@ -61,34 +61,31 @@ module ProjectMediaMutations
 
   class Destroy < DestroyMutation; end
 
-  Replace =
-    GraphQL::Relay::Mutation.define do
-      name "ReplaceProjectMedia"
+  class Replace < BaseMutation
+    graphql_name "ReplaceProjectMedia"
 
-      input_field :project_media_to_be_replaced_id, !types.ID
-      input_field :new_project_media_id, !types.ID
+    argument :project_media_to_be_replaced_id, ID, required: true, camelize: false
+    argument :new_project_media_id, ID, required: true, camelize: false
 
-      return_field :old_project_media_deleted_id, types.ID
-      return_field :new_project_media, ProjectMediaType
+    field :old_project_media_deleted_id, ID, null: true, camelize: false
+    field :new_project_media, ProjectMediaType, null: true, camelize: false
 
-      resolve ->(_root, inputs, ctx) {
-                old =
-                  GraphqlCrudOperations.object_from_id_if_can(
-                    inputs["project_media_to_be_replaced_id"],
-                    ctx["ability"]
-                  )
-                new =
-                  GraphqlCrudOperations.object_from_id_if_can(
-                    inputs["new_project_media_id"],
-                    ctx["ability"]
-                  )
-                old.replace_by(new)
-                {
-                  old_project_media_deleted_id: old.graphql_id,
-                  new_project_media: new
-                }
-              }
+    def resolve(**inputs)
+      old = GraphqlCrudOperations.object_from_id_if_can(
+        inputs[:project_media_to_be_replaced_id],
+        context[:ability]
+      )
+      new = GraphqlCrudOperations.object_from_id_if_can(
+        inputs[:new_project_media_id],
+        context[:ability]
+      )
+      old.replace_by(new)
+      {
+        old_project_media_deleted_id: old.graphql_id,
+        new_project_media: new
+      }
     end
+  end
 
   BulkUpdate =
     GraphqlCrudOperations.define_bulk_update_or_destroy(
