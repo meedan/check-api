@@ -122,12 +122,9 @@ class MutationType < BaseObject
     field "destroyDynamicAnnotation#{klass}".to_sym, mutation: "DynamicAnnotation#{klass}Mutations::Destroy".constantize
   end
 
-#   field :create_project_media_user,
-#         field: ProjectMediaUserMutations::Create.field
-#   field :update_project_media_user,
-#         field: ProjectMediaUserMutations::Update.field
-#   field :destroy_project_media_user,
-#         field: ProjectMediaUserMutations::Destroy.field
+  field :create_project_media_user, mutation: ProjectMediaUserMutations::Create
+  field :update_project_media_user, mutation: ProjectMediaUserMutations::Update
+  field :destroy_project_media_user, mutation: ProjectMediaUserMutations::Destroy
 
   field :create_saved_search, mutation: SavedSearchMutations::Create
   field :update_saved_search, mutation: SavedSearchMutations::Update
