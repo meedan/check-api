@@ -139,10 +139,8 @@ class MutationType < BaseObject
 
 #   field :search_upload, field: SearchUploadMutations::SearchUpload.field
 
-#   field :create_claim_description,
-#         field: ClaimDescriptionMutations::Create.field
-#   field :update_claim_description,
-#         field: ClaimDescriptionMutations::Update.field
+  field :create_claim_description, mutation: ClaimDescriptionMutations::Create
+  field :update_claim_description, mutation: ClaimDescriptionMutations::Update
 
 #   field :create_fact_check, field: FactCheckMutations::Create.field
 #   field :update_fact_check, field: FactCheckMutations::Update.field
