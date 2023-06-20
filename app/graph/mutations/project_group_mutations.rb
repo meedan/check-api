@@ -1,13 +1,27 @@
 module ProjectGroupMutations
-  update_fields = {
-    title: 'str',
-    description: 'str'
-  }
+  MUTATION_TARGET = 'project_group'.freeze
+  PARENTS = ['team'].freeze
 
-  create_fields = update_fields.merge({
-    title: '!str',
-    team_id: '!int'
-  })
+  module SharedCreateAndUpdateFields
+    extend ActiveSupport::Concern
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('project_group', create_fields, update_fields, ['team'])
+    included do
+      argument :description, String, required: false
+    end
+  end
+
+  class Create < CreateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :title, String, required: true
+    argument :team_id, Integer, required: true, camelize: false
+  end
+
+  class Update < UpdateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :title, String, required: false
+  end
+
+  class Destroy < DestroyMutation; end
 end
