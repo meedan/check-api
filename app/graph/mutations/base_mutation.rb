@@ -2,6 +2,24 @@ class BaseMutation < GraphQL::Schema::RelayClassicMutation
   class << self
     private
 
+    def define_shared_bulk_behavior(action, subclass, mutation_target, parents)
+      subclass.graphql_name "#{action.to_s.capitalize}#{mutation_target.camelize.pluralize}"
+
+      subclass.argument :ids, [GraphQL::Types::ID], required: true
+      subclass.field :ids, GraphQL::Types::ID, null: false
+
+      set_parent_returns(subclass, parents)
+
+      subclass.define_method(:resolve) do |**inputs|
+        GraphqlCrudOperations.apply_bulk_update_or_destroy(
+          inputs,
+          context,
+          action,
+          mutation_target.camelize.constantize
+        )
+      end
+    end
+
     def define_create_or_update_behavior(action, subclass, mutation_target, parents)
       subclass.graphql_name "#{action.camelize}#{mutation_target.camelize}"
 

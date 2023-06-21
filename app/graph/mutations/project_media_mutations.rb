@@ -87,18 +87,8 @@ module ProjectMediaMutations
     end
   end
 
-  class BulkUpdate < BaseMutation
-    graphql_name "UpdateProjectMedias"
-
-    argument :ids, [ID], required: true
-    argument :action, String, required: true
-    argument :params, String, required: false
-
-    field :ids, [ID], null: false # not sure about false
-    field :updated_objects, [ProjectMediaType], null: false
-
-    # This only doesn't have related_to - is that meaningful?
-    parents = [
+  module Bulk
+    PARENTS = [
       'team',
       'project',
       'project_group',
@@ -110,16 +100,11 @@ module ProjectMediaMutations
       { check_search_trash: CheckSearchType },
       { check_search_spam: CheckSearchType },
       { check_search_unconfirmed: CheckSearchType },
-    ]
-    set_parent_returns(self, parents)
+    ].freeze
 
-    def resolve(**inputs)
-      GraphqlCrudOperations.apply_bulk_update_or_destroy(
-        inputs,
-        context,
-        'update',
-        ProjectMedia
-      )
+    class Update < BulkUpdateMutation
+      argument :action, String, required: true
+      argument :params, String, required: false
     end
   end
 end

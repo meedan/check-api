@@ -28,6 +28,17 @@ module RelationshipMutations
 
   class Destroy < DestroyMutation; end
 
-  BulkUpdate = GraphqlCrudOperations.define_bulk_update_or_destroy(:update, Relationship, { action: '!str', source_id: "!int" }, ['source_project_media'])
-  BulkDestroy = GraphqlCrudOperations.define_bulk_update_or_destroy(:destroy, Relationship, { source_id: "!int", add_to_project_id: "int" }, ['source_project_media'])
+  module Bulk
+    PARENTS = [{ source_project_media: ProjectMediaType }].freeze
+
+    class Update < BulkUpdateMutation
+      argument :action, String, required: true
+      argument :source_id, Integer, required: true, camelize: false
+    end
+
+    class Destroy < BulkDestroyMutation
+      argument :source_id, Integer, required: true, camelize: false
+      argument :add_to_project_id, Integer, required: false, camelize: false
+    end
+  end
 end

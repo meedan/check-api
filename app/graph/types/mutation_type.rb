@@ -37,7 +37,7 @@ class MutationType < BaseObject
 
   field :create_project_media, mutation: ProjectMediaMutations::Create
   field :update_project_media, mutation: ProjectMediaMutations::Update
-  field :update_project_medias, mutation: ProjectMediaMutations::BulkUpdate
+  field :update_project_medias, mutation: ProjectMediaMutations::Bulk::Update
   field :destroy_project_media, mutation: ProjectMediaMutations::Destroy
   field :replace_project_media, mutation: ProjectMediaMutations::Replace
 
@@ -107,8 +107,8 @@ class MutationType < BaseObject
   field :create_relationship, mutation: RelationshipMutations::Create
   field :update_relationship, mutation: RelationshipMutations::Update
   field :destroy_relationship, mutation: RelationshipMutations::Destroy
-#   field :update_relationships, field: RelationshipMutations::BulkUpdate.field
-#   field :destroy_relationships, field: RelationshipMutations::BulkDestroy.field
+  field :update_relationships, mutation: RelationshipMutations::Bulk::Update
+  field :destroy_relationships, mutation: RelationshipMutations::Bulk::Destroy
 
   DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_type).each do |type|
     DynamicAnnotation::AnnotationTypeManager.generate_mutation_classes_for_annotation_type(type)
