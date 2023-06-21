@@ -1,17 +1,17 @@
-ChangePasswordMutation = GraphQL::Relay::Mutation.define do
-  name 'ChangePassword'
+class ChangePasswordMutation < Mutation::Base
+  graphql_name 'ChangePassword'
 
-  input_field :password, !types.String
-  input_field :password_confirmation, !types.String
-  input_field :reset_password_token, types.String
-  input_field :current_password, types.String
-  input_field :id, types.Int
+  argument :password, String, required: true
+  argument :password_confirmation, String, required: true
+  argument :reset_password_token, String, required: false
+  argument :current_password, String, required: false
+  argument :id, Integer, required: false
 
-  return_field :success, types.Boolean
+  field :success, Boolean, null: true
 
-  resolve -> (_root, inputs, _ctx) {
+  def resolve(**inputs)
     user = User.reset_change_password(inputs)
     raise user.errors.to_a.to_sentence(locale: I18n.locale) if !user.errors.empty?
     { success: true }
-  }
+  end
 end

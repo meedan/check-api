@@ -69,18 +69,15 @@ class MutationType < BaseObject
   field :add_files_to_task, mutation: TasksFileMutations::AddFilesToTask
   field :remove_files_from_task, mutation: TasksFileMutations::RemoveFilesFromTask
 
-#   field :reset_password, field: ResetPasswordMutation.field
-#   field :change_password, field: ChangePasswordMutation.field
-#   field :resend_confirmation, field: ResendConfirmationMutation.field
-#   field :user_invitation, field: UserInvitationMutation.field
-#   field :resend_cancel_invitation, field: ResendCancelInvitationMutation.field
-#   field :delete_check_user, field: DeleteCheckUserMutation.field
-#   field :user_disconnect_login_account,
-#         field: UserDisconnectLoginAccountMutation.field
-#   field :user_two_factor_authentication,
-#         field: UserTwoFactorAuthenticationMutation.field
-#   field :generate_two_factor_backup_codes,
-#         field: GenerateTwoFactorBackupCodesMutation.field
+  field :reset_password, mutation: ResetPasswordMutation
+  field :change_password, mutation: ChangePasswordMutation
+  field :resend_confirmation, mutation: ResendConfirmationMutation
+  field :user_invitation, mutation: UserInvitationMutation
+  field :resend_cancel_invitation, mutation: ResendCancelInvitationMutation
+  field :delete_check_user, mutation: DeleteCheckUserMutation
+  field :user_disconnect_login_account, mutation: UserDisconnectLoginAccountMutation
+  field :user_two_factor_authentication, mutation: UserTwoFactorAuthenticationMutation
+  field :generate_two_factor_backup_codes, mutation: GenerateTwoFactorBackupCodesMutation
 
   field :create_team_bot_installation, mutation: TeamBotInstallationMutations::Create
   field :update_team_bot_installation, mutation: TeamBotInstallationMutations::Update

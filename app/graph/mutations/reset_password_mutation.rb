@@ -1,16 +1,16 @@
-ResetPasswordMutation = GraphQL::Relay::Mutation.define do
-  name 'ResetPassword'
+class ResetPasswordMutation < Mutation::Base
+  graphql_name 'ResetPassword'
 
-  input_field :email, !types.String
+  argument :email, String, required: true
 
-  return_field :success, types.Boolean
+  field :success, Boolean, null: true
 
-  resolve -> (_root, inputs, _ctx) {
+  def resolve(**inputs)
     user = User.where(email: inputs[:email].downcase).last
     unless user.nil?
       user.skip_check_ability = true
       user.send_reset_password_instructions
     end
     { success: true }
-  }
+  end
 end

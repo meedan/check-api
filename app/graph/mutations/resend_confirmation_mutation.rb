@@ -1,11 +1,11 @@
-ResendConfirmationMutation = GraphQL::Relay::Mutation.define do
-  name 'ResendConfirmation'
+class ResendConfirmationMutation < Mutation::Base
+  graphql_name 'ResendConfirmation'
 
-  input_field :id, !types.Int
+  argument :id, Integer, required: true
 
-  return_field :success, types.Boolean
+  field :success, Boolean, null: true
 
-  resolve -> (_root, inputs, _ctx) {
+  def resolve(**inputs)
     user = User.where(id: inputs[:id]).last
     if user.nil?
       raise ActiveRecord::RecordNotFound
@@ -14,5 +14,5 @@ ResendConfirmationMutation = GraphQL::Relay::Mutation.define do
       user.send_confirmation_instructions
       { success: true }
     end
-  }
+  end
 end

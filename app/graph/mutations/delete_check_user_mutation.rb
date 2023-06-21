@@ -1,11 +1,11 @@
-DeleteCheckUserMutation = GraphQL::Relay::Mutation.define do
-  name 'DeleteCheckUser'
+class DeleteCheckUserMutation < Mutation::Base
+  graphql_name 'DeleteCheckUser'
 
-  input_field :id, !types.Int
+  argument :id, Integer, required: true
 
-  return_field :success, types.Boolean
+  field :success, Boolean, null: true
 
-  resolve -> (_root, inputs, _ctx) {
+  def resolve(**inputs)
     user = User.where(id: inputs[:id]).last
     if user.nil?
       raise ActiveRecord::RecordNotFound
@@ -15,5 +15,5 @@ DeleteCheckUserMutation = GraphQL::Relay::Mutation.define do
       User.delete_check_user(user)
       { success: true }
     end
-  }
+  end
 end

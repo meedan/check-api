@@ -1,22 +1,19 @@
-UserDisconnectLoginAccountMutation =
-  GraphQL::Relay::Mutation.define do
-    name "UserDisconnectLoginAccount"
+class UserDisconnectLoginAccountMutation < Mutation::Base
+  graphql_name "UserDisconnectLoginAccount"
 
-    input_field :provider, !types.String
+  argument :provider, String, required: true
+  argument :uid, String, required: true
 
-    input_field :uid, !types.String
+  field :success, Boolean, null: true
+  field :user, UserType, null: true
 
-    return_field :success, types.Boolean
-
-    return_field :user, UserType
-
-    resolve ->(_root, inputs, _ctx) {
-              user = User.current
-              if user.nil?
-                raise ActiveRecord::RecordNotFound
-              else
-                user.disconnect_login_account(inputs[:provider], inputs[:uid])
-                { success: true, user: User.current }
-              end
-            }
+  def resolve(**inputs)
+    user = User.current
+    if user.nil?
+      raise ActiveRecord::RecordNotFound
+    else
+      user.disconnect_login_account(inputs[:provider], inputs[:uid])
+      { success: true, user: User.current }
+    end
   end
+end
