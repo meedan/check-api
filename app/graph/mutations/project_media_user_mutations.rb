@@ -12,13 +12,13 @@ module ProjectMediaUserMutations
     end
   end
 
-  class Create < CreateMutation
+  class Create < Mutation::Create
     include SharedCreateAndUpdateFields
   end
 
-  class Update < UpdateMutation
+  class Update < Mutation::Update
     include SharedCreateAndUpdateFields
   end
 
-  class Destroy < DestroyMutation; end
+  class Destroy < Mutation::Destroy; end
 end

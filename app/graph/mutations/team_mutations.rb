@@ -23,14 +23,14 @@ module TeamMutations
     end
   end
 
-  class Create < CreateMutation
+  class Create < Mutation::Create
     include SharedCreateAndUpdateFields
 
     argument :name, String, required: true
     argument :slug, String, required: true
   end
 
-  class Update < UpdateMutation
+  class Update < Mutation::Update
     include SharedCreateAndUpdateFields
 
     argument :name, String, required: false
@@ -55,5 +55,5 @@ module TeamMutations
     argument :shorten_outgoing_urls, Boolean, required: false, camelize: false
   end
 
-  class Destroy < DestroyMutation; end
+  class Destroy < Mutation::Destroy; end
 end

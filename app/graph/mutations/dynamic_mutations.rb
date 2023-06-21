@@ -17,14 +17,14 @@ module DynamicMutations
     end
   end
 
-  class Create < CreateMutation
+  class Create < Mutation::Create
     include SharedCreateAndUpdateFields
 
     argument :set_fields, String, required: true, camelize: false
     argument :annotation_type, String, required: true, camelize: false
   end
 
-  class Update < UpdateMutation
+  class Update < Mutation::Update
     include SharedCreateAndUpdateFields
 
     argument :locked, Boolean, required: false
@@ -35,5 +35,5 @@ module DynamicMutations
     argument :assignment_message, String, required: false, camelize: false
   end
 
-  class Destroy < DestroyMutation; end
+  class Destroy < Mutation::Destroy; end
 end

@@ -1,4 +1,4 @@
-class DeleteTeamStatusMutation < BaseMutation
+class DeleteTeamStatusMutation < Mutation::Base
   graphql_name "DeleteTeamStatus"
 
   argument :team_id, ID, required: true, camelize: false

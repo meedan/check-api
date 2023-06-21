@@ -26,7 +26,7 @@ module ProjectMediaMutations
     end
   end
 
-  class Create < CreateMutation
+  class Create < Mutation::Create
     include SharedCreateAndUpdateFields
 
     argument :url, String, required: false
@@ -48,7 +48,7 @@ module ProjectMediaMutations
     argument :set_status, String, required: false, camelize: false # Status identifier (for example, "in_progress")
   end
 
-  class Update < UpdateMutation
+  class Update < Mutation::Update
     include SharedCreateAndUpdateFields
 
     argument :refresh_media, Integer, required: false, camelize: false
@@ -59,9 +59,9 @@ module ProjectMediaMutations
     argument :read, Boolean, required: false
   end
 
-  class Destroy < DestroyMutation; end
+  class Destroy < Mutation::Destroy; end
 
-  class Replace < BaseMutation
+  class Replace < Mutation::Base
     graphql_name "ReplaceProjectMedia"
 
     argument :project_media_to_be_replaced_id, ID, required: true, camelize: false
@@ -102,7 +102,7 @@ module ProjectMediaMutations
       { check_search_unconfirmed: CheckSearchType },
     ].freeze
 
-    class Update < BulkUpdateMutation
+    class Update < Mutation::BulkUpdate
       argument :action, String, required: true
       argument :params, String, required: false
     end

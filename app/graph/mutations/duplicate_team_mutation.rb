@@ -1,4 +1,4 @@
-class DuplicateTeamMutation < BaseMutation
+class DuplicateTeamMutation < Mutation::Base
   graphql_name "DuplicateTeamMutation"
 
   argument :team_id, ID, required: true, camelize: false

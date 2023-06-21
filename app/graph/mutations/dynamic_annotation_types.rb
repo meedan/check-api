@@ -29,7 +29,7 @@ module DynamicAnnotation::AnnotationTypeManager
           end
         end
 
-        class Create < CreateMutation
+        class Create < Mutation::Create
           include SharedCreateAndUpdateFields
 
           argument :set_fields, String, required: true, camelize: false
@@ -38,7 +38,7 @@ module DynamicAnnotation::AnnotationTypeManager
           field :dyndynamicEdge, DynamicType.edge_type, null: true
         end unless defined? Create
 
-        class Update < UpdateMutation
+        class Update < Mutation::Update
           include SharedCreateAndUpdateFields
 
           argument :set_fields, String, required: false, camelize: false
@@ -47,7 +47,7 @@ module DynamicAnnotation::AnnotationTypeManager
           argument :locked, Boolean, required: false, camelize: false
         end unless defined? Update
 
-        class Destroy < DestroyMutation; end  unless defined? Destroy
+        class Destroy < Mutation::Destroy; end  unless defined? Destroy
       end
     TES
   end

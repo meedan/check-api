@@ -15,7 +15,7 @@ module TaskMutations
     end
   end
 
-  class Create < CreateMutation
+  class Create < Mutation::Create
     include SharedCreateAndUpdateFields
 
     argument :label, String, required: true
@@ -25,12 +25,12 @@ module TaskMutations
     argument :annotated_type, String, required: false, camelize: false
   end
 
-  class Update < UpdateMutation
+  class Update < Mutation::Update
     include SharedCreateAndUpdateFields
 
     argument :label, String, required: false
     argument :response, String, required: false
   end
 
-  class Destroy < DestroyMutation; end
+  class Destroy < Mutation::Destroy; end
 end

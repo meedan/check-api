@@ -11,7 +11,7 @@ module UserMutations
     end
   end
 
-  class Create < CreateMutation
+  class Create < Mutation::Create
     include SharedCreateAndUpdateFields
 
     argument :email, String, required: true
@@ -21,7 +21,7 @@ module UserMutations
     argument :password_confirmation, String, required: true
   end
 
-  class Update < UpdateMutation
+  class Update < Mutation::Update
     include SharedCreateAndUpdateFields
 
     argument :email, String, required: false
@@ -37,5 +37,5 @@ module UserMutations
     argument :completed_signup, Boolean, required: false, camelize: false
   end
 
-  class Destroy < DestroyMutation; end
+  class Destroy < Mutation::Destroy; end
 end

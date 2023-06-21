@@ -1,5 +1,5 @@
 module SearchUploadMutations
-  class SearchUpload < BaseMutation
+  class SearchUpload < Mutation::Base
     field :file_handle, String, null: true, camelize: false
     field :file_url, String, null: true, camelize: false
 

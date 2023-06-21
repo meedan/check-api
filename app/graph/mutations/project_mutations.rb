@@ -18,14 +18,14 @@ module ProjectMutations
     end
   end
 
-  class Create < CreateMutation
+  class Create < Mutation::Create
     include SharedCreateAndUpdateFields
 
     argument :title, String, required: true
     argument :team_id, Integer, required: false, camelize: false
   end
 
-  class Update < UpdateMutation
+  class Update < Mutation::Update
     include SharedCreateAndUpdateFields
 
     argument :title, String, required: false
@@ -37,7 +37,7 @@ module ProjectMutations
     argument :is_default, Boolean, required: false, camelize: false
   end
 
-  class Destroy < DestroyMutation
+  class Destroy < Mutation::Destroy
     argument :items_destination_project_id, Integer, required: false, camelize: false
   end
 end

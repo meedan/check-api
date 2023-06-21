@@ -1,5 +1,5 @@
 module OcrMutations
-  class ExtractText < BaseMutation
+  class ExtractText < Mutation::Base
     argument :id, ID, required: true
 
     field :project_media, ProjectMediaType, null: true, camelize: false
