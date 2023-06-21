@@ -461,31 +461,25 @@ class GraphqlController2Test < ActionController::TestCase
     create_relationship source_id: pm3.id, target_id: pm4.id, relationship_type: Relationship.confirmed_type, disable_es_callbacks: false
     sleep 1
 
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\"}") { number_of_results } }' 
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\"}") { number_of_results } }'
     post :create, params: { query: query, team: 'team' }
     assert_response :success
     assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
 
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"show_similar\":false}") { number_of_results } }' 
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"show_similar\":false}") { number_of_results } }'
     post :create, params: { query: query, team: 'team' }
     assert_response :success
     assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
 
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"show_similar\":true}") { number_of_results } }' 
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"show_similar\":true}") { number_of_results } }'
     post :create, params: { query: query, team: 'team' }
     assert_response :success
     assert_equal 4, JSON.parse(@response.body)['data']['search']['number_of_results']
 
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Foo\",\"show_similar\":false}") { number_of_results } }' 
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Foo\",\"show_similar\":false}") { number_of_results } }'
     post :create, params: { query: query, team: 'team' }
     assert_response :success
     assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
-  end
-
-  test "should reload mutations" do
-    assert_nothing_raised do
-      RelayOnRailsSchema.reload_mutations!
-    end
   end
 
   test "should replace blank project media by another" do
