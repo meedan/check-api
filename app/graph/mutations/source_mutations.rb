@@ -12,7 +12,7 @@ module SourceMutations
     end
   end
 
-  class Create < Mutation::Create
+  class Create < Mutations::CreateMutation
     include SharedCreateAndUpdateFields
 
     argument :slogan, String, required: true
@@ -21,7 +21,7 @@ module SourceMutations
     argument :validate_primary_link_exist, Boolean, required: false
   end
 
-  class Update < Mutation::Update
+  class Update < Mutations::UpdateMutation
     include SharedCreateAndUpdateFields
 
     argument :slogan, String, required: false
@@ -30,5 +30,5 @@ module SourceMutations
     argument :lock_version, Integer, required: false, camelize: false
   end
 
-  class Destroy < Mutation::Destroy; end
+  class Destroy < Mutations::DestroyMutation; end
 end

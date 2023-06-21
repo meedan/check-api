@@ -1,4 +1,4 @@
-class DeleteCheckUserMutation < Mutation::Base
+class DeleteCheckUserMutation < Mutations::BaseMutation
   graphql_name 'DeleteCheckUser'
 
   argument :id, Integer, required: true

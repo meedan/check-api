@@ -1,4 +1,4 @@
-class GenerateTwoFactorBackupCodesMutation < Mutation::Base
+class GenerateTwoFactorBackupCodesMutation < Mutations::BaseMutation
   graphql_name "GenerateTwoFactorBackupCodes"
 
   argument :id, Integer, required: true

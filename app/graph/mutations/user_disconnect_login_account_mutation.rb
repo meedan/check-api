@@ -1,4 +1,4 @@
-class UserDisconnectLoginAccountMutation < Mutation::Base
+class UserDisconnectLoginAccountMutation < Mutations::BaseMutation
   graphql_name "UserDisconnectLoginAccount"
 
   argument :provider, String, required: true

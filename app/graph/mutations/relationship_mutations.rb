@@ -16,27 +16,27 @@ module RelationshipMutations
     end
   end
 
-  class Create < Mutation::Create
+  class Create < Mutations::CreateMutation
     include SharedCreateAndUpdateFields
 
     argument :relationship_type, JsonString, required: false, camelize: false
   end
 
-  class Update < Mutation::Update
+  class Update < Mutations::UpdateMutation
     include SharedCreateAndUpdateFields
   end
 
-  class Destroy < Mutation::Destroy; end
+  class Destroy < Mutations::DestroyMutation; end
 
   module Bulk
     PARENTS = [{ source_project_media: ProjectMediaType }].freeze
 
-    class Update < Mutation::BulkUpdate
+    class Update < Mutations::BulkUpdateMutation
       argument :action, String, required: true
       argument :source_id, Integer, required: true, camelize: false
     end
 
-    class Destroy < Mutation::BulkDestroy
+    class Destroy < Mutations::BulkDestroyMutation
       argument :source_id, Integer, required: true, camelize: false
       argument :add_to_project_id, Integer, required: false, camelize: false
     end

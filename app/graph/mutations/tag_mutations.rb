@@ -18,19 +18,19 @@ module TagMutations
     end
   end
 
-  class Create < Mutation::Create
+  class Create < Mutations::CreateMutation
     include SharedCreateAndUpdateFields
 
     argument :tag, String, required: true
   end
 
-  class Update < Mutation::Update
+  class Update < Mutations::UpdateMutation
     include SharedCreateAndUpdateFields
 
     argument :tag, String, required: false
   end
 
-  class Destroy < Mutation::Destroy; end
+  class Destroy < Mutations::DestroyMutation; end
 
   class CreateTagMutationsBulkInput < BaseInputObject
     argument :fragment, String, required: false
@@ -39,7 +39,7 @@ module TagMutations
     argument :tag, String, required: true
   end
 
-  class BulkCreate < Mutation::Base
+  class BulkCreate < Mutations::BaseMutation
     include SharedCreateAndUpdateFields
 
     graphql_name "CreateTagMutations"

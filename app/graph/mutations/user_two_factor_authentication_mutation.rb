@@ -1,4 +1,4 @@
-class UserTwoFactorAuthenticationMutation < Mutation::Base
+class UserTwoFactorAuthenticationMutation < Mutations::BaseMutation
   graphql_name "UserTwoFactorAuthentication"
 
   argument :id, Integer, required: true

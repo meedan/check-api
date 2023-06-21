@@ -10,18 +10,18 @@ module SavedSearchMutations
     end
   end
 
-  class Create < Mutation::Create
+  class Create < Mutations::CreateMutation
     include SharedCreateAndUpdateFields
 
     argument :title, String, required: true
     argument :team_id, Integer, required: true, camelize: false
   end
 
-  class Update < Mutation::Update
+  class Update < Mutations::UpdateMutation
     include SharedCreateAndUpdateFields
 
     argument :title, String, required: false
   end
 
-  class Destroy < Mutation::Destroy; end
+  class Destroy < Mutations::DestroyMutation; end
 end

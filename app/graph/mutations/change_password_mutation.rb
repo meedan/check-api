@@ -1,4 +1,4 @@
-class ChangePasswordMutation < Mutation::Base
+class ChangePasswordMutation < Mutations::BaseMutation
   graphql_name 'ChangePassword'
 
   argument :password, String, required: true

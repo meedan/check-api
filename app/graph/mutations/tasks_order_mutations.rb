@@ -1,5 +1,5 @@
 module TasksOrderMutations
-  class BaseMoveMutation < Mutation::Base
+  class BaseMoveMutation < Mutations::BaseMutation
     argument :id, ID, required: true
 
     def move(object, inputs, context, object_field, parent_field)

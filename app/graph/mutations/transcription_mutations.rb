@@ -1,5 +1,5 @@
 module TranscriptionMutations
-  class TranscribeAudio < Mutation::Base
+  class TranscribeAudio < Mutations::BaseMutation
     argument :id, ID, required: true
 
     field :project_media, ProjectMediaType, null: true, camelize: false

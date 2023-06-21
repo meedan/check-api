@@ -12,12 +12,12 @@ module AnnotationMutations
     end
   end
 
-  class Create < Mutation::Create
+  class Create < Mutations::CreateMutation
     include SharedCreateAndUpdateFields
 
     argument :content, String, required: true
     argument :annotation_type, String, required: true, camelize: false
   end
 
-  class Destroy < Mutation::Destroy; end
+  class Destroy < Mutations::DestroyMutation; end
 end

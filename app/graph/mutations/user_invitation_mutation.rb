@@ -1,4 +1,4 @@
-class UserInvitationMutation < Mutation::Base
+class UserInvitationMutation < Mutations::BaseMutation
   graphql_name "UserInvitation"
 
   argument :invitation, String, required: false

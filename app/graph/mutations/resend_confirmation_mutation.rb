@@ -1,4 +1,4 @@
-class ResendConfirmationMutation < Mutation::Base
+class ResendConfirmationMutation < Mutations::BaseMutation
   graphql_name 'ResendConfirmation'
 
   argument :id, Integer, required: true

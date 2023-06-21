@@ -10,7 +10,7 @@ module TeamUserMutations
     end
   end
 
-  class Create < Mutation::Create
+  class Create < Mutations::CreateMutation
     include SharedCreateAndUpdateFields
 
     argument :user_id, Integer, required: true, camelize: false
@@ -18,7 +18,7 @@ module TeamUserMutations
     argument :status, String, required: true
   end
 
-  class Update < Mutation::Update
+  class Update < Mutations::UpdateMutation
     include SharedCreateAndUpdateFields
 
     argument :user_id, Integer, required: false, camelize: false
@@ -26,5 +26,5 @@ module TeamUserMutations
     argument :status, String, required: false
   end
 
-  class Destroy < Mutation::Destroy; end
+  class Destroy < Mutations::DestroyMutation; end
 end

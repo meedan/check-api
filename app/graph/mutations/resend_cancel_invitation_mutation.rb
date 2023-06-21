@@ -1,4 +1,4 @@
-class ResendCancelInvitationMutation < Mutation::Base
+class ResendCancelInvitationMutation < Mutations::BaseMutation
   graphql_name "ResendCancelInvitation"
 
   argument :email, String, required: true

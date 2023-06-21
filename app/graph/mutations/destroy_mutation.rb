@@ -1,5 +1,5 @@
-module Mutation
-  class Destroy < Base
+module Mutations
+  class DestroyMutation < BaseMutation
     class << self
       def inherited(subclass)
         define_behavior(subclass, subclass.module_parent::MUTATION_TARGET, subclass.module_parent::PARENTS)

@@ -1,4 +1,4 @@
-class ResetPasswordMutation < Mutation::Base
+class ResetPasswordMutation < Mutations::BaseMutation
   graphql_name 'ResetPassword'
 
   argument :email, String, required: true

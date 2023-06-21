@@ -1,5 +1,5 @@
 module TasksFileMutations
-  class AddFilesToTask < Mutation::Base
+  class AddFilesToTask < Mutations::BaseMutation
     graphql_name "AddFilesToTask"
 
     argument :id, ID, required: true
@@ -17,7 +17,7 @@ module TasksFileMutations
     end
   end
 
-  class RemoveFilesFromTask < Mutation::Base
+  class RemoveFilesFromTask < Mutations::BaseMutation
     graphql_name "RemoveFilesFromTask"
 
     argument :id, ID, required: true

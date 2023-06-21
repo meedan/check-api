@@ -1,5 +1,5 @@
-module Mutation
-  class Base < ::GraphQL::Schema::RelayClassicMutation
+module Mutations
+  class BaseMutation < ::GraphQL::Schema::RelayClassicMutation
     class << self
       private
 

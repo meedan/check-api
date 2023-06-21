@@ -1,5 +1,5 @@
 module SmoochBotMutations
-  class AddSlackChannelUrl < Mutation::Base
+  class AddSlackChannelUrl < Mutations::BaseMutation
     graphql_name "SmoochBotAddSlackChannelUrl"
 
     argument :id, String, required: true
@@ -30,7 +30,7 @@ module SmoochBotMutations
     end
   end
 
-  class AddIntegration < Mutation::Base
+  class AddIntegration < Mutations::BaseMutation
     graphql_name "SmoochBotAddIntegration"
 
     argument :team_bot_installation_id, String, required: true
@@ -56,7 +56,7 @@ module SmoochBotMutations
     end
   end
 
-  class RemoveIntegration < Mutation::Base
+  class RemoveIntegration < Mutations::BaseMutation
     graphql_name "SmoochBotRemoveIntegration"
 
     argument :team_bot_installation_id, String, required: true

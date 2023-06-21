@@ -1,5 +1,5 @@
-module Mutation
-  class BulkUpdate < Base
+module Mutations
+  class BulkUpdateMutation < BaseMutation
     class << self
       def inherited(subclass)
         # These attributes below are a bit hacky - basically, we expect for bulk classes to have the
@@ -10,13 +10,13 @@ module Mutation
         #   MUTATION_TARGET = 'relationship'.freeze
         #   PARENTS = ['my', { original: ParentType }].freeze
         #
-        #   class Create < Mutation::Create; end
-        #   class Update < Mutation::Update; end
+        #   class Create < Mutations::CreateMutation; end
+        #   class Update < Mutations::UpdateMutation; end
         #
         #   module Bulk
         #      PARENTS = ['overriding', { attribute: SomethingType }].freeze
         #
-        #      class Update < Mutation::BulkUpdate
+        #      class Update < Mutations::BulkUpdateMutation
         #         # some additional attributes
         #      end
         #   end
