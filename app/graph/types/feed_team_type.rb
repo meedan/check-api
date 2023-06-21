@@ -5,6 +5,7 @@ class FeedTeamType < DefaultObject
 
   field :dbid, Integer, null: true
   field :filters, JsonString, null: true
+  field :saved_search_id, Integer, null: true
   field :team, TeamType, null: true
   field :feed, FeedType, null: true
   field :team_id, Integer, null: true
@@ -14,4 +15,5 @@ class FeedTeamType < DefaultObject
         JsonString,
         method: :get_requests_filters,
         null: true
+  field :saved_search, SavedSearchType, null: true
 end

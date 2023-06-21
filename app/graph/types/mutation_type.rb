@@ -133,6 +133,9 @@ class MutationType < BaseObject
   field :update_fact_check, mutation: FactCheckMutations::Update
   field :destroy_fact_check, mutation: FactCheckMutations::Destroy
 
+  field :create_feed, mutation: FeedMutations::Create
+  field :update_feed, mutation: FeedMutations::Update
+
   field :update_feed_team, mutation: FeedTeamMutations::Update
 
   field :create_tipline_newsletter, mutation: TiplineNewsletterMutations::Create

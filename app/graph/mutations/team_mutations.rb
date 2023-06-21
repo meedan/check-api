@@ -48,6 +48,7 @@ module TeamMutations
     argument :slack_notifications, String, required: false, camelize: false
     argument :language, String, required: false
     argument :languages, JsonString, required: false
+    argument :language_detection, Boolean, required: false, camelize: false
     argument :list_columns, JsonString, required: false, camelize: false
     argument :tipline_inbox_filters, String, required: false, camelize: false
     argument :suggested_matches_filters, String, required: false, camelize: false

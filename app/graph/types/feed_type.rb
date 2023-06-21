@@ -4,17 +4,23 @@ class FeedType < DefaultObject
   implements NodeIdentification.interface
 
   field :dbid, Integer, null: true
+  field :user_id, Integer, null: true
+  field :team_id, Integer, null: true
   field :name, String, null: true
+  field :description, String, null: true
   field :published, Boolean, null: true
   field :filters, JsonString, null: true
   field :current_feed_team, FeedTeamType, null: true
   field :teams_count, Integer, null: true
   field :requests_count, Integer, null: true
   field :root_requests_count, Integer, null: true
+  field :tags, [String], null: false
+  field :licenses, [Integer], null: false
+  field :saved_search_id, Integer, null: true
+  field :team, TeamType, null: true
+  field :saved_search, SavedSearchType, null: true
 
-  field :requests,
-        RequestType.connection_type,
-        null: true do
+  field :requests, RequestType.connection_type, null: true do
     argument :request_id, Integer, required: false
     argument :offset, Integer, required: false
     argument :sort, String, required: false

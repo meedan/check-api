@@ -115,7 +115,6 @@ gem 'omniauth-google-oauth2', git: 'https://github.com/meedan/omniauth-google-oa
 gem 'rqrcode'
 gem 'fog-aws'
 gem 'aws-sdk-s3', '1.46.0'
-gem 'execjs'
 gem 'carrierwave-video-thumbnailer'
 gem 'carrierwave_backgrounder', git: 'https://github.com/meedan/carrierwave_backgrounder'
 gem 'partitioned', git: 'https://github.com/meedan/partitioned', branch: 'rails-6'

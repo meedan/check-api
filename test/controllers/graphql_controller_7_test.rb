@@ -155,10 +155,24 @@ class GraphqlController7Test < ActionController::TestCase
   test "should get saved search filters" do
     t = create_team
     ss = create_saved_search team: t, filters: { foo: 'bar' }
-    query = "query { team(slug: \"#{t.slug}\") { saved_searches(first: 1) { edges { node { filters } } } } }"
+    f = create_feed team_id: t.id
+    query = "query { team(slug: \"#{t.slug}\") { saved_searches(first: 1) { edges { node { filters, is_part_of_feeds, feeds(first: 1) { edges { node { dbid }}} } } } } }"
     post :create, params: { query: query }
-    assert_equal '{"foo":"bar"}', JSON.parse(@response.body).dig('data', 'team', 'saved_searches', 'edges', 0, 'node', 'filters')
     assert_response :success
+    data = JSON.parse(@response.body).dig('data', 'team', 'saved_searches', 'edges', 0, 'node')
+    assert_equal '{"foo":"bar"}', data['filters']
+    assert_not data['is_part_of_feeds']
+    assert_empty data['feeds']['edges']
+    # add list to feed
+    f.saved_search_id = ss.id
+    f.skip_check_ability = true
+    f.save!
+    query = "query { team(slug: \"#{t.slug}\") { saved_searches(first: 1) { edges { node { filters, is_part_of_feeds, feeds(first: 1) { edges { node { dbid }}} } } } } }"
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body).dig('data', 'team', 'saved_searches', 'edges', 0, 'node')
+    assert data['is_part_of_feeds']
+    assert_not_empty data['feeds']['edges']
   end
 
   test "should search by report status" do

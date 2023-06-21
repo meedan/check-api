@@ -13,4 +13,16 @@ class SavedSearchType < DefaultObject
   def filters
     object.filters ? object.filters.to_json : "{}"
   end
+
+  field :is_part_of_feeds, Boolean, null: true
+
+  def is_part_of_feeds
+    Feed.where(saved_search_id: object.id).exists?
+  end
+
+  field :feeds, FeedType.connection_type, null: true
+
+  def feeds
+    Feed.where(saved_search_id: object.id)
+  end
 end

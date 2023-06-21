@@ -14,6 +14,43 @@ class TeamType < DefaultObject
   field :projects_count, Integer, null: true
   field :permissions, String, null: true
   field :get_slack_notifications_enabled, String, null: true
+  field :get_slack_webhook, String, null: true
+  field :get_embed_whitelist, String, null: true
+  field :get_report_design_image_template, String, null: true
+  field :get_status_target_turnaround, String, null: true
+  field :pusher_channel, String, null: true
+  field :search_id, String, null: true
+  field :search, CheckSearchType, null: true
+  field :check_search_trash, CheckSearchType, null: true
+  field :check_search_unconfirmed, CheckSearchType, null: true
+  field :check_search_spam, CheckSearchType, null: true
+  field :trash_size, JsonString, null: true
+  field :public_team_id, String, null: true
+  field :permissions_info, JsonString, null: true
+  field :dynamic_search_fields_json_schema, JsonString, null: true
+  field :get_slack_notifications, JsonString, null: true
+  field :get_rules, JsonString, null: true
+  field :rules_json_schema, String, null: true
+  field :slack_notifications_json_schema, String, null: true
+  field :rules_search_fields_json_schema, JsonString, null: true
+  field :medias_count, Integer, null: true
+  field :spam_count, Integer, null: true
+  field :trash_count, Integer, null: true
+  field :unconfirmed_count, Integer, null: true
+  field :get_languages, String, null: true
+  field :get_language, String, null: true
+  field :get_language_detection, Boolean, null: true
+  field :get_report, JsonString, null: true
+  field :get_fieldsets, JsonString, null: true
+  field :list_columns, JsonString, null: true
+  field :get_data_report_url, String, null: true
+  field :url, String, null: true
+  field :get_tipline_inbox_filters, JsonString, null: true
+  field :get_suggested_matches_filters, JsonString, null: true
+  field :data_report, JsonString, null: true
+  field :available_newsletter_header_types, JsonString, null: true # List of header type strings
+  field :get_outgoing_urls_utm_code, String, null: true
+  field :get_shorten_outgoing_urls, Boolean, null: true
 
   def get_slack_notifications_enabled
     object.get_slack_notifications_enabled

@@ -101,4 +101,13 @@ class BotUser2Test < ActiveSupport::TestCase
 
     assert_equal 'bar', JSON.parse(team_bot.call(data).body)['foo']
   end
+
+  test "should notify Sentry when bot raises exception on notification" do
+    CheckSentry.expects(:notify).once
+    BotUser.any_instance.stubs(:notify_about_event).raises(StandardError)
+    t = create_team
+    pm = create_project_media team: t
+    b = create_team_bot team_author_id: t.id, set_approved: true, set_events: [{ event: 'create_project_media', graphql: nil }]
+    BotUser.notify_bots('create_project_media', t.id, 'ProjectMedia', pm.id, b)
+  end
 end
