@@ -1,44 +1,40 @@
 module TasksFileMutations
-  AddFilesToTask =
-    GraphQL::Relay::Mutation.define do
-      name "AddFilesToTask"
+  class AddFilesToTask < Mutation::Base
+    graphql_name "AddFilesToTask"
 
-      input_field :id, !types.ID
+    argument :id, ID, required: true
 
-      return_field :task, TaskType
+    field :task, TaskType, null: true
 
-      resolve ->(_root, inputs, ctx) {
-                task =
-                  GraphqlCrudOperations.object_from_id_if_can(
-                    inputs["id"],
-                    ctx["ability"]
-                  )
-                files = [ctx[:file]].flatten.reject { |f| f.blank? }
-                task.add_files(files) if task.is_a?(Task) && !files.empty?
-                { task: task }
-              }
+    def resolve(**inputs)
+      task = GraphqlCrudOperations.object_from_id_if_can(
+          inputs[:id],
+          context[:ability]
+        )
+      files = [context[:file]].flatten.reject { |f| f.blank? }
+      task.add_files(files) if task.is_a?(Task) && !files.empty?
+      { task: task }
     end
+  end
 
-  RemoveFilesFromTask =
-    GraphQL::Relay::Mutation.define do
-      name "RemoveFilesFromTask"
+  class RemoveFilesFromTask < Mutation::Base
+    graphql_name "RemoveFilesFromTask"
 
-      input_field :id, !types.ID
-      input_field :filenames, types[types.String]
+    argument :id, ID, required: true
+    argument :filenames, [String], required: false
 
-      return_field :task, TaskType
+    field :task, TaskType, null: true
 
-      resolve ->(_root, inputs, ctx) {
-                task =
-                  GraphqlCrudOperations.object_from_id_if_can(
-                    inputs["id"],
-                    ctx["ability"]
-                  )
-                filenames = inputs["filenames"]
-                if task.is_a?(Task) && !filenames.empty?
-                  task.remove_files(filenames)
-                end
-                { task: task }
-              }
+    def resolve(**inputs)
+      task = GraphqlCrudOperations.object_from_id_if_can(
+        inputs[:id],
+        context[:ability]
+      )
+      filenames = inputs[:filenames]
+      if task.is_a?(Task) && !filenames.empty?
+        task.remove_files(filenames)
+      end
+      { task: task }
     end
+  end
 end

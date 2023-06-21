@@ -66,9 +66,8 @@ class MutationType < BaseObject
   field :destroy_task, mutation: TaskMutations::Destroy
   field :move_task_up, mutation: TasksOrderMutations::MoveTaskUp
   field :move_task_down, mutation: TasksOrderMutations::MoveTaskDown
-#   field :add_files_to_task, field: TasksFileMutations::AddFilesToTask.field
-#   field :remove_files_from_task,
-#         field: TasksFileMutations::RemoveFilesFromTask.field
+  field :add_files_to_task, mutation: TasksFileMutations::AddFilesToTask
+  field :remove_files_from_task, mutation: TasksFileMutations::RemoveFilesFromTask
 
 #   field :reset_password, field: ResetPasswordMutation.field
 #   field :change_password, field: ChangePasswordMutation.field
