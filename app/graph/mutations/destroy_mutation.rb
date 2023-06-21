@@ -20,12 +20,6 @@ module Mutations
         subclass.define_method :resolve do |**inputs|
           ::GraphqlCrudOperations.destroy(inputs, context, parents)
         end
-
-        # HANDLE IN CLASS
-        # if type == "relationship"
-        #   input_field(:add_to_project_id, types.Int)
-        #   input_field(:archive_target, types.Int)
-        # end
       end
     end
   end

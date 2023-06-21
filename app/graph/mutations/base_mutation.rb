@@ -29,31 +29,8 @@ module Mutations
         subclass.field "#{type_class}Edge", type_class.edge_type, null: true
 
         set_parent_returns(subclass, parents)
-
-        # HANDLE IN CLASSES / think this is done
-        # return_field(:affectedId, types.ID) if type.to_s == 'project_media'
-
-        # TODO: extract as TeamAttributes module / think this is done
-        # if type.to_s == 'team'
-        #   return_field(:team_userEdge, TeamUserType.edge_type)
-        #   return_field(:user, UserType)
-        # end
-
-        # HANDLE IN CLASSES / think this is done
-        # return_field("versionEdge".to_sym, VersionType.edge_type) if ['task', 'comment'].include?(type.to_s) || type =~ /dynamic/
       end
 
-      # def parent_type_returns(parents)
-        # fields = {}
-        # parents.each do |parent|
-        #   parentclass = parent =~ /^check_search_/ ? 'CheckSearch' : parent.gsub(/_was$/, '').camelize
-        #   parentclass = 'ProjectMedia' if ['related_to', 'source_project_media', 'target_project_media'].include?(parent)
-        #   parentclass = 'TagText' if parent == 'tag_text_object'
-        #   parentclass = 'Project' if parent == 'previous_default_project'
-        #   fields[parent.to_sym] = "#{parentclass}Type".constantize
-        # end
-        # fields
-      # end
       def set_parent_returns(klass, parents)
         parents.each do |parent_field|
           # If a return type has been manually specified, use that.

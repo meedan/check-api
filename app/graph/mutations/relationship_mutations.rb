@@ -26,7 +26,10 @@ module RelationshipMutations
     include SharedCreateAndUpdateFields
   end
 
-  class Destroy < Mutations::DestroyMutation; end
+  class Destroy < Mutations::DestroyMutation
+    argument :add_to_project_id, Integer, required: false, camelize: false
+    argument :archive_target, Integer, required: false, camelize: false
+  end
 
   module Bulk
     PARENTS = [{ source_project_media: ProjectMediaType }].freeze
