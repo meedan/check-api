@@ -18,7 +18,7 @@ class FeedTeam < ApplicationRecord
   end
 
   def filters
-    self.saved_search&.filters
+    self.saved_search&.filters.to_h
   end
 
   private
