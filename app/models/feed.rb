@@ -28,7 +28,7 @@ class Feed < ApplicationRecord
   end
 
   def filters
-    self.saved_search&.filters
+    self.saved_search&.filters.to_h
   end
 
   # Filters defined by each team
@@ -161,6 +161,6 @@ class Feed < ApplicationRecord
   end
 
   def create_feed_team
-    self.teams << self.team unless self.team.nil?
+    FeedTeam.create!(feed: self, team: self.team, shared: true) unless self.team.nil?
   end
 end
