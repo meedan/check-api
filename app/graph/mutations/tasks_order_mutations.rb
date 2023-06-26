@@ -9,7 +9,6 @@ module TasksOrderMutations
       )
       parent = object.send(parent_field)
       yield(object) # any changes that must be made on object
-      pp object.order
       { object_field => object, parent_field => parent }
     end
   end
