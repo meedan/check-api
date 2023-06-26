@@ -3,14 +3,7 @@
 # Wait for Elasticsearch
 until curl --silent -XGET --fail http://elasticsearch:9200; do printf '.'; sleep 1; done
 
-# Rake tasks
-bin/rails db:environment:set RAILS_ENV=$RAILS_ENV || true
-if [ "$RAILS_ENV" == "test" ]
-then
-  bundle exec rails db:drop
-fi
-bundle exec rails db:create
-bundle exec rails db:migrate
+bundle exec rails db:create db:migrate db:test:prepare
 export SECRET_KEY_BASE=$(bundle exec rails secret)
 bundle exec rails lapis:api_keys:create_default
 
@@ -19,6 +12,7 @@ mkdir -p /app/tmp/pids
 rm -f /app/tmp/pids/server-$RAILS_ENV.pid
 if [ "$RAILS_ENV" == "test" ]
 then
+  # For integration tests only. Tests in dev environment don't need server
   bundle exec rails s -b 0.0.0.0 -p $SERVER_PORT -P /app/tmp/pids/server-$RAILS_ENV.pid
 else
   puma="/app/tmp/puma-$RAILS_ENV.rb"

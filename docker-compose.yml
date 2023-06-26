@@ -24,6 +24,12 @@ services:
     ports:
       - 9200:9200
       - 9300:9300
+    healthcheck:
+      test: curl --silent -XGET --fail http://elasticsearch:9200 > /dev/null || exit 1
+      interval: 3s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
     networks:
       - dev
   postgres:
@@ -31,9 +37,13 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
-      POSTGRES_DB: check-api-tests
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -q -U postgres"]
+      interval: 3s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
     networks:
       - dev
   redis:
@@ -61,10 +71,14 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - elasticsearch
-      - postgres
-      - redis
-      - minio
+      postgres:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      minio:
+        condition: service_started
     volumes:
       - ".:/app"
     environment:
