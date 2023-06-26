@@ -3,9 +3,9 @@ class ClaimDescriptionType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :dbid, Integer, null: true
-  field :description, String, null: true
-  field :context, String, null: true, method_conflict_warning: false
+  field :dbid, GraphQL::Types::Integer, null: true
+  field :description, GraphQL::Types::String, null: true
+  field :context, GraphQL::Types::String, null: true, method_conflict_warning: false
   field :user, UserType, null: true
   field :project_media, ProjectMediaType, null: true
   field :fact_check, FactCheckType, null: true

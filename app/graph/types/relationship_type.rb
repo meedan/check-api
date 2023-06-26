@@ -4,11 +4,11 @@ class RelationshipType < BaseObject
 
   global_id_field :id
 
-  field :dbid, Integer, null: true
-  field :target_id, Integer, null: true
-  field :source_id, Integer, null: true
-  field :permissions, String, null: true
-  field :relationship_type, String, null: true
+  field :dbid, GraphQL::Types::Integer, null: true
+  field :target_id, GraphQL::Types::Integer, null: true
+  field :source_id, GraphQL::Types::Integer, null: true
+  field :permissions, GraphQL::Types::String, null: true
+  field :relationship_type, GraphQL::Types::String, null: true
 
   field :target, ProjectMediaType, null: true
   field :source, ProjectMediaType, null: true

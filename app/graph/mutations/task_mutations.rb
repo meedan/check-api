@@ -6,10 +6,10 @@ module TaskMutations
     extend ActiveSupport::Concern
 
     included do
-      argument :description, String, required: false
-      argument :json_schema, String, required: false, camelize: false
-      argument :order, Integer, required: false
-      argument :fieldset, String, required: false
+      argument :description, GraphQL::Types::String, required: false
+      argument :json_schema, GraphQL::Types::String, required: false, camelize: false
+      argument :order, GraphQL::Types::Integer, required: false
+      argument :fieldset, GraphQL::Types::String, required: false
 
       field :versionEdge, VersionType.edge_type, null: true
     end
@@ -18,18 +18,18 @@ module TaskMutations
   class Create < Mutations::CreateMutation
     include SharedCreateAndUpdateFields
 
-    argument :label, String, required: true
-    argument :type, String, required: true
-    argument :jsonoptions, String, required: false
-    argument :annotated_id, String, required: false, camelize: false
-    argument :annotated_type, String, required: false, camelize: false
+    argument :label, GraphQL::Types::String, required: true
+    argument :type, GraphQL::Types::String, required: true
+    argument :jsonoptions, GraphQL::Types::String, required: false
+    argument :annotated_id, GraphQL::Types::String, required: false, camelize: false
+    argument :annotated_type, GraphQL::Types::String, required: false, camelize: false
   end
 
   class Update < Mutations::UpdateMutation
     include SharedCreateAndUpdateFields
 
-    argument :label, String, required: false
-    argument :response, String, required: false
+    argument :label, GraphQL::Types::String, required: false
+    argument :response, GraphQL::Types::String, required: false
   end
 
   class Destroy < Mutations::DestroyMutation; end

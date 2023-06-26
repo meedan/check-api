@@ -3,36 +3,36 @@ class TiplineNewsletterType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :dbid, Integer, null: true
-  field :introduction, String, null: true
-  field :header_type, String, null: true
-  field :header_file_url, String, null: true
-  field :header_overlay_text, String, null: true
-  field :content_type, String, null: true
-  field :rss_feed_url, String, null: true
-  field :first_article, String, null: true
-  field :second_article, String, null: true
-  field :third_article, String, null: true
-  field :number_of_articles, Integer, null: true
+  field :dbid, GraphQL::Types::Integer, null: true
+  field :introduction, GraphQL::Types::String, null: true
+  field :header_type, GraphQL::Types::String, null: true
+  field :header_file_url, GraphQL::Types::String, null: true
+  field :header_overlay_text, GraphQL::Types::String, null: true
+  field :content_type, GraphQL::Types::String, null: true
+  field :rss_feed_url, GraphQL::Types::String, null: true
+  field :first_article, GraphQL::Types::String, null: true
+  field :second_article, GraphQL::Types::String, null: true
+  field :third_article, GraphQL::Types::String, null: true
+  field :number_of_articles, GraphQL::Types::Integer, null: true
   field :send_every, JsonString, null: true
-  field :send_on, String, null: true
+  field :send_on, GraphQL::Types::String, null: true
 
   def send_on
     object.send_on ? object.send_on.strftime("%Y-%m-%d") : nil
   end
-  field :timezone, String, null: true
-  field :time, String, null: true
+  field :timezone, GraphQL::Types::String, null: true
+  field :time, GraphQL::Types::String, null: true
 
   def time
     object.time.strftime("%H:%M")
   end
-  field :subscribers_count, Integer, null: true
-  field :footer, String, null: true
-  field :language, String, null: true
-  field :enabled, Boolean, null: true
+  field :subscribers_count, GraphQL::Types::Integer, null: true
+  field :footer, GraphQL::Types::String, null: true
+  field :language, GraphQL::Types::String, null: true
+  field :enabled, GraphQL::Types::Boolean, null: true
   field :team, TeamType, null: true
-  field :last_scheduled_at, Integer, null: true
+  field :last_scheduled_at, GraphQL::Types::Integer, null: true
   field :last_scheduled_by, UserType, null: true
-  field :last_sent_at, Integer, null: true
-  field :last_delivery_error, String, null: true
+  field :last_sent_at, GraphQL::Types::Integer, null: true
+  field :last_delivery_error, GraphQL::Types::String, null: true
 end

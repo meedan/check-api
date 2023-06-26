@@ -1,9 +1,9 @@
 class ResetPasswordMutation < Mutations::BaseMutation
   graphql_name 'ResetPassword'
 
-  argument :email, String, required: true
+  argument :email, GraphQL::Types::String, required: true
 
-  field :success, Boolean, null: true
+  field :success, GraphQL::Types::Boolean, null: true
 
   def resolve(**inputs)
     user = User.where(email: inputs[:email].downcase).last

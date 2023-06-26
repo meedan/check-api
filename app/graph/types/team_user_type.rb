@@ -3,12 +3,12 @@ class TeamUserType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :dbid, Integer, null: true
-  field :user_id, Integer, null: true
-  field :team_id, Integer, null: true
-  field :status, String, null: true
-  field :role, String, null: true
-  field :permissions, String, null: true
+  field :dbid, GraphQL::Types::Integer, null: true
+  field :user_id, GraphQL::Types::Integer, null: true
+  field :team_id, GraphQL::Types::Integer, null: true
+  field :status, GraphQL::Types::String, null: true
+  field :role, GraphQL::Types::String, null: true
+  field :permissions, GraphQL::Types::String, null: true
 
   field :team, TeamType, null: true
 

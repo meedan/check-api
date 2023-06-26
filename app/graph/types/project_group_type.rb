@@ -3,12 +3,12 @@ class ProjectGroupType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :dbid, Integer, null: true
-  field :title, String, null: true
-  field :description, String, null: true
-  field :team_id, Integer, null: true
+  field :dbid, GraphQL::Types::Integer, null: true
+  field :title, GraphQL::Types::String, null: true
+  field :description, GraphQL::Types::String, null: true
+  field :team_id, GraphQL::Types::Integer, null: true
   field :team, TeamType, null: true
-  field :medias_count, Integer, null: true
+  field :medias_count, GraphQL::Types::Integer, null: true
 
   field :projects, ProjectType.connection_type, null: true
 end

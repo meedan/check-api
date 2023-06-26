@@ -1,9 +1,9 @@
 class ResendConfirmationMutation < Mutations::BaseMutation
   graphql_name 'ResendConfirmation'
 
-  argument :id, Integer, required: true
+  argument :id, GraphQL::Types::Integer, required: true
 
-  field :success, Boolean, null: true
+  field :success, GraphQL::Types::Boolean, null: true
 
   def resolve(**inputs)
     user = User.where(id: inputs[:id]).last

@@ -2,7 +2,7 @@ module TasksFileMutations
   class AddFilesToTask < Mutations::BaseMutation
     graphql_name "AddFilesToTask"
 
-    argument :id, ID, required: true
+    argument :id, GraphQL::Types::ID, required: true
 
     field :task, TaskType, null: true
 
@@ -20,7 +20,7 @@ module TasksFileMutations
   class RemoveFilesFromTask < Mutations::BaseMutation
     graphql_name "RemoveFilesFromTask"
 
-    argument :id, ID, required: true
+    argument :id, GraphQL::Types::ID, required: true
     argument :filenames, [String], required: false
 
     field :task, TaskType, null: true

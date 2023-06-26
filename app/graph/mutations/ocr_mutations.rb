@@ -1,6 +1,6 @@
 module OcrMutations
   class ExtractText < Mutations::BaseMutation
-    argument :id, ID, required: true
+    argument :id, GraphQL::Types::ID, required: true
 
     field :project_media, ProjectMediaType, null: true, camelize: false
 

@@ -19,8 +19,8 @@ module ProjectMediaMutations
     extend ActiveSupport::Concern
 
     included do
-      argument :media_id, Integer, required: false, camelize: false
-      argument :related_to_id, Integer, required: false, camelize: false
+      argument :media_id, GraphQL::Types::Integer, required: false, camelize: false
+      argument :related_to_id, GraphQL::Types::Integer, required: false, camelize: false
 
       field :affectedId, GraphQL::Types::ID, null: true
     end
@@ -29,34 +29,34 @@ module ProjectMediaMutations
   class Create < Mutations::CreateMutation
     include SharedCreateAndUpdateFields
 
-    argument :url, String, required: false
-    argument :quote, String, required: false
-    argument :quote_attributions, String, required: false, camelize: false
-    argument :project_id, Integer, required: false, camelize: false
-    argument :media_id, Integer, required: false, camelize: false
-    argument :team_id, Integer, required: false, camelize: false
+    argument :url, GraphQL::Types::String, required: false
+    argument :quote, GraphQL::Types::String, required: false
+    argument :quote_attributions, GraphQL::Types::String, required: false, camelize: false
+    argument :project_id, GraphQL::Types::Integer, required: false, camelize: false
+    argument :media_id, GraphQL::Types::Integer, required: false, camelize: false
+    argument :team_id, GraphQL::Types::Integer, required: false, camelize: false
     argument :channel, JsonString, required: false
-    argument :media_type, String, required: false, camelize: false
+    argument :media_type, GraphQL::Types::String, required: false, camelize: false
 
     # Set fields
-    argument :set_annotation, String, required: false, camelize: false
-    argument :set_claim_description, String, required: false, camelize: false
+    argument :set_annotation, GraphQL::Types::String, required: false, camelize: false
+    argument :set_claim_description, GraphQL::Types::String, required: false, camelize: false
     argument :set_fact_check, JsonString, required: false, camelize: false
     argument :set_tasks_responses, JsonString, required: false, camelize: false
     argument :set_tags, JsonString, required: false, camelize: false
-    argument :set_title, String, required: false, camelize: false
-    argument :set_status, String, required: false, camelize: false # Status identifier (for example, "in_progress")
+    argument :set_title, GraphQL::Types::String, required: false, camelize: false
+    argument :set_status, GraphQL::Types::String, required: false, camelize: false # Status identifier (for example, "in_progress")
   end
 
   class Update < Mutations::UpdateMutation
     include SharedCreateAndUpdateFields
 
-    argument :refresh_media, Integer, required: false, camelize: false
-    argument :archived, Integer, required: false
-    argument :previous_project_id, Integer, required: false, camelize: false
-    argument :project_id, Integer, required: false, camelize: false
-    argument :source_id, Integer, required: false, camelize: false
-    argument :read, Boolean, required: false
+    argument :refresh_media, GraphQL::Types::Integer, required: false, camelize: false
+    argument :archived, GraphQL::Types::Integer, required: false
+    argument :previous_project_id, GraphQL::Types::Integer, required: false, camelize: false
+    argument :project_id, GraphQL::Types::Integer, required: false, camelize: false
+    argument :source_id, GraphQL::Types::Integer, required: false, camelize: false
+    argument :read, GraphQL::Types::Boolean, required: false
   end
 
   class Destroy < Mutations::DestroyMutation; end
@@ -64,10 +64,10 @@ module ProjectMediaMutations
   class Replace < Mutations::BaseMutation
     graphql_name "ReplaceProjectMedia"
 
-    argument :project_media_to_be_replaced_id, ID, required: true, camelize: false
-    argument :new_project_media_id, ID, required: true, camelize: false
+    argument :project_media_to_be_replaced_id, GraphQL::Types::ID, required: true, camelize: false
+    argument :new_project_media_id, GraphQL::Types::ID, required: true, camelize: false
 
-    field :old_project_media_deleted_id, ID, null: true, camelize: false
+    field :old_project_media_deleted_id, GraphQL::Types::ID, null: true, camelize: false
     field :new_project_media, ProjectMediaType, null: true, camelize: false
 
     def resolve(**inputs)
@@ -103,8 +103,8 @@ module ProjectMediaMutations
     ].freeze
 
     class Update < Mutations::BulkUpdateMutation
-      argument :action, String, required: true
-      argument :params, String, required: false
+      argument :action, GraphQL::Types::String, required: true
+      argument :params, GraphQL::Types::String, required: false
     end
   end
 end

@@ -3,8 +3,8 @@ class AnnotatorType < BaseObject
 
   implements NodeIdentification.interface
 
-  field :name, String, null: true
-  field :profile_image, String, null: true
+  field :name, GraphQL::Types::String, null: true
+  field :profile_image, GraphQL::Types::String, null: true
 
   field :user, UserType, null: true
 

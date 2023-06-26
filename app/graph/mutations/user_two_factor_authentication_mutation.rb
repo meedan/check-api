@@ -1,12 +1,12 @@
 class UserTwoFactorAuthenticationMutation < Mutations::BaseMutation
   graphql_name "UserTwoFactorAuthentication"
 
-  argument :id, Integer, required: true
-  argument :password, String, required: true
-  argument :qrcode, String, required: false
-  argument :otp_required, Boolean, required: false
+  argument :id, GraphQL::Types::Integer, required: true
+  argument :password, GraphQL::Types::String, required: true
+  argument :qrcode, GraphQL::Types::String, required: false
+  argument :otp_required, GraphQL::Types::Boolean, required: false
 
-  field :success, Boolean, null: true
+  field :success, GraphQL::Types::Boolean, null: true
   field :user, UserType, null: true
 
   def resolve(**inputs)

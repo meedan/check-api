@@ -3,20 +3,20 @@ class RequestType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :dbid, Integer, null: true
-  field :last_submitted_at, Integer, null: true
-  field :request_type, String, null: true
-  field :content, String, null: true
-  field :last_called_webhook_at, String, null: true
-  field :fact_checked_by, String, null: true
-  field :subscribed, Boolean, null: true
-  field :medias_count, Integer, null: true
-  field :requests_count, Integer, null: true
-  field :subscriptions_count, Integer, null: true
-  field :project_medias_count, Integer, null: true
-  field :title, String, null: true
+  field :dbid, GraphQL::Types::Integer, null: true
+  field :last_submitted_at, GraphQL::Types::Integer, null: true
+  field :request_type, GraphQL::Types::String, null: true
+  field :content, GraphQL::Types::String, null: true
+  field :last_called_webhook_at, GraphQL::Types::String, null: true
+  field :fact_checked_by, GraphQL::Types::String, null: true
+  field :subscribed, GraphQL::Types::Boolean, null: true
+  field :medias_count, GraphQL::Types::Integer, null: true
+  field :requests_count, GraphQL::Types::Integer, null: true
+  field :subscriptions_count, GraphQL::Types::Integer, null: true
+  field :project_medias_count, GraphQL::Types::Integer, null: true
+  field :title, GraphQL::Types::String, null: true
   field :similar_to_request, RequestType, null: true
-  field :media_type, String, null: true
+  field :media_type, GraphQL::Types::String, null: true
 
   field :feed, FeedType, null: true
 
@@ -35,7 +35,7 @@ class RequestType < DefaultObject
   field :similar_requests,
         RequestType.connection_type,
         null: true do
-    argument :media_id, Integer, required: false
+    argument :media_id, GraphQL::Types::Integer, required: false
   end
 
   def similar_requests(**args)

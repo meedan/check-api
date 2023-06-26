@@ -1,6 +1,6 @@
 module TasksOrderMutations
   class BaseMoveMutation < Mutations::BaseMutation
-    argument :id, ID, required: true
+    argument :id, GraphQL::Types::ID, required: true
 
     def move(object, inputs, context, object_field, parent_field)
       object = GraphqlCrudOperations.object_from_id_if_can(

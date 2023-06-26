@@ -1,7 +1,7 @@
 class UserInvitationMutation < Mutations::BaseMutation
   graphql_name "UserInvitation"
 
-  argument :invitation, String, required: false
+  argument :invitation, GraphQL::Types::String, required: false
 
   argument :members, JsonString, required: true
 

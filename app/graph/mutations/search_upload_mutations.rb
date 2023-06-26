@@ -1,7 +1,7 @@
 module SearchUploadMutations
   class SearchUpload < Mutations::BaseMutation
-    field :file_handle, String, null: true, camelize: false
-    field :file_url, String, null: true, camelize: false
+    field :file_handle, GraphQL::Types::String, null: true, camelize: false
+    field :file_url, GraphQL::Types::String, null: true, camelize: false
 
     def resolve(**_inputs)
       hash = CheckSearch.upload_file(context[:file])

@@ -1,5 +1,5 @@
 class CommentType < AnnotationObject
   define_shared_behavior(self, 'comment')
 
-  field :text, String, null: true
+  field :text, GraphQL::Types::String, null: true
 end

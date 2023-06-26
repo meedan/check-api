@@ -1,9 +1,9 @@
 class DeleteTeamStatusMutation < Mutations::BaseMutation
   graphql_name "DeleteTeamStatus"
 
-  argument :team_id, ID, required: true, camelize: false
-  argument :status_id, String, required: true, camelize: false
-  argument :fallback_status_id, String, required: true, camelize: false
+  argument :team_id, GraphQL::Types::ID, required: true, camelize: false
+  argument :status_id, GraphQL::Types::String, required: true, camelize: false
+  argument :fallback_status_id, GraphQL::Types::String, required: true, camelize: false
 
   field :team, TeamType, null: true
 

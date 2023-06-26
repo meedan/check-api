@@ -10,17 +10,17 @@ class SourceType < DefaultObject
         field :annotations,
               AnnotationUnion.connection_type,
               null: true do
-          argument :annotation_type, String, required: true
+          argument :annotation_type, GraphQL::Types::String, required: true
         end
 
         # .field_annotations_count
-        field :annotations_count, Integer, null: true do
-          argument :annotation_type, String, required: true
+        field :annotations_count, GraphQL::Types::Integer, null: true do
+          argument :annotation_type, GraphQL::Types::String, required: true
         end
 
         # .field_tasks
         field :tasks, TaskType.connection_type, null: true do
-          argument :fieldset, String, required: false
+          argument :fieldset, GraphQL::Types::String, required: false
         end
       # end
     # end
@@ -67,18 +67,18 @@ class SourceType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :image, String, null: true
-  field :description, String, null: false
-  field :name, String, null: false
-  field :dbid, Integer, null: true
-  field :user_id, Integer, null: true
-  field :permissions, String, null: true
-  field :pusher_channel, String, null: true
-  field :lock_version, Integer, null: true
-  field :medias_count, Integer, null: true
-  field :accounts_count, Integer, null: true
+  field :image, GraphQL::Types::String, null: true
+  field :description, GraphQL::Types::String, null: false
+  field :name, GraphQL::Types::String, null: false
+  field :dbid, GraphQL::Types::Integer, null: true
+  field :user_id, GraphQL::Types::Integer, null: true
+  field :permissions, GraphQL::Types::String, null: true
+  field :pusher_channel, GraphQL::Types::String, null: true
+  field :lock_version, GraphQL::Types::Integer, null: true
+  field :medias_count, GraphQL::Types::Integer, null: true
+  field :accounts_count, GraphQL::Types::Integer, null: true
   field :overridden, JsonString, null: true
-  field :archived, Integer, null: true
+  field :archived, GraphQL::Types::Integer, null: true
 
   field :accounts, AccountType.connection_type, null: true
 

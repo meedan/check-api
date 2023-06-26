@@ -3,9 +3,9 @@ class TeamBotInstallationType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :json_settings, String, null: true
+  field :json_settings, GraphQL::Types::String, null: true
 
-  field :lock_version, Integer, null: true
+  field :lock_version, GraphQL::Types::Integer, null: true
 
   def lock_version
     object.reload.lock_version
@@ -28,16 +28,16 @@ class TeamBotInstallationType < DefaultObject
   # Only for Smooch Bot
 
   field :smooch_enabled_integrations, JsonString, null: true do
-    argument :force, Boolean, required: false
+    argument :force, GraphQL::Types::Boolean, required: false
   end
 
   def smooch_enabled_integrations(**args)
     object.smooch_enabled_integrations(args[:force])
   end
 
-  field :smooch_bot_preview_rss_feed, String, null: true do
-    argument :rss_feed_url, String, required: true
-    argument :number_of_articles, Integer, required: true
+  field :smooch_bot_preview_rss_feed, GraphQL::Types::String, null: true do
+    argument :rss_feed_url, GraphQL::Types::String, required: true
+    argument :number_of_articles, GraphQL::Types::Integer, required: true
   end
 
   def smooch_bot_preview_rss_feed(**args)

@@ -1,11 +1,11 @@
 class ResendCancelInvitationMutation < Mutations::BaseMutation
   graphql_name "ResendCancelInvitation"
 
-  argument :email, String, required: true
+  argument :email, GraphQL::Types::String, required: true
 
-  argument :action, String, required: true
+  argument :action, GraphQL::Types::String, required: true
 
-  field :success, Boolean, null: true
+  field :success, GraphQL::Types::Boolean, null: true
 
   field :team, TeamType, null: true
 

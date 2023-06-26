@@ -3,14 +3,14 @@ class AccountType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :data, String, null: true
-  field :dbid, Integer, null: true
-  field :url, String, null: false
-  field :provider, String, null: true
-  field :uid, String, null: true
-  field :user_id, Integer, null: true
-  field :permissions, String, null: true
-  field :image, String, null: true
+  field :data, GraphQL::Types::String, null: true
+  field :dbid, GraphQL::Types::Integer, null: true
+  field :url, GraphQL::Types::String, null: false
+  field :provider, GraphQL::Types::String, null: true
+  field :uid, GraphQL::Types::String, null: true
+  field :user_id, GraphQL::Types::Integer, null: true
+  field :permissions, GraphQL::Types::String, null: true
+  field :image, GraphQL::Types::String, null: true
   field :user, UserType, null: true
 
   def user

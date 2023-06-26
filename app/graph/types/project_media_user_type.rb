@@ -3,9 +3,9 @@ class ProjectMediaUserType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :project_media_id, Integer, null: true
-  field :user_id, Integer, null: true
+  field :project_media_id, GraphQL::Types::Integer, null: true
+  field :user_id, GraphQL::Types::Integer, null: true
   field :project_media, ProjectMediaType, null: true
   field :user, UserType, null: true
-  field :read, Boolean, null: true
+  field :read, GraphQL::Types::Boolean, null: true
 end

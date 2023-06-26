@@ -6,24 +6,24 @@ module FactCheckMutations
     extend ActiveSupport::Concern
 
     included do
-      argument :url, String, required: false
-      argument :language, String, required: false
+      argument :url, GraphQL::Types::String, required: false
+      argument :language, GraphQL::Types::String, required: false
     end
   end
 
   class Create < Mutations::CreateMutation
     include SharedCreateAndUpdateFields
 
-    argument :title, String, required: true
-    argument :summary, String, required: true
-    argument :claim_description_id, Integer, required: true, camelize: false
+    argument :title, GraphQL::Types::String, required: true
+    argument :summary, GraphQL::Types::String, required: true
+    argument :claim_description_id, GraphQL::Types::Integer, required: true, camelize: false
   end
 
   class Update < Mutations::UpdateMutation
     include SharedCreateAndUpdateFields
 
-    argument :title, String, required: false
-    argument :summary, String, required: false
+    argument :title, GraphQL::Types::String, required: false
+    argument :summary, GraphQL::Types::String, required: false
   end
 
   class Destroy < Mutations::DestroyMutation; end

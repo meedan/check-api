@@ -9,17 +9,17 @@ class ProjectMediaType < DefaultObject
         field :annotations,
               AnnotationUnion.connection_type,
               null: true do
-          argument :annotation_type, String, required: true
+          argument :annotation_type, GraphQL::Types::String, required: true
         end
 
         # .field_annotations_count
-        field :annotations_count, Integer, null: true do
-          argument :annotation_type, String, required: true
+        field :annotations_count, GraphQL::Types::Integer, null: true do
+          argument :annotation_type, GraphQL::Types::String, required: true
         end
 
         # .field_tasks
         field :tasks, TaskType.connection_type, null: true do
-          argument :fieldset, String, required: false
+          argument :fieldset, GraphQL::Types::String, required: false
         end
       # end
     # end
@@ -65,42 +65,42 @@ class ProjectMediaType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :media_id, Integer, null: true
-  field :user_id, Integer, null: true
-  field :url, String, null: true
-  field :full_url, String, null: true
-  field :quote, String, null: true
-  field :oembed_metadata, String, null: true
-  field :dbid, Integer, null: true
-  field :archived, Integer, null: true
-  field :author_role, String, null: true
-  field :report_type, String, null: true
-  field :title, String, null: true
-  field :description, String, null: true
-  field :picture, String, null: true
-  field :virality, Integer, null: true
-  field :requests_count, Integer, null: true
-  field :demand, Integer, null: true
-  field :linked_items_count, Integer, null: true
-  field :last_seen, String, null: true
-  field :status, String, null: true
-  field :share_count, Integer, null: true
+  field :media_id, GraphQL::Types::Integer, null: true
+  field :user_id, GraphQL::Types::Integer, null: true
+  field :url, GraphQL::Types::String, null: true
+  field :full_url, GraphQL::Types::String, null: true
+  field :quote, GraphQL::Types::String, null: true
+  field :oembed_metadata, GraphQL::Types::String, null: true
+  field :dbid, GraphQL::Types::Integer, null: true
+  field :archived, GraphQL::Types::Integer, null: true
+  field :author_role, GraphQL::Types::String, null: true
+  field :report_type, GraphQL::Types::String, null: true
+  field :title, GraphQL::Types::String, null: true
+  field :description, GraphQL::Types::String, null: true
+  field :picture, GraphQL::Types::String, null: true
+  field :virality, GraphQL::Types::Integer, null: true
+  field :requests_count, GraphQL::Types::Integer, null: true
+  field :demand, GraphQL::Types::Integer, null: true
+  field :linked_items_count, GraphQL::Types::Integer, null: true
+  field :last_seen, GraphQL::Types::String, null: true
+  field :status, GraphQL::Types::String, null: true
+  field :share_count, GraphQL::Types::Integer, null: true
   field :list_columns_values, JsonString, null: true
   field :feed_columns_values, JsonString, null: true
-  field :report_status, String, null: true
-  field :confirmed_as_similar_by_name, String, null: true
-  field :added_as_similar_by_name, String, null: true
-  field :project_id, Integer, null: true
-  field :source_id, Integer, null: true
+  field :report_status, GraphQL::Types::String, null: true
+  field :confirmed_as_similar_by_name, GraphQL::Types::String, null: true
+  field :added_as_similar_by_name, GraphQL::Types::String, null: true
+  field :project_id, GraphQL::Types::Integer, null: true
+  field :source_id, GraphQL::Types::Integer, null: true
   field :project_group, ProjectGroupType, null: true
-  field :show_warning_cover, Boolean, null: true
-  field :creator_name, String, null: true
-  field :team_name, String, null: true
+  field :show_warning_cover, GraphQL::Types::Boolean, null: true
+  field :creator_name, GraphQL::Types::String, null: true
+  field :team_name, GraphQL::Types::String, null: true
   field :channel, JsonString, null: true
-  field :cluster_id, Integer, null: true
+  field :cluster_id, GraphQL::Types::Integer, null: true
   field :cluster, ClusterType, null: true
-  field :is_suggested, Boolean, null: true
-  field :is_confirmed, Boolean, null: true
+  field :is_suggested, GraphQL::Types::Boolean, null: true
+  field :is_confirmed, GraphQL::Types::Boolean, null: true
 
   field :claim_description, ClaimDescriptionType, null: true
 
@@ -114,8 +114,8 @@ class ProjectMediaType < DefaultObject
     pm.claim_description
   end
 
-  field :is_read, Boolean, null: true do
-    argument :by_me, Boolean, required: false
+  field :is_read, GraphQL::Types::Boolean, null: true do
+    argument :by_me, GraphQL::Types::Boolean, required: false
   end
 
   def is_read(**args)
@@ -133,13 +133,13 @@ class ProjectMediaType < DefaultObject
     end
   end
 
-  field :type, String, null: true
+  field :type, GraphQL::Types::String, null: true
 
   def type
     object.type_of_media
   end
 
-  field :permissions, String, null: true
+  field :permissions, GraphQL::Types::String, null: true
 
   def permissions
     PermissionsLoader
@@ -158,7 +158,7 @@ class ProjectMediaType < DefaultObject
     }
   end
 
-  field :domain, String, null: true
+  field :domain, GraphQL::Types::String, null: true
 
   def domain
     RecordLoader
@@ -167,7 +167,7 @@ class ProjectMediaType < DefaultObject
       .then { |media| media.respond_to?(:domain) ? media.domain : "" }
   end
 
-  field :pusher_channel, String, null: true
+  field :pusher_channel, GraphQL::Types::String, null: true
 
   def pusher_channel
     RecordLoader
@@ -234,11 +234,11 @@ class ProjectMediaType < DefaultObject
             args["include_related"]
           )
         } do
-    argument :event_types, String, required: false
-    argument :field_names, String, required: false
-    argument :annotation_types, String, required: false
-    argument :who_dunnit, String, required: false
-    argument :include_related, Boolean, required: false
+    argument :event_types, GraphQL::Types::String, required: false
+    argument :field_names, GraphQL::Types::String, required: false
+    argument :annotation_types, GraphQL::Types::String, required: false
+    argument :who_dunnit, GraphQL::Types::String, required: false
+    argument :include_related, GraphQL::Types::Boolean, required: false
   end
 
   field :log_count,
@@ -267,7 +267,7 @@ class ProjectMediaType < DefaultObject
     object.get_requests
   end
 
-  field :last_status, String, null: true
+  field :last_status, GraphQL::Types::String, null: true
 
   def last_status
     object.last_status
@@ -285,28 +285,28 @@ class ProjectMediaType < DefaultObject
         null: true,
         resolve: ->(obj, _args, _ctx) { obj.created_at.to_i.to_s }
 
-  field :language, String, null: true
+  field :language, GraphQL::Types::String, null: true
 
   def language
     object.get_dynamic_annotation("language")&.get_field "language"&.send(:to_s)
   end
 
-  field :language_code, String, null: true
+  field :language_code, GraphQL::Types::String, null: true
 
   def language_code
     object.get_dynamic_annotation("language")&.get_field_value("language")
   end
 
   field :annotation, "AnnotationType", null: true do
-    argument :annotation_type, String, required: true
+    argument :annotation_type, GraphQL::Types::String, required: true
   end
 
   def annotation(**args)
     object.get_dynamic_annotation(args[:annotation_type])
   end
 
-  field :field_value, String, null: true do
-    argument :annotation_type_field_name, String, required: true
+  field :field_value, GraphQL::Types::String, null: true do
+    argument :annotation_type_field_name, GraphQL::Types::String, required: true
   end
 
   def field_value(**args)
@@ -319,8 +319,8 @@ class ProjectMediaType < DefaultObject
   end
 
   field :assignments, "AnnotationType", connection: true, null: true do
-    argument :user_id, Integer, required: true
-    argument :annotation_type, String, required: true
+    argument :user_id, GraphQL::Types::Integer, required: true
+    argument :annotation_type, GraphQL::Types::String, required: true
   end
 
   def assignments(**args)
@@ -360,7 +360,7 @@ class ProjectMediaType < DefaultObject
     ProjectMedia.get_similar_relationships(object, Relationship.suggested_type)
   end
 
-  field :suggested_similar_items_count, Integer, null: true
+  field :suggested_similar_items_count, GraphQL::Types::Integer, null: true
 
   def suggested_similar_items_count
     ProjectMedia.get_similar_items(object, Relationship.suggested_type).count
@@ -385,13 +385,13 @@ class ProjectMediaType < DefaultObject
     ProjectMedia.get_similar_relationships(object, Relationship.confirmed_type)
   end
 
-  field :confirmed_similar_items_count, Integer, null: true
+  field :confirmed_similar_items_count, GraphQL::Types::Integer, null: true
 
   def confirmed_similar_items_count
     ProjectMedia.get_similar_items(object, Relationship.confirmed_type).count
   end
 
-  field :is_confirmed_similar_to_another_item, Boolean, null: true
+  field :is_confirmed_similar_to_another_item, GraphQL::Types::Boolean, null: true
 
   def is_confirmed_similar_to_another_item
     Relationship.confirmed_parent(object).id != object.id
@@ -412,19 +412,19 @@ class ProjectMediaType < DefaultObject
     object.get_default_relationships.order("id DESC")
   end
 
-  field :default_relationships_count, Integer, null: true
+  field :default_relationships_count, GraphQL::Types::Integer, null: true
 
   def default_relationships_count
     object.get_default_relationships.count
   end
 
-  field :is_main, Boolean, null: true
+  field :is_main, GraphQL::Types::Boolean, null: true
 
   def is_main
     object.linked_items_count > 1 || object.suggestions_count > 0
   end
 
-  field :is_secondary, Boolean, null: true
+  field :is_secondary, GraphQL::Types::Boolean, null: true
 
   def is_secondary
     object.sources_count > 0

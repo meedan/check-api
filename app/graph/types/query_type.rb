@@ -60,12 +60,12 @@ class QueryType < BaseObject
         description:
           "Information about the context team or the team from given id",
         null: true do
-    argument :id, ID, required: false
-    argument :slug, String, required: false
+    argument :id, GraphQL::Types::ID, required: false
+    argument :slug, GraphQL::Types::String, required: false
     # random argument is for bypassing Relay cache. This is a temporary fix
     # while we don't have our Relay code 100% up to date, which we expect will
     # make this unnecessary. Fixes issue reported in CHECK-2331
-    argument :random, String, required: false
+    argument :random, GraphQL::Types::String, required: false
   end
 
   def team(**args)
@@ -84,7 +84,7 @@ class QueryType < BaseObject
         PublicTeamType,
         description: "Public information about a team",
         null: true do
-    argument :slug, String, required: false
+    argument :slug, GraphQL::Types::String, required: false
   end
 
   def public_team(**args)
@@ -98,7 +98,7 @@ class QueryType < BaseObject
         PublicTeamType,
         description: "Find whether a team exists",
         null: true do
-    argument :slug, String, required: true
+    argument :slug, GraphQL::Types::String, required: true
   end
 
   def find_public_team(**args)
@@ -110,7 +110,7 @@ class QueryType < BaseObject
         description:
           'Information about a project media, The argument should be given like this: "project_media_id,project_id,team_id"',
         null: true do
-    argument :ids, String, required: true
+    argument :ids, GraphQL::Types::String, required: true
   end
 
   def project_media(**args)
@@ -127,7 +127,7 @@ class QueryType < BaseObject
         ProjectMediaType.connection_type,
         null: true,
         connection: true do
-    argument :url, String, required: true
+    argument :url, GraphQL::Types::String, required: true
   end
 
   def project_medias(**args)
@@ -144,8 +144,8 @@ class QueryType < BaseObject
         description:
           "Information about a project, given its id and its team id",
         null: true do
-    argument :id, String, required: false
-    argument :ids, String, required: false
+    argument :id, GraphQL::Types::String, required: false
+    argument :ids, GraphQL::Types::String, required: false
   end
 
   def project(**args)
@@ -162,7 +162,7 @@ class QueryType < BaseObject
         description:
           'Search medias, The argument should be given like this: "{\"keyword\":\"search keyword\"}"',
         null: true do
-    argument :query, String, required: true
+    argument :query, GraphQL::Types::String, required: true
   end
 
   def search(**args)
@@ -171,8 +171,8 @@ class QueryType < BaseObject
   end
 
   field :dynamic_annotation_field, DynamicAnnotationFieldType, null: true do
-    argument :query, String, required: true
-    argument :only_cache, Boolean, required: false
+    argument :query, GraphQL::Types::String, required: true
+    argument :only_cache, GraphQL::Types::Boolean, required: false
   end
 
   def dynamic_annotation_field(**args)
@@ -222,7 +222,7 @@ class QueryType < BaseObject
               ctx
             )
           } do
-      argument :id, ID, required: true
+      argument :id, GraphQL::Types::ID, required: true
     end
   end
 end

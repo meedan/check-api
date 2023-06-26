@@ -3,15 +3,15 @@ class PublicTeamType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :name, String, null: false
-  field :slug, String, null: false
-  field :description, String, null: true
-  field :dbid, Integer, null: true
-  field :avatar, String, null: true
-  field :private, Boolean, null: true
-  field :team_graphql_id, String, null: true
+  field :name, GraphQL::Types::String, null: false
+  field :slug, GraphQL::Types::String, null: false
+  field :description, GraphQL::Types::String, null: true
+  field :dbid, GraphQL::Types::Integer, null: true
+  field :avatar, GraphQL::Types::String, null: true
+  field :private, GraphQL::Types::Boolean, null: true
+  field :team_graphql_id, GraphQL::Types::String, null: true
 
-  field :pusher_channel, String, null: true
+  field :pusher_channel, GraphQL::Types::String, null: true
 
   def pusher_channel
     Team.find(object.id).pusher_channel

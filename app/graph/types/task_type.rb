@@ -1,12 +1,12 @@
 class TaskType < AnnotationObject
   define_shared_behavior(self, 'task')
 
-  field :label, String, null: true
-  field :type, String, null: true
-  field :annotated_type, String, null: true
-  field :description, String, null: true
-  field :json_schema, String, null: true
-  field :slug, String, null: true
+  field :label, GraphQL::Types::String, null: true
+  field :type, GraphQL::Types::String, null: true
+  field :annotated_type, GraphQL::Types::String, null: true
+  field :description, GraphQL::Types::String, null: true
+  field :json_schema, GraphQL::Types::String, null: true
+  field :slug, GraphQL::Types::String, null: true
 
   field :first_response, "AnnotationType", null: true
 
@@ -15,14 +15,14 @@ class TaskType < AnnotationObject
     obj.nil? ? nil : obj.first_response_obj
   end
 
-  field :first_response_value, String, null: true
+  field :first_response_value, GraphQL::Types::String, null: true
 
   def first_response_value
     obj = object.load || object
     obj.nil? ? "" : obj.first_response
   end
 
-  field :jsonoptions, String, null: true
+  field :jsonoptions, GraphQL::Types::String, null: true
 
   def jsonoptions
     obj = object.load || object
@@ -43,15 +43,15 @@ class TaskType < AnnotationObject
     obj.annotated if !obj.nil? && obj.annotated_type == "ProjectMedia"
   end
 
-  field :team_task_id, Integer, null: true
+  field :team_task_id, GraphQL::Types::Integer, null: true
 
   field :team_task, TeamTaskType, null: true
 
-  field :order, Integer, null: true
+  field :order, GraphQL::Types::Integer, null: true
 
-  field :fieldset, String, null: true
+  field :fieldset, GraphQL::Types::String, null: true
 
-  field :show_in_browser_extension, Boolean, null: true
+  field :show_in_browser_extension, GraphQL::Types::Boolean, null: true
 
   field :responses, "AnnotationType", connection: true, null: true
 end

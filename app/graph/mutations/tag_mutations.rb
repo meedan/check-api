@@ -12,31 +12,31 @@ module TagMutations
 
     included do
       # TODO: Extract these into annotation mutation module
-      argument :fragment, String, required: false
-      argument :annotated_id, String, required: false, camelize: false
-      argument :annotated_type, String, required: false, camelize: false
+      argument :fragment, GraphQL::Types::String, required: false
+      argument :annotated_id, GraphQL::Types::String, required: false, camelize: false
+      argument :annotated_type, GraphQL::Types::String, required: false, camelize: false
     end
   end
 
   class Create < Mutations::CreateMutation
     include SharedCreateAndUpdateFields
 
-    argument :tag, String, required: true
+    argument :tag, GraphQL::Types::String, required: true
   end
 
   class Update < Mutations::UpdateMutation
     include SharedCreateAndUpdateFields
 
-    argument :tag, String, required: false
+    argument :tag, GraphQL::Types::String, required: false
   end
 
   class Destroy < Mutations::DestroyMutation; end
 
   class CreateTagMutationsBulkInput < BaseInputObject
-    argument :fragment, String, required: false
-    argument :annotated_id, String, required: false, camelize: false
-    argument :annotated_type, String, required: false, camelize: false
-    argument :tag, String, required: true
+    argument :fragment, GraphQL::Types::String, required: false
+    argument :annotated_id, GraphQL::Types::String, required: false, camelize: false
+    argument :annotated_type, GraphQL::Types::String, required: false, camelize: false
+    argument :tag, GraphQL::Types::String, required: true
   end
 
   class BulkCreate < Mutations::BaseMutation

@@ -6,17 +6,17 @@ module TaskAndAnnotationFields
       field :annotations,
             "AnnotationUnion.connection_type",
             null: true do
-        argument :annotation_type, String, required: true
+        argument :annotation_type, GraphQL::Types::String, required: true
       end
 
       # .field_annotations_count
-      field :annotations_count, Integer, null: true do
-        argument :annotation_type, String, required: true
+      field :annotations_count, GraphQL::Types::Integer, null: true do
+        argument :annotation_type, GraphQL::Types::String, required: true
       end
 
       # .field_tasks
       field :tasks, "TaskType.connection_type", null: true do
-        argument :fieldset, String, required: false
+        argument :fieldset, GraphQL::Types::String, required: false
       end
     end
   end

@@ -6,35 +6,35 @@ module UserMutations
     extend ActiveSupport::Concern
 
     included do
-      argument :profile_image, String, required: false, camelize: false
-      argument :current_team_id, Integer, required: false, camelize: false
+      argument :profile_image, GraphQL::Types::String, required: false, camelize: false
+      argument :current_team_id, GraphQL::Types::Integer, required: false, camelize: false
     end
   end
 
   class Create < Mutations::CreateMutation
     include SharedCreateAndUpdateFields
 
-    argument :email, String, required: true
-    argument :login, String, required: true
-    argument :name, String, required: true
-    argument :password, String, required: true
-    argument :password_confirmation, String, required: true
+    argument :email, GraphQL::Types::String, required: true
+    argument :login, GraphQL::Types::String, required: true
+    argument :name, GraphQL::Types::String, required: true
+    argument :password, GraphQL::Types::String, required: true
+    argument :password_confirmation, GraphQL::Types::String, required: true
   end
 
   class Update < Mutations::UpdateMutation
     include SharedCreateAndUpdateFields
 
-    argument :email, String, required: false
-    argument :name, String, required: false
-    argument :current_project_id, Integer, required: false, camelize: false
-    argument :password, String, required: false
-    argument :password_confirmation, String, required: false, camelize: false
+    argument :email, GraphQL::Types::String, required: false
+    argument :name, GraphQL::Types::String, required: false
+    argument :current_project_id, GraphQL::Types::Integer, required: false, camelize: false
+    argument :password, GraphQL::Types::String, required: false
+    argument :password_confirmation, GraphQL::Types::String, required: false, camelize: false
 
-    argument :send_email_notifications, Boolean, required: false, camelize: false
-    argument :send_successful_login_notifications, Boolean, required: false, camelize: false
-    argument :send_failed_login_notifications, Boolean, required: false, camelize: false
-    argument :accept_terms, Boolean, required: false, camelize: false
-    argument :completed_signup, Boolean, required: false, camelize: false
+    argument :send_email_notifications, GraphQL::Types::Boolean, required: false, camelize: false
+    argument :send_successful_login_notifications, GraphQL::Types::Boolean, required: false, camelize: false
+    argument :send_failed_login_notifications, GraphQL::Types::Boolean, required: false, camelize: false
+    argument :accept_terms, GraphQL::Types::Boolean, required: false, camelize: false
+    argument :completed_signup, GraphQL::Types::Boolean, required: false, camelize: false
   end
 
   class Destroy < Mutations::DestroyMutation; end

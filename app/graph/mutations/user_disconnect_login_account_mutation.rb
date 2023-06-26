@@ -1,10 +1,10 @@
 class UserDisconnectLoginAccountMutation < Mutations::BaseMutation
   graphql_name "UserDisconnectLoginAccount"
 
-  argument :provider, String, required: true
-  argument :uid, String, required: true
+  argument :provider, GraphQL::Types::String, required: true
+  argument :uid, GraphQL::Types::String, required: true
 
-  field :success, Boolean, null: true
+  field :success, GraphQL::Types::Boolean, null: true
   field :user, UserType, null: true
 
   def resolve(**inputs)

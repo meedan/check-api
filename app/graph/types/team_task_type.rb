@@ -3,23 +3,23 @@ class TeamTaskType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :dbid, Integer, null: true
-  field :label, String, null: true
-  field :description, String, null: true
+  field :dbid, GraphQL::Types::Integer, null: true
+  field :label, GraphQL::Types::String, null: true
+  field :description, GraphQL::Types::String, null: true
   field :options, JsonString, null: true
-  field :required, Boolean, null: true
-  field :team_id, Integer, null: true
+  field :required, GraphQL::Types::Boolean, null: true
+  field :team_id, GraphQL::Types::Integer, null: true
   field :team, TeamType, null: true
-  field :json_schema, String, null: true
-  field :order, Integer, null: true
-  field :fieldset, String, null: true
-  field :associated_type, String, null: true
-  field :show_in_browser_extension, Boolean, null: true
-  field :conditional_info, String, null: true
-  field :tasks_count, Integer, null: true
-  field :tasks_with_answers_count, Integer, null: true
+  field :json_schema, GraphQL::Types::String, null: true
+  field :order, GraphQL::Types::Integer, null: true
+  field :fieldset, GraphQL::Types::String, null: true
+  field :associated_type, GraphQL::Types::String, null: true
+  field :show_in_browser_extension, GraphQL::Types::Boolean, null: true
+  field :conditional_info, GraphQL::Types::String, null: true
+  field :tasks_count, GraphQL::Types::Integer, null: true
+  field :tasks_with_answers_count, GraphQL::Types::Integer, null: true
 
-  field :type, String, null: true
+  field :type, GraphQL::Types::String, null: true
 
   def type
     object.task_type

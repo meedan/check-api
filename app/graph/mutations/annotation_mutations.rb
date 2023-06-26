@@ -7,16 +7,16 @@ module AnnotationMutations
 
     included do
       argument :locked, GraphQL::Types::Boolean, required: false
-      argument :annotated_id, String, required: false, camelize: false
-      argument :annotated_type, String, required: false, camelize: false
+      argument :annotated_id, GraphQL::Types::String, required: false, camelize: false
+      argument :annotated_type, GraphQL::Types::String, required: false, camelize: false
     end
   end
 
   class Create < Mutations::CreateMutation
     include SharedCreateAndUpdateFields
 
-    argument :content, String, required: true
-    argument :annotation_type, String, required: true, camelize: false
+    argument :content, GraphQL::Types::String, required: true
+    argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
   end
 
   class Destroy < Mutations::DestroyMutation; end

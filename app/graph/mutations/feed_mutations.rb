@@ -6,9 +6,9 @@ module FeedMutations
     extend ActiveSupport::Concern
 
     included do
-      argument :description, String, required: false
+      argument :description, GraphQL::Types::String, required: false
       argument :tags, [String], required: false
-      argument :saved_search_id, Integer, required: false, camelize: false
+      argument :saved_search_id, GraphQL::Types::Integer, required: false, camelize: false
       argument :published, GraphQL::Types::Boolean, required: false, camelize: false
     end
   end
@@ -16,13 +16,13 @@ module FeedMutations
   class Create < Mutations::CreateMutation
     include SharedCreateAndUpdateFields
 
-    argument :name, String, required: true
+    argument :name, GraphQL::Types::String, required: true
     argument :licenses, [Integer], required: true
   end
 
   class Update < Mutations::UpdateMutation
     include SharedCreateAndUpdateFields
 
-    argument :name, String, required: false
+    argument :name, GraphQL::Types::String, required: false
   end
 end

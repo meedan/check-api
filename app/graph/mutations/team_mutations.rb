@@ -13,9 +13,9 @@ module TeamMutations
     extend ActiveSupport::Concern
 
     included do
-      argument :archived, Integer, required: false
+      argument :archived, GraphQL::Types::Integer, required: false
       argument :private, GraphQL::Types::Boolean, required: false
-      argument :description, String, required: false
+      argument :description, GraphQL::Types::String, required: false
 
       # TODO: extract as TeamAttributes module
       field :team_userEdge, TeamUserType.edge_type, camelize: false, null: true
@@ -26,34 +26,34 @@ module TeamMutations
   class Create < Mutations::CreateMutation
     include SharedCreateAndUpdateFields
 
-    argument :name, String, required: true
-    argument :slug, String, required: true
+    argument :name, GraphQL::Types::String, required: true
+    argument :slug, GraphQL::Types::String, required: true
   end
 
   class Update < Mutations::UpdateMutation
     include SharedCreateAndUpdateFields
 
-    argument :name, String, required: false
+    argument :name, GraphQL::Types::String, required: false
     argument :add_auto_task, JsonString, required: false, camelize: false
     argument :media_verification_statuses, JsonString, required: false, camelize: false
     argument :set_team_tasks, JsonString, required: false, camelize: false
-    argument :rules, String, required: false
-    argument :remove_auto_task, String, required: false, camelize: false # label
-    argument :empty_trash, Integer, required: false, camelize: false
+    argument :rules, GraphQL::Types::String, required: false
+    argument :remove_auto_task, GraphQL::Types::String, required: false, camelize: false # label
+    argument :empty_trash, GraphQL::Types::Integer, required: false, camelize: false
     argument :report, JsonString, required: false
 
     # Settings fields
-    argument :slack_notifications_enabled, String, required: false, camelize: false
-    argument :slack_webhook, String, required: false, camelize: false
-    argument :slack_notifications, String, required: false, camelize: false
-    argument :language, String, required: false
+    argument :slack_notifications_enabled, GraphQL::Types::String, required: false, camelize: false
+    argument :slack_webhook, GraphQL::Types::String, required: false, camelize: false
+    argument :slack_notifications, GraphQL::Types::String, required: false, camelize: false
+    argument :language, GraphQL::Types::String, required: false
     argument :languages, JsonString, required: false
-    argument :language_detection, Boolean, required: false, camelize: false
+    argument :language_detection, GraphQL::Types::Boolean, required: false, camelize: false
     argument :list_columns, JsonString, required: false, camelize: false
-    argument :tipline_inbox_filters, String, required: false, camelize: false
-    argument :suggested_matches_filters, String, required: false, camelize: false
-    argument :outgoing_urls_utm_code, String, required: false, camelize: false
-    argument :shorten_outgoing_urls, Boolean, required: false, camelize: false
+    argument :tipline_inbox_filters, GraphQL::Types::String, required: false, camelize: false
+    argument :suggested_matches_filters, GraphQL::Types::String, required: false, camelize: false
+    argument :outgoing_urls_utm_code, GraphQL::Types::String, required: false, camelize: false
+    argument :shorten_outgoing_urls, GraphQL::Types::Boolean, required: false, camelize: false
   end
 
   class Destroy < Mutations::DestroyMutation; end

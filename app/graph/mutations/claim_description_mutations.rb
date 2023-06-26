@@ -6,15 +6,15 @@ module ClaimDescriptionMutations
     extend ActiveSupport::Concern
 
     included do
-      argument :description, String, required: false
-      argument :context, String, required: false
+      argument :description, GraphQL::Types::String, required: false
+      argument :context, GraphQL::Types::String, required: false
     end
   end
 
   class Create < Mutations::CreateMutation
     include SharedCreateAndUpdateFields
 
-    argument :project_media_id, Integer, required: false, camelize: false
+    argument :project_media_id, GraphQL::Types::Integer, required: false, camelize: false
   end
 
   class Update < Mutations::UpdateMutation

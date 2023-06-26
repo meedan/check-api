@@ -18,12 +18,12 @@ module DynamicAnnotation::AnnotationTypeManager
           extend ActiveSupport::Concern
 
           included do
-            argument :action, String, required: false, camelize: false
-            argument :fragment, String, required: false, camelize: false
-            argument :annotated_id, String, required: false, camelize: false
-            argument :annotated_type, String, required: false, camelize: false
-            argument :set_attribution, String, required: false, camelize: false
-            argument :action_data, String, required: false, camelize: false
+            argument :action, GraphQL::Types::String, required: false, camelize: false
+            argument :fragment, GraphQL::Types::String, required: false, camelize: false
+            argument :annotated_id, GraphQL::Types::String, required: false, camelize: false
+            argument :annotated_type, GraphQL::Types::String, required: false, camelize: false
+            argument :set_attribution, GraphQL::Types::String, required: false, camelize: false
+            argument :action_data, GraphQL::Types::String, required: false, camelize: false
 
             field :versionEdge, VersionType.edge_type, null: true
           end
@@ -32,7 +32,7 @@ module DynamicAnnotation::AnnotationTypeManager
         class Create < Mutations::CreateMutation
           include SharedCreateAndUpdateFields
 
-          argument :set_fields, String, required: true, camelize: false
+          argument :set_fields, GraphQL::Types::String, required: true, camelize: false
 
           field :dynamic, DynamicType, null: true
           field :dyndynamicEdge, DynamicType.edge_type, null: true
@@ -41,10 +41,10 @@ module DynamicAnnotation::AnnotationTypeManager
         class Update < Mutations::UpdateMutation
           include SharedCreateAndUpdateFields
 
-          argument :set_fields, String, required: false, camelize: false
-          argument :lock_version, Integer, required: false, camelize: false
-          argument :assigned_to_ids, String, required: false, camelize: false
-          argument :locked, Boolean, required: false, camelize: false
+          argument :set_fields, GraphQL::Types::String, required: false, camelize: false
+          argument :lock_version, GraphQL::Types::Integer, required: false, camelize: false
+          argument :assigned_to_ids, GraphQL::Types::String, required: false, camelize: false
+          argument :locked, GraphQL::Types::Boolean, required: false, camelize: false
         end unless defined? Update
 
         class Destroy < Mutations::DestroyMutation; end  unless defined? Destroy

@@ -3,7 +3,7 @@ class TagTextType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :dbid, Integer, null: true
-  field :text, String, null: true
-  field :tags_count, Integer, null: true
+  field :dbid, GraphQL::Types::Integer, null: true
+  field :text, GraphQL::Types::String, null: true
+  field :tags_count, GraphQL::Types::Integer, null: true
 end

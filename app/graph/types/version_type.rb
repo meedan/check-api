@@ -3,15 +3,15 @@ class VersionType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :dbid, Integer, null: true
-  field :item_type, String, null: true
-  field :item_id, String, null: true
-  field :event, String, null: true
-  field :event_type, String, null: true
-  field :object_after, String, null: true
-  field :meta, String, null: true
-  field :object_changes_json, String, null: true
-  field :associated_graphql_id, String, null: true
+  field :dbid, GraphQL::Types::Integer, null: true
+  field :item_type, GraphQL::Types::String, null: true
+  field :item_id, GraphQL::Types::String, null: true
+  field :event, GraphQL::Types::String, null: true
+  field :event_type, GraphQL::Types::String, null: true
+  field :object_after, GraphQL::Types::String, null: true
+  field :meta, GraphQL::Types::String, null: true
+  field :object_changes_json, GraphQL::Types::String, null: true
+  field :associated_graphql_id, GraphQL::Types::String, null: true
 
   field :user, UserType, null: true
 

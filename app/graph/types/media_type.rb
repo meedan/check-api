@@ -3,17 +3,17 @@ class MediaType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :url, String, null: true
-  field :quote, String, null: true
-  field :account_id, Integer, null: true
-  field :dbid, Integer, null: true
-  field :domain, String, null: true
-  field :pusher_channel, String, null: true
-  field :embed_path, String, null: true
-  field :thumbnail_path, String, null: true
-  field :picture, String, null: true
-  field :type, String, null: true
-  field :file_path, String, null: true
+  field :url, GraphQL::Types::String, null: true
+  field :quote, GraphQL::Types::String, null: true
+  field :account_id, GraphQL::Types::Integer, null: true
+  field :dbid, GraphQL::Types::Integer, null: true
+  field :domain, GraphQL::Types::String, null: true
+  field :pusher_channel, GraphQL::Types::String, null: true
+  field :embed_path, GraphQL::Types::String, null: true
+  field :thumbnail_path, GraphQL::Types::String, null: true
+  field :picture, GraphQL::Types::String, null: true
+  field :type, GraphQL::Types::String, null: true
+  field :file_path, GraphQL::Types::String, null: true
   field :metadata, JsonString, null: true
 
   field :account, AccountType, null: true

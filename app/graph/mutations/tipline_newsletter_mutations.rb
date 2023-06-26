@@ -7,33 +7,33 @@ module TiplineNewsletterMutations
 
     included do
       argument :enabled, GraphQL::Types::Boolean, required: false
-      argument :introduction, String, required: false
-      argument :language, String, required: false
+      argument :introduction, GraphQL::Types::String, required: false
+      argument :language, GraphQL::Types::String, required: false
 
       # Header
-      argument :header_type, String, required: false, camelize: false
-      argument :header_overlay_text, String, required: false, camelize: false
+      argument :header_type, GraphQL::Types::String, required: false, camelize: false
+      argument :header_overlay_text, GraphQL::Types::String, required: false, camelize: false
 
       # Content
-      argument :content_type, String, required: false, camelize: false
+      argument :content_type, GraphQL::Types::String, required: false, camelize: false
 
       # Dynamic newsletter: RSS Feed
-      argument :rss_feed_url, String, required: false, camelize: false
-      argument :number_of_articles, Integer, required: false, camelize: false
+      argument :rss_feed_url, GraphQL::Types::String, required: false, camelize: false
+      argument :number_of_articles, GraphQL::Types::Integer, required: false, camelize: false
 
       # Static newsletter: Articles
-      argument :first_article, String, required: false, camelize: false
-      argument :second_article, String, required: false, camelize: false
-      argument :third_article, String, required: false, camelize: false
+      argument :first_article, GraphQL::Types::String, required: false, camelize: false
+      argument :second_article, GraphQL::Types::String, required: false, camelize: false
+      argument :third_article, GraphQL::Types::String, required: false, camelize: false
 
       # Footer
-      argument :footer, String, required: false
+      argument :footer, GraphQL::Types::String, required: false
 
       # Schedule
       argument :send_every, JsonString, required: false, camelize: false
-      argument :send_on, String, required: false, camelize: false
-      argument :timezone, String, required: false
-      argument :time, String, required: false
+      argument :send_on, GraphQL::Types::String, required: false, camelize: false
+      argument :timezone, GraphQL::Types::String, required: false
+      argument :time, GraphQL::Types::String, required: false
     end
   end
 

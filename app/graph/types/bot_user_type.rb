@@ -3,43 +3,43 @@ class BotUserType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :avatar, String, null: true
-  field :name, String, null: true
-  field :get_description, String, null: true
+  field :avatar, GraphQL::Types::String, null: true
+  field :name, GraphQL::Types::String, null: true
+  field :get_description, GraphQL::Types::String, null: true
 
   def get_description
     object.get_description
   end
 
-  field :get_version, String, null: true
+  field :get_version, GraphQL::Types::String, null: true
 
   def get_version
     object.get_version
   end
 
-  field :get_source_code_url, String, null: true
+  field :get_source_code_url, GraphQL::Types::String, null: true
 
   def get_source_code_url
     object.get_source_code_url
   end
 
-  field :get_role, String, null: true
+  field :get_role, GraphQL::Types::String, null: true
 
   def get_role
     object.get_role
   end
 
-  field :identifier, String, null: true
-  field :login, String, null: true
-  field :dbid, Integer, null: true
-  field :installed, Boolean, null: true
-  field :installations_count, Integer, null: true
-  field :settings_ui_schema, String, null: true
+  field :identifier, GraphQL::Types::String, null: true
+  field :login, GraphQL::Types::String, null: true
+  field :dbid, GraphQL::Types::Integer, null: true
+  field :installed, GraphQL::Types::Boolean, null: true
+  field :installations_count, GraphQL::Types::Integer, null: true
+  field :settings_ui_schema, GraphQL::Types::String, null: true
   field :installation, TeamBotInstallationType, null: true
-  field :default, Boolean, null: true
+  field :default, GraphQL::Types::Boolean, null: true
 
-  field :settings_as_json_schema, String, null: true do
-    argument :team_slug, String, required: false # Some settings options are team-specific
+  field :settings_as_json_schema, GraphQL::Types::String, null: true do
+    argument :team_slug, GraphQL::Types::String, required: false # Some settings options are team-specific
   end
 
   def settings_as_json_schema(**args)

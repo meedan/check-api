@@ -3,23 +3,23 @@ class ProjectType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :avatar, String, null: true
-  field :description, String, null: true
-  field :title, String, null: false
-  field :dbid, Integer, null: true
-  field :permissions, String, null: true
-  field :pusher_channel, String, null: true
-  field :medias_count, Integer, null: true
-  field :search_id, String, null: true
-  field :url, String, null: true
+  field :avatar, GraphQL::Types::String, null: true
+  field :description, GraphQL::Types::String, null: true
+  field :title, GraphQL::Types::String, null: false
+  field :dbid, GraphQL::Types::Integer, null: true
+  field :permissions, GraphQL::Types::String, null: true
+  field :pusher_channel, GraphQL::Types::String, null: true
+  field :medias_count, GraphQL::Types::Integer, null: true
+  field :search_id, GraphQL::Types::String, null: true
+  field :url, GraphQL::Types::String, null: true
   field :search, CheckSearchType, null: true
   field :team, TeamType, null: true
-  field :project_group_id, Integer, null: true
+  field :project_group_id, GraphQL::Types::Integer, null: true
   field :project_group, ProjectGroupType, null: true
-  field :privacy, Integer, null: true
-  field :is_default, Boolean, null: true
+  field :privacy, GraphQL::Types::Integer, null: true
+  field :is_default, GraphQL::Types::Boolean, null: true
 
-  field :assignments_count, Integer, null: true
+  field :assignments_count, GraphQL::Types::Integer, null: true
 
   def assignments_count
     object.reload.assignments_count
