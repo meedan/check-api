@@ -45,14 +45,25 @@ class FeedTest < ActiveSupport::TestCase
   end
 
   test "should validate licenses" do
-    assert_raises ActiveRecord::RecordInvalid do
-      create_feed licenses: []
+    assert_difference 'Feed.count' do
+      create_feed licenses: [1, 2], published: true
     end
     assert_difference 'Feed.count' do
-      create_feed licenses: [1, 2]
+      create_feed licenses: [1, 2], published: false
+    end
+
+    assert_raises ActiveRecord::RecordInvalid do
+      create_feed licenses: [], published: true
     end
     assert_raises ActiveRecord::RecordInvalid do
-      create_feed licenses: [1, 4]
+      create_feed licenses: [1, 4], published: true
+    end
+
+    assert_nothing_raised do
+      create_feed licenses: [], published: false
+    end
+    assert_nothing_raised do
+      create_feed licenses: [1, 4], published: false
     end
   end
 
