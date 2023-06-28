@@ -3,7 +3,6 @@ module ProjectMutations
   PARENTS = [
     'team',
     'project_group',
-    # TODO: consolidate parent class logic if present elsewhere
     { check_search_team: CheckSearchType },
     { previous_default_project: ProjectType },
     { project_group_was: ProjectGroupType },

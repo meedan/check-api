@@ -4,7 +4,6 @@ module ProjectMediaMutations
     'project',
     'team',
     'project_group',
-    # TODO: consolidate parent class logic if present elsewhere
     { project_was: ProjectType },
     { check_search_project: CheckSearchType },
     { check_search_project_was: CheckSearchType },
@@ -92,7 +91,6 @@ module ProjectMediaMutations
       'team',
       'project',
       'project_group',
-      # TODO: consolidate parent class logic if present elsewhere
       { project_was: ProjectType },
       { check_search_project: CheckSearchType },
       { check_search_project_was: CheckSearchType },
