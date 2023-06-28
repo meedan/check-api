@@ -10,12 +10,7 @@ module TagMutations
   module SharedCreateAndUpdateFields
     extend ActiveSupport::Concern
 
-    included do
-      # TODO: Extract these into annotation mutation module
-      argument :fragment, GraphQL::Types::String, required: false
-      argument :annotated_id, GraphQL::Types::String, required: false, camelize: false
-      argument :annotated_type, GraphQL::Types::String, required: false, camelize: false
-    end
+    include Mutations::Inclusions::AnnotationBehaviors
   end
 
   class Create < Mutations::CreateMutation
@@ -33,9 +28,8 @@ module TagMutations
   class Destroy < Mutations::DestroyMutation; end
 
   class CreateTagMutationsBulkInput < BaseInputObject
-    argument :fragment, GraphQL::Types::String, required: false
-    argument :annotated_id, GraphQL::Types::String, required: false, camelize: false
-    argument :annotated_type, GraphQL::Types::String, required: false, camelize: false
+    include SharedCreateAndUpdateFields
+
     argument :tag, GraphQL::Types::String, required: true
   end
 

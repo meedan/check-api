@@ -4,14 +4,10 @@ module DynamicMutations
 
   module SharedCreateAndUpdateFields
     extend ActiveSupport::Concern
+    include Mutations::Inclusions::AnnotationBehaviors
 
     included do
       argument :set_attribution, GraphQL::Types::String, required: false, camelize: false
-
-      # TODO: Extract these into annotation mutation module
-      argument :fragment, GraphQL::Types::String, required: false
-      argument :annotated_id, GraphQL::Types::String, required: false, camelize: false
-      argument :annotated_type, GraphQL::Types::String, required: false, camelize: false
 
       field :versionEdge, VersionType.edge_type, null: true
     end

@@ -16,12 +16,10 @@ module DynamicAnnotation::AnnotationTypeManager
 
         module SharedCreateAndUpdateFields
           extend ActiveSupport::Concern
+          include Mutations::Inclusions::AnnotationBehaviors
 
           included do
             argument :action, GraphQL::Types::String, required: false, camelize: false
-            argument :fragment, GraphQL::Types::String, required: false, camelize: false
-            argument :annotated_id, GraphQL::Types::String, required: false, camelize: false
-            argument :annotated_type, GraphQL::Types::String, required: false, camelize: false
             argument :set_attribution, GraphQL::Types::String, required: false, camelize: false
             argument :action_data, GraphQL::Types::String, required: false, camelize: false
 
