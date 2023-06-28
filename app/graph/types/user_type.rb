@@ -119,8 +119,7 @@ class UserType < DefaultObject
   end
 
   field :assignments,
-        "ProjectMediaType",
-        connection: true,
+        ProjectMediaType.connection_type,
         null: true do
     argument :team_id, GraphQL::Types::Int, required: false, camelize: false
   end

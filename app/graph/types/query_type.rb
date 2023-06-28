@@ -125,8 +125,7 @@ class QueryType < BaseObject
 
   field :project_medias,
         ProjectMediaType.connection_type,
-        null: true,
-        connection: true do
+        null: true do
     argument :url, GraphQL::Types::String, required: true
   end
 

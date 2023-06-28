@@ -1,4 +1,6 @@
 class AnnotationType < AnnotationObject
+  define_shared_behavior(self, 'annotation')
+
   field :annotation, GraphQL::Types::String, null: true
 
   field :project_media, ProjectMediaType, null: true

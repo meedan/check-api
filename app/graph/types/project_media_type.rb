@@ -222,9 +222,8 @@ class ProjectMediaType < DefaultObject
   end
 
   field :log,
-        "VersionType",
+        VersionType.connection_type,
         null: true,
-        connection: true,
         resolve: ->(obj, args, _ctx) {
           obj.get_versions_log(
             args["event_types"],
@@ -246,21 +245,20 @@ class ProjectMediaType < DefaultObject
         null: true,
         resolve: ->(obj, _args, _ctx) { obj.get_versions_log_count }
 
-  field :tags, "TagType", connection: true, null: true
+  field :tags, TagType.connection_type, null: true
 
   def tags
     object.get_annotations("tag").map(&:load)
   end
 
-  field :comments, "CommentType", connection: true, null: true
+  field :comments, CommentType.connection_type, null: true
 
   def comments
     object.get_annotations("comment").map(&:load)
   end
 
   field :requests,
-        "DynamicAnnotationFieldType",
-        connection: true,
+        DynamicAnnotationFieldType.connection_type,
         null: true
 
   def requests
@@ -333,8 +331,7 @@ class ProjectMediaType < DefaultObject
     .map(&:annotation_type)
     .each do |type|
       field "dynamic_annotations_#{type}".to_sym,
-            "DynamicType",
-            connection: true,
+            DynamicType.connection_type,
             null: true,
             resolve: ->(project_media, _args, _ctx) {
               project_media.get_annotations(type)
@@ -348,8 +345,7 @@ class ProjectMediaType < DefaultObject
     end
 
   field :suggested_similar_relationships,
-        "RelationshipType",
-        connection: true,
+        RelationshipType.connection_type,
         null: true
 
   def suggested_similar_relationships
@@ -373,8 +369,7 @@ class ProjectMediaType < DefaultObject
   end
 
   field :confirmed_similar_relationships,
-        "RelationshipType",
-        connection: true,
+        RelationshipType.connection_type,
         null: true
 
   def confirmed_similar_relationships
@@ -400,8 +395,7 @@ class ProjectMediaType < DefaultObject
   end
 
   field :default_relationships,
-        "RelationshipType",
-        connection: true,
+        RelationshipType.connection_type,
         null: true
 
   def default_relationships
@@ -427,7 +421,6 @@ class ProjectMediaType < DefaultObject
   end
 
   field :similar_items,
-        "ProjectMediaType",
-        connection: true,
+        ProjectMediaType.connection_type,
         null: true
 end
