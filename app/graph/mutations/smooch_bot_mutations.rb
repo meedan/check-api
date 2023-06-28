@@ -3,7 +3,7 @@ module SmoochBotMutations
     graphql_name "SmoochBotAddSlackChannelUrl"
 
     argument :id, GraphQL::Types::String, required: true
-    argument :set_fields, GraphQL::Types::String, required: true
+    argument :set_fields, GraphQL::Types::String, required: true, camelize: false
 
     field :success, GraphQL::Types::Boolean, null: true
     field :annotation, AnnotationType, null: true
@@ -33,11 +33,11 @@ module SmoochBotMutations
   class AddIntegration < Mutations::BaseMutation
     graphql_name "SmoochBotAddIntegration"
 
-    argument :team_bot_installation_id, GraphQL::Types::String, required: true
-    argument :integration_type, GraphQL::Types::String, required: true
+    argument :team_bot_installation_id, GraphQL::Types::String, required: true, camelize: false
+    argument :integration_type, GraphQL::Types::String, required: true, camelize: false
     argument :params, GraphQL::Types::String, "JSON string with additional parameters specific for this integration", required: true
 
-    field :team_bot_installation, TeamBotInstallationType, null: true
+    field :team_bot_installation, TeamBotInstallationType, null: true, camelize: false
 
     def resolve(**inputs)
       _type_name, id =
@@ -59,10 +59,10 @@ module SmoochBotMutations
   class RemoveIntegration < Mutations::BaseMutation
     graphql_name "SmoochBotRemoveIntegration"
 
-    argument :team_bot_installation_id, GraphQL::Types::String, required: true
-    argument :integration_type, GraphQL::Types::String, required: true
+    argument :team_bot_installation_id, GraphQL::Types::String, required: true, camelize: false
+    argument :integration_type, GraphQL::Types::String, required: true, camelize: false
 
-    field :team_bot_installation, TeamBotInstallationType, null: true
+    field :team_bot_installation, TeamBotInstallationType, null: true, camelize: false
 
     def resolve(**inputs)
       _type_name, id =
