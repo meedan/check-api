@@ -33,11 +33,5 @@ class ProjectType < DefaultObject
     object.project_medias.order("id DESC")
   end
 
-  field :assigned_users,
-        UserType.connection_type,
-        null: true
-
-  def assigned_users
-    object.assigned_users
-  end
+  field :assigned_users, UserType.connection_type, null: true
 end

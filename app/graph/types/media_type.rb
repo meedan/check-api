@@ -17,8 +17,4 @@ class MediaType < DefaultObject
   field :metadata, JsonString, null: true
 
   field :account, AccountType, null: true
-
-  def account
-    object.account
-  end
 end

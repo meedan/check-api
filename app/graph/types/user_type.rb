@@ -47,10 +47,6 @@ class UserType < DefaultObject
 
   field :source_id, GraphQL::Types::Int, null: true
 
-  def source_id
-    object.source.id
-  end
-
   field :token, GraphQL::Types::String, null: true
 
   def token
@@ -65,10 +61,6 @@ class UserType < DefaultObject
 
   field :current_project, ProjectType, null: true
 
-  def current_project
-    object.current_project
-  end
-
   field :confirmed, GraphQL::Types::Boolean, null: true
 
   def confirmed
@@ -82,10 +74,6 @@ class UserType < DefaultObject
   end
 
   field :current_team, TeamType, null: true
-
-  def current_team
-    object.current_team
-  end
 
   field :bot, BotUserType, null: true
 
@@ -105,10 +93,6 @@ class UserType < DefaultObject
   end
 
   field :teams, TeamType.connection_type, null: true
-
-  def teams
-    object.teams
-  end
 
   field :team_users,
         TeamUserType.connection_type,

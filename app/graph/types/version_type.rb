@@ -14,23 +14,8 @@ class VersionType < DefaultObject
   field :associated_graphql_id, GraphQL::Types::String, null: true
 
   field :user, UserType, null: true
-
-  def user
-    object.user
-  end
-
   field :annotation, "AnnotationType", null: true
-
-  def annotation
-    object.annotation
-  end
-
   field :task, "TaskType", null: true
-
-  def task
-    object.task
-  end
-
   field :tag, "TagType", null: true
 
   def tag

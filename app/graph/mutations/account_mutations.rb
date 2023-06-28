@@ -3,6 +3,6 @@ module AccountMutations
   PARENTS = [].freeze
 
   class Update < Mutations::UpdateMutation
-    argument :refresh_account, Int, required: false, camelize: false
+    argument :refresh_account, GraphQL::Types::Int, required: false, camelize: false
   end
 end

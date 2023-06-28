@@ -62,7 +62,6 @@ class SourceType < DefaultObject
     end
   # end
 
-
   description "Source type"
 
   implements NodeIdentification.interface
@@ -81,10 +80,6 @@ class SourceType < DefaultObject
   field :archived, GraphQL::Types::Int, null: true
 
   field :accounts, AccountType.connection_type, null: true
-
-  def accounts
-    object.accounts
-  end
 
   field :account_sources,
         AccountSourceType.connection_type,
@@ -108,8 +103,4 @@ class SourceType < DefaultObject
         resolve: ->(source, _args, _ctx) { source.medias_count }
 
   field :collaborators, UserType.connection_type, null: true
-
-  def collaborators
-    object.collaborators
-  end
 end

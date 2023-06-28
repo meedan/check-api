@@ -1,6 +1,4 @@
 class DuplicateTeamMutation < Mutations::BaseMutation
-  graphql_name "DuplicateTeamMutation"
-
   argument :team_id, GraphQL::Types::ID, required: true, camelize: false
   argument :custom_slug, GraphQL::Types::String, required: false, camelize: false
   argument :custom_name, GraphQL::Types::String, required: false, camelize: false

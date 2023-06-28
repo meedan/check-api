@@ -124,7 +124,6 @@ class GraphqlCrudOperations
     obj
   end
 
-  # Can delete _type
   def self.destroy(inputs, ctx, parents = [])
     obj = self.object_from_id(inputs[:id])
     self.destroy_from_single_id(obj, inputs, ctx, parents)

@@ -7,14 +7,5 @@ class AccountSourceType < DefaultObject
   field :source_id, GraphQL::Types::Int, null: true
 
   field :source, SourceType, null: true
-
-  def source
-    object.source
-  end
-
   field :account, AccountType, null: true
-
-  def account
-    object.account
-  end
 end

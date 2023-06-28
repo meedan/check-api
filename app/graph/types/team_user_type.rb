@@ -9,19 +9,8 @@ class TeamUserType < DefaultObject
   field :status, GraphQL::Types::String, null: true
   field :role, GraphQL::Types::String, null: true
   field :permissions, GraphQL::Types::String, null: true
-
   field :team, TeamType, null: true
-
-  def team
-    object.team
-  end
-
   field :user, UserType, null: true
-
-  def user
-    object.user
-  end
-
   field :invited_by, UserType, null: true
 
   def invited_by

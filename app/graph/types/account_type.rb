@@ -12,20 +12,6 @@ class AccountType < DefaultObject
   field :permissions, GraphQL::Types::String, null: true
   field :image, GraphQL::Types::String, null: true
   field :user, UserType, null: true
-
-  def user
-    object.user
-  end
-
   field :medias, MediaType.connection_type, null: true
-
-  def medias
-    object.medias
-  end
-
   field :metadata, JsonString, null: true
-
-  def metadata
-    object.metadata
-  end
 end

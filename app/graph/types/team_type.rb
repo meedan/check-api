@@ -222,10 +222,6 @@ class TeamType < DefaultObject
 
   field :users, UserType.connection_type, null: true
 
-  def users
-    object.users
-  end
-
   field :projects, ProjectType.connection_type, null: true
 
   def projects
@@ -254,25 +250,13 @@ class TeamType < DefaultObject
         BotUserType.connection_type,
         null: true
 
-  def team_bots
-    object.team_bots
-  end
-
   field :team_bot_installations,
         TeamBotInstallationType.connection_type,
         null: true
 
-  def team_bot_installations
-    object.team_bot_installations
-  end
-
   field :tag_texts,
         TagTextType.connection_type,
         null: true
-
-  def tag_texts
-    object.tag_texts
-  end
 
   field :team_tasks,
         TeamTaskType.connection_type,
@@ -297,10 +281,6 @@ class TeamType < DefaultObject
   end
 
   field :default_folder, ProjectType, null: true
-
-  def default_folder
-    object.default_folder
-  end
 
   field :feed, FeedType, null: true do
     argument :dbid, GraphQL::Types::Int, required: true

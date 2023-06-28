@@ -7,7 +7,7 @@ module Mutations
         subclass.graphql_name "#{action.to_s.capitalize}#{mutation_target.camelize.pluralize}"
 
         subclass.argument :ids, [GraphQL::Types::ID], required: true
-        subclass.field :ids, GraphQL::Types::ID, null: false
+        subclass.field :ids, [GraphQL::Types::ID], null: true
 
         set_parent_returns(subclass, parents)
 

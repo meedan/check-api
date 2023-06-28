@@ -269,10 +269,6 @@ class ProjectMediaType < DefaultObject
 
   field :last_status, GraphQL::Types::String, null: true
 
-  def last_status
-    object.last_status
-  end
-
   field :last_status_obj, "DynamicType", null: true
 
   def last_status_obj
@@ -434,8 +430,4 @@ class ProjectMediaType < DefaultObject
         "ProjectMediaType",
         connection: true,
         null: true
-
-  def similar_items
-    object.similar_items
-  end
 end

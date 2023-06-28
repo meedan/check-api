@@ -18,13 +18,13 @@ module CommentMutations
   class Create < Mutations::CreateMutation
     include SharedCreateAndUpdateFields
 
-    argument :text, GraphQL::Types::String, required: false
+    argument :text, GraphQL::Types::String, required: true
   end
 
   class Update < Mutations::UpdateMutation
     include SharedCreateAndUpdateFields
 
-    argument :text, GraphQL::Types::String, required: true
+    argument :text, GraphQL::Types::String, required: false
   end
 
   class Destroy < Mutations::DestroyMutation; end
