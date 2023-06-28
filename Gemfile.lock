@@ -335,8 +335,8 @@ GEM
       os (>= 0.9, < 2.0)
       signet (~> 0.15)
     graphql (1.10.14)
-    graphql-batch (0.5.2)
-      graphql (>= 1.10, < 3)
+    graphql-batch (0.3.5)
+      graphql (>= 0.8, < 2)
       promise.rb (~> 0.7.2)
     graphql-formatter (0.1.1)
       colorize
@@ -910,7 +910,7 @@ DEPENDENCIES
   google_drive
   graphiql-rails!
   graphql (< 1.11.0)
-  graphql-batch
+  graphql-batch (= 0.3.5)
   graphql-formatter
   htmlentities
   http_accept_language!

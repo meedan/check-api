@@ -6,20 +6,20 @@ class ProjectType < DefaultObject
   field :avatar, GraphQL::Types::String, null: true
   field :description, GraphQL::Types::String, null: true
   field :title, GraphQL::Types::String, null: false
-  field :dbid, GraphQL::Types::Integer, null: true
+  field :dbid, GraphQL::Types::Int, null: true
   field :permissions, GraphQL::Types::String, null: true
   field :pusher_channel, GraphQL::Types::String, null: true
-  field :medias_count, GraphQL::Types::Integer, null: true
+  field :medias_count, GraphQL::Types::Int, null: true
   field :search_id, GraphQL::Types::String, null: true
   field :url, GraphQL::Types::String, null: true
   field :search, CheckSearchType, null: true
   field :team, TeamType, null: true
-  field :project_group_id, GraphQL::Types::Integer, null: true
+  field :project_group_id, GraphQL::Types::Int, null: true
   field :project_group, ProjectGroupType, null: true
-  field :privacy, GraphQL::Types::Integer, null: true
+  field :privacy, GraphQL::Types::Int, null: true
   field :is_default, GraphQL::Types::Boolean, null: true
 
-  field :assignments_count, GraphQL::Types::Integer, null: true
+  field :assignments_count, GraphQL::Types::Int, null: true
 
   def assignments_count
     object.reload.assignments_count

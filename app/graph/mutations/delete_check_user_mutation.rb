@@ -1,7 +1,7 @@
 class DeleteCheckUserMutation < Mutations::BaseMutation
   graphql_name 'DeleteCheckUser'
 
-  argument :id, GraphQL::Types::Integer, required: true
+  argument :id, GraphQL::Types::Int, required: true
 
   field :success, GraphQL::Types::Boolean, null: true
 

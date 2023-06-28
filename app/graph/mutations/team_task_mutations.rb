@@ -8,7 +8,7 @@ module TeamTaskMutations
     included do
       argument :label, GraphQL::Types::String, required: true
       argument :description, GraphQL::Types::String, required: false
-      argument :order, GraphQL::Types::Integer, required: false
+      argument :order, GraphQL::Types::Int, required: false
       argument :fieldset, GraphQL::Types::String, required: false
       argument :required, GraphQL::Types::Boolean, required: false
       argument :task_type, GraphQL::Types::String, required: false, camelize: false
@@ -25,7 +25,7 @@ module TeamTaskMutations
   class Create < Mutations::CreateMutation
     include SharedCreateAndUpdateFields
 
-    argument :team_id, GraphQL::Types::Integer, required: true, camelize: false
+    argument :team_id, GraphQL::Types::Int, required: true, camelize: false
   end
 
   class Update < Mutations::UpdateMutation

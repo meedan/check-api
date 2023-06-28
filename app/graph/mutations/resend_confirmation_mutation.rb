@@ -1,7 +1,7 @@
 class ResendConfirmationMutation < Mutations::BaseMutation
   graphql_name 'ResendConfirmation'
 
-  argument :id, GraphQL::Types::Integer, required: true
+  argument :id, GraphQL::Types::Int, required: true
 
   field :success, GraphQL::Types::Boolean, null: true
 

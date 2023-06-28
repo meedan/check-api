@@ -6,7 +6,7 @@ class PublicTeamType < DefaultObject
   field :name, GraphQL::Types::String, null: false
   field :slug, GraphQL::Types::String, null: false
   field :description, GraphQL::Types::String, null: true
-  field :dbid, GraphQL::Types::Integer, null: true
+  field :dbid, GraphQL::Types::Int, null: true
   field :avatar, GraphQL::Types::String, null: true
   field :private, GraphQL::Types::Boolean, null: true
   field :team_graphql_id, GraphQL::Types::String, null: true

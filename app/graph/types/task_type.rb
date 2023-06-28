@@ -43,11 +43,11 @@ class TaskType < AnnotationObject
     obj.annotated if !obj.nil? && obj.annotated_type == "ProjectMedia"
   end
 
-  field :team_task_id, GraphQL::Types::Integer, null: true
+  field :team_task_id, GraphQL::Types::Int, null: true
 
   field :team_task, TeamTaskType, null: true
 
-  field :order, GraphQL::Types::Integer, null: true
+  field :order, GraphQL::Types::Int, null: true
 
   field :fieldset, GraphQL::Types::String, null: true
 

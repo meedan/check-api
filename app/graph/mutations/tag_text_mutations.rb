@@ -3,7 +3,7 @@ module TagTextMutations
   PARENTS = ['team'].freeze
 
   class Create < Mutations::CreateMutation
-    argument :team_id, GraphQL::Types::Integer, required: true, camelize: false
+    argument :team_id, GraphQL::Types::Int, required: true, camelize: false
     argument :text, GraphQL::Types::String, required: true
   end
 

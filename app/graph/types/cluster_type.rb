@@ -3,19 +3,19 @@ class ClusterType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :dbid, GraphQL::Types::Integer, null: true
-  field :size, GraphQL::Types::Integer, null: true
+  field :dbid, GraphQL::Types::Int, null: true
+  field :size, GraphQL::Types::Int, null: true
   field :team_names, [String, null: true], null: true
   field :fact_checked_by_team_names, JsonString, null: true
-  field :requests_count, GraphQL::Types::Integer, null: true
+  field :requests_count, GraphQL::Types::Int, null: true
 
-  field :first_item_at, GraphQL::Types::Integer, null: true
+  field :first_item_at, GraphQL::Types::Int, null: true
 
   def first_item_at
     object.first_item_at.to_i
   end
 
-  field :last_item_at, GraphQL::Types::Integer, null: true
+  field :last_item_at, GraphQL::Types::Int, null: true
 
   def last_item_at
     object.last_item_at.to_i
@@ -24,7 +24,7 @@ class ClusterType < DefaultObject
   field :items,
         ProjectMediaType.connection_type,
         null: true do
-    argument :feed_id, GraphQL::Types::Integer, required: true
+    argument :feed_id, GraphQL::Types::Int, required: true
   end
 
   def items(**args)
@@ -36,7 +36,7 @@ class ClusterType < DefaultObject
   field :claim_descriptions,
         ClaimDescriptionType.connection_type,
         null: true do
-    argument :feed_id, GraphQL::Types::Integer, required: true
+    argument :feed_id, GraphQL::Types::Int, required: true
   end
 
   def claim_descriptions(**args)

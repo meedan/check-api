@@ -10,7 +10,7 @@ module TaskAndAnnotationFields
       end
 
       # .field_annotations_count
-      field :annotations_count, GraphQL::Types::Integer, null: true do
+      field :annotations_count, GraphQL::Types::Int, null: true do
         argument :annotation_type, GraphQL::Types::String, required: true
       end
 

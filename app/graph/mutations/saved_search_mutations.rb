@@ -14,7 +14,7 @@ module SavedSearchMutations
     include SharedCreateAndUpdateFields
 
     argument :title, GraphQL::Types::String, required: true
-    argument :team_id, GraphQL::Types::Integer, required: true, camelize: false
+    argument :team_id, GraphQL::Types::Int, required: true, camelize: false
   end
 
   class Update < Mutations::UpdateMutation

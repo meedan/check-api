@@ -3,7 +3,7 @@ class TiplineNewsletterType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :dbid, GraphQL::Types::Integer, null: true
+  field :dbid, GraphQL::Types::Int, null: true
   field :introduction, GraphQL::Types::String, null: true
   field :header_type, GraphQL::Types::String, null: true
   field :header_file_url, GraphQL::Types::String, null: true
@@ -13,7 +13,7 @@ class TiplineNewsletterType < DefaultObject
   field :first_article, GraphQL::Types::String, null: true
   field :second_article, GraphQL::Types::String, null: true
   field :third_article, GraphQL::Types::String, null: true
-  field :number_of_articles, GraphQL::Types::Integer, null: true
+  field :number_of_articles, GraphQL::Types::Int, null: true
   field :send_every, JsonString, null: true
   field :send_on, GraphQL::Types::String, null: true
 
@@ -26,13 +26,13 @@ class TiplineNewsletterType < DefaultObject
   def time
     object.time.strftime("%H:%M")
   end
-  field :subscribers_count, GraphQL::Types::Integer, null: true
+  field :subscribers_count, GraphQL::Types::Int, null: true
   field :footer, GraphQL::Types::String, null: true
   field :language, GraphQL::Types::String, null: true
   field :enabled, GraphQL::Types::Boolean, null: true
   field :team, TeamType, null: true
-  field :last_scheduled_at, GraphQL::Types::Integer, null: true
+  field :last_scheduled_at, GraphQL::Types::Int, null: true
   field :last_scheduled_by, UserType, null: true
-  field :last_sent_at, GraphQL::Types::Integer, null: true
+  field :last_sent_at, GraphQL::Types::Int, null: true
   field :last_delivery_error, GraphQL::Types::String, null: true
 end

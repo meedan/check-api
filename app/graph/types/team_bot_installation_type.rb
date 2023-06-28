@@ -5,7 +5,7 @@ class TeamBotInstallationType < DefaultObject
 
   field :json_settings, GraphQL::Types::String, null: true
 
-  field :lock_version, GraphQL::Types::Integer, null: true
+  field :lock_version, GraphQL::Types::Int, null: true
 
   def lock_version
     object.reload.lock_version
@@ -37,7 +37,7 @@ class TeamBotInstallationType < DefaultObject
 
   field :smooch_bot_preview_rss_feed, GraphQL::Types::String, null: true do
     argument :rss_feed_url, GraphQL::Types::String, required: true
-    argument :number_of_articles, GraphQL::Types::Integer, required: true
+    argument :number_of_articles, GraphQL::Types::Int, required: true
   end
 
   def smooch_bot_preview_rss_feed(**args)

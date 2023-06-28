@@ -42,7 +42,7 @@ module DynamicAnnotation::AnnotationTypeManager
           include SharedCreateAndUpdateFields
 
           argument :set_fields, GraphQL::Types::String, required: false, camelize: false
-          argument :lock_version, GraphQL::Types::Integer, required: false, camelize: false
+          argument :lock_version, GraphQL::Types::Int, required: false, camelize: false
           argument :assigned_to_ids, GraphQL::Types::String, required: false, camelize: false
           argument :locked, GraphQL::Types::Boolean, required: false, camelize: false
         end unless defined? Update

@@ -3,8 +3,8 @@ class AccountSourceType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :account_id, GraphQL::Types::Integer, null: true
-  field :source_id, GraphQL::Types::Integer, null: true
+  field :account_id, GraphQL::Types::Int, null: true
+  field :source_id, GraphQL::Types::Int, null: true
 
   field :source, SourceType, null: true
 

@@ -3,7 +3,7 @@ class UserType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :dbid, GraphQL::Types::Integer, null: true
+  field :dbid, GraphQL::Types::Int, null: true
   field :email, GraphQL::Types::String, null: true
   field :unconfirmed_email, GraphQL::Types::String, null: true
   field :providers, JsonString, null: true
@@ -11,10 +11,10 @@ class UserType < DefaultObject
   field :profile_image, GraphQL::Types::String, null: true
   field :login, GraphQL::Types::String, null: true
   field :name, GraphQL::Types::String, null: true
-  field :current_team_id, GraphQL::Types::Integer, null: true
+  field :current_team_id, GraphQL::Types::Int, null: true
   field :permissions, GraphQL::Types::String, null: true
   field :jsonsettings, GraphQL::Types::String, null: true
-  field :number_of_teams, GraphQL::Types::Integer, null: true
+  field :number_of_teams, GraphQL::Types::Int, null: true
   field :get_send_email_notifications, GraphQL::Types::Boolean, null: true
 
   def get_send_email_notifications
@@ -42,10 +42,10 @@ class UserType < DefaultObject
   field :last_accepted_terms_at, GraphQL::Types::String, null: true
   field :team_ids, [Integer, null: true], null: true
   field :user_teams, GraphQL::Types::String, null: true
-  field :last_active_at, GraphQL::Types::Integer, null: true
+  field :last_active_at, GraphQL::Types::Int, null: true
   field :completed_signup, GraphQL::Types::Boolean, null: true
 
-  field :source_id, GraphQL::Types::Integer, null: true
+  field :source_id, GraphQL::Types::Int, null: true
 
   def source_id
     object.source.id
@@ -138,7 +138,7 @@ class UserType < DefaultObject
         "ProjectMediaType",
         connection: true,
         null: true do
-    argument :team_id, GraphQL::Types::Integer, required: false
+    argument :team_id, GraphQL::Types::Int, required: false
   end
 
   def assignments(**args)

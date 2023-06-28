@@ -5,7 +5,7 @@ class ChangePasswordMutation < Mutations::BaseMutation
   argument :password_confirmation, GraphQL::Types::String, required: true
   argument :reset_password_token, GraphQL::Types::String, required: false
   argument :current_password, GraphQL::Types::String, required: false
-  argument :id, GraphQL::Types::Integer, required: false
+  argument :id, GraphQL::Types::Int, required: false
 
   field :success, GraphQL::Types::Boolean, null: true
 

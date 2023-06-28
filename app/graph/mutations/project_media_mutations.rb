@@ -19,8 +19,8 @@ module ProjectMediaMutations
     extend ActiveSupport::Concern
 
     included do
-      argument :media_id, GraphQL::Types::Integer, required: false, camelize: false
-      argument :related_to_id, GraphQL::Types::Integer, required: false, camelize: false
+      argument :media_id, GraphQL::Types::Int, required: false, camelize: false
+      argument :related_to_id, GraphQL::Types::Int, required: false, camelize: false
 
       field :affectedId, GraphQL::Types::ID, null: true
     end
@@ -32,9 +32,9 @@ module ProjectMediaMutations
     argument :url, GraphQL::Types::String, required: false
     argument :quote, GraphQL::Types::String, required: false
     argument :quote_attributions, GraphQL::Types::String, required: false, camelize: false
-    argument :project_id, GraphQL::Types::Integer, required: false, camelize: false
-    argument :media_id, GraphQL::Types::Integer, required: false, camelize: false
-    argument :team_id, GraphQL::Types::Integer, required: false, camelize: false
+    argument :project_id, GraphQL::Types::Int, required: false, camelize: false
+    argument :media_id, GraphQL::Types::Int, required: false, camelize: false
+    argument :team_id, GraphQL::Types::Int, required: false, camelize: false
     argument :channel, JsonString, required: false
     argument :media_type, GraphQL::Types::String, required: false, camelize: false
 
@@ -51,11 +51,11 @@ module ProjectMediaMutations
   class Update < Mutations::UpdateMutation
     include SharedCreateAndUpdateFields
 
-    argument :refresh_media, GraphQL::Types::Integer, required: false, camelize: false
-    argument :archived, GraphQL::Types::Integer, required: false
-    argument :previous_project_id, GraphQL::Types::Integer, required: false, camelize: false
-    argument :project_id, GraphQL::Types::Integer, required: false, camelize: false
-    argument :source_id, GraphQL::Types::Integer, required: false, camelize: false
+    argument :refresh_media, GraphQL::Types::Int, required: false, camelize: false
+    argument :archived, GraphQL::Types::Int, required: false
+    argument :previous_project_id, GraphQL::Types::Int, required: false, camelize: false
+    argument :project_id, GraphQL::Types::Int, required: false, camelize: false
+    argument :source_id, GraphQL::Types::Int, required: false, camelize: false
     argument :read, GraphQL::Types::Boolean, required: false
   end
 

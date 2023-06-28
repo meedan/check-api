@@ -8,7 +8,7 @@ module TaskMutations
     included do
       argument :description, GraphQL::Types::String, required: false
       argument :json_schema, GraphQL::Types::String, required: false, camelize: false
-      argument :order, GraphQL::Types::Integer, required: false
+      argument :order, GraphQL::Types::Int, required: false
       argument :fieldset, GraphQL::Types::String, required: false
 
       field :versionEdge, VersionType.edge_type, null: true

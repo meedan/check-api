@@ -10,7 +10,7 @@ class AnnotationType < AnnotationObject
               User.where(id: ids)
             }
 
-  field :lock_version, GraphQL::Types::Integer, null: true
+  field :lock_version, GraphQL::Types::Int, null: true
 
   field :locked, GraphQL::Types::Boolean, null: true
 end

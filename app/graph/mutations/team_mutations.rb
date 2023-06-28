@@ -13,7 +13,7 @@ module TeamMutations
     extend ActiveSupport::Concern
 
     included do
-      argument :archived, GraphQL::Types::Integer, required: false
+      argument :archived, GraphQL::Types::Int, required: false
       argument :private, GraphQL::Types::Boolean, required: false
       argument :description, GraphQL::Types::String, required: false
 
@@ -39,7 +39,7 @@ module TeamMutations
     argument :set_team_tasks, JsonString, required: false, camelize: false
     argument :rules, GraphQL::Types::String, required: false
     argument :remove_auto_task, GraphQL::Types::String, required: false, camelize: false # label
-    argument :empty_trash, GraphQL::Types::Integer, required: false, camelize: false
+    argument :empty_trash, GraphQL::Types::Int, required: false, camelize: false
     argument :report, JsonString, required: false
 
     # Settings fields

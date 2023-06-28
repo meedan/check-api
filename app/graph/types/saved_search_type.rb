@@ -3,9 +3,9 @@ class SavedSearchType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :dbid, GraphQL::Types::Integer, null: true
+  field :dbid, GraphQL::Types::Int, null: true
   field :title, GraphQL::Types::String, null: true
-  field :team_id, GraphQL::Types::Integer, null: true
+  field :team_id, GraphQL::Types::Int, null: true
   field :team, TeamType, null: true
 
   field :filters, GraphQL::Types::String, null: true

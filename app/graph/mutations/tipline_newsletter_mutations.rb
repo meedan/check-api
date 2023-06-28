@@ -19,7 +19,7 @@ module TiplineNewsletterMutations
 
       # Dynamic newsletter: RSS Feed
       argument :rss_feed_url, GraphQL::Types::String, required: false, camelize: false
-      argument :number_of_articles, GraphQL::Types::Integer, required: false, camelize: false
+      argument :number_of_articles, GraphQL::Types::Int, required: false, camelize: false
 
       # Static newsletter: Articles
       argument :first_article, GraphQL::Types::String, required: false, camelize: false

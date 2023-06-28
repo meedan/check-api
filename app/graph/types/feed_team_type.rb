@@ -3,13 +3,13 @@ class FeedTeamType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :dbid, GraphQL::Types::Integer, null: true
+  field :dbid, GraphQL::Types::Int, null: true
   field :filters, JsonString, null: true
-  field :saved_search_id, GraphQL::Types::Integer, null: true
+  field :saved_search_id, GraphQL::Types::Int, null: true
   field :team, TeamType, null: true
   field :feed, FeedType, null: true
-  field :team_id, GraphQL::Types::Integer, null: true
-  field :feed_id, GraphQL::Types::Integer, null: true
+  field :team_id, GraphQL::Types::Int, null: true
+  field :feed_id, GraphQL::Types::Int, null: true
   field :shared, GraphQL::Types::Boolean, null: true
   field :requests_filters,
         JsonString,

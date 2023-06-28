@@ -14,7 +14,7 @@ class SourceType < DefaultObject
         end
 
         # .field_annotations_count
-        field :annotations_count, GraphQL::Types::Integer, null: true do
+        field :annotations_count, GraphQL::Types::Int, null: true do
           argument :annotation_type, GraphQL::Types::String, required: true
         end
 
@@ -70,15 +70,15 @@ class SourceType < DefaultObject
   field :image, GraphQL::Types::String, null: true
   field :description, GraphQL::Types::String, null: false
   field :name, GraphQL::Types::String, null: false
-  field :dbid, GraphQL::Types::Integer, null: true
-  field :user_id, GraphQL::Types::Integer, null: true
+  field :dbid, GraphQL::Types::Int, null: true
+  field :user_id, GraphQL::Types::Int, null: true
   field :permissions, GraphQL::Types::String, null: true
   field :pusher_channel, GraphQL::Types::String, null: true
-  field :lock_version, GraphQL::Types::Integer, null: true
-  field :medias_count, GraphQL::Types::Integer, null: true
-  field :accounts_count, GraphQL::Types::Integer, null: true
+  field :lock_version, GraphQL::Types::Int, null: true
+  field :medias_count, GraphQL::Types::Int, null: true
+  field :accounts_count, GraphQL::Types::Int, null: true
   field :overridden, JsonString, null: true
-  field :archived, GraphQL::Types::Integer, null: true
+  field :archived, GraphQL::Types::Int, null: true
 
   field :accounts, AccountType.connection_type, null: true
 

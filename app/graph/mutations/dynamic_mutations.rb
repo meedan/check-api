@@ -30,7 +30,7 @@ module DynamicMutations
     argument :locked, GraphQL::Types::Boolean, required: false
     argument :set_fields, GraphQL::Types::String, required: false, camelize: false
     argument :annotation_type, GraphQL::Types::String, required: false, camelize: false
-    argument :lock_version, GraphQL::Types::Integer, required: false, camelize: false
+    argument :lock_version, GraphQL::Types::Int, required: false, camelize: false
     argument :assigned_to_ids, GraphQL::Types::String, required: false, camelize: false
     argument :assignment_message, GraphQL::Types::String, required: false, camelize: false
   end

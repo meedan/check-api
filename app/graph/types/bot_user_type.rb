@@ -31,9 +31,9 @@ class BotUserType < DefaultObject
 
   field :identifier, GraphQL::Types::String, null: true
   field :login, GraphQL::Types::String, null: true
-  field :dbid, GraphQL::Types::Integer, null: true
+  field :dbid, GraphQL::Types::Int, null: true
   field :installed, GraphQL::Types::Boolean, null: true
-  field :installations_count, GraphQL::Types::Integer, null: true
+  field :installations_count, GraphQL::Types::Int, null: true
   field :settings_ui_schema, GraphQL::Types::String, null: true
   field :installation, TeamBotInstallationType, null: true
   field :default, GraphQL::Types::Boolean, null: true

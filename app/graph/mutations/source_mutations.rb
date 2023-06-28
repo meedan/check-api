@@ -7,8 +7,8 @@ module SourceMutations
 
     included do
       argument :avatar, GraphQL::Types::String, required: false
-      argument :user_id, GraphQL::Types::Integer, required: false, camelize: false
-      argument :add_to_project_media_id, GraphQL::Types::Integer, required: false, camelize: false
+      argument :user_id, GraphQL::Types::Int, required: false, camelize: false
+      argument :add_to_project_media_id, GraphQL::Types::Int, required: false, camelize: false
     end
   end
 
@@ -26,8 +26,8 @@ module SourceMutations
 
     argument :slogan, GraphQL::Types::String, required: false
     argument :name, GraphQL::Types::String, required: false
-    argument :refresh_accounts, GraphQL::Types::Integer, required: false, camelize: false
-    argument :lock_version, GraphQL::Types::Integer, required: false, camelize: false
+    argument :refresh_accounts, GraphQL::Types::Int, required: false, camelize: false
+    argument :lock_version, GraphQL::Types::Int, required: false, camelize: false
   end
 
   class Destroy < Mutations::DestroyMutation; end

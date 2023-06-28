@@ -3,15 +3,15 @@ class TeamType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :archived, GraphQL::Types::Integer, null: true
+  field :archived, GraphQL::Types::Int, null: true
   field :private, GraphQL::Types::Boolean, null: true
   field :avatar, GraphQL::Types::String, null: true
   field :name, GraphQL::Types::String, null: false
   field :slug, GraphQL::Types::String, null: false
   field :description, GraphQL::Types::String, null: true
-  field :dbid, GraphQL::Types::Integer, null: true
-  field :members_count, GraphQL::Types::Integer, null: true
-  field :projects_count, GraphQL::Types::Integer, null: true
+  field :dbid, GraphQL::Types::Int, null: true
+  field :members_count, GraphQL::Types::Int, null: true
+  field :projects_count, GraphQL::Types::Int, null: true
   field :permissions, GraphQL::Types::String, null: true
   field :get_slack_notifications_enabled, GraphQL::Types::String, null: true
   field :get_slack_webhook, GraphQL::Types::String, null: true
@@ -33,10 +33,10 @@ class TeamType < DefaultObject
   field :rules_json_schema, GraphQL::Types::String, null: true
   field :slack_notifications_json_schema, GraphQL::Types::String, null: true
   field :rules_search_fields_json_schema, JsonString, null: true
-  field :medias_count, GraphQL::Types::Integer, null: true
-  field :spam_count, GraphQL::Types::Integer, null: true
-  field :trash_count, GraphQL::Types::Integer, null: true
-  field :unconfirmed_count, GraphQL::Types::Integer, null: true
+  field :medias_count, GraphQL::Types::Int, null: true
+  field :spam_count, GraphQL::Types::Int, null: true
+  field :trash_count, GraphQL::Types::Int, null: true
+  field :unconfirmed_count, GraphQL::Types::Int, null: true
   field :get_languages, GraphQL::Types::String, null: true
   field :get_language, GraphQL::Types::String, null: true
   field :get_language_detection, GraphQL::Types::Boolean, null: true
@@ -105,10 +105,10 @@ class TeamType < DefaultObject
   field :rules_json_schema, GraphQL::Types::String, null: true
   field :slack_notifications_json_schema, GraphQL::Types::String, null: true
   field :rules_search_fields_json_schema, JsonString, null: true
-  field :medias_count, GraphQL::Types::Integer, null: true
-  field :spam_count, GraphQL::Types::Integer, null: true
-  field :trash_count, GraphQL::Types::Integer, null: true
-  field :unconfirmed_count, GraphQL::Types::Integer, null: true
+  field :medias_count, GraphQL::Types::Int, null: true
+  field :spam_count, GraphQL::Types::Int, null: true
+  field :trash_count, GraphQL::Types::Int, null: true
+  field :unconfirmed_count, GraphQL::Types::Int, null: true
   field :get_languages, GraphQL::Types::String, null: true
 
   def get_languages
@@ -232,7 +232,7 @@ class TeamType < DefaultObject
     object.recent_projects.allowed(object)
   end
 
-  field :sources_count, GraphQL::Types::Integer, null: true do
+  field :sources_count, GraphQL::Types::Int, null: true do
     argument :keyword, GraphQL::Types::String, required: false
   end
 
@@ -289,7 +289,7 @@ class TeamType < DefaultObject
   end
 
   field :team_task, TeamTaskType, null: true do
-    argument :dbid, GraphQL::Types::Integer, required: true
+    argument :dbid, GraphQL::Types::Int, required: true
   end
 
   def team_task(**args)
@@ -303,7 +303,7 @@ class TeamType < DefaultObject
   end
 
   field :feed, FeedType, null: true do
-    argument :dbid, GraphQL::Types::Integer, required: true
+    argument :dbid, GraphQL::Types::Int, required: true
   end
 
   def feed(**args)

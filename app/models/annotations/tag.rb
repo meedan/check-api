@@ -2,7 +2,7 @@ class Tag < ApplicationRecord
   include AnnotationBase
 
   # "tag" is a reference to a TagText object
-  field :tag, GraphQL::Types::Integer, presence: true
+  field :tag, GraphQL::Types::Int, presence: true
 
   before_validation :get_tag_text_reference
 

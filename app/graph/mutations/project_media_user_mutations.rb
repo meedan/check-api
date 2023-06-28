@@ -6,8 +6,8 @@ module ProjectMediaUserMutations
     extend ActiveSupport::Concern
 
     included do
-      argument :project_media_id, GraphQL::Types::Integer, required: true, camelize: false
-      argument :user_id, GraphQL::Types::Integer, required: false, camelize: false # Fallback to current user if not set
+      argument :project_media_id, GraphQL::Types::Int, required: true, camelize: false
+      argument :user_id, GraphQL::Types::Int, required: false, camelize: false # Fallback to current user if not set
       argument :read, GraphQL::Types::Boolean, required: false
     end
   end

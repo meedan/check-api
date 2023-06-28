@@ -3,7 +3,7 @@ class FactCheckType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :dbid, GraphQL::Types::Integer, null: true
+  field :dbid, GraphQL::Types::Int, null: true
   field :title, GraphQL::Types::String, null: true
   field :summary, GraphQL::Types::String, null: true
   field :url, GraphQL::Types::String, null: true

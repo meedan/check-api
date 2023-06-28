@@ -13,7 +13,7 @@ class ProjectMediaType < DefaultObject
         end
 
         # .field_annotations_count
-        field :annotations_count, GraphQL::Types::Integer, null: true do
+        field :annotations_count, GraphQL::Types::Int, null: true do
           argument :annotation_type, GraphQL::Types::String, required: true
         end
 
@@ -65,39 +65,39 @@ class ProjectMediaType < DefaultObject
 
   implements NodeIdentification.interface
 
-  field :media_id, GraphQL::Types::Integer, null: true
-  field :user_id, GraphQL::Types::Integer, null: true
+  field :media_id, GraphQL::Types::Int, null: true
+  field :user_id, GraphQL::Types::Int, null: true
   field :url, GraphQL::Types::String, null: true
   field :full_url, GraphQL::Types::String, null: true
   field :quote, GraphQL::Types::String, null: true
   field :oembed_metadata, GraphQL::Types::String, null: true
-  field :dbid, GraphQL::Types::Integer, null: true
-  field :archived, GraphQL::Types::Integer, null: true
+  field :dbid, GraphQL::Types::Int, null: true
+  field :archived, GraphQL::Types::Int, null: true
   field :author_role, GraphQL::Types::String, null: true
   field :report_type, GraphQL::Types::String, null: true
   field :title, GraphQL::Types::String, null: true
   field :description, GraphQL::Types::String, null: true
   field :picture, GraphQL::Types::String, null: true
-  field :virality, GraphQL::Types::Integer, null: true
-  field :requests_count, GraphQL::Types::Integer, null: true
-  field :demand, GraphQL::Types::Integer, null: true
-  field :linked_items_count, GraphQL::Types::Integer, null: true
+  field :virality, GraphQL::Types::Int, null: true
+  field :requests_count, GraphQL::Types::Int, null: true
+  field :demand, GraphQL::Types::Int, null: true
+  field :linked_items_count, GraphQL::Types::Int, null: true
   field :last_seen, GraphQL::Types::String, null: true
   field :status, GraphQL::Types::String, null: true
-  field :share_count, GraphQL::Types::Integer, null: true
+  field :share_count, GraphQL::Types::Int, null: true
   field :list_columns_values, JsonString, null: true
   field :feed_columns_values, JsonString, null: true
   field :report_status, GraphQL::Types::String, null: true
   field :confirmed_as_similar_by_name, GraphQL::Types::String, null: true
   field :added_as_similar_by_name, GraphQL::Types::String, null: true
-  field :project_id, GraphQL::Types::Integer, null: true
-  field :source_id, GraphQL::Types::Integer, null: true
+  field :project_id, GraphQL::Types::Int, null: true
+  field :source_id, GraphQL::Types::Int, null: true
   field :project_group, ProjectGroupType, null: true
   field :show_warning_cover, GraphQL::Types::Boolean, null: true
   field :creator_name, GraphQL::Types::String, null: true
   field :team_name, GraphQL::Types::String, null: true
   field :channel, JsonString, null: true
-  field :cluster_id, GraphQL::Types::Integer, null: true
+  field :cluster_id, GraphQL::Types::Int, null: true
   field :cluster, ClusterType, null: true
   field :is_suggested, GraphQL::Types::Boolean, null: true
   field :is_confirmed, GraphQL::Types::Boolean, null: true
@@ -319,7 +319,7 @@ class ProjectMediaType < DefaultObject
   end
 
   field :assignments, "AnnotationType", connection: true, null: true do
-    argument :user_id, GraphQL::Types::Integer, required: true
+    argument :user_id, GraphQL::Types::Int, required: true
     argument :annotation_type, GraphQL::Types::String, required: true
   end
 
@@ -360,7 +360,7 @@ class ProjectMediaType < DefaultObject
     ProjectMedia.get_similar_relationships(object, Relationship.suggested_type)
   end
 
-  field :suggested_similar_items_count, GraphQL::Types::Integer, null: true
+  field :suggested_similar_items_count, GraphQL::Types::Int, null: true
 
   def suggested_similar_items_count
     ProjectMedia.get_similar_items(object, Relationship.suggested_type).count
@@ -385,7 +385,7 @@ class ProjectMediaType < DefaultObject
     ProjectMedia.get_similar_relationships(object, Relationship.confirmed_type)
   end
 
-  field :confirmed_similar_items_count, GraphQL::Types::Integer, null: true
+  field :confirmed_similar_items_count, GraphQL::Types::Int, null: true
 
   def confirmed_similar_items_count
     ProjectMedia.get_similar_items(object, Relationship.confirmed_type).count
@@ -412,7 +412,7 @@ class ProjectMediaType < DefaultObject
     object.get_default_relationships.order("id DESC")
   end
 
-  field :default_relationships_count, GraphQL::Types::Integer, null: true
+  field :default_relationships_count, GraphQL::Types::Int, null: true
 
   def default_relationships_count
     object.get_default_relationships.count

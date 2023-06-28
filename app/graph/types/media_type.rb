@@ -5,8 +5,8 @@ class MediaType < DefaultObject
 
   field :url, GraphQL::Types::String, null: true
   field :quote, GraphQL::Types::String, null: true
-  field :account_id, GraphQL::Types::Integer, null: true
-  field :dbid, GraphQL::Types::Integer, null: true
+  field :account_id, GraphQL::Types::Int, null: true
+  field :dbid, GraphQL::Types::Int, null: true
   field :domain, GraphQL::Types::String, null: true
   field :pusher_channel, GraphQL::Types::String, null: true
   field :embed_path, GraphQL::Types::String, null: true

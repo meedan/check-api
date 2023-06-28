@@ -1,7 +1,7 @@
 class GenerateTwoFactorBackupCodesMutation < Mutations::BaseMutation
   graphql_name "GenerateTwoFactorBackupCodes"
 
-  argument :id, GraphQL::Types::Integer, required: true
+  argument :id, GraphQL::Types::Int, required: true
 
   field :success, GraphQL::Types::Boolean, null: true
   field :codes, JsonString, null: true
