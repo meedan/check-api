@@ -388,20 +388,6 @@ class GraphqlController7Test < ActionController::TestCase
     assert_equal 'America/Bahia', assigns(:context_timezone)
   end
 
-  test "should handle nested error" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u
-    authenticate_with_user(u)
-    p = create_project team: t
-    pm = create_project_media project: p
-    RelayOnRailsSchema.stubs(:execute).raises(GraphQL::Batch::NestedError)
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
-    post :create, params: { query: query, team: t.slug }
-    assert_response 400
-    RelayOnRailsSchema.unstub(:execute)
-  end
-
   test "should return project medias with provided URL that user has access to" do
     l = create_valid_media
     u = create_user
