@@ -35,7 +35,7 @@ class RequestType < DefaultObject
   field :similar_requests,
         RequestType.connection_type,
         null: true do
-    argument :media_id, GraphQL::Types::Int, required: false
+    argument :media_id, GraphQL::Types::Int, required: false, camelize: false
   end
 
   def similar_requests(**args)

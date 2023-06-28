@@ -39,7 +39,7 @@ class BotUserType < DefaultObject
   field :default, GraphQL::Types::Boolean, null: true
 
   field :settings_as_json_schema, GraphQL::Types::String, null: true do
-    argument :team_slug, GraphQL::Types::String, required: false # Some settings options are team-specific
+    argument :team_slug, GraphQL::Types::String, required: false, camelize: false # Some settings options are team-specific
   end
 
   def settings_as_json_schema(**args)

@@ -24,7 +24,7 @@ class ClusterType < DefaultObject
   field :items,
         ProjectMediaType.connection_type,
         null: true do
-    argument :feed_id, GraphQL::Types::Int, required: true
+    argument :feed_id, GraphQL::Types::Int, required: true, camelize: false
   end
 
   def items(**args)
@@ -36,7 +36,7 @@ class ClusterType < DefaultObject
   field :claim_descriptions,
         ClaimDescriptionType.connection_type,
         null: true do
-    argument :feed_id, GraphQL::Types::Int, required: true
+    argument :feed_id, GraphQL::Types::Int, required: true, camelize: false
   end
 
   def claim_descriptions(**args)

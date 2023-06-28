@@ -57,7 +57,7 @@ class AnnotationObject < BaseObject
   field :annotations,
         AnnotationUnion.connection_type,
         null: true do
-    argument :annotation_type, GraphQL::Types::String, required: true
+    argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
   end
 
   def annotations(**args)

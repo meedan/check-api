@@ -174,15 +174,15 @@ class TeamType < DefaultObject
   end
 
   field :verification_statuses, JsonString, null: true do
-    argument :items_count_for_status, GraphQL::Types::String, required: false
-    argument :published_reports_count_for_status, GraphQL::Types::String, required: false
+    argument :items_count_for_status, GraphQL::Types::String, required: false, camelize: false
+    argument :published_reports_count_for_status, GraphQL::Types::String, required: false, camelize: false
   end
 
   def verification_statuses(**args)
     object = object.reload if args[:items_count_for_status] ||
       args[:published_reports_count_for_status]
     object.send(
-      "verification_statuses",
+      :verification_statuses,
       "media",
       nil,
       args[:items_count_for_status],
@@ -191,7 +191,7 @@ class TeamType < DefaultObject
   end
 
   field :team_bot_installation, TeamBotInstallationType, null: true do
-    argument :bot_identifier, GraphQL::Types::String, required: true
+    argument :bot_identifier, GraphQL::Types::String, required: true, camelize: false
   end
 
   def team_bot_installation(**args)

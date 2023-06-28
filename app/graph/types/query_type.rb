@@ -172,7 +172,7 @@ class QueryType < BaseObject
 
   field :dynamic_annotation_field, DynamicAnnotationFieldType, null: true do
     argument :query, GraphQL::Types::String, required: true
-    argument :only_cache, GraphQL::Types::Boolean, required: false
+    argument :only_cache, GraphQL::Types::Boolean, required: false, camelize: false
   end
 
   def dynamic_annotation_field(**args)

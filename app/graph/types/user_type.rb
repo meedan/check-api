@@ -82,7 +82,7 @@ class UserType < DefaultObject
   end
 
   field :team_user, TeamUserType, null: true do
-    argument :team_slug, GraphQL::Types::String, required: true
+    argument :team_slug, GraphQL::Types::String, required: true, camelize: false
   end
 
   def team_user(**args)
@@ -122,7 +122,7 @@ class UserType < DefaultObject
         "ProjectMediaType",
         connection: true,
         null: true do
-    argument :team_id, GraphQL::Types::Int, required: false
+    argument :team_id, GraphQL::Types::Int, required: false, camelize: false
   end
 
   def assignments(**args)

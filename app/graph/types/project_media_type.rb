@@ -9,12 +9,12 @@ class ProjectMediaType < DefaultObject
         field :annotations,
               AnnotationUnion.connection_type,
               null: true do
-          argument :annotation_type, GraphQL::Types::String, required: true
+          argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
         end
 
         # .field_annotations_count
         field :annotations_count, GraphQL::Types::Int, null: true do
-          argument :annotation_type, GraphQL::Types::String, required: true
+          argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
         end
 
         # .field_tasks
@@ -115,7 +115,7 @@ class ProjectMediaType < DefaultObject
   end
 
   field :is_read, GraphQL::Types::Boolean, null: true do
-    argument :by_me, GraphQL::Types::Boolean, required: false
+    argument :by_me, GraphQL::Types::Boolean, required: false, camelize: false
   end
 
   def is_read(**args)
@@ -234,11 +234,11 @@ class ProjectMediaType < DefaultObject
             args["include_related"]
           )
         } do
-    argument :event_types, GraphQL::Types::String, required: false
-    argument :field_names, GraphQL::Types::String, required: false
-    argument :annotation_types, GraphQL::Types::String, required: false
-    argument :who_dunnit, GraphQL::Types::String, required: false
-    argument :include_related, GraphQL::Types::Boolean, required: false
+    argument :event_types, GraphQL::Types::String, required: false, camelize: false
+    argument :field_names, GraphQL::Types::String, required: false, camelize: false
+    argument :annotation_types, GraphQL::Types::String, required: false, camelize: false
+    argument :who_dunnit, GraphQL::Types::String, required: false, camelize: false
+    argument :include_related, GraphQL::Types::Boolean, required: false, camelize: false
   end
 
   field :log_count,
@@ -294,7 +294,7 @@ class ProjectMediaType < DefaultObject
   end
 
   field :annotation, "AnnotationType", null: true do
-    argument :annotation_type, GraphQL::Types::String, required: true
+    argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
   end
 
   def annotation(**args)
@@ -302,7 +302,7 @@ class ProjectMediaType < DefaultObject
   end
 
   field :field_value, GraphQL::Types::String, null: true do
-    argument :annotation_type_field_name, GraphQL::Types::String, required: true
+    argument :annotation_type_field_name, GraphQL::Types::String, required: true, camelize: false
   end
 
   def field_value(**args)
@@ -315,8 +315,8 @@ class ProjectMediaType < DefaultObject
   end
 
   field :assignments, "AnnotationType", connection: true, null: true do
-    argument :user_id, GraphQL::Types::Int, required: true
-    argument :annotation_type, GraphQL::Types::String, required: true
+    argument :user_id, GraphQL::Types::Int, required: true, camelize: false
+    argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
   end
 
   def assignments(**args)

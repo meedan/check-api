@@ -21,17 +21,17 @@ class FeedType < DefaultObject
   field :saved_search, SavedSearchType, null: true
 
   field :requests, RequestType.connection_type, null: true do
-    argument :request_id, GraphQL::Types::Int, required: false
+    argument :request_id, GraphQL::Types::Int, required: false, camelize: false
     argument :offset, GraphQL::Types::Int, required: false
     argument :sort, GraphQL::Types::String, required: false
-    argument :sort_type, GraphQL::Types::String, required: false
+    argument :sort_type, GraphQL::Types::String, required: false, camelize: false
     # Filters
-    argument :medias_count_min, GraphQL::Types::Int, required: false
-    argument :medias_count_max, GraphQL::Types::Int, required: false
-    argument :requests_count_min, GraphQL::Types::Int, required: false
-    argument :requests_count_max, GraphQL::Types::Int, required: false
-    argument :request_created_at, GraphQL::Types::String, required: false # JSON
-    argument :fact_checked_by, GraphQL::Types::String, required: false
+    argument :medias_count_min, GraphQL::Types::Int, required: false, camelize: false
+    argument :medias_count_max, GraphQL::Types::Int, required: false, camelize: false
+    argument :requests_count_min, GraphQL::Types::Int, required: false, camelize: false
+    argument :requests_count_max, GraphQL::Types::Int, required: false, camelize: false
+    argument :request_created_at, GraphQL::Types::String, required: false, camelize: false # JSON
+    argument :fact_checked_by, GraphQL::Types::String, required: false, camelize: false
     argument :keyword, GraphQL::Types::String, required: false
   end
 

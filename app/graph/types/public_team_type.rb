@@ -36,19 +36,19 @@ class PublicTeamType < DefaultObject
           archived_count(team) ? 0 : team.spam_count
         }
 
-  private
-
-  def archived_count(team)
-    team.private &&
-      (
-        !User.current ||
-          (
-            !User.current.is_admin &&
-              TeamUser
-                .where(team_id: team.id, user_id: User.current.id)
-                .last
-                .nil?
-          )
-      )
+  class << self
+    def archived_count(team)
+      team.private &&
+        (
+          !User.current ||
+            (
+              !User.current.is_admin &&
+                TeamUser
+                  .where(team_id: team.id, user_id: User.current.id)
+                  .last
+                  .nil?
+            )
+        )
+    end
   end
 end

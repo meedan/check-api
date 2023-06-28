@@ -10,12 +10,12 @@ class SourceType < DefaultObject
         field :annotations,
               AnnotationUnion.connection_type,
               null: true do
-          argument :annotation_type, GraphQL::Types::String, required: true
+          argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
         end
 
         # .field_annotations_count
         field :annotations_count, GraphQL::Types::Int, null: true do
-          argument :annotation_type, GraphQL::Types::String, required: true
+          argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
         end
 
         # .field_tasks

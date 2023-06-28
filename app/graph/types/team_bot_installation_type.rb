@@ -36,8 +36,8 @@ class TeamBotInstallationType < DefaultObject
   end
 
   field :smooch_bot_preview_rss_feed, GraphQL::Types::String, null: true do
-    argument :rss_feed_url, GraphQL::Types::String, required: true
-    argument :number_of_articles, GraphQL::Types::Int, required: true
+    argument :rss_feed_url, GraphQL::Types::String, required: true, camelize: false
+    argument :number_of_articles, GraphQL::Types::Int, required: true, camelize: false
   end
 
   def smooch_bot_preview_rss_feed(**args)
