@@ -7,7 +7,7 @@ class RelayOnRailsSchema < GraphQL::Schema
   use GraphQL::Batch
 
   # Opt in to the new runtime (default in future graphql-ruby versions)
-  # use GraphQL::Execution::Interpreter
+  use GraphQL::Execution::Interpreter
   use GraphQL::Analysis::AST
 
   lazy_resolve(Concurrent::Future, :value)
