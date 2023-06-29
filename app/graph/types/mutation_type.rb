@@ -47,7 +47,7 @@ class MutationType < BaseObject
   field :createTag, mutation: TagMutations::Create
   field :updateTag, mutation: TagMutations::Update
   field :destroyTag, mutation: TagMutations::Destroy
-  field :createTags, mutation: TagMutations::BulkCreate
+  field :createTags, mutation: TagMutations::Bulk::Create
 
   field :createAnnotation, mutation: AnnotationMutations::Create
   field :destroyAnnotation, mutation: AnnotationMutations::Destroy

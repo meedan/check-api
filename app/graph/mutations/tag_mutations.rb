@@ -33,29 +33,28 @@ module TagMutations
     argument :tag, GraphQL::Types::String, required: true
   end
 
-  class BulkCreate < Mutations::BaseMutation
-    include SharedCreateAndUpdateFields
-
-    graphql_name "CreateTagMutations"
-
-    argument :inputs, [CreateTagMutationsBulkInput], required: false
-
-    parents = [
+  module Bulk
+    PARENTS = [
       'team',
       { check_search_team: CheckSearchType }
     ].freeze
-    set_parent_returns(self, GraphqlCrudOperations.hashify_parent_types(parents))
 
-    def resolve(**input)
-      if input[:inputs].size > 10_000
-        raise I18n.t(:bulk_operation_limit_error, limit: 10_000)
-      end
+    class Create < Mutations::BulkCreateMutation
+      include SharedCreateAndUpdateFields
 
-      ability = context[:ability] || Ability.new
-      if ability.can?(:bulk_create, Tag.new(team: Team.current))
-        Tag.bulk_create(input[:inputs], Team.current)
-      else
-        raise CheckPermissions::AccessDenied, I18n.t(:permission_error)
+      argument :inputs, [CreateTagMutationsBulkInput], required: false
+
+      def resolve(**input)
+        if input[:inputs].size > 10_000
+          raise I18n.t(:bulk_operation_limit_error, limit: 10_000)
+        end
+
+        ability = context[:ability] || Ability.new
+        if ability.can?(:bulk_create, Tag.new(team: Team.current))
+          Tag.bulk_create(input[:inputs], Team.current)
+        else
+          raise CheckPermissions::AccessDenied, I18n.t(:permission_error)
+        end
       end
     end
   end
