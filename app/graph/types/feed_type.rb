@@ -18,6 +18,7 @@ FeedType = GraphqlCrudOperations.define_default_type do
   field :tags, types[types.String]
   field :licenses, types[types.Int]
   field :saved_search_id, types.Int
+  field :discoverable, types.Boolean
 
   field :team do
     type -> { TeamType }

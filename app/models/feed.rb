@@ -12,14 +12,14 @@ class Feed < ApplicationRecord
 
   before_validation :set_user_and_team, on: :create
   validates_presence_of :name
-  validates_presence_of :licenses, if: proc { |feed| feed.published }
+  validates_presence_of :licenses, if: proc { |feed| feed.discoverable }
   validate :saved_search_belongs_to_feed_teams
 
   after_create :create_feed_team
 
   PROHIBITED_FILTERS = ['team_id', 'feed_id', 'clusterize']
   LICENSES = { 1 => 'academic', 2 => 'commercial', 3 => 'open_source' }
-  validates_inclusion_of :licenses, in: LICENSES.keys, if: proc { |feed| feed.published }
+  validates_inclusion_of :licenses, in: LICENSES.keys, if: proc { |feed| feed.discoverable }
 
   # Filters for the whole feed: applies to all data from all teams
   def get_feed_filters

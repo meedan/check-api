@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_06_14_111206) do
+ActiveRecord::Schema.define(version: 2023_06_28_214314) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -327,6 +327,7 @@ ActiveRecord::Schema.define(version: 2023_06_14_111206) do
     t.text "description"
     t.string "tags", default: [], array: true
     t.integer "licenses", default: [], array: true
+    t.boolean "discoverable", default: false
     t.index ["saved_search_id"], name: "index_feeds_on_saved_search_id"
     t.index ["team_id"], name: "index_feeds_on_team_id"
     t.index ["user_id"], name: "index_feeds_on_user_id"
