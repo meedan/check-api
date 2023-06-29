@@ -14,7 +14,7 @@ module AccountSourceMutations
     include SharedCreateAndUpdateFields
 
     argument :source_id, GraphQL::Types::Int, required: true, camelize: false
-    argument :url, GraphQL::Types::String, required: true
+    argument :url, GraphQL::Types::String, required: false
   end
 
   class Update < Mutations::UpdateMutation
