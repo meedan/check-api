@@ -4,6 +4,7 @@ module FeedMutations
     tags: 'array_str',
     saved_search_id: 'int',
     published: 'bool',
+    discoverable: 'bool',
   }
 
   create_fields = fields.merge({
