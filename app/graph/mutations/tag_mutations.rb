@@ -44,7 +44,7 @@ module TagMutations
       'team',
       { check_search_team: CheckSearchType }
     ].freeze
-    set_parent_returns(self, parents)
+    set_parent_returns(self, GraphqlCrudOperations.hashify_parent_types(parents))
 
     def resolve(**input)
       if input[:inputs].size > 10_000

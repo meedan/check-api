@@ -21,10 +21,10 @@ module Mutations
         #      end
         #   end
         # end
-        parents = subclass.module_parent::PARENTS
+        parents_mapping = GraphqlCrudOperations.hashify_parent_types(subclass.module_parent::PARENTS)
         mutation_target = subclass.module_parent.module_parent::MUTATION_TARGET
 
-        define_shared_bulk_behavior(:update, subclass, mutation_target, parents)
+        define_shared_bulk_behavior(:update, subclass, mutation_target, parents_mapping)
 
         subclass.field :updated_objects, ["#{mutation_target.camelize}Type".constantize], null: true, camelize: false
       end

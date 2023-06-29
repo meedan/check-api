@@ -1,7 +1,5 @@
 class GraphqlCrudOperations
-  # Uses obj
-  # Doesn't use inputs or parents, just passes through
-  def self.safe_save(obj, attrs, parents = [])
+  def self.safe_save(obj, attrs, parent_names = [])
     if User.current.nil? && ApiKey.current.nil?
       raise "This operation must be done by a signed-in user"
     end
@@ -14,15 +12,31 @@ class GraphqlCrudOperations
 
     name = obj.class_name.underscore
     { name.to_sym => obj }.merge(
-      GraphqlCrudOperations.define_returns(obj, parents)
+      GraphqlCrudOperations.define_returns(obj, parent_names)
     )
   end
 
-  def self.define_returns(obj, parents)
+  # Parents is an array that can contain strings or a hash,
+  # e.g. ['project_media', { project_media_was: ProjectMediaType }]
+  #
+  # This function standardizes name => types to an explicit type mapping and
+  # returns the resulting hash, e.g. { project_media: ProjectMediaType, project_media_was: ProjectMediaType }
+  def self.hashify_parent_types(parents)
+    {}.with_indifferent_access.tap do |parent_type_mapping|
+      parents.each do |parent|
+        if parent.is_a?(Hash)
+          parent_type_mapping.merge!(parent)
+        else
+          parent_type_mapping[parent.to_sym] = "#{parent.camelize}Type".constantize
+        end
+      end
+    end
+  end
+
+  def self.define_returns(obj, parent_names)
     ret = {}
     name = obj.class_name.underscore
-    parents.each do |parent_name|
-      parent_name = parent_name.keys.first if parent_name.is_a?(Hash)
+    parent_names.each do |parent_name|
       child, parent = obj, obj.send(parent_name)
       parent = obj.version_object if parent_name == "version"
       unless parent.nil?
@@ -62,7 +76,7 @@ class GraphqlCrudOperations
     ret
   end
 
-  def self.create(type, inputs, ctx, parents = [])
+  def self.create(type, inputs, ctx, parents_mapping = {})
     klass = type.camelize
 
     obj = klass.constantize.new
@@ -79,11 +93,10 @@ class GraphqlCrudOperations
     attrs["annotation_type"] = type.gsub(/^dynamic_annotation_/, "") if type =~
       /^dynamic_annotation_/
 
-    self.safe_save(obj, attrs, parents)
+    self.safe_save(obj, attrs, parents_mapping.keys)
   end
 
-  def self.update_from_single_id(id, inputs, ctx, parents)
-    obj = self.object_from_id_and_context(id, ctx)
+  def self.update_from_single_id(graphql_id, obj, inputs, ctx, parent_names)
     obj.file = ctx[:file] if !ctx[:file].blank?
 
     attrs = inputs.keys.inject({}) do |memo, key|
@@ -91,7 +104,7 @@ class GraphqlCrudOperations
       memo
     end
 
-    self.safe_save(obj, attrs, parents)
+    self.safe_save(obj, attrs, parent_names)
   end
 
   def self.object_from_id_and_context(id, ctx)
@@ -100,11 +113,11 @@ class GraphqlCrudOperations
     obj
   end
 
-  def self.update(inputs, ctx, parents = [])
+  def self.update(inputs, ctx, parents_mapping = {})
     obj = self.object_from_id_and_context(inputs[:id], ctx)
     return unless inputs[:id] || obj
 
-    self.update_from_single_id(inputs[:id] || obj.graphql_id, inputs, ctx, parents)
+    self.update_from_single_id(inputs[:id] || obj.graphql_id, obj, inputs, ctx, parents_mapping.keys)
   end
 
   def self.object_from_id(graphql_id)
@@ -124,12 +137,14 @@ class GraphqlCrudOperations
     obj
   end
 
-  def self.destroy(inputs, ctx, parents = [])
+  def self.destroy(inputs, ctx, parents_mapping = {})
     obj = self.object_from_id(inputs[:id])
-    self.destroy_from_single_id(obj, inputs, ctx, parents)
+    return unless inputs[:id] || obj
+
+    self.destroy_from_single_id(inputs[:id] || obj.graphql_id, obj, inputs, ctx, parents_mapping.keys)
   end
 
-  def self.destroy_from_single_id(obj, inputs, ctx, parents)
+  def self.destroy_from_single_id(graphql_id, obj, inputs, ctx, parent_names)
     raise "This operation must be done by a signed-in user" if User.current.nil?
     obj.keep_completed_tasks = inputs[:keep_completed_tasks] if obj.is_a?(TeamTask)
     if obj.is_a?(Relationship)
@@ -143,7 +158,7 @@ class GraphqlCrudOperations
     deleted_id = obj.respond_to?(:graphql_deleted_id) ? obj.graphql_deleted_id : graphql_id
     ret = { deletedId: deleted_id }
 
-    parents.each { |parent| ret[parent.to_sym] = obj.send(parent) } unless obj.nil?
+    parent_names.each { |parent_name| ret[parent_name.to_sym] = obj.send(parent_name) } unless obj.nil?
 
     ret
   end
