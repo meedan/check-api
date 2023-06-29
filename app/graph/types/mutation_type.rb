@@ -6,7 +6,7 @@ class MutationType < BaseObject
 
   field :createComment, mutation: CommentMutations::Create
   field :updateComment, mutation: CommentMutations::Update
-  field :destroy_Cmment, mutation: CommentMutations::Destroy
+  field :destroyComment, mutation: CommentMutations::Destroy
 
   field :createSource, mutation: SourceMutations::Create
   field :updateSource, mutation: SourceMutations::Update
@@ -24,7 +24,7 @@ class MutationType < BaseObject
 
   field :duplicateTeam, mutation: DuplicateTeamMutation
 
-  field :update_account, mutation: AccountMutations::Update
+  field :updateAccount, mutation: AccountMutations::Update
 
   field :createAccountSource, mutation: AccountSourceMutations::Create
   field :updateAccountSource, mutation: AccountSourceMutations::Update
