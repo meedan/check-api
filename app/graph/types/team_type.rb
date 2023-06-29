@@ -179,15 +179,10 @@ class TeamType < DefaultObject
   end
 
   def verification_statuses(**args)
-    object = object.reload if args[:items_count_for_status] ||
-      args[:published_reports_count_for_status]
-    object.send(
-      :verification_statuses,
-      "media",
-      nil,
-      args[:items_count_for_status],
-      args[:published_reports_count_for_status]
-    )
+    # We sometimes call this method and somehow object is nil despite self.object being available
+    object ||= self.object
+    object = object.reload if args[:items_count_for_status] || args[:published_reports_count_for_status]
+    object.verification_statuses("media", nil, args[:items_count_for_status], args[:published_reports_count_for_status])
   end
 
   field :team_bot_installation, TeamBotInstallationType, null: true do
