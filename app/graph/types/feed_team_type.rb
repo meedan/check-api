@@ -1,7 +1,7 @@
 class FeedTeamType < DefaultObject
   description "Feed team type"
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   field :dbid, GraphQL::Types::Int, null: true
   field :filters, JsonString, null: true

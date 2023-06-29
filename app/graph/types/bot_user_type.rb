@@ -1,7 +1,7 @@
 class BotUserType < DefaultObject
   description "Bot User type"
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   field :avatar, GraphQL::Types::String, null: true
   field :name, GraphQL::Types::String, null: true

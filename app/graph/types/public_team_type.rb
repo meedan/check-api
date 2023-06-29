@@ -1,7 +1,7 @@
 class PublicTeamType < DefaultObject
   description "Public team type"
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   field :name, GraphQL::Types::String, null: false
   field :slug, GraphQL::Types::String, null: false

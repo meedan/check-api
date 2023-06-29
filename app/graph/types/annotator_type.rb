@@ -1,7 +1,7 @@
 class AnnotatorType < BaseObject
   description "Information about an annotator"
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   global_id_field :id
 

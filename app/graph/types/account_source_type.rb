@@ -1,7 +1,7 @@
 class AccountSourceType < DefaultObject
   description "AccountSource type"
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   field :account_id, GraphQL::Types::Int, null: true
   field :source_id, GraphQL::Types::Int, null: true

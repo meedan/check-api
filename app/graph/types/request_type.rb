@@ -1,7 +1,7 @@
 class RequestType < DefaultObject
   description "Request type"
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   field :dbid, GraphQL::Types::Int, null: true
   field :last_submitted_at, GraphQL::Types::Int, null: true

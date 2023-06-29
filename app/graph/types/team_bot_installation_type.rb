@@ -1,7 +1,7 @@
 class TeamBotInstallationType < DefaultObject
   description "Team Bot Installation type"
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   field :json_settings, GraphQL::Types::String, null: true
 

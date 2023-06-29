@@ -1,7 +1,7 @@
 class ClusterType < DefaultObject
   description "Cluster type"
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   field :dbid, GraphQL::Types::Int, null: true
   field :size, GraphQL::Types::Int, null: true

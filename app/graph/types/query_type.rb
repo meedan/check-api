@@ -1,7 +1,7 @@
 class QueryType < BaseObject
   description "The query root of this schema"
 
-  add_field(GraphQL::Types::Relay::NodeField)
+  add_field GraphQL::Types::Relay::NodeField
 
   field :root, RootLevelType, null: true
 

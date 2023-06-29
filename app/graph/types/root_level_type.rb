@@ -1,7 +1,7 @@
 class RootLevelType < BaseObject
   description "Unassociated root object queries"
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   global_id_field :id
 

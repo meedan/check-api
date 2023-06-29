@@ -1,7 +1,7 @@
 class AboutType < DefaultObject
   description "Information about the application"
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   field :name, GraphQL::Types::String, "Application name", null: true
   field :version, GraphQL::Types::String, "Application version", null: true

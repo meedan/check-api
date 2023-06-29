@@ -5,10 +5,9 @@ class AnnotationObject < BaseObject
     end
   end
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   field :id, GraphQL::Types::ID, null: false
-
   field :annotation_type, GraphQL::Types::String, null: true
   field :annotated_id, GraphQL::Types::String, null: true
   field :annotated_type, GraphQL::Types::String, null: true

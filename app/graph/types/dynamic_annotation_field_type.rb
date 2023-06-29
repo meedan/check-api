@@ -1,7 +1,7 @@
 class DynamicAnnotationFieldType < DefaultObject
   description "DynamicAnnotation::Field type"
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   field :dbid, GraphQL::Types::Int, null: true
   field :value_json, JsonString, null: true

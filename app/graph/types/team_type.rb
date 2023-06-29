@@ -1,7 +1,7 @@
 class TeamType < DefaultObject
   description "Team type"
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   field :archived, GraphQL::Types::Int, null: true
   field :private, GraphQL::Types::Boolean, null: true

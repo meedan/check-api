@@ -3,7 +3,7 @@ class ProjectMediaType < DefaultObject
 
   description "ProjectMedia type"
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   field :media_id, GraphQL::Types::Int, null: true
   field :user_id, GraphQL::Types::Int, null: true

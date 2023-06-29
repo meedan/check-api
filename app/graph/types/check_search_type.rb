@@ -1,7 +1,7 @@
 class CheckSearchType < DefaultObject
   description "CheckSearch type"
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   field :number_of_results, GraphQL::Types::Int, null: true
   field :pusher_channel, GraphQL::Types::String, null: true

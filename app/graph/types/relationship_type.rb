@@ -1,6 +1,6 @@
 class RelationshipType < BaseObject
   description "A relationship between two items"
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   global_id_field :id
 

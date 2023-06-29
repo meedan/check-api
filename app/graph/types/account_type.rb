@@ -1,7 +1,7 @@
 class AccountType < DefaultObject
   description "Account type"
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   field :data, GraphQL::Types::String, null: true
   field :dbid, GraphQL::Types::Int, null: true

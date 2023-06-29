@@ -1,7 +1,7 @@
 class UserType < DefaultObject
   description "User type"
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   field :dbid, GraphQL::Types::Int, null: true
   field :email, GraphQL::Types::String, null: true

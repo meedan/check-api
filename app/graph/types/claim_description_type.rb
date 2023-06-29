@@ -1,7 +1,7 @@
 class ClaimDescriptionType < DefaultObject
   description "ClaimDescription type"
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   field :dbid, GraphQL::Types::Int, null: true
   field :description, GraphQL::Types::String, null: true

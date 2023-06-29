@@ -3,7 +3,7 @@ class SourceType < DefaultObject
 
   description "Source type"
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   field :image, GraphQL::Types::String, null: true
   field :description, GraphQL::Types::String, null: false

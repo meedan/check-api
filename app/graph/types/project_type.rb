@@ -1,7 +1,7 @@
 class ProjectType < DefaultObject
   description "Project type"
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   field :avatar, GraphQL::Types::String, null: true
   field :description, GraphQL::Types::String, null: true

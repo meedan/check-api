@@ -1,7 +1,7 @@
 class VersionType < DefaultObject
   description "Version type"
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   field :dbid, GraphQL::Types::Int, null: true
   field :item_type, GraphQL::Types::String, null: true

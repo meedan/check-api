@@ -1,7 +1,7 @@
 class MediaType < DefaultObject
   description "Media type"
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   field :url, GraphQL::Types::String, null: true
   field :quote, GraphQL::Types::String, null: true

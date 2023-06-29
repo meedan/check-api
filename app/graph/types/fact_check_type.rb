@@ -1,7 +1,7 @@
 class FactCheckType < DefaultObject
   description "FactCheck type"
 
-  implements NodeIdentification.interface
+  implements GraphQL::Types::Relay::Node
 
   field :dbid, GraphQL::Types::Int, null: true
   field :title, GraphQL::Types::String, null: true
