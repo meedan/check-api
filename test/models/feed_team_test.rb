@@ -25,8 +25,21 @@ class FeedTeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should have filters" do
-    ft = create_feed_team filters: { foo: 'bar' }
+  test "should have a list that belong to feed teams" do
+    t = create_team
+    ss = create_saved_search team: t
+    assert_difference 'FeedTeam.count' do
+      create_feed_team saved_search: ss, team_id: t.id
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_feed_team saved_search: create_saved_search
+    end
+  end
+
+  test "should get filters" do
+    t = create_team
+    ss = create_saved_search team_id: t.id, filters: { foo: 'bar'}
+    ft = create_feed_team team_id: t.id, saved_search_id: ss.id
     assert_equal 'bar', ft.reload.filters['foo']
   end
 

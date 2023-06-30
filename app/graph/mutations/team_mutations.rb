@@ -16,6 +16,7 @@ module TeamMutations
     slack_notifications: 'str',
     language: 'str',
     languages: 'json',
+    language_detection: 'bool',
     list_columns: 'json',
     tipline_inbox_filters: 'str',
     suggested_matches_filters: 'str',

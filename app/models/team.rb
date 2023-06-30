@@ -152,6 +152,15 @@ class Team < ApplicationRecord
     self.send(:set_language, language)
   end
 
+  def language_detection=(language_detection)
+    self.send(:set_language_detection, language_detection)
+  end
+
+  def get_language_detection
+    settings = self.settings.to_h.with_indifferent_access
+    settings.has_key?(:language_detection) ? settings[:language_detection] : true
+  end
+
   def outgoing_urls_utm_code=(code)
     self.set_outgoing_urls_utm_code = code
   end

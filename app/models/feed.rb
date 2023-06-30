@@ -6,14 +6,30 @@ class Feed < ApplicationRecord
   has_many :requests
   has_many :feed_teams
   has_many :teams, through: :feed_teams
+  belongs_to :user, optional: true
+  belongs_to :saved_search, optional: true
+  belongs_to :team, optional: true
+
+  before_validation :set_user_and_team, on: :create
+  validates_presence_of :name
+  validates_presence_of :licenses, if: proc { |feed| feed.discoverable }
+  validate :saved_search_belongs_to_feed_teams
+
+  after_create :create_feed_team
 
   PROHIBITED_FILTERS = ['team_id', 'feed_id', 'clusterize']
+  LICENSES = { 1 => 'academic', 2 => 'commercial', 3 => 'open_source' }
+  validates_inclusion_of :licenses, in: LICENSES.keys, if: proc { |feed| feed.discoverable }
 
   # Filters for the whole feed: applies to all data from all teams
   def get_feed_filters
     filters = self.filters.to_h.reject{ |k, _v| PROHIBITED_FILTERS.include?(k.to_s) }
     filters.merge!({ 'report_status' => ['published'] }) if self.published
     filters
+  end
+
+  def filters
+    self.saved_search&.filters.to_h
   end
 
   # Filters defined by each team
@@ -51,6 +67,12 @@ class Feed < ApplicationRecord
     ids = CheckSearch.new({ feed_id: self.id, eslimit: 10000 }.to_json, nil, team_id).medias.map(&:id) # FIXME: Limited at 10000
     Team.current = current_team
     ids
+  end
+
+  def get_team_ids
+    team_ids = self.feed_teams.map(&:team_id)
+    team_ids << self.team_id
+    team_ids.uniq
   end
 
   def item_belongs_to_feed?(pm)
@@ -124,5 +146,22 @@ class Feed < ApplicationRecord
         end
       end
     end
+  end
+
+  private
+
+  def set_user_and_team
+    self.user ||= User.current
+    self.team ||= Team.current
+  end
+
+  def saved_search_belongs_to_feed_teams
+    unless saved_search_id.blank?
+      errors.add(:saved_search_id, I18n.t(:"errors.messages.invalid_feed_saved_search_value")) unless self.get_team_ids.include?(self.saved_search.team_id)
+    end
+  end
+
+  def create_feed_team
+    FeedTeam.create!(feed: self, team: self.team, shared: true) unless self.team.nil?
   end
 end

@@ -5,4 +5,6 @@ class SavedSearch < ApplicationRecord
   validates :title, uniqueness: { scope: :team_id }, unless: proc { |ss| ss.is_being_copied }
 
   belongs_to :team, optional: true
+  has_many :feeds, dependent: :nullify
+  has_many :feed_teams, dependent: :nullify
 end

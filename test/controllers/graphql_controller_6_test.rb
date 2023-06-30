@@ -176,23 +176,27 @@ class GraphqlController6Test < ActionController::TestCase
     u = create_user
     create_team_user(team: t1, user: u, role: 'editor')
     authenticate_with_user(u)
-    f = create_feed
-    f.filters = { keyword: 'banana' }
+    f_ss = create_saved_search team_id: t1.id, filters: { keyword: 'banana' }
+    f = create_feed team_id: t1.id
     f.teams = [t1, t2]
+    f.saved_search = f_ss
     f.save!
 
+
     # Team 1 content to be shared
+    ft1_ss = create_saved_search team_id: t1.id, filters: { keyword: 'apple' }
     ft1 = FeedTeam.where(feed: f, team: t1).last
-    ft1.filters = { keyword: 'apple' }
     ft1.shared = false
+    ft1.saved_search = ft1_ss
     ft1.save!
     pm1a = create_project_media quote: 'I like apple and banana', team: t1
     pm1b = create_project_media quote: 'I like orange and banana', team: t1
 
     # Team 2 content to be shared
+    ft2_ss = create_saved_search team_id: t2.id, filters: { keyword: 'orange' }
     ft2 = FeedTeam.where(feed: f, team: t2).last
-    ft2.filters = { keyword: 'orange' }
     ft2.shared = true
+    ft2.saved_search = ft2_ss
     ft2.save!
     pm2a = create_project_media quote: 'I love apple and banana', team: t2
     pm2b = create_project_media quote: 'I love orange and banana', team: t2

@@ -2,7 +2,7 @@ module FeedTeamMutations
   create_fields = {}
 
   update_fields = {
-    filters: 'json',
+    saved_search_id: 'int',
     requests_filters: 'json',
     shared: 'bool',
   }
