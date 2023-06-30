@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_05_16_204035) do
+ActiveRecord::Schema.define(version: 2023_06_28_214314) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -304,23 +304,33 @@ ActiveRecord::Schema.define(version: 2023_05_16_204035) do
   create_table "feed_teams", force: :cascade do |t|
     t.bigint "team_id", null: false
     t.bigint "feed_id", null: false
-    t.jsonb "filters", default: {}
     t.jsonb "settings", default: {}
     t.boolean "shared", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "saved_search_id"
     t.index ["feed_id"], name: "index_feed_teams_on_feed_id"
+    t.index ["saved_search_id"], name: "index_feed_teams_on_saved_search_id"
     t.index ["team_id", "feed_id"], name: "index_feed_teams_on_team_id_and_feed_id", unique: true
     t.index ["team_id"], name: "index_feed_teams_on_team_id"
   end
 
   create_table "feeds", force: :cascade do |t|
     t.string "name", null: false
-    t.jsonb "filters", default: {}
     t.jsonb "settings", default: {}
     t.boolean "published", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "saved_search_id"
+    t.bigint "user_id"
+    t.bigint "team_id"
+    t.text "description"
+    t.string "tags", default: [], array: true
+    t.integer "licenses", default: [], array: true
+    t.boolean "discoverable", default: false
+    t.index ["saved_search_id"], name: "index_feeds_on_saved_search_id"
+    t.index ["team_id"], name: "index_feeds_on_team_id"
+    t.index ["user_id"], name: "index_feeds_on_user_id"
   end
 
   create_table "login_activities", id: :serial, force: :cascade do |t|
