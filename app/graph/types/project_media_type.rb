@@ -161,18 +161,7 @@ class ProjectMediaType < DefaultObject
     RecordLoader.for(Source).load(object.source_id)
   end
 
-  field :log,
-        VersionType.connection_type,
-        null: true,
-        resolve: ->(obj, args, _ctx) {
-          obj.get_versions_log(
-            args["event_types"],
-            args["field_names"],
-            args["annotation_types"],
-            args["who_dunnit"],
-            args["include_related"]
-          )
-        } do
+  field :log, VersionType.connection_type, null: true do
     argument :event_types, GraphQL::Types::String, required: false, camelize: false
     argument :field_names, GraphQL::Types::String, required: false, camelize: false
     argument :annotation_types, GraphQL::Types::String, required: false, camelize: false
@@ -180,10 +169,21 @@ class ProjectMediaType < DefaultObject
     argument :include_related, GraphQL::Types::Boolean, required: false, camelize: false
   end
 
-  field :log_count,
-        Integer,
-        null: true,
-        resolve: ->(obj, _args, _ctx) { obj.get_versions_log_count }
+  def log
+    object.get_versions_log(
+      args["event_types"],
+      args["field_names"],
+      args["annotation_types"],
+      args["who_dunnit"],
+      args["include_related"]
+    )
+  end
+
+  field :log_count, GraphQL::Types::Int, null: true
+
+  def log_count
+    object.get_versions_log_count
+  end
 
   field :tags, TagType.connection_type, null: true
 
@@ -271,18 +271,17 @@ class ProjectMediaType < DefaultObject
     .select("annotation_type")
     .map(&:annotation_type)
     .each do |type|
-      field "dynamic_annotations_#{type}".to_sym,
-            DynamicType.connection_type,
-            null: true,
-            resolve: ->(project_media, _args, _ctx) {
-              project_media.get_annotations(type)
-            }
-      field "dynamic_annotation_#{type}".to_sym,
-            "DynamicType",
-            null: true,
-            resolve: ->(project_media, _args, _ctx) {
-              project_media.get_dynamic_annotation(type)
-            }
+      field "dynamic_annotations_#{type}".to_sym, DynamicType.connection_type, null: true
+
+      define_method("dynamic_annotations_#{type}".to_sym) do |**_inputs|
+        object.get_annotations(type)
+      end
+
+      field "dynamic_annotation_#{type}".to_sym, "DynamicType", null: true
+
+      define_method("dynamic_annotation_#{type}".to_sym) do |**_inputs|
+        object.get_dynamic_annotation(type)
+      end
     end
 
   field :suggested_similar_relationships,

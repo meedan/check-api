@@ -17,24 +17,23 @@ class PublicTeamType < DefaultObject
     Team.find(object.id).pusher_channel
   end
 
-  field :trash_count,
-        Integer,
-        null: true,
-        resolve: ->(team, _args, _ctx) {
-          archived_count(team) ? 0 : team.trash_count
-        }
-  field :unconfirmed_count,
-        Integer,
-        null: true,
-        resolve: ->(team, _args, _ctx) {
-          archived_count(team) ? 0 : team.unconfirmed_count
-        }
-  field :spam_count,
-        Integer,
-        null: true,
-        resolve: ->(team, _args, _ctx) {
-          archived_count(team) ? 0 : team.spam_count
-        }
+  field :trash_count, GraphQL::Types::Int, null: true
+
+  def trash_count
+    archived_count(object) ? 0 : object.trash_count
+  end
+
+  field :unconfirmed_count, GraphQL::Types::Int, null: true
+
+  def unconfirmed_count
+    archived_count(object) ? 0 : object.unconfirmed_count
+  end
+
+  field :spam_count, GraphQL::Types::Int, null: true
+
+  def spam_count
+    archived_count(object) ? 0 : object.spam_count
+  end
 
   class << self
     def archived_count(team)

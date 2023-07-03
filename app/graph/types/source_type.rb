@@ -36,10 +36,6 @@ class SourceType < DefaultObject
     object.media
   end
 
-  field :medias_count,
-        Integer,
-        null: true,
-        resolve: ->(source, _args, _ctx) { source.medias_count }
-
+  field :medias_count, GraphQL::Types::Int, null: true
   field :collaborators, UserType.connection_type, null: true
 end
