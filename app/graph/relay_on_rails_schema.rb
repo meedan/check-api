@@ -6,9 +6,10 @@ class RelayOnRailsSchema < GraphQL::Schema
 
   use GraphQL::Batch
 
-  # Opt in to the new runtime (default in future graphql-ruby versions)
+  # These become default in graphql ruby 1.12+
   use GraphQL::Execution::Interpreter
   use GraphQL::Analysis::AST
+  use GraphQL::Execution::Errors
 
   lazy_resolve(Concurrent::Future, :value)
 

@@ -6,7 +6,7 @@ module Mutations
       def define_shared_bulk_behavior(action, subclass, mutation_target, parents_mapping)
         subclass.graphql_name "#{action.to_s.capitalize}#{mutation_target.camelize.pluralize}"
 
-        subclass.argument :ids, [GraphQL::Types::ID], required: true
+        subclass.argument :ids, [GraphQL::Types::ID], required: true unless action == :create
         subclass.field :ids, [GraphQL::Types::ID], null: true
 
         set_parent_returns(subclass, parents_mapping)
