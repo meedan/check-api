@@ -214,10 +214,11 @@ class ProjectMediaType < DefaultObject
     obj.is_a?(Dynamic) ? obj : obj.load unless obj.nil?
   end
 
-  field :published,
-        String,
-        null: true,
-        resolve: ->(obj, _args, _ctx) { obj.created_at.to_i.to_s }
+  field :published, GraphQL::Types::String, null: true
+
+  def published
+    object.created_at.to_i.to_s
+  end
 
   field :language, GraphQL::Types::String, null: true
 

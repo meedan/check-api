@@ -213,15 +213,16 @@ class QueryType < BaseObject
     field type,
           "#{type.to_s.camelize}Type",
           null: true,
-          description: "Information about the #{type} with given id",
-          resolve: ->(_obj, args, ctx) {
-            GraphqlCrudOperations.load_if_can(
-              type.to_s.camelize.constantize,
-              args["id"],
-              ctx
-            )
-          } do
+          description: "Information about the #{type} with given id" do
       argument :id, GraphQL::Types::ID, required: true
+    end
+
+    define_method(type) do |**inputs|
+      GraphqlCrudOperations.load_if_can(
+              type.to_s.camelize.constantize,
+              inputs[:id],
+              context
+            )
     end
   end
 end
