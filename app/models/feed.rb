@@ -11,14 +11,15 @@ class Feed < ApplicationRecord
   belongs_to :team, optional: true
 
   before_validation :set_user_and_team, on: :create
-  validates_presence_of :name, :licenses
+  validates_presence_of :name
+  validates_presence_of :licenses, if: proc { |feed| feed.discoverable }
   validate :saved_search_belongs_to_feed_teams
 
   after_create :create_feed_team
 
   PROHIBITED_FILTERS = ['team_id', 'feed_id', 'clusterize']
   LICENSES = { 1 => 'academic', 2 => 'commercial', 3 => 'open_source' }
-  validates_inclusion_of :licenses, in: LICENSES.keys
+  validates_inclusion_of :licenses, in: LICENSES.keys, if: proc { |feed| feed.discoverable }
 
   # Filters for the whole feed: applies to all data from all teams
   def get_feed_filters
@@ -28,7 +29,7 @@ class Feed < ApplicationRecord
   end
 
   def filters
-    self.saved_search&.filters
+    self.saved_search&.filters.to_h
   end
 
   # Filters defined by each team
@@ -161,6 +162,6 @@ class Feed < ApplicationRecord
   end
 
   def create_feed_team
-    self.teams << self.team unless self.team.nil?
+    FeedTeam.create!(feed: self, team: self.team, shared: true) unless self.team.nil?
   end
 end

@@ -10,6 +10,7 @@ module FeedMutations
       argument :tags, [String], required: false
       argument :saved_search_id, GraphQL::Types::Int, required: false, camelize: false
       argument :published, GraphQL::Types::Boolean, required: false, camelize: false
+      argument :discoverable, GraphQL::Types::Boolean, required: false, camelize: false
     end
   end
 

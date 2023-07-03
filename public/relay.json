@@ -150,7 +150,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -431,7 +431,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -803,7 +803,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -2006,7 +2006,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -2450,7 +2450,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -2692,7 +2692,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -3018,7 +3018,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -3793,13 +3793,9 @@
               "name": "url",
               "description": null,
               "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
               },
               "defaultValue": null
             },
@@ -13479,6 +13475,16 @@
             },
             {
               "name": "published",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "discoverable",
               "description": null,
               "type": {
                 "kind": "SCALAR",
@@ -26209,7 +26215,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -47862,7 +47868,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -48095,6 +48101,20 @@
               "deprecationReason": null
             },
             {
+              "name": "discoverable",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "filters",
               "description": null,
               "args": [
@@ -48110,7 +48130,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -48488,6 +48508,20 @@
               "deprecationReason": null
             },
             {
+              "name": "user",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "user_id",
               "description": null,
               "args": [
@@ -48702,7 +48736,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -49435,16 +49469,6 @@
         },
         {
           "kind": "SCALAR",
-          "name": "ID",
-          "description": "Represents a unique identifier that is Base64 obfuscated. It is often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `\"VXNlci0xMA==\"`) or integer (such as `4`) input value will be accepted as an ID.",
-          "fields": null,
-          "inputFields": null,
-          "interfaces": null,
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "SCALAR",
           "name": "Int",
           "description": "Represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.",
           "fields": null,
@@ -49568,7 +49592,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -52009,7 +52033,7 @@
               "deprecationReason": null
             },
             {
-              "name": "destroyCmment",
+              "name": "destroyComment",
               "description": null,
               "args": [
                 {
@@ -55824,7 +55848,376 @@
           "interfaces": null,
           "enumValues": null,
           "possibleTypes": [
-
+            {
+              "kind": "OBJECT",
+              "name": "About",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Account",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "AccountSource",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Annotation",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Annotator",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "BotUser",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "CheckSearch",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "ClaimDescription",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Cluster",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Comment",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "DynamicAnnotationField",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_analysis",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_archive_is",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_archiver",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_clip",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_embed_code",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_extracted_text",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_flag",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_geolocation",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_language",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_memebuster",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_metadata",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_metrics",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_mt",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_report_design",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_reverse_image",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_slack_message",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_smooch",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_smooch_response",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_smooch_user",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_syrian_archive_data",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_task_response_datetime",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_task_response_file_upload",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_task_response_free_text",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_task_response_geolocation",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_task_response_multiple_choice",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_task_response_number",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_task_response_single_choice",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_task_response_url",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_task_response_yes_no",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_task_status",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_team_bot_response",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_transcript",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_transcription",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_translation",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_translation_request",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_translation_status",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_verification_status",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "FactCheck",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Feed",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "FeedTeam",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Flag",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Media",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Project",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "ProjectGroup",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "ProjectMedia",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "ProjectMediaUser",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "PublicTeam",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Relationship",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Request",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "RootLevel",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "SavedSearch",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Source",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Tag",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "TagText",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Task",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Team",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "TeamBotInstallation",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "TeamTask",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "TeamUser",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "TiplineNewsletter",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "User",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Version",
+              "ofType": null
+            }
           ]
         },
         {
@@ -56034,7 +56427,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -56462,7 +56855,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -59893,7 +60286,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -61071,7 +61464,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -61305,7 +61698,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -61654,6 +62047,33 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "User",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "node",
+              "description": "Fetches an object given its ID.",
+              "args": [
+                {
+                  "name": "id",
+                  "description": "ID of the object.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "INTERFACE",
+                "name": "Node",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -62610,7 +63030,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -63536,7 +63956,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -64468,7 +64888,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -65499,7 +65919,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -66995,7 +67415,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -68196,7 +68616,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -68673,7 +69093,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -69030,7 +69450,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -69429,7 +69849,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -80062,6 +80482,16 @@
               "defaultValue": null
             },
             {
+              "name": "discoverable",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "name",
               "description": null,
               "type": {
@@ -84294,7 +84724,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -85308,7 +85738,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],

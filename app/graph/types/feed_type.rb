@@ -17,6 +17,9 @@ class FeedType < DefaultObject
   field :tags, [String], null: true
   field :licenses, [Integer], null: true
   field :saved_search_id, GraphQL::Types::Int, null: true
+  field :discoverable, GraphQL::Types::Boolean, null: true
+  field :user, UserType, null: true
+
   field :team, TeamType, null: true
   field :saved_search, SavedSearchType, null: true
 
