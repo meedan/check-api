@@ -169,14 +169,8 @@ class ProjectMediaType < DefaultObject
     argument :include_related, GraphQL::Types::Boolean, required: false, camelize: false
   end
 
-  def log
-    object.get_versions_log(
-      args["event_types"],
-      args["field_names"],
-      args["annotation_types"],
-      args["who_dunnit"],
-      args["include_related"]
-    )
+  def log(event_types: nil, field_names: nil, annotation_types: nil, who_dunnit: nil, include_related: nil)
+    object.get_versions_log(event_types, field_names, annotation_types, who_dunnit, include_related)
   end
 
   field :log_count, GraphQL::Types::Int, null: true

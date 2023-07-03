@@ -81,7 +81,7 @@ class GraphqlCrudOperations
 
     obj = klass.constantize.new
     obj.is_being_created = true if obj.respond_to?(:is_being_created)
-    obj.file = ctx[:file] if !ctx[:file].blank?
+    obj.file = ctx[:file] unless ctx[:file].blank?
 
     attrs =
       inputs
@@ -97,7 +97,7 @@ class GraphqlCrudOperations
   end
 
   def self.update_from_single_id(graphql_id, obj, inputs, ctx, parent_names)
-    obj.file = ctx[:file] if !ctx[:file].blank?
+    obj.file = ctx[:file] unless ctx[:file].blank?
 
     attrs = inputs.keys.inject({}) do |memo, key|
       memo[key] = inputs[key] unless key.to_sym == :id
