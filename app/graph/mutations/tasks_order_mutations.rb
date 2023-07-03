@@ -32,8 +32,8 @@ module TasksOrderMutations
   end
 
   class MoveTeamTaskUp < BaseMoveMutation
-    field :team, TeamType, null: true
     field :team_task, TeamTaskType, null: true, camelize: false
+    field :team, TeamType, null: true
 
     def resolve(**inputs)
       move(object, inputs, context, :team_task, :team) { |obj| obj.move_up }
@@ -41,8 +41,8 @@ module TasksOrderMutations
   end
 
   class MoveTeamTaskDown < BaseMoveMutation
-    field :team, TeamType, null: true
     field :team_task, TeamTaskType, null: true, camelize: false
+    field :team, TeamType, null: true
 
     def resolve(**inputs)
       move(object, inputs, context, :team_task, :team) { |obj| obj.move_down }

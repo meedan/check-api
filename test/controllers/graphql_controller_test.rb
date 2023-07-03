@@ -675,7 +675,6 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "mutation userDisconnectLoginAccount { userDisconnectLoginAccount(input: { clientMutationId: \"1\", provider: \"#{a.provider}\", uid: \"#{a.uid}\" }) { success } }"
     post :create, params: { query: query, team: @team.slug }
     assert_response :success
-    User.unstub(:current)
   end
 
   test "should change password if token is found and passwords are present and match" do

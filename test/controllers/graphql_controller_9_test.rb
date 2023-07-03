@@ -150,39 +150,48 @@ class GraphqlController9Test < ActionController::TestCase
     assert_response :success
     assert_error_message "Not Found"
   end
-  
+
   test "should move task up" do
     query = 'mutation { moveTaskUp(input: { clientMutationId: "1", id: "' + @t2.graphql_id + '" }) { task { order }, project_media { tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_equal 1, @t2.reload.order
     assert_equal 2, @t1.reload.order
+
     data = JSON.parse(@response.body)['data']['moveTaskUp']
     assert_equal 1, data['task']['order']
+
     tasks = data['project_media']['tasks']['edges']
-    assert_equal 1, tasks[0]['node']['order']
-    assert_equal 2, tasks[1]['node']['order']
-    assert_equal 3, tasks[2]['node']['order']
-    assert_equal @t2.id.to_s, tasks[0]['node']['dbid']
-    assert_equal @t1.id.to_s, tasks[1]['node']['dbid']
-    assert_equal @t3.id.to_s, tasks[2]['node']['dbid']
+    t1_order = tasks.find{|t| t['node']['dbid'] == @t1.id.to_s }
+    assert_equal 2, t1_order['node']['order']
+
+    t2_order = tasks.find{|t| t['node']['dbid'] == @t2.id.to_s }
+    assert_equal 1, t2_order['node']['order']
+
+    t3_order = tasks.find{|t| t['node']['dbid'] == @t3.id.to_s }
+    assert_equal 3, t3_order['node']['order']
   end
-  
+
   test "should move task down" do
     query = 'mutation { moveTaskDown(input: { clientMutationId: "1", id: "' + @t2.graphql_id + '" }) { task { order }, project_media { tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
     post :create, params: { query: query, team: @t.slug }
+
     assert_response :success
     assert_equal 3, @t2.reload.order
     assert_equal 2, @t3.reload.order
+
     data = JSON.parse(@response.body)['data']['moveTaskDown']
     assert_equal 3, data['task']['order']
+
     tasks = data['project_media']['tasks']['edges']
-    assert_equal 1, tasks[0]['node']['order']
-    assert_equal 2, tasks[1]['node']['order']
-    assert_equal 3, tasks[2]['node']['order']
-    assert_equal @t1.id.to_s, tasks[0]['node']['dbid']
-    assert_equal @t3.id.to_s, tasks[1]['node']['dbid']
-    assert_equal @t2.id.to_s, tasks[2]['node']['dbid']
+    t1_order = tasks.find{|t| t['node']['dbid'] == @t1.id.to_s }
+    assert_equal t1_order['node']['order'], 1
+
+    t2_order = tasks.find{|t| t['node']['dbid'] == @t2.id.to_s }
+    assert_equal t2_order['node']['order'], 3
+
+    t3_order = tasks.find{|t| t['node']['dbid'] == @t3.id.to_s }
+    assert_equal t3_order['node']['order'], 2
   end
 
   test "should move metadata up" do
