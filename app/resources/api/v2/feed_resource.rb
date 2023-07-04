@@ -26,13 +26,31 @@ module Api
         Team.current ||= team_ids[0]
         filters = options[:filters] || {}
         query = filters.dig(:query).to_a.join(',')
+        query = CGI.unescape(query)
         type = filters.dig(:type, 0)
         webhook_url = filters.dig(:webhook_url, 0)
         after = filters.dig(:after, 0)
         after = Time.parse(after) unless after.blank?
         feed_id = filters.dig(:feed_id, 0).to_i
-        return ProjectMedia.none if team_ids.blank? || query.blank? || !can_read_feed?(feed_id, team_ids)
-        query = CGI.unescape(query)
+        return ProjectMedia.none if team_ids.blank? || query.blank?
+
+        if feed_id > 0
+          get_results_from_feed_teams(team_ids, feed_id, query, type, after, webhook_url, skip_save_request)
+        elsif ApiKey.current
+          get_results_from_api_key_teams(type, query, after)
+        else
+          ProjectMedia.none
+        end
+      end
+
+      def self.get_results_from_api_key_teams(type, query, after)
+        RequestStore.store[:pause_database_connection] = true # Release database connection during Bot::Alegre.request_api
+        team_ids = ApiKey.current.bot_user.team_ids
+        Bot::Smooch.search_for_similar_published_fact_checks(type, query, team_ids, after)
+      end
+
+      def self.get_results_from_feed_teams(team_ids, feed_id, query, type, after, webhook_url, skip_save_request)
+        return ProjectMedia.none unless can_read_feed?(feed_id, team_ids)
         feed = Feed.find(feed_id)
         RequestStore.store[:pause_database_connection] = true # Release database connection during Bot::Alegre.request_api
         RequestStore.store[:smooch_bot_settings] = feed.get_smooch_bot_settings.to_h
