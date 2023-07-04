@@ -39,24 +39,21 @@ class Bot::Tagger < BotUser
         self.log("This item was just created, processing...", pm.id, Logger::INFO)
         # Search all text fields for all items in the workspace using only the cofigured vector model
 
-        search_texts=[pm.title]
-        if pm.description!=pm.title
-          search_texts<<pm.description
-        end
-        if !pm&.claim_description&.description.nil?
-          search_texts<<pm&.claim_description&.description
-        end
-        if !pm&.claim_description&.context.nil?
-          search_texts<<pm&.claim_description&.context
-        end
+        search_texts = ['original_title', 'original_description',
+          'extracted_text', 'transcription', 'claim_description_content'
+        ].map{|field| pm.send(field) if !pm.nil? && pm.respond_to?(field)}
+        # Remove duplicate and nil values
+        search_texts = search_texts.uniq.compact.reject{|q| q.length==0}
+        self.log("Query values are: #{search_texts}", pm.id, Logger::INFO)
 
         # Search for each text field in `search_texts`
         # Do not use Elasticsearch. The threshold to use comes from the Tagger bot settings.
         # Method signature: get_items_with_similar_text(pm, fields, threshold, query_text, models, team_ids = [pm&.team_id])
         results=[]
-        search_texts.each |query| do {
+        search_texts.each do |query|
           results<<Bot::Alegre.get_items_with_similar_text(pm, Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS,
             [{ value: threshold }], query, [Bot::Alegre.matching_model_to_use(pm.team_id)].flatten.reject{|m| m==Bot::Alegre::ELASTICSEARCH_MODEL})
+            #self.debug("Results (#{query}): #{results}", pm.id, Logger::INFO)
         end
         # Combine the list of hashes into one hash
         results=results.reduce({}, :merge!)
