@@ -261,9 +261,7 @@ class TeamType < DefaultObject
 
   def team_tasks(**args)
     tasks = object.team_tasks.order(order: :asc, id: :asc)
-    tasks = tasks.where(fieldset: args[:fieldset]) unless args[
-      :fieldset
-    ].blank?
+    tasks = tasks.where(fieldset: args[:fieldset]) unless args[:fieldset].blank?
     tasks
   end
 

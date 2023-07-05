@@ -30,7 +30,7 @@ module Types::Inclusions
             annotated_type: object.class.name,
             annotated_id: object.id
           )
-        tasks = tasks.from_fieldset(args[:fieldset]) unless args["fieldset"].blank?
+        tasks = tasks.from_fieldset(args[:fieldset]) unless args[:fieldset].blank?
         # Order tasks by order field
         ids = tasks.to_a.sort_by { |task| task.order ||= 0 }.map(&:id)
         values = []
