@@ -27,7 +27,7 @@ services:
     networks:
       - dev
   postgres:
-    image: postgres:12
+    image: postgres:12-bullseye
     ports:
       - "5432:5432"
     environment:
