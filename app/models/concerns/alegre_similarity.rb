@@ -287,7 +287,7 @@ module AlegreSimilarity
         match_across_content_types: match_across_content_types,
       }.merge(self.get_threshold_hash_from_threshold(threshold))
       language = self.language_for_similarity(team_id)
-      params[:language] = language if !language.nil?
+      params[:language] = language if !language.nil? #TODO: AND is not empty string?
       params[:min_es_score] = self.get_min_es_score(team_id)
       params
     end

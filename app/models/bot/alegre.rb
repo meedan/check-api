@@ -263,7 +263,7 @@ class Bot::Alegre < BotUser
       model = self.matching_model_to_use(pm.team_id)
       if model != Bot::Alegre::ELASTICSEARCH_MODEL
         similarity_methods << 'vector'
-        models << model
+        models << model #TODO: Allow this to be a list
       end
     end
     similarity_methods.zip(models).collect do |similarity_method, model_name|
@@ -412,9 +412,9 @@ class Bot::Alegre < BotUser
     models = []
     [team_ids].flatten.each do |team_id|
       tbi = self.get_alegre_tbi(team_id)
-      model = (tbi.nil? ? self.default_matching_model : tbi.get_text_similarity_model || self.default_matching_model)
-      models << model unless models.include?(model)
+      models << (tbi.nil? ? self.default_matching_model : tbi.get_text_similarity_model || self.default_matching_model)
     end
+    models = models.flatten.uniq
     models.size == 1 ? models[0] : models
   end
 
