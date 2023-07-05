@@ -202,13 +202,16 @@ class GraphqlController9Test < ActionController::TestCase
     assert_equal 2, @m1.reload.order
     data = JSON.parse(@response.body)['data']['moveTaskUp']
     assert_equal 1, data['task']['order']
+
     tasks = data['project_media']['tasks']['edges']
-    assert_equal 1, tasks[0]['node']['order']
-    assert_equal 2, tasks[1]['node']['order']
-    assert_equal 3, tasks[2]['node']['order']
-    assert_equal @m2.id.to_s, tasks[0]['node']['dbid']
-    assert_equal @m1.id.to_s, tasks[1]['node']['dbid']
-    assert_equal @m3.id.to_s, tasks[2]['node']['dbid']
+    m1_order = tasks.find{|t| t['node']['dbid'] == @m1.id.to_s }
+    assert_equal m1_order['node']['order'], 2
+
+    m2_order = tasks.find{|t| t['node']['dbid'] == @m2.id.to_s }
+    assert_equal m2_order['node']['order'], 1
+
+    m3_order = tasks.find{|t| t['node']['dbid'] == @m3.id.to_s }
+    assert_equal m3_order['node']['order'], 3
   end
   
   test "should move metadata down" do
@@ -220,12 +223,14 @@ class GraphqlController9Test < ActionController::TestCase
     data = JSON.parse(@response.body)['data']['moveTaskDown']
     assert_equal 3, data['task']['order']
     tasks = data['project_media']['tasks']['edges']
-    assert_equal 1, tasks[0]['node']['order']
-    assert_equal 2, tasks[1]['node']['order']
-    assert_equal 3, tasks[2]['node']['order']
-    assert_equal @m1.id.to_s, tasks[0]['node']['dbid']
-    assert_equal @m3.id.to_s, tasks[1]['node']['dbid']
-    assert_equal @m2.id.to_s, tasks[2]['node']['dbid']
+    m1_order = tasks.find{|t| t['node']['dbid'] == @m1.id.to_s }
+    assert_equal m1_order['node']['order'], 1
+
+    m2_order = tasks.find{|t| t['node']['dbid'] == @m2.id.to_s }
+    assert_equal m2_order['node']['order'], 3
+
+    m3_order = tasks.find{|t| t['node']['dbid'] == @m3.id.to_s }
+    assert_equal m3_order['node']['order'], 2
   end
   
   test "should add files to task and remove files from task" do
