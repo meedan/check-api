@@ -35,11 +35,9 @@ module Api
         return ProjectMedia.none if team_ids.blank? || query.blank?
 
         if feed_id > 0
-          get_results_from_feed_teams(team_ids, feed_id, query, type, after, webhook_url, skip_save_request)
+          return get_results_from_feed_teams(team_ids, feed_id, query, type, after, webhook_url, skip_save_request)
         elsif ApiKey.current
-          get_results_from_api_key_teams(type, query, after)
-        else
-          ProjectMedia.none
+          return get_results_from_api_key_teams(type, query, after)
         end
       end
 
