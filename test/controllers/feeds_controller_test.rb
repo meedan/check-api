@@ -37,6 +37,21 @@ class FeedsControllerTest < ActionController::TestCase
     assert_response 401
   end
 
+  test "should request team data" do
+    a = create_api_key
+    b = create_bot_user
+    b.api_key = a
+    b.save!
+    create_team_user team: @t1, user: b
+    Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id], nil).returns([@pm1])
+
+    authenticate_with_token a
+    get :index, params: { filter: { type: 'text', query: 'Foo' } }
+    assert_response :success
+    assert_equal 1, json_response['data'].size
+    assert_equal 1, json_response['meta']['record-count']
+  end
+
   test "should request feed data" do
     authenticate_with_token @a
     get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
