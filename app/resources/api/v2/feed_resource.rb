@@ -23,7 +23,7 @@ module Api
 
       def self.records(options = {}, skip_save_request = false)
         team_ids = self.workspaces(options).map(&:id)
-        Team.current ||= team_ids[0]
+        Team.current ||= Team.find_by_id(team_ids[0].to_i)
         filters = options[:filters] || {}
         query = filters.dig(:query).to_a.join(',')
         query = CGI.unescape(query)
