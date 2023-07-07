@@ -134,6 +134,7 @@ class TiplineNewsletter < ApplicationRecord
   end
 
   def articles
+    return @articles unless @articles.to_a.empty?
     articles = []
     if self.content_type == 'static'
       [:first_article, :second_article, :third_article].each do |article|
@@ -142,13 +143,14 @@ class TiplineNewsletter < ApplicationRecord
     elsif self.content_type == 'rss' && !self.rss_feed_url.blank?
       articles = RssFeed.new(self.rss_feed_url).get_articles(self.number_of_articles)
     end
-    articles.reject{ |article| article.blank? }.first(self.number_of_articles).collect do |article|
+    @articles = articles.reject{ |article| article.blank? }.first(self.number_of_articles).collect do |article|
       if self.team.get_shorten_outgoing_urls || self.content_type == 'rss'
         UrlRewriter.shorten_and_utmize_urls(article, self.team.get_outgoing_urls_utm_code, self)
       else
         article
       end
     end
+    @articles
   end
 
   def body
