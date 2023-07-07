@@ -17,8 +17,16 @@ class TiplineNewsletterWorkerTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not crash if error happens when sending newsletter to some subscriber" do
+  test "should not crash if exception happens when sending newsletter to some subscriber" do
     Bot::Smooch.stubs(:send_message_to_user).raises(StandardError)
+    assert_nothing_raised do
+      TiplineNewsletterWorker.perform_async(@team.id, 'en')
+    end
+    Bot::Smooch.unstub(:send_message_to_user)
+  end
+
+  test "should not crash if error happens when sending newsletter to some subscriber" do
+    Bot::Smooch.stubs(:send_message_to_user).returns(OpenStruct.new(code: 400))
     assert_nothing_raised do
       TiplineNewsletterWorker.perform_async(@team.id, 'en')
     end
