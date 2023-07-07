@@ -256,10 +256,7 @@ module SmoochTurnio
       req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{self.config['turnio_token']}")
       req.body = payload.to_json
       response = http.request(req)
-      ret = nil
-      if response.code.to_i < 400
-        ret = response
-      else
+      if response.code.to_i >= 400
         response_body = Bot::Smooch.safely_parse_response_body(response)
         errors = response_body&.dig('errors')
         errors.to_a.each do |error|
@@ -273,7 +270,7 @@ module SmoochTurnio
           )
         end
       end
-      ret
+      response
     end
   end
 end

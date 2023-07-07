@@ -43,10 +43,14 @@ class TiplineNewsletterWorker
 
         response = Bot::Smooch.send_message_to_user(ts.uid, newsletter.format_as_template_message)
 
-        log team_id, language, "Newsletter sent to subscriber ##{ts.id}, response: (#{response.code}) #{response.body}"
-        count += 1
+        if response.code.to_i < 400
+          log team_id, language, "Newsletter sent to subscriber ##{ts.id}, response: (#{response.code}) #{response.body}"
+          count += 1
+        else
+          log team_id, language, "Could not send newsletter to subscriber ##{ts.id}: (#{response.code}) #{response.body}"
+        end
       rescue StandardError => e
-        log team_id, language, "Could not send newsletter to subscriber ##{ts.id}: #{e.message}"
+        log team_id, language, "Could not send newsletter to subscriber ##{ts.id} (exception): #{e.message}"
       end
     end
     finish = Time.now
