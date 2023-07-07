@@ -431,9 +431,9 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     @installation.save!
     Bot::Smooch.get_installation('turnio_secret', 'test')
     WebMock.stub_request(:post, 'https://whatsapp.turn.io/v1/messages').to_return(status: 200, body: '{}')
-    assert_not_nil Bot::Smooch.turnio_send_message_to_user('test:123456', 'Test')
+    assert_equal 200, Bot::Smooch.turnio_send_message_to_user('test:123456', 'Test').code.to_i
     WebMock.stub_request(:post, 'https://whatsapp.turn.io/v1/messages').to_return(status: 404, body: '{}')
-    assert_nil Bot::Smooch.turnio_send_message_to_user('test:123456', 'Test 2')
+    assert_equal 404, Bot::Smooch.turnio_send_message_to_user('test:123456', 'Test 2').code.to_i
   end
 
   test "should resend turn.io message" do
