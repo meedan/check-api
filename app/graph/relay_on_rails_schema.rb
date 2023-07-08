@@ -21,8 +21,8 @@ class RelayOnRailsSchema < GraphQL::Schema
       "#{klass}Type".constantize
     end
 
-    def id_from_object(obj, type, ctx)
-      CheckGraphql.id_from_object(obj, type, ctx)
+    def id_from_object(object, type, ctx)
+      CheckGraphql.id_from_object(object, type, ctx)
     end
 
     def object_from_id(id, ctx)
