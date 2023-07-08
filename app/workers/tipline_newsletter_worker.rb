@@ -45,6 +45,7 @@ class TiplineNewsletterWorker
 
         if response.code.to_i < 400
           log team_id, language, "Newsletter sent to subscriber ##{ts.id}, response: (#{response.code}) #{response.body}"
+          Bot::Smooch.save_smooch_response(response, nil, Time.now.to_i, 'newsletter', language, {}, 24.hours)
           count += 1
         else
           log team_id, language, "Could not send newsletter to subscriber ##{ts.id}: (#{response.code}) #{response.body}"
