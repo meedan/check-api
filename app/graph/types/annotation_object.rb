@@ -53,9 +53,7 @@ class AnnotationObject < BaseObject
     object.assigned_users
   end
 
-  field :annotations,
-        AnnotationUnion.connection_type,
-        null: true do
+  field :annotations, AnnotationUnion.connection_type, null: true do
     argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
   end
 

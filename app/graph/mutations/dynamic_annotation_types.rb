@@ -24,6 +24,8 @@ module DynamicAnnotation::AnnotationTypeManager
             argument :action_data, GraphQL::Types::String, required: false, camelize: false
 
             field :versionEdge, VersionType.edge_type, null: true
+            field :dynamic, DynamicType, null: true
+            field :dynamicEdge, DynamicType.edge_type, null: true
           end
         end
 
@@ -31,9 +33,6 @@ module DynamicAnnotation::AnnotationTypeManager
           include SharedCreateAndUpdateFields
 
           argument :set_fields, GraphQL::Types::String, required: true, camelize: false
-
-          field :dynamic, DynamicType, null: true
-          field :dynamicEdge, DynamicType.edge_type, null: true
         end unless defined? Create
 
         class Update < Mutations::UpdateMutation
