@@ -97,7 +97,7 @@ module SmoochTurnio
     end
 
     def get_turnio_message_text(message)
-      message.dig('text', 'body') || message.dig('interactive', 'list_reply', 'title') || message.dig('interactive', 'button_reply', 'title') || ''
+      self.get_capi_message_text(message)
     end
 
     def get_turnio_message_uid(message)
