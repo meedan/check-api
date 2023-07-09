@@ -97,7 +97,7 @@ module SmoochTurnio
     end
 
     def get_turnio_message_text(message)
-      self.get_capi_message_text(message)
+      Bot::Smooch.get_capi_message_text(message)
     end
 
     def get_turnio_message_uid(message)
