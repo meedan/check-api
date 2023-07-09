@@ -115,7 +115,7 @@ module SmoochTurnio
         messages = [{
           '_id': message['id'],
           authorId: uid,
-          name: json['contacts'][0]['profile']['name'],
+          name: json.dig('contacts', 0, 'profile', 'name'),
           type: self.convert_turnio_message_type(message['type']),
           text: self.get_turnio_message_text(message),
           source: { type: 'whatsapp', originalMessageId: message['id'] },
