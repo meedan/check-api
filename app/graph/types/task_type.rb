@@ -1,5 +1,11 @@
-class TaskType < AnnotationObject
-  define_shared_behavior(self, 'task')
+class TaskType < BaseObject
+  implements AnnotationInterface
+
+  # TODO: In future version of GraphQL ruby, we can move
+  # this to definition_methods in the annotation interface
+  def id
+    object.relay_id('task')
+  end
 
   field :label, GraphQL::Types::String, null: true
   field :type, GraphQL::Types::String, null: true
@@ -8,7 +14,7 @@ class TaskType < AnnotationObject
   field :json_schema, GraphQL::Types::String, null: true
   field :slug, GraphQL::Types::String, null: true
 
-  field :first_response, "AnnotationType", null: true
+  field :first_response, AnnotationType, null: true
 
   def first_response
     obj = object.load || object
@@ -53,5 +59,5 @@ class TaskType < AnnotationObject
 
   field :show_in_browser_extension, GraphQL::Types::Boolean, null: true
 
-  field :responses, "AnnotationType", connection: true, null: true
+  field :responses, AnnotationType.connection_type, null: true
 end

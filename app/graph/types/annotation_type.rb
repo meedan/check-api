@@ -1,5 +1,11 @@
-class AnnotationType < AnnotationObject
-  define_shared_behavior(self, 'annotation')
+class AnnotationType < BaseObject
+  implements AnnotationInterface
+
+  # TODO: In future version of GraphQL ruby, we can move
+  # this to definition_methods in the annotation interface
+  def id
+    object.relay_id('annotation')
+  end
 
   field :annotation, GraphQL::Types::String, null: true
 

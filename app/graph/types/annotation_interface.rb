@@ -1,11 +1,6 @@
-class AnnotationObject < BaseObject
-  class << self
-    def define_shared_behavior(subclass, mutation_target)
-      subclass.class_variable_set(:@@mutation_target, mutation_target)
-    end
-  end
-
-  implements GraphQL::Types::Relay::Node
+module AnnotationInterface
+  include GraphQL::Schema::Interface
+  include GraphQL::Types::Relay::Node
 
   field :id, GraphQL::Types::ID, null: false
   field :annotation_type, GraphQL::Types::String, null: true
@@ -13,10 +8,6 @@ class AnnotationObject < BaseObject
   field :annotated_type, GraphQL::Types::String, null: true
   field :content, GraphQL::Types::String, null: true
   field :dbid, GraphQL::Types::String, null: true
-
-  def id
-    object.relay_id(self.class.class_variable_get(:@@mutation_target))
-  end
 
   field :permissions, GraphQL::Types::String, null: true
 
