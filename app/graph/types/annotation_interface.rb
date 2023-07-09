@@ -3,9 +3,9 @@ module AnnotationInterface
   include GraphQL::Types::Relay::Node
 
   field :id, GraphQL::Types::ID, null: false
-  field :annotation_type, GraphQL::Types::String, null: true
-  field :annotated_id, GraphQL::Types::String, null: true
-  field :annotated_type, GraphQL::Types::String, null: true
+  field :annotation_type, GraphQL::Types::String, null: true, camelize: false
+  field :annotated_id, GraphQL::Types::String, null: true, camelize: false
+  field :annotated_type, GraphQL::Types::String, null: true, camelize: false
   field :content, GraphQL::Types::String, null: true
   field :dbid, GraphQL::Types::String, null: true
 
@@ -15,13 +15,13 @@ module AnnotationInterface
     object.permissions(context[:ability], object.annotation_type_class)
   end
 
-  field :created_at, GraphQL::Types::String, null: true
+  field :created_at, GraphQL::Types::String, null: true, camelize: false
 
   def created_at
     object.created_at.to_i.to_s
   end
 
-  field :updated_at, GraphQL::Types::String, null: true
+  field :updated_at, GraphQL::Types::String, null: true, camelize: false
 
   def updated_at
     object.updated_at.to_i.to_s
@@ -62,9 +62,9 @@ module AnnotationInterface
 
   field :team, TeamType, null: true
 
-  field :file_data, JsonString, null: true
+  field :file_data, JsonString, null: true, camelize: false
 
   field :data, JsonString, null: true
 
-  field :parsed_fragment, JsonString, null: true
+  field :parsed_fragment, JsonString, null: true, camelize: false
 end
