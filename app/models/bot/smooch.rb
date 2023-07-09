@@ -430,7 +430,7 @@ class Bot::Smooch < BotUser
         self.get_supported_languages.each do |l|
           i = self.get_next_menu_item_number(i)
           options << {
-            'smooch_menu_option_keyword' => [l, i].join(','),
+            'smooch_menu_option_keyword' => i.to_s,
             'smooch_menu_option_value' => l
           }
         end
