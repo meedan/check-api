@@ -31,8 +31,8 @@ class GraphqlController10Test < ActionController::TestCase
     assert_difference 'TeamBotInstallation.count', -1 do
       post :create, params: { query: query }
     end
-    data = JSON.parse(@response.body)['data']['destroyTeamBotInstallation']
 
+    data = JSON.parse(response.body)['data']['destroyTeamBotInstallation']
     assert_equal [], t.reload.team_bots
     assert_equal tbi.graphql_id, data['deletedId']
   end
@@ -46,12 +46,12 @@ class GraphqlController10Test < ActionController::TestCase
     authenticate_with_user(u)
     tk = create_task annotated: pm
 
-
     query = "query GetById { task(id: \"#{tk.id}\") { project_media { id }, options, responses { edges { node { id } } } } }"
     post :create, params: { query: query, team: t.slug }
 
     assert_response :success
-    data = JSON.parse(@response.body)['data']['task']
+    data = JSON.parse(response.body)['data']['task']
+
     assert_kind_of Array, data['options']
   end
 

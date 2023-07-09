@@ -146,6 +146,7 @@ class GraphqlCrudOperations
 
   def self.destroy_from_single_id(graphql_id, obj, inputs, ctx, parent_names)
     raise "This operation must be done by a signed-in user" if User.current.nil?
+
     obj.keep_completed_tasks = inputs[:keep_completed_tasks] if obj.is_a?(TeamTask)
     if obj.is_a?(Relationship)
       obj.add_to_project_id = inputs[:add_to_project_id]
@@ -156,7 +157,7 @@ class GraphqlCrudOperations
     obj.respond_to?(:destroy_later) ? obj.destroy_later(ctx[:ability]) : ApplicationRecord.connection_pool.with_connection { obj&.destroy }
 
     deleted_id = obj.respond_to?(:graphql_deleted_id) ? obj.graphql_deleted_id : graphql_id
-    ret = { deletedId: deleted_id }
+    ret = { deleted_id: deleted_id }
 
     parent_names.each { |parent_name| ret[parent_name.to_sym] = obj.send(parent_name) } unless obj.nil?
 

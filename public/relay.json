@@ -150,7 +150,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -431,7 +431,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -803,7 +803,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -2006,7 +2006,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -2450,7 +2450,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -2692,7 +2692,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -3018,7 +3018,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -26193,7 +26193,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -47846,7 +47846,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -48108,7 +48108,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -48714,7 +48714,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -49570,7 +49570,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -56405,7 +56405,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -56833,7 +56833,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -60264,7 +60264,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -61442,7 +61442,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -61676,7 +61676,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -63008,7 +63008,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -63934,7 +63934,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -64866,7 +64866,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -65897,7 +65897,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -67393,7 +67393,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -68594,7 +68594,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -69071,7 +69071,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -69428,7 +69428,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -69827,7 +69827,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -71040,6 +71040,34 @@
               "deprecationReason": null
             },
             {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "dynamic_annotation_analysis",
               "description": null,
               "args": [
@@ -71280,6 +71308,34 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -71532,6 +71588,34 @@
               "deprecationReason": null
             },
             {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "dynamic_annotation_archiver",
               "description": null,
               "args": [
@@ -71772,6 +71856,34 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -72024,6 +72136,34 @@
               "deprecationReason": null
             },
             {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "dynamic_annotation_embed_code",
               "description": null,
               "args": [
@@ -72264,6 +72404,34 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -72516,6 +72684,34 @@
               "deprecationReason": null
             },
             {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "dynamic_annotation_flag",
               "description": null,
               "args": [
@@ -72756,6 +72952,34 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -73008,6 +73232,34 @@
               "deprecationReason": null
             },
             {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "dynamic_annotation_language",
               "description": null,
               "args": [
@@ -73248,6 +73500,34 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -73500,6 +73780,34 @@
               "deprecationReason": null
             },
             {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "dynamic_annotation_metadata",
               "description": null,
               "args": [
@@ -73740,6 +74048,34 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -73992,6 +74328,34 @@
               "deprecationReason": null
             },
             {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "dynamic_annotation_mt",
               "description": null,
               "args": [
@@ -74232,6 +74596,34 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -74484,6 +74876,34 @@
               "deprecationReason": null
             },
             {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "dynamic_annotation_reverse_image",
               "description": null,
               "args": [
@@ -74724,6 +75144,34 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -74976,6 +75424,34 @@
               "deprecationReason": null
             },
             {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "dynamic_annotation_smooch",
               "description": null,
               "args": [
@@ -75216,6 +75692,34 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -75468,6 +75972,34 @@
               "deprecationReason": null
             },
             {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "dynamic_annotation_smooch_user",
               "description": null,
               "args": [
@@ -75708,6 +76240,34 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -75960,6 +76520,34 @@
               "deprecationReason": null
             },
             {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "dynamic_annotation_task_response_datetime",
               "description": null,
               "args": [
@@ -76200,6 +76788,34 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -76452,6 +77068,34 @@
               "deprecationReason": null
             },
             {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "dynamic_annotation_task_response_free_text",
               "description": null,
               "args": [
@@ -76692,6 +77336,34 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -76944,6 +77616,34 @@
               "deprecationReason": null
             },
             {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "dynamic_annotation_task_response_multiple_choice",
               "description": null,
               "args": [
@@ -77184,6 +77884,34 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -77436,6 +78164,34 @@
               "deprecationReason": null
             },
             {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "dynamic_annotation_task_response_single_choice",
               "description": null,
               "args": [
@@ -77676,6 +78432,34 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -77928,6 +78712,34 @@
               "deprecationReason": null
             },
             {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "dynamic_annotation_task_response_yes_no",
               "description": null,
               "args": [
@@ -78168,6 +78980,34 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -78420,6 +79260,34 @@
               "deprecationReason": null
             },
             {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "dynamic_annotation_team_bot_response",
               "description": null,
               "args": [
@@ -78660,6 +79528,34 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -78912,6 +79808,34 @@
               "deprecationReason": null
             },
             {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "dynamic_annotation_transcription",
               "description": null,
               "args": [
@@ -79152,6 +80076,34 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -79404,6 +80356,34 @@
               "deprecationReason": null
             },
             {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "dynamic_annotation_translation_request",
               "description": null,
               "args": [
@@ -79650,6 +80630,34 @@
               "deprecationReason": null
             },
             {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "dynamic_annotation_translation_status",
               "description": null,
               "args": [
@@ -79890,6 +80898,34 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamic",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Dynamic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dynamicEdge",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DynamicEdge",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -84702,7 +85738,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -85716,7 +86752,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],

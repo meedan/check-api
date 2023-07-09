@@ -590,6 +590,7 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "mutation destroy { destroyProject(input: { clientMutationId: \"1\", id: \"#{p.graphql_id}\", items_destination_project_id: #{p2.id} }) { deletedId } }"
     post :create, params: { query: query, team: @team.slug }
     assert_response :success
+    assert_equal p.graphql_id, JSON.parse(response.body)['data']['destroyProject']['deletedId']
     assert_equal p2.id, pm.reload.project_id
   end
 

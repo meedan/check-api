@@ -88,8 +88,7 @@ class QueryType < BaseObject
   end
 
   def public_team(**args)
-    team =
-      args[:slug].blank? ? Team.current : Team.where(slug: args[:slug]).last
+    team = args[:slug].blank? ? Team.current : Team.where(slug: args[:slug]).last
     id = team.blank? ? 0 : team.id
     Team.find(id)
   end
