@@ -14,9 +14,9 @@ class VersionType < DefaultObject
   field :associated_graphql_id, GraphQL::Types::String, null: true
 
   field :user, UserType, null: true
-  field :annotation, "AnnotationType", null: true
-  field :task, "TaskType", null: true
-  field :tag, "TagType", null: true
+  field :annotation, AnnotationType, null: true
+  field :task, TaskType, null: true
+  field :tag, TagType, null: true
 
   def tag
     Tag.find(object.annotation.id) unless object.annotation.nil?

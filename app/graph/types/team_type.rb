@@ -196,10 +196,8 @@ class TeamType < DefaultObject
     ).first
   end
 
-  field :team_users,
-        TeamUserType.connection_type,
-        null: true do
-    argument :status, [String, null: true], required: false
+  field :team_users, TeamUserType.connection_type, null: true do
+    argument :status, [GraphQL::Types::String], required: false
   end
 
   def team_users(**args)

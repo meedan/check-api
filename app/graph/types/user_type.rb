@@ -40,7 +40,7 @@ class UserType < DefaultObject
   field :settings, JsonString, null: true
   field :accepted_terms, GraphQL::Types::Boolean, null: true
   field :last_accepted_terms_at, GraphQL::Types::String, null: true
-  field :team_ids, [Integer, null: true], null: true
+  field :team_ids, [GraphQL::Types::Int], null: true
   field :user_teams, GraphQL::Types::String, null: true
   field :last_active_at, GraphQL::Types::Int, null: true
   field :completed_signup, GraphQL::Types::Boolean, null: true
@@ -106,10 +106,7 @@ class UserType < DefaultObject
     team_users
   end
 
-  field :annotations,
-        "AnnotationType",
-        connection: true,
-        null: true do
+  field :annotations, AnnotationType.connection_type, null: true do
     argument :type, GraphQL::Types::String, required: false
   end
 

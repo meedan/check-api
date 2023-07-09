@@ -162,10 +162,10 @@ class ProjectMediaType < DefaultObject
   end
 
   field :log, VersionType.connection_type, null: true do
-    argument :event_types, GraphQL::Types::String, required: false, camelize: false
-    argument :field_names, GraphQL::Types::String, required: false, camelize: false
-    argument :annotation_types, GraphQL::Types::String, required: false, camelize: false
-    argument :who_dunnit, GraphQL::Types::String, required: false, camelize: false
+    argument :event_types, [GraphQL::Types::String], required: false, camelize: false
+    argument :field_names, [GraphQL::Types::String], required: false, camelize: false
+    argument :annotation_types, [GraphQL::Types::String], required: false, camelize: false
+    argument :who_dunnit, [GraphQL::Types::String], required: false, camelize: false
     argument :include_related, GraphQL::Types::Boolean, required: false, camelize: false
   end
 
@@ -201,7 +201,7 @@ class ProjectMediaType < DefaultObject
 
   field :last_status, GraphQL::Types::String, null: true
 
-  field :last_status_obj, "DynamicType", null: true
+  field :last_status_obj, DynamicType, null: true
 
   def last_status_obj
     obj = object.last_status_obj
@@ -226,7 +226,7 @@ class ProjectMediaType < DefaultObject
     object.get_dynamic_annotation("language")&.get_field_value("language")
   end
 
-  field :annotation, "AnnotationType", null: true do
+  field :annotation, AnnotationType, null: true do
     argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
   end
 
@@ -247,7 +247,7 @@ class ProjectMediaType < DefaultObject
     end
   end
 
-  field :assignments, "AnnotationType", connection: true, null: true do
+  field :assignments, AnnotationType.connection_type, null: true do
     argument :user_id, GraphQL::Types::Int, required: true, camelize: false
     argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
   end
@@ -271,7 +271,7 @@ class ProjectMediaType < DefaultObject
         object.get_annotations(type)
       end
 
-      field "dynamic_annotation_#{type}".to_sym, "DynamicType", null: true
+      field "dynamic_annotation_#{type}".to_sym, DynamicType, null: true
 
       define_method("dynamic_annotation_#{type}".to_sym) do |**_inputs|
         object.get_dynamic_annotation(type)

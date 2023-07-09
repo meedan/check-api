@@ -10,10 +10,10 @@ class AboutType < DefaultObject
   field :languages_supported, GraphQL::Types::String, "Supported languages", null: true
   field :terms_last_updated_at, GraphQL::Types::Int, "Terms last update date", null: true
 
-  field :upload_extensions, [GraphQL::Types::String, null: true], "Allowed upload types", null: true
-  field :file_extensions, [GraphQL::Types::String, null: true], "Allowed file types", null: true
-  field :video_extensions, [GraphQL::Types::String, null: true], "Allowed video types", null: true
-  field :audio_extensions, [GraphQL::Types::String, null: true], "Allowed audio types", null: true
+  field :upload_extensions, [GraphQL::Types::String], "Allowed upload types", null: true
+  field :file_extensions, [GraphQL::Types::String], "Allowed file types", null: true
+  field :video_extensions, [GraphQL::Types::String], "Allowed video types", null: true
+  field :audio_extensions, [GraphQL::Types::String], "Allowed audio types", null: true
 
   field :upload_max_size, GraphQL::Types::String, "Maximum upload size, in human-readable format", null: true
   field :file_max_size, GraphQL::Types::String, "Maximum file upload size, in human-readable format", null: true
