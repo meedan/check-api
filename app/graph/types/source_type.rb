@@ -20,17 +20,13 @@ class SourceType < DefaultObject
 
   field :accounts, AccountType.connection_type, null: true
 
-  field :account_sources,
-        AccountSourceType.connection_type,
-        null: true
+  field :account_sources, AccountSourceType.connection_type, null: true
 
   def account_sources
     object.account_sources.order(id: :asc)
   end
 
-  field :medias,
-        ProjectMediaType.connection_type,
-        null: true
+  field :medias, ProjectMediaType.connection_type, null: true
 
   def medias
     object.media

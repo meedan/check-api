@@ -33,36 +33,10 @@ class RelayOnRailsSchema < GraphQL::Schema
   # Any types that are not explicitly declared as return types
   # somewhere in our schema. Otherwise our schema won't know about
   orphan_types(
-    AboutType,
     AccountSourceType,
-    AccountType,
-    AnnotatorType,
-    BotUserType,
-    CheckSearchType,
-    ClaimDescriptionType,
-    ClusterType,
-    DynamicAnnotationFieldType,
-    FactCheckType,
-    FeedTeamType,
-    FeedType,
-    MediaType,
-    ProjectGroupType,
-    ProjectMediaType,
     ProjectMediaUserType,
-    ProjectType,
-    PublicTeamType,
     RelationshipType,
-    RootLevelType,
-    SavedSearchType,
-    SourceType,
-    TagTextType,
-    TeamBotInstallationType,
-    TeamTaskType,
-    TeamType,
-    TeamUserType,
-    TiplineNewsletterType,
-    UserType,
-    VersionType
+    TiplineNewsletterType
   )
 
   rescue_from ActiveRecord::RecordNotFound do |err, _obj, _args, _ctx, _field|

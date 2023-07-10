@@ -278,9 +278,7 @@ class ProjectMediaType < DefaultObject
       end
     end
 
-  field :suggested_similar_relationships,
-        RelationshipType.connection_type,
-        null: true
+  field :suggested_similar_relationships, RelationshipType.connection_type, null: true
 
   def suggested_similar_relationships
     ProjectMedia.get_similar_relationships(object, Relationship.suggested_type)
@@ -302,9 +300,7 @@ class ProjectMediaType < DefaultObject
       &.source
   end
 
-  field :confirmed_similar_relationships,
-        RelationshipType.connection_type,
-        null: true
+  field :confirmed_similar_relationships, RelationshipType.connection_type, null: true
 
   def confirmed_similar_relationships
     ProjectMedia.get_similar_relationships(object, Relationship.confirmed_type)
@@ -328,9 +324,7 @@ class ProjectMediaType < DefaultObject
     Relationship.confirmed_parent(object)
   end
 
-  field :default_relationships,
-        RelationshipType.connection_type,
-        null: true
+  field :default_relationships, RelationshipType.connection_type, null: true
 
   def default_relationships
     object.get_default_relationships.order("id DESC")

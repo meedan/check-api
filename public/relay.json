@@ -1411,7 +1411,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -1613,6 +1613,11 @@
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
               "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
+              "ofType": null
             }
           ],
           "enumValues": null,
@@ -1733,7 +1738,7 @@
         {
           "kind": "INTERFACE",
           "name": "AnnotationInterface",
-          "description": "An object with an ID.",
+          "description": null,
           "fields": [
             {
               "name": "annotated_id",
@@ -4183,7 +4188,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -4370,6 +4375,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -27606,7 +27616,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -27807,6 +27817,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -28178,7 +28193,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -28379,6 +28394,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -28750,7 +28770,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -28951,6 +28971,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -29322,7 +29347,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -29523,6 +29548,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -29894,7 +29924,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -30095,6 +30125,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -30466,7 +30501,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -30667,6 +30702,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -31038,7 +31078,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -31239,6 +31279,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -31610,7 +31655,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -31811,6 +31856,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -32182,7 +32232,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -32383,6 +32433,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -32754,7 +32809,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -32955,6 +33010,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -33326,7 +33386,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -33527,6 +33587,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -33898,7 +33963,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -34099,6 +34164,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -34470,7 +34540,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -34671,6 +34741,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -35042,7 +35117,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -35243,6 +35318,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -35614,7 +35694,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -35815,6 +35895,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -36186,7 +36271,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -36387,6 +36472,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -36758,7 +36848,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -36959,6 +37049,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -37330,7 +37425,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -37531,6 +37626,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -37902,7 +38002,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -38103,6 +38203,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -38474,7 +38579,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -38675,6 +38780,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -39046,7 +39156,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -39247,6 +39357,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -39618,7 +39733,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -39819,6 +39934,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -40190,7 +40310,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -40391,6 +40511,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -40762,7 +40887,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -40963,6 +41088,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -41334,7 +41464,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -41535,6 +41665,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -41906,7 +42041,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -42107,6 +42242,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -42478,7 +42618,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -42679,6 +42819,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -43050,7 +43195,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -43251,6 +43396,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -43622,7 +43772,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -43823,6 +43973,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -44194,7 +44349,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -44395,6 +44550,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -44766,7 +44926,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -44967,6 +45127,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -45338,7 +45503,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -45539,6 +45704,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -45910,7 +46080,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -46111,6 +46281,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -46482,7 +46657,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -46683,6 +46858,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -47054,7 +47234,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -47255,6 +47435,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -47626,7 +47811,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -47827,6 +48012,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -48198,7 +48388,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -48399,6 +48589,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -49895,7 +50090,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -50068,6 +50263,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -56572,6 +56772,11 @@
             },
             {
               "kind": "OBJECT",
+              "name": "Annotation",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
               "name": "Annotator",
               "ofType": null
             },
@@ -56597,7 +56802,197 @@
             },
             {
               "kind": "OBJECT",
+              "name": "Comment",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
               "name": "DynamicAnnotationField",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_analysis",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_archive_is",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_archiver",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_clip",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_embed_code",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_extracted_text",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_flag",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_geolocation",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_language",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_memebuster",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_metadata",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_metrics",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_mt",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_report_design",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_reverse_image",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_slack_message",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_smooch",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_smooch_response",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_smooch_user",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_syrian_archive_data",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_task_response_datetime",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_task_response_file_upload",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_task_response_free_text",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_task_response_geolocation",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_task_response_multiple_choice",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_task_response_number",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_task_response_single_choice",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_task_response_url",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_task_response_yes_no",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_task_status",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_team_bot_response",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_transcript",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_transcription",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_translation",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_translation_request",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_translation_status",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Dynamic_annotation_verification_status",
               "ofType": null
             },
             {
@@ -56613,6 +57008,11 @@
             {
               "kind": "OBJECT",
               "name": "FeedTeam",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Flag",
               "ofType": null
             },
             {
@@ -56673,6 +57073,11 @@
             {
               "kind": "OBJECT",
               "name": "TagText",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Task",
               "ofType": null
             },
             {
@@ -66948,7 +67353,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -67328,6 +67733,11 @@
             {
               "kind": "INTERFACE",
               "name": "AnnotationInterface",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
               "ofType": null
             }
           ],

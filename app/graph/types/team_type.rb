@@ -205,9 +205,7 @@ class TeamType < DefaultObject
     object.team_users.where({ status: status }).order("id ASC")
   end
 
-  field :join_requests,
-        TeamUserType.connection_type,
-        null: true
+  field :join_requests, TeamUserType.connection_type, null: true
 
   def join_requests
     object.team_users.where({ status: "requested" })
@@ -289,14 +287,8 @@ class TeamType < DefaultObject
     data
   end
 
-  field :saved_searches,
-        SavedSearchType.connection_type,
-        null: true
-  field :project_groups,
-        ProjectGroupType.connection_type,
-        null: true
+  field :saved_searches, SavedSearchType.connection_type, null: true
+  field :project_groups, ProjectGroupType.connection_type, null: true
   field :feeds, FeedType.connection_type, null: true
-  field :tipline_newsletters,
-        TiplineNewsletterType.connection_type,
-        null: true
+  field :tipline_newsletters, TiplineNewsletterType.connection_type, null: true
 end
