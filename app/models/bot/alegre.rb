@@ -206,7 +206,7 @@ class Bot::Alegre < BotUser
     # Kana are definitely not one word each, but who really knows.
     # For the purpose of this function, we'll assume 4 kana equate to one word
     unicode_words = unicode_words.map{|w| [1,
-      (w.scan(/\p{Han}/).size/2.0).ceil) + (w.scan(/\p{Katakana}|\p{Hiragana}/).size/4.0).ceil].max}.sum()
+      (w.scan(/\p{Han}/).size/2.0).ceil + (w.scan(/\p{Katakana}|\p{Hiragana}/).size/4.0).ceil].max}.sum()
 
     # Return whichever is larger of our two methods for counting words
     [space_separted_words, unicode_words].max
