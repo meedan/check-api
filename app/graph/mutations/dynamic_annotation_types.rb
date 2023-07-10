@@ -19,7 +19,8 @@ module DynamicAnnotation::AnnotationTypeManager
           include Mutations::Inclusions::AnnotationBehaviors
 
           included do
-            argument :action, GraphQL::Types::String, required: false, camelize: false
+            argument :action, GraphQL::Types::String, required: false
+            argument :fragment, GraphQL::Types::String, required: false
             argument :set_attribution, GraphQL::Types::String, required: false, camelize: false
             argument :action_data, GraphQL::Types::String, required: false, camelize: false
 
@@ -41,7 +42,7 @@ module DynamicAnnotation::AnnotationTypeManager
           argument :set_fields, GraphQL::Types::String, required: false, camelize: false
           argument :lock_version, GraphQL::Types::Int, required: false, camelize: false
           argument :assigned_to_ids, GraphQL::Types::String, required: false, camelize: false
-          argument :locked, GraphQL::Types::Boolean, required: false, camelize: false
+          argument :locked, GraphQL::Types::Boolean, required: false
         end unless defined? Update
 
         class Destroy < Mutations::DestroyMutation; end  unless defined? Destroy

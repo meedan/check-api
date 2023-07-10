@@ -1,6 +1,5 @@
 module AnnotationInterface
   include GraphQL::Schema::Interface
-  include GraphQL::Types::Relay::Node
 
   field :id, GraphQL::Types::ID, null: false
   field :annotation_type, GraphQL::Types::String, null: true, camelize: false
