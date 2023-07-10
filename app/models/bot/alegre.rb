@@ -214,7 +214,10 @@ class Bot::Alegre < BotUser
 
   def self.get_items_from_similar_text(team_id, text, fields = nil, threshold = nil, models = nil, fuzzy = false)
     team_ids = [team_id].flatten
-    return {} if text.blank? || self.get_number_of_words(text) < 3
+    if text.blank? || self.get_number_of_words(text) < 3
+      Rails.logger.info("[Alegre Bot] get_items_from_similar_text returning early due to blank/short text #{text}")
+      return {}
+    end
     fields ||= ALL_TEXT_SIMILARITY_FIELDS
     threshold ||= self.get_threshold_for_query('text', nil, true)
     models ||= [self.matching_model_to_use(team_ids)].flatten
@@ -727,7 +730,7 @@ class Bot::Alegre < BotUser
     unless pm.alegre_matched_fields.blank?
       fields_size = []
       pm.alegre_matched_fields.uniq.each do |field|
-        fields_size << pm.send(field).to_s.split(/\s/).length if pm.respond_to?(field)
+        fields_size << self.get_number_of_words(pm.send(field)) if pm.respond_to?(field)
       end
       is_short = fields_size.max < length_threshold unless fields_size.blank?
     end

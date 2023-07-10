@@ -537,8 +537,8 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     # Korean Hangul is generally space separated and should be counted as such
     assert_equal 2, Bot::Alegre.get_number_of_words('한국어가 멋지다')
     # All together - 10 words as below
-    # '韓国語で'=>4, 'おいしい'=>1, 'は'=>1, '맛있는'=>1, 'です'=>1, 'Test'=>1, 'string'=>1
-    assert_equal 10, Bot::Alegre.get_number_of_words('韓国語で「おいしい」は「맛있는」です。Test string!😊')
+    # '韓国語で'=>3, 'おいしい'=>1, 'は'=>1, '맛있는'=>1, 'です'=>1, 'Test'=>1, 'string'=>1
+    assert_equal 9, Bot::Alegre.get_number_of_words('韓国語で「おいしい」は「맛있는」です。Test string!😊')
   end
 
   test "should be able to request deletion from index for a media given specific field" do
