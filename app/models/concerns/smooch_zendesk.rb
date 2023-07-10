@@ -69,12 +69,16 @@ module SmoochZendesk
           }
         })
       end
-      return if params['type'] == 'text' && params['text'].blank?
+      return OpenStruct.new(body: 'Empty message', code: 400) if params['type'] == 'text' && params['text'].blank?
       message_post_body = SmoochApi::MessagePost.new(params)
+      response_body = nil
+      response_code = 0
       begin
-        api_instance.post_message(app_id, uid, message_post_body)
+        response_body = api_instance.post_message(app_id, uid, message_post_body) # It will raise an exception if message can't be sent
+        response_code = 200
       rescue SmoochApi::ApiError => e
         response_body = begin JSON.parse(e.response_body) rescue {} end
+        response_code = 400
         Rails.logger.error("[Smooch Bot] Exception when sending message #{params.inspect}: #{e.response_body}")
 
         error = response_body.dig('error')
@@ -85,8 +89,9 @@ module SmoochZendesk
           smooch_body: params,
           errors: error
         )
-        nil
       end
+      # Convert to something that looks like a HTTP response
+      OpenStruct.new(body: response_body.inspect, code: response_code)
     end
 
     # https://docs.smooch.io/guide/whatsapp#shorthand-syntax

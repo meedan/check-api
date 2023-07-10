@@ -430,7 +430,7 @@ class Bot::Smooch < BotUser
         self.get_supported_languages.each do |l|
           i = self.get_next_menu_item_number(i)
           options << {
-            'smooch_menu_option_keyword' => [l, i].join(','),
+            'smooch_menu_option_keyword' => i.to_s,
             'smooch_menu_option_value' => l
           }
         end
@@ -935,10 +935,14 @@ class Bot::Smooch < BotUser
     (RequestStore.store[:smooch_bot_provider] == 'TURN' || RequestStore.store[:smooch_bot_provider] == 'CAPI') ? response_body&.dig('messages', 0, 'id') : response&.message&.id
   end
 
-  def self.save_smooch_response(response, pm, query_date, fallback_template = nil, lang = 'en', custom = {})
+  def self.save_smooch_response(response, pm, query_date, fallback_template = nil, lang = 'en', custom = {}, expire = nil)
     return false if response.nil? || fallback_template.nil?
     id = self.get_id_from_send_response(response)
-    Rails.cache.write('smooch:original:' + id, { project_media_id: pm&.id, fallback_template: fallback_template, language: lang, query_date: (query_date || Time.now.to_i) }.merge(custom).to_json) unless id.blank?
+    unless id.blank?
+      key = 'smooch:original:' + id
+      value = { project_media_id: pm&.id, fallback_template: fallback_template, language: lang, query_date: (query_date || Time.now.to_i) }.merge(custom).to_json
+      Rails.cache.write(key, value, expires_in: expire)
+    end
   end
 
   def self.send_report_from_parent_to_child(parent_id, target_id)
