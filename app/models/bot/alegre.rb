@@ -201,11 +201,12 @@ class Bot::Alegre < BotUser
     # We then clean each word and remove any empty ones
     unicode_words = text.gsub(/https?:\/\/\S+/u, '').scan(/(?u)\w+/).map{|w| w.gsub(/[^\p{L}\s]/u, '').strip.chomp}.reject{|w| w.length==0}
     # For each word, we:
-    # Get the number of Chinese characters. We'll assume one character is like one word
+    # Get the number of Chinese characters. We'll assume two characters are like one word
     # Get the number of Japanese hiragana/katakana (kana) characters.
     # Kana are definitely not one word each, but who really knows.
     # For the purpose of this function, we'll assume 4 kana equate to one word
-    unicode_words = unicode_words.map{|w| [1,w.scan(/\p{Han}/).size + (w.scan(/\p{Katakana}|\p{Hiragana}/).size/4.0).ceil].max}.sum()
+    unicode_words = unicode_words.map{|w| [1,
+      (w.scan(/\p{Han}/).size/2.0).ceil) + (w.scan(/\p{Katakana}|\p{Hiragana}/).size/4.0).ceil].max}.sum()
 
     # Return whichever is larger of our two methods for counting words
     [space_separted_words, unicode_words].max
