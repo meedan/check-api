@@ -530,6 +530,15 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
   test "should get number of words" do
     assert_equal 4, Bot::Alegre.get_number_of_words('58 This   is a test !!! 123 😊')
     assert_equal 1, Bot::Alegre.get_number_of_words(random_url)
+    # For Chinese characters we'll count the number of characters
+    assert_equal 2, Bot::Alegre.get_number_of_words('中国')
+    # For Japanese kana, we'll take the number of kana divided by 4 (rounded up)
+    assert_equal 2, Bot::Alegre.get_number_of_words('にほんごがすきい')
+    # Korean Hangul is generally space separated and should be counted as such
+    assert_equal 2, Bot::Alegre.get_number_of_words('한국어가 멋지다')
+    # All together - 10 words as below
+    # '韓国語で'=>4, 'おいしい'=>1, 'は'=>1, '맛있는'=>1, 'です'=>1, 'Test'=>1, 'string'=>1
+    assert_equal 10, Bot::Alegre.get_number_of_words('韓国語で「おいしい」は「맛있는」です。Test string!😊')
   end
 
   test "should be able to request deletion from index for a media given specific field" do

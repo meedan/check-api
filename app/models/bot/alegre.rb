@@ -193,7 +193,21 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_number_of_words(text)
-    text.gsub(/[^\p{L}\s]/u, '').strip.chomp.split(/\s+/).size
+    # Get the number of space-separated words (Does not work with Chinese/Japanese)
+    space_separted_words = text.gsub(/[^\p{L}\s]/u, '').strip.chomp.split(/\s+/).size
+
+    # This splits the text on any non unicode word boundary (works with Chinese, Japanese)
+    # We then clean each word and remove any empty ones
+    unicode_words = text.scan(/(?u)\w+/).map{|w| w.gsub(/[^\p{L}\s]/u, '').strip.chomp}.reject{|w| w.length==0}
+    # For each word, we:
+    # Get the number of Chinese characters. We'll assume one character is like one word
+    # Get the number of Japanese hiragana/katakana (kana) characters.
+    # Kana are definitely not one word each, but who really knows.
+    # For the purpose of this function, we'll assume 4 kana equate to one word
+    unicode_words = unicode_words.map{|w| [1,w.scan(/\p{Han}/).size + (w.scan(/\p{Katakana}|\p{Hiragana}/).size/4.0).ceil].max}.sum()
+
+    # Return whichever is larger of our two methods for counting words
+    [space_separted_words, unicode_words].max
   end
 
   def self.get_items_from_similar_text(team_id, text, fields = nil, threshold = nil, models = nil, fuzzy = false)
