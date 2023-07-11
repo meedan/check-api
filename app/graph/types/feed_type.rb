@@ -9,7 +9,7 @@ class FeedType < DefaultObject
   field :name, GraphQL::Types::String, null: true
   field :description, GraphQL::Types::String, null: true
   field :published, GraphQL::Types::Boolean, null: true
-  field :filters, JsonString, null: true
+  field :filters, JsonStringType, null: true
   field :current_feed_team, FeedTeamType, null: true
   field :teams_count, GraphQL::Types::Int, null: true
   field :requests_count, GraphQL::Types::Int, null: true

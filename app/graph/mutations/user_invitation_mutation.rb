@@ -3,9 +3,9 @@ class UserInvitationMutation < Mutations::BaseMutation
 
   argument :invitation, GraphQL::Types::String, required: false
 
-  argument :members, JsonString, required: true
+  argument :members, JsonStringType, required: true
 
-  field :errors, JsonString, null: true
+  field :errors, JsonStringType, null: true
 
   field :team, TeamType, null: true
 

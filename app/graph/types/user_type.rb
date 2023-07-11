@@ -6,7 +6,7 @@ class UserType < DefaultObject
   field :dbid, GraphQL::Types::Int, null: true
   field :email, GraphQL::Types::String, null: true
   field :unconfirmed_email, GraphQL::Types::String, null: true
-  field :providers, JsonString, null: true
+  field :providers, JsonStringType, null: true
   field :uuid, GraphQL::Types::String, null: true
   field :profile_image, GraphQL::Types::String, null: true
   field :login, GraphQL::Types::String, null: true
@@ -36,8 +36,8 @@ class UserType < DefaultObject
   field :bot_events, GraphQL::Types::String, null: true
   field :is_bot, GraphQL::Types::Boolean, null: true
   field :is_active, GraphQL::Types::Boolean, null: true
-  field :two_factor, JsonString, null: true
-  field :settings, JsonString, null: true
+  field :two_factor, JsonStringType, null: true
+  field :settings, JsonStringType, null: true
   field :accepted_terms, GraphQL::Types::Boolean, null: true
   field :last_accepted_terms_at, GraphQL::Types::String, null: true
   field :team_ids, [GraphQL::Types::Int], null: true

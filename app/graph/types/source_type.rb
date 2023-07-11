@@ -15,7 +15,7 @@ class SourceType < DefaultObject
   field :lock_version, GraphQL::Types::Int, null: true
   field :medias_count, GraphQL::Types::Int, null: true
   field :accounts_count, GraphQL::Types::Int, null: true
-  field :overridden, JsonString, null: true
+  field :overridden, JsonStringType, null: true
   field :archived, GraphQL::Types::Int, null: true
 
   field :accounts, AccountType.connection_type, null: true

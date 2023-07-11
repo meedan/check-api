@@ -1,4 +1,4 @@
-class JsonString < BaseScalar
+class JsonStringType < BaseScalar
   def self.coerce_input(val, _ctx)
     begin JSON.parse(val) rescue val end
   end

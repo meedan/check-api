@@ -61,9 +61,9 @@ module AnnotationInterface
 
   field :team, TeamType, null: true
 
-  field :file_data, JsonString, null: true, camelize: false
+  field :file_data, JsonStringType, null: true, camelize: false
 
-  field :data, JsonString, null: true
+  field :data, JsonStringType, null: true
 
-  field :parsed_fragment, JsonString, null: true, camelize: false
+  field :parsed_fragment, JsonStringType, null: true, camelize: false
 end

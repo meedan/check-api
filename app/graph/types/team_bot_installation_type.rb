@@ -23,11 +23,11 @@ class TeamBotInstallationType < DefaultObject
     RecordLoader.for(Team).load(object.team_id)
   end
 
-  field :alegre_settings, JsonString, null: true
+  field :alegre_settings, JsonStringType, null: true
 
   # Only for Smooch Bot
 
-  field :smooch_enabled_integrations, JsonString, null: true do
+  field :smooch_enabled_integrations, JsonStringType, null: true do
     argument :force, GraphQL::Types::Boolean, required: false
   end
 

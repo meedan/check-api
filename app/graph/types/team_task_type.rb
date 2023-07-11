@@ -6,7 +6,7 @@ class TeamTaskType < DefaultObject
   field :dbid, GraphQL::Types::Int, null: true
   field :label, GraphQL::Types::String, null: true
   field :description, GraphQL::Types::String, null: true
-  field :options, JsonString, null: true
+  field :options, JsonStringType, null: true
   field :required, GraphQL::Types::Boolean, null: true
   field :team_id, GraphQL::Types::Int, null: true
   field :team, TeamType, null: true

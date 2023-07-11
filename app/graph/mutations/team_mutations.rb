@@ -32,22 +32,22 @@ module TeamMutations
     include SharedCreateAndUpdateFields
 
     argument :name, GraphQL::Types::String, required: false
-    argument :add_auto_task, JsonString, required: false, camelize: false
-    argument :media_verification_statuses, JsonString, required: false, camelize: false
-    argument :set_team_tasks, JsonString, required: false, camelize: false
+    argument :add_auto_task, JsonStringType, required: false, camelize: false
+    argument :media_verification_statuses, JsonStringType, required: false, camelize: false
+    argument :set_team_tasks, JsonStringType, required: false, camelize: false
     argument :rules, GraphQL::Types::String, required: false
     argument :remove_auto_task, GraphQL::Types::String, required: false, camelize: false # label
     argument :empty_trash, GraphQL::Types::Int, required: false, camelize: false
-    argument :report, JsonString, required: false
+    argument :report, JsonStringType, required: false
 
     # Settings fields
     argument :slack_notifications_enabled, GraphQL::Types::String, required: false, camelize: false
     argument :slack_webhook, GraphQL::Types::String, required: false, camelize: false
     argument :slack_notifications, GraphQL::Types::String, required: false, camelize: false
     argument :language, GraphQL::Types::String, required: false
-    argument :languages, JsonString, required: false
+    argument :languages, JsonStringType, required: false
     argument :language_detection, GraphQL::Types::Boolean, required: false, camelize: false
-    argument :list_columns, JsonString, required: false, camelize: false
+    argument :list_columns, JsonStringType, required: false, camelize: false
     argument :tipline_inbox_filters, GraphQL::Types::String, required: false, camelize: false
     argument :suggested_matches_filters, GraphQL::Types::String, required: false, camelize: false
     argument :outgoing_urls_utm_code, GraphQL::Types::String, required: false, camelize: false

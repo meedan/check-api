@@ -38,11 +38,9 @@ module GraphQL
     BaseConnection.register_connection_implementation(ActiveRecord::Relation, PermissionedConnection)
   end
 
-  class BaseType
-    def connection_type
-      @connection_type ||= define_connection do
-        field :totalCount, types.Int, property: :total_count
-      end
+  module Types::Relay
+    class BaseConnection
+      field :totalCount, GraphQL::Types::Int, null: true
     end
   end
 end

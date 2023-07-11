@@ -18,7 +18,7 @@ module TeamTaskMutations
       argument :associated_type, GraphQL::Types::String, required: false, camelize: false
       argument :show_in_browser_extension, GraphQL::Types::Boolean, required: false, camelize: false
       argument :conditional_info, GraphQL::Types::String, required: false, camelize: false
-      argument :options_diff, JsonString, required: false, camelize: false
+      argument :options_diff, JsonStringType, required: false, camelize: false
     end
   end
 

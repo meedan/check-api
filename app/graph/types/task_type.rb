@@ -36,7 +36,7 @@ class TaskType < BaseObject
     obj.jsonoptions unless obj.nil?
   end
 
-  field :options, JsonString, null: true
+  field :options, JsonStringType, null: true
 
   def options
     obj = object.load || object

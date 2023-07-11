@@ -1,4 +1,4 @@
-class AboutType < DefaultObject
+class AboutType < BaseObject
   description "Information about the application"
 
   implements GraphQL::Types::Relay::Node
@@ -25,6 +25,6 @@ class AboutType < DefaultObject
   field :video_max_size_in_bytes, GraphQL::Types::Int, "Maximum video upload size, in bytes", null: true
   field :audio_max_size_in_bytes, GraphQL::Types::Int, "Maximum audio upload size, in bytes", null: true
 
-  field :channels, JsonString, "List check channels", null: true
-  field :countries, JsonString, "List of workspace countries", null: true
+  field :channels, JsonStringType, "List check channels", null: true
+  field :countries, JsonStringType, "List of workspace countries", null: true
 end

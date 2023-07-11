@@ -24,15 +24,15 @@ class TeamType < DefaultObject
   field :check_search_trash, CheckSearchType, null: true
   field :check_search_unconfirmed, CheckSearchType, null: true
   field :check_search_spam, CheckSearchType, null: true
-  field :trash_size, JsonString, null: true
+  field :trash_size, JsonStringType, null: true
   field :public_team_id, GraphQL::Types::String, null: true
-  field :permissions_info, JsonString, null: true
-  field :dynamic_search_fields_json_schema, JsonString, null: true
-  field :get_slack_notifications, JsonString, null: true
-  field :get_rules, JsonString, null: true
+  field :permissions_info, JsonStringType, null: true
+  field :dynamic_search_fields_json_schema, JsonStringType, null: true
+  field :get_slack_notifications, JsonStringType, null: true
+  field :get_rules, JsonStringType, null: true
   field :rules_json_schema, GraphQL::Types::String, null: true
   field :slack_notifications_json_schema, GraphQL::Types::String, null: true
-  field :rules_search_fields_json_schema, JsonString, null: true
+  field :rules_search_fields_json_schema, JsonStringType, null: true
   field :medias_count, GraphQL::Types::Int, null: true
   field :spam_count, GraphQL::Types::Int, null: true
   field :trash_count, GraphQL::Types::Int, null: true
@@ -40,15 +40,15 @@ class TeamType < DefaultObject
   field :get_languages, GraphQL::Types::String, null: true
   field :get_language, GraphQL::Types::String, null: true
   field :get_language_detection, GraphQL::Types::Boolean, null: true
-  field :get_report, JsonString, null: true
-  field :get_fieldsets, JsonString, null: true
-  field :list_columns, JsonString, null: true
+  field :get_report, JsonStringType, null: true
+  field :get_fieldsets, JsonStringType, null: true
+  field :list_columns, JsonStringType, null: true
   field :get_data_report_url, GraphQL::Types::String, null: true
   field :url, GraphQL::Types::String, null: true
-  field :get_tipline_inbox_filters, JsonString, null: true
-  field :get_suggested_matches_filters, JsonString, null: true
-  field :data_report, JsonString, null: true
-  field :available_newsletter_header_types, JsonString, null: true # List of header type strings
+  field :get_tipline_inbox_filters, JsonStringType, null: true
+  field :get_suggested_matches_filters, JsonStringType, null: true
+  field :data_report, JsonStringType, null: true
+  field :available_newsletter_header_types, JsonStringType, null: true # List of header type strings
   field :get_outgoing_urls_utm_code, GraphQL::Types::String, null: true
   field :get_shorten_outgoing_urls, GraphQL::Types::Boolean, null: true
 
@@ -86,17 +86,17 @@ class TeamType < DefaultObject
   field :check_search_trash, CheckSearchType, null: true
   field :check_search_unconfirmed, CheckSearchType, null: true
   field :check_search_spam, CheckSearchType, null: true
-  field :trash_size, JsonString, null: true
+  field :trash_size, JsonStringType, null: true
   field :public_team_id, GraphQL::Types::String, null: true
-  field :permissions_info, JsonString, null: true
-  field :dynamic_search_fields_json_schema, JsonString, null: true
-  field :get_slack_notifications, JsonString, null: true
+  field :permissions_info, JsonStringType, null: true
+  field :dynamic_search_fields_json_schema, JsonStringType, null: true
+  field :get_slack_notifications, JsonStringType, null: true
 
   def get_slack_notifications
     object.get_slack_notifications
   end
 
-  field :get_rules, JsonString, null: true
+  field :get_rules, JsonStringType, null: true
 
   def get_rules
     object.get_rules
@@ -104,7 +104,7 @@ class TeamType < DefaultObject
 
   field :rules_json_schema, GraphQL::Types::String, null: true
   field :slack_notifications_json_schema, GraphQL::Types::String, null: true
-  field :rules_search_fields_json_schema, JsonString, null: true
+  field :rules_search_fields_json_schema, JsonStringType, null: true
   field :medias_count, GraphQL::Types::Int, null: true
   field :spam_count, GraphQL::Types::Int, null: true
   field :trash_count, GraphQL::Types::Int, null: true
@@ -121,19 +121,19 @@ class TeamType < DefaultObject
     object.get_language
   end
 
-  field :get_report, JsonString, null: true
+  field :get_report, JsonStringType, null: true
 
   def get_report
     object.get_report
   end
 
-  field :get_fieldsets, JsonString, null: true
+  field :get_fieldsets, JsonStringType, null: true
 
   def get_fieldsets
     object.get_fieldsets
   end
 
-  field :list_columns, JsonString, null: true
+  field :list_columns, JsonStringType, null: true
   field :get_data_report_url, GraphQL::Types::String, null: true
 
   def get_data_report_url
@@ -141,20 +141,20 @@ class TeamType < DefaultObject
   end
 
   field :url, GraphQL::Types::String, null: true
-  field :get_tipline_inbox_filters, JsonString, null: true
+  field :get_tipline_inbox_filters, JsonStringType, null: true
 
   def get_tipline_inbox_filters
     object.get_tipline_inbox_filters
   end
 
-  field :get_suggested_matches_filters, JsonString, null: true
+  field :get_suggested_matches_filters, JsonStringType, null: true
 
   def get_suggested_matches_filters
     object.get_suggested_matches_filters
   end
 
-  field :data_report, JsonString, null: true
-  field :available_newsletter_header_types, JsonString, null: true # List of header type strings
+  field :data_report, JsonStringType, null: true
+  field :available_newsletter_header_types, JsonStringType, null: true # List of header type strings
   field :get_outgoing_urls_utm_code, GraphQL::Types::String, null: true
 
   def get_outgoing_urls_utm_code
@@ -173,7 +173,7 @@ class TeamType < DefaultObject
     object
   end
 
-  field :verification_statuses, JsonString, null: true do
+  field :verification_statuses, JsonStringType, null: true do
     argument :items_count_for_status, GraphQL::Types::String, required: false, camelize: false
     argument :published_reports_count_for_status, GraphQL::Types::String, required: false, camelize: false
   end
@@ -279,7 +279,7 @@ class TeamType < DefaultObject
     object.get_feed(args[:dbid])
   end
 
-  field :shared_teams, JsonString, null: true
+  field :shared_teams, JsonStringType, null: true
 
   def shared_teams
     data = {}

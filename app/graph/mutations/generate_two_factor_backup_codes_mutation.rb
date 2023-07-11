@@ -4,7 +4,7 @@ class GenerateTwoFactorBackupCodesMutation < Mutations::BaseMutation
   argument :id, GraphQL::Types::Int, required: true
 
   field :success, GraphQL::Types::Boolean, null: true
-  field :codes, JsonString, null: true
+  field :codes, JsonStringType, null: true
 
   def resolve(**inputs)
     user = User.where(id: inputs[:id]).last

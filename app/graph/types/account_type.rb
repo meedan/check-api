@@ -13,5 +13,5 @@ class AccountType < DefaultObject
   field :image, GraphQL::Types::String, null: true
   field :user, UserType, null: true
   field :medias, MediaType.connection_type, null: true
-  field :metadata, JsonString, null: true
+  field :metadata, JsonStringType, null: true
 end

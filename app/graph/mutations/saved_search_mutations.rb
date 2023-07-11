@@ -6,7 +6,7 @@ module SavedSearchMutations
     extend ActiveSupport::Concern
 
     included do
-      argument :filters, JsonString, required: false
+      argument :filters, JsonStringType, required: false
     end
   end
 

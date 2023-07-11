@@ -34,15 +34,15 @@ module ProjectMediaMutations
     argument :project_id, GraphQL::Types::Int, required: false, camelize: false
     argument :media_id, GraphQL::Types::Int, required: false, camelize: false
     argument :team_id, GraphQL::Types::Int, required: false, camelize: false
-    argument :channel, JsonString, required: false
+    argument :channel, JsonStringType, required: false
     argument :media_type, GraphQL::Types::String, required: false, camelize: false
 
     # Set fields
     argument :set_annotation, GraphQL::Types::String, required: false, camelize: false
     argument :set_claim_description, GraphQL::Types::String, required: false, camelize: false
-    argument :set_fact_check, JsonString, required: false, camelize: false
-    argument :set_tasks_responses, JsonString, required: false, camelize: false
-    argument :set_tags, JsonString, required: false, camelize: false
+    argument :set_fact_check, JsonStringType, required: false, camelize: false
+    argument :set_tasks_responses, JsonStringType, required: false, camelize: false
+    argument :set_tags, JsonStringType, required: false, camelize: false
     argument :set_title, GraphQL::Types::String, required: false, camelize: false
     argument :set_status, GraphQL::Types::String, required: false, camelize: false # Status identifier (for example, "in_progress")
   end

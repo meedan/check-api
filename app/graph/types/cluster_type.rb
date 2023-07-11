@@ -6,7 +6,7 @@ class ClusterType < DefaultObject
   field :dbid, GraphQL::Types::Int, null: true
   field :size, GraphQL::Types::Int, null: true
   field :team_names, [GraphQL::Types::String], null: true
-  field :fact_checked_by_team_names, JsonString, null: true
+  field :fact_checked_by_team_names, JsonStringType, null: true
   field :requests_count, GraphQL::Types::Int, null: true
 
   field :first_item_at, GraphQL::Types::Int, null: true

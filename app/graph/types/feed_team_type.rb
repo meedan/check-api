@@ -4,7 +4,7 @@ class FeedTeamType < DefaultObject
   implements GraphQL::Types::Relay::Node
 
   field :dbid, GraphQL::Types::Int, null: true
-  field :filters, JsonString, null: true
+  field :filters, JsonStringType, null: true
   field :saved_search_id, GraphQL::Types::Int, null: true
   field :team, TeamType, null: true
   field :feed, FeedType, null: true
@@ -12,7 +12,7 @@ class FeedTeamType < DefaultObject
   field :feed_id, GraphQL::Types::Int, null: true
   field :shared, GraphQL::Types::Boolean, null: true
   field :requests_filters,
-        JsonString,
+        JsonStringType,
         method: :get_requests_filters,
         null: true
   field :saved_search, SavedSearchType, null: true

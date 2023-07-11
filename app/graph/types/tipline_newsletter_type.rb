@@ -14,7 +14,7 @@ class TiplineNewsletterType < DefaultObject
   field :second_article, GraphQL::Types::String, null: true
   field :third_article, GraphQL::Types::String, null: true
   field :number_of_articles, GraphQL::Types::Int, null: true
-  field :send_every, JsonString, null: true
+  field :send_every, JsonStringType, null: true
   field :send_on, GraphQL::Types::String, null: true
 
   def send_on

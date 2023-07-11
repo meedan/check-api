@@ -19,7 +19,7 @@ module RelationshipMutations
   class Create < Mutations::CreateMutation
     include SharedCreateAndUpdateFields
 
-    argument :relationship_type, JsonString, required: false, camelize: false
+    argument :relationship_type, JsonStringType, required: false, camelize: false
   end
 
   class Update < Mutations::UpdateMutation

@@ -30,7 +30,7 @@ module TiplineNewsletterMutations
       argument :footer, GraphQL::Types::String, required: false
 
       # Schedule
-      argument :send_every, JsonString, required: false, camelize: false
+      argument :send_every, JsonStringType, required: false, camelize: false
       argument :send_on, GraphQL::Types::String, required: false, camelize: false
       argument :timezone, GraphQL::Types::String, required: false
       argument :time, GraphQL::Types::String, required: false

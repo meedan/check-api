@@ -4,6 +4,8 @@ class MutationType < BaseObject
   # Override snakecase by default in BaseObject, so that mutations are in camelcase
   field_class GraphQL::Schema::Field
 
+  graphql_name "MutationType"
+
   field :createComment, mutation: CommentMutations::Create
   field :updateComment, mutation: CommentMutations::Update
   field :destroyComment, mutation: CommentMutations::Destroy

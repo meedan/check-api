@@ -14,7 +14,7 @@ class MediaType < DefaultObject
   field :picture, GraphQL::Types::String, null: true
   field :type, GraphQL::Types::String, null: true
   field :file_path, GraphQL::Types::String, null: true
-  field :metadata, JsonString, null: true
+  field :metadata, JsonStringType, null: true
 
   field :account, AccountType, null: true
 end

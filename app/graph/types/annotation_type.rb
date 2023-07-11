@@ -8,8 +8,6 @@ class AnnotationType < BaseObject
     object.relay_id('annotation')
   end
 
-  field :annotation, GraphQL::Types::String, null: true
-
   field :project_media, ProjectMediaType, null: true
 
   def project_media
