@@ -111,8 +111,8 @@ class Bot::Slack < BotUser
         user = User.where(id: uid.to_i).last
         obj = self.find_by_id(id)
         annotated = obj.annotated if obj.respond_to?(:annotated)
-        annotated = obj.annotated.annotated if obj.is_a?(Dynamic) && obj.annotated_type == 'Task'
-        annotated = obj.annotation.annotated if obj.is_a?(DynamicAnnotation::Field)
+        annotated = obj.annotated&.annotated if obj.is_a?(Dynamic) && obj.annotated_type == 'Task'
+        annotated = obj.annotation&.annotated if obj.is_a?(DynamicAnnotation::Field)
         return unless annotated.respond_to?(:get_annotations)
         slack_message_id = mutation_id.to_s.match(/^fromSlackMessage:(.*)$/)
         annotated.get_annotations('slack_message').each do |annotation|
