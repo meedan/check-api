@@ -530,7 +530,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
   test "should get number of words" do
     assert_equal 4, Bot::Alegre.get_number_of_words('58 This   is a test !!! 123 😊')
     assert_equal 1, Bot::Alegre.get_number_of_words(random_url)
-    # For Chinese characters we'll count the number of characters divied by 1.6 (rounded up)
+    # For Chinese characters we'll count the number of characters divied by 2 (rounded up)
     assert_equal 1, Bot::Alegre.get_number_of_words('中国')
     # For Japanese kana, we'll take the number of kana divided by 4 (rounded up)
     assert_equal 2, Bot::Alegre.get_number_of_words('にほんごがすきい')
