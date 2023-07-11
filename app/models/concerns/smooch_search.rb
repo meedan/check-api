@@ -146,7 +146,7 @@ module SmoochSearch
           text = [link.pender_data['description'].to_s, text.to_s.gsub(/https?:\/\/[^\s]+/, '').strip].max_by(&:length)
         end
         return [] if text.blank?
-        words = text.split(/\s+/)
+        words = Bot::Alegre.get_number_of_words(text)
         Rails.logger.info "[Smooch Bot] Search query (text): #{text}"
         if words.size <= self.max_number_of_words_for_keyword_search
           results = self.search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id, language)
