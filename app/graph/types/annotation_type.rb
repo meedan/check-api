@@ -1,9 +1,6 @@
 class AnnotationType < BaseObject
-  implements AnnotationInterface
-  implements GraphQL::Types::Relay::Node
+  include Types::Inclusions::AnnotationBehaviors
 
-  # TODO: In future version of GraphQL ruby, we can move
-  # this to definition_methods in the annotation interface
   def id
     object.relay_id('annotation')
   end

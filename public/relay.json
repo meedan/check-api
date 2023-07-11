@@ -1383,7 +1383,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -1583,11 +1583,6 @@
           "interfaces": [
             {
               "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
-            {
-              "kind": "INTERFACE",
               "name": "Node",
               "ofType": null
             }
@@ -1720,648 +1715,6 @@
           ],
           "enumValues": null,
           "possibleTypes": null
-        },
-        {
-          "kind": "INTERFACE",
-          "name": "AnnotationInterface",
-          "description": null,
-          "fields": [
-            {
-              "name": "annotated_id",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "annotated_type",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "annotation_type",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "annotations",
-              "description": null,
-              "args": [
-                {
-                  "name": "after",
-                  "description": "Returns the elements in the list that come after the specified cursor.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "before",
-                  "description": "Returns the elements in the list that come before the specified cursor.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "first",
-                  "description": "Returns the first _n_ elements from the list.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "last",
-                  "description": "Returns the last _n_ elements from the list.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "annotation_type",
-                  "description": null,
-                  "type": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "SCALAR",
-                      "name": "String",
-                      "ofType": null
-                    }
-                  },
-                  "defaultValue": null
-                }
-              ],
-              "type": {
-                "kind": "OBJECT",
-                "name": "AnnotationUnionConnection",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "annotator",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "OBJECT",
-                "name": "Annotator",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "assignments",
-              "description": null,
-              "args": [
-                {
-                  "name": "after",
-                  "description": "Returns the elements in the list that come after the specified cursor.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "before",
-                  "description": "Returns the elements in the list that come before the specified cursor.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "first",
-                  "description": "Returns the first _n_ elements from the list.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "last",
-                  "description": "Returns the last _n_ elements from the list.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                }
-              ],
-              "type": {
-                "kind": "OBJECT",
-                "name": "UserConnection",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "content",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "created_at",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "data",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "JsonString",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "dbid",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "file_data",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "JsonString",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "id",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "ID",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "locked",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "Boolean",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "medias",
-              "description": null,
-              "args": [
-                {
-                  "name": "after",
-                  "description": "Returns the elements in the list that come after the specified cursor.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "before",
-                  "description": "Returns the elements in the list that come before the specified cursor.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "first",
-                  "description": "Returns the first _n_ elements from the list.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "last",
-                  "description": "Returns the last _n_ elements from the list.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                }
-              ],
-              "type": {
-                "kind": "OBJECT",
-                "name": "ProjectMediaConnection",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "parsed_fragment",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "JsonString",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "permissions",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "project",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "OBJECT",
-                "name": "Project",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "team",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "OBJECT",
-                "name": "Team",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "updated_at",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "version",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "OBJECT",
-                "name": "Version",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            }
-          ],
-          "inputFields": null,
-          "interfaces": null,
-          "enumValues": null,
-          "possibleTypes": [
-            {
-              "kind": "OBJECT",
-              "name": "Annotation",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Comment",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_analysis",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_archive_is",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_archiver",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_clip",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_embed_code",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_extracted_text",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_flag",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_geolocation",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_language",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_memebuster",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_metadata",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_metrics",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_mt",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_report_design",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_reverse_image",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_slack_message",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_smooch",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_smooch_response",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_smooch_user",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_syrian_archive_data",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_task_response_datetime",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_task_response_file_upload",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_task_response_free_text",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_task_response_geolocation",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_task_response_multiple_choice",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_task_response_number",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_task_response_single_choice",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_task_response_url",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_task_response_yes_no",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_task_status",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_team_bot_response",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_transcript",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_transcription",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_translation",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_translation_request",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_translation_status",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Dynamic_annotation_verification_status",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Flag",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Tag",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "Task",
-              "ofType": null
-            }
-          ]
         },
         {
           "kind": "UNION",
@@ -4216,7 +3569,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -4400,11 +3753,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -26904,7 +26252,7 @@
           "interfaces": [
             {
               "kind": "INTERFACE",
-              "name": "AnnotationInterface",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -27672,7 +27020,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -27870,11 +27218,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -28235,7 +27578,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -28433,11 +27776,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -28798,7 +28136,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -28996,11 +28334,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -29361,7 +28694,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -29559,11 +28892,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -29924,7 +29252,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -30122,11 +29450,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -30487,7 +29810,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -30685,11 +30008,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -31050,7 +30368,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -31248,11 +30566,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -31613,7 +30926,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -31811,11 +31124,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -32176,7 +31484,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -32374,11 +31682,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -32739,7 +32042,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -32937,11 +32240,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -33302,7 +32600,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -33500,11 +32798,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -33865,7 +33158,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -34063,11 +33356,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -34428,7 +33716,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -34626,11 +33914,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -34991,7 +34274,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -35189,11 +34472,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -35554,7 +34832,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -35752,11 +35030,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -36117,7 +35390,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -36315,11 +35588,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -36680,7 +35948,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -36878,11 +36146,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -37243,7 +36506,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -37441,11 +36704,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -37806,7 +37064,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -38004,11 +37262,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -38369,7 +37622,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -38567,11 +37820,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -38932,7 +38180,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -39130,11 +38378,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -39495,7 +38738,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -39693,11 +38936,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -40058,7 +39296,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -40256,11 +39494,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -40621,7 +39854,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -40819,11 +40052,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -41184,7 +40412,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -41382,11 +40610,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -41747,7 +40970,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -41945,11 +41168,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -42310,7 +41528,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -42508,11 +41726,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -42873,7 +42086,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -43071,11 +42284,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -43436,7 +42644,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -43634,11 +42842,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -43999,7 +43202,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -44197,11 +43400,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -44562,7 +43760,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -44760,11 +43958,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -45125,7 +44318,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -45323,11 +44516,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -45688,7 +44876,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -45886,11 +45074,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -46251,7 +45434,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -46449,11 +45632,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -46814,7 +45992,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -47012,11 +46190,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -47377,7 +46550,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -47575,11 +46748,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -47940,7 +47108,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -48138,11 +47306,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -49656,7 +48819,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -49826,11 +48989,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
@@ -56387,6 +55545,11 @@
             },
             {
               "kind": "OBJECT",
+              "name": "Dynamic",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
               "name": "DynamicAnnotationField",
               "ofType": null
             },
@@ -56648,6 +55811,11 @@
             {
               "kind": "OBJECT",
               "name": "Source",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Tag",
               "ofType": null
             },
             {
@@ -66372,7 +65540,7 @@
           "interfaces": [
             {
               "kind": "INTERFACE",
-              "name": "AnnotationInterface",
+              "name": "Node",
               "ofType": null
             }
           ],
@@ -67059,7 +66227,7 @@
             },
             {
               "name": "id",
-              "description": "ID of the object.",
+              "description": null,
               "args": [
 
               ],
@@ -67436,11 +66604,6 @@
           ],
           "inputFields": null,
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "AnnotationInterface",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "Node",
