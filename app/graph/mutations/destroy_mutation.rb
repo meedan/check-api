@@ -14,7 +14,7 @@ module Mutations
 
         type_class = "#{mutation_target.to_s.camelize}Type".constantize
         subclass.field mutation_target, type_class, camelize: false, null: true
-        subclass.field "#{type_class}Edge", type_class.edge_type, null: true
+        subclass.field "#{mutation_target}Edge", type_class.edge_type, camelize: false, null: true
 
         set_parent_returns(subclass, parents_mapping)
 
