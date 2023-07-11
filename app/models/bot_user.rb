@@ -180,7 +180,7 @@ class BotUser < User
         logged_data.delete(:team)
         logged_data[:team_id] = data[:team].id
         logged_data = logged_data.to_json
-        Rails.logged.info "[BotUser] Notified bot #{self.id} with payload #{logged_data}, the response was #{response.code}"
+        Rails.logger.info "[BotUser] Notified bot #{self.id} with payload #{logged_data}, the response was #{response.code}"
         response
       end
     rescue StandardError => e
