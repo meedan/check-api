@@ -26,6 +26,7 @@ class MonthlyTeamStatistic < ApplicationRecord
     new_newsletter_subscriptions: 'New newsletter subscriptions',
     newsletter_cancellations: 'Newsletter cancellations',
     current_subscribers: 'Current subscribers',
+    newsletters_delivered: 'Newsletters delivered'
   }.freeze
 
   def formatted_hash

@@ -209,6 +209,11 @@ module CheckStatistics
           # Number of newsletter subscription cancellations
           statistics[:newsletter_cancellations] = Version.from_partition(team_id).where(created_at: start_date..end_date, team_id: team_id, item_type: 'TiplineSubscription', event_type: 'destroy_tiplinesubscription').where('object LIKE ?', "%#{platform_name}%").where('object LIKE ?', '%"language":"' + language + '"%').count
         end
+
+        CheckTracer.in_span('CheckStatistics#newsletters_delivered', attributes: tracing_attributes) do
+          # Number of newsletters effectively delivered, accounting for user errors for each platform
+          statistics[:newsletters_delivered] = TiplineMessage.where(created_at: start_date..end_date, team_id: team_id, platform: platform_name, language: language, direction: 'outgoing', event: 'newsletter').count
+        end
       end
       statistics
     end
