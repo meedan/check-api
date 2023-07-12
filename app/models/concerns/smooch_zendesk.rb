@@ -77,11 +77,11 @@ module SmoochZendesk
         response_body = api_instance.post_message(app_id, uid, message_post_body) # It will raise an exception if message can't be sent
         response_code = 200
       rescue SmoochApi::ApiError => e
-        response_body = begin JSON.parse(e.response_body) rescue {} end
+        response_body = begin JSON.parse(e.response_body) rescue nil end
         response_code = 400
         Rails.logger.error("[Smooch Bot] Exception when sending message #{params.inspect}: #{e.response_body}")
 
-        error = response_body.dig('error')
+        error = response_body.to_h.dig('error')
         e2 = Bot::Smooch::SmoochMessageDeliveryError.new("(#{error&.dig('code')}) #{error&.dig('description')}")
         CheckSentry.notify(e2,
           smooch_app_id: app_id,
