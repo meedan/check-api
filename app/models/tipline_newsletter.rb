@@ -275,7 +275,7 @@ class TiplineNewsletter < ApplicationRecord
   end
 
   def not_scheduled_for_the_past
-    if self.content_type == 'static' && self.scheduled_time.past?
+    if self.enabled_was == false && self.enabled == true && self.content_type == 'static' && self.scheduled_time.past?
       field = :send_on
       field = :time if self.scheduled_time.strftime('%Y-%m-%d') == Time.now.utc.strftime('%Y-%m-%d')
       errors.add(field, I18n.t(:send_on_must_be_in_the_future))
