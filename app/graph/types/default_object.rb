@@ -1,12 +1,4 @@
 class DefaultObject < BaseObject
-  class << self
-    def inherited(subclass)
-      # This makes sure that the type arg passed to .id_from_object is our subclass,
-      # not DefaultObject, which is intended to be abstract
-      subclass.global_id_field :id
-    end
-  end
-
   field :permissions, GraphQL::Types::String, null: true
 
   def permissions
