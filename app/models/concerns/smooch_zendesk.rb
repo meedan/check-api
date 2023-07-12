@@ -91,7 +91,7 @@ module SmoochZendesk
         )
       end
       # Convert to something that looks like a HTTP response
-      OpenStruct.new(body: response_body.inspect, code: response_code)
+      OpenStruct.new(body: response_body, code: response_code)
     end
 
     # https://docs.smooch.io/guide/whatsapp#shorthand-syntax
