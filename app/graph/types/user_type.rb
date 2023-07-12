@@ -18,19 +18,19 @@ class UserType < DefaultObject
   field :get_send_email_notifications, GraphQL::Types::Boolean, null: true
 
   def get_send_email_notifications
-    obj.get_send_email_notifications
+    object.get_send_email_notifications
   end
 
   field :get_send_successful_login_notifications, GraphQL::Types::Boolean, null: true
 
   def get_send_successful_login_notifications
-    obj.get_send_successful_login_notifications
+    object.get_send_successful_login_notifications
   end
 
   field :get_send_failed_login_notifications, GraphQL::Types::Boolean, null: true
 
   def get_send_failed_login_notifications
-    obj.get_send_failed_login_notifications
+    object.get_send_failed_login_notifications
   end
 
   field :bot_events, GraphQL::Types::String, null: true
