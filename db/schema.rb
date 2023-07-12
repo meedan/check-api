@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_06_28_214314) do
+ActiveRecord::Schema.define(version: 2023_07_11_211928) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -386,6 +386,7 @@ ActiveRecord::Schema.define(version: 2023_06_28_214314) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "conversations_24hr"
+    t.integer "newsletters_delivered"
     t.index ["team_id", "platform", "language", "start_date"], name: "index_monthly_stats_team_platform_language_start", unique: true
     t.index ["team_id"], name: "index_monthly_team_statistics_on_team_id"
   end
