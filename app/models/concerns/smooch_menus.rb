@@ -108,8 +108,8 @@ module SmoochMenus
               payload: row[:id],
             }
           end
-        actions = actions[..13] if 'LINE'==self.request_platform && actions.length>13
         end
+        actions = actions[..12] if 'LINE' == self.request_platform && actions.length > 13 # LINE supports maximum 13 options
         extra = { actions: actions }
         fallback = [text]
       end
