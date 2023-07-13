@@ -144,7 +144,7 @@ module ProjectMediaPrivate
 
   def rate_limit_not_exceeded
     if ApiKey.current && ApiKey.current.respond_to?(:rate_limits)
-      limit = ApiKey.current.rate_limits.with_indifferent_access[:created_items_per_minute]
+      limit = ApiKey.current.rate_limits.with_indifferent_access[:created_items_per_minute] || CheckConfig.get('api_key_rate_limit_created_items_per_minute', 30)
       raise Check::TooManyRequestsError if limit && ProjectMedia.where(team_id: self.team_id, created_at: Time.now.ago(1.minute)..Time.now).count >= limit
     end
   end
