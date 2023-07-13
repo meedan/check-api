@@ -109,6 +109,7 @@ module SmoochMenus
             }
           end
         end
+        actions = actions[..12] if 'LINE' == self.request_platform && actions.length > 13 # LINE supports maximum 13 options
         extra = { actions: actions }
         fallback = [text]
       end
@@ -251,6 +252,7 @@ module SmoochMenus
             payload: option[:value],
           }
         end
+        actions = actions[..12] if 'LINE' == self.request_platform && actions.length > 13 # LINE supports maximum 13 options
         extra = { actions: actions }
         fallback = [text]
       end
