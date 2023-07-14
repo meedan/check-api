@@ -73,11 +73,11 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
 
   def send_message_outside_24_hours_window(template, pm = nil)
     message_id = random_string
-    response = OpenStruct.new(message: OpenStruct.new(id: message_id))
+    response = OpenStruct.new(body: OpenStruct.new({ message: OpenStruct.new(id: message_id) }))
     Bot::Smooch.save_smooch_response(response, pm, Time.now.to_i, template, 'en')
 
     @msgid = random_string
-    response = OpenStruct.new(message: OpenStruct.new(id: @msgid))
+    response = OpenStruct.new(body: OpenStruct.new({ message: OpenStruct.new(id: @msgid) }))
     Bot::Smooch.stubs(:send_message_to_user).returns(response)
     assert_nil Rails.cache.read("smooch:original:#{@msgid}")
 

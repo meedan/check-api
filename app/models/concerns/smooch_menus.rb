@@ -97,7 +97,7 @@ module SmoochMenus
         end
       end
 
-      if ['Telegram', 'Viber', 'Facebook Messenger'].include?(self.request_platform)
+      if ['Telegram', 'Viber', 'Facebook Messenger', 'LINE'].include?(self.request_platform)
         actions = []
         main.each do |section|
           section[:rows].each do |row|
@@ -109,6 +109,7 @@ module SmoochMenus
             }
           end
         end
+        actions = actions[..12] if 'LINE' == self.request_platform && actions.length > 13 # LINE supports maximum 13 options
         extra = { actions: actions }
         fallback = [text]
       end
@@ -241,7 +242,7 @@ module SmoochMenus
         fallback << self.format_fallback_text_menu_option(option, :value, :label)
       end
 
-      if ['Telegram', 'Viber', 'Facebook Messenger'].include?(self.request_platform)
+      if ['Telegram', 'Viber', 'Facebook Messenger', 'LINE'].include?(self.request_platform)
         actions = []
         options.each do |option|
           actions << {
@@ -251,6 +252,7 @@ module SmoochMenus
             payload: option[:value],
           }
         end
+        actions = actions[..12] if 'LINE' == self.request_platform && actions.length > 13 # LINE supports maximum 13 options
         extra = { actions: actions }
         fallback = [text]
       end
@@ -278,7 +280,7 @@ module SmoochMenus
         }
       end
       text = text.join("\n\n")
-      if ['Telegram', 'Viber', 'Facebook Messenger'].include?(self.request_platform)
+      if ['Telegram', 'Viber', 'Facebook Messenger', 'LINE'].include?(self.request_platform)
         text = '🌐​' unless with_text
         self.send_message_to_user_with_single_section_menu(uid, text, options, self.get_string('languages', language))
       else
