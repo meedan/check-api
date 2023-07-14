@@ -5,6 +5,8 @@ module Types::Inclusions
     included do
       implements GraphQL::Types::Relay::Node
 
+      global_id_field :id
+
       field :id, GraphQL::Types::ID, null: false
       field :annotation_type, GraphQL::Types::String, null: true, camelize: false
       field :annotated_id, GraphQL::Types::String, null: true, camelize: false

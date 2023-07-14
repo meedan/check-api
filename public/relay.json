@@ -1890,7 +1890,7 @@
           "fields": [
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the object.",
               "args": [
 
               ],
@@ -53298,24 +53298,6 @@
               "deprecationReason": null
             },
             {
-              "name": "id",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "ID",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
               "name": "moveTaskDown",
               "description": null,
               "args": [
@@ -61771,24 +61753,6 @@
                 "kind": "OBJECT",
                 "name": "PublicTeam",
                 "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "id",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "ID",
-                  "ofType": null
-                }
               },
               "isDeprecated": false,
               "deprecationReason": null

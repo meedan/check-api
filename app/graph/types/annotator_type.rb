@@ -3,8 +3,6 @@ class AnnotatorType < BaseObject
 
   implements GraphQL::Types::Relay::Node
 
-  global_id_field :id
-
   field :name, GraphQL::Types::String, null: true
   field :profile_image, GraphQL::Types::String, null: true
 

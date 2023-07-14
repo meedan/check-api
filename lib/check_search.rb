@@ -36,7 +36,7 @@ class CheckSearch
     @options['keyword'] = "#{@options['keyword']}~" if !@options['keyword'].blank? && @options['fuzzy']
 
     # Set es_id option
-    @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['String', 'Integer'].include?(@options['id'].class.name)
+    @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['GraphQL::Types::String', 'GraphQL::Types::Int', 'String', 'Integer'].include?(@options['id'].class.name)
 
     # Apply feed filters
     @options.merge!(@feed.get_feed_filters) if feed_query?

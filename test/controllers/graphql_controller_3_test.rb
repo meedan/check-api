@@ -222,6 +222,7 @@ class GraphqlController3Test < ActionController::TestCase
   end
 
   test "should retrieve information for grid" do
+    original_skip_cache_value = RequestStore.store[:skip_cached_field_update]
     RequestStore.store[:skip_cached_field_update] = false
     create_verification_status_stuff
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
@@ -288,6 +289,8 @@ class GraphqlController3Test < ActionController::TestCase
       assert_not_equal pm['first_seen'], pm['last_seen']
       assert_equal 2, pm['demand']
     end
+  ensure
+    RequestStore.store[:skip_cached_field_update] = original_skip_cache_value
   end
 
   test "should return cached value for dynamic annotation" do
@@ -314,7 +317,9 @@ class GraphqlController3Test < ActionController::TestCase
   end
 
   test "should return updated offset from ES" do
+    original_skip_cache_value = RequestStore.store[:skip_cached_field_update]
     RequestStore.store[:skip_cached_field_update] = false
+
     u = create_user is_admin: true
     authenticate_with_user(u)
     t = create_team
@@ -331,6 +336,8 @@ class GraphqlController3Test < ActionController::TestCase
     response = JSON.parse(@response.body)['data']['search']
     assert_equal pm1.id, response['medias']['edges'][0]['node']['dbid']
     assert_equal 1, response['item_navigation_offset']
+  ensure
+    RequestStore.store[:skip_cached_field_update] = original_skip_cache_value
   end
 
   test "should set smooch user slack channel url in background" do

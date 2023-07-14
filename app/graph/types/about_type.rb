@@ -1,6 +1,8 @@
 class AboutType < BaseObject
   description "Information about the application"
 
+  global_id_field :id
+
   implements GraphQL::Types::Relay::Node
 
   field :name, GraphQL::Types::String, "Application name", null: true
