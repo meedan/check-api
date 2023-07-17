@@ -37,7 +37,11 @@ module SmoochCapi
     end
 
     def get_capi_message_text(message)
-      message.dig('text', 'body') || message.dig('interactive', 'list_reply', 'title') || message.dig('interactive', 'button_reply', 'title') || message.dig(message['type'], 'caption') || ''
+      begin
+        message.dig('text', 'body') || message.dig('interactive', 'list_reply', 'title') || message.dig('interactive', 'button_reply', 'title') || message.dig(message['type'], 'caption') || ''
+      rescue
+        ''
+      end
     end
 
     def store_capi_media(media_id, mime_type)
