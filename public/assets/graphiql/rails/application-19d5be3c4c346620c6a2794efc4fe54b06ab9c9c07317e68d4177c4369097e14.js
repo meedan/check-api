@@ -35036,7 +35036,7 @@ function extractLineClasses(type, output) {
     var prop = lineClass[1] ? "bgClass" : "textClass";
     if (output[prop] == null)
       { output[prop] = lineClass[2]; }
-    else if (!(new RegExp("(?:^|\s)" + lineClass[2] + "(?:$|\s)")).test(output[prop]))
+    else if (!(new RegExp("(?:^|\\s)" + lineClass[2] + "(?:$|\\s)")).test(output[prop]))
       { output[prop] += " " + lineClass[2]; }
   } }
   return type
@@ -59914,7 +59914,7 @@ Renderer.prototype.link = function(href, title, text) {
     } catch (e) {
       return '';
     }
-    if (prot.indexOf('javascript:') === 0 || prot.indexOf('vbscript:') === 0) {
+    if (prot.indexOf('javascript:') === 0 || prot.indexOf('vbscript:') === 0 || prot.indexOf('data:') === 0) {
       return '';
     }
   }
