@@ -128,6 +128,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       a = pm1.annotations('transcription').last
       assert_equal nil, a.data['text']
+    end
   end
 
   test "should auto transcribe audio" do
