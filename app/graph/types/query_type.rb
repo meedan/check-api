@@ -7,6 +7,15 @@ class QueryType < BaseObject
 
   field :root, RootLevelType, null: true
 
+  # Throwaway field because Relay Modern queries on the
+  # front end were adding a top-level ID field we couldn't
+  # locate to remove
+  field :id, GraphQL::Types::String, null: true
+
+  def id
+    nil
+  end
+
   def root
     RootLevel::STATIC
   end
