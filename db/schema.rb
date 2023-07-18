@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_07_11_211928) do
+ActiveRecord::Schema.define(version: 2023_07_18_012453) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -296,8 +296,10 @@ ActiveRecord::Schema.define(version: 2023_07_11_211928) do
     t.string "language", default: "", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "signature"
     t.index ["claim_description_id"], name: "index_fact_checks_on_claim_description_id", unique: true
     t.index ["language"], name: "index_fact_checks_on_language"
+    t.index ["signature"], name: "index_fact_checks_on_signature", unique: true
     t.index ["user_id"], name: "index_fact_checks_on_user_id"
   end
 
