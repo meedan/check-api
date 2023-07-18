@@ -12,6 +12,7 @@ class GraphqlController3Test < ActionController::TestCase
     User.current = nil
     Team.current = nil
     create_verification_status_stuff
+    create_annotation_type_and_fields('Smooch User', {'Data' => ['JSON', false],'Slack Channel Url' => ['Text', true]})
   end
 
   test "should filter and sort inside ElasticSearch" do
@@ -222,8 +223,8 @@ class GraphqlController3Test < ActionController::TestCase
   end
 
   test "should retrieve information for grid" do
-    original_skip_cache_value = RequestStore.store[:skip_cached_field_update]
     RequestStore.store[:skip_cached_field_update] = false
+
     create_verification_status_stuff
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     ft = create_field_type field_type: 'image_path', label: 'Image Path'
@@ -289,12 +290,9 @@ class GraphqlController3Test < ActionController::TestCase
       assert_not_equal pm['first_seen'], pm['last_seen']
       assert_equal 2, pm['demand']
     end
-  ensure
-    RequestStore.store[:skip_cached_field_update] = original_skip_cache_value
   end
 
   test "should return cached value for dynamic annotation" do
-    create_annotation_type_and_fields('Smooch User', { 'Data' => ['JSON', false] })
     d = create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_data: { app_name: 'foo', identifier: 'bar' }.to_json }.to_json
     authenticate_with_token
     assert_nil ApiKey.current
@@ -317,7 +315,6 @@ class GraphqlController3Test < ActionController::TestCase
   end
 
   test "should return updated offset from ES" do
-    original_skip_cache_value = RequestStore.store[:skip_cached_field_update]
     RequestStore.store[:skip_cached_field_update] = false
 
     u = create_user is_admin: true
@@ -336,16 +333,10 @@ class GraphqlController3Test < ActionController::TestCase
     response = JSON.parse(@response.body)['data']['search']
     assert_equal pm1.id, response['medias']['edges'][0]['node']['dbid']
     assert_equal 1, response['item_navigation_offset']
-  ensure
-    RequestStore.store[:skip_cached_field_update] = original_skip_cache_value
   end
 
   test "should set smooch user slack channel url in background" do
     Sidekiq::Testing.fake! do
-        create_annotation_type_and_fields('Smooch User', {
-            'Data' => ['JSON', false],
-            'Slack Channel Url' => ['Text', true]
-        })
         u = create_user
         t = create_team
         create_team_user team: t, user: u, role: 'admin'
