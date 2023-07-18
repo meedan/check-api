@@ -377,6 +377,8 @@ class Bot::Alegre < BotUser
       annotation.skip_check_ability = true
       annotation.save!
       completed = true
+    elsif result['job_status'] == 'DONE'
+      completed = true
     end
     self.delay_for(10.seconds, retry: 5).update_audio_transcription(annotation.id, attempts + 1) if !completed && attempts < 2000 # Maximum: ~5h of transcription
   end

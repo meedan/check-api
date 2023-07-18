@@ -5,6 +5,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
   def setup
     super
     setup_smooch_bot
+    Rails.cache.delete('smooch_bot_installation_id:smooch_webhook_secret:test')
   end
 
   def teardown
