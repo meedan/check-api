@@ -232,23 +232,36 @@ class Bot::Smooch < BotUser
     ['smooch_app_id', 'turnio_secret', 'capi_whatsapp_business_account_id']
   end
 
-  def self.get_installation(key = nil, value = nil)
+  def self.get_installation(key = nil, value = nil, &block)
+    id = nil
+    if !key.blank? && !value.blank?
+      keys = [key].flatten.map(&:to_s).reject{ |k| k.blank? }
+      id = Rails.cache.fetch("smooch_bot_installation_id:#{keys.join(':')}:#{value}", expires_in: 24.hours) do
+        self.get_installation_id(keys, value, &block)
+      end
+    elsif block_given?
+      id = self.get_installation_id(key, value, &block)
+    end
+    smooch_bot_installation = TeamBotInstallation.where(id: id.to_i).last
+    settings = smooch_bot_installation&.settings.to_h
+    RequestStore.store[:smooch_bot_provider] = 'TURN' unless smooch_bot_installation&.get_turnio_secret&.to_s.blank?
+    RequestStore.store[:smooch_bot_provider] = 'CAPI' unless smooch_bot_installation&.get_capi_whatsapp_business_account_id&.to_s.blank?
+    RequestStore.store[:smooch_bot_settings] = settings.with_indifferent_access.merge({ team_id: smooch_bot_installation&.team_id.to_i, installation_id: smooch_bot_installation&.id })
+    smooch_bot_installation
+  end
+
+  def self.get_installation_id(keys = nil, value = nil)
     bot = BotUser.smooch_user
     return nil if bot.nil?
     smooch_bot_installation = nil
-    keys = [key].flatten.map(&:to_s).reject{ |k| k.blank? }
     TeamBotInstallation.where(user_id: bot.id).each do |installation|
       key_that_has_value = nil
       installation.settings.each do |k, v|
-        key_that_has_value = k.to_s if keys.include?(k.to_s) && v == value
+        key_that_has_value = k.to_s if keys.to_a.include?(k.to_s) && v == value && !value.blank?
       end
       smooch_bot_installation = installation if (block_given? && yield(installation)) || !key_that_has_value.nil?
-      RequestStore.store[:smooch_bot_provider] = 'TURN' unless smooch_bot_installation&.get_turnio_secret&.to_s.blank?
-      RequestStore.store[:smooch_bot_provider] = 'CAPI' unless smooch_bot_installation&.get_capi_whatsapp_business_account_id&.to_s.blank?
     end
-    settings = smooch_bot_installation&.settings.to_h
-    RequestStore.store[:smooch_bot_settings] = settings.with_indifferent_access.merge({ team_id: smooch_bot_installation&.team_id.to_i, installation_id: smooch_bot_installation&.id })
-    smooch_bot_installation
+    smooch_bot_installation&.id
   end
 
   def self.valid_request?(request)
