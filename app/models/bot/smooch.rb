@@ -524,23 +524,6 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.get_typed_message(message, sm)
-    # v1 (plain text)
-    typed = message['text']
-    new_state = nil
-    # v2 (buttons and lists)
-    unless message['payload'].blank?
-      typed = nil
-      payload = begin JSON.parse(message['payload']) rescue {} end
-      if payload.class == Hash
-        new_state = payload['state']
-        sm.send("go_to_#{new_state}") if new_state && new_state != sm.state.value
-        typed = payload['keyword']
-      end
-    end
-    [typed.to_s.downcase.strip, new_state]
-  end
-
   def self.process_menu_option(message, state, app_id)
     uid = message['authorId']
     sm = CheckStateMachine.new(uid)
