@@ -1,4 +1,3 @@
----
 fil:
   statuses:
     ids:
@@ -25,7 +24,7 @@ fil:
         label: Kasalukuyang Ginagawa
         description: Nasimulan na ang gawain, pero wala pang nagagawang pagsasalin
       not_true:
-        label: Mali
+        label: 'Mali'
         description: 'Konklusyon: hindi totoo ang nilalaman ng item'
       verified:
         label: Beripikado
@@ -74,30 +73,19 @@ fil:
     messages:
       invalid_password: Hindi wastong password
       invalid_qrcode: Hindi wastong validation code
-      extension_white_list_error: 'hindi maaaring magkaroon ng uring %{extension},
-        ang mga pinahihintulutang uri: %{allowed_types}'
-      invalid_size: dapat nasa pagitan ng %{min_width}x%{min_height} at %{max_width}x%{max_height}
-        pixels
-      mini_magick_processing_error: 'Paumanhin, hindi namin ma-proseso ang larawan.
-        Ito ang error: %{e}'
-      annotation_mandatory_fields: 'Mangyaring itakda ang lahat ng kinakailangan na
-        patlang. '
+      invalid_size: dapat nasa pagitan ng %{min_width}x%{min_height} at %{max_width}x%{max_height} pixels
+      mini_magick_processing_error: 'Paumanhin, hindi namin ma-proseso ang larawan. Ito ang error: %{e}'
+      annotation_mandatory_fields: 'Mangyaring itakda ang lahat ng kinakailangan na patlang. '
       annotation_type_does_not_exist: hindi umiiral
       invalid_attribution: Hindi wastong atribusyon
-      must_resolve_required_tasks_first: Dapat munang malutas ang mga kinakailangang
-        gawain
-      image_too_large: Paumanhin, hindi namin suportado ang mga larawang higit sa
-        %{max_size}
-      video_too_large: Paumanhin, hindi namin suportado ang mga video na higit sa
-        %{max_size}
-      audio_too_large: Paumanhin, hindi namin suportado ang mga audio file na higit
-        sa %{max_size}.
-      pender_conflict: Kasalukuyan nang pina-parse ang link. Mangyaring sumubok muli
-        pagkatapos ng ilang segundo.
+      must_resolve_required_tasks_first: Dapat munang malutas ang mga kinakailangang gawain
+      image_too_large: Paumanhin, hindi namin suportado ang mga larawang higit sa %{max_size}
+      video_too_large: Paumanhin, hindi namin suportado ang mga video na higit sa %{max_size}
+      audio_too_large: Paumanhin, hindi namin suportado ang mga audio file na higit sa %{max_size}.
+      pender_conflict: Kasalukuyan nang pina-parse ang link. Mangyaring sumubok muli pagkatapos ng ilang segundo.
       pender_url_invalid: Hindi wasto ang link na ito.
       pender_url_unsafe: Hindi ligtas ang link na ito.
-      invalid_format_for_languages: Hindi wastong format ng wika. Ang inaasahan ay
-        `['en', 'ar', …]`
+      invalid_format_for_languages: Hindi wastong format ng wika. Ang inaasahan ay `['en', 'ar', …]`
   activerecord:
     models:
       link: Link
@@ -153,21 +141,15 @@ fil:
         too_short:
           one: ay masyadong maikli (ang pinakakaunti ay 1 karakter)
           other: ay masyadong maikli (hindi bababa sa %{count} karakter)
-  slack_webhook_format_wrong: Hindi wastong Slack webhook. Ang format na inaasahan
-    ay `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
+  slack_webhook_format_wrong: Hindi wastong Slack webhook. Ang format na inaasahan ay `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: ay nakareserba na
   invalid_media_item: Hindi wasto ang item
-  invalid_default_status_for_custom_verification_status: Hindi wasto ang default na
-    status identifier
-  invalid_active_status_for_custom_verification_status: Hindi wasto ang aktibong status
-    identifier
+  invalid_default_status_for_custom_verification_status: Hindi wasto ang default na status identifier
+  invalid_active_status_for_custom_verification_status: Hindi wasto ang aktibong status identifier
   invalid_label_for_custom_verification_status: Kinakailangan ang label ng status
-  invalid_id_for_custom_verification_status: Kinakailangan ang status identifier at
-    ang nilalaman lang dapat ito ay maliliit na titik, numero, gitling, at salungguhit
-  invalid_statuses_format_for_custom_verification_status: 'Hindi wastong mga custom
-    verification status. Ang inaasahan ay mga wastong entry para sa: label, identifier,
-    pagkakalarawan, at istilo.'
-  mail_account_confirmation: Pagkumpirma ng account sa %{app_name}
+  invalid_id_for_custom_verification_status: Kinakailangan ang status identifier at ang nilalaman lang dapat ito ay maliliit na titik, numero, gitling, at salungguhit
+  invalid_statuses_format_for_custom_verification_status: 'Hindi wastong mga custom verification status. Ang inaasahan ay mga wastong entry para sa: label, identifier, pagkakalarawan, at istilo.'
+  mail_account_confirmation: "Pagkumpirma ng account sa %{app_name}"
   slack:
     fields:
       assigned: Itinalaga kay
@@ -181,46 +163,35 @@ fil:
       project_media: Item
       attribution: Sinagutan ni
     messages:
-      analysis_verification_status_status_changed: 'Binago ni %{user} ang status sa:
-        %{value}'
-      analysis_title_changed: 'Binago ni %{user} ang pamagat ng pagsusuri sa: %{value}'
-      analysis_content_changed: 'Binago ni %{user} ang nilalaman ng pagsusuri sa:
-        %{value}'
-      tasks_create: 'Nagdagdag si %{user} ng gawain: %{title}'
-      tasks_edit: In-edit ni %{user} ang gawaing %{title}
-      tasks_answer_create: 'Sinagutan ni %{user} ang gawaing %{title}: %{answer}'
-      tasks_answer_edit: 'In-edit ni %{user} ang sagot sa gawaing %{title}: %{answer}'
-      metadata_create: 'Nagdagdag si %{user} ng patlang pang-metadata: %{title}'
-      metadata_edit: In-edit ni %{user} ang patlang pang-metadata na %{title}
-      metadata_answer_create: 'Itinakda ni %{user} ang value ng metadata na %{title}:
-        %{answer}'
-      metadata_answer_edit: 'In-edit ni %{user} ang value ng metadata na %{title}:
-        %{answer}'
-      project_media_comment: Nagdagdag si %{user} (%{role} sa %{team}) ng note sa
-        %{parent_type}
-      project_media_create: Nagsumite si %{user} (%{role} sa %{team}) ng bagong item
-      project_media_create_related: Nagdagdag si %{user} (%{role} sa %{team}) ng kaugnay
-        na %{type}
-      project_media_update: Nag-update si %{user} (%{role} sa %{team}) ng item
-      project_media_status: Pinalitan ni %{user} (%{role} sa %{team}) ang %{workflow}
-        status ng isang %{type}
-      project_media_assign: Nagtalaga si %{user} (%{role} sa %{team}) ng %{type}
-      project_media_unassign: 'Inalis ni %{user} (%{role} sa %{team}) ang pagkakatalaga
-        ng %{type} '
-      project_source_comment: Nagdagdag si %{user} (%{role} sa %{team}) ng note sa
-        %{parent_type}
-      project_source_create: Nagdagdag si %{user} (%{role} sa %{team}) ng %{type}
-      project_source_update: Nag-edit si %{user} (%{role} sa %{team}) ng %{type}
-      user_member: Sumali si %{user} sa workspace na %{team}
-      user_requested: Humiling si %{user} na sumali sa workspace na %{team}
-      user_invited: Inanyayahan si %{user} na sumali sa workspace na %{team}
-      user_banned: Ipinagbawal si %{user} sa workspace na %{team}
+      analysis_verification_status_status_changed: "Binago ni %{user} ang status sa: %{value}"
+      analysis_title_changed: "Binago ni %{user} ang pamagat ng pagsusuri sa: %{value}"
+      analysis_content_changed: "Binago ni %{user} ang nilalaman ng pagsusuri sa: %{value}"
+      tasks_create: "Nagdagdag si %{user} ng gawain: %{title}"
+      tasks_edit: "In-edit ni %{user} ang gawaing %{title}"
+      tasks_answer_create: "Sinagutan ni %{user} ang gawaing %{title}: %{answer}"
+      tasks_answer_edit: "In-edit ni %{user} ang sagot sa gawaing %{title}: %{answer}"
+      metadata_create: "Nagdagdag si %{user} ng patlang pang-metadata: %{title}"
+      metadata_edit: "In-edit ni %{user} ang patlang pang-metadata na %{title}"
+      metadata_answer_create: "Itinakda ni %{user} ang value ng metadata na %{title}: %{answer}"
+      metadata_answer_edit: "In-edit ni %{user} ang value ng metadata na %{title}: %{answer}"
+      project_media_comment: "Nagdagdag si %{user} (%{role} sa %{team}) ng note sa %{parent_type}"
+      project_media_create: "Nagsumite si %{user} (%{role} sa %{team}) ng bagong item"
+      project_media_create_related: "Nagdagdag si %{user} (%{role} sa %{team}) ng kaugnay na %{type}"
+      project_media_update: "Nag-update si %{user} (%{role} sa %{team}) ng item"
+      project_media_status: "Pinalitan ni %{user} (%{role} sa %{team}) ang %{workflow} status ng isang %{type}"
+      project_media_assign: "Nagtalaga si %{user} (%{role} sa %{team}) ng %{type}"
+      project_media_unassign: "Inalis ni %{user} (%{role} sa %{team}) ang pagkakatalaga ng %{type} "
+      project_source_comment: "Nagdagdag si %{user} (%{role} sa %{team}) ng note sa %{parent_type}"
+      project_source_create: "Nagdagdag si %{user} (%{role} sa %{team}) ng %{type}"
+      project_source_update: "Nag-edit si %{user} (%{role} sa %{team}) ng %{type}"
+      user_member: "Sumali si %{user} sa workspace na %{team}"
+      user_requested: "Humiling si %{user} na sumali sa workspace na %{team}"
+      user_invited: "Inanyayahan si %{user} na sumali sa workspace na %{team}"
+      user_banned: "Ipinagbawal si %{user} sa workspace na %{team}"
   mail_view_welcome: Maligayang pagdating sa %{app_name}
-  mail_view_register: 'Isang hakbang na lang at magagamit mo na ang %{app_name}! Mangyaring
-    kumpirmahin ang iyong email address sa pag-click sa sumusunod na link:'
+  mail_view_register: 'Isang hakbang na lang at magagamit mo na ang %{app_name}! Mangyaring kumpirmahin ang iyong email address sa pag-click sa sumusunod na link:'
   mail_confirm_button: Kumpirmahin ang aking account
-  slack_restricted_join_to_members: 'Paumanhin, hindi ka pwedeng sumali sa %{team_name}dahil
-    mga miyembro lang ng Slack workspace(s) na %{teams} ang makakasali rito.  '
+  slack_restricted_join_to_members: 'Paumanhin, hindi ka pwedeng sumali sa %{team_name}dahil mga miyembro lang ng Slack workspace(s) na %{teams} ang makakasali rito.  '
   admin:
     actions:
       send_reset_password_email:
@@ -233,8 +204,7 @@ fil:
         menu: I-duplicate ang workspace
         done: na-duplicate
         are_you_sure_you_want_to_copy_team:
-          html: Sigurado ka bang nais mong i-duplicate ang workspace na <strong>%{team}</strong>?
-            Kokopyahin din ang lahat ng kaugnay na datos.
+          html: Sigurado ka bang nais mong i-duplicate ang workspace na <strong>%{team}</strong>? Kokopyahin din ang lahat ng kaugnay na datos.
         the_team_is_being_copied: Kasalukuyang nagaganap ang duplication ng workspace
         url_when_ready:
           html: Kapag handa na, makikita ang duplicate ng workspace sa <strong>%{copy_url}</strong>
@@ -249,24 +219,20 @@ fil:
       task: "%B %d, %Y at %H:%M [TZ] (%z UTC)"
       email: "%B %d, %Y %I:%M %p %Z"
   oembed_disclaimer_undetermined: Hindi pa nabeberipika ng %{team} ang item na ito
-  oembed_disclaimer_in_progress: Ang item na ito ay bineberipika ng %{team} nitong
-    %{date}
-  oembed_disclaimer_verified: Ang item na ito ay natukoy na beripikado ng %{team}
-    noong %{date}
-  oembed_disclaimer_false: Ang item na ito ay natukoy na hindi totoo ng %{team} noong
-    %{date}
-  oembed_disclaimer_not_applicable: Walang narating na konklusyon ang %{team} tungkol
-    sa item na ito nitong %{date}
+  oembed_disclaimer_in_progress: Ang item na ito ay bineberipika ng %{team} nitong %{date}
+  oembed_disclaimer_verified: Ang item na ito ay natukoy na beripikado ng %{team} noong %{date}
+  oembed_disclaimer_false: Ang item na ito ay natukoy na hindi totoo ng %{team} noong %{date}
+  oembed_disclaimer_not_applicable: Walang narating na konklusyon ang %{team} tungkol sa item na ito nitong %{date}
   oembed_source_date: "%{date} sa %{provider}"
   role_editor: tagapag-edit
   role_none: miyembro
   role_: sysadmin
   oembed_credit: Idinagdag ni %{user} (%{role}) %{date}
   oembed_notes_count:
-    one: Isang note
+    one: "Isang note"
     other: "%{count} na note"
   oembed_completed_tasks_count:
-    one: Isang nakumpletong gawain
+    one: "Isang nakumpletong gawain"
     other: "%{count} nakumpletong gawain"
   oembed_verification_tasks: Mga Gawain
   oembed_tasks: Mga Gawain
@@ -274,68 +240,55 @@ fil:
   oembed_expand_all: Palawakin lahat
   oembed_collapse_all: I-collapse lahat
   oembed_resolved_tasks_count:
-    one: Isang gawaing naresolba
+    one: "Isang gawaing naresolba"
     other: "%{count} nalutas na gawain"
   oembed_notes: Mga note
   duplicate_source: Dati na ang source
-  geolocation_invalid_value: Hindi wastong lokasyon. Ang inaasahan ay wastong GeoJSON
-    structure (http://geojson.org/)
+  geolocation_invalid_value: Hindi wastong lokasyon. Ang inaasahan ay wastong GeoJSON structure (http://geojson.org/)
   datetime_invalid_date: Hindi wastong petsa
-  error_team_archived_for_source: Paumanhin, hindi pwede magdagdag ng source sa binasurang
-    workspace
+  error_team_archived_for_source: Paumanhin, hindi pwede magdagdag ng source sa binasurang workspace
   permission_error: Paumanhin, hindi ka pinahihintulutang gawin ang operasyon na ito
-  error_annotated_archived: Paumanhin, hindi pwede magdagdag ng note sa binasurang
-    item
-  only_super_admin_can_do_this: Paumanhin, mga system administrator lang ang pwedeng
-    gumawa ng pagbabagong ito
+  error_annotated_archived: Paumanhin, hindi pwede magdagdag ng note sa binasurang item
+  only_super_admin_can_do_this: Paumanhin, mga system administrator lang ang pwedeng gumawa ng pagbabagong ito
   cant_change_custom_statuses: |-
-    Paumanhin, hindi mo pwedeng baguhin ang status definitions dahil mawawala ang ibang status. Ang mga status identifier na ito: %{statuses} ay ginagamit ng mga sumusunod na item:
-    %{urls} %{others_amount}
+      Paumanhin, hindi mo pwedeng baguhin ang status definitions dahil mawawala ang ibang status. Ang mga status identifier na ito: %{statuses} ay ginagamit ng mga sumusunod na item:
+      %{urls} %{others_amount}
   account_exists: Dati na ang account na ito
   media_exists: Dati na ang item na ito
   source_exists: Dati na ang source na ito
   email_exists: ay nakuha na
-  banned_user: 'Paumanhin, pinagbawal ang iyong account sa %{app_name}. Mangyaring
-    makipag-ugnay sa support team kung sa tingin mo ay isa itong pagkakamali. '
+  banned_user: 'Paumanhin, pinagbawal ang iyong account sa %{app_name}. Mangyaring makipag-ugnay sa support team kung sa tingin mo ay isa itong pagkakamali. '
   devise:
     mailer:
       reset_password_instructions:
-        subject: Mga panuto sa pag-reset ng password sa %{app_name}
+        subject: "Mga panuto sa pag-reset ng password sa %{app_name}"
         header_title: Kahilingan para i-reset ang password
-        header_text: Natanggap namin ang iyong kahilingang i-reset ang iyong password
-          sa %{app_name}.
+        header_text: Natanggap namin ang iyong kahilingang i-reset ang iyong password sa %{app_name}.
         action: I-reset ang iyong password
         expiry: Lilipas ang kahilingang ito sa loob ng %{expire} oras.
         instruction_1: Mag-click dito para gumawa ng bagong kahilingan.
-        instruction_2: Kung hindi ikaw ang gumawa ng kahilingang ito, o nahihirapan
-          ka sa pag-reset ng iyong password, mangyaring makipag-ugnay sa amin sa %{support_email}.
+        instruction_2: Kung hindi ikaw ang gumawa ng kahilingang ito, o nahihirapan ka sa pag-reset ng iyong password, mangyaring makipag-ugnay sa amin sa %{support_email}.
       invitation_instructions:
-        subject: Inanyayahan ka ni %{user} na sumali sa workspace na %{team}
+        subject: "Inanyayahan ka ni %{user} na sumali sa workspace na %{team}"
         hello: Kumusta %{name}
         someone_invited_you_default:
-          html: Inanyayahan ka ni %{name} na sumali sa workspace na %{team} bilang
-            %{role}.
+          html: "Inanyayahan ka ni %{name} na sumali sa workspace na %{team} bilang %{role}."
         someone_invited_you_custom:
-          html: 'Inanyayahan ka ni %{name} sa workspace na %{team} bilang %{role},
-            at nagsasabing:'
+          html: "Inanyayahan ka ni %{name} sa workspace na %{team} bilang %{role}, at nagsasabing:"
         accept: Tanggapin ang paanyaya
         accept_until: Lilipas ang paanyayang ito sa %{due_date}.
-        ignore: Kung ayaw mong tanggapin ang paanyaya, mangyaring huwag pansinin ang
-          email na ito.
-        app_team: Workspace ng %{app}
+        ignore: Kung ayaw mong tanggapin ang paanyaya, mangyaring huwag pansinin ang email na ito.
+        app_team: "Workspace ng %{app}"
     failure:
       unconfirmed: Mangyaring tingnan ang iyong email para maberipika ang iyong account.
   user_invitation:
     team_found: Hindi matagpuan ang workspace.
     invalid: Hindi wastong code ng paanyaya.
     no_invitation: Wala pang paanyaya para sa workspace na %{name}
-  error_user_is_not_a_team_member: Paumanhin, pwede ka lang magtalaga sa mga miyembro
-    nitong workspace
-  error_login_with_exists_account: Paumanhin, may ibang user nang gumagamit ng account
-    na ito
-  error_login_2fa: Mangyaring kumpletuhin ang iyong sign in sa pagbibigay ng authentication
-    code.
-  error_record_not_found: 'Hindi matagpuan ang %{type} #%{id}'
+  error_user_is_not_a_team_member: Paumanhin, pwede ka lang magtalaga sa mga miyembro nitong workspace
+  error_login_with_exists_account: Paumanhin, may ibang user nang gumagamit ng account na ito
+  error_login_2fa: Mangyaring kumpletuhin ang iyong sign in sa pagbibigay ng authentication code.
+  error_record_not_found: "Hindi matagpuan ang %{type} #%{id}"
   mails_notifications:
     greeting: Kumusta, %{username}?
     greeting_anonymous: Kumusta?
@@ -345,56 +298,48 @@ fil:
     register:
       subject: Bagong account para sa iyo sa %{app_name}
       header_text: |-
-        Matagumpay kang nakapag-sign-up sa %{app_name}!
-        <br>
-        Para makapag-login sa site, sundan ang link na ito: %{url}. Ilagay ang email address at password na ito: %{password}.
+          Matagumpay kang nakapag-sign-up sa %{app_name}!
+          <br>
+          Para makapag-login sa site, sundan ang link na ito: %{url}. Ilagay ang email address at password na ito: %{password}.
       login_button: Mag-login sa %{app_name}
       footer_text: Salamat sa pagsali at magandang araw sa iyo!
     duplicated:
       subject: Ang iyong paraan ng pag-login sa %{app_name}
       header_title: Duplicate Account
       one_email: |-
-        <p>Isa lamang itong paalala para matulungan kang masiguro ang pag-login sa %{app_name}.</p>
-        <p>Ang nangyari: Sinubukan mong mag-sign in sa %{app_name} gamit ang %{user_provider}-based account na naka-link sa %{user_email}.
-        Pero ang email address na ito ay nakaugnay na sa isang %{duplicate_provider}-based account sa %{app_name}.</p>
-        <p>Ang susunod na gagawin: Mag-sign in gamit ang %{duplicate_provider}.</p>
-        <p>Matapos ito, malo-login ka sa account na ginagamit mo noon.
-        Kung kailangan mo ng karagdagang tulong, mangyaring mag-email sa %{support_email}.</p>
+          <p>Isa lamang itong paalala para matulungan kang masiguro ang pag-login sa %{app_name}.</p>
+          <p>Ang nangyari: Sinubukan mong mag-sign in sa %{app_name} gamit ang %{user_provider}-based account na naka-link sa %{user_email}.
+          Pero ang email address na ito ay nakaugnay na sa isang %{duplicate_provider}-based account sa %{app_name}.</p>
+          <p>Ang susunod na gagawin: Mag-sign in gamit ang %{duplicate_provider}.</p>
+          <p>Matapos ito, malo-login ka sa account na ginagamit mo noon.
+          Kung kailangan mo ng karagdagang tulong, mangyaring mag-email sa %{support_email}.</p>
       both_emails: |-
-        <p>Isa lamang itong paalala para matulungan kang masiguro ang pag-login sa %{app_name}.</p>
-        <p>Ang nangyari: Sinubukan mong gumawa ng bagong email- based account sa %{app_name}, pero dati na ang account na ito.</p>
-        <p>Subukan mong mag-sign in gamit ang iyong email at password, sa halip na gumawa ng panibagong account.</p>
-        <p>Matapos ito, malo-login ka sa account na ginagamit mo noon. Kung kailangan mo ng karagdagang tulong, mangyaring mag-email sa %{support_email}.</p>
+          <p>Isa lamang itong paalala para matulungan kang masiguro ang pag-login sa %{app_name}.</p>
+          <p>Ang nangyari: Sinubukan mong gumawa ng bagong email- based account sa %{app_name}, pero dati na ang account na ito.</p>
+          <p>Subukan mong mag-sign in gamit ang iyong email at password, sa halip na gumawa ng panibagong account.</p>
+          <p>Matapos ito, malo-login ka sa account na ginagamit mo noon. Kung kailangan mo ng karagdagang tulong, mangyaring mag-email sa %{support_email}.</p>
       email: email
     invitation:
       title: Bagong Paanyaya
     delete_user:
       subject: "[%{team}] May user na binura"
       header_title: Binura ang User
-      header_text: May binurang user account at nilipat ang pagkakatalaga ng nilalaman
-        nito sa %{anonymous} user %{id}
+      header_text: May binurang user account at nilipat ang pagkakatalaga ng nilalaman nito sa %{anonymous} user %{id}
       anonymous: anonymous
     admin_mailer:
-      team_download_subject: "[%{team}] Handa nang ma-download ang workspace data
-        snapshot"
+      team_download_subject: "[%{team}] Handa nang ma-download ang workspace data snapshot"
       team_dump_title: Datos ng Workspace
       types:
         dump: data snapshot
         csv: ulat
         images: artsibo ng mga larawan
-      team_dump_text: 'Humingi ka ng data snapshot para sa workspace na %{team} -
-        narito ang link para ma-download ito: %{link}'
+      team_dump_text: 'Humingi ka ng data snapshot para sa workspace na %{team} - narito ang link para ma-download ito: %{link}'
       team_dump_button: I-download ang datos ng workspace
-      decompress_text: Ang %{type} ay mada-download bilang compressed at encrypted
-        na file. Para ma-decompress ito, mangyaring gamitin ang password na %{password}.
+      decompress_text: Ang %{type} ay mada-download bilang compressed at encrypted na file. Para ma-decompress ito, mangyaring gamitin ang password na %{password}.
       expire_note: Pakitandaan na lilipas ang link na ito sa loob ng %{days} araw.
       team_import_subject: Nakumpleto ang iyong pag-angkat ng datos
       team_import_title: Pag-angkat ng Datos
-      team_import_text: "<p>Natapos na ang iyong pag-angkat ng datos papasok sa %{app_name}.
-        Pwede mo itong makita sa %{worksheet_url} para masuri ang status ng bawat
-        item na iaangkat. Pakitandaan na pwede mong ulitin ang pag-aangkat pagkatapos
-        mong maayos ang anumang mga pagkakamaling naka-ulat doon - hindi madu-duplicate
-        ang mga item na nauna nang inangkat."
+      team_import_text: "<p>Natapos na ang iyong pag-angkat ng datos papasok sa %{app_name}. Pwede mo itong makita sa %{worksheet_url} para masuri ang status ng bawat item na iaangkat. Pakitandaan na pwede mong ulitin ang pag-aangkat pagkatapos mong maayos ang anumang mga pagkakamaling naka-ulat doon - hindi madu-duplicate ang mga item na nauna nang inangkat."
     task_resolved:
       subject: "[%{team} - %{project}] Nasagutan ang Gawain"
       header_title: Nasagutan ang Gawain
@@ -411,17 +356,15 @@ fil:
       tasks_h: Mga Nakumpletong Gawain
     assignment:
       assign_task_subject: "[%{team} - %{project}] May gawaing itinalaga sa iyo"
-      unassign_task_subject: "[%{team} - %{project}]  May gawaing inalis ang pagkakatalaga
-        sa iyo"
+      unassign_task_subject: "[%{team} - %{project}]  May gawaing inalis ang pagkakatalaga sa iyo"
       assign_media_subject: "[%{team} - %{project}] May item na itinalaga sa iyo"
-      unassign_media_subject: "[%{team} - %{project}] May item na inalis ang pagkakatalaga
-        sa iyo"
+      unassign_media_subject: "[%{team} - %{project}] May item na inalis ang pagkakatalaga sa iyo"
       assign_task_title: Gawaing Nakatalaga
       unassign_task_title: Gawaing Inalis sa Pagkakatalaga
       assign_media_title: Item na Nakatalaga
       unassign_media_title: Item na Inalis sa Pagkakatalaga
-      assign_log: Itinalaga ni %{author} ang %{model} kay %{username}
-      unassign_log: Inalis ni %{author} ang pagkakatalaga ng %{model} kay %{username}
+      assign_log: "Itinalaga ni %{author} ang %{model} kay %{username}"
+      unassign_log: "Inalis ni %{author} ang pagkakatalaga ng %{model} kay %{username}"
       assign_by: Itinalaga ni
       unassign_by: Inalis sa pagkakatalaga ni
     request_to_join:
@@ -431,40 +374,29 @@ fil:
       rejected_subject: Tinanggihan ang iyong kahilingang sumali sa %{team}
       approved_subject: Maligayang pagdating sa workspace na %{team}
       request_title: Kahilingang sumali sa workspace na %{team}
-      request_text: Nais sumali ni %{name} (%{email}) sa workspace na %{team} sa %{app_name}.
-        Pwede mong iproseso ang kahilingang ito sa pagbisita sa %{url}.
+      request_text: "Nais sumali ni %{name} (%{email}) sa workspace na %{team} sa %{app_name}. Pwede mong iproseso ang kahilingang ito sa pagbisita sa %{url}."
       approved_title: Maligayang pagdating sa workspace na %{team}
-      approved_text: Inaprubahan ang iyong kahilingang sumali sa workspace na %{team}
-        sa %{app_name}. Pwede ka nang pumunta sa %{url} at magsimulang mag-ambag.
+      approved_text: Inaprubahan ang iyong kahilingang sumali sa workspace na %{team} sa %{app_name}. Pwede ka nang pumunta sa %{url} at magsimulang mag-ambag.
       rejected_title: Tinanggihan ang Kahilingan
-      rejected_text: Paumanhin, tinanggihan ang iyong kahilingang sumali sa workspace
-        na %{team} sa %{app_name}.
+      rejected_text: Paumanhin, tinanggihan ang iyong kahilingang sumali sa workspace na %{team} sa %{app_name}.
   mail_security:
-    device_subject: 'Alertong panseguridad: May bagong login sa %{app_name} mula sa
-      %{browser} sa %{platform}'
+    device_subject: 'Alertong panseguridad: May bagong login sa %{app_name} mula sa %{browser} sa %{platform}'
     ip_subject: 'Alertong panseguridad: May bago o naiibang login sa %{app_name}'
-    failed_subject: 'Alertong panseguridad: Mga bigong pagtatangka na mag-login sa
-      %{app_name}'
+    failed_subject: 'Alertong panseguridad: Mga bigong pagtatangka na mag-login sa %{app_name}'
     ip: Nag-sign in ka mula sa %{location}
     device: Naka-sign in ka mula sa %{browser} sa %{platform}
     devise_name: "%{browser} sa %{platform}"
     failed: May mga natuklasang bigong pagtatangka sa pag-login
     password_text: agarang i-reset ang iyong password.
-    device_text: Mukhang nag-sign in ka kamakailan sa iyong %{app_name} account mula
-      sa bagong device. Kung hindi ikaw ito, kailangan mong %{change_password}
-    ip_text: Mukhang nag-sign in ka kamakailan sa iyong %{app_name} account mula sa
-      bagong lokasyon. Kung hindi ikaw ito, kailangan mong %{change_password}
-    failed_text: Mukhang ilang beses na may nagtangkang mag-login sa iyong %{app_name}
-      account. Kung ikaw ito, ligtas ang hindi pansinin ang email na ito. Kung hindi
-      ikaw ito, dapat mong %{change_password}
+    device_text: Mukhang nag-sign in ka kamakailan sa iyong %{app_name} account mula sa bagong device. Kung hindi ikaw ito, kailangan mong %{change_password}
+    ip_text: Mukhang nag-sign in ka kamakailan sa iyong %{app_name} account mula sa bagong lokasyon. Kung hindi ikaw ito, kailangan mong %{change_password}
+    failed_text: Mukhang ilang beses na may nagtangkang mag-login sa iyong %{app_name} account. Kung ikaw ito, ligtas ang hindi pansinin ang email na ito. Kung hindi ikaw ito, dapat mong %{change_password}
     time_h: Oras
     device_h: Device
     location_h: Lokasyon
-    location_disclaimer: "* Ang lokasyon ay tinatantiya base sa IP address na pinagmulan
-      nito."
+    location_disclaimer: "* Ang lokasyon ay tinatantiya base sa IP address na pinagmulan nito."
     ip_h: IP Address
-    privacy: "%{manage} ang iyong mga abiso sa email • Dagdagan ang kaalaman tungkol
-      sa aming %{privacy}"
+    privacy: "%{manage} ang iyong mga abiso sa email • Dagdagan ang kaalaman tungkol sa aming %{privacy}"
     privacy_text: Patakaran sa Pagkapribado
     manage_text: Mamahala
     privace_manage_plain: Mamahala sa mga abiso sa email
@@ -472,63 +404,46 @@ fil:
   archive_keep_backup: Video Vault
   archive_pender_archive: Screenshot
   archive_archive_org: Archive.org
-  workflow_status_is_not_valid: 'Hindi wastong status: ''%{status}'' (dapat kabilang
-    sa %{valid})'
-  workflow_status_permission_error: Paumahin, hindi ka pinahihintulutang baguhin ang
-    status na ito.
-  blank_default_status_for_custom_verification_status: Mangyaring magbigay ng default
-    na value para sa mga custom verification status
-  blank_active_status_for_custom_verification_status: Mangyaring magbigay ng aktibong
-    value para sa mga custom verification status
-  bot_name_exists_for_this_team: Meron nang bot sa pangalang binigay sa loob ng workspace
-    na ito
+  workflow_status_is_not_valid: 'Hindi wastong status: ''%{status}'' (dapat kabilang sa %{valid})'
+  workflow_status_permission_error: Paumahin, hindi ka pinahihintulutang baguhin ang status na ito.
+  blank_default_status_for_custom_verification_status: Mangyaring magbigay ng default na value para sa mga custom verification status
+  blank_active_status_for_custom_verification_status: Mangyaring magbigay ng aktibong value para sa mga custom verification status
+  bot_name_exists_for_this_team: Meron nang bot sa pangalang binigay sa loob ng workspace na ito
   bot_team_id_doesnt_exist: Paumanhin, walang workspace sa binigay na identifier
-  bot_team_id_mandatory_to_create: Paumanhin, kailangan mong pumili ng workspace para
-    makagawa ng bot
-  bot_not_approved_for_installation: Paumanhin, hindi naaprubahan ang bot na ito kaya
-    hindi ito ma-install
-  could_not_save_related_bot_data: Paumanhin, hindi maidagdag ang bot sa workspace
-    na ito
-  bot_cant_add_response_to_task: Paumanhin, hindi direktang nakasasagot ng gawain
-    ang isang bot - mangyaring magpadala na lamang ng mungkahing sagot
+  bot_team_id_mandatory_to_create: Paumanhin, kailangan mong pumili ng workspace para makagawa ng bot
+  bot_not_approved_for_installation: Paumanhin, hindi naaprubahan ang bot na ito kaya hindi ito ma-install
+  could_not_save_related_bot_data: Paumanhin, hindi maidagdag ang bot sa workspace na ito
+  bot_cant_add_response_to_task: Paumanhin, hindi direktang nakasasagot ng gawain ang isang bot - mangyaring magpadala na lamang ng mungkahing sagot
   bot_cant_add_review_to_task: Paumanhin, hindi nakasusuri ng gawain ang isang bot
-  task_suggestion_invalid_value: Hindi wasto ang mungkahing gawain. Ang inaasahan
-    ay JSON object na may mga attribute na `suggestion` (ang akwtal na value na ikinokopya
-    sa sagot sa gawain kapag tinanggap) at `comment` (ipinakikita sa mga user).
+  task_suggestion_invalid_value: Hindi wasto ang mungkahing gawain. Ang inaasahan ay JSON object na may mga attribute na `suggestion` (ang akwtal na value na ikinokopya sa sagot sa gawain kapag tinanggap) at `comment` (ipinakikita sa mga user).
   tag_text_id_not_found: Hindi matagpuan ang tag
   annotation_type_language_label: Wika
   smooch_bot_message_confirmed: |-
-    Salamat. Naipadala na ang iyong kahilingan sa aming pila pamberipikasyon.
+      Salamat. Naipadala na ang iyong kahilingan sa aming pila pamberipikasyon.
 
-    Sisikapin naming magpadala ng ulat sa loob ng 24 oras, pero mangyaring tandaan na hindi namin kayang masagutan ang bawat kahilingan.
-  smooch_bot_message_unconfirmed: Dahil hindi ka sumagot ng 1, hindi na namin ipo-proseso
-    pa ang iyong kahilingan. Salamat.
-  smooch_bot_message_type_unsupported: Paumanhin, hindi namin suportado ang ganitong
-    uri ng mensahe.
-  smooch_bot_message_size_unsupported: Paumanhin, hindi namin suportado ang mga file
-    na higit sa %{max_size}.
+      Sisikapin naming magpadala ng ulat sa loob ng 24 oras, pero mangyaring tandaan na hindi namin kayang masagutan ang bawat kahilingan.
+  smooch_bot_message_unconfirmed: Dahil hindi ka sumagot ng 1, hindi na namin ipo-proseso pa ang iyong kahilingan. Salamat.
+  smooch_bot_message_type_unsupported: Paumanhin, hindi namin suportado ang ganitong uri ng mensahe.
+  smooch_bot_message_size_unsupported: Paumanhin, hindi namin suportado ang mga file na higit sa %{max_size}.
   smooch_bot_result: |-
-    [Ulat Pamberipikasyon] Ang iyong binahaging item sa amin ay minarkahan bilang *%{status}*.
+      [Ulat Pamberipikasyon] Ang iyong binahaging item sa amin ay minarkahan bilang *%{status}*.
 
-    Narito ang mga ginawa naming hakbang para matukoy ito: %{url}
+      Narito ang mga ginawa naming hakbang para matukoy ito: %{url}
   smooch_bot_ask_for_confirmation: |-
-    Salamat sa pagpapadala ng kahilingang ito. Nais mo bang beripikahin namin ang nilalaman nito?
+      Salamat sa pagpapadala ng kahilingang ito. Nais mo bang beripikahin namin ang nilalaman nito?
 
-    Para magsabi ng oo, *mangyaring mag-reply ng 1*. Ang anumang ibang tugon ay tatapos sa ating pag-uusap.
+      Para magsabi ng oo, *mangyaring mag-reply ng 1*. Ang anumang ibang tugon ay tatapos sa ating pag-uusap.
   smooch_bot_ask_for_tos: |-
-    Salamat sa paglapit sa Check Message!
+      Salamat sa paglapit sa Check Message!
 
-    Pwede mong gamitin ang serbisyong ito para humiling ng pagbeberipika, pagfa-fact-check, at pagsisiyasat ng mga balita at impormasyon. Ang Check Message ay ipinagkakaloob sa iyo sa ilalim nitong mga Tuntunin ng Serbisyo: %{tos}. Sa patuloy na paggamit sa serbisyong ito, *sumasang-ayon kang magpailalim sa mga tuntuning ito*. Huminto sa paggamit ng Check Message sakaling hindi ka sumasang-ayon.
-  smooch_bot_window_closing: Napakarami ng mga kahilingan sa channel na ito, at hindi
-    pa namin nalulutas ang iyong kahilingan. Maraming salamat sa iyong pasensya.
+      Pwede mong gamitin ang serbisyong ito para humiling ng pagbeberipika, pagfa-fact-check, at pagsisiyasat ng mga balita at impormasyon. Ang Check Message ay ipinagkakaloob sa iyo sa ilalim nitong mga Tuntunin ng Serbisyo: %{tos}. Sa patuloy na paggamit sa serbisyong ito, *sumasang-ayon kang magpailalim sa mga tuntuning ito*. Huminto sa paggamit ng Check Message sakaling hindi ka sumasang-ayon.
+  smooch_bot_window_closing: Napakarami ng mga kahilingan sa channel na ito, at hindi pa namin nalulutas ang iyong kahilingan. Maraming salamat sa iyong pasensya.
   smooch_bot_not_final: |-
-    [Ulat Pamberipikasyon - PAGWAWASTO] Ang iyong binahaging mensahe sa amin ay maling namarkahan bilang *%{status}*.
+      [Ulat Pamberipikasyon - PAGWAWASTO] Ang iyong binahaging mensahe sa amin ay maling namarkahan bilang *%{status}*.
 
-    Nasa pila pa rin namin ito para sa karagdagang beripikasyon.
-  smooch_bot_disabled: Salamat sa pagpapadala ng mensaheng ito. Hindi kami makapagpadala
-    ng anumang ulat pamberipikasyon, dahil hindi na aktibo ang proyektong ito.
-  smooch_bot_result_changed: "❗️Ang ipinadala naming fact-check sa iyo ay *in-update*
-    ng bagong impormasyon"
+      Nasa pila pa rin namin ito para sa karagdagang beripikasyon.
+  smooch_bot_disabled: Salamat sa pagpapadala ng mensaheng ito. Hindi kami makapagpadala ng anumang ulat pamberipikasyon, dahil hindi na aktibo ang proyektong ito.
+  smooch_bot_result_changed: "❗️Ang ipinadala naming fact-check sa iyo ay *in-update* ng bagong impormasyon"
   permissions_info:
     permissions:
       sections:
@@ -560,28 +475,21 @@ fil:
             edit_tasks: Gumawa at mag-edit ng mga gawaing pang-workspace
             roles: I-edit ang mga papel sa workspace
             third_party: Magdagdag ng mga third-party integration
-            invite_members: Mag-anyaya, mag-apruba, at magtanggal ng mga miyembro
-              ng workspace
+            invite_members: Mag-anyaya, mag-apruba, at magtanggal ng mga miyembro ng workspace
   team_import:
     invalid_google_spreadsheet_url: Hindi wastong URL ng spreadsheet %{spreadsheet_url}
     not_found_google_spreadsheet_url: Hindi matagpuan ang spreadsheet sa %{spreadsheet_url}
-    cannot_authenticate_with_the_credentials: Hindi mapatunayan ang Google Drive gamit
-      ang kasalukuyang mga kredensyal. Mangyaring makipag-ugnay sa support team para
-      ipagbigay-alam sa kanila ang insidenteng ito.
-    team_not_present: Hindi matagpuan ang kasalukuyang workspace habang nag-aangkat
-      ng datos. Mangyaring ipagbigay-alam sa support team ang insidenteng ito.
-    user_not_present: Hindi matagpuan ang kasalukuyang user habang nag-aangkat ng
-      datos. Mangyaring ipagbigay-alam sa support team ang insidenteng ito.
-    user_not_authorized: Paumanhin, hindi ka pinahihintulutang mag-angkat ng datos
-      sa workspace na ito.
+    cannot_authenticate_with_the_credentials: Hindi mapatunayan ang Google Drive gamit ang kasalukuyang mga kredensyal. Mangyaring makipag-ugnay sa support team para ipagbigay-alam sa kanila ang insidenteng ito.
+    team_not_present: Hindi matagpuan ang kasalukuyang workspace habang nag-aangkat ng datos. Mangyaring ipagbigay-alam sa support team ang insidenteng ito.
+    user_not_present: Hindi matagpuan ang kasalukuyang user habang nag-aangkat ng datos. Mangyaring ipagbigay-alam sa support team ang insidenteng ito.
+    user_not_authorized: Paumanhin, hindi ka pinahihintulutang mag-angkat ng datos sa workspace na ito.
     invalid_user: Hindi wastong may-akda %{user}
     invalid_status: Hindi wastong status %{status}
     blank_user: Hindi maaaring blangko ang patlang para sa may-akda
     blank_annotator: Hindi maaaring blangko ang patlang para sa anotador
     invalid_annotator: Hindi wastong anotador %{user}
     invalid_assignee: Hindi wastong assignee %{user}
-  cant_mutate_inactive_object: 'Paumanhin, may nakabinbin na operasyon para sa item
-    na ito, kaya hindi mo ito pwedeng baguhin ngayon. Mangyaring subukan ulit mamaya. '
+  cant_mutate_inactive_object: 'Paumanhin, may nakabinbin na operasyon para sa item na ito, kaya hindi mo ito pwedeng baguhin ngayon. Mangyaring subukan ulit mamaya. '
   embed_expand_all: Palawakin lahat
   embed_collapse_all: I-collapse lahat
   embed_tasks: Mga gawain
@@ -595,23 +503,19 @@ fil:
   bot_request_url_invalid: Hindi wastong bot URL
   invalid_task_answer: Hindi wastong format para sa sagot sa gawaing ito
   team_rule_name: Kakaibang pangalan na nagtutukoy sa ginagawa nitong panuntunan
-  team_rule_names_invalid: Ang mga pangalan ng panuntunan ay hindi maaaring blangko
-    at dapat kakaiba
+  team_rule_names_invalid: Ang mga pangalan ng panuntunan ay hindi maaaring blangko at dapat kakaiba
   team_rules: Mga panuntunan
   team_rule_conditions: Kung
   team_rule_condition: Kung
   team_rule_condition_definition: Mamili ng kundisyon
-  team_rule_title_matches_regexp: Tugma ang pamagat ng item sa regular expression
-    na ito
-  team_rule_request_matches_regexp: Tugma ang kahilingan sa regular expression na
-    ito
+  team_rule_title_matches_regexp: Tugma ang pamagat ng item sa regular expression na ito
+  team_rule_request_matches_regexp: Tugma ang kahilingan sa regular expression na ito
   team_rule_type_is: Ang uri ng item ay
   team_rule_type_is_claim: Teksto
   team_rule_type_is_link: Link
   team_rule_type_is_uploadedimage: Larawan
   team_rule_type_is_uploadedvideo: Video
-  team_rule_contains_keyword: Ang kahilingan ay naglalaman ng isa o higit pa sa sumusunod
-    na mga keyword
+  team_rule_contains_keyword: Ang kahilingan ay naglalaman ng isa o higit pa sa sumusunod na mga keyword
   team_rule_select_type: Mamili ng uri
   team_rule_select_language: Mamili ng wika
   team_rule_select_user: Mamili ng katuwang
@@ -625,8 +529,7 @@ fil:
   team_rule_actions: Samakatuwid
   team_rule_action: Samakatuwid
   team_rule_action_definition: Mamili ng gagawin
-  team_rule_ban_submitter: Ipagbawal ang nagsumite (hindi na lalabas ang mga susunod
-    nilang mensahe sa Check)
+  team_rule_ban_submitter: Ipagbawal ang nagsumite (hindi na lalabas ang mga susunod nilang mensahe sa Check)
   team_rule_all_items: Lahat ng mga item
   team_rule_send_message_to_user: Ipadala ang mensahe sa user
   team_rule_action_value: I-type ang mensahe rito
@@ -648,8 +551,7 @@ fil:
   team_rule_item_user_is: Ginawa ang item ni
   team_rule_item_is_read: Nabasa na ang item
   team_rule_field_from_fieldset_tasks_value_is: May tiyak na sagot ang gawain
-  team_rule_field_from_fieldset_tasks_value_contains_keyword: May nilalamang keyword
-    ang sagot sa gawain
+  team_rule_field_from_fieldset_tasks_value_contains_keyword: May nilalamang keyword ang sagot sa gawain
   team_rule_select_field_value_metadata: Mamili ng value
   team_rule_select_field_tasks: Mamili ng gawain
   team_rule_select_field_value_tasks: Mamili ng sagot
@@ -665,25 +567,17 @@ fil:
   flag_likelihood_2: Walang katiyakan
   flag_likelihood_4: Maaari
   relationship_not_same_team: Kailangang nasa iisang workspace ang magkaugnay na item
-  bulk_operation_limit_error: Paumanhin, ang pinakamalaking bilang ng mga item na
-    pwedeng iproseso nang sabay-sabay ay %{limit}
-  must_provide_fallback_when_deleting_status_in_use: Ginagamit ang status na ito,
-    kaya kailangan mong magbigay ng fallback status kung gusto mo itong burahin
-  embed_no_content_yet: Binubuo ang ulat. Aabutin ng ilang minuto ang prosesong ito.
-    Mangyaring i-refresh ang pahinang ito.
-  language_format_invalid: Hindi wastong format ng wika. Ang inaasahan ay ISO 639-1
-    code.
-  languages_format_invalid: Hindi wastong format ng wika. Ang inaasahan ay listahan
-    ng mga ISO 639-1 code.
-  cant_change_status_if_item_is_published: Paumanhin, hindi mo pwedeng palitan ang
-    status habang nakalathala ang ulat
+  bulk_operation_limit_error: Paumanhin, ang pinakamalaking bilang ng mga item na pwedeng iproseso nang sabay-sabay ay %{limit}
+  must_provide_fallback_when_deleting_status_in_use: Ginagamit ang status na ito, kaya kailangan mong magbigay ng fallback status kung gusto mo itong burahin
+  embed_no_content_yet: Binubuo ang ulat. Aabutin ng ilang minuto ang prosesong ito. Mangyaring i-refresh ang pahinang ito.
+  language_format_invalid: Hindi wastong format ng wika. Ang inaasahan ay ISO 639-1 code.
+  languages_format_invalid: Hindi wastong format ng wika. Ang inaasahan ay listahan ng mga ISO 639-1 code.
+  cant_change_status_if_item_is_published: Paumanhin, hindi mo pwedeng palitan ang status habang nakalathala ang ulat
   fetch_bot_service_unsupported: Hindi suportado ang serbisyo
   task_options_must_be_array: Dapat listahan ang mga gawaing pagpipilian
   fieldset_not_defined_by_team: Suportado dapat ng workspace ang fieldset
-  replace_by_media_in_the_same_team: Paumanhin, mapapalitan mo lang ang item na ito
-    ng ibang item na mula sa parehong workspace.
-  replace_blank_media_only: Paumanhin, pero sa ngayon, mga blangkong item lang ang
-    pwede mong palitan.
+  replace_by_media_in_the_same_team: Paumanhin, mapapalitan mo lang ang item na ito ng ibang item na mula sa parehong workspace.
+  replace_blank_media_only: Paumanhin, pero sa ngayon, mga blangkong item lang ang pwede mong palitan.
   cant_preview_rss_feed: Paumanhin, wala kang pahintulot para tumingin ng RSS feed.
   list_column_demand: Mga kahilingan
   list_column_share_count: Mga Share sa FB

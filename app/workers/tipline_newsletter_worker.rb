@@ -39,7 +39,7 @@ class TiplineNewsletterWorker
       log team_id, language, "Sending newsletter to subscriber ##{ts.id}..."
       begin
         RequestStore.store[:smooch_bot_platform] = ts.platform
-        Bot::Smooch.get_installation { |i| i.id == tbi.id }
+        Bot::Smooch.get_installation('team_bot_installation_id', tbi.id) { |i| i.id == tbi.id }
 
         response = Bot::Smooch.send_message_to_user(ts.uid, newsletter.format_as_template_message)
 

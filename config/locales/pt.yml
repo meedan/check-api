@@ -1,4 +1,3 @@
----
 pt:
   statuses:
     ids:
@@ -25,7 +24,7 @@ pt:
         label: Em andamento
         description: O trabalho começou, mas nenhuma tradução ainda foi feita
       not_true:
-        label: Falso
+        label: 'Falso'
         description: 'Conclusão: o conteúdo do item é falso'
       verified:
         label: Verificado
@@ -76,36 +75,27 @@ pt:
     messages:
       invalid_password: Senha inválida
       invalid_qrcode: Código de validação inválido
-      extension_white_list_error: 'Não pode ter o tipo %{extension}, tipos permitidos:
-        %{allowed_types}'
-      invalid_size: Deve ter entre %{min_width} x %{min_height} e %{max_width} x %{max_height}
-        pixels
-      mini_magick_processing_error: 'Desculpe, não conseguimos processar a imagem.
-        O erro foi: %{e}'
+      extension_white_list_error: 'não pode ser do tipo %{extension}, os tipos permitidos são: %{allowed_types}'
+      invalid_size: Deve ter entre %{min_width} x %{min_height} e %{max_width} x %{max_height} pixels
+      mini_magick_processing_error: 'Desculpe, não conseguimos processar a imagem. O erro foi: %{e}'
       annotation_mandatory_fields: Por favor, preencha todos os campos obrigatórios
       annotation_type_does_not_exist: não existe
       invalid_attribution: Atribuição inválida
-      must_resolve_required_tasks_first: As tarefas obrigatórias devem ser resolvidas
-        primeiro
+      must_resolve_required_tasks_first: As tarefas obrigatórias devem ser resolvidas primeiro
       image_too_large: Desculpe, não oferecemos suporte a imagens maiores que %{max_size}.
       video_too_large: Desculpe, não oferecemos suporte a vídeos maiores que %{max_size}.
       audio_too_large: Desculpe, não oferecemos suporte a áudios maiores que %{max_size}.
-      pender_conflict: Este link já está sendo processado. Por favor, tente novamente
-        em alguns segundos.
+      pender_conflict: Este link já está sendo processado. Por favor, tente novamente em alguns segundos.
       pender_url_invalid: Este link é inválido.
       pender_url_unsafe: Este link não é seguro.
-      pender_could_not_parse: Não foi possível analisar este link. Por favor, contate
-        %{support_email} se o erro persistir.
-      invalid_format_for_languages: Formato de idioma inválido. O formato esperado
-        é `['en', 'ar', …]`
-      invalid_project_media_channel_value: Desculpe, não há suporte para este valor
-        do canal.
-      invalid_project_media_channel_update: Desculpe, não possível atualizar o valor
-        do canal
-      invalid_project_media_archived_value: Desculpe, não há suporte para o valor
-        arquivado
-      invalid_fact_check_language_value: Desculpe, não há suporte para o valor do
-        idioma
+      pender_could_not_parse: Não foi possível analisar este link. Por favor, contate %{support_email} se o erro persistir.
+      invalid_format_for_languages: Formato de idioma inválido. O formato esperado é `['en', 'ar', …]`
+      invalid_project_media_channel_value: Desculpe, não há suporte para este valor do canal.
+      invalid_project_media_channel_update: Desculpe, não possível atualizar o valor do canal
+      invalid_project_media_archived_value: Desculpe, não há suporte para o valor arquivado
+      invalid_fact_check_language_value: Desculpe, não há suporte para o valor do idioma
+      fact_check_empty_title_and_summary: Desculpe, você deve preencher o título ou o resumo
+      invalid_feed_saved_search_value: deve pertencer a um espaço de trabalho que faz parte deste feed
   activerecord:
     models:
       link: Link
@@ -166,17 +156,12 @@ pt:
   slack_webhook_format_wrong: Webhook do Slack inválido. O formato esperado é `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: é reservado
   invalid_media_item: Este item é inválido
-  invalid_default_status_for_custom_verification_status: O identificador padrão de
-    status é  inválido
-  invalid_active_status_for_custom_verification_status: O identificador de status
-    ativo é inválido
+  invalid_default_status_for_custom_verification_status: O identificador padrão de status é  inválido
+  invalid_active_status_for_custom_verification_status: O identificador de status ativo é inválido
   invalid_label_for_custom_verification_status: O título de status é obrigatório
-  invalid_id_for_custom_verification_status: O identificador de status é obrigatório
-    e aceita apenas letras, números, hifens e sublinhados
-  invalid_statuses_format_for_custom_verification_status: 'Status de verificação personalizada
-    inválido. Esperando entradas válidas para: etiqueta, identificador, descrição
-    e estilo.'
-  mail_account_confirmation: 'Confirmação de conta no %{app_name} '
+  invalid_id_for_custom_verification_status: O identificador de status é obrigatório e aceita apenas letras, números, hifens e sublinhados
+  invalid_statuses_format_for_custom_verification_status: 'Status de verificação personalizada inválido. Esperando entradas válidas para: etiqueta, identificador, descrição e estilo.'
+  mail_account_confirmation: "Confirmação de conta no %{app_name} "
   slack:
     fields:
       assigned: Atribuída a
@@ -191,8 +176,7 @@ pt:
       project_media: Item
       attribution: Respondida por
     messages:
-      analysis_verification_status_status_changed: "%{user} modificou seu status para:
-        %{value}"
+      analysis_verification_status_status_changed: "%{user} modificou seu status para: %{value}"
       analysis_title_changed: "%{user} modificou o título da análise para: %{value}"
       analysis_content_changed: "%{user} modificou o conteúdo da análise para: %{value}"
       tasks_create: "%{user} adicionou uma tarefa: %{title}"
@@ -203,40 +187,29 @@ pt:
       metadata_edit: "%{user} editou o campo de metadados %{title}"
       metadata_answer_create: "%{user} definiu valor de metadados %{title}: %{answer}"
       metadata_answer_edit: "%{user} editou o valor de metadados %{title}: %{answer}"
-      project_media_comment: "%{user} (%{role} em %{team}) adicionou uma nota a um(a)
-        %{parent_type}"
+      project_media_comment: "%{user} (%{role} em %{team}) adicionou uma nota a um(a) %{parent_type}"
       project_media_create: "%{user} (%{role} em %{team}) enviou um novo item"
-      project_media_create_related: "%{user} (%{role} em %{team}) adicionou um(a)
-        %{type} relacionado(a)"
+      project_media_create_related: "%{user} (%{role} em %{team}) adicionou um(a) %{type} relacionado(a)"
       project_media_update: "%{user} (%{role} em %{team}) atualizou um item"
       project_media_move_to: "%{user} (%{role} de %{team}) moveu um item para %{project}"
-      project_media_added_to_list: "%{user} (%{role} em %{team}) adicionou um item
-        à pasta %{list_name}"
-      project_media_status: "%{user} (%{role} em %{team}) modificou o status de %{workflow}
-        de um(a) %{type}"
+      project_media_added_to_list: "%{user} (%{role} em %{team}) adicionou um item à pasta %{list_name}"
+      project_media_status: "%{user} (%{role} em %{team}) modificou o status de %{workflow} de um(a) %{type}"
       project_media_assign: "%{user} (%{role} em %{team}) atribuiu um(a) %{type}"
-      project_media_unassign: "%{user} (%{role} em %{team}) removeu a atribuição de
-        um(a) %{type}"
-      project_source_comment: "%{user} (%{role} em %{team}) adicionou uma nota a um(a)
-        %{parent_type}"
+      project_media_unassign: "%{user} (%{role} em %{team}) removeu a atribuição de um(a) %{type}"
+      project_source_comment: "%{user} (%{role} em %{team}) adicionou uma nota a um(a) %{parent_type}"
       project_source_create: "%{user} (%{role} em %{team}) adicionou um(a) %{type}"
       project_source_update: "%{user} (%{role} em %{team}) editou um(a) %{type}"
       project_create: "%{user} (%{role} em %{team}) criou uma pasta"
       project_assign: "%{user} (%{role} em %{team}) atribuiu uma pasta"
-      project_unassign: "%{user} (%{role} em %{team}) removeu a atribuição de uma
-        pasta"
+      project_unassign: "%{user} (%{role} em %{team}) removeu a atribuição de uma pasta"
       user_member: "%{user} começou a participar do espaço de trabalho %{team}"
-      user_requested: "%{user} enviou solicitação para participar do espaço de trabalho
-        %{team}"
+      user_requested: "%{user} enviou solicitação para participar do espaço de trabalho %{team}"
       user_invited: "%{user} foi convidado(a) a participar do espaço de trabalho %{team}"
       user_banned: "%{user} foi banido(a) do espaço de trabalho %{team}"
   mail_view_welcome: Bem-vindo/bem-vinda ao %{app_name}
-  mail_view_register: 'Você está a somente um passo de usar o %{app_name}! Por favor,
-    confirme o seu endereço de e-mail clicando neste link:'
+  mail_view_register: 'Você está a somente um passo de usar o %{app_name}! Por favor, confirme o seu endereço de e-mail clicando neste link:'
   mail_confirm_button: Confirmar minha conta
-  slack_restricted_join_to_members: Lamentamos, mas você não pode integrar %{team_name},
-    porque o acesso está restrito aos integrantes do(s) espaço(s) de trabalho %{teams}
-    do Slack.
+  slack_restricted_join_to_members: Lamentamos, mas você não pode integrar %{team_name}, porque o acesso está restrito aos integrantes do(s) espaço(s) de trabalho %{teams} do Slack.
   admin:
     actions:
       send_reset_password_email:
@@ -249,12 +222,10 @@ pt:
         menu: Duplicar o espaço de trabalho
         done: duplicado
         are_you_sure_you_want_to_copy_team:
-          html: Tem certeza que deseja duplicar o espaço de trabalho <strong>%{team}</strong>?
-            Todos os dados relacionados também serão copiados.
+          html: Tem certeza que deseja duplicar o espaço de trabalho <strong>%{team}</strong>? Todos os dados relacionados também serão copiados.
         the_team_is_being_copied: Duplicação do espaço de trabalho em andamento
         url_when_ready:
-          html: Quando pronto, o espaço de trabalho duplicado estará disponível em
-            <strong>%{copy_url}</strong>
+          html: Quando pronto, o espaço de trabalho duplicado estará disponível em <strong>%{copy_url}</strong>
     flash:
       delete_team_scheduled: O espaço de trabalho %{team} está sendo excluído
   email_not_found: E-mail não encontrado
@@ -266,13 +237,10 @@ pt:
       task: "%d de %B de %Y às %H:%M [TZ] (%z UTC)"
       email: "%d de %B de %Y às %p%I:%M  (%Z)"
   oembed_disclaimer_undetermined: Esse item ainda não foi verificado por %{team}
-  oembed_disclaimer_in_progress: Esse item está sendo verificado por %{team} desde
-    %{date}
-  oembed_disclaimer_verified: Esse item foi marcado como verificado por %{team} em
-    %{date}
+  oembed_disclaimer_in_progress: Esse item está sendo verificado por %{team} desde %{date}
+  oembed_disclaimer_verified: Esse item foi marcado como verificado por %{team} em %{date}
   oembed_disclaimer_false: Esse item foi considerado falso por %{team} em %{date}
-  oembed_disclaimer_not_applicable: Nenhuma conclusão foi obtida sobre esse item por
-    %{team} em %{date}
+  oembed_disclaimer_not_applicable: Nenhuma conclusão foi obtida sobre esse item por %{team} em %{date}
   oembed_source_date: "%{date} no %{provider}"
   role_editor: editor(a)
   role_admin: admin
@@ -281,11 +249,11 @@ pt:
   role_: admin de sistemas
   oembed_credit: Adicionado por %{user} (%{role}) %{date}
   oembed_notes_count:
-    one: Uma nota
+    one: "Uma nota"
     many: "%{count} notas"
     other: "%{count} notas"
   oembed_completed_tasks_count:
-    one: Uma tarefa concluída
+    one: "Uma tarefa concluída"
     many: "%{count} tarefas concluídas"
     other: "%{count} tarefas concluídas"
   oembed_verification_tasks: Tarefas
@@ -294,35 +262,28 @@ pt:
   oembed_expand_all: Expandir tudo
   oembed_collapse_all: Recolher tudo
   oembed_resolved_tasks_count:
-    one: Uma tarefa resolvida
+    one: "Uma tarefa resolvida"
     many: "%{count} tarefas resolvidas"
     other: "%{count} tarefas resolvidas"
   oembed_notes: Notas
   duplicate_source: Esta fonte já existe
-  geolocation_invalid_value: Localização inválida. Esperando uma estrutura GeoJSON
-    válida (http://geojson.org/)
+  geolocation_invalid_value: Localização inválida. Esperando uma estrutura GeoJSON válida (http://geojson.org/)
   url_invalid_value: A URL enviada é inválida
   datetime_invalid_date: Data inválida
-  error_team_archived: Desculpe, não é possível adicionar uma pasta a um espaço de
-    trabalho que esteja na lixeira
-  error_project_archived: Desculpe, não é possível adicionar um item a uma pasta que
-    esteja na lixeira
-  error_team_archived_for_source: 'Desculpe, não é possível adicionar uma fonte a
-    um espaço de trabalho que esteja na lixeira '
+  error_team_archived: Desculpe, não é possível adicionar uma pasta a um espaço de trabalho que esteja na lixeira
+  error_project_archived: Desculpe, não é possível adicionar um item a uma pasta que esteja na lixeira
+  error_team_archived_for_source: 'Desculpe, não é possível adicionar uma fonte a um espaço de trabalho que esteja na lixeira '
   permission_error: Desculpe, você não tem permissão para realizar esta operação
-  error_annotated_archived: Desculpe, não é possível adicionar uma nota a um item
-    na lixeira
-  only_super_admin_can_do_this: Desculpe, apenas admins do sistema podem efetuar esta
-    modificação
+  error_annotated_archived: Desculpe, não é possível adicionar uma nota a um item na lixeira
+  only_super_admin_can_do_this: Desculpe, apenas admins do sistema podem efetuar esta modificação
   cant_change_custom_statuses: |-
-    Desculpe, não é possível modificar as definições de status porque alguns deles desapareceriam. Esses identificadores de status: %{statuses} estão sendo usados pelos itens seguintes:
-    %{urls} %{others_amount}
+      Desculpe, não é possível modificar as definições de status porque alguns deles desapareceriam. Esses identificadores de status: %{statuses} estão sendo usados pelos itens seguintes:
+      %{urls} %{others_amount}
   account_exists: Esta conta já existe
   media_exists: Esse item já existe
   source_exists: Essa fonte já existe
   email_exists: já está em uso
-  banned_user: Desculpe, sua conta foi banida do %{app_name}. Por favor, entre em
-    contato com a equipe de suporte se você achar que isso é um erro.
+  banned_user: Desculpe, sua conta foi banida do %{app_name}. Por favor, entre em contato com a equipe de suporte se você achar que isso é um erro.
   devise:
     mailer:
       reset_password_instructions:
@@ -332,21 +293,18 @@ pt:
         action: Redefinir sua senha
         expiry: Esta solicitação irá expirar em %{expire} hours.
         instruction_1: Clique aqui para fazer uma nova solicitação.
-        instruction_2: Se você não tiver feito essa solicitação ou estiver com dificuldades
-          para redefinir sua senha, por favor, entre em contato com %{support_email}.
+        instruction_2: Se você não tiver feito essa solicitação ou estiver com dificuldades para redefinir sua senha, por favor, entre em contato com %{support_email}.
       invitation_instructions:
         subject: "%{user} convidou você a participar do espaço de trabalho %{team}"
         hello: Olá %{name}
         someone_invited_you_default:
-          html: "%{name} convidou você a participar do espaço de trabalho %{team}
-            como %{role}."
+          html: "%{name} convidou você a participar do espaço de trabalho %{team} como %{role}."
         someone_invited_you_custom:
-          html: "%{name} convidou você a participar do espaço de trabalho %{team}
-            como %{role}, dizendo:"
+          html: "%{name} convidou você a participar do espaço de trabalho %{team} como %{role}, dizendo:"
         accept: Aceitar convite
         accept_until: Este convite expirará em %{due_date}.
         ignore: Se você não quiser aceitar o convite, ignore este e-mail.
-        app_team: 'Espaço de trabalho do %{app} '
+        app_team: "Espaço de trabalho do %{app} "
     failure:
       unconfirmed: Por favor, consulte seu e-mail para verificar sua conta.
   user_invitation:
@@ -355,8 +313,7 @@ pt:
     team_found: Espaço de trabalho não encontrado.
     invalid: Código de convite inválido.
     no_invitation: Não há convite para o espaço de trabalho %{name}
-  error_user_is_not_a_team_member: Desculpe, você pode atribuir tarefas somente a
-    membros desse espaço de trabalho
+  error_user_is_not_a_team_member: Desculpe, você pode atribuir tarefas somente a membros desse espaço de trabalho
   error_login_with_exists_account: Desculpe, outra pessoa já está usando esta conta
   error_login_2fa: Por favor, complete seu login fornecendo um código de autenticação.
   error_record_not_found: "%{type} #%{id} não encontrado(a)."
@@ -370,55 +327,48 @@ pt:
     register:
       subject: Nova conta para você no %{app_name}
       header_text: |-
-        Você se registrou  no %{app_name} com sucesso!
-        <br>
-        Para fazer login no site, siga este link: %{url}. Insira este endereço de e-mail e esta senha: %{password}
+          Você se registrou  no %{app_name} com sucesso!
+          <br>
+          Para fazer login no site, siga este link: %{url}. Insira este endereço de e-mail e esta senha: %{password}
       login_button: Login no %{app_name}
       footer_text: Agradecemos-lhe por se registrar. Tenha um ótimo dia!
     duplicated:
       subject: Seu método de login no %{app_name}
       header_title: Duplicar conta
       one_email: |-
-        <p>Este é apenas um lembrete para ajudar a garantir que você faça login no %{app_name}.</p>
-        <p>O que aconteceu: você tentou se registrar no %{app_name} com uma conta %{user_provider} associada ao e-mail %{user_email}.
-        Esse endereço de e-mail já está associado a uma conta %{duplicate_provider} no %{app_name}.</p>
-        <p>O que fazer agora: Faça login com a sua conta %{duplicate_provider}.</p>
-        <p>Assim, você vai se conectar com a conta que estava usando antes.
-        Se você precisar de mais ajuda, por favor, envie um e-mail para %{support_email}.</p>
+          <p>Este é apenas um lembrete para ajudar a garantir que você faça login no %{app_name}.</p>
+          <p>O que aconteceu: você tentou se registrar no %{app_name} com uma conta %{user_provider} associada ao e-mail %{user_email}.
+          Esse endereço de e-mail já está associado a uma conta %{duplicate_provider} no %{app_name}.</p>
+          <p>O que fazer agora: Faça login com a sua conta %{duplicate_provider}.</p>
+          <p>Assim, você vai se conectar com a conta que estava usando antes.
+          Se você precisar de mais ajuda, por favor, envie um e-mail para %{support_email}.</p>
       both_emails: |-
-        <p>Este é apenas um lembrete para ajudar a garantir que você faça login no  %{app_name}.</p>
-        <p>O que aconteceu: você tentou criar uma nova conta no %{app_name} usando um e-mail, mas essa conta já existe.</p>
-        <p>Tente fazer login com seu e-mail e senha em vez de criar uma nova conta.</p>
-        <p>Assim, você vai se conectar com a conta que estava usando antes. Se você precisar de mais ajuda, por favor, envie um e-mail para %{support_email}.</p>
+          <p>Este é apenas um lembrete para ajudar a garantir que você faça login no  %{app_name}.</p>
+          <p>O que aconteceu: você tentou criar uma nova conta no %{app_name} usando um e-mail, mas essa conta já existe.</p>
+          <p>Tente fazer login com seu e-mail e senha em vez de criar uma nova conta.</p>
+          <p>Assim, você vai se conectar com a conta que estava usando antes. Se você precisar de mais ajuda, por favor, envie um e-mail para %{support_email}.</p>
       email: e-mail
     invitation:
       title: Novo Convite
     delete_user:
       subject: "[%{team}] Um(a) usuário(a) foi excluído(a)"
       header_title: O(a) usuário(a) foi excluído(a)
-      header_text: Uma conta de usuário foi excluída e seu conteúdo foi reatribuído
-        ao/à usuário(a) %{anonymous} %{id}
+      header_text: Uma conta de usuário foi excluída e seu conteúdo foi reatribuído ao/à usuário(a) %{anonymous} %{id}
       anonymous: anônimo(a)
     admin_mailer:
-      team_download_subject: "[%{team}] A cópia dos dados do espaço de trabalho está
-        pronta para download"
+      team_download_subject: "[%{team}] A cópia dos dados do espaço de trabalho está pronta para download"
       team_dump_title: Dados do Espaço de Trabalho
       types:
         dump: cópia de dados
         csv: relatório
         images: arquivo de imagem
-      team_dump_text: 'Você solicitou uma cópia dos dados do espaço de trabalho %{team}
-        - aqui está um link para baixá-la: %{link}'
+      team_dump_text: 'Você solicitou uma cópia dos dados do espaço de trabalho %{team} - aqui está um link para baixá-la: %{link}'
       team_dump_button: Baixar dados do espaço de trabalho
-      decompress_text: O %{type} será baixado em um arquivo comprimido e criptografado.
-        Para descomprimi-lo, por favor, use a senha %{password}.
+      decompress_text: O %{type} será baixado em um arquivo comprimido e criptografado. Para descomprimi-lo, por favor, use a senha %{password}.
       expire_note: Lembre que esse link irá expirar em %{days} dias.
       team_import_subject: A importação dos seus dados foi concluída
       team_import_title: Importação de Dados
-      team_import_text: "<p>A importação dos seus dados no %{app_name} foi concluída.
-        Você pode conferir em %{worksheet_url} para revisar o status de cada item
-        importado.</p> <p>Lembre que você pode reiniciar a importação depois de corrigir
-        os erros relatados - os itens previamente importados não serão duplicados.</p>"
+      team_import_text: "<p>A importação dos seus dados no %{app_name} foi concluída. Você pode conferir em %{worksheet_url} para revisar o status de cada item importado.</p> <p>Lembre que você pode reiniciar a importação depois de corrigir os erros relatados - os itens previamente importados não serão duplicados.</p>"
     task_resolved:
       subject: "[%{team} - %{project}] A tarefa foi respondida"
       header_title: A tarefa foi respondida
@@ -430,37 +380,30 @@ pt:
       label: Item
       subject: "[%{team} - %{project}] O status de um item foi marcado como %{status}"
       header_title: O status do item foi atualizado
-      header_text: " %{author} atualizou o status de um item na pasta %{project} em
-        %{team}."
+      header_text: " %{author} atualizou o status de um item na pasta %{project} em %{team}."
       section_title: Marcado como %{status}.
       added_to: Adicionado ao %{app_name}
       update_h: Última Atualização
       tasks_h: Tarefas Concluídas
     assignment:
       assign_task_subject: "[%{team} - %{project}] Uma tarefa foi atribuída a você"
-      unassign_task_subject: "[%{team} - %{project}] A atribuição de uma tarefa a
-        você foi removida"
+      unassign_task_subject: "[%{team} - %{project}] A atribuição de uma tarefa a você foi removida"
       assign_project_subject: "[%{team} - %{project}] Uma pasta foi atribuída a você"
-      unassign_project_subject: "[%{team} - %{project}] A atribuição de uma pasta
-        foi removida de você"
+      unassign_project_subject: "[%{team} - %{project}] A atribuição de uma pasta foi removida de você"
       assign_media_subject: "[%{team} - %{project}] Um item foi atribuído a você"
-      unassign_media_subject: "[%{team} - %{project}] A atribuição de um item a você
-        foi removida"
+      unassign_media_subject: "[%{team} - %{project}] A atribuição de um item a você foi removida"
       assign_project_title: Pasta atribuída
       unassign_project_title: A atribuição da pasta foi removida
       assign_project_text: "%{author} atribuiu a pasta %{project} em %{team}."
-      unassign_project_text: "%{author} removeu a atribuição da pasta %{project} em
-        %{team}."
+      unassign_project_text: "%{author} removeu a atribuição da pasta %{project} em %{team}."
       assign_task_title: Tarefa atribuída
       unassign_task_title: A atribuição da tarefa foi removida
       assign_task_text: "%{author} atribuiu uma tarefa na pasta %{project} em %{team}."
-      unassign_task_text: "%{author} removeu a atribuição de uma tarefa na pasta %{project}
-        em %{team}."
+      unassign_task_text: "%{author} removeu a atribuição de uma tarefa na pasta %{project} em %{team}."
       assign_media_title: Item atribuído
       unassign_media_title: A atribuição do item foi removida
       assign_media_text: "%{author} atribuiu um item na pasta %{project} em %{team}."
-      unassign_media_text: "%{author} removeu a atribuição de um item na pasta %{project}
-        em %{team}."
+      unassign_media_text: "%{author} removeu a atribuição de um item na pasta %{project} em %{team}."
       assign_log: " %{author} atribuiu um(a) %{model} a %{username}"
       unassign_log: " %{author} removeu a atribuição de %{model} de %{username}"
       assign_by: Atribuídos por
@@ -473,17 +416,13 @@ pt:
       rejected_subject: Sua solicitação para participar de %{team} não foi aprovada
       approved_subject: Boas-vindas ao espaço de trabalho %{team}
       request_title: Solicitação para participar do espaço de trabalho %{team}
-      request_text: "%{name} (%{email}) gostaria de participar do espaço de trabalho
-        %{team} no %{app_name}. Você pode tratar essa solicitação visitando %{url}."
+      request_text: "%{name} (%{email}) gostaria de participar do espaço de trabalho %{team} no %{app_name}. Você pode tratar essa solicitação visitando %{url}."
       approved_title: Boas-vindas ao espaço de trabalho %{team}
-      approved_text: Sua solicitação para participar do espaço de trabalho %{team}
-        no %{app_name} foi aprovada! Agora você pode ir para %{url} e começar a contribuir.
+      approved_text: Sua solicitação para participar do espaço de trabalho %{team} no %{app_name} foi aprovada! Agora você pode ir para %{url} e começar a contribuir.
       rejected_title: Solicitação rejeitada
-      rejected_text: Desculpe, mas sua solicitação para participar do espaço de trabalho
-        %{team} no %{app_name} não foi aprovada.
+      rejected_text: Desculpe, mas sua solicitação para participar do espaço de trabalho %{team} no %{app_name} não foi aprovada.
   mail_security:
-    device_subject: 'Alerta de segurança: Novo login no %{app_name} pelo %{browser}
-      em %{platform}'
+    device_subject: 'Alerta de segurança: Novo login no %{app_name} pelo %{browser} em %{platform}'
     ip_subject: 'Alerta de segurança: Login novo ou incomum no %{app_name}'
     failed_subject: 'Alerta de segurança: Tentativas malsucedidas de login no %{app_name} '
     ip: Você se conectou de %{location}
@@ -491,13 +430,9 @@ pt:
     devise_name: "%{browser} em %{platform}"
     failed: 'Foram detectadas tentativas malsucedidas de login '
     password_text: redefina sua senha imediatamente.
-    device_text: Parece que você recentemente entrou em sua conta no %{app_name} a
-      partir de um novo dispositivo. Se não for o caso, você deveria %{change_password}
-    ip_text: Parece que você recentemente entrou na sua conta no %{app_name} a partir
-      de uma nova localização. Se não for o caso, você deveria %{change_password}
-    failed_text: Parece que foram feitas múltiplas tentativas de login em sua conta
-      no %{app_name}. Se tiver sido você, você pode, sem problemas de segurança, desconsiderar
-      este e-mail. Caso contrário, você deveria %{change_password}
+    device_text: Parece que você recentemente entrou em sua conta no %{app_name} a partir de um novo dispositivo. Se não for o caso, você deveria %{change_password}
+    ip_text: Parece que você recentemente entrou na sua conta no %{app_name} a partir de uma nova localização. Se não for o caso, você deveria %{change_password}
+    failed_text: Parece que foram feitas múltiplas tentativas de login em sua conta no %{app_name}. Se tiver sido você, você pode, sem problemas de segurança, desconsiderar este e-mail. Caso contrário, você deveria %{change_password}
     time_h: Horário
     device_h: Aparelho
     location_h: Localização
@@ -511,63 +446,43 @@ pt:
   archive_keep_backup: Video Vault
   archive_pender_archive: Captura de tela
   archive_archive_org: Archive.org
-  workflow_status_is_not_valid: 'Status inválido: ''%{status}'' (deveria ser um de
-    %{valid})'
-  workflow_status_permission_error: Desculpe, você não tem permissão para mudar este
-    status.
-  blank_default_status_for_custom_verification_status: Por favor, forneça um valor
-    padrão para os status de verificação personalizada
-  blank_active_status_for_custom_verification_status: Por favor, forneça um valor
-    ativo para os status de verificação personalizada
-  bot_name_exists_for_this_team: Já existe um bot com o nome fornecido nesse espaço
-    de trabalho
-  bot_team_id_doesnt_exist: Desculpe, não há espaço de trabalho com o identificador
-    fornecido
-  bot_team_id_mandatory_to_create: Desculpe, você precisa escolher um espaço de trabalho
-    para criar um bot
-  bot_not_approved_for_installation: Desculpe, este bot não foi aprovado e por isso
-    não pode ser instalado
-  could_not_save_related_bot_data: Desculpe, não foi possível adicionar o bot a esse
-    espaço de trabalho
-  bot_cant_add_response_to_task: Desculpe, um bot não pode responder a uma tarefa
-    diretamente - por favor, adicione uma sugestão de resposta
+  workflow_status_is_not_valid: 'Status inválido: ''%{status}'' (deveria ser um de %{valid})'
+  workflow_status_permission_error: Desculpe, você não tem permissão para mudar este status.
+  blank_default_status_for_custom_verification_status: Por favor, forneça um valor padrão para os status de verificação personalizada
+  blank_active_status_for_custom_verification_status: Por favor, forneça um valor ativo para os status de verificação personalizada
+  bot_name_exists_for_this_team: Já existe um bot com o nome fornecido nesse espaço de trabalho
+  bot_team_id_doesnt_exist: Desculpe, não há espaço de trabalho com o identificador fornecido
+  bot_team_id_mandatory_to_create: Desculpe, você precisa escolher um espaço de trabalho para criar um bot
+  bot_not_approved_for_installation: Desculpe, este bot não foi aprovado e por isso não pode ser instalado
+  only_admins_can_approve_or_list_bots: Desculpe, apenas admins do sistema podem aprovar ou listar bots
+  could_not_save_related_bot_data: Desculpe, não foi possível adicionar o bot a esse espaço de trabalho
+  bot_cant_add_response_to_task: Desculpe, um bot não pode responder a uma tarefa diretamente - por favor, adicione uma sugestão de resposta
   bot_cant_add_review_to_task: Desculpe, um bot não pode avaliar uma tarefa
-  task_suggestion_invalid_value: Sugestão de tarefa inválida. Espera-se um objeto
-    JSON com atributos `suggestion` (o valor real que é copiado para a resposta de
-    tarefa quando aceita) e `comment` (exibido aos(às) usuário(a)s).
+  task_suggestion_invalid_value: Sugestão de tarefa inválida. Espera-se um objeto JSON com atributos `suggestion` (o valor real que é copiado para a resposta de tarefa quando aceita) e `comment` (exibido aos(às) usuário(a)s).
   tag_text_id_not_found: Tag não encontrada
   annotation_type_language_label: Idioma
-  smooch_bot_message_confirmed: Agradecemos a você. Sua solicitação foi adicionada
-    à nossa fila de verificação. Vamos tentar enviar um relatório nas próximas 24
-    horas, mas, por favor, note que não podemos responder a todas as mensagens.
-  smooch_bot_message_unconfirmed: Como você não respondeu com 1, nós interromperemos
-    o tratamento da sua solicitação. Agradecemos.
-  smooch_bot_message_type_unsupported: Desculpe, nós não oferecemos suporte a este
-    tipo de mensagem.
-  smooch_bot_message_size_unsupported: Desculpe, não oferecemos suporte a arquivos
-    maiores que %{max_size}.
+  smooch_bot_message_confirmed: |-
+      Agradecemos a você. Sua solicitação foi adicionada à nossa fila de verificação. Vamos tentar enviar um relatório nas próximas 24 horas, mas, por favor, note que não podemos responder a todas as mensagens.
+  smooch_bot_message_unconfirmed: Como você não respondeu com 1, nós interromperemos o tratamento da sua solicitação. Agradecemos.
+  smooch_bot_message_type_unsupported: Desculpe, nós não oferecemos suporte a este tipo de mensagem.
+  smooch_bot_message_size_unsupported: Desculpe, não oferecemos suporte a arquivos maiores que %{max_size}.
   smooch_bot_result: |-
-    [Relatório de Verificação] A mensagem que você compartilhou conosco está marcada como *%{status}*.
+      [Relatório de Verificação] A mensagem que você compartilhou conosco está marcada como *%{status}*.
 
-    Aqui estão os nossos passos para estabelecer esse status: %{url}
+      Aqui estão os nossos passos para estabelecer esse status: %{url}
   smooch_bot_ask_for_confirmation: |-
-    Agradecemos pelo envio desta solicitação. Você gostaria de verificar o conteúdo dela?
+      Agradecemos pelo envio desta solicitação. Você gostaria de verificar o conteúdo dela?
 
-    Para verificar, *por favor, responda com 1*. Qualquer outra resposta encerrará nossa conversa.
+      Para verificar, *por favor, responda com 1*. Qualquer outra resposta encerrará nossa conversa.
   smooch_bot_ask_for_tos: |-
-    Agradecemos a você por entrar em contato com a Check Message!
+      Agradecemos a você por entrar em contato com a Check Message!
 
-    Você pode usar este serviço para solicitar verificações, verificações de fatos e investigações de notícias e informações. Check Message é fornecida a você sob estes Termos de Serviço: %{tos}. Ao continuar a usar este serviço, *você concorda em cumprir estes termos*. Caso não concorde, você deve parar de usar a Check Message.
-  smooch_bot_window_closing: O volume de solicitações neste canal é muito alto, e
-    ainda não conseguimos responder ao seu pedido ainda. Agradecemos a você pela sua
-    paciência.
-  smooch_bot_not_final: "[Relatório de Verificação - CORREÇÃO] A mensagem que você
-    compartilhou conosco foi incorretamente marcada como *%{status}*. Ela ainda está
-    em nossa fila para verificação complementar."
-  smooch_bot_disabled: Agradecemos a você por enviar esta mensagem. Não é possível
-    enviar relatórios de verificação, porque este projeto não está mais ativo.
-  smooch_bot_result_changed: "❗️A verificação que lhe enviamos foi *atualizada* com
-    novas informações"
+      Você pode usar este serviço para solicitar verificações, verificações de fatos e investigações de notícias e informações. Check Message é fornecida a você sob estes Termos de Serviço: %{tos}. Ao continuar a usar este serviço, *você concorda em cumprir estes termos*. Caso não concorde, você deve parar de usar a Check Message.
+  smooch_bot_window_closing: O volume de solicitações neste canal é muito alto, e ainda não conseguimos responder ao seu pedido ainda. Agradecemos a você pela sua paciência.
+  smooch_bot_not_final: |-
+      [Relatório de Verificação - CORREÇÃO] A mensagem que você compartilhou conosco foi incorretamente marcada como *%{status}*. Ela ainda está em nossa fila para verificação complementar.
+  smooch_bot_disabled: Agradecemos a você por enviar esta mensagem. Não é possível enviar relatórios de verificação, porque este projeto não está mais ativo.
+  smooch_bot_result_changed: "❗️A verificação que lhe enviamos foi *atualizada* com novas informações"
   permissions_info:
     roles:
       admin:
@@ -575,8 +490,7 @@ pt:
       editor:
         description: Editores(as) gerenciam o espaço de trabalho e as pastas.
       collaborator:
-        description: O(A) colaborador(a) pode adicionar novas informações a serem
-          verificadas. Geralmente são pessoas do público.
+        description: O(A) colaborador(a) pode adicionar novas informações a serem verificadas. Geralmente são pessoas do público.
     permissions:
       sections:
         project_management:
@@ -622,15 +536,10 @@ pt:
   team_import:
     invalid_google_spreadsheet_url: A URL da planilha %{spreadsheet_url} é inválida
     not_found_google_spreadsheet_url: A planilha não foi encontrada em %{spreadsheet_url}
-    cannot_authenticate_with_the_credentials: Impossível se conectar ao Google Drive
-      com as credenciais atuais. Por favor, entre em contato com a equipe de suporte
-      para notificá-los sobre esse incidente.
-    team_not_present: O espaço de trabalho atual não foi encontrado durante a importação
-      de dados. Por favor, notifique a equipe de suporte sobre este incidente.
-    user_not_present: Usuário(a) atual não encontrado(a) durante a importação de dados.
-      Por favor, notifique a equipe de suporte sobre este incidente.
-    user_not_authorized: Desculpe, você não tem permissão para importar dados para
-      esse espaço de trabalho.
+    cannot_authenticate_with_the_credentials: Impossível se conectar ao Google Drive com as credenciais atuais. Por favor, entre em contato com a equipe de suporte para notificá-los sobre esse incidente.
+    team_not_present: O espaço de trabalho atual não foi encontrado durante a importação de dados. Por favor, notifique a equipe de suporte sobre este incidente.
+    user_not_present: Usuário(a) atual não encontrado(a) durante a importação de dados. Por favor, notifique a equipe de suporte sobre este incidente.
+    user_not_authorized: Desculpe, você não tem permissão para importar dados para esse espaço de trabalho.
     invalid_project: A pasta %{project} é inválida
     invalid_user: O(A) autor(a) %{user} é inválido(a)
     invalid_status: O status %{status} é inválido
@@ -639,8 +548,7 @@ pt:
     blank_project: O campo "pasta" é inválido
     invalid_annotator: O(A) anotador(a) %{user} é inválido(a)
     invalid_assignee: A pessoa à qual a tarefa foi atribuída, %{user}, é inválida
-  cant_mutate_inactive_object: Desculpe, há uma operação pendente para este item,
-    então você não pode alterá-lo agora. Por favor, tente novamente mais tarde.
+  cant_mutate_inactive_object: Desculpe, há uma operação pendente para este item, então você não pode alterá-lo agora. Por favor, tente novamente mais tarde.
   embed_expand_all: Expandir tudo
   embed_collapse_all: Recolher tudo
   embed_tasks: Tarefas
@@ -653,29 +561,26 @@ pt:
   smooch_requests_desc: Mais solicitados
   bot_request_url_invalid: A URL do bot é inválida
   smooch_facebook_success: |
-    Sucesso!
-    Sua Tipline agora está conectada ao Facebook Messenger.
-    Todas as mensagens recebidas por esta página do Facebook será gerenciada pela Tipline.
-    Por favor, recarregue a página de configurações da sua Tipline para ver as novas mudanças.
+      Sucesso!
+      Sua Tipline agora está conectada ao Facebook Messenger.
+      Todas as mensagens recebidas por esta página do Facebook será gerenciada pela Tipline.
+      Por favor, recarregue a página de configurações da sua Tipline para ver as novas mudanças.
   smooch_twitter_success: |
-    Sucesso!
-    Sua Tipline agora está conectada ao Twitter.
-    Todas as mensagens recebidas por este perfil do Twitter será gerenciada pela Tipline.
-    Por favor, recarregue a página de configurações da sua Tipline para ver as novas mudanças.
-  must_select_exactly_one_facebook_page: Por favor, selecione a página exata do Facebook
-    que você deseja integrar com a Tipline.
+      Sucesso!
+      Sua Tipline agora está conectada ao Twitter.
+      Todas as mensagens recebidas por este perfil do Twitter será gerenciada pela Tipline.
+      Por favor, recarregue a página de configurações da sua Tipline para ver as novas mudanças.
+  must_select_exactly_one_facebook_page: Por favor, selecione a página exata do Facebook que você deseja integrar com a Tipline.
   invalid_task_answer: Formato de resposta de tarefa inválido
   team_rule_name: Um nome exclusivo que identifica o que esta regra faz
   team_rule_project_ids: Aplicar à pasta
   team_rule_destination: Selecionar pasta de destino
-  team_rule_names_invalid: Os nomes de regras não podem ficar em branco e devem ser
-    únicos
+  team_rule_names_invalid: Os nomes de regras não podem ficar em branco e devem ser únicos
   team_rules: Regras
   team_rule_conditions: Se
   team_rule_condition: Se
   team_rule_condition_definition: Selecionar condição
-  team_rule_has_less_than_x_words: A solicitação contém menos que (ou exatamente)
-    o seguinte número de palavras
+  team_rule_has_less_than_x_words: A solicitação contém menos que (ou exatamente) o seguinte número de palavras
   team_rule_title_matches_regexp: O título do item coincide com esta expressão regular
   team_rule_request_matches_regexp: A solicitação coincide com esta expressão regular
   team_rule_type_is: O tipo do item é
@@ -702,8 +607,7 @@ pt:
   team_rule_send_to_trash: Mover para a Lixeira
   team_rule_move_to_project: Mover item para a pasta
   team_rule_copy_to_project: Adicionar item à pasta
-  team_rule_ban_submitter: Banir remetente (as futuras mensagens não aparecerão no
-    Check)
+  team_rule_ban_submitter: Banir remetente (as futuras mensagens não aparecerão no Check)
   team_rule_all_items: Todos os itens
   team_rule_send_message_to_user: Enviar mensagem para essa pessoa
   team_rule_action_value: Digite a mensagem aqui
@@ -727,10 +631,8 @@ pt:
   team_rule_item_is_read: O item foi lido
   team_rule_field_from_fieldset_tasks_value_is: A tarefa tem uma resposta específica
   team_rule_field_from_fieldset_metadata_value_is: As anotações têm um valor específico
-  team_rule_field_from_fieldset_tasks_value_contains_keyword: A resposta da tarefa
-    contém a palavra-chave
-  team_rule_field_from_fieldset_metadata_value_contains_keyword: O valor da anotação
-    contém palavra-chave
+  team_rule_field_from_fieldset_tasks_value_contains_keyword: A resposta da tarefa contém a palavra-chave
+  team_rule_field_from_fieldset_metadata_value_contains_keyword: O valor da anotação contém palavra-chave
   team_rule_select_field_metadata: Selecionar anotação
   team_rule_select_field_value_metadata: Selecionar valor
   team_rule_select_field_tasks: Selecionar tarefa
@@ -753,33 +655,23 @@ pt:
   flag_likelihood_4: Provável
   flag_likelihood_5: Alto (mais conteúdo será detectado)
   flag_likelihood_7: Manual
-  relationship_not_same_team: Itens relacionados devem existir no mesmo espaço de
-    trabalho
+  relationship_not_same_team: Itens relacionados devem existir no mesmo espaço de trabalho
+  item_cant_be_related_to_itself: "O item não pode ser relacionado a si mesmo"
   target_is_published: O alvo não deve ter um relatório publicado
   similar_item_exists: Desculpe, este item já foi adicionado como um item semelhante.
-  bulk_operation_limit_error: Desculpe, o número máximo de itens a serem processados
-    de uma só vez é %{limit}
-  must_provide_fallback_when_deleting_status_in_use: Esse status está sendo usado,
-    portanto, você deve fornecer um outro status se desejar excluí-lo
-  embed_no_content_yet: O relatório está sendo gerado. Esse processo pode demorar
-    alguns minutos. Por favor, atualize esta página.
-  language_format_invalid: Formato de idioma inválido. O formato esperado é um código
-    ISO 639-1.
-  languages_format_invalid: Formato de idiomas inválido. O formato esperado é uma
-    lista de códigos ISO 639-1.
-  cant_change_status_if_item_is_published: Desculpe, você não pode alterar o status
-    durante a publicação do relatório
+  bulk_operation_limit_error: Desculpe, o número máximo de itens a serem processados de uma só vez é %{limit}
+  must_provide_fallback_when_deleting_status_in_use: Esse status está sendo usado, portanto, você deve fornecer um outro status se desejar excluí-lo
+  embed_no_content_yet: O relatório está sendo gerado. Esse processo pode demorar alguns minutos. Por favor, atualize esta página.
+  language_format_invalid: Formato de idioma inválido. O formato esperado é um código ISO 639-1.
+  languages_format_invalid: Formato de idiomas inválido. O formato esperado é uma lista de códigos ISO 639-1.
+  cant_change_status_if_item_is_published: Desculpe, você não pode alterar o status durante a publicação do relatório
   fetch_bot_service_unsupported: O serviço não possui suporte
   task_options_must_be_array: As opções de tarefas devem ser uma lista
   fieldset_not_defined_by_team: Fieldset deve ter suporte do espaço de trabalho
-  cant_change_field_type_or_options_when_answered: O tipo de campo não pode ser alterado
-    porque as respostas já foram preenchidas
-  replace_by_media_in_the_same_team: Desculpe, você só pode substituir este item por
-    outro do mesmo espaço de trabalho
-  replace_blank_media_only: Desculpe, mas, por enquanto, você só pode substituir itens
-    em branco
-  cant_preview_rss_feed: Desculpe, você não tem permissão para pré-visualizar um feed
-    RSS.
+  cant_change_field_type_or_options_when_answered: O tipo de campo não pode ser alterado porque as respostas já foram preenchidas
+  replace_by_media_in_the_same_team: Desculpe, você só pode substituir este item por outro do mesmo espaço de trabalho
+  replace_blank_media_only: Desculpe, mas, por enquanto, você só pode substituir itens em branco
+  cant_preview_rss_feed: Desculpe, você não tem permissão para pré-visualizar um feed RSS.
   list_column_demand: Solicitações
   list_column_share_count: Compartilhamentos do Facebook
   list_column_reaction_count: Reações no Facebook
@@ -796,60 +688,47 @@ pt:
   list_column_published_by: Relatório publicado por
   list_column_fact_check_published_on: Verificação de fatos publicada em
   list_column_related_count: Relacionado
+  list_column_suggestions_count: Sugestões
   list_column_folder: Pasta
   list_column_creator_name: Criado por
   list_column_fact_check_title: Verificação de fatos
   list_column_team_name: Espaço de trabalho
   list_column_sources_as_sentence: Fonte
   go_back_to_check: Voltar ao Check
-  project_cant_have_children_if_has_parent: Esta pasta possui uma pasta ascendente,
-    por isso não pode ter uma pasta descendente
-  project_group_must_be_under_same_team: A coleção deve estar sob o mesmo espaço de
-    trabalho
-  unique_default_folder_per_team: O espaço de trabalho deve possuir apenas uma pasta
-    padrão
-  center_is_not_part_of_another_cluster: O núcleo deste conjunto não pode fazer parte
-    de outro conjunto
+  project_cant_have_children_if_has_parent: Esta pasta possui uma pasta ascendente, por isso não pode ter uma pasta descendente
+  project_group_must_be_under_same_team: A coleção deve estar sob o mesmo espaço de trabalho
+  unique_default_folder_per_team: O espaço de trabalho deve possuir apenas uma pasta padrão
+  center_is_not_part_of_another_cluster: O núcleo deste conjunto não pode fazer parte de outro conjunto
   smooch_bot_message_subscribed: |-
-    Atualmente, você está inscrito(a) em nosso boletim informativo.
+      Atualmente, você está inscrito(a) em nosso boletim informativo.
 
-    Digite 0 para ir para o menu principal.
+      Digite 0 para ir para o menu principal.
   smooch_bot_message_unsubscribed: |-
-    Atualmente, você não está inscrito(a) em nosso boletim informativo.
+      Atualmente, você não está inscrito(a) em nosso boletim informativo.
 
-    Digite 0 para ir para o menu principal.
+      Digite 0 para ir para o menu principal.
   subscribe: Inscrever-se
   unsubscribe: Desinscrever-se
-  smooch_message_subscription_header_subscribed: Atualmente, você está inscrito(a)
-    em nosso boletim informativo.
-  smooch_message_subscription_header_unsubscribed: Atualmente, você não está inscrito(a)
-    em nosso boletim informativo.
+  smooch_message_subscription_header_subscribed: Atualmente, você está inscrito(a) em nosso boletim informativo.
+  smooch_message_subscription_header_unsubscribed: Atualmente, você não está inscrito(a) em nosso boletim informativo.
   smooch_bot_message_newsletter_fallback: |-
-    Olá! Aqui estão os fatos da semana. Este boletim foi publicado
-    no %{platform} pelo %{team} em %{date}:
+      Olá! Aqui estão os fatos da semana. Este boletim foi publicado
+      no %{platform} pelo %{team} em %{date}:
 
-    %{content}
+      %{content}
 
-    Para deixar de receber este boletim, digite "%{unsubscribe}".
+      Para deixar de receber este boletim, digite "%{unsubscribe}".
+  send_every_must_be_a_list_of_days_of_the_week: deve ser uma lista de dias da semana.
+  send_on_must_be_in_the_future: não pode estar no passado.
   info:
     messages:
-      sent_to_trash_by_rule: O item "%{item_title}" foi enviado para a lixeira, seguindo
-        uma regra automática.
-      moved_to_project_by_rule: O item "%{item_title}" foi movido para a pasta "[%{list_name}](%{list_link})",
-        seguindo uma regra automática.
-      banned_submitter_by_rule: O(A) solicitante do item "%{item_title}" foi banido(a),
-        seguindo uma regra automática.
-      copied_to_project_by_rule: O item "%{item_title}" foi copiado para a pasta "[%{list_name}](%{list_link})",
-        seguindo uma regra automática.
-      related_to_confirmed_similar: O item "%{item_title}" foi confirmado como semelhante
-        ao item "%{similar_item_title}".
-      related_to_suggested_similar: O item "%{item_title}" foi sugerido como semelhante
-        ao item "%{similar_item_title}".
-      sent_message_to_requestors_on_status_change: Uma atualização com o status "%{status}"
-        foi enviada para %{requestors_count} solicitantes.
-      tagged_by_rule: O item "%{item_title}" foi marcado como "%{tag}", seguindo uma
-        regra automática.
-      moved_to_private_folder: O item "%{item_title}" foi movido para uma pasta à
-        qual você não possui acesso.
-      add_warning_cover_by_rule: Uma capa com aviso de conteúdo foi adicionada ao
-        item sensível "%{item_title}"
+      sent_to_trash_by_rule: 'O item "%{item_title}" foi enviado para a lixeira, seguindo uma regra automática.'
+      moved_to_project_by_rule: 'O item "%{item_title}" foi movido para a pasta "[%{list_name}](%{list_link})", seguindo uma regra automática.'
+      banned_submitter_by_rule: O(A) solicitante do item "%{item_title}" foi banido(a), seguindo uma regra automática.
+      copied_to_project_by_rule: 'O item "%{item_title}" foi copiado para a pasta "[%{list_name}](%{list_link})", seguindo uma regra automática.'
+      related_to_confirmed_similar: 'O item "%{item_title}" foi confirmado como semelhante ao item "%{similar_item_title}".'
+      related_to_suggested_similar: 'O item "%{item_title}" foi sugerido como semelhante ao item "%{similar_item_title}".'
+      sent_message_to_requestors_on_status_change: Uma atualização com o status "%{status}" foi enviada para %{requestors_count} solicitantes.
+      tagged_by_rule: 'O item "%{item_title}" foi marcado como "%{tag}", seguindo uma regra automática.'
+      moved_to_private_folder: 'O item "%{item_title}" foi movido para uma pasta à qual você não possui acesso.'
+      add_warning_cover_by_rule: Uma capa com aviso de conteúdo foi adicionada ao item sensível "%{item_title}"

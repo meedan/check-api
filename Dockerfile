@@ -26,6 +26,9 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     libtag1-dev \
     lsof
 
+# tx client
+RUN curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
+
 # install our app
 WORKDIR /app
 COPY Gemfile /app/Gemfile
