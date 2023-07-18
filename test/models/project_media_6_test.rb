@@ -401,4 +401,19 @@ class ProjectMedia6Test < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should not create duplicated fact-check when creating an item" do
+    u = create_user is_admin: true
+    t = create_team
+    params = { title: 'Foo', summary: 'Bar', url: random_url, language: 'en' }
+    with_current_user_and_team(u, t) do
+      assert_nothing_raised do
+        create_project_media set_fact_check: params, set_claim_description: 'Test', team: t
+        create_project_media set_fact_check: params, set_claim_description: 'Test'
+      end
+      assert_raises ActiveRecord::RecordNotUnique do
+        create_project_media set_fact_check: params, set_claim_description: 'Test', team: t
+      end
+    end
+  end
 end
