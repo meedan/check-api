@@ -255,6 +255,10 @@ class Bot::Smooch < BotUser
     self.valid_zendesk_request?(request) || self.valid_turnio_request?(request) || self.valid_capi_request?(request)
   end
 
+  def self.should_ignore_request?(request)
+    self.should_ignore_capi_request?(request)
+  end
+
   def self.config
     RequestStore.store[:smooch_bot_settings]
   end

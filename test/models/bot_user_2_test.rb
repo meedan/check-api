@@ -110,4 +110,9 @@ class BotUser2Test < ActiveSupport::TestCase
     b = create_team_bot team_author_id: t.id, set_approved: true, set_events: [{ event: 'create_project_media', graphql: nil }]
     BotUser.notify_bots('create_project_media', t.id, 'ProjectMedia', pm.id, b)
   end
+
+  test "should not ignore requests by default" do
+    b = create_team_bot
+    assert !b.should_ignore_request?
+  end
 end
