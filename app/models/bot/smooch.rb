@@ -268,6 +268,7 @@ class Bot::Smooch < BotUser
     begin
       json = self.preprocess_message(body)
       JSON::Validator.validate!(SMOOCH_PAYLOAD_JSON_SCHEMA, json)
+      return false if self.user_banned?(json)
       case json['trigger']
       when 'capi:verification'
         'capi:verification'
@@ -748,6 +749,11 @@ class Bot::Smooch < BotUser
       Rails.logger.info("[Smooch Bot] Banned user #{uid}")
       Rails.cache.write("smooch:banned:#{uid}", message.to_json)
     end
+  end
+
+  def self.user_banned?(payload)
+    uid = payload.dig('appUser', '_id')
+    !uid.blank? && !Rails.cache.read("smooch:banned:#{uid}").nil?
   end
 
   # Don't save as a ProjectMedia if it contains only menu options
