@@ -196,4 +196,40 @@ class WebhooksControllerTest < ActionController::TestCase
     assert_match /not found/, response.body
     assert_equal 13, JSON.parse(response.body)['errors'].first['code']
   end
+
+  test "should ignore some WhatsApp Cloud API requests" do
+    payload = {
+      object: 'whatsapp_business_account',
+      entry: [
+        {
+          id: '123456',
+          changes: [
+            {
+              value: {
+                messaging_product: 'whatsapp',
+                metadata: {
+                  display_phone_number: '123456',
+                  phone_number_id: '123456'
+                },
+                statuses: [
+                  {
+                    id: 'wamid.123456==',
+                    status: 'read',
+                    timestamp: '1689633253',
+                    recipient_id: "654321"
+                  }
+                ]
+              },
+              field: 'messages'
+            }
+          ]
+        }
+      ]
+    }
+
+    post :index, params: { name: :smooch }.merge(payload), body: payload
+
+    assert_equal '200', response.code
+    assert_match /ignored/, response.body
+  end
 end

@@ -4,6 +4,11 @@ module SmoochCapi
   extend ActiveSupport::Concern
 
   module ClassMethods
+    def should_ignore_capi_request?(request)
+      event = request.params.dig('entry', 0, 'changes', 0, 'value', 'statuses', 0, 'status').to_s
+      ['read', 'sent'].include?(event)
+    end
+
     def valid_capi_request?(request)
       valid = false
       if request.params['hub.mode'] == 'subscribe'

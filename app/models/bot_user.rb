@@ -332,6 +332,10 @@ class BotUser < User
     begin Module.const_defined?("Bot::#{self.identifier.camelize}") rescue false end
   end
 
+  def should_ignore_request?
+    false
+  end
+
   protected
 
   def confirmation_required?
