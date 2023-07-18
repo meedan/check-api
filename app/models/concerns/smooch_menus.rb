@@ -9,7 +9,7 @@ module SmoochMenus
     end
 
     def send_message_to_user_with_main_menu_appended(uid, text, workflow, language, tbi_id = nil)
-      self.get_installation { |i| i.id == tbi_id } if self.config.blank?
+      self.get_installation('team_bot_installation_id', tbi_id) { |i| i.id == tbi_id } if self.config.blank? && !tbi_id.nil?
       main = []
       counter = 1
       number_of_options = 0
