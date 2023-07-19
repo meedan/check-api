@@ -2,7 +2,7 @@
 
 Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context – why has this been changed/fixed.
 
-References: [TICKET-ID](url), [TICKET-ID](url), …
+References: TICKET-ID, TICKET-ID, …
 
 ## How has this been tested?
 

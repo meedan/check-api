@@ -232,27 +232,44 @@ class Bot::Smooch < BotUser
     ['smooch_app_id', 'turnio_secret', 'capi_whatsapp_business_account_id']
   end
 
-  def self.get_installation(key = nil, value = nil)
-    bot = BotUser.smooch_user
-    return nil if bot.nil?
-    smooch_bot_installation = nil
-    keys = [key].flatten.map(&:to_s).reject{ |k| k.blank? }
-    TeamBotInstallation.where(user_id: bot.id).each do |installation|
-      key_that_has_value = nil
-      installation.settings.each do |k, v|
-        key_that_has_value = k.to_s if keys.include?(k.to_s) && v == value
+  def self.get_installation(key = nil, value = nil, &block)
+    id = nil
+    if !key.blank? && !value.blank?
+      keys = [key].flatten.map(&:to_s).reject{ |k| k.blank? }
+      id = Rails.cache.fetch("smooch_bot_installation_id:#{keys.join(':')}:#{value}", expires_in: 24.hours) do
+        self.get_installation_id(keys, value, &block)
       end
-      smooch_bot_installation = installation if (block_given? && yield(installation)) || !key_that_has_value.nil?
-      RequestStore.store[:smooch_bot_provider] = 'TURN' unless smooch_bot_installation&.get_turnio_secret&.to_s.blank?
-      RequestStore.store[:smooch_bot_provider] = 'CAPI' unless smooch_bot_installation&.get_capi_whatsapp_business_account_id&.to_s.blank?
+    elsif block_given?
+      id = self.get_installation_id(key, value, &block)
     end
+    smooch_bot_installation = TeamBotInstallation.where(id: id.to_i).last
     settings = smooch_bot_installation&.settings.to_h
+    RequestStore.store[:smooch_bot_provider] = 'TURN' unless smooch_bot_installation&.get_turnio_secret&.to_s.blank?
+    RequestStore.store[:smooch_bot_provider] = 'CAPI' unless smooch_bot_installation&.get_capi_whatsapp_business_account_id&.to_s.blank?
     RequestStore.store[:smooch_bot_settings] = settings.with_indifferent_access.merge({ team_id: smooch_bot_installation&.team_id.to_i, installation_id: smooch_bot_installation&.id })
     smooch_bot_installation
   end
 
+  def self.get_installation_id(keys = nil, value = nil)
+    bot = BotUser.smooch_user
+    return nil if bot.nil?
+    smooch_bot_installation = nil
+    TeamBotInstallation.where(user_id: bot.id).each do |installation|
+      key_that_has_value = nil
+      installation.settings.each do |k, v|
+        key_that_has_value = k.to_s if keys.to_a.include?(k.to_s) && v == value && !value.blank?
+      end
+      smooch_bot_installation = installation if (block_given? && yield(installation)) || !key_that_has_value.nil?
+    end
+    smooch_bot_installation&.id
+  end
+
   def self.valid_request?(request)
     self.valid_zendesk_request?(request) || self.valid_turnio_request?(request) || self.valid_capi_request?(request)
+  end
+
+  def self.should_ignore_request?(request)
+    self.should_ignore_capi_request?(request)
   end
 
   def self.config
@@ -268,6 +285,7 @@ class Bot::Smooch < BotUser
     begin
       json = self.preprocess_message(body)
       JSON::Validator.validate!(SMOOCH_PAYLOAD_JSON_SCHEMA, json)
+      return false if self.user_banned?(json)
       case json['trigger']
       when 'capi:verification'
         'capi:verification'
@@ -430,7 +448,7 @@ class Bot::Smooch < BotUser
         self.get_supported_languages.each do |l|
           i = self.get_next_menu_item_number(i)
           options << {
-            'smooch_menu_option_keyword' => [l, i].join(','),
+            'smooch_menu_option_keyword' => i.to_s,
             'smooch_menu_option_value' => l
           }
         end
@@ -517,23 +535,6 @@ class Bot::Smooch < BotUser
       self.reset_user_language(uid)
       self.ask_for_language_confirmation(workflow, language, uid, false)
     end
-  end
-
-  def self.get_typed_message(message, sm)
-    # v1 (plain text)
-    typed = message['text']
-    new_state = nil
-    # v2 (buttons and lists)
-    unless message['payload'].blank?
-      typed = nil
-      payload = begin JSON.parse(message['payload']) rescue {} end
-      if payload.class == Hash
-        new_state = payload['state']
-        sm.send("go_to_#{new_state}") if new_state && new_state != sm.state.value
-        typed = payload['keyword']
-      end
-    end
-    [typed.to_s.downcase.strip, new_state]
   end
 
   def self.process_menu_option(message, state, app_id)
@@ -750,6 +751,11 @@ class Bot::Smooch < BotUser
     end
   end
 
+  def self.user_banned?(payload)
+    uid = payload.dig('appUser', '_id')
+    !uid.blank? && !Rails.cache.read("smooch:banned:#{uid}").nil?
+  end
+
   # Don't save as a ProjectMedia if it contains only menu options
   def self.is_a_valid_text_message?(text)
     !text.split(/#{MESSAGE_BOUNDARY}|\s+/).reject{ |m| m =~ /^[0-9]*$/ }.empty?
@@ -932,13 +938,17 @@ class Bot::Smooch < BotUser
 
   def self.get_id_from_send_response(response)
     response_body = self.safely_parse_response_body(response)
-    (RequestStore.store[:smooch_bot_provider] == 'TURN' || RequestStore.store[:smooch_bot_provider] == 'CAPI') ? response_body&.dig('messages', 0, 'id') : response&.message&.id
+    (RequestStore.store[:smooch_bot_provider] == 'TURN' || RequestStore.store[:smooch_bot_provider] == 'CAPI') ? response_body&.dig('messages', 0, 'id') : response&.body&.message&.id
   end
 
-  def self.save_smooch_response(response, pm, query_date, fallback_template = nil, lang = 'en', custom = {})
+  def self.save_smooch_response(response, pm, query_date, fallback_template = nil, lang = 'en', custom = {}, expire = nil)
     return false if response.nil? || fallback_template.nil?
     id = self.get_id_from_send_response(response)
-    Rails.cache.write('smooch:original:' + id, { project_media_id: pm&.id, fallback_template: fallback_template, language: lang, query_date: (query_date || Time.now.to_i) }.merge(custom).to_json) unless id.blank?
+    unless id.blank?
+      key = 'smooch:original:' + id
+      value = { project_media_id: pm&.id, fallback_template: fallback_template, language: lang, query_date: (query_date || Time.now.to_i) }.merge(custom).to_json
+      Rails.cache.write(key, value, expires_in: expire)
+    end
   end
 
   def self.send_report_from_parent_to_child(parent_id, target_id)

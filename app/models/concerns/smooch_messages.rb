@@ -26,6 +26,23 @@ module SmoochMessages
       all_channels.keys.include?(channel) ? all_channels[channel] : nil
     end
 
+    def get_typed_message(message, sm)
+      # v1 (plain text)
+      typed = message['text']
+      new_state = nil
+      # v2 (buttons and lists)
+      unless message['payload'].blank?
+        typed = nil
+        payload = begin JSON.parse(message['payload']) rescue {} end
+        if payload.class == Hash
+          new_state = payload['state']
+          sm.send("go_to_#{new_state}") if new_state && new_state != sm.state.value
+          typed = payload['keyword']
+        end
+      end
+      [typed.to_s.downcase.strip, new_state]
+    end
+
     def bundle_message(message)
       uid = message['authorId']
       redis = Redis.new(REDIS_CONFIG)

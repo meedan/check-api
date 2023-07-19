@@ -20,6 +20,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     @sm.reset
     Bot::Smooch.clear_user_bundled_messages(@uid)
     Bot::Smooch.reset_user_language(@uid)
+    Rails.cache.delete("smooch:banned:#{@uid}")
     Sidekiq::Testing.fake!
     @search_result = create_project_media team: @team
 
@@ -73,11 +74,11 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
 
   def send_message_outside_24_hours_window(template, pm = nil)
     message_id = random_string
-    response = OpenStruct.new(message: OpenStruct.new(id: message_id))
+    response = OpenStruct.new(body: OpenStruct.new({ message: OpenStruct.new(id: message_id) }))
     Bot::Smooch.save_smooch_response(response, pm, Time.now.to_i, template, 'en')
 
     @msgid = random_string
-    response = OpenStruct.new(message: OpenStruct.new(id: @msgid))
+    response = OpenStruct.new(body: OpenStruct.new({ message: OpenStruct.new(id: @msgid) }))
     Bot::Smooch.stubs(:send_message_to_user).returns(response)
     assert_nil Rails.cache.read("smooch:original:#{@msgid}")
 
@@ -688,6 +689,15 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       assert_equal 0, Sidekiq::Worker.jobs.size
       Bot::Smooch.send_final_messages_to_user(@uid, 'Test', nil, 'en', 5)
       assert_equal 1, Sidekiq::Worker.jobs.size
+    end
+  end
+
+  test "should not reply to banned user" do
+    Sidekiq::Worker.clear_all
+    Bot::Smooch.ban_user({ 'authorId' => @uid })
+    Sidekiq::Testing.fake! do
+      send_message 'hello'
+      assert_equal 0, Sidekiq::Worker.jobs.size
     end
   end
 end

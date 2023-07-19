@@ -13,6 +13,9 @@ module Api
           render_error('Bot not found', 'ID_NOT_FOUND', 404) and return
         end
         bot = bot_name_to_class[params[:name].to_sym]
+        if bot.respond_to?(:should_ignore_request?) && bot.should_ignore_request?(request)
+          render_success('ignored') and return
+        end
         unless bot.valid_request?(request)
           render_error('Invalid request', 'UNKNOWN') and return
         end

@@ -179,7 +179,8 @@ class BotUser < User
         logged_data = data.dup
         logged_data.delete(:team)
         logged_data[:team_id] = data[:team].id
-        Rails.logger.info "[BotUser] Notified bot #{self.id} with payload '#{logged_data.to_json}', the response was (#{response.code}): '#{response.body}'"
+        logged_data = logged_data.to_json
+        Rails.logger.info "[BotUser] Notified bot #{self.id} with payload #{logged_data}, the response was #{response.code}"
         response
       end
     rescue StandardError => e
@@ -322,13 +323,17 @@ class BotUser < User
       begin
         bot.notify_about_event(event, object, team, team_bot_installation) if bot.subscribed_to?(event) && (target_bot.blank? || bot.id == target_bot.id)
       rescue StandardError => e
-        CheckSentry.notify(e, { event: event, team_bot_installation_id:team_bot_installation.id})
+        CheckSentry.notify(e, { event: event, team_bot_installation_id: team_bot_installation.id })
       end
     end
   end
 
   def core?
     begin Module.const_defined?("Bot::#{self.identifier.camelize}") rescue false end
+  end
+
+  def should_ignore_request?
+    false
   end
 
   protected

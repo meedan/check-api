@@ -164,7 +164,8 @@ class TiplineNewsletter < ApplicationRecord
       file_url = self.header_media_url
       file_type = HEADER_TYPE_MAPPING[self.header_type]
     end
-    params = [date, self.introduction, self.articles].flatten.reject{ |param| param.blank? }
+    introduction = UrlRewriter.shorten_and_utmize_urls(self.introduction, self.team.get_outgoing_urls_utm_code, self)
+    params = [date, introduction, self.articles].flatten.reject{ |param| param.blank? }
     preview_url = (self.header_type == 'link_preview')
     Bot::Smooch.format_template_message(self.whatsapp_template_name, params, file_url, self.build_content, self.language, file_type, preview_url)
   end
@@ -274,7 +275,7 @@ class TiplineNewsletter < ApplicationRecord
   end
 
   def not_scheduled_for_the_past
-    if self.content_type == 'static' && self.scheduled_time.past?
+    if self.enabled_was == false && self.enabled == true && self.content_type == 'static' && self.scheduled_time.past?
       field = :send_on
       field = :time if self.scheduled_time.strftime('%Y-%m-%d') == Time.now.utc.strftime('%Y-%m-%d')
       errors.add(field, I18n.t(:send_on_must_be_in_the_future))

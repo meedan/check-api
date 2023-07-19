@@ -5,6 +5,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
   def setup
     super
     setup_smooch_bot
+    Rails.cache.delete('smooch_bot_installation_id:smooch_webhook_secret:test')
   end
 
   def teardown
@@ -18,7 +19,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
       msgid = random_string
       pm = create_project_media
       publish_report(pm)
-      response = OpenStruct.new({ message: OpenStruct.new({ id: msgid }) })
+      response = OpenStruct.new({ body: OpenStruct.new(message: OpenStruct.new({ id: msgid })) })
       Bot::Smooch.save_smooch_response(response, pm, random_string, 'fact_check_status', 'en', { message: random_string })
       message = {
         app: {
@@ -41,7 +42,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
       msgid = random_string
       pm = create_project_media
       publish_report(pm)
-      response = OpenStruct.new({ message: OpenStruct.new({ id: msgid }) })
+      response = OpenStruct.new({ body: OpenStruct.new(message: OpenStruct.new({ id: msgid })) })
       Bot::Smooch.save_smooch_response(response, pm, random_string, 'report', 'en')
       message = {
         app: {

@@ -21,6 +21,7 @@ module TeamRules
       return false unless pm.media&.type == 'Claim'
       smooch_message = get_smooch_message(pm)
       return false if smooch_message['text'].blank?
+      #TODO: Consider using Bot::Alegre.number_of_words
       smooch_message['text'].to_s.gsub(Bot::Smooch::MESSAGE_BOUNDARY, '').split(/\s+/).select{ |w| (w =~ /^[0-9]+$/).nil? }.size <= value.to_i
     end
 
