@@ -1,4 +1,7 @@
 class JsonStringType < BaseScalar
+  # Keep consistent with previous implementation
+  graphql_name 'JsonStringType'
+
   def self.coerce_input(val, _ctx)
     begin JSON.parse(val) rescue val end
   end

@@ -17,7 +17,7 @@ module TasksFileMutations
 
   class RemoveFilesFromTask < Mutations::BaseMutation
     argument :id, GraphQL::Types::ID, required: true
-    argument :filenames, [GraphQL::Types::String], required: false
+    argument :filenames, [GraphQL::Types::String, null: true], required: false
 
     field :task, TaskType, null: true
 

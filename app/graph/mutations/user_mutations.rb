@@ -18,7 +18,7 @@ module UserMutations
     argument :login, GraphQL::Types::String, required: true
     argument :name, GraphQL::Types::String, required: true
     argument :password, GraphQL::Types::String, required: true
-    argument :password_confirmation, GraphQL::Types::String, required: true
+    argument :password_confirmation, GraphQL::Types::String, required: true, camelize: false
   end
 
   class Update < Mutations::UpdateMutation

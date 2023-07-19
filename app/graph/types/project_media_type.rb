@@ -162,10 +162,10 @@ class ProjectMediaType < DefaultObject
   end
 
   field :log, VersionType.connection_type, null: true do
-    argument :event_types, [GraphQL::Types::String], required: false, camelize: false
-    argument :field_names, [GraphQL::Types::String], required: false, camelize: false
-    argument :annotation_types, [GraphQL::Types::String], required: false, camelize: false
-    argument :who_dunnit, [GraphQL::Types::String], required: false, camelize: false
+    argument :event_types, [GraphQL::Types::String, null: true], required: false, camelize: false
+    argument :field_names, [GraphQL::Types::String, null: true], required: false, camelize: false
+    argument :annotation_types, [GraphQL::Types::String, null: true], required: false, camelize: false
+    argument :who_dunnit, [GraphQL::Types::String, null: true], required: false, camelize: false
     argument :include_related, GraphQL::Types::Boolean, required: false, camelize: false
   end
 

@@ -5,7 +5,7 @@ module Mutations
         mutation_target = subclass.module_parent::MUTATION_TARGET
         parents_mapping = GraphqlCrudOperations.hashify_parent_types(subclass.module_parent::PARENTS)
 
-        subclass.argument :id, GraphQL::Types::ID, required: true
+        subclass.argument :id, GraphQL::Types::ID, required: false
 
         define_create_or_update_behavior('update', subclass, mutation_target, parents_mapping)
 

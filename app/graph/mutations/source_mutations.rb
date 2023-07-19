@@ -18,7 +18,7 @@ module SourceMutations
     argument :slogan, GraphQL::Types::String, required: true
     argument :name, GraphQL::Types::String, required: true
     argument :urls, GraphQL::Types::String, required: false
-    argument :validate_primary_link_exist, GraphQL::Types::Boolean, required: false
+    argument :validate_primary_link_exist, GraphQL::Types::Boolean, required: false, camelize: false
   end
 
   class Update < Mutations::UpdateMutation

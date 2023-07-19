@@ -6,8 +6,17 @@ module DynamicAnnotation::AnnotationTypeManager
     Object.class_eval <<-TES
       DynamicAnnotation#{klass} = Dynamic unless defined?(DynamicAnnotation#{klass})
 
-      class DynamicAnnotation#{klass}Type < AnnotationType
+      class DynamicAnnotation#{klass}Type < BaseObject
+        include Types::Inclusions::AnnotationBehaviors
+
         graphql_name "#{mutation_target.capitalize}"
+
+        def id
+          object.relay_id('annotation')
+        end
+
+        field :lock_version, GraphQL::Types::Int, null: true
+        field :locked, GraphQL::Types::Boolean, null: true
       end unless defined? DynamicAnnotation#{klass}Type
 
       module DynamicAnnotation#{klass}Mutations

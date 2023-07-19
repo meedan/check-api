@@ -4,8 +4,9 @@ module AnnotationMutations
 
   class Create < Mutations::CreateMutation
     argument :content, GraphQL::Types::String, required: true
-    argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
     argument :locked, GraphQL::Types::Boolean, required: false
+    argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
+    argument :annotated_type, GraphQL::Types::String, required: false, camelize: false
     argument :annotated_id, GraphQL::Types::String, required: false, camelize: false
   end
 

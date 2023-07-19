@@ -40,7 +40,7 @@ class UserType < DefaultObject
   field :settings, JsonStringType, null: true
   field :accepted_terms, GraphQL::Types::Boolean, null: true
   field :last_accepted_terms_at, GraphQL::Types::String, null: true
-  field :team_ids, [GraphQL::Types::Int], null: true
+  field :team_ids, [GraphQL::Types::Int, null: true], null: true
   field :user_teams, GraphQL::Types::String, null: true
   field :last_active_at, GraphQL::Types::Int, null: true
   field :completed_signup, GraphQL::Types::Boolean, null: true

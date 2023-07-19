@@ -197,7 +197,7 @@ class TeamType < DefaultObject
   end
 
   field :team_users, TeamUserType.connection_type, null: true do
-    argument :status, [GraphQL::Types::String], required: false
+    argument :status, [GraphQL::Types::String, null: true], required: false
   end
 
   def team_users(**args)

@@ -14,8 +14,8 @@ class FeedType < DefaultObject
   field :teams_count, GraphQL::Types::Int, null: true
   field :requests_count, GraphQL::Types::Int, null: true
   field :root_requests_count, GraphQL::Types::Int, null: true
-  field :tags, [GraphQL::Types::String], null: true
-  field :licenses, [GraphQL::Types::Int], null: true
+  field :tags, [GraphQL::Types::String, null: true], null: true
+  field :licenses, [GraphQL::Types::Int, null: true], null: true
   field :saved_search_id, GraphQL::Types::Int, null: true
   field :discoverable, GraphQL::Types::Boolean, null: true
   field :user, UserType, null: true

@@ -26,7 +26,7 @@ module Mutations
 
         define_shared_bulk_behavior(:update, subclass, mutation_target, parents_mapping)
 
-        subclass.field :updated_objects, ["#{mutation_target.camelize}Type".constantize], null: true, camelize: false
+        subclass.field :updated_objects, ["#{mutation_target.camelize}Type".constantize, null: true], null: true, camelize: false
       end
     end
   end

@@ -32,5 +32,7 @@ module TeamTaskMutations
     include SharedCreateAndUpdateFields
   end
 
-  class Destroy < Mutations::DestroyMutation; end
+  class Destroy < Mutations::DestroyMutation
+    argument :keep_completed_tasks, GraphQL::Types::Boolean, required: false, camelize: false
+  end
 end

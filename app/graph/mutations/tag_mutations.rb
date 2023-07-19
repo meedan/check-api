@@ -27,7 +27,7 @@ module TagMutations
 
   class Destroy < Mutations::DestroyMutation; end
 
-  class CreateTagMutationsBulkInput < BaseInputObject
+  class CreateTagsBulkInput < BaseInputObject
     include SharedCreateAndUpdateFields
 
     argument :tag, GraphQL::Types::String, required: true
@@ -40,9 +40,7 @@ module TagMutations
     ].freeze
 
     class Create < Mutations::BulkCreateMutation
-      include SharedCreateAndUpdateFields
-
-      argument :inputs, [CreateTagMutationsBulkInput], required: false
+      argument :inputs, [CreateTagsBulkInput, null: true], required: false
 
       def resolve(**input)
         if input[:inputs].size > 10_000
