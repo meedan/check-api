@@ -71,7 +71,7 @@ module SmoochResend
         else
           last_smooch_response = self.send_message_to_user(uid, self.format_template_message("#{template}_image_only", [query_date], image, image, language)) unless image.blank?
           last_smooch_response = self.send_message_to_user(uid, self.format_template_message("#{template}_text_only", [query_date, text], nil, text, language)) unless text.blank?
-          self.save_smooch_response(last_smooch_response, pm, query_date, 'fact_check_report', language || 'en')
+          self.save_smooch_response(last_smooch_response, pm, query_date, 'fact_check_report', language)
         end
         return true
       end
@@ -185,7 +185,7 @@ module SmoochResend
         last_smooch_response = self.send_message_to_user(uid, introduction, self.message_tags_payload(introduction)) if introduction
         last_smooch_response = self.send_message_to_user(uid, 'Visual Card', self.message_tags_payload(nil, image)) if image
         last_smooch_response = self.send_message_to_user(uid, text, self.message_tags_payload(text)) if text
-        self.save_smooch_response(last_smooch_response, pm, query_date, 'fact_check_report', language || 'en')
+        self.save_smooch_response(last_smooch_response, pm, query_date, 'fact_check_report', language)
         return true
       end
       false
