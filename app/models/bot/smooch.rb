@@ -232,27 +232,44 @@ class Bot::Smooch < BotUser
     ['smooch_app_id', 'turnio_secret', 'capi_whatsapp_business_account_id']
   end
 
-  def self.get_installation(key = nil, value = nil)
-    bot = BotUser.smooch_user
-    return nil if bot.nil?
-    smooch_bot_installation = nil
-    keys = [key].flatten.map(&:to_s).reject{ |k| k.blank? }
-    TeamBotInstallation.where(user_id: bot.id).each do |installation|
-      key_that_has_value = nil
-      installation.settings.each do |k, v|
-        key_that_has_value = k.to_s if keys.include?(k.to_s) && v == value
+  def self.get_installation(key = nil, value = nil, &block)
+    id = nil
+    if !key.blank? && !value.blank?
+      keys = [key].flatten.map(&:to_s).reject{ |k| k.blank? }
+      id = Rails.cache.fetch("smooch_bot_installation_id:#{keys.join(':')}:#{value}", expires_in: 24.hours) do
+        self.get_installation_id(keys, value, &block)
       end
-      smooch_bot_installation = installation if (block_given? && yield(installation)) || !key_that_has_value.nil?
-      RequestStore.store[:smooch_bot_provider] = 'TURN' unless smooch_bot_installation&.get_turnio_secret&.to_s.blank?
-      RequestStore.store[:smooch_bot_provider] = 'CAPI' unless smooch_bot_installation&.get_capi_whatsapp_business_account_id&.to_s.blank?
+    elsif block_given?
+      id = self.get_installation_id(key, value, &block)
     end
+    smooch_bot_installation = TeamBotInstallation.where(id: id.to_i).last
     settings = smooch_bot_installation&.settings.to_h
+    RequestStore.store[:smooch_bot_provider] = 'TURN' unless smooch_bot_installation&.get_turnio_secret&.to_s.blank?
+    RequestStore.store[:smooch_bot_provider] = 'CAPI' unless smooch_bot_installation&.get_capi_whatsapp_business_account_id&.to_s.blank?
     RequestStore.store[:smooch_bot_settings] = settings.with_indifferent_access.merge({ team_id: smooch_bot_installation&.team_id.to_i, installation_id: smooch_bot_installation&.id })
     smooch_bot_installation
   end
 
+  def self.get_installation_id(keys = nil, value = nil)
+    bot = BotUser.smooch_user
+    return nil if bot.nil?
+    smooch_bot_installation = nil
+    TeamBotInstallation.where(user_id: bot.id).each do |installation|
+      key_that_has_value = nil
+      installation.settings.each do |k, v|
+        key_that_has_value = k.to_s if keys.to_a.include?(k.to_s) && v == value && !value.blank?
+      end
+      smooch_bot_installation = installation if (block_given? && yield(installation)) || !key_that_has_value.nil?
+    end
+    smooch_bot_installation&.id
+  end
+
   def self.valid_request?(request)
     self.valid_zendesk_request?(request) || self.valid_turnio_request?(request) || self.valid_capi_request?(request)
+  end
+
+  def self.should_ignore_request?(request)
+    self.should_ignore_capi_request?(request)
   end
 
   def self.config
@@ -268,6 +285,7 @@ class Bot::Smooch < BotUser
     begin
       json = self.preprocess_message(body)
       JSON::Validator.validate!(SMOOCH_PAYLOAD_JSON_SCHEMA, json)
+      return false if self.user_banned?(json)
       case json['trigger']
       when 'capi:verification'
         'capi:verification'
@@ -519,23 +537,6 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.get_typed_message(message, sm)
-    # v1 (plain text)
-    typed = message['text']
-    new_state = nil
-    # v2 (buttons and lists)
-    unless message['payload'].blank?
-      typed = nil
-      payload = begin JSON.parse(message['payload']) rescue {} end
-      if payload.class == Hash
-        new_state = payload['state']
-        sm.send("go_to_#{new_state}") if new_state && new_state != sm.state.value
-        typed = payload['keyword']
-      end
-    end
-    [typed.to_s.downcase.strip, new_state]
-  end
-
   def self.process_menu_option(message, state, app_id)
     uid = message['authorId']
     sm = CheckStateMachine.new(uid)
@@ -748,6 +749,11 @@ class Bot::Smooch < BotUser
       Rails.logger.info("[Smooch Bot] Banned user #{uid}")
       Rails.cache.write("smooch:banned:#{uid}", message.to_json)
     end
+  end
+
+  def self.user_banned?(payload)
+    uid = payload.dig('appUser', '_id')
+    !uid.blank? && !Rails.cache.read("smooch:banned:#{uid}").nil?
   end
 
   # Don't save as a ProjectMedia if it contains only menu options

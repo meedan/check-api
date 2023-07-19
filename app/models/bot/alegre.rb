@@ -194,7 +194,7 @@ class Bot::Alegre < BotUser
 
   def self.get_number_of_words(text)
     # Get the number of space-separated words (Does not work with Chinese/Japanese)
-    space_separted_words = text.gsub(/[^\p{L}\s]/u, '').strip.chomp.split(/\s+/).size
+    space_separted_words = text.nil? ? 0 : text.gsub(/[^\p{L}\s]/u, '').strip.chomp.split(/\s+/).size
 
     # This removes URLs
     # Then it splits the text on any non unicode word boundary (works with Chinese, Japanese)
@@ -376,6 +376,8 @@ class Bot::Alegre < BotUser
       annotation.set_fields = { text: result['transcription'], last_response: result }.to_json
       annotation.skip_check_ability = true
       annotation.save!
+      completed = true
+    elsif result['job_status'] == 'DONE'
       completed = true
     end
     self.delay_for(10.seconds, retry: 5).update_audio_transcription(annotation.id, attempts + 1) if !completed && attempts < 2000 # Maximum: ~5h of transcription
