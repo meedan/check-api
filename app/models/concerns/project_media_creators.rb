@@ -193,6 +193,7 @@ module ProjectMediaCreators
         language: fact_check['language'],
         url: fact_check['url'],
         publish_report: !!fact_check['publish_report'],
+        signature: Digest::MD5.hexdigest([self.set_fact_check.to_json, self.team_id].join(':')),
         claim_description: cd,
         skip_check_ability: true
       })

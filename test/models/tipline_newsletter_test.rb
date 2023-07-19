@@ -231,9 +231,22 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
   end
     
   test 'should not schedule for the past' do
-    @newsletter.content_type = 'static'
-    @newsletter.send_on = Date.parse('2023-05-01')
-    assert !@newsletter.valid?
+    newsletter = @newsletter.dup
+    newsletter.enabled = false
+    newsletter.content_type = 'static'
+    newsletter.send_on = Date.parse('2023-05-01')
+    newsletter.save!
+    newsletter = TiplineNewsletter.find(newsletter.id)
+    assert_raises ActiveRecord::RecordInvalid do
+      newsletter.enabled = true
+      newsletter.send_on = Date.parse('2023-05-01')
+      newsletter.save!
+    end
+    assert_nothing_raised do
+      newsletter.enabled = false
+      newsletter.send_on = Date.parse('2023-05-01')
+      newsletter.save!
+    end
   end
   
   test 'should convert video header file' do

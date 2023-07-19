@@ -1,4 +1,3 @@
----
 sw:
   statuses:
     ids:
@@ -25,7 +24,7 @@ sw:
         label: Inaendelea
         description: Kazi imeanza, lakini hakuna tafsiri yoyote iliyofanywa
       not_true:
-        label: Uongo
+        label: 'Uongo'
         description: 'Hitimisho: maudhui ya kitu ni ya uongo'
       verified:
         label: Imethibitishwa
@@ -76,25 +75,19 @@ sw:
     messages:
       invalid_password: Nenosiri batili
       invalid_qrcode: Nambari batili ya kuthibitisha
-      extension_white_list_error: 'haiwezi kuwa na aina %{extension}, aina zinazokubaliwa:
-        %{allowed_types}'
       invalid_size: lazima iwe kati ya %{min_width}x%{min_height} na piseli%{max_width}x%{max_height}
-      mini_magick_processing_error: 'Samahani, hatukuweza kuchakata picha. Hilitafu
-        ilikuwa: %{e}'
+      mini_magick_processing_error: 'Samahani, hatukuweza kuchakata picha. Hilitafu ilikuwa: %{e}'
       annotation_mandatory_fields: Tafadhali seti nyuga zote za lazima
       annotation_type_does_not_exist: Haipo
       invalid_attribution: uhusishwaji batili
-      must_resolve_required_tasks_first: Kazi zinazohitajika ni lazima zisuluhishwe
-        kwanza
+      must_resolve_required_tasks_first: Kazi zinazohitajika ni lazima zisuluhishwe kwanza
       image_too_large: Samahani, hatukubali picha kubwa zaidi ya %{max_size}.
       video_too_large: Samahani, hatukubali video kubwa zaidi ya %{max_size}.
       audio_too_large: Samahani, hatukubali faili za sauti zenye ukubwa zaidi ya %{max_size}
-      pender_conflict: Kiungo hiki tayari kinachambuliwa. Tafadhali jaribu tena ndani
-        ya sekunde chache
+      pender_conflict: Kiungo hiki tayari kinachambuliwa. Tafadhali jaribu tena ndani ya sekunde chache
       pender_url_invalid: Kiungo hiki ni batili.
       pender_url_unsafe: Kiungo hiki sio salama.
-      invalid_format_for_languages: 'Muundo batili wa lugha. Inatarajia muundo ''["en'',
-        ''ar'', ...]'' '
+      invalid_format_for_languages: 'Muundo batili wa lugha. Inatarajia muundo ''["en'', ''ar'', ...]'' '
   activerecord:
     models:
       link: Kiungo
@@ -153,16 +146,12 @@ sw:
   slack_webhook_format_wrong: Kiungo batili cha Slack. Inatarajia muundo 'https://hooks.slack.com/services/XXXXX/XXXXXXXXXX'
   slug_is_reserved: Imetengewa
   invalid_media_item: Kitu ni batili
-  invalid_default_status_for_custom_verification_status: Hali msingi ya kutambulisha
-    ni batili
-  invalid_active_status_for_custom_verification_status: Utambulisho wa hali ya shughuli
-    ni batili
+  invalid_default_status_for_custom_verification_status: Hali msingi ya kutambulisha ni batili
+  invalid_active_status_for_custom_verification_status: Utambulisho wa hali ya shughuli ni batili
   invalid_label_for_custom_verification_status: Lebo ya hali ni lazima
-  invalid_id_for_custom_verification_status: Utambulisho wa hali ni lazima na unapaswa
-    kuwa na herufi ndogo pekee, nambari, deshi, na vistari chini
-  invalid_statuses_format_for_custom_verification_status: 'Kaida batili ya uthibitishaji
-    hali. Inatarajia maingizo halali kwa: lebo, kitambulisho, maelezo na mtindo.'
-  mail_account_confirmation: Uthibitisho wa akaunti ya %{app_name}
+  invalid_id_for_custom_verification_status: Utambulisho wa hali ni lazima na unapaswa kuwa na herufi ndogo pekee, nambari, deshi, na vistari chini
+  invalid_statuses_format_for_custom_verification_status: 'Kaida batili ya uthibitishaji hali. Inatarajia maingizo halali kwa: lebo, kitambulisho, maelezo na mtindo.'
+  mail_account_confirmation: "Uthibitisho wa akaunti ya %{app_name}"
   slack:
     fields:
       assigned: Imepangiwa
@@ -176,8 +165,7 @@ sw:
       project_media: Kitu
       attribution: Imejibiwa na
     messages:
-      analysis_verification_status_status_changed: "%{user}alibadilisha hadhi kuwa:
-        %{value}"
+      analysis_verification_status_status_changed: "%{user}alibadilisha hadhi kuwa: %{value}"
       analysis_title_changed: "%{user}alibadilisha kichwa cha uchambuzi kuwa: %{value}"
       analysis_content_changed: "%{user} alibadilisha maudhui ya uchambuzi kuwa: %{value}"
       tasks_create: "%{user} aliongeza kazi:%{title}"
@@ -188,19 +176,14 @@ sw:
       metadata_edit: "%{user} alibadilisha sehemu ya metadata %{title}"
       metadata_answer_create: "%{user} weka thamani ya metadata %{title}: %{answer}"
       metadata_answer_edit: "%{user} alibadilisha thamani ya metadata %{title}:%{answer}"
-      project_media_comment: "%{user} (%{role} kwa %{team}) ameongeza kidokezo kwa
-        %{parent_type}"
-      project_media_create: "%{user} (%{role} katika %{team}) iliwasilisha kipengee
-        kipya"
-      project_media_create_related: "%{user} (%{role} kwa %{team}) ameongeza inayohusiana
-        %{type}"
+      project_media_comment: "%{user} (%{role} kwa %{team}) ameongeza kidokezo kwa %{parent_type}"
+      project_media_create: "%{user} (%{role} katika %{team}) iliwasilisha kipengee kipya"
+      project_media_create_related: "%{user} (%{role} kwa %{team}) ameongeza inayohusiana %{type}"
       project_media_update: "%{user}( %{role} katika %{team} ) ilisasisha kipengee"
-      project_media_status: "%{user} (%{role} kwa %{team}) amebadilisha %{workflow}
-        hali ya %{type}"
+      project_media_status: "%{user} (%{role} kwa %{team}) amebadilisha %{workflow} hali ya %{type}"
       project_media_assign: "%{user} (%{role} kwa %{team}) amepangia %{type}"
       project_media_unassign: "%{user} (%{role} kwa %{team}) amepangua %{type}"
-      project_source_comment: "%{user} (%{role} kwa %{team}) ameongeza kidokezo kwa
-        %{parent_type}"
+      project_source_comment: "%{user} (%{role} kwa %{team}) ameongeza kidokezo kwa %{parent_type}"
       project_source_create: "%{user} (%{role} kwa %{team}) ameongeza %{type}"
       project_source_update: "%{user} (%{role} kwa %{team}) amehariri %{type}"
       user_member: "%{user} amejiunga na ulingo wa kazi %{team}"
@@ -208,11 +191,9 @@ sw:
       user_invited: "%{user} ameaalikwa kujiunga na ulingo wa kazi %{team}"
       user_banned: "%{user} alipigwa marufuku kwenye ulingo wa kazi %{team}"
   mail_view_welcome: Welcome %{app_name}
-  mail_view_register: 'Imesalia hatua moja tu uweze kutumia %{app_name}! Tafadhali
-    thibitisha barua pepe yako kwa kubonyeza kiungo kifwatacho:'
+  mail_view_register: 'Imesalia hatua moja tu uweze kutumia %{app_name}! Tafadhali thibitisha barua pepe yako kwa kubonyeza kiungo kifwatacho:'
   mail_confirm_button: Thibitisha akaunti
-  slack_restricted_join_to_members: 'Samahani, huwezi kujiunga na %{team_name} kwa
-    sababu imezuiliwa kwa wanachama wa ulingo wa kazi wa Slack %{teams}. '
+  slack_restricted_join_to_members: 'Samahani, huwezi kujiunga na %{team_name} kwa sababu imezuiliwa kwa wanachama wa ulingo wa kazi wa Slack %{teams}. '
   admin:
     actions:
       send_reset_password_email:
@@ -225,8 +206,7 @@ sw:
         menu: Ulingo wa kazi uliorudiwa
         done: Imenakiliwa
         are_you_sure_you_want_to_copy_team:
-          html: Je! Una uhakika ungependa kunakili ulingo wa kazi <strong>%{team}</strong>?
-            Takwimu zote zinazohusiana zitanakiliwa pia.
+          html: Je! Una uhakika ungependa kunakili ulingo wa kazi <strong>%{team}</strong>? Takwimu zote zinazohusiana zitanakiliwa pia.
         the_team_is_being_copied: Nakili ya ulingo wa kazi inaendelea
         url_when_ready:
           html: Iwapo tayari, nakala ya ulingo wa kazi itapatikana kwa <strong>%{copy_url}</strong>
@@ -242,49 +222,44 @@ sw:
       email: "%B %d, %Y %I:%M  %p %Z"
   oembed_disclaimer_undetermined: Kitu hiki hakijathibitishwa na %{team}
   oembed_disclaimer_in_progress: Kitu hiki kinathibitishwa na %{team} kutokea %{date}
-  oembed_disclaimer_verified: Kitu hiki kimedhamiriwa kuthibitishwa na %{team} mnamo
-    %{date}
+  oembed_disclaimer_verified: Kitu hiki kimedhamiriwa kuthibitishwa na %{team} mnamo %{date}
   oembed_disclaimer_false: Kitu hiki kimedhamiriwa kuwa uongo na %{team} mnamo %{date}
-  oembed_disclaimer_not_applicable: Hakuna hitimisho lililofikiwa kuhusu kitu hiki
-    na %{team} kufikia %{date}
+  oembed_disclaimer_not_applicable: Hakuna hitimisho lililofikiwa kuhusu kitu hiki na %{team} kufikia %{date}
   oembed_source_date: "%{date} mnamo %{provider}"
   role_editor: mhariri
   role_none: mwanachama
   role_: mtawalamfumo
   oembed_credit: Imeongezwa na %{user} (%{role}) %{date}
   oembed_notes_count:
-    one: 1 maelezo
-    other: 'Vidokezo %{count} '
+    one: "1 maelezo"
+    other: "Vidokezo %{count} "
   oembed_completed_tasks_count:
-    one: '1 kazi iliyomaliziwa '
-    other: Kazi %{count} zilizokamilishwa
+    one: "1 kazi iliyomaliziwa "
+    other: "Kazi %{count} zilizokamilishwa"
   oembed_verification_tasks: Kazi
   oembed_tasks: Kazi
   oembed_translations: Tafsiri
   oembed_expand_all: Tanua zote
   oembed_collapse_all: Kunja zote
   oembed_resolved_tasks_count:
-    one: 1 kazi zilizomalizwa
-    other: Kazi %{count} zilizokamilishwa
+    one: "1 kazi zilizomalizwa"
+    other: "Kazi %{count} zilizokamilishwa"
   oembed_notes: Maelezo
   duplicate_source: Chanzo tayari kipo
   geolocation_invalid_value: Mahali batili. Inatarajia muundo halali wa GeoJSON (http://geojson.org/)
   datetime_invalid_date: Tarehe batili
-  error_team_archived_for_source: Samahani,  huwezi kuongeza chanzo kwenye ulingo
-    wa kazi taka
+  error_team_archived_for_source: Samahani,  huwezi kuongeza chanzo kwenye ulingo wa kazi taka
   permission_error: Samahani hauruhusiwi kutekeleza kitendo hiki
   error_annotated_archived: Samahani, huwezi kuongeza kidokezo kwenye kitu taka
-  only_super_admin_can_do_this: Samahani, ni msimamizi mfumo tu anayeweza kufanya
-    badiliko hili
+  only_super_admin_can_do_this: Samahani, ni msimamizi mfumo tu anayeweza kufanya badiliko hili
   cant_change_custom_statuses: |-
-    Samahani, hauwezi kufanyia mabadiliko ufafanuzi wa hali kwa sababu hali zingine huenda zikapotea. Tambulisho za hali: %{statuses} zinatumiwa na vitu vifuatayo:
-    %{urls} %{others_amount}
+      Samahani, hauwezi kufanyia mabadiliko ufafanuzi wa hali kwa sababu hali zingine huenda zikapotea. Tambulisho za hali: %{statuses} zinatumiwa na vitu vifuatayo:
+      %{urls} %{others_amount}
   account_exists: Akaunti hii tayari ipo
   media_exists: Kitu hiki tayari kipo
   source_exists: Chanzo hiki tayari kipo
   email_exists: tayari imechukuliwa
-  banned_user: Samahani, akaunti yako imepigwa marufuku kwenye %{app_name}. Tafadhali
-    wasiliana na timu ya msaada iwapo unadhani kuwa hili ni kosa.
+  banned_user: Samahani, akaunti yako imepigwa marufuku kwenye %{app_name}. Tafadhali wasiliana na timu ya msaada iwapo unadhani kuwa hili ni kosa.
   devise:
     mailer:
       reset_password_instructions:
@@ -294,8 +269,7 @@ sw:
         action: Badilisha nenosiri
         expiry: Ombi hili litaisha muda ndani ya masaa %{expire}.
         instruction_1: Bonyeza kufanya ombi lingine.
-        instruction_2: Iwapo haukufanya ombi hili, au unapata ugumu kubadilisha nenosiri
-          lako, tafadhali wasiliana nasi kwa %{support_email}.
+        instruction_2: Iwapo haukufanya ombi hili, au unapata ugumu kubadilisha nenosiri lako, tafadhali wasiliana nasi kwa %{support_email}.
       invitation_instructions:
         subject: "%{user} amekualika kujiunga na ulingo wa kazi %{team}"
         hello: Habari %{name}
@@ -313,10 +287,8 @@ sw:
     team_found: Ulingo wa kazi haupatikani.
     invalid: Nambari batili ya mwaliko.
     no_invitation: Hakuna mialiko iliyopo kwenye ulingo huu wa kazi %{name}
-  error_user_is_not_a_team_member: Samahani, unaweza kupangia tu wanachama wa ulingo
-    huu wa kazi
-  error_login_with_exists_account: Samahani, kuna mtumiaji mwingine anayetumia akaunti
-    hii
+  error_user_is_not_a_team_member: Samahani, unaweza kupangia tu wanachama wa ulingo huu wa kazi
+  error_login_with_exists_account: Samahani, kuna mtumiaji mwingine anayetumia akaunti hii
   error_login_2fa: Tafadhali kamilisha kuingia kwako kwa kutoa nambari ya uthibitisho.
   error_record_not_found: "%{type} # %{id} haijapatikana"
   mails_notifications:
@@ -328,56 +300,48 @@ sw:
     register:
       subject: Akaunti yako mpya kwa %{app_name}
       header_text: |-
-        Umefanikiwa kujiunga na %{app_name}!
-        <br>
-        Ili kuingia kwenye wavuti, fuata kiungo hiki: %{url}. Ingiza anwani hii ya barua pepe na nenosiri hili: %{password}
+          Umefanikiwa kujiunga na %{app_name}!
+          <br>
+          Ili kuingia kwenye wavuti, fuata kiungo hiki: %{url}. Ingiza anwani hii ya barua pepe na nenosiri hili: %{password}
       login_button: Ingia kwa %{app_name}
       footer_text: Asante sana kwa kujiunga, kuwa na siku njema
     duplicated:
       subject: Mtindo wako wa kuingia wa %{app_name}
       header_title: Akaunti iliyojirudia
       one_email: |-
-        <p>Huu ni ukumbusho wa kirafiki tu utakakusaidia kuweza kuingia kwenye %{app_name}.</p>
-        <p>Nini kilichotokea: Ulijaribu kuingia kwa %{app_name} na %{user_provider} -  akaunti inayohusishwa na %{user_email}.
-        Lakini anwani hii ya barua pepe tayari imehusishwa na akaunti inayohusishwa na%{duplicate_provider}. akaunti inayohusishwa na %{app_name}</p>
-        <p>Utakachofanya sasa, ingia na %{duplicate_provider}.</p>
-        <p>Kisha utaingia kwenye akaunti uliyokuwa unatumia awali.
-        Ukihitaji msaada zaidi, tafadhali tuma barua pepe kwa %{support_email}.</p>
+          <p>Huu ni ukumbusho wa kirafiki tu utakakusaidia kuweza kuingia kwenye %{app_name}.</p>
+          <p>Nini kilichotokea: Ulijaribu kuingia kwa %{app_name} na %{user_provider} -  akaunti inayohusishwa na %{user_email}.
+          Lakini anwani hii ya barua pepe tayari imehusishwa na akaunti inayohusishwa na%{duplicate_provider}. akaunti inayohusishwa na %{app_name}</p>
+          <p>Utakachofanya sasa, ingia na %{duplicate_provider}.</p>
+          <p>Kisha utaingia kwenye akaunti uliyokuwa unatumia awali.
+          Ukihitaji msaada zaidi, tafadhali tuma barua pepe kwa %{support_email}.</p>
       both_emails: |-
-        <p>Huu ni ukumbusho wa kirafiki tu utakaokusaidia kuweza kuingia kwenye %{app_name}.</p>
-        <p>Nini kilichotokea: Ulijaribu kuunda barua pepe mpya inayohusishwa na %{app_name}, lakini akaunti hii tayari ipo.</p>
-        <p>Jaribu kuingia na barua pepe na nenosiri, badala ya kuunda akaunti mpya.</p>
-        <p>Kisha utaingia na akaunti uliyokuwa unatumia awali. Iwapo unahitaji msaada zaidi, tafadhali tuma barua pepe kwa %{support_email}.</p>
+          <p>Huu ni ukumbusho wa kirafiki tu utakaokusaidia kuweza kuingia kwenye %{app_name}.</p>
+          <p>Nini kilichotokea: Ulijaribu kuunda barua pepe mpya inayohusishwa na %{app_name}, lakini akaunti hii tayari ipo.</p>
+          <p>Jaribu kuingia na barua pepe na nenosiri, badala ya kuunda akaunti mpya.</p>
+          <p>Kisha utaingia na akaunti uliyokuwa unatumia awali. Iwapo unahitaji msaada zaidi, tafadhali tuma barua pepe kwa %{support_email}.</p>
       email: Barua pepe
     invitation:
       title: Mwaliko mpya
     delete_user:
       subject: "[%{team}] Mtumiaji amefutwa"
       header_title: Mtumiaji amefutwa
-      header_text: Akaunti ya mtumiaji imefutwa na yaliyomo kupangiwa tena kwa %{anonymous}
-        mtumiaji %{id}
+      header_text: Akaunti ya mtumiaji imefutwa na yaliyomo kupangiwa tena kwa %{anonymous} mtumiaji %{id}
       anonymous: Asiyejulikana
     admin_mailer:
-      team_download_subject: "[%{team}] Picha ya data ya ulingo wa kazi ipo tayari
-        kupakuliwa"
+      team_download_subject: "[%{team}] Picha ya data ya ulingo wa kazi ipo tayari kupakuliwa"
       team_dump_title: Data za ulingo wa kazi
       types:
         dump: Picha za data
         csv: Ripoti
         images: Jalada
-      team_dump_text: 'Umeomba picha ya data ya ulingo wa kazi %{team} - kiungo cha
-        kupakua hiki hapa: %{link}'
+      team_dump_text: 'Umeomba picha ya data ya ulingo wa kazi %{team} - kiungo cha kupakua hiki hapa: %{link}'
       team_dump_button: Pakua data za ulingo wa kazi
-      decompress_text: "%{type} itapakua kama iliyogandamizwa, faili ya msimbo fiche.
-        Kuioandoa kwenye gandamizo, tafadhali tumia nenosiri %{password}."
-      expire_note: Tafadhali zingatia kuwa kiungo hiki kitaisha muda ndani ya siku
-        %{days}.
+      decompress_text: '%{type} itapakua kama iliyogandamizwa, faili ya msimbo fiche. Kuioandoa kwenye gandamizo, tafadhali tumia nenosiri %{password}.'
+      expire_note: Tafadhali zingatia kuwa kiungo hiki kitaisha muda ndani ya siku %{days}.
       team_import_subject: Uagizaji wako wa data  umekamilika
       team_import_title: Uagizaji data
-      team_import_text: "<p>Data zako za kazi zilizoagizwa hadi %{app_name} zimekamilika.
-        Unaweza kuangalia %{worksheet_url} kuhakiki hali ya kila kitu kitakachoagizwa.</p>
-        <p>Zingatia ya kuwa unaweza kuanzisha tena uagizaji baada ya kurekebisha hitilafu
-        zinazoripotiwa pale - vitu vilivyoagizwa awali havitarudiwa.</p>"
+      team_import_text: "<p>Data zako za kazi zilizoagizwa hadi %{app_name} zimekamilika. Unaweza kuangalia %{worksheet_url} kuhakiki hali ya kila kitu kitakachoagizwa.</p> <p>Zingatia ya kuwa unaweza kuanzisha tena uagizaji baada ya kurekebisha hitilafu zinazoripotiwa pale - vitu vilivyoagizwa awali havitarudiwa.</p>"
     task_resolved:
       subject: "[%{team} - %{project}] Tazi Imejibiwa"
       header_title: Kazi imejibiwa
@@ -412,17 +376,13 @@ sw:
       rejected_subject: Ombi lako la kujiunga na %{team} halikukubaliwa
       approved_subject: Karibu kwa ulingo wa kazi %{team}
       request_title: 'Omba kujiunga na ulingo wa %{team} '
-      request_text: "%{name} (%{email}) anataka kujiiunga na ulingo wa kazi %{team}
-        kwa %{app_name}. Unaweza kuchakata ombi hili kwa kutembelea %{url}."
+      request_text: "%{name} (%{email}) anataka kujiiunga na ulingo wa kazi %{team} kwa %{app_name}. Unaweza kuchakata ombi hili kwa kutembelea %{url}."
       approved_title: Karibu kwa ulingo wa kazi %{team}
-      approved_text: 'Ombi lako la kijiunga na ulingo wa kazi %{team} kwa %{app_name}
-        lilikubaliwa. Unaweza kwenda kwa %{url} na uanze kuchangia. '
+      approved_text: 'Ombi lako la kijiunga na ulingo wa kazi %{team} kwa %{app_name} lilikubaliwa. Unaweza kwenda kwa %{url} na uanze kuchangia. '
       rejected_title: Ombi limekataliwa
-      rejected_text: Samahani, ombi lako la kujiunga na ulingo wa kazi %{team} kwa
-        %{app_name} halikukubaliwa.
+      rejected_text: Samahani, ombi lako la kujiunga na ulingo wa kazi %{team} kwa %{app_name} halikukubaliwa.
   mail_security:
-    device_subject: 'Tahadhari ya usalama: Uingiaji mpya kwa %{app_name} kutoka kwa
-      %{browser} kwa %{platform}'
+    device_subject: 'Tahadhari ya usalama: Uingiaji mpya kwa %{app_name} kutoka kwa %{browser} kwa %{platform}'
     ip_subject: 'Tahadhari ya usalama: Uingiaji mpya au usio wa kawaida %{app_name}'
     failed_subject: 'Tahadhari ya usalama: Majaribio yaliyofeli ya kuingia kwa %{app_name}'
     ip: Umeingia kutoka %{location}
@@ -430,13 +390,9 @@ sw:
     devise_name: "%{browser} kwa %{platform}"
     failed: Majaribio ya kuingia yaliyofeli yamegunduliwa
     password_text: Badilisha nenosiri lako mara moja.
-    device_text: Inaonekana kana kwamba uliingia kwa akaunti yako ya %{app_name} kutoka
-      kwa kifaa kipya. Iwapo sio wewe, unapaswa %{change_password}
-    ip_text: Inaonekana kana kwamba uliingia kwa akaunti yako %{app_name} kutoka eneo
-      jipya. Iwapo sio wewe, unapaswa %{change_password}
-    failed_text: Inaonekana kana kwamba majaribio mengi ya kuingia kwa akaunti yako
-      ya %{app_name} yalifanywa. Iwapo ni wewe, basi puuza barua pepe hii. Iwapo sio
-      wewe, basi unapaswa %{change_password}
+    device_text: Inaonekana kana kwamba uliingia kwa akaunti yako ya %{app_name} kutoka kwa kifaa kipya. Iwapo sio wewe, unapaswa %{change_password}
+    ip_text: Inaonekana kana kwamba uliingia kwa akaunti yako %{app_name} kutoka eneo jipya. Iwapo sio wewe, unapaswa %{change_password}
+    failed_text: Inaonekana kana kwamba majaribio mengi ya kuingia kwa akaunti yako ya %{app_name} yalifanywa. Iwapo ni wewe, basi puuza barua pepe hii. Iwapo sio wewe, basi unapaswa %{change_password}
     time_h: Saa
     device_h: KIfaa
     location_h: Eneo
@@ -450,61 +406,46 @@ sw:
   archive_keep_backup: Video ya maelezo
   archive_pender_archive: Kielezo skrini
   archive_archive_org: Archive.org
-  workflow_status_is_not_valid: 'Hali batili: ''%{status}'' (inapaswa kuwa moja ya
-    %{valid})'
+  workflow_status_is_not_valid: 'Hali batili: ''%{status}'' (inapaswa kuwa moja ya %{valid})'
   workflow_status_permission_error: Samahani, hauruhusiwi kubadilisha hali hii.
-  blank_default_status_for_custom_verification_status: Tafadhali toa nambari msingi
-    kwa uhakiki kaida wa hali.
-  blank_active_status_for_custom_verification_status: Tafadhali toa nambari hai kwa
-    uhakiki kaida wa hali.
-  bot_name_exists_for_this_team: Tayari kuna boti yenye jina lililotolewa kwenye ulingo
-    huu wa kazi
+  blank_default_status_for_custom_verification_status: Tafadhali toa nambari msingi kwa uhakiki kaida wa hali.
+  blank_active_status_for_custom_verification_status: Tafadhali toa nambari hai kwa uhakiki kaida wa hali.
+  bot_name_exists_for_this_team: Tayari kuna boti yenye jina lililotolewa kwenye ulingo huu wa kazi
   bot_team_id_doesnt_exist: 'Samahani, hakuna ulingo wa kazi wenye utambulisho uliotolewa. '
-  bot_team_id_mandatory_to_create: Samahani, unahitaji kuchagua ulingo wa kazi ili
-    uweze kuunda boti.
-  bot_not_approved_for_installation: Samahani, boti hii haukuweza kukubaliwa kwa hivyo
-    haiwezi kusakinishwa
-  could_not_save_related_bot_data: Samahani, boti haikuweza kuongezwa kwenye ulingo
-    huu wa kazi
-  bot_cant_add_response_to_task: Samahani, boti haiwezi kujibu kazi moja kwa moja-tafadhali
-    tuma pendekezo la jibu badala yake.
+  bot_team_id_mandatory_to_create: Samahani, unahitaji kuchagua ulingo wa kazi ili uweze kuunda boti.
+  bot_not_approved_for_installation: Samahani, boti hii haukuweza kukubaliwa kwa hivyo haiwezi kusakinishwa
+  could_not_save_related_bot_data: Samahani, boti haikuweza kuongezwa kwenye ulingo huu wa kazi
+  bot_cant_add_response_to_task: Samahani, boti haiwezi kujibu kazi moja kwa moja-tafadhali tuma pendekezo la jibu badala yake.
   bot_cant_add_review_to_task: Samahani, boti haiwezi kuhakiki kazi
-  task_suggestion_invalid_value: Pendekezo batili la kazi. Inatarajia kitu cha JSON
-    kilicho na sifa `pendekezo` (thamani halisi inayonakiliwa kwa jibu la kazi wakati
-    inapokubaliwa) na `maoni` (yanayoonyeshwa kwa watumiaji).
+  task_suggestion_invalid_value: Pendekezo batili la kazi. Inatarajia kitu cha JSON kilicho na sifa `pendekezo` (thamani halisi inayonakiliwa kwa jibu la kazi wakati inapokubaliwa) na `maoni` (yanayoonyeshwa kwa watumiaji).
   tag_text_id_not_found: Tagi haipatikani
   annotation_type_language_label: Lugha
   smooch_bot_message_confirmed: |-
-    Asante. Ombi lako limeongezwa kwenye foleni yetu ya uthibitishaji.
+      Asante. Ombi lako limeongezwa kwenye foleni yetu ya uthibitishaji.
 
-    Tutajaribu kukutumia ripoti ndani ya masaa 24, lakini tafadhali zingatia kuwa hatuwezi kujibu kila ombi.
-  smooch_bot_message_unconfirmed: Kwa vile haukujibu na 1, hatutaweza kulishughulikia
-    ombi lako. Asante.
+      Tutajaribu kukutumia ripoti ndani ya masaa 24, lakini tafadhali zingatia kuwa hatuwezi kujibu kila ombi.
+  smooch_bot_message_unconfirmed: Kwa vile haukujibu na 1, hatutaweza kulishughulikia ombi lako. Asante.
   smooch_bot_message_type_unsupported: Samahani, hatuhimili aina ya ujumbe huu.
-  smooch_bot_message_size_unsupported: Samahani, hatuhimili faili zenye ukubwa zaidi
-    ya %{max_size}.
+  smooch_bot_message_size_unsupported: Samahani, hatuhimili faili zenye ukubwa zaidi ya %{max_size}.
   smooch_bot_result: |-
-    [Ripoti ya uthibitisho] Kitu ulichoshirilki nasi kimealamishwa *%{status}*.
+      [Ripoti ya uthibitisho] Kitu ulichoshirilki nasi kimealamishwa *%{status}*.
 
-    Hizi ndizo hatua tulizochukua kuamua hili: %{url}
+      Hizi ndizo hatua tulizochukua kuamua hili: %{url}
   smooch_bot_ask_for_confirmation: |-
-    Asante sana kwa kutuma ombi hili. Ungetaka tuthibitishe maudhui yake?
+      Asante sana kwa kutuma ombi hili. Ungetaka tuthibitishe maudhui yake?
 
-    Kukubali, *tafadhali jibu na 1*. Jibu lingine lolote litasitisha mazungumzo yetu.
+      Kukubali, *tafadhali jibu na 1*. Jibu lingine lolote litasitisha mazungumzo yetu.
   smooch_bot_ask_for_tos: |-
-    Asante kwa kutufikia kupitia Check Message!
+      Asante kwa kutufikia kupitia Check Message!
 
-    Unaweza kutumia huduma kuomba uthibitishaji, kutathmini ukweli, na kuchunguza habari au taarifa. Check Message inatolewa kwako chini ya Masharti haya ya Huduma: %{tos}. Kwa kuendelea kutumia huduma hiii, *unakubaliana na masharti haya*. Unapaswa kusitisha kuendelea kutumia Check Message iwapo haukubaliani nayo.
-  smooch_bot_window_closing: Kimo cha maombi kwenye mkondo huu kipo juu, na bado hatujaweza
-    kulisuluhisha ombi lako. Asante kwa uvumilivu wako.
+      Unaweza kutumia huduma kuomba uthibitishaji, kutathmini ukweli, na kuchunguza habari au taarifa. Check Message inatolewa kwako chini ya Masharti haya ya Huduma: %{tos}. Kwa kuendelea kutumia huduma hiii, *unakubaliana na masharti haya*. Unapaswa kusitisha kuendelea kutumia Check Message iwapo haukubaliani nayo.
+  smooch_bot_window_closing: Kimo cha maombi kwenye mkondo huu kipo juu, na bado hatujaweza kulisuluhisha ombi lako. Asante kwa uvumilivu wako.
   smooch_bot_not_final: |-
-    [Ripoti ya uthibitisho- MAREKEBISHO] Ujumbe ulioshiriki ulialamishwa kimakosa kama *%{status}*.
+      [Ripoti ya uthibitisho- MAREKEBISHO] Ujumbe ulioshiriki ulialamishwa kimakosa kama *%{status}*.
 
-    Bado upo kwenye foleni kwa uthibitishaji zaidi.
-  smooch_bot_disabled: Asante sana kwa kutuma ujumbe huu. Hatuwezi kutuma ripoti ya
-    kuthibitisha, kwa sababu mradi huu umesitisha shughuli.
-  smooch_bot_result_changed: "❗️Tathmini ukweli tuliyokutumia *imesasishwa* na maelezo
-    mapya"
+      Bado upo kwenye foleni kwa uthibitishaji zaidi.
+  smooch_bot_disabled: Asante sana kwa kutuma ujumbe huu. Hatuwezi kutuma ripoti ya kuthibitisha, kwa sababu mradi huu umesitisha shughuli.
+  smooch_bot_result_changed: "❗️Tathmini ukweli tuliyokutumia *imesasishwa* na maelezo mapya"
   permissions_info:
     permissions:
       sections:
@@ -542,13 +483,9 @@ sw:
   team_import:
     invalid_google_spreadsheet_url: KISARA batili cha lahajedwali %{spreadsheet_url}
     not_found_google_spreadsheet_url: Lahajedwali haijapatikana kwa %{spreadsheet_url}
-    cannot_authenticate_with_the_credentials: Haiwezi kuhalisisha Google Drive na
-      hati tambulishi zilizopo. Tafadhali wasiliana na timu ya msaadai kuwajulisha
-      kuhusu tukio hili.
-    team_not_present: Ulingo wa sasa wa kazi haukuweza kupatikana wakati wa uagizaji
-      data. Tafadhali ijulishe timu ya msaada kuhusu tukio hili.
-    user_not_present: Mtumiaji wa sasa hakuweza kupatikana wakati wa uagizaji data.
-      Tafadhali ijulishe timu ya msaada kuhusu tukio hili.
+    cannot_authenticate_with_the_credentials: Haiwezi kuhalisisha Google Drive na hati tambulishi zilizopo. Tafadhali wasiliana na timu ya msaadai kuwajulisha kuhusu tukio hili.
+    team_not_present: Ulingo wa sasa wa kazi haukuweza kupatikana wakati wa uagizaji data. Tafadhali ijulishe timu ya msaada kuhusu tukio hili.
+    user_not_present: Mtumiaji wa sasa hakuweza kupatikana wakati wa uagizaji data. Tafadhali ijulishe timu ya msaada kuhusu tukio hili.
     user_not_authorized: Samahani, hauruhusiwi kuleta data kwenye ulingo huu wa kazi.
     invalid_user: Mwandishi batili %{user}
     invalid_status: Hali batili %{status}
@@ -556,8 +493,7 @@ sw:
     blank_annotator: 'Uga batili tupu wa ufafanuzi '
     invalid_annotator: Mfafanuzi batili %{user}
     invalid_assignee: Mpangiwaji batili %{user}
-  cant_mutate_inactive_object: Samahani, kuna shughuli inayosubiri kwa kipengele hiki,
-    kwa hivyo hauwezi kukibadili sasa. Tafadhali Jaribu tena baadaye.
+  cant_mutate_inactive_object: Samahani, kuna shughuli inayosubiri kwa kipengele hiki, kwa hivyo hauwezi kukibadili sasa. Tafadhali Jaribu tena baadaye.
   embed_expand_all: Tanua zote
   embed_collapse_all: Kunja zote
   embed_tasks: Kazi
@@ -576,8 +512,7 @@ sw:
   team_rule_conditions: Iwapo
   team_rule_condition: Iwapo
   team_rule_condition_definition: Chagua hali
-  team_rule_has_less_than_x_words: Ombi la maandishi lina chini ya (au haswa) idadi
-    ifuatayo ya maneno
+  team_rule_has_less_than_x_words: Ombi la maandishi lina chini ya (au haswa) idadi ifuatayo ya maneno
   team_rule_title_matches_regexp: Kichwa cha kipengee kinawiana na usemi huu wa kawaida
   team_rule_request_matches_regexp: Ombi linawiana na usemi huu wa kawaida
   team_rule_type_is: Aina ya kipengee ni
@@ -599,8 +534,7 @@ sw:
   team_rule_actions: Basi
   team_rule_action: Basi
   team_rule_action_definition: Chagua hatua
-  team_rule_ban_submitter: Mpige marufuku mtumaji (jumbe zao za siku za usoni hazitaonekana
-    katika Check)
+  team_rule_ban_submitter: Mpige marufuku mtumaji (jumbe zao za siku za usoni hazitaonekana katika Check)
   team_rule_all_items: Vitu vyote
   team_rule_send_message_to_user: Tuma ujumbe kwa mtumiaji
   team_rule_action_value: Andika ujumbe hapa
@@ -622,8 +556,7 @@ sw:
   team_rule_item_user_is: Kitu kiliundwa na
   team_rule_item_is_read: Kitu kimesomwa
   team_rule_field_from_fieldset_tasks_value_is: Kazi ina jibu fulani
-  team_rule_field_from_fieldset_tasks_value_contains_keyword: Jibu la kazi lina neno
-    kuu
+  team_rule_field_from_fieldset_tasks_value_contains_keyword: Jibu la kazi lina neno kuu
   team_rule_select_field_value_metadata: Chagua thamani
   team_rule_select_field_tasks: Chagua kazi
   team_rule_select_field_value_tasks: Chagua jibu
@@ -638,27 +571,18 @@ sw:
   flag_likelihood_0: Isiyojulikana
   flag_likelihood_2: Haiwezekani
   flag_likelihood_4: Uwezekano
-  relationship_not_same_team: Vitu vinavyohusiana lazima viwe kwenye ulingo mmoja
-    wa kazi
-  bulk_operation_limit_error: Samahani, kiwango cha juu cha vitu vitakavyochakatwa
-    mara moja ni %{limit}
-  must_provide_fallback_when_deleting_status_in_use: Hali hii inatumika, kwa hivyo
-    itakulazimu kutoa hali ya kurejelea iwapo unataka kuifuta.
-  embed_no_content_yet: Ripoti inatolewa. Mchakato huu unaweza kuchukua dakika chache.
-    Tafadhali pakia tena ukurasa huu.
+  relationship_not_same_team: Vitu vinavyohusiana lazima viwe kwenye ulingo mmoja wa kazi
+  bulk_operation_limit_error: Samahani, kiwango cha juu cha vitu vitakavyochakatwa mara moja ni %{limit}
+  must_provide_fallback_when_deleting_status_in_use: Hali hii inatumika, kwa hivyo itakulazimu kutoa hali ya kurejelea iwapo unataka kuifuta.
+  embed_no_content_yet: Ripoti inatolewa. Mchakato huu unaweza kuchukua dakika chache. Tafadhali pakia tena ukurasa huu.
   language_format_invalid: Muundo batili wa lugha. Inatarajia nambari ya ISO 639-1.
-  languages_format_invalid: Muundo batili wa lugha. Inatarajia orodha ya nambari za
-    ISO 639-1.
-  cant_change_status_if_item_is_published: Samahani, hauwezi kubadilisha hali wakati
-    ripoti inachapishwa.
+  languages_format_invalid: Muundo batili wa lugha. Inatarajia orodha ya nambari za ISO 639-1.
+  cant_change_status_if_item_is_published: Samahani, hauwezi kubadilisha hali wakati ripoti inachapishwa.
   fetch_bot_service_unsupported: Huduma haihimiliwi
   task_options_must_be_array: Chaguo za kazi lazima ziwe zenye orodha
-  fieldset_not_defined_by_team: Mpangilio wa uga unapaswa kuhimiliwa na ulingo wa
-    kazi
-  replace_by_media_in_the_same_team: Samahani, unaweza tu kubadilisha kipengee hiki
-    na kipengee kingine kutoka kwenye ulingo mmoja wa kazi
-  replace_blank_media_only: Samahani, ila kwa sasa unaweza tu kubadilisha vitu vilivyo
-    tupu
+  fieldset_not_defined_by_team: Mpangilio wa uga unapaswa kuhimiliwa na ulingo wa kazi
+  replace_by_media_in_the_same_team: Samahani, unaweza tu kubadilisha kipengee hiki na kipengee kingine kutoka kwenye ulingo mmoja wa kazi
+  replace_blank_media_only: Samahani, ila kwa sasa unaweza tu kubadilisha vitu vilivyo tupu
   cant_preview_rss_feed: Samahani, huna ruhusa ya kukagua mlisho wa RSS.
   list_column_demand: Maombi
   list_column_share_count: Shiriki za FB

@@ -575,10 +575,10 @@ class Team < ApplicationRecord
   end
 
   def data_report
-    monthly_statisitcs = MonthlyTeamStatistic.where(team_id: self.id).order('start_date ASC')
-    if monthly_statisitcs.present?
+    monthly_statistics = MonthlyTeamStatistic.where(team_id: self.id).order('start_date ASC')
+    if monthly_statistics.present?
       index = 1
-      monthly_statisitcs.map do |stat|
+      monthly_statistics.map do |stat|
         hash = stat.formatted_hash
         hash['Org'] = self.name
         hash['Month'] = "#{index}. #{hash['Month']}"

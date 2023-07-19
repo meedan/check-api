@@ -4,12 +4,17 @@ module SmoochCapi
   extend ActiveSupport::Concern
 
   module ClassMethods
+    def should_ignore_capi_request?(request)
+      event = request.params.dig('entry', 0, 'changes', 0, 'value', 'statuses', 0, 'status').to_s
+      ['read', 'sent'].include?(event)
+    end
+
     def valid_capi_request?(request)
       valid = false
       if request.params['hub.mode'] == 'subscribe'
         valid = self.verified_capi_installation?(request.params['hub.verify_token'])
       elsif !request.params['token'].blank?
-        valid = self.get_installation do |i|
+        valid = self.get_installation('whatsapp_business_account_id', request.params.dig('entry', 0, 'id')) do |i|
           settings = i.settings.with_indifferent_access
           request.params['token'] == settings['capi_verify_token'] && request.params.dig('entry', 0, 'id') == settings['capi_whatsapp_business_account_id'] && !settings['capi_whatsapp_business_account_id'].blank?
         end.present?
@@ -37,7 +42,11 @@ module SmoochCapi
     end
 
     def get_capi_message_text(message)
-      message.dig('text', 'body') || message.dig('interactive', 'list_reply', 'title') || message.dig('interactive', 'button_reply', 'title') || message.dig(message['type'], 'caption') || ''
+      begin
+        message.dig('text', 'body') || message.dig('interactive', 'list_reply', 'title') || message.dig('interactive', 'button_reply', 'title') || message.dig(message['type'], 'caption') || ''
+      rescue
+        ''
+      end
     end
 
     def store_capi_media(media_id, mime_type)

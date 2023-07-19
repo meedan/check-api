@@ -148,7 +148,7 @@ module SmoochSearch
         return [] if text.blank?
         words = text.split(/\s+/)
         Rails.logger.info "[Smooch Bot] Search query (text): #{text}"
-        if words.size <= self.max_number_of_words_for_keyword_search
+        if Bot::Alegre.get_number_of_words(text) <= self.max_number_of_words_for_keyword_search
           results = self.search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id, language)
         else
           alegre_results = Bot::Alegre.get_merged_similar_items(pm, [{ value: self.get_text_similarity_threshold }], Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text, team_ids)

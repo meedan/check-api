@@ -23,9 +23,10 @@ class MonthlyTeamStatistic < ApplicationRecord
     unique_users_who_received_report: 'Unique users who received a report',
     formatted_median_response_time: 'Average (median) response time', # model method
     unique_newsletters_sent: 'Unique newsletters sent',
+    newsletters_delivered: 'Total newsletter received',
     new_newsletter_subscriptions: 'New newsletter subscriptions',
     newsletter_cancellations: 'Newsletter cancellations',
-    current_subscribers: 'Current subscribers',
+    current_subscribers: 'Current subscribers'
   }.freeze
 
   def formatted_hash
