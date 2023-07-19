@@ -7,7 +7,7 @@ class TiplineMessage < ApplicationRecord
   validates_presence_of :team, :uid, :platform, :language, :direction, :sent_at, :payload
 
   class << self
-    def from_smooch_payload(msg, payload, event = nil)
+    def from_smooch_payload(msg, payload, event = nil, language = nil)
       msg = msg.with_indifferent_access
       payload = payload.with_indifferent_access
 
@@ -18,7 +18,7 @@ class TiplineMessage < ApplicationRecord
         external_id: msg['_id'],
         team: team,
         event: event,
-        language: Bot::Smooch.get_user_language(uid),
+        language: language || Bot::Smooch.get_user_language(uid),
         payload: payload
       }
 
