@@ -421,7 +421,7 @@ module SmoochMessages
         message = parent.team.get_status_message_for_language(status, data['language'])
         unless message.blank?
           response = self.send_message_to_user(data['authorId'], message)
-          self.save_smooch_response(response, parent, data['received'].to_i, 'fact_check_status', data['language'], { message: message })
+          self.save_smooch_response(response, parent, data['received'].to_i, 'fact_check_status', data['language'] || 'en', { message: message })
           requestors_count += 1
         end
       end

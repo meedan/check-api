@@ -928,7 +928,7 @@ class Bot::Smooch < BotUser
         last_smooch_response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url })
         Rails.logger.info "[Smooch Bot] Sent report visual card to user #{uid} for item with ID #{pm.id}, response was: #{last_smooch_response.to_json}"
       end
-      self.save_smooch_response(last_smooch_response, parent, data['received'], fallback_template, lang)
+      self.save_smooch_response(last_smooch_response, parent, data['received'], fallback_template, lang || 'en')
     end
   end
 
@@ -941,7 +941,7 @@ class Bot::Smooch < BotUser
     (RequestStore.store[:smooch_bot_provider] == 'TURN' || RequestStore.store[:smooch_bot_provider] == 'CAPI') ? response_body&.dig('messages', 0, 'id') : response&.body&.message&.id
   end
 
-  def self.save_smooch_response(response, pm, query_date, fallback_template = nil, lang = 'en', custom = {}, expire = nil)
+  def self.save_smooch_response(response, pm, query_date, fallback_template = nil, lang = nil, custom = {}, expire = nil)
     return false if response.nil? || fallback_template.nil?
     id = self.get_id_from_send_response(response)
     unless id.blank?
