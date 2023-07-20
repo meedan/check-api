@@ -7,7 +7,7 @@ module ClaimDescriptionMutations
 
     included do
       argument :description, GraphQL::Types::String, required: false
-      argument :context, GraphQL::Types::String, required: false
+      argument :context, GraphQL::Types::String, required: false, as: :claim_context
     end
   end
 
