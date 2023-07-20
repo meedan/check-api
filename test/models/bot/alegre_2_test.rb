@@ -539,6 +539,8 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     # All together - 10 words as below
     # '韓国語で'=>3, 'おいしい'=>1, 'は'=>1, '맛있는'=>1, 'です'=>1, 'Test'=>1, 'string'=>1
     assert_equal 9, Bot::Alegre.get_number_of_words('韓国語で「おいしい」は「맛있는」です。Test string!😊')
+    # Test for nil string
+    assert_equal 0, Bot::Alegre.get_number_of_words(nil)
   end
 
   test "should be able to request deletion from index for a media given specific field" do
