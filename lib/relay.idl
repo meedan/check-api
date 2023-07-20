@@ -11542,12 +11542,14 @@ type Team implements Node {
     Returns the first _n_ elements from the list.
     """
     first: Int
+    keyword: String
 
     """
     Returns the last _n_ elements from the list.
     """
     last: Int
   ): TagTextConnection
+  tag_texts_count(keyword: String): Int
   team_bot_installation(bot_identifier: String!): TeamBotInstallation
   team_bot_installations(
     """

@@ -245,9 +245,21 @@ class TeamType < DefaultObject
         TeamBotInstallationType.connection_type,
         null: true
 
-  field :tag_texts,
-        TagTextType.connection_type,
-        null: true
+  field :tag_texts, TagTextType.connection_type, null: true do
+    argument :keyword, GraphQL::Types::String, required: false
+  end
+
+  def tag_texts(keyword: nil)
+    object.tag_texts_by_keyword(keyword)
+  end
+
+  field :tag_texts_count, GraphQL::Types::Int, null: true do
+    argument :keyword, GraphQL::Types::String, required: false
+  end
+
+  def tag_texts_count(keyword: nil)
+    object.tag_texts_by_keyword(keyword).count
+  end
 
   field :team_tasks,
         TeamTaskType.connection_type,
