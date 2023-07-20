@@ -194,12 +194,12 @@ class Bot::Alegre < BotUser
 
   def self.get_number_of_words(text)
     # Get the number of space-separated words (Does not work with Chinese/Japanese)
-    space_separted_words = text.nil? ? 0 : text.gsub(/[^\p{L}\s]/u, '').strip.chomp.split(/\s+/).size
+    space_separted_words = text.to_s.gsub(/[^\p{L}\s]/u, '').strip.chomp.split(/\s+/).size
 
     # This removes URLs
     # Then it splits the text on any non unicode word boundary (works with Chinese, Japanese)
     # We then clean each word and remove any empty ones
-    unicode_words = text.gsub(/https?:\/\/\S+/u, '').scan(/(?u)\w+/).map{|w| w.gsub(/[^\p{L}\s]/u, '').strip.chomp}.reject{|w| w.length==0}
+    unicode_words = text.to_s.gsub(/https?:\/\/\S+/u, '').scan(/(?u)\w+/).map{|w| w.gsub(/[^\p{L}\s]/u, '').strip.chomp}.reject{|w| w.length==0}
     # For each word, we:
     # Get the number of Chinese characters. We'll assume two characters are like one word
     # Get the number of Japanese hiragana/katakana (kana) characters.
