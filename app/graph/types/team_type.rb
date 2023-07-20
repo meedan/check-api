@@ -134,9 +134,19 @@ TeamType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :tag_texts_count, types.Int do
+    argument :keyword, types.String
+
+    resolve ->(team, args, _ctx) {
+      team.tag_texts_by_keyword(args['keyword']).count
+    }
+  end
+
   connection :tag_texts, -> { TagTextType.connection_type } do
-    resolve ->(team, _args, _ctx) {
-      team.tag_texts
+    argument :keyword, types.String
+
+    resolve ->(team, args, _ctx) {
+      team.tag_texts_by_keyword(args['keyword'])
     }
   end
 

@@ -574,6 +574,10 @@ class Team < ApplicationRecord
     sources
   end
 
+  def tag_texts_by_keyword(keyword = nil)
+    keyword.blank? ? self.tag_texts : self.tag_texts.where('text ILIKE ?', "%#{keyword}%")
+  end
+
   def data_report
     monthly_statistics = MonthlyTeamStatistic.where(team_id: self.id).order('start_date ASC')
     if monthly_statistics.present?
