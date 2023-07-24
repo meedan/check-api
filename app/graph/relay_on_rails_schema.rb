@@ -6,7 +6,10 @@ class RelayOnRailsSchema < GraphQL::Schema
 
   use GraphQL::Batch
 
-  connections.add(ActiveRecord::Relation, PermissionedConnection)
+  # These become default in graphql ruby 1.12+
+  use GraphQL::Execution::Interpreter
+  use GraphQL::Analysis::AST
+  use GraphQL::Execution::Errors
 
   lazy_resolve(Concurrent::Future, :value)
 
