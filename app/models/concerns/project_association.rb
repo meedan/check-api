@@ -77,10 +77,6 @@ module ProjectAssociation
       (self.is_a?(ProjectMedia) && include_related) ? self.related_items_ids : [self.id]
     end
 
-    def get_versions_log_count
-      self.reload.cached_annotations_count
-    end
-
     def add_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
       options = { pm_id: self.id }
