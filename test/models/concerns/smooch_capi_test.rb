@@ -214,4 +214,8 @@ class SmoochCapiTest < ActiveSupport::TestCase
     request = OpenStruct.new(params: { 'token' => '654321', 'entry' => [{ 'id' => '654321' }] })
     assert !Bot::Smooch.valid_capi_request?(request)
   end
+
+  test 'should return empty string if Cloud API payload is not supported' do
+    assert_equal '', Bot::Smooch.get_capi_message_text(nil)
+  end
 end
