@@ -1,6 +1,8 @@
 class BotUser < User
   include CheckPusher
 
+  class ExternalBotRequestError < StandardError; end
+
   EVENTS = ['create_project_media', 'update_project_media', 'create_source', 'update_source', 'update_annotation_own', 'publish_report',
             'save_annotation', 'save_claim_description', 'save_fact_check']
   custom_annotation_types = begin DynamicAnnotation::AnnotationType.all.map(&:annotation_type) rescue [] end
@@ -174,7 +176,13 @@ class BotUser < User
         http.use_ssl = true if self.get_request_url =~ /^https:/
         request = Net::HTTP::Post.new(uri.request_uri, headers)
         request.body = data.to_json
-        response = http.request(request)
+        response = nil
+        begin
+          response = http.request(request)
+        rescue StandardError => e
+          CheckSentry.notify(ExternalBotRequestError.new('Could not send request to external bot'), { error: e, bot_id: self.id })
+          return nil
+        end
         # Log data with team_id only to avoid Encoding::CompatibilityError
         logged_data = data.dup
         logged_data.delete(:team)
