@@ -385,7 +385,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     assert_equal Bot::Alegre.get_tbi_indexing_models(tbi), Bot::Alegre.default_model
   end
 
-  test "should return singular model for indexing" do
+  test "should return singular model for matching" do
     p = create_project
     tbi = TeamBotInstallation.new
     tbi.set_text_similarity_enabled = false
@@ -396,7 +396,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     assert_equal Bot::Alegre.get_tbi_matching_models(tbi), "xlm-r-bert-base-nli-stsb-mean-tokens"
   end
 
-  test "should return multiple models for indexing" do
+  test "should return multiple models for matching" do
     p = create_project
     tbi = TeamBotInstallation.new
     tbi.set_text_similarity_enabled = false
@@ -407,7 +407,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     assert_equal Bot::Alegre.get_tbi_matching_models(tbi), ["xlm-r-bert-base-nli-stsb-mean-tokens", "gooby"]
   end
 
-  test "should return default model for indexing" do
+  test "should return default model for matching" do
     p = create_project
     tbi = TeamBotInstallation.new
     tbi.set_text_similarity_enabled = false
