@@ -159,8 +159,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   instance_exec :project_media, &GraphqlCrudOperations.field_log
 
-  instance_exec :project_media, &GraphqlCrudOperations.field_log_count
-
   connection :tags, -> { TagType.connection_type } do
     resolve ->(project_media, _args, _ctx) {
       project_media.get_annotations('tag').map(&:load)
