@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_07_19_171626) do
+ActiveRecord::Schema.define(version: 2023_07_24_172658) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -443,7 +443,6 @@ ActiveRecord::Schema.define(version: 2023_07_19_171626) do
     t.boolean "read", default: false, null: false
     t.integer "sources_count", default: 0, null: false
     t.integer "archived", default: 0
-    t.integer "cached_annotations_count", default: 0
     t.integer "targets_count", default: 0, null: false
     t.integer "last_seen"
     t.datetime "created_at", null: false

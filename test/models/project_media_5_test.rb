@@ -664,13 +664,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
           "create_dynamic", "create_dynamicannotationfield", "create_projectmedia",
           "create_projectmedia", "create_tag", "update_dynamicannotationfield"
         ].sort, pm.get_versions_log.map(&:event_type).sort
-        assert_equal 5, pm.get_versions_log_count
-        c.destroy
-        assert_equal 5, pm.get_versions_log_count
-        tg.destroy
-        assert_equal 6, pm.get_versions_log_count
-        f.destroy
-        assert_equal 6, pm.get_versions_log_count
       end
     end
   end
