@@ -12,6 +12,7 @@ class Bot::Alegre < BotUser
   INDIAN_MODEL = 'indian-sbert'
   FILIPINO_MODEL = 'paraphrase-filipino-mpnet-base-v2'
   OPENAI_ADA_MODEL = 'openai-text-embedding-ada-002'
+  ALL_VECTOR_MODELS = [MEAN_TOKENS_MODEL, INDIAN_MODEL, FILIPINO_MODEL, OPENAI_ADA_MODEL]
   ELASTICSEARCH_MODEL = 'elasticsearch'
   DEFAULT_ES_SCORE = 10
 
@@ -273,23 +274,35 @@ class Bot::Alegre < BotUser
     end
   end
 
+  def self.get_matching_key_value(pm, media_type, similarity_method, automatic, model_name)
+    similarity_level = automatic ? 'matching' : 'suggestion'
+    generic_key = "#{media_type}_#{similarity_method}_#{similarity_level}_threshold"
+    specific_key = "#{media_type}_#{similarity_method}_#{model_name}_#{similarity_level}_threshold"
+    tbi = self.get_alegre_tbi(pm&.team_id)
+    settings = tbi.alegre_settings unless tbi.nil?
+    outkey = ""
+    [specific_key, generic_key].each do |key|
+      next if !outkey.blank?
+      value = settings.blank? ? CheckConfig.get(key) : settings[key]
+      if value
+        outkey = key
+      end
+    end
+    return [outkey, value]
+  end
+
   def self.get_threshold_for_query(media_type, pm, automatic = false)
     similarity_methods = media_type == 'text' ? ['elasticsearch'] : ['hash']
     models = similarity_methods.dup
-    similarity_level = automatic ? 'matching' : 'suggestion'
-    setting_type = 'threshold'
     if media_type == 'text' && !pm.nil?
-      model = self.matching_model_to_use(pm.team_id)
-      if model != Bot::Alegre::ELASTICSEARCH_MODEL
+      models_to_use = self.matching_model_to_use(pm.team_id).to_a.flatten-[Bot::Alegre::ELASTICSEARCH_MODEL]
+      models_to_use.each do |model|
         similarity_methods << 'vector'
         models << model
       end
     end
     similarity_methods.zip(models).collect do |similarity_method, model_name|
-      key = "#{media_type}_#{similarity_method}_#{similarity_level}_#{setting_type}"
-      tbi = self.get_alegre_tbi(pm&.team_id)
-      settings = tbi.alegre_settings unless tbi.nil?
-      value = settings.blank? ? CheckConfig.get(key) : settings[key]
+      key, value = self.get_matching_key_value(pm, media_type, similarity_method, automatic, model_name)
       { value: value.to_f, key: key, automatic: automatic, model: model_name}
     end
   end
@@ -418,9 +431,13 @@ class Bot::Alegre < BotUser
     !tbi.nil?
   end
 
-  def self.indexing_model_to_use(pm)
+  def self.get_tbi_indexing_models(tbi)
+    tbi.get_alegre_models_in_use || tbi.get_alegre_model_in_use || self.default_model
+  end
+
+  def self.indexing_models_to_use(pm)
     tbi = self.get_alegre_tbi(pm&.team_id)
-    tbi.nil? ? self.default_model : tbi.get_alegre_model_in_use || self.default_model
+    [tbi.nil? ? self.default_model : self.get_tbi_indexing_models].flatten
   end
 
   def self.language_for_similarity(team_id)
@@ -429,13 +446,18 @@ class Bot::Alegre < BotUser
     tbi.nil? ? nil : tbi.get_language_for_similarity
   end
 
+  def self.get_tbi_matching_models(tbi)
+    tbi.get_text_similarity_models || tbi.get_text_similarity_model || self.default_matching_model
+  end
+
   def self.matching_model_to_use(team_ids)
     models = []
     [team_ids].flatten.each do |team_id|
       tbi = self.get_alegre_tbi(team_id)
-      model = (tbi.nil? ? self.default_matching_model : tbi.get_text_similarity_model || self.default_matching_model)
+      model = (tbi.nil? ? self.default_matching_model : self.get_tbi_matching_models(tbi))
       models << model unless models.include?(model)
     end
+    models = models.flatten
     models.size == 1 ? models[0] : models
   end
 
