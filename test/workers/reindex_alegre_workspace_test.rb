@@ -60,7 +60,6 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
     package = {
       :doc_id=>Bot::Alegre.item_doc_id(@pm, "title"),
       :text=>"Some text",
-      :model=>"elasticsearch",
       :context=>{
         :team_id=>@pm.team_id,
         :project_media_id=>@pm.id,
@@ -95,7 +94,6 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
     package = {
       :doc_id=>Bot::Alegre.item_doc_id(@pm, "title"),
       :text=>"Some text",
-      :model=>"elasticsearch",
       :context=>{
         :team_id=>@pm.team_id,
         :project_media_id=>@pm.id,

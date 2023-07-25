@@ -50,7 +50,7 @@ class ReindexAlegreWorkspace
       field,
       field_value,
       Bot::Alegre.item_doc_id(pm, field)
-    ).merge(models: models)
+    )
   end
 
   def get_request_docs_for_project_media(pm, models)
@@ -59,7 +59,6 @@ class ReindexAlegreWorkspace
       field_value = pm.send(field)
       if !field_value.to_s.empty?
         request_doc = get_request_doc(pm, field, field_value, models)
-        request_doc.delete(:model) # TODO: why are we deleting the model element? because deprecated?
         yield request_doc
       end
     end
