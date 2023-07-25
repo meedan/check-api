@@ -1,4 +1,5 @@
 module PenderData
+  class PenderRequestError < StandardError; end
 
   attr_accessor :pender_error, :pender_error_code, :pender_key
 
@@ -13,7 +14,7 @@ module PenderData
         result = PenderClient::Request.get_medias(CheckConfig.get('pender_url_private'), params, pender_key)
       rescue StandardError => e
         Rails.logger.error("[Pender] Exception for URL #{self.url}: #{e.message}")
-        CheckSentry.notify(e, params: params)
+        CheckSentry.notify(PenderRequestError.new('Could not parse URL using Pender'), params: params, error: e)
       end
       if result['type'] == 'error'
         self.pender_error = true
