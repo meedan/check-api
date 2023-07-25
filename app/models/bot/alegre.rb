@@ -438,7 +438,7 @@ class Bot::Alegre < BotUser
 
   def self.indexing_models_to_use(pm)
     tbi = self.get_alegre_tbi(pm&.team_id)
-    [tbi.nil? ? self.default_model : self.get_tbi_indexing_models].flatten
+    [tbi.nil? ? self.default_model : self.get_tbi_indexing_models(tbi)].flatten
   end
 
   def self.language_for_similarity(team_id)
