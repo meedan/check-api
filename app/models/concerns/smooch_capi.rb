@@ -141,10 +141,12 @@ module SmoochCapi
           capi: json
         }.with_indifferent_access
 
-      # User didn't receive message because 24 hours have passed since the last message from the user
+      # User didn't receive message (for example, because 24 hours have passed since the last message from the user)
       elsif json.dig('entry', 0, 'changes', 0, 'value', 'statuses', 0, 'status') == 'failed'
         status = json.dig('entry', 0, 'changes', 0, 'value', 'statuses', 0)
         error_code = status.dig('errors', 0, 'code')
+        error_message = status.dig('errors', 0, 'message')
+        error_title = status.dig('errors', 0, 'title')
         {
           trigger: 'message:delivery:failure',
           app: {
@@ -154,8 +156,10 @@ module SmoochCapi
             type: 'whatsapp'
           },
           error: {
+            code: error_code,
+            message: error_message,
             underlyingError: {
-              errors: [{ code: error_code }]
+              errors: [{ code: error_code, title: error_title }]
             }
           },
           version: 'v1.1',
@@ -167,6 +171,7 @@ module SmoochCapi
             '_id': "#{self.config['capi_phone_number']}:#{status['recipient_id'] || status.dig('message', 'recipient_id')}",
             'conversationStarted': true
           },
+          isFinalEvent: true,
           timestamp: status['timestamp'].to_i,
           capi: json
         }.with_indifferent_access

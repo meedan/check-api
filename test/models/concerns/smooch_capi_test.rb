@@ -218,4 +218,43 @@ class SmoochCapiTest < ActiveSupport::TestCase
   test 'should return empty string if Cloud API payload is not supported' do
     assert_equal '', Bot::Smooch.get_capi_message_text(nil)
   end
+
+  test 'should report failed statuses to Sentry' do
+    message = {
+      object: 'whatsapp_business_account',
+      entry: [
+        {
+          id: '987654',
+          changes: [
+            {
+              value: {
+                messaging_product: 'whatsapp',
+                metadata: {
+                  display_phone_number: '123456',
+                  phone_number_id: '012345'
+                },
+                statuses: [
+                  {
+                    id: 'wamid.123456',
+                    status: 'failed',
+                    timestamp: Time.now.to_i.to_s,
+                    recipient_id: '654321',
+                    errors: [
+                      {
+                        code: 131026,
+                        title: 'Receiver is incapable of receiving this message'
+                      }
+                    ]
+                  }
+                ]
+              },
+              field: 'messages'
+            }
+          ]
+        }
+      ]
+    }.to_json
+    CheckSentry.expects(:notify).once
+    assert Bot::Smooch.run(message)
+  end
 end
