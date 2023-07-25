@@ -257,4 +257,17 @@ class SmoochCapiTest < ActiveSupport::TestCase
     CheckSentry.expects(:notify).once
     assert Bot::Smooch.run(message)
   end
+
+  test 'should report to Sentry if payload is not handled' do
+    message = {
+      object: 'whatsapp_business_account',
+      entry: [
+        {
+          foo: 'bar'
+        }
+      ]
+    }.to_json
+    CheckSentry.expects(:notify).once
+    assert !Bot::Smooch.run(message)
+  end
 end

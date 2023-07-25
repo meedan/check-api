@@ -208,6 +208,7 @@ module SmoochCapi
 
       # Fallback to be sure that we at least have a valid payload
       else
+        CheckSentry.notify(CapiUnhandledMessageWarning.new('CAPI unhandled message payload'), payload: json)
         {
           trigger: 'message:other',
           app: {
