@@ -281,6 +281,7 @@ class Bot::Alegre < BotUser
     tbi = self.get_alegre_tbi(pm&.team_id)
     settings = tbi.alegre_settings unless tbi.nil?
     outkey = ""
+    value = nil
     [specific_key, generic_key].each do |key|
       next if !outkey.blank?
       value = settings.blank? ? CheckConfig.get(key) : settings[key]
@@ -295,7 +296,7 @@ class Bot::Alegre < BotUser
     similarity_methods = media_type == 'text' ? ['elasticsearch'] : ['hash']
     models = similarity_methods.dup
     if media_type == 'text' && !pm.nil?
-      models_to_use = self.matching_model_to_use(pm.team_id).to_a.flatten-[Bot::Alegre::ELASTICSEARCH_MODEL]
+      models_to_use = [self.matching_model_to_use(pm.team_id)].flatten-[Bot::Alegre::ELASTICSEARCH_MODEL]
       models_to_use.each do |model|
         similarity_methods << 'vector'
         models << model
