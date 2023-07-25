@@ -389,4 +389,29 @@ class ElasticSearch10Test < ActionController::TestCase
     result = CheckSearch.new({}.to_json, nil, t.id)
     assert_equal [pm_youtube.id, pm_twitter.id, pm_facebook.id, pm_instagram.id, pm_tiktok.id, pm_weblink.id].sort, result.medias.map(&:id).sort
   end
+
+  test "should filter by unmatched" do
+    t = create_team
+    source = create_project_media team: t, quote: 'source', disable_es_callbacks: false
+    target = create_project_media team: t, quote: 'target', disable_es_callbacks: false
+    r = create_relationship source_id: source.id, target_id: target.id, relationship_type: Relationship.confirmed_type
+    r.destroy!
+    sleep 2
+    Team.current = t
+    result = CheckSearch.new({}.to_json)
+    assert_equal 2, result.medias.count
+    # filter by unmatched (hit PG)
+    result = CheckSearch.new({ unmatched: [0, 1] }.to_json)
+    assert_equal [source.id, target.id], result.medias.map(&:id).sort
+    result = CheckSearch.new({ unmatched: [0] }.to_json)
+    assert_equal [source.id], result.medias.map(&:id)
+    result = CheckSearch.new({ unmatched: [1] }.to_json)
+    assert_equal [target.id], result.medias.map(&:id)
+    # filter by unmatched (hit ES)
+    result = CheckSearch.new({ keyword: 'target', unmatched: [1] }.to_json)
+    assert_equal [target.id], result.medias.map(&:id)
+    result = CheckSearch.new({ keyword: 'target', unmatched: [0] }.to_json)
+    assert_empty result.medias.map(&:id)
+    Team.current = nil
+  end
 end

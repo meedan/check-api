@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_07_19_171626) do
+ActiveRecord::Schema.define(version: 2023_07_25_053637) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -448,6 +448,7 @@ ActiveRecord::Schema.define(version: 2023_07_19_171626) do
     t.integer "last_seen"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "unmatched", default: 0
     t.index ["channel"], name: "index_project_medias_on_channel"
     t.index ["cluster_id"], name: "index_project_medias_on_cluster_id"
     t.index ["last_seen"], name: "index_project_medias_on_last_seen"
@@ -455,6 +456,7 @@ ActiveRecord::Schema.define(version: 2023_07_19_171626) do
     t.index ["project_id"], name: "index_project_medias_on_project_id"
     t.index ["source_id"], name: "index_project_medias_on_source_id"
     t.index ["team_id", "archived", "sources_count"], name: "index_project_medias_on_team_id_and_archived_and_sources_count"
+    t.index ["unmatched"], name: "index_project_medias_on_unmatched"
     t.index ["user_id"], name: "index_project_medias_on_user_id"
   end
 

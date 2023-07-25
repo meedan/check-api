@@ -102,6 +102,7 @@ module ProjectAssociation
         'source_id' => obj.source_id,
         'source_name' => obj.source&.name,
         'project_id' => obj.project_id,
+        'unmatched' => obj.unmatched,
         'channel' => obj.channel.values.flatten.map(&:to_i),
         'updated_at' => obj.updated_at.utc
       }

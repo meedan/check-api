@@ -24,8 +24,10 @@ class Relationship < ApplicationRecord
   after_create :point_targets_to_new_source, :update_counters, prepend: true
   after_update :reset_counters, prepend: true
   after_update :propagate_inversion
+  after_save :set_unmatched_field, if: proc { |r| r.is_confirmed? }
   before_destroy :archive_detach_to_list
   after_destroy :update_counters, prepend: true
+  after_destroy :update_unmatched_field, if: proc { |r| r.is_confirmed? }
   after_commit :update_counter_and_elasticsearch, on: [:create, :update]
   after_commit :update_counters, :destroy_elasticsearch_relation, on: :destroy
   after_commit :set_cluster, on: [:create]
@@ -278,6 +280,19 @@ class Relationship < ApplicationRecord
         new_cluster.project_medias << pm unless new_cluster.nil?
       end
     end
+  end
+
+  def set_unmatched_field(action = 'save')
+    target = self.target
+    unless target.nil?
+      target.unmatched = (action == 'destroy').to_i
+      target.skip_check_ability = true
+      target.save!
+    end
+  end
+
+  def update_unmatched_field
+    set_unmatched_field('destroy')
   end
 
   def update_counter_and_elasticsearch
