@@ -427,9 +427,9 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm = create_project_media quote: "Blah", team: @team
     pm.analysis = { title: 'Title 1' }
     pm.save!
-    tbi.settings = {"text_vector_automatic_threshold" => 0.92}
+    tbi.settings = {"text_vector_matching_threshold" => 0.92}
     tbi.save!
-    assert_equal Bot::Alegre.get_matching_key_value(pm, "text", "vector", true, "xlm-r-bert-base-nli-stsb-mean-tokens"), ["text_vector_automatic_threshold", 0.92]
+    assert_equal Bot::Alegre.get_matching_key_value(pm, "text", "vector", true, "xlm-r-bert-base-nli-stsb-mean-tokens"), ["text_vector_matching_threshold", 0.92]
   end
 
   test "should return a specific key/val" do
@@ -441,9 +441,37 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm = create_project_media quote: "Blah", team: @team
     pm.analysis = { title: 'Title 1' }
     pm.save!
-    tbi.settings = {"text_vector_automatic_threshold" => 0.92, "text_vector_automatic_xlm-r-bert-base-nli-stsb-mean-tokens_threshold" => 0.97}
+    tbi.settings = {"text_vector_matching_threshold" => 0.92, "text_vector_matching_xlm-r-bert-base-nli-stsb-mean-tokens_threshold" => 0.97}
     tbi.save!
-    assert_equal Bot::Alegre.get_matching_key_value(pm, "text", "vector", true, "xlm-r-bert-base-nli-stsb-mean-tokens"), ["text_vector_automatic_xlm-r-bert-base-nli-stsb-mean-tokens_threshold", 0.97]
+    assert_equal Bot::Alegre.get_matching_key_value(pm, "text", "vector", true, "xlm-r-bert-base-nli-stsb-mean-tokens"), ["text_vector_matching_xlm-r-bert-base-nli-stsb-mean-tokens_threshold", 0.97]
+  end
+
+  test "should return a generic key/val for suggestion" do
+    p = create_project
+    tbi = TeamBotInstallation.new
+    tbi.set_text_similarity_enabled = false
+    tbi.user = BotUser.alegre_user
+    tbi.team = p.team
+    pm = create_project_media quote: "Blah", team: @team
+    pm.analysis = { title: 'Title 1' }
+    pm.save!
+    tbi.settings = {"text_vector_suggestion_threshold" => 0.92}
+    tbi.save!
+    assert_equal Bot::Alegre.get_matching_key_value(pm, "text", "vector", false, "xlm-r-bert-base-nli-stsb-mean-tokens"), ["text_vector_suggestion_threshold", 0.92]
+  end
+
+  test "should return a specific key/val for suggestion" do
+    p = create_project
+    tbi = TeamBotInstallation.new
+    tbi.set_text_similarity_enabled = false
+    tbi.user = BotUser.alegre_user
+    tbi.team = p.team
+    pm = create_project_media quote: "Blah", team: @team
+    pm.analysis = { title: 'Title 1' }
+    pm.save!
+    tbi.settings = {"text_vector_suggestion_threshold" => 0.92, "text_vector_suggestion_xlm-r-bert-base-nli-stsb-mean-tokens_threshold" => 0.97}
+    tbi.save!
+    assert_equal Bot::Alegre.get_matching_key_value(pm, "text", "vector", false, "xlm-r-bert-base-nli-stsb-mean-tokens"), ["text_vector_suggestion_xlm-r-bert-base-nli-stsb-mean-tokens_threshold", 0.97]
   end
 
   test "should return an alegre indexing model" do
