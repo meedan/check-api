@@ -239,9 +239,8 @@ module SmoochCapi
       req.body = payload.to_json
       response = http.request(req)
       if response.code.to_i >= 400
-        # FIXME: Understand different errors that can be returned from Cloud API and have specific reports
-        # response_body = self.safely_parse_response_body(response)
-        e = Bot::Smooch::CapiMessageDeliveryError.new('Could not send message using WhatsApp Cloud API')
+        error_message = begin JSON.parse(response.body)['error']['message'] rescue response.body end
+        e = Bot::Smooch::CapiMessageDeliveryError.new(error_message)
         CheckSentry.notify(e,
           uid: uid,
           type: payload.dig(:type),
