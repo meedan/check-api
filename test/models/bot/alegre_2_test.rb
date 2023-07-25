@@ -427,8 +427,6 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm = create_project_media quote: "Blah", team: @team
     pm.analysis = { title: 'Title 1' }
     pm.save!
-    generic_key = "#{media_type}_#{similarity_method}_#{similarity_level}_threshold"
-    specific_key = "#{media_type}_#{similarity_method}_#{model_name}_#{similarity_level}_threshold"
     tbi.settings = {"text_vector_automatic_threshold" => 0.92}
     tbi.save!
     assert_equal Bot::Alegre.get_matching_key_value(pm, "text", "vector", true, "xlm-r-bert-base-nli-stsb-mean-tokens"), ["text_vector_automatic_threshold", 0.92]
@@ -443,8 +441,6 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm = create_project_media quote: "Blah", team: @team
     pm.analysis = { title: 'Title 1' }
     pm.save!
-    generic_key = "#{media_type}_#{similarity_method}_#{similarity_level}_threshold"
-    specific_key = "#{media_type}_#{similarity_method}_#{model_name}_#{similarity_level}_threshold"
     tbi.settings = {"text_vector_automatic_threshold" => 0.92, "text_vector_automatic_xlm-r-bert-base-nli-stsb-mean-tokens_threshold" => 0.97}
     tbi.save!
     assert_equal Bot::Alegre.get_matching_key_value(pm, "text", "vector", true, "xlm-r-bert-base-nli-stsb-mean-tokens"), ["text_vector_automatic_xlm-r-bert-base-nli-stsb-mean-tokens_threshold", 0.97]
