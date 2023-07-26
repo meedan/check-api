@@ -483,7 +483,6 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm = create_project_media quote: "Blah", team: p.team
     pm.analysis = { title: 'Title 1' }
     pm.save!
-    get_alegre_models_in_use
     tbi.settings = {"text_similarity_model": "xlm-r-bert-base-nli-stsb-mean-tokens", "alegre_model_in_use": "xlm-r-bert-base-nli-stsb-mean-tokens", "text_vector_matching_threshold" => 0.92, "text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_suggestion_threshold" => 0.97}
     tbi.save!
     assert_equal Bot::Alegre.get_threshold_for_query("text", pm, true), [{:value=>0.9, :key=>"text_elasticsearch_matching_threshold", :automatic=>true, :model=>"elasticsearch"}, {:value=>0.92, :key=>"text_vector_matching_threshold", :automatic=>true, :model=>"xlm-r-bert-base-nli-stsb-mean-tokens"}]
@@ -499,7 +498,6 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm = create_project_media quote: "Blah", team: p.team
     pm.analysis = { title: 'Title 1' }
     pm.save!
-    get_alegre_models_in_use
     tbi.settings = {"text_similarity_models": ["indian-sbert", "xlm-r-bert-base-nli-stsb-mean-tokens"], "alegre_models_in_use": ["indian-sbert", "xlm-r-bert-base-nli-stsb-mean-tokens"], "text_vector_matching_threshold" => 0.92, "text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_suggestion_threshold" => 0.97}
     tbi.save!
     assert_equal Bot::Alegre.get_threshold_for_query("text", pm, true), [{:value=>0.9, :key=>"text_elasticsearch_matching_threshold", :automatic=>true, :model=>"elasticsearch"}, {:value=>0.92, :key=>"text_vector_matching_threshold", :automatic=>true, :model=>"indian-sbert"}, {:value=>0.92, :key=>"text_vector_matching_threshold", :automatic=>true, :model=>"xlm-r-bert-base-nli-stsb-mean-tokens"}]
@@ -515,7 +513,6 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm = create_project_media quote: "Blah", team: p.team
     pm.analysis = { title: 'Title 1' }
     pm.save!
-    get_alegre_models_in_use
     tbi.settings = {"text_similarity_model": "paraphrase-filipino-mpnet-base-v2", "text_similarity_models": ["indian-sbert", "xlm-r-bert-base-nli-stsb-mean-tokens"], "alegre_model_in_use": "paraphrase-filipino-mpnet-base-v2", "alegre_models_in_use": ["indian-sbert", "xlm-r-bert-base-nli-stsb-mean-tokens"], "text_vector_matching_threshold" => 0.92, "text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_suggestion_threshold" => 0.97}
     tbi.save!
     assert_equal Bot::Alegre.get_threshold_for_query("text", pm, true), [{:value=>0.9, :key=>"text_elasticsearch_matching_threshold", :automatic=>true, :model=>"elasticsearch"}, {:value=>0.92, :key=>"text_vector_matching_threshold", :automatic=>true, :model=>"indian-sbert"}, {:value=>0.92, :key=>"text_vector_matching_threshold", :automatic=>true, :model=>"xlm-r-bert-base-nli-stsb-mean-tokens"}]
@@ -523,6 +520,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
   end
 
   test "should return an alegre indexing model" do
+    p = create_project
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media quote: "Blah", team: p.team
