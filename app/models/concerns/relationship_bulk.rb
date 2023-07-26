@@ -146,6 +146,7 @@ module RelationshipBulk
 
       ProjectMedia.where(id: target_ids).find_each do |target|
         target.skip_check_ability = true
+        target.unmatched = 1
         target.sources_count = Relationship.where(target_id: target.id).where('relationship_type = ?', Relationship.confirmed_type.to_yaml).count
         target.save!
       end
@@ -154,7 +155,10 @@ module RelationshipBulk
         index: CheckElasticSearchModel.get_index_alias,
         conflicts: 'proceed',
         body: {
-          script: { source: "ctx._source.updated_at = params.updated_at", params: { updated_at: Time.now.utc } },
+          script: {
+            source: "ctx._source.updated_at = params.updated_at;ctx._source.unmatched = params.unmatched",
+            params: { updated_at: Time.now.utc, unmatched: 1 }
+          },
           query: { terms: { annotated_id: target_ids } }
         }
       }

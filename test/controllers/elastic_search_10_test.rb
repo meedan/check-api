@@ -394,22 +394,25 @@ class ElasticSearch10Test < ActionController::TestCase
     t = create_team
     source = create_project_media team: t, quote: 'source', disable_es_callbacks: false
     target = create_project_media team: t, quote: 'target', disable_es_callbacks: false
+    target2 = create_project_media team: t, quote: 'target two', disable_es_callbacks: false
     r = create_relationship source_id: source.id, target_id: target.id, relationship_type: Relationship.confirmed_type
     r.destroy!
+    r2 = create_relationship source_id: source.id, target_id: target2.id, relationship_type: Relationship.suggested_type
+    r2.destroy!
     sleep 2
     Team.current = t
     result = CheckSearch.new({}.to_json)
-    assert_equal 2, result.medias.count
+    assert_equal 3, result.medias.count
     # filter by unmatched (hit PG)
     result = CheckSearch.new({ unmatched: [0, 1] }.to_json)
-    assert_equal [source.id, target.id], result.medias.map(&:id).sort
+    assert_equal [source.id, target.id, target2.id], result.medias.map(&:id).sort
     result = CheckSearch.new({ unmatched: [0] }.to_json)
     assert_equal [source.id], result.medias.map(&:id)
     result = CheckSearch.new({ unmatched: [1] }.to_json)
-    assert_equal [target.id], result.medias.map(&:id)
+    assert_equal [target.id, target2.id], result.medias.map(&:id).sort
     # filter by unmatched (hit ES)
     result = CheckSearch.new({ keyword: 'target', unmatched: [1] }.to_json)
-    assert_equal [target.id], result.medias.map(&:id)
+    assert_equal [target.id, target2.id], result.medias.map(&:id).sort
     result = CheckSearch.new({ keyword: 'target', unmatched: [0] }.to_json)
     assert_empty result.medias.map(&:id)
     Team.current = nil

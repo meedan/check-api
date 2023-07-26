@@ -24,10 +24,10 @@ class Relationship < ApplicationRecord
   after_create :point_targets_to_new_source, :update_counters, prepend: true
   after_update :reset_counters, prepend: true
   after_update :propagate_inversion
-  after_save :set_unmatched_field, if: proc { |r| r.is_confirmed? }
+  after_save :turn_off_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
   before_destroy :archive_detach_to_list
   after_destroy :update_counters, prepend: true
-  after_destroy :update_unmatched_field, if: proc { |r| r.is_confirmed? }
+  after_destroy :turn_on_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
   after_commit :update_counter_and_elasticsearch, on: [:create, :update]
   after_commit :update_counters, :destroy_elasticsearch_relation, on: :destroy
   after_commit :set_cluster, on: [:create]
@@ -176,6 +176,15 @@ class Relationship < ApplicationRecord
     end
   end
 
+  def set_unmatched_field(value)
+    target = self.target
+    unless target.nil?
+      target.unmatched = value
+      target.skip_check_ability = true
+      target.save!
+    end
+  end
+
   private
 
   def relationship_type_is_valid
@@ -281,17 +290,12 @@ class Relationship < ApplicationRecord
     end
   end
 
-  def set_unmatched_field(action = 'save')
-    target = self.target
-    unless target.nil?
-      target.unmatched = (action == 'destroy').to_i
-      target.skip_check_ability = true
-      target.save!
-    end
+  def turn_off_unmatched_field
+    set_unmatched_field(0)
   end
 
-  def update_unmatched_field
-    set_unmatched_field('destroy')
+  def turn_on_unmatched_field
+    set_unmatched_field(1)
   end
 
   def update_counter_and_elasticsearch
