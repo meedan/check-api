@@ -2,7 +2,7 @@ class Relationship < ApplicationRecord
   include CheckElasticSearch
   include RelationshipBulk
 
-  attr_accessor :is_being_copied, :add_to_project_id, :archive_target
+  attr_accessor :is_being_copied, :archive_target
 
   belongs_to :source, class_name: 'ProjectMedia', optional: true
   belongs_to :target, class_name: 'ProjectMedia', optional: true
@@ -125,9 +125,8 @@ class Relationship < ApplicationRecord
   end
 
   def archive_detach_to_list
-    unless self.add_to_project_id.blank? && self.archive_target.blank?
+    unless self.archive_target.blank?
       pm = self.target
-      pm.project_id = self.add_to_project_id unless self.add_to_project_id.blank?
       pm.archived = self.archive_target if [CheckArchivedFlags::FlagCodes::TRASHED, CheckArchivedFlags::FlagCodes::SPAM].include?(self.archive_target)
       begin pm.save! rescue nil end
     end

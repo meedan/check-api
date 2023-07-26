@@ -40,10 +40,6 @@ module RelationshipBulk
       relationships.find_each{ |r| relationship_target[r.id] = r.target_id}
       relationships.delete_all
       target_ids = relationship_target.values
-      # Move targets to a specific project.
-      unless updates[:add_to_project_id].blank?
-        ProjectMedia.bulk_update(target_ids, { action: 'move_to', params: { move_to: updates[:add_to_project_id] }.to_json }, team)
-      end
       delete_cached_field(pm_source.id, target_ids)
       # Run callbacks in background
       extra_options = {

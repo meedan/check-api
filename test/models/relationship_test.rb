@@ -157,13 +157,10 @@ class RelationshipTest < ActiveSupport::TestCase
         r3 = create_relationship source_id: pm_s.id, target_id: pm_t3.id, relationship_type: Relationship.suggested_type
         relations = [r1, r2]
         ids = relations.map(&:id)
-        updates = { source_id: pm_s.id, add_to_project_id: p2.id }
+        updates = { source_id: pm_s.id }
         assert_difference 'Version.count', 2 do
           Relationship.bulk_destroy(ids, updates, t)
         end
-        assert_equal p2.id, pm_t1.reload.project_id
-        assert_equal p2.id, pm_t2.reload.project_id
-        assert_equal p.id, pm_t3.reload.project_id
         # Verify cached fields
         assert_not pm_t1.is_suggested
         assert_not pm_t1.is_suggested(true)

@@ -272,10 +272,9 @@ class GraphqlController10Test < ActionController::TestCase
     p2 = create_project team: t
     r = create_relationship source_id: pm1.id, target_id: pm2.id
     assert_equal p.id, pm2.project_id
-    query = 'mutation { destroyRelationship(input: { clientMutationId: "1", id: "' + r.graphql_id + '", add_to_project_id: ' + p2.id.to_s + ' }) { deletedId, source_project_media { id }, target_project_media { id } } }'
+    query = 'mutation { destroyRelationship(input: { clientMutationId: "1", id: "' + r.graphql_id + '" }) { deletedId, source_project_media { id }, target_project_media { id } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
-    assert_equal p2.id, pm2.reload.project_id
   end
 
   test "should get version from global id" do
