@@ -212,7 +212,6 @@ class Relationship2Test < ActiveSupport::TestCase
       r = create_relationship relationship_type: Relationship.confirmed_type
       assert_empty r.versions
       so = create_project_media project: p
-      n = so.cached_annotations_count
       ta = create_project_media project: p
       
       with_current_user_and_team(u, t) do
