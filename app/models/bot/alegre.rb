@@ -278,7 +278,7 @@ class Bot::Alegre < BotUser
     similarity_level = automatic ? 'matching' : 'suggestion'
     generic_key = "#{media_type}_#{similarity_method}_#{similarity_level}_threshold"
     specific_key = "#{media_type}_#{similarity_method}_#{model_name}_#{similarity_level}_threshold"
-    tbi = self.get_alegre_tbi(pm&.team_id)
+    tbi = Bot::Alegre.get_alegre_tbi(pm&.team_id)
     settings = tbi.alegre_settings unless tbi.nil?
     outkey = ""
     value = nil

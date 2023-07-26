@@ -61,7 +61,7 @@ class TeamBotInstallation < TeamUser
     settings['similarity_date_threshold'] = self.get_similarity_date_threshold
     settings['language_for_similarity'] = self.get_language_for_similarity
     settings['min_es_score'] = self.get_min_es_score
-    settings
+    settings.merge(self.settings)
   end
 
   def bot_user
