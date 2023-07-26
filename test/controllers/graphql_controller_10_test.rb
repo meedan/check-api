@@ -768,4 +768,19 @@ class GraphqlController10Test < ActionController::TestCase
     assert_not_nil JSON.parse(@response.body)['data']['search']
     assert_nil JSON.parse(@response.body)['errors']
   end
+
+  test "should filter by unmatched" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t
+    pm = create_project_media team: t
+    pm2 = create_project_media team: t, unmatched: 1
+    authenticate_with_user(u)
+
+    query = 'query CheckSearch { search(query: "{\"unmatched\":[1]}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+
+    assert_response :success
+    assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+  end
 end

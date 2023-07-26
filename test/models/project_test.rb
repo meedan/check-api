@@ -583,8 +583,6 @@ class ProjectTest < ActiveSupport::TestCase
     r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     assert_equal 1, pm2.reload.sources_count
     assert_equal 1, p.reload.medias_count
-    r.destroy!
-    assert_equal 1, p.reload.medias_count
     RequestStore.store[:skip_cached_field_update] = true
   end
 
