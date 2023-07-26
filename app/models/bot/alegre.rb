@@ -12,7 +12,6 @@ class Bot::Alegre < BotUser
   INDIAN_MODEL = 'indian-sbert'
   FILIPINO_MODEL = 'paraphrase-filipino-mpnet-base-v2'
   OPENAI_ADA_MODEL = 'openai-text-embedding-ada-002'
-  ALL_VECTOR_MODELS = [MEAN_TOKENS_MODEL, INDIAN_MODEL, FILIPINO_MODEL, OPENAI_ADA_MODEL]
   ELASTICSEARCH_MODEL = 'elasticsearch'
   DEFAULT_ES_SCORE = 10
 
@@ -278,7 +277,7 @@ class Bot::Alegre < BotUser
     similarity_level = automatic ? 'matching' : 'suggestion'
     generic_key = "#{media_type}_#{similarity_method}_#{similarity_level}_threshold"
     specific_key = "#{media_type}_#{similarity_method}_#{model_name}_#{similarity_level}_threshold"
-    tbi = Bot::Alegre.get_alegre_tbi(pm&.team_id)
+    tbi = self.get_alegre_tbi(pm&.team_id)
     settings = tbi.alegre_settings unless tbi.nil?
     outkey = ""
     value = nil
