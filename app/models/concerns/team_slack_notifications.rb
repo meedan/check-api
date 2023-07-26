@@ -3,7 +3,7 @@ require 'active_support/concern'
 module TeamSlackNotifications
   extend ActiveSupport::Concern
 
-  EVENT_TYPES = ['any_activity', 'status_changed', 'item_added']
+  EVENT_TYPES = ['any_activity', 'status_changed']
 
   SLACK_NOTIFICATIONS_JSON_SCHEMA = File.read(File.join(Rails.root, 'public', 'slack_json_schema.json'))
 
@@ -12,10 +12,6 @@ module TeamSlackNotifications
 
     def status_changed(model, values)
       model.is_annotation? && model.annotation_type == 'verification_status' && values.include?(model.status)
-    end
-
-    def item_added(model, values)
-      model.class.name == 'ProjectMedia' && values.map(&:to_i).include?(model.project_id)
     end
   end
 
