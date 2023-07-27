@@ -700,4 +700,49 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       assert_equal 0, Sidekiq::Worker.jobs.size
     end
   end
+
+  test 'should update subscription and not try to reply to user when a payload about number change is received' do
+    @installation.set_capi_whatsapp_business_account_id = '123456'
+    @installation.set_capi_phone_number = '000000'
+    @installation.save!
+    Rails.cache.write('smooch_bot_installation_id:whatsapp_business_account_id:123456', @installation.id)
+    Bot::Smooch.get_installation('whatsapp_business_account_id', '123456')
+    RequestStore.store[:smooch_bot_provider] = 'CAPI'
+
+    Bot::Smooch.expects(:send_message_to_user).never
+
+    ts = create_tipline_subscription team_id: @team.id, uid: '000000:111111'
+    assert_equal '000000:111111', ts.reload.uid
+
+    payload = {
+      object: 'whatsapp_business_account',
+      entry: [{
+        id: '123456',
+        changes: [{
+          value: {
+            messaging_product: 'whatsapp',
+            metadata: {
+              display_phone_number: '000000',
+              phone_number_id: '654321'
+            },
+            messages: [{
+              from: '111111',
+              id: 'wamid.abc123',
+              timestamp: Time.now.to_i.to_s,
+              system: {
+                body: 'User A changed from 111111 to 222222',
+                wa_id: '222222',
+                type: 'user_changed_number'
+              },
+              type: 'system'
+            }
+            ]
+          },
+          field: 'messages'
+        }]
+      }]
+    }
+    assert !Bot::Smooch.run(payload.to_json)
+    assert_equal '000000:222222', ts.reload.uid
+  end
 end

@@ -67,6 +67,17 @@ module SmoochCapi
       CheckS3.public_url(path)
     end
 
+    def handle_capi_system_message(message)
+      if message.dig('system', 'type') == 'user_changed_number'
+        old_uid = "#{self.config['capi_phone_number']}:#{message['from']}"
+        new_uid = "#{self.config['capi_phone_number']}:#{message['system']['wa_id']}"
+        TiplineSubscription.where(uid: old_uid).find_each do |subscription|
+          subscription.uid = new_uid
+          subscription.save!
+        end
+      end
+    end
+
     def preprocess_capi_message(body)
       json = begin JSON.parse(body) rescue {} end
       app_id = self.config['capi_whatsapp_business_account_id']
@@ -89,8 +100,27 @@ module SmoochCapi
       # User sent a message
       elsif json.dig('entry', 0, 'changes', 0, 'value', 'messages')
         value = json.dig('entry', 0, 'changes', 0, 'value')
-        uid = self.get_capi_uid(value)
         message = value.dig('messages', 0)
+
+        # System message
+        if message['type'] == 'system'
+          self.handle_capi_system_message(message)
+          return {
+            trigger: 'message:system',
+            app: {
+              '_id': app_id
+            },
+            version: 'v1.1',
+            messages: [],
+            appUser: {
+              '_id': '',
+              'conversationStarted': true
+            },
+            capi: json
+          }.with_indifferent_access
+        end
+
+        uid = self.get_capi_uid(value)
         messages = [{
           '_id': message['id'],
           authorId: uid,
