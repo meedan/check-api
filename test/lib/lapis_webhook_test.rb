@@ -3,7 +3,9 @@ require_relative '../../lib/lapis_webhook'
 
 class LapisWebhookTest < ActiveSupport::TestCase
   def setup
-    @lw = Lapis::Webhook.new('https://ca.ios.ba/', { foo: 'bar' }.to_json)
+    url = URI.join(random_url, '/webhook/')
+    WebMock.stub_request(:post, url).to_return(status: 200)
+    @lw = Lapis::Webhook.new(url, { foo: 'bar' }.to_json)
     super
   end
 
