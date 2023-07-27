@@ -30,12 +30,6 @@ class ElasticSearch5Test < ActionController::TestCase
     assert_equal [pm1.id].sort, result.medias.map(&:id)
     result = CheckSearch.new({ show_similar: true }.to_json, nil, t.id)
     assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
-    # detach and assign to specific list
-    r.add_to_project_id = p2.id
-    r.destroy
-    sleep 2
-    result = $repository.find(get_es_id(pm2))
-    assert_equal p2.id, result['project_id']
   end
 
   test "should match secondary items but surface the main ones" do
@@ -53,12 +47,6 @@ class ElasticSearch5Test < ActionController::TestCase
     assert_equal [pm1.id], result.medias.map(&:id)
     result = CheckSearch.new({ projects: [p.id], keyword: 'target_media', tags: ['test'] }.to_json, nil, t.id)
     assert_empty result.medias.map(&:id)
-    # detach and assign to specific list
-    r.add_to_project_id = p.id
-    r.destroy
-    sleep 2
-    result = CheckSearch.new({ projects: [p.id] }.to_json, nil, t.id)
-    assert_equal [pm.id, pm1.id, pm2.id], result.medias.map(&:id).sort
   end
 
   test "should reindex data" do

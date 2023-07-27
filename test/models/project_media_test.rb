@@ -371,16 +371,22 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media team: t
     assert !pm.is_suggested
     assert !pm.is_confirmed
+    assert_equal 0, pm.reload.unmatched
     r = create_relationship source_id: main.id, target_id: pm.id, relationship_type: Relationship.suggested_type
     assert pm.is_suggested
     assert !pm.is_confirmed
+    assert_equal 0, pm.reload.unmatched
     r.relationship_type = Relationship.confirmed_type
     r.save!
     assert !pm.is_suggested
     assert pm.is_confirmed
+    assert_equal 0, pm.reload.unmatched
     r.destroy!
     assert !pm.is_suggested
     assert !pm.is_confirmed
+    assert_equal 1, pm.reload.unmatched
+    r = create_relationship source_id: main.id, target_id: pm.id, relationship_type: Relationship.confirmed_type
+    assert_equal 0, pm.reload.unmatched
   end
 
   test "should delete for ever trashed items" do

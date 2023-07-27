@@ -272,10 +272,9 @@ class GraphqlController10Test < ActionController::TestCase
     p2 = create_project team: t
     r = create_relationship source_id: pm1.id, target_id: pm2.id
     assert_equal p.id, pm2.project_id
-    query = 'mutation { destroyRelationship(input: { clientMutationId: "1", id: "' + r.graphql_id + '", add_to_project_id: ' + p2.id.to_s + ' }) { deletedId, source_project_media { id }, target_project_media { id } } }'
+    query = 'mutation { destroyRelationship(input: { clientMutationId: "1", id: "' + r.graphql_id + '" }) { deletedId, source_project_media { id }, target_project_media { id } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
-    assert_equal p2.id, pm2.reload.project_id
   end
 
   test "should get version from global id" do
@@ -768,5 +767,20 @@ class GraphqlController10Test < ActionController::TestCase
     assert_response :success
     assert_not_nil JSON.parse(@response.body)['data']['search']
     assert_nil JSON.parse(@response.body)['errors']
+  end
+
+  test "should filter by unmatched" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t
+    pm = create_project_media team: t
+    pm2 = create_project_media team: t, unmatched: 1
+    authenticate_with_user(u)
+
+    query = 'query CheckSearch { search(query: "{\"unmatched\":[1]}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+
+    assert_response :success
+    assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
   end
 end
