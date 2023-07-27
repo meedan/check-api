@@ -23296,18 +23296,6 @@
               "deprecationReason": null
             },
             {
-              "name": "add_to_project_id",
-              "description": null,
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              },
-              "defaultValue": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
               "name": "archive_target",
               "description": null,
               "type": {
@@ -23442,18 +23430,6 @@
                   "name": "Int",
                   "ofType": null
                 }
-              },
-              "defaultValue": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "add_to_project_id",
-              "description": null,
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
               },
               "defaultValue": null,
               "isDeprecated": false,
@@ -57993,20 +57969,6 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "VersionConnection",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "log_count",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
                 "ofType": null
               },
               "isDeprecated": false,

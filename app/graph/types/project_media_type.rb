@@ -173,16 +173,10 @@ class ProjectMediaType < DefaultObject
     object.get_versions_log(event_types, field_names, annotation_types, who_dunnit, include_related)
   end
 
-  field :log_count, GraphQL::Types::Int, null: true
-
-  def log_count
-    object.get_versions_log_count
-  end
-
   field :tags, TagType.connection_type, null: true
 
   def tags
-    object.get_annotations("tag").map(&:load)
+    object.get_annotations('tag').map(&:load)
   end
 
   field :comments, CommentType.connection_type, null: true

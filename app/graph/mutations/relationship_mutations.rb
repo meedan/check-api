@@ -27,7 +27,6 @@ module RelationshipMutations
   end
 
   class Destroy < Mutations::DestroyMutation
-    argument :add_to_project_id, GraphQL::Types::Int, required: false, camelize: false
     argument :archive_target, GraphQL::Types::Int, required: false, camelize: false
   end
 
@@ -41,7 +40,6 @@ module RelationshipMutations
 
     class Destroy < Mutations::BulkDestroyMutation
       argument :source_id, GraphQL::Types::Int, required: true, camelize: false
-      argument :add_to_project_id, GraphQL::Types::Int, required: false, camelize: false
     end
   end
 end

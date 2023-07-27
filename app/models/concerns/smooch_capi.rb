@@ -67,6 +67,17 @@ module SmoochCapi
       CheckS3.public_url(path)
     end
 
+    def handle_capi_system_message(message)
+      if message.dig('system', 'type') == 'user_changed_number'
+        old_uid = "#{self.config['capi_phone_number']}:#{message['from']}"
+        new_uid = "#{self.config['capi_phone_number']}:#{message['system']['wa_id']}"
+        TiplineSubscription.where(uid: old_uid).find_each do |subscription|
+          subscription.uid = new_uid
+          subscription.save!
+        end
+      end
+    end
+
     def preprocess_capi_message(body)
       json = begin JSON.parse(body) rescue {} end
       app_id = self.config['capi_whatsapp_business_account_id']
@@ -89,8 +100,27 @@ module SmoochCapi
       # User sent a message
       elsif json.dig('entry', 0, 'changes', 0, 'value', 'messages')
         value = json.dig('entry', 0, 'changes', 0, 'value')
-        uid = self.get_capi_uid(value)
         message = value.dig('messages', 0)
+
+        # System message
+        if message['type'] == 'system'
+          self.handle_capi_system_message(message)
+          return {
+            trigger: 'message:system',
+            app: {
+              '_id': app_id
+            },
+            version: 'v1.1',
+            messages: [],
+            appUser: {
+              '_id': '',
+              'conversationStarted': true
+            },
+            capi: json
+          }.with_indifferent_access
+        end
+
+        uid = self.get_capi_uid(value)
         messages = [{
           '_id': message['id'],
           authorId: uid,
@@ -141,10 +171,12 @@ module SmoochCapi
           capi: json
         }.with_indifferent_access
 
-      # User didn't receive message because 24 hours have passed since the last message from the user
+      # User didn't receive message (for example, because 24 hours have passed since the last message from the user)
       elsif json.dig('entry', 0, 'changes', 0, 'value', 'statuses', 0, 'status') == 'failed'
         status = json.dig('entry', 0, 'changes', 0, 'value', 'statuses', 0)
         error_code = status.dig('errors', 0, 'code')
+        error_message = status.dig('errors', 0, 'message')
+        error_title = status.dig('errors', 0, 'title')
         {
           trigger: 'message:delivery:failure',
           app: {
@@ -154,8 +186,10 @@ module SmoochCapi
             type: 'whatsapp'
           },
           error: {
+            code: error_code,
+            message: error_message,
             underlyingError: {
-              errors: [{ code: error_code }]
+              errors: [{ code: error_code, title: error_title }]
             }
           },
           version: 'v1.1',
@@ -167,12 +201,14 @@ module SmoochCapi
             '_id': "#{self.config['capi_phone_number']}:#{status['recipient_id'] || status.dig('message', 'recipient_id')}",
             'conversationStarted': true
           },
+          isFinalEvent: true,
           timestamp: status['timestamp'].to_i,
           capi: json
         }.with_indifferent_access
 
       # Fallback to be sure that we at least have a valid payload
       else
+        CheckSentry.notify(Bot::Smooch::CapiUnhandledMessageWarning.new('CAPI unhandled message payload'), payload: json)
         {
           trigger: 'message:other',
           app: {
@@ -233,9 +269,8 @@ module SmoochCapi
       req.body = payload.to_json
       response = http.request(req)
       if response.code.to_i >= 400
-        # FIXME: Understand different errors that can be returned from Cloud API and have specific reports
-        # response_body = self.safely_parse_response_body(response)
-        e = Bot::Smooch::CapiMessageDeliveryError.new('Could not send message using WhatsApp Cloud API')
+        error_message = begin JSON.parse(response.body)['error']['message'] rescue response.body end
+        e = Bot::Smooch::CapiMessageDeliveryError.new(error_message)
         CheckSentry.notify(e,
           uid: uid,
           type: payload.dig(:type),

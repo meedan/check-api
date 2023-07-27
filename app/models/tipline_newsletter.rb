@@ -164,7 +164,7 @@ class TiplineNewsletter < ApplicationRecord
       file_url = self.header_media_url
       file_type = HEADER_TYPE_MAPPING[self.header_type]
     end
-    introduction = UrlRewriter.shorten_and_utmize_urls(self.introduction, self.team.get_outgoing_urls_utm_code, self)
+    introduction = self.team.get_shorten_outgoing_urls ? UrlRewriter.shorten_and_utmize_urls(self.introduction, self.team.get_outgoing_urls_utm_code, self) : self.introduction
     params = [date, introduction, self.articles].flatten.reject{ |param| param.blank? }
     preview_url = (self.header_type == 'link_preview')
     Bot::Smooch.format_template_message(self.whatsapp_template_name, params, file_url, self.build_content, self.language, file_type, preview_url)

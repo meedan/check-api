@@ -313,6 +313,23 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     end
   end
 
+  test 'should shorten URLs in introduction only if this feature is turned on for the team' do
+    Bot::Smooch.stubs(:config).returns({ 'team_id' => @team.id })
+    @newsletter.content_type = 'static'
+    @newsletter.introduction = 'Go to https://meedan.com and read more.'
+    @newsletter.save! # ID is required for the relationship with the shortened URL
+
+    stub_configs({ 'short_url_host_display' => 'https://chck.media' }) do
+      Team.any_instance.stubs(:get_shorten_outgoing_urls).returns(true)
+      assert_match /body_text.*chck\.media/, @newsletter.format_as_template_message
+      assert_no_match /body_text.*meedan\.com/, @newsletter.format_as_template_message
+
+      Team.any_instance.stubs(:get_shorten_outgoing_urls).returns(false)
+      assert_no_match /body_text.*chck\.media/, @newsletter.format_as_template_message
+      assert_match /body_text.*meedan\.com/, @newsletter.format_as_template_message
+    end
+  end
+
   test 'should format RSS newsletter time as cron' do
     # Offset
     newsletter = TiplineNewsletter.new(

@@ -16,29 +16,10 @@
                 "key": "any_activity",
               },
               {
-                "key": "item_added",
-              },
-              {
                 "key": "status_changed",
               }
             ],
             "allOf": [
-              {
-                "if": {
-                  "properties": { "event_type": { "const": "item_added" } }
-                },
-                "then": {
-                  "properties": { 
-                    "values": { 
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "enum": <%= projects.to_json %>
-                      }
-                    }
-                  }
-                }
-              },
               {
                 "if": {
                   "properties": { "event_type": { "const": "status_changed" } }

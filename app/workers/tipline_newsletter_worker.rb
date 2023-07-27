@@ -35,6 +35,7 @@ class TiplineNewsletterWorker
     count = 0
     log team_id, language, 'Preparing newsletter to be sent...'
     start = Time.now
+    total = 0
     TiplineSubscription.where(language: language, team_id: team_id).find_each do |ts|
       log team_id, language, "Sending newsletter to subscriber ##{ts.id}..."
       begin
@@ -45,7 +46,7 @@ class TiplineNewsletterWorker
 
         if response.code.to_i < 400
           log team_id, language, "Newsletter sent to subscriber ##{ts.id}, response: (#{response.code}) #{response.body.inspect}"
-          Bot::Smooch.save_smooch_response(response, nil, Time.now.to_i, 'newsletter', language, {}, 24.hours)
+          Bot::Smooch.save_smooch_response(response, nil, Time.now.to_i, 'newsletter', language, {}, 1.month)
           count += 1
         else
           log team_id, language, "Could not send newsletter to subscriber ##{ts.id}: (#{response.code}) #{response.body.inspect}"
@@ -53,6 +54,7 @@ class TiplineNewsletterWorker
       rescue StandardError => e
         log team_id, language, "Could not send newsletter to subscriber ##{ts.id} (exception): #{e.message}"
       end
+      total += 1
     end
     finish = Time.now
 
@@ -62,7 +64,7 @@ class TiplineNewsletterWorker
     # Save the last time this newsletter was sent
     newsletter.update_column(:last_sent_at, Time.now)
 
-    log team_id, language, "Newsletter sent to #{count} subscribers"
+    log team_id, language, "All newsletters sent to #{count} subscribers, from a total of #{total}"
 
     # Static newsletter is paused after sent
     newsletter.update_column(:enabled, false) if newsletter.content_type == 'static'
