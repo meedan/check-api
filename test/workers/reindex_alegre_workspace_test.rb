@@ -68,13 +68,13 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
       },
       :models=>["elasticsearch"]
     }
-    response = ReindexAlegreWorkspace.new.get_request_doc(@pm, "title", "Some text", [Bot::Alegre::ELASTICSEARCH_MODEL])
+    response = ReindexAlegreWorkspace.new.get_request_doc(@pm, "title", "Some text")
     assert_equal package, response
   end
 
   test "gets docs from get_request_docs_for_project_media" do
     docs = []
-    ReindexAlegreWorkspace.new.get_request_docs_for_project_media(@pm, [Bot::Alegre::ELASTICSEARCH_MODEL]) do |doc|
+    ReindexAlegreWorkspace.new.get_request_docs_for_project_media(@pm) do |doc|
       docs << doc
     end
     assert_equal false, docs.empty?
