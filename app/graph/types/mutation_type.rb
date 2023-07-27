@@ -107,7 +107,7 @@ class MutationType < BaseObject
   field :updateRelationships, mutation: RelationshipMutations::Bulk::Update
   field :destroyRelationships, mutation: RelationshipMutations::Bulk::Destroy
 
-  DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_type).each do |type|
+  DynamicAnnotation::AnnotationType.pluck(:annotation_type).each do |type|
     DynamicAnnotation::AnnotationTypeManager.generate_mutation_classes_for_annotation_type(type)
 
     klass = type.camelize
