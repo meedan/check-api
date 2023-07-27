@@ -8617,210 +8617,1230 @@ type MoveTeamTaskUpPayload {
 }
 
 type MutationType {
-  addFilesToTask(input: AddFilesToTaskInput!): AddFilesToTaskPayload
-  changePassword(input: ChangePasswordInput!): ChangePasswordPayload
-  createAccountSource(input: CreateAccountSourceInput!): CreateAccountSourcePayload
-  createAnnotation(input: CreateAnnotationInput!): CreateAnnotationPayload
-  createClaimDescription(input: CreateClaimDescriptionInput!): CreateClaimDescriptionPayload
-  createComment(input: CreateCommentInput!): CreateCommentPayload
-  createDynamic(input: CreateDynamicInput!): CreateDynamicPayload
-  createDynamicAnnotationAnalysis(input: CreateDynamicAnnotationAnalysisInput!): CreateDynamicAnnotationAnalysisPayload
-  createDynamicAnnotationArchiver(input: CreateDynamicAnnotationArchiverInput!): CreateDynamicAnnotationArchiverPayload
-  createDynamicAnnotationClip(input: CreateDynamicAnnotationClipInput!): CreateDynamicAnnotationClipPayload
-  createDynamicAnnotationEmbedCode(input: CreateDynamicAnnotationEmbedCodeInput!): CreateDynamicAnnotationEmbedCodePayload
-  createDynamicAnnotationExtractedText(input: CreateDynamicAnnotationExtractedTextInput!): CreateDynamicAnnotationExtractedTextPayload
-  createDynamicAnnotationFlag(input: CreateDynamicAnnotationFlagInput!): CreateDynamicAnnotationFlagPayload
-  createDynamicAnnotationGeolocation(input: CreateDynamicAnnotationGeolocationInput!): CreateDynamicAnnotationGeolocationPayload
-  createDynamicAnnotationLanguage(input: CreateDynamicAnnotationLanguageInput!): CreateDynamicAnnotationLanguagePayload
-  createDynamicAnnotationMemebuster(input: CreateDynamicAnnotationMemebusterInput!): CreateDynamicAnnotationMemebusterPayload
-  createDynamicAnnotationMetadata(input: CreateDynamicAnnotationMetadataInput!): CreateDynamicAnnotationMetadataPayload
-  createDynamicAnnotationMetrics(input: CreateDynamicAnnotationMetricsInput!): CreateDynamicAnnotationMetricsPayload
-  createDynamicAnnotationMt(input: CreateDynamicAnnotationMtInput!): CreateDynamicAnnotationMtPayload
-  createDynamicAnnotationReportDesign(input: CreateDynamicAnnotationReportDesignInput!): CreateDynamicAnnotationReportDesignPayload
-  createDynamicAnnotationReverseImage(input: CreateDynamicAnnotationReverseImageInput!): CreateDynamicAnnotationReverseImagePayload
-  createDynamicAnnotationSlackMessage(input: CreateDynamicAnnotationSlackMessageInput!): CreateDynamicAnnotationSlackMessagePayload
-  createDynamicAnnotationSmooch(input: CreateDynamicAnnotationSmoochInput!): CreateDynamicAnnotationSmoochPayload
-  createDynamicAnnotationSmoochResponse(input: CreateDynamicAnnotationSmoochResponseInput!): CreateDynamicAnnotationSmoochResponsePayload
-  createDynamicAnnotationSmoochUser(input: CreateDynamicAnnotationSmoochUserInput!): CreateDynamicAnnotationSmoochUserPayload
-  createDynamicAnnotationSyrianArchiveData(input: CreateDynamicAnnotationSyrianArchiveDataInput!): CreateDynamicAnnotationSyrianArchiveDataPayload
-  createDynamicAnnotationTaskResponseDatetime(input: CreateDynamicAnnotationTaskResponseDatetimeInput!): CreateDynamicAnnotationTaskResponseDatetimePayload
-  createDynamicAnnotationTaskResponseFileUpload(input: CreateDynamicAnnotationTaskResponseFileUploadInput!): CreateDynamicAnnotationTaskResponseFileUploadPayload
-  createDynamicAnnotationTaskResponseFreeText(input: CreateDynamicAnnotationTaskResponseFreeTextInput!): CreateDynamicAnnotationTaskResponseFreeTextPayload
-  createDynamicAnnotationTaskResponseGeolocation(input: CreateDynamicAnnotationTaskResponseGeolocationInput!): CreateDynamicAnnotationTaskResponseGeolocationPayload
-  createDynamicAnnotationTaskResponseMultipleChoice(input: CreateDynamicAnnotationTaskResponseMultipleChoiceInput!): CreateDynamicAnnotationTaskResponseMultipleChoicePayload
-  createDynamicAnnotationTaskResponseNumber(input: CreateDynamicAnnotationTaskResponseNumberInput!): CreateDynamicAnnotationTaskResponseNumberPayload
-  createDynamicAnnotationTaskResponseSingleChoice(input: CreateDynamicAnnotationTaskResponseSingleChoiceInput!): CreateDynamicAnnotationTaskResponseSingleChoicePayload
-  createDynamicAnnotationTaskResponseUrl(input: CreateDynamicAnnotationTaskResponseUrlInput!): CreateDynamicAnnotationTaskResponseUrlPayload
-  createDynamicAnnotationTaskResponseYesNo(input: CreateDynamicAnnotationTaskResponseYesNoInput!): CreateDynamicAnnotationTaskResponseYesNoPayload
-  createDynamicAnnotationTaskStatus(input: CreateDynamicAnnotationTaskStatusInput!): CreateDynamicAnnotationTaskStatusPayload
-  createDynamicAnnotationTeamBotResponse(input: CreateDynamicAnnotationTeamBotResponseInput!): CreateDynamicAnnotationTeamBotResponsePayload
-  createDynamicAnnotationTranscript(input: CreateDynamicAnnotationTranscriptInput!): CreateDynamicAnnotationTranscriptPayload
-  createDynamicAnnotationTranscription(input: CreateDynamicAnnotationTranscriptionInput!): CreateDynamicAnnotationTranscriptionPayload
-  createDynamicAnnotationTranslation(input: CreateDynamicAnnotationTranslationInput!): CreateDynamicAnnotationTranslationPayload
-  createDynamicAnnotationTranslationRequest(input: CreateDynamicAnnotationTranslationRequestInput!): CreateDynamicAnnotationTranslationRequestPayload
-  createDynamicAnnotationTranslationStatus(input: CreateDynamicAnnotationTranslationStatusInput!): CreateDynamicAnnotationTranslationStatusPayload
-  createDynamicAnnotationVerificationStatus(input: CreateDynamicAnnotationVerificationStatusInput!): CreateDynamicAnnotationVerificationStatusPayload
-  createFactCheck(input: CreateFactCheckInput!): CreateFactCheckPayload
-  createFeed(input: CreateFeedInput!): CreateFeedPayload
-  createProject(input: CreateProjectInput!): CreateProjectPayload
-  createProjectGroup(input: CreateProjectGroupInput!): CreateProjectGroupPayload
-  createProjectMedia(input: CreateProjectMediaInput!): CreateProjectMediaPayload
-  createProjectMediaUser(input: CreateProjectMediaUserInput!): CreateProjectMediaUserPayload
-  createRelationship(input: CreateRelationshipInput!): CreateRelationshipPayload
-  createSavedSearch(input: CreateSavedSearchInput!): CreateSavedSearchPayload
-  createSource(input: CreateSourceInput!): CreateSourcePayload
-  createTag(input: CreateTagInput!): CreateTagPayload
-  createTagText(input: CreateTagTextInput!): CreateTagTextPayload
-  createTags(input: CreateTagsInput!): CreateTagsPayload
-  createTask(input: CreateTaskInput!): CreateTaskPayload
-  createTeam(input: CreateTeamInput!): CreateTeamPayload
-  createTeamBotInstallation(input: CreateTeamBotInstallationInput!): CreateTeamBotInstallationPayload
-  createTeamTask(input: CreateTeamTaskInput!): CreateTeamTaskPayload
-  createTeamUser(input: CreateTeamUserInput!): CreateTeamUserPayload
-  createTiplineNewsletter(input: CreateTiplineNewsletterInput!): CreateTiplineNewsletterPayload
-  createUser(input: CreateUserInput!): CreateUserPayload
-  deleteCheckUser(input: DeleteCheckUserInput!): DeleteCheckUserPayload
-  deleteTeamStatus(input: DeleteTeamStatusInput!): DeleteTeamStatusPayload
-  destroyAccountSource(input: DestroyAccountSourceInput!): DestroyAccountSourcePayload
-  destroyAnnotation(input: DestroyAnnotationInput!): DestroyAnnotationPayload
-  destroyComment(input: DestroyCommentInput!): DestroyCommentPayload
-  destroyDynamic(input: DestroyDynamicInput!): DestroyDynamicPayload
-  destroyDynamicAnnotationAnalysis(input: DestroyDynamicAnnotationAnalysisInput!): DestroyDynamicAnnotationAnalysisPayload
-  destroyDynamicAnnotationArchiver(input: DestroyDynamicAnnotationArchiverInput!): DestroyDynamicAnnotationArchiverPayload
-  destroyDynamicAnnotationClip(input: DestroyDynamicAnnotationClipInput!): DestroyDynamicAnnotationClipPayload
-  destroyDynamicAnnotationEmbedCode(input: DestroyDynamicAnnotationEmbedCodeInput!): DestroyDynamicAnnotationEmbedCodePayload
-  destroyDynamicAnnotationExtractedText(input: DestroyDynamicAnnotationExtractedTextInput!): DestroyDynamicAnnotationExtractedTextPayload
-  destroyDynamicAnnotationFlag(input: DestroyDynamicAnnotationFlagInput!): DestroyDynamicAnnotationFlagPayload
-  destroyDynamicAnnotationGeolocation(input: DestroyDynamicAnnotationGeolocationInput!): DestroyDynamicAnnotationGeolocationPayload
-  destroyDynamicAnnotationLanguage(input: DestroyDynamicAnnotationLanguageInput!): DestroyDynamicAnnotationLanguagePayload
-  destroyDynamicAnnotationMemebuster(input: DestroyDynamicAnnotationMemebusterInput!): DestroyDynamicAnnotationMemebusterPayload
-  destroyDynamicAnnotationMetadata(input: DestroyDynamicAnnotationMetadataInput!): DestroyDynamicAnnotationMetadataPayload
-  destroyDynamicAnnotationMetrics(input: DestroyDynamicAnnotationMetricsInput!): DestroyDynamicAnnotationMetricsPayload
-  destroyDynamicAnnotationMt(input: DestroyDynamicAnnotationMtInput!): DestroyDynamicAnnotationMtPayload
-  destroyDynamicAnnotationReportDesign(input: DestroyDynamicAnnotationReportDesignInput!): DestroyDynamicAnnotationReportDesignPayload
-  destroyDynamicAnnotationReverseImage(input: DestroyDynamicAnnotationReverseImageInput!): DestroyDynamicAnnotationReverseImagePayload
-  destroyDynamicAnnotationSlackMessage(input: DestroyDynamicAnnotationSlackMessageInput!): DestroyDynamicAnnotationSlackMessagePayload
-  destroyDynamicAnnotationSmooch(input: DestroyDynamicAnnotationSmoochInput!): DestroyDynamicAnnotationSmoochPayload
-  destroyDynamicAnnotationSmoochResponse(input: DestroyDynamicAnnotationSmoochResponseInput!): DestroyDynamicAnnotationSmoochResponsePayload
-  destroyDynamicAnnotationSmoochUser(input: DestroyDynamicAnnotationSmoochUserInput!): DestroyDynamicAnnotationSmoochUserPayload
-  destroyDynamicAnnotationSyrianArchiveData(input: DestroyDynamicAnnotationSyrianArchiveDataInput!): DestroyDynamicAnnotationSyrianArchiveDataPayload
-  destroyDynamicAnnotationTaskResponseDatetime(input: DestroyDynamicAnnotationTaskResponseDatetimeInput!): DestroyDynamicAnnotationTaskResponseDatetimePayload
-  destroyDynamicAnnotationTaskResponseFileUpload(input: DestroyDynamicAnnotationTaskResponseFileUploadInput!): DestroyDynamicAnnotationTaskResponseFileUploadPayload
-  destroyDynamicAnnotationTaskResponseFreeText(input: DestroyDynamicAnnotationTaskResponseFreeTextInput!): DestroyDynamicAnnotationTaskResponseFreeTextPayload
-  destroyDynamicAnnotationTaskResponseGeolocation(input: DestroyDynamicAnnotationTaskResponseGeolocationInput!): DestroyDynamicAnnotationTaskResponseGeolocationPayload
-  destroyDynamicAnnotationTaskResponseMultipleChoice(input: DestroyDynamicAnnotationTaskResponseMultipleChoiceInput!): DestroyDynamicAnnotationTaskResponseMultipleChoicePayload
-  destroyDynamicAnnotationTaskResponseNumber(input: DestroyDynamicAnnotationTaskResponseNumberInput!): DestroyDynamicAnnotationTaskResponseNumberPayload
-  destroyDynamicAnnotationTaskResponseSingleChoice(input: DestroyDynamicAnnotationTaskResponseSingleChoiceInput!): DestroyDynamicAnnotationTaskResponseSingleChoicePayload
-  destroyDynamicAnnotationTaskResponseUrl(input: DestroyDynamicAnnotationTaskResponseUrlInput!): DestroyDynamicAnnotationTaskResponseUrlPayload
-  destroyDynamicAnnotationTaskResponseYesNo(input: DestroyDynamicAnnotationTaskResponseYesNoInput!): DestroyDynamicAnnotationTaskResponseYesNoPayload
-  destroyDynamicAnnotationTaskStatus(input: DestroyDynamicAnnotationTaskStatusInput!): DestroyDynamicAnnotationTaskStatusPayload
-  destroyDynamicAnnotationTeamBotResponse(input: DestroyDynamicAnnotationTeamBotResponseInput!): DestroyDynamicAnnotationTeamBotResponsePayload
-  destroyDynamicAnnotationTranscript(input: DestroyDynamicAnnotationTranscriptInput!): DestroyDynamicAnnotationTranscriptPayload
-  destroyDynamicAnnotationTranscription(input: DestroyDynamicAnnotationTranscriptionInput!): DestroyDynamicAnnotationTranscriptionPayload
-  destroyDynamicAnnotationTranslation(input: DestroyDynamicAnnotationTranslationInput!): DestroyDynamicAnnotationTranslationPayload
-  destroyDynamicAnnotationTranslationRequest(input: DestroyDynamicAnnotationTranslationRequestInput!): DestroyDynamicAnnotationTranslationRequestPayload
-  destroyDynamicAnnotationTranslationStatus(input: DestroyDynamicAnnotationTranslationStatusInput!): DestroyDynamicAnnotationTranslationStatusPayload
-  destroyDynamicAnnotationVerificationStatus(input: DestroyDynamicAnnotationVerificationStatusInput!): DestroyDynamicAnnotationVerificationStatusPayload
-  destroyFactCheck(input: DestroyFactCheckInput!): DestroyFactCheckPayload
-  destroyProject(input: DestroyProjectInput!): DestroyProjectPayload
-  destroyProjectGroup(input: DestroyProjectGroupInput!): DestroyProjectGroupPayload
-  destroyProjectMedia(input: DestroyProjectMediaInput!): DestroyProjectMediaPayload
-  destroyProjectMediaUser(input: DestroyProjectMediaUserInput!): DestroyProjectMediaUserPayload
-  destroyRelationship(input: DestroyRelationshipInput!): DestroyRelationshipPayload
-  destroyRelationships(input: DestroyRelationshipsInput!): DestroyRelationshipsPayload
-  destroySavedSearch(input: DestroySavedSearchInput!): DestroySavedSearchPayload
-  destroySource(input: DestroySourceInput!): DestroySourcePayload
-  destroyTag(input: DestroyTagInput!): DestroyTagPayload
-  destroyTagText(input: DestroyTagTextInput!): DestroyTagTextPayload
-  destroyTask(input: DestroyTaskInput!): DestroyTaskPayload
-  destroyTeam(input: DestroyTeamInput!): DestroyTeamPayload
-  destroyTeamBotInstallation(input: DestroyTeamBotInstallationInput!): DestroyTeamBotInstallationPayload
-  destroyTeamTask(input: DestroyTeamTaskInput!): DestroyTeamTaskPayload
-  destroyTeamUser(input: DestroyTeamUserInput!): DestroyTeamUserPayload
-  destroyUser(input: DestroyUserInput!): DestroyUserPayload
-  destroyVersion(input: DestroyVersionInput!): DestroyVersionPayload
-  duplicateTeam(input: DuplicateTeamMutationInput!): DuplicateTeamMutationPayload
-  extractText(input: ExtractTextInput!): ExtractTextPayload
-  generateTwoFactorBackupCodes(input: GenerateTwoFactorBackupCodesInput!): GenerateTwoFactorBackupCodesPayload
-  moveTaskDown(input: MoveTaskDownInput!): MoveTaskDownPayload
-  moveTaskUp(input: MoveTaskUpInput!): MoveTaskUpPayload
-  moveTeamTaskDown(input: MoveTeamTaskDownInput!): MoveTeamTaskDownPayload
-  moveTeamTaskUp(input: MoveTeamTaskUpInput!): MoveTeamTaskUpPayload
-  removeFilesFromTask(input: RemoveFilesFromTaskInput!): RemoveFilesFromTaskPayload
-  replaceProjectMedia(input: ReplaceProjectMediaInput!): ReplaceProjectMediaPayload
-  resendCancelInvitation(input: ResendCancelInvitationInput!): ResendCancelInvitationPayload
-  resendConfirmation(input: ResendConfirmationInput!): ResendConfirmationPayload
-  resetPassword(input: ResetPasswordInput!): ResetPasswordPayload
-  searchUpload(input: SearchUploadInput!): SearchUploadPayload
-  smoochBotAddIntegration(input: SmoochBotAddIntegrationInput!): SmoochBotAddIntegrationPayload
-  smoochBotAddSlackChannelUrl(input: SmoochBotAddSlackChannelUrlInput!): SmoochBotAddSlackChannelUrlPayload
-  smoochBotRemoveIntegration(input: SmoochBotRemoveIntegrationInput!): SmoochBotRemoveIntegrationPayload
-  transcribeAudio(input: TranscribeAudioInput!): TranscribeAudioPayload
-  updateAccount(input: UpdateAccountInput!): UpdateAccountPayload
-  updateAccountSource(input: UpdateAccountSourceInput!): UpdateAccountSourcePayload
-  updateClaimDescription(input: UpdateClaimDescriptionInput!): UpdateClaimDescriptionPayload
-  updateComment(input: UpdateCommentInput!): UpdateCommentPayload
-  updateDynamic(input: UpdateDynamicInput!): UpdateDynamicPayload
-  updateDynamicAnnotationAnalysis(input: UpdateDynamicAnnotationAnalysisInput!): UpdateDynamicAnnotationAnalysisPayload
-  updateDynamicAnnotationArchiver(input: UpdateDynamicAnnotationArchiverInput!): UpdateDynamicAnnotationArchiverPayload
-  updateDynamicAnnotationClip(input: UpdateDynamicAnnotationClipInput!): UpdateDynamicAnnotationClipPayload
-  updateDynamicAnnotationEmbedCode(input: UpdateDynamicAnnotationEmbedCodeInput!): UpdateDynamicAnnotationEmbedCodePayload
-  updateDynamicAnnotationExtractedText(input: UpdateDynamicAnnotationExtractedTextInput!): UpdateDynamicAnnotationExtractedTextPayload
-  updateDynamicAnnotationFlag(input: UpdateDynamicAnnotationFlagInput!): UpdateDynamicAnnotationFlagPayload
-  updateDynamicAnnotationGeolocation(input: UpdateDynamicAnnotationGeolocationInput!): UpdateDynamicAnnotationGeolocationPayload
-  updateDynamicAnnotationLanguage(input: UpdateDynamicAnnotationLanguageInput!): UpdateDynamicAnnotationLanguagePayload
-  updateDynamicAnnotationMemebuster(input: UpdateDynamicAnnotationMemebusterInput!): UpdateDynamicAnnotationMemebusterPayload
-  updateDynamicAnnotationMetadata(input: UpdateDynamicAnnotationMetadataInput!): UpdateDynamicAnnotationMetadataPayload
-  updateDynamicAnnotationMetrics(input: UpdateDynamicAnnotationMetricsInput!): UpdateDynamicAnnotationMetricsPayload
-  updateDynamicAnnotationMt(input: UpdateDynamicAnnotationMtInput!): UpdateDynamicAnnotationMtPayload
-  updateDynamicAnnotationReportDesign(input: UpdateDynamicAnnotationReportDesignInput!): UpdateDynamicAnnotationReportDesignPayload
-  updateDynamicAnnotationReverseImage(input: UpdateDynamicAnnotationReverseImageInput!): UpdateDynamicAnnotationReverseImagePayload
-  updateDynamicAnnotationSlackMessage(input: UpdateDynamicAnnotationSlackMessageInput!): UpdateDynamicAnnotationSlackMessagePayload
-  updateDynamicAnnotationSmooch(input: UpdateDynamicAnnotationSmoochInput!): UpdateDynamicAnnotationSmoochPayload
-  updateDynamicAnnotationSmoochResponse(input: UpdateDynamicAnnotationSmoochResponseInput!): UpdateDynamicAnnotationSmoochResponsePayload
-  updateDynamicAnnotationSmoochUser(input: UpdateDynamicAnnotationSmoochUserInput!): UpdateDynamicAnnotationSmoochUserPayload
-  updateDynamicAnnotationSyrianArchiveData(input: UpdateDynamicAnnotationSyrianArchiveDataInput!): UpdateDynamicAnnotationSyrianArchiveDataPayload
-  updateDynamicAnnotationTaskResponseDatetime(input: UpdateDynamicAnnotationTaskResponseDatetimeInput!): UpdateDynamicAnnotationTaskResponseDatetimePayload
-  updateDynamicAnnotationTaskResponseFileUpload(input: UpdateDynamicAnnotationTaskResponseFileUploadInput!): UpdateDynamicAnnotationTaskResponseFileUploadPayload
-  updateDynamicAnnotationTaskResponseFreeText(input: UpdateDynamicAnnotationTaskResponseFreeTextInput!): UpdateDynamicAnnotationTaskResponseFreeTextPayload
-  updateDynamicAnnotationTaskResponseGeolocation(input: UpdateDynamicAnnotationTaskResponseGeolocationInput!): UpdateDynamicAnnotationTaskResponseGeolocationPayload
-  updateDynamicAnnotationTaskResponseMultipleChoice(input: UpdateDynamicAnnotationTaskResponseMultipleChoiceInput!): UpdateDynamicAnnotationTaskResponseMultipleChoicePayload
-  updateDynamicAnnotationTaskResponseNumber(input: UpdateDynamicAnnotationTaskResponseNumberInput!): UpdateDynamicAnnotationTaskResponseNumberPayload
-  updateDynamicAnnotationTaskResponseSingleChoice(input: UpdateDynamicAnnotationTaskResponseSingleChoiceInput!): UpdateDynamicAnnotationTaskResponseSingleChoicePayload
-  updateDynamicAnnotationTaskResponseUrl(input: UpdateDynamicAnnotationTaskResponseUrlInput!): UpdateDynamicAnnotationTaskResponseUrlPayload
-  updateDynamicAnnotationTaskResponseYesNo(input: UpdateDynamicAnnotationTaskResponseYesNoInput!): UpdateDynamicAnnotationTaskResponseYesNoPayload
-  updateDynamicAnnotationTaskStatus(input: UpdateDynamicAnnotationTaskStatusInput!): UpdateDynamicAnnotationTaskStatusPayload
-  updateDynamicAnnotationTeamBotResponse(input: UpdateDynamicAnnotationTeamBotResponseInput!): UpdateDynamicAnnotationTeamBotResponsePayload
-  updateDynamicAnnotationTranscript(input: UpdateDynamicAnnotationTranscriptInput!): UpdateDynamicAnnotationTranscriptPayload
-  updateDynamicAnnotationTranscription(input: UpdateDynamicAnnotationTranscriptionInput!): UpdateDynamicAnnotationTranscriptionPayload
-  updateDynamicAnnotationTranslation(input: UpdateDynamicAnnotationTranslationInput!): UpdateDynamicAnnotationTranslationPayload
-  updateDynamicAnnotationTranslationRequest(input: UpdateDynamicAnnotationTranslationRequestInput!): UpdateDynamicAnnotationTranslationRequestPayload
-  updateDynamicAnnotationTranslationStatus(input: UpdateDynamicAnnotationTranslationStatusInput!): UpdateDynamicAnnotationTranslationStatusPayload
-  updateDynamicAnnotationVerificationStatus(input: UpdateDynamicAnnotationVerificationStatusInput!): UpdateDynamicAnnotationVerificationStatusPayload
-  updateFactCheck(input: UpdateFactCheckInput!): UpdateFactCheckPayload
-  updateFeed(input: UpdateFeedInput!): UpdateFeedPayload
-  updateFeedTeam(input: UpdateFeedTeamInput!): UpdateFeedTeamPayload
-  updateProject(input: UpdateProjectInput!): UpdateProjectPayload
-  updateProjectGroup(input: UpdateProjectGroupInput!): UpdateProjectGroupPayload
-  updateProjectMedia(input: UpdateProjectMediaInput!): UpdateProjectMediaPayload
-  updateProjectMediaUser(input: UpdateProjectMediaUserInput!): UpdateProjectMediaUserPayload
-  updateProjectMedias(input: UpdateProjectMediasInput!): UpdateProjectMediasPayload
-  updateRelationship(input: UpdateRelationshipInput!): UpdateRelationshipPayload
-  updateRelationships(input: UpdateRelationshipsInput!): UpdateRelationshipsPayload
-  updateSavedSearch(input: UpdateSavedSearchInput!): UpdateSavedSearchPayload
-  updateSource(input: UpdateSourceInput!): UpdateSourcePayload
-  updateTag(input: UpdateTagInput!): UpdateTagPayload
-  updateTagText(input: UpdateTagTextInput!): UpdateTagTextPayload
-  updateTask(input: UpdateTaskInput!): UpdateTaskPayload
-  updateTeam(input: UpdateTeamInput!): UpdateTeamPayload
-  updateTeamBotInstallation(input: UpdateTeamBotInstallationInput!): UpdateTeamBotInstallationPayload
-  updateTeamTask(input: UpdateTeamTaskInput!): UpdateTeamTaskPayload
-  updateTeamUser(input: UpdateTeamUserInput!): UpdateTeamUserPayload
-  updateTiplineNewsletter(input: UpdateTiplineNewsletterInput!): UpdateTiplineNewsletterPayload
-  updateUser(input: UpdateUserInput!): UpdateUserPayload
-  userDisconnectLoginAccount(input: UserDisconnectLoginAccountInput!): UserDisconnectLoginAccountPayload
-  userInvitation(input: UserInvitationInput!): UserInvitationPayload
-  userTwoFactorAuthentication(input: UserTwoFactorAuthenticationInput!): UserTwoFactorAuthenticationPayload
+  addFilesToTask(
+    """
+    Parameters for AddFilesToTask
+    """
+    input: AddFilesToTaskInput!
+  ): AddFilesToTaskPayload
+  changePassword(
+    """
+    Parameters for ChangePassword
+    """
+    input: ChangePasswordInput!
+  ): ChangePasswordPayload
+  createAccountSource(
+    """
+    Parameters for CreateAccountSource
+    """
+    input: CreateAccountSourceInput!
+  ): CreateAccountSourcePayload
+  createAnnotation(
+    """
+    Parameters for CreateAnnotation
+    """
+    input: CreateAnnotationInput!
+  ): CreateAnnotationPayload
+  createClaimDescription(
+    """
+    Parameters for CreateClaimDescription
+    """
+    input: CreateClaimDescriptionInput!
+  ): CreateClaimDescriptionPayload
+  createComment(
+    """
+    Parameters for CreateComment
+    """
+    input: CreateCommentInput!
+  ): CreateCommentPayload
+  createDynamic(
+    """
+    Parameters for CreateDynamic
+    """
+    input: CreateDynamicInput!
+  ): CreateDynamicPayload
+  createDynamicAnnotationAnalysis(
+    """
+    Parameters for CreateDynamicAnnotationAnalysis
+    """
+    input: CreateDynamicAnnotationAnalysisInput!
+  ): CreateDynamicAnnotationAnalysisPayload
+  createDynamicAnnotationArchiver(
+    """
+    Parameters for CreateDynamicAnnotationArchiver
+    """
+    input: CreateDynamicAnnotationArchiverInput!
+  ): CreateDynamicAnnotationArchiverPayload
+  createDynamicAnnotationClip(
+    """
+    Parameters for CreateDynamicAnnotationClip
+    """
+    input: CreateDynamicAnnotationClipInput!
+  ): CreateDynamicAnnotationClipPayload
+  createDynamicAnnotationEmbedCode(
+    """
+    Parameters for CreateDynamicAnnotationEmbedCode
+    """
+    input: CreateDynamicAnnotationEmbedCodeInput!
+  ): CreateDynamicAnnotationEmbedCodePayload
+  createDynamicAnnotationExtractedText(
+    """
+    Parameters for CreateDynamicAnnotationExtractedText
+    """
+    input: CreateDynamicAnnotationExtractedTextInput!
+  ): CreateDynamicAnnotationExtractedTextPayload
+  createDynamicAnnotationFlag(
+    """
+    Parameters for CreateDynamicAnnotationFlag
+    """
+    input: CreateDynamicAnnotationFlagInput!
+  ): CreateDynamicAnnotationFlagPayload
+  createDynamicAnnotationGeolocation(
+    """
+    Parameters for CreateDynamicAnnotationGeolocation
+    """
+    input: CreateDynamicAnnotationGeolocationInput!
+  ): CreateDynamicAnnotationGeolocationPayload
+  createDynamicAnnotationLanguage(
+    """
+    Parameters for CreateDynamicAnnotationLanguage
+    """
+    input: CreateDynamicAnnotationLanguageInput!
+  ): CreateDynamicAnnotationLanguagePayload
+  createDynamicAnnotationMemebuster(
+    """
+    Parameters for CreateDynamicAnnotationMemebuster
+    """
+    input: CreateDynamicAnnotationMemebusterInput!
+  ): CreateDynamicAnnotationMemebusterPayload
+  createDynamicAnnotationMetadata(
+    """
+    Parameters for CreateDynamicAnnotationMetadata
+    """
+    input: CreateDynamicAnnotationMetadataInput!
+  ): CreateDynamicAnnotationMetadataPayload
+  createDynamicAnnotationMetrics(
+    """
+    Parameters for CreateDynamicAnnotationMetrics
+    """
+    input: CreateDynamicAnnotationMetricsInput!
+  ): CreateDynamicAnnotationMetricsPayload
+  createDynamicAnnotationMt(
+    """
+    Parameters for CreateDynamicAnnotationMt
+    """
+    input: CreateDynamicAnnotationMtInput!
+  ): CreateDynamicAnnotationMtPayload
+  createDynamicAnnotationReportDesign(
+    """
+    Parameters for CreateDynamicAnnotationReportDesign
+    """
+    input: CreateDynamicAnnotationReportDesignInput!
+  ): CreateDynamicAnnotationReportDesignPayload
+  createDynamicAnnotationReverseImage(
+    """
+    Parameters for CreateDynamicAnnotationReverseImage
+    """
+    input: CreateDynamicAnnotationReverseImageInput!
+  ): CreateDynamicAnnotationReverseImagePayload
+  createDynamicAnnotationSlackMessage(
+    """
+    Parameters for CreateDynamicAnnotationSlackMessage
+    """
+    input: CreateDynamicAnnotationSlackMessageInput!
+  ): CreateDynamicAnnotationSlackMessagePayload
+  createDynamicAnnotationSmooch(
+    """
+    Parameters for CreateDynamicAnnotationSmooch
+    """
+    input: CreateDynamicAnnotationSmoochInput!
+  ): CreateDynamicAnnotationSmoochPayload
+  createDynamicAnnotationSmoochResponse(
+    """
+    Parameters for CreateDynamicAnnotationSmoochResponse
+    """
+    input: CreateDynamicAnnotationSmoochResponseInput!
+  ): CreateDynamicAnnotationSmoochResponsePayload
+  createDynamicAnnotationSmoochUser(
+    """
+    Parameters for CreateDynamicAnnotationSmoochUser
+    """
+    input: CreateDynamicAnnotationSmoochUserInput!
+  ): CreateDynamicAnnotationSmoochUserPayload
+  createDynamicAnnotationSyrianArchiveData(
+    """
+    Parameters for CreateDynamicAnnotationSyrianArchiveData
+    """
+    input: CreateDynamicAnnotationSyrianArchiveDataInput!
+  ): CreateDynamicAnnotationSyrianArchiveDataPayload
+  createDynamicAnnotationTaskResponseDatetime(
+    """
+    Parameters for CreateDynamicAnnotationTaskResponseDatetime
+    """
+    input: CreateDynamicAnnotationTaskResponseDatetimeInput!
+  ): CreateDynamicAnnotationTaskResponseDatetimePayload
+  createDynamicAnnotationTaskResponseFileUpload(
+    """
+    Parameters for CreateDynamicAnnotationTaskResponseFileUpload
+    """
+    input: CreateDynamicAnnotationTaskResponseFileUploadInput!
+  ): CreateDynamicAnnotationTaskResponseFileUploadPayload
+  createDynamicAnnotationTaskResponseFreeText(
+    """
+    Parameters for CreateDynamicAnnotationTaskResponseFreeText
+    """
+    input: CreateDynamicAnnotationTaskResponseFreeTextInput!
+  ): CreateDynamicAnnotationTaskResponseFreeTextPayload
+  createDynamicAnnotationTaskResponseGeolocation(
+    """
+    Parameters for CreateDynamicAnnotationTaskResponseGeolocation
+    """
+    input: CreateDynamicAnnotationTaskResponseGeolocationInput!
+  ): CreateDynamicAnnotationTaskResponseGeolocationPayload
+  createDynamicAnnotationTaskResponseMultipleChoice(
+    """
+    Parameters for CreateDynamicAnnotationTaskResponseMultipleChoice
+    """
+    input: CreateDynamicAnnotationTaskResponseMultipleChoiceInput!
+  ): CreateDynamicAnnotationTaskResponseMultipleChoicePayload
+  createDynamicAnnotationTaskResponseNumber(
+    """
+    Parameters for CreateDynamicAnnotationTaskResponseNumber
+    """
+    input: CreateDynamicAnnotationTaskResponseNumberInput!
+  ): CreateDynamicAnnotationTaskResponseNumberPayload
+  createDynamicAnnotationTaskResponseSingleChoice(
+    """
+    Parameters for CreateDynamicAnnotationTaskResponseSingleChoice
+    """
+    input: CreateDynamicAnnotationTaskResponseSingleChoiceInput!
+  ): CreateDynamicAnnotationTaskResponseSingleChoicePayload
+  createDynamicAnnotationTaskResponseUrl(
+    """
+    Parameters for CreateDynamicAnnotationTaskResponseUrl
+    """
+    input: CreateDynamicAnnotationTaskResponseUrlInput!
+  ): CreateDynamicAnnotationTaskResponseUrlPayload
+  createDynamicAnnotationTaskResponseYesNo(
+    """
+    Parameters for CreateDynamicAnnotationTaskResponseYesNo
+    """
+    input: CreateDynamicAnnotationTaskResponseYesNoInput!
+  ): CreateDynamicAnnotationTaskResponseYesNoPayload
+  createDynamicAnnotationTaskStatus(
+    """
+    Parameters for CreateDynamicAnnotationTaskStatus
+    """
+    input: CreateDynamicAnnotationTaskStatusInput!
+  ): CreateDynamicAnnotationTaskStatusPayload
+  createDynamicAnnotationTeamBotResponse(
+    """
+    Parameters for CreateDynamicAnnotationTeamBotResponse
+    """
+    input: CreateDynamicAnnotationTeamBotResponseInput!
+  ): CreateDynamicAnnotationTeamBotResponsePayload
+  createDynamicAnnotationTranscript(
+    """
+    Parameters for CreateDynamicAnnotationTranscript
+    """
+    input: CreateDynamicAnnotationTranscriptInput!
+  ): CreateDynamicAnnotationTranscriptPayload
+  createDynamicAnnotationTranscription(
+    """
+    Parameters for CreateDynamicAnnotationTranscription
+    """
+    input: CreateDynamicAnnotationTranscriptionInput!
+  ): CreateDynamicAnnotationTranscriptionPayload
+  createDynamicAnnotationTranslation(
+    """
+    Parameters for CreateDynamicAnnotationTranslation
+    """
+    input: CreateDynamicAnnotationTranslationInput!
+  ): CreateDynamicAnnotationTranslationPayload
+  createDynamicAnnotationTranslationRequest(
+    """
+    Parameters for CreateDynamicAnnotationTranslationRequest
+    """
+    input: CreateDynamicAnnotationTranslationRequestInput!
+  ): CreateDynamicAnnotationTranslationRequestPayload
+  createDynamicAnnotationTranslationStatus(
+    """
+    Parameters for CreateDynamicAnnotationTranslationStatus
+    """
+    input: CreateDynamicAnnotationTranslationStatusInput!
+  ): CreateDynamicAnnotationTranslationStatusPayload
+  createDynamicAnnotationVerificationStatus(
+    """
+    Parameters for CreateDynamicAnnotationVerificationStatus
+    """
+    input: CreateDynamicAnnotationVerificationStatusInput!
+  ): CreateDynamicAnnotationVerificationStatusPayload
+  createFactCheck(
+    """
+    Parameters for CreateFactCheck
+    """
+    input: CreateFactCheckInput!
+  ): CreateFactCheckPayload
+  createFeed(
+    """
+    Parameters for CreateFeed
+    """
+    input: CreateFeedInput!
+  ): CreateFeedPayload
+  createProject(
+    """
+    Parameters for CreateProject
+    """
+    input: CreateProjectInput!
+  ): CreateProjectPayload
+  createProjectGroup(
+    """
+    Parameters for CreateProjectGroup
+    """
+    input: CreateProjectGroupInput!
+  ): CreateProjectGroupPayload
+  createProjectMedia(
+    """
+    Parameters for CreateProjectMedia
+    """
+    input: CreateProjectMediaInput!
+  ): CreateProjectMediaPayload
+  createProjectMediaUser(
+    """
+    Parameters for CreateProjectMediaUser
+    """
+    input: CreateProjectMediaUserInput!
+  ): CreateProjectMediaUserPayload
+  createRelationship(
+    """
+    Parameters for CreateRelationship
+    """
+    input: CreateRelationshipInput!
+  ): CreateRelationshipPayload
+  createSavedSearch(
+    """
+    Parameters for CreateSavedSearch
+    """
+    input: CreateSavedSearchInput!
+  ): CreateSavedSearchPayload
+  createSource(
+    """
+    Parameters for CreateSource
+    """
+    input: CreateSourceInput!
+  ): CreateSourcePayload
+  createTag(
+    """
+    Parameters for CreateTag
+    """
+    input: CreateTagInput!
+  ): CreateTagPayload
+  createTagText(
+    """
+    Parameters for CreateTagText
+    """
+    input: CreateTagTextInput!
+  ): CreateTagTextPayload
+  createTags(
+    """
+    Parameters for CreateTags
+    """
+    input: CreateTagsInput!
+  ): CreateTagsPayload
+  createTask(
+    """
+    Parameters for CreateTask
+    """
+    input: CreateTaskInput!
+  ): CreateTaskPayload
+  createTeam(
+    """
+    Parameters for CreateTeam
+    """
+    input: CreateTeamInput!
+  ): CreateTeamPayload
+  createTeamBotInstallation(
+    """
+    Parameters for CreateTeamBotInstallation
+    """
+    input: CreateTeamBotInstallationInput!
+  ): CreateTeamBotInstallationPayload
+  createTeamTask(
+    """
+    Parameters for CreateTeamTask
+    """
+    input: CreateTeamTaskInput!
+  ): CreateTeamTaskPayload
+  createTeamUser(
+    """
+    Parameters for CreateTeamUser
+    """
+    input: CreateTeamUserInput!
+  ): CreateTeamUserPayload
+  createTiplineNewsletter(
+    """
+    Parameters for CreateTiplineNewsletter
+    """
+    input: CreateTiplineNewsletterInput!
+  ): CreateTiplineNewsletterPayload
+  createUser(
+    """
+    Parameters for CreateUser
+    """
+    input: CreateUserInput!
+  ): CreateUserPayload
+  deleteCheckUser(
+    """
+    Parameters for DeleteCheckUser
+    """
+    input: DeleteCheckUserInput!
+  ): DeleteCheckUserPayload
+  deleteTeamStatus(
+    """
+    Parameters for DeleteTeamStatus
+    """
+    input: DeleteTeamStatusInput!
+  ): DeleteTeamStatusPayload
+  destroyAccountSource(
+    """
+    Parameters for DestroyAccountSource
+    """
+    input: DestroyAccountSourceInput!
+  ): DestroyAccountSourcePayload
+  destroyAnnotation(
+    """
+    Parameters for DestroyAnnotation
+    """
+    input: DestroyAnnotationInput!
+  ): DestroyAnnotationPayload
+  destroyComment(
+    """
+    Parameters for DestroyComment
+    """
+    input: DestroyCommentInput!
+  ): DestroyCommentPayload
+  destroyDynamic(
+    """
+    Parameters for DestroyDynamic
+    """
+    input: DestroyDynamicInput!
+  ): DestroyDynamicPayload
+  destroyDynamicAnnotationAnalysis(
+    """
+    Parameters for DestroyDynamicAnnotationAnalysis
+    """
+    input: DestroyDynamicAnnotationAnalysisInput!
+  ): DestroyDynamicAnnotationAnalysisPayload
+  destroyDynamicAnnotationArchiver(
+    """
+    Parameters for DestroyDynamicAnnotationArchiver
+    """
+    input: DestroyDynamicAnnotationArchiverInput!
+  ): DestroyDynamicAnnotationArchiverPayload
+  destroyDynamicAnnotationClip(
+    """
+    Parameters for DestroyDynamicAnnotationClip
+    """
+    input: DestroyDynamicAnnotationClipInput!
+  ): DestroyDynamicAnnotationClipPayload
+  destroyDynamicAnnotationEmbedCode(
+    """
+    Parameters for DestroyDynamicAnnotationEmbedCode
+    """
+    input: DestroyDynamicAnnotationEmbedCodeInput!
+  ): DestroyDynamicAnnotationEmbedCodePayload
+  destroyDynamicAnnotationExtractedText(
+    """
+    Parameters for DestroyDynamicAnnotationExtractedText
+    """
+    input: DestroyDynamicAnnotationExtractedTextInput!
+  ): DestroyDynamicAnnotationExtractedTextPayload
+  destroyDynamicAnnotationFlag(
+    """
+    Parameters for DestroyDynamicAnnotationFlag
+    """
+    input: DestroyDynamicAnnotationFlagInput!
+  ): DestroyDynamicAnnotationFlagPayload
+  destroyDynamicAnnotationGeolocation(
+    """
+    Parameters for DestroyDynamicAnnotationGeolocation
+    """
+    input: DestroyDynamicAnnotationGeolocationInput!
+  ): DestroyDynamicAnnotationGeolocationPayload
+  destroyDynamicAnnotationLanguage(
+    """
+    Parameters for DestroyDynamicAnnotationLanguage
+    """
+    input: DestroyDynamicAnnotationLanguageInput!
+  ): DestroyDynamicAnnotationLanguagePayload
+  destroyDynamicAnnotationMemebuster(
+    """
+    Parameters for DestroyDynamicAnnotationMemebuster
+    """
+    input: DestroyDynamicAnnotationMemebusterInput!
+  ): DestroyDynamicAnnotationMemebusterPayload
+  destroyDynamicAnnotationMetadata(
+    """
+    Parameters for DestroyDynamicAnnotationMetadata
+    """
+    input: DestroyDynamicAnnotationMetadataInput!
+  ): DestroyDynamicAnnotationMetadataPayload
+  destroyDynamicAnnotationMetrics(
+    """
+    Parameters for DestroyDynamicAnnotationMetrics
+    """
+    input: DestroyDynamicAnnotationMetricsInput!
+  ): DestroyDynamicAnnotationMetricsPayload
+  destroyDynamicAnnotationMt(
+    """
+    Parameters for DestroyDynamicAnnotationMt
+    """
+    input: DestroyDynamicAnnotationMtInput!
+  ): DestroyDynamicAnnotationMtPayload
+  destroyDynamicAnnotationReportDesign(
+    """
+    Parameters for DestroyDynamicAnnotationReportDesign
+    """
+    input: DestroyDynamicAnnotationReportDesignInput!
+  ): DestroyDynamicAnnotationReportDesignPayload
+  destroyDynamicAnnotationReverseImage(
+    """
+    Parameters for DestroyDynamicAnnotationReverseImage
+    """
+    input: DestroyDynamicAnnotationReverseImageInput!
+  ): DestroyDynamicAnnotationReverseImagePayload
+  destroyDynamicAnnotationSlackMessage(
+    """
+    Parameters for DestroyDynamicAnnotationSlackMessage
+    """
+    input: DestroyDynamicAnnotationSlackMessageInput!
+  ): DestroyDynamicAnnotationSlackMessagePayload
+  destroyDynamicAnnotationSmooch(
+    """
+    Parameters for DestroyDynamicAnnotationSmooch
+    """
+    input: DestroyDynamicAnnotationSmoochInput!
+  ): DestroyDynamicAnnotationSmoochPayload
+  destroyDynamicAnnotationSmoochResponse(
+    """
+    Parameters for DestroyDynamicAnnotationSmoochResponse
+    """
+    input: DestroyDynamicAnnotationSmoochResponseInput!
+  ): DestroyDynamicAnnotationSmoochResponsePayload
+  destroyDynamicAnnotationSmoochUser(
+    """
+    Parameters for DestroyDynamicAnnotationSmoochUser
+    """
+    input: DestroyDynamicAnnotationSmoochUserInput!
+  ): DestroyDynamicAnnotationSmoochUserPayload
+  destroyDynamicAnnotationSyrianArchiveData(
+    """
+    Parameters for DestroyDynamicAnnotationSyrianArchiveData
+    """
+    input: DestroyDynamicAnnotationSyrianArchiveDataInput!
+  ): DestroyDynamicAnnotationSyrianArchiveDataPayload
+  destroyDynamicAnnotationTaskResponseDatetime(
+    """
+    Parameters for DestroyDynamicAnnotationTaskResponseDatetime
+    """
+    input: DestroyDynamicAnnotationTaskResponseDatetimeInput!
+  ): DestroyDynamicAnnotationTaskResponseDatetimePayload
+  destroyDynamicAnnotationTaskResponseFileUpload(
+    """
+    Parameters for DestroyDynamicAnnotationTaskResponseFileUpload
+    """
+    input: DestroyDynamicAnnotationTaskResponseFileUploadInput!
+  ): DestroyDynamicAnnotationTaskResponseFileUploadPayload
+  destroyDynamicAnnotationTaskResponseFreeText(
+    """
+    Parameters for DestroyDynamicAnnotationTaskResponseFreeText
+    """
+    input: DestroyDynamicAnnotationTaskResponseFreeTextInput!
+  ): DestroyDynamicAnnotationTaskResponseFreeTextPayload
+  destroyDynamicAnnotationTaskResponseGeolocation(
+    """
+    Parameters for DestroyDynamicAnnotationTaskResponseGeolocation
+    """
+    input: DestroyDynamicAnnotationTaskResponseGeolocationInput!
+  ): DestroyDynamicAnnotationTaskResponseGeolocationPayload
+  destroyDynamicAnnotationTaskResponseMultipleChoice(
+    """
+    Parameters for DestroyDynamicAnnotationTaskResponseMultipleChoice
+    """
+    input: DestroyDynamicAnnotationTaskResponseMultipleChoiceInput!
+  ): DestroyDynamicAnnotationTaskResponseMultipleChoicePayload
+  destroyDynamicAnnotationTaskResponseNumber(
+    """
+    Parameters for DestroyDynamicAnnotationTaskResponseNumber
+    """
+    input: DestroyDynamicAnnotationTaskResponseNumberInput!
+  ): DestroyDynamicAnnotationTaskResponseNumberPayload
+  destroyDynamicAnnotationTaskResponseSingleChoice(
+    """
+    Parameters for DestroyDynamicAnnotationTaskResponseSingleChoice
+    """
+    input: DestroyDynamicAnnotationTaskResponseSingleChoiceInput!
+  ): DestroyDynamicAnnotationTaskResponseSingleChoicePayload
+  destroyDynamicAnnotationTaskResponseUrl(
+    """
+    Parameters for DestroyDynamicAnnotationTaskResponseUrl
+    """
+    input: DestroyDynamicAnnotationTaskResponseUrlInput!
+  ): DestroyDynamicAnnotationTaskResponseUrlPayload
+  destroyDynamicAnnotationTaskResponseYesNo(
+    """
+    Parameters for DestroyDynamicAnnotationTaskResponseYesNo
+    """
+    input: DestroyDynamicAnnotationTaskResponseYesNoInput!
+  ): DestroyDynamicAnnotationTaskResponseYesNoPayload
+  destroyDynamicAnnotationTaskStatus(
+    """
+    Parameters for DestroyDynamicAnnotationTaskStatus
+    """
+    input: DestroyDynamicAnnotationTaskStatusInput!
+  ): DestroyDynamicAnnotationTaskStatusPayload
+  destroyDynamicAnnotationTeamBotResponse(
+    """
+    Parameters for DestroyDynamicAnnotationTeamBotResponse
+    """
+    input: DestroyDynamicAnnotationTeamBotResponseInput!
+  ): DestroyDynamicAnnotationTeamBotResponsePayload
+  destroyDynamicAnnotationTranscript(
+    """
+    Parameters for DestroyDynamicAnnotationTranscript
+    """
+    input: DestroyDynamicAnnotationTranscriptInput!
+  ): DestroyDynamicAnnotationTranscriptPayload
+  destroyDynamicAnnotationTranscription(
+    """
+    Parameters for DestroyDynamicAnnotationTranscription
+    """
+    input: DestroyDynamicAnnotationTranscriptionInput!
+  ): DestroyDynamicAnnotationTranscriptionPayload
+  destroyDynamicAnnotationTranslation(
+    """
+    Parameters for DestroyDynamicAnnotationTranslation
+    """
+    input: DestroyDynamicAnnotationTranslationInput!
+  ): DestroyDynamicAnnotationTranslationPayload
+  destroyDynamicAnnotationTranslationRequest(
+    """
+    Parameters for DestroyDynamicAnnotationTranslationRequest
+    """
+    input: DestroyDynamicAnnotationTranslationRequestInput!
+  ): DestroyDynamicAnnotationTranslationRequestPayload
+  destroyDynamicAnnotationTranslationStatus(
+    """
+    Parameters for DestroyDynamicAnnotationTranslationStatus
+    """
+    input: DestroyDynamicAnnotationTranslationStatusInput!
+  ): DestroyDynamicAnnotationTranslationStatusPayload
+  destroyDynamicAnnotationVerificationStatus(
+    """
+    Parameters for DestroyDynamicAnnotationVerificationStatus
+    """
+    input: DestroyDynamicAnnotationVerificationStatusInput!
+  ): DestroyDynamicAnnotationVerificationStatusPayload
+  destroyFactCheck(
+    """
+    Parameters for DestroyFactCheck
+    """
+    input: DestroyFactCheckInput!
+  ): DestroyFactCheckPayload
+  destroyProject(
+    """
+    Parameters for DestroyProject
+    """
+    input: DestroyProjectInput!
+  ): DestroyProjectPayload
+  destroyProjectGroup(
+    """
+    Parameters for DestroyProjectGroup
+    """
+    input: DestroyProjectGroupInput!
+  ): DestroyProjectGroupPayload
+  destroyProjectMedia(
+    """
+    Parameters for DestroyProjectMedia
+    """
+    input: DestroyProjectMediaInput!
+  ): DestroyProjectMediaPayload
+  destroyProjectMediaUser(
+    """
+    Parameters for DestroyProjectMediaUser
+    """
+    input: DestroyProjectMediaUserInput!
+  ): DestroyProjectMediaUserPayload
+  destroyRelationship(
+    """
+    Parameters for DestroyRelationship
+    """
+    input: DestroyRelationshipInput!
+  ): DestroyRelationshipPayload
+  destroyRelationships(
+    """
+    Parameters for DestroyRelationships
+    """
+    input: DestroyRelationshipsInput!
+  ): DestroyRelationshipsPayload
+  destroySavedSearch(
+    """
+    Parameters for DestroySavedSearch
+    """
+    input: DestroySavedSearchInput!
+  ): DestroySavedSearchPayload
+  destroySource(
+    """
+    Parameters for DestroySource
+    """
+    input: DestroySourceInput!
+  ): DestroySourcePayload
+  destroyTag(
+    """
+    Parameters for DestroyTag
+    """
+    input: DestroyTagInput!
+  ): DestroyTagPayload
+  destroyTagText(
+    """
+    Parameters for DestroyTagText
+    """
+    input: DestroyTagTextInput!
+  ): DestroyTagTextPayload
+  destroyTask(
+    """
+    Parameters for DestroyTask
+    """
+    input: DestroyTaskInput!
+  ): DestroyTaskPayload
+  destroyTeam(
+    """
+    Parameters for DestroyTeam
+    """
+    input: DestroyTeamInput!
+  ): DestroyTeamPayload
+  destroyTeamBotInstallation(
+    """
+    Parameters for DestroyTeamBotInstallation
+    """
+    input: DestroyTeamBotInstallationInput!
+  ): DestroyTeamBotInstallationPayload
+  destroyTeamTask(
+    """
+    Parameters for DestroyTeamTask
+    """
+    input: DestroyTeamTaskInput!
+  ): DestroyTeamTaskPayload
+  destroyTeamUser(
+    """
+    Parameters for DestroyTeamUser
+    """
+    input: DestroyTeamUserInput!
+  ): DestroyTeamUserPayload
+  destroyUser(
+    """
+    Parameters for DestroyUser
+    """
+    input: DestroyUserInput!
+  ): DestroyUserPayload
+  destroyVersion(
+    """
+    Parameters for DestroyVersion
+    """
+    input: DestroyVersionInput!
+  ): DestroyVersionPayload
+  duplicateTeam(
+    """
+    Parameters for DuplicateTeamMutation
+    """
+    input: DuplicateTeamMutationInput!
+  ): DuplicateTeamMutationPayload
+  extractText(
+    """
+    Parameters for ExtractText
+    """
+    input: ExtractTextInput!
+  ): ExtractTextPayload
+  generateTwoFactorBackupCodes(
+    """
+    Parameters for GenerateTwoFactorBackupCodes
+    """
+    input: GenerateTwoFactorBackupCodesInput!
+  ): GenerateTwoFactorBackupCodesPayload
+  moveTaskDown(
+    """
+    Parameters for MoveTaskDown
+    """
+    input: MoveTaskDownInput!
+  ): MoveTaskDownPayload
+  moveTaskUp(
+    """
+    Parameters for MoveTaskUp
+    """
+    input: MoveTaskUpInput!
+  ): MoveTaskUpPayload
+  moveTeamTaskDown(
+    """
+    Parameters for MoveTeamTaskDown
+    """
+    input: MoveTeamTaskDownInput!
+  ): MoveTeamTaskDownPayload
+  moveTeamTaskUp(
+    """
+    Parameters for MoveTeamTaskUp
+    """
+    input: MoveTeamTaskUpInput!
+  ): MoveTeamTaskUpPayload
+  removeFilesFromTask(
+    """
+    Parameters for RemoveFilesFromTask
+    """
+    input: RemoveFilesFromTaskInput!
+  ): RemoveFilesFromTaskPayload
+  replaceProjectMedia(
+    """
+    Parameters for ReplaceProjectMedia
+    """
+    input: ReplaceProjectMediaInput!
+  ): ReplaceProjectMediaPayload
+  resendCancelInvitation(
+    """
+    Parameters for ResendCancelInvitation
+    """
+    input: ResendCancelInvitationInput!
+  ): ResendCancelInvitationPayload
+  resendConfirmation(
+    """
+    Parameters for ResendConfirmation
+    """
+    input: ResendConfirmationInput!
+  ): ResendConfirmationPayload
+  resetPassword(
+    """
+    Parameters for ResetPassword
+    """
+    input: ResetPasswordInput!
+  ): ResetPasswordPayload
+  searchUpload(
+    """
+    Parameters for SearchUpload
+    """
+    input: SearchUploadInput!
+  ): SearchUploadPayload
+  smoochBotAddIntegration(
+    """
+    Parameters for SmoochBotAddIntegration
+    """
+    input: SmoochBotAddIntegrationInput!
+  ): SmoochBotAddIntegrationPayload
+  smoochBotAddSlackChannelUrl(
+    """
+    Parameters for SmoochBotAddSlackChannelUrl
+    """
+    input: SmoochBotAddSlackChannelUrlInput!
+  ): SmoochBotAddSlackChannelUrlPayload
+  smoochBotRemoveIntegration(
+    """
+    Parameters for SmoochBotRemoveIntegration
+    """
+    input: SmoochBotRemoveIntegrationInput!
+  ): SmoochBotRemoveIntegrationPayload
+  transcribeAudio(
+    """
+    Parameters for TranscribeAudio
+    """
+    input: TranscribeAudioInput!
+  ): TranscribeAudioPayload
+  updateAccount(
+    """
+    Parameters for UpdateAccount
+    """
+    input: UpdateAccountInput!
+  ): UpdateAccountPayload
+  updateAccountSource(
+    """
+    Parameters for UpdateAccountSource
+    """
+    input: UpdateAccountSourceInput!
+  ): UpdateAccountSourcePayload
+  updateClaimDescription(
+    """
+    Parameters for UpdateClaimDescription
+    """
+    input: UpdateClaimDescriptionInput!
+  ): UpdateClaimDescriptionPayload
+  updateComment(
+    """
+    Parameters for UpdateComment
+    """
+    input: UpdateCommentInput!
+  ): UpdateCommentPayload
+  updateDynamic(
+    """
+    Parameters for UpdateDynamic
+    """
+    input: UpdateDynamicInput!
+  ): UpdateDynamicPayload
+  updateDynamicAnnotationAnalysis(
+    """
+    Parameters for UpdateDynamicAnnotationAnalysis
+    """
+    input: UpdateDynamicAnnotationAnalysisInput!
+  ): UpdateDynamicAnnotationAnalysisPayload
+  updateDynamicAnnotationArchiver(
+    """
+    Parameters for UpdateDynamicAnnotationArchiver
+    """
+    input: UpdateDynamicAnnotationArchiverInput!
+  ): UpdateDynamicAnnotationArchiverPayload
+  updateDynamicAnnotationClip(
+    """
+    Parameters for UpdateDynamicAnnotationClip
+    """
+    input: UpdateDynamicAnnotationClipInput!
+  ): UpdateDynamicAnnotationClipPayload
+  updateDynamicAnnotationEmbedCode(
+    """
+    Parameters for UpdateDynamicAnnotationEmbedCode
+    """
+    input: UpdateDynamicAnnotationEmbedCodeInput!
+  ): UpdateDynamicAnnotationEmbedCodePayload
+  updateDynamicAnnotationExtractedText(
+    """
+    Parameters for UpdateDynamicAnnotationExtractedText
+    """
+    input: UpdateDynamicAnnotationExtractedTextInput!
+  ): UpdateDynamicAnnotationExtractedTextPayload
+  updateDynamicAnnotationFlag(
+    """
+    Parameters for UpdateDynamicAnnotationFlag
+    """
+    input: UpdateDynamicAnnotationFlagInput!
+  ): UpdateDynamicAnnotationFlagPayload
+  updateDynamicAnnotationGeolocation(
+    """
+    Parameters for UpdateDynamicAnnotationGeolocation
+    """
+    input: UpdateDynamicAnnotationGeolocationInput!
+  ): UpdateDynamicAnnotationGeolocationPayload
+  updateDynamicAnnotationLanguage(
+    """
+    Parameters for UpdateDynamicAnnotationLanguage
+    """
+    input: UpdateDynamicAnnotationLanguageInput!
+  ): UpdateDynamicAnnotationLanguagePayload
+  updateDynamicAnnotationMemebuster(
+    """
+    Parameters for UpdateDynamicAnnotationMemebuster
+    """
+    input: UpdateDynamicAnnotationMemebusterInput!
+  ): UpdateDynamicAnnotationMemebusterPayload
+  updateDynamicAnnotationMetadata(
+    """
+    Parameters for UpdateDynamicAnnotationMetadata
+    """
+    input: UpdateDynamicAnnotationMetadataInput!
+  ): UpdateDynamicAnnotationMetadataPayload
+  updateDynamicAnnotationMetrics(
+    """
+    Parameters for UpdateDynamicAnnotationMetrics
+    """
+    input: UpdateDynamicAnnotationMetricsInput!
+  ): UpdateDynamicAnnotationMetricsPayload
+  updateDynamicAnnotationMt(
+    """
+    Parameters for UpdateDynamicAnnotationMt
+    """
+    input: UpdateDynamicAnnotationMtInput!
+  ): UpdateDynamicAnnotationMtPayload
+  updateDynamicAnnotationReportDesign(
+    """
+    Parameters for UpdateDynamicAnnotationReportDesign
+    """
+    input: UpdateDynamicAnnotationReportDesignInput!
+  ): UpdateDynamicAnnotationReportDesignPayload
+  updateDynamicAnnotationReverseImage(
+    """
+    Parameters for UpdateDynamicAnnotationReverseImage
+    """
+    input: UpdateDynamicAnnotationReverseImageInput!
+  ): UpdateDynamicAnnotationReverseImagePayload
+  updateDynamicAnnotationSlackMessage(
+    """
+    Parameters for UpdateDynamicAnnotationSlackMessage
+    """
+    input: UpdateDynamicAnnotationSlackMessageInput!
+  ): UpdateDynamicAnnotationSlackMessagePayload
+  updateDynamicAnnotationSmooch(
+    """
+    Parameters for UpdateDynamicAnnotationSmooch
+    """
+    input: UpdateDynamicAnnotationSmoochInput!
+  ): UpdateDynamicAnnotationSmoochPayload
+  updateDynamicAnnotationSmoochResponse(
+    """
+    Parameters for UpdateDynamicAnnotationSmoochResponse
+    """
+    input: UpdateDynamicAnnotationSmoochResponseInput!
+  ): UpdateDynamicAnnotationSmoochResponsePayload
+  updateDynamicAnnotationSmoochUser(
+    """
+    Parameters for UpdateDynamicAnnotationSmoochUser
+    """
+    input: UpdateDynamicAnnotationSmoochUserInput!
+  ): UpdateDynamicAnnotationSmoochUserPayload
+  updateDynamicAnnotationSyrianArchiveData(
+    """
+    Parameters for UpdateDynamicAnnotationSyrianArchiveData
+    """
+    input: UpdateDynamicAnnotationSyrianArchiveDataInput!
+  ): UpdateDynamicAnnotationSyrianArchiveDataPayload
+  updateDynamicAnnotationTaskResponseDatetime(
+    """
+    Parameters for UpdateDynamicAnnotationTaskResponseDatetime
+    """
+    input: UpdateDynamicAnnotationTaskResponseDatetimeInput!
+  ): UpdateDynamicAnnotationTaskResponseDatetimePayload
+  updateDynamicAnnotationTaskResponseFileUpload(
+    """
+    Parameters for UpdateDynamicAnnotationTaskResponseFileUpload
+    """
+    input: UpdateDynamicAnnotationTaskResponseFileUploadInput!
+  ): UpdateDynamicAnnotationTaskResponseFileUploadPayload
+  updateDynamicAnnotationTaskResponseFreeText(
+    """
+    Parameters for UpdateDynamicAnnotationTaskResponseFreeText
+    """
+    input: UpdateDynamicAnnotationTaskResponseFreeTextInput!
+  ): UpdateDynamicAnnotationTaskResponseFreeTextPayload
+  updateDynamicAnnotationTaskResponseGeolocation(
+    """
+    Parameters for UpdateDynamicAnnotationTaskResponseGeolocation
+    """
+    input: UpdateDynamicAnnotationTaskResponseGeolocationInput!
+  ): UpdateDynamicAnnotationTaskResponseGeolocationPayload
+  updateDynamicAnnotationTaskResponseMultipleChoice(
+    """
+    Parameters for UpdateDynamicAnnotationTaskResponseMultipleChoice
+    """
+    input: UpdateDynamicAnnotationTaskResponseMultipleChoiceInput!
+  ): UpdateDynamicAnnotationTaskResponseMultipleChoicePayload
+  updateDynamicAnnotationTaskResponseNumber(
+    """
+    Parameters for UpdateDynamicAnnotationTaskResponseNumber
+    """
+    input: UpdateDynamicAnnotationTaskResponseNumberInput!
+  ): UpdateDynamicAnnotationTaskResponseNumberPayload
+  updateDynamicAnnotationTaskResponseSingleChoice(
+    """
+    Parameters for UpdateDynamicAnnotationTaskResponseSingleChoice
+    """
+    input: UpdateDynamicAnnotationTaskResponseSingleChoiceInput!
+  ): UpdateDynamicAnnotationTaskResponseSingleChoicePayload
+  updateDynamicAnnotationTaskResponseUrl(
+    """
+    Parameters for UpdateDynamicAnnotationTaskResponseUrl
+    """
+    input: UpdateDynamicAnnotationTaskResponseUrlInput!
+  ): UpdateDynamicAnnotationTaskResponseUrlPayload
+  updateDynamicAnnotationTaskResponseYesNo(
+    """
+    Parameters for UpdateDynamicAnnotationTaskResponseYesNo
+    """
+    input: UpdateDynamicAnnotationTaskResponseYesNoInput!
+  ): UpdateDynamicAnnotationTaskResponseYesNoPayload
+  updateDynamicAnnotationTaskStatus(
+    """
+    Parameters for UpdateDynamicAnnotationTaskStatus
+    """
+    input: UpdateDynamicAnnotationTaskStatusInput!
+  ): UpdateDynamicAnnotationTaskStatusPayload
+  updateDynamicAnnotationTeamBotResponse(
+    """
+    Parameters for UpdateDynamicAnnotationTeamBotResponse
+    """
+    input: UpdateDynamicAnnotationTeamBotResponseInput!
+  ): UpdateDynamicAnnotationTeamBotResponsePayload
+  updateDynamicAnnotationTranscript(
+    """
+    Parameters for UpdateDynamicAnnotationTranscript
+    """
+    input: UpdateDynamicAnnotationTranscriptInput!
+  ): UpdateDynamicAnnotationTranscriptPayload
+  updateDynamicAnnotationTranscription(
+    """
+    Parameters for UpdateDynamicAnnotationTranscription
+    """
+    input: UpdateDynamicAnnotationTranscriptionInput!
+  ): UpdateDynamicAnnotationTranscriptionPayload
+  updateDynamicAnnotationTranslation(
+    """
+    Parameters for UpdateDynamicAnnotationTranslation
+    """
+    input: UpdateDynamicAnnotationTranslationInput!
+  ): UpdateDynamicAnnotationTranslationPayload
+  updateDynamicAnnotationTranslationRequest(
+    """
+    Parameters for UpdateDynamicAnnotationTranslationRequest
+    """
+    input: UpdateDynamicAnnotationTranslationRequestInput!
+  ): UpdateDynamicAnnotationTranslationRequestPayload
+  updateDynamicAnnotationTranslationStatus(
+    """
+    Parameters for UpdateDynamicAnnotationTranslationStatus
+    """
+    input: UpdateDynamicAnnotationTranslationStatusInput!
+  ): UpdateDynamicAnnotationTranslationStatusPayload
+  updateDynamicAnnotationVerificationStatus(
+    """
+    Parameters for UpdateDynamicAnnotationVerificationStatus
+    """
+    input: UpdateDynamicAnnotationVerificationStatusInput!
+  ): UpdateDynamicAnnotationVerificationStatusPayload
+  updateFactCheck(
+    """
+    Parameters for UpdateFactCheck
+    """
+    input: UpdateFactCheckInput!
+  ): UpdateFactCheckPayload
+  updateFeed(
+    """
+    Parameters for UpdateFeed
+    """
+    input: UpdateFeedInput!
+  ): UpdateFeedPayload
+  updateFeedTeam(
+    """
+    Parameters for UpdateFeedTeam
+    """
+    input: UpdateFeedTeamInput!
+  ): UpdateFeedTeamPayload
+  updateProject(
+    """
+    Parameters for UpdateProject
+    """
+    input: UpdateProjectInput!
+  ): UpdateProjectPayload
+  updateProjectGroup(
+    """
+    Parameters for UpdateProjectGroup
+    """
+    input: UpdateProjectGroupInput!
+  ): UpdateProjectGroupPayload
+  updateProjectMedia(
+    """
+    Parameters for UpdateProjectMedia
+    """
+    input: UpdateProjectMediaInput!
+  ): UpdateProjectMediaPayload
+  updateProjectMediaUser(
+    """
+    Parameters for UpdateProjectMediaUser
+    """
+    input: UpdateProjectMediaUserInput!
+  ): UpdateProjectMediaUserPayload
+  updateProjectMedias(
+    """
+    Parameters for UpdateProjectMedias
+    """
+    input: UpdateProjectMediasInput!
+  ): UpdateProjectMediasPayload
+  updateRelationship(
+    """
+    Parameters for UpdateRelationship
+    """
+    input: UpdateRelationshipInput!
+  ): UpdateRelationshipPayload
+  updateRelationships(
+    """
+    Parameters for UpdateRelationships
+    """
+    input: UpdateRelationshipsInput!
+  ): UpdateRelationshipsPayload
+  updateSavedSearch(
+    """
+    Parameters for UpdateSavedSearch
+    """
+    input: UpdateSavedSearchInput!
+  ): UpdateSavedSearchPayload
+  updateSource(
+    """
+    Parameters for UpdateSource
+    """
+    input: UpdateSourceInput!
+  ): UpdateSourcePayload
+  updateTag(
+    """
+    Parameters for UpdateTag
+    """
+    input: UpdateTagInput!
+  ): UpdateTagPayload
+  updateTagText(
+    """
+    Parameters for UpdateTagText
+    """
+    input: UpdateTagTextInput!
+  ): UpdateTagTextPayload
+  updateTask(
+    """
+    Parameters for UpdateTask
+    """
+    input: UpdateTaskInput!
+  ): UpdateTaskPayload
+  updateTeam(
+    """
+    Parameters for UpdateTeam
+    """
+    input: UpdateTeamInput!
+  ): UpdateTeamPayload
+  updateTeamBotInstallation(
+    """
+    Parameters for UpdateTeamBotInstallation
+    """
+    input: UpdateTeamBotInstallationInput!
+  ): UpdateTeamBotInstallationPayload
+  updateTeamTask(
+    """
+    Parameters for UpdateTeamTask
+    """
+    input: UpdateTeamTaskInput!
+  ): UpdateTeamTaskPayload
+  updateTeamUser(
+    """
+    Parameters for UpdateTeamUser
+    """
+    input: UpdateTeamUserInput!
+  ): UpdateTeamUserPayload
+  updateTiplineNewsletter(
+    """
+    Parameters for UpdateTiplineNewsletter
+    """
+    input: UpdateTiplineNewsletterInput!
+  ): UpdateTiplineNewsletterPayload
+  updateUser(
+    """
+    Parameters for UpdateUser
+    """
+    input: UpdateUserInput!
+  ): UpdateUserPayload
+  userDisconnectLoginAccount(
+    """
+    Parameters for UserDisconnectLoginAccount
+    """
+    input: UserDisconnectLoginAccountInput!
+  ): UserDisconnectLoginAccountPayload
+  userInvitation(
+    """
+    Parameters for UserInvitation
+    """
+    input: UserInvitationInput!
+  ): UserInvitationPayload
+  userTwoFactorAuthentication(
+    """
+    Parameters for UserTwoFactorAuthentication
+    """
+    input: UserTwoFactorAuthenticationInput!
+  ): UserTwoFactorAuthenticationPayload
 }
 
 """

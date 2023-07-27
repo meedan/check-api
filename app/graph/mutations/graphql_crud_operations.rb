@@ -35,13 +35,13 @@ class GraphqlCrudOperations
 
   def self.define_returns(obj, parent_names)
     ret = {}
-    name = obj.class_name.underscore
+    obj_name = obj.class_name.underscore
     parent_names.each do |parent_name|
       child, parent = obj, obj.send(parent_name)
       parent = obj.version_object if parent_name == "version"
       unless parent.nil?
         parent.no_cache = true if parent.respond_to?(:no_cache)
-        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(
+        ret["#{obj_name}Edge".to_sym] = GraphQL::Relay::Edge.between(
           child,
           parent
         ) if !%w[related_to public_team version].include?(parent_name)
