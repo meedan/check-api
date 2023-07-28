@@ -492,4 +492,10 @@ class TestControllerTest < ActionController::TestCase
     assert_response 400
     Rails.unstub(:env)
   end
+
+  test "should get a random number in HTML" do
+    get :random
+    assert_response :success
+    assert_match /Test [0-9]+/, @response.body
+  end
 end

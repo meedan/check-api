@@ -224,6 +224,10 @@ class TestController < ApplicationController
     render_success 'suggest_similarity', pm1
   end
 
+  def random
+    render html: "<!doctype html><html><head><title>Test #{rand(100000).to_i}</title></head><body>Test</body></html>".html_safe
+  end
+
   protected
 
   def new_media(type)
