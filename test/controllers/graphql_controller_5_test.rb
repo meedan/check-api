@@ -7,6 +7,7 @@ class GraphqlController5Test < ActionController::TestCase
     @controller = Api::V1::GraphqlController.new
     create_annotation_type annotation_type: 'task_response'
     create_flag_annotation_type
+    create_report_design_annotation_type
 
     User.current = nil
     Team.current = nil
@@ -69,7 +70,6 @@ class GraphqlController5Test < ActionController::TestCase
 
   test "should create and update flags and content warning" do
     # relies on create_report_design_annotation_type to be called before application load in #setup
-    
     t = create_team
     u = create_user is_admin: true
     pm = create_project_media team: t
