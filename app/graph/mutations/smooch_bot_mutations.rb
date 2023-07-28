@@ -8,7 +8,7 @@ module SmoochBotMutations
     field :success, GraphQL::Types::Boolean, null: true
     field :annotation, AnnotationType, null: true
 
-    def resolve(id: nil, set_fields: nil)
+    def resolve(id:, set_fields:)
       annotation =
                 Dynamic.where(
                   id: id,
@@ -39,7 +39,7 @@ module SmoochBotMutations
 
     field :team_bot_installation, TeamBotInstallationType, null: true, camelize: false
 
-    def resolve(team_bot_installation_id: nil, integration_type: nil, params: nil)
+    def resolve(team_bot_installation_id:, integration_type:, params:)
       _type_name, id = CheckGraphql.decode_id(team_bot_installation_id)
       tbi = GraphqlCrudOperations.load_if_can(
         TeamBotInstallation,
@@ -59,7 +59,7 @@ module SmoochBotMutations
 
     field :team_bot_installation, TeamBotInstallationType, null: true, camelize: false
 
-    def resolve(team_bot_installation_id: nil, integration_type: nil)
+    def resolve(team_bot_installation_id:, integration_type:)
       _type_name, id = CheckGraphql.decode_id(team_bot_installation_id)
       tbi = GraphqlCrudOperations.load_if_can(
         TeamBotInstallation,

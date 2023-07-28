@@ -25,7 +25,7 @@ class ClusterType < DefaultObject
     argument :feed_id, GraphQL::Types::Int, required: true, camelize: false
   end
 
-  def items(feed_id: nil)
+  def items(feed_id:)
     Cluster.find_if_can(object.id, context[:ability])
     feed = Feed.find_if_can(feed_id.to_i, context[:ability])
     object.project_medias.joins(:team).where("teams.id" => feed.team_ids)
@@ -35,7 +35,7 @@ class ClusterType < DefaultObject
     argument :feed_id, GraphQL::Types::Int, required: true, camelize: false
   end
 
-  def claim_descriptions(feed_id: nil)
+  def claim_descriptions(feed_id:)
     Cluster.find_if_can(object.id, context[:ability])
     feed = Feed.find_if_can(feed_id.to_i, context[:ability])
     ClaimDescription.joins(project_media: :team).where(

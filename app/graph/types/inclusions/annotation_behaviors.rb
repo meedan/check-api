@@ -53,7 +53,7 @@ module Types::Inclusions
         argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
       end
 
-      def annotations(annotation_type: nil)
+      def annotations(annotation_type:)
         ::Annotation.where(
           annotation_type: annotation_type,
           annotated_type: ["Annotation", object.annotation_type.camelize],

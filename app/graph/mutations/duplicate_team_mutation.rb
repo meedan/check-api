@@ -5,7 +5,7 @@ class DuplicateTeamMutation < Mutations::BaseMutation
 
   field :team, TeamType, null: true
 
-  def resolve(team_id: nil, custom_slug: nil, custom_name: nil)
+  def resolve(team_id:, custom_slug: nil, custom_name: nil)
     _type_name, id = CheckGraphql.decode_id(team_id)
             user = User.current
             ability = Ability.new(user)

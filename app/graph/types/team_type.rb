@@ -189,7 +189,7 @@ class TeamType < DefaultObject
     argument :bot_identifier, GraphQL::Types::String, required: true, camelize: false
   end
 
-  def team_bot_installation(bot_identifier: nil)
+  def team_bot_installation(bot_identifier:)
     TeamBotInstallation.where(
       user_id: BotUser.get_user(bot_identifier)&.id,
       team_id: object.id
@@ -201,7 +201,7 @@ class TeamType < DefaultObject
   end
 
   def team_users(status: nil)
-    object.team_users.where({ status: status || "member" }).order("id ASC")
+    object.team_users.where({ status: (status || "member") }).order("id ASC")
   end
 
   field :join_requests, TeamUserType.connection_type, null: true
@@ -268,7 +268,7 @@ class TeamType < DefaultObject
     argument :dbid, GraphQL::Types::Int, required: true
   end
 
-  def team_task(dbid: nil)
+  def team_task(dbid:)
     object.team_tasks.where(id: dbid.to_i).last
   end
 
@@ -278,7 +278,7 @@ class TeamType < DefaultObject
     argument :dbid, GraphQL::Types::Int, required: true
   end
 
-  def feed(dbid: nil)
+  def feed(dbid:)
     object.get_feed(dbid)
   end
 

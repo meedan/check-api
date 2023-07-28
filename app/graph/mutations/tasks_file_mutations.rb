@@ -4,7 +4,7 @@ module TasksFileMutations
 
     field :task, TaskType, null: true
 
-    def resolve(id: nil)
+    def resolve(id:)
       task = GraphqlCrudOperations.object_from_id_if_can(
         id,
         context[:ability]
@@ -21,7 +21,7 @@ module TasksFileMutations
 
     field :task, TaskType, null: true
 
-    def resolve(id: nil, filenames: nil)
+    def resolve(id:, filenames: [])
       task = GraphqlCrudOperations.object_from_id_if_can(
         id,
         context[:ability]

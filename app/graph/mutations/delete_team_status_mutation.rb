@@ -7,7 +7,7 @@ class DeleteTeamStatusMutation < Mutations::BaseMutation
 
   field :team, TeamType, null: true
 
-  def resolve(team_id: nil, status_id: nil, fallback_status_id: nil)
+  def resolve(team_id:, status_id:, fallback_status_id:)
     _type_name, id = CheckGraphql.decode_id(team_id)
             team = GraphqlCrudOperations.load_if_can(Team, id, context)
             team.delete_custom_media_verification_status(

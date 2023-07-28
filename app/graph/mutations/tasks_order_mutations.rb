@@ -17,7 +17,7 @@ module TasksOrderMutations
     field :task, TaskType, null: true
     field :project_media, ProjectMediaType, null: true, camelize: false
 
-    def resolve(id: nil)
+    def resolve(id:)
       move(object, id, context, :task, :project_media) { |obj| obj.move_up }
     end
   end
@@ -26,7 +26,7 @@ module TasksOrderMutations
     field :task, TaskType, null: true
     field :project_media, ProjectMediaType, null: true, camelize: false
 
-    def resolve(id: nil)
+    def resolve(id:)
       move(object, id, context, :task, :project_media) { |obj| obj.move_down }
     end
   end
@@ -35,7 +35,7 @@ module TasksOrderMutations
     field :team_task, TeamTaskType, null: true, camelize: false
     field :team, TeamType, null: true
 
-    def resolve(id: nil)
+    def resolve(id:)
       move(object, id, context, :team_task, :team) { |obj| obj.move_up }
     end
   end
@@ -44,7 +44,7 @@ module TasksOrderMutations
     field :team_task, TeamTaskType, null: true, camelize: false
     field :team, TeamType, null: true
 
-    def resolve(id: nil)
+    def resolve(id:)
       move(object, id, context, :team_task, :team) { |obj| obj.move_down }
     end
   end

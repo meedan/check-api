@@ -5,7 +5,7 @@ class ResendConfirmationMutation < Mutations::BaseMutation
 
   field :success, GraphQL::Types::Boolean, null: true
 
-  def resolve(id: nil)
+  def resolve(id:)
     user = User.where(id: id).last
     if user.nil?
       raise ActiveRecord::RecordNotFound

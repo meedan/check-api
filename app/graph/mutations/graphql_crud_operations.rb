@@ -71,7 +71,7 @@ class GraphqlCrudOperations
       ) unless version.nil?
     end
 
-    ret[:affectedId] = obj.graphql_id if obj.is_a?(ProjectMedia)
+    ret[:affected_id] = obj.graphql_id if obj.is_a?(ProjectMedia)
 
     ret
   end

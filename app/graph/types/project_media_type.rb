@@ -223,7 +223,7 @@ class ProjectMediaType < DefaultObject
     argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
   end
 
-  def annotation(annotation_type: nil)
+  def annotation(annotation_type:)
     object.get_dynamic_annotation(annotation_type)
   end
 
@@ -231,7 +231,7 @@ class ProjectMediaType < DefaultObject
     argument :annotation_type_field_name, GraphQL::Types::String, required: true, camelize: false
   end
 
-  def field_value(annotation_type_field_name: nil)
+  def field_value(annotation_type_field_name:)
     annotation_type, field_name = annotation_type_field_name.to_s.split(":")
     if !annotation_type.blank? && !field_name.blank?
       annotation = object.get_dynamic_annotation(annotation_type)
@@ -244,7 +244,7 @@ class ProjectMediaType < DefaultObject
     argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
   end
 
-  def assignments(user_id: nil, annotation_type: nil)
+  def assignments(user_id:, annotation_type:)
     Annotation.joins(:assignments).where(
       "annotations.annotated_type" => "ProjectMedia",
       "annotations.annotated_id" => object.id,

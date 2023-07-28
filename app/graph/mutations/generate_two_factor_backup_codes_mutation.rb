@@ -6,7 +6,7 @@ class GenerateTwoFactorBackupCodesMutation < Mutations::BaseMutation
   field :success, GraphQL::Types::Boolean, null: true
   field :codes, JsonStringType, null: true
 
-  def resolve(id: nil)
+  def resolve(id:)
     user = User.where(id: id).last
     if user.nil? || User.current.id != id
       raise ActiveRecord::RecordNotFound

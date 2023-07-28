@@ -105,7 +105,7 @@ class QueryType < BaseObject
     argument :slug, GraphQL::Types::String, required: true
   end
 
-  def find_public_team(slug: nil)
+  def find_public_team(slug:)
     Team.where(slug: slug).last
   end
 
@@ -117,7 +117,7 @@ class QueryType < BaseObject
     argument :ids, GraphQL::Types::String, required: true
   end
 
-  def project_media(ids: nil)
+  def project_media(ids:)
     objid, pid, tid = ids.split(",").map(&:to_i)
     tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
     project = Project.where(id: pid, team_id: tid).last
@@ -131,7 +131,7 @@ class QueryType < BaseObject
     argument :url, GraphQL::Types::String, required: true
   end
 
-  def project_medias(url: nil)
+  def project_medias(url:)
     return [] if User.current.nil?
 
     m = Link.where(url: url).last
@@ -168,7 +168,7 @@ class QueryType < BaseObject
     argument :query, GraphQL::Types::String, required: true
   end
 
-  def search(query: nil)
+  def search(query:)
     team = Team.find_if_can(Team.current&.id.to_i, context[:ability])
     CheckSearch.new(query, context[:file], team&.id)
   end
@@ -178,7 +178,7 @@ class QueryType < BaseObject
     argument :only_cache, GraphQL::Types::Boolean, required: false, camelize: false
   end
 
-  def dynamic_annotation_field(query: nil, only_cache: nil)
+  def dynamic_annotation_field(query:, only_cache: nil)
     ability = context[:ability] || Ability.new
     if ability.can?(:find_by_json_fields, DynamicAnnotation::Field.new)
       cache_key =

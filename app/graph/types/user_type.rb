@@ -85,7 +85,7 @@ class UserType < DefaultObject
     argument :team_slug, GraphQL::Types::String, required: true, camelize: false
   end
 
-  def team_user(team_slug: nil)
+  def team_user(team_slug:)
     TeamUser
       .joins(:team)
       .where("teams.slug" => team_slug, :user_id => object.id)

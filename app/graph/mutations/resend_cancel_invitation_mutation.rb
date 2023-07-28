@@ -7,7 +7,7 @@ class ResendCancelInvitationMutation < Mutations::BaseMutation
   field :success, GraphQL::Types::Boolean, null: true
   field :team, TeamType, null: true
 
-  def resolve(email: nil, action: nil)
+  def resolve(email:, action:)
     user = User.find_user_by_email(email)
     if user.nil?
       raise ActiveRecord::RecordNotFound

@@ -40,7 +40,7 @@ class TeamBotInstallationType < DefaultObject
     argument :number_of_articles, GraphQL::Types::Int, required: true, camelize: false
   end
 
-  def smooch_bot_preview_rss_feed(rss_feed_url: nil, number_of_articles: nil)
+  def smooch_bot_preview_rss_feed(rss_feed_url:, number_of_articles:)
     return nil unless object.bot_user.login == "smooch"
     ability = context[:ability] || Ability.new
     if ability.can?(:preview_rss_feed, Team.current)

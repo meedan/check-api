@@ -4,7 +4,7 @@ module OcrMutations
 
     field :project_media, ProjectMediaType, null: true, camelize: false
 
-    def resolve(id: nil)
+    def resolve(id:)
       pm = GraphqlCrudOperations.object_from_id_if_can(
         id,
         context[:ability]

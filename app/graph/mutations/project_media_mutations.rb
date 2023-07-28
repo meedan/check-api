@@ -21,7 +21,7 @@ module ProjectMediaMutations
       argument :media_id, GraphQL::Types::Int, required: false, camelize: false
       argument :related_to_id, GraphQL::Types::Int, required: false, camelize: false
 
-      field :affectedId, GraphQL::Types::ID, null: true
+      field :affected_id, GraphQL::Types::ID, null: true
     end
   end
 
@@ -69,7 +69,7 @@ module ProjectMediaMutations
     field :old_project_media_deleted_id, GraphQL::Types::ID, null: true, camelize: false
     field :new_project_media, ProjectMediaType, null: true, camelize: false
 
-    def resolve(project_media_to_be_replaced_id: nil, new_project_media_id: nil)
+    def resolve(project_media_to_be_replaced_id:, new_project_media_id:)
       old_object = GraphqlCrudOperations.object_from_id_if_can(
         project_media_to_be_replaced_id,
         context[:ability]

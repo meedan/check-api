@@ -5,7 +5,7 @@ module TranscriptionMutations
     field :project_media, ProjectMediaType, null: true, camelize: false
     field :annotation, DynamicType, null: true
 
-    def resolve(id: nil)
+    def resolve(id:)
       project_media = GraphqlCrudOperations.object_from_id_if_can(
         id,
         context[:ability]

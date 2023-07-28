@@ -7,7 +7,7 @@ module Types::Inclusions
         argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
       end
 
-      def annotations(annotation_type: nil)
+      def annotations(annotation_type:)
         object.get_annotations(annotation_type.split(",").map(&:strip))
       end
 
@@ -15,7 +15,7 @@ module Types::Inclusions
         argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
       end
 
-      def annotations_count(annotation_type: nil)
+      def annotations_count(annotation_type:)
         object.get_annotations(annotation_type.split(",").map(&:strip)).count
       end
 

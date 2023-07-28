@@ -9,7 +9,7 @@ class UserTwoFactorAuthenticationMutation < Mutations::BaseMutation
   field :success, GraphQL::Types::Boolean, null: true
   field :user, UserType, null: true
 
-  def resolve(id: nil, password: nil, qrcode: nil, otp_required: nil)
+  def resolve(id:, password:, qrcode: nil, otp_required: nil)
     user = User.where(id: id).last
     if user.nil? || User.current.id != id
       raise ActiveRecord::RecordNotFound
