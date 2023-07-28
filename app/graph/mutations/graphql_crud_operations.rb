@@ -114,7 +114,6 @@ class GraphqlCrudOperations
     obj = self.object_from_id(graphql_id)
     obj.keep_completed_tasks = inputs[:keep_completed_tasks] if obj.is_a?(TeamTask)
     if obj.is_a?(Relationship)
-      obj.add_to_project_id = inputs[:add_to_project_id]
       obj.archive_target = inputs[:archive_target]
     end
     obj.items_destination_project_id = inputs[:items_destination_project_id] if obj.is_a?(Project)
@@ -304,7 +303,6 @@ class GraphqlCrudOperations
       input_field(:keep_completed_tasks, types.Boolean) if type == 'team_task'
 
       if type == 'relationship'
-        input_field(:add_to_project_id, types.Int)
         input_field(:archive_target, types.Int)
       end
 

@@ -3,7 +3,7 @@ require 'active_support/concern'
 module SmoochResend
   extend ActiveSupport::Concern
 
-  # WhatsApp requires pre-approved, pre-defined message templates for messages send outside the 24h window
+  # WhatsApp requires pre-approved, pre-defined message templates for messages sent outside the 24h window
   module WhatsAppResend
     def should_resend_whatsapp_message?(message)
       message.dig('destination', 'type') == 'whatsapp' && [470, 131047].include?(message.dig('error', 'underlyingError', 'errors', 0, 'code'))
@@ -206,9 +206,9 @@ module SmoochResend
 
     def log_resend_error(message)
       if message['isFinalEvent']
-        api_error = message.dig('error')
-        exception = Bot::Smooch::FinalMessageDeliveryError.new("(#{api_error&.dig('code')}) #{api_error&.dig('message')}")
-        CheckSentry.notify(exception, error: api_error, uid: message.dig('appUser', '_id'), smooch_app_id: message.dig('app', '_id'), timestamp: message.dig('timestamp'))
+        error = message['error'].to_h
+        exception = Bot::Smooch::FinalMessageDeliveryError.new("(#{error['code']}) #{error['message']}")
+        CheckSentry.notify(exception, error: error, uid: message.dig('appUser', '_id'), smooch_app_id: message.dig('app', '_id'), timestamp: message['timestamp'])
       end
     end
 

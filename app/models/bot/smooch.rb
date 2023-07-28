@@ -6,6 +6,7 @@ class Bot::Smooch < BotUser
   class TurnioMessageDeliveryError < MessageDeliveryError; end
   class SmoochMessageDeliveryError < MessageDeliveryError; end
   class CapiMessageDeliveryError < MessageDeliveryError; end
+  class CapiUnhandledMessageWarning < MessageDeliveryError; end
 
   MESSAGE_BOUNDARY = "\u2063"
 
