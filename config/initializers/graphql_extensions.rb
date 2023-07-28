@@ -40,7 +40,7 @@ module GraphQL
 
   module Types::Relay
     class BaseConnection
-      field :totalCount, GraphQL::Types::Int, null: true
+      field :total_count, GraphQL::Types::Int, null: true
     end
   end
 end
