@@ -78,4 +78,5 @@ Rails.application.routes.draw do
   match '/test/suggest_similarity' => 'test#suggest_similarity_item', via: :get
   match '/test/install_bot' => 'test#install_bot', via: :get
   match '/test/add_team_user' => 'test#add_team_user', via: :get
+  match '/test/random' => 'test#random', via: :get
 end
