@@ -351,16 +351,184 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm1 = create_project_media project: p, is_image: true, media: m
     assert_equal Bot::Alegre.media_file_url(pm1).class, String
   end
+  
+  test "should return singular model for indexing" do
+    p = create_project
+    tbi = TeamBotInstallation.new
+    tbi.set_text_similarity_enabled = false
+    tbi.user = BotUser.alegre_user
+    tbi.team = p.team
+    tbi.settings = {"alegre_model_in_use" => "xlm-r-bert-base-nli-stsb-mean-tokens"}
+    tbi.save!
+    assert_equal Bot::Alegre.get_tbi_indexing_models(tbi), "xlm-r-bert-base-nli-stsb-mean-tokens"
+  end
+
+  test "should return multiple models for indexing" do
+    p = create_project
+    tbi = TeamBotInstallation.new
+    tbi.set_text_similarity_enabled = false
+    tbi.user = BotUser.alegre_user
+    tbi.team = p.team
+    tbi.settings = {"alegre_models_in_use" => ["xlm-r-bert-base-nli-stsb-mean-tokens", "gooby"]}
+    tbi.save!
+    assert_equal Bot::Alegre.get_tbi_indexing_models(tbi), ["xlm-r-bert-base-nli-stsb-mean-tokens", "gooby"]
+  end
+
+  test "should return default model for indexing" do
+    p = create_project
+    tbi = TeamBotInstallation.new
+    tbi.set_text_similarity_enabled = false
+    tbi.user = BotUser.alegre_user
+    tbi.team = p.team
+    tbi.settings = {}
+    tbi.save!
+    assert_equal Bot::Alegre.get_tbi_indexing_models(tbi), Bot::Alegre.default_model
+  end
+
+  test "should return singular model for matching" do
+    p = create_project
+    tbi = TeamBotInstallation.new
+    tbi.set_text_similarity_enabled = false
+    tbi.user = BotUser.alegre_user
+    tbi.team = p.team
+    tbi.settings = {"text_similarity_model" => "xlm-r-bert-base-nli-stsb-mean-tokens"}
+    tbi.save!
+    assert_equal Bot::Alegre.get_tbi_matching_models(tbi), "xlm-r-bert-base-nli-stsb-mean-tokens"
+  end
+
+  test "should return multiple models for matching" do
+    p = create_project
+    tbi = TeamBotInstallation.new
+    tbi.set_text_similarity_enabled = false
+    tbi.user = BotUser.alegre_user
+    tbi.team = p.team
+    tbi.settings = {"text_similarity_models" => ["xlm-r-bert-base-nli-stsb-mean-tokens", "gooby"]}
+    tbi.save!
+    assert_equal Bot::Alegre.get_tbi_matching_models(tbi), ["xlm-r-bert-base-nli-stsb-mean-tokens", "gooby"]
+  end
+
+  test "should return default model for matching" do
+    p = create_project
+    tbi = TeamBotInstallation.new
+    tbi.set_text_similarity_enabled = false
+    tbi.user = BotUser.alegre_user
+    tbi.team = p.team
+    tbi.settings = {}
+    tbi.save!
+    assert_equal Bot::Alegre.get_tbi_matching_models(tbi), Bot::Alegre.default_model
+  end
+
+  test "should return a generic key/val" do
+    p = create_project
+    tbi = TeamBotInstallation.new
+    tbi.set_text_similarity_enabled = false
+    tbi.user = BotUser.alegre_user
+    tbi.team = p.team
+    pm = create_project_media quote: "Blah", team: p.team
+    pm.analysis = { title: 'Title 1' }
+    pm.save!
+    tbi.settings = {"text_vector_matching_threshold" => 0.92}
+    tbi.save!
+    assert_equal Bot::Alegre.get_matching_key_value(pm, "text", "vector", true, "xlm-r-bert-base-nli-stsb-mean-tokens"), ["text_vector_matching_threshold", 0.92]
+  end
+
+  test "should return a specific key/val" do
+    p = create_project
+    tbi = TeamBotInstallation.new
+    tbi.set_text_similarity_enabled = false
+    tbi.user = BotUser.alegre_user
+    tbi.team = p.team
+    pm = create_project_media quote: "Blah", team: p.team
+    pm.analysis = { title: 'Title 1' }
+    pm.save!
+    tbi.settings = {"text_vector_matching_threshold" => 0.92, "text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_matching_threshold" => 0.97}
+    tbi.save!
+    assert_equal Bot::Alegre.get_matching_key_value(pm, "text", "vector", true, "xlm-r-bert-base-nli-stsb-mean-tokens"), ["text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_matching_threshold", 0.97]
+  end
+
+  test "should return a generic key/val for suggestion" do
+    p = create_project
+    tbi = TeamBotInstallation.new
+    tbi.set_text_similarity_enabled = false
+    tbi.user = BotUser.alegre_user
+    tbi.team = p.team
+    pm = create_project_media quote: "Blah", team: p.team
+    pm.analysis = { title: 'Title 1' }
+    pm.save!
+    tbi.settings = {"text_vector_suggestion_threshold" => 0.92}
+    tbi.save!
+    assert_equal Bot::Alegre.get_matching_key_value(pm, "text", "vector", false, "xlm-r-bert-base-nli-stsb-mean-tokens"), ["text_vector_suggestion_threshold", 0.92]
+  end
+
+  test "should return a specific key/val for suggestion" do
+    p = create_project
+    tbi = TeamBotInstallation.new
+    tbi.set_text_similarity_enabled = false
+    tbi.user = BotUser.alegre_user
+    tbi.team = p.team
+    pm = create_project_media quote: "Blah", team: p.team
+    pm.analysis = { title: 'Title 1' }
+    pm.save!
+    tbi.settings = {"text_vector_suggestion_threshold" => 0.92, "text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_suggestion_threshold" => 0.97}
+    tbi.save!
+    assert_equal Bot::Alegre.get_matching_key_value(pm, "text", "vector", false, "xlm-r-bert-base-nli-stsb-mean-tokens"), ["text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_suggestion_threshold", 0.97]
+  end
+
+  test "should return properly formatted get_threshold_for_query response, single model" do
+    p = create_project
+    tbi = TeamBotInstallation.new
+    tbi.set_text_similarity_enabled = false
+    tbi.user = BotUser.alegre_user
+    tbi.team = p.team
+    pm = create_project_media quote: "Blah", team: p.team
+    pm.analysis = { title: 'Title 1' }
+    pm.save!
+    tbi.settings = {"text_similarity_model": "xlm-r-bert-base-nli-stsb-mean-tokens", "alegre_model_in_use": "xlm-r-bert-base-nli-stsb-mean-tokens", "text_vector_matching_threshold" => 0.92, "text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_suggestion_threshold" => 0.97}
+    tbi.save!
+    assert_equal Bot::Alegre.get_threshold_for_query("text", pm, true), [{:value=>0.875, :key=>"text_elasticsearch_matching_threshold", :automatic=>true, :model=>"elasticsearch"}, {:value=>0.92, :key=>"text_vector_matching_threshold", :automatic=>true, :model=>"xlm-r-bert-base-nli-stsb-mean-tokens"}]
+    assert_equal Bot::Alegre.get_threshold_for_query("text", pm, false), [{:value=>0.7, :key=>"text_elasticsearch_suggestion_threshold", :automatic=>false, :model=>"elasticsearch"}, {:value=>0.97, :key=>"text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_suggestion_threshold", :automatic=>false, :model=>"xlm-r-bert-base-nli-stsb-mean-tokens"}]
+  end
+
+  test "should return properly formatted get_threshold_for_query response, multi model" do
+    p = create_project
+    tbi = TeamBotInstallation.new
+    tbi.set_text_similarity_enabled = false
+    tbi.user = BotUser.alegre_user
+    tbi.team = p.team
+    pm = create_project_media quote: "Blah", team: p.team
+    pm.analysis = { title: 'Title 1' }
+    pm.save!
+    tbi.settings = {"text_similarity_models": ["indian-sbert", "xlm-r-bert-base-nli-stsb-mean-tokens"], "alegre_models_in_use": ["indian-sbert", "xlm-r-bert-base-nli-stsb-mean-tokens"], "text_vector_matching_threshold" => 0.92, "text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_suggestion_threshold" => 0.97}
+    tbi.save!
+    assert_equal Bot::Alegre.get_threshold_for_query("text", pm, true), [{:value=>0.875, :key=>"text_elasticsearch_matching_threshold", :automatic=>true, :model=>"elasticsearch"}, {:value=>0.92, :key=>"text_vector_matching_threshold", :automatic=>true, :model=>"indian-sbert"}, {:value=>0.92, :key=>"text_vector_matching_threshold", :automatic=>true, :model=>"xlm-r-bert-base-nli-stsb-mean-tokens"}]
+    assert_equal Bot::Alegre.get_threshold_for_query("text", pm, false), [{:value=>0.7, :key=>"text_elasticsearch_suggestion_threshold", :automatic=>false, :model=>"elasticsearch"}, {:value=>0.75, :key=>"text_vector_suggestion_threshold", :automatic=>false, :model=>"indian-sbert"}, {:value=>0.97, :key=>"text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_suggestion_threshold", :automatic=>false, :model=>"xlm-r-bert-base-nli-stsb-mean-tokens"}]
+  end
+
+  test "should return properly formatted get_threshold_for_query response, single & multi model with mixed settings - only uses new mapping" do
+    p = create_project
+    tbi = TeamBotInstallation.new
+    tbi.set_text_similarity_enabled = false
+    tbi.user = BotUser.alegre_user
+    tbi.team = p.team
+    pm = create_project_media quote: "Blah", team: p.team
+    pm.analysis = { title: 'Title 1' }
+    pm.save!
+    tbi.settings = {"text_similarity_model": "paraphrase-filipino-mpnet-base-v2", "text_similarity_models": ["indian-sbert", "xlm-r-bert-base-nli-stsb-mean-tokens"], "alegre_model_in_use": "paraphrase-filipino-mpnet-base-v2", "alegre_models_in_use": ["indian-sbert", "xlm-r-bert-base-nli-stsb-mean-tokens"], "text_vector_matching_threshold" => 0.92, "text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_suggestion_threshold" => 0.97}
+    tbi.save!
+    assert_equal Bot::Alegre.get_threshold_for_query("text", pm, true), [{:value=>0.875, :key=>"text_elasticsearch_matching_threshold", :automatic=>true, :model=>"elasticsearch"}, {:value=>0.92, :key=>"text_vector_matching_threshold", :automatic=>true, :model=>"indian-sbert"}, {:value=>0.92, :key=>"text_vector_matching_threshold", :automatic=>true, :model=>"xlm-r-bert-base-nli-stsb-mean-tokens"}]
+    assert_equal Bot::Alegre.get_threshold_for_query("text", pm, false), [{:value=>0.7, :key=>"text_elasticsearch_suggestion_threshold", :automatic=>false, :model=>"elasticsearch"}, {:value=>0.75, :key=>"text_vector_suggestion_threshold", :automatic=>false, :model=>"indian-sbert"}, {:value=>0.97, :key=>"text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_suggestion_threshold", :automatic=>false, :model=>"xlm-r-bert-base-nli-stsb-mean-tokens"}]
+  end
 
   test "should return an alegre indexing model" do
+    p = create_project
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah", team: @team
+    pm = create_project_media quote: "Blah", team: p.team
     pm.analysis = { content: 'Description 1' }
     pm.save!
     BotUser.stubs(:alegre_user).returns(User.new)
     TeamBotInstallation.stubs(:find_by_team_id_and_user_id).returns(TeamBotInstallation.new)
-    assert_equal Bot::Alegre.indexing_model_to_use(pm), Bot::Alegre.default_model
+    assert_equal Bot::Alegre.indexing_models_to_use(pm), [Bot::Alegre.default_model]
     BotUser.unstub(:alegre_user)
     TeamBotInstallation.unstub(:find_by_team_id_and_user_id)
   end
