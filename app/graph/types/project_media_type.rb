@@ -253,10 +253,7 @@ class ProjectMediaType < DefaultObject
     )
   end
 
-  DynamicAnnotation::AnnotationType
-    .select("annotation_type")
-    .map(&:annotation_type)
-    .each do |type|
+  DynamicAnnotation::AnnotationType.pluck(:annotation_type).each do |type|
       field "dynamic_annotations_#{type}".to_sym, DynamicType.connection_type, null: true
 
       define_method("dynamic_annotations_#{type}".to_sym) do |**_inputs|
