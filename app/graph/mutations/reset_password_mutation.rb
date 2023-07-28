@@ -5,8 +5,8 @@ class ResetPasswordMutation < Mutations::BaseMutation
 
   field :success, GraphQL::Types::Boolean, null: true
 
-  def resolve(**inputs)
-    user = User.where(email: inputs[:email].downcase).last
+  def resolve(email: nil)
+    user = User.where(email: email.downcase).last
     unless user.nil?
       user.skip_check_ability = true
       user.send_reset_password_instructions

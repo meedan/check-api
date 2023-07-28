@@ -4,9 +4,9 @@ module OcrMutations
 
     field :project_media, ProjectMediaType, null: true, camelize: false
 
-    def resolve(**inputs)
+    def resolve(id: nil)
       pm = GraphqlCrudOperations.object_from_id_if_can(
-        inputs[:id],
+        id,
         context[:ability]
       )
       Bot::Alegre.get_extracted_text(pm)

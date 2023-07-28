@@ -79,10 +79,10 @@ class QueryType < BaseObject
     argument :random, GraphQL::Types::String, required: false
   end
 
-  def team(**args)
-    tid = args[:id].to_i
-    if !args[:slug].blank?
-      team = Team.where(slug: args[:slug]).first
+  def team(id: nil, slug: nil, random: nil)
+    tid = id.to_i
+    if !slug.blank?
+      team = Team.where(slug: slug).first
       tid = team.id unless team.nil?
     end
     tid = Team.current&.id || User.current&.teams&.first&.id if tid === 0
@@ -91,28 +91,22 @@ class QueryType < BaseObject
 
   # Get public team
 
-  field :public_team,
-        PublicTeamType,
-        description: "Public information about a team",
-        null: true do
+  field :public_team, PublicTeamType, description: "Public information about a team", null: true do
     argument :slug, GraphQL::Types::String, required: false
   end
 
-  def public_team(**args)
-    team = args[:slug].blank? ? Team.current : Team.where(slug: args[:slug]).last
+  def public_team(slug: nil)
+    team = slug.blank? ? Team.current : Team.where(slug: slug).last
     id = team.blank? ? 0 : team.id
     Team.find(id)
   end
 
-  field :find_public_team,
-        PublicTeamType,
-        description: "Find whether a team exists",
-        null: true do
+  field :find_public_team, PublicTeamType, description: "Find whether a team exists", null: true do
     argument :slug, GraphQL::Types::String, required: true
   end
 
-  def find_public_team(**args)
-    Team.where(slug: args[:slug]).last
+  def find_public_team(slug: nil)
+    Team.where(slug: slug).last
   end
 
   field :project_media,
@@ -123,8 +117,8 @@ class QueryType < BaseObject
     argument :ids, GraphQL::Types::String, required: true
   end
 
-  def project_media(**args)
-    objid, pid, tid = args[:ids].split(",").map(&:to_i)
+  def project_media(ids: nil)
+    objid, pid, tid = ids.split(",").map(&:to_i)
     tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
     project = Project.where(id: pid, team_id: tid).last
     pid = project.nil? ? 0 : project.id
@@ -133,17 +127,17 @@ class QueryType < BaseObject
     GraphqlCrudOperations.load_if_can(ProjectMedia, objid, context)
   end
 
-  field :project_medias,
-        ProjectMediaType.connection_type,
-        null: true do
+  field :project_medias, ProjectMediaType.connection_type, null: true do
     argument :url, GraphQL::Types::String, required: true
   end
 
-  def project_medias(**args)
+  def project_medias(url: nil)
     return [] if User.current.nil?
-    m = Link.where(url: args[:url]).last
-    m = Link.where(url: Link.normalized(args[:url])).last if m.nil?
+
+    m = Link.where(url: url).last
+    m = Link.where(url: Link.normalized(url)).last if m.nil?
     return [] if m.nil?
+
     tids = Team.current ? [Team.current.id] : User.current.team_ids
     ProjectMedia.where(media_id: m.id, team_id: tids)
   end
@@ -157,9 +151,9 @@ class QueryType < BaseObject
     argument :ids, GraphQL::Types::String, required: false
   end
 
-  def project(**args)
-    pid = args[:id].to_i unless args[:id].blank?
-    pid, tid = args[:ids].split(",").map(&:to_i) unless args[:ids].blank?
+  def project(id: nil, ids: nil)
+    pid = id.to_i unless id.blank?
+    pid, tid = ids.split(",").map(&:to_i) unless ids.blank?
     tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
     project = Project.where(id: pid, team_id: tid).last
     id = project.nil? ? 0 : project.id
@@ -174,9 +168,9 @@ class QueryType < BaseObject
     argument :query, GraphQL::Types::String, required: true
   end
 
-  def search(**args)
+  def search(query: nil)
     team = Team.find_if_can(Team.current&.id.to_i, context[:ability])
-    CheckSearch.new(args[:query], context[:file], team&.id)
+    CheckSearch.new(query, context[:file], team&.id)
   end
 
   field :dynamic_annotation_field, DynamicAnnotationFieldType, null: true do
@@ -184,19 +178,19 @@ class QueryType < BaseObject
     argument :only_cache, GraphQL::Types::Boolean, required: false, camelize: false
   end
 
-  def dynamic_annotation_field(**args)
+  def dynamic_annotation_field(query: nil, only_cache: nil)
     ability = context[:ability] || Ability.new
     if ability.can?(:find_by_json_fields, DynamicAnnotation::Field.new)
       cache_key =
-        "dynamic-annotation-field-" + Digest::MD5.hexdigest(args[:query])
+        "dynamic-annotation-field-" + Digest::MD5.hexdigest(query)
       obj = nil
-      if Rails.cache.read(cache_key) || args[:only_cache]
+      if Rails.cache.read(cache_key) || only_cache
         obj =
           DynamicAnnotation::Field.where(
             id: Rails.cache.read(cache_key).to_i
           ).last
       else
-        query = JSON.parse(args[:query])
+        query = JSON.parse(query)
         json = query.delete("json")
         obj = DynamicAnnotation::Field.where(query)
         obj = obj.find_in_json(json) unless json.blank?

@@ -8,10 +8,10 @@ module SmoochBotMutations
     field :success, GraphQL::Types::Boolean, null: true
     field :annotation, AnnotationType, null: true
 
-    def resolve(**inputs)
+    def resolve(id: nil, set_fields: nil)
       annotation =
                 Dynamic.where(
-                  id: inputs[:id],
+                  id: id,
                   annotation_type: "smooch_user"
                 ).last
               if annotation.nil?
@@ -22,8 +22,8 @@ module SmoochBotMutations
                 end
                 SmoochAddSlackChannelUrlWorker.perform_in(
                   1.second,
-                  inputs[:id],
-                  inputs[:set_fields]
+                  id,
+                  set_fields
                 )
                 { success: true, annotation: annotation }
               end
@@ -39,20 +39,15 @@ module SmoochBotMutations
 
     field :team_bot_installation, TeamBotInstallationType, null: true, camelize: false
 
-    def resolve(**inputs)
-      _type_name, id =
-                CheckGraphql.decode_id(inputs[:team_bot_installation_id])
-              tbi =
-                GraphqlCrudOperations.load_if_can(
-                  TeamBotInstallation,
-                  id,
-                  context
-                )
-              tbi.smooch_add_integration(
-                inputs[:integration_type],
-                JSON.parse(inputs[:params])
-              )
-              { team_bot_installation: tbi }
+    def resolve(team_bot_installation_id: nil, integration_type: nil, params: nil)
+      _type_name, id = CheckGraphql.decode_id(team_bot_installation_id)
+      tbi = GraphqlCrudOperations.load_if_can(
+        TeamBotInstallation,
+        id,
+        context
+      )
+      tbi.smooch_add_integration(integration_type,JSON.parse(params))
+      { team_bot_installation: tbi }
     end
   end
 
@@ -64,17 +59,15 @@ module SmoochBotMutations
 
     field :team_bot_installation, TeamBotInstallationType, null: true, camelize: false
 
-    def resolve(**inputs)
-      _type_name, id =
-                CheckGraphql.decode_id(inputs[:team_bot_installation_id])
-              tbi =
-                GraphqlCrudOperations.load_if_can(
-                  TeamBotInstallation,
-                  id,
-                  context
-                )
-              tbi.smooch_remove_integration(inputs[:integration_type])
-              { team_bot_installation: tbi }
+    def resolve(team_bot_installation_id: nil, integration_type: nil)
+      _type_name, id = CheckGraphql.decode_id(team_bot_installation_id)
+      tbi = GraphqlCrudOperations.load_if_can(
+        TeamBotInstallation,
+        id,
+        context
+      )
+      tbi.smooch_remove_integration(integration_type)
+      { team_bot_installation: tbi }
     end
   end
 end

@@ -42,14 +42,14 @@ module TagMutations
     class Create < Mutations::BulkCreateMutation
       argument :inputs, [CreateTagsBulkInput, null: true], required: false
 
-      def resolve(**input)
-        if input[:inputs].size > 10_000
+      def resolve(inputs: [])
+        if inputs.size > 10_000
           raise I18n.t(:bulk_operation_limit_error, limit: 10_000)
         end
 
         ability = context[:ability] || Ability.new
         if ability.can?(:bulk_create, Tag.new(team: Team.current))
-          Tag.bulk_create(input[:inputs], Team.current)
+          Tag.bulk_create(inputs, Team.current)
         else
           raise CheckPermissions::AccessDenied, I18n.t(:permission_error)
         end

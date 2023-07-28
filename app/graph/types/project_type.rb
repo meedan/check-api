@@ -25,9 +25,7 @@ class ProjectType < DefaultObject
     object.reload.assignments_count
   end
 
-  field :project_medias,
-        ProjectMediaType.connection_type,
-        null: true
+  field :project_medias, ProjectMediaType.connection_type, null: true
 
   def project_medias
     object.project_medias.order("id DESC")

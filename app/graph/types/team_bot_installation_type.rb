@@ -31,8 +31,8 @@ class TeamBotInstallationType < DefaultObject
     argument :force, GraphQL::Types::Boolean, required: false
   end
 
-  def smooch_enabled_integrations(**args)
-    object.smooch_enabled_integrations(args[:force])
+  def smooch_enabled_integrations(force: nil)
+    object.smooch_enabled_integrations(force)
   end
 
   field :smooch_bot_preview_rss_feed, GraphQL::Types::String, null: true do
@@ -40,13 +40,13 @@ class TeamBotInstallationType < DefaultObject
     argument :number_of_articles, GraphQL::Types::Int, required: true, camelize: false
   end
 
-  def smooch_bot_preview_rss_feed(**args)
+  def smooch_bot_preview_rss_feed(rss_feed_url: nil, number_of_articles: nil)
     return nil unless object.bot_user.login == "smooch"
     ability = context[:ability] || Ability.new
     if ability.can?(:preview_rss_feed, Team.current)
       Bot::Smooch.render_articles_from_rss_feed(
-        args[:rss_feed_url],
-        args[:number_of_articles]
+        rss_feed_url,
+        number_of_articles
       )
     else
       I18n.t(:cant_preview_rss_feed)

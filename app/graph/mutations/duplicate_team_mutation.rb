@@ -5,8 +5,8 @@ class DuplicateTeamMutation < Mutations::BaseMutation
 
   field :team, TeamType, null: true
 
-  def resolve(**inputs)
-    _type_name, id = CheckGraphql.decode_id(inputs[:team_id])
+  def resolve(team_id: nil, custom_slug: nil, custom_name: nil)
+    _type_name, id = CheckGraphql.decode_id(team_id)
             user = User.current
             ability = Ability.new(user)
             team = GraphqlCrudOperations.load_if_can(Team, id, context)
@@ -16,8 +16,8 @@ class DuplicateTeamMutation < Mutations::BaseMutation
             new_team =
               Team.duplicate(
                 team,
-                inputs[:custom_slug],
-                inputs[:custom_name]
+                custom_slug,
+                custom_name
               )
             { team: new_team }
   end

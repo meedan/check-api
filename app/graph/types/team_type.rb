@@ -178,20 +178,20 @@ class TeamType < DefaultObject
     argument :published_reports_count_for_status, GraphQL::Types::String, required: false, camelize: false
   end
 
-  def verification_statuses(**args)
+  def verification_statuses(items_count_for_status: nil, published_reports_count_for_status: nil)
     # We sometimes call this method and somehow object is nil despite self.object being available
     object ||= self.object
-    object = object.reload if args[:items_count_for_status] || args[:published_reports_count_for_status]
-    object.verification_statuses("media", nil, args[:items_count_for_status], args[:published_reports_count_for_status])
+    object = object.reload if items_count_for_status || published_reports_count_for_status
+    object.verification_statuses("media", nil, items_count_for_status, published_reports_count_for_status)
   end
 
   field :team_bot_installation, TeamBotInstallationType, null: true do
     argument :bot_identifier, GraphQL::Types::String, required: true, camelize: false
   end
 
-  def team_bot_installation(**args)
+  def team_bot_installation(bot_identifier: nil)
     TeamBotInstallation.where(
-      user_id: BotUser.get_user(args[:bot_identifier])&.id,
+      user_id: BotUser.get_user(bot_identifier)&.id,
       team_id: object.id
     ).first
   end
@@ -200,9 +200,8 @@ class TeamType < DefaultObject
     argument :status, [GraphQL::Types::String, null: true], required: false
   end
 
-  def team_users(**args)
-    status = args[:status] || "member"
-    object.team_users.where({ status: status }).order("id ASC")
+  def team_users(status: nil)
+    object.team_users.where({ status: status || "member" }).order("id ASC")
   end
 
   field :join_requests, TeamUserType.connection_type, null: true
@@ -223,27 +222,21 @@ class TeamType < DefaultObject
     argument :keyword, GraphQL::Types::String, required: false
   end
 
-  def sources_count(**args)
-    object.sources_by_keyword(args[:keyword]).count
+  def sources_count(keyword: nil)
+    object.sources_by_keyword(keyword).count
   end
 
-  field :sources,
-        SourceType.connection_type,
-        null: true do
+  field :sources, SourceType.connection_type, null: true do
     argument :keyword, GraphQL::Types::String, required: false
   end
 
-  def sources(**args)
-    object.sources_by_keyword(args[:keyword])
+  def sources(keyword: nil)
+    object.sources_by_keyword(keyword)
   end
 
-  field :team_bots,
-        BotUserType.connection_type,
-        null: true
+  field :team_bots, BotUserType.connection_type, null: true
 
-  field :team_bot_installations,
-        TeamBotInstallationType.connection_type,
-        null: true
+  field :team_bot_installations, TeamBotInstallationType.connection_type, null: true
 
   field :tag_texts, TagTextType.connection_type, null: true do
     argument :keyword, GraphQL::Types::String, required: false
@@ -261,15 +254,13 @@ class TeamType < DefaultObject
     object.tag_texts_by_keyword(keyword).count
   end
 
-  field :team_tasks,
-        TeamTaskType.connection_type,
-        null: true do
+  field :team_tasks, TeamTaskType.connection_type, null: true do
     argument :fieldset, GraphQL::Types::String, required: false
   end
 
-  def team_tasks(**args)
+  def team_tasks(fieldset: nil)
     tasks = object.team_tasks.order(order: :asc, id: :asc)
-    tasks = tasks.where(fieldset: args[:fieldset]) unless args[:fieldset].blank?
+    tasks = tasks.where(fieldset: fieldset) unless fieldset.blank?
     tasks
   end
 
@@ -277,8 +268,8 @@ class TeamType < DefaultObject
     argument :dbid, GraphQL::Types::Int, required: true
   end
 
-  def team_task(**args)
-    object.team_tasks.where(id: args[:dbid].to_i).last
+  def team_task(dbid: nil)
+    object.team_tasks.where(id: dbid.to_i).last
   end
 
   field :default_folder, ProjectType, null: true
@@ -287,8 +278,8 @@ class TeamType < DefaultObject
     argument :dbid, GraphQL::Types::Int, required: true
   end
 
-  def feed(**args)
-    object.get_feed(args[:dbid])
+  def feed(dbid: nil)
+    object.get_feed(dbid)
   end
 
   field :shared_teams, JsonStringType, null: true

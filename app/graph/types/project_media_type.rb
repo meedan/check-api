@@ -45,12 +45,11 @@ class ProjectMediaType < DefaultObject
   field :claim_description, ClaimDescriptionType, null: true
 
   def claim_description
-    pm =
-      Relationship
-        .where("relationship_type = ?", Relationship.confirmed_type.to_yaml)
-        .where(target_id: object.id)
-        .first
-        &.source || object
+    pm = Relationship
+      .where("relationship_type = ?", Relationship.confirmed_type.to_yaml)
+      .where(target_id: object.id)
+      .first
+      &.source || object
     pm.claim_description
   end
 
@@ -58,8 +57,8 @@ class ProjectMediaType < DefaultObject
     argument :by_me, GraphQL::Types::Boolean, required: false, camelize: false
   end
 
-  def is_read(**args)
-    if args[:by_me]
+  def is_read(by_me: nil)
+    if by_me
       !ProjectMediaUser
         .where(
           project_media_id: object.id,
@@ -224,17 +223,16 @@ class ProjectMediaType < DefaultObject
     argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
   end
 
-  def annotation(**args)
-    object.get_dynamic_annotation(args[:annotation_type])
+  def annotation(annotation_type: nil)
+    object.get_dynamic_annotation(annotation_type)
   end
 
   field :field_value, GraphQL::Types::String, null: true do
     argument :annotation_type_field_name, GraphQL::Types::String, required: true, camelize: false
   end
 
-  def field_value(**args)
-    annotation_type, field_name =
-      args[:annotation_type_field_name].to_s.split(":")
+  def field_value(annotation_type_field_name: nil)
+    annotation_type, field_name = annotation_type_field_name.to_s.split(":")
     if !annotation_type.blank? && !field_name.blank?
       annotation = object.get_dynamic_annotation(annotation_type)
       annotation.nil? ? nil : annotation.get_field_value(field_name)
@@ -246,12 +244,12 @@ class ProjectMediaType < DefaultObject
     argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
   end
 
-  def assignments(**args)
+  def assignments(user_id: nil, annotation_type: nil)
     Annotation.joins(:assignments).where(
       "annotations.annotated_type" => "ProjectMedia",
       "annotations.annotated_id" => object.id,
-      "assignments.user_id" => args[:user_id],
-      "annotations.annotation_type" => args[:annotation_type]
+      "assignments.user_id" => user_id,
+      "annotations.annotation_type" => annotation_type
     )
   end
 

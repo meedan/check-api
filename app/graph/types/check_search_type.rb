@@ -7,8 +7,5 @@ class CheckSearchType < DefaultObject
   field :pusher_channel, GraphQL::Types::String, null: true
   field :item_navigation_offset, GraphQL::Types::Int, null: true
   field :team, TeamType, null: true
-
-  field :medias,
-        ProjectMediaType.connection_type,
-        null: true
+  field :medias, ProjectMediaType.connection_type, null: true
 end

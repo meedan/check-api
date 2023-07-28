@@ -9,15 +9,15 @@ class UserTwoFactorAuthenticationMutation < Mutations::BaseMutation
   field :success, GraphQL::Types::Boolean, null: true
   field :user, UserType, null: true
 
-  def resolve(**inputs)
-    user = User.where(id: inputs[:id]).last
-    if user.nil? || User.current.id != inputs[:id]
+  def resolve(id: nil, password: nil, qrcode: nil, otp_required: nil)
+    user = User.where(id: id).last
+    if user.nil? || User.current.id != id
       raise ActiveRecord::RecordNotFound
     else
       options = {
-        otp_required: inputs[:otp_required],
-        password: inputs[:password],
-        qrcode: inputs[:qrcode]
+        otp_required: otp_required,
+        password: password,
+        qrcode: qrcode
       }
       user.two_factor = (options)
       { success: true, user: user.reload }

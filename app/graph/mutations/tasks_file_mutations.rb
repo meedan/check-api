@@ -4,11 +4,11 @@ module TasksFileMutations
 
     field :task, TaskType, null: true
 
-    def resolve(**inputs)
+    def resolve(id: nil)
       task = GraphqlCrudOperations.object_from_id_if_can(
-          inputs[:id],
-          context[:ability]
-        )
+        id,
+        context[:ability]
+      )
       files = [context[:file]].flatten.reject { |f| f.blank? }
       task.add_files(files) if task.is_a?(Task) && !files.empty?
       { task: task }
@@ -21,12 +21,11 @@ module TasksFileMutations
 
     field :task, TaskType, null: true
 
-    def resolve(**inputs)
+    def resolve(id: nil, filenames: nil)
       task = GraphqlCrudOperations.object_from_id_if_can(
-        inputs[:id],
+        id,
         context[:ability]
       )
-      filenames = inputs[:filenames]
       if task.is_a?(Task) && !filenames.empty?
         task.remove_files(filenames)
       end

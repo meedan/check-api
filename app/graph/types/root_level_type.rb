@@ -17,9 +17,7 @@ class RootLevelType < BaseObject
     Team.current
   end
 
-  field :team_bots_listed,
-        BotUserType.connection_type,
-        null: true
+  field :team_bots_listed, BotUserType.connection_type, null: true
 
   def team_bots_listed
     BotUser.listed

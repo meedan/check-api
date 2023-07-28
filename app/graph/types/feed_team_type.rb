@@ -11,9 +11,6 @@ class FeedTeamType < DefaultObject
   field :team_id, GraphQL::Types::Int, null: true
   field :feed_id, GraphQL::Types::Int, null: true
   field :shared, GraphQL::Types::Boolean, null: true
-  field :requests_filters,
-        JsonStringType,
-        method: :get_requests_filters,
-        null: true
+  field :requests_filters, JsonStringType, method: :get_requests_filters, null: true
   field :saved_search, SavedSearchType, null: true
 end

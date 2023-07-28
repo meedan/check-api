@@ -42,8 +42,8 @@ class BotUserType < DefaultObject
     argument :team_slug, GraphQL::Types::String, required: false, camelize: false # Some settings options are team-specific
   end
 
-  def settings_as_json_schema(**args)
-    object.settings_as_json_schema(false, args[:team_slug])
+  def settings_as_json_schema(team_slug: nil)
+    object.settings_as_json_schema(false, team_slug)
   end
 
   field :team_author, TeamType, null: true

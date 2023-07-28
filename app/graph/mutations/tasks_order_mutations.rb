@@ -2,9 +2,9 @@ module TasksOrderMutations
   class BaseMoveMutation < Mutations::BaseMutation
     argument :id, GraphQL::Types::ID, required: true
 
-    def move(object, inputs, context, object_field, parent_field)
+    def move(object, id, context, object_field, parent_field)
       object = GraphqlCrudOperations.object_from_id_if_can(
-        inputs[:id],
+        id,
         context[:ability]
       )
       parent = object.send(parent_field)
@@ -17,8 +17,8 @@ module TasksOrderMutations
     field :task, TaskType, null: true
     field :project_media, ProjectMediaType, null: true, camelize: false
 
-    def resolve(**inputs)
-      move(object, inputs, context, :task, :project_media) { |obj| obj.move_up }
+    def resolve(id: nil)
+      move(object, id, context, :task, :project_media) { |obj| obj.move_up }
     end
   end
 
@@ -26,8 +26,8 @@ module TasksOrderMutations
     field :task, TaskType, null: true
     field :project_media, ProjectMediaType, null: true, camelize: false
 
-    def resolve(**inputs)
-      move(object, inputs, context, :task, :project_media) { |obj| obj.move_down }
+    def resolve(id: nil)
+      move(object, id, context, :task, :project_media) { |obj| obj.move_down }
     end
   end
 
@@ -35,8 +35,8 @@ module TasksOrderMutations
     field :team_task, TeamTaskType, null: true, camelize: false
     field :team, TeamType, null: true
 
-    def resolve(**inputs)
-      move(object, inputs, context, :team_task, :team) { |obj| obj.move_up }
+    def resolve(id: nil)
+      move(object, id, context, :team_task, :team) { |obj| obj.move_up }
     end
   end
 
@@ -44,8 +44,8 @@ module TasksOrderMutations
     field :team_task, TeamTaskType, null: true, camelize: false
     field :team, TeamType, null: true
 
-    def resolve(**inputs)
-      move(object, inputs, context, :team_task, :team) { |obj| obj.move_down }
+    def resolve(id: nil)
+      move(object, id, context, :team_task, :team) { |obj| obj.move_down }
     end
   end
 end

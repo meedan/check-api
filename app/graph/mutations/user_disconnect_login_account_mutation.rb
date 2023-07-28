@@ -7,12 +7,12 @@ class UserDisconnectLoginAccountMutation < Mutations::BaseMutation
   field :success, GraphQL::Types::Boolean, null: true
   field :user, UserType, null: true
 
-  def resolve(**inputs)
+  def resolve(provider: nil, uid: nil)
     user = User.current
     if user.nil?
       raise ActiveRecord::RecordNotFound
     else
-      user.disconnect_login_account(inputs[:provider], inputs[:uid])
+      user.disconnect_login_account(provider, uid)
       { success: true, user: User.current }
     end
   end

@@ -38,15 +38,13 @@ class RequestType < DefaultObject
     argument :media_id, GraphQL::Types::Int, required: false, camelize: false
   end
 
-  def similar_requests(**args)
+  def similar_requests(media_id: nil)
     requests =
       object.similar_requests.where(
         webhook_url: nil,
         last_called_webhook_at: nil
       )
-    requests = requests.where(media_id: args[:media_id].to_i) unless args[
-      :media_id
-    ].blank?
+    requests = requests.where(media_id: media_id.to_i) unless media_id.blank?
     requests
   end
 end

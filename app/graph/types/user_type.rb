@@ -85,24 +85,22 @@ class UserType < DefaultObject
     argument :team_slug, GraphQL::Types::String, required: true, camelize: false
   end
 
-  def team_user(**args)
+  def team_user(team_slug: nil)
     TeamUser
       .joins(:team)
-      .where("teams.slug" => args[:team_slug], :user_id => object.id)
+      .where("teams.slug" => team_slug, :user_id => object.id)
       .last
   end
 
   field :teams, TeamType.connection_type, null: true
 
-  field :team_users,
-        TeamUserType.connection_type,
-        null: true do
+  field :team_users, TeamUserType.connection_type, null: true do
     argument :status, GraphQL::Types::String, required: false
   end
 
-  def team_users(**args)
+  def team_users(status: nil)
     team_users = object.team_users
-    team_users = team_users.where(status: args[:status]) if args[:status]
+    team_users = team_users.where(status: status) if status
     team_users
   end
 
@@ -110,20 +108,17 @@ class UserType < DefaultObject
     argument :type, GraphQL::Types::String, required: false
   end
 
-  def annotations(**args)
-    type = args[:type]
+  def annotations(type: nil)
     type.blank? ? object.annotations : object.annotations(type)
   end
 
-  field :assignments,
-        ProjectMediaType.connection_type,
-        null: true do
+  field :assignments, ProjectMediaType.connection_type, null: true do
     argument :team_id, GraphQL::Types::Int, required: false, camelize: false
   end
 
-  def assignments(**args)
+  def assignments(team_id: nil)
     pms = Annotation.project_media_assigned_to_user(object).order("id DESC")
-    team_id = args[:team_id].to_i
+    team_id = team_id.to_i
     pms = pms.where(team_id: team_id) if team_id > 0
     # TODO: remove finished items
     # pms.reject { |pm| pm.is_finished? }

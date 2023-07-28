@@ -5,8 +5,8 @@ class DeleteCheckUserMutation < Mutations::BaseMutation
 
   field :success, GraphQL::Types::Boolean, null: true
 
-  def resolve(**inputs)
-    user = User.where(id: inputs[:id]).last
+  def resolve(id: nil)
+    user = User.where(id: id).last
     if user.nil?
       raise ActiveRecord::RecordNotFound
     else
