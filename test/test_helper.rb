@@ -160,9 +160,15 @@ class ActiveSupport::TestCase
 
   def setup
     [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship, Project, BotResource].each{ |klass| klass.delete_all }
+
+    # Some of our non-GraphQL tests rely on behavior that this requires. As a result,
+    # we'll keep it around for now and just recreate any needed dynamic annotation data
+    # in the setup of our controller tests. But, ideally we'd not do this since it's just
+    # extra work.
     DynamicAnnotation::AnnotationType.where.not(annotation_type: 'metadata').delete_all
     DynamicAnnotation::FieldType.where.not(field_type: 'json').delete_all
     DynamicAnnotation::FieldInstance.where.not(name: 'metadata_value').delete_all
+
     ENV['BOOTSNAP_CACHE_DIR'] = "#{Rails.root}/tmp/cache#{ENV['TEST_ENV_NUMBER']}"
     FileUtils.rm_rf(File.join(Rails.root, 'tmp', "cache<%= ENV['TEST_ENV_NUMBER'] %>", '*'))
     Rails.application.reload_routes!

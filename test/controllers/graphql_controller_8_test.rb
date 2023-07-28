@@ -4,25 +4,15 @@ class GraphqlController8Test < ActionController::TestCase
   def setup
     require 'sidekiq/testing'
     super
+    TestDynamicAnnotationTables.load!
     @controller = Api::V1::GraphqlController.new
 
     RequestStore.store[:skip_cached_field_update] = false
     User.current = nil
     Team.current = nil
-
-    create_verification_status_stuff
-    create_report_design_annotation_type
   end
 
   test "should create and retrieve clips" do
-    json_schema = {
-      type: 'object',
-      required: ['label'],
-      properties: {
-        label: { type: 'string' }
-      }
-    }
-    create_annotation_type_and_fields('Clip', {}, json_schema)
     admin_user = create_user is_admin: true
     p = create_project
     pm = create_project_media project: p
@@ -195,8 +185,6 @@ class GraphqlController8Test < ActionController::TestCase
   end
 
   test "should create report with image" do
-    # relies on create_report_design_annotation_type to be called before application load in #setup
-
     admin_user = create_user is_admin: true
     pm = create_project_media
     authenticate_with_user(admin_user)
@@ -321,10 +309,7 @@ class GraphqlController8Test < ActionController::TestCase
     assert_equal [pm.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
   end
 
-    test "should check permission before setting Slack channel URL" do
-    create_annotation_type_and_fields('Smooch User', {
-      'Slack Channel Url' => ['Text', true]
-    })
+  test "should check permission before setting Slack channel URL" do
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'admin'
@@ -404,7 +389,6 @@ class GraphqlController8Test < ActionController::TestCase
   test "should get OCR" do
     b = create_alegre_bot(name: 'alegre', login: 'alegre')
     b.approve!
-    create_extracted_text_annotation_type
     Bot::Alegre.unstub(:request_api)
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       Sidekiq::Testing.fake! do
@@ -808,9 +792,6 @@ class GraphqlController8Test < ActionController::TestCase
   end
 
   test "should transcribe audio" do
-    ft = DynamicAnnotation::FieldType.where(field_type: 'language').last || create_field_type(field_type: 'language', label: 'Language')
-    at = create_annotation_type annotation_type: 'language', label: 'Language'
-    create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
     Sidekiq::Testing.inline! do
       t = create_team
       u = create_user
@@ -826,16 +807,6 @@ class GraphqlController8Test < ActionController::TestCase
       Bot::Alegre.stubs(:request_api).with('get', '/audio/transcription/', { job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }).returns({ 'job_status' => 'COMPLETED', 'transcription' => 'Foo bar' })
       WebMock.stub_request(:post, 'http://alegre/text/langid/').to_return(body: { 'result' => { 'language' => 'es' }}.to_json)
 
-      json_schema = {
-        type: 'object',
-        required: ['job_name'],
-        properties: {
-          text: { type: 'string' },
-          job_name: { type: 'string' },
-          last_response: { type: 'object' }
-        }
-      }
-      create_annotation_type_and_fields('Transcription', {}, json_schema)
       b = create_bot_user login: 'alegre', name: 'Alegre', approved: true
       b.install_to!(t)
       WebMock.stub_request(:get, Bot::Alegre.media_file_url(pm)).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
@@ -852,7 +823,6 @@ class GraphqlController8Test < ActionController::TestCase
   end
 
   test "should get dynamic annotation field" do
-    create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
     name = random_string
     phone = random_string
     u = create_user
@@ -869,7 +839,6 @@ class GraphqlController8Test < ActionController::TestCase
   end
 
   test "should not get dynamic annotation field if does not have permission" do
-    create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
     name = random_string
     phone = random_string
     u = create_user
@@ -886,7 +855,6 @@ class GraphqlController8Test < ActionController::TestCase
   end
 
   test "should not get dynamic annotation field if parameters do not match" do
-    create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
     name = random_string
     phone = random_string
     u = create_user

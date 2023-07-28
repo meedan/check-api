@@ -4,8 +4,8 @@ class GraphqlController9Test < ActionController::TestCase
   def setup
     require 'sidekiq/testing'
     super
+    TestDynamicAnnotationTables.load!
     @controller = Api::V1::GraphqlController.new
-    create_annotation_type annotation_type: 'task_response'
     User.unstub(:current)
     Team.unstub(:current)
     User.current = nil
@@ -44,7 +44,7 @@ class GraphqlController9Test < ActionController::TestCase
     assert_equal [@m1, @m2, @m3].map(&:id), @pm.ordered_tasks('metadata').map(&:id)
     [@t1, @t2, @t3, @m1, @m2, @m3].each { |t| assert_nil t.reload.order }
   end
-  
+
   test "should not move team task up" do
     t = create_team private: true
     tt = create_team_task team_id: t.id
@@ -53,7 +53,7 @@ class GraphqlController9Test < ActionController::TestCase
     assert_response :success
     assert_error_message "Not Found"
   end
-  
+
   test "should not move team task down" do
     t = create_team private: true
     tt = create_team_task team_id: t.id
@@ -62,7 +62,7 @@ class GraphqlController9Test < ActionController::TestCase
     assert_response :success
     assert_error_message "Not Found"
   end
-  
+
   test "should move team task up" do
     query = 'mutation { moveTeamTaskUp(input: { clientMutationId: "1", id: "' + @tt2.graphql_id + '" }) { team_task { order }, team { team_tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
     post :create, params: { query: query, team: @t.slug }
@@ -79,7 +79,7 @@ class GraphqlController9Test < ActionController::TestCase
     assert_equal @tt1.id, tasks[1]['node']['dbid']
     assert_equal @tt3.id, tasks[2]['node']['dbid']
   end
-  
+
   test "should move team task down" do
     query = 'mutation { moveTeamTaskDown(input: { clientMutationId: "1", id: "' + @tt2.graphql_id + '" }) { team_task { order }, team { team_tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
     post :create, params: { query: query, team: @t.slug }
@@ -96,7 +96,7 @@ class GraphqlController9Test < ActionController::TestCase
     assert_equal @tt3.id, tasks[1]['node']['dbid']
     assert_equal @tt2.id, tasks[2]['node']['dbid']
   end
-  
+
   test "should move team metadata up" do
     query = 'mutation { moveTeamTaskUp(input: { clientMutationId: "1", id: "' + @tm2.graphql_id + '" }) { team_task { order }, team { team_tasks(fieldset: "metadata", first: 10) { edges { node { dbid, order } } } } } }'
     post :create, params: { query: query, team: @t.slug }
@@ -113,7 +113,7 @@ class GraphqlController9Test < ActionController::TestCase
     assert_equal @tm1.id, tasks[1]['node']['dbid']
     assert_equal @tm3.id, tasks[2]['node']['dbid']
   end
-  
+
   test "should move team metadata down" do
     query = 'mutation { moveTeamTaskDown(input: { clientMutationId: "1", id: "' + @tm2.graphql_id + '" }) { team_task { order }, team { team_tasks(fieldset: "metadata", first: 10) { edges { node { dbid, order } } } } } }'
     post :create, params: { query: query, team: @t.slug }
@@ -130,7 +130,7 @@ class GraphqlController9Test < ActionController::TestCase
     assert_equal @tm3.id, tasks[1]['node']['dbid']
     assert_equal @tm2.id, tasks[2]['node']['dbid']
   end
-  
+
   test "should not move task up" do
     t = create_team private: true
     pm = create_project_media team: t
@@ -140,7 +140,7 @@ class GraphqlController9Test < ActionController::TestCase
     assert_response :success
     assert_error_message "Not Found"
   end
-  
+
   test "should not move task down" do
     t = create_team private: true
     pm = create_project_media team: t
@@ -213,7 +213,7 @@ class GraphqlController9Test < ActionController::TestCase
     m3_order = tasks.find{|t| t['node']['dbid'] == @m3.id.to_s }
     assert_equal m3_order['node']['order'], 3
   end
-  
+
   test "should move metadata down" do
     query = 'mutation { moveTaskDown(input: { clientMutationId: "1", id: "' + @m2.graphql_id + '" }) { task { order }, project_media { tasks(fieldset: "metadata", first: 10) { edges { node { dbid, order } } } } } }'
     post :create, params: { query: query, team: @t.slug }
@@ -232,32 +232,32 @@ class GraphqlController9Test < ActionController::TestCase
     m3_order = tasks.find{|t| t['node']['dbid'] == @m3.id.to_s }
     assert_equal m3_order['node']['order'], 2
   end
-  
+
   test "should add files to task and remove files from task" do
     t0 = create_task annotated: @pm, fieldset: 'tasks', task_type: 'file_upload' ; sleep 1
     t0.response = { annotation_type: 'task_response' }.to_json
     t0.save!
     assert_equal 0, t0.reload.first_response_obj.file_data.size
-  
+
     query = 'mutation { addFilesToTask(input: { clientMutationId: "1", id: "' + t0.graphql_id + '" }) { task { id } } }'
     post :create, params: { query: query, file: { '0' => @f1 }, team: @t.slug }
     assert_response :success
     assert_equal 1, t0.reload.first_response_obj.file_data[:file_urls].size
     assert_equal ['rails.png'], t0.reload.first_response_obj.file_data[:file_urls].collect{ |f| f.split('/').last }
-  
+
     query = 'mutation { addFilesToTask(input: { clientMutationId: "1", id: "' + t0.graphql_id + '" }) { task { id } } }'
     post :create, params: { query: query, file: { '0' => @f2, '1' => @f3 }, team: @t.slug }
     assert_response :success
     assert_equal 3, t0.reload.first_response_obj.file_data[:file_urls].size
     assert_equal ['rails.png', 'rails2.png', 'rails.mp4'].sort, t0.reload.first_response_obj.file_data[:file_urls].collect{ |f| f.split('/').last }.sort
-  
+
     query = 'mutation { removeFilesFromTask(input: { clientMutationId: "1", id: "' + t0.graphql_id + '", filenames: ["rails.mp4", "rails.png"] }) { task { id } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_equal 1, t0.reload.first_response_obj.file_data[:file_urls].size
     assert_equal ['rails2.png'], t0.reload.first_response_obj.file_data[:file_urls].collect{ |f| f.split('/').last }
   end
-  
+
   test "should not get Smooch Bot RSS feed preview if not owner" do
     u = create_user
     t = create_team
@@ -271,7 +271,7 @@ class GraphqlController9Test < ActionController::TestCase
     post :create, params: { query: query, team: t.slug }
     assert_match /Sorry/, @response.body
   end
-  
+
   test "should not get Smooch Bot RSS feed preview if not member of the team" do
     u = create_user
     t = create_team
@@ -290,7 +290,7 @@ class GraphqlController9Test < ActionController::TestCase
     u = create_user is_admin: true
     i = create_team_bot_installation
     authenticate_with_user(u)
-  
+
     id = Base64.encode64("TeamUser/#{i.id}")
     query = 'mutation update { updateTeamUser(input: { clientMutationId: "1", id: "' + id + '", role: "editor" }) { team_user { id } } }'
     post :create, params: { query: query, team: i.team.slug }

@@ -4,10 +4,8 @@ class GraphqlController5Test < ActionController::TestCase
   def setup
     require 'sidekiq/testing'
     super
+    TestDynamicAnnotationTables.load!
     @controller = Api::V1::GraphqlController.new
-    create_annotation_type annotation_type: 'task_response'
-    create_flag_annotation_type
-    create_report_design_annotation_type
 
     User.current = nil
     Team.current = nil
@@ -69,7 +67,6 @@ class GraphqlController5Test < ActionController::TestCase
   end
 
   test "should create and update flags and content warning" do
-    # relies on create_report_design_annotation_type to be called before application load in #setup
     t = create_team
     u = create_user is_admin: true
     pm = create_project_media team: t
@@ -102,9 +99,6 @@ class GraphqlController5Test < ActionController::TestCase
     pm2 = create_project_media project: p
     pm3 = create_project_media project: p
     # add response to task for pm
-    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
-    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
     pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
     pm_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
     pm_tt.save!
@@ -134,7 +128,6 @@ class GraphqlController5Test < ActionController::TestCase
 
   test "should get version related to status change" do
     with_versioning do
-      create_verification_status_stuff
       u = create_user
       t = create_team
       create_team_user user: u, team: t, role: 'admin'

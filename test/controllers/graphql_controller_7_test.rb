@@ -4,6 +4,7 @@ class GraphqlController7Test < ActionController::TestCase
   def setup
     require 'sidekiq/testing'
     super
+    TestDynamicAnnotationTables.load!
     @controller = Api::V1::GraphqlController.new
     RequestStore.store[:skip_cached_field_update] = false
     Sidekiq::Testing.fake!
@@ -11,7 +12,7 @@ class GraphqlController7Test < ActionController::TestCase
     Team.unstub(:current)
     User.current = nil
     Team.current = nil
-    create_verification_status_stuff
+
     @t = create_team
     @u = create_user
     @tu = create_team_user team: @t, user: @u, role: 'admin'
@@ -84,7 +85,7 @@ class GraphqlController7Test < ActionController::TestCase
     u = create_user
     t2 = create_team
     create_team_user user: u, team: t2, role: 'admin'
-    
+
     query = "query { team(slug: \"#{t.slug}\") { team_bot_installations(first: 1) { edges { node { smooch_enabled_integrations } } } } }"
     post :create, params: { query: query }
     assert_error_message 'Not Found'
