@@ -667,4 +667,21 @@ class ProjectTest < ActiveSupport::TestCase
     end
     RequestStore.store[:skip_cached_field_update] = true
   end
+
+  test "should not delete default folder" do
+    t = create_team
+    t.projects.delete_all
+    p = create_project is_default: false, team: t
+    assert_difference 'Project.count', -1 do
+      assert_nothing_raised do
+        p.destroy!
+      end
+    end
+    p = create_project is_default: true, team: t
+    assert_no_difference 'Project.count' do
+      assert_raises ActiveRecord::RecordNotDestroyed do
+        p.destroy!
+      end
+    end
+  end
 end
