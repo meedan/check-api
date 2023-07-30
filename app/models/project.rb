@@ -24,8 +24,8 @@ class Project < ApplicationRecord
 
   before_validation :set_description_and_team_and_user, on: :create
   before_validation :generate_token, on: :create
-  before_destroy :ensure_its_not_default, prepend: true do
-    throw(:abort) if errors.present?
+  before_destroy :ensure_its_not_default, prepend: true do |p|
+    throw(:abort) if errors.present? && !p.is_being_copied
   end
 
   after_commit :send_slack_notification, on: [:create, :update]
