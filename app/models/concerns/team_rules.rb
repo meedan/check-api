@@ -355,7 +355,7 @@ module TeamRules
               begin
                 Regexp.new(condition['rule_value'])
               rescue RegexpError => e
-                errors.add(:base, I18n.t(:team_rule_regexp_invalid, { error: e.message }))
+                errors.add(:base, I18n.t(:team_rule_regexp_invalid, **{ error: e.message }))
               end
             end
           end

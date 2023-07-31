@@ -73,7 +73,7 @@ class Task < ApplicationRecord
     else
       event = params[:event]
     end
-    pretext = I18n.t("slack.messages.#{self.fieldset}_#{event}", params)
+    pretext = I18n.t("slack.messages.#{self.fieldset}_#{event}", **params)
     # Either render a card or add the notification to the thread
     self.annotated&.should_send_slack_notification_message_for_card? ? self.annotated&.slack_notification_message_for_card(pretext) : nil
   end
