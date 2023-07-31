@@ -10,8 +10,7 @@ class CheckSearch
     @options['operator'] ||= 'AND' # AND or OR
 
     # Set sort options
-    smooch_bot_installed = TeamBotInstallation.where(team_id: @options['team_id'], user_id: BotUser.smooch_user&.id).exists?
-    @options['sort'] ||= (smooch_bot_installed ? 'last_seen' : 'recent_added')
+    @options['sort'] ||= 'recent_added'
     @options['sort_type'] ||= 'desc'
 
     # Set show options

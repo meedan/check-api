@@ -336,6 +336,7 @@ module SampleData
     project.title = options[:title] || random_string
     project.description = options[:description] || random_string(40)
     project.user = options.has_key?(:user) ? options[:user] : create_user
+    project.is_default = options[:is_default] if options.has_key?(:is_default)
     file = 'rails.png'
     if options.has_key?(:lead_image)
       file = options[:lead_image]

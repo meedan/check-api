@@ -155,7 +155,7 @@ class GraphqlController2Test < ActionController::TestCase
     post :create, params: { query: query, team: t.slug }
     assert_response :success
 
-    assert_queries(9, '=') do
+    assert_queries(7, '=') do
       query = 'query CheckSearch { search(query: "{}") { medias(first: 5) { edges { node { list_columns_values } } } } }'
       post :create, params: { query: query, team: t.slug }
       assert_response :success

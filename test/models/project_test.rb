@@ -627,12 +627,8 @@ class ProjectTest < ActiveSupport::TestCase
     p.save!
     assert_equal 1, t.projects.where(is_default: true).count
     default_folder = t.default_folder
-    u = create_user
-    tu = create_team_user team: t, user: u, role: 'admin'
-    with_current_user_and_team(u, t) do
-      assert_raise RuntimeError do
-        default_folder.destroy
-      end
+    assert_raises ActiveRecord::RecordNotDestroyed do
+      default_folder.destroy!
     end
   end
 
@@ -666,5 +662,22 @@ class ProjectTest < ActiveSupport::TestCase
       end
     end
     RequestStore.store[:skip_cached_field_update] = true
+  end
+
+  test "should not delete default folder" do
+    t = create_team
+    t.projects.delete_all
+    p = create_project is_default: false, team: t
+    assert_difference 'Project.count', -1 do
+      assert_nothing_raised do
+        p.destroy!
+      end
+    end
+    p = create_project is_default: true, team: t
+    assert_no_difference 'Project.count' do
+      assert_raises ActiveRecord::RecordNotDestroyed do
+        p.destroy!
+      end
+    end
   end
 end
