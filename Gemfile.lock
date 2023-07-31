@@ -47,7 +47,7 @@ GIT
 
 GIT
   remote: https://github.com/meedan/rails-i18n.git
-  revision: e10d69e8fb9ce9b79d4883d2333303fb7359bba4
+  revision: 130e65e148b13fb166e041bc2df4c4d03f202ea1
   branch: rails-6-x
   specs:
     rails-i18n (6.0.0)
@@ -240,7 +240,6 @@ GEM
       ffi (>= 1.15.0)
     eventmachine (1.2.7)
     excon (0.92.1)
-    execjs (2.8.1)
     expgen (0.1.1)
       parslet
     faker (2.22.0)
@@ -357,7 +356,7 @@ GEM
       ffi-compiler (>= 1.0, < 2.0)
     http_parser.rb (0.6.0)
     httpclient (2.8.3)
-    i18n (1.13.0)
+    i18n (1.14.1)
       concurrent-ruby (~> 1.0)
     i18n-generators (1.1.3)
       mechanize
@@ -383,9 +382,9 @@ GEM
       activesupport (>= 4)
       railties (>= 4)
       request_store (~> 1.0)
-    loofah (2.19.1)
+    loofah (2.21.3)
       crass (~> 1.0.2)
-      nokogiri (>= 1.5.9)
+      nokogiri (>= 1.12.0)
     mail (2.8.1)
       mini_mime (>= 0.1.1)
       net-imap
@@ -412,7 +411,7 @@ GEM
     mime-types-data (3.2022.0105)
     mini_magick (4.10.1)
     mini_mime (1.1.2)
-    mini_portile2 (2.8.1)
+    mini_portile2 (2.8.2)
     minitest (5.18.0)
     minitest-hooks (1.5.0)
       minitest (> 5.3)
@@ -821,7 +820,7 @@ GEM
       daemons (~> 1.0, >= 1.0.9)
       eventmachine (~> 1.0, >= 1.0.4)
       rack (>= 1, < 3)
-    thor (1.2.1)
+    thor (1.2.2)
     thread_safe (0.3.6)
     timeout (0.3.2)
     tins (1.31.0)
@@ -902,7 +901,6 @@ DEPENDENCIES
   elasticsearch-model (= 7.1.1)
   elasticsearch-persistence (= 7.1.1)
   elasticsearch-transport (= 7.10.1)
-  execjs
   faker
   file_validators
   filesize
@@ -927,7 +925,7 @@ DEPENDENCIES
   jwt
   listen
   lograge
-  loofah (= 2.19.1)
+  loofah (~> 2.0, >= 2.0.3)
   mini_magick (= 4.10.1)
   minitest (~> 5.14)
   minitest-hooks

@@ -22,7 +22,7 @@ module Api
 
       def batch
         parse_graphql_result do |context|
-          queries = params[:_json].map do |param|
+          queries = params[:_json]&.map do |param|
             {
               query: param[:query],
               variables: prepare_query_variables(param[:variables]),
@@ -35,7 +35,7 @@ module Api
               id: result.query.context[:id],
               payload: result.to_h
             }
-          end
+          end unless queries.nil?
           results
         end
       end
@@ -118,15 +118,17 @@ module Api
           CheckPermissions::AccessDenied => ::LapisConstants::ErrorCodes::ID_NOT_FOUND,
           ActiveRecord::RecordNotFound => ::LapisConstants::ErrorCodes::ID_NOT_FOUND,
           ActiveRecord::StaleObjectError => ::LapisConstants::ErrorCodes::CONFLICT,
-          ActiveRecord::RecordNotUnique => ::LapisConstants::ErrorCodes::CONFLICT
+          ActiveRecord::RecordNotUnique => ::LapisConstants::ErrorCodes::CONFLICT,
+          ActiveRecord::RecordInvalid => ::LapisConstants::ErrorCodes::INVALID_VALUE
         }
         errors = []
         message = e.message.kind_of?(Array) ? e.message : [e.message]
-        message.each do |i|
+        message.each do |m|
+          data = e.is_a?(ActiveRecord::RecordInvalid) ? e.record.errors.to_hash : {}
           errors << {
-            message: i,
+            message: m,
             code: mapping[e.class] || ::LapisConstants::ErrorCodes::UNKNOWN,
-            data: {},
+            data: data,
           }
         end
         { errors: errors }

@@ -26,8 +26,12 @@ class TestController < ApplicationController
   def install_bot
     team = Team.where(slug: params[:slug]).last
     login = params[:bot]
+    settings = begin JSON.parse(params[:settings]) rescue params[:settings].to_h end
     bot = BotUser.find_by_login(login) || BotUser.create!(login: login, name: login.capitalize, settings: { approved: true })
-    bot.install_to!(team)
+    team_user = bot.install_to!(team)
+    team_user = TeamUser.find(team_user.id)
+    team_user.settings = team_user.settings.merge(settings)
+    team_user.save!
     render_success 'team', team.reload
   end
 
@@ -218,6 +222,10 @@ class TestController < ApplicationController
     pm2 = params[:pm2]
     create_relationship source_id: pm1, target_id: pm2 ,relationship_type: Relationship.suggested_type
     render_success 'suggest_similarity', pm1
+  end
+
+  def random
+    render html: "<!doctype html><html><head><title>Test #{rand(100000).to_i}</title></head><body>Test</body></html>".html_safe
   end
 
   protected

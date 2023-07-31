@@ -26,6 +26,23 @@ module SmoochMessages
       all_channels.keys.include?(channel) ? all_channels[channel] : nil
     end
 
+    def get_typed_message(message, sm)
+      # v1 (plain text)
+      typed = message['text']
+      new_state = nil
+      # v2 (buttons and lists)
+      unless message['payload'].blank?
+        typed = nil
+        payload = begin JSON.parse(message['payload']) rescue {} end
+        if payload.class == Hash
+          new_state = payload['state']
+          sm.send("go_to_#{new_state}") if new_state && new_state != sm.state.value
+          typed = payload['keyword']
+        end
+      end
+      [typed.to_s.downcase.strip, new_state]
+    end
+
     def bundle_message(message)
       uid = message['authorId']
       redis = Redis.new(REDIS_CONFIG)
@@ -85,7 +102,9 @@ module SmoochMessages
     end
 
     def send_message_for_state(uid, workflow, state, language, pretext = '')
-      message = self.utmize_urls(self.get_message_for_state(workflow, state, language, uid).to_s, 'resource')
+      team = Team.find(self.config['team_id'].to_i)
+      message = self.get_message_for_state(workflow, state, language, uid).to_s
+      message = UrlRewriter.shorten_and_utmize_urls(message, team.get_outgoing_urls_utm_code) if team.get_shorten_outgoing_urls
       text = [pretext, message].reject{ |part| part.blank? }.join("\n\n")
       if self.is_v2?
         if self.should_ask_for_language_confirmation?(uid)
@@ -173,7 +192,10 @@ module SmoochMessages
       self.save_message_later(message, app_id, type)
       workflow = self.get_workflow(message['language'])
       uid = message['authorId']
-      self.send_message_to_user(uid, utmize_urls(workflow['smooch_message_smooch_bot_message_confirmed'], 'resource')) if send_message && !workflow.nil?
+      team = Team.find(self.config['team_id'].to_i)
+      text = workflow['smooch_message_smooch_bot_message_confirmed'].to_s
+      text = UrlRewriter.shorten_and_utmize_urls(text, team.get_outgoing_urls_utm_code) if team.get_shorten_outgoing_urls
+      self.send_message_to_user(uid, text) if send_message && !workflow.nil?
     end
 
     def message_hash(message)
@@ -385,22 +407,6 @@ module SmoochMessages
 
     def should_try_to_send_report?(request_type, annotated)
       ['default_requests', 'irrelevant_search_result_requests'].include?(request_type) && (annotated.respond_to?(:is_being_created) && !annotated.is_being_created)
-    end
-
-    def utmize_urls(text, source)
-      entities = Twitter::TwitterText::Extractor.extract_urls_with_indices(text, extract_url_without_protocol: true)
-      # Ruby 2.7 freezes the empty string from nil.to_s, which causes an error within the rewriter
-      Twitter::TwitterText::Rewriter.rewrite_entities(text || '', entities) do |entity, _codepoints|
-        url = entity[:url]
-        begin
-          uri = URI.parse(url)
-          new_query_ar = URI.decode_www_form(uri.query.to_s) << ['utm_source', "check_#{source}"]
-          uri.query = URI.encode_www_form(new_query_ar)
-          uri.to_s
-        rescue
-          url
-        end
-      end
     end
 
     def send_message_on_status_change(pm_id, status, request_actor_session_id = nil)

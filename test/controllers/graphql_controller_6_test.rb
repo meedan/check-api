@@ -101,18 +101,6 @@ class GraphqlController6Test < ActionController::TestCase
     assert_equal 2, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
   end
 
-  test "should get Smooch newsletter information" do
-    setup_smooch_bot(true)
-    rss = '<rss version="1"><channel><title>x</title><link>x</link><description>x</description><item><title>x</title><link>x</link></item></channel></rss>'
-    WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(status: 200, body: rss)
-    u = create_user is_admin: true
-    authenticate_with_user(u)
-    query = "query { team(slug: \"#{@team.slug}\") { team_bot_installations(first: 1) { edges { node { smooch_newsletter_information } } } } }"
-    post :create, params: { query: query }
-    assert_response :success
-    assert_not_nil json_response.dig('data', 'team', 'team_bot_installations', 'edges', 0, 'node', 'smooch_newsletter_information')
-  end
-
   test "should search by similar image on PG" do
     t = create_team
     u = create_user is_admin: true
@@ -188,23 +176,27 @@ class GraphqlController6Test < ActionController::TestCase
     u = create_user
     create_team_user(team: t1, user: u, role: 'editor')
     authenticate_with_user(u)
-    f = create_feed
-    f.filters = { keyword: 'banana' }
+    f_ss = create_saved_search team_id: t1.id, filters: { keyword: 'banana' }
+    f = create_feed team_id: t1.id
     f.teams = [t1, t2]
+    f.saved_search = f_ss
     f.save!
 
+
     # Team 1 content to be shared
+    ft1_ss = create_saved_search team_id: t1.id, filters: { keyword: 'apple' }
     ft1 = FeedTeam.where(feed: f, team: t1).last
-    ft1.filters = { keyword: 'apple' }
     ft1.shared = false
+    ft1.saved_search = ft1_ss
     ft1.save!
     pm1a = create_project_media quote: 'I like apple and banana', team: t1
     pm1b = create_project_media quote: 'I like orange and banana', team: t1
 
     # Team 2 content to be shared
+    ft2_ss = create_saved_search team_id: t2.id, filters: { keyword: 'orange' }
     ft2 = FeedTeam.where(feed: f, team: t2).last
-    ft2.filters = { keyword: 'orange' }
     ft2.shared = true
+    ft2.saved_search = ft2_ss
     ft2.save!
     pm2a = create_project_media quote: 'I love apple and banana', team: t2
     pm2b = create_project_media quote: 'I love orange and banana', team: t2

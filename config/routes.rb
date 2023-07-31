@@ -4,10 +4,7 @@ require 'sidekiq/cron/web'
 
 Rails.application.routes.draw do
   mount GraphiQL::Rails::Engine, at: '/graphiql', graphql_path: '/api/graphql'
-
-  authenticate :api_user, -> (user) { user.is_admin } do
-    mount Sidekiq::Web => '/sidekiq'
-  end
+  mount Sidekiq::Web => '/sidekiq'
 
   namespace :api, defaults: { format: 'json' } do
     # Call v2 API by passing header: 'Accept: application/vnd.api+json'
@@ -81,4 +78,5 @@ Rails.application.routes.draw do
   match '/test/suggest_similarity' => 'test#suggest_similarity_item', via: :get
   match '/test/install_bot' => 'test#install_bot', via: :get
   match '/test/add_team_user' => 'test#add_team_user', via: :get
+  match '/test/random' => 'test#random', via: :get
 end

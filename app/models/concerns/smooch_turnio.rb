@@ -33,9 +33,9 @@ module SmoochTurnio
       'TURN.IO'
     end
 
-    def turnio_format_template_message(namespace, template, _fallback, locale, image, placeholders)
+    def turnio_format_template_message(namespace, template, _fallback, locale, file_url, placeholders, file_type = 'image', preview_url = true)
       components = []
-      components << { type: 'header', parameters: [{ type: 'image', image: { link: image } }] } unless image.blank?
+      components << { type: 'header', parameters: [{ type: file_type, file_type => { link: file_url } }] } unless file_url.blank?
       body = []
       placeholders.each do |placeholder|
         body << { type: 'text', text: placeholder.gsub(/\s+/, ' ') }
@@ -43,6 +43,7 @@ module SmoochTurnio
       components << { type: 'body', parameters: body } unless body.empty?
       {
         type: 'template',
+        preview_url: preview_url,
         template: {
           namespace: namespace,
           name: template,
@@ -96,7 +97,7 @@ module SmoochTurnio
     end
 
     def get_turnio_message_text(message)
-      message.dig('text', 'body') || message.dig('interactive', 'list_reply', 'title') || message.dig('interactive', 'button_reply', 'title') || ''
+      Bot::Smooch.get_capi_message_text(message)
     end
 
     def get_turnio_message_uid(message)
@@ -114,7 +115,7 @@ module SmoochTurnio
         messages = [{
           '_id': message['id'],
           authorId: uid,
-          name: json['contacts'][0]['profile']['name'],
+          name: json.dig('contacts', 0, 'profile', 'name'),
           type: self.convert_turnio_message_type(message['type']),
           text: self.get_turnio_message_text(message),
           source: { type: 'whatsapp', originalMessageId: message['id'] },
@@ -255,10 +256,7 @@ module SmoochTurnio
       req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{self.config['turnio_token']}")
       req.body = payload.to_json
       response = http.request(req)
-      ret = nil
-      if response.code.to_i < 400
-        ret = response
-      else
+      if response.code.to_i >= 400
         response_body = Bot::Smooch.safely_parse_response_body(response)
         errors = response_body&.dig('errors')
         errors.to_a.each do |error|
@@ -272,7 +270,7 @@ module SmoochTurnio
           )
         end
       end
-      ret
+      response
     end
   end
 end

@@ -9,7 +9,6 @@ config/sidekiq-test.yml
 config/clean_db.yml
 *.sw*
 *~
-public/assets
 public/uploads
 public/uploads/tmp
 !public/uploads/tmp/.gitkeep
@@ -37,3 +36,4 @@ public/report_design
 public/team_dump
 .idea
 .vscode/launch.json
+public/newsletter

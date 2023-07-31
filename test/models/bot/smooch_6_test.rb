@@ -20,6 +20,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     @sm.reset
     Bot::Smooch.clear_user_bundled_messages(@uid)
     Bot::Smooch.reset_user_language(@uid)
+    Rails.cache.delete("smooch:banned:#{@uid}")
     Sidekiq::Testing.fake!
     @search_result = create_project_media team: @team
 
@@ -73,11 +74,11 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
 
   def send_message_outside_24_hours_window(template, pm = nil)
     message_id = random_string
-    response = OpenStruct.new(message: OpenStruct.new(id: message_id))
+    response = OpenStruct.new(body: OpenStruct.new({ message: OpenStruct.new(id: message_id) }))
     Bot::Smooch.save_smooch_response(response, pm, Time.now.to_i, template, 'en')
 
     @msgid = random_string
-    response = OpenStruct.new(message: OpenStruct.new(id: @msgid))
+    response = OpenStruct.new(body: OpenStruct.new({ message: OpenStruct.new(id: @msgid) }))
     Bot::Smooch.stubs(:send_message_to_user).returns(response)
     assert_nil Rails.cache.read("smooch:original:#{@msgid}")
 
@@ -434,19 +435,6 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     end
   end
 
-  test "should read newsletter after 24 hours since the last message" do
-    WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(body: '<rss></rss>')
-    id = random_string
-    message = { 'appUser' => { '_id' => @uid } }
-    original = { 'language' => 'en', 'introduction' => 'Latest from {date} on {channel}:' }
-    Bot::Smooch.stubs(:send_message_to_user).returns(OpenStruct.new(message: OpenStruct.new({ id: id })))
-    assert Bot::Smooch.resend_newsletter_after_window(message, original)
-    assert_equal 'newsletter:en', Rails.cache.read("smooch:original:#{id}")
-    Bot::Smooch.unstub(:send_message_to_user)
-
-    send_message_to_smooch_bot('Read now', @uid, { 'quotedMessage' => { 'content' => { '_id' => id } } })
-  end
-
   test "should show main menu as buttons for non-WhatsApp platforms on tipline bot v2" do
     send_message_to_smooch_bot('Hello', @uid, { 'source' => { 'type' => 'telegram' } })
     send_message_to_smooch_bot('1', @uid, { 'source' => { 'type' => 'telegram' } })
@@ -578,19 +566,6 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     end
   end
 
-  test "should send newsletter notification with button after 24 hours window" do
-    WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(body: '<rss></rss>')
-    Sidekiq::Testing.inline! do
-      @installation.set_smooch_template_name_for_newsletter_with_button = 'newsletter_with_button'
-      @installation.save!
-
-      send_message_outside_24_hours_window('newsletter')
-
-      send_message_to_smooch_bot('Read now', @uid, { 'quotedMessage' => { 'content' => { '_id' => @msgid } } })
-      assert_nil Rails.cache.read("smooch:original:#{@msgid}")
-    end
-  end
-
   test "should send Slack message notification with button after 24 hours window" do
     Sidekiq::Testing.inline! do
       Bot::Smooch.stubs(:get_original_slack_message_text_to_be_resent).returns(random_string)
@@ -715,5 +690,59 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       Bot::Smooch.send_final_messages_to_user(@uid, 'Test', nil, 'en', 5)
       assert_equal 1, Sidekiq::Worker.jobs.size
     end
+  end
+
+  test "should not reply to banned user" do
+    Sidekiq::Worker.clear_all
+    Bot::Smooch.ban_user({ 'authorId' => @uid })
+    Sidekiq::Testing.fake! do
+      send_message 'hello'
+      assert_equal 0, Sidekiq::Worker.jobs.size
+    end
+  end
+
+  test 'should update subscription and not try to reply to user when a payload about number change is received' do
+    @installation.set_capi_whatsapp_business_account_id = '123456'
+    @installation.set_capi_phone_number = '000000'
+    @installation.save!
+    Rails.cache.write('smooch_bot_installation_id:whatsapp_business_account_id:123456', @installation.id)
+    Bot::Smooch.get_installation('whatsapp_business_account_id', '123456')
+    RequestStore.store[:smooch_bot_provider] = 'CAPI'
+
+    Bot::Smooch.expects(:send_message_to_user).never
+
+    ts = create_tipline_subscription team_id: @team.id, uid: '000000:111111'
+    assert_equal '000000:111111', ts.reload.uid
+
+    payload = {
+      object: 'whatsapp_business_account',
+      entry: [{
+        id: '123456',
+        changes: [{
+          value: {
+            messaging_product: 'whatsapp',
+            metadata: {
+              display_phone_number: '000000',
+              phone_number_id: '654321'
+            },
+            messages: [{
+              from: '111111',
+              id: 'wamid.abc123',
+              timestamp: Time.now.to_i.to_s,
+              system: {
+                body: 'User A changed from 111111 to 222222',
+                wa_id: '222222',
+                type: 'user_changed_number'
+              },
+              type: 'system'
+            }
+            ]
+          },
+          field: 'messages'
+        }]
+      }]
+    }
+    assert !Bot::Smooch.run(payload.to_json)
+    assert_equal '000000:222222', ts.reload.uid
   end
 end

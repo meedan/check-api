@@ -128,5 +128,11 @@ MutationType = GraphQL::ObjectType.define do
   field :updateFactCheck, field: FactCheckMutations::Update.field
   field :destroyFactCheck, field: FactCheckMutations::Destroy.field
 
+  field :createFeed, field: FeedMutations::Create.field
+  field :updateFeed, field: FeedMutations::Update.field
+
   field :updateFeedTeam, field: FeedTeamMutations::Update.field
+
+  field :createTiplineNewsletter, field: TiplineNewsletterMutations::Create.field
+  field :updateTiplineNewsletter, field: TiplineNewsletterMutations::Update.field
 end

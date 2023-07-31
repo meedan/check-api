@@ -152,6 +152,23 @@ class Team < ApplicationRecord
     self.send(:set_language, language)
   end
 
+  def language_detection=(language_detection)
+    self.send(:set_language_detection, language_detection)
+  end
+
+  def get_language_detection
+    settings = self.settings.to_h.with_indifferent_access
+    settings.has_key?(:language_detection) ? settings[:language_detection] : true
+  end
+
+  def outgoing_urls_utm_code=(code)
+    self.set_outgoing_urls_utm_code = code
+  end
+
+  def shorten_outgoing_urls=(bool)
+    self.set_shorten_outgoing_urls = bool
+  end
+
   def clear_list_columns_cache
     languages = self.get_languages.to_a + I18n.available_locales.map(&:to_s)
     languages.uniq.each { |l| Rails.cache.delete("list_columns:team:#{l}:#{self.id}") }
@@ -557,11 +574,15 @@ class Team < ApplicationRecord
     sources
   end
 
+  def tag_texts_by_keyword(keyword = nil)
+    keyword.blank? ? self.tag_texts : self.tag_texts.where('text ILIKE ?', "%#{keyword}%")
+  end
+
   def data_report
-    monthly_statisitcs = MonthlyTeamStatistic.where(team_id: self.id).order('start_date ASC')
-    if monthly_statisitcs.present?
+    monthly_statistics = MonthlyTeamStatistic.where(team_id: self.id).order('start_date ASC')
+    if monthly_statistics.present?
       index = 1
-      monthly_statisitcs.map do |stat|
+      monthly_statistics.map do |stat|
         hash = stat.formatted_hash
         hash['Org'] = self.name
         hash['Month'] = "#{index}. #{hash['Month']}"
@@ -585,6 +606,24 @@ class Team < ApplicationRecord
 
   def get_feed(feed_id)
     self.feeds.where(id: feed_id.to_i).last
+  end
+
+  # A newsletter header type is available only if there are WhatsApp templates for it
+  def available_newsletter_header_types
+    available = []
+    tbi = TeamBotInstallation.where(team_id: self.id, user_id: BotUser.smooch_user&.id.to_i).last
+    unless tbi.nil?
+      ['none', 'image', 'video', 'audio', 'link_preview'].each do |header_type|
+        mapped_header_type = TiplineNewsletter::HEADER_TYPE_MAPPING[header_type]
+        if !tbi.send("get_smooch_template_name_for_newsletter_#{mapped_header_type}_no_articles").blank? &&
+           !tbi.send("get_smooch_template_name_for_newsletter_#{mapped_header_type}_one_articles").blank? &&
+           !tbi.send("get_smooch_template_name_for_newsletter_#{mapped_header_type}_two_articles").blank? &&
+           !tbi.send("get_smooch_template_name_for_newsletter_#{mapped_header_type}_three_articles").blank?
+          available << header_type
+        end
+      end
+    end
+    available
   end
 
   # private

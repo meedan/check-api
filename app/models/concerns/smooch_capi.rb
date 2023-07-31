@@ -4,12 +4,17 @@ module SmoochCapi
   extend ActiveSupport::Concern
 
   module ClassMethods
+    def should_ignore_capi_request?(request)
+      event = request.params.dig('entry', 0, 'changes', 0, 'value', 'statuses', 0, 'status').to_s
+      ['read', 'sent'].include?(event)
+    end
+
     def valid_capi_request?(request)
       valid = false
       if request.params['hub.mode'] == 'subscribe'
         valid = self.verified_capi_installation?(request.params['hub.verify_token'])
       elsif !request.params['token'].blank?
-        valid = self.get_installation do |i|
+        valid = self.get_installation('whatsapp_business_account_id', request.params.dig('entry', 0, 'id')) do |i|
           settings = i.settings.with_indifferent_access
           request.params['token'] == settings['capi_verify_token'] && request.params.dig('entry', 0, 'id') == settings['capi_whatsapp_business_account_id'] && !settings['capi_whatsapp_business_account_id'].blank?
         end.present?
@@ -37,7 +42,11 @@ module SmoochCapi
     end
 
     def get_capi_message_text(message)
-      message.dig('text', 'body') || message.dig('interactive', 'list_reply', 'title') || message.dig('interactive', 'button_reply', 'title') || message.dig(message['type'], 'caption') || ''
+      begin
+        message.dig('text', 'body') || message.dig('interactive', 'list_reply', 'title') || message.dig('interactive', 'button_reply', 'title') || message.dig(message['type'], 'caption') || ''
+      rescue
+        ''
+      end
     end
 
     def store_capi_media(media_id, mime_type)
@@ -56,6 +65,17 @@ module SmoochCapi
       path = "capi/#{media_id}"
       CheckS3.write(path, mime_type, response.body)
       CheckS3.public_url(path)
+    end
+
+    def handle_capi_system_message(message)
+      if message.dig('system', 'type') == 'user_changed_number'
+        old_uid = "#{self.config['capi_phone_number']}:#{message['from']}"
+        new_uid = "#{self.config['capi_phone_number']}:#{message['system']['wa_id']}"
+        TiplineSubscription.where(uid: old_uid).find_each do |subscription|
+          subscription.uid = new_uid
+          subscription.save!
+        end
+      end
     end
 
     def preprocess_capi_message(body)
@@ -80,8 +100,27 @@ module SmoochCapi
       # User sent a message
       elsif json.dig('entry', 0, 'changes', 0, 'value', 'messages')
         value = json.dig('entry', 0, 'changes', 0, 'value')
-        uid = self.get_capi_uid(value)
         message = value.dig('messages', 0)
+
+        # System message
+        if message['type'] == 'system'
+          self.handle_capi_system_message(message)
+          return {
+            trigger: 'message:system',
+            app: {
+              '_id': app_id
+            },
+            version: 'v1.1',
+            messages: [],
+            appUser: {
+              '_id': '',
+              'conversationStarted': true
+            },
+            capi: json
+          }.with_indifferent_access
+        end
+
+        uid = self.get_capi_uid(value)
         messages = [{
           '_id': message['id'],
           authorId: uid,
@@ -132,10 +171,12 @@ module SmoochCapi
           capi: json
         }.with_indifferent_access
 
-      # User didn't receive message because 24 hours have passed since the last message from the user
+      # User didn't receive message (for example, because 24 hours have passed since the last message from the user)
       elsif json.dig('entry', 0, 'changes', 0, 'value', 'statuses', 0, 'status') == 'failed'
         status = json.dig('entry', 0, 'changes', 0, 'value', 'statuses', 0)
         error_code = status.dig('errors', 0, 'code')
+        error_message = status.dig('errors', 0, 'message')
+        error_title = status.dig('errors', 0, 'title')
         {
           trigger: 'message:delivery:failure',
           app: {
@@ -145,8 +186,10 @@ module SmoochCapi
             type: 'whatsapp'
           },
           error: {
+            code: error_code,
+            message: error_message,
             underlyingError: {
-              errors: [{ code: error_code }]
+              errors: [{ code: error_code, title: error_title }]
             }
           },
           version: 'v1.1',
@@ -158,12 +201,14 @@ module SmoochCapi
             '_id': "#{self.config['capi_phone_number']}:#{status['recipient_id'] || status.dig('message', 'recipient_id')}",
             'conversationStarted': true
           },
+          isFinalEvent: true,
           timestamp: status['timestamp'].to_i,
           capi: json
         }.with_indifferent_access
 
       # Fallback to be sure that we at least have a valid payload
       else
+        CheckSentry.notify(Bot::Smooch::CapiUnhandledMessageWarning.new('CAPI unhandled message payload'), payload: json)
         {
           trigger: 'message:other',
           app: {
@@ -223,26 +268,23 @@ module SmoochCapi
       req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{self.config['capi_permanent_token']}")
       req.body = payload.to_json
       response = http.request(req)
-      ret = nil
-      if response.code.to_i < 400
-        ret = response
-      else
-        # FIXME: Understand different errors that can be returned from Cloud API and have specific reports
-        # response_body = self.safely_parse_response_body(response)
-        e = Bot::Smooch::CapiMessageDeliveryError.new('Could not send message using WhatsApp Cloud API')
+      if response.code.to_i >= 400
+        error_message = begin JSON.parse(response.body)['error']['message'] rescue response.body end
+        e = Bot::Smooch::CapiMessageDeliveryError.new(error_message)
         CheckSentry.notify(e,
           uid: uid,
           type: payload.dig(:type),
           template_name: payload.dig(:template, :name),
-          template_language: payload.dig(:template, :language, :code)
+          template_language: payload.dig(:template, :language, :code),
+          error: response.body
         )
       end
-      ret
+      response
     end
 
-    def capi_format_template_message(_namespace, template, _fallback, locale, image, placeholders)
+    def capi_format_template_message(_namespace, template, _fallback, locale, file_url, placeholders, file_type = 'image', preview_url = true)
       components = []
-      components << { type: 'header', parameters: [{ type: 'image', image: { link: image } }] } unless image.blank?
+      components << { type: 'header', parameters: [{ type: file_type, file_type => { link: file_url } }] } unless file_url.blank?
       body = []
       placeholders.each do |placeholder|
         body << { type: 'text', text: placeholder.to_s.gsub(/\s+/, ' ') }
@@ -250,6 +292,7 @@ module SmoochCapi
       components << { type: 'body', parameters: body } unless body.empty?
       {
         type: 'template',
+        preview_url: preview_url,
         template: {
           name: template,
           language: {

@@ -2,7 +2,7 @@ class Relationship < ApplicationRecord
   include CheckElasticSearch
   include RelationshipBulk
 
-  attr_accessor :is_being_copied, :add_to_project_id, :archive_target
+  attr_accessor :is_being_copied, :archive_target
 
   belongs_to :source, class_name: 'ProjectMedia', optional: true
   belongs_to :target, class_name: 'ProjectMedia', optional: true
@@ -24,8 +24,10 @@ class Relationship < ApplicationRecord
   after_create :point_targets_to_new_source, :update_counters, prepend: true
   after_update :reset_counters, prepend: true
   after_update :propagate_inversion
+  after_save :turn_off_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
   before_destroy :archive_detach_to_list
   after_destroy :update_counters, prepend: true
+  after_destroy :turn_on_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
   after_commit :update_counter_and_elasticsearch, on: [:create, :update]
   after_commit :update_counters, :destroy_elasticsearch_relation, on: :destroy
   after_commit :set_cluster, on: [:create]
@@ -57,14 +59,14 @@ class Relationship < ApplicationRecord
   def version_metadata(_object_changes = nil)
     by_check = BotUser.alegre_user&.id == User.current&.id
     source = self.source
-    source.nil? ? nil : {
+    source.nil? ? nil : ActiveRecord::Base.connection.quote_string({
       source: {
-        title: ActiveRecord::Base.connection.quote_string(source.title),
+        title: source.title,
         type: source.report_type,
-        url: ActiveRecord::Base.connection.quote_string(source.full_url),
+        url: source.full_url,
         by_check: by_check,
       }
-    }.to_json
+    }.to_json)
   end
 
   def self.confirmed_parent(pm)
@@ -123,9 +125,8 @@ class Relationship < ApplicationRecord
   end
 
   def archive_detach_to_list
-    unless self.add_to_project_id.blank? && self.archive_target.blank?
+    unless self.archive_target.blank?
       pm = self.target
-      pm.project_id = self.add_to_project_id unless self.add_to_project_id.blank?
       pm.archived = self.archive_target if [CheckArchivedFlags::FlagCodes::TRASHED, CheckArchivedFlags::FlagCodes::SPAM].include?(self.archive_target)
       begin pm.save! rescue nil end
     end
@@ -172,6 +173,15 @@ class Relationship < ApplicationRecord
         type: 'int'
       } if self.is_confirmed?
       target.update_elasticsearch_doc(data.keys, data, target.id, true)
+    end
+  end
+
+  def set_unmatched_field(value)
+    target = self.target
+    unless target.nil?
+      target.unmatched = value
+      target.skip_check_ability = true
+      target.save!
     end
   end
 
@@ -278,6 +288,14 @@ class Relationship < ApplicationRecord
         new_cluster.project_medias << pm unless new_cluster.nil?
       end
     end
+  end
+
+  def turn_off_unmatched_field
+    set_unmatched_field(0)
+  end
+
+  def turn_on_unmatched_field
+    set_unmatched_field(1)
   end
 
   def update_counter_and_elasticsearch

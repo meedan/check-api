@@ -7,7 +7,7 @@ Sentry.init do |config|
   config.traces_sample_rate = (CheckConfig.get('sentry_traces_sample_rate') || 0).to_f
 
   # Any exceptions we want to prevent sending to Sentry
-  # config.excluded_exceptions += ['Check::Exception::RetryLater']
+  config.excluded_exceptions += ['ActiveRecord::RecordInvalid']
 
   # Ignore exceptions raised in Sidekiq jobs unless they pass their retry limit
   # Ideally in future, we would not set this and instead would manually raise retryable

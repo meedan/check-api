@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Tipline Newsletter Template</title>
+    <style>
+      @import url(https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css);
+      @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@700&family=Hind:wght@700');
+      @import url('https://fonts.googleapis.com/css2?family=Gurajada&display=swap');
+
+      body, html {
+        font-family: 'Roboto', sans-serif;
+        font-weight: 400;
+        line-height: 1.5em;
+        width: 282px;
+        height: 214px;
+        position: relative;
+      }
+
+      body.hi {
+        font-family: 'Hind', sans-serif;
+        font-weight: 700;
+      }
+
+      body.bn {
+        font-family: 'Hind Siliguri', sans-serif;
+        font-weight: 700;
+      }
+
+      body.te {
+        font-family: 'Gurajada', serif;
+      }
+
+      div {
+        box-sizing: border-box;
+        margin: 0;
+      }
+
+      #frame {
+        background: white;
+        width: 282px;
+        height: 214px;
+        overflow: hidden;
+        position: relative;
+        box-sizing: border-box;
+      }
+
+      #image {
+        width: 282px;
+        height: 214px;
+        background-color: white;
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-image: url('%IMAGE_URL%');
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #text {
+        width: 220px;
+        margin: auto;
+        color: white;
+        font-size: 14px;
+        text-align: center;
+        background: rgba(34, 34, 34, 0.7);
+        border-radius: 8px;
+        padding: 6px 12px;
+      }
+    </style>
+  </head>
+  <body class="newsletter">
+    <div id="frame">
+      <div id="image">
+        <div id="text">
+        </div>
+      </div>
+    </div>
+    <!-- Just to be sure the image will load -->
+    <img style="display: none;" src="%IMAGE_URL%" alt="Background image" />
+  </body>
+</html>

@@ -28,10 +28,6 @@ ENV LANGUAGE C.UTF-8
 RUN useradd ${DEPLOYUSER} -s /bin/bash -m
 
 RUN apt-get update -qq && apt-get install -y curl
-#
-# SYSTEM CONFIG
-#
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
@@ -43,7 +39,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     # inotify-tools \
     libpq-dev \
     libtag1-dev \
-    nodejs \
     lsof
 
 # CMD and helper scripts

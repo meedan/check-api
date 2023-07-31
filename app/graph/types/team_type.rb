@@ -40,6 +40,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :unconfirmed_count, types.Int
   field :get_languages, types.String
   field :get_language, types.String
+  field :get_language_detection, types.Boolean
   field :get_report, JsonStringType
   field :get_fieldsets, JsonStringType
   field :list_columns, JsonStringType
@@ -48,6 +49,9 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_tipline_inbox_filters, JsonStringType
   field :get_suggested_matches_filters, JsonStringType
   field :data_report, JsonStringType
+  field :available_newsletter_header_types, JsonStringType # List of header type strings
+  field :get_outgoing_urls_utm_code, types.String
+  field :get_shorten_outgoing_urls, types.Boolean
 
   field :public_team do
     type PublicTeamType
@@ -130,9 +134,19 @@ TeamType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :tag_texts_count, types.Int do
+    argument :keyword, types.String
+
+    resolve ->(team, args, _ctx) {
+      team.tag_texts_by_keyword(args['keyword']).count
+    }
+  end
+
   connection :tag_texts, -> { TagTextType.connection_type } do
-    resolve ->(team, _args, _ctx) {
-      team.tag_texts
+    argument :keyword, types.String
+
+    resolve ->(team, args, _ctx) {
+      team.tag_texts_by_keyword(args['keyword'])
     }
   end
 
@@ -182,4 +196,5 @@ TeamType = GraphqlCrudOperations.define_default_type do
   connection :saved_searches, SavedSearchType.connection_type
   connection :project_groups, ProjectGroupType.connection_type
   connection :feeds, FeedType.connection_type
+  connection :tipline_newsletters, TiplineNewsletterType.connection_type
 end

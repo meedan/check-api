@@ -19,6 +19,7 @@ module TeamAssociations
     has_many :feeds, through: :feed_teams
     has_many :monthly_team_statistics # No "dependent: :destroy" because we want to retain statistics
     has_many :tipline_messages
+    has_many :tipline_newsletters
 
     has_annotations
   end
@@ -67,7 +68,6 @@ module TeamAssociations
   def trash_size
     {
       project_media: self.trash_count,
-      annotation: self.trash.sum(:cached_annotations_count)
     }
   end
 

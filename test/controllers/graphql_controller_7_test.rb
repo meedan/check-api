@@ -46,6 +46,27 @@ class GraphqlController7Test < ActionController::TestCase
     assert_equal 3, edges.length
   end
 
+  test "should search team tag texts by keyword" do
+    t = create_team slug: 'sawy'
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    create_tag_text team_id: t.id, text: 'keyword begining'
+    create_tag_text team_id: t.id, text: 'ending keyword'
+    create_tag_text team_id: t.id, text: 'in the KEYWORD middle'
+    create_tag_text team_id: t.id
+    authenticate_with_user(u)
+    query = 'query read { team(slug: "sawy") { tag_texts_count, tag_texts(first: 1000) { edges { node { dbid } } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    edges = JSON.parse(@response.body)['data']['team']['tag_texts']['edges']
+    assert_equal 4, edges.length
+    query = 'query read { team(slug: "sawy") { tag_texts_count(keyword: "keyword"), tag_texts(first: 1000, keyword: "keyword") { edges { node { dbid } } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    edges = JSON.parse(@response.body)['data']['team']['tag_texts']['edges']
+    assert_equal 3, edges.length
+  end
+
   test "should update last_active_at from users before a graphql request" do
     assert_nil @u.last_active_at
     query = "query { user(id: #{@u.id}) { last_active_at } }"
@@ -155,10 +176,24 @@ class GraphqlController7Test < ActionController::TestCase
   test "should get saved search filters" do
     t = create_team
     ss = create_saved_search team: t, filters: { foo: 'bar' }
-    query = "query { team(slug: \"#{t.slug}\") { saved_searches(first: 1) { edges { node { filters } } } } }"
+    f = create_feed team_id: t.id
+    query = "query { team(slug: \"#{t.slug}\") { saved_searches(first: 1) { edges { node { filters, is_part_of_feeds, feeds(first: 1) { edges { node { dbid }}} } } } } }"
     post :create, params: { query: query }
-    assert_equal '{"foo":"bar"}', JSON.parse(@response.body).dig('data', 'team', 'saved_searches', 'edges', 0, 'node', 'filters')
     assert_response :success
+    data = JSON.parse(@response.body).dig('data', 'team', 'saved_searches', 'edges', 0, 'node')
+    assert_equal '{"foo":"bar"}', data['filters']
+    assert_not data['is_part_of_feeds']
+    assert_empty data['feeds']['edges']
+    # add list to feed
+    f.saved_search_id = ss.id
+    f.skip_check_ability = true
+    f.save!
+    query = "query { team(slug: \"#{t.slug}\") { saved_searches(first: 1) { edges { node { filters, is_part_of_feeds, feeds(first: 1) { edges { node { dbid }}} } } } } }"
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body).dig('data', 'team', 'saved_searches', 'edges', 0, 'node')
+    assert data['is_part_of_feeds']
+    assert_not_empty data['feeds']['edges']
   end
 
   test "should search by report status" do
@@ -286,7 +321,7 @@ class GraphqlController7Test < ActionController::TestCase
     end
     sleep 2
 
-    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,log_count,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     post :create, params: { query: query, team: 'team' }
     assert_response :success

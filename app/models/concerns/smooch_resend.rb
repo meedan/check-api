@@ -3,7 +3,7 @@ require 'active_support/concern'
 module SmoochResend
   extend ActiveSupport::Concern
 
-  # WhatsApp requires pre-approved, pre-defined message templates for messages send outside the 24h window
+  # WhatsApp requires pre-approved, pre-defined message templates for messages sent outside the 24h window
   module WhatsAppResend
     def should_resend_whatsapp_message?(message)
       message.dig('destination', 'type') == 'whatsapp' && [470, 131047].include?(message.dig('error', 'underlyingError', 'errors', 0, 'code'))
@@ -13,13 +13,12 @@ module SmoochResend
       # Exit if there is no template namespace
       return false if self.config['smooch_template_namespace'].blank?
 
-      # This is a report that was created or updated, or a message send by a rule action, or a newsletter
+      # This is a report that was created or updated, or a message send by a rule action
       unless original.blank?
         original = JSON.parse(original)
         output = nil
         output = self.resend_whatsapp_report_after_window(message, original) if original['fallback_template'] =~ /report/
         output = self.resend_rules_message_after_window(message, original) if original['fallback_template'] == 'fact_check_status'
-        output = self.resend_newsletter_after_window(message, original) if original['fallback_template'] == 'newsletter'
         return output unless output.nil?
       end
 
@@ -101,24 +100,6 @@ module SmoochResend
       false
     end
 
-    def resend_newsletter_after_window(message, original)
-      language = original['language']
-      uid = message['appUser']['_id']
-      date = I18n.l(Time.now.to_date, locale: language.to_s.tr('_', '-'), format: :long)
-      introduction = original['introduction'].to_s
-      params = [date, introduction]
-      template_name = 'newsletter'
-      if self.template_exists?('newsletter_with_button')
-        template_name = 'newsletter_with_button'
-        name = self.get_user_name_from_uid(uid)
-        params = [name, date, introduction]
-      end
-      response = self.send_message_to_user(uid, self.format_template_message(template_name, params, nil, introduction, language))
-      id = self.get_id_from_send_response(response)
-      Rails.cache.write("smooch:original:#{id}", "newsletter:#{language}") # This way if "Read now" is clicked, the newsletter can be sent
-      return true
-    end
-
     def send_report_on_template_button_click(_message, uid, language, info)
       self.send_report_to_user(uid, { 'received' => info[2].to_i }, ProjectMedia.find_by_id(info[1].to_i), language, nil)
     end
@@ -128,7 +109,7 @@ module SmoochResend
     end
 
     def clicked_on_template_button?(message)
-      ['newsletter', 'report', 'message'].include?(self.get_information_from_clicked_template_button(message).first.to_s)
+      ['report', 'message'].include?(self.get_information_from_clicked_template_button(message).first.to_s)
     end
 
     def get_information_from_clicked_template_button(message, delete = false)
@@ -145,8 +126,6 @@ module SmoochResend
       info = self.get_information_from_clicked_template_button(message, true)
       type = info.first
       case type
-      when 'newsletter'
-        self.send_newsletter_on_template_button_click(message, uid, language, info)
       when 'report'
         self.send_report_on_template_button_click(message, uid, language, info)
       when 'message'
@@ -227,9 +206,9 @@ module SmoochResend
 
     def log_resend_error(message)
       if message['isFinalEvent']
-        api_error = message.dig('error')
-        exception = Bot::Smooch::FinalMessageDeliveryError.new("(#{api_error&.dig('code')}) #{api_error&.dig('message')}")
-        CheckSentry.notify(exception, error: api_error, uid: message.dig('appUser', '_id'), smooch_app_id: message.dig('app', '_id'), timestamp: message.dig('timestamp'))
+        error = message['error'].to_h
+        exception = Bot::Smooch::FinalMessageDeliveryError.new("(#{error['code']}) #{error['message']}")
+        CheckSentry.notify(exception, error: error, uid: message.dig('appUser', '_id'), smooch_app_id: message.dig('app', '_id'), timestamp: message['timestamp'])
       end
     end
 
@@ -239,19 +218,21 @@ module SmoochResend
       languages.blank? ? ['en'] : languages
     end
 
-    def format_template_message(template_name, placeholders, image, fallback, language, header = nil)
+    def format_template_message(template_name, placeholders, file_url, fallback, language, file_type = 'image', preview_url = true)
+      provider = RequestStore.store[:smooch_bot_provider]
       namespace = self.config['smooch_template_namespace']
       template = self.config["smooch_template_name_for_#{template_name}"] || template_name
-      return '' if namespace.blank? || template.blank?
+      return '' if ['TURN', 'CAPI'].include?(provider) && (namespace.blank? || template.blank?)
       default_language = Team.where(id: self.config['team_id'].to_i).last&.default_language
       locale = (!language.blank? && [self.config['smooch_template_locales']].flatten.include?(language)) ? language : default_language
-      safe_placeholders = placeholders.collect{ |placeholder| placeholder.blank? ? '-' : placeholder } # Placeholders are mandatory in WhatsApp templates, so let's be sure they are not blank
-      if RequestStore.store[:smooch_bot_provider] == 'TURN'
-        self.turnio_format_template_message(namespace, template, fallback, locale, image, safe_placeholders)
-      elsif RequestStore.store[:smooch_bot_provider] == 'CAPI'
-        self.capi_format_template_message(namespace, template, fallback, locale, image, safe_placeholders)
+      # Placeholders are mandatory in WhatsApp templates, so let's be sure they are not blank and don't contain spaces, which can mess up with formatting, like bold
+      safe_placeholders = placeholders.collect{ |placeholder| placeholder.blank? ? '-' : placeholder.strip }
+      if provider == 'TURN'
+        self.turnio_format_template_message(namespace, template, fallback, locale, file_url, safe_placeholders, file_type, preview_url)
+      elsif provider == 'CAPI'
+        self.capi_format_template_message(namespace, template, fallback, locale, file_url, safe_placeholders, file_type, preview_url)
       else
-        self.zendesk_format_template_message(namespace, template, fallback, locale, image, safe_placeholders, header)
+        self.zendesk_format_template_message(namespace, template, fallback, locale, file_url, safe_placeholders, file_type)
       end
     end
 

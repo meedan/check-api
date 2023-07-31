@@ -14,8 +14,6 @@ ENV LANGUAGE C.UTF-8
 
 RUN apt-get update -qq && apt-get install -y --no-install-recommends curl
 
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
-
 RUN apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
     ffmpegthumbnailer \
@@ -26,8 +24,10 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     inotify-tools \
     libpq-dev \
     libtag1-dev \
-    nodejs \
     lsof
+
+# tx client
+RUN curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
 
 # install our app
 WORKDIR /app

@@ -11,6 +11,7 @@ class Bot::Alegre < BotUser
   MEAN_TOKENS_MODEL = 'xlm-r-bert-base-nli-stsb-mean-tokens'
   INDIAN_MODEL = 'indian-sbert'
   FILIPINO_MODEL = 'paraphrase-filipino-mpnet-base-v2'
+  OPENAI_ADA_MODEL = 'openai-text-embedding-ada-002'
   ELASTICSEARCH_MODEL = 'elasticsearch'
   DEFAULT_ES_SCORE = 10
 
@@ -192,12 +193,31 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_number_of_words(text)
-    text.gsub(/[^\p{L}\s]/u, '').strip.chomp.split(/\s+/).size
+    # Get the number of space-separated words (Does not work with Chinese/Japanese)
+    space_separted_words = text.to_s.gsub(/[^\p{L}\s]/u, '').strip.chomp.split(/\s+/).size
+
+    # This removes URLs
+    # Then it splits the text on any non unicode word boundary (works with Chinese, Japanese)
+    # We then clean each word and remove any empty ones
+    unicode_words = text.to_s.gsub(/https?:\/\/\S+/u, '').scan(/(?u)\w+/).map{|w| w.gsub(/[^\p{L}\s]/u, '').strip.chomp}.reject{|w| w.length==0}
+    # For each word, we:
+    # Get the number of Chinese characters. We'll assume two characters are like one word
+    # Get the number of Japanese hiragana/katakana (kana) characters.
+    # Kana are definitely not one word each, but who really knows.
+    # For the purpose of this function, we'll assume 4 kana equate to one word
+    unicode_words = unicode_words.map{|w| [1,
+      (w.scan(/\p{Han}/).size/2.0).ceil + (w.scan(/\p{Katakana}|\p{Hiragana}/).size/4.0).ceil].max}.sum()
+
+    # Return whichever is larger of our two methods for counting words
+    [space_separted_words, unicode_words].max
   end
 
   def self.get_items_from_similar_text(team_id, text, fields = nil, threshold = nil, models = nil, fuzzy = false)
     team_ids = [team_id].flatten
-    return {} if text.blank? || self.get_number_of_words(text) < 3
+    if text.blank? || self.get_number_of_words(text) < 3
+      Rails.logger.info("[Alegre Bot] get_items_from_similar_text returning early due to blank/short text #{text}")
+      return {}
+    end
     fields ||= ALL_TEXT_SIMILARITY_FIELDS
     threshold ||= self.get_threshold_for_query('text', nil, true)
     models ||= [self.matching_model_to_use(team_ids)].flatten
@@ -253,23 +273,36 @@ class Bot::Alegre < BotUser
     end
   end
 
+  def self.get_matching_key_value(pm, media_type, similarity_method, automatic, model_name)
+    similarity_level = automatic ? 'matching' : 'suggestion'
+    generic_key = "#{media_type}_#{similarity_method}_#{similarity_level}_threshold"
+    specific_key = "#{media_type}_#{similarity_method}_#{model_name}_#{similarity_level}_threshold"
+    tbi = self.get_alegre_tbi(pm&.team_id)
+    settings = tbi.alegre_settings unless tbi.nil?
+    outkey = ""
+    value = nil
+    [specific_key, generic_key].each do |key|
+      next if !outkey.blank?
+      value = settings.blank? ? CheckConfig.get(key) : settings[key]
+      if value
+        outkey = key
+      end
+    end
+    return [outkey, value]
+  end
+
   def self.get_threshold_for_query(media_type, pm, automatic = false)
     similarity_methods = media_type == 'text' ? ['elasticsearch'] : ['hash']
     models = similarity_methods.dup
-    similarity_level = automatic ? 'matching' : 'suggestion'
-    setting_type = 'threshold'
     if media_type == 'text' && !pm.nil?
-      model = self.matching_model_to_use(pm.team_id)
-      if model != Bot::Alegre::ELASTICSEARCH_MODEL
+      models_to_use = [self.matching_model_to_use(pm.team_id)].flatten-[Bot::Alegre::ELASTICSEARCH_MODEL]
+      models_to_use.each do |model|
         similarity_methods << 'vector'
         models << model
       end
     end
     similarity_methods.zip(models).collect do |similarity_method, model_name|
-      key = "#{media_type}_#{similarity_method}_#{similarity_level}_#{setting_type}"
-      tbi = self.get_alegre_tbi(pm&.team_id)
-      settings = tbi.alegre_settings unless tbi.nil?
-      value = settings.blank? ? CheckConfig.get(key) : settings[key]
+      key, value = self.get_matching_key_value(pm, media_type, similarity_method, automatic, model_name)
       { value: value.to_f, key: key, automatic: automatic, model: model_name}
     end
   end
@@ -357,6 +390,8 @@ class Bot::Alegre < BotUser
       annotation.skip_check_ability = true
       annotation.save!
       completed = true
+    elsif result['job_status'] == 'DONE'
+      completed = true
     end
     self.delay_for(10.seconds, retry: 5).update_audio_transcription(annotation.id, attempts + 1) if !completed && attempts < 2000 # Maximum: ~5h of transcription
   end
@@ -396,9 +431,13 @@ class Bot::Alegre < BotUser
     !tbi.nil?
   end
 
-  def self.indexing_model_to_use(pm)
+  def self.get_tbi_indexing_models(tbi)
+    tbi.get_alegre_models_in_use || tbi.get_alegre_model_in_use || self.default_model
+  end
+
+  def self.indexing_models_to_use(pm)
     tbi = self.get_alegre_tbi(pm&.team_id)
-    tbi.nil? ? self.default_model : tbi.get_alegre_model_in_use || self.default_model
+    [tbi.nil? ? self.default_model : self.get_tbi_indexing_models(tbi)].flatten
   end
 
   def self.language_for_similarity(team_id)
@@ -407,13 +446,18 @@ class Bot::Alegre < BotUser
     tbi.nil? ? nil : tbi.get_language_for_similarity
   end
 
+  def self.get_tbi_matching_models(tbi)
+    tbi.get_text_similarity_models || tbi.get_text_similarity_model || self.default_matching_model
+  end
+
   def self.matching_model_to_use(team_ids)
     models = []
     [team_ids].flatten.each do |team_id|
       tbi = self.get_alegre_tbi(team_id)
-      model = (tbi.nil? ? self.default_matching_model : tbi.get_text_similarity_model || self.default_matching_model)
+      model = (tbi.nil? ? self.default_matching_model : self.get_tbi_matching_models(tbi))
       models << model unless models.include?(model)
     end
+    models = models.flatten
     models.size == 1 ? models[0] : models
   end
 
@@ -680,7 +724,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.relationship_model_not_allowed(relationship_model)
-    allowed_models = [MEAN_TOKENS_MODEL, INDIAN_MODEL, FILIPINO_MODEL, ELASTICSEARCH_MODEL, 'audio', 'image', 'video']
+    allowed_models = [MEAN_TOKENS_MODEL, INDIAN_MODEL, FILIPINO_MODEL, OPENAI_ADA_MODEL, ELASTICSEARCH_MODEL, 'audio', 'image', 'video']
     models = relationship_model.split("|").collect{ |m| m.split('/').first }
     models.length != (allowed_models&models).length
   end
@@ -710,7 +754,7 @@ class Bot::Alegre < BotUser
     unless pm.alegre_matched_fields.blank?
       fields_size = []
       pm.alegre_matched_fields.uniq.each do |field|
-        fields_size << pm.send(field).to_s.split(/\s/).length if pm.respond_to?(field)
+        fields_size << self.get_number_of_words(pm.send(field)) if pm.respond_to?(field)
       end
       is_short = fields_size.max < length_threshold unless fields_size.blank?
     end

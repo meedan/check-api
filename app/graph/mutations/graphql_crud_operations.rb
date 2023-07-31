@@ -4,8 +4,12 @@ class GraphqlCrudOperations
       {
         'str' => types.String,
         '!str' => !types.String,
+        'array_str' => types[types.String],
+        '!array_str' => !types[types.String],
         'int' => types.Int,
         '!int' => !types.Int,
+        'array_int' => types[types.Int],
+        '!array_int' => !types[types.Int],
         'id' => types.ID,
         '!id' => !types.ID,
         'bool' => types.Boolean,
@@ -110,7 +114,6 @@ class GraphqlCrudOperations
     obj = self.object_from_id(graphql_id)
     obj.keep_completed_tasks = inputs[:keep_completed_tasks] if obj.is_a?(TeamTask)
     if obj.is_a?(Relationship)
-      obj.add_to_project_id = inputs[:add_to_project_id]
       obj.archive_target = inputs[:archive_target]
     end
     obj.items_destination_project_id = inputs[:items_destination_project_id] if obj.is_a?(Project)
@@ -300,7 +303,6 @@ class GraphqlCrudOperations
       input_field(:keep_completed_tasks, types.Boolean) if type == 'team_task'
 
       if type == 'relationship'
-        input_field(:add_to_project_id, types.Int)
         input_field(:archive_target, types.Int)
       end
 
@@ -439,13 +441,13 @@ class GraphqlCrudOperations
     end
   end
 
-  def self.field_log_count
+  def self.field_saved_search
     proc do |_classname|
-      field :log_count do
-        type types.Int
+      field :saved_search do
+        type -> { SavedSearchType }
 
-        resolve ->(obj, _args, _ctx) {
-          obj.get_versions_log_count
+        resolve -> (obj, _args, _ctx) {
+          obj.saved_search
         }
       end
     end

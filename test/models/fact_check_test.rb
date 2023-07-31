@@ -291,4 +291,18 @@ class FactCheckTest < ActiveSupport::TestCase
     end
     assert_not_empty fc.reload.title
   end
+
+  test "should create many fact-checks without signature" do
+    assert_difference 'FactCheck.count', 2 do
+      create_fact_check signature: nil
+      create_fact_check signature: nil
+    end
+  end
+
+  test "should not create fact-checks with the same signature" do
+    create_fact_check signature: 'test'
+    assert_raises ActiveRecord::RecordNotUnique do
+      create_fact_check signature: 'test'
+    end
+  end
 end

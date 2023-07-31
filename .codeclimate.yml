@@ -2,7 +2,7 @@ version: "2"
 checks:
   argument-count:
     config:
-      threshold: 7
+      threshold: 8
   complex-logic:
     config:
       threshold: 4
@@ -13,7 +13,7 @@ checks:
       threshold: 22
   method-count:
     config:
-      threshold: 60
+      threshold: 65
   method-lines:
     enabled: false
   inline-conditional:
@@ -23,7 +23,7 @@ checks:
       threshold: 4
   return-statements:
     config:
-      threshold: 4
+      threshold: 5
 plugins:
   fixme:
     enabled: false
@@ -46,7 +46,7 @@ plugins:
     config:
       languages:
         ruby:
-          mass_threshold: 22
+          mass_threshold: 30
   bundler-audit:
     enabled: true
 exclude_patterns:

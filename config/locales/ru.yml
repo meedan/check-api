@@ -1,4 +1,3 @@
----
 ru:
   statuses:
     ids:
@@ -25,7 +24,7 @@ ru:
         label: В работе
         description: Работа начата, но перевод пока отсутствует
       not_true:
-        label: Неправда
+        label: 'Неправда'
         description: 'Заключение: не соответствует действительности'
       verified:
         label: Подтверждено
@@ -74,25 +73,19 @@ ru:
     messages:
       invalid_password: Неверный пароль
       invalid_qrcode: Неверный код подтверждения
-      extension_white_list_error: 'файлы %{extension} не разрешены; разрешённые форматы:
-        %{allowed_types}'
       invalid_size: должен быть между %{min_width}x%{min_height} и %{max_width}x%{max_height}
-      mini_magick_processing_error: 'Извините, не удалось обработать изображение.
-        Ошибка: %{e}'
+      mini_magick_processing_error: 'Извините, не удалось обработать изображение. Ошибка: %{e}'
       annotation_mandatory_fields: Пожалуйста, заполните все обязательные поля
       annotation_type_does_not_exist: не существует
       invalid_attribution: Неверное авторство
-      must_resolve_required_tasks_first: Необходимо указать ответы на все обязательные
-        вопросы
+      must_resolve_required_tasks_first: Необходимо указать ответы на все обязательные вопросы
       image_too_large: Извините, мы не поддерживаем изображения больше %{max_size}.
       video_too_large: Извините, мы не поддерживаем видео больше %{max_size}.
       audio_too_large: Извините, мы не поддерживаем аудио-файлы больше %{max_size}.
-      pender_conflict: Эта ссылка уже находится в обработке. Попробуйте еще раз через
-        пару секунд.
+      pender_conflict: Эта ссылка уже находится в обработке. Попробуйте еще раз через пару секунд.
       pender_url_invalid: Некорректная ссылка.
       pender_url_unsafe: Небезопасная ссылка.
-      invalid_format_for_languages: 'Неверный формат для указания языков. Пример:
-        `[''en'', ''ar'', …]`'
+      invalid_format_for_languages: 'Неверный формат для указания языков. Пример: `[''en'', ''ar'', …]`'
   activerecord:
     models:
       link: Ссылка
@@ -144,25 +137,20 @@ ru:
               slug_format: только буквы, цифры и дефисы
       messages:
         record_invalid: "%{errors}"
-        improbable_phone: "— неправильный номер"
+        improbable_phone: — неправильный номер
         too_short:
           one: 'не подходит по длине (минимум: 1 символ)'
           few: 'не подходит по длине (минимум: %{count} символов)'
           many: 'не подходит по длине (минимум: %{count} символов)'
           other: 'не подходит по длине (минимум: %{count} символов)'
-  slack_webhook_format_wrong: 'Неверный адрес webhook для Slack: адрес должен иметь
-    формат `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`.'
+  slack_webhook_format_wrong: 'Неверный адрес webhook для Slack: адрес должен иметь формат `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`.'
   slug_is_reserved: зарезервирован
   invalid_media_item: Извините, этот формат не поддерживается
-  invalid_default_status_for_custom_verification_status: Неверный идентификатор статуса
-    по умолчанию
-  invalid_active_status_for_custom_verification_status: Неверный идентификатор активного
-    статуса
+  invalid_default_status_for_custom_verification_status: Неверный идентификатор статуса по умолчанию
+  invalid_active_status_for_custom_verification_status: Неверный идентификатор активного статуса
   invalid_label_for_custom_verification_status: Название статуса обязательно
-  invalid_id_for_custom_verification_status: Идентификатор статуса обязателен; он
-    может содержать строчные латинские буквы, цифры, дефисы и подчеркивания
-  invalid_statuses_format_for_custom_verification_status: Дополнительные статусы должны
-    иметь название, идентификатор, описание и стиль.
+  invalid_id_for_custom_verification_status: Идентификатор статуса обязателен; он может содержать строчные латинские буквы, цифры, дефисы и подчеркивания
+  invalid_statuses_format_for_custom_verification_status: 'Дополнительные статусы должны иметь название, идентификатор, описание и стиль.'
   mail_account_confirmation: "%{app_name}: подтверждение e-mail адреса"
   slack:
     fields:
@@ -172,51 +160,40 @@ ru:
       status: Статус
       status_previous: Предыдущий статус
       related_to: Относится к
-      view_button: "%{type} в %{app}"
+      view_button: '%{type} в %{app}'
       project_source: Источник
       project_media: Материал
       attribution: Ответ от
     messages:
-      analysis_verification_status_status_changed: 'Изменён статус: %{value} (%{user})'
-      analysis_title_changed: 'Изменён заголовок анализа: %{value} (%{user})'
-      analysis_content_changed: 'Изменён контент анализа: %{value} (%{user})'
-      tasks_create: 'Добавлен вопрос: %{title} (%{user})'
-      tasks_edit: 'Отредактирован вопрос: %{title} (%{user})'
-      tasks_answer_create: 'На вопрос «%{title}» получен ответ: %{answer} (%{user})'
-      tasks_answer_edit: 'Отредактирован ответ на вопрос «%{title}»: %{answer} (%{user})'
-      metadata_create: 'Добавлено поле для метаданных: %{title} (%{user})'
-      metadata_edit: 'Отредактировано поле для метаданных: %{title} (%{user})'
-      metadata_answer_create: 'Задано значение для метаданных «%{title}»: %{answer}
-        (%{user})'
-      metadata_answer_edit: 'Обновлено значение для метаданных «%{title}»: %{answer}
-        (%{user})'
-      project_media_comment: Добавлена заметка к материалу «%{parent_type}» (%{user},
-        %{role} группы %{team})
+      analysis_verification_status_status_changed: "Изменён статус: %{value} (%{user})"
+      analysis_title_changed: "Изменён заголовок анализа: %{value} (%{user})"
+      analysis_content_changed: "Изменён контент анализа: %{value} (%{user})"
+      tasks_create: "Добавлен вопрос: %{title} (%{user})"
+      tasks_edit: "Отредактирован вопрос: %{title} (%{user})"
+      tasks_answer_create: "На вопрос «%{title}» получен ответ: %{answer} (%{user})"
+      tasks_answer_edit: "Отредактирован ответ на вопрос «%{title}»: %{answer} (%{user})"
+      metadata_create: "Добавлено поле для метаданных: %{title} (%{user})"
+      metadata_edit: "Отредактировано поле для метаданных: %{title} (%{user})"
+      metadata_answer_create: "Задано значение для метаданных «%{title}»: %{answer} (%{user})"
+      metadata_answer_edit: "Обновлено значение для метаданных «%{title}»: %{answer} (%{user})"
+      project_media_comment: "Добавлена заметка к материалу «%{parent_type}» (%{user}, %{role} группы %{team})"
       project_media_create: "%{user} (%{role} группы %{team}) загрузил(а) новый материал"
-      project_media_create_related: Добавлен связанный материал «%{type}» (%{user},
-        %{role} группы %{team})
+      project_media_create_related: "Добавлен связанный материал «%{type}» (%{user}, %{role} группы %{team})"
       project_media_update: "%{user} (%{role} группы %{team}) обновил(а) материал"
-      project_media_status: Изменён статус «%{workflow}» материала «%{type}» (%{user},
-        %{role} группы %{team})
-      project_media_assign: Назначен материал «%{type}» (%{user}, %{role} группы %{team})
-      project_media_unassign: Снято назначение материала «%{type}» (%{user}, %{role}
-        группы %{team})
-      project_source_comment: Добавлена заметка к источнику «%{parent_type}» (%{user},
-        %{role} группы %{team})
-      project_source_create: Добавлен источник «%{type}» (%{user}, %{role} группы
-        %{team})
-      project_source_update: Отредактирован источник «%{type}» (%{user}, %{role} группы
-        %{team})
-      user_member: 'Новый участник проекта %{team}: %{user} '
-      user_requested: 'Новый запрос на вступление в проект %{team}: %{user}'
-      user_invited: 'Новое приглашение в проект %{team}: %{user}'
-      user_banned: 'Новый бан в проекте %{team}: %{user}'
+      project_media_status: "Изменён статус «%{workflow}» материала «%{type}» (%{user}, %{role} группы %{team})"
+      project_media_assign: "Назначен материал «%{type}» (%{user}, %{role} группы %{team})"
+      project_media_unassign: "Снято назначение материала «%{type}» (%{user}, %{role} группы %{team})"
+      project_source_comment: "Добавлена заметка к источнику «%{parent_type}» (%{user}, %{role} группы %{team})"
+      project_source_create: "Добавлен источник «%{type}» (%{user}, %{role} группы %{team})"
+      project_source_update: "Отредактирован источник «%{type}» (%{user}, %{role} группы %{team})"
+      user_member: "Новый участник проекта %{team}: %{user} "
+      user_requested: "Новый запрос на вступление в проект %{team}: %{user}"
+      user_invited: "Новое приглашение в проект %{team}: %{user}"
+      user_banned: "Новый бан в проекте %{team}: %{user}"
   mail_view_welcome: Добро пожаловать в %{app_name}
-  mail_view_register: 'Вы уже совсем близко к тому, чтобы начать пользоваться %{app_name}!
-    Пожалуйста, перейдите по ссылке, чтобы подтвердить свой e-mail адрес:'
+  mail_view_register: 'Вы уже совсем близко к тому, чтобы начать пользоваться %{app_name}! Пожалуйста, перейдите по ссылке, чтобы подтвердить свой e-mail адрес:'
   mail_confirm_button: Подтвердить мой аккаунт
-  slack_restricted_join_to_members: К сожалению, группа %{team_name} доступна только
-    членам воркспейса %{teams} в Slack.
+  slack_restricted_join_to_members: К сожалению, группа %{team_name} доступна только членам воркспейса %{teams} в Slack.
   admin:
     actions:
       send_reset_password_email:
@@ -229,12 +206,10 @@ ru:
         menu: Клонировать проект
         done: скопировано
         are_you_sure_you_want_to_copy_team:
-          html: Вы уверены, что хотите клонировать проект <strong>%{team}</strong>?
-            Вместе с проектом будут скопированы все связанные данные.
+          html: Вы уверены, что хотите клонировать проект <strong>%{team}</strong>? Вместе с проектом будут скопированы все связанные данные.
         the_team_is_being_copied: Идёт клонирование проекта
         url_when_ready:
-          html: 'Когда копия проекта будет готова, она станет доступна по ссылке:
-            <strong>%{copy_url}</strong>'
+          html: 'Когда копия проекта будет готова, она станет доступна по ссылке: <strong>%{copy_url}</strong>'
     flash:
       delete_team_scheduled: Проект %{team} удаляется
   email_not_found: Email не найден
@@ -249,88 +224,79 @@ ru:
   oembed_disclaimer_in_progress: Проверка достоверности начата %{date} (%{team})
   oembed_disclaimer_verified: Достоверность подтверждена %{date} (%{team})
   oembed_disclaimer_false: Опровергнуто %{date} (%{team})
-  oembed_disclaimer_not_applicable: Не удалось проверить достоверность на %{date}
-    (%{team})
+  oembed_disclaimer_not_applicable: Не удалось проверить достоверность на %{date} (%{team})
   oembed_source_date: "%{date} в %{provider}"
   role_editor: редактор
   role_none: нет роли
   role_: суперадминистратор
   oembed_credit: 'Добавлено: %{user} (%{role}), %{date}'
   oembed_notes_count:
-    one: Одна заметка
-    few: 'Заметок: %{count}'
-    many: 'Заметок: %{count}'
-    other: 'Заметок: %{count}'
+    one: "Одна заметка"
+    few: "Заметок: %{count}"
+    many: "Заметок: %{count}"
+    other: "Заметок: %{count}"
   oembed_completed_tasks_count:
-    one: Один закрытый вопрос
-    few: 'Закрытых вопросов: %{count}'
-    many: 'Закрытых вопросов: %{count}'
-    other: 'Закрытых вопросов: %{count}'
+    one: "Один закрытый вопрос"
+    few: "Закрытых вопросов: %{count}"
+    many: "Закрытых вопросов: %{count}"
+    other: "Закрытых вопросов: %{count}"
   oembed_verification_tasks: Вопросы
   oembed_tasks: Вопросы
   oembed_translations: Переводы
   oembed_expand_all: Раскрыть всё
   oembed_collapse_all: Свернуть всё
   oembed_resolved_tasks_count:
-    one: Один вопрос с ответом
-    few: 'Вопросов с ответами: %{count}'
-    many: 'Вопросов с ответами: %{count}'
-    other: 'Вопросов с ответами: %{count}'
+    one: "Один вопрос с ответом"
+    few: "Вопросов с ответами: %{count}"
+    many: "Вопросов с ответами: %{count}"
+    other: "Вопросов с ответами: %{count}"
   oembed_notes: Заметки
   duplicate_source: Источник уже существует
-  geolocation_invalid_value: Неверная локация. Локация должна содержать корректный
-    GeoJSON (http://geojson.org/)
+  geolocation_invalid_value: Неверная локация. Локация должна содержать корректный GeoJSON (http://geojson.org/)
   datetime_invalid_date: Неверная дата
-  error_team_archived_for_source: Нельзя добавить источник в проект, который находится
-    в корзине
+  error_team_archived_for_source: Нельзя добавить источник в проект, который находится в корзине
   permission_error: Извините, вам не разрешена данная операция
-  error_annotated_archived: Извините, нельзя добавить заметку к материалу, который
-    находится в корзине
-  only_super_admin_can_do_this: Извините, только суперадминистраторы могут менять
-    эти настройки
+  error_annotated_archived: Извините, нельзя добавить заметку к материалу, который находится в корзине
+  only_super_admin_can_do_this: Извините, только суперадминистраторы могут менять эти настройки
   cant_change_custom_statuses: |-
-    Извините, нельзя отредактировать дополнительные статусы, поскольку они уже назначены. Статусы %{statuses} используются в следующих материалах:
-    %{urls} %{others_amount}
+      Извините, нельзя отредактировать дополнительные статусы, поскольку они уже назначены. Статусы %{statuses} используются в следующих материалах:
+      %{urls} %{others_amount}
   account_exists: Такой аккаунт уже существует
   media_exists: Такой материал уже существует
   source_exists: Такой источник уже существует
   email_exists: уже используется
-  banned_user: Извините, вам был закрыт доступ к %{app_name}. Пожалуйста, свяжитесь
-    с технической поддержкой, если вы считаете, что произошла ошибка.
+  banned_user: Извините, вам был закрыт доступ к %{app_name}. Пожалуйста, свяжитесь с технической поддержкой, если вы считаете, что произошла ошибка.
   devise:
     mailer:
       reset_password_instructions:
-        subject: Инструкции по сбросу пароля %{app_name}
+        subject: "Инструкции по сбросу пароля %{app_name}"
         header_title: Запрос сброса пароля
         header_text: Мы получили ваш запрос на сброс пароля для %{app_name}.
         action: Сбросить пароль
         expiry: Запрос истекает через %{expire} часов.
         instruction_1: Нажмите здесь, чтобы запросить сброс пароля.
-        instruction_2: Если вы не запрашивали сброс пароля или у вас не получается
-          сбросить свой пароль, пожалуйста, напишите нам на адрес %{support_email}.
+        instruction_2: Если вы не запрашивали сброс пароля или у вас не получается сбросить свой пароль, пожалуйста, напишите нам на адрес %{support_email}.
       invitation_instructions:
         subject: "%{user} пригласил(а) вас вступить в проект %{team}"
         hello: Здравствуйте, %{name}!
         someone_invited_you_default:
           html: "%{name} пригласил(а) вас вступить в проект %{team} как %{role}."
         someone_invited_you_custom:
-          html: "%{name} пригласил(а) вас вступить в группу %{team} как %{role} и
-            оставил(а) сообщение:"
+          html: "%{name} пригласил(а) вас вступить в группу %{team} как %{role} и оставил(а) сообщение:"
         accept: Принять приглашение
         accept_until: Приглашение истекает %{due_date}.
         ignore: Если вы не хотите принять приглашение, просто проигнорируйте это письмо.
-        app_team: 'Проект %{app} '
+        app_team: "Проект %{app} "
     failure:
       unconfirmed: Пожалуйста, проверьте e-mail, чтобы подтвердить аккаунт.
   user_invitation:
     team_found: Проект не найден.
     invalid: Неверный код приглашения.
     no_invitation: Вы не приглашены в проект %{name}
-  error_user_is_not_a_team_member: Извините, вы можете назначать задачи только участникам
-    этого проекта
+  error_user_is_not_a_team_member: Извините, вы можете назначать задачи только участникам этого проекта
   error_login_with_exists_account: Извините, этот аккаунт уже подключен другим пользователем
   error_login_2fa: Для завершения входа введите, пожалуйста, код аутентификации.
-  error_record_not_found: 'Не найдено: %{type} #%{id}'
+  error_record_not_found: "Не найдено: %{type} #%{id}"
   mails_notifications:
     greeting: Здравствуйте, %{username}!
     greeting_anonymous: Здравствуйте!
@@ -340,37 +306,25 @@ ru:
     register:
       subject: Новый аккаунт в %{app_name}
       header_text: |-
-        Вы успешно зарегистрировались в %{app_name}!
-        <br>
-        Чтобы начать работу, нажмите на ссылку: %{url}. Введите ваш email и этот пароль: %{password}
+          Вы успешно зарегистрировались в %{app_name}!
+          <br>
+          Чтобы начать работу, нажмите на ссылку: %{url}. Введите ваш email и этот пароль: %{password}
       login_button: Войти в %{app_name}
       footer_text: Спасибо, что присоединились к нам, и добро пожаловать!
     duplicated:
       subject: Ваш способ входа в %{app_name}
       header_title: Клонировать аккаунт
-      one_email: "<p>Здравствуйте! При вашей попытке входа в %{app_name} произошла
-        небольшая ошибка.</p> <p>Что произошло: вы попытались войти в %{app_name}
-        через аккаунт в %{user_provider}, привязанный к адресу %{user_email}, но этот
-        адрес уже используется в %{app_name} для входа через %{duplicate_provider}.</p>
-        <p>Что делать: выберите вход через %{duplicate_provider}, чтобы войти в свой
-        аккаунт.</p> <p>Вы попадёте в аккаунт, которым пользовались раньше. Если проблема
-        повторяется или что-то не работает так, как должно, свяжитесь с нами по адресу
-        %{support_email}.</p>"
-      both_emails: "<p>Здравствуйте! При вашей попытке входа в %{app_name} произошла
-        небольшая ошибка.</p> <p>Что произошло: вы попытались создать новый аккаунт
-        в %{app_name}, но аккаунт с таким адресом e-mail уже существует.</p> <p>Попробуйте
-        войти с вашим e-mail и паролем вместо того, чтобы регистрировать новый аккаунт.
-        Если вы не помните пароль, воспользуйтесь функцией восстановления.</p> <p>Если
-        проблема повторяется или что-то не работает так, как должно, свяжитесь с нами
-        по адресу %{support_email}.</p>"
+      one_email: |-
+          <p>Здравствуйте! При вашей попытке входа в %{app_name} произошла небольшая ошибка.</p> <p>Что произошло: вы попытались войти в %{app_name} через аккаунт в %{user_provider}, привязанный к адресу %{user_email}, но этот адрес уже используется в %{app_name} для входа через %{duplicate_provider}.</p> <p>Что делать: выберите вход через %{duplicate_provider}, чтобы войти в свой аккаунт.</p> <p>Вы попадёте в аккаунт, которым пользовались раньше. Если проблема повторяется или что-то не работает так, как должно, свяжитесь с нами по адресу %{support_email}.</p>
+      both_emails: |-
+          <p>Здравствуйте! При вашей попытке входа в %{app_name} произошла небольшая ошибка.</p> <p>Что произошло: вы попытались создать новый аккаунт в %{app_name}, но аккаунт с таким адресом e-mail уже существует.</p> <p>Попробуйте войти с вашим e-mail и паролем вместо того, чтобы регистрировать новый аккаунт. Если вы не помните пароль, воспользуйтесь функцией восстановления.</p> <p>Если проблема повторяется или что-то не работает так, как должно, свяжитесь с нами по адресу %{support_email}.</p>
       email: e-mail
     invitation:
       title: Новое приглашение
     delete_user:
       subject: "[%{team}] Пользователь был удалён"
       header_title: Пользователь удалён
-      header_text: Аккаунт пользователя был удалён, и все материалы были переназначены
-        (%{anonymous} пользователь %{id})
+      header_text: Аккаунт пользователя был удалён, и все материалы были переназначены (%{anonymous} пользователь %{id})
       anonymous: анонимный
     admin_mailer:
       team_download_subject: "[%{team}] Архив проекта готов для скачивания"
@@ -379,20 +333,13 @@ ru:
         dump: архив данных
         csv: отчёт
         images: архив изображений
-      team_dump_text: 'Вы запросили архив всех данных по проекту %{team} — вот ссылка
-        для его скачивания: %{link}'
+      team_dump_text: 'Вы запросили архив всех данных по проекту %{team} — вот ссылка для его скачивания: %{link}'
       team_dump_button: Скачать архив проекта
-      decompress_text: "%{type} будет скачан как защищённый паролем архив. Чтобы распаковать
-        его, используйте пароль %{password}."
-      expire_note: Пожалуйста, обратите внимание, что эта ссылка перестанет действовать
-        через %{days} дней.
+      decompress_text: '%{type} будет скачан как защищённый паролем архив. Чтобы распаковать его, используйте пароль %{password}.'
+      expire_note: Пожалуйста, обратите внимание, что эта ссылка перестанет действовать через %{days} дней.
       team_import_subject: Импорт данных завершён
       team_import_title: Импорт данных
-      team_import_text: "<p>Ваш запрос на импорт данных в %{app_name} выполнен. Чтобы
-        проверить детальное состояние импорта по всем элементам, перейдите по ссылке:
-        %{worksheet_url}.</p> <p>При наличии ошибок, вы можете исправить их и перезапустить
-        импорт — элементы, которые уже были успешно импортированы, дублированы не
-        будут.</p>"
+      team_import_text: "<p>Ваш запрос на импорт данных в %{app_name} выполнен. Чтобы проверить детальное состояние импорта по всем элементам, перейдите по ссылке: %{worksheet_url}.</p> <p>При наличии ошибок, вы можете исправить их и перезапустить импорт — элементы, которые уже были успешно импортированы, дублированы не будут.</p>"
     task_resolved:
       subject: "[%{team} - %{project}] Получен ответ на вопрос"
       header_title: Получен ответ на вопрос
@@ -416,9 +363,8 @@ ru:
       unassign_task_title: Задача снята
       assign_media_title: Материал назначен
       unassign_media_title: Материал снят
-      assign_log: Назначен элемент «%{model}» на пользователя %{username} (%{author}).
-      unassign_log: Снято назначение элемента «%{model}» с пользователя %{username}
-        (%{author}).
+      assign_log: "Назначен элемент «%{model}» на пользователя %{username} (%{author})."
+      unassign_log: "Снято назначение элемента «%{model}» с пользователя %{username} (%{author})."
       assign_by: Назначил(а)
       unassign_by: Снял(а)
     request_to_join:
@@ -428,14 +374,11 @@ ru:
       rejected_subject: Ваш запрос на вступление в %{team} не был одобрен
       approved_subject: Добро пожаловать в проект %{team}
       request_title: Запрос на вступление в проект %{team}
-      request_text: "%{name} (%{email}) хочет стать участником проекта %{team} в %{app_name}.
-        Вы можете посмотреть детали запроса по ссылке: %{url}."
+      request_text: "%{name} (%{email}) хочет стать участником проекта %{team} в %{app_name}. Вы можете посмотреть детали запроса по ссылке: %{url}."
       approved_title: Добро пожаловать в проект %{team}
-      approved_text: Ваш запрос на участие в проекте %{team} в %{app_name} был одобрен.
-        Теперь вы можете перейти по ссылке — %{url} — и начать работу.
+      approved_text: Ваш запрос на участие в проекте %{team} в %{app_name} был одобрен. Теперь вы можете перейти по ссылке — %{url} — и начать работу.
       rejected_title: Запрос отклонён
-      rejected_text: Извините, но ваш запрос на участие в проекте %{team} в %{app_name}
-        не был одобрен.
+      rejected_text: Извините, но ваш запрос на участие в проекте %{team} в %{app_name} не был одобрен.
   mail_security:
     device_subject: 'Внимание: Новый вход в %{app_name} через %{browser} на %{platform}'
     ip_subject: 'Внимание: Нетипичный вход в %{app_name}'
@@ -445,13 +388,9 @@ ru:
     devise_name: "%{browser} на %{platform}"
     failed: Обнаружены неудачные попытки входа
     password_text: немедленно сбросить пароль.
-    device_text: Кажется, вы недавно выполнили вход в %{app_name} с нового устройства.
-      Если это были не вы, вам нужно %{change_password}
-    ip_text: Кажется, вы недавно выполнили вход в %{app_name} из нового места. Если
-      это были не вы, вам нужно %{change_password}
-    failed_text: Кажется, было выполнено несколько попыток входа в ваш аккаунт %{app_name}
-      подряд. Если это были вы, можно проигнорировать это предупреждение. Если нет,
-      вам нужно %{change_password}
+    device_text: Кажется, вы недавно выполнили вход в %{app_name} с нового устройства. Если это были не вы, вам нужно %{change_password}
+    ip_text: Кажется, вы недавно выполнили вход в %{app_name} из нового места. Если это были не вы, вам нужно %{change_password}
+    failed_text: Кажется, было выполнено несколько попыток входа в ваш аккаунт %{app_name} подряд. Если это были вы, можно проигнорировать это предупреждение. Если нет, вам нужно %{change_password}
     time_h: Время
     device_h: Устройство
     location_h: Местонахождение
@@ -465,59 +404,46 @@ ru:
   archive_keep_backup: Сохранённые видео
   archive_pender_archive: Скриншот
   archive_archive_org: Archive.org
-  workflow_status_is_not_valid: 'Неверный статус: ''%{status}'' (должен быть одним
-    из списка: %{valid})'
+  workflow_status_is_not_valid: 'Неверный статус: ''%{status}'' (должен быть одним из списка: %{valid})'
   workflow_status_permission_error: Извините, вы не можете изменить этот статус.
-  blank_default_status_for_custom_verification_status: Пожалуйста, задайте значение
-    «по умолчанию» для дополнительных статусов
-  blank_active_status_for_custom_verification_status: Пожалуйста, задайте значение
-    «активный» для дополнительных статусов
+  blank_default_status_for_custom_verification_status: Пожалуйста, задайте значение «по умолчанию» для дополнительных статусов
+  blank_active_status_for_custom_verification_status: Пожалуйста, задайте значение «активный» для дополнительных статусов
   bot_name_exists_for_this_team: В этом проекте уже есть бот с таким именем
   bot_team_id_doesnt_exist: Извините, проекта с таким идентификатором не существует
-  bot_team_id_mandatory_to_create: Извините, нужно выбрать проект, чтобы добавить
-    бота
-  bot_not_approved_for_installation: Извините, этот бот не был одобрен, поэтому не
-    может быть добавлен
+  bot_team_id_mandatory_to_create: Извините, нужно выбрать проект, чтобы добавить бота
+  bot_not_approved_for_installation: Извините, этот бот не был одобрен, поэтому не может быть добавлен
   could_not_save_related_bot_data: Извините, не удалось добавить бота в этот проект
-  bot_cant_add_response_to_task: Извините, бот не может отвечать на вопросы — вместо
-    этого можно предложить ответ
+  bot_cant_add_response_to_task: Извините, бот не может отвечать на вопросы — вместо этого можно предложить ответ
   bot_cant_add_review_to_task: Извините, бот не может обрабатывать вопросы
-  task_suggestion_invalid_value: Неверный предлагаемый ответ. Корректный формат —
-    объект JSON с ключами `suggestion` (ответ на вопрос, публикуемый при принятии
-    предложения) и `comment` (показывается пользователям)
+  task_suggestion_invalid_value: Неверный предлагаемый ответ. Корректный формат — объект JSON с ключами `suggestion` (ответ на вопрос, публикуемый при принятии предложения) и `comment` (показывается пользователям)
   tag_text_id_not_found: Тег не найден
   annotation_type_language_label: Язык
   smooch_bot_message_confirmed: |-
-    Спасибо. Ваш запрос был добавлен в очередь на верификацию.
+      Спасибо. Ваш запрос был добавлен в очередь на верификацию.
 
-    Мы постараемся отправить вам отчёт в течение 24 часов, но, к сожалению, не всегда можем ответить на каждый запрос.
-  smooch_bot_message_unconfirmed: Поскольку вы не ответили «1», запрос будет отменён.
-    Спасибо.
-  smooch_bot_message_type_unsupported: Извините, мы не поддерживаем данный формат
-    сообщения.
+      Мы постараемся отправить вам отчёт в течение 24 часов, но, к сожалению, не всегда можем ответить на каждый запрос.
+  smooch_bot_message_unconfirmed: Поскольку вы не ответили «1», запрос будет отменён. Спасибо.
+  smooch_bot_message_type_unsupported: Извините, мы не поддерживаем данный формат сообщения.
   smooch_bot_message_size_unsupported: Извините, мы не поддерживаем файлы больше %{max_size}.
   smooch_bot_result: |-
-    [Отчёт о верификации] Материал, который вы нам отправили, получил отметку «*%{status}*».
+      [Отчёт о верификации] Материал, который вы нам отправили, получил отметку «*%{status}*».
 
-    Вы можете ознакомиться со всеми шагами, предпринятыми для верификации, по ссылке: %{url}
+      Вы можете ознакомиться со всеми шагами, предпринятыми для верификации, по ссылке: %{url}
   smooch_bot_ask_for_confirmation: |-
-    Спасибо за ваш запрос. Вы хотели бы, чтобы мы подтвердили достоверность данных материалов?
+      Спасибо за ваш запрос. Вы хотели бы, чтобы мы подтвердили достоверность данных материалов?
 
-    Если да, *отправьте 1*. Любой другой ответ завершит беседу.
+      Если да, *отправьте 1*. Любой другой ответ завершит беседу.
   smooch_bot_ask_for_tos: |-
-    Спасибо, что обратились в Check Message!
+      Спасибо, что обратились в Check Message!
 
-    Этот сервис предназначен для того, чтобы запрашивать факт-чекинг, подтверждение достоверности и расследование новостей и другой информации. Для Check Message действуют следующие Условия Использования: %{tos}. Используя сервис, *вы соглашаетесь на эти условия*. Если вы не согласны с условиями, вы должны прекратить использование сервиса.
-  smooch_bot_window_closing: В настоящее время нам поступает очень много запросов,
-    и ваш всё ещё находится в очереди. Спасибо за ваше терпение.
+      Этот сервис предназначен для того, чтобы запрашивать факт-чекинг, подтверждение достоверности и расследование новостей и другой информации. Для Check Message действуют следующие Условия Использования: %{tos}. Используя сервис, *вы соглашаетесь на эти условия*. Если вы не согласны с условиями, вы должны прекратить использование сервиса.
+  smooch_bot_window_closing: В настоящее время нам поступает очень много запросов, и ваш всё ещё находится в очереди. Спасибо за ваше терпение.
   smooch_bot_not_final: |-
-    [Отчёт о верификации — ИЗМЕНЕНИЕ] Сообщение, которое вы нам отправили, было некорректно отмечено как «*%{status}*».
+      [Отчёт о верификации — ИЗМЕНЕНИЕ] Сообщение, которое вы нам отправили, было некорректно отмечено как «*%{status}*».
 
-    Сообщение возвращено в очередь и ожидает верификации.
-  smooch_bot_disabled: Спасибо за ваше сообщение. К сожалению, мы не сможем провести
-    верификацию, поскольку этот проект больше не активен.
-  smooch_bot_result_changed: "❗️Отчёт о верификации, который мы вам отправили, был
-    *обновлён*"
+      Сообщение возвращено в очередь и ожидает верификации.
+  smooch_bot_disabled: Спасибо за ваше сообщение. К сожалению, мы не сможем провести верификацию, поскольку этот проект больше не активен.
+  smooch_bot_result_changed: "❗️Отчёт о верификации, который мы вам отправили, был *обновлён*"
   permissions_info:
     permissions:
       sections:
@@ -553,12 +479,9 @@ ru:
   team_import:
     invalid_google_spreadsheet_url: 'Неверный URL таблицы: %{spreadsheet_url}'
     not_found_google_spreadsheet_url: 'Таблица не найдена: %{spreadsheet_url}'
-    cannot_authenticate_with_the_credentials: Не удалось авторизоваться в Google Drive
-      с указанными данными. Пожалуйста, свяжитесь со службой поддержки.
-    team_not_present: 'Выбранный проект не найден при импорте данных. Пожалуйста,
-      свяжитесь со службой поддержки. '
-    user_not_present: Выбранный пользователь не найден при импорте данных. Пожалуйста,
-      свяжитесь со службой поддержки.
+    cannot_authenticate_with_the_credentials: Не удалось авторизоваться в Google Drive с указанными данными. Пожалуйста, свяжитесь со службой поддержки.
+    team_not_present: 'Выбранный проект не найден при импорте данных. Пожалуйста, свяжитесь со службой поддержки. '
+    user_not_present: Выбранный пользователь не найден при импорте данных. Пожалуйста, свяжитесь со службой поддержки.
     user_not_authorized: Извините, вы не можете импортировать данные в этот проект.
     invalid_user: Неверный пользователь %{user}
     invalid_status: Неверный статус %{status}
@@ -566,8 +489,7 @@ ru:
     blank_annotator: Не указан аннотатор
     invalid_annotator: Неверный аннотатор %{user}
     invalid_assignee: Неверный пользователь %{user}
-  cant_mutate_inactive_object: Этот материал находится в обработке и не может быть
-    изменён в настоящий момент. Пожалуйста, попробуйте позже.
+  cant_mutate_inactive_object: Этот материал находится в обработке и не может быть изменён в настоящий момент. Пожалуйста, попробуйте позже.
   embed_expand_all: Раскрыть всё
   embed_collapse_all: Свернуть всё
   embed_tasks: Вопросы
@@ -581,14 +503,12 @@ ru:
   bot_request_url_invalid: Неверный URL бота
   invalid_task_answer: Неверный формат ответа на вопрос
   team_rule_name: Уникальное название для правила
-  team_rule_names_invalid: Названия правил должны быть уникальными и не могут быть
-    пустыми
+  team_rule_names_invalid: Названия правил должны быть уникальными и не могут быть пустыми
   team_rules: Правила
   team_rule_conditions: Если
   team_rule_condition: Если
   team_rule_condition_definition: Выберите условие
-  team_rule_title_matches_regexp: Заголовок материала совпадает с данным регулярным
-    выражением
+  team_rule_title_matches_regexp: Заголовок материала совпадает с данным регулярным выражением
   team_rule_request_matches_regexp: Запрос совпадает с данным регулярным выражением
   team_rule_type_is: Тип материала совпадает с указанным
   team_rule_type_is_claim: Текст
@@ -609,8 +529,7 @@ ru:
   team_rule_actions: Тогда
   team_rule_action: Тогда
   team_rule_action_definition: Выберите действие
-  team_rule_ban_submitter: Забанить добавившего (их сообщения больше не будут появляться
-    в Check)
+  team_rule_ban_submitter: Забанить добавившего (их сообщения больше не будут появляться в Check)
   team_rule_all_items: Все материалы
   team_rule_send_message_to_user: Отправить сообщение пользователю
   team_rule_action_value: Введите сообщение
@@ -632,8 +551,7 @@ ru:
   team_rule_item_user_is: Материал был создан данным автором
   team_rule_item_is_read: Материал прочитан
   team_rule_field_from_fieldset_tasks_value_is: На вопрос есть конкретный ответ
-  team_rule_field_from_fieldset_tasks_value_contains_keyword: Ответ содержит ключевое
-    слово
+  team_rule_field_from_fieldset_tasks_value_contains_keyword: Ответ содержит ключевое слово
   team_rule_select_field_value_metadata: Выберите значение
   team_rule_select_field_tasks: Выберите вопрос
   team_rule_select_field_value_tasks: Выберите ответ
@@ -649,25 +567,17 @@ ru:
   flag_likelihood_2: Маловероятно
   flag_likelihood_4: Вероятно
   relationship_not_same_team: Связанные материалы должны находиться в одном проекте
-  bulk_operation_limit_error: 'Извините, достигнуто максимальное количество материалов,
-    обрабатываемых за раз: %{limit}'
-  must_provide_fallback_when_deleting_status_in_use: Этот статус используется в проекте,
-    поэтому, если вы хотите удалить его, нужно указать альтернативный вариант
-  embed_no_content_yet: Отчёт находится в процессе создания. Это может занять несколько
-    минут. Пожалуйста, обновите страницу чуть позже.
-  language_format_invalid: Неверное обозначение языка. Язык должен быть указан кодом
-    ISO 639-1.
-  languages_format_invalid: Неверные обозначения языков. Языки должны указываться
-    кодами ISO 639-1.
-  cant_change_status_if_item_is_published: Извините, вы не можете изменить статус,
-    когда отчёт уже опубликован
+  bulk_operation_limit_error: 'Извините, достигнуто максимальное количество материалов, обрабатываемых за раз: %{limit}'
+  must_provide_fallback_when_deleting_status_in_use: Этот статус используется в проекте, поэтому, если вы хотите удалить его, нужно указать альтернативный вариант
+  embed_no_content_yet: Отчёт находится в процессе создания. Это может занять несколько минут. Пожалуйста, обновите страницу чуть позже.
+  language_format_invalid: Неверное обозначение языка. Язык должен быть указан кодом ISO 639-1.
+  languages_format_invalid: Неверные обозначения языков. Языки должны указываться кодами ISO 639-1.
+  cant_change_status_if_item_is_published: Извините, вы не можете изменить статус, когда отчёт уже опубликован
   fetch_bot_service_unsupported: Сервис не поддерживается
   task_options_must_be_array: Параметры вопроса должны быть отформатированы списком
   fieldset_not_defined_by_team: Набор полей должен поддерживаться проектом
-  replace_by_media_in_the_same_team: Извините, этот материал можно заменять только
-    другими материалами из того же проекта
-  replace_blank_media_only: Извините, в данный момент можно заменять только пустые
-    материалы
+  replace_by_media_in_the_same_team: Извините, этот материал можно заменять только другими материалами из того же проекта
+  replace_blank_media_only: Извините, в данный момент можно заменять только пустые материалы
   cant_preview_rss_feed: Извините, у вас нет доступа к предпросмотру RSS-ленты.
   list_column_demand: Запросы
   list_column_share_count: Репосты FB

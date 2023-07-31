@@ -59,6 +59,10 @@ class Ability
     can [:update, :destroy], TeamUser, team_id: @context_team.id
     can :duplicate, Team, :id => @context_team.id
     can :set_privacy, Project, :team_id => @context_team.id
+    can :cud, Feed do |obj|
+      obj.get_team_ids.include?(@context_team.id)
+    end
+    can [:create, :destroy], FeedTeam, team_id: @context_team.id
   end
 
   def editor_perms
@@ -83,7 +87,7 @@ class Ability
     can [:cud], DynamicAnnotation::Field do |obj|
       obj.annotation.team&.id == @context_team.id
     end
-    can [:cud], [Account, Source], :team_id => @context_team.id
+    can [:create, :update, :read, :destroy], [Account, Source, TiplineNewsletter], :team_id => @context_team.id
     can [:cud], AccountSource, source: { team: { team_users: { team_id: @context_team.id }}}
     %w(annotation comment dynamic task tag).each do |annotation_type|
       can [:cud], annotation_type.classify.constantize do |obj|

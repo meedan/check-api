@@ -442,6 +442,7 @@ module SampleData
     project.title = options[:title] || random_string
     project.description = options[:description] || random_string(40)
     project.user = options.has_key?(:user) ? options[:user] : create_user
+    project.is_default = options[:is_default] if options.has_key?(:is_default)
     file = 'rails.png'
     if options.has_key?(:lead_image)
       file = options[:lead_image]
@@ -986,7 +987,8 @@ module SampleData
 
   def create_feed(options = {})
     Feed.create!({
-      name: random_string
+      name: random_string,
+      licenses: [1],
     }.merge(options))
   end
 
@@ -1026,5 +1028,60 @@ module SampleData
     }.merge(options)
 
     MonthlyTeamStatistic.create!(attributes)
+  end
+
+  def create_tipline_newsletter(options = {})
+    newsletter = TiplineNewsletter.new({
+      send_every: ['monday'],
+      send_on: Date.parse('2023-12-25'),
+      introduction: 'Test',
+      time: Time.parse('10:00'),
+      timezone: 'BRT',
+      content_type: 'static',
+      first_article: 'Foo',
+      second_article: 'Bar',
+      number_of_articles: 2,
+      footer: 'Test',
+      language: 'en',
+      enabled: true,
+      team: create_team
+    }.merge(options))
+    unless options[:header_file].blank?
+      File.open(File.join(Rails.root, 'test', 'data', options[:header_file])) do |f|
+        newsletter.file = f
+      end
+    end
+    newsletter.save!
+    newsletter
+  end
+
+  def create_rss_feed(custom_url = nil)
+    url = custom_url || random_url
+    rss = %{
+      <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+        <channel>
+          <title>Test</title>
+          <link>http://test.com/rss.xml</link>
+          <description>Test</description>
+          <language>en</language>
+          <lastBuildDate>Fri, 09 Oct 2020 18:00:48 GMT</lastBuildDate>
+          <managingEditor>test@test.com (editors)</managingEditor>
+          <item>
+            <title>Foo</title>
+            <description>This is the description.</description>
+            <pubDate>Wed, 11 Apr 2018 15:25:00 GMT</pubDate>
+            <link>http://foo</link>
+          </item>
+          <item>
+            <title>Bar</title>
+            <description>This is the description.</description>
+            <pubDate>Wed, 10 Apr 2018 15:25:00 GMT</pubDate>
+            <link>http://bar</link>
+          </item>
+        </channel>
+      </rss>
+    }
+    WebMock.stub_request(:get, url).to_return(status: 200, body: rss)
+    RssFeed.new(url)
   end
 end

@@ -69,15 +69,19 @@ module SmoochZendesk
           }
         })
       end
-      return if params['type'] == 'text' && params['text'].blank?
+      return OpenStruct.new(body: OpenStruct.new({ error: 'Empty message' }), code: 400) if params['type'] == 'text' && params['text'].blank?
       message_post_body = SmoochApi::MessagePost.new(params)
+      response_body = nil
+      response_code = 0
       begin
-        api_instance.post_message(app_id, uid, message_post_body)
+        response_body = api_instance.post_message(app_id, uid, message_post_body) # It will raise an exception if message can't be sent
+        response_code = 200
       rescue SmoochApi::ApiError => e
-        response_body = begin JSON.parse(e.response_body) rescue {} end
+        response_body = begin JSON.parse(e.response_body) rescue nil end
+        response_code = 400
         Rails.logger.error("[Smooch Bot] Exception when sending message #{params.inspect}: #{e.response_body}")
 
-        error = response_body.dig('error')
+        error = response_body.to_h.dig('error')
         e2 = Bot::Smooch::SmoochMessageDeliveryError.new("(#{error&.dig('code')}) #{error&.dig('description')}")
         CheckSentry.notify(e2,
           smooch_app_id: app_id,
@@ -85,15 +89,15 @@ module SmoochZendesk
           smooch_body: params,
           errors: error
         )
-        nil
       end
+      # Convert to something that looks like a HTTP response
+      OpenStruct.new(body: response_body, code: response_code)
     end
 
     # https://docs.smooch.io/guide/whatsapp#shorthand-syntax
-    def zendesk_format_template_message(namespace, template, fallback, locale, image, placeholders, header = nil)
+    def zendesk_format_template_message(namespace, template, fallback, locale, file_url, placeholders, file_type)
       data = { namespace: namespace, template: template, fallback: fallback, language: locale }
-      data['header_image'] = image unless image.blank?
-      data['header_text'] = header unless header.blank?
+      data['header_image'] = file_url if file_type == 'image' && !file_url.blank?
       output = ['&((']
       data.each do |key, value|
         output << "#{key}=[[#{value}]]"

@@ -91,9 +91,9 @@ class DynamicAnnotation::Field < ApplicationRecord
 
   def method_suggestions(prefix)
     [
-      "field_#{prefix}_#{self.annotation.annotation_type}_#{self.field_name}",
+      "field_#{prefix}_#{self.annotation&.annotation_type}_#{self.field_name}",
       "field_#{prefix}_name_#{self.field_name}",
-      "field_#{prefix}_type_#{self.field_instance.field_type}",
+      "field_#{prefix}_type_#{self.field_instance&.field_type}",
     ]
   end
 

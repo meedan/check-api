@@ -99,13 +99,18 @@ class RelationshipTest < ActiveSupport::TestCase
       u = create_user
       create_team_user team: t, user: u, role: 'admin'
       with_current_user_and_team(u, t) do
-        pm_s = create_project_media team: t
+        # Try to create an item with title that trigger a version metadata error(CV2-2910)
+        pm_s = create_project_media team: t, quote: "Rahul Gandhi's interaction with Indian?param:test&Journalists Association in London"
         pm_t1 = create_project_media team: t
         pm_t2 = create_project_media team: t
         pm_t3 = create_project_media team: t
         r1 = create_relationship source_id: pm_s.id, target_id: pm_t1.id, relationship_type: Relationship.suggested_type
         r2 = create_relationship source_id: pm_s.id, target_id: pm_t2.id, relationship_type: Relationship.suggested_type
         r3 = create_relationship source_id: pm_s.id, target_id: pm_t3.id, relationship_type: Relationship.suggested_type
+        # Verify unmatched
+        assert_equal 0, pm_t1.reload.unmatched
+        assert_equal 0, pm_t2.reload.unmatched
+        assert_equal 0, pm_t3.reload.unmatched
         # Verify cached fields
         sleep 2
         es_s = $repository.find(get_es_id(pm_s))
@@ -133,11 +138,16 @@ class RelationshipTest < ActiveSupport::TestCase
         assert_equal pm_t1.reload.sources_count, es_t['sources_count']
         assert_equal 1, pm_t1.reload.sources_count
         assert_equal pm_s.suggestions_count, es_s['suggestions_count']
+        # Verify unmatched
+        assert_equal 0, pm_t1.reload.unmatched
+        assert_equal 0, pm_t2.reload.unmatched
+        assert_equal 0, pm_t3.reload.unmatched
       end
     end
   end
 
   test "should bulk-reject similar items" do
+    RequestStore.store[:skip_cached_field_update] = false
     with_versioning do
       setup_elasticsearch
       t = create_team
@@ -155,13 +165,16 @@ class RelationshipTest < ActiveSupport::TestCase
         r3 = create_relationship source_id: pm_s.id, target_id: pm_t3.id, relationship_type: Relationship.suggested_type
         relations = [r1, r2]
         ids = relations.map(&:id)
-        updates = { source_id: pm_s.id, add_to_project_id: p2.id }
+        updates = { source_id: pm_s.id }
         assert_difference 'Version.count', 2 do
           Relationship.bulk_destroy(ids, updates, t)
         end
-        assert_equal p2.id, pm_t1.reload.project_id
-        assert_equal p2.id, pm_t2.reload.project_id
-        assert_equal p.id, pm_t3.reload.project_id
+        assert_equal 1, pm_t1.reload.unmatched
+        assert_equal 1, pm_t2.reload.unmatched
+        assert_equal 0, pm_t3.reload.unmatched
+        # Verify cached fields
+        assert_not pm_t1.is_suggested
+        assert_not pm_t1.is_suggested(true)
       end
     end
   end

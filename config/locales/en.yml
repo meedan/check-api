@@ -41,25 +41,25 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description: 
+        description:
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description: 
+        description:
       misleading:
         label: Misleading
-        description: 
+        description:
       disputed:
         label: Disputed
-        description: 
+        description:
       out_of_scope:
         label: Out of Scope
-        description: 
+        description:
       junk:
         label: Junk
-        description: 
+        description:
       unstarted:
         label: Unstarted
         description: Default, just added, no work has started
@@ -83,7 +83,8 @@ en:
     messages:
       invalid_password: Invalid password
       invalid_qrcode: Invalid validation code
-      extension_white_list_error: 'cannot have type %{extension}, allowed types: %{allowed_types}'
+      # This string is preceded by the name of the file being validated.
+      extension_white_list_error: 'cannot be of type %{extension}, allowed types: %{allowed_types}'
       invalid_size: must be between %{min_width}x%{min_height} and %{max_width}x%{max_height}
         pixels
       mini_magick_processing_error: 'Sorry, we failed to process the image. The error
@@ -108,6 +109,7 @@ en:
       invalid_project_media_archived_value: Sorry, archived value not supported
       invalid_fact_check_language_value: Sorry, language value not supported
       fact_check_empty_title_and_summary: Sorry, you should fill title or summary
+      invalid_feed_saved_search_value: should belong to a workspace that is part of this feed
   activerecord:
     models:
       link: Link
@@ -800,6 +802,9 @@ en:
     %{content}
 
     To stop receiving this newsletter, type "%{unsubscribe}".
+  send_every_must_be_a_list_of_days_of_the_week: must be a list of days of the week.
+  send_on_must_be_in_the_future: can't be in the past.
+  cant_delete_default_folder: The default folder can't be deleted
   info:
     messages:
       sent_to_trash_by_rule: '"%{item_title}" has been sent to trash by an automation

@@ -19,8 +19,8 @@ module CheckStatistics
     def reports_received(team_id, platform, start_date, end_date, language)
       DynamicAnnotation::Field
         .where(field_name: 'smooch_report_received')
-        .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id INNER JOIN dynamic_annotation_fields fs ON fs.annotation_id = a.id AND fs.field_name = 'smooch_data'")
-        .where('t.id' => team_id)
+        .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia' INNER JOIN dynamic_annotation_fields fs ON fs.annotation_id = a.id AND fs.field_name = 'smooch_data'")
+        .where('pm.team_id' => team_id)
         .where("fs.value_json->'source'->>'type' = ?", platform)
         .where("fs.value_json->>'language' = ?", language)
         .where('dynamic_annotation_fields.created_at' => start_date..end_date)
@@ -55,7 +55,12 @@ module CheckStatistics
           nil
         end
       end.reject{ |t| t.blank? }.collect{ |t| Time.parse(t.to_s) }.select{ |t| t >= start_date && t <= end_date }.collect{ |t| t.to_s }.uniq
-      times.size
+      old_count = times.size
+
+      newsletter = TiplineNewsletter.where(team_id: team_id, language: language).last
+      new_count = newsletter.nil? ? 0 : TiplineNewsletterDelivery.where(tipline_newsletter: newsletter, created_at: start_date..end_date).count
+
+      old_count + new_count
     end
 
     def get_statistics(start_date, end_date, team_id, platform, language, tracing_attributes = {})
@@ -82,7 +87,7 @@ module CheckStatistics
           statistics[:conversations] = conversations
         end
 
-        number_of_newsletters = 0
+        number_of_newsletters = nil
         CheckTracer.in_span('CheckStatistics#unique_newsletters_sent', attributes: tracing_attributes) do
           # Number of newsletters sent
           # NOTE: For all platforms
@@ -117,7 +122,8 @@ module CheckStatistics
           search_results = project_media_requests(team_id, platform, start_date, end_date, language, 'relevant_search_result_requests').count + project_media_requests(team_id, platform, start_date, end_date, language, 'irrelevant_search_result_requests').count + project_media_requests(team_id, platform, start_date, end_date, language, 'timeout_search_requests').count
 
           # Average number of messages per day
-          number_of_messages = numbers_of_messages.sum + search_results + (number_of_newsletters * current_newsletter_subscribers)
+          number_of_messages = numbers_of_messages.sum + search_results
+          number_of_messages += (number_of_newsletters * current_newsletter_subscribers) if (number_of_newsletters && current_newsletter_subscribers)
           if number_of_messages == 0
             statistics[:average_messages_per_day] = 0
           else
@@ -152,13 +158,13 @@ module CheckStatistics
         CheckTracer.in_span('CheckStatistics#published_native_reports', attributes: tracing_attributes) do
           # Number of new published reports created in Check (e.g., native, not imported)
           # NOTE: For all platforms
-          statistics[:published_native_reports] = Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.id' => team_id).where('annotations.created_at' => start_date..end_date).where("data LIKE '%language: #{language}%'").where("data LIKE '%state: published%'").where('annotations.annotator_id NOT IN (?)', [BotUser.fetch_user.id, BotUser.alegre_user.id]).count
+          statistics[:published_native_reports] = Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia'").where('pm.team_id' => team_id).where('annotations.created_at' => start_date..end_date).where("data LIKE '%language: #{language}%'").where("data LIKE '%state: published%'").where('annotations.annotator_id NOT IN (?)', [BotUser.fetch_user.id, BotUser.alegre_user.id]).count
         end
 
         CheckTracer.in_span('CheckStatistics#published_imported_reports', attributes: tracing_attributes) do
           # Number of published imported reports
           # NOTE: For all languages and platforms
-          statistics[:published_imported_reports] = Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.id' => team_id).where('annotations.created_at' => start_date..end_date, 'annotations.annotator_id' => [BotUser.fetch_user.id, BotUser.alegre_user.id]).where("data LIKE '%state: published%'").count
+          statistics[:published_imported_reports] = Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia'").where('pm.team_id' => team_id).where('annotations.created_at' => start_date..end_date, 'annotations.annotator_id' => [BotUser.fetch_user.id, BotUser.alegre_user.id]).where("data LIKE '%state: published%'").count
         end
 
         CheckTracer.in_span('CheckStatistics#requests_answerwed_with_report', attributes: tracing_attributes) do
@@ -202,6 +208,11 @@ module CheckStatistics
         CheckTracer.in_span('CheckStatistics#newsletter_cancellations', attributes: tracing_attributes) do
           # Number of newsletter subscription cancellations
           statistics[:newsletter_cancellations] = Version.from_partition(team_id).where(created_at: start_date..end_date, team_id: team_id, item_type: 'TiplineSubscription', event_type: 'destroy_tiplinesubscription').where('object LIKE ?', "%#{platform_name}%").where('object LIKE ?', '%"language":"' + language + '"%').count
+        end
+
+        CheckTracer.in_span('CheckStatistics#newsletters_delivered', attributes: tracing_attributes) do
+          # Number of newsletters effectively delivered, accounting for user errors for each platform
+          statistics[:newsletters_delivered] = TiplineMessage.where(created_at: start_date..end_date, team_id: team_id, platform: platform_name, language: language, direction: 'outgoing', event: 'newsletter').count
         end
       end
       statistics

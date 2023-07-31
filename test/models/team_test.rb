@@ -556,6 +556,14 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal ['en'], t.get_languages
   end
 
+  test 'should set and get language detection configuration' do
+    t = create_team
+    assert t.reload.get_language_detection
+    t.language_detection = false
+    t.save!
+    assert !t.reload.get_language_detection
+  end
+
   test "should match rule when item is read" do
     RequestStore.store[:skip_cached_field_update] = false
     RequestStore.store[:skip_delete_for_ever] = true

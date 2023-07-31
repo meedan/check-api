@@ -40,10 +40,6 @@ module RelationshipBulk
       relationships.find_each{ |r| relationship_target[r.id] = r.target_id}
       relationships.delete_all
       target_ids = relationship_target.values
-      # Move targets to a specific project.
-      unless updates[:add_to_project_id].blank?
-        ProjectMedia.bulk_update(target_ids, { action: 'move_to', params: { move_to: updates[:add_to_project_id] }.to_json }, team)
-      end
       delete_cached_field(pm_source.id, target_ids)
       # Run callbacks in background
       extra_options = {
@@ -57,7 +53,11 @@ module RelationshipBulk
 
     def delete_cached_field(source_id, target_ids)
       # Clear cached fields
-      cached_fields = ['linked_items_count', 'suggestions_count', 'report_status', 'related_count', 'demand', 'last_seen']
+      # List fields with `model: Relationship`
+      cached_fields = [
+        'is_suggested', 'is_confirmed', 'linked_items_count', 'suggestions_count','report_status','related_count',
+        'demand', 'last_seen', 'sources_as_sentence', 'added_as_similar_by_name', 'confirmed_as_similar_by_name'
+      ]
       cached_fields.each do |name|
         Rails.cache.delete("check_cached_field:ProjectMedia:#{source_id}:#{name}")
         target_ids.each { |id| Rails.cache.delete("check_cached_field:ProjectMedia:#{id}:#{name}") }
@@ -74,10 +74,12 @@ module RelationshipBulk
       es_body = []
       versions = []
       callbacks = [:reset_counters, :update_counters, :set_cluster, :propagate_inversion]
+      target_ids = []
       Relationship.where(id: ids, source_id: extra_options['source_id']).find_each do |r|
+        target_ids << r.target_id
         # ES fields
         doc_id = Base64.encode64("ProjectMedia/#{r.target_id}")
-        fields = { updated_at: r.updated_at.utc, parent_id: r.source_id }
+        fields = { updated_at: r.updated_at.utc, parent_id: r.source_id, unmatched: 0 }
         es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
         # Add versions
         r.relationship_type = Relationship.confirmed_type.to_yaml
@@ -109,6 +111,8 @@ module RelationshipBulk
           r.send(callback)
         end
       end
+      # Update un-matched field
+      ProjectMedia.where(id: target_ids).update_all(unmatched: 0)
       # Update ES docs
       $repository.client.bulk body: es_body unless es_body.blank?
       # Import versions
@@ -142,6 +146,7 @@ module RelationshipBulk
 
       ProjectMedia.where(id: target_ids).find_each do |target|
         target.skip_check_ability = true
+        target.unmatched = 1
         target.sources_count = Relationship.where(target_id: target.id).where('relationship_type = ?', Relationship.confirmed_type.to_yaml).count
         target.save!
       end
@@ -150,7 +155,10 @@ module RelationshipBulk
         index: CheckElasticSearchModel.get_index_alias,
         conflicts: 'proceed',
         body: {
-          script: { source: "ctx._source.updated_at = params.updated_at", params: { updated_at: Time.now.utc } },
+          script: {
+            source: "ctx._source.updated_at = params.updated_at;ctx._source.unmatched = params.unmatched",
+            params: { updated_at: Time.now.utc, unmatched: 1 }
+          },
           query: { terms: { annotated_id: target_ids } }
         }
       }

@@ -1,6 +1,8 @@
 class BotUser < User
   include CheckPusher
 
+  class ExternalBotRequestError < StandardError; end
+
   EVENTS = ['create_project_media', 'update_project_media', 'create_source', 'update_source', 'update_annotation_own', 'publish_report',
             'save_annotation', 'save_claim_description', 'save_fact_check']
   custom_annotation_types = begin DynamicAnnotation::AnnotationType.all.map(&:annotation_type) rescue [] end
@@ -174,8 +176,19 @@ class BotUser < User
         http.use_ssl = true if self.get_request_url =~ /^https:/
         request = Net::HTTP::Post.new(uri.request_uri, headers)
         request.body = data.to_json
-        response = http.request(request)
-        Rails.logger.info "[BotUser] Notified bot #{self.id} with payload '#{data.to_json}', the response was (#{response.code}): '#{response.body}'"
+        response = nil
+        begin
+          response = http.request(request)
+        rescue StandardError => e
+          CheckSentry.notify(ExternalBotRequestError.new('Could not send request to external bot'), { error: e, bot_id: self.id })
+          return nil
+        end
+        # Log data with team_id only to avoid Encoding::CompatibilityError
+        logged_data = data.dup
+        logged_data.delete(:team)
+        logged_data[:team_id] = data[:team].id
+        logged_data = logged_data.to_json
+        Rails.logger.info "[BotUser] Notified bot #{self.id} with payload #{logged_data}, the response was #{response.code}"
         response
       end
     rescue StandardError => e
@@ -315,12 +328,20 @@ class BotUser < User
     return if object.nil? || team.nil?
     team.team_bot_installations.each do |team_bot_installation|
       bot = team_bot_installation.bot_user
-      bot.notify_about_event(event, object, team, team_bot_installation) if bot.subscribed_to?(event) && (target_bot.blank? || bot.id == target_bot.id)
+      begin
+        bot.notify_about_event(event, object, team, team_bot_installation) if bot.subscribed_to?(event) && (target_bot.blank? || bot.id == target_bot.id)
+      rescue StandardError => e
+        CheckSentry.notify(e, { event: event, team_bot_installation_id: team_bot_installation.id })
+      end
     end
   end
 
   def core?
     begin Module.const_defined?("Bot::#{self.identifier.camelize}") rescue false end
+  end
+
+  def should_ignore_request?
+    false
   end
 
   protected

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_05_02_001038) do
+ActiveRecord::Schema.define(version: 2023_07_25_053637) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -296,31 +296,43 @@ ActiveRecord::Schema.define(version: 2023_05_02_001038) do
     t.string "language", default: "", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "signature"
     t.index ["claim_description_id"], name: "index_fact_checks_on_claim_description_id", unique: true
     t.index ["language"], name: "index_fact_checks_on_language"
+    t.index ["signature"], name: "index_fact_checks_on_signature", unique: true
     t.index ["user_id"], name: "index_fact_checks_on_user_id"
   end
 
   create_table "feed_teams", force: :cascade do |t|
     t.bigint "team_id", null: false
     t.bigint "feed_id", null: false
-    t.jsonb "filters", default: {}
     t.jsonb "settings", default: {}
     t.boolean "shared", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "saved_search_id"
     t.index ["feed_id"], name: "index_feed_teams_on_feed_id"
+    t.index ["saved_search_id"], name: "index_feed_teams_on_saved_search_id"
     t.index ["team_id", "feed_id"], name: "index_feed_teams_on_team_id_and_feed_id", unique: true
     t.index ["team_id"], name: "index_feed_teams_on_team_id"
   end
 
   create_table "feeds", force: :cascade do |t|
     t.string "name", null: false
-    t.jsonb "filters", default: {}
     t.jsonb "settings", default: {}
     t.boolean "published", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "saved_search_id"
+    t.bigint "user_id"
+    t.bigint "team_id"
+    t.text "description"
+    t.string "tags", default: [], array: true
+    t.integer "licenses", default: [], array: true
+    t.boolean "discoverable", default: false
+    t.index ["saved_search_id"], name: "index_feeds_on_saved_search_id"
+    t.index ["team_id"], name: "index_feeds_on_team_id"
+    t.index ["user_id"], name: "index_feeds_on_user_id"
   end
 
   create_table "login_activities", id: :serial, force: :cascade do |t|
@@ -376,6 +388,7 @@ ActiveRecord::Schema.define(version: 2023_05_02_001038) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "conversations_24hr"
+    t.integer "newsletters_delivered"
     t.index ["team_id", "platform", "language", "start_date"], name: "index_monthly_stats_team_platform_language_start", unique: true
     t.index ["team_id"], name: "index_monthly_team_statistics_on_team_id"
   end
@@ -430,11 +443,11 @@ ActiveRecord::Schema.define(version: 2023_05_02_001038) do
     t.boolean "read", default: false, null: false
     t.integer "sources_count", default: 0, null: false
     t.integer "archived", default: 0
-    t.integer "cached_annotations_count", default: 0
     t.integer "targets_count", default: 0, null: false
     t.integer "last_seen"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "unmatched", default: 0
     t.index ["channel"], name: "index_project_medias_on_channel"
     t.index ["cluster_id"], name: "index_project_medias_on_cluster_id"
     t.index ["last_seen"], name: "index_project_medias_on_last_seen"
@@ -442,6 +455,7 @@ ActiveRecord::Schema.define(version: 2023_05_02_001038) do
     t.index ["project_id"], name: "index_project_medias_on_project_id"
     t.index ["source_id"], name: "index_project_medias_on_source_id"
     t.index ["team_id", "archived", "sources_count"], name: "index_project_medias_on_team_id_and_archived_and_sources_count"
+    t.index ["unmatched"], name: "index_project_medias_on_unmatched"
     t.index ["user_id"], name: "index_project_medias_on_user_id"
   end
 
@@ -636,6 +650,47 @@ ActiveRecord::Schema.define(version: 2023_05_02_001038) do
     t.index ["external_id"], name: "index_tipline_messages_on_external_id", unique: true
     t.index ["team_id"], name: "index_tipline_messages_on_team_id"
     t.index ["uid"], name: "index_tipline_messages_on_uid"
+  end
+
+  create_table "tipline_newsletter_deliveries", force: :cascade do |t|
+    t.integer "recipients_count", default: 0, null: false
+    t.text "content", null: false
+    t.datetime "started_sending_at", null: false
+    t.datetime "finished_sending_at", null: false
+    t.bigint "tipline_newsletter_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tipline_newsletter_id"], name: "index_tipline_newsletter_deliveries_on_tipline_newsletter_id"
+  end
+
+  create_table "tipline_newsletters", force: :cascade do |t|
+    t.string "header_type", default: "none", null: false
+    t.string "header_file"
+    t.string "header_overlay_text"
+    t.string "header_media_url"
+    t.string "introduction", null: false
+    t.string "content_type", default: "static", null: false
+    t.string "rss_feed_url"
+    t.text "first_article"
+    t.text "second_article"
+    t.text "third_article"
+    t.integer "number_of_articles", default: 0, null: false
+    t.string "footer"
+    t.string "send_every"
+    t.date "send_on"
+    t.string "timezone"
+    t.time "time"
+    t.datetime "last_sent_at"
+    t.datetime "last_scheduled_at"
+    t.integer "last_scheduled_by_id"
+    t.string "last_delivery_error"
+    t.string "language", null: false
+    t.boolean "enabled", default: false, null: false
+    t.bigint "team_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["team_id", "language"], name: "index_tipline_newsletters_on_team_id_and_language", unique: true
+    t.index ["team_id"], name: "index_tipline_newsletters_on_team_id"
   end
 
   create_table "tipline_subscriptions", id: :serial, force: :cascade do |t|
