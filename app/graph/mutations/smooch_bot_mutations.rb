@@ -9,24 +9,23 @@ module SmoochBotMutations
     field :annotation, AnnotationType, null: true
 
     def resolve(id:, set_fields:)
-      annotation =
-                Dynamic.where(
-                  id: id,
-                  annotation_type: "smooch_user"
-                ).last
-              if annotation.nil?
-                raise ActiveRecord::RecordNotFound
-              else
-                unless annotation.ability.can?(:update, annotation)
-                  raise "No permission to update #{annotation.class.name}"
-                end
-                SmoochAddSlackChannelUrlWorker.perform_in(
-                  1.second,
-                  id,
-                  set_fields
-                )
-                { success: true, annotation: annotation }
-              end
+      annotation = Dynamic.where(
+        id: id,
+        annotation_type: "smooch_user"
+      ).last
+      if annotation.nil?
+        raise ActiveRecord::RecordNotFound
+      else
+        unless annotation.ability.can?(:update, annotation)
+          raise "No permission to update #{annotation.class.name}"
+        end
+        SmoochAddSlackChannelUrlWorker.perform_in(
+          1.second,
+          id,
+          set_fields
+        )
+        { success: true, annotation: annotation }
+      end
     end
   end
 

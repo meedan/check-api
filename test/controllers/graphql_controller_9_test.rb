@@ -235,7 +235,7 @@ class GraphqlController9Test < ActionController::TestCase
 
   test "should add files to task and remove files from task" do
     t0 = create_task annotated: @pm, fieldset: 'tasks', task_type: 'file_upload' ; sleep 1
-    t0.response = { annotation_type: 'task_response' }.to_json
+    t0.response = { annotation_type: 'task_response_free_text' }.to_json
     t0.save!
     assert_equal 0, t0.reload.first_response_obj.file_data.size
 

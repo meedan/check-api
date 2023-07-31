@@ -36,7 +36,7 @@ class DynamicAnnotation::FieldTypeTest < ActiveSupport::TestCase
       create_field_type field_type: 'text_field'
     end
     assert_no_difference 'DynamicAnnotation::FieldType.count' do
-      assert_raises ActiveRecord::StatementInvalid do
+      assert_raises ActiveRecord::RecordInvalid do
         create_field_type field_type: 'text_field'
       end
     end

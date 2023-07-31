@@ -291,7 +291,7 @@ class ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
 
-    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+    at = DynamicAnnotation::AnnotationType.where(annotation_type: 'task_response_free_text').first || create_annotation_type(annotation_type: 'task_response_free_text', label: 'Task')
     ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
     fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
     fi2 = create_field_instance annotation_type_object: at, name: 'note_task', label: 'Note', field_type_object: ft1

@@ -530,8 +530,8 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should create dynamic annotation" do
     p = create_project team: @team
     pm = create_project_media project: p
-    fields = { location_name: 'Salvador', location_position: '3,-51' }.to_json
-    assert_graphql_create('dynamic', { set_fields: fields, annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s, annotation_type: 'location' })
+    fields = { geolocation_viewport: '', geolocation_location: { type: "Feature", properties: { name: "Dingbat Islands" } , geometry: { type: "Point", coordinates: [125.6, 10.1] } }.to_json }.to_json
+    assert_graphql_create('dynamic', { set_fields: fields, annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s, annotation_type: 'geolocation' })
   end
 
   test "should create task" do
@@ -731,6 +731,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     p = create_project team: @team
     pm = create_project_media project: p
+    a = create_dynamic_annotation annotation_type: 'verification_status', annotated: pm, set_fields: { verification_status_status: 'verified' }.to_json
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { annotation(annotation_type: \"verification_status\") { dbid }, field_value(annotation_type_field_name: \"verification_status:verification_status_status\"), annotations(annotation_type: \"verification_status\") { edges { node { ... on Dynamic { dbid } } } } } }"
     post :create, params: { query: query, team: @team.slug }
     assert_response :success
