@@ -287,7 +287,7 @@ class GraphqlController3Test < ActionController::TestCase
   end
 
   test "should return cached value for dynamic annotation" do
-    d = create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_data: { app_name: 'foo', identifier: 'bar' }.to_json }.to_json
+    d = create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_data: { app_name: 'foo', identifier: 'bar' }.to_json, smooch_user_app_id: 'fake', smooch_user_id: 'fake' }.to_json
     authenticate_with_token
     assert_nil ApiKey.current
 
@@ -336,7 +336,7 @@ class GraphqlController3Test < ActionController::TestCase
         create_team_user team: t, user: u, role: 'admin'
         p = create_project team: t
         author_id = random_string
-        set_fields = { smooch_user_data: { id: author_id }.to_json }.to_json
+        set_fields = { smooch_user_data: { id: author_id }.to_json, smooch_user_app_id: 'fake', smooch_user_id: 'fake' }.to_json
         d = create_dynamic_annotation annotated: p, annotation_type: 'smooch_user', set_fields: set_fields
         Sidekiq::Worker.drain_all
         assert_equal 0, Sidekiq::Worker.jobs.size
