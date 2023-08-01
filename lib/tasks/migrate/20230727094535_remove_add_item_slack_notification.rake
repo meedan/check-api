@@ -2,7 +2,7 @@ namespace :check do
   namespace :migrate do
     task remove_item_add_from_slack_notification: :environment do
       started = Time.now.to_i
-      last_team_id = 0 #Rails.cache.read('check:migrate:remove_item_add_from_slack_notification:team_id') || 0
+      last_team_id = Rails.cache.read('check:migrate:remove_item_add_from_slack_notification:team_id') || 0
       Team.where('id > ?', last_team_id).find_each do |team|
         print '.'
         slack_notifications = team.get_slack_notifications
