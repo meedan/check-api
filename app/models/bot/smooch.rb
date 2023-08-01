@@ -735,11 +735,10 @@ class Bot::Smooch < BotUser
   def self.add_hashtags(text, pm)
     hashtags = Twitter::TwitterText::Extractor.extract_hashtags(text)
     return nil if hashtags.blank?
-
     # Only add team tags.
     TagText.where("team_id = ? AND text IN (?)", pm.team_id, hashtags).each do |tag|
       unless pm.annotations('tag').map(&:tag_text).include?(tag.text)
-        Tag.create!(tag: tag, annotator: pm.user, annotated: pm)
+        Tag.create!(tag: tag.id, annotator: pm.user, annotated: pm)
       end
     end
   end
