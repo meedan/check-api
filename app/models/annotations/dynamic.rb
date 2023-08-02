@@ -255,6 +255,7 @@ class Dynamic < ApplicationRecord
       fields_set = begin JSON.parse(self.set_fields)&.keys rescue nil end
       fields_set ||= []
       mandatory_fields = annotation_type.schema.reject{ |instance| instance.optional }.map(&:name)
+      pp "missing fields: #{mandatory_fields - fields_set}"
       errors.add(:base, I18n.t('errors.messages.annotation_mandatory_fields')) unless (mandatory_fields - fields_set).empty?
     end
   end

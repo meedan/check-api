@@ -161,6 +161,8 @@ class ActiveSupport::TestCase
   def setup
     [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship, Project, BotResource].each{ |klass| klass.delete_all }
 
+    puts "#{self.class.name}::#{self.method_name}"
+
     # Some of our non-GraphQL tests rely on behavior that this requires. As a result,
     # we'll keep it around for now and just recreate any needed dynamic annotation data
     # in the setup of our controller tests. But, ideally we'd not do this since it's just
