@@ -583,15 +583,6 @@ class ProjectTest < ActiveSupport::TestCase
     r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     assert_equal 1, pm2.reload.sources_count
     assert_equal 1, p.reload.medias_count
-    r.add_to_project_id = p.id
-    r.destroy!
-    assert_equal 2, p.reload.medias_count
-    pm1.archived = CheckArchivedFlags::FlagCodes::TRASHED
-    pm1.save!
-    assert_equal 1, p.reload.medias_count
-    pm1.archived = CheckArchivedFlags::FlagCodes::NONE
-    pm1.save!
-    assert_equal 2, p.reload.medias_count
     RequestStore.store[:skip_cached_field_update] = true
   end
 
@@ -636,12 +627,8 @@ class ProjectTest < ActiveSupport::TestCase
     p.save!
     assert_equal 1, t.projects.where(is_default: true).count
     default_folder = t.default_folder
-    u = create_user
-    tu = create_team_user team: t, user: u, role: 'admin'
-    with_current_user_and_team(u, t) do
-      assert_raise RuntimeError do
-        default_folder.destroy
-      end
+    assert_raises ActiveRecord::RecordNotDestroyed do
+      default_folder.destroy!
     end
   end
 
@@ -675,5 +662,22 @@ class ProjectTest < ActiveSupport::TestCase
       end
     end
     RequestStore.store[:skip_cached_field_update] = true
+  end
+
+  test "should not delete default folder" do
+    t = create_team
+    t.projects.delete_all
+    p = create_project is_default: false, team: t
+    assert_difference 'Project.count', -1 do
+      assert_nothing_raised do
+        p.destroy!
+      end
+    end
+    p = create_project is_default: true, team: t
+    assert_no_difference 'Project.count' do
+      assert_raises ActiveRecord::RecordNotDestroyed do
+        p.destroy!
+      end
+    end
   end
 end

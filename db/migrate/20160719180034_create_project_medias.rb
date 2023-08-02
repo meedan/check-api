@@ -11,7 +11,6 @@ class CreateProjectMedias < ActiveRecord::Migration[4.2]
       t.boolean :read, default: false, null: false
       t.integer :sources_count, null: false, default: 0
       t.integer :archived, default: 0
-      t.integer :cached_annotations_count, default: 0
       t.integer :targets_count, null: false, default: 0
       t.integer :last_seen, index: true
       t.timestamps null: false

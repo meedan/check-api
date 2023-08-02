@@ -10,8 +10,7 @@ class CheckSearch
     @options['operator'] ||= 'AND' # AND or OR
 
     # Set sort options
-    smooch_bot_installed = TeamBotInstallation.where(team_id: @options['team_id'], user_id: BotUser.smooch_user&.id).exists?
-    @options['sort'] ||= (smooch_bot_installed ? 'last_seen' : 'recent_added')
+    @options['sort'] ||= 'recent_added'
     @options['sort_type'] ||= 'desc'
 
     # Set show options
@@ -233,7 +232,7 @@ class CheckSearch
     core_conditions['team_id'] = @options['team_id'] unless @options['team_id'].blank?
     # Add custom conditions for array values
     {
-      'project_id' => 'projects', 'user_id' => 'users', 'source_id' => 'sources', 'read' => 'read'
+      'project_id' => 'projects', 'user_id' => 'users', 'source_id' => 'sources', 'read' => 'read', 'unmatched' => 'unmatched'
     }.each do |k, v|
       custom_conditions[k] = [@options[v]].flatten if @options.has_key?(v)
     end
@@ -292,6 +291,7 @@ class CheckSearch
     custom_conditions << { terms: { cluster_teams: @options['cluster_teams'] } } if @options.has_key?('cluster_teams')
     core_conditions << { term: { sources_count: 0 } } unless include_related_items
     core_conditions << { range: { cluster_size: { gt: 0 } } } if clusterized_feed_query?
+    custom_conditions << { terms: { unmatched: @options['unmatched'] } } if @options.has_key?('unmatched')
     custom_conditions.concat build_search_keyword_conditions
     custom_conditions.concat build_search_tags_conditions
     custom_conditions.concat build_search_report_status_conditions

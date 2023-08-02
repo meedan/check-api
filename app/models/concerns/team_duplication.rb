@@ -15,7 +15,6 @@ module TeamDuplication
       @custom_name = custom_name
       @custom_slug = custom_slug
       ApplicationRecord.transaction do
-        Version.skip_callback(:create, :after, :increment_project_association_annotations_count, raise: false)
         team = t.deep_clone include: [
           { project_groups: [:projects] },
           { projects: { if: lambda{ |p| p.project_group_id.blank? }}},

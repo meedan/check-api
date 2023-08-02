@@ -115,4 +115,16 @@ class BotUser2Test < ActiveSupport::TestCase
     b = create_team_bot
     assert !b.should_ignore_request?
   end
+
+  test "should notify Sentry when external bot URL can't be called" do
+    CheckSentry.expects(:notify).once
+    url = random_url
+    WebMock.stub_request(:post, url).to_timeout
+    t = create_team
+    pm = create_project_media team: t
+    b = create_team_bot team_author_id: t.id, set_approved: true, set_events: [{ event: 'create_project_media', graphql: nil }], set_request_url: url
+    assert_nothing_raised do
+      b.call({})
+    end
+  end
 end

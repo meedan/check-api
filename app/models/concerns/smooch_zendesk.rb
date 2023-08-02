@@ -69,7 +69,7 @@ module SmoochZendesk
           }
         })
       end
-      return OpenStruct.new(body: 'Empty message', code: 400) if params['type'] == 'text' && params['text'].blank?
+      return OpenStruct.new(body: OpenStruct.new({ error: 'Empty message' }), code: 400) if params['type'] == 'text' && params['text'].blank?
       message_post_body = SmoochApi::MessagePost.new(params)
       response_body = nil
       response_code = 0

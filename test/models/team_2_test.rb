@@ -267,16 +267,6 @@ class Team2Test < ActiveSupport::TestCase
     end
     slack_notifications << {
       "label": random_string,
-      "event_type": "item_added",
-      "values": ["#{p.id}"],
-      "slack_channel": "##{random_string}"
-    }
-    assert_nothing_raised do
-      t.slack_notifications = slack_notifications.to_json
-      t.save!
-    end
-    slack_notifications << {
-      "label": random_string,
       "event_type": "status_changed",
       "values": ["in_progress"],
       "slack_channel": "#{random_string}"

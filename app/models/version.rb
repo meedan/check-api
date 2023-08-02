@@ -7,8 +7,6 @@ class Version < Partitioned::ByForeignKey
 
   before_validation :set_team_id, on: :create
   before_create :set_object_after, :set_user, :set_event_type, :set_project_association, :set_meta, unless: proc { |pt| pt.is_being_copied }
-  after_create :increment_project_association_annotations_count
-  after_destroy :decrement_project_association_annotations_count
 
   def self.partition_foreign_key
     :team_id
@@ -188,29 +186,6 @@ class Version < Partitioned::ByForeignKey
     associated = self.get_associated || [nil, nil]
     self.associated_type = associated[0]
     self.associated_id = associated[1]
-  end
-
-  def increment_project_association_annotations_count
-    self.change_project_association_annotations_count(1)
-  end
-
-  def decrement_project_association_annotations_count
-    self.change_project_association_annotations_count(-1)
-  end
-
-  def change_project_association_annotations_count(value)
-    if !self.associated_type.nil? && !self.associated_id.nil? && self.event_type != 'create_dynamicannotationfield'
-      associated = self.associated_type.singularize.camelize.constantize
-      return if associated == NilClass
-      pa = associated.find_by(id: self.associated_id)
-      if pa
-        return unless pa.respond_to?(:cached_annotations_count)
-        count = pa.cached_annotations_count + value
-        ApplicationRecord.connection_pool.with_connection do
-          pa.update_columns(cached_annotations_count: count)
-        end
-      end
-    end
   end
 
   def skip_check_ability

@@ -203,7 +203,6 @@ ActiveRecord::Schema.define(version: 20200527050224) do
     t.datetime "created_at",                               null: false
     t.datetime "updated_at",                               null: false
     t.integer  "user_id"
-    t.integer  "cached_annotations_count", default: 0
     t.boolean  "archived",                 default: false
     t.integer  "targets_count",            default: 0,     null: false
     t.integer  "sources_count",            default: 0,     null: false

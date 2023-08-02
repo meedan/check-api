@@ -127,24 +127,24 @@ module AlegreSimilarity
       context
     end
 
-    def send_to_text_similarity_index_package(pm, field, text, doc_id, model=nil)
-      model ||= self.indexing_model_to_use(pm)
+    def send_to_text_similarity_index_package(pm, field, text, doc_id)
+      models ||= self.indexing_models_to_use(pm)
       language = self.language_for_similarity(pm&.team_id)
       params = {
         doc_id: doc_id,
         text: text,
-        model: model,
+        models: models,
         context: self.get_context(pm, field)
       }
       params[:language] = language if !language.nil?
       params
     end
 
-    def send_to_text_similarity_index(pm, field, text, doc_id, model=nil)
+    def send_to_text_similarity_index(pm, field, text, doc_id)
       self.request_api(
         'post',
         '/text/similarity/',
-        self.send_to_text_similarity_index_package(pm, field, text, doc_id, model)
+        self.send_to_text_similarity_index_package(pm, field, text, doc_id)
       )
     end
 

@@ -46,6 +46,27 @@ class GraphqlController7Test < ActionController::TestCase
     assert_equal 3, edges.length
   end
 
+  test "should search team tag texts by keyword" do
+    t = create_team slug: 'sawy'
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    create_tag_text team_id: t.id, text: 'keyword begining'
+    create_tag_text team_id: t.id, text: 'ending keyword'
+    create_tag_text team_id: t.id, text: 'in the KEYWORD middle'
+    create_tag_text team_id: t.id
+    authenticate_with_user(u)
+    query = 'query read { team(slug: "sawy") { tag_texts_count, tag_texts(first: 1000) { edges { node { dbid } } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    edges = JSON.parse(@response.body)['data']['team']['tag_texts']['edges']
+    assert_equal 4, edges.length
+    query = 'query read { team(slug: "sawy") { tag_texts_count(keyword: "keyword"), tag_texts(first: 1000, keyword: "keyword") { edges { node { dbid } } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    edges = JSON.parse(@response.body)['data']['team']['tag_texts']['edges']
+    assert_equal 3, edges.length
+  end
+
   test "should update last_active_at from users before a graphql request" do
     assert_nil @u.last_active_at
     query = "query { user(id: #{@u.id}) { last_active_at } }"
@@ -300,7 +321,7 @@ class GraphqlController7Test < ActionController::TestCase
     end
     sleep 2
 
-    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,log_count,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     post :create, params: { query: query, team: 'team' }
     assert_response :success

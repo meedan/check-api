@@ -68,7 +68,6 @@ module TeamAssociations
   def trash_size
     {
       project_media: self.trash_count,
-      annotation: self.trash.sum(:cached_annotations_count)
     }
   end
 

@@ -129,5 +129,7 @@ class MediaSearch
     indexes :fact_check_languages, { type: 'keyword', normalizer: 'check' }
 
     indexes :source_name, { type: 'text', analyzer: 'check' }
+
+    indexes :unmatched, { type: 'long' }
   end
 end

@@ -264,12 +264,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     slack_notifications = []
     slack_notifications << {
       "label": random_string,
-      "event_type": "item_added",
-      "values": ["#{p.id}"],
-      "slack_channel": "##{random_string}"
-    }
-    slack_notifications << {
-      "label": random_string,
       "event_type": "any_activity",
       "slack_channel": "##{random_string}"
     }
@@ -295,25 +289,19 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       s.status = 'in_progress'
       s.save!
       assert s.sent_to_slack
-      # move item
-      pm = create_project_media project: p2
-      pm.project_id = p.id
-      pm.save!
-      assert pm.sent_to_slack
     end
   end
 
   test "should not duplicate slack notification for custom slack list settings" do
     Rails.stubs(:env).returns(:production)
     t = create_team slug: 'test'
-    p = create_project team: t
     t.set_slack_notifications_enabled = 1
     t.set_slack_webhook = 'https://hooks.slack.com/services/123'
     slack_notifications = []
     slack_notifications << {
       "label": random_string,
-      "event_type": "item_added",
-      "values": ["#{p.id}"],
+      "event_type": "status_changed",
+      "values": ["in_progress"],
       "slack_channel": "##{random_string}"
     }
     slack_notifications << {
@@ -324,17 +312,19 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     t.slack_notifications = slack_notifications.to_json
     t.save!
     u = create_user
-    p = create_project team: t
     Sidekiq::Testing.fake! do
       with_current_user_and_team(u, t) do
         create_team_user team: t, user: u, role: 'admin'
         SlackNotificationWorker.drain
         assert_equal 0, SlackNotificationWorker.jobs.size
-        create_project_media team: t
+        pm = create_project_media team: t
         assert_equal 1, SlackNotificationWorker.jobs.size
         SlackNotificationWorker.drain
         assert_equal 0, SlackNotificationWorker.jobs.size
-        create_project_media project: p
+        # status changes
+        s = pm.last_status_obj
+        s.status = 'in_progress'
+        s.save!
         assert_equal 1, SlackNotificationWorker.jobs.size
         Rails.unstub(:env)
       end
@@ -664,13 +654,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
           "create_dynamic", "create_dynamicannotationfield", "create_projectmedia",
           "create_projectmedia", "create_tag", "update_dynamicannotationfield"
         ].sort, pm.get_versions_log.map(&:event_type).sort
-        assert_equal 5, pm.get_versions_log_count
-        c.destroy
-        assert_equal 5, pm.get_versions_log_count
-        tg.destroy
-        assert_equal 6, pm.get_versions_log_count
-        f.destroy
-        assert_equal 6, pm.get_versions_log_count
       end
     end
   end
