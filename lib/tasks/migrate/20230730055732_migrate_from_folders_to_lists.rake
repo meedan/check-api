@@ -2,17 +2,25 @@ namespace :check do
   namespace :migrate do
     task fix_tags_with_invalid_data: :environment do
       started = Time.now.to_i
+      last_id = Annotation.where(annotation_type: 'tag').last.id
       limit = 500
       offset = 0
       errors = []
       loop do
-        puts "Query tags with limit [#{limit}] and offset [#{offset}]"
-        query = "SELECT id, data FROM annotations WHERE annotation_type = 'tag' ORDER BY id LIMIT $1 OFFSET $2"
-        result = ActiveRecord::Base.connection.exec_query(query, 'tag query', [limit, offset]).to_a
+        print '.'
+        query = "SELECT id, data FROM annotations WHERE annotation_type = 'tag' AND id < $1 ORDER BY id LIMIT $2 OFFSET $3"
+        result = ActiveRecord::Base.connection.exec_query(query, 'tag query', [last_id, limit, offset]).to_a
         break if result.length == 0
         result.each do |raw|
           begin
             tag = Tag.find(raw['id'])
+            tag_text = tag.data['tag']
+            if tag_text.class.name == 'TagText'
+              print '.'
+              errors << raw['id']
+              data = { tag: tag_text.id }.with_indifferent_access
+              tag.update_columns(data: data)
+            end
           rescue Psych::DisallowedClass
             print '.'
             errors << raw['id']
