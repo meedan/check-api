@@ -418,7 +418,7 @@ class ProjectMedia < ApplicationRecord
     fields_i = [
       'archived', 'sources_count', 'linked_items_count', 'share_count',
       'last_seen', 'demand', 'user_id', 'read', 'suggestions_count',
-      'related_count', 'reaction_count', 'comment_count', 'media_published_at'
+      'related_count', 'reaction_count', 'comment_count', 'media_published_at', 'unmatched'
     ]
     fields_i.each{ |f| ms.attributes[f] = self.send(f).to_i }
     # add more cached fields

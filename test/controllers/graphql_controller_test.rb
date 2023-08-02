@@ -162,7 +162,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_token
     p = create_project team: @team
     pm = create_project_media project: p
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id},#{@team.id}\") { published, language, last_status_obj {dbid}, log_count } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id},#{@team.id}\") { published, language, last_status_obj {dbid} } }"
     post :create, params: { query: query }
     assert_response :success
     assert_not_empty JSON.parse(@response.body)['data']['project_media']['published']
@@ -836,7 +836,7 @@ class GraphqlControllerTest < ActionController::TestCase
       sleep 1
     end
 
-    query = 'query CheckSearch { search(query: "{\"archived\":1}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,log_count,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{\"archived\":1}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     post :create, params: { query: query, team: 'team' }
 
@@ -853,7 +853,7 @@ class GraphqlControllerTest < ActionController::TestCase
     pm = create_project_media project: p, disable_es_callbacks: false
     sleep 1
 
-    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,log_count,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     post :create, params: { query: query, team: 'team' }
 

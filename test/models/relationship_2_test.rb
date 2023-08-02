@@ -212,7 +212,6 @@ class Relationship2Test < ActiveSupport::TestCase
       r = create_relationship relationship_type: Relationship.confirmed_type
       assert_empty r.versions
       so = create_project_media project: p
-      n = so.cached_annotations_count
       ta = create_project_media project: p
       
       with_current_user_and_team(u, t) do
@@ -296,10 +295,8 @@ class Relationship2Test < ActiveSupport::TestCase
     pm_t = create_project_media project: p
     r = create_relationship source_id: pm_s.id, target_id: pm_t.id, relationship_type: Relationship.confirmed_type
     assert_equal p.id, pm_t.project_id
-    r.add_to_project_id = p2.id
     r.archive_target = CheckArchivedFlags::FlagCodes::SPAM
     r.destroy
-    assert_equal p2.id, pm_t.reload.project_id
     assert_equal CheckArchivedFlags::FlagCodes::SPAM, pm_t.reload.archived
 
   end

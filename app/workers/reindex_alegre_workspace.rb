@@ -44,22 +44,21 @@ class ReindexAlegreWorkspace
     ProjectMedia.where("project_medias.id > ? ", last_id.to_i).where(team_id: team_id)
   end
 
-  def get_request_doc(pm, field, field_value, models)
+  def get_request_doc(pm, field, field_value)
     Bot::Alegre.send_to_text_similarity_index_package(
       pm,
       field,
       field_value,
       Bot::Alegre.item_doc_id(pm, field)
-    ).merge(models: models)
+    )
   end
 
-  def get_request_docs_for_project_media(pm, models)
+  def get_request_docs_for_project_media(pm)
     # run a request for all of the configured similarity index types, delete the index and return results to rebuild
     Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.each do |field|
       field_value = pm.send(field)
       if !field_value.to_s.empty?
-        request_doc = get_request_doc(pm, field, field_value, models)
-        request_doc.delete(:model) # TODO: why are we deleting the model element? because deprecated?
+        request_doc = get_request_doc(pm, field, field_value)
         yield request_doc
       end
     end
@@ -78,13 +77,6 @@ class ReindexAlegreWorkspace
     running_bucket
   end
 
-  def models_for_team(team_id)
-    [
-      Bot::Alegre.get_alegre_tbi(team_id).get_alegre_model_in_use,
-      Bot::Alegre::ELASTICSEARCH_MODEL
-    ].compact.uniq
-  end
-
   def process_team(running_bucket, team_id, query, event_id)
     # query by team id to find ProjectMedia that should be reindexed
     # chunk into batches and add to queue
@@ -92,7 +84,7 @@ class ReindexAlegreWorkspace
     log(event_id, "Processing reindex subquery for team #{team_id}")
     query.where(team_id: team_id).where("id > ?", get_last_id(event_id, team_id)).order(:id).find_in_batches(:batch_size => 2500) do |pms|
       pms.each do |pm|
-        get_request_docs_for_project_media(pm, models_for_team(team_id)) do |request_doc|
+        get_request_docs_for_project_media(pm) do |request_doc|
           running_bucket << request_doc
           log(event_id, "Bucket size is #{running_bucket.length}") if running_bucket.length % 50 == 0
           running_bucket = check_for_write(running_bucket, event_id, team_id)

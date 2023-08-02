@@ -24,6 +24,9 @@ class Project < ApplicationRecord
 
   before_validation :set_description_and_team_and_user, on: :create
   before_validation :generate_token, on: :create
+  before_destroy :ensure_its_not_default, prepend: true do |p|
+    throw(:abort) if errors.present? && !p.is_being_copied
+  end
 
   after_commit :send_slack_notification, on: [:create, :update]
   after_update :update_elasticsearch_data, if: proc { |p| p.saved_change_to_team_id? }
@@ -325,5 +328,9 @@ class Project < ApplicationRecord
       default_folder = self.team.default_folder
       errors.add(:base, I18n.t(:unique_default_folder_per_team)) if self.id == default_folder.id
     end
+  end
+
+  def ensure_its_not_default
+    errors.add(:base, I18n.t(:cant_delete_default_folder)) if self.is_default?
   end
 end
