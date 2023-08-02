@@ -2,18 +2,32 @@ namespace :check do
   namespace :migrate do
     task fix_tags_with_invalid_data: :environment do
       started = Time.now.to_i
-      Annotation.where(annotation_type: "tag", annotated_type: "ProjectMedia")
-      .find_in_batches(:batch_size => 1000) do |tags|
-        print '.'
-        tags.each do |tag|
-          tag_text = tag.data['tag']
-          if tag_text.class.name == 'TagText'
+      limit = 500
+      offset = 0
+      errors = []
+      loop do
+        query = "SELECT id FROM annotations WHERE annotation_type = 'tag' ORDER BY id LIMIT $1 OFFSET $2"
+        result = ActiveRecord::Base.connection.exec_query(query, 'tag query', [limit, offset]).to_a
+        break if result.length == 0
+        result.to_a.each do |raw|
+          begin
+            tag = Tag.find(raw['id'])
+          rescue Psych::DisallowedClass
             print '.'
-            data = { tag: tag_text.id }.with_indifferent_access
-            tag.update_columns(data: data)
+            errors << raw['id']
+            data = YAML.load(raw['data'])
+            tag_text = data['tag']
+            new_data = { tag: tag_text.id }.with_indifferent_access
+            # execute update query
+            update_query = "UPDATE annotations SET data = $1 WHERE id = $2"
+            # TODO: fix the query (TypeError (can't cast Hash))
+            # ActiveRecord::Base.connection.exec_query(update_query, 'update tag', [new_data, raw['id']])
           end
         end
+        offset += limit
       end
+      puts "Errors count :: #{errors.count}"
+      pp errors
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
