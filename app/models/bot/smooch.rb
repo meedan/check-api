@@ -31,6 +31,7 @@ class Bot::Smooch < BotUser
   include SmoochMenus
   include SmoochFields
   include SmoochLanguage
+  include SmoochNlu
 
   ::ProjectMedia.class_eval do
     attr_accessor :smooch_message
