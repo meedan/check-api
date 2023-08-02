@@ -6,10 +6,11 @@ namespace :check do
       offset = 0
       errors = []
       loop do
-        query = "SELECT id FROM annotations WHERE annotation_type = 'tag' ORDER BY id LIMIT $1 OFFSET $2"
+        puts "Query tags with limit [#{limit}] and offset [#{offset}]"
+        query = "SELECT id, data FROM annotations WHERE annotation_type = 'tag' ORDER BY id LIMIT $1 OFFSET $2"
         result = ActiveRecord::Base.connection.exec_query(query, 'tag query', [limit, offset]).to_a
         break if result.length == 0
-        result.to_a.each do |raw|
+        result.each do |raw|
           begin
             tag = Tag.find(raw['id'])
           rescue Psych::DisallowedClass
@@ -19,15 +20,12 @@ namespace :check do
             tag_text = data['tag']
             new_data = { tag: tag_text.id }.with_indifferent_access
             # execute update query
-            update_query = "UPDATE annotations SET data = $1 WHERE id = $2"
-            # TODO: fix the query (TypeError (can't cast Hash))
-            # ActiveRecord::Base.connection.exec_query(update_query, 'update tag', [new_data, raw['id']])
+            Annotation.where(id: raw['id']).update_all(data: new_data)
           end
         end
         offset += limit
       end
-      puts "Errors count :: #{errors.count}"
-      pp errors
+      puts "Invalid tags count:: #{errors.count}"
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
