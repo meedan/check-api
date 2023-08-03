@@ -2,18 +2,38 @@ namespace :check do
   namespace :migrate do
     task fix_tags_with_invalid_data: :environment do
       started = Time.now.to_i
-      Annotation.where(annotation_type: "tag", annotated_type: "ProjectMedia")
-      .find_in_batches(:batch_size => 1000) do |tags|
+      last_id = Annotation.where(annotation_type: 'tag').last.id
+      limit = 500
+      offset = 0
+      errors = []
+      loop do
         print '.'
-        tags.each do |tag|
-          tag_text = tag.data['tag']
-          if tag_text.class.name == 'TagText'
+        query = "SELECT id, data FROM annotations WHERE annotation_type = 'tag' AND id < $1 ORDER BY id LIMIT $2 OFFSET $3"
+        result = ActiveRecord::Base.connection.exec_query(query, 'tag query', [last_id, limit, offset]).to_a
+        break if result.length == 0
+        result.each do |raw|
+          begin
+            tag = Tag.find(raw['id'])
+            tag_text = tag.data['tag']
+            if tag_text.class.name == 'TagText'
+              print '.'
+              errors << raw['id']
+              data = { tag: tag_text.id }.with_indifferent_access
+              tag.update_columns(data: data)
+            end
+          rescue Psych::DisallowedClass
             print '.'
-            data = { tag: tag_text.id }.with_indifferent_access
-            tag.update_columns(data: data)
+            errors << raw['id']
+            data = YAML.load(raw['data'])
+            tag_text = data['tag']
+            new_data = { tag: tag_text.id }.with_indifferent_access
+            # execute update query
+            Annotation.where(id: raw['id']).update_all(data: new_data)
           end
         end
+        offset += limit
       end
+      puts "Invalid tags count:: #{errors.count}"
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
