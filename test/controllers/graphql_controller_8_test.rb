@@ -195,8 +195,6 @@ class GraphqlController8Test < ActionController::TestCase
     post :create, params: { query: query, file: [file] }
     assert_response :success
 
-    pp "create report with image", response.body
-
     d = Dynamic.find(JSON.parse(@response.body).dig('data','createDynamicAnnotationReportDesign','dynamic','dbid')).data.with_indifferent_access
     assert_match /rails\.png/, d[:options]['image']
   end
