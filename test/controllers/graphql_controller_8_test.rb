@@ -194,6 +194,7 @@ class GraphqlController8Test < ActionController::TestCase
     query = 'mutation create { createDynamicAnnotationReportDesign(input: { action: "save", clientMutationId: "1", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", set_fields: "{\"options\":{\"language\":\"en\"}}" }) { dynamic { dbid } } }'
     post :create, params: { query: query, file: [file] }
     assert_response :success
+    assert_empty @response.body.dig('error')
 
     d = Dynamic.find(JSON.parse(@response.body).dig('data','createDynamicAnnotationReportDesign','dynamic','dbid')).data.with_indifferent_access
     assert_match /rails\.png/, d[:options]['image']

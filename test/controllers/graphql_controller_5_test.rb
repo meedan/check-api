@@ -75,6 +75,7 @@ class GraphqlController5Test < ActionController::TestCase
     query = 'mutation create { createDynamicAnnotationFlag(input: { clientMutationId: "1", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", set_fields: "{\"flags\":{\"adult\":3,\"spoof\":2,\"medical\":1,\"violence\":3,\"racy\":4,\"spam\":0},\"show_cover\":false}" }) { dynamic { dbid } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
+    assert_empty @response.body.dig('error')
     d = Dynamic.find(JSON.parse(@response.body)['data']['createDynamicAnnotationFlag']['dynamic']['dbid'])
     data = d.data.with_indifferent_access
     assert_equal ['flags', 'show_cover'].sort, data.keys.sort
