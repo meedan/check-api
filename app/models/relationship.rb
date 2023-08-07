@@ -179,7 +179,7 @@ class Relationship < ApplicationRecord
   def set_unmatched_field(value)
     items = [self.target]
     count = 0
-    # unmatch source when there is no other targets assign to same source
+    # unmatch source when there is no other targets assigned to same source
     count = Relationship.where(source_id: self.source_id).where.not(target_id: self.target_id).count if value
     items << self.source if count == 0
     items.compact.each do |item|
