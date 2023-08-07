@@ -51,7 +51,7 @@ namespace :check do
         last_team_id = Rails.cache.read('check:migrate:migrate_from_folders_to_lists:team_id') || 0
         # Collect teams with activity in the last year
         last_year = Time.now - 1.years
-        team_ids = ProjectMedia.select('team_id').where('updated_at > ?', last_year).group('team_id').map(&:team_id).uniq
+        team_ids = ProjectMedia.select('team_id').where('created_at > ?', last_year).group('team_id').map(&:team_id).uniq
         condition = { id: team_ids }
       else
         last_team_id = 0
