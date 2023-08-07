@@ -1,22 +1,37 @@
-QueryType = GraphQL::ObjectType.define do
-  name 'Query'
-  description 'The query root of this schema'
+class QueryType < BaseObject
+  description "The query root of this schema"
 
-  field :node, field: NodeIdentification.field
+  graphql_name "Query"
 
-  field :root, RootLevelType do
-    resolve -> (_obj, _args, _ctx) { RootLevel::STATIC }
+  add_field GraphQL::Types::Relay::NodeField
+
+  field :root, RootLevelType, null: true
+
+  # Throwaway field because Relay Modern queries on the
+  # front end were adding a top-level ID field we couldn't
+  # locate to remove
+  field :id, GraphQL::Types::String, null: true
+
+  def id
+    nil
   end
 
-  field :about do
-    type AboutType
-    description 'Information about the application'
-    resolve -> (_obj, _args, _ctx) do
-      OpenStruct.new({
+  def root
+    RootLevel::STATIC
+  end
+
+  field :about,
+        AboutType,
+        description: "Information about the application",
+        null: true
+
+  def about
+    OpenStruct.new(
+      {
         name: Rails.application.class.module_parent_name,
         version: VERSION,
         id: 1,
-        type: 'About',
+        type: "About",
         upload_max_size: UploadedImage.max_size_readable,
         upload_max_in_bytes: UploadedImage.max_size,
         upload_extensions: ImageUploader.upload_extensions,
@@ -29,164 +44,189 @@ QueryType = GraphQL::ObjectType.define do
         file_max_size: UploadedFile.max_size_readable,
         file_max_size_in_bytes: UploadedFile.max_size,
         file_extensions: GenericFileUploader.upload_extensions,
-        upload_min_dimensions: "#{SizeValidator.config('min_width')}x#{SizeValidator.config('min_height')}",
-        upload_max_dimensions: "#{SizeValidator.config('max_width')}x#{SizeValidator.config('max_height')}",
+        upload_min_dimensions:
+          "#{SizeValidator.config("min_width")}x#{SizeValidator.config("min_height")}",
+        upload_max_dimensions:
+          "#{SizeValidator.config("max_width")}x#{SizeValidator.config("max_height")}",
         languages_supported: CheckCldr.localized_languages.to_json,
         terms_last_updated_at: User.terms_last_updated_at,
         channels: CheckChannels::ChannelCodes.all_channels
-      })
-    end
+      }
+    )
   end
 
-  field :me do
-    type UserType
-    description 'Information about the current user'
-    resolve -> (_obj, _args, _ctx) do
-      User.current
-    end
+  field :me,
+        UserType,
+        description: "Information about the current user",
+        null: true
+
+  def me
+    User.current
   end
 
   # Get team by id or slug
 
-  field :team do
-    type TeamType
-    description 'Information about the context team or the team from given id'
-    argument :id, types.ID
-    argument :slug, types.String
+  field :team,
+        TeamType,
+        description:
+          "Information about the context team or the team from given id",
+        null: true do
+    argument :id, GraphQL::Types::ID, required: false
+    argument :slug, GraphQL::Types::String, required: false
     # random argument is for bypassing Relay cache. This is a temporary fix
     # while we don't have our Relay code 100% up to date, which we expect will
     # make this unnecessary. Fixes issue reported in CHECK-2331
-    argument :random, types.String
-    resolve -> (_obj, args, ctx) do
-      tid = args['id'].to_i
-      if !args['slug'].blank?
-        team = Team.where(slug: args['slug']).first
-        tid = team.id unless team.nil?
-      end
-      if tid === 0
-        tid = Team.current&.id || User.current&.teams&.first&.id
-      end
-      GraphqlCrudOperations.load_if_can(Team, tid.to_i, ctx)
+    argument :random, GraphQL::Types::String, required: false
+  end
+
+  def team(id: nil, slug: nil, random: nil)
+    tid = id.to_i
+    if !slug.blank?
+      team = Team.where(slug: slug).first
+      tid = team.id unless team.nil?
     end
+    tid = Team.current&.id || User.current&.teams&.first&.id if tid === 0
+    GraphqlCrudOperations.load_if_can(Team, tid.to_i, context)
   end
 
   # Get public team
 
-  field :public_team do
-    type PublicTeamType
-    description 'Public information about a team'
-    argument :slug, types.String
-
-    resolve -> (_obj, args, _ctx) do
-      team = args['slug'].blank? ? Team.current : Team.where(slug: args['slug']).last
-      id = team.blank? ? 0 : team.id
-      Team.find(id)
-    end
+  field :public_team, PublicTeamType, description: "Public information about a team", null: true do
+    argument :slug, GraphQL::Types::String, required: false
   end
 
-  field :find_public_team do
-    type PublicTeamType
-    description 'Find whether a team exists'
-    argument :slug, !types.String
-
-    resolve -> (_obj, args, _ctx) do
-      Team.where(slug: args['slug']).last
-    end
+  def public_team(slug: nil)
+    team = slug.blank? ? Team.current : Team.where(slug: slug).last
+    id = team.blank? ? 0 : team.id
+    Team.find(id)
   end
 
-  field :project_media do
-    type ProjectMediaType
-    description 'Information about a project media, The argument should be given like this: "project_media_id,project_id,team_id"'
-    argument :ids, !types.String
-    resolve -> (_obj, args, ctx) do
-      objid, pid, tid = args['ids'].split(',').map(&:to_i)
-      tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
-      project = Project.where(id: pid, team_id: tid).last
-      pid = project.nil? ? 0 : project.id
-      Project.current = project
-      objid = ProjectMedia.belonged_to_project(objid, pid, tid) || 0
-      GraphqlCrudOperations.load_if_can(ProjectMedia, objid, ctx)
-    end
+  field :find_public_team, PublicTeamType, description: "Find whether a team exists", null: true do
+    argument :slug, GraphQL::Types::String, required: true
   end
 
-  connection :project_medias do
-    type ProjectMediaType.connection_type
-    argument :url, !types.String
-    resolve -> (_obj, args, _ctx) {
-      return [] if User.current.nil?
-      m = Link.where(url: args['url']).last
-      m = Link.where(url: Link.normalized(args['url'])).last if m.nil?
-      return [] if m.nil?
-      tids = Team.current ? [Team.current.id] : User.current.team_ids
-      ProjectMedia.where(media_id: m.id, team_id: tids)
-    }
+  def find_public_team(slug:)
+    Team.where(slug: slug).last
   end
 
-  field :project do
-    type ProjectType
-    description 'Information about a project, given its id and its team id'
-
-    argument :id, types.String
-    argument :ids, types.String
-
-    resolve -> (_obj, args, ctx) do
-      pid = args['id'].to_i unless args['id'].blank?
-      pid, tid = args['ids'].split(',').map(&:to_i) unless args['ids'].blank?
-      tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
-      project = Project.where(id: pid, team_id: tid).last
-      id = project.nil? ? 0 : project.id
-      GraphqlCrudOperations.load_if_can(Project, id, ctx)
-    end
+  field :project_media,
+        ProjectMediaType,
+        description:
+          'Information about a project media, The argument should be given like this: "project_media_id,project_id,team_id"',
+        null: true do
+    argument :ids, GraphQL::Types::String, required: true
   end
 
-  field :search do
-    type CheckSearchType
-    description 'Search medias, The argument should be given like this: "{\"keyword\":\"search keyword\"}"'
-
-    argument :query, !types.String
-
-    resolve -> (_obj, args, ctx) do
-      team = Team.find_if_can(Team.current&.id.to_i, ctx[:ability])
-      CheckSearch.new(args['query'], ctx[:file], team&.id)
-    end
+  def project_media(ids:)
+    objid, pid, tid = ids.split(",").map(&:to_i)
+    tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
+    project = Project.where(id: pid, team_id: tid).last
+    pid = project.nil? ? 0 : project.id
+    Project.current = project
+    objid = ProjectMedia.belonged_to_project(objid, pid, tid) || 0
+    GraphqlCrudOperations.load_if_can(ProjectMedia, objid, context)
   end
 
-  field :dynamic_annotation_field do
-    type DynamicAnnotationFieldType
+  field :project_medias, ProjectMediaType.connection_type, null: true do
+    argument :url, GraphQL::Types::String, required: true
+  end
 
-    argument :query, !types.String
-    argument :only_cache, types.Boolean
+  def project_medias(url:)
+    return [] if User.current.nil?
 
-    resolve -> (_obj, args, ctx) do
-      ability = ctx[:ability] || Ability.new
-      if ability.can?(:find_by_json_fields, DynamicAnnotation::Field.new)
-        cache_key = 'dynamic-annotation-field-' + Digest::MD5.hexdigest(args['query'])
-        obj = nil
-        if Rails.cache.read(cache_key)|| args['only_cache']
-          obj = DynamicAnnotation::Field.where(id: Rails.cache.read(cache_key).to_i).last
-        else
-          query = JSON.parse(args['query'])
-          json = query.delete('json')
-          obj = DynamicAnnotation::Field.where(query)
-          obj = obj.find_in_json(json) unless json.blank?
-          obj = obj.last
-          Rails.cache.write(cache_key, obj&.id)
-        end
-        obj
+    m = Link.where(url: url).last
+    m = Link.where(url: Link.normalized(url)).last if m.nil?
+    return [] if m.nil?
+
+    tids = Team.current ? [Team.current.id] : User.current.team_ids
+    ProjectMedia.where(media_id: m.id, team_id: tids)
+  end
+
+  field :project,
+        ProjectType,
+        description:
+          "Information about a project, given its id and its team id",
+        null: true do
+    argument :id, GraphQL::Types::String, required: false
+    argument :ids, GraphQL::Types::String, required: false
+  end
+
+  def project(id: nil, ids: nil)
+    pid = id.to_i unless id.blank?
+    pid, tid = ids.split(",").map(&:to_i) unless ids.blank?
+    tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
+    project = Project.where(id: pid, team_id: tid).last
+    id = project.nil? ? 0 : project.id
+    GraphqlCrudOperations.load_if_can(Project, id, context)
+  end
+
+  field :search,
+        CheckSearchType,
+        description:
+          'Search medias, The argument should be given like this: "{\"keyword\":\"search keyword\"}"',
+        null: true do
+    argument :query, GraphQL::Types::String, required: true
+  end
+
+  def search(query:)
+    team = Team.find_if_can(Team.current&.id.to_i, context[:ability])
+    CheckSearch.new(query, context[:file], team&.id)
+  end
+
+  field :dynamic_annotation_field, DynamicAnnotationFieldType, null: true do
+    argument :query, GraphQL::Types::String, required: true
+    argument :only_cache, GraphQL::Types::Boolean, required: false, camelize: false
+  end
+
+  def dynamic_annotation_field(query:, only_cache: nil)
+    ability = context[:ability] || Ability.new
+    if ability.can?(:find_by_json_fields, DynamicAnnotation::Field.new)
+      cache_key =
+        "dynamic-annotation-field-" + Digest::MD5.hexdigest(query)
+      obj = nil
+      if Rails.cache.read(cache_key) || only_cache
+        obj =
+          DynamicAnnotation::Field.where(
+            id: Rails.cache.read(cache_key).to_i
+          ).last
+      else
+        query = JSON.parse(query)
+        json = query.delete("json")
+        obj = DynamicAnnotation::Field.where(query)
+        obj = obj.find_in_json(json) unless json.blank?
+        obj = obj.last
+        Rails.cache.write(cache_key, obj&.id)
       end
+      obj
     end
   end
 
   # Getters by ID
+  %i[
+    source
+    user
+    task
+    tag_text
+    bot_user
+    project_group
+    saved_search
+    cluster
+    feed
+    request
+  ].each do |type|
+    field type,
+          "#{type.to_s.camelize}Type",
+          null: true,
+          description: "Information about the #{type} with given id" do
+      argument :id, GraphQL::Types::ID, required: true
+    end
 
-  [:source, :user, :task, :tag_text, :bot_user, :project_group, :saved_search, :cluster, :feed, :request].each do |type|
-    field type do
-      type "#{type.to_s.camelize}Type".constantize
-      description "Information about the #{type} with given id"
-      argument :id, !types.ID
-      resolve -> (_obj, args, ctx) do
-        GraphqlCrudOperations.load_if_can(type.to_s.camelize.constantize, args['id'], ctx)
-      end
+    define_method(type) do |**inputs|
+      GraphqlCrudOperations.load_if_can(
+              type.to_s.camelize.constantize,
+              inputs[:id],
+              context
+            )
     end
   end
 end

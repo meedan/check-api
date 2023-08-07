@@ -1,15 +1,14 @@
-ProjectGroupType = GraphqlCrudOperations.define_default_type do
-  name 'ProjectGroup'
-  description 'Project group type'
+class ProjectGroupType < DefaultObject
+  description "Project group type"
 
-  interfaces [NodeIdentification.interface]
+  implements GraphQL::Types::Relay::Node
 
-  field :dbid, types.Int
-  field :title, types.String
-  field :description, types.String
-  field :team_id, types.Int
-  field :team, TeamType
-  field :medias_count, types.Int
+  field :dbid, GraphQL::Types::Int, null: true
+  field :title, GraphQL::Types::String, null: true
+  field :description, GraphQL::Types::String, null: true
+  field :team_id, GraphQL::Types::Int, null: true
+  field :team, TeamType, null: true
+  field :medias_count, GraphQL::Types::Int, null: true
 
-  connection :projects, ProjectType.connection_type
+  field :projects, ProjectType.connection_type, null: true
 end

@@ -8,11 +8,11 @@ class GraphqlController10Test < ActionController::TestCase
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
     super
+    TestDynamicAnnotationTables.load!
     User.unstub(:current)
     Team.unstub(:current)
     User.current = nil
     Team.current = nil
-    create_verification_status_stuff
   end
 
 
@@ -31,8 +31,8 @@ class GraphqlController10Test < ActionController::TestCase
     assert_difference 'TeamBotInstallation.count', -1 do
       post :create, params: { query: query }
     end
-    data = JSON.parse(@response.body)['data']['destroyTeamBotInstallation']
 
+    data = JSON.parse(response.body)['data']['destroyTeamBotInstallation']
     assert_equal [], t.reload.team_bots
     assert_equal tbi.graphql_id, data['deletedId']
   end
@@ -46,12 +46,12 @@ class GraphqlController10Test < ActionController::TestCase
     authenticate_with_user(u)
     tk = create_task annotated: pm
 
-
     query = "query GetById { task(id: \"#{tk.id}\") { project_media { id }, options, responses { edges { node { id } } } } }"
     post :create, params: { query: query, team: t.slug }
 
     assert_response :success
-    data = JSON.parse(@response.body)['data']['task']
+    data = JSON.parse(response.body)['data']['task']
+
     assert_kind_of Array, data['options']
   end
 
@@ -184,14 +184,10 @@ class GraphqlController10Test < ActionController::TestCase
     create_team_user user: u, team: t
     p = create_project team: t
 
-    att = 'language'
-    at = create_annotation_type annotation_type: att, label: 'Language'
-    language = create_field_type field_type: 'language', label: 'Language'
-    create_field_instance annotation_type_object: at, name: 'language', field_type_object: language
     pm1 = create_project_media disable_es_callbacks: false, project: p
-    create_dynamic_annotation annotation_type: att, annotated: pm1, set_fields: { language: 'en' }.to_json, disable_es_callbacks: false
+    create_dynamic_annotation annotation_type: 'language', annotated: pm1, set_fields: { language: 'en' }.to_json, disable_es_callbacks: false
     pm2 = create_project_media disable_es_callbacks: false, project: p
-    create_dynamic_annotation annotation_type: att, annotated: pm2, set_fields: { language: 'pt' }.to_json, disable_es_callbacks: false
+    create_dynamic_annotation annotation_type: 'language', annotated: pm2, set_fields: { language: 'pt' }.to_json, disable_es_callbacks: false
 
     sleep 5
     query = 'query CheckSearch { search(query: "{\"language\":[\"en\"]}") { id,medias(first:20){edges{node{dbid}}}}}';
@@ -364,7 +360,7 @@ class GraphqlController10Test < ActionController::TestCase
     assert_response :success
   end
 
-    test "should filter by link published date" do
+  test "should filter by link published date" do
     RequestStore.store[:skip_cached_field_update] = false
     u = create_user
     t = create_team
@@ -613,7 +609,6 @@ class GraphqlController10Test < ActionController::TestCase
   end
 
   test "should change status if collaborator" do
-    create_verification_status_stuff
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u, role: 'collaborator'
@@ -635,7 +630,6 @@ class GraphqlController10Test < ActionController::TestCase
   end
 
   test "should assign status if collaborator" do
-    create_verification_status_stuff
     u = create_user
     u2 = create_user
     t = create_team

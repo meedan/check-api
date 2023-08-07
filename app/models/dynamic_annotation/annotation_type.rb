@@ -1,7 +1,7 @@
 class DynamicAnnotation::AnnotationType < ApplicationRecord
   include HasJsonSchema
 
-  validates :annotation_type, machine_name: true
+  validates :annotation_type, machine_name: true, uniqueness: true
   validate :annotation_type_is_available
 
   has_many :schema, class_name: 'DynamicAnnotation::FieldInstance', foreign_key: 'annotation_type', primary_key: 'annotation_type'

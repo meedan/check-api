@@ -1,44 +1,46 @@
-ClusterType = GraphqlCrudOperations.define_default_type do
-  name 'Cluster'
-  description 'Cluster type'
+class ClusterType < DefaultObject
+  description "Cluster type"
 
-  interfaces [NodeIdentification.interface]
+  implements GraphQL::Types::Relay::Node
 
-  field :dbid, types.Int
-  field :size, types.Int
-  field :team_names, types[types.String]
-  field :fact_checked_by_team_names, JsonStringType
-  field :requests_count, types.Int
+  field :dbid, GraphQL::Types::Int, null: true
+  field :size, GraphQL::Types::Int, null: true
+  field :team_names, [GraphQL::Types::String, null: true], null: true
+  field :fact_checked_by_team_names, JsonStringType, null: true
+  field :requests_count, GraphQL::Types::Int, null: true
 
-  field :first_item_at, types.Int do
-    resolve -> (cluster, _args, _ctx) {
-      cluster.first_item_at.to_i
-    }
+  field :first_item_at, GraphQL::Types::Int, null: true
+
+  def first_item_at
+    object.first_item_at.to_i
   end
 
-  field :last_item_at, types.Int do
-    resolve -> (cluster, _args, _ctx) {
-      cluster.last_item_at.to_i
-    }
+  field :last_item_at, GraphQL::Types::Int, null: true
+
+  def last_item_at
+    object.last_item_at.to_i
   end
 
-  connection :items, -> { ProjectMediaType.connection_type } do
-    argument :feed_id, !types.Int
-
-    resolve -> (cluster, args, ctx) {
-      Cluster.find_if_can(cluster.id, ctx[:ability])
-      feed = Feed.find_if_can(args['feed_id'].to_i, ctx[:ability])
-      cluster.project_medias.joins(:team).where('teams.id' => feed.team_ids)
-    }
+  field :items, ProjectMediaType.connection_type, null: true do
+    argument :feed_id, GraphQL::Types::Int, required: true, camelize: false
   end
 
-  connection :claim_descriptions, -> { ClaimDescriptionType.connection_type } do
-    argument :feed_id, !types.Int
+  def items(feed_id:)
+    Cluster.find_if_can(object.id, context[:ability])
+    feed = Feed.find_if_can(feed_id.to_i, context[:ability])
+    object.project_medias.joins(:team).where("teams.id" => feed.team_ids)
+  end
 
-    resolve -> (cluster, args, ctx) {
-      Cluster.find_if_can(cluster.id, ctx[:ability])
-      feed = Feed.find_if_can(args['feed_id'].to_i, ctx[:ability])
-      ClaimDescription.joins(project_media: :team).where('project_medias.cluster_id' => cluster.id, 'teams.id' => feed.team_ids)
-    }
+  field :claim_descriptions, ClaimDescriptionType.connection_type, null: true do
+    argument :feed_id, GraphQL::Types::Int, required: true, camelize: false
+  end
+
+  def claim_descriptions(feed_id:)
+    Cluster.find_if_can(object.id, context[:ability])
+    feed = Feed.find_if_can(feed_id.to_i, context[:ability])
+    ClaimDescription.joins(project_media: :team).where(
+      "project_medias.cluster_id" => object.id,
+      "teams.id" => feed.team_ids
+    )
   end
 end

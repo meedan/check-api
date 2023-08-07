@@ -1,20 +1,29 @@
 module FeedMutations
-  fields = {
-    description: 'str',
-    tags: 'array_str',
-    saved_search_id: 'int',
-    published: 'bool',
-    discoverable: 'bool',
-  }
+  MUTATION_TARGET = 'feed'.freeze
+  PARENTS = ['team'].freeze
 
-  create_fields = fields.merge({
-    name: '!str',
-    licenses: '!array_int',
-  })
+  module SharedCreateAndUpdateFields
+    extend ActiveSupport::Concern
 
-  update_fields = fields.merge({
-    name: 'str',
-  })
+    included do
+      argument :description, GraphQL::Types::String, required: false
+      argument :tags, [GraphQL::Types::String, null: true], required: false
+      argument :saved_search_id, GraphQL::Types::Int, required: false, camelize: false
+      argument :published, GraphQL::Types::Boolean, required: false, camelize: false
+      argument :discoverable, GraphQL::Types::Boolean, required: false, camelize: false
+    end
+  end
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('feed', create_fields, update_fields, ['team'])
+  class Create < Mutations::CreateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :name, GraphQL::Types::String, required: true
+    argument :licenses, [GraphQL::Types::Int, null: true], required: true
+  end
+
+  class Update < Mutations::UpdateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :name, GraphQL::Types::String, required: false
+  end
 end

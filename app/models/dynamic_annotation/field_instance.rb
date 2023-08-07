@@ -4,5 +4,5 @@ class DynamicAnnotation::FieldInstance < ApplicationRecord
 
   serialize :settings
 
-  validates :name, machine_name: true
+  validates :name, machine_name: true, uniqueness: true
 end

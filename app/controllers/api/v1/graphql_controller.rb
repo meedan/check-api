@@ -51,7 +51,7 @@ module Api
           render json: result
 
         # Mutations are not batched, so we can return errors in the root
-        rescue ActiveRecord::RecordInvalid, RuntimeError, NameError, GraphQL::Batch::NestedError => e
+        rescue ActiveRecord::RecordInvalid, RuntimeError, NameError => e
           @output = parse_json_exception(e)
           CheckSentry.notify(e)
           render json: @output, status: 400

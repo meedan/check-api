@@ -1,18 +1,24 @@
-AnnotationType = GraphqlCrudOperations.define_annotation_type('annotation', { content: 'str' }) do
-  field :project_media do
-    type ProjectMediaType
+class AnnotationType < BaseObject
+  include Types::Inclusions::AnnotationBehaviors
 
-    resolve -> (annotation, _args, _ctx) { annotation.annotated_type == 'ProjectMedia' ? annotation.annotated : nil }
+  def id
+    object.relay_id('annotation')
   end
 
-  connection :attribution, -> { UserType.connection_type } do
-    resolve ->(annotation, _args, _ctx) {
-      ids = annotation.attribution.split(',').map(&:to_i)
-      User.where(id: ids)
-    }
+  field :project_media, ProjectMediaType, null: true
+
+  def project_media
+    object.annotated if object.annotated_type == "ProjectMedia"
   end
 
-  field :lock_version, types.Int
+  field :attribution, UserType.connection_type, null: true
 
-  field :locked, types.Boolean
+  def attribution
+    ids = object.attribution.split(",").map(&:to_i)
+    User.where(id: ids)
+  end
+
+  field :lock_version, GraphQL::Types::Int, null: true
+
+  field :locked, GraphQL::Types::Boolean, null: true
 end

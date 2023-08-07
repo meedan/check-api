@@ -160,9 +160,15 @@ class ActiveSupport::TestCase
 
   def setup
     [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship, Project, BotResource].each{ |klass| klass.delete_all }
+
+    # Some of our non-GraphQL tests rely on behavior that this requires. As a result,
+    # we'll keep it around for now and just recreate any needed dynamic annotation data
+    # in the setup of our controller tests. But, ideally we'd not do this since it's just
+    # extra work.
     DynamicAnnotation::AnnotationType.where.not(annotation_type: 'metadata').delete_all
     DynamicAnnotation::FieldType.where.not(field_type: 'json').delete_all
     DynamicAnnotation::FieldInstance.where.not(name: 'metadata_value').delete_all
+
     ENV['BOOTSNAP_CACHE_DIR'] = "#{Rails.root}/tmp/cache#{ENV['TEST_ENV_NUMBER']}"
     FileUtils.rm_rf(File.join(Rails.root, 'tmp', "cache<%= ENV['TEST_ENV_NUMBER'] %>", '*'))
     Rails.application.reload_routes!
@@ -285,7 +291,7 @@ class ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
 
-    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+    at = DynamicAnnotation::AnnotationType.where(annotation_type: 'task_response_free_text').first || create_annotation_type(annotation_type: 'task_response_free_text', label: 'Task')
     ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
     fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
     fi2 = create_field_instance annotation_type_object: at, name: 'note_task', label: 'Note', field_type_object: ft1

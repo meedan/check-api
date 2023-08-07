@@ -1,16 +1,19 @@
-DeleteTeamStatusMutation = GraphQL::Relay::Mutation.define do
-  name 'DeleteTeamStatus'
+class DeleteTeamStatusMutation < Mutations::BaseMutation
+  graphql_name "DeleteTeamStatus"
 
-  input_field :team_id, !types.ID
-  input_field :status_id, !types.String
-  input_field :fallback_status_id, !types.String
+  argument :team_id, GraphQL::Types::ID, required: true, camelize: false
+  argument :status_id, GraphQL::Types::String, required: true, camelize: false
+  argument :fallback_status_id, GraphQL::Types::String, required: true, camelize: false
 
-  return_field :team, TeamType
+  field :team, TeamType, null: true
 
-  resolve -> (_root, inputs, ctx) {
-    _type_name, id = CheckGraphql.decode_id(inputs['team_id'])
-    team = GraphqlCrudOperations.load_if_can(Team, id, ctx)
-    team.delete_custom_media_verification_status(inputs['status_id'], inputs['fallback_status_id'])
-    { team: team }
-  }
+  def resolve(team_id:, status_id:, fallback_status_id:)
+    _type_name, id = CheckGraphql.decode_id(team_id)
+            team = GraphqlCrudOperations.load_if_can(Team, id, context)
+            team.delete_custom_media_verification_status(
+              status_id,
+              fallback_status_id
+            )
+            { team: team }
+  end
 end

@@ -1,36 +1,35 @@
 module TasksFileMutations
-  AddFilesToTask = GraphQL::Relay::Mutation.define do
-    name 'AddFilesToTask'
+  class AddFilesToTask < Mutations::BaseMutation
+    argument :id, GraphQL::Types::ID, required: true
 
-    input_field :id, !types.ID
+    field :task, TaskType, null: true
 
-    return_field :task, TaskType
-
-    resolve -> (_root, inputs, ctx) {
-      task = GraphqlCrudOperations.object_from_id_if_can(inputs['id'], ctx['ability'])
-      files = [ctx[:file]].flatten.reject{ |f| f.blank? }
-      if task.is_a?(Task) && !files.empty?
-        task.add_files(files)
-      end
+    def resolve(id:)
+      task = GraphqlCrudOperations.object_from_id_if_can(
+        id,
+        context[:ability]
+      )
+      files = [context[:file]].flatten.reject { |f| f.blank? }
+      task.add_files(files) if task.is_a?(Task) && !files.empty?
       { task: task }
-    }
+    end
   end
 
-  RemoveFilesFromTask = GraphQL::Relay::Mutation.define do
-    name 'RemoveFilesFromTask'
+  class RemoveFilesFromTask < Mutations::BaseMutation
+    argument :id, GraphQL::Types::ID, required: true
+    argument :filenames, [GraphQL::Types::String, null: true], required: false
 
-    input_field :id, !types.ID
-    input_field :filenames, types[types.String]
+    field :task, TaskType, null: true
 
-    return_field :task, TaskType
-
-    resolve -> (_root, inputs, ctx) {
-      task = GraphqlCrudOperations.object_from_id_if_can(inputs['id'], ctx['ability'])
-      filenames = inputs['filenames']
+    def resolve(id:, filenames: [])
+      task = GraphqlCrudOperations.object_from_id_if_can(
+        id,
+        context[:ability]
+      )
       if task.is_a?(Task) && !filenames.empty?
         task.remove_files(filenames)
       end
       { task: task }
-    }
+    end
   end
 end

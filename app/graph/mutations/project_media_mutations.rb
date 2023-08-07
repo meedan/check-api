@@ -1,57 +1,108 @@
 module ProjectMediaMutations
-  fields = {
-    media_id: 'int',
-    related_to_id: 'int'
-  }
+  MUTATION_TARGET = 'project_media'.freeze
+  PARENTS = [
+    'project',
+    'team',
+    'project_group',
+    { project_was: ProjectType },
+    { check_search_project: CheckSearchType },
+    { check_search_project_was: CheckSearchType },
+    { check_search_team: CheckSearchType },
+    { check_search_trash: CheckSearchType },
+    { check_search_spam: CheckSearchType },
+    { check_search_unconfirmed: CheckSearchType },
+    { related_to: ProjectMediaType },
+  ].freeze
 
-  set_fields = {
-    set_annotation: 'str',
-    set_claim_description: 'str',
-    set_fact_check: 'json',
-    set_tasks_responses: 'json',
-    set_tags: 'json',
-    set_title: 'str',
-    set_status: 'str' # Status identifier (for example, "in_progress")
-  }
+  module SharedCreateAndUpdateFields
+    extend ActiveSupport::Concern
 
-  create_fields = fields.merge({
-    url: 'str',
-    quote: 'str',
-    quote_attributions: 'str',
-    project_id: 'int',
-    media_id: 'int',
-    team_id: 'int',
-    channel: 'json',
-    media_type: 'str'
-  }).merge(set_fields)
+    included do
+      argument :media_id, GraphQL::Types::Int, required: false, camelize: false
+      argument :related_to_id, GraphQL::Types::Int, required: false, camelize: false
 
-  update_fields = fields.merge({
-    refresh_media: 'int',
-    archived: 'int',
-    previous_project_id: 'int',
-    project_id: 'int',
-    source_id: 'int',
-    read: 'bool'
-  })
-
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('project_media', create_fields, update_fields, ['project', 'check_search_project', 'project_was', 'check_search_project_was', 'check_search_team', 'check_search_trash', 'check_search_spam', 'check_search_unconfirmed', 'related_to', 'team', 'project_group'])
-
-  Replace = GraphQL::Relay::Mutation.define do
-    name 'ReplaceProjectMedia'
-
-    input_field :project_media_to_be_replaced_id, !types.ID
-    input_field :new_project_media_id, !types.ID
-
-    return_field :old_project_media_deleted_id, types.ID
-    return_field :new_project_media, ProjectMediaType
-
-    resolve -> (_root, inputs, ctx) {
-      old = GraphqlCrudOperations.object_from_id_if_can(inputs['project_media_to_be_replaced_id'], ctx['ability'])
-      new = GraphqlCrudOperations.object_from_id_if_can(inputs['new_project_media_id'], ctx['ability'])
-      old.replace_by(new)
-      { old_project_media_deleted_id: old.graphql_id, new_project_media: new }
-    }
+      field :affected_id, GraphQL::Types::ID, null: true
+    end
   end
 
-  BulkUpdate = GraphqlCrudOperations.define_bulk_update(ProjectMedia, { action: '!str', params: 'str' }, ['team', 'project', 'check_search_project', 'project_was', 'check_search_project_was', 'check_search_team', 'check_search_trash', 'check_search_spam', 'check_search_unconfirmed', 'project_group'])
+  class Create < Mutations::CreateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :url, GraphQL::Types::String, required: false
+    argument :quote, GraphQL::Types::String, required: false
+    argument :quote_attributions, GraphQL::Types::String, required: false, camelize: false
+    argument :project_id, GraphQL::Types::Int, required: false, camelize: false
+    argument :media_id, GraphQL::Types::Int, required: false, camelize: false
+    argument :team_id, GraphQL::Types::Int, required: false, camelize: false
+    argument :channel, JsonStringType, required: false
+    argument :media_type, GraphQL::Types::String, required: false, camelize: false
+
+    # Set fields
+    argument :set_annotation, GraphQL::Types::String, required: false, camelize: false
+    argument :set_claim_description, GraphQL::Types::String, required: false, camelize: false
+    argument :set_fact_check, JsonStringType, required: false, camelize: false
+    argument :set_tasks_responses, JsonStringType, required: false, camelize: false
+    argument :set_tags, JsonStringType, required: false, camelize: false
+    argument :set_title, GraphQL::Types::String, required: false, camelize: false
+    argument :set_status, GraphQL::Types::String, required: false, camelize: false # Status identifier (for example, "in_progress")
+  end
+
+  class Update < Mutations::UpdateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :refresh_media, GraphQL::Types::Int, required: false, camelize: false
+    argument :archived, GraphQL::Types::Int, required: false
+    argument :previous_project_id, GraphQL::Types::Int, required: false, camelize: false
+    argument :project_id, GraphQL::Types::Int, required: false, camelize: false
+    argument :source_id, GraphQL::Types::Int, required: false, camelize: false
+    argument :read, GraphQL::Types::Boolean, required: false
+  end
+
+  class Destroy < Mutations::DestroyMutation; end
+
+  class Replace < Mutations::BaseMutation
+    graphql_name "ReplaceProjectMedia"
+
+    argument :project_media_to_be_replaced_id, GraphQL::Types::ID, required: true, camelize: false
+    argument :new_project_media_id, GraphQL::Types::ID, required: true, camelize: false
+
+    field :old_project_media_deleted_id, GraphQL::Types::ID, null: true, camelize: false
+    field :new_project_media, ProjectMediaType, null: true, camelize: false
+
+    def resolve(project_media_to_be_replaced_id:, new_project_media_id:)
+      old_object = GraphqlCrudOperations.object_from_id_if_can(
+        project_media_to_be_replaced_id,
+        context[:ability]
+      )
+      new_object = GraphqlCrudOperations.object_from_id_if_can(
+        new_project_media_id,
+        context[:ability]
+      )
+      old_object.replace_by(new_object)
+      {
+        old_project_media_deleted_id: old_object.graphql_id,
+        new_project_media: new_object
+      }
+    end
+  end
+
+  module Bulk
+    PARENTS = [
+      'team',
+      'project',
+      'project_group',
+      { project_was: ProjectType },
+      { check_search_project: CheckSearchType },
+      { check_search_project_was: CheckSearchType },
+      { check_search_team: CheckSearchType },
+      { check_search_trash: CheckSearchType },
+      { check_search_spam: CheckSearchType },
+      { check_search_unconfirmed: CheckSearchType },
+    ].freeze
+
+    class Update < Mutations::BulkUpdateMutation
+      argument :action, GraphQL::Types::String, required: true
+      argument :params, GraphQL::Types::String, required: false
+    end
+  end
 end
