@@ -7,11 +7,11 @@ class GraphqlController3Test < ActionController::TestCase
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
     super
+    TestDynamicAnnotationTables.load!
     User.unstub(:current)
     Team.unstub(:current)
     User.current = nil
     Team.current = nil
-    create_verification_status_stuff
   end
 
   test "should filter and sort inside ElasticSearch" do
@@ -223,11 +223,7 @@ class GraphqlController3Test < ActionController::TestCase
 
   test "should retrieve information for grid" do
     RequestStore.store[:skip_cached_field_update] = false
-    create_verification_status_stuff
-    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
-    ft = create_field_type field_type: 'image_path', label: 'Image Path'
-    at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
-    create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
+
     u = create_user
     authenticate_with_user(u)
     t = create_team slug: 'team'
@@ -291,8 +287,7 @@ class GraphqlController3Test < ActionController::TestCase
   end
 
   test "should return cached value for dynamic annotation" do
-    create_annotation_type_and_fields('Smooch User', { 'Data' => ['JSON', false] })
-    d = create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_data: { app_name: 'foo', identifier: 'bar' }.to_json }.to_json
+    d = create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_data: { app_name: 'foo', identifier: 'bar' }.to_json, smooch_user_app_id: 'fake', smooch_user_id: 'fake' }.to_json
     authenticate_with_token
     assert_nil ApiKey.current
 
@@ -315,6 +310,7 @@ class GraphqlController3Test < ActionController::TestCase
 
   test "should return updated offset from ES" do
     RequestStore.store[:skip_cached_field_update] = false
+
     u = create_user is_admin: true
     authenticate_with_user(u)
     t = create_team
@@ -335,16 +331,12 @@ class GraphqlController3Test < ActionController::TestCase
 
   test "should set smooch user slack channel url in background" do
     Sidekiq::Testing.fake! do
-        create_annotation_type_and_fields('Smooch User', {
-            'Data' => ['JSON', false],
-            'Slack Channel Url' => ['Text', true]
-        })
         u = create_user
         t = create_team
         create_team_user team: t, user: u, role: 'admin'
         p = create_project team: t
         author_id = random_string
-        set_fields = { smooch_user_data: { id: author_id }.to_json }.to_json
+        set_fields = { smooch_user_data: { id: author_id }.to_json, smooch_user_app_id: 'fake', smooch_user_id: 'fake' }.to_json
         d = create_dynamic_annotation annotated: p, annotation_type: 'smooch_user', set_fields: set_fields
         Sidekiq::Worker.drain_all
         assert_equal 0, Sidekiq::Worker.jobs.size
@@ -379,7 +371,6 @@ class GraphqlController3Test < ActionController::TestCase
   end
 
   test "should get requests from media" do
-    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     u = create_user is_admin: true
     t = create_team
     create_team_user team: t, user: u, role: 'admin'

@@ -36,7 +36,7 @@ class DynamicAnnotation::AnnotationTypeTest < ActiveSupport::TestCase
       create_annotation_type annotation_type: 'location'
     end
     assert_no_difference 'DynamicAnnotation::AnnotationType.count' do
-      assert_raises ActiveRecord::StatementInvalid do
+      assert_raises ActiveRecord::RecordInvalid do
         create_annotation_type annotation_type: 'location'
       end
     end

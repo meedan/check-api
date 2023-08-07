@@ -1,1 +1,0 @@
-NodeIdentification = GraphQL::Relay::Node

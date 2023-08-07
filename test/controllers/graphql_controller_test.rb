@@ -3,15 +3,17 @@ require_relative '../test_helper'
 class GraphqlControllerTest < ActionController::TestCase
   def setup
     @controller = Api::V1::GraphqlController.new
+
     @url = 'https://www.youtube.com/user/MeedanTube'
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
     super
+    TestDynamicAnnotationTables.load!
+
     User.unstub(:current)
     Team.unstub(:current)
     User.current = nil
     Team.current = nil
-    create_verification_status_stuff
     @team = create_team
   end
 
@@ -387,12 +389,11 @@ class GraphqlControllerTest < ActionController::TestCase
       create_team_user user: u, team: t
       p = create_project team: t
       m = create_media
-      create_annotation_type annotation_type: 'test'
       pm = nil
       with_current_user_and_team(u, t) do
         pm = create_project_media project: p, media: m
         create_tag annotated: pm, annotator: u
-        create_dynamic_annotation annotated: pm, annotator: u, annotation_type: 'test'
+        create_dynamic_annotation annotated: pm, annotator: u, annotation_type: 'metadata'
       end
       query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count(annotation_type: \"comment\"), user { name }, tags(first: 1) { edges { node { tag } } }, project { title }, log(first: 1000) { edges { node { event_type, object_after, updated_at, created_at, meta, object_changes_json, user { name }, annotation { id, created_at, updated_at }, task { id }, tag { id } } } } } }"
       post :create, params: { query: query, team: 'team' }
@@ -472,9 +473,6 @@ class GraphqlControllerTest < ActionController::TestCase
  end
 
   test "should create project media with image" do
-    ft = create_field_type field_type: 'image_path', label: 'Image Path'
-    at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
-    create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
     create_bot name: 'Check Bot'
     u = create_user
     t = create_team
@@ -532,13 +530,8 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should create dynamic annotation" do
     p = create_project team: @team
     pm = create_project_media project: p
-    at = create_annotation_type annotation_type: 'location', label: 'Location', description: 'Where this media happened'
-    ft1 = create_field_type field_type: 'text_field', label: 'Text Field', description: 'A text field'
-    ft2 = create_field_type field_type: 'location', label: 'Location', description: 'A pair of coordinates (lat, lon)'
-    fi1 = create_field_instance name: 'location_position', label: 'Location position', description: 'Where this happened', field_type_object: ft2, optional: false, settings: { view_mode: 'map' }
-    fi2 = create_field_instance name: 'location_name', label: 'Location name', description: 'Name of the location', field_type_object: ft1, optional: false, settings: {}
-    fields = { location_name: 'Salvador', location_position: '3,-51' }.to_json
-    assert_graphql_create('dynamic', { set_fields: fields, annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s, annotation_type: 'location' })
+    fields = { geolocation_viewport: '', geolocation_location: { type: "Feature", properties: { name: "Dingbat Islands" } , geometry: { type: "Point", coordinates: [125.6, 10.1] } }.to_json }.to_json
+    assert_graphql_create('dynamic', { set_fields: fields, annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s, annotation_type: 'geolocation' })
   end
 
   test "should create task" do
@@ -590,6 +583,7 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "mutation destroy { destroyProject(input: { clientMutationId: \"1\", id: \"#{p.graphql_id}\", items_destination_project_id: #{p2.id} }) { deletedId } }"
     post :create, params: { query: query, team: @team.slug }
     assert_response :success
+    assert_equal p.graphql_id, JSON.parse(response.body)['data']['destroyProject']['deletedId']
     assert_equal p2.id, pm.reload.project_id
   end
 
@@ -675,7 +669,6 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "mutation userDisconnectLoginAccount { userDisconnectLoginAccount(input: { clientMutationId: \"1\", provider: \"#{a.provider}\", uid: \"#{a.uid}\" }) { success } }"
     post :create, params: { query: query, team: @team.slug }
     assert_response :success
-    User.unstub(:current)
   end
 
   test "should change password if token is found and passwords are present and match" do
@@ -735,14 +728,6 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should get field value and dynamic annotation(s)" do
-    [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
-    create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
-    ft1 = create_field_type(field_type: 'select', label: 'Select')
-    ft2 = create_field_type(field_type: 'text', label: 'Text')
-    at = create_annotation_type annotation_type: 'verification_status', label: 'Verification Status'
-    create_field_instance annotation_type_object: at, name: 'verification_status_status', label: 'Verification Status', field_type_object: ft1, optional: false
-    create_field_instance annotation_type_object: at, name: 'verification_status_note', label: 'Verification Status Note', field_type_object: ft2, optional: true
-
     authenticate_with_user
     p = create_project team: @team
     pm = create_project_media project: p
@@ -758,7 +743,6 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should create media with custom field" do
     authenticate_with_user
-    create_annotation_type_and_fields('Syrian Archive Data', { 'Id' => ['Id', false] })
     p = create_project team: @team
     fields = '{\"annotation_type\":\"syrian_archive_data\",\"set_fields\":\"{\\\\\"syrian_archive_data_id\\\\\":\\\\\"123456\\\\\"}\"}'
     query = 'mutation create { createProjectMedia(input: { url: "", media_type: "Claim", quote: "Test", clientMutationId: "1", set_annotation: "' + fields + '", project_id: ' + p.id.to_s + ' }) { project_media { id } } }'

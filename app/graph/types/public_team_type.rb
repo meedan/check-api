@@ -1,27 +1,51 @@
-PublicTeamType = GraphqlCrudOperations.define_default_type do
-  name 'PublicTeam'
-  description 'Public team type'
+class PublicTeamType < DefaultObject
+  description "Public team type"
 
-  interfaces [NodeIdentification.interface]
+  implements GraphQL::Types::Relay::Node
 
-  field :name, !types.String
-  field :slug, !types.String
-  field :description, types.String
-  field :dbid, types.Int
-  field :avatar, types.String
-  field :private, types.Boolean
-  field :team_graphql_id, types.String
+  field :name, GraphQL::Types::String, null: false
+  field :slug, GraphQL::Types::String, null: false
+  field :description, GraphQL::Types::String, null: true
+  field :dbid, GraphQL::Types::Int, null: true
+  field :avatar, GraphQL::Types::String, null: true
+  field :private, GraphQL::Types::Boolean, null: true
+  field :team_graphql_id, GraphQL::Types::String, null: true
 
-  field :pusher_channel do
-    type types.String
+  field :pusher_channel, GraphQL::Types::String, null: true
 
-    resolve -> (team, _args, _ctx) do
-      Team.find(team.id).pusher_channel
-    end
+  def pusher_channel
+    Team.find(object.id).pusher_channel
   end
 
-  instance_exec :trash_count, &GraphqlCrudOperations.archived_count
-  instance_exec :unconfirmed_count, &GraphqlCrudOperations.archived_count
-  instance_exec :spam_count, &GraphqlCrudOperations.archived_count
+  field :trash_count, GraphQL::Types::Int, null: true
 
+  def trash_count
+    archived_count(object) ? 0 : object.trash_count
+  end
+
+  field :unconfirmed_count, GraphQL::Types::Int, null: true
+
+  def unconfirmed_count
+    archived_count(object) ? 0 : object.unconfirmed_count
+  end
+
+  field :spam_count, GraphQL::Types::Int, null: true
+
+  def spam_count
+    archived_count(object) ? 0 : object.spam_count
+  end
+
+  private
+
+  def archived_count(team)
+    team.private &&
+      (!User.current ||
+          (!User.current.is_admin &&
+              TeamUser
+                .where(team_id: team.id, user_id: User.current.id)
+                .last
+                .nil?
+        )
+    )
+  end
 end

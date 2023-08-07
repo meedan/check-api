@@ -1,38 +1,54 @@
-BotUserType = GraphqlCrudOperations.define_default_type do
-  name 'BotUser'
-  description 'Bot User type'
+class BotUserType < DefaultObject
+  description "Bot User type"
 
-  interfaces [NodeIdentification.interface]
+  implements GraphQL::Types::Relay::Node
 
-  field :avatar, types.String
-  field :name, types.String
-  field :get_description, types.String
-  field :get_version, types.String
-  field :get_source_code_url, types.String
-  field :get_role, types.String
-  field :identifier, types.String
-  field :login, types.String
-  field :dbid, types.Int
-  field :installed, types.Boolean
-  field :installations_count, types.Int
-  field :settings_ui_schema, types.String
-  field :installation, TeamBotInstallationType
-  field :default, types.Boolean
+  field :avatar, GraphQL::Types::String, null: true
+  field :name, GraphQL::Types::String, null: true
+  field :get_description, GraphQL::Types::String, null: true
 
-  field :settings_as_json_schema do
-    type types.String
-    argument :team_slug, types.String # Some settings options are team-specific
-
-    resolve -> (bot, args, _ctx) {
-      bot.settings_as_json_schema(false, args['team_slug'])
-    }
+  def get_description
+    object.get_description
   end
 
-  field :team_author do
-    type -> { TeamType }
+  field :get_version, GraphQL::Types::String, null: true
 
-    resolve -> (bot, _args, _ctx) {
-      RecordLoader.for(Team).load(bot.team_author_id.to_i)
-    }
+  def get_version
+    object.get_version
+  end
+
+  field :get_source_code_url, GraphQL::Types::String, null: true
+
+  def get_source_code_url
+    object.get_source_code_url
+  end
+
+  field :get_role, GraphQL::Types::String, null: true
+
+  def get_role
+    object.get_role
+  end
+
+  field :identifier, GraphQL::Types::String, null: true
+  field :login, GraphQL::Types::String, null: true
+  field :dbid, GraphQL::Types::Int, null: true
+  field :installed, GraphQL::Types::Boolean, null: true
+  field :installations_count, GraphQL::Types::Int, null: true
+  field :settings_ui_schema, GraphQL::Types::String, null: true
+  field :installation, TeamBotInstallationType, null: true
+  field :default, GraphQL::Types::Boolean, null: true
+
+  field :settings_as_json_schema, GraphQL::Types::String, null: true do
+    argument :team_slug, GraphQL::Types::String, required: false, camelize: false # Some settings options are team-specific
+  end
+
+  def settings_as_json_schema(team_slug: nil)
+    object.settings_as_json_schema(false, team_slug)
+  end
+
+  field :team_author, TeamType, null: true
+
+  def team_author
+    RecordLoader.for(Team).load(object.team_author_id.to_i)
   end
 end

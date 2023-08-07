@@ -1,29 +1,28 @@
-SavedSearchType = GraphqlCrudOperations.define_default_type do
-  name 'SavedSearch'
-  description 'Saved search type'
+class SavedSearchType < DefaultObject
+  description "Saved search type"
 
-  interfaces [NodeIdentification.interface]
+  implements GraphQL::Types::Relay::Node
 
-  field :dbid, types.Int
-  field :title, types.String
-  field :team_id, types.Int
-  field :team, TeamType
+  field :dbid, GraphQL::Types::Int, null: true
+  field :title, GraphQL::Types::String, null: true
+  field :team_id, GraphQL::Types::Int, null: true
+  field :team, TeamType, null: true
 
-  field :filters, types.String do
-    resolve -> (saved_search, _args, _ctx) {
-      saved_search.filters ? saved_search.filters.to_json : '{}'
-    }
+  field :filters, GraphQL::Types::String, null: true
+
+  def filters
+    object.filters ? object.filters.to_json : "{}"
   end
 
-  field :is_part_of_feeds, types.Boolean do
-    resolve -> (saved_search, _args, _ctx) {
-      Feed.where(saved_search_id: saved_search.id).exists?
-    }
+  field :is_part_of_feeds, GraphQL::Types::Boolean, null: true
+
+  def is_part_of_feeds
+    Feed.where(saved_search_id: object.id).exists?
   end
 
-  connection :feeds, -> { FeedType.connection_type } do
-    resolve -> (saved_search, _args, _ctx) {
-      Feed.where(saved_search_id: saved_search.id)
-    }
+  field :feeds, FeedType.connection_type, null: true
+
+  def feeds
+    Feed.where(saved_search_id: object.id)
   end
 end

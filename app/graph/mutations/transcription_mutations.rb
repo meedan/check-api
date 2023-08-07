@@ -1,14 +1,15 @@
 module TranscriptionMutations
-  TranscribeAudio = GraphQL::Relay::Mutation.define do
-    name 'TranscribeAudio'
+  class TranscribeAudio < Mutations::BaseMutation
+    argument :id, GraphQL::Types::ID, required: true
 
-    return_field :project_media, ProjectMediaType
-    return_field :annotation, DynamicType
+    field :project_media, ProjectMediaType, null: true, camelize: false
+    field :annotation, DynamicType, null: true
 
-    input_field :id, !types.ID
-
-    resolve -> (_r, input, context) {
-      project_media = GraphqlCrudOperations.object_from_id_if_can(input['id'], context['ability'])
+    def resolve(id:)
+      project_media = GraphqlCrudOperations.object_from_id_if_can(
+        id,
+        context[:ability]
+      )
 
       annotation = Bot::Alegre.transcribe_audio(project_media)
 
@@ -17,7 +18,7 @@ module TranscriptionMutations
         annotation: annotation.reload
       }
 
-      return output
-    }
+      output
+    end
   end
 end
