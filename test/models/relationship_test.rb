@@ -108,6 +108,7 @@ class RelationshipTest < ActiveSupport::TestCase
         r2 = create_relationship source_id: pm_s.id, target_id: pm_t2.id, relationship_type: Relationship.suggested_type
         r3 = create_relationship source_id: pm_s.id, target_id: pm_t3.id, relationship_type: Relationship.suggested_type
         # Verify unmatched
+        assert_equal 0, pm_s.reload.unmatched
         assert_equal 0, pm_t1.reload.unmatched
         assert_equal 0, pm_t2.reload.unmatched
         assert_equal 0, pm_t3.reload.unmatched
@@ -139,6 +140,7 @@ class RelationshipTest < ActiveSupport::TestCase
         assert_equal 1, pm_t1.reload.sources_count
         assert_equal pm_s.suggestions_count, es_s['suggestions_count']
         # Verify unmatched
+        assert_equal 0, pm_s.reload.unmatched
         assert_equal 0, pm_t1.reload.unmatched
         assert_equal 0, pm_t2.reload.unmatched
         assert_equal 0, pm_t3.reload.unmatched
@@ -172,9 +174,13 @@ class RelationshipTest < ActiveSupport::TestCase
         assert_equal 1, pm_t1.reload.unmatched
         assert_equal 1, pm_t2.reload.unmatched
         assert_equal 0, pm_t3.reload.unmatched
+        assert_equal 0, pm_s.reload.unmatched
         # Verify cached fields
         assert_not pm_t1.is_suggested
         assert_not pm_t1.is_suggested(true)
+        r3.destroy!
+        assert_equal 1, pm_t3.reload.unmatched
+        assert_equal 1, pm_s.reload.unmatched
       end
     end
   end
