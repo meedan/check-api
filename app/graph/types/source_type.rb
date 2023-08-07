@@ -1,47 +1,37 @@
-SourceType = GraphqlCrudOperations.define_default_type do
-  name 'Source'
-  description 'Source type'
+class SourceType < DefaultObject
+  include Types::Inclusions::TaskAndAnnotationFields
 
-  interfaces [NodeIdentification.interface]
+  description "Source type"
 
-  field :image, types.String
-  field :description, !types.String
-  field :name, !types.String
-  field :dbid, types.Int
-  field :user_id, types.Int
-  field :permissions, types.String
-  field :pusher_channel, types.String
-  field :lock_version, types.Int
-  field :medias_count, types.Int
-  field :accounts_count, types.Int
-  field :overridden, JsonStringType
-  field :archived, types.Int
+  implements GraphQL::Types::Relay::Node
 
-  connection :accounts, -> { AccountType.connection_type } do
-    resolve ->(source, _args, _ctx) { source.accounts }
+  field :image, GraphQL::Types::String, null: true
+  field :description, GraphQL::Types::String, null: false
+  field :name, GraphQL::Types::String, null: false
+  field :dbid, GraphQL::Types::Int, null: true
+  field :user_id, GraphQL::Types::Int, null: true
+  field :permissions, GraphQL::Types::String, null: true
+  field :pusher_channel, GraphQL::Types::String, null: true
+  field :lock_version, GraphQL::Types::Int, null: true
+  field :medias_count, GraphQL::Types::Int, null: true
+  field :accounts_count, GraphQL::Types::Int, null: true
+  field :overridden, JsonStringType, null: true
+  field :archived, GraphQL::Types::Int, null: true
+
+  field :accounts, AccountType.connection_type, null: true
+
+  field :account_sources, AccountSourceType.connection_type, null: true
+
+  def account_sources
+    object.account_sources.order(id: :asc)
   end
 
-  connection :account_sources, -> { AccountSourceType.connection_type } do
-    resolve ->(source, _args, _ctx) {
-      source.account_sources.order(id: :asc)
-    }
+  field :medias, ProjectMediaType.connection_type, null: true
+
+  def medias
+    object.media
   end
 
-  connection :medias, -> { ProjectMediaType.connection_type } do
-    resolve ->(source, _args, _ctx) { source.media }
-  end
-
-  field :medias_count, types.Int do
-    resolve -> (source, _args, _ctx) { source.medias_count }
-  end
-
-  connection :collaborators, -> { UserType.connection_type } do
-    resolve ->(source, _args, _ctx) { source.collaborators }
-  end
-
-  instance_exec :source, &GraphqlCrudOperations.field_annotations
-
-  instance_exec :source, &GraphqlCrudOperations.field_annotations_count
-
-  instance_exec :source, &GraphqlCrudOperations.field_tasks
+  field :medias_count, GraphQL::Types::Int, null: true
+  field :collaborators, UserType.connection_type, null: true
 end

@@ -735,11 +735,10 @@ class Bot::Smooch < BotUser
   def self.add_hashtags(text, pm)
     hashtags = Twitter::TwitterText::Extractor.extract_hashtags(text)
     return nil if hashtags.blank?
-
     # Only add team tags.
     TagText.where("team_id = ? AND text IN (?)", pm.team_id, hashtags).each do |tag|
       unless pm.annotations('tag').map(&:tag_text).include?(tag.text)
-        Tag.create!(tag: tag, annotator: pm.user, annotated: pm)
+        Tag.create!(tag: tag.id, annotator: pm.user, annotated: pm)
       end
     end
   end
@@ -918,16 +917,16 @@ class Bot::Smooch < BotUser
       if report.report_design_field_value('use_introduction')
         introduction = report.report_design_introduction(data, lang)
         smooch_intro_response = self.send_message_to_user(uid, introduction)
-        Rails.logger.info "[Smooch Bot] Sent report introduction to user #{uid} for item with ID #{pm.id}, response was: #{smooch_intro_response.to_json}"
+        Rails.logger.info "[Smooch Bot] Sent report introduction to user #{uid} for item with ID #{pm.id}, response was: #{smooch_intro_response&.body}"
         sleep 1
       end
       if report.report_design_field_value('use_text_message')
         workflow = self.get_workflow(lang)
         last_smooch_response = self.send_final_messages_to_user(uid, report.report_design_text(lang), workflow, lang)
-        Rails.logger.info "[Smooch Bot] Sent text report to user #{uid} for item with ID #{pm.id}, response was: #{last_smooch_response.to_json}"
+        Rails.logger.info "[Smooch Bot] Sent text report to user #{uid} for item with ID #{pm.id}, response was: #{last_smooch_response&.body}"
       elsif report.report_design_field_value('use_visual_card')
         last_smooch_response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url })
-        Rails.logger.info "[Smooch Bot] Sent report visual card to user #{uid} for item with ID #{pm.id}, response was: #{last_smooch_response.to_json}"
+        Rails.logger.info "[Smooch Bot] Sent report visual card to user #{uid} for item with ID #{pm.id}, response was: #{last_smooch_response&.body}"
       end
       self.save_smooch_response(last_smooch_response, parent, data['received'], fallback_template, lang)
     end

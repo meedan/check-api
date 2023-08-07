@@ -1,15 +1,15 @@
-RelationshipType = GraphQL::ObjectType.define do
-  name 'Relationship'
-  description 'A relationship between two items'
-  interfaces [NodeIdentification.interface]
+class RelationshipType < BaseObject
+  description "A relationship between two items"
+  implements GraphQL::Types::Relay::Node
+
   global_id_field :id
 
-  field :dbid, types.Int
-  field :target_id, types.Int
-  field :source_id, types.Int
-  field :permissions, types.String
-  field :relationship_type, types.String
+  field :dbid, GraphQL::Types::Int, null: true
+  field :target_id, GraphQL::Types::Int, null: true
+  field :source_id, GraphQL::Types::Int, null: true
+  field :permissions, GraphQL::Types::String, null: true
+  field :relationship_type, GraphQL::Types::String, null: true
 
-  field :target, ProjectMediaType
-  field :source, ProjectMediaType
+  field :target, ProjectMediaType, null: true
+  field :source, ProjectMediaType, null: true
 end

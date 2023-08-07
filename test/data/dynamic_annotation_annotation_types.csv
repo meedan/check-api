@@ -1,0 +1,37 @@
+annotation_type,label,description,singleton,json_schema
+analysis,Analysis,"",true,
+archiver,Archiver,"",true,
+clip,Clip,"",true,"{""type"":""object"",""required"":[""label""],""properties"":{""label"":{""type"":""string""}}}"
+embed_code,Embed Code,"",true,
+extracted_text,Extracted Text,"",true,"{""type"":""object"",""required"":[""text""],""properties"":{""text"":{""type"":""string""}}}"
+flag,Flag,"",true,"{""type"":""object"",""required"":[""flags""],""properties"":{""flags"":{""type"":""object"",""required"":[""adult"",""spoof"",""medical"",""violence"",""racy"",""spam""],""properties"":{""racy"":{""type"":""integer"",""maximum"":7,""minimum"":0},""spam"":{""type"":""integer"",""maximum"":7,""minimum"":0},""adult"":{""type"":""integer"",""maximum"":7,""minimum"":0},""spoof"":{""type"":""integer"",""maximum"":7,""minimum"":0},""custom"":{""type"":""object""},""medical"":{""type"":""integer"",""maximum"":7,""minimum"":0},""violence"":{""type"":""integer"",""maximum"":7,""minimum"":0}}},""show_cover"":{""type"":""boolean""}}}"
+geolocation,Geolocation,"",true,
+language,Language,"",true,
+memebuster,Meme Generator Settings,"",true,
+metadata,Metadata,"",true,
+metrics,Metrics,"",true,
+mt,Machine translation,"",true,
+report_design,Report Design,"",true,"{""type"":""object"",""properties"":{""state"":{""type"":""string"",""default"":""paused""},""options"":{""type"":""object"",""properties"":{""url"":{""type"":""string"",""default"":""""},""date"":{""type"":""string"",""default"":""""},""text"":{""type"":""string"",""default"":""""},""image"":{""type"":""string"",""default"":""""},""title"":{""type"":""string"",""default"":""""},""headline"":{""type"":""string"",""default"":""""},""language"":{""type"":""string"",""default"":""en""},""disclaimer"":{""type"":""string"",""default"":""""},""description"":{""type"":""string"",""default"":""""},""theme_color"":{""type"":""string"",""default"":""""},""dark_overlay"":{""type"":""boolean"",""default"":false},""introduction"":{""type"":""string"",""default"":""""},""status_label"":{""type"":""string"",""default"":""""},""use_disclaimer"":{""type"":""boolean"",""default"":false},""use_visual_card"":{""type"":""boolean"",""default"":false},""visual_card_url"":{""type"":""string"",""default"":""""},""use_introduction"":{""type"":""boolean"",""default"":false},""use_text_message"":{""type"":""boolean"",""default"":false},""previous_published_status_label"":{""type"":""string"",""default"":""""}}},""last_error"":{""type"":""string"",""default"":""""},""last_published"":{""type"":""string"",""default"":""""}}}"
+reverse_image,Reverse Image,"",true,
+slack_message,Slack Message,"",true,
+smooch,Smooch,"",true,
+smooch_response,Smooch Response,"",true,
+smooch_user,Smooch User,"",true,
+syrian_archive_data,Syrian Archive Data,"",true,
+task_response_datetime,Task Response Date Time,"",true,
+task_response_file_upload,Task Response File Upload,"",true,
+task_response_free_text,Task Response Free Text,"",true,
+task_response_geolocation,Task Response Geolocation,"",true,
+task_response_multiple_choice,Task Response Multiple Choice,"",true,
+task_response_number,Task Response Number,"",true,
+task_response_single_choice,Task Response Single Choice,"",true,
+task_response_url,Task Response URL,"",true,
+task_response_yes_no,Task Response Yes No,"",true,
+task_status,Task Status,"",true,
+team_bot_response,Team Bot Response,"",true,
+transcript,Transcript,"",true,
+transcription,Transcription,"",true,"{""type"":""object"",""required"":[""job_name""],""properties"":{""text"":{""type"":""string""},""job_name"":{""type"":""string""},""last_response"":{""type"":""object""}}}"
+translation,Translation,"",true,
+translation_request,Translation Request,"",true,
+translation_status,Translation Status,"",true,
+verification_status,Verification Status,"",true,

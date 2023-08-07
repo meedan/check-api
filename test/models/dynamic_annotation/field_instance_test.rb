@@ -36,7 +36,7 @@ class DynamicAnnotation::FieldInstanceTest < ActiveSupport::TestCase
       create_field_instance name: 'response'
     end
     assert_no_difference 'DynamicAnnotation::FieldInstance.count' do
-      assert_raises ActiveRecord::StatementInvalid do
+      assert_raises ActiveRecord::RecordInvalid do
         create_field_instance name: 'response'
       end
     end

@@ -1,13 +1,12 @@
-ClaimDescriptionType = GraphqlCrudOperations.define_default_type do
-  name 'ClaimDescription'
-  description 'ClaimDescription type'
+class ClaimDescriptionType < DefaultObject
+  description "ClaimDescription type"
 
-  interfaces [NodeIdentification.interface]
+  implements GraphQL::Types::Relay::Node
 
-  field :dbid, types.Int
-  field :description, types.String
-  field :context, types.String
-  field :user, UserType
-  field :project_media, ProjectMediaType
-  field :fact_check, FactCheckType
+  field :dbid, GraphQL::Types::Int, null: true
+  field :description, GraphQL::Types::String, null: true
+  field :context, GraphQL::Types::String, null: true, resolver_method: :claim_context
+  field :user, UserType, null: true
+  field :project_media, ProjectMediaType, null: true
+  field :fact_check, FactCheckType, null: true
 end

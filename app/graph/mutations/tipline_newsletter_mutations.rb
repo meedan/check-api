@@ -1,46 +1,47 @@
 module TiplineNewsletterMutations
-  fields = {
-    enabled: 'bool',
-    introduction: 'str',
-    language: 'str'
-  }
+  MUTATION_TARGET = 'tipline_newsletter'.freeze
+  PARENTS = ['team'].freeze
 
-  # Header
-  fields.merge!({
-    header_type: 'str',
-    header_overlay_text: 'str'
-  })
+  module SharedCreateAndUpdateFields
+    extend ActiveSupport::Concern
 
-  # Content
-  fields.merge!({
-    content_type: 'str'
-  })
+    included do
+      argument :enabled, GraphQL::Types::Boolean, required: false
+      argument :introduction, GraphQL::Types::String, required: false
+      argument :language, GraphQL::Types::String, required: false
 
-  # Dynamic newsletter: RSS Feed
-  fields.merge!({
-    rss_feed_url: 'str',
-    number_of_articles: 'int'
-  })
+      # Header
+      argument :header_type, GraphQL::Types::String, required: false, camelize: false
+      argument :header_overlay_text, GraphQL::Types::String, required: false, camelize: false
 
-  # Static newsletter: Articles
-  fields.merge!({
-    first_article: 'str',
-    second_article: 'str',
-    third_article: 'str'
-  })
+      # Content
+      argument :content_type, GraphQL::Types::String, required: false, camelize: false
 
-  # Footer
-  fields.merge!({
-    footer: 'str'
-  })
+      # Dynamic newsletter: RSS Feed
+      argument :rss_feed_url, GraphQL::Types::String, required: false, camelize: false
+      argument :number_of_articles, GraphQL::Types::Int, required: false, camelize: false
 
-  # Schedule
-  fields.merge!({
-    send_every: 'json',
-    send_on: 'str',
-    timezone: 'str',
-    time: 'str'
-  })
+      # Static newsletter: Articles
+      argument :first_article, GraphQL::Types::String, required: false, camelize: false
+      argument :second_article, GraphQL::Types::String, required: false, camelize: false
+      argument :third_article, GraphQL::Types::String, required: false, camelize: false
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('tipline_newsletter', fields, fields, ['team'])
+      # Footer
+      argument :footer, GraphQL::Types::String, required: false
+
+      # Schedule
+      argument :send_every, JsonStringType, required: false, camelize: false
+      argument :send_on, GraphQL::Types::String, required: false, camelize: false
+      argument :timezone, GraphQL::Types::String, required: false
+      argument :time, GraphQL::Types::String, required: false
+    end
+  end
+
+  class Create < Mutations::CreateMutation
+    include SharedCreateAndUpdateFields
+  end
+
+  class Update < Mutations::UpdateMutation
+    include SharedCreateAndUpdateFields
+  end
 end

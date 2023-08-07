@@ -2,7 +2,7 @@ class Tag < ApplicationRecord
   include AnnotationBase
 
   # "tag" is a reference to a TagText object
-  field :tag, Integer, presence: true
+  field :tag, GraphQL::Types::Int, presence: true
 
   before_validation :get_tag_text_reference
 
@@ -34,11 +34,11 @@ class Tag < ApplicationRecord
 
   def self.bulk_create(inputs, team)
     # Make sure that all items are under the team
-    input_ids = inputs.select{ |input| input['annotated_type'] == 'ProjectMedia' }.collect{ |input| input['annotated_id'].to_i }.uniq
+    input_ids = inputs.select{ |input| input[:annotated_type] == 'ProjectMedia' }.collect{ |input| input[:annotated_id].to_i }.uniq
     ids = ProjectMedia.select(:id).where(id: input_ids, team_id: team.id).map(&:id)
 
     # Create all TagText we need, if any, and create a mapping from tag text to Tagtext.id
-    texts = inputs.select{ |input| ids.include?(input['annotated_id'].to_i) && input['tag'].is_a?(String) }.collect{ |input| input['tag'] }.uniq
+    texts = inputs.select{ |input| ids.include?(input[:annotated_id].to_i) && input[:tag].is_a?(String) }.collect{ |input| input[:tag] }.uniq
     existing_texts = TagText.where(text: texts, team_id: team.id).select(:text).map(&:text)
     new_texts = []
     (texts - existing_texts).each { |text| new_texts << { team_id: team.id, text: text } }
@@ -54,9 +54,9 @@ class Tag < ApplicationRecord
     # Bulk-insert tags
     inserts = []
     inputs.each do |input|
-      tag = texts_to_ids[input['tag']] || input['tag']
-      if ids.include?(input['annotated_id'].to_i) && !tag_pms[tag].include?(input['annotated_id'].to_i)
-        inserts << input.to_h.with_indifferent_access.reject{ |k, _v| k.to_s == 'tag' }.merge({ annotation_type: 'tag', data: { tag: tag } })
+      tag = texts_to_ids[input[:tag]] || input[:tag]
+      if ids.include?(input[:annotated_id].to_i) && !tag_pms[tag].include?(input[:annotated_id].to_i)
+        inserts << input.to_h.with_indifferent_access.reject{ |k, _v| k.to_sym == :tag }.merge({ annotation_type: 'tag', data: { tag: tag } })
       end
     end
     result = Annotation.import inserts, validate: false, recursive: false, timestamps: true
@@ -114,7 +114,7 @@ class Tag < ApplicationRecord
   end
 
   def add_update_es_tags(op)
-    data = { 'tag' => self.tag_text }
+    data = { tag: self.tag_text }
     add_update_nested_obj({ op: op, nested_key: 'tags', keys: data.keys, data: data, pm_id: self.annotated_id }) if self.annotated_type == 'ProjectMedia'
   end
 
