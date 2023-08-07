@@ -49,12 +49,17 @@ namespace :check do
       condition = {}
       if slugs.blank?
         last_team_id = Rails.cache.read('check:migrate:migrate_from_folders_to_lists:team_id') || 0
+        # Collect teams with activity in the last year
+        last_year = Time.now - 1.years
+        team_ids = ProjectMedia.select('team_id').where('created_at > ?', last_year).group('team_id').map(&:team_id).uniq
+        condition = { id: team_ids }
       else
         last_team_id = 0
         condition = { slug: slugs }
       end
       errors = []
       Team.where(condition).where('id > ?', last_team_id).find_each do |team|
+        puts "Processing team [#{team.slug}]"
         team_tags = team.tag_texts.map{ |tag| [tag.id.to_s, tag.text] }.to_h
         team.projects.where(is_default: false).find_each do |project|
           puts "Processing folder [#{team.slug} => #{project.title}(#{project.id})]\n"
