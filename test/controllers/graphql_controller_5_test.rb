@@ -72,18 +72,18 @@ class GraphqlController5Test < ActionController::TestCase
     pm = create_project_media team: t
     authenticate_with_user(u)
     # verify create
-    query = 'mutation create { createDynamicAnnotationFlag(input: { clientMutationId: "1", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", set_fields: "{\"flags\":{\"adult\":3,\"spoof\":2,\"medical\":1,\"violence\":3,\"racy\":4,\"spam\":0},\"show_cover\":false}" }) { dynamic { dbid } } }'
+    query = 'mutation create { createDynamic(input: { annotation_type: "flag", clientMutationId: "1", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", set_fields: "{\"flags\":{\"adult\":3,\"spoof\":2,\"medical\":1,\"violence\":3,\"racy\":4,\"spam\":0},\"show_cover\":false}" }) { dynamic { dbid } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
-    assert JSON.parse(@response.body).dig('error').blank?
+    assert JSON.parse(@response.body).dig('errors').blank?
 
-    d = Dynamic.find(JSON.parse(@response.body)['data']['createDynamicAnnotationFlag']['dynamic']['dbid'])
+    d = Dynamic.find(JSON.parse(@response.body)['data']['createDynamic']['dynamic']['dbid'])
     data = d.data.with_indifferent_access
     assert_equal ['flags', 'show_cover'].sort, data.keys.sort
     assert_equal ['adult', 'spoof', 'medical', 'violence', 'racy', 'spam'].sort, data['flags'].keys.sort
     assert !data['show_cover']
     # verify update
-    query = 'mutation update { updateDynamicAnnotationFlag(input: { clientMutationId: "1", id: "' + d.graphql_id + '", set_fields: "{\"show_cover\":true}" }) { dynamic { dbid } } }'
+    query = 'mutation update { updateDynamic(input: { annotation_type: "flag", clientMutationId: "1", id: "' + d.graphql_id + '", set_fields: "{\"show_cover\":true}" }) { dynamic { dbid } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     d = Dynamic.find(d.id)

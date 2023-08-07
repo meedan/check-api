@@ -7,6 +7,7 @@ module DynamicMutations
     include Mutations::Inclusions::AnnotationBehaviors
 
     included do
+      argument :action, GraphQL::Types::String, required: false
       argument :set_attribution, GraphQL::Types::String, required: false, camelize: false
 
       field :versionEdge, VersionType.edge_type, null: true
