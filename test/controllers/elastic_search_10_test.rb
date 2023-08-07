@@ -407,13 +407,17 @@ class ElasticSearch10Test < ActionController::TestCase
     result = CheckSearch.new({ unmatched: [0, 1] }.to_json)
     assert_equal [source.id, target.id, target2.id], result.medias.map(&:id).sort
     result = CheckSearch.new({ unmatched: [0] }.to_json)
-    assert_equal [source.id], result.medias.map(&:id)
+    assert_empty result.medias.map(&:id)
     result = CheckSearch.new({ unmatched: [1] }.to_json)
-    assert_equal [target.id, target2.id], result.medias.map(&:id).sort
+    assert_equal [source.id, target.id, target2.id].sort, result.medias.map(&:id).sort
     # filter by unmatched (hit ES)
     result = CheckSearch.new({ keyword: 'target', unmatched: [1] }.to_json)
     assert_equal [target.id, target2.id], result.medias.map(&:id).sort
     result = CheckSearch.new({ keyword: 'target', unmatched: [0] }.to_json)
+    assert_empty result.medias.map(&:id)
+    result = CheckSearch.new({ keyword: 'source', unmatched: [1] }.to_json)
+    assert_equal [source.id], result.medias.map(&:id)
+    result = CheckSearch.new({ keyword: 'source', unmatched: [0] }.to_json)
     assert_empty result.medias.map(&:id)
     Team.current = nil
   end
