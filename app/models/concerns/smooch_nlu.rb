@@ -50,7 +50,7 @@ module SmoochNlu
 
     # FIXME: Make it more flexible
     def nlu_models_to_use
-      [Bot::Alegre::ELASTICSEARCH_MODEL]
+      [Bot::Alegre::MEAN_TOKENS_MODEL]
     end
 
     # "menu" is "main" or "secondary"
