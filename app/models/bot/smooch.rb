@@ -555,11 +555,18 @@ class Bot::Smooch < BotUser
     end
     workflow ||= {}
     options = self.get_menu_options(state, workflow, uid)
+    # Look for button clicks and exact matches to menu options first...
     options.each do |option|
       if option['smooch_menu_option_keyword'].split(',').map(&:downcase).map(&:strip).collect{ |k| k.gsub(/[^a-z0-9]+/, '') }.include?(typed.gsub(/[^a-z0-9]+/, ''))
         self.process_menu_option_value(option['smooch_menu_option_value'], option, message, language, workflow, app_id)
         return true
       end
+    end
+    # ...if nothing is matched, try using the NLU feature
+    option = self.nlu_menu_option_from_message(typed, options)
+    unless option.nil?
+      self.process_menu_option_value(option['smooch_menu_option_value'], option, message, language, workflow, app_id)
+      return true
     end
     self.bundle_message(message)
     return false
