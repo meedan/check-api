@@ -33,7 +33,7 @@ RUN curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh |
 WORKDIR /app
 COPY Gemfile /app/Gemfile
 COPY Gemfile.lock /app/Gemfile.lock
-RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc && gem install bundler -v "< 2.0"
+RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc && gem install bundler
 RUN bundle config force_ruby_platform true
 RUN bundle install --jobs 20 --retry 5
 COPY . /app
