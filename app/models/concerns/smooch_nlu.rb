@@ -99,7 +99,7 @@ module SmoochNlu
         response = Bot::Alegre.request_api('get', '/text/similarity/', { text: message, models: self.nlu_models_to_use, context: { context: 'smooch-nlu-menu', team: Team.find(self.config['team_id']).slug } })
         best_result = response['result'].to_a.sort_by{ |result| result['_score'] }.last
         unless best_result.nil?
-          option = options.find{ |option| !option['smooch_menu_option_id'].blank? && option['smooch_menu_option_id'] == best_result.dig('_source', 'context', 'menu_option_id') }
+          option = options.find{ |o| !o['smooch_menu_option_id'].blank? && o['smooch_menu_option_id'] == best_result.dig('_source', 'context', 'menu_option_id') }
         end
       end
       option
