@@ -1,20 +1,14 @@
 module AnnotationMutations
-  create_fields = {
-    content: '!str',
-    annotation_type: '!str',
-    annotated_id: 'str',
-    annotated_type: 'str',
-    locked: 'bool'
-  }
+  MUTATION_TARGET = 'annotation'.freeze
+  PARENTS = ['source', 'project_media', 'project', 'task'].freeze
 
-  update_fields = {
-    content: 'str',
-    annotation_type: 'str',
-    annotated_id: 'str',
-    annotated_type: 'str',
-    assigned_to_ids: 'str',
-    locked: 'bool'
-  }
+  class Create < Mutations::CreateMutation
+    argument :content, GraphQL::Types::String, required: true
+    argument :locked, GraphQL::Types::Boolean, required: false
+    argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
+    argument :annotated_type, GraphQL::Types::String, required: false, camelize: false
+    argument :annotated_id, GraphQL::Types::String, required: false, camelize: false
+  end
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('annotation', create_fields, update_fields, ['source', 'project_media', 'project', 'task'])
+  class Destroy < Mutations::DestroyMutation; end
 end

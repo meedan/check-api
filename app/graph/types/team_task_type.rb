@@ -1,30 +1,27 @@
-TeamTaskType = GraphqlCrudOperations.define_default_type do
-  name 'TeamTask'
-  description 'Team task type'
+class TeamTaskType < DefaultObject
+  description "Team task type"
 
-  interfaces [NodeIdentification.interface]
+  implements GraphQL::Types::Relay::Node
 
-  field :dbid, types.Int
-  field :label, types.String
-  field :description, types.String
-  field :options, JsonStringType
-  field :required, types.Boolean
-  field :team_id, types.Int
-  field :team, TeamType
-  field :json_schema, types.String
-  field :order, types.Int
-  field :fieldset, types.String
-  field :associated_type, types.String
-  field :show_in_browser_extension, types.Boolean
-  field :conditional_info, types.String
-  field :tasks_count, types.Int
-  field :tasks_with_answers_count, types.Int
+  field :dbid, GraphQL::Types::Int, null: true
+  field :label, GraphQL::Types::String, null: true
+  field :description, GraphQL::Types::String, null: true
+  field :options, JsonStringType, null: true
+  field :required, GraphQL::Types::Boolean, null: true
+  field :team_id, GraphQL::Types::Int, null: true
+  field :team, TeamType, null: true
+  field :json_schema, GraphQL::Types::String, null: true
+  field :order, GraphQL::Types::Int, null: true
+  field :fieldset, GraphQL::Types::String, null: true
+  field :associated_type, GraphQL::Types::String, null: true
+  field :show_in_browser_extension, GraphQL::Types::Boolean, null: true
+  field :conditional_info, GraphQL::Types::String, null: true
+  field :tasks_count, GraphQL::Types::Int, null: true
+  field :tasks_with_answers_count, GraphQL::Types::Int, null: true
 
-  field :type do
-    type types.String
+  field :type, GraphQL::Types::String, null: true
 
-    resolve -> (task, _args, _ctx) {
-      task.task_type
-    }
+  def type
+    object.task_type
   end
 end

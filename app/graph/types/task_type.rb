@@ -1,58 +1,61 @@
-TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', type: 'str', annotated_type: 'str', description: 'str', json_schema: 'str', slug: 'str' }) do
-  field :first_response do
-    type AnnotationType
+class TaskType < BaseObject
+  include Types::Inclusions::AnnotationBehaviors
 
-    resolve -> (task, _args, _ctx) {
-      obj = task.load || task
-      obj.nil? ? nil : obj.first_response_obj
-    }
+  def id
+    object.relay_id('task')
   end
 
-  field :first_response_value do
-    type types.String
+  field :label, GraphQL::Types::String, null: true
+  field :type, GraphQL::Types::String, null: true
+  field :annotated_type, GraphQL::Types::String, null: true
+  field :description, GraphQL::Types::String, null: true
+  field :json_schema, GraphQL::Types::String, null: true
+  field :slug, GraphQL::Types::String, null: true
 
-    resolve -> (task, _args, _ctx) {
-      obj = task.load || task
-      obj.nil? ? "" : obj.first_response
-    }
+  field :first_response, AnnotationType, null: true
+
+  def first_response
+    obj = object.load || object
+    obj.nil? ? nil : obj.first_response_obj
   end
 
-  field :jsonoptions do
-    type types.String
+  field :first_response_value, GraphQL::Types::String, null: true
 
-    resolve -> (task, _args, _ctx) {
-      obj = task.load || task
-      obj.jsonoptions unless obj.nil?
-    }
+  def first_response_value
+    obj = object.load || object
+    obj.nil? ? "" : obj.first_response
   end
 
-  field :options do
-    type JsonStringType
+  field :jsonoptions, GraphQL::Types::String, null: true
 
-    resolve -> (task, _args, _ctx) {
-      obj = task.load || task
-      obj.options unless obj.nil?
-    }
+  def jsonoptions
+    obj = object.load || object
+    obj.jsonoptions unless obj.nil?
   end
 
-  field :project_media do
-    type ProjectMediaType
+  field :options, JsonStringType, null: true
 
-    resolve -> (task, _args, _ctx) {
-      obj = task.load || task
-      obj.annotated if !obj.nil? && obj.annotated_type == 'ProjectMedia'
-    }
+  def options
+    obj = object.load || object
+    obj.options unless obj.nil?
   end
 
-  field :team_task_id, types.Int
+  field :project_media, ProjectMediaType, null: true
 
-  field :team_task, TeamTaskType
+  def project_media
+    obj = object.load || object
+    obj.annotated if !obj.nil? && obj.annotated_type == "ProjectMedia"
+  end
 
-  field :order, types.Int
+  field :team_task_id, GraphQL::Types::Int, null: true
 
-  field :fieldset, types.String
+  field :team_task, TeamTaskType, null: true
 
-  field :show_in_browser_extension, types.Boolean
+  field :order, GraphQL::Types::Int, null: true
 
-  connection :responses, -> { AnnotationType.connection_type }
+  field :fieldset, GraphQL::Types::String, null: true
+
+  field :show_in_browser_extension, GraphQL::Types::Boolean, null: true
+
+  field :responses, AnnotationType.connection_type, null: true
 end

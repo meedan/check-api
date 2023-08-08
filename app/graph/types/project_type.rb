@@ -1,40 +1,35 @@
-ProjectType = GraphqlCrudOperations.define_default_type do
-  name 'Project'
-  description 'Project type'
+class ProjectType < DefaultObject
+  description "Project type"
 
-  interfaces [NodeIdentification.interface]
+  implements GraphQL::Types::Relay::Node
 
-  field :avatar, types.String
-  field :description, types.String
-  field :title, !types.String
-  field :dbid, types.Int
-  field :permissions, types.String
-  field :pusher_channel, types.String
-  field :medias_count, types.Int
-  field :search_id, types.String
-  field :url, types.String
-  field :search, CheckSearchType
-  field :team, TeamType
-  field :project_group_id, types.Int
-  field :project_group, ProjectGroupType
-  field :privacy, types.Int
-  field :is_default, types.Boolean
+  field :avatar, GraphQL::Types::String, null: true
+  field :description, GraphQL::Types::String, null: true
+  field :title, GraphQL::Types::String, null: false
+  field :dbid, GraphQL::Types::Int, null: true
+  field :permissions, GraphQL::Types::String, null: true
+  field :pusher_channel, GraphQL::Types::String, null: true
+  field :medias_count, GraphQL::Types::Int, null: true
+  field :search_id, GraphQL::Types::String, null: true
+  field :url, GraphQL::Types::String, null: true
+  field :search, CheckSearchType, null: true
+  field :team, TeamType, null: true
+  field :project_group_id, GraphQL::Types::Int, null: true
+  field :project_group, ProjectGroupType, null: true
+  field :privacy, GraphQL::Types::Int, null: true
+  field :is_default, GraphQL::Types::Boolean, null: true
 
-  field :assignments_count, types.Int do
-    resolve ->(project, _args, _ctx) {
-      project.reload.assignments_count
-    }
+  field :assignments_count, GraphQL::Types::Int, null: true
+
+  def assignments_count
+    object.reload.assignments_count
   end
 
-  connection :project_medias, -> { ProjectMediaType.connection_type } do
-    resolve ->(project, _args, _ctx) {
-      project.project_medias.order('id DESC')
-    }
+  field :project_medias, ProjectMediaType.connection_type, null: true
+
+  def project_medias
+    object.project_medias.order("id DESC")
   end
 
-  connection :assigned_users, -> { UserType.connection_type } do
-    resolve ->(project, _args, _ctx) {
-      project.assigned_users
-    }
-  end
+  field :assigned_users, UserType.connection_type, null: true
 end

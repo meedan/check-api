@@ -1,48 +1,24 @@
-VersionType = GraphqlCrudOperations.define_default_type do
-  name 'Version'
-  description 'Version type'
+class VersionType < DefaultObject
+  description "Version type"
 
-  interfaces [NodeIdentification.interface]
+  implements GraphQL::Types::Relay::Node
 
-  field :dbid, types.Int
-  field :item_type, types.String
-  field :item_id, types.String
-  field :event, types.String
-  field :event_type, types.String
-  field :object_after, types.String
-  field :meta, types.String
-  field :object_changes_json, types.String
-  field :associated_graphql_id, types.String
+  field :dbid, GraphQL::Types::Int, null: true
+  field :item_type, GraphQL::Types::String, null: true
+  field :item_id, GraphQL::Types::String, null: true
+  field :event, GraphQL::Types::String, null: true
+  field :event_type, GraphQL::Types::String, null: true
+  field :object_after, GraphQL::Types::String, null: true
+  field :meta, GraphQL::Types::String, null: true
+  field :object_changes_json, GraphQL::Types::String, null: true
+  field :associated_graphql_id, GraphQL::Types::String, null: true
 
-  field :user do
-    type -> { UserType }
+  field :user, UserType, null: true
+  field :annotation, AnnotationType, null: true
+  field :task, TaskType, null: true
+  field :tag, TagType, null: true
 
-    resolve ->(version, _args, _ctx) {
-      version.user
-    }
-  end
-
-  field :annotation do
-    type -> { AnnotationType }
-
-    resolve ->(version, _args, _ctx) {
-      version.annotation
-    }
-  end
-
-  field :task do
-    type -> { TaskType }
-
-    resolve ->(version, _args, _ctx) {
-      version.task
-    }
-  end
-
-  field :tag do
-    type -> { TagType }
-
-    resolve ->(version, _args, _ctx) {
-      Tag.find(version.annotation.id) unless version.annotation.nil?
-    }
+  def tag
+    Tag.find(object.annotation.id) unless object.annotation.nil?
   end
 end

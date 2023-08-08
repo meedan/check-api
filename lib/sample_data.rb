@@ -224,46 +224,6 @@ module SampleData
     t
   end
 
-  def create_verification_status_stuff(delete_existing = true)
-    if delete_existing
-      [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
-      create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
-    end
-    ft1 = DynamicAnnotation::FieldType.where(field_type: 'text').last || create_field_type(field_type: 'text', label: 'Text')
-    ft2 = DynamicAnnotation::FieldType.where(field_type: 'select').last || create_field_type(field_type: 'select', label: 'Select')
-    at = create_annotation_type annotation_type: 'verification_status', label: 'Verification Status'
-    create_field_instance annotation_type_object: at, name: 'verification_status_status', label: 'Verification Status', default_value: 'undetermined', field_type_object: ft2, optional: false
-    create_field_instance annotation_type_object: at, name: 'title', label: 'Title', field_type_object: ft1, optional: true
-    create_field_instance annotation_type_object: at, name: 'file_title', label: 'File Title', field_type_object: ft1, optional: true
-    create_field_instance annotation_type_object: at, name: 'content', label: 'Content', field_type_object: ft1, optional: true
-    create_field_instance annotation_type_object: at, name: 'published_article_url', label: 'Published Article URL', field_type_object: ft1, optional: true
-    create_field_instance annotation_type_object: at, name: 'date_published', label: 'Date Published', field_type_object: ft1, optional: true
-    create_field_instance annotation_type_object: at, name: 'raw', label: 'Raw', field_type_object: ft1, optional: true
-    create_field_instance annotation_type_object: at, name: 'external_id', label: 'External ID', field_type_object: ft1, optional: true
-  end
-
-  def create_metadata_stuff
-    at = DynamicAnnotation::AnnotationType.where(annotation_type: 'metadata').last || create_annotation_type(annotation_type: 'metadata', label: 'Metadata')
-    ft = DynamicAnnotation::FieldType.where(field_type: 'json').last || create_field_type(field_type: 'json', label: 'JSON')
-    DynamicAnnotation::FieldInstance.where(name: 'metadata_value').last || create_field_instance(annotation_type_object: at, name: 'metadata_value', label: 'Metadata Value', field_type_object: ft, optional: false, settings: {})
-    create_verification_status_stuff(false) unless DynamicAnnotation::AnnotationType.where(annotation_type: 'verification_status').exists?
-  end
-
-  def create_task_stuff(delete_existing = true)
-    if delete_existing
-      [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
-      create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
-    end
-    sel = create_field_type field_type: 'select', label: 'Select'
-    text = create_field_type field_type: 'text', label: 'Text'
-    at = create_annotation_type annotation_type: 'task_response_single_choice', label: 'Task Response Single Choice'
-    create_field_instance annotation_type_object: at, name: 'response_single_choice', label: 'Response', field_type_object: sel, optional: false, settings: { multiple: false }
-    at = create_annotation_type annotation_type: 'task_response_multiple_choice', label: 'Task Response Multiple Choice'
-    create_field_instance annotation_type_object: at, name: 'response_multiple_choice', label: 'Response', field_type_object: sel, optional: false, settings: { multiple: true }
-    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task Response Free Text'
-    create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: text, optional: false
-  end
-
   # Verification status
   def create_status(options = {})
     create_verification_status_stuff if User.current.nil?
@@ -290,72 +250,6 @@ module SampleData
     return unless obj.class.name == 'ProjectMedia'
     s = obj.last_status_obj
     s.destroy
-  end
-
-  def create_flag_annotation_type
-    json_schema = {
-      type: 'object',
-      required: ['flags'],
-      properties: {
-        flags: {
-          type: 'object',
-          required: ['adult', 'spoof', 'medical', 'violence', 'racy', 'spam'],
-          properties: {
-            adult: { type: 'integer', minimum: 0, maximum: 5 },
-            spoof: { type: 'integer', minimum: 0, maximum: 5 },
-            medical: { type: 'integer', minimum: 0, maximum: 5 },
-            violence: { type: 'integer', minimum: 0, maximum: 5 },
-            racy: { type: 'integer', minimum: 0, maximum: 5 },
-            spam: { type: 'integer', minimum: 0, maximum: 5 }
-          }
-        }
-      }
-    }
-    create_annotation_type_and_fields('Flag', {}, json_schema)
-  end
-
-  def create_extracted_text_annotation_type
-    json_schema = {
-      type: 'object',
-      required: ['text'],
-      properties: {
-        text: { type: 'string' }
-      }
-    }
-    create_annotation_type_and_fields('Extracted Text', {}, json_schema)
-  end
-
-  def create_report_design_annotation_type
-    json_schema = {
-      type: 'object',
-      properties: {
-        state: { type: 'string', default: 'paused' },
-        last_error: { type: 'string', default: '' },
-        last_published: { type: 'string', default: '' },
-        options: {
-          type: 'object',
-          properties: {
-            use_introduction: { type: 'boolean', default: false },
-            introduction: { type: 'string', default: '' },
-            use_visual_card: { type: 'boolean', default: false },
-            visual_card_url: { type: 'string', default: '' },
-            image: { type: 'string', default: '' },
-            headline: { type: 'string', default: '' },
-            description: { type: 'string', default: '' },
-            status_label: { type: 'string', default: '' },
-            previous_published_status_label: { type: 'string', default: '' },
-            theme_color: { type: 'string', default: '' },
-            url: { type: 'string', default: '' },
-            use_text_message: { type: 'boolean', default: false },
-            title: { type: 'string', default: '' },
-            language: { type: 'string', default: '' },
-            text: { type: 'string', default: '' },
-            date: { type: 'string', default: '' }
-          }
-        }
-      }
-    }
-    create_annotation_type_and_fields('Report Design', {}, json_schema)
   end
 
   def create_flag(options = {})
@@ -709,7 +603,6 @@ module SampleData
     at.json_schema = options[:json_schema] if at.respond_to?('json_schema=') && options.has_key?(:json_schema)
     at.skip_check_ability = true
     at.save!
-    RelayOnRailsSchema.reload_mutations! if ENV['RAILS_ENV'] == 'test'
     at
   end
 
@@ -801,37 +694,6 @@ module SampleData
     end
     t.save!
     t
-  end
-
-  def create_annotation_type_and_fields(annotation_type_label, fields, json_schema = nil)
-    # annotation_type_label = 'Annotation Type'
-    # fields = {
-    #   Name => [Type Label, optional = true, settings (optional)],
-    #   ...
-    # }
-    annotation_type_name = annotation_type_label.parameterize.tr('-', '_')
-    if Bot::Keep.archiver_annotation_types.include?(annotation_type_name)
-      field_name_prefix = annotation_type_name
-      annotation_type_name = 'archiver'
-      annotation_type_label = 'Archiver'
-    end
-    at = DynamicAnnotation::AnnotationType.where(annotation_type: annotation_type_name).last || create_annotation_type(annotation_type: annotation_type_name, label: annotation_type_label, json_schema: json_schema)
-    if json_schema.nil?
-      fts = fields.values.collect{ |v| v.first }
-      fts.each do |label|
-        type = label.parameterize.tr('-', '_')
-        DynamicAnnotation::FieldType.where(field_type: type).last || create_field_type(field_type: type, label: label)
-      end
-      fields.each do |label, type|
-        field_label = annotation_type_label + ' ' + label
-        field_name = (field_name_prefix || annotation_type_name) + '_' + label.parameterize.tr('-', '_')
-        optional = type[1].nil? ? true : type[1]
-        settings = type[2] || {}
-        field_type = type[0].parameterize.tr('-', '_')
-        type_object = DynamicAnnotation::FieldType.where(field_type: field_type).last
-        DynamicAnnotation::FieldInstance.where(name: field_name).last || create_field_instance(annotation_type_object: at, name: field_name, label: field_label, field_type_object: type_object, optional: optional, settings: settings)
-      end
-    end
   end
 
   def create_relationship(options = {})
@@ -1083,5 +945,152 @@ module SampleData
     }
     WebMock.stub_request(:get, url).to_return(status: 200, body: rss)
     RssFeed.new(url)
+  end
+
+  # Methods below should be deleted when we remove dynamic annotations
+  # Right now they are used in migrations to build up our existing data for
+  # development environment.
+
+  # They should no longer be used in GraphQL controller tests, as we load in the schema via
+  # TestDynamicAnnotationTables.load! before every test run.
+
+  # Because of our non-controller / GraphQL tests modify the existing annotations, the methods
+  # below will still need to be used there until we update our code.
+
+  def create_annotation_type_and_fields(annotation_type_label, fields, json_schema = nil)
+    # annotation_type_label = 'Annotation Type'
+    # fields = {
+    #   Name => [Type Label, optional = true, settings (optional)],
+    #   ...
+    # }
+    annotation_type_name = annotation_type_label.parameterize.tr('-', '_')
+    if Bot::Keep.archiver_annotation_types.include?(annotation_type_name)
+      field_name_prefix = annotation_type_name
+      annotation_type_name = 'archiver'
+      annotation_type_label = 'Archiver'
+    end
+    at = DynamicAnnotation::AnnotationType.where(annotation_type: annotation_type_name).last || create_annotation_type(annotation_type: annotation_type_name, label: annotation_type_label, json_schema: json_schema)
+    if json_schema.nil?
+      fts = fields.values.collect{ |v| v.first }
+      fts.each do |label|
+        type = label.parameterize.tr('-', '_')
+        DynamicAnnotation::FieldType.where(field_type: type).last || create_field_type(field_type: type, label: label)
+      end
+      fields.each do |label, type|
+        field_label = annotation_type_label + ' ' + label
+        field_name = (field_name_prefix || annotation_type_name) + '_' + label.parameterize.tr('-', '_')
+        optional = type[1].nil? ? true : type[1]
+        settings = type[2] || {}
+        field_type = type[0].parameterize.tr('-', '_')
+        type_object = DynamicAnnotation::FieldType.where(field_type: field_type).last
+        DynamicAnnotation::FieldInstance.where(name: field_name).last || create_field_instance(annotation_type_object: at, name: field_name, label: field_label, field_type_object: type_object, optional: optional, settings: settings)
+      end
+    end
+  end
+
+  def create_verification_status_stuff(delete_existing = true)
+    if delete_existing
+      [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
+      create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
+    end
+    ft1 = DynamicAnnotation::FieldType.where(field_type: 'text').last || create_field_type(field_type: 'text', label: 'Text')
+    ft2 = DynamicAnnotation::FieldType.where(field_type: 'select').last || create_field_type(field_type: 'select', label: 'Select')
+    at = create_annotation_type annotation_type: 'verification_status', label: 'Verification Status'
+    create_field_instance annotation_type_object: at, name: 'verification_status_status', label: 'Verification Status', default_value: 'undetermined', field_type_object: ft2, optional: false
+    create_field_instance annotation_type_object: at, name: 'title', label: 'Title', field_type_object: ft1, optional: true
+    create_field_instance annotation_type_object: at, name: 'file_title', label: 'File Title', field_type_object: ft1, optional: true
+    create_field_instance annotation_type_object: at, name: 'content', label: 'Content', field_type_object: ft1, optional: true
+    create_field_instance annotation_type_object: at, name: 'published_article_url', label: 'Published Article URL', field_type_object: ft1, optional: true
+    create_field_instance annotation_type_object: at, name: 'date_published', label: 'Date Published', field_type_object: ft1, optional: true
+    create_field_instance annotation_type_object: at, name: 'raw', label: 'Raw', field_type_object: ft1, optional: true
+    create_field_instance annotation_type_object: at, name: 'external_id', label: 'External ID', field_type_object: ft1, optional: true
+  end
+
+  def create_metadata_stuff
+    at = DynamicAnnotation::AnnotationType.where(annotation_type: 'metadata').last || create_annotation_type(annotation_type: 'metadata', label: 'Metadata')
+    ft = DynamicAnnotation::FieldType.where(field_type: 'json').last || create_field_type(field_type: 'json', label: 'JSON')
+    DynamicAnnotation::FieldInstance.where(name: 'metadata_value').last || create_field_instance(annotation_type_object: at, name: 'metadata_value', label: 'Metadata Value', field_type_object: ft, optional: false, settings: {})
+    create_verification_status_stuff(false) unless DynamicAnnotation::AnnotationType.where(annotation_type: 'verification_status').exists?
+  end
+
+  def create_flag_annotation_type
+    json_schema = {
+      type: 'object',
+      required: ['flags'],
+      properties: {
+        flags: {
+          type: 'object',
+          required: ['adult', 'spoof', 'medical', 'violence', 'racy', 'spam'],
+          properties: {
+            adult: { type: 'integer', minimum: 0, maximum: 5 },
+            spoof: { type: 'integer', minimum: 0, maximum: 5 },
+            medical: { type: 'integer', minimum: 0, maximum: 5 },
+            violence: { type: 'integer', minimum: 0, maximum: 5 },
+            racy: { type: 'integer', minimum: 0, maximum: 5 },
+            spam: { type: 'integer', minimum: 0, maximum: 5 }
+          }
+        }
+      }
+    }
+    create_annotation_type_and_fields('Flag', {}, json_schema)
+  end
+
+  def create_extracted_text_annotation_type
+    json_schema = {
+      type: 'object',
+      required: ['text'],
+      properties: {
+        text: { type: 'string' }
+      }
+    }
+    create_annotation_type_and_fields('Extracted Text', {}, json_schema)
+  end
+
+  def create_report_design_annotation_type
+    json_schema = {
+      type: 'object',
+      properties: {
+        state: { type: 'string', default: 'paused' },
+        last_error: { type: 'string', default: '' },
+        last_published: { type: 'string', default: '' },
+        options: {
+          type: 'object',
+          properties: {
+            use_introduction: { type: 'boolean', default: false },
+            introduction: { type: 'string', default: '' },
+            use_visual_card: { type: 'boolean', default: false },
+            visual_card_url: { type: 'string', default: '' },
+            image: { type: 'string', default: '' },
+            headline: { type: 'string', default: '' },
+            description: { type: 'string', default: '' },
+            status_label: { type: 'string', default: '' },
+            previous_published_status_label: { type: 'string', default: '' },
+            theme_color: { type: 'string', default: '' },
+            url: { type: 'string', default: '' },
+            use_text_message: { type: 'boolean', default: false },
+            title: { type: 'string', default: '' },
+            language: { type: 'string', default: '' },
+            text: { type: 'string', default: '' },
+            date: { type: 'string', default: '' }
+          }
+        }
+      }
+    }
+    create_annotation_type_and_fields('Report Design', {}, json_schema)
+  end
+
+  def create_task_stuff(delete_existing = true)
+    if delete_existing
+      [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
+      create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
+    end
+    sel = create_field_type field_type: 'select', label: 'Select'
+    text = create_field_type field_type: 'text', label: 'Text'
+    at = create_annotation_type annotation_type: 'task_response_single_choice', label: 'Task Response Single Choice'
+    create_field_instance annotation_type_object: at, name: 'response_single_choice', label: 'Response', field_type_object: sel, optional: false, settings: { multiple: false }
+    at = create_annotation_type annotation_type: 'task_response_multiple_choice', label: 'Task Response Multiple Choice'
+    create_field_instance annotation_type_object: at, name: 'response_multiple_choice', label: 'Response', field_type_object: sel, optional: false, settings: { multiple: true }
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task Response Free Text'
+    create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: text, optional: false
   end
 end

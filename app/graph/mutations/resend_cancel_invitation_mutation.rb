@@ -1,28 +1,26 @@
-ResendCancelInvitationMutation = GraphQL::Relay::Mutation.define do
-  name 'ResendCancelInvitation'
+class ResendCancelInvitationMutation < Mutations::BaseMutation
+  graphql_name "ResendCancelInvitation"
 
-  input_field :email, !types.String
+  argument :email, GraphQL::Types::String, required: true
+  argument :action, GraphQL::Types::String, required: true
 
-  input_field :action, !types.String
+  field :success, GraphQL::Types::Boolean, null: true
+  field :team, TeamType, null: true
 
-  return_field :success, types.Boolean
-
-  return_field :team, TeamType
-
-  resolve -> (_root, inputs, _ctx) {
-    user = User.find_user_by_email(inputs[:email])
+  def resolve(email:, action:)
+    user = User.find_user_by_email(email)
     if user.nil?
       raise ActiveRecord::RecordNotFound
     else
-      case inputs[:action]
-      when 'cancel'
+      case action
+      when "cancel"
         User.cancel_user_invitation(user)
-      when 'resend'
+      when "resend"
         tu = user.team_users.where(team_id: Team.current.id).last
         tu.update_columns(created_at: Time.now)
         user.send_invitation_mail(tu.reload)
       end
       { success: true, team: Team.current }
     end
-  }
+  end
 end

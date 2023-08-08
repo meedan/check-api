@@ -1,12 +1,15 @@
 module TagTextMutations
-  create_fields = {
-    team_id: '!int',
-    text: '!str'
-  }
+  MUTATION_TARGET = 'tag_text'.freeze
+  PARENTS = ['team'].freeze
 
-  update_fields = {
-    text: 'str'
-  }
+  class Create < Mutations::CreateMutation
+    argument :team_id, GraphQL::Types::Int, required: true, camelize: false
+    argument :text, GraphQL::Types::String, required: true
+  end
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('tag_text', create_fields, update_fields, ['team'])
+  class Update < Mutations::UpdateMutation
+    argument :text, GraphQL::Types::String, required: false
+  end
+
+  class Destroy < Mutations::DestroyMutation; end
 end

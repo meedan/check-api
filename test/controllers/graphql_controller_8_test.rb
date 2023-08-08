@@ -4,34 +4,19 @@ class GraphqlController8Test < ActionController::TestCase
   def setup
     require 'sidekiq/testing'
     super
+    TestDynamicAnnotationTables.load!
     @controller = Api::V1::GraphqlController.new
+
     RequestStore.store[:skip_cached_field_update] = false
-    Sidekiq::Testing.fake!
-    User.unstub(:current)
-    Team.unstub(:current)
     User.current = nil
     Team.current = nil
-    create_verification_status_stuff
-    @u = create_user
-    Sidekiq::Worker.drain_all
-    sleep 1
-    authenticate_with_user(@u)
   end
 
-    test "should create and retrieve clips" do
-    json_schema = {
-      type: 'object',
-      required: ['label'],
-      properties: {
-        label: { type: 'string' }
-      }
-    }
-    DynamicAnnotation::AnnotationType.reset_column_information
-    create_annotation_type_and_fields('Clip', {}, json_schema)
-    u = create_user is_admin: true
+  test "should create and retrieve clips" do
+    admin_user = create_user is_admin: true
     p = create_project
     pm = create_project_media project: p
-    authenticate_with_user(u)
+    authenticate_with_user(admin_user)
 
     query = 'mutation { createDynamic(input: { annotation_type: "clip", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", fragment: "t=10,20", set_fields: "{\"label\":\"Clip Label\"}" }) { dynamic { data, parsed_fragment } } }'
     assert_difference 'Annotation.where(annotation_type: "clip").count', 1 do
@@ -85,8 +70,8 @@ class GraphqlController8Test < ActionController::TestCase
   end
 
     test "should define team languages settings" do
-    u = create_user is_admin: true
-    authenticate_with_user(u)
+    admin_user = create_user is_admin: true
+    authenticate_with_user(admin_user)
     t = create_team
     t.set_language nil
     t.set_languages nil
@@ -115,8 +100,8 @@ class GraphqlController8Test < ActionController::TestCase
   end
 
   test "should define team custom statuses" do
-    u = create_user is_admin: true
-    authenticate_with_user(u)
+    admin_user = create_user is_admin: true
+    authenticate_with_user(admin_user)
     t = create_team
 
     custom_statuses = {
@@ -138,13 +123,13 @@ class GraphqlController8Test < ActionController::TestCase
   end
 
   test "should get nested comment" do
-    u = create_user is_admin: true
+    admin_user = create_user is_admin: true
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
     c1 = create_comment annotated: pm, text: 'Parent'
     c2 = create_comment annotated: c1, text: 'Child'
-    authenticate_with_user(u)
+    authenticate_with_user(admin_user)
     query = %{
       query {
         project_media(ids: "#{pm.id},#{p.id}") {
@@ -200,22 +185,27 @@ class GraphqlController8Test < ActionController::TestCase
   end
 
   test "should create report with image" do
-    create_report_design_annotation_type
-    u = create_user is_admin: true
+    admin_user = create_user is_admin: true
     pm = create_project_media
-    authenticate_with_user(u)
+    authenticate_with_user(admin_user)
     path = File.join(Rails.root, 'test', 'data', 'rails.png')
     file = Rack::Test::UploadedFile.new(path, 'image/png')
-    query = 'mutation create { createDynamicAnnotationReportDesign(input: { action: "save", clientMutationId: "1", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", set_fields: "{\"options\":{\"language\":\"en\"}}" }) { dynamic { dbid } } }'
+
+    query = 'mutation create { createDynamic(input: { annotation_type: "report_design", action: "save", clientMutationId: "1", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", set_fields: "{\"options\":{\"language\":\"en\"}}" }) { dynamic { dbid } } }'
     post :create, params: { query: query, file: [file] }
     assert_response :success
-    d = Dynamic.find(JSON.parse(@response.body)['data']['createDynamicAnnotationReportDesign']['dynamic']['dbid']).data.with_indifferent_access
+    assert JSON.parse(@response.body).dig('errors').blank?
+
+    d = Dynamic.find(JSON.parse(@response.body).dig('data','createDynamic','dynamic','dbid')).data.with_indifferent_access
     assert_match /rails\.png/, d[:options]['image']
   end
 
-    test "should get feed" do
+  test "should get feed" do
+    u = create_user
+    authenticate_with_user(u)
+
     t = create_team private: true
-    create_team_user(user: @u, team: t)
+    create_team_user(user: u, team: t)
     f = create_feed
     query = "query { team(slug: \"#{t.slug}\") { feed(dbid: #{f.id}) { current_feed_team { dbid } } } }"
 
@@ -243,8 +233,11 @@ class GraphqlController8Test < ActionController::TestCase
   end
 
   test "should update feed" do
+    u = create_user
+    authenticate_with_user(u)
+
     t1 = create_team private: true
-    create_team_user(user: @u, team: t1, role: 'admin')
+    create_team_user(user: u, team: t1, role: 'admin')
     f = create_feed team_id: t1.id
     ss = create_saved_search team_id: t1.id
     assert_not f.reload.published
@@ -257,8 +250,11 @@ class GraphqlController8Test < ActionController::TestCase
   end
 
   test "should update feed team" do
+    u = create_user
+    authenticate_with_user(u)
+
     t1 = create_team private: true
-    create_team_user(user: @u, team: t1, role: 'admin')
+    create_team_user(user: u, team: t1, role: 'admin')
     t2 = create_team private: true
     ss = create_saved_search team_id: t1.id
     f = create_feed
@@ -282,8 +278,9 @@ class GraphqlController8Test < ActionController::TestCase
   test "should mark item as read" do
     pm = create_project_media
     assert !pm.reload.read
-    u = create_user is_admin: true
-    authenticate_with_user(u)
+
+    admin_user = create_user is_admin: true
+    authenticate_with_user(admin_user)
 
     assert_difference 'ProjectMediaUser.count' do
       query = 'mutation { createProjectMediaUser(input: { clientMutationId: "1", project_media_id: ' + pm.id.to_s + ', read: true }) { project_media { is_read } } }'
@@ -313,10 +310,7 @@ class GraphqlController8Test < ActionController::TestCase
     assert_equal [pm.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
   end
 
-    test "should check permission before setting Slack channel URL" do
-    create_annotation_type_and_fields('Smooch User', {
-      'Slack Channel Url' => ['Text', true]
-    })
+  test "should check permission before setting Slack channel URL" do
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'admin'
@@ -358,9 +352,9 @@ class GraphqlController8Test < ActionController::TestCase
   end
 
   test "should get statuses from team" do
-    u = create_user is_admin: true
+    admin_user = create_user is_admin: true
     t = create_team
-    authenticate_with_user(u)
+    authenticate_with_user(admin_user)
     query = "query { team(slug: \"#{t.slug}\") { verification_statuses } }"
     post :create, params: { query: query }
     assert_response :success
@@ -368,9 +362,9 @@ class GraphqlController8Test < ActionController::TestCase
   end
 
   test "should create comment with fragment" do
-    u = create_user is_admin: true
+    admin_user = create_user is_admin: true
     pm = create_project_media
-    authenticate_with_user(u)
+    authenticate_with_user(admin_user)
     query = 'mutation { createComment(input: { fragment: "t=10,20", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", text: "Test" }) { comment { parsed_fragment } } }'
     assert_difference 'Comment.length', 1 do
       post :create, params: { query: query, team: pm.team.slug }
@@ -381,12 +375,12 @@ class GraphqlController8Test < ActionController::TestCase
   end
 
   test "should get comments from media" do
-    u = create_user is_admin: true
+    admin_user = create_user is_admin: true
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
     c = create_comment annotated: pm, fragment: 't=10,20'
-    authenticate_with_user(u)
+    authenticate_with_user(admin_user)
     query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { comments(first: 10) { edges { node { parsed_fragment } } } } }"
     post :create, params: { query: query, team: t.slug }
     assert_response :success
@@ -396,7 +390,6 @@ class GraphqlController8Test < ActionController::TestCase
   test "should get OCR" do
     b = create_alegre_bot(name: 'alegre', login: 'alegre')
     b.approve!
-    create_extracted_text_annotation_type
     Bot::Alegre.unstub(:request_api)
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       Sidekiq::Testing.fake! do
@@ -589,7 +582,7 @@ class GraphqlController8Test < ActionController::TestCase
     assert_equal 4, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
   end
 
-    test "should delete custom status" do
+  test "should delete custom status" do
     setup_elasticsearch
     RequestStore.store[:skip_cached_field_update] = false
     u = create_user
@@ -800,11 +793,11 @@ class GraphqlController8Test < ActionController::TestCase
   end
 
   test "should transcribe audio" do
-    ft = DynamicAnnotation::FieldType.where(field_type: 'language').last || create_field_type(field_type: 'language', label: 'Language')
-    at = create_annotation_type annotation_type: 'language', label: 'Language'
-    create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
     Sidekiq::Testing.inline! do
       t = create_team
+      u = create_user
+      tu = create_team_user user: u, team: t
+
       pm = create_project_media team: t, media: create_uploaded_audio(file: 'rails.mp3')
       url = Bot::Alegre.media_file_url(pm)
       s3_url = url.gsub(/^https?:\/\/[^\/]+/, "s3://#{CheckConfig.get('storage_bucket')}")
@@ -815,19 +808,11 @@ class GraphqlController8Test < ActionController::TestCase
       Bot::Alegre.stubs(:request_api).with('get', '/audio/transcription/', { job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }).returns({ 'job_status' => 'COMPLETED', 'transcription' => 'Foo bar' })
       WebMock.stub_request(:post, 'http://alegre/text/langid/').to_return(body: { 'result' => { 'language' => 'es' }}.to_json)
 
-      json_schema = {
-        type: 'object',
-        required: ['job_name'],
-        properties: {
-          text: { type: 'string' },
-          job_name: { type: 'string' },
-          last_response: { type: 'object' }
-        }
-      }
-      create_annotation_type_and_fields('Transcription', {}, json_schema)
       b = create_bot_user login: 'alegre', name: 'Alegre', approved: true
       b.install_to!(t)
       WebMock.stub_request(:get, Bot::Alegre.media_file_url(pm)).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
+
+      authenticate_with_user(u)
 
       query = 'mutation { transcribeAudio(input: { clientMutationId: "1", id: "' + pm.graphql_id + '" }) { project_media { id }, annotation { data } } }'
       post :create, params: { query: query, team: t.slug }
@@ -839,7 +824,6 @@ class GraphqlController8Test < ActionController::TestCase
   end
 
   test "should get dynamic annotation field" do
-    create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
     name = random_string
     phone = random_string
     u = create_user
@@ -856,7 +840,6 @@ class GraphqlController8Test < ActionController::TestCase
   end
 
   test "should not get dynamic annotation field if does not have permission" do
-    create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
     name = random_string
     phone = random_string
     u = create_user
@@ -873,7 +856,6 @@ class GraphqlController8Test < ActionController::TestCase
   end
 
   test "should not get dynamic annotation field if parameters do not match" do
-    create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
     name = random_string
     phone = random_string
     u = create_user

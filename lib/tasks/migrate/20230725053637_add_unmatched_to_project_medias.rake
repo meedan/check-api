@@ -9,13 +9,24 @@ namespace :check do
         Version.from_partition(team.id).where(event_type: 'destroy_relationship')
         .where("object LIKE '%confirmed_sibling%confirmed_sibling%' OR object LIKE '%suggested_sibling%suggested_sibling%'")
         .find_in_batches(:batch_size => 1000) do |versions|
-          pm_ids = versions.map(&:associated_id).uniq.compact
+          source_ids = []
+          target_ids = []
+          versions.each do |v|
+            object = JSON.parse(v.object)
+            source_ids << object['source_id']
+            target_ids << object['target_id']
+          end
+          source_ids = source_ids.uniq.compact
+          target_ids = target_ids.uniq.compact
+          all_items = source_ids.concat(target_ids).uniq
           # Get re-matched items (suggested or confirmed)
-          target_ids = Relationship.where(target_id: pm_ids)
+          relationships = Relationship.where('source_id IN (?) OR target_id IN (?)', all_items, all_items)
           .where('relationship_type = ? OR relationship_type = ?', Relationship.suggested_type.to_yaml, Relationship.confirmed_type.to_yaml)
-          .map(&:target_id)
+          s_ids = relationships.map(&:source_id).uniq
+          t_ids = relationships.map(&:target_id).uniq
+          all_items_matched = s_ids.concat(t_ids).uniq
           # remove re-matched items to get the right list
-          unmatched_ids = pm_ids - target_ids
+          unmatched_ids = all_items - all_items_matched
           unless unmatched_ids.blank?
             print '.'
             # Update PG
@@ -32,7 +43,6 @@ namespace :check do
             $repository.client.update_by_query options
           end
         end
-        Rails.cache.write('check:migrate:add_unmatched_to_project_media:team_id', team.id)
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."

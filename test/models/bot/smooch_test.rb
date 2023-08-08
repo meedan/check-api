@@ -204,8 +204,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       }
     ]
 
-    create_tag_text text: 'teamtag', team_id: @team.id
-    create_tag_text text: 'montag', team_id: @team.id
+    tt_teamtag = create_tag_text text: 'teamtag', team_id: @team.id
+    tt_montag = create_tag_text text: 'montag', team_id: @team.id
 
     assert_difference 'ProjectMedia.count', 7 do
       assert_difference 'Annotation.where(annotation_type: "smooch").count', 22 do
@@ -254,7 +254,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
 
     pms = ProjectMedia.order("id desc").limit(5).reverse
     assert_equal 1, pms[4].annotations.where(annotation_type: 'tag').count
-    assert_equal 'teamtag', pms[4].annotations.where(annotation_type: 'tag').last.load.data[:tag].text
+    data = pms[4].annotations.where(annotation_type: 'tag').last.load.data
+    assert_equal [{'tag' => tt_teamtag.id}], [data]
     assert_equal 2, pms[3].annotations.where(annotation_type: 'tag').count
   end
 

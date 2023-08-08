@@ -8,11 +8,11 @@ class GraphqlController2Test < ActionController::TestCase
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
     super
+    TestDynamicAnnotationTables.load!
     User.unstub(:current)
     Team.unstub(:current)
     User.current = nil
     Team.current = nil
-    create_verification_status_stuff
   end
 
   test "should read project media dynamic annotation fields" do
@@ -223,8 +223,6 @@ class GraphqlController2Test < ActionController::TestCase
 
   test "should sort search by metadata value where items without metadata value show first on ascending order" do
     RequestStore.store[:skip_cached_field_update] = false
-    at = create_annotation_type annotation_type: 'task_response_free_text'
-    create_field_instance annotation_type_object: at, name: 'response_free_text'
     u = create_user is_admin: true
     t = create_team
     create_team_user team: t, user: u
@@ -436,7 +434,7 @@ class GraphqlController2Test < ActionController::TestCase
     assert_equal 'Select only one', tt.reload.label
     assert_equal ['bli', 'blo', 'bla'], tt.options
   end
-  
+
   test "should get team fieldsets" do
     u = create_user is_admin: true
     authenticate_with_user(u)
@@ -461,31 +459,25 @@ class GraphqlController2Test < ActionController::TestCase
     create_relationship source_id: pm3.id, target_id: pm4.id, relationship_type: Relationship.confirmed_type, disable_es_callbacks: false
     sleep 1
 
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\"}") { number_of_results } }' 
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\"}") { number_of_results } }'
     post :create, params: { query: query, team: 'team' }
     assert_response :success
     assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
 
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"show_similar\":false}") { number_of_results } }' 
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"show_similar\":false}") { number_of_results } }'
     post :create, params: { query: query, team: 'team' }
     assert_response :success
     assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
 
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"show_similar\":true}") { number_of_results } }' 
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"show_similar\":true}") { number_of_results } }'
     post :create, params: { query: query, team: 'team' }
     assert_response :success
     assert_equal 4, JSON.parse(@response.body)['data']['search']['number_of_results']
 
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Foo\",\"show_similar\":false}") { number_of_results } }' 
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Foo\",\"show_similar\":false}") { number_of_results } }'
     post :create, params: { query: query, team: 'team' }
     assert_response :success
     assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
-  end
-
-  test "should reload mutations" do
-    assert_nothing_raised do
-      RelayOnRailsSchema.reload_mutations!
-    end
   end
 
   test "should replace blank project media by another" do
