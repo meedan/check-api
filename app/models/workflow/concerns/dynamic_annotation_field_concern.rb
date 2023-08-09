@@ -116,7 +116,7 @@ module Workflow
             value = self.value.to_s
             valid = options.keys.map(&:to_s)
 
-            errors.add(:base, I18n.t(:workflow_status_is_not_valid, { status: value, valid: valid.join(', ') })) unless valid.include?(value)
+            errors.add(:base, I18n.t(:workflow_status_is_not_valid, status: value, valid: valid.join(', '))) unless valid.include?(value)
           end
         end
 

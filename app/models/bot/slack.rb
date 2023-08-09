@@ -190,7 +190,7 @@ class Bot::Slack < BotUser
     def slack_message_parameters(id, _channel, _attachments, user, _endpoint)
       event = self.updated_at > self.created_at ? 'edit' : 'create'
       params = { user: user.name.to_s, title: self.label.to_s }
-      text = I18n.t("slack.messages.#{self.fieldset}_#{event}", params)
+      text = I18n.t("slack.messages.#{self.fieldset}_#{event}", **params)
       { thread_ts: id, text: text }
     end
   end
@@ -209,7 +209,7 @@ class Bot::Slack < BotUser
       task = Task.find(self.annotated_id)
       answer = self.values(['response'], '')['response']
       params = { user: user.name.to_s, title: task.label.to_s, answer: answer }
-      text = I18n.t("slack.messages.#{task.fieldset}_answer_#{event}", params)
+      text = I18n.t("slack.messages.#{task.fieldset}_answer_#{event}", **params)
       { thread_ts: id, text: text }
     end
   end
@@ -228,7 +228,7 @@ class Bot::Slack < BotUser
       if endpoint == 'postMessage'
         value = self.field_name == 'verification_status_status' ? self.annotation.annotated.status_label_for_slack_notification : self.value
         params = { user: user&.name.to_s, value: value }
-        text = I18n.t("slack.messages.analysis_#{self.field_name}_changed", params)
+        text = I18n.t("slack.messages.analysis_#{self.field_name}_changed", **params)
         { thread_ts: id, text: text }
       elsif endpoint == 'update'
         { ts: id, attachments: self.annotation.annotated.update_slack_message_attachments(attachments) }

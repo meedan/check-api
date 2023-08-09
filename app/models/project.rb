@@ -155,7 +155,7 @@ class Project < ApplicationRecord
       role: I18n.t("role_" + user.role(self.team).to_s),
       team: Bot::Slack.to_slack(self.team.name),
       url: self.url,
-      button: I18n.t("slack.fields.view_button", {
+      button: I18n.t("slack.fields.view_button", **{
         type: I18n.t("activerecord.models.project"), app: CheckConfig.get('app_name')
       })
     }.merge(self.slack_params_assignment)
@@ -164,7 +164,7 @@ class Project < ApplicationRecord
   def slack_notification_message(event = nil)
     params = self.slack_params
     message = {
-      pretext: I18n.t("slack.messages.project_create", params),
+      pretext: I18n.t("slack.messages.project_create", **params),
       title: params[:project],
       title_link: params[:url],
       author_name: params[:user],
@@ -179,7 +179,7 @@ class Project < ApplicationRecord
     }
     if params[:assignment_event]
       event = params[:assignment_event]
-      message[:pretext] = I18n.t("slack.messages.project_#{event}", params)
+      message[:pretext] = I18n.t("slack.messages.project_#{event}", **params)
       message[:fields] = [
         {
           title: I18n.t(:'slack.fields.assigned'),

@@ -537,10 +537,10 @@ module SampleData
     url = random_url
     options[:data] ||= {}
     data = { url: url, provider: 'twitter', author_picture: 'http://provider/picture.png', title: 'Foo Bar', description: 'Just a test', type: 'profile', author_name: 'Foo Bar' }.merge(options[:data])
-    params = { url: CGI.escape(url) }
+    params = { url: Addressable::URI.escape(url) }
     params[:archivers] = Team.current.enabled_archivers if !Team.current&.enabled_archivers.blank?
     WebMock.stub_request(:get, pender_url).with({ query: params }).to_return(body: '{"type":"media","data":' + data.to_json + '}')
-    options.merge!({ url: CGI.escape(url) })
+    options.merge!({ url: Addressable::URI.escape(url) })
     create_account(options)
   end
 

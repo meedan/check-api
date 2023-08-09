@@ -157,11 +157,11 @@ class BaseApiControllerTest < ActionController::TestCase
 
     authenticate_with_user(user)
 
-    TracingService.expects(:add_attributes_to_current_span).with({
+    TracingService.expects(:add_attributes_to_current_span).with(
       'app.user.id' => user.id,
       'app.user.team_id' => team.id,
       'app.api_key_id' => nil
-    })
+    )
 
     get :me, params: {}
   end
@@ -172,11 +172,11 @@ class BaseApiControllerTest < ActionController::TestCase
 
     authenticate_with_token(api_key)
 
-    TracingService.expects(:add_attributes_to_current_span).with({
+    TracingService.expects(:add_attributes_to_current_span).with(
       'app.user.id' => nil,
       'app.user.team_id' => nil,
       'app.api_key_id' => api_key.id
-    })
+    )
 
     get :version, params: {}
   end

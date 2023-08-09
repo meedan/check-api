@@ -135,6 +135,8 @@ gem 'geocoder', '1.6.4'
 gem 'parallel'
 gem 'fx'
 gem 'unicode-display_width', '1.6.0'
+gem 'addressable'
+gem 'rss'
 
 # Telemetry and exception reporting
 gem 'opentelemetry-sdk'

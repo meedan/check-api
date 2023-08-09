@@ -31,7 +31,12 @@ class Bot::FetchTest < ActiveSupport::TestCase
       }
     }.with_indifferent_access
 
-    stub_configs({ 'fetch_url' => 'http://fetch:8000', 'fetch_token' => 'test', 'fetch_check_webhook_url' => 'http://check:3100' }, false)
+    stub_configs({
+      'fetch_url' => 'http://fetch:8000',
+      'fetch_token' => 'test',
+      'fetch_check_webhook_url' => 'http://check:3100',
+      'alegre_host' => 'http://alegre:3100',
+    }, false)
     WebMock.stub_request(:get, 'https://external.site/image.png').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
     WebMock.stub_request(:get, 'http://fetch:8000/services').to_return(body: { services: [{ service: 'test', count: 1, earliest: '2017-08-02', latest: '2017-08-05' }, { service: 'foo', count: 0, earliest: nil, latest: nil }]}.to_json)
     WebMock.stub_request(:post, 'http://fetch:8000/subscribe').with(body: { service: 'test', url: 'http://check:3100/api/webhooks/fetch?team=fetch&token=test' }.to_json).to_return(body: '{}')
