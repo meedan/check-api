@@ -50,7 +50,12 @@ module SmoochNlu
 
     # FIXME: Make it more flexible
     def nlu_models_to_use
-      [Bot::Alegre::MEAN_TOKENS_MODEL]
+      [Bot::Alegre::OPENAI_ADA_MODEL]
+    end
+
+    # FIXME: Make it more flexible
+    def nlu_similarity_threshold
+      0.6
     end
 
     # "menu" is "main" or "secondary"
@@ -94,9 +99,8 @@ module SmoochNlu
       option = nil
       if self.nlu_enabled?
         # FIXME: No need to call Alegre if it's an exact match to one of the keywords
-        # FIXME: No need to call Alegre if message is too short
         # FIXME: Handle error responses from Alegre
-        response = Bot::Alegre.request_api('get', '/text/similarity/', { text: message, models: self.nlu_models_to_use, context: { context: 'smooch-nlu-menu', team: Team.find(self.config['team_id']).slug } })
+        response = Bot::Alegre.request_api('get', '/text/similarity/', { text: message, models: self.nlu_models_to_use, threshold: self.nlu_similarity_threshold, context: { context: 'smooch-nlu-menu', team: Team.find(self.config['team_id']).slug } })
         best_result = response['result'].to_a.sort_by{ |result| result['_score'] }.last
         unless best_result.nil?
           option = options.find{ |o| !o['smooch_menu_option_id'].blank? && o['smooch_menu_option_id'] == best_result.dig('_source', 'context', 'menu_option_id') }
