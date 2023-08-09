@@ -1,4 +1,6 @@
 module CheckStatistics
+  class WhatsAppInsightsApiError < ::StandardError; end
+
   class << self
     def requests(team_id, platform, start_date, end_date, language, type = nil)
       relation = Annotation
@@ -61,6 +63,42 @@ module CheckStatistics
       new_count = newsletter.nil? ? 0 : TiplineNewsletterDelivery.where(tipline_newsletter: newsletter, created_at: start_date..end_date).count
 
       old_count + new_count
+    end
+
+    def number_of_whatsapp_conversations(team_id, start_date, end_date)
+      from = start_date.to_datetime.to_i
+      to = end_date.to_datetime.to_i
+
+      # Cache it so we don't recalculate when grabbing the statistics for different languages
+      Rails.cache.fetch("check_statistics:whatsapp_conversations:#{team_id}:#{from}:#{to}", expires_in: 12.hours, skip_nil: true) do
+        response = OpenStruct.new({ body: nil, code: 0 })
+        begin
+          tbi = TeamBotInstallation.where(team_id: team_id, user: BotUser.smooch_user).last
+
+          # Only available for tiplines using WhatsApp Cloud API
+          unless tbi&.get_capi_whatsapp_business_account_id.blank?
+            uri = URI("https://graph.facebook.com/v17.0/#{tbi.get_capi_whatsapp_business_account_id}?fields=conversation_analytics.start(#{from}).end(#{to}).granularity(DAILY).phone_numbers(#{tbi.get_capi_phone_number})&access_token=#{tbi.get_capi_permanent_token}")
+            http = Net::HTTP.new(uri.host, uri.port)
+            http.use_ssl = true
+            request = Net::HTTP::Get.new(uri.request_uri, 'Content-Type' => 'application/json')
+            response = http.request(request)
+            raise 'Unexpected response' if response.code.to_i >= 300
+            data = JSON.parse(response.body)
+            count = 0
+            data['conversation_analytics']['data'][0]['data_points'].each do |data_point|
+              count += data_point['conversation']
+            end
+            count
+          else
+            nil
+          end
+
+        rescue StandardError => e
+          error_info = { error_message: e.message, response_code: response.code, response_body: response.body, team_id: team_id, start_date: start_date, end_date: end_date }
+          CheckSentry.notify(WhatsAppInsightsApiError.new('Could not get WhatsApp conversations statistics'), **error_info)
+          nil
+        end
+      end
     end
 
     def get_statistics(start_date, end_date, team_id, platform, language, tracing_attributes = {})
@@ -213,6 +251,10 @@ module CheckStatistics
         CheckTracer.in_span('CheckStatistics#newsletters_delivered', attributes: tracing_attributes) do
           # Number of newsletters effectively delivered, accounting for user errors for each platform
           statistics[:newsletters_delivered] = TiplineMessage.where(created_at: start_date..end_date, team_id: team_id, platform: platform_name, language: language, direction: 'outgoing', event: 'newsletter').count
+        end
+
+        CheckTracer.in_span('CheckStatistics#whatsapp_conversations', attributes: tracing_attributes) do
+          statistics[:whatsapp_conversations] = number_of_whatsapp_conversations(team_id, start_date, end_date) if platform_name == 'WhatsApp'
         end
       end
       statistics
