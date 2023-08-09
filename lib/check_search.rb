@@ -154,7 +154,7 @@ class CheckSearch
     end
     query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     filters_blank = true
-    ['tags', 'keyword', 'rules', 'language', 'fc_languages', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
+    ['tags', 'keyword', 'rules', 'language', 'fc_language', 'request_language', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
       'has_claim', 'cluster_teams', 'published_by', 'annotated_by', 'channels', 'cluster_published_reports'
     ].each do |filter|
       filters_blank = false unless @options[filter].blank?
@@ -271,7 +271,7 @@ class CheckSearch
   end
 
   def show_parent?
-    search_keys = ['verification_status', 'tags', 'rules', 'language', 'fc_languages', 'team_tasks', 'assigned_to', 'channels', 'report_status']
+    search_keys = ['verification_status', 'tags', 'rules', 'language', 'fc_language', 'request_language', 'team_tasks', 'assigned_to', 'channels', 'report_status']
     !@options['projects'].blank? && !@options['keyword'].blank? && (search_keys & @options.keys).blank?
   end
 
@@ -308,6 +308,7 @@ class CheckSearch
     custom_conditions.concat numeric_range_filter
     custom_conditions.concat language_conditions
     custom_conditions.concat fact_check_language_conditions
+    custom_conditions.concat request_language_conditions
     custom_conditions.concat team_tasks_conditions
     feed_conditions = build_feed_conditions
     conditions = []
@@ -441,8 +442,13 @@ class CheckSearch
   end
 
   def fact_check_language_conditions
-    return [] unless @options.has_key?('fc_languages')
-    [{ terms: { fact_check_languages: @options['fc_languages'] } }]
+    return [] unless @options.has_key?('fc_language')
+    [{ terms: { fact_check_languages: @options['fc_language'] } }]
+  end
+
+  def request_language_conditions
+    return [] unless @options.has_key?('request_language')
+    [{ nested: { path: 'requests', query: { terms: { 'requests.language': @options['request_language'] } } } }]
   end
 
   def has_claim_conditions
