@@ -77,7 +77,12 @@ module CheckStatistics
 
           # Only available for tiplines using WhatsApp Cloud API
           unless tbi&.get_capi_whatsapp_business_account_id.blank?
-            uri = URI("https://graph.facebook.com/v17.0/#{tbi.get_capi_whatsapp_business_account_id}?fields=conversation_analytics.start(#{from}).end(#{to}).granularity(DAILY).phone_numbers(#{tbi.get_capi_phone_number})&access_token=#{tbi.get_capi_permanent_token}")
+            uri = URI(URI.join('https://graph.facebook.com/v17.0/', tbi.get_capi_whatsapp_business_account_id.to_s))
+            params = {
+              fields: "conversation_analytics.start(#{from}).end(#{to}).granularity(DAILY).phone_numbers(#{tbi.get_capi_phone_number})",
+              access_token: tbi.get_capi_permanent_token
+            }
+            uri.query = Rack::Utils.build_query(params)
             http = Net::HTTP.new(uri.host, uri.port)
             http.use_ssl = true
             request = Net::HTTP::Get.new(uri.request_uri, 'Content-Type' => 'application/json')
