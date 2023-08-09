@@ -23,11 +23,11 @@ module Workflow
         I18n.available_locales.each do |locale|
           key = status[:id]
           locales[locale] = {
-            label: I18n.t('statuses.media.' + key.to_s.gsub(/^false$/, 'not_true') + '.label', **{ locale: locale }),
-            description: I18n.t('statuses.media.' + key.to_s.gsub(/^false$/, 'not_true') + '.description', **{ locale: locale })
+            label: I18n.t('statuses.media.' + key.to_s.gsub(/^false$/, 'not_true') + '.label', locale: locale),
+            description: I18n.t('statuses.media.' + key.to_s.gsub(/^false$/, 'not_true') + '.description', locale: locale)
           }
         end
-        label = default_language == 'en' ? status[:label] : I18n.t('statuses.media.' + status[:id].to_s.gsub(/^false$/, 'not_true') + '.label', { locale: default_language })
+        label = default_language == 'en' ? status[:label] : I18n.t('statuses.media.' + status[:id].to_s.gsub(/^false$/, 'not_true') + '.label', locale: default_language)
         status.with_indifferent_access.merge({ locales: locales, label: label })
       end
       {

@@ -35,7 +35,7 @@ module Workflow
               else
                 return nil
               end
-              pretext = I18n.t("slack.messages.project_media_#{event}", params)
+              pretext = I18n.t("slack.messages.project_media_#{event}", **params)
               # Either render a card or update an existing one
               self.annotated&.should_send_slack_notification_message_for_card? ? self.annotated&.slack_notification_message_for_card(pretext) : nil
             end

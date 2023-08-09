@@ -1,4 +1,4 @@
-FROM ruby:2.7.7-slim
+FROM ruby:3.0-slim
 MAINTAINER Meedan <sysops@meedan.com>
 
 # the Rails stage can be overridden from the caller
@@ -33,7 +33,7 @@ RUN curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh |
 WORKDIR /app
 COPY Gemfile /app/Gemfile
 COPY Gemfile.lock /app/Gemfile.lock
-RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc && gem install bundler -v "< 2.0"
+RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc && gem install bundler
 RUN bundle config force_ruby_platform true
 RUN bundle install --jobs 20 --retry 5
 COPY . /app

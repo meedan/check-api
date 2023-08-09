@@ -58,7 +58,7 @@ class AssignmentMailer < ApplicationMailer
       updated_at: updated_at,
       total_tasks: total_tasks,
       completed_tasks: completed_tasks,
-      button: I18n.t("slack.fields.view_button", {
+      button: I18n.t("slack.fields.view_button", **{
         type: I18n.t("activerecord.models.#{model}"), app: CheckConfig.get('app_name')
       }),
       project_url: project&.url&.to_s,
