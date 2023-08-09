@@ -55,6 +55,7 @@ class MediaSearch
         username: { type: 'text', analyzer: 'check'},
         identifier: { type: 'text', analyzer: 'check'},
         content: { type: 'text', analyzer: 'check'},
+        language: { type: 'keyword', normalizer: 'check' },
       }
     }
 
