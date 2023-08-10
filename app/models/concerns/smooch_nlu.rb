@@ -49,6 +49,7 @@ module SmoochNlu
     end
 
     # FIXME: Make it more flexible
+    # FIXME: Once we support paraphrase-multilingual-mpnet-base-v2 make it the only model used
     def nlu_models_and_thresholds_to_use
       {Bot::Alegre::OPENAI_ADA_MODEL=>0.8, Bot::Alegre::MEAN_TOKENS_MODEL=>0.6}
     end
