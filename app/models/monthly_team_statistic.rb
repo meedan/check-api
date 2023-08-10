@@ -9,9 +9,10 @@ class MonthlyTeamStatistic < ApplicationRecord
   # Mapping of attributes to human-readable descriptions
   FIELD_MAPPINGS = {
     id: "ID",
-    platform_name: "Platform", # model method
-    language: "Language",
-    month: "Month", # model method
+    platform_name: 'Platform', # model method
+    language: 'Language',
+    month: 'Month', # model method
+    whatsapp_conversations: 'WhatsApp conversations',
     average_messages_per_day: 'Average messages per day',
     unique_users: 'Unique users',
     returning_users: 'Returning users',
