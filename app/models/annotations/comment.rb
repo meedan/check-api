@@ -22,7 +22,7 @@ class Comment < ApplicationRecord
   def slack_params
     super.merge({
       comment: Bot::Slack.to_slack(self.text, false),
-      button: I18n.t("slack.fields.view_button", {
+      button: I18n.t("slack.fields.view_button", **{
         type: I18n.t("activerecord.models.#{self.annotated.class_name.underscore}"), app: CheckConfig.get('app_name')
       })
     })
@@ -30,7 +30,7 @@ class Comment < ApplicationRecord
 
   def slack_notification_message(_event = nil)
     params = self.slack_params
-    pretext = I18n.t("slack.messages.#{self.annotated_type.underscore}_comment", params)
+    pretext = I18n.t("slack.messages.#{self.annotated_type.underscore}_comment", **params)
     # Either render a card or add a comment to an existing card
     self.annotated&.should_send_slack_notification_message_for_card? ? self.annotated&.slack_notification_message_for_card(pretext) : nil
   end

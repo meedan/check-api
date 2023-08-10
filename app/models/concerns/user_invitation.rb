@@ -48,9 +48,9 @@ module UserInvitation
           options[:email] = email
           create_team_user_invitation(options)
         elsif tu.status == 'invited'
-          msg << { email: email, error: I18n.t(:"user_invitation.invited", { email: email }) }
+          msg << { email: email, error: I18n.t(:"user_invitation.invited", email: email) }
         else
-          msg << { email: email, error: I18n.t(:"user_invitation.member", { email: email }) }
+          msg << { email: email, error: I18n.t(:"user_invitation.member", email: email) }
         end
       end
       msg
@@ -65,7 +65,7 @@ module UserInvitation
         invitation_token = Devise.token_generator.digest(self, :invitation_token, token)
         tu = TeamUser.where(team_id: t.id, status: ['invited', 'member'], invitation_token: invitation_token).last
         if tu.nil?
-          invitable.errors.add(:no_invitation, I18n.t(:"user_invitation.no_invitation", { name: t.name }))
+          invitable.errors.add(:no_invitation, I18n.t(:"user_invitation.no_invitation", name: t.name))
         elsif tu.status == 'member'
           invitable.errors.add(:invitation_accepted, I18n.t(:"user_invitation.invitation_accepted"))
         elsif tu.invitation_period_valid?
