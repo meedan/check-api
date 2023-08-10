@@ -49,8 +49,8 @@ module SmoochNlu
     end
 
     # FIXME: Make it more flexible
-    def nlu_models_to_use
-      [Bot::Alegre::MEAN_TOKENS_MODEL]
+    def nlu_models_and_thresholds_to_use
+      {Bot::Alegre::OPENAI_ADA_MODEL=>0.8, Bot::Alegre::MEAN_TOKENS_MODEL=>0.6}
     end
 
     # "menu" is "main" or "secondary"
@@ -66,9 +66,10 @@ module SmoochNlu
           # FIXME: This whole thing should be a model :(
           menu_option_id = (workflow["smooch_state_#{menu}"]['smooch_menu_options'][menu_option_index]['smooch_menu_option_id'] ||= SecureRandom.uuid)
           if operation == 'add'
+            # FIXME: Refuse to add a word if it is already in the list?
             keywords << keyword
             alegre_operation = 'post'
-            alegre_params = self.common_nlu_params_for_alegre(team_slug, menu, menu_option_id, keyword).merge({ text: keyword, models: self.nlu_models_to_use })
+            alegre_params = self.common_nlu_params_for_alegre(team_slug, menu, menu_option_id, keyword).merge({ text: keyword, models: self.nlu_models_and_thresholds_to_use.keys() })
           elsif operation == 'remove'
             keywords -= [keyword]
             alegre_operation = 'delete'
@@ -94,9 +95,9 @@ module SmoochNlu
       option = nil
       if self.nlu_enabled?
         # FIXME: No need to call Alegre if it's an exact match to one of the keywords
-        # FIXME: No need to call Alegre if message is too short
+        # FIXME: No need to call Alegre if message has no word characters
         # FIXME: Handle error responses from Alegre
-        response = Bot::Alegre.request_api('get', '/text/similarity/', { text: message, models: self.nlu_models_to_use, context: { context: 'smooch-nlu-menu', team: Team.find(self.config['team_id']).slug } })
+        response = Bot::Alegre.request_api('get', '/text/similarity/', { text: message, models: self.nlu_models_and_thresholds_to_use.keys(), per_model_threshold: self.nlu_models_and_thresholds_to_use, context: { context: 'smooch-nlu-menu', team: Team.find(self.config['team_id']).slug } })
         best_result = response['result'].to_a.sort_by{ |result| result['_score'] }.last
         unless best_result.nil?
           option = options.find{ |o| !o['smooch_menu_option_id'].blank? && o['smooch_menu_option_id'] == best_result.dig('_source', 'context', 'menu_option_id') }
