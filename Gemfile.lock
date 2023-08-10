@@ -55,6 +55,15 @@ GIT
       railties (>= 6.0.0, < 7)
 
 GIT
+  remote: https://github.com/meedan/sunshine-conversations-ruby
+  revision: c94f85c2ca743cbb82c172471d1936ed3291843b
+  branch: v5.34.2
+  specs:
+    smooch-api (5.34.2.pre.rc)
+      json (~> 2.3, >= 2.3.1)
+      typhoeus (~> 1.0, >= 1.0.1)
+
+GIT
   remote: https://github.com/meedan/transifex-interface-ruby.git
   revision: 5c8873a527f3115fe8006fb5ffeb396ea847d904
   specs:
@@ -363,7 +372,7 @@ GEM
     idn-ruby (0.1.4)
     jaro_winkler (1.5.4)
     jmespath (1.6.1)
-    json (2.6.2)
+    json (2.6.3)
     json-schema (2.5.0)
       addressable (~> 2.3)
     jsonapi-resources (0.10.7)
@@ -794,9 +803,6 @@ GEM
       simplecov
       terminal-table
     simplecov-html (0.10.2)
-    smooch-api (5.29.1)
-      json (~> 2.3, >= 2.3.1)
-      typhoeus (~> 1.0, >= 1.0.1)
     sprockets (3.7.2)
       concurrent-ruby (~> 1.0)
       rack (> 1, < 3)
@@ -1010,7 +1016,7 @@ DEPENDENCIES
   sidekiq-status
   simplecov (= 0.17.0)
   simplecov-console
-  smooch-api (= 5.29.1)
+  smooch-api (> 5.34.1)!
   sprockets (= 3.7.2)
   streamio-ffmpeg
   swagger-docs (= 0.2.9)
@@ -1026,4 +1032,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   2.1.4
+   2.4.18
