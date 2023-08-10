@@ -131,11 +131,11 @@ class ElasticSearch10Test < ActionController::TestCase
       cd = create_claim_description project_media: pm4, disable_es_callbacks: false
       create_fact_check claim_description: cd, disable_es_callbacks: false
       sleep 2
-      results = CheckSearch.new({ fc_languages: ['en', 'fr'] }.to_json)
+      results = CheckSearch.new({ fc_language: ['en', 'fr'] }.to_json)
       assert_equal [pm.id, pm2.id, pm3.id], results.medias.map(&:id).sort
-      results = CheckSearch.new({ fc_languages: ['fr', 'und'] }.to_json)
+      results = CheckSearch.new({ fc_language: ['fr', 'und'] }.to_json)
       assert_equal [pm3.id, pm4.id], results.medias.map(&:id).sort
-      results = CheckSearch.new({ keyword: 'claim', fc_languages: ['en', 'fr'] }.to_json)
+      results = CheckSearch.new({ keyword: 'claim', fc_language: ['en', 'fr'] }.to_json)
       assert_equal [pm.id], results.medias.map(&:id)
     end
   end

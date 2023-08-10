@@ -28,6 +28,7 @@ class CheckSearch
     adjust_channel_filter
     adjust_numeric_range_filter
     adjust_archived_filter
+    adjust_language_filter
 
     # Set fuzzy matching for keyword search, right now with automatic Levenshtein Edit Distance
     # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html
@@ -154,7 +155,7 @@ class CheckSearch
     end
     query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     filters_blank = true
-    ['tags', 'keyword', 'rules', 'language', 'fc_language', 'request_language', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
+    ['tags', 'keyword', 'rules', 'language', 'fc_language', 'request_language', 'report_language', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
       'has_claim', 'cluster_teams', 'published_by', 'annotated_by', 'channels', 'cluster_published_reports'
     ].each do |filter|
       filters_blank = false unless @options[filter].blank?
@@ -271,7 +272,7 @@ class CheckSearch
   end
 
   def show_parent?
-    search_keys = ['verification_status', 'tags', 'rules', 'language', 'fc_language', 'request_language', 'team_tasks', 'assigned_to', 'channels', 'report_status']
+    search_keys = ['verification_status', 'tags', 'rules', 'language', 'fc_language', 'request_language', 'report_language', 'team_tasks', 'assigned_to', 'channels', 'report_status']
     !@options['projects'].blank? && !@options['keyword'].blank? && (search_keys & @options.keys).blank?
   end
 
@@ -309,6 +310,7 @@ class CheckSearch
     custom_conditions.concat language_conditions
     custom_conditions.concat fact_check_language_conditions
     custom_conditions.concat request_language_conditions
+    custom_conditions.concat report_language_conditions
     custom_conditions.concat team_tasks_conditions
     feed_conditions = build_feed_conditions
     conditions = []
@@ -375,6 +377,15 @@ class CheckSearch
 
   def adjust_archived_filter
     @options['archived'] = @options['archived'].blank? ? [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED] : [@options['archived']].flatten.map(&:to_i)
+  end
+
+  def adjust_language_filter
+    unless @options['language_filter'].blank?
+      @options['language_filter'].each do |k, v|
+        @options[k] = v
+      end
+      @options.delete('language_filter')
+    end
   end
 
   def index_exists?
@@ -444,6 +455,11 @@ class CheckSearch
   def fact_check_language_conditions
     return [] unless @options.has_key?('fc_language')
     [{ terms: { fact_check_languages: @options['fc_language'] } }]
+  end
+
+  def report_language_conditions
+    return [] unless @options.has_key?('report_language')
+    [{ terms: { report_language: @options['report_language'] } }]
   end
 
   def request_language_conditions

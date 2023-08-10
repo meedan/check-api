@@ -1,4 +1,4 @@
-class AddMappingForRequestLanguage < ActiveRecord::Migration[6.1]
+class AddMappingForRequestAndReportLanguage < ActiveRecord::Migration[6.1]
   def change
     index_alias = CheckElasticSearchModel.get_index_alias
     client = $repository.client
@@ -6,6 +6,7 @@ class AddMappingForRequestLanguage < ActiveRecord::Migration[6.1]
       index: index_alias,
       body: {
         properties: {
+          report_language: { type: 'keyword', normalizer: 'check' },
           requests: {
             type: 'nested',
             properties: {
