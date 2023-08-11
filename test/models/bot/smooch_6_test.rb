@@ -751,11 +751,6 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     assert_equal '000000:222222', ts.reload.uid
   end
 
-  test 'should not enable NLU for workspace without tipline' do
-    team = create_team
-    assert !Bot::Smooch.enable_nlu(team.slug)
-  end
-
   test 'should process menu option using NLU' do
     # Mock any call to Alegre like `POST /text/similarity/` with a "text" parameter that contains "newsletter"
     Bot::Alegre.stubs(:request_api).with{ |x, y, z| x == 'post' && y == '/text/similarity/' && z[:text] =~ /newsletter/ }.returns(true)
@@ -763,9 +758,10 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     Bot::Alegre.stubs(:request_api).with{ |x, y, z| x == 'get' && y == '/text/similarity/' && (z[:text] =~ /newsletter/).nil? }.returns({ 'result' => [] })
 
     # Enable NLU and add a couple of keywords for the newsletter menu option
-    Bot::Smooch.enable_nlu(@team.slug)
-    Bot::Smooch.add_nlu_keyword(@team.slug, 'en', 'main', 2, 'I want to subscribe to the newsletter')
-    Bot::Smooch.add_nlu_keyword(@team.slug, 'en', 'main', 2, 'I want to unsubscribe from the newsletter')
+    nlu = SmoochNlu.new(@team.slug)
+    nlu.enable!
+    nlu.add_keyword('en', 'main', 2, 'I want to subscribe to the newsletter')
+    nlu.add_keyword('en', 'main', 2, 'I want to unsubscribe from the newsletter')
     reload_tipline_settings
     query_option_id = @installation.get_smooch_workflows[0]['smooch_state_main']['smooch_menu_options'][1]['smooch_menu_option_id']
     subscription_option_id = @installation.get_smooch_workflows[0]['smooch_state_main']['smooch_menu_options'][2]['smooch_menu_option_id']
@@ -785,14 +781,14 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     assert_state 'main'
 
     # After disabling NLU
-    Bot::Smooch.disable_nlu(@team.slug)
+    nlu.disable!
     reload_tipline_settings
     send_message 'Can I subscribe to the newsletter?'
     assert_state 'main'
 
     # Delete two keywords, so expect two calls to Alegre
     Bot::Alegre.expects(:request_api).with{ |x, y, _z| x == 'delete' && y == '/text/similarity/' }.twice
-    Bot::Smooch.remove_nlu_keyword(@team.slug, 'en', 'main', 2, 'I want to subscribe to the newsletter')
-    Bot::Smooch.remove_nlu_keyword(@team.slug, 'en', 'main', 2, 'I want to unsubscribe from the newsletter')
+    nlu.remove_keyword('en', 'main', 2, 'I want to subscribe to the newsletter')
+    nlu.remove_keyword('en', 'main', 2, 'I want to unsubscribe from the newsletter')
   end
 end

@@ -31,7 +31,6 @@ class Bot::Smooch < BotUser
   include SmoochMenus
   include SmoochFields
   include SmoochLanguage
-  include SmoochNlu
 
   ::ProjectMedia.class_eval do
     attr_accessor :smooch_message
@@ -563,7 +562,7 @@ class Bot::Smooch < BotUser
       end
     end
     # ...if nothing is matched, try using the NLU feature
-    option = self.nlu_menu_option_from_message(typed, options)
+    option = SmoochNlu.menu_option_from_message(typed, options)
     unless option.nil?
       self.process_menu_option_value(option['smooch_menu_option_value'], option, message, language, workflow, app_id)
       return true
