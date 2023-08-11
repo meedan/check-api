@@ -250,6 +250,7 @@ module ProjectMediaCachedFields
       start_as: proc { |_pm| '' },
       update_es: :cached_field_tags_as_sentence_es,
       recalculate: :recalculate_tags_as_sentence,
+      expires_in: 5.years,
       update_on: [
         {
           model: Tag,
