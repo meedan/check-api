@@ -28,6 +28,7 @@ class CheckSearch
     adjust_channel_filter
     adjust_numeric_range_filter
     adjust_archived_filter
+    adjust_language_filter
 
     # Set fuzzy matching for keyword search, right now with automatic Levenshtein Edit Distance
     # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html
@@ -109,7 +110,7 @@ class CheckSearch
     return [] unless !media_types_filter.blank? && index_exists?
     return @medias if @medias
     if should_hit_elasticsearch?
-      query = medias_build_search_query
+      query = medias_query
       result = medias_get_search_result(query)
       key = get_search_field
       @ids = result.collect{ |i| i[key] }.uniq
@@ -139,7 +140,7 @@ class CheckSearch
           }
         }
       }
-      response = $repository.search(query: self.medias_build_search_query, size: 0, aggs: aggs).raw_response
+      response = $repository.search(query: self.medias_query, size: 0, aggs: aggs).raw_response
       return response.dig('aggregations', 'total', 'value')
     end
     collection = collection.unscope(where: :id)
@@ -154,7 +155,7 @@ class CheckSearch
     end
     query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     filters_blank = true
-    ['tags', 'keyword', 'rules', 'language', 'fc_languages', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
+    ['tags', 'keyword', 'rules', 'language', 'fc_language', 'request_language', 'report_language', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
       'has_claim', 'cluster_teams', 'published_by', 'annotated_by', 'channels', 'cluster_published_reports'
     ].each do |filter|
       filters_blank = false unless @options[filter].blank?
@@ -180,7 +181,7 @@ class CheckSearch
     pm = ProjectMedia.where(id: @options['id']).last
     return -1 if pm.nil?
     if should_hit_elasticsearch?
-      query = medias_build_search_query
+      query = medias_query
       conditions = query[:bool][:must]
       es_id = @options['es_id']
       offset_c = item_navigation_offset_condition(sort_type, sort_key)
@@ -238,7 +239,7 @@ class CheckSearch
     end
     core_conditions.merge!({ archived: @options['archived'] })
     core_conditions.merge!({ sources_count: 0 }) unless should_include_related_items?
-    build_search_range_filter(:pg, custom_conditions)
+    range_filter(:pg, custom_conditions)
     relation = ProjectMedia
     if @options['operator'].upcase == 'OR'
       custom_conditions.each do |key, value|
@@ -271,7 +272,7 @@ class CheckSearch
   end
 
   def show_parent?
-    search_keys = ['verification_status', 'tags', 'rules', 'language', 'fc_languages', 'team_tasks', 'assigned_to', 'channels', 'report_status']
+    search_keys = ['verification_status', 'tags', 'rules', 'language', 'fc_language', 'request_language', 'report_language', 'team_tasks', 'assigned_to', 'channels', 'report_status']
     !@options['projects'].blank? && !@options['keyword'].blank? && (search_keys & @options.keys).blank?
   end
 
@@ -281,7 +282,7 @@ class CheckSearch
     field
   end
 
-  def medias_build_search_query(include_related_items = self.should_include_related_items?)
+  def medias_query(include_related_items = self.should_include_related_items?)
     core_conditions = []
     custom_conditions = []
     core_conditions << { terms: { get_search_field => @options['project_media_ids'] } } unless @options['project_media_ids'].blank?
@@ -292,25 +293,25 @@ class CheckSearch
     core_conditions << { term: { sources_count: 0 } } unless include_related_items
     core_conditions << { range: { cluster_size: { gt: 0 } } } if clusterized_feed_query?
     custom_conditions << { terms: { unmatched: @options['unmatched'] } } if @options.has_key?('unmatched')
-    custom_conditions.concat build_search_keyword_conditions
-    custom_conditions.concat build_search_tags_conditions
-    custom_conditions.concat build_search_report_status_conditions
-    custom_conditions.concat build_search_published_by_conditions
-    custom_conditions.concat build_search_annotated_by_conditions
-    custom_conditions.concat build_search_cluster_published_reports_conditions
-    custom_conditions.concat build_search_integer_terms_query('assigned_user_ids', 'assigned_to')
-    custom_conditions.concat build_search_integer_terms_query('channel', 'channels')
-    custom_conditions.concat build_search_integer_terms_query('source_id', 'sources')
-    custom_conditions.concat build_search_doc_conditions
-    custom_conditions.concat build_search_has_claim_conditions
-    custom_conditions.concat build_search_file_filter
-    custom_conditions.concat build_search_range_filter(:es)
-    custom_conditions.concat build_search_numeric_range_filter
-    language_conditions = build_search_language_conditions
-    check_search_concat_conditions(custom_conditions, language_conditions)
-    custom_conditions.concat build_search_fact_check_language_conditions
-    team_tasks_conditions = build_search_team_tasks_conditions
-    check_search_concat_conditions(custom_conditions, team_tasks_conditions)
+    custom_conditions.concat keyword_conditions
+    custom_conditions.concat tags_conditions
+    custom_conditions.concat report_status_conditions
+    custom_conditions.concat published_by_conditions
+    custom_conditions.concat annotated_by_conditions
+    custom_conditions.concat cluster_published_reports_conditions
+    custom_conditions.concat integer_terms_query('assigned_user_ids', 'assigned_to')
+    custom_conditions.concat integer_terms_query('channel', 'channels')
+    custom_conditions.concat integer_terms_query('source_id', 'sources')
+    custom_conditions.concat doc_conditions
+    custom_conditions.concat has_claim_conditions
+    custom_conditions.concat file_filter
+    custom_conditions.concat range_filter(:es)
+    custom_conditions.concat numeric_range_filter
+    custom_conditions.concat language_conditions
+    custom_conditions.concat fact_check_language_conditions
+    custom_conditions.concat request_language_conditions
+    custom_conditions.concat report_language_conditions
+    custom_conditions.concat team_tasks_conditions
     feed_conditions = build_feed_conditions
     conditions = []
     if @options['operator'].upcase == 'OR'
@@ -323,14 +324,10 @@ class CheckSearch
     { bool: { must: conditions.reject{ |c| c.blank? } } }
   end
 
-  def check_search_concat_conditions(base_condition, c)
-    base_condition.concat(c) unless c.blank?
-  end
-
   def medias_get_search_result(query)
     # use collapse to return uniq results
     collapse = { field: get_search_field }
-    sort = build_search_sort
+    sort = build_es_sort
     @options['es_id'] ? $repository.find([@options['es_id']]).compact : $repository.search(query: query, collapse: collapse, sort: sort, size: @options['eslimit'], from: @options['esoffset']).results
   end
 
@@ -382,17 +379,26 @@ class CheckSearch
     @options['archived'] = @options['archived'].blank? ? [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED] : [@options['archived']].flatten.map(&:to_i)
   end
 
+  def adjust_language_filter
+    unless @options['language_filter'].blank?
+      @options['language_filter'].each do |k, v|
+        @options[k] = v
+      end
+      @options.delete('language_filter')
+    end
+  end
+
   def index_exists?
     client = $repository.client
     client.indices.exists? index: CheckElasticSearchModel.get_index_alias
   end
 
-  def build_search_keyword_conditions
+  def keyword_conditions
     return [] if @options["keyword"].blank? || @options["keyword"].class.name != 'String'
     set_keyword_fields
     keyword_c = []
     field_conditions = build_keyword_conditions_media_fields
-    check_search_concat_conditions(keyword_c, field_conditions)
+    keyword_c.concat field_conditions
     # Search in comments
     keyword_c << {
       nested: {
@@ -441,17 +447,27 @@ class CheckSearch
     @options['keyword_fields']['fields'].blank? || @options['keyword_fields']['fields'].include?(field)
   end
 
-  def build_search_language_conditions
+  def language_conditions
     return [] unless @options.has_key?('language')
     [{ terms: { language: @options['language'] } }]
   end
 
-  def build_search_fact_check_language_conditions
-    return [] unless @options.has_key?('fc_languages')
-    [{ terms: { fact_check_languages: @options['fc_languages'] } }]
+  def fact_check_language_conditions
+    return [] unless @options.has_key?('fc_language')
+    [{ terms: { fact_check_languages: @options['fc_language'] } }]
   end
 
-  def build_search_has_claim_conditions
+  def report_language_conditions
+    return [] unless @options.has_key?('report_language')
+    [{ terms: { report_language: @options['report_language'] } }]
+  end
+
+  def request_language_conditions
+    return [] unless @options.has_key?('request_language')
+    [{ nested: { path: 'requests', query: { terms: { 'requests.language': @options['request_language'] } } } }]
+  end
+
+  def has_claim_conditions
     conditions = []
     return conditions unless @options.has_key?('has_claim')
     if @options['has_claim'].include?('NO_VALUE')
@@ -462,14 +478,14 @@ class CheckSearch
     conditions
   end
 
-  def build_search_file_filter
+  def file_filter
     conditions = []
     return conditions unless @options.has_key?('file_type')
     ids = alegre_file_similar_items
     [{ terms: { annotated_id: ids } }]
   end
 
-  def build_search_team_tasks_conditions
+  def team_tasks_conditions
     conditions = []
     return conditions unless @options.has_key?('team_tasks') && @options['team_tasks'].class.name == 'Array'
     @options['team_tasks'].delete_if{ |tt| tt['response'].blank? }
@@ -512,7 +528,7 @@ class CheckSearch
     conditions
   end
 
-  def build_search_sort
+  def build_es_sort
     # As per spec, for now the team task sort should be just based on "has data" / "has no data"
     # Items without data appear first
     if @options['sort'] =~ /^task_value_[0-9]+$/
@@ -547,13 +563,13 @@ class CheckSearch
     end
   end
 
-  def build_search_tags_conditions
+  def tags_conditions
     return [] if @options["tags"].blank? || @options["tags"].class.name != 'Array'
     tags_c = search_tags_query(@options["tags"])
     [tags_c]
   end
 
-  def build_search_integer_terms_query(field, key)
+  def integer_terms_query(field, key)
     conditions = []
     return conditions unless @options[key].is_a?(Array)
     # Handle ANY_VALUE or ANY_VALUE
@@ -584,7 +600,7 @@ class CheckSearch
     end
   end
 
-  def build_search_report_status_conditions
+  def report_status_conditions
     return [] if @options['report_status'].blank? || !@options['report_status'].is_a?(Array)
     if clusterized_feed_query?
       conditions = []
@@ -605,12 +621,12 @@ class CheckSearch
     [{ terms: { report_status: statuses } }]
   end
 
-  def build_search_published_by_conditions
+  def published_by_conditions
     return [] if @options['published_by'].blank?
     [{ terms: { published_by: [@options['published_by']].flatten } }]
   end
 
-  def build_search_annotated_by_conditions
+  def annotated_by_conditions
     return [] if @options['annotated_by'].blank?
     if @options['annotated_by_operator'].to_s.downcase == 'and'
       and_c = []
@@ -621,12 +637,12 @@ class CheckSearch
     end
   end
 
-  def build_search_cluster_published_reports_conditions
+  def cluster_published_reports_conditions
     return [] if @options['cluster_published_reports'].blank?
     [{ terms: { cluster_published_reports: [@options['cluster_published_reports']].flatten } }]
   end
 
-  def build_search_doc_conditions
+  def doc_conditions
     doc_c = []
     unless @options['show'].blank?
       types_mapping = {
@@ -671,7 +687,7 @@ class CheckSearch
   end
 
   # range: {created_at: {start_time: <start_time>, end_time: <end_time>}, updated_at: {start_time: <start_time>, end_time: <end_time>}, timezone: 'GMT'}
-  def build_search_range_filter(type, filters = nil)
+  def range_filter(type, filters = nil)
     conditions = []
     return conditions unless @options.has_key?(:range)
     timezone = @options[:range].delete(:timezone) || @context_timezone
@@ -691,7 +707,7 @@ class CheckSearch
 
   # range_numeric: {field_name: {min: <minimum_number>}, max: <maximum_number> }
   # field_name should be one of the following: linked_items_count, suggestions_count, demand
-  def build_search_numeric_range_filter
+  def numeric_range_filter
     conditions = []
     return conditions if @options['range_numeric'].blank?
     @options['range_numeric'].each do |field, values|
@@ -731,7 +747,7 @@ class CheckSearch
     conditions = []
     @feed.get_team_filters.each do |filters|
       team_id = filters['team_id'].to_i
-      conditions << CheckSearch.new(filters.to_json, nil, team_id).medias_build_search_query
+      conditions << CheckSearch.new(filters.to_json, nil, team_id).medias_query
     end
     { bool: { should: conditions } }
   end

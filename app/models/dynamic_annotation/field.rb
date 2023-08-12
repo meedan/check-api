@@ -130,6 +130,7 @@ class DynamicAnnotation::Field < ApplicationRecord
           'username' => self.value_json['name'],
           'identifier' => identifier&.gsub(/[[:space:]|-]/, ''),
           'content' => self.value_json['text'],
+          'language' => self.value_json['language'],
         }
         options = { op: op, pm_id: obj.id, nested_key: 'requests', keys: data.keys, data: data, skip_get_data: true }
         self.add_update_nested_obj(options)
