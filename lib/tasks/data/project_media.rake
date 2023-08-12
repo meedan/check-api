@@ -85,6 +85,7 @@ namespace :check do
           username: field.value_json['name'],
           identifier: field.smooch_user_external_identifier.value&.gsub(/[[:space:]|-]/, ''),
           content: field.value_json['text'],
+          language: field.value_json['language'],
         }}
       end
     end

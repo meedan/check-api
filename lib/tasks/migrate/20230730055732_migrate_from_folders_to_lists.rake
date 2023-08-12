@@ -79,7 +79,10 @@ namespace :check do
           project.project_medias.find_in_batches(:batch_size => 1000) do |pms|
             print '.'
             ids = pms.map(&:id)
-            # Tag existing items
+            existing_tags = Tag.where(annotated_id: ids, annotated_type: 'ProjectMedia')
+            .where("data = ?", { tag: tag_text.id }.with_indifferent_access.to_yaml).map(&:annotated_id)
+            # Tag existing items (exclude items with same tag)
+            ids = ids - existing_tags
             inserts = []
             ids.each {|pm_id| inserts << { annotated_type: 'ProjectMedia', annotated_id: pm_id, annotation_type: 'tag', data: { tag: tag_text.id } }.with_indifferent_access }
             # Bulk-insert tags
@@ -99,7 +102,7 @@ namespace :check do
               tags_as_sentence = tags.collect{|item| item[:tag]}.uniq.join(', ')
               Rails.cache.write("check_cached_field:ProjectMedia:#{pm_id.to_i}:tags_as_sentence", tags_as_sentence)
               doc_id = Base64.encode64("ProjectMedia/#{pm_id}")
-              fields = { 'tags' => tags, 'tags_as_sentence' => tags_as_sentence.size }
+              fields = { 'tags' => tags, 'tags_as_sentence' => tags_as_sentence.split(', ').size }
               es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
             end
             client.bulk body: es_body unless es_body.blank?

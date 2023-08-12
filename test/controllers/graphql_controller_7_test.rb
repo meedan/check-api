@@ -197,7 +197,7 @@ class GraphqlController7Test < ActionController::TestCase
     assert_not_empty data['feeds']['edges']
   end
 
-  test "should search by report status" do
+  test "should search by report fields" do
     setup_elasticsearch
     RequestStore.store[:skip_cached_field_update] = false
     t = create_team
@@ -215,7 +215,7 @@ class GraphqlController7Test < ActionController::TestCase
 
     # Paused
     pm2 = create_project_media team: t, disable_es_callbacks: false
-    r2 = publish_report(pm2)
+    r2 = publish_report(pm2, {}, nil, {'language' => 'fr'})
     r2 = Dynamic.find(r2.id)
     r2.disable_es_callbacks = false
     r2.set_fields = { state: 'paused' }.to_json
@@ -237,6 +237,11 @@ class GraphqlController7Test < ActionController::TestCase
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal [pm1.id, pm2.id], results.sort
+    # filter by report language
+    query = 'query CheckSearch { search(query: "{\"language_filter\":{\"report_language\":[\"fr\"]}}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }
   end
 
   test "should filter by read in PostgreSQL" do
