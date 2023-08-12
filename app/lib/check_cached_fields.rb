@@ -16,9 +16,12 @@ module CheckCachedFields
       @@cached_fields.to_a.uniq.sort
     end
 
+    def cached_field_expiration(options)
+      options[:expires_in] || CheckConfig.get('cache_interval', 30).to_i.days
+    end
+
     def cached_field(name, options = {})
       options = options.with_indifferent_access
-      interval = CheckConfig.get('cache_interval', 30).to_i
       @@cached_fields ||= []
       @@cached_fields << name
 
@@ -30,8 +33,7 @@ module CheckCachedFields
       end
 
       define_method name do |recalculate = false|
-        Rails.cache.fetch(self.class.check_cache_key(self.class, self.id, name),force: recalculate,
-          race_condition_ttl: 30.seconds, expires_in: interval.days) do
+        Rails.cache.fetch(self.class.check_cache_key(self.class, self.id, name), force: recalculate, race_condition_ttl: 30.seconds, expires_in: self.class.cached_field_expiration(options)) do
           if self.respond_to?(options[:recalculate])
             value = self.send(options[:recalculate])
             self.class.index_cached_field(options, value, name, self)
@@ -109,9 +111,8 @@ module CheckCachedFields
 
     def create_cached_field(options, name, obj)
       return if self.skip_cached_field_update?
-      interval = CheckConfig.get('cache_interval', 30).to_i
       value = options[:start_as].is_a?(Proc) ? options[:start_as].call(obj) : options[:start_as]
-      Rails.cache.write(self.check_cache_key(self, obj.id, name), value, expires_in: interval.days)
+      Rails.cache.write(self.check_cache_key(self, obj.id, name), value, expires_in: self.cached_field_expiration(options))
       self.index_cached_field(options, value, name, obj) unless Rails.env == 'test'
     end
 
@@ -137,10 +138,9 @@ module CheckCachedFields
 
     def update_cached_field_bg(name, obj, ids, callback, options)
       recalculate = options[:recalculate]
-      interval = CheckConfig.get('cache_interval', 30).to_i
       self.where(id: ids).each do |target|
         value = callback == :recalculate ? target.send(recalculate) : obj.send(callback, target)
-        Rails.cache.write(self.check_cache_key(self, target.id, name), value, expires_in: interval.days)
+        Rails.cache.write(self.check_cache_key(self, target.id, name), value, expires_in: self.cached_field_expiration(options))
         # Update ES index and PG, if needed
         self.index_and_pg_cached_field(options, value, name, target)
       end

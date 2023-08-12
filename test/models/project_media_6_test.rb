@@ -416,4 +416,26 @@ class ProjectMedia6Test < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should have longer expiration date for tags cached field" do
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media
+    Rails.cache.clear
+    Sidekiq::Testing.inline! do
+      # First call should query the database and cache the field
+      assert_queries 0, '>' do
+        pm.tags_as_sentence
+      end
+      # If not expired yet, should not query the database
+      travel_to Time.now.since(2.years)
+      assert_queries 0, '=' do
+        pm.tags_as_sentence
+      end
+      travel_to Time.now.since(6.years)
+      # After expiration date has passed, should query the database again
+      assert_queries 0, '>' do
+        pm.tags_as_sentence
+      end
+    end
+  end
 end
