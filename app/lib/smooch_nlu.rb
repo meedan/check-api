@@ -54,6 +54,7 @@ class SmoochNlu
         }
       }
       response = Bot::Alegre.request_api('get', '/text/similarity/', params)
+      Rails.logger.info("[Smooch NLU] Requested Alegre with params #{params.inspect}, response was #{response.inspect}")
       best_result = response['result'].to_a.sort_by{ |result| result['_score'] }.last
       unless best_result.nil?
         option = options.find{ |o| !o['smooch_menu_option_id'].blank? && o['smooch_menu_option_id'] == best_result.dig('_source', 'context', 'menu_option_id') }
