@@ -96,17 +96,6 @@ class GraphqlCrudOperations
     self.safe_save(obj, attrs, parents_mapping.keys)
   end
 
-  def self.update_from_single_id(graphql_id, obj, inputs, ctx, parent_names)
-    obj.file = ctx[:file] unless ctx[:file].blank?
-
-    attrs = inputs.keys.inject({}) do |memo, key|
-      memo[key] = inputs[key] unless key.to_sym == :id
-      memo
-    end
-
-    self.safe_save(obj, attrs, parent_names)
-  end
-
   def self.object_from_id_and_context(id, ctx)
     obj = CheckGraphql.object_from_id(id, ctx)
     obj = obj.load if obj.is_a?(Annotation)
@@ -115,9 +104,16 @@ class GraphqlCrudOperations
 
   def self.update(inputs, ctx, parents_mapping = {})
     obj = self.object_from_id_and_context(inputs[:id], ctx)
-    return unless inputs[:id] || obj
+    return unless obj
 
-    self.update_from_single_id(inputs[:id] || obj.graphql_id, obj, inputs, ctx, parents_mapping.keys)
+    obj.file = ctx[:file] unless ctx[:file].blank?
+
+    attrs = inputs.keys.inject({}) do |memo, key|
+      memo[key] = inputs[key] unless key.to_sym == :id
+      memo
+    end
+
+    self.safe_save(obj, attrs, parents_mapping.keys)
   end
 
   def self.object_from_id(graphql_id)
@@ -139,7 +135,7 @@ class GraphqlCrudOperations
 
   def self.destroy(inputs, ctx, parents_mapping = {})
     obj = self.object_from_id(inputs[:id])
-    return unless inputs[:id] || obj
+    return unless obj
 
     self.destroy_from_single_id(inputs[:id] || obj.graphql_id, obj, inputs, ctx, parents_mapping.keys)
   end
