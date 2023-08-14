@@ -157,7 +157,7 @@ class GraphqlController3Test < ActionController::TestCase
   end
 
 
-  test "should filter by date range with less_than option" do
+  test "should filter by date range with less_than and more_than options" do
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'admin'
@@ -182,6 +182,18 @@ class GraphqlController3Test < ActionController::TestCase
       assert_response :success
       results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
       assert_equal [pm2.id], results
+    end
+    # Filter by more_than
+    queries = []
+    # query on ES
+    queries << 'query CheckSearch { search(query: "{\"keyword\":\"Test\", \"range\": {\"created_at\":{\"condition\":\"more_than\",\"period\":\"1\",\"period_type\":\"m\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
+    # query on PG
+    queries << 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + '], \"range\": {\"created_at\":{\"condition\":\"more_than\",\"period\":\"1\",\"period_type\":\"m\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
+    queries.each do |query|
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+      assert_equal [pm1.id], results
     end
     # query with period_type = w
     queries = []
