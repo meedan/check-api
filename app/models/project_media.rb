@@ -490,6 +490,7 @@ class ProjectMedia < ApplicationRecord
         username: field.value_json['name'],
         identifier: identifier&.gsub(/[[:space:]|-]/, ''),
         content: field.value_json['text'],
+        language: field.value_json['language'],
       }
     end
     ms.attributes[:requests] = requests

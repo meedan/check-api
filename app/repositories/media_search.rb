@@ -55,6 +55,7 @@ class MediaSearch
         username: { type: 'text', analyzer: 'check'},
         identifier: { type: 'text', analyzer: 'check'},
         content: { type: 'text', analyzer: 'check'},
+        language: { type: 'keyword', normalizer: 'check' },
       }
     }
 
@@ -131,5 +132,7 @@ class MediaSearch
     indexes :source_name, { type: 'text', analyzer: 'check' }
 
     indexes :unmatched, { type: 'long' }
+
+    indexes :report_language, { type: 'keyword', normalizer: 'check' }
   end
 end
