@@ -86,11 +86,11 @@ class Bot::Fetch < BotUser
     CheckConfig.get('fetch_check_webhook_url') + '/api/webhooks/fetch?team=' + team.slug + '&token=' + CheckConfig.get('fetch_token')
   end
 
-  def self.setup_service(installation, previous_services, new_services)
+  def self.setup_service(installation, previous_services, new_services, language=nil)
     team = installation.team
     new_services.each do |new_service|
       if self.is_service_supported?(new_service)
-        self.call_fetch_api(:post, 'subscribe', { service: new_service, url: self.webhook_url(team) })
+        self.call_fetch_api(:post, 'subscribe', { service: new_service, url: self.webhook_url(team), language: language })
       end
     end
     previous_services.each { |previous_service| self.call_fetch_api(:delete, 'subscribe', { service: previous_service, url: self.webhook_url(team) }) }
