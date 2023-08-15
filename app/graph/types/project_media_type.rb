@@ -337,7 +337,7 @@ class ProjectMediaType < DefaultObject
     object.sources_count > 0
   end
 
-  field :similar_items,
-        ProjectMediaType.connection_type,
-        null: true
+  field :similar_items, ProjectMediaType.connection_type, null: true
+
+  field :media_slug, GraphQL::Types::String, null: true
 end
