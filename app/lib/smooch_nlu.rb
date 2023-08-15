@@ -37,6 +37,12 @@ class SmoochNlu
     update_keywords(language, menu, menu_option_index, keyword, 'remove')
   end
 
+  # Print current keywords for a menu option (if menu_option_index is specified)
+  # or print keywords for all menu options if menu_option_index is nil
+  def list_keywords(language, menu, menu_option_index = nil)
+    update_keywords(language, menu, menu_option_index, nil, 'list')
+  end
+
   def self.menu_option_from_message(message, options)
     # FIXME: Raise exception if not in a tipline context (so, if Bot::Smooch.config is nil)
     option = nil
@@ -57,6 +63,7 @@ class SmoochNlu
       Rails.logger.info("[Smooch NLU] Requested Alegre with params #{params.inspect}, response was #{response.inspect}")
       best_result = response['result'].to_a.sort_by{ |result| result['_score'] }.last
       unless best_result.nil?
+        # FIXME: If the best result doesn't exist in the menu anymore find the next best result that does
         option = options.find{ |o| !o['smooch_menu_option_id'].blank? && o['smooch_menu_option_id'] == best_result.dig('_source', 'context', 'menu_option_id') }
       end
     end
@@ -88,12 +95,25 @@ class SmoochNlu
   end
 
   # "menu" is "main" or "secondary"
-  # "operation" is "add" or "remove"
+  # "operation" is "add" or "remove" or "list"
   # FIXME: Validate the two things above
+  # FIXME: If we're in --sandbox mode fail quickly and loudly
   def update_keywords(language, menu, menu_option_index, keyword, operation)
     alegre_operation = nil
     alegre_params = nil
     workflow = @smooch_bot_installation.get_smooch_workflows.find { |w| w['smooch_workflow_language'] == language }
+    if operation == 'list' && !menu_option_index
+      i = 0
+      workflow["smooch_state_#{menu}"]['smooch_menu_options'].each do |option|
+        keywords = option['smooch_menu_option_nlu_keywords'].to_a
+        title = option['smooch_menu_option_label']
+        puts("#{i}. #{title} (#{option['smooch_menu_option_id']})")
+        puts(keywords)
+        puts()
+        i += 1
+      end
+      return
+    end
     keywords = workflow["smooch_state_#{menu}"]['smooch_menu_options'][menu_option_index]['smooch_menu_option_nlu_keywords'].to_a
     # Make sure there is a unique identifier for this menu option
     # FIXME: This whole thing should be a model :(
@@ -106,6 +126,9 @@ class SmoochNlu
       keywords -= [keyword]
       alegre_operation = 'delete'
       alegre_params = common_params_for_alegre(menu, menu_option_id, keyword).merge({ quiet: true })
+    elsif operation == 'list'
+      puts(keywords)
+      return
     end
     workflow["smooch_state_#{menu}"]['smooch_menu_options'][menu_option_index]['smooch_menu_option_nlu_keywords'] = keywords
     @smooch_bot_installation.save!
