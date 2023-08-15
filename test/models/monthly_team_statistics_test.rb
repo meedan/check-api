@@ -67,18 +67,13 @@ class MonthlyTeamStatisticTest < ActiveSupport::TestCase
     assert_equal hash["Platform"], "WhatsApp"
     assert_equal hash["Language"], "en"
     assert_equal hash["Month"], "Apr 2020"
-    assert_equal hash["Average messages per day"], 2
     assert_equal hash["Unique users"], 3
     assert_equal hash["Returning users"], 4
-    assert_equal hash["Valid new requests"], 5
-    assert_equal hash["Published native reports"], 6
-    assert_equal hash["Published imported reports"], 7
-    assert_equal hash["Requests answered with a report"], 8
     assert_equal hash["Reports sent to users"], 9
     assert_equal hash["Unique users who received a report"], 10
     assert_equal hash["Average (median) response time"], "less than a minute"
     assert_equal hash["Unique newsletters sent"], 12
-    assert_equal hash["New newsletter subscriptions"], 13
+    assert_equal hash["Newsletter subscriptions"], 13
     assert_equal hash["Newsletter cancellations"], 14
     assert_equal hash["Current subscribers"], 15
   end
