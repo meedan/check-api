@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_08_09_160826) do
+ActiveRecord::Schema.define(version: 2023_08_14_235431) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -390,6 +390,10 @@ ActiveRecord::Schema.define(version: 2023_08_09_160826) do
     t.integer "conversations_24hr"
     t.integer "newsletters_delivered"
     t.integer "whatsapp_conversations"
+    t.integer "published_reports"
+    t.integer "positive_searches"
+    t.integer "negative_searches"
+    t.integer "newsletters_sent"
     t.index ["team_id", "platform", "language", "start_date"], name: "index_monthly_stats_team_platform_language_start", unique: true
     t.index ["team_id"], name: "index_monthly_team_statistics_on_team_id"
   end

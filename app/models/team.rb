@@ -595,7 +595,7 @@ class Team < ApplicationRecord
 
       data.map.with_index do |row, i|
         row['Month'] = "#{i + 1}. #{row['Month']}"
-        row.reject { |key, _value| key =~ /[sS]earch/ || ['Average number of conversations per day', 'Number of messages sent'].include?(key) }
+        row.reject { |key, _value| ['Average number of conversations per day', 'Number of messages sent'].include?(key) }
       end
     end
   end

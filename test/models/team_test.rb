@@ -1159,7 +1159,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_nil t.data_report
 
     Rails.cache.write("data:report:#{t.id}", [{ 'Month' => 'Jan 2022', 'Search' => 1, 'Foo' => 2 }])
-    assert_equal([{ 'Month' => '1. Jan 2022', 'Foo' => 2 }], t.data_report)
+    assert_equal([{ 'Month' => '1. Jan 2022', 'Search' => 1, 'Foo' => 2 }], t.data_report)
   end
 
   test "should return data report with chronologically ordered items, preferring the MonthlyTeamStatistics when present" do
