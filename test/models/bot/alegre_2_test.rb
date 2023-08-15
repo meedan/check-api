@@ -369,7 +369,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     tbi.set_text_similarity_enabled = false
     tbi.user = BotUser.alegre_user
     tbi.team = p.team
-    tbi.settings = {"alegre_models_in_use" => ["xlm-r-bert-base-nli-stsb-mean-tokens", "gooby"]}
+    tbi.settings = {"alegre_model_in_use" => ["xlm-r-bert-base-nli-stsb-mean-tokens", "gooby"]}
     tbi.save!
     assert_equal Bot::Alegre.get_tbi_indexing_models(tbi), ["xlm-r-bert-base-nli-stsb-mean-tokens", "gooby"]
   end
@@ -402,7 +402,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     tbi.set_text_similarity_enabled = false
     tbi.user = BotUser.alegre_user
     tbi.team = p.team
-    tbi.settings = {"text_similarity_models" => ["xlm-r-bert-base-nli-stsb-mean-tokens", "gooby"]}
+    tbi.settings = {"text_similarity_model" => ["xlm-r-bert-base-nli-stsb-mean-tokens", "gooby"]}
     tbi.save!
     assert_equal Bot::Alegre.get_tbi_matching_models(tbi), ["xlm-r-bert-base-nli-stsb-mean-tokens", "gooby"]
   end
@@ -498,7 +498,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm = create_project_media quote: "Blah", team: p.team
     pm.analysis = { title: 'Title 1' }
     pm.save!
-    tbi.settings = {"text_similarity_models": ["indian-sbert", "xlm-r-bert-base-nli-stsb-mean-tokens"], "alegre_models_in_use": ["indian-sbert", "xlm-r-bert-base-nli-stsb-mean-tokens"], "text_vector_matching_threshold" => 0.92, "text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_suggestion_threshold" => 0.97}
+    tbi.settings = {"text_similarity_model": ["indian-sbert", "xlm-r-bert-base-nli-stsb-mean-tokens"], "alegre_model_in_use": ["indian-sbert", "xlm-r-bert-base-nli-stsb-mean-tokens"], "text_vector_matching_threshold" => 0.92, "text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_suggestion_threshold" => 0.97}
     tbi.save!
     assert_equal Bot::Alegre.get_threshold_for_query("text", pm, true), [{:value=>0.875, :key=>"text_elasticsearch_matching_threshold", :automatic=>true, :model=>"elasticsearch"}, {:value=>0.92, :key=>"text_vector_matching_threshold", :automatic=>true, :model=>"indian-sbert"}, {:value=>0.92, :key=>"text_vector_matching_threshold", :automatic=>true, :model=>"xlm-r-bert-base-nli-stsb-mean-tokens"}]
     assert_equal Bot::Alegre.get_threshold_for_query("text", pm, false), [{:value=>0.7, :key=>"text_elasticsearch_suggestion_threshold", :automatic=>false, :model=>"elasticsearch"}, {:value=>0.75, :key=>"text_vector_suggestion_threshold", :automatic=>false, :model=>"indian-sbert"}, {:value=>0.97, :key=>"text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_suggestion_threshold", :automatic=>false, :model=>"xlm-r-bert-base-nli-stsb-mean-tokens"}]
@@ -513,7 +513,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm = create_project_media quote: "Blah", team: p.team
     pm.analysis = { title: 'Title 1' }
     pm.save!
-    tbi.settings = {"text_similarity_model": "paraphrase-filipino-mpnet-base-v2", "text_similarity_models": ["indian-sbert", "xlm-r-bert-base-nli-stsb-mean-tokens"], "alegre_model_in_use": "paraphrase-filipino-mpnet-base-v2", "alegre_models_in_use": ["indian-sbert", "xlm-r-bert-base-nli-stsb-mean-tokens"], "text_vector_matching_threshold" => 0.92, "text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_suggestion_threshold" => 0.97}
+    tbi.settings = {"text_similarity_model": "paraphrase-filipino-mpnet-base-v2", "text_similarity_model": ["indian-sbert", "xlm-r-bert-base-nli-stsb-mean-tokens"], "alegre_model_in_use": "paraphrase-filipino-mpnet-base-v2", "alegre_model_in_use": ["indian-sbert", "xlm-r-bert-base-nli-stsb-mean-tokens"], "text_vector_matching_threshold" => 0.92, "text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_suggestion_threshold" => 0.97}
     tbi.save!
     assert_equal Bot::Alegre.get_threshold_for_query("text", pm, true), [{:value=>0.875, :key=>"text_elasticsearch_matching_threshold", :automatic=>true, :model=>"elasticsearch"}, {:value=>0.92, :key=>"text_vector_matching_threshold", :automatic=>true, :model=>"indian-sbert"}, {:value=>0.92, :key=>"text_vector_matching_threshold", :automatic=>true, :model=>"xlm-r-bert-base-nli-stsb-mean-tokens"}]
     assert_equal Bot::Alegre.get_threshold_for_query("text", pm, false), [{:value=>0.7, :key=>"text_elasticsearch_suggestion_threshold", :automatic=>false, :model=>"elasticsearch"}, {:value=>0.75, :key=>"text_vector_suggestion_threshold", :automatic=>false, :model=>"indian-sbert"}, {:value=>0.97, :key=>"text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_suggestion_threshold", :automatic=>false, :model=>"xlm-r-bert-base-nli-stsb-mean-tokens"}]
