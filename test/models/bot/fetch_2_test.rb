@@ -38,7 +38,7 @@ class Bot::FetchTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, 'http://fetch:8000/claim_reviews?end_time=2017-08-06&include_raw=false&offset=0&per_page=100&service=test&start_time=2017-08-01').to_return(body: [@claim_review].to_json)
     WebMock.stub_request(:get, 'http://fetch:8000/claim_reviews?end_time=2017-08-11&include_raw=false&offset=0&per_page=100&service=test&start_time=2017-08-06').to_return(body: [@claim_review].to_json)
     WebMock.stub_request(:post, 'http://fetch:8000/subscribe').with(body: { service: 'foo', url: 'http://check:3100/api/webhooks/fetch?team=fetch&token=test', language: nil }.to_json).to_return(body: '{}')
-    WebMock.stub_request(:delete, 'http://fetch:8000/subscribe').with(body: { service: 'test', url: 'http://check:3100/api/webhooks/fetch?team=fetch&token=test', language: nil }.to_json).to_return(body: '{}')
+    WebMock.stub_request(:delete, 'http://fetch:8000/subscribe').with(body: { service: 'test', url: 'http://check:3100/api/webhooks/fetch?team=fetch&token=test'}.to_json).to_return(body: '{}')
     WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
     WebMock.stub_request(:delete, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
     
