@@ -432,7 +432,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_tbi_indexing_models(tbi)
-    tbi.get_alegre_models_in_use || tbi.get_alegre_model_in_use || self.default_model
+    tbi.get_alegre_model_in_use || self.default_model
   end
 
   def self.indexing_models_to_use(pm)
@@ -447,7 +447,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_tbi_matching_models(tbi)
-    tbi.get_text_similarity_models || tbi.get_text_similarity_model || self.default_matching_model
+    tbi.get_text_similarity_model || self.default_matching_model
   end
 
   def self.matching_model_to_use(team_ids)
