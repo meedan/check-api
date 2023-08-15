@@ -58015,6 +58015,20 @@
               "deprecationReason": null
             },
             {
+              "name": "media_slug",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "oembed_metadata",
               "description": null,
               "args": [

@@ -570,12 +570,20 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     with_current_user_and_team(bot, team) do
       pm = create_project_media team: team, quote: random_string
       assert_equal "text-#{team.slug}-#{pm.id}", pm.title
+      # verify media_slug field
+      cd = create_claim_description project_media: pm, description: 'description_text'
+      assert_equal pm.get_title, cd.description
+      assert_equal "text-#{team.slug}-#{pm.id}", pm.media_slug
     end
     # test with non smooch user
     with_current_user_and_team(u, team) do
       quote = random_string
       pm = create_project_media team: team, quote: quote
       assert_equal quote, pm.title
+      # verify media_slug field
+      cd = create_claim_description project_media: pm, description: 'description_text'
+      assert_equal pm.get_title, cd.description
+      assert_empty pm.media_slug
     end
   end
 

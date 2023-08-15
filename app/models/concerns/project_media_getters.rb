@@ -152,6 +152,15 @@ module ProjectMediaGetters
     title.to_s
   end
 
+  def media_slug
+    title = ''
+    if self.user&.login == 'smooch'
+      analysis = self.analysis
+      title = [analysis['file_title'], analysis['title']].compact_blank.first
+    end
+    title
+  end
+
   def get_description
     return self.fact_check_summary if self.get_main_channel == CheckChannels::ChannelCodes::FETCH
     analysis_description = self.has_analysis_description? ? self.analysis_description : nil
