@@ -8,25 +8,25 @@ class MonthlyTeamStatistic < ApplicationRecord
 
   # Mapping of attributes to human-readable descriptions
   FIELD_MAPPINGS = {
-    id: "ID",
-    platform_name: "Platform", # model method
-    language: "Language",
-    month: "Month", # model method
-    average_messages_per_day: 'Average messages per day',
+    id: 'ID',
+    platform_name: 'Platform', # model method
+    language: 'Language',
+    month: 'Month', # model method
+    whatsapp_conversations: 'WhatsApp conversations',
     unique_users: 'Unique users',
     returning_users: 'Returning users',
-    valid_new_requests: 'Valid new requests',
-    published_native_reports: 'Published native reports',
-    published_imported_reports: 'Published imported reports',
-    requests_answered_with_report: 'Requests answered with a report',
+    published_reports: 'Published reports',
+    positive_searches: 'Positive searches',
+    negative_searches: 'Negative searches',
     reports_sent_to_users: 'Reports sent to users',
     unique_users_who_received_report: 'Unique users who received a report',
     formatted_median_response_time: 'Average (median) response time', # model method
+    current_subscribers: 'Current subscribers',
     unique_newsletters_sent: 'Unique newsletters sent',
-    newsletters_delivered: 'Total newsletter received',
-    new_newsletter_subscriptions: 'New newsletter subscriptions',
-    newsletter_cancellations: 'Newsletter cancellations',
-    current_subscribers: 'Current subscribers'
+    newsletters_sent: 'Total newsletters sent',
+    newsletters_delivered: 'Total newsletters delivered',
+    new_newsletter_subscriptions: 'Newsletter subscriptions',
+    newsletter_cancellations: 'Newsletter cancellations'
   }.freeze
 
   def formatted_hash

@@ -1,49 +1,50 @@
-RequestType = GraphqlCrudOperations.define_default_type do
-  name 'Request'
-  description 'Request type'
+class RequestType < DefaultObject
+  description "Request type"
 
-  interfaces [NodeIdentification.interface]
+  implements GraphQL::Types::Relay::Node
 
-  field :dbid, types.Int
-  field :last_submitted_at, types.Int
-  field :request_type, types.String
-  field :content, types.String
-  field :last_called_webhook_at, types.String
-  field :fact_checked_by, types.String
-  field :subscribed, types.Boolean
-  field :medias_count, types.Int
-  field :requests_count, types.Int
-  field :subscriptions_count, types.Int
-  field :project_medias_count, types.Int
-  field :title, types.String
-  field :similar_to_request, RequestType
-  field :media_type, types.String
+  field :dbid, GraphQL::Types::Int, null: true
+  field :last_submitted_at, GraphQL::Types::Int, null: true
+  field :request_type, GraphQL::Types::String, null: true
+  field :content, GraphQL::Types::String, null: true
+  field :last_called_webhook_at, GraphQL::Types::String, null: true
+  field :fact_checked_by, GraphQL::Types::String, null: true
+  field :subscribed, GraphQL::Types::Boolean, null: true
+  field :medias_count, GraphQL::Types::Int, null: true
+  field :requests_count, GraphQL::Types::Int, null: true
+  field :subscriptions_count, GraphQL::Types::Int, null: true
+  field :project_medias_count, GraphQL::Types::Int, null: true
+  field :title, GraphQL::Types::String, null: true
+  field :similar_to_request, RequestType, null: true
+  field :media_type, GraphQL::Types::String, null: true
 
-  field :feed do
-    type -> { FeedType }
+  field :feed, FeedType, null: true
 
-    resolve -> (request, _args, _ctx) {
-      RecordLoader.for(Feed).load(request.feed_id)
-    }
+  def feed
+    RecordLoader.for(Feed).load(object.feed_id)
   end
 
-  field :media do
-    type -> { MediaType }
+  field :media, MediaType, null: true
 
-    resolve -> (request, _args, _ctx) {
-      RecordLoader.for(Media).load(request.media_id)
-    }
+  def media
+    RecordLoader.for(Media).load(object.media_id)
   end
 
-  connection :medias, MediaType.connection_type
+  field :medias, MediaType.connection_type, null: true
 
-  connection :similar_requests, -> { RequestType.connection_type } do
-    argument :media_id, types.Int
+  field :similar_requests,
+        RequestType.connection_type,
+        null: true do
+    argument :media_id, GraphQL::Types::Int, required: false, camelize: false
+  end
 
-    resolve ->(request, args, _ctx) {
-      requests = request.similar_requests.where(webhook_url: nil, last_called_webhook_at: nil)
-      requests = requests.where(media_id: args['media_id'].to_i) unless args['media_id'].blank?
-      requests
-    }
+  def similar_requests(media_id: nil)
+    requests =
+      object.similar_requests.where(
+        webhook_url: nil,
+        last_called_webhook_at: nil
+      )
+    requests = requests.where(media_id: media_id.to_i) unless media_id.blank?
+    requests
   end
 end

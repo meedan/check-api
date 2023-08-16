@@ -1,27 +1,10 @@
-AccountSourceType = GraphqlCrudOperations.define_default_type do
-  name 'AccountSource'
-  description 'AccountSource type'
+class AccountSourceType < DefaultObject
+  description "AccountSource type"
 
-  interfaces [NodeIdentification.interface]
+  implements GraphQL::Types::Relay::Node
 
-  field :account_id, types.Int
-  field :source_id, types.Int
-
-  field :source do
-    type -> { SourceType }
-
-    resolve -> (account_source, _args, _ctx) {
-      account_source.source
-    }
-  end
-
-  field :account do
-    type -> { AccountType }
-
-    resolve -> (account_source, _args, _ctx) {
-      account_source.account
-    }
-  end
-
-# End of fields
+  field :account_id, GraphQL::Types::Int, null: true
+  field :source_id, GraphQL::Types::Int, null: true
+  field :source, SourceType, null: true
+  field :account, AccountType, null: true
 end

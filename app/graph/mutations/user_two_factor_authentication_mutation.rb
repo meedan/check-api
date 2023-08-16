@@ -1,22 +1,26 @@
-UserTwoFactorAuthenticationMutation = GraphQL::Relay::Mutation.define do
-  name 'UserTwoFactorAuthentication'
+class UserTwoFactorAuthenticationMutation < Mutations::BaseMutation
+  graphql_name "UserTwoFactorAuthentication"
 
-  input_field :id, !types.Int
-  input_field :password, !types.String
-  input_field :qrcode, types.String
-  input_field :otp_required, types.Boolean
+  argument :id, GraphQL::Types::Int, required: true
+  argument :password, GraphQL::Types::String, required: true
+  argument :qrcode, GraphQL::Types::String, required: false
+  argument :otp_required, GraphQL::Types::Boolean, required: false, camelize: false
 
-  return_field :success, types.Boolean
-  return_field :user, UserType
+  field :success, GraphQL::Types::Boolean, null: true
+  field :user, UserType, null: true
 
-  resolve -> (_root, inputs, _ctx) {
-    user = User.where(id: inputs[:id]).last
-    if user.nil? || User.current.id != inputs[:id]
+  def resolve(id:, password:, qrcode: nil, otp_required: nil)
+    user = User.where(id: id).last
+    if user.nil? || User.current.id != id
       raise ActiveRecord::RecordNotFound
     else
-      options = { otp_required: inputs[:otp_required], password: inputs[:password], qrcode: inputs[:qrcode]}
-      user.two_factor=(options)
-      { success: true , user: user.reload }
+      options = {
+        otp_required: otp_required,
+        password: password,
+        qrcode: qrcode
+      }
+      user.two_factor = (options)
+      { success: true, user: user.reload }
     end
-  }
+  end
 end

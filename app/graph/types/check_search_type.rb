@@ -1,13 +1,11 @@
-CheckSearchType = GraphqlCrudOperations.define_default_type do
-  name 'CheckSearch'
-  description 'CheckSearch type'
+class CheckSearchType < DefaultObject
+  description "CheckSearch type"
 
-  interfaces [NodeIdentification.interface]
+  implements GraphQL::Types::Relay::Node
 
-  field :number_of_results, types.Int
-  field :pusher_channel, types.String
-  field :item_navigation_offset, types.Int
-  field :team, TeamType
-
-  connection :medias, ProjectMediaType.connection_type
+  field :number_of_results, GraphQL::Types::Int, null: true
+  field :pusher_channel, GraphQL::Types::String, null: true
+  field :item_navigation_offset, GraphQL::Types::Int, null: true
+  field :team, TeamType, null: true
+  field :medias, ProjectMediaType.connection_type, null: true
 end

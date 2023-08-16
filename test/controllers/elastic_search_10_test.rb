@@ -131,11 +131,11 @@ class ElasticSearch10Test < ActionController::TestCase
       cd = create_claim_description project_media: pm4, disable_es_callbacks: false
       create_fact_check claim_description: cd, disable_es_callbacks: false
       sleep 2
-      results = CheckSearch.new({ fc_languages: ['en', 'fr'] }.to_json)
+      results = CheckSearch.new({ fc_language: ['en', 'fr'] }.to_json)
       assert_equal [pm.id, pm2.id, pm3.id], results.medias.map(&:id).sort
-      results = CheckSearch.new({ fc_languages: ['fr', 'und'] }.to_json)
+      results = CheckSearch.new({ fc_language: ['fr', 'und'] }.to_json)
       assert_equal [pm3.id, pm4.id], results.medias.map(&:id).sort
-      results = CheckSearch.new({ keyword: 'claim', fc_languages: ['en', 'fr'] }.to_json)
+      results = CheckSearch.new({ keyword: 'claim', fc_language: ['en', 'fr'] }.to_json)
       assert_equal [pm.id], results.medias.map(&:id)
     end
   end
@@ -301,9 +301,9 @@ class ElasticSearch10Test < ActionController::TestCase
     }
     create_dynamic_annotation annotated: pm2, annotation_type: 'smooch_user', set_fields: { smooch_user_id: twitter_uid, smooch_user_data: { raw: twitter_data }.to_json }.to_json
     with_current_user_and_team(u, t) do
-      wa_smooch_data = { 'authorId' => whatsapp_uid, 'text' => 'smooch_request a', 'name' => 'wa_user' }
+      wa_smooch_data = { 'authorId' => whatsapp_uid, 'text' => 'smooch_request a', 'name' => 'wa_user', 'language' => 'en' }
       smooch_pm = create_dynamic_annotation annotated: pm, annotation_type: 'smooch', set_fields: { smooch_data: wa_smooch_data.to_json }.to_json, disable_es_callbacks: false
-      twitter_smooch_data = { 'authorId' => twitter_uid, 'text' => 'smooch_request b', 'name' => 'melsawy' }
+      twitter_smooch_data = { 'authorId' => twitter_uid, 'text' => 'smooch_request b', 'name' => 'melsawy', 'language' => 'fr' }
       smooch_pm2 = create_dynamic_annotation annotated: pm2, annotation_type: 'smooch', set_fields: { smooch_data: twitter_smooch_data.to_json }.to_json, disable_es_callbacks: false
       sleep 2
       result = CheckSearch.new({keyword: 'smooch_request', keyword_fields: {fields: ['request_content']}}.to_json)
@@ -312,6 +312,17 @@ class ElasticSearch10Test < ActionController::TestCase
       assert_equal [pm2.id], result.medias.map(&:id)
       result = CheckSearch.new({keyword: '551234567890', keyword_fields: {fields: ['request_username']}}.to_json)
       assert_equal [pm.id], result.medias.map(&:id)
+      # filter by request language
+      result = CheckSearch.new({request_language: ['en']}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      result = CheckSearch.new({request_language: ['fr']}.to_json)
+      assert_equal [pm2.id], result.medias.map(&:id)
+      result = CheckSearch.new({request_language: ['en', 'fr']}.to_json)
+      assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
+      result = CheckSearch.new({request_language: ['en', 'fr'], keyword: 'melsawy', keyword_fields: {fields: ['request_username']}}.to_json)
+      assert_equal [pm2.id], result.medias.map(&:id)
+      result = CheckSearch.new({request_language: ['ar']}.to_json)
+      assert_empty result.medias.map(&:id)
       # Verify destroy smooch_data
       smooch_pm.destroy!
       sleep 2

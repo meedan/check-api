@@ -966,3 +966,40 @@ ur:
   subscribed: آپ فی الحال ہمارے نیوز لیٹر کو سبسکرائب کر چکے ہیں۔
   unsubscribe_button_label: رکنیت ختم کریں۔
   unsubscribed: آپ نے فی الحال ہمارے نیوز لیٹر کو سبسکرائب نہیں کیا ہے۔
+vi:
+  add_more_details_state_button_label: Điền thêm
+  ask_if_ready_state_button_label: Hủy
+  cancelled: Được rồi!
+  confirm_preferred_language: Xin xác nhận ngôn ngữ thông dụng của bạn
+  invalid_format: "Rất tiếc, hồ sơ bạn nộp không đúng khuôn dạng."
+  keep_subscription_button_label: Tiếp tục ghi tên
+  languages: Ngôn ngữ
+  languages_and_privacy_title: Ngôn ngữ và Sự Riêng Tư
+  main_menu: Bảng Kê chính
+  main_state_button_label: Hủy
+  navigation_button: Dùng các nút bấm để điều hướng
+  no_results_in_language: "Không tìm thấy kết quả giải đáp viết bằng %{language}. Nhưng chúng tôi có vài giải đáp viết bằng các ngôn ngữ khác có thể trả lời thắc mắc cuả bạn."
+  privacy_and_purpose: |-
+    Sự riêng tư và Mục Đích
+
+    Chào mừng bạn đến %{team} %{channel} đường giây báo tin.
+
+    Bạn có thể dùng số này để đưa vào bản truy vấn để xác minh
+
+    Dữ liệu của bạn hoàn toàn an toàn. Chúng tôi lấy trách nhiệm một cách nghiêm túc để bảo vệ những tin tức riêng tư của bạn và giữ gìn %{channel} an toàn và riêng tư; sẽ không chia sẻ, bán, hay dùng những chi tiết cá nhân của bạn, ngoại trừ để cung cấp và cải tiến dịch vụ này
+
+    Để tìm ra những nguồn tin thất thiệt lan tràn một cách mau chóng trong tương lai, chúng tôi có thể chia sẻ những chi tiết không liên quan đến cá nhân từ đường báo tin với những nhà nghiên cứu và chuyên viên kiểm tin đối tác.
+
+    Xin lưu ý là các trang mạng gắn nối với chúng tôi cũng sẽ có những luật lệ bảo vệ sự riêng tư của bạn.
+
+    Nếu không muốn các bài nộp của bạn được dùng vào những công việc kể trên, xin đừng chia sẻ nộp bài vào hệ thống của chúng tôi.
+  privacy_statement: Lời Cam Kết Bảo Mật
+  privacy_title: Sự Riêng Tư
+  report_updated: "Nguồn kiểm tin sau đây đã được *cập nhật* với tin tức mới nhất:"
+  search_result_is_not_relevant_button_label: "Không"
+  search_result_is_relevant_button_label: "Có"
+  search_state_button_label: Nộp
+  subscribe_button_label: Ghi Danh
+  subscribed: Bạn hiện đã ghi danh nhận bản tin của chúng tôi.
+  unsubscribe_button_label: Ngừng Ghi Danh
+  unsubscribed: Bạn hiện không còn ghi danh nhận bản tin của chúng tôi.

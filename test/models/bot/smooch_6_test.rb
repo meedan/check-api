@@ -48,6 +48,11 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     Sidekiq::Testing.inline!
   end
 
+  def reload_tipline_settings
+    @installation = TeamBotInstallation.find(@installation.id)
+    Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
+  end
+
   def send_message(*messages)
     [messages].flatten.each { |message| send_message_to_smooch_bot(message, @uid) }
   end
@@ -315,7 +320,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     end
     @installation.settings = settings
     @installation.save!
-    Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
+    reload_tipline_settings
 
     send_message 'hello', '1'
     assert_state 'main'
@@ -465,7 +470,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     end
     @installation.settings = settings
     @installation.save!
-    Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
+    reload_tipline_settings
 
     send_message 'hello', '1'
     assert_state 'main'
@@ -525,7 +530,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   test "should timeout search results on tipline bot v2" do
     @installation.set_smooch_disable_timeout = false
     @installation.save!
-    Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
+    reload_tipline_settings
     uid = random_string
     Bot::Smooch.save_search_results_for_user(uid, [create_project_media.id])
     send_message_to_smooch_bot('Hello', uid)
@@ -660,7 +665,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   test "should avoid race condition on newsletter delivery" do
     @installation.set_smooch_disable_timeout = false
     @installation.save!
-    Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
+    reload_tipline_settings
 
     assert_no_difference 'ProjectMedia.count' do
       Sidekiq::Testing.fake! do
@@ -706,7 +711,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     @installation.set_capi_phone_number = '000000'
     @installation.save!
     Rails.cache.write('smooch_bot_installation_id:whatsapp_business_account_id:123456', @installation.id)
-    Bot::Smooch.get_installation('whatsapp_business_account_id', '123456')
+    reload_tipline_settings
     RequestStore.store[:smooch_bot_provider] = 'CAPI'
 
     Bot::Smooch.expects(:send_message_to_user).never
@@ -744,5 +749,46 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     }
     assert !Bot::Smooch.run(payload.to_json)
     assert_equal '000000:222222', ts.reload.uid
+  end
+
+  test 'should process menu option using NLU' do
+    # Mock any call to Alegre like `POST /text/similarity/` with a "text" parameter that contains "newsletter"
+    Bot::Alegre.stubs(:request_api).with{ |x, y, z| x == 'post' && y == '/text/similarity/' && z[:text] =~ /newsletter/ }.returns(true)
+    # Mock any call to Alegre like `GET /text/similarity/` with a "text" parameter that does not contain "newsletter"
+    Bot::Alegre.stubs(:request_api).with{ |x, y, z| x == 'get' && y == '/text/similarity/' && (z[:text] =~ /newsletter/).nil? }.returns({ 'result' => [] })
+
+    # Enable NLU and add a couple of keywords for the newsletter menu option
+    nlu = SmoochNlu.new(@team.slug)
+    nlu.enable!
+    nlu.add_keyword('en', 'main', 2, 'I want to subscribe to the newsletter')
+    nlu.add_keyword('en', 'main', 2, 'I want to unsubscribe from the newsletter')
+    reload_tipline_settings
+    query_option_id = @installation.get_smooch_workflows[0]['smooch_state_main']['smooch_menu_options'][1]['smooch_menu_option_id']
+    subscription_option_id = @installation.get_smooch_workflows[0]['smooch_state_main']['smooch_menu_options'][2]['smooch_menu_option_id']
+
+    # Mock a call to Alegre like `GET /text/similarity/` with a "text" parameter that contains "newsletter"
+    Bot::Alegre.stubs(:request_api).with{ |x, y, z| x == 'get' && y == '/text/similarity/' && z[:text] =~ /newsletter/ }.returns({ 'result' => [
+      { '_score' => 0.9, '_source' => { 'context' => { 'menu_option_id' => subscription_option_id } } },
+      { '_score' => 0.2, '_source' => { 'context' => { 'menu_option_id' => query_option_id } } }
+    ]})
+
+    # Sending a message about the newsletter should take to the newsletter state, as per configurations done above
+    send_message 'hello', '1' # Sends a first message and confirms language as English
+    assert_state 'main'
+    send_message 'Can I subscribe to the newsletter?'
+    assert_state 'subscription'
+    send_message '2' # Keep subscription
+    assert_state 'main'
+
+    # After disabling NLU
+    nlu.disable!
+    reload_tipline_settings
+    send_message 'Can I subscribe to the newsletter?'
+    assert_state 'main'
+
+    # Delete two keywords, so expect two calls to Alegre
+    Bot::Alegre.expects(:request_api).with{ |x, y, _z| x == 'delete' && y == '/text/similarity/' }.twice
+    nlu.remove_keyword('en', 'main', 2, 'I want to subscribe to the newsletter')
+    nlu.remove_keyword('en', 'main', 2, 'I want to unsubscribe from the newsletter')
   end
 end

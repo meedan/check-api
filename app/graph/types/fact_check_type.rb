@@ -1,14 +1,13 @@
-FactCheckType = GraphqlCrudOperations.define_default_type do
-  name 'FactCheck'
-  description 'FactCheck type'
+class FactCheckType < DefaultObject
+  description "FactCheck type"
 
-  interfaces [NodeIdentification.interface]
+  implements GraphQL::Types::Relay::Node
 
-  field :dbid, types.Int
-  field :title, types.String
-  field :summary, types.String
-  field :url, types.String
-  field :language, types.String
-  field :user, UserType
-  field :claim_description, ClaimDescriptionType
+  field :dbid, GraphQL::Types::Int, null: true
+  field :title, GraphQL::Types::String, null: true
+  field :summary, GraphQL::Types::String, null: true
+  field :url, GraphQL::Types::String, null: true
+  field :language, GraphQL::Types::String, null: true
+  field :user, UserType, null: true
+  field :claim_description, ClaimDescriptionType, null: true
 end

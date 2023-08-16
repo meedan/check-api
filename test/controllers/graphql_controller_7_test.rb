@@ -4,6 +4,7 @@ class GraphqlController7Test < ActionController::TestCase
   def setup
     require 'sidekiq/testing'
     super
+    TestDynamicAnnotationTables.load!
     @controller = Api::V1::GraphqlController.new
     RequestStore.store[:skip_cached_field_update] = false
     Sidekiq::Testing.fake!
@@ -11,7 +12,7 @@ class GraphqlController7Test < ActionController::TestCase
     Team.unstub(:current)
     User.current = nil
     Team.current = nil
-    create_verification_status_stuff
+
     @t = create_team
     @u = create_user
     @tu = create_team_user team: @t, user: @u, role: 'admin'
@@ -84,7 +85,7 @@ class GraphqlController7Test < ActionController::TestCase
     u = create_user
     t2 = create_team
     create_team_user user: u, team: t2, role: 'admin'
-    
+
     query = "query { team(slug: \"#{t.slug}\") { team_bot_installations(first: 1) { edges { node { smooch_enabled_integrations } } } } }"
     post :create, params: { query: query }
     assert_error_message 'Not Found'
@@ -196,7 +197,7 @@ class GraphqlController7Test < ActionController::TestCase
     assert_not_empty data['feeds']['edges']
   end
 
-  test "should search by report status" do
+  test "should search by report fields" do
     setup_elasticsearch
     RequestStore.store[:skip_cached_field_update] = false
     t = create_team
@@ -214,7 +215,7 @@ class GraphqlController7Test < ActionController::TestCase
 
     # Paused
     pm2 = create_project_media team: t, disable_es_callbacks: false
-    r2 = publish_report(pm2)
+    r2 = publish_report(pm2, {}, nil, {'language' => 'fr'})
     r2 = Dynamic.find(r2.id)
     r2.disable_es_callbacks = false
     r2.set_fields = { state: 'paused' }.to_json
@@ -236,6 +237,11 @@ class GraphqlController7Test < ActionController::TestCase
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal [pm1.id, pm2.id], results.sort
+    # filter by report language
+    query = 'query CheckSearch { search(query: "{\"language_filter\":{\"report_language\":[\"fr\"]}}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }
   end
 
   test "should filter by read in PostgreSQL" do
@@ -407,20 +413,6 @@ class GraphqlController7Test < ActionController::TestCase
     t = create_team slug: 'context'
     post :create, params: { query: 'query Query { me { name } }' }
     assert_equal 'America/Bahia', assigns(:context_timezone)
-  end
-
-  test "should handle nested error" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u
-    authenticate_with_user(u)
-    p = create_project team: t
-    pm = create_project_media project: p
-    RelayOnRailsSchema.stubs(:execute).raises(GraphQL::Batch::NestedError)
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
-    post :create, params: { query: query, team: t.slug }
-    assert_response 400
-    RelayOnRailsSchema.unstub(:execute)
   end
 
   test "should return project medias with provided URL that user has access to" do

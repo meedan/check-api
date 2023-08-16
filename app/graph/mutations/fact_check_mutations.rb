@@ -1,18 +1,30 @@
 module FactCheckMutations
-  create_fields = {
-    title: '!str',
-    summary: '!str',
-    url: 'str',
-    language: 'str',
-    claim_description_id: '!int',
-  }
+  MUTATION_TARGET = 'fact_check'.freeze
+  PARENTS = ['claim_description'].freeze
 
-  update_fields = {
-    title: 'str',
-    summary: 'str',
-    url: 'str',
-    language: 'str'
-  }
+  module SharedCreateAndUpdateFields
+    extend ActiveSupport::Concern
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('fact_check', create_fields, update_fields, ['claim_description'])
+    included do
+      argument :url, GraphQL::Types::String, required: false
+      argument :language, GraphQL::Types::String, required: false
+    end
+  end
+
+  class Create < Mutations::CreateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :title, GraphQL::Types::String, required: true
+    argument :summary, GraphQL::Types::String, required: true
+    argument :claim_description_id, GraphQL::Types::Int, required: true, camelize: false
+  end
+
+  class Update < Mutations::UpdateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :title, GraphQL::Types::String, required: false
+    argument :summary, GraphQL::Types::String, required: false
+  end
+
+  class Destroy < Mutations::DestroyMutation; end
 end

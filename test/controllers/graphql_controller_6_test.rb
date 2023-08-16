@@ -4,6 +4,7 @@ class GraphqlController6Test < ActionController::TestCase
   def setup
     require 'sidekiq/testing'
     super
+    TestDynamicAnnotationTables.load!
     @controller = Api::V1::GraphqlController.new
     RequestStore.store[:skip_cached_field_update] = false
     Sidekiq::Testing.fake!
@@ -11,7 +12,6 @@ class GraphqlController6Test < ActionController::TestCase
     Team.unstub(:current)
     User.current = nil
     Team.current = nil
-    create_verification_status_stuff
     @t = create_team
     @u = create_user
     @tu = create_team_user team: @t, user: @u, role: 'admin'
@@ -32,7 +32,7 @@ class GraphqlController6Test < ActionController::TestCase
     tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
     u = create_user
     create_team_user user: u, team: t, role: 'admin'
-    
+
     authenticate_with_user(u)
     query = "query { team(slug: \"#{t.slug}\") { team_bot_installation(bot_identifier: \"smooch\") { smooch_enabled_integrations(force: true) } } }"
     post :create, params: { query: query }
@@ -94,7 +94,7 @@ class GraphqlController6Test < ActionController::TestCase
 
     create_project_media team: t, project: nil, project_id: nil
     create_project_media project: p
-    
+
     query = 'query CheckSearch { search(query: "{}") { medias(first: 20) { edges { node { dbid } } } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success

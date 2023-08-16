@@ -49,12 +49,17 @@ namespace :check do
       condition = {}
       if slugs.blank?
         last_team_id = Rails.cache.read('check:migrate:migrate_from_folders_to_lists:team_id') || 0
+        # Collect teams with activity in the last year
+        last_year = Time.now - 1.years
+        team_ids = ProjectMedia.select('team_id').where('created_at > ?', last_year).group('team_id').map(&:team_id).uniq
+        condition = { id: team_ids }
       else
         last_team_id = 0
         condition = { slug: slugs }
       end
       errors = []
       Team.where(condition).where('id > ?', last_team_id).find_each do |team|
+        puts "Processing team [#{team.slug}]"
         team_tags = team.tag_texts.map{ |tag| [tag.id.to_s, tag.text] }.to_h
         team.projects.where(is_default: false).find_each do |project|
           puts "Processing folder [#{team.slug} => #{project.title}(#{project.id})]\n"
@@ -74,7 +79,10 @@ namespace :check do
           project.project_medias.find_in_batches(:batch_size => 1000) do |pms|
             print '.'
             ids = pms.map(&:id)
-            # Tag existing items
+            existing_tags = Tag.where(annotated_id: ids, annotated_type: 'ProjectMedia')
+            .where("data = ?", { tag: tag_text.id }.with_indifferent_access.to_yaml).map(&:annotated_id)
+            # Tag existing items (exclude items with same tag)
+            ids = ids - existing_tags
             inserts = []
             ids.each {|pm_id| inserts << { annotated_type: 'ProjectMedia', annotated_id: pm_id, annotation_type: 'tag', data: { tag: tag_text.id } }.with_indifferent_access }
             # Bulk-insert tags
@@ -94,7 +102,7 @@ namespace :check do
               tags_as_sentence = tags.collect{|item| item[:tag]}.uniq.join(', ')
               Rails.cache.write("check_cached_field:ProjectMedia:#{pm_id.to_i}:tags_as_sentence", tags_as_sentence)
               doc_id = Base64.encode64("ProjectMedia/#{pm_id}")
-              fields = { 'tags' => tags, 'tags_as_sentence' => tags_as_sentence.size }
+              fields = { 'tags' => tags, 'tags_as_sentence' => tags_as_sentence.split(', ').size }
               es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
             end
             client.bulk body: es_body unless es_body.blank?
