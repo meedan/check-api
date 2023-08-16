@@ -270,8 +270,8 @@ class TiplineNewsletter < ApplicationRecord
   def validate_header_file(max_size, allowed_types, message)
     size_in_mb = (self.header_file.file.size.to_f / (1000 * 1000))
     type = self.header_file.file.extension.downcase
-    errors.add(:base, I18n.t(message, { max_size: "#{max_size}MB" })) if size_in_mb > max_size.to_f
-    errors.add(:header_file, I18n.t('errors.messages.extension_white_list_error', { extension: type, allowed_types: allowed_types.join(', ') })) unless allowed_types.include?(type)
+    errors.add(:base, I18n.t(message, **{ max_size: "#{max_size}MB" })) if size_in_mb > max_size.to_f
+    errors.add(:header_file, I18n.t('errors.messages.extension_white_list_error', **{ extension: type, allowed_types: allowed_types.join(', ') })) unless allowed_types.include?(type)
   end
 
   def not_scheduled_for_the_past
