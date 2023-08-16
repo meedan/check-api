@@ -24,7 +24,7 @@ class MonthlyTeamStatistic < ApplicationRecord
     current_subscribers: 'Current subscribers',
     unique_newsletters_sent: 'Unique newsletters sent',
     newsletters_sent: 'Total newsletters sent',
-    newsletters_delivered: 'Total newsletters received',
+    newsletters_delivered: 'Total newsletters delivered',
     new_newsletter_subscriptions: 'Newsletter subscriptions',
     newsletter_cancellations: 'Newsletter cancellations'
   }.freeze
