@@ -6,7 +6,7 @@ module SmoochFields
   module ClassMethods
     ::DynamicAnnotation::Field.class_eval do
       def smooch_user_slack_channel_url
-        Concurrent::Future.execute(executor: POOL) do
+        Concurrent::Future.execute(executor: CheckGraphql::POOL) do
           return unless self.field_name == 'smooch_data'
           slack_channel_url = ''
           data = self.value_json
@@ -25,7 +25,7 @@ module SmoochFields
       end
 
       def smooch_user_external_identifier
-        Concurrent::Future.execute(executor: POOL) do
+        Concurrent::Future.execute(executor: CheckGraphql::POOL) do
           return unless self.field_name == 'smooch_data'
           data = self.value_json
           Rails.cache.fetch("smooch:user:external_identifier:#{data['authorId']}") do
@@ -49,13 +49,13 @@ module SmoochFields
       end
 
       def smooch_report_received_at
-        Concurrent::Future.execute(executor: POOL) do
+        Concurrent::Future.execute(executor: CheckGraphql::POOL) do
           begin self.annotation.load.get_field_value('smooch_report_received').to_i rescue nil end
         end
       end
 
       def smooch_report_update_received_at
-        Concurrent::Future.execute(executor: POOL) do
+        Concurrent::Future.execute(executor: CheckGraphql::POOL) do
           begin
             field = self.annotation.load.get_field('smooch_report_received')
             field.created_at != field.updated_at ? field.value.to_i : nil
@@ -66,7 +66,7 @@ module SmoochFields
       end
 
       def smooch_user_request_language
-        Concurrent::Future.execute(executor: POOL) do
+        Concurrent::Future.execute(executor: CheckGraphql::POOL) do
           return '' unless self.field_name == 'smooch_data'
           self.value_json['language'].to_s
         end

@@ -7,6 +7,9 @@ class ClaimDescription < ApplicationRecord
   validates_presence_of :project_media
   validates_uniqueness_of :project_media_id
 
+  # To avoid GraphQL conflict with name `context`
+  alias_attribute :claim_context, :context
+
   # FIXME: Required by GraphQL API
   def fact_checks
     self.fact_check ? [self.fact_check] : []

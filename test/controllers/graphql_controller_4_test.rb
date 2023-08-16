@@ -4,6 +4,7 @@ class GraphqlController4Test < ActionController::TestCase
   def setup
     require 'sidekiq/testing'
     super
+    TestDynamicAnnotationTables.load!
     @controller = Api::V1::GraphqlController.new
     RequestStore.store[:skip_cached_field_update] = false
     Sidekiq::Testing.fake!
@@ -11,7 +12,6 @@ class GraphqlController4Test < ActionController::TestCase
     Team.unstub(:current)
     User.current = nil
     Team.current = nil
-    create_verification_status_stuff
     @t = create_team
     @u = create_user
     @tu = create_team_user team: @t, user: @u, role: 'admin'
@@ -283,7 +283,7 @@ class GraphqlController4Test < ActionController::TestCase
     pm2 = create_project_media project: @p1
     # add similar items
     t_pm1 = create_project_media project: @pm1.project
-    create_relationship source_id: @pm1.id, target_id: t_pm1.id 
+    create_relationship source_id: @pm1.id, target_id: t_pm1.id
     t2_pm1 = create_project_media project: @pm1.project
     create_relationship source_id: @pm1.id, target_id: t2_pm1.id
     t_pm2 = create_project_media project: @pm2.project

@@ -1,21 +1,45 @@
 module RelationshipMutations
-  create_fields = {
-    source_id: 'int',
-    target_id: 'int',
-    relationship_type: 'json',
-    relationship_source_type: 'str',
-    relationship_target_type: 'str'
-  }
+  MUTATION_TARGET = 'relationship'.freeze
+  PARENTS = [
+    { source_project_media: ProjectMediaType },
+    { target_project_media: ProjectMediaType },
+  ].freeze
 
-  update_fields = {
-    source_id: 'int',
-    target_id: 'int',
-    relationship_source_type: 'str',
-    relationship_target_type: 'str'
-  }
+  module SharedCreateAndUpdateFields
+    extend ActiveSupport::Concern
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('relationship', create_fields, update_fields, ['source_project_media', 'target_project_media'])
+    included do
+      argument :source_id, GraphQL::Types::Int, required: false, camelize: false
+      argument :target_id, GraphQL::Types::Int, required: false, camelize: false
+      argument :relationship_source_type, GraphQL::Types::String, required: false, camelize: false
+      argument :relationship_target_type, GraphQL::Types::String, required: false, camelize: false
+    end
+  end
 
-  BulkUpdate = GraphqlCrudOperations.define_bulk_update(Relationship, { action: '!str', source_id: "!int" }, ['source_project_media'])
-  BulkDestroy = GraphqlCrudOperations.define_bulk_destroy(Relationship, { source_id: "!int" }, ['source_project_media'])
+  class Create < Mutations::CreateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :relationship_type, JsonStringType, required: false, camelize: false
+  end
+
+  class Update < Mutations::UpdateMutation
+    include SharedCreateAndUpdateFields
+  end
+
+  class Destroy < Mutations::DestroyMutation
+    argument :archive_target, GraphQL::Types::Int, required: false, camelize: false
+  end
+
+  module Bulk
+    PARENTS = [{ source_project_media: ProjectMediaType }].freeze
+
+    class Update < Mutations::BulkUpdateMutation
+      argument :action, GraphQL::Types::String, required: true
+      argument :source_id, GraphQL::Types::Int, required: true, camelize: false
+    end
+
+    class Destroy < Mutations::BulkDestroyMutation
+      argument :source_id, GraphQL::Types::Int, required: true, camelize: false
+    end
+  end
 end

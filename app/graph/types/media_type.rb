@@ -1,25 +1,20 @@
-MediaType = GraphqlCrudOperations.define_default_type do
-  name 'Media'
-  description 'Media type'
+class MediaType < DefaultObject
+  description "Media type"
 
-  interfaces [NodeIdentification.interface]
+  implements GraphQL::Types::Relay::Node
 
-  field :url, types.String
-  field :quote, types.String
-  field :account_id, types.Int
-  field :dbid, types.Int
-  field :domain, types.String
-  field :pusher_channel, types.String
-  field :embed_path, types.String
-  field :thumbnail_path, types.String
-  field :picture, types.String
-  field :type, types.String
-  field :file_path, types.String
-  field :metadata, JsonStringType
+  field :url, GraphQL::Types::String, null: true
+  field :quote, GraphQL::Types::String, null: true
+  field :account_id, GraphQL::Types::Int, null: true
+  field :dbid, GraphQL::Types::Int, null: true
+  field :domain, GraphQL::Types::String, null: true
+  field :pusher_channel, GraphQL::Types::String, null: true
+  field :embed_path, GraphQL::Types::String, null: true
+  field :thumbnail_path, GraphQL::Types::String, null: true
+  field :picture, GraphQL::Types::String, null: true
+  field :type, GraphQL::Types::String, null: true
+  field :file_path, GraphQL::Types::String, null: true
+  field :metadata, JsonStringType, null: true
 
-  field :account do
-    type -> { AccountType }
-
-    resolve -> (media, _args, _ctx) { media.account }
-  end
+  field :account, AccountType, null: true
 end

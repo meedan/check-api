@@ -122,7 +122,7 @@ class Dynamic < ApplicationRecord
     handle_elasticsearch_response(op)
     handle_annotated_by(op)
     handle_extracted_text(op)
-    handle_report_published_at
+    handle_report_fields
   end
 
   def handle_elasticsearch_response(op)
@@ -148,14 +148,14 @@ class Dynamic < ApplicationRecord
     if self.annotated_type == 'ProjectMedia' && self.annotation_type == 'extracted_text'
       pm = self.annotated
       value = op == 'destroy' ? '' : self.data['text']
-      pm.update_elasticsearch_doc(['extracted_text'], { 'extracted_text' => value }, pm.id)
+      pm.update_elasticsearch_doc(['extracted_text'], { 'extracted_text' => value }, pm.id, true)
     end
   end
 
-  def handle_report_published_at
+  def handle_report_fields
     if self.annotated_type == 'ProjectMedia' && self.annotation_type == 'report_design'
-      data = { 'report_published_at' => self.data['last_published'] }
-      self.update_elasticsearch_doc(['report_published_at'], data, self.annotated_id)
+      data = { 'report_published_at' => self.data['last_published'], 'report_language' => self.report_design_field_value('language') }
+      self.update_elasticsearch_doc(data.keys, data, self.annotated_id, true)
     end
   end
 

@@ -51,7 +51,7 @@ module Api
           render json: result
 
         # Mutations are not batched, so we can return errors in the root
-        rescue ActiveRecord::RecordInvalid, RuntimeError, NameError, GraphQL::Batch::NestedError => e
+        rescue ActiveRecord::RecordInvalid, RuntimeError, NameError => e
           @output = parse_json_exception(e)
           CheckSentry.notify(e)
           render json: @output, status: 400
@@ -150,7 +150,7 @@ module Api
 
       def load_context_team
         slug = request.params['team'] || request.headers['X-Check-Team']
-        slug = URI.decode(slug) unless slug.blank?
+        slug = CGI::unescape(slug) unless slug.blank?
         @context_team = Team.where(slug: slug).first unless slug.blank?
         Team.current = @context_team
       end

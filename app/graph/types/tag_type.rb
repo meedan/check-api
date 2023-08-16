@@ -1,3 +1,13 @@
-TagType = GraphqlCrudOperations.define_annotation_type('tag', { tag: 'str', tag_text: 'str', fragment: 'str' }) do
-  field :tag_text_object, TagTextType
+class TagType < BaseObject
+  include Types::Inclusions::AnnotationBehaviors
+
+  def id
+    object.relay_id('tag')
+  end
+
+  field :tag, GraphQL::Types::String, null: true
+  field :tag_text, GraphQL::Types::String, null: true
+  field :fragment, GraphQL::Types::String, null: true
+
+  field :tag_text_object, TagTextType, null: true
 end

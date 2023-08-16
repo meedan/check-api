@@ -1,7 +1,7 @@
 version: "2.2"
 volumes:
   elasticsearch:
-  postgres12:
+  postgres13:
   redis:
   minio:
 networks:
@@ -27,7 +27,7 @@ services:
     networks:
       - dev
   postgres:
-    image: postgres:12-bullseye
+    image: postgres:13-buster
     ports:
       - "5432:5432"
     environment:

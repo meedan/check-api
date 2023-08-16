@@ -1,13 +1,16 @@
 module TeamBotInstallationMutations
-  create_fields = {
-    team_id: '!int',
-    user_id: '!int'
-  }
+  MUTATION_TARGET = 'team_bot_installation'.freeze
+  PARENTS = ['team', 'bot_user'].freeze
 
-  update_fields = {
-    json_settings: 'str',
-    lock_version: 'int'
-  }
+  class Create < Mutations::CreateMutation
+    argument :team_id, GraphQL::Types::Int, required: true, camelize: false
+    argument :user_id, GraphQL::Types::Int, required: true, camelize: false
+  end
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('team_bot_installation', create_fields, update_fields, ['team', 'bot_user'])
+  class Update < Mutations::UpdateMutation
+    argument :json_settings, GraphQL::Types::String, required: false, camelize: false
+    argument :lock_version, GraphQL::Types::Int, required: false, camelize: false
+  end
+
+  class Destroy < Mutations::DestroyMutation; end
 end

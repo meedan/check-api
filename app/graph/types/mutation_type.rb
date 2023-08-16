@@ -1,138 +1,147 @@
-require File.join(Rails.root, 'app', 'graph', 'mutations', 'dynamic_annotation_types')
+require File.join(Rails.root,"app","graph","mutations","dynamic_annotation_types")
 
-MutationType = GraphQL::ObjectType.define do
-  name 'MutationType'
-  field :createComment, field: CommentMutations::Create.field
-  field :updateComment, field: CommentMutations::Update.field
-  field :destroyComment, field: CommentMutations::Destroy.field
+class MutationType < BaseObject
+  # Override snakecase by default in BaseObject, so that mutations are in camelcase
+  field_class GraphQL::Schema::Field
 
-  field :createSource, field: SourceMutations::Create.field
-  field :updateSource, field: SourceMutations::Update.field
-  field :destroySource, field: SourceMutations::Destroy.field
+  graphql_name "MutationType"
 
-  field :createTeamUser, field: TeamUserMutations::Create.field
-  field :updateTeamUser, field: TeamUserMutations::Update.field
-  field :destroyTeamUser, field: TeamUserMutations::Destroy.field
+  field :createComment, mutation: CommentMutations::Create
+  field :updateComment, mutation: CommentMutations::Update
+  field :destroyComment, mutation: CommentMutations::Destroy
 
-  field :createTeam, field: TeamMutations::Create.field
-  field :updateTeam, field: TeamMutations::Update.field
-  field :destroyTeam, field: TeamMutations::Destroy.field
-  field :deleteTeamStatus, field: DeleteTeamStatusMutation.field
-  field :duplicateTeam, field: DuplicateTeamMutation.field
+  field :createSource, mutation: SourceMutations::Create
+  field :updateSource, mutation: SourceMutations::Update
+  field :destroySource, mutation: SourceMutations::Destroy
 
-  field :updateAccount, field: AccountMutations::Update.field
+  field :createTeamUser, mutation: TeamUserMutations::Create
+  field :updateTeamUser, mutation: TeamUserMutations::Update
+  field :destroyTeamUser, mutation: TeamUserMutations::Destroy
 
-  field :createAccountSource, field: AccountSourceMutations::Create.field
-  field :updateAccountSource, field: AccountSourceMutations::Update.field
-  field :destroyAccountSource, field: AccountSourceMutations::Destroy.field
+  field :createTeam, mutation: TeamMutations::Create
+  field :updateTeam, mutation: TeamMutations::Update
+  field :destroyTeam, mutation: TeamMutations::Destroy
 
-  field :createProject, field: ProjectMutations::Create.field
-  field :updateProject, field: ProjectMutations::Update.field
-  field :destroyProject, field: ProjectMutations::Destroy.field
+  field :deleteTeamStatus, mutation: DeleteTeamStatusMutation
 
-  field :createProjectMedia, field: ProjectMediaMutations::Create.field
-  field :updateProjectMedia, field: ProjectMediaMutations::Update.field
-  field :updateProjectMedias, field: ProjectMediaMutations::BulkUpdate.field
-  field :destroyProjectMedia, field: ProjectMediaMutations::Destroy.field
-  field :replaceProjectMedia, field: ProjectMediaMutations::Replace.field
+  field :duplicateTeam, mutation: DuplicateTeamMutation
 
-  field :createUser, field: UserMutations::Create.field
-  field :updateUser, field: UserMutations::Update.field
-  field :destroyUser, field: UserMutations::Destroy.field
+  field :updateAccount, mutation: AccountMutations::Update
 
-  field :createTag, field: TagMutations::Create.field
-  field :updateTag, field: TagMutations::Update.field
-  field :destroyTag, field: TagMutations::Destroy.field
-  field :createTags, field: TagMutations::BulkCreate.field
+  field :createAccountSource, mutation: AccountSourceMutations::Create
+  field :updateAccountSource, mutation: AccountSourceMutations::Update
+  field :destroyAccountSource, mutation: AccountSourceMutations::Destroy
 
-  field :createAnnotation, field: AnnotationMutations::Create.field
-  field :destroyAnnotation, field: AnnotationMutations::Destroy.field
-  field :extractText, field: OcrMutations::ExtractText.field
-  field :transcribeAudio, field: TranscriptionMutations::TranscribeAudio.field
+  field :createProject, mutation: ProjectMutations::Create
+  field :updateProject, mutation: ProjectMutations::Update
+  field :destroyProject, mutation: ProjectMutations::Destroy
 
-  field :destroyVersion, field: VersionMutations::Destroy.field
+  field :createProjectMedia, mutation: ProjectMediaMutations::Create
+  field :updateProjectMedia, mutation: ProjectMediaMutations::Update
+  field :updateProjectMedias, mutation: ProjectMediaMutations::Bulk::Update
+  field :destroyProjectMedia, mutation: ProjectMediaMutations::Destroy
+  field :replaceProjectMedia, mutation: ProjectMediaMutations::Replace
 
-  field :createDynamic, field: DynamicMutations::Create.field
-  field :updateDynamic, field: DynamicMutations::Update.field
-  field :destroyDynamic, field: DynamicMutations::Destroy.field
+  field :createUser, mutation: UserMutations::Create
+  field :updateUser, mutation: UserMutations::Update
+  field :destroyUser, mutation: UserMutations::Destroy
 
-  field :createTask, field: TaskMutations::Create.field
-  field :updateTask, field: TaskMutations::Update.field
-  field :destroyTask, field: TaskMutations::Destroy.field
-  field :moveTaskUp, field: TasksOrderMutations::MoveTaskUp.field
-  field :moveTaskDown, field: TasksOrderMutations::MoveTaskDown.field
-  field :addFilesToTask, field: TasksFileMutations::AddFilesToTask.field
-  field :removeFilesFromTask, field: TasksFileMutations::RemoveFilesFromTask.field
+  field :createTag, mutation: TagMutations::Create
+  field :updateTag, mutation: TagMutations::Update
+  field :destroyTag, mutation: TagMutations::Destroy
+  field :createTags, mutation: TagMutations::Bulk::Create
 
-  field :resetPassword, field: ResetPasswordMutation.field
-  field :changePassword, field: ChangePasswordMutation.field
-  field :resendConfirmation, field: ResendConfirmationMutation.field
-  field :userInvitation, field: UserInvitationMutation.field
-  field :resendCancelInvitation, field: ResendCancelInvitationMutation.field
-  field :deleteCheckUser, field: DeleteCheckUserMutation.field
-  field :userDisconnectLoginAccount, field: UserDisconnectLoginAccountMutation.field
-  field :userTwoFactorAuthentication, field: UserTwoFactorAuthenticationMutation.field
-  field :generateTwoFactorBackupCodes, field: GenerateTwoFactorBackupCodesMutation.field
+  field :createAnnotation, mutation: AnnotationMutations::Create
+  field :destroyAnnotation, mutation: AnnotationMutations::Destroy
 
-  field :createTeamBotInstallation, field: TeamBotInstallationMutations::Create.field
-  field :updateTeamBotInstallation, field: TeamBotInstallationMutations::Update.field
-  field :destroyTeamBotInstallation, field: TeamBotInstallationMutations::Destroy.field
+  field :extractText, mutation: OcrMutations::ExtractText
 
-  field :smoochBotAddSlackChannelUrl, field: SmoochBotMutations::AddSlackChannelUrl.field
-  field :smoochBotAddIntegration, field: SmoochBotMutations::AddIntegration.field
-  field :smoochBotRemoveIntegration, field: SmoochBotMutations::RemoveIntegration.field
+  field :transcribeAudio, mutation: TranscriptionMutations::TranscribeAudio
 
-  field :createTagText, field: TagTextMutations::Create.field
-  field :updateTagText, field: TagTextMutations::Update.field
-  field :destroyTagText, field: TagTextMutations::Destroy.field
+  field :destroyVersion, mutation: VersionMutations::Destroy
 
-  field :createTeamTask, field: TeamTaskMutations::Create.field
-  field :updateTeamTask, field: TeamTaskMutations::Update.field
-  field :destroyTeamTask, field: TeamTaskMutations::Destroy.field
-  field :moveTeamTaskUp, field: TasksOrderMutations::MoveTeamTaskUp.field
-  field :moveTeamTaskDown, field: TasksOrderMutations::MoveTeamTaskDown.field
+  field :createDynamic, mutation: DynamicMutations::Create
+  field :updateDynamic, mutation: DynamicMutations::Update
+  field :destroyDynamic, mutation: DynamicMutations::Destroy
 
-  field :createRelationship, field: RelationshipMutations::Create.field
-  field :updateRelationship, field: RelationshipMutations::Update.field
-  field :destroyRelationship, field: RelationshipMutations::Destroy.field
-  field :updateRelationships, field: RelationshipMutations::BulkUpdate.field
-  field :destroyRelationships, field: RelationshipMutations::BulkDestroy.field
+  field :createTask, mutation: TaskMutations::Create
+  field :updateTask, mutation: TaskMutations::Update
+  field :destroyTask, mutation: TaskMutations::Destroy
 
-  DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_type).each do |type|
-    DynamicAnnotation::AnnotationTypeManager.define_type(type)
+  field :moveTaskUp, mutation: TasksOrderMutations::MoveTaskUp
+  field :moveTaskDown, mutation: TasksOrderMutations::MoveTaskDown
+  field :addFilesToTask, mutation: TasksFileMutations::AddFilesToTask
+  field :removeFilesFromTask, mutation: TasksFileMutations::RemoveFilesFromTask
+
+  field :resetPassword, mutation: ResetPasswordMutation
+  field :changePassword, mutation: ChangePasswordMutation
+  field :resendConfirmation, mutation: ResendConfirmationMutation
+  field :userInvitation, mutation: UserInvitationMutation
+  field :resendCancelInvitation, mutation: ResendCancelInvitationMutation
+  field :deleteCheckUser, mutation: DeleteCheckUserMutation
+  field :userDisconnectLoginAccount, mutation: UserDisconnectLoginAccountMutation
+  field :userTwoFactorAuthentication, mutation: UserTwoFactorAuthenticationMutation
+  field :generateTwoFactorBackupCodes, mutation: GenerateTwoFactorBackupCodesMutation
+
+  field :createTeamBotInstallation, mutation: TeamBotInstallationMutations::Create
+  field :updateTeamBotInstallation, mutation: TeamBotInstallationMutations::Update
+  field :destroyTeamBotInstallation, mutation: TeamBotInstallationMutations::Destroy
+
+  field :smoochBotAddSlackChannelUrl, mutation: SmoochBotMutations::AddSlackChannelUrl
+  field :smoochBotAddIntegration, mutation: SmoochBotMutations::AddIntegration
+  field :smoochBotRemoveIntegration, mutation: SmoochBotMutations::RemoveIntegration
+
+  field :createTagText, mutation: TagTextMutations::Create
+  field :updateTagText, mutation: TagTextMutations::Update
+  field :destroyTagText, mutation: TagTextMutations::Destroy
+
+  field :createTeamTask, mutation: TeamTaskMutations::Create
+  field :updateTeamTask, mutation: TeamTaskMutations::Update
+  field :destroyTeamTask, mutation: TeamTaskMutations::Destroy
+  field :moveTeamTaskUp, mutation: TasksOrderMutations::MoveTeamTaskUp
+  field :moveTeamTaskDown, mutation: TasksOrderMutations::MoveTeamTaskDown
+
+  field :createRelationship, mutation: RelationshipMutations::Create
+  field :updateRelationship, mutation: RelationshipMutations::Update
+  field :destroyRelationship, mutation: RelationshipMutations::Destroy
+  field :updateRelationships, mutation: RelationshipMutations::Bulk::Update
+  field :destroyRelationships, mutation: RelationshipMutations::Bulk::Destroy
+
+  DynamicAnnotation::AnnotationType.pluck(:annotation_type).each do |type|
+    DynamicAnnotation::AnnotationTypeManager.generate_mutation_classes_for_annotation_type(type)
 
     klass = type.camelize
-    field "createDynamicAnnotation#{klass}".to_sym, field: "DynamicAnnotation#{klass}Mutations::Create".constantize.field
-    field "updateDynamicAnnotation#{klass}".to_sym, field: "DynamicAnnotation#{klass}Mutations::Update".constantize.field
-    field "destroyDynamicAnnotation#{klass}".to_sym, field: "DynamicAnnotation#{klass}Mutations::Destroy".constantize.field
+    field "createDynamicAnnotation#{klass}".to_sym, mutation: "DynamicAnnotation#{klass}Mutations::Create".constantize
+    field "updateDynamicAnnotation#{klass}".to_sym, mutation: "DynamicAnnotation#{klass}Mutations::Update".constantize
+    field "destroyDynamicAnnotation#{klass}".to_sym, mutation: "DynamicAnnotation#{klass}Mutations::Destroy".constantize
   end
 
-  field :createProjectMediaUser, field: ProjectMediaUserMutations::Create.field
-  field :updateProjectMediaUser, field: ProjectMediaUserMutations::Update.field
-  field :destroyProjectMediaUser, field: ProjectMediaUserMutations::Destroy.field
+  field :createProjectMediaUser, mutation: ProjectMediaUserMutations::Create
+  field :updateProjectMediaUser, mutation: ProjectMediaUserMutations::Update
+  field :destroyProjectMediaUser, mutation: ProjectMediaUserMutations::Destroy
 
-  field :createSavedSearch, field: SavedSearchMutations::Create.field
-  field :updateSavedSearch, field: SavedSearchMutations::Update.field
-  field :destroySavedSearch, field: SavedSearchMutations::Destroy.field
+  field :createSavedSearch, mutation: SavedSearchMutations::Create
+  field :updateSavedSearch, mutation: SavedSearchMutations::Update
+  field :destroySavedSearch, mutation: SavedSearchMutations::Destroy
 
-  field :createProjectGroup, field: ProjectGroupMutations::Create.field
-  field :updateProjectGroup, field: ProjectGroupMutations::Update.field
-  field :destroyProjectGroup, field: ProjectGroupMutations::Destroy.field
+  field :createProjectGroup, mutation: ProjectGroupMutations::Create
+  field :updateProjectGroup, mutation: ProjectGroupMutations::Update
+  field :destroyProjectGroup, mutation: ProjectGroupMutations::Destroy
 
-  field :searchUpload, field: SearchUploadMutations::SearchUpload.field
+  field :searchUpload, mutation: SearchUploadMutations::SearchUpload
 
-  field :createClaimDescription, field: ClaimDescriptionMutations::Create.field
-  field :updateClaimDescription, field: ClaimDescriptionMutations::Update.field
+  field :createClaimDescription, mutation: ClaimDescriptionMutations::Create
+  field :updateClaimDescription, mutation: ClaimDescriptionMutations::Update
 
-  field :createFactCheck, field: FactCheckMutations::Create.field
-  field :updateFactCheck, field: FactCheckMutations::Update.field
-  field :destroyFactCheck, field: FactCheckMutations::Destroy.field
+  field :createFactCheck, mutation: FactCheckMutations::Create
+  field :updateFactCheck, mutation: FactCheckMutations::Update
+  field :destroyFactCheck, mutation: FactCheckMutations::Destroy
 
-  field :createFeed, field: FeedMutations::Create.field
-  field :updateFeed, field: FeedMutations::Update.field
+  field :createFeed, mutation: FeedMutations::Create
+  field :updateFeed, mutation: FeedMutations::Update
 
-  field :updateFeedTeam, field: FeedTeamMutations::Update.field
+  field :updateFeedTeam, mutation: FeedTeamMutations::Update
 
-  field :createTiplineNewsletter, field: TiplineNewsletterMutations::Create.field
-  field :updateTiplineNewsletter, field: TiplineNewsletterMutations::Update.field
+  field :createTiplineNewsletter, mutation: TiplineNewsletterMutations::Create
+  field :updateTiplineNewsletter, mutation: TiplineNewsletterMutations::Update
 end

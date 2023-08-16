@@ -1,23 +1,34 @@
 module SourceMutations
-  create_fields = {
-    avatar: 'str',
-    slogan: '!str',
-    name: '!str',
-    user_id: 'int',
-    add_to_project_media_id: 'int',
-    urls: 'str',
-    validate_primary_link_exist: 'bool'
-  }
+  MUTATION_TARGET = 'source'.freeze
+  PARENTS = ['project_media'].freeze
 
-  update_fields = {
-    avatar: 'str',
-    slogan: 'str',
-    name: 'str',
-    refresh_accounts: 'int',
-    user_id: 'int',
-    add_to_project_media_id: 'int',
-    lock_version: 'int'
-  }
+  module SharedCreateAndUpdateFields
+    extend ActiveSupport::Concern
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('source', create_fields, update_fields, ['project_media'])
+    included do
+      argument :avatar, GraphQL::Types::String, required: false
+      argument :user_id, GraphQL::Types::Int, required: false, camelize: false
+      argument :add_to_project_media_id, GraphQL::Types::Int, required: false, camelize: false
+    end
+  end
+
+  class Create < Mutations::CreateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :slogan, GraphQL::Types::String, required: true
+    argument :name, GraphQL::Types::String, required: true
+    argument :urls, GraphQL::Types::String, required: false
+    argument :validate_primary_link_exist, GraphQL::Types::Boolean, required: false, camelize: false
+  end
+
+  class Update < Mutations::UpdateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :slogan, GraphQL::Types::String, required: false
+    argument :name, GraphQL::Types::String, required: false
+    argument :refresh_accounts, GraphQL::Types::Int, required: false, camelize: false
+    argument :lock_version, GraphQL::Types::Int, required: false, camelize: false
+  end
+
+  class Destroy < Mutations::DestroyMutation; end
 end

@@ -18,12 +18,12 @@ echo 'Setting up parallel databases...'
 
 FAIL=0
 
-TEST_ENV_NUMBER=1 bundle exec rake db:drop db:create db:migrate &
-TEST_ENV_NUMBER=2 bundle exec rake db:drop db:create db:migrate &
-TEST_ENV_NUMBER=3 bundle exec rake db:drop db:create db:migrate &
-TEST_ENV_NUMBER=4 bundle exec rake db:drop db:create db:migrate &
-TEST_ENV_NUMBER=5 bundle exec rake db:drop db:create db:migrate &
-TEST_ENV_NUMBER=6 bundle exec rake db:drop db:create db:migrate &
+TEST_ENV_NUMBER=1 bundle exec rake db:test:prepare &
+TEST_ENV_NUMBER=2 bundle exec rake db:test:prepare &
+TEST_ENV_NUMBER=3 bundle exec rake db:test:prepare &
+TEST_ENV_NUMBER=4 bundle exec rake db:test:prepare &
+TEST_ENV_NUMBER=5 bundle exec rake db:test:prepare &
+TEST_ENV_NUMBER=6 bundle exec rake db:test:prepare &
 
 for job in `jobs -p`
 do

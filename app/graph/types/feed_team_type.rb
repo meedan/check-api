@@ -1,17 +1,21 @@
-FeedTeamType = GraphqlCrudOperations.define_default_type do
-  name 'FeedTeam'
-  description 'Feed team type'
+class FeedTeamType < DefaultObject
+  description "Feed team type"
 
-  interfaces [NodeIdentification.interface]
+  implements GraphQL::Types::Relay::Node
 
-  field :dbid, types.Int
-  field :filters, JsonStringType
-  field :saved_search_id, types.Int
-  field :team, TeamType
-  field :feed, FeedType
-  field :team_id, types.Int
-  field :feed_id, types.Int
-  field :shared, types.Boolean
-  field :requests_filters, JsonStringType, property: :get_requests_filters
-  instance_exec :feed_team, &GraphqlCrudOperations.field_saved_search
+  field :dbid, GraphQL::Types::Int, null: true
+  field :filters, JsonStringType, null: true
+  field :saved_search_id, GraphQL::Types::Int, null: true
+  field :team, TeamType, null: true
+  field :feed, FeedType, null: true
+  field :team_id, GraphQL::Types::Int, null: true
+  field :feed_id, GraphQL::Types::Int, null: true
+  field :shared, GraphQL::Types::Boolean, null: true
+  field :requests_filters, JsonStringType, null: true
+
+  def requests_filters
+    object.get_requests_filters
+  end
+
+  field :saved_search, SavedSearchType, null: true
 end

@@ -1,4 +1,6 @@
 module CheckStatistics
+  class WhatsAppInsightsApiError < ::StandardError; end
+
   class << self
     def requests(team_id, platform, start_date, end_date, language, type = nil)
       relation = Annotation
@@ -63,6 +65,47 @@ module CheckStatistics
       old_count + new_count
     end
 
+    def number_of_whatsapp_conversations(team_id, start_date, end_date)
+      from = start_date.to_datetime.to_i
+      to = end_date.to_datetime.to_i
+
+      # Cache it so we don't recalculate when grabbing the statistics for different languages
+      Rails.cache.fetch("check_statistics:whatsapp_conversations:#{team_id}:#{from}:#{to}", expires_in: 12.hours, skip_nil: true) do
+        response = OpenStruct.new({ body: nil, code: 0 })
+        begin
+          tbi = TeamBotInstallation.where(team_id: team_id, user: BotUser.smooch_user).last
+
+          # Only available for tiplines using WhatsApp Cloud API
+          unless tbi&.get_capi_whatsapp_business_account_id.blank?
+            uri = URI(URI.join('https://graph.facebook.com/v17.0/', tbi.get_capi_whatsapp_business_account_id.to_s))
+            params = {
+              fields: "conversation_analytics.start(#{from}).end(#{to}).granularity(DAILY).phone_numbers(#{tbi.get_capi_phone_number})",
+              access_token: tbi.get_capi_permanent_token
+            }
+            uri.query = Rack::Utils.build_query(params)
+            http = Net::HTTP.new(uri.host, uri.port)
+            http.use_ssl = true
+            request = Net::HTTP::Get.new(uri.request_uri, 'Content-Type' => 'application/json')
+            response = http.request(request)
+            raise 'Unexpected response' if response.code.to_i >= 300
+            data = JSON.parse(response.body)
+            count = 0
+            data['conversation_analytics']['data'][0]['data_points'].each do |data_point|
+              count += data_point['conversation']
+            end
+            count
+          else
+            nil
+          end
+
+        rescue StandardError => e
+          error_info = { error_message: e.message, response_code: response.code, response_body: response.body, team_id: team_id, start_date: start_date, end_date: end_date }
+          CheckSentry.notify(WhatsAppInsightsApiError.new('Could not get WhatsApp conversations statistics'), **error_info)
+          nil
+        end
+      end
+    end
+
     def get_statistics(start_date, end_date, team_id, platform, language, tracing_attributes = {})
       # attributes in statistics hash must correspond to database fields on MonthlyTeamStatistic
       statistics = {}
@@ -76,16 +119,6 @@ module CheckStatistics
           end_date: end_date,
         }
         platform_name = Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[platform]
-
-        conversations = nil
-        CheckTracer.in_span('CheckStatistics#conversations', attributes: tracing_attributes) do
-          # Number of conversations
-          # FIXME: Should be a new conversation only after 15 minutes of inactivity
-          value1 = unique_requests_count(project_media_requests(team_id, platform, start_date, end_date, language))
-          value2 = team_requests(team_id, platform, start_date, end_date, language).count
-          conversations = value1 + value2
-          statistics[:conversations] = conversations
-        end
 
         number_of_newsletters = nil
         CheckTracer.in_span('CheckStatistics#unique_newsletters_sent', attributes: tracing_attributes) do
@@ -101,34 +134,6 @@ module CheckStatistics
           # Current number of newsletter subscribers
           current_newsletter_subscribers = TiplineSubscription.where(created_at: start_date.ago(100.years)..end_date, platform: platform_name, language: language).where('teams.id' => team_id).joins(:team).count
           statistics[:current_subscribers] = current_newsletter_subscribers
-        end
-
-        CheckTracer.in_span('CheckStatistics#average_messages_per_day', attributes: tracing_attributes) do
-          numbers_of_messages = []
-          project_media_requests(team_id, platform, start_date, end_date, language).find_each do |a|
-            smooch_data = a.load.get_field_value('smooch_data')
-            parsed_smooch_data = begin JSON.parse(smooch_data) rescue smooch_data end
-
-            n = parsed_smooch_data['text'].to_s.split(Bot::Smooch::MESSAGE_BOUNDARY).size
-            numbers_of_messages << n * 2
-          end
-          team_requests(team_id, platform, start_date, end_date, language).find_each do |a|
-            smooch_data = a.load.get_field_value('smooch_data')
-            parsed_smooch_data = begin JSON.parse(smooch_data) rescue smooch_data end
-
-            n = parsed_smooch_data['text'].to_s.split(Bot::Smooch::MESSAGE_BOUNDARY).size
-            numbers_of_messages << n * 2
-          end
-          search_results = project_media_requests(team_id, platform, start_date, end_date, language, 'relevant_search_result_requests').count + project_media_requests(team_id, platform, start_date, end_date, language, 'irrelevant_search_result_requests').count + project_media_requests(team_id, platform, start_date, end_date, language, 'timeout_search_requests').count
-
-          # Average number of messages per day
-          number_of_messages = numbers_of_messages.sum + search_results
-          number_of_messages += (number_of_newsletters * current_newsletter_subscribers) if (number_of_newsletters && current_newsletter_subscribers)
-          if number_of_messages == 0
-            statistics[:average_messages_per_day] = 0
-          else
-            statistics[:average_messages_per_day] = (number_of_messages / (start_date.to_date..end_date.to_date).count).to_i
-          end
         end
 
         uids = []
@@ -148,28 +153,6 @@ module CheckStatistics
         CheckTracer.in_span('CheckStatistics#returning_users', attributes: tracing_attributes) do
           # Number of returning users (at least one session in the current month, and at least one session in the last previous 2 months)
           statistics[:returning_users] = DynamicAnnotation::Field.where(field_name: 'smooch_data', created_at: start_date.ago(2.months)..start_date).where("value_json->>'authorId' IN (?) AND value_json->>'language' = ?", uids, language).collect{ |f| f.value_json['authorId'] }.uniq.size
-        end
-
-        CheckTracer.in_span('CheckStatistics#valid_new_requests', attributes: tracing_attributes) do
-          # Number of valid queries
-          statistics[:valid_new_requests] = unique_requests_count(project_media_requests(team_id, platform, start_date, end_date, language).where('pm.archived' => 0))
-        end
-
-        CheckTracer.in_span('CheckStatistics#published_native_reports', attributes: tracing_attributes) do
-          # Number of new published reports created in Check (e.g., native, not imported)
-          # NOTE: For all platforms
-          statistics[:published_native_reports] = Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia'").where('pm.team_id' => team_id).where('annotations.created_at' => start_date..end_date).where("data LIKE '%language: #{language}%'").where("data LIKE '%state: published%'").where('annotations.annotator_id NOT IN (?)', [BotUser.fetch_user.id, BotUser.alegre_user.id]).count
-        end
-
-        CheckTracer.in_span('CheckStatistics#published_imported_reports', attributes: tracing_attributes) do
-          # Number of published imported reports
-          # NOTE: For all languages and platforms
-          statistics[:published_imported_reports] = Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia'").where('pm.team_id' => team_id).where('annotations.created_at' => start_date..end_date, 'annotations.annotator_id' => [BotUser.fetch_user.id, BotUser.alegre_user.id]).where("data LIKE '%state: published%'").count
-        end
-
-        CheckTracer.in_span('CheckStatistics#requests_answerwed_with_report', attributes: tracing_attributes) do
-          # Number of queries answered with a report
-          statistics[:requests_answered_with_report] = reports_received(team_id, platform, start_date, end_date, language).group('pm.id').count.size + project_media_requests(team_id, platform, start_date, end_date, language, 'relevant_search_result_requests').group('pm.id').count.size
         end
 
         CheckTracer.in_span('CheckStatistics#reports_sent_to_users', attributes: tracing_attributes) do
@@ -213,6 +196,33 @@ module CheckStatistics
         CheckTracer.in_span('CheckStatistics#newsletters_delivered', attributes: tracing_attributes) do
           # Number of newsletters effectively delivered, accounting for user errors for each platform
           statistics[:newsletters_delivered] = TiplineMessage.where(created_at: start_date..end_date, team_id: team_id, platform: platform_name, language: language, direction: 'outgoing', event: 'newsletter').count
+        end
+
+        CheckTracer.in_span('CheckStatistics#whatsapp_conversations', attributes: tracing_attributes) do
+          statistics[:whatsapp_conversations] = number_of_whatsapp_conversations(team_id, start_date, end_date) if platform_name == 'WhatsApp'
+        end
+
+        CheckTracer.in_span('CheckStatistics#published_reports', attributes: tracing_attributes) do
+          # NOTE: For all languages and platforms
+          statistics[:published_reports] = Annotation.where(annotation_type: 'report_design').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia'").where('pm.team_id' => team_id).where('annotations.created_at' => start_date..end_date).where("data LIKE '%state: published%'").count
+        end
+
+        CheckTracer.in_span('CheckStatistics#positive_searches', attributes: tracing_attributes) do
+          # Tipline queries that return results
+          relevant_results = project_media_requests(team_id, platform, start_date, end_date, language, 'relevant_search_result_requests').count
+          irrelevant_results = project_media_requests(team_id, platform, start_date, end_date, language, 'irrelevant_search_result_requests').count
+          ignored_results = project_media_requests(team_id, platform, start_date, end_date, language, 'timeout_search_requests').count
+          statistics[:positive_searches] = relevant_results + irrelevant_results + ignored_results
+        end
+
+        CheckTracer.in_span('CheckStatistics#negative_searches', attributes: tracing_attributes) do
+          # Tipline queries that don't return results
+          statistics[:negative_searches] = project_media_requests(team_id, platform, start_date, end_date, language, 'default_requests').count
+        end
+
+        CheckTracer.in_span('CheckStatistics#newsletters_sent', attributes: tracing_attributes) do
+          # NOTE: For all platforms
+          statistics[:newsletters_sent] = TiplineNewsletterDelivery.where(created_at: start_date..end_date).joins(:tipline_newsletter).where('tipline_newsletters.team_id' => team_id, 'tipline_newsletters.language' => language).sum(:recipients_count)
         end
       end
       statistics

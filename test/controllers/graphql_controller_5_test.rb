@@ -4,10 +4,9 @@ class GraphqlController5Test < ActionController::TestCase
   def setup
     require 'sidekiq/testing'
     super
+    TestDynamicAnnotationTables.load!
     @controller = Api::V1::GraphqlController.new
-    create_annotation_type annotation_type: 'task_response'
-    User.unstub(:current)
-    Team.unstub(:current)
+
     User.current = nil
     Team.current = nil
     @t = create_team private: true
@@ -68,22 +67,23 @@ class GraphqlController5Test < ActionController::TestCase
   end
 
   test "should create and update flags and content warning" do
-    create_flag_annotation_type
     t = create_team
     u = create_user is_admin: true
     pm = create_project_media team: t
     authenticate_with_user(u)
     # verify create
-    query = 'mutation create { createDynamicAnnotationFlag(input: { clientMutationId: "1", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", set_fields: "{\"flags\":{\"adult\":3,\"spoof\":2,\"medical\":1,\"violence\":3,\"racy\":4,\"spam\":0},\"show_cover\":false}" }) { dynamic { dbid } } }'
+    query = 'mutation create { createDynamic(input: { annotation_type: "flag", clientMutationId: "1", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", set_fields: "{\"flags\":{\"adult\":3,\"spoof\":2,\"medical\":1,\"violence\":3,\"racy\":4,\"spam\":0},\"show_cover\":false}" }) { dynamic { dbid } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
-    d = Dynamic.find(JSON.parse(@response.body)['data']['createDynamicAnnotationFlag']['dynamic']['dbid'])
+    assert JSON.parse(@response.body).dig('errors').blank?
+
+    d = Dynamic.find(JSON.parse(@response.body)['data']['createDynamic']['dynamic']['dbid'])
     data = d.data.with_indifferent_access
     assert_equal ['flags', 'show_cover'].sort, data.keys.sort
     assert_equal ['adult', 'spoof', 'medical', 'violence', 'racy', 'spam'].sort, data['flags'].keys.sort
     assert !data['show_cover']
     # verify update
-    query = 'mutation update { updateDynamicAnnotationFlag(input: { clientMutationId: "1", id: "' + d.graphql_id + '", set_fields: "{\"show_cover\":true}" }) { dynamic { dbid } } }'
+    query = 'mutation update { updateDynamic(input: { annotation_type: "flag", clientMutationId: "1", id: "' + d.graphql_id + '", set_fields: "{\"show_cover\":true}" }) { dynamic { dbid } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     d = Dynamic.find(d.id)
@@ -101,9 +101,6 @@ class GraphqlController5Test < ActionController::TestCase
     pm2 = create_project_media project: p
     pm3 = create_project_media project: p
     # add response to task for pm
-    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
-    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
     pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
     pm_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
     pm_tt.save!
@@ -133,7 +130,6 @@ class GraphqlController5Test < ActionController::TestCase
 
   test "should get version related to status change" do
     with_versioning do
-      create_verification_status_stuff
       u = create_user
       t = create_team
       create_team_user user: u, team: t, role: 'admin'

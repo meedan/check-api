@@ -1,122 +1,127 @@
-UserType = GraphqlCrudOperations.define_default_type do
-  name 'User'
-  description 'User type'
+class UserType < DefaultObject
+  description "User type"
 
-  interfaces [NodeIdentification.interface]
+  implements GraphQL::Types::Relay::Node
 
-  field :dbid, types.Int
-  field :email, types.String
-  field :unconfirmed_email, types.String
-  field :providers, JsonStringType
-  field :uuid, types.String
-  field :profile_image, types.String
-  field :login, types.String
-  field :name, types.String
-  field :current_team_id, types.Int
-  field :permissions, types.String
-  field :jsonsettings, types.String
-  field :number_of_teams, types.Int
-  field :get_send_email_notifications, types.Boolean
-  field :get_send_successful_login_notifications, types.Boolean
-  field :get_send_failed_login_notifications, types.Boolean
-  field :bot_events, types.String
-  field :is_bot, types.Boolean
-  field :is_active, types.Boolean
-  field :two_factor, JsonStringType
-  field :settings, JsonStringType
-  field :accepted_terms, types.Boolean
-  field :last_accepted_terms_at, types.String
-  field :team_ids, types[types.Int]
-  field :user_teams, types.String
-  field :last_active_at, types.Int
-  field :completed_signup, types.Boolean
+  field :dbid, GraphQL::Types::Int, null: true
+  field :email, GraphQL::Types::String, null: true
+  field :unconfirmed_email, GraphQL::Types::String, null: true
+  field :providers, JsonStringType, null: true
+  field :uuid, GraphQL::Types::String, null: true
+  field :profile_image, GraphQL::Types::String, null: true
+  field :login, GraphQL::Types::String, null: true
+  field :name, GraphQL::Types::String, null: true
+  field :current_team_id, GraphQL::Types::Int, null: true
+  field :permissions, GraphQL::Types::String, null: true
+  field :jsonsettings, GraphQL::Types::String, null: true
+  field :number_of_teams, GraphQL::Types::Int, null: true
+  field :get_send_email_notifications, GraphQL::Types::Boolean, null: true
 
-  field :source_id do
-    type types.Int
-    resolve -> (user, _args, _ctx) do
-      user.source.id
-    end
+  def get_send_email_notifications
+    object.get_send_email_notifications
   end
 
-  field :token do
-    type types.String
-    resolve -> (user, _args, _ctx) do
-      user.token if user == User.current
-    end
+  field :get_send_successful_login_notifications, GraphQL::Types::Boolean, null: true
+
+  def get_send_successful_login_notifications
+    object.get_send_successful_login_notifications
   end
 
-  field :is_admin do
-    type types.Boolean
-    resolve -> (user, _args, _ctx) do
-      user.is_admin if user == User.current
-    end
+  field :get_send_failed_login_notifications, GraphQL::Types::Boolean, null: true
+
+  def get_send_failed_login_notifications
+    object.get_send_failed_login_notifications
   end
 
-  field :current_project do
-    type ProjectType
-    resolve -> (user, _args, _ctx) do
-      user.current_project
-    end
+  field :bot_events, GraphQL::Types::String, null: true
+  field :is_bot, GraphQL::Types::Boolean, null: true
+  field :is_active, GraphQL::Types::Boolean, null: true
+  field :two_factor, JsonStringType, null: true
+  field :settings, JsonStringType, null: true
+  field :accepted_terms, GraphQL::Types::Boolean, null: true
+  field :last_accepted_terms_at, GraphQL::Types::String, null: true
+  field :team_ids, [GraphQL::Types::Int, null: true], null: true
+  field :user_teams, GraphQL::Types::String, null: true
+  field :last_active_at, GraphQL::Types::Int, null: true
+  field :completed_signup, GraphQL::Types::Boolean, null: true
+
+  field :source_id, GraphQL::Types::Int, null: true
+
+  field :token, GraphQL::Types::String, null: true
+
+  def token
+    object.token if object == User.current
   end
 
-  field :confirmed do
-    type types.Boolean
-    resolve -> (user, _args, _ctx) do
-      user.is_confirmed?
-    end
+  field :is_admin, GraphQL::Types::Boolean, null: true
+
+  def is_admin
+    object.is_admin if object == User.current
   end
 
-  field :source do
-    type SourceType
-    resolve -> (user, _args, _ctx) { Source.find(user.source_id) }
+  field :current_project, ProjectType, null: true
+
+  field :confirmed, GraphQL::Types::Boolean, null: true
+
+  def confirmed
+    object.is_confirmed?
   end
 
-  field :current_team do
-    type TeamType
-    resolve -> (user, _args, _ctx) { user.current_team }
+  field :source, SourceType, null: true
+
+  def source
+    Source.find(object.source_id)
   end
 
-  field :bot do
-    type BotUserType
-    resolve -> (user, _args, _ctx) do
-      user if user.is_bot
-    end
+  field :current_team, TeamType, null: true
+
+  field :bot, BotUserType, null: true
+
+  def bot
+    object if object.is_bot
   end
 
-  field :team_user do
-    type TeamUserType
-    argument :team_slug, !types.String
-    resolve ->(user, args, _ctx) {
-      TeamUser.joins(:team).where('teams.slug' => args['team_slug'], user_id: user.id).last
-    }
+  field :team_user, TeamUserType, null: true do
+    argument :team_slug, GraphQL::Types::String, required: true, camelize: false
   end
 
-  connection :teams, -> { TeamType.connection_type } do
-    resolve ->(user, _args, _ctx) { user.teams }
+  def team_user(team_slug:)
+    TeamUser
+      .joins(:team)
+      .where("teams.slug" => team_slug, :user_id => object.id)
+      .last
   end
 
-  connection :team_users, -> { TeamUserType.connection_type } do
-    argument :status, types.String
+  field :teams, TeamType.connection_type, null: true
 
-    resolve ->(user, args, _ctx) { team_users = user.team_users ; team_users = team_users.where(status: args['status']) if args['status'] ; team_users }
+  field :team_users, TeamUserType.connection_type, null: true do
+    argument :status, GraphQL::Types::String, required: false
   end
 
-  connection :annotations, -> { AnnotationType.connection_type } do
-    argument :type, types.String
-
-    resolve ->(user, args, _ctx) { type = args['type'] ; type.blank? ? user.annotations : user.annotations(type) }
+  def team_users(status: nil)
+    team_users = object.team_users
+    team_users = team_users.where(status: status) if status
+    team_users
   end
 
-  connection :assignments, -> { ProjectMediaType.connection_type } do
-    argument :team_id, types.Int
+  field :annotations, AnnotationType.connection_type, null: true do
+    argument :type, GraphQL::Types::String, required: false
+  end
 
-    resolve ->(user, args, _ctx) {
-      pms = Annotation.project_media_assigned_to_user(user).order('id DESC')
-      team_id = args['team_id'].to_i
-      pms = pms.where(team_id: team_id) if team_id > 0
-      # TODO: remove finished items
-      # pms.reject { |pm| pm.is_finished? }
-      pms
-    }
+  def annotations(type: nil)
+    type.blank? ? object.annotations : object.annotations(type)
+  end
+
+  field :assignments, ProjectMediaType.connection_type, null: true do
+    argument :team_id, GraphQL::Types::Int, required: false, camelize: false
+  end
+
+  def assignments(team_id: nil)
+    pms = Annotation.project_media_assigned_to_user(object).order("id DESC")
+    team_id = team_id.to_i
+    pms = pms.where(team_id: team_id) if team_id > 0
+    # TODO: remove finished items
+    # pms.reject { |pm| pm.is_finished? }
+    pms
   end
 end

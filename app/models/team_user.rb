@@ -52,7 +52,7 @@ class TeamUser < ApplicationRecord
       team: Bot::Slack.to_slack(self.team.name),
       url: "#{CheckConfig.get('checkdesk_client')}/check/user/#{user.id}",
       description: Bot::Slack.to_slack(user.source&.description, false),
-      button: I18n.t("slack.fields.view_button", {
+      button: I18n.t("slack.fields.view_button", **{
         type: I18n.t("activerecord.models.user"), app: CheckConfig.get('app_name')
       })
     }
@@ -64,7 +64,7 @@ class TeamUser < ApplicationRecord
 
     params = self.slack_params
     {
-      pretext: I18n.t("slack.messages.user_#{self.status}", params),
+      pretext: I18n.t("slack.messages.user_#{self.status}", **params),
       title: params[:project],
       title_link: params[:url],
       author_name: params[:user],
@@ -166,7 +166,7 @@ class TeamUser < ApplicationRecord
           team_name: self.team.name,
           teams: self.team.setting(:slack_teams).values.join(', ')
         }
-        errors.add(:base, I18n.t(:slack_restricted_join_to_members, params))
+        errors.add(:base, I18n.t(:slack_restricted_join_to_members, **params))
       end
     end
   end

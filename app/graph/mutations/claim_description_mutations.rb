@@ -1,14 +1,23 @@
 module ClaimDescriptionMutations
-  create_fields = {
-    description: 'str',
-    project_media_id: '!int',
-    context: 'str',
-  }
+  MUTATION_TARGET = 'claim_description'.freeze
+  PARENTS = ['project_media'].freeze
 
-  update_fields = {
-    description: 'str',
-    context: 'str',
-  }
+  module SharedCreateAndUpdateFields
+    extend ActiveSupport::Concern
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('claim_description', create_fields, update_fields, ['project_media'])
+    included do
+      argument :description, GraphQL::Types::String, required: false
+      argument :context, GraphQL::Types::String, required: false, as: :claim_context
+    end
+  end
+
+  class Create < Mutations::CreateMutation
+    include SharedCreateAndUpdateFields
+
+    argument :project_media_id, GraphQL::Types::Int, required: true, camelize: false
+  end
+
+  class Update < Mutations::UpdateMutation
+    include SharedCreateAndUpdateFields
+  end
 end

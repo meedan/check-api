@@ -643,7 +643,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     url = 'http://test.com'
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","description":"Foo bar"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    WebMock.stub_request(:get, pender_url).with(query: { url: url }).to_return(body: response)
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => "Foo bar foo bar #{url}" })
     CheckSearch.any_instance.stubs(:medias).returns([pm1])
     Bot::Alegre.stubs(:get_merged_similar_items).returns({ pm2.id => { score: 0.9, model: 'elasticsearch' } })

@@ -1,18 +1,18 @@
-GenerateTwoFactorBackupCodesMutation = GraphQL::Relay::Mutation.define do
-  name 'GenerateTwoFactorBackupCodes'
+class GenerateTwoFactorBackupCodesMutation < Mutations::BaseMutation
+  graphql_name "GenerateTwoFactorBackupCodes"
 
-  input_field :id, !types.Int
+  argument :id, GraphQL::Types::Int, required: true
 
-  return_field :success, types.Boolean
-  return_field :codes, JsonStringType
+  field :success, GraphQL::Types::Boolean, null: true
+  field :codes, JsonStringType, null: true
 
-  resolve -> (_root, inputs, _ctx) {
-    user = User.where(id: inputs[:id]).last
-    if user.nil? || User.current.id != inputs[:id]
+  def resolve(id:)
+    user = User.where(id: id).last
+    if user.nil? || User.current.id != id
       raise ActiveRecord::RecordNotFound
     else
       codes = user.generate_otp_codes
-      { success: true , codes: codes}
+      { success: true, codes: codes }
     end
-  }
+  end
 end

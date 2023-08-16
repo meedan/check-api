@@ -1,55 +1,72 @@
 module SmoochBotMutations
-  AddSlackChannelUrl = GraphQL::Relay::Mutation.define do
-    name 'SmoochBotAddSlackChannelUrl'
+  class AddSlackChannelUrl < Mutations::BaseMutation
+    graphql_name "SmoochBotAddSlackChannelUrl"
 
-    input_field :id, !types.String
-    input_field :set_fields, !types.String
+    argument :id, GraphQL::Types::String, required: true
+    argument :set_fields, GraphQL::Types::String, required: true, camelize: false
 
-    return_field :success, types.Boolean
-    return_field :annotation, AnnotationType
+    field :success, GraphQL::Types::Boolean, null: true
+    field :annotation, AnnotationType, null: true
 
-    resolve -> (_root, inputs, _ctx) {
-      annotation = Dynamic.where(id: inputs[:id], annotation_type: 'smooch_user').last
+    def resolve(id:, set_fields:)
+      annotation = Dynamic.where(
+        id: id,
+        annotation_type: "smooch_user"
+      ).last
       if annotation.nil?
         raise ActiveRecord::RecordNotFound
       else
-        raise "No permission to update #{annotation.class.name}" unless annotation.ability.can?(:update, annotation)
-        SmoochAddSlackChannelUrlWorker.perform_in(1.second, inputs[:id], inputs[:set_fields])
+        unless annotation.ability.can?(:update, annotation)
+          raise "No permission to update #{annotation.class.name}"
+        end
+        SmoochAddSlackChannelUrlWorker.perform_in(
+          1.second,
+          id,
+          set_fields
+        )
         { success: true, annotation: annotation }
       end
-    }
+    end
   end
 
-  AddIntegration = GraphQL::Relay::Mutation.define do
-    name 'SmoochBotAddIntegration'
+  class AddIntegration < Mutations::BaseMutation
+    graphql_name "SmoochBotAddIntegration"
 
-    input_field :team_bot_installation_id, !types.String
-    input_field :integration_type, !types.String
-    input_field :params, !types.String, 'JSON string with additional parameters specific for this integration'
+    argument :team_bot_installation_id, GraphQL::Types::String, required: true, camelize: false
+    argument :integration_type, GraphQL::Types::String, required: true, camelize: false
+    argument :params, GraphQL::Types::String, "JSON string with additional parameters specific for this integration", required: true
 
-    return_field :team_bot_installation, TeamBotInstallationType
+    field :team_bot_installation, TeamBotInstallationType, null: true, camelize: false
 
-    resolve -> (_root, inputs, ctx) {
-      _type_name, id = CheckGraphql.decode_id(inputs['team_bot_installation_id'])
-      tbi = GraphqlCrudOperations.load_if_can(TeamBotInstallation, id, ctx)
-      tbi.smooch_add_integration(inputs['integration_type'], JSON.parse(inputs['params']))
+    def resolve(team_bot_installation_id:, integration_type:, params:)
+      _type_name, id = CheckGraphql.decode_id(team_bot_installation_id)
+      tbi = GraphqlCrudOperations.load_if_can(
+        TeamBotInstallation,
+        id,
+        context
+      )
+      tbi.smooch_add_integration(integration_type,JSON.parse(params))
       { team_bot_installation: tbi }
-    }
+    end
   end
 
-  RemoveIntegration = GraphQL::Relay::Mutation.define do
-    name 'SmoochBotRemoveIntegration'
+  class RemoveIntegration < Mutations::BaseMutation
+    graphql_name "SmoochBotRemoveIntegration"
 
-    input_field :team_bot_installation_id, !types.String
-    input_field :integration_type, !types.String
+    argument :team_bot_installation_id, GraphQL::Types::String, required: true, camelize: false
+    argument :integration_type, GraphQL::Types::String, required: true, camelize: false
 
-    return_field :team_bot_installation, TeamBotInstallationType
+    field :team_bot_installation, TeamBotInstallationType, null: true, camelize: false
 
-    resolve -> (_root, inputs, ctx) {
-      _type_name, id = CheckGraphql.decode_id(inputs['team_bot_installation_id'])
-      tbi = GraphqlCrudOperations.load_if_can(TeamBotInstallation, id, ctx)
-      tbi.smooch_remove_integration(inputs['integration_type'])
+    def resolve(team_bot_installation_id:, integration_type:)
+      _type_name, id = CheckGraphql.decode_id(team_bot_installation_id)
+      tbi = GraphqlCrudOperations.load_if_can(
+        TeamBotInstallation,
+        id,
+        context
+      )
+      tbi.smooch_remove_integration(integration_type)
       { team_bot_installation: tbi }
-    }
+    end
   end
 end
