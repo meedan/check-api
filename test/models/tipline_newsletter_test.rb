@@ -330,6 +330,24 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     end
   end
 
+  test 'should have a valid header file format' do
+    Sidekiq::Testing.inline! do
+      TiplineNewsletter.any_instance.stubs(:new_file_uploaded?).returns(true)
+      assert_raises ActiveRecord::RecordInvalid do
+        create_tipline_newsletter header_type: 'image', header_file: 'rails.mp4'
+      end
+    end
+  end
+
+  test 'should have a valid header file size' do
+    Sidekiq::Testing.inline! do
+      TiplineNewsletter.any_instance.stubs(:new_file_uploaded?).returns(true)
+      assert_raises ActiveRecord::RecordInvalid do
+        create_tipline_newsletter header_type: 'image', header_file: 'large-image.jpg'
+      end
+    end
+  end
+
   test 'should format RSS newsletter time as cron' do
     # Offset
     newsletter = TiplineNewsletter.new(
