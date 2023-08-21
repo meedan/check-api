@@ -547,6 +547,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     with_current_user_and_team(u, team) do
       pm_youtube = create_project_media team: team, media: l_youtube
       assert_equal "youtube", pm_youtube.title
+      assert_equal "youtube-#{team.slug}-#{pm_youtube.id}", pm_youtube.media_slug
       pm_twitter = create_project_media team: team, media: l_twitter
       assert_equal "twitter", pm_twitter.title
       pm_facebook = create_project_media team: team, media: l_facebook
@@ -555,8 +556,10 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       assert_equal "instagram", pm_instagram.title
       pm_tiktok = create_project_media team: team, media: l_tiktok
       assert_equal "tiktok", pm_tiktok.title
+      assert_equal "tiktok-#{team.slug}-#{pm_tiktok.id}", pm_tiktok.media_slug
       pm_weblink = create_project_media team: team, media: l_weblink
       assert_equal "weblink", pm_weblink.title
+      assert_equal "weblink-#{team.slug}-#{pm_weblink.id}", pm_weblink.media_slug
     end
   end
 
@@ -583,7 +586,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       # verify media_slug field
       cd = create_claim_description project_media: pm, description: 'description_text'
       assert_equal pm.get_title, cd.description
-      assert_empty pm.media_slug
+      assert_equal "text-#{team.slug}-#{pm.id}", pm.media_slug
     end
   end
 
