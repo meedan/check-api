@@ -154,7 +154,7 @@ class BotUser < User
       result = RelayOnRailsSchema.execute(query, variables: {}, context: {})
       User.current = current_user
       Team.current = current_team
-      JSON.parse(result.to_json)['data']['node']
+      JSON.parse(result.to_json)&.dig('data', 'node')
     rescue StandardError => e
       Rails.logger.error("[BotUser] Error performing GraphQL query: #{e.message}")
       CheckSentry.notify(e, bot_user: self.id, team_id: team.id, object_class: klass, object_id: object.id, query: query)
