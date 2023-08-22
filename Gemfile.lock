@@ -426,7 +426,7 @@ GEM
       minitest (> 5.3)
     minitest-retry (0.2.2)
       minitest (>= 5.0)
-    mocha (2.0.2)
+    mocha (2.1.0)
       ruby2_keywords (>= 0.0.5)
     msgpack (1.7.0)
     multi_json (1.15.0)
