@@ -34,8 +34,8 @@ namespace :check do
       end
 
       slugs = params.to_a
-      slugs.each do |slug|
-        team = Team.find_by_slug(slug)
+      Team.where(slug: slugs).find_each do |team|
+        slug = team.slug
         filename = "workspace-data-#{slug}-#{Time.now.strftime('%Y-%m-%d')}.csv"
         filepath = File.join(Rails.root, 'tmp', filename)
         puts "Exporting data for workspace and saving to #{filepath}..."
@@ -59,11 +59,11 @@ namespace :check do
               pm.author_name,
               pm.created_at.strftime("%Y-%m-%d %H:%M:%S"),
               pm.published_at&.strftime("%Y-%m-%d %H:%M:%S"),
-              pm.linked_items_count(true),
-              pm.share_count(true),
-              pm.reaction_count(true),
-              pm.comment_count(true),
-              pm.tags_as_sentence(true),
+              pm.linked_items_count,
+              pm.share_count,
+              pm.reaction_count,
+              pm.comment_count,
+              pm.tags_as_sentence,
               User.find_by_id(Version.from_partition(team.id).where(associated_type: 'ProjectMedia', associated_id: pm.id).last&.whodunnit&.to_i)&.name
             ]
             annotations = pm.get_annotations('task').map(&:load)
