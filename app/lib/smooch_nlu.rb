@@ -44,21 +44,31 @@ class SmoochNlu
       # FIXME: No need to call Alegre if it's an exact match to one of the keywords
       # FIXME: No need to call Alegre if message has no word characters
       # FIXME: Handle error responses from Alegre
+      team_slug = Team.find(Bot::Smooch.config['team_id']).slug
       params = {
         text: message,
         models: ALEGRE_MODELS_AND_THRESHOLDS.keys,
         per_model_threshold: ALEGRE_MODELS_AND_THRESHOLDS,
         context: {
           context: ALEGRE_CONTEXT_KEY,
-          team: Team.find(Bot::Smooch.config['team_id']).slug
+          team: team_slug,
         }
       }
       response = Bot::Alegre.request_api('get', '/text/similarity/', params)
-      Rails.logger.info("[Smooch NLU] Requested Alegre with params #{params.inspect}, response was #{response.inspect}")
       best_result = response['result'].to_a.sort_by{ |result| result['_score'] }.last
       unless best_result.nil?
         option = options.find{ |o| !o['smooch_menu_option_id'].blank? && o['smooch_menu_option_id'] == best_result.dig('_source', 'context', 'menu_option_id') }
       end
+      log = {
+        version: "0.1", # Update if schema changes
+        datetime: DateTime.current,
+        team_slug: team_slug,
+        user_query: message,
+        alegre_query: params,
+        alegre_response: response,
+        selected_option: option
+      }
+      Rails.logger.info("[Smooch NLU] [Menu Option From Message] #{log.to_json}")
     end
     option
   end
