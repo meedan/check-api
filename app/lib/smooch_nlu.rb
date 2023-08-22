@@ -40,7 +40,8 @@ class SmoochNlu
   def self.menu_option_from_message(message, options)
     # FIXME: Raise exception if not in a tipline context (so, if Bot::Smooch.config is nil)
     option = nil
-    if Bot::Smooch.config.to_h['nlu_menus_enabled']
+    if Bot::Smooch.config.to_h['nlu_menus_enabled'] && !options.nil?
+      # FIXME: In the future we could consider menus across all languages when options is nil
       # FIXME: No need to call Alegre if it's an exact match to one of the keywords
       # FIXME: No need to call Alegre if message has no word characters
       # FIXME: Handle error responses from Alegre
@@ -55,10 +56,22 @@ class SmoochNlu
         }
       }
       response = Bot::Alegre.request_api('get', '/text/similarity/', params)
-      best_result = response['result'].to_a.sort_by{ |result| result['_score'] }.last
-      unless best_result.nil?
-        option = options.find{ |o| !o['smooch_menu_option_id'].blank? && o['smooch_menu_option_id'] == best_result.dig('_source', 'context', 'menu_option_id') }
+      # Sort the results from best to worst
+      # sorted_options = response['result'].to_a.sort_by{ |result| result['_score'] }.reverse()
+
+      # Get the menu_option_id of all results returned
+      option_counts = response['result'].to_a.map{|o| o.dig('_source', 'context', 'menu_option_id')}
+      # Count how many of each menu_option_id we have and sort (high to low)
+      option_counts = option_counts.group_by(&:itself).transform_values(&:count).sort_by{|_k,v| v}.reverse()
+
+      # Take option menu that is most prevalent in the results and exists in `options`
+      option_counts.each do | r, _ |
+        option = options.find{ |o| !o['smooch_menu_option_id'].blank? && o['smooch_menu_option_id'] == r }
+        break if !option.nil?
       end
+
+      # FIXME: Deal with ties (i.e., where two options have an equal count)
+
       log = {
         version: "0.1", # Update if schema changes
         datetime: DateTime.current,
