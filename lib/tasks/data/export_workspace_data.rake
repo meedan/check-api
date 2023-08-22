@@ -41,7 +41,7 @@ namespace :check do
         puts "Exporting data for workspace and saving to #{filepath}..."
         output = File.open(filepath, 'w+')
 
-        header = ['Claim', 'Status', 'Created by', 'Submitted at', 'Published at', 'Number of media', 'Media: Shares', 'Media: Reactions', 'Media: Comments', 'Tags', 'Reviewed by']
+        header = ['Claim', 'Item page URL', 'Status', 'Created by', 'Submitted at', 'Published at', 'Number of media', 'Media: Shares', 'Media: Reactions', 'Media: Comments', 'Tags', 'Reviewed by']
         fields = team.team_tasks.sort
         fields.each { |tt| header << tt.label }
         output.puts(header.collect{ |x| '"' + x.to_s.gsub('"', '') + '"' }.join(','))
@@ -55,6 +55,7 @@ namespace :check do
           if statuses_to_export.include?(status)
             row = [
               pm.claim_description&.description,
+              pm.full_url,
               status,
               pm.author_name,
               pm.created_at.strftime("%Y-%m-%d %H:%M:%S"),
@@ -69,7 +70,9 @@ namespace :check do
             annotations = pm.get_annotations('task').map(&:load)
             fields.each do |field|
               annotation = annotations.find { |a| a.team_task_id == field.id }
-              row << (annotation ? (begin annotation.first_response_obj.file_data[:file_urls].join("\n") rescue annotation.first_response.to_s end) : '')
+              answer = (annotation ? (begin annotation.first_response_obj.file_data[:file_urls].join("\n") rescue annotation.first_response.to_s end) : '')
+              answer = begin JSON.parse(answer).collect{ |x| x['url'] }.join(', ') rescue answer end
+              row << answer
             end
             output.puts(row.collect{ |x| '"' + x.to_s.gsub('"', '') + '"' }.join(','))
           end
