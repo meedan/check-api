@@ -786,19 +786,19 @@ module SampleData
     Blank.create!
   end
 
-  def create_bot_resource(options = {})
-    br = TiplineResource.new
-    br.title = random_string
-    br.content = random_string
-    br.uuid = random_string
-    br.feed_url = random_url
-    br.number_of_articles = random_number
-    br.team = create_team
+  def create_tipline_resource(options = {})
+    tr = TiplineResource.new
+    tr.title = random_string
+    tr.content = random_string
+    tr.uuid = random_string
+    tr.feed_url = random_url
+    tr.number_of_articles = random_number
+    tr.team = create_team
     options.each do |key, value|
-      br.send("#{key}=", value) if br.respond_to?("#{key}=")
+      tr.send("#{key}=", value) if tr.respond_to?("#{key}=")
     end
-    br.save!
-    br.reload
+    tr.save!
+    tr.reload
   end
 
   def create_tipline_message(options = {})
