@@ -16,7 +16,7 @@ DynamicAnnotation::Field.class_eval do
     errormsg = I18n.t(:url_invalid_value)
     urls = self.value
     urls.each do |item|
-      url = URI.parse(item['url'])
+      url = URI.parse(item['url'].strip!)
       errors.add(:base, errormsg + ' ' + url.to_s) unless url.is_a?(URI::HTTP) && !url.host.nil?
     end
   end
