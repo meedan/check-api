@@ -67,7 +67,7 @@ class SmoochNlu
     nil
   end
 
-  def self.menu_option_from_message(message, options)
+  def self.menu_option_from_message(message, language, options)
     # FIXME: Raise exception if not in a tipline context (so, if Bot::Smooch.config is nil)
     option = nil
     team_slug = Team.find(Bot::Smooch.config['team_id']).slug
@@ -85,6 +85,7 @@ class SmoochNlu
         context: {
           context: ALEGRE_CONTEXT_KEY,
           team: team_slug,
+          language: language,
         }
       }
       response = Bot::Alegre.request_api('get', '/text/similarity/', params)
@@ -135,12 +136,13 @@ class SmoochNlu
     Digest::MD5.hexdigest([ALEGRE_CONTEXT_KEY, @team_slug, menu, menu_option_id, keyword].join(':'))
   end
 
-  def common_params_for_alegre(menu, menu_option_id, keyword)
+  def common_params_for_alegre(menu, language, menu_option_id, keyword)
     {
       doc_id: alegre_doc_id(menu, menu_option_id, keyword),
       context: {
         context: ALEGRE_CONTEXT_KEY,
         team: @team_slug,
+        language: language,
         menu: menu,
         menu_option_id: menu_option_id
       }
@@ -161,11 +163,11 @@ class SmoochNlu
     if operation == 'add' && !keywords.include?(keyword)
       keywords << keyword
       alegre_operation = 'post'
-      alegre_params = common_params_for_alegre(menu, menu_option_id, keyword).merge({ text: keyword, models: ALEGRE_MODELS_AND_THRESHOLDS.keys })
+      alegre_params = common_params_for_alegre(menu, language, menu_option_id, keyword).merge({ text: keyword, models: ALEGRE_MODELS_AND_THRESHOLDS.keys })
     elsif operation == 'remove'
       keywords -= [keyword]
       alegre_operation = 'delete'
-      alegre_params = common_params_for_alegre(menu, menu_option_id, keyword).merge({ quiet: true })
+      alegre_params = common_params_for_alegre(menu, language, menu_option_id, keyword).merge({ quiet: true })
     end
     workflow["smooch_state_#{menu}"]['smooch_menu_options'][menu_option_index]['smooch_menu_option_nlu_keywords'] = keywords
     @smooch_bot_installation.save!
