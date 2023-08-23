@@ -255,6 +255,16 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
     end
   end
 
+  test "should remove leading and trailing spaces from URLs when validating URL fields" do
+    url = create_field_type field_type: 'url', label: 'URL'
+    create_field_instance name: 'url', field_type_object: url
+    f = nil
+    assert_nothing_raised do
+      f = create_field field_name: 'url', value: [{ 'url' => ' https://archive.org/web/  ' }]
+    end
+    assert_equal 'https://archive.org/web/', f.reload.value[0]['url']
+  end
+
   protected
 
   def create_geojson_field
