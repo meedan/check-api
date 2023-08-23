@@ -425,4 +425,10 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     template_message = Bot::Smooch.format_template_message('test', ['foo', nil, 'bar'], nil, 'fallback', 'en')
     assert_match 'body_text=[[foo]]body_text=[[-]]body_text=[[bar]]', template_message
   end
+
+  test "should not return cache search result if report is not published anymore" do
+    pm = create_project_media
+    Bot::Smooch.stubs(:search_for_similar_published_fact_checks).returns([pm])
+    assert_equal [], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en')
+  end
 end
