@@ -40,12 +40,14 @@ class SmoochNlu
   def self.menu_option_from_message(message, options)
     # FIXME: Raise exception if not in a tipline context (so, if Bot::Smooch.config is nil)
     option = nil
+    team_slug = Team.find(Bot::Smooch.config['team_id']).slug
+    params = nil
+    response = nil
     if Bot::Smooch.config.to_h['nlu_menus_enabled'] && !options.nil?
       # FIXME: In the future we could consider menus across all languages when options is nil
       # FIXME: No need to call Alegre if it's an exact match to one of the keywords
       # FIXME: No need to call Alegre if message has no word characters
       # FIXME: Handle error responses from Alegre
-      team_slug = Team.find(Bot::Smooch.config['team_id']).slug
       params = {
         text: message,
         models: ALEGRE_MODELS_AND_THRESHOLDS.keys,
@@ -71,18 +73,18 @@ class SmoochNlu
       end
 
       # FIXME: Deal with ties (i.e., where two options have an equal count)
-
-      log = {
-        version: "0.1", # Update if schema changes
-        datetime: DateTime.current,
-        team_slug: team_slug,
-        user_query: message,
-        alegre_query: params,
-        alegre_response: response,
-        selected_option: option
-      }
-      Rails.logger.info("[Smooch NLU] [Menu Option From Message] #{log.to_json}")
     end
+    # In all cases log for analysis
+    log = {
+      version: "0.1", # Update if schema changes
+      datetime: DateTime.current,
+      team_slug: team_slug,
+      user_query: message,
+      alegre_query: params,
+      alegre_response: response,
+      selected_option: option
+    }
+    Rails.logger.info("[Smooch NLU] [Menu Option From Message] #{log.to_json}")
     option
   end
 
