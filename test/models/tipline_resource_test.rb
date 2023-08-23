@@ -1,18 +1,18 @@
 require_relative '../test_helper'
 
-class BotResourceTest < ActiveSupport::TestCase
+class TiplineResourceTest < ActiveSupport::TestCase
   def setup
     super
   end
 
   test "should create bot resource" do
-    assert_difference 'BotResource.count' do
+    assert_difference 'TiplineResource.count' do
       create_bot_resource
     end
   end
 
   test "should not create bot resource with empty uuid" do
-    assert_no_difference 'BotResource.count' do
+    assert_no_difference 'TiplineResource.count' do
       assert_raises ActiveRecord::RecordInvalid do
         create_bot_resource uuid: nil
       end
@@ -23,7 +23,7 @@ class BotResourceTest < ActiveSupport::TestCase
   end
 
   test "should not create bot resource with empty title" do
-    assert_no_difference 'BotResource.count' do
+    assert_no_difference 'TiplineResource.count' do
       assert_raises ActiveRecord::RecordInvalid do
         create_bot_resource title: nil
       end

@@ -506,7 +506,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
       ]
     })
     @installation.settings = s
-    assert_difference 'BotResource.count', 2 do
+    assert_difference 'TiplineResource.count', 2 do
       @installation.save!
     end
     s['smooch_workflows'][0] = s['smooch_workflows'][0].clone.merge({
@@ -529,7 +529,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     })
     @installation = TeamBotInstallation.find(@installation.id)
     @installation.settings = s
-    assert_difference 'BotResource.count', 1 do
+    assert_difference 'TiplineResource.count', 1 do
       @installation.save!
     end
   end

@@ -159,7 +159,7 @@ class ActiveSupport::TestCase
   # This will run before any test
 
   def setup
-    [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship, Project, BotResource].each{ |klass| klass.delete_all }
+    [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship, Project, TiplineResource].each{ |klass| klass.delete_all }
 
     # Some of our non-GraphQL tests rely on behavior that this requires. As a result,
     # we'll keep it around for now and just recreate any needed dynamic annotation data
