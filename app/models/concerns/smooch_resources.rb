@@ -34,7 +34,7 @@ module SmoochResources
     def send_resource_to_user(uid, workflow, option, language)
       resource = workflow['smooch_custom_resources'].to_a.find{ |r| r['smooch_custom_resource_id'] == option['smooch_menu_custom_resource_id'] }
       self.send_rss_to_user(uid, resource, workflow, language)
-      resource.blank? ? nil : BotResource.find_by_uuid(resource['smooch_custom_resource_id'])
+      resource.blank? ? nil : TiplineResource.find_by_uuid(resource['smooch_custom_resource_id'])
     end
 
     def send_message_to_user_on_timeout(uid, language)
@@ -72,7 +72,7 @@ module SmoochResources
 
     def save_resources(team_id, settings)
       settings['smooch_workflows'].to_a.collect{ |w| w['smooch_custom_resources'].to_a }.flatten.reject{ |r| r.blank? }.each do |resource|
-        br = BotResource.where(team_id: team_id, uuid: resource['smooch_custom_resource_id']).last || BotResource.new
+        br = TiplineResource.where(team_id: team_id, uuid: resource['smooch_custom_resource_id']).last || TiplineResource.new
         br.uuid = resource['smooch_custom_resource_id']
         br.title = resource['smooch_custom_resource_title']
         br.content = resource['smooch_custom_resource_body']

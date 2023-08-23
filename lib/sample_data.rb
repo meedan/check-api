@@ -787,7 +787,7 @@ module SampleData
   end
 
   def create_bot_resource(options = {})
-    br = BotResource.new
+    br = TiplineResource.new
     br.title = random_string
     br.content = random_string
     br.uuid = random_string
