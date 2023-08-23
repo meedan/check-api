@@ -88,21 +88,26 @@ class SmoochNlu
         }
       }
       response = Bot::Alegre.request_api('get', '/text/similarity/', params)
-      # Sort the results from best to worst
-      # sorted_options = response['result'].to_a.sort_by{ |result| result['_score'] }.reverse()
 
+      # One approach would be to take the option that has the most matches
+      # Unfortunately this approach is influenced by the number of keywords per option
+      # So, we are not using this approach right now
       # Get the menu_option_id of all results returned
-      option_counts = response['result'].to_a.map{|o| o.dig('_source', 'context', 'menu_option_id')}
+      # option_counts = response['result'].to_a.map{|o| o.dig('_source', 'context', 'menu_option_id')}
       # Count how many of each menu_option_id we have and sort (high to low)
-      option_counts = option_counts.group_by(&:itself).transform_values(&:count).sort_by{|_k,v| v}.reverse()
+      # ranked_options = option_counts.group_by(&:itself).transform_values(&:count).sort_by{|_k,v| v}.reverse()
 
-      # Take option menu that is most prevalent in the results and exists in `options`
-      option_counts.each do | r, _ |
+      # Second approach is to sort the results from best to worst
+      sorted_options = response['result'].to_a.sort_by{ |result| result['_score'] }.reverse()
+      ranked_options = sorted_options.map{|o| o.dig('_source', 'context', 'menu_option_id')}
+
+      # Select the top menu option that exists in `options`
+      ranked_options.each do | r |
         option = options.find{ |o| !o['smooch_menu_option_id'].blank? && o['smooch_menu_option_id'] == r }
         break if !option.nil?
       end
 
-      # FIXME: Deal with ties (i.e., where two options have an equal count)
+      # FIXME: Deal with ties (i.e., where two options have an equal _score or count)
     end
     # In all cases log for analysis
     log = {
