@@ -521,6 +521,12 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     response = '{"type":"media","data":{"url":"' + url + '","type":"item", "provider": "tiktok", "title":"tiktok"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l_tiktok = create_link url: url
+    # telegram
+    url = random_url
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item", "provider": "telegram", "title":"telegram"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l_telegram = create_link url: url
     # weblink
     url = random_url
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
@@ -539,9 +545,11 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       assert_equal "instagram-#{team.slug}-#{pm_instagram.id}", pm_instagram.title
       pm_tiktok = create_project_media team: team, media: l_tiktok
       assert_equal "tiktok-#{team.slug}-#{pm_tiktok.id}", pm_tiktok.title
+      pm_telegram = create_project_media team: team, media: l_telegram
+      assert_equal "telegram-#{team.slug}-#{pm_telegram.id}", pm_telegram.title
       pm_weblink = create_project_media team: team, media: l_weblink
       assert_equal "weblink-#{team.slug}-#{pm_weblink.id}", pm_weblink.title
-      [pm_youtube, pm_twitter, pm_facebook, pm_instagram, pm_tiktok, pm_weblink].each{|pm| pm.destroy!}
+      [pm_youtube, pm_twitter, pm_facebook, pm_instagram, pm_tiktok, pm_telegram, pm_weblink].each{|pm| pm.destroy!}
     end
     # test with non smooch user
     with_current_user_and_team(u, team) do
@@ -555,6 +563,8 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       assert_equal "instagram", pm_instagram.title
       pm_tiktok = create_project_media team: team, media: l_tiktok
       assert_equal "tiktok", pm_tiktok.title
+      pm_telegram = create_project_media team: team, media: l_telegram
+      assert_equal "telegram", pm_telegram.title
       pm_weblink = create_project_media team: team, media: l_weblink
       assert_equal "weblink", pm_weblink.title
     end

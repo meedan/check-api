@@ -401,7 +401,7 @@ class ProjectMedia < ApplicationRecord
     associated_type = m.type
     if m.type == 'Link'
       provider = m.metadata['provider']
-      associated_type = ['instagram', 'twitter', 'youtube', 'facebook', 'tiktok'].include?(provider) ? provider : 'weblink'
+      associated_type = ['instagram', 'twitter', 'youtube', 'facebook', 'tiktok', 'telegram'].include?(provider) ? provider : 'weblink'
     end
     ms.attributes[:associated_type] = associated_type
     ms.attributes[:url] = m.url
