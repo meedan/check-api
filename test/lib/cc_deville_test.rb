@@ -26,7 +26,7 @@ class CcDevilleTest < ActiveSupport::TestCase
       "messages": []
     }.to_json)
     stub_configs({ 'cloudflare_auth_email' => 'foo', 'cloudflare_auth_key' => 'bar', 'cloudflare_zone' => 'baz' }) do
-      mocked_method = MiniTest::Mock.new
+      mocked_method = Minitest::Mock.new
       mocked_method.expect :call, :return_value, [CcDeville::CloudflareResponseError], url: 'http://test.com'
 
       CheckSentry.stub :notify, mocked_method do
@@ -39,7 +39,7 @@ class CcDevilleTest < ActiveSupport::TestCase
   test "should handle connection errors to Cloudflare" do
     WebMock.stub_request(:post, /api\.cloudflare\.com/).to_raise(StandardError.new('test message'))
     stub_configs({ 'cloudflare_auth_email' => 'foo', 'cloudflare_auth_key' => 'bar', 'cloudflare_zone' => 'baz' }) do
-      mocked_method = MiniTest::Mock.new
+      mocked_method = Minitest::Mock.new
       # We expect URL to be passed as second arg here like test above, but Minitest is
       # having problems detecting it passed via matcher
       mocked_method.expect :call, :return_value, [StandardError], url: 'http://test.com'
