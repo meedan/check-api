@@ -37,6 +37,36 @@ class SmoochNlu
     update_keywords(language, menu, menu_option_index, keyword, 'remove')
   end
 
+  def list_keywords(languages = nil, menus = nil)
+    if languages.nil?
+      languages = @smooch_bot_installation.get_smooch_workflows.map { |w| w['smooch_workflow_language'] }
+    elsif languages.is_a? String
+      languages = [languages]
+    end
+    if menus.nil?
+      menus = ['main', 'secondary']
+    elsif menus.is_a? String
+      menus = [menus]
+    end
+
+    languages.each do |language|
+      puts("------------\n#{language}\n------------")
+      workflow = @smooch_bot_installation.get_smooch_workflows.find { |w| w['smooch_workflow_language'] == language }
+      menus.each do |menu|
+        puts("--- #{menu} ---")
+        i = 0
+        workflow.fetch("smooch_state_#{menu}",{}).fetch('smooch_menu_options', []).each do |option|
+          keywords = option.dig('smooch_menu_option_nlu_keywords').to_a
+          title = option.dig('smooch_menu_option_label')
+          pp i, title, keywords, option.dig('smooch_menu_option_id')
+          puts("\n")
+          i += 1
+        end
+      end
+    end
+    nil
+  end
+
   def self.menu_option_from_message(message, options)
     # FIXME: Raise exception if not in a tipline context (so, if Bot::Smooch.config is nil)
     option = nil
