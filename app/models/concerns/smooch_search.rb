@@ -30,7 +30,7 @@ module SmoochSearch
     end
 
     def save_search_results_for_user(uid, pmids)
-      Rails.cache.write("smooch:user_search_results:#{uid}", pmids)
+      Rails.cache.write("smooch:user_search_results:#{uid}", pmids, expires_in: 20.minutes) # Just need to be sure it's more than the 15 minutes of conversation timeout
     end
 
     def get_saved_search_results_for_user(uid)
@@ -73,9 +73,13 @@ module SmoochSearch
         filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) unless after.blank?
         feed_results = CheckSearch.new(filters.to_json, nil, team_ids).medias.to_a.map(&:id)
       end
-      pms.select do |pm|
-        (feed_id && feed_results.include?(pm&.id)) || (!feed_id && pm&.report_status == 'published' && pm&.updated_at.to_i > after.to_i && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(pm&.archived))
+      pms.compact_blank.select do |pm|
+        (feed_id && feed_results.include?(pm.id)) || (!feed_id && pm.updated_at.to_i > after.to_i && is_a_valid_search_result(pm))
       end
+    end
+
+    def is_a_valid_search_result(pm)
+      pm.report_status == 'published' && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(pm.archived)
     end
 
     def parse_search_results_from_alegre(results, after = nil, feed_id = nil, team_ids = nil)
@@ -109,7 +113,7 @@ module SmoochSearch
         after = self.date_filter(team_id)
         query = message['text']
         query = message['mediaUrl'] unless type == 'text'
-        results = self.search_for_similar_published_fact_checks(type, query, [team_id], after, nil, language)
+        results = self.search_for_similar_published_fact_checks(type, query, [team_id], after, nil, language).select{ |pm| is_a_valid_search_result(pm) }
       rescue StandardError => e
         self.handle_search_error(uid, e, language)
       end
