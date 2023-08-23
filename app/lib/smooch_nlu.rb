@@ -49,22 +49,25 @@ class SmoochNlu
       menus = [menus]
     end
 
+    output = {}
     languages.each do |language|
-      puts("------------\n#{language}\n------------")
+      output[language] = {}
       workflow = @smooch_bot_installation.get_smooch_workflows.find { |w| w['smooch_workflow_language'] == language }
       menus.each do |menu|
-        puts("--- #{menu} ---")
+        output[language][menu] = []
         i = 0
         workflow.fetch("smooch_state_#{menu}",{}).fetch('smooch_menu_options', []).each do |option|
-          keywords = option.dig('smooch_menu_option_nlu_keywords').to_a
-          title = option.dig('smooch_menu_option_label')
-          pp i, title, keywords, option.dig('smooch_menu_option_id')
-          puts("\n")
+          output[language][menu] << {
+            index: i,
+            title: option.dig('smooch_menu_option_label'),
+            keywords: option.dig('smooch_menu_option_nlu_keywords').to_a,
+            id: option.dig('smooch_menu_option_id'),
+          }
           i += 1
         end
       end
     end
-    nil
+    output
   end
 
   def self.menu_option_from_message(message, language, options)
