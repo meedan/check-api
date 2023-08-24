@@ -14,7 +14,8 @@ class SmoochNluTest < ActiveSupport::TestCase
     bot = create_team_bot login: 'smooch', name: 'Smooch', set_approved: true
     @menu_options = [{
       smooch_menu_option_value: 'newsletter',
-      smooch_menu_option_id: 'test'
+      smooch_menu_option_id: 'test',
+      smooch_menu_option_label: 'newsletter label'
     }.with_indifferent_access]
     settings = {
       team_id: team.id,
@@ -59,6 +60,30 @@ class SmoochNluTest < ActiveSupport::TestCase
     assert !SmoochNlu.new(team.slug).enabled?
   end
 
+  test 'should list keywords' do
+    team = create_team_with_smooch_bot_installed
+    nlu = SmoochNlu.new(team.slug)
+    nlu.enable!
+    Bot::Alegre.expects(:request_api).with{ |x, y, _z| x == 'post' && y == '/text/similarity/' }.once
+    nlu.add_keyword('en', 'main', 0, 'subscribe')
+    expected_output = {
+      'en' => {
+        'main' => [
+          {'index' => 0, 'title' => 'newsletter label', 'keywords' => ['subscribe'], 'id' => 'test'}
+        ]
+      }
+    }
+    # Since the demo team has only one language and menu all of the following are nearly the same
+    assert_equal nlu.list_keywords('en', 'main'), expected_output
+    assert_equal nlu.list_keywords('en', ['main']), expected_output
+
+    # These calls should include an empty secondary menu
+    expected_output['en']['secondary'] = []
+    assert_equal nlu.list_keywords(), expected_output
+    assert_equal nlu.list_keywords('en'), expected_output
+    assert_equal nlu.list_keywords(['en']), expected_output
+  end
+
   test 'should add keyword if it does not exist' do
     Bot::Alegre.expects(:request_api).with{ |x, y, _z| x == 'post' && y == '/text/similarity/' }.once
     team = create_team_with_smooch_bot_installed
@@ -85,7 +110,7 @@ class SmoochNluTest < ActiveSupport::TestCase
     team = create_team_with_smooch_bot_installed
     SmoochNlu.new(team.slug).disable!
     Bot::Smooch.get_installation('smooch_id', 'test')
-    assert_nil SmoochNlu.menu_option_from_message('I want to subscribe to the newsletter', @menu_options)
+    assert_nil SmoochNlu.menu_option_from_message('I want to subscribe to the newsletter', 'en', @menu_options)
   end
 
   test 'should return a menu option if NLU is enabled' do
@@ -95,6 +120,6 @@ class SmoochNluTest < ActiveSupport::TestCase
     team = create_team_with_smooch_bot_installed
     SmoochNlu.new(team.slug).enable!
     Bot::Smooch.get_installation('smooch_id', 'test')
-    assert_not_nil SmoochNlu.menu_option_from_message('I want to subscribe to the newsletter', @menu_options)
+    assert_not_nil SmoochNlu.menu_option_from_message('I want to subscribe to the newsletter', 'en', @menu_options)
   end
 end
