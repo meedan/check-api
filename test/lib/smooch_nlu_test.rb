@@ -14,7 +14,8 @@ class SmoochNluTest < ActiveSupport::TestCase
     bot = create_team_bot login: 'smooch', name: 'Smooch', set_approved: true
     @menu_options = [{
       smooch_menu_option_value: 'newsletter',
-      smooch_menu_option_id: 'test'
+      smooch_menu_option_id: 'test',
+      smooch_menu_option_label: 'newsletter label'
     }.with_indifferent_access]
     settings = {
       team_id: team.id,
@@ -57,6 +58,30 @@ class SmoochNluTest < ActiveSupport::TestCase
     assert SmoochNlu.new(team.slug).enabled?
     SmoochNlu.new(team.slug).disable!
     assert !SmoochNlu.new(team.slug).enabled?
+  end
+
+  test 'should list keywords' do
+    team = create_team_with_smooch_bot_installed
+    nlu = SmoochNlu.new(team.slug)
+    nlu.enable!
+    Bot::Alegre.expects(:request_api).with{ |x, y, _z| x == 'post' && y == '/text/similarity/' }.once
+    nlu.add_keyword('en', 'main', 0, 'subscribe')
+    expected_output = {
+      'en' => {
+        'main' => [
+          {'index' => 0, 'title' => 'newsletter label', 'keywords' => ['subscribe'], 'id' => 'test'}
+        ]
+      }
+    }
+    # Since the demo team has only one language and menu all of the following are nearly the same
+    assert nlu.list_keywords('en', 'main') == expected_output
+    assert nlu.list_keywords('en', ['main']) == expected_output
+
+    # These calls should include an empty secondary menu
+    expected_output['en']['secondary'] = []
+    assert nlu.list_keywords() == expected_output
+    assert nlu.list_keywords('en') == expected_output
+    assert nlu.list_keywords(['en']) == expected_output
   end
 
   test 'should add keyword if it does not exist' do

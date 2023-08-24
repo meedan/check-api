@@ -58,10 +58,10 @@ class SmoochNlu
         i = 0
         workflow.fetch("smooch_state_#{menu}",{}).fetch('smooch_menu_options', []).each do |option|
           output[language][menu] << {
-            index: i,
-            title: option.dig('smooch_menu_option_label'),
-            keywords: option.dig('smooch_menu_option_nlu_keywords').to_a,
-            id: option.dig('smooch_menu_option_id'),
+            'index' => i,
+            'title' => option.dig('smooch_menu_option_label'),
+            'keywords' => option.dig('smooch_menu_option_nlu_keywords').to_a,
+            'id' => option.dig('smooch_menu_option_id'),
           }
           i += 1
         end
