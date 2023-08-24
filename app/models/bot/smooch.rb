@@ -562,7 +562,7 @@ class Bot::Smooch < BotUser
       end
     end
     # ...if nothing is matched, try using the NLU feature
-    option = SmoochNlu.menu_option_from_message(typed, options)
+    option = SmoochNlu.menu_option_from_message(typed, language, options) if state != 'query'
     unless option.nil?
       self.process_menu_option_value(option['smooch_menu_option_value'], option, message, language, workflow, app_id)
       return true
