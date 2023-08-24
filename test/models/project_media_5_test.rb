@@ -483,9 +483,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
   end
 
   test "should set automatic title for links" do
-    m = create_uploaded_image file: 'rails.png'
-    v = create_uploaded_video file: 'rails.mp4'
-    a = create_uploaded_audio file: 'rails.mp3'
     bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true
     u = create_user
     team = create_team slug: 'workspace-slug'
