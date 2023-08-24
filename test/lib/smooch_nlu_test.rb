@@ -74,14 +74,14 @@ class SmoochNluTest < ActiveSupport::TestCase
       }
     }
     # Since the demo team has only one language and menu all of the following are nearly the same
-    assert nlu.list_keywords('en', 'main') == expected_output
-    assert nlu.list_keywords('en', ['main']) == expected_output
+    assert_equal nlu.list_keywords('en', 'main'), expected_output
+    assert_equal nlu.list_keywords('en', ['main']), expected_output
 
     # These calls should include an empty secondary menu
     expected_output['en']['secondary'] = []
-    assert nlu.list_keywords() == expected_output
-    assert nlu.list_keywords('en') == expected_output
-    assert nlu.list_keywords(['en']) == expected_output
+    assert_equal nlu.list_keywords(), expected_output
+    assert_equal nlu.list_keywords('en'), expected_output
+    assert_equal nlu.list_keywords(['en']), expected_output
   end
 
   test 'should add keyword if it does not exist' do
