@@ -41,7 +41,7 @@ namespace :check do
         puts "Exporting data for workspace and saving to #{filepath}..."
         output = File.open(filepath, 'w+')
 
-        header = ['Claim', 'Item page URL', 'Status', 'Created by', 'Submitted at', 'Published at', 'Number of media', 'Media: Shares', 'Media: Reactions', 'Media: Comments', 'Tags', 'Reviewed by']
+        header = ['Claim', 'Item page URL', 'Status', 'Created by', 'Created by organization', 'Submitted at', 'Published at', 'Number of media', 'Media: Shares', 'Media: Reactions', 'Media: Comments', 'Tags', 'Reviewed by', 'Reviewed by organization']
         fields = team.team_tasks.sort
         fields.each { |tt| header << tt.label }
         output.puts(header.collect{ |x| '"' + x.to_s.gsub('"', '') + '"' }.join(','))
@@ -53,11 +53,13 @@ namespace :check do
           puts "[#{i}/#{n}] Exporting item from workspace #{slug}..."
           status = pm.status_i18n
           if statuses_to_export.include?(status)
+            reviewer = User.find_by_id(Version.from_partition(team.id).where(associated_type: 'ProjectMedia', associated_id: pm.id).last&.whodunnit&.to_i)
             row = [
               pm.claim_description&.description,
               pm.full_url,
               status,
-              pm.author_name,
+              pm.author_name.to_s.gsub(/ \[.*\]$/, ''),
+              pm.author_name.to_s.match(/\[(.*)\]/).to_a.last,
               pm.created_at.strftime("%Y-%m-%d %H:%M:%S"),
               pm.published_at&.strftime("%Y-%m-%d %H:%M:%S"),
               pm.linked_items_count,
@@ -65,7 +67,8 @@ namespace :check do
               pm.reaction_count,
               pm.comment_count,
               pm.tags_as_sentence,
-              User.find_by_id(Version.from_partition(team.id).where(associated_type: 'ProjectMedia', associated_id: pm.id).last&.whodunnit&.to_i)&.name
+              reviewer&.name.to_s.gsub(/ \[.*\]$/, ''),
+              reviewer&.name.to_s.match(/\[(.*)\]/).to_a.last
             ]
             annotations = pm.get_annotations('task').map(&:load)
             fields.each do |field|
