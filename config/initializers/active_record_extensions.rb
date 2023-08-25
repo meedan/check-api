@@ -40,9 +40,9 @@ module ActiveRecordExtensions
       sql = "INSERT INTO #{table_name} #{columns_sql} VALUES "
       sql_values = []
       versions.each do |version|
-        sql_values << "(#{version.values.map{|v| "'#{v}'"}.join(", ")})"
+        sql_values << "(#{version.values.map{ |v| ActiveRecord::Base.connection.quote(v) }.join(', ')})"
       end
-      sql += sql_values.join(", ")
+      sql += sql_values.join(', ')
       ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_assignment, sql, table_name))
     end
   end
