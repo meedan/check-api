@@ -373,6 +373,13 @@ class ElasticSearch10Test < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l_tiktok = create_link url: url
     pm_tiktok = create_project_media team: t, media: l_tiktok, disable_es_callbacks: false
+     # telegram
+    url = random_url
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item", "provider": "telegram", "title":"Bar","description":"Bar"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l_telegram = create_link url: url
+    pm_telegram = create_project_media team: t, media: l_telegram, disable_es_callbacks: false
     # weblink
     url = random_url
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
@@ -391,14 +398,16 @@ class ElasticSearch10Test < ActionController::TestCase
     assert_equal [pm_instagram.id], result.medias.map(&:id)
     result = CheckSearch.new({show: ['tiktok']}.to_json, nil, t.id)
     assert_equal [pm_tiktok.id], result.medias.map(&:id)
+    result = CheckSearch.new({show: ['telegram']}.to_json, nil, t.id)
+    assert_equal [pm_telegram.id], result.medias.map(&:id)
     result = CheckSearch.new({show: ['weblink']}.to_json, nil, t.id)
     assert_equal [pm_weblink.id], result.medias.map(&:id)
-    result = CheckSearch.new({show: ['youtube', 'twitter', 'facebook', 'instagram', 'tiktok', 'weblink']}.to_json, nil, t.id)
-    assert_equal [pm_youtube.id, pm_twitter.id, pm_facebook.id, pm_instagram.id, pm_tiktok.id, pm_weblink.id].sort, result.medias.map(&:id).sort
+    result = CheckSearch.new({show: ['youtube', 'twitter', 'facebook', 'instagram', 'tiktok', 'telegram', 'weblink']}.to_json, nil, t.id)
+    assert_equal [pm_youtube.id, pm_twitter.id, pm_facebook.id, pm_instagram.id, pm_tiktok.id, pm_telegram.id, pm_weblink.id].sort, result.medias.map(&:id).sort
     result = CheckSearch.new({show: ['links']}.to_json, nil, t.id)
-    assert_equal [pm_youtube.id, pm_twitter.id, pm_facebook.id, pm_instagram.id, pm_tiktok.id, pm_weblink.id].sort, result.medias.map(&:id).sort
+    assert_equal [pm_youtube.id, pm_twitter.id, pm_facebook.id, pm_instagram.id, pm_tiktok.id, pm_telegram.id, pm_weblink.id].sort, result.medias.map(&:id).sort
     result = CheckSearch.new({}.to_json, nil, t.id)
-    assert_equal [pm_youtube.id, pm_twitter.id, pm_facebook.id, pm_instagram.id, pm_tiktok.id, pm_weblink.id].sort, result.medias.map(&:id).sort
+    assert_equal [pm_youtube.id, pm_twitter.id, pm_facebook.id, pm_instagram.id, pm_tiktok.id, pm_telegram.id, pm_weblink.id].sort, result.medias.map(&:id).sort
   end
 
   test "should filter by unmatched" do

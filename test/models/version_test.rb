@@ -226,4 +226,31 @@ class VersionTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should sanitize content before bulk-importing" do
+    t = create_team
+    versions = [{
+      item_type: 'Team',
+      item_id: t.id,
+      event: 'update',
+      whodunnit: nil,
+      object: t.to_json,
+      object_changes: {
+        updated_at: [t.updated_at, Time.now],
+        settings: { description: "DK Shivakumar was seen drunk in today’s 'Mekedatu" }.to_yaml,
+      }.to_json,
+      created_at: Time.now,
+      meta: {}.to_json,
+      event_type: 'update_team',
+      object_after: t.to_json,
+      associated_id: t.id,
+      associated_type: 'Team',
+      team_id: t.id
+    }]
+    assert_nothing_raised do
+      assert_difference "Version.from_partition(#{t.id}).count" do
+        Team.bulk_import_versions(versions, t.id)
+      end
+    end
+  end
 end
