@@ -104,5 +104,9 @@ module ProjectMediaMutations
       argument :action, GraphQL::Types::String, required: true
       argument :params, GraphQL::Types::String, required: false
     end
+
+    class MarkRead < Mutations::BulkMarkReadMutation
+      argument :read, GraphQL::Types::Boolean, required: true, camelize: false
+    end
   end
 end
