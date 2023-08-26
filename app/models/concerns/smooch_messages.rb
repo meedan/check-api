@@ -427,5 +427,14 @@ module SmoochMessages
       end
       CheckNotification::InfoMessages.send('sent_message_to_requestors_on_status_change', status: pm.status_i18n, requestors_count: requestors_count) if requestors_count > 0
     end
+
+    def send_message_to_user_on_timeout(uid, language)
+      sm = CheckStateMachine.new(uid)
+      redis = Redis.new(REDIS_CONFIG)
+      user_messages_count = redis.llen("smooch:bundle:#{uid}")
+      message = self.get_custom_string(:timeout, language)
+      self.send_message_to_user(uid, message) if user_messages_count > 0 && sm.state.value != 'main'
+      sm.reset
+    end
   end
 end
