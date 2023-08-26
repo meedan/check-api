@@ -110,7 +110,7 @@ module ProjectMediaMutations
 
       graphql_name "BulkProjectMediaMarkRead"
 
-      argument :read, GraphQL::Types::Boolean, required: true, camelize: false
+      argument :read, GraphQL::Types::Boolean, "A boolean value for ProjectMedia read value", required: true, camelize: false
     end
   end
 end

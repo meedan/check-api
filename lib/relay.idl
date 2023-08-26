@@ -525,6 +525,10 @@ input BulkProjectMediaMarkReadInput {
   """
   clientMutationId: String
   ids: [ID]!
+
+  """
+  A boolean value for ProjectMedia read value
+  """
   read: Boolean!
 }
 
