@@ -66,11 +66,6 @@ module ProjectMediaPrivate
     self.team.apply_rules_and_actions(self, nil)
   end
 
-  def apply_rules_and_actions_on_update
-    rule_ids = self.team.get_rules_that_match_condition { |condition, _value| condition == 'item_is_read' && self.read }
-    self.team.apply_rules_and_actions(self, rule_ids)
-  end
-
   def set_team_id
     if self.team_id.blank? && !self.project_id.blank?
       project = Project.find_by_id self.project_id

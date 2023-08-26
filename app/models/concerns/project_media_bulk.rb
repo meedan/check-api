@@ -124,7 +124,6 @@ module ProjectMediaBulk
 
     def bulk_reindex(ids_json, script)
       ids = JSON.parse(ids_json)
-      client = $repository.client
       options = {
         index: CheckElasticSearchModel.get_index_alias,
         conflicts: 'proceed',
@@ -133,7 +132,7 @@ module ProjectMediaBulk
           query: { terms: { annotated_id: ids } }
         }
       }
-      client.update_by_query options
+      $repository.client.update_by_query options
     end
 
     def update_folder_cache(ids, project)
@@ -342,6 +341,7 @@ module ProjectMediaBulk
     end
 
     def run_bulk_mark_read_callbacks(ids_json)
+      puts "i am here ....."
       ids = JSON.parse(ids_json)
       ProjectMedia.where(id: ids).find_each do |pm|
         pm.apply_rules_and_actions_on_update

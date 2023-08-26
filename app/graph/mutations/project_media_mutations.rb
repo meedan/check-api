@@ -106,6 +106,10 @@ module ProjectMediaMutations
     end
 
     class MarkRead < Mutations::BulkMarkReadMutation
+      description "Allow multiple items to be marked as read or unread."
+
+      graphql_name "BulkProjectMediaMarkRead"
+
       argument :read, GraphQL::Types::Boolean, required: true, camelize: false
     end
   end
