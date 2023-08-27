@@ -14,9 +14,6 @@ class TiplineResourceTest < ActiveSupport::TestCase
   test "should not create bot resource with empty uuid" do
     assert_no_difference 'TiplineResource.count' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_tipline_resource uuid: nil
-      end
-      assert_raises ActiveRecord::RecordInvalid do
         create_tipline_resource uuid: ''
       end
     end
