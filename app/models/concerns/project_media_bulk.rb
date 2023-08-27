@@ -341,7 +341,6 @@ module ProjectMediaBulk
     end
 
     def run_bulk_mark_read_callbacks(ids_json)
-      puts "i am here ....."
       ids = JSON.parse(ids_json)
       ProjectMedia.where(id: ids).find_each do |pm|
         pm.apply_rules_and_actions_on_update
