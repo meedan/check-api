@@ -792,6 +792,8 @@ module SampleData
     tr.content = random_string
     tr.uuid = random_string
     tr.rss_feed_url = random_url
+    tr.content_type = 'rss'
+    tr.language = 'en'
     tr.number_of_articles = random_number
     tr.team = create_team
     options.each do |key, value|

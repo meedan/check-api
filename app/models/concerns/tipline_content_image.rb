@@ -1,6 +1,6 @@
 require 'active_support/concern'
 
-module TiplineNewsletterImage
+module TiplineContentImage
   extend ActiveSupport::Concern
 
   # PNG or JPG less than 5 MB
@@ -17,23 +17,24 @@ module TiplineNewsletterImage
     return self.header_file_url if self.header_overlay_text.blank?
 
     screenshot = temp = path = nil
+    content_name = self.class.content_name
     begin
       # Get the template and generate the HTML
-      FileUtils.mkdir_p(File.join(Rails.root, 'public', 'newsletter'))
-      doc = Nokogiri::HTML(File.read(File.join(Rails.root, 'public', 'newsletter-template.html')))
+      FileUtils.mkdir_p(File.join(Rails.root, 'public', content_name))
+      doc = Nokogiri::HTML(File.read(File.join(Rails.root, 'public', 'tipline-content-template.html')))
       body = doc.at_css('body')
-      body['class'] = ['newsletter', self.language].join(' ')
+      body['class'] = ['content', self.language].join(' ')
       html = doc.at_css('html')
       html['lang'] = self.language
       doc.at_css('#text').content = self.header_overlay_text
       temp_name = 'temp-' + self.id.to_s + '-' + self.language + '.html'
-      temp = File.join(Rails.root, 'public', 'newsletter', temp_name)
+      temp = File.join(Rails.root, 'public', content_name, temp_name)
       output = File.open(temp, 'w+')
       output.puts doc.to_s.gsub('%IMAGE_URL%', self.header_file_url.to_s)
       output.close
 
       # Upload the HTML to S3
-      path = "newsletter/#{temp_name}"
+      path = "#{content_name}/#{temp_name}"
       CheckS3.write(path, 'text/html', File.read(temp))
       temp_url = CheckS3.public_url(path)
 

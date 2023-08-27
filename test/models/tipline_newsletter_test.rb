@@ -348,6 +348,10 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     end
   end
 
+  test "should define a content name" do
+    assert_equal 'newsletter', TiplineNewsletter.content_name
+  end
+
   test 'should format RSS newsletter time as cron' do
     # Offset
     newsletter = TiplineNewsletter.new(

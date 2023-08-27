@@ -1,6 +1,11 @@
 class TiplineResource < ApplicationRecord
+  include TiplineContentMultimedia
+
   before_validation :set_uuid, on: :create
   validates_presence_of :uuid, :title, :team_id
+  validates_format_of :rss_feed_url, with: URI.regexp, if: ->(resource) { resource.content_type == 'rss' }
+  validates_inclusion_of :content_type, in: ['static', 'rss']
+  validates_inclusion_of :language, in: ->(resource) { resource.team.get_languages.to_a }
 
   belongs_to :team, optional: true
 
@@ -17,6 +22,10 @@ class TiplineResource < ApplicationRecord
     end
     message = message.join("\n\n")
     self.team&.get_shorten_outgoing_urls ? UrlRewriter.shorten_and_utmize_urls(message, self.team&.get_outgoing_urls_utm_code) : message
+  end
+
+  def self.content_name
+    'resource'
   end
 
   private

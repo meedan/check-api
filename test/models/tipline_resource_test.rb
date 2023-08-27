@@ -2,7 +2,9 @@ require_relative '../test_helper'
 
 class TiplineResourceTest < ActiveSupport::TestCase
   def setup
-    super
+  end
+
+  def teardown
   end
 
   test "should create bot resource" do
@@ -38,5 +40,9 @@ class TiplineResourceTest < ActiveSupport::TestCase
     assert_equal t, br1.team
     assert_equal t, br2.team
     assert_equal [br1, br2].sort, t.tipline_resources.sort
+  end
+
+  test "should define a content name" do
+    assert_equal 'resource', TiplineResource.content_name
   end
 end
