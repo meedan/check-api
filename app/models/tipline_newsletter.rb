@@ -143,7 +143,7 @@ class TiplineNewsletter < ApplicationRecord
     date = I18n.l(Time.now.to_date, locale: self.language.to_s.tr('_', '-'), format: :long)
     file_url = file_type = nil
     if ['image', 'audio', 'video'].include?(self.header_type)
-      file_url = self.header_media_url
+      file_url = CheckS3.rewrite_url(self.header_media_url)
       file_type = HEADER_TYPE_MAPPING[self.header_type]
     end
     introduction = self.team.get_shorten_outgoing_urls ? UrlRewriter.shorten_and_utmize_urls(self.introduction, self.team.get_outgoing_urls_utm_code, self) : self.introduction

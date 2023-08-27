@@ -31,6 +31,11 @@ class CheckS3
     begin Aws::S3::Object.new(CheckConfig.get('storage_bucket'), path).public_url rescue nil end
   end
 
+  # This is useful for local development... external services (like WhatsApp, for example) need to be able to access some local URLs
+  def self.rewrite_url(url)
+   CheckConfig.get('storage_rewrite_host').blank? ? url : url.gsub(/^https?:\/\/[^\/]+/, CheckConfig.get('storage_rewrite_host'))
+  end
+
   def self.get(path)
     client = Aws::S3::Client.new
     begin

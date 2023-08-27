@@ -45,7 +45,7 @@ module TiplineContentMultimedia
     begin
       now = Time.now.to_i
       input = File.open(File.join(Rails.root, 'tmp', "#{content_name}-#{type}-input-#{self.id}-#{now}"), 'wb')
-      input.puts(URI(self.header_file_url).open.read)
+      input.puts(URI(CheckS3.rewrite_url(self.header_file_url)).open.read)
       input.close
       output_path = File.join(Rails.root, 'tmp', "#{content_name}-#{type}-output-#{self.id}-#{now}.mp4")
       video = FFMPEG::Movie.new(input.path)

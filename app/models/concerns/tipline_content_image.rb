@@ -30,7 +30,7 @@ module TiplineContentImage
       temp_name = 'temp-' + self.id.to_s + '-' + self.language + '.html'
       temp = File.join(Rails.root, 'public', content_name, temp_name)
       output = File.open(temp, 'w+')
-      output.puts doc.to_s.gsub('%IMAGE_URL%', self.header_file_url.to_s)
+      output.puts doc.to_s.gsub('%IMAGE_URL%', CheckS3.rewrite_url(self.header_file_url.to_s))
       output.close
 
       # Upload the HTML to S3
@@ -39,7 +39,7 @@ module TiplineContentImage
       temp_url = CheckS3.public_url(path)
 
       # Convert the HTML to PNG
-      uri = URI("#{CheckConfig.get('narcissus_url')}/?url=#{temp_url}&selector=%23frame")
+      uri = URI("#{CheckConfig.get('narcissus_url')}/?url=#{CheckS3.rewrite_url(temp_url)}&selector=%23frame")
       request = Net::HTTP::Get.new(uri)
       request['x-api-key'] = CheckConfig.get('narcissus_token')
       response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') { |http| http.request(request) }
