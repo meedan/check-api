@@ -9,7 +9,7 @@ module TiplineContentMultimedia
     include TiplineContentImage
     include TiplineContentVideo
     include TiplineContentAudio
-  
+
     mount_uploader :header_file, FileUploader
 
     validates_inclusion_of :header_type, in: ['none', 'link_preview', 'audio', 'video', 'image']
