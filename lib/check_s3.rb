@@ -33,7 +33,7 @@ class CheckS3
 
   # This is useful for local development... external services (like WhatsApp, for example) need to be able to access some local URLs
   def self.rewrite_url(url)
-   CheckConfig.get('storage_rewrite_host').blank? ? url : url.gsub(/^https?:\/\/[^\/]+/, CheckConfig.get('storage_rewrite_host'))
+    CheckConfig.get('storage_rewrite_host').blank? ? url : url.gsub(/^https?:\/\/[^\/]+/, CheckConfig.get('storage_rewrite_host'))
   end
 
   def self.get(path)
