@@ -391,6 +391,11 @@ class ProjectMedia < ApplicationRecord
     sm_ids.blank? ? [] : DynamicAnnotation::Field.where(annotation_id: sm_ids, field_name: 'smooch_data')
   end
 
+  def apply_rules_and_actions_on_update
+    rule_ids = self.team.get_rules_that_match_condition { |condition, _value| condition == 'item_is_read' && self.read }
+    self.team.apply_rules_and_actions(self, rule_ids)
+  end
+
   protected
 
   def add_extra_elasticsearch_data(ms)
