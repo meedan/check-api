@@ -132,14 +132,11 @@ module CheckCachedFields
           pg_field_name: options[:pg_field_name],
           recalculate: options[:recalculate],
         }
-        obj_info = {type: obj.class.name, id: obj.id}.to_json
-        self.delay_for(1.second).update_cached_field_bg(name, obj_info, ids, callback, index_options)
+        self.delay_for(1.second).update_cached_field_bg(name, obj, ids, callback, index_options)
       end
     end
 
-    def update_cached_field_bg(name, obj_info_json, ids, callback, options)
-      obj_info = JSON.parse(obj_info_json)
-      obj = obj_info['type'].constantize.where(id: obj_info['id']).last
+    def update_cached_field_bg(name, obj, ids, callback, options)
       recalculate = options[:recalculate]
       self.where(id: ids).each do |target|
         value = callback == :recalculate ? target.send(recalculate) : obj.send(callback, target)
