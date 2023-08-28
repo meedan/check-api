@@ -31,62 +31,88 @@ namespace :check do
     end
 
     class HandleNestedField
-      def self.task_responses(team, obj)
-        output = []
-        tasks = obj.annotations('task')
-        return output if tasks.length == 0
-        tasks_ids = tasks.map(&:id)
-        team_task_ids = TeamTask.where(team_id: team.id).map(&:id)
-        responses = Task.where('annotations.id' => tasks_ids)
-        .where('task_team_task_id(annotations.annotation_type, annotations.data) IN (?)', team_task_ids)
-        .joins("INNER JOIN annotations responses ON responses.annotation_type LIKE 'task_response%'
-          AND responses.annotated_type = 'Task'
-          AND responses.annotated_id = annotations.id"
-          )
-        output = responses.collect{ |tr| {
-            id: tr.id,
-            fieldset: tr.fieldset,
-            field_type: tr.type,
-            team_task_id: tr.team_task_id,
-            value: tr.first_response
-          }
-        }
-        # add TeamTask of type choice with no answer
-        no_response_ids = tasks_ids - responses.map(&:id)
-        Task.where(id: no_response_ids)
-        .where('task_team_task_id(annotations.annotation_type, annotations.data) IN (?)', team_task_ids).find_each do |item|
-          if item.type =~ /choice/
-            output << { id: item.id, team_task_id: item.team_task_id, fieldset: item.fieldset }
+      def self.task_responses(team, pm_ids)
+        pm_responses = Hash.new {|hash, key| hash[key] = [] }
+        ProjectMedia.where(id: pm_ids).find_each do |obj|
+          output = []
+          tasks = obj.annotations('task')
+          if tasks.length > 0
+            tasks_ids = tasks.map(&:id)
+            team_task_ids = TeamTask.where(team_id: team.id).map(&:id)
+            responses = Task.where('annotations.id' => tasks_ids)
+            .where('task_team_task_id(annotations.annotation_type, annotations.data) IN (?)', team_task_ids)
+            .joins("INNER JOIN annotations responses ON responses.annotation_type LIKE 'task_response%'
+              AND responses.annotated_type = 'Task'
+              AND responses.annotated_id = annotations.id"
+              )
+            output = responses.collect{ |tr| {
+                id: tr.id,
+                fieldset: tr.fieldset,
+                field_type: tr.type,
+                team_task_id: tr.team_task_id,
+                value: tr.first_response
+              }
+            }
+            # add TeamTask of type choice with no answer
+            no_response_ids = tasks_ids - responses.map(&:id)
+            Task.where(id: no_response_ids)
+            .where('task_team_task_id(annotations.annotation_type, annotations.data) IN (?)', team_task_ids).find_each do |item|
+              if item.type =~ /choice/
+                output << { id: item.id, team_task_id: item.team_task_id, fieldset: item.fieldset }
+              end
+            end
           end
+          pm_responses[obj.id] = output
         end
-        output
+        pm_responses
       end
 
-      def self.comments(_team, obj)
-        comments = obj.annotations('comment')
-        comments.collect{|c| {id: c.id, text: c.text}}
+      def self.comments(_team, pm_ids)
+        pm_comments = Hash.new {|hash, key| hash[key] = [] }
+        Comment.where(annotation_type: 'comment', annotated_id: pm_ids, annotated_type: 'ProjectMedia')
+        .find_each do |c|
+          pm_comments[c.annotated_id] << {
+            id: c.id,
+            text: c.text
+          }
+        end
+        pm_comments
       end
 
-      def self.tags(_team, obj)
-        tags = obj.get_annotations('tag').map(&:load)
-        tags.collect{|t| {id: t.id, tag: t.tag_text}}
+      def self.tags(_team, pm_ids)
+        pm_tags = Hash.new {|hash, key| hash[key] = [] }
+        Tag.where(annotation_type: 'tag', annotated_id: pm_ids, annotated_type: 'ProjectMedia')
+        .find_each do |t|
+          pm_tags[t.annotated_id] << {
+            id: t.id,
+            tag: t.tag_text
+          }
+        end
+        pm_tags
       end
 
-      def self.requests(team, obj)
-        fields = DynamicAnnotation::Field.joins(:annotation)
+      def self.requests(_team, pm_ids)
+        pm_requests = Hash.new {|hash, key| hash[key] = [] }
+        DynamicAnnotation::Field.select("dynamic_annotation_fields.id, dynamic_annotation_fields.value_json, annotations.annotated_id as pm_id")
+        .joins(:annotation)
         .where(
           field_name: 'smooch_data',
-          'annotations.annotated_id' => obj.id,
+          'annotations.annotated_id' => pm_ids,
           'annotations.annotation_type' => 'smooch',
           'annotations.annotated_type' => 'ProjectMedia'
           )
-        fields.collect{ |field| {
-          id: field.id,
-          username: field.value_json['name'],
-          identifier: field.smooch_user_external_identifier.value&.gsub(/[[:space:]|-]/, ''),
-          content: field.value_json['text'],
-          language: field.value_json['language'],
-        }}
+        .find_each do |field|
+          author_id = field.value_json['authorId']
+          identifier = begin Rails.cache.read("smooch:user:external_identifier:#{author_id}").value rescue Rails.cache.read("smooch:user:external_identifier:#{author_id}") end
+          pm_requests[field.pm_id] << {
+            id: field.id,
+            username: field.value_json['name'],
+            identifier: identifier&.gsub(/[[:space:]|-]/, ''),
+            content: field.value_json['text'],
+            language: field.value_json['language'],
+          }
+        end
+        pm_requests
       end
     end
     # bundle exec rails check:project_media:recalculate_cached_field['slug:team_slug&field:field_name']
@@ -178,7 +204,7 @@ namespace :check do
       # Add team condition
       team_condition = {}
       if data_args['slug'].blank?
-        last_team_id = Rails.cache.read('check:project_media:sync_pg_field:team_id') || 0
+        last_team_id = Rails.cache.read("check:project_media:sync_es_field:#{field_name}:team_id") || 0
       else
         last_team_id = 0
         team_condition = { slug: data_args['slug'] } unless data_args['slug'].blank?
@@ -239,7 +265,7 @@ namespace :check do
           end
           client.bulk body: es_body unless es_body.blank?
         end
-        Rails.cache.write('check:project_media:sync_pg_field:team_id', team.id) if data_args['slug'].blank?
+        Rails.cache.write("check:project_media:sync_es_field:#{field_name}:team_id", team.id) if data_args['slug'].blank?
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
@@ -253,11 +279,10 @@ namespace :check do
       raise "You must set field name as args for rake task Aborting." if field_name.blank?
       raise "No mapping for this field Aborting." unless HandleNestedField.respond_to?(field_name)
       index_alias = CheckElasticSearchModel.get_index_alias
-      client = $repository.client
       # Add Team condition
       team_condition = {}
       if data_args['slug'].blank?
-        last_team_id = Rails.cache.read('check:project_media:sync_es_nested_field:team_id') || 0
+        last_team_id = Rails.cache.read("check:project_media:sync_es_nested_field:#{field_name}:team_id") || 0
       else
         last_team_id = 0
         team_condition = { slug: data_args['slug'] } unless data_args['slug'].blank?
@@ -274,20 +299,20 @@ namespace :check do
         end_date = begin DateTime.parse(data_args['end_date']) rescue Time.now end
         pm_condition[:created_at] = start_date..end_date
       end
-
       Team.where('id > ?', last_team_id).where(team_condition).find_each do |team|
-        team.project_medias.where(pm_condition).find_in_batches(:batch_size => 2500) do |pms|
+        print '.'
+        team.project_medias.where(pm_condition).find_in_batches(:batch_size => 100) do |pms|
           es_body = []
-          pms.each do |pm|
+          pms_data = HandleNestedField.send(field_name, team, pms.map(&:id))
+          pms_data.each do |pm_id, value|
             print '.'
-            value = HandleNestedField.send(field_name, team, pm)
-            doc_id = Base64.encode64("ProjectMedia/#{pm.id}")
+            doc_id = Base64.encode64("ProjectMedia/#{pm_id}")
             fields = { "#{field_name}" => value }
             es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
           end
-          client.bulk body: es_body unless es_body.blank?
+          $repository.client.bulk body: es_body unless es_body.blank?
         end
-        Rails.cache.write('check:project_media:sync_es_nested_field:team_id', team.id) if data_args['slug'].blank?
+        Rails.cache.write("check:project_media:sync_es_nested_field:#{field_name}:team_id", team.id) if data_args['slug'].blank?
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
