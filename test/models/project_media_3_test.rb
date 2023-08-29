@@ -309,9 +309,9 @@ class ProjectMedia3Test < ActiveSupport::TestCase
       pm3 = create_project_media team: t, disable_es_callbacks: false
       sleep 2
       ids = [pm.id, pm2.id, pm3.id]
-      updates = { action: 'update_status', params: { status: 'verified' }.to_json }
+      updates = { status: 'verified' }
       Sidekiq::Testing.inline! do
-        ProjectMedia.bulk_update(ids, updates, t)
+        ProjectMedia.bulk_update_status(ids, updates, t)
         sleep 2
         # Verify nothing happens for published reports
         assert_equal pm_status, pm.reload.last_status

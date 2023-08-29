@@ -191,10 +191,9 @@ class GraphqlCrudOperations
           .to_h
           .reject { |k, _v| %w[ids clientMutationId].include?(k.to_s) }
           .with_indifferent_access
-      method_mapping = { update: :bulk_update, destroy: :bulk_destroy, mark_read: :bulk_mark_read }
-      method = method_mapping[update_or_destroy.to_sym]
+      method = "bulk_#{update_or_destroy.to_sym}"
       result = klass.send(method, sql_ids, filtered_inputs, Team.current)
-      if update_or_destroy.to_s == "update"
+      unless update_or_destroy.to_s == "destroy"
         result.merge!({ updated_objects: klass.where(id: sql_ids) })
       end
       { ids: processed_ids }.merge(result)
