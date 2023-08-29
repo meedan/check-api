@@ -12677,6 +12677,27 @@ type Team implements Node {
     """
     last: Int
   ): TiplineNewsletterConnection
+  tipline_resources(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): TiplineResourceConnection
   trash_count: Int
   trash_size: JsonStringType
   unconfirmed_count: Int
@@ -12979,6 +13000,64 @@ type TiplineNewsletterEdge {
   The item at the end of the edge.
   """
   node: TiplineNewsletter
+}
+
+"""
+TiplineResource type
+"""
+type TiplineResource implements Node {
+  content: String
+  content_type: String
+  created_at: String
+  dbid: Int
+  header_file_url: String
+  header_overlay_text: String
+  header_type: String
+  id: ID!
+  introduction: String
+  language: String
+  number_of_articles: Int
+  permissions: String
+  rss_feed_url: String
+  team: Team
+  title: String
+  updated_at: String
+}
+
+"""
+The connection type for TiplineResource.
+"""
+type TiplineResourceConnection {
+  """
+  A list of edges.
+  """
+  edges: [TiplineResourceEdge]
+
+  """
+  A list of nodes.
+  """
+  nodes: [TiplineResource]
+
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+"""
+An edge in a connection.
+"""
+type TiplineResourceEdge {
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+
+  """
+  The item at the end of the edge.
+  """
+  node: TiplineResource
 }
 
 """
