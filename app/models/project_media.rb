@@ -391,6 +391,11 @@ class ProjectMedia < ApplicationRecord
     sm_ids.blank? ? [] : DynamicAnnotation::Field.where(annotation_id: sm_ids, field_name: 'smooch_data')
   end
 
+  def apply_rules_and_actions_on_update
+    rule_ids = self.team.get_rules_that_match_condition { |condition, _value| condition == 'item_is_read' && self.read }
+    self.team.apply_rules_and_actions(self, rule_ids)
+  end
+
   protected
 
   def add_extra_elasticsearch_data(ms)
@@ -401,7 +406,7 @@ class ProjectMedia < ApplicationRecord
     associated_type = m.type
     if m.type == 'Link'
       provider = m.metadata['provider']
-      associated_type = ['instagram', 'twitter', 'youtube', 'facebook', 'tiktok'].include?(provider) ? provider : 'weblink'
+      associated_type = ['instagram', 'twitter', 'youtube', 'facebook', 'tiktok', 'telegram'].include?(provider) ? provider : 'weblink'
     end
     ms.attributes[:associated_type] = associated_type
     ms.attributes[:url] = m.url

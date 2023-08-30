@@ -438,4 +438,26 @@ class ProjectMedia6Test < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should get media slug" do
+    m = create_uploaded_image file: 'rails.png'
+    # Youtube
+    url = random_url
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item", "provider": "youtube", "title":"youtube"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l_youtube = create_link url: url
+    u = create_user
+    team = create_team slug: 'workspace-slug'
+    create_team_user team: team, user: u, role: 'admin'
+    # File type
+    pm_image = create_project_media team: team, media: m
+    assert_equal "image-#{team.slug}-#{pm_image.id}", pm_image.media_slug
+    # Link type
+    pm_youtube = create_project_media team: team, media: l_youtube
+    assert_equal "youtube-#{team.slug}-#{pm_youtube.id}", pm_youtube.media_slug
+    # Claim type
+    pm = create_project_media team: team, quote: random_string
+    assert_equal "text-#{team.slug}-#{pm.id}", pm.media_slug
+  end
 end

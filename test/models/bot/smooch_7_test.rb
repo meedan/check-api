@@ -215,13 +215,14 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
 
   test "should perform a keyword search if text with less or equal to 3 words" do
     t = create_team
+    pm = create_project_media team: t
+    publish_report(pm)
     b = create_bot_user login: 'alegre', name: 'Alegre', approved: true
     b.install_to!(t)
     tbi = TeamBotInstallation.where(team_id: t.id, user_id: b.id).last
     tbi.set_similarity_date_threshold = 6
     tbi.set_date_similarity_threshold_enabled = true
     tbi.save!
-    pm = create_project_media team: t
 
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => 'Foo bar' })
     CheckSearch.any_instance.stubs(:medias).returns([pm])
@@ -424,5 +425,11 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
   test "should be sure that template placeholders are not blank" do
     template_message = Bot::Smooch.format_template_message('test', ['foo', nil, 'bar'], nil, 'fallback', 'en')
     assert_match 'body_text=[[foo]]body_text=[[-]]body_text=[[bar]]', template_message
+  end
+
+  test "should not return cache search result if report is not published anymore" do
+    pm = create_project_media
+    Bot::Smooch.stubs(:search_for_similar_published_fact_checks).returns([pm])
+    assert_equal [], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en')
   end
 end

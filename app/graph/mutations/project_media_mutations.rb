@@ -104,5 +104,17 @@ module ProjectMediaMutations
       argument :action, GraphQL::Types::String, required: true
       argument :params, GraphQL::Types::String, required: false
     end
+
+    class MarkRead < Mutations::BaseMutation
+      define_shared_bulk_behavior(:mark_read, self, MUTATION_TARGET, GraphqlCrudOperations.hashify_parent_types(PARENTS))
+
+      description "Allow multiple items to be marked as read or unread."
+
+      graphql_name "BulkProjectMediaMarkRead"
+
+      field :updated_objects, [ProjectMediaType, null: true], null: true, camelize: false
+
+      argument :read, GraphQL::Types::Boolean, "A boolean value for ProjectMedia read value", required: true, camelize: false
+    end
   end
 end

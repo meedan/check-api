@@ -62,7 +62,7 @@ module ProjectMediaCreators
   def set_title_for_links
     if self.user&.login == 'smooch'
       provider = self.media.metadata['provider']
-      type = ['instagram', 'twitter', 'youtube', 'facebook', 'tiktok'].include?(provider) ? provider : 'weblink'
+      type = ['instagram', 'twitter', 'youtube', 'facebook', 'tiktok', 'telegram'].include?(provider) ? provider : 'weblink'
       title = build_tipline_title(type)
       self.analysis = { title: title }
     end

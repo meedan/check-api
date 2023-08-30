@@ -124,7 +124,6 @@ module ProjectMediaBulk
 
     def bulk_reindex(ids_json, script)
       ids = JSON.parse(ids_json)
-      client = $repository.client
       options = {
         index: CheckElasticSearchModel.get_index_alias,
         conflicts: 'proceed',
@@ -133,7 +132,7 @@ module ProjectMediaBulk
           query: { terms: { annotated_id: ids } }
         }
       }
-      client.update_by_query options
+      $repository.client.update_by_query options
     end
 
     def update_folder_cache(ids, project)
@@ -324,6 +323,28 @@ module ProjectMediaBulk
         es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
       end
       client.bulk body: es_body unless es_body.blank?
+    end
+
+    def bulk_mark_read(ids, read, team)
+      read_value = read.with_indifferent_access[:read]
+      pm_ids = ProjectMedia.where(id: ids).where.not(read: read_value).map(&:id)
+      # SQL bulk-update
+      updated_at = Time.now
+      update_columns = { read: read_value, updated_at: updated_at }
+      ProjectMedia.where(id: pm_ids, team_id: team&.id).update_all(update_columns)
+      # ElasticSearch
+      script = { source: "ctx._source.read = params.read", params: { read: read_value.to_i } }
+      self.bulk_reindex(pm_ids.to_json, script)
+      # Run callbacks in background
+      self.delay.run_bulk_mark_read_callbacks(pm_ids.to_json)
+      { team: team }
+    end
+
+    def run_bulk_mark_read_callbacks(ids_json)
+      ids = JSON.parse(ids_json)
+      ProjectMedia.where(id: ids).find_each do |pm|
+        pm.apply_rules_and_actions_on_update
+      end
     end
   end
 end

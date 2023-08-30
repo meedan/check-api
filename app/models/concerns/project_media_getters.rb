@@ -153,12 +153,17 @@ module ProjectMediaGetters
   end
 
   def media_slug
-    title = ''
-    if self.user&.login == 'smooch'
-      analysis = self.analysis
-      title = [analysis['file_title'], analysis['title']].compact_blank.first
-    end
-    title
+    media = self.media
+    type = case media.type
+           when 'Link'
+             provider = media.metadata['provider']
+             ['instagram', 'twitter', 'youtube', 'facebook', 'tiktok', 'telegram'].include?(provider) ? provider : 'weblink'
+           when 'Claim'
+             'text'
+           when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
+             media.type.sub('Uploaded', '').downcase
+           end
+    type.blank? ? '' : build_tipline_title(type)
   end
 
   def get_description

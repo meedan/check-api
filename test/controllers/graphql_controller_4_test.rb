@@ -314,6 +314,31 @@ class GraphqlController4Test < ActionController::TestCase
     assert_equal p4.title, Rails.cache.read("check_cached_field:ProjectMedia:#{t_pm2.id}:folder")
   end
 
+
+  test "should bulk-mark-read project medias" do
+    u = create_user
+    create_team_user team: @t, user: u, role: 'admin'
+    authenticate_with_user(u)
+    @pms.each { |pm| assert_not pm.read }
+    assert_search_finds_all({ read: 0 })
+    assert_search_finds_none({ read: 1 })
+    query = 'mutation { bulkProjectMediaMarkRead(input: { clientMutationId: "1", ids: ' + @ids + ', read: true }) { ids, team { dbid } } }'
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success
+    @pms.each { |pm| assert pm.reload.read }
+    assert_search_finds_all({ read: 1 })
+    assert_search_finds_none({ read: 0 })
+  end
+
+  test "should not bulk-mark-read project medias if there are more than 10.000 ids" do
+    ids = []
+    10001.times { ids << random_string }
+    query = 'mutation { bulkProjectMediaMarkRead(input: { clientMutationId: "1", ids: ' + ids.to_json + ', read: true }) { ids, team { dbid } } }'
+    post :create, params: { query: query, team: @t.slug }
+    assert_response 400
+    assert_error_message 'maximum'
+  end
+
   protected
 
   def assert_error_message(expected)
