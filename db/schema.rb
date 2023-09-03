@@ -693,7 +693,6 @@ ActiveRecord::Schema.define(version: 2023_08_25_234109) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string "language"
-    t.string "introduction"
     t.string "content_type"
     t.string "header_type", default: "none", null: false
     t.string "header_file"

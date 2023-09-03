@@ -5,7 +5,7 @@ class TiplineResourceType < DefaultObject
 
   field :dbid, GraphQL::Types::Int, null: true
   field :title, GraphQL::Types::String, null: true
-  field :introduction, GraphQL::Types::String, null: true
+  field :uuid, GraphQL::Types::String, null: true
   field :header_type, GraphQL::Types::String, null: true
   field :header_file_url, GraphQL::Types::String, null: true
   field :header_overlay_text, GraphQL::Types::String, null: true

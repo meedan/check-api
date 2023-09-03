@@ -48,13 +48,13 @@ module SmoochZendesk
       SmoochApi::ApiClient.new(config)
     end
 
-    def zendesk_send_message_to_user(uid, text, extra = {}, _force = false)
+    def zendesk_send_message_to_user(uid, text, extra = {}, _force = false, preview_url = true)
       api_client = self.zendesk_api_client
       api_instance = SmoochApi::ConversationApi.new(api_client)
       app_id = self.config['smooch_app_id']
       params = { 'role' => 'appMaker', 'type' => 'text', 'text' => text.to_s.truncate(4096) }.merge(extra)
       # An error is raised by Smooch API if we set "preview_url: true" and there is no URL in the "text" parameter
-      if text.to_s.match(/https?:\/\//) && !params[:override]
+      if preview_url && text.to_s.match(/https?:\/\//) && !params[:override] && params['type'] == 'text'
         params.merge!({
           override: {
             whatsapp: {

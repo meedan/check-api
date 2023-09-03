@@ -86,8 +86,8 @@ module SmoochMessages
       end
     end
 
-    def send_final_messages_to_user(uid, text, workflow, language, interval = 1)
-      response = self.send_message_to_user(uid, text)
+    def send_final_messages_to_user(uid, text, workflow, language, interval = 1, preview_url = true)
+      response = self.send_message_to_user(uid, text, {}, false, preview_url)
       if self.is_v2?
         label = self.get_string('navigation_button', language)
         CheckStateMachine.new(uid).go_to_main
