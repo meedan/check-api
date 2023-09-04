@@ -424,7 +424,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
       </rss>
     }
     WebMock.stub_request(:get, url).to_return(status: 200, body: rss)
-    tr = create_tipline_resource title: 'Test', rss_feed_url: url, content_type: 'rss', number_of_articles: 2
+    tr = create_tipline_resource title: 'Test', rss_feed_url: url, content_type: 'rss', number_of_articles: 2, content: ''
     output = "*Test*\n\nFoo\nhttp://foo\n\nBar\nhttp://bar"
     assert_equal output, tr.format_as_tipline_message
     Rails.cache.clear
@@ -469,7 +469,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
       </rss>
     }
     WebMock.stub_request(:get, url).to_return(status: 200, body: rss)
-    tr = create_tipline_resource title: 'Test', rss_feed_url: url, content_type: 'rss', number_of_articles: 2
+    tr = create_tipline_resource title: 'Test', rss_feed_url: url, content_type: 'rss', number_of_articles: 2, content: ''
     output = "*Test*\n\nFoo\nhttp://foo\n\nBar\nhttp://bar"
     assert_equal output, tr.format_as_tipline_message
   end

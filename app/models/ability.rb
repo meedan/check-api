@@ -83,11 +83,11 @@ class Ability
     can [:bulk_create], Tag, ['annotation_type = ?', 'tag'] do |obj|
       obj.team == @context_team
     end
-    can [:cud], [TiplineResource, SavedSearch, ProjectGroup], :team_id => @context_team.id
+    can [:cud], [SavedSearch, ProjectGroup], :team_id => @context_team.id
     can [:cud], DynamicAnnotation::Field do |obj|
       obj.annotation.team&.id == @context_team.id
     end
-    can [:create, :update, :read, :destroy], [Account, Source, TiplineNewsletter], :team_id => @context_team.id
+    can [:create, :update, :read, :destroy], [Account, Source, TiplineNewsletter, TiplineResource], :team_id => @context_team.id
     can [:cud], AccountSource, source: { team: { team_users: { team_id: @context_team.id }}}
     %w(annotation comment dynamic task tag).each do |annotation_type|
       can [:cud], annotation_type.classify.constantize do |obj|
