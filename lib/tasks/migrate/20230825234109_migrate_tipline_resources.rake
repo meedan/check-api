@@ -11,7 +11,7 @@ namespace :check do
       TiplineResource.where(language: nil, content_type: nil).order('id DESC').find_each do |resource|
         i += 1
         begin
-          
+
           # Set content type
           if resource.rss_feed_url.blank?
             resource.content_type = 'static'

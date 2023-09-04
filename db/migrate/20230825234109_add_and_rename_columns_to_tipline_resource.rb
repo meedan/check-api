@@ -6,6 +6,6 @@ class AddAndRenameColumnsToTiplineResource < ActiveRecord::Migration[6.1]
     add_column :tipline_resources, :header_file, :string
     add_column :tipline_resources, :header_overlay_text, :string
     add_column :tipline_resources, :header_media_url, :string
-    rename_column :tipline_resources, :feed_url, :rss_feed_url  
+    rename_column :tipline_resources, :feed_url, :rss_feed_url
   end
 end
