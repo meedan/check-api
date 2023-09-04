@@ -219,13 +219,13 @@ module SmoochTurnio
       JSON.parse(response.body).dig('media', 0, 'id')
     end
 
-    def turnio_send_message_to_user(uid, text, extra = {}, _force = false)
+    def turnio_send_message_to_user(uid, text, extra = {}, _force = false, preview_url = true)
       payload = {}
       account, to = uid.split(':')
       return if account != self.config['turnio_phone']
       if text.is_a?(String)
         payload = {
-          preview_url: !text.to_s.match(/https?:\/\//).nil?,
+          preview_url: preview_url && !text.to_s.match(/https?:\/\//).nil?,
           recipient_type: 'individual',
           to: to,
           type: 'text',
