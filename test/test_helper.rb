@@ -1030,7 +1030,7 @@ class ActiveSupport::TestCase
       team: @team,
       language: 'en'
     )
-    create_tipline_resource(
+    @resource = create_tipline_resource(
       uuid: @resource_uuid,
       title: 'Latest articles',
       introduction: 'Take a look at our latest published articles.',
