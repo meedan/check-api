@@ -270,4 +270,9 @@ class SmoochCapiTest < ActiveSupport::TestCase
     CheckSentry.expects(:notify).once
     assert !Bot::Smooch.run(message)
   end
+
+  test 'should send video message' do
+    WebMock.stub_request(:post, 'https://graph.facebook.com/v15.0/123456/messages').to_return(status: 200, body: { id: '123456' }.to_json)
+    assert_equal 200, Bot::Smooch.send_message_to_user(@uid, 'Test', { 'type' => 'video', 'mediaUrl' => 'https://test.test/video.mp4' }).code.to_i
+  end
 end

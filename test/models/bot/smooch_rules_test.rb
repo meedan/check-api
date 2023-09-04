@@ -4,7 +4,7 @@ require 'sidekiq/testing'
 class Bot::SmoochRulesTest < ActiveSupport::TestCase
   def setup
     super
-    BotResource.destroy_all
+    TiplineResource.destroy_all
     setup_smooch_bot
   end
 

@@ -1,6 +1,6 @@
 require 'active_support/concern'
 
-module TiplineNewsletterAudio
+module TiplineContentAudio
   extend ActiveSupport::Concern
 
   # Audio less than 10 MB (WhatsApp supports 16 MB for video, let's be safe when converting this audio to a video)

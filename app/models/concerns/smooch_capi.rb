@@ -225,7 +225,7 @@ module SmoochCapi
       end
     end
 
-    def capi_send_message_to_user(uid, text, extra, _force = false)
+    def capi_send_message_to_user(uid, text, extra = {}, _force = false, preview_url = true)
       payload = {}
       account, to = uid.split(':')
       return if account != self.config['capi_phone_number']
@@ -236,7 +236,7 @@ module SmoochCapi
           to: to,
           type: 'text',
           text: {
-            preview_url: !text.to_s.match(/https?:\/\//).nil?,
+            preview_url: preview_url && !text.to_s.match(/https?:\/\//).nil?,
             body: text
           }
         }
@@ -254,6 +254,17 @@ module SmoochCapi
           to: to,
           type: 'image',
           image: {
+            link: extra['mediaUrl'],
+            caption: text.to_s
+          }
+        }
+      elsif extra['type'] == 'video'
+        payload = {
+          messaging_product: 'whatsapp',
+          recipient_type: 'individual',
+          to: to,
+          type: 'video',
+          video: {
             link: extra['mediaUrl'],
             caption: text.to_s
           }

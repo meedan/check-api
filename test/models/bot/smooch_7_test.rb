@@ -174,13 +174,6 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     Time.unstub(:now)
   end
 
-  test "should not raise exception if can't parse RSS feed" do
-    BotUser.delete_all
-    assert_nothing_raised do
-      Bot::Smooch.refresh_rss_feeds_cache
-    end
-  end
-
   test "should subscribe or unsubscribe to newsletter" do
     setup_smooch_bot(true)
     Sidekiq::Testing.fake! do

@@ -23,7 +23,7 @@ module SmoochMenus
         next if options.empty?
         options.select{ |o| allowed_types.include?(o['smooch_menu_option_value']) }.each do |option|
           title = option['smooch_menu_option_label']
-          title ||= BotResource.find_by_uuid(option['smooch_menu_custom_resource_id'])&.title if option['smooch_menu_option_value'] == 'custom_resource'
+          title ||= TiplineResource.find_by_uuid(option['smooch_menu_custom_resource_id'])&.title if option['smooch_menu_option_value'] == 'custom_resource'
           title ||= option['smooch_menu_option_value']
           row = {
             id: { state: 'main', keyword: counter.to_s }.to_json,
