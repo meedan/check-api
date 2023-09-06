@@ -7,4 +7,8 @@ class SavedSearch < ApplicationRecord
   belongs_to :team, optional: true
   has_many :feeds, dependent: :nullify
   has_many :feed_teams, dependent: :nullify
+
+  def items_count
+    CheckSearch.new(self.filters.to_json, nil, self.team_id).number_of_results
+  end
 end

@@ -11829,6 +11829,7 @@ type SavedSearch implements Node {
   filters: String
   id: ID!
   is_part_of_feeds: Boolean
+  items_count: Int
   permissions: String
   team: Team
   team_id: Int

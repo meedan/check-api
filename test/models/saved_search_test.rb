@@ -3,7 +3,6 @@ require_relative '../test_helper'
 class SavedSearchTest < ActiveSupport::TestCase
   def setup
     require 'sidekiq/testing'
-    super
     SavedSearch.delete_all
   end
 
@@ -39,5 +38,10 @@ class SavedSearchTest < ActiveSupport::TestCase
   test "should serialize the filters" do
     ss = create_saved_search filters: { foo: 'bar'}
     assert_equal 'bar', ss.reload.filters['foo']
+  end
+
+  test "should count number of items" do
+    ss = create_saved_search
+    assert_equal 0, ss.items_count
   end
 end
