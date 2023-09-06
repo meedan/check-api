@@ -134,5 +134,7 @@ class MediaSearch
     indexes :unmatched, { type: 'long' }
 
     indexes :report_language, { type: 'keyword', normalizer: 'check' }
+
+    indexes :fact_check_published_on, { type: 'long' }
   end
 end

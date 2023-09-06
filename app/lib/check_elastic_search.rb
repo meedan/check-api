@@ -22,7 +22,6 @@ module CheckElasticSearch
     ms.attributes[:parent_id] = self.id
     ms.attributes[:created_at] = self.created_at.utc
     ms.attributes[:updated_at] = self.updated_at.utc
-    ms.attributes[:media_published_at] = self.media_published_at
     ms.attributes[:source_id] = self.source_id
     # Intial nested objects with []
     ['comments', 'tags', 'task_responses', 'assigned_user_ids', 'requests'].each{ |f| ms.attributes[f] = [] }

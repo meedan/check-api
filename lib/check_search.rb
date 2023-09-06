@@ -55,7 +55,8 @@ class CheckSearch
     'type_of_media' => 'type_of_media', 'title' => 'title_index', 'creator_name' => 'creator_name',
     'cluster_size' => 'cluster_size', 'cluster_first_item_at' => 'cluster_first_item_at',
     'cluster_last_item_at' => 'cluster_last_item_at', 'cluster_requests_count' => 'cluster_requests_count',
-    'cluster_published_reports_count' => 'cluster_published_reports_count', 'score' => '_score'
+    'cluster_published_reports_count' => 'cluster_published_reports_count', 'score' => '_score',
+    'fact_check_published_on' => 'fact_check_published_on'
   }
 
   def team_condition(team_id = nil)
