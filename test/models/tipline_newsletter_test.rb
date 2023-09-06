@@ -34,6 +34,8 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
 
   test 'should have introduction' do
     @newsletter.introduction = ''
+    assert @newsletter.valid?
+    @newsletter.enabled = 1
     assert_not @newsletter.valid?
   end
 
@@ -53,6 +55,7 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
   end
 
   test 'should have between 0 and 3 articles' do
+    @newsletter.enabled = 1
     @newsletter.number_of_articles = 4
     assert_not @newsletter.valid?
     @newsletter.number_of_articles = 0
@@ -60,6 +63,7 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
   end
 
   test 'should have a valid day' do
+    @newsletter.enabled = 1
     @newsletter.send_every = 'tuesday'
     assert_not @newsletter.valid?
     @newsletter.send_every = ['invalid_day']
