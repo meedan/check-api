@@ -24,19 +24,22 @@ class TiplineNewsletter < ApplicationRecord
 
   serialize :send_every, JSON # List of days of the week
 
-  validates_presence_of :time, :timezone
-  validates_presence_of :introduction, :team, :language
-  validates :introduction, length: { maximum: 180 }
+  validates_presence_of :team, :language
+  validates :introduction, length: { maximum: 180 }, allow_blank: true, allow_nil: true
   validates_format_of :rss_feed_url, with: URI.regexp, if: ->(newsletter) { newsletter.content_type == 'rss' }
-  validates_inclusion_of :content_type, in: ['static', 'rss']
   validates_inclusion_of :language, in: ->(newsletter) { newsletter.team.get_languages.to_a }
-  validates_presence_of :send_on, if: ->(newsletter) { newsletter.content_type == 'static' }
-  validates_inclusion_of :number_of_articles, in: 0..3, allow_blank: true, allow_nil: true
-  validates :first_article, length: { maximum: proc { |newsletter| MAXIMUM_ARTICLE_LENGTH[newsletter.number_of_articles].to_i } }, allow_blank: true, allow_nil: true, if: proc { |newsletter| newsletter.number_of_articles >= 1 }
-  validates :second_article, length: { maximum: proc { |newsletter| MAXIMUM_ARTICLE_LENGTH[newsletter.number_of_articles].to_i } }, allow_blank: true, allow_nil: true, if: proc { |newsletter| newsletter.number_of_articles >= 2 }
-  validates :third_article, length: { maximum: proc { |newsletter| MAXIMUM_ARTICLE_LENGTH[newsletter.number_of_articles].to_i } }, allow_blank: true, allow_nil: true, if: proc { |newsletter| newsletter.number_of_articles == 3 }
-  validate :send_every_is_a_list_of_days_of_the_week
-  validate :not_scheduled_for_the_past
+  validates_inclusion_of :content_type, in: ['static', 'rss']
+  # Should be executed only when `enabled: 1`
+  with_options if: :enabled do |obj|
+    obj.validates_presence_of :time, :timezone, :introduction
+    obj.validates_presence_of :send_on, if: ->(newsletter) { newsletter.content_type == 'static' }
+    obj.validates_inclusion_of :number_of_articles, in: 0..3, allow_blank: true, allow_nil: true
+    obj.validates :first_article, length: { maximum: proc { |newsletter| MAXIMUM_ARTICLE_LENGTH[newsletter.number_of_articles].to_i } }, allow_blank: true, allow_nil: true, if: proc { |newsletter| newsletter.number_of_articles >= 1 }
+    obj.validates :second_article, length: { maximum: proc { |newsletter| MAXIMUM_ARTICLE_LENGTH[newsletter.number_of_articles].to_i } }, allow_blank: true, allow_nil: true, if: proc { |newsletter| newsletter.number_of_articles >= 2 }
+    obj.validates :third_article, length: { maximum: proc { |newsletter| MAXIMUM_ARTICLE_LENGTH[newsletter.number_of_articles].to_i } }, allow_blank: true, allow_nil: true, if: proc { |newsletter| newsletter.number_of_articles == 3 }
+    obj.validate :send_every_is_a_list_of_days_of_the_week
+    obj.validate :not_scheduled_for_the_past
+  end
 
   after_save :reschedule_delivery
 
