@@ -4,7 +4,7 @@ class CheckSearch
   def initialize(options, file = nil, team_id = Team.current&.id)
     # Options include keywords, projects, tags, status, report status
     options = begin JSON.parse(options) rescue {} end
-    @options = options.clone.with_indifferent_access
+    @options = options.to_h.clone.with_indifferent_access
     @options['input'] = options.clone
     @options['team_id'] = team_condition(team_id)
     @options['operator'] ||= 'AND' # AND or OR
