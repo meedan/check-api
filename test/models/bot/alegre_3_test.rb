@@ -590,7 +590,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     Bot::Alegre.stubs(:get_items_with_similar_description).returns({pm3.id => {score: 0.2, context: {"field" => "title", "blah" => 1}}, pm4.id => {score: 0.3, context: {"field" => "title", "blah" => 1}}})
     request = OpenStruct.new(params: { 'action' => 'mean_tokens__Model', 'data' => {'requested' => {'body' => {'context' => {'project_media_id' => pm.id} }}}})
     assert_difference "Relationship.count" do
-      assert Bot::Fetch.webhook(request)
+      assert Bot::Alegre.webhook(request)
     end
     Bot::Alegre.unstub(:get_items_with_similar_title)
     Bot::Alegre.unstub(:get_items_with_similar_description)
