@@ -27,7 +27,7 @@ module AlegreWebhooks
       #     "data": data,
       # })
       type = get_alegre_type(request)
-      pm = ProjectMedia.find(request.params["context"]["project_media_id"])
+      pm = ProjectMedia.find(request.params["data"]["requested"]["body"]["context"]["project_media_id"])
       suggested_or_confirmed = Bot::Alegre.get_items_with_similarity(type, pm, Bot::Alegre.get_threshold_for_query(type, pm), 'body')
       Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 4/5] suggested_or_confirmed for #{pm.id} is #{suggested_or_confirmed.inspect}")
       confirmed = Bot::Alegre.get_items_with_similarity(type, pm, Bot::Alegre.get_threshold_for_query(type, pm, true))
