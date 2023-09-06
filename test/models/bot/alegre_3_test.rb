@@ -582,17 +582,12 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
   end
 
   test "should process webhook" do
-    pm = create_project_media quote: "Blah"
-    pm2 = create_project_media quote: "Blah"
-    pm3 = create_project_media quote: "Blah"
-    pm4 = create_project_media quote: "Blah"
-    Bot::Alegre.stubs(:get_items_with_similar_title).returns({pm2.id => {score: 0.2, context: {"field" => "title", "blah" => 1}}, pm3.id => {score: 0.3, context: {"field" => "title", "blah" => 1}}})
-    Bot::Alegre.stubs(:get_items_with_similar_description).returns({pm3.id => {score: 0.2, context: {"field" => "title", "blah" => 1}}, pm4.id => {score: 0.3, context: {"field" => "title", "blah" => 1}}})
-    request = OpenStruct.new(params: { 'action' => 'mean_tokens__Model', 'data' => {'requested' => {'body' => {'context' => {'project_media_id' => pm.id} }}}})
-    assert_difference "Relationship.count" do
+    pm = create_project_media team: @team
+    pm2 = create_project_media team: @team
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => {:score=>0.9, :context=>{"team_id"=>@team.id, "field"=>"original_description", "project_media_id"=>pm2.id, "has_custom_id"=>true}, :model=>"elasticsearch"} })
+    assert_difference 'Relationship.count' do
       assert Bot::Alegre.webhook(request)
     end
-    Bot::Alegre.unstub(:get_items_with_similar_title)
     Bot::Alegre.unstub(:get_items_with_similar_description)
   end
 end
