@@ -6,6 +6,7 @@ class Bot::Alegre < BotUser
   end
 
   include AlegreSimilarity
+  include AlegreWebhooks
 
   # Text similarity models
   MEAN_TOKENS_MODEL = 'xlm-r-bert-base-nli-stsb-mean-tokens'

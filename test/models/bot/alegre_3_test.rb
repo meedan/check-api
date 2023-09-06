@@ -580,4 +580,19 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
   test "should not resort matches if format is unknown" do
     assert_equal 'Foo', Bot::Alegre.return_prioritized_matches('Foo')
   end
+
+  test "should process webhook" do
+    pm = create_project_media quote: "Blah"
+    pm2 = create_project_media quote: "Blah"
+    pm3 = create_project_media quote: "Blah"
+    pm4 = create_project_media quote: "Blah"
+    Bot::Alegre.stubs(:get_items_with_similar_title).returns({pm2.id => {score: 0.2, context: {"field" => "title", "blah" => 1}}, pm3.id => {score: 0.3, context: {"field" => "title", "blah" => 1}}})
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({pm3.id => {score: 0.2, context: {"field" => "title", "blah" => 1}}, pm4.id => {score: 0.3, context: {"field" => "title", "blah" => 1}}})
+    request = OpenStruct.new(params: { 'action' => 'mean_tokens__Model', 'context' => {'project_media_id' => pm.id} })
+    assert_difference "Relationship.count" do
+      assert Bot::Fetch.webhook(request)
+    end
+    Bot::Alegre.unstub(:get_items_with_similar_title)
+    Bot::Alegre.unstub(:get_items_with_similar_description)
+  end
 end

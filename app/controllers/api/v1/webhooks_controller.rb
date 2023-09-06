@@ -7,7 +7,8 @@ module Api
         bot_name_to_class = {
           smooch: Bot::Smooch,
           keep: Bot::Keep,
-          fetch: Bot::Fetch
+          fetch: Bot::Fetch,
+          alegre: Bot::Alegre,
         }
         unless bot_name_to_class.has_key?(params[:name].to_sym)
           render_error('Bot not found', 'ID_NOT_FOUND', 404) and return
