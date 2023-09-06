@@ -9,7 +9,6 @@ module AlegreWebhooks
       #     "model_type": model_type,
       #     "data": data,
       # })
-      type = get_alegre_type(request)
       pm = ProjectMedia.find(request.params["data"]["requested"]["body"]["context"]["project_media_id"])
       get_similar_items(pm)
     end
