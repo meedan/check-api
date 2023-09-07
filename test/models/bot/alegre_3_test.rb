@@ -585,7 +585,8 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     pm2 = create_project_media team: @team, media: create_uploaded_audio
     pm3 = create_project_media team: @team, media: create_uploaded_audio
-    Bot::Alegre.stubs(:request_api).with('get', '/audio/similarity/', @params, 'body').returns({
+    params = {:url => nil, :context => {:has_custom_id => true, :team_id => @team.id}, :match_across_content_types => true, :threshold => 0.9}
+    Bot::Alegre.stubs(:request_api).with('get', '/audio/similarity/', params, 'body').returns({
       result: [
         {
           id: 1,
