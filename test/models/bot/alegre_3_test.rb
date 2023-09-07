@@ -582,11 +582,38 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
   end
 
   test "should process webhook" do
-    pm = create_project_media team: @team
-    pm2 = create_project_media team: @team
-    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => {:score=>0.9, :context=>{"team_id"=>@team.id, "field"=>"original_description", "project_media_id"=>pm2.id, "has_custom_id"=>true}, :model=>"elasticsearch"} })
-    request = OpenStruct.new(params: { 'action' => 'mean_tokens__Model', 'data' => {'requested' => {'body' => {'context' => {'project_media_id' => pm.id} }}}})
-    assert_equal Bot::Alegre.webhook(request).class, Hash
-    Bot::Alegre.unstub(:get_items_with_similar_description)
+    pm1 = create_project_media team: @team, media: create_uploaded_audio
+    pm2 = create_project_media team: @team, media: create_uploaded_audio
+    pm3 = create_project_media team: @team, media: create_uploaded_audio
+    Bot::Alegre.stubs(:request_api).with('get', '/audio/similarity/', @params, 'body').returns({
+      result: [
+        {
+          id: 1,
+          doc_id: random_string,
+          chromaprint_fingerprint: [6581800, 2386744, 2583368, 2488648, 6343163, 14978026, 300191082, 309757210, 304525578, 304386106, 841261098, 841785386],
+          url: 'https://foo.com/bar.wav',
+          context: [
+            { team_id: @team.id.to_s, project_media_id: pm1.id.to_s }
+          ],
+          score: 0.971234,
+        },
+        {
+          id: 2,
+          doc_id: random_string,
+          chromaprint_fingerprint: [2386744, 2583368, 2488648, 6343163, 14978026, 300191082, 309757210, 304525578, 304386106, 841261098, 841785386, 858042410, 825593963, 823509230],
+          url: 'https://bar.com/foo.wav',
+          context: [
+            { team_id: @team.id.to_s, project_media_id: pm2.id.to_s }
+          ],
+          score: 0.983167,
+        }
+      ]
+    }.with_indifferent_access)
+    Bot::Alegre.stubs(:media_file_url).with(pm3).returns(@media_path)
+    request = OpenStruct.new(params: { 'action' => 'audio', 'data' => {'requested' => {'body' => {'context' => {'project_media_id' => pm3.id} }}}})
+    assert_difference 'Relationship.count' do
+      Bot::Alegre.webhook(request)
+    end
+    Bot::Alegre.unstub(:media_file_url)
   end
 end
