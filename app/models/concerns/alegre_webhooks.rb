@@ -10,7 +10,7 @@ module AlegreWebhooks
       #     "data": data,
       # })
       pm = ProjectMedia.find(request.params["data"]["requested"]["body"]["context"]["project_media_id"])
-      get_similar_items(pm)
+      relate_project_media_to_similar_items(pm)
     end
   end
 end
