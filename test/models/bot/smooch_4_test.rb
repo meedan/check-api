@@ -566,6 +566,45 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     end
   end
 
+  test "should normalize text for tipline queries" do
+    Sidekiq::Testing.inline! do
+      text  = "\vstring      for testing\t\n  "
+      message = {
+        type: 'text',
+        text: text,
+        authorId: random_string,
+        '_id': random_string
+      }
+      assert_difference 'ProjectMedia.count', 1 do
+        Bot::Smooch.save_message(message.to_json, @app_id)
+      end
+      pm = ProjectMedia.last
+      assert_equal 'string for testing', pm.media.quote
+      text  = "\vstring      FOR teSTIng\t\n  "
+      message = {
+        type: 'text',
+        text: text,
+        authorId: random_string,
+        '_id': random_string
+      }
+      assert_no_difference 'ProjectMedia.count' do
+        Bot::Smooch.save_message(message.to_json, @app_id)
+      end
+      # test with existing items
+      pm = create_project_media team: @team, quote: '  test with Existing ITEM'
+      text  = "\vTEST      with existing     item  \t\n  "
+      message = {
+        type: 'text',
+        text: text,
+        authorId: random_string,
+        '_id': random_string
+      }
+      assert_no_difference 'ProjectMedia.count' do
+        Bot::Smooch.save_message(message.to_json, @app_id)
+      end
+    end
+  end
+
   test "should send only visual card to user" do
     pm = create_project_media
     publish_report(pm, {}, nil, { use_text_message: false })

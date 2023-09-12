@@ -779,9 +779,9 @@ class Bot::Smooch < BotUser
       pm = nil
       extra = {}
       if link.nil?
-        claim = self.extract_claim(text)
+        claim = self.extract_claim(text).gsub(/\s+/, ' ').strip
         extra = { quote: claim }
-        pm = ProjectMedia.joins(:media).where('lower(quote) = ?', claim.downcase).where('project_medias.team_id' => team.id).last
+        pm = ProjectMedia.joins(:media).where('trim(lower(quote)) = ?', claim.downcase).where('project_medias.team_id' => team.id).last
       else
         extra = { url: link.url }
         pm = ProjectMedia.joins(:media).where('medias.url' => link.url, 'project_medias.team_id' => team.id).last
