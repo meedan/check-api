@@ -463,4 +463,19 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     )
     assert_equal '2024-01-01 06:00', newsletter.scheduled_time.strftime("%Y-%m-%d %H:%M")
   end
+
+  test "should validate some fields only for enabled newsletter" do
+    assert_difference 'TiplineNewsletter.count' do
+      create_tipline_newsletter enabled: false, send_on: nil, time: nil, timezone: nil, send_every: nil
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_tipline_newsletter send_on: nil, time: nil, timezone: nil, send_every: nil
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_tipline_newsletter send_on: nil, send_every: nil
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_tipline_newsletter send_every: nil
+    end
+  end
 end

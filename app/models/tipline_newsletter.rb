@@ -30,18 +30,18 @@ class TiplineNewsletter < ApplicationRecord
   validates_inclusion_of :language, in: ->(newsletter) { newsletter.team.get_languages.to_a }
   validates_inclusion_of :content_type, in: ['static', 'rss']
   # Should be executed only when `enabled: 1`
+  validates_presence_of :send_on, if: ->(newsletter) { newsletter.content_type == 'static' && newsletter.enabled }
   with_options if: :enabled do |obj|
     obj.validates_presence_of :time, :timezone, :introduction
-    obj.validates_presence_of :send_on, if: ->(newsletter) { newsletter.content_type == 'static' }
     obj.validates_inclusion_of :number_of_articles, in: 0..3, allow_blank: true, allow_nil: true
     obj.validates :first_article, length: { maximum: proc { |newsletter| MAXIMUM_ARTICLE_LENGTH[newsletter.number_of_articles].to_i } }, allow_blank: true, allow_nil: true, if: proc { |newsletter| newsletter.number_of_articles >= 1 }
     obj.validates :second_article, length: { maximum: proc { |newsletter| MAXIMUM_ARTICLE_LENGTH[newsletter.number_of_articles].to_i } }, allow_blank: true, allow_nil: true, if: proc { |newsletter| newsletter.number_of_articles >= 2 }
     obj.validates :third_article, length: { maximum: proc { |newsletter| MAXIMUM_ARTICLE_LENGTH[newsletter.number_of_articles].to_i } }, allow_blank: true, allow_nil: true, if: proc { |newsletter| newsletter.number_of_articles == 3 }
     obj.validate :send_every_is_a_list_of_days_of_the_week
-    obj.validate :not_scheduled_for_the_past
+    obj.validate :not_scheduled_for_the_past, unless: proc { |newsletter| newsletter.time.blank? || newsletter.timezone.blank? }
   end
 
-  after_save :reschedule_delivery
+  after_save :reschedule_delivery, unless: proc { |newsletter| newsletter.time.blank? || newsletter.timezone.blank? }
 
   def parsed_timezone
     timezone = self.timezone
