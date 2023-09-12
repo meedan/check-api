@@ -24,7 +24,7 @@ class TiplineNewsletterType < DefaultObject
   field :time, GraphQL::Types::String, null: true
 
   def time
-    object.time.strftime("%H:%M")
+    object.time ? object.time.strftime("%H:%M") : nil
   end
   field :subscribers_count, GraphQL::Types::Int, null: true
   field :footer, GraphQL::Types::String, null: true
