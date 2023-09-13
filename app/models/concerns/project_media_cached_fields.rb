@@ -185,6 +185,7 @@ module ProjectMediaCachedFields
 
     cached_field :fact_check_published_on,
       start_as: 0,
+      update_es: true,
       recalculate: :recalculate_fact_check_published_on,
       update_on: [FACT_CHECK_EVENT]
 

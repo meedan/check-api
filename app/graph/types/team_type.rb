@@ -294,4 +294,5 @@ class TeamType < DefaultObject
   field :project_groups, ProjectGroupType.connection_type, null: true
   field :feeds, FeedType.connection_type, null: true
   field :tipline_newsletters, TiplineNewsletterType.connection_type, null: true
+  field :tipline_resources, TiplineResourceType.connection_type, null: true
 end

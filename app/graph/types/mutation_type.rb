@@ -145,4 +145,8 @@ class MutationType < BaseObject
 
   field :createTiplineNewsletter, mutation: TiplineNewsletterMutations::Create
   field :updateTiplineNewsletter, mutation: TiplineNewsletterMutations::Update
+
+  field :createTiplineResource, mutation: TiplineResourceMutations::Create
+  field :updateTiplineResource, mutation: TiplineResourceMutations::Update
+  field :destroyTiplineResource, mutation: TiplineResourceMutations::Destroy
 end

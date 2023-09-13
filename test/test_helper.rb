@@ -159,7 +159,7 @@ class ActiveSupport::TestCase
   # This will run before any test
 
   def setup
-    [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship, Project, BotResource].each{ |klass| klass.delete_all }
+    [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship, Project, TiplineResource].each{ |klass| klass.delete_all }
 
     # Some of our non-GraphQL tests rely on behavior that this requires. As a result,
     # we'll keep it around for now and just recreate any needed dynamic annotation data
@@ -863,6 +863,7 @@ class ActiveSupport::TestCase
     @project = create_project team_id: @team.id
     @bid = random_string
     BotUser.delete_all
+    @resource_uuid = random_string
 
     @bot = create_smooch_bot
 
@@ -926,7 +927,7 @@ class ActiveSupport::TestCase
             {
               'smooch_menu_option_keyword' => '4',
               'smooch_menu_option_value' => 'custom_resource',
-              'smooch_menu_custom_resource_id' => 'latest'
+              'smooch_menu_custom_resource_id' => @resource_uuid
             },
             {
               'smooch_menu_option_keyword' => '5',
@@ -959,7 +960,7 @@ class ActiveSupport::TestCase
         },
         'smooch_custom_resources' => [
           {
-            'smooch_custom_resource_id' => 'latest',
+            'smooch_custom_resource_id' => @resource_uuid,
             'smooch_custom_resource_title' => 'Latest articles',
             'smooch_custom_resource_body' => 'Take a look at our latest published articles.',
             'smooch_custom_resource_feed_url' => 'http://test.com/feed.rss',
@@ -1024,6 +1025,15 @@ class ActiveSupport::TestCase
       timezone: 'BRT',
       introduction: 'Test',
       content_type: 'rss',
+      rss_feed_url: 'http://test.com/feed.rss',
+      number_of_articles: 3,
+      team: @team,
+      language: 'en'
+    )
+    @resource = create_tipline_resource(
+      uuid: @resource_uuid,
+      title: 'Latest articles',
+      introduction: 'Take a look at our latest published articles.',
       rss_feed_url: 'http://test.com/feed.rss',
       number_of_articles: 3,
       team: @team,

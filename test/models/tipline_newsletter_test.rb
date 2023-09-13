@@ -34,6 +34,8 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
 
   test 'should have introduction' do
     @newsletter.introduction = ''
+    assert @newsletter.valid?
+    @newsletter.enabled = 1
     assert_not @newsletter.valid?
   end
 
@@ -53,6 +55,7 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
   end
 
   test 'should have between 0 and 3 articles' do
+    @newsletter.enabled = 1
     @newsletter.number_of_articles = 4
     assert_not @newsletter.valid?
     @newsletter.number_of_articles = 0
@@ -60,6 +63,7 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
   end
 
   test 'should have a valid day' do
+    @newsletter.enabled = 1
     @newsletter.send_every = 'tuesday'
     assert_not @newsletter.valid?
     @newsletter.send_every = ['invalid_day']
@@ -348,6 +352,10 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
     end
   end
 
+  test "should define a content name" do
+    assert_equal 'newsletter', TiplineNewsletter.content_name
+  end
+
   test 'should format RSS newsletter time as cron' do
     # Offset
     newsletter = TiplineNewsletter.new(
@@ -454,5 +462,20 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
       send_on: Date.parse('2023-12-31')
     )
     assert_equal '2024-01-01 06:00', newsletter.scheduled_time.strftime("%Y-%m-%d %H:%M")
+  end
+
+  test "should validate some fields only for enabled newsletter" do
+    assert_difference 'TiplineNewsletter.count' do
+      create_tipline_newsletter enabled: false, send_on: nil, time: nil, timezone: nil, send_every: nil
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_tipline_newsletter send_on: nil, time: nil, timezone: nil, send_every: nil
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_tipline_newsletter send_on: nil, send_every: nil
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_tipline_newsletter send_every: nil
+    end
   end
 end

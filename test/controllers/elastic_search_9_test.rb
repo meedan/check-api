@@ -246,5 +246,23 @@ class ElasticSearch9Test < ActionController::TestCase
     end
   end
 
+  test "should sort by fact-check published on data" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    pm1 = create_project_media team: t, disable_es_callbacks: false
+    pm2 = create_project_media team: t, disable_es_callbacks: false
+    pm3 = create_project_media team: t, disable_es_callbacks: false
+    sleep 2
+    cd = create_claim_description project_media: pm3
+    fc = create_fact_check claim_description: cd
+    cd = create_claim_description project_media: pm1
+    fc = create_fact_check claim_description: cd
+    sleep 2
+    result = CheckSearch.new({ sort: 'fact_check_published_on', sort_type: 'asc' }.to_json, nil, t.id)
+    assert_equal [pm2.id, pm3.id, pm1.id], result.medias.map(&:id)
+    result = CheckSearch.new({ sort: 'fact_check_published_on', sort_type: 'desc' }.to_json, nil, t.id)
+    assert_equal [pm1.id, pm3.id, pm2.id], result.medias.map(&:id)
+  end
+
   # Please add new tests to test/controllers/elastic_search_10_test.rb
 end

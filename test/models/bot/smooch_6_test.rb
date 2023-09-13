@@ -791,4 +791,18 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     nlu.remove_keyword('en', 'main', 2, 'I want to subscribe to the newsletter')
     nlu.remove_keyword('en', 'main', 2, 'I want to unsubscribe from the newsletter')
   end
+
+  test "should get multimedia resource on tipline bot v2" do
+    Sidekiq::Testing.inline! do
+      TiplineResource.any_instance.stubs(:new_file_uploaded?).returns(true)
+      @resource.header_type = 'image'
+      File.open(File.join(Rails.root, 'test', 'data', 'rails.png')) do |f|
+        @resource.file = f
+      end
+      @resource.save!
+    end
+    WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(body: '<rss></rss>')
+    send_message 'hello', '1', '4'
+    assert_saved_query_type 'resource_requests'
+  end
 end

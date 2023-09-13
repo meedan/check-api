@@ -1,6 +1,6 @@
 require 'active_support/concern'
 
-module TiplineNewsletterVideo
+module TiplineContentVideo
   extend ActiveSupport::Concern
 
   # MP4 less than 10 MB (WhatsApp supports 16 MB, let's be safe)
