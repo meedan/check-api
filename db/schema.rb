@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_08_14_235431) do
+ActiveRecord::Schema.define(version: 2023_09_06_160303) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -193,19 +193,6 @@ ActiveRecord::Schema.define(version: 2023_08_14_235431) do
     t.index ["assigned_type"], name: "index_assignments_on_assigned_type"
     t.index ["assigner_id"], name: "index_assignments_on_assigner_id"
     t.index ["user_id"], name: "index_assignments_on_user_id"
-  end
-
-  create_table "bot_resources", id: :serial, force: :cascade do |t|
-    t.string "uuid", default: "", null: false
-    t.string "title", default: "", null: false
-    t.string "content", default: "", null: false
-    t.string "feed_url"
-    t.integer "number_of_articles", default: 3
-    t.integer "team_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.index ["team_id"], name: "index_bot_resources_on_team_id"
-    t.index ["uuid"], name: "index_bot_resources_on_uuid", unique: true
   end
 
   create_table "bounces", id: :serial, force: :cascade do |t|
@@ -698,6 +685,25 @@ ActiveRecord::Schema.define(version: 2023_08_14_235431) do
     t.index ["team_id"], name: "index_tipline_newsletters_on_team_id"
   end
 
+  create_table "tipline_resources", id: :serial, force: :cascade do |t|
+    t.string "uuid", default: "", null: false
+    t.string "title", default: "", null: false
+    t.string "content", default: "", null: false
+    t.string "rss_feed_url"
+    t.integer "number_of_articles", default: 3
+    t.integer "team_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string "language"
+    t.string "content_type"
+    t.string "header_type", default: "link_preview", null: false
+    t.string "header_file"
+    t.string "header_overlay_text"
+    t.string "header_media_url"
+    t.index ["team_id"], name: "index_tipline_resources_on_team_id"
+    t.index ["uuid"], name: "index_tipline_resources_on_uuid", unique: true
+  end
+
   create_table "tipline_subscriptions", id: :serial, force: :cascade do |t|
     t.string "uid"
     t.string "language"
@@ -773,8 +779,7 @@ ActiveRecord::Schema.define(version: 2023_08_14_235431) do
   end
 
   create_table "versions", id: :serial, force: :cascade do |t|
-    t.string "item_type"
-    t.string "{:null=>false}"
+    t.string "item_type", null: false
     t.string "item_id", null: false
     t.string "event", null: false
     t.string "whodunnit"

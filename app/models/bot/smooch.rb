@@ -679,14 +679,14 @@ class Bot::Smooch < BotUser
     self.send_message_to_user(message['authorId'], error_message)
   end
 
-  def self.send_message_to_user(uid, text, extra = {}, force = false)
+  def self.send_message_to_user(uid, text, extra = {}, force = false, preview_url = true)
     return if self.config['smooch_disabled'] && !force
     if RequestStore.store[:smooch_bot_provider] == 'TURN'
-      self.turnio_send_message_to_user(uid, text, extra, force)
+      self.turnio_send_message_to_user(uid, text, extra, force, preview_url)
     elsif RequestStore.store[:smooch_bot_provider] == 'CAPI'
-      self.capi_send_message_to_user(uid, text, extra, force)
+      self.capi_send_message_to_user(uid, text, extra, force, preview_url)
     else
-      self.zendesk_send_message_to_user(uid, text, extra, force)
+      self.zendesk_send_message_to_user(uid, text, extra, force, preview_url)
     end
   end
 
@@ -779,9 +779,9 @@ class Bot::Smooch < BotUser
       pm = nil
       extra = {}
       if link.nil?
-        claim = self.extract_claim(text)
+        claim = self.extract_claim(text).gsub(/\s+/, ' ').strip
         extra = { quote: claim }
-        pm = ProjectMedia.joins(:media).where('lower(quote) = ?', claim.downcase).where('project_medias.team_id' => team.id).last
+        pm = ProjectMedia.joins(:media).where('trim(lower(quote)) = ?', claim.downcase).where('project_medias.team_id' => team.id).last
       else
         extra = { url: link.url }
         pm = ProjectMedia.joins(:media).where('medias.url' => link.url, 'project_medias.team_id' => team.id).last

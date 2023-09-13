@@ -345,7 +345,7 @@ class GraphqlController9Test < ActionController::TestCase
   end
 
   test "should return tipline newsletter errors as an array" do
-    query = 'mutation create { createTiplineNewsletter(input: { clientMutationId: "1", content_type: "rss", language: "en", time: "10:00", send_every: ["holiday"], timezone: "America/Los_Angeles" }) { tipline_newsletter { id, time, send_on, enabled } } }'
+    query = 'mutation create { createTiplineNewsletter(input: { clientMutationId: "1", enabled: true, content_type: "rss", language: "en", time: "10:00", send_every: ["holiday"], timezone: "America/Los_Angeles" }) { tipline_newsletter { id, time, send_on, enabled } } }'
     assert_no_difference 'TiplineNewsletter.count' do
       post :create, params: { query: query, team: @t.slug }
     end

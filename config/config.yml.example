@@ -100,6 +100,7 @@ development: &default
   storage_bucket: 'check-api-dev'
   storage_bucket_region: 'us-east-1'
   storage_path_style:
+  storage_rewrite_host:
 
   # Screenshot service URL
   #
