@@ -20,7 +20,10 @@ class UrlRewriter
     end
   end
 
-  def self.shorten_and_utmize_urls(text, source = nil, owner = nil)
+  def self.shorten_and_utmize_urls(input_text, source = nil, owner = nil)
+    text = input_text
+    # Encode URLs in Arabic which are not detected by the URL extraction methods
+    text = text.gsub(/https?:\/\/[\S]+/) { |url| Addressable::URI.escape(url) } if input_text =~ /\p{Arabic}/
     entities = Twitter::TwitterText::Extractor.extract_urls_with_indices(text, extract_url_without_protocol: true)
     # Ruby 2.7 freezes the empty string from nil.to_s, which causes an error within the rewriter
     Twitter::TwitterText::Rewriter.rewrite_entities(text || '', entities) do |entity, _codepoints|
