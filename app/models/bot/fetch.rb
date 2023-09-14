@@ -171,7 +171,9 @@ class Bot::Fetch < BotUser
           (from.to_i..to.to_i).step(step.days).each do |current_timestamp|
             from2 = Time.at(current_timestamp)
             to2 = from2 + step.days
-            Bot::Fetch.get_claim_reviews({ service: service_name, start_time: from2.strftime('%Y-%m-%d'), end_time: to2.strftime('%Y-%m-%d'), language: language}).each do |claim_review|
+            params = { service: service_name, start_time: from2.strftime('%Y-%m-%d'), end_time: to2.strftime('%Y-%m-%d'), language: language}
+            params[:language] = language if !language.nil?
+            Bot::Fetch.get_claim_reviews(params).each do |claim_review|
               next if !maximum.nil? && total >= maximum
               self.import_claim_review(claim_review, team.id, user.id, status_fallback, status_mapping, auto_publish_reports, force)
               total += 1
