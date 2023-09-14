@@ -44,4 +44,11 @@ class SavedSearchTest < ActiveSupport::TestCase
     ss = create_saved_search
     assert_equal 0, ss.items_count
   end
+
+  test "should not crash if filter is invalid" do
+    ss = create_saved_search filters: { team_tasks: [{ id: '', task_type: 'single_choice', response: 'NO_VALUE' }] }
+    assert_nothing_raised do
+      assert_equal 0, ss.items_count
+    end
+  end
 end
