@@ -94,7 +94,7 @@ class Bot::Fetch < BotUser
       end
     end
     previous_services.each { |previous_service| self.call_fetch_api(:delete, 'subscribe', { service: previous_service, url: self.webhook_url(team) }) }
-    Bot::Fetch::Import.delay_for(1.second, { queue: 'fetch', retry: 0 }).import_claim_reviews(installation.id) unless new_services.blank?
+    Bot::Fetch::Import.delay_for(1.second, { queue: 'fetch', retry: 0 }).import_claim_reviews(installation.id, language, false, nil) unless new_services.blank?
   end
 
   def self.is_service_supported?(service)
@@ -148,7 +148,7 @@ class Bot::Fetch < BotUser
   # Mandatory fields in the imported ClaimReview: claim_review_headline, claim_review_url, created_at and id
 
   class Import
-    def self.import_claim_reviews(installation_id, force = false, maximum = nil)
+    def self.import_claim_reviews(installation_id, language = nil, force = false, maximum = nil)
       installation = TeamBotInstallation.find(installation_id)
       RequestStore.store[:skip_notifications] = true
       RequestStore.store[:skip_cached_field_update] = false
@@ -171,7 +171,9 @@ class Bot::Fetch < BotUser
           (from.to_i..to.to_i).step(step.days).each do |current_timestamp|
             from2 = Time.at(current_timestamp)
             to2 = from2 + step.days
-            Bot::Fetch.get_claim_reviews({ service: service_name, start_time: from2.strftime('%Y-%m-%d'), end_time: to2.strftime('%Y-%m-%d')}).each do |claim_review|
+            params = { service: service_name, start_time: from2.strftime('%Y-%m-%d'), end_time: to2.strftime('%Y-%m-%d')}
+            params[:language] = language if !language.nil?
+            Bot::Fetch.get_claim_reviews(params).each do |claim_review|
               next if !maximum.nil? && total >= maximum
               self.import_claim_review(claim_review, team.id, user.id, status_fallback, status_mapping, auto_publish_reports, force)
               total += 1

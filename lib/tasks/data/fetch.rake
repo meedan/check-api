@@ -137,7 +137,8 @@ namespace :check do
         services.each { |service| Bot::Fetch.call_fetch_api(:delete, 'subscribe', { service: service, url: Bot::Fetch.webhook_url(team) }) }
         services.each { |service| Bot::Fetch.call_fetch_api(:post, 'subscribe', { service: service, url: Bot::Fetch.webhook_url(team) }) }
         tbi = TeamBotInstallation.where(user_id: BotUser.find_by_login('fetch').id, team_id: team.id).last.id
-        Bot::Fetch::Import.delay(retry: 0).import_claim_reviews(tbi, force)
+        #dont support languages here, its just going to get too messy via the rake syntax.
+        Bot::Fetch::Import.delay(retry: 0).import_claim_reviews(tbi, nil, force)
       end
     end
 
@@ -172,7 +173,7 @@ namespace :check do
       end
       Bot::Fetch.set_service(team.slug, services, 'undetermined', status_mapping)
       tbi = TeamBotInstallation.where(user_id: BotUser.find_by_login('fetch').id, team_id: team.id).last.id
-      Bot::Fetch::Import.import_claim_reviews(tbi, true, size)
+      Bot::Fetch::Import.import_claim_reviews(tbi, nil, true, size)
       puts "A sample of #{size} articles were imported from Fetch service(s) #{services.join(', ')} to https://checkmedia.org/#{team.slug}/imported-fact-checks."
     end
   end
