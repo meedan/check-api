@@ -488,8 +488,8 @@ class CheckSearch
 
   def team_tasks_conditions
     conditions = []
-    return conditions unless @options.has_key?('team_tasks') && @options['team_tasks'].class.name == 'Array'
-    @options['team_tasks'].delete_if{ |tt| tt['response'].blank? }
+    return conditions unless @options['team_tasks'].class.name == 'Array'
+    @options['team_tasks'].delete_if{ |tt| tt['response'].blank? || tt['id'].blank? }
     @options['team_tasks'].each do |tt|
       must_c = []
       must_c << { term: { "task_responses.team_task_id": tt['id'] } } if tt.has_key?('id')
