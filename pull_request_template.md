@@ -21,6 +21,7 @@ Please describe parts of the change that require extra attention during code rev
 - [ ] I have added unit and feature tests, if the PR implements a new feature or otherwise would benefit from additional testing
 - [ ] I have added regression tests, if the PR fixes a bug
 - [ ] I have added logging, exception reporting, and custom tracing with any additional information required for debugging
+- [ ] I considered secure coding practices when writing this code. Any security concerns are noted above.
 - [ ] I have commented my code in hard-to-understand areas, if any
 - [ ] I have made needed changes to the README
 - [ ] My changes generate no new warnings
