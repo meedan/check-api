@@ -25,6 +25,14 @@ module ProjectMediaMutations
     end
   end
 
+  module SharedUpdatedObjectsField
+    extend ActiveSupport::Concern
+
+    included do
+      field :updated_objects, [ProjectMediaType, null: true], null: true, camelize: false
+    end
+  end
+
   class Create < Mutations::CreateMutation
     include SharedCreateAndUpdateFields
 
@@ -106,15 +114,27 @@ module ProjectMediaMutations
     end
 
     class MarkRead < Mutations::BaseMutation
+      include SharedUpdatedObjectsField
+
       define_shared_bulk_behavior(:mark_read, self, MUTATION_TARGET, GraphqlCrudOperations.hashify_parent_types(PARENTS))
 
       description "Allow multiple items to be marked as read or unread."
 
       graphql_name "BulkProjectMediaMarkRead"
 
-      field :updated_objects, [ProjectMediaType, null: true], null: true, camelize: false
-
       argument :read, GraphQL::Types::Boolean, "A boolean value for ProjectMedia read value", required: true, camelize: false
+    end
+
+    class UpdateStatus < Mutations::BaseMutation
+      include SharedUpdatedObjectsField
+
+      define_shared_bulk_behavior(:update_status, self, MUTATION_TARGET, GraphqlCrudOperations.hashify_parent_types(PARENTS))
+
+      description "Update status for multiple items."
+
+      graphql_name "BulkProjectMediaUpdateStatus"
+
+      argument :status, GraphQL::Types::String, "Property whose value is a string corresponding to a status id", required: true
     end
   end
 end

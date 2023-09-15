@@ -146,7 +146,7 @@ class Ability
       changes = (after.to_a - before.to_a).to_h
       obj.team&.id == @context_team.id && changes.keys == [] && !obj.annotated_is_trashed?
     end
-    can [:administer_content, :bulk_update, :bulk_mark_read], ProjectMedia do |obj|
+    can [:administer_content, :bulk_update, :bulk_mark_read, :bulk_update_status], ProjectMedia do |obj|
       obj.related_to_team?(@context_team) && obj.user_can_see_project?(@user)
     end
     can [:destroy, :update], [Dynamic, Annotation] do |obj|

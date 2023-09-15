@@ -20,8 +20,6 @@ module ProjectMediaBulk
         end
       when 'assigned_to_ids'
         self.bulk_assign(ids, params[:assigned_to_ids], params[:assignment_message], team)
-      when 'update_status'
-        self.bulk_update_status(ids, params[:status], team)
       when 'remove_tags'
         self.bulk_remove_tags(ids, params[:tags_text], team)
       end
@@ -223,7 +221,8 @@ module ProjectMediaBulk
       bulk_import_versions(versions, team_id) if versions.size > 0
     end
 
-    def bulk_update_status(ids, status, team)
+    def bulk_update_status(ids, arguments, team)
+      status = arguments.with_indifferent_access[:status]
       ids.map!(&:to_i)
       # Exclude published reports
       excluded_ids = []
@@ -325,8 +324,8 @@ module ProjectMediaBulk
       client.bulk body: es_body unless es_body.blank?
     end
 
-    def bulk_mark_read(ids, read, team)
-      read_value = read.with_indifferent_access[:read]
+    def bulk_mark_read(ids, arguments, team)
+      read_value = arguments.with_indifferent_access[:read]
       pm_ids = ProjectMedia.where(id: ids).where.not(read: read_value).map(&:id)
       # SQL bulk-update
       updated_at = Time.now
