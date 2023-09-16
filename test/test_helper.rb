@@ -985,6 +985,7 @@ class ActiveSupport::TestCase
       })
     end
     @installation = create_team_bot_installation user_id: @bot.id, settings: @settings.merge(extra_settings), team_id: @team.id
+    @installation.set_smooch_version = 'v1' ; @installation.save!
     create_team_bot_installation user_id: @bot.id, settings: {}, team_id: create_team.id
     Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
     @media_url = 'https://smooch.com/image/test.jpeg'

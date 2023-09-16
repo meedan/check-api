@@ -16,10 +16,14 @@ module SmoochTeamBotInstallation
         end
       end
 
-      # Save Twitter/Facebook token and authorization URL
       after_create do
         if self.bot_user&.identifier == 'smooch'
+          # Save Twitter/Facebook token and authorization URL
           self.reset_smooch_authorization_token
+
+          # Bump to v2
+          self.set_smooch_version = 'v2'
+
           self.save!
         end
       end
