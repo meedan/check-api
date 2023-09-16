@@ -98,6 +98,7 @@ class Dynamic < ApplicationRecord
     f.skip_check_ability = true
     f.disable_es_callbacks = self.disable_es_callbacks || value.blank?
     f.field_name = name
+    value.gsub!('\u0000', '') if value.is_a?(String) # Avoid PG::UntranslatableCharacter exception
     f.value = value
     f.annotation_id = self.id
     f
