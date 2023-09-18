@@ -82,4 +82,11 @@ class TiplineNewsletterWorkerTest < ActiveSupport::TestCase
     TiplineNewsletter.any_instance.stubs(:content_has_changed?).raises(RssFeed::RssLoadError)
     assert_equal 0, TiplineNewsletterWorker.new.perform(@team.id, 'en')
   end
+
+  test "should send newsletter for non-WhatsApp subscription" do
+    create_tipline_subscription team_id: @team.id, platform: 'Telegram'
+    assert_nothing_raised do
+      TiplineNewsletterWorker.perform_async(@team.id, 'en')
+    end
+  end
 end
