@@ -14,9 +14,7 @@ class TiplineResource < ApplicationRecord
     message = []
     message << "*#{self.title.strip}*" unless self.title.strip.blank?
     message << self.content unless self.content.blank?
-    if self.content_type == 'static'
-      # FIXME: Handle static content
-    elsif self.content_type == 'rss' && !self.rss_feed_url.blank?
+    if self.content_type == 'rss' && !self.rss_feed_url.blank?
       message << Rails.cache.fetch("tipline_resource:rss_feed:#{Digest::MD5.hexdigest(self.rss_feed_url)}:#{self.number_of_articles}", expires_in: 15.minutes, skip_nil: true) do
         rss_feed = RssFeed.new(self.rss_feed_url)
         rss_feed.get_articles(self.number_of_articles).join("\n\n")

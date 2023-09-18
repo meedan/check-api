@@ -614,7 +614,7 @@ class Team < ApplicationRecord
     tbi = TeamBotInstallation.where(team_id: self.id, user_id: BotUser.smooch_user&.id.to_i).last
     unless tbi.nil?
       ['none', 'image', 'video', 'audio', 'link_preview'].each do |header_type|
-        mapped_header_type = TiplineNewsletter::HEADER_TYPE_MAPPING[header_type]
+        mapped_header_type = TiplineNewsletter::WHATSAPP_HEADER_TYPE_MAPPING[header_type]
         if !tbi.send("get_smooch_template_name_for_newsletter_#{mapped_header_type}_no_articles").blank? &&
            !tbi.send("get_smooch_template_name_for_newsletter_#{mapped_header_type}_one_articles").blank? &&
            !tbi.send("get_smooch_template_name_for_newsletter_#{mapped_header_type}_two_articles").blank? &&
