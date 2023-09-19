@@ -77,7 +77,7 @@ class Ability
       obj.team_id == @context_team.id && !obj.is_default?
     end
     can :destroy, ProjectMedia do |obj|
-      obj.related_to_team?(@context_team) && obj.user_can_see_project?(@user)
+      obj.related_to_team?(@context_team)
     end
     can :manage, [TagText, TeamTask], team_id: @context_team.id
     can [:bulk_create], Tag, ['annotation_type = ?', 'tag'] do |obj|
@@ -110,7 +110,7 @@ class Ability
   def collaborator_perms
     can [:cud, :bulk_update, :bulk_destroy], Relationship, { source: { team_id: @context_team.id }, target: { team_id: @context_team.id } }
     can [:create, :update], ProjectMedia do |obj|
-      (obj.related_to_team?(@context_team) || TeamUser.where(user_id: @user.id, status: 'member', team_id: obj.team_id).exists?) && obj.user_can_see_project?(@user)
+      obj.related_to_team?(@context_team) || TeamUser.where(user_id: @user.id, status: 'member', team_id: obj.team_id).exists?
     end
     can :create, [Media, Link, Claim]
     can :update, [Media, Link, Claim], { user_id: @user.id }
@@ -119,7 +119,7 @@ class Ability
     end
     can :destroy, TeamUser, user_id: @user.id
     can :lock_annotation, ProjectMedia do |obj|
-      obj.related_to_team?(@context_team) && obj.archived_was == CheckArchivedFlags::FlagCodes::NONE && obj.user_can_see_project?(@user)
+      obj.related_to_team?(@context_team) && obj.archived_was == CheckArchivedFlags::FlagCodes::NONE
     end
     can :create, Source, :team_id => @context_team.id
     can [:create, :update], Account, source: { team: { team_users: { team_id: @context_team.id }}}, :user_id => @user.id
@@ -147,7 +147,7 @@ class Ability
       obj.team&.id == @context_team.id && changes.keys == [] && !obj.annotated_is_trashed?
     end
     can [:administer_content, :bulk_update, :bulk_mark_read], ProjectMedia do |obj|
-      obj.related_to_team?(@context_team) && obj.user_can_see_project?(@user)
+      obj.related_to_team?(@context_team)
     end
     can [:destroy, :update], [Dynamic, Annotation] do |obj|
       obj.annotator_id.to_i == @user.id and !obj.annotated_is_archived?
