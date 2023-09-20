@@ -54,7 +54,7 @@ class Team < ApplicationRecord
   end
 
   def projects_count
-    self.projects.allowed(self).permissioned.count
+    self.projects.permissioned.count
   end
 
   def as_json(_options = {})
@@ -63,7 +63,7 @@ class Team < ApplicationRecord
       id: self.team_graphql_id,
       avatar: self.avatar,
       name: self.name,
-      projects: self.recent_projects.allowed(team),
+      projects: self.recent_projects,
       slug: self.slug
     }
   end
