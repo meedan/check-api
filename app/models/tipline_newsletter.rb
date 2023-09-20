@@ -1,11 +1,16 @@
 class TiplineNewsletter < ApplicationRecord
   SCHEDULE_DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-  HEADER_TYPE_MAPPING = {
+  WHATSAPP_HEADER_TYPE_MAPPING = {
     'none' => 'none',
     'image' => 'image',
     'video' => 'video',
     'audio' => 'video', # WhatsApp doesn't support audio header, so we convert it to video
     'link_preview' => 'none'
+  }
+  NON_WHATSAPP_HEADER_TYPE_MAPPING = {
+    'image' => 'image',
+    'video' => 'file',
+    'audio' => 'file'
   }
   MAXIMUM_ARTICLE_LENGTH = { # Number of articles => Maximum length for each article
     1 => 694,
@@ -114,7 +119,7 @@ class TiplineNewsletter < ApplicationRecord
 
   def whatsapp_template_name
     number = ['no', 'one', 'two', 'three'][self.articles.size]
-    type = HEADER_TYPE_MAPPING[self.header_type]
+    type = WHATSAPP_HEADER_TYPE_MAPPING[self.header_type]
     "newsletter_#{type}_#{number}_articles"
   end
 
@@ -142,17 +147,26 @@ class TiplineNewsletter < ApplicationRecord
     self.articles.join("\n\n")
   end
 
+  # For WhatsApp tiplines
   def format_as_template_message
     date = I18n.l(Time.now.to_date, locale: self.language.to_s.tr('_', '-'), format: :long)
     file_url = file_type = nil
     if ['image', 'audio', 'video'].include?(self.header_type)
       file_url = CheckS3.rewrite_url(self.header_media_url)
-      file_type = HEADER_TYPE_MAPPING[self.header_type]
+      file_type = WHATSAPP_HEADER_TYPE_MAPPING[self.header_type]
     end
     introduction = self.team.get_shorten_outgoing_urls ? UrlRewriter.shorten_and_utmize_urls(self.introduction, self.team.get_outgoing_urls_utm_code, self) : self.introduction
     params = [date, introduction, self.articles].flatten.reject{ |param| param.blank? }
     preview_url = (self.header_type == 'link_preview')
     Bot::Smooch.format_template_message(self.whatsapp_template_name, params, file_url, self.build_content, self.language, file_type, preview_url)
+  end
+
+  # For non-WhatsApp tiplines, ideally
+  def format_as_tipline_message
+    message = self.build_content
+    message = (self.team.get_shorten_outgoing_urls ? UrlRewriter.shorten_and_utmize_urls(message, self.team.get_outgoing_urls_utm_code) : message)
+    params = (['image', 'audio', 'video'].include?(self.header_type) ? { 'type' => NON_WHATSAPP_HEADER_TYPE_MAPPING[self.header_type], 'mediaUrl' => CheckS3.rewrite_url(self.header_media_url) } : {})
+    [message, params]
   end
 
   def self.content_name
