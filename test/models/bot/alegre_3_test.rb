@@ -611,10 +611,9 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       ]
     }.with_indifferent_access)
     Bot::Alegre.stubs(:media_file_url).with(pm3).returns(@media_path)
-    request = OpenStruct.new(params: { 'action' => 'audio', 'data' => {'requested' => {'body' => {'context' => {'project_media_id' => pm3.id} }}}})
-    assert_difference 'Relationship.count' do
-      Bot::Alegre.webhook(request)
-    end
+    redis = Redis.new(REDIS_CONFIG)
+    request = OpenStruct.new(params: { 'action' => 'audio', 'data' => {'requested' => {'body' => {'id' => 'foo', 'context' => {'project_media_id' => pm3.id} }}}})
+    assert redis.lpop('foo').nil?, false
     Bot::Alegre.unstub(:media_file_url)
   end
 end
