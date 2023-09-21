@@ -127,6 +127,11 @@ class Bot::Alegre < BotUser
     end
   end
 
+  def self.valid_request?(request)
+    request.query_parameters['token'] == CheckConfig.get('alegre_token')
+  end
+
+
   def self.default_model
     CheckConfig.get('alegre_default_model') || Bot::Alegre::ELASTICSEARCH_MODEL
   end
@@ -474,7 +479,7 @@ class Bot::Alegre < BotUser
       ActiveRecord::Base.clear_active_connections!
       ActiveRecord::Base.connection.close
     end
-    uri = URI(CheckConfig.get('alegre_host') + path)
+    uri = URI(CheckConfig.get('alegre_host') + path+ '?token=' + CheckConfig.get('alegre_token'))
     klass = 'Net::HTTP::' + method.capitalize
     request = klass.constantize.new(uri.path, 'Content-Type' => 'application/json')
     if query_or_body == 'query'
@@ -491,7 +496,12 @@ class Bot::Alegre < BotUser
       response_body = response.body
       Rails.logger.info("[Alegre Bot] Alegre response: #{response_body.inspect}")
       ActiveRecord::Base.connection.reconnect! if RequestStore.store[:pause_database_connection]
-      JSON.parse(response_body)
+      parsed_response = JSON.parse(response_body)
+      if parsed_response.dig("queue") == 'audio__Model' && parsed_response.dig("body", "callback_url") != nil
+        redis = Redis.new(REDIS_CONFIG)
+        redis_response = redis.blpop(parsed_response.dig("body", "id"), timeout=120)
+        return JSON.parse(redis_response[1])
+      end
     rescue StandardError => e
       if retries > 0
         sleep 1

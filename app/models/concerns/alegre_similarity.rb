@@ -19,7 +19,7 @@ module AlegreSimilarity
       type = Bot::Alegre.get_pm_type(pm)
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 2/5] Type is #{type.blank? ? "blank" : type}"
       unless type.blank?
-        if !self.should_get_similar_items_of_type?('master', pm.team_id) || !self.should_get_similar_items_of_type?(type, pm.team_id)
+        if !Bot::Alegre.should_get_similar_items_of_type?('master', pm.team_id) || !Bot::Alegre.should_get_similar_items_of_type?(type, pm.team_id)
           Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Similarity 3/5] ProjectMedia cannot be checked for similar items"
           return {}
         else
