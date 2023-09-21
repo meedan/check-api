@@ -172,6 +172,12 @@ class ProjectMediaType < DefaultObject
     object.get_versions_log(event_types, field_names, annotation_types, who_dunnit, include_related)
   end
 
+  field :flags, FlagType.connection_type, null: true
+
+  def flags
+    object.get_annotations('flag').map(&:load)
+  end
+
   field :tags, TagType.connection_type, null: true
 
   def tags
