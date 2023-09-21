@@ -6,7 +6,7 @@ class DefaultObject < BaseObject
       subclass.global_id_field :id
     end
   end
-  
+
   field :permissions, GraphQL::Types::String, null: true
 
   def permissions

@@ -254,18 +254,18 @@ class ProjectMediaType < DefaultObject
   end
 
   DynamicAnnotation::AnnotationType.pluck(:annotation_type).each do |type|
-      field "dynamic_annotations_#{type}".to_sym, DynamicType.connection_type, null: true
+    field "dynamic_annotations_#{type}".to_sym, DynamicType.connection_type, null: true
 
-      define_method("dynamic_annotations_#{type}".to_sym) do |**_inputs|
-        object.get_annotations(type)
-      end
-
-      field "dynamic_annotation_#{type}".to_sym, DynamicType, null: true
-
-      define_method("dynamic_annotation_#{type}".to_sym) do |**_inputs|
-        object.get_dynamic_annotation(type)
-      end
+    define_method("dynamic_annotations_#{type}".to_sym) do |**_inputs|
+      object.get_annotations(type)
     end
+
+    field "dynamic_annotation_#{type}".to_sym, DynamicType, null: true
+
+    define_method("dynamic_annotation_#{type}".to_sym) do |**_inputs|
+      object.get_dynamic_annotation(type)
+    end
+  end
 
   field :suggested_similar_relationships, RelationshipType.connection_type, null: true
 

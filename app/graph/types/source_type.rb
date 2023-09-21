@@ -29,7 +29,7 @@ class SourceType < DefaultObject
   field :medias, ProjectMediaType.connection_type, null: true
 
   def medias
-    object.media
+    object.medias
   end
 
   field :medias_count, GraphQL::Types::Int, null: true
