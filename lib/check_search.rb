@@ -351,6 +351,10 @@ class CheckSearch
       # Invalidate the search if empty... otherwise, adjust the projects filter
       @options['projects'] = project_ids.empty? ? [0] : project_ids
     end
+    if Team.current && !feed_query? && [@options['team_id']].flatten.size == 1
+      t = Team.find([@options['team_id']].flatten.first)
+      @options['projects'] = @options['projects'].blank? ? (Project.where(team_id: t.id).map(&:id) + [nil]) : Project.where(id: @options['projects'], team_id: t.id).map(&:id)
+    end
     @options['projects'] += [nil] if @options['none_project']
   end
 
