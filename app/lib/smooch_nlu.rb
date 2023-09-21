@@ -9,7 +9,10 @@ class SmoochNlu
     Bot::Alegre::MEAN_TOKENS_MODEL => 0.6
   }
 
-  ALEGRE_CONTEXT_KEY = 'smooch_nlu_menu'
+  ALEGRE_CONTEXT_KEY = {
+    menu: 'smooch_nlu_menu',
+    resource: 'smooch_nlu_resource'
+  }
 
   def initialize(team_slug)
     @team_slug = team_slug
@@ -26,18 +29,18 @@ class SmoochNlu
   end
 
   def enabled?
-    !!@smooch_bot_installation.get_nlu_menus_enabled
+    !!@smooch_bot_installation.get_nlu_enabled
   end
 
-  def add_keyword(language, menu, menu_option_index, keyword)
-    update_keywords(language, menu, menu_option_index, keyword, 'add')
+  def add_keyword_to_menu_option(language, menu, menu_option_index, keyword)
+    update_menu_option_keywords(language, menu, menu_option_index, keyword, 'add')
   end
 
-  def remove_keyword(language, menu, menu_option_index, keyword)
-    update_keywords(language, menu, menu_option_index, keyword, 'remove')
+  def remove_keyword_from_menu_option(language, menu, menu_option_index, keyword)
+    update_menu_option_keywords(language, menu, menu_option_index, keyword, 'remove')
   end
 
-  def list_keywords(languages = nil, menus = nil)
+  def list_menu_keywords(languages = nil, menus = nil)
     if languages.nil?
       languages = @smooch_bot_installation.get_smooch_workflows.map { |w| w['smooch_workflow_language'] }
     elsif languages.is_a? String
@@ -76,7 +79,7 @@ class SmoochNlu
     team_slug = Team.find(Bot::Smooch.config['team_id']).slug
     params = nil
     response = nil
-    if Bot::Smooch.config.to_h['nlu_menus_enabled'] && !options.nil?
+    if Bot::Smooch.config.to_h['nlu_enabled'] && !options.nil?
       # FIXME: In the future we could consider menus across all languages when options is nil
       # FIXME: No need to call Alegre if it's an exact match to one of the keywords
       # FIXME: No need to call Alegre if message has no word characters
@@ -86,7 +89,7 @@ class SmoochNlu
         models: ALEGRE_MODELS_AND_THRESHOLDS.keys,
         per_model_threshold: ALEGRE_MODELS_AND_THRESHOLDS,
         context: {
-          context: ALEGRE_CONTEXT_KEY,
+          context: ALEGRE_CONTEXT_KEY[:menu],
           team: team_slug,
           language: language,
         }
@@ -130,32 +133,15 @@ class SmoochNlu
   private
 
   def toggle!(enabled)
-    @smooch_bot_installation.set_nlu_menus_enabled = enabled
+    @smooch_bot_installation.set_nlu_enabled = enabled
     @smooch_bot_installation.save!
     @smooch_bot_installation.reload
-  end
-
-  def alegre_doc_id(menu, menu_option_id, keyword)
-    Digest::MD5.hexdigest([ALEGRE_CONTEXT_KEY, @team_slug, menu, menu_option_id, keyword].join(':'))
-  end
-
-  def common_params_for_alegre(menu, language, menu_option_id, keyword)
-    {
-      doc_id: alegre_doc_id(menu, menu_option_id, keyword),
-      context: {
-        context: ALEGRE_CONTEXT_KEY,
-        team: @team_slug,
-        language: language,
-        menu: menu,
-        menu_option_id: menu_option_id
-      }
-    }
   end
 
   # "menu" is "main" or "secondary"
   # "operation" is "add" or "remove"
   # FIXME: Validate the two things above
-  def update_keywords(language, menu, menu_option_index, keyword, operation)
+  def update_menu_option_keywords(language, menu, menu_option_index, keyword, operation)
     alegre_operation = nil
     alegre_params = nil
     workflow = @smooch_bot_installation.get_smooch_workflows.find { |w| w['smooch_workflow_language'] == language }
@@ -163,14 +149,25 @@ class SmoochNlu
     # Make sure there is a unique identifier for this menu option
     # FIXME: This whole thing should be a model :(
     menu_option_id = (workflow["smooch_state_#{menu}"]['smooch_menu_options'][menu_option_index]['smooch_menu_option_id'] ||= SecureRandom.uuid)
+    doc_id = Digest::MD5.hexdigest([ALEGRE_CONTEXT_KEY[:menu], @team_slug, menu, menu_option_id, keyword].join(':'))
+    common_alegre_params = {
+      doc_id: doc_id,
+      context: {
+        context: ALEGRE_CONTEXT_KEY[:menu],
+        team: @team_slug,
+        language: language,
+        menu: menu,
+        menu_option_id: menu_option_id
+      }
+    }
     if operation == 'add' && !keywords.include?(keyword)
       keywords << keyword
       alegre_operation = 'post'
-      alegre_params = common_params_for_alegre(menu, language, menu_option_id, keyword).merge({ text: keyword, models: ALEGRE_MODELS_AND_THRESHOLDS.keys })
+      alegre_params = common_alegre_params.merge({ text: keyword, models: ALEGRE_MODELS_AND_THRESHOLDS.keys })
     elsif operation == 'remove'
       keywords -= [keyword]
       alegre_operation = 'delete'
-      alegre_params = common_params_for_alegre(menu, language, menu_option_id, keyword).merge({ quiet: true })
+      alegre_params = common_alegre_params.merge({ quiet: true })
     end
     workflow["smooch_state_#{menu}"]['smooch_menu_options'][menu_option_index]['smooch_menu_option_nlu_keywords'] = keywords
     @smooch_bot_installation.save!

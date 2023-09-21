@@ -760,8 +760,8 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     # Enable NLU and add a couple of keywords for the newsletter menu option
     nlu = SmoochNlu.new(@team.slug)
     nlu.enable!
-    nlu.add_keyword('en', 'main', 2, 'I want to subscribe to the newsletter')
-    nlu.add_keyword('en', 'main', 2, 'I want to unsubscribe from the newsletter')
+    nlu.add_keyword_to_menu_option('en', 'main', 2, 'I want to subscribe to the newsletter')
+    nlu.add_keyword_to_menu_option('en', 'main', 2, 'I want to unsubscribe from the newsletter')
     reload_tipline_settings
     query_option_id = @installation.get_smooch_workflows[0]['smooch_state_main']['smooch_menu_options'][1]['smooch_menu_option_id']
     subscription_option_id = @installation.get_smooch_workflows[0]['smooch_state_main']['smooch_menu_options'][2]['smooch_menu_option_id']
@@ -788,8 +788,8 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
 
     # Delete two keywords, so expect two calls to Alegre
     Bot::Alegre.expects(:request_api).with{ |x, y, _z| x == 'delete' && y == '/text/similarity/' }.twice
-    nlu.remove_keyword('en', 'main', 2, 'I want to subscribe to the newsletter')
-    nlu.remove_keyword('en', 'main', 2, 'I want to unsubscribe from the newsletter')
+    nlu.remove_keyword_from_menu_option('en', 'main', 2, 'I want to subscribe to the newsletter')
+    nlu.remove_keyword_from_menu_option('en', 'main', 2, 'I want to unsubscribe from the newsletter')
   end
 
   test "should get multimedia resource on tipline bot v2" do
