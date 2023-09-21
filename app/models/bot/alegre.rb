@@ -479,7 +479,7 @@ class Bot::Alegre < BotUser
       ActiveRecord::Base.clear_active_connections!
       ActiveRecord::Base.connection.close
     end
-    uri = URI(CheckConfig.get('alegre_host') + path+ '?token=' + CheckConfig.get('alegre_token'))
+    uri = URI(CheckConfig.get('alegre_host') + path)
     klass = 'Net::HTTP::' + method.capitalize
     request = klass.constantize.new(uri.path, 'Content-Type' => 'application/json')
     if query_or_body == 'query'
