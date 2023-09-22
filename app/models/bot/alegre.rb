@@ -502,6 +502,7 @@ class Bot::Alegre < BotUser
         redis_response = redis.blpop(parsed_response.dig("body", "id"), timeout=120)
         return JSON.parse(redis_response[1])
       end
+      parsed_response
     rescue StandardError => e
       if retries > 0
         sleep 1
