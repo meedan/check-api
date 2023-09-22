@@ -128,7 +128,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.valid_request?(request)
-    request.query_parameters['token'] == CheckConfig.get('alegre_token')
+    !request.query_parameters['token'].blank? && request.query_parameters['token'] == CheckConfig.get('alegre_token')
   end
 
 
@@ -499,7 +499,7 @@ class Bot::Alegre < BotUser
       parsed_response = JSON.parse(response_body)
       if parsed_response.dig("queue") == 'audio__Model' && parsed_response.dig("body", "callback_url") != nil
         redis = Redis.new(REDIS_CONFIG)
-        redis_response = redis.blpop(parsed_response.dig("body", "id"), timeout=120)
+        redis_response = redis.blpop("alegre:webhook:#{parsed_response.dig("body", "id")}", 120)
         return JSON.parse(redis_response[1])
       end
       parsed_response
