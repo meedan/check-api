@@ -19,6 +19,8 @@ module Mutations
         subclass.define_method :resolve do |**inputs|
           ::GraphqlCrudOperations.destroy(inputs, context, parents_mapping)
         end
+
+        type_class
       end
     end
   end
