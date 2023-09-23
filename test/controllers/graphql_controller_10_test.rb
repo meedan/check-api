@@ -72,21 +72,22 @@ class GraphqlController10Test < ActionController::TestCase
     assert_equal 'foo', data['tag_texts']['edges'][0]['node']['text']
   end
 
-  test "should get team team_users" do
+  test "should get team users and bots" do
     t = create_team
     u = create_user
     u2 = create_user
+    u3 = create_bot_user team: t
     create_team_user team: t, user: u, role: 'admin'
     create_team_user team: t, user: u2
     authenticate_with_user(u)
-    query = "query GetById { team(id: \"#{t.id}\") { team_users { edges { node { user { dbid } } } } } }"
+    query = "query GetById { team(id: \"#{t.id}\") { team_users { edges { node { user { dbid, get_send_email_notifications, get_send_successful_login_notifications, get_send_failed_login_notifications, source { medias(first: 1) { edges { node { id } } } }, annotations(first: 1) { edges { node { id } } }, team_users(first: 1) { edges { node { id } } }, bot { get_description, get_role, get_version, get_source_code_url } } } } } } }"
     post :create, params: { query: query, team: t.slug }
 
     assert_response :success
     data = JSON.parse(@response.body)['data']['team']['team_users']['edges']
     ids = data.collect{ |i| i['node']['user']['dbid'] }
-    assert_equal 2, data.size
-    assert_equal [u.id, u2.id], ids.sort
+    assert_equal 3, data.size
+    assert_equal [u.id, u2.id, u3.id], ids.sort
   end
 
   test "should get team tasks" do

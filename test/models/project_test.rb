@@ -680,4 +680,10 @@ class ProjectTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should be inactive if team is inactive" do
+    t = create_team inactive: true
+    p = create_project team: t
+    assert p.inactive
+  end
 end

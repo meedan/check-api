@@ -72,7 +72,7 @@ class GraphqlController5Test < ActionController::TestCase
     pm = create_project_media team: t
     authenticate_with_user(u)
     # verify create
-    query = 'mutation create { createDynamic(input: { annotation_type: "flag", clientMutationId: "1", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", set_fields: "{\"flags\":{\"adult\":3,\"spoof\":2,\"medical\":1,\"violence\":3,\"racy\":4,\"spam\":0},\"show_cover\":false}" }) { dynamic { dbid } } }'
+    query = 'mutation create { createDynamic(input: { annotation_type: "flag", clientMutationId: "1", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", set_fields: "{\"flags\":{\"adult\":3,\"spoof\":2,\"medical\":1,\"violence\":3,\"racy\":4,\"spam\":0},\"show_cover\":false}" }) { dynamic { dbid, id } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert JSON.parse(@response.body).dig('errors').blank?
