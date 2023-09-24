@@ -124,7 +124,9 @@ module Workflow
           if ::Workflow::Workflow.is_field_name_a_workflow?(self.field_name)
             options = self.workflow_options_and_roles
             value = self.value&.to_sym
-            old_value = self.previous_value&.to_sym
+            old_value = self.previous_value
+            return true unless old_value.is_a?(String)
+            old_value = old_value.to_sym
             self.previous_status = old_value
             user = User.current
 
