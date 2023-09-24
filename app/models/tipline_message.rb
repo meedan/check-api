@@ -3,7 +3,6 @@ class TiplineMessage < ApplicationRecord
 
   belongs_to :team
 
-  validates_uniqueness_of :external_id
   validates_presence_of :team, :uid, :platform, :language, :direction, :sent_at, :payload
 
   class << self
