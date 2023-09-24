@@ -5,8 +5,9 @@ class SmoochNlu
   # FIXME: Make it more flexible
   # FIXME: Once we support paraphrase-multilingual-mpnet-base-v2 make it the only model used
   ALEGRE_MODELS_AND_THRESHOLDS = {
-    Bot::Alegre::OPENAI_ADA_MODEL => 0.8,
-    Bot::Alegre::MEAN_TOKENS_MODEL => 0.6
+    Bot::Alegre::ELASTICSEARCH_MODEL => 0.8,
+    # Bot::Alegre::OPENAI_ADA_MODEL => 0.8,
+    # Bot::Alegre::MEAN_TOKENS_MODEL => 0.6
   }
 
   include SmoochNluMenus
@@ -27,6 +28,30 @@ class SmoochNlu
 
   def enabled?
     !!@smooch_bot_installation.get_nlu_enabled
+  end
+
+  def update_keywords(language, keywords, keyword, operation, doc_id, context)
+    alegre_operation = nil
+    alegre_params = nil
+    common_alegre_params = {
+      doc_id: doc_id,
+      context: {
+        team: @team_slug,
+        language: language
+      }.merge(context)
+    }
+    if operation == 'add' && !keywords.include?(keyword)
+      keywords << keyword
+      alegre_operation = 'post'
+      alegre_params = common_alegre_params.merge({ text: keyword, models: ALEGRE_MODELS_AND_THRESHOLDS.keys })
+    elsif operation == 'remove'
+      keywords -= [keyword]
+      alegre_operation = 'delete'
+      alegre_params = common_alegre_params.merge({ quiet: true })
+    end
+    # FIXME: Add error handling and better logging
+    Bot::Alegre.request_api(alegre_operation, '/text/similarity/', alegre_params) if alegre_operation && alegre_params
+    keywords
   end
 
   def self.alegre_matches_from_message(message, language, context, alegre_result_key)
@@ -86,29 +111,5 @@ class SmoochNlu
     @smooch_bot_installation.set_nlu_enabled = enabled
     @smooch_bot_installation.save!
     @smooch_bot_installation.reload
-  end
-
-  def update_keywords(language, keywords, keyword, operation, doc_id, context)
-    alegre_operation = nil
-    alegre_params = nil
-    common_alegre_params = {
-      doc_id: doc_id,
-      context: {
-        team: @team_slug,
-        language: language
-      }.merge(context)
-    }
-    if operation == 'add' && !keywords.include?(keyword)
-      keywords << keyword
-      alegre_operation = 'post'
-      alegre_params = common_alegre_params.merge({ text: keyword, models: ALEGRE_MODELS_AND_THRESHOLDS.keys })
-    elsif operation == 'remove'
-      keywords -= [keyword]
-      alegre_operation = 'delete'
-      alegre_params = common_alegre_params.merge({ quiet: true })
-    end
-    # FIXME: Add error handling and better logging
-    Bot::Alegre.request_api(alegre_operation, '/text/similarity/', alegre_params) if alegre_operation && alegre_params
-    keywords
   end
 end

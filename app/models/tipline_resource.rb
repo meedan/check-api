@@ -1,5 +1,6 @@
 class TiplineResource < ApplicationRecord
   include TiplineContentMultimedia
+  include TiplineResourceNlu
 
   before_validation :set_team, on: :create
   before_validation :set_uuid, on: :create

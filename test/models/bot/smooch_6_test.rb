@@ -805,4 +805,43 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     send_message 'hello', '1', '4'
     assert_saved_query_type 'resource_requests'
   end
+
+  test 'should send resource using NLU' do
+    Sidekiq::Testing.fake! do
+      WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
+      # Mock any call to Alegre like `POST /text/similarity/` with a "text" parameter that contains "who are you"
+      Bot::Alegre.stubs(:request_api).with{ |x, y, z| x == 'post' && y == '/text/similarity/' && z[:text] =~ /who are you/ }.returns(true)
+      # Mock any call to Alegre like `GET /text/similarity/` with a "text" parameter that does not contain "who are you"
+      Bot::Alegre.stubs(:request_api).with{ |x, y, z| x == 'get' && y == '/text/similarity/' && (z[:text] =~ /who are you/).nil? }.returns({ 'result' => [] })
+
+      # Enable NLU and add a couple of keywords to a new "About Us" resource
+      nlu = SmoochNlu.new(@team.slug)
+      nlu.enable!
+      reload_tipline_settings
+      r = create_tipline_resource team: @team, content_type: 'static', title: 'About Us', content: 'We are a fact-checking organization.'
+      r.add_keyword('who are you')
+
+      # Mock a call to Alegre like `GET /text/similarity/` with a "text" parameter that contains "who are you"
+      Bot::Alegre.stubs(:request_api).with{ |x, y, z| x == 'get' && y == '/text/similarity/' && z[:text] =~ /who are you/ }.returns({ 'result' => [
+        { '_score' => 0.9, '_source' => { 'context' => { 'resource_id' => 0 } } },
+        { '_score' => 0.8, '_source' => { 'context' => { 'resource_id' => r.id } } }
+      ]})
+
+      # Sending a message asking about the tipline should send a resource, as per configurations done above
+      send_message 'hello', '1' # Sends a first message and confirms language as English
+      assert_state 'main'
+      send_message 'Hey, who are you and what you do?'
+      assert_saved_query_type 'resource_requests'
+
+      # After disabling NLU
+      nlu.disable!
+      reload_tipline_settings
+      send_message 'Hey, who are you and what you do??'
+      assert_no_saved_query
+
+      # Delete one keyword, so expect one call to Alegre
+      Bot::Alegre.expects(:request_api).with{ |x, y, _z| x == 'delete' && y == '/text/similarity/' }.once
+      r.remove_keyword('who are you')
+    end
+  end
 end
