@@ -26,12 +26,14 @@ class TiplineMessage < ApplicationRecord
                            when 'message:appUser'
                              {
                                direction: :incoming,
+                               state: 'received',
                                sent_at: parse_timestamp(msg['received']),
                                platform: Bot::Smooch.get_platform_from_message(msg),
                              }
                            when 'message:delivery:channel'
                              {
                                direction: :outgoing,
+                               state: 'delivered',
                                sent_at: parse_timestamp(payload['timestamp']),
                                platform: Bot::Smooch.get_platform_from_payload(payload),
                              }
