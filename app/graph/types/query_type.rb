@@ -79,7 +79,7 @@ class QueryType < BaseObject
     argument :random, GraphQL::Types::String, required: false
   end
 
-  def team(id: nil, slug: nil, random: nil)
+  def team(id: nil, slug: nil, _random: nil)
     tid = id.to_i
     if !slug.blank?
       team = Team.where(slug: slug).first
