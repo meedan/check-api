@@ -5,9 +5,9 @@ class SmoochNlu
   # FIXME: Make it more flexible
   # FIXME: Once we support paraphrase-multilingual-mpnet-base-v2 make it the only model used
   ALEGRE_MODELS_AND_THRESHOLDS = {
-    Bot::Alegre::ELASTICSEARCH_MODEL => 0.8,
-    # Bot::Alegre::OPENAI_ADA_MODEL => 0.8,
-    # Bot::Alegre::MEAN_TOKENS_MODEL => 0.6
+    # Bot::Alegre::ELASTICSEARCH_MODEL => 0.8, Sometimes this is easier for local development
+    Bot::Alegre::OPENAI_ADA_MODEL => 0.8,
+    Bot::Alegre::MEAN_TOKENS_MODEL => 0.6
   }
 
   include SmoochNluMenus
