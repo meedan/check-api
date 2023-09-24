@@ -265,6 +265,21 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
     assert_equal 'https://archive.org/web/', f.reload.value[0]['url']
   end
 
+  test "should ignore permission check for changing status if previous value is empty" do
+    create_verification_status_stuff
+    pm = create_project_media
+    a = create_dynamic_annotation annotation_type: 'verification_status', annotated: pm, set_fields: { verification_status_status: 'undetermined' }.to_json
+    assert_equal 'undetermined', pm.reload.last_status
+    f = a.get_field('verification_status_status')
+    f.update_column(:value, [])
+    f = DynamicAnnotation::Field.find(f.id)
+    assert_nothing_raised do
+      f.value = 'false'
+      f.save!
+    end
+    assert_equal 'false', pm.reload.last_status
+  end
+
   protected
 
   def create_geojson_field
