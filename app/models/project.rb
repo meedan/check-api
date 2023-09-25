@@ -5,14 +5,6 @@ class Project < ApplicationRecord
   include AssignmentConcern
   include AnnotationBase::Association
 
-  module PrivacySettings
-    ALL = 0
-    EDITORS = 1
-    ADMINS = 2
-  end
-
-  scope :allowed, ->(team) { where('privacy <= ?', Project.privacy_for_role(team)) }
-
   attr_accessor :project_media_ids_were, :previous_project_group_id, :previous_default_project_id, :items_destination_project_id
 
   belongs_to :user, optional: true
@@ -257,11 +249,6 @@ class Project < ApplicationRecord
       pids_count[pid.to_i] = count.to_i
     end
     pids_count.each { |pid, count| Rails.cache.write("check_cached_field:Project:#{pid}:medias_count", count) }
-  end
-
-  def self.privacy_for_role(team = Team.current, user = User.current)
-    role = user && team ? user.role(team) : ''
-    { 'editor' => PrivacySettings::EDITORS, 'admin' => PrivacySettings::ADMINS }[role] || PrivacySettings::ALL
   end
 
   def before_destroy_later

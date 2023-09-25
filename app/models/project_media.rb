@@ -353,11 +353,6 @@ class ProjectMedia < ApplicationRecord
     values
   end
 
-  def user_can_see_project?(user = User.current)
-    project = self.project
-    project.nil? || project.privacy <= Project.privacy_for_role(project.team, user)
-  end
-
   # FIXME: Required by GraphQL API
   def claim_descriptions
     self.claim_description ? [self.claim_description] : []
