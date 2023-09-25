@@ -128,7 +128,8 @@ class Bot::Alegre < BotUser
   end
 
   def self.valid_request?(request)
-    !request.query_parameters['token'].blank? && request.query_parameters['token'] == CheckConfig.get('alegre_token')
+    token = request.params["token"] || request.query_parameters["token"]
+    !token.blank? && token == CheckConfig.get('alegre_token')
   end
 
 

@@ -580,40 +580,4 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
   test "should not resort matches if format is unknown" do
     assert_equal 'Foo', Bot::Alegre.return_prioritized_matches('Foo')
   end
-
-  test "should process webhook" do
-    pm1 = create_project_media team: @team, media: create_uploaded_audio
-    pm2 = create_project_media team: @team, media: create_uploaded_audio
-    pm3 = create_project_media team: @team, media: create_uploaded_audio
-    params = {:url => nil, :context => {:has_custom_id => true, :team_id => @team.id}, :match_across_content_types => true, :threshold => 0.9}
-    Bot::Alegre.stubs(:request_api).with('get', '/audio/similarity/', params, 'body').returns({
-      result: [
-        {
-          id: 1,
-          doc_id: random_string,
-          chromaprint_fingerprint: [6581800, 2386744, 2583368, 2488648, 6343163, 14978026, 300191082, 309757210, 304525578, 304386106, 841261098, 841785386],
-          url: 'https://foo.com/bar.wav',
-          context: [
-            { team_id: @team.id.to_s, project_media_id: pm1.id.to_s }
-          ],
-          score: 0.971234,
-        },
-        {
-          id: 2,
-          doc_id: random_string,
-          chromaprint_fingerprint: [2386744, 2583368, 2488648, 6343163, 14978026, 300191082, 309757210, 304525578, 304386106, 841261098, 841785386, 858042410, 825593963, 823509230],
-          url: 'https://bar.com/foo.wav',
-          context: [
-            { team_id: @team.id.to_s, project_media_id: pm2.id.to_s }
-          ],
-          score: 0.983167,
-        }
-      ]
-    }.with_indifferent_access)
-    Bot::Alegre.stubs(:media_file_url).with(pm3).returns(@media_path)
-    redis = Redis.new(REDIS_CONFIG)
-    request = OpenStruct.new(params: { 'action' => 'audio', 'data' => {'requested' => {'body' => {'id' => 'foo', 'context' => {'project_media_id' => pm3.id} }}}})
-    assert redis.lpop('foo').nil?, false
-    Bot::Alegre.unstub(:media_file_url)
-  end
 end

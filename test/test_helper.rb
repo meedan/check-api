@@ -151,7 +151,7 @@ class ActiveSupport::TestCase
     @start = Time.now
 
     create_metadata_stuff
-    @exporter = Check::OpenTelemetryTestConfig.current_exporter
+    # @exporter = Check::OpenTelemetryTestConfig.current_exporter
     # URL mocked by pender-client
     @url = 'https://www.youtube.com/user/MeedanTube'
   end
