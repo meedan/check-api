@@ -127,6 +127,16 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_create('project_media', { media_id: m.id, project_id: p.id })
   end
 
+  test "should read project media flag and source" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    pm = create_project_media
+    create_flag annotated: pm
+    query = "query GetById { project_media(ids: \"#{pm.id},nil,#{pm.team_id}\") { source { id }, flags(first: 10) { edges { node { id } } }, annotation(annotation_type: \"flag\") { permissions, medias(first: 1) { edges { node { id } } } project_media { id } }, annotations(annotation_type: \"flag\") { edges { node { ... on Flag { id } } } } } }"
+    post :create, params: { query: query, team: pm.team.slug }
+    assert_response :success
+  end
+
   test "should read project medias" do
     authenticate_with_user
     p = create_project team: @team
@@ -906,4 +916,12 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
   end
 
+  test "should have a base interface for GraphQL types" do
+    assert_nothing_raised do
+      class TestType < BaseObject
+        implements BaseInterface
+        field :test, ::BaseEnum.connection_type, null: false
+      end
+    end
+  end
 end
