@@ -358,7 +358,8 @@ class GraphqlController3Test < ActionController::TestCase
       post :create, params: { query: query }
       assert_response :success
       Sidekiq::Worker.drain_all
-      assert_equal url, d.reload.get_field_value('smooch_user_slack_channel_url')
+      sleep 1
+      assert_equal url, Dynamic.find(d.id).get_field_value('smooch_user_slack_channel_url')
       # check that cache key exists
       key = "SmoochUserSlackChannelUrl:Team:#{d.team_id}:#{author_id}"
       assert_equal url, Rails.cache.read(key)
