@@ -695,11 +695,11 @@ class Bot::Smooch < BotUser
     team_id = self.config['team_id'].to_i
     platform = RequestStore.store[:smooch_bot_platform] || 'unknown'
     language =  self.get_user_language(uid)
-    self.delay.store_tipline_message(uid, external_id, sent_at, payload_json, team_id, platform, language)
+    self.delay.store_sent_tipline_message(uid, external_id, sent_at, payload_json, team_id, platform, language)
     response
   end
 
-  def self.store_tipline_message(uid, external_id, sent_at, payload_json, team_id, platform, language)
+  def self.store_sent_tipline_message(uid, external_id, sent_at, payload_json, team_id, platform, language)
     payload = JSON.parse(payload_json)
     tm = TiplineMessage.new
     tm.uid = uid

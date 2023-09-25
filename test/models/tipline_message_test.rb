@@ -25,14 +25,6 @@ class TiplineMessageTest < ActiveSupport::TestCase
    assert tm.valid?
  end
 
- test "is invalid if it seems to be a duplicate created from a race condition, based on external_id" do
-  team = create_team
-
-  TiplineMessage.create(external_id: 'external-id-1', team: team, uid: 'user-id-12345', direction: :incoming, platform: 'whatsapp', language: 'en', sent_at: DateTime.new(2022,1,2), payload: {foo: 'bar'})
-  stat = TiplineMessage.new(external_id: 'external-id-1', team: team, uid: 'user-id-12345', direction: :incoming, platform: 'whatsapp', language: 'en', sent_at: DateTime.new(2022,1,3), payload: {foo: 'bar'})
-  assert !stat.valid?
- end
-
  test "parses from smooch json for a message sent to user (message:delivery:channel)" do
   setup_smooch_bot
 

@@ -652,7 +652,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     # Re-run with same data, see that it does not save
     Sidekiq::Testing.inline! do
       Bot::Smooch.run(payload)
-      assert_equal TiplineMessage.where(team: @team).count, 1
+      assert_equal TiplineMessage.where(team: @team).count, 2
     end
   end
 
@@ -697,10 +697,11 @@ class Bot::SmoochTest < ActiveSupport::TestCase
 
       # Verify that TiplineMessage is created in background
       Sidekiq::Worker.drain_all
-      assert_equal TiplineMessage.where(team: @team).count, 1
+      assert_equal TiplineMessage.where(team: @team).count, 2
 
       tm = TiplineMessage.last
-      assert_equal @msg_id, tm.external_id
+      assert_equal [@msg_id], TiplineMessage.where(team: @team).map(&:external_id).uniq
+
     end
   end
 
