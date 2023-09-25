@@ -693,18 +693,19 @@ class Bot::Smooch < BotUser
     sent_at = DateTime.now
     payload_json = { text: text }.merge(extra).to_json
     team_id = self.config['team_id'].to_i
-    platform = RequestStore.store[:smooch_bot_platform]
-    self.delay.store_tipline_message(uid, external_id, sent_at, payload_json, team_id, platform)
+    platform = RequestStore.store[:smooch_bot_platform] || 'unknown'
+    language =  self.get_user_language(uid)
+    self.delay.store_tipline_message(uid, external_id, sent_at, payload_json, team_id, platform, language)
     response
   end
 
-  def self.store_tipline_message(uid, external_id, sent_at, payload_json, team_id, platform)
+  def self.store_tipline_message(uid, external_id, sent_at, payload_json, team_id, platform, language)
     payload = JSON.parse(payload_json)
     tm = TiplineMessage.new
     tm.uid = uid
     tm.state = 'sent'
     tm.direction = :outgoing
-    tm.language = self.get_user_language(uid)
+    tm.language =  language
     tm.platform = platform
     tm.sent_at = sent_at
     tm.external_id = external_id
