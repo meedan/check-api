@@ -510,7 +510,7 @@ class Bot::Smooch < BotUser
       self.send_report_to_user(uid, {}, pm, language)
     elsif value == 'custom_resource'
       sm.reset
-      resource = self.send_resource_to_user(uid, workflow, option, language)
+      resource = self.send_resource_to_user(uid, workflow, option['smooch_menu_custom_resource_id'].to_s, language)
       self.bundle_message(message)
       self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'resource_requests', resource)
     elsif value == 'subscription_confirmation'
@@ -562,10 +562,20 @@ class Bot::Smooch < BotUser
       end
     end
     # ...if nothing is matched, try using the NLU feature
-    option = SmoochNlu.menu_option_from_message(typed, language, options) if state != 'query'
-    unless option.nil?
-      self.process_menu_option_value(option['smooch_menu_option_value'], option, message, language, workflow, app_id)
-      return true
+    if state != 'query'
+      option = SmoochNlu.menu_option_from_message(typed, language, options)
+      unless option.nil?
+        self.process_menu_option_value(option['smooch_menu_option_value'], option, message, language, workflow, app_id)
+        return true
+      end
+      resource = TiplineResource.resource_from_message(typed, language)
+      unless resource.nil?
+        CheckStateMachine.new(uid).reset
+        resource = self.send_resource_to_user(uid, workflow, resource.uuid, language)
+        self.bundle_message(message)
+        self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'resource_requests', resource)
+        return true
+      end
     end
     self.bundle_message(message)
     return false
