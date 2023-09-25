@@ -215,7 +215,7 @@ class TeamType < DefaultObject
   field :projects, ProjectType.connection_type, null: true
 
   def projects
-    object.recent_projects.allowed(object)
+    object.recent_projects
   end
 
   field :sources_count, GraphQL::Types::Int, null: true do
