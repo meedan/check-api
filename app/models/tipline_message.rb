@@ -3,7 +3,8 @@ class TiplineMessage < ApplicationRecord
 
   belongs_to :team
 
-  validates_presence_of :team, :uid, :platform, :language, :direction, :sent_at, :payload
+  validates_presence_of :team, :uid, :platform, :language, :direction, :sent_at, :payload, :state
+  validates_inclusion_of :state, in: ['sent', 'received', 'delivered']
 
   class << self
     def from_smooch_payload(msg, payload, event = nil, language = nil)
