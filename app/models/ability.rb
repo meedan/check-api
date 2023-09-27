@@ -105,6 +105,9 @@ class Ability
     can :update, FeedTeam do |obj|
       obj.team_id == @context_team.id
     end
+    can :send, TiplineMessage do |obj|
+      obj.team_id == @context_team.id
+    end
   end
 
   def collaborator_perms
