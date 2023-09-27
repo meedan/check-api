@@ -4,8 +4,8 @@
 
 set -e
 
-if [[ -z ${GITHUB_TOKEN+x} || -z ${DEPLOY_ENV+x} ]]; then
-	echo "GITHUB_TOKEN, DEPLOY_ENV  must be in the environment. Exiting."
+if [[ -z ${DEPLOY_ENV+x} ]]; then
+	echo "DEPLOY_ENV must be in the environment. Exiting."
 	exit 1
 fi
 
