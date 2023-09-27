@@ -62794,39 +62794,7 @@
           "fields": null,
           "inputFields": [
             {
-              "name": "uid",
-              "description": null,
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "ID",
-                  "ofType": null
-                }
-              },
-              "defaultValue": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "message",
-              "description": null,
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              },
-              "defaultValue": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "timestamp",
+              "name": "inReplyToId",
               "description": null,
               "type": {
                 "kind": "NON_NULL",
@@ -62842,7 +62810,7 @@
               "deprecationReason": null
             },
             {
-              "name": "language",
+              "name": "message",
               "description": null,
               "type": {
                 "kind": "NON_NULL",

@@ -11967,10 +11967,8 @@ input SendInput {
   A unique identifier for the client performing the mutation.
   """
   clientMutationId: String
-  language: String!
+  inReplyToId: Int!
   message: String!
-  timestamp: Int!
-  uid: ID!
 }
 
 """
