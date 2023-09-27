@@ -4576,6 +4576,7 @@ DynamicAnnotation::Field type
 """
 type DynamicAnnotationField implements Node {
   annotation: Annotation
+  annotation_id: Int
   associated_graphql_id: String
   created_at: String
   dbid: Int

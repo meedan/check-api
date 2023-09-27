@@ -1,17 +1,16 @@
 module TiplineMessageMutations
   class Send < Mutations::BaseMutation
-    argument :uid, GraphQL::Types::ID, required: true
+    argument :in_reply_to_id, GraphQL::Types::Int, required: true # Database ID of a tipline request ("smooch" annotation)
     argument :message, GraphQL::Types::String, required: true
-    argument :timestamp, GraphQL::Types::Int, required: true
-    argument :language, GraphQL::Types::String, required: true
 
     field :success, GraphQL::Types::Boolean, null: true
 
-    def resolve(uid: nil, message: nil, timestamp: nil, language: nil)
+    def resolve(in_reply_to_id: nil, message: nil)
+      request = Annotation.find(in_reply_to_id).load
       ability = context[:ability] || Ability.new
       success = false
-      if Team.current&.id && User.current&.id && ability.can?(:send, TiplineMessage.new(team: Team.current))
-        success = Bot::Smooch.send_custom_message_to_user(Team.current, uid, timestamp, message, language)
+      if Team.current&.id && User.current&.id && ability.can?(:send, TiplineMessage.new(team: Team.current)) && request.annotated.team_id == Team.current.id
+        success = Bot::Smooch.reply_to_request_with_custom_message(request, message)
       end
       { success: success }
     end

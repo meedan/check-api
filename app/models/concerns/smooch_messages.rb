@@ -437,6 +437,11 @@ module SmoochMessages
       sm.reset
     end
 
+    def reply_to_request_with_custom_message(request, message)
+      data = JSON.parse(request.get_field_value('smooch_data'))
+      self.send_custom_message_to_user(request.annotated.team, data['authorId'], data['received'], message, data['language'])
+    end
+
     def send_custom_message_to_user(team, uid, timestamp, message, language)
       platform = self.get_user_platform(uid)
       RequestStore.store[:smooch_bot_platform] = platform

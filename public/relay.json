@@ -25855,6 +25855,20 @@
               "deprecationReason": null
             },
             {
+              "name": "annotation_id",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "associated_graphql_id",
               "description": null,
               "args": [
