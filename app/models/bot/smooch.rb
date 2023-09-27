@@ -624,8 +624,7 @@ class Bot::Smooch < BotUser
   def self.save_user_information(app_id, uid, payload_json)
     payload = JSON.parse(payload_json)
     self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
-    # FIXME Shouldn't we make sure this is an annotation in the right project?
-    field = DynamicAnnotation::Field.where('field_name = ? AND dynamic_annotation_fields_value(field_name, value) = ?', 'smooch_user_id', uid.to_json).last
+    field = DynamicAnnotation::Field.where(field_name: 'smooch_user_id', value: uid).last
     if field.nil?
       user = self.api_get_user_data(uid, payload)
       app_name = self.api_get_app_name(app_id)
@@ -658,6 +657,11 @@ class Bot::Smooch < BotUser
         Rails.cache.write(cache_slack_key, slack_channel_url) unless slack_channel_url.blank?
       end
     end
+  end
+
+  def self.get_user_platform(uid)
+    type = begin JSON.parse(DynamicAnnotation::Field.where(field_name: 'smooch_user_id', value: uid).last.annotation.load.get_field_value('smooch_user_data')).dig('raw', 'clients', 0, 'platform') rescue nil end
+    type ? ::Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[type].to_s : 'Unknown'
   end
 
   def self.get_identifier(user, uid)

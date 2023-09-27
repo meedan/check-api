@@ -778,4 +778,31 @@ class GraphqlController10Test < ActionController::TestCase
     assert_response :success
     assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
   end
+
+  test "should send custom message to user" do
+    Bot::Smooch.stubs(:send_message_to_user).returns(OpenStruct.new(code: 200)).once
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'editor'
+    authenticate_with_user(u)
+
+    query = 'mutation { sendTiplineMessage(input: { clientMutationId: "1", uid: "123456", message: "Hello", language: "en", timestamp: 1695692221 }) { success } }'
+    post :create, params: { query: query, team: t.slug }
+
+    assert_response :success
+    assert JSON.parse(@response.body)['data']['sendTiplineMessage']['success']
+  end
+
+  test "should not send custom message to user" do
+    Bot::Smooch.stubs(:send_message_to_user).returns(OpenStruct.new(code: 200)).never
+    u = create_user
+    t = create_team
+    authenticate_with_user(u)
+
+    query = 'mutation { sendTiplineMessage(input: { clientMutationId: "1", uid: "123456", message: "Hello", language: "en", timestamp: 1695692221 }) { success } }'
+    post :create, params: { query: query, team: t.slug }
+
+    assert_response :success
+    assert !JSON.parse(@response.body)['data']['sendTiplineMessage']['success']
+  end
 end
