@@ -87,6 +87,7 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
   test 'should validate maximum length of articles' do
     @newsletter.content_type = 'static'
     @newsletter.introduction = 'Foo'
+    @newsletter.enabled = true
 
     # 1 article
     @newsletter.number_of_articles = 1
