@@ -366,7 +366,7 @@ class GraphqlController9Test < ActionController::TestCase
   end
 
   test "should get tipline messages by uid" do
-    t = create_team slug: 'test'
+    t = create_team slug: 'test', private: true
     u = create_user
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
@@ -395,6 +395,18 @@ class GraphqlController9Test < ActionController::TestCase
     assert_response :success
     edges = JSON.parse(@response.body)['data']['team']['tipline_messages']['edges']
     assert_empty edges
+  end
+
+  test "non members should not read tipline messages" do
+    t = create_team slug: 'test', private: true
+    uid = random_string
+    tp1_uid = create_tipline_message team_id: t.id, uid: uid, state: 'sent'
+    authenticate_with_user
+    create_team slug: 'team', name: 'Team', private: true
+    query = 'query read { team(slug: "test") { name, tipline_messages(uid:"'+ uid +'") { edges { node { dbid } } } } }'
+    post :create, params: { query: query }
+    assert_response 200
+    assert_equal "Not Found", JSON.parse(@response.body)['errors'][0]['message']
   end
 
   protected
