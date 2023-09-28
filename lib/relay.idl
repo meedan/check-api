@@ -4576,6 +4576,7 @@ DynamicAnnotation::Field type
 """
 type DynamicAnnotationField implements Node {
   annotation: Annotation
+  annotation_id: Int
   associated_graphql_id: String
   created_at: String
   dbid: Int
@@ -11966,10 +11967,8 @@ input SendInput {
   A unique identifier for the client performing the mutation.
   """
   clientMutationId: String
-  language: String!
+  inReplyToId: Int!
   message: String!
-  timestamp: Int!
-  uid: ID!
 }
 
 """
