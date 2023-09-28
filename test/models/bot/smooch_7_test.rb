@@ -425,4 +425,42 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     Bot::Smooch.stubs(:search_for_similar_published_fact_checks).returns([pm])
     assert_equal [], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en')
   end
+
+  test "should store sent tipline message in background" do
+    text = 'random_string'
+    uid = random_string
+    u = create_user
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: text
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    Bot::Smooch.run(payload)
+    sleep 1
+    pm = ProjectMedia.last
+    r = create_report(pm)
+    Sidekiq::Testing.fake! do
+      assert_equal 0, Sidekiq::Extensions::DelayedClass.jobs.size
+      publish_report(pm, {}, r)
+      assert_equal 2, Sidekiq::Extensions::DelayedClass.jobs.size
+      assert_difference 'TiplineMessage.count', 2 do
+        Sidekiq::Worker.drain_all
+      end
+    end
+  end
 end
