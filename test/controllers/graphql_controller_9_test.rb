@@ -378,7 +378,7 @@ class GraphqlController9Test < ActionController::TestCase
     tp1_uid2 = create_tipline_message team_id: t.id, uid: uid2, state: 'sent'
     tp2_uid2 = create_tipline_message team_id: t.id, uid: uid2, state: 'delivered'
 
-    query = 'query read { team(slug: "test") { tipline_messages(uid:"'+ uid +'") { edges { node { dbid } } } } }'
+    query = 'query read { team(slug: "test") { tipline_messages(uid:"'+ uid +'") { edges { node { dbid, event, direction, language, platform, uid, external_id, payload, team_id, state, team { dbid}, sent_at } } } } }'
     post :create, params: { query: query }
     assert_response :success
     edges = JSON.parse(@response.body)['data']['team']['tipline_messages']['edges']
