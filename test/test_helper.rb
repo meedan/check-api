@@ -858,7 +858,8 @@ class ActiveSupport::TestCase
     Sidekiq::Testing.inline!
     @app_id = random_string
     @msg_id = random_string
-    SmoochApi::ConversationApi.any_instance.stubs(:post_message).returns(OpenStruct.new({ message: OpenStruct.new({ id: @msg_id }) }))
+    messages = (1..20).to_a.collect{ |_i| OpenStruct.new({ message: OpenStruct.new({ id: random_string }) }) }
+    SmoochApi::ConversationApi.any_instance.stubs(:post_message).returns(*messages)
     @team = create_team
     @project = create_project team_id: @team.id
     @bid = random_string
@@ -985,6 +986,7 @@ class ActiveSupport::TestCase
       })
     end
     @installation = create_team_bot_installation user_id: @bot.id, settings: @settings.merge(extra_settings), team_id: @team.id
+    @installation.set_smooch_version = 'v1' ; @installation.save!
     create_team_bot_installation user_id: @bot.id, settings: {}, team_id: create_team.id
     Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
     @media_url = 'https://smooch.com/image/test.jpeg'

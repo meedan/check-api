@@ -207,7 +207,7 @@ class GraphqlController8Test < ActionController::TestCase
     t = create_team private: true
     create_team_user(user: u, team: t)
     f = create_feed
-    query = "query { team(slug: \"#{t.slug}\") { feed(dbid: #{f.id}) { current_feed_team { dbid } } } }"
+    query = "query { team(slug: \"#{t.slug}\") { feed(dbid: #{f.id}) { current_feed_team { dbid, requests_filters } } } }"
 
     post :create, params: { query: query, team: t.slug }
     assert_nil JSON.parse(@response.body).dig('data', 'team', 'feed')
@@ -537,6 +537,7 @@ class GraphqlController8Test < ActionController::TestCase
             id
             trash_count
             unconfirmed_count
+            spam_count
           }
           search {
             id
@@ -869,5 +870,14 @@ class GraphqlController8Test < ActionController::TestCase
     post :create, params: { query: query }
     assert_response :success
     assert_nil JSON.parse(@response.body)['data']['dynamic_annotation_field']
+  end
+
+  test "should get team settings fields" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    t = create_team
+    fields = %w(get_slack_notifications_enabled get_slack_webhook get_embed_whitelist get_report_design_image_template get_status_target_turnaround get_rules get_languages get_language get_report get_data_report_url get_outgoing_urls_utm_code get_shorten_outgoing_urls)
+    post :create, params: { query: "query Team { team { join_requests(first: 10) { edges { node { id } } }, #{fields.join(', ')} } }", team: t.slug }
+    assert_response :success
   end
 end

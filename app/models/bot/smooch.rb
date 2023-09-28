@@ -510,7 +510,7 @@ class Bot::Smooch < BotUser
       self.send_report_to_user(uid, {}, pm, language)
     elsif value == 'custom_resource'
       sm.reset
-      resource = self.send_resource_to_user(uid, workflow, option, language)
+      resource = self.send_resource_to_user(uid, workflow, option['smooch_menu_custom_resource_id'].to_s, language)
       self.bundle_message(message)
       self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'resource_requests', resource)
     elsif value == 'subscription_confirmation'
@@ -562,10 +562,20 @@ class Bot::Smooch < BotUser
       end
     end
     # ...if nothing is matched, try using the NLU feature
-    option = SmoochNlu.menu_option_from_message(typed, language, options) if state != 'query'
-    unless option.nil?
-      self.process_menu_option_value(option['smooch_menu_option_value'], option, message, language, workflow, app_id)
-      return true
+    if state != 'query'
+      option = SmoochNlu.menu_option_from_message(typed, language, options)
+      unless option.nil?
+        self.process_menu_option_value(option['smooch_menu_option_value'], option, message, language, workflow, app_id)
+        return true
+      end
+      resource = TiplineResource.resource_from_message(typed, language)
+      unless resource.nil?
+        CheckStateMachine.new(uid).reset
+        resource = self.send_resource_to_user(uid, workflow, resource.uuid, language)
+        self.bundle_message(message)
+        self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'resource_requests', resource)
+        return true
+      end
     end
     self.bundle_message(message)
     return false
@@ -614,8 +624,7 @@ class Bot::Smooch < BotUser
   def self.save_user_information(app_id, uid, payload_json)
     payload = JSON.parse(payload_json)
     self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
-    # FIXME Shouldn't we make sure this is an annotation in the right project?
-    field = DynamicAnnotation::Field.where('field_name = ? AND dynamic_annotation_fields_value(field_name, value) = ?', 'smooch_user_id', uid.to_json).last
+    field = DynamicAnnotation::Field.where(field_name: 'smooch_user_id', value: uid).last
     if field.nil?
       user = self.api_get_user_data(uid, payload)
       app_name = self.api_get_app_name(app_id)
@@ -650,6 +659,11 @@ class Bot::Smooch < BotUser
     end
   end
 
+  def self.get_user_platform(uid)
+    type = begin JSON.parse(DynamicAnnotation::Field.where(field_name: 'smooch_user_id', value: uid).last.annotation.load.get_field_value('smooch_user_data')).dig('raw', 'clients', 0, 'platform') rescue nil end
+    type ? ::Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[type].to_s : 'Unknown'
+  end
+
   def self.get_identifier(user, uid)
     # This identifier is used on the Slack side in order to connect a Slack conversation to a Smooch user
     identifier = case user.dig(:clients, 0, :platform)
@@ -682,12 +696,37 @@ class Bot::Smooch < BotUser
   def self.send_message_to_user(uid, text, extra = {}, force = false, preview_url = true)
     return if self.config['smooch_disabled'] && !force
     if RequestStore.store[:smooch_bot_provider] == 'TURN'
-      self.turnio_send_message_to_user(uid, text, extra, force, preview_url)
+      response = self.turnio_send_message_to_user(uid, text, extra, force, preview_url)
     elsif RequestStore.store[:smooch_bot_provider] == 'CAPI'
-      self.capi_send_message_to_user(uid, text, extra, force, preview_url)
+      response = self.capi_send_message_to_user(uid, text, extra, force, preview_url)
     else
-      self.zendesk_send_message_to_user(uid, text, extra, force, preview_url)
+      response = self.zendesk_send_message_to_user(uid, text, extra, force, preview_url)
     end
+    # store a TiplineMessage
+    external_id = self.get_id_from_send_response(response)
+    sent_at = DateTime.now
+    payload_json = { text: text }.merge(extra).to_json
+    team_id = self.config['team_id'].to_i
+    platform = RequestStore.store[:smooch_bot_platform] || 'Unknown'
+    language = self.get_user_language(uid)
+    self.delay.store_sent_tipline_message(uid, external_id, sent_at, payload_json, team_id, platform, language)
+    response
+  end
+
+  def self.store_sent_tipline_message(uid, external_id, sent_at, payload_json, team_id, platform, language)
+    payload = JSON.parse(payload_json)
+    tm = TiplineMessage.new
+    tm.uid = uid
+    tm.state = 'sent'
+    tm.direction = :outgoing
+    tm.language = language
+    tm.platform = platform
+    tm.sent_at = sent_at
+    tm.external_id = external_id
+    tm.payload = payload
+    tm.team_id = team_id
+    tm.skip_check_ability = true
+    tm.save!
   end
 
   def self.create_project_media_from_message(message)

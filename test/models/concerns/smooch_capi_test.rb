@@ -12,7 +12,18 @@ class SmoochCapiTest < ActiveSupport::TestCase
       capi_whatsapp_business_account_id: '123456',
       capi_permanent_token: '123456',
       capi_phone_number_id: '123456',
-      capi_phone_number: '123456'
+      capi_phone_number: '123456',
+      team_id: create_team.id,
+      smooch_workflows: [
+        {
+          'smooch_workflow_language' => 'en',
+          'smooch_message_smooch_bot_greetings' => 'Hello!',
+          'smooch_message_smooch_bot_tos' => {
+            'greeting' => 'Send 9 to read the terms of service.',
+            'content' => 'Custom terms of service.'
+          }
+        }
+      ]
     }.with_indifferent_access
 
     RequestStore.store[:smooch_bot_settings] = @config

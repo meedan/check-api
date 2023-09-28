@@ -180,7 +180,7 @@ class BotUser < User
         begin
           response = http.request(request)
         rescue StandardError => e
-          CheckSentry.notify(ExternalBotRequestError.new('Could not send request to external bot'), { error: e, bot_id: self.id })
+          CheckSentry.notify(ExternalBotRequestError.new('Could not send request to external bot'), error: e, bot_id: self.id)
           return nil
         end
         # Log data with team_id only to avoid Encoding::CompatibilityError
