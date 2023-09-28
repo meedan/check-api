@@ -65,7 +65,7 @@ class SmoochNluTest < ActiveSupport::TestCase
     nlu = SmoochNlu.new(team.slug)
     nlu.enable!
     Bot::Alegre.expects(:request_api).with{ |x, y, _z| x == 'post' && y == '/text/similarity/' }.once
-    nlu.add_keyword('en', 'main', 0, 'subscribe')
+    nlu.add_keyword_to_menu_option('en', 'main', 0, 'subscribe')
     expected_output = {
       'en' => {
         'main' => [
@@ -74,35 +74,35 @@ class SmoochNluTest < ActiveSupport::TestCase
       }
     }
     # Since the demo team has only one language and menu all of the following are nearly the same
-    assert_equal nlu.list_keywords('en', 'main'), expected_output
-    assert_equal nlu.list_keywords('en', ['main']), expected_output
+    assert_equal nlu.list_menu_keywords('en', 'main'), expected_output
+    assert_equal nlu.list_menu_keywords('en', ['main']), expected_output
 
     # These calls should include an empty secondary menu
     expected_output['en']['secondary'] = []
-    assert_equal nlu.list_keywords(), expected_output
-    assert_equal nlu.list_keywords('en'), expected_output
-    assert_equal nlu.list_keywords(['en']), expected_output
+    assert_equal nlu.list_menu_keywords(), expected_output
+    assert_equal nlu.list_menu_keywords('en'), expected_output
+    assert_equal nlu.list_menu_keywords(['en']), expected_output
   end
 
   test 'should add keyword if it does not exist' do
     Bot::Alegre.expects(:request_api).with{ |x, y, _z| x == 'post' && y == '/text/similarity/' }.once
     team = create_team_with_smooch_bot_installed
-    SmoochNlu.new(team.slug).add_keyword('en', 'main', 0, 'subscribe to the newsletter')
+    SmoochNlu.new(team.slug).add_keyword_to_menu_option('en', 'main', 0, 'subscribe to the newsletter')
   end
 
   test 'should not add keyword if it exists' do
     team = create_team_with_smooch_bot_installed
     nlu = SmoochNlu.new(team.slug)
     Bot::Alegre.expects(:request_api).with{ |x, y, _z| x == 'post' && y == '/text/similarity/' }.once
-    nlu.add_keyword('en', 'main', 0, 'subscribe to the newsletter')
+    nlu.add_keyword_to_menu_option('en', 'main', 0, 'subscribe to the newsletter')
     Bot::Alegre.expects(:request_api).with{ |x, y, _z| x == 'post' && y == '/text/similarity/' }.never
-    nlu.add_keyword('en', 'main', 0, 'subscribe to the newsletter')
+    nlu.add_keyword_to_menu_option('en', 'main', 0, 'subscribe to the newsletter')
   end
 
   test 'should delete keyword' do
     Bot::Alegre.expects(:request_api).with{ |x, y, _z| x == 'delete' && y == '/text/similarity/' }.once
     team = create_team_with_smooch_bot_installed
-    SmoochNlu.new(team.slug).remove_keyword('en', 'main', 0, 'subscribe to the newsletter')
+    SmoochNlu.new(team.slug).remove_keyword_from_menu_option('en', 'main', 0, 'subscribe to the newsletter')
   end
 
   test 'should not return a menu option if NLU is not enabled' do

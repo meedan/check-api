@@ -813,6 +813,7 @@ module SampleData
       external_id: random_string,
       sent_at: DateTime.now,
       payload: {'foo' => 'bar'},
+      state: 'sent',
     }.merge(options))
   end
 

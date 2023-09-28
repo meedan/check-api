@@ -1,8 +1,6 @@
 class GraphqlCrudOperations
   def self.safe_save(obj, attrs, parent_names = [])
-    if User.current.nil? && ApiKey.current.nil?
-      raise "This operation must be done by a signed-in user"
-    end
+    raise 'This operation must be done by a signed-in user' if User.current.nil? && ApiKey.current.nil?
     attrs.each do |key, value|
       method = key == "clientMutationId" ? "client_mutation_id=" : "#{key}="
       obj.send(method, value) if obj.respond_to?(method)
@@ -96,7 +94,7 @@ class GraphqlCrudOperations
     self.safe_save(obj, attrs, parents_mapping.keys)
   end
 
-  def self.update_from_single_id(graphql_id, obj, inputs, ctx, parent_names)
+  def self.update_from_single_id(_graphql_id, obj, inputs, ctx, parent_names)
     obj.file = ctx[:file] unless ctx[:file].blank?
 
     attrs = inputs.keys.inject({}) do |memo, key|

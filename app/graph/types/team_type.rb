@@ -295,4 +295,12 @@ class TeamType < DefaultObject
   field :feeds, FeedType.connection_type, null: true
   field :tipline_newsletters, TiplineNewsletterType.connection_type, null: true
   field :tipline_resources, TiplineResourceType.connection_type, null: true
+
+  field :tipline_messages, TiplineMessageType.connection_type, null: true do
+    argument :uid, GraphQL::Types::String, required: true
+  end
+
+  def tipline_messages(uid:)
+    object.tipline_messages.where(uid: uid).last(100)
+  end
 end

@@ -50,4 +50,12 @@ class TiplineResourceTest < ActiveSupport::TestCase
     tr = create_tipline_resource title: 'Foo', content: 'Bar', content_type: 'static'
     assert_equal "*Foo*\n\nBar", tr.format_as_tipline_message
   end
+
+  test "should not set NLU keywords directly" do
+    tr = create_tipline_resource
+    assert_raises StandardError do
+      tr.keywords = ['foo', 'bar']
+      tr.save!
+    end
+  end
 end

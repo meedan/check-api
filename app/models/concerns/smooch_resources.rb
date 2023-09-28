@@ -5,8 +5,8 @@ module SmoochResources
 
   module ClassMethods
     # This is the method called by the Smooch Bot
-    def send_resource_to_user(uid, workflow, option, language)
-      resource = TiplineResource.where(uuid: option['smooch_menu_custom_resource_id'].to_s, team_id: self.config['team_id'].to_i, language: language).last
+    def send_resource_to_user(uid, workflow, resource_uuid, language)
+      resource = TiplineResource.where(uuid: resource_uuid, team_id: self.config['team_id'].to_i, language: language).last
       unless resource.nil?
         message = resource.format_as_tipline_message.to_s
         if ['image', 'audio', 'video'].include?(resource.header_type)

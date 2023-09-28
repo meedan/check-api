@@ -593,4 +593,14 @@ class MediaTest < ActiveSupport::TestCase
     l = create_valid_media
     assert_equal '', l.picture
   end
+
+  test "should sanitize link data before storing" do
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    url = random_url
+    response = { type: 'media', data: { url: url, type: 'item', title: "Foo \u0000 bar" } }
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response.to_json)
+    assert_difference 'Link.count' do
+      create_media url: url
+    end
+  end
 end

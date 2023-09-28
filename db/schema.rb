@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_09_06_160303) do
+ActiveRecord::Schema.define(version: 2023_09_22_174044) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -639,7 +639,8 @@ ActiveRecord::Schema.define(version: 2023_09_06_160303) do
     t.bigint "team_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["external_id"], name: "index_tipline_messages_on_external_id", unique: true
+    t.string "state"
+    t.index ["external_id", "state"], name: "index_tipline_messages_on_external_id_and_state", unique: true
     t.index ["team_id"], name: "index_tipline_messages_on_team_id"
     t.index ["uid"], name: "index_tipline_messages_on_uid"
   end
@@ -700,6 +701,7 @@ ActiveRecord::Schema.define(version: 2023_09_06_160303) do
     t.string "header_file"
     t.string "header_overlay_text"
     t.string "header_media_url"
+    t.string "keywords", default: [], array: true
     t.index ["team_id"], name: "index_tipline_resources_on_team_id"
     t.index ["uuid"], name: "index_tipline_resources_on_uuid", unique: true
   end
@@ -779,7 +781,8 @@ ActiveRecord::Schema.define(version: 2023_09_06_160303) do
   end
 
   create_table "versions", id: :serial, force: :cascade do |t|
-    t.string "item_type", null: false
+    t.string "item_type"
+    t.string "{:null=>false}"
     t.string "item_id", null: false
     t.string "event", null: false
     t.string "whodunnit"

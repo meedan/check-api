@@ -15,15 +15,15 @@ module SearchHelper
     if ['less_than', 'more_than'].include?(condition_type)
       period = values.dig('period').to_i
       period_date = case values.dig('period_type').downcase
-                  when 'd'
-                    Time.now - period.day
-                  when 'w'
-                    Time.now - period.week
-                  when 'm'
-                    Time.now - period.month
-                  when 'y'
-                    Time.now - period.year
-                  end
+                    when 'd'
+                      Time.now - period.day
+                    when 'w'
+                      Time.now - period.week
+                    when 'm'
+                      Time.now - period.month
+                    when 'y'
+                      Time.now - period.year
+                    end
       condition_date = period_date.blank? ? nil : format_time_with_timezone(period_date.to_s, tz)
       if condition_type == 'less_than'
         from = condition_date

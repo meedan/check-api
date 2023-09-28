@@ -436,5 +436,22 @@ module SmoochMessages
       self.send_message_to_user(uid, message) if user_messages_count > 0 && sm.state.value != 'main'
       sm.reset
     end
+
+    def reply_to_request_with_custom_message(request, message)
+      data = JSON.parse(request.get_field_value('smooch_data'))
+      self.send_custom_message_to_user(request.annotated.team, data['authorId'], data['received'], message, data['language'])
+    end
+
+    def send_custom_message_to_user(team, uid, timestamp, message, language)
+      platform = self.get_user_platform(uid)
+      RequestStore.store[:smooch_bot_platform] = platform
+      tbi = TeamBotInstallation.where(team: team, user: BotUser.smooch_user).last
+      Bot::Smooch.get_installation('team_bot_installation_id', tbi&.id) { |i| i.id == tbi&.id }
+      date = I18n.l(Time.at(timestamp), locale: language, format: :short)
+      message = self.format_template_message('custom_message', [date, message.to_s.gsub(/\s+/, ' ')], nil, message, language, nil, true) if platform == 'WhatsApp'
+      response = self.send_message_to_user(uid, message)
+      success = (response.code.to_i < 400)
+      success
+    end
   end
 end

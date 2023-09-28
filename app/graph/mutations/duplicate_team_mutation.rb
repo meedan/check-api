@@ -10,9 +10,7 @@ class DuplicateTeamMutation < Mutations::BaseMutation
             user = User.current
             ability = Ability.new(user)
             team = GraphqlCrudOperations.load_if_can(Team, id, context)
-            if ability.cannot?(:duplicate, team)
-              raise I18n.t("team_clone.user_not_authorized")
-            end
+            raise I18n.t("team_clone.user_not_authorized") if ability.cannot?(:duplicate, team)
             new_team =
               Team.duplicate(
                 team,
