@@ -3,8 +3,8 @@ class TiplineMessage < ApplicationRecord
 
   belongs_to :team
 
-  validates_uniqueness_of :external_id
-  validates_presence_of :team, :uid, :platform, :language, :direction, :sent_at, :payload
+  validates_presence_of :team, :uid, :platform, :language, :direction, :sent_at, :payload, :state
+  validates_inclusion_of :state, in: ['sent', 'received', 'delivered']
 
   class << self
     def from_smooch_payload(msg, payload, event = nil, language = nil)
@@ -26,12 +26,14 @@ class TiplineMessage < ApplicationRecord
                            when 'message:appUser'
                              {
                                direction: :incoming,
+                               state: 'received',
                                sent_at: parse_timestamp(msg['received']),
                                platform: Bot::Smooch.get_platform_from_message(msg),
                              }
                            when 'message:delivery:channel'
                              {
                                direction: :outgoing,
+                               state: 'delivered',
                                sent_at: parse_timestamp(payload['timestamp']),
                                platform: Bot::Smooch.get_platform_from_payload(payload),
                              }

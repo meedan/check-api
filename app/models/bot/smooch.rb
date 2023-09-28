@@ -696,12 +696,37 @@ class Bot::Smooch < BotUser
   def self.send_message_to_user(uid, text, extra = {}, force = false, preview_url = true)
     return if self.config['smooch_disabled'] && !force
     if RequestStore.store[:smooch_bot_provider] == 'TURN'
-      self.turnio_send_message_to_user(uid, text, extra, force, preview_url)
+      response = self.turnio_send_message_to_user(uid, text, extra, force, preview_url)
     elsif RequestStore.store[:smooch_bot_provider] == 'CAPI'
-      self.capi_send_message_to_user(uid, text, extra, force, preview_url)
+      response = self.capi_send_message_to_user(uid, text, extra, force, preview_url)
     else
-      self.zendesk_send_message_to_user(uid, text, extra, force, preview_url)
+      response = self.zendesk_send_message_to_user(uid, text, extra, force, preview_url)
     end
+    # store a TiplineMessage
+    external_id = self.get_id_from_send_response(response)
+    sent_at = DateTime.now
+    payload_json = { text: text }.merge(extra).to_json
+    team_id = self.config['team_id'].to_i
+    platform = RequestStore.store[:smooch_bot_platform] || 'Unknown'
+    language = self.get_user_language(uid)
+    self.delay.store_sent_tipline_message(uid, external_id, sent_at, payload_json, team_id, platform, language)
+    response
+  end
+
+  def self.store_sent_tipline_message(uid, external_id, sent_at, payload_json, team_id, platform, language)
+    payload = JSON.parse(payload_json)
+    tm = TiplineMessage.new
+    tm.uid = uid
+    tm.state = 'sent'
+    tm.direction = :outgoing
+    tm.language = language
+    tm.platform = platform
+    tm.sent_at = sent_at
+    tm.external_id = external_id
+    tm.payload = payload
+    tm.team_id = team_id
+    tm.skip_check_ability = true
+    tm.save!
   end
 
   def self.create_project_media_from_message(message)

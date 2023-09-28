@@ -693,7 +693,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     Sidekiq::Testing.fake! do
       assert_equal 0, Sidekiq::Worker.jobs.size
       Bot::Smooch.send_final_messages_to_user(@uid, 'Test', nil, 'en', 5)
-      assert_equal 1, Sidekiq::Worker.jobs.size
+      assert_equal 2, Sidekiq::Worker.jobs.size
     end
   end
 
