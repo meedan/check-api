@@ -369,9 +369,6 @@ class GraphqlController9Test < ActionController::TestCase
     t = create_team slug: 'test'
     u = create_user
     create_team_user user: u, team: t, role: 'admin'
-    # t2 = create_team
-    # u2 = create_user
-    # create_team_user user: u2, team: t2, role: 'admin'
     authenticate_with_user(u)
     uid = random_string
     uid2 = random_string
@@ -396,16 +393,8 @@ class GraphqlController9Test < ActionController::TestCase
     query = 'query read { team(slug: "test") { tipline_messages(uid:"'+ uid3 +'") { edges { node { dbid } } } } }'
     post :create, params: { query: query }
     assert_response :success
-    pp JSON.parse(@response.body)
     edges = JSON.parse(@response.body)['data']['team']['tipline_messages']['edges']
     assert_empty edges
-    # test with non member user
-    # authenticate_with_user(u2)
-    # query = 'query read { team(slug: "test") { tipline_messages(uid:"'+ uid +'") { edges { node { dbid } } } } }'
-    # post :create, params: { query: query }
-    # assert_response :success
-    # edges = JSON.parse(@response.body)['data']['team']['tipline_messages']['edges']
-    # assert_empty edges
   end
 
   protected
