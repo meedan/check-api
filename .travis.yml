@@ -21,7 +21,7 @@ before_script:
 - docker-compose -f docker-compose.yml -f docker-test.yml up -d
 - tail -f log/test.log &
 - until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
-- docker-compose exec -e TEST_RETRY_COUNT=3 api test/setup-parallel-env.sh
+- docker-compose exec api test/setup-parallel-env.sh
 - docker-compose exec api bundle exec rake assets:precompile
 - sleep 10
 - touch tmp/parallel_runtime_test.log
