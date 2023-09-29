@@ -149,4 +149,53 @@ class TiplineMessageTest < ActiveSupport::TestCase
       create_tipline_message state: 'invalid'
     end
   end
+
+  test "should ignore duplicate when saving" do
+    id = random_string
+    data = {
+      uid: random_string,
+      team_id: create_team.id,
+      language: 'en',
+      platform: 'WhatsApp',
+      sent_at: DateTime.now,
+      payload: {'foo' => 'bar'}
+    }
+    assert_nothing_raised do
+      assert_difference 'TiplineMessage.count' do
+        tm = TiplineMessage.new(data)
+        tm.direction = :outgoing
+        tm.external_id = id
+        tm.state = 'sent'
+        tm.save_ignoring_duplicate!
+      end
+      assert_difference 'TiplineMessage.count' do
+        tm = TiplineMessage.new(data)
+        tm.direction = :outgoing
+        tm.external_id = id
+        tm.state = 'delivered'
+        tm.save_ignoring_duplicate!
+      end
+      assert_difference 'TiplineMessage.count' do
+        tm = TiplineMessage.new(data)
+        tm.direction = :incoming
+        tm.external_id = random_string
+        tm.state = 'received'
+        tm.save_ignoring_duplicate!
+      end
+      assert_no_difference 'TiplineMessage.count' do
+        tm = TiplineMessage.new(data)
+        tm.direction = :outgoing
+        tm.external_id = id
+        tm.state = 'sent'
+        tm.save_ignoring_duplicate!
+      end
+      assert_no_difference 'TiplineMessage.count' do
+        tm = TiplineMessage.new(data)
+        tm.direction = :outgoing
+        tm.external_id = id
+        tm.state = 'delivered'
+        tm.save_ignoring_duplicate!
+      end
+    end
+  end
 end
