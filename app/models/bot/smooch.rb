@@ -538,6 +538,10 @@ class Bot::Smooch < BotUser
     end
   end
 
+  def self.is_a_shortcut_for_submission?(state, message)
+    self.is_v2? && (state == 'main' || state == 'waiting_for_message') && (!message['mediaUrl'].blank? || ::Bot::Alegre.get_number_of_words(message['text'].to_s) > 3) # FIXME: Confirm this number
+  end
+
   def self.process_menu_option(message, state, app_id)
     uid = message['authorId']
     sm = CheckStateMachine.new(uid)
@@ -545,7 +549,12 @@ class Bot::Smooch < BotUser
     workflow = self.get_workflow(language)
     typed, new_state = self.get_typed_message(message, sm)
     state = new_state if new_state
-    if self.should_send_tos?(state, typed)
+    if self.is_a_shortcut_for_submission?(sm.state, message)
+      self.bundle_message(message)
+      sm.go_to_ask_if_ready
+      self.send_message_for_state(uid, workflow, 'ask_if_ready', language)
+      return true
+    elsif self.should_send_tos?(state, typed)
       sm.reset
       platform = self.get_platform_from_message(message)
       self.send_tos_to_user(workflow, uid, language, platform)
