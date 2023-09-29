@@ -726,7 +726,7 @@ class Bot::Smooch < BotUser
     tm.payload = payload
     tm.team_id = team_id
     tm.skip_check_ability = true
-    tm.save!
+    tm.save_ignoring_duplicate!
   end
 
   def self.create_project_media_from_message(message)

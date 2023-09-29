@@ -6,6 +6,14 @@ class TiplineMessage < ApplicationRecord
   validates_presence_of :team, :uid, :platform, :language, :direction, :sent_at, :payload, :state
   validates_inclusion_of :state, in: ['sent', 'received', 'delivered']
 
+  def save_ignoring_duplicate!
+    begin
+      self.save!
+    rescue ActiveRecord::RecordNotUnique
+      Rails.logger.info("[Smooch Bot] Not storing tipline message because it already exists. ID: #{self.external_id}. State: #{self.state}.")
+    end
+  end
+
   class << self
     def from_smooch_payload(msg, payload, event = nil, language = nil)
       msg = msg.with_indifferent_access
