@@ -589,7 +589,7 @@ class Bot::Smooch < BotUser
       return true
     end
     self.bundle_message(message)
-    return false
+    false
   end
 
   def self.user_received_report(message)
