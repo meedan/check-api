@@ -549,12 +549,7 @@ class Bot::Smooch < BotUser
     workflow = self.get_workflow(language)
     typed, new_state = self.get_typed_message(message, sm)
     state = new_state if new_state
-    if self.is_a_shortcut_for_submission?(sm.state, message)
-      self.bundle_message(message)
-      sm.go_to_ask_if_ready
-      self.send_message_for_state(uid, workflow, 'ask_if_ready', language)
-      return true
-    elsif self.should_send_tos?(state, typed)
+    if self.should_send_tos?(state, typed)
       sm.reset
       platform = self.get_platform_from_message(message)
       self.send_tos_to_user(workflow, uid, language, platform)
@@ -585,6 +580,13 @@ class Bot::Smooch < BotUser
         self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'resource_requests', resource)
         return true
       end
+    end
+    # Lastly, check if it's a submission shortcut
+    if self.is_a_shortcut_for_submission?(sm.state, message)
+      self.bundle_message(message)
+      sm.go_to_ask_if_ready
+      self.send_message_for_state(uid, workflow, 'ask_if_ready', language)
+      return true
     end
     self.bundle_message(message)
     return false
