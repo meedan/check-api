@@ -539,7 +539,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.is_a_shortcut_for_submission?(state, message)
-    self.is_v2? && (state == 'main' || state == 'waiting_for_message') && (!message['mediaUrl'].blank? || ::Bot::Alegre.get_number_of_words(message['text'].to_s) > 3) # FIXME: Confirm this number
+    self.is_v2? && (state == 'main' || state == 'waiting_for_message') && (!message['mediaUrl'].blank? || ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_shortcut', 3, :integer))
   end
 
   def self.process_menu_option(message, state, app_id)

@@ -44,6 +44,7 @@ development: &default
   image_cluster_similarity_threshold: 0.9
   text_cluster_similarity_threshold: 0.9
   similarity_media_file_url_host: ''
+  min_number_of_words_for_tipline_shortcut: 3
 
   # Localization
   #
