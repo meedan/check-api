@@ -784,7 +784,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     nlu.disable!
     reload_tipline_settings
     send_message 'Can I subscribe to the newsletter?'
-    assert_state 'main'
+    assert_state 'ask_if_ready'
 
     # Delete two keywords, so expect two calls to Alegre
     Bot::Alegre.expects(:request_api).with{ |x, y, _z| x == 'delete' && y == '/text/similarity/' }.twice
@@ -843,5 +843,15 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       Bot::Alegre.expects(:request_api).with{ |x, y, _z| x == 'delete' && y == '/text/similarity/' }.once
       r.remove_keyword('who are you')
     end
+  end
+
+  test 'should have shortcuts for submission' do
+    send_message 'This is message is so long that it is considered a media'
+    assert_state 'ask_if_ready'
+  end
+
+  test 'should not have shortcuts for submission' do
+    send_message 'Hello'
+    assert_state 'main'
   end
 end
