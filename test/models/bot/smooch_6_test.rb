@@ -784,7 +784,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     nlu.disable!
     reload_tipline_settings
     send_message 'Can I subscribe to the newsletter?'
-    assert_state 'ask_if_ready'
+    assert_state 'main'
 
     # Delete two keywords, so expect two calls to Alegre
     Bot::Alegre.expects(:request_api).with{ |x, y, _z| x == 'delete' && y == '/text/similarity/' }.twice
