@@ -1,0 +1,2 @@
+class BlockedTiplineUser < ApplicationRecord
+end
