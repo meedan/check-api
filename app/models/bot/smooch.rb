@@ -809,25 +809,21 @@ class Bot::Smooch < BotUser
 
   def self.block_user(uid)
     begin
-      puts 'HERE 1'
       BlockedTiplineUser.create!(uid: uid)
       Rails.logger.info("[Smooch Bot] Blocked user #{uid}")
       Rails.cache.write("smooch:banned:#{uid}", Time.now.to_i)
     rescue ActiveRecord::RecordNotUnique
-      puts 'HERE 2'
       # User already blocked
     end
   end
 
   def self.unblock_user(uid)
-    puts 'HERE 3'
     BlockedTiplineUser.where(uid: uid).last.destroy!
     Rails.logger.info("[Smooch Bot] Unblocked user #{uid}")
     Rails.cache.delete("smooch:banned:#{uid}")
   end
 
   def self.user_blocked?(uid)
-    puts 'HERE 4'
     !uid.blank? && (!Rails.cache.read("smooch:banned:#{uid}").nil? || BlockedTiplineUser.where(uid: uid).exists?)
   end
 
