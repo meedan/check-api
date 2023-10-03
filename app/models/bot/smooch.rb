@@ -809,7 +809,9 @@ class Bot::Smooch < BotUser
 
   def self.block_user(uid)
     begin
-      BlockedTiplineUser.create!(uid: uid)
+      block = BlockedTiplineUser.new(uid: uid)
+      block.skip_check_ability = true
+      block.save!
       Rails.logger.info("[Smooch Bot] Blocked user #{uid}")
       Rails.cache.write("smooch:banned:#{uid}", Time.now.to_i)
     rescue ActiveRecord::RecordNotUnique
