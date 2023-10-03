@@ -283,7 +283,7 @@ module SmoochCapi
         error_message = begin JSON.parse(response.body)['error']['message'] rescue response.body end
         error_code = begin JSON.parse(response.body)['error']['code'] rescue nil end
         e = Bot::Smooch::CapiMessageDeliveryError.new(error_message)
-        self.block_user(uid) if error_code == 131056 # Error of type "pair rate limit hit"
+        self.block_user_from_error_code(uid, error_code)
         CheckSentry.notify(e,
           uid: uid,
           type: payload.dig(:type),
