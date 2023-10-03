@@ -538,6 +538,10 @@ class Bot::Smooch < BotUser
     end
   end
 
+  def self.is_a_shortcut_for_submission?(state, message)
+    self.is_v2? && (state == 'main' || state == 'waiting_for_message') && (!message['mediaUrl'].blank? || ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer))
+  end
+
   def self.process_menu_option(message, state, app_id)
     uid = message['authorId']
     sm = CheckStateMachine.new(uid)
@@ -577,8 +581,15 @@ class Bot::Smooch < BotUser
         return true
       end
     end
+    # Lastly, check if it's a submission shortcut
+    if self.is_a_shortcut_for_submission?(sm.state, message)
+      self.bundle_message(message)
+      sm.go_to_ask_if_ready
+      self.send_message_for_state(uid, workflow, 'ask_if_ready', language)
+      return true
+    end
     self.bundle_message(message)
-    return false
+    false
   end
 
   def self.user_received_report(message)

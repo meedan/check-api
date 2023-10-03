@@ -844,4 +844,14 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       r.remove_keyword('who are you')
     end
   end
+
+  test 'should have shortcuts for submission' do
+    send_message 'This is message is so long that it is considered a media'
+    assert_state 'ask_if_ready'
+  end
+
+  test 'should not have shortcuts for submission' do
+    send_message 'Hello'
+    assert_state 'main'
+  end
 end
