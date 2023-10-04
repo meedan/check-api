@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_09_22_174044) do
+ActiveRecord::Schema.define(version: 2023_10_02_202443) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -193,6 +193,13 @@ ActiveRecord::Schema.define(version: 2023_09_22_174044) do
     t.index ["assigned_type"], name: "index_assignments_on_assigned_type"
     t.index ["assigner_id"], name: "index_assignments_on_assigner_id"
     t.index ["user_id"], name: "index_assignments_on_user_id"
+  end
+
+  create_table "blocked_tipline_users", force: :cascade do |t|
+    t.string "uid", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["uid"], name: "index_blocked_tipline_users_on_uid", unique: true
   end
 
   create_table "bounces", id: :serial, force: :cascade do |t|

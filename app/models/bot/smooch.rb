@@ -31,6 +31,7 @@ class Bot::Smooch < BotUser
   include SmoochMenus
   include SmoochFields
   include SmoochLanguage
+  include SmoochBlocking
 
   ::ProjectMedia.class_eval do
     attr_accessor :smooch_message
@@ -798,19 +799,6 @@ class Bot::Smooch < BotUser
         Tag.create!(tag: tag.id, annotator: pm.user, annotated: pm)
       end
     end
-  end
-
-  def self.ban_user(message)
-    unless message.nil?
-      uid = message['authorId']
-      Rails.logger.info("[Smooch Bot] Banned user #{uid}")
-      Rails.cache.write("smooch:banned:#{uid}", message.to_json)
-    end
-  end
-
-  def self.user_banned?(payload)
-    uid = payload.dig('appUser', '_id')
-    !uid.blank? && !Rails.cache.read("smooch:banned:#{uid}").nil?
   end
 
   # Don't save as a ProjectMedia if it contains only menu options
