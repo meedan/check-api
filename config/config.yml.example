@@ -11,7 +11,6 @@ development: &default
   elasticsearch_index:
   elasticsearch_log: true
   elasticsearch_sync: false
-  alegre_token: dev
   # WARNING For production, don't use a wildcard: set the allowed domains explicitly as a regular expression, e.g.
   # '(https?://.*\.?(meedan.com|meedan.org))'
   allowed_origins: '.*'

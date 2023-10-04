@@ -128,12 +128,6 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.valid_request?(request)
-    token = request.params["token"] || request.query_parameters["token"]
-    !token.blank? && token == CheckConfig.get('alegre_token')
-  end
-
-
   def self.default_model
     CheckConfig.get('alegre_default_model') || Bot::Alegre::ELASTICSEARCH_MODEL
   end

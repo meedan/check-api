@@ -233,43 +233,23 @@ class WebhooksControllerTest < ActionController::TestCase
     assert_match /ignored/, response.body
   end
 
-  test "should process alegre webhook zzz" do
-    pm1 = create_project_media team: @team, media: create_uploaded_audio
-    pm2 = create_project_media team: @team, media: create_uploaded_audio
-    pm3 = create_project_media team: @team, media: create_uploaded_audio
-    params = {:url => nil, :context => {:has_custom_id => true, :team_id => @team.id}, :match_across_content_types => true, :threshold => 0.9}
-    Bot::Alegre.stubs(:request_api).with('get', '/audio/similarity/', params, 'body').returns({
-      result: [
-        {
-          id: 1,
-          doc_id: random_string,
-          chromaprint_fingerprint: [6581800, 2386744, 2583368, 2488648, 6343163, 14978026, 300191082, 309757210, 304525578, 304386106, 841261098, 841785386],
-          url: 'https://foo.com/bar.wav',
-          context: [
-            { team_id: @team.id.to_s, project_media_id: pm1.id.to_s }
-          ],
-          score: 0.971234,
-        },
-        {
-          id: 2,
-          doc_id: random_string,
-          chromaprint_fingerprint: [2386744, 2583368, 2488648, 6343163, 14978026, 300191082, 309757210, 304525578, 304386106, 841261098, 841785386, 858042410, 825593963, 823509230],
-          url: 'https://bar.com/foo.wav',
-          context: [
-            { team_id: @team.id.to_s, project_media_id: pm2.id.to_s }
-          ],
-          score: 0.983167,
-        }
-      ]
-    }.with_indifferent_access)
-    Bot::Alegre.stubs(:media_file_url).with(pm3).returns(@media_path)
+  test "should process Alegre webhook" do
+    CheckSentry.expects(:notify).never
     redis = Redis.new(REDIS_CONFIG)
-    redis.del("foo")
-    payload = { 'action' => 'audio', 'data' => {'requested' => {'body' => {'id' => 'foo', 'context' => {'project_media_id' => pm3.id} }}}}
+    redis.del('foo')
+    payload = { 'action' => 'audio', 'data' => { 'requested' => { 'body' => { 'id' => 'foo', 'context' => { 'project_media_id' => random_number } } } } }
     assert_nil redis.lpop('alegre:webhook:foo')
-    post :index, params: { name: :alegre, token: CheckConfig.get('alegre_token') }.merge(payload), body: payload
+
+    post :index, params: { name: :alegre, token: CheckConfig.get('alegre_token') }.merge(payload)
     response = JSON.parse(redis.lpop('alegre:webhook:foo'))
-    assert_equal response["data"]["requested"]["body"]["id"], "foo"
-    Bot::Alegre.unstub(:media_file_url)
+    assert_equal 'foo', response.dig('data', 'requested', 'body', 'id')
+
+    travel_to Time.now.since(2.days)
+    assert_nil redis.lpop('alegre:webhook:foo')
+  end
+
+  test "should report error if can't process Alegre webhook" do
+    CheckSentry.expects(:notify).once
+    post :index, params: { name: :alegre, token: CheckConfig.get('alegre_token') }.merge({ foo: 'bar' })
   end
 end
