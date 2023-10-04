@@ -813,6 +813,7 @@ module SampleData
       external_id: random_string,
       sent_at: DateTime.now,
       payload: {'foo' => 'bar'},
+      state: 'sent',
     }.merge(options))
   end
 
@@ -1094,5 +1095,9 @@ module SampleData
     create_field_instance annotation_type_object: at, name: 'response_multiple_choice', label: 'Response', field_type_object: sel, optional: false, settings: { multiple: true }
     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task Response Free Text'
     create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: text, optional: false
+  end
+
+  def create_blocked_tipline_user(options = {})
+    BlockedTiplineUser.create!({ uid: random_string }.merge(options))
   end
 end

@@ -365,6 +365,126 @@ class GraphqlController9Test < ActionController::TestCase
     assert_equal 'test', t.reload.get_outgoing_urls_utm_code
   end
 
+  test "should get tipline messages by uid" do
+    t = create_team slug: 'test', private: true
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+    uid = random_string
+    uid2 = random_string
+    uid3 = random_string
+    tp1_uid = create_tipline_message team_id: t.id, uid: uid, state: 'sent'
+    tp2_uid = create_tipline_message team_id: t.id, uid: uid, state: 'delivered'
+    tp1_uid2 = create_tipline_message team_id: t.id, uid: uid2, state: 'sent'
+    tp2_uid2 = create_tipline_message team_id: t.id, uid: uid2, state: 'delivered'
+
+    query = 'query read { team(slug: "test") { tipline_messages(uid:"'+ uid +'") { edges { node { dbid, event, direction, language, platform, uid, external_id, payload, team_id, state, team { dbid}, sent_at } } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    edges = JSON.parse(@response.body)['data']['team']['tipline_messages']['edges']
+    assert_equal [tp1_uid.id, tp2_uid.id], edges.collect{ |e| e['node']['dbid'] }.sort
+
+    query = 'query read { team(slug: "test") { tipline_messages(uid:"'+ uid2 +'") { edges { node { dbid } } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    edges = JSON.parse(@response.body)['data']['team']['tipline_messages']['edges']
+    assert_equal [tp1_uid2.id, tp2_uid2.id], edges.collect{ |e| e['node']['dbid'] }.sort
+
+    query = 'query read { team(slug: "test") { tipline_messages(uid:"'+ uid3 +'") { edges { node { dbid } } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    edges = JSON.parse(@response.body)['data']['team']['tipline_messages']['edges']
+    assert_empty edges
+  end
+
+  test "non members should not read tipline messages" do
+    t = create_team slug: 'test', private: true
+    uid = random_string
+    tp1_uid = create_tipline_message team_id: t.id, uid: uid, state: 'sent'
+    authenticate_with_user
+    create_team slug: 'team', name: 'Team', private: true
+    query = 'query read { team(slug: "test") { name, tipline_messages(uid:"'+ uid +'") { edges { node { dbid } } } } }'
+    post :create, params: { query: query }
+    assert_response 200
+    assert_equal "Not Found", JSON.parse(@response.body)['errors'][0]['message']
+  end
+
+  test "should paginate tipline messages" do
+    t = create_team slug: 'test', private: true
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    uid = random_string
+
+    tp1_uid = create_tipline_message team_id: t.id, uid: uid
+    tp2_uid = create_tipline_message team_id: t.id, uid: uid
+    tp3_uid = create_tipline_message team_id: t.id, uid: uid
+
+    authenticate_with_user(u)
+
+    # Paginating one item per page
+
+    # Page 1
+    query = 'query read { team(slug: "test") { tipline_messages(first: 1, uid:"'+ uid +'") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['team']['tipline_messages']
+    results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
+    assert_equal 1, results.size
+    assert_equal tp3_uid.id, results[0]
+    page_info = data['pageInfo']
+    assert page_info['hasNextPage']
+
+    # Page 2
+    query = 'query read { team(slug: "test") { tipline_messages(first: 1, after: "' + page_info['endCursor'] + '", uid:"'+ uid +'") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['team']['tipline_messages']
+    results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
+    assert_equal 1, results.size
+    assert_equal tp2_uid.id, results[0]
+    page_info = data['pageInfo']
+    assert page_info['hasNextPage']
+
+    # Page 3
+    query = 'query read { team(slug: "test") { tipline_messages(first: 1, after: "' + page_info['endCursor'] + '", uid:"'+ uid +'") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['team']['tipline_messages']
+    results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
+    assert_equal 1, results.size
+    assert_equal tp1_uid.id, results[0]
+    page_info = data['pageInfo']
+    assert !page_info['hasNextPage']
+    # paginate using specific message id
+    tp4_uid = create_tipline_message team_id: t.id, uid: uid
+    query = 'query read { team(slug: "test") { tipline_messages(uid:"'+ uid +'") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid }, cursor } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['team']['tipline_messages']
+    id_cursor = {}
+    data['edges'].to_a.each{ |e| id_cursor[e['node']['dbid']] = e['cursor'] }
+    # Start with tp4_uid message
+    query = 'query read { team(slug: "test") { tipline_messages(first: 1, after: "' + id_cursor[tp4_uid.id] + '", uid:"'+ uid +'") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['team']['tipline_messages']
+    results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
+    assert_equal 1, results.size
+    assert_equal tp3_uid.id, results[0]
+    page_info = data['pageInfo']
+    assert page_info['hasNextPage']
+    # Next page
+    query = 'query read { team(slug: "test") { tipline_messages(first: 1, after: "' + page_info['endCursor'] + '", uid:"'+ uid +'") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['team']['tipline_messages']
+    results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
+    assert_equal 1, results.size
+    assert_equal tp2_uid.id, results[0]
+    page_info = data['pageInfo']
+    assert page_info['hasNextPage']
+  end
+
   protected
 
   def assert_error_message(expected)

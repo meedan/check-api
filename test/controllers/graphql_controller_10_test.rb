@@ -778,4 +778,35 @@ class GraphqlController10Test < ActionController::TestCase
     assert_response :success
     assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
   end
+
+  test "should send custom message to user" do
+    Bot::Smooch.stubs(:send_message_to_user).returns(OpenStruct.new(code: 200)).once
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'editor'
+    pm = create_project_media team: t
+    a = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_data: { authorId: '123', language: 'en', received: Time.now.to_f }.to_json }.to_json, annotated: pm
+    authenticate_with_user(u)
+
+    query = "mutation { sendTiplineMessage(input: { clientMutationId: \"1\", message: \"Hello\", inReplyToId: #{a.id} }) { success } }"
+    post :create, params: { query: query, team: t.slug }
+
+    assert_response :success
+    assert JSON.parse(@response.body)['data']['sendTiplineMessage']['success']
+  end
+
+  test "should not send custom message to user" do
+    Bot::Smooch.stubs(:send_message_to_user).returns(OpenStruct.new(code: 200)).never
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    a = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_data: { authorId: '123', language: 'en', received: Time.now.to_f }.to_json }.to_json, annotated: pm
+    authenticate_with_user(u)
+
+    query = "mutation { sendTiplineMessage(input: { clientMutationId: \"1\", message: \"Hello\", inReplyToId: #{a.id} }) { success } }"
+    post :create, params: { query: query, team: t.slug }
+
+    assert_response :success
+    assert !JSON.parse(@response.body)['data']['sendTiplineMessage']['success']
+  end
 end

@@ -693,7 +693,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     Sidekiq::Testing.fake! do
       assert_equal 0, Sidekiq::Worker.jobs.size
       Bot::Smooch.send_final_messages_to_user(@uid, 'Test', nil, 'en', 5)
-      assert_equal 1, Sidekiq::Worker.jobs.size
+      assert_equal 2, Sidekiq::Worker.jobs.size
     end
   end
 
@@ -843,5 +843,15 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       Bot::Alegre.expects(:request_api).with{ |x, y, _z| x == 'delete' && y == '/text/similarity/' }.once
       r.remove_keyword('who are you')
     end
+  end
+
+  test 'should have shortcuts for submission' do
+    send_message 'This is message is so long that it is considered a media'
+    assert_state 'ask_if_ready'
+  end
+
+  test 'should not have shortcuts for submission' do
+    send_message 'Hello'
+    assert_state 'main'
   end
 end

@@ -35,7 +35,7 @@ require 'csv'
 
 Dir[Rails.root.join("test/support/**/*.rb")].each {|f| require f}
 
-Minitest::Retry.use!
+Minitest::Retry.use!(retry_count: ENV['TEST_RETRY_COUNT'].to_i || 0)
 TestDatabaseHelper.setup_database_partitions!
 
 class ActionController::TestCase
@@ -858,7 +858,8 @@ class ActiveSupport::TestCase
     Sidekiq::Testing.inline!
     @app_id = random_string
     @msg_id = random_string
-    SmoochApi::ConversationApi.any_instance.stubs(:post_message).returns(OpenStruct.new({ message: OpenStruct.new({ id: @msg_id }) }))
+    messages = (1..20).to_a.collect{ |_i| OpenStruct.new({ message: OpenStruct.new({ id: random_string }) }) }
+    SmoochApi::ConversationApi.any_instance.stubs(:post_message).returns(*messages)
     @team = create_team
     @project = create_project team_id: @team.id
     @bid = random_string

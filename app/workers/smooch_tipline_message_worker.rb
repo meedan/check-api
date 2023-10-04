@@ -27,7 +27,7 @@ class SmoochTiplineMessageWorker
     end
 
     tm = TiplineMessage.from_smooch_payload(message_json, payload_json, event, language)
-    tm.save
+    tm.save_ignoring_duplicate!
 
     User.current = nil
   end
