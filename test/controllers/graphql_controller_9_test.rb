@@ -409,6 +409,82 @@ class GraphqlController9Test < ActionController::TestCase
     assert_equal "Not Found", JSON.parse(@response.body)['errors'][0]['message']
   end
 
+  test "should paginate tipline messages" do
+    t = create_team slug: 'test', private: true
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    uid = random_string
+
+    tp1_uid = create_tipline_message team_id: t.id, uid: uid
+    tp2_uid = create_tipline_message team_id: t.id, uid: uid
+    tp3_uid = create_tipline_message team_id: t.id, uid: uid
+
+    authenticate_with_user(u)
+
+    # Paginating one item per page
+
+    # Page 1
+    query = 'query read { team(slug: "test") { tipline_messages(first: 1, uid:"'+ uid +'") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['team']['tipline_messages']
+    results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
+    assert_equal 1, results.size
+    assert_equal tp3_uid.id, results[0]
+    page_info = data['pageInfo']
+    assert page_info['hasNextPage']
+
+    # Page 2
+    query = 'query read { team(slug: "test") { tipline_messages(first: 1, after: "' + page_info['endCursor'] + '", uid:"'+ uid +'") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['team']['tipline_messages']
+    results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
+    assert_equal 1, results.size
+    assert_equal tp2_uid.id, results[0]
+    page_info = data['pageInfo']
+    assert page_info['hasNextPage']
+
+    # Page 3
+    query = 'query read { team(slug: "test") { tipline_messages(first: 1, after: "' + page_info['endCursor'] + '", uid:"'+ uid +'") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['team']['tipline_messages']
+    results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
+    assert_equal 1, results.size
+    assert_equal tp1_uid.id, results[0]
+    page_info = data['pageInfo']
+    assert !page_info['hasNextPage']
+    # paginate using specific message id
+    tp4_uid = create_tipline_message team_id: t.id, uid: uid
+    query = 'query read { team(slug: "test") { tipline_messages(uid:"'+ uid +'") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid }, cursor } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['team']['tipline_messages']
+    id_cursor = {}
+    data['edges'].to_a.each{ |e| id_cursor[e['node']['dbid']] = e['cursor'] }
+    # Start with tp4_uid message
+    query = 'query read { team(slug: "test") { tipline_messages(first: 1, after: "' + id_cursor[tp4_uid.id] + '", uid:"'+ uid +'") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['team']['tipline_messages']
+    results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
+    assert_equal 1, results.size
+    assert_equal tp3_uid.id, results[0]
+    page_info = data['pageInfo']
+    assert page_info['hasNextPage']
+    # Next page
+    query = 'query read { team(slug: "test") { tipline_messages(first: 1, after: "' + page_info['endCursor'] + '", uid:"'+ uid +'") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['team']['tipline_messages']
+    results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
+    assert_equal 1, results.size
+    assert_equal tp2_uid.id, results[0]
+    page_info = data['pageInfo']
+    assert page_info['hasNextPage']
+  end
+
   protected
 
   def assert_error_message(expected)
