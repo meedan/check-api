@@ -6,6 +6,7 @@ class Bot::Alegre < BotUser
   end
 
   include AlegreSimilarity
+  include AlegreWebhooks
 
   # Text similarity models
   MEAN_TOKENS_MODEL = 'xlm-r-bert-base-nli-stsb-mean-tokens'
@@ -491,7 +492,13 @@ class Bot::Alegre < BotUser
       response_body = response.body
       Rails.logger.info("[Alegre Bot] Alegre response: #{response_body.inspect}")
       ActiveRecord::Base.connection.reconnect! if RequestStore.store[:pause_database_connection]
-      JSON.parse(response_body)
+      parsed_response = JSON.parse(response_body)
+      if parsed_response.dig("queue") == 'audio__Model' && parsed_response.dig("body", "callback_url") != nil
+        redis = Redis.new(REDIS_CONFIG)
+        redis_response = redis.blpop("alegre:webhook:#{parsed_response.dig("body", "id")}", 120)
+        return JSON.parse(redis_response[1])
+      end
+      parsed_response
     rescue StandardError => e
       if retries > 0
         sleep 1
