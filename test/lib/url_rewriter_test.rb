@@ -54,9 +54,19 @@ class UrlRewriterTest < ActiveSupport::TestCase
   test 'should shorten Arabic URL' do
     shortened = nil
     stub_configs({ 'short_url_host_display' => 'https://chck.media' }) do
-      shortened = UrlRewriter.shorten_and_utmize_urls('Visit https://fatabyyano.net/هذا-المقطع-ليس-لاشتباكات-حديثة-بين-الج/ for more information.', nil)
+      shortened = UrlRewriter.shorten_and_utmize_urls('Visit https://fatabyyano.net/هذا-المقطع-قديم،-ولا-يبين-لحظة-إنقاذ-شا/ for more information.', nil)
     end
-    assert_equal 'https://fatabyyano.net/%D9%87%D8%B0%D8%A7-%D8%A7%D9%84%D9%85%D9%82%D8%B7%D8%B9-%D9%84%D9%8A%D8%B3-%D9%84%D8%A7%D8%B4%D8%AA%D8%A8%D8%A7%D9%83%D8%A7%D8%AA-%D8%AD%D8%AF%D9%8A%D8%AB%D8%A9-%D8%A8%D9%8A%D9%86-%D8%A7%D9%84%D8%AC/', Shortener::ShortenedUrl.last.url
+    assert_equal 'https://fatabyyano.net/%D9%87%D8%B0%D8%A7-%D8%A7%D9%84%D9%85%D9%82%D8%B7%D8%B9-%D9%82%D8%AF%D9%8A%D9%85%D8%8C-%D9%88%D9%84%D8%A7-%D9%8A%D8%A8%D9%8A%D9%86-%D9%84%D8%AD%D8%B8%D8%A9-%D8%A5%D9%86%D9%82%D8%A7%D8%B0-%D8%B4%D8%A7/', Shortener::ShortenedUrl.last.url
     assert_match /^Visit https:\/\/chck\.media\/[a-zA-Z0-9]+ for more information\.$/, shortened
+  end
+
+  test 'should not shorten decoded Arabic URL' do
+    url = 'https://fatabyyano.net/%da%af%d8%b1%d8%aa%db%95-%da%a4%db%8c%d8%af%db%8c%db%86%db%8c%db%8c%db%95%da%a9%db%95-%d8%b3%d8%a7%d8%ae%d8%aa%db%95%db%8c%db%95-%d9%88-%d9%84%d8%a7%d9%81%d8%a7%d9%88-%d9%88-%d8%b2%d8%b1%db%8c%d8%a7/'
+    shortened = nil
+    stub_configs({ 'short_url_host_display' => 'https://chck.media' }) do
+      shortened = UrlRewriter.shorten_and_utmize_urls("فتبينوا  | Visit #{url} for more information.", nil)
+    end
+    assert_equal url, Shortener::ShortenedUrl.last.url
+    assert_match /^فتبينوا  \| Visit https:\/\/chck\.media\/[a-zA-Z0-9]+ for more information\.$/, shortened
   end
 end
