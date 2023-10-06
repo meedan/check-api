@@ -476,50 +476,81 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
 
   test "should request resource" do
     setup_smooch_bot(true)
-    RequestStore.store[:skip_cached_field_update] = false
     uid = random_string
     rss = '<rss version="1"><channel><title>x</title><link>x</link><description>x</description><item><title>x</title><link>x</link></item></channel></rss>'
     WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(status: 200, body: rss)
     Sidekiq::Testing.fake! do
       send_message_to_smooch_bot('Hello', uid)
       send_message_to_smooch_bot('1', uid)
+      send_message_to_smooch_bot('4', uid)
     end
-    Rails.cache.stubs(:read).returns(nil)
-    Rails.cache.stubs(:read).with("smooch:last_message_from_user:#{uid}").returns(Time.now + 10.seconds)
-    send_message_to_smooch_bot('4', uid)
+    Sidekiq::Worker.drain_all
+    a = Dynamic.where(annotation_type: 'smooch').last
+    assert_equal 'TiplineResource', a.annotated_type
+    assert_not_nil a.get_field('smooch_resource_id')
+  end
+
+  test "should submit short unconfirmed request" do
+    setup_smooch_bot(true)
+    RequestStore.store[:skip_cached_field_update] = false
+    uid = random_string
+    message = "Hey ho, let's go"
+    Sidekiq::Testing.fake! do
+      send_message_to_smooch_bot('Hello', uid)
+      send_message_to_smooch_bot(message, uid)
+    end
+    assert_no_difference 'ProjectMedia.count' do
+      Sidekiq::Worker.drain_all
+    end
+    a = Dynamic.where(annotation_type: 'smooch').last
+    annotated = a.annotated
+    assert_equal 'Team', a.annotated_type
+  end
+
+  test "should submit long unconfirmed request" do
+    setup_smooch_bot(true)
+    RequestStore.store[:skip_cached_field_update] = false
+    uid = random_string
+    message = 'This is a message that has enough words to be considered a media'
+    Sidekiq::Testing.fake! do
+      send_message_to_smooch_bot('Hello', uid)
+      send_message_to_smooch_bot(message, uid)
+    end
+    assert_difference 'ProjectMedia.count' do
+      Sidekiq::Worker.drain_all
+    end
     a = Dynamic.where(annotation_type: 'smooch').last
     annotated = a.annotated
     assert_equal 'ProjectMedia', a.annotated_type
     assert_equal CheckArchivedFlags::FlagCodes::UNCONFIRMED, annotated.archived
-    # verify requests_count & demand count
+    # Verify requests count & demand
     assert_equal 1, annotated.requests_count
     assert_equal 1, annotated.demand
-    assert_not_nil a.get_field('smooch_resource_id')
-    # Test auto confirm the media if resend same media as a default request
+    # Auto confirm the media if the same media is sent as a default request
     Sidekiq::Testing.fake! do
-      send_message_to_smooch_bot('Hello', uid)
+      send_message_to_smooch_bot(message, uid)
       send_message_to_smooch_bot('1', uid)
+      send_message_to_smooch_bot('2', uid)
     end
     Rails.cache.stubs(:read).returns(nil)
     Rails.cache.stubs(:read).with("smooch:last_message_from_user:#{uid}").returns(Time.now + 10.seconds)
     assert_no_difference 'ProjectMedia.count' do
-      send_message_to_smooch_bot('2', uid)
+      send_message_to_smooch_bot('Query', uid)
     end
+    Rails.cache.unstub(:read)
+    Sidekiq::Worker.drain_all
     assert_equal CheckArchivedFlags::FlagCodes::NONE, annotated.reload.archived
     assert_equal 2, annotated.reload.requests_count
-    # Test resend same media (should not update archived cloumn)
+    # Test resend the same media (should not update archived column)
     Sidekiq::Testing.fake! do
       send_message_to_smooch_bot('Hello', uid)
-      send_message_to_smooch_bot('1', uid)
+      send_message_to_smooch_bot(message, uid)
     end
-    Rails.cache.stubs(:read).returns(nil)
-    Rails.cache.stubs(:read).with("smooch:last_message_from_user:#{uid}").returns(Time.now + 10.seconds)
     assert_no_difference 'ProjectMedia.count' do
-      send_message_to_smooch_bot('2', uid)
+      Sidekiq::Worker.drain_all
     end
     assert_equal CheckArchivedFlags::FlagCodes::NONE, annotated.reload.archived
     assert_equal 3, annotated.reload.requests_count
-    Rails.cache.unstub(:read)
   end
 
   test "should get default TOS message" do
