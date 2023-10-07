@@ -854,4 +854,30 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     send_message 'Hello'
     assert_state 'main'
   end
+
+  test 'should save unconfirmed media with enough words' do
+    @installation.set_smooch_disable_timeout = false
+    @installation.save!
+    reload_tipline_settings
+    send_message 'hello', '1' # Sends a first message and confirms language as English
+    send_message 'This is message is so long that it is considered a media'
+    assert_difference 'ProjectMedia.count' do
+      assert_difference "Dynamic.where(annotation_type: 'smooch').count" do
+        Sidekiq::Worker.drain_all
+      end
+    end
+  end
+
+  test 'should not save unconfirmed media with just a few words' do
+    @installation.set_smooch_disable_timeout = false
+    @installation.save!
+    reload_tipline_settings
+    send_message 'hello', '1' # Sends a first message and confirms language as English
+    send_message 'Hi, there!'
+    assert_no_difference 'ProjectMedia.count' do
+      assert_difference "Dynamic.where(annotation_type: 'smooch').count" do
+        Sidekiq::Worker.drain_all
+      end
+    end
+  end
 end
