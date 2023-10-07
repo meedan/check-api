@@ -326,7 +326,7 @@ class GraphqlController4Test < ActionController::TestCase
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
     updated_objects = JSON.parse(@response.body)['data']['bulkProjectMediaMarkRead']['updated_objects']
-    assert_equal @ids.count, updated_objects.count
+    assert_equal @pms.map(&:id).sort, updated_objects.collect{|obj| obj['dbid']}.sort
     @pms.each { |pm| assert pm.reload.read }
     assert_search_finds_all({ read: 1 })
     assert_search_finds_none({ read: 0 })
