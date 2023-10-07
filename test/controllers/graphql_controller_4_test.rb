@@ -322,9 +322,11 @@ class GraphqlController4Test < ActionController::TestCase
     @pms.each { |pm| assert_not pm.read }
     assert_search_finds_all({ read: 0 })
     assert_search_finds_none({ read: 1 })
-    query = 'mutation { bulkProjectMediaMarkRead(input: { clientMutationId: "1", ids: ' + @ids + ', read: true }) { ids, team { dbid } } }'
+    query = 'mutation { bulkProjectMediaMarkRead(input: { clientMutationId: "1", ids: ' + @ids + ', read: true }) { updated_objects { id, is_read, dbid }, ids, team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
+    updated_objects = JSON.parse(@response.body)['data']['bulkProjectMediaMarkRead']['updated_objects']
+    assert_equal @ids.count, updated_objects.count
     @pms.each { |pm| assert pm.reload.read }
     assert_search_finds_all({ read: 1 })
     assert_search_finds_none({ read: 0 })
