@@ -820,6 +820,10 @@ class Bot::Smooch < BotUser
         claim = self.extract_claim(text).gsub(/\s+/, ' ').strip
         extra = { quote: claim }
         pm = ProjectMedia.joins(:media).where('trim(lower(quote)) = ?', claim.downcase).where('project_medias.team_id' => team.id).last
+        # Don't create a new text media if it's an unconfirmed request with just a few words
+        if pm.nil? && message['archived'] == CheckArchivedFlags::FlagCodes::UNCONFIRMED && ::Bot::Alegre.get_number_of_words(claim) < CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
+          return team
+        end
       else
         extra = { url: link.url }
         pm = ProjectMedia.joins(:media).where('medias.url' => link.url, 'project_medias.team_id' => team.id).last
