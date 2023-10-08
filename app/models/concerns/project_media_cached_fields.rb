@@ -446,6 +446,36 @@ module ProjectMediaCachedFields
         },
       ]
 
+    cached_field :positive_tipline_search_results_count,
+      update_es: true,
+      recalculate: :recalculate_positive_tipline_search_results_count,
+      update_on: [
+        {
+          model: DynamicAnnotation::Field,
+          if: proc { |f| f.field_name == 'smooch_request_type' && f.value == 'relevant_search_result_requests' },
+          affected_ids: proc { |f| [f.annotation&.annotated_id.to_i] },
+          events: {
+            save: :recalculate,
+            destroy: :recalculate,
+          }
+        }
+      ]
+
+    cached_field :tipline_search_results_count,
+      update_es: true,
+      recalculate: :recalculate_tipline_search_results_count,
+      update_on: [
+        {
+          model: DynamicAnnotation::Field,
+          if: proc { |f| f.field_name == 'smooch_request_type' && ['relevant_search_result_requests', 'irrelevant_search_result_requests', 'timeout_search_requests'].include?(f.value) },
+          affected_ids: proc { |f| [f.annotation&.annotated_id.to_i] },
+          events: {
+            save: :recalculate,
+            destroy: :recalculate,
+          }
+        }
+      ]
+
     def recalculate_linked_items_count
       count = Relationship.send('confirmed').where(source_id: self.id).count
       count += 1 unless self.media.type == 'Blank'
@@ -604,6 +634,19 @@ module ProjectMediaCachedFields
 
     def cached_field_published_by_es(value)
       value.keys.first || 0
+    end
+
+    def recalculate_positive_tipline_search_results_count
+      DynamicAnnotation::Field.where(annotation_type: 'smooch',field_name: 'smooch_request_type', value: 'relevant_search_result_requests')
+      .joins('INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id')
+      .where('a.annotated_type = ? AND a.annotated_id = ?', 'ProjectMedia', self.id).count
+    end
+
+    def recalculate_tipline_search_results_count
+      DynamicAnnotation::Field.where(annotation_type: 'smooch',field_name: 'smooch_request_type')
+      .where('value IN (?)', ['"relevant_search_result_requests"', '"irrelevant_search_result_requests"', '"timeout_search_requests"'])
+      .joins('INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id')
+      .where('a.annotated_type = ? AND a.annotated_id = ?', 'ProjectMedia', self.id).count
     end
   end
 
