@@ -286,6 +286,7 @@ test:
   otel_log_level: error
   otel_traces_sampler:
   sentry_dsn:
+  storage_rewrite_host: 'http://minio:9000'
 
   # Facebook social login
   #
