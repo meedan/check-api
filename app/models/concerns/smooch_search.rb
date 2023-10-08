@@ -257,6 +257,7 @@ module SmoochSearch
     end
 
     def send_search_results_to_non_whatsapp_user(uid, reports)
+      redis = Redis.new(REDIS_CONFIG)
       reports.each do |report|
         response = nil
         response = self.send_message_to_user(uid, report.report_design_text) if report.report_design_field_value('use_text_message')
