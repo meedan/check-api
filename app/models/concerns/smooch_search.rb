@@ -114,7 +114,6 @@ module SmoochSearch
         query = message['text']
         query = message['mediaUrl'] unless type == 'text'
         results = self.search_for_similar_published_fact_checks(type, query, [team_id], after, nil, language).select{ |pm| is_a_valid_search_result(pm) }
-        results = ProjectMedia.where(id: [1, 2])
       rescue StandardError => e
         self.handle_search_error(uid, e, language)
       end
