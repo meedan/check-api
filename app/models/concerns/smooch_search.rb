@@ -205,7 +205,7 @@ module SmoochSearch
     end
 
     def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id = nil, language = nil)
-      search_fields = %w(title description fact_check_title fact_check_summary analysis_title extracted_text analysis_description url claim_description_content')
+      search_fields = %w(title description fact_check_title fact_check_summary extracted_text url claim_description_content')
       filters = { keyword: words.join('+'), keyword_fields: { fields: search_fields }, sort: 'recent_activity', eslimit: 3 }
       filters.merge!({ fc_language: [language] }) if should_restrict_by_language?(team_ids)
       filters.merge!({ sort: 'score' }) if words.size > 1 # We still want to be able to return the latest fact-checks if a meaninful query is not passed
