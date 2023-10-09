@@ -136,5 +136,9 @@ class MediaSearch
     indexes :report_language, { type: 'keyword', normalizer: 'check' }
 
     indexes :fact_check_published_on, { type: 'long' }
+
+    indexes :positive_tipline_search_results_count, { type: 'long' }
+
+    indexes :tipline_search_results_count, { type: 'long' }
   end
 end

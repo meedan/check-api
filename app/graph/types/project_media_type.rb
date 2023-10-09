@@ -41,6 +41,8 @@ class ProjectMediaType < DefaultObject
   field :cluster, ClusterType, null: true
   field :is_suggested, GraphQL::Types::Boolean, null: true
   field :is_confirmed, GraphQL::Types::Boolean, null: true
+  field :positive_tipline_search_results_count, GraphQL::Types::Int, null: true
+  field :tipline_search_results_count, GraphQL::Types::Int, null: true
 
   field :claim_description, ClaimDescriptionType, null: true
 
