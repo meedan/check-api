@@ -221,7 +221,6 @@ module SmoochSearch
 
     def send_search_results_to_user(uid, results, team_id, platform, app_id)
       team = Team.find(team_id)
-      redis = Redis.new(REDIS_CONFIG)
       language = self.get_user_language(uid)
       reports = results.collect{ |r| r.get_dynamic_annotation('report_design') }.reject{ |r| r.blank? }
       # Get reports languages
@@ -248,7 +247,6 @@ module SmoochSearch
       Rails.cache.write("smooch:user_search_bundle:#{uid}:#{search_id}", self.list_of_bundled_messages_from_user(uid), expires_in: 20.minutes)
       self.clear_user_bundled_messages(uid)
       reports.each do |report|
-        response = nil
         text = report.report_design_text if report.report_design_field_value('use_text_message')
         image_url = report.report_design_image_url if report.report_design_field_value('use_visual_card')
         options = [{
