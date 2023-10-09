@@ -196,14 +196,12 @@ module SmoochMenus
           }
         }
       }
-      unless image_url.blank?
-        extra[:override][:whatsapp][:payload][:interactive][:header] = {
-          type: 'image',
-          image: {
-            link: image_url
-          }
+      extra[:override][:whatsapp][:payload][:interactive][:header] = {
+        type: 'image',
+        image: {
+          link: image_url
         }
-      end
+      } unless image_url.blank?
       extra, fallback = self.format_fallback_text_menu_from_options(text, options, extra)
       self.send_message_to_user(uid, fallback.join("\n"), extra)
     end

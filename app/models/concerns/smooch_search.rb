@@ -237,8 +237,12 @@ module SmoochSearch
       end
     end
 
+    def generate_search_id
+      SecureRandom.hex
+    end
+
     def send_search_results_to_whatsapp_user(uid, reports, app_id)
-      search_id = SecureRandom.hex
+      search_id = self.generate_search_id
       # Cache the current bundle of messages from this user related to this search, so a request can be created correctly
       # Expires after the time to give feedback is expired
       Rails.cache.write("smooch:user_search_bundle:#{uid}:#{search_id}", self.list_of_bundled_messages_from_user(uid), expires_in: 20.minutes)
