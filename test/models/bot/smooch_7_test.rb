@@ -463,4 +463,70 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should store number of tipline requests by type" do
+    RequestStore.store[:skip_cached_field_update] = false
+    Sidekiq::Testing.inline! do
+      text = random_string
+      pm = create_project_media team: @team, quote: text, disable_es_callbacks: false
+      text2 = random_string
+      pm2 = create_project_media team: @team, quote: text2, disable_es_callbacks: false
+      message = {
+        type: 'text',
+        text: text,
+        role: 'appUser',
+        received: 1573082583.219,
+        name: random_string,
+        authorId: random_string,
+        '_id': random_string,
+        source: {
+          originalMessageId: random_string,
+          originalMessageTimestamp: 1573082582,
+          type: 'whatsapp',
+          integrationId: random_string
+        },
+      }
+      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'relevant_search_result_requests', pm)
+      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'relevant_search_result_requests', pm)
+      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'timeout_search_requests', pm)
+      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'irrelevant_search_result_requests')
+      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'irrelevant_search_result_requests')
+       message = {
+        type: 'text',
+        text: text2,
+        role: 'appUser',
+        received: 1573082583.219,
+        name: random_string,
+        authorId: random_string,
+        '_id': random_string,
+        source: {
+          originalMessageId: random_string,
+          originalMessageTimestamp: 1573082582,
+          type: 'whatsapp',
+          integrationId: random_string
+        },
+      }
+      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'relevant_search_result_requests', pm2)
+      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'irrelevant_search_result_requests')
+      # Verify cached field
+      assert_equal 5, pm.tipline_search_results_count
+      assert_equal 2, pm.positive_tipline_search_results_count
+      assert_equal 2, pm2.tipline_search_results_count
+      assert_equal 1, pm2.positive_tipline_search_results_count
+      # Verify ES values
+      es = $repository.find(pm.get_es_doc_id)
+      assert_equal 5, es['tipline_search_results_count']
+      assert_equal 2, es['positive_tipline_search_results_count']
+      es2 = $repository.find(pm2.get_es_doc_id)
+      assert_equal 2, es2['tipline_search_results_count']
+      assert_equal 1, es2['positive_tipline_search_results_count']
+      # Verify destroy
+      DynamicAnnotation::Field.where(annotation_type: 'smooch',field_name: 'smooch_request_type')
+      .where('value IN (?)', ['"irrelevant_search_result_requests"', '"timeout_search_requests"'])
+      .joins('INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id')
+      .where('a.annotated_type = ? AND a.annotated_id = ?', 'ProjectMedia', pm.id).destroy_all
+      assert_equal 2, pm.tipline_search_results_count
+      assert_equal 2, pm.positive_tipline_search_results_count
+    end
+  end
 end

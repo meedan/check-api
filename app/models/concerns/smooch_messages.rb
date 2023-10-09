@@ -335,10 +335,10 @@ module SmoochMessages
       self.get_installation(self.installation_setting_id_keys, app_id)
       Team.current = Team.where(id: self.config['team_id']).last
       annotated = nil
-      if ['default_requests', 'timeout_requests', 'resource_requests', 'irrelevant_search_result_requests'].include?(request_type)
+      if ['default_requests', 'timeout_requests', 'irrelevant_search_result_requests'].include?(request_type)
         message['archived'] = ['default_requests', 'irrelevant_search_result_requests'].include?(request_type) ? self.default_archived_flag : CheckArchivedFlags::FlagCodes::UNCONFIRMED
         annotated = self.create_project_media_from_message(message)
-      elsif ['menu_options_requests', 'relevant_search_result_requests', 'timeout_search_requests'].include?(request_type)
+      elsif ['menu_options_requests', 'relevant_search_result_requests', 'timeout_search_requests', 'resource_requests'].include?(request_type)
         annotated = annotated_obj
       end
 

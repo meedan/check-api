@@ -11211,6 +11211,7 @@ type ProjectMedia implements Node {
   oembed_metadata: String
   permissions: String
   picture: String
+  positive_tipline_search_results_count: Int
   project: Project
   project_group: ProjectGroup
   project_id: Int
@@ -11336,6 +11337,7 @@ type ProjectMedia implements Node {
   tasks_count: JsonStringType
   team: Team
   team_name: String
+  tipline_search_results_count: Int
   title: String
   type: String
   updated_at: String
