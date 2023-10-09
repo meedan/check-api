@@ -199,7 +199,7 @@ module SmoochMenus
       extra[:override][:whatsapp][:payload][:interactive][:header] = {
         type: 'image',
         image: {
-          link: image_url
+          link: CheckS3.rewrite_url(image_url)
         }
       } unless image_url.blank?
       extra, fallback = self.format_fallback_text_menu_from_options(text, options, extra)

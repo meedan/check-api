@@ -255,7 +255,7 @@ module SmoochSearch
           value: { project_media_id: report.annotated_id, keyword: 'search_result_is_relevant', search_id: search_id }.to_json,
           label: '👍'
         }]
-        self.send_message_to_user_with_buttons(uid, text, options, image_url)
+        self.send_message_to_user_with_buttons(uid, text || '-', options, image_url) # "text" is mandatory for WhatsApp interactive messages
         self.delay_for(15.minutes, { queue: 'smooch_priority' }).timeout_if_no_feedback_is_given_to_search_result(app_id, uid, search_id, report.annotated_id)
       end
     end
