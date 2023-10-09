@@ -1,5 +1,6 @@
 class GraphqlCrudOperations
   def self.safe_save(obj, attrs, parent_names = [])
+    raise "Can't save a null object." if obj.nil?
     raise 'This operation must be done by a signed-in user' if User.current.nil? && ApiKey.current.nil?
     attrs.each do |key, value|
       method = key == "clientMutationId" ? "client_mutation_id=" : "#{key}="
