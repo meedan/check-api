@@ -202,6 +202,18 @@ class QueryType < BaseObject
     end
   end
 
+  field :tipline_request,
+        TiplineRequestType,
+        description:
+          "Information about tipline request, given its id",
+        null: true do
+    argument :id, GraphQL::Types::String, required: true
+  end
+
+  def tipline_request(id:)
+    DynamicAnnotation::Field.find_by_id(id.to_i)
+  end
+
   # Getters by ID
   %i[
     source
