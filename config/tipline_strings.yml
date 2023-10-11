@@ -485,6 +485,43 @@ id:
   subscribed: Anda saat ini sedang berlangganan ke buletin kami.
   unsubscribe_button_label: Brhenti brlangganan
   unsubscribed: Saat ini Anda tidak berlangganan buletin kami.
+ja:
+  add_more_details_state_button_label: 追加
+  ask_if_ready_state_button_label: キャンセル
+  cancelled: オーケー
+  confirm_preferred_language: 選択した言語を確認してください。
+  invalid_format: "提出して頂いたファイルのフォーマットはサポートされていません。"
+  keep_subscription_button_label: 定期購読
+  languages: 言語
+  languages_and_privacy_title: 言語とプライバシー
+  main_menu: メニュー
+  main_state_button_label: キャンセル
+  navigation_button: ボタンを押して進んでください。
+  no_results_in_language: "%{language}で結果が見つかりませんでした。 関連する可能性のある他の言語での結果をいくつか示します。"
+  privacy_and_purpose: |-
+    プライバシーと目的について
+
+    %{team}ホットラインへようこそ！
+
+    あなたが検証したい情報をこのホットラインに提供してください。
+
+    あなたのデータは安全です。わたしたちはあなたの個人情報を保護することに真剣に取り組み非公開かつ安全に保ちます。シェアしたり、販売したりせず、個人識別情報（PII）をこのサービスの向上のためにのみ使用します。
+
+    拡散する誤情報を将来的に可能な限り早期発見していくために、私達はこのホットラインから得られた非PIIコンテンツを、吟味の上でリサーチャーやファクトチェック・パートナーと共有することがあります。
+
+    私達がリンクするウェブサイトには、独自のプライバシー・ポリシーがあることにご注意ください。
+
+    あなたの投稿がこの作業に使用されることを望まない場合は、私たちのシステムへの投稿をご遠慮ください。
+  privacy_statement: プライバシーに関する報告
+  privacy_title: プライバシー
+  report_updated: "次のファクトチェエックは新しい情報と共にアップデートされました"
+  search_result_is_not_relevant_button_label: "いいえ"
+  search_result_is_relevant_button_label: "はい"
+  search_state_button_label: 提出
+  subscribe_button_label: 購読
+  subscribed: あなたは現在ニュースレターを購読中です。
+  unsubscribe_button_label: 購読停止
+  unsubscribed: あなたは現在、ニュースレターの購読を停止中です。
 kn:
   add_more_details_state_button_label: ಹೆಚ್ಚು ಸೇರಿಸಿ
   ask_if_ready_state_button_label: ರದ್ದು

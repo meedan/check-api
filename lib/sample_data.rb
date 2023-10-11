@@ -1096,4 +1096,8 @@ module SampleData
     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task Response Free Text'
     create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: text, optional: false
   end
+
+  def create_blocked_tipline_user(options = {})
+    BlockedTiplineUser.create!({ uid: random_string }.merge(options))
+  end
 end

@@ -1,5 +1,6 @@
 class GraphqlCrudOperations
   def self.safe_save(obj, attrs, parent_names = [])
+    raise "Can't save a null object." if obj.nil?
     raise 'This operation must be done by a signed-in user' if User.current.nil? && ApiKey.current.nil?
     attrs.each do |key, value|
       method = key == "clientMutationId" ? "client_mutation_id=" : "#{key}="
@@ -192,7 +193,7 @@ class GraphqlCrudOperations
       method_mapping = { update: :bulk_update, destroy: :bulk_destroy, mark_read: :bulk_mark_read }
       method = method_mapping[update_or_destroy.to_sym]
       result = klass.send(method, sql_ids, filtered_inputs, Team.current)
-      if update_or_destroy.to_s == "update"
+      if update_or_destroy.to_s != "destroy"
         result.merge!({ updated_objects: klass.where(id: sql_ids) })
       end
       { ids: processed_ids }.merge(result)

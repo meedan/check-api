@@ -15,7 +15,6 @@ class GraphqlController10Test < ActionController::TestCase
     Team.current = nil
   end
 
-
   test "should uninstall bot using mutation" do
     t = create_team slug: 'test'
     u = create_user

@@ -286,4 +286,14 @@ class SmoochCapiTest < ActiveSupport::TestCase
     WebMock.stub_request(:post, 'https://graph.facebook.com/v15.0/123456/messages').to_return(status: 200, body: { id: '123456' }.to_json)
     assert_equal 200, Bot::Smooch.send_message_to_user(@uid, 'Test', { 'type' => 'video', 'mediaUrl' => 'https://test.test/video.mp4' }).code.to_i
   end
+
+  test 'should block user if WhatsApp reports pair rate limit hit' do
+    assert !Bot::Smooch.user_blocked?(@uid)
+    WebMock.stub_request(:post, 'https://graph.facebook.com/v15.0/123456/messages').to_return(status: 400, body: { error: { message: '(#131056) (Business Account, Consumer Account) pair rate limit hit', code: 131056 } }.to_json)
+    Bot::Smooch.send_message_to_user(@uid, 'Test', { 'type' => 'text', 'text' => 'Test' })
+    Bot::Smooch.send_message_to_user(@uid, 'Test', { 'type' => 'text', 'text' => 'Test' }) # Race condition
+    assert Bot::Smooch.user_blocked?(@uid)
+    Bot::Smooch.unblock_user(@uid)
+    assert !Bot::Smooch.user_blocked?(@uid)
+  end
 end
