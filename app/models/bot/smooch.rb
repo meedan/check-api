@@ -947,14 +947,22 @@ class Bot::Smooch < BotUser
     self.get_platform_from_message(data)
     uid = data['authorId']
     lang = data['language']
+    field_name = ''
     # User received a report before
     if subscribed_at.to_i < last_published_at.to_i && published_count > 0
       if ['publish', 'republish_and_resend'].include?(action)
+        field_name = 'report_correction_sent_at'
         self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated', self.get_string(:report_updated, lang))
       end
     # First report
     else
+      field_name = 'report_sent_at'
       self.send_report_to_user(uid, data, pm, lang, 'fact_check_report')
+    end
+    unless field_name.blank?
+      a = pm.get_annotations('smooch').last.load
+      a.set_fields = { "#{field_name}": Time.now.to_i }.to_json
+      a.save!
     end
   end
 
