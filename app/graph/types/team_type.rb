@@ -301,6 +301,6 @@ class TeamType < DefaultObject
   end
 
   def tipline_messages(uid:)
-    object.tipline_messages.where(uid: uid).last(100)
+    object.tipline_messages.where(uid: uid).order("id DESC")
   end
 end

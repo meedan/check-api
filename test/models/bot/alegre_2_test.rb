@@ -315,6 +315,16 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     RequestStore.store[:pause_database_connection] = false
   end
 
+  test "should block calls on redis blpop for audio request" do
+    stubbed_response = Net::HTTPSuccess.new(1.0, '200', 'OK')
+    stubbed_response.stubs(:body).returns({"queue" => "audio__Model", "body" => {"id" => "123", "callback_url" => "http://example.com/callback"}}.to_json)
+    Net::HTTP.any_instance.stubs(:request).returns(stubbed_response)
+    Redis.any_instance.stubs(:blpop).with("alegre:webhook:123", 120).returns(["alegre:webhook:123", {"tested" => true}.to_json])
+    assert_equal Bot::Alegre.request_api('get', '/audio/similarity/', @params, 'body'), {"tested" => true}
+    Net::HTTP.any_instance.unstub(:request)
+    Redis.any_instance.unstub(:blpop)
+  end
+
   test "should get items with similar title" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false

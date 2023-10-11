@@ -31,6 +31,7 @@ class Bot::Smooch < BotUser
   include SmoochMenus
   include SmoochFields
   include SmoochLanguage
+  include SmoochBlocking
 
   ::ProjectMedia.class_eval do
     attr_accessor :smooch_message
@@ -380,6 +381,11 @@ class Bot::Smooch < BotUser
       return true
     end
 
+    if self.clicked_on_search_result_button?(message)
+      self.search_result_button_click_callback(message, uid, app_id, workflow, language)
+      return true
+    end
+
     case state
     when 'waiting_for_message'
       self.bundle_message(message)
@@ -538,6 +544,10 @@ class Bot::Smooch < BotUser
     end
   end
 
+  def self.is_a_shortcut_for_submission?(state, message)
+    self.is_v2? && (state == 'main' || state == 'waiting_for_message') && (!message['mediaUrl'].blank? || ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer))
+  end
+
   def self.process_menu_option(message, state, app_id)
     uid = message['authorId']
     sm = CheckStateMachine.new(uid)
@@ -577,8 +587,15 @@ class Bot::Smooch < BotUser
         return true
       end
     end
+    # Lastly, check if it's a submission shortcut
+    if self.is_a_shortcut_for_submission?(sm.state, message)
+      self.bundle_message(message)
+      sm.go_to_ask_if_ready
+      self.send_message_for_state(uid, workflow, 'ask_if_ready', language)
+      return true
+    end
     self.bundle_message(message)
-    return false
+    false
   end
 
   def self.user_received_report(message)
@@ -789,19 +806,6 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.ban_user(message)
-    unless message.nil?
-      uid = message['authorId']
-      Rails.logger.info("[Smooch Bot] Banned user #{uid}")
-      Rails.cache.write("smooch:banned:#{uid}", message.to_json)
-    end
-  end
-
-  def self.user_banned?(payload)
-    uid = payload.dig('appUser', '_id')
-    !uid.blank? && !Rails.cache.read("smooch:banned:#{uid}").nil?
-  end
-
   # Don't save as a ProjectMedia if it contains only menu options
   def self.is_a_valid_text_message?(text)
     !text.split(/#{MESSAGE_BOUNDARY}|\s+/).reject{ |m| m =~ /^[0-9]*$/ }.empty?
@@ -821,6 +825,10 @@ class Bot::Smooch < BotUser
         claim = self.extract_claim(text).gsub(/\s+/, ' ').strip
         extra = { quote: claim }
         pm = ProjectMedia.joins(:media).where('trim(lower(quote)) = ?', claim.downcase).where('project_medias.team_id' => team.id).last
+        # Don't create a new text media if it's an unconfirmed request with just a few words
+        if pm.nil? && message['archived'] == CheckArchivedFlags::FlagCodes::UNCONFIRMED && ::Bot::Alegre.get_number_of_words(claim) < CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
+          return team
+        end
       else
         extra = { url: link.url }
         pm = ProjectMedia.joins(:media).where('medias.url' => link.url, 'project_medias.team_id' => team.id).last

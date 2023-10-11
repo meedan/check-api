@@ -11,7 +11,6 @@ development: &default
   elasticsearch_index:
   elasticsearch_log: true
   elasticsearch_sync: false
-
   # WARNING For production, don't use a wildcard: set the allowed domains explicitly as a regular expression, e.g.
   # '(https?://.*\.?(meedan.com|meedan.org))'
   allowed_origins: '.*'
@@ -44,6 +43,7 @@ development: &default
   image_cluster_similarity_threshold: 0.9
   text_cluster_similarity_threshold: 0.9
   similarity_media_file_url_host: ''
+  min_number_of_words_for_tipline_submit_shortcut: 10
 
   # Localization
   #
@@ -286,6 +286,7 @@ test:
   otel_log_level: error
   otel_traces_sampler:
   sentry_dsn:
+  storage_rewrite_host: 'http://minio:9000'
 
   # Facebook social login
   #

@@ -6,12 +6,14 @@ class Bot::Alegre < BotUser
   end
 
   include AlegreSimilarity
+  include AlegreWebhooks
 
   # Text similarity models
   MEAN_TOKENS_MODEL = 'xlm-r-bert-base-nli-stsb-mean-tokens'
   INDIAN_MODEL = 'indian-sbert'
   FILIPINO_MODEL = 'paraphrase-filipino-mpnet-base-v2'
   OPENAI_ADA_MODEL = 'openai-text-embedding-ada-002'
+  PARAPHRASE_MULTILINGUAL_MODEL = 'paraphrase-multilingual-mpnet-base-v2'
   ELASTICSEARCH_MODEL = 'elasticsearch'
   DEFAULT_ES_SCORE = 10
 
@@ -490,7 +492,13 @@ class Bot::Alegre < BotUser
       response_body = response.body
       Rails.logger.info("[Alegre Bot] Alegre response: #{response_body.inspect}")
       ActiveRecord::Base.connection.reconnect! if RequestStore.store[:pause_database_connection]
-      JSON.parse(response_body)
+      parsed_response = JSON.parse(response_body)
+      if parsed_response.dig("queue") == 'audio__Model' && parsed_response.dig("body", "callback_url") != nil
+        redis = Redis.new(REDIS_CONFIG)
+        redis_response = redis.blpop("alegre:webhook:#{parsed_response.dig("body", "id")}", 120)
+        return JSON.parse(redis_response[1])
+      end
+      parsed_response
     rescue StandardError => e
       if retries > 0
         sleep 1
@@ -724,7 +732,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.relationship_model_not_allowed(relationship_model)
-    allowed_models = [MEAN_TOKENS_MODEL, INDIAN_MODEL, FILIPINO_MODEL, OPENAI_ADA_MODEL, ELASTICSEARCH_MODEL, 'audio', 'image', 'video']
+    allowed_models = [MEAN_TOKENS_MODEL, INDIAN_MODEL, FILIPINO_MODEL, OPENAI_ADA_MODEL, PARAPHRASE_MULTILINGUAL_MODEL, ELASTICSEARCH_MODEL, 'audio', 'image', 'video']
     models = relationship_model.split("|").collect{ |m| m.split('/').first }
     models.length != (allowed_models&models).length
   end

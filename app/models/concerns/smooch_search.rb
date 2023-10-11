@@ -19,10 +19,15 @@ module SmoochSearch
           self.bundle_messages(uid, '', app_id, 'default_requests', nil, true)
           self.send_final_message_to_user(uid, self.get_custom_string('search_no_results', language), workflow, language)
         else
-          self.send_search_results_to_user(uid, results, team_id)
-          sm.go_to_search_result
-          self.save_search_results_for_user(uid, results.map(&:id))
-          self.delay_for(1.second, { queue: 'smooch_priority' }).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, 1)
+          self.send_search_results_to_user(uid, results, team_id, platform, app_id)
+          # For WhatsApp, each search result goes with a button where the user can give feedback individually, so, reset the conversation right away
+          if platform == 'WhatsApp'
+            sm.reset
+          else
+            sm.go_to_search_result
+            self.save_search_results_for_user(uid, results.map(&:id))
+            self.delay_for(1.second, { queue: 'smooch_priority' }).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, 1)
+          end
         end
       rescue StandardError => e
         self.handle_search_error(uid, e, language)
@@ -200,7 +205,8 @@ module SmoochSearch
     end
 
     def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id = nil, language = nil)
-      filters = { keyword: words.join('+'), eslimit: 3 }
+      search_fields = %w(title description fact_check_title fact_check_summary extracted_text url claim_description_content')
+      filters = { keyword: words.join('+'), keyword_fields: { fields: search_fields }, sort: 'recent_activity', eslimit: 3 }
       filters.merge!({ fc_language: [language] }) if should_restrict_by_language?(team_ids)
       filters.merge!({ sort: 'score' }) if words.size > 1 # We still want to be able to return the latest fact-checks if a meaninful query is not passed
       feed_id.blank? ? filters.merge!({ report_status: ['published'] }) : filters.merge!({ feed_id: feed_id })
@@ -214,21 +220,51 @@ module SmoochSearch
       results
     end
 
-    def send_search_results_to_user(uid, results, team_id)
+    def send_search_results_to_user(uid, results, team_id, platform, app_id)
       team = Team.find(team_id)
-      redis = Redis.new(REDIS_CONFIG)
       language = self.get_user_language(uid)
-      reports = results.collect{ |r| r.get_dynamic_annotation('report_design') }
+      reports = results.collect{ |r| r.get_dynamic_annotation('report_design') }.reject{ |r| r.blank? }
       # Get reports languages
-      reports_language = reports.map{|r| r&.report_design_field_value('language')}.uniq
+      reports_language = reports.map{ |r| r.report_design_field_value('language') }.uniq
       if team.get_languages.to_a.size > 1 && !reports_language.include?(language)
         self.send_message_to_user(uid, self.get_string(:no_results_in_language, language).gsub('%{language}', CheckCldr.language_code_to_name(language, language)))
         sleep 1
       end
+      if platform == 'WhatsApp'
+        self.send_search_results_to_whatsapp_user(uid, reports, app_id)
+      else
+        self.send_search_results_to_non_whatsapp_user(uid, reports)
+      end
+    end
+
+    def generate_search_id
+      SecureRandom.hex
+    end
+
+    def send_search_results_to_whatsapp_user(uid, reports, app_id)
+      search_id = self.generate_search_id
+      # Cache the current bundle of messages from this user related to this search, so a request can be created correctly
+      # Expires after the time to give feedback is expired
+      Rails.cache.write("smooch:user_search_bundle:#{uid}:#{search_id}", self.list_of_bundled_messages_from_user(uid), expires_in: 20.minutes)
+      self.clear_user_bundled_messages(uid)
+      reports.each do |report|
+        text = report.report_design_text if report.report_design_field_value('use_text_message')
+        image_url = report.report_design_image_url if report.report_design_field_value('use_visual_card')
+        options = [{
+          value: { project_media_id: report.annotated_id, keyword: 'search_result_is_relevant', search_id: search_id }.to_json,
+          label: '👍'
+        }]
+        self.send_message_to_user_with_buttons(uid, text || '-', options, image_url) # "text" is mandatory for WhatsApp interactive messages
+        self.delay_for(15.minutes, { queue: 'smooch_priority' }).timeout_if_no_feedback_is_given_to_search_result(app_id, uid, search_id, report.annotated_id)
+      end
+    end
+
+    def send_search_results_to_non_whatsapp_user(uid, reports)
+      redis = Redis.new(REDIS_CONFIG)
       reports.each do |report|
         response = nil
-        response = self.send_message_to_user(uid, report.report_design_text) if report&.report_design_field_value('use_text_message')
-        response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url }) if !report&.report_design_field_value('use_text_message') && report&.report_design_field_value('use_visual_card')
+        response = self.send_message_to_user(uid, report.report_design_text) if report.report_design_field_value('use_text_message')
+        response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url }) if !report.report_design_field_value('use_text_message') && report.report_design_field_value('use_visual_card')
         id = self.get_id_from_send_response(response)
         redis.rpush("smooch:search:#{uid}", id) unless id.blank?
       end
@@ -251,6 +287,35 @@ module SmoochSearch
       else
         redis.del("smooch:search:#{uid}") if (attempts + 1) == max # Give up and just ask for feedback on the last iteration
         self.delay_for(1.second, { queue: 'smooch_priority' }).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, attempts + 1) if attempts < max # Try for 20 seconds
+      end
+    end
+
+    def timeout_if_no_feedback_is_given_to_search_result(app_id, uid, search_id, pmid)
+      key = "smooch:user_search_bundle:#{uid}:#{search_id}:#{pmid}"
+      if Rails.cache.read(key).nil? # User gave no feedback for the search result
+        bundle = Rails.cache.read("smooch:user_search_bundle:#{uid}:#{search_id}").to_a
+        self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, nil, app_id, 'timeout_search_requests', [ProjectMedia.find(pmid)], true, bundle)
+      else
+        Rails.cache.delete(key) # User gave feedback to search result
+      end
+    end
+
+    def clicked_on_search_result_button?(message)
+      begin
+        JSON.parse(message['payload'])['keyword'] == 'search_result_is_relevant'
+      rescue
+        false
+      end
+    end
+
+    def search_result_button_click_callback(message, uid, app_id, workflow, language)
+      payload = JSON.parse(message['payload'])
+      result = ProjectMedia.find(payload['project_media_id'])
+      bundle = Rails.cache.read("smooch:user_search_bundle:#{uid}:#{payload['search_id']}").to_a
+      unless bundle.empty?
+        Rails.cache.write("smooch:user_search_bundle:#{uid}:#{payload['search_id']}:#{result.id}", Time.now.to_i) # Store that the user has given feedback to this search result
+        self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'relevant_search_result_requests', [result], true, bundle)
+        self.send_final_message_to_user(uid, self.get_custom_string('search_result_is_relevant', language), workflow, language)
       end
     end
   end
