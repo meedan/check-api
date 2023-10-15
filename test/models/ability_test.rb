@@ -1287,4 +1287,24 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:destroy, tn2)
     end
   end
+
+  test "permissions for feed invitation" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    f = create_feed team: t
+    fi1 = create_feed_invitation feed: f
+    fi2 = create_feed_invitation
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:create, fi1)
+      assert ability.can?(:update, fi1)
+      assert ability.can?(:destroy, fi1)
+      assert ability.can?(:read, fi1)
+      assert ability.cannot?(:create, fi2)
+      assert ability.cannot?(:update, fi2)
+      assert ability.cannot?(:destroy, fi2)
+      assert ability.cannot?(:read, fi2)
+    end
+  end
 end
