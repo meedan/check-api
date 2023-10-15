@@ -15,6 +15,7 @@ class TiplineMessageType < DefaultObject
   field :state, GraphQL::Types::String, null: true
   field :team, TeamType, null: true
   field :sent_at, GraphQL::Types::String, null: true, camelize: false
+  field :media_url, GraphQL::Types::String, null: true
 
   def sent_at
     object.sent_at.to_i.to_s
