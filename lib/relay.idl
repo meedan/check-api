@@ -4592,42 +4592,6 @@ type DynamicAnnotationField implements Node {
 }
 
 """
-The connection type for DynamicAnnotationField.
-"""
-type DynamicAnnotationFieldConnection {
-  """
-  A list of edges.
-  """
-  edges: [DynamicAnnotationFieldEdge]
-
-  """
-  A list of nodes.
-  """
-  nodes: [DynamicAnnotationField]
-
-  """
-  Information to aid in pagination.
-  """
-  pageInfo: PageInfo!
-  totalCount: Int
-}
-
-"""
-An edge in a connection.
-"""
-type DynamicAnnotationFieldEdge {
-  """
-  A cursor for use in pagination.
-  """
-  cursor: String!
-
-  """
-  The item at the end of the edge.
-  """
-  node: DynamicAnnotationField
-}
-
-"""
 The connection type for Dynamic.
 """
 type DynamicConnection {
@@ -11240,7 +11204,7 @@ type ProjectMedia implements Node {
     Returns the last _n_ elements from the list.
     """
     last: Int
-  ): DynamicAnnotationFieldConnection
+  ): TiplineRequestConnection
   requests_count: Int
   share_count: Int
   show_warning_cover: Boolean
@@ -11557,6 +11521,11 @@ type Query {
   Information about the context team or the team from given id
   """
   team(id: ID, random: String, slug: String): Team
+
+  """
+  Information about tipline request, given its id
+  """
+  tipline_request(id: String!): TiplineRequest
 
   """
   Information about the user with given id
@@ -13292,6 +13261,64 @@ type TiplineNewsletterEdge {
   The item at the end of the edge.
   """
   node: TiplineNewsletter
+}
+
+"""
+TiplineRequest type
+"""
+type TiplineRequest implements Node {
+  annotation: Annotation
+  annotation_id: Int
+  associated_graphql_id: String
+  created_at: String
+  dbid: Int
+  id: ID!
+  permissions: String
+  smooch_report_correction_sent_at: Int
+  smooch_report_received_at: Int
+  smooch_report_sent_at: Int
+  smooch_report_update_received_at: Int
+  smooch_user_external_identifier: String
+  smooch_user_request_language: String
+  smooch_user_slack_channel_url: String
+  updated_at: String
+  value_json: JsonStringType
+}
+
+"""
+The connection type for TiplineRequest.
+"""
+type TiplineRequestConnection {
+  """
+  A list of edges.
+  """
+  edges: [TiplineRequestEdge]
+
+  """
+  A list of nodes.
+  """
+  nodes: [TiplineRequest]
+
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+"""
+An edge in a connection.
+"""
+type TiplineRequestEdge {
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+
+  """
+  The item at the end of the edge.
+  """
+  node: TiplineRequest
 }
 
 """

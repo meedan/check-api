@@ -939,11 +939,12 @@ class Bot::Smooch < BotUser
     parent.get_deduplicated_smooch_annotations.each do |annotation|
       data = JSON.parse(annotation.load.get_field_value('smooch_data'))
       self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
-      self.send_correction_to_user(data, parent, annotation.created_at, last_published_at, action, report.get_field_value('published_count').to_i) unless self.config['smooch_disabled']
+      self.send_correction_to_user(data, parent, annotation, last_published_at, action, report.get_field_value('published_count').to_i) unless self.config['smooch_disabled']
     end
   end
 
-  def self.send_correction_to_user(data, pm, subscribed_at, last_published_at, action, published_count = 0)
+  def self.send_correction_to_user(data, pm, annotation, last_published_at, action, published_count = 0)
+    subscribed_at = annotation.created_at
     self.get_platform_from_message(data)
     uid = data['authorId']
     lang = data['language']
@@ -951,18 +952,19 @@ class Bot::Smooch < BotUser
     # User received a report before
     if subscribed_at.to_i < last_published_at.to_i && published_count > 0
       if ['publish', 'republish_and_resend'].include?(action)
-        field_name = 'report_correction_sent_at'
+        field_name = 'smooch_report_correction_sent_at'
         self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated', self.get_string(:report_updated, lang))
       end
     # First report
     else
-      field_name = 'report_sent_at'
+      field_name = 'smooch_report_sent_at'
       self.send_report_to_user(uid, data, pm, lang, 'fact_check_report')
     end
     unless field_name.blank?
-      a = pm.get_annotations('smooch').last.load
-      a.set_fields = { "#{field_name}": Time.now.to_i }.to_json
-      a.save!
+      annotation = annotation.load
+      annotation.skip_check_ability = true
+      annotation.set_fields = { "#{field_name}": Time.now.to_i }.to_json
+      annotation.save!
     end
   end
 
