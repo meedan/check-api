@@ -77,17 +77,17 @@ module SmoochMessages
       end
     end
 
-    def send_final_message_to_user(uid, text, workflow, language)
+    def send_final_message_to_user(uid, text, workflow, language, event = nil)
       if self.is_v2?
         CheckStateMachine.new(uid).go_to_main
-        self.send_message_to_user_with_main_menu_appended(uid, text, workflow, language)
+        self.send_message_to_user_with_main_menu_appended(uid, text, workflow, language, nil, event)
       else
         self.send_message_to_user(uid, text)
       end
     end
 
-    def send_final_messages_to_user(uid, text, workflow, language, interval = 1, preview_url = true)
-      response = self.send_message_to_user(uid, text, {}, false, preview_url)
+    def send_final_messages_to_user(uid, text, workflow, language, interval = 1, preview_url = true, event = nil)
+      response = self.send_message_to_user(uid, text, {}, false, preview_url, event)
       if self.is_v2?
         label = self.get_string('navigation_button', language)
         CheckStateMachine.new(uid).go_to_main
@@ -101,7 +101,7 @@ module SmoochMessages
       response
     end
 
-    def send_message_for_state(uid, workflow, state, language, pretext = '')
+    def send_message_for_state(uid, workflow, state, language, pretext = '', event = nil)
       team = Team.find(self.config['team_id'].to_i)
       message = self.get_message_for_state(workflow, state, language, uid).to_s
       message = UrlRewriter.shorten_and_utmize_urls(message, team.get_outgoing_urls_utm_code) if team.get_shorten_outgoing_urls
@@ -111,7 +111,7 @@ module SmoochMessages
           self.ask_for_language_confirmation(workflow, language, uid)
         else
           # On v2, when we go to the "main" state, we need to show the main menu
-          state == 'main' ? self.send_message_to_user_with_main_menu_appended(uid, text, workflow, language) : self.send_message_for_state_with_buttons(uid, text, workflow, state, language)
+          state == 'main' ? self.send_message_to_user_with_main_menu_appended(uid, text, workflow, language, nil, event) : self.send_message_for_state_with_buttons(uid, text, workflow, state, language)
         end
       else
         self.send_message_to_user(uid, text)
@@ -433,7 +433,7 @@ module SmoochMessages
       redis = Redis.new(REDIS_CONFIG)
       user_messages_count = redis.llen("smooch:bundle:#{uid}")
       message = self.get_custom_string(:timeout, language)
-      self.send_message_to_user(uid, message) if user_messages_count > 0 && sm.state.value != 'main'
+      self.send_message_to_user(uid, message, {}, false, true, 'timeout') if user_messages_count > 0 && sm.state.value != 'main'
       sm.reset
     end
 
@@ -449,7 +449,7 @@ module SmoochMessages
       Bot::Smooch.get_installation('team_bot_installation_id', tbi&.id) { |i| i.id == tbi&.id }
       date = I18n.l(Time.at(timestamp), locale: language, format: :short)
       message = self.format_template_message('custom_message', [date, message.to_s.gsub(/\s+/, ' ')], nil, message, language, nil, true) if platform == 'WhatsApp'
-      response = self.send_message_to_user(uid, message)
+      response = self.send_message_to_user(uid, message, {}, false, true, 'custom_message')
       success = (response.code.to_i < 400)
       success
     end

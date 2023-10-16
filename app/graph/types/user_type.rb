@@ -124,4 +124,11 @@ class UserType < DefaultObject
     # pms.reject { |pm| pm.is_finished? }
     pms
   end
+
+  field :feed_invitations, FeedInvitationType.connection_type, null: false
+
+  def feed_invitations
+    return FeedInvitation.none if object.email.blank?
+    FeedInvitation.where(email: object.email)
+  end
 end

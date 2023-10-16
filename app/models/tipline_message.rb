@@ -14,6 +14,18 @@ class TiplineMessage < ApplicationRecord
     end
   end
 
+  def media_url
+    payload = begin JSON.parse(self.payload).to_h rescue self.payload.to_h end
+    media_url = nil
+    if self.direction == 'incoming'
+      media_url = payload.dig('messages', 0, 'mediaUrl')
+    elsif self.direction == 'outgoing'
+      header = payload.dig('override', 'whatsapp', 'payload', 'interactive', 'header')
+      media_url = header[header['type']]['link'] unless header.nil?
+    end
+    media_url || payload['mediaUrl']
+  end
+
   class << self
     def from_smooch_payload(msg, payload, event = nil, language = nil)
       msg = msg.with_indifferent_access

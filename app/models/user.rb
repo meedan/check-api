@@ -26,6 +26,7 @@ class User < ApplicationRecord
   has_many :claim_descriptions
   has_many :fact_checks
   has_many :feeds
+  has_many :feed_invitations
 
   devise :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,

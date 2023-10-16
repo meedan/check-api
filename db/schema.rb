@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_10_08_074526) do
+ActiveRecord::Schema.define(version: 2023_10_15_203900) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -268,7 +268,7 @@ ActiveRecord::Schema.define(version: 2023_10_08_074526) do
     t.jsonb "value_json", default: "{}"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index "dynamic_annotation_fields_value(field_name, value)", name: "dynamic_annotation_fields_value", where: "((field_name)::text = ANY (ARRAY[('external_id'::character varying)::text, ('smooch_user_id'::character varying)::text, ('verification_status_status'::character varying)::text]))"
+    t.index "dynamic_annotation_fields_value(field_name, value)", name: "dynamic_annotation_fields_value", where: "((field_name)::text = ANY ((ARRAY['external_id'::character varying, 'smooch_user_id'::character varying, 'verification_status_status'::character varying])::text[]))"
     t.index ["annotation_id", "field_name"], name: "index_dynamic_annotation_fields_on_annotation_id_and_field_name"
     t.index ["annotation_id"], name: "index_dynamic_annotation_fields_on_annotation_id"
     t.index ["annotation_type"], name: "index_dynamic_annotation_fields_on_annotation_type"
@@ -295,6 +295,18 @@ ActiveRecord::Schema.define(version: 2023_10_08_074526) do
     t.index ["language"], name: "index_fact_checks_on_language"
     t.index ["signature"], name: "index_fact_checks_on_signature", unique: true
     t.index ["user_id"], name: "index_fact_checks_on_user_id"
+  end
+
+  create_table "feed_invitations", force: :cascade do |t|
+    t.string "email", null: false
+    t.integer "state", default: 0, null: false
+    t.bigint "feed_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["email", "feed_id"], name: "index_feed_invitations_on_email_and_feed_id", unique: true
+    t.index ["feed_id"], name: "index_feed_invitations_on_feed_id"
+    t.index ["user_id"], name: "index_feed_invitations_on_user_id"
   end
 
   create_table "feed_teams", force: :cascade do |t|
@@ -648,6 +660,7 @@ ActiveRecord::Schema.define(version: 2023_10_08_074526) do
     t.datetime "updated_at", null: false
     t.string "state"
     t.index ["external_id", "state"], name: "index_tipline_messages_on_external_id_and_state", unique: true
+    t.index ["external_id"], name: "index_tipline_messages_on_external_id"
     t.index ["team_id"], name: "index_tipline_messages_on_team_id"
     t.index ["uid"], name: "index_tipline_messages_on_uid"
   end
@@ -788,8 +801,7 @@ ActiveRecord::Schema.define(version: 2023_10_08_074526) do
   end
 
   create_table "versions", id: :serial, force: :cascade do |t|
-    t.string "item_type"
-    t.string "{:null=>false}"
+    t.string "item_type", null: false
     t.string "item_id", null: false
     t.string "event", null: false
     t.string "whodunnit"
@@ -812,6 +824,8 @@ ActiveRecord::Schema.define(version: 2023_10_08_074526) do
   add_foreign_key "claim_descriptions", "users"
   add_foreign_key "fact_checks", "claim_descriptions"
   add_foreign_key "fact_checks", "users"
+  add_foreign_key "feed_invitations", "feeds"
+  add_foreign_key "feed_invitations", "users"
   add_foreign_key "feed_teams", "feeds"
   add_foreign_key "feed_teams", "teams"
   add_foreign_key "project_media_requests", "project_medias"
