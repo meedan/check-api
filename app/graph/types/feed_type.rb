@@ -41,4 +41,7 @@ class FeedType < DefaultObject
   def requests(**args)
     object.search(args)
   end
+
+  field :feed_invitations, FeedInvitationType.connection_type, null: false
+  field :teams, TeamType.connection_type, null: false
 end

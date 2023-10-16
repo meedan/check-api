@@ -1100,4 +1100,8 @@ module SampleData
   def create_blocked_tipline_user(options = {})
     BlockedTiplineUser.create!({ uid: random_string }.merge(options))
   end
+
+  def create_feed_invitation(options = {})
+    FeedInvitation.create!({ email: random_email, feed: create_feed, user: create_user, state: :invited }.merge(options))
+  end
 end

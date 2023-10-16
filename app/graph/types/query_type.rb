@@ -214,6 +214,7 @@ class QueryType < BaseObject
     cluster
     feed
     request
+    feed_invitation
   ].each do |type|
     field type,
           "#{type.to_s.camelize}Type",
