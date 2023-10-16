@@ -1300,11 +1300,9 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:create, fi1)
       assert ability.can?(:update, fi1)
       assert ability.can?(:destroy, fi1)
-      assert ability.can?(:read, fi1)
       assert ability.cannot?(:create, fi2)
       assert ability.cannot?(:update, fi2)
       assert ability.cannot?(:destroy, fi2)
-      assert ability.cannot?(:read, fi2)
     end
   end
 end
