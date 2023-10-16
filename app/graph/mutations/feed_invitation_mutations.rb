@@ -15,7 +15,7 @@ module FeedInvitationMutations
 
     field :success, GraphQL::Types::Boolean, null: true
 
-    def resolve(id: nil, team_id: nil)
+    def resolve(id:, team_id:)
       success = false
       feed_invitation = FeedInvitation.find_if_can(id, context[:ability])
       if User.current && Team.current && User.current.team_ids.include?(team_id) && feed_invitation.email == User.current.email
@@ -25,13 +25,13 @@ module FeedInvitationMutations
       { success: success }
     end
   end
-  
+
   class Reject < Mutations::BaseMutation
     argument :id, GraphQL::Types::Int, required: true
 
     field :success, GraphQL::Types::Boolean, null: true
 
-    def resolve(id: nil)
+    def resolve(id:)
       success = false
       feed_invitation = FeedInvitation.find_if_can(id, context[:ability])
       if User.current && Team.current && feed_invitation.email == User.current.email && feed_invitation.state == 'invited'
