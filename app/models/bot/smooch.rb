@@ -399,7 +399,7 @@ class Bot::Smooch < BotUser
       end
     when 'main', 'secondary', 'subscription', 'search_result'
       unless self.process_menu_option(message, state, app_id)
-        self.send_message_for_state(uid, workflow, state, language, self.get_custom_string(:option_not_available, language))
+        self.send_message_for_state(uid, workflow, state, language, self.get_custom_string(:option_not_available, language), 'option_not_available')
       end
     when 'search'
       self.send_message_to_user(uid, self.get_message_for_state(workflow, state, language, uid))
@@ -710,7 +710,7 @@ class Bot::Smooch < BotUser
     self.send_message_to_user(message['authorId'], error_message)
   end
 
-  def self.send_message_to_user(uid, text, extra = {}, force = false, preview_url = true)
+  def self.send_message_to_user(uid, text, extra = {}, force = false, preview_url = true, event = nil)
     return if self.config['smooch_disabled'] && !force
     if RequestStore.store[:smooch_bot_provider] == 'TURN'
       response = self.turnio_send_message_to_user(uid, text, extra, force, preview_url)
@@ -719,22 +719,23 @@ class Bot::Smooch < BotUser
     else
       response = self.zendesk_send_message_to_user(uid, text, extra, force, preview_url)
     end
-    # store a TiplineMessage
+    # Store a TiplineMessage
     external_id = self.get_id_from_send_response(response)
     sent_at = DateTime.now
     payload_json = { text: text }.merge(extra).to_json
     team_id = self.config['team_id'].to_i
     platform = RequestStore.store[:smooch_bot_platform] || 'Unknown'
     language = self.get_user_language(uid)
-    self.delay.store_sent_tipline_message(uid, external_id, sent_at, payload_json, team_id, platform, language)
+    self.delay.store_sent_tipline_message(uid, external_id, sent_at, payload_json, team_id, platform, language, event)
     response
   end
 
-  def self.store_sent_tipline_message(uid, external_id, sent_at, payload_json, team_id, platform, language)
+  def self.store_sent_tipline_message(uid, external_id, sent_at, payload_json, team_id, platform, language, event = nil)
     payload = JSON.parse(payload_json)
     tm = TiplineMessage.new
     tm.uid = uid
     tm.state = 'sent'
+    tm.event = event
     tm.direction = :outgoing
     tm.language = language
     tm.platform = platform
@@ -976,10 +977,10 @@ class Bot::Smooch < BotUser
       end
       if report.report_design_field_value('use_text_message')
         workflow = self.get_workflow(lang)
-        last_smooch_response = self.send_final_messages_to_user(uid, report.report_design_text(lang), workflow, lang)
+        last_smooch_response = self.send_final_messages_to_user(uid, report.report_design_text(lang), workflow, lang, 1, true, 'report')
         Rails.logger.info "[Smooch Bot] Sent text report to user #{uid} for item with ID #{pm.id}, response was: #{last_smooch_response&.body}"
       elsif report.report_design_field_value('use_visual_card')
-        last_smooch_response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url })
+        last_smooch_response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url }, false, true, 'report')
         Rails.logger.info "[Smooch Bot] Sent report visual card to user #{uid} for item with ID #{pm.id}, response was: #{last_smooch_response&.body}"
       end
       self.save_smooch_response(last_smooch_response, parent, data['received'], fallback_template, lang)

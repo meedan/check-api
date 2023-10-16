@@ -17,7 +17,7 @@ module SmoochSearch
         end.uniq
         if results.empty?
           self.bundle_messages(uid, '', app_id, 'default_requests', nil, true)
-          self.send_final_message_to_user(uid, self.get_custom_string('search_no_results', language), workflow, language)
+          self.send_final_message_to_user(uid, self.get_custom_string('search_no_results', language), workflow, language, 'no_results')
         else
           self.send_search_results_to_user(uid, results, team_id, platform, app_id)
           # For WhatsApp, each search result goes with a button where the user can give feedback individually, so, reset the conversation right away
@@ -227,7 +227,7 @@ module SmoochSearch
       # Get reports languages
       reports_language = reports.map{ |r| r.report_design_field_value('language') }.uniq
       if team.get_languages.to_a.size > 1 && !reports_language.include?(language)
-        self.send_message_to_user(uid, self.get_string(:no_results_in_language, language).gsub('%{language}', CheckCldr.language_code_to_name(language, language)))
+        self.send_message_to_user(uid, self.get_string(:no_results_in_language, language).gsub('%{language}', CheckCldr.language_code_to_name(language, language)), {}, false, true, 'no_results')
         sleep 1
       end
       if platform == 'WhatsApp'
@@ -254,7 +254,7 @@ module SmoochSearch
           value: { project_media_id: report.annotated_id, keyword: 'search_result_is_relevant', search_id: search_id }.to_json,
           label: '👍'
         }]
-        self.send_message_to_user_with_buttons(uid, text || '-', options, image_url) # "text" is mandatory for WhatsApp interactive messages
+        self.send_message_to_user_with_buttons(uid, text || '-', options, image_url, 'search_result') # "text" is mandatory for WhatsApp interactive messages
         self.delay_for(15.minutes, { queue: 'smooch_priority' }).timeout_if_no_feedback_is_given_to_search_result(app_id, uid, search_id, report.annotated_id)
       end
     end
@@ -263,8 +263,8 @@ module SmoochSearch
       redis = Redis.new(REDIS_CONFIG)
       reports.each do |report|
         response = nil
-        response = self.send_message_to_user(uid, report.report_design_text) if report.report_design_field_value('use_text_message')
-        response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url }) if !report.report_design_field_value('use_text_message') && report.report_design_field_value('use_visual_card')
+        response = self.send_message_to_user(uid, report.report_design_text, {}, false, true, 'search_result') if report.report_design_field_value('use_text_message')
+        response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url }, false, true, 'search_result') if !report.report_design_field_value('use_text_message') && report.report_design_field_value('use_visual_card')
         id = self.get_id_from_send_response(response)
         redis.rpush("smooch:search:#{uid}", id) unless id.blank?
       end

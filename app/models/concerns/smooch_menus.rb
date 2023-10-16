@@ -8,7 +8,7 @@ module SmoochMenus
       self.config['smooch_version'] == 'v2'
     end
 
-    def send_message_to_user_with_main_menu_appended(uid, text, workflow, language, tbi_id = nil)
+    def send_message_to_user_with_main_menu_appended(uid, text, workflow, language, tbi_id = nil, event = nil)
       self.get_installation('team_bot_installation_id', tbi_id) { |i| i.id == tbi_id } if self.config.blank? && !tbi_id.nil?
       main = []
       counter = 1
@@ -114,7 +114,7 @@ module SmoochMenus
         fallback = [text]
       end
 
-      self.send_message_to_user(uid, fallback.join("\n"), extra)
+      self.send_message_to_user(uid, fallback.join("\n"), extra, false, true, event)
     end
 
     def adjust_language_options(rows, language, number_of_options)
@@ -166,7 +166,7 @@ module SmoochMenus
       label.to_s.truncate(truncate_at)
     end
 
-    def send_message_to_user_with_buttons(uid, text, options, image_url = nil)
+    def send_message_to_user_with_buttons(uid, text, options, image_url = nil, event = nil)
       buttons = []
       options.each_with_index do |option, i|
         buttons << {
@@ -203,7 +203,7 @@ module SmoochMenus
         }
       } unless image_url.blank?
       extra, fallback = self.format_fallback_text_menu_from_options(text, options, extra)
-      self.send_message_to_user(uid, fallback.join("\n"), extra)
+      self.send_message_to_user(uid, fallback.join("\n"), extra, false, true, event)
     end
 
     def send_message_to_user_with_single_section_menu(uid, text, options, menu_label)

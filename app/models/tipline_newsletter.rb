@@ -164,7 +164,7 @@ class TiplineNewsletter < ApplicationRecord
     message = self.build_content
     message = (self.team.get_shorten_outgoing_urls ? UrlRewriter.shorten_and_utmize_urls(message, self.team.get_outgoing_urls_utm_code) : message)
     params = (['image', 'audio', 'video'].include?(self.header_type) ? { 'type' => NON_WHATSAPP_HEADER_TYPE_MAPPING[self.header_type], 'mediaUrl' => CheckS3.rewrite_url(self.header_media_url) } : {})
-    [message, params]
+    [message, params, false, true, 'newsletter']
   end
 
   def self.content_name

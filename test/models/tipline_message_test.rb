@@ -198,4 +198,29 @@ class TiplineMessageTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should return media URL for tipline messages" do
+    url = random_url
+    payload = { 'mediaUrl' => url }
+    incoming_payload = { 'messages' => [{ 'mediaUrl' => url }] }
+    outgoing_payload = {
+      'override' => {
+        'whatsapp' => {
+          'payload' => {
+            'interactive' => {
+              'header' => {
+                'type' => 'image',
+                'image' => {
+                  'link' => url
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    assert_equal url, create_tipline_message(payload: payload).media_url
+    assert_equal url, create_tipline_message(direction: 'incoming', payload: incoming_payload).media_url
+    assert_equal url, create_tipline_message(direction: 'outgoing', payload: outgoing_payload).media_url
+  end
 end

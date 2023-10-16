@@ -69033,6 +69033,20 @@
               "deprecationReason": null
             },
             {
+              "name": "media_url",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "payload",
               "description": null,
               "args": [
