@@ -258,6 +258,13 @@ development: &default
   otel_traces_sampler:
   otel_custom_sampling_rate:
 
+  # Rate limit for tipline submissions, tipline users are blocked after reaching this limit
+  #
+  # OPTIONAL
+  # When not set, a default number will be used.
+  #
+  tipline_user_max_messages_per_day: 1500
+
 test:
   <<: *default
   checkdesk_base_url_private: http://api:3000
