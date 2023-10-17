@@ -6,11 +6,23 @@ class TiplineMessage < ApplicationRecord
   validates_presence_of :team, :uid, :platform, :language, :direction, :sent_at, :payload, :state
   validates_inclusion_of :state, in: ['sent', 'received', 'delivered']
 
+  after_commit :verify_user_rate_limit, on: :create
+
   def save_ignoring_duplicate!
     begin
       self.save!
     rescue ActiveRecord::RecordNotUnique
       Rails.logger.info("[Smooch Bot] Not storing tipline message because it already exists. ID: #{self.external_id}. State: #{self.state}.")
+    end
+  end
+
+  private
+
+  def verify_user_rate_limit
+    rate_limit = CheckConfig.get('tipline_user_max_messages_per_day', 1500, :integer)
+    # Block tipline user when they have sent more than X messages in 24 hours
+    if self.state == 'received' && TiplineMessage.where(uid: self.uid, created_at: Time.now.ago(1.day)..Time.now, state: 'received').count > rate_limit
+      Bot::Smooch.block_user(self.uid)
     end
   end
 
