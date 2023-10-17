@@ -211,7 +211,8 @@ class QueryType < BaseObject
   end
 
   def tipline_request(id:)
-    DynamicAnnotation::Field.find_by_id(id.to_i)
+    ability = context[:ability] || Ability.new
+    DynamicAnnotation::Field.find_by_id(id.to_i) if ability.can?(:find_by_json_fields, DynamicAnnotation::Field.new)
   end
 
   # Getters by ID
