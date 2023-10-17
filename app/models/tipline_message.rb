@@ -36,7 +36,7 @@ class TiplineMessage < ApplicationRecord
   def verify_user_rate_limit
     rate_limit = CheckConfig.get('tipline_user_max_messages_per_day', 1500, :integer)
     # Block tipline user when they have sent more than X messages in 24 hours
-    if self.state == 'received' && TiplineMessage.where(uid: self.uid, created_at: Time.now.ago(1.day)..Time.now, state: 'received').count > rate_limit 
+    if self.state == 'received' && TiplineMessage.where(uid: self.uid, created_at: Time.now.ago(1.day)..Time.now, state: 'received').count > rate_limit
       Bot::Smooch.block_user(self.uid)
     end
   end
