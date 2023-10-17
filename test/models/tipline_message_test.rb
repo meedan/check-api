@@ -198,4 +198,26 @@ class TiplineMessageTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should block user when rate limit is reached" do
+    uid = random_string
+    assert !Bot::Smooch.user_blocked?(uid)
+    stub_configs({ 'tipline_user_max_messages_per_day' => 2 }) do
+      # User sent a message
+      create_tipline_message uid: uid, state: 'received'
+      assert !Bot::Smooch.user_blocked?(uid)
+      # User sent a message
+      create_tipline_message uid: uid, state: 'received'
+      assert !Bot::Smooch.user_blocked?(uid)
+      # Another user sent a message
+      create_tipline_message state: 'received'
+      assert !Bot::Smooch.user_blocked?(uid)
+      # User received a message
+      create_tipline_message uid: uid, state: 'delivered'
+      assert !Bot::Smooch.user_blocked?(uid)
+      # User sent a message and is now over rate limit, so should be blocked
+      create_tipline_message uid: uid, state: 'received'
+      assert Bot::Smooch.user_blocked?(uid)
+    end
+  end
 end
