@@ -32,8 +32,11 @@ class TiplineMessage < ApplicationRecord
     if self.direction == 'incoming'
       media_url = payload.dig('messages', 0, 'mediaUrl')
     elsif self.direction == 'outgoing'
+      # WhatsApp Cloud API template
       header = payload.dig('override', 'whatsapp', 'payload', 'interactive', 'header')
       media_url = header[header['type']]['link'] unless header.nil?
+      # WhatsApp template on Smooch
+      media_url ||= payload.dig('text').to_s.match(/header_image=\[\[([^\]]+)\]\]/).to_a.last
     end
     media_url || payload['mediaUrl']
   end
