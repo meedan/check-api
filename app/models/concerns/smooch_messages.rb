@@ -420,7 +420,7 @@ module SmoochMessages
         self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
         message = parent.team.get_status_message_for_language(status, data['language'])
         unless message.blank?
-          response = self.send_message_to_user(data['authorId'], message)
+          response = self.send_message_to_user(data['authorId'], message, {}, false, true, 'status_change')
           self.save_smooch_response(response, parent, data['received'].to_i, 'fact_check_status', data['language'], { message: message })
           requestors_count += 1
         end

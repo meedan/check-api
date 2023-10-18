@@ -737,7 +737,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     }.to_json
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
-    Bot::Smooch.stubs(:send_message_to_user).with(uid, 'Custom').once
+    Bot::Smooch.stubs(:send_message_to_user).with(uid, 'Custom', {}, false, true, 'status_change').once
     s = pm.annotations.where(annotation_type: 'verification_status').last.load
     s.status = '2'
     s.save!
