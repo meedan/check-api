@@ -3,7 +3,7 @@ class TiplineMessagesPagination < GraphQL::Pagination::ArrayConnection
     encode(item.id.to_i.to_s)
   end
 
-   def load_nodes
+  def load_nodes
     @nodes ||= begin
       sliced_nodes = if before && after
         end_idx = index_from_cursor(before)
