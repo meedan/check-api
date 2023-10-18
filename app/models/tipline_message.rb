@@ -16,16 +16,6 @@ class TiplineMessage < ApplicationRecord
     end
   end
 
-  private
-
-  def verify_user_rate_limit
-    rate_limit = CheckConfig.get('tipline_user_max_messages_per_day', 1500, :integer)
-    # Block tipline user when they have sent more than X messages in 24 hours
-    if self.state == 'received' && TiplineMessage.where(uid: self.uid, created_at: Time.now.ago(1.day)..Time.now, state: 'received').count > rate_limit
-      Bot::Smooch.block_user(self.uid)
-    end
-  end
-
   def media_url
     payload = begin JSON.parse(self.payload).to_h rescue self.payload.to_h end
     media_url = nil
@@ -39,6 +29,16 @@ class TiplineMessage < ApplicationRecord
       media_url ||= payload.dig('text').to_s.match(/header_image=\[\[([^\]]+)\]\]/).to_a.last
     end
     media_url || payload['mediaUrl']
+  end
+
+  private
+
+  def verify_user_rate_limit
+    rate_limit = CheckConfig.get('tipline_user_max_messages_per_day', 1500, :integer)
+    # Block tipline user when they have sent more than X messages in 24 hours
+    if self.state == 'received' && TiplineMessage.where(uid: self.uid, created_at: Time.now.ago(1.day)..Time.now, state: 'received').count > rate_limit
+      Bot::Smooch.block_user(self.uid)
+    end
   end
 
   class << self
