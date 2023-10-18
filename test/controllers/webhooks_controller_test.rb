@@ -237,12 +237,12 @@ class WebhooksControllerTest < ActionController::TestCase
     CheckSentry.expects(:notify).never
     redis = Redis.new(REDIS_CONFIG)
     redis.del('foo')
-    payload = { 'action' => 'audio', 'data' => { 'requested' => { 'body' => { 'id' => 'foo', 'context' => { 'project_media_id' => random_number } } } } }
+    payload = { 'action' => 'audio', 'requested' => { 'id' => 'foo', 'context' => { 'project_media_id' => random_number } } }
     assert_nil redis.lpop('alegre:webhook:foo')
 
     post :index, params: { name: :alegre, token: CheckConfig.get('alegre_token') }.merge(payload)
     response = JSON.parse(redis.lpop('alegre:webhook:foo'))
-    assert_equal 'foo', response.dig('data', 'requested', 'body', 'id')
+    assert_equal 'foo', response.dig('requested', 'id')
 
     travel_to Time.now.since(2.days)
     assert_nil redis.lpop('alegre:webhook:foo')

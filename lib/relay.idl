@@ -13392,6 +13392,7 @@ TiplineMessage type
 """
 type TiplineMessage implements Node {
   created_at: String
+  cursor: String
   dbid: Int
   direction: String
   event: String
