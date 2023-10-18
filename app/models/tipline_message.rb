@@ -6,6 +6,8 @@ class TiplineMessage < ApplicationRecord
   validates_presence_of :team, :uid, :platform, :language, :direction, :sent_at, :payload, :state
   validates_inclusion_of :state, in: ['sent', 'received', 'delivered']
 
+  after_commit :verify_user_rate_limit, on: :create
+
   def save_ignoring_duplicate!
     begin
       self.save!
@@ -20,10 +22,23 @@ class TiplineMessage < ApplicationRecord
     if self.direction == 'incoming'
       media_url = payload.dig('messages', 0, 'mediaUrl')
     elsif self.direction == 'outgoing'
+      # WhatsApp Cloud API template
       header = payload.dig('override', 'whatsapp', 'payload', 'interactive', 'header')
       media_url = header[header['type']]['link'] unless header.nil?
+      # WhatsApp template on Smooch
+      media_url ||= payload.dig('text').to_s.match(/header_image=\[\[([^\]]+)\]\]/).to_a.last
     end
     media_url || payload['mediaUrl']
+  end
+
+  private
+
+  def verify_user_rate_limit
+    rate_limit = CheckConfig.get('tipline_user_max_messages_per_day', 1500, :integer)
+    # Block tipline user when they have sent more than X messages in 24 hours
+    if self.state == 'received' && TiplineMessage.where(uid: self.uid, created_at: Time.now.ago(1.day)..Time.now, state: 'received').count > rate_limit
+      Bot::Smooch.block_user(self.uid)
+    end
   end
 
   class << self
