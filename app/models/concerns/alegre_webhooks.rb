@@ -12,7 +12,7 @@ module AlegreWebhooks
 
     def webhook(request)
       begin
-        doc_id = request.params.dig('data', 'requested', 'body', 'id')
+        doc_id = request.params.dig('requested', 'id')
         raise 'Unexpected params format' if doc_id.blank?
         redis = Redis.new(REDIS_CONFIG)
         key = "alegre:webhook:#{doc_id}"
