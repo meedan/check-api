@@ -430,7 +430,7 @@ class GraphqlController9Test < ActionController::TestCase
     data = JSON.parse(@response.body)['data']['team']['tipline_messages']
     results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
     assert_equal 1, results.size
-    assert_equal tp3_uid.id, results[0]
+    assert_equal tp1_uid.id, results[0]
     page_info = data['pageInfo']
     assert page_info['hasNextPage']
 
@@ -452,25 +452,25 @@ class GraphqlController9Test < ActionController::TestCase
     data = JSON.parse(@response.body)['data']['team']['tipline_messages']
     results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
     assert_equal 1, results.size
-    assert_equal tp1_uid.id, results[0]
+    assert_equal tp3_uid.id, results[0]
     page_info = data['pageInfo']
     assert !page_info['hasNextPage']
     # paginate using specific message id
     tp4_uid = create_tipline_message team_id: t.id, uid: uid
-    query = 'query read { team(slug: "test") { tipline_messages(uid:"'+ uid +'") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid }, cursor } } } }'
+    tp5_uid = create_tipline_message team_id: t.id, uid: uid
+    tp6_uid = create_tipline_message team_id: t.id, uid: uid
+    query = 'query read { tipline_message(id: "' + tp4_uid.id.to_s + '") { cursor } }'
     post :create, params: { query: query }
     assert_response :success
-    data = JSON.parse(@response.body)['data']['team']['tipline_messages']
-    id_cursor = {}
-    data['edges'].to_a.each{ |e| id_cursor[e['node']['dbid']] = e['cursor'] }
-    # Start with tp4_uid message
-    query = 'query read { team(slug: "test") { tipline_messages(first: 1, after: "' + id_cursor[tp4_uid.id] + '", uid:"'+ uid +'") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
+    id_cursor = JSON.parse(@response.body)['data']['tipline_message']['cursor']
+    # Start with tp4_uid message and use after
+    query = 'query read { team(slug: "test") { tipline_messages(first: 1, after: "' + id_cursor + '", uid:"'+ uid +'") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
     post :create, params: { query: query }
     assert_response :success
     data = JSON.parse(@response.body)['data']['team']['tipline_messages']
     results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
     assert_equal 1, results.size
-    assert_equal tp3_uid.id, results[0]
+    assert_equal tp5_uid.id, results[0]
     page_info = data['pageInfo']
     assert page_info['hasNextPage']
     # Next page
@@ -480,7 +480,18 @@ class GraphqlController9Test < ActionController::TestCase
     data = JSON.parse(@response.body)['data']['team']['tipline_messages']
     results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
     assert_equal 1, results.size
-    assert_equal tp2_uid.id, results[0]
+    assert_equal tp6_uid.id, results[0]
+    page_info = data['pageInfo']
+    assert page_info['hasPreviousPage']
+    assert !page_info['hasNextPage']
+    # Start with tp4_uid message and use before
+    query = 'query read { team(slug: "test") { tipline_messages(last: 1, before: "' + id_cursor + '", uid:"'+ uid +'") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['team']['tipline_messages']
+    results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
+    assert_equal 1, results.size
+    assert_equal tp3_uid.id, results[0]
     page_info = data['pageInfo']
     assert page_info['hasNextPage']
   end
