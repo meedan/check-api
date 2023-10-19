@@ -529,4 +529,45 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
       assert_equal 2, pm.positive_tipline_search_results_count
     end
   end
+
+  test "should save report and report correction sent at " do
+    messages = [
+      {
+        '_id': random_string,
+        authorId: random_string,
+        type: 'text',
+        text: random_string
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    Bot::Smooch.run(payload)
+    sleep 1
+    pm = ProjectMedia.last
+    r = create_report(pm)
+    publish_report(pm, {}, r)
+    r = Dynamic.find(r.id)
+    r.set_fields = { state: 'paused' }.to_json
+    r.action = 'pause'
+    r.save!
+    r = Dynamic.find(r.id)
+    r.set_fields = { state: 'published' }.to_json
+    r.action = 'republish_and_resend'
+    r.save!
+    a = pm.annotations('smooch').last.load
+    smooch_data = a.get_field('smooch_data')
+    assert_not_nil smooch_data.smooch_report_sent_at
+    assert_not_nil smooch_data.smooch_report_correction_sent_at
+    assert_not_nil smooch_data.smooch_request_type
+  end
 end
