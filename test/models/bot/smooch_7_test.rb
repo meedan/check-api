@@ -568,5 +568,6 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     smooch_data = a.get_field('smooch_data')
     assert_not_nil smooch_data.smooch_report_sent_at
     assert_not_nil smooch_data.smooch_report_correction_sent_at
+    assert_not_nil smooch_data.smooch_request_type
   end
 end
