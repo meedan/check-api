@@ -193,7 +193,7 @@ class ProjectMediaType < DefaultObject
   end
 
   field :requests,
-        DynamicAnnotationFieldType.connection_type,
+        TiplineRequestType.connection_type,
         null: true
 
   def requests
