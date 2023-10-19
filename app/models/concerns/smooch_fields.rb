@@ -77,6 +77,12 @@ module SmoochFields
         end
       end
 
+      def smooch_request_type
+        Concurrent::Future.execute(executor: CheckGraphql::POOL) do
+          begin self.annotation.load.get_field_value('smooch_request_type') rescue nil end
+        end
+      end
+
       def smooch_user_request_language
         Concurrent::Future.execute(executor: CheckGraphql::POOL) do
           return '' unless self.field_name == 'smooch_data'

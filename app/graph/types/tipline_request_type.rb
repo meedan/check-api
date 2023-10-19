@@ -15,4 +15,5 @@ class TiplineRequestType < DefaultObject
   field :smooch_user_request_language, GraphQL::Types::String, null: true
   field :smooch_report_sent_at, GraphQL::Types::Int, null: true
   field :smooch_report_correction_sent_at, GraphQL::Types::Int, null: true
+  field :smooch_request_type, GraphQL::Types::String, null: true
 end

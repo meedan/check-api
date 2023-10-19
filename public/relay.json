@@ -61864,8 +61864,8 @@
               "deprecationReason": null
             },
             {
-              "name": "tipline_request",
-              "description": "Information about tipline request, given its id",
+              "name": "tipline_message",
+              "description": "Information about the tipline_message with given id",
               "args": [
                 {
                   "name": "id",
@@ -61875,7 +61875,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "SCALAR",
-                      "name": "String",
+                      "name": "ID",
                       "ofType": null
                     }
                   },
@@ -61886,7 +61886,7 @@
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "TiplineRequest",
+                "name": "TiplineMessage",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -71070,6 +71070,20 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "smooch_request_type",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
                 "ofType": null
               },
               "isDeprecated": false,

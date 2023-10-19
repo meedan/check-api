@@ -11753,9 +11753,9 @@ type Query {
   team(id: ID, random: String, slug: String): Team
 
   """
-  Information about tipline request, given its id
+  Information about the tipline_message with given id
   """
-  tipline_request(id: String!): TiplineRequest
+  tipline_message(id: ID!): TiplineMessage
 
   """
   Information about the user with given id
@@ -13532,6 +13532,7 @@ type TiplineRequest implements Node {
   smooch_report_received_at: Int
   smooch_report_sent_at: Int
   smooch_report_update_received_at: Int
+  smooch_request_type: String
   smooch_user_external_identifier: String
   smooch_user_request_language: String
   smooch_user_slack_channel_url: String
