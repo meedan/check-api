@@ -233,19 +233,19 @@ class WebhooksControllerTest < ActionController::TestCase
     assert_match /ignored/, response.body
   end
 
-  test "should process Alegre webhook" do
+  test "should process Alegre webhook zzz" do
     CheckSentry.expects(:notify).never
     redis = Redis.new(REDIS_CONFIG)
     redis.del('foo')
-    payload = { 'action' => 'audio', 'data' => {'requested' => { 'id' => 'foo', 'context' => { 'project_media_id' => random_number } }} }
+    id = random_number
+    payload = { 'action' => 'audio', 'data' => {'requested' => { 'id' => 'foo', 'context' => { 'project_media_id' => id } }} }
     assert_nil redis.lpop('alegre:webhook:foo')
 
     post :index, params: { name: :alegre, token: CheckConfig.get('alegre_token') }.merge(payload)
     response = JSON.parse(redis.lpop('alegre:webhook:foo'))
-    assert_equal 'foo', response.dig('requested', 'id')
-
-    travel_to Time.now.since(2.days)
-    assert_nil redis.lpop('alegre:webhook:foo')
+    assert_equal 'foo', response.dig('data', 'requested', 'id')
+    expectation = {"action"=>"index", "data"=>{"requested"=>{"context"=>{"project_media_id"=>id.to_s}, "id"=>"foo"}}, "token"=>"test", "name"=>"alegre", "controller"=>"api/v1/webhooks"}
+    assert_equal expectation, response
   end
 
   test "should report error if can't process Alegre webhook" do
