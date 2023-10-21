@@ -14,7 +14,7 @@ namespace :check do
       tb = BotUser.get_user('tagger') || BotUser.new
       tb.login = 'tagger'
       tb.name = 'Tagger (in beta)'
-      tb.set_description 'Automatically tags items based on similar items - this feature is in beta, please consult with the Meedan support team before enabling it.'
+      tb.set_description 'Automatically tags new items based on existing similar items. This feature is in beta, please consult with the Meedan support team before enabling it.'
       File.open(File.join(Rails.root, 'public', 'tagger.png')) do |f|
         tb.image = f
       end
