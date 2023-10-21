@@ -35,7 +35,7 @@ module SmoochFields
             case user[:platform]
             when 'whatsapp'
               user[:displayName]
-            when 'telegram'
+            when 'telegram', 'instagram'
               '@' + user[:raw][:username].to_s
             when 'messenger', 'viber', 'line'
               user[:externalId]
