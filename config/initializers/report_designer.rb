@@ -74,9 +74,10 @@ Dynamic.class_eval do
       twitter: 'Twitter: twitter.com/',
       telegram: 'Telegram: t.me/',
       viber: 'Viber: ',
-      line: 'LINE: '
+      line: 'LINE: ',
+      instagram: 'Instagram: instagram.com/'
     }
-    [:signature, :whatsapp, :facebook, :twitter, :telegram, :viber, :line].each do |field|
+    [:signature, :whatsapp, :facebook, :twitter, :telegram, :viber, :line, :instagram].each do |field|
       value = self.report_design_team_setting_value(field.to_s, language)
       footer << "#{prefixes[field]}#{value}" unless value.blank?
     end
@@ -126,6 +127,7 @@ Dynamic.class_eval do
     facebook = self.report_design_team_setting_value('facebook', language)
     twitter = self.report_design_team_setting_value('twitter', language)
     telegram = self.report_design_team_setting_value('telegram', language)
+    instagram = self.report_design_team_setting_value('instagram', language)
     {
       title: self.report_design_field_value('headline'),
       status: self.report_design_field_value('status_label'),
@@ -135,6 +137,7 @@ Dynamic.class_eval do
       facebook: facebook.blank? ? nil : "m.me/#{facebook}",
       twitter: twitter.blank? ? nil : "@#{twitter}",
       telegram: telegram.blank? ? nil : "t.me/#{telegram}",
+      instagram: instagram.blank? ? nil : "instagram.com/#{instagram}",
       viber: self.report_design_team_setting_value('viber', language),
       line: self.report_design_team_setting_value('line', language)
     }

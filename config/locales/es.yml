@@ -564,8 +564,8 @@ es:
   bot_request_url_invalid: El URL del bot es inválido
   smooch_facebook_success: |
       ¡Éxito!
-      Tu Tipline está ahora connectada a Facebook Messenger.
-      Cualquier mensaje recibido por esta Página de Facebook va a ser manejado por la Tipline.
+      Tu Tipline está ahora connectada.
+      Cualquier mensaje recibido va a ser manejado por la Tipline.
   smooch_twitter_success: |
       ¡Éxito!
       Tu Tipline está ahora connectada a Twitter.

@@ -10,7 +10,7 @@ class Bot::Smooch < BotUser
 
   MESSAGE_BOUNDARY = "\u2063"
 
-  SUPPORTED_INTEGRATION_NAMES = { 'whatsapp' => 'WhatsApp', 'messenger' => 'Facebook Messenger', 'twitter' => 'Twitter', 'telegram' => 'Telegram', 'viber' => 'Viber', 'line' => 'LINE' }
+  SUPPORTED_INTEGRATION_NAMES = { 'whatsapp' => 'WhatsApp', 'messenger' => 'Facebook Messenger', 'twitter' => 'Twitter', 'telegram' => 'Telegram', 'viber' => 'Viber', 'line' => 'LINE', 'instagram' => 'Instagram' }
   SUPPORTED_INTEGRATIONS = SUPPORTED_INTEGRATION_NAMES.keys
   SUPPORTED_TRIGGER_MAPPING = { 'message:appUser' => :incoming, 'message:delivery:channel' => :outgoing }
 

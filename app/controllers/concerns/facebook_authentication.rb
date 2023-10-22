@@ -5,7 +5,7 @@ module FacebookAuthentication
     # pages_manage_metadata is for Facebook API > 7
     # manage_pages is for Facebook API < 7
     # An error will be displayed for Facebook users that are admins of the Facebook app, but should be transparent for other users
-    request.env['omniauth.strategy'].options[:scope] = 'pages_manage_metadata,manage_pages,pages_messaging' if params[:context] == 'smooch'
+    request.env['omniauth.strategy'].options[:scope] = 'pages_manage_metadata,manage_pages,pages_messaging,instagram_basic,instagram_manage_messages' if params[:context] == 'smooch'
     prefix = facebook_context == 'smooch' ? 'smooch_' : ''
     request.env['omniauth.strategy'].options[:client_id] = CheckConfig.get("#{prefix}facebook_app_id")
     request.env['omniauth.strategy'].options[:client_secret] = CheckConfig.get("#{prefix}facebook_app_secret")
