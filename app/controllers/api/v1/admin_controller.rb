@@ -1,5 +1,5 @@
 class Api::V1::AdminController < Api::V1::BaseApiController
-  before_action :authenticate_from_token!, except: [:add_publisher_to_project, :save_twitter_credentials_for_smooch_bot, :save_facebook_credentials_for_smooch_bot]
+  before_action :authenticate_from_token!, except: [:add_publisher_to_project, :save_twitter_credentials_for_smooch_bot, :save_messenger_credentials_for_smooch_bot, :save_instagram_credentials_for_smooch_bot]
 
   # GET /api/admin/project/add_publisher?token=:project-token
   def add_publisher_to_project
@@ -51,8 +51,19 @@ class Api::V1::AdminController < Api::V1::BaseApiController
     render template: 'message', formats: :html, status: status
   end
 
-  # GET /api/admin/smooch_bot/:bot-installation-id/authorize/facebook?token=:bot-installation-token
-  def save_facebook_credentials_for_smooch_bot
+  # GET /api/admin/smooch_bot/:bot-installation-id/authorize/messenger?token=:bot-installation-token
+  def save_messenger_credentials_for_smooch_bot
+    self.save_facebook_credentials_for_smooch_bot('messenger')
+  end
+
+  # GET /api/admin/smooch_bot/:bot-installation-id/authorize/instagram?token=:bot-installation-token
+  def save_instagram_credentials_for_smooch_bot
+    self.save_facebook_credentials_for_smooch_bot('instagram')
+  end
+
+  private
+
+  def save_facebook_credentials_for_smooch_bot(platform) # "platform" is either "instagram" or "messenger"
     tbi = TeamBotInstallation.find(params[:id])
     auth = session['check.facebook.authdata']
     status = nil
@@ -68,7 +79,7 @@ class Api::V1::AdminController < Api::V1::BaseApiController
           'appSecret' => CheckConfig.get('smooch_facebook_app_secret'),
           'pageAccessToken' => pages[0]['access_token']
         }
-        tbi.smooch_add_integration('messenger', params)
+        tbi.smooch_add_integration(platform, params)
         @message = I18n.t(:smooch_facebook_success)
         status = 200
       end
