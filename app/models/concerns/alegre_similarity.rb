@@ -184,6 +184,7 @@ module AlegreSimilarity
           url: self.media_file_url(pm),
           context: self.get_context(pm),
           match_across_content_types: true,
+          requires_callback: true
         }
         self.request_api(
           'post',
