@@ -4,7 +4,7 @@ class Feed < ApplicationRecord
   check_settings
 
   has_many :requests
-  has_many :feed_teams
+  has_many :feed_teams, dependent: :destroy
   has_many :teams, through: :feed_teams
   has_many :feed_invitations
   belongs_to :user, optional: true
