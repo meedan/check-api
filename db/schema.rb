@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_10_15_203900) do
+ActiveRecord::Schema.define(version: 2023_10_23_002756) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -516,8 +516,11 @@ ActiveRecord::Schema.define(version: 2023_10_15_203900) do
     t.datetime "updated_at", null: false
     t.index "LEAST(source_id, target_id), GREATEST(source_id, target_id)", name: "relationships_least_greatest_idx", unique: true
     t.index ["relationship_type"], name: "index_relationships_on_relationship_type"
+    t.index ["source_id", "relationship_type"], name: "index_relationships_on_source_id_and_relationship_type"
     t.index ["source_id", "target_id", "relationship_type"], name: "relationship_index", unique: true
-    t.index ["target_id"], name: "index_relationships_on_target_id", unique: true
+    t.index ["source_id"], name: "index_relationships_on_source_id"
+    t.index ["target_id", "relationship_type"], name: "index_relationships_on_target_id_and_relationship_type"
+    t.index ["target_id"], name: "index_relationships_on_target_id"
   end
 
   create_table "requests", force: :cascade do |t|

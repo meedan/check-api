@@ -61,7 +61,9 @@ class CheckSearch
 
   def team_condition(team_id = nil)
     if feed_query?
-      FeedTeam.where(feed_id: @feed.id, team_id: Team.current&.id).last.shared ? @feed.team_ids : [0] # Invalidate the query if the current team is not sharing content
+      feed_teams = @options['feed_team_ids'].blank? ? @feed.team_ids : (@feed.team_ids & @options['feed_team_ids'])
+      is_shared = FeedTeam.where(feed_id: @feed.id, team_id: Team.current&.id, shared: true).last
+      is_shared ? feed_teams : [0] # Invalidate the query if the current team is not sharing content
     else
       team_id || Team.current&.id
     end
@@ -746,7 +748,7 @@ class CheckSearch
   def build_feed_conditions
     return {} unless feed_query?
     conditions = []
-    @feed.get_team_filters.each do |filters|
+    @feed.get_team_filters(@options['feed_team_ids']).each do |filters|
       team_id = filters['team_id'].to_i
       conditions << CheckSearch.new(filters.to_json, nil, team_id).medias_query
     end
