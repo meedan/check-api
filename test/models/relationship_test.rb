@@ -80,14 +80,15 @@ class RelationshipTest < ActiveSupport::TestCase
 
   test "should remove suggested relation when same items added as similar" do
     team = create_team
+    b = create_bot name: 'Alegre', login: 'alegre'
     s = create_project_media team: team
     t = create_project_media team: team
-    r = create_relationship source_id: s.id, target_id: t.id, relationship_type: Relationship.suggested_type
-    r2 = create_relationship source_id: s.id, target_id: t.id, relationship_type: Relationship.confirmed_type
+    r = create_relationship source_id: s.id, target_id: t.id, relationship_type: Relationship.suggested_type, user: b
+    r2 = create_relationship source_id: s.id, target_id: t.id, relationship_type: Relationship.confirmed_type, user: b
     assert_nil Relationship.where(id: r.id).last
     assert_not_nil Relationship.where(id: r2.id).last
     assert_raises ActiveRecord::RecordInvalid do
-      create_relationship source_id: s.id, target_id: t.id, relationship_type: Relationship.suggested_type
+      create_relationship source_id: s.id, target_id: t.id, relationship_type: Relationship.suggested_type, user: b
     end
   end
 
