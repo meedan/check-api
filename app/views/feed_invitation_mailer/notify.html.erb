@@ -37,7 +37,7 @@
                   <th class="col-1" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="600px" valign="top" align="<%= @direction[:align] %>">
                     <div class="notify-title__content" style="text-align:<%= @direction[:align] %>;">
                       <div class="h3 notify-title__proj" style="font-size: 21px; letter-spacing: -0.2px; line-height: 29px;">
-                        <%= I18n.t(:"devise.mailer.invitation_instructions.hello", email: @recipient %>
+                        <%= I18n.t(:"mails_notifications.feed_invitation.hello", email: @recipient) %>
                       </div>
                       <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
                         <tr>
@@ -45,7 +45,7 @@
                         </tr>
                       </table>
                       <div class="h1 notify-title__header" style="font-size: 40px; font-weight: bold; letter-spacing: -0.8px; line-height: 40px;">
-                        <%= @title %>
+                        <%= I18n.t("mails_notifications.invitation.title") %>
                       </div>
                       <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
                         <tr>
@@ -54,7 +54,7 @@
                       </table>
                       <div class="text-gray" style="color: #757575 !important;">
                         <div class="h3" style="font-size: 21px; letter-spacing: -0.2px; line-height: 30px;">
-                          Add mail copy here
+                          <%= raw I18n.t(:"mails_notifications.feed_invitation.body", name: @user.name, email: @user.email, feed: @feed.name) %>
                         </div>
                       </div>
                     </div>
@@ -78,7 +78,12 @@
                               <tr>
                                 <td style="border-collapse: collapse; padding-right: 14px;">
                                   <span class="span" style="font-size: 17px; font-weight: bold; line-height: 20px;">
-                                    accept_invitation_url
+                                    <%=
+                                      link_to(I18n.t('mails_notifications.feed_invitation.view_button'),
+                                         '#',
+                                          :style => "text-decoration: none !important;color: #fff !important;"
+                                        )
+                                    %>
                                   </span>
                                 </td>
                                 <td style="border-collapse: collapse;" align="right">
@@ -98,12 +103,17 @@
 
                       <div class="text-gray" style="color: #757575 !important;">
                         <div class="h3" style="font-size: 21px; letter-spacing: -0.2px; line-height: 30px;">
-                          due to date
+                          <% if @due_at %>
+                            <%= I18n.t("devise.mailer.invitation_instructions.accept_until", due_date: l(@due_at, format: :'devise.mailer.invitation_instructions.accept_until_format')) %>
+                            <br>
+                          <% end %>
+
+                          <%= t("devise.mailer.invitation_instructions.ignore") %>
+
                         </div>
                       </div>
 
                     </div>
-
                     <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
                       <tr>
                         <td style="border-collapse: collapse; font-size: 23px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
