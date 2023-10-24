@@ -13,10 +13,6 @@ class FeedTeam < ApplicationRecord
     self.send(:set_requests_filters, filters)
   end
 
-  def sharing_enabled?
-    self.shared
-  end
-
   def filters
     self.saved_search&.filters.to_h
   end

@@ -34,12 +34,12 @@ class Feed < ApplicationRecord
   end
 
   # Filters defined by each team
-  def get_team_filters
+  def get_team_filters(feed_team_ids = nil)
     filters = []
-    self.feed_teams.each do |ft|
-      if ft.sharing_enabled?
-        filters << ft.filters.to_h.reject{ |k, _v| PROHIBITED_FILTERS.include?(k.to_s) }.merge({ 'team_id' => ft.team_id })
-      end
+    conditions = { shared: true }
+    conditions[:team_id] = feed_team_ids unless feed_team_ids.blank?
+    self.feed_teams.where(conditions).find_each do |ft|
+      filters << ft.filters.to_h.reject{ |k, _v| PROHIBITED_FILTERS.include?(k.to_s) }.merge({ 'team_id' => ft.team_id })
     end
     filters
   end

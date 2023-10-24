@@ -264,5 +264,30 @@ class ElasticSearch9Test < ActionController::TestCase
     assert_equal [pm1.id, pm3.id, pm2.id], result.medias.map(&:id)
   end
 
+  test "should filter feed by organization" do
+    f = create_feed
+    t1 = create_team ; f.teams << t1
+    t2 = create_team ; f.teams << t2
+    t3 = create_team ; f.teams << t3
+    FeedTeam.update_all(shared: true)
+    pm1 = create_project_media team: t1, disable_es_callbacks: false
+    pm2 = create_project_media team: t2, disable_es_callbacks: false
+    pm3 = create_project_media team: t3, disable_es_callbacks: false
+    sleep 2
+    u = create_user
+    create_team_user team: t1, user: u, role: 'admin'
+    with_current_user_and_team(u, t1) do
+      query = { feed_id: f.id }
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm1.id, pm2.id, pm3.id], result.medias.map(&:id).sort
+      query[:feed_team_ids] = [t1.id, t3.id]
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm1.id, pm3.id], result.medias.map(&:id).sort
+      query[:feed_team_ids] = [t2.id]
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm2.id], result.medias.map(&:id)
+    end
+  end
+
   # Please add new tests to test/controllers/elastic_search_10_test.rb
 end
