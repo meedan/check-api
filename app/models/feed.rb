@@ -4,14 +4,13 @@ class Feed < ApplicationRecord
   check_settings
 
   has_many :requests
-  has_many :feed_teams
+  has_many :feed_teams, dependent: :destroy
   has_many :teams, through: :feed_teams
   has_many :feed_invitations
   belongs_to :user, optional: true
   belongs_to :saved_search, optional: true
   belongs_to :team, optional: true
 
-  before_destroy :delete_feed_teams
   before_validation :set_user_and_team, on: :create
   validates_presence_of :name
   validates_presence_of :licenses, if: proc { |feed| feed.discoverable }
@@ -165,9 +164,5 @@ class Feed < ApplicationRecord
 
   def create_feed_team
     FeedTeam.create!(feed: self, team: self.team, shared: true) unless self.team.nil?
-  end
-
-  def delete_feed_teams
-    self.feed_teams.destroy_all
   end
 end

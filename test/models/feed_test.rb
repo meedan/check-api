@@ -161,4 +161,20 @@ class FeedTest < ActiveSupport::TestCase
 
     CheckSearch.any_instance.unstub(:medias)
   end
+
+  test "should delete feed teams when feed is deleted" do
+    f = create_feed
+    f.teams << create_team
+    ft = create_feed_team team: create_team, feed: f
+    assert_no_difference 'Feed.count' do
+      assert_difference 'FeedTeam.count', -1 do
+        ft.destroy!
+      end
+    end
+    assert_difference 'Feed.count', -1 do
+      assert_difference 'FeedTeam.count', -1 do
+        f.destroy!
+      end
+    end
+  end
 end
