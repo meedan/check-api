@@ -63,4 +63,14 @@ class FeedInvitationTest < ActiveSupport::TestCase
     fi.reject!
     assert_equal 'rejected', fi.reload.state
   end
+
+  test "should send email after create feed invitation" do
+    u = create_user
+    f = create_feed
+    Sidekiq::Extensions::DelayedMailer.clear
+    Sidekiq::Testing.fake! do
+      FeedInvitation.create!({ email: random_email, feed: f, user: u, state: :invited })
+      assert_equal 1, Sidekiq::Extensions::DelayedMailer.jobs.size
+    end
+  end
 end
