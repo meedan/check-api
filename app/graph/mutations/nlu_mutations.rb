@@ -12,8 +12,11 @@ module NluMutations
         if User.current.is_admin
           nlu = SmoochNlu.new(Team.current.slug)
           nlu.enable!
-          nlu.add_keyword_to_menu_option(language, menu, menu_option_index, keyword) if toggle == :add
-          nlu.remove_keyword_from_menu_option(language, menu, menu_option_index, keyword) if toggle == :remove
+          if toggle == :add
+            nlu.add_keyword_to_menu_option(language, menu, menu_option_index, keyword)
+          elsif toggle == :remove
+            nlu.remove_keyword_from_menu_option(language, menu, menu_option_index, keyword)
+          end
           { success: true }
         else
           { success: false }
