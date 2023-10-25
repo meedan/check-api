@@ -808,4 +808,70 @@ class GraphqlController10Test < ActionController::TestCase
     assert_response :success
     assert !JSON.parse(@response.body)['data']['sendTiplineMessage']['success']
   end
+
+  test "should add NLU keyword to tipline menu option" do
+    SmoochNlu.any_instance.stubs(:enable!).once
+    SmoochNlu.any_instance.stubs(:add_keyword_to_menu_option).once
+    SmoochNlu.any_instance.stubs(:remove_keyword_from_menu_option).never
+    u = create_user is_admin: true
+    t = create_team
+    b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true
+    b.install_to!(t)
+    authenticate_with_user(u)
+
+    query = "mutation { addNluKeywordToTiplineMenu(input: { language: \"en\", menu: \"main\", menuOptionIndex: 0, keyword: \"Foo bar\" }) { success } }"
+    post :create, params: { query: query, team: t.slug }
+
+    assert_response :success
+    assert JSON.parse(@response.body)['data']['addNluKeywordToTiplineMenu']['success']
+  end
+
+  test "should remove NLU keyword from tipline menu option" do
+    SmoochNlu.any_instance.stubs(:enable!).once
+    SmoochNlu.any_instance.stubs(:add_keyword_to_menu_option).never
+    SmoochNlu.any_instance.stubs(:remove_keyword_from_menu_option).once
+    u = create_user is_admin: true
+    t = create_team
+    b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true
+    b.install_to!(t)
+    authenticate_with_user(u)
+
+    query = "mutation { removeNluKeywordFromTiplineMenu(input: { language: \"en\", menu: \"main\", menuOptionIndex: 0, keyword: \"Foo bar\" }) { success } }"
+    post :create, params: { query: query, team: t.slug }
+
+    assert_response :success
+    assert JSON.parse(@response.body)['data']['removeNluKeywordFromTiplineMenu']['success']
+  end
+
+  test "should not change tipline menu option NLU keywords if it's not a super-admin" do
+    SmoochNlu.any_instance.stubs(:enable!).never
+    SmoochNlu.any_instance.stubs(:add_keyword_to_menu_option).never
+    SmoochNlu.any_instance.stubs(:remove_keyword_from_menu_option).never
+    u = create_user is_admin: false
+    t = create_team
+    b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true
+    b.install_to!(t)
+    authenticate_with_user(u)
+
+    query = "mutation { addNluKeywordToTiplineMenu(input: { language: \"en\", menu: \"main\", menuOptionIndex: 0, keyword: \"Foo bar\" }) { success } }"
+    post :create, params: { query: query, team: t.slug }
+
+    assert_response :success
+    assert !JSON.parse(@response.body)['data']['addNluKeywordToTiplineMenu']['success']
+  end
+
+  test "should not change tipline menu option NLU keywords if tipline is not installed" do
+    SmoochNlu.any_instance.stubs(:enable!).never
+    SmoochNlu.any_instance.stubs(:add_keyword_to_menu_option).never
+    SmoochNlu.any_instance.stubs(:remove_keyword_from_menu_option).never
+    u = create_user is_admin: true
+    t = create_team
+    authenticate_with_user(u)
+
+    query = "mutation { addNluKeywordToTiplineMenu(input: { language: \"en\", menu: \"main\", menuOptionIndex: 0, keyword: \"Foo bar\" }) { success } }"
+    post :create, params: { query: query, team: t.slug }
+
+    assert_response :success
+    assert !JSON.parse(@response.body)['data']['addNluKeywordToTiplineMenu']['success']
+  end
 end
