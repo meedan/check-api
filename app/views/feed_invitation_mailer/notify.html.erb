@@ -54,7 +54,10 @@
                       </table>
                       <div class="text-gray" style="color: #757575 !important;">
                         <div class="h3" style="font-size: 21px; letter-spacing: -0.2px; line-height: 30px;">
-                          <%= raw I18n.t(:"mails_notifications.feed_invitation.body", name: @user.name, email: @user.email, feed: @feed.name) %>
+                          <%= I18n.t(:"mails_notifications.feed_invitation.body", name: @user.name, email: @user.email) %>
+                        </div>
+                        <div class="p" style="font-size: 21px; letter-spacing: -0.2px; line-height: 30px;">
+                          <strong> "<%= @feed.name %>" </strong>
                         </div>
                       </div>
                     </div>

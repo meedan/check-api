@@ -463,7 +463,7 @@ en:
     feed_invitation:
       subject: "%{user} invited your organization to contribute to %{feed}"
       hello: Hello %{email}
-      body: "%{name}, %{email} has invited your organization to contribute to a Check Shared Feed <strong> %{feed} <strong>"
+      body: "%{name}, %{email} has invited your organization to contribute to a Check Shared Feed "
       view_button: View invitation
   mail_security:
     device_subject: 'Security alert: New login to %{app_name} from %{browser} on %{platform}'

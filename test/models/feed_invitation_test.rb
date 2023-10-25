@@ -68,8 +68,9 @@ class FeedInvitationTest < ActiveSupport::TestCase
     u = create_user
     f = create_feed
     Sidekiq::Extensions::DelayedMailer.clear
-    assert_difference 'Sidekiq::Extensions::DelayedMailer.jobs.size', 1 do
+    Sidekiq::Testing.fake! do
       FeedInvitation.create!({ email: random_email, feed: f, user: u, state: :invited })
+      assert_equal 1, Sidekiq::Extensions::DelayedMailer.jobs.size
     end
   end
 end
