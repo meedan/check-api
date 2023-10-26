@@ -30,6 +30,8 @@ class ApplicationMailer < ActionMailer::Base
     return if options[:to].blank?
     options[:to] = [options[:to]].flatten.collect{ |to| to.gsub(/[\u200B-\u200D\uFEFF]/, '') }
     @direction = ApplicationMailer.set_template_direction
+    attachments.inline['checklogo.png'] = File.read('public/images/checklogo.png')
+    @logo_url = attachments['checklogo.png'].url
     super(options)
   end
 
