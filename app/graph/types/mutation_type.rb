@@ -151,4 +151,7 @@ class MutationType < BaseObject
   field :destroyTiplineResource, mutation: TiplineResourceMutations::Destroy
 
   field :sendTiplineMessage, mutation: TiplineMessageMutations::Send
+
+  field :addNluKeywordToTiplineMenu, mutation: NluMutations::AddKeywordToTiplineMenu
+  field :removeNluKeywordFromTiplineMenu, mutation: NluMutations::RemoveKeywordFromTiplineMenu
 end
