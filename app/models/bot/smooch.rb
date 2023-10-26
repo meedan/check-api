@@ -1075,7 +1075,7 @@ class Bot::Smooch < BotUser
     uid = message['authorId']
     time = Time.now.to_f
     Rails.cache.write("smooch:last_message_from_user:#{uid}", time)
-    self.delay_for(15.minutes, { queue: 'smooch' }).timeout_smooch_menu(time, message, app_id, RequestStore.store[:smooch_bot_provider])
+    self.delay_for(5.minutes, { queue: 'smooch' }).timeout_smooch_menu(time, message, app_id, RequestStore.store[:smooch_bot_provider])
   end
 
   def self.timeout_smooch_menu(time, message, app_id, provider)

@@ -247,15 +247,16 @@ module SmoochSearch
       # Expires after the time to give feedback is expired
       Rails.cache.write("smooch:user_search_bundle:#{uid}:#{search_id}", self.list_of_bundled_messages_from_user(uid), expires_in: 20.minutes)
       self.clear_user_bundled_messages(uid)
-      reports.each do |report|
+      reports.each_with_index do |report, i|
         text = report.report_design_text if report.report_design_field_value('use_text_message')
         image_url = report.report_design_image_url if report.report_design_field_value('use_visual_card')
         options = [{
-          value: { project_media_id: report.annotated_id, keyword: 'search_result_is_relevant', search_id: search_id }.to_json,
+          value: { project_media_id: report.annotated_id, keyword: 'search_result_is_relevant', search_id: search_id, index: i }.to_json,
           label: '👍'
         }]
         self.send_message_to_user_with_buttons(uid, text || '-', options, image_url, 'search_result') # "text" is mandatory for WhatsApp interactive messages
-        self.delay_for(15.minutes, { queue: 'smooch_priority' }).timeout_if_no_feedback_is_given_to_search_result(app_id, uid, search_id, report.annotated_id)
+        # Schedule each timeout with some interval between them just to avoid race conditions that could create duplicate media
+        self.delay_for((5 + i).minutes, { queue: 'smooch_priority' }).timeout_if_no_feedback_is_given_to_search_result(app_id, uid, search_id, report.annotated_id)
       end
     end
 
@@ -313,8 +314,10 @@ module SmoochSearch
       result = ProjectMedia.find(payload['project_media_id'])
       bundle = Rails.cache.read("smooch:user_search_bundle:#{uid}:#{payload['search_id']}").to_a
       unless bundle.empty?
+        # Give some interval just to avoid race conditions if the user gives feedback too fast
+        interval = payload['index'].to_i * 10
         Rails.cache.write("smooch:user_search_bundle:#{uid}:#{payload['search_id']}:#{result.id}", Time.now.to_i) # Store that the user has given feedback to this search result
-        self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'relevant_search_result_requests', [result], true, bundle)
+        self.delay_for((interval + 1).seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'relevant_search_result_requests', [result], true, bundle)
         self.send_final_message_to_user(uid, self.get_custom_string('search_result_is_relevant', language), workflow, language)
       end
     end
