@@ -13,7 +13,7 @@ module SmoochNluMenus
     update_menu_option_keywords(language, menu, menu_option_index, keyword, 'remove')
   end
 
-  def list_menu_keywords(languages = nil, menus = nil)
+  def list_menu_keywords(languages = nil, menus = nil, include_empty = true)
     if languages.nil?
       languages = @smooch_bot_installation.get_smooch_workflows.map { |w| w['smooch_workflow_language'] }
     elsif languages.is_a? String
@@ -33,12 +33,13 @@ module SmoochNluMenus
         output[language][menu] = []
         i = 0
         workflow.fetch("smooch_state_#{menu}",{}).fetch('smooch_menu_options', []).each do |option|
+          keywords = option.dig('smooch_menu_option_nlu_keywords').to_a
           output[language][menu] << {
             'index' => i,
             'title' => option.dig('smooch_menu_option_label'),
-            'keywords' => option.dig('smooch_menu_option_nlu_keywords').to_a,
+            'keywords' => keywords,
             'id' => option.dig('smooch_menu_option_id'),
-          }
+          } if include_empty || !keywords.blank?
           i += 1
         end
       end
