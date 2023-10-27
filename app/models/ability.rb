@@ -85,6 +85,9 @@ class Ability
     end
     can [:create, :update, :read, :destroy], [Account, Source, TiplineNewsletter, TiplineResource, Feed, FeedTeam], :team_id => @context_team.id
     can [:create, :update, :destroy], FeedInvitation, { feed: { team_id: @context_team.id } }
+    can :destroy, FeedTeam do |obj|
+      obj.team.id == @context_team.id || obj.feed.team.id == @context_team.id
+    end
     can [:cud], AccountSource, source: { team: { team_users: { team_id: @context_team.id }}}
     %w(annotation comment dynamic task tag).each do |annotation_type|
       can [:cud], annotation_type.classify.constantize do |obj|
