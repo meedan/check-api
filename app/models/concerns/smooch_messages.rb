@@ -344,7 +344,7 @@ module SmoochMessages
         message['archived'] = (request_type == 'relevant_search_result_requests' ? self.default_archived_flag : CheckArchivedFlags::FlagCodes::UNCONFIRMED)
         annotated = self.create_project_media_from_message(message)
         if annotated != annotated_obj && annotated.is_a?(ProjectMedia)
-          Relationship.create!(relationship_type: Relationship.suggested_type, source: annotated_obj, target: annotated, user: BotUser.smooch_user)
+          Relationship.create(relationship_type: Relationship.suggested_type, source: annotated_obj, target: annotated, user: BotUser.smooch_user)
         end
       end
 
