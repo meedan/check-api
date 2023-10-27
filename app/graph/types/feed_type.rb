@@ -44,4 +44,5 @@ class FeedType < DefaultObject
 
   field :feed_invitations, FeedInvitationType.connection_type, null: false
   field :teams, TeamType.connection_type, null: false
+  field :feed_teams, FeedTeamType.connection_type, null: false
 end
