@@ -14,7 +14,7 @@ module SmoochResources
           type = 'video' if type == 'audio' # Audio gets converted to video with a cover
           type = 'file' if type == 'video' && RequestStore.store[:smooch_bot_provider] == 'ZENDESK' # Smooch doesn't support video
           self.send_message_to_user(uid, message, { 'type' => type, 'mediaUrl' => CheckS3.rewrite_url(resource.header_media_url) }, false, true, 'resource')
-          sleep 2 # Wait a couple of seconds before sending the main menu
+          sleep 3 # Wait a few seconds before sending the main menu
           self.send_message_for_state(uid, workflow, 'main', language)
         else
           preview_url = (resource.header_type == 'link_preview')
