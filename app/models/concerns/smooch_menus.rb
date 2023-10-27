@@ -303,7 +303,7 @@ module SmoochMenus
         text = self.get_custom_string('smooch_message_smooch_bot_greetings', workflow['smooch_workflow_language'])
         image = workflow['smooch_greeting_image'] if workflow['smooch_greeting_image'] =~ /^https?:\/\//
         image.blank? || image == 'none' ? self.send_message_to_user(uid, text) : self.send_message_to_user(uid, text, { 'type' => 'image', 'mediaUrl' => image })
-        sleep 2 # Give it some time, so the main menu message is sent after the greetings
+        sleep 3 # Give it some time, so the main menu message is sent after the greetings
       end
     end
   end
