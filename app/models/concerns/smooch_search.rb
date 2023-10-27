@@ -256,7 +256,7 @@ module SmoochSearch
         }]
         self.send_message_to_user_with_buttons(uid, text || '-', options, image_url, 'search_result') # "text" is mandatory for WhatsApp interactive messages
         # Schedule each timeout with some interval between them just to avoid race conditions that could create duplicate media
-        self.delay_for((5 + i).minutes, { queue: 'smooch_priority' }).timeout_if_no_feedback_is_given_to_search_result(app_id, uid, search_id, report.annotated_id)
+        self.delay_for((15 + i).minutes, { queue: 'smooch_priority' }).timeout_if_no_feedback_is_given_to_search_result(app_id, uid, search_id, report.annotated_id)
       end
     end
 
