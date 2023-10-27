@@ -2,9 +2,12 @@ require_relative '../test_helper'
 
 class LoginActivityTest < ActiveSupport::TestCase
   def setup
-    super
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
+    WebMock.stub_request(:get, /ipinfo\.io/).to_return(body: { country: 'US', city: 'San Francisco' }.to_json, status: 200)
+  end
+
+  def teardown
   end
   
   test "should create login activity" do

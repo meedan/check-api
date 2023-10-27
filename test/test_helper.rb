@@ -852,8 +852,7 @@ class ActiveSupport::TestCase
       'Request Type' => ['Text', true],
       'Resource Id' => ['Text', true],
       'Report correction sent at' => ['Timestamp', true],
-      'Report sent at' => ['Timestamp', true],
-      'Message Id' => ['Text', false]
+      'Report sent at' => ['Timestamp', true]
     })
     create_annotation_type_and_fields('Smooch Response', { 'Data' => ['JSON', true] })
     create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
