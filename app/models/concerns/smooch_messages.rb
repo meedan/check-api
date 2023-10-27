@@ -411,7 +411,7 @@ module SmoochMessages
       begin
         a.save!
       rescue ActiveRecord::RecordNotUnique
-        # Don't save a duplicate request
+        Rails.logger.info('[Smooch Bot] Not storing tipline request because it already exists.')
       end
       User.current = current_user
     end
