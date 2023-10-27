@@ -570,4 +570,15 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     assert_not_nil smooch_data.smooch_report_correction_sent_at
     assert_not_nil smooch_data.smooch_request_type
   end
+
+  test "should not store duplicated Smooch requests" do
+    pm = create_project_media
+    fields = { 'smooch_message_id' => random_string, 'smooch_data' => '{}' }
+    assert_difference 'Annotation.count' do
+      Bot::Smooch.create_smooch_annotations(pm, nil, fields)
+    end
+    assert_no_difference 'Annotation.count' do
+      Bot::Smooch.create_smooch_annotations(pm, nil, fields)
+    end
+  end
 end
