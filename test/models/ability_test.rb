@@ -1305,4 +1305,34 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:destroy, fi2)
     end
   end
+
+  test "permissions for feed team" do
+    t1 = create_team
+    t2 = create_team
+    t3 = create_team
+    u1 = create_user
+    u2 = create_user
+    u3 = create_user
+    create_team_user user: u1, team: t1, role: 'admin'
+    create_team_user user: u2, team: t2, role: 'admin'
+    create_team_user user: u3, team: t3, role: 'admin'
+    f = create_feed team: t1
+    ft2 = create_feed_team feed: f, team: t2
+    ft3 = create_feed_team feed: f, team: t3
+    with_current_user_and_team(u1, t1) do
+      ability = Ability.new
+      assert ability.can?(:destroy, ft2)
+      assert ability.can?(:destroy, ft3)
+    end
+    with_current_user_and_team(u2, t2) do
+      ability = Ability.new
+      assert ability.can?(:destroy, ft2)
+      assert ability.cannot?(:destroy, ft3)
+    end
+    with_current_user_and_team(u3, t3) do
+      ability = Ability.new
+      assert ability.cannot?(:destroy, ft2)
+      assert ability.can?(:destroy, ft3)
+    end
+  end
 end

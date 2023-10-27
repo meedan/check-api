@@ -293,6 +293,7 @@ class TeamType < DefaultObject
   field :saved_searches, SavedSearchType.connection_type, null: true
   field :project_groups, ProjectGroupType.connection_type, null: true
   field :feeds, FeedType.connection_type, null: true
+  field :feed_teams, FeedTeamType.connection_type, null: false
   field :tipline_newsletters, TiplineNewsletterType.connection_type, null: true
   field :tipline_resources, TiplineResourceType.connection_type, null: true
 

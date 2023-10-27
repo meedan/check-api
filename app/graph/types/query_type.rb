@@ -215,6 +215,7 @@ class QueryType < BaseObject
     feed
     request
     feed_invitation
+    feed_team
     tipline_message
   ].each do |type|
     field type,
