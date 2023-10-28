@@ -286,7 +286,7 @@ module SmoochMessages
       if ['timeout_requests', 'menu_options_requests', 'resource_requests', 'relevant_search_result_requests', 'timeout_search_requests'].include?(type)
         key = "smooch:banned:#{bundle['authorId']}"
         if Rails.cache.read(key).nil?
-          [annotated].flatten.uniq.each { |a| self.save_message_later(bundle, app_id, type, a) }
+          [annotated].flatten.uniq.each_with_index { |a, i| self.save_message_later(bundle, app_id, type, a, i * 10) }
         end
       end
     end
@@ -317,12 +317,12 @@ module SmoochMessages
       ret
     end
 
-    def save_message_later(message, app_id, request_type = 'default_requests', annotated = nil)
+    def save_message_later(message, app_id, request_type = 'default_requests', annotated = nil, interval = 0)
       mapping = { 'siege' => 'siege' }
       queue = RequestStore.store[:smooch_bot_queue].to_s
       queue = queue.blank? ? 'smooch' : (mapping[queue] || 'smooch')
       type = (message['type'] == 'text' && !message['text'][/https?:\/\/[^\s]+/, 0].blank?) ? 'link' : message['type']
-      SmoochWorker.set(queue: queue).perform_in(1.second, message.to_json, type, app_id, request_type, YAML.dump(annotated))
+      SmoochWorker.set(queue: queue).perform_in(1.second + interval.seconds, message.to_json, type, app_id, request_type, YAML.dump(annotated))
     end
 
     def default_archived_flag
@@ -344,7 +344,7 @@ module SmoochMessages
         message['archived'] = (request_type == 'relevant_search_result_requests' ? self.default_archived_flag : CheckArchivedFlags::FlagCodes::UNCONFIRMED)
         annotated = self.create_project_media_from_message(message)
         if annotated != annotated_obj && annotated.is_a?(ProjectMedia)
-          Relationship.create!(relationship_type: Relationship.suggested_type, source: annotated_obj, target: annotated, user: BotUser.smooch_user)
+          Relationship.create(relationship_type: Relationship.suggested_type, source: annotated_obj, target: annotated, user: BotUser.smooch_user)
         end
       end
 
@@ -370,8 +370,9 @@ module SmoochMessages
       fields = { smooch_data: message.merge({ app_id: app_id }).to_json }
       result = self.smooch_api_get_messages(app_id, message['authorId'])
       fields[:smooch_conversation_id] = result.conversation.id unless result.nil? || result.conversation.nil?
+      fields[:smooch_message_id] = message['_id']
       self.create_smooch_annotations(annotated, author, fields)
-      # update channel values for ProjectMedia items
+      # Update channel values for ProjectMedia items
       if annotated.class.name == 'ProjectMedia'
         channel_value = self.get_smooch_channel(message)
         unless channel_value.blank?
@@ -407,7 +408,11 @@ module SmoochMessages
       a.skip_notifications = true
       a.disable_es_callbacks = Rails.env.to_s == 'test'
       a.set_fields = fields.to_json
-      a.save!
+      begin
+        a.save!
+      rescue ActiveRecord::RecordNotUnique
+        Rails.logger.info('[Smooch Bot] Not storing tipline request because it already exists.')
+      end
       User.current = current_user
     end
 

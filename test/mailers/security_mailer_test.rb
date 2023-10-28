@@ -1,6 +1,13 @@
 require_relative '../test_helper'
 
 class SecurityMailerTest < ActionMailer::TestCase
+  def setup
+    WebMock.stub_request(:get, /ipinfo\.io/).to_return(body: { country: 'US', city: 'San Francisco' }.to_json, status: 200)
+  end
+
+  def teardown
+  end
+
   test "should send security notification" do
     user = create_user
     la = create_login_activity user: user, success: true
