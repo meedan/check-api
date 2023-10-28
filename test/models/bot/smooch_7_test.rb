@@ -471,43 +471,47 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
       pm = create_project_media team: @team, quote: text, disable_es_callbacks: false
       text2 = random_string
       pm2 = create_project_media team: @team, quote: text2, disable_es_callbacks: false
-      message = {
-        type: 'text',
-        text: text,
-        role: 'appUser',
-        received: 1573082583.219,
-        name: random_string,
-        authorId: random_string,
-        '_id': random_string,
-        source: {
-          originalMessageId: random_string,
-          originalMessageTimestamp: 1573082582,
-          type: 'whatsapp',
-          integrationId: random_string
-        },
-      }
-      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'relevant_search_result_requests', pm)
-      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'relevant_search_result_requests', pm)
-      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'timeout_search_requests', pm)
-      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'irrelevant_search_result_requests')
-      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'irrelevant_search_result_requests')
-       message = {
-        type: 'text',
-        text: text2,
-        role: 'appUser',
-        received: 1573082583.219,
-        name: random_string,
-        authorId: random_string,
-        '_id': random_string,
-        source: {
-          originalMessageId: random_string,
-          originalMessageTimestamp: 1573082582,
-          type: 'whatsapp',
-          integrationId: random_string
-        },
-      }
-      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'relevant_search_result_requests', pm2)
-      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'irrelevant_search_result_requests')
+      message = lambda do
+        {
+          type: 'text',
+          text: text,
+          role: 'appUser',
+          received: 1573082583.219,
+          name: random_string,
+          authorId: random_string,
+          '_id': random_string,
+          source: {
+            originalMessageId: random_string,
+            originalMessageTimestamp: 1573082582,
+            type: 'whatsapp',
+            integrationId: random_string
+          }
+        }
+      end
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'timeout_search_requests', pm)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests')
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests')
+      message = lambda do
+        {
+          type: 'text',
+          text: text2,
+          role: 'appUser',
+          received: 1573082583.219,
+          name: random_string,
+          authorId: random_string,
+          '_id': random_string,
+          source: {
+            originalMessageId: random_string,
+            originalMessageTimestamp: 1573082582,
+            type: 'whatsapp',
+            integrationId: random_string
+          },
+        }
+      end
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm2)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests')
       # Verify cached field
       assert_equal 5, pm.tipline_search_results_count
       assert_equal 2, pm.positive_tipline_search_results_count
