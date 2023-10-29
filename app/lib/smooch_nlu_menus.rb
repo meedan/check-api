@@ -88,8 +88,7 @@ module SmoochNluMenus
     def process_menu_options(uid, options, message, language, workflow, app_id)
 
       if options.size == 1
-        option = options.first
-        Bot::Smooch.process_menu_option_value(option['smooch_menu_option_value'], option, message, language, workflow, app_id)
+        Bot::Smooch.process_menu_option_value(options.first['smooch_menu_option_value'], options.first, message, language, workflow, app_id)
       # Disambiguation
       else
         buttons = options.collect do |option|
