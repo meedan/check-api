@@ -112,7 +112,7 @@ module AnnotationBase
             annotated.save!(validate: false)
           end
         elsif annotated.is_a?(ProjectMedia)
-          if ['report_design', 'tag', 'archiver', 'language'].include?(self.annotation_type)
+          if ['report_design', 'tag'].include?(self.annotation_type)
             self.update_recent_activity(annotated)
           end
         end
