@@ -383,11 +383,6 @@ class Bot::Smooch < BotUser
       return true
     end
 
-    if self.clicked_on_search_result_button?(message)
-      self.search_result_button_click_callback(message, uid, app_id, workflow, language)
-      return true
-    end
-
     case state
     when 'waiting_for_message'
       self.bundle_message(message)
