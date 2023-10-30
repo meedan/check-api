@@ -36,7 +36,7 @@ module TiplineResourceNlu
       context = {
         context: ALEGRE_CONTEXT_KEY_RESOURCE
       }
-      matches = SmoochNlu.alegre_matches_from_message(message, language, context, 'resource_id')
+      matches = SmoochNlu.alegre_matches_from_message(message, language, context, 'resource_id').collect{ |m| m['key'] }
       # Select the top resource that exists
       resource_id = matches.find { |id| TiplineResource.where(id: id).exists? }
       Rails.logger.info("[Smooch NLU] [Resource From Message] Resource ID: #{resource_id} | Message: #{message}")
