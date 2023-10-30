@@ -573,9 +573,9 @@ class Bot::Smooch < BotUser
     end
     # ...if nothing is matched, try using the NLU feature
     if state != 'query'
-      option = SmoochNlu.menu_option_from_message(typed, language, options)
-      unless option.nil?
-        self.process_menu_option_value(option['smooch_menu_option_value'], option, message, language, workflow, app_id)
+      options = SmoochNlu.menu_options_from_message(typed, language, options)
+      unless options.blank?
+        SmoochNlu.process_menu_options(uid, options, message, language, workflow, app_id)
         return true
       end
       resource = TiplineResource.resource_from_message(typed, language)
