@@ -110,7 +110,7 @@ class SmoochNluTest < ActiveSupport::TestCase
     team = create_team_with_smooch_bot_installed
     SmoochNlu.new(team.slug).disable!
     Bot::Smooch.get_installation('smooch_id', 'test')
-    assert_nil SmoochNlu.menu_option_from_message('I want to subscribe to the newsletter', 'en', @menu_options)
+    assert_equal [], SmoochNlu.menu_options_from_message('I want to subscribe to the newsletter', 'en', @menu_options)
   end
 
   test 'should return a menu option if NLU is enabled' do
@@ -120,6 +120,6 @@ class SmoochNluTest < ActiveSupport::TestCase
     team = create_team_with_smooch_bot_installed
     SmoochNlu.new(team.slug).enable!
     Bot::Smooch.get_installation('smooch_id', 'test')
-    assert_not_nil SmoochNlu.menu_option_from_message('I want to subscribe to the newsletter', 'en', @menu_options)
+    assert_not_nil SmoochNlu.menu_options_from_message('I want to subscribe to the newsletter', 'en', @menu_options)
   end
 end

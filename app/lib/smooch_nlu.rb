@@ -5,9 +5,9 @@ class SmoochNlu
   # FIXME: Make it more flexible
   # FIXME: Once we support paraphrase-multilingual-mpnet-base-v2 make it the only model used
   ALEGRE_MODELS_AND_THRESHOLDS = {
-    # Bot::Alegre::ELASTICSEARCH_MODEL => 0.8 # , Sometimes this is easier for local development
-    Bot::Alegre::OPENAI_ADA_MODEL => 0.8,
-    Bot::Alegre::MEAN_TOKENS_MODEL => 0.6
+    # Bot::Alegre::ELASTICSEARCH_MODEL => 0.8 # Sometimes this is easier for local development
+    # Bot::Alegre::OPENAI_ADA_MODEL => 0.8 # Not in use right now
+    Bot::Alegre::PARAPHRASE_MULTILINGUAL_MODEL => 0.6
   }
 
   include SmoochNluMenus
@@ -54,6 +54,11 @@ class SmoochNlu
     keywords
   end
 
+  # If NLU matches two results that have at least this distance between them, they are both presented to the user for disambiguation
+  def self.disambiguation_threshold
+    CheckConfig.get('nlu_disambiguation_threshold', 0.11, :float).to_f
+  end
+
   def self.alegre_matches_from_message(message, language, context, alegre_result_key)
     # FIXME: Raise exception if not in a tipline context (so, if Bot::Smooch.config is nil)
     matches = []
@@ -86,7 +91,7 @@ class SmoochNlu
 
       # Second approach is to sort the results from best to worst
       sorted_options = response['result'].to_a.sort_by{ |result| result['_score'] }.reverse
-      ranked_options = sorted_options.map{ |o| o.dig('_source', 'context', alegre_result_key) }
+      ranked_options = sorted_options.map{ |o| { 'key' => o.dig('_source', 'context', alegre_result_key), 'score' => o['_score'] } }
       matches = ranked_options
 
       # FIXME: Deal with ties (i.e., where two options have an equal _score or count)
