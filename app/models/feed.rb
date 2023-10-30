@@ -37,7 +37,7 @@ class Feed < ApplicationRecord
   def get_team_filters(feed_team_ids = nil)
     filters = []
     conditions = { shared: true }
-    conditions[:team_id] = feed_team_ids unless feed_team_ids.blank?
+    conditions[:team_id] = feed_team_ids if feed_team_ids.is_a?(Array)
     self.feed_teams.where(conditions).find_each do |ft|
       filters << ft.filters.to_h.reject{ |k, _v| PROHIBITED_FILTERS.include?(k.to_s) }.merge({ 'team_id' => ft.team_id })
     end
