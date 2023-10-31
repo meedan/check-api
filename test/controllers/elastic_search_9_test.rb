@@ -286,6 +286,9 @@ class ElasticSearch9Test < ActionController::TestCase
       query[:feed_team_ids] = [t2.id]
       result = CheckSearch.new(query.to_json)
       assert_equal [pm2.id], result.medias.map(&:id)
+      query[:feed_team_ids] = []
+      result = CheckSearch.new(query.to_json)
+      assert_empty result.medias.map(&:id)
     end
   end
 

@@ -28,6 +28,6 @@ class FeedInvitation < ApplicationRecord
   end
 
   def send_feed_invitation_mail
-    FeedInvitationMailer.delay.notify(self)
+    FeedInvitationMailer.delay.notify(self.id, Team.current&.id)
   end
 end

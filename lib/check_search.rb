@@ -61,7 +61,7 @@ class CheckSearch
 
   def team_condition(team_id = nil)
     if feed_query?
-      feed_teams = @options['feed_team_ids'].blank? ? @feed.team_ids : (@feed.team_ids & @options['feed_team_ids'])
+      feed_teams = @options['feed_team_ids'].is_a?(Array) ? (@feed.team_ids & @options['feed_team_ids']) : @feed.team_ids
       is_shared = FeedTeam.where(feed_id: @feed.id, team_id: Team.current&.id, shared: true).last
       is_shared ? feed_teams : [0] # Invalidate the query if the current team is not sharing content
     else
@@ -233,7 +233,7 @@ class CheckSearch
   def get_pg_results_for_media
     custom_conditions = {}
     core_conditions = {}
-    core_conditions['team_id'] = @options['team_id'] unless @options['team_id'].blank?
+    core_conditions['team_id'] = @options['team_id'] if @options['team_id'].is_a?(Array)
     # Add custom conditions for array values
     {
       'project_id' => 'projects', 'user_id' => 'users', 'source_id' => 'sources', 'read' => 'read', 'unmatched' => 'unmatched'
@@ -289,7 +289,7 @@ class CheckSearch
     core_conditions = []
     custom_conditions = []
     core_conditions << { terms: { get_search_field => @options['project_media_ids'] } } unless @options['project_media_ids'].blank?
-    core_conditions << { terms: { team_id: [@options['team_id']].flatten } } unless @options['team_id'].blank?
+    core_conditions << { terms: { team_id: [@options['team_id']].flatten } } if @options['team_id'].is_a?(Array)
     core_conditions << { terms: { archived: @options['archived'] } }
     custom_conditions << { terms: { read: @options['read'].map(&:to_i) } } if @options.has_key?('read')
     custom_conditions << { terms: { cluster_teams: @options['cluster_teams'] } } if @options.has_key?('cluster_teams')
