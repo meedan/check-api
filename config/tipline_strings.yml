@@ -262,6 +262,7 @@ en:
   unsubscribe_button_label: Unsubscribe
   unsubscribed: You are currently not subscribed to our newsletter.
   nlu_disambiguation: "Choose one of the options below:"
+  nlu_cancel: "Back to menu"
 fil:
   add_more_details_state_button_label: Dagdagan pa
   ask_if_ready_state_button_label: Kanselahin

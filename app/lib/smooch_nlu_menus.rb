@@ -96,7 +96,7 @@ module SmoochNluMenus
             value: { keyword: option['smooch_menu_option_keyword'] }.to_json,
             label: option['smooch_menu_option_label']
           }
-        end.concat([{ value: { keyword: 'cancel_nlu' }.to_json, label: Bot::Smooch.get_string('main_state_button_label', language, 20) }])
+        end.concat([{ value: { keyword: 'cancel_nlu' }.to_json, label: Bot::Smooch.get_string('nlu_cancel', language, 20) }])
         Bot::Smooch.send_message_to_user_with_buttons(uid, Bot::Smooch.get_string('nlu_disambiguation', language), buttons)
       end
     end
