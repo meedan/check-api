@@ -139,7 +139,7 @@ class Dynamic < ApplicationRecord
           op = self.annotation_type =~ /choice/ ? 'update' : op
           keys = %w(id team_task_id value field_type fieldset date_value numeric_value)
           self.add_update_nested_obj({ op: op, pm_id: pm.id, nested_key: 'task_responses', keys: keys })
-          self.update_recent_activity(pm)
+          self.update_recent_activity(pm) if User.current.present?
         end
       end
     end
