@@ -67,20 +67,38 @@ module SmoochNluMenus
   end
 
   module ClassMethods
-    def menu_option_from_message(message, language, options)
-      return nil if options.blank?
-      option = nil
+    def menu_options_from_message(message, language, options)
+      return [{ 'smooch_menu_option_value' => 'main_state' }] if message == 'cancel_nlu'
+      return [] if options.blank?
       context = {
         context: ALEGRE_CONTEXT_KEY_MENU
       }
       matches = SmoochNlu.alegre_matches_from_message(message, language, context, 'menu_option_id')
-      # Select the top menu option that exists in `options`
+      # Select the top two menu options that exists in `options`
+      top_options = []
       matches.each do |r|
-        option = options.find{ |o| !o['smooch_menu_option_id'].blank? && o['smooch_menu_option_id'] == r }
-        break unless option.nil?
+        option = options.find { |o| !o['smooch_menu_option_id'].blank? && o['smooch_menu_option_id'] == r['key'] }
+        top_options << { 'option' => option, 'score' => r['score'] } if !option.nil? && (top_options.empty? || (top_options.first['score'] - r['score']) <= SmoochNlu.disambiguation_threshold)
+        break if top_options.size == 2
       end
-      Rails.logger.info("[Smooch NLU] [Menu Option From Message] Menu option: #{option} | Message: #{message}")
-      option
+      Rails.logger.info("[Smooch NLU] [Menu Option From Message] Menu options: #{top_options.inspect} | Message: #{message}")
+      top_options.collect{ |o| o['option'] }
+    end
+
+    def process_menu_options(uid, options, message, language, workflow, app_id)
+
+      if options.size == 1
+        Bot::Smooch.process_menu_option_value(options.first['smooch_menu_option_value'], options.first, message, language, workflow, app_id)
+      # Disambiguation
+      else
+        buttons = options.collect do |option|
+          {
+            value: { keyword: option['smooch_menu_option_keyword'] }.to_json,
+            label: option['smooch_menu_option_label']
+          }
+        end.concat([{ value: { keyword: 'cancel_nlu' }.to_json, label: Bot::Smooch.get_string('nlu_cancel', language, 20) }])
+        Bot::Smooch.send_message_to_user_with_buttons(uid, Bot::Smooch.get_string('nlu_disambiguation', language), buttons)
+      end
     end
   end
 end

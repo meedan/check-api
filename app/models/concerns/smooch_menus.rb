@@ -166,7 +166,7 @@ module SmoochMenus
       label.to_s.truncate(truncate_at)
     end
 
-    def send_message_to_user_with_buttons(uid, text, options, image_url = nil, event = nil)
+    def send_message_to_user_with_buttons(uid, text, options, event = nil)
       buttons = []
       options.each_with_index do |option, i|
         buttons << {
@@ -196,12 +196,6 @@ module SmoochMenus
           }
         }
       }
-      extra[:override][:whatsapp][:payload][:interactive][:header] = {
-        type: 'image',
-        image: {
-          link: CheckS3.rewrite_url(image_url)
-        }
-      } unless image_url.blank?
       extra, fallback = self.format_fallback_text_menu_from_options(text, options, extra)
       self.send_message_to_user(uid, fallback.join("\n"), extra, false, true, event)
     end
