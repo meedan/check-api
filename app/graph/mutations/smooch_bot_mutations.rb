@@ -16,9 +16,7 @@ module SmoochBotMutations
       if annotation.nil?
         raise ActiveRecord::RecordNotFound
       else
-        unless annotation.ability.can?(:update, annotation)
-          raise "No permission to update #{annotation.class.name}"
-        end
+        raise "No permission to update #{annotation.class.name}" unless annotation.ability.can?(:update, annotation)
         SmoochAddSlackChannelUrlWorker.perform_in(
           1.second,
           id,
