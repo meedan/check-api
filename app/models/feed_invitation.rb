@@ -8,7 +8,7 @@ class FeedInvitation < ApplicationRecord
   validates_presence_of :email, :feed, :user
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }
 
-  after_create :send_feed_invitation_mail
+  after_create :send_feed_invitation_mail, if: proc { |_x| Team.current.present? }
 
   def accept!(team_id)
     feed_team = FeedTeam.new(feed_id: self.feed_id, team_id: team_id, shared: true)
@@ -28,6 +28,6 @@ class FeedInvitation < ApplicationRecord
   end
 
   def send_feed_invitation_mail
-    FeedInvitationMailer.delay.notify(self)
+    FeedInvitationMailer.delay.notify(self.id, Team.current.id)
   end
 end

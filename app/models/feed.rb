@@ -24,22 +24,24 @@ class Feed < ApplicationRecord
 
   # Filters for the whole feed: applies to all data from all teams
   def get_feed_filters
-    filters = self.filters.to_h.reject{ |k, _v| PROHIBITED_FILTERS.include?(k.to_s) }
+    filters = {}
     filters.merge!({ 'report_status' => ['published'] }) if self.published
     filters
   end
 
   def filters
-    self.saved_search&.filters.to_h
+    {}
   end
 
   # Filters defined by each team
   def get_team_filters(feed_team_ids = nil)
     filters = []
     conditions = { shared: true }
-    conditions[:team_id] = feed_team_ids unless feed_team_ids.blank?
+    conditions[:team_id] = feed_team_ids if feed_team_ids.is_a?(Array)
     self.feed_teams.where(conditions).find_each do |ft|
-      filters << ft.filters.to_h.reject{ |k, _v| PROHIBITED_FILTERS.include?(k.to_s) }.merge({ 'team_id' => ft.team_id })
+      filter = ft.filters
+      filter = self.saved_search&.filters.to_h if self.team_id == ft.team_id
+      filters << filter.to_h.reject{ |k, _v| PROHIBITED_FILTERS.include?(k.to_s) }.merge({ 'team_id' => ft.team_id })
     end
     filters
   end
