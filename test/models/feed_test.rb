@@ -85,7 +85,7 @@ class FeedTest < ActiveSupport::TestCase
     ss = create_saved_search team: t, filters: { foo: 'bar' }
     Team.stubs(:current).returns(t)
     f = create_feed saved_search: ss
-    assert_equal 'bar', f.reload.filters['foo']
+    assert_equal({}, f.reload.filters)
     Team.unstub(:current)
   end
 

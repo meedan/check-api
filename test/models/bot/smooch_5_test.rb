@@ -48,9 +48,8 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     FeedTeam.update_all(shared: true)
     f1.teams << t3
     ft_ss = create_saved_search team_id: t1.id, filters: { keyword: 'Bar' }
-    ft = FeedTeam.where(feed: f1, team: t1).last
-    ft.saved_search = ft_ss
-    ft.save!
+    f1.saved_search = ft_ss
+    f1.save!
     u = create_bot_user
     [t1, t2, t3, t4].each { |t| TeamUser.create!(user: u, team: t, role: 'editor') }
     alegre_results = {}
