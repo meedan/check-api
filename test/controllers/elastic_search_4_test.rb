@@ -65,7 +65,7 @@ class ElasticSearch4Test < ActionController::TestCase
     pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
     pm3 = create_project_media project: p, media: m3, disable_es_callbacks: false
     create_tag tag: 'search_sort', annotated: pm1, disable_es_callbacks: false
-    sleep 5
+    sleep 2
     # sort with keywords
     Team.current = t
     result = CheckSearch.new({keyword: 'search_sort', projects: [p.id]}.to_json)
@@ -75,7 +75,7 @@ class ElasticSearch4Test < ActionController::TestCase
     # sort with keywords and tags
     create_tag tag: 'sorts', annotated: pm3, disable_es_callbacks: false
     create_tag tag: 'sorts', annotated: pm2, disable_es_callbacks: false
-    sleep 5
+    sleep 2
     result = CheckSearch.new({tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json)
     assert_equal [pm2.id, pm3.id], result.medias.map(&:id).sort
     result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json)
@@ -84,7 +84,7 @@ class ElasticSearch4Test < ActionController::TestCase
     create_status status: 'verified', annotated: pm2, disable_es_callbacks: false
     create_status status: 'verified', annotated: pm1, disable_es_callbacks: false
     create_status status: 'false', annotated: pm1, disable_es_callbacks: false
-    sleep 5
+    sleep 2
     # sort with keywords, tags and status
     result = CheckSearch.new({verification_status: ["verified"], projects: [p.id], sort: 'recent_activity'}.to_json)
     assert_equal [pm2.id, pm3.id], result.medias.map(&:id)
@@ -127,7 +127,7 @@ class ElasticSearch4Test < ActionController::TestCase
     create_tag tag: 'iron maiden', annotated: pm, disable_es_callbacks: false
     pm2 = create_project_media project: p, disable_es_callbacks: false
     create_tag tag: 'iron', annotated: pm2, disable_es_callbacks: false
-    sleep 5
+    sleep 2
     Team.current = t
     result = CheckSearch.new({tags: ['iron maiden']}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)

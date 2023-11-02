@@ -247,7 +247,7 @@ class GraphqlController2Test < ActionController::TestCase
     m.disable_es_callbacks = false
     m.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'C' }.to_json }.to_json
     m.save!
-    sleep 5
+    sleep 2
 
     m = pm1.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt2.id }.last
     m.disable_es_callbacks = false
@@ -261,7 +261,7 @@ class GraphqlController2Test < ActionController::TestCase
     m.disable_es_callbacks = false
     m.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'A' }.to_json }.to_json
     m.save!
-    sleep 5
+    sleep 2
 
     authenticate_with_user(u)
 

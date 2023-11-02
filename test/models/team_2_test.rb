@@ -1120,13 +1120,13 @@ class Team2Test < ActiveSupport::TestCase
     s = pm1.last_status_obj
     s.status = 'in_progress'
     s.save!
-    sleep 5
+    sleep 2
     result = $repository.find(get_es_id(pm1))
     assert_equal p1.id, result['project_id']
     assert_equal 0, p0.reload.medias_count
     assert_equal 1, p1.reload.medias_count
     pm2 = create_project_media project: p0, disable_es_callbacks: false
-    sleep 5
+    sleep 2
     assert_equal p1.id, pm1.reload.project_id
     assert_equal p0.id, pm2.reload.project_id
   end

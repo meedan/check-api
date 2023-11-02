@@ -81,7 +81,7 @@ class ElasticSearch2Test < ActionController::TestCase
       pm2.refresh_media = true
       pm2.save!
     end
-    sleep 3
+    sleep 2
     ms2 = $repository.find(get_es_id(pm2))
     assert_equal 'overridden_title', ms2['title']
     ms = $repository.find(get_es_id(pm))

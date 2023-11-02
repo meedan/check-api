@@ -56,7 +56,7 @@ class GraphqlControllerTest < ActionController::TestCase
       assert_equal 'id2', pm2.status
     end
     assert_not_equal [], t.reload.get_media_verification_statuses[:statuses].select{ |s| s[:id] == 'id2' }
-    sleep 5
+    sleep 2
     assert_equal [pm2.id], CheckSearch.new({ verification_status: ['id2'] }.to_json, nil, t.id).medias.map(&:id)
     assert_equal [], CheckSearch.new({ verification_status: ['id3'] }.to_json, nil, t.id).medias.map(&:id)
     assert_equal 'published', r1.reload.get_field_value('state')
@@ -76,7 +76,7 @@ class GraphqlControllerTest < ActionController::TestCase
       assert_equal 'id1', pm1.status
       assert_equal 'id3', pm2.status
     end
-    sleep 5
+    sleep 2
     assert_equal [], CheckSearch.new({ verification_status: ['id2'] }.to_json, nil, t.id).medias.map(&:id)
     assert_equal [pm2.id], CheckSearch.new({ verification_status: ['id3'] }.to_json, nil, t.id).medias.map(&:id)
     assert_equal [], t.reload.get_media_verification_statuses[:statuses].select{ |s| s[:id] == 'id2' }

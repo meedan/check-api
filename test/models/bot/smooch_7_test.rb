@@ -364,7 +364,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     t = create_team
     pm = create_project_media quote: '🤣 word', team: t
     publish_report(pm)
-    sleep 3 # Wait for ElasticSearch to index content
+    sleep 2 # Wait for ElasticSearch to index content
 
     [
       '🤣',  #Direct match
@@ -394,7 +394,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     pm2 = create_project_media quote: 'Foo Bar Test', team: t
     pm3 = create_project_media quote: 'Foo Bar Test Testing', team: t
     [pm1, pm2, pm3].each { |pm| publish_report(pm) }
-    sleep 3 # Wait for ElasticSearch to index content
+    sleep 2 # Wait for ElasticSearch to index content
 
     assert_equal [pm1.id, pm2.id, pm3.id], Bot::Smooch.search_for_similar_published_fact_checks('text', 'Foo Bar', [t.id]).to_a.map(&:id)
   end
