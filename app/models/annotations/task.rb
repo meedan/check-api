@@ -213,7 +213,7 @@ class Task < ApplicationRecord
       pm = self.project_media
       data = { 'team_task_id' => self.team_task_id, 'fieldset' => self.fieldset }
       self.add_update_nested_obj({ op: op, pm_id: pm.id, nested_key: 'task_responses', keys: data.keys, data: data })
-      self.update_recent_activity(pm)
+      self.update_recent_activity(pm) if User.current.present?
     end
   end
 
