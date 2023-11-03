@@ -111,8 +111,8 @@ module AnnotationBase
           ApplicationRecord.connection_pool.with_connection do
             annotated.save!(validate: false)
           end
-        elsif annotated.is_a?(ProjectMedia)
-          if ['report_design', 'tag', 'archiver', 'language'].include?(self.annotation_type)
+        elsif annotated.is_a?(ProjectMedia) && User.current.present?
+          if ['report_design', 'tag', 'archiver'].include?(self.annotation_type)
             self.update_recent_activity(annotated)
           end
         end

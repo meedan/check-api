@@ -247,6 +247,7 @@ class RequestTest < ActiveSupport::TestCase
   test "should cache team names that fact-checked a request" do
     Bot::Alegre.stubs(:request_api).returns({})
     RequestStore.store[:skip_cached_field_update] = false
+    u = create_user is_admin: true
     f = create_feed
     t1 = create_team
     t2 = create_team name: 'Foo'
@@ -259,6 +260,7 @@ class RequestTest < ActiveSupport::TestCase
     FeedTeam.update_all(shared: true)
     f.teams << t5
     m = create_uploaded_image
+    User.stubs(:current).returns(u)
     r = create_request feed: f, media: m
     assert_equal '', r.reload.fact_checked_by
     assert_equal 0, r.reload.fact_checked_by_count
@@ -278,6 +280,7 @@ class RequestTest < ActiveSupport::TestCase
     assert_equal 'Bar, Foo, Test', r.reload.fact_checked_by
     assert_equal 3, r.reload.fact_checked_by_count
     Bot::Alegre.unstub(:request_api)
+    User.unstub(:current)
   end
 
   test "should return if there is a subscription for a request" do
