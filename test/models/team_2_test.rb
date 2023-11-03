@@ -962,7 +962,8 @@ class Team2Test < ActiveSupport::TestCase
 
   test "should return team tasks" do
     t = create_team
-    create_team_task team_id: t.id + 1
+    t2 = create_team
+    create_team_task team_id: t2.id
     assert t.auto_tasks().empty?
     tt = create_team_task team_id: t.id
     assert_equal [tt], t.auto_tasks()
