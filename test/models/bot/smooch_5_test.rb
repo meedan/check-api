@@ -42,12 +42,12 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     t4 = create_team
     pm4a = create_project_media quote: 'Test 4', team: t4 # Should not be in search results (team is not part of feed)
     pm4b = create_project_media media: l, team: t4 # Should not be in search results by URL
-    ss = create_saved_search team_id: t1.id, filters: { show: ['claims', 'weblink'] }
+    ss = create_saved_search team: t1, filters: { show: ['claims', 'weblink'] }
     f1 = create_feed team_id: t1.id, published: true
     f1.teams << t2
     FeedTeam.update_all(shared: true)
     f1.teams << t3
-    ft_ss = create_saved_search team_id: t1.id, filters: { keyword: 'Bar' }
+    ft_ss = create_saved_search team: t1, filters: { keyword: 'Bar' }
     f1.saved_search = ft_ss
     f1.save!
     u = create_bot_user
