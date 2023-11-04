@@ -42,7 +42,7 @@ module SampleData
 
   def create_saved_search(options = {})
     ss = SavedSearch.new
-    ss.team = create_team
+    ss.team = options[:team] || create_team
     ss.title = random_string
     ss.filters = {}
     options.each do |key, value|
@@ -54,7 +54,7 @@ module SampleData
 
   def create_project_group(options = {})
     pg = ProjectGroup.new
-    pg.team = create_team
+    pg.team = options[:team] || create_team
     pg.title = random_string
     options.each do |key, value|
       pg.send("#{key}=", value) if pg.respond_to?("#{key}=")
@@ -210,7 +210,11 @@ module SampleData
   end
 
   def create_tag(options = {})
-    options = { tag: random_string(50), annotator: create_user, disable_es_callbacks: true }.merge(options)
+    options = {
+      tag: random_string(50),
+      annotator: options[:annotator] || create_user,
+      disable_es_callbacks: true
+    }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
       p = create_project team: t
@@ -227,7 +231,11 @@ module SampleData
   # Verification status
   def create_status(options = {})
     create_verification_status_stuff if User.current.nil?
-    options = { status: 'in_progress', annotator: create_user, disable_es_callbacks: true }.merge(options)
+    options = {
+      status: 'in_progress',
+      annotator: options[:annotator] || create_user,
+      disable_es_callbacks: true
+    }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
       p = create_project team: t
@@ -262,7 +270,10 @@ module SampleData
       'racy': 4,
       'spam': 5
     }
-    options = { set_fields: { flags: flags }.to_json, annotator: create_user }.merge(options)
+    options = {
+      set_fields: { flags: flags }.to_json,
+      annotator: options[:annotator] || create_user 
+    }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
       p = create_project team: t
@@ -718,7 +729,7 @@ module SampleData
       name: random_string,
       set_description: random_string,
       set_request_url: random_url,
-      team_author_id: create_team.id,
+      team_author_id: options[:team_author_id] || create_team.id,
       set_events: [{ event: 'create_project_media', graphql: nil }]
     }.merge(options)
 
@@ -752,7 +763,10 @@ module SampleData
 
   def create_tag_text(options = {})
     tt = TagText.new
-    options = { text: random_string, team_id: create_team.id }.merge(options)
+    options = {
+      text: random_string,
+      team_id: options[:team_id] || create_team.id
+    }.merge(options)
     options.each do |key, value|
       tt.send("#{key}=", value) if tt.respond_to?("#{key}=")
     end
@@ -762,7 +776,12 @@ module SampleData
 
   def create_team_task(options = {})
     tt = TeamTask.new
-    options = { label: random_string, team_id: create_team.id, task_type: 'free_text', fieldset: 'tasks' }.merge(options)
+    options = {
+      label: random_string,
+      team_id: options[:team_id] || create_team.id,
+      task_type: 'free_text',
+      fieldset: 'tasks'
+    }.merge(options)
     options.each do |key, value|
       tt.send("#{key}=", value) if tt.respond_to?("#{key}=")
     end
@@ -795,7 +814,7 @@ module SampleData
     tr.content_type = 'rss'
     tr.language = 'en'
     tr.number_of_articles = random_number
-    tr.team = create_team
+    tr.team = options[:team] || create_team
     options.each do |key, value|
       tr.send("#{key}=", value) if tr.respond_to?("#{key}=")
     end
@@ -806,7 +825,7 @@ module SampleData
   def create_tipline_message(options = {})
     TiplineMessage.create!({
       uid: random_string,
-      team_id: create_team.id,
+      team_id: options[:team_id] || create_team.id,
       language: 'en',
       platform: 'WhatsApp',
       direction: :incoming,
@@ -820,7 +839,7 @@ module SampleData
   def create_tipline_subscription(options = {})
     TiplineSubscription.create!({
       uid: random_string,
-      team_id: create_team.id,
+      team_id: options[:team_id] || create_team.id,
       language: 'en',
       platform: 'WhatsApp'
     }.merge(options))
@@ -859,13 +878,18 @@ module SampleData
 
   def create_feed_team(options = {})
     FeedTeam.create!({
-      feed: create_feed,
-      team: create_team
+      feed: options[:feed] || create_feed,
+      team: options[:team] || create_team
     }.merge(options))
   end
 
   def create_request(options = {})
-    Request.create!({ content: random_string, request_type: 'text', feed: create_feed, media: create_valid_media }.merge(options))
+    Request.create!({
+      content: random_string,
+      request_type: 'text',
+      feed: options[:feed] || create_feed,
+      media: options[:media] || create_valid_media
+    }.merge(options))
   end
 
   def create_project_media_request(options = {})
@@ -909,7 +933,7 @@ module SampleData
       footer: 'Test',
       language: 'en',
       enabled: true,
-      team: create_team
+      team: options[:team] || create_team
     }.merge(options))
     unless options[:header_file].blank?
       File.open(File.join(Rails.root, 'test', 'data', options[:header_file])) do |f|
@@ -1102,6 +1126,11 @@ module SampleData
   end
 
   def create_feed_invitation(options = {})
-    FeedInvitation.create!({ email: random_email, feed: create_feed, user: create_user, state: :invited }.merge(options))
+    FeedInvitation.create!({
+      email: random_email,
+      feed: options[:feed] || create_feed,
+      user: options[:user] || create_user,
+      state: :invited 
+    }.merge(options))
   end
 end

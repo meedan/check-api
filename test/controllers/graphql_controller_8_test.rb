@@ -239,7 +239,7 @@ class GraphqlController8Test < ActionController::TestCase
     t1 = create_team private: true
     create_team_user(user: u, team: t1, role: 'admin')
     f = create_feed team_id: t1.id
-    ss = create_saved_search team_id: t1.id
+    ss = create_saved_search team: t1
     assert_not f.reload.published
     query = "mutation { updateFeed(input: { id: \"#{f.graphql_id}\", published: true, saved_search_id: #{ss.id} }) { feed { published, saved_search_id } } }"
     post :create, params: { query: query, team: t1.slug }
@@ -256,7 +256,7 @@ class GraphqlController8Test < ActionController::TestCase
     t1 = create_team private: true
     create_team_user(user: u, team: t1, role: 'admin')
     t2 = create_team private: true
-    ss = create_saved_search team_id: t1.id
+    ss = create_saved_search team: t1
     f = create_feed
     f.teams << t1
     f.teams << t2
@@ -622,7 +622,7 @@ class GraphqlController8Test < ActionController::TestCase
       assert_equal 'id2', pm2.status
     end
     assert_not_equal [], t.reload.get_media_verification_statuses[:statuses].select{ |s| s[:id] == 'id2' }
-    sleep 5
+    sleep 2
     assert_equal [pm2.id], CheckSearch.new({ verification_status: ['id2'] }.to_json, nil, t.id).medias.map(&:id)
     assert_equal [], CheckSearch.new({ verification_status: ['id3'] }.to_json, nil, t.id).medias.map(&:id)
     assert_equal 'published', r1.reload.get_field_value('state')
@@ -642,7 +642,7 @@ class GraphqlController8Test < ActionController::TestCase
       assert_equal 'id1', pm1.status
       assert_equal 'id3', pm2.status
     end
-    sleep 5
+    sleep 2
     assert_equal [], CheckSearch.new({ verification_status: ['id2'] }.to_json, nil, t.id).medias.map(&:id)
     assert_equal [pm2.id], CheckSearch.new({ verification_status: ['id3'] }.to_json, nil, t.id).medias.map(&:id)
     assert_equal [], t.reload.get_media_verification_statuses[:statuses].select{ |s| s[:id] == 'id2' }

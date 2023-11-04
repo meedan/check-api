@@ -21,15 +21,15 @@ class ElasticSearch6Test < ActionController::TestCase
 
       Time.stubs(:now).returns(Time.new(2019, 05, 19, 13, 00))
       pm1 = create_project_media project: p, quote: 'Test A', disable_es_callbacks: false
-      sleep 5
+      sleep 2
 
       Time.stubs(:now).returns(Time.new(2019, 05, 20, 13, 00))
       pm2 = create_project_media project: p, quote: 'Test B', disable_es_callbacks: false
-      sleep 5
+      sleep 2
 
       Time.stubs(:now).returns(Time.new(2019, 05, 21, 13, 00))
       pm3 = create_project_media project: p, quote: 'Test C', disable_es_callbacks: false
-      sleep 5
+      sleep 2
 
       Time.unstub(:now)
 
@@ -77,11 +77,11 @@ class ElasticSearch6Test < ActionController::TestCase
 
       Time.stubs(:now).returns(Time.new(2019, 05, 19, 13, 00))
       pm1 = create_project_media project: p, quote: 'claim a', disable_es_callbacks: false
-      sleep 5
+      sleep 2
 
       Time.stubs(:now).returns(Time.new(2019, 05, 20, 13, 00))
       pm2 = create_project_media project: p, quote: 'claim b', disable_es_callbacks: false
-      sleep 5
+      sleep 2
       Time.unstub(:now)
 
       # Missing start_time, end_time and timezone

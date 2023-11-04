@@ -130,7 +130,7 @@ class ElasticSearch4Test < ActionController::TestCase
     create_tag tag: 'iron maiden', annotated: pm, disable_es_callbacks: false
     pm2 = create_project_media project: p, disable_es_callbacks: false
     create_tag tag: 'iron', annotated: pm2, disable_es_callbacks: false
-    sleep 5
+    sleep 2
     Team.current = t
     result = CheckSearch.new({tags: ['iron maiden']}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)

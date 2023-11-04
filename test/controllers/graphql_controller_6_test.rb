@@ -176,7 +176,7 @@ class GraphqlController6Test < ActionController::TestCase
     u = create_user
     create_team_user(team: t1, user: u, role: 'editor')
     authenticate_with_user(u)
-    f_ss = create_saved_search team_id: t1.id, filters: { keyword: 'apple' }
+    f_ss = create_saved_search team: t1, filters: { keyword: 'apple' }
     f = create_feed team_id: t1.id
     f.teams = [t1, t2]
     f.saved_search = f_ss
@@ -190,7 +190,7 @@ class GraphqlController6Test < ActionController::TestCase
     pm1b = create_project_media quote: 'I like orange and banana', team: t1
 
     # Team 2 content to be shared
-    ft2_ss = create_saved_search team_id: t2.id, filters: { keyword: 'orange' }
+    ft2_ss = create_saved_search team: t2, filters: { keyword: 'orange' }
     ft2 = FeedTeam.where(feed: f, team: t2).last
     ft2.shared = true
     ft2.saved_search = ft2_ss
@@ -199,7 +199,7 @@ class GraphqlController6Test < ActionController::TestCase
     pm2b = create_project_media quote: 'I love orange and banana', team: t2
 
     # Wait for content to be indexed in ElasticSearch
-    sleep 5
+    sleep 2
     query = 'query CheckSearch { search(query: "{\"keyword\":\"and\",\"feed_id\":' + f.id.to_s + '}") { medias(first: 20) { edges { node { dbid } } } } }'
 
     # Can't see anything until content is shared
