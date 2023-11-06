@@ -574,4 +574,20 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     assert_not_nil smooch_data.smooch_report_correction_sent_at
     assert_not_nil smooch_data.smooch_request_type
   end
+
+  test "should include claim_description_content in smooch search" do
+    WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    m = create_uploaded_image
+    pm = create_project_media team: t, media: m, disable_es_callbacks: false
+    query = "Claim content"
+    results = Bot::Smooch.search_by_keywords_for_similar_published_fact_checks(query.split(), nil, [t.id])
+    assert_empty results
+    cd = create_claim_description project_media: pm, description: query
+    publish_report(pm)
+    assert_equal query, pm.claim_description_content
+    results = Bot::Smooch.search_by_keywords_for_similar_published_fact_checks(query.split(), nil, [t.id])
+    assert_equal [pm.id], results.map(&:id)
+  end
 end
