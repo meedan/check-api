@@ -274,15 +274,35 @@ ActiveRecord::Base.transaction do
   #   puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
   # end
 
-  puts 'Making Tipline requests for audio items...'
-  tipline_pm_audios_arr = []
-  data[:audios][0..5].each do |audio| 
-    audio_media = UploadedAudio.create!(user_id: user.id, file: open_file(audio)) 
-    project_media = create_tipline_project_media(project, team, audio_media)
-    tipline_pm_audios_arr.push(project_media)
+  # puts 'Making Tipline requests for audio items...'
+  # tipline_pm_audios_arr = []
+  # data[:audios][0..5].each do |audio| 
+  #   audio_media = UploadedAudio.create!(user_id: user.id, file: open_file(audio)) 
+  #   project_media = create_tipline_project_media(project, team, audio_media)
+  #   tipline_pm_audios_arr.push(project_media)
+  # end
+  # tipline_pm_audios_arr[0..2].each {|pm| create_tipline_user_and_data(pm, team)}
+  # tipline_pm_audios_arr[3..5].each {|pm| 15.times {create_tipline_user_and_data(pm, team)}}
+
+  # puts 'Making Tipline requests for image items...'
+  # tipline_pm_images_arr = []
+  # data[:images][0..5].each do |image| 
+  #   image_media = UploadedImage.create!(user_id: user.id, file: open_file(image)) 
+  #   project_media = create_tipline_project_media(project, team, image_media)
+  #   tipline_pm_images_arr.push(project_media)
+  # end
+  # tipline_pm_images_arr[0..2].each {|pm| create_tipline_user_and_data(pm, team)}
+  # tipline_pm_images_arr[3..5].each {|pm| 15.times {create_tipline_user_and_data(pm, team)}}
+
+  puts 'Making Tipline requests for video items...'
+  tipline_pm_videos_arr = []
+  data[:videos][0..5].each do |video| 
+    video_media = UploadedVideo.create!(user_id: user.id, file: open_file(video)) 
+    project_media = create_tipline_project_media(project, team, video_media)
+    tipline_pm_videos_arr.push(project_media)
   end
-  tipline_pm_audios_arr[0..2].each {|pm| create_tipline_user_and_data(pm, team)}
-  tipline_pm_audios_arr[3..5].each {|pm| 15.times {create_tipline_user_and_data(pm, team)}}
+  tipline_pm_videos_arr[0..2].each {|pm| create_tipline_user_and_data(pm, team)}
+  tipline_pm_videos_arr[3..5].each {|pm| 15.times {create_tipline_user_and_data(pm, team)}}
 
   add_claim_descriptions_and_fact_checks(user)
 
