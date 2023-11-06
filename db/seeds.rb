@@ -248,10 +248,14 @@ ActiveRecord::Base.transaction do
   # 2.times { project_medias_for_audio.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedAudio.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.mp3'))))) }
   # Relationship.create!(source_id: project_medias_for_audio[0].id, target_id: project_medias_for_audio[1].id, relationship_type: Relationship.confirmed_type)
 
-  def create_tipline_requests_for_files(team, project, user, files, model)
+  def create_tipline_requests(team, project, user, data_instances, model)
     tipline_pm_arr = []
-    files[0..5].each do |file| 
-      media = model.create!(user_id: user.id, file: open_file(file)) 
+    data_instances[0..5].each do |data_instance| 
+      if model == Claim
+        media = model.create!(user_id: user.id, quote: data_instance)
+      else
+        media = model.create!(user_id: user.id, file: open_file(data_instance)) 
+      end
       project_media = create_tipline_project_media(project, team, media)
       tipline_pm_arr.push(project_media)
     end
@@ -261,16 +265,8 @@ ActiveRecord::Base.transaction do
 
   puts 'Making Tipline requests for claim items...'
   tipline_claims_arr = []
-  tipline_pm_claims_arr = []
   6.times { tipline_claims_arr.push(Faker::Lorem.paragraph(sentence_count: 10))}
-  
-  tipline_claims_arr.each do |claim|
-    claim_media = Claim.create!(user_id: user.id, quote: claim)
-    project_media = create_tipline_project_media(project, team, claim_media)
-    tipline_pm_claims_arr.push(project_media)
-  end  
-  tipline_pm_claims_arr[0..2].each {|pm| create_tipline_user_and_data(pm, team)}
-  tipline_pm_claims_arr[3..5].each {|pm| 15.times {create_tipline_user_and_data(pm, team)}}
+  create_tipline_requests(team, project, user, tipline_claims_arr, Claim)
 
   # puts 'Making Tipline requests for link items...'
   # begin
@@ -286,14 +282,14 @@ ActiveRecord::Base.transaction do
   #   puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
   # end  
 
-  # puts 'Making Tipline requests for audio items...'
-  # create_tipline_requests_for_files(team, project, user, data[:audios], UploadedAudio)
+  puts 'Making Tipline requests for audio items...'
+  create_tipline_requests(team, project, user, data[:audios], UploadedAudio)
 
-  # puts 'Making Tipline requests for image items...'
-  # create_tipline_requests_for_files(team, project, user, data[:images], UploadedImage)
+  puts 'Making Tipline requests for image items...'
+  create_tipline_requests(team, project, user, data[:images], UploadedImage)
 
-  # puts 'Making Tipline requests for video items...'
-  # create_tipline_requests_for_files(team, project, user, data[:videos], UploadedVideo)
+  puts 'Making Tipline requests for video items...'
+  create_tipline_requests(team, project, user, data[:videos], UploadedVideo)
 
   add_claim_descriptions_and_fact_checks(user)
 
