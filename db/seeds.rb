@@ -75,6 +75,10 @@ def create_claim_description(user, project, team)
   ClaimDescription.create!(description: Faker::Company.catch_phrase, context: Faker::Lorem.sentence, user: user, project_media: create_blank(project, team))
 end
 
+def create_tipline_project_media(project, team, media)
+  ProjectMedia.create!(project: project, team: team, media: media, channel: { main: CheckChannels::ChannelCodes::WHATSAPP })
+end
+
 def create_tipline_user_and_data(project_media, team)
   tipline_user_name = Faker::Name.first_name.downcase
   tipline_user_surname = Faker::Name.last_name
@@ -244,14 +248,17 @@ ActiveRecord::Base.transaction do
   # 2.times { project_medias_for_audio.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedAudio.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.mp3'))))) }
   # Relationship.create!(source_id: project_medias_for_audio[0].id, target_id: project_medias_for_audio[1].id, relationship_type: Relationship.confirmed_type)
 
-  puts 'Making Tipline requests...'
+  puts 'Making Tipline requests for claims...'
+  tipline_pm_claims_arr = []
   9.times do
     claim_media = Claim.create!(user_id: user.id, quote: Faker::Lorem.paragraph(sentence_count: 10))
-    project_media = ProjectMedia.create!(project: project, team: team, media: claim_media, channel: { main: CheckChannels::ChannelCodes::WHATSAPP })
+    project_media = create_tipline_project_media(project, team, claim_media)
+    tipline_pm_claims_arr.push(project_media)
+  end
 
-    10.times do
-      create_tipline_user_and_data(project_media, team)
-    end
+  tipline_pm_claims_arr[0..2].each {|pm| create_tipline_user_and_data(pm, team)} 
+  tipline_pm_claims_arr[3..5].each do |pm|
+    15.times { create_tipline_user_and_data(pm, team) }
   end
 
   add_claim_descriptions_and_fact_checks(user)
