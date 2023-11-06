@@ -250,9 +250,11 @@ ActiveRecord::Base.transaction do
 
   def create_tipline_requests(team, project, user, data_instances, model)
     tipline_pm_arr = []
-    data_instances[0..5].each do |data_instance| 
+    data_instances[0..5].each do |data_instance|
       if model == Claim
         media = model.create!(user_id: user.id, quote: data_instance)
+      elsif model == Link
+        media = model.create!(user_id: user.id, url: data_instance+"?timestamp=#{Time.now.to_f}")
       else
         media = model.create!(user_id: user.id, file: open_file(data_instance)) 
       end
@@ -268,19 +270,12 @@ ActiveRecord::Base.transaction do
   6.times { tipline_claims_arr.push(Faker::Lorem.paragraph(sentence_count: 10))}
   create_tipline_requests(team, project, user, tipline_claims_arr, Claim)
 
-  # puts 'Making Tipline requests for link items...'
-  # begin
-  #   tipline_pm_links_arr = []
-  #   data[:link_media_links][0..5].each do |link_media_link|
-  #     link_media = Link.create!(user_id: user.id, url: link_media_link+"?timestamp=#{Time.now.to_f}")
-  #     project_media = create_tipline_project_media(project, team, link_media)
-  #     tipline_pm_links_arr.push(project_media)
-  #   end  
-  #   tipline_pm_links_arr[0..2].each {|pm| create_tipline_user_and_data(pm, team)}
-  #   tipline_pm_links_arr[3..5].each {|pm| 15.times {create_tipline_user_and_data(pm, team)}}
-  # rescue
-  #   puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
-  # end  
+  puts 'Making Tipline requests for link items...'
+  begin
+    create_tipline_requests(team, project, user, data[:link_media_links], Link)
+  rescue
+    puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
+  end  
 
   puts 'Making Tipline requests for audio items...'
   create_tipline_requests(team, project, user, data[:audios], UploadedAudio)
