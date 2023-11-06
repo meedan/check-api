@@ -159,6 +159,25 @@ def create_tipline_user_and_data(project_media, team)
   Dynamic.create!(annotation_type: 'smooch', annotated: project_media, annotator: BotUser.smooch_user, set_fields: fields.to_json)
 end
 
+def create_tipline_requests(team, project, user, data_instances, model_string)
+  tipline_pm_arr = []
+  model = Object.const_get(model_string)
+  data_instances[0..5].each do |data_instance|
+    case model_string
+    when 'Claim'
+      media = model.create!(user_id: user.id, quote: data_instance)
+    when 'Link'
+      media = model.create!(user_id: user.id, url: data_instance+"?timestamp=#{Time.now.to_f}")
+    else
+      media = model.create!(user_id: user.id, file: open_file(data_instance)) 
+    end
+    project_media = create_tipline_project_media(project, team, media)
+    tipline_pm_arr.push(project_media)
+  end
+  tipline_pm_arr[0..2].each {|pm| create_tipline_user_and_data(pm, team)}
+  tipline_pm_arr[3..5].each {|pm| 15.times {create_tipline_user_and_data(pm, team)}}
+end
+
 puts "If you want to create a new user: press 1 then enter"
 puts "If you want to add more data to an existing user: press 2 then enter"
 print ">> "
@@ -248,43 +267,26 @@ ActiveRecord::Base.transaction do
   # 2.times { project_medias_for_audio.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedAudio.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.mp3'))))) }
   # Relationship.create!(source_id: project_medias_for_audio[0].id, target_id: project_medias_for_audio[1].id, relationship_type: Relationship.confirmed_type)
 
-  def create_tipline_requests(team, project, user, data_instances, model)
-    tipline_pm_arr = []
-    data_instances[0..5].each do |data_instance|
-      if model == Claim
-        media = model.create!(user_id: user.id, quote: data_instance)
-      elsif model == Link
-        media = model.create!(user_id: user.id, url: data_instance+"?timestamp=#{Time.now.to_f}")
-      else
-        media = model.create!(user_id: user.id, file: open_file(data_instance)) 
-      end
-      project_media = create_tipline_project_media(project, team, media)
-      tipline_pm_arr.push(project_media)
-    end
-    tipline_pm_arr[0..2].each {|pm| create_tipline_user_and_data(pm, team)}
-    tipline_pm_arr[3..5].each {|pm| 15.times {create_tipline_user_and_data(pm, team)}}
-  end
-
   puts 'Making Tipline requests for claim items...'
   tipline_claims_arr = []
   6.times { tipline_claims_arr.push(Faker::Lorem.paragraph(sentence_count: 10))}
-  create_tipline_requests(team, project, user, tipline_claims_arr, Claim)
+  create_tipline_requests(team, project, user, tipline_claims_arr, 'Claim')
 
   puts 'Making Tipline requests for link items...'
   begin
-    create_tipline_requests(team, project, user, data[:link_media_links], Link)
+    create_tipline_requests(team, project, user, data[:link_media_links], 'Link')
   rescue
     puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
   end  
 
   puts 'Making Tipline requests for audio items...'
-  create_tipline_requests(team, project, user, data[:audios], UploadedAudio)
+  create_tipline_requests(team, project, user, data[:audios], 'UploadedAudio')
 
   puts 'Making Tipline requests for image items...'
-  create_tipline_requests(team, project, user, data[:images], UploadedImage)
+  create_tipline_requests(team, project, user, data[:images], 'UploadedImage')
 
   puts 'Making Tipline requests for video items...'
-  create_tipline_requests(team, project, user, data[:videos], UploadedVideo)
+  create_tipline_requests(team, project, user, data[:videos], 'UploadedVideo')
 
   add_claim_descriptions_and_fact_checks(user)
 
