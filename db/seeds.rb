@@ -132,15 +132,15 @@ ActiveRecord::Base.transaction do
   # audio_project_medias = create_project_medias(user, project, team, audios)
   # add_claim_descriptions_and_fact_checks(user, audio_project_medias)
 
-  puts 'Making Medias and Project Medias: Images...'
-  images = data[:images].map { |image| UploadedImage.create!(user_id: user.id, file: open_file(image))}
-  image_project_medias = create_project_medias(user, project, team, images)
-  add_claim_descriptions_and_fact_checks(user, image_project_medias)
+  # puts 'Making Medias and Project Medias: Images...'
+  # images = data[:images].map { |image| UploadedImage.create!(user_id: user.id, file: open_file(image))}
+  # image_project_medias = create_project_medias(user, project, team, images)
+  # add_claim_descriptions_and_fact_checks(user, image_project_medias)
 
-  # puts 'Making Medias and Project Medias: Videos...'
-  # videos = data[:videos].map { |video| UploadedVideo.create!(user_id: user.id, file: open_file(video)) }
-  # video_project_medias = create_project_medias(user, project, team, videos)
-  # add_claim_descriptions_and_fact_checks(user, video_project_medias)
+  puts 'Making Medias and Project Medias: Videos...'
+  videos = data[:videos].map { |video| UploadedVideo.create!(user_id: user.id, file: open_file(video)) }
+  video_project_medias = create_project_medias(user, project, team, videos)
+  add_claim_descriptions_and_fact_checks(user, video_project_medias)
 
   # puts 'Making Claim Descriptions and Fact Checks: Imported Fact Checks...'
   # data[:fact_check_links].each { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
@@ -175,11 +175,17 @@ ActiveRecord::Base.transaction do
 
   # audio_project_medias[4..9].each { |pm| Relationship.create!(source_id: audio_project_medias[2].id, target_id: pm.id, relationship_type: Relationship.suggested_type)}
 
-  puts 'Making Relationship: Images / Confirmed Type...'
-  Relationship.create!(source_id: image_project_medias[0].id, target_id: image_project_medias[1].id, relationship_type: Relationship.confirmed_type)
-  Relationship.create!(source_id: image_project_medias[2].id, target_id: image_project_medias[3].id, relationship_type: Relationship.confirmed_type)
+  # puts 'Making Relationship: Images / Confirmed Type...'
+  # Relationship.create!(source_id: image_project_medias[0].id, target_id: image_project_medias[1].id, relationship_type: Relationship.confirmed_type)
+  # Relationship.create!(source_id: image_project_medias[2].id, target_id: image_project_medias[3].id, relationship_type: Relationship.confirmed_type)
 
-  image_project_medias[4..9].each { |pm| Relationship.create!(source_id: image_project_medias[2].id, target_id: pm.id, relationship_type: Relationship.suggested_type)}
+  # image_project_medias[4..9].each { |pm| Relationship.create!(source_id: image_project_medias[2].id, target_id: pm.id, relationship_type: Relationship.suggested_type)}
+
+  puts 'Making Relationship: Videos / Confirmed Type...'
+  Relationship.create!(source_id: video_project_medias[0].id, target_id: video_project_medias[1].id, relationship_type: Relationship.confirmed_type)
+  Relationship.create!(source_id: video_project_medias[2].id, target_id: video_project_medias[3].id, relationship_type: Relationship.confirmed_type)
+
+  video_project_medias[4..9].each { |pm| Relationship.create!(source_id: video_project_medias[2].id, target_id: pm.id, relationship_type: Relationship.suggested_type)}
 
   # puts 'Making Tipline requests...'
   # tipline_claims_project_medias = []
