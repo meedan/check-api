@@ -40,7 +40,7 @@ def open_file(file)
 end
 
 def create_project_medias(user, project, team, data)
-    data.each { |media| ProjectMedia.create!(user_id: user.id, project: project, team: team, media: media) }
+  data.map { |media| ProjectMedia.create!(user_id: user.id, project: project, team: team, media: media) }
 end
 
 def humanize_link(link)
@@ -52,9 +52,9 @@ def create_description(project_media)
   Media.last.type == "Link" ? humanize_link(Media.find(project_media.media_id).url) : Faker::Company.catch_phrase
 end
 
-def add_claim_descriptions_and_fact_checks(user,n_project_medias = 6, n_claim_descriptions = 3)
-  ProjectMedia.last(n_project_medias).each { |project_media| ClaimDescription.create!(description: create_description(project_media), context: Faker::Lorem.sentence, user: user, project_media: project_media) }
-  ClaimDescription.last(n_claim_descriptions).each { |claim_description| FactCheck.create!(summary: Faker::Company.catch_phrase, title: Faker::Company.name, user: user, claim_description: claim_description) }
+def add_claim_descriptions_and_fact_checks(user, project_medias)
+  project_medias.each { |project_media| ClaimDescription.create!(description: create_description(project_media), context: Faker::Lorem.sentence, user: user, project_media: project_media) }
+  ClaimDescription.last(3).each { |claim_description| FactCheck.create!(summary: Faker::Company.catch_phrase, title: Faker::Company.name, user: user, claim_description: claim_description) }
 end
 
 def fact_check_attributes(fact_check_link, user, project, team)
@@ -115,32 +115,32 @@ ActiveRecord::Base.transaction do
   puts 'Making Medias...'
   puts 'Making Medias and Project Medias: Claims...'
   claims = Array.new(9) { Claim.create!(user_id: user.id, quote: Faker::Quotes::Shakespeare.hamlet_quote) }
-  create_project_medias(user, project, team, claims)
-  add_claim_descriptions_and_fact_checks(user)
+  claims_project_medias = create_project_medias(user, project, team, claims)
+  add_claim_descriptions_and_fact_checks(user, claims_project_medias)
 
   puts 'Making Medias and Project Medias: Links...'
   begin
     links = data[:link_media_links].map { |link_media_link| Link.create!(user_id: user.id, url: link_media_link+"?timestamp=#{Time.now.to_f}") }
-    create_project_medias(user, project, team, links)
-    add_claim_descriptions_and_fact_checks(user)
+    links_project_medias = create_project_medias(user, project, team, links)
+    add_claim_descriptions_and_fact_checks(user, links_project_medias)
   rescue
     puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
   end
 
   puts 'Making Medias and Project Medias: Audios...'
   audios = data[:audios].map { |audio| UploadedAudio.create!(user_id: user.id, file: open_file(audio)) }
-  create_project_medias(user, project, team, audios)
-  add_claim_descriptions_and_fact_checks(user)
+  audio_project_medias = create_project_medias(user, project, team, audios)
+  add_claim_descriptions_and_fact_checks(user, audio_project_medias)
 
   puts 'Making Medias and Project Medias: Images...'
   images = data[:images].map { |image| UploadedImage.create!(user_id: user.id, file: open_file(image))}
-  create_project_medias(user, project, team, images)
-  add_claim_descriptions_and_fact_checks(user)
+  image_project_medias = create_project_medias(user, project, team, images)
+  add_claim_descriptions_and_fact_checks(user, image_project_medias)
 
   puts 'Making Medias and Project Medias: Videos...'
   videos = data[:videos].map { |video| UploadedVideo.create!(user_id: user.id, file: open_file(video)) }
-  create_project_medias(user, project, team, videos)
-  add_claim_descriptions_and_fact_checks(user)
+  video_project_medias = create_project_medias(user, project, team, videos)
+  add_claim_descriptions_and_fact_checks(user, video_project_medias)
 
   puts 'Making Claim Descriptions and Fact Checks: Imported Fact Checks...'
   data[:fact_check_links].each { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
@@ -260,10 +260,11 @@ ActiveRecord::Base.transaction do
       smooch_data: smooch_data.to_json
     }
 
-    a = Dynamic.create!(annotation_type: 'smooch', annotated: project_media, annotator: BotUser.smooch_user, set_fields: fields.to_json)
+    Dynamic.create!(annotation_type: 'smooch', annotated: project_media, annotator: BotUser.smooch_user, set_fields: fields.to_json)
   end
 
-  add_claim_descriptions_and_fact_checks(user)
+  tipline_claims_project_medias = ProjectMedia.last(9)
+  add_claim_descriptions_and_fact_checks(user, tipline_claims_project_medias)
 
   if answer == "1"
     puts "Created — user: #{data[:user_name]} — email: #{user.email} — password : #{data[:user_password]}"
