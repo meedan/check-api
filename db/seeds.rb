@@ -127,15 +127,15 @@ ActiveRecord::Base.transaction do
   #   puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
   # end
 
-  puts 'Making Medias and Project Medias: Audios...'
-  audios = data[:audios].map { |audio| UploadedAudio.create!(user_id: user.id, file: open_file(audio)) }
-  audio_project_medias = create_project_medias(user, project, team, audios)
-  add_claim_descriptions_and_fact_checks(user, audio_project_medias)
+  # puts 'Making Medias and Project Medias: Audios...'
+  # audios = data[:audios].map { |audio| UploadedAudio.create!(user_id: user.id, file: open_file(audio)) }
+  # audio_project_medias = create_project_medias(user, project, team, audios)
+  # add_claim_descriptions_and_fact_checks(user, audio_project_medias)
 
-  # puts 'Making Medias and Project Medias: Images...'
-  # images = data[:images].map { |image| UploadedImage.create!(user_id: user.id, file: open_file(image))}
-  # image_project_medias = create_project_medias(user, project, team, images)
-  # add_claim_descriptions_and_fact_checks(user, image_project_medias)
+  puts 'Making Medias and Project Medias: Images...'
+  images = data[:images].map { |image| UploadedImage.create!(user_id: user.id, file: open_file(image))}
+  image_project_medias = create_project_medias(user, project, team, images)
+  add_claim_descriptions_and_fact_checks(user, image_project_medias)
 
   # puts 'Making Medias and Project Medias: Videos...'
   # videos = data[:videos].map { |video| UploadedVideo.create!(user_id: user.id, file: open_file(video)) }
@@ -169,16 +169,17 @@ ActiveRecord::Base.transaction do
   #   puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."    
   # end
 
-  puts 'Making Relationship: Audios / Confirmed Type and Suggested Type...'
-  Relationship.create!(source_id: audio_project_medias[0].id, target_id: audio_project_medias[1].id, relationship_type: Relationship.confirmed_type)
-  Relationship.create!(source_id: audio_project_medias[2].id, target_id: audio_project_medias[3].id, relationship_type: Relationship.confirmed_type)
+  # puts 'Making Relationship: Audios / Confirmed Type and Suggested Type...'
+  # Relationship.create!(source_id: audio_project_medias[0].id, target_id: audio_project_medias[1].id, relationship_type: Relationship.confirmed_type)
+  # Relationship.create!(source_id: audio_project_medias[2].id, target_id: audio_project_medias[3].id, relationship_type: Relationship.confirmed_type)
 
-  audio_project_medias[4..9].each { |pm| Relationship.create!(source_id: audio_project_medias[2].id, target_id: pm.id, relationship_type: Relationship.suggested_type)}
+  # audio_project_medias[4..9].each { |pm| Relationship.create!(source_id: audio_project_medias[2].id, target_id: pm.id, relationship_type: Relationship.suggested_type)}
 
-  # puts 'Making Relationship: Images / Confirmed Type...'
-  # project_medias_for_images = []
-  # 2.times { project_medias_for_images.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedImage.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.png'))))) }
-  # Relationship.create!(source_id: project_medias_for_images[0].id, target_id: project_medias_for_images[1].id, relationship_type: Relationship.confirmed_type)
+  puts 'Making Relationship: Images / Confirmed Type...'
+  Relationship.create!(source_id: image_project_medias[0].id, target_id: image_project_medias[1].id, relationship_type: Relationship.confirmed_type)
+  Relationship.create!(source_id: image_project_medias[2].id, target_id: image_project_medias[3].id, relationship_type: Relationship.confirmed_type)
+
+  image_project_medias[4..9].each { |pm| Relationship.create!(source_id: image_project_medias[2].id, target_id: pm.id, relationship_type: Relationship.suggested_type)}
 
   # puts 'Making Tipline requests...'
   # tipline_claims_project_medias = []
