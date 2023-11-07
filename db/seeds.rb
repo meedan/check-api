@@ -39,8 +39,8 @@ def open_file(file)
   File.open(File.join(Rails.root, 'test', 'data', file))
 end
 
-def create_project_medias(user, project, team, n_medias = 9)
-  Media.last(n_medias).each { |media| ProjectMedia.create!(user_id: user.id, project: project, team: team, media: media) }
+def create_project_medias(user, project, team, data)
+    data.each { |media| ProjectMedia.create!(user_id: user.id, project: project, team: team, media: media) }
 end
 
 def humanize_link(link)
@@ -112,53 +112,53 @@ ActiveRecord::Base.transaction do
     end
   end
 
-  # puts 'Making Medias...'
-  # puts 'Making Medias and Project Medias: Claims...'
-  # 9.times { Claim.create!(user_id: user.id, quote: Faker::Quotes::Shakespeare.hamlet_quote) }
-  # create_project_medias(user, project, team)
-  # add_claim_descriptions_and_fact_checks(user)
+  puts 'Making Medias...'
+  puts 'Making Medias and Project Medias: Claims...'
+  claims = Array.new(9) { Claim.create!(user_id: user.id, quote: Faker::Quotes::Shakespeare.hamlet_quote) }
+  create_project_medias(user, project, team, claims)
+  add_claim_descriptions_and_fact_checks(user)
 
-  # puts 'Making Medias and Project Medias: Links...'
-  # begin
-  #   data[:link_media_links].each { |link_media_link| Link.create!(user_id: user.id, url: link_media_link+"?timestamp=#{Time.now.to_f}") }
-  #   create_project_medias(user, project, team)
-  #   add_claim_descriptions_and_fact_checks(user)
-  # rescue
-  #   puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
-  # end
+  puts 'Making Medias and Project Medias: Links...'
+  begin
+    links = data[:link_media_links].map { |link_media_link| Link.create!(user_id: user.id, url: link_media_link+"?timestamp=#{Time.now.to_f}") }
+    create_project_medias(user, project, team, links)
+    add_claim_descriptions_and_fact_checks(user)
+  rescue
+    puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
+  end
 
-  # puts 'Making Medias and Project Medias: Audios...'
-  # data[:audios].each { |audio| UploadedAudio.create!(user_id: user.id, file: open_file(audio)) }
-  # create_project_medias(user, project, team)
-  # add_claim_descriptions_and_fact_checks(user)
+  puts 'Making Medias and Project Medias: Audios...'
+  audios = data[:audios].map { |audio| UploadedAudio.create!(user_id: user.id, file: open_file(audio)) }
+  create_project_medias(user, project, team, audios)
+  add_claim_descriptions_and_fact_checks(user)
 
-  # puts 'Making Medias and Project Medias: Images...'
-  # data[:images].each { |image| UploadedImage.create!(user_id: user.id, file: open_file(image))}
-  # create_project_medias(user, project, team)
-  # add_claim_descriptions_and_fact_checks(user)
+  puts 'Making Medias and Project Medias: Images...'
+  images = data[:images].map { |image| UploadedImage.create!(user_id: user.id, file: open_file(image))}
+  create_project_medias(user, project, team, images)
+  add_claim_descriptions_and_fact_checks(user)
 
-  # puts 'Making Medias and Project Medias: Videos...'
-  # data[:videos].each { |video| UploadedVideo.create!(user_id: user.id, file: open_file(video)) }
-  # create_project_medias(user, project, team)
-  # add_claim_descriptions_and_fact_checks(user)
+  puts 'Making Medias and Project Medias: Videos...'
+  videos = data[:videos].map { |video| UploadedVideo.create!(user_id: user.id, file: open_file(video)) }
+  create_project_medias(user, project, team, videos)
+  add_claim_descriptions_and_fact_checks(user)
 
-  # puts 'Making Claim Descriptions and Fact Checks: Imported Fact Checks...'
-  # data[:fact_check_links].each { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
+  puts 'Making Claim Descriptions and Fact Checks: Imported Fact Checks...'
+  data[:fact_check_links].each { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
 
   puts 'Making Relationship...'
-  # puts 'Making Relationship: Claims...'
-  # project_medias_for_related_claims = []
-  # related_claims = data[:related_claims].map { |quote| Claim.create!(user_id: user.id, quote: quote) }
-  # related_claims.each { |claim| project_medias_for_related_claims.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: claim))}
+  puts 'Making Relationship: Claims...'
+  project_medias_for_related_claims = []
+  related_claims = data[:related_claims].map { |quote| Claim.create!(user_id: user.id, quote: quote) }
+  related_claims.each { |claim| project_medias_for_related_claims.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: claim))}
 
-  # puts 'Making Relationship: Claims / Confirmed Type...'
-  # Relationship.create!(source_id: project_medias_for_related_claims[0].id, target_id: project_medias_for_related_claims[1].id, relationship_type: Relationship.confirmed_type)
-  # Relationship.create!(source_id: project_medias_for_related_claims[0].id, target_id: project_medias_for_related_claims[2].id, relationship_type: Relationship.confirmed_type)
+  puts 'Making Relationship: Claims / Confirmed Type...'
+  Relationship.create!(source_id: project_medias_for_related_claims[0].id, target_id: project_medias_for_related_claims[1].id, relationship_type: Relationship.confirmed_type)
+  Relationship.create!(source_id: project_medias_for_related_claims[0].id, target_id: project_medias_for_related_claims[2].id, relationship_type: Relationship.confirmed_type)
 
-  # puts 'Making Relationship: Claims / Suggested Type...'
-  # project_medias_for_related_claims[4..12].each do |pm_claim|
-  #   Relationship.create!(source_id: project_medias_for_related_claims[3].id, target_id: pm_claim.id, relationship_type: Relationship.suggested_type)
-  # end
+  puts 'Making Relationship: Claims / Suggested Type...'
+  project_medias_for_related_claims[4..12].each do |pm_claim|
+    Relationship.create!(source_id: project_medias_for_related_claims[3].id, target_id: pm_claim.id, relationship_type: Relationship.suggested_type)
+  end
 
   puts 'Making Relationship: Links / Suggested Type...'
   related_links = data[:link_media_links].map { |link_media_link| Link.create!(user_id: user.id, url: link_media_link+"?timestamp=#{Time.now.to_f}") }
@@ -168,99 +168,100 @@ ActiveRecord::Base.transaction do
   project_medias_for_related_links[1..9].each do |pm_link|
     Relationship.create!(source_id: project_medias_for_related_links[0].id, target_id: pm_link.id, relationship_type: Relationship.suggested_type)
   end
-  # puts 'Making Relationship: Images / Confirmed Type...'
-  # project_medias_for_images = []
-  # 2.times { project_medias_for_images.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedImage.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.png'))))) }
-  # Relationship.create!(source_id: project_medias_for_images[0].id, target_id: project_medias_for_images[1].id, relationship_type: Relationship.confirmed_type)
 
-  # puts 'Making Relationship: Audios / Confirmed Type...'
-  # project_medias_for_audio = []
-  # 2.times { project_medias_for_audio.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedAudio.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.mp3'))))) }
-  # Relationship.create!(source_id: project_medias_for_audio[0].id, target_id: project_medias_for_audio[1].id, relationship_type: Relationship.confirmed_type)
+  puts 'Making Relationship: Audios / Confirmed Type...'
+  project_medias_for_audio = []
+  2.times { project_medias_for_audio.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedAudio.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.mp3'))))) }
+  Relationship.create!(source_id: project_medias_for_audio[0].id, target_id: project_medias_for_audio[1].id, relationship_type: Relationship.confirmed_type)
 
-  # puts 'Making Tipline requests...'
-  # 9.times do
-  #   claim_media = Claim.create!(user_id: user.id, quote: Faker::Lorem.paragraph(sentence_count: 10))
-  #   project_media = ProjectMedia.create!(project: project, team: team, media: claim_media, channel: { main: CheckChannels::ChannelCodes::WHATSAPP })
+  puts 'Making Relationship: Images / Confirmed Type...'
+  project_medias_for_images = []
+  2.times { project_medias_for_images.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedImage.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.png'))))) }
+  Relationship.create!(source_id: project_medias_for_images[0].id, target_id: project_medias_for_images[1].id, relationship_type: Relationship.confirmed_type)
 
-  #   tipline_user_name = Faker::Name.first_name.downcase
-  #   tipline_user_surname = Faker::Name.last_name
-  #   tipline_text = Faker::Lorem.paragraph(sentence_count: 10)
-  #   phone = [ Faker::PhoneNumber.phone_number, Faker::PhoneNumber.cell_phone, Faker::PhoneNumber.cell_phone_in_e164, Faker::PhoneNumber.phone_number_with_country_code, Faker::PhoneNumber.cell_phone_with_country_code].sample
-  #   uid = random_string
+  puts 'Making Tipline requests...'
+  9.times do
+    claim_media = Claim.create!(user_id: user.id, quote: Faker::Lorem.paragraph(sentence_count: 10))
+    project_media = ProjectMedia.create!(project: project, team: team, media: claim_media, channel: { main: CheckChannels::ChannelCodes::WHATSAPP })
 
-  #   # Tipline user
-  #   smooch_user_data = {
-  #     'id': uid,
-  #     'raw': {
-  #       '_id': uid,
-  #       'givenName': tipline_user_name,
-  #       'surname': tipline_user_surname,
-  #       'signedUpAt': Time.now.to_s,
-  #       'properties': {},
-  #       'conversationStarted': true,
-  #       'clients': [
-  #         {
-  #           'id': random_string,
-  #           'status': 'active',
-  #           'externalId': phone,
-  #           'active': true,
-  #           'lastSeen': Time.now.to_s,
-  #           'platform': 'whatsapp',
-  #           'integrationId': random_string,
-  #           'displayName': phone,
-  #           'raw': {
-  #             'profile': {
-  #               'name': tipline_user_name
-  #             },
-  #             'from': phone
-  #           }
-  #         }
-  #       ],
-  #       'pendingClients': []
-  #     },
-  #     'identifier': random_string,
-  #     'app_name': random_string
-  #   }
+    tipline_user_name = Faker::Name.first_name.downcase
+    tipline_user_surname = Faker::Name.last_name
+    tipline_text = Faker::Lorem.paragraph(sentence_count: 10)
+    phone = [ Faker::PhoneNumber.phone_number, Faker::PhoneNumber.cell_phone, Faker::PhoneNumber.cell_phone_in_e164, Faker::PhoneNumber.phone_number_with_country_code, Faker::PhoneNumber.cell_phone_with_country_code].sample
+    uid = random_string
 
-  #   fields = {
-  #     smooch_user_id: uid,
-  #     smooch_user_app_id: random_string,
-  #     smooch_user_data: smooch_user_data.to_json
-  #   }
+    # Tipline user
+    smooch_user_data = {
+      'id': uid,
+      'raw': {
+        '_id': uid,
+        'givenName': tipline_user_name,
+        'surname': tipline_user_surname,
+        'signedUpAt': Time.now.to_s,
+        'properties': {},
+        'conversationStarted': true,
+        'clients': [
+          {
+            'id': random_string,
+            'status': 'active',
+            'externalId': phone,
+            'active': true,
+            'lastSeen': Time.now.to_s,
+            'platform': 'whatsapp',
+            'integrationId': random_string,
+            'displayName': phone,
+            'raw': {
+              'profile': {
+                'name': tipline_user_name
+              },
+              'from': phone
+            }
+          }
+        ],
+        'pendingClients': []
+      },
+      'identifier': random_string,
+      'app_name': random_string
+    }
 
-  #   Dynamic.create!(annotation_type: 'smooch_user', annotated: team, annotator: BotUser.smooch_user, set_fields: fields.to_json)
+    fields = {
+      smooch_user_id: uid,
+      smooch_user_app_id: random_string,
+      smooch_user_data: smooch_user_data.to_json
+    }
 
-  #   # Tipline request
-  #   smooch_data = {
-  #     'role': 'appUser',
-  #     'source': {
-  #       'type': 'whatsapp',
-  #       'id': random_string,
-  #       'integrationId': random_string,
-  #       'originalMessageId': random_string,
-  #       'originalMessageTimestamp': Time.now.to_i
-  #     },
-  #     'authorId': uid,
-  #     'name': tipline_user_name,
-  #     '_id': random_string,
-  #     'type': 'text',
-  #     'received': Time.now.to_f,
-  #     'text': tipline_text,
-  #     'language': 'en',
-  #     'mediaUrl': nil,
-  #     'mediaSize': 0,
-  #     'archived': 3,
-  #     'app_id': random_string
-  #   }
+    Dynamic.create!(annotation_type: 'smooch_user', annotated: team, annotator: BotUser.smooch_user, set_fields: fields.to_json)
 
-  #   fields = {
-  #     smooch_request_type: 'default_requests',
-  #     smooch_data: smooch_data.to_json
-  #   }
+    # Tipline request
+    smooch_data = {
+      'role': 'appUser',
+      'source': {
+        'type': 'whatsapp',
+        'id': random_string,
+        'integrationId': random_string,
+        'originalMessageId': random_string,
+        'originalMessageTimestamp': Time.now.to_i
+      },
+      'authorId': uid,
+      'name': tipline_user_name,
+      '_id': random_string,
+      'type': 'text',
+      'received': Time.now.to_f,
+      'text': tipline_text,
+      'language': 'en',
+      'mediaUrl': nil,
+      'mediaSize': 0,
+      'archived': 3,
+      'app_id': random_string
+    }
 
-  #   a = Dynamic.create!(annotation_type: 'smooch', annotated: project_media, annotator: BotUser.smooch_user, set_fields: fields.to_json)
-  # end
+    fields = {
+      smooch_request_type: 'default_requests',
+      smooch_data: smooch_data.to_json
+    }
+
+    a = Dynamic.create!(annotation_type: 'smooch', annotated: project_media, annotator: BotUser.smooch_user, set_fields: fields.to_json)
+  end
 
   add_claim_descriptions_and_fact_checks(user)
 
