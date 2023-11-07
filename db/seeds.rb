@@ -32,7 +32,8 @@ data = {
     'https://meedan.com/post/what-is-gendered-health-misinformation-and-why-is-it-an-equity-problem-worth',
     'https://meedan.com/post/the-case-for-a-public-health-approach-to-moderate-health-misinformation',
   ],
-  quotes: ['Garlic can help you fight covid', 'Tea with garlic is a covid treatment', 'If you have covid you should eat garlic', 'Are you allergic to garlic?', 'Vampires can\'t eat garlic']
+  quotes: ['Garlic can help you fight covid', 'Tea with garlic is a covid treatment', 'If you have covid you should eat garlic', 'Are you allergic to garlic?', 'Vampires can\'t eat garlic'],
+  tipline_claims: Array.new(9) { Faker::Lorem.paragraph(sentence_count: 10) }
 }
 
 def open_file(file)
@@ -215,77 +216,76 @@ ActiveRecord::Base.transaction do
     end
   end
 
-  # puts 'Making Medias...'
-  # puts 'Making Medias and Project Medias: Claims...'
-  # 9.times { Claim.create!(user_id: user.id, quote: Faker::Quotes::Shakespeare.hamlet_quote) }
-  # create_project_medias(user, project, team)
-  # add_claim_descriptions_and_fact_checks(user)
+  puts 'Making Medias...'
+  puts 'Making Medias and Project Medias: Claims...'
+  9.times { Claim.create!(user_id: user.id, quote: Faker::Quotes::Shakespeare.hamlet_quote) }
+  create_project_medias(user, project, team)
+  add_claim_descriptions_and_fact_checks(user)
 
-  # puts 'Making Medias and Project Medias: Links...'
-  # begin
-  #   data[:link_media_links].each { |link_media_link| Link.create!(user_id: user.id, url: link_media_link+"?timestamp=#{Time.now.to_f}") }
-  #   create_project_medias(user, project, team)
-  #   add_claim_descriptions_and_fact_checks(user)
-  # rescue
-  #   puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
-  # end
+  puts 'Making Medias and Project Medias: Links...'
+  begin
+    data[:link_media_links].each { |link_media_link| Link.create!(user_id: user.id, url: link_media_link+"?timestamp=#{Time.now.to_f}") }
+    create_project_medias(user, project, team)
+    add_claim_descriptions_and_fact_checks(user)
+  rescue
+    puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
+  end
 
-  # puts 'Making Medias and Project Medias: Audios...'
-  # data[:audios].each { |audio| UploadedAudio.create!(user_id: user.id, file: open_file(audio)) }
-  # create_project_medias(user, project, team)
-  # add_claim_descriptions_and_fact_checks(user)
+  puts 'Making Medias and Project Medias: Audios...'
+  data[:audios].each { |audio| UploadedAudio.create!(user_id: user.id, file: open_file(audio)) }
+  create_project_medias(user, project, team)
+  add_claim_descriptions_and_fact_checks(user)
 
-  # puts 'Making Medias and Project Medias: Images...'
-  # data[:images].each { |image| UploadedImage.create!(user_id: user.id, file: open_file(image))}
-  # create_project_medias(user, project, team)
-  # add_claim_descriptions_and_fact_checks(user)
+  puts 'Making Medias and Project Medias: Images...'
+  data[:images].each { |image| UploadedImage.create!(user_id: user.id, file: open_file(image))}
+  create_project_medias(user, project, team)
+  add_claim_descriptions_and_fact_checks(user)
 
-  # puts 'Making Medias and Project Medias: Videos...'
-  # data[:videos].each { |video| UploadedVideo.create!(user_id: user.id, file: open_file(video)) }
-  # create_project_medias(user, project, team)
-  # add_claim_descriptions_and_fact_checks(user)
+  puts 'Making Medias and Project Medias: Videos...'
+  data[:videos].each { |video| UploadedVideo.create!(user_id: user.id, file: open_file(video)) }
+  create_project_medias(user, project, team)
+  add_claim_descriptions_and_fact_checks(user)
 
-  # puts 'Making Claim Descriptions and Fact Checks: Imported Fact Checks...'
-  # data[:fact_check_links].each { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
+  puts 'Making Claim Descriptions and Fact Checks: Imported Fact Checks...'
+  data[:fact_check_links].each { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
 
-  # puts 'Making Relationship between Claims...'
-  # project_medias_for_relationship_claims = []
-  # relationship_claims = data[:quotes].map { |quote| Claim.create!(user_id: user.id, quote: quote) }
-  # relationship_claims.each { |claim| project_medias_for_relationship_claims.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: claim))}
+  puts 'Making Relationship between Claims...'
+  project_medias_for_relationship_claims = []
+  relationship_claims = data[:quotes].map { |quote| Claim.create!(user_id: user.id, quote: quote) }
+  relationship_claims.each { |claim| project_medias_for_relationship_claims.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: claim))}
 
-  # Relationship.create!(source_id: project_medias_for_relationship_claims[0].id, target_id: project_medias_for_relationship_claims[1].id, relationship_type: Relationship.confirmed_type)
-  # Relationship.create!(source_id: project_medias_for_relationship_claims[0].id, target_id: project_medias_for_relationship_claims[2].id, relationship_type: Relationship.confirmed_type)
-  # Relationship.create!(source_id: project_medias_for_relationship_claims[3].id, target_id: project_medias_for_relationship_claims[4].id, relationship_type: Relationship.suggested_type)
+  Relationship.create!(source_id: project_medias_for_relationship_claims[0].id, target_id: project_medias_for_relationship_claims[1].id, relationship_type: Relationship.confirmed_type)
+  Relationship.create!(source_id: project_medias_for_relationship_claims[0].id, target_id: project_medias_for_relationship_claims[2].id, relationship_type: Relationship.confirmed_type)
+  Relationship.create!(source_id: project_medias_for_relationship_claims[3].id, target_id: project_medias_for_relationship_claims[4].id, relationship_type: Relationship.suggested_type)
 
-  # puts 'Making Relationship between Images...'
-  # project_medias_for_images = []
-  # 2.times { project_medias_for_images.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedImage.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.png'))))) }
-  # Relationship.create!(source_id: project_medias_for_images[0].id, target_id: project_medias_for_images[1].id, relationship_type: Relationship.confirmed_type)
+  puts 'Making Relationship between Images...'
+  project_medias_for_images = []
+  2.times { project_medias_for_images.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedImage.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.png'))))) }
+  Relationship.create!(source_id: project_medias_for_images[0].id, target_id: project_medias_for_images[1].id, relationship_type: Relationship.confirmed_type)
 
-  # puts 'Making Relationship between Audios...'
-  # project_medias_for_audio = []
-  # 2.times { project_medias_for_audio.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedAudio.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.mp3'))))) }
-  # Relationship.create!(source_id: project_medias_for_audio[0].id, target_id: project_medias_for_audio[1].id, relationship_type: Relationship.confirmed_type)
+  puts 'Making Relationship between Audios...'
+  project_medias_for_audio = []
+  2.times { project_medias_for_audio.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedAudio.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.mp3'))))) }
+  Relationship.create!(source_id: project_medias_for_audio[0].id, target_id: project_medias_for_audio[1].id, relationship_type: Relationship.confirmed_type)
 
-  puts 'Making Tipline requests for claim items...'
-  tipline_claims_arr = []
-  6.times { tipline_claims_arr.push(Faker::Lorem.paragraph(sentence_count: 10))}
-  create_tipline_requests(team, project, user, tipline_claims_arr, 'Claim')
+  puts 'Making Tipline requests...'
+  puts 'Making Tipline requests: Claims...'
+  create_tipline_requests(team, project, user, data[:tipline_claims], 'Claim')
 
-  puts 'Making Tipline requests for link items...'
+  puts 'Making Tipline requests: Links...'
   begin
     create_tipline_requests(team, project, user, data[:link_media_links], 'Link')
   rescue
     puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
   end  
 
-  puts 'Making Tipline requests for audio items...'
+  puts 'Making Tipline requests: Audios...'
   create_tipline_requests(team, project, user, data[:audios], 'UploadedAudio')
 
-  puts 'Making Tipline requests for image items...'
+  puts 'Making Tipline requests: Images...'
   create_tipline_requests(team, project, user, data[:images], 'UploadedImage')
 
-  puts 'Making Tipline requests for video items...'
+  puts 'Making Tipline requests: Videos...'
   create_tipline_requests(team, project, user, data[:videos], 'UploadedVideo')
 
   add_claim_descriptions_and_fact_checks(user)
