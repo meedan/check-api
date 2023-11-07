@@ -146,29 +146,37 @@ ActiveRecord::Base.transaction do
   # data[:fact_check_links].each { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
 
   puts 'Making Relationship...'
-  puts 'Making Relationship: Claims...'
-  project_medias_for_relationship_claims = []
-  relationship_claims = data[:related_claims].map { |quote| Claim.create!(user_id: user.id, quote: quote) }
-  relationship_claims.each { |claim| project_medias_for_relationship_claims.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: claim))}
+  # puts 'Making Relationship: Claims...'
+  # project_medias_for_related_claims = []
+  # related_claims = data[:related_claims].map { |quote| Claim.create!(user_id: user.id, quote: quote) }
+  # related_claims.each { |claim| project_medias_for_related_claims.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: claim))}
 
-  puts 'Making Relationship: Claims / Confirmed Type...'
-  Relationship.create!(source_id: project_medias_for_relationship_claims[0].id, target_id: project_medias_for_relationship_claims[1].id, relationship_type: Relationship.confirmed_type)
-  Relationship.create!(source_id: project_medias_for_relationship_claims[0].id, target_id: project_medias_for_relationship_claims[2].id, relationship_type: Relationship.confirmed_type)
+  # puts 'Making Relationship: Claims / Confirmed Type...'
+  # Relationship.create!(source_id: project_medias_for_related_claims[0].id, target_id: project_medias_for_related_claims[1].id, relationship_type: Relationship.confirmed_type)
+  # Relationship.create!(source_id: project_medias_for_related_claims[0].id, target_id: project_medias_for_related_claims[2].id, relationship_type: Relationship.confirmed_type)
 
-  puts 'Making Relationship: Claims / Suggested Type...'
-  project_medias_for_relationship_claims[4..15].each do |pm_claim|
-    Relationship.create!(source_id: project_medias_for_relationship_claims[3].id, target_id: pm_claim.id, relationship_type: Relationship.suggested_type)
+  # puts 'Making Relationship: Claims / Suggested Type...'
+  # project_medias_for_related_claims[4..12].each do |pm_claim|
+  #   Relationship.create!(source_id: project_medias_for_related_claims[3].id, target_id: pm_claim.id, relationship_type: Relationship.suggested_type)
+  # end
+
+  puts 'Making Relationship: Links / Suggested Type...'
+  related_links = data[:link_media_links].map { |link_media_link| Link.create!(user_id: user.id, url: link_media_link+"?timestamp=#{Time.now.to_f}") }
+  project_medias_for_related_links = []
+  related_links.each { |link| project_medias_for_related_links.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: link))}
+
+  project_medias_for_related_links[1..9].each do |pm_link|
+    Relationship.create!(source_id: project_medias_for_related_links[0].id, target_id: pm_link.id, relationship_type: Relationship.suggested_type)
   end
+  # puts 'Making Relationship: Images / Confirmed Type...'
+  # project_medias_for_images = []
+  # 2.times { project_medias_for_images.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedImage.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.png'))))) }
+  # Relationship.create!(source_id: project_medias_for_images[0].id, target_id: project_medias_for_images[1].id, relationship_type: Relationship.confirmed_type)
 
-  puts 'Making Relationship: Images / Confirmed Type...'
-  project_medias_for_images = []
-  2.times { project_medias_for_images.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedImage.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.png'))))) }
-  Relationship.create!(source_id: project_medias_for_images[0].id, target_id: project_medias_for_images[1].id, relationship_type: Relationship.confirmed_type)
-
-  puts 'Making Relationship: Audios / Confirmed Type...'
-  project_medias_for_audio = []
-  2.times { project_medias_for_audio.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedAudio.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.mp3'))))) }
-  Relationship.create!(source_id: project_medias_for_audio[0].id, target_id: project_medias_for_audio[1].id, relationship_type: Relationship.confirmed_type)
+  # puts 'Making Relationship: Audios / Confirmed Type...'
+  # project_medias_for_audio = []
+  # 2.times { project_medias_for_audio.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedAudio.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.mp3'))))) }
+  # Relationship.create!(source_id: project_medias_for_audio[0].id, target_id: project_medias_for_audio[1].id, relationship_type: Relationship.confirmed_type)
 
   # puts 'Making Tipline requests...'
   # 9.times do
