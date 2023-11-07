@@ -112,74 +112,75 @@ ActiveRecord::Base.transaction do
     end
   end
 
-  puts 'Making Medias...'
-  puts 'Making Medias and Project Medias: Claims...'
-  claims = Array.new(9) { Claim.create!(user_id: user.id, quote: Faker::Quotes::Shakespeare.hamlet_quote) }
-  claims_project_medias = create_project_medias(user, project, team, claims)
-  add_claim_descriptions_and_fact_checks(user, claims_project_medias)
+  # puts 'Making Medias...'
+  # puts 'Making Medias and Project Medias: Claims...'
+  # claims = Array.new(9) { Claim.create!(user_id: user.id, quote: Faker::Quotes::Shakespeare.hamlet_quote) }
+  # claims_project_medias = create_project_medias(user, project, team, claims)
+  # add_claim_descriptions_and_fact_checks(user, claims_project_medias)
 
-  puts 'Making Medias and Project Medias: Links...'
-  begin
-    links = data[:link_media_links].map { |link_media_link| Link.create!(user_id: user.id, url: link_media_link+"?timestamp=#{Time.now.to_f}") }
-    links_project_medias = create_project_medias(user, project, team, links)
-    add_claim_descriptions_and_fact_checks(user, links_project_medias)
-  rescue
-    puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
-  end
+  # puts 'Making Medias and Project Medias: Links...'
+  # begin
+  #   links = data[:link_media_links].map { |link_media_link| Link.create!(user_id: user.id, url: link_media_link+"?timestamp=#{Time.now.to_f}") }
+  #   links_project_medias = create_project_medias(user, project, team, links)
+  #   add_claim_descriptions_and_fact_checks(user, links_project_medias)
+  # rescue
+  #   puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
+  # end
 
-  puts 'Making Medias and Project Medias: Audios...'
-  audios = data[:audios].map { |audio| UploadedAudio.create!(user_id: user.id, file: open_file(audio)) }
-  audio_project_medias = create_project_medias(user, project, team, audios)
-  add_claim_descriptions_and_fact_checks(user, audio_project_medias)
+  # puts 'Making Medias and Project Medias: Audios...'
+  # audios = data[:audios].map { |audio| UploadedAudio.create!(user_id: user.id, file: open_file(audio)) }
+  # audio_project_medias = create_project_medias(user, project, team, audios)
+  # add_claim_descriptions_and_fact_checks(user, audio_project_medias)
 
-  puts 'Making Medias and Project Medias: Images...'
-  images = data[:images].map { |image| UploadedImage.create!(user_id: user.id, file: open_file(image))}
-  image_project_medias = create_project_medias(user, project, team, images)
-  add_claim_descriptions_and_fact_checks(user, image_project_medias)
+  # puts 'Making Medias and Project Medias: Images...'
+  # images = data[:images].map { |image| UploadedImage.create!(user_id: user.id, file: open_file(image))}
+  # image_project_medias = create_project_medias(user, project, team, images)
+  # add_claim_descriptions_and_fact_checks(user, image_project_medias)
 
-  puts 'Making Medias and Project Medias: Videos...'
-  videos = data[:videos].map { |video| UploadedVideo.create!(user_id: user.id, file: open_file(video)) }
-  video_project_medias = create_project_medias(user, project, team, videos)
-  add_claim_descriptions_and_fact_checks(user, video_project_medias)
+  # puts 'Making Medias and Project Medias: Videos...'
+  # videos = data[:videos].map { |video| UploadedVideo.create!(user_id: user.id, file: open_file(video)) }
+  # video_project_medias = create_project_medias(user, project, team, videos)
+  # add_claim_descriptions_and_fact_checks(user, video_project_medias)
 
-  puts 'Making Claim Descriptions and Fact Checks: Imported Fact Checks...'
-  data[:fact_check_links].each { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
+  # puts 'Making Claim Descriptions and Fact Checks: Imported Fact Checks...'
+  # data[:fact_check_links].each { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
 
-  puts 'Making Relationship...'
-  puts 'Making Relationship: Claims...'
-  project_medias_for_related_claims = []
-  related_claims = data[:related_claims].map { |quote| Claim.create!(user_id: user.id, quote: quote) }
-  related_claims.each { |claim| project_medias_for_related_claims.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: claim))}
+  # puts 'Making Relationship...'
+  # puts 'Making Relationship: Claims...'
+  # project_medias_for_related_claims = []
+  # related_claims = data[:related_claims].map { |quote| Claim.create!(user_id: user.id, quote: quote) }
+  # related_claims.each { |claim| project_medias_for_related_claims.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: claim))}
 
-  puts 'Making Relationship: Claims / Confirmed Type...'
-  Relationship.create!(source_id: project_medias_for_related_claims[0].id, target_id: project_medias_for_related_claims[1].id, relationship_type: Relationship.confirmed_type)
-  Relationship.create!(source_id: project_medias_for_related_claims[0].id, target_id: project_medias_for_related_claims[2].id, relationship_type: Relationship.confirmed_type)
+  # puts 'Making Relationship: Claims / Confirmed Type...'
+  # Relationship.create!(source_id: project_medias_for_related_claims[0].id, target_id: project_medias_for_related_claims[1].id, relationship_type: Relationship.confirmed_type)
+  # Relationship.create!(source_id: project_medias_for_related_claims[0].id, target_id: project_medias_for_related_claims[2].id, relationship_type: Relationship.confirmed_type)
 
-  puts 'Making Relationship: Claims / Suggested Type...'
-  project_medias_for_related_claims[4..12].each do |pm_claim|
-    Relationship.create!(source_id: project_medias_for_related_claims[3].id, target_id: pm_claim.id, relationship_type: Relationship.suggested_type)
-  end
+  # puts 'Making Relationship: Claims / Suggested Type...'
+  # project_medias_for_related_claims[4..12].each do |pm_claim|
+  #   Relationship.create!(source_id: project_medias_for_related_claims[3].id, target_id: pm_claim.id, relationship_type: Relationship.suggested_type)
+  # end
 
-  puts 'Making Relationship: Links / Suggested Type...'
-  begin
-    links_project_medias[1..9].each do |pm_link|
-      Relationship.create!(source_id: links_project_medias[0].id, target_id: pm_link.id, relationship_type: Relationship.suggested_type)
-    end
-  rescue
-    puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."    
-  end
+  # puts 'Making Relationship: Links / Suggested Type...'
+  # begin
+  #   links_project_medias[1..9].each do |pm_link|
+  #     Relationship.create!(source_id: links_project_medias[0].id, target_id: pm_link.id, relationship_type: Relationship.suggested_type)
+  #   end
+  # rescue
+  #   puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."    
+  # end
 
-  puts 'Making Relationship: Audios / Confirmed Type...'
-  project_medias_for_audio = []
-  2.times { project_medias_for_audio.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedAudio.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.mp3'))))) }
-  Relationship.create!(source_id: project_medias_for_audio[0].id, target_id: project_medias_for_audio[1].id, relationship_type: Relationship.confirmed_type)
+  # puts 'Making Relationship: Audios / Confirmed Type...'
+  # project_medias_for_audio = []
+  # 2.times { project_medias_for_audio.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedAudio.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.mp3'))))) }
+  # Relationship.create!(source_id: project_medias_for_audio[0].id, target_id: project_medias_for_audio[1].id, relationship_type: Relationship.confirmed_type)
 
-  puts 'Making Relationship: Images / Confirmed Type...'
-  project_medias_for_images = []
-  2.times { project_medias_for_images.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedImage.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.png'))))) }
-  Relationship.create!(source_id: project_medias_for_images[0].id, target_id: project_medias_for_images[1].id, relationship_type: Relationship.confirmed_type)
+  # puts 'Making Relationship: Images / Confirmed Type...'
+  # project_medias_for_images = []
+  # 2.times { project_medias_for_images.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: UploadedImage.create!(user_id: user.id, file: File.open(File.join(Rails.root, 'test', 'data', 'rails.png'))))) }
+  # Relationship.create!(source_id: project_medias_for_images[0].id, target_id: project_medias_for_images[1].id, relationship_type: Relationship.confirmed_type)
 
   puts 'Making Tipline requests...'
+  tipline_claims_project_medias = []
   9.times do
     claim_media = Claim.create!(user_id: user.id, quote: Faker::Lorem.paragraph(sentence_count: 10))
     project_media = ProjectMedia.create!(project: project, team: team, media: claim_media, channel: { main: CheckChannels::ChannelCodes::WHATSAPP })
@@ -261,9 +262,8 @@ ActiveRecord::Base.transaction do
     }
 
     Dynamic.create!(annotation_type: 'smooch', annotated: project_media, annotator: BotUser.smooch_user, set_fields: fields.to_json)
+    tipline_claims_project_medias.push(project_media)
   end
-
-  tipline_claims_project_medias = ProjectMedia.last(9)
   add_claim_descriptions_and_fact_checks(user, tipline_claims_project_medias)
 
   if answer == "1"
