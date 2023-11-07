@@ -162,17 +162,12 @@ ActiveRecord::Base.transaction do
 
   puts 'Making Relationship: Links / Suggested Type...'
   begin
-    related_links = data[:link_media_links].map { |link_media_link| Link.create!(user_id: user.id, url: link_media_link+"?timestamp=#{Time.now.to_f}") }
-    project_medias_for_related_links = []
-    related_links.each { |link| project_medias_for_related_links.push(ProjectMedia.create!(user_id: user.id, project: project, team: team, media: link))}
-  
-    project_medias_for_related_links[1..9].each do |pm_link|
-      Relationship.create!(source_id: project_medias_for_related_links[0].id, target_id: pm_link.id, relationship_type: Relationship.suggested_type)
+    links_project_medias[1..9].each do |pm_link|
+      Relationship.create!(source_id: links_project_medias[0].id, target_id: pm_link.id, relationship_type: Relationship.suggested_type)
     end
   rescue
     puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."    
   end
-  
 
   puts 'Making Relationship: Audios / Confirmed Type...'
   project_medias_for_audio = []
