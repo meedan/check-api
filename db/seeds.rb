@@ -66,8 +66,8 @@ def create_description(project_media)
 end
 
 def add_claim_descriptions_and_fact_checks(user, project_medias)
-  project_medias.each { |project_media| ClaimDescription.create!(description: create_description(project_media), context: Faker::Lorem.sentence, user: user, project_media: project_media) }
-  ClaimDescription.last(3).each { |claim_description| FactCheck.create!(summary: Faker::Company.catch_phrase, title: Faker::Company.name, user: user, claim_description: claim_description) }
+  claim_descriptions = project_medias.map { |project_media| ClaimDescription.create!(description: create_description(project_media), context: Faker::Lorem.sentence, user: user, project_media: project_media) }
+  claim_descriptions.values_at(0,3,8).each { |claim_description| FactCheck.create!(summary: Faker::Company.catch_phrase, title: Faker::Company.name, user: user, claim_description: claim_description) }
 end
 
 def fact_check_attributes(fact_check_link, user, project, team)
@@ -182,7 +182,7 @@ end
 def create_tipline_requests(team, project, user, data_instances, model_string)
   tipline_pm_arr = []
   
-  data_instances[0..5].each do |data_instance|
+  data_instances.each do |data_instance|
     media = create_media(user, data_instance, model_string)
     project_media = create_tipline_project_media(user, project, team, media)
     tipline_pm_arr.push(project_media)
@@ -191,6 +191,7 @@ def create_tipline_requests(team, project, user, data_instances, model_string)
 
   tipline_pm_arr[0..2].each {|pm| create_tipline_user_and_data(pm, team)}
   tipline_pm_arr[3..5].each {|pm| 15.times {create_tipline_user_and_data(pm, team)}}
+  tipline_pm_arr[6..8].each {|pm| 7.times {create_tipline_user_and_data(pm, team)}}
 end
 
 puts "If you want to create a new user: press 1 then enter"
