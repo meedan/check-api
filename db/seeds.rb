@@ -203,7 +203,7 @@ answer = STDIN.gets.chomp
 ActiveRecord::Base.transaction do
   if answer == "1"
     puts 'Making Team / Workspace...'
-    team = create_team(name: Faker::Company.name)
+    team = create_team(name: "#{data[:team_name]} / Feed Creator")
 
     puts 'Making User...'
     user = create_user(name: data[:user_name], login: data[:user_name], password: data[:user_password], password_confirmation: data[:user_password], email: Faker::Internet.safe_email(name: data[:user_name]), is_admin: true)
@@ -222,7 +222,7 @@ ActiveRecord::Base.transaction do
     user = User.find_by(email: email)
 
     if user.team_users.first.nil?
-      team = create_team(name: Faker::Company.name)
+      team = create_team(name: data[:team_name])
       project = create_project(title: team.name, team_id: team.id, user: user, description: '')
       create_team_user(team: team, user: user, role: 'admin')
     else 
@@ -294,7 +294,7 @@ ActiveRecord::Base.transaction do
     create_tipline_requests(team, project, user, data[:link_media_links], 'Link')
   rescue
     puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
-  end  
+  end
 
   puts 'Making Tipline requests: Audios...'
   create_tipline_requests(team, project, user, data[:audios], 'UploadedAudio')
@@ -304,6 +304,12 @@ ActiveRecord::Base.transaction do
 
   puts 'Making Tipline requests: Videos...'
   create_tipline_requests(team, project, user, data[:videos], 'UploadedVideo')
+
+  puts 'Making Shared Feed'
+  Feed.create!(name: "#{data[:team_name]} / Feed Test", user: user, team: team)
+
+  puts 'Making Feed invitee'
+  team = create_team(name: "Feed Invitee")
 
   if answer == "1"
     puts "Created — user: #{data[:user_name]} — email: #{user.email} — password : #{data[:user_password]}"
