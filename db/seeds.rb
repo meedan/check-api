@@ -82,8 +82,8 @@ def create_relationship(project_medias)
   project_medias[4..9].each { |pm| Relationship.create!(source_id: project_medias[2].id, target_id: pm.id, relationship_type: Relationship.suggested_type)}    
 end
 
-def create_tipline_project_media(project, team, media)
-  ProjectMedia.create!(project: project, team: team, media: media, channel: { main: CheckChannels::ChannelCodes::WHATSAPP })
+def create_tipline_project_media(user, project, team, media)
+  ProjectMedia.create!(user_id: user.id, project: project, team: team, media: media, channel: { main: CheckChannels::ChannelCodes::WHATSAPP })
 end
 
 def create_tipline_user_and_data(project_media, team)
@@ -178,9 +178,11 @@ def create_tipline_requests(team, project, user, data_instances, model_string)
     else
       media = model.create!(user_id: user.id, file: open_file(data_instance)) 
     end
-    project_media = create_tipline_project_media(project, team, media)
+    project_media = create_tipline_project_media(user, project, team, media)
     tipline_pm_arr.push(project_media)
   end
+  add_claim_descriptions_and_fact_checks(user, tipline_pm_arr)
+
   tipline_pm_arr[0..2].each {|pm| create_tipline_user_and_data(pm, team)}
   tipline_pm_arr[3..5].each {|pm| 15.times {create_tipline_user_and_data(pm, team)}}
 end
