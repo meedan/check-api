@@ -32,7 +32,7 @@ data = {
     'https://meedan.com/post/what-is-gendered-health-misinformation-and-why-is-it-an-equity-problem-worth',
     'https://meedan.com/post/the-case-for-a-public-health-approach-to-moderate-health-misinformation',
   ],
-  tipline_claims: Array.new(9) { Faker::Lorem.paragraph(sentence_count: 10) }
+  claims: Array.new(9) { Faker::Lorem.paragraph(sentence_count: 10) }
 }
 
 def open_file(file)
@@ -232,13 +232,13 @@ ActiveRecord::Base.transaction do
 
   puts 'Making Medias...'
   puts 'Making Medias and Project Medias: Claims...'
-  claims = Array.new(9) { Claim.create!(user_id: user.id, quote: Faker::Quotes::Shakespeare.hamlet_quote) }
+  claims = data[:claims].map { |data| create_media(user, data, 'Claim')}
   claim_project_medias = create_project_medias(user, project, team, claims)
   add_claim_descriptions_and_fact_checks(user, claim_project_medias)
 
   puts 'Making Medias and Project Medias: Links...'
   begin
-    links = data[:link_media_links].map { |link_media_link| Link.create!(user_id: user.id, url: link_media_link+"?timestamp=#{Time.now.to_f}") }
+    links = data[:link_media_links].map { |data| create_media(user, data, 'Link')}
     link_project_medias = create_project_medias(user, project, team, links)
     add_claim_descriptions_and_fact_checks(user, link_project_medias)
   rescue
@@ -246,22 +246,22 @@ ActiveRecord::Base.transaction do
   end
 
   puts 'Making Medias and Project Medias: Audios...'
-  audios = data[:audios].map { |audio| UploadedAudio.create!(user_id: user.id, file: open_file(audio)) }
+  audios = data[:audios].map { |data| create_media(user, data, 'UploadedAudio')}
   audio_project_medias = create_project_medias(user, project, team, audios)
   add_claim_descriptions_and_fact_checks(user, audio_project_medias)
 
   puts 'Making Medias and Project Medias: Images...'
-  images = data[:images].map { |image| UploadedImage.create!(user_id: user.id, file: open_file(image))}
+  images = data[:images].map { |data| create_media(user, data, 'UploadedImage')}
   image_project_medias = create_project_medias(user, project, team, images)
   add_claim_descriptions_and_fact_checks(user, image_project_medias)
 
   puts 'Making Medias and Project Medias: Videos...'
-  videos = data[:videos].map { |video| UploadedVideo.create!(user_id: user.id, file: open_file(video)) }
+  videos = data[:videos].map { |data| create_media(user, data, 'UploadedVideo')}
   video_project_medias = create_project_medias(user, project, team, videos)
   add_claim_descriptions_and_fact_checks(user, video_project_medias)
 
   puts 'Making Claim Descriptions and Fact Checks: Imported Fact Checks...'
-  data[:fact_check_links].each { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
+  data[:fact_check_links].map { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
 
   puts 'Making Relationship...'
   puts 'Making Relationship: Claims / Confirmed Type and Suggested Type...'
@@ -285,7 +285,7 @@ ActiveRecord::Base.transaction do
 
   puts 'Making Tipline requests...'
   puts 'Making Tipline requests: Claims...'
-  create_tipline_requests(team, project, user, data[:tipline_claims], 'Claim')
+  create_tipline_requests(team, project, user, data[:claims], 'Claim')
 
   puts 'Making Tipline requests: Links...'
   begin
