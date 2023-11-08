@@ -188,10 +188,11 @@ def create_tipline_requests(team, project, user, data_instances, model_string)
     tipline_pm_arr.push(project_media)
   end
   add_claim_descriptions_and_fact_checks(user, tipline_pm_arr)
+  create_relationship(tipline_pm_arr)
 
-  tipline_pm_arr[0..2].each {|pm| create_tipline_user_and_data(pm, team)}
-  tipline_pm_arr[3..5].each {|pm| 15.times {create_tipline_user_and_data(pm, team)}}
-  tipline_pm_arr[6..8].each {|pm| 7.times {create_tipline_user_and_data(pm, team)}}
+  tipline_pm_arr.values_at(0,3,6).each {|pm| create_tipline_user_and_data(pm, team)}
+  tipline_pm_arr.values_at(1,4,7).each {|pm| 15.times {create_tipline_user_and_data(pm, team)}}
+  tipline_pm_arr.values_at(2,5,8).each {|pm| 20.times {create_tipline_user_and_data(pm, team)}}
 end
 
 puts "If you want to create a new user: press 1 then enter"
