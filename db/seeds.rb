@@ -39,6 +39,19 @@ def open_file(file)
   File.open(File.join(Rails.root, 'test', 'data', file))
 end
 
+def create_media(user, data, model_string)
+  model = Object.const_get(model_string)
+  case model_string
+  when 'Claim'
+    media = model.create!(user_id: user.id, quote: data)
+  when 'Link'
+    media = model.create!(user_id: user.id, url: data+"?timestamp=#{Time.now.to_f}")
+  else
+    media = model.create!(user_id: user.id, file: open_file(data)) 
+  end
+  media
+end
+
 def create_project_medias(user, project, team, data)
   data.map { |media| ProjectMedia.create!(user_id: user.id, project: project, team: team, media: media) }
 end
@@ -168,16 +181,9 @@ end
 
 def create_tipline_requests(team, project, user, data_instances, model_string)
   tipline_pm_arr = []
-  model = Object.const_get(model_string)
+  
   data_instances[0..5].each do |data_instance|
-    case model_string
-    when 'Claim'
-      media = model.create!(user_id: user.id, quote: data_instance)
-    when 'Link'
-      media = model.create!(user_id: user.id, url: data_instance+"?timestamp=#{Time.now.to_f}")
-    else
-      media = model.create!(user_id: user.id, file: open_file(data_instance)) 
-    end
+    media = create_media(user, data_instance, model_string)
     project_media = create_tipline_project_media(user, project, team, media)
     tipline_pm_arr.push(project_media)
   end
