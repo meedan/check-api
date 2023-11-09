@@ -32,7 +32,10 @@ data = {
     'https://meedan.com/post/what-is-gendered-health-misinformation-and-why-is-it-an-equity-problem-worth',
     'https://meedan.com/post/the-case-for-a-public-health-approach-to-moderate-health-misinformation',
   ],
-  claims: Array.new(9) { Faker::Lorem.paragraph(sentence_count: 10) }
+  claims: Array.new(9) { Faker::Lorem.paragraph(sentence_count: 10) },
+  invited_team_name: Faker::Company.name,
+  invited_user_name: Faker::Name.first_name.downcase,
+  invited_user_password: Faker::Internet.password(min_length: 8)
 }
 
 def open_file(file)
@@ -273,7 +276,7 @@ ActiveRecord::Base.transaction do
   begin
     create_relationship(link_project_medias)
   rescue
-    puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."    
+    puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
   end
 
   puts 'Making Relationship: Audios / Confirmed Type and Suggested Type...'
@@ -306,14 +309,22 @@ ActiveRecord::Base.transaction do
   create_tipline_requests(team, project, user, data[:videos], 'UploadedVideo')
 
   puts 'Making Shared Feed'
-  Feed.create!(name: "#{data[:team_name]} / Feed Test", user: user, team: team)
+  Feed.create!(name: "#{Faker::Fantasy::Tolkien.location} / Feed Test", user: user, team: team)
 
-  puts 'Making Feed invitee'
-  team = create_team(name: "Feed Invitee")
+  puts 'Making Feed invitee...'
+  puts 'Making invited Team...'
+  invited_team = create_team(name: "#{data[:invited_team_name]} / Invited Team")
+
+  puts 'Making invited User...'
+  invited_user = create_user(name: data[:invited_user_name], login: data[:invited_user_name], password: data[:invited_user_password], password_confirmation: data[:invited_user_password], email: Faker::Internet.safe_email(name: data[:invited_user_name]), is_admin: true)
+
+  puts 'Making invited Team User...'
+  create_team_user(team: invited_team, user: invited_user, role: 'admin')
 
   if answer == "1"
-    puts "Created — user: #{data[:user_name]} — email: #{user.email} — password : #{data[:user_password]}"
+    puts "Created user: name: #{data[:invited_user_name]} — email: #{user.email} — password : #{data[:invited_user_password]}"
   elsif answer == "2"
     puts "Data added to user: #{user.email}"
   end
+  puts "Created invited user: name: #{data[:invited_user_name]} — email: #{invited_user.email} — password : #{data[:invited_user_password]}"
 end
