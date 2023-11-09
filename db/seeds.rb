@@ -67,7 +67,7 @@ end
 
 def add_claim_descriptions_and_fact_checks(user, project_medias)
   claim_descriptions = project_medias.map { |project_media| ClaimDescription.create!(description: create_description(project_media), context: Faker::Lorem.sentence, user: user, project_media: project_media) }
-  claim_descriptions.values_at(0,3,8).each { |claim_description| FactCheck.create!(summary: Faker::Company.catch_phrase, title: Faker::Company.name, user: user, claim_description: claim_description) }
+  claim_descriptions.values_at(0,3,8).each { |claim_description| FactCheck.create!(summary: Faker::Company.catch_phrase, title: Faker::Company.name, user: user, claim_description: claim_description, language: 'en') }
 end
 
 def fact_check_attributes(fact_check_link, user, project, team)
@@ -204,6 +204,7 @@ ActiveRecord::Base.transaction do
   if answer == "1"
     puts 'Making Team / Workspace...'
     team = create_team(name: "#{data[:team_name]} / Feed Creator")
+    team.set_language('en')
 
     puts 'Making User...'
     user = create_user(name: data[:user_name], login: data[:user_name], password: data[:user_password], password_confirmation: data[:user_password], email: Faker::Internet.safe_email(name: data[:user_name]), is_admin: true)
