@@ -6,7 +6,7 @@ class Feed < ApplicationRecord
   has_many :requests
   has_many :feed_teams, dependent: :destroy
   has_many :teams, through: :feed_teams
-  has_many :feed_invitations
+  has_many :feed_invitations, dependent: :destroy
   belongs_to :user, optional: true
   belongs_to :saved_search, optional: true
   belongs_to :team, optional: true
