@@ -984,6 +984,16 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal ['alegre'], tbi.map(&:user).map(&:login)
   end
 
+  test "should duplicate team with non english default language" do
+    t1 = create_team
+    t1.set_languages = ['fr']
+    t1.set_language = 'fr'
+    t1.save!
+    t2 = Team.duplicate(t1)
+    assert_equal ['fr'], t2.get_languages
+    assert_equal 'fr', t2.get_language
+  end
+
   test "should delete team and partition" do
     t = create_team
     assert_difference 'Team.count', -1 do
