@@ -67,7 +67,7 @@ end
 
 def add_claim_descriptions_and_fact_checks(user, project_medias)
   claim_descriptions = project_medias.map { |project_media| ClaimDescription.create!(description: create_description(project_media), context: Faker::Lorem.sentence, user: user, project_media: project_media) }
-  claim_descriptions.values_at(0,3,8).each { |claim_description| FactCheck.create!(summary: Faker::Company.catch_phrase, title: Faker::Company.name, user: user, claim_description: claim_description, language: 'en') }
+  claim_descriptions.values_at(0,3,6).each { |claim_description| FactCheck.create!(summary: Faker::Company.catch_phrase, title: Faker::Company.name, user: user, claim_description: claim_description, language: 'en') }
 end
 
 def fact_check_attributes(fact_check_link, user, project, team)
@@ -238,6 +238,13 @@ ActiveRecord::Base.transaction do
   claims = data[:claims].map { |data| create_media(user, data, 'Claim')}
   claim_project_medias = create_project_medias(user, project, team, claims)
   add_claim_descriptions_and_fact_checks(user, claim_project_medias)
+  claim_project_medias.values_at(0,3,6).each do |pm|
+    r = Dynamic.where(annotation_type: 'report_design').find_by(annotated_id: pm)
+    r.set_fields = { status_label: 'verified' }.to_json
+    r.set_fields = { state: 'published' }.to_json
+    r.action = 'publish'
+    r.save!
+  end
 
   puts 'Making Medias and Project Medias: Links...'
   begin
