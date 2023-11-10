@@ -393,7 +393,7 @@ class GraphqlController8Test < ActionController::TestCase
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       Sidekiq::Testing.fake! do
         WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
-        WebMock.stub_request(:get, 'http://alegre/image/ocr/').with({ query: { url: "some/path" } }).to_return(body: { text: 'Foo bar' }.to_json)
+        WebMock.stub_request(:get, 'http://alegre/image/ocr/').with({ body: { url: "some/path" } }).to_return(body: { text: 'Foo bar' }.to_json)
         WebMock.stub_request(:get, 'http://alegre/text/similarity/')
 
         u = create_user
