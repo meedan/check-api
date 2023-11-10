@@ -53,7 +53,7 @@ def create_media(user, data, model_string)
 end
 
 def create_project_medias(user, project, team, data)
-  data.map { |media| ProjectMedia.create!(user_id: user.id, project: project, team: team, media: media) }
+  data.map { |media| ProjectMedia.create!(user_id: user.id, project: project, team: team, media: media, channel: { main: CheckChannels::ChannelCodes::WHATSAPP }) }
 end
 
 def humanize_link(link)
@@ -113,8 +113,8 @@ def create_relationship(project_medias)
   project_medias[4..9].each { |pm| Relationship.create!(source_id: project_medias[2].id, target_id: pm.id, relationship_type: Relationship.suggested_type)}    
 end
 
-def create_tipline_project_media(user, project, team, media)
-  ProjectMedia.create!(user_id: user.id, project: project, team: team, media: media, channel: { main: CheckChannels::ChannelCodes::WHATSAPP })
+def create_tipline_project_media(user, project, team, data)
+  data.map { |media| ProjectMedia.create!(user_id: user.id, project: project, team: team, media: media, channel: { main: CheckChannels::ChannelCodes::WHATSAPP })}
 end
 
 def create_tipline_user_and_data(project_media, team)
@@ -247,83 +247,88 @@ ActiveRecord::Base.transaction do
   claim_project_medias = create_project_medias(user, project, team, claims)
   add_claim_descriptions_and_fact_checks(user, claim_project_medias)
 
-  puts 'Making Medias and Project Medias: Links...'
-  begin
-    links = data[:link_media_links].map { |data| create_media(user, data, 'Link')}
-    link_project_medias = create_project_medias(user, project, team, links)
-    add_claim_descriptions_and_fact_checks(user, link_project_medias)
-  rescue
-    puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
-  end
+  # puts 'Making Medias and Project Medias: Links...'
+  # begin
+  #   links = data[:link_media_links].map { |data| create_media(user, data, 'Link')}
+  #   link_project_medias = create_project_medias(user, project, team, links)
+  #   add_claim_descriptions_and_fact_checks(user, link_project_medias)
+  # rescue
+  #   puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
+  # end
 
-  puts 'Making Medias and Project Medias: Audios...'
-  audios = data[:audios].map { |data| create_media(user, data, 'UploadedAudio')}
-  audio_project_medias = create_project_medias(user, project, team, audios)
-  add_claim_descriptions_and_fact_checks(user, audio_project_medias)
+  # puts 'Making Medias and Project Medias: Audios...'
+  # audios = data[:audios].map { |data| create_media(user, data, 'UploadedAudio')}
+  # audio_project_medias = create_project_medias(user, project, team, audios)
+  # add_claim_descriptions_and_fact_checks(user, audio_project_medias)
 
-  puts 'Making Medias and Project Medias: Images...'
-  images = data[:images].map { |data| create_media(user, data, 'UploadedImage')}
-  image_project_medias = create_project_medias(user, project, team, images)
-  add_claim_descriptions_and_fact_checks(user, image_project_medias)
+  # puts 'Making Medias and Project Medias: Images...'
+  # images = data[:images].map { |data| create_media(user, data, 'UploadedImage')}
+  # image_project_medias = create_project_medias(user, project, team, images)
+  # add_claim_descriptions_and_fact_checks(user, image_project_medias)
 
-  puts 'Making Medias and Project Medias: Videos...'
-  videos = data[:videos].map { |data| create_media(user, data, 'UploadedVideo')}
-  video_project_medias = create_project_medias(user, project, team, videos)
-  add_claim_descriptions_and_fact_checks(user, video_project_medias)
+  # puts 'Making Medias and Project Medias: Videos...'
+  # videos = data[:videos].map { |data| create_media(user, data, 'UploadedVideo')}
+  # video_project_medias = create_project_medias(user, project, team, videos)
+  # add_claim_descriptions_and_fact_checks(user, video_project_medias)
 
-  puts 'Making Claim Descriptions and Fact Checks: Imported Fact Checks...'
-  data[:fact_check_links].map { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
+  # puts 'Making Claim Descriptions and Fact Checks: Imported Fact Checks...'
+  # data[:fact_check_links].map { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
 
-  puts 'Making Relationship...'
-  puts 'Making Relationship: Claims / Confirmed Type and Suggested Type...'
-  create_relationship(claim_project_medias)
+  # puts 'Making Relationship...'
+  # puts 'Making Relationship: Claims / Confirmed Type and Suggested Type...'
+  # create_relationship(claim_project_medias)
 
-  puts 'Making Relationship: Links / Suggested Type...'
-  begin
-    create_relationship(link_project_medias)
-  rescue
-    puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
-  end
+  # puts 'Making Relationship: Links / Suggested Type...'
+  # begin
+  #   create_relationship(link_project_medias)
+  # rescue
+  #   puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
+  # end
 
-  puts 'Making Relationship: Audios / Confirmed Type and Suggested Type...'
-  create_relationship(audio_project_medias)
+  # puts 'Making Relationship: Audios / Confirmed Type and Suggested Type...'
+  # create_relationship(audio_project_medias)
 
-  puts 'Making Relationship: Images / Confirmed Type and Suggested Type...'
-  create_relationship(image_project_medias)
+  # puts 'Making Relationship: Images / Confirmed Type and Suggested Type...'
+  # create_relationship(image_project_medias)
 
-  puts 'Making Relationship: Videos / Confirmed Type and Suggested Type...'
-  create_relationship(video_project_medias)
+  # puts 'Making Relationship: Videos / Confirmed Type and Suggested Type...'
+  # create_relationship(video_project_medias)
 
   puts 'Publishing Reports...'
   verify_fact_check_and_publish_report(claim_project_medias)
-  begin
-    verify_fact_check_and_publish_report(link_project_medias)
-  rescue
-    puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
-  end
-  verify_fact_check_and_publish_report(audio_project_medias)
-  verify_fact_check_and_publish_report(image_project_medias)
-  verify_fact_check_and_publish_report(video_project_medias)
+  # begin
+  #   verify_fact_check_and_publish_report(link_project_medias)
+  # rescue
+  #   puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
+  # end
+  # verify_fact_check_and_publish_report(audio_project_medias)
+  # verify_fact_check_and_publish_report(image_project_medias)
+  # verify_fact_check_and_publish_report(video_project_medias)
 
   puts 'Making Tipline requests...'
   puts 'Making Tipline requests: Claims...'
+  # tipline_claims = data[:claims].map { |data| create_media(user, data, 'Claim')}
+  # tipline_claim_project_medias = create_tipline_project_media(user, project, team, tipline_claims)
+  # add_claim_descriptions_and_fact_checks(user, tipline_claim_project_medias)
+  # create_relationship(tipline_claim_project_medias)
+  # verify_fact_check_and_publish_report(tipline_claim_project_medias)
   create_tipline_requests(team, claim_project_medias)
 
-  puts 'Making Tipline requests: Links...'
-  begin
-    create_tipline_requests(team, link_project_medias)
-  rescue
-    puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
-  end
+  # puts 'Making Tipline requests: Links...'
+  # begin
+  #   create_tipline_requests(team, link_project_medias)
+  # rescue
+  #   puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
+  # end
 
-  puts 'Making Tipline requests: Audios...'
-  create_tipline_requests(team, audio_project_medias)
+  # puts 'Making Tipline requests: Audios...'
+  # create_tipline_requests(team, audio_project_medias)
 
-  puts 'Making Tipline requests: Images...'
-  create_tipline_requests(team, image_project_medias)
+  # puts 'Making Tipline requests: Images...'
+  # create_tipline_requests(team, image_project_medias)
 
-  puts 'Making Tipline requests: Videos...'
-  create_tipline_requests(team, video_project_medias)
+  # puts 'Making Tipline requests: Videos...'
+  # create_tipline_requests(team, video_project_medias)
 
   puts 'Making Shared Feed'
   saved_search = SavedSearch.create!(title: "#{data[:user_name]}'s list", team: team, filters: {created_by: data[:user_name]})
