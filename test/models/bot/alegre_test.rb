@@ -129,7 +129,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm1 = create_project_media project: p, quote: "for testing short text", team: @team
     pm2 = create_project_media project: p, quote: "testing short text", team: @team
     pm2.analysis = { content: 'short text' }
-    Bot::Alegre.stubs(:request_api).returns({
+    Bot::Alegre.stubs(:request).returns({
       "result" => [
         {
           "_score" => 26.493948,
@@ -147,7 +147,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     # Relation should be confirmed if at least one field size > threshold
     pm3 = create_project_media project: p, quote: 'This is also a long enough title', team: @team
     pm4 = create_project_media project: p, quote: 'This is also a long enough title so as to allow an actual check of other titles', team: @team
-    Bot::Alegre.stubs(:request_api).returns({
+    Bot::Alegre.stubs(:request).returns({
       "result" => [
         {
           "_score" => 26.493948,
@@ -162,7 +162,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
     r = Relationship.last
     assert_equal Relationship.confirmed_type, r.relationship_type
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
 
   test "should set similarity relationship based on date threshold" do
@@ -170,7 +170,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     p = create_project team: @team
     pm1 = create_project_media project: p, quote: "This is also a long enough Title so as to allow an actual check of other titles", team: @team
     pm2 = create_project_media project: p, quote: "This is also a long enough Title so as to allow an actual check of other titles 2", team: @team
-    Bot::Alegre.stubs(:request_api).returns({
+    Bot::Alegre.stubs(:request).returns({
       "result" => [
         {
           "_score" => 26.493948,
@@ -197,7 +197,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
     r = Relationship.last
     assert_equal Relationship.suggested_type, r.relationship_type
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
 
   test "should index report data" do
@@ -222,7 +222,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should use OCR data for similarity matching 2" do
     pm = create_project_media team: @team, media: create_uploaded_image
     pm2 = create_project_media team: @team, media: create_uploaded_image
-    Bot::Alegre.stubs(:request_api).returns({"result"=> [{
+    Bot::Alegre.stubs(:request).returns({"result"=> [{
       "_index"=>"alegre_similarity",
       "_type"=>"_doc",
       "_id"=>"i8XY53UB36CYclMPF5wC",
@@ -250,7 +250,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal r.model, "elasticsearch"
     assert_equal Bot::Alegre.get_pm_type(r.source), "image"
     assert_equal Bot::Alegre.get_pm_type(r.target), "image"
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
 
 

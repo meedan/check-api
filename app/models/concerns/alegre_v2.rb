@@ -56,7 +56,7 @@ module AlegreV2
       JSON.parse(response.body)
     end
 
-    def alegre_request(method, path, params, retries=3)
+    def request(method, path, params, retries=3)
       http, request = generate_request(method, path, params)
       begin
         Rails.logger.info("[Alegre Bot] Alegre Bot request: (#{method}, #{path}, #{params.inspect}, #{retries})")
@@ -66,7 +66,7 @@ module AlegreV2
       rescue StandardError => e
         if retries > 0
           sleep 1
-          self.alegre_request(method, path, params, retries - 1)
+          self.request(method, path, params, retries - 1)
         end
         Rails.logger.error("[Alegre Bot] Alegre error: #{e.message}")
         { 'type' => 'error', 'data' => { 'message' => e.message } }
@@ -74,15 +74,15 @@ module AlegreV2
     end
 
     def request_delete(data, project_media)
-      alegre_request("delete", delete_path(project_media), data)
+      request("delete", delete_path(project_media), data)
     end
 
     def request_sync(data)
-      alegre_request("get", sync_path, data)
+      request("get", sync_path, data)
     end
 
     def request_async(data)
-      alegre_request("get", async_path, data)
+      request("get", async_path, data)
     end
 
     def get_type(project_media)

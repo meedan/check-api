@@ -117,7 +117,6 @@ class ElasticSearch9Test < ActionController::TestCase
     bot.install_to!(team)
     create_flag_annotation_type
     create_extracted_text_annotation_type
-    Bot::Alegre.unstub(:request_api)
     Rails.stubs(:env).returns('development'.inquiry)
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/

@@ -33,7 +33,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
           'confidence': 1.0
         }
       }.to_json)
-      Bot::Alegre.stubs(:request_api).returns({
+      Bot::Alegre.stubs(:request).returns({
         'result' => {
           'language' => 'en',
           'confidence' => 1.0
@@ -43,7 +43,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       assert_difference 'Annotation.count' do
         assert_equal 'en', Bot::Alegre.get_language(@pm)
       end
-      Bot::Alegre.unstub(:request_api)
+      Bot::Alegre.unstub(:request)
     end
   end
 
@@ -52,12 +52,12 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       WebMock.stub_request(:get, 'http://alegre/text/langid/').to_return(body: {
         'foo': 'bar'
       }.to_json)
-      Bot::Alegre.stubs(:request_api).raises(RuntimeError)
+      Bot::Alegre.stubs(:request).raises(RuntimeError)
       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
       assert_difference 'Annotation.count' do
         assert_equal 'und', Bot::Alegre.get_language(@pm)
       end
-      Bot::Alegre.unstub(:request_api)
+      Bot::Alegre.unstub(:request)
     end
   end
 
@@ -73,7 +73,6 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     }
     create_annotation_type_and_fields('Transcription', {}, json_schema)
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', true] })
-    Bot::Alegre.unstub(:request_api)
     tbi = Bot::Alegre.get_alegre_tbi(@team.id)
     tbi.set_transcription_similarity_enabled = false
     tbi.save!
@@ -143,7 +142,6 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     }
     create_annotation_type_and_fields('Transcription', {}, json_schema)
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', true] })
-    Bot::Alegre.unstub(:request_api)
     tbi = Bot::Alegre.get_alegre_tbi(@team.id)
     tbi.set_transcription_similarity_enabled = false
     tbi.save!
@@ -212,7 +210,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
           'confidence': 1.0
         }
       }.to_json)
-      Bot::Alegre.stubs(:request_api).returns({
+      Bot::Alegre.stubs(:request).returns({
         'result' => {
           'language' => 'en',
           'confidence' => 1.0
@@ -220,7 +218,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       })
       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
       assert Bot::Alegre.run({ data: { dbid: @pm.id }, event: 'create_project_media' })
-      Bot::Alegre.unstub(:request_api)
+      Bot::Alegre.unstub(:request)
     end
   end
 
@@ -420,7 +418,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
   end
 
   test "should not return a malformed hash" do
-    Bot::Alegre.stubs(:request_api).returns({"result"=> [{
+    Bot::Alegre.stubs(:request).returns({"result"=> [{
       "_index"=>"alegre_similarity",
       "_type"=>"_doc",
       "_id"=>"i8XY53UB36CYclMPF5wC",
@@ -444,7 +442,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     response = Bot::Alegre.get_similar_items_from_api("blah", {})
     assert_equal response.class, Hash
     assert_equal response, {1932=>{:score=>200, :context=>{"team_id"=>1692, "field"=>"title|description", "project_media_id"=>1932, "contexts_count"=>2}, :model=>nil}}
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
 
   test "should generate correct text conditions for api request" do
@@ -468,7 +466,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     pm2.save!
     Bot::Alegre.stubs(:matching_model_to_use).with([pm.team_id]).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
     Bot::Alegre.stubs(:matching_model_to_use).with(pm2.team_id).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
-    Bot::Alegre.stubs(:request_api).returns({"result" => [{
+    Bot::Alegre.stubs(:request).returns({"result" => [{
         "_index" => "alegre_similarity",
         "_type" => "_doc",
         "_id" => "tMXj53UB36CYclMPXp14",
@@ -486,7 +484,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     })
     response = Bot::Alegre.get_similar_items(pm)
     assert_equal response.class, Hash
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
     Bot::Alegre.unstub(:matching_model_to_use)
   end
 
@@ -499,7 +497,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     pm2 = create_project_media quote: "Blah2", team: @team
     pm2.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles' }
     pm2.save!
-    Bot::Alegre.stubs(:request_api).returns({"result" => [{
+    Bot::Alegre.stubs(:request).returns({"result" => [{
         "_index" => "alegre_similarity",
         "_type" => "_doc",
         "_id" => "tMXj53UB36CYclMPXp14",
@@ -517,7 +515,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     })
     response = Bot::Alegre.get_items_with_similar_text(pm, ['title'], [{key: 'text_elasticsearch_suggestion_threshold', model: 'elasticsearch', value: 0.7, automatic: false}], 'blah')
     assert_equal response.class, Hash
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
 
   test "should not get items with similar short text when they are text-based" do
@@ -529,7 +527,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     pm2 = create_project_media quote: "Blah2", team: @team
     pm2.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles' }
     pm2.save!
-    Bot::Alegre.stubs(:request_api).returns({"result" => [{
+    Bot::Alegre.stubs(:request).returns({"result" => [{
         "_index" => "alegre_similarity",
         "_type" => "_doc",
         "_id" => "tMXj53UB36CYclMPXp14",
@@ -548,7 +546,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     response = Bot::Alegre.get_items_with_similar_text(pm, ['title'], [{key: 'text_elasticsearch_matching_threshold', model: 'elasticsearch', value: 0.7, automatic: true}], 'blah foo bar')
     assert_equal response.class, Hash
     assert_not_empty response
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
 
 
@@ -572,9 +570,9 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     pm.media.type = "UploadedVideo"
     pm.media.save!
     pm.save!
-    Bot::Alegre.stubs(:request_api).returns(true)
+    Bot::Alegre.stubs(:request).returns(true)
     assert Bot::Alegre.send_to_media_similarity_index(pm)
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
 
   test "should not resort matches if format is unknown" do
