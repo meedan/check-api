@@ -82,8 +82,8 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
       WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
       WebMock.stub_request(:get, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
-      WebMock.stub_request(:post, 'http://alegre/audio/similarity/').to_return(body: {
-        "success": true
+      WebMock.stub_request(:get, 'http://alegre/similarity/sync/audio').to_return(body: {
+        "result": []
       }.to_json)
       WebMock.stub_request(:get, 'http://alegre/audio/similarity/').to_return(body: {
         "result": []
@@ -154,8 +154,8 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       WebMock.stub_request(:post, 'http://alegre/audio/similarity/').to_return(body: {
         "success": true
       }.to_json)
-      WebMock.stub_request(:get, 'http://alegre/audio/similarity/').to_return(body: {
-        "result": []
+      WebMock.stub_request(:get, 'http://alegre/similarity/sync/audio').to_return(body: {
+        "success": true
       }.to_json)
 
       media_file_url = 'https://example.com/test/data/rails.mp3'
