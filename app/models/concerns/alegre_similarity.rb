@@ -110,7 +110,7 @@ module AlegreSimilarity
     end
 
     def delete_from_text_similarity_index(doc_id, context, quiet=false)
-      self.request_api('delete', '/text/similarity/', {
+      self.request('delete', '/text/similarity/', {
         doc_id: doc_id,
         context: context,
         quiet: quiet
@@ -141,7 +141,7 @@ module AlegreSimilarity
     end
 
     def send_to_text_similarity_index(pm, field, text, doc_id)
-      self.request_api(
+      self.request(
         'post',
         '/text/similarity/',
         self.send_to_text_similarity_index_package(pm, field, text, doc_id)
@@ -168,7 +168,7 @@ module AlegreSimilarity
           quiet: quiet,
           context: self.get_context(pm),
         }
-        self.request_api(
+        self.request(
           'delete',
           "/#{type}/similarity/",
           params
@@ -186,7 +186,7 @@ module AlegreSimilarity
           match_across_content_types: true,
           requires_callback: true
         }
-        self.request_api(
+        self.request(
           'post',
           "/#{type}/similarity/",
           params
@@ -217,7 +217,7 @@ module AlegreSimilarity
     def get_similar_items_from_api(path, conditions, _threshold = {}, query_or_body = 'body')
       Rails.logger.error("[Alegre Bot] Sending request to alegre : #{path} , #{conditions.to_json}")
       response = {}
-      result = self.request_api('get', path, conditions, query_or_body)&.dig('result')
+      result = self.request('get', path, conditions, query_or_body)&.dig('result')
       project_medias = result.collect{ |r| self.extract_project_medias_from_context(r) } if !result.nil? && result.is_a?(Array)
       project_medias.each do |request_response|
         request_response.each do |pmid, score_with_context|

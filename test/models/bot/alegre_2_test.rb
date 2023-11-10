@@ -310,7 +310,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
   test "should pause database connection when calling Alegre" do
     RequestStore.store[:pause_database_connection] = true
     assert_nothing_raised do
-      Bot::Alegre.request_api('post', '/text/langid/')
+      Bot::Alegre.request('post', '/text/langid/')
     end
     RequestStore.store[:pause_database_connection] = false
   end
@@ -320,7 +320,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     stubbed_response.stubs(:body).returns({"queue" => "audio__Model", "body" => {"id" => "123", "callback_url" => "http://example.com/callback"}}.to_json)
     Net::HTTP.any_instance.stubs(:request).returns(stubbed_response)
     Redis.any_instance.stubs(:blpop).with("alegre:webhook:123", 120).returns(["alegre:webhook:123", {"tested" => true}.to_json])
-    assert_equal Bot::Alegre.request_api('get', '/audio/similarity/', @params, 'body'), {"tested" => true}
+    assert_equal Bot::Alegre.request('get', '/audio/similarity/', @params, 'body'), {"tested" => true}
     Net::HTTP.any_instance.unstub(:request)
     Redis.any_instance.unstub(:blpop)
   end

@@ -7,6 +7,7 @@ class Bot::Alegre < BotUser
 
   include AlegreSimilarity
   include AlegreWebhooks
+  include AlegreV2
 
   # Text similarity models
   MEAN_TOKENS_MODEL = 'xlm-r-bert-base-nli-stsb-mean-tokens'
@@ -150,10 +151,14 @@ class Bot::Alegre < BotUser
       if body.dig(:event) == 'create_project_media' && !pm.nil?
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] This item was just created, processing...")
         self.get_language(pm)
-        self.send_to_media_similarity_index(pm)
-        self.send_field_to_similarity_index(pm, 'original_title')
-        self.send_field_to_similarity_index(pm, 'original_description')
-        self.relate_project_media_to_similar_items(pm)
+        if self.get_pm_type(pm) == "audio"
+          self.relate_project_media(pm)
+        else
+          self.send_to_media_similarity_index(pm)
+          self.send_field_to_similarity_index(pm, 'original_title')
+          self.send_field_to_similarity_index(pm, 'original_description')
+          self.relate_project_media_to_similar_items(pm)
+        end
         self.get_extracted_text(pm)
         self.get_flags(pm)
         self.auto_transcription(pm)
@@ -348,7 +353,7 @@ class Bot::Alegre < BotUser
   def self.get_language_from_alegre(text)
     lang = 'und'
     begin
-      response = self.request_api('post', '/text/langid/', { text: text })
+      response = self.request('post', '/text/langid/', { text: text })
       lang = response['result']['language'] || lang
     rescue
       nil
@@ -370,21 +375,21 @@ class Bot::Alegre < BotUser
 
   def self.get_flags(pm)
     if pm.report_type == 'uploadedimage'
-      result = self.request_api('get', '/image/classification/', { uri: self.media_file_url(pm) }, 'query')
+      result = self.request('get', '/image/classification/', { uri: self.media_file_url(pm) })
       self.save_annotation(pm, 'flag', result['result'])
     end
   end
 
   def self.get_extracted_text(pm)
     if pm.report_type == 'uploadedimage'
-      result = self.request_api('get', '/image/ocr/', { url: self.media_file_url(pm) }, 'query')
+      result = self.request('get', '/image/ocr/', { url: self.media_file_url(pm) })
       self.save_annotation(pm, 'extracted_text', result) if result
     end
   end
 
   def self.update_audio_transcription(transcription_annotation_id, attempts)
     annotation = Dynamic.find(transcription_annotation_id)
-    result = self.request_api('get', '/audio/transcription/', { job_name: annotation.get_field_value('job_name') })
+    result = self.request('get', '/audio/transcription/', { job_name: annotation.get_field_value('job_name') })
     completed = false
     if result['job_status'] == 'COMPLETED'
       annotation.disable_es_callbacks = Rails.env.to_s == 'test'
@@ -404,7 +409,7 @@ class Bot::Alegre < BotUser
       url = self.media_file_url(pm)
       job_name = Digest::MD5.hexdigest(URI(url).open.read)
       s3_url = url.gsub(/^https?:\/\/[^\/]+/, "s3://#{CheckConfig.get('storage_bucket')}")
-      result = self.request_api('post', '/audio/transcription/', { url: s3_url, job_name: job_name })
+      result = self.request('post', '/audio/transcription/', { url: s3_url, job_name: job_name })
       annotation = self.save_annotation(pm, 'transcription', { text: '', job_name: job_name, last_response: result }) if result
       # FIXME: Calculate schedule interval based on audio duration
       self.delay_for(10.seconds, retry: 5).update_audio_transcription(annotation.id, 1)
@@ -420,7 +425,7 @@ class Bot::Alegre < BotUser
     url
   end
 
-  def self.item_doc_id(object, field_name)
+  def self.item_doc_id(object, field_name=nil)
     Base64.encode64(["check", object.class.to_s.underscore, object&.id, field_name].join("-")).strip.delete("\n").delete("=")
   end
 
@@ -467,46 +472,6 @@ class Bot::Alegre < BotUser
     bot = BotUser.alegre_user
     tbi = TeamBotInstallation.find_by_team_id_and_user_id(team_id, bot&&bot.id)
     tbi
-  end
-
-  def self.request_api(method, path, params = {}, query_or_body = 'body', retries = 3)
-    # Release database connection while Alegre API is being called
-    if RequestStore.store[:pause_database_connection]
-      ActiveRecord::Base.clear_active_connections!
-      ActiveRecord::Base.connection.close
-    end
-    uri = URI(CheckConfig.get('alegre_host') + path)
-    klass = 'Net::HTTP::' + method.capitalize
-    request = klass.constantize.new(uri.path, 'Content-Type' => 'application/json')
-    if query_or_body == 'query'
-      request.set_form_data(params)
-      request = Net::HTTP::Get.new(uri.path+ '?' + request.body)
-    else
-      request.body = params.to_json
-    end
-    http = Net::HTTP.new(uri.hostname, uri.port)
-    http.use_ssl = uri.scheme == 'https'
-    begin
-      response = http.request(request)
-      Rails.logger.info("[Alegre Bot] Alegre Bot request: (#{method}, #{path}, #{params.inspect}, #{query_or_body}, #{retries})")
-      response_body = response.body
-      Rails.logger.info("[Alegre Bot] Alegre response: #{response_body.inspect}")
-      ActiveRecord::Base.connection.reconnect! if RequestStore.store[:pause_database_connection]
-      parsed_response = JSON.parse(response_body)
-      if parsed_response.dig("queue") == 'audio__Model' && parsed_response.dig("body", "callback_url") != nil
-        redis = Redis.new(REDIS_CONFIG)
-        redis_response = redis.blpop("alegre:webhook:#{parsed_response.dig("body", "id")}", 120)
-        return JSON.parse(redis_response[1])
-      end
-      parsed_response
-    rescue StandardError => e
-      if retries > 0
-        sleep 1
-        self.request_api(method, path, params, query_or_body , retries - 1)
-      end
-      Rails.logger.error("[Alegre Bot] Alegre error: #{e.message}")
-      { 'type' => 'error', 'data' => { 'message' => e.message } }
-    end
   end
 
   def self.extract_project_medias_from_context(search_result)
