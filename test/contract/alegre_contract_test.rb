@@ -150,7 +150,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
 
       )
       conditions = {url: @url, threshold: 0.89}
-      Bot::Alegre.get_similar_items_from_api('/image/similarity/', conditions, 0.89, 'query')
+      Bot::Alegre.get_similar_items_from_api('/image/similarity/', conditions, 0.89)
     end
   end
 end
