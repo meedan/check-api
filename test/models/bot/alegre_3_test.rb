@@ -155,7 +155,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
         "success": true
       }.to_json)
       WebMock.stub_request(:get, 'http://alegre/similarity/sync/audio').to_return(body: {
-        "success": true
+        "result" => []
       }.to_json)
 
       media_file_url = 'https://example.com/test/data/rails.mp3'
