@@ -296,7 +296,11 @@ ActiveRecord::Base.transaction do
 
   puts 'Publishing Reports...'
   verify_fact_check_and_publish_report(claim_project_medias)
-  verify_fact_check_and_publish_report(link_project_medias)
+  begin
+    verify_fact_check_and_publish_report(link_project_medias)
+  rescue
+    puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
+  end
   verify_fact_check_and_publish_report(audio_project_medias)
   verify_fact_check_and_publish_report(image_project_medias)
   verify_fact_check_and_publish_report(video_project_medias)
