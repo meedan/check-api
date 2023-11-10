@@ -240,13 +240,16 @@ ActiveRecord::Base.transaction do
   add_claim_descriptions_and_fact_checks(user, claim_project_medias)
 
   claim_project_medias.values_at(0,3,6).each do |pm|
-    a = Dynamic.where(annotation_type: 'verification_status').find_by(annotated_id: pm)
-    a.set_fields = { verification_status_status: 'verified' }.to_json
-    a.reload
-    a.save!
+    annotations = Dynamic.where(annotated_id: pm)
+    status = ['verified', 'false'].sample
 
-    r = Dynamic.where(annotation_type: 'report_design').find_by(annotated_id: pm)
-    r.set_fields = { status_label: 'verified' }.to_json
+    v = annotations.find_by(annotation_type: 'verification_status')
+    v.set_fields = { verification_status_status: status }.to_json
+    v.reload
+    v.save!
+
+    r = annotations.find_by(annotation_type: 'report_design')
+    r.set_fields = { status_label: status }.to_json
     r.set_fields = { state: 'published' }.to_json
     r.action = 'publish'
     r.save!
