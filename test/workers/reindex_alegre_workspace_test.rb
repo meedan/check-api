@@ -90,7 +90,7 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
     assert_equal Array, response.class
   end
   
-  test "tests the parallel request_api" do
+  test "tests the parallel request" do
     package = {
       :doc_id=>Bot::Alegre.item_doc_id(@pm, "title"),
       :text=>"Some text",
