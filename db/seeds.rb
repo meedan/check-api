@@ -70,6 +70,24 @@ def add_claim_descriptions_and_fact_checks(user, project_medias)
   claim_descriptions.values_at(0,3,6).each { |claim_description| FactCheck.create!(summary: Faker::Company.catch_phrase, title: Faker::Company.name, user: user, claim_description: claim_description, language: 'en') }
 end
 
+def verify_fact_check_and_publish_report(project_medias)
+  project_medias.values_at(0,3,6).each do |pm|
+    annotations = Dynamic.where(annotated_id: pm)
+    status = ['verified', 'false'].sample
+
+    v = annotations.find_by(annotation_type: 'verification_status')
+    v.set_fields = { verification_status_status: status }.to_json
+    v.reload
+    v.save!
+
+    r = annotations.find_by(annotation_type: 'report_design')
+    r.set_fields = { status_label: status }.to_json
+    r.set_fields = { state: 'published' }.to_json
+    r.action = 'publish'
+    r.save!
+  end
+end
+
 def fact_check_attributes(fact_check_link, user, project, team)
   {
     summary: Faker::Company.catch_phrase,
@@ -239,22 +257,6 @@ ActiveRecord::Base.transaction do
   claim_project_medias = create_project_medias(user, project, team, claims)
   add_claim_descriptions_and_fact_checks(user, claim_project_medias)
 
-  claim_project_medias.values_at(0,3,6).each do |pm|
-    annotations = Dynamic.where(annotated_id: pm)
-    status = ['verified', 'false'].sample
-
-    v = annotations.find_by(annotation_type: 'verification_status')
-    v.set_fields = { verification_status_status: status }.to_json
-    v.reload
-    v.save!
-
-    r = annotations.find_by(annotation_type: 'report_design')
-    r.set_fields = { status_label: status }.to_json
-    r.set_fields = { state: 'published' }.to_json
-    r.action = 'publish'
-    r.save!
-  end
-
   puts 'Making Medias and Project Medias: Links...'
   begin
     links = data[:link_media_links].map { |data| create_media(user, data, 'Link')}
@@ -301,6 +303,13 @@ ActiveRecord::Base.transaction do
 
   puts 'Making Relationship: Videos / Confirmed Type and Suggested Type...'
   create_relationship(video_project_medias)
+
+  puts 'Publishing Reports...'
+  verify_fact_check_and_publish_report(claim_project_medias)
+  verify_fact_check_and_publish_report(link_project_medias)
+  verify_fact_check_and_publish_report(audio_project_medias)
+  verify_fact_check_and_publish_report(image_project_medias)
+  verify_fact_check_and_publish_report(video_project_medias)
 
   puts 'Making Tipline requests...'
   puts 'Making Tipline requests: Claims...'
