@@ -238,7 +238,13 @@ ActiveRecord::Base.transaction do
   claims = data[:claims].map { |data| create_media(user, data, 'Claim')}
   claim_project_medias = create_project_medias(user, project, team, claims)
   add_claim_descriptions_and_fact_checks(user, claim_project_medias)
+
   claim_project_medias.values_at(0,3,6).each do |pm|
+    a = Dynamic.where(annotation_type: 'verification_status').find_by(annotated_id: pm)
+    a.set_fields = { verification_status_status: 'verified' }.to_json
+    a.reload
+    a.save!
+
     r = Dynamic.where(annotation_type: 'report_design').find_by(annotated_id: pm)
     r.set_fields = { status_label: 'verified' }.to_json
     r.set_fields = { state: 'published' }.to_json
