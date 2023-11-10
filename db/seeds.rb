@@ -197,20 +197,10 @@ def create_tipline_user_and_data(project_media, team)
   Dynamic.create!(annotation_type: 'smooch', annotated: project_media, annotator: BotUser.smooch_user, set_fields: fields.to_json)
 end
 
-def create_tipline_requests(team, project, user, data_instances, model_string)
-  tipline_pm_arr = []
-  
-  data_instances.each do |data_instance|
-    media = create_media(user, data_instance, model_string)
-    project_media = create_tipline_project_media(user, project, team, media)
-    tipline_pm_arr.push(project_media)
-  end
-  add_claim_descriptions_and_fact_checks(user, tipline_pm_arr)
-  create_relationship(tipline_pm_arr)
-
-  tipline_pm_arr.values_at(0,3,6).each {|pm| create_tipline_user_and_data(pm, team)}
-  tipline_pm_arr.values_at(1,4,7).each {|pm| 15.times {create_tipline_user_and_data(pm, team)}}
-  tipline_pm_arr.values_at(2,5,8).each {|pm| 20.times {create_tipline_user_and_data(pm, team)}}
+def create_tipline_requests(team, project_medias)
+  project_medias.values_at(0,3,6).each {|pm| create_tipline_user_and_data(pm, team)}
+  project_medias.values_at(1,4,7).each {|pm| 15.times {create_tipline_user_and_data(pm, team)}}
+  project_medias.values_at(2,5,8).each {|pm| 20.times {create_tipline_user_and_data(pm, team)}}
 end
 
 puts "If you want to create a new user: press 1 then enter"
@@ -313,23 +303,23 @@ ActiveRecord::Base.transaction do
 
   puts 'Making Tipline requests...'
   puts 'Making Tipline requests: Claims...'
-  create_tipline_requests(team, project, user, data[:claims], 'Claim')
+  create_tipline_requests(team, claim_project_medias)
 
   puts 'Making Tipline requests: Links...'
   begin
-    create_tipline_requests(team, project, user, data[:link_media_links], 'Link')
+    create_tipline_requests(team, link_project_medias)
   rescue
     puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
   end
 
   puts 'Making Tipline requests: Audios...'
-  create_tipline_requests(team, project, user, data[:audios], 'UploadedAudio')
+  create_tipline_requests(team, audio_project_medias)
 
   puts 'Making Tipline requests: Images...'
-  create_tipline_requests(team, project, user, data[:images], 'UploadedImage')
+  create_tipline_requests(team, image_project_medias)
 
   puts 'Making Tipline requests: Videos...'
-  create_tipline_requests(team, project, user, data[:videos], 'UploadedVideo')
+  create_tipline_requests(team, video_project_medias)
 
   puts 'Making Shared Feed'
   saved_search = SavedSearch.create!(title: "#{data[:user_name]}'s list", team: team, filters: {created_by: data[:user_name]})
