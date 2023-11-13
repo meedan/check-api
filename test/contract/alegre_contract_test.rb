@@ -24,7 +24,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
     WebMock.stub_request(:post, 'http://localhost:3100/text/similarity/').to_return(body: 'success')
     WebMock.stub_request(:delete, 'http://localhost:3100/text/similarity/').to_return(body: { success: true }.to_json)
     WebMock.stub_request(:post, 'http://localhost:3100/image/similarity/').to_return(body: { 'success': true }.to_json)
-    WebMock.stub_request(:get, 'http://localhost:3100/image/classification/').with({ body: { uri: url} }).to_return(body:{ result: @flags }.to_json)
+    WebMock.stub_request(:get, 'http://localhost:3100/image/classification/').with({ query: { uri: url} }).to_return(body:{ result: @flags }.to_json)
     WebMock.stub_request(:get, 'http://localhost:3100/image/similarity/').to_return(body: { "result": [] }.to_json)
   end
 
@@ -58,7 +58,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
   test "should get image flags" do
     stub_configs({ 'alegre_host' => 'http://localhost:3100' }) do
       stub_similarity_requests(@url2)
-      WebMock.stub_request(:get, 'http://localhost:3100/image/ocr/').with({ body: { url: @url } }).to_return(body: { "text": @extracted_text  }.to_json)
+      WebMock.stub_request(:get, 'http://localhost:3100/image/ocr/').with({ query: { url: @url } }).to_return(body: { "text": @extracted_text  }.to_json)
       Bot::Alegre.unstub(:media_file_url)
       alegre.given('an image URL').
       upon_receiving('a request to get image flags').
@@ -111,10 +111,10 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
     end
   end
 
-  test "should link similar images" do
+  test "should link similar images zzz" do
     stub_configs({ 'alegre_host' => 'http://localhost:3100' }) do
       stub_similarity_requests(@url)
-      WebMock.stub_request(:get, 'http://localhost:3100/image/ocr/').with({ body: { url: @url } }).to_return(body: { "text": @extracted_text  }.to_json)
+      WebMock.stub_request(:get, 'http://localhost:3100/image/ocr/').with({ query: { url: @url } }).to_return(body: { "text": @extracted_text  }.to_json)
       pm1 = create_project_media team: @pm.team, media: create_uploaded_image
       Bot::Alegre.stubs(:media_file_url).with(pm1).returns(@url)
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })

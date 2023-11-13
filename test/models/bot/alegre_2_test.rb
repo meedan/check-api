@@ -249,10 +249,10 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
       WebMock.stub_request(:get, 'http://alegre.test/image/similarity/').to_return(body: {
         "result": []
       }.to_json)
-      WebMock.stub_request(:get, 'http://alegre.test/image/classification/').with({ body: { uri: image_path } }).to_return(body: {
+      WebMock.stub_request(:get, 'http://alegre.test/image/classification/').with({ query: { uri: image_path } }).to_return(body: {
         "result": valid_flags_data
       }.to_json)
-      WebMock.stub_request(:get, 'http://alegre.test/image/ocr/').with({ body: { url: image_path } }).to_return(body: {
+      WebMock.stub_request(:get, 'http://alegre.test/image/ocr/').with({ query: { url: image_path } }).to_return(body: {
         "text": "Foo bar"
       }.to_json)
       WebMock.stub_request(:post, 'http://alegre.test/image/similarity/').to_return(body: 'success')
