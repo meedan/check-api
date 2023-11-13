@@ -174,13 +174,24 @@ class ElasticSearch4Test < ActionController::TestCase
       sleep 2
       result = CheckSearch.new({sort: "recent_activity"}.to_json)
       assert_equal [pm1.id, pm3.id, pm2.id], result.medias.map(&:id)
-      create_tag annotated: pm3, tag: 'in_progress', disable_es_callbacks: false
+      tag_3 = create_tag annotated: pm3, tag: 'in_progress', disable_es_callbacks: false
       sleep 1
       result = CheckSearch.new({sort: "recent_activity"}.to_json)
       assert_equal [pm3.id, pm1.id, pm2.id], result.medias.map(&:id)
       # should sort by recent activity with project and status filters
       result = CheckSearch.new({verification_status: ['in_progress'], sort: "recent_activity"}.to_json)
       assert_equal 1, result.project_medias.count
+      tag_1 = create_tag annotated: pm1, tag: 'in_progress', disable_es_callbacks: false
+      tag_2 = create_tag annotated: pm2, tag: 'in_progress', disable_es_callbacks: false
+      sleep 1
+      result = CheckSearch.new({sort: "recent_activity"}.to_json)
+      assert_equal [pm2.id, pm1.id, pm3.id], result.medias.map(&:id)
+      tag_3.destroy!
+      sleep 1
+      result = CheckSearch.new({sort: "recent_activity"}.to_json)
+      assert_equal [pm3.id, pm2.id, pm1.id], result.medias.map(&:id)
+      result = CheckSearch.new({tags: ['in_progress'], sort: "recent_activity"}.to_json)
+      assert_equal [pm2.id, pm1.id], result.medias.map(&:id)
     end
   end
 
