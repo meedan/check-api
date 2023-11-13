@@ -32,14 +32,19 @@ module AlegreV2
       ActiveRecord::Base.connection.reconnect! if RequestStore.store[:pause_database_connection]
     end
 
-    def get_request_object(method, path, uri)
+    def get_request_object(method, _path, uri)
       return ('Net::HTTP::' + method.capitalize).constantize.new(uri.path, 'Content-Type' => 'application/json')
     end
 
     def generate_request(method, path, params)
       uri = URI(host + path)
+      if method.downcase == 'get' && params.any?
+        uri.query = URI.encode_www_form(params)
+      end
       request = get_request_object(method, path, uri)
-      request.body = params.to_json
+      if method.downcase == 'post'
+        request.body = params.to_json
+      end
       http = Net::HTTP.new(uri.hostname, uri.port)
       http.use_ssl = uri.scheme == 'https'
       return http, request
@@ -120,7 +125,7 @@ module AlegreV2
       ).merge(params)
     end
 
-    def delete_package_audio(project_media, field, params)
+    def delete_package_audio(project_media, _field, params)
       generic_package_audio(project_media, params)
     end
 
@@ -144,7 +149,7 @@ module AlegreV2
       context
     end
 
-    def store_package_audio(project_media, field, params)
+    def store_package_audio(project_media, _field, params)
       generic_package_audio(project_media, params)
     end
 
@@ -201,7 +206,7 @@ module AlegreV2
             relationship_type: relationship_type
           }
         ]
-      }.reject{|k,v| k == project_media.id}]
+      }.reject{|k,_| k == project_media.id}]
     end
 
     def get_items(project_media, field, confirmed=false)
