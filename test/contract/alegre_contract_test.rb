@@ -65,7 +65,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
       with(
         method: :get,
         path: '/image/classification/',
-        body: { uri: @url },
+        query: { uri: @url },
         ).
         will_respond_with(
           status: 200,
@@ -92,7 +92,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
       with(
         method: :get,
         path: '/image/ocr/',
-        body: { url: @url },
+        query: { url: @url },
       ).
       will_respond_with(
         status: 200,
@@ -111,7 +111,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
     end
   end
 
-  test "should link similar images zzz" do
+  test "should link similar images" do
     stub_configs({ 'alegre_host' => 'http://localhost:3100' }) do
       stub_similarity_requests(@url)
       WebMock.stub_request(:get, 'http://localhost:3100/image/ocr/').with({ query: { url: @url } }).to_return(body: { "text": @extracted_text  }.to_json)
@@ -124,7 +124,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
       with(
         method: :get,
         path: '/image/similarity/',
-        body: {
+        query: {
           url: @url,
           threshold: "0.89",
           context: {}
