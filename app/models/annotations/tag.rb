@@ -119,7 +119,13 @@ class Tag < ApplicationRecord
   end
 
   def destroy_elasticsearch_tag
-    destroy_es_items('tags', 'destroy_doc_nested', self.annotated_id) if self.annotated_type == 'ProjectMedia'
+    if self.annotated_type == 'ProjectMedia'
+      destroy_es_items('tags', 'destroy_doc_nested', self.annotated_id)
+      if User.current.present?
+        pm = self.annotated
+        pm.update_recent_activity(pm)
+      end
+    end
   end
 
   def update_tags_count

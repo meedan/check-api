@@ -103,7 +103,7 @@ class ElasticSearch2Test < ActionController::TestCase
       # destroy tag
       ElasticSearchWorker.clear
       t.destroy
-    assert_equal 1, ElasticSearchWorker.jobs.size
+    assert_equal 2, ElasticSearchWorker.jobs.size
     end
   end
 
