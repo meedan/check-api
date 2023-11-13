@@ -319,7 +319,7 @@ ActiveRecord::Base.transaction do
 
   puts 'Making Shared Feed'
   saved_search = SavedSearch.create!(title: "#{data[:user_name]}'s list", team: team, filters: {created_by: data[:user_name]})
-  Feed.create!(name: "Feed Test #{Faker::Alphanumeric.alpha(number: 10)}", user: user, team: team, published: true, saved_search: saved_search)
+  Feed.create!(name: "Feed Test: #{Faker::Alphanumeric.alpha(number: 10)}", user: user, team: team, published: true, saved_search: saved_search, licenses: [1])
 
   if answer == "1"
     puts "Created user: name: #{data[:user_name]} — email: #{user.email} — password : #{data[:user_password]}"
