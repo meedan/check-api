@@ -32,7 +32,7 @@ data = {
     'https://meedan.com/post/what-is-gendered-health-misinformation-and-why-is-it-an-equity-problem-worth',
     'https://meedan.com/post/the-case-for-a-public-health-approach-to-moderate-health-misinformation',
   ],
-  claims: Array.new(9) { Faker::Lorem.paragraph(sentence_count: 10) },
+  claims: Array.new(20) { Faker::Lorem.paragraph(sentence_count: 10) },
 }
 
 def open_file(file)
@@ -67,11 +67,11 @@ end
 
 def add_claim_descriptions_and_fact_checks(user, project_medias)
   claim_descriptions = project_medias.map { |project_media| ClaimDescription.create!(description: create_description(project_media), context: Faker::Lorem.sentence, user: user, project_media: project_media) }
-  claim_descriptions.values_at(0,1,3,4,6,7).each { |claim_description| FactCheck.create!(summary: Faker::Company.catch_phrase, title: Faker::Company.name, user: user, claim_description: claim_description, language: 'en') }
+  claim_descriptions[0..10].each { |claim_description| FactCheck.create!(summary: Faker::Company.catch_phrase, title: Faker::Company.name, user: user, claim_description: claim_description, language: 'en') }
 end
 
 def verify_fact_check_and_publish_report(project_medias)
-  project_medias.values_at(0,1,3,4,6,7).each do |pm|
+  project_medias[0..9].each do |pm|
     status = ['verified', 'false'].sample
 
     verification_status = pm.get_dynamic_annotation('verification_status')
@@ -108,8 +108,10 @@ end
 def create_relationship(project_medias)
   Relationship.create!(source_id: project_medias[0].id, target_id: project_medias[1].id, relationship_type: Relationship.confirmed_type)
   Relationship.create!(source_id: project_medias[2].id, target_id: project_medias[3].id, relationship_type: Relationship.confirmed_type)
-  
-  project_medias[4..9].each { |pm| Relationship.create!(source_id: project_medias[2].id, target_id: pm.id, relationship_type: Relationship.suggested_type)}    
+  Relationship.create!(source_id: project_medias[4].id, target_id: project_medias[5].id, relationship_type: Relationship.confirmed_type)
+  Relationship.create!(source_id: project_medias[6].id, target_id: project_medias[1].id, relationship_type: Relationship.confirmed_type)
+
+  project_medias[14..19].each { |pm| Relationship.create!(source_id: project_medias[6].id, target_id: pm.id, relationship_type: Relationship.suggested_type)} 
 end
 
 def create_tipline_project_medias(user, project, team, data)
@@ -241,19 +243,26 @@ ActiveRecord::Base.transaction do
   end
 
   puts 'Making Medias...'
-  # puts 'Making Medias and Project Medias: Claims...'
-  # claims = data[:claims].map { |data| create_media(user, data, 'Claim')}
-  # claim_project_medias = create_tipline_project_medias(user, project, team, claims)
-  # add_claim_descriptions_and_fact_checks(user, claim_project_medias)
+  puts 'Making Medias and Project Medias: Claims...'
+  claims = data[:claims].map { |data| create_media(user, data, 'Claim')}
+  claim_project_medias = create_tipline_project_medias(user, project, team, claims)
+  add_claim_descriptions_and_fact_checks(user, claim_project_medias)
 
-  puts 'Making Medias and Project Medias: Links...'
-  begin
-    links = data[:link_media_links].map { |data| create_media(user, data, 'Link')}
-    link_project_medias = create_tipline_project_medias(user, project, team, links)
-    add_claim_descriptions_and_fact_checks(user, link_project_medias)
-  rescue
-    puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
-  end
+  puts 'Making Relationship: Claims / Confirmed Type and Suggested Type...'
+  create_relationship(claim_project_medias)
+  # puts 'Publishing Reports...'
+  # verify_fact_check_and_publish_report(claim_project_medias)
+  # puts 'Making Tipline requests: Claims...'
+  # create_tipline_requests(team, claim_project_medias)
+
+  # puts 'Making Medias and Project Medias: Links...'
+  # begin
+  #   links = data[:link_media_links].map { |data| create_media(user, data, 'Link')}
+  #   link_project_medias = create_tipline_project_medias(user, project, team, links)
+  #   add_claim_descriptions_and_fact_checks(user, link_project_medias)
+  # rescue
+  #   puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
+  # end
 
   # puts 'Making Medias and Project Medias: Audios...'
   # audios = data[:audios].map { |data| create_media(user, data, 'UploadedAudio')}
@@ -273,15 +282,15 @@ ActiveRecord::Base.transaction do
   # puts 'Making Claim Descriptions and Fact Checks: Imported Fact Checks...'
   # data[:fact_check_links].map { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
 
-  puts 'Making Relationship...'
+  # puts 'Making Relationship...'
   # puts 'Making Relationship: Claims / Confirmed Type and Suggested Type...'
   # create_relationship(claim_project_medias)
-  puts 'Making Relationship: Links / Suggested Type...'
-  begin
-    create_relationship(link_project_medias)
-  rescue
-    puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
-  end
+  # puts 'Making Relationship: Links / Suggested Type...'
+  # begin
+  #   create_relationship(link_project_medias)
+  # rescue
+  #   puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
+  # end
   # puts 'Making Relationship: Audios / Confirmed Type and Suggested Type...'
   # create_relationship(audio_project_medias)
   # puts 'Making Relationship: Images / Confirmed Type and Suggested Type...'
@@ -289,26 +298,26 @@ ActiveRecord::Base.transaction do
   # puts 'Making Relationship: Videos / Confirmed Type and Suggested Type...'
   # create_relationship(video_project_medias)
 
-  puts 'Publishing Reports...'
+  # puts 'Publishing Reports...'
   # verify_fact_check_and_publish_report(claim_project_medias)
-  begin
-    verify_fact_check_and_publish_report(link_project_medias)
-  rescue
-    puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
-  end
+  # begin
+  #   verify_fact_check_and_publish_report(link_project_medias)
+  # rescue
+  #   puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
+  # end
   # verify_fact_check_and_publish_report(audio_project_medias)
   # verify_fact_check_and_publish_report(image_project_medias)
   # verify_fact_check_and_publish_report(video_project_medias)
 
-  puts 'Making Tipline requests...'
+  # puts 'Making Tipline requests...'
   # puts 'Making Tipline requests: Claims...'
   # create_tipline_requests(team, claim_project_medias)
-  puts 'Making Tipline requests: Links...'
-  begin
-    create_tipline_requests(team, link_project_medias)
-  rescue
-    puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
-  end
+  # puts 'Making Tipline requests: Links...'
+  # begin
+  #   create_tipline_requests(team, link_project_medias)
+  # rescue
+  #   puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
+  # end
   # puts 'Making Tipline requests: Audios...'
   # create_tipline_requests(team, audio_project_medias)
   # puts 'Making Tipline requests: Images...'
