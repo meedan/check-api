@@ -124,9 +124,6 @@ class ElasticSearch9Test < ActionController::TestCase
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
       WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
       WebMock.stub_request(:get, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
-      WebMock.stub_request(:get, 'http://alegre/image/similarity/').to_return(body: {
-        "result": []
-      }.to_json)
       WebMock.stub_request(:get, 'http://alegre/image/classification/').with({ query: { uri: 'some/path' } }).to_return(body: {
         "result": valid_flags_data
       }.to_json)
@@ -137,6 +134,14 @@ class ElasticSearch9Test < ActionController::TestCase
       # Text extraction
       Bot::Alegre.unstub(:media_file_url)
       pm = create_project_media team: team, media: create_uploaded_image, disable_es_callbacks: false
+      params = URI.encode_www_form({context: {:has_custom_id=>true, :team_id=>pm.team_id}, match_across_content_types: true, threshold: 0.89, url: "some/path"})
+      WebMock.stub_request(:get, 'http://alegre/image/similarity/?'+params).to_return(body: {
+        "result": []
+      }.to_json)
+      params = URI.encode_www_form({context: {:has_custom_id=>true, :team_id=>pm.team_id}, match_across_content_types: true, threshold: 0.95, url: "some/path"})
+      WebMock.stub_request(:get, 'http://alegre/image/similarity/?'+params).to_return(body: {
+        "result": []
+      }.to_json)
       Bot::Alegre.stubs(:media_file_url).with(pm).returns("some/path")
       assert Bot::Alegre.run({ data: { dbid: pm.id }, event: 'create_project_media' })
       sleep 2
