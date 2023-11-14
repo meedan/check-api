@@ -72,19 +72,18 @@ end
 
 def verify_fact_check_and_publish_report(project_medias)
   project_medias.values_at(0,1,3,4,6,7).each do |pm|
-    annotations = Dynamic.where(annotated_id: pm)
     status = ['verified', 'false'].sample
 
-    v = annotations.find_by(annotation_type: 'verification_status')
-    v.set_fields = { verification_status_status: status }.to_json
-    v.reload
-    v.save!
+    verification_status = pm.get_dynamic_annotation('verification_status')
+    verification_status.set_fields = { verification_status_status: status }.to_json
+    verification_status.reload
+    verification_status.save!
 
-    r = annotations.find_by(annotation_type: 'report_design')
-    r.set_fields = { status_label: status }.to_json
-    r.set_fields = { state: 'published' }.to_json
-    r.action = 'publish'
-    r.save!
+    report_design = pm.get_dynamic_annotation('report_design')
+    report_design.set_fields = { status_label: status }.to_json
+    report_design.set_fields = { state: 'published' }.to_json
+    report_design.action = 'publish'
+    report_design.save!
   end
 end
 
