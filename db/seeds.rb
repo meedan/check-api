@@ -277,9 +277,9 @@ ActiveRecord::Base.transaction do
   puts 'Making Relationship...'
   puts 'Making Relationship: Claims / Confirmed Type and Suggested Type...'
   create_relationship(claim_project_medias)
-    create_relationship(link_project_medias)
   puts 'Making Relationship: Links / Suggested Type...'
   begin
+    create_relationship(link_project_medias)
   rescue
     puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
   end
