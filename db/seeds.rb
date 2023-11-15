@@ -20,11 +20,20 @@ data = {
     'https://meedan.com/post/2022-french-elections-meedan-software-supported-agence-france-presse',
     'https://meedan.com/post/how-to-write-longform-git-commits-for-better-software-development',
     'https://meedan.com/post/welcome-smriti-singh-our-research-intern',
-
+    'https://meedan.com/post/countdown-to-u-s-2024-meedan-coalition-to-exchange-critical-election-information-with-overlooked-voters',
+    'https://meedan.com/post/a-statement-on-the-israel-gaza-war-by-meedans-ceo',
+    'https://meedan.com/post/resources-to-capture-critical-evidence-from-the-israel-gaza-war',
+    'https://meedan.com/post/turkeys-largest-fact-checking-group-debunks-election-related-disinformation',
+    'https://meedan.com/post/meedan-joins-diverse-cohort-of-partners-committed-to-partnership-on-ais-responsible-practices-for-synthetic-media',
+    'https://meedan.com/post/nurturing-equity-diversity-and-inclusion-meedans-people-first-approach',
+    'https://meedan.com/post/students-find-top-spreader-of-climate-misinformation-is-most-read-online-news-publisher-in-egypt',
+    'https://meedan.com/post/new-e-course-on-the-fundamentals-of-climate-and-environmental-reporting-in-africa',
+    'https://meedan.com/post/annual-report-2022',
+    'https://meedan.com/post/meedan-joins-partnership-on-ais-ai-and-media-integrity-steering-committee'
   ],
-  audios: ['e-item.mp3', 'rails.mp3', 'with_cover.mp3', 'with_cover.ogg', 'with_cover.wav', 'e-item.mp3', 'rails.mp3', 'with_cover.mp3', 'with_cover.ogg'],
-  images: ['large-image.jpg', 'maçã.png', 'rails-photo.jpg', 'rails.png', 'rails2.png', 'ruby-big.png', 'ruby-small.png', 'ruby-big.png', 'ruby-small.png'],
-  videos: ['d-item.mp4', 'rails.mp4', 'd-item.mp4', 'rails.mp4', 'd-item.mp4', 'rails.mp4', 'd-item.mp4', 'rails.mp4', 'd-item.mp4'],
+  'UploadedAudio' => ['e-item.mp3', 'rails.mp3', 'with_cover.mp3', 'with_cover.ogg', 'with_cover.wav']*4,
+  'UploadedImage' =>  ['large-image.jpg', 'maçã.png', 'rails-photo.jpg', 'rails.png', 'ruby-small.png']*4,
+  'UploadedVideo' =>  ['d-item.mp4', 'rails.mp4', 'd-item.mp4', 'rails.mp4', 'd-item.mp4']*4,
   fact_check_links: [
     'https://meedan.com/post/welcome-haramoun-hamieh-our-program-manager-for-nawa',
     'https://meedan.com/post/strengthening-fact-checking-with-media-literacy-technology-and-collaboration',
@@ -32,7 +41,7 @@ data = {
     'https://meedan.com/post/what-is-gendered-health-misinformation-and-why-is-it-an-equity-problem-worth',
     'https://meedan.com/post/the-case-for-a-public-health-approach-to-moderate-health-misinformation',
   ],
-  claims: Array.new(20) { Faker::Lorem.paragraph(sentence_count: 10) },
+  'Claim' => Array.new(20) { Faker::Lorem.paragraph(sentence_count: 10) },
 }
 
 def open_file(file)
@@ -65,9 +74,12 @@ def create_description(project_media)
   Media.last.type == "Link" ? humanize_link(Media.find(project_media.media_id).url) : Faker::Company.catch_phrase
 end
 
-def add_claim_descriptions_and_fact_checks(user, project_medias)
-  claim_descriptions = project_medias.map { |project_media| ClaimDescription.create!(description: create_description(project_media), context: Faker::Lorem.sentence, user: user, project_media: project_media) }
-  claim_descriptions[0..10].each { |claim_description| FactCheck.create!(summary: Faker::Company.catch_phrase, title: Faker::Company.name, user: user, claim_description: claim_description, language: 'en') }
+def create_claim_descriptions(user, project_medias)
+  project_medias.map { |project_media| ClaimDescription.create!(description: create_description(project_media), context: Faker::Lorem.sentence, user: user, project_media: project_media) }
+end
+
+def create_fact_checks(user, claim_descriptions)
+  claim_descriptions.each { |claim_description| FactCheck.create!(summary: Faker::Company.catch_phrase, title: Faker::Company.name, user: user, claim_description: claim_description, language: 'en') }
 end
 
 def verify_fact_check_and_publish_report(project_medias)
@@ -93,7 +105,7 @@ def fact_check_attributes(fact_check_link, user, project, team)
     url: fact_check_link,
     title: Faker::Company.name,
     user: user,
-    claim_description: create_claim_description(user, project, team)
+    claim_description: create_claim_description_for_imported_fact_check(user, project, team)
   }
 end
 
@@ -101,20 +113,19 @@ def create_blank(project, team)
   ProjectMedia.create!(project: project, team: team, media: Blank.create!, channel:  { main: CheckChannels::ChannelCodes::FETCH })
 end
 
-def create_claim_description(user, project, team)
+def create_claim_description_for_imported_fact_check(user, project, team)
   ClaimDescription.create!(description: Faker::Company.catch_phrase, context: Faker::Lorem.sentence, user: user, project_media: create_blank(project, team))
 end
 
-def create_relationship(project_medias)
-  Relationship.create!(source_id: project_medias[0].id, target_id: project_medias[1].id, relationship_type: Relationship.confirmed_type)
-  Relationship.create!(source_id: project_medias[2].id, target_id: project_medias[3].id, relationship_type: Relationship.confirmed_type)
-  Relationship.create!(source_id: project_medias[4].id, target_id: project_medias[5].id, relationship_type: Relationship.confirmed_type)
-  Relationship.create!(source_id: project_medias[6].id, target_id: project_medias[1].id, relationship_type: Relationship.confirmed_type)
-
-  project_medias[14..19].each { |pm| Relationship.create!(source_id: project_medias[6].id, target_id: pm.id, relationship_type: Relationship.suggested_type)} 
+def create_confirmed_relationship(parent, child)
+  Relationship.create!(source_id: parent.id, target_id: child.id, relationship_type: Relationship.confirmed_type)
 end
 
-def create_tipline_project_medias(user, project, team, data)
+def create_suggested_relationship(parent, children)
+  children.each { |child| Relationship.create!(source_id: parent.id, target_id: child.id, relationship_type: Relationship.suggested_type)} 
+end
+
+def create_project_medias_with_channel(user, project, team, data)
   data.map { |media| ProjectMedia.create!(user_id: user.id, project: project, team: team, media: media, channel: { main: CheckChannels::ChannelCodes::WHATSAPP })}
 end
 
@@ -198,18 +209,19 @@ def create_tipline_user_and_data(project_media, team)
   Dynamic.create!(annotation_type: 'smooch', annotated: project_media, annotator: BotUser.smooch_user, set_fields: fields.to_json)
 end
 
-def create_tipline_requests(team, project_medias)
-  project_medias.values_at(0,3,6).each {|pm| create_tipline_user_and_data(pm, team)}
-  project_medias.values_at(1,4,7).each {|pm| 15.times {create_tipline_user_and_data(pm, team)}}
-  project_medias.values_at(2,5,8).each {|pm| 20.times {create_tipline_user_and_data(pm, team)}}
+def create_tipline_requests(team, project_medias, x_times)
+  project_medias.each {|pm| x_times.times {create_tipline_user_and_data(pm, team)}}
 end
 
+# 0. Start the script
 puts "If you want to create a new user: press 1 then enter"
 puts "If you want to add more data to an existing user: press 2 then enter"
 print ">> "
 answer = STDIN.gets.chomp
 
 ActiveRecord::Base.transaction do
+  # 1. Creating what we need for the workspace
+  # We create a user, team and project OR we fetch one
   if answer == "1"
     puts 'Making Team / Workspace...'
     team = create_team(name: "#{data[:team_name]} / Feed Creator")
@@ -242,93 +254,87 @@ ActiveRecord::Base.transaction do
     end
   end
 
-  puts 'Making Medias...'
-  puts 'Making Medias and Project Medias: Claims...'
-  claims = data[:claims].map { |data| create_media(user, data, 'Claim')}
-  claim_project_medias = create_tipline_project_medias(user, project, team, claims)
-  add_claim_descriptions_and_fact_checks(user, claim_project_medias)
+  # 2. Creating Items in different states
+  # 2.1 Create medias: claims, audios, images and videos
+  media_data_collection = [ data['Claim'], data['UploadedAudio'], data['UploadedImage'], data['UploadedVideo']]
+  media_data_collection.each do |media_data|
+    puts "Making #{data.key(media_data)}..."
+    puts "#{data.key(media_data)}: Making Medias and Project Medias..."
+    medias = media_data.map { |individual_data| create_media(user, individual_data, data.key(media_data))}
+    project_medias = create_project_medias_with_channel(user, project, team, medias)
+    
+    puts "#{data.key(media_data)}: Making Claim Descriptions and Fact Checks..."
+    # add claim description to all items, don't add fact checks to all
+    claim_descriptions = create_claim_descriptions(user, project_medias)
+    claim_descriptions_for_fact_checks = claim_descriptions[0..10]
+    create_fact_checks(user, claim_descriptions_for_fact_checks)
 
-  puts 'Making Relationship: Claims / Confirmed Type and Suggested Type...'
-  create_relationship(claim_project_medias)
-  # puts 'Publishing Reports...'
-  # verify_fact_check_and_publish_report(claim_project_medias)
-  # puts 'Making Tipline requests: Claims...'
-  # create_tipline_requests(team, claim_project_medias)
+    puts "#{data.key(media_data)}: Making Relationship: Confirmed Type and Suggested Type..."
+    # because we want a lot of state variety between items, we are not creating relationships for 7..13
+    # send parent and child index
+    create_confirmed_relationship(project_medias[0], project_medias[1])
+    create_confirmed_relationship(project_medias[2], project_medias[3])
+    create_confirmed_relationship(project_medias[4], project_medias[5])
+    create_confirmed_relationship(project_medias[6], project_medias[1])
+    # send parent and children
+    create_suggested_relationship(project_medias[6], project_medias[14..19])
+    
+    puts "#{data.key(media_data)}: Making Tipline requests..."
+    # we want different ammounts of requests, so we send the item and the number of requests that should be created
+    create_tipline_requests(team, project_medias.values_at(0,3,6,9,12,15,18), 1)
+    create_tipline_requests(team, project_medias.values_at(1,4,7,10,13,16,19), 15)
+    create_tipline_requests(team, project_medias.values_at(2,5,8,11,14,17), 17)
 
-  # puts 'Making Medias and Project Medias: Links...'
-  # begin
-  #   links = data[:link_media_links].map { |data| create_media(user, data, 'Link')}
-  #   link_project_medias = create_tipline_project_medias(user, project, team, links)
-  #   add_claim_descriptions_and_fact_checks(user, link_project_medias)
-  # rescue
-  #   puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
-  # end
+    puts "#{data.key(media_data)}: Publishing Reports..."
+    verify_fact_check_and_publish_report(project_medias[7..10])
+  end
 
-  # puts 'Making Medias and Project Medias: Audios...'
-  # audios = data[:audios].map { |data| create_media(user, data, 'UploadedAudio')}
-  # audio_project_medias = create_tipline_project_medias(user, project, team, audios)
-  # add_claim_descriptions_and_fact_checks(user, audio_project_medias)
+  # 2.2 Create medias: links
+  puts 'Making Medias and Project Medias: Links...'
+  begin
+    puts "Making Link..."
+    puts "Link: Making Medias and Project Medias..."
+    medias = data[:link_media_links].map { |individual_data| create_media(user, individual_data, 'Link')}
+    project_medias = create_project_medias_with_channel(user, project, team, medias)
+    
+    puts "Link: Making Claim Descriptions and Fact Checks..."
+    # add claim description to all items, don't add fact checks to all
+    claim_descriptions = create_claim_descriptions(user, project_medias)
+    claim_descriptions_for_fact_checks = claim_descriptions[0..10]
+    create_fact_checks(user, claim_descriptions_for_fact_checks)
+    
+    puts "Link: Making Relationship: Confirmed Type and Suggested Type..."
+    # because we want a lot of state variety between items, we are not creating relationships for 7..13
+    # send parent and child index
+    create_confirmed_relationship(project_medias[0], project_medias[1])
+    create_confirmed_relationship(project_medias[2], project_medias[3])
+    create_confirmed_relationship(project_medias[4], project_medias[5])
+    create_confirmed_relationship(project_medias[6], project_medias[1])
+    # send parent and children
+    create_suggested_relationship(project_medias[6], project_medias[14..19])
+    
+    puts "Link: Making Tipline requests..."
+    # we want different ammounts of requests, so we send the item and the number of requests that should be created
+    create_tipline_requests(team, project_medias.values_at(0,3,6,9,12,15,18), 1)
+    create_tipline_requests(team, project_medias.values_at(1,4,7,10,13,16,19), 15)
+    create_tipline_requests(team, project_medias.values_at(2,5,8,11,14,17), 17)
+    
+    puts "Link: Publishing Reports..."
+    verify_fact_check_and_publish_report(project_medias[7..10])
+  rescue
+    puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
+  end
+  
+  # 2.3 Create medias: imported Fact Checks
+  puts 'Making Imported Fact Checks...'
+  data[:fact_check_links].map { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
 
-  # puts 'Making Medias and Project Medias: Images...'
-  # images = data[:images].map { |data| create_media(user, data, 'UploadedImage')}
-  # image_project_medias = create_tipline_project_medias(user, project, team, images)
-  # add_claim_descriptions_and_fact_checks(user, image_project_medias)
-
-  # puts 'Making Medias and Project Medias: Videos...'
-  # videos = data[:videos].map { |data| create_media(user, data, 'UploadedVideo')}
-  # video_project_medias = create_tipline_project_medias(user, project, team, videos)
-  # add_claim_descriptions_and_fact_checks(user, video_project_medias)
-
-  # puts 'Making Claim Descriptions and Fact Checks: Imported Fact Checks...'
-  # data[:fact_check_links].map { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
-
-  # puts 'Making Relationship...'
-  # puts 'Making Relationship: Claims / Confirmed Type and Suggested Type...'
-  # create_relationship(claim_project_medias)
-  # puts 'Making Relationship: Links / Suggested Type...'
-  # begin
-  #   create_relationship(link_project_medias)
-  # rescue
-  #   puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
-  # end
-  # puts 'Making Relationship: Audios / Confirmed Type and Suggested Type...'
-  # create_relationship(audio_project_medias)
-  # puts 'Making Relationship: Images / Confirmed Type and Suggested Type...'
-  # create_relationship(image_project_medias)
-  # puts 'Making Relationship: Videos / Confirmed Type and Suggested Type...'
-  # create_relationship(video_project_medias)
-
-  # puts 'Publishing Reports...'
-  # verify_fact_check_and_publish_report(claim_project_medias)
-  # begin
-  #   verify_fact_check_and_publish_report(link_project_medias)
-  # rescue
-  #   puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
-  # end
-  # verify_fact_check_and_publish_report(audio_project_medias)
-  # verify_fact_check_and_publish_report(image_project_medias)
-  # verify_fact_check_and_publish_report(video_project_medias)
-
-  # puts 'Making Tipline requests...'
-  # puts 'Making Tipline requests: Claims...'
-  # create_tipline_requests(team, claim_project_medias)
-  # puts 'Making Tipline requests: Links...'
-  # begin
-  #   create_tipline_requests(team, link_project_medias)
-  # rescue
-  #   puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
-  # end
-  # puts 'Making Tipline requests: Audios...'
-  # create_tipline_requests(team, audio_project_medias)
-  # puts 'Making Tipline requests: Images...'
-  # create_tipline_requests(team, image_project_medias)
-  # puts 'Making Tipline requests: Videos...'
-  # create_tipline_requests(team, video_project_medias)
-
+  # 3. Create Shared feed
   puts 'Making Shared Feed'
-  saved_search = SavedSearch.create!(title: "#{data[:user_name]}'s list", team: team, filters: {created_by: data[:user_name]})
+  saved_search = SavedSearch.create!(title: "#{user.name}'s list #{random_number}", team: team, filters: {created_by: user})
   Feed.create!(name: "Feed Test: #{Faker::Alphanumeric.alpha(number: 10)}", user: user, team: team, published: true, saved_search: saved_search, licenses: [1])
 
+  # 4. Return user information
   if answer == "1"
     puts "Created user: name: #{data[:user_name]} — email: #{user.email} — password : #{data[:user_password]}"
   elsif answer == "2"
