@@ -61,17 +61,14 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
 
   test "should get image flags" do
     stub_configs({ 'alegre_host' => 'http://localhost:3100' }) do
-      params = URI.encode_www_form({ url: @url })
-      WebMock.stub_request(:get, 'http://localhost:3100/image/ocr/?'+params).to_return(body: { "text": @extracted_text  }.to_json)
-      WebMock.stub_request(:get, 'http://localhost:3100/image/ocr/?url=https%3A%2F%2Fi.imgur.com%2FewGClFQ.png').to_return(body: { "text": @extracted_text  }.to_json)
-      WebMock.stub_request(:get, 'http://localhost:3100/image/classification/?uri=https%3A%2F%2Fi.imgur.com%2FewGClFQ.png').to_return(body: { "result": @flags  }.to_json)
+      WebMock.stub_request(:get, 'http://localhost:3100/image/ocr/').with({ query: { url: @url } }).to_return(body: { "text": @extracted_text  }.to_json)
       Bot::Alegre.unstub(:media_file_url)
-      params = URI.encode_www_form({ uri: @url })
       alegre.given('an image URL').
       upon_receiving('a request to get image flags').
       with(
         method: :get,
-        path: '/image/classification/?uri=https%3A%2F%2Fi.imgur.com%2FewGClFQ.png',
+        path: '/image/classification/',
+        query: { uri: @url },
         ).
         will_respond_with(
           status: 200,
@@ -81,7 +78,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
           body: { result: @flags }
         )
       pm1 = create_project_media team: @pm.team, media: create_uploaded_image
-      stub_similarity_requests(@url, pm1)
+      stub_similarity_requests(@url2, pm1)
       Bot::Alegre.stubs(:media_file_url).with(pm1).returns(@url)
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       assert_not_nil pm1.get_annotations('flag').last
@@ -98,7 +95,8 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
       upon_receiving('a request to extract text').
       with(
         method: :get,
-        path: '/image/ocr/?'+params
+        path: '/image/ocr/',
+        query: { url: @url }
       ).
       will_respond_with(
         status: 200,
@@ -133,7 +131,8 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
       upon_receiving('a request to link similar images').
       with(
         method: :get,
-        path: '/image/similarity/?'+params
+        path: '/image/similarity/',
+        query: {url: @url,threshold: "0.89"}
       ).
       will_respond_with(
         status: 200,
