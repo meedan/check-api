@@ -41,7 +41,9 @@ module AlegreV2
     def generate_request(method, path, params)
       uri = URI(host + path)
       if method.downcase == 'get' && params.any?
-        uri.query = URI.encode_www_form(params)
+        temp_params = params.dup
+        temp_params[:context] = temp_params[:context].to_json
+        uri.query = URI.encode_www_form(temp_params)
       end
       request = get_request_object(method, path, uri)
       if method.downcase == 'post'
