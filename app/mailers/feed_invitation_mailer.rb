@@ -8,7 +8,7 @@ class FeedInvitationMailer < ApplicationMailer
     @user = record.user
     @feed = record.feed
     @due_at = record.created_at + CheckConfig.get('feed_invitation_due_to', 30).to_i.days
-    @accept_feed_url = "#{CheckConfig.get('checkdesk_client')}/#{team.slug}/feed/#{record.id}/accept_invitation"
+    @accept_feed_url = "#{CheckConfig.get('checkdesk_client')}/#{team.slug}/feed-invitation/#{record.id}"
     subject = I18n.t("mails_notifications.feed_invitation.subject", user: @user.name, feed: @feed.name)
     Rails.logger.info "Sending a feed invitation e-mail to #{@recipient}"
     mail(to: @recipient, email_type: 'feed_invitation', subject: subject)
