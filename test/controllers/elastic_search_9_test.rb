@@ -134,11 +134,11 @@ class ElasticSearch9Test < ActionController::TestCase
       # Text extraction
       Bot::Alegre.unstub(:media_file_url)
       pm = create_project_media team: team, media: create_uploaded_image, disable_es_callbacks: false
-      params = URI.encode_www_form({context: {:has_custom_id=>true, :team_id=>pm.team_id}, match_across_content_types: true, threshold: 0.89, url: "some/path"})
+      params = URI.encode_www_form({context: {:has_custom_id=>true, :team_id=>pm.team_id}.to_json, match_across_content_types: true, threshold: 0.89, url: "some/path"})
       WebMock.stub_request(:get, 'http://alegre/image/similarity/?'+params).to_return(body: {
         "result": []
       }.to_json)
-      params = URI.encode_www_form({context: {:has_custom_id=>true, :team_id=>pm.team_id}, match_across_content_types: true, threshold: 0.95, url: "some/path"})
+      params = URI.encode_www_form({context: {:has_custom_id=>true, :team_id=>pm.team_id}.to_json, match_across_content_types: true, threshold: 0.95, url: "some/path"})
       WebMock.stub_request(:get, 'http://alegre/image/similarity/?'+params).to_return(body: {
         "result": []
       }.to_json)

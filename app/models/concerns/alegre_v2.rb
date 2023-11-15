@@ -42,7 +42,9 @@ module AlegreV2
       uri = URI(host + path)
       if method.downcase == 'get' && params.any?
         temp_params = params.dup
-        temp_params[:context] = temp_params[:context].to_json if temp_params[:context]
+        [:context, :models, :vector, :per_model_threshold].each do |key|
+          temp_params[key] = temp_params[key].to_json if temp_params[key]
+        end
         uri.query = URI.encode_www_form(temp_params)
       end
       request = get_request_object(method, path, uri)

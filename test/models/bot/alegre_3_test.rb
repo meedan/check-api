@@ -92,7 +92,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       Bot::Alegre.stubs(:media_file_url).returns(media_file_url)
 
       pm1 = create_project_media team: @pm.team, media: create_uploaded_audio(file: 'rails.mp3')
-      params = URI.encode_www_form({:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}, :url=>media_file_url, :threshold=>0.9})
+      params = URI.encode_www_form({:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}.to_json, :url=>media_file_url, :threshold=>0.9})
       WebMock.stub_request(:get, "http://alegre/similarity/sync/audio?#{params}").to_return(body: {
         "result": []
       }.to_json)
@@ -160,7 +160,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       Bot::Alegre.stubs(:media_file_url).returns(media_file_url)
 
       pm1 = create_project_media team: @pm.team, media: create_uploaded_audio(file: 'rails.mp3')
-      params = URI.encode_www_form({:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}, :url=>media_file_url, :threshold=>0.9})
+      params = URI.encode_www_form({:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}.to_json, :url=>media_file_url, :threshold=>0.9})
       WebMock.stub_request(:get, "http://alegre/similarity/sync/audio?#{params}").to_return(body: {
         "result": []
       }.to_json)

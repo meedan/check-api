@@ -26,9 +26,9 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
     WebMock.stub_request(:post, 'http://localhost:3100/image/similarity/').to_return(body: { 'success': true }.to_json)
     params = URI.encode_www_form({ uri: url})
     WebMock.stub_request(:get, 'http://localhost:3100/image/classification/?'+params).to_return(body:{ result: @flags }.to_json)
-    params = URI.encode_www_form({:url=>"https://i.imgur.com/ewGClFQ.png", :context=>{:has_custom_id=>true, :team_id=>pm.team_id}, :match_across_content_types=>true, :threshold=>0.89})
+    params = URI.encode_www_form({:url=>"https://i.imgur.com/ewGClFQ.png", :context=>{:has_custom_id=>true, :team_id=>pm.team_id}.to_json, :match_across_content_types=>true, :threshold=>0.89})
     WebMock.stub_request(:get, 'http://localhost:3100/image/similarity/?'+params).to_return(body: { "result": [] }.to_json)
-    params = URI.encode_www_form({:url=>"https://i.imgur.com/ewGClFQ.png", :context=>{:has_custom_id=>true, :team_id=>pm.team_id}, :match_across_content_types=>true, :threshold=>0.95})
+    params = URI.encode_www_form({:url=>"https://i.imgur.com/ewGClFQ.png", :context=>{:has_custom_id=>true, :team_id=>pm.team_id}.to_json, :match_across_content_types=>true, :threshold=>0.95})
     WebMock.stub_request(:get, 'http://localhost:3100/image/similarity/?'+params).to_return(body: { "result": [] }.to_json)
   end
 

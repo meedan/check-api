@@ -261,7 +261,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
         "team_id" => pm1.team.id.to_s,
         "project_media_id" => pm1.id.to_s
       }]
-      path = URI.encode_www_form({:url=>image_path, :context=>{:has_custom_id=>true, :team_id=>pm1.team_id}, :match_across_content_types=>true, :threshold=>0.89})
+      path = URI.encode_www_form({:url=>image_path, :context=>{:has_custom_id=>true, :team_id=>pm1.team_id}.to_json, :match_across_content_types=>true, :threshold=>0.89})
       WebMock.stub_request(:get, "http://alegre.test/image/similarity/?#{path}").to_return(body: {
         "result": [
           {
@@ -274,7 +274,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
           }
         ]
       }.to_json)
-      path = URI.encode_www_form({:url=>image_path, :context=>{:has_custom_id=>true, :team_id=>pm1.team_id}, :match_across_content_types=>true, :threshold=>0.95})
+      path = URI.encode_www_form({:url=>image_path, :context=>{:has_custom_id=>true, :team_id=>pm1.team_id}.to_json, :match_across_content_types=>true, :threshold=>0.95})
       WebMock.stub_request(:get, "http://alegre.test/image/similarity/?#{path}").to_return(body: {
         "result": [
           {
