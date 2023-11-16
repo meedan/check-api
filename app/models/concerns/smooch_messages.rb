@@ -461,7 +461,7 @@ module SmoochMessages
       date = I18n.l(Time.at(timestamp), locale: language, format: :short)
       message = self.format_template_message('custom_message', [date, message.to_s.gsub(/\s+/, ' ')], nil, message, language, nil, true) if platform == 'WhatsApp'
       response = self.send_message_to_user(uid, message, {}, false, true, 'custom_message')
-      success = (response.code.to_i < 400)
+      success = (response && response.code.to_i < 400)
       success
     end
   end
