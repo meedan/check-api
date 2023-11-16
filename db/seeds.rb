@@ -82,21 +82,18 @@ def create_fact_checks(user, claim_descriptions)
   claim_descriptions.each { |claim_description| FactCheck.create!(summary: Faker::Company.catch_phrase, title: Faker::Company.name, user: user, claim_description: claim_description, language: 'en') }
 end
 
-def verify_fact_check_and_publish_report(project_medias)
-  project_medias[0..9].each do |pm|
-    status = ['verified', 'false'].sample
+def verify_fact_check_and_publish_report(project_media, url)
+  status = ['verified', 'false'].sample
 
-    verification_status = pm.last_status_obj
-    verification_status.status = status
-    verification_status.save!
+  verification_status = project_media.last_status_obj
+  verification_status.status = status
+  verification_status.save!
 
-    # this does not add article, but publishes without breaking
-    report_design = pm.get_dynamic_annotation('report_design')
-    report_design.set_fields = { status_label: status, state: 'published' }.to_json
-    report_design.data[:options][:published_article_url] = "https://www.thespruceeats.com/step-by-step-basic-cake-recipe-304553?timestamp=#{Time.now.to_f}"
-    report_design.action = 'publish'
-    report_design.save!
-  end
+  report_design = project_media.get_dynamic_annotation('report_design')
+  report_design.set_fields = { status_label: status, state: 'published' }.to_json
+  report_design.data[:options][:published_article_url] = url
+  report_design.action = 'publish'
+  report_design.save!
 end
 
 def fact_check_attributes(fact_check_link, user, project, team)
@@ -270,24 +267,26 @@ ActiveRecord::Base.transaction do
     claim_descriptions_for_fact_checks = claim_descriptions[0..10]
     create_fact_checks(user, claim_descriptions_for_fact_checks)
 
-    # puts "#{data.key(media_data)}: Making Relationship: Confirmed Type and Suggested Type..."
-    # # because we want a lot of state variety between items, we are not creating relationships for 7..13
-    # # send parent and child index
-    # create_confirmed_relationship(project_medias[0], project_medias[1])
-    # create_confirmed_relationship(project_medias[2], project_medias[3])
-    # create_confirmed_relationship(project_medias[4], project_medias[5])
-    # create_confirmed_relationship(project_medias[6], project_medias[1])
-    # # send parent and children
-    # create_suggested_relationship(project_medias[6], project_medias[14..19])
+    puts "#{data.key(media_data)}: Making Relationship: Confirmed Type and Suggested Type..."
+    # because we want a lot of state variety between items, we are not creating relationships for 7..13
+    # send parent and child index
+    create_confirmed_relationship(project_medias[0], project_medias[1])
+    create_confirmed_relationship(project_medias[2], project_medias[3])
+    create_confirmed_relationship(project_medias[4], project_medias[5])
+    create_confirmed_relationship(project_medias[6], project_medias[1])
+    # send parent and children
+    create_suggested_relationship(project_medias[6], project_medias[14..19])
     
-    # puts "#{data.key(media_data)}: Making Tipline requests..."
-    # # we want different ammounts of requests, so we send the item and the number of requests that should be created
-    # create_tipline_requests(team, project_medias.values_at(0,3,6,9,12,15,18), 1)
-    # create_tipline_requests(team, project_medias.values_at(1,4,7,10,13,16,19), 15)
-    # create_tipline_requests(team, project_medias.values_at(2,5,8,11,14,17), 17)
+    puts "#{data.key(media_data)}: Making Tipline requests..."
+    # we want different ammounts of requests, so we send the item and the number of requests that should be created
+    create_tipline_requests(team, project_medias.values_at(0,3,6,9,12,15,18), 1)
+    create_tipline_requests(team, project_medias.values_at(1,4,7,10,13,16,19), 15)
+    create_tipline_requests(team, project_medias.values_at(2,5,8,11,14,17), 17)
 
     puts "#{data.key(media_data)}: Publishing Reports..."
-    verify_fact_check_and_publish_report(project_medias[7..10])
+    # we want some published items to have/not have published_article_url, because they behave differently in the feed
+    project_medias[7..8].each { |pm| verify_fact_check_and_publish_report(pm, "https://www.thespruceeats.com/step-by-step-basic-cake-recipe-304553?timestamp=#{Time.now.to_f}")}
+    project_medias[9..10].each { |pm| verify_fact_check_and_publish_report(pm, '')}
   end
 
   # # 2.2 Create medias: links
