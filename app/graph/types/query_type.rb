@@ -202,6 +202,27 @@ class QueryType < BaseObject
     end
   end
 
+  field :feed_invitation, FeedInvitationType, description: 'Information about a feed invitation, given its database ID or feed database ID (and then the current user email is used)', null: true do
+    argument :id, GraphQL::Types::Int, required: false
+    argument :feed_id, GraphQL::Types::Int, required: false
+  end
+
+  def feed_invitation(id: nil, feed_id: nil)
+    feed_invitation_id = id || FeedInvitation.where(feed_id: feed_id, email: User.current.email).last&.id
+    GraphqlCrudOperations.load_if_can(FeedInvitation, feed_invitation_id, context)
+  end
+
+  field :feed_team, FeedTeamType, description: 'Information about a feed team, given its database ID or the combo feed database ID plus team slug', null: true do
+    argument :id, GraphQL::Types::Int, required: false
+    argument :feed_id, GraphQL::Types::Int, required: false
+    argument :team_slug, GraphQL::Types::String, required: false
+  end
+
+  def feed_team(id: nil, feed_id: nil, team_slug: nil)
+    feed_team_id = id || FeedTeam.where(feed_id: feed_id, team_id: Team.find_by_slug(team_slug).id).last&.id
+    GraphqlCrudOperations.load_if_can(FeedTeam, feed_team_id, context)
+  end
+
   # Getters by ID
   %i[
     source
@@ -214,8 +235,6 @@ class QueryType < BaseObject
     cluster
     feed
     request
-    feed_invitation
-    feed_team
     tipline_message
   ].each do |type|
     field type,
