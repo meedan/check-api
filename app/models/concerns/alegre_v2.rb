@@ -35,7 +35,8 @@ module AlegreV2
     def get_request_object(method, _path, uri)
       full_path = uri.path
       full_path += "?#{uri.query}" if uri.query
-      return ('Net::HTTP::' + method.capitalize).constantize.new(full_path, 'Content-Type' => 'application/json')
+      headers = method.downcase == "post" ? {'Content-Type' => 'application/json'} : {}
+      return ('Net::HTTP::' + method.capitalize).constantize.new(full_path, headers)
     end
 
     def generate_request(method, path, params)
