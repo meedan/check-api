@@ -253,8 +253,7 @@ ActiveRecord::Base.transaction do
 
   # 2. Creating Items in different states
   # 2.1 Create medias: claims, audios, images and videos
-  # media_data_collection = [ data['Claim'], data['UploadedAudio'], data['UploadedImage'], data['UploadedVideo']]
-  media_data_collection = [ data['Claim'] ]
+  media_data_collection = [ data['Claim'], data['UploadedAudio'], data['UploadedImage'], data['UploadedVideo']]
   media_data_collection.each do |media_data|
     puts "Making #{data.key(media_data)}..."
     puts "#{data.key(media_data)}: Making Medias and Project Medias..."
@@ -289,45 +288,47 @@ ActiveRecord::Base.transaction do
     project_medias[9..10].each { |pm| verify_fact_check_and_publish_report(pm, '')}
   end
 
-  # # 2.2 Create medias: links
-  # puts 'Making Medias and Project Medias: Links...'
-  # begin
-  #   puts "Making Link..."
-  #   puts "Link: Making Medias and Project Medias..."
-  #   medias = data[:link_media_links].map { |individual_data| create_media(user, individual_data, 'Link')}
-  #   project_medias = create_project_medias_with_channel(user, project, team, medias)
+  # 2.2 Create medias: links
+  puts 'Making Medias and Project Medias: Links...'
+  begin
+    puts "Making Link..."
+    puts "Link: Making Medias and Project Medias..."
+    medias = data[:link_media_links].map { |individual_data| create_media(user, individual_data, 'Link')}
+    project_medias = create_project_medias_with_channel(user, project, team, medias)
     
-  #   puts "Link: Making Claim Descriptions and Fact Checks..."
-  #   # add claim description to all items, don't add fact checks to all
-  #   claim_descriptions = create_claim_descriptions(user, project_medias)
-  #   claim_descriptions_for_fact_checks = claim_descriptions[0..10]
-  #   create_fact_checks(user, claim_descriptions_for_fact_checks)
+    puts "Link: Making Claim Descriptions and Fact Checks..."
+    # add claim description to all items, don't add fact checks to all
+    claim_descriptions = create_claim_descriptions(user, project_medias)
+    claim_descriptions_for_fact_checks = claim_descriptions[0..10]
+    create_fact_checks(user, claim_descriptions_for_fact_checks)
     
-  #   puts "Link: Making Relationship: Confirmed Type and Suggested Type..."
-  #   # because we want a lot of state variety between items, we are not creating relationships for 7..13
-  #   # send parent and child index
-  #   create_confirmed_relationship(project_medias[0], project_medias[1])
-  #   create_confirmed_relationship(project_medias[2], project_medias[3])
-  #   create_confirmed_relationship(project_medias[4], project_medias[5])
-  #   create_confirmed_relationship(project_medias[6], project_medias[1])
-  #   # send parent and children
-  #   create_suggested_relationship(project_medias[6], project_medias[14..19])
+    puts "Link: Making Relationship: Confirmed Type and Suggested Type..."
+    # because we want a lot of state variety between items, we are not creating relationships for 7..13
+    # send parent and child index
+    create_confirmed_relationship(project_medias[0], project_medias[1])
+    create_confirmed_relationship(project_medias[2], project_medias[3])
+    create_confirmed_relationship(project_medias[4], project_medias[5])
+    create_confirmed_relationship(project_medias[6], project_medias[1])
+    # send parent and children
+    create_suggested_relationship(project_medias[6], project_medias[14..19])
     
-  #   puts "Link: Making Tipline requests..."
-  #   # we want different ammounts of requests, so we send the item and the number of requests that should be created
-  #   create_tipline_requests(team, project_medias.values_at(0,3,6,9,12,15,18), 1)
-  #   create_tipline_requests(team, project_medias.values_at(1,4,7,10,13,16,19), 15)
-  #   create_tipline_requests(team, project_medias.values_at(2,5,8,11,14,17), 17)
+    puts "Link: Making Tipline requests..."
+    # we want different ammounts of requests, so we send the item and the number of requests that should be created
+    create_tipline_requests(team, project_medias.values_at(0,3,6,9,12,15,18), 1)
+    create_tipline_requests(team, project_medias.values_at(1,4,7,10,13,16,19), 15)
+    create_tipline_requests(team, project_medias.values_at(2,5,8,11,14,17), 17)
     
-  #   puts "Link: Publishing Reports..."
-  #   verify_fact_check_and_publish_report(project_medias[7..10])
-  # rescue
-  #   puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
-  # end
+    puts "Link: Publishing Reports..."
+    # we want some published items to have/not have published_article_url, because they behave differently in the feed
+    project_medias[7..8].each { |pm| verify_fact_check_and_publish_report(pm, "https://www.thespruceeats.com/step-by-step-basic-cake-recipe-304553?timestamp=#{Time.now.to_f}")}
+    project_medias[9..10].each { |pm| verify_fact_check_and_publish_report(pm, '')}
+  rescue
+    puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
+  end
   
-  # # 2.3 Create medias: imported Fact Checks
-  # puts 'Making Imported Fact Checks...'
-  # data[:fact_check_links].map { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
+  # 2.3 Create medias: imported Fact Checks
+  puts 'Making Imported Fact Checks...'
+  data[:fact_check_links].map { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
 
   # 3. Create Shared feed
   puts 'Making Shared Feed'
