@@ -175,4 +175,64 @@ class GraphqlController12Test < ActionController::TestCase
     assert_response :success
     assert_nil JSON.parse(@response.body).dig('data', 'feed_invitation')
   end
+
+  test "should read feed invitation based on feed ID and current user email" do
+    fi = create_feed_invitation email: @u.email
+
+    authenticate_with_user(@u)
+    query = 'query { feed_invitation(feedId: ' + fi.feed_id.to_s + ') { id } }'
+    post :create, params: { query: query }
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body).dig('data', 'feed_invitation')
+  end
+
+  test "should not read feed invitation based on feed ID and current user email" do
+    fi = create_feed_invitation
+
+    authenticate_with_user(@u)
+    query = 'query { feed_invitation(feedId: ' + fi.feed_id.to_s + ') { id } }'
+    post :create, params: { query: query }
+    assert_response :success
+    assert_nil JSON.parse(@response.body).dig('data', 'feed_invitation')
+  end
+
+  test "should read feed team" do
+    ft = create_feed_team team: @t
+
+    authenticate_with_user(@u)
+    query = 'query { feed_team(id: ' + ft.id.to_s + ') { id } }'
+    post :create, params: { query: query }
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body).dig('data', 'feed_team')
+  end
+
+  test "should not read feed team" do
+    ft = create_feed_team
+
+    authenticate_with_user(@u)
+    query = 'query { feed_team(id: ' + ft.id.to_s + ') { id } }'
+    post :create, params: { query: query }
+    assert_response :success
+    assert_nil JSON.parse(@response.body).dig('data', 'feed_team')
+  end
+
+  test "should read feed team based on feed ID and team slug" do
+    ft = create_feed_team team: @t
+
+    authenticate_with_user(@u)
+    query = 'query { feed_team(feedId: ' + ft.feed_id.to_s + ', teamSlug: "' + @t.slug + '") { id } }'
+    post :create, params: { query: query }
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body).dig('data', 'feed_team')
+  end
+
+  test "should not read feed team based on feed ID and team slug" do
+    ft = create_feed_team
+
+    authenticate_with_user(@u)
+    query = 'query { feed_team(feedId: ' + ft.feed_id.to_s + ', teamSlug: "' + ft.team.slug + '") { id } }'
+    post :create, params: { query: query }
+    assert_response :success
+    assert_nil JSON.parse(@response.body).dig('data', 'feed_team')
+  end
 end

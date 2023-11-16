@@ -11728,14 +11728,14 @@ type Query {
   feed(id: ID!): Feed
 
   """
-  Information about the feed_invitation with given id
+  Information about a feed invitation, given its database ID or feed database ID (and then the current user email is used)
   """
-  feed_invitation(id: ID!): FeedInvitation
+  feed_invitation(feedId: Int, id: Int): FeedInvitation
 
   """
-  Information about the feed_team with given id
+  Information about a feed team, given its database ID or the combo feed database ID plus team slug
   """
-  feed_team(id: ID!): FeedTeam
+  feed_team(feedId: Int, id: Int, teamSlug: String): FeedTeam
 
   """
   Find whether a team exists
