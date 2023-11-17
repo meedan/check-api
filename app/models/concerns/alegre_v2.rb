@@ -35,7 +35,7 @@ module AlegreV2
     def get_request_object(method, _path, uri)
       full_path = uri.path
       full_path += "?#{uri.query}" if uri.query
-      headers = method.downcase == "post" ? {'Content-Type' => 'application/json'} : {}
+      headers = ["post", "delete"].include?(method.downcase)  ? {'Content-Type' => 'application/json'} : {}
       return ('Net::HTTP::' + method.capitalize).constantize.new(full_path, headers)
     end
 
@@ -49,7 +49,7 @@ module AlegreV2
         uri.query = URI.encode_www_form(temp_params)
       end
       request = get_request_object(method, path, uri)
-      if method.downcase == 'post'
+      if method.downcase == 'post' || method.downcase == 'delete'
         request.body = params.to_json
       end
       http = Net::HTTP.new(uri.hostname, uri.port)
