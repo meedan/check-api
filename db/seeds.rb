@@ -3,8 +3,6 @@ require "faker"
 
 Rails.env.development? || raise('To run the seeds file you should be in the development environment')
 
-Rails.cache.clear
-
 data = {
   team_name: Faker::Company.name,
   user_name: Faker::Name.first_name.downcase,
@@ -316,3 +314,5 @@ ActiveRecord::Base.transaction do
     puts "Data added to user: #{user.email}"
   end
 end
+
+Rails.cache.clear
