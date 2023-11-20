@@ -252,8 +252,8 @@ ActiveRecord::Base.transaction do
 
   # 2. Creating Items in different states
   # 2.1 Create medias: claims, audios, images, videos and links
-  # media_data_collection = [ data['Claim'], data['UploadedAudio'], data['UploadedImage'], data['UploadedVideo'], data['Link']]
-  media_data_collection = [ data['Claim'] ]
+  media_data_collection = [ data['Claim'], data['UploadedAudio'], data['UploadedImage'], data['UploadedVideo'], data['Link']]
+  # media_data_collection = [ data['Claim'] ]
   media_data_collection.each do |media_data|
     begin
       media_type = data.key(media_data)
@@ -279,15 +279,15 @@ ActiveRecord::Base.transaction do
       create_suggested_relationship(project_medias[6], project_medias[14..19])
 
       puts "#{media_type}: Making Relationship: Create item with many confirmed relationships"
-      # So the center column on the item page has a good size list to check functionality against
+      # so the center column on the item page has a good size list to check functionality against
       # https://github.com/meedan/check-api/pull/1722#issuecomment-1798729043
-      claim = data['Claim'][0..1].map { |data| create_media(user, data , 'Claim')}
-      audio = data['UploadedAudio'][0..1].map { |data| create_media(user, data , 'UploadedAudio')}
-      image = data['UploadedImage'][0..1].map { |data| create_media(user, data , 'UploadedImage')}
-      video = data['UploadedVideo'][0..1].map { |data| create_media(user, data , 'UploadedVideo')}
-      confirmed = claim + audio + image + video
-      pms = create_project_medias(user, project, team, confirmed)
-      pms.each { |pm| create_confirmed_relationship(project_medias[0], pm)}      
+      # create the children we need for the relationship
+      confirmed_children_media = ['Claim', 'UploadedAudio', 'UploadedImage', 'UploadedVideo', 'Link'].flat_map do |media_type|
+        data[media_type][0..1].map { |data| create_media(user, data , media_type)}
+      end
+      confirmed_children_project_medias = create_project_medias(user, project, team, confirmed_children_media)
+      # create the relationship, iterate through children, 
+      confirmed_children_project_medias.each { |pm| create_confirmed_relationship(project_medias[0], pm)}      
 
       # puts "#{media_type}: Making Tipline requests..."
       # # we want different ammounts of requests, so we send the item and the number of requests that should be created
