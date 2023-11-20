@@ -90,11 +90,11 @@ module AlegreV2
     end
 
     def request_sync(data)
-      request("get", sync_path, data)
+      request("post", sync_path, data)
     end
 
     def request_async(data)
-      request("get", async_path, data)
+      request("post", async_path, data)
     end
 
     def get_type(project_media)

@@ -27,7 +27,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
 
   test "should return language" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      WebMock.stub_request(:get, 'http://alegre/text/langid/').to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre/text/langid/').to_return(body: {
         'result': {
           'language': 'en',
           'confidence': 1.0
@@ -49,7 +49,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
 
   test "should return language und if there is an error" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      WebMock.stub_request(:get, 'http://alegre/text/langid/').to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre/text/langid/').to_return(body: {
         'foo': 'bar'
       }.to_json)
       Bot::Alegre.stubs(:request).raises(RuntimeError)
@@ -81,8 +81,8 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
       WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
-      WebMock.stub_request(:get, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
-      WebMock.stub_request(:get, 'http://alegre/audio/similarity/').to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre/text/similarity/search/').to_return(body: {success: true}.to_json)
+      WebMock.stub_request(:post, 'http://alegre/audio/similarity/search/').to_return(body: {
         "result": []
       }.to_json)
 
@@ -92,11 +92,10 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       Bot::Alegre.stubs(:media_file_url).returns(media_file_url)
 
       pm1 = create_project_media team: @pm.team, media: create_uploaded_audio(file: 'rails.mp3')
-      params = URI.encode_www_form({:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}.to_json, :url=>media_file_url, :threshold=>0.9})
-      WebMock.stub_request(:get, "http://alegre/similarity/sync/audio?#{params}").to_return(body: {
+      WebMock.stub_request(:post, "http://alegre/similarity/sync/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}.to_json, :url=>media_file_url, :threshold=>0.9}).to_return(body: {
         "result": []
       }.to_json)
-      WebMock.stub_request(:get, 'http://alegre/audio/transcription/?job_name=0c481e87f2774b1bd41a0a70d9b70d11').to_return(body: { 'job_status' => 'DONE' }.to_json)
+      WebMock.stub_request(:post, 'http://alegre/audio/transcription/result/').with(body: {job_name: "0c481e87f2774b1bd41a0a70d9b70d11"}).to_return(body: { 'job_status' => 'DONE' }.to_json)
       WebMock.stub_request(:post, 'http://alegre/audio/transcription/').with({
         body: { url: s3_file_url, job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }.to_json
       }).to_return(body: { 'job_status' => 'IN_PROGRESS' }.to_json)
@@ -149,7 +148,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
       WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
-      WebMock.stub_request(:get, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
+      WebMock.stub_request(:post, 'http://alegre/text/similarity/search/').to_return(body: {success: true}.to_json)
       WebMock.stub_request(:post, 'http://alegre/audio/similarity/').to_return(body: {
         "success": true
       }.to_json)
@@ -160,14 +159,13 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       Bot::Alegre.stubs(:media_file_url).returns(media_file_url)
 
       pm1 = create_project_media team: @pm.team, media: create_uploaded_audio(file: 'rails.mp3')
-      params = URI.encode_www_form({:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}.to_json, :url=>media_file_url, :threshold=>0.9})
-      WebMock.stub_request(:get, "http://alegre/similarity/sync/audio?#{params}").to_return(body: {
+      WebMock.stub_request(:post, "http://alegre/similarity/sync/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}.to_json, :url=>media_file_url, :threshold=>0.9}).to_return(body: {
         "result": []
       }.to_json)
       WebMock.stub_request(:post, 'http://alegre/audio/transcription/').with({
         body: { url: s3_file_url, job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }.to_json
       }).to_return(body: { 'job_status' => 'IN_PROGRESS' }.to_json)
-      WebMock.stub_request(:get, 'http://alegre/audio/transcription/?job_name=0c481e87f2774b1bd41a0a70d9b70d11').to_return(body: { 'job_status' => 'COMPLETED', 'transcription' => 'Foo bar' }.to_json)
+      WebMock.stub_request(:post, 'http://alegre/audio/transcription/result/').with(body: {job_name: "0c481e87f2774b1bd41a0a70d9b70d11"}).to_return(body: { 'job_status' => 'COMPLETED', 'transcription' => 'Foo bar' }.to_json)
       # Verify with transcription_similarity_enabled = false
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       a = pm1.annotations('transcription').last
@@ -202,7 +200,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
   test "should return true when bot is called successfully" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
-      WebMock.stub_request(:get, 'http://alegre/text/langid/').to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre/text/langid/').to_return(body: {
         'result': {
           'language': 'en',
           'confidence': 1.0

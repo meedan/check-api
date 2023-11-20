@@ -79,7 +79,7 @@ class SmoochNlu
           language: language,
         }.merge(context)
       }
-      response = Bot::Alegre.request('get', '/text/similarity/', params)
+      response = Bot::Alegre.request('post', '/text/similarity/search/', params)
 
       # One approach would be to take the option that has the most matches
       # Unfortunately this approach is influenced by the number of keywords per option

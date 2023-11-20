@@ -229,7 +229,7 @@ class Bot::Alegre < BotUser
     threshold ||= self.get_threshold_for_query('text', nil, true)
     models ||= [self.matching_model_to_use(team_ids)].flatten
     Hash[self.get_similar_items_from_api(
-      '/text/similarity/',
+      '/text/similarity/search/',
       self.similar_texts_from_api_conditions(text, models, fuzzy, team_ids, fields, threshold),
       threshold
     ).collect{|k,v| [k, v.merge(model: v[:model]||Bot::Alegre.default_matching_model)]}]
@@ -375,21 +375,21 @@ class Bot::Alegre < BotUser
 
   def self.get_flags(pm)
     if pm.report_type == 'uploadedimage'
-      result = self.request('get', '/image/classification/', { uri: self.media_file_url(pm) })
+      result = self.request('post', '/image/classification/', { uri: self.media_file_url(pm) })
       self.save_annotation(pm, 'flag', result['result'])
     end
   end
 
   def self.get_extracted_text(pm)
     if pm.report_type == 'uploadedimage'
-      result = self.request('get', '/image/ocr/', { url: self.media_file_url(pm) })
+      result = self.request('post', '/image/ocr/', { url: self.media_file_url(pm) })
       self.save_annotation(pm, 'extracted_text', result) if result
     end
   end
 
   def self.update_audio_transcription(transcription_annotation_id, attempts)
     annotation = Dynamic.find(transcription_annotation_id)
-    result = self.request('get', '/audio/transcription/', { job_name: annotation.get_field_value('job_name') })
+    result = self.request('post', '/audio/transcription/result/', { job_name: annotation.get_field_value('job_name') })
     completed = false
     if result['job_status'] == 'COMPLETED'
       annotation.disable_es_callbacks = Rails.env.to_s == 'test'

@@ -123,23 +123,21 @@ class ElasticSearch9Test < ActionController::TestCase
       WebMock.stub_request(:post, 'http://alegre/text/langid/').to_return(body: { 'result' => { 'language' => 'es' }}.to_json)
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
       WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
-      WebMock.stub_request(:get, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
-      WebMock.stub_request(:get, 'http://alegre/image/classification/').with({ query: { uri: 'some/path' } }).to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre/text/similarity/search/').to_return(body: {success: true}.to_json)
+      WebMock.stub_request(:post, 'http://alegre/image/classification/').with({ body: { uri: 'some/path' } }).to_return(body: {
         "result": valid_flags_data
       }.to_json)
-      WebMock.stub_request(:get, 'http://alegre/image/ocr/').with({ query: { url: 'some/path' } }).to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre/image/ocr/').with({ body: { url: 'some/path' } }).to_return(body: {
         "text": "ocr_text"
       }.to_json)
       WebMock.stub_request(:post, 'http://alegre/image/similarity/').to_return(body: 'success')
       # Text extraction
       Bot::Alegre.unstub(:media_file_url)
       pm = create_project_media team: team, media: create_uploaded_image, disable_es_callbacks: false
-      params = URI.encode_www_form({context: {:has_custom_id=>true, :team_id=>pm.team_id}.to_json, match_across_content_types: true, threshold: 0.89, url: "some/path"})
-      WebMock.stub_request(:get, 'http://alegre/image/similarity/?'+params).to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre/image/similarity/search/').with(body: {context: {:has_custom_id=>true, :team_id=>pm.team_id}.to_json, match_across_content_types: true, threshold: 0.89, url: "some/path"}).to_return(body: {
         "result": []
       }.to_json)
-      params = URI.encode_www_form({context: {:has_custom_id=>true, :team_id=>pm.team_id}.to_json, match_across_content_types: true, threshold: 0.95, url: "some/path"})
-      WebMock.stub_request(:get, 'http://alegre/image/similarity/?'+params).to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre/image/similarity/search/').with(body: {context: {:has_custom_id=>true, :team_id=>pm.team_id}.to_json, match_across_content_types: true, threshold: 0.95, url: "some/path"}).to_return(body: {
         "result": []
       }.to_json)
       Bot::Alegre.stubs(:media_file_url).with(pm).returns("some/path")

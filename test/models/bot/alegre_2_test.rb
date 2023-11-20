@@ -30,7 +30,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm1 = create_project_media team: @team, media: create_uploaded_video
     pm2 = create_project_media team: @team, media: create_uploaded_video
     pm3 = create_project_media team: @team, media: create_uploaded_video
-    Bot::Alegre.stubs(:request).with('get', '/video/similarity/', @params).returns({
+    Bot::Alegre.stubs(:request).with('post', '/video/similarity/search/', @params).returns({
       result: [
         {
           context: [
@@ -64,7 +64,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     pm2 = create_project_media team: @team, media: create_uploaded_audio
     pm3 = create_project_media team: @team, media: create_uploaded_audio
-    Bot::Alegre.stubs(:request).with('get', '/audio/similarity/', @params).returns({
+    Bot::Alegre.stubs(:request).with('post', '/audio/similarity/search/', @params).returns({
       result: [
         {
           id: 1,
@@ -105,7 +105,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm1 = create_project_media team: @team, media: create_uploaded_video
     pm2 = create_project_media team: @team, media: create_uploaded_audio
     pm3 = create_project_media team: @team, media: create_uploaded_audio
-    Bot::Alegre.stubs(:request).with('get', '/audio/similarity/', @params).returns({
+    Bot::Alegre.stubs(:request).with('post', '/audio/similarity/search/', @params).returns({
       result: [
         {
           id: 2,
@@ -171,8 +171,8 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
         }
       ]
     }.with_indifferent_access
-    Bot::Alegre.stubs(:request).with('get', '/image/similarity/', @params.merge({ threshold: 0.89 })).returns(result)
-    Bot::Alegre.stubs(:request).with('get', '/image/similarity/', @params.merge({ threshold: 0.95 })).returns(result)
+    Bot::Alegre.stubs(:request).with('post', '/image/similarity/search/', @params.merge({ threshold: 0.89 })).returns(result)
+    Bot::Alegre.stubs(:request).with('post', '/image/similarity/search/', @params.merge({ threshold: 0.95 })).returns(result)
     Bot::Alegre.stubs(:media_file_url).with(pm3).returns(@media_path)
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm3)
@@ -222,8 +222,8 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
       ]
     }.with_indifferent_access
     Bot::Alegre.stubs(:media_file_url).with(pm1a).returns(@media_path)
-    Bot::Alegre.stubs(:request).with('get', '/image/similarity/', @params.merge({ threshold: 0.89 })).returns(response)
-    Bot::Alegre.stubs(:request).with('get', '/image/similarity/', @params.merge({ threshold: 0.95 })).returns(response)
+    Bot::Alegre.stubs(:request).with('post', '/image/similarity/search/', @params.merge({ threshold: 0.89 })).returns(response)
+    Bot::Alegre.stubs(:request).with('post', '/image/similarity/search/', @params.merge({ threshold: 0.95 })).returns(response)
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm1a)
     end
@@ -242,14 +242,14 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
       WebMock.stub_request(:post, 'http://alegre.test/text/similarity/').to_return(body: 'success')
       WebMock.stub_request(:delete, 'http://alegre.test/text/similarity/').to_return(body: {success: true}.to_json)
-      WebMock.stub_request(:get, 'http://alegre.test/text/similarity/').to_return(body: {success: true}.to_json)
+      WebMock.stub_request(:post, 'http://alegre.test/text/similarity/search/').to_return(body: {success: true}.to_json)
       WebMock.stub_request(:post, 'http://alegre.test/image/similarity/').to_return(body: {
         "success": true
       }.to_json)
-      WebMock.stub_request(:get, 'http://alegre.test/image/classification/').with({ query: { uri: image_path } }).to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre.test/image/classification/').with({ body: { uri: image_path } }).to_return(body: {
         "result": valid_flags_data
       }.to_json)
-      WebMock.stub_request(:get, 'http://alegre.test/image/ocr/').with({ query: { url: image_path } }).to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre.test/image/ocr/').with({ body: { url: image_path } }).to_return(body: {
         "text": "Foo bar"
       }.to_json)
       WebMock.stub_request(:post, 'http://alegre.test/image/similarity/').to_return(body: 'success')
@@ -261,8 +261,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
         "team_id" => pm1.team.id.to_s,
         "project_media_id" => pm1.id.to_s
       }]
-      path = URI.encode_www_form({:url=>image_path, :context=>{:has_custom_id=>true, :team_id=>pm1.team_id}.to_json, :match_across_content_types=>true, :threshold=>0.89})
-      WebMock.stub_request(:get, "http://alegre.test/image/similarity/?#{path}").to_return(body: {
+      WebMock.stub_request(:post, "http://alegre.test/image/similarity/search/").with(body: {:url=>image_path, :context=>{:has_custom_id=>true, :team_id=>pm1.team_id}.to_json, :match_across_content_types=>true, :threshold=>0.89}).to_return(body: {
         "result": [
           {
             "id": pm1.id,
@@ -274,8 +273,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
           }
         ]
       }.to_json)
-      path = URI.encode_www_form({:url=>image_path, :context=>{:has_custom_id=>true, :team_id=>pm1.team_id}.to_json, :match_across_content_types=>true, :threshold=>0.95})
-      WebMock.stub_request(:get, "http://alegre.test/image/similarity/?#{path}").to_return(body: {
+      WebMock.stub_request(:post, "http://alegre.test/image/similarity/search/").with(body: {:url=>image_path, :context=>{:has_custom_id=>true, :team_id=>pm1.team_id}.to_json, :match_across_content_types=>true, :threshold=>0.95}).to_return(body: {
         "result": [
           {
             "id": pm1.id,
@@ -290,7 +288,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
       Bot::Alegre.stubs(:media_file_url).returns(image_path)
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       Bot::Alegre.unstub(:media_file_url)
-      WebMock.stub_request(:get, 'http://alegre.test/image/similarity/').with(query: {url: image_path}).to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre.test/image/similarity/search/').with(body: {url: image_path}).to_return(body: {
         "result": [
           {
             "id": 1,
@@ -309,7 +307,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
 
       # Flags
       Bot::Alegre.unstub(:media_file_url)
-      WebMock.stub_request(:get, 'http://alegre.test/image/classification/').to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre.test/image/classification/').to_return(body: {
         "result": valid_flags_data
       }.to_json)
       pm3 = create_project_media team: t, media: create_uploaded_image
