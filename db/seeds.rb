@@ -112,8 +112,13 @@ def create_claim_description_for_imported_fact_check(user, project, team)
   ClaimDescription.create!(description: Faker::Company.catch_phrase, context: Faker::Lorem.sentence, user: user, project_media: create_blank(project, team))
 end
 
-def create_confirmed_relationship(parent, child)
-  Relationship.create!(source_id: parent.id, target_id: child.id, relationship_type: Relationship.confirmed_type)
+def create_confirmed_relationship(parent, children)
+  if children.class == Array
+    children.each { |child| Relationship.create!(source_id: parent.id, target_id: child.id, relationship_type: Relationship.confirmed_type)}
+  else
+    child = children
+    Relationship.create!(source_id: parent.id, target_id: child.id, relationship_type: Relationship.confirmed_type)
+  end
 end
 
 def create_suggested_relationship(parent, children)
@@ -253,7 +258,6 @@ ActiveRecord::Base.transaction do
   # 2. Creating Items in different states
   # 2.1 Create medias: claims, audios, images, videos and links
   media_data_collection = [ data['Claim'], data['UploadedAudio'], data['UploadedImage'], data['UploadedVideo'], data['Link']]
-  # media_data_collection = [ data['Claim'] ]
   media_data_collection.each do |media_data|
     begin
       media_type = data.key(media_data)
@@ -286,21 +290,21 @@ ActiveRecord::Base.transaction do
         data[media_type][0..1].map { |data| create_media(user, data , media_type)}
       end
       confirmed_children_project_medias = create_project_medias(user, project, team, confirmed_children_media)
-      # create the relationship, iterate through children, 
-      confirmed_children_project_medias.each { |pm| create_confirmed_relationship(project_medias[0], pm)}      
+      # send parent and children
+      create_confirmed_relationship(project_medias[0], confirmed_children_project_medias)
 
-      # puts "#{media_type}: Making Tipline requests..."
-      # # we want different ammounts of requests, so we send the item and the number of requests that should be created
-      # # we jump between numbers so it looks more real in the UI (instead of all 1 requests, then all 15 etc)
-      # create_tipline_requests(team, project_medias.values_at(0,3,6,9,12,15,18), 1)
-      # create_tipline_requests(team, project_medias.values_at(1,4,7,10,13,16,19), 15)
-      # create_tipline_requests(team, project_medias.values_at(2,5,8,11,14,17), 17)
+      puts "#{media_type}: Making Tipline requests..."
+      # we want different ammounts of requests, so we send the item and the number of requests that should be created
+      # we jump between numbers so it looks more real in the UI (instead of all 1 requests, then all 15 etc)
+      create_tipline_requests(team, project_medias.values_at(0,3,6,9,12,15,18), 1)
+      create_tipline_requests(team, project_medias.values_at(1,4,7,10,13,16,19), 15)
+      create_tipline_requests(team, project_medias.values_at(2,5,8,11,14,17), 17)
 
-      # puts "#{media_type}: Publishing Reports..."
-      # # we want some published items to have and some to not have published_article_url, because they behave differently in the feed
-      # # we send the published_article_url when we want one
-      # project_medias[7..8].each { |pm| verify_fact_check_and_publish_report(pm, "https://www.thespruceeats.com/step-by-step-basic-cake-recipe-304553?timestamp=#{Time.now.to_f}")}
-      # project_medias[9..10].each { |pm| verify_fact_check_and_publish_report(pm)}
+      puts "#{media_type}: Publishing Reports..."
+      # we want some published items to have and some to not have published_article_url, because they behave differently in the feed
+      # we send the published_article_url when we want one
+      project_medias[7..8].each { |pm| verify_fact_check_and_publish_report(pm, "https://www.thespruceeats.com/step-by-step-basic-cake-recipe-304553?timestamp=#{Time.now.to_f}")}
+      project_medias[9..10].each { |pm| verify_fact_check_and_publish_report(pm)}
     rescue StandardError => e
       if media_type != 'Link'
         raise e
@@ -310,14 +314,14 @@ ActiveRecord::Base.transaction do
     end
   end
   
-  # # 2.2 Create medias: imported Fact Checks
-  # puts 'Making Imported Fact Checks...'
-  # data[:fact_check_links].map { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
+  # 2.2 Create medias: imported Fact Checks
+  puts 'Making Imported Fact Checks...'
+  data[:fact_check_links].map { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
 
-  # # 3. Create Shared feed
-  # puts 'Making Shared Feed'
-  # saved_search = SavedSearch.create!(title: "#{user.name}'s list #{random_number}", team: team, filters: {created_by: user})
-  # Feed.create!(name: "Feed Test: #{Faker::Alphanumeric.alpha(number: 10)}", user: user, team: team, published: true, saved_search: saved_search, licenses: [1])
+  # 3. Create Shared feed
+  puts 'Making Shared Feed'
+  saved_search = SavedSearch.create!(title: "#{user.name}'s list #{random_number}", team: team, filters: {created_by: user})
+  Feed.create!(name: "Feed Test: #{Faker::Alphanumeric.alpha(number: 10)}", user: user, team: team, published: true, saved_search: saved_search, licenses: [1])
 
   # 4. Return user information
   if answer == "1"
