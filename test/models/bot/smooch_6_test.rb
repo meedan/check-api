@@ -833,7 +833,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       r.add_keyword('who are you')
 
       # Mock a call to Alegre like `GET /text/similarity/` with a "text" parameter that contains "who are you"
-      Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/search' && z[:text] =~ /who are you/ }.returns({ 'result' => [
+      Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/search/' && z[:text] =~ /who are you/ }.returns({ 'result' => [
         { '_score' => 0.9, '_source' => { 'context' => { 'resource_id' => 0 } } },
         { '_score' => 0.8, '_source' => { 'context' => { 'resource_id' => r.id } } }
       ]})

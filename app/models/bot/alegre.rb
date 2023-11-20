@@ -33,7 +33,7 @@ class Bot::Alegre < BotUser
           'UploadedImage' => 'image',
         }[self.media.type].to_s
         threshold = [{value: thresholds.dig(media_type.to_sym, :value)}] || Bot::Alegre.get_threshold_for_query(media_type, self, true)
-        ids_and_scores = Bot::Alegre.get_items_with_similar_media(Bot::Alegre.media_file_url(self), threshold, team_ids, "/#{media_type}/similarity/").to_h
+        ids_and_scores = Bot::Alegre.get_items_with_similar_media(Bot::Alegre.media_file_url(self), threshold, team_ids, "/#{media_type}/similarity/search/").to_h
       elsif self.is_text?
         ids_and_scores = {}
         threads = []
