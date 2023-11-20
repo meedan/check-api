@@ -5,6 +5,7 @@ module SmoochCapi
 
   module ClassMethods
     def should_ignore_capi_request?(request)
+      return true if request.params.dig('entry', 0, 'changes', 0, 'value', 'messages', 0, 'type') == 'reaction'
       event = request.params.dig('entry', 0, 'changes', 0, 'value', 'statuses', 0, 'status').to_s
       ['read', 'sent'].include?(event)
     end
