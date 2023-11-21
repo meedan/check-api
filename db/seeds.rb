@@ -125,9 +125,22 @@ def create_project_medias_with_channel(user, project, team, data)
 end
 
 def create_tipline_user_and_data(project_media, team)
+  tipline_message_data = {
+    link: 'https://www.nytimes.com/interactive/2023/09/28/world/europe/russia-ukraine-war-map-front-line.html',
+    audio: 'https://media.smooch.io/apps/5c193e2380a9c90022e40b86/conversations/d445678ac87d2e9f44485e40/j5x5g1L28Y7fDrzU9DSwuwUR/wnHkwjykxOqU3SMWpEpuVzSa.oga',
+    video: 'https://media.smooch.io/apps/5c193e2380a9c90022e40b86/conversations/d445678ac87d2e9f44485e40/HEFL3cuzvNnCDXZd0ElYziN2/AOVFpYOfMm_ssRUizUQhJHDD.mp4',
+    image: 'https://media.smooch.io/apps/5c193e2380a9c90022e40b86/conversations/d445678ac87d2e9f44485e40/sUn5Sq9xRiacbV0Af2qmjl5G/bOoeoeV9zNA51ecial0eWDG6.jpeg',
+    facebook: 'https://www.facebook.com/boomlive/posts/pfbid0ZoZPYTQAAmrrPR2XmpZ2BCPED1UgozxFGxSQiH68Aa6BF1Cvx2uWHyHrFrAwK7RPl',
+    instagram: 'https://www.instagram.com/p/CxsV1Gcskk8/?img_index=1',
+    tiktok: 'https://www.tiktok.com/@235flavien/video/7271360629615758597?_r=1&_t=8fFCIWTDWVt',
+    twitter: 'https://twitter.com/VietFactCheck/status/1697642909883892175',
+    youtube: 'https://www.youtube.com/watch?v=4EIHB-DG_JA',
+    text: Faker::Lorem.paragraph(sentence_count: 10)
+  }
+
   tipline_user_name = Faker::Name.first_name.downcase
   tipline_user_surname = Faker::Name.last_name
-  tipline_text = 'https://www.tasteofhome.com/collection/the-best-cookie-recipes/' # Faker::Lorem.paragraph(sentence_count: 10)
+  tipline_message =  tipline_message_data.values.sample((1..10).to_a.sample).join(' ')
   phone = [ Faker::PhoneNumber.phone_number, Faker::PhoneNumber.cell_phone, Faker::PhoneNumber.cell_phone_in_e164, Faker::PhoneNumber.phone_number_with_country_code, Faker::PhoneNumber.cell_phone_with_country_code].sample
   uid = random_string
 
@@ -188,7 +201,7 @@ def create_tipline_user_and_data(project_media, team)
     '_id': random_string,
     'type': 'text',
     'received': Time.now.to_f,
-    'text': tipline_text,
+    'text': tipline_message,
     'language': 'en',
     'mediaUrl': nil,
     'mediaSize': 0,
@@ -253,8 +266,7 @@ ActiveRecord::Base.transaction do
 
   # 2. Creating Items in different states
   # 2.1 Create medias: claims, audios, images, videos and links
-  # media_data_collection = [ data['Claim'], data['UploadedAudio'], data['UploadedImage'], data['UploadedVideo'], data['Link']]
-  media_data_collection = [ data['Claim']]
+  media_data_collection = [ data['Claim'], data['UploadedAudio'], data['UploadedImage'], data['UploadedVideo'], data['Link']]
   media_data_collection.each do |media_data|
     begin
       media_type = data.key(media_data)
