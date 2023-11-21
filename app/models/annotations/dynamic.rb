@@ -132,16 +132,15 @@ class Dynamic < ApplicationRecord
       # Index response for team tasks or free text tasks
       if task&.annotated_type == 'ProjectMedia' && (task.team_task_id || self.annotation_type == 'task_response_free_text')
         pm = task.project_media
-        unless pm.nil?
-          if op == 'destroy'
-            handle_destroy_response(task, pm.id)
-          else
-            # OP will be update for choices tasks as it's already created in TASK model(add_elasticsearch_task)
-            op = self.annotation_type =~ /choice/ ? 'update' : op
-            keys = %w(id team_task_id value field_type fieldset date_value numeric_value)
-            self.add_update_nested_obj({ op: op, pm_id: pm.id, nested_key: 'task_responses', keys: keys })
-            self.update_recent_activity(pm) if User.current.present?
-          end
+        return if pm.nil?
+        if op == 'destroy'
+          handle_destroy_response(task, pm.id)
+        else
+          # OP will be update for choices tasks as it's already created in TASK model(add_elasticsearch_task)
+          op = self.annotation_type =~ /choice/ ? 'update' : op
+          keys = %w(id team_task_id value field_type fieldset date_value numeric_value)
+          self.add_update_nested_obj({ op: op, pm_id: pm.id, nested_key: 'task_responses', keys: keys })
+          self.update_recent_activity(pm) if User.current.present?
         end
       end
     end
