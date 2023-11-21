@@ -168,7 +168,8 @@ def create_tipline_user_and_data(project_media, team)
   fields = {
     smooch_user_id: uid,
     smooch_user_app_id: random_string,
-    smooch_user_data: smooch_user_data.to_json
+    smooch_user_data: smooch_user_data.to_json,
+    smooch_report_received: Time.now.to_i
   }
 
   Dynamic.create!(annotation_type: 'smooch_user', annotated: team, annotator: BotUser.smooch_user, set_fields: fields.to_json)
@@ -268,26 +269,26 @@ ActiveRecord::Base.transaction do
       claim_descriptions_for_fact_checks = claim_descriptions[0..10]
       create_fact_checks(user, claim_descriptions_for_fact_checks)
 
-      puts "#{media_type}: Making Relationship: Confirmed Type and Suggested Type..."
-      # because we want a lot of state variety between items, we are not creating relationships for 7..13
-      # send parent and child index
-      create_confirmed_relationship(project_medias[0], project_medias[1])
-      create_confirmed_relationship(project_medias[2], project_medias[3])
-      create_confirmed_relationship(project_medias[4], project_medias[5])
-      create_confirmed_relationship(project_medias[6], project_medias[1])
-      # send parent and children
-      create_suggested_relationship(project_medias[6], project_medias[14..19])
+      # puts "#{media_type}: Making Relationship: Confirmed Type and Suggested Type..."
+      # # because we want a lot of state variety between items, we are not creating relationships for 7..13
+      # # send parent and child index
+      # create_confirmed_relationship(project_medias[0], project_medias[1])
+      # create_confirmed_relationship(project_medias[2], project_medias[3])
+      # create_confirmed_relationship(project_medias[4], project_medias[5])
+      # create_confirmed_relationship(project_medias[6], project_medias[1])
+      # # send parent and children
+      # create_suggested_relationship(project_medias[6], project_medias[14..19])
 
-      puts "#{media_type}: Making Relationship: Create item with many confirmed relationships"
-      # so the center column on the item page has a good size list to check functionality against
-      # https://github.com/meedan/check-api/pull/1722#issuecomment-1798729043
-      # create the children we need for the relationship
-      confirmed_children_media = ['Claim', 'UploadedAudio', 'UploadedImage', 'UploadedVideo', 'Link'].flat_map do |media_type|
-        data[media_type][0..1].map { |data| create_media(user, data , media_type)}
-      end
-      confirmed_children_project_medias = create_project_medias(user, project, team, confirmed_children_media)
-      # send parent and children
-      create_confirmed_relationship(project_medias[0], confirmed_children_project_medias)
+      # puts "#{media_type}: Making Relationship: Create item with many confirmed relationships"
+      # # so the center column on the item page has a good size list to check functionality against
+      # # https://github.com/meedan/check-api/pull/1722#issuecomment-1798729043
+      # # create the children we need for the relationship
+      # confirmed_children_media = ['Claim', 'UploadedAudio', 'UploadedImage', 'UploadedVideo', 'Link'].flat_map do |media_type|
+      #   data[media_type][0..1].map { |data| create_media(user, data , media_type)}
+      # end
+      # confirmed_children_project_medias = create_project_medias(user, project, team, confirmed_children_media)
+      # # send parent and children
+      # create_confirmed_relationship(project_medias[0], confirmed_children_project_medias)
 
       puts "#{media_type}: Making Tipline requests..."
       # we want different ammounts of requests, so we send the item and the number of requests that should be created
@@ -296,11 +297,11 @@ ActiveRecord::Base.transaction do
       create_tipline_requests(team, project_medias.values_at(1,4,7,10,13,16,19), 15)
       create_tipline_requests(team, project_medias.values_at(2,5,8,11,14,17), 17)
 
-      puts "#{media_type}: Publishing Reports..."
-      # we want some published items to have and some to not have published_article_url, because they behave differently in the feed
-      # we send the published_article_url when we want one
-      project_medias[7..8].each { |pm| verify_fact_check_and_publish_report(pm, "https://www.thespruceeats.com/step-by-step-basic-cake-recipe-304553?timestamp=#{Time.now.to_f}")}
-      project_medias[9..10].each { |pm| verify_fact_check_and_publish_report(pm)}
+      # puts "#{media_type}: Publishing Reports..."
+      # # we want some published items to have and some to not have published_article_url, because they behave differently in the feed
+      # # we send the published_article_url when we want one
+      # project_medias[7..8].each { |pm| verify_fact_check_and_publish_report(pm, "https://www.thespruceeats.com/step-by-step-basic-cake-recipe-304553?timestamp=#{Time.now.to_f}")}
+      # project_medias[9..10].each { |pm| verify_fact_check_and_publish_report(pm)}
     rescue StandardError => e
       if media_type != 'Link'
         raise e
@@ -310,14 +311,14 @@ ActiveRecord::Base.transaction do
     end
   end
   
-  # 2.2 Create medias: imported Fact Checks
-  puts 'Making Imported Fact Checks...'
-  data[:fact_check_links].map { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
+  # # 2.2 Create medias: imported Fact Checks
+  # puts 'Making Imported Fact Checks...'
+  # data[:fact_check_links].map { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
 
-  # 3. Create Shared feed
-  puts 'Making Shared Feed'
-  saved_search = SavedSearch.create!(title: "#{user.name}'s list #{random_number}", team: team, filters: {created_by: user})
-  Feed.create!(name: "Feed Test: #{Faker::Alphanumeric.alpha(number: 10)}", user: user, team: team, published: true, saved_search: saved_search, licenses: [1])
+  # # 3. Create Shared feed
+  # puts 'Making Shared Feed'
+  # saved_search = SavedSearch.create!(title: "#{user.name}'s list #{random_number}", team: team, filters: {created_by: user})
+  # Feed.create!(name: "Feed Test: #{Faker::Alphanumeric.alpha(number: 10)}", user: user, team: team, published: true, saved_search: saved_search, licenses: [1])
 
   # 4. Return user information
   if answer == "1"
