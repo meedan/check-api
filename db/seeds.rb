@@ -112,8 +112,8 @@ def create_claim_description_for_imported_fact_check(user, project, team)
   ClaimDescription.create!(description: Faker::Company.catch_phrase, context: Faker::Lorem.sentence, user: user, project_media: create_blank(project, team))
 end
 
-def create_confirmed_relationship(parent, child)
-  Relationship.create!(source_id: parent.id, target_id: child.id, relationship_type: Relationship.confirmed_type)
+def create_confirmed_relationship(parent, children)
+  [children].flatten.each { |child| Relationship.create!(source_id: parent.id, target_id: child.id, relationship_type: Relationship.confirmed_type) }
 end
 
 def create_suggested_relationship(parent, children)
@@ -276,7 +276,18 @@ ActiveRecord::Base.transaction do
       create_confirmed_relationship(project_medias[6], project_medias[1])
       # send parent and children
       create_suggested_relationship(project_medias[6], project_medias[14..19])
-      
+
+      puts "#{media_type}: Making Relationship: Create item with many confirmed relationships"
+      # so the center column on the item page has a good size list to check functionality against
+      # https://github.com/meedan/check-api/pull/1722#issuecomment-1798729043
+      # create the children we need for the relationship
+      confirmed_children_media = ['Claim', 'UploadedAudio', 'UploadedImage', 'UploadedVideo', 'Link'].flat_map do |media_type|
+        data[media_type][0..1].map { |data| create_media(user, data , media_type)}
+      end
+      confirmed_children_project_medias = create_project_medias(user, project, team, confirmed_children_media)
+      # send parent and children
+      create_confirmed_relationship(project_medias[0], confirmed_children_project_medias)
+
       puts "#{media_type}: Making Tipline requests..."
       # we want different ammounts of requests, so we send the item and the number of requests that should be created
       # we jump between numbers so it looks more real in the UI (instead of all 1 requests, then all 15 etc)
