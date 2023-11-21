@@ -80,20 +80,6 @@ def create_fact_checks(user, claim_descriptions)
   claim_descriptions.each { |claim_description| FactCheck.create!(summary: Faker::Company.catch_phrase, title: Faker::Company.name, user: user, claim_description: claim_description, language: 'en') }
 end
 
-def verify_fact_check_and_publish_report(project_media, url = '')
-  status = ['verified', 'false'].sample
-
-  verification_status = project_media.last_status_obj
-  verification_status.status = status
-  verification_status.save!
-
-  report_design = project_media.get_dynamic_annotation('report_design')
-  report_design.set_fields = { status_label: status, state: 'published' }.to_json
-  report_design.data[:options][:published_article_url] = url
-  report_design.action = 'publish'
-  report_design.save!
-end
-
 def fact_check_attributes(fact_check_link, user, project, team)
   {
     summary: Faker::Company.catch_phrase,
@@ -220,6 +206,20 @@ end
 
 def create_tipline_requests(team, project_medias, x_times)
   project_medias.each {|pm| x_times.times {create_tipline_user_and_data(pm, team)}}
+end
+
+def verify_fact_check_and_publish_report(project_media, url = '')
+  status = ['verified', 'false'].sample
+
+  verification_status = project_media.last_status_obj
+  verification_status.status = status
+  verification_status.save!
+
+  report_design = project_media.get_dynamic_annotation('report_design')
+  report_design.set_fields = { status_label: status, state: 'published' }.to_json
+  report_design.data[:options][:published_article_url] = url
+  report_design.action = 'publish'
+  report_design.save!
 end
 
 ######################
