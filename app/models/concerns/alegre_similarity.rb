@@ -117,16 +117,6 @@ module AlegreSimilarity
       })
     end
 
-    def get_context(pm, field=nil)
-      context = {
-        team_id: pm.team_id,
-        project_media_id: pm.id,
-        has_custom_id: true
-      }
-      context[:field] = field if field
-      context
-    end
-
     def send_to_text_similarity_index_package(pm, field, text, doc_id)
       models ||= self.indexing_models_to_use(pm)
       language = self.language_for_similarity(pm&.team_id)
