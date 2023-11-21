@@ -41,13 +41,6 @@ module AlegreV2
 
     def generate_request(method, path, params)
       uri = URI(host + path)
-      if method.downcase == 'get' && params.any?
-        temp_params = params.dup
-        [:context, :models, :vector, :per_model_threshold].each do |key|
-          temp_params[key] = temp_params[key].to_json if temp_params[key]
-        end
-        uri.query = URI.encode_www_form(temp_params)
-      end
       request = get_request_object(method, path, uri)
       if method.downcase == 'post' || method.downcase == 'delete'
         request.body = params.to_json
