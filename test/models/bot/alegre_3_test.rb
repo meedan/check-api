@@ -92,7 +92,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       Bot::Alegre.stubs(:media_file_url).returns(media_file_url)
 
       pm1 = create_project_media team: @pm.team, media: create_uploaded_audio(file: 'rails.mp3')
-      WebMock.stub_request(:post, "http://alegre/similarity/sync/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}.to_json, :url=>media_file_url, :threshold=>0.9}).to_return(body: {
+      WebMock.stub_request(:post, "http://alegre/similarity/sync/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}, :url=>media_file_url, :threshold=>0.9}).to_return(body: {
         "result": []
       }.to_json)
       WebMock.stub_request(:post, 'http://alegre/audio/transcription/result/').with(body: {job_name: "0c481e87f2774b1bd41a0a70d9b70d11"}).to_return(body: { 'job_status' => 'DONE' }.to_json)
@@ -159,7 +159,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       Bot::Alegre.stubs(:media_file_url).returns(media_file_url)
 
       pm1 = create_project_media team: @pm.team, media: create_uploaded_audio(file: 'rails.mp3')
-      WebMock.stub_request(:post, "http://alegre/similarity/sync/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}.to_json, :url=>media_file_url, :threshold=>0.9}).to_return(body: {
+      WebMock.stub_request(:post, "http://alegre/similarity/sync/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}, :url=>media_file_url, :threshold=>0.9}).to_return(body: {
         "result": []
       }.to_json)
       WebMock.stub_request(:post, 'http://alegre/audio/transcription/').with({

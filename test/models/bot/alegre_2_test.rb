@@ -261,7 +261,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
         "team_id" => pm1.team.id.to_s,
         "project_media_id" => pm1.id.to_s
       }]
-      WebMock.stub_request(:post, "http://alegre.test/image/similarity/search/").with(body: {:url=>image_path, :context=>{:has_custom_id=>true, :team_id=>pm1.team_id}.to_json, :match_across_content_types=>true, :threshold=>0.89}).to_return(body: {
+      WebMock.stub_request(:post, "http://alegre.test/image/similarity/search/").with(body: {:url=>image_path, :context=>{:has_custom_id=>true, :team_id=>pm1.team_id}, :match_across_content_types=>true, :threshold=>0.89}).to_return(body: {
         "result": [
           {
             "id": pm1.id,
@@ -273,7 +273,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
           }
         ]
       }.to_json)
-      WebMock.stub_request(:post, "http://alegre.test/image/similarity/search/").with(body: {:url=>image_path, :context=>{:has_custom_id=>true, :team_id=>pm1.team_id}.to_json, :match_across_content_types=>true, :threshold=>0.95}).to_return(body: {
+      WebMock.stub_request(:post, "http://alegre.test/image/similarity/search/").with(body: {:url=>image_path, :context=>{:has_custom_id=>true, :team_id=>pm1.team_id}, :match_across_content_types=>true, :threshold=>0.95}).to_return(body: {
         "result": [
           {
             "id": pm1.id,
