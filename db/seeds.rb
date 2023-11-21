@@ -127,7 +127,7 @@ end
 def create_tipline_user_and_data(project_media, team)
   tipline_user_name = Faker::Name.first_name.downcase
   tipline_user_surname = Faker::Name.last_name
-  tipline_text = Faker::Lorem.paragraph(sentence_count: 10)
+  tipline_text = 'https://www.tasteofhome.com/collection/the-best-cookie-recipes/' # Faker::Lorem.paragraph(sentence_count: 10)
   phone = [ Faker::PhoneNumber.phone_number, Faker::PhoneNumber.cell_phone, Faker::PhoneNumber.cell_phone_in_e164, Faker::PhoneNumber.phone_number_with_country_code, Faker::PhoneNumber.cell_phone_with_country_code].sample
   uid = random_string
 
@@ -177,7 +177,7 @@ def create_tipline_user_and_data(project_media, team)
   smooch_data = {
     'role': 'appUser',
     'source': {
-      'type': 'whatsapp',
+      'type': ['whatsapp', 'telegram', 'messenger'].sample,
       'id': random_string,
       'integrationId': random_string,
       'originalMessageId': random_string,
@@ -197,7 +197,7 @@ def create_tipline_user_and_data(project_media, team)
   }
 
   fields = {
-    smooch_request_type: 'default_requests',
+    smooch_request_type: ['default_requests', 'timeout_search_requests', 'relevant_search_result_requests'].sample,
     smooch_data: smooch_data.to_json
   }
 
@@ -252,7 +252,8 @@ ActiveRecord::Base.transaction do
 
   # 2. Creating Items in different states
   # 2.1 Create medias: claims, audios, images, videos and links
-  media_data_collection = [ data['Claim'], data['UploadedAudio'], data['UploadedImage'], data['UploadedVideo'], data['Link']]
+  # media_data_collection = [ data['Claim'], data['UploadedAudio'], data['UploadedImage'], data['UploadedVideo'], data['Link']]
+  media_data_collection = [ data['Claim']]
   media_data_collection.each do |media_data|
     begin
       media_type = data.key(media_data)
