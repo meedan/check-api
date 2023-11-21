@@ -113,12 +113,7 @@ def create_claim_description_for_imported_fact_check(user, project, team)
 end
 
 def create_confirmed_relationship(parent, children)
-  if children.class == Array
-    children.each { |child| Relationship.create!(source_id: parent.id, target_id: child.id, relationship_type: Relationship.confirmed_type)}
-  else
-    child = children
-    Relationship.create!(source_id: parent.id, target_id: child.id, relationship_type: Relationship.confirmed_type)
-  end
+  [children].flatten.each { |child| Relationship.create!(source_id: parent.id, target_id: child.id, relationship_type: Relationship.confirmed_type) }
 end
 
 def create_suggested_relationship(parent, children)
