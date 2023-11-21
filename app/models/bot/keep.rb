@@ -137,7 +137,7 @@ class Bot::Keep < BotUser
       return if self.should_skip_create_archive_annotation?(type)
       data = begin JSON.parse(self.media.metadata_annotation.get_field_value('metadata_value')) rescue self.media.pender_data end
 
-      return unless data.has_key?('archives')
+      return unless data&.has_key?('archives')
       a = Dynamic.where(annotation_type: 'archiver', annotated_type: self.class_name, annotated_id: self.id).last
       if a.nil?
         a = Dynamic.new
