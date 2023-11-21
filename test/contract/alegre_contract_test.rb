@@ -25,8 +25,8 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
     WebMock.stub_request(:delete, 'http://localhost:3100/text/similarity/').to_return(body: { success: true }.to_json)
     WebMock.stub_request(:post, 'http://localhost:3100/image/similarity/').to_return(body: { 'success': true }.to_json)
     WebMock.stub_request(:post, 'http://localhost:3100/image/classification/').with(body: { uri: url}).to_return(body:{ result: @flags }.to_json)
-    WebMock.stub_request(:post, 'http://localhost:3100/image/similarity/search/').with(body: {:url=>"https://i.imgur.com/ewGClFQ.png", :context=>{:has_custom_id=>true, :team_id=>pm.team_id}.to_json, :match_across_content_types=>true, :threshold=>0.89}).to_return(body: { "result": [] }.to_json)
-    WebMock.stub_request(:post, 'http://localhost:3100/image/similarity/search/').with(body: {:url=>"https://i.imgur.com/ewGClFQ.png", :context=>{:has_custom_id=>true, :team_id=>pm.team_id}.to_json, :match_across_content_types=>true, :threshold=>0.95}).to_return(body: { "result": [] }.to_json)
+    WebMock.stub_request(:post, 'http://localhost:3100/image/similarity/search/').with(body: {:url=>"https://i.imgur.com/ewGClFQ.png", :context=>{:has_custom_id=>true, :team_id=>pm.team_id}, :match_across_content_types=>true, :threshold=>0.89}).to_return(body: { "result": [] }.to_json)
+    WebMock.stub_request(:post, 'http://localhost:3100/image/similarity/search/').with(body: {:url=>"https://i.imgur.com/ewGClFQ.png", :context=>{:has_custom_id=>true, :team_id=>pm.team_id}, :match_across_content_types=>true, :threshold=>0.95}).to_return(body: { "result": [] }.to_json)
   end
 
   # def teardown
@@ -58,7 +58,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
 
   test "should get image flags" do
     stub_configs({ 'alegre_host' => 'http://localhost:3100' }) do
-      WebMock.stub_request(:post, 'http://localhost:3100/image/ocr/').with({ query: { url: @url } }).to_return(body: { "text": @extracted_text  }.to_json)
+      WebMock.stub_request(:post, 'http://localhost:3100/image/ocr/').with({ body: { url: @url } }).to_return(body: { "text": @extracted_text  }.to_json)
       Bot::Alegre.unstub(:media_file_url)
       alegre.given('an image URL').
       upon_receiving('a request to get image flags').
@@ -115,7 +115,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
   test "should link similar images" do
     stub_configs({ 'alegre_host' => 'http://localhost:3100' }) do
       WebMock.stub_request(:post, 'http://localhost:3100/image/classification/').with(body: { uri: @url2}).to_return(body:{ result: @flags }.to_json)
-      WebMock.stub_request(:post, 'http://localhost:3100/image/ocr/').with({ query: { url: @url } }).to_return(body: { "text": @extracted_text  }.to_json)
+      WebMock.stub_request(:post, 'http://localhost:3100/image/ocr/').with({ body: { url: @url } }).to_return(body: { "text": @extracted_text  }.to_json)
       pm1 = create_project_media team: @pm.team, media: create_uploaded_image
       stub_similarity_requests(@url, pm1)
       Bot::Alegre.stubs(:media_file_url).with(pm1).returns(@url)
@@ -126,7 +126,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
       with(
         method: :post,
         path: '/image/similarity/search/',
-        body: {url: @url,threshold: "0.89"}
+        body: {url: @url,threshold: 0.89}
       ).
       will_respond_with(
         status: 200,
