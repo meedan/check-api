@@ -168,12 +168,11 @@ def create_tipline_user_and_data(project_media, team)
   fields = {
     smooch_user_id: uid,
     smooch_user_app_id: random_string,
-    smooch_user_data: smooch_user_data.to_json,
-    smooch_report_received: Time.now.to_i
+    smooch_user_data: smooch_user_data.to_json
   }
-
+  
   Dynamic.create!(annotation_type: 'smooch_user', annotated: team, annotator: BotUser.smooch_user, set_fields: fields.to_json)
-
+  
   # Tipline request
   smooch_data = {
     'role': 'appUser',
@@ -196,10 +195,11 @@ def create_tipline_user_and_data(project_media, team)
     'archived': 3,
     'app_id': random_string
   }
-
+  
   fields = {
     smooch_request_type: ['default_requests', 'timeout_search_requests', 'relevant_search_result_requests'].sample,
-    smooch_data: smooch_data.to_json
+    smooch_data: smooch_data.to_json,
+    smooch_report_received: [Time.now.to_i, nil].sample
   }
 
   Dynamic.create!(annotation_type: 'smooch', annotated: project_media, annotator: BotUser.smooch_user, set_fields: fields.to_json)
