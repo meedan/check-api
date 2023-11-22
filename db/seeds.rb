@@ -80,20 +80,6 @@ def create_fact_checks(user, claim_descriptions)
   claim_descriptions.each { |claim_description| FactCheck.create!(summary: Faker::Company.catch_phrase, title: Faker::Company.name, user: user, claim_description: claim_description, language: 'en') }
 end
 
-def verify_fact_check_and_publish_report(project_media, url = '')
-  status = ['verified', 'false'].sample
-
-  verification_status = project_media.last_status_obj
-  verification_status.status = status
-  verification_status.save!
-
-  report_design = project_media.get_dynamic_annotation('report_design')
-  report_design.set_fields = { status_label: status, state: 'published' }.to_json
-  report_design.data[:options][:published_article_url] = url
-  report_design.action = 'publish'
-  report_design.save!
-end
-
 def fact_check_attributes(fact_check_link, user, project, team)
   {
     summary: Faker::Company.catch_phrase,
@@ -125,9 +111,22 @@ def create_project_medias_with_channel(user, project, team, data)
 end
 
 def create_tipline_user_and_data(project_media, team)
+  tipline_message_data = {
+    link: 'https://www.nytimes.com/interactive/2023/09/28/world/europe/russia-ukraine-war-map-front-line.html',
+    audio: "#{random_url}/wnHkwjykxOqU3SMWpEpuVzSa.oga",
+    video: "#{random_url}/AOVFpYOfMm_ssRUizUQhJHDD.mp4",
+    image: "#{random_url}/bOoeoeV9zNA51ecial0eWDG6.jpeg",
+    facebook: 'https://www.facebook.com/boomlive/posts/pfbid0ZoZPYTQAAmrrPR2XmpZ2BCPED1UgozxFGxSQiH68Aa6BF1Cvx2uWHyHrFrAwK7RPl',
+    instagram: 'https://www.instagram.com/p/CxsV1Gcskk8/?img_index=1',
+    tiktok: 'https://www.tiktok.com/@235flavien/video/7271360629615758597?_r=1&_t=8fFCIWTDWVt',
+    twitter: 'https://twitter.com/VietFactCheck/status/1697642909883892175',
+    youtube: 'https://www.youtube.com/watch?v=4EIHB-DG_JA',
+    text: Faker::Lorem.paragraph(sentence_count: 10)
+  }
+
   tipline_user_name = Faker::Name.first_name.downcase
   tipline_user_surname = Faker::Name.last_name
-  tipline_text = Faker::Lorem.paragraph(sentence_count: 10)
+  tipline_message =  tipline_message_data.values.sample((1..10).to_a.sample).join(' ')
   phone = [ Faker::PhoneNumber.phone_number, Faker::PhoneNumber.cell_phone, Faker::PhoneNumber.cell_phone_in_e164, Faker::PhoneNumber.phone_number_with_country_code, Faker::PhoneNumber.cell_phone_with_country_code].sample
   uid = random_string
 
@@ -170,14 +169,14 @@ def create_tipline_user_and_data(project_media, team)
     smooch_user_app_id: random_string,
     smooch_user_data: smooch_user_data.to_json
   }
-
+  
   Dynamic.create!(annotation_type: 'smooch_user', annotated: team, annotator: BotUser.smooch_user, set_fields: fields.to_json)
 
   # Tipline request
   smooch_data = {
     'role': 'appUser',
     'source': {
-      'type': 'whatsapp',
+      'type': ['whatsapp', 'telegram', 'messenger'].sample,
       'id': random_string,
       'integrationId': random_string,
       'originalMessageId': random_string,
@@ -188,17 +187,18 @@ def create_tipline_user_and_data(project_media, team)
     '_id': random_string,
     'type': 'text',
     'received': Time.now.to_f,
-    'text': tipline_text,
+    'text': tipline_message,
     'language': 'en',
     'mediaUrl': nil,
     'mediaSize': 0,
     'archived': 3,
     'app_id': random_string
   }
-
+  
   fields = {
-    smooch_request_type: 'default_requests',
-    smooch_data: smooch_data.to_json
+    smooch_request_type: ['default_requests', 'timeout_search_requests', 'relevant_search_result_requests'].sample,
+    smooch_data: smooch_data.to_json,
+    smooch_report_received: [Time.now.to_i, nil].sample
   }
 
   Dynamic.create!(annotation_type: 'smooch', annotated: project_media, annotator: BotUser.smooch_user, set_fields: fields.to_json)
@@ -206,6 +206,20 @@ end
 
 def create_tipline_requests(team, project_medias, x_times)
   project_medias.each {|pm| x_times.times {create_tipline_user_and_data(pm, team)}}
+end
+
+def verify_fact_check_and_publish_report(project_media, url = '')
+  status = ['verified', 'false'].sample
+
+  verification_status = project_media.last_status_obj
+  verification_status.status = status
+  verification_status.save!
+
+  report_design = project_media.get_dynamic_annotation('report_design')
+  report_design.set_fields = { status_label: status, state: 'published' }.to_json
+  report_design.data[:options][:published_article_url] = url
+  report_design.action = 'publish'
+  report_design.save!
 end
 
 ######################
