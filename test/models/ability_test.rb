@@ -1323,16 +1323,19 @@ class AbilityTest < ActiveSupport::TestCase
       ability = Ability.new
       assert ability.can?(:destroy, ft2)
       assert ability.can?(:destroy, ft3)
+      assert ability.can?(:destroy, f)
     end
     with_current_user_and_team(u2, t2) do
       ability = Ability.new
       assert ability.can?(:destroy, ft2)
       assert ability.cannot?(:destroy, ft3)
+      assert ability.cannot?(:destroy, f)
     end
     with_current_user_and_team(u3, t3) do
       ability = Ability.new
       assert ability.cannot?(:destroy, ft2)
       assert ability.can?(:destroy, ft3)
+      assert ability.cannot?(:destroy, f)
     end
   end
 end
