@@ -72,7 +72,7 @@ class Bot::Keep < BotUser
         type = Bot::Keep.archiver_to_annotation_type(payload['type'])
         response = Bot::Keep.set_response_based_on_pender_data(type, payload) || { error: true }
         m = link.metadata_annotation
-        data = JSON.parse(m.get_field_value('metadata_value'))
+        data = begin JSON.parse(m.get_field_value('metadata_value')) rescue {} end
         data['archives'] ||= {}
         data['archives'][payload['type']] = response
         m.set_fields = { metadata_value: data.to_json }.to_json
