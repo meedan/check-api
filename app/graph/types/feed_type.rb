@@ -43,6 +43,13 @@ class FeedType < DefaultObject
   end
 
   field :feed_invitations, FeedInvitationType.connection_type, null: false
+
+  def feed_invitations
+    ability = context[:ability] || Ability.new
+    return FeedInvitation.none unless ability.can?(:read_feed_invitations, object)
+    object.feed_invitations
+  end
+
   field :teams, TeamType.connection_type, null: false
   field :feed_teams, FeedTeamType.connection_type, null: false
 end
