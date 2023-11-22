@@ -714,7 +714,8 @@ class AbilityTest < ActiveSupport::TestCase
       "bulk_create Tag", "bulk_update ProjectMedia", "create TagText", "read Team", "update Team", "destroy Team", "empty Trash",
       "create Project", "create Account", "create TeamUser", "create User", "create ProjectMedia", "invite Members",
       "not_spam ProjectMedia", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia", "duplicate Team", "create Feed",
-      "manage TagText", "manage TeamTask", "set_privacy Project", "update Relationship", "destroy Relationship", "create TiplineNewsletter"
+      "manage TagText", "manage TeamTask", "set_privacy Project", "update Relationship", "destroy Relationship", "create TiplineNewsletter",
+      "create FeedInvitation", "create FeedTeam"
     ]
     project_perms = [
       "read Project", "update Project", "destroy Project", "create Source", "create Media", "create ProjectMedia",
@@ -1323,16 +1324,19 @@ class AbilityTest < ActiveSupport::TestCase
       ability = Ability.new
       assert ability.can?(:destroy, ft2)
       assert ability.can?(:destroy, ft3)
+      assert ability.can?(:destroy, f)
     end
     with_current_user_and_team(u2, t2) do
       ability = Ability.new
       assert ability.can?(:destroy, ft2)
       assert ability.cannot?(:destroy, ft3)
+      assert ability.cannot?(:destroy, f)
     end
     with_current_user_and_team(u3, t3) do
       ability = Ability.new
       assert ability.cannot?(:destroy, ft2)
       assert ability.can?(:destroy, ft3)
+      assert ability.cannot?(:destroy, f)
     end
   end
 end
