@@ -212,4 +212,17 @@ class IsolatedBotKeepTest < ActiveSupport::TestCase
 
     assert_match /Archiver annotation for ProjectMedia not found/, error.message
   end
+
+  test ".webhook archiving doesn't raise exception if metadata contains special characters" do
+    url = 'https://example.com/foo'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    pender_response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: pender_response)
+    pm = create_project_media url: url
+    create_dynamic_annotation annotated: pm, annotation_type: 'archiver', set_fields: {}.to_json
+    Dynamic.any_instance.stubs(:get_field_value).with('metadata_value').returns('invalid JSON')
+    assert_nothing_raised do
+      Bot::Keep.webhook(fake_request(url))
+    end
+  end
 end

@@ -1,9 +1,8 @@
 class FeedInvitationMailer < ApplicationMailer
   layout nil
 
-  def notify(record_id, team_id)
+  def notify(record_id)
     record = FeedInvitation.find_by_id record_id
-    team = Team.find_by_id team_id
     @recipient = record.email
     @user = record.user
     @feed = record.feed
