@@ -125,8 +125,8 @@ module CheckBasicAbilities
       !(@user.cached_teams & obj.feed.team_ids).empty?
     end
 
-    can :read, FeedInvitation do |obj|
-      @user.email == obj.email || @user.id == obj.user_id
+    can [:read, :destroy], FeedInvitation do |obj|
+      @user.email == obj.email || @user.id == obj.user_id || TeamUser.where(user_id: @user.id, team_id: obj.feed.team_id, role: 'admin').exists?
     end
   end
 
