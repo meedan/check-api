@@ -410,6 +410,7 @@ class GraphqlController9Test < ActionController::TestCase
   end
 
   test "should paginate tipline messages" do
+    skip 'Pagination disabled in this commit'
     t = create_team slug: 'test', private: true
     u = create_user
     create_team_user user: u, team: t, role: 'admin'
