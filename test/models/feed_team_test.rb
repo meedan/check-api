@@ -65,4 +65,19 @@ class FeedTeamTest < ActiveSupport::TestCase
     ft.save!
     assert_equal 'bar', ft.reload.get_requests_filters[:foo]
   end
+
+  test "should delete invitations when leaving feed" do
+    u = create_user
+    ft = create_feed_team
+    create_team_user user: u, team: ft.team, role: 'admin'
+    create_feed_invitation feed: ft.feed
+    fi = create_feed_invitation email: u.email, feed: ft.feed
+    assert_not_nil FeedInvitation.find_by_id(fi.id)
+    User.current = u
+    assert_difference 'FeedInvitation.count', -1 do
+      ft.destroy!
+    end
+    User.current = nil
+    assert_nil FeedInvitation.find_by_id(fi.id)
+  end
 end

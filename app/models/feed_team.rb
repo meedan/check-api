@@ -8,6 +8,8 @@ class FeedTeam < ApplicationRecord
   validates_presence_of :team_id, :feed_id
   validate :saved_search_belongs_to_feed_team
 
+  after_destroy :delete_invitations
+
   def requests_filters=(filters)
     filters = filters.is_a?(String) ? JSON.parse(filters) : filters
     self.send(:set_requests_filters, filters)
@@ -23,5 +25,10 @@ class FeedTeam < ApplicationRecord
     unless saved_search_id.blank?
       errors.add(:saved_search_id, I18n.t(:"errors.messages.invalid_feed_saved_search_value")) if self.team_id != self.saved_search.team_id
     end
+  end
+
+  def delete_invitations
+    # Delete invitations to that feed when a user leaves a feed so they can be invited again in the future
+    FeedInvitation.where(email: User.current.email, feed_id: self.feed_id).delete_all unless User.current.blank?
   end
 end
