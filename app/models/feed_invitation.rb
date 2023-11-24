@@ -18,7 +18,8 @@ class FeedInvitation < ApplicationRecord
   end
 
   def reject!
-    self.update_column(:state, :rejected)
+    # self.update_column(:state, :rejected)
+    self.destroy!
   end
 
   private
