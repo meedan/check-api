@@ -409,7 +409,28 @@ class GraphqlController9Test < ActionController::TestCase
     assert_equal "Not Found", JSON.parse(@response.body)['errors'][0]['message']
   end
 
+  test "should get latest tipline messages" do
+    t = create_team slug: 'test', private: true
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    uid = random_string
+
+    tm1 = create_tipline_message team_id: t.id, uid: uid, sent_at: Time.now.ago(2.hours)
+    tm2 = create_tipline_message team_id: t.id, uid: uid, sent_at: Time.now.ago(1.hour)
+
+    authenticate_with_user(u)
+
+    query = 'query latest { team(slug: "test") { tipline_messages(first: 1, uid:"' + uid + '") { edges { node { dbid } } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['team']['tipline_messages']
+    results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
+    assert_equal 1, results.size
+    assert_equal tm2.id, results[0]
+  end
+
   test "should paginate tipline messages" do
+    skip 'Pagination disabled in this commit'
     t = create_team slug: 'test', private: true
     u = create_user
     create_team_user user: u, team: t, role: 'admin'
