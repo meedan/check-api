@@ -116,55 +116,55 @@ class RequestTest < ActiveSupport::TestCase
   end
 
   test "should send text request to Alegre" do
-    Bot::Alegre.stubs(:request_api).returns(true)
+    Bot::Alegre.stubs(:request).returns(true)
     assert_nothing_raised do
       create_request(media: create_claim_media)
     end
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
 
   test "should send media request to Alegre" do
-    Bot::Alegre.stubs(:request_api).returns(true)
+    Bot::Alegre.stubs(:request).returns(true)
     assert_nothing_raised do
       create_request(media: create_uploaded_image)
     end
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
 
   test "should attach to similar text long" do
-    Bot::Alegre.stubs(:request_api).returns(true)
+    Bot::Alegre.stubs(:request).returns(true)
     f = create_feed
     m1 = Media.create! type: 'Claim', quote: 'Foo bar foo bar'
     r1 = create_request media: m1, feed: f
     m2 = Media.create! type: 'Claim', quote: 'Foo bar foo bar 2'
     r2 = create_request media: m2, feed: f
     response = { 'result' => [{ '_source' => { 'context' => { 'request_id' => r1.id } } }] }
-    Bot::Alegre.stubs(:request_api).with('get', '/text/similarity/', { text: 'Foo bar foo bar 2', models: [::Bot::Alegre::ELASTICSEARCH_MODEL, ::Bot::Alegre::MEAN_TOKENS_MODEL], per_model_threshold: {::Bot::Alegre::ELASTICSEARCH_MODEL => 0.85, ::Bot::Alegre::MEAN_TOKENS_MODEL =>  0.9}, limit: 20, context: { feed_id: f.id } }).returns(response)
+    Bot::Alegre.stubs(:request).with('post', '/text/similarity/search/', { text: 'Foo bar foo bar 2', models: [::Bot::Alegre::ELASTICSEARCH_MODEL, ::Bot::Alegre::MEAN_TOKENS_MODEL], per_model_threshold: {::Bot::Alegre::ELASTICSEARCH_MODEL => 0.85, ::Bot::Alegre::MEAN_TOKENS_MODEL =>  0.9}, limit: 20, context: { feed_id: f.id } }).returns(response)
     r2.attach_to_similar_request!
     #Alegre should be called with ES and vector model for request with 4 or more words
     assert_equal r1, r2.reload.similar_to_request
     assert_equal [r2], r1.reload.similar_requests
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
   
   test "should attach to similar text short" do
-    Bot::Alegre.stubs(:request_api).returns(true)
+    Bot::Alegre.stubs(:request).returns(true)
     f = create_feed
     m1 = Media.create! type: 'Claim', quote: 'Foo bar foo bar'
     r1 = create_request media: m1, feed: f
     m2 = Media.create! type: 'Claim', quote: 'Foo bar 2'
     r2 = create_request media: m2, feed: f
     response = { 'result' => [{ '_source' => { 'context' => { 'request_id' => r1.id } } }] }
-    Bot::Alegre.stubs(:request_api).with('get', '/text/similarity/', { text: 'Foo bar 2', models: [::Bot::Alegre::MEAN_TOKENS_MODEL], per_model_threshold: {::Bot::Alegre::MEAN_TOKENS_MODEL =>  0.9}, limit: 20, context: { feed_id: f.id } }).returns(response)
+    Bot::Alegre.stubs(:request).with('post', '/text/similarity/search/', { text: 'Foo bar 2', models: [::Bot::Alegre::MEAN_TOKENS_MODEL], per_model_threshold: {::Bot::Alegre::MEAN_TOKENS_MODEL =>  0.9}, limit: 20, context: { feed_id: f.id } }).returns(response)
     r2.attach_to_similar_request!
     #Alegre should only be called with vector models for 2 or 3 word request
     assert_equal r1, r2.reload.similar_to_request
     assert_equal [r2], r1.reload.similar_requests
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
   
   test "should not attach to similar text short" do
-    Bot::Alegre.stubs(:request_api).returns(true)
+    Bot::Alegre.stubs(:request).returns(true)
     f = create_feed
     m1 = Media.create! type: 'Claim', quote: 'Foo bar foo bar'
     r1 = create_request media: m1, feed: f
@@ -174,26 +174,26 @@ class RequestTest < ActiveSupport::TestCase
     # Alegre should not be called for a one word request
     assert_not_equal r1, r2.reload.similar_to_request
     assert_not_equal [r2], r1.reload.similar_requests
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
 
   test "should attach to similar media" do
-    Bot::Alegre.stubs(:request_api).returns(true)
+    Bot::Alegre.stubs(:request).returns(true)
     f = create_feed
     m1 = create_uploaded_image
     r1 = create_request request_type: 'image', media: m1, feed: f
     m2 = create_uploaded_image
     r2 = create_request request_type: 'image', media: m2, feed: f
     response = { 'result' => [{ 'context' => [{ 'request_id' => r1.id }] }] }
-    Bot::Alegre.stubs(:request_api).with('get', '/image/similarity/', { url: m2.file.file.public_url, threshold: 0.85, limit: 20, context: { feed_id: f.id } }).returns(response)
+    Bot::Alegre.stubs(:request).with('post', '/image/similarity/search/', { url: m2.file.file.public_url, threshold: 0.85, limit: 20, context: { feed_id: f.id } }).returns(response)
     r2.attach_to_similar_request!
     assert_equal r1, r2.reload.similar_to_request
     assert_equal [r2], r1.reload.similar_requests
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
 
   test "should attach to similar link" do
-    Bot::Alegre.stubs(:request_api).returns(true)
+    Bot::Alegre.stubs(:request).returns(true)
     f = create_feed
     m = create_valid_media
     create_request request_type: 'text', media: m
@@ -203,6 +203,7 @@ class RequestTest < ActiveSupport::TestCase
     r2.attach_to_similar_request!
     assert_equal r1, r2.reload.similar_to_request
     assert_equal [r2], r1.reload.similar_requests
+    Bot::Alegre.unstub(:request)
   end
 
   test "should set fields" do
@@ -213,7 +214,7 @@ class RequestTest < ActiveSupport::TestCase
   end
 
   test "should update fields" do
-    Bot::Alegre.stubs(:request_api).returns({})
+    Bot::Alegre.stubs(:request).returns({})
     m1 = create_uploaded_image
     m2 = create_uploaded_image
     r1 = create_request media: m1
@@ -226,11 +227,11 @@ class RequestTest < ActiveSupport::TestCase
     assert_equal r4.created_at.to_s, r1.reload.last_submitted_at.to_s
     assert_equal 2, r1.reload.medias_count
     assert_equal 4, r1.reload.requests_count
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
 
   test "should return medias" do
-    Bot::Alegre.stubs(:request_api).returns({})
+    Bot::Alegre.stubs(:request).returns({})
     create_request
     create_uploaded_image
     m1 = create_uploaded_image
@@ -241,11 +242,11 @@ class RequestTest < ActiveSupport::TestCase
     r3 = create_request media: m2
     r3.similar_to_request = r1 ; r3.save!
     assert_equal [m1, m2].map(&:id).sort, r1.reload.medias.map(&:id).sort
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
 
   test "should cache team names that fact-checked a request" do
-    Bot::Alegre.stubs(:request_api).returns({})
+    Bot::Alegre.stubs(:request).returns({})
     RequestStore.store[:skip_cached_field_update] = false
     u = create_user is_admin: true
     f = create_feed
@@ -279,7 +280,7 @@ class RequestTest < ActiveSupport::TestCase
     ProjectMediaRequest.create!(project_media: create_project_media(team: t4), request: r)
     assert_equal 'Bar, Foo, Test', r.reload.fact_checked_by
     assert_equal 3, r.reload.fact_checked_by_count
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
     User.unstub(:current)
   end
 
@@ -326,12 +327,12 @@ class RequestTest < ActiveSupport::TestCase
   end
 
   test "should cache media type" do
-    Bot::Alegre.stubs(:request_api).returns({})
+    Bot::Alegre.stubs(:request).returns({})
     RequestStore.store[:skip_cached_field_update] = false
     m = create_uploaded_image
     r = create_request media: m
     assert_equal 'UploadedImage', r.media_type(true)
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
 
   test "should not have a circular dependency" do
