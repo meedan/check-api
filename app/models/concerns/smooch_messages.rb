@@ -367,7 +367,7 @@ module SmoochMessages
     end
 
     def create_smooch_request(annotated, message, app_id, author)
-      fields = { smooch_data: message.merge({ app_id: app_id }).to_json }
+      fields = { smooch_data: message.merge({ app_id: app_id }) }
       result = self.smooch_api_get_messages(app_id, message['authorId'])
       fields[:smooch_conversation_id] = result.conversation.id unless result.nil? || result.conversation.nil?
       fields[:smooch_message_id] = message['_id']

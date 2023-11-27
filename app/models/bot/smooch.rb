@@ -29,7 +29,6 @@ class Bot::Smooch < BotUser
   include SmoochCapi
   include SmoochStrings
   include SmoochMenus
-  include SmoochFields
   include SmoochLanguage
   include SmoochBlocking
 

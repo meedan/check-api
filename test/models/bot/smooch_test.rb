@@ -208,7 +208,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     tt_montag = create_tag_text text: 'montag', team_id: @team.id
 
     assert_difference 'ProjectMedia.count', 7 do
-      assert_difference 'Annotation.where(annotation_type: "smooch").count', 22 do
+      assert_difference 'TiplineRequest.count', 22 do
         assert_no_difference 'Comment.length' do
           messages.each do |message|
             uid = message[:authorId]
@@ -554,11 +554,10 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert Bot::Smooch.run(payload)
 
     pm = ProjectMedia.last
-    sm = pm.get_annotations('smooch').last
-    df = DynamicAnnotation::Field.where(annotation_id: sm.id, field_name: 'smooch_data').last
-    assert_not_nil df
-    assert_equal 0, df.reload.smooch_report_received_at
-    assert_nil df.reload.smooch_report_update_received_at
+    tr = pm.tipline_requests.last
+    assert_not_nil tr
+    assert_equal 0, tr.reload.smooch_report_received_at
+    assert_nil tr.smooch_report_update_received_at
     r = publish_report(pm)
     assert_equal 0, r.reload.sent_count
     msg_id = random_string
@@ -768,8 +767,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     }.to_json
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
-    sm = pm.get_annotations('smooch').last.load
-    f = sm.get_field('smooch_data')
-    assert_equal 'en', f.smooch_user_request_language
+    tr = pm.tipline_requests.last
+    assert_equal 'en', tr.smooch_user_request_language
   end
 end

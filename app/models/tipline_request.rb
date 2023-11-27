@@ -1,10 +1,12 @@
 class TiplineRequest < ApplicationRecord
-	belongs_to :associated, polymorphic: true
-	belongs_to :user, optional: true
+  include CheckElasticSearch
 
-	before_validation :set_user, on: :create
+  belongs_to :associated, polymorphic: true
+  belongs_to :user, optional: true
 
-	after_commit :add_elasticsearch_field, on: :create
+  before_validation :set_user, on: :create
+
+  after_commit :add_elasticsearch_field, on: :create
   after_commit :update_elasticsearch_field, on: :update
   after_commit :destroy_elasticsearch_field, on: :destroy
 
@@ -60,21 +62,21 @@ class TiplineRequest < ApplicationRecord
   end
 
   def smooch_report_sent_at
-  	self.smooch_report_sent_at ? self.smooch_report_sent_at.to_i : nil
+    self.smooch_report_sent_at ? self.smooch_report_sent_at.to_i : nil
   end
 
   def smooch_report_correction_sent_at
-  	self.smooch_report_correction_sent_at ? self.smooch_report_correction_sent_at.to_i : nil
+    self.smooch_report_correction_sent_at ? self.smooch_report_correction_sent_at.to_i : nil
   end
 
   def smooch_user_request_language
-  	self.language.to_s
+    self.language.to_s
   end
 
-	private
+  private
 
-	def set_user
-		self.user ||= User.current
+  def set_user
+    self.user ||= User.current
   end
 
   def get_slack_channel_url(obj, data)
