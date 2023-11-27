@@ -40,7 +40,7 @@ class Bot::Smooch < BotUser
       self.get_dynamic_annotation('report_design')&.report_design_image_url
     end
 
-    def get_deduplicated_smooch_annotations
+    def get_deduplicated_tipline_requests
       uids = []
       annotations = []
       ProjectMedia.where(id: self.related_items_ids).each do |pm|
@@ -601,10 +601,11 @@ class Bot::Smooch < BotUser
       original = begin JSON.parse(original) rescue {} end
       if original['fallback_template'] =~ /report/
         pmids = ProjectMedia.find(original['project_media_id']).related_items_ids
-        DynamicAnnotation::Field.joins(:annotation).where(field_name: 'smooch_data', 'annotations.annotated_type' => 'ProjectMedia', 'annotations.annotated_id' => pmids).where("value_json ->> 'authorId' = ?", message['appUser']['_id']).each do |f|
-          a = f.annotation.load
-          a.set_fields = { smooch_report_received: Time.now.to_i }.to_json
-          a.save!
+        TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: pm_ids, tipline_user_uid: message['appUser']['_id']).find_each do |tr|
+          # TODO: Sawy (use update columns)
+          tr.smooch_report_received = Time.now
+          tr.skip_check_ability = true
+          tr.save!
         end
       end
     end
@@ -933,10 +934,10 @@ class Bot::Smooch < BotUser
     report = parent.get_annotations('report_design').last&.load
     return if report.nil?
     last_published_at = report.get_field_value('last_published').to_i
-    parent.get_deduplicated_smooch_annotations.each do |annotation|
-      data = JSON.parse(annotation.load.get_field_value('smooch_data'))
+    parent.get_deduplicated_tipline_requests.each do |tipline_request|
+      data = tipline_request.smooch_data
       self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
-      self.send_correction_to_user(data, parent, annotation, last_published_at, action, report.get_field_value('published_count').to_i) unless self.config['smooch_disabled']
+      self.send_correction_to_user(data, parent, tipline_request, last_published_at, action, report.get_field_value('published_count').to_i) unless self.config['smooch_disabled']
     end
   end
 

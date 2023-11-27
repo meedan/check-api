@@ -429,7 +429,7 @@ module SmoochMessages
       return if pm.nil?
       requestors_count = 0
       parent = Relationship.where(target_id: pm.id).last&.source || pm
-      parent.get_deduplicated_smooch_annotations.each do |tr|
+      parent.get_deduplicated_tipline_requests.each do |tr|
         data = tr.smooch_data
         self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
         message = parent.team.get_status_message_for_language(status, data['language'])

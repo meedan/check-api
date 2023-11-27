@@ -4,6 +4,10 @@ class TiplineRequest < ApplicationRecord
 
 	before_validation :set_user, on: :create
 
+	after_commit :add_elasticsearch_field, on: :create
+  after_commit :update_elasticsearch_field, on: :update
+  after_commit :destroy_elasticsearch_field, on: :destroy
+
   def smooch_user_slack_channel_url
     Concurrent::Future.execute(executor: CheckGraphql::POOL) do
       return if self.smooch_data.blank?
@@ -85,5 +89,39 @@ class TiplineRequest < ApplicationRecord
       slack_channel_url = field_value.value unless field_value.nil?
     end
     slack_channel_url
+  end
+
+  def add_elasticsearch_field
+    index_field_elastic_search('create')
+  end
+
+  def update_elasticsearch_field
+    index_field_elastic_search('update')
+  end
+
+  def destroy_elasticsearch_field
+    index_field_elastic_search('destroy')
+  end
+
+  protected
+
+  def index_field_elastic_search(op)
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    obj = self.associated
+    unless obj.nil?
+      if op == 'destroy'
+        destroy_es_items('requests', 'destroy_doc_nested', obj.id)
+      else
+        identifier = begin self.smooch_user_external_identifier&.value rescue self.smooch_user_external_identifier end
+        data = {
+          'username' => self.smooch_data['name'],
+          'identifier' => identifier&.gsub(/[[:space:]|-]/, ''),
+          'content' => self.smooch_data['text'],
+          'language' => self.language,
+        }
+        options = { op: op, pm_id: obj.id, nested_key: 'requests', keys: data.keys, data: data, skip_get_data: true }
+        self.add_update_nested_obj(options)
+      end
+    end
   end
 end

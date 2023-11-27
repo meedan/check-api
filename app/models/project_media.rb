@@ -475,21 +475,14 @@ class ProjectMedia < ApplicationRecord
     ms.attributes[:assigned_user_ids] = assignments_uids.uniq
     # 'requests'
     requests = []
-    fields = DynamicAnnotation::Field.joins(:annotation)
-    .where(
-      field_name: 'smooch_data',
-      'annotations.annotated_id' => self.id,
-      'annotations.annotation_type' => 'smooch',
-      'annotations.annotated_type' => 'ProjectMedia'
-      )
-    fields.each do |field|
-      identifier = begin field.smooch_user_external_identifier&.value rescue field.smooch_user_external_identifier end
+    TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: self.id).each do |tr|
+      identifier = begin tr.smooch_user_external_identifier&.value rescue tr.smooch_user_external_identifier end
       requests << {
-        id: field.id,
-        username: field.value_json['name'],
+        id: tr.id,
+        username: tr.smooch_data['name'],
         identifier: identifier&.gsub(/[[:space:]|-]/, ''),
-        content: field.value_json['text'],
-        language: field.value_json['language'],
+        content: tr.smooch_data['text'],
+        language: tr.language,
       }
     end
     ms.attributes[:requests] = requests
