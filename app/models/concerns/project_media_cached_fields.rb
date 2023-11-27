@@ -109,9 +109,9 @@ module ProjectMediaCachedFields
       recalculate: :recalculate_requests_count,
       update_on: [
         {
-          model: Dynamic,
-          if: proc { |d| d.annotation_type == 'smooch' && d.annotated_type == 'ProjectMedia' },
-          affected_ids: proc { |d| [d.annotated_id] },
+          model: TiplineRequest,
+          if: proc { |tr| tr.associated_type == 'ProjectMedia' },
+          affected_ids: proc { |tr| [tr.associated_id] },
           events: {
             create: :recalculate,
             destroy: :recalculate,
@@ -125,9 +125,9 @@ module ProjectMediaCachedFields
       recalculate: :recalculate_demand,
       update_on: [
         {
-          model: Dynamic,
-          if: proc { |d| d.annotation_type == 'smooch' && d.annotated_type == 'ProjectMedia' },
-          affected_ids: proc { |d| d.annotated.related_items_ids },
+          model: TiplineRequest,
+          if: proc { |tr| tr.associated_type == 'ProjectMedia' },
+          affected_ids: proc { |tr| tr.associated.related_items_ids },
           events: {
             create: :recalculate,
           }
@@ -150,9 +150,9 @@ module ProjectMediaCachedFields
       recalculate: :recalculate_last_seen,
       update_on: [
         {
-          model: Dynamic,
-          if: proc { |d| d.annotation_type == 'smooch' && d.annotated_type == 'ProjectMedia' },
-          affected_ids: proc { |d| d.annotated&.related_items_ids.to_a },
+          model: TiplineRequest,
+          if: proc { |tr| tr.associated_type == 'ProjectMedia' },
+          affected_ids: proc { |tr| tr.associated&.related_items_ids.to_a },
           events: {
             create: :recalculate,
           }
@@ -451,9 +451,9 @@ module ProjectMediaCachedFields
       recalculate: :recalculate_positive_tipline_search_results_count,
       update_on: [
         {
-          model: DynamicAnnotation::Field,
-          if: proc { |f| f.field_name == 'smooch_request_type' && f.value == 'relevant_search_result_requests' },
-          affected_ids: proc { |f| [f.annotation&.annotated_id.to_i] },
+          model: TiplineRequest,
+          if: proc { |tr| tr.smooch_request_type == 'relevant_search_result_requests' },
+          affected_ids: proc { |tr| [tr.associated_id] },
           events: {
             save: :recalculate,
             destroy: :recalculate,
@@ -466,9 +466,9 @@ module ProjectMediaCachedFields
       recalculate: :recalculate_tipline_search_results_count,
       update_on: [
         {
-          model: DynamicAnnotation::Field,
-          if: proc { |f| f.field_name == 'smooch_request_type' && ['relevant_search_result_requests', 'irrelevant_search_result_requests', 'timeout_search_requests'].include?(f.value) },
-          affected_ids: proc { |f| [f.annotation&.annotated_id.to_i] },
+          model: TiplineRequest,
+          if: proc { |tr| ['relevant_search_result_requests', 'irrelevant_search_result_requests', 'timeout_search_requests'].include?(tr.smooch_request_type) },
+            affected_ids: proc { |tr| [tr.associated_id] },
           events: {
             save: :recalculate,
             destroy: :recalculate,
@@ -499,7 +499,7 @@ module ProjectMediaCachedFields
     end
 
     def recalculate_requests_count
-      Dynamic.where(annotation_type: 'smooch', annotated_id: self.id).count
+      TiplineRequest.where(associated_id: self.id).count
     end
 
     def recalculate_demand
@@ -509,10 +509,10 @@ module ProjectMediaCachedFields
     end
 
     def recalculate_last_seen
-      # If it’s a main/parent item, last_seen is related to any request (smooch annotation) to that own ProjectMedia or any similar/child ProjectMedia
-      # If it’s not a main item (so, single or child, a.k.a. “confirmed match” or “suggestion”), then last_seen is related only to smooch annotations (requests) related to that ProjectMedia.
+      # If it’s a main/parent item, last_seen is related to any tipline request to that own ProjectMedia or any similar/child ProjectMedia
+      # If it’s not a main item (so, single or child, a.k.a. “confirmed match” or “suggestion”), then last_seen is related only to tipline requests related to that ProjectMedia.
       ids = self.is_parent ? self.related_items_ids : self.id
-      v1 = Dynamic.where(annotation_type: 'smooch', annotated_id: ids).order('created_at DESC').first&.created_at || 0
+      v1 = TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: ids).order('created_at DESC').first&.created_at || 0
       v2 = ProjectMedia.where(id: ids).order('created_at DESC').first&.created_at || 0
       [v1, v2].max.to_i
     end
@@ -637,16 +637,13 @@ module ProjectMediaCachedFields
     end
 
     def recalculate_positive_tipline_search_results_count
-      DynamicAnnotation::Field.where(annotation_type: 'smooch',field_name: 'smooch_request_type', value: 'relevant_search_result_requests')
-      .joins('INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id')
-      .where('a.annotated_type = ? AND a.annotated_id = ?', 'ProjectMedia', self.id).count
+      TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: self.id, smooch_request_type: 'relevant_search_result_requests').count
     end
 
     def recalculate_tipline_search_results_count
-      DynamicAnnotation::Field.where(annotation_type: 'smooch',field_name: 'smooch_request_type')
-      .where('value IN (?)', ['"relevant_search_result_requests"', '"irrelevant_search_result_requests"', '"timeout_search_requests"'])
-      .joins('INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id')
-      .where('a.annotated_type = ? AND a.annotated_id = ?', 'ProjectMedia', self.id).count
+      TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: self.id)
+      .where('smooch_request_type IN (?)', ['"relevant_search_result_requests"', '"irrelevant_search_result_requests"', '"timeout_search_requests"'])
+      .count
     end
   end
 
