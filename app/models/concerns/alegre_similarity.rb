@@ -35,11 +35,11 @@ module AlegreSimilarity
       end
     end
 
-    def get_items_with_similarity(type, pm, threshold, query_or_body = 'body')
+    def get_items_with_similarity(type, pm, threshold)
       if type == 'text'
         self.get_merged_items_with_similar_text(pm, threshold)
       else
-        results = self.get_items_with_similar_media(self.media_file_url(pm), threshold, pm.team_id, "/#{type}/similarity/", query_or_body).reject{ |id, _score_with_context| pm.id == id }
+        results = self.get_items_with_similar_media(self.media_file_url(pm), threshold, pm.team_id, "/#{type}/similarity/search/").reject{ |id, _score_with_context| pm.id == id }
         self.merge_response_with_source_and_target_fields(results, type)
       end
     end
@@ -110,21 +110,11 @@ module AlegreSimilarity
     end
 
     def delete_from_text_similarity_index(doc_id, context, quiet=false)
-      self.request_api('delete', '/text/similarity/', {
+      self.request('delete', '/text/similarity/', {
         doc_id: doc_id,
         context: context,
         quiet: quiet
       })
-    end
-
-    def get_context(pm, field=nil)
-      context = {
-        team_id: pm.team_id,
-        project_media_id: pm.id,
-        has_custom_id: true
-      }
-      context[:field] = field if field
-      context
     end
 
     def send_to_text_similarity_index_package(pm, field, text, doc_id)
@@ -141,7 +131,7 @@ module AlegreSimilarity
     end
 
     def send_to_text_similarity_index(pm, field, text, doc_id)
-      self.request_api(
+      self.request(
         'post',
         '/text/similarity/',
         self.send_to_text_similarity_index_package(pm, field, text, doc_id)
@@ -168,7 +158,7 @@ module AlegreSimilarity
           quiet: quiet,
           context: self.get_context(pm),
         }
-        self.request_api(
+        self.request(
           'delete',
           "/#{type}/similarity/",
           params
@@ -186,7 +176,7 @@ module AlegreSimilarity
           match_across_content_types: true,
           requires_callback: true
         }
-        self.request_api(
+        self.request(
           'post',
           "/#{type}/similarity/",
           params
@@ -214,10 +204,10 @@ module AlegreSimilarity
       es_matches
     end
 
-    def get_similar_items_from_api(path, conditions, _threshold = {}, query_or_body = 'body')
+    def get_similar_items_from_api(path, conditions, _threshold = {})
       Rails.logger.error("[Alegre Bot] Sending request to alegre : #{path} , #{conditions.to_json}")
       response = {}
-      result = self.request_api('get', path, conditions, query_or_body)&.dig('result')
+      result = self.request('post', path, conditions)&.dig('result')
       project_medias = result.collect{ |r| self.extract_project_medias_from_context(r) } if !result.nil? && result.is_a?(Array)
       project_medias.each do |request_response|
         request_response.each do |pmid, score_with_context|
@@ -293,7 +283,7 @@ module AlegreSimilarity
       params
     end
 
-    def get_items_with_similar_media(media_url, threshold, team_id, path, query_or_body = 'body')
+    def get_items_with_similar_media(media_url, threshold, team_id, path)
       self.get_similar_items_from_api(
         path,
         self.similar_media_content_from_api_conditions(
@@ -301,8 +291,7 @@ module AlegreSimilarity
           media_url,
           threshold
         ),
-        threshold,
-        query_or_body
+        threshold
       )
     end
 
