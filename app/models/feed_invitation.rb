@@ -18,7 +18,8 @@ class FeedInvitation < ApplicationRecord
   end
 
   def reject!
-    self.update_column(:state, :rejected)
+    # self.update_column(:state, :rejected)
+    self.destroy!
   end
 
   private
@@ -28,6 +29,6 @@ class FeedInvitation < ApplicationRecord
   end
 
   def send_feed_invitation_mail
-    FeedInvitationMailer.delay.notify(self.id, Team.current.id)
+    FeedInvitationMailer.delay.notify(self.id)
   end
 end

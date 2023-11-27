@@ -61,7 +61,7 @@ class FeedInvitationTest < ActiveSupport::TestCase
     end
     assert_equal 'accepted', fi.reload.state
     fi.reject!
-    assert_equal 'rejected', fi.reload.state
+    assert_nil FeedInvitation.find_by_id(fi.id)
   end
 
   test "should send email after create feed invitation" do

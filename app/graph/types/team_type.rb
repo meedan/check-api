@@ -302,6 +302,6 @@ class TeamType < DefaultObject
   end
 
   def tipline_messages(uid:)
-    TiplineMessagesPagination.new(object.tipline_messages.where(uid: uid).order('id ASC'))
+    TiplineMessagesPagination.new(object.tipline_messages.where(uid: uid).order('sent_at DESC'))
   end
 end
