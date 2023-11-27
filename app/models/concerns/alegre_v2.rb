@@ -8,12 +8,12 @@ module AlegreV2
       CheckConfig.get('alegre_host')
     end
 
-    def sync_path
-      "/similarity/sync/audio"
+    def sync_path(project_media)
+      "/similarity/sync/#{get_type(project_media)}"
     end
 
-    def async_path
-      "/similarity/async/audio"
+    def async_path(project_media)
+      "/similarity/async/#{get_type(project_media)}"
     end
 
     def delete_path(project_media)
@@ -119,10 +119,22 @@ module AlegreV2
       ).merge(params)
     end
 
-    def generic_package_audio(project_media, params)
+    def generic_package_media(project_media, params)
       generic_package(project_media, nil).merge(
         url: media_file_url(project_media),
       ).merge(params)
+    end
+
+    def generic_package_image(project_media, params)
+      generic_package_media(project_media, params)
+    end
+
+    def delete_package_image(project_media, _field, params)
+      generic_package_image(project_media, params)
+    end
+
+    def generic_package_audio(project_media, params)
+      generic_package_media(project_media, params)
     end
 
     def delete_package_audio(project_media, _field, params)
