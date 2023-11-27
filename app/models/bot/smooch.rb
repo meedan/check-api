@@ -44,12 +44,11 @@ class Bot::Smooch < BotUser
       uids = []
       annotations = []
       ProjectMedia.where(id: self.related_items_ids).each do |pm|
-        pm.get_annotations('smooch').find_each do |annotation|
-          data = JSON.parse(annotation.load.get_field_value('smooch_data'))
-          uid = data['authorId']
+        pm.tipline_requests.find_each do |tr|
+          uid = tr.tipline_user_uid
           next if uids.include?(uid)
           uids << uid
-          annotations << annotation
+          annotations << tr
         end
       end
       annotations
@@ -941,8 +940,8 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.send_correction_to_user(data, pm, annotation, last_published_at, action, published_count = 0)
-    subscribed_at = annotation.created_at
+  def self.send_correction_to_user(data, pm, tipline_request, last_published_at, action, published_count = 0)
+    subscribed_at = tipline_request.created_at
     self.get_platform_from_message(data)
     uid = data['authorId']
     lang = data['language']
@@ -959,10 +958,9 @@ class Bot::Smooch < BotUser
       self.send_report_to_user(uid, data, pm, lang, 'fact_check_report')
     end
     unless field_name.blank?
-      annotation = annotation.load
-      annotation.skip_check_ability = true
-      annotation.set_fields = { "#{field_name}": Time.now.to_i }.to_json
-      annotation.save!
+      tipline_request.skip_check_ability = true
+      tipline_request.send("#{field_name}=", Time.now)
+      tipline_request.save!
     end
   end
 

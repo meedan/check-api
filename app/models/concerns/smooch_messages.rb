@@ -397,19 +397,22 @@ module SmoochMessages
       current_user = User.current
       User.current = author
       User.current = annotated.user if User.current.nil? && annotated.respond_to?(:user)
-      a = nil
-      a = Dynamic.where(annotation_type: 'smooch', annotated_id: annotated.id, annotated_type: annotated.class.name).last if attach_to
-      if a.nil?
-        a = Dynamic.new
-        a.annotation_type = 'smooch'
-        a.annotated = annotated
+      tr = nil
+      tr = TiplineRequest.where(associated_id: annotated.id, associated_type: annotated.class.name).last if attach_to
+      if tr.nil?
+        tr = TiplineRequest.new
+        tr.associated = annotated
+        tr.tipline_user_uid = fields[:smooch_data]['authorId']
+        tr.language = fields[:smooch_data]['language']
       end
-      a.skip_check_ability = true
-      a.skip_notifications = true
-      a.disable_es_callbacks = Rails.env.to_s == 'test'
-      a.set_fields = fields.to_json
+      tr.skip_check_ability = true
+      tr.skip_notifications = true
+      tr.disable_es_callbacks = Rails.env.to_s == 'test'
+      fields.each do |k, v|
+        tr.send("#{k}=", v) if tr.respond_to?("#{k}=")
+      end
       begin
-        a.save!
+        tr.save!
       rescue ActiveRecord::RecordNotUnique
         Rails.logger.info('[Smooch Bot] Not storing tipline request because it already exists.')
       end
@@ -426,8 +429,8 @@ module SmoochMessages
       return if pm.nil?
       requestors_count = 0
       parent = Relationship.where(target_id: pm.id).last&.source || pm
-      parent.get_deduplicated_smooch_annotations.each do |annotation|
-        data = JSON.parse(annotation.load.get_field_value('smooch_data'))
+      parent.get_deduplicated_smooch_annotations.each do |tr|
+        data = tr.smooch_data
         self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
         message = parent.team.get_status_message_for_language(status, data['language'])
         unless message.blank?

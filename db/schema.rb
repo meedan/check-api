@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_10_26_162554) do
+ActiveRecord::Schema.define(version: 2023_11_22_054128) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -664,7 +664,6 @@ ActiveRecord::Schema.define(version: 2023_10_26_162554) do
     t.datetime "updated_at", null: false
     t.string "state"
     t.index ["external_id", "state"], name: "index_tipline_messages_on_external_id_and_state", unique: true
-    t.index ["external_id"], name: "index_tipline_messages_on_external_id"
     t.index ["team_id"], name: "index_tipline_messages_on_team_id"
     t.index ["uid"], name: "index_tipline_messages_on_uid"
   end
@@ -708,6 +707,30 @@ ActiveRecord::Schema.define(version: 2023_10_26_162554) do
     t.datetime "updated_at", null: false
     t.index ["team_id", "language"], name: "index_tipline_newsletters_on_team_id_and_language", unique: true
     t.index ["team_id"], name: "index_tipline_newsletters_on_team_id"
+  end
+
+  create_table "tipline_requests", force: :cascade do |t|
+    t.string "language"
+    t.string "tipline_user_uid", null: false
+    t.text "smooch_request_type"
+    t.text "smooch_resource_id"
+    t.text "smooch_message_id"
+    t.text "smooch_conversation_id"
+    t.jsonb "smooch_data", default: {}, null: false
+    t.string "associated_type", null: false
+    t.bigint "associated_id", null: false
+    t.bigint "team_id"
+    t.bigint "user_id"
+    t.datetime "smooch_report_received"
+    t.datetime "smooch_report_correction_sent_at"
+    t.datetime "smooch_report_sent_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["associated_type", "associated_id"], name: "index_tipline_requests_on_associated"
+    t.index ["associated_type", "associated_id"], name: "index_tipline_requests_on_associated_type_and_associated_id"
+    t.index ["team_id"], name: "index_tipline_requests_on_team_id"
+    t.index ["tipline_user_uid"], name: "index_tipline_requests_on_tipline_user_uid"
+    t.index ["user_id"], name: "index_tipline_requests_on_user_id"
   end
 
   create_table "tipline_resources", id: :serial, force: :cascade do |t|
@@ -805,7 +828,8 @@ ActiveRecord::Schema.define(version: 2023_10_26_162554) do
   end
 
   create_table "versions", id: :serial, force: :cascade do |t|
-    t.string "item_type", null: false
+    t.string "item_type"
+    t.string "{:null=>false}"
     t.string "item_id", null: false
     t.string "event", null: false
     t.string "whodunnit"

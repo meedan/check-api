@@ -382,8 +382,7 @@ class ProjectMedia < ApplicationRecord
   def get_requests
     # Get related items for parent item
     pm_ids = Relationship.confirmed_parent(self).id == self.id ? self.related_items_ids : [self.id]
-    sm_ids = Annotation.where(annotation_type: 'smooch', annotated_type: 'ProjectMedia', annotated_id: pm_ids).map(&:id)
-    sm_ids.blank? ? [] : DynamicAnnotation::Field.where(annotation_id: sm_ids, field_name: 'smooch_data')
+    TiplineRequest.where(associated_type: 'ProjectMedia', associated_id, pm_ids)
   end
 
   def apply_rules_and_actions_on_update
