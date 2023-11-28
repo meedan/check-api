@@ -799,7 +799,7 @@ class GraphqlController10Test < ActionController::TestCase
     u = create_user
     t = create_team
     pm = create_project_media team: t
-    tr = create_tipline_request team_id: t.id, associated: pm, language: 'en', smooch_data: { authorId: '123', language: 'en', received: Time.now.to_f
+    tr = create_tipline_request team_id: t.id, associated: pm, language: 'en', smooch_data: { authorId: '123', language: 'en', received: Time.now.to_f }
     authenticate_with_user(u)
 
     query = "mutation { sendTiplineMessage(input: { clientMutationId: \"1\", message: \"Hello\", inReplyToId: #{tr.id} }) { success } }"
