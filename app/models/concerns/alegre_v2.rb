@@ -82,12 +82,12 @@ module AlegreV2
       request("delete", delete_path(project_media), data)
     end
 
-    def request_sync(data)
-      request("post", sync_path, data)
+    def request_sync(data, project_media)
+      request("post", sync_path(project_media), data)
     end
 
-    def request_async(data)
-      request("post", async_path, data)
+    def request_async(data, project_media)
+      request("post", async_path(project_media), data)
     end
 
     def get_type(project_media)
@@ -161,19 +161,25 @@ module AlegreV2
       context
     end
 
+    def store_package_image(project_media, _field, params)
+      generic_package_image(project_media, params)
+    end
+
     def store_package_audio(project_media, _field, params)
       generic_package_audio(project_media, params)
     end
 
     def get_sync(project_media, field=nil, params={})
       request_sync(
-        store_package(project_media, field, params)
+        store_package(project_media, field, params),
+        project_media
       )
     end
 
     def get_async(project_media, field=nil, params={})
       request_async(
-        store_package(project_media, field, params)
+        store_package(project_media, field, params),
+        project_media
       )
     end
 
