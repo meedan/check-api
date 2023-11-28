@@ -40,7 +40,7 @@ class ReportsControllerTest < ActionController::TestCase
     pm5 = create_project_media team: @t, media: create_uploaded_video
     create_project_media team: @t
 
-    Bot::Alegre.stubs(:request_api).returns({ 'result' => [from_alegre(@pm), from_alegre(pm), from_alegre(pm2), from_alegre(pm3), from_alegre(pm4), from_alegre(pm5)] })
+    Bot::Alegre.stubs(:request).returns({ 'result' => [from_alegre(@pm), from_alegre(pm), from_alegre(pm2), from_alegre(pm3), from_alegre(pm4), from_alegre(pm5)] })
 
     post :index, params: {}
     assert_response :success
@@ -57,7 +57,7 @@ class ReportsControllerTest < ActionController::TestCase
     assert_equal 1, json_response['data'].size
     assert_equal 1, json_response['meta']['record-count']
     
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
 
   test "should return empty set if Alegre doesn't return anything" do
@@ -65,14 +65,14 @@ class ReportsControllerTest < ActionController::TestCase
     authenticate_with_token @a
     3.times { create_project_media(team: @t) }
 
-    Bot::Alegre.stubs(:request_api).returns({ 'result' => [] })
+    Bot::Alegre.stubs(:request).returns({ 'result' => [] })
 
     get :index, params: { filter: { similar_to_text: 'Test' } }
     assert_response :success
     assert_equal 0, json_response['data'].size
     assert_equal 0, json_response['meta']['record-count']
 
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
 
   test "should return empty set if Alegre Bot is not installed" do
@@ -81,13 +81,13 @@ class ReportsControllerTest < ActionController::TestCase
     3.times { create_project_media }
     TeamBotInstallation.delete_all
     BotUser.delete_all
-    Bot::Alegre.stubs(:request_api).returns({ 'result' => [] })
+    Bot::Alegre.stubs(:request).returns({ 'result' => [] })
 
     get :index, params: { filter: { similar_to_text: 'Test' } }
     assert_response :success
     assert_equal 0, json_response['data'].size
     assert_equal 0, json_response['meta']['record-count']
 
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
 end

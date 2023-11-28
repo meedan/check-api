@@ -50,7 +50,7 @@ class SmoochNlu
       alegre_params = common_alegre_params.merge({ quiet: true })
     end
     # FIXME: Add error handling and better logging
-    Bot::Alegre.request_api(alegre_operation, '/text/similarity/', alegre_params) if alegre_operation && alegre_params
+    Bot::Alegre.request(alegre_operation, '/text/similarity/', alegre_params) if alegre_operation && alegre_params
     keywords
   end
 
@@ -79,7 +79,7 @@ class SmoochNlu
           language: language,
         }.merge(context)
       }
-      response = Bot::Alegre.request_api('get', '/text/similarity/', params)
+      response = Bot::Alegre.request('post', '/text/similarity/search/', params)
 
       # One approach would be to take the option that has the most matches
       # Unfortunately this approach is influenced by the number of keywords per option
