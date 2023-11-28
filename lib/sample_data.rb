@@ -845,6 +845,20 @@ module SampleData
     }.merge(options))
   end
 
+  def create_tipline_request(options = {})
+    tr = TiplineRequest.new
+    tr.language = 'en'
+    tr.tipline_user_uid = random_string
+    tr.smooch_data = {}
+    tr.team_id = options[:team_id] || create_team.id
+    tr.associated = options[:associated] || create_project_media
+    options.each do |key, value|
+      tr.send("#{key}=", value) if tr.respond_to?("#{key}=")
+    end
+    tr.save!
+    tr.reload
+  end
+
   def create_cluster(options = {})
     options[:project_media] = create_project_media unless options.has_key?(:project_media)
     Cluster.create!(options)

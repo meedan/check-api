@@ -146,7 +146,7 @@ class ProjectMedia2Test < ActiveSupport::TestCase
     RequestStore.store[:skip_cached_field_update] = false
     # sortable fields are [linked_items_count, last_seen and share_count]
     setup_elasticsearch
-    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
+    # create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     Rails.stubs(:env).returns('development'.inquiry)
     team = create_team
     p = create_project team: team
@@ -155,7 +155,8 @@ class ProjectMedia2Test < ActiveSupport::TestCase
     assert_equal 1, result['linked_items_count']
     assert_equal pm.created_at.to_i, result['last_seen']
     assert_equal pm.reload.last_seen, pm.read_attribute(:last_seen)
-    t = t0 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm).created_at.to_i
+    # t = t0 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm).created_at.to_i
+    t = t0 = create_tipline_request(team_id: team.id, associated: pm).created_at.to_i
     result = $repository.find(get_es_id(pm))
     assert_equal t, result['last_seen']
     assert_equal pm.reload.last_seen, pm.read_attribute(:last_seen)
@@ -170,7 +171,8 @@ class ProjectMedia2Test < ActiveSupport::TestCase
     assert_equal t, result['last_seen']
     assert_equal pm.reload.last_seen, pm.read_attribute(:last_seen)
 
-    t = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2).created_at.to_i
+    # t = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2).created_at.to_i
+    t = create_tipline_request(team_id: team.id, associated: pm2).created_at.to_i
     result = $repository.find(get_es_id(pm))
     assert_equal t, result['last_seen']
     assert_equal pm.reload.last_seen, pm.read_attribute(:last_seen)

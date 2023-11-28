@@ -155,13 +155,3 @@ class Cluster < ApplicationRecord
   end
 end
 
-
-Dynamic.class_eval do
-  def cached_field_cluster_requests_count_create(target)
-    target.requests_count + 1
-  end
-
-  def cached_field_cluster_requests_count_destroy(target)
-    target.requests_count - 1
-  end
-end

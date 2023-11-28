@@ -232,7 +232,6 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
   end
 
   test "should get smooch user slack channel url" do
-    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     create_annotation_type_and_fields('Smooch User', {
       'Data' => ['JSON', false],
       'Slack Channel Url' => ['Text', true],
@@ -247,11 +246,10 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
     set_fields = { smooch_user_id: author_id, smooch_user_data: { id: author_id }.to_json, smooch_user_slack_channel_url: url }.to_json
     d = create_dynamic_annotation annotated: t, annotation_type: 'smooch_user', set_fields: set_fields
     with_current_user_and_team(u, t) do
-      ds = create_dynamic_annotation annotation_type: 'smooch', annotated: pm, set_fields: { smooch_data: { 'authorId' => author_id }.to_json }.to_json
-      f = ds.get_field('smooch_data')
-      assert_equal url, f.smooch_user_slack_channel_url
+      tr = create_tipline_request team_id: t.id, associated: pm, smooch_data: { 'authorId' => author_id }
+      assert_equal url, tr.smooch_user_slack_channel_url
       assert 1, Rails.cache.delete_matched("SmoochUserSlackChannelUrl:Team:*")
-      assert_equal url, f.smooch_user_slack_channel_url
+      assert_equal url, tr.smooch_user_slack_channel_url
     end
   end
 

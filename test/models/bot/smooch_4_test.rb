@@ -89,7 +89,6 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
   end
 
   test "should store Smooch conversation id" do
-    create_annotation_type_and_fields('Smooch', { 'Conversation Id' => ['Text', true] })
     conversation_id = random_string
     result = OpenStruct.new({ conversation: OpenStruct.new({ id: conversation_id })})
     SmoochApi::ConversationApi.any_instance.stubs(:get_messages).returns(result)
@@ -115,12 +114,12 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
           'conversationStarted': true
         }
       }.to_json
-      assert_difference "DynamicAnnotation::Field.where(field_name: 'smooch_conversation_id').count" do
+      assert_difference "TiplineRequest.count" do
         Bot::Smooch.run(payload)
       end
       pm = ProjectMedia.last
-      a = pm.annotations('smooch').last
-      assert_equal conversation_id, a.load.get_field_value('smooch_conversation_id')
+      tr = TiplineRequest.last
+      assert_equal conversation_id, tr.smooch_conversation_id
     end
     SmoochApi::ConversationApi.any_instance.unstub(:get_messages)
   end
@@ -209,7 +208,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
       assert_difference 'Dynamic.where(annotation_type: "smooch").count' do
         Sidekiq::Worker.drain_all
       end
-      assert_equal ['bar', 'foo', 'test'], JSON.parse(Dynamic.where(annotation_type: 'smooch').last.get_field_value('smooch_data'))['text'].split(Bot::Smooch::MESSAGE_BOUNDARY).map(&:chomp).sort
+      assert_equal ['bar', 'foo', 'test'], TiplineRequest.last.smooch_data['text'].split(Bot::Smooch::MESSAGE_BOUNDARY).map(&:chomp).sort
     end
   end
 
@@ -254,7 +253,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     Rails.cache.unstub(:read)
     Sidekiq::Worker.drain_all
     assert_equal 'waiting_for_message', sm.state.value
-    assert_equal ['Hello for the last time', 'ONE ', '2', 'Query'], JSON.parse(Dynamic.where(annotation_type: 'smooch').last.get_field_value('smooch_data'))['text'].split(Bot::Smooch::MESSAGE_BOUNDARY).map(&:chomp)
+    assert_equal ['Hello for the last time', 'ONE ', '2', 'Query'], TiplineRequest.last.smooch_data['text'].split(Bot::Smooch::MESSAGE_BOUNDARY).map(&:chomp)
     assert_equal 'Hello for the last time', ProjectMedia.last.text
   end
 
@@ -376,16 +375,16 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     u = create_user is_admin: true
     t = create_team
     with_current_user_and_team(u, t) do
-      d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_message_id: random_string, smooch_data: { 'authorId' => whatsapp_uid }.to_json }.to_json
-      assert_equal '+55 12 3456-7890', d.get_field('smooch_data').smooch_user_external_identifier
-      d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_message_id: random_string, smooch_data: { 'authorId' => twitter_uid }.to_json }.to_json
-      assert_equal '@foobar', d.get_field('smooch_data').smooch_user_external_identifier
-      d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_message_id: random_string, smooch_data: { 'authorId' => facebook_uid }.to_json }.to_json
-      assert_equal '123456', d.get_field('smooch_data').smooch_user_external_identifier
-      d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_message_id: random_string, smooch_data: { 'authorId' => telegram_uid }.to_json }.to_json
-      assert_equal '@barfoo', d.get_field('smooch_data').smooch_user_external_identifier
-      d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_message_id: random_string, smooch_data: { 'authorId' => other_uid }.to_json }.to_json
-      assert_equal '', d.get_field('smooch_data').smooch_user_external_identifier
+      tr = create_tipline_request team_id: t.id, smooch_message_id: random_string, smooch_data: { 'authorId' => whatsapp_uid }
+      assert_equal '+55 12 3456-7890', tr.smooch_user_external_identifier
+      tr = create_tipline_request team_id: t.id,smooch_message_id: random_string, smooch_data: { 'authorId' => twitter_uid }
+      assert_equal '@foobar', tr.smooch_user_external_identifier
+      tr = create_tipline_request team_id: t.id, smooch_message_id: random_string, smooch_data: { 'authorId' => facebook_uid }
+      assert_equal '123456', tr.smooch_user_external_identifier
+      tr = create_tipline_request team_id: t.id, smooch_message_id: random_string, smooch_data: { 'authorId' => telegram_uid }
+      assert_equal '@barfoo', tr.smooch_user_external_identifier
+      tr = create_tipline_request team_id: t.id, smooch_message_id: random_string, smooch_data: { 'authorId' => other_uid }
+      assert_equal '', tr.smooch_user_external_identifier
     end
   end
 

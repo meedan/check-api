@@ -65,8 +65,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     pm = ProjectMedia.last
     assert_equal 'undetermined', pm.last_verification_status
     # Get requests data
-    sm = pm.get_annotations('smooch').last
-    requests = DynamicAnnotation::Field.where(annotation_id: sm.id, field_name: 'smooch_data')
+    requests = TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: pm.id)
     assert_equal 1, requests.count
   end
 

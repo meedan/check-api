@@ -72,7 +72,6 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       }
     }
     create_annotation_type_and_fields('Transcription', {}, json_schema)
-    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', true] })
     Bot::Alegre.unstub(:request_api)
     tbi = Bot::Alegre.get_alegre_tbi(@team.id)
     tbi.set_transcription_similarity_enabled = false
@@ -123,8 +122,8 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       assert_nil a
       # Audio item match all required conditions by verify transcription_minimum_requests count
       RequestStore.store[:skip_cached_field_update] = false
-      create_dynamic_annotation annotation_type: 'smooch', annotated: pm1
-      create_dynamic_annotation annotation_type: 'smooch', annotated: pm1
+      create_tipline_request team: @team.id, associated: pm1
+      create_tipline_request team: @team.id, associated: pm1
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       a = pm1.annotations('transcription').last
       assert_equal "", a.data['text']
@@ -142,7 +141,6 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       }
     }
     create_annotation_type_and_fields('Transcription', {}, json_schema)
-    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', true] })
     Bot::Alegre.unstub(:request_api)
     tbi = Bot::Alegre.get_alegre_tbi(@team.id)
     tbi.set_transcription_similarity_enabled = false
@@ -193,8 +191,8 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       assert_nil a
       # Audio item match all required conditions by verify transcription_minimum_requests count
       RequestStore.store[:skip_cached_field_update] = false
-      create_dynamic_annotation annotation_type: 'smooch', annotated: pm1
-      create_dynamic_annotation annotation_type: 'smooch', annotated: pm1
+      create_tipline_request team_id: @pm.team_id, associated: pm1
+      create_tipline_request team_id: @pm.team_id, associated: pm1
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       a = pm1.annotations('transcription').last
       expected_last_response = {"job_status"=>"COMPLETED", "transcription"=>"Foo bar"}

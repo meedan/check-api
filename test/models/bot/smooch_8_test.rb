@@ -10,7 +10,7 @@ class Bot::Smooch8Test < ActiveSupport::TestCase
 
   test "should not store duplicated Smooch requests" do
     pm = create_project_media
-    fields = { 'smooch_message_id' => random_string, 'smooch_data' => '{}' }
+    fields = { 'smooch_message_id' => random_string, 'smooch_data' => {} }
     assert_difference 'TiplineRequest.count' do
       Bot::Smooch.create_smooch_annotations(pm, nil, fields, true)
     end

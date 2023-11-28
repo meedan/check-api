@@ -114,7 +114,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     Time.unstub(:now)
   end
 
-  test "should create smooch annotation for user requests" do
+  test "should create tipline requests for user requests" do
     setup_smooch_bot(true)
     Sidekiq::Testing.fake! do
       now = Time.now
@@ -127,16 +127,14 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
       assert_equal 'secondary', sm.state.value
       send_message_to_smooch_bot('1', uid)
       conditions = {
-        annotation_type: 'smooch',
-        annotated_type: @pm_for_menu_option.class.name,
-        annotated_id: @pm_for_menu_option.id
+        associated_type: @pm_for_menu_option.class.name,
+        associated_id: @pm_for_menu_option.id
       }
-      assert_difference "Dynamic.where(#{conditions}).count", 1 do
+      assert_difference "TiplineRequest.where(#{conditions}).count", 1 do
         Sidekiq::Worker.drain_all
       end
-      a = Dynamic.where(conditions).last
-      f = a.get_field_value('smooch_data')
-      text  = JSON.parse(f)['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
+      tr = TiplineRequest.where(conditions).last
+      text  = tr.smooch_data['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
       # Verify that all messages were stored
       assert_equal 3, text.size
       assert_equal '1', text.last
@@ -147,12 +145,11 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
       send_message_to_smooch_bot(random_string, uid)
       send_message_to_smooch_bot(random_string, uid)
       send_message_to_smooch_bot('1', uid)
-      assert_difference "Dynamic.where(#{conditions}).count", 1 do
+      assert_difference "TiplineRequest.where(#{conditions}).count", 1 do
         Sidekiq::Worker.drain_all
       end
-      a = Dynamic.where(conditions).last
-      f = a.get_field_value('smooch_data')
-      text  = JSON.parse(f)['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
+      tr = TiplineRequest.where(conditions).last
+      text  = tr.smooch_data['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
       # verify that all messages stored
       assert_equal 5, text.size
       assert_equal '1', text.last
@@ -161,13 +158,13 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
       send_message_to_smooch_bot(random_string, uid)
       assert_equal 'main', sm.state.value
       Time.stubs(:now).returns(now + 30.minutes)
-      assert_difference 'Annotation.where(annotation_type: "smooch").count', 1 do
+      assert_difference 'TiplineRequest.count', 1 do
         Sidekiq::Worker.drain_all
       end
       send_message_to_smooch_bot(random_string, uid)
       send_message_to_smooch_bot(random_string, uid)
       Time.stubs(:now).returns(now + 30.minutes)
-      assert_difference 'Annotation.where(annotation_type: "smooch").count', 1 do
+      assert_difference 'TiplineRequest.count', 1 do
         Sidekiq::Worker.drain_all
       end
     end
@@ -568,11 +565,10 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     r.set_fields = { state: 'published' }.to_json
     r.action = 'republish_and_resend'
     r.save!
-    a = pm.annotations('smooch').last.load
-    smooch_data = a.get_field('smooch_data')
-    assert_not_nil smooch_data.smooch_report_sent_at
-    assert_not_nil smooch_data.smooch_report_correction_sent_at
-    assert_not_nil smooch_data.smooch_request_type
+    tr = TiplineRequest.last
+    assert_not_nil tr.smooch_report_sent_at
+    assert_not_nil tr.smooch_report_correction_sent_at
+    assert_not_nil tr.smooch_request_type
   end
 
   test "should include claim_description_content in smooch search" do

@@ -615,8 +615,8 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     send_message url, '1', url, '1'
     assert_state 'search'
     Sidekiq::Worker.drain_all
-    d = Dynamic.where(annotation_type: 'smooch').last
-    assert_equal 2, JSON.parse(d.get_field_value('smooch_data'))['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}").select{ |x| x.chomp.strip == url }.size
+    tr = TiplineRequest.last
+    assert_equal 2, tr.smooch_data['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}").select{ |x| x.chomp.strip == url }.size
   end
 
   test "should get search results in different languages" do

@@ -84,7 +84,7 @@ class Ability
     can [:cud], DynamicAnnotation::Field do |obj|
       obj.annotation.team&.id == @context_team.id
     end
-    can [:create, :update, :read, :destroy], [Account, Source, TiplineNewsletter, TiplineResource, Feed, FeedTeam], :team_id => @context_team.id
+    can [:create, :update, :read, :destroy], [Account, Source, TiplineNewsletter, TiplineResource, Feed, FeedTeam, TiplineRequest], :team_id => @context_team.id
     can [:create, :update], FeedInvitation, { feed: { team_id: @context_team.id } }
     can :destroy, FeedTeam do |obj|
       obj.team.id == @context_team.id || obj.feed.team.id == @context_team.id
@@ -130,6 +130,10 @@ class Ability
       can [:cud], annotation_type.classify.constantize do |obj|
         obj.team&.id == @context_team.id && !obj.annotated_is_trashed?
       end
+    end
+    can [:cud], TiplineRequest do |obj|
+      is_trashed = obj.associated.respond_to?(:archived) && obj.associated.archived == CheckArchivedFlags::FlagCodes::TRASHED
+      obj.team_id == @context_team.id && !is_trashed
     end
     can [:create, :destroy], Assignment do |obj|
       type = obj.assigned_type
