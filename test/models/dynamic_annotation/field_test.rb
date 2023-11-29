@@ -263,6 +263,9 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
       f = create_field field_name: 'url', value: [{ 'url' => ' https://archive.org/web/  ' }]
     end
     assert_equal 'https://archive.org/web/', f.reload.value[0]['url']
+    assert_nothing_raised do
+      create_field field_name: 'url', value: [{ 'url' => random_url }]
+    end
   end
 
   test "should ignore permission check for changing status if previous value is empty" do

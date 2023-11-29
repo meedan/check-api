@@ -195,7 +195,7 @@ module CheckStatistics
 
         CheckTracer.in_span('CheckStatistics#newsletters_delivered', attributes: tracing_attributes) do
           # Number of newsletters effectively delivered, accounting for user errors for each platform
-          statistics[:newsletters_delivered] = TiplineMessage.where(created_at: start_date..end_date, team_id: team_id, platform: platform_name, language: language, direction: 'outgoing', event: 'newsletter').count
+          statistics[:newsletters_delivered] = TiplineMessage.where(created_at: start_date..end_date, team_id: team_id, platform: platform_name, language: language, direction: 'outgoing', state: 'delivered', event: 'newsletter').count
         end
 
         CheckTracer.in_span('CheckStatistics#whatsapp_conversations', attributes: tracing_attributes) do

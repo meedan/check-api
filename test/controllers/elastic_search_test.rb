@@ -201,7 +201,7 @@ class ElasticSearchTest < ActionController::TestCase
     create_tag tag: 'sports', annotated: pm2, disable_es_callbacks: false
     create_tag tag: 'newtag', annotated: pm2, disable_es_callbacks: false
     create_tag tag: 'news', annotated: pm, disable_es_callbacks: false
-    sleep 5
+    sleep 2
     Team.current = t
     # search by status
     result = CheckSearch.new({verification_status: ['false']}.to_json)
@@ -235,7 +235,7 @@ class ElasticSearchTest < ActionController::TestCase
     m = create_valid_media
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     create_tag tag: 'two Words', annotated: pm, disable_es_callbacks: false
-    sleep 5
+    sleep 2
     Team.current = t
     # search by tags
     result = CheckSearch.new({tags: ['two Words']}.to_json)

@@ -81,7 +81,7 @@ class ElasticSearch2Test < ActionController::TestCase
       pm2.refresh_media = true
       pm2.save!
     end
-    sleep 3
+    sleep 2
     ms2 = $repository.find(get_es_id(pm2))
     assert_equal 'overridden_title', ms2['title']
     ms = $repository.find(get_es_id(pm))
@@ -92,16 +92,19 @@ class ElasticSearch2Test < ActionController::TestCase
   test "should add or destroy es for annotations in background" do
     Sidekiq::Testing.fake!
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p, disable_es_callbacks: false
-    # add tag
-    ElasticSearchWorker.clear
-    t = create_tag annotated: pm, disable_es_callbacks: false
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      pm = create_project_media team: t, disable_es_callbacks: false
+      # add tag
+      ElasticSearchWorker.clear
+      t = create_tag annotated: pm, disable_es_callbacks: false
+      assert_equal 2, ElasticSearchWorker.jobs.size
+      # destroy tag
+      ElasticSearchWorker.clear
+      t.destroy
     assert_equal 2, ElasticSearchWorker.jobs.size
-    # destroy tag
-    ElasticSearchWorker.clear
-    t.destroy
-    assert_equal 1, ElasticSearchWorker.jobs.size
+    end
   end
 
   test "should update status in background" do

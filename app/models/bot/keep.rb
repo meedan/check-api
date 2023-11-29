@@ -60,6 +60,15 @@ class Bot::Keep < BotUser
     end
   end
 
+  def self.save_archive_information(link, response, payload)
+    m = link.metadata_annotation
+    data = begin JSON.parse(m.get_field_value('metadata_value')) rescue {} end
+    data['archives'] ||= {}
+    data['archives'][payload['type']] = response
+    m.set_fields = { metadata_value: data.to_json }.to_json
+    m.save!
+  end
+
   def self.webhook(request)
     payload = JSON.parse(request.raw_post)
     if payload['url']
@@ -71,12 +80,7 @@ class Bot::Keep < BotUser
       else
         type = Bot::Keep.archiver_to_annotation_type(payload['type'])
         response = Bot::Keep.set_response_based_on_pender_data(type, payload) || { error: true }
-        m = link.metadata_annotation
-        data = JSON.parse(m.get_field_value('metadata_value'))
-        data['archives'] ||= {}
-        data['archives'][payload['type']] = response
-        m.set_fields = { metadata_value: data.to_json }.to_json
-        m.save!
+        Bot::Keep.save_archive_information(link, response, payload)
 
         project_media = ProjectMedia.where(media_id: link.id)
         raise ObjectNotReadyError.new('ProjectMedia') unless project_media.count > 0
@@ -137,7 +141,7 @@ class Bot::Keep < BotUser
       return if self.should_skip_create_archive_annotation?(type)
       data = begin JSON.parse(self.media.metadata_annotation.get_field_value('metadata_value')) rescue self.media.pender_data end
 
-      return unless data.has_key?('archives')
+      return unless data&.has_key?('archives')
       a = Dynamic.where(annotation_type: 'archiver', annotated_type: self.class_name, annotated_id: self.id).last
       if a.nil?
         a = Dynamic.new

@@ -97,7 +97,7 @@ module SmoochMenus
         end
       end
 
-      if ['Telegram', 'Viber', 'Facebook Messenger', 'LINE'].include?(self.request_platform)
+      if ['Telegram', 'Viber', 'Facebook Messenger', 'LINE', 'Instagram'].include?(self.request_platform)
         actions = []
         main.each do |section|
           section[:rows].each do |row|
@@ -166,7 +166,7 @@ module SmoochMenus
       label.to_s.truncate(truncate_at)
     end
 
-    def send_message_to_user_with_buttons(uid, text, options, image_url = nil, event = nil)
+    def send_message_to_user_with_buttons(uid, text, options, event = nil)
       buttons = []
       options.each_with_index do |option, i|
         buttons << {
@@ -196,12 +196,6 @@ module SmoochMenus
           }
         }
       }
-      extra[:override][:whatsapp][:payload][:interactive][:header] = {
-        type: 'image',
-        image: {
-          link: CheckS3.rewrite_url(image_url)
-        }
-      } unless image_url.blank?
       extra, fallback = self.format_fallback_text_menu_from_options(text, options, extra)
       self.send_message_to_user(uid, fallback.join("\n"), extra, false, true, event)
     end
@@ -248,7 +242,7 @@ module SmoochMenus
         fallback << self.format_fallback_text_menu_option(option, :value, :label)
       end
 
-      if ['Telegram', 'Viber', 'Facebook Messenger', 'LINE'].include?(self.request_platform)
+      if ['Telegram', 'Viber', 'Facebook Messenger', 'LINE', 'Instagram'].include?(self.request_platform)
         actions = []
         options.each do |option|
           actions << {
@@ -286,7 +280,7 @@ module SmoochMenus
         }
       end
       text = text.join("\n\n")
-      if ['Telegram', 'Viber', 'Facebook Messenger', 'LINE'].include?(self.request_platform)
+      if ['Telegram', 'Viber', 'Facebook Messenger', 'LINE', 'Instagram'].include?(self.request_platform)
         text = '🌐​' unless with_text
         self.send_message_to_user_with_single_section_menu(uid, text, options, self.get_string('languages', language))
       else
@@ -303,7 +297,7 @@ module SmoochMenus
         text = self.get_custom_string('smooch_message_smooch_bot_greetings', workflow['smooch_workflow_language'])
         image = workflow['smooch_greeting_image'] if workflow['smooch_greeting_image'] =~ /^https?:\/\//
         image.blank? || image == 'none' ? self.send_message_to_user(uid, text) : self.send_message_to_user(uid, text, { 'type' => 'image', 'mediaUrl' => image })
-        sleep 2 # Give it some time, so the main menu message is sent after the greetings
+        sleep 3 # Give it some time, so the main menu message is sent after the greetings
       end
     end
   end

@@ -364,7 +364,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     t = create_team
     pm = create_project_media quote: '🤣 word', team: t
     publish_report(pm)
-    sleep 3 # Wait for ElasticSearch to index content
+    sleep 2 # Wait for ElasticSearch to index content
 
     [
       '🤣',  #Direct match
@@ -394,7 +394,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     pm2 = create_project_media quote: 'Foo Bar Test', team: t
     pm3 = create_project_media quote: 'Foo Bar Test Testing', team: t
     [pm1, pm2, pm3].each { |pm| publish_report(pm) }
-    sleep 3 # Wait for ElasticSearch to index content
+    sleep 2 # Wait for ElasticSearch to index content
 
     assert_equal [pm1.id, pm2.id, pm3.id], Bot::Smooch.search_for_similar_published_fact_checks('text', 'Foo Bar', [t.id]).to_a.map(&:id)
   end
@@ -471,43 +471,47 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
       pm = create_project_media team: @team, quote: text, disable_es_callbacks: false
       text2 = random_string
       pm2 = create_project_media team: @team, quote: text2, disable_es_callbacks: false
-      message = {
-        type: 'text',
-        text: text,
-        role: 'appUser',
-        received: 1573082583.219,
-        name: random_string,
-        authorId: random_string,
-        '_id': random_string,
-        source: {
-          originalMessageId: random_string,
-          originalMessageTimestamp: 1573082582,
-          type: 'whatsapp',
-          integrationId: random_string
-        },
-      }
-      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'relevant_search_result_requests', pm)
-      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'relevant_search_result_requests', pm)
-      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'timeout_search_requests', pm)
-      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'irrelevant_search_result_requests')
-      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'irrelevant_search_result_requests')
-       message = {
-        type: 'text',
-        text: text2,
-        role: 'appUser',
-        received: 1573082583.219,
-        name: random_string,
-        authorId: random_string,
-        '_id': random_string,
-        source: {
-          originalMessageId: random_string,
-          originalMessageTimestamp: 1573082582,
-          type: 'whatsapp',
-          integrationId: random_string
-        },
-      }
-      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'relevant_search_result_requests', pm2)
-      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'irrelevant_search_result_requests')
+      message = lambda do
+        {
+          type: 'text',
+          text: text,
+          role: 'appUser',
+          received: 1573082583.219,
+          name: random_string,
+          authorId: random_string,
+          '_id': random_string,
+          source: {
+            originalMessageId: random_string,
+            originalMessageTimestamp: 1573082582,
+            type: 'whatsapp',
+            integrationId: random_string
+          }
+        }
+      end
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'timeout_search_requests', pm)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests')
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests')
+      message = lambda do
+        {
+          type: 'text',
+          text: text2,
+          role: 'appUser',
+          received: 1573082583.219,
+          name: random_string,
+          authorId: random_string,
+          '_id': random_string,
+          source: {
+            originalMessageId: random_string,
+            originalMessageTimestamp: 1573082582,
+            type: 'whatsapp',
+            integrationId: random_string
+          },
+        }
+      end
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm2)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests')
       # Verify cached field
       assert_equal 5, pm.tipline_search_results_count
       assert_equal 2, pm.positive_tipline_search_results_count
@@ -528,5 +532,62 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
       assert_equal 2, pm.tipline_search_results_count
       assert_equal 2, pm.positive_tipline_search_results_count
     end
+  end
+
+  test "should save report and report correction sent at " do
+    messages = [
+      {
+        '_id': random_string,
+        authorId: random_string,
+        type: 'text',
+        text: random_string
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    Bot::Smooch.run(payload)
+    sleep 1
+    pm = ProjectMedia.last
+    r = create_report(pm)
+    publish_report(pm, {}, r)
+    r = Dynamic.find(r.id)
+    r.set_fields = { state: 'paused' }.to_json
+    r.action = 'pause'
+    r.save!
+    r = Dynamic.find(r.id)
+    r.set_fields = { state: 'published' }.to_json
+    r.action = 'republish_and_resend'
+    r.save!
+    a = pm.annotations('smooch').last.load
+    smooch_data = a.get_field('smooch_data')
+    assert_not_nil smooch_data.smooch_report_sent_at
+    assert_not_nil smooch_data.smooch_report_correction_sent_at
+    assert_not_nil smooch_data.smooch_request_type
+  end
+
+  test "should include claim_description_content in smooch search" do
+    WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    m = create_uploaded_image
+    pm = create_project_media team: t, media: m, disable_es_callbacks: false
+    query = "Claim content"
+    results = Bot::Smooch.search_by_keywords_for_similar_published_fact_checks(query.split(), nil, [t.id])
+    assert_empty results
+    cd = create_claim_description project_media: pm, description: query
+    publish_report(pm)
+    assert_equal query, pm.claim_description_content
+    results = Bot::Smooch.search_by_keywords_for_similar_published_fact_checks(query.split(), nil, [t.id])
+    assert_equal [pm.id], results.map(&:id)
   end
 end

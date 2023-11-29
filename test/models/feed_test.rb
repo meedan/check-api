@@ -85,7 +85,7 @@ class FeedTest < ActiveSupport::TestCase
     ss = create_saved_search team: t, filters: { foo: 'bar' }
     Team.stubs(:current).returns(t)
     f = create_feed saved_search: ss
-    assert_equal 'bar', f.reload.filters['foo']
+    assert_equal({}, f.reload.filters)
     Team.unstub(:current)
   end
 
@@ -160,5 +160,28 @@ class FeedTest < ActiveSupport::TestCase
     assert_not_nil r.reload.last_called_webhook_at
 
     CheckSearch.any_instance.unstub(:medias)
+  end
+
+  test "should delete feed teams and invitation when feed is deleted" do
+    f = create_feed
+    f.teams << create_team
+    ft = create_feed_team team: create_team, feed: f
+    assert_no_difference 'Feed.count' do
+      assert_difference 'FeedTeam.count', -1 do
+        ft.destroy!
+      end
+    end
+    assert_difference 'Feed.count', -1 do
+      assert_difference 'FeedTeam.count', -1 do
+        f.destroy!
+      end
+    end
+    f = create_feed
+    create_feed_invitation feed: f
+    assert_difference 'Feed.count', -1 do
+      assert_difference 'FeedInvitation.count', -1 do
+        f.destroy!
+      end
+    end
   end
 end

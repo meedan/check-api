@@ -35,7 +35,7 @@ module SmoochFields
             case user[:platform]
             when 'whatsapp'
               user[:displayName]
-            when 'telegram'
+            when 'telegram', 'instagram'
               '@' + user[:raw][:username].to_s
             when 'messenger', 'viber', 'line'
               user[:externalId]
@@ -62,6 +62,24 @@ module SmoochFields
           rescue
             nil
           end
+        end
+      end
+
+      def smooch_report_sent_at
+        Concurrent::Future.execute(executor: CheckGraphql::POOL) do
+          begin self.annotation.load.get_field_value('smooch_report_sent_at').to_i rescue nil end
+        end
+      end
+
+      def smooch_report_correction_sent_at
+        Concurrent::Future.execute(executor: CheckGraphql::POOL) do
+          begin self.annotation.load.get_field_value('smooch_report_correction_sent_at').to_i rescue nil end
+        end
+      end
+
+      def smooch_request_type
+        Concurrent::Future.execute(executor: CheckGraphql::POOL) do
+          begin self.annotation.load.get_field_value('smooch_request_type') rescue nil end
         end
       end
 

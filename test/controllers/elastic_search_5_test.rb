@@ -172,14 +172,14 @@ class ElasticSearch5Test < ActionController::TestCase
     m = create_valid_media
     Sidekiq::Testing.inline! do
       pm = create_project_media media: m, disable_es_callbacks: false
-      sleep 5
+      sleep 2
       ms = $repository.find(get_es_id(pm))
       assert_equal 'undetermined', ms['verification_status']
       # update status
       s = pm.get_annotations('verification_status').last.load
       s.status = 'verified'
       s.save!
-      sleep 5
+      sleep 2
       ms = $repository.find(get_es_id(pm))
       assert_equal 'verified', ms['verification_status']
     end
@@ -222,7 +222,7 @@ class ElasticSearch5Test < ActionController::TestCase
     m = create_valid_media
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     assert_equal 'foo-bar', pm.last_verification_status
-    sleep 5
+    sleep 2
     result = CheckSearch.new({verification_status: ['foo']}.to_json, nil, t.id)
     assert_empty result.medias
     result = CheckSearch.new({verification_status: ['bar']}.to_json, nil, t.id)

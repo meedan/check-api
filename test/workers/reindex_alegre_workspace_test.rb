@@ -25,14 +25,14 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
     @tbi.save
     Bot::Alegre.stubs(:get_alegre_tbi).returns(TeamBotInstallation.new)
     Sidekiq::Testing.inline!
-    Bot::Alegre.stubs(:request_api).with('post', '/text/bulk_similarity/', anything).returns("done")
+    Bot::Alegre.stubs(:request).with('post', '/text/bulk_similarity/', anything).returns("done")
   end
 
   def teardown
     super
     [@tbi, @pm, @m, @p, @team, @bot].collect(&:destroy)
     Bot::Alegre.unstub(:get_alegre_tbi)
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
 
   test "should trigger reindex" do
@@ -90,7 +90,7 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
     assert_equal Array, response.class
   end
   
-  test "tests the parallel request_api" do
+  test "tests the parallel request" do
     package = {
       :doc_id=>Bot::Alegre.item_doc_id(@pm, "title"),
       :text=>"Some text",

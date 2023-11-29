@@ -74,4 +74,12 @@ class CheckStatisticsTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, @url).to_return(status: 400, body: { error: 'Error' }.to_json)
     assert_nil CheckStatistics.number_of_whatsapp_conversations(create_team.id, @from, @to)
   end
+
+  test 'should calculate number of delivered newsletters' do
+    WebMock.stub_request(:get, /graph\.facebook\.com/).to_return(status: 400, body: { error: 'Error' }.to_json)
+    create_tipline_message team_id: @team.id, event: 'newsletter', direction: :outgoing, state: 'sent'
+    create_tipline_message team_id: @team.id, event: 'newsletter', direction: :outgoing, state: 'delivered'
+    data = CheckStatistics.get_statistics(Time.now.yesterday, Time.now.tomorrow, @team.id, 'whatsapp', 'en')
+    assert_equal 1, data[:newsletters_delivered]
+  end
 end
