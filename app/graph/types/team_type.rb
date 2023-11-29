@@ -299,9 +299,14 @@ class TeamType < DefaultObject
 
   field :tipline_messages, TiplineMessageType.connection_type, null: true do
     argument :uid, GraphQL::Types::String, required: true
+    argument :external_id, GraphQL::Types::String, required: false
   end
 
-  def tipline_messages(uid:)
-    TiplineMessagesPagination.new(object.tipline_messages.where(uid: uid).order('id ASC'))
+  def tipline_messages(uid:, external_id: nil)
+    if external_id
+      TiplineMessagesPagination.new(object.tipline_messages.where(uid: uid, external_id: external_id).order('id ASC'))
+    else
+      TiplineMessagesPagination.new(object.tipline_messages.where(uid: uid).order('id ASC'))
+    end
   end
 end
