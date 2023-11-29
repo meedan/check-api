@@ -664,6 +664,7 @@ ActiveRecord::Schema.define(version: 2023_10_26_162554) do
     t.datetime "updated_at", null: false
     t.string "state"
     t.index ["external_id", "state"], name: "index_tipline_messages_on_external_id_and_state", unique: true
+    t.index ["external_id"], name: "index_tipline_messages_on_external_id"
     t.index ["team_id"], name: "index_tipline_messages_on_team_id"
     t.index ["uid"], name: "index_tipline_messages_on_uid"
   end
@@ -804,8 +805,7 @@ ActiveRecord::Schema.define(version: 2023_10_26_162554) do
   end
 
   create_table "versions", id: :serial, force: :cascade do |t|
-    t.string "item_type"
-    t.string "{:null=>false}"
+    t.string "item_type", null: false
     t.string "item_id", null: false
     t.string "event", null: false
     t.string "whodunnit"
