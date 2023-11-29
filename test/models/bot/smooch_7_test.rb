@@ -16,13 +16,13 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
 
   test "should update cached field when request is created or deleted" do
     RequestStore.store[:skip_cached_field_update] = false
-    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', true] })
     Sidekiq::Testing.inline! do
-      pm = create_project_media
+      t = create_team
+      pm = create_project_media team: t
       assert_equal 0, pm.reload.requests_count
-      d = create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+      tr = create_tipline_request team_id: t.id, associated: pm
       assert_equal 1, pm.reload.requests_count
-      d.destroy
+      tr.destroy
       assert_equal 0, pm.reload.requests_count
     end
   end
@@ -522,10 +522,8 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
       assert_equal 2, es2['tipline_search_results_count']
       assert_equal 1, es2['positive_tipline_search_results_count']
       # Verify destroy
-      DynamicAnnotation::Field.where(annotation_type: 'smooch',field_name: 'smooch_request_type')
-      .where('value IN (?)', ['"irrelevant_search_result_requests"', '"timeout_search_requests"'])
-      .joins('INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id')
-      .where('a.annotated_type = ? AND a.annotated_id = ?', 'ProjectMedia', pm.id).destroy_all
+      types = ["irrelevant_search_result_requests", "timeout_search_requests"]
+      TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: pm.id, smooch_request_type: types).destroy_all
       assert_equal 2, pm.tipline_search_results_count
       assert_equal 2, pm.positive_tipline_search_results_count
     end

@@ -330,79 +330,79 @@ module SmoochMessages
       Bot::Alegre.team_has_alegre_bot_installed?(team_id) ? CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS : CheckArchivedFlags::FlagCodes::NONE
     end
 
-    def save_message(message_json, app_id, author = nil, request_type = 'default_requests', annotated_obj = nil)
+    def save_message(message_json, app_id, author = nil, request_type = 'default_requests', associated_obj = nil)
       message = JSON.parse(message_json)
       self.get_installation(self.installation_setting_id_keys, app_id)
       Team.current = Team.where(id: self.config['team_id']).last
-      annotated = nil
+      associated = nil
       if ['default_requests', 'timeout_requests', 'irrelevant_search_result_requests'].include?(request_type)
         message['archived'] = ['default_requests', 'irrelevant_search_result_requests'].include?(request_type) ? self.default_archived_flag : CheckArchivedFlags::FlagCodes::UNCONFIRMED
-        annotated = self.create_project_media_from_message(message)
+        associated = self.create_project_media_from_message(message)
       elsif ['menu_options_requests', 'resource_requests'].include?(request_type)
-        annotated = annotated_obj
+        associated = associatedobj
       elsif ['relevant_search_result_requests', 'timeout_search_requests'].include?(request_type)
         message['archived'] = (request_type == 'relevant_search_result_requests' ? self.default_archived_flag : CheckArchivedFlags::FlagCodes::UNCONFIRMED)
-        annotated = self.create_project_media_from_message(message)
-        if annotated != annotated_obj && annotated.is_a?(ProjectMedia)
-          Relationship.create(relationship_type: Relationship.suggested_type, source: annotated_obj, target: annotated, user: BotUser.smooch_user)
+        associated = self.create_project_media_from_message(message)
+        if associated != associated_obj && associated.is_a?(ProjectMedia)
+          Relationship.create(relationship_type: Relationship.suggested_type, source: associated_obj, target: associated, user: BotUser.smooch_user)
         end
       end
 
-      return if annotated.nil?
+      return if associated.nil?
 
       # Remember that we received this message.
       hash = self.message_hash(message)
-      Rails.cache.write("smooch:message:#{hash}", annotated.id)
+      Rails.cache.write("smooch:message:#{hash}", associated.id)
 
-      self.smooch_save_annotations(message, annotated, app_id, author, request_type, annotated_obj)
+      self.smooch_save_tipline_request(message, associated, app_id, author, request_type, associated_obj)
 
       # If item is published (or parent item), send a report right away
       self.get_platform_from_message(message)
-      self.send_report_to_user(message['authorId'], message, annotated, message['language'], 'fact_check_report') if self.should_try_to_send_report?(request_type, annotated)
+      self.send_report_to_user(message['authorId'], message, associated, message['language'], 'fact_check_report') if self.should_try_to_send_report?(request_type, associated)
     end
 
-    def smooch_save_annotations(message, annotated, app_id, author, request_type, annotated_obj)
-      self.create_smooch_request(annotated, message, app_id, author)
-      self.create_smooch_resources_and_type(annotated, annotated_obj, author, request_type)
+    def smooch_save_tipline_request(message, associated, app_id, author, request_type, associated_obj)
+      self.create_smooch_request(associated, message, app_id, author)
+      self.create_smooch_resources_and_type(associated, associated_obj, author, request_type)
     end
 
-    def create_smooch_request(annotated, message, app_id, author)
+    def create_smooch_request(associated, message, app_id, author)
       fields = { smooch_data: message.merge({ app_id: app_id }) }
       result = self.smooch_api_get_messages(app_id, message['authorId'])
       fields[:smooch_conversation_id] = result.conversation.id unless result.nil? || result.conversation.nil?
       fields[:smooch_message_id] = message['_id']
-      self.create_smooch_annotations(annotated, author, fields)
+      self.create_tipline_requests(associated, author, fields)
       # Update channel values for ProjectMedia items
-      if annotated.class.name == 'ProjectMedia'
+      if associated.class.name == 'ProjectMedia'
         channel_value = self.get_smooch_channel(message)
         unless channel_value.blank?
-          others = annotated.channel.with_indifferent_access[:others] || []
-          annotated.channel[:others] = others.concat([channel_value]).uniq
-          annotated.skip_check_ability = true
-          annotated.save!
+          others = associated.channel.with_indifferent_access[:others] || []
+          associated.channel[:others] = others.concat([channel_value]).uniq
+          associated.skip_check_ability = true
+          associated.save!
         end
       end
     end
 
-    def create_smooch_resources_and_type(annotated, annotated_obj, author, request_type)
+    def create_smooch_resources_and_type(associated, associated_obj, author, request_type)
       fields = { smooch_request_type: request_type }
-      fields[:smooch_resource_id] = annotated_obj.id if request_type == 'resource_requests' && !annotated_obj.nil?
-      self.create_smooch_annotations(annotated, author, fields, true)
+      fields[:smooch_resource_id] = associated_obj.id if request_type == 'resource_requests' && !associated_obj.nil?
+      self.create_tipline_requests(associated, author, fields, true)
     end
 
-    def create_smooch_annotations(annotated, author, fields, attach_to = false)
+    def create_tipline_requests(associated, author, fields, attach_to = false)
       # TODO: By Sawy - Should handle User.current value
       # In this case User.current was reset by SlackNotificationWorker worker
       # Quick fix - assigning it again using annotated object and reset its value at the end of creation
       current_user = User.current
       User.current = author
-      User.current = annotated.user if User.current.nil? && annotated.respond_to?(:user)
+      User.current = associated.user if User.current.nil? && associated.respond_to?(:user)
       tr = nil
-      tr = TiplineRequest.where(associated_id: annotated.id, associated_type: annotated.class.name).last if attach_to
+      tr = TiplineRequest.where(associated_id: associated.id, associated_type: associated.class.name).last if attach_to
       fields = fields.with_indifferent_access
       if tr.nil?
         tr = TiplineRequest.new
-        tr.associated = annotated
+        tr.associated = associated
         tr.tipline_user_uid = fields[:smooch_data]['authorId']
         tr.language = fields[:smooch_data]['language']
       end

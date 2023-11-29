@@ -12,10 +12,10 @@ class Bot::Smooch8Test < ActiveSupport::TestCase
     pm = create_project_media
     fields = { 'smooch_message_id' => random_string, 'smooch_data' => { authorId: random_string, language: 'en' } }
     assert_difference 'TiplineRequest.count' do
-      Bot::Smooch.create_smooch_annotations(pm, nil, fields, true)
+      Bot::Smooch.create_tipline_requests(pm, nil, fields, true)
     end
     assert_no_difference 'TiplineRequest.count' do
-      Bot::Smooch.create_smooch_annotations(pm, nil, fields, true)
+      Bot::Smooch.create_tipline_requests(pm, nil, fields, true)
     end
   end
 end

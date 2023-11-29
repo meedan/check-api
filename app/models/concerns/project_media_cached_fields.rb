@@ -641,9 +641,8 @@ module ProjectMediaCachedFields
     end
 
     def recalculate_tipline_search_results_count
-      TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: self.id)
-      .where('smooch_request_type IN (?)', ['"relevant_search_result_requests"', '"irrelevant_search_result_requests"', '"timeout_search_requests"'])
-      .count
+      types = ["relevant_search_result_requests", "irrelevant_search_result_requests", "timeout_search_requests"]
+      TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: self.id, smooch_request_type: types).count
     end
   end
 
