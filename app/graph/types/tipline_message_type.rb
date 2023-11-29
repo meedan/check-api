@@ -22,7 +22,7 @@ class TiplineMessageType < DefaultObject
     object.sent_at.to_i.to_s
   end
 
-  # def cursor
-  #   GraphQL::Schema::Base64Encoder.encode(object.id.to_i.to_s)
-  # end
+  def cursor
+    GraphQL::Schema::Base64Encoder.encode(object.id.to_i.to_s)
+  end
 end
