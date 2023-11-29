@@ -409,6 +409,27 @@ class GraphqlController9Test < ActionController::TestCase
     assert_equal "Not Found", JSON.parse(@response.body)['errors'][0]['message']
   end
 
+  test "should filter tipline messages by external_id" do
+    t = create_team slug: 'test', private: true
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    uid = random_string
+    eid = random_string
+
+    tp1 = create_tipline_message team_id: t.id, uid: uid
+    tp2 = create_tipline_message team_id: t.id, uid: uid, external_id: eid
+
+    authenticate_with_user(u)
+
+    query = 'query read { team(slug: "test") { tipline_messages(first: 10, uid: "' + uid + '", externalId: "' + eid + '") { edges { node { dbid } } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['team']['tipline_messages']
+    results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
+    assert_equal 1, results.size
+    assert_equal tp2.id, results[0]
+  end
+
   test "should paginate tipline messages" do
     t = create_team slug: 'test', private: true
     u = create_user
@@ -445,6 +466,7 @@ class GraphqlController9Test < ActionController::TestCase
     page_info = data['pageInfo']
     assert page_info['hasNextPage']
     id_cursor_2 = page_info['endCursor']
+
     # Page 3
     query = 'query read { team(slug: "test") { tipline_messages(first: 1, after: "' + page_info['endCursor'] + '", uid:"'+ uid +'") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
     post :create, params: { query: query }
@@ -455,7 +477,8 @@ class GraphqlController9Test < ActionController::TestCase
     assert_equal tp3_uid.id, results[0]
     page_info = data['pageInfo']
     assert !page_info['hasNextPage']
-    # paginate using specific message id
+
+    # Paginate using specific message id
     tp4_uid = create_tipline_message team_id: t.id, uid: uid
     tp5_uid = create_tipline_message team_id: t.id, uid: uid
     tp6_uid = create_tipline_message team_id: t.id, uid: uid
@@ -463,6 +486,7 @@ class GraphqlController9Test < ActionController::TestCase
     post :create, params: { query: query }
     assert_response :success
     id_cursor_4 = JSON.parse(@response.body)['data']['tipline_message']['cursor']
+
     # Start with tp4_uid message and use after
     query = 'query read { team(slug: "test") { tipline_messages(first: 1, after: "' + id_cursor_4 + '", uid:"'+ uid +'") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
     post :create, params: { query: query }
@@ -473,6 +497,7 @@ class GraphqlController9Test < ActionController::TestCase
     assert_equal tp5_uid.id, results[0]
     page_info = data['pageInfo']
     assert page_info['hasNextPage']
+
     # Next page
     query = 'query read { team(slug: "test") { tipline_messages(first: 1, after: "' + page_info['endCursor'] + '", uid:"'+ uid +'") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
     post :create, params: { query: query }
@@ -484,6 +509,7 @@ class GraphqlController9Test < ActionController::TestCase
     page_info = data['pageInfo']
     assert page_info['hasPreviousPage']
     assert !page_info['hasNextPage']
+
     # Start with tp4_uid message and use before
     query = 'query read { team(slug: "test") { tipline_messages(last: 1, before: "' + id_cursor_4 + '", uid:"'+ uid +'") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
     post :create, params: { query: query }
@@ -494,6 +520,7 @@ class GraphqlController9Test < ActionController::TestCase
     assert_equal tp3_uid.id, results[0]
     page_info = data['pageInfo']
     assert page_info['hasNextPage']
+
     # User after and before
     query = 'query read { team(slug: "test") { tipline_messages(after: "' + id_cursor_2 + '", before: "' + id_cursor_4 + '", uid:"'+ uid +'") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
     post :create, params: { query: query }
