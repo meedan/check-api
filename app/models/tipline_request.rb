@@ -16,7 +16,7 @@ class TiplineRequest < ApplicationRecord
       slack_channel_url = ''
       data = self.smooch_data
       unless data.nil?
-        key = "SmoochUserSlackChannelUrl:Team:#{self.team.id}:#{data['authorId']}"
+        key = "SmoochUserSlackChannelUrl:Team:#{self.team_id}:#{data['authorId']}"
         slack_channel_url = Rails.cache.read(key)
         if slack_channel_url.blank?
           obj = self.associated
@@ -35,7 +35,8 @@ class TiplineRequest < ApplicationRecord
       Rails.cache.fetch("smooch:user:external_identifier:#{data['authorId']}") do
         field = DynamicAnnotation::Field.where('field_name = ? AND dynamic_annotation_fields_value(field_name, value) = ?', 'smooch_user_id', data['authorId'].to_json).last
         return '' if field.nil?
-        user = JSON.parse(field.annotation.load.get_field_value('smooch_user_data')).with_indifferent_access[:raw][:clients][0]
+        smooch_user_data = JSON.parse(field.annotation.load.get_field_value('smooch_user_data')).with_indifferent_access
+        user = smooch_user_data&.dig('raw', 'clients', 0) || {}
         case user[:platform]
         when 'whatsapp'
           user[:displayName]

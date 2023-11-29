@@ -848,7 +848,7 @@ module SampleData
   def create_tipline_request(options = {})
     tr = TiplineRequest.new
     tr.language = 'en'
-    tr.tipline_user_uid = random_string
+    tr.tipline_user_uid = options[:tipline_user_uid] || random_string
     tr.smooch_data = {}
     tr.team_id = options[:team_id] || create_team.id
     tr.associated = options[:associated] || create_project_media

@@ -205,7 +205,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
         Bot::Smooch.run(payload)
         sleep 1
       end
-      assert_difference 'Dynamic.where(annotation_type: "smooch").count' do
+      assert_difference 'TiplineRequest.count' do
         Sidekiq::Worker.drain_all
       end
       assert_equal ['bar', 'foo', 'test'], TiplineRequest.last.smooch_data['text'].split(Bot::Smooch::MESSAGE_BOUNDARY).map(&:chomp).sort
@@ -484,9 +484,9 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
       send_message_to_smooch_bot('4', uid)
     end
     Sidekiq::Worker.drain_all
-    a = Dynamic.where(annotation_type: 'smooch').last
-    assert_equal 'TiplineResource', a.annotated_type
-    assert_not_nil a.get_field('smooch_resource_id')
+    tr = TiplineRequest.last
+    assert_equal 'TiplineResource', tr.associated_type
+    assert_not_nil tr.smooch_resource_id
   end
 
   test "should submit short unconfirmed request" do
@@ -501,9 +501,8 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     assert_no_difference 'ProjectMedia.count' do
       Sidekiq::Worker.drain_all
     end
-    a = Dynamic.where(annotation_type: 'smooch').last
-    annotated = a.annotated
-    assert_equal 'Team', a.annotated_type
+    tr = TiplineRequest.last
+    assert_equal 'Team', tr.associated_type
   end
 
   test "should submit long unconfirmed request" do
@@ -518,13 +517,13 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     assert_difference 'ProjectMedia.count' do
       Sidekiq::Worker.drain_all
     end
-    a = Dynamic.where(annotation_type: 'smooch').last
-    annotated = a.annotated
-    assert_equal 'ProjectMedia', a.annotated_type
-    assert_equal CheckArchivedFlags::FlagCodes::UNCONFIRMED, annotated.archived
+    tr = TiplineRequest.last
+    associated = tr.associated
+    assert_equal 'ProjectMedia', tr.associated_type
+    assert_equal CheckArchivedFlags::FlagCodes::UNCONFIRMED, associated.archived
     # Verify requests count & demand
-    assert_equal 1, annotated.requests_count
-    assert_equal 1, annotated.demand
+    assert_equal 1, associated.requests_count
+    assert_equal 1, associated.demand
     # Auto confirm the media if the same media is sent as a default request
     Sidekiq::Testing.fake! do
       send_message_to_smooch_bot(message, uid)
@@ -538,8 +537,8 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     end
     Rails.cache.unstub(:read)
     Sidekiq::Worker.drain_all
-    assert_equal CheckArchivedFlags::FlagCodes::NONE, annotated.reload.archived
-    assert_equal 2, annotated.reload.requests_count
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, associated.reload.archived
+    assert_equal 2, associated.reload.requests_count
     # Test resend the same media (should not update archived column)
     Sidekiq::Testing.fake! do
       send_message_to_smooch_bot('Hello', uid)
@@ -548,8 +547,8 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     assert_no_difference 'ProjectMedia.count' do
       Sidekiq::Worker.drain_all
     end
-    assert_equal CheckArchivedFlags::FlagCodes::NONE, annotated.reload.archived
-    assert_equal 3, annotated.reload.requests_count
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, associated.reload.archived
+    assert_equal 3, associated.reload.requests_count
   end
 
   test "should get default TOS message" do

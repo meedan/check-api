@@ -246,7 +246,7 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
     set_fields = { smooch_user_id: author_id, smooch_user_data: { id: author_id }.to_json, smooch_user_slack_channel_url: url }.to_json
     d = create_dynamic_annotation annotated: t, annotation_type: 'smooch_user', set_fields: set_fields
     with_current_user_and_team(u, t) do
-      tr = create_tipline_request team_id: t.id, associated: pm, smooch_data: { 'authorId' => author_id }
+      tr = create_tipline_request team_id: t.id, associated: pm, tipline_user_uid: author_id, smooch_data: { 'authorId' => author_id }
       assert_equal url, tr.smooch_user_slack_channel_url
       assert 1, Rails.cache.delete_matched("SmoochUserSlackChannelUrl:Team:*")
       assert_equal url, tr.smooch_user_slack_channel_url

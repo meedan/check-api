@@ -399,6 +399,7 @@ module SmoochMessages
       User.current = annotated.user if User.current.nil? && annotated.respond_to?(:user)
       tr = nil
       tr = TiplineRequest.where(associated_id: annotated.id, associated_type: annotated.class.name).last if attach_to
+      fields = fields.with_indifferent_access
       if tr.nil?
         tr = TiplineRequest.new
         tr.associated = annotated
@@ -452,8 +453,9 @@ module SmoochMessages
     end
 
     def reply_to_request_with_custom_message(request, message)
-      data = JSON.parse(request.get_field_value('smooch_data'))
-      self.send_custom_message_to_user(request.annotated.team, data['authorId'], data['received'], message, data['language'])
+      data = request.smooch_data
+      team = Team.find_by_id(request.team_id)
+      self.send_custom_message_to_user(team, request.tipline_user_uid, data['received'], message, request.language)
     end
 
     def send_custom_message_to_user(team, uid, timestamp, message, language)
