@@ -293,6 +293,7 @@ class TeamType < DefaultObject
   field :saved_searches, SavedSearchType.connection_type, null: true
   field :project_groups, ProjectGroupType.connection_type, null: true
   field :feeds, FeedType.connection_type, null: true
+  field :feed_teams, FeedTeamType.connection_type, null: false
   field :tipline_newsletters, TiplineNewsletterType.connection_type, null: true
   field :tipline_resources, TiplineResourceType.connection_type, null: true
 
@@ -301,6 +302,6 @@ class TeamType < DefaultObject
   end
 
   def tipline_messages(uid:)
-    object.tipline_messages.where(uid: uid).order('sent_at DESC')
+    TiplineMessagesPagination.new(object.tipline_messages.where(uid: uid).order('sent_at DESC'))
   end
 end

@@ -93,7 +93,7 @@ class AdminControllerTest < ActionController::TestCase
     b = create_team_bot login: 'smooch'
     tbi = create_team_bot_installation
     session['check.facebook.authdata'] = { 'token' => '123456', 'secret' => '654321' }
-    get :save_facebook_credentials_for_smooch_bot, params: { id: tbi.id, token: random_string }
+    get :save_messenger_credentials_for_smooch_bot, params: { id: tbi.id, token: random_string }
     assert_response 401
   end
 
@@ -108,7 +108,7 @@ class AdminControllerTest < ActionController::TestCase
     tbi.set_smooch_authorization_token = t
     tbi.save!
     session['check.facebook.authdata'] = { 'token' => '123456', 'secret' => '654321' }
-    get :save_facebook_credentials_for_smooch_bot, params: { id: tbi.id, token: t }
+    get :save_messenger_credentials_for_smooch_bot, params: { id: tbi.id, token: t }
     assert_response 400
     Bot::Smooch.unstub(:smooch_api_client)
     SmoochApi::IntegrationApi.any_instance.unstub(:create_integration)
@@ -125,7 +125,24 @@ class AdminControllerTest < ActionController::TestCase
     tbi.set_smooch_authorization_token = t
     tbi.save!
     session['check.facebook.authdata'] = { 'token' => '123456', 'secret' => '654321' }
-    get :save_facebook_credentials_for_smooch_bot, params: { id: tbi.id, token: t }
+    get :save_messenger_credentials_for_smooch_bot, params: { id: tbi.id, token: t }
+    assert_response :success
+    Bot::Smooch.unstub(:smooch_api_client)
+    SmoochApi::IntegrationApi.any_instance.unstub(:create_integration)
+  end
+
+  test "should connect Instagram profile to Smooch bot" do
+    Bot::Smooch.stubs(:smooch_api_client).returns(nil)
+    SmoochApi::IntegrationApi.any_instance.expects(:create_integration).once
+    WebMock.stub_request(:get, /graph\.facebook\.com\/me\/accounts/).to_return(body: { data: [{ access_token: random_string }] }.to_json, status: 200)
+    b = create_team_bot login: 'smooch'
+    t = random_string
+    tbi = create_team_bot_installation
+    tbi = TeamBotInstallation.find(tbi.id)
+    tbi.set_smooch_authorization_token = t
+    tbi.save!
+    session['check.facebook.authdata'] = { 'token' => '123456', 'secret' => '654321' }
+    get :save_instagram_credentials_for_smooch_bot, params: { id: tbi.id, token: t }
     assert_response :success
     Bot::Smooch.unstub(:smooch_api_client)
     SmoochApi::IntegrationApi.any_instance.unstub(:create_integration)

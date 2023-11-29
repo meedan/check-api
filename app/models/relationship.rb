@@ -14,12 +14,13 @@ class Relationship < ApplicationRecord
   before_validation :set_confirmed, if: :is_being_confirmed?, on: :update
   before_validation :set_cluster, if: :is_being_confirmed?, on: :update
   validate :relationship_type_is_valid, :items_are_from_the_same_team
-  validate :target_not_pulished_report, on: :create
+  validate :target_not_published_report, on: :create
   validate :similar_item_exists, on: :create, if: proc { |r| r.is_suggested? }
   validate :cant_be_related_to_itself
   validates :relationship_type, uniqueness: { scope: [:source_id, :target_id], message: :already_exists }, on: :create
 
-  before_create :destroy_suggest_item, if: proc { |r| r.is_confirmed? }
+  before_create :destroy_same_suggested_item, if: proc { |r| r.is_confirmed? }
+  before_update :destroy_other_suggested_items, if: proc { |r| r.is_confirmed? }
   after_create :move_to_same_project_as_main, prepend: true
   after_create :point_targets_to_new_source, :update_counters, prepend: true
   after_update :reset_counters, prepend: true
@@ -242,7 +243,7 @@ class Relationship < ApplicationRecord
     end
   end
 
-  def target_not_pulished_report
+  def target_not_published_report
     unless self.target.nil?
       state = self.target.get_annotations('report_design').last&.load&.get_field_value('state')
       errors.add(:base, I18n.t(:target_is_published)) if state == 'published'
@@ -323,10 +324,20 @@ class Relationship < ApplicationRecord
     end
   end
 
-  def destroy_suggest_item
-    # Check if same item already exists as a suggested item
+  def destroy_same_suggested_item
+    # Check if same item already exists as a suggested item by a bot
     Relationship.where(source_id: self.source_id, target_id: self.target_id)
-    .where('relationship_type = ?', Relationship.suggested_type.to_yaml).destroy_all
+    .joins(:user).where('users.type' => 'BotUser')
+    .where('relationship_type = ?', Relationship.suggested_type.to_yaml)
+    .destroy_all
+  end
+
+  def destroy_other_suggested_items
+    # If created by Smooch Bot, destroy other suggestions to the same media
+    Relationship.where(target_id: self.target_id, user: BotUser.smooch_user)
+    .where('relationship_type = ?', Relationship.suggested_type.to_yaml)
+    .where('id != ?', self.id)
+    .destroy_all
   end
 
   def cant_be_related_to_itself

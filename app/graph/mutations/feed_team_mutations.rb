@@ -7,4 +7,6 @@ module FeedTeamMutations
     argument :shared, GraphQL::Types::Boolean, required: false
     argument :requests_filters, JsonStringType, required: false, camelize: false
   end
+
+  class Destroy < Mutations::DestroyMutation; end
 end

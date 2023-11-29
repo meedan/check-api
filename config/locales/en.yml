@@ -460,6 +460,11 @@ en:
       rejected_title: Request Denied
       rejected_text: Sorry, your request to join workspace %{team} on %{app_name}
         was not approved.
+    feed_invitation:
+      subject: "%{user} invited your organization to contribute to %{feed}"
+      hello: Hello %{email}
+      body: "%{name}, %{email} has invited your organization to contribute to a Check Shared Feed "
+      view_button: View invitation
   mail_security:
     device_subject: 'Security alert: New login to %{app_name} from %{browser} on %{platform}'
     ip_subject: 'Security alert: New or unusual %{app_name} login'
@@ -629,8 +634,8 @@ en:
   bot_request_url_invalid: Invalid bot URL
   smooch_facebook_success: |
     Success!
-    Your tipline is now connected to Facebook Messenger.
-    Any message received by this Facebook Page will be handled by the tipline.
+    Your tipline is now connected to the profile.
+    Any message received by this profile will be handled by the tipline.
     Please reload your tipline settings page to see the new changes.
   smooch_twitter_success: |
     Success!

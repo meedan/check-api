@@ -403,7 +403,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     pm1 = create_project_media quote: 'A segurança das urnas está provada.', team: t
     pm2 = create_project_media quote: 'Segurança pública é tema de debate.', team: t
     [pm1, pm2].each { |pm| publish_report(pm) }
-    sleep 3 # Wait for ElasticSearch to index content
+    sleep 2 # Wait for ElasticSearch to index content
 
     [
       'Segurança das urnas',

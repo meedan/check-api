@@ -59,10 +59,7 @@ class Ability
     can [:update, :destroy], TeamUser, team_id: @context_team.id
     can :duplicate, Team, :id => @context_team.id
     can :set_privacy, Project, :team_id => @context_team.id
-    can :cud, Feed do |obj|
-      obj.get_team_ids.include?(@context_team.id)
-    end
-    can [:create, :destroy], FeedTeam, team_id: @context_team.id
+    can :read_feed_invitations, Feed, :team_id => @context_team.id
   end
 
   def editor_perms
@@ -87,7 +84,11 @@ class Ability
     can [:cud], DynamicAnnotation::Field do |obj|
       obj.annotation.team&.id == @context_team.id
     end
-    can [:create, :update, :read, :destroy], [Account, Source, TiplineNewsletter, TiplineResource], :team_id => @context_team.id
+    can [:create, :update, :read, :destroy], [Account, Source, TiplineNewsletter, TiplineResource, Feed, FeedTeam], :team_id => @context_team.id
+    can [:create, :update], FeedInvitation, { feed: { team_id: @context_team.id } }
+    can :destroy, FeedTeam do |obj|
+      obj.team.id == @context_team.id || obj.feed.team.id == @context_team.id
+    end
     can [:cud], AccountSource, source: { team: { team_users: { team_id: @context_team.id }}}
     %w(annotation comment dynamic task tag).each do |annotation_type|
       can [:cud], annotation_type.classify.constantize do |obj|
@@ -101,9 +102,6 @@ class Ability
       teams << v_obj.team&.id if v_obj
       teams << v_obj_parent.team&.id if v_obj_parent
       teams.include?(@context_team.id)
-    end
-    can :update, FeedTeam do |obj|
-      obj.team_id == @context_team.id
     end
     can :send, TiplineMessage do |obj|
       obj.team_id == @context_team.id

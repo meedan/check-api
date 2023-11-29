@@ -136,7 +136,7 @@ class ElasticSearch3Test < ActionController::TestCase
     pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
     create_tag tag: 'test', annotated: pm, disable_es_callbacks: false
     create_tag tag: 'Test', annotated: pm2, disable_es_callbacks: false
-    sleep 5
+    sleep 2
     # search by tags
     result = CheckSearch.new({tags: ['test']}.to_json, nil, t.id)
     assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort

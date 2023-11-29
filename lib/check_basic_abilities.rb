@@ -124,6 +124,10 @@ module CheckBasicAbilities
     can :read, Request do |obj|
       !(@user.cached_teams & obj.feed.team_ids).empty?
     end
+
+    can [:read, :destroy], FeedInvitation do |obj|
+      @user.email == obj.email || @user.id == obj.user_id || TeamUser.where(user_id: @user.id, team_id: obj.feed.team_id, role: 'admin').exists?
+    end
   end
 
   def annotation_perms_for_all_users

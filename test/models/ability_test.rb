@@ -714,7 +714,8 @@ class AbilityTest < ActiveSupport::TestCase
       "bulk_create Tag", "bulk_update ProjectMedia", "create TagText", "read Team", "update Team", "destroy Team", "empty Trash",
       "create Project", "create Account", "create TeamUser", "create User", "create ProjectMedia", "invite Members",
       "not_spam ProjectMedia", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia", "duplicate Team", "create Feed",
-      "manage TagText", "manage TeamTask", "set_privacy Project", "update Relationship", "destroy Relationship", "create TiplineNewsletter"
+      "manage TagText", "manage TeamTask", "set_privacy Project", "update Relationship", "destroy Relationship", "create TiplineNewsletter",
+      "create FeedInvitation", "create FeedTeam"
     ]
     project_perms = [
       "read Project", "update Project", "destroy Project", "create Source", "create Media", "create ProjectMedia",
@@ -1285,6 +1286,57 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:create, tn2)
       assert ability.cannot?(:update, tn2)
       assert ability.cannot?(:destroy, tn2)
+    end
+  end
+
+  test "permissions for feed invitation" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    f = create_feed team: t
+    fi1 = create_feed_invitation feed: f
+    fi2 = create_feed_invitation
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:create, fi1)
+      assert ability.can?(:update, fi1)
+      assert ability.can?(:destroy, fi1)
+      assert ability.cannot?(:create, fi2)
+      assert ability.cannot?(:update, fi2)
+      assert ability.cannot?(:destroy, fi2)
+    end
+  end
+
+  test "permissions for feed team" do
+    t1 = create_team
+    t2 = create_team
+    t3 = create_team
+    u1 = create_user
+    u2 = create_user
+    u3 = create_user
+    create_team_user user: u1, team: t1, role: 'admin'
+    create_team_user user: u2, team: t2, role: 'admin'
+    create_team_user user: u3, team: t3, role: 'admin'
+    f = create_feed team: t1
+    ft2 = create_feed_team feed: f, team: t2
+    ft3 = create_feed_team feed: f, team: t3
+    with_current_user_and_team(u1, t1) do
+      ability = Ability.new
+      assert ability.can?(:destroy, ft2)
+      assert ability.can?(:destroy, ft3)
+      assert ability.can?(:destroy, f)
+    end
+    with_current_user_and_team(u2, t2) do
+      ability = Ability.new
+      assert ability.can?(:destroy, ft2)
+      assert ability.cannot?(:destroy, ft3)
+      assert ability.cannot?(:destroy, f)
+    end
+    with_current_user_and_team(u3, t3) do
+      ability = Ability.new
+      assert ability.cannot?(:destroy, ft2)
+      assert ability.can?(:destroy, ft3)
+      assert ability.cannot?(:destroy, f)
     end
   end
 end

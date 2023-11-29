@@ -296,4 +296,34 @@ class SmoochCapiTest < ActiveSupport::TestCase
     Bot::Smooch.unblock_user(@uid)
     assert !Bot::Smooch.user_blocked?(@uid)
   end
+
+  test "should ignore reaction message" do
+    request = OpenStruct.new(params: {
+      "object": "whatsapp_business_account",
+      "entry": [
+          {
+              "id": "121774707564591",
+              "changes": [
+                  {
+                      "value": {
+                          "messages": [
+                              {
+                                  "from": "201060407981",
+                                  "timestamp": "1700484874",
+                                  "type": "reaction",
+                                  "reaction": {
+                                      "message_id": "wamid.HBgMMjAxMDYwNDA3OTgxFQIAERgSNjFDMEI3NkY4QzA2Mzc4Q0MwAA==",
+                                      "emoji": "👍"
+                                  }
+                              }
+                          ]
+                      },
+                      "field": "messages"
+                  }
+              ]
+          }
+      ],
+    }.with_indifferent_access)
+    assert Bot::Smooch.should_ignore_capi_request?(request)
+  end
 end

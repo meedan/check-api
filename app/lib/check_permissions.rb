@@ -54,7 +54,7 @@ module CheckPermissions
       if self.class.name == 'Team'
         role = User.current.role(self)
         role ||= 'authenticated'
-        cache_key = "team_permissions_#{self.private.to_i}_#{role}_role"
+        cache_key = "team_permissions_#{self.private.to_i}_#{role}_role_202311221222"
         perms = Rails.cache.read(cache_key) if Rails.cache.exist?(cache_key)
       end
       if perms.blank?
@@ -77,7 +77,7 @@ module CheckPermissions
 
   def get_create_permissions
     {
-      'Team' => [Project, Account, TeamUser, User, TagText, ProjectMedia, TiplineNewsletter, Feed],
+      'Team' => [Project, Account, TeamUser, User, TagText, ProjectMedia, TiplineNewsletter, Feed, FeedTeam, FeedInvitation],
       'Account' => [Media, Link, Claim],
       'Media' => [ProjectMedia, Comment, Tag, Dynamic, Task],
       'Link' => [ProjectMedia, Comment, Tag, Dynamic, Task],

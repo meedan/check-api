@@ -140,8 +140,15 @@ class MutationType < BaseObject
 
   field :createFeed, mutation: FeedMutations::Create
   field :updateFeed, mutation: FeedMutations::Update
+  field :destroyFeed, mutation: FeedMutations::Destroy
 
   field :updateFeedTeam, mutation: FeedTeamMutations::Update
+  field :destroyFeedTeam, mutation: FeedTeamMutations::Destroy
+
+  field :createFeedInvitation, mutation: FeedInvitationMutations::Create
+  field :destroyFeedInvitation, mutation: FeedInvitationMutations::Destroy
+  field :acceptFeedInvitation, mutation: FeedInvitationMutations::Accept
+  field :rejectFeedInvitation, mutation: FeedInvitationMutations::Reject
 
   field :createTiplineNewsletter, mutation: TiplineNewsletterMutations::Create
   field :updateTiplineNewsletter, mutation: TiplineNewsletterMutations::Update

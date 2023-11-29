@@ -138,7 +138,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   end
 
   test "should submit query without details on tipline bot v2" do
-    WebMock.stub_request(:get, /\/text\/similarity\//).to_return(body: {}.to_json)
+    WebMock.stub_request(:post, /\/text\/similarity\/search\//).to_return(body: {}.to_json)
     claim = 'This is a test claim'
     send_message 'hello', '1', '1', random_string, random_string, claim, random_string, random_string, '1'
     assert_saved_query_type 'default_requests'
@@ -208,7 +208,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   end
 
   test "should submit query with details on tipline bot v2" do
-    WebMock.stub_request(:get, /\/text\/similarity\//).to_return(body: {}.to_json)
+    WebMock.stub_request(:post, /\/text\/similarity\/search\//).to_return(body: {}.to_json)
     claim = 'This is a test claim'
     send_message 'hello', '1', '1', random_string, '2', random_string, claim, '1'
     assert_saved_query_type 'default_requests'
@@ -223,7 +223,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar', '1'
       assert_state 'search_result'
-      assert_difference 'Dynamic.count + ProjectMedia.count' do
+      assert_difference 'Dynamic.where(annotation_type: "smooch").count + ProjectMedia.count + Relationship.where(relationship_type: Relationship.suggested_type).count', 3 do
         send_message '1'
       end
       assert_state 'main'
@@ -240,7 +240,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar foo bar foo bar', '1'
       assert_state 'search_result'
-      assert_difference 'Dynamic.count + ProjectMedia.count' do
+      assert_difference 'Dynamic.where(annotation_type: "smooch").count + ProjectMedia.count + Relationship.where(relationship_type: Relationship.suggested_type).count', 3 do
         send_message '1'
       end
       assert_state 'main'
@@ -261,7 +261,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Image here', '1'
       assert_state 'search_result'
-      assert_difference 'Dynamic.count + ProjectMedia.count' do
+      assert_difference 'Dynamic.where(annotation_type: "smooch").count + ProjectMedia.count + Relationship.where(relationship_type: Relationship.suggested_type).count', 3 do
         send_message '1'
       end
       assert_state 'main'
@@ -753,9 +753,9 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
 
   test 'should process menu option using NLU' do
     # Mock any call to Alegre like `POST /text/similarity/` with a "text" parameter that contains "want"
-    Bot::Alegre.stubs(:request_api).with{ |x, y, z| x == 'post' && y == '/text/similarity/' && z[:text] =~ /want/ }.returns(true)
+    Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/' && z[:text] =~ /want/ }.returns(true)
     # Mock any call to Alegre like `GET /text/similarity/` with a "text" parameter that does not contain "want"
-    Bot::Alegre.stubs(:request_api).with{ |x, y, z| x == 'get' && y == '/text/similarity/' && (z[:text] =~ /want/).nil? }.returns({ 'result' => [] })
+    Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/search/' && (z[:text] =~ /want/).nil? }.returns({ 'result' => [] })
 
     # Enable NLU and add a couple of keywords for the newsletter menu option
     nlu = SmoochNlu.new(@team.slug)
@@ -768,7 +768,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     subscription_option_id = @installation.get_smooch_workflows[0]['smooch_state_main']['smooch_menu_options'][2]['smooch_menu_option_id']
 
     # Mock a call to Alegre like `GET /text/similarity/` with a "text" parameter that contains "want"
-    Bot::Alegre.stubs(:request_api).with{ |x, y, z| x == 'get' && y == '/text/similarity/' && z[:text] =~ /want/ }.returns({ 'result' => [
+    Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/search/' && z[:text] =~ /want/ }.returns({ 'result' => [
       { '_score' => 0.9, '_source' => { 'context' => { 'menu_option_id' => subscription_option_id } } },
       { '_score' => 0.2, '_source' => { 'context' => { 'menu_option_id' => query_option_id } } }
     ]})
@@ -782,7 +782,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     assert_state 'main'
 
     # Mock a call to Alegre like `GET /text/similarity/` with a "text" parameter that contains "want"
-    Bot::Alegre.stubs(:request_api).with{ |x, y, z| x == 'get' && y == '/text/similarity/' && z[:text] =~ /want/ }.returns({ 'result' => [
+    Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/search/' && z[:text] =~ /want/ }.returns({ 'result' => [
       { '_score' => 0.96, '_source' => { 'context' => { 'menu_option_id' => subscription_option_id } } },
       { '_score' => 0.91, '_source' => { 'context' => { 'menu_option_id' => query_option_id } } }
     ]})
@@ -798,7 +798,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     assert_state 'main'
 
     # Delete two keywords, so expect two calls to Alegre
-    Bot::Alegre.expects(:request_api).with{ |x, y, _z| x == 'delete' && y == '/text/similarity/' }.twice
+    Bot::Alegre.expects(:request).with{ |x, y, _z| x == 'delete' && y == '/text/similarity/' }.twice
     nlu.remove_keyword_from_menu_option('en', 'main', 2, 'I want to subscribe to the newsletter')
     nlu.remove_keyword_from_menu_option('en', 'main', 2, 'I want to unsubscribe from the newsletter')
   end
@@ -821,9 +821,9 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     Sidekiq::Testing.fake! do
       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
       # Mock any call to Alegre like `POST /text/similarity/` with a "text" parameter that contains "who are you"
-      Bot::Alegre.stubs(:request_api).with{ |x, y, z| x == 'post' && y == '/text/similarity/' && z[:text] =~ /who are you/ }.returns(true)
+      Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/' && z[:text] =~ /who are you/ }.returns(true)
       # Mock any call to Alegre like `GET /text/similarity/` with a "text" parameter that does not contain "who are you"
-      Bot::Alegre.stubs(:request_api).with{ |x, y, z| x == 'get' && y == '/text/similarity/' && (z[:text] =~ /who are you/).nil? }.returns({ 'result' => [] })
+      Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/search/' && (z[:text] =~ /who are you/).nil? }.returns({ 'result' => [] })
 
       # Enable NLU and add a couple of keywords to a new "About Us" resource
       nlu = SmoochNlu.new(@team.slug)
@@ -833,7 +833,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       r.add_keyword('who are you')
 
       # Mock a call to Alegre like `GET /text/similarity/` with a "text" parameter that contains "who are you"
-      Bot::Alegre.stubs(:request_api).with{ |x, y, z| x == 'get' && y == '/text/similarity/' && z[:text] =~ /who are you/ }.returns({ 'result' => [
+      Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/search/' && z[:text] =~ /who are you/ }.returns({ 'result' => [
         { '_score' => 0.9, '_source' => { 'context' => { 'resource_id' => 0 } } },
         { '_score' => 0.8, '_source' => { 'context' => { 'resource_id' => r.id } } }
       ]})
@@ -851,8 +851,9 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       assert_no_saved_query
 
       # Delete one keyword, so expect one call to Alegre
-      Bot::Alegre.expects(:request_api).with{ |x, y, _z| x == 'delete' && y == '/text/similarity/' }.once
+      Bot::Alegre.expects(:request).with{ |x, y, _z| x == 'delete' && y == '/text/similarity/' }.once
       r.remove_keyword('who are you')
+      Bot::Alegre.unstub(:request)
     end
   end
 
@@ -888,55 +889,6 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     assert_no_difference 'ProjectMedia.count' do
       assert_difference "Dynamic.where(annotation_type: 'smooch').count" do
         Sidekiq::Worker.drain_all
-      end
-    end
-  end
-
-  test 'should generate a unique ID for search results' do
-    assert_not_equal Bot::Smooch.generate_search_id, Bot::Smooch.generate_search_id
-  end
-
-  test 'should give individual feedback to search result on WhatsApp' do
-    search_id = random_string
-    Bot::Smooch.stubs(:generate_search_id).returns(search_id)
-    pm1 = create_project_media(team: @team)
-    pm2 = create_project_media(team: @team)
-    publish_report(pm1, {}, nil, { language: 'en', use_visual_card: true })
-    publish_report(pm2, {}, nil, { language: 'en', use_visual_card: false })
-    CheckSearch.any_instance.stubs(:medias).returns([pm1, pm2])
-    Sidekiq::Testing.inline! do
-      send_message 'hello', '1', '1', random_string
-    end
-    assert_state 'ask_if_ready'
-    Rails.cache.write("smooch:user_search_bundle:#{@uid}:#{search_id}:#{pm1.id}", Time.now.to_i) # User gave feedback to one result
-    Sidekiq::Testing.fake! do
-      send_message_to_smooch_bot('1', @uid, { 'source' => { 'type' => 'whatsapp' } })
-    end
-    assert_difference 'DynamicAnnotation::Field.where(field_name: "smooch_request_type", value: "timeout_search_requests").count' do
-      Sidekiq::Worker.drain_all
-    end
-  end
-
-  test 'should click on button to evaluate search result on WhatsApp' do
-    search_id = random_string
-    pm = create_project_media(team: @team)
-    bundle = [
-      {
-        '_id': random_string,
-        authorId: @uid,
-        type: 'text',
-        text: random_string
-      }.to_json
-    ]
-    Rails.cache.write("smooch:user_search_bundle:#{@uid}:#{search_id}", bundle)
-    Sidekiq::Testing.inline! do
-      assert_difference 'DynamicAnnotation::Field.where(field_name: "smooch_request_type", value: "relevant_search_result_requests").count' do
-        payload = {
-          'keyword' => 'search_result_is_relevant',
-          'project_media_id' => pm.id,
-          'search_id' => search_id
-        }
-        send_message_to_smooch_bot('Thumbs up', @uid, { 'source' => { 'type' => 'whatsapp' }, 'payload' => payload.to_json })
       end
     end
   end

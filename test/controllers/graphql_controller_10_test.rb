@@ -189,7 +189,7 @@ class GraphqlController10Test < ActionController::TestCase
     pm2 = create_project_media disable_es_callbacks: false, project: p
     create_dynamic_annotation annotation_type: 'language', annotated: pm2, set_fields: { language: 'pt' }.to_json, disable_es_callbacks: false
 
-    sleep 5
+    sleep 2
     query = 'query CheckSearch { search(query: "{\"language\":[\"en\"]}") { id,medias(first:20){edges{node{dbid}}}}}';
     post :create, params: { query: query, team: 'team' }
     assert_response :success

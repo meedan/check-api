@@ -239,7 +239,7 @@ class GraphqlController8Test < ActionController::TestCase
     t1 = create_team private: true
     create_team_user(user: u, team: t1, role: 'admin')
     f = create_feed team_id: t1.id
-    ss = create_saved_search team_id: t1.id
+    ss = create_saved_search team: t1
     assert_not f.reload.published
     query = "mutation { updateFeed(input: { id: \"#{f.graphql_id}\", published: true, saved_search_id: #{ss.id} }) { feed { published, saved_search_id } } }"
     post :create, params: { query: query, team: t1.slug }
@@ -256,7 +256,7 @@ class GraphqlController8Test < ActionController::TestCase
     t1 = create_team private: true
     create_team_user(user: u, team: t1, role: 'admin')
     t2 = create_team private: true
-    ss = create_saved_search team_id: t1.id
+    ss = create_saved_search team: t1
     f = create_feed
     f.teams << t1
     f.teams << t2
@@ -390,12 +390,11 @@ class GraphqlController8Test < ActionController::TestCase
   test "should get OCR" do
     b = create_alegre_bot(name: 'alegre', login: 'alegre')
     b.approve!
-    Bot::Alegre.unstub(:request_api)
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       Sidekiq::Testing.fake! do
         WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
-        WebMock.stub_request(:get, 'http://alegre/image/ocr/').with({ query: { url: "some/path" } }).to_return(body: { text: 'Foo bar' }.to_json)
-        WebMock.stub_request(:get, 'http://alegre/text/similarity/')
+        WebMock.stub_request(:post, 'http://alegre/image/ocr/').with({ body: { url: "some/path" } }).to_return(body: { text: 'Foo bar' }.to_json)
+        WebMock.stub_request(:post, 'http://alegre/text/similarity/')
 
         u = create_user
         t = create_team
@@ -622,7 +621,7 @@ class GraphqlController8Test < ActionController::TestCase
       assert_equal 'id2', pm2.status
     end
     assert_not_equal [], t.reload.get_media_verification_statuses[:statuses].select{ |s| s[:id] == 'id2' }
-    sleep 5
+    sleep 2
     assert_equal [pm2.id], CheckSearch.new({ verification_status: ['id2'] }.to_json, nil, t.id).medias.map(&:id)
     assert_equal [], CheckSearch.new({ verification_status: ['id3'] }.to_json, nil, t.id).medias.map(&:id)
     assert_equal 'published', r1.reload.get_field_value('state')
@@ -642,7 +641,7 @@ class GraphqlController8Test < ActionController::TestCase
       assert_equal 'id1', pm1.status
       assert_equal 'id3', pm2.status
     end
-    sleep 5
+    sleep 2
     assert_equal [], CheckSearch.new({ verification_status: ['id2'] }.to_json, nil, t.id).medias.map(&:id)
     assert_equal [pm2.id], CheckSearch.new({ verification_status: ['id3'] }.to_json, nil, t.id).medias.map(&:id)
     assert_equal [], t.reload.get_media_verification_statuses[:statuses].select{ |s| s[:id] == 'id2' }
@@ -803,10 +802,9 @@ class GraphqlController8Test < ActionController::TestCase
       url = Bot::Alegre.media_file_url(pm)
       s3_url = url.gsub(/^https?:\/\/[^\/]+/, "s3://#{CheckConfig.get('storage_bucket')}")
 
-      Bot::Alegre.unstub(:request_api)
-      Bot::Alegre.stubs(:request_api).returns({ success: true })
-      Bot::Alegre.stubs(:request_api).with('post', '/audio/transcription/', { url: s3_url, job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }).returns({ 'job_status' => 'IN_PROGRESS' })
-      Bot::Alegre.stubs(:request_api).with('get', '/audio/transcription/', { job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }).returns({ 'job_status' => 'COMPLETED', 'transcription' => 'Foo bar' })
+      Bot::Alegre.stubs(:request).returns({ success: true })
+      Bot::Alegre.stubs(:request).with('post', '/audio/transcription/', { url: s3_url, job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }).returns({ 'job_status' => 'IN_PROGRESS' })
+      Bot::Alegre.stubs(:request).with('post', '/audio/transcription/result/', { job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }).returns({ 'job_status' => 'COMPLETED', 'transcription' => 'Foo bar' })
       WebMock.stub_request(:post, 'http://alegre/text/langid/').to_return(body: { 'result' => { 'language' => 'es' }}.to_json)
 
       b = create_bot_user login: 'alegre', name: 'Alegre', approved: true
@@ -820,7 +818,7 @@ class GraphqlController8Test < ActionController::TestCase
       assert_response :success
       assert_equal 'Foo bar', JSON.parse(@response.body)['data']['transcribeAudio']['annotation']['data']['text']
 
-      Bot::Alegre.unstub(:request_api)
+      Bot::Alegre.unstub(:request)
     end
   end
 

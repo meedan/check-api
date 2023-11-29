@@ -105,7 +105,7 @@ class FeedsControllerTest < ActionController::TestCase
   end
 
   test "should save request query" do
-    Bot::Alegre.stubs(:request_api).returns({})
+    Bot::Alegre.stubs(:request).returns({})
     Sidekiq::Testing.inline!
     authenticate_with_token @a
     assert_difference 'Request.count' do
@@ -116,28 +116,28 @@ class FeedsControllerTest < ActionController::TestCase
     assert_response :success
     assert_equal 2, json_response['data'].size
     assert_equal 2, json_response['meta']['record-count']
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
 
   test "should save relationship between request and results" do
-    Bot::Alegre.stubs(:request_api).returns({})
+    Bot::Alegre.stubs(:request).returns({})
     Sidekiq::Testing.inline!
     authenticate_with_token @a
     assert_difference 'Request.count' do
       get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
     end
     assert_response :success
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
 
   test "should parse the full query" do
     Bot::Smooch.unstub(:search_for_similar_published_fact_checks)
-    Bot::Alegre.stubs(:request_api).returns({})
+    Bot::Alegre.stubs(:request).returns({})
     Sidekiq::Testing.inline!
     authenticate_with_token @a
     get :index, params: { filter: { type: 'text', query: 'Foo, bar and test', feed_id: @f.id } }
     assert_response :success
     assert_equal 'Foo, bar and test', Media.last.quote
-    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:request)
   end
 end

@@ -26,4 +26,6 @@ module FeedMutations
 
     argument :name, GraphQL::Types::String, required: false
   end
+
+  class Destroy < Mutations::DestroyMutation; end
 end

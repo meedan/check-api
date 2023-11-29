@@ -1,0 +1,25 @@
+<%= I18n.t(:"mails_notifications.feed_invitation.hello", email: @recipient) %>
+==========================================
+<%= I18n.t("mails_notifications.invitation.title") %>
+==========================================
+
+<%=
+  raw I18n.t(:"mails_notifications.feed_invitation.body",
+        name: @user.name,
+        email: @user.email,
+        feed: @feed.name
+      )
+  %>
+
+<%= I18n.t('mails_notifications.feed_invitation.view_button') %>
+
+<% if @due_at %>
+  <%= t("devise.mailer.invitation_instructions.accept_until", due_date: l(@due_at, format: :'devise.mailer.invitation_instructions.accept_until_format')) %>
+<% end %>
+
+<%= t("devise.mailer.invitation_instructions.ignore") %>
+
+...
+
+<%= strip_tags I18n.t("mails_notifications.copyright_html", app_name: CheckConfig.get('app_name')) %>
+https://meedan.com

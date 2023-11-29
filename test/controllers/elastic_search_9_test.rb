@@ -117,27 +117,29 @@ class ElasticSearch9Test < ActionController::TestCase
     bot.install_to!(team)
     create_flag_annotation_type
     create_extracted_text_annotation_type
-    Bot::Alegre.unstub(:request_api)
     Rails.stubs(:env).returns('development'.inquiry)
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
       WebMock.stub_request(:post, 'http://alegre/text/langid/').to_return(body: { 'result' => { 'language' => 'es' }}.to_json)
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
       WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
-      WebMock.stub_request(:get, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
-      WebMock.stub_request(:get, 'http://alegre/image/similarity/').to_return(body: {
-        "result": []
-      }.to_json)
-      WebMock.stub_request(:get, 'http://alegre/image/classification/').with({ query: { uri: 'some/path' } }).to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre/text/similarity/search/').to_return(body: {success: true}.to_json)
+      WebMock.stub_request(:post, 'http://alegre/image/classification/').with({ body: { uri: 'some/path' } }).to_return(body: {
         "result": valid_flags_data
       }.to_json)
-      WebMock.stub_request(:get, 'http://alegre/image/ocr/').with({ query: { url: 'some/path' } }).to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre/image/ocr/').with({ body: { url: 'some/path' } }).to_return(body: {
         "text": "ocr_text"
       }.to_json)
       WebMock.stub_request(:post, 'http://alegre/image/similarity/').to_return(body: 'success')
       # Text extraction
       Bot::Alegre.unstub(:media_file_url)
       pm = create_project_media team: team, media: create_uploaded_image, disable_es_callbacks: false
+      WebMock.stub_request(:post, 'http://alegre/image/similarity/search/').with(body: {context: {:has_custom_id=>true, :team_id=>pm.team_id}, match_across_content_types: true, threshold: 0.89, url: "some/path"}).to_return(body: {
+        "result": []
+      }.to_json)
+      WebMock.stub_request(:post, 'http://alegre/image/similarity/search/').with(body: {context: {:has_custom_id=>true, :team_id=>pm.team_id}, match_across_content_types: true, threshold: 0.95, url: "some/path"}).to_return(body: {
+        "result": []
+      }.to_json)
       Bot::Alegre.stubs(:media_file_url).with(pm).returns("some/path")
       assert Bot::Alegre.run({ data: { dbid: pm.id }, event: 'create_project_media' })
       sleep 2
@@ -262,6 +264,34 @@ class ElasticSearch9Test < ActionController::TestCase
     assert_equal [pm2.id, pm3.id, pm1.id], result.medias.map(&:id)
     result = CheckSearch.new({ sort: 'fact_check_published_on', sort_type: 'desc' }.to_json, nil, t.id)
     assert_equal [pm1.id, pm3.id, pm2.id], result.medias.map(&:id)
+  end
+
+  test "should filter feed by organization" do
+    f = create_feed
+    t1 = create_team ; f.teams << t1
+    t2 = create_team ; f.teams << t2
+    t3 = create_team ; f.teams << t3
+    FeedTeam.update_all(shared: true)
+    pm1 = create_project_media team: t1, disable_es_callbacks: false
+    pm2 = create_project_media team: t2, disable_es_callbacks: false
+    pm3 = create_project_media team: t3, disable_es_callbacks: false
+    sleep 2
+    u = create_user
+    create_team_user team: t1, user: u, role: 'admin'
+    with_current_user_and_team(u, t1) do
+      query = { feed_id: f.id }
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm1.id, pm2.id, pm3.id], result.medias.map(&:id).sort
+      query[:feed_team_ids] = [t1.id, t3.id]
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm1.id, pm3.id], result.medias.map(&:id).sort
+      query[:feed_team_ids] = [t2.id]
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm2.id], result.medias.map(&:id)
+      query[:feed_team_ids] = []
+      result = CheckSearch.new(query.to_json)
+      assert_empty result.medias.map(&:id)
+    end
   end
 
   # Please add new tests to test/controllers/elastic_search_10_test.rb
