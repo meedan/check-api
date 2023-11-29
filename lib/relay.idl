@@ -13229,6 +13229,7 @@ type Team implements Node {
     Returns the elements in the list that come before the specified cursor.
     """
     before: String
+    externalId: String
 
     """
     Returns the first _n_ elements from the list.
