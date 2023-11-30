@@ -286,7 +286,7 @@ module SmoochMessages
       if ['timeout_requests', 'menu_options_requests', 'resource_requests', 'relevant_search_result_requests', 'timeout_search_requests'].include?(type)
         key = "smooch:banned:#{bundle['authorId']}"
         if Rails.cache.read(key).nil?
-          [annotated].flatten.uniq.each_with_index { |a, i| self.save_message_later(bundle, app_id, type, a, i * 60) }
+          [annotated].flatten.uniq.each_with_index { |a, i| self.save_message_later(bundle, app_id, type, a, i * 10) }
         end
       end
     end
@@ -320,7 +320,7 @@ module SmoochMessages
     def save_message_later(message, app_id, request_type = 'default_requests', annotated = nil, interval = 0)
       mapping = { 'siege' => 'siege' }
       queue = RequestStore.store[:smooch_bot_queue].to_s
-      queue = queue.blank? ? 'smooch_priority' : (mapping[queue] || 'smooch_priority')
+      queue = queue.blank? ? 'smooch' : (mapping[queue] || 'smooch')
       type = (message['type'] == 'text' && !message['text'][/https?:\/\/[^\s]+/, 0].blank?) ? 'link' : message['type']
       SmoochWorker.set(queue: queue).perform_in(1.second + interval.seconds, message.to_json, type, app_id, request_type, YAML.dump(annotated))
     end

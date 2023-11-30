@@ -221,12 +221,12 @@ module SmoochSearch
       language = self.get_user_language(uid)
       reports = results.collect{ |r| r.get_dynamic_annotation('report_design') }
       # Get reports languages
-      reports_language = reports.map { |r| r&.report_design_field_value('language') }.uniq
+      reports_language = reports.map{|r| r&.report_design_field_value('language')}.uniq
       if team.get_languages.to_a.size > 1 && !reports_language.include?(language)
         self.send_message_to_user(uid, self.get_string(:no_results_in_language, language).gsub('%{language}', CheckCldr.language_code_to_name(language, language)), {}, false, true, 'no_results')
         sleep 1
       end
-      reports.reject{ |r| r.blank? }.each do |report|
+      reports.each do |report|
         response = nil
         response = self.send_message_to_user(uid, report.report_design_text, {}, false, true, 'search_result') if report.report_design_field_value('use_text_message')
         response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url }, false, true, 'search_result') if !report.report_design_field_value('use_text_message') && report.report_design_field_value('use_visual_card')
