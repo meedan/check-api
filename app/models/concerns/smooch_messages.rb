@@ -339,7 +339,7 @@ module SmoochMessages
         message['archived'] = ['default_requests', 'irrelevant_search_result_requests'].include?(request_type) ? self.default_archived_flag : CheckArchivedFlags::FlagCodes::UNCONFIRMED
         associated = self.create_project_media_from_message(message)
       elsif ['menu_options_requests', 'resource_requests'].include?(request_type)
-        associated = associatedobj
+        associated = associated_obj
       elsif ['relevant_search_result_requests', 'timeout_search_requests'].include?(request_type)
         message['archived'] = (request_type == 'relevant_search_result_requests' ? self.default_archived_flag : CheckArchivedFlags::FlagCodes::UNCONFIRMED)
         associated = self.create_project_media_from_message(message)
