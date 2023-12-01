@@ -117,7 +117,7 @@ class CheckSearch
     else
       @medias = get_pg_results
     end
-    @medias
+    @medias.where(team_id: @options['team_id']) # Safe check: Be sure that `team_id` filter is always applied
   end
 
   def project_medias
