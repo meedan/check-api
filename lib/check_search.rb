@@ -65,7 +65,7 @@ class CheckSearch
       is_shared = FeedTeam.where(feed_id: @feed.id, team_id: Team.current&.id, shared: true).last
       is_shared ? feed_teams : [0] # Invalidate the query if the current team is not sharing content
     else
-      team_id || Team.current&.id
+      [team_id || Team.current&.id].compact
     end
   end
 
@@ -80,12 +80,7 @@ class CheckSearch
   end
 
   def team
-    team_id = 0
-    if feed_query?
-      team_id = Team.current ? Team.current.id : @options['team_id'].first
-    else
-      team_id = @options['team_id']
-    end
+    team_id = feed_query? && Team.current ? Team.current.id : @options['team_id'].first
     Team.find_by_id(team_id)
   end
 
@@ -266,7 +261,7 @@ class CheckSearch
       file_path = "check_search/#{hash}"
     end
     threshold = Bot::Alegre.get_threshold_for_query(@options['file_type'], ProjectMedia.new(team_id: Team.current.id))[0][:value]
-    results = Bot::Alegre.get_items_with_similar_media(CheckS3.public_url(file_path), [{ value: threshold }], @options['team_id'], "/#{@options['file_type']}/similarity/")
+    results = Bot::Alegre.get_items_with_similar_media(CheckS3.public_url(file_path), [{ value: threshold }], @options['team_id'].first, "/#{@options['file_type']}/similarity/")
     results.blank? ? [0] : results.keys
   end
 
@@ -343,10 +338,11 @@ class CheckSearch
   end
 
   def adjust_project_filter
+    team_id = [@options['team_id']].flatten.first
     project_group_ids = [@options['project_group_id']].flatten.reject{ |pgid| pgid.blank? }.map(&:to_i)
     unless project_group_ids.empty?
       project_ids = @options['projects'].to_a.map(&:to_i)
-      project_groups_project_ids = Project.where(project_group_id: project_group_ids, team: @options['team_id']).map(&:id)
+      project_groups_project_ids = Project.where(project_group_id: project_group_ids, team_id: team_id).map(&:id)
 
       project_ids = project_ids.blank? ? project_groups_project_ids : (project_ids & project_groups_project_ids)
 
@@ -354,7 +350,7 @@ class CheckSearch
       @options['projects'] = project_ids.empty? ? [0] : project_ids
     end
     if Team.current && !feed_query? && [@options['team_id']].flatten.size == 1
-      t = Team.find([@options['team_id']].flatten.first)
+      t = Team.find(team_id)
       @options['projects'] = @options['projects'].blank? ? (Project.where(team_id: t.id).map(&:id) + [nil]) : Project.where(id: @options['projects'], team_id: t.id).map(&:id)
     end
     @options['projects'] += [nil] if @options['none_project']
