@@ -65,7 +65,7 @@ class CheckSearch
       is_shared = FeedTeam.where(feed_id: @feed.id, team_id: Team.current&.id, shared: true).last
       is_shared ? feed_teams : [0] # Invalidate the query if the current team is not sharing content
     else
-      [team_id || Team.current&.id]
+      [team_id || Team.current&.id].compact
     end
   end
 
