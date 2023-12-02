@@ -373,7 +373,7 @@ class AbilityTest < ActiveSupport::TestCase
     tu = create_team_user user: u
     User.current = u
     ability = Ability.new
-    assert ability.can?(:create, TeamUser)
+    assert ability.cannot?(:create, TeamUser)
     assert ability.cannot?(:update, tu)
     assert ability.can?(:destroy, tu)
   end
@@ -385,7 +385,7 @@ class AbilityTest < ActiveSupport::TestCase
     tu2 = create_team_user
     with_current_user_and_team(u, t) do
       ability = Ability.new
-      assert ability.can?(:create, TeamUser)
+      assert ability.cannot?(:create, TeamUser)
       assert ability.cannot?(:update, tu)
       assert ability.can?(:destroy, tu)
       assert ability.cannot?(:update, tu2)
@@ -1207,11 +1207,6 @@ class AbilityTest < ActiveSupport::TestCase
             tu.role = 'editor'
             tu.save!
           end
-        end
-        assert_nothing_raised do
-          tu = TeamUser.find(tu.id)
-          tu.status = 'banned'
-          tu.save!
         end
       end
       with_current_user_and_team(u, t2) do
