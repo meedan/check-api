@@ -19,6 +19,7 @@ module TeamPrivate
       tu.user = user
       tu.team = self
       tu.role = 'admin'
+      tu.skip_check_ability = true
       tu.save!
 
       user.current_team_id = self.id
