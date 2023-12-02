@@ -264,7 +264,7 @@ class ElasticSearchTest < ActionController::TestCase
   test "should ensure project_medias to be an alias of medias" do
     pm = create_project_media
     cs = CheckSearch.new('{}', nil, pm.team_id)
-    assert_equal cs.medias, cs.project_medias
+    assert_equal cs.medias.to_a, cs.project_medias.to_a
   end
 
   test "should get search id" do
