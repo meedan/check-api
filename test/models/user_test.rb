@@ -1283,18 +1283,16 @@ class UserTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     u2 = create_user
-    # request to join team with invitation period
+    # Request to join team with invitation period
     with_current_user_and_team(u, t) do
       members = [{role: 'admin', email: u2.email}]
       User.send_user_invitation(members)
     end
-    with_current_user_and_team(u2, t) do
-      create_team_user team: t, user: u2, status: 'requested'
-    end
+    create_team_user team: t, user: u2, status: 'requested'
     tu = u2.team_users.where(team_id: t.id).last
     assert_equal 'admin', tu.role
     assert_equal 'member', tu.status
-    # request to join team with expired invitaion
+    # Request to join team with expired invitaion
     t2 = create_team
     create_team_user team: t2, user: u, role: 'admin'
     with_current_user_and_team(u, t2) do
@@ -1302,12 +1300,10 @@ class UserTest < ActiveSupport::TestCase
       User.send_user_invitation(members)
     end
     tu = u2.team_users.where(team_id: t2.id).last
-    # expire invitation
+    # Expire invitation
     old_date = tu.created_at - User.invite_for - 1.day
     tu.update_column(:created_at, old_date)
-    with_current_user_and_team(u2, t2) do
-      create_team_user team: t2, user: u2, status: 'requested'
-    end
+    create_team_user team: t2, user: u2, status: 'requested'
     tu = u2.team_users.where(team_id: t2.id).last
     assert_equal 'admin', tu.role
     assert_equal 'requested', tu.status
