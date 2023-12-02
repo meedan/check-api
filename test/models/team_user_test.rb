@@ -81,8 +81,8 @@ class TeamUserTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     t2 = create_team
+    tu = create_team_user user: u, status: 'requested', team: t
     with_current_user_and_team(u, t) do
-      tu = create_team_user user: u, status: 'requested', team: t
       assert_raise RuntimeError do
         tu = create_team_user status: 'requested', team: t, user: create_user
       end

@@ -313,8 +313,8 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     t.save!
     u = create_user
     Sidekiq::Testing.fake! do
+      create_team_user team: t, user: u, role: 'admin'
       with_current_user_and_team(u, t) do
-        create_team_user team: t, user: u, role: 'admin'
         SlackNotificationWorker.drain
         assert_equal 0, SlackNotificationWorker.jobs.size
         pm = create_project_media team: t

@@ -20,10 +20,6 @@ module CheckBasicAbilities
 
   def authenticated_perms
     can :create, Team
-    can :create, TeamUser, :user_id => @user.id, status: ['member', 'requested']
-    can :update, TeamUser do |obj|
-      obj.user_id == @user.id && obj.user_id_was == obj.user_id && obj.role_was == obj.role && obj.status_was == 'member' && obj.status == 'banned'
-    end
 
     # Permissions for registration and login
     can :read, Source, team_id: @context_team.id
