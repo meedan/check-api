@@ -65,7 +65,7 @@ class CheckSearch
       is_shared = FeedTeam.where(feed_id: @feed.id, team_id: Team.current&.id, shared: true).last
       is_shared ? feed_teams : [0] # Invalidate the query if the current team is not sharing content
     else
-      [team_id || Team.current&.id].compact
+      [team_id || Team.current&.id].compact.flatten
     end
   end
 
@@ -105,6 +105,7 @@ class CheckSearch
   end
 
   def medias
+    return ProjectMedia.none if @options['team_id'].blank?
     return [] unless !media_types_filter.blank? && index_exists?
     return @medias if @medias
     if should_hit_elasticsearch?
@@ -117,7 +118,7 @@ class CheckSearch
     else
       @medias = get_pg_results
     end
-    @medias
+    @medias.where(team_id: @options['team_id'].map(&:to_i)) # Safe check: Be sure that `team_id` filter is always applied
   end
 
   def project_medias
