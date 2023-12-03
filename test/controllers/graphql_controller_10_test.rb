@@ -159,7 +159,7 @@ class GraphqlController10Test < ActionController::TestCase
     tk2.assign_user(u.id)
     authenticate_with_user(u)
 
-    post :create, params: { query: "query { me { assignments(first: 10000) { edges { node { dbid } } } } }", team: t1.slug }
+    post :create, params: { query: "query { me { current_project { id }, current_team { id }, user_teams, teams(first: 10) { edges { node { id } } }, assignments(first: 10000) { edges { node { dbid } } } } }", team: t1.slug }
     assert_response :success
     data = JSON.parse(@response.body)['data']['me']['assignments']['edges']
     assert_equal 2, data.size
