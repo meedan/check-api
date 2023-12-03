@@ -41,7 +41,13 @@ class UserType < DefaultObject
   field :accepted_terms, GraphQL::Types::Boolean, null: true
   field :last_accepted_terms_at, GraphQL::Types::String, null: true
   field :team_ids, [GraphQL::Types::Int, null: true], null: true
+
   field :user_teams, GraphQL::Types::String, null: true
+
+  def user_teams
+    User.current == object ? object.user_teams : {}.to_json
+  end
+
   field :last_active_at, GraphQL::Types::Int, null: true
   field :completed_signup, GraphQL::Types::Boolean, null: true
 
@@ -61,6 +67,10 @@ class UserType < DefaultObject
 
   field :current_project, ProjectType, null: true
 
+  def current_project
+    User.current == object ? object.current_project : nil
+  end
+
   field :confirmed, GraphQL::Types::Boolean, null: true
 
   def confirmed
@@ -75,6 +85,10 @@ class UserType < DefaultObject
 
   field :current_team, TeamType, null: true
 
+  def current_team
+    User.current == object ? object.current_team : nil
+  end
+
   field :bot, BotUserType, null: true
 
   def bot
@@ -86,19 +100,26 @@ class UserType < DefaultObject
   end
 
   def team_user(team_slug:)
-    TeamUser
+    tu = TeamUser
       .joins(:team)
       .where("teams.slug" => team_slug, :user_id => object.id)
       .last
+    TeamUser.find_if_can(tu.id, context[:ability])
   end
 
   field :teams, TeamType.connection_type, null: true
+
+  def teams
+    return Team.none unless object == User.current
+    object.teams
+  end
 
   field :team_users, TeamUserType.connection_type, null: true do
     argument :status, GraphQL::Types::String, required: false
   end
 
   def team_users(status: nil)
+    return TeamUser.none unless object == User.current
     team_users = object.team_users
     team_users = team_users.where(status: status) if status
     team_users
@@ -109,6 +130,7 @@ class UserType < DefaultObject
   end
 
   def annotations(type: nil)
+    return Annotation.none unless object == User.current
     type.blank? ? object.annotations : object.annotations(type)
   end
 
@@ -117,6 +139,7 @@ class UserType < DefaultObject
   end
 
   def assignments(team_id: nil)
+    return ProjectMedia.none unless object == User.current
     pms = Annotation.project_media_assigned_to_user(object).order("id DESC")
     team_id = team_id.to_i
     pms = pms.where(team_id: team_id) if team_id > 0
@@ -128,7 +151,7 @@ class UserType < DefaultObject
   field :feed_invitations, FeedInvitationType.connection_type, null: false
 
   def feed_invitations
-    return FeedInvitation.none if object.email.blank?
+    return FeedInvitation.none if object.email.blank? || User.current != object
     FeedInvitation.where(email: object.email)
   end
 end

@@ -8,7 +8,8 @@ class UserInvitationMutation < Mutations::BaseMutation
   field :team, TeamType, null: true
 
   def resolve(invitation: nil, members:)
+    team = Team.find_if_can(Team.current.id, context[:ability])
     messages = User.send_user_invitation(members, invitation)
-    { errors: messages, team: Team.current }
+    { errors: messages, team: team }
   end
 end
