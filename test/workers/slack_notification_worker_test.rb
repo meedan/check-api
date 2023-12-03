@@ -19,7 +19,7 @@ class SlackNotificationWorkerTest < ActiveSupport::TestCase
     }]
     t.slack_notifications = slack_notifications.to_json
     t.save!
-    u = create_user
+    u = create_user is_admin: true
     with_current_user_and_team(u, t) do
       create_team_user team: t, user: u, role: 'admin'
       assert_equal 1, SlackNotificationWorker.jobs.size

@@ -235,4 +235,27 @@ class GraphqlController12Test < ActionController::TestCase
     assert_response :success
     assert_nil JSON.parse(@response.body).dig('data', 'feed_team')
   end
+
+  test "should always apply team filter on search" do
+    setup_elasticsearch
+    t1 = create_team
+    t2 = create_team
+    pm1 = create_project_media team: t1, quote: 'Test 1', disable_es_callbacks: false
+    pm2 = create_project_media team: t2, quote: 'Test 2', disable_es_callbacks: false
+    sleep 2 # Wait for content to be indexed
+
+    authenticate_with_user(@u)
+
+    # ElasticSearch
+    query = 'query { search(query: "{\"keyword\":\"Test\",\"operator\":\"or\"}") { number_of_results } }'
+    post :create, params: { query: query, team: t1.slug }
+    assert_response :success
+    assert_equal 1, JSON.parse(@response.body).dig('data', 'search', 'number_of_results')
+
+    # PostgreSQL
+    query = 'query { search(query: "{\"operator\":\"or\"}") { number_of_results } }'
+    post :create, params: { query: query, team: t1.slug }
+    assert_response :success
+    assert_equal 1, JSON.parse(@response.body).dig('data', 'search', 'number_of_results')
+  end
 end

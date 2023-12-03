@@ -54,8 +54,11 @@ class GraphqlController8Test < ActionController::TestCase
 
   test "should get team user from user" do
     u = create_user
+    u2 = create_user
     t = create_team
+    t2 = create_team
     tu = create_team_user user: u, team: t
+    tu2 = create_team_user user: u2, team: t2
     authenticate_with_user(u)
 
     query = 'query { me { team_user(team_slug: "' + t.slug + '") { dbid } } }'
@@ -65,8 +68,7 @@ class GraphqlController8Test < ActionController::TestCase
 
     query = 'query { me { team_user(team_slug: "' + random_string + '") { dbid } } }'
     post :create, params: { query: query }
-    assert_response :success
-    assert_nil JSON.parse(@response.body)['data']['me']['team_user']
+    assert_response 400
   end
 
     test "should define team languages settings" do
