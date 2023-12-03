@@ -14,7 +14,6 @@ class MutationType < BaseObject
   field :updateSource, mutation: SourceMutations::Update
   field :destroySource, mutation: SourceMutations::Destroy
 
-  field :createTeamUser, mutation: TeamUserMutations::Create
   field :updateTeamUser, mutation: TeamUserMutations::Update
   field :destroyTeamUser, mutation: TeamUserMutations::Destroy
 
