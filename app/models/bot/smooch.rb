@@ -601,8 +601,8 @@ class Bot::Smooch < BotUser
       if original['fallback_template'] =~ /report/
         pmids = ProjectMedia.find(original['project_media_id']).related_items_ids
         TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: pm_ids, tipline_user_uid: message['appUser']['_id']).find_each do |tr|
-          # TODO: Sawy (use update columns)
-          tr.smooch_report_received = Time.now
+          field_name = tr.smooch_report_received_at.nil? ? 'smooch_report_received_at' : 'smooch_report_update_received_at'
+          tr.send("#{field_name}=", Time.now.to_i)
           tr.skip_check_ability = true
           tr.save!
         end
@@ -959,7 +959,7 @@ class Bot::Smooch < BotUser
     end
     unless field_name.blank?
       tipline_request.skip_check_ability = true
-      tipline_request.send("#{field_name}=", Time.now)
+      tipline_request.send("#{field_name}=", Time.now.to_i)
       tipline_request.save!
     end
   end

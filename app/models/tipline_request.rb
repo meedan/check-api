@@ -53,15 +53,6 @@ class TiplineRequest < ApplicationRecord
     end
   end
 
-  def smooch_report_received_at
-    self.smooch_report_received ? self.smooch_report_received.to_i : nil
-  end
-
-  # TODO: Sawy add a new field for this one
-  def smooch_report_update_received_at
-    self.smooch_report_received ? self.smooch_report_received.to_i : nil
-  end
-
   def smooch_user_request_language
     self.language.to_s
   end

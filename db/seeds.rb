@@ -195,13 +195,14 @@ def create_tipline_user_and_data(project_media, team)
     'app_id': random_string
   }
   
-  fields = {
+  tr = TiplineRequest.create!(
+    associated: project_media,
+    team_id: project_media.team_id,
     smooch_request_type: ['default_requests', 'timeout_search_requests', 'relevant_search_result_requests'].sample,
-    smooch_data: smooch_data.to_json,
-    smooch_report_received: [Time.now.to_i, nil].sample
-  }
-
-  Dynamic.create!(annotation_type: 'smooch', annotated: project_media, annotator: BotUser.smooch_user, set_fields: fields.to_json)
+    smooch_data: smooch_data,
+    smooch_report_received_at: [Time.now.to_i, nil].sample,
+    user_id:  BotUser.smooch_user&.id
+  )
 end
 
 def create_tipline_requests(team, project_medias, x_times)

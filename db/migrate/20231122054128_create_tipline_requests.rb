@@ -9,11 +9,12 @@ class CreateTiplineRequests < ActiveRecord::Migration[6.1]
       t.text :smooch_conversation_id, null: true
       t.jsonb :smooch_data, null: false, default: {}
       t.references :associated, polymorphic: true, null: false
-      t.references :team, null: true
+      t.references :team, null: false
       t.references :user
-      t.timestamp :smooch_report_received, null: true
-      t.timestamp :smooch_report_correction_sent_at, null: true
-      t.timestamp :smooch_report_sent_at, null: true
+      t.integer :smooch_report_received_at
+      t.integer :smooch_report_update_received_at
+      t.integer :smooch_report_correction_sent_at
+      t.integer :smooch_report_sent_at
       t.timestamps
     end
     add_index :tipline_requests, [:associated_type, :associated_id]

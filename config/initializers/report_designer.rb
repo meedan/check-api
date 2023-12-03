@@ -209,7 +209,7 @@ Dynamic.class_eval do
   def sent_count
     if self.annotation_type == 'report_design'
       pmids = self.annotated.related_items_ids
-      DynamicAnnotation::Field.joins(:annotation).where(field_name: 'smooch_report_received', 'annotations.annotated_type' => 'ProjectMedia', 'annotations.annotated_id' => pmids).count
+      TiplineRequest.where(assigned_type: 'ProjectMedia', associated_id: pmids).where('smooch_report_received_at IS NOT NULL').count
     end
   end
 

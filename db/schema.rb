@@ -718,11 +718,12 @@ ActiveRecord::Schema.define(version: 2023_11_22_054128) do
     t.jsonb "smooch_data", default: {}, null: false
     t.string "associated_type", null: false
     t.bigint "associated_id", null: false
-    t.bigint "team_id"
+    t.bigint "team_id", null: false
     t.bigint "user_id"
-    t.datetime "smooch_report_received"
-    t.datetime "smooch_report_correction_sent_at"
-    t.datetime "smooch_report_sent_at"
+    t.integer "smooch_report_received_at"
+    t.integer "smooch_report_update_received_at"
+    t.integer "smooch_report_correction_sent_at"
+    t.integer "smooch_report_sent_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["associated_type", "associated_id"], name: "index_tipline_requests_on_associated"
