@@ -158,7 +158,7 @@ class User < ApplicationRecord
   end
 
   def current_project
-    Project.where(id: self.current_project_id).last unless self.current_project_id.blank?
+    Project.where(id: self.current_project_id, team_id: self.current_team_id).last unless self.current_project_id.blank?
   end
 
   def user_teams

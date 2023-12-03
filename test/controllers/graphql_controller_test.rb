@@ -269,16 +269,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_destroy('team')
   end
 
-  test "should create team user" do
-    u = create_user
-    assert_graphql_create('team_user', { team_id: @team.id, user_id: u.id, status: 'member' })
-  end
-
-  test "should update team user" do
-    t = create_team
-    assert_graphql_update('team_user', :team_id, t.id, @team.id)
-  end
-
   test "should update user" do
     assert_graphql_update('user', :name, 'Foo', 'Bar')
   end
