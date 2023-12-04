@@ -65,6 +65,10 @@ class TiplineRequest < ApplicationRecord
     target.requests_count - 1
   end
 
+  def associated_graphql_id
+    Base64.encode64("#{self.associated_type}/#{self.associated_id}")
+  end
+
   private
 
   def set_team_and_user

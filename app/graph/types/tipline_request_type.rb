@@ -15,10 +15,5 @@ class TiplineRequestType < DefaultObject
   field :smooch_report_sent_at, GraphQL::Types::Int, null: true
   field :smooch_report_correction_sent_at, GraphQL::Types::Int, null: true
   field :smooch_request_type, GraphQL::Types::String, null: true
-
   field :associated_graphql_id, GraphQL::Types::String, null: true
-
-  def associated_graphql_id
-    Base64.encode64("#{object.associated_type}/#{object.associated_id}")
-  end
 end

@@ -27,4 +27,9 @@ class TiplineRequestTest < ActiveSupport::TestCase
     assert_equal author_id, tr.tipline_user_uid
     assert_equal platform, tr.platform
   end
+
+  test "should get associated GraphQL ID" do
+    tr = create_tipline_request
+    assert_kind_of String, tr.associated_graphql_id
+  end
 end
