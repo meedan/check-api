@@ -600,8 +600,8 @@ class Bot::Smooch < BotUser
       original = begin JSON.parse(original) rescue {} end
       if original['fallback_template'] =~ /report/
         pmids = ProjectMedia.find(original['project_media_id']).related_items_ids
-        TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: pm_ids, tipline_user_uid: message['appUser']['_id']).find_each do |tr|
-          field_name = tr.smooch_report_received_at.nil? ? 'smooch_report_received_at' : 'smooch_report_update_received_at'
+        TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: pmids, tipline_user_uid: message['appUser']['_id']).find_each do |tr|
+          field_name = tr.smooch_report_received_at == 0 ? 'smooch_report_received_at' : 'smooch_report_update_received_at'
           tr.send("#{field_name}=", Time.now.to_i)
           tr.skip_check_ability = true
           tr.save!
