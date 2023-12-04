@@ -1,8 +1,9 @@
 class CreateTiplineRequests < ActiveRecord::Migration[6.1]
   def change
     create_table :tipline_requests do |t|
-      t.string :language
-      t.string :tipline_user_uid, null: false, default: "", index: true
+      t.string :language, index: true
+      t.string :tipline_user_uid, index: true
+      t.string :platform, index: true
       t.text :smooch_request_type, null: true
       t.text :smooch_resource_id, null: true
       t.text :smooch_message_id, null: true

@@ -403,8 +403,6 @@ module SmoochMessages
       if tr.nil?
         tr = TiplineRequest.new
         tr.associated = associated
-        tr.tipline_user_uid = fields[:smooch_data]['authorId']
-        tr.language = fields[:smooch_data]['language']
       end
       tr.skip_check_ability = true
       tr.skip_notifications = true

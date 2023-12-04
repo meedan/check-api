@@ -710,7 +710,8 @@ ActiveRecord::Schema.define(version: 2023_11_22_054128) do
 
   create_table "tipline_requests", force: :cascade do |t|
     t.string "language"
-    t.string "tipline_user_uid", default: "", null: false
+    t.string "tipline_user_uid"
+    t.string "platform"
     t.text "smooch_request_type"
     t.text "smooch_resource_id"
     t.text "smooch_message_id"
@@ -728,6 +729,8 @@ ActiveRecord::Schema.define(version: 2023_11_22_054128) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["associated_type", "associated_id"], name: "index_tipline_requests_on_associated"
     t.index ["associated_type", "associated_id"], name: "index_tipline_requests_on_associated_type_and_associated_id"
+    t.index ["language"], name: "index_tipline_requests_on_language"
+    t.index ["platform"], name: "index_tipline_requests_on_platform"
     t.index ["team_id"], name: "index_tipline_requests_on_team_id"
     t.index ["tipline_user_uid"], name: "index_tipline_requests_on_tipline_user_uid"
     t.index ["user_id"], name: "index_tipline_requests_on_user_id"
