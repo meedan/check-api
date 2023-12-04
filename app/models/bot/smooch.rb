@@ -1015,11 +1015,11 @@ class Bot::Smooch < BotUser
     parent = ProjectMedia.where(id: parent_id).last
     child = ProjectMedia.where(id: target_id).last
     return if parent.nil? || child.nil?
-    child.get_annotations('smooch').find_each do |annotation|
-      data = JSON.parse(annotation.load.get_field_value('smooch_data'))
+    child.tipline_requests.find_each do |tr|
+      data = tr.smooch_data
       self.get_platform_from_message(data)
       self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
-      self.send_report_to_user(data['authorId'], data, parent, data['language'], 'fact_check_report')
+      self.send_report_to_user(tr.tipline_user_uid, data, parent, tr.language, 'fact_check_report')
     end
   end
 

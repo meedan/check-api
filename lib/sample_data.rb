@@ -848,7 +848,7 @@ module SampleData
   def create_tipline_request(options = {})
     tr = TiplineRequest.new
     tr.smooch_data = {}
-    tr.team_id = options[:team_id] || create_team.id
+    tr.team_id = options[:team_id] || create_team.id unless options.has_key?(:team_id)
     tr.associated = options[:associated] || create_project_media
     options.each do |key, value|
       tr.send("#{key}=", value) if tr.respond_to?("#{key}=")

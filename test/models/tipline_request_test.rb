@@ -1,0 +1,30 @@
+require_relative '../test_helper'
+
+class TiplineRequestTest < ActiveSupport::TestCase
+  test "should create tipline request" do
+    assert_difference 'TiplineRequest.count' do
+      create_tipline_request
+    end
+  end
+
+  test "should set user and team" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      tr = create_tipline_request team_id: nil
+      assert_equal t.id, tr.team_id
+      assert_equal u.id, tr.user_id
+    end
+  end
+
+  test "should set smooch data fields" do
+    author_id = random_string
+    platform = 'whatsapp'
+    smooch_data = { language: 'en', authorId: author_id, source: { type: platform } }
+    tr = create_tipline_request smooch_data: smooch_data
+    assert_equal 'en', tr.language
+    assert_equal author_id, tr.tipline_user_uid
+    assert_equal platform, tr.platform
+  end
+end
