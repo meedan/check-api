@@ -154,4 +154,3 @@ class Cluster < ApplicationRecord
     ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
   end
 end
-

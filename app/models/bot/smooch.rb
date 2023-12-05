@@ -41,16 +41,16 @@ class Bot::Smooch < BotUser
 
     def get_deduplicated_tipline_requests
       uids = []
-      annotations = []
+      tipline_requests = []
       ProjectMedia.where(id: self.related_items_ids).each do |pm|
         pm.tipline_requests.find_each do |tr|
           uid = tr.tipline_user_uid
           next if uids.include?(uid)
           uids << uid
-          annotations << tr
+          tipline_requests << tr
         end
       end
-      annotations
+      tipline_requests
     end
   end
 

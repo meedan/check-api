@@ -468,7 +468,7 @@ module ProjectMediaCachedFields
         {
           model: TiplineRequest,
           if: proc { |tr| ['relevant_search_result_requests', 'irrelevant_search_result_requests', 'timeout_search_requests'].include?(tr.smooch_request_type) },
-            affected_ids: proc { |tr| [tr.associated_id] },
+          affected_ids: proc { |tr| [tr.associated_id] },
           events: {
             save: :recalculate,
             destroy: :recalculate,
