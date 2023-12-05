@@ -63,9 +63,9 @@ class Bot::Smooch < BotUser
 
     def self.inherit_status_and_send_report(rid)
       relationship = Relationship.find_by_id(rid)
-      # A relationship created by the Smooch Bot is related to search results, so the user has already received the report as a search result
-      return if relationship&.user && relationship.user == BotUser.smooch_user
       unless relationship.nil?
+        # A relationship created by the Smooch Bot or Alegre Bot is related to search results, so the user has already received the report as a search result
+        return if [BotUser.smooch_user&.id, BotUser.alegre_user&.id].include?(relationship.user_id)
         target = relationship.target
         parent = relationship.source
         if ::Bot::Smooch.team_has_smooch_bot_installed(target) && relationship.is_confirmed?
