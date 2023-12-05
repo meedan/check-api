@@ -164,7 +164,7 @@ module SmoochSearch
         return [] if media_url.blank?
         media_url = self.save_locally_and_return_url(media_url, type, feed_id)
         threshold = Bot::Alegre.get_threshold_for_query(type, pm)[0][:value]
-        alegre_results = Bot::Alegre.get_items_with_similar_media(media_url, [{ value: threshold }], team_ids, "/#{type}/similarity/")
+        alegre_results = Bot::Alegre.get_items_with_similar_media(media_url, [{ value: threshold }], team_ids, "/#{type}/similarity/search/")
         results = self.parse_search_results_from_alegre(alegre_results, after, feed_id, team_ids)
         Rails.logger.info "[Smooch Bot] Media similarity search got #{results.count} results while looking for '#{query}' after date #{after.inspect} for teams #{team_ids}"
       end

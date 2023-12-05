@@ -100,7 +100,7 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
 
     child = create_project_media project: @project
     create_tipline_request team_id: @project.team_id, associated: child, language: 'en', smooch_message_id: random_string, smooch_data: { app_id: @app_id, authorId: random_string, language: 'en' }
-    r = create_relationship source_id: parent.id, target_id: child.id, relationship_type: Relationship.confirmed_type
+    r = create_relationship source_id: parent.id, target_id: child.id, relationship_type: Relationship.confirmed_type, user: create_user
     s = child.annotations.where(annotation_type: 'verification_status').last.load
     assert_equal 'verified', s.status
 
