@@ -1,5 +1,5 @@
 language: minimal
-dist: bionic
+dist: jammy
 before_install:
 - export RECORD_RUNTIME=true
 - export LC_ALL=C.UTF-8
