@@ -162,26 +162,29 @@ class FeedTest < ActiveSupport::TestCase
     CheckSearch.any_instance.unstub(:medias)
   end
 
-  test "should delete feed teams and invitation when feed is deleted" do
+  test "should not delete feed if it has teams" do
     f = create_feed
-    f.teams << create_team
     ft = create_feed_team team: create_team, feed: f
     assert_no_difference 'Feed.count' do
-      assert_difference 'FeedTeam.count', -1 do
-        ft.destroy!
-      end
-    end
-    assert_difference 'Feed.count', -1 do
-      assert_difference 'FeedTeam.count', -1 do
+      assert_raises ActiveRecord::RecordNotDestroyed do
         f.destroy!
       end
     end
+    ft.destroy!
+    assert_difference 'Feed.count', -1 do
+      f.reload.destroy!
+    end
+  end
+
+  test "should delete invites when feed is deleted" do
     f = create_feed
-    create_feed_invitation feed: f
-    assert_difference 'Feed.count', -1 do
-      assert_difference 'FeedInvitation.count', -1 do
-        f.destroy!
-      end
+    fi1 = create_feed_invitation feed: f
+    fi2 = create_feed_invitation feed: f
+    assert_no_difference 'Feed.count' do
+      fi1.destroy!
+    end
+    assert_difference 'FeedInvitation.count', -1 do
+      f.destroy!
     end
   end
 end
