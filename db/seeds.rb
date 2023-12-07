@@ -7,6 +7,9 @@ data = {
   team_name: Faker::Company.name,
   user_name: Faker::Name.first_name.downcase,
   user_password: Faker::Internet.password(min_length: 8),
+  invited_team_name: Faker::Company.name,
+  invited_user_name: Faker::Name.first_name.downcase,
+  invited_user_password: Faker::Internet.password(min_length: 8),
   'Link' => [
     'https://meedan.com/post/addressing-misinformation-across-countries-a-pioneering-collaboration-between-taiwan-factcheck-center-vera-files',
     'https://meedan.com/post/entre-becos-a-women-led-hyperlocal-newsletter-from-the-peripheries-of-brazil',
@@ -266,7 +269,8 @@ ActiveRecord::Base.transaction do
 
   # 2. Creating Items in different states
   # 2.1 Create medias: claims, audios, images, videos and links
-  media_data_collection = [ data['Claim'], data['UploadedAudio'], data['UploadedImage'], data['UploadedVideo'], data['Link']]
+  media_data_collection = [ data['Claim'] ]
+  # media_data_collection = [ data['Claim'], data['UploadedAudio'], data['UploadedImage'], data['UploadedVideo'], data['Link']]
   media_data_collection.each do |media_data|
     begin
       media_type = data.key(media_data)
@@ -330,14 +334,26 @@ ActiveRecord::Base.transaction do
   # 3. Create Shared feed
   puts 'Making Shared Feed'
   saved_search = SavedSearch.create!(title: "#{user.name}'s list #{random_number}", team: team, filters: {created_by: user})
-  Feed.create!(name: "Feed Test: #{Faker::Alphanumeric.alpha(number: 10)}", user: user, team: team, published: true, saved_search: saved_search, licenses: [1])
+  feed = Feed.create!(name: "Feed Test: #{Faker::Alphanumeric.alpha(number: 10)}", user: user, team: team, published: true, saved_search: saved_search, licenses: [1])
 
-  # 4. Return user information
+  # 4.1 Create new user and Workspace
+  puts 'Making a new user, their new workspace and project'
+  user_invited = create_user(name: data[:invited_user_name], login: data[:invited_user_name], password: data[:invited_user_password], password_confirmation: data[:invited_user_password], email: Faker::Internet.safe_email(name: data[:invited_user_name]), is_admin: true)
+  
+  team_invited = create_team(name: "#{data[:invited_team_name]} / Feed Invited")
+  team_invited.set_language('en')
+  create_team_user(team: team_invited, user: user_invited, role: 'admin')
+
+  # 4.2 Invite new workspace
+  create_feed_invitation(email: user_invited.email, feed: feed, user: user_invited)
+
+  # FINAL. Return user information
   if answer == "1"
     puts "Created user: name: #{data[:user_name]} — email: #{user.email} — password : #{data[:user_password]}"
   elsif answer == "2"
     puts "Data added to user: #{user.email}"
   end
+  puts "Created invited user: name: #{data[:invited_user_name]} — email: #{user_invited.email} — password : #{data[:invited_user_password]}"
 end
 
 Rails.cache.clear
