@@ -553,8 +553,8 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     TeamBotInstallation.unstub(:find_by_team_id_and_user_id)
   end
 
-  test "should not get similar texts for texts with up to 2 words" do
-    assert_equal({}, Bot::Alegre.get_items_from_similar_text(random_number, 'Foo bar'))
+  test "should not get similar texts for blank string" do
+    assert_equal({}, Bot::Alegre.get_items_from_similar_text(random_number, ''))
   end
 
   test "should match rule by extracted text" do
