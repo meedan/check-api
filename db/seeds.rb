@@ -7,9 +7,12 @@ data = {
   team_name: Faker::Company.name,
   user_name: Faker::Name.first_name.downcase,
   user_password: Faker::Internet.password(min_length: 8),
-  invited_team_name: Faker::Company.name,
-  invited_user_name: Faker::Name.first_name.downcase,
-  invited_user_password: Faker::Internet.password(min_length: 8),
+  invited_empty_team_name: Faker::Company.name,
+  invited_empty_user_name: Faker::Name.first_name.downcase,
+  invited_empty_user_password: Faker::Internet.password(min_length: 8),
+  invited_published_team_name: Faker::Company.name,
+  invited_published_user_name: Faker::Name.first_name.downcase,
+  invited_published_user_password: Faker::Internet.password(min_length: 8),
   'Link' => [
     'https://meedan.com/post/addressing-misinformation-across-countries-a-pioneering-collaboration-between-taiwan-factcheck-center-vera-files',
     'https://meedan.com/post/entre-becos-a-women-led-hyperlocal-newsletter-from-the-peripheries-of-brazil',
@@ -336,16 +339,40 @@ ActiveRecord::Base.transaction do
   saved_search = SavedSearch.create!(title: "#{user.name}'s list #{random_number}", team: team, filters: {created_by: user})
   feed = Feed.create!(name: "Feed Test: #{Faker::Alphanumeric.alpha(number: 10)}", user: user, team: team, published: true, saved_search: saved_search, licenses: [1])
 
-  # 4.1 Create new user and Workspace
-  puts 'Making a new user, their new workspace and project'
-  user_invited = create_user(name: data[:invited_user_name], login: data[:invited_user_name], password: data[:invited_user_password], password_confirmation: data[:invited_user_password], email: Faker::Internet.safe_email(name: data[:invited_user_name]), is_admin: true)
+  # 4.1 Create new user with an empty workspace
+  puts 'Making a new user, their new empty workspace'
+  user_invited_empty = create_user(name: data[:invited_empty_user_name], login: data[:invited_empty_user_name], password: data[:invited_empty_user_password], password_confirmation: data[:invited_empty_user_password], email: Faker::Internet.safe_email(name: data[:invited_empty_user_name]), is_admin: true)
   
-  team_invited = create_team(name: "#{data[:invited_team_name]} / Feed Invited")
-  team_invited.set_language('en')
-  create_team_user(team: team_invited, user: user_invited, role: 'admin')
+  team_invited_empty = create_team(name: "#{data[:invited_empty_team_name]} / Feed Invited_empty")
+  team_invited_empty.set_language('en')
+  create_team_user(team: team_invited_empty, user: user_invited_empty, role: 'admin')
 
-  # 4.2 Invite new workspace
-  create_feed_invitation(email: user_invited.email, feed: feed, user: user_invited)
+  # 4.2 Invite new user/empty workspace
+  create_feed_invitation(email: user_invited_empty.email, feed: feed, user: user_invited_empty)
+
+  # 5.1 Create a new user with published items
+  puts 'Making a new user, their new workspace with published item'
+  user_invited_published = create_user(name: data[:invited_published_user_name], login: data[:invited_published_user_name], password: data[:invited_published_user_password], password_confirmation: data[:invited_published_user_password], email: Faker::Internet.safe_email(name: data[:invited_published_user_name]), is_admin: true)
+
+  team_invited_published = create_team(name: "#{data[:invited_published_team_name]} / Feed Invited_published")
+  team_invited_published.set_language('en')
+
+  project_invited_published = create_project(title: team_invited_published.name, team_id: team_invited_published.id, user: user_invited_published, description: '')
+
+  create_team_user(team: team_invited_published, user: user_invited_published, role: 'admin')
+
+  # 5.2 Create published Items
+  medias_invited_published = data['Claim'].map { |individual_data| create_media(user_invited_published, individual_data, 'Claim')}
+  project_medias_invited_published = create_project_medias_with_channel(user_invited_published, project_invited_published, team_invited_published, medias_invited_published)
+  claim_descriptions_invited_published = create_claim_descriptions(user_invited_published, project_medias_invited_published)
+  claim_descriptions_for_fact_checks_invited_published = claim_descriptions_invited_published[0..10]
+  create_fact_checks(user_invited_published, claim_descriptions_for_fact_checks_invited_published)
+  project_medias_invited_published[7..8].each { |pm| verify_fact_check_and_publish_report(pm, "https://www.thespruceeats.com/step-by-step-basic-cake-recipe-304553?timestamp=#{Time.now.to_f}")}
+  project_medias_invited_published[9..10].each { |pm| verify_fact_check_and_publish_report(pm)}
+  SavedSearch.create!(title: "#{user_invited_published.name}'s list #{random_number}", team: team_invited_published, filters: {created_by: user_invited_published})
+
+  # 5.3 Invite new user/published workspace
+  create_feed_invitation(email: user_invited_published.email, feed: feed, user: user_invited_published)
 
   # FINAL. Return user information
   if answer == "1"
@@ -353,7 +380,8 @@ ActiveRecord::Base.transaction do
   elsif answer == "2"
     puts "Data added to user: #{user.email}"
   end
-  puts "Created invited user: name: #{data[:invited_user_name]} — email: #{user_invited.email} — password : #{data[:invited_user_password]}"
+  puts "Created invited user / empty workspace: name: #{data[:invited_empty_user_name]} — email: #{user_invited_empty.email} — password : #{data[:invited_empty_user_password]}"
+  puts "Created invited user / workspace with published items: name: #{data[:invited_published_user_name]} — email: #{user_invited_published.email} — password : #{data[:invited_published_user_password]}"
 end
 
 Rails.cache.clear
