@@ -47,15 +47,16 @@ data_items = {
   'UploadedAudio' => ['e-item.mp3', 'rails.mp3', 'with_cover.mp3', 'with_cover.ogg', 'with_cover.wav']*4,
   'UploadedImage' =>  ['large-image.jpg', 'maçã.png', 'rails-photo.jpg', 'rails.png', 'ruby-small.png']*4,
   'UploadedVideo' =>  ['d-item.mp4', 'rails.mp4', 'd-item.mp4', 'rails.mp4', 'd-item.mp4']*4,
-  fact_check_links: [
-    'https://meedan.com/post/welcome-haramoun-hamieh-our-program-manager-for-nawa',
-    'https://meedan.com/post/strengthening-fact-checking-with-media-literacy-technology-and-collaboration',
-    'https://meedan.com/post/highlights-from-the-work-of-meedans-partners-on-international-fact-checking',
-    'https://meedan.com/post/what-is-gendered-health-misinformation-and-why-is-it-an-equity-problem-worth',
-    'https://meedan.com/post/the-case-for-a-public-health-approach-to-moderate-health-misinformation',
-  ],
   'Claim' => Array.new(20) { Faker::Lorem.paragraph(sentence_count: 10) },
 }
+
+data_imported_fact_checks =  [
+  'https://meedan.com/post/welcome-haramoun-hamieh-our-program-manager-for-nawa',
+  'https://meedan.com/post/strengthening-fact-checking-with-media-literacy-technology-and-collaboration',
+  'https://meedan.com/post/highlights-from-the-work-of-meedans-partners-on-international-fact-checking',
+  'https://meedan.com/post/what-is-gendered-health-misinformation-and-why-is-it-an-equity-problem-worth',
+  'https://meedan.com/post/the-case-for-a-public-health-approach-to-moderate-health-misinformation',
+]
 
 def open_file(file)
   File.open(File.join(Rails.root, 'test', 'data', file))
@@ -288,13 +289,11 @@ ActiveRecord::Base.transaction do
 
   # 2. Creating Items in different states
   # 2.1 Create medias: claims, audios, images, videos and links
-  media_data_collection = [ data_items['Claim'], data_items['UploadedAudio'], data_items['UploadedImage'], data_items['UploadedVideo'], data_items['Link']]
-  media_data_collection.each do |media_data|
+  data_items.each do |media_type, medias_data|
     begin
-      media_type = data_items.key(media_data)
       puts "Making #{media_type}..."
       puts "#{media_type}: Making Medias and Project Medias..."
-      medias = media_data.map { |individual_data| create_media(user, individual_data, media_type)}
+      medias = medias_data.map { |individual_data| create_media(user, individual_data, media_type)}
       project_medias = create_project_medias_with_channel(user, project, team, medias)
       
       puts "#{media_type}: Making Claim Descriptions and Fact Checks..."
@@ -347,7 +346,7 @@ ActiveRecord::Base.transaction do
   
   # 2.2 Create medias: imported Fact Checks
   puts 'Making Imported Fact Checks...'
-  data_items[:fact_check_links].map { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
+  data_imported_fact_checks.map { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
 
   # 3. Create Shared feed
   puts 'Making Shared Feed'
