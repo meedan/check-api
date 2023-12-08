@@ -3,16 +3,25 @@ require "faker"
 
 Rails.env.development? || raise('To run the seeds file you should be in the development environment')
 
-data = {
-  team_name: Faker::Company.name,
-  user_name: Faker::Name.first_name.downcase,
-  user_password: Faker::Internet.password(min_length: 8),
-  invited_empty_team_name: Faker::Company.name,
-  invited_empty_user_name: Faker::Name.first_name.downcase,
-  invited_empty_user_password: Faker::Internet.password(min_length: 8),
-  invited_published_team_name: Faker::Company.name,
-  invited_published_user_name: Faker::Name.first_name.downcase,
-  invited_published_user_password: Faker::Internet.password(min_length: 8),
+data_users = {
+  main_user: {
+    team: Faker::Company.name,
+    name: Faker::Name.first_name.downcase,
+    password: Faker::Internet.password(min_length: 8),
+  },
+  invited_empty_user: {
+    team: Faker::Company.name,
+    name: Faker::Name.first_name.downcase,
+    password: Faker::Internet.password(min_length: 8),
+  },
+  invited_published_user: {
+    team: Faker::Company.name,
+    name: Faker::Name.first_name.downcase,
+    password: Faker::Internet.password(min_length: 8),
+  }
+}
+
+data_items = {
   'Link' => [
     'https://meedan.com/post/addressing-misinformation-across-countries-a-pioneering-collaboration-between-taiwan-factcheck-center-vera-files',
     'https://meedan.com/post/entre-becos-a-women-led-hyperlocal-newsletter-from-the-peripheries-of-brazil',
@@ -240,11 +249,11 @@ ActiveRecord::Base.transaction do
   # We create a user, team and project OR we fetch one
   if answer == "1"
     puts 'Making Team / Workspace...'
-    team = create_team(name: "#{data[:team_name]} / Feed Creator")
+    team = create_team(name: "#{data_users[:main_user][:team]} / Feed Creator")
     team.set_language('en')
 
     puts 'Making User...'
-    user = create_user(name: data[:user_name], login: data[:user_name], password: data[:user_password], password_confirmation: data[:user_password], email: Faker::Internet.safe_email(name: data[:user_name]), is_admin: true)
+    user = create_user(name: data_users[:main_user][:name], login: data_users[:main_user][:name], password: data_users[:main_user][:password], password_confirmation: data_users[:main_user][:password], email: Faker::Internet.safe_email(name: data_users[:main_user][:name]), is_admin: true)
 
     puts 'Making Project...'
     project = create_project(title: team.name, team_id: team.id, user: user, description: '')
@@ -260,7 +269,7 @@ ActiveRecord::Base.transaction do
     user = User.find_by(email: email)
 
     if user.team_users.first.nil?
-      team = create_team(name: data[:team_name])
+      team = create_team(name: data_users[:main_user][:team])
       project = create_project(title: team.name, team_id: team.id, user: user, description: '')
       create_team_user(team: team, user: user, role: 'admin')
     else 
@@ -272,11 +281,11 @@ ActiveRecord::Base.transaction do
 
   # 2. Creating Items in different states
   # 2.1 Create medias: claims, audios, images, videos and links
-  media_data_collection = [ data['Claim'] ]
-  # media_data_collection = [ data['Claim'], data['UploadedAudio'], data['UploadedImage'], data['UploadedVideo'], data['Link']]
+  media_data_collection = [ data_items['Claim'] ]
+  # media_data_collection = [ data_items['Claim'], data_items['UploadedAudio'], data_items['UploadedImage'], data_items['UploadedVideo'], data_items['Link']]
   media_data_collection.each do |media_data|
     begin
-      media_type = data.key(media_data)
+      media_type = data_items.key(media_data)
       puts "Making #{media_type}..."
       puts "#{media_type}: Making Medias and Project Medias..."
       medias = media_data.map { |individual_data| create_media(user, individual_data, media_type)}
@@ -303,7 +312,7 @@ ActiveRecord::Base.transaction do
       # https://github.com/meedan/check-api/pull/1722#issuecomment-1798729043
       # create the children we need for the relationship
       confirmed_children_media = ['Claim', 'UploadedAudio', 'UploadedImage', 'UploadedVideo', 'Link'].flat_map do |media_type|
-        data[media_type][0..1].map { |data| create_media(user, data , media_type)}
+        data_items[media_type][0..1].map { |data| create_media(user, data , media_type)}
       end
       confirmed_children_project_medias = create_project_medias(user, project, team, confirmed_children_media)
       # send parent and children
@@ -332,7 +341,7 @@ ActiveRecord::Base.transaction do
   
   # 2.2 Create medias: imported Fact Checks
   puts 'Making Imported Fact Checks...'
-  data[:fact_check_links].map { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
+  data_items[:fact_check_links].map { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
 
   # 3. Create Shared feed
   puts 'Making Shared Feed'
@@ -341,9 +350,9 @@ ActiveRecord::Base.transaction do
 
   # 4.1 Create new user with an empty workspace
   puts 'Making a new user, their new empty workspace'
-  user_invited_empty = create_user(name: data[:invited_empty_user_name], login: data[:invited_empty_user_name], password: data[:invited_empty_user_password], password_confirmation: data[:invited_empty_user_password], email: Faker::Internet.safe_email(name: data[:invited_empty_user_name]), is_admin: true)
+  user_invited_empty = create_user(name: data_users[:invited_empty_user][:name], login: data_users[:invited_empty_user][:name], password: data_users[:invited_empty_user][:password], password_confirmation: data_users[:invited_empty_user][:password], email: Faker::Internet.safe_email(name: data_users[:invited_empty_user][:name]), is_admin: true)
   
-  team_invited_empty = create_team(name: "#{data[:invited_empty_team_name]} / Feed Invited_empty")
+  team_invited_empty = create_team(name: "#{data_items[:invited_empty_team_name]} / Feed Invited_empty")
   team_invited_empty.set_language('en')
   create_team_user(team: team_invited_empty, user: user_invited_empty, role: 'admin')
 
@@ -352,9 +361,9 @@ ActiveRecord::Base.transaction do
 
   # 5.1 Create a new user with published items
   puts 'Making a new user, their new workspace with published item'
-  user_invited_published = create_user(name: data[:invited_published_user_name], login: data[:invited_published_user_name], password: data[:invited_published_user_password], password_confirmation: data[:invited_published_user_password], email: Faker::Internet.safe_email(name: data[:invited_published_user_name]), is_admin: true)
+  user_invited_published = create_user(name: data_users[:invited_published_user][:name], login: data_users[:invited_published_user][:name], password: data_users[:invited_published_user][:password], password_confirmation: data_users[:invited_published_user][:password], email: Faker::Internet.safe_email(name: data_users[:invited_published_user][:name]), is_admin: true)
 
-  team_invited_published = create_team(name: "#{data[:invited_published_team_name]} / Feed Invited_published")
+  team_invited_published = create_team(name: "#{data_users[:invited_published_user][:team]} / Feed Invited_published")
   team_invited_published.set_language('en')
 
   project_invited_published = create_project(title: team_invited_published.name, team_id: team_invited_published.id, user: user_invited_published, description: '')
@@ -362,7 +371,7 @@ ActiveRecord::Base.transaction do
   create_team_user(team: team_invited_published, user: user_invited_published, role: 'admin')
 
   # 5.2 Create published Items
-  medias_invited_published = data['Claim'].map { |individual_data| create_media(user_invited_published, individual_data, 'Claim')}
+  medias_invited_published = data_items['Claim'].map { |individual_data| create_media(user_invited_published, individual_data, 'Claim')}
   project_medias_invited_published = create_project_medias_with_channel(user_invited_published, project_invited_published, team_invited_published, medias_invited_published)
   claim_descriptions_invited_published = create_claim_descriptions(user_invited_published, project_medias_invited_published)
   claim_descriptions_for_fact_checks_invited_published = claim_descriptions_invited_published[0..10]
@@ -376,12 +385,12 @@ ActiveRecord::Base.transaction do
 
   # FINAL. Return user information
   if answer == "1"
-    puts "Created user: name: #{data[:user_name]} — email: #{user.email} — password : #{data[:user_password]}"
+    puts "Created user: name: #{data_users[:main_user][:name]} — email: #{user.email} — password : #{data_users[:main_user][:password]}"
   elsif answer == "2"
     puts "Data added to user: #{user.email}"
   end
-  puts "Created invited user / empty workspace: name: #{data[:invited_empty_user_name]} — email: #{user_invited_empty.email} — password : #{data[:invited_empty_user_password]}"
-  puts "Created invited user / workspace with published items: name: #{data[:invited_published_user_name]} — email: #{user_invited_published.email} — password : #{data[:invited_published_user_password]}"
+  puts "Created invited user / empty workspace: name: #{data_users[:invited_empty_user][:name]} — email: #{user_invited_empty.email} — password : #{data_users[:invited_empty_user][:password]}"
+  puts "Created invited user / workspace with published items: name: #{data_users[:invited_published_user][:name]} — email: #{user_invited_published.email} — password : #{data_users[:invited_published_user][:password]}"
 end
 
 Rails.cache.clear
