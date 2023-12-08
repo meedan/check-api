@@ -237,6 +237,23 @@ def verify_fact_check_and_publish_report(project_media, url = '')
   report_design.save!
 end
 
+def create_user_with_team_and_project(user)
+  puts 'Making Team / Workspace...'
+  team = create_team(name: "#{user[:team]} / Feed Creator")
+  team.set_language('en')
+
+  puts 'Making User...'
+  user = create_user(name: user[:name], login: user[:name], password: user[:password], password_confirmation: user[:password], email: Faker::Internet.safe_email(name: user[:name]), is_admin: true)
+
+  puts 'Making Project...'
+  project = create_project(title: team.name, team_id: team.id, user: user, description: '')
+
+  puts 'Making Team User...'
+  create_team_user(team: team, user: user, role: 'admin')
+
+  return team, user, project
+end
+
 ######################
 # 0. Start the script
 puts "If you want to create a new user: press 1 then enter"
@@ -248,18 +265,8 @@ ActiveRecord::Base.transaction do
   # 1. Creating what we need for the workspace
   # We create a user, team and project OR we fetch one
   if answer == "1"
-    puts 'Making Team / Workspace...'
-    team = create_team(name: "#{data_users[:main_user][:team]} / Feed Creator")
-    team.set_language('en')
-
-    puts 'Making User...'
-    user = create_user(name: data_users[:main_user][:name], login: data_users[:main_user][:name], password: data_users[:main_user][:password], password_confirmation: data_users[:main_user][:password], email: Faker::Internet.safe_email(name: data_users[:main_user][:name]), is_admin: true)
-
-    puts 'Making Project...'
-    project = create_project(title: team.name, team_id: team.id, user: user, description: '')
-
-    puts 'Making Team User...'
-    create_team_user(team: team, user: user, role: 'admin')
+    # Create main user, team and project
+    team, user, project = create_user_with_team_and_project(data_users[:main_user])
   elsif answer == "2"
     puts "Type user email then press enter"
     print ">> "
@@ -281,8 +288,7 @@ ActiveRecord::Base.transaction do
 
   # 2. Creating Items in different states
   # 2.1 Create medias: claims, audios, images, videos and links
-  media_data_collection = [ data_items['Claim'] ]
-  # media_data_collection = [ data_items['Claim'], data_items['UploadedAudio'], data_items['UploadedImage'], data_items['UploadedVideo'], data_items['Link']]
+  media_data_collection = [ data_items['Claim'], data_items['UploadedAudio'], data_items['UploadedImage'], data_items['UploadedVideo'], data_items['Link']]
   media_data_collection.each do |media_data|
     begin
       media_type = data_items.key(media_data)
@@ -350,25 +356,14 @@ ActiveRecord::Base.transaction do
 
   # 4.1 Create new user with an empty workspace
   puts 'Making a new user, their new empty workspace'
-  user_invited_empty = create_user(name: data_users[:invited_empty_user][:name], login: data_users[:invited_empty_user][:name], password: data_users[:invited_empty_user][:password], password_confirmation: data_users[:invited_empty_user][:password], email: Faker::Internet.safe_email(name: data_users[:invited_empty_user][:name]), is_admin: true)
-  
-  team_invited_empty = create_team(name: "#{data_items[:invited_empty_team_name]} / Feed Invited_empty")
-  team_invited_empty.set_language('en')
-  create_team_user(team: team_invited_empty, user: user_invited_empty, role: 'admin')
+  _team_invited_empty, user_invited_empty, _project_invited_empty = create_user_with_team_and_project(data_users[:invited_empty_user])
 
   # 4.2 Invite new user/empty workspace
   create_feed_invitation(email: user_invited_empty.email, feed: feed, user: user_invited_empty)
 
   # 5.1 Create a new user with published items
   puts 'Making a new user, their new workspace with published item'
-  user_invited_published = create_user(name: data_users[:invited_published_user][:name], login: data_users[:invited_published_user][:name], password: data_users[:invited_published_user][:password], password_confirmation: data_users[:invited_published_user][:password], email: Faker::Internet.safe_email(name: data_users[:invited_published_user][:name]), is_admin: true)
-
-  team_invited_published = create_team(name: "#{data_users[:invited_published_user][:team]} / Feed Invited_published")
-  team_invited_published.set_language('en')
-
-  project_invited_published = create_project(title: team_invited_published.name, team_id: team_invited_published.id, user: user_invited_published, description: '')
-
-  create_team_user(team: team_invited_published, user: user_invited_published, role: 'admin')
+  team_invited_published, user_invited_published, project_invited_published = create_user_with_team_and_project(data_users[:invited_published_user])
 
   # 5.2 Create published Items
   medias_invited_published = data_items['Claim'].map { |individual_data| create_media(user_invited_published, individual_data, 'Claim')}
