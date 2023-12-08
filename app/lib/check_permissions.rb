@@ -54,7 +54,7 @@ module CheckPermissions
       if self.class.name == 'Team'
         role = User.current.role(self)
         role ||= 'authenticated'
-        cache_key = "team_permissions_#{self.private.to_i}_#{role}_role_202311221222"
+        cache_key = "team_permissions_#{self.private.to_i}_#{role}_role_20231207225050"
         perms = Rails.cache.read(cache_key) if Rails.cache.exist?(cache_key)
       end
       if perms.blank?
