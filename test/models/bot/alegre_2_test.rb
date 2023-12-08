@@ -622,7 +622,8 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
             "url" => "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
             "context" => [{
               "team_id" => pm2.team.id.to_s,
-              "project_media_id" => pm2.id.to_s
+              "project_media_id" => pm2.id.to_s,
+              "field" => 'title'
             }],
           },
           "_score" => 0.9
