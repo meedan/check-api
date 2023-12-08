@@ -221,8 +221,8 @@ class Bot::Alegre < BotUser
 
   def self.get_items_from_similar_text(team_id, text, fields = nil, threshold = nil, models = nil, fuzzy = false)
     team_ids = [team_id].flatten
-    if text.blank? || self.get_number_of_words(text) < 3
-      Rails.logger.info("[Alegre Bot] get_items_from_similar_text returning early due to blank/short text #{text}")
+    if text.blank?
+      Rails.logger.info("[Alegre Bot] get_items_from_similar_text returning early due to blank text #{text}")
       return {}
     end
     fields ||= ALL_TEXT_SIMILARITY_FIELDS
