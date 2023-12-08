@@ -54,7 +54,7 @@ module CheckPermissions
       if self.class.name == 'Team'
         role = User.current.role(self)
         role ||= 'authenticated'
-        cache_key = "team_permissions_#{self.private.to_i}_#{role}_role_20231207225050"
+        cache_key = "team_permissions_#{self.private.to_i}_#{role}_role_20231208120701"
         perms = Rails.cache.read(cache_key) if Rails.cache.exist?(cache_key)
       end
       if perms.blank?
@@ -106,6 +106,8 @@ module CheckPermissions
         end
 
         model = self.set_media_for_permissions(model) if ['ProjectMedia', 'Source'].include?(self.class.name)
+
+        model.feed = Feed.new(team: Team.current) if model.class.name == 'FeedInvitation'
 
         perms["create #{data}"] = ability.can?(:create, model)
       end

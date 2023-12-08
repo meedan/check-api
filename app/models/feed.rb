@@ -165,6 +165,10 @@ class Feed < ApplicationRecord
   end
 
   def create_feed_team
-    FeedTeam.create!(feed: self, team: self.team, shared: true) unless self.team.nil?
+    unless self.team.nil?
+      feed_team = FeedTeam.new(feed: self, team: self.team, shared: true)
+      feed_team.skip_check_ability = true
+      feed_team.save!
+    end
   end
 end

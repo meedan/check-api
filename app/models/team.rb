@@ -258,6 +258,8 @@ class Team < ApplicationRecord
     perms["destroy Relationship"] = ability.can?(:destroy, relationship)
     perms["manage TagText"] = ability.can?(:manage, tag_text)
     perms["manage TeamTask"] = ability.can?(:manage, team_task)
+    perms["destroy FeedInvitation"] = ability.can?(:destroy, FeedInvitation.new(feed: Feed.new(team: self)))
+    perms["destroy FeedTeam"] = ability.can?(:destroy, FeedTeam.new(feed: Feed.new(team: self)))
     perms
   end
 
