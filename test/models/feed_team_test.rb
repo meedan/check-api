@@ -27,12 +27,13 @@ class FeedTeamTest < ActiveSupport::TestCase
 
   test "should have a list that belong to feed teams" do
     t = create_team
+    f = create_feed
     ss = create_saved_search team: t
     assert_difference 'FeedTeam.count' do
-      create_feed_team saved_search: ss, team_id: t.id
+      create_feed_team saved_search: ss, team_id: t.id, feed: f
     end
     assert_raises ActiveRecord::RecordInvalid do
-      create_feed_team saved_search: create_saved_search
+      create_feed_team saved_search: create_saved_search, feed: f
     end
   end
 
