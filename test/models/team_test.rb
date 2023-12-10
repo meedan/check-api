@@ -1210,14 +1210,14 @@ class TeamTest < ActiveSupport::TestCase
     t2 = create_team
     t3 = create_team
     t4 = create_team
-    create_feed
-    f1 = create_feed
+    create_feed team: nil
+    f1 = create_feed team: nil
     f1.teams << t1
     f1.teams << t2
-    f2 = create_feed
+    f2 = create_feed team: nil
     f2.teams << t1
     f2.teams << t3
-    f3 = create_feed
+    f3 = create_feed team: nil
     f3.teams << t2
     f3.teams << t3
     f3.teams << t4
@@ -1225,7 +1225,7 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should return number of teams in a feed" do
-    f = create_feed
+    f = create_feed team: nil
     assert_equal 0, f.reload.teams_count
     f.teams << create_team
     assert_equal 1, f.reload.teams_count

@@ -17,6 +17,7 @@ class Feed < ApplicationRecord
   validate :saved_search_belongs_to_feed_teams
 
   after_create :create_feed_team
+  before_destroy :destroy_feed_team, prepend: true
 
   PROHIBITED_FILTERS = ['team_id', 'feed_id', 'clusterize']
   LICENSES = { 1 => 'academic', 2 => 'commercial', 3 => 'open_source' }
@@ -165,6 +166,14 @@ class Feed < ApplicationRecord
   end
 
   def create_feed_team
-    FeedTeam.create!(feed: self, team: self.team, shared: true) unless self.team.nil?
+    unless self.team.nil?
+      feed_team = FeedTeam.new(feed: self, team: self.team, shared: true)
+      feed_team.skip_check_ability = true
+      feed_team.save!
+    end
+  end
+
+  def destroy_feed_team
+    FeedTeam.where(feed: self, team: self.team).last.destroy!
   end
 end

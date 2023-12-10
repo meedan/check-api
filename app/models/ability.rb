@@ -109,6 +109,7 @@ class Ability
     end
     can [:read], [Feed, FeedTeam], :team_id => @context_team.id
     can [:read], FeedInvitation, { feed: { team_id: @context_team.id } }
+    can [:create, :update], Feed, :team_id => @context_team.id
   end
 
   def collaborator_perms
