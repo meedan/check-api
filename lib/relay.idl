@@ -10378,6 +10378,7 @@ type ProjectMedia implements Node {
   ): RelationshipConnection
   created_at: String
   creator_name: String
+  custom_title: String
   dbid: Int
   default_relationships(
     """
@@ -11372,6 +11373,7 @@ type ProjectMedia implements Node {
   team_name: String
   tipline_search_results_count: Int
   title: String
+  title_field: String
   type: String
   updated_at: String
   url: String
@@ -15277,6 +15279,7 @@ input UpdateProjectMediaInput {
   A unique identifier for the client performing the mutation.
   """
   clientMutationId: String
+  custom_title: String
   id: ID
   media_id: Int
   previous_project_id: Int
@@ -15285,6 +15288,7 @@ input UpdateProjectMediaInput {
   refresh_media: Int
   related_to_id: Int
   source_id: Int
+  title_field: String
 }
 
 """
