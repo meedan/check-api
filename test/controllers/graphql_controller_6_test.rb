@@ -161,7 +161,7 @@ class GraphqlController6Test < ActionController::TestCase
 
   test "should get shared teams" do
     t = create_team
-    f = create_feed
+    f = create_feed team: nil
     f.teams << t
     query = "query { team(slug: \"#{t.slug}\") { shared_teams } }"
     post :create, params: { query: query }

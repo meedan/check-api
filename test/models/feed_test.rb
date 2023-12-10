@@ -29,7 +29,7 @@ class FeedTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       f = nil
       assert_difference 'FeedTeam.count' do
-        f = create_feed
+        f = create_feed team: t
       end
       f = f.reload
       assert_equal u.id, f.user_id
@@ -72,7 +72,7 @@ class FeedTest < ActiveSupport::TestCase
     ss = create_saved_search team: t
     Team.stubs(:current).returns(t)
     assert_difference 'Feed.count' do
-      create_feed saved_search: ss
+      create_feed saved_search: ss, team: t
     end
     assert_raises ActiveRecord::RecordInvalid do
       create_feed saved_search: create_saved_search
@@ -84,7 +84,7 @@ class FeedTest < ActiveSupport::TestCase
     t = create_team
     ss = create_saved_search team: t, filters: { foo: 'bar' }
     Team.stubs(:current).returns(t)
-    f = create_feed saved_search: ss
+    f = create_feed saved_search: ss, team: t
     assert_equal({}, f.reload.filters)
     Team.unstub(:current)
   end
@@ -99,7 +99,7 @@ class FeedTest < ActiveSupport::TestCase
 
   test "should have teams" do
     t = create_team
-    f = create_feed
+    f = create_feed team: nil
     f.teams << t
     assert_equal [t], f.reload.teams
   end
