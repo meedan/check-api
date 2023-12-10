@@ -16,7 +16,7 @@ module CheckStatistics
     def reports_received(team_id, platform, start_date, end_date, language)
       TiplineRequest
         .where(team_id: team_id, language: language, created_at: start_date..end_date, platform: platform)
-        .where('smooch_report_received_at IS NOT NULL')
+        .where.not(smooch_report_received_at: 0)
     end
 
     def project_media_requests(team_id, platform, start_date, end_date, language, type = nil)
@@ -163,8 +163,7 @@ module CheckStatistics
           # Average time to publishing
           times = []
           reports_received(team_id, platform, start_date, end_date, language).find_each do |tr|
-            # TODO: review with Caio
-            times << (tr.updated_at - tr.created_at)
+            times << (tr.smooch_report_sent_at - tr.created_at.to_i)
           end
           median_response_time_in_seconds = times.size == 0 ? nil : times.sum.to_f / times.size
           statistics[:median_response_time] = median_response_time_in_seconds

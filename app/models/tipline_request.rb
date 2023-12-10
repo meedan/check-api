@@ -6,6 +6,14 @@ class TiplineRequest < ApplicationRecord
 
   before_validation :set_team_and_user, :set_smooch_data_fields, on: :create
 
+  validates_presence_of :smooch_request_type, :language, :platform
+  validate :platform_allowed_values
+
+  def self.request_types
+    %w(default_requests timeout_requests relevant_search_result_requests resource_requests irrelevant_search_result_requests timeout_search_requests)
+  end
+  validates_inclusion_of :smooch_request_type, in: TiplineRequest.request_types
+
   after_commit :add_elasticsearch_field, on: :create
   after_commit :update_elasticsearch_field, on: :update
   after_commit :destroy_elasticsearch_field, on: :destroy
@@ -77,9 +85,18 @@ class TiplineRequest < ApplicationRecord
   end
 
   def set_smooch_data_fields
-    self.tipline_user_uid = self.smooch_data.dig('authorId')
-    self.language = self.smooch_data.dig('language')
-    self.platform = self.smooch_data.dig('source', 'type')
+    unless self.smooch_data.blank?
+      self.tipline_user_uid ||= self.smooch_data.dig('authorId')
+      self.language ||= self.smooch_data.dig('language')
+      self.platform ||= self.smooch_data.dig('source', 'type')
+    end
+  end
+
+  def platform_allowed_values
+    allowed_types = Bot::Smooch::SUPPORTED_INTEGRATIONS
+    unless allowed_types.include?(self.platform)
+      errors.add(:platform, I18n.t('errors.messages.platform_allowed_values_error', **{ type: self.platform, allowed_types: allowed_types.join(', ') }))
+    end
   end
 
   def get_slack_channel_url(obj, data)

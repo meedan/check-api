@@ -5,6 +5,27 @@ class TiplineRequestTest < ActiveSupport::TestCase
     assert_difference 'TiplineRequest.count' do
       create_tipline_request
     end
+    # validate smooch_request_type, language and platform
+    assert_raises ActiveRecord::RecordInvalid do
+      create_tipline_request smooch_request_type: nil, smooch_data: { language: 'en', authorId: random_string, source: { type: 'whatsapp' } }
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_tipline_request smooch_data: { authorId: random_string, source: { type: 'whatsapp' } }
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_tipline_request smooch_data: { language: 'en', authorId: random_string }
+    end
+    # validate smooch_request_type and platform values
+    assert_no_difference 'TiplineRequest.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_tipline_request smooch_request_type: 'invalid_type'
+      end
+    end
+    assert_no_difference 'TiplineRequest.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_tipline_request smooch_data: { language: 'en', authorId: random_string, source: { type: random_string } }
+      end
+    end
   end
 
   test "should set user and team" do

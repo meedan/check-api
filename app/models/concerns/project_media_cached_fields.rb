@@ -499,7 +499,7 @@ module ProjectMediaCachedFields
     end
 
     def recalculate_requests_count
-      TiplineRequest.where(associated_id: self.id).count
+      TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: self.id).count
     end
 
     def recalculate_demand
