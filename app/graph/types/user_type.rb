@@ -104,6 +104,7 @@ class UserType < DefaultObject
       .joins(:team)
       .where("teams.slug" => team_slug, :user_id => object.id)
       .last
+    return nil if tu.nil?
     TeamUser.find_if_can(tu.id, context[:ability])
   end
 
