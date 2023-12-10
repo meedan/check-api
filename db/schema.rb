@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_10_26_162554) do
+ActiveRecord::Schema.define(version: 2023_12_10_015830) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -268,7 +268,7 @@ ActiveRecord::Schema.define(version: 2023_10_26_162554) do
     t.jsonb "value_json", default: "{}"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index "dynamic_annotation_fields_value(field_name, value)", name: "dynamic_annotation_fields_value", where: "((field_name)::text = ANY ((ARRAY['external_id'::character varying, 'smooch_user_id'::character varying, 'verification_status_status'::character varying])::text[]))"
+    t.index "dynamic_annotation_fields_value(field_name, value)", name: "dynamic_annotation_fields_value", where: "((field_name)::text = ANY (ARRAY[('external_id'::character varying)::text, ('smooch_user_id'::character varying)::text, ('verification_status_status'::character varying)::text]))"
     t.index ["annotation_id", "field_name"], name: "index_dynamic_annotation_fields_on_annotation_id_and_field_name"
     t.index ["annotation_id"], name: "index_dynamic_annotation_fields_on_annotation_id"
     t.index ["annotation_type"], name: "index_dynamic_annotation_fields_on_annotation_type"
@@ -460,6 +460,8 @@ ActiveRecord::Schema.define(version: 2023_10_26_162554) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "unmatched", default: 0
+    t.string "custom_title"
+    t.string "title_field"
     t.index ["channel"], name: "index_project_medias_on_channel"
     t.index ["cluster_id"], name: "index_project_medias_on_cluster_id"
     t.index ["last_seen"], name: "index_project_medias_on_last_seen"
