@@ -44,6 +44,14 @@ module ProjectMediaCachedFields
           events: {
             save: :recalculate
           }
+        },
+        {
+          model: ProjectMedia,
+          if: proc { |pm| pm.saved_changes[:custom_title].present? || pm.saved_changes[:title_field].present? },
+          affected_ids: proc { |pm| [pm.id] },
+          events: {
+            save: :recalculate
+          }
         }
       ]
     end

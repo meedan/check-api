@@ -460,4 +460,54 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     pm = create_project_media team: team, quote: random_string
     assert_equal "text-#{team.slug}-#{pm.id}", pm.media_slug
   end
+
+  test "should validate the title" do
+    pm = create_project_media
+    pm.title_field = nil
+    assert pm.valid?
+    pm.title_field = ''
+    assert pm.valid?
+    ['fact_check_title', 'claim_title', 'pinned_media_id'].each do |value|
+      pm.title_field = value
+      assert pm.valid?
+    end
+    pm.title_field = 'foo_bar'
+    assert pm.invalid?
+    pm.title_field = 'custom_title'
+    assert pm.invalid?
+    pm.custom_title = 'Foo Bar'
+    assert pm.valid?
+  end
+
+  test "should return title based on title field" do
+    RequestStore.store[:skip_cached_field_update] = false
+    User.current = create_user is_admin: true
+    pm = create_project_media quote: 'Some text', set_claim_description: 'The Claim', set_fact_check: { 'title' => 'The Fact-Check' }, custom_title: 'Custom Title', title_field: nil
+    assert_equal 'The Claim', pm.get_title
+    assert_equal 'The Claim', pm.title
+
+    pm.title_field = 'custom_title'
+    pm.save!
+    assert_equal 'Custom Title', pm.get_title # Uncached
+    assert_equal 'Custom Title', pm.title # Cached
+    pm.custom_title = 'Custom Title Updated'
+    pm.save!
+    assert_equal 'Custom Title Updated', pm.get_title # Uncached
+    assert_equal 'Custom Title Updated', pm.title # Cached
+
+    pm.title_field = 'claim_title'
+    pm.save!
+    assert_equal 'The Claim', pm.get_title # Uncached
+    assert_equal 'The Claim', pm.title # Cached
+
+    pm.title_field = 'fact_check_title'
+    pm.save!
+    assert_equal 'The Fact-Check', pm.get_title # Uncached
+    assert_equal 'The Fact-Check', pm.title # Cached
+
+    pm.title_field = 'pinned_media_id'
+    pm.save!
+    assert_match /^text-/, pm.get_title # Uncached
+    assert_match /^text-/, pm.title # Cached
+  end
 end

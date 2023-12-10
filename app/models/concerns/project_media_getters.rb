@@ -145,6 +145,17 @@ module ProjectMediaGetters
   end
 
   def get_title
+    # Maps the value of the `ProjectMedia` `title_field` column to a `ProjectMedia` method that returns that value
+    title_mapping = {
+      custom_title: :custom_title,
+      pinned_media_id: :media_slug,
+      claim_title: :claim_description_content,
+      fact_check_title: :fact_check_title
+    }
+    title_field = self.title_field&.to_sym
+    if !title_field.blank? && title_mapping.keys.include?(title_field)
+      return self.send(title_mapping[title_field]).to_s
+    end
     title = self.original_title
     [self.analysis['file_title'], self.analysis['title'], self.fact_check_title, self.claim_description_content].each do |value|
       title = value if !value.blank? && value != '-' && value != '​'
