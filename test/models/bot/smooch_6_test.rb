@@ -257,7 +257,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
     Bot::Alegre.stubs(:get_items_with_similar_media).returns({ @search_result.id => { score: 0.9 } })
-    Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'image', 'mediaUrl' => image_url })
+    Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'image', 'mediaUrl' => image_url, 'source' => { type: "whatsapp" }, language: 'en' })
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Image here', '1'
       assert_state 'search_result'
@@ -401,6 +401,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
           type: 'whatsapp',
           integrationId: random_string
         },
+        language: 'en',
       }
       Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm)
       message = {
@@ -417,6 +418,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
           type: 'messenger',
           integrationId: random_string
         },
+        language: 'en',
       }
       Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm)
       # verifiy new channel value
@@ -436,6 +438,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
           type: 'messenger',
           integrationId: random_string
         },
+        language: 'en',
       }
       Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm2)
       # verifiy new channel value

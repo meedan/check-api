@@ -432,6 +432,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
+        source: { type: "whatsapp" },
         text: text
       }
     ]
@@ -535,6 +536,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
         '_id': random_string,
         authorId: random_string,
         type: 'text',
+        source: { type: "whatsapp" },
         text: random_string
       }
     ]

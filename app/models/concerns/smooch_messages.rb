@@ -362,15 +362,12 @@ module SmoochMessages
     end
 
     def smooch_save_tipline_request(message, associated, app_id, author, request_type, associated_obj)
-      self.create_smooch_request(associated, message, app_id, author)
-      self.create_smooch_resources_and_type(associated, associated_obj, author, request_type)
-    end
-
-    def create_smooch_request(associated, message, app_id, author)
       fields = { smooch_data: message.merge({ app_id: app_id }) }
       result = self.smooch_api_get_messages(app_id, message['authorId'])
       fields[:smooch_conversation_id] = result.conversation.id unless result.nil? || result.conversation.nil?
       fields[:smooch_message_id] = message['_id']
+      fields[:smooch_request_type] = request_type
+      fields[:smooch_resource_id] = associated_obj.id if request_type == 'resource_requests' && !associated_obj.nil?
       self.create_tipline_requests(associated, author, fields)
       # Update channel values for ProjectMedia items
       if associated.class.name == 'ProjectMedia'
@@ -382,12 +379,6 @@ module SmoochMessages
           associated.save!
         end
       end
-    end
-
-    def create_smooch_resources_and_type(associated, associated_obj, author, request_type)
-      fields = { smooch_request_type: request_type }
-      fields[:smooch_resource_id] = associated_obj.id if request_type == 'resource_requests' && !associated_obj.nil?
-      self.create_tipline_requests(associated, author, fields, true)
     end
 
     def create_tipline_requests(associated, author, fields, attach_to = false)

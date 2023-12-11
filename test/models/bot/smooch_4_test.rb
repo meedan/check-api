@@ -99,6 +99,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
           '_id': random_string,
           authorId: uid,
           type: 'text',
+          source: { type: "whatsapp" },
           text: random_string
         }
       ]
@@ -133,6 +134,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
           '_id': random_string,
           authorId: uid,
           type: 'text',
+          source: { type: "whatsapp" },
           text: random_string
         }
       ]
@@ -174,18 +176,21 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
           '_id': random_string,
           authorId: uid,
           type: 'text',
+          source: { type: "whatsapp" },
           text: 'foo',
         },
         {
           '_id': random_string,
           authorId: uid,
           type: 'text',
+          source: { type: "whatsapp" },
           text: 'bar'
         },
         {
           '_id': random_string,
           authorId: uid,
           type: 'text',
+          source: { type: "whatsapp" },
           text: 'test'
         }
       ]
@@ -571,11 +576,13 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
         text: random_string,
         mediaUrl: @video_url,
         mediaType: 'video/mp4',
+        source: { type: "whatsapp" },
         role: 'appUser',
         received: 1573082583.219,
         name: random_string,
         authorId: random_string,
-        '_id': random_string
+        '_id': random_string,
+        language: 'en'
       }
       medias_count = Media.count
       assert_difference 'ProjectMedia.count', 1 do
@@ -600,9 +607,11 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
       text  = "\vstring      for testing\t\n  "
       message = {
         type: 'text',
+        source: { type: "whatsapp" },
         text: text,
         authorId: random_string,
-        '_id': random_string
+        '_id': random_string,
+        language: 'en',
       }
       assert_difference 'ProjectMedia.count', 1 do
         Bot::Smooch.save_message(message.to_json, @app_id)
@@ -612,9 +621,11 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
       text  = "\vstring      FOR teSTIng\t\n  "
       message = {
         type: 'text',
+        source: { type: "whatsapp" },
         text: text,
         authorId: random_string,
-        '_id': random_string
+        '_id': random_string,
+        language: 'en',
       }
       assert_no_difference 'ProjectMedia.count' do
         Bot::Smooch.save_message(message.to_json, @app_id)
@@ -624,9 +635,11 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
       text  = "\vTEST      with existing     item  \t\n  "
       message = {
         type: 'text',
+        source: { type: "whatsapp" },
         text: text,
         authorId: random_string,
-        '_id': random_string
+        '_id': random_string,
+        language: 'en',
       }
       assert_no_difference 'ProjectMedia.count' do
         Bot::Smooch.save_message(message.to_json, @app_id)

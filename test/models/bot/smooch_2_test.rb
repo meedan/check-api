@@ -28,6 +28,7 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
+        source: { type: "whatsapp" },
         text: c
       }
     ]
@@ -61,6 +62,7 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
           '_id': random_string,
           authorId: uid,
           type: 'text',
+          source: { type: "whatsapp" },
           text: url
         }
       ]
@@ -117,6 +119,7 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
+        source: { type: "whatsapp" },
         text: random_string
       }
     ]
@@ -179,6 +182,7 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
           '_id': random_string,
           authorId: uid,
           type: 'text',
+          source: { type: "whatsapp" },
           text: t
         }
       ]
@@ -229,6 +233,7 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
             '_id': random_string,
             authorId: uid,
             type: 'text',
+            source: { type: "whatsapp" },
             text: message_text
           }
         ],
@@ -263,6 +268,7 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
+        source: { type: "whatsapp" },
         text: random_string
       }
     ]
@@ -317,6 +323,7 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
       '_id': random_string,
       authorId: id,
       type: 'text',
+      source: { type: "whatsapp" },
       text: random_string
     }
     d = Dynamic.find(d.id) ; d.action = 'send test' ; d.save!
@@ -372,6 +379,7 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
           '_id': random_string,
           authorId: uid,
           type: 'text',
+          source: { type: "whatsapp" },
           text: random_string
         }
       ]
@@ -412,6 +420,7 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
           '_id': random_string,
           authorId: uid,
           type: 'text',
+          source: { type: "whatsapp" },
           text: random_string
         }
       ]
@@ -439,6 +448,7 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
           '_id': random_string,
           authorId: uid,
           type: 'text',
+          source: { type: "whatsapp" },
           text: random_string
         }
       ]
@@ -507,7 +517,8 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
               body: 'Test'
             },
             timestamp: '1623865510',
-            type: 'text'
+            type: 'text',
+            source: { type: "whatsapp" },
           }
         ]
       }
@@ -570,6 +581,7 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
             },
             timestamp: '1623865510',
             type: 'image',
+            source: { type: "whatsapp" },
             image: {
               id: '123456',
               mime_type: 'image/png'

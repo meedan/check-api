@@ -10,7 +10,7 @@ class TiplineRequest < ApplicationRecord
   validate :platform_allowed_values
 
   def self.request_types
-    %w(default_requests timeout_requests relevant_search_result_requests resource_requests irrelevant_search_result_requests timeout_search_requests)
+    %w(default_requests timeout_requests relevant_search_result_requests resource_requests irrelevant_search_result_requests timeout_search_requests menu_options_requests)
   end
   validates_inclusion_of :smooch_request_type, in: TiplineRequest.request_types
 

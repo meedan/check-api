@@ -1043,7 +1043,9 @@ class ActiveSupport::TestCase
         '_id': random_string,
         authorId: user,
         type: 'text',
-        text: message
+        text: message,
+        source: { type: "whatsapp" },
+        language: 'en',
       }.merge(extra)
     ]
     payload = {

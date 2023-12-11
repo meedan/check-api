@@ -61,12 +61,14 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         authorId: id2,
         type: 'audio',
         text: random_string,
+        source: { type: "whatsapp" },
         mediaUrl: @audio_url
       },
       {
         '_id': random_string,
         authorId: id,
         type: 'text',
+        source: { type: "whatsapp" },
         text: 'This is a test claim'
       },
       {
@@ -74,18 +76,21 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         authorId: id,
         type: 'image',
         text: random_string,
+        source: { type: "whatsapp" },
         mediaUrl: @media_url
       },
       {
         '_id': random_string,
         authorId: id,
         type: 'text',
+        source: { type: "whatsapp" },
         text: "#{random_string} #{@link_url} #{random_string}"
       },
       {
         '_id': random_string,
         authorId: id,
         type: 'text',
+        source: { type: "whatsapp" },
         text: 'This is a test claim'
       },
       {
@@ -93,18 +98,21 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         authorId: id,
         type: 'image',
         text: random_string,
+        source: { type: "whatsapp" },
         mediaUrl: @media_url
       },
       {
         '_id': random_string,
         authorId: id,
         type: 'text',
+        source: { type: "whatsapp" },
         text: "#{random_string} #{@link_url} #{random_string}"
       },
       {
         '_id': random_string,
         authorId: id2,
         type: 'text',
+        source: { type: "whatsapp" },
         text: 'This is a test claim'
       },
       {
@@ -112,6 +120,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         authorId: id2,
         type: 'image',
         text: random_string,
+        source: { type: "whatsapp" },
         mediaUrl: @media_url
       },
       {
@@ -120,6 +129,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         type: 'file',
         text: random_string,
         mediaUrl: @media_url,
+        source: { type: "whatsapp" },
         mediaType: 'image/jpeg'
       },
       {
@@ -128,18 +138,21 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         type: 'file',
         text: random_string,
         mediaUrl: @media_url,
+        source: { type: "whatsapp" },
         mediaType: 'application/pdf'
       },
       {
         '_id': random_string,
         authorId: id2,
         type: 'text',
+        source: { type: "whatsapp" },
         text: "#{random_string} #{@link_url} #{random_string}"
       },
       {
         '_id': random_string,
         authorId: id2,
         type: 'text',
+        source: { type: "whatsapp" },
         text: 'This is a test claim'
       },
       {
@@ -147,6 +160,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         authorId: id2,
         type: 'image',
         text: random_string,
+        source: { type: "whatsapp" },
         mediaUrl: @media_url
       },
       {
@@ -154,36 +168,42 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         authorId: id2,
         type: 'video',
         text: random_string,
+        source: { type: "whatsapp" },
         mediaUrl: @video_url
       },
       {
         '_id': random_string,
         authorId: id2,
         type: 'text',
+        source: { type: "whatsapp" },
         text: "#{random_string} #{@link_url} #{random_string}"
       },
       {
         '_id': random_string,
         authorId: id2,
         type: 'text',
+        source: { type: "whatsapp" },
         text: "#{random_string} #{@link_url_2} #montag #{random_string}"
       },
       {
         '_id': random_string,
         authorId: id3,
         type: 'text',
+        source: { type: "whatsapp" },
         text: "#{random_string} #{@link_url_2.gsub(/^https?:\/\//, '')} #teamtag #{random_string}"
       },
       {
         '_id': random_string,
         authorId: id2,
         type: 'text',
+        source: { type: "whatsapp" },
         text: 'This #teamtag is another #hashtag claim'
       },
       {
         '_id': random_string,
         authorId: id3,
         type: 'text',
+        source: { type: "whatsapp" },
         text: 'This #teamtag is another #hashtag CLAIM'
       },
       {
@@ -192,6 +212,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         type: 'file',
         text: random_string,
         mediaUrl: @video_url,
+        source: { type: "whatsapp" },
         mediaType: 'video/mp4'
       },
       {
@@ -200,6 +221,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         type: 'file',
         text: random_string,
         mediaUrl: @audio_url,
+        source: { type: "whatsapp" },
         mediaType: 'audio/mpeg'
       }
     ]
@@ -282,7 +304,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
-        text: random_string
+        text: random_string,
+        source: { type: "whatsapp" },
       }
     ]
     payload = {
@@ -490,7 +513,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
-        text: random_string
+        text: random_string,
+        source: { type: "whatsapp" },
       }
     ]
     payload = {
@@ -535,7 +559,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
-        text: random_string
+        text: random_string,
+        source: { type: "whatsapp" },
       }
     ]
     payload = {
@@ -710,7 +735,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
-        text: random_string
+        text: random_string,
+        source: { type: "whatsapp" },
       }
     ]
     payload = {
@@ -741,7 +767,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
-        text: random_string
+        text: random_string,
+        source: { type: "whatsapp" },
       }
     ]
     payload = {
