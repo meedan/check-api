@@ -8,12 +8,12 @@ module AlegreV2
       CheckConfig.get('alegre_host')
     end
 
-    def sync_path
-      "/similarity/sync/audio"
+    def sync_path(project_media)
+      "/similarity/sync/#{get_type(project_media)}"
     end
 
-    def async_path
-      "/similarity/async/audio"
+    def async_path(project_media)
+      "/similarity/async/#{get_type(project_media)}"
     end
 
     def delete_path(project_media)
@@ -82,12 +82,12 @@ module AlegreV2
       request("delete", delete_path(project_media), data)
     end
 
-    def request_sync(data)
-      request("post", sync_path, data)
+    def request_sync(data, project_media)
+      request("post", sync_path(project_media), data)
     end
 
-    def request_async(data)
-      request("post", async_path, data)
+    def request_async(data, project_media)
+      request("post", async_path(project_media), data)
     end
 
     def get_type(project_media)
@@ -119,10 +119,22 @@ module AlegreV2
       ).merge(params)
     end
 
-    def generic_package_audio(project_media, params)
+    def generic_package_media(project_media, params)
       generic_package(project_media, nil).merge(
         url: media_file_url(project_media),
       ).merge(params)
+    end
+
+    def generic_package_image(project_media, params)
+      generic_package_media(project_media, params)
+    end
+
+    def delete_package_image(project_media, _field, params)
+      generic_package_image(project_media, params)
+    end
+
+    def generic_package_audio(project_media, params)
+      generic_package_media(project_media, params)
     end
 
     def delete_package_audio(project_media, _field, params)
@@ -149,19 +161,25 @@ module AlegreV2
       context
     end
 
+    def store_package_image(project_media, _field, params)
+      generic_package_image(project_media, params)
+    end
+
     def store_package_audio(project_media, _field, params)
       generic_package_audio(project_media, params)
     end
 
     def get_sync(project_media, field=nil, params={})
       request_sync(
-        store_package(project_media, field, params)
+        store_package(project_media, field, params),
+        project_media
       )
     end
 
     def get_async(project_media, field=nil, params={})
       request_async(
-        store_package(project_media, field, params)
+        store_package(project_media, field, params),
+        project_media
       )
     end
 

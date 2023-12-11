@@ -232,7 +232,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     assert_equal pm1a, Relationship.last.target
   end
 
-  test "should link similar images, get flags and extract text" do
+  test "should link similar images, get flags and extract text zzz" do
     image_path = random_url
     ft = create_field_type field_type: 'image_path', label: 'Image Path'
     at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
@@ -261,7 +261,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
         "team_id" => pm1.team.id.to_s,
         "project_media_id" => pm1.id.to_s
       }]
-      WebMock.stub_request(:post, "http://alegre.test/image/similarity/search/").with(body: {:url=>image_path, :context=>{:has_custom_id=>true, :team_id=>pm1.team_id}, :match_across_content_types=>true, :threshold=>0.89}).to_return(body: {
+      WebMock.stub_request(:post, "http://alegre.test/image/similarity/search/").with(body: {:context=>{:team_id=>pm1.team_id, :has_custom_id=>true}, :match_across_content_types => true, :url=>image_path, :threshold=>0.89}).to_return(body: {
         "result": [
           {
             "id": pm1.id,
@@ -273,7 +273,31 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
           }
         ]
       }.to_json)
-      WebMock.stub_request(:post, "http://alegre.test/image/similarity/search/").with(body: {:url=>image_path, :context=>{:has_custom_id=>true, :team_id=>pm1.team_id}, :match_across_content_types=>true, :threshold=>0.95}).to_return(body: {
+      WebMock.stub_request(:post, "http://alegre.test/image/similarity/search/").with(body: {:context=>{:team_id=>pm1.team_id, :has_custom_id=>true}, :match_across_content_types => true, :url=>image_path, :threshold=>0.95}).to_return(body: {
+        "result": [
+          {
+            "id": pm1.id,
+            "sha256": "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
+            "phash": 17399941807326929,
+            "url": "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
+            "context": context,
+            "score": 0
+          }
+        ]
+      }.to_json)
+      WebMock.stub_request(:post, "http://alegre.test/similarity/sync/image").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}, :url=>image_path, :threshold=>0.89}).to_return(body: {
+        "result": [
+          {
+            "id": pm1.id,
+            "sha256": "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
+            "phash": 17399941807326929,
+            "url": "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
+            "context": context,
+            "score": 0
+          }
+        ]
+      }.to_json)
+      WebMock.stub_request(:post, "http://alegre.test/similarity/sync/image").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}, :url=>image_path, :threshold=>0.95}).to_return(body: {
         "result": [
           {
             "id": pm1.id,
@@ -288,7 +312,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
       Bot::Alegre.stubs(:media_file_url).returns(image_path)
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       Bot::Alegre.unstub(:media_file_url)
-      WebMock.stub_request(:post, 'http://alegre.test/image/similarity/search/').with(body: {url: image_path}).to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre.test/similarity/sync/image').with(body: {url: image_path}.to_json).to_return(body: {
         "result": [
           {
             "id": 1,
@@ -311,6 +335,30 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
         "result": valid_flags_data
       }.to_json)
       pm3 = create_project_media team: t, media: create_uploaded_image
+      WebMock.stub_request(:post, "http://alegre.test/similarity/sync/image").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm3), :context=>{:team_id=>pm3.team_id, :project_media_id=>pm3.id, :has_custom_id=>true}, :url=>image_path, :threshold=>0.89}).to_return(body: {
+        "result": [
+          {
+            "id": pm1.id,
+            "sha256": "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
+            "phash": 17399941807326929,
+            "url": "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
+            "context": context,
+            "score": 0
+          }
+        ]
+      }.to_json)
+      WebMock.stub_request(:post, "http://alegre.test/similarity/sync/image").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm3), :context=>{:team_id=>pm3.team_id, :project_media_id=>pm3.id, :has_custom_id=>true}, :url=>image_path, :threshold=>0.95}).to_return(body: {
+        "result": [
+          {
+            "id": pm1.id,
+            "sha256": "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
+            "phash": 17399941807326929,
+            "url": "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
+            "context": context,
+            "score": 0
+          }
+        ]
+      }.to_json)
       Bot::Alegre.stubs(:media_file_url).returns(image_path)
       assert Bot::Alegre.run({ data: { dbid: pm3.id }, event: 'create_project_media' })
       assert_not_nil pm3.get_annotations('flag').last
@@ -319,6 +367,30 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
       # Text extraction
       Bot::Alegre.unstub(:media_file_url)
       pm4 = create_project_media team: t, media: create_uploaded_image
+      WebMock.stub_request(:post, "http://alegre.test/similarity/sync/image").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm4), :context=>{:team_id=>pm4.team_id, :project_media_id=>pm4.id, :has_custom_id=>true}, :url=>image_path, :threshold=>0.89}).to_return(body: {
+        "result": [
+          {
+            "id": pm1.id,
+            "sha256": "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
+            "phash": 17399941807326929,
+            "url": "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
+            "context": context,
+            "score": 0
+          }
+        ]
+      }.to_json)
+      WebMock.stub_request(:post, "http://alegre.test/similarity/sync/image").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm4), :context=>{:team_id=>pm4.team_id, :project_media_id=>pm4.id, :has_custom_id=>true}, :url=>image_path, :threshold=>0.95}).to_return(body: {
+        "result": [
+          {
+            "id": pm1.id,
+            "sha256": "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
+            "phash": 17399941807326929,
+            "url": "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
+            "context": context,
+            "score": 0
+          }
+        ]
+      }.to_json)
       Bot::Alegre.stubs(:media_file_url).returns(image_path)
       assert Bot::Alegre.run({ data: { dbid: pm4.id }, event: 'create_project_media' })
       extracted_text_annotation = pm4.get_annotations('extracted_text').last
