@@ -10,10 +10,10 @@ class TiplineRequestTest < ActiveSupport::TestCase
       create_tipline_request smooch_request_type: nil, smooch_data: { language: 'en', authorId: random_string, source: { type: 'whatsapp' } }
     end
     assert_raises ActiveRecord::RecordInvalid do
-      create_tipline_request smooch_data: { authorId: random_string, source: { type: 'whatsapp' } }
+      create_tipline_request language: nil, smooch_data: { authorId: random_string, source: { type: 'whatsapp' } }
     end
     assert_raises ActiveRecord::RecordInvalid do
-      create_tipline_request smooch_data: { language: 'en', authorId: random_string }
+      create_tipline_request platform: nil, smooch_data: { language: 'en', authorId: random_string }
     end
     # validate smooch_request_type and platform values
     assert_no_difference 'TiplineRequest.count' do
@@ -23,7 +23,7 @@ class TiplineRequestTest < ActiveSupport::TestCase
     end
     assert_no_difference 'TiplineRequest.count' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_tipline_request smooch_data: { language: 'en', authorId: random_string, source: { type: random_string } }
+        create_tipline_request platform: random_string, smooch_data: { language: 'en', authorId: random_string }
       end
     end
   end

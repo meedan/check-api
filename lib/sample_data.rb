@@ -851,6 +851,8 @@ module SampleData
     tr.team_id = options[:team_id] || create_team.id unless options.has_key?(:team_id)
     tr.associated = options[:associated] || create_project_media
     tr.smooch_request_type = 'default_requests' unless options.has_key?(:smooch_request_type)
+    tr.platform = 'whatsapp' unless options.has_key?(:platform)
+    tr.language = 'en' unless options.has_key?(:language)
     options.each do |key, value|
       tr.send("#{key}=", value) if tr.respond_to?("#{key}=")
     end
