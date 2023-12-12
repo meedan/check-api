@@ -13,11 +13,6 @@ data_users = {
     team: Faker::Company.name,
     name: Faker::Name.first_name.downcase,
     password: Faker::Internet.password(min_length: 8),
-  },
-  invited_published_user: {
-    team: Faker::Company.name,
-    name: Faker::Name.first_name.downcase,
-    password: Faker::Internet.password(min_length: 8),
   }
 }
 
@@ -360,23 +355,6 @@ ActiveRecord::Base.transaction do
   # 4.2 Invite new user/empty workspace
   create_feed_invitation(email: user_invited_empty.email, feed: feed, user: user_invited_empty)
 
-  # 5.1 Create a new user with published items
-  puts 'Making a new user, their new workspace with published item'
-  team_invited_published, user_invited_published, project_invited_published = create_user_with_team_and_project(data_users[:invited_published_user])
-
-  # 5.2 Create published Items
-  medias_invited_published = data_items['Claim'].map { |individual_data| create_media(user_invited_published, individual_data, 'Claim')}
-  project_medias_invited_published = create_project_medias_with_channel(user_invited_published, project_invited_published, team_invited_published, medias_invited_published)
-  claim_descriptions_invited_published = create_claim_descriptions(user_invited_published, project_medias_invited_published)
-  claim_descriptions_for_fact_checks_invited_published = claim_descriptions_invited_published[0..10]
-  create_fact_checks(user_invited_published, claim_descriptions_for_fact_checks_invited_published)
-  project_medias_invited_published[7..8].each { |pm| verify_fact_check_and_publish_report(pm, "https://www.thespruceeats.com/step-by-step-basic-cake-recipe-304553?timestamp=#{Time.now.to_f}")}
-  project_medias_invited_published[9..10].each { |pm| verify_fact_check_and_publish_report(pm)}
-  SavedSearch.create!(title: "#{user_invited_published.name}'s list #{random_number}", team: team_invited_published, filters: {created_by: user_invited_published})
-
-  # 5.3 Invite new user/published workspace
-  create_feed_invitation(email: user_invited_published.email, feed: feed, user: user_invited_published)
-
   # FINAL. Return user information
   if answer == "1"
     puts "Created user: name: #{data_users[:main_user][:name]} — email: #{user.email} — password : #{data_users[:main_user][:password]}"
@@ -384,7 +362,6 @@ ActiveRecord::Base.transaction do
     puts "Data added to user: #{user.email}"
   end
   puts "Created invited user / empty workspace: name: #{data_users[:invited_empty_user][:name]} — email: #{user_invited_empty.email} — password : #{data_users[:invited_empty_user][:password]}"
-  puts "Created invited user / workspace with published items: name: #{data_users[:invited_published_user][:name]} — email: #{user_invited_published.email} — password : #{data_users[:invited_published_user][:password]}"
 end
 
 Rails.cache.clear
