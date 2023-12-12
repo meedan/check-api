@@ -233,13 +233,10 @@ def verify_fact_check_and_publish_report(project_media, url = '')
   report_design.save!
 end
 
-def create_user_with_team_and_project(user)
+def create_team_and_project_related_to_user(user, team_name)
   puts 'Making Team / Workspace...'
-  team = create_team(name: "#{user[:team]}")
+  team = create_team(name: team_name)
   team.set_language('en')
-
-  puts 'Making User...'
-  user = create_user(name: user[:name], login: user[:name], password: user[:password], password_confirmation: user[:password], email: Faker::Internet.safe_email(name: user[:name]), is_admin: true)
 
   puts 'Making Project...'
   project = create_project(title: team.name, team_id: team.id, user: user, description: '')
@@ -247,7 +244,7 @@ def create_user_with_team_and_project(user)
   puts 'Making Team User...'
   create_team_user(team: team, user: user, role: 'admin')
 
-  return team, user, project
+  return team, project
 end
 
 ######################
@@ -261,8 +258,8 @@ ActiveRecord::Base.transaction do
   # 1. Creating what we need for the workspace
   # We create a user, team and project OR we fetch one
   if answer == "1"
-    # Create main user, team and project
-    team, user, project = create_user_with_team_and_project(data_users[:main_user])
+    user = create_user(name: data_users[:main_user][:name], login: data_users[:main_user][:name], password: data_users[:main_user][:password], password_confirmation: data_users[:main_user][:password], email: Faker::Internet.safe_email(name: data_users[:main_user][:name]), is_admin: true)
+    team, project = create_team_and_project_related_to_user(user, data_users[:main_user][:team])
   elsif answer == "2"
     puts "Type user email then press enter"
     print ">> "
@@ -272,9 +269,7 @@ ActiveRecord::Base.transaction do
     user = User.find_by(email: email)
 
     if user.team_users.first.nil?
-      team = create_team(name: data_users[:main_user][:team])
-      project = create_project(title: team.name, team_id: team.id, user: user, description: '')
-      create_team_user(team: team, user: user, role: 'admin')
+      team, project = create_team_and_project_related_to_user(user, data_users[:main_user][:team])
     else 
       team_user = user.team_users.first
       team = team_user.team
@@ -311,7 +306,7 @@ ActiveRecord::Base.transaction do
       # so the center column on the item page has a good size list to check functionality against
       # https://github.com/meedan/check-api/pull/1722#issuecomment-1798729043
       # create the children we need for the relationship
-      confirmed_children_media = ['Claim', 'UploadedAudio', 'UploadedImage', 'UploadedVideo', 'Link'].flat_map do |media_type|
+      confirmed_children_media = data_items.keys.flat_map do |media_type|
         data_items[media_type][0..1].map { |data| create_media(user, data , media_type)}
       end
       confirmed_children_project_medias = create_project_medias(user, project, team, confirmed_children_media)
@@ -354,18 +349,11 @@ ActiveRecord::Base.transaction do
   puts 'Making User...'
   invited_empty_user = create_user(name: data_users[:invited_empty_user][:name], login: data_users[:invited_empty_user][:name], password: data_users[:invited_empty_user][:password], password_confirmation: data_users[:invited_empty_user][:password], email: Faker::Internet.safe_email(name: data_users[:invited_empty_user][:name]), is_admin: true)
 
-  puts 'Making Team / Workspace...'
-  teams = data_users[:invited_empty_user][:team].map { |team| create_team(name: "#{team}") }
-  teams.each { |team| team.set_language('en')}
-
-  puts 'Making Team User...'
-  teams.each { |team| create_team_user(team: team, user: invited_empty_user, role: 'admin') }
-
-  puts 'Making Project...'
-  teams.each { |team| create_project(title: team.name, team_id: team.id, user: invited_empty_user, description: '') }
+  # 4.2 Create invited user's two empty workspaces with projects
+  data_users[:invited_empty_user][:team].each  { |team_name| create_team_and_project_related_to_user(invited_empty_user, team_name) }
 
   # 4.2 Invite new user/empty workspace
-  create_feed_invitation(email: user.email, feed: feed, user: invited_empty_user)
+  create_feed_invitation(email: invited_empty_user.email, feed: feed, user: user)
 
   # FINAL. Return user information
   if answer == "1"
