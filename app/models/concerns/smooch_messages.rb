@@ -381,20 +381,16 @@ module SmoochMessages
       end
     end
 
-    def create_tipline_requests(associated, author, fields, attach_to = false)
+    def create_tipline_requests(associated, author, fields)
       # TODO: By Sawy - Should handle User.current value
       # In this case User.current was reset by SlackNotificationWorker worker
       # Quick fix - assigning it again using annotated object and reset its value at the end of creation
       current_user = User.current
       User.current = author
       User.current = associated.user if User.current.nil? && associated.respond_to?(:user)
-      tr = nil
-      tr = TiplineRequest.where(associated_id: associated.id, associated_type: associated.class.name).last if attach_to
       fields = fields.with_indifferent_access
-      if tr.nil?
-        tr = TiplineRequest.new
-        tr.associated = associated
-      end
+      tr = TiplineRequest.new
+      tr.associated = associated
       tr.skip_check_ability = true
       tr.skip_notifications = true
       tr.disable_es_callbacks = Rails.env.to_s == 'test'

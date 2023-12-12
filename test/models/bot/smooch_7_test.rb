@@ -483,7 +483,8 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
             originalMessageTimestamp: 1573082582,
             type: 'whatsapp',
             integrationId: random_string
-          }
+          },
+          language: 'en',
         }
       end
       Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm)
@@ -506,6 +507,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
             type: 'whatsapp',
             integrationId: random_string
           },
+          language: 'en',
         }
       end
       Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm2)
@@ -585,5 +587,20 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     assert_equal query, pm.claim_description_content
     results = Bot::Smooch.search_by_keywords_for_similar_published_fact_checks(query.split(), nil, [t.id])
     assert_equal [pm.id], results.map(&:id)
+  end
+
+  test "should rescue when raise error on tipline request creation" do
+    TiplineRequest.any_instance.stubs(:save!).raises(ActiveRecord::RecordNotUnique)
+    t = create_team
+    pm = create_project_media team: t
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      fields = { 'smooch_request_type' => 'default_requests', 'smooch_message_id' => random_string, 'smooch_data' => { authorId: random_string, language: 'en', source: { type: "whatsapp" }, } }
+      assert_no_difference 'TiplineRequest.count' do
+        Bot::Smooch.create_tipline_requests(pm, nil, fields)
+      end
+    end
+    TiplineRequest.any_instance.unstub(:save!)
   end
 end

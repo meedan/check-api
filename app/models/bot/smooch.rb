@@ -118,6 +118,7 @@ class Bot::Smooch < BotUser
             app_id = self.get_field_value('smooch_user_app_id')
             message = self.action.to_s.match(/^send (.*)$/)
             unless message.nil?
+              # TODO: Sawy:: add source type and language due to TiplineRequest validation
               Bot::Smooch.get_installation(Bot::Smooch.installation_setting_id_keys, app_id)
               payload = {
                 '_id': Digest::MD5.hexdigest([self.action.to_s, Time.now.to_f.to_s].join(':')),
