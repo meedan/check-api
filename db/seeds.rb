@@ -10,7 +10,7 @@ data_users = {
     password: Faker::Internet.password(min_length: 8),
   },
   invited_empty_user: {
-    team: Faker::Company.name,
+    team: ["#{Faker::Company.name}", "#{Faker::Company.name}"],
     name: Faker::Name.first_name.downcase,
     password: Faker::Internet.password(min_length: 8),
   }
@@ -235,7 +235,7 @@ end
 
 def create_user_with_team_and_project(user)
   puts 'Making Team / Workspace...'
-  team = create_team(name: "#{user[:team]} / Feed Creator")
+  team = create_team(name: "#{user[:team]}")
   team.set_language('en')
 
   puts 'Making User...'
@@ -350,10 +350,22 @@ ActiveRecord::Base.transaction do
 
   # 4.1 Create new user with an empty workspace
   puts 'Making a new user, their new empty workspace'
-  _team_invited_empty, user_invited_empty, _project_invited_empty = create_user_with_team_and_project(data_users[:invited_empty_user])
+  # _team_invited_empty, user_invited_empty, _project_invited_empty = create_user_with_team_and_project(data_users[:invited_empty_user])
+  puts 'Making User...'
+  invited_empty_user = create_user(name: data_users[:invited_empty_user][:name], login: data_users[:invited_empty_user][:name], password: data_users[:invited_empty_user][:password], password_confirmation: data_users[:invited_empty_user][:password], email: Faker::Internet.safe_email(name: data_users[:invited_empty_user][:name]), is_admin: true)
+
+  puts 'Making Team / Workspace...'
+  teams = data_users[:invited_empty_user][:team].map { |team| create_team(name: "#{team}") }
+  teams.each { |team| team.set_language('en')}
+
+  puts 'Making Team User...'
+  teams.each { |team| create_team_user(team: team, user: invited_empty_user, role: 'admin') }
+
+  puts 'Making Project...'
+  teams.each { |team| create_project(title: team.name, team_id: team.id, user: invited_empty_user, description: '') }
 
   # 4.2 Invite new user/empty workspace
-  create_feed_invitation(email: user_invited_empty.email, feed: feed, user: user_invited_empty)
+  create_feed_invitation(email: user.email, feed: feed, user: invited_empty_user)
 
   # FINAL. Return user information
   if answer == "1"
@@ -361,7 +373,7 @@ ActiveRecord::Base.transaction do
   elsif answer == "2"
     puts "Data added to user: #{user.email}"
   end
-  puts "Created invited user / empty workspace: name: #{data_users[:invited_empty_user][:name]} — email: #{user_invited_empty.email} — password : #{data_users[:invited_empty_user][:password]}"
+  puts "Created invited user / empty workspace: name: #{data_users[:invited_empty_user][:name]} — email: #{invited_empty_user.email} — password : #{data_users[:invited_empty_user][:password]}"
 end
 
 Rails.cache.clear
