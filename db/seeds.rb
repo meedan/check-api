@@ -10,7 +10,7 @@ data_users = {
     password: Faker::Internet.password(min_length: 8),
   },
   invited_empty_user: {
-    team: ["#{Faker::Company.name}", "#{Faker::Company.name}"],
+    team: [Faker::Company.name, Faker::Company.name],
     name: Faker::Name.first_name.downcase,
     password: Faker::Internet.password(min_length: 8),
   }
@@ -343,16 +343,13 @@ ActiveRecord::Base.transaction do
   saved_search = SavedSearch.create!(title: "#{user.name}'s list #{random_number}", team: team, filters: {created_by: user})
   feed = Feed.create!(name: "Feed Test: #{Faker::Alphanumeric.alpha(number: 10)}", user: user, team: team, published: true, saved_search: saved_search, licenses: [1])
 
-  # 4.1 Create new user with an empty workspace
-  puts 'Making a new user, their new empty workspace'
-  # _team_invited_empty, user_invited_empty, _project_invited_empty = create_user_with_team_and_project(data_users[:invited_empty_user])
-  puts 'Making User...'
+  # 4.1 Create new user with two empty workspaces
+  puts 'Making invited user and their 2 empty workspaces...'
   invited_empty_user = create_user(name: data_users[:invited_empty_user][:name], login: data_users[:invited_empty_user][:name], password: data_users[:invited_empty_user][:password], password_confirmation: data_users[:invited_empty_user][:password], email: Faker::Internet.safe_email(name: data_users[:invited_empty_user][:name]), is_admin: true)
-
-  # 4.2 Create invited user's two empty workspaces with projects
   data_users[:invited_empty_user][:team].each  { |team_name| create_team_and_project_related_to_user(invited_empty_user, team_name) }
 
   # 4.2 Invite new user/empty workspace
+  puts 'Inviting user to main user\'s feed...'
   create_feed_invitation(email: invited_empty_user.email, feed: feed, user: user)
 
   # FINAL. Return user information
