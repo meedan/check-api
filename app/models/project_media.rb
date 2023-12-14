@@ -347,7 +347,8 @@ class ProjectMedia < ApplicationRecord
       'tags_as_sentence',
       'team_name',
       'updated_at_timestamp',
-      'status'
+      'status',
+      'team_avatar'
     ]
     columns.each do |column|
       values[column] = self.send(column)
