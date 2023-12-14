@@ -86,6 +86,9 @@ class TiplineRequest < ApplicationRecord
 
   def set_smooch_data_fields
     unless self.smooch_data.blank?
+      # Avoid PG::UntranslatableCharacter exception
+      value = self.smooch_data.to_json.gsub('\u0000', '')
+      self.smooch_data = JSON.parse(value)
       self.tipline_user_uid ||= self.smooch_data.dig('authorId')
       self.language ||= self.smooch_data.dig('language')
       self.platform ||= self.smooch_data.dig('source', 'type')
