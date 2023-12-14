@@ -125,6 +125,14 @@ module AlegreV2
       ).merge(params)
     end
 
+    def generic_package_video(project_media, params)
+      generic_package_media(project_media, params)
+    end
+
+    def delete_package_video(project_media, _field, params)
+      generic_package_video(project_media, params)
+    end
+
     def generic_package_image(project_media, params)
       generic_package_media(project_media, params)
     end
@@ -159,6 +167,10 @@ module AlegreV2
       }
       context[:field] = field if field && is_not_generic_field(field)
       context
+    end
+
+    def store_package_video(project_media, _field, params)
+      generic_package_video(project_media, params)
     end
 
     def store_package_image(project_media, _field, params)
