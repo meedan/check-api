@@ -13,18 +13,23 @@ namespace :check do
       output
     end
     # Migrate TiplineRequests
-    # bundle exec rake check:migrate:migrate_tipline_requests
+    # bundle exec rails check:migrate:migrate_tipline_requests
     task migrate_tipline_requests: :environment do
       started = Time.now.to_i
       last_team_id = Rails.cache.read('check:migrate:migrate_tipline_requests:team_id') || 0
       failed_teams = []
       Team.where('id > ?', last_team_id).find_each do |team|
+        print '.'
         # Get the total count for team requests
         total_count = team.project_medias.joins("INNER JOIN annotations a ON a.annotated_id = project_medias.id")
         .where("a.annotated_type = ? AND a.annotation_type = ?", 'ProjectMedia', 'smooch').count
-        puts "Migrating team #{team.slug} with #{total_count} requests"
+        if total_count == 0
+          Rails.cache.write('check:migrate:migrate_tipline_requests:team_id', team.id)
+          next
+        end
+        puts "\nMigrating team #{team.slug} with #{total_count} requests"
         inserts = 0
-        team.project_medias.find_in_batches(:batch_size => 50) do |pms|
+        team.project_medias.find_in_batches(:batch_size => 250) do |pms|
           print '.'
           smooch_pm = {}
           smooch_user = {}
@@ -103,7 +108,7 @@ namespace :check do
     end
 
     # list teams that have a different count between TiplineRequest and smooch annotation (list teams that not fully migrated)
-    # bundle exec rake check:migrate:migrate_tipline_requests_status[team_slug1, team_slug2, ...]
+    # bundle exec rails check:migrate:migrate_tipline_requests_status[team_slug1, team_slug2, ...]
     task migrate_tipline_requests_status: :environment do |_t, args|
       # Get missing requests based on a comparison between TiplineRequest.id and smooch_data field id
       slugs = args.extras
@@ -126,7 +131,7 @@ namespace :check do
     end
 
     # Migrate missing requests related to specific teams
-    # bundle exec rake check:migrate:migrate_tipline_requests_missing_requests['slug:team_slug&batch_size:batch_size']
+    # bundle exec rails check:migrate:migrate_tipline_requests_missing_requests['slug:team_slug&batch_size:batch_size']
     task migrate_tipline_requests_missing_requests: :environment do |_t, args|
       data_args = parse_args args.extras
       slug = data_args['slug']
