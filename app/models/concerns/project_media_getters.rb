@@ -209,4 +209,8 @@ module ProjectMediaGetters
     end
     user_name
   end
+
+  def team_avatar
+    self.team.avatar
+  end
 end
