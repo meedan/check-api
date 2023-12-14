@@ -11526,6 +11526,7 @@ type ProjectMedia implements Node {
     """
     last: Int
   ): RelationshipConnection
+  suggestions_count: Int
   tags(
     """
     Returns the elements in the list that come after the specified cursor.
