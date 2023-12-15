@@ -64,6 +64,14 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.delete_path(pm1), "/image/similarity/"
   end
 
+  test "should have host and paths for image" do
+    pm1 = create_project_media team: @team, media: create_uploaded_video
+    assert_equal Bot::Alegre.host, CheckConfig.get('alegre_host')
+    assert_equal Bot::Alegre.sync_path(pm1), "/similarity/sync/video"
+    assert_equal Bot::Alegre.async_path(pm1), "/similarity/async/video"
+    assert_equal Bot::Alegre.delete_path(pm1), "/video/similarity/"
+  end
+
   test "should release and reconnect db" do
     RequestStore.store[:pause_database_connection] = true
     assert_equal Bot::Alegre.release_db.class, Thread::ConditionVariable
@@ -640,7 +648,21 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should relate project media for image" do
     pm1 = create_project_media team: @team, media: create_uploaded_image
     pm2 = create_project_media team: @team, media: create_uploaded_image
-    Bot::Alegre.stubs(:get_similar_items_v2).returns({pm2.id=>{:score=>0.91, :context=>{"team_id"=>pm2.team_id, "has_custom_id"=>true, "project_media_id"=>pm2.id}, :model=>"audio", :source_field=>"audio", :target_field=>"audio", :relationship_type=>Relationship.suggested_type}})
+    Bot::Alegre.stubs(:get_similar_items_v2).returns({pm2.id=>{:score=>0.91, :context=>{"team_id"=>pm2.team_id, "has_custom_id"=>true, "project_media_id"=>pm2.id}, :model=>"image", :source_field=>"image", :target_field=>"image", :relationship_type=>Relationship.suggested_type}})
+    relationship = nil
+    assert_difference 'Relationship.count' do
+      relationship = Bot::Alegre.relate_project_media(pm1)
+    end
+    assert_equal relationship.source, pm2
+    assert_equal relationship.target, pm1
+    assert_equal relationship.relationship_type, Relationship.suggested_type
+    Bot::Alegre.unstub(:get_similar_items_v2)
+  end
+
+  test "should relate project media for video" do
+    pm1 = create_project_media team: @team, media: create_uploaded_video
+    pm2 = create_project_media team: @team, media: create_uploaded_video
+    Bot::Alegre.stubs(:get_similar_items_v2).returns({pm2.id=>{:score=>0.91, :context=>{"team_id"=>pm2.team_id, "has_custom_id"=>true, "project_media_id"=>pm2.id}, :model=>"video", :source_field=>"video", :target_field=>"video", :relationship_type=>Relationship.suggested_type}})
     relationship = nil
     assert_difference 'Relationship.count' do
       relationship = Bot::Alegre.relate_project_media(pm1)

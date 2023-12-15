@@ -232,7 +232,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     assert_equal pm1a, Relationship.last.target
   end
 
-  test "should link similar images, get flags and extract text zzz" do
+  test "should link similar images, get flags and extract text" do
     image_path = random_url
     ft = create_field_type field_type: 'image_path', label: 'Image Path'
     at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
