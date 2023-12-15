@@ -354,8 +354,12 @@ ActiveRecord::Base.transaction do
 
   # 3. Create Shared feed
   puts 'Making Shared Feed'
-  saved_search = SavedSearch.create!(title: "#{user.name}'s list #{random_number}", team: team, filters: {created_by: user})
-  feed = Feed.create!(name: "Feed Test ##{user.feeds.count + 1} [User: #{user.name} / Team: #{team.name}]", user: user, team: team, published: true, saved_search: saved_search, licenses: [1])
+  if team.saved_searches.empty?
+    saved_search = SavedSearch.create!(title: "#{user.name.capitalize}'s list", team: team, filters: {created_by: user})
+  else
+    saved_search = team.saved_searches.first
+  end
+  feed = Feed.create!(name: "Feed Test ##{user.feeds.count + 1} [User: #{user.name.capitalize} / Team: #{team.name}]", user: user, team: team, published: true, saved_search: saved_search, licenses: [1])
 
   # 4.1 Create new user with two empty workspaces
   puts 'Making invited user and their 2 empty workspaces...'
