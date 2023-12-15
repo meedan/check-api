@@ -82,7 +82,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.delete_path(pm1), "/image/similarity/"
   end
 
-  test "should have host and paths for image" do
+  test "should have host and paths for video" do
     pm1 = create_project_media team: @team, media: create_uploaded_video
     assert_equal Bot::Alegre.host, CheckConfig.get('alegre_host')
     assert_equal Bot::Alegre.sync_path(pm1), "/similarity/sync/video"
