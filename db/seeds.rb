@@ -5,12 +5,26 @@ Rails.env.development? || raise('To run the seeds file you should be in the deve
 
 data_users = {
   main_user: {
-    team: Faker::Company.name,
+    team:
+      {
+        name: "#{Faker::Company.name} / Main User: Main Team",
+        logo: 'rails.png'
+      },
     name: Faker::Name.first_name.downcase,
     password: Faker::Internet.password(min_length: 8),
   },
   invited_empty_user: {
-    team: [Faker::Company.name, Faker::Company.name],
+    team:
+    [
+      {
+      name: "#{Faker::Company.name} / Invited User: Team #1",
+      logo: 'maçã.png'
+    },
+    {
+      name: "#{Faker::Company.name} / Invited User: Team #2",
+      logo: 'ruby-small.png'
+    }
+  ],
     name: Faker::Name.first_name.downcase,
     password: Faker::Internet.password(min_length: 8),
   }
@@ -233,9 +247,9 @@ def verify_fact_check_and_publish_report(project_media, url = '')
   report_design.save!
 end
 
-def create_team_and_project_related_to_user(user, team_name)
+def create_team_and_project_related_to_user(user, team_data)
   puts 'Making Team / Workspace...'
-  team = create_team(name: team_name)
+  team = create_team(team_data)
   team.set_language('en')
 
   puts 'Making Project...'
@@ -346,7 +360,7 @@ ActiveRecord::Base.transaction do
   # 4.1 Create new user with two empty workspaces
   puts 'Making invited user and their 2 empty workspaces...'
   invited_empty_user = create_user(name: data_users[:invited_empty_user][:name], login: data_users[:invited_empty_user][:name], password: data_users[:invited_empty_user][:password], password_confirmation: data_users[:invited_empty_user][:password], email: Faker::Internet.safe_email(name: data_users[:invited_empty_user][:name]), is_admin: true)
-  data_users[:invited_empty_user][:team].each  { |team_name| create_team_and_project_related_to_user(invited_empty_user, team_name) }
+  data_users[:invited_empty_user][:team].each  { |team| create_team_and_project_related_to_user(invited_empty_user, team) }
 
   # 4.2 Invite new user/empty workspace
   puts 'Inviting user to main user\'s feed...'
