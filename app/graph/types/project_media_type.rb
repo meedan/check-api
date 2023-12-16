@@ -45,6 +45,7 @@ class ProjectMediaType < DefaultObject
   field :tipline_search_results_count, GraphQL::Types::Int, null: true
   field :custom_title, GraphQL::Types::String, null: true
   field :title_field, GraphQL::Types::String, null: true
+  field :suggestions_count, GraphQL::Types::Int, null: true
 
   field :claim_description, ClaimDescriptionType, null: true
 

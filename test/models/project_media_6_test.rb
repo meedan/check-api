@@ -509,4 +509,12 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     assert_match /^text-/, pm.get_title # Uncached
     assert_match /^text-/, pm.title # Cached
   end
+
+  test "should avoid N + 1 queries problem when loading the team avatar of many items at once" do
+    t = create_team
+    create_project_media team: t
+    create_project_media team: t
+    pms = ProjectMedia.where(team: t).to_a
+    assert_queries(1, '=') { pms.map(&:team_avatar) }
+  end
 end
