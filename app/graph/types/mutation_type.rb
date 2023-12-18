@@ -8,7 +8,6 @@ class MutationType < BaseObject
 
   field :createComment, mutation: CommentMutations::Create
   field :updateComment, mutation: CommentMutations::Update
-  field :destroyComment, mutation: CommentMutations::Destroy
 
   field :createSource, mutation: SourceMutations::Create
   field :updateSource, mutation: SourceMutations::Update
