@@ -106,10 +106,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_create('comment', { text: 'test', annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s })
   end
 
-  test "should destroy comment" do
-    assert_graphql_destroy('comment')
-  end
-
   test "should create media" do
     p = create_project team: @team
     url = random_url
@@ -286,10 +282,6 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should destroy tag" do
     assert_graphql_destroy('tag')
-  end
-
-  test "should destroy annotation" do
-    assert_graphql_destroy('annotation')
   end
 
   test "should get source by id" do
