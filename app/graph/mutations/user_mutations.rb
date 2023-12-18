@@ -26,6 +26,4 @@ module UserMutations
     argument :accept_terms, GraphQL::Types::Boolean, required: false, camelize: false
     argument :completed_signup, GraphQL::Types::Boolean, required: false, camelize: false
   end
-
-  class Destroy < Mutations::DestroyMutation; end
 end

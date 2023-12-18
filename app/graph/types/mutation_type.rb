@@ -39,7 +39,6 @@ class MutationType < BaseObject
   field :bulkProjectMediaMarkRead, mutation: ProjectMediaMutations::Bulk::MarkRead
 
   field :updateUser, mutation: UserMutations::Update
-  field :destroyUser, mutation: UserMutations::Destroy
 
   field :createTag, mutation: TagMutations::Create
   field :updateTag, mutation: TagMutations::Update
