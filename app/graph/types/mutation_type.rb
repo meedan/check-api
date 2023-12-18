@@ -45,7 +45,6 @@ class MutationType < BaseObject
   field :destroyTag, mutation: TagMutations::Destroy
   field :createTags, mutation: TagMutations::Bulk::Create
 
-  field :createAnnotation, mutation: AnnotationMutations::Create
   field :destroyAnnotation, mutation: AnnotationMutations::Destroy
 
   field :extractText, mutation: OcrMutations::ExtractText
