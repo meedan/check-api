@@ -269,11 +269,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_update('user', :name, 'Foo', 'Bar')
   end
 
-  test "should destroy user" do
-    # TODO test this one with a super admin user
-    # assert_graphql_destroy('user')
-  end
-
   test "should create tag" do
     p = create_project team: @team
     pm = create_project_media project: p
