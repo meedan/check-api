@@ -26,7 +26,6 @@ class MutationType < BaseObject
   field :updateAccount, mutation: AccountMutations::Update
 
   field :createAccountSource, mutation: AccountSourceMutations::Create
-  field :updateAccountSource, mutation: AccountSourceMutations::Update
   field :destroyAccountSource, mutation: AccountSourceMutations::Destroy
 
   field :createProject, mutation: ProjectMutations::Create
