@@ -21,6 +21,4 @@ module TaskMutations
     argument :label, GraphQL::Types::String, required: false
     argument :response, GraphQL::Types::String, required: false
   end
-
-  class Destroy < Mutations::DestroyMutation; end
 end

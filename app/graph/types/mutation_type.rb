@@ -58,7 +58,6 @@ class MutationType < BaseObject
   field :destroyDynamic, mutation: DynamicMutations::Destroy
 
   field :updateTask, mutation: TaskMutations::Update
-  field :destroyTask, mutation: TaskMutations::Destroy
 
   field :moveTaskUp, mutation: TasksOrderMutations::MoveTaskUp
   field :moveTaskDown, mutation: TasksOrderMutations::MoveTaskDown
