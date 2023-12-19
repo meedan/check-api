@@ -251,7 +251,7 @@ class ProjectMedia < ApplicationRecord
     User.current = previous_user
   end
 
-  def replace_by(new_pm)
+  def replace_by(new_pm, skip_send_report = false)
     return if self.id == new_pm.id
     if self.team_id != new_pm.team_id
       raise I18n.t(:replace_by_media_in_the_same_team)
@@ -289,11 +289,11 @@ class ProjectMedia < ApplicationRecord
       Rails.cache.write("check_cached_field:ProjectMedia:#{new_pm.id}:creator_name", 'Import')
 
       # Apply other stuff in background
-      self.class.delay_for(5.seconds).apply_replace_by(self.id, new_pm.id)
+      self.class.delay_for(5.seconds).apply_replace_by(self.id, new_pm.id, skip_send_report)
     end
   end
 
-  def self.apply_replace_by(old_pm_id, new_pm_id)
+  def self.apply_replace_by(old_pm_id, new_pm_id, skip_send_report = false)
     old_pm = ProjectMedia.find_by_id(old_pm_id)
     new_pm = ProjectMedia.find_by_id(new_pm_id)
     unless new_pm.nil?
@@ -313,7 +313,7 @@ class ProjectMedia < ApplicationRecord
     # Destroy old item
     old_pm.destroy! unless old_pm.nil?
     # Send a published report if any
-    ::Bot::Smooch.send_report_from_parent_to_child(new_pm.id, new_pm.id)
+    ::Bot::Smooch.send_report_from_parent_to_child(new_pm.id, new_pm.id) unless skip_send_report
   end
 
   def method_missing(method, *args, &block)
