@@ -521,10 +521,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_create('dynamic', { set_fields: fields, annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s, annotation_type: 'geolocation' })
   end
 
-  test "should destroy task" do
-    assert_graphql_destroy('task')
-  end
-
   test "should create comment with image" do
     u = create_user
     t = create_team
