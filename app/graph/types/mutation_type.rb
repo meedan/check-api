@@ -57,7 +57,6 @@ class MutationType < BaseObject
   field :updateDynamic, mutation: DynamicMutations::Update
   field :destroyDynamic, mutation: DynamicMutations::Destroy
 
-  field :createTask, mutation: TaskMutations::Create
   field :updateTask, mutation: TaskMutations::Update
   field :destroyTask, mutation: TaskMutations::Destroy
 
