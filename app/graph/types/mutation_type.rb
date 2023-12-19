@@ -108,7 +108,6 @@ class MutationType < BaseObject
   end
 
   field :createProjectMediaUser, mutation: ProjectMediaUserMutations::Create
-  field :updateProjectMediaUser, mutation: ProjectMediaUserMutations::Update
   field :destroyProjectMediaUser, mutation: ProjectMediaUserMutations::Destroy
 
   field :createSavedSearch, mutation: SavedSearchMutations::Create
