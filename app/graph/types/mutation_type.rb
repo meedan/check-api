@@ -59,9 +59,6 @@ class MutationType < BaseObject
 
   field :updateTask, mutation: TaskMutations::Update
 
-  field :addFilesToTask, mutation: TasksFileMutations::AddFilesToTask
-  field :removeFilesFromTask, mutation: TasksFileMutations::RemoveFilesFromTask
-
   field :resetPassword, mutation: ResetPasswordMutation
   field :changePassword, mutation: ChangePasswordMutation
   field :resendConfirmation, mutation: ResendConfirmationMutation
