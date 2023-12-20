@@ -59,7 +59,6 @@ class MutationType < BaseObject
 
   field :updateTask, mutation: TaskMutations::Update
 
-  field :moveTaskUp, mutation: TasksOrderMutations::MoveTaskUp
   field :moveTaskDown, mutation: TasksOrderMutations::MoveTaskDown
   field :addFilesToTask, mutation: TasksFileMutations::AddFilesToTask
   field :removeFilesFromTask, mutation: TasksFileMutations::RemoveFilesFromTask
@@ -121,6 +120,7 @@ class MutationType < BaseObject
   field :createFactCheck, mutation: FactCheckMutations::Create
   field :updateFactCheck, mutation: FactCheckMutations::Update
   field :destroyFactCheck, mutation: FactCheckMutations::Destroy
+
 
   field :createFeed, mutation: FeedMutations::Create
   field :updateFeed, mutation: FeedMutations::Update
