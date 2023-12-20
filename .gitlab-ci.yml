@@ -20,7 +20,6 @@ build_qa:
     - docker push "$ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"
   only:
     - develop
-    - bugfix/aws-deploy-updates
 
 deploy_qa:
   image: python:3.7.7
@@ -54,7 +53,6 @@ deploy_qa:
     - echo "new Image was deployed $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"
   only:
     - develop
-    - bugfix/aws-deploy-updates
 
 build_batch:
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
