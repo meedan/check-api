@@ -59,7 +59,6 @@ class MutationType < BaseObject
 
   field :updateTask, mutation: TaskMutations::Update
 
-  field :moveTaskDown, mutation: TasksOrderMutations::MoveTaskDown
   field :addFilesToTask, mutation: TasksFileMutations::AddFilesToTask
   field :removeFilesFromTask, mutation: TasksFileMutations::RemoveFilesFromTask
 

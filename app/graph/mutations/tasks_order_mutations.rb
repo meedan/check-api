@@ -13,15 +13,6 @@ module TasksOrderMutations
     end
   end
 
-  class MoveTaskDown < BaseMoveMutation
-    field :task, TaskType, null: true
-    field :project_media, ProjectMediaType, null: true, camelize: false
-
-    def resolve(id:)
-      move(object, id, context, :task, :project_media) { |obj| obj.move_down }
-    end
-  end
-
   class MoveTeamTaskUp < BaseMoveMutation
     field :team_task, TeamTaskType, null: true, camelize: false
     field :team, TeamType, null: true
