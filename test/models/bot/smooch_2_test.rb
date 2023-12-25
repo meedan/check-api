@@ -306,29 +306,28 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
     assert_equal 1, ProjectMedia.count
   end
 
-  # TODO: fix by Sawy
-  # test "should change Smooch user state" do
-  #   create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
-  #   id = random_string
-  #   phone = random_string
-  #   name = random_string
-  #   d = create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_id: id, smooch_user_app_id: @app_id, smooch_user_data: { phone: phone, app_name: name }.to_json }.to_json
-  #   assert_equal 'waiting_for_message', CheckStateMachine.new(id).state.value
-  #   d = Dynamic.find(d.id) ; d.action = 'deactivate' ; d.save!
-  #   assert_equal 'human_mode', CheckStateMachine.new(id).state.value
-  #   d = Dynamic.find(d.id) ; d.action = 'reactivate' ; d.save!
-  #   assert_equal 'waiting_for_message', CheckStateMachine.new(id).state.value
-  #   d = Dynamic.find(d.id) ; d.action = 'deactivate' ; d.save!
-  #   assert_equal 'human_mode', CheckStateMachine.new(id).state.value
-  #   message = {
-  #     '_id': random_string,
-  #     authorId: id,
-  #     type: 'text',
-  #     text: random_string
-  #   }
-  #   d = Dynamic.find(d.id) ; d.action = 'send test' ; d.save!
-  #   assert_equal 'human_mode', CheckStateMachine.new(id).state.value
-  # end
+  test "should change Smooch user state" do
+    create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
+    id = random_string
+    phone = random_string
+    name = random_string
+    d = create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_id: id, smooch_user_app_id: @app_id, smooch_user_data: { phone: phone, app_name: name }.to_json }.to_json
+    assert_equal 'waiting_for_message', CheckStateMachine.new(id).state.value
+    d = Dynamic.find(d.id) ; d.action = 'deactivate' ; d.save!
+    assert_equal 'human_mode', CheckStateMachine.new(id).state.value
+    d = Dynamic.find(d.id) ; d.action = 'reactivate' ; d.save!
+    assert_equal 'waiting_for_message', CheckStateMachine.new(id).state.value
+    d = Dynamic.find(d.id) ; d.action = 'deactivate' ; d.save!
+    assert_equal 'human_mode', CheckStateMachine.new(id).state.value
+    message = {
+      '_id': random_string,
+      authorId: id,
+      type: 'text',
+      text: random_string
+    }
+    d = Dynamic.find(d.id) ; d.action = 'send test' ; d.save!
+    assert_equal 'human_mode', CheckStateMachine.new(id).state.value
+  end
 
   test "should save user information" do
     create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })

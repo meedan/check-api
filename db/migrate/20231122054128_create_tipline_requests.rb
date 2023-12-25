@@ -20,5 +20,8 @@ class CreateTiplineRequests < ActiveRecord::Migration[6.1]
     end
     add_index :tipline_requests, [:associated_type, :associated_id]
     add_index :tipline_requests, :smooch_message_id, unique: true, where: "smooch_message_id IS NOT NULL AND smooch_message_id != ''"
+    # Set start value for the ID
+    id = DynamicAnnotation::Field.where(field_name: 'smooch_data').last&.id || 0
+    execute "SELECT setval('tipline_requests_id_seq', #{id})" if id > 0
   end
 end
