@@ -11745,6 +11745,7 @@ input ReplaceProjectMediaInput {
   clientMutationId: String
   new_project_media_id: ID!
   project_media_to_be_replaced_id: ID!
+  skip_send_report: Boolean
 }
 
 """

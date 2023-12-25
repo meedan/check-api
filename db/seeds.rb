@@ -273,7 +273,7 @@ ActiveRecord::Base.transaction do
   # 1. Creating what we need for the workspace
   # We create a user, team and project OR we fetch one
   if answer == "1"
-    user = create_user(name: data_users[:main_user][:name], login: data_users[:main_user][:name], password: data_users[:main_user][:password], password_confirmation: data_users[:main_user][:password], email: Faker::Internet.safe_email(name: data_users[:main_user][:name]), is_admin: true)
+    user = create_user(name: data_users[:main_user][:name], login: data_users[:main_user][:name], password: data_users[:main_user][:password], password_confirmation: data_users[:main_user][:password], email: Faker::Internet.safe_email(name: data_users[:main_user][:name]))
     team, project = create_team_and_project_related_to_user(user, data_users[:main_user][:team])
   elsif answer == "2"
     puts "Type user email then press enter"
@@ -364,7 +364,7 @@ ActiveRecord::Base.transaction do
 
   # 4.1 Create new user with two empty workspaces
   puts 'Making invited user and their 2 empty workspaces...'
-  invited_empty_user = create_user(name: data_users[:invited_empty_user][:name], login: data_users[:invited_empty_user][:name], password: data_users[:invited_empty_user][:password], password_confirmation: data_users[:invited_empty_user][:password], email: Faker::Internet.safe_email(name: data_users[:invited_empty_user][:name]), is_admin: true)
+  invited_empty_user = create_user(name: data_users[:invited_empty_user][:name], login: data_users[:invited_empty_user][:name], password: data_users[:invited_empty_user][:password], password_confirmation: data_users[:invited_empty_user][:password], email: Faker::Internet.safe_email(name: data_users[:invited_empty_user][:name]))
   data_users[:invited_empty_user][:team].each  { |team| create_team_and_project_related_to_user(invited_empty_user, team) }
 
   # 4.2 Invite new user/empty workspace
