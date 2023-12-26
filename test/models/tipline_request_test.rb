@@ -1,6 +1,12 @@
 require_relative '../test_helper'
 
 class TiplineRequestTest < ActiveSupport::TestCase
+  def setup
+  end
+
+  def teardown
+  end
+
   test "should create tipline request" do
     assert_difference 'TiplineRequest.count' do
       create_tipline_request
