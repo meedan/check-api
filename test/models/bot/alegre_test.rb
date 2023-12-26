@@ -2,6 +2,7 @@ require_relative '../../test_helper'
 
 class Bot::AlegreTest < ActiveSupport::TestCase
   def setup
+    super
     ft = DynamicAnnotation::FieldType.where(field_type: 'language').last || create_field_type(field_type: 'language', label: 'Language')
     at = create_annotation_type annotation_type: 'language', label: 'Language'
     create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
@@ -20,6 +21,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   def teardown
+    super
     Bot::Alegre.unstub(:media_file_url)
   end
 
