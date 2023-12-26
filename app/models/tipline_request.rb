@@ -19,21 +19,19 @@ class TiplineRequest < ApplicationRecord
   after_commit :destroy_elasticsearch_field, on: :destroy
 
   def smooch_user_slack_channel_url
-    Concurrent::Future.execute(executor: CheckGraphql::POOL) do
-      return if self.smooch_data.blank?
-      slack_channel_url = ''
-      data = self.smooch_data
-      unless data.nil?
-        key = "SmoochUserSlackChannelUrl:Team:#{self.team_id}:#{data['authorId']}"
-        slack_channel_url = Rails.cache.read(key)
-        if slack_channel_url.blank?
-          obj = self.associated
-          slack_channel_url = get_slack_channel_url(obj, data)
-          Rails.cache.write(key, slack_channel_url) unless slack_channel_url.blank?
-        end
+    return if self.smooch_data.blank?
+    slack_channel_url = ''
+    data = self.smooch_data
+    unless data.nil?
+      key = "SmoochUserSlackChannelUrl:Team:#{self.team_id}:#{data['authorId']}"
+      slack_channel_url = Rails.cache.read(key)
+      if slack_channel_url.blank?
+        obj = self.associated
+        slack_channel_url = get_slack_channel_url(obj, data)
+        Rails.cache.write(key, slack_channel_url) unless slack_channel_url.blank?
       end
-      slack_channel_url
     end
+    slack_channel_url
   end
 
   def smooch_user_external_identifier
