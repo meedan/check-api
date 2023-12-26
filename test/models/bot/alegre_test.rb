@@ -2,8 +2,6 @@ require_relative '../../test_helper'
 
 class Bot::AlegreTest < ActiveSupport::TestCase
   def setup
-    BotUser.delete_all
-    puts "[Starting test #{self.class.name}::#{self.method_name}]" # Output which test has started running
     ft = DynamicAnnotation::FieldType.where(field_type: 'language').last || create_field_type(field_type: 'language', label: 'Language')
     at = create_annotation_type annotation_type: 'language', label: 'Language'
     create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
@@ -23,7 +21,6 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   def teardown
     Bot::Alegre.unstub(:media_file_url)
-    puts "[Finishing test #{self.class.name}::#{self.method_name}]" # Output which test has finished running
   end
 
   test "should return an alegre matching model" do
@@ -202,13 +199,11 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should index report data" do
-    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
-      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {}.to_json)
-      pm = create_project_media team: @team
-      assert_nothing_raised do
-        publish_report(pm)
-      end
+    WebMock.stub_request(:delete, 'http://alegre:3100/text/similarity/').to_return(body: {success: true}.to_json)
+    WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
+    pm = create_project_media team: @team
+    assert_nothing_raised do
+      publish_report(pm)
     end
   end
 
