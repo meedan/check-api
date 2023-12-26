@@ -35,25 +35,23 @@ class TiplineRequest < ApplicationRecord
   end
 
   def smooch_user_external_identifier
-    Concurrent::Future.execute(executor: CheckGraphql::POOL) do
-      return if self.tipline_user_uid.blank?
-      Rails.cache.fetch("smooch:user:external_identifier:#{self.tipline_user_uid}") do
-        field = DynamicAnnotation::Field.where('field_name = ? AND dynamic_annotation_fields_value(field_name, value) = ?', 'smooch_user_id', self.tipline_user_uid.to_json).last
-        return '' if field.nil?
-        smooch_user_data = JSON.parse(field.annotation.load.get_field_value('smooch_user_data')).with_indifferent_access
-        user = smooch_user_data&.dig('raw', 'clients', 0) || {}
-        case user[:platform]
-        when 'whatsapp'
-          user[:displayName]
-        when 'telegram', 'instagram'
-          '@' + user[:raw][:username].to_s
-        when 'messenger', 'viber', 'line'
-          user[:externalId]
-        when 'twitter'
-          '@' + user[:raw][:screen_name]
-        else
-          ''
-        end
+    return if self.tipline_user_uid.blank?
+    Rails.cache.fetch("smooch:user:external_identifier:#{self.tipline_user_uid}") do
+      field = DynamicAnnotation::Field.where('field_name = ? AND dynamic_annotation_fields_value(field_name, value) = ?', 'smooch_user_id', self.tipline_user_uid.to_json).last
+      return '' if field.nil?
+      smooch_user_data = JSON.parse(field.annotation.load.get_field_value('smooch_user_data')).with_indifferent_access
+      user = smooch_user_data&.dig('raw', 'clients', 0) || {}
+      case user[:platform]
+      when 'whatsapp'
+        user[:displayName]
+      when 'telegram', 'instagram'
+        '@' + user[:raw][:username].to_s
+      when 'messenger', 'viber', 'line'
+        user[:externalId]
+      when 'twitter'
+        '@' + user[:raw][:screen_name]
+      else
+        ''
       end
     end
   end
