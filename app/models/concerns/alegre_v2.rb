@@ -101,7 +101,7 @@ module AlegreV2
       elsif project_media.is_audio?
         type = 'audio'
       end
-      return type
+      type
     end
 
     def generic_package(project_media, field)
@@ -193,9 +193,9 @@ module AlegreV2
     def get_per_model_threshold(project_media, threshold)
       type = get_type(project_media)
       if type == "text"
-        {per_model_threshold: threshold.collect{|x| {model: x[:model], value: x[:value]}}}
+        { per_model_threshold: threshold&.collect{ |x| { model: x[:model], value: x[:value] } } }
       else
-        {threshold: threshold[0][:value]}
+        { threshold: threshold&.dig(0, :value) }
       end
     end
 
@@ -224,7 +224,7 @@ module AlegreV2
             relationship_type: relationship_type
           }
         ]
-      }.reject{|k,_| k == project_media.id}]
+      }.reject{ |k,_| k == project_media.id }]
     end
 
     def get_items(project_media, field, confirmed=false)
