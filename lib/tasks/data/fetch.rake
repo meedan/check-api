@@ -30,7 +30,7 @@ namespace :check do
     task print_status_mapping: :environment do |_t, args|
       data = parse_args args.extras
       slug = data['slug']
-      services = data['services'].split('|')
+      services = data['services']&.split('|')
       print_status_mapping(services, Team.where(slug: slug).first)
     end
 
