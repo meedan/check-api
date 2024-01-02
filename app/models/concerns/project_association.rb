@@ -100,7 +100,8 @@ module ProjectAssociation
         'project_id' => obj.project_id,
         'unmatched' => obj.unmatched,
         'channel' => obj.channel.values.flatten.map(&:to_i),
-        'updated_at' => obj.updated_at.utc
+        'updated_at' => obj.updated_at.utc,
+        'title' => obj.title
       }
       options = { keys: data.keys, data: data, pm_id: obj.id }
       model = { klass: obj.class.name, id: obj.id }
