@@ -49,15 +49,4 @@ module ValidationsHelper
     errors.add(:settings, JSON::Validator.fully_validate(schema, fieldsets)) if !JSON::Validator.validate(schema, fieldsets)
   end
 
-  def list_columns_format
-    return if self.get_list_columns.blank?
-    schema = {
-      type: 'array',
-      items: {
-        type: 'string',
-      }
-    }
-    columns = self.get_list_columns
-    errors.add(:settings, JSON::Validator.fully_validate(schema, columns)) if !JSON::Validator.validate(schema, columns)
-  end
 end

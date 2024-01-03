@@ -488,7 +488,6 @@ class GraphqlController8Test < ActionController::TestCase
           medias_count
           permissions
           search_id
-          list_columns
           team_tasks(first: 10000) {
             edges {
               node {
@@ -566,7 +565,6 @@ class GraphqlController8Test < ActionController::TestCase
               title
               description
               is_read
-              list_columns_values
               team {
                 verification_statuses
               }
