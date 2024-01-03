@@ -25691,7 +25691,7 @@
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "Team",
+                "name": "PublicTeam",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -46018,7 +46018,7 @@
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "Team",
+                "name": "PublicTeam",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -46096,7 +46096,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "OBJECT",
-                  "name": "TeamConnection",
+                  "name": "PublicTeamConnection",
                   "ofType": null
                 }
               },
@@ -46797,7 +46797,7 @@
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "Team",
+                "name": "PublicTeam",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -55570,7 +55570,7 @@
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "Team",
+                "name": "PublicTeam",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -55922,7 +55922,7 @@
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "Team",
+                "name": "PublicTeam",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -61348,6 +61348,132 @@
         },
         {
           "kind": "OBJECT",
+          "name": "PublicTeamConnection",
+          "description": "The connection type for PublicTeam.",
+          "fields": [
+            {
+              "name": "edges",
+              "description": "A list of edges.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "PublicTeamEdge",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "nodes",
+              "description": "A list of nodes.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "PublicTeam",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "PageInfo",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "totalCount",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "PublicTeamEdge",
+          "description": "An edge in a connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "node",
+              "description": "The item at the end of the edge.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "PublicTeam",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
           "name": "Query",
           "description": "The query root of this schema",
           "fields": [
@@ -63981,7 +64107,7 @@
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "Team",
+                "name": "PublicTeam",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -69914,7 +70040,7 @@
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "Team",
+                "name": "PublicTeam",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -70215,7 +70341,7 @@
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "Team",
+                "name": "PublicTeam",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -88638,7 +88764,7 @@
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "Team",
+                "name": "PublicTeam",
                 "ofType": null
               },
               "isDeprecated": false,

@@ -83,7 +83,7 @@ class UserType < DefaultObject
     Source.find(object.source_id)
   end
 
-  field :current_team, TeamType, null: true
+  field :current_team, PublicTeamType, null: true
 
   def current_team
     User.current == object ? object.current_team : nil

@@ -13,7 +13,7 @@ class ProjectType < DefaultObject
   field :search_id, GraphQL::Types::String, null: true
   field :url, GraphQL::Types::String, null: true
   field :search, CheckSearchType, null: true
-  field :team, TeamType, null: true
+  field :team, PublicTeamType, null: true
   field :project_group_id, GraphQL::Types::Int, null: true
   field :project_group, ProjectGroupType, null: true
   field :privacy, GraphQL::Types::Int, null: true
