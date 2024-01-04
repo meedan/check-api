@@ -8,11 +8,9 @@ class MutationType < BaseObject
 
   field :createComment, mutation: CommentMutations::Create
   field :updateComment, mutation: CommentMutations::Update
-  field :destroyComment, mutation: CommentMutations::Destroy
 
   field :createSource, mutation: SourceMutations::Create
   field :updateSource, mutation: SourceMutations::Update
-  field :destroySource, mutation: SourceMutations::Destroy
 
   field :updateTeamUser, mutation: TeamUserMutations::Update
   field :destroyTeamUser, mutation: TeamUserMutations::Destroy
@@ -28,7 +26,6 @@ class MutationType < BaseObject
   field :updateAccount, mutation: AccountMutations::Update
 
   field :createAccountSource, mutation: AccountSourceMutations::Create
-  field :updateAccountSource, mutation: AccountSourceMutations::Update
   field :destroyAccountSource, mutation: AccountSourceMutations::Destroy
 
   field :createProject, mutation: ProjectMutations::Create
@@ -38,20 +35,16 @@ class MutationType < BaseObject
   field :createProjectMedia, mutation: ProjectMediaMutations::Create
   field :updateProjectMedia, mutation: ProjectMediaMutations::Update
   field :updateProjectMedias, mutation: ProjectMediaMutations::Bulk::Update
-  field :destroyProjectMedia, mutation: ProjectMediaMutations::Destroy
   field :replaceProjectMedia, mutation: ProjectMediaMutations::Replace
   field :bulkProjectMediaMarkRead, mutation: ProjectMediaMutations::Bulk::MarkRead
 
-  field :createUser, mutation: UserMutations::Create
   field :updateUser, mutation: UserMutations::Update
-  field :destroyUser, mutation: UserMutations::Destroy
 
   field :createTag, mutation: TagMutations::Create
   field :updateTag, mutation: TagMutations::Update
   field :destroyTag, mutation: TagMutations::Destroy
   field :createTags, mutation: TagMutations::Bulk::Create
 
-  field :createAnnotation, mutation: AnnotationMutations::Create
   field :destroyAnnotation, mutation: AnnotationMutations::Destroy
 
   field :extractText, mutation: OcrMutations::ExtractText
@@ -64,14 +57,7 @@ class MutationType < BaseObject
   field :updateDynamic, mutation: DynamicMutations::Update
   field :destroyDynamic, mutation: DynamicMutations::Destroy
 
-  field :createTask, mutation: TaskMutations::Create
   field :updateTask, mutation: TaskMutations::Update
-  field :destroyTask, mutation: TaskMutations::Destroy
-
-  field :moveTaskUp, mutation: TasksOrderMutations::MoveTaskUp
-  field :moveTaskDown, mutation: TasksOrderMutations::MoveTaskDown
-  field :addFilesToTask, mutation: TasksFileMutations::AddFilesToTask
-  field :removeFilesFromTask, mutation: TasksFileMutations::RemoveFilesFromTask
 
   field :resetPassword, mutation: ResetPasswordMutation
   field :changePassword, mutation: ChangePasswordMutation
@@ -117,16 +103,10 @@ class MutationType < BaseObject
   end
 
   field :createProjectMediaUser, mutation: ProjectMediaUserMutations::Create
-  field :updateProjectMediaUser, mutation: ProjectMediaUserMutations::Update
-  field :destroyProjectMediaUser, mutation: ProjectMediaUserMutations::Destroy
 
   field :createSavedSearch, mutation: SavedSearchMutations::Create
   field :updateSavedSearch, mutation: SavedSearchMutations::Update
   field :destroySavedSearch, mutation: SavedSearchMutations::Destroy
-
-  field :createProjectGroup, mutation: ProjectGroupMutations::Create
-  field :updateProjectGroup, mutation: ProjectGroupMutations::Update
-  field :destroyProjectGroup, mutation: ProjectGroupMutations::Destroy
 
   field :searchUpload, mutation: SearchUploadMutations::SearchUpload
 
@@ -136,6 +116,7 @@ class MutationType < BaseObject
   field :createFactCheck, mutation: FactCheckMutations::Create
   field :updateFactCheck, mutation: FactCheckMutations::Update
   field :destroyFactCheck, mutation: FactCheckMutations::Destroy
+
 
   field :createFeed, mutation: FeedMutations::Create
   field :updateFeed, mutation: FeedMutations::Update
