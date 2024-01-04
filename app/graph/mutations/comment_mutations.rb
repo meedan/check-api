@@ -22,6 +22,4 @@ module CommentMutations
 
     argument :text, GraphQL::Types::String, required: false
   end
-
-  class Destroy < Mutations::DestroyMutation; end
 end

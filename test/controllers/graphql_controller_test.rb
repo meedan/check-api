@@ -106,10 +106,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_create('comment', { text: 'test', annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s })
   end
 
-  test "should destroy comment" do
-    assert_graphql_destroy('comment')
-  end
-
   test "should create media" do
     p = create_project team: @team
     url = random_url
@@ -273,11 +269,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_update('user', :name, 'Foo', 'Bar')
   end
 
-  test "should destroy user" do
-    # TODO test this one with a super admin user
-    # assert_graphql_destroy('user')
-  end
-
   test "should create tag" do
     p = create_project team: @team
     pm = create_project_media project: p
@@ -286,10 +277,6 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should destroy tag" do
     assert_graphql_destroy('tag')
-  end
-
-  test "should destroy annotation" do
-    assert_graphql_destroy('annotation')
   end
 
   test "should get source by id" do
@@ -532,16 +519,6 @@ class GraphqlControllerTest < ActionController::TestCase
     pm = create_project_media project: p
     fields = { geolocation_viewport: '', geolocation_location: { type: "Feature", properties: { name: "Dingbat Islands" } , geometry: { type: "Point", coordinates: [125.6, 10.1] } }.to_json }.to_json
     assert_graphql_create('dynamic', { set_fields: fields, annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s, annotation_type: 'geolocation' })
-  end
-
-  test "should create task" do
-    p = create_project team: @team
-    pm = create_project_media project: p
-    assert_graphql_create('task', { fieldset: 'tasks', label: 'test', type: 'yes_no', annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s })
-  end
-
-  test "should destroy task" do
-    assert_graphql_destroy('task')
   end
 
   test "should create comment with image" do

@@ -15,22 +15,10 @@ module TaskMutations
     end
   end
 
-  class Create < Mutations::CreateMutation
-    include SharedCreateAndUpdateFields
-
-    argument :label, GraphQL::Types::String, required: true
-    argument :type, GraphQL::Types::String, required: true
-    argument :jsonoptions, GraphQL::Types::String, required: false
-    argument :annotated_id, GraphQL::Types::String, required: false, camelize: false
-    argument :annotated_type, GraphQL::Types::String, required: false, camelize: false
-  end
-
   class Update < Mutations::UpdateMutation
     include SharedCreateAndUpdateFields
 
     argument :label, GraphQL::Types::String, required: false
     argument :response, GraphQL::Types::String, required: false
   end
-
-  class Destroy < Mutations::DestroyMutation; end
 end

@@ -321,7 +321,8 @@ class GraphqlController8Test < ActionController::TestCase
     d = create_dynamic_annotation annotated: p, annotation_type: 'smooch_user'
     u2 = create_user
     authenticate_with_user(u2)
-    query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "' + d.id.to_s + '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + random_url+ '\"}" }) { annotation { dbid } } }'
+    query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "' + d.id.to_s +
+  '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + random_url+ '\"}" }) { annotation { dbid } } }'
     post :create, params: { query: query }
     assert_response 400
   end

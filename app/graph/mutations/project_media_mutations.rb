@@ -60,8 +60,6 @@ module ProjectMediaMutations
     argument :title_field, GraphQL::Types::String, required: false, camelize: false
   end
 
-  class Destroy < Mutations::DestroyMutation; end
-
   class Replace < Mutations::BaseMutation
     graphql_name "ReplaceProjectMedia"
 
