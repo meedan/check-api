@@ -137,20 +137,6 @@ class Task < ApplicationRecord
     params
   end
 
-  def existing_files
-    self.first_response_obj&.load&.file.to_a
-  end
-
-  def add_files(new_files)
-    self.file = [self.existing_files].flatten.reject{ |f| f.blank? }.concat(new_files)
-    self.response = '{}'
-  end
-
-  def remove_files(filenames)
-    self.file = [existing_files].flatten.reject{ |f| f.blank? || filenames.include?(f.to_s.split('/').last) }
-    self.response = '{}'
-  end
-
   def first_response_obj
     return @response if @response
     responses = self.responses
