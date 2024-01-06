@@ -487,6 +487,7 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     assert_equal 'The Claim', pm.title
 
     pm.title_field = 'custom_title'
+    pm.custom_title = 'Custom Title'
     pm.save!
     assert_equal 'Custom Title', pm.get_title # Uncached
     assert_equal 'Custom Title', pm.title # Cached
