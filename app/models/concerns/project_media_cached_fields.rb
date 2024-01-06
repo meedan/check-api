@@ -548,8 +548,15 @@ module ProjectMediaCachedFields
     def recalculate_title
       title = self.get_title
       # Always save the title as a custom title so we can fallback to it in case the title gets blank (for example, title_field is claim title and claim is deleted)
-      title.blank? ? self.update_column(:title_field, 'custom_title') : self.update_column(:custom_title, title)
-      title.blank? ? self.custom_title&.to_s : title
+      if title.blank?
+        unless self.custom_title.blank?
+          self.update_column(:title_field, 'custom_title')
+          title = self.custom_title
+        end
+      else
+        self.update_column(:custom_title, title)
+      end
+      title.to_s
     end
 
     def recalculate_status
