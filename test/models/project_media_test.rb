@@ -303,7 +303,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
         pm = create_project_media team: t, set_tasks_responses: { 'upload_a_file' => url }
       end
       task = pm.annotations('task').last
-      assert task.existing_files.size > 0
+      assert task.first_response_obj&.load&.file.to_a.size > 0
     end
   end
 
