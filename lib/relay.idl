@@ -2311,6 +2311,7 @@ input CreateFeedInput {
   A unique identifier for the client performing the mutation.
   """
   clientMutationId: String
+  dataPoints: [Int]
   description: String
   discoverable: Boolean
   licenses: [Int]!
@@ -8053,6 +8054,7 @@ Feed type
 type Feed implements Node {
   created_at: String
   current_feed_team: FeedTeam
+  data_points: [Int]
   dbid: Int
   description: String
   discoverable: Boolean

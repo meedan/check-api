@@ -22,6 +22,8 @@ class Feed < ApplicationRecord
   PROHIBITED_FILTERS = ['team_id', 'feed_id', 'clusterize']
   LICENSES = { 1 => 'academic', 2 => 'commercial', 3 => 'open_source' }
   validates_inclusion_of :licenses, in: LICENSES.keys, if: proc { |feed| feed.discoverable }
+  DATA_POINTS = { 1 => 'published_fact_checks', 2 => 'media_claim_requests', 3 => 'tags' }
+  validates_inclusion_of :data_points, in: DATA_POINTS.keys
 
   # Filters for the whole feed: applies to all data from all teams
   def get_feed_filters
