@@ -258,4 +258,22 @@ class GraphqlController12Test < ActionController::TestCase
     assert_response :success
     assert_equal 1, JSON.parse(@response.body).dig('data', 'search', 'number_of_results')
   end
+
+  test "should set and get feed data points" do
+    authenticate_with_user(@u)
+
+    query = 'mutation { createFeed(input: { name: "' + random_string + '", dataPoints: [1, 2, 3], licenses: [] }) { feed { dbid, data_points } } }'
+    assert_difference 'Feed.count' do
+      post :create, params: { query: query, team: @t.slug }
+    end
+    assert_response :success
+
+    feed = Feed.find(JSON.parse(@response.body).dig('data', 'createFeed', 'feed', 'dbid'))
+    assert_equal [1, 2, 3].sort, feed.data_points.sort
+
+    query = 'query { feed(id: ' + feed.id.to_s + ') { data_points } }'
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success
+    assert_equal [1, 2, 3].sort, JSON.parse(@response.body).dig('data', 'feed', 'data_points').sort
+  end
 end
