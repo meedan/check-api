@@ -52,4 +52,5 @@ class FeedType < DefaultObject
 
   field :teams, PublicTeamType.connection_type, null: false
   field :feed_teams, FeedTeamType.connection_type, null: false
+  field :data_points, [GraphQL::Types::Int, null: true], null: true
 end
