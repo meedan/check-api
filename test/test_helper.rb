@@ -159,7 +159,6 @@ class ActiveSupport::TestCase
   # This will run before any test
 
   def setup
-    puts "[Starting test #{self.class.name}::#{self.method_name}]" # Output which test has started running
     [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship, Project, TiplineResource, TiplineRequest].each{ |klass| klass.delete_all }
 
     # Some of our non-GraphQL tests rely on behavior that this requires. As a result,
@@ -196,7 +195,6 @@ class ActiveSupport::TestCase
   # This will run after any test
 
   def teardown
-    puts "[Finishing test #{self.class.name}::#{self.method_name}]" # Output which test has finished running
     WebMock.reset!
     WebMock.allow_net_connect!
     Time.unstub(:now)
