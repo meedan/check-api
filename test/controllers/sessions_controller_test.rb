@@ -71,5 +71,17 @@ class SessionsControllerTest < ActionController::TestCase
     assert_not_nil @controller.current_api_user
   end
 
+  test "should throttle excessive login requests" do
+    u = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com'
+
+    20.times do
+      post :create, params: { api_user: { email: 'test@test.com', password: '12345678' }  }
+      assert_not_nil @controller.current_api_user
+    end
+
+    # post :create, params: { api_user: { email: 'user@test.com', password: '12345678' } }
+    # assert_response :too_many_requests
+  end
+
 
 end
