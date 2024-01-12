@@ -9,7 +9,11 @@ module AlegreV2
     end
 
     def sync_path(project_media)
-      "/similarity/sync/#{get_type(project_media)}"
+      self.sync_path_for_type(get_type(project_media))
+    end
+
+    def sync_path_for_type(type)
+      "/similarity/sync/#{type}"
     end
 
     def async_path(project_media)
@@ -255,6 +259,13 @@ module AlegreV2
 
     def relate_project_media(project_media, field=nil)
       self.add_relationships(project_media, self.get_similar_items_v2(project_media, field)) unless project_media.is_blank?
+    end
+
+    def get_items_with_similar_media_v2(media_url, threshold, team_ids, type)
+      alegre_path = ['audio', 'image'].include?(type) ? self.sync_path_for_type(type) : "/#{type}/similarity/search/"
+      # FIXME: Stop using this method from v1 once all media types are supported by v2
+      # FIXME: Alegre crashes if `media_url` was already requested before, this is why I append a hash
+      self.get_items_with_similar_media("#{media_url}?hash=#{SecureRandom.hex}", threshold, team_ids, alegre_path)
     end
   end
 end
