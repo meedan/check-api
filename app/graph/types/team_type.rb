@@ -42,7 +42,6 @@ class TeamType < DefaultObject
   field :get_language_detection, GraphQL::Types::Boolean, null: true
   field :get_report, JsonStringType, null: true
   field :get_fieldsets, JsonStringType, null: true
-  field :list_columns, JsonStringType, null: true
   field :get_data_report_url, GraphQL::Types::String, null: true
   field :url, GraphQL::Types::String, null: true
   field :get_tipline_inbox_filters, JsonStringType, null: true
@@ -133,7 +132,6 @@ class TeamType < DefaultObject
     object.get_fieldsets
   end
 
-  field :list_columns, JsonStringType, null: true
   field :get_data_report_url, GraphQL::Types::String, null: true
 
   def get_data_report_url

@@ -112,12 +112,10 @@ class TeamTask < ApplicationRecord
   private
 
   def add_teamwide_tasks
-    self.team&.clear_list_columns_cache
     TeamTaskWorker.perform_in(1.second, 'add', self.id, YAML::dump(User.current))
   end
 
   def update_teamwide_tasks
-    self.team&.clear_list_columns_cache
     fields = {
       label: self.saved_change_to_label?,
       description: self.saved_change_to_description?,
@@ -129,7 +127,6 @@ class TeamTask < ApplicationRecord
   end
 
   def delete_teamwide_tasks
-    self.team&.clear_list_columns_cache
     self.keep_completed_tasks = self.keep_completed_tasks.nil? ? false : self.keep_completed_tasks
     TeamTaskWorker.perform_in(1.second, 'destroy', self.id, YAML::dump(User.current), YAML::dump({}), self.keep_completed_tasks)
   end
