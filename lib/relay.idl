@@ -15714,7 +15714,6 @@ User type
 """
 type User implements Node {
   accepted_terms: Boolean
-  completed_signup: Boolean
   created_at: String
   current_team: Team
   current_team_id: Int
@@ -15723,17 +15722,12 @@ type User implements Node {
   id: ID!
   is_active: Boolean
   is_bot: Boolean
-  last_accepted_terms_at: String
   last_active_at: Int
-  login: String
   name: String
   number_of_teams: Int
   permissions: String
   profile_image: String
-  providers: JsonStringType
   source: Source
-  source_id: Int
-  team_ids: [Int]
   team_user(team_slug: String!): TeamUser
   team_users(
     """

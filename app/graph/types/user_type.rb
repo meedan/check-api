@@ -5,32 +5,25 @@ class UserType < DefaultObject
 
   field :dbid, GraphQL::Types::Int, null: true
   field :email, GraphQL::Types::String, null: true
-  field :providers, JsonStringType, null: true
   field :profile_image, GraphQL::Types::String, null: true
-  field :login, GraphQL::Types::String, null: true
   field :name, GraphQL::Types::String, null: true
-  field :current_team_id, GraphQL::Types::Int, null: true
-  field :permissions, GraphQL::Types::String, null: true
-  field :number_of_teams, GraphQL::Types::Int, null: true
-  field :is_active, GraphQL::Types::Boolean, null: true
-  field :accepted_terms, GraphQL::Types::Boolean, null: true
-  field :last_accepted_terms_at, GraphQL::Types::String, null: true
-  field :team_ids, [GraphQL::Types::Int, null: true], null: true
   field :last_active_at, GraphQL::Types::Int, null: true
-  field :completed_signup, GraphQL::Types::Boolean, null: true
-  field :source_id, GraphQL::Types::Int, null: true
   field :is_bot, GraphQL::Types::Boolean, null: true
-
-  field :current_team, TeamType, null: true
-
-  def current_team
-    User.current == object ? object.current_team : nil
-  end
+  field :is_active, GraphQL::Types::Boolean, null: true
+  field :number_of_teams, GraphQL::Types::Int, null: true
+  field :accepted_terms, GraphQL::Types::Boolean, null: true
+  field :current_team_id, GraphQL::Types::Int, null: true
 
   field :source, SourceType, null: true
 
   def source
     Source.find(object.source_id)
+  end
+
+  field :current_team, TeamType, null: true
+
+  def current_team
+    User.current == object ? object.current_team : nil
   end
 
   field :team_user, TeamUserType, null: true do
