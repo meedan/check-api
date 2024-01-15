@@ -79,7 +79,7 @@ class GraphqlController10Test < ActionController::TestCase
     create_team_user team: t, user: u, role: 'admin'
     create_team_user team: t, user: u2
     authenticate_with_user(u)
-    query = "query GetById { team(id: \"#{t.id}\") { team_users { edges { node { user { dbid, get_send_email_notifications, get_send_successful_login_notifications, get_send_failed_login_notifications, source { medias(first: 1) { edges { node { id } } } }, annotations(first: 1) { edges { node { id } } }, team_users(first: 1) { edges { node { id } } }, bot { get_description, get_role, get_version, get_source_code_url } } } } } } }"
+    query = "query GetById { team(id: \"#{t.id}\") { team_users { edges { node { user { dbid, source { medias(first: 1) { edges { node { id } } } } } } } } } }"
     post :create, params: { query: query, team: t.slug }
 
     assert_response :success
@@ -544,37 +544,6 @@ class GraphqlController10Test < ActionController::TestCase
   test "should not access GraphQL mutation if not authenticated" do
     post :create, params: { query: 'mutation Test' }
     assert_response 401
-  end
-
-  test "should get project media assignments" do
-    u = create_user
-    u2 = create_user
-    t = create_team
-    create_team_user user: u, team: t, status: 'member'
-    create_team_user user: u2, team: t, status: 'member'
-    p = create_project team: t
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
-    pm3 = create_project_media project: p
-    pm4 = create_project_media project: p
-    s1 = create_status status: 'in_progress', annotated: pm1
-    s2 = create_status status: 'in_progress', annotated: pm2
-    s3 = create_status status: 'in_progress', annotated: pm3
-    s4 = create_status status: 'verified', annotated: pm4
-    t1 = create_task annotated: pm1
-    t2 = create_task annotated: pm3
-    s1.assign_user(u.id)
-    s2.assign_user(u.id)
-    s3.assign_user(u.id)
-    s4.assign_user(u2.id)
-    authenticate_with_user(u)
-    post :create, params: { query: "query GetById { user(id: \"#{u.id}\") { assignments(first: 10) { edges { node { dbid, assignments(first: 10, user_id: #{u.id}, annotation_type: \"task\") { edges { node { dbid } } } } } } } }" }
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['user']
-    assert_equal [pm3.id, pm2.id, pm1.id], data['assignments']['edges'].collect{ |x| x['node']['dbid'] }
-    assert_equal [t2.id], data['assignments']['edges'][0]['node']['assignments']['edges'].collect{ |x| x['node']['dbid'].to_i }
-    assert_equal [], data['assignments']['edges'][1]['node']['assignments']['edges']
-    assert_equal [t1.id], data['assignments']['edges'][2]['node']['assignments']['edges'].collect{ |x| x['node']['dbid'].to_i }
   end
 
   test "should not get private team by slug" do

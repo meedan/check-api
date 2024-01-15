@@ -398,15 +398,6 @@ class GraphqlController7Test < ActionController::TestCase
     end
   end
 
-  test "should get user confirmed" do
-    u = create_user
-    authenticate_with_user(u)
-    post :create, params: { query: "query GetById { user(id: \"#{u.id}\") { confirmed  } }" }
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['user']
-    assert data['confirmed']
-  end
-
   test "should get timezone from header" do
     authenticate_with_user
     @request.headers['X-Timezone'] = 'America/Bahia'
