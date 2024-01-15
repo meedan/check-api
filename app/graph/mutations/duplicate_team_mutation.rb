@@ -3,7 +3,7 @@ class DuplicateTeamMutation < Mutations::BaseMutation
   argument :custom_slug, GraphQL::Types::String, required: false, camelize: false
   argument :custom_name, GraphQL::Types::String, required: false, camelize: false
 
-  field :team, PublicTeamType, null: true
+  field :team, TeamType, null: true
 
   def resolve(team_id:, custom_slug: nil, custom_name: nil)
     _type_name, id = CheckGraphql.decode_id(team_id)

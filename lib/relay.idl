@@ -4249,7 +4249,7 @@ type DuplicateTeamMutationPayload {
   A unique identifier for the client performing the mutation.
   """
   clientMutationId: String
-  team: PublicTeam
+  team: Team
 }
 
 type Dynamic implements Node {
@@ -8464,6 +8464,158 @@ type GenerateTwoFactorBackupCodesPayload {
 scalar JsonStringType
 
 """
+Me type
+"""
+type Me implements Node {
+  accepted_terms: Boolean
+  annotations(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+    type: String
+  ): AnnotationConnection
+  assignments(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+    team_id: Int
+  ): ProjectMediaConnection
+  bot: BotUser
+  bot_events: String
+  completed_signup: Boolean
+  confirmed: Boolean
+  created_at: String
+  current_project: Project
+  current_team: Team
+  current_team_id: Int
+  dbid: Int
+  email: String
+  feed_invitations(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): FeedInvitationConnection!
+  get_send_email_notifications: Boolean
+  get_send_failed_login_notifications: Boolean
+  get_send_successful_login_notifications: Boolean
+  id: ID!
+  is_active: Boolean
+  is_admin: Boolean
+  is_bot: Boolean
+  jsonsettings: String
+  last_accepted_terms_at: String
+  last_active_at: Int
+  login: String
+  name: String
+  number_of_teams: Int
+  permissions: String
+  profile_image: String
+  providers: JsonStringType
+  settings: JsonStringType
+  source: Source
+  source_id: Int
+  team_ids: [Int]
+  team_user(team_slug: String!): TeamUser
+  team_users(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+    status: String
+  ): TeamUserConnection
+  teams(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): TeamConnection
+  token: String
+  two_factor: JsonStringType
+  unconfirmed_email: String
+  updated_at: String
+  user_teams: String
+  uuid: String
+}
+
+"""
 Media type
 """
 type Media implements Node {
@@ -9859,7 +10011,7 @@ type Project implements Node {
   pusher_channel: String
   search: CheckSearch
   search_id: String
-  team: PublicTeam
+  team: Team
   title: String!
   updated_at: String
   url: String
@@ -10973,6 +11125,7 @@ type ProjectMedia implements Node {
   project: Project
   project_group: ProjectGroup
   project_id: Int
+  public_team: PublicTeam
   published: String
   pusher_channel: String
   quote: String
@@ -11274,7 +11427,7 @@ type Query {
   """
   Information about the current user
   """
-  me: User
+  me: Me
 
   """
   Fetches an object given its ID.
@@ -12980,7 +13133,7 @@ type TeamUser implements Node {
   permissions: String
   role: String
   status: String
-  team: PublicTeam
+  team: Team
   team_id: Int
   updated_at: String
   user: User
@@ -15561,89 +15714,15 @@ User type
 """
 type User implements Node {
   accepted_terms: Boolean
-  annotations(
-    """
-    Returns the elements in the list that come after the specified cursor.
-    """
-    after: String
-
-    """
-    Returns the elements in the list that come before the specified cursor.
-    """
-    before: String
-
-    """
-    Returns the first _n_ elements from the list.
-    """
-    first: Int
-
-    """
-    Returns the last _n_ elements from the list.
-    """
-    last: Int
-    type: String
-  ): AnnotationConnection
-  assignments(
-    """
-    Returns the elements in the list that come after the specified cursor.
-    """
-    after: String
-
-    """
-    Returns the elements in the list that come before the specified cursor.
-    """
-    before: String
-
-    """
-    Returns the first _n_ elements from the list.
-    """
-    first: Int
-
-    """
-    Returns the last _n_ elements from the list.
-    """
-    last: Int
-    team_id: Int
-  ): ProjectMediaConnection
-  bot: BotUser
-  bot_events: String
   completed_signup: Boolean
-  confirmed: Boolean
   created_at: String
-  current_project: Project
-  current_team: PublicTeam
+  current_team: Team
   current_team_id: Int
   dbid: Int
   email: String
-  feed_invitations(
-    """
-    Returns the elements in the list that come after the specified cursor.
-    """
-    after: String
-
-    """
-    Returns the elements in the list that come before the specified cursor.
-    """
-    before: String
-
-    """
-    Returns the first _n_ elements from the list.
-    """
-    first: Int
-
-    """
-    Returns the last _n_ elements from the list.
-    """
-    last: Int
-  ): FeedInvitationConnection!
-  get_send_email_notifications: Boolean
-  get_send_failed_login_notifications: Boolean
-  get_send_successful_login_notifications: Boolean
   id: ID!
   is_active: Boolean
-  is_admin: Boolean
   is_bot: Boolean
-  jsonsettings: String
   last_accepted_terms_at: String
   last_active_at: Int
   login: String
@@ -15652,7 +15731,6 @@ type User implements Node {
   permissions: String
   profile_image: String
   providers: JsonStringType
-  settings: JsonStringType
   source: Source
   source_id: Int
   team_ids: [Int]
@@ -15679,33 +15757,7 @@ type User implements Node {
     last: Int
     status: String
   ): TeamUserConnection
-  teams(
-    """
-    Returns the elements in the list that come after the specified cursor.
-    """
-    after: String
-
-    """
-    Returns the elements in the list that come before the specified cursor.
-    """
-    before: String
-
-    """
-    Returns the first _n_ elements from the list.
-    """
-    first: Int
-
-    """
-    Returns the last _n_ elements from the list.
-    """
-    last: Int
-  ): TeamConnection
-  token: String
-  two_factor: JsonStringType
-  unconfirmed_email: String
   updated_at: String
-  user_teams: String
-  uuid: String
 }
 
 """
