@@ -10011,7 +10011,7 @@ type Project implements Node {
   pusher_channel: String
   search: CheckSearch
   search_id: String
-  team: Team
+  team: PublicTeam
   title: String!
   updated_at: String
   url: String
@@ -11829,7 +11829,7 @@ Unassociated root object queries
 """
 type RootLevel implements Node {
   current_team: Team
-  current_user: User
+  current_user: Me
   id: ID!
   team_bots_listed(
     """
@@ -15713,10 +15713,7 @@ type UpdateUserPayload {
 User type
 """
 type User implements Node {
-  accepted_terms: Boolean
   created_at: String
-  current_team: Team
-  current_team_id: Int
   dbid: Int
   email: String
   id: ID!
@@ -15724,33 +15721,9 @@ type User implements Node {
   is_bot: Boolean
   last_active_at: Int
   name: String
-  number_of_teams: Int
   permissions: String
   profile_image: String
   source: Source
-  team_user(team_slug: String!): TeamUser
-  team_users(
-    """
-    Returns the elements in the list that come after the specified cursor.
-    """
-    after: String
-
-    """
-    Returns the elements in the list that come before the specified cursor.
-    """
-    before: String
-
-    """
-    Returns the first _n_ elements from the list.
-    """
-    first: Int
-
-    """
-    Returns the last _n_ elements from the list.
-    """
-    last: Int
-    status: String
-  ): TeamUserConnection
   updated_at: String
 }
 
