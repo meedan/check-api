@@ -2328,7 +2328,7 @@
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "Team",
+                "name": "PublicTeam",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -86669,6 +86669,20 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "number_of_teams",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
                 "ofType": null
               },
               "isDeprecated": false,

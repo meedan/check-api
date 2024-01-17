@@ -479,7 +479,7 @@ type BotUser implements Node {
   permissions: String
   settings_as_json_schema(team_slug: String): String
   settings_ui_schema: String
-  team_author: Team
+  team_author: PublicTeam
   updated_at: String
 }
 
@@ -15721,6 +15721,7 @@ type User implements Node {
   is_bot: Boolean
   last_active_at: Int
   name: String
+  number_of_teams: Int
   permissions: String
   profile_image: String
   source: Source

@@ -10,6 +10,7 @@ class UserType < DefaultObject
   field :last_active_at, GraphQL::Types::Int, null: true
   field :is_bot, GraphQL::Types::Boolean, null: true
   field :is_active, GraphQL::Types::Boolean, null: true
+  field :number_of_teams, GraphQL::Types::Int, null: true
 
   field :source, SourceType, null: true
 
