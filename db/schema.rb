@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_10_26_162554) do
+ActiveRecord::Schema.define(version: 2024_01_14_024701) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -337,6 +337,7 @@ ActiveRecord::Schema.define(version: 2023_10_26_162554) do
     t.string "tags", default: [], array: true
     t.integer "licenses", default: [], array: true
     t.boolean "discoverable", default: false
+    t.integer "data_points", default: [], array: true
     t.index ["saved_search_id"], name: "index_feeds_on_saved_search_id"
     t.index ["team_id"], name: "index_feeds_on_team_id"
     t.index ["user_id"], name: "index_feeds_on_user_id"
@@ -401,6 +402,8 @@ ActiveRecord::Schema.define(version: 2023_10_26_162554) do
     t.integer "positive_searches"
     t.integer "negative_searches"
     t.integer "newsletters_sent"
+    t.integer "whatsapp_conversations_user"
+    t.integer "whatsapp_conversations_business"
     t.index ["team_id", "platform", "language", "start_date"], name: "index_monthly_stats_team_platform_language_start", unique: true
     t.index ["team_id"], name: "index_monthly_team_statistics_on_team_id"
   end
@@ -460,6 +463,8 @@ ActiveRecord::Schema.define(version: 2023_10_26_162554) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "unmatched", default: 0
+    t.string "custom_title"
+    t.string "title_field"
     t.index ["channel"], name: "index_project_medias_on_channel"
     t.index ["cluster_id"], name: "index_project_medias_on_cluster_id"
     t.index ["last_seen"], name: "index_project_medias_on_last_seen"

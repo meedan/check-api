@@ -8,12 +8,16 @@ module AlegreV2
       CheckConfig.get('alegre_host')
     end
 
-    def sync_path
-      "/similarity/sync/audio"
+    def sync_path(project_media)
+      self.sync_path_for_type(get_type(project_media))
     end
 
-    def async_path
-      "/similarity/async/audio"
+    def sync_path_for_type(type)
+      "/similarity/sync/#{type}"
+    end
+
+    def async_path(project_media)
+      "/similarity/async/#{get_type(project_media)}"
     end
 
     def delete_path(project_media)
@@ -82,12 +86,12 @@ module AlegreV2
       request("delete", delete_path(project_media), data)
     end
 
-    def request_sync(data)
-      request("post", sync_path, data)
+    def request_sync(data, project_media)
+      request("post", sync_path(project_media), data)
     end
 
-    def request_async(data)
-      request("post", async_path, data)
+    def request_async(data, project_media)
+      request("post", async_path(project_media), data)
     end
 
     def get_type(project_media)
@@ -101,7 +105,7 @@ module AlegreV2
       elsif project_media.is_audio?
         type = 'audio'
       end
-      return type
+      type
     end
 
     def generic_package(project_media, field)
@@ -119,10 +123,22 @@ module AlegreV2
       ).merge(params)
     end
 
-    def generic_package_audio(project_media, params)
+    def generic_package_media(project_media, params)
       generic_package(project_media, nil).merge(
         url: media_file_url(project_media),
       ).merge(params)
+    end
+
+    def generic_package_image(project_media, params)
+      generic_package_media(project_media, params)
+    end
+
+    def delete_package_image(project_media, _field, params)
+      generic_package_image(project_media, params)
+    end
+
+    def generic_package_audio(project_media, params)
+      generic_package_media(project_media, params)
     end
 
     def delete_package_audio(project_media, _field, params)
@@ -149,19 +165,25 @@ module AlegreV2
       context
     end
 
+    def store_package_image(project_media, _field, params)
+      generic_package_image(project_media, params)
+    end
+
     def store_package_audio(project_media, _field, params)
       generic_package_audio(project_media, params)
     end
 
     def get_sync(project_media, field=nil, params={})
       request_sync(
-        store_package(project_media, field, params)
+        store_package(project_media, field, params),
+        project_media
       )
     end
 
     def get_async(project_media, field=nil, params={})
       request_async(
-        store_package(project_media, field, params)
+        store_package(project_media, field, params),
+        project_media
       )
     end
 
@@ -175,9 +197,9 @@ module AlegreV2
     def get_per_model_threshold(project_media, threshold)
       type = get_type(project_media)
       if type == "text"
-        {per_model_threshold: threshold.collect{|x| {model: x[:model], value: x[:value]}}}
+        { per_model_threshold: threshold&.collect{ |x| { model: x[:model], value: x[:value] } } }
       else
-        {threshold: threshold[0][:value]}
+        { threshold: threshold&.dig(0, :value) }
       end
     end
 
@@ -206,7 +228,7 @@ module AlegreV2
             relationship_type: relationship_type
           }
         ]
-      }.reject{|k,_| k == project_media.id}]
+      }.reject{ |k,_| k == project_media.id }]
     end
 
     def get_items(project_media, field, confirmed=false)
@@ -237,6 +259,13 @@ module AlegreV2
 
     def relate_project_media(project_media, field=nil)
       self.add_relationships(project_media, self.get_similar_items_v2(project_media, field)) unless project_media.is_blank?
+    end
+
+    def get_items_with_similar_media_v2(media_url, threshold, team_ids, type)
+      alegre_path = ['audio', 'image'].include?(type) ? self.sync_path_for_type(type) : "/#{type}/similarity/search/"
+      # FIXME: Stop using this method from v1 once all media types are supported by v2
+      # FIXME: Alegre crashes if `media_url` was already requested before, this is why I append a hash
+      self.get_items_with_similar_media("#{media_url}?hash=#{SecureRandom.hex}", threshold, team_ids, alegre_path)
     end
   end
 end

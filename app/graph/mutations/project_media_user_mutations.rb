@@ -15,10 +15,4 @@ module ProjectMediaUserMutations
   class Create < Mutations::CreateMutation
     include SharedCreateAndUpdateFields
   end
-
-  class Update < Mutations::UpdateMutation
-    include SharedCreateAndUpdateFields
-  end
-
-  class Destroy < Mutations::DestroyMutation; end
 end

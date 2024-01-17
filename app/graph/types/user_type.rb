@@ -104,7 +104,7 @@ class UserType < DefaultObject
       .joins(:team)
       .where("teams.slug" => team_slug, :user_id => object.id)
       .last
-    TeamUser.find_if_can(tu.id, context[:ability])
+    tu.nil? ? nil : TeamUser.find_if_can(tu.id, context[:ability])
   end
 
   field :teams, TeamType.connection_type, null: true
