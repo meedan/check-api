@@ -71,16 +71,34 @@ class SessionsControllerTest < ActionController::TestCase
     assert_not_nil @controller.current_api_user
   end
 
-  test "should throttle excessive login requests" do
+  test "should lock user after excessive login requests" do
     u = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com'
+    u.confirm
+    maximum_attempts = Devise.maximum_attempts
 
-    20.times do
-      post :create, params: { api_user: { email: 'test@test.com', password: '12345678' }  }
-      assert_not_nil @controller.current_api_user
+    maximum_attempts.times do
+      post :create, params: { api_user: { email: 'test@test.com', password: '12345679' } }
     end
 
-    # post :create, params: { api_user: { email: 'user@test.com', password: '12345678' } }
-    # assert_response :too_many_requests
+    u.reload
+    assert u.access_locked?
+    assert_not_nil u.locked_at
+  end
+
+  test "should unlock locked user accounts after specified time" do
+    u = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com'
+    u.confirm
+    maximum_attempts = Devise.maximum_attempts
+
+    maximum_attempts.times do
+      post :create, params: { api_user: { email: 'test@test.com', password: '12345679' } }
+    end
+
+    travel_to 2.hours.from_now do
+      u.reload
+      assert !u.access_locked?
+      assert_nil u.locked_at
+    end
   end
 
 

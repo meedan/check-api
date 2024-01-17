@@ -78,6 +78,4 @@ Rails.application.configure do
   config.after_initialize do
     PaperTrail.enabled = ENV['PAPERTRAIL_ENABLED'] || false
   end
-
-  config.cache_store = :memory_store
 end

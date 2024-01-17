@@ -49,6 +49,13 @@ Devise.setup do |config|
   end
   config.mailer = 'DeviseMailer'
   config.invite_for = 1.month
+
+  # Account lockout
+  config.lock_strategy = :failed_attempts
+  config.unlock_strategy = :both
+  config.unlock_keys = [ :time ]
+  config.maximum_attempts = 5
+  config.unlock_in = 1.hour
 end
 
 AuthTrail.geocode = false
