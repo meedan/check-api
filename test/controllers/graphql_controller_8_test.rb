@@ -68,7 +68,8 @@ class GraphqlController8Test < ActionController::TestCase
 
     query = 'query { me { team_user(team_slug: "' + random_string + '") { dbid } } }'
     post :create, params: { query: query }
-    assert_response 400
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['me']['team_user']
   end
 
     test "should define team languages settings" do
