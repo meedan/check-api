@@ -33,7 +33,7 @@ class Bot::Alegre < BotUser
           'UploadedImage' => 'image',
         }[self.media.type].to_s
         threshold = [{value: thresholds.dig(media_type.to_sym, :value)}] || Bot::Alegre.get_threshold_for_query(media_type, self, true)
-        ids_and_scores = Bot::Alegre.get_items_with_similar_media(Bot::Alegre.media_file_url(self), threshold, team_ids, "/#{media_type}/similarity/search/").to_h
+        ids_and_scores = Bot::Alegre.get_items_with_similar_media_v2(Bot::Alegre.media_file_url(self), threshold, team_ids, media_type).to_h
       elsif self.is_text?
         ids_and_scores = {}
         threads = []
@@ -151,7 +151,7 @@ class Bot::Alegre < BotUser
       if body.dig(:event) == 'create_project_media' && !pm.nil?
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] This item was just created, processing...")
         self.get_language(pm)
-        if self.get_pm_type(pm) == "audio"
+        if self.get_pm_type(pm) == "audio" || self.get_pm_type(pm) == "image"
           self.relate_project_media(pm)
         else
           self.send_to_media_similarity_index(pm)

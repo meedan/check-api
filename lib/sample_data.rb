@@ -872,6 +872,7 @@ module SampleData
   def create_feed(options = {})
     Feed.create!({
       name: random_string,
+      team: create_team,
       licenses: [1],
     }.merge(options))
   end
@@ -922,7 +923,7 @@ module SampleData
   def create_tipline_newsletter(options = {})
     newsletter = TiplineNewsletter.new({
       send_every: ['monday'],
-      send_on: Date.parse('2023-12-25'),
+      send_on: Date.parse('3000-12-25'),
       introduction: 'Test',
       time: Time.parse('10:00'),
       timezone: 'BRT',

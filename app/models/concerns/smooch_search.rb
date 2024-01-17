@@ -112,7 +112,7 @@ module SmoochSearch
         type = message['type']
         after = self.date_filter(team_id)
         query = message['text']
-        query = message['mediaUrl'] unless type == 'text'
+        query = CheckS3.rewrite_url(message['mediaUrl']) unless type == 'text'
         results = self.search_for_similar_published_fact_checks(type, query, [team_id], after, nil, language).select{ |pm| is_a_valid_search_result(pm) }
       rescue StandardError => e
         self.handle_search_error(uid, e, language)
@@ -161,10 +161,11 @@ module SmoochSearch
         end
       else
         media_url = Twitter::TwitterText::Extractor.extract_urls(query)[0]
+        Rails.logger.info "[Smooch Bot] Got media_url #{media_url} from query #{query}"
         return [] if media_url.blank?
         media_url = self.save_locally_and_return_url(media_url, type, feed_id)
         threshold = Bot::Alegre.get_threshold_for_query(type, pm)[0][:value]
-        alegre_results = Bot::Alegre.get_items_with_similar_media(media_url, [{ value: threshold }], team_ids, "/#{type}/similarity/search/")
+        alegre_results = Bot::Alegre.get_items_with_similar_media_v2(media_url, [{ value: threshold }], team_ids, type)
         results = self.parse_search_results_from_alegre(alegre_results, after, feed_id, team_ids)
         Rails.logger.info "[Smooch Bot] Media similarity search got #{results.count} results while looking for '#{query}' after date #{after.inspect} for teams #{team_ids}"
       end

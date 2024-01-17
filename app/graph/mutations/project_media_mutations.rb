@@ -56,9 +56,9 @@ module ProjectMediaMutations
     argument :project_id, GraphQL::Types::Int, required: false, camelize: false
     argument :source_id, GraphQL::Types::Int, required: false, camelize: false
     argument :read, GraphQL::Types::Boolean, required: false
+    argument :custom_title, GraphQL::Types::String, required: false, camelize: false
+    argument :title_field, GraphQL::Types::String, required: false, camelize: false
   end
-
-  class Destroy < Mutations::DestroyMutation; end
 
   class Replace < Mutations::BaseMutation
     graphql_name "ReplaceProjectMedia"

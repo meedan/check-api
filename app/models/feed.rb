@@ -4,7 +4,7 @@ class Feed < ApplicationRecord
   check_settings
 
   has_many :requests
-  has_many :feed_teams, dependent: :destroy
+  has_many :feed_teams, dependent: :restrict_with_error
   has_many :teams, through: :feed_teams
   has_many :feed_invitations, dependent: :destroy
   belongs_to :user, optional: true
@@ -17,10 +17,13 @@ class Feed < ApplicationRecord
   validate :saved_search_belongs_to_feed_teams
 
   after_create :create_feed_team
+  before_destroy :destroy_feed_team, prepend: true
 
   PROHIBITED_FILTERS = ['team_id', 'feed_id', 'clusterize']
   LICENSES = { 1 => 'academic', 2 => 'commercial', 3 => 'open_source' }
   validates_inclusion_of :licenses, in: LICENSES.keys, if: proc { |feed| feed.discoverable }
+  DATA_POINTS = { 1 => 'published_fact_checks', 2 => 'media_claim_requests', 3 => 'tags' }
+  validates_inclusion_of :data_points, in: DATA_POINTS.keys
 
   # Filters for the whole feed: applies to all data from all teams
   def get_feed_filters
@@ -165,6 +168,14 @@ class Feed < ApplicationRecord
   end
 
   def create_feed_team
-    FeedTeam.create!(feed: self, team: self.team, shared: true) unless self.team.nil?
+    unless self.team.nil?
+      feed_team = FeedTeam.new(feed: self, team: self.team, shared: true)
+      feed_team.skip_check_ability = true
+      feed_team.save!
+    end
+  end
+
+  def destroy_feed_team
+    FeedTeam.where(feed: self, team: self.team).last.destroy!
   end
 end
