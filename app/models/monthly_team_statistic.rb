@@ -13,8 +13,8 @@ class MonthlyTeamStatistic < ApplicationRecord
     language: 'Language',
     month: 'Month', # model method
     whatsapp_conversations: 'WhatsApp conversations',
-    whatsapp_conversations_business: 'WhatsApp marketing conversations (business-initiated)',
-    whatsapp_conversations_user: 'WhatsApp service conversations (user-initiated)',
+    whatsapp_conversations_business: 'Business Conversations',
+    whatsapp_conversations_user: 'User Conversations',
     unique_users: 'Unique users',
     returning_users: 'Returning users',
     published_reports: 'Published reports',
