@@ -150,7 +150,7 @@ module ProjectMediaGetters
       custom_title: :custom_title,
       pinned_media_id: :media_slug,
       claim_title: :claim_description_content,
-      fact_check_title: :fact_check_title
+      fact_check_title: :recalculate_fact_check_title
     }
     title_field = self.title_field&.to_sym
     if !title_field.blank? && title_mapping.keys.include?(title_field)

@@ -17,11 +17,5 @@ module AccountSourceMutations
     argument :url, GraphQL::Types::String, required: false
   end
 
-  class Update < Mutations::UpdateMutation
-    include SharedCreateAndUpdateFields
-
-    argument :source_id, GraphQL::Types::Int, required: false, camelize: false
-  end
-
   class Destroy < Mutations::DestroyMutation; end
 end

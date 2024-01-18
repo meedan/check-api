@@ -202,6 +202,6 @@ module ProjectMediaCreators
   end
 
   def create_tags
-    self.set_tags.each { |tag| Tag.create!(annotated: self, tag: tag, skip_check_ability: true) } unless self.set_tags.blank?
+    self.set_tags.each { |tag| Tag.create!(annotated: self, tag: tag, skip_check_ability: true) } if self.set_tags.is_a?(Array)
   end
 end

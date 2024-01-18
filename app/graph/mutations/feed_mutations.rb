@@ -19,6 +19,7 @@ module FeedMutations
 
     argument :name, GraphQL::Types::String, required: true
     argument :licenses, [GraphQL::Types::Int, null: true], required: true
+    argument :data_points, [GraphQL::Types::Int, null: true], required: false
   end
 
   class Update < Mutations::UpdateMutation
