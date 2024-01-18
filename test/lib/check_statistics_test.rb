@@ -20,7 +20,7 @@ class CheckStatisticsTest < ActiveSupport::TestCase
   def teardown
   end
 
-  test 'should calculate number of WhatsApp conversations' do
+  test 'should calculate number of all WhatsApp conversations' do
     WebMock.stub_request(:get, @url).to_return(status: 200, body: {
       conversation_analytics: {
         data: [
@@ -62,7 +62,7 @@ class CheckStatisticsTest < ActiveSupport::TestCase
       },
       id: '123456'
     }.to_json)
-    assert_equal 2300, CheckStatistics.number_of_whatsapp_conversations(@team.id, @from, @to)
+    assert_equal 2300, CheckStatistics.number_of_whatsapp_conversations(@team.id, @from, @to, 'all')
   end
 
   test 'should not calculate number of WhatsApp conversations if WhatsApp Insights API returns an error' do
@@ -81,5 +81,36 @@ class CheckStatisticsTest < ActiveSupport::TestCase
     create_tipline_message team_id: @team.id, event: 'newsletter', direction: :outgoing, state: 'delivered'
     data = CheckStatistics.get_statistics(Time.now.yesterday, Time.now.tomorrow, @team.id, 'whatsapp', 'en')
     assert_equal 1, data[:newsletters_delivered]
+  end
+
+  test 'should calculate number of WhatsApp user-initiated and business-initiated conversations' do
+    url = 'https://graph.facebook.com/v17.0/123456?fields=conversation_analytics.start(1672531200).end(1675123200).granularity(DAILY).dimensions(CONVERSATION_DIRECTION).phone_numbers(12345678)&access_token=654321'
+    WebMock.stub_request(:get, url).to_return(status: 200, body: {
+      conversation_analytics: {
+        data: [
+          {
+            data_points: [
+              {
+                start: 1688454000,
+                end: 1688540400,
+                conversation: 40,
+                conversation_direction: 'USER_INITIATED',
+                cost: 0.8866
+              },
+              {
+                start: 1688281200,
+                end: 1688367600,
+                conversation: 10,
+                conversation_direction: 'BUSINESS_INITIATED',
+                cost: 0
+              }
+            ]
+          }
+        ]
+      },
+      id: '123456'
+    }.to_json)
+    assert_equal 40, CheckStatistics.number_of_whatsapp_conversations(@team.id, @from, @to, 'user')
+    assert_equal 10, CheckStatistics.number_of_whatsapp_conversations(@team.id, @from, @to, 'business')
   end
 end

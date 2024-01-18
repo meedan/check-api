@@ -9,7 +9,11 @@ module AlegreV2
     end
 
     def sync_path(project_media)
-      "/similarity/sync/#{get_type(project_media)}"
+      self.sync_path_for_type(get_type(project_media))
+    end
+
+    def sync_path_for_type(type)
+      "/similarity/sync/#{type}"
     end
 
     def async_path(project_media)
@@ -101,7 +105,7 @@ module AlegreV2
       elsif project_media.is_audio?
         type = 'audio'
       end
-      return type
+      type
     end
 
     def generic_package(project_media, field)
@@ -205,9 +209,9 @@ module AlegreV2
     def get_per_model_threshold(project_media, threshold)
       type = get_type(project_media)
       if type == "text"
-        {per_model_threshold: threshold.collect{|x| {model: x[:model], value: x[:value]}}}
+        { per_model_threshold: threshold&.collect{ |x| { model: x[:model], value: x[:value] } } }
       else
-        {threshold: threshold[0][:value]}
+        { threshold: threshold&.dig(0, :value) }
       end
     end
 
@@ -236,7 +240,7 @@ module AlegreV2
             relationship_type: relationship_type
           }
         ]
-      }.reject{|k,_| k == project_media.id}]
+      }.reject{ |k,_| k == project_media.id }]
     end
 
     def get_items(project_media, field, confirmed=false)
@@ -267,6 +271,13 @@ module AlegreV2
 
     def relate_project_media(project_media, field=nil)
       self.add_relationships(project_media, self.get_similar_items_v2(project_media, field)) unless project_media.is_blank?
+    end
+
+    def get_items_with_similar_media_v2(media_url, threshold, team_ids, type)
+      alegre_path = ['audio', 'image'].include?(type) ? self.sync_path_for_type(type) : "/#{type}/similarity/search/"
+      # FIXME: Stop using this method from v1 once all media types are supported by v2
+      # FIXME: Alegre crashes if `media_url` was already requested before, this is why I append a hash
+      self.get_items_with_similar_media("#{media_url}?hash=#{SecureRandom.hex}", threshold, team_ids, alegre_path)
     end
   end
 end

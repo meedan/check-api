@@ -29,6 +29,4 @@ module SourceMutations
     argument :refresh_accounts, GraphQL::Types::Int, required: false, camelize: false
     argument :lock_version, GraphQL::Types::Int, required: false, camelize: false
   end
-
-  class Destroy < Mutations::DestroyMutation; end
 end

@@ -3,10 +3,34 @@ require "faker"
 
 Rails.env.development? || raise('To run the seeds file you should be in the development environment')
 
-data = {
-  team_name: Faker::Company.name,
-  user_name: Faker::Name.first_name.downcase,
-  user_password: Faker::Internet.password(min_length: 8),
+data_users = {
+  main_user: {
+    team:
+      {
+        name: "#{Faker::Company.name} / Main User: Main Team",
+        logo: 'rails.png'
+      },
+    name: Faker::Name.first_name.downcase,
+    password: Faker::Internet.password(min_length: 8),
+  },
+  invited_empty_user: {
+    team:
+    [
+      {
+      name: "#{Faker::Company.name} / Invited User: Team #1",
+      logo: 'maçã.png'
+    },
+    {
+      name: "#{Faker::Company.name} / Invited User: Team #2",
+      logo: 'ruby-small.png'
+    }
+  ],
+    name: Faker::Name.first_name.downcase,
+    password: Faker::Internet.password(min_length: 8),
+  }
+}
+
+data_items = {
   'Link' => [
     'https://meedan.com/post/addressing-misinformation-across-countries-a-pioneering-collaboration-between-taiwan-factcheck-center-vera-files',
     'https://meedan.com/post/entre-becos-a-women-led-hyperlocal-newsletter-from-the-peripheries-of-brazil',
@@ -32,15 +56,16 @@ data = {
   'UploadedAudio' => ['e-item.mp3', 'rails.mp3', 'with_cover.mp3', 'with_cover.ogg', 'with_cover.wav']*4,
   'UploadedImage' =>  ['large-image.jpg', 'maçã.png', 'rails-photo.jpg', 'rails.png', 'ruby-small.png']*4,
   'UploadedVideo' =>  ['d-item.mp4', 'rails.mp4', 'd-item.mp4', 'rails.mp4', 'd-item.mp4']*4,
-  fact_check_links: [
-    'https://meedan.com/post/welcome-haramoun-hamieh-our-program-manager-for-nawa',
-    'https://meedan.com/post/strengthening-fact-checking-with-media-literacy-technology-and-collaboration',
-    'https://meedan.com/post/highlights-from-the-work-of-meedans-partners-on-international-fact-checking',
-    'https://meedan.com/post/what-is-gendered-health-misinformation-and-why-is-it-an-equity-problem-worth',
-    'https://meedan.com/post/the-case-for-a-public-health-approach-to-moderate-health-misinformation',
-  ],
   'Claim' => Array.new(20) { Faker::Lorem.paragraph(sentence_count: 10) },
 }
+
+data_imported_fact_checks =  [
+  'https://meedan.com/post/welcome-haramoun-hamieh-our-program-manager-for-nawa',
+  'https://meedan.com/post/strengthening-fact-checking-with-media-literacy-technology-and-collaboration',
+  'https://meedan.com/post/highlights-from-the-work-of-meedans-partners-on-international-fact-checking',
+  'https://meedan.com/post/what-is-gendered-health-misinformation-and-why-is-it-an-equity-problem-worth',
+  'https://meedan.com/post/the-case-for-a-public-health-approach-to-moderate-health-misinformation',
+]
 
 def open_file(file)
   File.open(File.join(Rails.root, 'test', 'data', file))
@@ -222,6 +247,20 @@ def verify_fact_check_and_publish_report(project_media, url = '')
   report_design.save!
 end
 
+def create_team_and_project_related_to_user(user, team_data)
+  puts 'Making Team / Workspace...'
+  team = create_team(team_data)
+  team.set_language('en')
+
+  puts 'Making Project...'
+  project = create_project(title: team.name, team_id: team.id, user: user, description: '')
+
+  puts 'Making Team User...'
+  create_team_user(team: team, user: user, role: 'admin')
+
+  return team, project
+end
+
 ######################
 # 0. Start the script
 puts "If you want to create a new user: press 1 then enter"
@@ -233,18 +272,8 @@ ActiveRecord::Base.transaction do
   # 1. Creating what we need for the workspace
   # We create a user, team and project OR we fetch one
   if answer == "1"
-    puts 'Making Team / Workspace...'
-    team = create_team(name: "#{data[:team_name]} / Feed Creator")
-    team.set_language('en')
-
-    puts 'Making User...'
-    user = create_user(name: data[:user_name], login: data[:user_name], password: data[:user_password], password_confirmation: data[:user_password], email: Faker::Internet.safe_email(name: data[:user_name]), is_admin: true)
-
-    puts 'Making Project...'
-    project = create_project(title: team.name, team_id: team.id, user: user, description: '')
-
-    puts 'Making Team User...'
-    create_team_user(team: team, user: user, role: 'admin')
+    user = create_user(name: data_users[:main_user][:name], login: data_users[:main_user][:name], password: data_users[:main_user][:password], password_confirmation: data_users[:main_user][:password], email: Faker::Internet.safe_email(name: data_users[:main_user][:name]))
+    team, project = create_team_and_project_related_to_user(user, data_users[:main_user][:team])
   elsif answer == "2"
     puts "Type user email then press enter"
     print ">> "
@@ -254,9 +283,7 @@ ActiveRecord::Base.transaction do
     user = User.find_by(email: email)
 
     if user.team_users.first.nil?
-      team = create_team(name: data[:team_name])
-      project = create_project(title: team.name, team_id: team.id, user: user, description: '')
-      create_team_user(team: team, user: user, role: 'admin')
+      team, project = create_team_and_project_related_to_user(user, data_users[:main_user][:team])
     else 
       team_user = user.team_users.first
       team = team_user.team
@@ -266,13 +293,11 @@ ActiveRecord::Base.transaction do
 
   # 2. Creating Items in different states
   # 2.1 Create medias: claims, audios, images, videos and links
-  media_data_collection = [ data['Claim'], data['UploadedAudio'], data['UploadedImage'], data['UploadedVideo'], data['Link']]
-  media_data_collection.each do |media_data|
+  data_items.each do |media_type, medias_data|
     begin
-      media_type = data.key(media_data)
       puts "Making #{media_type}..."
       puts "#{media_type}: Making Medias and Project Medias..."
-      medias = media_data.map { |individual_data| create_media(user, individual_data, media_type)}
+      medias = medias_data.map { |individual_data| create_media(user, individual_data, media_type)}
       project_medias = create_project_medias_with_channel(user, project, team, medias)
       
       puts "#{media_type}: Making Claim Descriptions and Fact Checks..."
@@ -295,8 +320,8 @@ ActiveRecord::Base.transaction do
       # so the center column on the item page has a good size list to check functionality against
       # https://github.com/meedan/check-api/pull/1722#issuecomment-1798729043
       # create the children we need for the relationship
-      confirmed_children_media = ['Claim', 'UploadedAudio', 'UploadedImage', 'UploadedVideo', 'Link'].flat_map do |media_type|
-        data[media_type][0..1].map { |data| create_media(user, data , media_type)}
+      confirmed_children_media = data_items.keys.flat_map do |media_type|
+        data_items[media_type][0..1].map { |data| create_media(user, data , media_type)}
       end
       confirmed_children_project_medias = create_project_medias(user, project, team, confirmed_children_media)
       # send parent and children
@@ -325,19 +350,33 @@ ActiveRecord::Base.transaction do
   
   # 2.2 Create medias: imported Fact Checks
   puts 'Making Imported Fact Checks...'
-  data[:fact_check_links].map { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
+  data_imported_fact_checks.map { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
 
   # 3. Create Shared feed
   puts 'Making Shared Feed'
-  saved_search = SavedSearch.create!(title: "#{user.name}'s list #{random_number}", team: team, filters: {created_by: user})
-  Feed.create!(name: "Feed Test: #{Faker::Alphanumeric.alpha(number: 10)}", user: user, team: team, published: true, saved_search: saved_search, licenses: [1])
+  if team.saved_searches.empty?
+    saved_search = SavedSearch.create!(title: "#{user.name.capitalize}'s list", team: team, filters: {created_by: user})
+  else
+    saved_search = team.saved_searches.first
+  end
+  feed = Feed.create!(name: "Feed Test ##{user.feeds.count + 1} [User: #{user.name.capitalize} / Team: #{team.name}]", user: user, team: team, published: true, saved_search: saved_search, licenses: [1])
 
-  # 4. Return user information
+  # 4.1 Create new user with two empty workspaces
+  puts 'Making invited user and their 2 empty workspaces...'
+  invited_empty_user = create_user(name: data_users[:invited_empty_user][:name], login: data_users[:invited_empty_user][:name], password: data_users[:invited_empty_user][:password], password_confirmation: data_users[:invited_empty_user][:password], email: Faker::Internet.safe_email(name: data_users[:invited_empty_user][:name]))
+  data_users[:invited_empty_user][:team].each  { |team| create_team_and_project_related_to_user(invited_empty_user, team) }
+
+  # 4.2 Invite new user/empty workspace
+  puts 'Inviting user to main user\'s feed...'
+  create_feed_invitation(email: invited_empty_user.email, feed: feed, user: user)
+
+  # FINAL. Return user information
   if answer == "1"
-    puts "Created user: name: #{data[:user_name]} — email: #{user.email} — password : #{data[:user_password]}"
+    puts "Created user: name: #{data_users[:main_user][:name]} — email: #{user.email} — password : #{data_users[:main_user][:password]}"
   elsif answer == "2"
     puts "Data added to user: #{user.email}"
   end
+  puts "Created invited user / empty workspace: name: #{data_users[:invited_empty_user][:name]} — email: #{invited_empty_user.email} — password : #{data_users[:invited_empty_user][:password]}"
 end
 
 Rails.cache.clear

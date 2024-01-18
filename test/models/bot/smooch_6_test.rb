@@ -258,6 +258,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
     Bot::Alegre.stubs(:get_items_with_similar_media).returns({ @search_result.id => { score: 0.9 } })
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'image', 'mediaUrl' => image_url })
+    CheckS3.stubs(:rewrite_url).returns(random_url)
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Image here', '1'
       assert_state 'search_result'
@@ -266,10 +267,6 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       end
       assert_state 'main'
     end
-    Bot::Alegre.unstub(:get_merged_similar_items)
-    Bot::Smooch.unstub(:bundle_list_of_messages)
-    ProjectMedia.any_instance.unstub(:report_status)
-    ProjectMedia.any_instance.unstub(:analysis_published_article_url)
   end
 
   test "should submit query and handle search error on tipline bot v2" do
