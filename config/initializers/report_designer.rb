@@ -56,7 +56,7 @@ Dynamic.class_eval do
   def report_design_introduction(data, language)
     if self.annotation_type == 'report_design'
       introduction = self.report_design_field_value('introduction').to_s
-      introduction = introduction.gsub('{{status}}', self.report_design_field_value('status_label').to_s)
+      introduction = introduction.gsub('{{status}}', self.annotated&.status_i18n(nil, { locale: language }))
       introduction = introduction.gsub('{{query_date}}', self.report_design_date(Time.at(data['received']).to_date, language)) if data['received']
       introduction
     end

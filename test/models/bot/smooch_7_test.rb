@@ -260,6 +260,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
     Bot::Alegre.stubs(:get_items_with_similar_media).returns({ pm.id => { score: 0.9, model: 'elasticsearch' } })
+    CheckS3.stubs(:rewrite_url).returns(random_url)
 
     assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en')
 
