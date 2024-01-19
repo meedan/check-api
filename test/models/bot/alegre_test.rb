@@ -211,6 +211,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should use OCR data for similarity matching" do
+    WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
     WebMock.stub_request(:post, 'http://alegre:3100/text/langid/').to_return(body: {
       'result': {
         'language': 'en',
@@ -264,6 +265,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   # This test to reproduce errbit error CHECK-1218
   test "should match to existing parent" do
     WebMock.stub_request(:delete, 'http://alegre:3100/text/similarity/').to_return(body: {success: true}.to_json)
+    WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
     WebMock.stub_request(:post, 'http://alegre:3100/text/langid/').to_return(body: {
       'result': {
         'language': 'en',
@@ -285,7 +287,13 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should use transcription data for similarity matching" do
-    WebMock.stub_request(:delete, 'http://alegre:3100/text/similarity/').to_return(body: {success: true}.to_json)
+    WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
+    WebMock.stub_request(:post, 'http://alegre:3100/text/langid/').to_return(body: {
+      'result': {
+        'language': 'en',
+        'confidence': 1.0
+      }
+    }.to_json)
     json_schema = {
       type: 'object',
       required: ['job_name'],
@@ -310,6 +318,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should check existing relationship before create a new one" do
+    WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
     WebMock.stub_request(:post, 'http://alegre:3100/text/langid/').to_return(body: {
       'result': {
         'language': 'en',
