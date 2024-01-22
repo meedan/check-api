@@ -5,7 +5,7 @@ class UserDisconnectLoginAccountMutation < Mutations::BaseMutation
   argument :uid, GraphQL::Types::String, required: true
 
   field :success, GraphQL::Types::Boolean, null: true
-  field :user, UserType, null: true
+  field :user, MeType, null: true
 
   def resolve(provider:, uid:)
     user = User.current
