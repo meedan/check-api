@@ -54,8 +54,8 @@ Devise.setup do |config|
   config.lock_strategy = :failed_attempts
   config.unlock_strategy = :both
   config.unlock_keys = [ :time ]
-  config.maximum_attempts = CheckConfig.get('devise_maximum_attempts', 5).to_i
-  config.unlock_in = CheckConfig.get('devise_unlock_accounts_after', 1).to_i.hour
+  config.maximum_attempts = CheckConfig.get('devise_maximum_attempts', 5)
+  config.unlock_in = CheckConfig.get('devise_unlock_accounts_after', 1).hour
 end
 
 AuthTrail.geocode = false
