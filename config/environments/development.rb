@@ -83,6 +83,4 @@ Rails.application.configure do
   else
     puts '[WARNING] config.hosts not provided. Only requests from localhost are allowed. To change, update `whitelisted_hosts` in config.yml'
   end
-
-  config.hosts << "api.check.orb.local"
 end

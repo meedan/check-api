@@ -74,9 +74,9 @@ class SessionsControllerTest < ActionController::TestCase
   test "should lock user after excessive login requests" do
     u = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com'
     u.confirm
-    maximum_attempts = Devise.maximum_attempts
+    Devise.maximum_attempts = 2
 
-    maximum_attempts.times do
+    2.times do
       post :create, params: { api_user: { email: 'test@test.com', password: '12345679' } }
     end
 
@@ -94,7 +94,7 @@ class SessionsControllerTest < ActionController::TestCase
       post :create, params: { api_user: { email: 'test@test.com', password: '12345679' } }
     end
 
-    travel_to 2.hours.from_now do
+    travel_to CheckConfig.get('devise_unlock_accounts_after', 5).to_i + 1.hours.from_now do
       u.reload
       assert !u.access_locked?
       assert_nil u.locked_at
