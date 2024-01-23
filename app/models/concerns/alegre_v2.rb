@@ -252,6 +252,7 @@ module AlegreV2
     end
 
     def get_similar_items_v2(project_media, field)
+      type = get_type(project_media)
       if !Bot::Alegre.should_get_similar_items_of_type?('master', project_media.team_id) || !Bot::Alegre.should_get_similar_items_of_type?(type, project_media.team_id)
         {}
       else
