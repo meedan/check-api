@@ -650,4 +650,38 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal relationship.relationship_type, Relationship.suggested_type
     Bot::Alegre.unstub(:get_similar_items_v2)
   end
+
+  test "should not relate project media for audio if disabled on workspace" do
+    tbi = @team.team_bot_installations.select{|x| x.user_id == @bot.id}
+    tbi.set_audio_similarity_enabled = false
+    tb.save!
+    pm1 = create_project_media team: @team, media: create_uploaded_audio
+    pm2 = create_project_media team: @team, media: create_uploaded_audio
+    Bot::Alegre.stubs(:get_similar_items_v2).returns({pm2.id=>{:score=>0.91, :context=>{"team_id"=>pm2.team_id, "has_custom_id"=>true, "project_media_id"=>pm2.id}, :model=>"audio", :source_field=>"audio", :target_field=>"audio", :relationship_type=>Relationship.suggested_type}})
+    relationship = nil
+    assert_no_difference 'Relationship.count' do
+      relationship = Bot::Alegre.relate_project_media(pm1)
+    end
+    assert_equal relationship, nil
+    Bot::Alegre.unstub(:get_similar_items_v2)
+    tbi.set_audio_similarity_enabled = true
+    tb.save!
+  end
+
+  test "should not relate project media for image if disabled on workspace" do
+    tbi = @team.team_bot_installations.select{|x| x.user_id == @bot.id}
+    tbi.set_image_similarity_enabled = false
+    tb.save!
+    pm1 = create_project_media team: @team, media: create_uploaded_image
+    pm2 = create_project_media team: @team, media: create_uploaded_image
+    Bot::Alegre.stubs(:get_similar_items_v2).returns({pm2.id=>{:score=>0.91, :context=>{"team_id"=>pm2.team_id, "has_custom_id"=>true, "project_media_id"=>pm2.id}, :model=>"audio", :source_field=>"audio", :target_field=>"audio", :relationship_type=>Relationship.suggested_type}})
+    relationship = nil
+    assert_no_difference 'Relationship.count' do
+      relationship = Bot::Alegre.relate_project_media(pm1)
+    end
+    assert_equal relationship, nil
+    Bot::Alegre.unstub(:get_similar_items_v2)
+    tbi.set_image_similarity_enabled = true
+    tb.save!
+  end
 end
