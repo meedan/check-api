@@ -252,9 +252,14 @@ module AlegreV2
     end
 
     def get_similar_items_v2(project_media, field)
-      suggested_or_confirmed = get_suggested_items(project_media, field)
-      confirmed = get_confirmed_items(project_media, field)
-      Bot::Alegre.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, project_media)
+      type = get_type(project_media)
+      if !Bot::Alegre.should_get_similar_items_of_type?('master', project_media.team_id) || !Bot::Alegre.should_get_similar_items_of_type?(type, project_media.team_id)
+        {}
+      else
+        suggested_or_confirmed = get_suggested_items(project_media, field)
+        confirmed = get_confirmed_items(project_media, field)
+        Bot::Alegre.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, project_media)
+      end
     end
 
     def relate_project_media(project_media, field=nil)
