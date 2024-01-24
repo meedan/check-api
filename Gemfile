@@ -62,6 +62,7 @@ gem 'graphiql-rails', git: 'https://github.com/meedan/graphiql-rails.git', ref: 
 gem 'graphql-formatter'
 gem 'nokogiri', '1.14.3'
 gem 'puma'
+gem 'rack-attack'
 gem 'rack-cors', '1.0.6', require: 'rack/cors'
 gem 'sidekiq', '5.2.10'
 gem 'sidekiq-cloudwatchmetrics'
