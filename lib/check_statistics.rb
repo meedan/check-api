@@ -14,7 +14,7 @@ module CheckStatistics
     end
 
     def reports_received(team_id, platform, start_date, end_date, language)
-      TiplineRequest.where(team_id: team_id, language: language, smooch_report_received_at: start_date.to_i..end_date.to_i, platform: platform)
+      TiplineRequest.where(team_id: team_id, language: language, smooch_report_received_at: start_date.to_datetime.to_i..end_date.to_datetime.to_i, platform: platform)
     end
 
     def project_media_requests(team_id, platform, start_date, end_date, language, type = nil)
