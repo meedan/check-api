@@ -652,32 +652,20 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should not relate project media for audio if disabled on workspace" do
-    tbi = @team.team_bot_installations.select{|x| x.user_id == @bot.id}
+    tbi = @team.team_bot_installations.select{ |x| x.user_id == @bot.id }
     tbi.set_audio_similarity_enabled = false
     tbi.save!
-    pm1 = create_project_media team: @team, media: create_uploaded_audio
-    pm2 = create_project_media team: @team, media: create_uploaded_audio
-    relationship = nil
-    assert_no_difference 'Relationship.count' do
-      relationship = Bot::Alegre.relate_project_media(pm1)
-    end
-    assert_equal relationship, nil
-    tbi.set_audio_similarity_enabled = true
-    tbi.save!
+    Bot::Alegre.stubs(:merge_suggested_and_confirmed).never
+    pm = create_project_media team: @team, media: create_uploaded_audio
+    assert_equal {}, Bot::Alegre.get_similar_items_v2(pm)
   end
 
   test "should not relate project media for image if disabled on workspace" do
-    tbi = @team.team_bot_installations.select{|x| x.user_id == @bot.id}
+    tbi = @team.team_bot_installations.select{ |x| x.user_id == @bot.id }
     tbi.set_image_similarity_enabled = false
     tbi.save!
-    pm1 = create_project_media team: @team, media: create_uploaded_image
-    pm2 = create_project_media team: @team, media: create_uploaded_image
-    relationship = nil
-    assert_no_difference 'Relationship.count' do
-      relationship = Bot::Alegre.relate_project_media(pm1)
-    end
-    assert_equal relationship, nil
-    tbi.set_image_similarity_enabled = true
-    tbi.save!
+    Bot::Alegre.stubs(:merge_suggested_and_confirmed).never
+    pm = create_project_media team: @team, media: create_uploaded_image
+    assert_equal {}, Bot::Alegre.get_similar_items_v2(pm)
   end
 end
