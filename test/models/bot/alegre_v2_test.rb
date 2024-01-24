@@ -650,4 +650,22 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal relationship.relationship_type, Relationship.suggested_type
     Bot::Alegre.unstub(:get_similar_items_v2)
   end
+
+  test "should not relate project media for audio if disabled on workspace" do
+    tbi = TeamBotInstallation.where(team: @team, user: @bot).last
+    tbi.set_audio_similarity_enabled = false
+    tbi.save!
+    Bot::Alegre.stubs(:merge_suggested_and_confirmed).never
+    pm = create_project_media team: @team, media: create_uploaded_audio
+    assert_equal({}, Bot::Alegre.get_similar_items_v2(pm, nil))
+  end
+
+  test "should not relate project media for image if disabled on workspace" do
+    tbi = TeamBotInstallation.where(team: @team, user: @bot).last
+    tbi.set_image_similarity_enabled = false
+    tbi.save!
+    Bot::Alegre.stubs(:merge_suggested_and_confirmed).never
+    pm = create_project_media team: @team, media: create_uploaded_image
+    assert_equal({}, Bot::Alegre.get_similar_items_v2(pm, nil))
+  end
 end
