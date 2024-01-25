@@ -94,7 +94,7 @@ class SessionsControllerTest < ActionController::TestCase
       post :create, params: { api_user: { email: 'test@test.com', password: '12345679' } }
     end
 
-    travel_to CheckConfig.get('devise_unlock_accounts_after', 5, :integer) + 1.hours.from_now do
+    travel_to  CheckConfig.get('devise_unlock_accounts_after', 5, :integer).hours.from_now + 1.hour do
       u.reload
       assert !u.access_locked?
       assert_nil u.locked_at
