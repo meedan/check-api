@@ -1,6 +1,6 @@
 class SmoochNlu
-  class SmoochBotNotInstalledError < ::ArgumentError
-  end
+  class SmoochBotNotInstalledError < ::ArgumentError; end
+  class SmoochNluError < ::StandardError; end
 
   # FIXME: Make it more flexible
   # FIXME: Once we support paraphrase-multilingual-mpnet-base-v2 make it the only model used
@@ -9,6 +9,8 @@ class SmoochNlu
     # Bot::Alegre::OPENAI_ADA_MODEL => 0.8 # Not in use right now
     Bot::Alegre::PARAPHRASE_MULTILINGUAL_MODEL => 0.6
   }
+
+  NLU_GLOBAL_COUNTER_KEY = 'nlu_global_counter'
 
   include SmoochNluMenus
 
@@ -59,13 +61,25 @@ class SmoochNlu
     CheckConfig.get('nlu_disambiguation_threshold', 0.11, :float).to_f
   end
 
-  def self.alegre_matches_from_message(message, language, context, alegre_result_key)
+  def self.alegre_matches_from_message(message, language, context, alegre_result_key, uid)
     # FIXME: Raise exception if not in a tipline context (so, if Bot::Smooch.config is nil)
     matches = []
     team_slug = Team.find(Bot::Smooch.config['team_id']).slug
     params = nil
     response = nil
-    if Bot::Smooch.config.to_h['nlu_enabled']
+    unless Bot::Smooch.config.to_h['nlu_enabled']
+      return []
+    end
+    if self.nlu_global_rate_limit_reached?
+      CheckSentry.notify(SmoochNluError.new('NLU global rate limit reached.'))
+      return []
+    end
+    if self.nlu_user_rate_limit_reached?(uid)
+      CheckSentry.notify(SmoochNluError.new('NLU user rate limit reached.'), user_id: uid)
+      return []
+    end
+    begin
+      self.increment_global_counter
       # FIXME: In the future we could consider matches across all languages when options is nil
       # FIXME: No need to call Alegre if it's an exact match to one of the keywords
       # FIXME: No need to call Alegre if message has no word characters
@@ -94,20 +108,43 @@ class SmoochNlu
       ranked_options = sorted_options.map{ |o| { 'key' => o.dig('_source', 'context', alegre_result_key), 'score' => o['_score'] } }
       matches = ranked_options
 
-      # FIXME: Deal with ties (i.e., where two options have an equal _score or count)
+      # In all cases log for analysis
+      log = {
+        version: '0.1', # Update if schema changes
+        datetime: DateTime.current,
+        team_slug: team_slug,
+        user_query: message,
+        alegre_query: params,
+        alegre_response: response,
+        matches: matches
+      }
+      Rails.logger.info("[Smooch NLU] [Matches From Message] #{log.to_json}")
+    rescue StandardError => e
+      CheckSentry.notify(SmoochNluError.new("NLU exception: #{e.message}"), exception: e)
+      matches = []
+    ensure
+      self.decrement_global_counter
     end
-    # In all cases log for analysis
-    log = {
-      version: "0.1", # Update if schema changes
-      datetime: DateTime.current,
-      team_slug: team_slug,
-      user_query: message,
-      alegre_query: params,
-      alegre_response: response,
-      matches: matches
-    }
-    Rails.logger.info("[Smooch NLU] [Matches From Message] #{log.to_json}")
     matches
+  end
+
+  def self.nlu_global_rate_limit_reached?
+    redis = Redis.new(REDIS_CONFIG)
+    redis.get(NLU_GLOBAL_COUNTER_KEY).to_i > CheckConfig.get('nlu_global_rate_limit', 100, :integer)
+  end
+
+  def self.nlu_user_rate_limit_reached?(uid)
+    TiplineMessage.where(uid: uid, created_at: Time.now.ago(1.minute)..Time.now, state: 'received').count > CheckConfig.get('nlu_user_rate_limit', 30, :integer)
+  end
+
+  def self.increment_global_counter
+    redis = Redis.new(REDIS_CONFIG)
+    redis.incr(NLU_GLOBAL_COUNTER_KEY)
+  end
+
+  def self.decrement_global_counter
+    redis = Redis.new(REDIS_CONFIG)
+    redis.decr(NLU_GLOBAL_COUNTER_KEY)
   end
 
   private
