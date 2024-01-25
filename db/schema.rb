@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_01_14_024701) do
+ActiveRecord::Schema.define(version: 2024_01_15_101312) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -669,7 +669,6 @@ ActiveRecord::Schema.define(version: 2024_01_14_024701) do
     t.datetime "updated_at", null: false
     t.string "state"
     t.index ["external_id", "state"], name: "index_tipline_messages_on_external_id_and_state", unique: true
-    t.index ["external_id"], name: "index_tipline_messages_on_external_id"
     t.index ["team_id"], name: "index_tipline_messages_on_team_id"
     t.index ["uid"], name: "index_tipline_messages_on_uid"
   end
@@ -828,6 +827,9 @@ ActiveRecord::Schema.define(version: 2024_01_14_024701) do
     t.integer "consumed_timestep"
     t.boolean "otp_required_for_login"
     t.string "otp_backup_codes", array: true
+    t.integer "failed_attempts", default: 0, null: false
+    t.string "unlock_token"
+    t.datetime "locked_at"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true, where: "((email IS NOT NULL) AND ((email)::text <> ''::text))"
     t.index ["invitation_token"], name: "index_users_on_invitation_token", unique: true
@@ -839,7 +841,8 @@ ActiveRecord::Schema.define(version: 2024_01_14_024701) do
   end
 
   create_table "versions", id: :serial, force: :cascade do |t|
-    t.string "item_type", null: false
+    t.string "item_type"
+    t.string "{:null=>false}"
     t.string "item_id", null: false
     t.string "event", null: false
     t.string "whodunnit"

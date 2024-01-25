@@ -302,7 +302,7 @@ class Bot::Smooch < BotUser
       when 'message:delivery:failure'
         self.resend_message(json)
         true
-      when 'conversation:start'
+      when 'conversation:start', 'conversation:referral'
         message = {
           '_id': json['conversation']['_id'],
           authorId: json['appUser']['_id'],
