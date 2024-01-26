@@ -268,6 +268,10 @@ development: &default
   nlu_global_rate_limit: 100
   nlu_user_rate_limit: 30
 
+  devise_maximum_attempts: 5
+  devise_unlock_accounts_after: 1
+  login_rate_limit: 10
+  api_rate_limit: 100
 test:
   <<: *default
   checkdesk_base_url_private: http://api:3000
