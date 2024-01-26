@@ -3,6 +3,7 @@ require 'sidekiq/testing'
 
 class Bot::Smooch8Test < ActiveSupport::TestCase
   def setup
+    WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
   end
 
   def teardown
