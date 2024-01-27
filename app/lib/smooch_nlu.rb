@@ -64,9 +64,6 @@ class SmoochNlu
   def self.alegre_matches_from_message(message, language, context, alegre_result_key, uid)
     # FIXME: Raise exception if not in a tipline context (so, if Bot::Smooch.config is nil)
     matches = []
-    team_slug = Team.find(Bot::Smooch.config['team_id']).slug
-    params = nil
-    response = nil
     unless Bot::Smooch.config.to_h['nlu_enabled']
       return []
     end
@@ -80,6 +77,7 @@ class SmoochNlu
     end
     begin
       self.increment_global_counter
+      team_slug = Team.find(Bot::Smooch.config['team_id']).slug
       # FIXME: In the future we could consider matches across all languages when options is nil
       # FIXME: No need to call Alegre if it's an exact match to one of the keywords
       # FIXME: No need to call Alegre if message has no word characters
