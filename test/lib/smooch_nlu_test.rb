@@ -110,7 +110,7 @@ class SmoochNluTest < ActiveSupport::TestCase
     team = create_team_with_smooch_bot_installed
     SmoochNlu.new(team.slug).disable!
     Bot::Smooch.get_installation('smooch_id', 'test')
-    assert_equal [], SmoochNlu.menu_options_from_message('I want to subscribe to the newsletter', 'en', @menu_options)
+    assert_equal [], SmoochNlu.menu_options_from_message('I want to subscribe to the newsletter', 'en', @menu_options, random_string)
   end
 
   test 'should return a menu option if NLU is enabled' do
@@ -120,6 +120,31 @@ class SmoochNluTest < ActiveSupport::TestCase
     team = create_team_with_smooch_bot_installed
     SmoochNlu.new(team.slug).enable!
     Bot::Smooch.get_installation('smooch_id', 'test')
-    assert_not_nil SmoochNlu.menu_options_from_message('I want to subscribe to the newsletter', 'en', @menu_options)
+    assert_not_nil SmoochNlu.menu_options_from_message('I want to subscribe to the newsletter', 'en', @menu_options, random_string)
+  end
+
+  test 'should return empty list of matches if global rate limit is reached' do
+    Bot::Smooch.stubs(:config).returns({ 'nlu_enabled' => true })
+    Bot::Alegre.stubs(:request).never
+    SmoochNlu.increment_global_counter
+    SmoochNlu.increment_global_counter
+    stub_configs({ 'nlu_global_rate_limit' => 1 }) do
+      assert_equal [], SmoochNlu.alegre_matches_from_message('test', 'en', {}, 'test', 'test')
+    end
+  end
+
+  test 'should return empty list of matches if user rate limit is reached' do
+    Bot::Smooch.stubs(:config).returns({ 'nlu_enabled' => true })
+    Bot::Alegre.stubs(:request).never
+    2.times { create_tipline_message uid: '123', state: 'received' }
+    stub_configs({ 'nlu_user_rate_limit' => 1 }) do
+      assert_equal [], SmoochNlu.alegre_matches_from_message('test', 'en', {}, 'test', '123')
+    end
+  end
+
+  test 'should return empty list of matches if exception happens' do
+    Bot::Smooch.stubs(:config).returns({ 'nlu_enabled' => true })
+    Bot::Alegre.stubs(:request).never
+    assert_equal [], SmoochNlu.alegre_matches_from_message('test', 'en', {}, 'test', 'test')
   end
 end

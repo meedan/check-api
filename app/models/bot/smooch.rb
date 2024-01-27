@@ -295,8 +295,8 @@ class Bot::Smooch < BotUser
         'capi:verification'
       when 'message:appUser'
         json['messages'].each do |message|
-          self.parse_message(message, json['app']['_id'], json)
           SmoochTiplineMessageWorker.perform_async(message, json)
+          self.parse_message(message, json['app']['_id'], json)
         end
         true
       when 'message:delivery:failure'
@@ -570,12 +570,12 @@ class Bot::Smooch < BotUser
     end
     # ...if nothing is matched, try using the NLU feature
     if state != 'query'
-      options = SmoochNlu.menu_options_from_message(typed, language, options)
+      options = SmoochNlu.menu_options_from_message(typed, language, options, uid)
       unless options.blank?
         SmoochNlu.process_menu_options(uid, options, message, language, workflow, app_id)
         return true
       end
-      resource = TiplineResource.resource_from_message(typed, language)
+      resource = TiplineResource.resource_from_message(typed, language, uid)
       unless resource.nil?
         CheckStateMachine.new(uid).reset
         resource = self.send_resource_to_user(uid, workflow, resource.uuid, language)
