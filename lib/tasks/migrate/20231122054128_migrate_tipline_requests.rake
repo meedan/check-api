@@ -172,7 +172,6 @@ namespace :check do
       failed_project_media_requests = []
       failed_team_requests = []
       failed_tipline_resource_requests = []
-      puts "C: #{condition} -- L: #{last_team_id} -- B:#{batch_size}"
       Team.where(condition).where('id > ?', last_team_id).find_each do |team|
         print '.'
         migrate_teams = Rails.cache.read('check:migrate:migrate_tipline_requests:migrate_teams') || []

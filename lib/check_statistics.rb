@@ -184,7 +184,7 @@ module CheckStatistics
           # Average time to publishing
           times = []
           reports_received(team_id, platform, start_date, end_date, language).find_each do |tr|
-            times << (tr.smooch_report_sent_at - tr.created_at.to_i)
+            times << (tr.smooch_report_received_at - tr.created_at.to_i)
           end
           median_response_time_in_seconds = times.size == 0 ? nil : times.sum.to_f / times.size
           statistics[:median_response_time] = median_response_time_in_seconds
