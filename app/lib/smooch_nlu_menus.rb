@@ -67,13 +67,13 @@ module SmoochNluMenus
   end
 
   module ClassMethods
-    def menu_options_from_message(message, language, options)
+    def menu_options_from_message(message, language, options, uid)
       return [{ 'smooch_menu_option_value' => 'main_state' }] if message == 'cancel_nlu'
       return [] if options.blank?
       context = {
         context: ALEGRE_CONTEXT_KEY_MENU
       }
-      matches = SmoochNlu.alegre_matches_from_message(message, language, context, 'menu_option_id')
+      matches = SmoochNlu.alegre_matches_from_message(message, language, context, 'menu_option_id', uid)
       # Select the top two menu options that exists in `options`
       top_options = []
       matches.each do |r|
