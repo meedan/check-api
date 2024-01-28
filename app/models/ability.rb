@@ -89,7 +89,7 @@ class Ability
     can [:cud], DynamicAnnotation::Field do |obj|
       obj.annotation.team&.id == @context_team.id
     end
-    can [:create, :update, :read, :destroy], [Account, Source, TiplineNewsletter, TiplineResource], :team_id => @context_team.id
+    can [:create, :update, :read, :destroy], [Account, Source, TiplineNewsletter, TiplineResource, TiplineRequest], :team_id => @context_team.id
     can [:cud], AccountSource, source: { team: { team_users: { team_id: @context_team.id }}}
     %w(annotation comment dynamic task tag).each do |annotation_type|
       can [:cud], annotation_type.classify.constantize do |obj|
@@ -134,6 +134,10 @@ class Ability
       can [:cud], annotation_type.classify.constantize do |obj|
         obj.team&.id == @context_team.id && !obj.annotated_is_trashed?
       end
+    end
+    can [:cud], TiplineRequest do |obj|
+      is_trashed = obj.associated.respond_to?(:archived) && obj.associated.archived == CheckArchivedFlags::FlagCodes::TRASHED
+      obj.team_id == @context_team.id && !is_trashed
     end
     can [:create, :destroy], Assignment do |obj|
       type = obj.assigned_type

@@ -785,10 +785,10 @@ class GraphqlController10Test < ActionController::TestCase
     t = create_team
     create_team_user user: u, team: t, role: 'editor'
     pm = create_project_media team: t
-    a = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_data: { authorId: '123', language: 'en', received: Time.now.to_f }.to_json }.to_json, annotated: pm
+    tr = create_tipline_request team_id: t.id, associated: pm, language: 'en', smooch_data: { authorId: '123', language: 'en', received: Time.now.to_f }
     authenticate_with_user(u)
 
-    query = "mutation { sendTiplineMessage(input: { clientMutationId: \"1\", message: \"Hello\", inReplyToId: #{a.id} }) { success } }"
+    query = "mutation { sendTiplineMessage(input: { clientMutationId: \"1\", message: \"Hello\", inReplyToId: #{tr.id} }) { success } }"
     post :create, params: { query: query, team: t.slug }
 
     assert_response :success
@@ -800,10 +800,10 @@ class GraphqlController10Test < ActionController::TestCase
     u = create_user
     t = create_team
     pm = create_project_media team: t
-    a = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_data: { authorId: '123', language: 'en', received: Time.now.to_f }.to_json }.to_json, annotated: pm
+    tr = create_tipline_request team_id: t.id, associated: pm, language: 'en', smooch_data: { authorId: '123', language: 'en', received: Time.now.to_f }
     authenticate_with_user(u)
 
-    query = "mutation { sendTiplineMessage(input: { clientMutationId: \"1\", message: \"Hello\", inReplyToId: #{a.id} }) { success } }"
+    query = "mutation { sendTiplineMessage(input: { clientMutationId: \"1\", message: \"Hello\", inReplyToId: #{tr.id} }) { success } }"
     post :create, params: { query: query, team: t.slug }
 
     assert_response :success

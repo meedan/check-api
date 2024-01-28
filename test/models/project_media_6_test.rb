@@ -343,16 +343,15 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     RequestStore.store[:skip_cached_field_update] = false
     team = create_team
     p = create_project team: team
-    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     pm = create_project_media team: team, project_id: p.id, disable_es_callbacks: false
     ms_pm = get_es_id(pm)
     assert_queries(0, '=') { assert_equal(0, pm.demand) }
-    create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+    create_tipline_request team: team.id, associated: pm
     assert_queries(0, '=') { assert_equal(1, pm.demand) }
     pm2 = create_project_media team: team, project_id: p.id, disable_es_callbacks: false
     ms_pm2 = get_es_id(pm2)
     assert_queries(0, '=') { assert_equal(0, pm2.demand) }
-    2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2) }
+    2.times { create_tipline_request(team_id: team.id, associated: pm2) }
     assert_queries(0, '=') { assert_equal(2, pm2.demand) }
     # test sorting
     result = $repository.find(ms_pm)
@@ -371,13 +370,13 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     pm3 = create_project_media team: team, project_id: p.id
     ms_pm3 = get_es_id(pm3)
     assert_queries(0, '=') { assert_equal(0, pm3.demand) }
-    2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm3) }
+    2.times { create_tipline_request(team_id: team.id, associated: pm3) }
     assert_queries(0, '=') { assert_equal(2, pm3.demand) }
     create_relationship source_id: pm.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
     assert_queries(0, '=') { assert_equal(5, pm.demand) }
     assert_queries(0, '=') { assert_equal(5, pm2.demand) }
     assert_queries(0, '=') { assert_equal(5, pm3.demand) }
-    create_dynamic_annotation annotation_type: 'smooch', annotated: pm3
+    create_tipline_request team_id: team.id, associated: pm3
     assert_queries(0, '=') { assert_equal(6, pm.demand) }
     assert_queries(0, '=') { assert_equal(6, pm2.demand) }
     assert_queries(0, '=') { assert_equal(6, pm3.demand) }
