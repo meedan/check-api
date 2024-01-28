@@ -146,7 +146,6 @@ class ProjectMedia2Test < ActiveSupport::TestCase
     RequestStore.store[:skip_cached_field_update] = false
     # sortable fields are [linked_items_count, last_seen and share_count]
     setup_elasticsearch
-    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     Rails.stubs(:env).returns('development'.inquiry)
     team = create_team
     p = create_project team: team
@@ -155,7 +154,7 @@ class ProjectMedia2Test < ActiveSupport::TestCase
     assert_equal 1, result['linked_items_count']
     assert_equal pm.created_at.to_i, result['last_seen']
     assert_equal pm.reload.last_seen, pm.read_attribute(:last_seen)
-    t = t0 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm).created_at.to_i
+    t = t0 = create_tipline_request(team_id: team.id, associated: pm).created_at.to_i
     result = $repository.find(get_es_id(pm))
     assert_equal t, result['last_seen']
     assert_equal pm.reload.last_seen, pm.read_attribute(:last_seen)
@@ -170,7 +169,7 @@ class ProjectMedia2Test < ActiveSupport::TestCase
     assert_equal t, result['last_seen']
     assert_equal pm.reload.last_seen, pm.read_attribute(:last_seen)
 
-    t = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2).created_at.to_i
+    t = create_tipline_request(team_id: team.id, associated: pm2).created_at.to_i
     result = $repository.find(get_es_id(pm))
     assert_equal t, result['last_seen']
     assert_equal pm.reload.last_seen, pm.read_attribute(:last_seen)
@@ -203,8 +202,8 @@ class ProjectMedia2Test < ActiveSupport::TestCase
       t0 = pm.created_at.to_i
       # pm.last_seen should equal pm.created_at if no tipline request (aka 'smooch' annotation)
       assert_queries(0, '=') { assert_equal(t0, pm.last_seen) }
-      t1 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm).created_at.to_i
-      # pm.last_seen should equal pm smooch annotation created_at if item is not related
+      t1 = create_tipline_request(team_id: team.id, associated: pm).created_at.to_i
+      # pm.last_seen should equal pm tipline request created_at if item is not related
       assert_queries(0, '=') { assert_equal(t1, pm.last_seen) }
       pm2 = create_project_media team: team
       t2 = pm2.created_at.to_i
@@ -214,11 +213,11 @@ class ProjectMedia2Test < ActiveSupport::TestCase
       # pm is now a parent and pm2 its child with no smooch annotation, so pm.last_seen should match pm2.created_at
       assert_queries(0, '=') { assert_equal(t2, pm.last_seen) }
       # adding a smooch annotation to pm2 should update parent last_seen
-      t3 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2).created_at.to_i
+      t3 = create_tipline_request(team_id: team.id, associated: pm2).created_at.to_i
       assert_queries(0, '=') { assert_equal(t3, pm.last_seen) }
       # now let's add a second child pm3...
       pm3 = create_project_media team: team
-      t4 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm3).created_at.to_i
+      t4 = create_tipline_request(team_id: team.id, associated: pm3).created_at.to_i
       r2 = create_relationship source_id: pm.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
       # pm3.last_seen should equal pm3 smooch annotation created_at
       assert_queries(0, '=') { assert_equal(t4, pm3.last_seen) }

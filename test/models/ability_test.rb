@@ -103,6 +103,25 @@ class AbilityTest < ActiveSupport::TestCase
       end
     end
 
+    test "#{role} permissions for tipline request" do
+      u = create_user
+      t = create_team
+      t2 = create_team
+      tu = create_team_user team: t, user: u, role: role
+      pm = create_project_media team: t
+      pm2 = create_project_media team: t2
+      tr = create_tipline_request team_id: t.id, associated: pm
+      tr2 = create_tipline_request team_id: t2.id, associated: pm2
+      with_current_user_and_team(u, t) do
+        ability = Ability.new
+        assert ability.can?(:create, TiplineRequest)
+        assert ability.can?(:update, tr)
+        assert ability.can?(:destroy, tr)
+        assert ability.cannot?(:update, tr2)
+        assert ability.cannot?(:destroy, tr2)
+      end
+    end
+
     test "#{role} permissions for tag" do
       u = create_user
       t = create_team
