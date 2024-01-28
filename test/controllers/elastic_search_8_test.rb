@@ -36,10 +36,8 @@ class ElasticSearch8Test < ActionController::TestCase
     create_relationship source_id: pm3.id, target_id: t2_pm3.id, relationship_type: Relationship.suggested_type
 
     # Add requests
-    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
-    create_dynamic_annotation annotation_type: 'smooch', annotated: pm2
-    2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm3) }
-
+    create_tipline_request team_id: p.team_id, associated: pm2
+    2.times { create_tipline_request(team_id: p.team_id, associated: pm3) }
     sleep 2
 
     min_mapping = {

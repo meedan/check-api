@@ -714,6 +714,35 @@ ActiveRecord::Schema.define(version: 2024_01_15_101312) do
     t.index ["team_id"], name: "index_tipline_newsletters_on_team_id"
   end
 
+  create_table "tipline_requests", force: :cascade do |t|
+    t.string "language", null: false
+    t.string "tipline_user_uid"
+    t.string "platform", null: false
+    t.string "smooch_request_type", null: false
+    t.string "smooch_resource_id"
+    t.string "smooch_message_id", default: ""
+    t.string "smooch_conversation_id"
+    t.jsonb "smooch_data", default: {}, null: false
+    t.string "associated_type", null: false
+    t.bigint "associated_id", null: false
+    t.bigint "team_id", null: false
+    t.bigint "user_id"
+    t.integer "smooch_report_received_at", default: 0
+    t.integer "smooch_report_update_received_at", default: 0
+    t.integer "smooch_report_correction_sent_at", default: 0
+    t.integer "smooch_report_sent_at", default: 0
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["associated_type", "associated_id"], name: "index_tipline_requests_on_associated"
+    t.index ["associated_type", "associated_id"], name: "index_tipline_requests_on_associated_type_and_associated_id"
+    t.index ["language"], name: "index_tipline_requests_on_language"
+    t.index ["platform"], name: "index_tipline_requests_on_platform"
+    t.index ["smooch_message_id"], name: "index_tipline_requests_on_smooch_message_id", unique: true, where: "((smooch_message_id IS NOT NULL) AND ((smooch_message_id)::text <> ''::text))"
+    t.index ["team_id"], name: "index_tipline_requests_on_team_id"
+    t.index ["tipline_user_uid"], name: "index_tipline_requests_on_tipline_user_uid"
+    t.index ["user_id"], name: "index_tipline_requests_on_user_id"
+  end
+
   create_table "tipline_resources", id: :serial, force: :cascade do |t|
     t.string "uuid", default: "", null: false
     t.string "title", default: "", null: false

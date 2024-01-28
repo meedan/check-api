@@ -99,20 +99,19 @@ class ClusterTest < ActiveSupport::TestCase
   end
 
   test "should get requests count" do
-    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', true] })
     RequestStore.store[:skip_cached_field_update] = false
     t = create_team
     Sidekiq::Testing.inline! do
       c = create_cluster
       pm = create_project_media team: t
-      2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm) }
+      2.times { create_tipline_request(team_id: t.id, associated: pm) }
       pm2 = create_project_media team: t
-      2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2) }
+      2.times { create_tipline_request(team_id: t.id, associated: pm2) }
       c.project_medias << pm
       c.project_medias << pm2
       assert_equal 4, c.requests_count
       assert_equal 4, c.requests_count(true)
-      d = create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+      d = create_tipline_request team_id: t.id, associated: pm
       assert_equal 5, c.requests_count
       assert_equal 5, c.requests_count(true)
       d.destroy!

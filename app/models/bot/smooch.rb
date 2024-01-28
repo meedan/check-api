@@ -29,7 +29,6 @@ class Bot::Smooch < BotUser
   include SmoochCapi
   include SmoochStrings
   include SmoochMenus
-  include SmoochFields
   include SmoochLanguage
   include SmoochBlocking
 
@@ -40,19 +39,18 @@ class Bot::Smooch < BotUser
       self.get_dynamic_annotation('report_design')&.report_design_image_url
     end
 
-    def get_deduplicated_smooch_annotations
+    def get_deduplicated_tipline_requests
       uids = []
-      annotations = []
+      tipline_requests = []
       ProjectMedia.where(id: self.related_items_ids).each do |pm|
-        pm.get_annotations('smooch').find_each do |annotation|
-          data = JSON.parse(annotation.load.get_field_value('smooch_data'))
-          uid = data['authorId']
+        pm.tipline_requests.find_each do |tr|
+          uid = tr.tipline_user_uid
           next if uids.include?(uid)
           uids << uid
-          annotations << annotation
+          tipline_requests << tr
         end
       end
-      annotations
+      tipline_requests
     end
   end
 
@@ -125,7 +123,9 @@ class Bot::Smooch < BotUser
                 '_id': Digest::MD5.hexdigest([self.action.to_s, Time.now.to_f.to_s].join(':')),
                 authorId: id,
                 type: 'text',
-                text: message[1]
+                text: message[1],
+                source: { type: "whatsapp" },
+                language: 'en'
               }.with_indifferent_access
               Bot::Smooch.save_message_later(payload, app_id)
             end
@@ -602,10 +602,11 @@ class Bot::Smooch < BotUser
       original = begin JSON.parse(original) rescue {} end
       if original['fallback_template'] =~ /report/
         pmids = ProjectMedia.find(original['project_media_id']).related_items_ids
-        DynamicAnnotation::Field.joins(:annotation).where(field_name: 'smooch_data', 'annotations.annotated_type' => 'ProjectMedia', 'annotations.annotated_id' => pmids).where("value_json ->> 'authorId' = ?", message['appUser']['_id']).each do |f|
-          a = f.annotation.load
-          a.set_fields = { smooch_report_received: Time.now.to_i }.to_json
-          a.save!
+        TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: pmids, tipline_user_uid: message['appUser']['_id']).find_each do |tr|
+          field_name = tr.smooch_report_received_at == 0 ? 'smooch_report_received_at' : 'smooch_report_update_received_at'
+          tr.send("#{field_name}=", Time.now.to_i)
+          tr.skip_check_ability = true
+          tr.save!
         end
       end
     end
@@ -934,15 +935,15 @@ class Bot::Smooch < BotUser
     report = parent.get_annotations('report_design').last&.load
     return if report.nil?
     last_published_at = report.get_field_value('last_published').to_i
-    parent.get_deduplicated_smooch_annotations.each do |annotation|
-      data = JSON.parse(annotation.load.get_field_value('smooch_data'))
+    parent.get_deduplicated_tipline_requests.each do |tipline_request|
+      data = tipline_request.smooch_data
       self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
-      self.send_correction_to_user(data, parent, annotation, last_published_at, action, report.get_field_value('published_count').to_i) unless self.config['smooch_disabled']
+      self.send_correction_to_user(data, parent, tipline_request, last_published_at, action, report.get_field_value('published_count').to_i) unless self.config['smooch_disabled']
     end
   end
 
-  def self.send_correction_to_user(data, pm, annotation, last_published_at, action, published_count = 0)
-    subscribed_at = annotation.created_at
+  def self.send_correction_to_user(data, pm, tipline_request, last_published_at, action, published_count = 0)
+    subscribed_at = tipline_request.created_at
     self.get_platform_from_message(data)
     uid = data['authorId']
     lang = data['language']
@@ -959,10 +960,9 @@ class Bot::Smooch < BotUser
       self.send_report_to_user(uid, data, pm, lang, 'fact_check_report')
     end
     unless field_name.blank?
-      annotation = annotation.load
-      annotation.skip_check_ability = true
-      annotation.set_fields = { "#{field_name}": Time.now.to_i }.to_json
-      annotation.save!
+      tipline_request.skip_check_ability = true
+      tipline_request.send("#{field_name}=", Time.now.to_i)
+      tipline_request.save!
     end
   end
 
@@ -1017,11 +1017,11 @@ class Bot::Smooch < BotUser
     parent = ProjectMedia.where(id: parent_id).last
     child = ProjectMedia.where(id: target_id).last
     return if parent.nil? || child.nil?
-    child.get_annotations('smooch').find_each do |annotation|
-      data = JSON.parse(annotation.load.get_field_value('smooch_data'))
+    child.tipline_requests.find_each do |tr|
+      data = tr.smooch_data
       self.get_platform_from_message(data)
       self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
-      self.send_report_to_user(data['authorId'], data, parent, data['language'], 'fact_check_report')
+      self.send_report_to_user(tr.tipline_user_uid, data, parent, tr.language, 'fact_check_report')
     end
   end
 

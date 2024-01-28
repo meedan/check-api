@@ -100,10 +100,7 @@ class DynamicAnnotation::Field < ApplicationRecord
   def index_field_elastic_search(op)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     obj = self.annotation&.project_media
-    unless obj.nil?
-      apply_field_index(obj, op)
-      apply_nested_field_index(obj, op)
-    end
+    apply_field_index(obj, op) unless obj.nil?
   end
 
   def apply_field_index(obj, op)
@@ -118,23 +115,5 @@ class DynamicAnnotation::Field < ApplicationRecord
       data = op == 'destroy' ? { 'language' => '' } : { 'language' => self.value }
     end
     obj.update_elasticsearch_doc(data.keys, data, obj.id, true) unless data.blank?
-  end
-
-  def apply_nested_field_index(obj, op)
-    if self.field_name == 'smooch_data'
-      if op == 'destroy'
-        destroy_es_items('requests', 'destroy_doc_nested', obj.id)
-      else
-        identifier = begin self.smooch_user_external_identifier&.value rescue self.smooch_user_external_identifier end
-        data = {
-          'username' => self.value_json['name'],
-          'identifier' => identifier&.gsub(/[[:space:]|-]/, ''),
-          'content' => self.value_json['text'],
-          'language' => self.value_json['language'],
-        }
-        options = { op: op, pm_id: obj.id, nested_key: 'requests', keys: data.keys, data: data, skip_get_data: true }
-        self.add_update_nested_obj(options)
-      end
-    end
   end
 end

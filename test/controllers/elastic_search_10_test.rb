@@ -254,7 +254,6 @@ class ElasticSearch10Test < ActionController::TestCase
   test "should filter by keyword and requests fields" do
     # Reuests fields are username, identifier and content
     create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'Data' => ['JSON', false] })
-    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
@@ -302,9 +301,9 @@ class ElasticSearch10Test < ActionController::TestCase
     create_dynamic_annotation annotated: pm2, annotation_type: 'smooch_user', set_fields: { smooch_user_id: twitter_uid, smooch_user_data: { raw: twitter_data }.to_json }.to_json
     with_current_user_and_team(u, t) do
       wa_smooch_data = { 'authorId' => whatsapp_uid, 'text' => 'smooch_request a', 'name' => 'wa_user', 'language' => 'en' }
-      smooch_pm = create_dynamic_annotation annotated: pm, annotation_type: 'smooch', set_fields: { smooch_data: wa_smooch_data.to_json }.to_json, disable_es_callbacks: false
+      smooch_pm = create_tipline_request associated: pm, team_id: t.id, language: 'en', smooch_data: wa_smooch_data, disable_es_callbacks: false
       twitter_smooch_data = { 'authorId' => twitter_uid, 'text' => 'smooch_request b', 'name' => 'melsawy', 'language' => 'fr' }
-      smooch_pm2 = create_dynamic_annotation annotated: pm2, annotation_type: 'smooch', set_fields: { smooch_data: twitter_smooch_data.to_json }.to_json, disable_es_callbacks: false
+      smooch_pm2 = create_tipline_request associated: pm2, team_id: t.id, language: 'fr', smooch_data: twitter_smooch_data, disable_es_callbacks: false
       sleep 2
       result = CheckSearch.new({keyword: 'smooch_request', keyword_fields: {fields: ['request_content']}}.to_json)
       assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
