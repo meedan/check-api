@@ -52,7 +52,7 @@ Devise.setup do |config|
 
   # Account lockout
   config.lock_strategy = :failed_attempts
-  config.unlock_strategy = :both
+  config.unlock_strategy = :time
   config.unlock_keys = [ :time ]
   config.maximum_attempts = CheckConfig.get('devise_maximum_attempts', 5)
   config.unlock_in = CheckConfig.get('devise_unlock_accounts_after', 1).hour
