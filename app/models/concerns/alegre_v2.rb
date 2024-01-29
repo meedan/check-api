@@ -231,6 +231,16 @@ module AlegreV2
       }.reject{ |k,_| k == project_media.id }]
     end
 
+    def safe_get_sync(project_media, field, threshold)
+      response = get_sync(project_media, field, threshold)
+      retries = 0
+      while (response == nil or response["result"] == nil) and retries < 3
+        response = get_sync(project_media, field, threshold)
+        retries += 1
+      end
+      response
+    end
+
     def get_items(project_media, field, confirmed=false)
       relationship_type = confirmed ? Relationship.confirmed_type : Relationship.suggested_type
       type = get_type(project_media)
@@ -238,7 +248,7 @@ module AlegreV2
       parse_similarity_results(
         project_media,
         field,
-        get_sync(project_media, field, threshold)["result"],
+        safe_get_sync(project_media, field, threshold)["result"],
         relationship_type
       )
     end
