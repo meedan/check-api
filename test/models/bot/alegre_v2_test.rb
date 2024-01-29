@@ -287,7 +287,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     response = {}
     WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/sync/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}, :url=>Bot::Alegre.media_file_url(pm1)}).to_return(body: response.to_json)
-    assert_equal Bot::Alegre.safe_get_sync(pm1, "blah", 0.9), {}
+    assert_equal Bot::Alegre.safe_get_sync(pm1, "audio", 0.9), {}
   end
 
   test "should run delete request" do
