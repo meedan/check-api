@@ -2328,7 +2328,7 @@
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "Team",
+                "name": "PublicTeam",
                 "ofType": null
               },
               "isDeprecated": false,

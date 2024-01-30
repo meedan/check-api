@@ -479,7 +479,7 @@ type BotUser implements Node {
   permissions: String
   settings_as_json_schema(team_slug: String): String
   settings_ui_schema: String
-  team_author: Team
+  team_author: PublicTeam
   updated_at: String
 }
 
