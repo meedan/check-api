@@ -276,4 +276,15 @@ class GraphqlController12Test < ActionController::TestCase
     assert_response :success
     assert_equal [1, 2, 3].sort, JSON.parse(@response.body).dig('data', 'feed', 'data_points').sort
   end
+
+  test "should return me type after update user" do
+    user = create_user
+    authenticate_with_user(user)
+    id = user.graphql_id
+    query = 'mutation { updateUser(input: { clientMutationId: "1", id: "' + id + '", name: "update name" }) { user { dbid }, me { dbid } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['updateUser']['me']
+    assert_equal user.id, data['dbid']
+  end
 end
