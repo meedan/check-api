@@ -231,11 +231,11 @@ module AlegreV2
       }.reject{ |k,_| k == project_media.id }]
     end
 
-    def safe_get_sync(project_media, field, threshold)
-      response = get_sync(project_media, field, threshold)
+    def safe_get_sync(project_media, field, params={})
+      response = get_sync(project_media, field, params)
       retries = 0
       while (response == nil or response["result"] == nil) and retries < 3
-        response = get_sync(project_media, field, threshold)
+        response = get_sync(project_media, field, params)
         retries += 1
       end
       response
