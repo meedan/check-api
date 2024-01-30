@@ -234,7 +234,7 @@ module AlegreV2
     def safe_get_sync(project_media, field, params={})
       response = get_sync(project_media, field, params)
       retries = 0
-      while (response == nil or response["result"] == nil) and retries < 3
+      while (response.nil? || response["result"].nil?) && retries < 3
         response = get_sync(project_media, field, params)
         retries += 1
       end
