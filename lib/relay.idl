@@ -11134,6 +11134,7 @@ type PublicTeam implements Node {
   dbid: Int
   description: String
   id: ID!
+  medias_count: Int
   name: String!
   permissions: String
   private: Boolean

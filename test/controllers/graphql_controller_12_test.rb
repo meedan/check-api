@@ -280,7 +280,9 @@ class GraphqlController12Test < ActionController::TestCase
   test "should return me type after update user" do
     user = create_user
     authenticate_with_user(user)
-    id = user.graphql_id
+    post :create, params: { query: 'query Query { me { id } }' }
+    assert_response :success
+    id = JSON.parse(@response.body)['data']['me']['id']
     query = 'mutation { updateUser(input: { clientMutationId: "1", id: "' + id + '", name: "update name" }) { user { dbid }, me { dbid } } }'
     post :create, params: { query: query }
     assert_response :success

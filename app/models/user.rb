@@ -96,7 +96,7 @@ class User < ApplicationRecord
   end
 
   def me
-    self
+    User.current&.id == self.id ? self : nil
   end
 
   def set_source_image

@@ -538,6 +538,7 @@ class GraphqlController8Test < ActionController::TestCase
           }
           public_team {
             id
+            medias_count
             trash_count
             unconfirmed_count
             spam_count
