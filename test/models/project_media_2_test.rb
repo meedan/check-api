@@ -75,6 +75,7 @@ class ProjectMedia2Test < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       pm = create_project_media quote: 'Title 0'
       assert_equal 'Title 0', pm.title
+      Bot::Alegre.stubs(:send_field_to_similarity_index).returns({"success": true})
       cd = create_claim_description project_media: pm, description: 'Title 1'
       assert_queries 0, '=' do
         assert_equal 'Title 1', pm.title
@@ -86,6 +87,7 @@ class ProjectMedia2Test < ActiveSupport::TestCase
       assert_queries(0, '>') do
         assert_equal 'Title 1', pm.reload.title(true)
       end
+      Bot::Alegre.unstub(:send_field_to_similarity_index)
     end
   end
 
