@@ -308,25 +308,15 @@ ActiveRecord::Base.transaction do
       create_fact_checks(user, claim_descriptions_for_fact_checks)
 
       puts "#{media_type}: Making Relationship: Confirmed Type and Suggested Type..."
-      # because we want a lot of state variety between items, we are not creating relationships for 7..13
+      # because we want a lot of state variety between items, we are not creating relationships for 9..13
       # send parent and child index
-      create_confirmed_relationship(project_medias[0], project_medias[1])
-      create_confirmed_relationship(project_medias[2], project_medias[3])
-      create_confirmed_relationship(project_medias[4], project_medias[5])
-      create_confirmed_relationship(project_medias[6], project_medias[1])
-      # send parent and children
-      create_suggested_relationship(project_medias[6], project_medias[14..19])
-
-      puts "#{media_type}: Making Relationship: Create item with many confirmed relationships"
-      # so the center column on the item page has a good size list to check functionality against
       # https://github.com/meedan/check-api/pull/1722#issuecomment-1798729043
-      # create the children we need for the relationship
-      confirmed_children_media = data_items.keys.flat_map do |media_type|
-        data_items[media_type][0..1].map { |data| create_media(user, data , media_type)}
-      end
-      confirmed_children_project_medias = create_project_medias(user, project, team, confirmed_children_media)
+      create_confirmed_relationship(project_medias[0], project_medias[1..3])
+      create_confirmed_relationship(project_medias[4], project_medias[5])
+      create_confirmed_relationship(project_medias[6], project_medias[7])
+      create_confirmed_relationship(project_medias[8], project_medias[1])
       # send parent and children
-      create_confirmed_relationship(project_medias[0], confirmed_children_project_medias)
+      create_suggested_relationship(project_medias[8], project_medias[14..19])
 
       puts "#{media_type}: Making Tipline requests..."
       # we want different ammounts of requests, so we send the item and the number of requests that should be created
