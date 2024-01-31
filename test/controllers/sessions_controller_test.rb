@@ -73,7 +73,6 @@ class SessionsControllerTest < ActionController::TestCase
 
   test "should lock user after excessive login requests" do
     u = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com'
-    u.confirm
     Devise.maximum_attempts = 2
 
     2.times do
@@ -87,7 +86,6 @@ class SessionsControllerTest < ActionController::TestCase
 
   test "should unlock locked user accounts after specified time" do
     u = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com'
-    u.confirm
     maximum_attempts = Devise.maximum_attempts
 
     maximum_attempts.times do
