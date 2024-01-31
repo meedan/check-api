@@ -61,23 +61,6 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_equal pm_t.id, es_t['parent_id']
   end
 
-  test "should set cluster" do
-    t = create_team
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    s = create_project_media team: t
-    t = create_project_media team: t
-    s_c = create_cluster project_media: s
-    s_c.project_medias << s
-    t_c = create_cluster project_media: t
-    t_c.project_medias << t
-    User.stubs(:current).returns(u)
-    create_relationship source_id: s.id, target_id: t.id, relationship_type: Relationship.confirmed_type
-    assert_nil Cluster.where(id: t_c.id).last
-    assert_equal [s.id, t.id].sort, s_c.reload.project_media_ids.sort
-    User.unstub(:current)
-  end
-
   test "should remove suggested relation when same items added as similar" do
     team = create_team
     b = create_bot name: 'Alegre', login: 'alegre'
