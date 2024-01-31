@@ -286,7 +286,9 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should safe_get_sync" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/sync/audio").to_return(body: '{}')
-    assert_equal {}, Bot::Alegre.safe_get_sync(pm1, "audio", {})
+    expected = {}
+    actual = Bot::Alegre.safe_get_sync(pm1, "audio", {})
+    assert_equal expected, actual
   end
 
   test "should run delete request" do
