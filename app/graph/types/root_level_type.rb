@@ -5,7 +5,7 @@ class RootLevelType < BaseObject
 
   global_id_field :id
 
-  field :current_user, UserType, null: true
+  field :current_user, MeType, null: true
 
   def current_user
     User.current
