@@ -95,6 +95,10 @@ class User < ApplicationRecord
     JSON.parse(Base64.decode64(token.gsub('++n', "\n")))
   end
 
+  def me
+    User.current&.id == self.id ? self : nil
+  end
+
   def set_source_image
     source = self.source
     unless source.nil?

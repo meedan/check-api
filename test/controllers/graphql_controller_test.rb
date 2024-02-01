@@ -420,10 +420,11 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t
     p = create_project team: t
     pm = create_project_media project: p
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { team { name } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { team { name }, public_team { name } } }"
     post :create, params: { query: query, team: 'team' }
     assert_response :success
     assert_equal t.name, JSON.parse(@response.body)['data']['project_media']['team']['name']
+    assert_equal t.name, JSON.parse(@response.body)['data']['project_media']['public_team']['name']
   end
 
   test "should run few queries to get project data" do
@@ -605,11 +606,8 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
     # check invited by
     u = User.find_by_email 'test1@local.com'
-    query = "query GetById { user(id: \"#{u.id}\") { team_user(team_slug: \"#{@team.slug}\") { invited_by { dbid } } } }"
-    post :create, params: { query: query, team: @team.slug }
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['user']['team_user']
-    assert_equal User.current.id, data['invited_by']['dbid']
+    data = u.team_users.where(team_id: @team.id).last
+    assert_equal User.current.id, data.invited_by_id
     # resend/cancel invitation
     query = 'mutation resendCancelInvitation { resendCancelInvitation(input: { clientMutationId: "1", email: "notexist@local.com", action: "resend" }) { success } }'
     post :create, params: { query: query, team: @team.slug }
