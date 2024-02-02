@@ -61,8 +61,10 @@ module AlegreV2
     def parse_response(http, request)
       release_db
       response = run_request(http, request)
+      response_body = response.body
+      Rails.logger.info("[Alegre Bot] Alegre Bot response and body: (#{response.inspect}, #{response_body})")
       reconnect_db
-      JSON.parse(response.body)
+      JSON.parse(response_body)
     end
 
     def request(method, path, params, retries=3)
