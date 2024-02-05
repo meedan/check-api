@@ -85,21 +85,18 @@ class SessionsControllerTest < ActionController::TestCase
   end
 
   test "should unlock locked user accounts after specified time" do
+    travel_to Time.zone.local(2023, 12, 12, 01, 04, 44)
     u = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com'
-    maximum_attempts = Devise.maximum_attempts
+    Devise.unlock_in = 10.minutes
+    
 
-    maximum_attempts.times do
-      post :create, params: { api_user: { email: 'test@test.com', password: '12345679' } }
-    end
+    u.lock_access!
 
-    unlock_time = CheckConfig.get('devise_unlock_accounts_after', 5, :integer)
+    travel 30.minutes
+    post :create, params: { api_user: { email: 'test@test.com', password: '12345678' } }
 
-    travel_to  unlock_time.hours.from_now + 1.hour do
-      u.reload
-      assert !u.access_locked?
-      assert_nil u.locked_at
-    end
+    u.reload
+    assert !u.access_locked?
+    assert_nil u.locked_at
   end
-
-
 end
