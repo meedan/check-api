@@ -7,7 +7,7 @@ class UserTwoFactorAuthenticationMutation < Mutations::BaseMutation
   argument :otp_required, GraphQL::Types::Boolean, required: false, camelize: false
 
   field :success, GraphQL::Types::Boolean, null: true
-  field :user, MeType, null: true
+  field :user, UserType, null: true
 
   def resolve(id:, password:, qrcode: nil, otp_required: nil)
     user = User.where(id: id).last

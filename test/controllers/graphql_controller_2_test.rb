@@ -53,7 +53,7 @@ class GraphqlController2Test < ActionController::TestCase
     authenticate_with_user
     tb1 = create_team_bot set_listed: true
     tb2 = create_team_bot set_listed: false
-    query = "query read { root { current_user { id }, current_team { id }, team_bots_listed { edges { node { dbid, get_description, get_version, get_source_code_url, get_role } } } } }"
+    query = "query read { root { current_user { id }, current_team { id }, team_bots_listed { edges { node { dbid } } } } }"
     post :create, params: { query: query }
     edges = JSON.parse(@response.body)['data']['root']['team_bots_listed']['edges']
     assert_equal [tb1.id], edges.collect{ |e| e['node']['dbid'] }

@@ -79,17 +79,14 @@ class GraphqlController10Test < ActionController::TestCase
     create_team_user team: t, user: u, role: 'admin'
     create_team_user team: t, user: u2
     authenticate_with_user(u)
-    query = "query GetById { team(id: \"#{t.id}\") { team_users { edges { node { user { dbid, source { medias(first: 1) { edges { node { id } } } } } } } } } }"
+    query = "query GetById { team(id: \"#{t.id}\") { team_users { edges { node { user { dbid, get_send_email_notifications, get_send_successful_login_notifications, get_send_failed_login_notifications, source { medias(first: 1) { edges { node { id } } } }, annotations(first: 1) { edges { node { id } } }, team_users(first: 1) { edges { node { id } } }, bot { get_description, get_role, get_version, get_source_code_url } } } } } } }"
     post :create, params: { query: query, team: t.slug }
+
     assert_response :success
     data = JSON.parse(@response.body)['data']['team']['team_users']['edges']
     ids = data.collect{ |i| i['node']['user']['dbid'] }
     assert_equal 3, data.size
     assert_equal [u.id, u2.id, u3.id], ids.sort
-    # Quey bot
-    query = "query { me { dbid, get_send_email_notifications, get_send_successful_login_notifications, get_send_failed_login_notifications, source { medias(first: 1) { edges { node { id } } } }, annotations(first: 1) { edges { node { id } } }, team_users(first: 1) { edges { node { id } } }, bot { get_description, get_role, get_version, get_source_code_url } } }"
-    post :create, params: { query: query }
-    assert_response :success
   end
 
   test "should get team tasks" do
@@ -555,10 +552,11 @@ class GraphqlController10Test < ActionController::TestCase
     t = create_team
     create_team_user user: u, team: t, status: 'member'
     create_team_user user: u2, team: t, status: 'member'
-    pm1 = create_project_media team: t
-    pm2 = create_project_media team: t
-    pm3 = create_project_media team: t
-    pm4 = create_project_media team: t
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    pm3 = create_project_media project: p
+    pm4 = create_project_media project: p
     s1 = create_status status: 'in_progress', annotated: pm1
     s2 = create_status status: 'in_progress', annotated: pm2
     s3 = create_status status: 'in_progress', annotated: pm3
@@ -570,8 +568,9 @@ class GraphqlController10Test < ActionController::TestCase
     s3.assign_user(u.id)
     s4.assign_user(u2.id)
     authenticate_with_user(u)
-    post :create, params: { query: "query { me { assignments(first: 10) { edges { node { dbid, assignments(first: 10, user_id: #{u.id}, annotation_type: \"task\") { edges { node { dbid } } } } } } } }" }
-    data = JSON.parse(@response.body)['data']['me']
+    post :create, params: { query: "query GetById { user(id: \"#{u.id}\") { assignments(first: 10) { edges { node { dbid, assignments(first: 10, user_id: #{u.id}, annotation_type: \"task\") { edges { node { dbid } } } } } } } }" }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['user']
     assert_equal [pm3.id, pm2.id, pm1.id], data['assignments']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal [t2.id], data['assignments']['edges'][0]['node']['assignments']['edges'].collect{ |x| x['node']['dbid'].to_i }
     assert_equal [], data['assignments']['edges'][1]['node']['assignments']['edges']

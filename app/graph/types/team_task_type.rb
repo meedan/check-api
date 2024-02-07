@@ -9,7 +9,7 @@ class TeamTaskType < DefaultObject
   field :options, JsonStringType, null: true
   field :required, GraphQL::Types::Boolean, null: true
   field :team_id, GraphQL::Types::Int, null: true
-  field :team, PublicTeamType, null: true
+  field :team, TeamType, null: true
   field :json_schema, GraphQL::Types::String, null: true
   field :order, GraphQL::Types::Int, null: true
   field :fieldset, GraphQL::Types::String, null: true

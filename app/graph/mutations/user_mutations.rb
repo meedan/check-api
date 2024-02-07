@@ -1,6 +1,6 @@
 module UserMutations
   MUTATION_TARGET = 'user'.freeze
-  PARENTS = ['me'].freeze
+  PARENTS = [].freeze
 
   module SharedCreateAndUpdateFields
     extend ActiveSupport::Concern

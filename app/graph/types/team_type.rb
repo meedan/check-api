@@ -13,6 +13,7 @@ class TeamType < DefaultObject
   field :members_count, GraphQL::Types::Int, null: true
   field :projects_count, GraphQL::Types::Int, null: true
   field :permissions, GraphQL::Types::String, null: true
+  field :get_slack_notifications_enabled, GraphQL::Types::String, null: true
   field :get_slack_webhook, GraphQL::Types::String, null: true
   field :get_embed_whitelist, GraphQL::Types::String, null: true
   field :get_report_design_image_template, GraphQL::Types::String, null: true
@@ -36,15 +37,20 @@ class TeamType < DefaultObject
   field :spam_count, GraphQL::Types::Int, null: true
   field :trash_count, GraphQL::Types::Int, null: true
   field :unconfirmed_count, GraphQL::Types::Int, null: true
+  field :get_languages, GraphQL::Types::String, null: true
+  field :get_language, GraphQL::Types::String, null: true
   field :get_language_detection, GraphQL::Types::Boolean, null: true
   field :get_report, JsonStringType, null: true
   field :get_fieldsets, JsonStringType, null: true
   field :list_columns, JsonStringType, null: true
+  field :get_data_report_url, GraphQL::Types::String, null: true
   field :url, GraphQL::Types::String, null: true
+  field :get_tipline_inbox_filters, JsonStringType, null: true
+  field :get_suggested_matches_filters, JsonStringType, null: true
   field :data_report, JsonStringType, null: true
   field :available_newsletter_header_types, JsonStringType, null: true # List of header type strings
-
-  field :get_slack_notifications_enabled, GraphQL::Types::String, null: true
+  field :get_outgoing_urls_utm_code, GraphQL::Types::String, null: true
+  field :get_shorten_outgoing_urls, GraphQL::Types::Boolean, null: true
 
   def get_slack_notifications_enabled
     object.get_slack_notifications_enabled
@@ -74,6 +80,16 @@ class TeamType < DefaultObject
     object.get_status_target_turnaround
   end
 
+  field :pusher_channel, GraphQL::Types::String, null: true
+  field :search_id, GraphQL::Types::String, null: true
+  field :search, CheckSearchType, null: true
+  field :check_search_trash, CheckSearchType, null: true
+  field :check_search_unconfirmed, CheckSearchType, null: true
+  field :check_search_spam, CheckSearchType, null: true
+  field :trash_size, JsonStringType, null: true
+  field :public_team_id, GraphQL::Types::String, null: true
+  field :permissions_info, JsonStringType, null: true
+  field :dynamic_search_fields_json_schema, JsonStringType, null: true
   field :get_slack_notifications, JsonStringType, null: true
 
   def get_slack_notifications
@@ -86,6 +102,13 @@ class TeamType < DefaultObject
     object.get_rules
   end
 
+  field :rules_json_schema, GraphQL::Types::String, null: true
+  field :slack_notifications_json_schema, GraphQL::Types::String, null: true
+  field :rules_search_fields_json_schema, JsonStringType, null: true
+  field :medias_count, GraphQL::Types::Int, null: true
+  field :spam_count, GraphQL::Types::Int, null: true
+  field :trash_count, GraphQL::Types::Int, null: true
+  field :unconfirmed_count, GraphQL::Types::Int, null: true
   field :get_languages, GraphQL::Types::String, null: true
 
   def get_languages
@@ -130,6 +153,8 @@ class TeamType < DefaultObject
     object.get_suggested_matches_filters
   end
 
+  field :data_report, JsonStringType, null: true
+  field :available_newsletter_header_types, JsonStringType, null: true # List of header type strings
   field :get_outgoing_urls_utm_code, GraphQL::Types::String, null: true
 
   def get_outgoing_urls_utm_code

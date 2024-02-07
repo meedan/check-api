@@ -46,7 +46,7 @@ class BotUserType < DefaultObject
     object.settings_as_json_schema(false, team_slug)
   end
 
-  field :team_author, PublicTeamType, null: true
+  field :team_author, TeamType, null: true
 
   def team_author
     RecordLoader.for(Team).load(object.team_author_id.to_i)

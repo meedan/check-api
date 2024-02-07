@@ -17,12 +17,6 @@ class PublicTeamType < DefaultObject
     Team.find(object.id).pusher_channel
   end
 
-  field :medias_count, GraphQL::Types::Int, null: true
-
-  def medias_count
-    archived_count(object) ? 0 : object.medias_count
-  end
-
   field :trash_count, GraphQL::Types::Int, null: true
 
   def trash_count
