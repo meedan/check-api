@@ -29,9 +29,10 @@ module SmoochBlocking
     end
 
     def unblock_user(uid)
-      BlockedTiplineUser.where(uid: uid).last.destroy!
-      Rails.logger.info("[Smooch Bot] Unblocked user #{uid}")
       Rails.cache.delete("smooch:banned:#{uid}")
+      blocked_user = BlockedTiplineUser.where(uid: uid).last
+      blocked_user.destroy! unless blocked_user.nil?
+      Rails.logger.info("[Smooch Bot] Unblocked user #{uid}")
     end
 
     def user_blocked?(uid)
