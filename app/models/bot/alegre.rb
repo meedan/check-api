@@ -162,7 +162,6 @@ class Bot::Alegre < BotUser
         self.get_extracted_text(pm)
         self.get_flags(pm)
         self.auto_transcription(pm)
-        self.set_cluster(pm)
         handled = true
       end
     rescue StandardError => e
@@ -175,29 +174,6 @@ class Bot::Alegre < BotUser
     handled
   end
 
-  def self.set_cluster(pm, force = false)
-    pm = ProjectMedia.find(pm.id)
-    return if (!pm.cluster_id.blank? || !ProjectMedia.where(team_id: pm.team_id).where.not(cluster_id: nil).exists?) && !force
-    team_ids = ProjectMedia.where.not(cluster_id: nil).group(:team_id).count.keys
-    thresholds = {
-      audio: { value: CheckConfig.get('audio_cluster_similarity_threshold', 0.8, :float) },
-      video: { value: CheckConfig.get('video_cluster_similarity_threshold', 0.8, :float) },
-      image: { value: CheckConfig.get('image_cluster_similarity_threshold', 0.9, :float) },
-      text: { value: CheckConfig.get('text_cluster_similarity_threshold', 0.9, :float) }
-    }
-    ids_and_scores = pm.similar_items_ids_and_scores(team_ids, thresholds)
-    main_id = ids_and_scores.max_by{ |_pm_id, score_and_context| score_and_context[:score] }&.first
-    main = ProjectMedia.find_by_id(main_id.to_i)
-    cluster = main&.cluster
-    unless cluster
-      cluster = Cluster.new
-      cluster.project_media = pm
-      cluster.skip_check_ability = true
-      cluster.save!
-    end
-    cluster.project_medias << pm
-    cluster
-  end
 
   def self.get_number_of_words(text)
     # Get the number of space-separated words (Does not work with Chinese/Japanese)

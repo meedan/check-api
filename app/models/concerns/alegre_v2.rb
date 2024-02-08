@@ -61,8 +61,10 @@ module AlegreV2
     def parse_response(http, request)
       release_db
       response = run_request(http, request)
+      response_body = response.body
+      Rails.logger.info("[Alegre Bot] Alegre Bot response and body: (#{response.inspect}, #{response_body})")
       reconnect_db
-      JSON.parse(response.body)
+      JSON.parse(response_body)
     end
 
     def request(method, path, params, retries=3)
@@ -77,7 +79,7 @@ module AlegreV2
           sleep 1
           self.request(method, path, params, retries - 1)
         end
-        Rails.logger.error("[Alegre Bot] Alegre error: #{e.message}")
+        Rails.logger.error("[Alegre Bot] Alegre error: (#{method}, #{path}, #{params.inspect}, #{retries}), #{e.inspect} #{e.message}")
         { 'type' => 'error', 'data' => { 'message' => e.message } }
       end
     end
@@ -243,6 +245,16 @@ module AlegreV2
       }.reject{ |k,_| k == project_media.id }]
     end
 
+    def safe_get_sync(project_media, field, params={})
+      response = get_sync(project_media, field, params)
+      retries = 0
+      while (response.nil? || response["result"].nil?) && retries < 3
+        response = get_sync(project_media, field, params)
+        retries += 1
+      end
+      response
+    end
+
     def get_items(project_media, field, confirmed=false)
       relationship_type = confirmed ? Relationship.confirmed_type : Relationship.suggested_type
       type = get_type(project_media)
@@ -250,7 +262,7 @@ module AlegreV2
       parse_similarity_results(
         project_media,
         field,
-        get_sync(project_media, field, threshold)["result"],
+        safe_get_sync(project_media, field, threshold)["result"],
         relationship_type
       )
     end
@@ -264,9 +276,14 @@ module AlegreV2
     end
 
     def get_similar_items_v2(project_media, field)
-      suggested_or_confirmed = get_suggested_items(project_media, field)
-      confirmed = get_confirmed_items(project_media, field)
-      Bot::Alegre.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, project_media)
+      type = get_type(project_media)
+      if !Bot::Alegre.should_get_similar_items_of_type?('master', project_media.team_id) || !Bot::Alegre.should_get_similar_items_of_type?(type, project_media.team_id)
+        {}
+      else
+        suggested_or_confirmed = get_suggested_items(project_media, field)
+        confirmed = get_confirmed_items(project_media, field)
+        Bot::Alegre.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, project_media)
+      end
     end
 
     def relate_project_media(project_media, field=nil)

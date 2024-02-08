@@ -61,7 +61,7 @@ class GraphqlController8Test < ActionController::TestCase
     tu2 = create_team_user user: u2, team: t2
     authenticate_with_user(u)
 
-    query = 'query { me { team_user(team_slug: "' + t.slug + '") { dbid } } }'
+    query = 'query { me { team_users(first: 1) { edges { node { id } } }, team_user(team_slug: "' + t.slug + '") { dbid, invited_by { dbid } } } }'
     post :create, params: { query: query }
     assert_response :success
     assert_equal tu.id, JSON.parse(@response.body)['data']['me']['team_user']['dbid']
@@ -538,6 +538,7 @@ class GraphqlController8Test < ActionController::TestCase
           }
           public_team {
             id
+            medias_count
             trash_count
             unconfirmed_count
             spam_count
@@ -692,7 +693,7 @@ class GraphqlController8Test < ActionController::TestCase
   test "should get current user" do
     u = create_user name: 'Test User'
     authenticate_with_user(u)
-    post :create, params: { query: 'query Query { me { source_id, token, is_admin, current_project { id }, name, bot { id } } }' }
+    post :create, params: { query: 'query Query { me { get_send_email_notifications, get_send_successful_login_notifications, get_send_failed_login_notifications, annotations(first: 1) { edges { node { id } } }, source { dbid }, source_id, token, is_admin, current_project { id }, name, bot { id } } }' }
     assert_response :success
     data = JSON.parse(@response.body)['data']['me']
     assert_equal 'Test User', data['name']

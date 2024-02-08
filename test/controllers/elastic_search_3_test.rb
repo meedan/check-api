@@ -217,7 +217,6 @@ class ElasticSearch3Test < ActionController::TestCase
 
   test "should sort by clusters requests count" do
     RequestStore.store[:skip_cached_field_update] = false
-    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     t = create_team
     f = create_feed
     f.teams << t
@@ -227,8 +226,8 @@ class ElasticSearch3Test < ActionController::TestCase
     pm1 = create_project_media team: t
     pm1_1 = create_project_media team: t
     pm2 = create_project_media team: t
-    create_dynamic_annotation annotation_type: 'smooch', annotated: pm1
-    create_dynamic_annotation annotation_type: 'smooch', annotated: pm2
+    create_tipline_request associated: pm1, team_id: t.id
+    create_tipline_request associated: pm2, team_id: t.id
     c1 = create_cluster project_media: pm1
     c2 = create_cluster project_media: pm2
     c1.project_medias << pm1
@@ -236,8 +235,8 @@ class ElasticSearch3Test < ActionController::TestCase
     c2.project_medias << pm2
     sleep 2
     with_current_user_and_team(u, t) do
-      create_dynamic_annotation annotation_type: 'smooch', annotated: pm1
-      create_dynamic_annotation annotation_type: 'smooch', annotated: pm1_1
+      create_tipline_request associated: pm1, team_id: t.id
+      create_tipline_request associated: pm1_1, team_id: t.id
       sleep 2
       es1 = $repository.find(get_es_id(pm1))
       es2 = $repository.find(get_es_id(pm2))

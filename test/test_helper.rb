@@ -159,7 +159,7 @@ class ActiveSupport::TestCase
   # This will run before any test
 
   def setup
-    [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship, Project, TiplineResource].each{ |klass| klass.delete_all }
+    [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship, Project, TiplineResource, TiplineRequest].each{ |klass| klass.delete_all }
 
     # Some of our non-GraphQL tests rely on behavior that this requires. As a result,
     # we'll keep it around for now and just recreate any needed dynamic annotation data
@@ -846,14 +846,6 @@ class ActiveSupport::TestCase
     DynamicAnnotation::FieldType.delete_all
     DynamicAnnotation::Field.delete_all
     create_verification_status_stuff
-    create_annotation_type_and_fields('Smooch', {
-      'Data' => ['JSON', false],
-      'Report Received' => ['Timestamp', true],
-      'Request Type' => ['Text', true],
-      'Resource Id' => ['Text', true],
-      'Report correction sent at' => ['Timestamp', true],
-      'Report sent at' => ['Timestamp', true]
-    })
     create_annotation_type_and_fields('Smooch Response', { 'Data' => ['JSON', true] })
     create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
     WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
@@ -1051,7 +1043,9 @@ class ActiveSupport::TestCase
         '_id': random_string,
         authorId: user,
         type: 'text',
-        text: message
+        text: message,
+        source: { type: "whatsapp" },
+        language: 'en',
       }.merge(extra)
     ]
     payload = {

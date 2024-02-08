@@ -56,7 +56,7 @@ class QueryType < BaseObject
   end
 
   field :me,
-        UserType,
+        MeType,
         description: "Information about the current user",
         null: true
 

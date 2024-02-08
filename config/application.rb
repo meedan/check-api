@@ -99,5 +99,8 @@ module Check
     })
 
     config.active_record.yaml_column_permitted_classes = [Time, Symbol]
+
+    # Rack Attack Configuration
+    config.middleware.use Rack::Attack
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_01_14_024701) do
+ActiveRecord::Schema.define(version: 2024_01_15_101312) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -669,7 +669,6 @@ ActiveRecord::Schema.define(version: 2024_01_14_024701) do
     t.datetime "updated_at", null: false
     t.string "state"
     t.index ["external_id", "state"], name: "index_tipline_messages_on_external_id_and_state", unique: true
-    t.index ["external_id"], name: "index_tipline_messages_on_external_id"
     t.index ["team_id"], name: "index_tipline_messages_on_team_id"
     t.index ["uid"], name: "index_tipline_messages_on_uid"
   end
@@ -713,6 +712,35 @@ ActiveRecord::Schema.define(version: 2024_01_14_024701) do
     t.datetime "updated_at", null: false
     t.index ["team_id", "language"], name: "index_tipline_newsletters_on_team_id_and_language", unique: true
     t.index ["team_id"], name: "index_tipline_newsletters_on_team_id"
+  end
+
+  create_table "tipline_requests", force: :cascade do |t|
+    t.string "language", null: false
+    t.string "tipline_user_uid"
+    t.string "platform", null: false
+    t.string "smooch_request_type", null: false
+    t.string "smooch_resource_id"
+    t.string "smooch_message_id", default: ""
+    t.string "smooch_conversation_id"
+    t.jsonb "smooch_data", default: {}, null: false
+    t.string "associated_type", null: false
+    t.bigint "associated_id", null: false
+    t.bigint "team_id", null: false
+    t.bigint "user_id"
+    t.integer "smooch_report_received_at", default: 0
+    t.integer "smooch_report_update_received_at", default: 0
+    t.integer "smooch_report_correction_sent_at", default: 0
+    t.integer "smooch_report_sent_at", default: 0
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["associated_type", "associated_id"], name: "index_tipline_requests_on_associated"
+    t.index ["associated_type", "associated_id"], name: "index_tipline_requests_on_associated_type_and_associated_id"
+    t.index ["language"], name: "index_tipline_requests_on_language"
+    t.index ["platform"], name: "index_tipline_requests_on_platform"
+    t.index ["smooch_message_id"], name: "index_tipline_requests_on_smooch_message_id", unique: true, where: "((smooch_message_id IS NOT NULL) AND ((smooch_message_id)::text <> ''::text))"
+    t.index ["team_id"], name: "index_tipline_requests_on_team_id"
+    t.index ["tipline_user_uid"], name: "index_tipline_requests_on_tipline_user_uid"
+    t.index ["user_id"], name: "index_tipline_requests_on_user_id"
   end
 
   create_table "tipline_resources", id: :serial, force: :cascade do |t|
@@ -799,6 +827,9 @@ ActiveRecord::Schema.define(version: 2024_01_14_024701) do
     t.integer "consumed_timestep"
     t.boolean "otp_required_for_login"
     t.string "otp_backup_codes", array: true
+    t.integer "failed_attempts", default: 0, null: false
+    t.string "unlock_token"
+    t.datetime "locked_at"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true, where: "((email IS NOT NULL) AND ((email)::text <> ''::text))"
     t.index ["invitation_token"], name: "index_users_on_invitation_token", unique: true
@@ -810,7 +841,8 @@ ActiveRecord::Schema.define(version: 2024_01_14_024701) do
   end
 
   create_table "versions", id: :serial, force: :cascade do |t|
-    t.string "item_type", null: false
+    t.string "item_type"
+    t.string "{:null=>false}"
     t.string "item_id", null: false
     t.string "event", null: false
     t.string "whodunnit"

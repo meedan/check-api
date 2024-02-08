@@ -18,6 +18,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     create_flag_annotation_type
     create_extracted_text_annotation_type
     Sidekiq::Testing.inline!
+    WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
   end
 
   def teardown
@@ -102,6 +103,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should unarchive item after running" do
     WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(status: 200, body: '{}')
       pm = create_project_media
       pm.archived = CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS
       pm.save!

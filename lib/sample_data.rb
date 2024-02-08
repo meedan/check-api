@@ -845,6 +845,21 @@ module SampleData
     }.merge(options))
   end
 
+  def create_tipline_request(options = {})
+    tr = TiplineRequest.new
+    tr.smooch_data = { language: 'en', authorId: random_string, source: { type: 'whatsapp' } } unless options.has_key?(:smooch_data)
+    tr.team_id = options[:team_id] || create_team.id unless options.has_key?(:team_id)
+    tr.associated = options[:associated] || create_project_media
+    tr.smooch_request_type = 'default_requests' unless options.has_key?(:smooch_request_type)
+    tr.platform = 'whatsapp' unless options.has_key?(:platform)
+    tr.language = 'en' unless options.has_key?(:language)
+    options.each do |key, value|
+      tr.send("#{key}=", value) if tr.respond_to?("#{key}=")
+    end
+    tr.save!
+    tr.reload
+  end
+
   def create_cluster(options = {})
     options[:project_media] = create_project_media unless options.has_key?(:project_media)
     Cluster.create!(options)

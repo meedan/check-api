@@ -19,6 +19,7 @@ module ProjectMediaAssociations
     has_one :claim_description, dependent: :destroy
     belongs_to :cluster, counter_cache: :project_medias_count, optional: true
     belongs_to :source, optional: true
+    has_many :tipline_requests, as: :associated
     has_annotations
   end
 end
