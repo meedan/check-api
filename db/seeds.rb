@@ -195,69 +195,72 @@ class Setup
   end
 end
 
+class PopulatedProjects
+  def initialize(setup)
+    @setup = setup
+  end
+
+  def create_populated_projects
+    projects_params = [
+      {
+        title: "#{@setup.create_teams[:main_team_a][:name]} / [a] Main User: Main Team",
+        user: @setup.create_users[:main_user_a],
+        team: @setup.create_teams[:main_team_a],
+        project_medias_attributes: medias_params.map { |mp|
+          {
+            media_attributes: mp,
+            team: @setup.create_teams[:main_team_a],
+          }
+        }
+      },
+      # {
+      #   title: "#{team_names[1]} / [b] Invited User: Project Team #1",
+      #   user: @setup.users[:invited_user_b],
+      #   team: @setup.teams[:invited_team_b1],
+      #   project_medias_attributes: medias_params.map { |mp|
+      #     {
+      #       media_attributes: mp,
+      #       team: @setup.teams[:invited_team_b1],
+      #     }
+      #   }
+      # },
+      # {
+      #   title: "#{team_names[2]} / [b] Invited User: Project Team #2",
+      #   user: @setup.users[:invited_user_b],
+      #   team: @setup.teams[:invited_team_b2],
+      #   project_medias_attributes: medias_params.map { |mp|
+      #     {
+      #       media_attributes: mp,
+      #       team: @setup.teams[:invited_team_b2],
+      #     }
+      #   }
+      # },
+      # {
+      #   title: "#{team_names[3]} / [c] Invited User: Project Team #1",
+      #   user: @setup.users[:invited_user_c],
+      #   team: @setup.teams[:invited_team_c],
+      #   project_medias_attributes: medias_params.map { |mp|
+      #     {
+      #       media_attributes: mp,
+      #       team: @setup.teams[:invited_team_c],
+      #     }
+      #   }
+      # }
+    ]
+
+    projects_params.each { |params| Project.create!(params) }
+  end
+end
+
 puts "If you want to create a new user: press enter"
 puts "If you want to add more data to an existing user: Type user email then press enter"
 print ">> "
 answer = STDIN.gets.chomp
 
-setup = Setup.new(answer.presence)
+setup = Setup.new(answer.presence) # .presence : returns nil or the string
+PopulatedProjects.new(setup).create_populated_projects
 
-projects_params = [
-  {
-    title: "#{setup.create_teams[:main_team_a][:name]} / [a] Main User: Main Team",
-    user: setup.create_users[:main_user_a],
-    team: setup.create_teams[:main_team_a],
-    project_medias_attributes: medias_params.map { |mp|
-      {
-        media_attributes: mp,
-        team: setup.create_teams[:main_team_a],
-      }
-    }
-  },
-  # {
-  #   title: "#{team_names[1]} / [b] Invited User: Project Team #1",
-  #   user: setup.users[:invited_user_b],
-  #   team: setup.teams[:invited_team_b1],
-  #   project_medias_attributes: medias_params.map { |mp|
-  #     {
-  #       media_attributes: mp,
-  #       team: setup.teams[:invited_team_b1],
-  #     }
-  #   }
-  # },
-  # {
-  #   title: "#{team_names[2]} / [b] Invited User: Project Team #2",
-  #   user: setup.users[:invited_user_b],
-  #   team: setup.teams[:invited_team_b2],
-  #   project_medias_attributes: medias_params.map { |mp|
-  #     {
-  #       media_attributes: mp,
-  #       team: setup.teams[:invited_team_b2],
-  #     }
-  #   }
-  # },
-  # {
-  #   title: "#{team_names[3]} / [c] Invited User: Project Team #1",
-  #   user: setup.users[:invited_user_c],
-  #   team: setup.teams[:invited_team_c],
-  #   project_medias_attributes: medias_params.map { |mp|
-  #     {
-  #       media_attributes: mp,
-  #       team: setup.teams[:invited_team_c],
-  #     }
-  #   }
-  # }
-]
 
-projects_params.each { |params| Project.create!(params) }
-
-puts 'emails'
-# require 'byebug'
-# byebug
-setup.user_emails.each { |e| puts e }
-
-puts 'passwords'
-setup.user_passwords.each { |p| puts p }
 
 # teams.each do |team|
 #   project_medias = team.project_medias
@@ -267,5 +270,10 @@ setup.user_passwords.each { |p| puts p }
 #   create_confirmed_relationship(project_medias[6], project_medias[7])
 #   create_confirmed_relationship(project_medias[8], project_medias[1])
 # end
+
+puts 'emails'
+setup.user_emails.each { |e| puts e }
+puts 'passwords'
+setup.user_passwords.each { |p| puts p }
 
 Rails.cache.clear
