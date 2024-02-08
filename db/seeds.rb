@@ -8,56 +8,6 @@ def open_file(file)
   File.open(File.join(Rails.root, 'test', 'data', file))
 end
 
-def medias_params
-  links = [
-    'https://meedan.com/post/addressing-misinformation-across-countries-a-pioneering-collaboration-between-taiwan-factcheck-center-vera-files',
-    'https://meedan.com/post/entre-becos-a-women-led-hyperlocal-newsletter-from-the-peripheries-of-brazil',
-    'https://meedan.com/post/check-global-launches-independent-media-response-fund-tackles-on-climate-misinformation',
-    'https://meedan.com/post/chambal-media',
-    'https://meedan.com/post/application-process-for-the-check-global-independent-media-response-fund',
-    'https://meedan.com/post/fact-checkers-and-their-mental-health-research-work-in-progress',
-    'https://meedan.com/post/meedan-stands-with-rappler-in-the-fight-against-disinformation',
-    'https://meedan.com/post/2022-french-elections-meedan-software-supported-agence-france-presse',
-    'https://meedan.com/post/how-to-write-longform-git-commits-for-better-software-development',
-    'https://meedan.com/post/welcome-smriti-singh-our-research-intern',
-    'https://meedan.com/post/countdown-to-u-s-2024-meedan-coalition-to-exchange-critical-election-information-with-overlooked-voters',
-    'https://meedan.com/post/a-statement-on-the-israel-gaza-war-by-meedans-ceo',
-    'https://meedan.com/post/resources-to-capture-critical-evidence-from-the-israel-gaza-war',
-    'https://meedan.com/post/turkeys-largest-fact-checking-group-debunks-election-related-disinformation',
-    'https://meedan.com/post/meedan-joins-diverse-cohort-of-partners-committed-to-partnership-on-ais-responsible-practices-for-synthetic-media',
-    'https://meedan.com/post/nurturing-equity-diversity-and-inclusion-meedans-people-first-approach',
-    'https://meedan.com/post/students-find-top-spreader-of-climate-misinformation-is-most-read-online-news-publisher-in-egypt',
-    'https://meedan.com/post/new-e-course-on-the-fundamentals-of-climate-and-environmental-reporting-in-africa',
-    'https://meedan.com/post/annual-report-2022',
-    'https://meedan.com/post/meedan-joins-partnership-on-ais-ai-and-media-integrity-steering-committee'
-  ].map do |url|
-      { type: 'Link', url: url }
-    end
-  claims = (Array.new(20) do
-    {
-      type: 'Claim',
-      quote: Faker::Lorem.paragraph(sentence_count: 10)
-    }
-  end)
-  uploadedAudios = (['e-item.mp3', 'rails.mp3', 'with_cover.mp3', 'with_cover.ogg', 'with_cover.wav']*4).map do |audio|
-    { type: 'UploadedAudio', file: open_file(audio) }
-  end
-  uploadedImages =  (['large-image.jpg', 'maçã.png', 'rails-photo.jpg', 'rails.png', 'ruby-small.png']*4).map do |image|
-    { type: 'UploadedImage', file: open_file(image) }
-  end
-  uploadedVideos =  (['d-item.mp4', 'rails.mp4', 'd-item.mp4', 'rails.mp4', 'd-item.mp4']*4).map do |video|
-    { type: 'UploadedVideo', file: open_file(video) }
-  end
-
-  [
-    # *links,
-    *claims,
-    # *uploadedAudios,
-    # *uploadedImages,
-    # *uploadedVideos
-  ]
-end
-
 class Setup
   attr_reader :user_passwords, :user_emails
 
@@ -198,6 +148,7 @@ end
 class PopulatedProjects
   def initialize(setup)
     @setup = setup
+    @medias_params = get_medias_params
   end
 
   def create_populated_projects
@@ -206,7 +157,7 @@ class PopulatedProjects
         title: "#{@setup.create_teams[:main_team_a][:name]} / [a] Main User: Main Team",
         user: @setup.create_users[:main_user_a],
         team: @setup.create_teams[:main_team_a],
-        project_medias_attributes: medias_params.map { |mp|
+        project_medias_attributes: @medias_params.map { |mp|
           {
             media_attributes: mp,
             team: @setup.create_teams[:main_team_a],
@@ -217,7 +168,7 @@ class PopulatedProjects
       #   title: "#{team_names[1]} / [b] Invited User: Project Team #1",
       #   user: @setup.users[:invited_user_b],
       #   team: @setup.teams[:invited_team_b1],
-      #   project_medias_attributes: medias_params.map { |mp|
+      #   project_medias_attributes: @medias_params.map { |mp|
       #     {
       #       media_attributes: mp,
       #       team: @setup.teams[:invited_team_b1],
@@ -228,7 +179,7 @@ class PopulatedProjects
       #   title: "#{team_names[2]} / [b] Invited User: Project Team #2",
       #   user: @setup.users[:invited_user_b],
       #   team: @setup.teams[:invited_team_b2],
-      #   project_medias_attributes: medias_params.map { |mp|
+      #   project_medias_attributes: @medias_params.map { |mp|
       #     {
       #       media_attributes: mp,
       #       team: @setup.teams[:invited_team_b2],
@@ -239,7 +190,7 @@ class PopulatedProjects
       #   title: "#{team_names[3]} / [c] Invited User: Project Team #1",
       #   user: @setup.users[:invited_user_c],
       #   team: @setup.teams[:invited_team_c],
-      #   project_medias_attributes: medias_params.map { |mp|
+      #   project_medias_attributes: @medias_params.map { |mp|
       #     {
       #       media_attributes: mp,
       #       team: @setup.teams[:invited_team_c],
@@ -249,6 +200,58 @@ class PopulatedProjects
     ]
 
     projects_params.each { |params| Project.create!(params) }
+  end
+
+  private
+
+  def get_medias_params
+    links = [
+      'https://meedan.com/post/addressing-misinformation-across-countries-a-pioneering-collaboration-between-taiwan-factcheck-center-vera-files',
+      'https://meedan.com/post/entre-becos-a-women-led-hyperlocal-newsletter-from-the-peripheries-of-brazil',
+      'https://meedan.com/post/check-global-launches-independent-media-response-fund-tackles-on-climate-misinformation',
+      'https://meedan.com/post/chambal-media',
+      'https://meedan.com/post/application-process-for-the-check-global-independent-media-response-fund',
+      'https://meedan.com/post/fact-checkers-and-their-mental-health-research-work-in-progress',
+      'https://meedan.com/post/meedan-stands-with-rappler-in-the-fight-against-disinformation',
+      'https://meedan.com/post/2022-french-elections-meedan-software-supported-agence-france-presse',
+      'https://meedan.com/post/how-to-write-longform-git-commits-for-better-software-development',
+      'https://meedan.com/post/welcome-smriti-singh-our-research-intern',
+      'https://meedan.com/post/countdown-to-u-s-2024-meedan-coalition-to-exchange-critical-election-information-with-overlooked-voters',
+      'https://meedan.com/post/a-statement-on-the-israel-gaza-war-by-meedans-ceo',
+      'https://meedan.com/post/resources-to-capture-critical-evidence-from-the-israel-gaza-war',
+      'https://meedan.com/post/turkeys-largest-fact-checking-group-debunks-election-related-disinformation',
+      'https://meedan.com/post/meedan-joins-diverse-cohort-of-partners-committed-to-partnership-on-ais-responsible-practices-for-synthetic-media',
+      'https://meedan.com/post/nurturing-equity-diversity-and-inclusion-meedans-people-first-approach',
+      'https://meedan.com/post/students-find-top-spreader-of-climate-misinformation-is-most-read-online-news-publisher-in-egypt',
+      'https://meedan.com/post/new-e-course-on-the-fundamentals-of-climate-and-environmental-reporting-in-africa',
+      'https://meedan.com/post/annual-report-2022',
+      'https://meedan.com/post/meedan-joins-partnership-on-ais-ai-and-media-integrity-steering-committee'
+    ].map do |url|
+        { type: 'Link', url: url }
+      end
+    claims = (Array.new(20) do
+      {
+        type: 'Claim',
+        quote: Faker::Lorem.paragraph(sentence_count: 10)
+      }
+    end)
+    uploadedAudios = (['e-item.mp3', 'rails.mp3', 'with_cover.mp3', 'with_cover.ogg', 'with_cover.wav']*4).map do |audio|
+      { type: 'UploadedAudio', file: open_file(audio) }
+    end
+    uploadedImages =  (['large-image.jpg', 'maçã.png', 'rails-photo.jpg', 'rails.png', 'ruby-small.png']*4).map do |image|
+      { type: 'UploadedImage', file: open_file(image) }
+    end
+    uploadedVideos =  (['d-item.mp4', 'rails.mp4', 'd-item.mp4', 'rails.mp4', 'd-item.mp4']*4).map do |video|
+      { type: 'UploadedVideo', file: open_file(video) }
+    end
+
+    [
+      # *links,
+      *claims,
+      # *uploadedAudios,
+      # *uploadedImages,
+      # *uploadedVideos
+    ]
   end
 end
 
