@@ -289,6 +289,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should use transcription data for similarity matching" do
+    WebMock.stub_request(:delete, 'http://alegre:3100/text/similarity/').to_return(status: 200, body: '{}')
     WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
     WebMock.stub_request(:post, 'http://alegre:3100/text/langid/').to_return(body: {
       'result': {
