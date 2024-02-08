@@ -10,6 +10,7 @@ class TiplineResource < ApplicationRecord
   validates_inclusion_of :language, in: ->(resource) { resource.team.get_languages.to_a }
 
   belongs_to :team, optional: true
+  has_many :tipline_requests, as: :associated
 
   def format_as_tipline_message
     message = []

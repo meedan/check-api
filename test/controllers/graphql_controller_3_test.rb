@@ -235,20 +235,18 @@ class GraphqlController3Test < ActionController::TestCase
 
   test "should retrieve information for grid" do
     RequestStore.store[:skip_cached_field_update] = false
-
     u = create_user
     authenticate_with_user(u)
     t = create_team slug: 'team'
     create_team_user user: u, team: t
     p = create_project team: t
-
     m = create_uploaded_image
     pm = create_project_media project: p, user: create_user, media: m, disable_es_callbacks: false
     info = { title: random_string, content: random_string }; pm.analysis = info; pm.save!
-    create_dynamic_annotation(annotation_type: 'smooch', annotated: pm, set_fields: { smooch_data: '{}' }.to_json)
+    create_tipline_request team_id: t.id, associated: pm, smooch_data: {}
     pm2 = create_project_media project: p
     r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
-    create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2, set_fields: { smooch_data: '{}' }.to_json)
+    create_tipline_request team_id: t.id, associated: pm2, smooch_data: {}
     create_claim_description project_media: pm, description: 'Test'
 
     sleep 10
@@ -348,9 +346,9 @@ class GraphqlController3Test < ActionController::TestCase
     pm = create_project_media team: t
     pm2 = create_project_media team: t
     authenticate_with_user(u)
-    create_dynamic_annotation annotation_type: 'smooch', annotated: pm, set_fields: { smooch_data: { 'authorId' => random_string }.to_json }.to_json
-    create_dynamic_annotation annotation_type: 'smooch', annotated: pm, set_fields: { smooch_data: { 'authorId' => random_string }.to_json }.to_json
-    create_dynamic_annotation annotation_type: 'smooch', annotated: pm2, set_fields: { smooch_data: { 'authorId' => random_string }.to_json }.to_json
+    create_tipline_request team_id: t.id, associated: pm, smooch_data: { 'authorId' => random_string }
+    create_tipline_request team_id: t.id, associated: pm, smooch_data: { 'authorId' => random_string }
+    create_tipline_request team_id: t.id, associated: pm2, smooch_data: { 'authorId' => random_string }
     r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     query = "query { project_media(ids: \"#{pm.id}\") { requests(first: 10) { edges { node { dbid } } } } }"
     post :create, params: { query: query, team: t.slug }

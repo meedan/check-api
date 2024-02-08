@@ -46,6 +46,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
         '_id': random_string,
         authorId: random_string,
         type: 'text',
+        source: { type: "whatsapp" },
         text: random_string
       }
     ]
@@ -65,8 +66,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     pm = ProjectMedia.last
     assert_equal 'undetermined', pm.last_verification_status
     # Get requests data
-    sm = pm.get_annotations('smooch').last
-    requests = DynamicAnnotation::Field.where(annotation_id: sm.id, field_name: 'smooch_data')
+    requests = TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: pm.id)
     assert_equal 1, requests.count
   end
 
@@ -78,12 +78,14 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
           '_id': random_string,
           authorId: uid,
           type: 'text',
+          source: { type: "whatsapp" },
           text: 'foo',
         },
         {
           '_id': random_string,
           authorId: uid,
           type: 'image',
+          source: { type: "whatsapp" },
           text: 'first image',
           mediaUrl: @media_url
         },
@@ -91,6 +93,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
           '_id': random_string,
           authorId: uid,
           type: 'image',
+          source: { type: "whatsapp" },
           text: 'second image',
           mediaUrl: @media_url_2
         },
@@ -98,7 +101,8 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
           '_id': random_string,
           authorId: uid,
           type: 'text',
-          text: 'bar'
+          text: 'bar',
+          source: { type: "whatsapp" },
         }
       ]
       messages.each do |message|
@@ -138,6 +142,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
           '_id': random_string,
           authorId: uid,
           type: 'text',
+          source: { type: "whatsapp" },
           text: random_string
         }
       ]
@@ -182,6 +187,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       # video
       message = {
         type: 'file',
+        source: { type: "whatsapp" },
         text: random_string,
         mediaUrl: @video_url,
         mediaType: 'image/jpeg',
@@ -189,7 +195,8 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
         received: 1573082583.219,
         name: random_string,
         authorId: random_string,
-        '_id': random_string
+        '_id': random_string,
+        language: 'en',
       }
       assert_difference 'ProjectMedia.count' do
         Bot::Smooch.save_message(message.to_json, @app_id)
@@ -201,6 +208,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       # audio
       message = {
         type: 'file',
+        source: { type: "whatsapp" },
         text: random_string,
         mediaUrl: @audio_url,
         mediaType: 'image/jpeg',
@@ -208,7 +216,8 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
         received: 1573082583.219,
         name: random_string,
         authorId: random_string,
-        '_id': random_string
+        '_id': random_string,
+        language: 'en',
       }
       assert_difference 'ProjectMedia.count' do
         Bot::Smooch.save_message(message.to_json, @app_id)
@@ -226,6 +235,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
         '_id': random_string,
         authorId: random_string,
         type: 'image',
+        source: { type: "whatsapp" },
         text: random_string,
         mediaUrl: @media_url_3,
         mediaSize: UploadedImage.max_size + random_number
@@ -235,6 +245,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
         authorId: random_string,
         type: 'file',
         mediaType: 'image/jpeg',
+        source: { type: "whatsapp" },
         text: random_string,
         mediaUrl: @media_url_2,
         mediaSize: UploadedImage.max_size + random_number
@@ -244,6 +255,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
         authorId: random_string,
         type: 'video',
         mediaType: 'video/mp4',
+        source: { type: "whatsapp" },
         text: random_string,
         mediaUrl: @video_url,
         mediaSize: UploadedVideo.max_size + random_number
@@ -253,6 +265,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
         authorId: random_string,
         type: 'audio',
         mediaType: 'audio/mpeg',
+        source: { type: "whatsapp" },
         text: random_string,
         mediaUrl: @audio_url,
         mediaSize: UploadedAudio.max_size + random_number
@@ -288,6 +301,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
                 '_id': random_string,
                 authorId: uid,
                 type: 'text',
+                source: { type: "whatsapp" },
                 text: '2'
               }
             ],
@@ -309,6 +323,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
         '_id': random_string,
         authorId: random_string,
         type: 'text',
+        source: { type: "whatsapp" },
         text: random_string,
         name: nil
       }
@@ -336,7 +351,8 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       type: 'file',
       text: random_string,
       mediaUrl: @video_url,
-      mediaType: 'video/mp4'
+      mediaType: 'video/mp4',
+      source: { type: "whatsapp" },
     }.with_indifferent_access
     is_supported = Bot::Smooch.supported_message?(message)
     assert is_supported.slice(:type, :size).all?{ |_k, v| v }
@@ -347,7 +363,8 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       type: 'file',
       text: random_string,
       mediaUrl: @video_url,
-      mediaType: 'newtype/ogg'
+      mediaType: 'newtype/ogg',
+      source: { type: "whatsapp" },
     }.with_indifferent_access
     is_supported = Bot::Smooch.supported_message?(message)
     assert !is_supported.slice(:type, :size).all?{ |_k, v| v }
@@ -357,7 +374,8 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       authorId: random_string,
       type: 'file',
       text: random_string,
-      mediaUrl: @video_url
+      mediaUrl: @video_url,
+      source: { type: "whatsapp" },
     }.with_indifferent_access
     is_supported = Bot::Smooch.supported_message?(message)
     assert is_supported.slice(:type, :size).all?{ |_k, v| v }
@@ -368,7 +386,8 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       type: 'file',
       text: random_string,
       mediaUrl: @audio_url,
-      mediaType: 'audio/mpeg'
+      mediaType: 'audio/mpeg',
+      source: { type: "whatsapp" },
     }.with_indifferent_access
     is_supported = Bot::Smooch.supported_message?(message)
     assert is_supported.slice(:type, :size).all?{ |_k, v| v }
@@ -379,7 +398,8 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       type: 'file',
       text: random_string,
       mediaUrl: @audio_url,
-      mediaType: 'newtype/mp4'
+      mediaType: 'newtype/mp4',
+      source: { type: "whatsapp" },
     }.with_indifferent_access
     is_supported = Bot::Smooch.supported_message?(message)
     assert !is_supported.slice(:type, :size).all?{ |_k, v| v }
@@ -389,7 +409,8 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       authorId: random_string,
       type: 'file',
       text: random_string,
-      mediaUrl: @audio_url
+      mediaUrl: @audio_url,
+      source: { type: "whatsapp" },
     }.with_indifferent_access
     is_supported = Bot::Smooch.supported_message?(message)
     assert is_supported.slice(:type, :size).all?{ |_k, v| v }

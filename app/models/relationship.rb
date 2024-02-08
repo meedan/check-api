@@ -12,7 +12,6 @@ class Relationship < ApplicationRecord
 
   before_validation :set_user, on: :create
   before_validation :set_confirmed, if: :is_being_confirmed?, on: :update
-  before_validation :set_cluster, if: :is_being_confirmed?, on: :update
   validate :relationship_type_is_valid, :items_are_from_the_same_team
   validate :target_not_published_report, on: :create
   validate :similar_item_exists, on: :create, if: proc { |r| r.is_suggested? }
@@ -31,7 +30,6 @@ class Relationship < ApplicationRecord
   after_destroy :turn_on_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
   after_commit :update_counter_and_elasticsearch, on: [:create, :update]
   after_commit :update_counters, :destroy_elasticsearch_relation, on: :destroy
-  after_commit :set_cluster, on: [:create]
 
   has_paper_trail on: [:create, :update, :destroy], if: proc { |x| User.current.present? && !x.is_being_copied? }, versions: { class_name: 'Version' }
 
@@ -279,21 +277,6 @@ class Relationship < ApplicationRecord
     if User.current
       self.confirmed_at = Time.now
       self.confirmed_by = User.current.id
-    end
-  end
-
-  def set_cluster
-    if self.relationship_type.to_json == Relationship.confirmed_type.to_json && User.current && User.current&.id != BotUser.alegre_user&.id
-      pm = self.target
-      new_cluster = self.source.cluster
-      old_cluster = pm.cluster
-      if old_cluster.nil? || (old_cluster.size == 1 && old_cluster.project_media_id == pm.id)
-        unless old_cluster.nil?
-          old_cluster.skip_check_ability = true
-          old_cluster.destroy!
-        end
-        new_cluster.project_medias << pm unless new_cluster.nil?
-      end
     end
   end
 

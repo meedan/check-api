@@ -131,6 +131,8 @@ class Bot::SmoochRulesTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
+        source: { type: "whatsapp" },
+        language: 'en',
         text: ([random_string] * 10).join(' ')
       }
     ]
@@ -157,6 +159,8 @@ class Bot::SmoochRulesTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
+        source: { type: "whatsapp" },
+        language: 'en',
         text: ([random_string] * 3).join(' ') + ' pLease?'
       }
     ]
@@ -182,6 +186,8 @@ class Bot::SmoochRulesTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
+        source: { type: "whatsapp" },
+        language: 'en',
         text: random_string
       }
     ]
@@ -211,6 +217,8 @@ class Bot::SmoochRulesTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
+        source: { type: "whatsapp" },
+        language: 'en',
         text: quote
       }
     ]
@@ -235,6 +243,8 @@ class Bot::SmoochRulesTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
+        source: { type: "whatsapp" },
+        language: 'en',
         text: random_number.to_s + ' ' + random_string
       }
     ]
@@ -259,6 +269,8 @@ class Bot::SmoochRulesTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
+        source: { type: "whatsapp" },
+        language: 'en',
         text: [random_string, random_string, random_string, 'bad word', random_string, random_string].join(' ')
       }
     ]

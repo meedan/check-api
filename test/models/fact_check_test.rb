@@ -30,9 +30,11 @@ class FactCheckTest < ActiveSupport::TestCase
   end
 
   test "should create fact check without optional fields" do
+    Bot::Alegre.stubs(:send_field_to_similarity_index).returns({"success": true})
     assert_difference 'FactCheck.count' do
       create_fact_check url: nil, title: random_string, summary: nil
     end
+    Bot::Alegre.unstub(:send_field_to_similarity_index)
   end
 
   test "should not create fact check without user" do

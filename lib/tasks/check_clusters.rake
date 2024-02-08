@@ -138,11 +138,6 @@ namespace :check do
       team = Team.find_by_slug(slug)
       n = ProjectMedia.where(team_id: team.id).count
       i = 0
-      ProjectMedia.where(team_id: team.id).order('id ASC').find_each do |pm|
-        i += 1
-        c = Bot::Alegre.set_cluster(pm, true)
-        log "[#{i}/#{n}] [#{Time.now}] Adding item #{pm.id} to the clusters... added to cluster #{c.id}"
-      end
     end
   end
 end

@@ -291,6 +291,14 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal JSON.parse(Bot::Alegre.get_sync(pm1).to_json), JSON.parse(response.to_json)
   end
 
+  test "should safe_get_sync" do
+    pm1 = create_project_media team: @team, media: create_uploaded_audio
+    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/sync/audio").to_return(body: '{}')
+    expected = {}
+    actual = Bot::Alegre.safe_get_sync(pm1, "audio", {})
+    assert_equal expected, actual
+  end
+
   test "should run delete request" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     response = {"requested"=>
@@ -671,5 +679,23 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal relationship.target, pm1
     assert_equal relationship.relationship_type, Relationship.suggested_type
     Bot::Alegre.unstub(:get_similar_items_v2)
+  end
+
+  test "should not relate project media for audio if disabled on workspace" do
+    tbi = TeamBotInstallation.where(team: @team, user: @bot).last
+    tbi.set_audio_similarity_enabled = false
+    tbi.save!
+    Bot::Alegre.stubs(:merge_suggested_and_confirmed).never
+    pm = create_project_media team: @team, media: create_uploaded_audio
+    assert_equal({}, Bot::Alegre.get_similar_items_v2(pm, nil))
+  end
+
+  test "should not relate project media for image if disabled on workspace" do
+    tbi = TeamBotInstallation.where(team: @team, user: @bot).last
+    tbi.set_image_similarity_enabled = false
+    tbi.save!
+    Bot::Alegre.stubs(:merge_suggested_and_confirmed).never
+    pm = create_project_media team: @team, media: create_uploaded_image
+    assert_equal({}, Bot::Alegre.get_similar_items_v2(pm, nil))
   end
 end

@@ -665,26 +665,6 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     Bot::Alegre.unstub(:get_items_with_similar_description)
   end
 
-  test "should set cluster" do
-    c1 = create_cluster
-    c2 = create_cluster
-    pm1 = create_project_media team: @team, cluster_id: c1.id
-    pm2 = create_project_media team: @team, cluster_id: c2.id
-
-    ProjectMedia.any_instance.stubs(:similar_items_ids_and_scores).returns({ pm1.id => { score: 0.9 }, pm2.id => { score: 0.8 } })
-    pm3 = create_project_media team: @team
-    Bot::Alegre.set_cluster(pm3)
-    assert_equal c1.id, pm3.reload.cluster_id
-
-    ProjectMedia.any_instance.stubs(:similar_items_ids_and_scores).returns({})
-    pm4 = create_project_media team: @team
-    assert_difference 'Cluster.count' do
-      Bot::Alegre.set_cluster(pm4)
-    end
-
-    ProjectMedia.any_instance.unstub(:similar_items_ids_and_scores)
-  end
-
   test "should get number of words" do
     assert_equal 4, Bot::Alegre.get_number_of_words('58 This   is a test !!! 123 😊')
     assert_equal 1, Bot::Alegre.get_number_of_words(random_url)

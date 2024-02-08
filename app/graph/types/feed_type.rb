@@ -20,7 +20,7 @@ class FeedType < DefaultObject
   field :discoverable, GraphQL::Types::Boolean, null: true
   field :user, UserType, null: true
 
-  field :team, TeamType, null: true
+  field :team, PublicTeamType, null: true
   field :saved_search, SavedSearchType, null: true
 
   field :requests, RequestType.connection_type, null: true do
@@ -50,7 +50,7 @@ class FeedType < DefaultObject
     object.feed_invitations
   end
 
-  field :teams, TeamType.connection_type, null: false
+  field :teams, PublicTeamType.connection_type, null: false
   field :feed_teams, FeedTeamType.connection_type, null: false
   field :data_points, [GraphQL::Types::Int, null: true], null: true
 end
