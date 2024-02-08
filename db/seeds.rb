@@ -9,7 +9,7 @@ def open_file(file)
 end
 
 class Setup
-  attr_reader :user_passwords, :user_emails
+  attr_reader :user_passwords, :user_emails, :teams, :users
 
   def initialize(existing_user)
     @existing_user = existing_user
@@ -147,56 +147,57 @@ end
 
 class PopulatedProjects
   def initialize(setup)
-    @setup = setup
+    @teams = setup.teams
+    @users = setup.users
     @medias_params = get_medias_params
   end
 
   def create_populated_projects
     projects_params = [
       {
-        title: "#{@setup.create_teams[:main_team_a][:name]} / [a] Main User: Main Team",
-        user: @setup.create_users[:main_user_a],
-        team: @setup.create_teams[:main_team_a],
-        project_medias_attributes: @medias_params.map { |mp|
+        title: "#{@teams[:main_team_a][:name]} / [a] Main User: Main Team",
+        user: @users[:main_user_a],
+        team: @teams[:main_team_a],
+        project_medias_attributes: @medias_params.map { |media_params|
           {
-            media_attributes: mp,
-            team: @setup.create_teams[:main_team_a],
+            media_attributes: media_params,
+            team: @teams[:main_team_a],
           }
         }
       },
-      # {
-      #   title: "#{team_names[1]} / [b] Invited User: Project Team #1",
-      #   user: @setup.users[:invited_user_b],
-      #   team: @setup.teams[:invited_team_b1],
-      #   project_medias_attributes: @medias_params.map { |mp|
-      #     {
-      #       media_attributes: mp,
-      #       team: @setup.teams[:invited_team_b1],
-      #     }
-      #   }
-      # },
-      # {
-      #   title: "#{team_names[2]} / [b] Invited User: Project Team #2",
-      #   user: @setup.users[:invited_user_b],
-      #   team: @setup.teams[:invited_team_b2],
-      #   project_medias_attributes: @medias_params.map { |mp|
-      #     {
-      #       media_attributes: mp,
-      #       team: @setup.teams[:invited_team_b2],
-      #     }
-      #   }
-      # },
-      # {
-      #   title: "#{team_names[3]} / [c] Invited User: Project Team #1",
-      #   user: @setup.users[:invited_user_c],
-      #   team: @setup.teams[:invited_team_c],
-      #   project_medias_attributes: @medias_params.map { |mp|
-      #     {
-      #       media_attributes: mp,
-      #       team: @setup.teams[:invited_team_c],
-      #     }
-      #   }
-      # }
+      {
+        title: "#{@teams[:invited_team_b1][:name]} / [b] Invited User: Project Team #1",
+        user: @users[:invited_user_b],
+        team: @teams[:invited_team_b1],
+        project_medias_attributes: @medias_params.map { |media_params|
+          {
+            media_attributes: media_params,
+            team: @teams[:invited_team_b1],
+          }
+        }
+      },
+      {
+        title: "#{@teams[:invited_team_b2][:name]} / [b] Invited User: Project Team #2",
+        user: @users[:invited_user_b],
+        team: @teams[:invited_team_b2],
+        project_medias_attributes: @medias_params.map { |media_params|
+          {
+            media_attributes: media_params,
+            team: @teams[:invited_team_b2],
+          }
+        }
+      },
+      {
+        title: "#{@teams[:invited_team_c][:name]} / [c] Invited User: Project Team #1",
+        user: @users[:invited_user_c],
+        team: @teams[:invited_team_c],
+        project_medias_attributes: @medias_params.map { |media_params|
+          {
+            media_attributes: media_params,
+            team: @teams[:invited_team_c],
+          }
+        }
+      }
     ]
 
     projects_params.each { |params| Project.create!(params) }
