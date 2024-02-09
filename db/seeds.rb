@@ -24,6 +24,7 @@ class Setup
   end
 
   def create_users
+    puts "create users"
     @users ||= begin
 
       all_users = {
@@ -52,6 +53,7 @@ class Setup
   end
 
   def create_teams
+    puts "create teams"
     @teams ||= begin
     
       all_teams = {
@@ -153,6 +155,7 @@ class PopulatedProjects
   end
 
   def create_populated_projects
+    puts 'create populated projects'
     projects_params = [
       {
         title: "#{@teams[:main_team_a][:name]} / [a] Main User: Main Team",
@@ -204,7 +207,6 @@ class PopulatedProjects
   end
 
   private
-
   def get_medias_params
     links = [
       'https://meedan.com/post/addressing-misinformation-across-countries-a-pioneering-collaboration-between-taiwan-factcheck-center-vera-files',
@@ -260,6 +262,8 @@ puts "If you want to create a new user: press enter"
 puts "If you want to add more data to an existing user: Type user email then press enter"
 print ">> "
 answer = STDIN.gets.chomp
+
+puts "Stretch your legs, this might take a while"
 
 setup = Setup.new(answer.presence) # .presence : returns nil or the string
 PopulatedProjects.new(setup).create_populated_projects
