@@ -289,4 +289,23 @@ class GraphqlController12Test < ActionController::TestCase
     data = JSON.parse(@response.body)['data']['updateUser']['me']
     assert_equal user.id, data['dbid']
   end
+
+  test "should ensure graphql introspection is disabled" do
+    user = create_user
+    authenticate_with_user(user)
+    INTROSPECTION_QUERY = <<-GRAPHQL
+      {
+        __schema {
+          queryType {
+            name
+          }
+        }
+      }
+    GRAPHQL
+
+    post :create, params: { query: INTROSPECTION_QUERY }
+    assert_response :success
+    response_body = JSON.parse(response.body)
+    assert_equal response_body['errors'][0]['message'], "Field '__schema' doesn't exist on type 'Query'"
+  end
 end
