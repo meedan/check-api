@@ -14,7 +14,7 @@ class MonthlyTeamStatistic < ApplicationRecord
     month: 'Month', # model method
     whatsapp_conversations: 'WhatsApp conversations',
     whatsapp_conversations_business: 'Business Conversations',
-    whatsapp_conversations_user: 'User Conversations',
+    whatsapp_conversations_user: 'Service Conversations',
     unique_users: 'Unique users',
     returning_users: 'Returning users',
     published_reports: 'Published reports',
