@@ -61,19 +61,19 @@ class Setup
         {
           name: "#{@team_names[1]} / [b] Invited User: Team #1",
           slug: Team.slug_from_name(@team_names[1]),
-          logo: 'maçã.png'
+          logo: open_file('maçã.png')
         },
         invited_team_b2:
         {
           name: "#{@team_names[2]} / [b] Invited User: Team #2",
           slug: Team.slug_from_name(@team_names[2]),
-          logo: 'ruby-small.png'
+          logo: open_file('ruby-small.png')
         },
         invited_team_c:
         {
           name: "#{@team_names[3]} / [c] Invited User: Team #1",
           slug: Team.slug_from_name(@team_names[3]),
-          logo: 'maçã.png'
+          logo: open_file('maçã.png')
         }
       }.transform_values { |t| Team.create!(t) }
 
@@ -106,7 +106,7 @@ class Setup
       Team.create!({
         name: "#{@team_names[0]} / [a] Main User: Main Team",
         slug: Team.slug_from_name(@team_names[0]),
-        logo: 'rails.png'
+        logo: open_file('rails.png')
       })
     end
   end
