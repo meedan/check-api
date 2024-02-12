@@ -252,6 +252,7 @@ class PopulatedProjects
     links = [
       'https://meedan.com/post/addressing-misinformation-across-countries-a-pioneering-collaboration-between-taiwan-factcheck-center-vera-files',
       'https://meedan.com/post/entre-becos-a-women-led-hyperlocal-newsletter-from-the-peripheries-of-brazil',
+
       'https://meedan.com/post/check-global-launches-independent-media-response-fund-tackles-on-climate-misinformation',
       'https://meedan.com/post/chambal-media',
       'https://meedan.com/post/application-process-for-the-check-global-independent-media-response-fund',
@@ -316,9 +317,18 @@ answer = STDIN.gets.chomp
 puts "Stretch your legs, this might take a while"
 puts "On a mac took about 10 minutes to create all populated workspaces"
 
-setup = Setup.new(answer.presence) # .presence : returns nil or the string
-PopulatedProjects.new(setup).create_populated_projects
-
+begin
+  setup = Setup.new(answer.presence) # .presence : returns nil or the string
+  PopulatedProjects.new(setup).create_populated_projects
+rescue RuntimeError => e
+  if e.message.include?('We could not parse this link')
+    puts "—————"
+    puts "Couldn't create Links. \nMake sure Pender is running, or comment out Links so they are not created."
+    puts "—————"
+  else
+    raise e
+  end
+end
 
 
 # teams.each do |team|
@@ -330,6 +340,6 @@ PopulatedProjects.new(setup).create_populated_projects
 #   create_confirmed_relationship(project_medias[8], project_medias[1])
 # end
 
-setup.get_users_emails_and_passwords.each { |user_info| puts user_info }
+unless e then setup.get_users_emails_and_passwords.each { |user_info| puts user_info } end
 
 Rails.cache.clear
