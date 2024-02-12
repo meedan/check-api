@@ -165,14 +165,14 @@ class PopulatedProjects
 
   private
 
-  attr_reader :teams, :users, :medias_params
+  attr_reader :teams, :users
 
   public
 
   def initialize(setup)
     @teams = setup.teams
     @users = setup.users
-    @medias_params = get_medias_params
+    # @medias_params = get_medias_params
   end
 
   def create_populated_projects
@@ -182,7 +182,7 @@ class PopulatedProjects
         title: "#{teams[:main_team_a][:name]} / [a] Main User: Main Team",
         user: users[:main_user_a],
         team: teams[:main_team_a],
-        project_medias_attributes: medias_params.map { |media_params|
+        project_medias_attributes: get_medias_params.map { |media_params|
           {
             media_attributes: media_params,
             team: teams[:main_team_a],
@@ -193,7 +193,7 @@ class PopulatedProjects
         title: "#{teams[:invited_team_b1][:name]} / [b] Invited User: Project Team #1",
         user: users[:invited_user_b],
         team: teams[:invited_team_b1],
-        project_medias_attributes: medias_params.map { |media_params|
+        project_medias_attributes: get_medias_params.map { |media_params|
           {
             media_attributes: media_params,
             team: teams[:invited_team_b1],
@@ -204,7 +204,7 @@ class PopulatedProjects
         title: "#{teams[:invited_team_b2][:name]} / [b] Invited User: Project Team #2",
         user: users[:invited_user_b],
         team: teams[:invited_team_b2],
-        project_medias_attributes: medias_params.map { |media_params|
+        project_medias_attributes: get_medias_params.map { |media_params|
           {
             media_attributes: media_params,
             team: teams[:invited_team_b2],
@@ -215,7 +215,7 @@ class PopulatedProjects
         title: "#{teams[:invited_team_c][:name]} / [c] Invited User: Project Team #1",
         user: users[:invited_user_c],
         team: teams[:invited_team_c],
-        project_medias_attributes: medias_params.map { |media_params|
+        project_medias_attributes: get_medias_params.map { |media_params|
           {
             media_attributes: media_params,
             team: teams[:invited_team_c],
@@ -251,7 +251,7 @@ class PopulatedProjects
       'https://meedan.com/post/annual-report-2022',
       'https://meedan.com/post/meedan-joins-partnership-on-ais-ai-and-media-integrity-steering-committee'
     ].map do |url|
-        { type: 'Link', url: url }
+        { type: 'Link', url: url+"?timestamp=#{Time.now.to_f}" }
       end
     claims = (Array.new(20) do
       {
@@ -270,11 +270,11 @@ class PopulatedProjects
     end
 
     [
-      # *links,
+      *links,
       *claims,
-      # *uploadedAudios,
-      # *uploadedImages,
-      # *uploadedVideos
+      *uploadedAudios,
+      *uploadedImages,
+      *uploadedVideos
     ]
   end
 end
@@ -285,6 +285,7 @@ print ">> "
 answer = STDIN.gets.chomp
 
 puts "Stretch your legs, this might take a while"
+puts "On a mac took about 10 minutes to create all populated workspaces"
 
 setup = Setup.new(answer.presence) # .presence : returns nil or the string
 PopulatedProjects.new(setup).create_populated_projects
