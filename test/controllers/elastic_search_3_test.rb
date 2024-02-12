@@ -159,10 +159,8 @@ class ElasticSearch3Test < ActionController::TestCase
     FeedTeam.update_all(shared: true)
     pm1 = create_project_media team: t
     c1 = create_cluster project_media: pm1
-    c1.project_medias << pm1
     pm2 = create_project_media team: t
     c2 = create_cluster project_media: pm2
-    c2.project_medias << pm2
     pm2_t2 = create_project_media team: t2
     c1.project_medias << pm2_t2
     publish_report(pm2)
@@ -194,15 +192,12 @@ class ElasticSearch3Test < ActionController::TestCase
     Time.stubs(:now).returns(Time.new - 2.week)
     pm1 = create_project_media team: t
     c1 = create_cluster project_media: pm1
-    c1.project_medias << pm1
     Time.stubs(:now).returns(Time.new - 1.week)
     pm2 = create_project_media team: t
     c2 = create_cluster project_media: pm2
-    c2.project_medias << pm2
     Time.stubs(:now).returns(Time.new - 3.week)
     pm3 = create_project_media team: t
     c3 = create_cluster project_media: pm3
-    c3.project_medias << pm3
     Time.unstub(:now)
     sleep 2
     Team.stubs(:current).returns(t)
@@ -230,9 +225,7 @@ class ElasticSearch3Test < ActionController::TestCase
     create_tipline_request associated: pm2, team_id: t.id
     c1 = create_cluster project_media: pm1
     c2 = create_cluster project_media: pm2
-    c1.project_medias << pm1
     c1.project_medias << pm1_1
-    c2.project_medias << pm2
     sleep 2
     with_current_user_and_team(u, t) do
       create_tipline_request associated: pm1, team_id: t.id
@@ -270,14 +263,11 @@ class ElasticSearch3Test < ActionController::TestCase
     c1 = create_cluster project_media: pm1
     c2 = create_cluster project_media: pm2
     c3 = create_cluster project_media: pm3
-    c1.project_medias << pm1
     c1.project_medias << pm1_1
     c1.project_medias << pm1_2
-    c2.project_medias << pm2
     c2.project_medias << pm2_1
     c2.project_medias << pm2_2
     c2.project_medias << pm2_3
-    c3.project_medias << pm3
     c3.project_medias << pm3_1
     sleep 2
     with_current_user_and_team(u, t) do

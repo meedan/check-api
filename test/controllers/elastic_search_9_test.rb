@@ -35,10 +35,8 @@ class ElasticSearch9Test < ActionController::TestCase
     FeedTeam.update_all(shared: true)
     pm1 = create_project_media team: t1
     c1 = create_cluster project_media: pm1
-    c1.project_medias << pm1
     pm2 = create_project_media team: t2
     c2 = create_cluster project_media: pm2
-    c2.project_medias << pm2
     pm3 = create_project_media team: t3
     c2.project_medias << pm3
     sleep 2
@@ -68,10 +66,8 @@ class ElasticSearch9Test < ActionController::TestCase
     FeedTeam.update_all(shared: true)
     pm1 = create_project_media team: t
     c1 = create_cluster project_media: pm1
-    c1.project_medias << pm1
     pm2 = create_project_media team: t
     c2 = create_cluster project_media: pm2
-    c2.project_medias << pm2
     sleep 2
     u = create_user
     create_team_user team: t, user: u, role: 'admin'

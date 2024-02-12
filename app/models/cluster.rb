@@ -29,7 +29,6 @@ class Cluster < ApplicationRecord
 
   def get_team_names
     data = {}
-    self.project_medias.group(:team_id).count.keys.collect{ |tid| Team.find_by_id(tid)&.name }
     tids = self.project_medias.group(:team_id).count.keys
     Team.where(id: tids).find_each { |t| data[t.id] = t.name }
     data

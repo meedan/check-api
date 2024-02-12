@@ -862,7 +862,8 @@ module SampleData
   end
 
   def create_cluster(options = {})
-    options[:feed] = options[:feed] || create_feed
+    team = options[:project_media]&.team || create_team
+    options[:feed] = options[:feed] || create_feed({ team: team })
     c = Cluster.new
     options.each do |key, value|
       c.send("#{key}=", value) if c.respond_to?("#{key}=")

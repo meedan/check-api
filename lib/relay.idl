@@ -10004,8 +10004,6 @@ type ProjectMedia implements Node {
   author_role: String
   channel: JsonStringType
   claim_description: ClaimDescription
-  cluster: Cluster
-  cluster_id: Int
   comments(
     """
     Returns the elements in the list that come after the specified cursor.
