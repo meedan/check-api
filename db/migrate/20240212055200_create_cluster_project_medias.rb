@@ -8,5 +8,6 @@ class CreateClusterProjectMedias < ActiveRecord::Migration[6.1]
     add_reference :clusters, :feed, index: true
     remove_reference :clusters, :project_media, index: true
     remove_reference :project_medias, :cluster, index: true
+    # TODO: remove clusters.project_medias_count
   end
 end

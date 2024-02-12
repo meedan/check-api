@@ -56,11 +56,11 @@ class ClusterTest < ActiveSupport::TestCase
     c = create_cluster
     pm1 = create_project_media cluster: c
     pm2 = create_project_media cluster: c
-    assert_equal c.id, pm1.reload.cluster_id
-    assert_equal c.id, pm2.reload.cluster_id
+    assert_equal [c.id], pm1.reload.cluster_ids
+    assert_equal [c.id], pm2.reload.cluster_ids
     c.destroy!
-    assert_nil pm1.reload.cluster_id
-    assert_nil pm2.reload.cluster_id
+    assert_empty pm1.reload.cluster_ids
+    assert_empty pm2.reload.cluster_ids
   end
 
   test "should cache number of items in the cluster" do

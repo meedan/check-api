@@ -37,12 +37,12 @@ class Cluster < ApplicationRecord
 
   def get_names_of_teams_that_fact_checked_it
     data = {}
-    j = "INNER JOIN project_medias pm ON annotations.annotated_type = 'ProjectMedia' AND annotations.annotated_id = pm.id INNER JOIN clusters c ON c.id = pm.cluster_id"
+    j = "INNER JOIN project_medias pm ON annotations.annotated_type = 'ProjectMedia' AND annotations.annotated_id = pm.id INNER JOIN cluster_project_medias cpm ON cpm.project_media_id = pm.id"
     tids = Dynamic.where(annotation_type: 'report_design').where('data LIKE ?', '%state: published%')
-    .joins(j).where('c.id' => self.id).group(:team_id).count.keys
+    .joins(j).where('cpm.cluster_id' => self.id).group(:team_id).count.keys
     Team.where(id: tids).find_each { |t| data[t.id] = t.name }
     # update ES count field
-    pm = self.project_media
+    pm = self.center
     unless pm.nil?
       options = {
         keys: ['cluster_published_reports_count'],
@@ -76,7 +76,7 @@ class Cluster < ApplicationRecord
       {
         model: Dynamic,
         if: proc { |d| d.annotation_type == 'report_design' },
-        affected_ids: proc { |d| ProjectMedia.where(id: d.annotated.related_items_ids).group(:cluster_id).count.keys.reject{ |cid| cid.nil? } },
+        affected_ids: proc { |d| ClusterProjectMedia.where(project_media_id: d.annotated.related_items_ids).group(:cluster_id).count.keys.reject{ |cid| cid.nil? } },
         events: {
           save: :recalculate
         }
@@ -92,7 +92,7 @@ class Cluster < ApplicationRecord
         {
           model: TiplineRequest,
           if: proc { |tr| tr.associated_type == 'ProjectMedia' },
-          affected_ids: proc { |tr| ProjectMedia.where(id: tr.associated.related_items_ids).group(:cluster_id).count.keys.reject{ |cid| cid.nil? } },
+          affected_ids: proc { |tr| ClusterProjectMedia.where(project_media_id: tr.associated.related_items_ids).group(:cluster_id).count.keys.reject{ |cid| cid.nil? } },
           events: {
             create: :cached_field_cluster_requests_count_create,
             destroy: :cached_field_cluster_requests_count_destroy
@@ -150,12 +150,14 @@ class Cluster < ApplicationRecord
   end
 
   def update_elasticsearch
-    keys = ['cluster_size', 'cluster_first_item_at', 'cluster_last_item_at', 'cluster_published_reports_count', 'cluster_requests_count']
-    pm = self.project_media
-    data = {}
-    keys.each { |k| data[k] = 0 }
-    options = { keys: keys, data: data, pm_id: pm.id }
-    model = { klass: pm.class.name, id: pm.id }
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
+    pm = self.center
+    unless pm.nil?
+      keys = ['cluster_size', 'cluster_first_item_at', 'cluster_last_item_at', 'cluster_published_reports_count', 'cluster_requests_count']
+      data = {}
+      keys.each { |k| data[k] = 0 }
+      options = { keys: keys, data: data, pm_id: pm.id }
+      model = { klass: pm.class.name, id: pm.id }
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
+    end
   end
 end
