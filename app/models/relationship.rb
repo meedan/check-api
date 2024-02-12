@@ -19,7 +19,6 @@ class Relationship < ApplicationRecord
   validates :relationship_type, uniqueness: { scope: [:source_id, :target_id], message: :already_exists }, on: :create
 
   before_create :destroy_same_suggested_item, if: proc { |r| r.is_confirmed? }
-  before_update :destroy_other_suggested_items, if: proc { |r| r.is_confirmed? }
   after_create :move_to_same_project_as_main, prepend: true
   after_create :point_targets_to_new_source, :update_counters, prepend: true
   after_update :reset_counters, prepend: true
@@ -312,14 +311,6 @@ class Relationship < ApplicationRecord
     Relationship.where(source_id: self.source_id, target_id: self.target_id)
     .joins(:user).where('users.type' => 'BotUser')
     .where('relationship_type = ?', Relationship.suggested_type.to_yaml)
-    .destroy_all
-  end
-
-  def destroy_other_suggested_items
-    # If created by Smooch Bot, destroy other suggestions to the same media
-    Relationship.where(target_id: self.target_id, user: BotUser.smooch_user)
-    .where('relationship_type = ?', Relationship.suggested_type.to_yaml)
-    .where('id != ?', self.id)
     .destroy_all
   end
 
