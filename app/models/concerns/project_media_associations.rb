@@ -16,6 +16,7 @@ module ProjectMediaAssociations
     has_many :targets, through: :source_relationships, source: :target
     has_many :project_media_users, dependent: :destroy
     has_many :project_media_requests, dependent: :destroy
+    has_many :cluster_project_medias, dependent: :destroy
     has_one :claim_description, dependent: :destroy
     belongs_to :cluster, counter_cache: :project_medias_count, optional: true
     belongs_to :source, optional: true

@@ -1,11 +1,16 @@
 class Cluster < ApplicationRecord
   include CheckElasticSearch
 
-  belongs_to :project_media # Item that is the cluster center
   has_many :project_medias, dependent: :nullify, after_add: [:update_cached_fields, :update_elasticsearch_and_timestamps] # Items that belong to the cluster
+  has_many :cluster_project_medias, dependent: :destroy
+
+  belongs_to :project_media # Item that is the cluster center
+  belongs_to :feed
+
   validates_presence_of :project_media_id
   validates_uniqueness_of :project_media_id
   validate :center_is_not_part_of_another_cluster
+
   after_destroy :update_elasticsearch
 
   def center

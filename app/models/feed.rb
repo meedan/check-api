@@ -7,6 +7,7 @@ class Feed < ApplicationRecord
   has_many :feed_teams, dependent: :restrict_with_error
   has_many :teams, through: :feed_teams
   has_many :feed_invitations, dependent: :destroy
+  has_many :clusters
   belongs_to :user, optional: true
   belongs_to :saved_search, optional: true
   belongs_to :team, optional: true
