@@ -9,7 +9,14 @@ def open_file(file)
 end
 
 class Setup
-  attr_reader :user_passwords, :user_emails, :teams, :users
+
+  private
+
+  attr_reader :user_names, :user_passwords, :user_emails, :team_names, :existing_user, :main_user_a
+
+  public
+
+  attr_reader :teams, :users
 
   def initialize(existing_user)
     @existing_user = existing_user
@@ -24,8 +31,8 @@ class Setup
   end
 
   def print_users_emails_and_passwords
-    created = @user_emails.zip(@user_passwords)
-    if @existing_user
+    created = user_emails.zip(user_passwords)
+    if existing_user
       created = created[1..]
     end
     created.flatten.each { |e| puts e }
@@ -38,19 +45,19 @@ class Setup
       all_users = {
         invited_user_b:
         {
-          name: @user_names[1] + ' [b / invited user]',
-          login: @user_names[1] + ' [b / invited user]',
-          email: @user_emails[1],
-          password: @user_passwords[1],
-          password_confirmation: @user_passwords[1]
+          name: user_names[1] + ' [b / invited user]',
+          login: user_names[1] + ' [b / invited user]',
+          email: user_emails[1],
+          password: user_passwords[1],
+          password_confirmation: user_passwords[1]
         },
         invited_user_c:
         {
-          name: @user_names[2] + ' [c / invited user]',
-          login: @user_names[2] + ' [c / invited user]',
-          email: @user_emails[2],
-          password: @user_passwords[2],
-          password_confirmation: @user_passwords[2]
+          name: user_names[2] + ' [c / invited user]',
+          login: user_names[2] + ' [c / invited user]',
+          email: user_emails[2],
+          password: user_passwords[2],
+          password_confirmation: user_passwords[2]
         }
       }.transform_values { |params| User.create!(params) }
 
@@ -67,20 +74,20 @@ class Setup
       all_teams = {
         invited_team_b1:
         {
-          name: "#{@team_names[1]} / [b] Invited User: Team #1",
-          slug: Team.slug_from_name(@team_names[1]),
+          name: "#{team_names[1]} / [b] Invited User: Team #1",
+          slug: Team.slug_from_name(team_names[1]),
           logo: open_file('maçã.png')
         },
         invited_team_b2:
         {
-          name: "#{@team_names[2]} / [b] Invited User: Team #2",
-          slug: Team.slug_from_name(@team_names[2]),
+          name: "#{team_names[2]} / [b] Invited User: Team #2",
+          slug: Team.slug_from_name(team_names[2]),
           logo: open_file('ruby-small.png')
         },
         invited_team_c:
         {
-          name: "#{@team_names[3]} / [c] Invited User: Team #1",
-          slug: Team.slug_from_name(@team_names[3]),
+          name: "#{team_names[3]} / [c] Invited User: Team #1",
+          slug: Team.slug_from_name(team_names[3]),
           logo: open_file('maçã.png')
         }
       }.transform_values { |t| Team.create!(t) }
@@ -93,27 +100,26 @@ class Setup
   private
 
   def create_or_fetch_main_user_a
-    @main_user_a ||= if @existing_user
-    # if @existing_user
-      User.find_by(email: @existing_user)
+    @main_user_a ||= if existing_user
+      User.find_by(email: existing_user)
     else
       User.create!({
-        name: @user_names[0] + ' [a / main user]',
-        login: @user_names[0] + ' [a / main user]',
-        email: @user_emails[0],
-        password: @user_passwords[0],
-        password_confirmation: @user_passwords[0],
+        name: user_names[0] + ' [a / main user]',
+        login: user_names[0] + ' [a / main user]',
+        email: user_emails[0],
+        password: user_passwords[0],
+        password_confirmation: user_passwords[0],
       })
     end
   end
 
   def create_or_fetch_main_team_a
-    if @main_user_a.teams.first
-      @main_user_a.teams.first
+    if main_user_a.teams.first
+      main_user_a.teams.first
     else
       Team.create!({
-        name: "#{@team_names[0]} / [a] Main User: Main Team",
-        slug: Team.slug_from_name(@team_names[0]),
+        name: "#{team_names[0]} / [a] Main User: Main Team",
+        slug: Team.slug_from_name(team_names[0]),
         logo: open_file('rails.png')
       })
     end
@@ -122,20 +128,20 @@ class Setup
   def create_team_users
     [
       {
-        team: @teams[:invited_team_b1],
-        user: @users[:invited_user_b],
+        team: teams[:invited_team_b1],
+        user: users[:invited_user_b],
         role: 'admin',
         status: 'member'
       },
       {
-        team: @teams[:invited_team_b2],
-        user: @users[:invited_user_b],
+        team: teams[:invited_team_b2],
+        user: users[:invited_user_b],
         role: 'admin',
         status: 'member'
       },
       {
-        team: @teams[:invited_team_c],
-        user: @users[:invited_user_c],
+        team: teams[:invited_team_c],
+        user: users[:invited_user_c],
         role: 'admin',
         status: 'member'
       }
@@ -147,8 +153,8 @@ class Setup
   def create_or_fetch_main_team_a_team_user
     return if @existing_user
     TeamUser.create!({
-      team: @teams[:main_team_a],
-      user: @users[:main_user_a],
+      team: teams[:main_team_a],
+      user: users[:main_user_a],
       role: 'admin',
       status: 'member'
     })
@@ -156,6 +162,13 @@ class Setup
 end
 
 class PopulatedProjects
+
+  private
+
+  attr_reader :teams, :users, :medias_params
+
+  public
+
   def initialize(setup)
     @teams = setup.teams
     @users = setup.users
@@ -166,46 +179,46 @@ class PopulatedProjects
     puts 'create populated projects'
     projects_params = [
       {
-        title: "#{@teams[:main_team_a][:name]} / [a] Main User: Main Team",
-        user: @users[:main_user_a],
-        team: @teams[:main_team_a],
-        project_medias_attributes: @medias_params.map { |media_params|
+        title: "#{teams[:main_team_a][:name]} / [a] Main User: Main Team",
+        user: users[:main_user_a],
+        team: teams[:main_team_a],
+        project_medias_attributes: medias_params.map { |media_params|
           {
             media_attributes: media_params,
-            team: @teams[:main_team_a],
+            team: teams[:main_team_a],
           }
         }
       },
       {
-        title: "#{@teams[:invited_team_b1][:name]} / [b] Invited User: Project Team #1",
-        user: @users[:invited_user_b],
-        team: @teams[:invited_team_b1],
-        project_medias_attributes: @medias_params.map { |media_params|
+        title: "#{teams[:invited_team_b1][:name]} / [b] Invited User: Project Team #1",
+        user: users[:invited_user_b],
+        team: teams[:invited_team_b1],
+        project_medias_attributes: medias_params.map { |media_params|
           {
             media_attributes: media_params,
-            team: @teams[:invited_team_b1],
+            team: teams[:invited_team_b1],
           }
         }
       },
       {
-        title: "#{@teams[:invited_team_b2][:name]} / [b] Invited User: Project Team #2",
-        user: @users[:invited_user_b],
-        team: @teams[:invited_team_b2],
-        project_medias_attributes: @medias_params.map { |media_params|
+        title: "#{teams[:invited_team_b2][:name]} / [b] Invited User: Project Team #2",
+        user: users[:invited_user_b],
+        team: teams[:invited_team_b2],
+        project_medias_attributes: medias_params.map { |media_params|
           {
             media_attributes: media_params,
-            team: @teams[:invited_team_b2],
+            team: teams[:invited_team_b2],
           }
         }
       },
       {
-        title: "#{@teams[:invited_team_c][:name]} / [c] Invited User: Project Team #1",
-        user: @users[:invited_user_c],
-        team: @teams[:invited_team_c],
-        project_medias_attributes: @medias_params.map { |media_params|
+        title: "#{teams[:invited_team_c][:name]} / [c] Invited User: Project Team #1",
+        user: users[:invited_user_c],
+        team: teams[:invited_team_c],
+        project_medias_attributes: medias_params.map { |media_params|
           {
             media_attributes: media_params,
-            team: @teams[:invited_team_c],
+            team: teams[:invited_team_c],
           }
         }
       }
