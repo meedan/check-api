@@ -172,7 +172,6 @@ class PopulatedProjects
   def initialize(setup)
     @teams = setup.teams
     @users = setup.users
-    # @medias_params = get_medias_params
   end
 
   def create_populated_projects
@@ -186,6 +185,11 @@ class PopulatedProjects
           {
             media_attributes: media_params,
             team: teams[:main_team_a],
+            claim_description_attributes: {
+              description: create_claim_title(media_params),
+              context: Faker::Lorem.sentence,
+              user: users[:main_user_a]
+            }
           }
         }
       },
@@ -197,6 +201,11 @@ class PopulatedProjects
           {
             media_attributes: media_params,
             team: teams[:invited_team_b1],
+            claim_description_attributes: {
+              description: create_claim_title(media_params),
+              context: Faker::Lorem.sentence,
+              user: users[:invited_user_b]
+            }
           }
         }
       },
@@ -208,6 +217,11 @@ class PopulatedProjects
           {
             media_attributes: media_params,
             team: teams[:invited_team_b2],
+            claim_description_attributes: {
+              description: create_claim_title(media_params),
+              context: Faker::Lorem.sentence,
+              user: users[:invited_user_b]
+            }
           }
         }
       },
@@ -219,6 +233,11 @@ class PopulatedProjects
           {
             media_attributes: media_params,
             team: teams[:invited_team_c],
+            claim_description_attributes: {
+              description: create_claim_title(media_params),
+              context: Faker::Lorem.sentence,
+              user: users[:invited_user_c]
+            }
           }
         }
       }
@@ -228,6 +247,7 @@ class PopulatedProjects
   end
 
   private
+
   def get_medias_params
     links = [
       'https://meedan.com/post/addressing-misinformation-across-countries-a-pioneering-collaboration-between-taiwan-factcheck-center-vera-files',
@@ -276,6 +296,15 @@ class PopulatedProjects
       *uploadedImages,
       *uploadedVideos
     ]
+  end
+
+  def create_title_from_link(link)
+    path = URI.parse(link).path
+    path.remove('/post/').underscore.humanize
+  end
+
+  def create_claim_title(media_params)
+    media_params[:type] == "Link" ? create_title_from_link(media_params[:url]) : Faker::Company.catch_phrase
   end
 end
 
