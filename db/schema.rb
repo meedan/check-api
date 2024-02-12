@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_01_15_101312) do
+ActiveRecord::Schema.define(version: 2024_02_12_055200) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -220,14 +220,22 @@ ActiveRecord::Schema.define(version: 2024_01_15_101312) do
     t.index ["user_id"], name: "index_claim_descriptions_on_user_id"
   end
 
+  create_table "cluster_project_medias", force: :cascade do |t|
+    t.bigint "cluster_id"
+    t.bigint "project_media_id"
+    t.index ["cluster_id", "project_media_id"], name: "index_cluster_project_medias_on_cluster_id_and_project_media_id", unique: true
+    t.index ["cluster_id"], name: "index_cluster_project_medias_on_cluster_id"
+    t.index ["project_media_id"], name: "index_cluster_project_medias_on_project_media_id"
+  end
+
   create_table "clusters", force: :cascade do |t|
     t.integer "project_medias_count", default: 0
-    t.integer "project_media_id"
     t.datetime "first_item_at"
     t.datetime "last_item_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["project_media_id"], name: "index_clusters_on_project_media_id", unique: true
+    t.bigint "feed_id"
+    t.index ["feed_id"], name: "index_clusters_on_feed_id"
   end
 
   create_table "dynamic_annotation_annotation_types", primary_key: "annotation_type", id: :string, force: :cascade do |t|
@@ -276,7 +284,6 @@ ActiveRecord::Schema.define(version: 2024_01_15_101312) do
     t.index ["field_type"], name: "index_dynamic_annotation_fields_on_field_type"
     t.index ["value"], name: "fetch_unique_id", unique: true, where: "(((field_name)::text = 'external_id'::text) AND (value <> ''::text) AND (value <> '\"\"'::text))"
     t.index ["value"], name: "index_status", where: "((field_name)::text = 'verification_status_status'::text)"
-    t.index ["value"], name: "smooch_request_message_id_unique_id", unique: true, where: "(((field_name)::text = 'smooch_message_id'::text) AND (value <> ''::text) AND (value <> '\"\"'::text))"
     t.index ["value"], name: "smooch_user_unique_id", unique: true, where: "(((field_name)::text = 'smooch_user_id'::text) AND (value <> ''::text) AND (value <> '\"\"'::text))"
     t.index ["value"], name: "translation_request_id", unique: true, where: "((field_name)::text = 'translation_request_id'::text)"
     t.index ["value_json"], name: "index_dynamic_annotation_fields_on_value_json", using: :gin
@@ -452,7 +459,6 @@ ActiveRecord::Schema.define(version: 2024_01_15_101312) do
     t.integer "media_id"
     t.integer "user_id"
     t.integer "source_id"
-    t.integer "cluster_id"
     t.integer "team_id"
     t.jsonb "channel", default: {"main"=>0}
     t.boolean "read", default: false, null: false
@@ -466,7 +472,6 @@ ActiveRecord::Schema.define(version: 2024_01_15_101312) do
     t.string "custom_title"
     t.string "title_field"
     t.index ["channel"], name: "index_project_medias_on_channel"
-    t.index ["cluster_id"], name: "index_project_medias_on_cluster_id"
     t.index ["last_seen"], name: "index_project_medias_on_last_seen"
     t.index ["media_id"], name: "index_project_medias_on_media_id"
     t.index ["project_id"], name: "index_project_medias_on_project_id"

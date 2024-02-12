@@ -3,18 +3,16 @@ class Cluster < ApplicationRecord
 
   has_many :project_medias, dependent: :nullify, after_add: [:update_cached_fields, :update_elasticsearch_and_timestamps] # Items that belong to the cluster
   has_many :cluster_project_medias, dependent: :destroy
+  has_many :project_medias, through: :cluster_project_medias
 
-  belongs_to :project_media # Item that is the cluster center
   belongs_to :feed
 
-  validates_presence_of :project_media_id
-  validates_uniqueness_of :project_media_id
   validate :center_is_not_part_of_another_cluster
 
   after_destroy :update_elasticsearch
 
   def center
-    self.project_media
+    self.items.first
   end
 
   def items
@@ -58,7 +56,9 @@ class Cluster < ApplicationRecord
   end
 
   def claim_descriptions
-    ClaimDescription.joins(:project_media).where('project_medias.cluster_id' => self.id)
+    pm_ids = self.project_media_ids
+    # ClaimDescription.joins(:project_media).where('project_medias.cluster_id' => self.id)
+    ClaimDescription.where(project_media_id: pm_ids)
   end
 
   cached_field :team_names,

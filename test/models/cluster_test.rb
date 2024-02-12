@@ -135,7 +135,6 @@ class ClusterTest < ActiveSupport::TestCase
     # A cluster whose center is from the same team
     pm1 = create_project_media team: t1
     c1 = create_cluster project_media: pm1
-    c1.project_medias << pm1
 
     # A cluster from another feed
     t2 = create_team
@@ -143,21 +142,18 @@ class ClusterTest < ActiveSupport::TestCase
     f2.teams << t2
     pm2 = create_project_media team: t2
     c2 = create_cluster project_media: pm2
-    c2.project_medias << pm2
 
     # A cluster from the same feed without any item from the team
     t3 = create_team
     f1.teams << t3
     pm3 = create_project_media team: t3
     c3 = create_cluster project_media: pm3
-    c3.project_medias << pm3
 
     # A cluster from the same feed with an item from the team
     t4 = create_team
     f1.teams << t4
     pm4 = create_project_media team: t4
     c4 = create_cluster project_media: pm4
-    c4.project_medias << pm4
     c4.project_medias << create_project_media(team: t1)
 
     a = Ability.new(u, t1)
