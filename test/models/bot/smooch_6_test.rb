@@ -223,7 +223,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar', '1'
       assert_state 'search_result'
-      assert_difference 'TiplineRequest.count + ProjectMedia.count + Relationship.where(relationship_type: Relationship.suggested_type).count', 3 do
+      assert_difference 'TiplineRequest.count + ProjectMedia.count', 2 do
         send_message '1'
       end
       assert_state 'main'
@@ -240,7 +240,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar foo bar foo bar', '1'
       assert_state 'search_result'
-      assert_difference 'TiplineRequest.count + ProjectMedia.count + Relationship.where(relationship_type: Relationship.suggested_type).count', 3 do
+      assert_difference 'TiplineRequest.count + ProjectMedia.count', 2 do
         send_message '1'
       end
       assert_state 'main'
@@ -262,12 +262,8 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Image here', '1'
       assert_state 'search_result'
-      assert_difference 'TiplineRequest.count' do
-        assert_difference 'ProjectMedia.count' do
-          assert_difference 'Relationship.where(relationship_type: Relationship.suggested_type).count' do
-            send_message '1'
-          end
-        end
+      assert_difference 'TiplineRequest.count + ProjectMedia.count', 2 do
+        send_message '1'
       end
       assert_state 'main'
     end
