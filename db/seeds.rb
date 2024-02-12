@@ -23,6 +23,14 @@ class Setup
     create_team_users
   end
 
+  def print_users_emails_and_passwords
+    created = @user_emails.zip(@user_passwords)
+    if @existing_user
+      created = created[1..]
+    end
+    created.flatten.each { |e| puts e }
+  end
+
   def create_users
     puts "create users"
     @users ||= begin
@@ -279,9 +287,6 @@ PopulatedProjects.new(setup).create_populated_projects
 #   create_confirmed_relationship(project_medias[8], project_medias[1])
 # end
 
-puts 'emails'
-setup.user_emails.each { |e| puts e }
-puts 'passwords'
-setup.user_passwords.each { |p| puts p }
+setup.print_users_emails_and_passwords
 
 Rails.cache.clear
