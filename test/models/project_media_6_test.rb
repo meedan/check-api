@@ -149,6 +149,9 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     c.project_medias << pm
     assert_equal 1, pm.reload.clusters.size
     c.project_medias << create_project_media
+    assert_equal 2, c.reload.project_medias.count
+    c2 = create_cluster
+    c2.project_medias << pm
     assert_equal 2, pm.reload.clusters.size
   end
 
