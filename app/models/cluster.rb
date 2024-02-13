@@ -52,9 +52,7 @@ class Cluster < ApplicationRecord
   end
 
   def claim_descriptions
-    pm_ids = self.project_media_ids
-    # ClaimDescription.joins(:project_media).where('project_medias.cluster_id' => self.id)
-    ClaimDescription.where(project_media_id: pm_ids)
+    ClaimDescription.where(project_media_id: self.project_media_ids)
   end
 
   cached_field :team_names,

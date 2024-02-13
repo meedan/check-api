@@ -81,12 +81,6 @@ module CheckBasicAbilities
       !obj.team.private || @user.cached_teams.include?(obj.team.id)
     end
 
-    # can :read, Cluster do |obj|
-    #   shared_team_ids = @context_team.shared_teams.map(&:id)
-    #   team_ids = (shared_team_ids & @user.cached_teams)
-    #   ProjectMedia.where(cluster_id: obj.id, team_id: shared_team_ids).exists? && !team_ids.empty?
-    # end
-
     can :read, BotUser do |obj|
       obj.get_approved || @user.cached_teams.include?(obj.team_author_id)
     end
