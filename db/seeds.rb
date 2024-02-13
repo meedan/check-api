@@ -315,16 +315,21 @@ class PopulatedProjects
   def get_fact_check_params_for_half_the_claims(index, user)
     if index.even?
       {
-        summary:  '',
-      }
-    else
-      {
         summary:  Faker::Company.catch_phrase,
         title: Faker::Company.name,
         user: user,
         language: 'en',
+        url: get_url_for_some_fact_checks(index)
+      }
+    else
+      {
+        summary:  '',
       }
     end
+  end
+
+  def get_url_for_some_fact_checks(index)
+    index % 4 == 0 ? "https://www.thespruceeats.com/step-by-step-basic-cake-recipe-304553?timestamp=#{Time.now.to_f}" : nil
   end
 end
 
