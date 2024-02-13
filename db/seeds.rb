@@ -181,14 +181,15 @@ class PopulatedProjects
         title: "#{teams[:main_team_a][:name]} / [a] Main User: Main Team",
         user: users[:main_user_a],
         team: teams[:main_team_a],
-        project_medias_attributes: get_medias_params.map { |media_params|
+        project_medias_attributes: get_medias_params.map.with_index { |media_params, index|
           {
             media_attributes: media_params,
             team: teams[:main_team_a],
             claim_description_attributes: {
               description: create_claim_title(media_params),
               context: Faker::Lorem.sentence,
-              user: users[:main_user_a]
+              user: users[:main_user_a],
+              fact_check_attributes: get_fact_check_params_for_half_the_claims(index, users[:main_user_a]),
             }
           }
         }
@@ -197,14 +198,15 @@ class PopulatedProjects
         title: "#{teams[:invited_team_b1][:name]} / [b] Invited User: Project Team #1",
         user: users[:invited_user_b],
         team: teams[:invited_team_b1],
-        project_medias_attributes: get_medias_params.map { |media_params|
+        project_medias_attributes: get_medias_params.map.with_index { |media_params, index|
           {
             media_attributes: media_params,
             team: teams[:invited_team_b1],
             claim_description_attributes: {
               description: create_claim_title(media_params),
               context: Faker::Lorem.sentence,
-              user: users[:invited_user_b]
+              user: users[:invited_user_b],
+              fact_check_attributes: get_fact_check_params_for_half_the_claims(index, users[:invited_user_b]),
             }
           }
         }
@@ -213,14 +215,15 @@ class PopulatedProjects
         title: "#{teams[:invited_team_b2][:name]} / [b] Invited User: Project Team #2",
         user: users[:invited_user_b],
         team: teams[:invited_team_b2],
-        project_medias_attributes: get_medias_params.map { |media_params|
+        project_medias_attributes: get_medias_params.map.with_index { |media_params, index|
           {
             media_attributes: media_params,
             team: teams[:invited_team_b2],
             claim_description_attributes: {
               description: create_claim_title(media_params),
               context: Faker::Lorem.sentence,
-              user: users[:invited_user_b]
+              user: users[:invited_user_b],
+              fact_check_attributes: get_fact_check_params_for_half_the_claims(index, users[:invited_user_b]),
             }
           }
         }
@@ -229,14 +232,15 @@ class PopulatedProjects
         title: "#{teams[:invited_team_c][:name]} / [c] Invited User: Project Team #1",
         user: users[:invited_user_c],
         team: teams[:invited_team_c],
-        project_medias_attributes: get_medias_params.map { |media_params|
+        project_medias_attributes: get_medias_params.map.with_index { |media_params, index|
           {
             media_attributes: media_params,
             team: teams[:invited_team_c],
             claim_description_attributes: {
               description: create_claim_title(media_params),
               context: Faker::Lorem.sentence,
-              user: users[:invited_user_c]
+              user: users[:invited_user_c],
+              fact_check_attributes: get_fact_check_params_for_half_the_claims(index, users[:invited_user_c]),
             }
           }
         }
@@ -306,6 +310,21 @@ class PopulatedProjects
 
   def create_claim_title(media_params)
     media_params[:type] == "Link" ? create_title_from_link(media_params[:url]) : Faker::Company.catch_phrase
+  end
+
+  def get_fact_check_params_for_half_the_claims(index, user)
+    if index.even?
+      {
+        summary:  '',
+      }
+    else
+      {
+        summary:  Faker::Company.catch_phrase,
+        title: Faker::Company.name,
+        user: user,
+        language: 'en',
+      }
+    end
   end
 end
 
