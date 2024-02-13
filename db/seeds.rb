@@ -323,7 +323,7 @@ begin
 rescue RuntimeError => e
   if e.message.include?('We could not parse this link')
     puts "—————"
-    puts "Couldn't create Links. \nMake sure Pender is running, or comment out Links so they are not created."
+    puts "Creating Items failed: Couldn't create Links. \nMake sure Pender is running, or comment out Links so they are not created."
     puts "—————"
   else
     raise e
