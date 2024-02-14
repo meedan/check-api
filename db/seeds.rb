@@ -181,6 +181,7 @@ class PopulatedProjects
         project_medias_attributes: get_medias_params.map.with_index { |media_params, index|
           {
             media_attributes: media_params,
+            user: users[:main_user_a],
             team: teams[:main_team_a],
             claim_description_attributes: {
               description: claim_title(media_params),
@@ -198,6 +199,7 @@ class PopulatedProjects
         project_medias_attributes: get_medias_params.map.with_index { |media_params, index|
           {
             media_attributes: media_params,
+            user: users[:invited_user_b],
             team: teams[:invited_team_b1],
             claim_description_attributes: {
               description: claim_title(media_params),
@@ -215,6 +217,7 @@ class PopulatedProjects
         project_medias_attributes: get_medias_params.map.with_index { |media_params, index|
           {
             media_attributes: media_params,
+            user: users[:invited_user_b],
             team: teams[:invited_team_b2],
             claim_description_attributes: {
               description: claim_title(media_params),
@@ -232,6 +235,7 @@ class PopulatedProjects
         project_medias_attributes: get_medias_params.map.with_index { |media_params, index|
           {
             media_attributes: media_params,
+            user: users[:invited_user_c],
             team: teams[:invited_team_c],
             claim_description_attributes: {
               description: claim_title(media_params),
