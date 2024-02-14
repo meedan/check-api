@@ -172,7 +172,7 @@ class PopulatedProjects
     @users = setup.users
   end
 
-  def populated_projects
+  def fill
     projects_params = [
       {
         title: "#{teams[:main_team_a][:name]} / [a] Main User: Main Team",
@@ -251,6 +251,13 @@ class PopulatedProjects
     projects_params.each { |params| Project.create!(params) }
   end
 
+  def publish_fact_checks
+    users.each_value do |user|
+      project_medias = fact_checks_project_medias(user)
+      project_medias.each { |pm| verify_fact_check_and_publish_report(pm)}
+    end
+  end
+
   private
 
   def get_medias_params
@@ -296,11 +303,11 @@ class PopulatedProjects
     end
 
     [
-      *links,
+      # *links,
       *claims,
-      *uploadedAudios,
-      *uploadedImages,
-      *uploadedVideos
+      # *uploadedAudios,
+      # *uploadedImages,
+      # *uploadedVideos
     ]
   end
 
@@ -332,6 +339,24 @@ class PopulatedProjects
   def get_url_for_some_fact_checks(index)
     index % 4 == 0 ? "https://www.thespruceeats.com/step-by-step-basic-cake-recipe-304553?timestamp=#{Time.now.to_f}" : nil
   end
+
+  def fact_checks_project_medias(user)
+      facts = FactCheck.where(user: user)
+      facts[0, facts.size/2].map { |f| ProjectMedia.find_by(claim_description: f[:claim_description_id]) }
+  end
+
+  def verify_fact_check_and_publish_report(project_media)
+    status = ['verified', 'false'].sample
+
+    verification_status = project_media.last_status_obj
+    verification_status.status = status
+    verification_status.save!
+
+    report_design = project_media.get_dynamic_annotation('report_design')
+    report_design.set_fields = { status_label: status, state: 'published' }.to_json
+    report_design.action = 'publish'
+    report_design.save!
+  end
 end
 
 puts "If you want to create a new user: press enter"
@@ -348,7 +373,10 @@ begin
   puts 'Creating users and teams...'
   setup = Setup.new(answer.presence) # .presence : returns nil or the string
   puts 'Creating projects for all users...'
-  PopulatedProjects.new(setup).populated_projects
+  populated_projects = PopulatedProjects.new(setup)
+  populated_projects.fill
+  puts 'Publishing half of each user\'s Fact Checks'
+  populated_projects.publish_fact_checks
 rescue RuntimeError => e
   if e.message.include?('We could not parse this link')
     puts "—————"
