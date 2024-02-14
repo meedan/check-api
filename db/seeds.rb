@@ -39,7 +39,6 @@ class Setup
   end
 
   def create_users
-    puts "create users"
     @users ||= begin
 
       all_users = {
@@ -68,7 +67,6 @@ class Setup
   end
 
   def create_teams
-    puts "create teams"
     @teams ||= begin
     
       all_teams = {
@@ -175,7 +173,6 @@ class PopulatedProjects
   end
 
   def create_populated_projects
-    puts 'create populated projects'
     projects_params = [
       {
         title: "#{teams[:main_team_a][:name]} / [a] Main User: Main Team",
@@ -340,9 +337,12 @@ answer = STDIN.gets.chomp
 
 puts "Stretch your legs, this might take a while"
 puts "On a mac took about 10 minutes to create all populated workspaces"
+puts "—————"
 
 begin
+  puts 'Creating users and teams...'
   setup = Setup.new(answer.presence) # .presence : returns nil or the string
+  puts 'Creating projects for all users...'
   PopulatedProjects.new(setup).create_populated_projects
 rescue RuntimeError => e
   if e.message.include?('We could not parse this link')
