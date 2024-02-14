@@ -522,24 +522,23 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     assert_queries(1, '=') { pms.map(&:team_avatar) }
   end
 
-  # TODO: fix by Sawy
-  # test "should get cluster using project media id and feed id" do
-  #   team = create_team
-  #   f = create_feed team: team
-  #   f2 = create_feed team: team
-  #   c = create_cluster feed: f
-  #   c2 = create_cluster feed: f
-  #   c3 = create_cluster feed: f2
+  test "should get cluster using project media id and feed id" do
+    team = create_team
+    f = create_feed team: team
+    f2 = create_feed team: team
+    c = create_cluster feed: f
+    c2 = create_cluster feed: f
+    c3 = create_cluster feed: f2
 
-  #   pm = create_project_media team: team
-  #   pm2 = create_project_media team: team
-  #   pm3 = create_project_media team: team
+    pm = create_project_media team: team
+    pm2 = create_project_media team: team
+    pm3 = create_project_media team: team
     
-  #   create_cluster_project_media cluster: c, project_media: pm
-  #   create_cluster_project_media cluster: c, project_media: pm2
-  #   create_cluster_project_media cluster: c2, project_media: pm2
-  #   assert_equal c, pm.cluster(f.id)
-  #   assert_equal c, pm2.cluster(f.id)
-  #   assert_equal c3, pm2.cluster(f2.id)
-  # end
+    create_cluster_project_media cluster: c, project_media: pm
+    create_cluster_project_media cluster: c, project_media: pm2
+    create_cluster_project_media cluster: c2, project_media: pm2
+    assert_equal [c.id], pm.cluster_by_feed(f.id).map(&:id)
+    assert_equal [c.id, c2.id], pm2.cluster_by_feed(f.id).map(&:id).sort
+    assert_empty pm2.cluster_by_feed(f2.id)
+  end
 end
