@@ -258,6 +258,13 @@ class PopulatedWorkspaces
     end
   end
 
+  def share_feeds
+    invited_users = [ users[:invited_user_b], users[:invited_user_c] ]
+
+    feed = feed(saved_search)
+    invited_users.each { |invited_user| feed_invitation(feed, invited_user)}
+  end
+
   private
 
   def get_medias_params
@@ -357,6 +364,44 @@ class PopulatedWorkspaces
     report_design.action = 'publish'
     report_design.save!
   end
+
+  def saved_search
+    saved_search_params = {
+      title: "#{users[:main_user_a].name.capitalize}'s list",
+      team: teams[:main_team_a],
+      filters: {created_by: users[:main_user_a]}
+    }
+
+    if teams[:main_team_a].saved_searches.empty?
+      SavedSearch.create!(saved_search_params)
+    else
+      teams[:main_team_a].saved_searches.first
+    end
+  end
+
+  def feed(saved_search)
+    feed_params = {
+      name: "Feed Test ##{users[:main_user_a].feeds.count + 1}",
+      user: users[:main_user_a],
+      team: teams[:main_team_a],
+      published: true,
+      saved_search: saved_search,
+      licenses: [1]
+    }
+
+    Feed.create!(feed_params)
+  end
+
+  def feed_invitation(feed, invited_user)
+    feed_invitation_params = {
+      email: invited_user.email,
+      feed: feed,
+      user: users[:main_user_a],
+      state: :invited
+    }
+
+    FeedInvitation.create!(feed_invitation_params)
+  end
 end
 
 puts "If you want to create a new user: press enter"
@@ -375,8 +420,10 @@ begin
   puts 'Creating projects for all users...'
   populated_workspaces = PopulatedWorkspaces.new(setup)
   populated_workspaces.populate_projects
-  puts 'Publishing half of each user\'s Fact Checks'
+  puts 'Publishing half of each user\'s Fact Checks...'
   populated_workspaces.publish_fact_checks
+  puts 'Making and inviting to Shared Feed...'
+  populated_workspaces.share_feeds
 rescue RuntimeError => e
   if e.message.include?('We could not parse this link')
     puts "—————"
