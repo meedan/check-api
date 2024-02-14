@@ -25,9 +25,9 @@ class Setup
     @user_emails = @user_names.map { |name| Faker::Internet.safe_email(name: name) }
     @team_names = Array.new(4) { Faker::Company.name }
 
-    create_users
-    create_teams
-    create_team_users
+    users
+    teams
+    team_users
   end
 
   def get_users_emails_and_passwords
@@ -38,7 +38,7 @@ class Setup
     created.flatten
   end
 
-  def create_users
+  def users
     @users ||= begin
 
       all_users = {
@@ -60,13 +60,13 @@ class Setup
         }
       }.transform_values { |params| User.create!(params) }
 
-      all_users[:main_user_a] = create_or_fetch_main_user_a
+      all_users[:main_user_a] = main_user_a
       all_users.each_value { |user| user.confirm && user.save! }
       all_users
     end
   end
 
-  def create_teams
+  def teams
     @teams ||= begin
     
       all_teams = {
@@ -90,14 +90,14 @@ class Setup
         }
       }.transform_values { |t| Team.create!(t) }
 
-      all_teams[:main_team_a] = create_or_fetch_main_team_a
+      all_teams[:main_team_a] = main_team_a
       all_teams
     end
   end 
 
   private
 
-  def create_or_fetch_main_user_a
+  def main_user_a
     @main_user_a ||= if existing_user_email
       User.find_by(email: existing_user_email)
     else
@@ -111,7 +111,7 @@ class Setup
     end
   end
 
-  def create_or_fetch_main_team_a
+  def main_team_a
     if main_user_a.teams.first
       main_user_a.teams.first
     else
@@ -123,7 +123,7 @@ class Setup
     end
   end
 
-  def create_team_users
+  def team_users
     [
       {
         team: teams[:invited_team_b1],
@@ -145,10 +145,10 @@ class Setup
       }
     ].each { |params| TeamUser.create!(params) }
 
-    create_or_fetch_main_team_a_team_user
+    main_team_a_team_user
   end
 
-  def create_or_fetch_main_team_a_team_user
+  def main_team_a_team_user
     return if @existing_user_email
     TeamUser.create!({
       team: teams[:main_team_a],
@@ -172,7 +172,7 @@ class PopulatedProjects
     @users = setup.users
   end
 
-  def create_populated_projects
+  def populated_projects
     projects_params = [
       {
         title: "#{teams[:main_team_a][:name]} / [a] Main User: Main Team",
@@ -183,10 +183,10 @@ class PopulatedProjects
             media_attributes: media_params,
             team: teams[:main_team_a],
             claim_description_attributes: {
-              description: create_claim_title(media_params),
+              description: claim_title(media_params),
               context: Faker::Lorem.sentence,
               user: users[:main_user_a],
-              fact_check_attributes: get_fact_check_params_for_half_the_claims(index, users[:main_user_a]),
+              fact_check_attributes: fact_check_params_for_half_the_claims(index, users[:main_user_a]),
             }
           }
         }
@@ -200,10 +200,10 @@ class PopulatedProjects
             media_attributes: media_params,
             team: teams[:invited_team_b1],
             claim_description_attributes: {
-              description: create_claim_title(media_params),
+              description: claim_title(media_params),
               context: Faker::Lorem.sentence,
               user: users[:invited_user_b],
-              fact_check_attributes: get_fact_check_params_for_half_the_claims(index, users[:invited_user_b]),
+              fact_check_attributes: fact_check_params_for_half_the_claims(index, users[:invited_user_b]),
             }
           }
         }
@@ -217,10 +217,10 @@ class PopulatedProjects
             media_attributes: media_params,
             team: teams[:invited_team_b2],
             claim_description_attributes: {
-              description: create_claim_title(media_params),
+              description: claim_title(media_params),
               context: Faker::Lorem.sentence,
               user: users[:invited_user_b],
-              fact_check_attributes: get_fact_check_params_for_half_the_claims(index, users[:invited_user_b]),
+              fact_check_attributes: fact_check_params_for_half_the_claims(index, users[:invited_user_b]),
             }
           }
         }
@@ -234,10 +234,10 @@ class PopulatedProjects
             media_attributes: media_params,
             team: teams[:invited_team_c],
             claim_description_attributes: {
-              description: create_claim_title(media_params),
+              description: claim_title(media_params),
               context: Faker::Lorem.sentence,
               user: users[:invited_user_c],
-              fact_check_attributes: get_fact_check_params_for_half_the_claims(index, users[:invited_user_c]),
+              fact_check_attributes: fact_check_params_for_half_the_claims(index, users[:invited_user_c]),
             }
           }
         }
@@ -300,19 +300,19 @@ class PopulatedProjects
     ]
   end
 
-  def create_title_from_link(link)
+  def title_from_link(link)
     path = URI.parse(link).path
     path.remove('/post/').underscore.humanize
   end
 
-  def create_claim_title(media_params)
-    media_params[:type] == "Link" ? create_title_from_link(media_params[:url]) : Faker::Company.catch_phrase
+  def claim_title(media_params)
+    media_params[:type] == "Link" ? title_from_link(media_params[:url]) : Faker::Company.catch_phrase
   end
 
-  def get_fact_check_params_for_half_the_claims(index, user)
+  def fact_check_params_for_half_the_claims(index, user)
     if index.even?
       {
-        summary:  Faker::Company.catch_phrase,
+        summary: Faker::Company.catch_phrase,
         title: Faker::Company.name,
         user: user,
         language: 'en',
@@ -335,15 +335,16 @@ puts "If you want to add more data to an existing user: Type user email then pre
 print ">> "
 answer = STDIN.gets.chomp
 
-puts "Stretch your legs, this might take a while"
-puts "On a mac took about 10 minutes to create all populated workspaces"
+puts "—————"
+puts "Stretch your legs, this might take a while."
+puts "On a mac took about 10 minutes to create all populated workspaces."
 puts "—————"
 
 begin
   puts 'Creating users and teams...'
   setup = Setup.new(answer.presence) # .presence : returns nil or the string
   puts 'Creating projects for all users...'
-  PopulatedProjects.new(setup).create_populated_projects
+  PopulatedProjects.new(setup).populated_projects
 rescue RuntimeError => e
   if e.message.include?('We could not parse this link')
     puts "—————"
@@ -354,16 +355,19 @@ rescue RuntimeError => e
   end
 end
 
-
 # teams.each do |team|
 #   project_medias = team.project_medias
 
-#   create_confirmed_relationship(project_medias[0],  project_medias[1..3])
-#   create_confirmed_relationship(project_medias[4], project_medias[5])
-#   create_confirmed_relationship(project_medias[6], project_medias[7])
-#   create_confirmed_relationship(project_medias[8], project_medias[1])
+#   confirmed_relationship(project_medias[0],  project_medias[1..3])
+#   confirmed_relationship(project_medias[4], project_medias[5])
+#   confirmed_relationship(project_medias[6], project_medias[7])
+#   confirmed_relationship(project_medias[8], project_medias[1])
 # end
 
-unless e then setup.get_users_emails_and_passwords.each { |user_info| puts user_info } end
+unless e
+  puts "—————"
+  puts "Created users:"
+  setup.get_users_emails_and_passwords.each { |user_info| puts user_info } 
+end
 
 Rails.cache.clear
