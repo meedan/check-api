@@ -159,7 +159,7 @@ class Setup
   end
 end
 
-class PopulatedProjects
+class PopulatedWorkspaces
 
   private
 
@@ -172,7 +172,7 @@ class PopulatedProjects
     @users = setup.users
   end
 
-  def fill
+  def populate_projects
     projects_params = [
       {
         title: "#{teams[:main_team_a][:name]} / [a] Main User: Main Team",
@@ -303,11 +303,11 @@ class PopulatedProjects
     end
 
     [
-      # *links,
+      *links,
       *claims,
-      # *uploadedAudios,
-      # *uploadedImages,
-      # *uploadedVideos
+      *uploadedAudios,
+      *uploadedImages,
+      *uploadedVideos
     ]
   end
 
@@ -373,10 +373,10 @@ begin
   puts 'Creating users and teams...'
   setup = Setup.new(answer.presence) # .presence : returns nil or the string
   puts 'Creating projects for all users...'
-  populated_projects = PopulatedProjects.new(setup)
-  populated_projects.fill
+  populated_workspaces = PopulatedWorkspaces.new(setup)
+  populated_workspaces.populate_projects
   puts 'Publishing half of each user\'s Fact Checks'
-  populated_projects.publish_fact_checks
+  populated_workspaces.publish_fact_checks
 rescue RuntimeError => e
   if e.message.include?('We could not parse this link')
     puts "—————"
