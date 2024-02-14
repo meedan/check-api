@@ -20,6 +20,7 @@ def write_similarity_relationships_to_disk(query, filename)
       created_at: r.created_at,
       source_text_fields: Hash[Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.collect{|f| [f, (r.source.send(f) rescue nil)]}],
       target_text_fields: Hash[Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.collect{|f| [f, (r.target.send(f) rescue nil)]}],
+      user_id: r.user_id,
     }.to_json+"\n")
   end
   f.close
