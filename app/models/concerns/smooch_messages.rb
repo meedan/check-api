@@ -343,9 +343,6 @@ module SmoochMessages
       elsif ['relevant_search_result_requests', 'timeout_search_requests'].include?(request_type)
         message['archived'] = (request_type == 'relevant_search_result_requests' ? self.default_archived_flag : CheckArchivedFlags::FlagCodes::UNCONFIRMED)
         associated = self.create_project_media_from_message(message)
-        if associated != associated_obj && associated.is_a?(ProjectMedia)
-          Relationship.create(relationship_type: Relationship.suggested_type, source: associated_obj, target: associated, user: BotUser.smooch_user)
-        end
       end
 
       return if associated.nil?
