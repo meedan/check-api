@@ -12,14 +12,14 @@ class Setup
 
   private
 
-  attr_reader :user_names, :user_passwords, :user_emails, :team_names, :existing_user, :main_user_a
+  attr_reader :user_names, :user_passwords, :user_emails, :team_names, :existing_user_email, :main_user_a
 
   public
 
   attr_reader :teams, :users
 
-  def initialize(existing_user)
-    @existing_user = existing_user
+  def initialize(existing_user_email)
+    @existing_user_email = existing_user_email
     @user_names = Array.new(3) { Faker::Name.first_name.downcase }
     @user_passwords = Array.new(3) { Faker::Internet.password(min_length: 8) }
     @user_emails = @user_names.map { |name| Faker::Internet.safe_email(name: name) }
@@ -32,7 +32,7 @@ class Setup
 
   def get_users_emails_and_passwords
     created = user_emails.zip(user_passwords)
-    if existing_user
+    if existing_user_email
       created = created[1..]
     end
     created.flatten
@@ -100,8 +100,8 @@ class Setup
   private
 
   def create_or_fetch_main_user_a
-    @main_user_a ||= if existing_user
-      User.find_by(email: existing_user)
+    @main_user_a ||= if existing_user_email
+      User.find_by(email: existing_user_email)
     else
       User.create!({
         name: user_names[0] + ' [a / main user]',
@@ -151,7 +151,7 @@ class Setup
   end
 
   def create_or_fetch_main_team_a_team_user
-    return if @existing_user
+    return if @existing_user_email
     TeamUser.create!({
       team: teams[:main_team_a],
       user: users[:main_user_a],
