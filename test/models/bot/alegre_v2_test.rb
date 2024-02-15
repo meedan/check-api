@@ -107,6 +107,11 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.generic_package(pm1, "image"), {:doc_id=>Bot::Alegre.item_doc_id(pm1, "image"), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}}
   end
 
+  test "should create a generic_package for video" do
+    pm1 = create_project_media team: @team, media: create_uploaded_video
+    assert_equal Bot::Alegre.generic_package(pm1, "video"), {:doc_id=>Bot::Alegre.item_doc_id(pm1, "video"), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}}
+  end
+
   test "should create a generic_package_audio" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     assert_equal Bot::Alegre.generic_package_audio(pm1, {}), {:doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
@@ -121,6 +126,13 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.store_package(pm1, "image", {}), {:doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
   end
 
+  test "should create a generic_package_video" do
+    pm1 = create_project_media team: @team, media: create_uploaded_video
+    assert_equal Bot::Alegre.generic_package_image(pm1, {}), {:doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}, :url=>Bot::Alegre.media_file_url(pm1)}
+    assert_equal Bot::Alegre.store_package_image(pm1, "video", {}), {:doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}, :url=>Bot::Alegre.media_file_url(pm1)}
+    assert_equal Bot::Alegre.store_package(pm1, "video", {}), {:doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}, :url=>Bot::Alegre.media_file_url(pm1)}
+  end
+
   test "should create a context for audio" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     assert_equal Bot::Alegre.get_context(pm1, "audio"), {:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}
@@ -129,6 +141,11 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should create a context for image" do
     pm1 = create_project_media team: @team, media: create_uploaded_image
     assert_equal Bot::Alegre.get_context(pm1, "image"), {:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}
+  end
+
+  test "should create a context for video" do
+    pm1 = create_project_media team: @team, media: create_uploaded_video
+    assert_equal Bot::Alegre.get_context(pm1, "video"), {:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}
   end
 
   test "should create a delete_package for audio" do
@@ -145,6 +162,15 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     package = Bot::Alegre.delete_package(pm1, "image")
     assert_equal package[:doc_id], Bot::Alegre.item_doc_id(pm1, nil)
     assert_equal package[:context], {:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}
+    assert_equal package[:url].class, String
+    assert_equal package[:quiet], false
+  end
+
+  test "should create a delete_package for video" do
+    pm1 = create_project_media team: @team, media: create_uploaded_video
+    package = Bot::Alegre.delete_package(pm1, "video")
+    assert_equal package[:doc_id], Bot::Alegre.item_doc_id(pm1, nil)
+    assert_equal package[:context], {:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}
     assert_equal package[:url].class, String
     assert_equal package[:quiet], false
   end
@@ -189,6 +215,11 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.isolate_relevant_context(pm1, {"context"=>[{"team_id"=>pm1.team_id}]}), {"team_id"=>pm1.team_id}
   end
 
+  test "should isolate relevant_context for video" do
+    pm1 = create_project_media team: @team, media: create_uploaded_video
+    assert_equal Bot::Alegre.isolate_relevant_context(pm1, {"context"=>[{"team_id"=>pm1.team_id}]}), {"team_id"=>pm1.team_id}
+  end
+
   test "should return field or type on get_target_field for audio" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     Bot::Alegre.stubs(:get_type).returns(nil)
@@ -198,6 +229,13 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should return field or type on get_target_field for image" do
     pm1 = create_project_media team: @team, media: create_uploaded_image
+    Bot::Alegre.stubs(:get_type).returns(nil)
+    assert_equal Bot::Alegre.get_target_field(pm1, "blah"), "blah"
+    Bot::Alegre.unstub(:get_type)
+  end
+
+  test "should return field or type on get_target_field for video" do
+    pm1 = create_project_media team: @team, media: create_uploaded_video
     Bot::Alegre.stubs(:get_type).returns(nil)
     assert_equal Bot::Alegre.get_target_field(pm1, "blah"), "blah"
     Bot::Alegre.unstub(:get_type)
@@ -222,6 +260,12 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.get_per_model_threshold(pm1, sample), {:threshold=>0.9}
   end
 
+  test "should generate per model threshold for video" do
+    pm1 = create_project_media team: @team, media: create_uploaded_video
+    sample = [{:value=>0.9, :key=>"video_hash_suggestion_threshold", :automatic=>false, :model=>"hash"}]
+    assert_equal Bot::Alegre.get_per_model_threshold(pm1, sample), {:threshold=>0.9}
+  end
+
   test "should get target field for audio" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     assert_equal Bot::Alegre.get_target_field(pm1, nil), "audio"
@@ -230,6 +274,11 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should get target field for image" do
     pm1 = create_project_media team: @team, media: create_uploaded_image
     assert_equal Bot::Alegre.get_target_field(pm1, nil), "image"
+  end
+
+  test "should get target field for video" do
+    pm1 = create_project_media team: @team, media: create_uploaded_video
+    assert_equal Bot::Alegre.get_target_field(pm1, nil), "video"
   end
 
   test "should parse similarity results" do
@@ -897,6 +946,15 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     tbi.save!
     Bot::Alegre.stubs(:merge_suggested_and_confirmed).never
     pm = create_project_media team: @team, media: create_uploaded_image
+    assert_equal({}, Bot::Alegre.get_similar_items_v2(pm, nil))
+  end
+
+  test "should not relate project media for video if disabled on workspace" do
+    tbi = TeamBotInstallation.where(team: @team, user: @bot).last
+    tbi.set_image_similarity_enabled = false
+    tbi.save!
+    Bot::Alegre.stubs(:merge_suggested_and_confirmed).never
+    pm = create_project_media team: @team, media: create_uploaded_video
     assert_equal({}, Bot::Alegre.get_similar_items_v2(pm, nil))
   end
 end
