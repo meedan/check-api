@@ -20,7 +20,7 @@ module SmoochSearch
           self.bundle_messages(uid, '', app_id, 'default_requests', nil, true)
           self.send_final_message_to_user(uid, self.get_custom_string('search_no_results', language), workflow, language, 'no_results')
         else
-          self.send_search_results_to_user(uid, results, team_id)
+          self.send_search_results_to_user(uid, results, team_id, platform)
           sm.go_to_search_result
           self.save_search_results_for_user(uid, results.map(&:id))
           self.delay_for(1.second, { queue: 'smooch_priority' }).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, 1)
@@ -217,7 +217,7 @@ module SmoochSearch
       results
     end
 
-    def send_search_results_to_user(uid, results, team_id)
+    def send_search_results_to_user(uid, results, team_id, platform)
       team = Team.find(team_id)
       redis = Redis.new(REDIS_CONFIG)
       language = self.get_user_language(uid)
@@ -230,7 +230,8 @@ module SmoochSearch
       end
       reports.reject{ |r| r.blank? }.each do |report|
         response = nil
-        response = self.send_message_to_user(uid, report.report_design_text, {}, false, true, 'search_result') if report.report_design_field_value('use_text_message')
+        no_body = (platform == 'Facebook Messenger')
+        response = self.send_message_to_user(uid, report.report_design_text(nil, no_body), {}, false, true, 'search_result') if report.report_design_field_value('use_text_message')
         response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url }, false, true, 'search_result') if !report.report_design_field_value('use_text_message') && report.report_design_field_value('use_visual_card')
         id = self.get_id_from_send_response(response)
         redis.rpush("smooch:search:#{uid}", id) unless id.blank?
