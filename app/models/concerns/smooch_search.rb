@@ -23,7 +23,7 @@ module SmoochSearch
           self.send_search_results_to_user(uid, results, team_id, platform)
           sm.go_to_search_result
           self.save_search_results_for_user(uid, results.map(&:id))
-          self.delay_for(1.second, { queue: 'smooch_priority' }).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, 1)
+          self.delay_for(1.second, { queue: 'smooch_priority' }).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, provider, 1)
         end
       rescue StandardError => e
         self.handle_search_error(uid, e, language)
@@ -245,8 +245,9 @@ module SmoochSearch
       redis.lrem("smooch:search:#{uid}", 0, id) if redis.exists("smooch:search:#{uid}") == 1
     end
 
-    def ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, attempts)
+    def ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, provider, attempts)
       RequestStore.store[:smooch_bot_platform] = platform
+      RequestStore.store[:smooch_bot_provider] = provider unless provider.blank?
       redis = Redis.new(REDIS_CONFIG)
       max = 20
       if redis.llen("smooch:search:#{uid}") == 0 && CheckStateMachine.new(uid).state.value == 'search_result'
@@ -254,7 +255,7 @@ module SmoochSearch
         self.send_message_for_state(uid, workflow, 'search_result', language)
       else
         redis.del("smooch:search:#{uid}") if (attempts + 1) == max # Give up and just ask for feedback on the last iteration
-        self.delay_for(1.second, { queue: 'smooch_priority' }).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, attempts + 1) if attempts < max # Try for 20 seconds
+        self.delay_for(1.second, { queue: 'smooch_priority' }).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, provider, attempts + 1) if attempts < max # Try for 20 seconds
       end
     end
   end
