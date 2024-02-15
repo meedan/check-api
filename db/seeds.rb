@@ -253,8 +253,9 @@ class PopulatedWorkspaces
 
   def publish_fact_checks
     users.each_value do |user|
-      project_medias = fact_checks_project_medias(user)
-      project_medias.each { |pm| verify_fact_check_and_publish_report(pm)}
+      fact_checks = FactCheck.where(user: user)
+      # publish only half of fact checks
+      fact_checks[0, fact_checks.size/2].each { |fact_check| verify_fact_check_and_publish_report(fact_check.project_media)}
     end
   end
 
@@ -345,11 +346,6 @@ class PopulatedWorkspaces
 
   def get_url_for_some_fact_checks(index)
     index % 4 == 0 ? "https://www.thespruceeats.com/step-by-step-basic-cake-recipe-304553?timestamp=#{Time.now.to_f}" : nil
-  end
-
-  def fact_checks_project_medias(user)
-      facts = FactCheck.where(user: user)
-      facts[0, facts.size/2].map { |f| ProjectMedia.find_by(claim_description: f[:claim_description_id]) }
   end
 
   def verify_fact_check_and_publish_report(project_media)
