@@ -951,7 +951,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should not relate project media for video if disabled on workspace" do
     tbi = TeamBotInstallation.where(team: @team, user: @bot).last
-    tbi.set_image_similarity_enabled = false
+    tbi.set_video_similarity_enabled = false
     tbi.save!
     Bot::Alegre.stubs(:merge_suggested_and_confirmed).never
     pm = create_project_media team: @team, media: create_uploaded_video
