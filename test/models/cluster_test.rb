@@ -63,11 +63,10 @@ class ClusterTest < ActiveSupport::TestCase
       assert_equal 4, c.requests_count
       assert_equal 4, c.requests_count(true)
       d = create_tipline_request team_id: t.id, associated: pm
-      # TODO: fix cached field
-      # assert_equal 5, c.requests_count
+      assert_equal 5, c.requests_count
       assert_equal 5, c.requests_count(true)
       d.destroy!
-      # assert_equal 4, c.requests_count
+      assert_equal 4, c.requests_count
       assert_equal 4, c.requests_count(true)
     end
   end

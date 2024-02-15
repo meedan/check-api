@@ -88,8 +88,8 @@ class Cluster < ApplicationRecord
           if: proc { |tr| tr.associated_type == 'ProjectMedia' },
           affected_ids: proc { |tr| ClusterProjectMedia.where(project_media_id: tr.associated.related_items_ids).map(&:cluster_id).uniq },
           events: {
-            create: :cached_field_cluster_requests_count_create,
-            destroy: :cached_field_cluster_requests_count_destroy
+            create: :recalculate,
+            destroy: :recalculate
           }
         }
       ]

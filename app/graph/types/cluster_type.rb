@@ -35,6 +35,7 @@ class ClusterType < DefaultObject
     argument :feed_id, GraphQL::Types::Int, required: true, camelize: false
   end
 
+  # TODO: review join query based on new data model
   def claim_descriptions(feed_id:)
     Cluster.find_if_can(object.id, context[:ability])
     feed = Feed.find_if_can(feed_id.to_i, context[:ability])

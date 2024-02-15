@@ -210,40 +210,39 @@ class ElasticSearch3Test < ActionController::TestCase
     Team.unstub(:current)
   end
 
-  # TODO: fix by Sawy
-  # test "should sort by clusters requests count" do
-  #   RequestStore.store[:skip_cached_field_update] = false
-  #   t = create_team
-  #   f = create_feed
-  #   f.teams << t
-  #   FeedTeam.update_all(shared: true)
-  #   u = create_user
-  #   create_team_user team: t, user: u, role: 'admin'
-  #   pm1 = create_project_media team: t
-  #   pm1_1 = create_project_media team: t
-  #   pm2 = create_project_media team: t
-  #   create_tipline_request associated: pm1, team_id: t.id
-  #   create_tipline_request associated: pm2, team_id: t.id
-  #   c1 = create_cluster project_media: pm1
-  #   c2 = create_cluster project_media: pm2
-  #   c1.project_medias << pm1_1
-  #   sleep 2
-  #   with_current_user_and_team(u, t) do
-  #     create_tipline_request associated: pm1, team_id: t.id
-  #     create_tipline_request associated: pm1_1, team_id: t.id
-  #     sleep 2
-  #     es1 = $repository.find(get_es_id(pm1))
-  #     es2 = $repository.find(get_es_id(pm2))
-  #     assert_equal c1.requests_count(true), es1['cluster_requests_count']
-  #     assert_equal c2.requests_count(true), es2['cluster_requests_count']
-  #     query = { clusterize: true, feed_id: f.id, sort: 'cluster_requests_count' }
-  #     result = CheckSearch.new(query.to_json)
-  #     assert_equal [pm1.id, pm2.id], result.medias.map(&:id)
-  #     query[:sort_type] = 'asc'
-  #     result = CheckSearch.new(query.to_json)
-  #     assert_equal [pm2.id, pm1.id], result.medias.map(&:id)
-  #   end
-  # end
+  test "should sort by clusters requests count" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    f = create_feed
+    f.teams << t
+    FeedTeam.update_all(shared: true)
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    pm1 = create_project_media team: t
+    pm1_1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    create_tipline_request associated: pm1, team_id: t.id
+    create_tipline_request associated: pm2, team_id: t.id
+    c1 = create_cluster project_media: pm1
+    c2 = create_cluster project_media: pm2
+    c1.project_medias << pm1_1
+    sleep 2
+    with_current_user_and_team(u, t) do
+      create_tipline_request associated: pm1, team_id: t.id
+      create_tipline_request associated: pm1_1, team_id: t.id
+      sleep 2
+      es1 = $repository.find(get_es_id(pm1))
+      es2 = $repository.find(get_es_id(pm2))
+      assert_equal c1.requests_count(true), es1['cluster_requests_count']
+      assert_equal c2.requests_count(true), es2['cluster_requests_count']
+      query = { clusterize: true, feed_id: f.id, sort: 'cluster_requests_count' }
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm1.id, pm2.id], result.medias.map(&:id)
+      query[:sort_type] = 'asc'
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm2.id, pm1.id], result.medias.map(&:id)
+    end
+  end
 
   test "should sort by cluster_size" do
     t = create_team
