@@ -84,13 +84,13 @@ Dynamic.class_eval do
     footer.join("\n")
   end
 
-  def report_design_text(language = nil)
+  def report_design_text(language = nil, hide_body = false)
     if self.annotation_type == 'report_design'
       team = self.annotated.team
       text = []
       title = self.report_design_field_value('title')
       text << "*#{title.strip}*" unless title.blank?
-      text << self.report_design_field_value('text').to_s
+      text << self.report_design_field_value('text').to_s unless hide_body
       url = self.report_design_field_value('published_article_url')
       text << url unless url.blank?
       text = text.collect do |part|
