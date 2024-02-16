@@ -247,11 +247,11 @@ module SmoochSearch
 
     def ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, provider, attempts)
       RequestStore.store[:smooch_bot_platform] = platform
-      RequestStore.store[:smooch_bot_provider] = provider unless provider.blank?
       redis = Redis.new(REDIS_CONFIG)
       max = 20
       if redis.llen("smooch:search:#{uid}") == 0 && CheckStateMachine.new(uid).state.value == 'search_result'
         self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
+        RequestStore.store[:smooch_bot_provider] = provider unless provider.blank?
         self.send_message_for_state(uid, workflow, 'search_result', language)
       else
         redis.del("smooch:search:#{uid}") if (attempts + 1) == max # Give up and just ask for feedback on the last iteration
