@@ -8068,7 +8068,11 @@ type Feed implements Node {
     Returns the last _n_ elements from the list.
     """
     last: Int
+    offset: Int = 0
+    sort: String = "id"
+    sort_type: String = "DESC"
   ): ClusterConnection
+  clusters_count: Int
   created_at: String
   current_feed_team: FeedTeam
   data_points: [Int]

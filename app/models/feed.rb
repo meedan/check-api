@@ -130,6 +130,10 @@ class Feed < ApplicationRecord
     query.order(sort => sort_type).offset(args[:offset].to_i)
   end
 
+  def clusters_count
+    self.clusters.count
+  end
+
   # This takes some time to run because it involves external HTTP requests and writes to the database:
   # 1) If the query contains a media URL, it will be downloaded... if it contains some other URL, it will be sent to Pender
   # 2) Requests will be made to Alegre in order to index the request media and to look for similar requests

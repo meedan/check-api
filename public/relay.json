@@ -43812,11 +43812,61 @@
                   "defaultValue": null,
                   "isDeprecated": false,
                   "deprecationReason": null
+                },
+                {
+                  "name": "offset",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": "0",
+                  "isDeprecated": false,
+                  "deprecationReason": null
+                },
+                {
+                  "name": "sort",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": "\"id\"",
+                  "isDeprecated": false,
+                  "deprecationReason": null
+                },
+                {
+                  "name": "sort_type",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": "\"DESC\"",
+                  "isDeprecated": false,
+                  "deprecationReason": null
                 }
               ],
               "type": {
                 "kind": "OBJECT",
                 "name": "ClusterConnection",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "clusters_count",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
                 "ofType": null
               },
               "isDeprecated": false,
