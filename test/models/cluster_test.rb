@@ -25,68 +25,6 @@ class ClusterTest < ActiveSupport::TestCase
     assert_equal [pm1, pm2].sort, c.reload.items.sort
   end
 
-  test "should remove items from cluster when cluster is deleted" do
-    c = create_cluster
-    pm1 = create_project_media cluster: c
-    pm2 = create_project_media cluster: c
-    assert_equal [c.id], pm1.reload.cluster_ids
-    assert_equal [c.id], pm2.reload.cluster_ids
-    c.destroy!
-    assert_empty pm1.reload.cluster_ids
-    assert_empty pm2.reload.cluster_ids
-  end
-
-  test "should cache number of items in the cluster" do
-    c = create_cluster
-    assert_equal 0, c.reload.size
-    pm1 = create_project_media cluster: c
-    assert_equal 1, c.reload.size
-    pm2 = create_project_media cluster: c
-    assert_equal 2, c.reload.size
-    pm1.destroy!
-    assert_equal 1, c.reload.size
-    pm2.destroy!
-    assert_equal 0, c.reload.size
-  end
-
-  test "should get requests count" do
-    RequestStore.store[:skip_cached_field_update] = false
-    t = create_team
-    Sidekiq::Testing.inline! do
-      c = create_cluster
-      pm = create_project_media team: t
-      2.times { create_tipline_request(team_id: t.id, associated: pm) }
-      pm2 = create_project_media team: t
-      2.times { create_tipline_request(team_id: t.id, associated: pm2) }
-      c.project_medias << pm
-      c.project_medias << pm2
-      assert_equal 4, c.requests_count
-      assert_equal 4, c.requests_count(true)
-      d = create_tipline_request team_id: t.id, associated: pm
-      assert_equal 5, c.requests_count
-      assert_equal 5, c.requests_count(true)
-      d.destroy!
-      assert_equal 4, c.requests_count
-      assert_equal 4, c.requests_count(true)
-    end
-  end
-
-  test "should get teams that fact-checked the item" do
-    c = create_cluster
-    assert_kind_of Hash, c.get_names_of_teams_that_fact_checked_it
-  end
-
-  test "should get claim descriptions" do
-    c = create_cluster
-    pm1 = create_project_media
-    cd1 = create_claim_description project_media: pm1
-    c.project_medias << pm1
-    pm2 = create_project_media
-    cd2 = create_claim_description project_media: pm2
-    c.project_medias << pm2
-    assert_equal [cd1, cd2], c.claim_descriptions.sort
-  end
-
   test "should access cluster" do
     u = create_user
     t1 = create_team

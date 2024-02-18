@@ -650,6 +650,84 @@ type ClaimDescriptionEdge {
   node: ClaimDescription
 }
 
+"""
+Cluster type
+"""
+type Cluster implements Node {
+  center: ProjectMedia
+  channels: [Int]
+  created_at: String
+  dbid: Int
+  fact_checks_count: Int
+  first_item_at: Int
+  id: ID!
+  last_fact_check_date: Int
+  last_item_at: Int
+  last_request_date: Int
+  media_count: Int
+  permissions: String
+  requests_count: Int
+  team_ids: [Int]
+  teams(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): TeamConnection
+  updated_at: String
+}
+
+"""
+The connection type for Cluster.
+"""
+type ClusterConnection {
+  """
+  A list of edges.
+  """
+  edges: [ClusterEdge]
+
+  """
+  A list of nodes.
+  """
+  nodes: [Cluster]
+
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+"""
+An edge in a connection.
+"""
+type ClusterEdge {
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+
+  """
+  The item at the end of the edge.
+  """
+  node: Cluster
+}
+
 type Comment implements Node {
   annotated_id: String
   annotated_type: String
@@ -7970,6 +8048,27 @@ type FactCheckEdge {
 Feed type
 """
 type Feed implements Node {
+  clusters(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): ClusterConnection
   created_at: String
   current_feed_team: FeedTeam
   data_points: [Int]
