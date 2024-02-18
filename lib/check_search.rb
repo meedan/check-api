@@ -39,7 +39,8 @@ class CheckSearch
     @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['GraphQL::Types::String', 'GraphQL::Types::Int', 'String', 'Integer'].include?(@options['id'].class.name)
 
     # Apply feed filters
-    @options.merge!(@feed.get_feed_filters) if feed_query?
+    @feed_view = @options['feed_view'] || :fact_check
+    @options.merge!(@feed.get_feed_filters(@feed_view)) if feed_query?
 
     (Project.current ||= Project.where(id: @options['projects'].last).last) if @options['projects'].to_a.size == 1
     @file = file

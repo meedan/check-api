@@ -393,16 +393,6 @@ class ProjectMedia < ApplicationRecord
     self.team.apply_rules_and_actions(self, rule_ids)
   end
 
-  def cluster_by_feed(feed_id)
-    Cluster.where(feed_id: feed_id).joins('INNER JOIN cluster_project_medias cpm ON cpm.cluster_id = clusters.id')
-    .where('cpm.project_media_id = ?', self.id)
-  end
-
-  # Define this method to keep check-web working
-  def cluster
-    self.clusters.first
-  end
-
   protected
 
   def add_extra_elasticsearch_data(ms)

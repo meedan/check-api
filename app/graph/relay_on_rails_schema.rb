@@ -13,7 +13,7 @@ class RelayOnRailsSchema < GraphQL::Schema
 
   lazy_resolve(Concurrent::Future, :value)
 
-  disable_introspection_entry_points
+  disable_introspection_entry_points unless Rails.env.development?
 
   class << self
     def resolve_type(_type, object, _ctx)
