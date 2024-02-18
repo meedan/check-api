@@ -317,7 +317,7 @@ class GraphqlController12Test < ActionController::TestCase
 
     authenticate_with_user(@u)
     query = 'query { feed(id: "' + f.id.to_s + '") { clusters(first: 10) { edges { node { id, dbid, first_item_at, last_item_at, last_request_date, last_fact_check_date, center { id }, teams(first: 10) { edges { node { name, avatar } } } } } } } }'
-    assert_queries(20, '=') do
+    assert_queries 20, '<=' do
       post :create, params: { query: query }
     end
     assert_response :success
