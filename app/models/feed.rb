@@ -12,7 +12,7 @@ class Feed < ApplicationRecord
   belongs_to :saved_search, optional: true
   belongs_to :team, optional: true
 
-  before_validation [:set_user_and_team, :set_uuid], on: :create
+  before_validation :set_user_and_team, :set_uuid, on: :create
   validates_presence_of :name
   validates_presence_of :licenses, if: proc { |feed| feed.discoverable }
   validate :saved_search_belongs_to_feed_teams
