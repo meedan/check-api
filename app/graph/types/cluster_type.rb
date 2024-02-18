@@ -9,7 +9,14 @@ class ClusterType < DefaultObject
   field :media_count, GraphQL::Types::Int, null: true
   field :requests_count, GraphQL::Types::Int, null: true
   field :fact_checks_count, GraphQL::Types::Int, null: true
+
   field :center, ProjectMediaType, null: true
+
+  def center
+    RecordLoader
+      .for(ProjectMedia)
+      .load(object.project_media_id)
+  end
 
   field :first_item_at, GraphQL::Types::Int, null: true
 
@@ -35,7 +42,7 @@ class ClusterType < DefaultObject
     object.last_fact_check_date.to_i
   end
 
-  field :teams, TeamType.connection_type, null: true
+  field :teams, PublicTeamType.connection_type, null: true
 
   def teams
     Team.where(id: object.team_ids)

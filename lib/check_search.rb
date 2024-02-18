@@ -223,10 +223,6 @@ class CheckSearch
     !!@feed
   end
 
-  def clusterized_feed_query?
-    feed_query? && @options['clusterize'] && !@feed.published
-  end
-
   def get_pg_results_for_media
     custom_conditions = {}
     core_conditions = {}
@@ -291,14 +287,12 @@ class CheckSearch
     custom_conditions << { terms: { read: @options['read'].map(&:to_i) } } if @options.has_key?('read')
     custom_conditions << { terms: { cluster_teams: @options['cluster_teams'] } } if @options.has_key?('cluster_teams')
     core_conditions << { term: { sources_count: 0 } } unless include_related_items
-    core_conditions << { range: { cluster_size: { gt: 0 } } } if clusterized_feed_query?
     custom_conditions << { terms: { unmatched: @options['unmatched'] } } if @options.has_key?('unmatched')
     custom_conditions.concat keyword_conditions
     custom_conditions.concat tags_conditions
     custom_conditions.concat report_status_conditions
     custom_conditions.concat published_by_conditions
     custom_conditions.concat annotated_by_conditions
-    custom_conditions.concat cluster_published_reports_conditions
     custom_conditions.concat integer_terms_query('assigned_user_ids', 'assigned_to')
     custom_conditions.concat integer_terms_query('channel', 'channels')
     custom_conditions.concat integer_terms_query('source_id', 'sources')
@@ -602,17 +596,6 @@ class CheckSearch
 
   def report_status_conditions
     return [] if @options['report_status'].blank? || !@options['report_status'].is_a?(Array)
-    if clusterized_feed_query?
-      conditions = []
-      if (['published', 'unpublished'] - @options['report_status']).empty?
-        conditions << { range: { cluster_published_reports_count: { gte: 0 } } }
-      elsif @options['report_status'].include?('published')
-        conditions << { range: { cluster_published_reports_count: { gt: 0 } } }
-      elsif @options['report_status'].include?('unpublished')
-        conditions << { term: { cluster_published_reports_count: 0 } }
-      end
-      return conditions
-    end
     statuses = []
     @options['report_status'].each do |status_name|
       status_id = ['unpublished', 'paused', 'published'].index(status_name) || -1 # Invalidate the query if an invalid status is passed
@@ -635,11 +618,6 @@ class CheckSearch
     else
       [{ terms: { annotated_by: [@options['annotated_by']].flatten } }]
     end
-  end
-
-  def cluster_published_reports_conditions
-    return [] if @options['cluster_published_reports'].blank?
-    [{ terms: { cluster_published_reports: [@options['cluster_published_reports']].flatten } }]
   end
 
   def doc_conditions

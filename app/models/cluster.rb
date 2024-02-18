@@ -5,9 +5,10 @@ class Cluster < ApplicationRecord
   has_many :project_medias, through: :cluster_project_medias
 
   belongs_to :feed
+  belongs_to :project_media # Center
 
   def center
-    self.items.first
+    self.project_media || self.items.first
   end
 
   def items
@@ -15,6 +16,6 @@ class Cluster < ApplicationRecord
   end
 
   def size
-    self.project_medias_count
+    self.project_medias.count
   end
 end

@@ -688,7 +688,7 @@ type Cluster implements Node {
     Returns the last _n_ elements from the list.
     """
     last: Int
-  ): TeamConnection
+  ): PublicTeamConnection
   updated_at: String
 }
 

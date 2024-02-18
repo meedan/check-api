@@ -3548,7 +3548,7 @@
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "TeamConnection",
+                "name": "PublicTeamConnection",
                 "ofType": null
               },
               "isDeprecated": false,

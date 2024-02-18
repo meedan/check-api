@@ -869,7 +869,7 @@ module SampleData
       c.send("#{key}=", value) if c.respond_to?("#{key}=")
     end
     c.save!
-    # add cluster to PM
+    # Add item to cluster
     create_cluster_project_media({ cluster: c, project_media: options[:project_media] }) if options[:project_media]
     c.reload
   end

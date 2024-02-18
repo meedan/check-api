@@ -66,4 +66,11 @@ class ClusterTest < ActiveSupport::TestCase
     assert !a.can?(:read, c4.feed)
     assert !a.can?(:read, c4)
   end
+
+  test "should return size" do
+    c = create_cluster
+    assert_equal 0, c.size
+    c.project_medias << create_project_media
+    assert_equal 1, c.size
+  end
 end

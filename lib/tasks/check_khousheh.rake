@@ -82,6 +82,8 @@ namespace :check do
                   updated_cluster_attributes[:media_count] += 1
                 end
                 ClusterProjectMedia.insert_all(rows)
+                # FIXME: Set the center of the cluster properly
+                updated_cluster_attributes[:project_media_id] = cluster.project_media_id || pm.id
                 cluster.update_columns(updated_cluster_attributes)
               end
               Team.current = nil

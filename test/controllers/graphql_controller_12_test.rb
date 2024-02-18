@@ -308,4 +308,19 @@ class GraphqlController12Test < ActionController::TestCase
     response_body = JSON.parse(response.body)
     assert_equal response_body['errors'][0]['message'], "Field '__schema' doesn't exist on type 'Query'"
   end
+
+  test "should return feed clusters" do
+    n = random_number(5) # In order to avoid N + 1 query problems, we need to be sure that the number of SQL queries is the same regardless the number of clusters
+    puts "Testing with #{n} clusters"
+    f = create_feed team: @t
+    n.times { create_cluster feed: f, team_ids: [@t.id], project_media: create_project_media(team: @t) }
+
+    authenticate_with_user(@u)
+    query = 'query { feed(id: "' + f.id.to_s + '") { clusters(first: 10) { edges { node { id, dbid, first_item_at, last_item_at, last_request_date, last_fact_check_date, center { id }, teams(first: 10) { edges { node { name, avatar } } } } } } } }'
+    assert_queries(20, '=') do
+      post :create, params: { query: query }
+    end
+    assert_response :success
+    assert_equal n, JSON.parse(@response.body)['data']['feed']['clusters']['edges'].size
+  end
 end
