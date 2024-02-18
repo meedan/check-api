@@ -650,19 +650,6 @@ type ClaimDescriptionEdge {
   node: ClaimDescription
 }
 
-"""
-Cluster type
-"""
-type Cluster implements Node {
-  created_at: String
-  dbid: Int
-  first_item_at: Int
-  id: ID!
-  last_item_at: Int
-  permissions: String
-  updated_at: String
-}
-
 type Comment implements Node {
   annotated_id: String
   annotated_type: String
@@ -10114,8 +10101,6 @@ type ProjectMedia implements Node {
   author_role: String
   channel: JsonStringType
   claim_description: ClaimDescription
-  cluster: Cluster
-  cluster_id: Int
   comments(
     """
     Returns the elements in the list that come after the specified cursor.
@@ -11328,11 +11313,6 @@ type Query {
   Information about the bot_user with given id
   """
   bot_user(id: ID!): BotUser
-
-  """
-  Information about the cluster with given id
-  """
-  cluster(id: ID!): Cluster
   dynamic_annotation_field(only_cache: Boolean, query: String!): DynamicAnnotationField
 
   """
