@@ -265,7 +265,7 @@ class PopulatedWorkspaces
 
   def share_feeds
     invited_users = [ users[:invited_user_b], users[:invited_user_c] ]
-    main_team_a_saved_search = SavedSearch.last
+    main_team_a_saved_search = SavedSearch.where(team: teams[:main_team_a]).first
 
     feed = feed(main_team_a_saved_search)
     invited_users.each { |invited_user| feed_invitation(feed, invited_user)}
@@ -316,8 +316,8 @@ class PopulatedWorkspaces
     end
 
     [
-      *links,
       *claims,
+      *links,
       *uploadedAudios,
       *uploadedImages,
       *uploadedVideos
@@ -392,7 +392,6 @@ class PopulatedWorkspaces
       licenses: [1],
       data_points: [1,2]
     }
-
     Feed.create!(feed_params)
   end
 
