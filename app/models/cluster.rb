@@ -1,6 +1,4 @@
 class Cluster < ApplicationRecord
-  include CheckElasticSearch
-
   has_many :cluster_project_medias, dependent: :destroy
   has_many :project_medias, through: :cluster_project_medias
 
