@@ -259,10 +259,15 @@ class PopulatedWorkspaces
     end
   end
 
+  def saved_searches
+    teams.each_value { |team| saved_search(team) }
+  end
+
   def share_feeds
     invited_users = [ users[:invited_user_b], users[:invited_user_c] ]
+    main_team_a_saved_search = SavedSearch.last
 
-    feed = feed(saved_search)
+    feed = feed(main_team_a_saved_search)
     invited_users.each { |invited_user| feed_invitation(feed, invited_user)}
   end
 
@@ -361,17 +366,19 @@ class PopulatedWorkspaces
     report_design.save!
   end
 
-  def saved_search
+  def saved_search(team)
+    user = team.team_users.find_by(role: 'admin').user
+
     saved_search_params = {
-      title: "#{users[:main_user_a].name.capitalize}'s list",
-      team: teams[:main_team_a],
-      filters: {created_by: users[:main_user_a]}
+      title: "#{user.name.capitalize}'s list",
+      team: team,
+      filters: {created_by: user}
     }
 
-    if teams[:main_team_a].saved_searches.empty?
+    if team.saved_searches.empty?
       SavedSearch.create!(saved_search_params)
     else
-      teams[:main_team_a].saved_searches.first
+      team.saved_searches.first
     end
   end
 
@@ -382,7 +389,8 @@ class PopulatedWorkspaces
       team: teams[:main_team_a],
       published: true,
       saved_search: saved_search,
-      licenses: [1]
+      licenses: [1],
+      data_points: [1,2]
     }
 
     Feed.create!(feed_params)
@@ -418,6 +426,8 @@ begin
   populated_workspaces.populate_projects
   puts 'Publishing half of each user\'s Fact Checks...'
   populated_workspaces.publish_fact_checks
+  puts 'Creating saved searches for all teams...'
+  populated_workspaces.saved_searches
   puts 'Making and inviting to Shared Feed...'
   populated_workspaces.share_feeds
 rescue RuntimeError => e
