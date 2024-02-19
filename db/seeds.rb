@@ -253,7 +253,7 @@ class PopulatedWorkspaces
 
   def publish_fact_checks
     users.each_value do |user|
-      fact_checks = FactCheck.where(user: user)
+      fact_checks = FactCheck.where(user: user).last(10)
       # publish only half of fact checks
       fact_checks[0, fact_checks.size/2].each { |fact_check| verify_fact_check_and_publish_report(fact_check.project_media)}
     end
@@ -454,5 +454,5 @@ unless e
   puts "Created users:"
   setup.get_users_emails_and_passwords.each { |user_info| puts user_info } 
 end
-
+  
 Rails.cache.clear
