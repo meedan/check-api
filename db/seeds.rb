@@ -271,6 +271,17 @@ class PopulatedWorkspaces
     invited_users.each { |invited_user| feed_invitation(feed, invited_user)}
   end
 
+  def confirm_relationships
+    teams.each_value do |team|
+      project_medias = team.project_medias
+    
+      confirmed_relationship(project_medias[0],  project_medias[1..3])
+      confirmed_relationship(project_medias[4], project_medias[5])
+      confirmed_relationship(project_medias[6], project_medias[7])
+      confirmed_relationship(project_medias[8], project_medias[1])
+    end
+  end
+
   private
 
   def medias_params
@@ -317,11 +328,11 @@ class PopulatedWorkspaces
 
     [
       *claims,
-      # *links,
-      # *uploadedAudios,
-      # *uploadedImages,
-      # *uploadedVideos
-    ]
+      *links,
+      *uploadedAudios,
+      *uploadedImages,
+      *uploadedVideos
+  ].shuffle!
   end
 
   def title_from_link(link)
@@ -405,6 +416,10 @@ class PopulatedWorkspaces
 
     FeedInvitation.create!(feed_invitation_params)
   end
+
+  def confirmed_relationship(parent, children)
+    [children].flatten.each { |child| Relationship.create!(source_id: parent.id, target_id: child.id, relationship_type: Relationship.confirmed_type) }
+  end
 end
 
 puts "If you want to create a new user: press enter"
@@ -429,6 +444,8 @@ begin
   populated_workspaces.saved_searches
   puts 'Making and inviting to Shared Feed...'
   populated_workspaces.share_feeds
+  puts 'Making Confirmed Relationships between items...'
+  populated_workspaces.confirm_relationships
 rescue RuntimeError => e
   if e.message.include?('We could not parse this link')
     puts "—————"
@@ -438,15 +455,6 @@ rescue RuntimeError => e
     raise e
   end
 end
-
-# teams.each do |team|
-#   project_medias = team.project_medias
-
-#   confirmed_relationship(project_medias[0],  project_medias[1..3])
-#   confirmed_relationship(project_medias[4], project_medias[5])
-#   confirmed_relationship(project_medias[6], project_medias[7])
-#   confirmed_relationship(project_medias[8], project_medias[1])
-# end
 
 unless e
   puts "—————"
