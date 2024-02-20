@@ -59,37 +59,41 @@ namespace :check do
 
               # Add items to clusters
               Team.current = feed.team
-              CheckSearch.new({ feed_id: feed.id, feed_view: 'media' }.to_json, nil, feed.team.id).medias.order('created_at ASC').find_each do |pm|
-                cluster_id = mapping[pm.media.uuid]
-                next if cluster_id.nil?
-                cluster = Cluster.find(cluster_id)
-                updated_cluster_attributes = {}
-                updated_cluster_attributes[:first_item_at] = cluster.first_item_at || pm.created_at
-                updated_cluster_attributes[:last_item_at] = pm.created_at
-                updated_cluster_attributes[:team_ids] = (cluster.team_ids.to_a + [pm.team_id]).uniq.compact_blank
-                updated_cluster_attributes[:channels] = (cluster.channels.to_a + pm.channel.to_h['others'].to_a + [pm.channel.to_h['main']]).uniq.compact_blank
-                updated_cluster_attributes[:media_count] = cluster.media_count + 1
-                updated_cluster_attributes[:requests_count] = cluster.requests_count + pm.demand
-                updated_cluster_attributes[:last_request_date] = Time.at(pm.last_seen) if pm.last_seen > cluster.last_request_date.to_i
-                fact_check = pm.claim_description&.fact_check
-                unless fact_check.nil?
-                  updated_cluster_attributes[:fact_checks_count] = cluster.fact_checks_count + 1
-                  updated_cluster_attributes[:last_fact_check_date] = fact_check.updated_at if fact_check.updated_at.to_i > cluster.last_fact_check_date.to_i
+              query = { feed_id: feed.id, feed_view: 'media', show_similar: true }
+              total = CheckSearch.new(query.to_json, nil, feed.team.id).number_of_results
+              per_page = 1000
+              pages = (total / per_page.to_f).ceil
+              pages.times do |page|
+                puts "Iterating on page #{page + 1}/#{pages}"
+                CheckSearch.new(query.merge({ esoffset: (page * per_page), eslimit: per_page }).to_json, nil, feed.team.id).medias.order('created_at ASC').find_each do |pm|
+                  cluster_id = mapping[pm.media.uuid]
+                  next if cluster_id.nil?
+                  cluster = Cluster.find(cluster_id)
+                  updated_cluster_attributes = {}
+                  updated_cluster_attributes[:first_item_at] = cluster.first_item_at || pm.created_at
+                  updated_cluster_attributes[:last_item_at] = pm.created_at
+                  updated_cluster_attributes[:team_ids] = (cluster.team_ids.to_a + [pm.team_id]).uniq.compact_blank
+                  updated_cluster_attributes[:channels] = (cluster.channels.to_a + pm.channel.to_h['others'].to_a + [pm.channel.to_h['main']]).uniq.compact_blank
+                  updated_cluster_attributes[:media_count] = cluster.media_count + 1
+                  updated_cluster_attributes[:requests_count] = cluster.requests_count + pm.requests_count
+                  updated_cluster_attributes[:last_request_date] = Time.at(pm.last_seen) if pm.last_seen > cluster.last_request_date.to_i
+                  fact_check = pm.claim_description&.fact_check
+                  unless fact_check.nil?
+                    updated_cluster_attributes[:fact_checks_count] = cluster.fact_checks_count + 1
+                    updated_cluster_attributes[:last_fact_check_date] = fact_check.updated_at if fact_check.updated_at.to_i > cluster.last_fact_check_date.to_i
+                  end
+                  ClusterProjectMedia.insert!({ project_media_id: pm.id, cluster_id: cluster_id })
+                  # FIXME: Set the center of the cluster properly
+                  updated_cluster_attributes[:project_media_id] = cluster.project_media_id || pm.id
+                  cluster.update_columns(updated_cluster_attributes)
                 end
-                rows = [{ project_media_id: pm.id, cluster_id: cluster_id }]
-                Relationship.where(source_id: pm.id).where('relationship_type = ?', Relationship.confirmed_type.to_yaml).find_each do |r|
-                  rows << { project_media_id: r.target_id, cluster_id: cluster_id }
-                  updated_cluster_attributes[:media_count] += 1
-                end
-                ClusterProjectMedia.insert_all(rows)
-                # FIXME: Set the center of the cluster properly
-                updated_cluster_attributes[:project_media_id] = cluster.project_media_id || pm.id
-                cluster.update_columns(updated_cluster_attributes)
               end
               Team.current = nil
 
               # Delete old clusters
               Cluster.where(feed_id: feed.id).where('id <= ?', last_old_cluster_id).delete_all unless last_old_cluster_id.nil?
+
+              feed.update_column(:last_clusterized_at, Time.now)
             end
             puts "Rebuilding clusters for feed #{feed.name} took #{Time.now.to_f - started_at} seconds."
           rescue Errno::ENOENT
