@@ -335,6 +335,18 @@ class PopulatedWorkspaces
     end
   end
 
+  def suggest_relationships
+    teams.each_value do |team|
+      project_medias = team.project_medias
+
+      suggested_relationship(project_medias[8], project_medias[14..19])
+    end
+  end
+
+  def teams_project_medias
+    @teams_project_medias ||= teams.transform_values { |team| team.project_medias }
+  end
+
   private
 
   def title_from_link(link)
@@ -446,6 +458,8 @@ begin
   populated_workspaces.share_feeds
   puts 'Making Confirmed Relationships between items...'
   populated_workspaces.confirm_relationships
+  puts 'Making Suggested Relationships between items...'
+  populated_workspaces.suggest_relationships
   puts 'Publishing half of each user\'s Fact Checks...'
   populated_workspaces.publish_fact_checks
 rescue RuntimeError => e
