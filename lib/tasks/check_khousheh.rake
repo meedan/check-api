@@ -2,6 +2,8 @@ ActiveRecord::Base.logger = nil
 namespace :check do
   namespace :khousheh do
 
+    PER_PAGE = 1000
+
     # docker-compose exec -e elasticsearch_log=0 api bundle exec rake check:khousheh:upload
     desc 'Generate input files and upload to S3'
     task upload: :environment do |_t, args|
@@ -11,22 +13,27 @@ namespace :check do
           puts "Uploading feed #{feed.name}"
           output = { call_id: feed.uuid, nodes: [], edges: [] }
           Team.current = feed.team
-          CheckSearch.new({ feed_id: feed.id, feed_view: 'media' }.to_json, nil, feed.team.id).medias.find_each do |pm|
-            print '.'
-            output[:nodes] << pm.media.uuid.to_s unless output[:nodes].include?(pm.media.uuid.to_s)
-            Relationship.where(source_id: pm.id).where('relationship_type = ?', Relationship.confirmed_type.to_yaml).find_each do |r|
-              begin
-                next if r.source.media.is_a?(Blank) || r.target.media.is_a?(Blank)
-                output[:edges] << [r.source.media.uuid.to_s, r.target.media.uuid.to_s, r.weight]
-              rescue StandardError => e
-                puts "WARNING: Ignoring corrupted relationship with ID #{r.id} (exception: #{e.message})"
+          query = { feed_id: feed.id, feed_view: 'media', show_similar: false }
+          total = CheckSearch.new(query.to_json, nil, feed.team.id).number_of_results
+          pages = (total / PER_PAGE.to_f).ceil
+          pages.times do |page|
+            CheckSearch.new(query.merge({ esoffset: (page * PER_PAGE), eslimit: PER_PAGE }).to_json, nil, feed.team.id).medias.order('created_at ASC').find_each do |pm|
+              print '.'
+              output[:nodes] << pm.media.uuid.to_s unless output[:nodes].include?(pm.media.uuid.to_s)
+              Relationship.where(source_id: pm.id).where('relationship_type = ?', Relationship.confirmed_type.to_yaml).find_each do |r|
+                begin
+                  next if r.source.media.is_a?(Blank) || r.target.media.is_a?(Blank)
+                  output[:edges] << [r.source.media.uuid.to_s, r.target.media.uuid.to_s, r.weight]
+                rescue StandardError => e
+                  puts "WARNING: Ignoring corrupted relationship with ID #{r.id} (exception: #{e.message})"
+                end
               end
             end
+            puts "Done for page #{page + 1}/#{pages}"
           end
           file = File.open(File.join(Rails.root, 'tmp', "feed-#{feed.uuid}.json"), 'w+')
           file.puts output.to_json
           file.close
-          puts
           Team.current = nil
           # FIXME: Upload to S3
         end
@@ -61,11 +68,10 @@ namespace :check do
               Team.current = feed.team
               query = { feed_id: feed.id, feed_view: 'media', show_similar: true }
               total = CheckSearch.new(query.to_json, nil, feed.team.id).number_of_results
-              per_page = 1000
-              pages = (total / per_page.to_f).ceil
+              pages = (total / PER_PAGE.to_f).ceil
               pages.times do |page|
                 puts "Iterating on page #{page + 1}/#{pages}"
-                CheckSearch.new(query.merge({ esoffset: (page * per_page), eslimit: per_page }).to_json, nil, feed.team.id).medias.order('created_at ASC').find_each do |pm|
+                CheckSearch.new(query.merge({ esoffset: (page * PER_PAGE), eslimit: PER_PAGE }).to_json, nil, feed.team.id).medias.order('created_at ASC').find_each do |pm|
                   cluster_id = mapping[pm.media.uuid]
                   next if cluster_id.nil?
                   cluster = Cluster.find(cluster_id)
