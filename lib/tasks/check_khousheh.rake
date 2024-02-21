@@ -7,6 +7,7 @@ namespace :check do
     # docker-compose exec -e elasticsearch_log=0 api bundle exec rake check:khousheh:upload
     desc 'Generate input files and upload to S3'
     task upload: :environment do |_t, args|
+      started = Time.now.to_i
       Feed.find_each do |feed|
         # Only feeds that are sharing media
         if feed.data_points.to_a.include?(2)
@@ -38,11 +39,14 @@ namespace :check do
           # FIXME: Upload to S3
         end
       end
+      minutes = ((Time.now.to_i - started) / 60).to_i
+      puts "[#{Time.now}] Done in #{minutes} minutes."
     end
 
     # docker-compose exec -e elasticsearch_log=0 api bundle exec rake check:khousheh:download
     desc 'Download output files from S3 and recreate clusters'
     task download: :environment do |_t, args|
+      started = Time.now.to_i
       # FIXME: Download from S3
       Feed.find_each do |feed|
         # Only feeds that are sharing media
@@ -71,11 +75,14 @@ namespace :check do
               pages = (total / PER_PAGE.to_f).ceil
               pages.times do |page|
                 puts "Iterating on page #{page + 1}/#{pages}"
+                cpm_items = []
+                cluster_items = []
                 CheckSearch.new(query.merge({ esoffset: (page * PER_PAGE), eslimit: PER_PAGE }).to_json, nil, feed.team.id).medias.order('created_at ASC').find_each do |pm|
                   cluster_id = mapping[pm.media.uuid]
                   next if cluster_id.nil?
                   cluster = Cluster.find(cluster_id)
                   updated_cluster_attributes = {}
+                  updated_cluster_attributes[:id] = cluster.id
                   updated_cluster_attributes[:first_item_at] = cluster.first_item_at || pm.created_at
                   updated_cluster_attributes[:last_item_at] = pm.created_at
                   updated_cluster_attributes[:team_ids] = (cluster.team_ids.to_a + [pm.team_id]).uniq.compact_blank
@@ -88,11 +95,14 @@ namespace :check do
                     updated_cluster_attributes[:fact_checks_count] = cluster.fact_checks_count + 1
                     updated_cluster_attributes[:last_fact_check_date] = fact_check.updated_at if fact_check.updated_at.to_i > cluster.last_fact_check_date.to_i
                   end
-                  ClusterProjectMedia.insert!({ project_media_id: pm.id, cluster_id: cluster_id })
                   # FIXME: Set the center of the cluster properly
                   updated_cluster_attributes[:project_media_id] = cluster.project_media_id || pm.id
-                  cluster.update_columns(updated_cluster_attributes)
+                  cluster_items << updated_cluster_attributes
                 end
+                # Bulk-insert ClusterProjectMedia
+                ClusterProjectMedia.insert_all(cpm_items) unless cpm_items.blank?
+                # Bulk-update Cluster
+                Cluster.upsert_all(cluster_items, unique_by: :id) unless cluster_items.blank?
               end
               Team.current = nil
 
@@ -107,6 +117,8 @@ namespace :check do
           end
         end
       end
+      minutes = ((Time.now.to_i - started) / 60).to_i
+      puts "[#{Time.now}] Done in #{minutes} minutes."
     end
   end
 end
