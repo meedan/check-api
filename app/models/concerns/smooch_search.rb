@@ -20,10 +20,10 @@ module SmoochSearch
           self.bundle_messages(uid, '', app_id, 'default_requests', nil, true)
           self.send_final_message_to_user(uid, self.get_custom_string('search_no_results', language), workflow, language, 'no_results')
         else
-          self.send_search_results_to_user(uid, results, team_id)
+          self.send_search_results_to_user(uid, results, team_id, platform)
           sm.go_to_search_result
           self.save_search_results_for_user(uid, results.map(&:id))
-          self.delay_for(1.second, { queue: 'smooch_priority' }).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, 1)
+          self.delay_for(1.second, { queue: 'smooch_priority' }).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, provider, 1)
         end
       rescue StandardError => e
         self.handle_search_error(uid, e, language)
@@ -217,7 +217,7 @@ module SmoochSearch
       results
     end
 
-    def send_search_results_to_user(uid, results, team_id)
+    def send_search_results_to_user(uid, results, team_id, platform)
       team = Team.find(team_id)
       redis = Redis.new(REDIS_CONFIG)
       language = self.get_user_language(uid)
@@ -230,7 +230,8 @@ module SmoochSearch
       end
       reports.reject{ |r| r.blank? }.each do |report|
         response = nil
-        response = self.send_message_to_user(uid, report.report_design_text, {}, false, true, 'search_result') if report.report_design_field_value('use_text_message')
+        no_body = (platform == 'Facebook Messenger')
+        response = self.send_message_to_user(uid, report.report_design_text(nil, no_body), {}, false, true, 'search_result') if report.report_design_field_value('use_text_message')
         response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url }, false, true, 'search_result') if !report.report_design_field_value('use_text_message') && report.report_design_field_value('use_visual_card')
         id = self.get_id_from_send_response(response)
         redis.rpush("smooch:search:#{uid}", id) unless id.blank?
@@ -244,16 +245,17 @@ module SmoochSearch
       redis.lrem("smooch:search:#{uid}", 0, id) if redis.exists("smooch:search:#{uid}") == 1
     end
 
-    def ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, attempts)
+    def ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, provider, attempts)
       RequestStore.store[:smooch_bot_platform] = platform
       redis = Redis.new(REDIS_CONFIG)
       max = 20
       if redis.llen("smooch:search:#{uid}") == 0 && CheckStateMachine.new(uid).state.value == 'search_result'
         self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
+        RequestStore.store[:smooch_bot_provider] = provider unless provider.blank?
         self.send_message_for_state(uid, workflow, 'search_result', language)
       else
         redis.del("smooch:search:#{uid}") if (attempts + 1) == max # Give up and just ask for feedback on the last iteration
-        self.delay_for(1.second, { queue: 'smooch_priority' }).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, attempts + 1) if attempts < max # Try for 20 seconds
+        self.delay_for(1.second, { queue: 'smooch_priority' }).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, provider, attempts + 1) if attempts < max # Try for 20 seconds
       end
     end
   end
