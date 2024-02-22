@@ -4,15 +4,15 @@ namespace :check do
 
     PER_PAGE = 2000
 
-    # docker-compose exec -e elasticsearch_log=0 api bundle exec rake check:khousheh:upload
-    desc 'Generate input files and upload to S3'
-    task upload: :environment do |_t, args|
+    # docker-compose exec -e elasticsearch_log=0 api bundle exec rake check:khousheh:generate_input_file
+    desc 'Generate input files in json format'
+    task generate_input_file: :environment do
       started = Time.now.to_i
       sort = [{ annotated_id: { order: :asc } }]
       Feed.find_each do |feed|
         # Only feeds that are sharing media
         if feed.data_points.to_a.include?(2)
-          puts "Uploading feed #{feed.name}"
+          puts "Generating input file for feed #{feed.name}"
           output = { call_id: feed.uuid, nodes: [], edges: [] }
           Team.current = feed.team
           query = { feed_id: feed.id, feed_view: 'media', show_similar: false }
@@ -43,7 +43,7 @@ namespace :check do
               spm_m_mapping = {}
               tpm_m_mapping = {}
               target_ids = relations.map(&:target_id)
-              # Get items without Blank items
+              # Get ProjectMedia items without Blank medias
               ProjectMedia.where(id: target_ids).joins(:media).where.not('medias.type': 'Blank').find_each{ |pm| tpm_m_mapping[pm.id] = pm.media_id }
               ProjectMedia.where(id: pm_ids).joins(:media).where.not('medias.type': 'Blank').find_each{ |pm| spm_m_mapping[pm.id] = pm.media_id }
               t_uuid = {}
@@ -65,18 +65,53 @@ namespace :check do
           file.puts output.to_json
           file.close
           Team.current = nil
-          # FIXME: Upload to S3
         end
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
 
-    # docker-compose exec -e elasticsearch_log=0 api bundle exec rake check:khousheh:download
-    desc 'Download output files from S3 and recreate clusters'
-    task download: :environment do |_t, args|
+    # docker-compose exec -e elasticsearch_log=0 api bundle exec rake check:khousheh:upload
+    desc 'Upload json file to S3'
+    task upload: :environment do
       started = Time.now.to_i
-      # FIXME: Download from S3
+      bucket_name = ENV.fetch('CLUSTER_INPUT_BUCKET')
+      region = 'eu-west-1'
+      begin
+        s3_client = Aws::S3::Client.new(region: region)
+      rescue Aws::Sigv4::Errors::MissingCredentialsError
+        puts 'Please provide the AWS credentials.'
+        exit 1
+      end
+      Feed.find_each do |feed|
+        # Only feeds that are sharing media
+        if feed.data_points.to_a.include?(2)
+          filename = "feed-#{feed.uuid}.json"
+          filepath = File.join(Rails.root, 'tmp', filename)
+          begin
+            response = s3_client.put_object(
+              bucket: bucket_name,
+              key: object_key,
+              body: File.read(file_path)
+            )
+            if response.etag
+              puts "Uploaded #{filename}."
+            else
+              puts "Error uploading #{filename} to S3. Check credentials?"
+            end
+          rescue StandardError => e
+            puts "Error uploading S3 object: #{e.message}"
+          end
+        end
+      end
+      minutes = ((Time.now.to_i - started) / 60).to_i
+      puts "[#{Time.now}] Done in #{minutes} minutes."
+    end
+
+    # docker-compose exec -e elasticsearch_log=0 api bundle exec rake check:khousheh:parse_output_file
+    desc 'Parse output file(json format) and recreate clusters'
+    task parse_output_file: :environment do
+      started = Time.now.to_i
       Feed.find_each do |feed|
         # Only feeds that are sharing media
         if feed.data_points.to_a.include?(2)
@@ -86,7 +121,6 @@ namespace :check do
             clusters = JSON.parse(File.read(File.join(Rails.root, 'tmp', "#{feed.uuid}.json")))
             started_at = Time.now.to_f
             Cluster.transaction do
-
               # Create clusters
               mapping = {} # Media ID => Cluster ID
               clusters.each do |media_ids|
@@ -96,7 +130,6 @@ namespace :check do
                   mapping[media_id.to_i] = cluster_id
                 end
               end
-
               # Add items to clusters
               Team.current = feed.team
               query = { feed_id: feed.id, feed_view: 'media', show_similar: true }
@@ -134,10 +167,8 @@ namespace :check do
                 Cluster.upsert_all(cluster_items, unique_by: :id) unless cluster_items.blank?
               end
               Team.current = nil
-
               # Delete old clusters
               Cluster.where(feed_id: feed.id).where('id <= ?', last_old_cluster_id).delete_all unless last_old_cluster_id.nil?
-
               feed.update_column(:last_clusterized_at, Time.now)
             end
             puts "Rebuilding clusters for feed #{feed.name} took #{Time.now.to_f - started_at} seconds."
@@ -146,6 +177,14 @@ namespace :check do
           end
         end
       end
+      minutes = ((Time.now.to_i - started) / 60).to_i
+      puts "[#{Time.now}] Done in #{minutes} minutes."
+    end
+
+    # docker-compose exec -e elasticsearch_log=0 api bundle exec rake check:khousheh:download
+    desc 'Download json file from S3'
+    task download: :environment do
+      started = Time.now.to_i
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
