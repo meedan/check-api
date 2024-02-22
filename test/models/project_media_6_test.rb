@@ -142,40 +142,6 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     assert_equal p.id, result['project_id']
   end
 
-  test "should get cluster size" do
-    pm = create_project_media
-    assert_nil pm.reload.cluster
-    c = create_cluster
-    c.project_medias << pm
-    assert_equal 1, pm.reload.cluster.size
-    c.project_medias << create_project_media
-    assert_equal 2, pm.reload.cluster.size
-  end
-
-  test "should get cluster teams" do
-    RequestStore.store[:skip_cached_field_update] = false
-    setup_elasticsearch
-    t1 = create_team
-    t2 = create_team
-    pm1 = create_project_media team: t1
-    assert_nil pm1.cluster
-    c = create_cluster project_media: pm1
-    c.project_medias << pm1
-    assert_equal [t1.name], pm1.cluster.team_names.values
-    assert_equal [t1.id], pm1.cluster.team_names.keys
-    sleep 2
-    id = get_es_id(pm1)
-    es = $repository.find(id)
-    assert_equal [t1.id], es['cluster_teams']
-    pm2 = create_project_media team: t2
-    c.project_medias << pm2
-    sleep 2
-    assert_equal [t1.name, t2.name].sort, pm1.cluster.team_names.values.sort
-    assert_equal [t1.id, t2.id].sort, pm1.cluster.team_names.keys.sort
-    es = $repository.find(id)
-    assert_equal [t1.id, t2.id], es['cluster_teams']
-  end
-
   test "should complete media if there are pending tasks" do
     pm = create_project_media
     s = pm.last_verification_status_obj

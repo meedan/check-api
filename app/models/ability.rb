@@ -60,10 +60,12 @@ class Ability
     can :duplicate, Team, :id => @context_team.id
     can :set_privacy, Project, :team_id => @context_team.id
     can :read_feed_invitations, Feed, :team_id => @context_team.id
-    can [:create, :update, :read, :destroy], [Feed, FeedTeam], :team_id => @context_team.id
+    can :destroy, Feed, :team_id => @context_team.id
+    can :destroy, Cluster, { feed: { team_id: @context_team.id } }
+    can [:create, :update], FeedTeam, :team_id => @context_team.id
     can [:create, :update], FeedInvitation, { feed: { team_id: @context_team.id } }
     can :destroy, FeedTeam do |obj|
-      obj.team.id == @context_team.id || obj.feed.team.id == @context_team.id
+      obj.team_id == @context_team.id || obj.feed.team_id == @context_team.id
     end
   end
 
@@ -107,9 +109,10 @@ class Ability
     can :send, TiplineMessage do |obj|
       obj.team_id == @context_team.id
     end
-    can [:read], [Feed, FeedTeam], :team_id => @context_team.id
+    can [:read], FeedTeam, :team_id => @context_team.id
     can [:read], FeedInvitation, { feed: { team_id: @context_team.id } }
-    can [:create, :update], Feed, :team_id => @context_team.id
+    can [:read, :create, :update], Feed, :team_id => @context_team.id
+    can [:read, :create, :update], Cluster, { feed: { team_id: @context_team.id } }
   end
 
   def collaborator_perms

@@ -232,7 +232,6 @@ class QueryType < BaseObject
     bot_user
     project_group
     saved_search
-    cluster
     feed
     request
     tipline_message

@@ -249,7 +249,7 @@ class RequestTest < ActiveSupport::TestCase
     Bot::Alegre.stubs(:request).returns({})
     RequestStore.store[:skip_cached_field_update] = false
     u = create_user is_admin: true
-    f = create_feed
+    f = create_feed data_points: [1, 2], published: true
     t1 = create_team
     t2 = create_team name: 'Foo'
     t3 = create_team name: 'Bar'

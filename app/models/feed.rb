@@ -7,11 +7,12 @@ class Feed < ApplicationRecord
   has_many :feed_teams, dependent: :restrict_with_error
   has_many :teams, through: :feed_teams
   has_many :feed_invitations, dependent: :destroy
+  has_many :clusters
   belongs_to :user, optional: true
   belongs_to :saved_search, optional: true
   belongs_to :team, optional: true
 
-  before_validation :set_user_and_team, on: :create
+  before_validation :set_user_and_team, :set_uuid, on: :create
   validates_presence_of :name
   validates_presence_of :licenses, if: proc { |feed| feed.discoverable }
   validate :saved_search_belongs_to_feed_teams
@@ -26,9 +27,15 @@ class Feed < ApplicationRecord
   validates_inclusion_of :data_points, in: DATA_POINTS.keys
 
   # Filters for the whole feed: applies to all data from all teams
-  def get_feed_filters
+  def get_feed_filters(view = :fact_check) # "view" can be :fact_check or :media
     filters = {}
-    filters.merge!({ 'report_status' => ['published'] }) if self.published
+    if view.to_sym == :fact_check && self.published && self.data_points.to_a.include?(1)
+      filters.merge!({ 'report_status' => ['published'] })
+    elsif view.to_sym == :media && self.published && self.data_points.to_a.include?(2)
+      filters.merge!({}) # Show everything
+    else
+      filters.merge!({ 'report_status' => ['none'] }) # Invalidate the query
+    end
     filters
   end
 
@@ -123,6 +130,10 @@ class Feed < ApplicationRecord
     query.order(sort => sort_type).offset(args[:offset].to_i)
   end
 
+  def clusters_count
+    self.clusters.count
+  end
+
   # This takes some time to run because it involves external HTTP requests and writes to the database:
   # 1) If the query contains a media URL, it will be downloaded... if it contains some other URL, it will be sent to Pender
   # 2) Requests will be made to Alegre in order to index the request media and to look for similar requests
@@ -177,5 +188,9 @@ class Feed < ApplicationRecord
 
   def destroy_feed_team
     FeedTeam.where(feed: self, team: self.team).last.destroy!
+  end
+
+  def set_uuid
+    self.uuid = SecureRandom.uuid
   end
 end
