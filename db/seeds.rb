@@ -325,9 +325,7 @@ class PopulatedWorkspaces
   end
 
   def confirm_relationships
-    teams.each_value do |team|
-      project_medias = team.project_medias
-    
+    teams_project_medias.each_value do |project_medias|
       confirmed_relationship(project_medias[0],  project_medias[1..3])
       confirmed_relationship(project_medias[4], project_medias[5])
       confirmed_relationship(project_medias[6], project_medias[7])
@@ -336,15 +334,9 @@ class PopulatedWorkspaces
   end
 
   def suggest_relationships
-    teams.each_value do |team|
-      project_medias = team.project_medias
-
+    teams_project_medias.each_value do |project_medias|
       suggested_relationship(project_medias[8], project_medias[14..19])
     end
-  end
-
-  def teams_project_medias
-    @teams_project_medias ||= teams.transform_values { |team| team.project_medias }
   end
 
   private
@@ -433,6 +425,14 @@ class PopulatedWorkspaces
 
   def confirmed_relationship(parent, children)
     [children].flatten.each { |child| Relationship.create!(source_id: parent.id, target_id: child.id, relationship_type: Relationship.confirmed_type) }
+  end
+
+  def suggested_relationship(parent, children)
+    children.each { |child| Relationship.create!(source_id: parent.id, target_id: child.id, relationship_type: Relationship.suggested_type)}
+  end
+
+  def teams_project_medias
+    @teams_project_medias ||= teams.transform_values { |team| team.project_medias }
   end
 end
 
