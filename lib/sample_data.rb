@@ -506,6 +506,7 @@ module SampleData
     options[:skip_autocreate_source] = true unless options.has_key?(:skip_autocreate_source)
     pm.source = create_source({ team: options[:team], skip_check_ability: true }) if options[:skip_autocreate_source]
     pm.save!
+    create_cluster_project_media({ cluster: options[:cluster], project_media: pm}) if options[:cluster]
     pm.reload
   end
 
@@ -861,8 +862,23 @@ module SampleData
   end
 
   def create_cluster(options = {})
-    options[:project_media] = create_project_media unless options.has_key?(:project_media)
-    Cluster.create!(options)
+    team = options[:project_media]&.team || create_team
+    options[:feed] = options[:feed] || create_feed({ team: team })
+    c = Cluster.new
+    options.each do |key, value|
+      c.send("#{key}=", value) if c.respond_to?("#{key}=")
+    end
+    c.save!
+    # Add item to cluster
+    create_cluster_project_media({ cluster: c, project_media: options[:project_media] }) if options[:project_media]
+    c.reload
+  end
+
+  def create_cluster_project_media(options = {})
+    ClusterProjectMedia.create!({
+      cluster: options[:cluster] || create_cluster,
+      project_media: options[:project_media] || create_project_media
+    }.merge(options))
   end
 
   def create_claim_description(options = {})
@@ -887,7 +903,7 @@ module SampleData
   def create_feed(options = {})
     Feed.create!({
       name: random_string,
-      team: create_team,
+      team: options[:team] || create_team,
       licenses: [1],
     }.merge(options))
   end

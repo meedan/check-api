@@ -203,4 +203,9 @@ class FeedTest < ActiveSupport::TestCase
       create_feed data_points: [0, 1]
     end
   end
+
+  test "should not apply filters when medias are shared" do
+    f = create_feed data_points: [2], published: true
+    assert_equal({}, f.get_feed_filters(:media))
+  end
 end
