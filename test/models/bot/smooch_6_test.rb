@@ -505,7 +505,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     redis = Redis.new(REDIS_CONFIG)
     redis.rpush("smooch:search:#{uid}", id)
     assert_equal 1, redis.llen("smooch:search:#{uid}")
-    Bot::Smooch.ask_for_feedback_when_all_search_results_are_received(@app_id, 'en', {}, uid, 'WhatsApp', 1)
+    Bot::Smooch.ask_for_feedback_when_all_search_results_are_received(@app_id, 'en', {}, uid, 'WhatsApp', 'ZENDESK', 1)
     Sidekiq::Testing.inline! do
       payload = {
         trigger: 'message:delivery:channel',
@@ -522,7 +522,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
         }
       }.to_json
       assert Bot::Smooch.run(payload)
-      Bot::Smooch.ask_for_feedback_when_all_search_results_are_received(@app_id, 'en', {}, uid, 'WhatsApp', 1)
+      Bot::Smooch.ask_for_feedback_when_all_search_results_are_received(@app_id, 'en', {}, uid, 'WhatsApp', 'ZENDESK', 1)
       assert_equal 0, redis.llen("smooch:search:#{uid}")
     end
   end
@@ -683,7 +683,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     redis.rpush("smooch:search:#{uid}", id)
     assert_equal 1, redis.llen("smooch:search:#{uid}")
     Sidekiq::Testing.inline! do
-      Bot::Smooch.ask_for_feedback_when_all_search_results_are_received(@app_id, 'en', {}, uid, 'WhatsApp', 1)
+      Bot::Smooch.ask_for_feedback_when_all_search_results_are_received(@app_id, 'en', {}, uid, 'WhatsApp', 'ZENDESK', 1)
     end
     assert_equal 0, redis.llen("smooch:search:#{uid}")
   end
