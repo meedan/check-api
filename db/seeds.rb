@@ -84,35 +84,22 @@ class Setup
   end
 
   def get_users_emails_and_passwords
-    created = user_emails.zip(user_passwords)
-    if existing_user_email
-      created = created[1..]
-    end
-    created.flatten
+    login_credentials = user_emails.zip(user_passwords)
+    if existing_user_email && teams.size > 1
+      login_credentials[1..]
+    elsif existing_user_email && teams.size == 1
+      ['Added to a user, and did not create any new users.']
+    elsif teams.size == 1
+      login_credentials[0]
+    else
+      login_credentials
+    end.flatten
   end
 
   def users
     @users ||= begin
-
-      all_users = {
-        invited_user_b:
-        {
-          name: user_names[1] + ' [b / invited user]',
-          login: user_names[1] + ' [b / invited user]',
-          email: user_emails[1],
-          password: user_passwords[1],
-          password_confirmation: user_passwords[1]
-        },
-        invited_user_c:
-        {
-          name: user_names[2] + ' [c / invited user]',
-          login: user_names[2] + ' [c / invited user]',
-          email: user_emails[2],
-          password: user_passwords[2],
-          password_confirmation: user_passwords[2]
-        }
-      }.transform_values { |params| User.create!(params) }
-
+      all_users = {}
+      all_users.merge!(invited_users)
       all_users[:main_user_a] = main_user_a
       all_users.each_value { |user| user.confirm && user.save! }
       all_users
@@ -121,28 +108,8 @@ class Setup
 
   def teams
     @teams ||= begin
-    
-      all_teams = {
-        invited_team_b1:
-        {
-          name: "#{team_names[1]} / [b] Invited User: Team #1",
-          slug: Team.slug_from_name(team_names[1]),
-          logo: open_file('maçã.png')
-        },
-        invited_team_b2:
-        {
-          name: "#{team_names[2]} / [b] Invited User: Team #2",
-          slug: Team.slug_from_name(team_names[2]),
-          logo: open_file('ruby-small.png')
-        },
-        invited_team_c:
-        {
-          name: "#{team_names[3]} / [c] Invited User: Team #1",
-          slug: Team.slug_from_name(team_names[3]),
-          logo: open_file('maçã.png')
-        }
-      }.transform_values { |t| Team.create!(t) }
-
+      all_teams = {}
+      all_teams.merge!(invited_teams)
       all_teams[:main_team_a] = main_team_a
       all_teams
     end
@@ -176,27 +143,73 @@ class Setup
     end
   end
 
-  def team_users
-    [
+  def invited_users
+    {
+      invited_user_b:
       {
-        team: teams[:invited_team_b1],
-        user: users[:invited_user_b],
-        role: 'admin',
-        status: 'member'
+        name: user_names[1] + ' [b / invited user]',
+        login: user_names[1] + ' [b / invited user]',
+        email: user_emails[1],
+        password: user_passwords[1],
+        password_confirmation: user_passwords[1]
       },
+      invited_user_c:
       {
-        team: teams[:invited_team_b2],
-        user: users[:invited_user_b],
-        role: 'admin',
-        status: 'member'
-      },
-      {
-        team: teams[:invited_team_c],
-        user: users[:invited_user_c],
-        role: 'admin',
-        status: 'member'
+        name: user_names[2] + ' [c / invited user]',
+        login: user_names[2] + ' [c / invited user]',
+        email: user_emails[2],
+        password: user_passwords[2],
+        password_confirmation: user_passwords[2]
       }
-    ].each { |params| TeamUser.create!(params) }
+    }.transform_values { |params| User.create!(params) }
+  end
+
+  def invited_teams
+    {
+      invited_team_b1:
+      {
+        name: "#{team_names[1]} / [b] Invited User: Team #1",
+        slug: Team.slug_from_name(team_names[1]),
+        logo: open_file('maçã.png')
+      },
+      invited_team_b2:
+      {
+        name: "#{team_names[2]} / [b] Invited User: Team #2",
+        slug: Team.slug_from_name(team_names[2]),
+        logo: open_file('ruby-small.png')
+      },
+      invited_team_c:
+      {
+        name: "#{team_names[3]} / [c] Invited User: Team #1",
+        slug: Team.slug_from_name(team_names[3]),
+        logo: open_file('maçã.png')
+      }
+    }.transform_values { |t| Team.create!(t) }
+  end
+
+  def team_users
+    if teams.size > 1
+      [
+        {
+          team: teams[:invited_team_b1],
+          user: users[:invited_user_b],
+          role: 'admin',
+          status: 'member'
+        },
+        {
+          team: teams[:invited_team_b2],
+          user: users[:invited_user_b],
+          role: 'admin',
+          status: 'member'
+        },
+        {
+          team: teams[:invited_team_c],
+          user: users[:invited_user_c],
+          role: 'admin',
+          status: 'member'
+        }
+      ].each { |params| TeamUser.create!(params) }
+    end
 
     main_team_a_team_user
   end
@@ -216,17 +229,18 @@ class PopulatedWorkspaces
 
   private
 
-  attr_reader :teams, :users
+  attr_reader :teams, :users, :invited_teams
 
   public
 
   def initialize(setup)
     @teams = setup.teams
     @users = setup.users
+    @invited_teams = teams.size > 1
   end
 
   def populate_projects
-    projects_params = [
+    projects_params_main_user_a = 
       {
         title: "#{teams[:main_team_a][:name]} / [a] Main User: Main Team",
         user: users[:main_user_a],
@@ -244,70 +258,76 @@ class PopulatedWorkspaces
             }
           }
         }
-      },
-      {
-        title: "#{teams[:invited_team_b1][:name]} / [b] Invited User: Project Team #1",
-        user: users[:invited_user_b],
-        team: teams[:invited_team_b1],
-        project_medias_attributes: CLAIMS_PARAMS.map.with_index { |media_params, index|
-          {
-            media_attributes: media_params,
-            user: users[:invited_user_b],
-            team: teams[:invited_team_b1],
-            claim_description_attributes: {
-              description: claim_title(media_params),
-              context: Faker::Lorem.sentence,
-              user: users[:invited_user_b],
-              fact_check_attributes: fact_check_params_for_half_the_claims(index, users[:invited_user_b]),
-            }
-          }
-        }
-      },
-      {
-        title: "#{teams[:invited_team_b2][:name]} / [b] Invited User: Project Team #2",
-        user: users[:invited_user_b],
-        team: teams[:invited_team_b2],
-        project_medias_attributes: CLAIMS_PARAMS.map.with_index { |media_params, index|
-          {
-            media_attributes: media_params,
-            user: users[:invited_user_b],
-            team: teams[:invited_team_b2],
-            claim_description_attributes: {
-              description: claim_title(media_params),
-              context: Faker::Lorem.sentence,
-              user: users[:invited_user_b],
-              fact_check_attributes: fact_check_params_for_half_the_claims(index, users[:invited_user_b]),
-            }
-          }
-        }
-      },
-      {
-        title: "#{teams[:invited_team_c][:name]} / [c] Invited User: Project Team #1",
-        user: users[:invited_user_c],
-        team: teams[:invited_team_c],
-        project_medias_attributes: CLAIMS_PARAMS.map.with_index { |media_params, index|
-          {
-            media_attributes: media_params,
-            user: users[:invited_user_c],
-            team: teams[:invited_team_c],
-            claim_description_attributes: {
-              description: claim_title(media_params),
-              context: Faker::Lorem.sentence,
-              user: users[:invited_user_c],
-              fact_check_attributes: fact_check_params_for_half_the_claims(index, users[:invited_user_c]),
-            }
-          }
-        }
       }
-    ]
 
-    projects_params.each { |params| Project.create!(params) }
+    Project.create!(projects_params_main_user_a)
+
+    if invited_teams
+      project_params_invited_users = 
+      [
+        {
+          title: "#{teams[:invited_team_b1][:name]} / [b] Invited User: Project Team #1",
+          user: users[:invited_user_b],
+          team: teams[:invited_team_b1],
+          project_medias_attributes: CLAIMS_PARAMS.map.with_index { |media_params, index|
+            {
+              media_attributes: media_params,
+              user: users[:invited_user_b],
+              team: teams[:invited_team_b1],
+              claim_description_attributes: {
+                description: claim_title(media_params),
+                context: Faker::Lorem.sentence,
+                user: users[:invited_user_b],
+                fact_check_attributes: fact_check_params_for_half_the_claims(index, users[:invited_user_b]),
+              }
+            }
+          }
+        },
+        {
+          title: "#{teams[:invited_team_b2][:name]} / [b] Invited User: Project Team #2",
+          user: users[:invited_user_b],
+          team: teams[:invited_team_b2],
+          project_medias_attributes: CLAIMS_PARAMS.map.with_index { |media_params, index|
+            {
+              media_attributes: media_params,
+              user: users[:invited_user_b],
+              team: teams[:invited_team_b2],
+              claim_description_attributes: {
+                description: claim_title(media_params),
+                context: Faker::Lorem.sentence,
+                user: users[:invited_user_b],
+                fact_check_attributes: fact_check_params_for_half_the_claims(index, users[:invited_user_b]),
+              }
+            }
+          }
+        },
+        {
+          title: "#{teams[:invited_team_c][:name]} / [c] Invited User: Project Team #1",
+          user: users[:invited_user_c],
+          team: teams[:invited_team_c],
+          project_medias_attributes: CLAIMS_PARAMS.map.with_index { |media_params, index|
+            {
+              media_attributes: media_params,
+              user: users[:invited_user_c],
+              team: teams[:invited_team_c],
+              claim_description_attributes: {
+                description: claim_title(media_params),
+                context: Faker::Lorem.sentence,
+                user: users[:invited_user_c],
+                fact_check_attributes: fact_check_params_for_half_the_claims(index, users[:invited_user_c]),
+              }
+            }
+          }
+        }
+      ]
+
+      project_params_invited_users.each { |params| Project.create!(params) }
+    end
   end
 
   def publish_fact_checks
     users.each_value do |user|
       fact_checks = FactCheck.where(user: user).last(10)
-      # publish only half of fact checks
       fact_checks[0, fact_checks.size/2].each { |fact_check| verify_fact_check_and_publish_report(fact_check.project_media)}
     end
   end
@@ -317,6 +337,7 @@ class PopulatedWorkspaces
   end
 
   def share_feeds
+    return unless invited_teams
     invited_users = [ users[:invited_user_b], users[:invited_user_c] ]
     main_team_a_saved_search = SavedSearch.where(team: teams[:main_team_a]).first
 
@@ -454,7 +475,7 @@ begin
   populated_workspaces.populate_projects
   puts 'Creating saved searches for all teams...'
   populated_workspaces.saved_searches
-  puts 'Making and inviting to Shared Feed...'
+  puts 'Making and inviting to Shared Feed... (won\'t run if you are not creating any invited users)'
   populated_workspaces.share_feeds
   puts 'Making Confirmed Relationships between items...'
   populated_workspaces.confirm_relationships
