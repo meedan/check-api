@@ -1,6 +1,6 @@
 ActiveRecord::Base.logger = nil
 namespace :check do
-  namespace :khousheh do
+  namespace :khoushehSawy do
 
     PER_PAGE = 2000
 
@@ -15,9 +15,10 @@ namespace :check do
           puts "Uploading feed #{feed.name}"
           output = { call_id: feed.uuid, nodes: [], edges: [] }
           Team.current = feed.team
-          query = { feed_id: feed.id, feed_view: 'media', show_similar: false }
+          query = { feed_id: feed.id, feed_team_ids: [7882], feed_view: 'media', show_similar: false }
           es_query = CheckSearch.new(query.to_json).medias_query
           total = CheckSearch.new(query.to_json, nil, feed.team.id).number_of_results
+          puts "Total number: #{total} -- per-page: #{PER_PAGE}"
           pages = (total / PER_PAGE.to_f).ceil
           search_after = [0]
           page = 0
@@ -25,11 +26,12 @@ namespace :check do
             page += 1
             result = $repository.search(_source: 'annotated_id', query: es_query, sort: sort, search_after: search_after, size: PER_PAGE).results
             pm_ids = result.collect{ |i| i['annotated_id'] }.uniq
+            puts "Page: #{page} -- Count: #{pm_ids.count}"
             break if pm_ids.empty?
             pm_media_mapping = {}
             uuid = {}
             ProjectMedia.where(id: pm_ids).find_in_batches(:batch_size => PER_PAGE) do |pms|
-              # Collect media uuid
+              print '.'
               pms.each{|pm| pm_media_mapping[pm.id] = pm.media_id }
               Media.where(id: pms.map(&:media_id)).find_each{|m| uuid[m.id] = m.uuid.to_s }
             end
@@ -40,10 +42,10 @@ namespace :check do
 
             Relationship.where(source_id: pm_ids).where('relationship_type = ?', Relationship.confirmed_type.to_yaml)
             .find_in_batches(:batch_size => PER_PAGE) do |relations|
+              print '.'
               spm_m_mapping = {}
               tpm_m_mapping = {}
               target_ids = relations.map(&:target_id)
-              # Get items without Blank items
               ProjectMedia.where(id: target_ids).joins(:media).where.not('medias.type': 'Blank').find_each{ |pm| tpm_m_mapping[pm.id] = pm.media_id }
               ProjectMedia.where(id: pm_ids).joins(:media).where.not('medias.type': 'Blank').find_each{ |pm| spm_m_mapping[pm.id] = pm.media_id }
               t_uuid = {}
@@ -58,14 +60,15 @@ namespace :check do
                 end
               end
             end
-            search_after = [pm_ids.max]
+            search_after = [pm_ids.max] 
             puts "Done for page #{page}/#{pages}"
           end
-          file = File.open(File.join(Rails.root, 'tmp', "feed-#{feed.uuid}.json"), 'w+')
+          file = File.open(File.join(Rails.root, 'tmp', "feed-sawy-#{feed.uuid}.json"), 'w+')
           file.puts output.to_json
           file.close
           Team.current = nil
           # FIXME: Upload to S3
+          puts "Node count:: #{output[:nodes].count} -- uniq: #{output[:nodes].uniq.count}"
         end
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
@@ -75,7 +78,6 @@ namespace :check do
     # docker-compose exec -e elasticsearch_log=0 api bundle exec rake check:khousheh:download
     desc 'Download output files from S3 and recreate clusters'
     task download: :environment do |_t, args|
-      started = Time.now.to_i
       # FIXME: Download from S3
       Feed.find_each do |feed|
         # Only feeds that are sharing media
@@ -124,14 +126,17 @@ namespace :check do
                     updated_cluster_attributes[:fact_checks_count] = cluster.fact_checks_count + 1
                     updated_cluster_attributes[:last_fact_check_date] = fact_check.updated_at if fact_check.updated_at.to_i > cluster.last_fact_check_date.to_i
                   end
+                  cpm_items << { project_media_id: pm.id, cluster_id: cluster_id }
+                  # ClusterProjectMedia.insert!({ project_media_id: pm.id, cluster_id: cluster_id })
                   # FIXME: Set the center of the cluster properly
                   updated_cluster_attributes[:project_media_id] = cluster.project_media_id || pm.id
                   cluster_items << updated_cluster_attributes
+                  # cluster.update_columns(updated_cluster_attributes)
                 end
                 # Bulk-insert ClusterProjectMedia
                 ClusterProjectMedia.insert_all(cpm_items) unless cpm_items.blank?
                 # Bulk-update Cluster
-                Cluster.upsert_all(cluster_items, unique_by: :id) unless cluster_items.blank?
+                Book.upsert_all(cluster_items, unique_by: :id) unless cluster_items.blank?
               end
               Team.current = nil
 
@@ -146,8 +151,6 @@ namespace :check do
           end
         end
       end
-      minutes = ((Time.now.to_i - started) / 60).to_i
-      puts "[#{Time.now}] Done in #{minutes} minutes."
     end
   end
 end
