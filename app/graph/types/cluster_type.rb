@@ -8,8 +8,13 @@ class ClusterType < DefaultObject
   field :channels, [GraphQL::Types::Int, null: true], null: true
   field :media_count, GraphQL::Types::Int, null: true
   field :requests_count, GraphQL::Types::Int, null: true
-  field :fact_checks_count, GraphQL::Types::Int, null: true
   field :title, GraphQL::Types::String, null: true
+
+  field :fact_checks_count, GraphQL::Types::Int, null: true
+
+  def fact_checks_count
+    object.feed.data_points.to_a.include?(1) ? object.fact_checks_count : nil
+  end
 
   field :center, ProjectMediaType, null: true
 

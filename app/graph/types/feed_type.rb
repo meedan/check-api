@@ -58,13 +58,13 @@ class FeedType < DefaultObject
 
   field :clusters, ClusterType.connection_type, null: true do
     argument :offset, GraphQL::Types::Int, required: false, default_value: 0
-    argument :sort, GraphQL::Types::String, required: false, default_value: 'id'
-    argument :sort_type, GraphQL::Types::String, required: false, camelize: false, default_value: 'DESC'
+    argument :sort, GraphQL::Types::String, required: false, default_value: 'title'
+    argument :sort_type, GraphQL::Types::String, required: false, camelize: false, default_value: 'ASC'
   end
 
   def clusters(offset:, sort:, sort_type:)
-    order = [:id, :media_count, :requests_count, :fact_checks_count, :last_request_date, :last_fact_check_date, :last_item_at, :first_item_at].include?(sort.downcase.to_sym) ? sort.downcase.to_sym : :id
-    order_type = sort_type.downcase.to_sym == :asc ? :asc : :desc
+    order = [:title, :media_count, :requests_count, :fact_checks_count, :last_request_date].include?(sort.downcase.to_sym) ? sort.downcase.to_sym : :title
+    order_type = sort_type.downcase.to_sym == :desc ? :desc : :asc
     object.clusters.offset(offset).order(order => order_type)
   end
 end
