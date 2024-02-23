@@ -9,6 +9,7 @@ class ClusterType < DefaultObject
   field :media_count, GraphQL::Types::Int, null: true
   field :requests_count, GraphQL::Types::Int, null: true
   field :fact_checks_count, GraphQL::Types::Int, null: true
+  field :title, GraphQL::Types::String, null: true
 
   field :center, ProjectMediaType, null: true
 

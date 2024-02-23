@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_02_18_181609) do
+ActiveRecord::Schema.define(version: 2024_02_23_222532) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -242,6 +242,7 @@ ActiveRecord::Schema.define(version: 2024_02_18_181609) do
     t.datetime "last_request_date"
     t.datetime "last_fact_check_date"
     t.bigint "project_media_id"
+    t.string "title"
     t.index ["feed_id"], name: "index_clusters_on_feed_id"
     t.index ["project_media_id"], name: "index_clusters_on_project_media_id"
   end
@@ -423,6 +424,8 @@ ActiveRecord::Schema.define(version: 2024_02_18_181609) do
     t.integer "newsletters_sent"
     t.integer "whatsapp_conversations_user"
     t.integer "whatsapp_conversations_business"
+    t.integer "positive_feedback"
+    t.integer "negative_feedback"
     t.index ["team_id", "platform", "language", "start_date"], name: "index_monthly_stats_team_platform_language_start", unique: true
     t.index ["team_id"], name: "index_monthly_team_statistics_on_team_id"
   end

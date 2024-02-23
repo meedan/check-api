@@ -104,14 +104,11 @@ namespace :check do
               pages = (total / PER_PAGE.to_f).ceil
               pages.times do |page|
                 puts "Iterating on page #{page + 1}/#{pages}"
-                cpm_items = []
-                cluster_items = []
                 CheckSearch.new(query.merge({ esoffset: (page * PER_PAGE), eslimit: PER_PAGE }).to_json, nil, feed.team.id).medias.order('created_at ASC').find_each do |pm|
                   cluster_id = mapping[pm.media.uuid]
                   next if cluster_id.nil?
                   cluster = Cluster.find(cluster_id)
                   updated_cluster_attributes = {}
-                  updated_cluster_attributes[:id] = cluster.id
                   updated_cluster_attributes[:first_item_at] = cluster.first_item_at || pm.created_at
                   updated_cluster_attributes[:last_item_at] = pm.created_at
                   updated_cluster_attributes[:team_ids] = (cluster.team_ids.to_a + [pm.team_id]).uniq.compact_blank
@@ -126,12 +123,10 @@ namespace :check do
                   end
                   # FIXME: Set the center of the cluster properly
                   updated_cluster_attributes[:project_media_id] = cluster.project_media_id || pm.id
-                  cluster_items << updated_cluster_attributes
+                  updated_cluster_attributes[:title] = cluster.title || pm.title
+                  cluster.update_columns(updated_cluster_attributes)
+                  ClusterProjectMedia.insert!({ cluster_id: cluster_id, project_media_id: pm.id })
                 end
-                # Bulk-insert ClusterProjectMedia
-                ClusterProjectMedia.insert_all(cpm_items) unless cpm_items.blank?
-                # Bulk-update Cluster
-                Cluster.upsert_all(cluster_items, unique_by: :id) unless cluster_items.blank?
               end
               Team.current = nil
 

@@ -689,6 +689,7 @@ type Cluster implements Node {
     """
     last: Int
   ): PublicTeamConnection
+  title: String
   updated_at: String
 }
 
