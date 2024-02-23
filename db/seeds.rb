@@ -360,6 +360,14 @@ class PopulatedWorkspaces
     end
   end
 
+  def tipline_requests
+    teams_project_medias.each_value do |project_medias|
+      create_tipline_requests(project_medias.values_at(0,3,6,9,12,15,18), 1)
+      create_tipline_requests(project_medias.values_at(1,4,7,10,13,16,19), 15)
+      create_tipline_requests(project_medias.values_at(2,5,8,11,14,17), 17)
+    end
+  end
+
   private
 
   def title_from_link(link)
@@ -453,7 +461,106 @@ class PopulatedWorkspaces
   end
 
   def teams_project_medias
-    @teams_project_medias ||= teams.transform_values { |team| team.project_medias }
+    @teams_project_medias ||= teams.transform_values { |team| team.project_medias.to_a }
+  end
+
+  def create_tipline_user_and_data(project_media)
+    tipline_message_data = {
+      link: 'https://www.nytimes.com/interactive/2023/09/28/world/europe/russia-ukraine-war-map-front-line.html',
+      audio: "#{random_url}/wnHkwjykxOqU3SMWpEpuVzSa.oga",
+      video: "#{random_url}/AOVFpYOfMm_ssRUizUQhJHDD.mp4",
+      image: "#{random_url}/bOoeoeV9zNA51ecial0eWDG6.jpeg",
+      facebook: 'https://www.facebook.com/boomlive/posts/pfbid0ZoZPYTQAAmrrPR2XmpZ2BCPED1UgozxFGxSQiH68Aa6BF1Cvx2uWHyHrFrAwK7RPl',
+      instagram: 'https://www.instagram.com/p/CxsV1Gcskk8/?img_index=1',
+      tiktok: 'https://www.tiktok.com/@235flavien/video/7271360629615758597?_r=1&_t=8fFCIWTDWVt',
+      twitter: 'https://twitter.com/VietFactCheck/status/1697642909883892175',
+      youtube: 'https://www.youtube.com/watch?v=4EIHB-DG_JA',
+      text: Faker::Lorem.paragraph(sentence_count: 10)
+    }
+
+    tipline_user_name = Faker::Name.first_name.downcase
+    tipline_user_surname = Faker::Name.last_name
+    tipline_message =  tipline_message_data.values.sample((1..10).to_a.sample).join(' ')
+    phone = [ Faker::PhoneNumber.phone_number, Faker::PhoneNumber.cell_phone, Faker::PhoneNumber.cell_phone_in_e164, Faker::PhoneNumber.phone_number_with_country_code, Faker::PhoneNumber.cell_phone_with_country_code].sample
+    uid = random_string
+
+    # Tipline user
+    smooch_user_data = {
+      'id': uid,
+      'raw': {
+        '_id': uid,
+        'givenName': tipline_user_name,
+        'surname': tipline_user_surname,
+        'signedUpAt': Time.now.to_s,
+        'properties': {},
+        'conversationStarted': true,
+        'clients': [
+          {
+            'id': random_string,
+            'status': 'active',
+            'externalId': phone,
+            'active': true,
+            'lastSeen': Time.now.to_s,
+            'platform': 'whatsapp',
+            'integrationId': random_string,
+            'displayName': phone,
+            'raw': {
+              'profile': {
+                'name': tipline_user_name
+              },
+              'from': phone
+            }
+          }
+        ],
+        'pendingClients': []
+      },
+      'identifier': random_string,
+      'app_name': random_string
+    }
+
+    fields = {
+      smooch_user_id: uid,
+      smooch_user_app_id: random_string,
+      smooch_user_data: smooch_user_data.to_json
+    }
+
+    Dynamic.create!(annotation_type: 'smooch_user', annotated: project_media.team, annotator: BotUser.smooch_user, set_fields: fields.to_json)
+
+    # Tipline request
+    smooch_data = {
+      'role': 'appUser',
+      'source': {
+        'type': ['whatsapp', 'telegram', 'messenger'].sample,
+        'id': random_string,
+        'integrationId': random_string,
+        'originalMessageId': random_string,
+        'originalMessageTimestamp': Time.now.to_i
+      },
+      'authorId': uid,
+      'name': tipline_user_name,
+      '_id': random_string,
+      'type': 'text',
+      'received': Time.now.to_f,
+      'text': tipline_message,
+      'language': 'en',
+      'mediaUrl': nil,
+      'mediaSize': 0,
+      'archived': 3,
+      'app_id': random_string
+    }
+
+    TiplineRequest.create!(
+      associated: project_media,
+      team_id: project_media.team_id,
+      smooch_request_type: ['default_requests', 'timeout_search_requests', 'relevant_search_result_requests'].sample,
+      smooch_data: smooch_data,
+      smooch_report_received_at: [Time.now.to_i, nil].sample,
+      user_id:  BotUser.smooch_user&.id
+    )
+  end
+
+  def create_tipline_requests(project_medias, x_times)
+    project_medias.each {|project_media| x_times.times {create_tipline_user_and_data(project_media)}}
   end
 end
 
@@ -481,6 +588,8 @@ begin
   populated_workspaces.confirm_relationships
   puts 'Making Suggested Relationships between items...'
   populated_workspaces.suggest_relationships
+  puts 'Making Tipline requests...'
+  populated_workspaces.tipline_requests
   puts 'Publishing half of each user\'s Fact Checks...'
   populated_workspaces.publish_fact_checks
 rescue RuntimeError => e
