@@ -8,17 +8,24 @@ namespace :check do
     desc 'Generate input files in json format'
     task generate_input_file: :environment do
       started = Time.now.to_i
+      # Collect Claim uuid for duplicate quote
+      puts "Collect Claim uuid for duplicate quotes"
+      claim_uuid = {}
+      Media.select('quote, MIN(id) as first').where(type: 'Claim').group(:quote).having('COUNT(id) > 1')
+      .each do |raw|
+        claim_uuid[raw['quote']] = raw['first'].to_s
+      end
       sort = [{ annotated_id: { order: :asc } }]
       Feed.find_each do |feed|
         # Only feeds that are sharing media
         if feed.data_points.to_a.include?(2)
-          puts "Generating input file for feed #{feed.name}"
           output = { call_id: feed.uuid, nodes: [], edges: [] }
           Team.current = feed.team
           query = { feed_id: feed.id, feed_view: 'media', show_similar: false }
           es_query = CheckSearch.new(query.to_json).medias_query
           total = CheckSearch.new(query.to_json, nil, feed.team.id).number_of_results
           pages = (total / PER_PAGE.to_f).ceil
+          puts "Generating input file for feed #{feed.name} with #{total} item(s)"
           search_after = [0]
           page = 0
           while true
@@ -29,9 +36,17 @@ namespace :check do
             pm_media_mapping = {}
             uuid = {}
             ProjectMedia.where(id: pm_ids).find_in_batches(:batch_size => PER_PAGE) do |pms|
+              print '.'
               # Collect media uuid
-              pms.each{|pm| pm_media_mapping[pm.id] = pm.media_id }
-              Media.where(id: pms.map(&:media_id)).find_each{|m| uuid[m.id] = m.uuid.to_s }
+              pms.each do |pm|
+                pm_media_mapping[pm.id] = pm.media_id
+                uuid[pm.media_id] = pm.media_id.to_s
+              end
+              m_ids = pms.map(&:media_id)
+              Media.where(id: m_ids, type: 'Claim').find_each do |m|
+               print '.'
+               uuid[m.id] = claim_uuid[m.quote] || m.id.to_s
+             end
             end
             pm_ids.each do |pm_id|
               m_uuid = uuid[pm_media_mapping[pm_id]]
@@ -40,15 +55,23 @@ namespace :check do
 
             Relationship.where(source_id: pm_ids).where('relationship_type = ?', Relationship.confirmed_type.to_yaml)
             .find_in_batches(:batch_size => PER_PAGE) do |relations|
+              print '.'
               spm_m_mapping = {}
               tpm_m_mapping = {}
+              t_uuid = {}
               target_ids = relations.map(&:target_id)
               # Get ProjectMedia items without Blank medias
-              ProjectMedia.where(id: target_ids).joins(:media).where.not('medias.type': 'Blank').find_each{ |pm| tpm_m_mapping[pm.id] = pm.media_id }
               ProjectMedia.where(id: pm_ids).joins(:media).where.not('medias.type': 'Blank').find_each{ |pm| spm_m_mapping[pm.id] = pm.media_id }
-              t_uuid = {}
-              Media.where(id: tpm_m_mapping.values).find_each{ |m| t_uuid[m.id] = m.uuid.to_s }
+              ProjectMedia.where(id: target_ids).joins(:media).where.not('medias.type': 'Blank').find_each do |pm|
+                tpm_m_mapping[pm.id] = pm.media_id
+                t_uuid[pm.media_id] = pm.media_id.to_s
+              end
+              Media.where(id: tpm_m_mapping.values, type: 'Claim').find_each do |m|
+                print '.'
+                t_uuid[m.id] = claim_uuid[m.quote] || m.id.to_s
+              end
               relations.each do |r|
+                print '.'
                 begin
                   if spm_m_mapping.keys.include?(r.source_id) && tpm_m_mapping.keys.include?(r.target_id)
                     output[:edges] << [uuid[spm_m_mapping[r.source_id]], t_uuid[tpm_m_mapping[r.target_id]], r.weight]
@@ -59,7 +82,7 @@ namespace :check do
               end
             end
             search_after = [pm_ids.max]
-            puts "Done for page #{page}/#{pages}"
+            puts "\nDone for page #{page}/#{pages}\n"
           end
           file = File.open(File.join(Rails.root, 'tmp', "feed-#{feed.uuid}.json"), 'w+')
           file.puts output.to_json
