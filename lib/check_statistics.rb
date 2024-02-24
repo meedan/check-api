@@ -235,6 +235,8 @@ module CheckStatistics
           irrelevant_results = project_media_requests(team_id, platform, start_date, end_date, language, 'irrelevant_search_result_requests').count
           ignored_results = project_media_requests(team_id, platform, start_date, end_date, language, 'timeout_search_requests').count
           statistics[:positive_searches] = relevant_results + irrelevant_results + ignored_results
+          statistics[:positive_feedback] = relevant_results
+          statistics[:negative_feedback] = irrelevant_results
         end
 
         CheckTracer.in_span('CheckStatistics#negative_searches', attributes: tracing_attributes) do
