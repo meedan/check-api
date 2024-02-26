@@ -461,7 +461,7 @@ class PopulatedWorkspaces
   end
 
   def teams_project_medias
-    @teams_project_medias ||= teams.transform_values { |team| team.project_medias.to_a }
+    @teams_project_medias ||= teams.transform_values { |team| team.project_medias.last(20).to_a }
   end
 
   def create_tipline_user_and_data(project_media)
