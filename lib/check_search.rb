@@ -302,7 +302,7 @@ class CheckSearch
     custom_conditions.concat range_filter(:es)
     custom_conditions.concat numeric_range_filter
     custom_conditions.concat language_conditions
-    custom_conditions.concat fact_check_language_conditions
+    custom_conditions.concat fact_check_language_conditions unless feed_query?
     custom_conditions.concat request_language_conditions
     custom_conditions.concat report_language_conditions
     custom_conditions.concat team_tasks_conditions
