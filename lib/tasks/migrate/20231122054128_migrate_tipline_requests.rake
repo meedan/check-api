@@ -167,6 +167,17 @@ namespace :check do
       last_team_id = Rails.cache.read('check:migrate:migrate_tipline_requests:team_id') || 0
       unless slug.blank?
         last_team_id = 0
+        if slug == 'team_slugs_a'
+          slug = [
+            "factcheckorg", "mafindo", "tempo", "newtral", "efe-verifica", "20-minutes-fake-off", "pesacheck-tipline",
+            "the-healthy-indian-project", "vishvas-news",  "uol-brazil", "telemundo", "univision-demo-account",
+            "afp-germany", "afp-france",  "afp-checamos", "afp-factual", "afp-fact-check-en-espaol", "thomson-reuters-mexico",
+            "reuters-fact-check-brasil", "reuters-fact-check-spanish-us", "kly-shared-feed", "dpa-shared-feed", "maldita-shared-feed",
+            "pagella", "correctiv-shared-feed", "fact-crescendo-shared-feed", "newsmobile", "aos-fatos", "chequeado-shared-feed", "la-silla-vaca"
+          ]
+        elsif slug == 'team_slugs_b'
+          slug = ["agencia-lupa", "india-today", "afp-fact-check", "boom-factcheck", "webqoof", "factly", "estadao", "newschecker"]
+        end
         condition = { slug: slug }
       end
       failed_project_media_requests = []

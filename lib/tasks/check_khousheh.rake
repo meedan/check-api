@@ -4,17 +4,22 @@ namespace :check do
 
     PER_PAGE = 2000
 
-    # docker-compose exec -e elasticsearch_log=0 api bundle exec rake check:khousheh:generate_input_file
-    desc 'Generate input files in json format'
-    task generate_input_file: :environment do
-      started = Time.now.to_i
-      # Collect Claim uuid for duplicate quote
+    def claim_uuid_for_duplicate_quote
       puts "Collect Claim uuid for duplicate quotes"
       claim_uuid = {}
       Media.select('quote, MIN(id) as first').where(type: 'Claim').group(:quote).having('COUNT(id) > 1')
       .each do |raw|
         claim_uuid[raw['quote']] = raw['first'].to_s
       end
+      claim_uuid
+    end
+
+    # docker-compose exec -e elasticsearch_log=0 api bundle exec rake check:khousheh:generate_input_file
+    desc 'Generate input files in json format'
+    task generate_input_file: :environment do
+      started = Time.now.to_i
+      # Collect Claim uuid for duplicate quote
+      claim_uuid = claim_uuid_for_duplicate_quote
       sort = [{ annotated_id: { order: :asc } }]
       Feed.find_each do |feed|
         # Only feeds that are sharing media
@@ -135,6 +140,9 @@ namespace :check do
     desc 'Parse output file(json format) and recreate clusters'
     task parse_output_file: :environment do
       started = Time.now.to_i
+      claim_uuid = claim_uuid_for_duplicate_quote
+      sort = [{ annotated_id: { order: :asc } }]
+      error_logs = []
       Feed.find_each do |feed|
         # Only feeds that are sharing media
         if feed.data_points.to_a.include?(2)
@@ -156,38 +164,84 @@ namespace :check do
               # Add items to clusters
               Team.current = feed.team
               query = { feed_id: feed.id, feed_view: 'media', show_similar: true }
+              es_query = CheckSearch.new(query.to_json).medias_query
               total = CheckSearch.new(query.to_json, nil, feed.team.id).number_of_results
               pages = (total / PER_PAGE.to_f).ceil
-              pages.times do |page|
-                puts "Iterating on page #{page + 1}/#{pages}"
+              puts "Total: #{total} --- pages: #{pages}"
+              search_after = [0]
+              page = 0
+              while true
+                page += 1
+                puts "\nIterating on page #{page}/#{pages}\n"
+                result = $repository.search(_source: 'annotated_id', query: es_query, sort: sort, search_after: search_after, size: PER_PAGE).results
+                pm_ids = result.collect{ |i| i['annotated_id'] }.uniq
+                break if pm_ids.empty?
+                pm_media_mapping = {}
+                uuid = {}
                 cpm_items = []
                 cluster_items = []
-                CheckSearch.new(query.merge({ esoffset: (page * PER_PAGE), eslimit: PER_PAGE }).to_json, nil, feed.team.id).medias.order('created_at ASC').find_each do |pm|
-                  cluster_id = mapping[pm.media.uuid]
-                  next if cluster_id.nil?
-                  cluster = Cluster.find(cluster_id)
-                  updated_cluster_attributes = {}
-                  updated_cluster_attributes[:id] = cluster.id
-                  updated_cluster_attributes[:first_item_at] = cluster.first_item_at || pm.created_at
-                  updated_cluster_attributes[:last_item_at] = pm.created_at
-                  updated_cluster_attributes[:team_ids] = (cluster.team_ids.to_a + [pm.team_id]).uniq.compact_blank
-                  updated_cluster_attributes[:channels] = (cluster.channels.to_a + pm.channel.to_h['others'].to_a + [pm.channel.to_h['main']]).uniq.compact_blank
-                  updated_cluster_attributes[:media_count] = cluster.media_count + 1
-                  updated_cluster_attributes[:requests_count] = cluster.requests_count + pm.requests_count
-                  updated_cluster_attributes[:last_request_date] = Time.at(pm.last_seen) if pm.last_seen > cluster.last_request_date.to_i
-                  fact_check = pm.claim_description&.fact_check
-                  unless fact_check.nil?
-                    updated_cluster_attributes[:fact_checks_count] = cluster.fact_checks_count + 1
-                    updated_cluster_attributes[:last_fact_check_date] = fact_check.updated_at if fact_check.updated_at.to_i > cluster.last_fact_check_date.to_i
+                ProjectMedia.where(id: pm_ids).find_in_batches(:batch_size => PER_PAGE) do |pms|
+                  # Collect media uuid
+                  pms.each do |pm|
+                    pm_media_mapping[pm.id] = pm.media_id
+                    uuid[pm.media_id] = pm.media_id.to_s
                   end
-                  # FIXME: Set the center of the cluster properly
-                  updated_cluster_attributes[:project_media_id] = cluster.project_media_id || pm.id
-                  cluster_items << updated_cluster_attributes
+                  Media.where(id: pms.map(&:media_id), type: 'Claim').find_each do |m|
+                   print '.'
+                   uuid[m.id] = claim_uuid[m.quote] || m.id.to_s
+                  end
+                  # FactCheck
+                  pm_fc_mapping = {}
+                  ProjectMedia.select('project_medias.id as id, fc.updated_at as fc_updated_at')
+                  .where(id: pms.map(&:id))
+                  .joins("INNER JOIN claim_descriptions cd ON project_medias.id = cd.project_media_id")
+                  .joins("INNER JOIN fact_checks fc ON cd.id = fc.claim_description_id")
+                  .find_each do |pm_fc|
+                    print '.'
+                    pm_fc_mapping[pm_fc['id']] = pm_fc['fc_updated_at']
+                  end
+                  pms.each do |pm|
+                    print '.'
+                    cluster_id = mapping[uuid[pm_media_mapping[pm.id]].to_i]
+                    next if cluster_id.nil?
+                    cluster = Cluster.find(cluster_id)
+                    updated_cluster_attributes = {}
+                    updated_cluster_attributes[:id] = cluster.id
+                    updated_cluster_attributes[:created_at] = cluster.created_at
+                    updated_cluster_attributes[:updated_at] = cluster.updated_at
+                    updated_cluster_attributes[:first_item_at] = cluster.first_item_at || pm.created_at
+                    updated_cluster_attributes[:last_item_at] = pm.created_at
+                    updated_cluster_attributes[:team_ids] = (cluster.team_ids.to_a + [pm.team_id]).uniq.compact_blank
+                    updated_cluster_attributes[:channels] = (cluster.channels.to_a + pm.channel.to_h['others'].to_a + [pm.channel.to_h['main']]).uniq.compact_blank
+                    updated_cluster_attributes[:media_count] = cluster.media_count + 1
+                    updated_cluster_attributes[:requests_count] = cluster.requests_count + pm.requests_count
+                    updated_cluster_attributes[:last_request_date] = Time.at(pm.last_seen) if pm.last_seen > cluster.last_request_date.to_i
+                    updated_cluster_attributes[:fact_checks_count] = cluster.fact_checks_count
+                    updated_cluster_attributes[:last_fact_check_date] = cluster.last_fact_check_date
+                    fact_check = pm.claim_description&.fact_check
+                    unless pm_fc_mapping[pm.id].blank?
+                      updated_cluster_attributes[:fact_checks_count] = cluster.fact_checks_count + 1
+                      updated_cluster_attributes[:last_fact_check_date] = pm_fc_mapping[pm.id] if pm_fc_mapping[pm.id].to_i > cluster.last_fact_check_date.to_i
+                    end
+                    cpm_items << { project_media_id: pm.id, cluster_id: cluster_id }
+                    # FIXME: Set the center of the cluster properly
+                    updated_cluster_attributes[:project_media_id] = cluster.project_media_id || pm.id
+                    cluster_items << updated_cluster_attributes
+                  end
                 end
                 # Bulk-insert ClusterProjectMedia
-                ClusterProjectMedia.insert_all(cpm_items) unless cpm_items.blank?
+                begin
+                  ClusterProjectMedia.insert_all(cpm_items, unique_by: %i[ cluster_id project_media_id ]) unless cpm_items.blank?
+                rescue
+                  error_logs << {feed: "Failed to import ClusterProjectMedia for feed #{feed.id} page #{page}"}
+                end
                 # Bulk-update Cluster
-                Cluster.upsert_all(cluster_items, unique_by: :id) unless cluster_items.blank?
+                begin
+                  Cluster.upsert_all(cluster_items, unique_by: %i[id project_media_id]) unless cluster_items.blank?
+                rescue
+                  error_logs << {feed: "Failed to update Cluster for feed #{feed.id} page #{page}"}
+                end
+                search_after = [pm_ids.max]
               end
               Team.current = nil
               # Delete old clusters
@@ -200,6 +254,7 @@ namespace :check do
           end
         end
       end
+      puts "Logs:: #{error_logs.inspect}" unless error_logs.blank?
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
