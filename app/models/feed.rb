@@ -130,8 +130,15 @@ class Feed < ApplicationRecord
     query.order(sort => sort_type).offset(args[:offset].to_i)
   end
 
-  def clusters_count
-    self.clusters.count
+  def clusters_count(team_ids)
+    self.filtered_clusters(team_ids).count
+  end
+
+  def filtered_clusters(team_ids)
+    query = self.clusters
+    query = query.where("ARRAY[?] && team_ids", team_ids.to_a.map(&:to_i)) unless team_ids.blank?
+    query = query.where(team_ids: []) if team_ids&.empty? # Invalidate the query
+    query
   end
 
   # This takes some time to run because it involves external HTTP requests and writes to the database:

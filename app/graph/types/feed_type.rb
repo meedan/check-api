@@ -54,17 +54,26 @@ class FeedType < DefaultObject
   field :feed_teams, FeedTeamType.connection_type, null: false
   field :data_points, [GraphQL::Types::Int, null: true], null: true
 
-  field :clusters_count, GraphQL::Types::Int, null: true
+  field :clusters_count, GraphQL::Types::Int, null: true do
+    # Filters
+    argument :team_ids, [GraphQL::Types::Int, null: true], required: false, default_value: nil, camelize: false
+  end
+
+  def clusters_count(team_ids:)
+    object.clusters_count(team_ids)
+  end
 
   field :clusters, ClusterType.connection_type, null: true do
     argument :offset, GraphQL::Types::Int, required: false, default_value: 0
     argument :sort, GraphQL::Types::String, required: false, default_value: 'title'
     argument :sort_type, GraphQL::Types::String, required: false, camelize: false, default_value: 'ASC'
+    # Filters
+    argument :team_ids, [GraphQL::Types::Int, null: true], required: false, default_value: nil, camelize: false
   end
 
-  def clusters(offset:, sort:, sort_type:)
+  def clusters(offset:, sort:, sort_type:, team_ids:)
     order = [:title, :media_count, :requests_count, :fact_checks_count, :last_request_date].include?(sort.downcase.to_sym) ? sort.downcase.to_sym : :title
     order_type = sort_type.downcase.to_sym == :desc ? :desc : :asc
-    object.clusters.offset(offset).order(order => order_type)
+    object.filtered_clusters(team_ids).offset(offset).order(order => order_type)
   end
 end

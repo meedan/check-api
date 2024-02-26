@@ -8070,10 +8070,11 @@ type Feed implements Node {
     """
     last: Int
     offset: Int = 0
-    sort: String = "id"
-    sort_type: String = "DESC"
+    sort: String = "title"
+    sort_type: String = "ASC"
+    team_ids: [Int] = null
   ): ClusterConnection
-  clusters_count: Int
+  clusters_count(team_ids: [Int] = null): Int
   created_at: String
   current_feed_team: FeedTeam
   data_points: [Int]
