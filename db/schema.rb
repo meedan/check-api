@@ -229,6 +229,7 @@ ActiveRecord::Schema.define(version: 2024_02_23_210914) do
   end
 
   create_table "clusters", force: :cascade do |t|
+    t.integer "project_media_id"
     t.datetime "first_item_at"
     t.datetime "last_item_at"
     t.datetime "created_at", null: false
@@ -241,9 +242,8 @@ ActiveRecord::Schema.define(version: 2024_02_23_210914) do
     t.integer "fact_checks_count", default: 0, null: false
     t.datetime "last_request_date"
     t.datetime "last_fact_check_date"
-    t.bigint "project_media_id"
     t.index ["feed_id"], name: "index_clusters_on_feed_id"
-    t.index ["project_media_id"], name: "index_clusters_on_project_media_id"
+    t.index ["project_media_id"], name: "index_clusters_on_project_media_id", unique: true
   end
 
   create_table "dynamic_annotation_annotation_types", primary_key: "annotation_type", id: :string, force: :cascade do |t|
@@ -292,7 +292,6 @@ ActiveRecord::Schema.define(version: 2024_02_23_210914) do
     t.index ["field_type"], name: "index_dynamic_annotation_fields_on_field_type"
     t.index ["value"], name: "fetch_unique_id", unique: true, where: "(((field_name)::text = 'external_id'::text) AND (value <> ''::text) AND (value <> '\"\"'::text))"
     t.index ["value"], name: "index_status", where: "((field_name)::text = 'verification_status_status'::text)"
-    t.index ["value"], name: "smooch_request_message_id_unique_id", unique: true, where: "(((field_name)::text = 'smooch_message_id'::text) AND (value <> ''::text) AND (value <> '\"\"'::text))"
     t.index ["value"], name: "smooch_user_unique_id", unique: true, where: "(((field_name)::text = 'smooch_user_id'::text) AND (value <> ''::text) AND (value <> '\"\"'::text))"
     t.index ["value"], name: "translation_request_id", unique: true, where: "((field_name)::text = 'translation_request_id'::text)"
     t.index ["value_json"], name: "index_dynamic_annotation_fields_on_value_json", using: :gin
@@ -688,7 +687,6 @@ ActiveRecord::Schema.define(version: 2024_02_23_210914) do
     t.datetime "updated_at", null: false
     t.string "state"
     t.index ["external_id", "state"], name: "index_tipline_messages_on_external_id_and_state", unique: true
-    t.index ["external_id"], name: "index_tipline_messages_on_external_id"
     t.index ["team_id"], name: "index_tipline_messages_on_team_id"
     t.index ["uid"], name: "index_tipline_messages_on_uid"
   end
@@ -861,7 +859,8 @@ ActiveRecord::Schema.define(version: 2024_02_23_210914) do
   end
 
   create_table "versions", id: :serial, force: :cascade do |t|
-    t.string "item_type", null: false
+    t.string "item_type"
+    t.string "{:null=>false}"
     t.string "item_id", null: false
     t.string "event", null: false
     t.string "whodunnit"
