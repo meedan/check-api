@@ -167,7 +167,6 @@ namespace :check do
               es_query = CheckSearch.new(query.to_json).medias_query
               total = CheckSearch.new(query.to_json, nil, feed.team.id).number_of_results
               pages = (total / PER_PAGE.to_f).ceil
-              puts "Total: #{total} --- pages: #{pages}"
               search_after = [0]
               page = 0
               while true
@@ -180,6 +179,8 @@ namespace :check do
                 uuid = {}
                 cpm_items = []
                 cluster_items = []
+                center_ids = []
+                new_cluster_ids = []
                 ProjectMedia.where(id: pm_ids).find_in_batches(:batch_size => PER_PAGE) do |pms|
                   # Collect media uuid
                   pms.each do |pm|
@@ -203,8 +204,10 @@ namespace :check do
                   pms.each do |pm|
                     print '.'
                     cluster_id = mapping[uuid[pm_media_mapping[pm.id]].to_i]
-                    next if cluster_id.nil?
-                    cluster = Cluster.find(cluster_id)
+                    next if cluster_id.nil? || new_cluster_ids.include?(cluster_id)
+                    cluster = Cluster.find_by_id(cluster_id)
+                    next if cluster.nil?
+                    new_cluster_ids << cluster_id
                     updated_cluster_attributes = {}
                     updated_cluster_attributes[:id] = cluster.id
                     updated_cluster_attributes[:created_at] = cluster.created_at
@@ -215,7 +218,7 @@ namespace :check do
                     updated_cluster_attributes[:channels] = (cluster.channels.to_a + pm.channel.to_h['others'].to_a + [pm.channel.to_h['main']]).uniq.compact_blank
                     updated_cluster_attributes[:media_count] = cluster.media_count + 1
                     updated_cluster_attributes[:requests_count] = cluster.requests_count + pm.requests_count
-                    updated_cluster_attributes[:last_request_date] = Time.at(pm.last_seen) if pm.last_seen > cluster.last_request_date.to_i
+                    updated_cluster_attributes[:last_request_date] = (pm.last_seen > cluster.last_request_date.to_i) ? Time.at(pm.last_seen) : cluster.last_request_date
                     updated_cluster_attributes[:fact_checks_count] = cluster.fact_checks_count
                     updated_cluster_attributes[:last_fact_check_date] = cluster.last_fact_check_date
                     fact_check = pm.claim_description&.fact_check
@@ -225,21 +228,33 @@ namespace :check do
                     end
                     cpm_items << { project_media_id: pm.id, cluster_id: cluster_id }
                     # FIXME: Set the center of the cluster properly
-                    updated_cluster_attributes[:project_media_id] = cluster.project_media_id || pm.id
+                    center_pm = cluster.project_media_id
+                    updated_cluster_attributes[:project_media_id] = center_pm
+                    center_ids << center_pm unless center_pm.nil?
+                    if center_pm.nil? && !center_ids.include?(pm.id)
+                      updated_cluster_attributes[:project_media_id] = pm.id
+                    end
                     cluster_items << updated_cluster_attributes
                   end
                 end
                 # Bulk-insert ClusterProjectMedia
-                begin
-                  ClusterProjectMedia.insert_all(cpm_items, unique_by: %i[ cluster_id project_media_id ]) unless cpm_items.blank?
-                rescue
-                  error_logs << {feed: "Failed to import ClusterProjectMedia for feed #{feed.id} page #{page}"}
+                unless cpm_items.blank?
+                  begin
+                    ClusterProjectMedia.insert_all(cpm_items, unique_by: %i[ cluster_id project_media_id ])
+                  rescue
+                    error_logs << {feed: "Failed to import ClusterProjectMedia for feed #{feed.id} page #{page}"}
+                  end
                 end
                 # Bulk-update Cluster
-                begin
-                  Cluster.upsert_all(cluster_items, unique_by: %i[id project_media_id]) unless cluster_items.blank?
-                rescue
-                  error_logs << {feed: "Failed to update Cluster for feed #{feed.id} page #{page}"}
+                unless cluster_items.blank?
+                  begin
+                    # Collect center ids and remove existing ones to avoid unique index error
+                    cluster_project_media_ids = cluster_items.collect{|i| i[:project_media_id]}
+                    Cluster.where(project_media_id: cluster_project_media_ids).update_all(project_media_id: nil)
+                    Cluster.upsert_all(cluster_items)
+                  rescue
+                    error_logs << {feed: "Failed to update Cluster for feed #{feed.id} page #{page}"}
+                  end
                 end
                 search_after = [pm_ids.max]
               end
@@ -263,6 +278,7 @@ namespace :check do
     desc 'Download json file from S3'
     task download: :environment do
       started = Time.now.to_i
+      # TODO: download json file from S3
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
