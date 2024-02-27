@@ -55,10 +55,10 @@ end
 
 MEDIAS_PARAMS = [
   *CLAIMS_PARAMS,
-  *LINKS_PARAMS,
-  *UPLOADED_AUDIOS_PARAMS,
-  *UPLOADED_IMAGES_PARAMS,
-  *UPLOADED_VIDEOS_PARAMS
+  # *LINKS_PARAMS,
+  # *UPLOADED_AUDIOS_PARAMS,
+  # *UPLOADED_IMAGES_PARAMS,
+  # *UPLOADED_VIDEOS_PARAMS
 ].shuffle!
 
 class Setup
@@ -328,7 +328,7 @@ class PopulatedWorkspaces
   def publish_fact_checks
     users.each_value do |user|
       fact_checks = FactCheck.where(user: user).last(10)
-      fact_checks[0, fact_checks.size/2].each { |fact_check| verify_fact_check_and_publish_report(fact_check.project_media)}
+      fact_checks[0, (fact_checks.size/2.floor)].each { |fact_check| verify_fact_check_and_publish_report(fact_check.project_media)}
     end
   end
 
@@ -336,13 +336,65 @@ class PopulatedWorkspaces
     teams.each_value { |team| saved_search(team) }
   end
 
-  def share_feeds
+  def main_user_feed(to_be_shared)
+    if to_be_shared == "share_factchecks"
+      data_points = [1]
+    elsif to_be_shared == "share_everything"
+      data_points = [1,2]
+    else
+      [2]
+    end
+
+    feed_params = {
+      name: "Feed Test ##{users[:main_user_a].feeds.count + 1}",
+      user: users[:main_user_a],
+      team: teams[:main_team_a],
+      published: true,
+      saved_search: SavedSearch.where(team: teams[:main_team_a]).first,
+      licenses: [1],
+      data_points: data_points
+    }
+    Feed.create!(feed_params)
+  end
+
+  def share_feed(feed)
     return unless invited_teams
     invited_users = [ users[:invited_user_b], users[:invited_user_c] ]
-    main_team_a_saved_search = SavedSearch.where(team: teams[:main_team_a]).first
-
-    feed = feed(main_team_a_saved_search)
     invited_users.each { |invited_user| feed_invitation(feed, invited_user)}
+  end
+
+  def clusters(feed)
+    teams_project_medias.each_value do |project_medias|
+      project_medias.each_with_index { |project_media,index| cluster(project_media, index, feed)}
+    end
+  end
+
+  def cluster_teams
+    [
+      [teams[:main_team_a].id],
+      [teams[:invited_team_c].id],
+      [teams[:main_team_a].id, teams[:invited_team_c].id]
+    ].sample
+  end
+
+  def random_channels
+    channels = [5, 6, 7, 8, 9, 10, 13]
+    channels.sample(rand(channels.size))
+  end
+
+  def cluster(project_media, index, feed)
+    count = index.zero? ? 0 : rand(100)
+
+    cluster_params = {
+      project_media_id: project_media.id,
+      feed_id: feed.id,
+      team_ids: cluster_teams,
+      channels: random_channels,
+      media_count: count,
+      requests_count: count,
+      fact_checks_count: count,
+    }
+    Cluster.create!(cluster_params)
   end
 
   def confirm_relationships
@@ -418,7 +470,7 @@ class PopulatedWorkspaces
     saved_search_params = {
       title: "#{user.name.capitalize}'s list",
       team: team,
-      filters: {created_by: user}
+      filters: {created_by: user},
     }
 
     if team.saved_searches.empty?
@@ -426,19 +478,6 @@ class PopulatedWorkspaces
     else
       team.saved_searches.first
     end
-  end
-
-  def feed(saved_search)
-    feed_params = {
-      name: "Feed Test ##{users[:main_user_a].feeds.count + 1}",
-      user: users[:main_user_a],
-      team: teams[:main_team_a],
-      published: true,
-      saved_search: saved_search,
-      licenses: [1],
-      data_points: [1,2]
-    }
-    Feed.create!(feed_params)
   end
 
   def feed_invitation(feed, invited_user)
@@ -582,16 +621,22 @@ begin
   populated_workspaces.populate_projects
   puts 'Creating saved searches for all teams...'
   populated_workspaces.saved_searches
+  puts 'Creating feed...'
+  feed_1 = populated_workspaces.main_user_feed("share_factchecks")
+  feed_2 = populated_workspaces.main_user_feed("share_everything")
   puts 'Making and inviting to Shared Feed... (won\'t run if you are not creating any invited users)'
-  populated_workspaces.share_feeds
-  puts 'Making Confirmed Relationships between items...'
-  populated_workspaces.confirm_relationships
-  puts 'Making Suggested Relationships between items...'
-  populated_workspaces.suggest_relationships
-  puts 'Making Tipline requests...'
-  populated_workspaces.tipline_requests
+  populated_workspaces.share_feed(feed_1)
+  populated_workspaces.share_feed(feed_2)
+  # puts 'Making Confirmed Relationships between items...'
+  # populated_workspaces.confirm_relationships
+  # puts 'Making Suggested Relationships between items...'
+  # populated_workspaces.suggest_relationships
+  # puts 'Making Tipline requests...'
+  # populated_workspaces.tipline_requests
   puts 'Publishing half of each user\'s Fact Checks...'
   populated_workspaces.publish_fact_checks
+  puts 'Creating Clusters'
+  populated_workspaces.clusters(feed_2)
 rescue RuntimeError => e
   if e.message.include?('We could not parse this link')
     puts "—————"
