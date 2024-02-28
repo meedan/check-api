@@ -1,0 +1,2 @@
+class TiplineRequest < ApplicationRecord
+end
