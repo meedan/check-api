@@ -34,7 +34,7 @@ LINKS_PARAMS = [
     { type: 'Link', url: url+"?timestamp=#{Time.now.to_f}" }
   end
 
-CLAIMS_PARAMS = (Array.new(20) do
+CLAIMS_PARAMS = (Array.new(10) do
   {
     type: 'Claim',
     quote: Faker::Lorem.paragraph(sentence_count: 10)
@@ -327,7 +327,7 @@ class PopulatedWorkspaces
 
   def publish_fact_checks
     users.each_value do |user|
-      fact_checks = FactCheck.where(user: user).last(10)
+      fact_checks = FactCheck.where(user: user).last(6)
       fact_checks[0, (fact_checks.size/2.floor)].each { |fact_check| verify_fact_check_and_publish_report(fact_check.project_media)}
     end
   end
@@ -401,22 +401,19 @@ class PopulatedWorkspaces
     teams_project_medias.each_value do |project_medias|
       confirmed_relationship(project_medias[0],  project_medias[1..3])
       confirmed_relationship(project_medias[4], project_medias[5])
-      confirmed_relationship(project_medias[6], project_medias[7])
-      confirmed_relationship(project_medias[8], project_medias[1])
     end
   end
 
   def suggest_relationships
     teams_project_medias.each_value do |project_medias|
-      suggested_relationship(project_medias[8], project_medias[14..19])
+      suggested_relationship(project_medias[0], project_medias[6..10])
     end
   end
 
   def tipline_requests
     teams_project_medias.each_value do |project_medias|
-      create_tipline_requests(project_medias.values_at(0,3,6,9,12,15,18), 1)
-      create_tipline_requests(project_medias.values_at(1,4,7,10,13,16,19), 15)
-      create_tipline_requests(project_medias.values_at(2,5,8,11,14,17), 17)
+      create_tipline_requests(project_medias.values_at(0,1,2,3,4), 1)
+      create_tipline_requests(project_medias.values_at(5,6,7,8,9), 17)
     end
   end
 
@@ -500,7 +497,7 @@ class PopulatedWorkspaces
   end
 
   def teams_project_medias
-    @teams_project_medias ||= teams.transform_values { |team| team.project_medias.last(20).to_a }
+    @teams_project_medias ||= teams.transform_values { |team| team.project_medias.last(10).to_a }
   end
 
   def create_tipline_user_and_data(project_media)
@@ -627,12 +624,12 @@ begin
   puts 'Making and inviting to Shared Feed... (won\'t run if you are not creating any invited users)'
   populated_workspaces.share_feed(feed_1)
   populated_workspaces.share_feed(feed_2)
-  # puts 'Making Confirmed Relationships between items...'
-  # populated_workspaces.confirm_relationships
-  # puts 'Making Suggested Relationships between items...'
-  # populated_workspaces.suggest_relationships
-  # puts 'Making Tipline requests...'
-  # populated_workspaces.tipline_requests
+  puts 'Making Confirmed Relationships between items...'
+  populated_workspaces.confirm_relationships
+  puts 'Making Suggested Relationships between items...'
+  populated_workspaces.suggest_relationships
+  puts 'Making Tipline requests...'
+  populated_workspaces.tipline_requests
   puts 'Publishing half of each user\'s Fact Checks...'
   populated_workspaces.publish_fact_checks
   puts 'Creating Clusters'
