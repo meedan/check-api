@@ -130,14 +130,39 @@ class Feed < ApplicationRecord
     query.order(sort => sort_type).offset(args[:offset].to_i)
   end
 
-  def clusters_count(team_ids)
-    self.filtered_clusters(team_ids).count
+  def clusters_count(args = {})
+    self.filtered_clusters(args).count
   end
 
-  def filtered_clusters(team_ids)
+  def filtered_clusters(args = {})
+    team_ids = args[:team_ids]
+    channels = args[:channels]
     query = self.clusters
+
+    # Filter by workspace
     query = query.where("ARRAY[?] && team_ids", team_ids.to_a.map(&:to_i)) unless team_ids.blank?
     query = query.where(team_ids: []) if team_ids&.empty? # Invalidate the query
+
+    # Filter by channel
+    query = query.where("ARRAY[?] && channels", channels.to_a.map(&:to_i)) unless channels.blank?
+    query = query.where(channels: []) if channels&.empty? # Invalidate the query
+
+    # Filter by media type
+    query = query.joins(project_media: :media).where('medias.type' => args[:media_type]) unless args[:media_type].blank?
+
+    # Filter by date
+    query = query.where(last_request_date: Range.new(*format_times_search_range_filter(JSON.parse(args[:last_request_date]), nil))) unless args[:last_request_date].blank?
+
+    # Filters by number range
+    {
+      medias_count_min: 'media_count >= ?',
+      medias_count_max: 'media_count <= ?',
+      requests_count_min: 'requests_count >= ?',
+      requests_count_max: 'requests_count <= ?'
+    }.each do |key, condition|
+      query = query.where(condition, args[key].to_i) unless args[key].blank?
+    end
+
     query
   end
 

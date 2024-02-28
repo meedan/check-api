@@ -57,10 +57,17 @@ class FeedType < DefaultObject
   field :clusters_count, GraphQL::Types::Int, null: true do
     # Filters
     argument :team_ids, [GraphQL::Types::Int, null: true], required: false, default_value: nil, camelize: false
+    argument :channels, [GraphQL::Types::Int, null: true], required: false, default_value: nil, camelize: false
+    argument :medias_count_min, GraphQL::Types::Int, required: false, camelize: false
+    argument :medias_count_max, GraphQL::Types::Int, required: false, camelize: false
+    argument :requests_count_min, GraphQL::Types::Int, required: false, camelize: false
+    argument :requests_count_max, GraphQL::Types::Int, required: false, camelize: false
+    argument :last_request_date, GraphQL::Types::String, required: false, camelize: false # JSON
+    argument :media_type, [GraphQL::Types::String, null: true], required: false, camelize: false
   end
 
-  def clusters_count(team_ids:)
-    object.clusters_count(team_ids)
+  def clusters_count(**args)
+    object.clusters_count(args)
   end
 
   field :clusters, ClusterType.connection_type, null: true do
@@ -69,11 +76,19 @@ class FeedType < DefaultObject
     argument :sort_type, GraphQL::Types::String, required: false, camelize: false, default_value: 'ASC'
     # Filters
     argument :team_ids, [GraphQL::Types::Int, null: true], required: false, default_value: nil, camelize: false
+    argument :channels, [GraphQL::Types::Int, null: true], required: false, default_value: nil, camelize: false
+    argument :medias_count_min, GraphQL::Types::Int, required: false, camelize: false
+    argument :medias_count_max, GraphQL::Types::Int, required: false, camelize: false
+    argument :requests_count_min, GraphQL::Types::Int, required: false, camelize: false
+    argument :requests_count_max, GraphQL::Types::Int, required: false, camelize: false
+    argument :last_request_date, GraphQL::Types::String, required: false, camelize: false # JSON
+    argument :media_type, [GraphQL::Types::String, null: true], required: false, camelize: false
   end
 
-  def clusters(offset:, sort:, sort_type:, team_ids:)
+  def clusters(**args)
+    sort = args[:sort].to_s
     order = [:title, :media_count, :requests_count, :fact_checks_count, :last_request_date].include?(sort.downcase.to_sym) ? sort.downcase.to_sym : :title
-    order_type = sort_type.downcase.to_sym == :desc ? :desc : :asc
-    object.filtered_clusters(team_ids).offset(offset).order(order => order_type)
+    order_type = args[:sort_type].to_s.downcase.to_sym == :desc ? :desc : :asc
+    object.filtered_clusters(args).offset(args[:offset].to_i).order(order => order_type)
   end
 end
