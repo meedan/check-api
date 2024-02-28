@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_02_23_222532) do
+ActiveRecord::Schema.define(version: 2024_02_28_014721) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -229,6 +229,7 @@ ActiveRecord::Schema.define(version: 2024_02_23_222532) do
   end
 
   create_table "clusters", force: :cascade do |t|
+    t.integer "project_media_id"
     t.datetime "first_item_at"
     t.datetime "last_item_at"
     t.datetime "created_at", null: false
@@ -241,7 +242,6 @@ ActiveRecord::Schema.define(version: 2024_02_23_222532) do
     t.integer "fact_checks_count", default: 0, null: false
     t.datetime "last_request_date"
     t.datetime "last_fact_check_date"
-    t.bigint "project_media_id"
     t.string "title"
     t.index ["feed_id"], name: "index_clusters_on_feed_id"
     t.index ["project_media_id"], name: "index_clusters_on_project_media_id"
@@ -293,7 +293,6 @@ ActiveRecord::Schema.define(version: 2024_02_23_222532) do
     t.index ["field_type"], name: "index_dynamic_annotation_fields_on_field_type"
     t.index ["value"], name: "fetch_unique_id", unique: true, where: "(((field_name)::text = 'external_id'::text) AND (value <> ''::text) AND (value <> '\"\"'::text))"
     t.index ["value"], name: "index_status", where: "((field_name)::text = 'verification_status_status'::text)"
-    t.index ["value"], name: "smooch_request_message_id_unique_id", unique: true, where: "(((field_name)::text = 'smooch_message_id'::text) AND (value <> ''::text) AND (value <> '\"\"'::text))"
     t.index ["value"], name: "smooch_user_unique_id", unique: true, where: "(((field_name)::text = 'smooch_user_id'::text) AND (value <> ''::text) AND (value <> '\"\"'::text))"
     t.index ["value"], name: "translation_request_id", unique: true, where: "((field_name)::text = 'translation_request_id'::text)"
     t.index ["value_json"], name: "index_dynamic_annotation_fields_on_value_json", using: :gin
@@ -469,7 +468,7 @@ ActiveRecord::Schema.define(version: 2024_02_23_222532) do
     t.index ["user_id"], name: "index_project_media_users_on_user_id"
   end
 
-  create_table "project_medias", id: :serial, force: :cascade do |t|
+  create_table "project_medias", force: :cascade do |t|
     t.integer "project_id"
     t.integer "media_id"
     t.integer "user_id"
@@ -689,7 +688,6 @@ ActiveRecord::Schema.define(version: 2024_02_23_222532) do
     t.datetime "updated_at", null: false
     t.string "state"
     t.index ["external_id", "state"], name: "index_tipline_messages_on_external_id_and_state", unique: true
-    t.index ["external_id"], name: "index_tipline_messages_on_external_id"
     t.index ["team_id"], name: "index_tipline_messages_on_team_id"
     t.index ["uid"], name: "index_tipline_messages_on_uid"
   end
