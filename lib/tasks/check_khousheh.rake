@@ -227,7 +227,8 @@ namespace :check do
                     end
                     cpm_items << { project_media_id: pm.id, cluster_id: cluster_id }
                     # FIXME: Set the center of the cluster properly
-                    updated_cluster_attributes[:project_media_id] = cluster.project_media_id || pm
+                    updated_cluster_attributes[:project_media_id] = cluster.project_media_id || pm.id
+                    updated_cluster_attributes[:title] = cluster.title || pm.title
                     cluster_items << updated_cluster_attributes
                   end
                 end
