@@ -179,7 +179,6 @@ namespace :check do
                 uuid = {}
                 cpm_items = []
                 cluster_items = []
-                center_ids = []
                 new_cluster_ids = []
                 ProjectMedia.where(id: pm_ids).find_in_batches(:batch_size => PER_PAGE) do |pms|
                   # Collect media uuid
@@ -228,12 +227,8 @@ namespace :check do
                     end
                     cpm_items << { project_media_id: pm.id, cluster_id: cluster_id }
                     # FIXME: Set the center of the cluster properly
-                    center_pm = cluster.project_media_id
-                    updated_cluster_attributes[:project_media_id] = center_pm
-                    center_ids << center_pm unless center_pm.nil?
-                    if center_pm.nil? && !center_ids.include?(pm.id)
-                      updated_cluster_attributes[:project_media_id] = pm.id
-                    end
+                    updated_cluster_attributes[:project_media_id] = cluster.project_media_id || pm.id
+                    updated_cluster_attributes[:title] = cluster.title || pm.title
                     cluster_items << updated_cluster_attributes
                   end
                 end
@@ -248,9 +243,6 @@ namespace :check do
                 # Bulk-update Cluster
                 unless cluster_items.blank?
                   begin
-                    # Collect center ids and remove existing ones to avoid unique index error
-                    cluster_project_media_ids = cluster_items.collect{|i| i[:project_media_id]}
-                    Cluster.where(project_media_id: cluster_project_media_ids).update_all(project_media_id: nil)
                     Cluster.upsert_all(cluster_items)
                   rescue
                     error_logs << {feed: "Failed to update Cluster for feed #{feed.id} page #{page}"}
