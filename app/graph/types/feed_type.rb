@@ -54,17 +54,41 @@ class FeedType < DefaultObject
   field :feed_teams, FeedTeamType.connection_type, null: false
   field :data_points, [GraphQL::Types::Int, null: true], null: true
 
-  field :clusters_count, GraphQL::Types::Int, null: true
+  field :clusters_count, GraphQL::Types::Int, null: true do
+    # Filters
+    argument :team_ids, [GraphQL::Types::Int, null: true], required: false, default_value: nil, camelize: false
+    argument :channels, [GraphQL::Types::Int, null: true], required: false, default_value: nil, camelize: false
+    argument :medias_count_min, GraphQL::Types::Int, required: false, camelize: false
+    argument :medias_count_max, GraphQL::Types::Int, required: false, camelize: false
+    argument :requests_count_min, GraphQL::Types::Int, required: false, camelize: false
+    argument :requests_count_max, GraphQL::Types::Int, required: false, camelize: false
+    argument :last_request_date, GraphQL::Types::String, required: false, camelize: false # JSON
+    argument :media_type, [GraphQL::Types::String, null: true], required: false, camelize: false
+  end
+
+  def clusters_count(**args)
+    object.clusters_count(args)
+  end
 
   field :clusters, ClusterType.connection_type, null: true do
     argument :offset, GraphQL::Types::Int, required: false, default_value: 0
-    argument :sort, GraphQL::Types::String, required: false, default_value: 'id'
-    argument :sort_type, GraphQL::Types::String, required: false, camelize: false, default_value: 'DESC'
+    argument :sort, GraphQL::Types::String, required: false, default_value: 'title'
+    argument :sort_type, GraphQL::Types::String, required: false, camelize: false, default_value: 'ASC'
+    # Filters
+    argument :team_ids, [GraphQL::Types::Int, null: true], required: false, default_value: nil, camelize: false
+    argument :channels, [GraphQL::Types::Int, null: true], required: false, default_value: nil, camelize: false
+    argument :medias_count_min, GraphQL::Types::Int, required: false, camelize: false
+    argument :medias_count_max, GraphQL::Types::Int, required: false, camelize: false
+    argument :requests_count_min, GraphQL::Types::Int, required: false, camelize: false
+    argument :requests_count_max, GraphQL::Types::Int, required: false, camelize: false
+    argument :last_request_date, GraphQL::Types::String, required: false, camelize: false # JSON
+    argument :media_type, [GraphQL::Types::String, null: true], required: false, camelize: false
   end
 
-  def clusters(offset:, sort:, sort_type:)
-    order = [:id, :media_count, :requests_count, :fact_checks_count, :last_request_date, :last_fact_check_date, :last_item_at, :first_item_at].include?(sort.downcase.to_sym) ? sort.downcase.to_sym : :id
-    order_type = sort_type.downcase.to_sym == :asc ? :asc : :desc
-    object.clusters.offset(offset).order(order => order_type)
+  def clusters(**args)
+    sort = args[:sort].to_s
+    order = [:title, :media_count, :requests_count, :fact_checks_count, :last_request_date].include?(sort.downcase.to_sym) ? sort.downcase.to_sym : :title
+    order_type = args[:sort_type].to_s.downcase.to_sym == :desc ? :desc : :asc
+    object.filtered_clusters(args).offset(args[:offset].to_i).order(order => order_type)
   end
 end

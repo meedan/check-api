@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_02_23_210914) do
+ActiveRecord::Schema.define(version: 2024_02_28_014721) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -242,8 +242,9 @@ ActiveRecord::Schema.define(version: 2024_02_23_210914) do
     t.integer "fact_checks_count", default: 0, null: false
     t.datetime "last_request_date"
     t.datetime "last_fact_check_date"
+    t.string "title"
     t.index ["feed_id"], name: "index_clusters_on_feed_id"
-    t.index ["project_media_id"], name: "index_clusters_on_project_media_id", unique: true
+    t.index ["project_media_id"], name: "index_clusters_on_project_media_id"
   end
 
   create_table "dynamic_annotation_annotation_types", primary_key: "annotation_type", id: :string, force: :cascade do |t|
@@ -467,7 +468,7 @@ ActiveRecord::Schema.define(version: 2024_02_23_210914) do
     t.index ["user_id"], name: "index_project_media_users_on_user_id"
   end
 
-  create_table "project_medias", id: :serial, force: :cascade do |t|
+  create_table "project_medias", force: :cascade do |t|
     t.integer "project_id"
     t.integer "media_id"
     t.integer "user_id"
@@ -859,8 +860,7 @@ ActiveRecord::Schema.define(version: 2024_02_23_210914) do
   end
 
   create_table "versions", id: :serial, force: :cascade do |t|
-    t.string "item_type"
-    t.string "{:null=>false}"
+    t.string "item_type", null: false
     t.string "item_id", null: false
     t.string "event", null: false
     t.string "whodunnit"
