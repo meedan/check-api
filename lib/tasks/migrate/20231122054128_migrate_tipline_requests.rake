@@ -167,6 +167,12 @@ namespace :check do
       last_team_id = Rails.cache.read('check:migrate:migrate_tipline_requests:team_id') || 0
       unless slug.blank?
         last_team_id = 0
+        if slug == 'custom_slugs'
+          puts "Type team slugs separated by comma then press enter"
+          print ">> "
+          slug = begin STDIN.gets.chomp.split(',').map{ |s| s.to_s } rescue [] end
+          raise "You must call rake task with team slugs" if slug.blank?
+        end
         condition = { slug: slug }
       end
       failed_project_media_requests = []
