@@ -29,6 +29,13 @@ UPLOADED_VIDEO_PARAMS =  (['d-item.mp4', 'rails.mp4']*4).map do |video|
   { type: 'UploadedVideo', file: open_file(video) }
 end
 
+MEDIAS_PARAMS = [
+  *CLAIMS_PARAMS,
+  *UPLOADED_AUDIO_PARAMS,
+  *UPLOADED_IMAGE_PARAMS,
+  *UPLOADED_VIDEO_PARAMS,
+].shuffle!
+
 class Setup
 
   private
@@ -213,7 +220,7 @@ class PopulatedWorkspaces
         title: "#{teams[:main_team_a][:name]} / [a] Main User: Main Team",
         user: users[:main_user_a],
         team: teams[:main_team_a],
-        project_medias_attributes: medias_params.map.with_index { |media_params, index|
+        project_medias_attributes: medias_params_with_links.map.with_index { |media_params, index|
           {
             media_attributes: media_params,
             user: users[:main_user_a],
@@ -237,7 +244,7 @@ class PopulatedWorkspaces
           title: "#{teams[:invited_team_b1][:name]} / [b] Invited User: Project Team #1",
           user: users[:invited_user_b],
           team: teams[:invited_team_b1],
-          project_medias_attributes: medias_params.map.with_index { |media_params, index|
+          project_medias_attributes: MEDIAS_PARAMS.map.with_index { |media_params, index|
             {
               media_attributes: media_params,
               user: users[:invited_user_b],
@@ -255,7 +262,7 @@ class PopulatedWorkspaces
           title: "#{teams[:invited_team_b2][:name]} / [b] Invited User: Project Team #2",
           user: users[:invited_user_b],
           team: teams[:invited_team_b2],
-          project_medias_attributes: medias_params.map.with_index { |media_params, index|
+          project_medias_attributes: MEDIAS_PARAMS.map.with_index { |media_params, index|
             {
               media_attributes: media_params,
               user: users[:invited_user_b],
@@ -273,7 +280,7 @@ class PopulatedWorkspaces
           title: "#{teams[:invited_team_c][:name]} / [c] Invited User: Project Team #1",
           user: users[:invited_user_c],
           team: teams[:invited_team_c],
-          project_medias_attributes: medias_params.map.with_index { |media_params, index|
+          project_medias_attributes: MEDIAS_PARAMS.map.with_index { |media_params, index|
             {
               media_attributes: media_params,
               user: users[:invited_user_c],
@@ -358,7 +365,7 @@ class PopulatedWorkspaces
 
   private
 
-  def medias_params
+  def medias_params_with_links
     links_params = [
       'https://meedan.com/post/addressing-misinformation-across-countries-a-pioneering-collaboration-between-taiwan-factcheck-center-vera-files',
       'https://meedan.com/post/entre-becos-a-women-led-hyperlocal-newsletter-from-the-peripheries-of-brazil',
@@ -382,7 +389,7 @@ class PopulatedWorkspaces
   end
 
   def items_total
-    @items_total ||= medias_params.size
+    @items_total ||= MEDIAS_PARAMS.size
   end
 
   def title_from_link(link)
@@ -571,11 +578,15 @@ class PopulatedWorkspaces
   end
 
   def cluster_teams
-    [
-      [teams[:main_team_a].id],
-      [teams[:invited_team_c].id],
-      [teams[:main_team_a].id, teams[:invited_team_c].id]
-    ].sample
+    if invited_teams
+      [
+        [teams[:main_team_a].id],
+        [teams[:invited_team_c].id],
+        [teams[:main_team_a].id, teams[:invited_team_c].id]
+      ].sample
+    else
+      [teams[:main_team_a].id]
+    end
   end
 
   def random_channels
