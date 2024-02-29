@@ -22,7 +22,7 @@ module SmoochBlocking
         block.save!
         Rails.logger.info("[Smooch Bot] Blocked user #{uid}")
         Rails.cache.write("smooch:banned:#{uid}", Time.now.to_i)
-        apply_content_warning_to_user_content(uid)
+        self.delay.apply_content_warning_to_user_content(uid)
       rescue ActiveRecord::RecordNotUnique
         # User already blocked
         Rails.logger.info("[Smooch Bot] User #{uid} already blocked")
@@ -57,7 +57,7 @@ module SmoochBlocking
               'racy': 0,
               'spam': 1
             }
-            Dynamic.delay.create!(annotation_type: 'flag', annotated: pm, annotator: current_user, skip_check_ability: true, set_fields: { show_cover: true, flags: flags }.to_json)
+            Dynamic.create!(annotation_type: 'flag', annotated: pm, annotator: User.current, skip_check_ability: true, set_fields: { show_cover: true, flags: flags }.to_json)
           end
       RequestStore.store[:skip_rules] = false
     end
