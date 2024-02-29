@@ -337,34 +337,6 @@ class PopulatedWorkspaces
     end
   end
 
-  def cluster_teams
-    [
-      [teams[:main_team_a].id],
-      [teams[:invited_team_c].id],
-      [teams[:main_team_a].id, teams[:invited_team_c].id]
-    ].sample
-  end
-
-  def random_channels
-    channels = [5, 6, 7, 8, 9, 10, 13]
-    channels.sample(rand(channels.size))
-  end
-
-  def cluster(project_media, index, feed)
-    count = index.zero? ? 0 : rand(100)
-
-    cluster_params = {
-      project_media_id: project_media.id,
-      feed_id: feed.id,
-      team_ids: cluster_teams,
-      channels: random_channels,
-      media_count: count,
-      requests_count: count,
-      fact_checks_count: count,
-    }
-    Cluster.create!(cluster_params)
-  end
-
   def confirm_relationships
     teams_project_medias.each_value do |project_medias|
       confirmed_relationship(project_medias[0],  project_medias[1])
@@ -478,7 +450,6 @@ class PopulatedWorkspaces
       user: users[:main_user_a],
       state: :invited
     }
-
     FeedInvitation.create!(feed_invitation_params)
   end
 
@@ -597,6 +568,34 @@ class PopulatedWorkspaces
         17.times {create_tipline_user_and_data(project_media)}
       end
     end
+  end
+
+  def cluster_teams
+    [
+      [teams[:main_team_a].id],
+      [teams[:invited_team_c].id],
+      [teams[:main_team_a].id, teams[:invited_team_c].id]
+    ].sample
+  end
+
+  def random_channels
+    channels = [5, 6, 7, 8, 9, 10, 13]
+    channels.sample(rand(channels.size))
+  end
+
+  def cluster(project_media, index, feed)
+    count = index.zero? ? 0 : rand(100)
+
+    cluster_params = {
+      project_media_id: project_media.id,
+      feed_id: feed.id,
+      team_ids: cluster_teams,
+      channels: random_channels,
+      media_count: count,
+      requests_count: count,
+      fact_checks_count: count,
+    }
+    Cluster.create!(cluster_params)
   end
 end
 
