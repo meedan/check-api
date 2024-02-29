@@ -379,12 +379,8 @@ class PopulatedWorkspaces
   end
 
   def tipline_requests
-    teams_project_medias.each_value.with_index do |project_medias, index|
-      if index.even?
-        create_tipline_requests(project_medias[index], 1)
-      elsif index % 3 == 0
-        create_tipline_requests(project_medias[index], 17)
-      end
+    teams_project_medias.each_value do |team_project_medias|
+        create_tipline_requests(team_project_medias)
     end
   end
 
@@ -593,8 +589,14 @@ class PopulatedWorkspaces
     )
   end
 
-  def create_tipline_requests(project_media, x_times)
-    x_times.times {create_tipline_user_and_data(project_media)}
+  def create_tipline_requests(team_project_medias)
+    team_project_medias.each_with_index do |project_media, index|
+      if index.even?
+        create_tipline_user_and_data(project_media)
+      elsif index % 3 == 0
+        17.times {create_tipline_user_and_data(project_media)}
+      end
+    end
   end
 end
 
@@ -606,46 +608,50 @@ answer = STDIN.gets.chomp
 puts "—————"
 puts "Stretch your legs, this might take a while."
 puts "On a mac took about 10 minutes to create all populated workspaces."
+puts "Keep track of the queues: http://localhost:3000/sidekiq"
+puts "The workspaces will be fully finished when those finish running"
 puts "—————"
 
-begin
-  puts 'Creating users and teams...'
-  setup = Setup.new(answer.presence) # .presence : returns nil or the string
-  puts 'Creating projects for all users...'
-  populated_workspaces = PopulatedWorkspaces.new(setup)
-  populated_workspaces.populate_projects
-  puts 'Creating saved searches for all teams...'
-  populated_workspaces.saved_searches
-  puts 'Creating feed...'
-  feed_1 = populated_workspaces.main_user_feed("share_factchecks")
-  feed_2 = populated_workspaces.main_user_feed("share_everything")
-  puts 'Making and inviting to Shared Feed... (won\'t run if you are not creating any invited users)'
-  populated_workspaces.share_feed(feed_1)
-  populated_workspaces.share_feed(feed_2)
-  puts 'Making Confirmed Relationships between items...'
-  populated_workspaces.confirm_relationships
-  puts 'Making Suggested Relationships between items...'
-  populated_workspaces.suggest_relationships
-  puts 'Making Tipline requests...'
-  populated_workspaces.tipline_requests
-  puts 'Publishing half of each user\'s Fact Checks...'
-  populated_workspaces.publish_fact_checks
-  puts 'Creating Clusters'
-  populated_workspaces.clusters(feed_2)
-rescue RuntimeError => e
-  if e.message.include?('We could not parse this link')
-    puts "—————"
-    puts "Creating Items failed: Couldn't create Links. \nMake sure Pender is running, or comment out Links so they are not created."
-    puts "—————"
-  else
-    raise e
+ActiveRecord::Base.transaction do
+  begin
+    puts 'Creating users and teams...'
+    setup = Setup.new(answer.presence) # .presence : returns nil or the string
+    puts 'Creating projects for all users...'
+    populated_workspaces = PopulatedWorkspaces.new(setup)
+    populated_workspaces.populate_projects
+    puts 'Creating saved searches for all teams...'
+    populated_workspaces.saved_searches
+    puts 'Creating feed...'
+    feed_1 = populated_workspaces.main_user_feed("share_factchecks")
+    feed_2 = populated_workspaces.main_user_feed("share_everything")
+    puts 'Making and inviting to Shared Feed... (won\'t run if you are not creating any invited users)'
+    populated_workspaces.share_feed(feed_1)
+    populated_workspaces.share_feed(feed_2)
+    puts 'Making Confirmed Relationships between items...'
+    populated_workspaces.confirm_relationships
+    puts 'Making Suggested Relationships between items...'
+    populated_workspaces.suggest_relationships
+    puts 'Making Tipline requests...'
+    populated_workspaces.tipline_requests
+    puts 'Publishing half of each user\'s Fact Checks...'
+    populated_workspaces.publish_fact_checks
+    puts 'Creating Clusters'
+    populated_workspaces.clusters(feed_2)
+  rescue RuntimeError => e
+    if e.message.include?('We could not parse this link')
+      puts "—————"
+      puts "Creating Items failed: Couldn't create Links. \nMake sure Pender is running, or comment out Links so they are not created."
+      puts "—————"
+    else
+      raise e
+    end
   end
-end
 
-unless e
-  puts "—————"
-  puts "Created users:"
-  setup.get_users_emails_and_passwords.each { |user_info| puts user_info } 
+  unless e
+    puts "—————"
+    puts "Created users:"
+    setup.get_users_emails_and_passwords.each { |user_info| puts user_info }
+  end
 end
   
 Rails.cache.clear
