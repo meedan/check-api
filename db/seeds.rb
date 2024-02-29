@@ -10,22 +10,22 @@ end
 
 # claims and uploaded files can be the same
 # links need different timestamps, so they are created for each user
-CLAIMS_PARAMS = (Array.new(5) do
+CLAIMS_PARAMS = (Array.new(8) do
   {
     type: 'Claim',
-    quote: Faker::Lorem.paragraph(sentence_count: 10)
+    quote: Faker::Lorem.paragraph(sentence_count: 8)
   }
 end)
 
-UPLOADED_AUDIO_PARAMS = (['e-item.mp3', 'rails.mp3', 'with_cover.mp3', 'with_cover.ogg', 'with_cover.wav']).map do |audio|
+UPLOADED_AUDIO_PARAMS = (['e-item.mp3', 'with_cover.mp3', 'with_cover.ogg', 'with_cover.wav']*2).map do |audio|
   { type: 'UploadedAudio', file: open_file(audio) }
 end
 
-UPLOADED_IMAGE_PARAMS =  (['large-image.jpg', 'maçã.png', 'rails-photo.jpg', 'rails.png', 'ruby-small.png']).map do |image|
+UPLOADED_IMAGE_PARAMS =  (['large-image.jpg', 'maçã.png', 'rails-photo.jpg', 'ruby-small.png']*2).map do |image|
   { type: 'UploadedImage', file: open_file(image) }
 end
 
-UPLOADED_VIDEO_PARAMS =  (['d-item.mp4', 'rails.mp4', 'd-item.mp4', 'rails.mp4', 'd-item.mp4']).map do |video|
+UPLOADED_VIDEO_PARAMS =  (['d-item.mp4', 'rails.mp4']*4).map do |video|
   { type: 'UploadedVideo', file: open_file(video) }
 end
 
@@ -295,8 +295,8 @@ class PopulatedWorkspaces
 
   def publish_fact_checks
     users.each_value do |user|
-      fact_checks = FactCheck.where(user: user).last(items_total/2.floor)
-      fact_checks[0, (fact_checks.size/2.floor)].each { |fact_check| verify_fact_check_and_publish_report(fact_check.project_media)}
+      fact_checks = FactCheck.where(user: user).last(items_total/2)
+      fact_checks[0, (fact_checks.size/2)].each { |fact_check| verify_fact_check_and_publish_report(fact_check.project_media)}
     end
   end
 
@@ -367,21 +367,24 @@ class PopulatedWorkspaces
 
   def confirm_relationships
     teams_project_medias.each_value do |project_medias|
-      confirmed_relationship(project_medias[0],  project_medias[1..3])
-      confirmed_relationship(project_medias[4], project_medias[5])
+      confirmed_relationship(project_medias[0],  project_medias[1])
+      confirmed_relationship(project_medias[2],  project_medias[3..items_total/2])
     end
   end
 
   def suggest_relationships
     teams_project_medias.each_value do |project_medias|
-      suggested_relationship(project_medias[0], project_medias[6..10])
+      suggested_relationship(project_medias[2], project_medias[(items_total/2)+1..items_total-1])
     end
   end
 
   def tipline_requests
-    teams_project_medias.each_value do |project_medias|
-      create_tipline_requests(project_medias.values_at(0,1,2,3,4), 1)
-      create_tipline_requests(project_medias.values_at(5,6,7,8,9), 17)
+    teams_project_medias.each_value.with_index do |project_medias, index|
+      if index.even?
+        create_tipline_requests(project_medias[index], 1)
+      elsif index % 3 == 0
+        create_tipline_requests(project_medias[index], 17)
+      end
     end
   end
 
@@ -394,6 +397,9 @@ class PopulatedWorkspaces
       'https://meedan.com/post/check-global-launches-independent-media-response-fund-tackles-on-climate-misinformation',
       'https://meedan.com/post/chambal-media',
       'https://meedan.com/post/application-process-for-the-check-global-independent-media-response-fund',
+      'https://meedan.com/post/new-e-course-on-the-fundamentals-of-climate-and-environmental-reporting-in-africa',
+      'https://meedan.com/post/annual-report-2022',
+      'https://meedan.com/post/meedan-joins-partnership-on-ais-ai-and-media-integrity-steering-committee',
     ].map do |url|
         { type: 'Link', url: url+"?timestamp=#{Time.now.to_f}" }
       end
@@ -587,8 +593,8 @@ class PopulatedWorkspaces
     )
   end
 
-  def create_tipline_requests(project_medias, x_times)
-    project_medias.each {|project_media| x_times.times {create_tipline_user_and_data(project_media)}}
+  def create_tipline_requests(project_media, x_times)
+    x_times.times {create_tipline_user_and_data(project_media)}
   end
 end
 
