@@ -4,6 +4,8 @@ class ClaimDescription < ApplicationRecord
   belongs_to :project_media
   has_one :fact_check, dependent: :destroy
 
+  accepts_nested_attributes_for :fact_check, reject_if: proc { |attributes| attributes['summary'].blank? }
+
   validates_presence_of :project_media
   validates_uniqueness_of :project_media_id
 
