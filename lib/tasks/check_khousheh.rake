@@ -154,9 +154,17 @@ namespace :check do
             Cluster.transaction do
               # Create clusters
               mapping = {} # Media ID => Cluster ID
-              clusters.each do |media_ids|
-                result = Cluster.insert!({ feed_id: feed.id, created_at: Time.now, updated_at: Time.now })
-                cluster_id = result[0]['id']
+              # Bulk-insert clusters
+              c_inserted_items = []
+              clusters.length.times.each_slice(2500) do |rows|
+                print '.'
+                c_items = []
+                rows.each{ |r| c_items << {feed_id: feed.id, created_at: Time.now, updated_at: Time.now} }
+                output = Cluster.insert_all(c_items)
+                c_inserted_items.concat(output.rows.flatten)
+              end
+              clusters.each.with_index do |media_ids, i|
+                cluster_id = c_inserted_items[i]
                 media_ids.each do |media_id|
                   mapping[media_id.to_i] = cluster_id
                 end
@@ -200,13 +208,17 @@ namespace :check do
                     print '.'
                     pm_fc_mapping[pm_fc['id']] = pm_fc['fc_updated_at']
                   end
+                  # local clusters
+                  cluster_ids = []
+                  pms.each{|pm| cluster_ids << mapping[uuid[pm_media_mapping[pm.id]].to_i] }
+                  cluster_hash = Cluster.where(id: cluster_ids).each_with_object({}) {|result,cluster_hash| cluster_hash[result.id] = result }
                   pms.each do |pm|
                     print '.'
                     cluster_id = mapping[uuid[pm_media_mapping[pm.id]].to_i]
                     next if cluster_id.nil? || new_cluster_ids.include?(cluster_id)
-                    cluster = Cluster.find_by_id(cluster_id)
+                    cluster = cluster_hash[cluster_id]
                     next if cluster.nil?
-                    new_cluster_ids << cluster_id
+                    new_cluster_ids << cluster.id
                     updated_cluster_attributes = {}
                     updated_cluster_attributes[:id] = cluster.id
                     updated_cluster_attributes[:created_at] = cluster.created_at
@@ -220,12 +232,11 @@ namespace :check do
                     updated_cluster_attributes[:last_request_date] = (pm.last_seen > cluster.last_request_date.to_i) ? Time.at(pm.last_seen) : cluster.last_request_date
                     updated_cluster_attributes[:fact_checks_count] = cluster.fact_checks_count
                     updated_cluster_attributes[:last_fact_check_date] = cluster.last_fact_check_date
-                    fact_check = pm.claim_description&.fact_check
                     unless pm_fc_mapping[pm.id].blank?
                       updated_cluster_attributes[:fact_checks_count] = cluster.fact_checks_count + 1
                       updated_cluster_attributes[:last_fact_check_date] = pm_fc_mapping[pm.id] if pm_fc_mapping[pm.id].to_i > cluster.last_fact_check_date.to_i
                     end
-                    cpm_items << { project_media_id: pm.id, cluster_id: cluster_id }
+                    cpm_items << { project_media_id: pm.id, cluster_id: cluster.id }
                     # FIXME: Set the center of the cluster properly
                     updated_cluster_attributes[:project_media_id] = cluster.project_media_id || pm.id
                     updated_cluster_attributes[:title] = cluster.title || pm.title
@@ -245,7 +256,7 @@ namespace :check do
                   begin
                     Cluster.upsert_all(cluster_items)
                   rescue
-                    error_logs << {feed: "Failed to update Cluster for feed #{feed.id} page #{page}"}
+                    error_logs << { feed: "Failed to update Cluster for feed #{feed.id} page #{page}" }
                   end
                 end
                 search_after = [pm_ids.max]
