@@ -145,7 +145,6 @@ class Feed < ApplicationRecord
 
     # Filter by channel
     query = query.where("ARRAY[?] && channels", channels.to_a.map(&:to_i)) unless channels.blank?
-    query = query.where(channels: []) if channels&.empty? # Invalidate the query
 
     # Filter by media type
     query = query.joins(project_media: :media).where('medias.type' => args[:media_type]) unless args[:media_type].blank?
