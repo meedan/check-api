@@ -2,23 +2,23 @@ ActiveRecord::Base.logger = nil
 namespace :check do
   namespace :khousheh do
 
-    PER_PAGE = 2000
+    PER_PAGE = Rails.env.development? ? 10 : 2000
 
     def claim_uuid_for_duplicate_quote
-      puts "Collect Claim uuid for duplicate quotes"
+      puts 'Collecting claim media UUIDs for duplicate quotes...'
       claim_uuid = {}
       Media.select('quote, MIN(id) as first').where(type: 'Claim').group(:quote).having('COUNT(id) > 1')
       .each do |raw|
-        claim_uuid[raw['quote']] = raw['first'].to_s
+        claim_uuid[Digest::MD5.hexdigest(raw['quote'])] = raw['first'].to_s
       end
       claim_uuid
     end
 
-    # docker-compose exec -e elasticsearch_log=0 api bundle exec rake check:khousheh:generate_input_file
-    desc 'Generate input files in json format'
-    task generate_input_file: :environment do
+    # docker-compose exec -e elasticsearch_log=0 api bundle exec rake check:khousheh:generate_input
+    desc 'Generate input files in JSON format.'
+    task generate_input: :environment do
       started = Time.now.to_i
-      # Collect Claim uuid for duplicate quote
+      # Collect claim media UUIDs for duplicate quote
       claim_uuid = claim_uuid_for_duplicate_quote
       sort = [{ annotated_id: { order: :asc } }]
       Feed.find_each do |feed|
@@ -26,11 +26,11 @@ namespace :check do
         if feed.data_points.to_a.include?(2)
           output = { call_id: feed.uuid, nodes: [], edges: [] }
           Team.current = feed.team
-          query = { feed_id: feed.id, feed_view: 'media', show_similar: false }
+          query = { feed_id: feed.id, feed_view: 'media', show_similar: true }
           es_query = CheckSearch.new(query.to_json).medias_query
           total = CheckSearch.new(query.to_json, nil, feed.team.id).number_of_results
           pages = (total / PER_PAGE.to_f).ceil
-          puts "Generating input file for feed #{feed.name} with #{total} item(s)"
+          puts "Generating input file for feed #{feed.name} with #{total} item(s)..."
           search_after = [0]
           page = 0
           while true
@@ -38,11 +38,11 @@ namespace :check do
             result = $repository.search(_source: 'annotated_id', query: es_query, sort: sort, search_after: search_after, size: PER_PAGE).results
             pm_ids = result.collect{ |i| i['annotated_id'] }.uniq
             break if pm_ids.empty?
-            pm_media_mapping = {}
+            pm_media_mapping = {} # Project Media ID => Media ID
             uuid = {}
             ProjectMedia.where(id: pm_ids).find_in_batches(:batch_size => PER_PAGE) do |pms|
               print '.'
-              # Collect media uuid
+              # Collect media UUID
               pms.each do |pm|
                 pm_media_mapping[pm.id] = pm.media_id
                 uuid[pm.media_id] = pm.media_id.to_s
@@ -50,11 +50,12 @@ namespace :check do
               m_ids = pms.map(&:media_id)
               Media.where(id: m_ids, type: 'Claim').find_each do |m|
                print '.'
-               uuid[m.id] = claim_uuid[m.quote] || m.id.to_s
+               uuid[m.id] = claim_uuid[Digest::MD5.hexdigest(m.quote)] || m.id.to_s
              end
             end
             pm_ids.each do |pm_id|
               m_uuid = uuid[pm_media_mapping[pm_id]]
+              next if m_uuid.blank?
               output[:nodes] << m_uuid unless output[:nodes].include?(m_uuid)
             end
 
@@ -73,13 +74,15 @@ namespace :check do
               end
               Media.where(id: tpm_m_mapping.values, type: 'Claim').find_each do |m|
                 print '.'
-                t_uuid[m.id] = claim_uuid[m.quote] || m.id.to_s
+                t_uuid[m.id] = claim_uuid[Digest::MD5.hexdigest(m.quote)] || m.id.to_s
               end
               relations.each do |r|
                 print '.'
                 begin
                   if spm_m_mapping.keys.include?(r.source_id) && tpm_m_mapping.keys.include?(r.target_id)
-                    output[:edges] << [uuid[spm_m_mapping[r.source_id]], t_uuid[tpm_m_mapping[r.target_id]], r.weight]
+                    if !uuid[spm_m_mapping[r.source_id]].blank? && !t_uuid[tpm_m_mapping[r.target_id]].blank?
+                      output[:edges] << [uuid[spm_m_mapping[r.source_id]], t_uuid[tpm_m_mapping[r.target_id]], r.weight]
+                    end
                   end
                 rescue StandardError => e
                   puts "WARNING: Ignoring corrupted relationship with ID #{r.id} (exception: #{e.message})"
@@ -99,12 +102,12 @@ namespace :check do
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
 
-    # docker-compose exec -e elasticsearch_log=0 api bundle exec rake check:khousheh:upload
-    desc 'Upload json file to S3'
+    # docker-compose exec -e elasticsearch_log=0 -e CLUSTER_INPUT_BUCKET=bucket-name api bundle exec rake check:khousheh:upload
+    desc 'Upload input JSON files to S3.'
     task upload: :environment do
       started = Time.now.to_i
       bucket_name = ENV.fetch('CLUSTER_INPUT_BUCKET')
-      region = 'eu-west-1'
+      region = CheckConfig.get('storage_bucket_region') || 'eu-west-1'
       begin
         s3_client = Aws::S3::Client.new(region: region)
       rescue Aws::Sigv4::Errors::MissingCredentialsError
@@ -119,8 +122,8 @@ namespace :check do
           begin
             response = s3_client.put_object(
               bucket: bucket_name,
-              key: object_key,
-              body: File.read(file_path)
+              key: filename,
+              body: File.read(filepath)
             )
             if response.etag
               puts "Uploaded #{filename}."
@@ -128,7 +131,7 @@ namespace :check do
               puts "Error uploading #{filename} to S3. Check credentials?"
             end
           rescue StandardError => e
-            puts "Error uploading S3 object: #{e.message}"
+            puts "Error uploading S3 object: #{e.message}."
           end
         end
       end
@@ -136,9 +139,18 @@ namespace :check do
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
 
-    # docker-compose exec -e elasticsearch_log=0 api bundle exec rake check:khousheh:parse_output_file
-    desc 'Parse output file(json format) and recreate clusters'
-    task parse_output_file: :environment do
+    # docker-compose exec -e elasticsearch_log=0 -e CLUSTER_OUTPUT_BUCKET=bucket-name api bundle exec rake check:khousheh:download
+    desc 'Download json file from S3'
+    task download: :environment do
+      started = Time.now.to_i
+      # TODO: Download output files from S3.
+      minutes = ((Time.now.to_i - started) / 60).to_i
+      puts "[#{Time.now}] Done in #{minutes} minutes."
+    end
+
+    # docker-compose exec -e elasticsearch_log=0 api bundle exec rake check:khousheh:parse_output
+    desc 'Parse output files (JSON format) and recreate clusters.'
+    task parse_output: :environment do
       started = Time.now.to_i
       claim_uuid = claim_uuid_for_duplicate_quote
       sort = [{ annotated_id: { order: :asc } }]
@@ -146,9 +158,9 @@ namespace :check do
       Feed.find_each do |feed|
         # Only feeds that are sharing media
         if feed.data_points.to_a.include?(2)
-          puts "Downloading feed #{feed.name}"
+          puts "Parsing feed #{feed.name}..."
           begin
-            last_old_cluster_id = Cluster.where(feed_id: feed.id).last&.id
+            last_old_cluster_id = Cluster.where(feed_id: feed.id).order('id ASC').last&.id
             clusters = JSON.parse(File.read(File.join(Rails.root, 'tmp', "#{feed.uuid}.json")))
             started_at = Time.now.to_f
             Cluster.transaction do
@@ -159,7 +171,7 @@ namespace :check do
               clusters.length.times.each_slice(2500) do |rows|
                 print '.'
                 c_items = []
-                rows.each{ |r| c_items << {feed_id: feed.id, created_at: Time.now, updated_at: Time.now} }
+                rows.each { |r| c_items << { feed_id: feed.id, created_at: Time.now, updated_at: Time.now } }
                 output = Cluster.insert_all(c_items)
                 c_inserted_items.concat(output.rows.flatten)
               end
@@ -183,23 +195,21 @@ namespace :check do
                 result = $repository.search(_source: 'annotated_id', query: es_query, sort: sort, search_after: search_after, size: PER_PAGE).results
                 pm_ids = result.collect{ |i| i['annotated_id'] }.uniq
                 break if pm_ids.empty?
-                pm_media_mapping = {}
+                pm_media_mapping = {} # Project Media ID => Media ID
                 uuid = {}
                 cpm_items = []
-                cluster_items = []
-                new_cluster_ids = []
                 ProjectMedia.where(id: pm_ids).find_in_batches(:batch_size => PER_PAGE) do |pms|
-                  # Collect media uuid
+                  # Collect claim media UUIDs
                   pms.each do |pm|
                     pm_media_mapping[pm.id] = pm.media_id
                     uuid[pm.media_id] = pm.media_id.to_s
                   end
                   Media.where(id: pms.map(&:media_id), type: 'Claim').find_each do |m|
                    print '.'
-                   uuid[m.id] = claim_uuid[m.quote] || m.id.to_s
+                   uuid[m.id] = claim_uuid[Digest::MD5.hexdigest(m.quote)] || m.id.to_s
                   end
-                  # FactCheck
-                  pm_fc_mapping = {}
+                  # Fact-checks
+                  pm_fc_mapping = {} # Project Media ID => Fact-Check Updated At
                   ProjectMedia.select('project_medias.id as id, fc.updated_at as fc_updated_at')
                   .where(id: pms.map(&:id))
                   .joins("INNER JOIN claim_descriptions cd ON project_medias.id = cd.project_media_id")
@@ -208,21 +218,14 @@ namespace :check do
                     print '.'
                     pm_fc_mapping[pm_fc['id']] = pm_fc['fc_updated_at']
                   end
-                  # local clusters
-                  cluster_ids = []
-                  pms.each{|pm| cluster_ids << mapping[uuid[pm_media_mapping[pm.id]].to_i] }
-                  cluster_hash = Cluster.where(id: cluster_ids).each_with_object({}) {|result,cluster_hash| cluster_hash[result.id] = result }
+                  # Local clusters
                   pms.each do |pm|
                     print '.'
                     cluster_id = mapping[uuid[pm_media_mapping[pm.id]].to_i]
-                    next if cluster_id.nil? || new_cluster_ids.include?(cluster_id)
-                    cluster = cluster_hash[cluster_id]
+                    next if cluster_id.nil?
+                    cluster = Cluster.find_by_id(cluster_id)
                     next if cluster.nil?
-                    new_cluster_ids << cluster.id
-                    updated_cluster_attributes = {}
-                    updated_cluster_attributes[:id] = cluster.id
-                    updated_cluster_attributes[:created_at] = cluster.created_at
-                    updated_cluster_attributes[:updated_at] = cluster.updated_at
+                    updated_cluster_attributes = { id: cluster.id, created_at: cluster.created_at, updated_at: Time.now }
                     updated_cluster_attributes[:first_item_at] = cluster.first_item_at || pm.created_at
                     updated_cluster_attributes[:last_item_at] = pm.created_at
                     updated_cluster_attributes[:team_ids] = (cluster.team_ids.to_a + [pm.team_id]).uniq.compact_blank
@@ -240,7 +243,8 @@ namespace :check do
                     # FIXME: Set the center of the cluster properly
                     updated_cluster_attributes[:project_media_id] = cluster.project_media_id || pm.id
                     updated_cluster_attributes[:title] = cluster.title || pm.title
-                    cluster_items << updated_cluster_attributes
+                    # Update cluster
+                    cluster.update_columns(updated_cluster_attributes)
                   end
                 end
                 # Bulk-insert ClusterProjectMedia
@@ -249,14 +253,6 @@ namespace :check do
                     ClusterProjectMedia.insert_all(cpm_items, unique_by: %i[ cluster_id project_media_id ])
                   rescue
                     error_logs << {feed: "Failed to import ClusterProjectMedia for feed #{feed.id} page #{page}"}
-                  end
-                end
-                # Bulk-update Cluster
-                unless cluster_items.blank?
-                  begin
-                    Cluster.upsert_all(cluster_items)
-                  rescue
-                    error_logs << { feed: "Failed to update Cluster for feed #{feed.id} page #{page}" }
                   end
                 end
                 search_after = [pm_ids.max]
@@ -268,20 +264,11 @@ namespace :check do
             end
             puts "Rebuilding clusters for feed #{feed.name} took #{Time.now.to_f - started_at} seconds."
           rescue Errno::ENOENT
-            puts "Output file not found for feed #{feed.name}"
+            puts "Output file not found for feed #{feed.name}."
           end
         end
       end
-      puts "Logs:: #{error_logs.inspect}" unless error_logs.blank?
-      minutes = ((Time.now.to_i - started) / 60).to_i
-      puts "[#{Time.now}] Done in #{minutes} minutes."
-    end
-
-    # docker-compose exec -e elasticsearch_log=0 api bundle exec rake check:khousheh:download
-    desc 'Download json file from S3'
-    task download: :environment do
-      started = Time.now.to_i
-      # TODO: download json file from S3
+      puts "Logs: #{error_logs.inspect}." unless error_logs.blank?
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
