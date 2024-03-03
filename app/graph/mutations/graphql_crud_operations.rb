@@ -43,7 +43,7 @@ class GraphqlCrudOperations
         ret["#{obj_name}Edge".to_sym] = GraphQL::Relay::Edge.between(
           child,
           parent
-        ) if !%w[related_to public_team version].include?(parent_name)
+        ) if !%w[related_to public_team version me].include?(parent_name)
         ret[parent_name.to_sym] = parent
       end
     end

@@ -127,4 +127,12 @@ class BotUser2Test < ActiveSupport::TestCase
       b.call({})
     end
   end
+
+  test "should capture error if bot can't be called" do
+    Bot::Alegre.stubs(:run).raises(StandardError)
+    b = create_bot_user login: 'alegre'
+    assert_nothing_raised do
+      b.call({})
+    end
+  end
 end

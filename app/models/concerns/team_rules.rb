@@ -50,10 +50,7 @@ module TeamRules
 
     def get_smooch_message(pm)
       smooch_message = pm.smooch_message
-      if smooch_message.nil?
-        smooch_message = begin JSON.parse(pm.get_annotations('smooch').last.load.get_field_value('smooch_data').to_s) rescue {} end
-      end
-      smooch_message
+      smooch_message.nil? ? pm.tipline_requests.last.smooch_data : smooch_message
     end
 
     def title_matches_regexp(pm, value, _rule_id)

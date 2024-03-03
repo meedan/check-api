@@ -74,6 +74,10 @@ class Media < ApplicationRecord
     ''
   end
 
+  def uuid
+    self.id
+  end
+
   private
 
   def set_url_nil_if_empty

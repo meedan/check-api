@@ -62,13 +62,13 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   end
 
   def assert_saved_query_type(type)
-    assert_difference "DynamicAnnotation::Field.where('value LIKE ?', '%#{type}%').count" do
+    assert_difference "TiplineRequest.where('smooch_request_type LIKE ?', '%#{type}%').count" do
       Sidekiq::Worker.drain_all
     end
   end
 
   def assert_no_saved_query
-    assert_no_difference "Dynamic.where(annotation_type: 'smooch').count" do
+    assert_no_difference "TiplineRequest.count" do
       Sidekiq::Worker.drain_all
     end
   end
@@ -223,7 +223,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar', '1'
       assert_state 'search_result'
-      assert_difference 'Dynamic.where(annotation_type: "smooch").count + ProjectMedia.count + Relationship.where(relationship_type: Relationship.suggested_type).count', 3 do
+      assert_difference 'TiplineRequest.count + ProjectMedia.count', 2 do
         send_message '1'
       end
       assert_state 'main'
@@ -240,7 +240,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar foo bar foo bar', '1'
       assert_state 'search_result'
-      assert_difference 'Dynamic.where(annotation_type: "smooch").count + ProjectMedia.count + Relationship.where(relationship_type: Relationship.suggested_type).count', 3 do
+      assert_difference 'TiplineRequest.count + ProjectMedia.count', 2 do
         send_message '1'
       end
       assert_state 'main'
@@ -257,12 +257,12 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
     Bot::Alegre.stubs(:get_items_with_similar_media).returns({ @search_result.id => { score: 0.9 } })
-    Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'image', 'mediaUrl' => image_url })
+    Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'image', 'mediaUrl' => image_url, 'source' => { type: "whatsapp" }, language: 'en' })
     CheckS3.stubs(:rewrite_url).returns(random_url)
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Image here', '1'
       assert_state 'search_result'
-      assert_difference 'Dynamic.where(annotation_type: "smooch").count + ProjectMedia.count + Relationship.where(relationship_type: Relationship.suggested_type).count', 3 do
+      assert_difference 'TiplineRequest.count + ProjectMedia.count', 2 do
         send_message '1'
       end
       assert_state 'main'
@@ -292,7 +292,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar', '1'
       assert_state 'search_result'
-      assert_difference 'Dynamic.count + ProjectMedia.count', 3 do
+      assert_difference 'Dynamic.count + TiplineRequest.count + ProjectMedia.count', 3 do
         send_message '2'
       end
       assert_state 'waiting_for_message'
@@ -394,6 +394,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
           type: 'whatsapp',
           integrationId: random_string
         },
+        language: 'en',
       }
       Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm)
       message = {
@@ -410,6 +411,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
           type: 'messenger',
           integrationId: random_string
         },
+        language: 'en',
       }
       Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm)
       # verifiy new channel value
@@ -429,6 +431,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
           type: 'messenger',
           integrationId: random_string
         },
+        language: 'en',
       }
       Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm2)
       # verifiy new channel value
@@ -612,8 +615,8 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     send_message url, '1', url, '1'
     assert_state 'search'
     Sidekiq::Worker.drain_all
-    d = Dynamic.where(annotation_type: 'smooch').last
-    assert_equal 2, JSON.parse(d.get_field_value('smooch_data'))['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}").select{ |x| x.chomp.strip == url }.size
+    tr = TiplineRequest.last
+    assert_equal 2, tr.smooch_data['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}").select{ |x| x.chomp.strip == url }.size
   end
 
   test "should get search results in different languages" do
@@ -871,7 +874,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     send_message 'hello', '1' # Sends a first message and confirms language as English
     send_message 'This is message is so long that it is considered a media'
     assert_difference 'ProjectMedia.count' do
-      assert_difference "Dynamic.where(annotation_type: 'smooch').count" do
+      assert_difference "TiplineRequest.count" do
         Sidekiq::Worker.drain_all
       end
     end
@@ -884,7 +887,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     send_message 'hello', '1' # Sends a first message and confirms language as English
     send_message 'Hi, there!'
     assert_no_difference 'ProjectMedia.count' do
-      assert_difference "Dynamic.where(annotation_type: 'smooch').count" do
+      assert_difference "TiplineRequest.count" do
         Sidekiq::Worker.drain_all
       end
     end

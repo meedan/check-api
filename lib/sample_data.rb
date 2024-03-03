@@ -506,6 +506,7 @@ module SampleData
     options[:skip_autocreate_source] = true unless options.has_key?(:skip_autocreate_source)
     pm.source = create_source({ team: options[:team], skip_check_ability: true }) if options[:skip_autocreate_source]
     pm.save!
+    create_cluster_project_media({ cluster: options[:cluster], project_media: pm}) if options[:cluster]
     pm.reload
   end
 
@@ -845,9 +846,39 @@ module SampleData
     }.merge(options))
   end
 
+  def create_tipline_request(options = {})
+    tr = TiplineRequest.new
+    tr.smooch_data = { language: 'en', authorId: random_string, source: { type: 'whatsapp' } } unless options.has_key?(:smooch_data)
+    tr.team_id = options[:team_id] || create_team.id unless options.has_key?(:team_id)
+    tr.associated = options[:associated] || create_project_media
+    tr.smooch_request_type = 'default_requests' unless options.has_key?(:smooch_request_type)
+    tr.platform = 'whatsapp' unless options.has_key?(:platform)
+    tr.language = 'en' unless options.has_key?(:language)
+    options.each do |key, value|
+      tr.send("#{key}=", value) if tr.respond_to?("#{key}=")
+    end
+    tr.save!
+    tr.reload
+  end
+
   def create_cluster(options = {})
-    options[:project_media] = create_project_media unless options.has_key?(:project_media)
-    Cluster.create!(options)
+    team = options[:project_media]&.team || create_team
+    options[:feed] = options[:feed] || create_feed({ team: team })
+    c = Cluster.new
+    options.each do |key, value|
+      c.send("#{key}=", value) if c.respond_to?("#{key}=")
+    end
+    c.save!
+    # Add item to cluster
+    create_cluster_project_media({ cluster: c, project_media: options[:project_media] }) if options[:project_media]
+    c.reload
+  end
+
+  def create_cluster_project_media(options = {})
+    ClusterProjectMedia.create!({
+      cluster: options[:cluster] || create_cluster,
+      project_media: options[:project_media] || create_project_media
+    }.merge(options))
   end
 
   def create_claim_description(options = {})
@@ -872,7 +903,7 @@ module SampleData
   def create_feed(options = {})
     Feed.create!({
       name: random_string,
-      team: create_team,
+      team: options[:team] || create_team,
       licenses: [1],
     }.merge(options))
   end

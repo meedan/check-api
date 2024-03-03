@@ -13,6 +13,8 @@ class RelayOnRailsSchema < GraphQL::Schema
 
   lazy_resolve(Concurrent::Future, :value)
 
+  disable_introspection_entry_points unless Rails.env.development?
+
   class << self
     def resolve_type(_type, object, _ctx)
       klass = (object.respond_to?(:type) && object.type) ? object.type : object.class_name

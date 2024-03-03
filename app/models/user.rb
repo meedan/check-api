@@ -27,10 +27,11 @@ class User < ApplicationRecord
   has_many :fact_checks
   has_many :feeds
   has_many :feed_invitations
+  has_many :tipline_requests
 
   devise :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,
-         :omniauthable, omniauth_providers: [:twitter, :facebook, :slack, :google_oauth2]
+         :omniauthable, :lockable, omniauth_providers: [:twitter, :facebook, :slack, :google_oauth2]
 
   before_create :skip_confirmation_for_non_email_provider
   after_create :create_source_and_account, :set_source_image, :send_welcome_email
@@ -92,6 +93,10 @@ class User < ApplicationRecord
 
   def self.from_token(token)
     JSON.parse(Base64.decode64(token.gsub('++n', "\n")))
+  end
+
+  def me
+    User.current&.id == self.id ? self : nil
   end
 
   def set_source_image

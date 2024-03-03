@@ -401,9 +401,9 @@ class GraphqlController7Test < ActionController::TestCase
   test "should get user confirmed" do
     u = create_user
     authenticate_with_user(u)
-    post :create, params: { query: "query GetById { user(id: \"#{u.id}\") { confirmed  } }" }
+    post :create, params: { query: "query { me { confirmed  } }" }
     assert_response :success
-    data = JSON.parse(@response.body)['data']['user']
+    data = JSON.parse(@response.body)['data']['me']
     assert data['confirmed']
   end
 
