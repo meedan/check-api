@@ -340,17 +340,17 @@ namespace :check do
         # Team tequests
         tr_team_c = TiplineRequest.where(associated_type: 'Team', team_id: team.id).count
         smooch_team_c = Annotation.where(annotation_type:  'smooch', annotated_type: 'Team', annotated_id: team.id).count
-        diff[:team] = { existing: smooch_team_c, migrated: tr_team_c } if tr_team_c != smooch_team_c
+        diff[:team] = { existing: smooch_team_c, migrated: tr_team_c } if smooch_team_c > tr_team_c
         # TiplineResource requests
         tr_resource_c = TiplineRequest.where(associated_type: 'TiplineResource', team_id: team.id).count
         smooch_resource_c = team.tipline_resources.joins("INNER JOIN annotations a ON a.annotated_id = tipline_resources.id")
         .where("a.annotated_type = ? AND a.annotation_type = ?", 'TiplineResource', 'smooch').count
-        diff[:tipline_resource] = { existing: smooch_resource_c, migrated: tr_resource_c } if tr_resource_c != smooch_resource_c
+        diff[:tipline_resource] = { existing: smooch_resource_c, migrated: tr_resource_c } if smooch_resource_c > tr_resource_c
         # ProjectMedia request
         tr_pm_c = TiplineRequest.where(associated_type: 'ProjectMedia', team_id: team.id).count
         smooch_tr_c = team.project_medias.joins("INNER JOIN annotations a ON a.annotated_id = project_medias.id")
         .where("a.annotated_type = ? AND a.annotation_type = ?", 'ProjectMedia', 'smooch').count
-        diff[:project_media] = { existing: smooch_tr_c, migrated: tr_pm_c } if tr_pm_c != smooch_tr_c
+        diff[:project_media] = { existing: smooch_tr_c, migrated: tr_pm_c } if smooch_tr_c > tr_pm_c
         # Add to logs
         unless diff.blank?
           diff[:team_slug] = team.slug
