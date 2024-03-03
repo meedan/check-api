@@ -12,6 +12,8 @@ class Project < ApplicationRecord
   belongs_to :project_group, optional: true
   has_many :project_medias
 
+  accepts_nested_attributes_for :user, :team, :project_medias
+
   mount_uploader :lead_image, ImageUploader
 
   before_validation :set_description_and_team_and_user, on: :create

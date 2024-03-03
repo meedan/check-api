@@ -1,382 +1,667 @@
 include SampleData
 require "faker"
+require "byebug"
 
 Rails.env.development? || raise('To run the seeds file you should be in the development environment')
-
-data_users = {
-  main_user: {
-    team:
-      {
-        name: "#{Faker::Company.name} / Main User: Main Team",
-        logo: 'rails.png'
-      },
-    name: Faker::Name.first_name.downcase,
-    password: Faker::Internet.password(min_length: 8),
-  },
-  invited_empty_user: {
-    team:
-    [
-      {
-      name: "#{Faker::Company.name} / Invited User: Team #1",
-      logo: 'maçã.png'
-    },
-    {
-      name: "#{Faker::Company.name} / Invited User: Team #2",
-      logo: 'ruby-small.png'
-    }
-  ],
-    name: Faker::Name.first_name.downcase,
-    password: Faker::Internet.password(min_length: 8),
-  }
-}
-
-data_items = {
-  'Link' => [
-    'https://meedan.com/post/addressing-misinformation-across-countries-a-pioneering-collaboration-between-taiwan-factcheck-center-vera-files',
-    'https://meedan.com/post/entre-becos-a-women-led-hyperlocal-newsletter-from-the-peripheries-of-brazil',
-    'https://meedan.com/post/check-global-launches-independent-media-response-fund-tackles-on-climate-misinformation',
-    'https://meedan.com/post/chambal-media',
-    'https://meedan.com/post/application-process-for-the-check-global-independent-media-response-fund',
-    'https://meedan.com/post/fact-checkers-and-their-mental-health-research-work-in-progress',
-    'https://meedan.com/post/meedan-stands-with-rappler-in-the-fight-against-disinformation',
-    'https://meedan.com/post/2022-french-elections-meedan-software-supported-agence-france-presse',
-    'https://meedan.com/post/how-to-write-longform-git-commits-for-better-software-development',
-    'https://meedan.com/post/welcome-smriti-singh-our-research-intern',
-    'https://meedan.com/post/countdown-to-u-s-2024-meedan-coalition-to-exchange-critical-election-information-with-overlooked-voters',
-    'https://meedan.com/post/a-statement-on-the-israel-gaza-war-by-meedans-ceo',
-    'https://meedan.com/post/resources-to-capture-critical-evidence-from-the-israel-gaza-war',
-    'https://meedan.com/post/turkeys-largest-fact-checking-group-debunks-election-related-disinformation',
-    'https://meedan.com/post/meedan-joins-diverse-cohort-of-partners-committed-to-partnership-on-ais-responsible-practices-for-synthetic-media',
-    'https://meedan.com/post/nurturing-equity-diversity-and-inclusion-meedans-people-first-approach',
-    'https://meedan.com/post/students-find-top-spreader-of-climate-misinformation-is-most-read-online-news-publisher-in-egypt',
-    'https://meedan.com/post/new-e-course-on-the-fundamentals-of-climate-and-environmental-reporting-in-africa',
-    'https://meedan.com/post/annual-report-2022',
-    'https://meedan.com/post/meedan-joins-partnership-on-ais-ai-and-media-integrity-steering-committee'
-  ],
-  'UploadedAudio' => ['e-item.mp3', 'rails.mp3', 'with_cover.mp3', 'with_cover.ogg', 'with_cover.wav']*4,
-  'UploadedImage' =>  ['large-image.jpg', 'maçã.png', 'rails-photo.jpg', 'rails.png', 'ruby-small.png']*4,
-  'UploadedVideo' =>  ['d-item.mp4', 'rails.mp4', 'd-item.mp4', 'rails.mp4', 'd-item.mp4']*4,
-  'Claim' => Array.new(20) { Faker::Lorem.paragraph(sentence_count: 10) },
-}
-
-data_imported_fact_checks =  [
-  'https://meedan.com/post/welcome-haramoun-hamieh-our-program-manager-for-nawa',
-  'https://meedan.com/post/strengthening-fact-checking-with-media-literacy-technology-and-collaboration',
-  'https://meedan.com/post/highlights-from-the-work-of-meedans-partners-on-international-fact-checking',
-  'https://meedan.com/post/what-is-gendered-health-misinformation-and-why-is-it-an-equity-problem-worth',
-  'https://meedan.com/post/the-case-for-a-public-health-approach-to-moderate-health-misinformation',
-]
 
 def open_file(file)
   File.open(File.join(Rails.root, 'test', 'data', file))
 end
 
-def create_media(user, data, model_string)
-  model = Object.const_get(model_string)
-  case model_string
-  when 'Claim'
-    media = model.create!(user_id: user.id, quote: data)
-  when 'Link'
-    media = model.create!(user_id: user.id, url: data+"?timestamp=#{Time.now.to_f}")
-  else
-    media = model.create!(user_id: user.id, file: open_file(data)) 
-  end
-  media
-end
-
-def create_project_medias(user, project, team, data)
-  data.map { |media| ProjectMedia.create!(user_id: user.id, project: project, team: team, media: media) }
-end
-
-def humanize_link(link)
-  path = URI.parse(link).path
-  path.remove('/post/').underscore.humanize
-end
-
-def create_description(project_media)
-  Media.last.type == "Link" ? humanize_link(Media.find(project_media.media_id).url) : Faker::Company.catch_phrase
-end
-
-def create_claim_descriptions(user, project_medias)
-  project_medias.map { |project_media| ClaimDescription.create!(description: create_description(project_media), context: Faker::Lorem.sentence, user: user, project_media: project_media) }
-end
-
-def create_fact_checks(user, claim_descriptions)
-  claim_descriptions.each { |claim_description| FactCheck.create!(summary: Faker::Company.catch_phrase, title: Faker::Company.name, user: user, claim_description: claim_description, language: 'en') }
-end
-
-def fact_check_attributes(fact_check_link, user, project, team)
+# claims and uploaded files can be the same
+# links need different timestamps, so they are created for each user
+CLAIMS_PARAMS = (Array.new(8) do
   {
-    summary: Faker::Company.catch_phrase,
-    url: fact_check_link,
-    title: Faker::Company.name,
-    user: user,
-    claim_description: create_claim_description_for_imported_fact_check(user, project, team)
+    type: 'Claim',
+    quote: Faker::Lorem.paragraph(sentence_count: 8)
   }
+end)
+
+UPLOADED_AUDIO_PARAMS = (['e-item.mp3', 'with_cover.mp3', 'with_cover.ogg', 'with_cover.wav']*2).map do |audio|
+  { type: 'UploadedAudio', file: open_file(audio) }
 end
 
-def create_blank(project, team)
-  ProjectMedia.create!(project: project, team: team, media: Blank.create!, channel:  { main: CheckChannels::ChannelCodes::FETCH })
+UPLOADED_IMAGE_PARAMS =  (['large-image.jpg', 'maçã.png', 'rails-photo.jpg', 'ruby-small.png']*2).map do |image|
+  { type: 'UploadedImage', file: open_file(image) }
 end
 
-def create_claim_description_for_imported_fact_check(user, project, team)
-  ClaimDescription.create!(description: Faker::Company.catch_phrase, context: Faker::Lorem.sentence, user: user, project_media: create_blank(project, team))
+UPLOADED_VIDEO_PARAMS =  (['d-item.mp4', 'rails.mp4']*4).map do |video|
+  { type: 'UploadedVideo', file: open_file(video) }
 end
 
-def create_confirmed_relationship(parent, children)
-  [children].flatten.each { |child| Relationship.create!(source_id: parent.id, target_id: child.id, relationship_type: Relationship.confirmed_type) }
-end
+MEDIAS_PARAMS = [
+  *CLAIMS_PARAMS,
+  *UPLOADED_AUDIO_PARAMS,
+  *UPLOADED_IMAGE_PARAMS,
+  *UPLOADED_VIDEO_PARAMS,
+].shuffle!
 
-def create_suggested_relationship(parent, children)
-  children.each { |child| Relationship.create!(source_id: parent.id, target_id: child.id, relationship_type: Relationship.suggested_type)} 
-end
+class Setup
 
-def create_project_medias_with_channel(user, project, team, data)
-  data.map { |media| ProjectMedia.create!(user_id: user.id, project: project, team: team, media: media, channel: { main: CheckChannels::ChannelCodes::WHATSAPP })}
-end
+  private
 
-def create_tipline_user_and_data(project_media, team)
-  tipline_message_data = {
-    link: 'https://www.nytimes.com/interactive/2023/09/28/world/europe/russia-ukraine-war-map-front-line.html',
-    audio: "#{random_url}/wnHkwjykxOqU3SMWpEpuVzSa.oga",
-    video: "#{random_url}/AOVFpYOfMm_ssRUizUQhJHDD.mp4",
-    image: "#{random_url}/bOoeoeV9zNA51ecial0eWDG6.jpeg",
-    facebook: 'https://www.facebook.com/boomlive/posts/pfbid0ZoZPYTQAAmrrPR2XmpZ2BCPED1UgozxFGxSQiH68Aa6BF1Cvx2uWHyHrFrAwK7RPl',
-    instagram: 'https://www.instagram.com/p/CxsV1Gcskk8/?img_index=1',
-    tiktok: 'https://www.tiktok.com/@235flavien/video/7271360629615758597?_r=1&_t=8fFCIWTDWVt',
-    twitter: 'https://twitter.com/VietFactCheck/status/1697642909883892175',
-    youtube: 'https://www.youtube.com/watch?v=4EIHB-DG_JA',
-    text: Faker::Lorem.paragraph(sentence_count: 10)
-  }
+  attr_reader :user_names, :user_passwords, :user_emails, :team_names, :existing_user_email, :main_user_a
 
-  tipline_user_name = Faker::Name.first_name.downcase
-  tipline_user_surname = Faker::Name.last_name
-  tipline_message =  tipline_message_data.values.sample((1..10).to_a.sample).join(' ')
-  phone = [ Faker::PhoneNumber.phone_number, Faker::PhoneNumber.cell_phone, Faker::PhoneNumber.cell_phone_in_e164, Faker::PhoneNumber.phone_number_with_country_code, Faker::PhoneNumber.cell_phone_with_country_code].sample
-  uid = random_string
+  public
 
-  # Tipline user
-  smooch_user_data = {
-    'id': uid,
-    'raw': {
-      '_id': uid,
-      'givenName': tipline_user_name,
-      'surname': tipline_user_surname,
-      'signedUpAt': Time.now.to_s,
-      'properties': {},
-      'conversationStarted': true,
-      'clients': [
+  attr_reader :teams, :users
+
+  def initialize(existing_user_email)
+    @existing_user_email = existing_user_email
+    @user_names = Array.new(3) { Faker::Name.first_name.downcase }
+    @user_passwords = Array.new(3) { Faker::Internet.password(min_length: 8) }
+    @user_emails = @user_names.map { |name| Faker::Internet.safe_email(name: name) }
+    @team_names = Array.new(4) { Faker::Company.name }
+
+    users
+    teams
+    team_users
+  end
+
+  def get_users_emails_and_passwords
+    login_credentials = user_emails.zip(user_passwords)
+    if existing_user_email && teams.size > 1
+      login_credentials[1..]
+    elsif existing_user_email && teams.size == 1
+      ['Added to a user, and did not create any new users.']
+    elsif teams.size == 1
+      login_credentials[0]
+    else
+      login_credentials
+    end.flatten
+  end
+
+  def users
+    @users ||= begin
+      all_users = {}
+      all_users.merge!(invited_users)
+      all_users[:main_user_a] = main_user_a
+      all_users.each_value { |user| user.confirm && user.save! }
+      all_users
+    end
+  end
+
+  def teams
+    @teams ||= begin
+      all_teams = {}
+      all_teams.merge!(invited_teams)
+      all_teams[:main_team_a] = main_team_a
+      all_teams
+    end
+  end 
+
+  private
+
+  def main_user_a
+    @main_user_a ||= if existing_user_email
+      User.find_by(email: existing_user_email)
+    else
+      User.create!({
+        name: user_names[0] + ' [a / main user]',
+        login: user_names[0] + ' [a / main user]',
+        email: user_emails[0],
+        password: user_passwords[0],
+        password_confirmation: user_passwords[0],
+      })
+    end
+  end
+
+  def main_team_a
+    if main_user_a.teams.first
+      main_user_a.teams.first
+    else
+      Team.create!({
+        name: "#{team_names[0]} / [a] Main User: Main Team",
+        slug: Team.slug_from_name(team_names[0]),
+        logo: open_file('rails.png')
+      })
+    end
+  end
+
+  def invited_users
+    {
+      invited_user_b:
+      {
+        name: user_names[1] + ' [b / invited user]',
+        login: user_names[1] + ' [b / invited user]',
+        email: user_emails[1],
+        password: user_passwords[1],
+        password_confirmation: user_passwords[1]
+      },
+      invited_user_c:
+      {
+        name: user_names[2] + ' [c / invited user]',
+        login: user_names[2] + ' [c / invited user]',
+        email: user_emails[2],
+        password: user_passwords[2],
+        password_confirmation: user_passwords[2]
+      }
+    }.transform_values { |params| User.create!(params) }
+  end
+
+  def invited_teams
+    {
+      invited_team_b1:
+      {
+        name: "#{team_names[1]} / [b] Invited User: Team #1",
+        slug: Team.slug_from_name(team_names[1]),
+        logo: open_file('maçã.png')
+      },
+      invited_team_b2:
+      {
+        name: "#{team_names[2]} / [b] Invited User: Team #2",
+        slug: Team.slug_from_name(team_names[2]),
+        logo: open_file('ruby-small.png')
+      },
+      invited_team_c:
+      {
+        name: "#{team_names[3]} / [c] Invited User: Team #1",
+        slug: Team.slug_from_name(team_names[3]),
+        logo: open_file('maçã.png')
+      }
+    }.transform_values { |t| Team.create!(t) }
+  end
+
+  def team_users
+    if teams.size > 1
+      [
         {
-          'id': random_string,
-          'status': 'active',
-          'externalId': phone,
-          'active': true,
-          'lastSeen': Time.now.to_s,
-          'platform': 'whatsapp',
-          'integrationId': random_string,
-          'displayName': phone,
-          'raw': {
-            'profile': {
-              'name': tipline_user_name
-            },
-            'from': phone
+          team: teams[:invited_team_b1],
+          user: users[:invited_user_b],
+          role: 'admin',
+          status: 'member'
+        },
+        {
+          team: teams[:invited_team_b2],
+          user: users[:invited_user_b],
+          role: 'admin',
+          status: 'member'
+        },
+        {
+          team: teams[:invited_team_c],
+          user: users[:invited_user_c],
+          role: 'admin',
+          status: 'member'
+        }
+      ].each { |params| TeamUser.create!(params) }
+    end
+
+    main_team_a_team_user
+  end
+
+  def main_team_a_team_user
+    return if @existing_user_email
+    TeamUser.create!({
+      team: teams[:main_team_a],
+      user: users[:main_user_a],
+      role: 'admin',
+      status: 'member'
+    })
+  end
+end
+
+class PopulatedWorkspaces
+
+  private
+
+  attr_reader :teams, :users, :invited_teams
+
+  public
+
+  def initialize(setup)
+    @teams = setup.teams
+    @users = setup.users
+    @invited_teams = teams.size > 1
+  end
+
+  def populate_projects
+    projects_params_main_user_a = 
+      {
+        title: "#{teams[:main_team_a][:name]} / [a] Main User: Main Team",
+        user: users[:main_user_a],
+        team: teams[:main_team_a],
+        project_medias_attributes: medias_params_with_links.map.with_index { |media_params, index|
+          {
+            media_attributes: media_params,
+            user: users[:main_user_a],
+            team: teams[:main_team_a],
+            claim_description_attributes: {
+              description: claim_title(media_params),
+              context: Faker::Lorem.sentence,
+              user: users[:main_user_a],
+              fact_check_attributes: fact_check_params_for_half_the_claims(index, users[:main_user_a]),
+            }
           }
         }
-      ],
-      'pendingClients': []
-    },
-    'identifier': random_string,
-    'app_name': random_string
-  }
+      }
 
-  fields = {
-    smooch_user_id: uid,
-    smooch_user_app_id: random_string,
-    smooch_user_data: smooch_user_data.to_json
-  }
-  
-  Dynamic.create!(annotation_type: 'smooch_user', annotated: team, annotator: BotUser.smooch_user, set_fields: fields.to_json)
+    Project.create!(projects_params_main_user_a)
 
-  # Tipline request
-  smooch_data = {
-    'role': 'appUser',
-    'source': {
-      'type': ['whatsapp', 'telegram', 'messenger'].sample,
-      'id': random_string,
-      'integrationId': random_string,
-      'originalMessageId': random_string,
-      'originalMessageTimestamp': Time.now.to_i
-    },
-    'authorId': uid,
-    'name': tipline_user_name,
-    '_id': random_string,
-    'type': 'text',
-    'received': Time.now.to_f,
-    'text': tipline_message,
-    'language': 'en',
-    'mediaUrl': nil,
-    'mediaSize': 0,
-    'archived': 3,
-    'app_id': random_string
-  }
-  
-  fields = {
-    smooch_request_type: ['default_requests', 'timeout_search_requests', 'relevant_search_result_requests'].sample,
-    smooch_data: smooch_data.to_json,
-    smooch_report_received: [Time.now.to_i, nil].sample
-  }
+    if invited_teams
+      project_params_invited_users = 
+      [
+        {
+          title: "#{teams[:invited_team_b1][:name]} / [b] Invited User: Project Team #1",
+          user: users[:invited_user_b],
+          team: teams[:invited_team_b1],
+          project_medias_attributes: MEDIAS_PARAMS.map.with_index { |media_params, index|
+            {
+              media_attributes: media_params,
+              user: users[:invited_user_b],
+              team: teams[:invited_team_b1],
+              claim_description_attributes: {
+                description: claim_title(media_params),
+                context: Faker::Lorem.sentence,
+                user: users[:invited_user_b],
+                fact_check_attributes: fact_check_params_for_half_the_claims(index, users[:invited_user_b]),
+              }
+            }
+          }
+        },
+        {
+          title: "#{teams[:invited_team_b2][:name]} / [b] Invited User: Project Team #2",
+          user: users[:invited_user_b],
+          team: teams[:invited_team_b2],
+          project_medias_attributes: MEDIAS_PARAMS.map.with_index { |media_params, index|
+            {
+              media_attributes: media_params,
+              user: users[:invited_user_b],
+              team: teams[:invited_team_b2],
+              claim_description_attributes: {
+                description: claim_title(media_params),
+                context: Faker::Lorem.sentence,
+                user: users[:invited_user_b],
+                fact_check_attributes: fact_check_params_for_half_the_claims(index, users[:invited_user_b]),
+              }
+            }
+          }
+        },
+        {
+          title: "#{teams[:invited_team_c][:name]} / [c] Invited User: Project Team #1",
+          user: users[:invited_user_c],
+          team: teams[:invited_team_c],
+          project_medias_attributes: MEDIAS_PARAMS.map.with_index { |media_params, index|
+            {
+              media_attributes: media_params,
+              user: users[:invited_user_c],
+              team: teams[:invited_team_c],
+              claim_description_attributes: {
+                description: claim_title(media_params),
+                context: Faker::Lorem.sentence,
+                user: users[:invited_user_c],
+                fact_check_attributes: fact_check_params_for_half_the_claims(index, users[:invited_user_c]),
+              }
+            }
+          }
+        }
+      ]
 
-  Dynamic.create!(annotation_type: 'smooch', annotated: project_media, annotator: BotUser.smooch_user, set_fields: fields.to_json)
+      project_params_invited_users.each { |params| Project.create!(params) }
+    end
+  end
+
+  def publish_fact_checks
+    users.each_value do |user|
+      fact_checks = FactCheck.where(user: user).last(items_total/2)
+      fact_checks[0, (fact_checks.size/2)].each { |fact_check| verify_fact_check_and_publish_report(fact_check.project_media)}
+    end
+  end
+
+  def saved_searches
+    teams.each_value { |team| saved_search(team) }
+  end
+
+  def main_user_feed(to_be_shared)
+    if to_be_shared == "share_factchecks"
+      data_points = [1]
+    elsif to_be_shared == "share_everything"
+      data_points = [1,2]
+    else
+      [2]
+    end
+
+    feed_params = {
+      name: "Feed Test ##{users[:main_user_a].feeds.count + 1}",
+      user: users[:main_user_a],
+      team: teams[:main_team_a],
+      published: true,
+      saved_search: SavedSearch.where(team: teams[:main_team_a]).first,
+      licenses: [1],
+      data_points: data_points
+    }
+    Feed.create!(feed_params)
+  end
+
+  def share_feed(feed)
+    return unless invited_teams
+    invited_users = [ users[:invited_user_b], users[:invited_user_c] ]
+    invited_users.each { |invited_user| feed_invitation(feed, invited_user)}
+  end
+
+  def clusters(feed)
+    teams_project_medias.each_value do |project_medias|
+      project_medias.each_with_index { |project_media,index| cluster(project_media, index, feed)}
+    end
+  end
+
+  def confirm_relationships
+    teams_project_medias.each_value do |project_medias|
+      confirmed_relationship(project_medias[0],  project_medias[1])
+      confirmed_relationship(project_medias[2],  project_medias[3..items_total/2])
+    end
+  end
+
+  def suggest_relationships
+    teams_project_medias.each_value do |project_medias|
+      suggested_relationship(project_medias[2], project_medias[(items_total/2)+1..items_total-1])
+    end
+  end
+
+  def tipline_requests
+    teams_project_medias.each_value do |team_project_medias|
+        create_tipline_requests(team_project_medias)
+    end
+  end
+
+  private
+
+  def medias_params_with_links
+    links_params = [
+      'https://meedan.com/post/addressing-misinformation-across-countries-a-pioneering-collaboration-between-taiwan-factcheck-center-vera-files',
+      'https://meedan.com/post/entre-becos-a-women-led-hyperlocal-newsletter-from-the-peripheries-of-brazil',
+      'https://meedan.com/post/check-global-launches-independent-media-response-fund-tackles-on-climate-misinformation',
+      'https://meedan.com/post/chambal-media',
+      'https://meedan.com/post/application-process-for-the-check-global-independent-media-response-fund',
+      'https://meedan.com/post/new-e-course-on-the-fundamentals-of-climate-and-environmental-reporting-in-africa',
+      'https://meedan.com/post/annual-report-2022',
+      'https://meedan.com/post/meedan-joins-partnership-on-ais-ai-and-media-integrity-steering-committee',
+    ].map do |url|
+        { type: 'Link', url: url+"?timestamp=#{Time.now.to_f}" }
+      end
+
+    [
+      *CLAIMS_PARAMS,
+      *UPLOADED_AUDIO_PARAMS,
+      *UPLOADED_IMAGE_PARAMS,
+      *UPLOADED_VIDEO_PARAMS,
+      *links_params,
+    ].shuffle!
+  end
+
+  def items_total
+    @items_total ||= MEDIAS_PARAMS.size
+  end
+
+  def title_from_link(link)
+    path = URI.parse(link).path
+    path.remove('/post/').underscore.humanize
+  end
+
+  def claim_title(media_params)
+    media_params[:type] == "Link" ? title_from_link(media_params[:url]) : Faker::Company.catch_phrase
+  end
+
+  def fact_check_params_for_half_the_claims(index, user)
+    if index.even?
+      {
+        summary: Faker::Company.catch_phrase,
+        title: Faker::Company.name,
+        user: user,
+        language: 'en',
+        url: get_url_for_some_fact_checks(index)
+      }
+    else
+      {
+        summary:  '',
+      }
+    end
+  end
+
+  def get_url_for_some_fact_checks(index)
+    index % 4 == 0 ? "https://www.thespruceeats.com/step-by-step-basic-cake-recipe-304553?timestamp=#{Time.now.to_f}" : nil
+  end
+
+  def verify_fact_check_and_publish_report(project_media)
+    status = ['verified', 'false'].sample
+
+    verification_status = project_media.last_status_obj
+    verification_status.status = status
+    verification_status.save!
+
+    report_design = project_media.get_dynamic_annotation('report_design')
+    report_design.set_fields = { status_label: status, state: 'published' }.to_json
+    report_design.action = 'publish'
+    report_design.save!
+  end
+
+  def saved_search(team)
+    user = team.team_users.find_by(role: 'admin').user
+
+    saved_search_params = {
+      title: "#{user.name.capitalize}'s list",
+      team: team,
+      filters: {created_by: user},
+    }
+
+    if team.saved_searches.empty?
+      SavedSearch.create!(saved_search_params)
+    else
+      team.saved_searches.first
+    end
+  end
+
+  def feed_invitation(feed, invited_user)
+    feed_invitation_params = {
+      email: invited_user.email,
+      feed: feed,
+      user: users[:main_user_a],
+      state: :invited
+    }
+    FeedInvitation.create!(feed_invitation_params)
+  end
+
+  def confirmed_relationship(parent, children)
+    [children].flatten.each { |child| Relationship.create!(source_id: parent.id, target_id: child.id, relationship_type: Relationship.confirmed_type) }
+  end
+
+  def suggested_relationship(parent, children)
+    children.each { |child| Relationship.create!(source_id: parent.id, target_id: child.id, relationship_type: Relationship.suggested_type)}
+  end
+
+  def teams_project_medias
+    @teams_project_medias ||= teams.transform_values { |team| team.project_medias.last(items_total).to_a }
+  end
+
+  def create_tipline_user_and_data(project_media)
+    tipline_message_data = {
+      link: 'https://www.nytimes.com/interactive/2023/09/28/world/europe/russia-ukraine-war-map-front-line.html',
+      audio: "#{random_url}/wnHkwjykxOqU3SMWpEpuVzSa.oga",
+      video: "#{random_url}/AOVFpYOfMm_ssRUizUQhJHDD.mp4",
+      image: "#{random_url}/bOoeoeV9zNA51ecial0eWDG6.jpeg",
+      facebook: 'https://www.facebook.com/boomlive/posts/pfbid0ZoZPYTQAAmrrPR2XmpZ2BCPED1UgozxFGxSQiH68Aa6BF1Cvx2uWHyHrFrAwK7RPl',
+      instagram: 'https://www.instagram.com/p/CxsV1Gcskk8/?img_index=1',
+      tiktok: 'https://www.tiktok.com/@235flavien/video/7271360629615758597?_r=1&_t=8fFCIWTDWVt',
+      twitter: 'https://twitter.com/VietFactCheck/status/1697642909883892175',
+      youtube: 'https://www.youtube.com/watch?v=4EIHB-DG_JA',
+      text: Faker::Lorem.paragraph(sentence_count: 10)
+    }
+
+    tipline_user_name = Faker::Name.first_name.downcase
+    tipline_user_surname = Faker::Name.last_name
+    tipline_message =  tipline_message_data.values.sample((1..10).to_a.sample).join(' ')
+    phone = [ Faker::PhoneNumber.phone_number, Faker::PhoneNumber.cell_phone, Faker::PhoneNumber.cell_phone_in_e164, Faker::PhoneNumber.phone_number_with_country_code, Faker::PhoneNumber.cell_phone_with_country_code].sample
+    uid = random_string
+
+    # Tipline user
+    smooch_user_data = {
+      'id': uid,
+      'raw': {
+        '_id': uid,
+        'givenName': tipline_user_name,
+        'surname': tipline_user_surname,
+        'signedUpAt': Time.now.to_s,
+        'properties': {},
+        'conversationStarted': true,
+        'clients': [
+          {
+            'id': random_string,
+            'status': 'active',
+            'externalId': phone,
+            'active': true,
+            'lastSeen': Time.now.to_s,
+            'platform': 'whatsapp',
+            'integrationId': random_string,
+            'displayName': phone,
+            'raw': {
+              'profile': {
+                'name': tipline_user_name
+              },
+              'from': phone
+            }
+          }
+        ],
+        'pendingClients': []
+      },
+      'identifier': random_string,
+      'app_name': random_string
+    }
+
+    fields = {
+      smooch_user_id: uid,
+      smooch_user_app_id: random_string,
+      smooch_user_data: smooch_user_data.to_json
+    }
+
+    Dynamic.create!(annotation_type: 'smooch_user', annotated: project_media.team, annotator: BotUser.smooch_user, set_fields: fields.to_json)
+
+    # Tipline request
+    smooch_data = {
+      'role': 'appUser',
+      'source': {
+        'type': ['whatsapp', 'telegram', 'messenger'].sample,
+        'id': random_string,
+        'integrationId': random_string,
+        'originalMessageId': random_string,
+        'originalMessageTimestamp': Time.now.to_i
+      },
+      'authorId': uid,
+      'name': tipline_user_name,
+      '_id': random_string,
+      'type': 'text',
+      'received': Time.now.to_f,
+      'text': tipline_message,
+      'language': 'en',
+      'mediaUrl': nil,
+      'mediaSize': 0,
+      'archived': 3,
+      'app_id': random_string
+    }
+
+    TiplineRequest.create!(
+      associated: project_media,
+      team_id: project_media.team_id,
+      smooch_request_type: ['default_requests', 'timeout_search_requests', 'relevant_search_result_requests'].sample,
+      smooch_data: smooch_data,
+      smooch_report_received_at: [Time.now.to_i, nil].sample,
+      user_id:  BotUser.smooch_user&.id
+    )
+  end
+
+  def create_tipline_requests(team_project_medias)
+    team_project_medias.each_with_index do |project_media, index|
+      if index.even?
+        create_tipline_user_and_data(project_media)
+      elsif index % 3 == 0
+        17.times {create_tipline_user_and_data(project_media)}
+      end
+    end
+  end
+
+  def cluster_teams
+    if invited_teams
+      [
+        [teams[:main_team_a].id],
+        [teams[:invited_team_c].id],
+        [teams[:main_team_a].id, teams[:invited_team_c].id]
+      ].sample
+    else
+      [teams[:main_team_a].id]
+    end
+  end
+
+  def random_channels
+    channels = [5, 6, 7, 8, 9, 10, 13]
+    channels.sample(rand(channels.size))
+  end
+
+  def cluster(project_media, index, feed)
+    count = index.zero? ? 0 : rand(100)
+
+    cluster_params = {
+      project_media_id: project_media.id,
+      feed_id: feed.id,
+      team_ids: cluster_teams,
+      channels: random_channels,
+      media_count: count,
+      requests_count: count,
+      fact_checks_count: count,
+    }
+    Cluster.create!(cluster_params)
+  end
 end
 
-def create_tipline_requests(team, project_medias, x_times)
-  project_medias.each {|pm| x_times.times {create_tipline_user_and_data(pm, team)}}
-end
-
-def verify_fact_check_and_publish_report(project_media, url = '')
-  status = ['verified', 'false'].sample
-
-  verification_status = project_media.last_status_obj
-  verification_status.status = status
-  verification_status.save!
-
-  report_design = project_media.get_dynamic_annotation('report_design')
-  report_design.set_fields = { status_label: status, state: 'published' }.to_json
-  report_design.data[:options][:published_article_url] = url
-  report_design.action = 'publish'
-  report_design.save!
-end
-
-def create_team_and_project_related_to_user(user, team_data)
-  puts 'Making Team / Workspace...'
-  team = create_team(team_data)
-  team.set_language('en')
-
-  puts 'Making Project...'
-  project = create_project(title: team.name, team_id: team.id, user: user, description: '')
-
-  puts 'Making Team User...'
-  create_team_user(team: team, user: user, role: 'admin')
-
-  return team, project
-end
-
-######################
-# 0. Start the script
-puts "If you want to create a new user: press 1 then enter"
-puts "If you want to add more data to an existing user: press 2 then enter"
+puts "If you want to create a new user: press enter"
+puts "If you want to add more data to an existing user: Type user email then press enter"
 print ">> "
 answer = STDIN.gets.chomp
 
+puts "—————"
+puts "Stretch your legs, this might take a while."
+puts "On a mac took about 10 minutes to create all populated workspaces."
+puts "Keep track of the queues: http://localhost:3000/sidekiq"
+puts "The workspaces will be fully finished when those finish running"
+puts "—————"
+
 ActiveRecord::Base.transaction do
-  # 1. Creating what we need for the workspace
-  # We create a user, team and project OR we fetch one
-  if answer == "1"
-    user = create_user(name: data_users[:main_user][:name], login: data_users[:main_user][:name], password: data_users[:main_user][:password], password_confirmation: data_users[:main_user][:password], email: Faker::Internet.safe_email(name: data_users[:main_user][:name]))
-    team, project = create_team_and_project_related_to_user(user, data_users[:main_user][:team])
-  elsif answer == "2"
-    puts "Type user email then press enter"
-    print ">> "
-    email = STDIN.gets.chomp
-
-    puts "Fetching User, Project, Team User and Team..."
-    user = User.find_by(email: email)
-
-    if user.team_users.first.nil?
-      team, project = create_team_and_project_related_to_user(user, data_users[:main_user][:team])
-    else 
-      team_user = user.team_users.first
-      team = team_user.team
-      project = user.projects.first
+  begin
+    puts 'Creating users and teams...'
+    setup = Setup.new(answer.presence) # .presence : returns nil or the string
+    puts 'Creating projects for all users...'
+    populated_workspaces = PopulatedWorkspaces.new(setup)
+    populated_workspaces.populate_projects
+    puts 'Creating saved searches for all teams...'
+    populated_workspaces.saved_searches
+    puts 'Creating feed...'
+    feed_1 = populated_workspaces.main_user_feed("share_factchecks")
+    feed_2 = populated_workspaces.main_user_feed("share_everything")
+    puts 'Making and inviting to Shared Feed... (won\'t run if you are not creating any invited users)'
+    populated_workspaces.share_feed(feed_1)
+    populated_workspaces.share_feed(feed_2)
+    puts 'Making Confirmed Relationships between items...'
+    populated_workspaces.confirm_relationships
+    puts 'Making Suggested Relationships between items...'
+    populated_workspaces.suggest_relationships
+    puts 'Making Tipline requests...'
+    populated_workspaces.tipline_requests
+    puts 'Publishing half of each user\'s Fact Checks...'
+    populated_workspaces.publish_fact_checks
+    puts 'Creating Clusters'
+    populated_workspaces.clusters(feed_2)
+  rescue RuntimeError => e
+    if e.message.include?('We could not parse this link')
+      puts "—————"
+      puts "Creating Items failed: Couldn't create Links. \nMake sure Pender is running, or comment out Links so they are not created."
+      puts "—————"
+    else
+      raise e
     end
   end
 
-  # 2. Creating Items in different states
-  # 2.1 Create medias: claims, audios, images, videos and links
-  data_items.each do |media_type, medias_data|
-    begin
-      puts "Making #{media_type}..."
-      puts "#{media_type}: Making Medias and Project Medias..."
-      medias = medias_data.map { |individual_data| create_media(user, individual_data, media_type)}
-      project_medias = create_project_medias_with_channel(user, project, team, medias)
-      
-      puts "#{media_type}: Making Claim Descriptions and Fact Checks..."
-      # add claim description to all items, don't add fact checks to all
-      claim_descriptions = create_claim_descriptions(user, project_medias)
-      claim_descriptions_for_fact_checks = claim_descriptions[0..10]
-      create_fact_checks(user, claim_descriptions_for_fact_checks)
-
-      puts "#{media_type}: Making Relationship: Confirmed Type and Suggested Type..."
-      # because we want a lot of state variety between items, we are not creating relationships for 7..13
-      # send parent and child index
-      create_confirmed_relationship(project_medias[0], project_medias[1])
-      create_confirmed_relationship(project_medias[2], project_medias[3])
-      create_confirmed_relationship(project_medias[4], project_medias[5])
-      create_confirmed_relationship(project_medias[6], project_medias[1])
-      # send parent and children
-      create_suggested_relationship(project_medias[6], project_medias[14..19])
-
-      puts "#{media_type}: Making Relationship: Create item with many confirmed relationships"
-      # so the center column on the item page has a good size list to check functionality against
-      # https://github.com/meedan/check-api/pull/1722#issuecomment-1798729043
-      # create the children we need for the relationship
-      confirmed_children_media = data_items.keys.flat_map do |media_type|
-        data_items[media_type][0..1].map { |data| create_media(user, data , media_type)}
-      end
-      confirmed_children_project_medias = create_project_medias(user, project, team, confirmed_children_media)
-      # send parent and children
-      create_confirmed_relationship(project_medias[0], confirmed_children_project_medias)
-
-      puts "#{media_type}: Making Tipline requests..."
-      # we want different ammounts of requests, so we send the item and the number of requests that should be created
-      # we jump between numbers so it looks more real in the UI (instead of all 1 requests, then all 15 etc)
-      create_tipline_requests(team, project_medias.values_at(0,3,6,9,12,15,18), 1)
-      create_tipline_requests(team, project_medias.values_at(1,4,7,10,13,16,19), 15)
-      create_tipline_requests(team, project_medias.values_at(2,5,8,11,14,17), 17)
-
-      puts "#{media_type}: Publishing Reports..."
-      # we want some published items to have and some to not have published_article_url, because they behave differently in the feed
-      # we send the published_article_url when we want one
-      project_medias[7..8].each { |pm| verify_fact_check_and_publish_report(pm, "https://www.thespruceeats.com/step-by-step-basic-cake-recipe-304553?timestamp=#{Time.now.to_f}")}
-      project_medias[9..10].each { |pm| verify_fact_check_and_publish_report(pm)}
-    rescue StandardError => e
-      if media_type != 'Link'
-        raise e
-      else
-        puts "Couldn't create Links. Other medias will still be created. \nIn order to create Links make sure Pender is running."
-      end
-    end
+  unless e
+    puts "—————"
+    puts "Created users:"
+    setup.get_users_emails_and_passwords.each { |user_info| puts user_info }
   end
-  
-  # 2.2 Create medias: imported Fact Checks
-  puts 'Making Imported Fact Checks...'
-  data_imported_fact_checks.map { |fact_check_link| create_fact_check(fact_check_attributes(fact_check_link, user, project, team)) }
-
-  # 3. Create Shared feed
-  puts 'Making Shared Feed'
-  if team.saved_searches.empty?
-    saved_search = SavedSearch.create!(title: "#{user.name.capitalize}'s list", team: team, filters: {created_by: user})
-  else
-    saved_search = team.saved_searches.first
-  end
-  feed = Feed.create!(name: "Feed Test ##{user.feeds.count + 1} [User: #{user.name.capitalize} / Team: #{team.name}]", user: user, team: team, published: true, saved_search: saved_search, licenses: [1])
-
-  # 4.1 Create new user with two empty workspaces
-  puts 'Making invited user and their 2 empty workspaces...'
-  invited_empty_user = create_user(name: data_users[:invited_empty_user][:name], login: data_users[:invited_empty_user][:name], password: data_users[:invited_empty_user][:password], password_confirmation: data_users[:invited_empty_user][:password], email: Faker::Internet.safe_email(name: data_users[:invited_empty_user][:name]))
-  data_users[:invited_empty_user][:team].each  { |team| create_team_and_project_related_to_user(invited_empty_user, team) }
-
-  # 4.2 Invite new user/empty workspace
-  puts 'Inviting user to main user\'s feed...'
-  create_feed_invitation(email: invited_empty_user.email, feed: feed, user: user)
-
-  # FINAL. Return user information
-  if answer == "1"
-    puts "Created user: name: #{data_users[:main_user][:name]} — email: #{user.email} — password : #{data_users[:main_user][:password]}"
-  elsif answer == "2"
-    puts "Data added to user: #{user.email}"
-  end
-  puts "Created invited user / empty workspace: name: #{data_users[:invited_empty_user][:name]} — email: #{invited_empty_user.email} — password : #{data_users[:invited_empty_user][:password]}"
 end
-
+  
 Rails.cache.clear

@@ -6,10 +6,10 @@ module TiplineMessageMutations
     field :success, GraphQL::Types::Boolean, null: true
 
     def resolve(in_reply_to_id: nil, message: nil)
-      request = Annotation.find(in_reply_to_id).load
+      request = TiplineRequest.find(in_reply_to_id)
       ability = context[:ability] || Ability.new
       success = false
-      if Team.current&.id && User.current&.id && ability.can?(:send, TiplineMessage.new(team: Team.current)) && request.annotated.team_id == Team.current.id
+      if Team.current&.id && User.current&.id && ability.can?(:send, TiplineMessage.new(team: Team.current)) && request.team_id == Team.current.id
         success = Bot::Smooch.reply_to_request_with_custom_message(request, message)
       end
       { success: success }

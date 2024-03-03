@@ -56,7 +56,7 @@ class QueryType < BaseObject
   end
 
   field :me,
-        UserType,
+        MeType,
         description: "Information about the current user",
         null: true
 
@@ -232,7 +232,6 @@ class QueryType < BaseObject
     bot_user
     project_group
     saved_search
-    cluster
     feed
     request
     tipline_message

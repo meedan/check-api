@@ -37,8 +37,6 @@ class ProjectMediaType < DefaultObject
   field :creator_name, GraphQL::Types::String, null: true
   field :team_name, GraphQL::Types::String, null: true
   field :channel, JsonStringType, null: true
-  field :cluster_id, GraphQL::Types::Int, null: true
-  field :cluster, ClusterType, null: true
   field :is_suggested, GraphQL::Types::Boolean, null: true
   field :is_confirmed, GraphQL::Types::Boolean, null: true
   field :positive_tipline_search_results_count, GraphQL::Types::Int, null: true
@@ -132,6 +130,18 @@ class ProjectMediaType < DefaultObject
   field :team, TeamType, null: true
 
   def team
+    RecordLoader
+      .for(Team)
+      .load(object.team_id)
+      .then do |team|
+        ability = context[:ability] || Ability.new
+        team if ability.can?(:read, team)
+      end
+  end
+
+  field :public_team, PublicTeamType, null: true
+
+  def public_team
     RecordLoader.for(Team).load(object.team_id)
   end
 

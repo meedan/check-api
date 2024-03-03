@@ -276,4 +276,51 @@ class GraphqlController12Test < ActionController::TestCase
     assert_response :success
     assert_equal [1, 2, 3].sort, JSON.parse(@response.body).dig('data', 'feed', 'data_points').sort
   end
+
+  test "should return me type after update user" do
+    user = create_user
+    authenticate_with_user(user)
+    post :create, params: { query: 'query Query { me { id } }' }
+    assert_response :success
+    id = JSON.parse(@response.body)['data']['me']['id']
+    query = 'mutation { updateUser(input: { clientMutationId: "1", id: "' + id + '", name: "update name" }) { user { dbid }, me { dbid } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['updateUser']['me']
+    assert_equal user.id, data['dbid']
+  end
+
+  test "should ensure graphql introspection is disabled" do
+    user = create_user
+    authenticate_with_user(user)
+    INTROSPECTION_QUERY = <<-GRAPHQL
+      {
+        __schema {
+          queryType {
+            name
+          }
+        }
+      }
+    GRAPHQL
+
+    post :create, params: { query: INTROSPECTION_QUERY }
+    assert_response :success
+    response_body = JSON.parse(response.body)
+    assert_equal response_body['errors'][0]['message'], "Field '__schema' doesn't exist on type 'Query'"
+  end
+
+  test "should return feed clusters" do
+    n = random_number(5) # In order to avoid N + 1 query problems, we need to be sure that the number of SQL queries is the same regardless the number of clusters
+    puts "Testing with #{n} clusters"
+    f = create_feed team: @t
+    n.times { create_cluster feed: f, team_ids: [@t.id], project_media: create_project_media(team: @t) }
+
+    authenticate_with_user(@u)
+    query = 'query { feed(id: "' + f.id.to_s + '") { clusters_count, clusters(first: 10) { edges { node { id, dbid, fact_checks_count, first_item_at, last_item_at, last_request_date, last_fact_check_date, center { id }, teams(first: 10) { edges { node { name, avatar } } } } } } } }'
+    assert_queries 20, '<=' do
+      post :create, params: { query: query }
+    end
+    assert_response :success
+    assert_equal n, JSON.parse(@response.body)['data']['feed']['clusters']['edges'].size
+  end
 end
