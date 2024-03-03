@@ -313,7 +313,7 @@ namespace :check do
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
 
-    # docker-compose exec -e elasticsearch_log=0 -e CLUSTER_INPUT_BUCKET=bucket-name -e CLUSTER_OUTPUT_BUCKET=bucket-name api bundle exec rake check:khousheh:rebuild_clusters
+    # docker-compose exec -e elasticsearch_log=0 -e CLUSTER_INPUT_BUCKET=bucket-name -e CLUSTER_OUTPUT_BUCKET=bucket-name api bundle exec rake check:khousheh:rebuild
     desc 'Rebuild clusters.'
     task rebuild: [:environment, :parse_output] do
       print_task_title "[#{TIMESTAMP}] Rebuilding clusters"
