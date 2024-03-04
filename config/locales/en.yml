@@ -466,6 +466,15 @@ en:
       hello: Hello %{email}
       body: "%{name}, %{email} has invited your organization to contribute to a Check Shared Feed "
       view_button: View invitation
+    updated_terms:
+      subject: Check Updated Terms of Service
+      hello: Hello %{name}
+      title: Updated Terms of Service
+      body: We have made updates to our Terms of Services for Check users.
+        We are sending this notification to everyone with a Check account. Continued use for Check following the update
+        constitutes acceptance of our updated Terms of Service.
+      term_button: Terms of Service
+      more_info: This is a one-time required legal notice sent to all Check users, even those who have unsubscribed by optional announcements.
   mail_security:
     device_subject: 'Security alert: New login to %{app_name} from %{browser} on %{platform}'
     ip_subject: 'Security alert: New or unusual %{app_name} login'
