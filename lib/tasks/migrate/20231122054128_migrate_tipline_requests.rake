@@ -448,5 +448,19 @@ namespace :check do
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
+
+    # Remove old tipline requests (annotations of type smooch)
+    # bundle exec rails check:migrate:remove_old_tipline_requests
+    task remove_old_tipline_requests: :environment do
+      started = Time.now.to_i
+      Annotation.where(annotation_type: 'smooch').find_in_batches(:batch_size => 200) do |annotations|
+        print '.'
+        ids = annotations.map(&:id)
+        DynamicAnnotation::Field.where(annotation_type: 'smooch', annotation_id: ids).delete_all
+        Annotation.where(id: ids).delete_all
+      end
+      minutes = ((Time.now.to_i - started) / 60).to_i
+      puts "[#{Time.now}] Done in #{minutes} minutes."
+    end
   end
 end
