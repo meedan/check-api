@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_02_28_203460) do
+ActiveRecord::Schema.define(version: 2024_03_04_160338) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -468,7 +468,7 @@ ActiveRecord::Schema.define(version: 2024_02_28_203460) do
     t.index ["user_id"], name: "index_project_media_users_on_user_id"
   end
 
-  create_table "project_medias", force: :cascade do |t|
+  create_table "project_medias", id: :serial, force: :cascade do |t|
     t.integer "project_id"
     t.integer "media_id"
     t.integer "user_id"
@@ -849,6 +849,7 @@ ActiveRecord::Schema.define(version: 2024_02_28_203460) do
     t.integer "failed_attempts", default: 0, null: false
     t.string "unlock_token"
     t.datetime "locked_at"
+    t.datetime "last_received_terms_email_at", default: -> { "CURRENT_TIMESTAMP" }
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true, where: "((email IS NOT NULL) AND ((email)::text <> ''::text))"
     t.index ["invitation_token"], name: "index_users_on_invitation_token", unique: true
@@ -860,7 +861,8 @@ ActiveRecord::Schema.define(version: 2024_02_28_203460) do
   end
 
   create_table "versions", id: :serial, force: :cascade do |t|
-    t.string "item_type", null: false
+    t.string "item_type"
+    t.string "{:null=>false}"
     t.string "item_id", null: false
     t.string "event", null: false
     t.string "whodunnit"

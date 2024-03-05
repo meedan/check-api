@@ -1,5 +1,5 @@
 class UpdatedTermsMailer < ApplicationMailer
-	layout nil
+  layout nil
 
   def notify(recipient, name)
     @name = name
