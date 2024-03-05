@@ -53,7 +53,10 @@ module SmoochNluMenus
   def update_menu_option_keywords(language, menu, menu_option_index, keyword, operation)
     workflow = @smooch_bot_installation.get_smooch_workflows.find { |w| w['smooch_workflow_language'] == language }
     keywords = workflow["smooch_state_#{menu}"]['smooch_menu_options'][menu_option_index]['smooch_menu_option_nlu_keywords'].to_a
-    menu_option_id = (workflow["smooch_state_#{menu}"]['smooch_menu_options'][menu_option_index]['smooch_menu_option_id'] ||= SecureRandom.uuid)
+    if workflow["smooch_state_#{menu}"]['smooch_menu_options'][menu_option_index]['smooch_menu_option_id'].blank?
+      workflow["smooch_state_#{menu}"]['smooch_menu_options'][menu_option_index]['smooch_menu_option_id'] = SecureRandom.hex
+    end
+    menu_option_id = workflow["smooch_state_#{menu}"]['smooch_menu_options'][menu_option_index]['smooch_menu_option_id']
     doc_id = Digest::MD5.hexdigest([ALEGRE_CONTEXT_KEY_MENU, @team_slug, menu, menu_option_id, keyword].join(':'))
     context = {
       context: ALEGRE_CONTEXT_KEY_MENU,

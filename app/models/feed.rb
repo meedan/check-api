@@ -7,11 +7,12 @@ class Feed < ApplicationRecord
   has_many :feed_teams, dependent: :restrict_with_error
   has_many :teams, through: :feed_teams
   has_many :feed_invitations, dependent: :destroy
+  has_many :clusters
   belongs_to :user, optional: true
   belongs_to :saved_search, optional: true
   belongs_to :team, optional: true
 
-  before_validation :set_user_and_team, on: :create
+  before_validation :set_user_and_team, :set_uuid, on: :create
   validates_presence_of :name
   validates_presence_of :licenses, if: proc { |feed| feed.discoverable }
   validate :saved_search_belongs_to_feed_teams
@@ -26,9 +27,15 @@ class Feed < ApplicationRecord
   validates_inclusion_of :data_points, in: DATA_POINTS.keys
 
   # Filters for the whole feed: applies to all data from all teams
-  def get_feed_filters
+  def get_feed_filters(view = :fact_check) # "view" can be :fact_check or :media
     filters = {}
-    filters.merge!({ 'report_status' => ['published'] }) if self.published
+    if view.to_sym == :fact_check && self.published && self.data_points.to_a.include?(1)
+      filters.merge!({ 'report_status' => ['published'] })
+    elsif view.to_sym == :media && self.published && self.data_points.to_a.include?(2)
+      filters.merge!({}) # Show everything
+    else
+      filters.merge!({ 'report_status' => ['none'] }) # Invalidate the query
+    end
     filters
   end
 
@@ -123,6 +130,41 @@ class Feed < ApplicationRecord
     query.order(sort => sort_type).offset(args[:offset].to_i)
   end
 
+  def clusters_count(args = {})
+    self.filtered_clusters(args).count
+  end
+
+  def filtered_clusters(args = {})
+    team_ids = args[:team_ids]
+    channels = args[:channels]
+    query = self.clusters
+
+    # Filter by workspace
+    query = query.where("ARRAY[?] && team_ids", team_ids.to_a.map(&:to_i)) unless team_ids.blank?
+    query = query.where(team_ids: []) if team_ids&.empty? # Invalidate the query
+
+    # Filter by channel
+    query = query.where("ARRAY[?] && channels", channels.to_a.map(&:to_i)) unless channels.blank?
+
+    # Filter by media type
+    query = query.joins(project_media: :media).where('medias.type' => args[:media_type]) unless args[:media_type].blank?
+
+    # Filter by date
+    query = query.where(last_request_date: Range.new(*format_times_search_range_filter(JSON.parse(args[:last_request_date]), nil))) unless args[:last_request_date].blank?
+
+    # Filters by number range
+    {
+      medias_count_min: 'media_count >= ?',
+      medias_count_max: 'media_count <= ?',
+      requests_count_min: 'requests_count >= ?',
+      requests_count_max: 'requests_count <= ?'
+    }.each do |key, condition|
+      query = query.where(condition, args[key].to_i) unless args[key].blank?
+    end
+
+    query
+  end
+
   # This takes some time to run because it involves external HTTP requests and writes to the database:
   # 1) If the query contains a media URL, it will be downloaded... if it contains some other URL, it will be sent to Pender
   # 2) Requests will be made to Alegre in order to index the request media and to look for similar requests
@@ -177,5 +219,9 @@ class Feed < ApplicationRecord
 
   def destroy_feed_team
     FeedTeam.where(feed: self, team: self.team).last.destroy!
+  end
+
+  def set_uuid
+    self.uuid = SecureRandom.uuid
   end
 end
