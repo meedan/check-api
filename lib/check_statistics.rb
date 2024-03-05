@@ -112,7 +112,7 @@ module CheckStatistics
 
         rescue StandardError => e
           error_info = { error_message: e.message, response_code: response.code, response_body: response.body, team_id: team_id, start_date: start_date, end_date: end_date }
-          CheckSentry.notify(WhatsAppInsightsApiError.new('Could not get WhatsApp conversations statistics'), **error_info)
+          CheckSentry.notify(WhatsAppInsightsApiError.new("Could not get WhatsApp conversations statistics for workspace #{Team.find(team_id).name}"), **error_info)
           nil
         end
       end
