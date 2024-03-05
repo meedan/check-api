@@ -471,7 +471,7 @@ en:
       hello: Hello %{name}
       title: Updated Terms of Service
       body: We have made updates to our Terms of Services for Check users.
-        We are sending this notification to everyone with a Check account. Continued use for Check following the update
+        We are sending this notification to everyone with a Check account. Continued use of Check following the update
         constitutes acceptance of our updated Terms of Service.
       term_button: Terms of Service
       more_info: This is a one-time required legal notice sent to all Check users, even those who have unsubscribed by optional announcements.
