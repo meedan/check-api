@@ -112,7 +112,7 @@ module CheckStatistics
 
         rescue StandardError => e
           error_info = { error_message: e.message, response_code: response.code, response_body: response.body, team_id: team_id, start_date: start_date, end_date: end_date }
-          CheckSentry.notify(WhatsAppInsightsApiError.new('Could not get WhatsApp conversations statistics'), **error_info)
+          CheckSentry.notify(WhatsAppInsightsApiError.new("Could not get WhatsApp conversations statistics for workspace #{Team.find(team_id).name}"), **error_info)
           nil
         end
       end
@@ -235,6 +235,8 @@ module CheckStatistics
           irrelevant_results = project_media_requests(team_id, platform, start_date, end_date, language, 'irrelevant_search_result_requests').count
           ignored_results = project_media_requests(team_id, platform, start_date, end_date, language, 'timeout_search_requests').count
           statistics[:positive_searches] = relevant_results + irrelevant_results + ignored_results
+          statistics[:positive_feedback] = relevant_results
+          statistics[:negative_feedback] = irrelevant_results
         end
 
         CheckTracer.in_span('CheckStatistics#negative_searches', attributes: tracing_attributes) do

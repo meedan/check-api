@@ -12,6 +12,10 @@ class Claim < Media
     'quote'
   end
 
+  def uuid
+    Media.where(type: 'Claim', quote: self.quote.to_s.strip).first&.id || self.id
+  end
+
   private
 
   def remove_null_bytes
