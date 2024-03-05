@@ -50,7 +50,7 @@ module TeamRules
 
     def get_smooch_message(pm)
       smooch_message = pm.smooch_message
-      smooch_message.nil? ? pm.tipline_requests.last&.smooch_data : smooch_message
+      smooch_message.nil? ? pm.tipline_requests.last&.smooch_data.to_h : smooch_message
     end
 
     def title_matches_regexp(pm, value, _rule_id)
