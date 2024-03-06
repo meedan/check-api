@@ -468,7 +468,7 @@ ActiveRecord::Schema.define(version: 2024_02_28_203460) do
     t.index ["user_id"], name: "index_project_media_users_on_user_id"
   end
 
-  create_table "project_medias", force: :cascade do |t|
+  create_table "project_medias", id: :serial, force: :cascade do |t|
     t.integer "project_id"
     t.integer "media_id"
     t.integer "user_id"
@@ -860,7 +860,8 @@ ActiveRecord::Schema.define(version: 2024_02_28_203460) do
   end
 
   create_table "versions", id: :serial, force: :cascade do |t|
-    t.string "item_type", null: false
+    t.string "item_type"
+    t.string "{:null=>false}"
     t.string "item_id", null: false
     t.string "event", null: false
     t.string "whodunnit"
