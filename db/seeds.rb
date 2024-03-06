@@ -560,11 +560,15 @@ class PopulatedWorkspaces
     TiplineRequest.create!(
       associated: project_media,
       team_id: project_media.team_id,
-      smooch_request_type: ['default_requests', 'timeout_search_requests', 'relevant_search_result_requests'].sample,
+      smooch_request_type: smooch_request_type,
       smooch_data: smooch_data,
       smooch_report_received_at: [Time.now.to_i, nil].sample,
       user_id:  BotUser.smooch_user&.id
     )
+  end
+
+  def smooch_request_type
+    ['default_requests', 'timeout_search_requests', ['relevant_search_result_requests', 'irrelevant_search_result_requests']*3].flatten.sample
   end
 
   def create_tipline_requests(team_project_medias)
