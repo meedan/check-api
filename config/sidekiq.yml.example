@@ -14,4 +14,5 @@
   - pusher
   - trash
   - feed
+  - terms_mailer
 :concurrency: 15
