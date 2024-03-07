@@ -49,14 +49,7 @@ module SmoochBlocking
       RequestStore.store[:skip_rules] = true
       ProjectMedia.joins(:tipline_requests)
           .where(tipline_requests: { tipline_user_uid: uid }).find_each do |pm|
-            flags = {
-              'adult': 0,
-              'spoof': 0,
-              'medical': 0,
-              'violence': 0,
-              'racy': 0,
-              'spam': 1
-            }
+            flags = { 'spam': 1, 'adult': 0, 'spoof': 0, 'medical': 0, 'violence': 0, 'racy': 0 }
             Dynamic.create!(annotation_type: 'flag', annotated: pm, annotator: User.current, skip_check_ability: true, set_fields: { show_cover: true, flags: flags }.to_json)
           end
       RequestStore.store[:skip_rules] = false

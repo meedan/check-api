@@ -483,4 +483,41 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     WebMock.stub_request(:get, url).to_return(status: 200, body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
     assert_not_nil Bot::Smooch.turnio_send_message_to_user('test:123456', 'Test', { 'type' => 'image', 'mediaUrl' => url })
   end
+
+  test "should apply content warning after blocking user" do
+    create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
+    Bot::Smooch.unstub(:save_user_information)
+    SmoochApi::AppApi.any_instance.stubs(:get_app).returns(OpenStruct.new(app: OpenStruct.new(name: random_string)))
+    { 'whatsapp' => '', 'messenger' => 'http://facebook.com/psid=1234', 'twitter' => 'http://twitter.com/profile_images/1234/image.jpg', 'other' => '' }.each do |platform, url|
+      SmoochApi::AppUserApi.any_instance.stubs(:get_app_user).returns(OpenStruct.new(appUser: { clients: [{ displayName: random_string, platform: platform, info: { avatarUrl: url } }] }))
+      uid = random_string
+      messages = [
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          source: { type: "whatsapp" },
+          text: random_string
+        }
+      ]
+      payload = {
+        trigger: 'message:appUser',
+        app: {
+          '_id': @app_id
+        },
+        version: 'v1.1',
+        messages: messages,
+        appUser: {
+          '_id': random_string,
+          'conversationStarted': true
+        }
+      }.to_json
+      redis = Redis.new(REDIS_CONFIG)
+      Bot::Smooch.run(payload)
+      pm = ProjectMedia.last
+      Bot::Smooch.block_user(uid)
+      assert Dynamic.where(annotation_type: 'flag', annotated_id: pm.id).exists?, 'Content warning flags should be applied'
+    end
+    Bot::Smooch.stubs(:save_user_information).returns(nil)
+  end
 end
