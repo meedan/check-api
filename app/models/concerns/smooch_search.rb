@@ -15,7 +15,7 @@ module SmoochSearch
           pm = Relationship.confirmed_parent(pm)
           report = pm.get_dynamic_annotation('report_design')
           !report.nil? && !!report.should_send_report_in_this_language?(language)
-        end.uniq
+        end.collect{ |pm| Relationship.confirmed_parent(pm) }.uniq
         if results.empty?
           self.bundle_messages(uid, '', app_id, 'default_requests', nil, true)
           self.send_final_message_to_user(uid, self.get_custom_string('search_no_results', language), workflow, language, 'no_results')
