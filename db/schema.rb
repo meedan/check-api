@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_02_28_203460) do
+ActiveRecord::Schema.define(version: 2024_03_04_160338) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -849,6 +849,7 @@ ActiveRecord::Schema.define(version: 2024_02_28_203460) do
     t.integer "failed_attempts", default: 0, null: false
     t.string "unlock_token"
     t.datetime "locked_at"
+    t.datetime "last_received_terms_email_at", default: -> { "CURRENT_TIMESTAMP" }
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true, where: "((email IS NOT NULL) AND ((email)::text <> ''::text))"
     t.index ["invitation_token"], name: "index_users_on_invitation_token", unique: true
