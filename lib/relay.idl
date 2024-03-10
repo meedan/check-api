@@ -8049,6 +8049,7 @@ type FactCheckEdge {
 Feed type
 """
 type Feed implements Node {
+  cluster(project_media_id: Int!): Cluster
   clusters(
     """
     Returns the elements in the list that come after the specified cursor.

@@ -91,4 +91,17 @@ class FeedType < DefaultObject
     order_type = args[:sort_type].to_s.downcase.to_sym == :desc ? :desc : :asc
     object.filtered_clusters(args).offset(args[:offset].to_i).order(order => order_type)
   end
+
+  # Given a project media ID, return the cluster it belongs to, in the scope of this feed
+  field :cluster, ClusterType, null: true do
+    argument :project_media_id, GraphQL::Types::Int, required: true, camelize: false
+  end
+
+  def cluster(project_media_id:)
+    cluster = ClusterProjectMedia.joins(:cluster).where('clusters.feed_id' => object.id, 'cluster_project_medias.project_media_id' => project_media_id.to_i).first&.cluster
+    return nil if cluster.nil?
+    ability = context[:ability] || Ability.new
+    return nil unless ability.can?(:read, object)
+    cluster
+  end
 end

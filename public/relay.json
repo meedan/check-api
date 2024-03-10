@@ -43776,6 +43776,35 @@
           "description": "Feed type",
           "fields": [
             {
+              "name": "cluster",
+              "description": null,
+              "args": [
+                {
+                  "name": "project_media_id",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "Int",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null,
+                  "isDeprecated": false,
+                  "deprecationReason": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Cluster",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "clusters",
               "description": null,
               "args": [
