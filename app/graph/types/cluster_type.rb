@@ -53,4 +53,10 @@ class ClusterType < DefaultObject
   def teams
     Team.where(id: object.team_ids)
   end
+
+  field :cluster_teams, ClusterTeamType.connection_type, null: true
+
+  def cluster_teams
+    Team.where(id: object.team_ids).all.collect { |team| ClusterTeam.new(object, team) }
+  end
 end

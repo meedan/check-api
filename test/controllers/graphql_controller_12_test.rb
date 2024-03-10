@@ -331,7 +331,7 @@ class GraphqlController12Test < ActionController::TestCase
     create_cluster_project_media cluster: c, project_media: pm
 
     authenticate_with_user(@u)
-    query = 'query { feed(id: "' + f.id.to_s + '") { cluster(project_media_id: ' + pm.id.to_s + ') { dbid } } }'
+    query = 'query { feed(id: "' + f.id.to_s + '") { cluster(project_media_id: ' + pm.id.to_s + ') { dbid, cluster_teams(first: 10) { edges { node { id, team { name }, last_request_date, media_count, requests_count } } } } } }'
     post :create, params: { query: query }
     assert_response :success
     assert_equal c.id, JSON.parse(@response.body)['data']['feed']['cluster']['dbid']
