@@ -2,7 +2,7 @@ require_relative '../test_helper'
 
 class TermsOfServiceUpdateWorkerTest < ActiveSupport::TestCase
   test "should notify users based on last term update" do
-    User.stubs(:terms_last_updated_at).returns(Time.now)
+    User.stubs(:terms_last_updated_at).returns(Time.now.to_i)
     terms_update = Time.now - 1.day
     u = create_user
     u.last_received_terms_email_at = terms_update
@@ -15,7 +15,7 @@ class TermsOfServiceUpdateWorkerTest < ActiveSupport::TestCase
   end
 
   test "should notify users in background" do
-    User.stubs(:terms_last_updated_at).returns(Time.now)
+    User.stubs(:terms_last_updated_at).returns(Time.now.to_i)
     terms_update = Time.now - 1.day
     u = create_user
     u.last_received_terms_email_at = terms_update
