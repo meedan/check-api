@@ -184,7 +184,7 @@ class Bot::Fetch < BotUser
       end
     end
 
-    def self.import_claim_review(claim_review, team_id, user_id, status_fallback, status_mapping, auto_publish_reports, force = false)
+    def self.import_claim_review(claim_review, team_id, user_id, status_fallback, status_mapping, _auto_publish_reports, force = false)
       begin
         user = User.find(user_id)
         team = Team.find(team_id)
@@ -303,19 +303,6 @@ class Bot::Fetch < BotUser
         s.status = status_fallback
         s.save!
       end
-    end
-
-    def self.get_image_file(image_url)
-      tmp = nil
-      unless image_url.blank?
-        tmp = File.join(Rails.root, 'tmp', "image-#{SecureRandom.hex}")
-        URI(Addressable::URI.escape(image_url)).open do |i|
-          File.open(tmp, 'wb') do |f|
-            f.write(i.read)
-          end
-        end
-      end
-      tmp
     end
 
     def self.parse_text(text)
