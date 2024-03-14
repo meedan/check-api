@@ -32,7 +32,7 @@ class ClusterTeam
 
   def fact_checks
     list = []
-    ClaimDescription.where(project_media_id: self.project_medias.map(&:id).each do |claim_description|
+    ClaimDescription.where(project_media_id: self.project_medias.map(&:id)).each do |claim_description|
       item = claim_description.project_media
       list << OpenStruct.new({
         id: claim_description.id,
