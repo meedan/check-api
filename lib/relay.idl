@@ -755,6 +755,27 @@ Cluster team type: Data about a cluster but under the scope of a team
 """
 type ClusterTeam implements Node {
   created_at: String
+  fact_checks(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): ClusterTeamFactCheckConnection
   id: ID!
   last_request_date: Int
   media_count: Int
@@ -798,6 +819,57 @@ type ClusterTeamEdge {
   The item at the end of the edge.
   """
   node: ClusterTeam
+}
+
+"""
+Cluster team fact-check type: Data about a fact-check in cluster but under the scope of a team
+"""
+type ClusterTeamFactCheck implements Node {
+  claim_description: ClaimDescription
+  created_at: String
+  fact_check: FactCheck
+  id: ID!
+  media_count: Int
+  permissions: String
+  rating: String
+  requests_count: Int
+  updated_at: String
+}
+
+"""
+The connection type for ClusterTeamFactCheck.
+"""
+type ClusterTeamFactCheckConnection {
+  """
+  A list of edges.
+  """
+  edges: [ClusterTeamFactCheckEdge]
+
+  """
+  A list of nodes.
+  """
+  nodes: [ClusterTeamFactCheck]
+
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+"""
+An edge in a connection.
+"""
+type ClusterTeamFactCheckEdge {
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+
+  """
+  The item at the end of the edge.
+  """
+  node: ClusterTeamFactCheck
 }
 
 type Comment implements Node {

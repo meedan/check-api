@@ -29,4 +29,20 @@ class ClusterTeam
   def requests_count
     self.project_medias.map(&:requests_count).sum
   end
+
+  def fact_checks
+    list = []
+    ClaimDescription.where(project_media_id: self.project_medias.map(&:id).each do |claim_description|
+      item = claim_description.project_media
+      list << OpenStruct.new({
+        id: claim_description.id,
+        claim_description: claim_description,
+        fact_check: claim_description.fact_check,
+        rating: item.status_i18n,
+        media_count: item.linked_items_count,
+        requests_count: item.demand
+      })
+    end
+    list
+  end
 end
