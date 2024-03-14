@@ -245,6 +245,16 @@ module AlegreV2
       }.reject{ |k,_| k == project_media.id }]
     end
 
+    def safe_get_async(project_media, field, params={})
+      response = get_async(project_media, field, params)
+      retries = 0
+      while response.nil? && retries < 3
+        response = get_async(project_media, field, params)
+        retries += 1
+      end
+      response
+    end
+
     def safe_get_sync(project_media, field, params={})
       response = get_sync(project_media, field, params)
       retries = 0
@@ -253,6 +263,18 @@ module AlegreV2
         retries += 1
       end
       response
+    end
+
+    def cache_items_via_callback(project_media, field, confirmed, results)
+      relationship_type = confirmed ? Relationship.confirmed_type : Relationship.suggested_type
+      type = get_type(project_media)
+      threshold = get_per_model_threshold(project_media, Bot::Alegre.get_threshold_for_query(type, project_media, confirmed))
+      parse_similarity_results(
+        project_media,
+        field,
+        results,
+        relationship_type
+      )
     end
 
     def get_items(project_media, field, confirmed=false)
@@ -267,12 +289,26 @@ module AlegreV2
       )
     end
 
+    def get_items_async(project_media, field, confirmed=false)
+      type = get_type(project_media)
+      threshold = get_per_model_threshold(project_media, Bot::Alegre.get_threshold_for_query(type, project_media, confirmed))
+      safe_get_async(project_media, field, threshold.merge(confirmed: confirmed))
+    end
+
     def get_suggested_items(project_media, field)
       get_items(project_media, field)
     end
 
     def get_confirmed_items(project_media, field)
       get_items(project_media, field, true)
+    end
+
+    def get_suggested_items_async(project_media, field)
+      get_items_async(project_media, field)
+    end
+
+    def get_confirmed_items_async(project_media, field)
+      get_items_async(project_media, field, true)
     end
 
     def get_similar_items_v2(project_media, field)
@@ -286,8 +322,45 @@ module AlegreV2
       end
     end
 
+    def get_similar_items_v2_async(project_media, field)
+      type = get_type(project_media)
+      if !Bot::Alegre.should_get_similar_items_of_type?('master', project_media.team_id) || !Bot::Alegre.should_get_similar_items_of_type?(type, project_media.team_id)
+        return false
+      else
+        get_suggested_items_async(project_media, field)
+        get_confirmed_items_async(project_media, field)
+        return true
+      end
+    end
+
+    def get_similar_items_v2_callback(project_media, field)
+      type = get_type(project_media)
+      if !Bot::Alegre.should_get_similar_items_of_type?('master', project_media.team_id) || !Bot::Alegre.should_get_similar_items_of_type?(type, project_media.team_id)
+        return {}
+      else
+        required_keys = {
+          confirmed_results: "alegre:async_results:#{project_media.id}_#{field}_true",
+          suggested_or_confirmed_results: "alegre:async_results:#{project_media.id}_#{field}_false"
+        }
+        cached_data = Hash[required_keys.collect{|k,v| [k, (JSON.parse(redis.get(v)) rescue nil)]}]
+        if !cached_data.values.include?(nil)
+          suggested_or_confirmed = cached_data[:suggested_or_confirmed_results]
+          confirmed = cached_data[:confirmed_results]
+          Bot::Alegre.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, project_media)
+        end
+      end
+    end
+
     def relate_project_media(project_media, field=nil)
       self.add_relationships(project_media, self.get_similar_items_v2(project_media, field)) unless project_media.is_blank?
+    end
+
+    def relate_project_media_async(project_media, field=nil)
+      self.get_similar_items_v2_async(project_media, field) unless project_media.is_blank?
+    end
+
+    def relate_project_media_callback(project_media, field=nil)
+      self.get_similar_items_v2_callback(project_media, field) unless project_media.is_blank?
     end
 
     def get_items_with_similar_media_v2(media_url, threshold, team_ids, type)

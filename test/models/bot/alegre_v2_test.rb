@@ -608,6 +608,36 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.get_confirmed_items(pm1, nil), {(pm1.id+1)=>{:score=>0.91, :context=>{"team_id"=>pm1.team_id, "has_custom_id"=>true, "project_media_id"=>(pm1.id+1)}, :model=>"audio", :source_field=>"audio", :target_field=>"audio", :relationship_type=>Relationship.confirmed_type}}
   end
 
+  test "should get_similar_items_v2_async" do
+    pm1 = create_project_media team: @team, media: create_uploaded_audio
+    response = {
+      "message": "Message pushed successfully",
+      "queue": "audio__Model",
+      "body": {
+        "callback_url": "http:\/\/alegre:3100\/presto\/receive\/add_item\/audio",
+        "id": "f0d43d29-853d-4099-9e92-073203afa75b",
+        "url": Bot::Alegre.media_file_url(pm1),
+        "text": nil,
+        "raw": {
+          "limit": 200,
+          "url": Bot::Alegre.media_file_url(pm1),
+          "callback_url": "http:\/\/example.com\/search_results",
+          "doc_id": Bot::Alegre.item_doc_id(pm1, "audio"),
+          "context": Bot::Alegre.get_context(pm1, "audio"),
+          "created_at": "2023-10-27T22:40:14.205586",
+          "command": "search",
+          "threshold": 0.0,
+          "per_model_threshold": {},
+          "match_across_content_types": false,
+          "requires_callback": true,
+          "final_task": "search"
+        }
+      }
+    }
+    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/sync/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}, :url=>Bot::Alegre.media_file_url(pm1), :threshold=>0.9}).to_return(body: response.to_json)
+    assert_equal Bot::Alegre.get_similar_items_v2_async(pm1, nil), {}
+  end
+
   test "should get_similar_items_v2" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     response = {
@@ -686,6 +716,21 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     }
     WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/sync/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}, :url=>Bot::Alegre.media_file_url(pm1), :threshold=>0.9}).to_return(body: response.to_json)
     assert_equal Bot::Alegre.get_similar_items_v2(pm1, nil), {}
+  end
+
+  test "should relate project media async for audio" do
+    pm1 = create_project_media team: @team, media: create_uploaded_audio
+    pm2 = create_project_media team: @team, media: create_uploaded_audio
+    Bot::Alegre.stubs(:get_similar_items_v2_async).returns(true)
+    {pm2.id=>{:score=>0.91, :context=>{"team_id"=>pm2.team_id, "has_custom_id"=>true, "project_media_id"=>pm2.id}, :model=>"audio", :source_field=>"audio", :target_field=>"audio", :relationship_type=>Relationship.suggested_type}}
+    relationship = nil
+    assert_difference 'Relationship.count' do
+      relationship = Bot::Alegre.relate_project_media_async(pm1)
+    end
+    assert_equal relationship.source, pm2
+    assert_equal relationship.target, pm1
+    assert_equal relationship.relationship_type, Relationship.suggested_type
+    Bot::Alegre.unstub(:get_similar_items_v2)
   end
 
   test "should relate project media for audio" do
