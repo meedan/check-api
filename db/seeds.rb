@@ -342,10 +342,54 @@ class PopulatedWorkspaces
   end
 
   def clusters(feed)
-    teams_project_medias.each_value do |project_medias|
-      project_medias.each_with_index { |project_media,index| cluster(project_media, index, feed)}
+    teams_project_medias.compact_blank!.each do |team_name, project_medias|
+      next unless teams[team_name].is_part_of_feed?(feed.id)
+      c1 = cluster(project_medias.first, feed, teams[team_name])
+      c2 = cluster(project_medias.second, feed, teams[team_name])
+      c3 = cluster(project_medias.last, feed, teams[team_name])
+
+      project_medias[2..(project_medias.size/2)-1].each { |pm| ClusterProjectMedia.create!(cluster_id: c2.id, project_media_id: pm.id) }
+      project_medias[project_medias.size/2..-2].each { |pm| ClusterProjectMedia.create!(cluster_id: c3.id, project_media_id: pm.id) }
+
+      updated_cluster(c1)
+      updated_cluster(c2)
+      updated_cluster(c3)
     end
   end
+
+  def updated_cluster(cluster)
+    cluster_project_medias = cluster.items
+    cluster_fact_checks = cluster_project_medias.map { |project_media| project_media.claim_description.fact_check }.compact!
+
+    cluster.last_item_at = Time.now
+    unless cluster.items.blank?
+      cluster.media_count = cluster_project_medias.size
+      cluster.requests_count = cluster_requests_count(cluster_project_medias)
+      cluster.fact_checks_count = cluster_fact_checks_count(cluster_fact_checks)
+      cluster.last_request_date = cluster_last_request_date(cluster_project_medias)
+      cluster.last_fact_check_date = cluster_last_fact_check_date(cluster_fact_checks)
+    end
+    cluster.save!
+  end
+
+  ###### tbd: move to private
+  def cluster_requests_count(cluster_project_medias)
+    cluster_project_medias.map { |project_media| project_media.requests_count }.sum
+  end
+
+  def cluster_fact_checks_count(cluster_fact_checks)
+    cluster_fact_checks.size
+  end
+
+  def cluster_last_request_date(cluster_project_medias)
+    tipline_requests = cluster_project_medias.map { |project_media| TiplineRequest.where(associated_id: project_media.id) }
+    tipline_requests.flatten!.sort { |a,b| a.created_at <=> b.created_at }.last.created_at
+  end
+
+  def cluster_last_fact_check_date(cluster_fact_checks)
+    cluster_fact_checks.sort { |a,b| a.created_at <=> b.created_at }.last.created_at
+  end
+  #####
 
   def confirm_relationships
     teams_project_medias.each_value do |project_medias|
@@ -584,34 +628,19 @@ class PopulatedWorkspaces
     end
   end
 
-  def cluster_teams
-    if invited_teams
-      [
-        [teams[:main_team_a].id],
-        [teams[:invited_team_c].id],
-        [teams[:main_team_a].id, teams[:invited_team_c].id]
-      ].sample
-    else
-      [teams[:main_team_a].id]
-    end
-  end
-
   def random_channels
     channels = [5, 6, 7, 8, 9, 10, 13]
     channels.sample(rand(channels.size))
   end
 
-  def cluster(project_media, index, feed)
-    count = index.zero? ? 0 : rand(100)
-
+  def cluster(project_media, feed, team)
     cluster_params = {
       project_media_id: project_media.id,
+      first_item_at: Time.now,
       feed_id: feed.id,
-      team_ids: cluster_teams,
+      team_ids: [team.id],
       channels: random_channels,
-      media_count: count,
-      requests_count: count,
-      fact_checks_count: count,
+      title: project_media.title
     }
     Cluster.create!(cluster_params)
   end
@@ -639,10 +668,10 @@ ActiveRecord::Base.transaction do
     puts 'Creating saved searches for all teams...'
     populated_workspaces.saved_searches
     puts 'Creating feed...'
-    feed_1 = populated_workspaces.main_user_feed("share_factchecks")
+    # feed_1 = populated_workspaces.main_user_feed("share_factchecks")
     feed_2 = populated_workspaces.main_user_feed("share_everything")
     puts 'Making and inviting to Shared Feed... (won\'t run if you are not creating any invited users)'
-    populated_workspaces.share_feed(feed_1)
+    # populated_workspaces.share_feed(feed_1)
     populated_workspaces.share_feed(feed_2)
     # puts 'Making Confirmed Relationships between items...'
     # populated_workspaces.confirm_relationships
