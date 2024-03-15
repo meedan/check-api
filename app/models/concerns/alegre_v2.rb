@@ -367,7 +367,7 @@ module AlegreV2
     end
 
     def relate_project_media_callback(project_media, field=nil)
-      self.get_similar_items_v2_callback(project_media, field) unless project_media.is_blank?
+      self.add_relationships(project_media, self.get_similar_items_v2_callback(project_media, field)) unless project_media.is_blank?
     end
 
     def get_items_with_similar_media_v2(media_url, threshold, team_ids, type)
@@ -378,11 +378,12 @@ module AlegreV2
     end
 
     def process_alegre_callback(params)
+      redis = Redis.new(REDIS_CONFIG)
       project_media = ProjectMedia.find(params.dig('data', 'item', 'raw', 'context', 'project_media_id'))
       confirmed = params.dig('data', 'item', 'raw', 'confirmed')
       field = params.dig('data', 'item', 'raw', 'context', 'field')
       key = "alegre:async_results:#{project_media.id}_#{field}_#{confirmed}"
-      redis.set(key, Bot::Alegre.cache_items_via_callback(project_media, field, confirmed, results))
+      redis.set(key, Bot::Alegre.cache_items_via_callback(project_media, field, confirmed, params.dig('data', 'results', 'result')))
       redis.expire(key, 1.day.to_i)
       Bot::Alegre.relate_project_media_callback(project_media, field)
     end

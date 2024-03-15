@@ -727,7 +727,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.get_similar_items_v2(pm1, nil), {}
   end
 
-  test "should relate project media async for audio" do
+  test "should relate project media async for audio zzz" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     pm2 = create_project_media team: @team, media: create_uploaded_audio
     WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/async/audio").to_return(body: '{}')
@@ -780,7 +780,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     }
     assert_difference 'Relationship.count' do
       # Simulate the webhook hitting the server and being executed....
-      relationship = Bot::Alegre.process_alegre_callback(params)
+      relationship = Bot::Alegre.process_alegre_callback(JSON.parse(params.to_json)) #hack to force into stringed keys
     end
     assert_equal relationship.source, pm2
     assert_equal relationship.target, pm1

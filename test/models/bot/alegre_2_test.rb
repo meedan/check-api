@@ -279,7 +279,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       
       pm2 = create_project_media team: t, media: create_uploaded_image
-      WebMock.stub_request(:post, 'http://alegre.test/similarity/sync/image').to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre.test/similarity/async/image').to_return(body: {
         result: [
           {
             id: pm1.id,
