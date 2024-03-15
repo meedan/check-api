@@ -341,7 +341,8 @@ module AlegreV2
     end
     
     def get_cached_data(required_keys)
-      Hash[required_keys.collect{|k,v| [k, (JSON.parse(redis.get(v)) rescue [])]}]
+      redis = Redis.new(REDIS_CONFIG)
+      Hash[required_keys.collect{|k,v| [k, (Hash[JSON.parse(redis.get(v)).collect{|k,v| [k.to_i, v]}] rescue [])]}]
     end
 
     def get_similar_items_v2_callback(project_media, field)
@@ -383,7 +384,8 @@ module AlegreV2
       confirmed = params.dig('data', 'item', 'raw', 'confirmed')
       field = params.dig('data', 'item', 'raw', 'context', 'field')
       key = "alegre:async_results:#{project_media.id}_#{field}_#{confirmed}"
-      redis.set(key, Bot::Alegre.cache_items_via_callback(project_media, field, confirmed, params.dig('data', 'results', 'result')))
+      response = Bot::Alegre.cache_items_via_callback(project_media, field, confirmed, params.dig('data', 'results', 'result'))
+      redis.set(key, response.to_json)
       redis.expire(key, 1.day.to_i)
       Bot::Alegre.relate_project_media_callback(project_media, field)
     end

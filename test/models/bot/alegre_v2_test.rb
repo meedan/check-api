@@ -784,7 +784,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
     assert_equal relationship.source, pm2
     assert_equal relationship.target, pm1
-    assert_equal relationship.relationship_type, Relationship.suggested_type
+    assert_equal relationship.relationship_type, Relationship.confirmed_type
   end
 
   test "should get_cached_data with right fallbacks" do
