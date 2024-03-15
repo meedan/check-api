@@ -279,8 +279,7 @@ namespace :check do
                       updated_cluster_attributes[:last_fact_check_date] = pm_fc_mapping[pm.id] if pm_fc_mapping[pm.id].to_i > cluster.last_fact_check_date.to_i
                     end
                     cpm_items << { project_media_id: pm.id, cluster_id: cluster.id }
-                    # FIXME: Set the center of the cluster properly
-                    updated_cluster_attributes[:project_media_id] = cluster.project_media_id || pm.id
+                    updated_cluster_attributes[:project_media_id] = CheckClusterCenter.replace_or_keep_cluster_center(cluster.project_media, pm)
                     updated_cluster_attributes[:title] = cluster.title || pm.title
                     # Update cluster
                     # FIXME: Update clusters in batches
