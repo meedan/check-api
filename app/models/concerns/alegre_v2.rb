@@ -131,14 +131,6 @@ module AlegreV2
       ).merge(params)
     end
 
-    def generic_package_video(project_media, params)
-      generic_package_media(project_media, params)
-    end
-
-    def delete_package_video(project_media, _field, params)
-      generic_package_video(project_media, params)
-    end
-
     def generic_package_image(project_media, params)
       generic_package_media(project_media, params)
     end
@@ -173,10 +165,6 @@ module AlegreV2
       }
       context[:field] = field if field && is_not_generic_field(field)
       context
-    end
-
-    def store_package_video(project_media, _field, params)
-      generic_package_video(project_media, params)
     end
 
     def store_package_image(project_media, _field, params)
@@ -291,7 +279,7 @@ module AlegreV2
     end
 
     def get_items_with_similar_media_v2(media_url, threshold, team_ids, type)
-      alegre_path = ['audio', 'image', 'video'].include?(type) ? self.sync_path_for_type(type) : "/#{type}/similarity/search/"
+      alegre_path = ['audio', 'image'].include?(type) ? self.sync_path_for_type(type) : "/#{type}/similarity/search/"
       # FIXME: Stop using this method from v1 once all media types are supported by v2
       # FIXME: Alegre crashes if `media_url` was already requested before, this is why I append a hash
       self.get_items_with_similar_media("#{media_url}?hash=#{SecureRandom.hex}", threshold, team_ids, alegre_path)

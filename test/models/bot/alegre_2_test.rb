@@ -32,7 +32,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm1 = create_project_media team: @team, media: create_uploaded_video
     pm2 = create_project_media team: @team, media: create_uploaded_video
     pm3 = create_project_media team: @team, media: create_uploaded_video
-    Bot::Alegre.stubs(:request).with('post', '/similarity/sync/video', @params).returns({
+    Bot::Alegre.stubs(:request).with('post', '/video/similarity/search/', @params).returns({
       result: [
         {
           context: [
