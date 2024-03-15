@@ -22,7 +22,6 @@ module AlegreWebhooks
           project_media = ProjectMedia.find(request.params.dig('data', 'item', 'raw', 'context', 'project_media_id'))
           confirmed = params.dig('data', 'item', 'raw', 'confirmed')
           field = request.params.dig('data', 'item', 'raw', 'context', 'field')
-          project_media, field, confirmed
           key = "alegre:async_results:#{project_media.id}_#{field}_#{confirmed}"
           redis.set(key, Bot::Alegre.cache_items_via_callback(project_media, field, confirmed, results))
           redis.expire(key, 1.day.to_i)
