@@ -341,7 +341,7 @@ module AlegreV2
     end
     
     def get_cached_data(required_keys)
-      Hash[required_keys.collect{|k,v| [k, (JSON.parse(redis.get(v)) rescue nil)]}]
+      Hash[required_keys.collect{|k,v| [k, (JSON.parse(redis.get(v)) rescue [])]}]
     end
 
     def get_similar_items_v2_callback(project_media, field)
@@ -375,6 +375,16 @@ module AlegreV2
       # FIXME: Stop using this method from v1 once all media types are supported by v2
       # FIXME: Alegre crashes if `media_url` was already requested before, this is why I append a hash
       self.get_items_with_similar_media("#{media_url}?hash=#{SecureRandom.hex}", threshold, team_ids, alegre_path)
+    end
+
+    def process_alegre_callback(params)
+      project_media = ProjectMedia.find(params.dig('data', 'item', 'raw', 'context', 'project_media_id'))
+      confirmed = params.dig('data', 'item', 'raw', 'confirmed')
+      field = params.dig('data', 'item', 'raw', 'context', 'field')
+      key = "alegre:async_results:#{project_media.id}_#{field}_#{confirmed}"
+      redis.set(key, Bot::Alegre.cache_items_via_callback(project_media, field, confirmed, results))
+      redis.expire(key, 1.day.to_i)
+      Bot::Alegre.relate_project_media_callback(project_media, field)
     end
   end
 end

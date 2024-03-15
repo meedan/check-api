@@ -348,6 +348,14 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal expected, actual
   end
 
+  test "should safe_get_async" do
+    pm1 = create_project_media team: @team, media: create_uploaded_audio
+    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/async/audio").to_return(body: '{}')
+    expected = {}
+    actual = Bot::Alegre.safe_get_async(pm1, "audio", {})
+    assert_equal expected, actual
+  end
+
   test "should run delete request" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     response = {"requested"=>
@@ -721,16 +729,66 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should relate project media async for audio" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     pm2 = create_project_media team: @team, media: create_uploaded_audio
-    Bot::Alegre.stubs(:get_similar_items_v2_async).returns(true)
-    {pm2.id=>{:score=>0.91, :context=>{"team_id"=>pm2.team_id, "has_custom_id"=>true, "project_media_id"=>pm2.id}, :model=>"audio", :source_field=>"audio", :target_field=>"audio", :relationship_type=>Relationship.suggested_type}}
+    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/async/audio").to_return(body: '{}')
     relationship = nil
+    params = {
+        "model_type": "image",
+        "data": {
+            "item": {
+                "id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
+                "callback_url": "http://alegre:3100/presto/receive/add_item/image",
+                "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
+                "text": null,
+                "raw": {
+                    "doc_id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
+                    "context": {
+                        "team_id": pm1.team_id,
+                        "project_media_id": pm1.id,
+                        "has_custom_id": true
+                    },
+                    "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
+                    "threshold": 0.73,
+                    "confirmed": true,
+                    "created_at": "2024-03-14T22:05:47.588975",
+                    "limit": 200,
+                    "requires_callback": true,
+                    "final_task": "search"
+                },
+                "hash_value": "1110101010001011110100000011110010101000000010110101101010100101101111110101101001011010100001011111110101011010010000101010010110101101010110100000001010100101101010111110101000010101011100001110101010101111100001010101001011101010101011010001010101010010"
+            },
+            "results": {
+                "result": [
+                    {
+                        "id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
+                        "doc_id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
+                        "pdq": "1110101010001011110100000011110010101000000010110101101010100101101111110101101001011010100001011111110101011010010000101010010110101101010110100000001010100101101010111110101000010101011100001110101010101111100001010101001011101010101011010001010101010010",
+                        "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
+                        "context": [
+                            {
+                                "team_id": pm2.team_id,
+                                "has_custom_id": true,
+                                "project_media_id": pm2.id
+                            }
+                        ],
+                        "score": 1.0,
+                        "model": "image/pdq"
+                    }
+                ]
+            }
+        }
+    }
     assert_difference 'Relationship.count' do
-      relationship = Bot::Alegre.relate_project_media_async(pm1)
+      # Simulate the webhook hitting the server and being executed....
+      relationship = Bot::Alegre.process_alegre_callback(params)
     end
     assert_equal relationship.source, pm2
     assert_equal relationship.target, pm1
     assert_equal relationship.relationship_type, Relationship.suggested_type
-    Bot::Alegre.unstub(:get_similar_items_v2)
+  end
+
+  test "should get_cached_data with right fallbacks" do
+    pm1 = create_project_media team: @team, media: create_uploaded_audio
+    assert_equal Bot::Alegre.get_cached_data(Bot::Alegre.get_required_keys(pm1, nil)), {confirmed_results: [], suggested_or_confirmed_results: []}
   end
 
   test "should relate project media for audio" do
