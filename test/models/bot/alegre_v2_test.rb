@@ -642,8 +642,9 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       }
     }
-    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/sync/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}, :url=>Bot::Alegre.media_file_url(pm1), :threshold=>0.9}).to_return(body: response.to_json)
-    assert_equal Bot::Alegre.get_similar_items_v2_async(pm1, nil), {}
+    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/async/audio").with(body: {:doc_id => Bot::Alegre.item_doc_id(pm1),:context => {:team_id => pm1.team_id, :project_media_id => pm1.id, :has_custom_id => true}, :url => Bot::Alegre.media_file_url(pm1), :threshold => 0.9, :confirmed => false}).to_return(body: response.to_json)
+    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/async/audio").with(body: {:doc_id => Bot::Alegre.item_doc_id(pm1),:context => {:team_id => pm1.team_id, :project_media_id => pm1.id, :has_custom_id => true}, :url => Bot::Alegre.media_file_url(pm1), :threshold => 0.9, :confirmed => true}).to_return(body: response.to_json)
+    assert_equal Bot::Alegre.get_similar_items_v2_async(pm1, nil), true
   end
 
   test "should get_similar_items_v2" do
@@ -738,7 +739,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
                 "id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
                 "callback_url": "http://alegre:3100/presto/receive/add_item/image",
                 "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
-                "text": null,
+                "text": nil,
                 "raw": {
                     "doc_id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
                     "context": {
