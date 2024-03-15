@@ -234,7 +234,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     assert_equal pm1a, Relationship.last.target
   end
 
-  test "should link similar images, get flags and extract text" do
+  test "should link similar images, get flags and extract text zzz" do
     image_path = random_url
     ft = create_field_type field_type: 'image_path', label: 'Image Path'
     at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
@@ -260,6 +260,31 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
           }
         ]
       }.to_json)
+      response = {
+        "message": "Message pushed successfully",
+        "queue": "image__Model",
+        "body": {
+          "callback_url": "http:\/\/alegre:3100\/presto\/receive\/add_item\/image",
+          "id": "f0d43d29-853d-4099-9e92-073203afa75b",
+          "url": image_path,
+          "text": nil,
+          "raw": {
+            "limit": 200,
+            "url": image_path,
+            "callback_url": "http:\/\/example.com\/search_results",
+            "doc_id": random_string,
+            "context": { team_id: t.id },
+            "created_at": "2023-10-27T22:40:14.205586",
+            "command": "search",
+            "threshold": 0.0,
+            "per_model_threshold": {},
+            "match_across_content_types": false,
+            "requires_callback": true,
+            "final_task": "search"
+          }
+        }
+      }
+      WebMock.stub_request(:post, 'http://alegre.test/similarity/async/image').to_return(body: response.to_json)
 
       # Flags
       Bot::Alegre.unstub(:media_file_url)
@@ -279,7 +304,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       
       pm2 = create_project_media team: t, media: create_uploaded_image
-      WebMock.stub_request(:post, 'http://alegre.test/similarity/async/image').to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre.test/similarity/sync/image').to_return(body: {
         result: [
           {
             id: pm1.id,
