@@ -333,16 +333,23 @@ module AlegreV2
       end
     end
 
+    def get_required_keys(project_media, field)
+      {
+        confirmed_results: "alegre:async_results:#{project_media.id}_#{field}_true",
+        suggested_or_confirmed_results: "alegre:async_results:#{project_media.id}_#{field}_false"
+      }
+    end
+    
+    def get_cached_data(required_keys)
+      Hash[required_keys.collect{|k,v| [k, (JSON.parse(redis.get(v)) rescue nil)]}]
+    end
+
     def get_similar_items_v2_callback(project_media, field)
       type = get_type(project_media)
       if !Bot::Alegre.should_get_similar_items_of_type?('master', project_media.team_id) || !Bot::Alegre.should_get_similar_items_of_type?(type, project_media.team_id)
         return {}
       else
-        required_keys = {
-          confirmed_results: "alegre:async_results:#{project_media.id}_#{field}_true",
-          suggested_or_confirmed_results: "alegre:async_results:#{project_media.id}_#{field}_false"
-        }
-        cached_data = Hash[required_keys.collect{|k,v| [k, (JSON.parse(redis.get(v)) rescue nil)]}]
+        cached_data = get_cached_data(get_required_keys(project_media, field))
         if !cached_data.values.include?(nil)
           suggested_or_confirmed = cached_data[:suggested_or_confirmed_results]
           confirmed = cached_data[:confirmed_results]
