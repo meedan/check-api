@@ -3,8 +3,9 @@ class ClusterTeamFactCheckType < DefaultObject
 
   implements GraphQL::Types::Relay::Node
 
-  field :claim_description, ClaimDescriptionType, null: true
-  field :fact_check, FactCheckType, null: true
+  field :claim, GraphQL::Types::String, null: true
+  field :fact_check_title, GraphQL::Types::String, null: true
+  field :fact_check_summary, GraphQL::Types::String, null: true
   field :rating, GraphQL::Types::String, null: true
   field :media_count, GraphQL::Types::Int, null: true
   field :requests_count, GraphQL::Types::Int, null: true

@@ -36,8 +36,9 @@ class ClusterTeam
       item = claim_description.project_media
       list << OpenStruct.new({
         id: claim_description.id,
-        claim_description: claim_description,
-        fact_check: claim_description.fact_check,
+        claim: claim_description.description,
+        fact_check_title: claim_description.fact_check&.title,
+        fact_check_summary: claim_description.fact_check&.summary,
         rating: item.status_i18n,
         media_count: item.linked_items_count,
         requests_count: item.demand

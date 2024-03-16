@@ -825,9 +825,10 @@ type ClusterTeamEdge {
 Cluster team fact-check type: Data about a fact-check in cluster but under the scope of a team
 """
 type ClusterTeamFactCheck implements Node {
-  claim_description: ClaimDescription
+  claim: String
   created_at: String
-  fact_check: FactCheck
+  fact_check_summary: String
+  fact_check_title: String
   id: ID!
   media_count: Int
   permissions: String

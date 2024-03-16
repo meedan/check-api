@@ -4107,14 +4107,14 @@
           "description": "Cluster team fact-check type: Data about a fact-check in cluster but under the scope of a team",
           "fields": [
             {
-              "name": "claim_description",
+              "name": "claim",
               "description": null,
               "args": [
 
               ],
               "type": {
-                "kind": "OBJECT",
-                "name": "ClaimDescription",
+                "kind": "SCALAR",
+                "name": "String",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -4135,14 +4135,28 @@
               "deprecationReason": null
             },
             {
-              "name": "fact_check",
+              "name": "fact_check_summary",
               "description": null,
               "args": [
 
               ],
               "type": {
-                "kind": "OBJECT",
-                "name": "FactCheck",
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "fact_check_title",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
                 "ofType": null
               },
               "isDeprecated": false,
