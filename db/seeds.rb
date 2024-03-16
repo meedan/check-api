@@ -314,10 +314,12 @@ class PopulatedWorkspaces
   def main_user_feed(to_be_shared)
     if to_be_shared == "share_factchecks"
       data_points = [1]
+      last_clusterized_at = nil
     elsif to_be_shared == "share_everything"
       data_points = [1,2]
+      last_clusterized_at = Time.now
     else
-      [2]
+      data_points = [2]
     end
 
     feed_params = {
@@ -327,6 +329,7 @@ class PopulatedWorkspaces
       published: true,
       saved_search: SavedSearch.where(team: teams[:main_team_a]).first,
       licenses: [1],
+      last_clusterized_at: last_clusterized_at,
       data_points: data_points
     }
     Feed.create!(feed_params)
