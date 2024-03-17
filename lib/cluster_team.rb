@@ -31,6 +31,7 @@ class ClusterTeam
   end
 
   def fact_checks
+    return [] unless @cluster.feed.data_points.to_a.include?(1) # Return empty if feed is not sharing fact-checks
     list = []
     ClaimDescription.where(project_media_id: self.project_medias.map(&:id)).each do |claim_description|
       item = claim_description.project_media
