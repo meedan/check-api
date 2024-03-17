@@ -101,7 +101,6 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should unarchive item after running" do
-    WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(status: 200, body: '{}')
       pm = create_project_media
@@ -213,13 +212,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should use OCR data for similarity matching" do
-    WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
-    WebMock.stub_request(:post, 'http://alegre:3100/text/langid/').to_return(body: {
-      'result': {
-        'language': 'en',
-        'confidence': 1.0
-      }
-    }.to_json)
+    WebMock.stub_request(:post, 'http://alegre:3100/text/langid/').with(body: { text: 'Foo bar' }.to_json).to_return(status: 200, body: '{}')
+    WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(status: 200, body: '{}')
     pm = create_project_media team: @team
     pm2 = create_project_media team: @team
     Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => {:score=>0.9, :context=>{"team_id"=>@team.id, "field"=>"original_description", "project_media_id"=>pm2.id, "has_custom_id"=>true}, :model=>"elasticsearch"} })
@@ -266,14 +260,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   # This test to reproduce errbit error CHECK-1218
   test "should match to existing parent" do
-    WebMock.stub_request(:delete, 'http://alegre:3100/text/similarity/').to_return(body: {success: true}.to_json)
-    WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
-    WebMock.stub_request(:post, 'http://alegre:3100/text/langid/').to_return(body: {
-      'result': {
-        'language': 'en',
-        'confidence': 1.0
-      }
-    }.to_json)
+    WebMock.stub_request(:post, 'http://alegre:3100/text/langid/').with(body: { text: 'Foo bar' }.to_json).to_return(status: 200, body: '{}')
+    WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(status: 200, body: '{}')
     pm_s = create_project_media team: @team
     pm = create_project_media team: @team
     pm2 = create_project_media team: @team
@@ -289,14 +277,9 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should use transcription data for similarity matching" do
+    WebMock.stub_request(:post, 'http://alegre:3100/text/langid/').with(body: { text: 'Foo bar' }.to_json).to_return(status: 200, body: '{}')
     WebMock.stub_request(:delete, 'http://alegre:3100/text/similarity/').to_return(status: 200, body: '{}')
-    WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
-    WebMock.stub_request(:post, 'http://alegre:3100/text/langid/').to_return(body: {
-      'result': {
-        'language': 'en',
-        'confidence': 1.0
-      }
-    }.to_json)
+    WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(status: 200, body: '{}')
     json_schema = {
       type: 'object',
       required: ['job_name'],
@@ -321,13 +304,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should check existing relationship before create a new one" do
-    WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
-    WebMock.stub_request(:post, 'http://alegre:3100/text/langid/').to_return(body: {
-      'result': {
-        'language': 'en',
-        'confidence': 1.0
-      }
-    }.to_json)
+    WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(status: 200, body: '{}')
+    WebMock.stub_request(:post, 'http://alegre:3100/text/langid/').with(body: { text: 'Foo bar' }.to_json).to_return(status: 200, body: '{}')
     pm = create_project_media team: @team
     pm2 = create_project_media team: @team
     pm3 = create_project_media team: @team
