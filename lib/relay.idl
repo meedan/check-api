@@ -826,6 +826,7 @@ Cluster team fact-check type: Data about a fact-check in cluster but under the s
 """
 type ClusterTeamFactCheck implements Node {
   claim: String
+  claim_description: ClaimDescription
   created_at: String
   fact_check_summary: String
   fact_check_title: String

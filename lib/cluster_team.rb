@@ -42,7 +42,8 @@ class ClusterTeam
         fact_check_summary: claim_description.fact_check&.summary,
         rating: item.status_i18n,
         media_count: item.linked_items_count,
-        requests_count: item.demand
+        requests_count: item.demand,
+        claim_description: claim_description
       })
     end
     list
