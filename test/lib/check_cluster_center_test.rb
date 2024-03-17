@@ -2,6 +2,7 @@ require_relative '../test_helper'
 
 class CheckClusterCenterTest < ActiveSupport::TestCase
   test "should get cluster center" do
+    Sidekiq::Testing.fake!
     RequestStore.store[:skip_cached_field_update] = false
     team_a = create_team name: 'A - First team'
     team_b = create_team name: 'B - Second team'
