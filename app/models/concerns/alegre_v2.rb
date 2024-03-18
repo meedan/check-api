@@ -230,15 +230,15 @@ module AlegreV2
 
     def parse_similarity_results(project_media, field, results, relationship_type)
       Hash[results.collect{|result|
-        result["context"] = isolate_relevant_context(project_media, result)
+        result["context"] = Bot::Alegre.isolate_relevant_context(project_media, result)
         [
           result["context"] && result["context"]["project_media_id"],
           {
             score: result["score"],
             context: result["context"],
             model: result["model"],
-            source_field: get_target_field(project_media, field),
-            target_field: get_target_field(project_media, result["field"]),
+            source_field: Bot::Alegre.get_target_field(project_media, field),
+            target_field: Bot::Alegre.get_target_field(project_media, result["field"]),
             relationship_type: relationship_type
           }
         ]
@@ -267,9 +267,9 @@ module AlegreV2
 
     def cache_items_via_callback(project_media, field, confirmed, results)
       relationship_type = confirmed ? Relationship.confirmed_type : Relationship.suggested_type
-      type = get_type(project_media)
-      threshold = get_per_model_threshold(project_media, Bot::Alegre.get_threshold_for_query(type, project_media, confirmed))
-      parse_similarity_results(
+      type = Bot::Alegre.get_type(project_media)
+      threshold = Bot::Alegre.get_per_model_threshold(project_media, Bot::Alegre.get_threshold_for_query(type, project_media, confirmed))
+      Bot::Alegre.parse_similarity_results(
         project_media,
         field,
         results,

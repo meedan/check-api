@@ -151,13 +151,13 @@ class Bot::Alegre < BotUser
       if body.dig(:event) == 'create_project_media' && !pm.nil?
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] This item was just created, processing...")
         self.get_language(pm)
-        if ['audio', 'image', 'video'].include?(self.get_pm_type(pm))
+        if ['audio', 'image'].include?(self.get_pm_type(pm))
           self.relate_project_media_async(pm)
         else
-          self.send_to_media_similarity_index(pm)
-          self.send_field_to_similarity_index(pm, 'original_title')
-          self.send_field_to_similarity_index(pm, 'original_description')
-          self.relate_project_media_to_similar_items(pm)
+          Bot::Alegre.send_to_media_similarity_index(pm)
+          Bot::Alegre.send_field_to_similarity_index(pm, 'original_title')
+          Bot::Alegre.send_field_to_similarity_index(pm, 'original_description')
+          Bot::Alegre.relate_project_media_to_similar_items(pm)
         end
         self.get_extracted_text(pm)
         self.get_flags(pm)
