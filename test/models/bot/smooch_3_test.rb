@@ -131,6 +131,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
   end
 
   test "should delete cache entries when user annotation is deleted" do
+    create_flag_annotation_type
     create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
     Bot::Smooch.unstub(:save_user_information)
     SmoochApi::AppApi.any_instance.stubs(:get_app).returns(OpenStruct.new(app: OpenStruct.new(name: random_string)))
