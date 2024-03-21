@@ -1042,3 +1042,42 @@ vi:
   subscribed: Bạn hiện đã ghi danh nhận bản tin của chúng tôi.
   unsubscribe_button_label: Ngừng Ghi Danh
   unsubscribed: Bạn hiện không còn ghi danh nhận bản tin của chúng tôi.
+mn:
+  add_more_details_state_button_label: "Нэмэх"
+  ask_if_ready_state_button_label: "Цуцлах"
+  cancelled: "Амжилттай цуцаллаа"
+  confirm_preferred_language: "Сонгосон хэлээ баталгаажуулна уу"
+  invalid_format: "Уучлаарай, таны илгээсэн файлын формат ажиллахгүй байна."
+  keep_subscription_button_label: "Бүртгэлээ хадгалах"
+  languages: "Хэл сонгох"
+  languages_and_privacy_title: "Хэл болон Нууцлал"
+  main_menu: "Үндсэн цэс"
+  main_state_button_label: "Цуцлах"
+  navigation_button: "Шилжих товч дарах"
+  no_results_in_language: "Монгол хэл дээр илэрц олдсонгүй. Бусад хэл дээрх холбоотой байж болох зарим үр дүнг энд оруулав."
+  privacy_and_purpose: |-
+    Нууцлал ба зорилго
+  
+    Монголын баримт шалгах төвийн хуурамч мэдээллийн эсрэг Баримт нэн тэргүүнд сувагт тавтай морилно уу.
+  
+    Та энэ дугаарыг ашиглан мэдээлэл нягтлуулахаар илгээх боломжтой.
+  
+    Таны өгөгдөл аюулгүй байна. Бид таны хувийн мэдээллийг хамгаалах, Баримт нэн тэргүүнд сувгийг нууцалж, аюулгүй байлгах болно; Энэ үйлчилгээг үзүүлэх, сайжруулахаас бусад тохиолдолд таны хувийн мэдээллийг (PII) хуваалцахгүй, худалдахгүй, ашиглахгүй.
+  
+    Хуурамч, ташаа мэдээллийг аль болох эрт илрүүлэхийн тулд бид энэ PII бус контентыг шалгасан судлаачид болон баримт шалгах түншүүдтэй хуваалцаж болно.
+  
+    Бидний холбосон вэбсайтууд өөрсдийн нууцлалын бодлоготой байх болно гэдгийг анхаарна уу.
+  
+    Хэрэв та өөрийн хүсэлтийг энэ ажилд ашиглуулахыг хүсэхгүй байгаа бол манай системд оруулахгүй байхыг хүсье.
+  privacy_statement: "Нууцлалын мэдэгдэл"
+  privacy_title: "Нууцлал"
+  report_updated: "Дараах баримт шалгалт ингэж шинэчлэгдлээ"
+  search_result_is_not_relevant_button_label: "Үгүй"
+  search_result_is_relevant_button_label: "Тийм"
+  search_state_button_label: "Илгээх"
+  subscribe_button_label: "Бүртгүүлэх"
+  subscribed: "Та мэдээллийн товхимолд бүртгүүллээ"
+  unsubscribe_button_label: "Бүртгэлээс хасах"
+  unsubscribed: "Та одоогоор мэдээллийн товхимолд бүртгэгдээгүй байна"
+  nlu_disambiguation: "Дараах сонголтуудаас нэгийг сонгоно уу:"
+  nlu_cancel: "Цэс рүү буцах"
