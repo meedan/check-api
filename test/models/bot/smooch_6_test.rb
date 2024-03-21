@@ -698,9 +698,8 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   end
 
   test "should not reply to banned user" do
-    create_flag_annotation_type
-    Sidekiq::Worker.clear_all
     Bot::Smooch.ban_user({ 'authorId' => @uid })
+    Sidekiq::Worker.clear_all
     Sidekiq::Testing.fake! do
       send_message 'hello'
       assert_equal 0, Sidekiq::Worker.jobs.size
