@@ -256,7 +256,6 @@ module AlegreV2
     def cache_items_via_callback(project_media, field, confirmed, results)
       relationship_type = confirmed ? Relationship.confirmed_type : Relationship.suggested_type
       type = Bot::Alegre.get_type(project_media)
-      threshold = Bot::Alegre.get_per_model_threshold(project_media, Bot::Alegre.get_threshold_for_query(type, project_media, confirmed))
       Bot::Alegre.parse_similarity_results(
         project_media,
         field,
@@ -327,10 +326,10 @@ module AlegreV2
         suggested_or_confirmed_results: "alegre:async_results:#{project_media.id}_#{field}_false"
       }
     end
-    
+
     def get_cached_data(required_keys)
       redis = Redis.new(REDIS_CONFIG)
-      Hash[required_keys.collect{|k,v| [k, (Hash[JSON.parse(redis.get(v)).collect{|k,v| [k.to_i, v]}] rescue [])]}]
+      Hash[required_keys.collect{|k,v| [k, (Hash[JSON.parse(redis.get(v)).collect{|kk,vv| [kk.to_i, vv]}] rescue [])]}]
     end
 
     def get_similar_items_v2_callback(project_media, field)
