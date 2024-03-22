@@ -130,7 +130,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     end
   end
 
-  test "should auto transcribe audio zzz" do
+  test "should auto transcribe audio" do
     json_schema = {
       type: 'object',
       required: ['job_name'],

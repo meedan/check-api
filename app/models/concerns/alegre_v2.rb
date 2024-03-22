@@ -255,7 +255,6 @@ module AlegreV2
 
     def cache_items_via_callback(project_media, field, confirmed, results)
       relationship_type = confirmed ? Relationship.confirmed_type : Relationship.suggested_type
-      type = Bot::Alegre.get_type(project_media)
       Bot::Alegre.parse_similarity_results(
         project_media,
         field,

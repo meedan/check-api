@@ -12,7 +12,6 @@ module AlegreWebhooks
 
     def webhook(request)
       begin
-        puts request.inspect
         doc_id = request.params.dig('data', 'requested', 'id')
         doc_id = request.params.dig('data', 'item', 'id') if doc_id.nil?
         is_from_alegre_callback = request.params.dig('data', 'item', 'callback_url').to_s.include?("/presto/receive/add_item")

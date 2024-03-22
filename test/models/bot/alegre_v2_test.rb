@@ -293,8 +293,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should safe_get_async" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
-    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/async/audio").to_return(body: '{}')
-    expected = {}
+    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/async/audio").to_return(body: 'null')
+    expected = nil
     actual = Bot::Alegre.safe_get_async(pm1, "audio", {})
     assert_equal expected, actual
   end
@@ -479,7 +479,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.get_items(pm1, nil), {(pm1.id+1)=>{:score=>0.91, :context=>{"team_id"=>pm1.team_id, "has_custom_id"=>true, "project_media_id"=>(pm1.id+1)}, :model=>"audio", :source_field=>"audio", :target_field=>"audio", :relationship_type=>Relationship.suggested_type}}
   end
 
-  test "should get_confirmed_items zzz" do
+  test "should get_confirmed_items" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     response = {
       "result": [
@@ -557,6 +557,18 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     }
     WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/sync/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}, :url=>Bot::Alegre.media_file_url(pm1), :threshold=>0.9}).to_return(body: response.to_json)
     assert_equal Bot::Alegre.get_confirmed_items(pm1, nil), {(pm1.id+1)=>{:score=>0.91, :context=>{"team_id"=>pm1.team_id, "has_custom_id"=>true, "project_media_id"=>(pm1.id+1)}, :model=>"audio", :source_field=>"audio", :target_field=>"audio", :relationship_type=>Relationship.confirmed_type}}
+  end
+
+  test "should get_similar_items_v2_async with false" do
+    pm1 = create_project_media team: @team, media: create_uploaded_audio
+    Bot::Alegre.stubs(:should_get_similar_items_of_type?).returns(false)
+    assert_equal Bot::Alegre.get_similar_items_v2_async(pm1, nil), false
+  end
+
+  test "should get_similar_items_v2_callback with false" do
+    pm1 = create_project_media team: @team, media: create_uploaded_audio
+    Bot::Alegre.stubs(:should_get_similar_items_of_type?).returns(false)
+    assert_equal Bot::Alegre.get_similar_items_v2_callback(pm1, nil), {}
   end
 
   test "should get_similar_items_v2_async" do
@@ -670,7 +682,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.get_similar_items_v2(pm1, nil), {}
   end
 
-  test "should relate project media async for audio zzz" do
+  test "should relate project media async for audio" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     pm2 = create_project_media team: @team, media: create_uploaded_audio
     WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/async/audio").to_return(body: '{}')
