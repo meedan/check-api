@@ -342,8 +342,26 @@ class PopulatedWorkspaces
   end
 
   def clusters(feed)
-    teams_project_medias.each_value do |project_medias|
-      project_medias.each_with_index { |project_media,index| cluster(project_media, index, feed)}
+    teams_project_medias.compact_blank!.each do |team_name, project_medias|
+      next unless teams[team_name].is_part_of_feed?(feed.id)
+      c1_centre = project_medias.first
+      c1_project_media = [c1_centre]
+      c2_centre = project_medias.second
+      c2_project_medias = project_medias[1..(project_medias.size/2)-1] # first half
+      c3_centre = project_medias.last
+      c3_project_medias = project_medias[project_medias.size/2..-1] # second half
+
+      c1 = cluster(c1_centre, feed, teams[team_name])
+      c2 = cluster(c2_centre, feed, teams[team_name])
+      c3 = cluster(c3_centre, feed, teams[team_name])
+
+      cluster_items(c1_project_media, c1)
+      cluster_items(c2_project_medias, c2)
+      cluster_items(c3_project_medias, c3)
+
+      updated_cluster(c1)
+      updated_cluster(c2)
+      updated_cluster(c3)
     end
   end
 
@@ -584,16 +602,30 @@ class PopulatedWorkspaces
     end
   end
 
-  def cluster_teams
-    if invited_teams
-      [
-        [teams[:main_team_a].id],
-        [teams[:invited_team_c].id],
-        [teams[:main_team_a].id, teams[:invited_team_c].id]
-      ].sample
-    else
-      [teams[:main_team_a].id]
+  def cluster_items(project_medias, cluster)
+    project_medias.each { |pm| ClusterProjectMedia.create!(cluster_id: cluster.id, project_media_id: pm.id) }
+  end
+
+  def updated_cluster(cluster)
+    cluster_project_medias = cluster.items
+    cluster_fact_checks = cluster_project_medias.map { |project_media| project_media.claim_description.fact_check }.compact!
+    cluster_tipline_requests = cluster_project_medias.map { |project_media| project_media.get_requests }.flatten!
+
+    cluster.media_count = cluster_project_medias.size
+    cluster.last_item_at = cluster_project_medias.last.created_at
+    unless cluster_fact_checks.nil?
+      cluster.fact_checks_count = cluster_fact_checks.size
+      cluster.last_fact_check_date = last_date(cluster_fact_checks)
     end
+    unless cluster_tipline_requests.nil?
+      cluster.requests_count = cluster_tipline_requests.size
+      cluster.last_request_date = last_date(cluster_tipline_requests)
+    end
+    cluster.save!
+  end
+
+  def last_date(collection)
+    collection.sort { |a,b| a.created_at <=> b.created_at }.last.created_at
   end
 
   def random_channels
@@ -601,17 +633,14 @@ class PopulatedWorkspaces
     channels.sample(rand(channels.size))
   end
 
-  def cluster(project_media, index, feed)
-    count = index.zero? ? 0 : rand(100)
-
+  def cluster(project_media, feed, team)
     cluster_params = {
       project_media_id: project_media.id,
+      first_item_at: project_media.created_at,
       feed_id: feed.id,
-      team_ids: cluster_teams,
+      team_ids: [team.id],
       channels: random_channels,
-      media_count: count,
-      requests_count: count,
-      fact_checks_count: count,
+      title: project_media.title
     }
     Cluster.create!(cluster_params)
   end
