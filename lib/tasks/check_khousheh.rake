@@ -195,9 +195,10 @@ namespace :check do
       sort = [{ annotated_id: { order: :asc } }]
       error_logs = []
       Feed.find_each do |feed|
+        last_old_cluster_id = Cluster.where(feed_id: feed.id).order('id ASC').last&.id
+        puts "Parsing feed #{feed.name}..."
         # Only feeds that are sharing media
         if feed.data_points.to_a.include?(2)
-          puts "Parsing feed #{feed.name}..."
           begin
             last_old_cluster_id = Cluster.where(feed_id: feed.id).order('id ASC').last&.id
             clusters = JSON.parse(File.read(File.join(Rails.root, 'tmp', 'feed-clusters-output', "#{TIMESTAMP}-#{feed.uuid}.json")))
@@ -293,21 +294,21 @@ namespace :check do
                   begin
                     ClusterProjectMedia.insert_all(cpm_items, unique_by: %i[ cluster_id project_media_id ])
                   rescue
-                    error_logs << {feed: "Failed to import ClusterProjectMedia for feed #{feed.id} page #{page}"}
+                    error_logs << { feed: "Failed to import ClusterProjectMedia for feed #{feed.id} page #{page}" }
                   end
                 end
                 search_after = [pm_ids.max]
               end
               Team.current = nil
-              # Delete old clusters
-              Cluster.where(feed_id: feed.id).where('id <= ?', last_old_cluster_id).delete_all unless last_old_cluster_id.nil?
-              feed.update_column(:last_clusterized_at, Time.now)
             end
             puts "Rebuilding clusters for feed #{feed.name} took #{Time.now.to_f - started_at} seconds."
           rescue Errno::ENOENT
             puts "Output file not found for feed #{feed.name}."
           end
         end
+        # Delete old clusters
+        Cluster.where(feed_id: feed.id).where('id <= ?', last_old_cluster_id).delete_all unless last_old_cluster_id.nil?
+        feed.update_column(:last_clusterized_at, Time.now)
       end
       puts "Logs: #{error_logs.inspect}." unless error_logs.blank?
       minutes = ((Time.now.to_i - started) / 60).to_i
