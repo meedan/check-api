@@ -19,7 +19,7 @@ class TiplineRequestType < DefaultObject
   def smooch_user_external_identifier
     ability = context[:ability] || Ability.new
     # Mask the user identifier when this request is displayed in a feed context
-    ability.can?(:read, object) ? object.smooch_user_external_identifier : random_smooch_id
+    ability.can?(:read, object) ? object.smooch_user_external_identifier : SecureRandom.hex.first(5)
   end
 
   field :smooch_data, JsonStringType, null: true
@@ -27,12 +27,6 @@ class TiplineRequestType < DefaultObject
   def smooch_data
     ability = context[:ability] || Ability.new
     # Mask user information when this request is displayed in a feed context
-    ability.can?(:read, object) ? object.smooch_data : object.smooch_data.to_h.merge({ 'name' => random_smooch_id, 'authorId' => random_smooch_id })
-  end
-
-  private
-
-  def random_smooch_id
-    SecureRandom.hex.first(5)
+    ability.can?(:read, object) ? object.smooch_data : object.smooch_data.to_h.merge({ 'name' => SecureRandom.hex.first(5), 'authorId' => SecureRandom.hex.first(5) })
   end
 end
