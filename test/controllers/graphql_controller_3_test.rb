@@ -355,7 +355,7 @@ class GraphqlController3Test < ActionController::TestCase
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']['requests']['edges']
     assert_equal 3, data.length
-    query = "query { project_media(ids: \"#{pm2.id}\") { requests(first: 10) { edges { node { dbid } } } } }"
+    query = "query { project_media(ids: \"#{pm2.id}\") { requests(first: 10) { edges { node { dbid, smooch_user_external_identifier, smooch_data } } } } }"
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']['requests']['edges']
