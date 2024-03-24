@@ -687,6 +687,7 @@ type Cluster implements Node {
   last_request_date: Int
   media_count: Int
   permissions: String
+  project_media(id: Int!): ProjectMedia
   project_medias(
     """
     Returns the elements in the list that come after the specified cursor.

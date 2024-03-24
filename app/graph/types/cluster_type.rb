@@ -68,4 +68,12 @@ class ClusterType < DefaultObject
     return ProjectMedia.none unless object.team_ids.include?(team_id)
     object.project_medias.where(team_id: team_id.to_i)
   end
+
+  field :project_media, ProjectMediaType, null: true do
+    argument :id, GraphQL::Types::Int, required: true
+  end
+
+  def project_media(id:)
+    object.project_medias.where(id: id.to_i).first
+  end
 end
