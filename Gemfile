@@ -131,7 +131,7 @@ gem 'bootsnap', require: false
 gem 'sidekiq-cron', '~> 1.1'
 gem 'parse-cron'
 gem 'streamio-ffmpeg'
-gem 'rdoc', '6.3.2'
+gem 'rdoc', '6.3.4.1'
 gem 'geocoder', '1.6.4'
 gem 'parallel'
 gem 'fx'
