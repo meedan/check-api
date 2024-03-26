@@ -196,21 +196,19 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_items_from_similar_text(team_id, text, fields = nil, threshold = nil, models = nil, fuzzy = false)
-    if /[a-z\-]+-[0-9\-]+/ !~ text
-        team_ids = [team_id].flatten
-        if text.blank?
-          Rails.logger.info("[Alegre Bot] get_items_from_similar_text returning early due to blank text #{text}")
-          return {}
-        end
-        fields ||= ALL_TEXT_SIMILARITY_FIELDS
-        threshold ||= self.get_threshold_for_query('text', nil, true)
-        models ||= [self.matching_model_to_use(team_ids)].flatten
-        Hash[self.get_similar_items_from_api(
-          '/text/similarity/search/',
-          self.similar_texts_from_api_conditions(text, models, fuzzy, team_ids, fields, threshold),
-          threshold
-        ).collect{|k,v| [k, v.merge(model: v[:model]||Bot::Alegre.default_matching_model)]}]
+    team_ids = [team_id].flatten
+    if text.blank? || /[a-z\-]+-[0-9\-]+/ =~ text
+      Rails.logger.info("[Alegre Bot] get_items_from_similar_text returning early due to blank/bad text #{text}")
+      return {}
     end
+    fields ||= ALL_TEXT_SIMILARITY_FIELDS
+    threshold ||= self.get_threshold_for_query('text', nil, true)
+    models ||= [self.matching_model_to_use(team_ids)].flatten
+    Hash[self.get_similar_items_from_api(
+      '/text/similarity/search/',
+      self.similar_texts_from_api_conditions(text, models, fuzzy, team_ids, fields, threshold),
+      threshold
+    ).collect{|k,v| [k, v.merge(model: v[:model]||Bot::Alegre.default_matching_model)]}]
   end
 
   def self.unarchive_if_archived(pm)
@@ -297,7 +295,10 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_language_from_text(pm, text)
-    lang = text.blank? ? 'und' : self.get_language_from_alegre(text)
+    lang = 'und'
+    if !text.blank? || /[a-z\-]+-[0-9\-]+/ !~ text
+        lang = self.get_language_from_alegre(text)
+    end
     self.save_annotation(pm, 'language', { language: lang })
     lang
   end
