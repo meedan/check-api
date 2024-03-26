@@ -341,6 +341,12 @@ class PopulatedWorkspaces
     invited_users.each { |invited_user| feed_invitation(feed, invited_user)}
   end
 
+  def accept_invitation(feed, invited_user)
+    team = users[invited_user].teams.first
+    feed_invitation = FeedInvitation.where(feed_id: feed.id).find_by(email: users[invited_user].email)
+    feed_invitation.accept!(team.id)
+  end
+
   def clusters(feed)
     teams_project_medias.compact_blank!.each do |team_name, project_medias|
       next unless teams[team_name].is_part_of_feed?(feed.id)
@@ -673,6 +679,8 @@ ActiveRecord::Base.transaction do
     puts 'Making and inviting to Shared Feed... (won\'t run if you are not creating any invited users)'
     populated_workspaces.share_feed(feed_1)
     populated_workspaces.share_feed(feed_2)
+    puts 'Accepting invitation to a Shared Feed...'
+    populated_workspaces.accept_invitation(feed_2, :invited_user_c)
     # puts 'Making Confirmed Relationships between items...'
     # populated_workspaces.confirm_relationships
     # puts 'Making Suggested Relationships between items...'
