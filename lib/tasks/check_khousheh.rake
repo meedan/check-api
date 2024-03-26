@@ -13,15 +13,26 @@ namespace :check do
       puts
     end
 
-    # FIXME: Load only the claims we need
-    def claim_uuid_for_duplicate_quote
-      puts 'Collecting claim media UUIDs for duplicate quotes...'
-      claim_uuid = {}
-      Media.select('quote, MIN(id) as first').where(type: 'Claim').group(:quote).having('COUNT(id) > 1')
-      .each do |raw|
-        claim_uuid[Digest::MD5.hexdigest(raw['quote'])] = raw['first'].to_s
-      end
-      claim_uuid
+    def get_claim_uuid(quote)
+      quote_es = quote[0..1023]
+      query = {
+        bool: {
+          must: [
+            { term: { associated_type: { value: 'Claim' } } },
+            {
+              simple_query_string: {
+                fields: ["title"],
+                query: quote_es,
+                default_operator: "AND"
+              }
+            }
+          ]
+        }
+      }
+      result = $repository.search(query: query, size: 10000)
+      pm_ids = result.collect{ |i| i['annotated_id'] if i['title'].downcase == quote.downcase }.uniq.compact
+      uuid = ProjectMedia.where(id: pm_ids).map(&:media_id).sort.first
+      uuid.blank? ? uuid : uuid.to_s
     end
 
     # docker-compose exec -e elasticsearch_log=0 api bundle exec rake check:khousheh:generate_input
@@ -30,8 +41,6 @@ namespace :check do
       print_task_title 'Generating input files'
       FileUtils.mkdir_p(File.join(Rails.root, 'tmp', 'feed-clusters-input'))
       started = Time.now.to_i
-      # Collect claim media UUIDs for duplicate quote
-      claim_uuid = claim_uuid_for_duplicate_quote
       sort = [{ annotated_id: { order: :asc } }]
       Feed.find_each do |feed|
         # Only feeds that are sharing media
@@ -62,7 +71,7 @@ namespace :check do
               m_ids = pms.map(&:media_id)
               Media.where(id: m_ids, type: 'Claim').find_each do |m|
                print '.'
-               uuid[m.id] = claim_uuid[Digest::MD5.hexdigest(m.quote)] || m.id.to_s
+               uuid[m.id] = get_claim_uuid(m.quote) || m.id.to_s
              end
             end
             pm_ids.each do |pm_id|
@@ -86,7 +95,7 @@ namespace :check do
               end
               Media.where(id: tpm_m_mapping.values, type: 'Claim').find_each do |m|
                 print '.'
-                t_uuid[m.id] = claim_uuid[Digest::MD5.hexdigest(m.quote)] || m.id.to_s
+                t_uuid[m.id] = get_claim_uuid(m.quote) || m.id.to_s
               end
               relations.each do |r|
                 print '.'
@@ -191,7 +200,6 @@ namespace :check do
     task parse_output: [:environment, :download] do
       print_task_title 'Parsing output files'
       started = Time.now.to_i
-      claim_uuid = claim_uuid_for_duplicate_quote
       sort = [{ annotated_id: { order: :asc } }]
       error_logs = []
       Feed.find_each do |feed|
@@ -230,13 +238,14 @@ namespace :check do
               search_after = [0]
               page = 0
               while true
-                page += 1
-                puts "\nIterating on page #{page}/#{pages}\n"
                 result = $repository.search(_source: 'annotated_id', query: es_query, sort: sort, search_after: search_after, size: PER_PAGE).results
                 pm_ids = result.collect{ |i| i['annotated_id'] }.uniq
                 break if pm_ids.empty?
+                page += 1
+                puts "\nIterating on page #{page}/#{pages}\n"
                 pm_media_mapping = {} # Project Media ID => Media ID
                 uuid = {}
+                cluster_items = {}
                 cpm_items = []
                 ProjectMedia.where(id: pm_ids).find_in_batches(:batch_size => PER_PAGE) do |pms|
                   # Collect claim media UUIDs
@@ -246,7 +255,7 @@ namespace :check do
                   end
                   Media.where(id: pms.map(&:media_id), type: 'Claim').find_each do |m|
                    print '.'
-                   uuid[m.id] = claim_uuid[Digest::MD5.hexdigest(m.quote)] || m.id.to_s
+                   uuid[m.id] = get_claim_uuid(m.quote) || m.id.to_s
                   end
                   # Fact-checks
                   pm_fc_mapping = {} # Project Media ID => Fact-Check Updated At
@@ -285,8 +294,16 @@ namespace :check do
                     cluster_title = cluster_center == pm.id ? pm.title : cluster.title
                     updated_cluster_attributes[:title] = cluster_title
                     # Update cluster
-                    # FIXME: Update clusters in batches
-                    cluster.update_columns(updated_cluster_attributes)
+                    cluster_items[cluster.id] = updated_cluster_attributes
+                  end
+                end
+                # Bulk-update Cluster
+                unless cluster_items.blank?
+                  begin
+                    cluster_items_values = cluster_items.values.to_a
+                    Cluster.upsert_all(cluster_items_values, unique_by: :id)
+                  rescue
+                    error_logs << {feed: "Failed to import Cluster for feed #{feed.id} page #{page}"}
                   end
                 end
                 # Bulk-insert ClusterProjectMedia
@@ -301,13 +318,19 @@ namespace :check do
               end
               Team.current = nil
             end
-            puts "Rebuilding clusters for feed #{feed.name} took #{Time.now.to_f - started_at} seconds."
+            puts "\nRebuilding clusters for feed #{feed.name} took #{Time.now.to_f - started_at} seconds."
           rescue Errno::ENOENT
-            puts "Output file not found for feed #{feed.name}."
+            puts "\nOutput file not found for feed #{feed.name}."
           end
         end
         # Delete old clusters
-        Cluster.where(feed_id: feed.id).where('id <= ?', last_old_cluster_id).delete_all unless last_old_cluster_id.nil?
+        unless last_old_cluster_id.nil?
+          deleted_clusters = Cluster.where(feed_id: feed.id).where('id <= ?', last_old_cluster_id).map(&:id)
+          unless deleted_clusters.blank?
+            ClusterProjectMedia.where(cluster_id: deleted_clusters).delete_all
+            Cluster.where(id: deleted_clusters).delete_all
+          end
+        end
         feed.update_column(:last_clusterized_at, Time.now)
       end
       puts "Logs: #{error_logs.inspect}." unless error_logs.blank?
