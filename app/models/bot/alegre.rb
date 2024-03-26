@@ -395,7 +395,11 @@ class Bot::Alegre < BotUser
 
   def self.media_file_url(pm)
     # FIXME Ugly hack to get a usable URL in docker-compose development environment.
-    url = (ENV['RAILS_ENV'] != 'development' ? pm.media.file.file.public_url : "#{CheckConfig.get('storage_endpoint')}/#{CheckConfig.get('storage_bucket')}/#{pm.media.file.file.path}")
+    if pm.class == TemporaryProjectMedia
+      url = pm.url
+    else
+      url = (ENV['RAILS_ENV'] != 'development' ? pm.media.file.file.public_url : "#{CheckConfig.get('storage_endpoint')}/#{CheckConfig.get('storage_bucket')}/#{pm.media.file.file.path}")
+    end
     # FIXME: Another hack mostly for local development and CI environments... a way to expose media URLs as public URLs
     url = url.gsub(/^https?:\/\/[^\/]+/, CheckConfig.get('similarity_media_file_url_host')) unless CheckConfig.get('similarity_media_file_url_host').blank?
     url

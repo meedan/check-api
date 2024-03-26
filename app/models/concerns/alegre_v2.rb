@@ -1,4 +1,41 @@
 require 'active_support/concern'
+class TemporaryProjectMedia
+  attr_accessor :team_id, :id, :url, :type, :media
+  def media
+    media_type_map = {
+      "claim" => "Claim",
+      "link" => "Link",
+      "image" => "UploadedImage",
+      "video" => "UploadedVideo",
+      "audio" => "UploadedAudio",
+    }
+    return Struct.new(:type).new(media_type_map[type])
+  end
+
+  def is_blank?
+    return self.type == "blank"
+  end
+
+  def is_link?
+    return self.type == "link"
+  end
+
+  def is_text?
+    return self.type == "text"
+  end
+
+  def is_image?
+    return self.type == "image"
+  end
+
+  def is_video?
+    return self.type == "video"
+  end
+
+  def is_audio?
+    return self.type == "audio"
+  end
+end
 
 module AlegreV2
   extend ActiveSupport::Concern
@@ -164,6 +201,7 @@ module AlegreV2
         has_custom_id: true
       }
       context[:field] = field if field && is_not_generic_field(field)
+      context[:temporary_media] = project_media.class == TemporaryProjectMedia
       context
     end
 
@@ -206,7 +244,7 @@ module AlegreV2
     end
 
     def isolate_relevant_context(project_media, result)
-      result["context"].select{|x| x["team_id"] == project_media.team_id}.first
+      result["context"].select{|x| ([x["team_id"]].flatten & [project_media.team_id].flatten).count > 0 && !x["temporary_media"]}.first
     end
 
     def get_target_field(project_media, field)
@@ -332,11 +370,11 @@ module AlegreV2
     end
 
     def get_similar_items_v2_callback(project_media, field)
-      type = get_type(project_media)
+      type = Bot::Alegre.get_type(project_media)
       if !Bot::Alegre.should_get_similar_items_of_type?('master', project_media.team_id) || !Bot::Alegre.should_get_similar_items_of_type?(type, project_media.team_id)
         return {}
       else
-        cached_data = get_cached_data(get_required_keys(project_media, field))
+        cached_data = Bot::Alegre.get_cached_data(Bot::Alegre.get_required_keys(project_media, field))
         if !cached_data.values.include?(nil)
           suggested_or_confirmed = cached_data[:suggested_or_confirmed_results]
           confirmed = cached_data[:confirmed_results]
@@ -358,22 +396,47 @@ module AlegreV2
     end
 
     def get_items_with_similar_media_v2(media_url, threshold, team_ids, type)
-      alegre_path = ['audio', 'image'].include?(type) ? self.sync_path_for_type(type) : "/#{type}/similarity/search/"
-      # FIXME: Stop using this method from v1 once all media types are supported by v2
-      # FIXME: Alegre crashes if `media_url` was already requested before, this is why I append a hash
-      self.get_items_with_similar_media("#{media_url}?hash=#{SecureRandom.hex}", threshold, team_ids, alegre_path)
+      if ['audio', 'image'].include?(type)
+        tpm = TemporaryProjectMedia.new
+        tpm.url = media_url
+        tpm.id = Digest::MD5.hexdigest(tpm.url).to_i(16)
+        tpm.team_id = team_ids
+        tpm.type = type
+        get_similar_items_v2_async(tpm, nil)
+        cached_data = get_cached_data(get_required_keys(tpm, nil))
+        timeout = 60
+        start_time = Time.now
+        while start_time + timeout > Time.now && cached_data.values.include?([])
+          sleep(1)
+          cached_data = get_cached_data(get_required_keys(tpm, nil))
+        end
+        response = get_similar_items_v2_callback(tpm, nil)
+        delete(tpm, nil)
+        return response
+      else
+        self.get_items_with_similar_media("/#{type}/similarity/search/?hash=#{SecureRandom.hex}", threshold, team_ids, alegre_path)
+      end
     end
 
     def process_alegre_callback(params)
       redis = Redis.new(REDIS_CONFIG)
-      project_media = ProjectMedia.find(params.dig('data', 'item', 'raw', 'context', 'project_media_id'))
+      project_media = ProjectMedia.find(params.dig('data', 'item', 'raw', 'context', 'project_media_id')) rescue nil
+      should_relate = true
+      if project_media.nil?
+        project_media = TemporaryProjectMedia.new
+        project_media.url = params.dig('data', 'item', 'raw', 'url')
+        project_media.id = params.dig('data', 'item', 'raw', 'context', 'project_media_id')
+        project_media.team_id = params.dig('data', 'item', 'raw', 'context', 'team_id')
+        project_media.type = params['model_type']
+        should_relate = false
+      end
       confirmed = params.dig('data', 'item', 'raw', 'confirmed')
       field = params.dig('data', 'item', 'raw', 'context', 'field')
       key = "alegre:async_results:#{project_media.id}_#{field}_#{confirmed}"
       response = Bot::Alegre.cache_items_via_callback(project_media, field, confirmed, params.dig('data', 'results', 'result'))
       redis.set(key, response.to_json)
       redis.expire(key, 1.day.to_i)
-      Bot::Alegre.relate_project_media_callback(project_media, field)
+      Bot::Alegre.relate_project_media_callback(project_media, field) if should_relate
     end
   end
 end
