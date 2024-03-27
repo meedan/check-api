@@ -405,7 +405,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     pm1 = create_project_media project: p
     Bot::Alegre.stubs(:matching_model_to_use).with(pm1.team_id).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
     response = Bot::Alegre.get_similar_items(pm1)
-    assert_equal response.class, Hash
+    assert_equal response.class, ActiveSupport::HashWithIndifferentAccess
     Bot::Alegre.unstub(:matching_model_to_use)
   end
 
@@ -414,7 +414,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     pm1 = create_project_media project: p
     pm1.media.type = "Bloop"
     response = Bot::Alegre.get_similar_items(pm1)
-    assert_equal response.class, Hash
+    assert_equal response.class, ActiveSupport::HashWithIndifferentAccess
   end
 
   test "should not return a malformed hash" do
@@ -440,7 +440,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
          "context"=>{"team_id"=>1692, "field"=>"title", "project_media_id"=>1932}
     }}]})
     response = Bot::Alegre.get_similar_items_from_api("blah", {})
-    assert_equal response.class, Hash
+    assert_equal response.class, ActiveSupport::HashWithIndifferentAccess
     assert_equal response, {1932=>{:score=>200, :context=>{"team_id"=>1692, "field"=>"title|description", "project_media_id"=>1932, "contexts_count"=>2}, :model=>nil}}
     Bot::Alegre.unstub(:request)
   end
@@ -483,7 +483,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       ]
     })
     response = Bot::Alegre.get_similar_items(pm)
-    assert_equal response.class, Hash
+    assert_equal response.class, ActiveSupport::HashWithIndifferentAccess
     Bot::Alegre.unstub(:request)
     Bot::Alegre.unstub(:matching_model_to_use)
   end
@@ -514,7 +514,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       ]
     })
     response = Bot::Alegre.get_items_with_similar_text(pm, ['title'], [{key: 'text_elasticsearch_suggestion_threshold', model: 'elasticsearch', value: 0.7, automatic: false}], 'blah')
-    assert_equal response.class, Hash
+    assert_equal response.class, ActiveSupport::HashWithIndifferentAccess
     Bot::Alegre.unstub(:request)
   end
 
@@ -544,7 +544,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       ]
     })
     response = Bot::Alegre.get_items_with_similar_text(pm, ['title'], [{key: 'text_elasticsearch_matching_threshold', model: 'elasticsearch', value: 0.7, automatic: true}], 'blah foo bar')
-    assert_equal response.class, Hash
+    assert_equal response.class, ActiveSupport::HashWithIndifferentAccess
     assert_not_empty response
     Bot::Alegre.unstub(:request)
   end

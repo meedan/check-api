@@ -237,7 +237,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         "model"=>"audio"
       }
     ]
-    assert_equal Bot::Alegre.parse_similarity_results(pm1, nil, results, Relationship.suggested_type), {23181=>{:score=>0.915364583333333, :context=>{"team_id"=>pm1.team_id, "has_custom_id"=>true, "project_media_id"=>23181, "temporary_media"=>false}, :model=>"audio", :source_field=>"audio", :target_field=>"audio", :relationship_type=>Relationship.suggested_type}}
+    assert_equal Bot::Alegre.parse_similarity_results(pm1, nil, results, Relationship.suggested_type), {23181=>{:score=>0.915364583333333, :context=>{"team_id"=>pm1.team_id, "has_custom_id"=>true, "project_media_id"=>23181}, :model=>"audio", :source_field=>"audio", :target_field=>"audio", :relationship_type=>Relationship.suggested_type}}
   end
 
   test "should run audio sync request" do
@@ -395,7 +395,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       ]
     }
-    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/sync/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}, :url=>Bot::Alegre.media_file_url(pm1), :threshold=>0.9}).to_return(body: response.to_json)
+    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/sync/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1), :threshold=>0.9}).to_return(body: response.to_json)
     assert_equal Bot::Alegre.get_items(pm1, nil), {(pm1.id+1)=>{:score=>1.0, :context=>{"team_id"=>pm1.team_id, "has_custom_id"=>true, "project_media_id"=>(pm1.id+1), "temporary_media"=>false}, :model=>"audio", :source_field=>"audio", :target_field=>"audio", :relationship_type=>Relationship.suggested_type}}
   end
 
@@ -779,7 +779,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
     assert_equal relationship.source, pm2
     assert_equal relationship.target, pm1
-    assert_equal relationship.relationship_type, Relationship.suggested_type
+    assert_equal relationship.relationship_type, JSON.parse(Relationship.suggested_type.to_json)
     Bot::Alegre.unstub(:get_similar_items_v2)
   end
 

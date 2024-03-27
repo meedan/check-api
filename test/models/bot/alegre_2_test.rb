@@ -221,11 +221,30 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     Bot::Alegre.stubs(:request).with('post', '/similarity/sync/image', @params.merge({ threshold: 0.89 })).returns(result)
     Bot::Alegre.stubs(:request).with('post', '/similarity/sync/image', @params.merge({ threshold: 0.95 })).returns(result)
     Bot::Alegre.stubs(:media_file_url).with(pm3).returns(@media_path)
+    Redis.any_instance.stubs(:get).returns({
+      pm1.id => {
+        score: 0.5,
+        context: { team_id: pm1.team_id, project_media_id: pm1.id, temporary: false },
+        model: "image",
+        source_field: "image",
+        target_field: "image",
+        relationship_type: Relationship.suggested_type
+      },
+      pm2.id => {
+        score: 0.9,
+        context: { team_id: pm2.team_id, project_media_id: pm2.id, temporary: false},
+        model: "image",
+        source_field: "image",
+        target_field: "image",
+        relationship_type: Relationship.confirmed_type
+      }
+    }.to_json)
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm3)
     end
     Bot::Alegre.unstub(:request)
     Bot::Alegre.unstub(:media_file_url)
+    Redis.any_instance.unstub(:get)
     r = Relationship.last
     assert_equal pm3, r.target
     assert_equal pm2, r.source
