@@ -20,7 +20,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     hex = SecureRandom.hex
     SecureRandom.stubs(:hex).returns(hex)
     @media_path = random_url
-    @params = { url: "#{@media_path}?hash=#{hex}", context: { has_custom_id: true, team_id: @team.id}, threshold: 0.9, match_across_content_types: true }
+    @params = { url: "#{@media_path}?hash=#{hex}", context: { has_custom_id: true, team_id: @team.id, temporary_media: false}, threshold: 0.9, match_across_content_types: true }
   end
 
   def teardown
@@ -107,7 +107,9 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm1 = create_project_media team: @team, media: create_uploaded_video
     pm2 = create_project_media team: @team, media: create_uploaded_audio
     pm3 = create_project_media team: @team, media: create_uploaded_audio
-    Bot::Alegre.stubs(:request).with('post', '/similarity/sync/audio', @params).returns({
+    request_params = {:doc_id=>Bot::Alegre.item_doc_id(pm3), :context=>{:team_id=>pm3.team_id, :project_media_id=>pm3.id, :has_custom_id=>true, :temporary_media=>false}, :url=>@media_path, :threshold=>0.9, :confirmed=>true}
+    request_params_unconfirmed = {:doc_id=>Bot::Alegre.item_doc_id(pm3), :context=>{:team_id=>pm3.team_id, :project_media_id=>pm3.id, :has_custom_id=>true, :temporary_media=>false}, :url=>@media_path, :threshold=>0.9, :confirmed=>false}
+    Bot::Alegre.stubs(:request).with('post', '/similarity/async/audio', request_params).returns({
       result: [
         {
           id: 2,
@@ -131,12 +133,55 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
         }
       ]
     }.with_indifferent_access)
+    Bot::Alegre.stubs(:request).with('post', '/similarity/async/audio', request_params_unconfirmed).returns({
+      result: [
+        {
+          id: 2,
+          doc_id: random_string,
+          hash_value: '0111',
+          url: 'https://foo.com/baz.mp4',
+          context: [
+            { team_id: @team.id.to_s, project_media_id: pm1.id.to_s }
+          ],
+          score: 0.971234,
+        },
+        {
+          id: 1,
+          doc_id: random_string,
+          hash_value: '0101',
+          url: 'https://foo.com/bar.mp4',
+          context: [
+            { team_id: @team.id.to_s, project_media_id: pm2.id.to_s, content_type: 'video' }
+          ],
+          score: 0.983167,
+        }
+      ]
+    }.with_indifferent_access)
+    Redis.any_instance.stubs(:get).returns({
+      pm1.id => {
+        score: 0.971234,
+        context: { team_id: pm1.team_id, project_media_id: pm1.id, temporary: false },
+        model: "audio",
+        source_field: "audio",
+        target_field: "video",
+        relationship_type: Relationship.confirmed_type
+      },
+      pm2.id => {
+        score: 0.983167,
+        context: { team_id: pm2.team_id, project_media_id: pm2.id, temporary: false, content_type: 'video'  },
+        model: "audio",
+        source_field: "audio",
+        target_field: "audio",
+        relationship_type: Relationship.confirmed_type
+      }
+    }.to_json)
     Bot::Alegre.stubs(:media_file_url).with(pm3).returns(@media_path)
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm3)
     end
     Bot::Alegre.unstub(:request)
     Bot::Alegre.unstub(:media_file_url)
+    Redis.any_instance.unstub(:get)
     r = Relationship.last
     assert_equal pm3, r.target
     assert_equal pm2, r.source
@@ -234,7 +279,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     assert_equal pm1a, Relationship.last.target
   end
 
-  test "should link similar images, get flags and extract text zzz" do
+  test "should link similar images, get flags and extract text" do
     image_path = random_url
     ft = create_field_type field_type: 'image_path', label: 'Image Path'
     at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
