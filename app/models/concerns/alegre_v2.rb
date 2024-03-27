@@ -395,26 +395,34 @@ module AlegreV2
       self.add_relationships(project_media, self.get_similar_items_v2_callback(project_media, field)) unless project_media.is_blank?
     end
 
-    def get_items_with_similar_media_v2(media_url, threshold, team_ids, type)
+    def get_items_with_similar_media_v2(args={})
+      media_url = args[:media_url]
+      project_media = args[:project_media]
+      threshold = args[:threshold]
+      team_ids = args[:team_ids]
+      type = args[:type]
+      # media_url, threshold, team_ids, type = "https://media.smooch.io/apps/660193c5380e1c03a45c599c/conversations/6601a2a0e7a8092ec4f2738b/x9Q-XnRZDQHZpjelUwmhEwoY/rrcoJgjPjNBztE_cqiC_A-1r.jpg", [{value: 0.55}], [50], "image"
       if ['audio', 'image'].include?(type)
-        tpm = TemporaryProjectMedia.new
-        tpm.url = media_url
-        tpm.id = Digest::MD5.hexdigest(tpm.url).to_i(16)
-        tpm.team_id = team_ids
-        tpm.type = type
-        get_similar_items_v2_async(tpm, nil)
-        cached_data = get_cached_data(get_required_keys(tpm, nil))
+        if project_media.nil?
+          project_media = TemporaryProjectMedia.new
+          project_media.url = media_url
+          project_media.id = Digest::MD5.hexdigest(project_media.url).to_i(16)
+          project_media.team_id = team_ids
+          project_media.type = type
+        end
+        Bot::Alegre.get_similar_items_v2_async(project_media, nil)
+        cached_data = Bot::Alegre.get_cached_data(Bot::Alegre.get_required_keys(project_media, nil))
         timeout = 60
         start_time = Time.now
         while start_time + timeout > Time.now && cached_data.values.include?([])
           sleep(1)
-          cached_data = get_cached_data(get_required_keys(tpm, nil))
+          cached_data = Bot::Alegre.get_cached_data(Bot::Alegre.get_required_keys(project_media, nil))
         end
-        response = get_similar_items_v2_callback(tpm, nil)
-        delete(tpm, nil)
+        response = Bot::Alegre.get_similar_items_v2_callback(project_media, nil)
+        Bot::Alegre.delete(project_media, nil) if project_media.class == TemporaryProjectMedia
         return response
       else
-        self.get_items_with_similar_media("/#{type}/similarity/search/?hash=#{SecureRandom.hex}", threshold, team_ids, alegre_path)
+        self.get_items_with_similar_media("/#{type}/similarity/search/?hash=#{SecureRandom.hex}", threshold, team_ids, "/#{type}/similarity/search/")
       end
     end
 

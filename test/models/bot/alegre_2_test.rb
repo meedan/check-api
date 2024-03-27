@@ -234,7 +234,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     assert_equal pm1a, Relationship.last.target
   end
 
-  test "should link similar images, get flags and extract text" do
+  test "should link similar images, get flags and extract text zzz" do
     image_path = random_url
     ft = create_field_type field_type: 'image_path', label: 'Image Path'
     at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
@@ -305,20 +305,19 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       
       pm2 = create_project_media team: t, media: create_uploaded_image
-      WebMock.stub_request(:post, 'http://alegre.test/similarity/sync/image').to_return(body: {
-        result: [
-          {
-            id: pm1.id,
-            sha256: '1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570',
-            phash: '17399941807326929',
-            url: image_path,
-            context: { team_id: t.id, project_media_id: pm1.id },
-            score: 0.8
-          }
-        ]
+      Redis.any_instance.stubs(:get).returns({
+        pm1.id => {
+          score: 0.8,
+          context: { team_id: t.id, project_media_id: pm1.id, temporary: false },
+          model: "image",
+          source_field: "image",
+          target_field: "image",
+          relationship_type: Relationship.suggested_type
+        }
       }.to_json)
-      response = { pm1.id => { score: 0.8, context: { team_id: t.id, project_media_id: pm1.id, contexts_count: 1, field: ''}, model: nil, source_field: 'image', target_field: 'image' } }
+      response = {pm1.id.to_s=>{"score"=>0.8, "context"=>{"team_id"=>t.id, "project_media_id"=>pm1.id, "temporary"=>false}, "model"=>"image", "source_field"=>"image", "target_field"=>"image", "relationship_type"=>{"source"=>"confirmed_sibling", "target"=>"confirmed_sibling"}}}
       assert_equal response.to_json, Bot::Alegre.get_items_with_similarity('image', pm2, Bot::Alegre.get_threshold_for_query('image', pm2)).to_json
+      Redis.any_instance.unstub(:get)
     end
   end
 

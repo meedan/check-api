@@ -166,7 +166,7 @@ module SmoochSearch
         return [] if media_url.blank?
         media_url = self.save_locally_and_return_url(media_url, type, feed_id)
         threshold = Bot::Alegre.get_threshold_for_query(type, pm)[0][:value]
-        alegre_results = Bot::Alegre.get_items_with_similar_media_v2(media_url, [{ value: threshold }], team_ids, type)
+        alegre_results = Bot::Alegre.get_items_with_similar_media_v2(media_url: media_url, threshold: [{ value: threshold }], team_ids: team_ids, type: type)
         Rails.logger.error "ALEGRE RESULTS ARE #{alegre_results.inspect}"
         results = self.parse_search_results_from_alegre(alegre_results, after, feed_id, team_ids)
         Rails.logger.error "RESULTS ARE #{results.inspect}"
