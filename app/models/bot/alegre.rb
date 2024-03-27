@@ -296,7 +296,7 @@ class Bot::Alegre < BotUser
 
   def self.get_language_from_text(pm, text)
     lang = 'und'
-    if !text.blank? || /[a-z\-]+-[0-9\-]+/ !~ text
+    if !text.blank? && /[a-z\-]+-[0-9\-]+/ !~ text
         lang = self.get_language_from_alegre(text)
     end
     self.save_annotation(pm, 'language', { language: lang })
