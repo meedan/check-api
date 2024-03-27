@@ -5,7 +5,7 @@ class Bot::Alegre4Test < ActiveSupport::TestCase
     super
     ft = DynamicAnnotation::FieldType.where(field_type: 'language').last || create_field_type(field_type: 'language', label: 'Language')
     at = create_annotation_type annotation_type: 'language', label: 'Language'
-    create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
+    @field = create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
     @bot = create_alegre_bot(name: "alegre", login: "alegre")
     @bot.approve!
     p = create_project
@@ -13,11 +13,6 @@ class Bot::Alegre4Test < ActiveSupport::TestCase
     p.team.save!
     @bot.install_to!(p.team)
     @team = p.team
-    m = create_claim_media quote: 'I like apples'
-    @pm = create_project_media project: p, media: m
-#     create_flag_annotation_type
-#     create_extracted_text_annotation_type
-#     Sidekiq::Testing.inline!
   end
 
   def teardown
@@ -48,13 +43,44 @@ class Bot::Alegre4Test < ActiveSupport::TestCase
     Bot::Alegre.unstub(:get_language_from_alegre)
   end
 
-#   test "request should not be called for bad title"
-#     Bot::Alegre.stubs(:request).raise("Request method called when it should not be")
-#     assert_nothing_raised send_to_text_similarity_index(....) #TODO
-#     Bot::Alegre.unstub.stubs(:request)
-#   end
+  test "/text/similarity/search/ request should not be called for bad title" do
+    text = "instagram-cekfakta-2023-25562004"
+    pm1 = create_project_media team: @team, quote: text
+    Bot::Alegre.stubs(:request).raises("Request method called when it should not be")
+    assert_nothing_raised do
+        Bot::Alegre.get_items_from_similar_text(@team, text)
+    end
+    Bot::Alegre.unstub.stubs(:request)
+  end
 
-   #Also for blank and valid
+  test "/text/similarity/search/ request should not be called for blank title" do
+    text = ""
+    pm1 = create_project_media team: @team, quote: text
+    Bot::Alegre.stubs(:request).raises("Request method called when it should not be")
+    assert_nothing_raised do
+        Bot::Alegre.get_items_from_similar_text(@team, text)
+    end
+    Bot::Alegre.unstub.stubs(:request)
+  end
 
-   #Tests for get_items_from_similar_text
+  test "/text/similarity/ request should not be called for bad title" do
+    text = "instagram-cekfakta-2023-25562004"
+    pm1 = create_project_media team: @team, quote: text
+    Bot::Alegre.stubs(:request).raises("Request method called when it should not be")
+    assert_nothing_raised do
+        Bot::Alegre.send_to_text_similarity_index(pm1, create_field_instance, text, Bot::Alegre.item_doc_id(pm1, create_field_instance))
+    end
+    Bot::Alegre.unstub.stubs(:request)
+  end
+
+  test "/text/similarity/ request should not be called for blank title" do
+    text = ""
+    pm1 = create_project_media team: @team, quote: text
+    Bot::Alegre.stubs(:request).raises("Request method called when it should not be")
+    assert_nothing_raised do
+        Bot::Alegre.send_to_text_similarity_index(pm1, create_field_instance, text, Bot::Alegre.item_doc_id(pm1, create_field_instance))
+    end
+    Bot::Alegre.unstub.stubs(:request)
+  end
+
 end
