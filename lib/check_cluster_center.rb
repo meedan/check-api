@@ -1,5 +1,7 @@
 class CheckClusterCenter
-  def self.replace_or_keep_cluster_center(current_center, new_pm)
+  def self.replace_or_keep_cluster_center(current_center_id, new_pm)
+    return new_pm.id if current_center_id.nil?
+    current_center = ProjectMedia.find_by_id current_center_id
     return new_pm.id if current_center.nil?
     # Define passed variable to contain items that passed check
     # Based on `passed` values we should return the id or go to next check
