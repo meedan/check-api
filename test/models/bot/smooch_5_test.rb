@@ -58,7 +58,7 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
       alegre_results[pm.id] = { score: (1 - i / 10.0), model: 'elasticsearch' } unless [pm1f, pm1g, pm2b].map(&:id).include?(pm.id)
     end
     Bot::Alegre.stubs(:get_merged_similar_items).returns(alegre_results)
-    Bot::Alegre.stubs(:get_items_with_similar_media).returns(alegre_results)
+    Bot::Alegre.stubs(:get_items_with_similar_media_v2).returns(alegre_results)
 
     # Get feed data scoped by teams that are part of the feed, taking into account the filters for the feed
     # and for each team participating in the feed
@@ -78,6 +78,6 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     end
 
     Bot::Alegre.unstub(:get_merged_similar_items)
-    Bot::Alegre.unstub(:get_items_with_similar_media)
+    Bot::Alegre.unstub(:get_items_with_similar_media_v2)
   end
 end

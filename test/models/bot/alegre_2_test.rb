@@ -20,7 +20,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     hex = SecureRandom.hex
     SecureRandom.stubs(:hex).returns(hex)
     @media_path = random_url
-    @params = { url: "#{@media_path}?hash=#{hex}", context: { has_custom_id: true, team_id: @team.id }, threshold: 0.9, match_across_content_types: true }
+    @params = { url: "#{@media_path}?hash=#{hex}", context: { has_custom_id: true, team_id: @team.id}, threshold: 0.9, match_across_content_types: true }
   end
 
   def teardown
@@ -246,6 +246,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
       WebMock.stub_request(:post, 'http://alegre.test/text/langid/').to_return(body: { 'result' => { 'language' => 'es' }}.to_json)
       WebMock.stub_request(:post, 'http://alegre.test/text/similarity/').to_return(body: 'success')
       WebMock.stub_request(:delete, 'http://alegre.test/text/similarity/').to_return(body: { success: true }.to_json)
+      WebMock.stub_request(:delete, 'http://alegre.test/image/similarity/').to_return(body: { success: true }.to_json)
       WebMock.stub_request(:post, 'http://alegre.test/text/similarity/search/').to_return(body: { success: true }.to_json)
       WebMock.stub_request(:post, 'http://alegre.test/image/ocr/').to_return(body: { text: 'Foo bar' }.to_json)
       WebMock.stub_request(:post, 'http://alegre.test/similarity/sync/image').to_return(body: {
