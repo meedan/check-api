@@ -706,7 +706,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
                     "context": {
                         "team_id": pm1.team_id,
                         "project_media_id": pm1.id,
-                        "has_custom_id": true
+                        "has_custom_id": true,
                         "temporary_media": false,
                     },
                     "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
