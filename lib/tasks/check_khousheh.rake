@@ -15,13 +15,16 @@ namespace :check do
 
     def get_claim_uuid(quote)
       quote_es = quote[0..1023]
+      # Remove last word as may be the splitter cut the last word and we are hitting ES with `AND`
+      quote_es = quote_es[0...quote_es.rindex(' ')]
+      # Quote stored in title or description(for tipline items) so I used both fields in search
       query = {
         bool: {
           must: [
             { term: { associated_type: { value: 'Claim' } } },
             {
               simple_query_string: {
-                fields: ["title"],
+                fields: ["title", "description"],
                 query: quote_es,
                 default_operator: "AND"
               }
@@ -30,8 +33,13 @@ namespace :check do
         }
       }
       result = $repository.search(query: query, size: 10000)
-      pm_ids = result.collect{ |i| i['annotated_id'] if i['title'].downcase == quote.downcase }.uniq.compact
-      uuid = ProjectMedia.where(id: pm_ids).map(&:media_id).sort.first
+      pm_ids = []
+      result.each do |r|
+        if r['title'].downcase == quote.downcase || r['description'].downcase == quote.downcase
+          pm_ids << r['annotated_id']
+        end
+      end
+      uuid = ProjectMedia.where(id: pm_ids.uniq.compact).map(&:media_id).sort.first
       uuid.blank? ? uuid : uuid.to_s
     end
 
@@ -272,7 +280,12 @@ namespace :check do
                     print '.'
                     cluster_id = mapping[uuid[pm_media_mapping[pm.id]].to_i]
                     next if cluster_id.nil?
-                    cluster = Cluster.find_by_id(cluster_id)
+                    cluster = nil
+                    if cluster_items[cluster_id]
+                      cluster = OpenStruct.new(cluster_items[cluster_id])
+                    else
+                      cluster = Cluster.find_by_id(cluster_id)
+                    end
                     next if cluster.nil?
                     updated_cluster_attributes = { id: cluster.id, created_at: cluster.created_at, updated_at: Time.now }
                     updated_cluster_attributes[:first_item_at] = cluster.first_item_at || pm.created_at
@@ -289,7 +302,7 @@ namespace :check do
                       updated_cluster_attributes[:last_fact_check_date] = pm_fc_mapping[pm.id] if pm_fc_mapping[pm.id].to_i > cluster.last_fact_check_date.to_i
                     end
                     cpm_items << { project_media_id: pm.id, cluster_id: cluster.id }
-                    cluster_center = CheckClusterCenter.replace_or_keep_cluster_center(cluster.project_media, pm)
+                    cluster_center = CheckClusterCenter.replace_or_keep_cluster_center(cluster.project_media_id, pm)
                     updated_cluster_attributes[:project_media_id] = cluster_center
                     cluster_title = cluster_center == pm.id ? pm.title : cluster.title
                     updated_cluster_attributes[:title] = cluster_title
