@@ -348,27 +348,29 @@ class PopulatedWorkspaces
   end
 
   def clusters(feed)
-    teams_project_medias.compact_blank!.each do |team_name, project_medias|
-      next unless teams[team_name].is_part_of_feed?(feed.id)
-      c1_centre = project_medias.first
-      c1_project_media = [c1_centre]
-      c2_centre = project_medias.second
-      c2_project_medias = project_medias[1..(project_medias.size/2)-1] # first half
-      c3_centre = project_medias.last
-      c3_project_medias = project_medias[project_medias.size/2..-1] # second half
+    teams_not_on_feed = teams.reject { |team_name, team| team.is_part_of_feed?(feed.id) }
+    teams_not_on_feed.each_key { |team_name| teams_project_medias.delete(team_name)}
 
-      c1 = cluster(c1_centre, feed, teams[team_name])
-      c2 = cluster(c2_centre, feed, teams[team_name])
-      c3 = cluster(c3_centre, feed, teams[team_name])
+    feed_project_medias = teams_project_medias.compact_blank!.values.flatten!.shuffle
 
-      cluster_items(c1_project_media, c1)
-      cluster_items(c2_project_medias, c2)
-      cluster_items(c3_project_medias, c3)
+    c1_centre = feed_project_medias.first
+    c1_project_media = [c1_centre]
+    c2_centre = feed_project_medias.second
+    c2_project_medias = feed_project_medias[1..(feed_project_medias.size/2)-1] # first half
+    c3_centre = feed_project_medias.last
+    c3_project_medias = feed_project_medias[feed_project_medias.size/2..-1] # second half
 
-      updated_cluster(c1)
-      updated_cluster(c2)
-      updated_cluster(c3)
-    end
+    c1 = cluster(c1_centre, feed, c1_centre.team_id)
+    c2 = cluster(c2_centre, feed, c2_centre.team_id)
+    c3 = cluster(c3_centre, feed, c3_centre.team_id)
+
+    cluster_items(c1_project_media, c1)
+    cluster_items(c2_project_medias, c2)
+    cluster_items(c3_project_medias, c3)
+
+    updated_cluster(c1)
+    updated_cluster(c2)
+    updated_cluster(c3)
   end
 
   def confirm_relationships
@@ -619,11 +621,12 @@ class PopulatedWorkspaces
 
     cluster.media_count = cluster_project_medias.size
     cluster.last_item_at = cluster_project_medias.last.created_at
-    unless cluster_fact_checks.nil?
+    cluster.team_ids = cluster.items.pluck(:team_id).uniq
+    unless cluster_fact_checks.nil? || cluster_fact_checks.empty?
       cluster.fact_checks_count = cluster_fact_checks.size
       cluster.last_fact_check_date = last_date(cluster_fact_checks)
     end
-    unless cluster_tipline_requests.nil?
+    unless cluster_tipline_requests.nil? || cluster_tipline_requests.empty?
       cluster.requests_count = cluster_tipline_requests.size
       cluster.last_request_date = last_date(cluster_tipline_requests)
     end
@@ -639,12 +642,12 @@ class PopulatedWorkspaces
     channels.sample(rand(channels.size))
   end
 
-  def cluster(project_media, feed, team)
+  def cluster(project_media, feed, team_id)
     cluster_params = {
       project_media_id: project_media.id,
       first_item_at: project_media.created_at,
       feed_id: feed.id,
-      team_ids: [team.id],
+      team_ids: [team_id],
       channels: random_channels,
       title: project_media.title
     }
