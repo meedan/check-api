@@ -131,8 +131,7 @@ module AlegreSimilarity
     end
 
     def send_to_text_similarity_index(pm, field, text, doc_id)
-      if /[a-z\-]+-[0-9\-]+/ !~ text
-
+      if !text.blank? && /[a-z\-]+-[0-9\-]+/ !~ text
           self.request(
             'post',
             '/text/similarity/',
