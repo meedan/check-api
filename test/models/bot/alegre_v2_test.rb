@@ -730,7 +730,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
                             {
                                 "team_id": pm2.team_id,
                                 "has_custom_id": true,
-                                "project_media_id": pm2.id
+                                "project_media_id": pm2.id,
                                 "temporary_media": false,
                             }
                         ],
