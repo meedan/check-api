@@ -20,9 +20,9 @@ class Bot::Alegre4Test < ActiveSupport::TestCase
   end
 
   test "should not send bad text for langid" do
-    text = "platform~1234"
+    text = "instagram-cekfakta-2023-25562004"
     pm1 = create_project_media team: @team, quote: text
-    Bot::Alegre.stubs(:get_language_from_alegre).returns("und")
+    Bot::Alegre.stubs(:get_language_from_alegre).returns("en")
     assert_equal Bot::Alegre.get_language_from_text(pm1, text), "und"
     Bot::Alegre.unstub(:get_language_from_alegre)
   end
