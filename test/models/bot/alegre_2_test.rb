@@ -379,7 +379,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
           relationship_type: Relationship.suggested_type
         }
       }.to_json)
-      response = {pm1.id.to_s=>{"score"=>0.8, "context"=>{"team_id"=>t.id, "project_media_id"=>pm1.id, "temporary"=>false}, "model"=>"image", "source_field"=>"image", "target_field"=>"image", "relationship_type"=>{"source"=>"confirmed_sibling", "target"=>"confirmed_sibling"}}}
+      response = {pm1.id.to_s=>{"score"=>0.8, "context"=>[{"team_id"=>t.id, "project_media_id"=>pm1.id, "temporary"=>false}], "model"=>"image", "source_field"=>"image", "target_field"=>"image", "relationship_type"=>{"source"=>"confirmed_sibling", "target"=>"confirmed_sibling"}}}
       assert_equal response.to_json, Bot::Alegre.get_items_with_similarity('image', pm2, Bot::Alegre.get_threshold_for_query('image', pm2)).to_json
       Redis.any_instance.unstub(:get)
     end
