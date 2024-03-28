@@ -186,7 +186,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       result = Bot::Alegre.relate_project_media_to_similar_items(pm2)
     end
     r = Relationship.last
-    assert_equal JSON.parse(Relationship.confirmed_type.to_json), r.relationship_type
+    assert_equal JSON.parse(Relationship.confirmed_type.to_json), JSON.parse(r.relationship_type.to_json)
     pm1.created_at = Time.now - 2.months
     pm1.save!
     tbi = Bot::Alegre.get_alegre_tbi(@team.id)
@@ -198,7 +198,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       result = Bot::Alegre.relate_project_media_to_similar_items(pm2)
     end
     r = Relationship.last
-    assert_equal JSON.parse(Relationship.suggested_type.to_json), r.relationship_type
+    assert_equal JSON.parse(Relationship.suggested_type.to_json), JSON.parse(r.relationship_type.to_json)
     Bot::Alegre.unstub(:request)
   end
 

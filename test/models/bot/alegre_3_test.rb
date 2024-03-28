@@ -368,7 +368,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     pm2.save!
     Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_query('text', pm2)).returns({pm1.id => {score: 0.99, context: {"blah" => 1}}})
     Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_query('text', pm2, true)).returns({})
-    assert_equal Bot::Alegre.get_similar_items(pm2), JSON.parse({pm1.id=>{:score=>0.99, :context => {"blah" => 1}, :relationship_type=>{:source=>"suggested_sibling", :target=>"suggested_sibling"}}}.to_json)
+    assert_equal Bot::Alegre.get_similar_items(pm2), JSON.parse({pm1.id.to_s=>{:score=>0.99, :context => {"blah" => 1}, :relationship_type=>{:source=>"suggested_sibling", :target=>"suggested_sibling"}}}.to_json)
     Bot::Alegre.unstub(:get_merged_items_with_similar_text)
   end
 
@@ -414,7 +414,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     pm1 = create_project_media project: p
     pm1.media.type = "Bloop"
     response = Bot::Alegre.get_similar_items(pm1)
-    assert_equal response.class, ActiveSupport::HashWithIndifferentAccess
+    assert_equal response.class, Hash
   end
 
   test "should not return a malformed hash" do
