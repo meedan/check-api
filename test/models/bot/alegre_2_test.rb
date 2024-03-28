@@ -62,7 +62,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     assert_equal r.weight, 0.983167
   end
 
-  test "should match similar audios zzz" do
+  test "should match similar audios" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     pm2 = create_project_media team: @team, media: create_uploaded_audio
     pm3 = create_project_media team: @team, media: create_uploaded_audio
