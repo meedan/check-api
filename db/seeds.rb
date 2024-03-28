@@ -348,10 +348,7 @@ class PopulatedWorkspaces
   end
 
   def clusters(feed)
-    teams_not_on_feed = teams.reject { |team_name, team| team.is_part_of_feed?(feed.id) }
-    teams_not_on_feed.each_key { |team_name| teams_project_medias.delete(team_name)}
-
-    feed_project_medias = teams_project_medias.compact_blank!.values.flatten!.shuffle
+    feed_project_medias = feed_project_medias(feed)
 
     c1_centre = feed_project_medias.first
     c1_project_media = [c1_centre]
@@ -371,6 +368,13 @@ class PopulatedWorkspaces
     updated_cluster(c1)
     updated_cluster(c2)
     updated_cluster(c3)
+  end
+
+  def feed_project_medias(feed)
+    teams_not_on_feed = teams.reject { |team_name, team| team.is_part_of_feed?(feed.id) }
+    teams_project_medias_clone = teams_project_medias.clone
+    teams_not_on_feed.each_key { |team_name| teams_project_medias_clone.delete(team_name)}
+    teams_project_medias_clone.compact_blank!.values.flatten!.shuffle
   end
 
   def confirm_relationships
