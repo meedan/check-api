@@ -43,26 +43,6 @@ class Bot::Alegre4Test < ActiveSupport::TestCase
     Bot::Alegre.unstub(:get_language_from_alegre)
   end
 
-  test "/text/similarity/search/ request should not be called for bad title" do
-    text = "instagram-cekfakta-2023-25562004"
-    pm1 = create_project_media team: @team, quote: text
-    Bot::Alegre.stubs(:request).raises("Request method called when it should not be")
-    assert_nothing_raised do
-        Bot::Alegre.get_items_from_similar_text(@team, text)
-    end
-    Bot::Alegre.unstub.stubs(:request)
-  end
-
-  test "/text/similarity/search/ request should not be called for blank title" do
-    text = ""
-    pm1 = create_project_media team: @team, quote: text
-    Bot::Alegre.stubs(:request).raises("Request method called when it should not be")
-    assert_nothing_raised do
-        Bot::Alegre.get_items_from_similar_text(@team, text)
-    end
-    Bot::Alegre.unstub.stubs(:request)
-  end
-
   test "/text/similarity/ request should not be called for bad title" do
     text = "instagram-cekfakta-2023-25562004"
     pm1 = create_project_media team: @team, quote: text
@@ -82,5 +62,4 @@ class Bot::Alegre4Test < ActiveSupport::TestCase
     end
     Bot::Alegre.unstub.stubs(:request)
   end
-
 end
