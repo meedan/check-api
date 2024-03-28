@@ -131,11 +131,13 @@ module AlegreSimilarity
     end
 
     def send_to_text_similarity_index(pm, field, text, doc_id)
-      self.request(
-        'post',
-        '/text/similarity/',
-        self.send_to_text_similarity_index_package(pm, field, text, doc_id)
-      )
+      if !text.blank? && Bot::Alegre::BAD_TITLE_REGEX !~ text
+        self.request(
+          'post',
+          '/text/similarity/',
+          self.send_to_text_similarity_index_package(pm, field, text, doc_id)
+        )
+      end
     end
 
     def delete_from_index(pm, fields=nil, quiet=false)
