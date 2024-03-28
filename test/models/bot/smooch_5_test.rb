@@ -46,9 +46,13 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     f1 = create_feed team_id: t1.id, published: true, data_points: [1, 2]
     f1.teams << t2
     FeedTeam.update_all(shared: true)
+    ft = FeedTeam.last
+    ft_ss = create_saved_search team: t2, filters: {}
+    ft.saved_search = ft_ss
+    ft.save!
     f1.teams << t3
-    ft_ss = create_saved_search team: t1, filters: { keyword: 'Bar' }
-    f1.saved_search = ft_ss
+    f_ss = create_saved_search team: t1, filters: { keyword: 'Bar' }
+    f1.saved_search = f_ss
     f1.save!
     u = create_bot_user
     [t1, t2, t3, t4].each { |t| TeamUser.create!(user: u, team: t, role: 'editor') }

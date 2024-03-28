@@ -61,7 +61,6 @@ class Ability
     can :set_privacy, Project, :team_id => @context_team.id
     can :read_feed_invitations, Feed, :team_id => @context_team.id
     can :destroy, Feed, :team_id => @context_team.id
-    can :destroy, Cluster, { feed: { team_id: @context_team.id } }
     can [:create, :update], FeedTeam, :team_id => @context_team.id
     can [:create, :update], FeedInvitation, { feed: { team_id: @context_team.id } }
     can :destroy, FeedTeam do |obj|
@@ -112,7 +111,6 @@ class Ability
     can [:read], FeedTeam, :team_id => @context_team.id
     can [:read], FeedInvitation, { feed: { team_id: @context_team.id } }
     can [:read, :create, :update], Feed, :team_id => @context_team.id
-    can [:read, :create, :update], Cluster, { feed: { team_id: @context_team.id } }
   end
 
   def collaborator_perms

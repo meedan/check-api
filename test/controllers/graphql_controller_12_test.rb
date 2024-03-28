@@ -317,10 +317,24 @@ class GraphqlController12Test < ActionController::TestCase
 
     authenticate_with_user(@u)
     query = 'query { feed(id: "' + f.id.to_s + '") { clusters_count, clusters(first: 10) { edges { node { id, dbid, fact_checks_count, first_item_at, last_item_at, last_request_date, last_fact_check_date, center { id }, teams(first: 10) { edges { node { name, avatar } } } } } } } }'
-    assert_queries 20, '<=' do
+    assert_queries 21, '<=' do
       post :create, params: { query: query }
     end
     assert_response :success
     assert_equal n, JSON.parse(@response.body)['data']['feed']['clusters']['edges'].size
+  end
+
+  test "should return a feed cluster" do
+    f = create_feed team: @t, data_points: [1, 2]
+    pm = create_project_media team: @t
+    create_fact_check claim_description: create_claim_description(project_media: pm)
+    c = create_cluster feed: f, team_ids: [@t.id]
+    create_cluster_project_media cluster: c, project_media: pm
+
+    authenticate_with_user(@u)
+    query = 'query { feed(id: "' + f.id.to_s + '") { cluster(project_media_id: ' + pm.id.to_s + ') { dbid, project_media(id: ' + pm.id.to_s + ') { id }, project_medias(teamId: ' + @t.id.to_s + ', first: 1) { edges { node { id } } }, cluster_teams(first: 10) { edges { node { id, team { name }, last_request_date, media_count, requests_count, fact_checks(first: 1) { edges { node { id } } } } } } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    assert_equal c.id, JSON.parse(@response.body)['data']['feed']['cluster']['dbid']
   end
 end

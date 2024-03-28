@@ -49,9 +49,12 @@ class Feed < ApplicationRecord
     conditions = { shared: true }
     conditions[:team_id] = feed_team_ids if feed_team_ids.is_a?(Array)
     self.feed_teams.where(conditions).find_each do |ft|
-      filter = ft.filters
-      filter = self.saved_search&.filters.to_h if self.team_id == ft.team_id
-      filters << filter.to_h.reject{ |k, _v| PROHIBITED_FILTERS.include?(k.to_s) }.merge({ 'team_id' => ft.team_id })
+      saved_search = self.team_id == ft.team_id ? self.saved_search : ft.saved_search
+      if saved_search.blank? # Do not share anything from this team if they haven't chosen a list yet
+        filters << { 'team_id' => ft.team_id, 'report_status' => ['none'] }
+      else
+        filters << saved_search.filters.to_h.reject{ |k, _v| PROHIBITED_FILTERS.include?(k.to_s) }.merge({ 'team_id' => ft.team_id })
+      end
     end
     filters
   end
