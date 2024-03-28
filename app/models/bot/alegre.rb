@@ -20,7 +20,7 @@ class Bot::Alegre < BotUser
 
   REPORT_TEXT_SIMILARITY_FIELDS = ['report_text_title', 'report_text_content', 'report_visual_card_title', 'report_visual_card_content']
   ALL_TEXT_SIMILARITY_FIELDS = REPORT_TEXT_SIMILARITY_FIELDS + ['original_title', 'original_description', 'extracted_text', 'transcription', 'claim_description_content', 'fact_check_title', 'fact_check_summary']
-
+  BAD_TITLE_REGEX = /^[a-z\-]+-[0-9\-]+$/
   ::ProjectMedia.class_eval do
     attr_accessor :alegre_similarity_thresholds, :alegre_matched_fields
 
@@ -197,7 +197,7 @@ class Bot::Alegre < BotUser
 
   def self.get_items_from_similar_text(team_id, text, fields = nil, threshold = nil, models = nil, fuzzy = false)
     team_ids = [team_id].flatten
-    if text.blank? || /[a-z\-]+-[0-9\-]+/ =~ text
+    if text.blank? || BAD_TITLE_REGEX =~ text
       Rails.logger.info("[Alegre Bot] get_items_from_similar_text returning early due to blank/bad text #{text}")
       return {}
     end
@@ -296,8 +296,8 @@ class Bot::Alegre < BotUser
 
   def self.get_language_from_text(pm, text)
     lang = 'und'
-    if !text.blank? && /[a-z\-]+-[0-9\-]+/ !~ text
-        lang = self.get_language_from_alegre(text)
+    if !text.blank? && BAD_TITLE_REGEX !~ text
+      lang = self.get_language_from_alegre(text)
     end
     self.save_annotation(pm, 'language', { language: lang })
     lang
