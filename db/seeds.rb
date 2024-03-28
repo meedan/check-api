@@ -341,28 +341,38 @@ class PopulatedWorkspaces
     invited_users.each { |invited_user| feed_invitation(feed, invited_user)}
   end
 
+  def accept_invitation(feed, invited_user)
+    team = users[invited_user].teams.first
+    feed_invitation = FeedInvitation.where(feed_id: feed.id).find_by(email: users[invited_user].email)
+    feed_invitation.accept!(team.id)
+  end
+
   def clusters(feed)
-    teams_project_medias.compact_blank!.each do |team_name, project_medias|
-      next unless teams[team_name].is_part_of_feed?(feed.id)
-      c1_centre = project_medias.first
-      c1_project_media = [c1_centre]
-      c2_centre = project_medias.second
-      c2_project_medias = project_medias[1..(project_medias.size/2)-1] # first half
-      c3_centre = project_medias.last
-      c3_project_medias = project_medias[project_medias.size/2..-1] # second half
+    feed_project_medias_groups = feed_project_medias(feed).in_groups(3, false)
 
-      c1 = cluster(c1_centre, feed, teams[team_name])
-      c2 = cluster(c2_centre, feed, teams[team_name])
-      c3 = cluster(c3_centre, feed, teams[team_name])
+    c1_centre = feed_project_medias_groups.first.delete_at(0)
+    c1_project_media = [c1_centre]
+    c2_centre = feed_project_medias_groups.first.first
+    c2_project_medias = feed_project_medias_groups.first
+    c3_centre = feed_project_medias_groups.second.first
+    c3_project_medias = feed_project_medias_groups.second
+    c4_centre = feed_project_medias_groups.third.first
+    c4_project_medias = feed_project_medias_groups.third
 
-      cluster_items(c1_project_media, c1)
-      cluster_items(c2_project_medias, c2)
-      cluster_items(c3_project_medias, c3)
+    c1 = cluster(c1_centre, feed, c1_centre.team_id)
+    c2 = cluster(c2_centre, feed, c2_centre.team_id)
+    c3 = cluster(c3_centre, feed, c3_centre.team_id)
+    c4 = cluster(c3_centre, feed, c4_centre.team_id)
 
-      updated_cluster(c1)
-      updated_cluster(c2)
-      updated_cluster(c3)
-    end
+    cluster_items(c1_project_media, c1)
+    cluster_items(c2_project_medias, c2)
+    cluster_items(c3_project_medias, c3)
+    cluster_items(c4_project_medias, c4)
+
+    updated_cluster(c1)
+    updated_cluster(c2)
+    updated_cluster(c3)
+    updated_cluster(c4)
   end
 
   def confirm_relationships
@@ -602,6 +612,13 @@ class PopulatedWorkspaces
     end
   end
 
+  def feed_project_medias(feed)
+    teams_not_on_feed = teams.reject { |team_name, team| team.is_part_of_feed?(feed.id) }
+    teams_project_medias_clone = teams_project_medias.clone
+    teams_not_on_feed.each_key { |team_name| teams_project_medias_clone.delete(team_name)}
+    teams_project_medias_clone.compact_blank!.values.flatten!
+  end
+
   def cluster_items(project_medias, cluster)
     project_medias.each { |pm| ClusterProjectMedia.create!(cluster_id: cluster.id, project_media_id: pm.id) }
   end
@@ -613,11 +630,12 @@ class PopulatedWorkspaces
 
     cluster.media_count = cluster_project_medias.size
     cluster.last_item_at = cluster_project_medias.last.created_at
-    unless cluster_fact_checks.nil?
+    cluster.team_ids = cluster.items.pluck(:team_id).uniq
+    unless cluster_fact_checks.nil? || cluster_fact_checks.empty?
       cluster.fact_checks_count = cluster_fact_checks.size
       cluster.last_fact_check_date = last_date(cluster_fact_checks)
     end
-    unless cluster_tipline_requests.nil?
+    unless cluster_tipline_requests.nil? || cluster_tipline_requests.empty?
       cluster.requests_count = cluster_tipline_requests.size
       cluster.last_request_date = last_date(cluster_tipline_requests)
     end
@@ -633,12 +651,12 @@ class PopulatedWorkspaces
     channels.sample(rand(channels.size))
   end
 
-  def cluster(project_media, feed, team)
+  def cluster(project_media, feed, team_id)
     cluster_params = {
       project_media_id: project_media.id,
       first_item_at: project_media.created_at,
       feed_id: feed.id,
-      team_ids: [team.id],
+      team_ids: [team_id],
       channels: random_channels,
       title: project_media.title
     }
@@ -673,6 +691,8 @@ ActiveRecord::Base.transaction do
     puts 'Making and inviting to Shared Feed... (won\'t run if you are not creating any invited users)'
     populated_workspaces.share_feed(feed_1)
     populated_workspaces.share_feed(feed_2)
+    puts 'Accepting invitation to a Shared Feed...'
+    populated_workspaces.accept_invitation(feed_2, :invited_user_c)
     puts 'Making Confirmed Relationships between items...'
     populated_workspaces.confirm_relationships
     puts 'Making Suggested Relationships between items...'
