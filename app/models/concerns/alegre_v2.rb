@@ -451,7 +451,7 @@ module AlegreV2
       Hash[project_media_id_scores.collect{|project_media_id, response_data|
         [
           project_media_id,
-          response_data.merge(context: [response_data[:context]].flatten.select{|c| c[:team_id] == project_media.team_id})
+          response_data.merge(context: [response_data[:context]].flatten.select{|c| c.with_indifferent_access[:team_id] == project_media.team_id})
         ]
       }]
     end
