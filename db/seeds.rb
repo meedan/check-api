@@ -375,13 +375,6 @@ class PopulatedWorkspaces
     updated_cluster(c4)
   end
 
-  def feed_project_medias(feed)
-    teams_not_on_feed = teams.reject { |team_name, team| team.is_part_of_feed?(feed.id) }
-    teams_project_medias_clone = teams_project_medias.clone
-    teams_not_on_feed.each_key { |team_name| teams_project_medias_clone.delete(team_name)}
-    teams_project_medias_clone.compact_blank!.values.flatten!
-  end
-
   def confirm_relationships
     teams_project_medias.each_value do |project_medias|
       confirmed_relationship(project_medias[0],  project_medias[1])
@@ -617,6 +610,13 @@ class PopulatedWorkspaces
         17.times {create_tipline_user_and_data(project_media)}
       end
     end
+  end
+
+  def feed_project_medias(feed)
+    teams_not_on_feed = teams.reject { |team_name, team| team.is_part_of_feed?(feed.id) }
+    teams_project_medias_clone = teams_project_medias.clone
+    teams_not_on_feed.each_key { |team_name| teams_project_medias_clone.delete(team_name)}
+    teams_project_medias_clone.compact_blank!.values.flatten!
   end
 
   def cluster_items(project_medias, cluster)
