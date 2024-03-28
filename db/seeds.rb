@@ -348,33 +348,38 @@ class PopulatedWorkspaces
   end
 
   def clusters(feed)
-    feed_project_medias = feed_project_medias(feed)
+    feed_project_medias_groups = feed_project_medias(feed).in_groups(3, false)
 
-    c1_centre = feed_project_medias.first
+    c1_centre = feed_project_medias_groups.first.delete_at(0)
     c1_project_media = [c1_centre]
-    c2_centre = feed_project_medias.second
-    c2_project_medias = feed_project_medias[1..(feed_project_medias.size/2)-1] # first half
-    c3_centre = feed_project_medias.last
-    c3_project_medias = feed_project_medias[feed_project_medias.size/2..-1] # second half
+    c2_centre = feed_project_medias_groups.first.first
+    c2_project_medias = feed_project_medias_groups.first
+    c3_centre = feed_project_medias_groups.second.first
+    c3_project_medias = feed_project_medias_groups.second
+    c4_centre = feed_project_medias_groups.third.first
+    c4_project_medias = feed_project_medias_groups.third
 
     c1 = cluster(c1_centre, feed, c1_centre.team_id)
     c2 = cluster(c2_centre, feed, c2_centre.team_id)
     c3 = cluster(c3_centre, feed, c3_centre.team_id)
+    c4 = cluster(c3_centre, feed, c4_centre.team_id)
 
     cluster_items(c1_project_media, c1)
     cluster_items(c2_project_medias, c2)
     cluster_items(c3_project_medias, c3)
+    cluster_items(c4_project_medias, c4)
 
     updated_cluster(c1)
     updated_cluster(c2)
     updated_cluster(c3)
+    updated_cluster(c4)
   end
 
   def feed_project_medias(feed)
     teams_not_on_feed = teams.reject { |team_name, team| team.is_part_of_feed?(feed.id) }
     teams_project_medias_clone = teams_project_medias.clone
     teams_not_on_feed.each_key { |team_name| teams_project_medias_clone.delete(team_name)}
-    teams_project_medias_clone.compact_blank!.values.flatten!.shuffle
+    teams_project_medias_clone.compact_blank!.values.flatten!
   end
 
   def confirm_relationships
