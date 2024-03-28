@@ -145,7 +145,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       result = Bot::Alegre.relate_project_media_to_similar_items(pm2)
     end
     r = Relationship.last
-    assert_equal JSON.parse(Relationship.suggested_type.to_json), r.relationship_type
+    assert_equal JSON.parse(Relationship.suggested_type.to_json), JSON.parse(r.relationship_type.to_json)
     # Relation should be confirmed if at least one field size > threshold
     pm3 = create_project_media project: p, quote: 'This is also a long enough title', team: @team
     pm4 = create_project_media project: p, quote: 'This is also a long enough title so as to allow an actual check of other titles', team: @team
@@ -163,7 +163,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       result = Bot::Alegre.relate_project_media_to_similar_items(pm4)
     end
     r = Relationship.last
-    assert_equal JSON.parse(Relationship.confirmed_type.to_json), r.relationship_type
+    assert_equal JSON.parse(Relationship.confirmed_type.to_json), JSON.parse(r.relationship_type.to_json)
     Bot::Alegre.unstub(:request)
   end
 

@@ -32,7 +32,8 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm1 = create_project_media team: @team, media: create_uploaded_video
     pm2 = create_project_media team: @team, media: create_uploaded_video
     pm3 = create_project_media team: @team, media: create_uploaded_video
-    Bot::Alegre.stubs(:request).with('post', '/video/similarity/search/', @params).returns({
+    params = { url: "#{@media_path}?hash=#{hex}", context: { has_custom_id: true, team_id: @team.id}, threshold: 0.9, match_across_content_types: true }
+    Bot::Alegre.stubs(:request).with('post', '/video/similarity/search/', params).returns({
       result: [
         {
           context: [
@@ -66,35 +67,31 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     pm2 = create_project_media team: @team, media: create_uploaded_audio
     pm3 = create_project_media team: @team, media: create_uploaded_audio
-    Bot::Alegre.stubs(:request).with('post', '/similarity/sync/audio', @params).returns({
-      result: [
-        {
-          id: 1,
-          doc_id: random_string,
-          chromaprint_fingerprint: [6581800, 2386744, 2583368, 2488648, 6343163, 14978026, 300191082, 309757210, 304525578, 304386106, 841261098, 841785386],
-          url: 'https://foo.com/bar.wav',
-          context: [
-            { team_id: @team.id.to_s, project_media_id: pm1.id.to_s }
-          ],
-          score: 0.971234,
-        },
-        {
-          id: 2,
-          doc_id: random_string,
-          chromaprint_fingerprint: [2386744, 2583368, 2488648, 6343163, 14978026, 300191082, 309757210, 304525578, 304386106, 841261098, 841785386, 858042410, 825593963, 823509230],
-          url: 'https://bar.com/foo.wav',
-          context: [
-            { team_id: @team.id.to_s, project_media_id: pm2.id.to_s }
-          ],
-          score: 0.983167,
-        }
-      ]
-    }.with_indifferent_access)
+    Bot::Alegre.stubs(:request).with('post', '/similarity/async/audio', @params).returns(true)
+    Redis.any_instance.stubs(:get).returns({
+      pm1.id => {
+        score: 0.971234,
+        context: { team_id: pm1.team_id, project_media_id: pm1.id, temporary: false },
+        model: "audio",
+        source_field: "audio",
+        target_field: "video",
+        relationship_type: Relationship.confirmed_type
+      },
+      pm2.id => {
+        score: 0.983167,
+        context: { team_id: pm2.team_id, project_media_id: pm2.id, temporary: false, content_type: 'video'  },
+        model: "audio",
+        source_field: "audio",
+        target_field: "audio",
+        relationship_type: Relationship.confirmed_type
+      }
+    }.to_json)
     Bot::Alegre.stubs(:media_file_url).with(pm3).returns(@media_path)
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm3)
     end
     Bot::Alegre.unstub(:media_file_url)
+    Redis.any_instance.unstub(:get)
     r = Relationship.last
     assert_equal pm3, r.target
     assert_equal pm2, r.source
@@ -218,8 +215,8 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
         }
       ]
     }.with_indifferent_access
-    Bot::Alegre.stubs(:request).with('post', '/similarity/sync/image', @params.merge({ threshold: 0.89 })).returns(result)
-    Bot::Alegre.stubs(:request).with('post', '/similarity/sync/image', @params.merge({ threshold: 0.95 })).returns(result)
+    Bot::Alegre.stubs(:request).with('post', '/similarity/async/image', @params.merge({ threshold: 0.89 })).returns(result)
+    Bot::Alegre.stubs(:request).with('post', '/similarity/async/image', @params.merge({ threshold: 0.95 })).returns(result)
     Bot::Alegre.stubs(:media_file_url).with(pm3).returns(@media_path)
     Redis.any_instance.stubs(:get).returns({
       pm1.id => {
@@ -259,37 +256,36 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm3 = create_project_media team: t3, media: create_uploaded_image
     pm4 = create_project_media media: create_uploaded_image
     pm1b = create_project_media team: @team, media: create_uploaded_image
-    response = {
-      result: [
-        {
-          id: pm4.id,
-          sha256: random_string,
-          phash: random_string,
-          url: random_url,
-          context: [
-            {
-              team_id: t2.id,
-              has_custom_id: true,
-              project_media_id: pm2.id
-            },
-            {
-              team_id: @team.id,
-              has_custom_id: true,
-              project_media_id: pm1b.id
-            },
-            {
-              team_id: t3.id,
-              has_custom_id: true,
-              project_media_id: pm3.id
-            },
-          ],
-          score: 0
-        }
-      ]
-    }.with_indifferent_access
+    Redis.any_instance.stubs(:get).returns({
+      pm4.id => {
+        score: 0,
+        context: [
+          {
+            team_id: t2.id,
+            has_custom_id: true,
+            project_media_id: pm2.id
+          },
+          {
+            team_id: @team.id,
+            has_custom_id: true,
+            project_media_id: pm1b.id
+          },
+          {
+            team_id: t3.id,
+            has_custom_id: true,
+            project_media_id: pm3.id
+          },
+        ],
+        model: "image",
+        source_field: "image",
+        target_field: "image",
+        relationship_type: Relationship.suggested_type
+      }
+    }.to_json)
+    
     Bot::Alegre.stubs(:media_file_url).with(pm1a).returns(@media_path)
-    Bot::Alegre.stubs(:request).with('post', '/similarity/sync/image', @params.merge({ threshold: 0.89 })).returns(response)
-    Bot::Alegre.stubs(:request).with('post', '/similarity/sync/image', @params.merge({ threshold: 0.95 })).returns(response)
+    Bot::Alegre.stubs(:request).with('post', '/similarity/async/image', @params.merge({ threshold: 0.89 })).returns(true)
+    Bot::Alegre.stubs(:request).with('post', '/similarity/async/image', @params.merge({ threshold: 0.95 })).returns(true)
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm1a)
     end
