@@ -31,9 +31,9 @@ end
 
 MEDIAS_PARAMS = [
   *CLAIMS_PARAMS,
-  # *UPLOADED_AUDIO_PARAMS,
-  # *UPLOADED_IMAGE_PARAMS,
-  # *UPLOADED_VIDEO_PARAMS,
+  *UPLOADED_AUDIO_PARAMS,
+  *UPLOADED_IMAGE_PARAMS,
+  *UPLOADED_VIDEO_PARAMS,
 ].shuffle!
 
 class Setup
@@ -220,7 +220,7 @@ class PopulatedWorkspaces
         title: "#{teams[:main_team_a][:name]} / [a] Main User: Main Team",
         user: users[:main_user_a],
         team: teams[:main_team_a],
-        project_medias_attributes: MEDIAS_PARAMS.map.with_index { |media_params, index|
+        project_medias_attributes: medias_params_with_links.map.with_index { |media_params, index|
           {
             media_attributes: media_params,
             user: users[:main_user_a],
@@ -258,24 +258,24 @@ class PopulatedWorkspaces
             }
           }
         },
-        # {
-        #   title: "#{teams[:invited_team_b2][:name]} / [b] Invited User: Project Team #2",
-        #   user: users[:invited_user_b],
-        #   team: teams[:invited_team_b2],
-        #   project_medias_attributes: MEDIAS_PARAMS.map.with_index { |media_params, index|
-        #     {
-        #       media_attributes: media_params,
-        #       user: users[:invited_user_b],
-        #       team: teams[:invited_team_b2],
-        #       claim_description_attributes: {
-        #         description: claim_title(media_params),
-        #         context: Faker::Lorem.sentence,
-        #         user: users[:invited_user_b],
-        #         fact_check_attributes: fact_check_params_for_half_the_claims(index, users[:invited_user_b]),
-        #       }
-        #     }
-        #   }
-        # },
+        {
+          title: "#{teams[:invited_team_b2][:name]} / [b] Invited User: Project Team #2",
+          user: users[:invited_user_b],
+          team: teams[:invited_team_b2],
+          project_medias_attributes: MEDIAS_PARAMS.map.with_index { |media_params, index|
+            {
+              media_attributes: media_params,
+              user: users[:invited_user_b],
+              team: teams[:invited_team_b2],
+              claim_description_attributes: {
+                description: claim_title(media_params),
+                context: Faker::Lorem.sentence,
+                user: users[:invited_user_b],
+                fact_check_attributes: fact_check_params_for_half_the_claims(index, users[:invited_user_b]),
+              }
+            }
+          }
+        },
         {
           title: "#{teams[:invited_team_c][:name]} / [c] Invited User: Project Team #1",
           user: users[:invited_user_c],
@@ -693,10 +693,10 @@ ActiveRecord::Base.transaction do
     populated_workspaces.share_feed(feed_2)
     puts 'Accepting invitation to a Shared Feed...'
     populated_workspaces.accept_invitation(feed_2, :invited_user_c)
-    # puts 'Making Confirmed Relationships between items...'
-    # populated_workspaces.confirm_relationships
-    # puts 'Making Suggested Relationships between items...'
-    # populated_workspaces.suggest_relationships
+    puts 'Making Confirmed Relationships between items...'
+    populated_workspaces.confirm_relationships
+    puts 'Making Suggested Relationships between items...'
+    populated_workspaces.suggest_relationships
     puts 'Making Tipline requests...'
     populated_workspaces.tipline_requests
     puts 'Publishing half of each user\'s Fact Checks...'
