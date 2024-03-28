@@ -259,7 +259,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'image', 'mediaUrl' => random_url })
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
-    Bot::Alegre.stubs(:get_items_with_similar_media).returns({ pm.id => { score: 0.9, model: 'elasticsearch' } })
+    Bot::Alegre.stubs(:get_items_with_similar_media_v2).returns({ pm.id => { score: 0.9, model: 'elasticsearch' } })
     CheckS3.stubs(:rewrite_url).returns(random_url)
 
     assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en')
@@ -267,7 +267,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     Bot::Smooch.unstub(:bundle_list_of_messages)
     ProjectMedia.any_instance.unstub(:report_status)
     ProjectMedia.any_instance.unstub(:analysis_published_article_url)
-    Bot::Alegre.unstub(:get_items_with_similar_media)
+    Bot::Alegre.unstub(:get_items_with_similar_media_v2)
   end
 
   test "should handle exception when adding Smooch integration" do

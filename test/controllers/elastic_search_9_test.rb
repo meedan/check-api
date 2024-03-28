@@ -71,10 +71,10 @@ class ElasticSearch9Test < ActionController::TestCase
       # Text extraction
       Bot::Alegre.unstub(:media_file_url)
       pm = create_project_media team: team, media: create_uploaded_image, disable_es_callbacks: false
-      WebMock.stub_request(:post, 'http://alegre/similarity/sync/image').with(body: {doc_id: Bot::Alegre.item_doc_id(pm), context: {:has_custom_id=>true, :project_media_id=>pm.id, :team_id=>pm.team_id}, threshold: 0.89, url: "some/path"}).to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre/similarity/async/image').with(body: {doc_id: Bot::Alegre.item_doc_id(pm), context: {:has_custom_id=>true, :project_media_id=>pm.id, :team_id=>pm.team_id, :temporary_media=>false}, threshold: 0.89, url: "some/path", confirmed: false}).to_return(body: {
         "result": []
       }.to_json)
-      WebMock.stub_request(:post, 'http://alegre/similarity/sync/image').with(body: {doc_id: Bot::Alegre.item_doc_id(pm), context: {:has_custom_id=>true, :project_media_id=>pm.id, :team_id=>pm.team_id}, threshold: 0.95, url: "some/path"}).to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre/similarity/async/image').with(body: {doc_id: Bot::Alegre.item_doc_id(pm), context: {:has_custom_id=>true, :project_media_id=>pm.id, :team_id=>pm.team_id, :temporary_media=>false}, threshold: 0.95, url: "some/path", confirmed: true}).to_return(body: {
         "result": []
       }.to_json)
       Bot::Alegre.stubs(:media_file_url).with(pm).returns("some/path")

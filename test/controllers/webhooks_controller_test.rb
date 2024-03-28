@@ -248,6 +248,16 @@ class WebhooksControllerTest < ActionController::TestCase
     assert_equal expectation, response
   end
 
+  test "should process Alegre callback webhook" do
+    CheckSentry.expects(:notify).never
+    id = random_number
+    payload = { 'action' => 'audio', 'data' => {'item' => { 'callback_url' => '/presto/receive/add_item', 'id' => id.to_s }} }
+    Bot::Alegre.stubs(:process_alegre_callback).returns({})
+    post :index, params: { name: :alegre, token: CheckConfig.get('alegre_token') }.merge(payload)
+    assert_equal '200', response.code
+    assert_match /success/, response.body
+  end
+
   test "should report error if can't process Alegre webhook" do
     CheckSentry.expects(:notify).once
     post :index, params: { name: :alegre, token: CheckConfig.get('alegre_token') }.merge({ foo: 'bar' })
