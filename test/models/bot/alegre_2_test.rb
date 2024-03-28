@@ -32,8 +32,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm1 = create_project_media team: @team, media: create_uploaded_video
     pm2 = create_project_media team: @team, media: create_uploaded_video
     pm3 = create_project_media team: @team, media: create_uploaded_video
-    params = { url: @media_path, context: { has_custom_id: true, team_id: @team.id, :temporary_media => false}, threshold: 0.9, match_across_content_types: true, confirmed: false}
-    Bot::Alegre.stubs(:request).with('post', '/video/similarity/search/', params).returns({
+    Bot::Alegre.stubs(:request).with('post', '/video/similarity/search/', @params.merge(context: { has_custom_id: true, team_id: @team.id})).returns({
       result: [
         {
           context: [
@@ -63,12 +62,14 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     assert_equal r.weight, 0.983167
   end
 
-  test "should match similar audios" do
+  test "should match similar audios zzz" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     pm2 = create_project_media team: @team, media: create_uploaded_audio
     pm3 = create_project_media team: @team, media: create_uploaded_audio
-    params = { url: @media_path, context: { has_custom_id: true, team_id: @team.id, :temporary_media => false}, threshold: 0.9, match_across_content_types: true, confirmed: false}
-    Bot::Alegre.stubs(:request).with('post', '/similarity/async/audio', params).returns(true)
+    params = {:doc_id => Bot::Alegre.item_doc_id(pm3), :context => {:team_id => pm3.team_id, :project_media_id => pm3.id, :has_custom_id => true, :temporary_media => false}, :url => @media_path}
+    Bot::Alegre.stubs(:request).with('post', '/similarity/async/audio', params.merge({ threshold: 0.9, confirmed: false })).returns(true)
+    Bot::Alegre.stubs(:request).with('post', '/similarity/async/audio', params.merge({ threshold: 0.9, confirmed: true })).returns(true)
+    
     Redis.any_instance.stubs(:get).returns({
       pm1.id => {
         score: 0.971234,
@@ -259,7 +260,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm4 = create_project_media media: create_uploaded_image
     pm1b = create_project_media team: @team, media: create_uploaded_image
     Redis.any_instance.stubs(:get).returns({
-      pm4.id => {
+      pm1b.id => {
         score: 0,
         context: [
           {
@@ -286,12 +287,13 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     }.to_json)
     params = {:doc_id => Bot::Alegre.item_doc_id(pm1a), :context => {:team_id => pm1a.team_id, :project_media_id => pm1a.id, :has_custom_id => true, :temporary_media => false}, :url => @media_path}
     Bot::Alegre.stubs(:media_file_url).with(pm1a).returns(@media_path)
-    Bot::Alegre.stubs(:request).with('post', '/similarity/async/image', params.merge({ threshold: 0.89 })).returns(true)
-    Bot::Alegre.stubs(:request).with('post', '/similarity/async/image', params.merge({ threshold: 0.95 })).returns(true)
+    Bot::Alegre.stubs(:request).with('post', '/similarity/async/image', params.merge({ threshold: 0.89, confirmed: false })).returns(true)
+    Bot::Alegre.stubs(:request).with('post', '/similarity/async/image', params.merge({ threshold: 0.95, confirmed: true })).returns(true)
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm1a)
     end
     Bot::Alegre.unstub(:request)
+    Redis.any_instance.unstub(:get)
     assert_equal pm1b, Relationship.last.source
     assert_equal pm1a, Relationship.last.target
   end

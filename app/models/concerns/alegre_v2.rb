@@ -422,7 +422,7 @@ module AlegreV2
         Bot::Alegre.delete(project_media, nil) if project_media.class == TemporaryProjectMedia
         return response
       else
-        self.get_items_with_similar_media("/#{type}/similarity/search/?hash=#{SecureRandom.hex}", threshold, team_ids, "/#{type}/similarity/search/")
+        self.get_items_with_similar_media("#{media_url||Bot::Alegre.media_file_url(project_media)}?hash=#{SecureRandom.hex}", threshold, team_ids, "/#{type}/similarity/search/")
       end
     end
 
@@ -445,6 +445,15 @@ module AlegreV2
       redis.set(key, response.to_json)
       redis.expire(key, 1.day.to_i)
       Bot::Alegre.relate_project_media_callback(project_media, field) if should_relate
+    end
+
+    def restrict_contexts(project_media, project_media_id_scores)
+      Hash[project_media_id_scores.collect{|project_media_id, response_data|
+        [
+          project_media_id,
+          response_data.merge(context: [response_data[:context]].flatten.select{|c| c[:team_id] == project_media.team_id})
+        ]
+      }]
     end
   end
 end
