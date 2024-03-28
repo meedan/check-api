@@ -468,6 +468,20 @@ module ProjectMediaCachedFields
           }
         }
       ]
+    cached_field :negative_tipline_search_results_count,
+      update_es: true,
+      recalculate: :recalculate_negative_tipline_search_results_count,
+      update_on: [
+        {
+          model: TiplineRequest,
+          if: proc { |tr| tr.smooch_request_type == 'relevant_search_result_requests' },
+          affected_ids: proc { |tr| [tr.associated_id] },
+          events: {
+            save: :recalculate,
+            destroy: :recalculate,
+          }
+        }
+      ]
 
     cached_field :tipline_search_results_count,
       update_es: true,
@@ -656,6 +670,10 @@ module ProjectMediaCachedFields
 
     def recalculate_positive_tipline_search_results_count
       TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: self.id, smooch_request_type: 'relevant_search_result_requests').count
+    end
+
+    def recalculate_negative_tipline_search_results_count
+      TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: self.id, smooch_request_type: 'irrelevant_search_result_requests').count
     end
 
     def recalculate_tipline_search_results_count
