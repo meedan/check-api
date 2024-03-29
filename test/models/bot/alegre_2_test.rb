@@ -87,7 +87,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
         target_field: "audio",
         relationship_type: Relationship.confirmed_type
       }
-    }.to_json)
+    }.to_yaml)
     Bot::Alegre.stubs(:media_file_url).with(pm3).returns(@media_path)
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm3)
@@ -101,7 +101,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     Bot::Alegre.unstub(:request)
   end
 
-  test "should match audio with similar audio from video" do
+  test "should match audio with similar audio from video zzz" do
     p = create_project
     pm1 = create_project_media team: @team, media: create_uploaded_video
     pm2 = create_project_media team: @team, media: create_uploaded_audio
@@ -173,7 +173,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
         target_field: "audio",
         relationship_type: Relationship.confirmed_type
       }
-    }.to_json)
+    }.to_yaml)
     Bot::Alegre.stubs(:media_file_url).with(pm3).returns(@media_path)
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm3)
@@ -238,7 +238,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
         target_field: "image",
         relationship_type: Relationship.confirmed_type
       }
-    }.to_json)
+    }.to_yaml)
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm3)
     end
@@ -284,7 +284,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
         target_field: "image",
         relationship_type: Relationship.suggested_type
       }
-    }.to_json)
+    }.to_yaml)
     params = {:doc_id => Bot::Alegre.item_doc_id(pm1a), :context => {:team_id => pm1a.team_id, :project_media_id => pm1a.id, :has_custom_id => true, :temporary_media => false}, :url => @media_path}
     Bot::Alegre.stubs(:media_file_url).with(pm1a).returns(@media_path)
     Bot::Alegre.stubs(:request).with('post', '/similarity/async/image', params.merge({ threshold: 0.89, confirmed: false })).returns(true)
@@ -378,7 +378,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
           target_field: "image",
           relationship_type: Relationship.suggested_type
         }
-      }.to_json)
+      }.to_yaml)
       response = {pm1.id.to_s=>{"score"=>0.8, "context"=>[{"team_id"=>t.id, "project_media_id"=>pm1.id, "temporary"=>false}], "model"=>"image", "source_field"=>"image", "target_field"=>"image", "relationship_type"=>{"source"=>"confirmed_sibling", "target"=>"confirmed_sibling"}}}
       assert_equal response.to_json, Bot::Alegre.get_items_with_similarity('image', pm2, Bot::Alegre.get_threshold_for_query('image', pm2)).to_json
       Redis.any_instance.unstub(:get)
