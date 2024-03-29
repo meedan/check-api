@@ -13,8 +13,8 @@ module AlegreWebhooks
     def webhook(request)
       begin
         doc_id = request.params.dig('data', 'requested', 'id')
-        doc_id = params.dig('data', 'item', 'id') if doc_id.nil?
-        is_from_alegre_callback = params.dig('data', 'item', 'callback_url').to_s.include?("/presto/receive/add_item")
+        doc_id = request.params.dig('data', 'item', 'id') if doc_id.nil?
+        is_from_alegre_callback = request.params.dig('data', 'item', 'callback_url').to_s.include?("/presto/receive/add_item")
         raise 'Unexpected params format' if doc_id.blank?
         if is_from_alegre_callback
           Bot::Alegre.process_alegre_callback(request.params)
