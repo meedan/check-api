@@ -101,7 +101,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     Bot::Alegre.unstub(:request)
   end
 
-  test "should match audio with similar audio from video zzz" do
+  test "should match audio with similar audio from video" do
     p = create_project
     pm1 = create_project_media team: @team, media: create_uploaded_video
     pm2 = create_project_media team: @team, media: create_uploaded_audio
