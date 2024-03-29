@@ -256,15 +256,15 @@ module AlegreV2
 
     def parse_similarity_results(project_media, field, results, relationship_type)
       Hash[results.collect{|result|
-        result["context"] = Bot::Alegre.isolate_relevant_context(project_media, result)
+        result["context"] = isolate_relevant_context(project_media, result)
         [
           result["context"] && result["context"]["project_media_id"],
           {
             score: result["score"],
             context: result["context"],
             model: result["model"],
-            source_field: Bot::Alegre.get_target_field(project_media, field),
-            target_field: Bot::Alegre.get_target_field(project_media, result["field"]),
+            source_field: get_target_field(project_media, field),
+            target_field: get_target_field(project_media, result["field"]),
             relationship_type: relationship_type
           }
         ]
@@ -293,7 +293,7 @@ module AlegreV2
 
     def cache_items_via_callback(project_media, field, confirmed, results)
       relationship_type = confirmed ? Relationship.confirmed_type : Relationship.suggested_type
-      Bot::Alegre.parse_similarity_results(
+      parse_similarity_results(
         project_media,
         field,
         results,
@@ -304,7 +304,7 @@ module AlegreV2
     def get_items(project_media, field, confirmed=false)
       relationship_type = confirmed ? Relationship.confirmed_type : Relationship.suggested_type
       type = get_type(project_media)
-      threshold = get_per_model_threshold(project_media, Bot::Alegre.get_threshold_for_query(type, project_media, confirmed))
+      threshold = get_per_model_threshold(project_media, get_threshold_for_query(type, project_media, confirmed))
       parse_similarity_results(
         project_media,
         field,
@@ -315,7 +315,7 @@ module AlegreV2
 
     def get_items_async(project_media, field, confirmed=false)
       type = get_type(project_media)
-      threshold = get_per_model_threshold(project_media, Bot::Alegre.get_threshold_for_query(type, project_media, confirmed))
+      threshold = get_per_model_threshold(project_media, get_threshold_for_query(type, project_media, confirmed))
       safe_get_async(project_media, field, threshold.merge(confirmed: confirmed))
     end
 
@@ -337,18 +337,18 @@ module AlegreV2
 
     def get_similar_items_v2(project_media, field)
       type = get_type(project_media)
-      if !Bot::Alegre.should_get_similar_items_of_type?('master', project_media.team_id) || !Bot::Alegre.should_get_similar_items_of_type?(type, project_media.team_id)
+      if !should_get_similar_items_of_type?('master', project_media.team_id) || !should_get_similar_items_of_type?(type, project_media.team_id)
         {}
       else
         suggested_or_confirmed = get_suggested_items(project_media, field)
         confirmed = get_confirmed_items(project_media, field)
-        Bot::Alegre.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, project_media)
+        merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, project_media)
       end
     end
 
     def get_similar_items_v2_async(project_media, field)
       type = get_type(project_media)
-      if !Bot::Alegre.should_get_similar_items_of_type?('master', project_media.team_id) || !Bot::Alegre.should_get_similar_items_of_type?(type, project_media.team_id)
+      if !should_get_similar_items_of_type?('master', project_media.team_id) || !should_get_similar_items_of_type?(type, project_media.team_id)
         return false
       else
         get_suggested_items_async(project_media, field)
@@ -370,15 +370,15 @@ module AlegreV2
     end
 
     def get_similar_items_v2_callback(project_media, field)
-      type = Bot::Alegre.get_type(project_media)
-      if !Bot::Alegre.should_get_similar_items_of_type?('master', project_media.team_id) || !Bot::Alegre.should_get_similar_items_of_type?(type, project_media.team_id)
+      type = get_type(project_media)
+      if !should_get_similar_items_of_type?('master', project_media.team_id) || !should_get_similar_items_of_type?(type, project_media.team_id)
         return {}
       else
-        cached_data = Bot::Alegre.get_cached_data(Bot::Alegre.get_required_keys(project_media, field))
+        cached_data = get_cached_data(get_required_keys(project_media, field))
         if !cached_data.values.include?(nil)
           suggested_or_confirmed = cached_data[:suggested_or_confirmed_results]
           confirmed = cached_data[:confirmed_results]
-          Bot::Alegre.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, project_media)
+          merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, project_media)
         end
       end
     end
@@ -392,7 +392,7 @@ module AlegreV2
     end
 
     def relate_project_media_callback(project_media, field=nil)
-      self.add_relationships(project_media, self.get_similar_items_v2_callback(project_media, field)) unless project_media.is_blank?
+      self.add_relationships(project_media, get_similar_items_v2_callback(project_media, field)) unless project_media.is_blank?
     end
 
     def get_items_with_similar_media_v2(args={})
@@ -410,19 +410,19 @@ module AlegreV2
           project_media.team_id = team_ids
           project_media.type = type
         end
-        Bot::Alegre.get_similar_items_v2_async(project_media, nil)
-        cached_data = Bot::Alegre.get_cached_data(Bot::Alegre.get_required_keys(project_media, nil))
+        get_similar_items_v2_async(project_media, nil)
+        cached_data = get_cached_data(get_required_keys(project_media, nil))
         timeout = 60
         start_time = Time.now
         while start_time + timeout > Time.now && cached_data.values.include?([])
           sleep(1)
-          cached_data = Bot::Alegre.get_cached_data(Bot::Alegre.get_required_keys(project_media, nil))
+          cached_data = get_cached_data(get_required_keys(project_media, nil))
         end
-        response = Bot::Alegre.get_similar_items_v2_callback(project_media, nil)
-        Bot::Alegre.delete(project_media, nil) if project_media.class == TemporaryProjectMedia
+        response = get_similar_items_v2_callback(project_media, nil)
+        delete(project_media, nil) if project_media.class == TemporaryProjectMedia
         return response
       else
-        self.get_items_with_similar_media("#{media_url||Bot::Alegre.media_file_url(project_media)}?hash=#{SecureRandom.hex}", threshold, team_ids, "/#{type}/similarity/search/")
+        self.get_items_with_similar_media("#{media_url||media_file_url(project_media)}?hash=#{SecureRandom.hex}", threshold, team_ids, "/#{type}/similarity/search/")
       end
     end
 
@@ -442,10 +442,10 @@ module AlegreV2
       field = params.dig('data', 'item', 'raw', 'context', 'field')
       access_key = confirmed ? :confirmed_results : :suggested_or_confirmed_results
       key = get_required_keys(project_media, field)[access_key]
-      response = Bot::Alegre.cache_items_via_callback(project_media, field, confirmed, params.dig('data', 'results', 'result'))
+      response = cache_items_via_callback(project_media, field, confirmed, params.dig('data', 'results', 'result'))
       redis.set(key, response.to_yaml)
       redis.expire(key, 1.day.to_i)
-      Bot::Alegre.relate_project_media_callback(project_media, field) if should_relate
+      relate_project_media_callback(project_media, field) if should_relate
     end
 
     def restrict_contexts(project_media, project_media_id_scores)

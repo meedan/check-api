@@ -368,7 +368,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     pm2.save!
     Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_query('text', pm2)).returns({pm1.id => {score: 0.99, context: {"team_id" => pm1.team_id, "blah" => 1}}})
     Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_query('text', pm2, true)).returns({})
-    assert_equal JSON.parse(Bot::Alegre.get_similar_items(pm2).to_json), JSON.parse({pm1.id=>{:score=>0.99, :context => [{"team_id" => pm1.team_id, "blah" => 1}], :relationship_type=>{:source=>"suggested_sibling", :target=>"suggested_sibling"}}}.to_json)
+    assert_equal Bot::Alegre.get_similar_items(pm2), {pm1.id=>{:score=>0.99, :context => [{"team_id" => pm1.team_id, "blah" => 1}], :relationship_type=>{:source=>"suggested_sibling", :target=>"suggested_sibling"}}}
     Bot::Alegre.unstub(:get_merged_items_with_similar_text)
   end
 
@@ -405,7 +405,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     pm1 = create_project_media project: p
     Bot::Alegre.stubs(:matching_model_to_use).with(pm1.team_id).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
     response = Bot::Alegre.get_similar_items(pm1)
-    assert_equal response.class, ActiveSupport::HashWithIndifferentAccess
+    assert_equal response.class, Hash
     Bot::Alegre.unstub(:matching_model_to_use)
   end
 
@@ -483,7 +483,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       ]
     })
     response = Bot::Alegre.get_similar_items(pm)
-    assert_equal response.class, ActiveSupport::HashWithIndifferentAccess
+    assert_equal response.class, Hash
     Bot::Alegre.unstub(:request)
     Bot::Alegre.unstub(:matching_model_to_use)
   end

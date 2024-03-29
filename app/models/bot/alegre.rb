@@ -236,7 +236,7 @@ class Bot::Alegre < BotUser
     else
       selected_matches = matches.select{ |k, _v| (self.valid_match_types(other_pms[k.to_i]&.media&.type) & self.valid_match_types(pm.media.type)).length > 0 }
     end
-    selected_matches.with_indifferent_access
+    selected_matches
   end
 
   def self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
