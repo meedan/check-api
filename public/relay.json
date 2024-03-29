@@ -3139,7 +3139,18 @@
               "name": "fact_check",
               "description": null,
               "args": [
-
+                {
+                  "name": "report_status",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null,
+                  "isDeprecated": false,
+                  "deprecationReason": null
+                }
               ],
               "type": {
                 "kind": "OBJECT",
@@ -70230,20 +70241,6 @@
             },
             {
               "name": "smooch_user_request_language",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "smooch_user_slack_channel_url",
               "description": null,
               "args": [
 

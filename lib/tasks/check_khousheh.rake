@@ -251,7 +251,7 @@ namespace :check do
                   # Fact-checks
                   pm_fc_mapping = {} # Project Media ID => Fact-Check Updated At
                   ProjectMedia.select('project_medias.id as id, fc.updated_at as fc_updated_at')
-                  .where(id: pms.map(&:id))
+                  .where(id: pms.select{ |pm| pm.report_status == 'published' }.map(&:id))
                   .joins("INNER JOIN claim_descriptions cd ON project_medias.id = cd.project_media_id")
                   .joins("INNER JOIN fact_checks fc ON cd.id = fc.claim_description_id")
                   .find_each do |pm_fc|

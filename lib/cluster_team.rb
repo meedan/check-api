@@ -18,8 +18,13 @@ class ClusterTeam
     @cluster.project_medias.where(team_id: @team.id)
   end
 
+  def requests
+    TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: self.project_medias.map(&:id)).where('created_at < ?', @cluster.created_at)
+  end
+
   def last_request_date
-    self.project_medias.map(&:last_seen).sort.last # FIXME: We don't expect thousands of items per team in a cluster, but if so, this can be a performance issue
+    return nil if self.requests.count == 0
+    self.requests.order('created_at DESC').first.created_at.to_i
   end
 
   def media_count
@@ -27,7 +32,7 @@ class ClusterTeam
   end
 
   def requests_count
-    self.project_medias.map(&:requests_count).sum
+    self.requests.count
   end
 
   def fact_checks
@@ -35,11 +40,12 @@ class ClusterTeam
     list = []
     ClaimDescription.where(project_media_id: self.project_medias.map(&:id)).each do |claim_description|
       item = claim_description.project_media
+      fact_check = claim_description.fact_check if item.report_status == 'published'
       list << OpenStruct.new({
         id: claim_description.id,
         claim: claim_description.description,
-        fact_check_title: claim_description.fact_check&.title,
-        fact_check_summary: claim_description.fact_check&.summary,
+        fact_check_title: fact_check&.title,
+        fact_check_summary: fact_check&.summary,
         rating: item.status_i18n,
         media_count: item.linked_items_count,
         requests_count: item.demand,
