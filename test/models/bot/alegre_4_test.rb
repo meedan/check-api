@@ -35,8 +35,18 @@ class Bot::Alegre4Test < ActiveSupport::TestCase
     Bot::Alegre.unstub(:get_language_from_alegre)
   end
 
+  test "/text/similarity/ request should be called for good title" do
+    text = "instagram-cekfakta-2023-25562004 with more should pass"
+    pm1 = create_project_media team: @team, quote: text
+    Bot::Alegre.stubs(:request).raises("Request method called when it should not be")
+    assert_raises do
+        Bot::Alegre.send_to_text_similarity_index(pm1, create_field_instance, text, Bot::Alegre.item_doc_id(pm1, create_field_instance))
+    end
+    Bot::Alegre.unstub.stubs(:request)
+  end
+
   test "should send text for langid" do
-    text = "anything else"
+    text = "instagram-cekfakta-2023-25562004 with more should pass"
     pm1 = create_project_media team: @team, quote: text
     Bot::Alegre.stubs(:get_language_from_alegre).returns("en")
     assert_equal Bot::Alegre.get_language_from_text(pm1, text), "en"
