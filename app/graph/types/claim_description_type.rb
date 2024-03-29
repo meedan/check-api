@@ -14,6 +14,8 @@ class ClaimDescriptionType < DefaultObject
 
   def fact_check(report_status:)
     ability = context[:ability] || Ability.new
-    (ability.can?(:read, object) && (!report_status || object.project_media.report_status == report_status)) ? object.fact_check : nil
+    status = object.project_media.report_status
+    can_read = ability.can?(:read, object) || status == 'published'
+    (can_read && (!report_status || status == report_status)) ? object.fact_check : nil
   end
 end
