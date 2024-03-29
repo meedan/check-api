@@ -23,8 +23,8 @@ class ClusterTeam
   end
 
   def last_request_date
-    return nil if self.requests.count == 0
-    self.requests.order('created_at DESC').first.created_at.to_i
+    last_request = self.requests.order('created_at DESC').first
+    last_request ? last_request.created_at.to_i : nil
   end
 
   def media_count

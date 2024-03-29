@@ -12,7 +12,7 @@ class ClaimDescriptionType < DefaultObject
     argument :report_status, GraphQL::Types::String, required: false, camelize: false
   end
 
-  def fact_check(report_status:)
+  def fact_check(report_status: nil)
     ability = context[:ability] || Ability.new
     status = object.project_media.report_status
     can_read = ability.can?(:read, object) || status == 'published'
