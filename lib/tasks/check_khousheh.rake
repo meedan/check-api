@@ -35,7 +35,7 @@ namespace :check do
       result = $repository.search(query: query, size: 10000)
       pm_ids = []
       result.each do |r|
-        if r['title'].downcase == quote.downcase || r['description'].downcase == quote.downcase
+        if r['title'] == quote || r['description'] == quote
           pm_ids << r['annotated_id']
         end
       end
