@@ -83,8 +83,14 @@ module SmoochSearch
       pm.report_status == 'published' && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(pm.archived)
     end
 
+    def reject_temporary_results(results)
+      results.select do |result_id, result_data|
+        ![result_data[:context]].flatten.compact.select{|x| x[:temporary_media].nil? || x[:temporary_media] == false}.empty?
+      end
+    end
+
     def parse_search_results_from_alegre(results, after = nil, feed_id = nil, team_ids = nil)
-      pms = results.sort_by{ |a| [a[1][:model] != Bot::Alegre::ELASTICSEARCH_MODEL ? 1 : 0, a[1][:score]] }.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }
+      pms = reject_temporary_results(results).sort_by{ |a| [a[1][:model] != Bot::Alegre::ELASTICSEARCH_MODEL ? 1 : 0, a[1][:score]] }.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }
       filter_search_results(pms, after, feed_id, team_ids).uniq(&:id).first(3)
     end
 
