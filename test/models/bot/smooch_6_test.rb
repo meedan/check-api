@@ -236,7 +236,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
     pm = create_project_media(team: @team)
     publish_report(pm, {}, nil, { language: 'en', use_visual_card: false })
-    Bot::Alegre.stubs(:get_merged_similar_items).returns({ pm.id => { score: 0.9 } })
+    Bot::Alegre.stubs(:get_merged_similar_items).returns({ pm.id => { score: 0.9, context: {foo: :bar} } })
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar foo bar foo bar', '1'
       assert_state 'search_result'
@@ -256,7 +256,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     WebMock.stub_request(:get, image_url).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
-    Bot::Alegre.stubs(:get_items_with_similar_media_v2).returns({ @search_result.id => { score: 0.9 } })
+    Bot::Alegre.stubs(:get_items_with_similar_media_v2).returns({ @search_result.id => { score: 0.9, context: {foo: :bar} } })
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'image', 'mediaUrl' => image_url, 'source' => { type: "whatsapp" }, language: 'en' })
     CheckS3.stubs(:rewrite_url).returns(random_url)
     Sidekiq::Testing.inline! do

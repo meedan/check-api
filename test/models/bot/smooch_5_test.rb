@@ -59,7 +59,7 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     alegre_results = {}
     ProjectMedia.order('id ASC').all.each_with_index do |pm, i|
       publish_report(pm) if pm.id != pm1e.id
-      alegre_results[pm.id] = { score: (1 - i / 10.0), model: 'elasticsearch' } unless [pm1f, pm1g, pm2b].map(&:id).include?(pm.id)
+      alegre_results[pm.id] = { score: (1 - i / 10.0), model: 'elasticsearch', context: {foo: :bar} } unless [pm1f, pm1g, pm2b].map(&:id).include?(pm.id)
     end
     Bot::Alegre.stubs(:get_merged_similar_items).returns(alegre_results)
     Bot::Alegre.stubs(:get_items_with_similar_media_v2).returns(alegre_results)
