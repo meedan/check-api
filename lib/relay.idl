@@ -627,7 +627,7 @@ type ClaimDescription implements Node {
   created_at: String
   dbid: Int
   description: String
-  fact_check: FactCheck
+  fact_check(report_status: String): FactCheck
   id: ID!
   permissions: String
   project_media: ProjectMedia
@@ -13318,7 +13318,6 @@ type TiplineRequest implements Node {
   smooch_request_type: String
   smooch_user_external_identifier: String
   smooch_user_request_language: String
-  smooch_user_slack_channel_url: String
   updated_at: String
 }
 
