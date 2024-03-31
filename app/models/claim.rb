@@ -13,7 +13,7 @@ class Claim < Media
   end
 
   def uuid
-    Media.where(type: 'Claim', quote: self.quote.to_s.strip).first&.id || self.id
+    Media.where(type: 'Claim', quote: self.quote.to_s.strip).joins("INNER JOIN project_medias pm ON pm.media_id = medias.id").first&.id || self.id
   end
 
   private
