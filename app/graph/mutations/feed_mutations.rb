@@ -29,4 +29,24 @@ module FeedMutations
   end
 
   class Destroy < Mutations::DestroyMutation; end
+
+  class ImportMedia < Mutations::BaseMutation
+    argument :feed_id, GraphQL::Types::Int, required: true
+    argument :project_media_id, GraphQL::Types::Int, required: true
+    argument :claim_title, GraphQL::Types::String, required: false
+    argument :claim_context, GraphQL::Types::String, required: false
+
+    field :project_media, ProjectMediaType, null: false
+
+    def resolve(feed_id:, project_media_id:, claim_title: nil, claim_context: nil)
+      ability = context[:ability] || Ability.new
+      feed = Feed.find(feed_id)
+      pm = nil
+      if Team.current&.id && User.current&.id && ability.can?(:import_media, feed)
+        cluster = Cluster.where(feed_id: feed_id, project_media_id: project_media_id).last
+        pm = cluster.import_medias_to_team(Team.current, claim_title, claim_context)
+      end
+      { project_media: pm }
+    end
+  end
 end
