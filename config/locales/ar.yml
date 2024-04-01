@@ -736,6 +736,7 @@ ar:
       لإلغاء الاشتراك في هذه النشرة، يُرجى كتابة "%{unsubscribe}".
   send_every_must_be_a_list_of_days_of_the_week: يجب أن تكون قائمة أيام الأسبوع.
   send_on_must_be_in_the_future: لا يمكن أن تكون في الماضي.
+  cant_delete_default_folder: لا يمكن حذف المجلد الافتراضي
   info:
     messages:
       sent_to_trash_by_rule: 'أُرسِل "%{item_title}" إلى المهملات بواسطة قاعدة آلية.'

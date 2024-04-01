@@ -717,6 +717,7 @@ id:
       Untuk berhenti menerima buletin ini, ketik "%{unsubscribe}".
   send_every_must_be_a_list_of_days_of_the_week: harus berupa daftar hari dalam seminggu.
   send_on_must_be_in_the_future: tidak bisa ke masa lalu.
+  cant_delete_default_folder: Folder bawaan tidak dapat dihapus
   info:
     messages:
       sent_to_trash_by_rule: '"%{item_title}" telah dibuang ke tong sampah oleh aturan otomasi.'
