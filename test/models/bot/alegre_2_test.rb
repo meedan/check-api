@@ -527,7 +527,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
   end
 
   test "get_items_from_similar_texts should not search bad titles" do
-    text = "instagram-cekfakta-2023-25562004"
+    text = "platform-team-2023-25562003"
     pm1 = create_project_media team: @team, quote: text
     Bot::Alegre.stubs(:request).raises("Request method called when it should not be")
     assert_nothing_raised do
@@ -536,8 +536,8 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     Bot::Alegre.unstub.stubs(:request)
   end
 
-  test "/text/similarity/search/ request should be called for good title" do
-    text = "instagram-cekfakta-2023-25562004 with more should pass"
+  test "get_items_from_similar_texts should search for good titles" do
+    text = "platform-team-2023-25562003 with more should pass"
     pm1 = create_project_media team: @team, quote: text
     Bot::Alegre.stubs(:request).raises("Request method called when it should not be")
     assert_raises do
