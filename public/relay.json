@@ -44618,6 +44618,20 @@
               "deprecationReason": null
             },
             {
+              "name": "saved_search_was",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "SavedSearch",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "tags",
               "description": null,
               "args": [

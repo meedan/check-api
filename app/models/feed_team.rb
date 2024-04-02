@@ -20,7 +20,7 @@ class FeedTeam < ApplicationRecord
   end
 
   def saved_search_was
-    SavedSearch.find_by_id(self.saved_search_id_was)
+    SavedSearch.find_by_id(self.saved_search_id_before_last_save)
   end
 
   private
