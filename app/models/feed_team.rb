@@ -19,6 +19,10 @@ class FeedTeam < ApplicationRecord
     self.saved_search&.filters.to_h
   end
 
+  def saved_search_was
+    SavedSearch.find_by_id(self.saved_search_id_was)
+  end
+
   private
 
   def saved_search_belongs_to_feed_team

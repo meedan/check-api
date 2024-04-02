@@ -8314,6 +8314,7 @@ type FeedTeam implements Node {
   requests_filters: JsonStringType
   saved_search: SavedSearch
   saved_search_id: Int
+  saved_search_was: SavedSearch
   shared: Boolean
   team: PublicTeam
   team_id: Int
