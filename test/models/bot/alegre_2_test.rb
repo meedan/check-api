@@ -615,6 +615,26 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     assert_equal({}, Bot::Alegre.get_items_from_similar_text(random_number, ''))
   end
 
+  test "get_items_from_similar_texts should not search bad titles" do
+    text = "platform-team-2023-25562003"
+    pm1 = create_project_media team: @team, quote: text
+    Bot::Alegre.stubs(:request).raises("Request method called when it should not be")
+    assert_nothing_raised do
+        Bot::Alegre.get_items_from_similar_text(@team, text)
+    end
+    Bot::Alegre.unstub.stubs(:request)
+  end
+
+  test "get_items_from_similar_texts should search for good titles" do
+    text = "platform-team-2023-25562003 with more should pass"
+    pm1 = create_project_media team: @team, quote: text
+    Bot::Alegre.stubs(:request).raises("Request method called when it should not be")
+    assert_raises do
+        Bot::Alegre.get_items_from_similar_text(@team, text)
+    end
+    Bot::Alegre.unstub.stubs(:request)
+  end
+
   test "should match rule by extracted text" do
     t = create_team
     create_tag_text text: 'test', team_id: t.id
