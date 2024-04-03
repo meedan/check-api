@@ -53,4 +53,27 @@ class ClusterType < DefaultObject
   def teams
     Team.where(id: object.team_ids)
   end
+
+  field :cluster_teams, ClusterTeamType.connection_type, null: true
+
+  def cluster_teams
+    Team.where(id: object.team_ids).all.collect { |team| ClusterTeam.new(object, team) }
+  end
+
+  field :project_medias, ProjectMediaType.connection_type, null: true do
+    argument :team_id, GraphQL::Types::Int, required: true
+  end
+
+  def project_medias(team_id:)
+    return ProjectMedia.none unless object.team_ids.include?(team_id)
+    object.project_medias.where(team_id: team_id.to_i)
+  end
+
+  field :project_media, ProjectMediaType, null: true do
+    argument :id, GraphQL::Types::Int, required: true
+  end
+
+  def project_media(id:)
+    object.project_medias.where(id: id.to_i).first
+  end
 end

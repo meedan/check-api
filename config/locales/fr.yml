@@ -721,6 +721,7 @@ fr:
       Pour ne plus recevoir cette lettre d’information, tapez « %{unsubscribe} ».
   send_every_must_be_a_list_of_days_of_the_week: doit être une liste de jours de la semaine.
   send_on_must_be_in_the_future: ne peut pas être dans le passé.
+  cant_delete_default_folder: Le dossier par défaut ne peut pas être supprimé
   info:
     messages:
       sent_to_trash_by_rule: '« %{item_title} » a été mis dans la corbeille par une règle d’automatisation.'

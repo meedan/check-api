@@ -17,7 +17,7 @@ class SavedSearchType < DefaultObject
   field :is_part_of_feeds, GraphQL::Types::Boolean, null: true
 
   def is_part_of_feeds
-    Feed.where(saved_search_id: object.id).exists?
+    Feed.where(saved_search_id: object.id).exists? || FeedTeam.where(saved_search_id: object.id).exists?
   end
 
   field :feeds, FeedType.connection_type, null: true

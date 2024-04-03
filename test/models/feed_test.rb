@@ -208,4 +208,14 @@ class FeedTest < ActiveSupport::TestCase
     f = create_feed data_points: [2], published: true
     assert_equal({}, f.get_feed_filters(:media))
   end
+
+  test "should return previous list" do
+    t = create_team
+    ss1 = create_saved_search team: t
+    ss2 = create_saved_search team: t
+    f = create_feed team: t, saved_search: ss1
+    f.saved_search = ss2
+    f.save!
+    assert_equal ss1, f.saved_search_was
+  end
 end
