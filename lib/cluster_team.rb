@@ -47,8 +47,8 @@ class ClusterTeam
         fact_check_title: fact_check&.title,
         fact_check_summary: fact_check&.summary,
         rating: item.status_i18n,
-        media_count: item.linked_items_count,
-        requests_count: item.demand,
+        media_count: Relationship.where(source_id: item.id, relationship_type: Relationship.confirmed_type).where('created_at < ?', @cluster.created_at).count + 1,
+        requests_count: TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: item.id).where('created_at < ?', @cluster.created_at).count,
         claim_description: claim_description
       })
     end
