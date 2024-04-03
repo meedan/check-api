@@ -18,10 +18,12 @@ class FeedType < DefaultObject
   field :licenses, [GraphQL::Types::Int, null: true], null: true
   field :saved_search_id, GraphQL::Types::Int, null: true
   field :discoverable, GraphQL::Types::Boolean, null: true
+  field :last_clusterized_at, GraphQL::Types::String, null: true
   field :user, UserType, null: true
 
   field :team, PublicTeamType, null: true
   field :saved_search, SavedSearchType, null: true
+  field :saved_search_was, SavedSearchType, null: true
 
   field :requests, RequestType.connection_type, null: true do
     argument :request_id, GraphQL::Types::Int, required: false, camelize: false
@@ -90,5 +92,18 @@ class FeedType < DefaultObject
     order = [:title, :media_count, :requests_count, :fact_checks_count, :last_request_date].include?(sort.downcase.to_sym) ? sort.downcase.to_sym : :title
     order_type = args[:sort_type].to_s.downcase.to_sym == :desc ? :desc : :asc
     object.filtered_clusters(args).offset(args[:offset].to_i).order(order => order_type)
+  end
+
+  # Given a project media ID, return the cluster it belongs to, in the scope of this feed
+  field :cluster, ClusterType, null: true do
+    argument :project_media_id, GraphQL::Types::Int, required: true, camelize: false
+  end
+
+  def cluster(project_media_id:)
+    cluster = ClusterProjectMedia.joins(:cluster).where('clusters.feed_id' => object.id, 'cluster_project_medias.project_media_id' => project_media_id.to_i).first&.cluster
+    return nil if cluster.nil?
+    ability = context[:ability] || Ability.new
+    return nil unless ability.can?(:read, object)
+    cluster
   end
 end

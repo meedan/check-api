@@ -1,0 +1,735 @@
+mk:
+  statuses:
+    ids:
+      verification_status: верификација
+      task_status: задача
+    task:
+      unresolved:
+        label: Нерешена
+        description: Стандардно, сè уште нерешена
+      resolved:
+        label: Решена
+        description: Задачата беше решена
+      cant_be_resolved:
+        label: Не може да се реши
+        description: Не беше возможно да се реши задачата
+    media:
+      undetermined:
+        label: Непочната
+        description: Стандардно, само што се додаде, не е почнато со работа
+      not_applicable:
+        label: Не може да се донесе заклучок
+        description: Не може да се донесе заклучок врз основа на достапните докази
+      in_progress:
+        label: Во тек
+        description: Работата е започната, но преводот не е направен
+      not_true:
+        label: 'Лажно'
+        description: 'Заклучок: содржината на ставката е лажна'
+      verified:
+        label: Потврдено
+        description: 'Заклучок: содржината на ставката е потврдена'
+      pending:
+        label: Во постапка
+        description: Стандардно, само што се додаде, не е почнато со работа
+      translated:
+        label: Преведено
+        description: Преводот е направен, се чека проверка
+      ready:
+        label: Готово
+        description: Преводот е проверен и може да се објави
+      error:
+        label: Грешка
+      'false':
+        description: 'Заклуок: содржината на ставката е лажна'
+      inconclusive:
+        label: Не може да се донесе заклучок
+      misleading:
+        label: Доведува во заблуда
+      disputed:
+        label: Побиено
+      out_of_scope:
+        label: Надвор од опсег
+      junk:
+        label: Непосакувано
+      unstarted:
+        label: Непочнато
+        description: Стандардно, само што се додаде, не е почнато со работа
+    source:
+      undetermined:
+        label: Непочнато
+        description: Стандардно, само што се додаде, не е почнато со работа
+      credible:
+        label: Веродостојно
+        description: 'Заклучок: изворот е веродостоен'
+      not_credible:
+        label: Неверодостојно
+        description: 'Заклучок: изворот не е веродостоен'
+      slightly_credible:
+        label: Малку веродостојно
+        description: 'Заклучок: изворот е малку веродостоен'
+      sockpuppet:
+        label: Крпена кукла
+        description: 'Заклучок: изворот е крпена кукла'
+  errors:
+    messages:
+      invalid_password: Неважечка лозинка
+      invalid_qrcode: Неважечка шифра за валидација
+      extension_white_list_error: 'не може да биде од тип %{extension}, дозволени типови се: %{allowed_types}'
+      invalid_size: мора да биде помеѓу %{min_width}x%{min_height} и %{max_width}x%{max_height} пиксели
+      mini_magick_processing_error: 'За жал, не успеавме да ја обработиме сликата. Грешката беше: %{e}'
+      annotation_mandatory_fields: Поставете ги сите задолжителни полиња
+      annotation_type_does_not_exist: не постои
+      invalid_attribution: Неважечко припишување
+      must_resolve_required_tasks_first: Прво мора да се исполнат потребните задачи
+      image_too_large: За жал, не поддржуваме слики поголеми од %{max_size}.
+      video_too_large: За жал, не поддржуваме видеа поголеми од %{max_size}.
+      audio_too_large: За жал, не поддржуваме аудио поголемо од %{max_size}.
+      pender_conflict: Врската веќе се разложува. Обидете се повторно по неколку секунди.
+      pender_url_invalid: Врската е неважечка.
+      pender_url_unsafe: Врската е небезбедна.
+      pender_could_not_parse: Не можевме да ја разложиме врската. Стапете во контакт со %{support_email} ако грешката продолжи.
+      invalid_format_for_languages: Неважечки формат на јазик. Се очекува форматот „[„en", „ar", …]"
+      invalid_project_media_channel_value: За жал, вредноста на каналот не е поддржана
+      invalid_project_media_channel_update: За жал, не успеавте да ја ажурирате вредноста на каналот
+      invalid_project_media_archived_value: За жал, вредноста за архивирање не е поддржана
+      invalid_fact_check_language_value: За жал, вредноста за јазик не е поддржана
+      fact_check_empty_title_and_summary: Извинете, треба да го внесете насловот или резимето
+      invalid_feed_saved_search_value: треба да припаѓа на работен простор што е дел од ова резиме на содржини
+  activerecord:
+    models:
+      link: Врска
+      claim: Текст
+      uploaded_file: Датотека
+      uploaded_image: Слика
+      uploaded_video: Видео
+      task: Задача
+      comment: Коментар
+      project_media: Ставка
+      media: Ставка
+      project: Папка
+      team: Работен простор
+      user: Корисник
+      source: Извор
+      project_source: Извор
+    attributes:
+      tag:
+        data: Таг
+      uploaded_file:
+        file: Датотека
+      uploaded_image:
+        file: Слика
+      uploaded_video:
+        file: Видео
+      team:
+        slug: URL на работниот простор
+      source:
+        name: Име
+      contact:
+        phone: Телефон
+      comment:
+        text: Коментар
+      user:
+        reset_password_token: Ресетирајте го токенот за лозинката
+        email: Е-пошта
+    errors:
+      models:
+        tag:
+          attributes:
+            data:
+              already_exists: веќе постои
+        relationship:
+          attributes:
+            relationship_type:
+              already_exists: веќе постои
+        team:
+          attributes:
+            slug:
+              slug_format: се прифаќаат само букви, бројки и цртички
+      messages:
+        record_invalid: "%{errors}"
+        improbable_phone: не е важечки број
+        too_short:
+          one: е прекратка (најмалку 1 знак)
+          other: е прекратка (најмалку %{count} знаци)
+  slack_webhook_format_wrong: Неважечки веб-хук на Слек. Треба да биде во следниов формат „https://hooks.slack.com/services/XXXXX/XXXXXXXXXX"
+  slug_is_reserved: е резервирана
+  invalid_media_item: Ставката е неважечка
+  invalid_default_status_for_custom_verification_status: Идентификаторот за стандарден статус е неважечки
+  invalid_active_status_for_custom_verification_status: Идентификаторот за активен статус е неважечки
+  invalid_label_for_custom_verification_status: Ознаката за статус е задолжителна
+  invalid_id_for_custom_verification_status: Идентификаторот за статус е задолжителен и мора да содржи само мали букви, бројки, цртички и долни црти
+  invalid_statuses_format_for_custom_verification_status: 'Неважечки статуси за приспособена верификација. Треба да има важечки информации за: ознака, идентификатор, опис и стил.'
+  mail_account_confirmation: "%{app_name} потврда на сметката"
+  slack:
+    fields:
+      assigned: Доделено на
+      unassigned: Доделувањето е поништено од
+      project: Папка
+      source: Извор
+      status: Статус
+      status_previous: Претходен статус
+      related_to: Поврзано со
+      view_button: Погледнете го %{type} на %{app}
+      project_source: Извор
+      project_media: Ставка
+      attribution: Одговорено од страна на
+    messages:
+      analysis_verification_status_status_changed: "%{user} го промени статусот на: %{value}"
+      analysis_title_changed: "%{user} го смени насловот на анализата на: %{value}"
+      analysis_content_changed: "%{user} ја смени содржината на анализата на: %{value}"
+      tasks_create: "%{user} додаде задача: %{title}"
+      tasks_edit: "%{user} ја измени задачата %{title}"
+      tasks_answer_create: "%{user} одговори на задачата %{title}: %{answer}"
+      tasks_answer_edit: "%{user} го измени одговорот на задачата %{title}: %{answer}"
+      metadata_create: "%{user} додаде поле со метаподатоци: %{title}"
+      metadata_edit: "%{user} го измени полето со метаподатоци %{title}"
+      metadata_answer_create: "%{user} ја постави вредноста на метаподатоците %{title}: %{answer}"
+      metadata_answer_edit: "%{user} ја измени вредноста на метаподатоците %{title}: %{answer}"
+      project_media_comment: "%{user} (%{role} од %{team}) додаде коментар во%{parent_type}"
+      project_media_create: "%{user} (%{role} од %{team}) поднесе нова ставка"
+      project_media_create_related: "%{user} (%{role} од %{team}) додаде поврзан %{type}"
+      project_media_update: "%{user} (%{role} од %{team}) ја ажурира ставката"
+      project_media_move_to: "%{user} (%{role} од %{team}) ја премести ставката во %{project}"
+      project_media_added_to_list: "%{user} (%{role} од %{team}) додаде ставка во папката %{list_name}"
+      project_media_status: "%{user} (%{role} од %{team}) го смени %{workflow} статусот на %{type}"
+      project_media_assign: "%{user} (%{role} од %{team}) додели %{type}"
+      project_media_unassign: "%{user} (%{role} од %{team}) го поништи доделувањето на %{type}"
+      project_source_comment: "%{user} (%{role} од %{team}) додаде коментар во%{parent_type}"
+      project_source_create: "%{user} (%{role} од %{team}) додаде %{type}"
+      project_source_update: "%{user} (%{role} од %{team}) измени %{type}"
+      project_create: "%{user} (%{role} од %{team}) креира папка"
+      project_assign: "%{user} (%{role} од %{team}) додели папка"
+      project_unassign: "%{user} (%{role} од %{team}) го поништи доделувањето на папката"
+      user_member: "%{user} се приклучи на работниот простор %{team}"
+      user_requested: "%{user} побара да се приклучи на работниот простор %{team}"
+      user_invited: "%{user} доби покана да се приклучи на работниот простор %{team}"
+      user_banned: "%{user} доби забрана за работниот простор %{team}"
+  mail_view_welcome: Добре дојдовте на %{app_name}
+  mail_view_register: 'Ви остана уште еден чекор за да пристапите до %{app_name}! Потврдете ја вашата адреса на е-пошта со кликање на следнава врска:'
+  mail_confirm_button: Потврди ја мојата сметка
+  slack_restricted_join_to_members: За жал, не можете да се приклучите на %{team_name} затоа што е само за член на работниот простор(и) на Слек %{teams}.
+  admin:
+    actions:
+      send_reset_password_email:
+        menu: Пратете упатства за ресетирање на лозинката
+      export_project:
+        menu: Експортирајте ги податоците
+      export_images:
+        menu: Експортирајте ги сликите
+      duplicate_team:
+        menu: Направете дупликат од работниот простор
+        done: дупликатот е направен
+        are_you_sure_you_want_to_copy_team:
+          html: Сигурни ли сте дека сакате да направите дупликат од работниот простор <strong>%{team}</strong>? Ќе бидат ископирани и сите поврзани податоци.
+        the_team_is_being_copied: Се прави дупликат од работниот простор
+        url_when_ready:
+          html: Кога ќе биде готов, дупликатот од работниот простор ќе биде достапен на <strong>%{copy_url}</strong>
+    flash:
+      delete_team_scheduled: Се брише работниот простор %{team}
+  email_not_found: Е-поштата не беше пронајдена
+  slack_channel_format_wrong: Неважечки канал на Слек
+  invalid_token: Неважечки токен
+  time:
+    formats:
+      oembed: "%B %d, %Y"
+      task: "%B %d, %Y во %H:%M [TZ] (%z UTC)"
+      email: "%B %d, %Y %I:%M %p %Z"
+  oembed_disclaimer_undetermined: Оваа ставка не беше потврдена од страна на %{team}
+  oembed_disclaimer_in_progress: Оваа ставка се потврдува %{team} од %{date}
+  oembed_disclaimer_verified: Оваа ставка беше потврдена од страна на %{team} на %{date}
+  oembed_disclaimer_false: Се утврди дека оваа ставка е лажна од страна на %{team} на %{date}
+  oembed_disclaimer_not_applicable: Не можеше да се донесе заклучок за оваа ставка од страна на %{team} од %{date}
+  oembed_source_date: "%{date} на %{provider}"
+  role_editor: уредник
+  role_admin: администратор
+  role_collaborator: соработник
+  role_none: член
+  role_: администратор на системот
+  oembed_credit: Додадено од страна на %{user} (%{role}) %{date}
+  oembed_notes_count:
+    one: "Еден коментар"
+    other: "%{count} коментари"
+  oembed_completed_tasks_count:
+    one: "Една завршена задача"
+    other: "%{count} завршени задачи"
+  oembed_verification_tasks: Задачи
+  oembed_tasks: Задачи
+  oembed_translations: Преводи
+  oembed_expand_all: Проширете ги сите
+  oembed_collapse_all: Скријте ги сите
+  oembed_resolved_tasks_count:
+    one: "Една решена задача"
+    other: "%{count} решени задачи"
+  oembed_notes: Забелешки
+  duplicate_source: Изворот веќе постои
+  geolocation_invalid_value: Неважечка локација. Треба да има важечка GeoJSON структура (http://geojson.org/)
+  url_invalid_value: Следната доставена URL е неважечка
+  datetime_invalid_date: Неважечки датум
+  error_team_archived: За жал, не можете да додадете папка во работен простор што е во кантата за отпад
+  error_project_archived: За жал, не можете да додадете ставка во папка што е во кантата за отпад
+  error_team_archived_for_source: За жал, не можете да додадете извор во работен простор што е во кантата за отпад
+  permission_error: За жал, немате дозвола да ја извршите оваа операција
+  error_annotated_archived: За жал, не можете да додадете коментар на ставка што е во кантата за отпад
+  only_super_admin_can_do_this: За жал, само администраторите на системот можат да ја извршат оваа промена
+  cant_change_custom_statuses: |-
+      За жал, не можете да ги менувате статусните дефиниции затоа што некои статуси ќе исчезнат. Овие идентификатори за статус: %{statuses} се во употреба во следниве ставки:
+      %{urls} %{others_amount}
+  account_exists: Оваа сметка веќе постои
+  media_exists: Оваа ставка веќе постои
+  source_exists: Овој извор веќе постои
+  email_exists: веќе е во употреба
+  banned_user: За жал, Вашата сметка има забрана за %{app_name}. Стапете во контакт со тимот за поддршка доколку сметате дека станува збор за грешка.
+  devise:
+    mailer:
+      reset_password_instructions:
+        subject: "%{app_name} упатства за ресетирање на лозинката"
+        header_title: Барање за ресетирање на лозинката
+        header_text: Вашето барање за ресетирање на %{app_name} лозинката е примено.
+        action: Ресетирајте ја Вашата лозинка
+        expiry: Барањето ќе истече за %{expire} часа.
+        instruction_1: Кликнете овде за да испратите ново барање.
+        instruction_2: Ако не сте го испратиле ова барање или имате проблеми со ресетирање на Вашата лозинка, контактирајте нè на %{support_email}.
+      invitation_instructions:
+        subject: "%{user} Ве покани да се приклучите на работниот простор %{team}"
+        hello: Здраво %{name}
+        someone_invited_you_default:
+          html: "%{name} Ве покани да се приклучите на работниот простор %{team} како %{role}."
+        someone_invited_you_custom:
+          html: "%{name} Ве покани да се приклучите на работниот простор %{team} како %{role} со следнава порака:"
+        accept: Прифатете ја поканата
+        accept_until: Поканата ќе истече на %{due_date}.
+        ignore: Ако не сакате да ја прифатите поканата, игнорирајте ја оваа е-порака.
+        app_team: "%{app} Работен простор"
+    failure:
+      unconfirmed: Проверете ја Вашата е-пошта за да ја потврдите Вашата сметка.
+  user_invitation:
+    invited: "До %{email} веќе е испратена покана за овој работен простор."
+    member: "%{email} веќе е член."
+    team_found: Работниот простор не беше пронајден.
+    invalid: Неважечки код за покана.
+    no_invitation: Нема покана за работниот простор %{name}
+  error_user_is_not_a_team_member: За жал, можете да доделувате задачи само на членови на овој работен простор
+  error_login_with_exists_account: За жал, друг корисник веќе ја користи оваа сметка
+  error_login_2fa: Завршете ја Вашата најава со внесување на кодот за автентикација.
+  error_record_not_found: "%{type} #%{id} не беше пронајдено"
+  mails_notifications:
+    greeting: Здраво %{username},
+    greeting_anonymous: Здраво!
+    project_view: Погледнете ја папката
+    unsubscribe: Откажете ја претплатата
+    unsubscribe_link: "%{unsubscribe} од овие известувања"
+    copyright_html: '%{app_name} од <a href="https://meedan.com">Meedan</a>'
+    register:
+      subject: Нова сметка за Вас на %{app_name}
+      header_text: |-
+          Успешно се пријавивте на %{app_name}!
+          <br>За да се најавите на веб-локацијата, само одете на оваа врска: %{url}. Внесете ја адресата на оваа-пошта и оваа лозинка: %{password}
+      login_button: Најавете се на %{app_name}
+      footer_text: Ви благодариме што ни се приклучивте и Ви посакуваме пријатен ден!
+    duplicated:
+      subject: Ваш метод на најава на %{app_name}
+      header_title: Направете дупликат од сметката
+      one_email: |-
+          <p>Ова е само пријателски потсетник за да бидеме сигурни дека ќе се најавите на %{app_name}.</p>
+          <p>Што се случи: Се обидовте да се најавите на %{app_name} со сметка што е поврзана на %{user_provider}со %{user_email}.
+          Меѓутоа, адресата на оваа е-пошта веќе е поврзана со %{duplicate_provider}друга сметка во %{app_name}.</p>
+          <p>Што треба да направите: Да се најавите со %{duplicate_provider}.</p>
+          <p>На тој начин ќе бидете најавени со сметката што претходно сте ја користеле.
+          Ако Ви е потребна дополнителна помош, пратете е-порака на %{support_email}.</p>
+      both_emails: |-
+          <p>Ова е само пријателски потсетник за да бидеме сигурни дека ќе се најавите на %{app_name}.</p>
+          <p>Што се случи: Се обидовте да креирате нова сметка со е-пошта на %{app_name}, но оваа сметка веќе постои.</p>
+          <p>Обидете се да се најавите со Вашата е-пошта и лозинка, а не да креирате нова сметка.</p>
+          <p>На тој начин ќе бидете најавени со сметката што претходно сте ја користеле. Ако Ви е потребна дополнителна помош, пратете е-порака на %{support_email}.</p>
+      email: е-пошта
+    invitation:
+      title: Нова покана
+    delete_user:
+      subject: "[%{team}] Корисникот беше избришан"
+      header_title: Корисникот е избришан
+      header_text: Корисничката сметка беше избришана, а нејзината содржина беше прераспределена на следниов%{anonymous} корисник %{id}
+      anonymous: анонимен
+    admin_mailer:
+      team_download_subject: "[%{team}] Сликата од податоците на работниот простор може да се преземе"
+      team_dump_title: Податоци од работниот простор
+      types:
+        dump: слика од податоците
+        csv: извештај
+        images: архива со слики
+      team_dump_text: 'Побаравте слика од податоците од работниот простор %{team} - можете да ја преземете од оваа врска: %{link}'
+      team_dump_button: Преземете ги податоците од работниот простор
+      decompress_text: '%{type} ќе се преземе како компримирана и шифрирана датотека. За ја декомпримирате, впишете ја следнава лозинка %{password}.'
+      expire_note: Имајте предвид дека оваа врска ќе истече за %{days} дена.
+      team_import_subject: Импортирањето на Вашите податоци е завршено
+      team_import_title: Импортирање податоци
+      team_import_text: "<p>Заврши процесот за импортирање %{app_name} на Вашите податоци. Можете да одите на %{worksheet_url} за да го прегледате статусот на секоја ставка што треба да се импортира.</p> <p>Имајте предвид дека можете повторно да стартувате со импортирањето откако ќе ги решите сите пријавени грешки - нема да се направи дупликат од ставките што претходно биле импортирани.</p>"
+    task_resolved:
+      subject: "[%{team} - %{project}] Даден е одговор на задачата"
+      header_title: Даден е одговор на задачата
+      header_text: " %{author} одговори на задачата во папката %{project} во %{team}."
+      section_title: Кој или што е изворот на ставката?
+      status: Статус
+      media_h: Ставка
+    media_status:
+      label: ставка
+      subject: "[%{team} - %{project}] Беше наведен следниов статус на ставката %{status}"
+      header_title: Беше ажуриран статусот на ставката
+      header_text: " %{author} го ажурира статусот на ставката во папката %{project} во %{team}."
+      section_title: Беше наведен следниов статус%{status}.
+      added_to: Беше додаден во %{app_name}
+      update_h: Последно ажурирање
+      tasks_h: Завршени задачи
+    assignment:
+      assign_task_subject: "[%{team} - %{project}] Ви беше доделена задача"
+      unassign_task_subject: "[%{team} - %{project}] Доделувањето на Вашата задача беше поништено"
+      assign_project_subject: "[%{team} - %{project}] Ви беше доделена папка"
+      unassign_project_subject: "[%{team} - %{project}] Доделувањето на Вашата папка беше поништено"
+      assign_media_subject: "[%{team} - %{project}] Ви беше доделена ставка"
+      unassign_media_subject: "[%{team} - %{project}] Доделувањето на Вашата ставка беше поништено"
+      assign_project_title: Папката е доделена
+      unassign_project_title: Доделувањето на папката беше поништено
+      assign_project_text: "%{author} ја додели папката  %{project} во %{team}."
+      unassign_project_text: "%{author} го поништи доделувањето на папката %{project} во %{team}."
+      assign_task_title: Задачата е доделена
+      unassign_task_title: Доделувањето на задачата беше поништено
+      assign_task_text: "%{author} додели задача во папката %{project} во %{team}."
+      unassign_task_text: "%{author} го поништи доделувањето на задачата во папката %{project} во %{team}."
+      assign_media_title: Ставката е доделена
+      unassign_media_title: Доделувањето на ставката беше поништено
+      assign_media_text: "%{author} додели ставка во папката %{project} во %{team}."
+      unassign_media_text: "%{author} го поништи доделувањето на ставката во папката %{project} во %{team}."
+      assign_log: "%{author} додели %{model} на %{username}"
+      unassign_log: "%{author} го поништи доделувањето на %{model} на %{username}"
+      assign_by: Доделено од страна на
+      unassign_by: Доделувањето беше поништено од страна на
+      project_button: Одете на страницата со папки
+    request_to_join:
+      subject: Поднесете барање да се приклучите на работниот простор %{team}
+      team_page: страница од работниот простор
+      team_button: Одете на страницата од работниот простор
+      rejected_subject: Вашето барање да се приклучите на %{team} не беше одобрено
+      approved_subject: Добре дојдовте во работниот простор %{team}
+      request_title: Поднесете барање за да се приклучите на работниот простор %{team}
+      request_text: "%{name} (%{email}) сака да се приклучи на работниот простор %{team} на %{app_name}. Можете да го обработите ова барање така што ќе ја посетите %{url}."
+      approved_title: Добре дојдовте во работниот простор %{team}
+      approved_text: Вашето барање да се приклучите на работниот простор %{team} на %{app_name} беше одобрено. Можете да одите на %{url} и да почнете да давате свој придонес.
+      rejected_title: Барањето беше одбиено
+      rejected_text: За жал, Вашето барање да се приклучите на работниот простор %{team} на %{app_name} не беше одобрено.
+  mail_security:
+    device_subject: 'Предупредување за безбедност: Нова најава на %{app_name} од %{browser} на %{platform}'
+    ip_subject: 'Предупредување за безбедност: Нова или несекојдневна %{app_name} најава'
+    failed_subject: 'Предупредување за безбедност: Неуспешни обиди за најава на %{app_name}'
+    ip: Најавени сте од %{location}
+    device: Најавени сте од %{browser} на %{platform}
+    devise_name: "%{browser} на %{platform}"
+    failed: Забележани се неуспешни обиди за најава
+    password_text: веднаш ресетирајте ја Вашата лозинка.
+    device_text: Се чини дека неодамна сте се најавиле на Вашата %{app_name} сметка од нов уред. Ако не сте биле Вие, %{change_password}
+    ip_text: Се чини дека неодамна сте се најавиле на Вашата %{app_name} сметка од нов уред. Ако не сте биле Вие, %{change_password}
+    failed_text: Се чини дека биле направени повеќе обиди за најава на Вашата %{app_name} сметка. Ако сте биле Вие, не мора да ѝ обрнувате внимание на оваа е-порака. Ако не сте биле Вие, %{change_password}
+    time_h: Време
+    device_h: Уред
+    location_h: Локација
+    location_disclaimer: "* Приближна локација врз основа на ИП-адресата од којашто потекнува."
+    ip_h: ИП-адреса
+    privacy: "%{manage} со Вашите известувања од е-поштата • Дознајте повеќе за нашата %{privacy}"
+    privacy_text: Политика на приватност
+    manage_text: Управувајте
+    privace_manage_plain: Управувајте со Вашите известувања од е-пошта
+    privacy_plain: Дознајте повеќе за нашата Политика на приватност
+  archive_keep_backup: Видео трезор
+  archive_pender_archive: Слика од екранот
+  archive_archive_org: Archive.org
+  workflow_status_is_not_valid: 'Неважечки статус: „%{status}" (треба да биде еден од %{valid})'
+  workflow_status_permission_error: За жал, немате дозвола да го смените овој статус.
+  blank_default_status_for_custom_verification_status: Внесете стандардна вредност за приспсобени статуси на верификација
+  blank_active_status_for_custom_verification_status: Внесете активна вредност за приспсобени статуси на верификација
+  bot_name_exists_for_this_team: Веќе постои бот со тоа име во работниот простор
+  bot_team_id_doesnt_exist: За жал, нема работен простор со тој идентификатор
+  bot_team_id_mandatory_to_create: За жал, треба да изберете работен простор за да креирате бот
+  bot_not_approved_for_installation: За жал, овој бот не беше одобрен и не може да се инсталира
+  only_admins_can_approve_or_list_bots: За жал, само администраторите на системот можат да ги одобрат или наведат ботовите
+  could_not_save_related_bot_data: За жал, не можеше да се додаде ботот на овој работен простор
+  bot_cant_add_response_to_task: За жал, ботот не може директно да Ви одговори на задачата - наместо тоа, пратете предлог за одговор
+  bot_cant_add_review_to_task: За жал, ботот не може да ја провери задачата
+  task_suggestion_invalid_value: Неважечки предлог за задача. Треба да има JSON објект со атрибути „предлог" (конкретната вредност што се копира на одговорот на задачата кога ќе се прифати) и „коментар" (што им се прикажува на корисниците)
+  tag_text_id_not_found: Тагот не беше пронајден
+  annotation_type_language_label: Јазик
+  smooch_bot_message_confirmed: |-
+      Ви благодариме. Вашето барање беше додадено на нашиот ред на чекање за верификација.
+
+      Ќе се обидеме да Ви испратиме извештај во рок од 24 часа, но имајте предвид дека не можеме да одговориме на секое барање.
+  smooch_bot_message_unconfirmed: Со оглед на тоа што не одговоривте со 1, нема понатаму да го обработуваме Вашето барање. Ви благодариме.
+  smooch_bot_message_type_unsupported: За жал, не поддржуваме вакви пораки.
+  smooch_bot_message_size_unsupported: За жал, не поддржуваме датотеки поголеми од %{max_size}.
+  smooch_bot_result: |-
+      [Извештај за верификација] Ставката што ја споделивте со нас е обележана како *%{status}*.
+
+      Ги презедовме следниве чекори за да го утврдиме тоа: %{url}
+  smooch_bot_ask_for_confirmation: |-
+      Ви благодариме за барањето што ни го испративте. Дали сакате да ја потврдиме неговата содржина?
+
+      За да ни потврдите, *одговорете со 1*. Каков било друг одговор ќе го заврши нашиот разговор.
+  smooch_bot_ask_for_tos: |-
+      Ви благодариме што се обративте на Check Message!
+
+      Можете да ја користите оваа услуга за да побарате верификација, проверка на факти и истражување вести и информации. Можете да ја користите Check Message во согласност со следниве Услови за користење: %{tos}. Со користење на оваа услуга, *Вие се обврзувате на овие услови*. Треба да престанете да ја користите Check Message ако не се согласувате.
+  smooch_bot_window_closing: Бројот на барања на овој канал е многу голем и сè уште не сме во можност да одговориме на Вашето барање. Ви благодариме за трпението.
+  smooch_bot_not_final: |-
+      [Извештај за верификација - ПОПРАВКА] Пораката што ја споделивте со нас беше погрешно обележана како *%{status}*.
+
+      Сè уште е на ред на чекање за понатамошна верификација.
+  smooch_bot_disabled: Ви благодариме што ни ја испративте ова порака. Не можеме да испраќаме извештаи за верификација, затоа што овој проект веќе не е активен.
+  smooch_bot_result_changed: "❗️Проверката на факти што Ви ја испративме беше *ажурирана* со нови информации"
+  permissions_info:
+    roles:
+      admin:
+        description: Администраторот го контролира работниот простор.
+      editor:
+        description: Уредниците управуваат со работниот простор и папките.
+      collaborator:
+        description: Соработникот може да додаде нови информации за верификација. Соработниците честопати се обични луѓе.
+    permissions:
+      sections:
+        project_management:
+          name: Управување со папки
+          permissions:
+            create: Креирајте папка
+            edit: Изменете ја папката
+            delete: Избришете ја папката
+            add_item: Додајте ја ставката во папката
+        item_page_management:
+          name: Управување со ставки
+          permissions:
+            edit: Изменете ја ставката
+            move: Преместете ја ставката
+            change_status: Сменете го статусот на ставката
+            lock_unlock_status: Заклучете го/отклучете го статусот
+            add_remove_tag: Додајте/избришете тагови
+            send_to_trash: Преместете ја ставката или изворот во кантата за отпад
+            empty_trash: Испразнете ја кантата за отпад
+        task_management:
+          name: Управување со задачи
+          permissions:
+            create: Креирајте задача
+            edit: Изменете ја задачата
+            delete: Избришете ја задачата
+            add_response: Додајте одговор
+            delete_repsonse: Избришете го одговорот
+            assign_task: Доделете ја задачата или ставката
+        team_management:
+          name: Управување со работниот простор
+          permissions:
+            delete: Затворете го работниот простор
+            edit: Изменете ги информациите во работниот простор
+            set_private: Поставете го работниот простор на приватен режим
+            edit_status: Изменете ги статусите во работниот простор
+            edit_tasks: Креирајте и менувајте задачи во работниот простор
+            roles: Изменете ги улогите во работниот простор
+            third_party: Додајте услуги од трети страни
+            invite_admin: Поканете, одобрете и избришете администратори на работниот простор
+            invite_members: Поканете, одобрете и избришете членови на работниот простор
+  team_clone:
+    user_not_authorized: За жал, немате дозвола да направите дупликат од овој тим.
+  team_import:
+    invalid_google_spreadsheet_url: Неважечка URL на работниот лист %{spreadsheet_url}
+    not_found_google_spreadsheet_url: Не беше пронајден работен лист на %{spreadsheet_url}
+    cannot_authenticate_with_the_credentials: Не може да се изврши автентикација на Google Drive со овие акредитиви. Стапете во контакт со тимот за поддршка за да ги известите за овој проблем.
+    team_not_present: Овој работен простор не беше пронајден за време на импортирањето на податоците. Известете го тимот за поддршка за овој проблем.
+    user_not_present: Овој корисник не беше пронајден за време на импортирањето на поатоците. Известете го тимот за поддршка за овој проблем.
+    user_not_authorized: За жал, немате дозвола да импортирате податоци на овој работен простор.
+    invalid_project: Неважечка папка %{project}
+    invalid_user: Неважечки автор %{user}
+    invalid_status: Неважечки статус %{status}
+    blank_user: Неважечко празно поле за автор
+    blank_annotator: Неважечко празно поле за бележник
+    blank_project: Неважечко празно поле за папка
+    invalid_annotator: Неважечки бележник %{user}
+    invalid_assignee: Неважечко лице кому му била доделена задача %{user}
+  cant_mutate_inactive_object: За жал, во моментов се работи на оваа ставка и сега не можете да ја менувате. Обидете се повторно подоцна.
+  embed_expand_all: Проширете ги сите
+  embed_collapse_all: Скријте ги сите
+  embed_tasks: Задачи
+  embed_description: Опис
+  other_language: Друго
+  unidentified_language: Неидентификувано
+  relationship_item_has_parent: Оваа ставка е хиерархиски подредена на друга ставка
+  smooch_requests: Барања
+  smooch_requests_asc: Најмалку барани
+  smooch_requests_desc: Најмногу барани
+  bot_request_url_invalid: Неважечка URL на ботот
+  smooch_facebook_success: |
+      Честитки!
+      Вашата линија за дојава сега е поврзана со Фејсбук Месинџер.
+      Сите пораки што ги добива оваа страница на Фејсбук ќе се обработуваат од страна на линијата за дојава.
+      Повторно вчитајте ја страницата со поставки за линијата за дојава за да ги видите новите промени.
+  smooch_twitter_success: |
+      Честитки!
+      Вашата линија за дојава сега е поврзана со Твитер.
+      Сите пораки што ги добива овој профил на Твитер ќе се обработуваат од страна на линијата за дојава.
+      Повторно вчитајте ја страницата со поставки за линијата за дојава за да ги видите новите промени.
+  must_select_exactly_one_facebook_page: Точно изберете ја страницата на Фејсбук што сакате да ја интегрирате со линијата за дојава.
+  invalid_task_answer: Неважечки формат на одговор на задачата
+  team_rule_name: Уникатно име што го објаснува ова правило
+  team_rule_project_ids: Ставете го во папката
+  team_rule_destination: Изберете ја папката на дестинацијата
+  team_rule_names_invalid: Имињата на правилата не смеат да останат празни и мора да бидат уникатни
+  team_rules: Правила
+  team_rule_conditions: Ако
+  team_rule_condition: Ако
+  team_rule_condition_definition: Изберете го критериумот
+  team_rule_has_less_than_x_words: Барањето за текст содржи помалку од (или точно) наведениот број на зборови
+  team_rule_title_matches_regexp: Има совпаѓање помеѓу насловот на ставката и овој редовен израз
+  team_rule_request_matches_regexp: Има совпаѓање помеѓу барањето и овој редовен израз
+  team_rule_type_is: Типот на ставката е
+  team_rule_type_is_claim: Текст
+  team_rule_type_is_link: Врска
+  team_rule_type_is_uploadedimage: Слика
+  team_rule_type_is_uploadedvideo: Видео
+  team_rule_contains_keyword: Барањето содржи еден или повеќе од следниве клучни зборови
+  team_rule_title_contains_keyword: Содржината содржи еден или повеќе од следниве клучни зборови
+  team_rule_extracted_text_contains_keyword: Извлечениот текст содржи клучен збор
+  team_rule_select_type: Изберете го типот
+  team_rule_select_language: Изберете го јазикот
+  team_rule_select_user: Изберете соработник
+  team_rule_tagged_as: Ставката е обележана како
+  team_rule_select_tag: Изберете таг
+  team_rule_select_status: Изберете статус
+  team_rule_status_is: Статусот на ставката е
+  team_rule_type_regexp: Напишете редовен израз
+  team_rule_type_number: Внесете го бројот на зборови
+  team_rule_value: Направете список од клучни зборови што ќе ги издвоите со запирки
+  team_rule_actions: Тогаш
+  team_rule_action: Тогаш
+  team_rule_action_definition: Изберете дејство
+  team_rule_send_to_trash: Преместете во кантата за отпад
+  team_rule_move_to_project: Преместете ја ставката во папката
+  team_rule_copy_to_project: Додајте ја ставката во папката
+  team_rule_ban_submitter: Издадете му забрана на подносителот (неговите пораки во иднина нема да се прикажуваат во Check)
+  team_rule_all_items: Сите ставки
+  team_rule_send_message_to_user: Пратете му порака на корисникот
+  team_rule_action_value: Пишете ја пораката овде
+  team_rule_item_titles_are_similar: Насловите на ставките се слични
+  team_rule_item_images_are_similar: Сликите се слични
+  team_rule_relate_similar_items: Поврзете ги ставките
+  team_rule_type_title_threshold: Растојание помеѓу насловите на ставките
+  team_rule_type_image_threshold: Растојание помеѓу сликите
+  team_rule_type_flag_threshold: Со веројатност од најмалку
+  team_rule_select_flag: Изберете знаме
+  team_rule_flagged_as: Ставката се детектира како
+  team_rule_report_is_published: Извештајот е објавен
+  team_rule_report_is_paused: Извештајот е паузиран
+  team_rule_condition_groups: Групи на критериуми
+  team_rule_condition_group: Група на критериуми
+  team_rule_operator: Оператор
+  team_rule_json_schema_validation: Неважечки формат на правило
+  team_rule_updated_at: Ажурирано
+  team_rule_item_language_is: Јазикот на ставката е
+  team_rule_item_user_is: Ставката беше креирана од страна на
+  team_rule_item_is_read: Ставката е прочитана
+  team_rule_field_from_fieldset_tasks_value_is: Има конкретен одговор на задачата
+  team_rule_field_from_fieldset_metadata_value_is: Има конкретна вредност на белешката
+  team_rule_field_from_fieldset_tasks_value_contains_keyword: Одговорот на задачата содржи клучен збор
+  team_rule_field_from_fieldset_metadata_value_contains_keyword: Вредноста на белешката содржи клучен збор
+  team_rule_select_field_metadata: Изберете белешка
+  team_rule_select_field_value_metadata: Изберете вредност
+  team_rule_select_field_tasks: Изберете задача
+  team_rule_select_field_value_tasks: Изберете одговор
+  team_rule_item_is_assigned_to_user: Ставката е доделена на
+  team_rule_add_tag: Додадете таг
+  team_rule_add_warning_cover: Додајте насловна страница со предупредување за содржината
+  flag_adult: За возрасни (голотија, порнографија)
+  flag_spoof: Измама
+  flag_medical: Здравствена состојба/постапки
+  flag_violence: Насилство
+  flag_racy: Непристојно
+  flag_spam: Непосакувано
+  annotation_type_flag_name_label: Знаме
+  annotation_type_flag_value_label: Веројатност од добивање знаме
+  flag_likelihood_0: Непознато
+  flag_likelihood_1: Мала (ќе се детектираат помалку содржини)
+  flag_likelihood_2: Тешко веројатна
+  flag_likelihood_3: Средна (ќе се детектираат некои содржини)
+  flag_likelihood_4: Веројатна
+  flag_likelihood_5: Голема (ќе се детектираат повеќе содржини)
+  flag_likelihood_7: Рачно
+  relationship_not_same_team: Поврзаните ставки мора да се дел од истиот работен простор
+  item_cant_be_related_to_itself: "Ставката не може да биде поврзана сама со себе"
+  target_is_published: За целта не треба да има извештај
+  similar_item_exists: За жал, оваа ставка веќе е додадена како слична ставка.
+  bulk_operation_limit_error: За жал, максималниот број на ставки што наеднаш можат да се обработуваат е %{limit}
+  must_provide_fallback_when_deleting_status_in_use: Овој статус е во употреба, така што мора да додадете алтернативен статус ако сакате да го избришете
+  embed_no_content_yet: Извештајот се генерира. Ова може да потрае неколку минути. Освежете ја страницата.
+  language_format_invalid: Неважечки формат на јазик. Потребен е ISO 639-1 код.
+  languages_format_invalid: Неважечки формат на јазик. Потребен е список од ISO 639-1 кодови.
+  cant_change_status_if_item_is_published: За жал, не можете да го смените статусот ако извештајот е објавен
+  fetch_bot_service_unsupported: Услугата не е поддржана
+  task_options_must_be_array: Опциите со задачи мора да бидат на список
+  fieldset_not_defined_by_team: Збирката од полиња треба да биде поддржана од работниот простор
+  cant_change_field_type_or_options_when_answered: Типот на полето не може да се менува, затоа што одговорите веќе се пополнети
+  replace_by_media_in_the_same_team: За жал, смеете да ја замените оваа ставка само со друга ставка од истиот работен простор
+  replace_blank_media_only: За жал, засега смеете да ги вршите замена само на празните ставки
+  cant_preview_rss_feed: За жал, немате дозвола да го прегледате RSS-резимето на содржини.
+  list_column_demand: Барања
+  list_column_share_count: Споделувања на ФБ
+  list_column_reaction_count: Реакции на ФБ
+  list_column_comment_count: Коментари на ФБ
+  list_column_linked_items_count: Медиуми
+  list_column_type: Тип
+  list_column_status: Статус
+  list_column_created_at: Поднесено
+  list_column_last_seen: Последно поднесено
+  list_column_updated_at: Ажурирано
+  list_column_report_status: Статус на извештајот
+  list_column_tags_as_sentence: Тагови
+  list_column_media_published_at: Објавени медиуми
+  list_column_published_by: Извештајот беше објавен од страна на
+  list_column_fact_check_published_on: Проверката на факти беше објавена на
+  list_column_related_count: Поврзано
+  list_column_suggestions_count: Предлози
+  list_column_folder: Папка
+  list_column_creator_name: Креирано од страна на
+  list_column_fact_check_title: Проверка на факти
+  list_column_team_name: Работен простор
+  list_column_sources_as_sentence: Извор
+  go_back_to_check: Вратете се на Check
+  project_cant_have_children_if_has_parent: Оваа папка има хиерархиски надредена папка, така што не смее да има хиерархиски подредена папка
+  project_group_must_be_under_same_team: Оваа збирка треба да припаѓа на истиот работен простор
+  unique_default_folder_per_team: Работниот простор треба да има само една стандардна папка
+  center_is_not_part_of_another_cluster: Центарот на овој кластер не смее да биде дел од друг кластер
+  smooch_bot_message_subscribed: |-
+      Претплатени сте.
+
+      *Одговорете 0* за да се вратите на главното мени.
+  smooch_bot_message_unsubscribed: |-
+      Вашата претплата е откажана.
+
+      *Одговорете 0* за да се вратите на главното мени.
+  subscribe: Претплатете се
+  unsubscribe: Откажете ја претплатата
+  smooch_message_subscription_header_subscribed: Сега сте *претплатени* на нашиот билтен.
+  smooch_message_subscription_header_unsubscribed: Сега ја *откажавте претплатата* на нашиот билтен.
+  smooch_bot_message_newsletter_fallback: |-
+      Здраво! Еве ги фактите за оваа недела.
+
+      Овој билтен се објавува на %{platform} од страна на %{team}. Ова се најважните факти за неделата на %{date}:
+
+      %{content}
+
+      За да престанете да го добивате билтенот, пишете „%{unsubscribe}".
+  send_every_must_be_a_list_of_days_of_the_week: мора да биде список од денови во неделата.
+  send_on_must_be_in_the_future: не смее да биде во минатото.
+  cant_delete_default_folder: Стандардната папка не смее да се брише
+  info:
+    messages:
+      sent_to_trash_by_rule: '„%{item_title}" беше ставена во кантата за отпад поради автоматизирано правило.'
+      moved_to_project_by_rule: '„%{item_title}" беше ставена во папката „[%{list_name}](%{list_link})" поради автоматизирано правило.'
+      banned_submitter_by_rule: Подносителот на „%{item_title}" доби забрана поради автоматизирано правило.
+      copied_to_project_by_rule: '„%{item_title}" беше копирана во папката „[%{list_name}](%{list_link})" поради автоматизирано правило.'
+      related_to_confirmed_similar: '„%{item_title}" беше потврдена, како и „%{similar_item_title}".'
+      related_to_suggested_similar: '„%{item_title}" беше предложена, како и „%{similar_item_title}".'
+      sent_message_to_requestors_on_status_change: Беше испратено ажурирање со статусот „%{status}" до %{requestors_count} подносителите.
+      tagged_by_rule: '„%{item_title}" беше обележана како „%{tag}" поради автоматизирано правило.'
+      moved_to_private_folder: '„%{item_title}" беше преместена во папка до којашто немате пристап.'
+      add_warning_cover_by_rule: Беше додадена насловна страница за предупредување за чувствителната ставка „%{item_title}"

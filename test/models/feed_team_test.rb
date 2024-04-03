@@ -81,4 +81,14 @@ class FeedTeamTest < ActiveSupport::TestCase
     User.current = nil
     assert_nil FeedInvitation.find_by_id(fi.id)
   end
+
+  test "should return previous list" do
+    t = create_team
+    ss1 = create_saved_search team: t
+    ss2 = create_saved_search team: t
+    ft = create_feed_team team: t, saved_search: ss1
+    ft.saved_search = ss2
+    ft.save!
+    assert_equal ss1, ft.saved_search_was
+  end
 end

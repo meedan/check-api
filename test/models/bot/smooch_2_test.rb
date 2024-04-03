@@ -214,6 +214,7 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
   end
 
   test "should ban user that sends unsafe URL" do
+    create_flag_annotation_type
     uid = random_string
     url = 'http://unsafe.com/'
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'

@@ -73,6 +73,7 @@ class FactCheck < ApplicationRecord
     data[:state] = (self.publish_report ? 'published' : 'paused')
     reports.annotator = self.user || User.current
     reports.set_fields = data.to_json
+    reports.skip_check_ability = true
     reports.save!
   end
 end
