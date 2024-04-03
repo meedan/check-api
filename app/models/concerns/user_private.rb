@@ -73,7 +73,7 @@ module UserPrivate
   end
 
   def set_last_received_terms_email_at
-    self.last_received_terms_email_at = Time.now if self.last_received_terms_email_at.nil?
+    self.last_received_terms_email_at = Time.now if self.respond_to?(:last_received_terms_email_at) && self.last_received_terms_email_at.nil?
   end
 
   def set_blank_email_for_unconfirmed_user
