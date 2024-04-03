@@ -46335,6 +46335,18 @@
               "deprecationReason": null
             },
             {
+              "name": "parentId",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "defaultValue": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "claimTitle",
               "description": null,
               "type": {

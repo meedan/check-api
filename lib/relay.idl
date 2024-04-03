@@ -8512,6 +8512,7 @@ input ImportMediaInput {
   """
   clientMutationId: String
   feedId: Int!
+  parentId: Int
   projectMediaId: Int!
 }
 
