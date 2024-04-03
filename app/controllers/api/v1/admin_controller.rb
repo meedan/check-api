@@ -67,7 +67,11 @@ class Api::V1::AdminController < Api::V1::BaseApiController
     tbi = TeamBotInstallation.find(params[:id])
     auth = session['check.facebook.authdata']
     status = nil
-    if params[:token].to_s.gsub('#_=_', '') == tbi.get_smooch_authorization_token
+    if auth.blank?
+      status = 400
+      @message = I18n.t(:invalid_facebook_authdata)
+      CheckSentry.notify('Could not authenticate Facebook account for tipline Messenger integration.')
+    elsif params[:token].to_s.gsub('#_=_', '') == tbi.get_smooch_authorization_token
       q_params = {
         client_id: CheckConfig.get('smooch_facebook_app_id'),
         client_secret: CheckConfig.get('smooch_facebook_app_secret'),
