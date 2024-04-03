@@ -18,4 +18,5 @@ class FeedTeamType < DefaultObject
   end
 
   field :saved_search, SavedSearchType, null: true
+  field :saved_search_was, SavedSearchType, null: true
 end
