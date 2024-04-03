@@ -401,7 +401,6 @@ module AlegreV2
       threshold = args[:threshold]
       team_ids = args[:team_ids]
       type = args[:type]
-      # media_url, threshold, team_ids, type = "https://media.smooch.io/apps/660193c5380e1c03a45c599c/conversations/6601a2a0e7a8092ec4f2738b/x9Q-XnRZDQHZpjelUwmhEwoY/rrcoJgjPjNBztE_cqiC_A-1r.jpg", [{value: 0.55}], [50], "image"
       if ['audio', 'image'].include?(type)
         if project_media.nil?
           project_media = TemporaryProjectMedia.new
