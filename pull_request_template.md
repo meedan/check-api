@@ -17,6 +17,7 @@ Please describe parts of the change that require extra attention during code rev
 
 ## Checklist
 
+- [ ] I performed a rebase of my changes instead of a merge where possible.
 - [ ] I have performed a self-review of my own code
 - [ ] I have added unit and feature tests, if the PR implements a new feature or otherwise would benefit from additional testing
 - [ ] I have added regression tests, if the PR fixes a bug
