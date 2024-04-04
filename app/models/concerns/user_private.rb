@@ -72,6 +72,10 @@ module UserPrivate
     self.skip_confirmation! if self.from_omniauth_login && self.skip_confirmation_mail.nil?
   end
 
+  def set_last_received_terms_email_at
+    self.last_received_terms_email_at = Time.now if self.respond_to?(:last_received_terms_email_at) && self.last_received_terms_email_at.nil?
+  end
+
   def set_blank_email_for_unconfirmed_user
     self.update_columns(email: '') unless self.unconfirmed_email.blank?
   end
