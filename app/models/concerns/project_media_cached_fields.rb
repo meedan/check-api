@@ -468,13 +468,14 @@ module ProjectMediaCachedFields
           }
         }
       ]
+
     cached_field :negative_tipline_search_results_count,
       update_es: true,
       recalculate: :recalculate_negative_tipline_search_results_count,
       update_on: [
         {
           model: TiplineRequest,
-          if: proc { |tr| tr.smooch_request_type == 'relevant_search_result_requests' },
+          if: proc { |tr| tr.smooch_request_type == 'irrelevant_search_result_requests' },
           affected_ids: proc { |tr| [tr.associated_id] },
           events: {
             save: :recalculate,
