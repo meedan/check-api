@@ -101,7 +101,13 @@ class TeamType < DefaultObject
   field :get_report, JsonStringType, null: true
 
   def get_report
-    object.get_report
+    report_settings = object.get_report.to_h
+    report_settings.each do |language, settings|
+      settings[:placeholders] = {
+        query_date: Dynamic.new.report_design_date(Time.now, language)
+      }
+    end
+    report_settings
   end
 
   field :get_fieldsets, JsonStringType, null: true
