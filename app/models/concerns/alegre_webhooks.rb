@@ -11,6 +11,7 @@ module AlegreWebhooks
     end
 
     def webhook(request)
+      key = nil
       begin
         doc_id = request.params.dig('data', 'requested', 'id')
         doc_id = request.params.dig('data', 'item', 'id') if doc_id.nil?
@@ -22,10 +23,11 @@ module AlegreWebhooks
           redis = Redis.new(REDIS_CONFIG)
           key = "alegre:webhook:#{doc_id}"
           redis.lpush(key, request.params.to_json)
-          redis.expire(key, 1.day.to_i)
         end
       rescue StandardError => e
         CheckSentry.notify(AlegreCallbackError.new(e.message), params: { alegre_response: request.params })
+      ensure
+        redis.expire(key, 1.day.to_i) if !key.nil?
       end
     end
   end

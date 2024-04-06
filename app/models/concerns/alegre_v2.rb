@@ -201,7 +201,7 @@ module AlegreV2
         has_custom_id: true
       }
       context[:field] = field if field && is_not_generic_field(field)
-      context[:temporary_media] = project_media.class == TemporaryProjectMedia
+      context[:temporary_media] = project_media.is_a?(TemporaryProjectMedia)
       context
     end
 
@@ -366,6 +366,11 @@ module AlegreV2
 
     def get_cached_data(required_keys)
       redis = Redis.new(REDIS_CONFIG)
+      # For a given project media, we expect a set of keys to be set by the webhook callbacks sent from alegre back to check-api.
+      # For each callback response (which is set via #process_alegre_callback), we store the value as serialized YAML to persist
+      # the data such that symbolized keys return as symbols (as opposed to JSON, which loses the distinction). Here, in effect,
+      # we check to see if all the responses we expect from Alegre have been sent - downstream of this, we check to see if all
+      # responses are non-empty before proceeding to creating relationships.
       Hash[required_keys.collect{|k,v| [k, (Hash[YAML.load(redis.get(v)).collect{|kk,vv| [kk.to_i, vv]}] rescue [])]}]
     end
 
@@ -418,7 +423,7 @@ module AlegreV2
           cached_data = get_cached_data(get_required_keys(project_media, nil))
         end
         response = get_similar_items_v2_callback(project_media, nil)
-        delete(project_media, nil) if project_media.class == TemporaryProjectMedia
+        delete(project_media, nil) if project_media.is_a?(TemporaryProjectMedia)
         return response
       else
         self.get_items_with_similar_media("#{media_url||media_file_url(project_media)}?hash=#{SecureRandom.hex}", threshold, team_ids, "/#{type}/similarity/search/")
