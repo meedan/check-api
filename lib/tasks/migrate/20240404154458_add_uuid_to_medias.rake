@@ -8,7 +8,7 @@ namespace :check do
         medias.each do |m|
           print '.'
           uuid = Media.where(type: 'Claim', quote: m.quote.to_s.strip).joins("INNER JOIN project_medias pm ON pm.media_id = medias.id").first&.id
-          uuid ||= self.id
+          uuid ||= m.id
           m.update_column(:uuid, uuid)
         end
         last_id = medias.map(&:id).max
