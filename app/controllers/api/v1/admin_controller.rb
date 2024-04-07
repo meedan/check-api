@@ -70,12 +70,12 @@ class Api::V1::AdminController < Api::V1::BaseApiController
     if auth.blank?
       status = 400
       @message = I18n.t(:invalid_facebook_authdata)
-      CheckSentry.notify('Could not authenticate Facebook account for tipline Messenger integration.')
+      CheckSentry.notify('Could not authenticate Facebook account for tipline Messenger integration.', team_bot_installation_id: tbi.id, platform: platform)
     elsif params[:token].to_s.gsub('#_=_', '') == tbi.get_smooch_authorization_token
       q_params = {
         client_id: CheckConfig.get('smooch_facebook_app_id'),
         client_secret: CheckConfig.get('smooch_facebook_app_secret'),
-        access_token: auth&.dig('token'),
+        access_token: auth['token'],
         limit: 100,
       }
       response = Net::HTTP.get_response(URI("https://graph.facebook.com/me/accounts?#{q_params.to_query}"))
