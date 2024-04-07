@@ -1,6 +1,6 @@
 require 'active_support/concern'
 class TemporaryProjectMedia
-  attr_accessor :team_id, :id, :url, :type, :media
+  attr_accessor :team_id, :id, :url, :type
   def media
     media_type_map = {
       "claim" => "Claim",
@@ -9,31 +9,31 @@ class TemporaryProjectMedia
       "video" => "UploadedVideo",
       "audio" => "UploadedAudio",
     }
-    return Struct.new(:type).new(media_type_map[type])
+    Struct.new(:type).new(media_type_map[type])
   end
 
   def is_blank?
-    return self.type == "blank"
+    self.type == "blank"
   end
 
   def is_link?
-    return self.type == "link"
+    self.type == "link"
   end
 
   def is_text?
-    return self.type == "text"
+    self.type == "text"
   end
 
   def is_image?
-    return self.type == "image"
+    self.type == "image"
   end
 
   def is_video?
-    return self.type == "video"
+    self.type == "video"
   end
 
   def is_audio?
-    return self.type == "audio"
+    self.type == "audio"
   end
 end
 
