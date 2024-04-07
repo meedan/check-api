@@ -641,7 +641,11 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       assert_difference 'PaperTrail::Version.count', 2 do
         pm = create_project_media team: t, media: m, user: u, skip_autocreate_source: false
       end
-      assert_equal 2, pm.versions.count
+      assert_difference 'PaperTrail::Version.count' do
+        pm.archived = CheckArchivedFlags::FlagCodes::SPAM
+        pm.save!
+      end
+      assert_equal 3, Version.from_partition(t.id).where(item_type: 'ProjectMedia', item_id: pm.id).count
       pm.destroy!
       v = Version.from_partition(t.id).where(item_type: 'ProjectMedia', item_id: pm.id, event: 'destroy').last
       assert_not_nil v
