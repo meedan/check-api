@@ -97,6 +97,14 @@ class AdminControllerTest < ActionController::TestCase
     assert_response 401
   end
 
+  test "should not connect Facebook page to Smooch bot if auth is nil" do
+    b = create_team_bot login: 'smooch'
+    tbi = create_team_bot_installation
+    session['check.facebook.authdata'] = nil
+    get :save_messenger_credentials_for_smooch_bot, params: { id: tbi.id, token: random_string }
+    assert_response 400
+  end
+
   test "should not connect Facebook page to Smooch bot if not exactly one page was selected" do
     Bot::Smooch.stubs(:smooch_api_client).returns(nil)
     SmoochApi::IntegrationApi.any_instance.expects(:create_integration).once

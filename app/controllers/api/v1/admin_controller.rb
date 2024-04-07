@@ -70,7 +70,8 @@ class Api::V1::AdminController < Api::V1::BaseApiController
     if auth.blank?
       status = 400
       @message = I18n.t(:invalid_facebook_authdata)
-      CheckSentry.notify('Could not authenticate Facebook account for tipline Messenger integration.', team_bot_installation_id: tbi.id, platform: platform)
+      error_msg = StandardError.new('Could not authenticate Facebook account for tipline Messenger integration.')
+      CheckSentry.notify(error_msg, team_bot_installation_id: tbi.id, platform: platform)
     elsif params[:token].to_s.gsub('#_=_', '') == tbi.get_smooch_authorization_token
       q_params = {
         client_id: CheckConfig.get('smooch_facebook_app_id'),
