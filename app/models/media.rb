@@ -13,6 +13,8 @@ class Media < ApplicationRecord
 
   before_validation :set_type, :set_url_nil_if_empty, :set_user, on: :create
 
+  after_create :set_uuid
+
   def self.types
     %w(Link Claim UploadedFile UploadedImage UploadedVideo UploadedAudio Blank)
   end
@@ -74,10 +76,6 @@ class Media < ApplicationRecord
     ''
   end
 
-  def uuid
-    self.id
-  end
-
   private
 
   def set_url_nil_if_empty
@@ -100,5 +98,9 @@ class Media < ApplicationRecord
 
   def set_type
     self.type = Media.class_from_input({ url: self.url, quote: self.quote }) if self.type.blank?
+  end
+
+  def set_uuid
+    self.update_column(:uuid, self.id)
   end
 end
