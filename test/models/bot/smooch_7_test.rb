@@ -491,8 +491,9 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
       Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm)
       Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm)
       Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'timeout_search_requests', pm)
-      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests')
-      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests')
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm)
       message = lambda do
         {
           type: 'text',
@@ -512,24 +513,30 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
         }
       end
       Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm2)
-      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests')
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm2)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm2)
       # Verify cached field
-      assert_equal 5, pm.tipline_search_results_count
+      assert_equal 6, pm.tipline_search_results_count
       assert_equal 2, pm.positive_tipline_search_results_count
-      assert_equal 2, pm2.tipline_search_results_count
+      assert_equal 3, pm.negative_tipline_search_results_count
+      assert_equal 3, pm2.tipline_search_results_count
       assert_equal 1, pm2.positive_tipline_search_results_count
+      assert_equal 2, pm2.negative_tipline_search_results_count
       # Verify ES values
       es = $repository.find(pm.get_es_doc_id)
-      assert_equal 5, es['tipline_search_results_count']
+      assert_equal 6, es['tipline_search_results_count']
       assert_equal 2, es['positive_tipline_search_results_count']
+      assert_equal 3, es['negative_tipline_search_results_count']
       es2 = $repository.find(pm2.get_es_doc_id)
-      assert_equal 2, es2['tipline_search_results_count']
+      assert_equal 3, es2['tipline_search_results_count']
       assert_equal 1, es2['positive_tipline_search_results_count']
+      assert_equal 2, es2['negative_tipline_search_results_count']
       # Verify destroy
       types = ["irrelevant_search_result_requests", "timeout_search_requests"]
       TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: pm.id, smooch_request_type: types).destroy_all
       assert_equal 2, pm.tipline_search_results_count
       assert_equal 2, pm.positive_tipline_search_results_count
+      assert_equal 0, pm.negative_tipline_search_results_count
     end
   end
 
