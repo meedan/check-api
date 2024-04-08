@@ -84,7 +84,7 @@ module SmoochSearch
     end
 
     def reject_temporary_results(results)
-      results.select do |result_id, result_data|
+      results.select do |_, result_data|
         ![result_data[:context]].flatten.compact.select{|x| x[:temporary_media].nil? || x[:temporary_media] == false}.empty?
       end
     end
