@@ -6,7 +6,7 @@ class TermsOfServiceUpdateWorker
   def perform
     last_updated = Time.at(User.terms_last_updated_at)
     updated_time = Time.now
-    # Based on our AWS SES account (Maximum send rate: 200 emails per second) I set a patch size 200 and do a sleep 1
+    # Based on our AWS SES account (Maximum send rate: 200 emails per second) I set a batch size 200 and do a sleep 1
     User.where(is_active: true).where('email IS NOT NULL')
     .where('last_received_terms_email_at < ?', last_updated)
     .find_in_batches(:batch_size => 200) do |users|
