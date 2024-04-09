@@ -47,7 +47,7 @@ GIT
 
 GIT
   remote: https://github.com/meedan/rails-i18n.git
-  revision: 130e65e148b13fb166e041bc2df4c4d03f202ea1
+  revision: ba4b3a267ff09b58a29fe8fc9eb002f9b75d7cba
   branch: rails-6-x
   specs:
     rails-i18n (6.0.0)
@@ -1036,4 +1036,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   2.4.19
+   2.5.7
