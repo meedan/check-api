@@ -16,7 +16,7 @@ namespace :check do
       started = Time.now.to_i
       # Media of type Claim
       claim_uuid = claim_uuid_for_duplicate_quote
-      last_claim_id = 0 #Rails.cache.read('check:migrate:migrate_media_uuid:claim_id') || 0
+      last_claim_id = Rails.cache.read('check:migrate:migrate_media_uuid:claim_id') || 0
       Claim.where('id > ?', last_claim_id).find_in_batches(batch_size: 2000) do |medias|
         m_items = []
         medias.each do |m|
