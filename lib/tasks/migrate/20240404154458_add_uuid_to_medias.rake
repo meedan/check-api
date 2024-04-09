@@ -7,7 +7,7 @@ namespace :check do
       .joins("INNER JOIN project_medias pm ON pm.media_id = medias.id")
       .group('lower(quote)').having('COUNT(medias.id) > 1')
       .each do |raw|
-        claim_uuid[raw['quote']] = raw['first'].to_s
+        claim_uuid[Digest::MD5.hexdigest(raw['quote'])] = raw['first']
       end
       claim_uuid
     end
@@ -21,7 +21,7 @@ namespace :check do
         m_items = []
         medias.each do |m|
           print '.'
-          m.uuid = claim_uuid[m.quote.downcase] || m.id.to_s
+          m.uuid = claim_uuid[Digest::MD5.hexdigest(m.quote.downcase)] || m.id
           m_items << m.attributes
         end
         Media.upsert_all(m_items)
