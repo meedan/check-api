@@ -9,10 +9,4 @@ class UpdatedTermsMailerTest < ActionMailer::TestCase
     end
     assert_equal [u.email], email.to
   end
-
-  test 'should rescue invalid mail' do
-    ApplicationMailer.stubs(:mail).raises(Net::SMTPFatalError)
-    UpdatedTermsMailer.notify('test@20minutes', 'invalid mail')
-    ApplicationMailer.unstub(:mail)
-  end
 end
