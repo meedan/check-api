@@ -14,7 +14,7 @@ class TermsOfServiceUpdateWorker
         UpdatedTermsMailer.delay({ retry: 1, queue: 'terms_mailer' }).notify(u.email, u.name)
         u.update_columns(last_received_terms_email_at: updated_time)
       end
-      sleep 1
+      sleep 2
     end
   end
 end
