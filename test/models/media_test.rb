@@ -608,6 +608,7 @@ class MediaTest < ActiveSupport::TestCase
     m = create_media
     assert_equal m.id, m.uuid
     c1 = create_claim_media quote: 'Foo'
+    assert_equal c1.id, c1.uuid
     create_project_media media: c1
     assert_equal c1.id, c1.uuid
     c2 = create_claim_media quote: 'Foo'
