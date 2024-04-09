@@ -13,36 +13,6 @@ namespace :check do
       puts
     end
 
-    def get_claim_uuid(quote)
-      quote_es = quote[0..1023]
-      # Remove last word as may be the splitter cut the last word and we are hitting ES with `AND`
-      quote_es = quote_es[0...quote_es.rindex(' ')]
-      # Quote stored in title or description(for tipline items) so I used both fields in search
-      query = {
-        bool: {
-          must: [
-            { term: { associated_type: { value: 'Claim' } } },
-            {
-              simple_query_string: {
-                fields: ["title", "description"],
-                query: quote_es,
-                default_operator: "AND"
-              }
-            }
-          ]
-        }
-      }
-      result = $repository.search(query: query, size: 10000)
-      pm_ids = []
-      result.each do |r|
-        if r['title'] == quote || r['description'] == quote
-          pm_ids << r['annotated_id']
-        end
-      end
-      uuid = ProjectMedia.where(id: pm_ids.uniq.compact).map(&:media_id).sort.first
-      uuid.blank? ? uuid : uuid.to_s
-    end
-
     # docker-compose exec -e elasticsearch_log=0 api bundle exec rake check:khousheh:generate_input
     desc 'Generate input files in JSON format.'
     task generate_input: :environment do
@@ -78,9 +48,9 @@ namespace :check do
               end
               m_ids = pms.map(&:media_id)
               Media.where(id: m_ids, type: 'Claim').find_each do |m|
-               print '.'
-               uuid[m.id] = get_claim_uuid(m.quote) || m.id.to_s
-             end
+                print '.'
+                uuid[m.id] = m.uuid.to_s
+              end
             end
             pm_ids.each do |pm_id|
               m_uuid = uuid[pm_media_mapping[pm_id]]
@@ -103,7 +73,7 @@ namespace :check do
               end
               Media.where(id: tpm_m_mapping.values, type: 'Claim').find_each do |m|
                 print '.'
-                t_uuid[m.id] = get_claim_uuid(m.quote) || m.id.to_s
+                t_uuid[m.id] = m.uuid.to_s
               end
               relations.each do |r|
                 print '.'
@@ -262,8 +232,8 @@ namespace :check do
                     uuid[pm.media_id] = pm.media_id.to_s
                   end
                   Media.where(id: pms.map(&:media_id), type: 'Claim').find_each do |m|
-                   print '.'
-                   uuid[m.id] = get_claim_uuid(m.quote) || m.id.to_s
+                    print '.'
+                    uuid[m.id] = m.uuid.to_s
                   end
                   # Fact-checks
                   pm_fc_mapping = {} # Project Media ID => Fact-Check Updated At
