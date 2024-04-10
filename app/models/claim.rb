@@ -19,7 +19,7 @@ class Claim < Media
   end
 
   def set_uuid
-    uuid = Media.where(type: 'Claim').where('lower(quote) = ?', self.quote.to_s.strip.downcase).joins("INNER JOIN project_medias pm ON pm.media_id = medias.id").first&.id
+    uuid = Claim.where('lower(quote) = ?', self.quote.to_s.strip.downcase).joins("INNER JOIN project_medias pm ON pm.media_id = medias.id").first&.id
     uuid ||= self.id
     self.update_column(:uuid, uuid)
   end
