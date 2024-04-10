@@ -708,7 +708,7 @@ type Cluster implements Node {
     Returns the last _n_ elements from the list.
     """
     last: Int
-    teamId: Int!
+    teamId: Int
   ): ProjectMediaConnection
   requests_count: Int
   team_ids: [Int]

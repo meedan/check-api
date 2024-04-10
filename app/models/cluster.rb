@@ -30,11 +30,11 @@ class Cluster < ApplicationRecord
   end
 
   def import_medias_to_team(team, claim_title, claim_context, parent_id = nil)
+    # Find the first item in this cluster for which the media_id doesn't exist in the target team yet
+    from_project_media = self.project_medias.where.not(team_id: team.id).find { |item| !ProjectMedia.where(team_id: team.id, media_id: item.media_id).exists? }
+    raise 'No media to import. All media items from this item already exist in your workspace.' if from_project_media.nil?
     parent = nil
     if parent_id.nil?
-      # Find the first item in this cluster for which the media_id doesn't exist in the target team yet
-      from_project_media = self.project_medias.where.not(team_id: team.id).find { |item| !ProjectMedia.where(team_id: team.id, media_id: item.media_id).exists? }
-      raise 'No media to import. All media items from this item already exist in your workspace.' if from_project_media.nil?
       parent = self.import_media_to_team(team, from_project_media, claim_title, claim_context)
     else
       parent = ProjectMedia.where(id: parent_id, team_id: team.id).last
