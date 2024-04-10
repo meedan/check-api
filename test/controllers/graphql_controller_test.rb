@@ -503,14 +503,14 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should get default if language is not supported" do
     authenticate_with_user
-    @request.headers['Accept-Language'] = 'mk-MK'
+    @request.headers['Accept-Language'] = 'xx-XX'
     post :create, params: { query: 'query Query { me { name } }' }
     assert_equal :en, I18n.locale
   end
 
   test "should get closest language" do
     authenticate_with_user
-    @request.headers['Accept-Language'] = 'mk-MK, fr-FR'
+    @request.headers['Accept-Language'] = 'xx-XX, fr-FR'
     post :create, params: { query: 'query Query { me { name } }' }
     assert_equal :fr, I18n.locale
   end
