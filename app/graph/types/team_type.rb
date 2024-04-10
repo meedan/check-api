@@ -101,7 +101,9 @@ class TeamType < DefaultObject
   field :get_report, JsonStringType, null: true
 
   def get_report
-    object.get_report
+    placeholders = {}
+    object.get_languages.to_a.each { |language| placeholders[language] = { 'placeholders' => { 'query_date' => Dynamic.new.report_design_date(Time.now, language) } } }
+    object.get_report.to_h.deep_merge(placeholders)
   end
 
   field :get_fieldsets, JsonStringType, null: true
