@@ -1,4 +1,42 @@
 require 'active_support/concern'
+class AlegreTimeoutError < StandardError; end
+class TemporaryProjectMedia
+  attr_accessor :team_id, :id, :url, :type
+  def media
+    media_type_map = {
+      "claim" => "Claim",
+      "link" => "Link",
+      "image" => "UploadedImage",
+      "video" => "UploadedVideo",
+      "audio" => "UploadedAudio",
+    }
+    Struct.new(:type).new(media_type_map[type])
+  end
+
+  def is_blank?
+    self.type == "blank"
+  end
+
+  def is_link?
+    self.type == "link"
+  end
+
+  def is_text?
+    self.type == "text"
+  end
+
+  def is_image?
+    self.type == "image"
+  end
+
+  def is_video?
+    self.type == "video"
+  end
+
+  def is_audio?
+    self.type == "audio"
+  end
+end
 
 module AlegreV2
   extend ActiveSupport::Concern
@@ -164,6 +202,7 @@ module AlegreV2
         has_custom_id: true
       }
       context[:field] = field if field && is_not_generic_field(field)
+      context[:temporary_media] = project_media.is_a?(TemporaryProjectMedia)
       context
     end
 
@@ -206,7 +245,7 @@ module AlegreV2
     end
 
     def isolate_relevant_context(project_media, result)
-      result["context"].select{|x| x["team_id"] == project_media.team_id}.first
+      result["context"].select{|x| ([x["team_id"]].flatten & [project_media.team_id].flatten).count > 0 && !x["temporary_media"]}.first
     end
 
     def get_target_field(project_media, field)
@@ -233,6 +272,16 @@ module AlegreV2
       }.reject{ |k,_| k == project_media.id }]
     end
 
+    def safe_get_async(project_media, field, params={})
+      response = get_async(project_media, field, params)
+      retries = 0
+      while response.nil? && retries < 3
+        response = get_async(project_media, field, params)
+        retries += 1
+      end
+      response
+    end
+
     def safe_get_sync(project_media, field, params={})
       response = get_sync(project_media, field, params)
       retries = 0
@@ -243,16 +292,32 @@ module AlegreV2
       response
     end
 
+    def cache_items_via_callback(project_media, field, confirmed, results)
+      relationship_type = confirmed ? Relationship.confirmed_type : Relationship.suggested_type
+      parse_similarity_results(
+        project_media,
+        field,
+        results,
+        relationship_type
+      )
+    end
+
     def get_items(project_media, field, confirmed=false)
       relationship_type = confirmed ? Relationship.confirmed_type : Relationship.suggested_type
       type = get_type(project_media)
-      threshold = get_per_model_threshold(project_media, Bot::Alegre.get_threshold_for_query(type, project_media, confirmed))
+      threshold = get_per_model_threshold(project_media, get_threshold_for_query(type, project_media, confirmed))
       parse_similarity_results(
         project_media,
         field,
         safe_get_sync(project_media, field, threshold)["result"],
         relationship_type
       )
+    end
+
+    def get_items_async(project_media, field, confirmed=false)
+      type = get_type(project_media)
+      threshold = get_per_model_threshold(project_media, get_threshold_for_query(type, project_media, confirmed))
+      safe_get_async(project_media, field, threshold.merge(confirmed: confirmed))
     end
 
     def get_suggested_items(project_media, field)
@@ -263,14 +328,64 @@ module AlegreV2
       get_items(project_media, field, true)
     end
 
+    def get_suggested_items_async(project_media, field)
+      get_items_async(project_media, field)
+    end
+
+    def get_confirmed_items_async(project_media, field)
+      get_items_async(project_media, field, true)
+    end
+
     def get_similar_items_v2(project_media, field)
       type = get_type(project_media)
-      if !Bot::Alegre.should_get_similar_items_of_type?('master', project_media.team_id) || !Bot::Alegre.should_get_similar_items_of_type?(type, project_media.team_id)
+      if !should_get_similar_items_of_type?('master', project_media.team_id) || !should_get_similar_items_of_type?(type, project_media.team_id)
         {}
       else
         suggested_or_confirmed = get_suggested_items(project_media, field)
         confirmed = get_confirmed_items(project_media, field)
-        Bot::Alegre.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, project_media)
+        merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, project_media)
+      end
+    end
+
+    def get_similar_items_v2_async(project_media, field)
+      type = get_type(project_media)
+      if !should_get_similar_items_of_type?('master', project_media.team_id) || !should_get_similar_items_of_type?(type, project_media.team_id)
+        return false
+      else
+        get_suggested_items_async(project_media, field)
+        get_confirmed_items_async(project_media, field)
+        return true
+      end
+    end
+
+    def get_required_keys(project_media, field)
+      {
+        confirmed_results: "alegre:async_results:#{project_media.id}_#{field}_true",
+        suggested_or_confirmed_results: "alegre:async_results:#{project_media.id}_#{field}_false"
+      }
+    end
+
+    def get_cached_data(required_keys)
+      redis = Redis.new(REDIS_CONFIG)
+      # For a given project media, we expect a set of keys to be set by the webhook callbacks sent from alegre back to check-api.
+      # For each callback response (which is set via #process_alegre_callback), we store the value as serialized YAML to persist
+      # the data such that symbolized keys return as symbols (as opposed to JSON, which loses the distinction). Here, in effect,
+      # we check to see if all the responses we expect from Alegre have been sent - downstream of this, we check to see if all
+      # responses are non-empty before proceeding to creating relationships.
+      Hash[required_keys.collect{|k,v| [k, (Hash[YAML.load(redis.get(v)).collect{|kk,vv| [kk.to_i, vv]}] rescue [])]}]
+    end
+
+    def get_similar_items_v2_callback(project_media, field)
+      type = get_type(project_media)
+      if !should_get_similar_items_of_type?('master', project_media.team_id) || !should_get_similar_items_of_type?(type, project_media.team_id)
+        return {}
+      else
+        cached_data = get_cached_data(get_required_keys(project_media, field))
+        if !cached_data.values.include?(nil)
+          suggested_or_confirmed = cached_data[:suggested_or_confirmed_results]
+          confirmed = cached_data[:confirmed_results]
+          merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, project_media)
+        end
       end
     end
 
@@ -278,11 +393,74 @@ module AlegreV2
       self.add_relationships(project_media, self.get_similar_items_v2(project_media, field)) unless project_media.is_blank?
     end
 
-    def get_items_with_similar_media_v2(media_url, threshold, team_ids, type)
-      alegre_path = ['audio', 'image'].include?(type) ? self.sync_path_for_type(type) : "/#{type}/similarity/search/"
-      # FIXME: Stop using this method from v1 once all media types are supported by v2
-      # FIXME: Alegre crashes if `media_url` was already requested before, this is why I append a hash
-      self.get_items_with_similar_media("#{media_url}?hash=#{SecureRandom.hex}", threshold, team_ids, alegre_path)
+    def relate_project_media_async(project_media, field=nil)
+      self.get_similar_items_v2_async(project_media, field) unless project_media.is_blank?
+    end
+
+    def relate_project_media_callback(project_media, field=nil)
+      self.add_relationships(project_media, get_similar_items_v2_callback(project_media, field)) unless project_media.is_blank?
+    end
+
+    def get_items_with_similar_media_v2(args={})
+      media_url = args[:media_url]
+      project_media = args[:project_media]
+      threshold = args[:threshold]
+      team_ids = args[:team_ids]
+      type = args[:type]
+      if ['audio', 'image'].include?(type)
+        if project_media.nil?
+          project_media = TemporaryProjectMedia.new
+          project_media.url = media_url
+          project_media.id = Digest::MD5.hexdigest(project_media.url).to_i(16)
+          project_media.team_id = team_ids
+          project_media.type = type
+        end
+        get_similar_items_v2_async(project_media, nil)
+        cached_data = get_cached_data(get_required_keys(project_media, nil))
+        timeout = 60
+        start_time = Time.now
+        while start_time + timeout > Time.now && cached_data.values.include?([])
+          sleep(1)
+          cached_data = get_cached_data(get_required_keys(project_media, nil))
+        end
+        CheckSentry.notify(AlegreTimeoutError.new('Timeout when waiting for async response from Alegre'), params: args.merge({ cached_data: cached_data })) if cached_data.values.include?([])
+        response = get_similar_items_v2_callback(project_media, nil)
+        delete(project_media, nil) if project_media.is_a?(TemporaryProjectMedia)
+        return response
+      else
+        self.get_items_with_similar_media("#{media_url||media_file_url(project_media)}?hash=#{SecureRandom.hex}", threshold, team_ids, "/#{type}/similarity/search/")
+      end
+    end
+
+    def process_alegre_callback(params)
+      redis = Redis.new(REDIS_CONFIG)
+      project_media = ProjectMedia.find(params.dig('data', 'item', 'raw', 'context', 'project_media_id')) rescue nil
+      should_relate = true
+      if project_media.nil?
+        project_media = TemporaryProjectMedia.new
+        project_media.url = params.dig('data', 'item', 'raw', 'url')
+        project_media.id = params.dig('data', 'item', 'raw', 'context', 'project_media_id')
+        project_media.team_id = params.dig('data', 'item', 'raw', 'context', 'team_id')
+        project_media.type = params['model_type']
+        should_relate = false
+      end
+      confirmed = params.dig('data', 'item', 'raw', 'confirmed')
+      field = params.dig('data', 'item', 'raw', 'context', 'field')
+      access_key = confirmed ? :confirmed_results : :suggested_or_confirmed_results
+      key = get_required_keys(project_media, field)[access_key]
+      response = cache_items_via_callback(project_media, field, confirmed, params.dig('data', 'results', 'result'))
+      redis.set(key, response.to_yaml)
+      redis.expire(key, 1.day.to_i)
+      relate_project_media_callback(project_media, field) if should_relate
+    end
+
+    def restrict_contexts(project_media, project_media_id_scores)
+      Hash[project_media_id_scores.collect{|project_media_id, response_data|
+        [
+          project_media_id,
+          response_data.merge(context: [response_data[:context]].flatten.select{|c| c.with_indifferent_access[:team_id] == project_media.team_id})
+        ]
+      }]
     end
   end
 end

@@ -25,7 +25,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
     WebMock.stub_request(:delete, 'http://localhost:3100/text/similarity/').to_return(body: { success: true }.to_json)
     WebMock.stub_request(:post, 'http://localhost:3100/image/similarity/').to_return(body: { 'success': true }.to_json)
     WebMock.stub_request(:post, 'http://localhost:3100/image/classification/').with(body: { uri: url}).to_return(body:{ result: @flags }.to_json)
-    WebMock.stub_request(:post, 'http://localhost:3100/similarity/sync/image').to_return(body: { "result": [] }.to_json)
+    WebMock.stub_request(:post, 'http://localhost:3100/similarity/async/image').to_return(body: { "result": [] }.to_json)
   end
 
   # def teardown

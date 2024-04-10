@@ -33,7 +33,7 @@ class Bot::Alegre < BotUser
           'UploadedImage' => 'image',
         }[self.media.type].to_s
         threshold = [{value: thresholds.dig(media_type.to_sym, :value)}] || Bot::Alegre.get_threshold_for_query(media_type, self, true)
-        ids_and_scores = Bot::Alegre.get_items_with_similar_media_v2(Bot::Alegre.media_file_url(self), threshold, team_ids, media_type).to_h
+        ids_and_scores = Bot::Alegre.get_items_with_similar_media_v2(project_media: self, threshold: threshold, team_ids: team_ids, media_type: media_type).to_h
       elsif self.is_text?
         ids_and_scores = {}
         threads = []
@@ -151,13 +151,13 @@ class Bot::Alegre < BotUser
       if body.dig(:event) == 'create_project_media' && !pm.nil?
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] This item was just created, processing...")
         self.get_language(pm)
-        if self.get_pm_type(pm) == "audio" || self.get_pm_type(pm) == "image"
-          self.relate_project_media(pm)
+        if ['audio', 'image'].include?(self.get_pm_type(pm))
+          self.relate_project_media_async(pm)
         else
-          self.send_to_media_similarity_index(pm)
-          self.send_field_to_similarity_index(pm, 'original_title')
-          self.send_field_to_similarity_index(pm, 'original_description')
-          self.relate_project_media_to_similar_items(pm)
+          Bot::Alegre.send_to_media_similarity_index(pm)
+          Bot::Alegre.send_field_to_similarity_index(pm, 'original_title')
+          Bot::Alegre.send_field_to_similarity_index(pm, 'original_description')
+          Bot::Alegre.relate_project_media_to_similar_items(pm)
         end
         self.get_extracted_text(pm)
         self.get_flags(pm)
@@ -232,10 +232,11 @@ class Bot::Alegre < BotUser
   def self.restrict_to_same_modality(pm, matches)
     other_pms = Hash[ProjectMedia.where(id: matches.keys).includes(:media).all.collect{ |item| [item.id, item] }]
     if pm.is_text?
-      matches.select{ |k, _v| other_pms[k.to_i]&.is_text? || !other_pms[k.to_i]&.extracted_text.blank? || !other_pms[k.to_i]&.transcription.blank? || other_pms[k.to_i]&.is_blank? }
+      selected_matches = matches.select{ |k, _v| other_pms[k.to_i]&.is_text? || !other_pms[k.to_i]&.extracted_text.blank? || !other_pms[k.to_i]&.transcription.blank? || other_pms[k.to_i]&.is_blank? }
     else
-      matches.select{ |k, _v| (self.valid_match_types(other_pms[k.to_i]&.media&.type) & self.valid_match_types(pm.media.type)).length > 0 }
+      selected_matches = matches.select{ |k, _v| (self.valid_match_types(other_pms[k.to_i]&.media&.type) & self.valid_match_types(pm.media.type)).length > 0 }
     end
+    selected_matches
   end
 
   def self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
@@ -398,7 +399,11 @@ class Bot::Alegre < BotUser
 
   def self.media_file_url(pm)
     # FIXME Ugly hack to get a usable URL in docker-compose development environment.
-    url = (ENV['RAILS_ENV'] != 'development' ? pm.media.file.file.public_url : "#{CheckConfig.get('storage_endpoint')}/#{CheckConfig.get('storage_bucket')}/#{pm.media.file.file.path}")
+    if pm.is_a?(TemporaryProjectMedia)
+      url = pm.url
+    else
+      url = (ENV['RAILS_ENV'] != 'development' ? pm.media.file.file.public_url : "#{CheckConfig.get('storage_endpoint')}/#{CheckConfig.get('storage_bucket')}/#{pm.media.file.file.path}")
+    end
     # FIXME: Another hack mostly for local development and CI environments... a way to expose media URLs as public URLs
     url = url.gsub(/^https?:\/\/[^\/]+/, CheckConfig.get('similarity_media_file_url_host')) unless CheckConfig.get('similarity_media_file_url_host').blank?
     url

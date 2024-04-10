@@ -64,6 +64,7 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
         :team_id=>@pm.team_id,
         :project_media_id=>@pm.id,
         :has_custom_id=>true,
+        :temporary_media=>false,
         :field=>"title"
       },
       :models=>["elasticsearch"]
@@ -98,6 +99,7 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
         :team_id=>@pm.team_id,
         :project_media_id=>@pm.id,
         :has_custom_id=>true,
+        :temporary_media=>false,
         :field=>"title"
       },
       :models=>["elasticsearch"]

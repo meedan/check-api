@@ -83,8 +83,14 @@ module SmoochSearch
       pm.report_status == 'published' && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(pm.archived)
     end
 
+    def reject_temporary_results(results)
+      results.select do |_, result_data|
+        ![result_data[:context]].flatten.compact.select{|x| x[:temporary_media].nil? || x[:temporary_media] == false}.empty?
+      end
+    end
+
     def parse_search_results_from_alegre(results, after = nil, feed_id = nil, team_ids = nil)
-      pms = results.sort_by{ |a| [a[1][:model] != Bot::Alegre::ELASTICSEARCH_MODEL ? 1 : 0, a[1][:score]] }.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }
+      pms = reject_temporary_results(results).sort_by{ |a| [a[1][:model] != Bot::Alegre::ELASTICSEARCH_MODEL ? 1 : 0, a[1][:score]] }.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }
       filter_search_results(pms, after, feed_id, team_ids).uniq(&:id).first(3)
     end
 
@@ -166,7 +172,7 @@ module SmoochSearch
         return [] if media_url.blank?
         media_url = self.save_locally_and_return_url(media_url, type, feed_id)
         threshold = Bot::Alegre.get_threshold_for_query(type, pm)[0][:value]
-        alegre_results = Bot::Alegre.get_items_with_similar_media_v2(media_url, [{ value: threshold }], team_ids, type)
+        alegre_results = Bot::Alegre.get_items_with_similar_media_v2(media_url: media_url, threshold: [{ value: threshold }], team_ids: team_ids, type: type)
         results = self.parse_search_results_from_alegre(alegre_results, after, feed_id, team_ids)
         Rails.logger.info "[Smooch Bot] Media similarity search got #{results.count} results while looking for '#{query}' after date #{after.inspect} for teams #{team_ids}"
       end

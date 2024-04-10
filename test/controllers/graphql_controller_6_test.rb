@@ -108,7 +108,7 @@ class GraphqlController6Test < ActionController::TestCase
 
     pm = create_project_media team: t
 
-    Bot::Alegre.stubs(:get_items_with_similar_media).returns({ pm.id => 0.8 })
+    Bot::Alegre.stubs(:get_items_with_similar_media_v2).returns({ pm.id => 0.8 })
     path = File.join(Rails.root, 'test', 'data', 'rails.png')
     file = Rack::Test::UploadedFile.new(path, 'image/png')
     query = 'query CheckSearch { search(query: "{\"file_type\":\"image\"}") { medias(first: 20) { edges { node { dbid } } } } }'
@@ -116,7 +116,7 @@ class GraphqlController6Test < ActionController::TestCase
     assert_response :success
     assert_equal 1, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
     assert_equal pm.id, JSON.parse(@response.body)['data']['search']['medias']['edges'][0]['node']['dbid']
-    Bot::Alegre.unstub(:get_items_with_similar_media)
+    Bot::Alegre.unstub(:get_items_with_similar_media_v2)
   end
 
   test "should search by similar image on ES" do
@@ -131,7 +131,7 @@ class GraphqlController6Test < ActionController::TestCase
     pm2 = create_project_media team: t, media: m2
     sleep 2
 
-    Bot::Alegre.stubs(:get_items_with_similar_media).returns({ pm.id => 0.8 })
+    Bot::Alegre.stubs(:get_items_with_similar_media_v2).returns({ pm.id => 0.8 })
     path = File.join(Rails.root, 'test', 'data', 'rails.png')
     file = Rack::Test::UploadedFile.new(path, 'image/png')
     query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"file_type\":\"image\"}") { medias(first: 20) { edges { node { dbid } } } } }'
@@ -139,7 +139,7 @@ class GraphqlController6Test < ActionController::TestCase
     assert_response :success
     assert_equal 1, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
     assert_equal pm.id, JSON.parse(@response.body)['data']['search']['medias']['edges'][0]['node']['dbid']
-    Bot::Alegre.unstub(:get_items_with_similar_media)
+    Bot::Alegre.unstub(:get_items_with_similar_media_v2)
   end
 
   test "should upload search file" do
