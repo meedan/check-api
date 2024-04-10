@@ -1,4 +1,5 @@
 require 'active_support/concern'
+class AlegreTimeoutError < StandardError; end
 class TemporaryProjectMedia
   attr_accessor :team_id, :id, :url, :type
   def media
@@ -422,6 +423,7 @@ module AlegreV2
           sleep(1)
           cached_data = get_cached_data(get_required_keys(project_media, nil))
         end
+        CheckSentry.notify(AlegreTimeoutError.new('Timeout when waiting for async response from Alegre'), params: args.merge({ cached_data: cached_data })) if cached_data.values.include?([])
         response = get_similar_items_v2_callback(project_media, nil)
         delete(project_media, nil) if project_media.is_a?(TemporaryProjectMedia)
         return response
