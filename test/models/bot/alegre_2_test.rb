@@ -32,34 +32,38 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm1 = create_project_media team: @team, media: create_uploaded_video
     pm2 = create_project_media team: @team, media: create_uploaded_video
     pm3 = create_project_media team: @team, media: create_uploaded_video
-    Bot::Alegre.stubs(:request).with('post', '/similarity/sync/video', @params).returns({
-      result: [
-        {
-          context: [
-            { team_id: @team.id.to_s, project_media_id: pm1.id.to_s }
-          ],
-          score: 0.971234,
-          filename: '/app/persistent_disk/blah/12342.tmk'
-        },
-        {
-          context: [
-            { team_id: @team.id.to_s, project_media_id: pm2.id.to_s }
-          ],
-          score: 0.983167,
-          filename: '/app/persistent_disk/blah/12343.tmk'
-        }
-      ]
-    }.with_indifferent_access)
+    params = {:doc_id => Bot::Alegre.item_doc_id(pm3), :context => {:team_id => pm3.team_id, :project_media_id => pm3.id, :has_custom_id => true, :temporary_media => false}, :url => @media_path}
+    Bot::Alegre.stubs(:request).with('post', '/similarity/async/video', params.merge({ threshold: 0.9, confirmed: false })).returns(true)
+    Bot::Alegre.stubs(:request).with('post', '/similarity/async/video', params.merge({ threshold: 0.9, confirmed: true })).returns(true)
+    Redis.any_instance.stubs(:get).returns({
+      pm1.id => {
+        score: 0.971234,
+        context: { team_id: pm1.team_id, project_media_id: pm1.id, temporary: false },
+        model: "video",
+        source_field: "video",
+        target_field: "video",
+        relationship_type: Relationship.confirmed_type
+      },
+      pm2.id => {
+        score: 0.983167,
+        context: { team_id: pm2.team_id, project_media_id: pm2.id, temporary: false, content_type: 'video'  },
+        model: "video",
+        source_field: "video",
+        target_field: "video",
+        relationship_type: Relationship.confirmed_type
+      }
+    }.to_yaml)
     Bot::Alegre.stubs(:media_file_url).with(pm3).returns(@media_path)
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm3)
     end
-    Bot::Alegre.unstub(:request)
     Bot::Alegre.unstub(:media_file_url)
+    Redis.any_instance.unstub(:get)
     r = Relationship.last
     assert_equal pm3, r.target
     assert_equal pm2, r.source
     assert_equal r.weight, 0.983167
+    Bot::Alegre.unstub(:request)
   end
 
   test "should match similar audios" do
