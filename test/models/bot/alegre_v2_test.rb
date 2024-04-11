@@ -109,7 +109,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should create a generic_package for video" do
     pm1 = create_project_media team: @team, media: create_uploaded_video
-    assert_equal Bot::Alegre.generic_package(pm1, "video"), {:doc_id=>Bot::Alegre.item_doc_id(pm1, "video"), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}}
+    assert_equal Bot::Alegre.generic_package(pm1, "video"), {:doc_id=>Bot::Alegre.item_doc_id(pm1, "video"), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}}
   end
 
   test "should create a generic_package_audio" do
@@ -128,9 +128,9 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should create a generic_package_video" do
     pm1 = create_project_media team: @team, media: create_uploaded_video
-    assert_equal Bot::Alegre.generic_package_image(pm1, {}), {:doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}, :url=>Bot::Alegre.media_file_url(pm1)}
-    assert_equal Bot::Alegre.store_package_image(pm1, "video", {}), {:doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}, :url=>Bot::Alegre.media_file_url(pm1)}
-    assert_equal Bot::Alegre.store_package(pm1, "video", {}), {:doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}, :url=>Bot::Alegre.media_file_url(pm1)}
+    assert_equal Bot::Alegre.generic_package_image(pm1, {}), {:doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
+    assert_equal Bot::Alegre.store_package_image(pm1, "video", {}), {:doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
+    assert_equal Bot::Alegre.store_package(pm1, "video", {}), {:doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
   end
 
   test "should create a context for audio" do
@@ -145,7 +145,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should create a context for video" do
     pm1 = create_project_media team: @team, media: create_uploaded_video
-    assert_equal Bot::Alegre.get_context(pm1, "video"), {:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}
+    assert_equal Bot::Alegre.get_context(pm1, "video"), {:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}
   end
 
   test "should create a delete_package for audio" do
@@ -170,7 +170,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm1 = create_project_media team: @team, media: create_uploaded_video
     package = Bot::Alegre.delete_package(pm1, "video")
     assert_equal package[:doc_id], Bot::Alegre.item_doc_id(pm1, nil)
-    assert_equal package[:context], {:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}
+    assert_equal package[:context], {:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}
     assert_equal package[:url].class, String
     assert_equal package[:quiet], false
   end

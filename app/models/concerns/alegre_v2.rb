@@ -419,7 +419,7 @@ module AlegreV2
       threshold = args[:threshold]
       team_ids = args[:team_ids]
       type = args[:type]
-      if ['audio', 'image'].include?(type)
+      if ['audio', 'image', 'audio'].include?(type)
         if project_media.nil?
           project_media = TemporaryProjectMedia.new
           project_media.url = media_url
@@ -473,13 +473,6 @@ module AlegreV2
           response_data.merge(context: [response_data[:context]].flatten.select{|c| c.with_indifferent_access[:team_id] == project_media.team_id})
         ]
       }]
-    end
-
-    def get_items_with_similar_media_v2(media_url, threshold, team_ids, type)
-      alegre_path = ['audio', 'image', 'video'].include?(type) ? self.sync_path_for_type(type) : "/#{type}/similarity/search/"
-      # FIXME: Stop using this method from v1 once all media types are supported by v2
-      # FIXME: Alegre crashes if `media_url` was already requested before, this is why I append a hash
-      self.get_items_with_similar_media("#{media_url}?hash=#{SecureRandom.hex}", threshold, team_ids, alegre_path)
     end
   end
 end
