@@ -419,7 +419,7 @@ module AlegreV2
       threshold = args[:threshold]
       team_ids = args[:team_ids]
       type = args[:type]
-      if ['audio', 'image', 'audio'].include?(type)
+      if ['audio', 'image', 'video'].include?(type)
         if project_media.nil?
           project_media = TemporaryProjectMedia.new
           project_media.url = media_url
