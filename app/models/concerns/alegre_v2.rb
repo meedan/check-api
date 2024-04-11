@@ -431,7 +431,7 @@ module AlegreV2
         cached_data = get_cached_data(get_required_keys(project_media, nil))
         timeout = 60
         start_time = Time.now
-        while start_time + timeout > Time.now && cached_data.values.include?([])
+        while start_time + timeout > Time.now && cached_data.values.collect{|x| x.to_a.empty?}.include?(true) #more robust for any type of null response
           sleep(1)
           cached_data = get_cached_data(get_required_keys(project_media, nil))
         end
@@ -460,7 +460,7 @@ module AlegreV2
       field = params.dig('data', 'item', 'raw', 'context', 'field')
       access_key = confirmed ? :confirmed_results : :suggested_or_confirmed_results
       key = get_required_keys(project_media, field)[access_key]
-      response = cache_items_via_callback(project_media, field, confirmed, params.dig('data', 'results', 'result'))
+      response = cache_items_via_callback(project_media, field, confirmed, params.dig('data', 'results', 'result').dup) #dup so we can better debug when playing with this in a repl
       redis.set(key, response.to_yaml)
       redis.expire(key, 1.day.to_i)
       relate_project_media_callback(project_media, field) if should_relate
