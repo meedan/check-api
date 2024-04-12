@@ -469,7 +469,7 @@ ActiveRecord::Schema.define(version: 2024_04_04_154458) do
     t.index ["user_id"], name: "index_project_media_users_on_user_id"
   end
 
-  create_table "project_medias", id: :serial, force: :cascade do |t|
+  create_table "project_medias", force: :cascade do |t|
     t.integer "project_id"
     t.integer "media_id"
     t.integer "user_id"
@@ -486,6 +486,8 @@ ActiveRecord::Schema.define(version: 2024_04_04_154458) do
     t.integer "unmatched", default: 0
     t.string "custom_title"
     t.string "title_field"
+    t.integer "imported_from_feed_id"
+    t.integer "imported_from_project_media_id"
     t.index ["channel"], name: "index_project_medias_on_channel"
     t.index ["last_seen"], name: "index_project_medias_on_last_seen"
     t.index ["media_id"], name: "index_project_medias_on_media_id"
@@ -862,8 +864,7 @@ ActiveRecord::Schema.define(version: 2024_04_04_154458) do
   end
 
   create_table "versions", id: :serial, force: :cascade do |t|
-    t.string "item_type"
-    t.string "{:null=>false}"
+    t.string "item_type", null: false
     t.string "item_id", null: false
     t.string "event", null: false
     t.string "whodunnit"
