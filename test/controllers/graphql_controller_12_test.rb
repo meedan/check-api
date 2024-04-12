@@ -337,4 +337,43 @@ class GraphqlController12Test < ActionController::TestCase
     assert_response :success
     assert_equal c.id, JSON.parse(@response.body)['data']['feed']['cluster']['dbid']
   end
+
+  test "should import medias from the feed by creating a new item" do
+    Sidekiq::Testing.inline!
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    f = create_feed team: @t
+    f.teams << t
+    c = create_cluster feed: f, team_ids: [t.id], project_media_id: pm1.id
+    create_cluster_project_media cluster: c, project_media: pm1
+    create_cluster_project_media cluster: c, project_media: pm2
+    assert_equal 0, @t.project_medias.count
+
+    authenticate_with_user(@u)
+    query = "mutation { feedImportMedia(input: { feedId: #{f.id}, projectMediaId: #{pm1.id} }) { projectMedia { id } } }"
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success
+    assert_equal 2, @t.reload.project_medias.count
+  end
+
+  test "should import medias from the feed by adding to existing item" do
+    Sidekiq::Testing.inline!
+    pm = create_project_media team: @t
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    f = create_feed team: @t
+    f.teams << t
+    c = create_cluster feed: f, team_ids: [t.id], project_media_id: pm1.id
+    create_cluster_project_media cluster: c, project_media: pm1
+    create_cluster_project_media cluster: c, project_media: pm2
+    assert_equal 1, @t.project_medias.count
+
+    authenticate_with_user(@u)
+    query = "mutation { feedImportMedia(input: { feedId: #{f.id}, projectMediaId: #{pm1.id}, parentId: #{pm.id} }) { projectMedia { id } } }"
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success
+    assert_equal 3, @t.reload.project_medias.count
+  end
 end

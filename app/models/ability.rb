@@ -110,7 +110,10 @@ class Ability
     end
     can [:read], FeedTeam, :team_id => @context_team.id
     can [:read], FeedInvitation, { feed: { team_id: @context_team.id } }
-    can [:read, :create, :update], Feed, :team_id => @context_team.id
+    can [:read, :create, :update, :import_media], Feed, :team_id => @context_team.id
+    can :import_media, Feed do |obj|
+      obj.team_ids.include?(@context_team.id)
+    end
   end
 
   def collaborator_perms
