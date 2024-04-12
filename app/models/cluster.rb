@@ -31,7 +31,7 @@ class Cluster < ApplicationRecord
 
   def import_medias_to_team(team, claim_title, claim_context, parent_id = nil)
     # Find the first item in this cluster for which the media_id doesn't exist in the target team yet
-    from_project_media = self.project_medias.where.not(team_id: team.id).find { |item| !ProjectMedia.where(team_id: team.id, media_id: item.media_id).exists? }
+    from_project_media = self.project_medias.where.not(team_id: team.id).select(:id, :media_id).find { |item| !ProjectMedia.where(team_id: team.id, media_id: item.media_id).exists? }
     raise 'No media to import. All media items from this item already exist in your workspace.' if from_project_media.nil?
     parent = nil
     if parent_id.nil?
@@ -49,11 +49,10 @@ class Cluster < ApplicationRecord
     parent = ProjectMedia.find_by_id(parent_id)
     return if cluster.nil? || parent.nil?
     team = parent.team
-    cluster.project_medias.where.not(team_id: team.id).limit(max).select(:media_id).find_in_batches(batch_size: max) do |pms|
-      ProjectMedia.where(media_id: pms.map(&:media_id)).where.not(team_id: team.id).find_each do |pm|
-        target = cluster.import_media_to_team(team, pm)
-        Relationship.create(source: parent, target: target, relationship_type: Relationship.confirmed_type) # Didn't use "!" so if fails silently if the similarity bot creates a relationship first
-      end
+    cluster.project_medias.where.not(team_id: team.id).limit(max).select(:id, :media_id).find_each do |pm|
+      next if ProjectMedia.where(team_id: team.id, media_id: pm.media_id).exists?
+      target = cluster.import_media_to_team(team, pm)
+      Relationship.create(source: parent, target: target, relationship_type: Relationship.confirmed_type) # Didn't use "!" so if fails silently if the similarity bot creates a relationship first
     end
   end
 end
