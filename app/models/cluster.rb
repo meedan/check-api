@@ -39,18 +39,21 @@ class Cluster < ApplicationRecord
     else
       parent = ProjectMedia.where(id: parent_id, team_id: team.id).last
     end
-    self.class.delay_for(1.second).import_other_medias_to_team(self.id, parent.id)
+    self.class.import_other_medias_to_team(self.id, parent.id, CheckConfig.get('shared_feed_min_media_to_bulk_import', 5, :integer)) # If there are just a few items, we don't even need to wait for the background job
+    self.class.delay_for(1.second).import_other_medias_to_team(self.id, parent.id, CheckConfig.get('shared_feed_max_media_to_bulk_import', 100, :integer))
     parent
   end
 
-  def self.import_other_medias_to_team(cluster_id, parent_id)
-    cluster = Cluster.find(cluster_id)
-    parent = ProjectMedia.find(parent_id)
+  def self.import_other_medias_to_team(cluster_id, parent_id, max)
+    cluster = Cluster.find_by_id(cluster_id)
+    parent = ProjectMedia.find_by_id(parent_id)
+    return if cluster.nil? || parent.nil?
     team = parent.team
-    cluster.project_medias.where.not(team_id: team.id).limit(50).find_each do |pm|
-      next if ProjectMedia.where(team_id: team.id, media_id: pm.media_id).exists?
-      target = cluster.import_media_to_team(team, pm)
-      Relationship.create!(source: parent, target: target, relationship_type: Relationship.confirmed_type)
+    cluster.project_medias.where.not(team_id: team.id).limit(max).select(:media_id).find_in_batches(batch_size: max) do |pms|
+      ProjectMedia.where(media_id: pms.map(&:media_id)).where.not(team_id: team.id).find_each do |pm|
+        target = cluster.import_media_to_team(team, pm)
+        Relationship.create(source: parent, target: target, relationship_type: Relationship.confirmed_type) # Didn't use "!" so if fails silently if the similarity bot creates a relationship first
+      end
     end
   end
 end
