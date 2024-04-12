@@ -3,9 +3,8 @@ namespace :check do
     def claim_uuid_for_duplicate_quote
       puts "Collect Claim uuid for duplicate quotes"
       claim_uuid = {}
-      Claim.select('lower(quote) as quote, MIN(medias.id) as first')
-      .joins("INNER JOIN project_medias pm ON pm.media_id = medias.id")
-      .group('lower(quote)').having('COUNT(medias.id) > 1')
+      Claim.select('lower(quote) as quote, MIN(id) as first')
+      .group('lower(quote)').having('COUNT(id) > 1')
       .each do |raw|
         claim_uuid[Digest::MD5.hexdigest(raw['quote'])] = raw['first']
       end
