@@ -121,6 +121,7 @@ class MutationType < BaseObject
   field :createFeed, mutation: FeedMutations::Create
   field :updateFeed, mutation: FeedMutations::Update
   field :destroyFeed, mutation: FeedMutations::Destroy
+  field :feedImportMedia, mutation: FeedMutations::ImportMedia
 
   field :updateFeedTeam, mutation: FeedTeamMutations::Update
   field :destroyFeedTeam, mutation: FeedTeamMutations::Destroy
