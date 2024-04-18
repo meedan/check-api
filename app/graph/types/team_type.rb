@@ -281,4 +281,12 @@ class TeamType < DefaultObject
   def tipline_messages(uid:)
     TiplineMessagesPagination.new(object.tipline_messages.where(uid: uid).order('sent_at DESC'))
   end
+
+  field :articles, ExplainerType.connection_type, null: true do
+    argument :type, GraphQL::Types::String, required: true
+  end
+
+  def articles(type:)
+    object.explainers if type == 'explainer'
+  end
 end

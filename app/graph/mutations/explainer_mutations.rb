@@ -1,0 +1,25 @@
+module ExplainerMutations
+  MUTATION_TARGET = 'explainer'.freeze
+  PARENTS = ['team'].freeze
+
+  module SharedCreateAndUpdateFields
+    extend ActiveSupport::Concern
+
+    included do
+      argument :title, GraphQL::Types::String, required: true
+      argument :description, GraphQL::Types::String, required: false
+      argument :url, GraphQL::Types::String, required: false
+      argument :language, GraphQL::Types::String, required: false
+    end
+  end
+
+  class Create < Mutations::CreateMutation
+    include SharedCreateAndUpdateFields
+  end
+
+  class Update < Mutations::UpdateMutation
+    include SharedCreateAndUpdateFields
+  end
+
+  class Destroy < Mutations::DestroyMutation; end
+end
