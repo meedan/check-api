@@ -1,5 +1,5 @@
 class FactCheck < ApplicationRecord
-  include ClaimAndFactCheck
+  include Article
 
   attr_accessor :skip_report_update, :publish_report
 
@@ -75,5 +75,21 @@ class FactCheck < ApplicationRecord
     reports.set_fields = data.to_json
     reports.skip_check_ability = true
     reports.save!
+  end
+
+  def article_elasticsearch_data(action = 'create_or_update')
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    data = action == 'destroy' ? {
+        'fact_check_title' => '',
+        'fact_check_summary' => '',
+        'fact_check_url' => '',
+        'fact_check_languages' => []
+      } : {
+        'fact_check_title' => self.title,
+        'fact_check_summary' => self.summary,
+        'fact_check_url' => self.url,
+        'fact_check_languages' => [self.language]
+      }
+    self.index_in_elasticsearch(data)
   end
 end

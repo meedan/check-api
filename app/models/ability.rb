@@ -170,6 +170,7 @@ class Ability
       !v_obj.nil? and v_obj.team_id == @context_team.id and v_obj.media.user_id = @user.id
     end
     can [:create, :update, :read, :destroy], FactCheck, { claim_description: { project_media: { team_id: @context_team.id } } }
+    can [:create, :update, :read, :destroy], Explainer, team_id: @context_team.id
     can [:create, :update, :read], ClaimDescription, { project_media: { team_id: @context_team.id } }
   end
 
