@@ -44,6 +44,13 @@ class ProjectMediaType < DefaultObject
   field :custom_title, GraphQL::Types::String, null: true
   field :title_field, GraphQL::Types::String, null: true
   field :suggestions_count, GraphQL::Types::Int, null: true
+  field :imported_from_feed_id, GraphQL::Types::Int, null: true
+  field :imported_from_project_media_id, GraphQL::Types::Int, null: true
+  field :imported_from_feed, FeedType, null: true
+
+  def imported_from_feed
+    GraphqlCrudOperations.load_if_can(Feed, object.imported_from_feed_id, context)
+  end
 
   field :claim_description, ClaimDescriptionType, null: true
 

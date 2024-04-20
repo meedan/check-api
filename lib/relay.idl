@@ -11108,6 +11108,9 @@ type ProjectMedia implements Node {
   ): FlagConnection
   full_url: String
   id: ID!
+  imported_from_feed: Feed
+  imported_from_feed_id: Int
+  imported_from_project_media_id: Int
   is_confirmed: Boolean
   is_confirmed_similar_to_another_item: Boolean
   is_main: Boolean
