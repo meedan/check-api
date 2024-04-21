@@ -19,6 +19,7 @@ module Article
 
   def text_fields
     # Implement it in the child class
+    []
   end
 
   def set_user

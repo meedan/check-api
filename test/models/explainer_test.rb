@@ -37,6 +37,28 @@ class ExplainerTest < ActiveSupport::TestCase
         create_explainer team: nil
       end
     end
+    # should set default team
+    t = create_team
+    Team.stubs(:current).returns(t)
+    ex = create_explainer team: nil
+    assert_equal t, ex.team
+    Team.unstub(:current)
+  end
+
+  test "should validate language" do
+    t = create_team
+    t.set_language = 'fr'
+    t.set_languages(['fr'])
+    t.save!
+    assert_difference 'Explainer.count' do
+      create_explainer team: t, language: nil
+    end
+    assert_difference 'Explainer.count' do
+      create_explainer team: t, language: 'fr'
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_explainer team: t, language: 'en'
+    end
   end
 
   test "should belong to user and team" do

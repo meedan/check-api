@@ -11,11 +11,11 @@ class ExplainerType < DefaultObject
   field :user_id, GraphQL::Types::Int, null: true
   field :team_id, GraphQL::Types::Int, null: true
   field :user, UserType, null: true
-  field :team, TeamType, null: true
+  field :team, PublicTeamType, null: true
 
   field :tags, TagType.connection_type, null: true
 
   def tags
-    object.get_annotations('tag').map(&:load)
+    Tag.where(annotation_type: 'Tag', annotated_type: object.class.name, annotated_id: object.id)
   end
 end
