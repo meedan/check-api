@@ -12766,7 +12766,7 @@ type Team implements Node {
     Returns the elements in the list that come after the specified cursor.
     """
     after: String
-    articleType: String!
+    article_type: String!
 
     """
     Returns the elements in the list that come before the specified cursor.
