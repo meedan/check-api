@@ -169,6 +169,14 @@ module AlegreV2
       ).merge(params)
     end
 
+    def generic_package_video(project_media, params)
+      generic_package_media(project_media, params)
+    end
+
+    def delete_package_video(project_media, _field, params)
+      generic_package_video(project_media, params)
+    end
+
     def generic_package_image(project_media, params)
       generic_package_media(project_media, params)
     end
@@ -204,6 +212,10 @@ module AlegreV2
       context[:field] = field if field && is_not_generic_field(field)
       context[:temporary_media] = project_media.is_a?(TemporaryProjectMedia)
       context
+    end
+
+    def store_package_video(project_media, _field, params)
+      generic_package_video(project_media, params)
     end
 
     def store_package_image(project_media, _field, params)
@@ -407,7 +419,7 @@ module AlegreV2
       threshold = args[:threshold]
       team_ids = args[:team_ids]
       type = args[:type]
-      if ['audio', 'image'].include?(type)
+      if ['audio', 'image', 'video'].include?(type)
         if project_media.nil?
           project_media = TemporaryProjectMedia.new
           project_media.url = media_url
@@ -419,7 +431,7 @@ module AlegreV2
         cached_data = get_cached_data(get_required_keys(project_media, nil))
         timeout = 60
         start_time = Time.now
-        while start_time + timeout > Time.now && cached_data.values.include?([])
+        while start_time + timeout > Time.now && cached_data.values.collect{|x| x.to_a.empty?}.include?(true) #more robust for any type of null response
           sleep(1)
           cached_data = get_cached_data(get_required_keys(project_media, nil))
         end
@@ -448,7 +460,7 @@ module AlegreV2
       field = params.dig('data', 'item', 'raw', 'context', 'field')
       access_key = confirmed ? :confirmed_results : :suggested_or_confirmed_results
       key = get_required_keys(project_media, field)[access_key]
-      response = cache_items_via_callback(project_media, field, confirmed, params.dig('data', 'results', 'result'))
+      response = cache_items_via_callback(project_media, field, confirmed, params.dig('data', 'results', 'result').dup) #dup so we can better debug when playing with this in a repl
       redis.set(key, response.to_yaml)
       redis.expire(key, 1.day.to_i)
       relate_project_media_callback(project_media, field) if should_relate
