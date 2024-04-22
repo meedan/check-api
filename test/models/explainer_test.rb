@@ -17,7 +17,6 @@ class ExplainerTest < ActiveSupport::TestCase
       u = create_user
       t = create_team
       create_team_user team: t, user: u, role: 'admin'
-      pm = create_project_media team: t
       with_current_user_and_team(u, t) do
         ex = nil
         assert_difference 'PaperTrail::Version.count', 1 do

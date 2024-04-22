@@ -283,7 +283,7 @@ class TeamType < DefaultObject
   end
 
   field :articles, ::ArticleUnion.connection_type, null: true do
-    argument :article_type, GraphQL::Types::String, required: true
+    argument :article_type, GraphQL::Types::String, required: true, camelize: false
   end
 
   def articles(article_type:)

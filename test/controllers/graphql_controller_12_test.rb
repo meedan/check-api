@@ -376,4 +376,14 @@ class GraphqlController12Test < ActionController::TestCase
     assert_response :success
     assert_equal 3, @t.reload.project_medias.count
   end
+
+  test "should get team articles" do
+    ex = create_explainer team: @t
+    tag = create_tag annotated: ex
+    authenticate_with_user(@u)
+    article_type = 'explainer'
+    query = "query { team(slug: \"#{@t.slug}\") { articles(article_type: \"explainer\") { edges { node } } } }"
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success
+  end
 end
