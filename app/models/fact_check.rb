@@ -32,7 +32,7 @@ class FactCheck < ApplicationRecord
   def language_in_allowed_values
     allowed_languages = self.project_media&.team&.get_languages || ['en']
     allowed_languages << 'und'
-    errors.add(:language, I18n.t(:"errors.messages.invalid_fact_check_language_value")) unless allowed_languages.include?(self.language)
+    errors.add(:language, I18n.t(:"errors.messages.invalid_article_language_value")) unless allowed_languages.include?(self.language)
   end
 
   def title_or_summary_exists

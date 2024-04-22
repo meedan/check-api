@@ -2,7 +2,6 @@ require_relative '../test_helper'
 
 class ExplainerTest < ActiveSupport::TestCase
   def setup
-    super
     Explainer.delete_all
   end
 

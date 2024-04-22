@@ -311,6 +311,10 @@ class PopulatedWorkspaces
     teams.each_value { |team| saved_search(team) }
   end
 
+  def explainers
+    teams.each_value { |team| create_explainer(team) }
+  end
+
   def main_user_feed(to_be_shared)
     if to_be_shared == "share_factchecks"
       data_points = [1]
@@ -390,7 +394,7 @@ class PopulatedWorkspaces
 
   def tipline_requests
     teams_project_medias.each_value do |team_project_medias|
-        create_tipline_requests(team_project_medias)
+      create_tipline_requests(team_project_medias)
     end
   end
 
@@ -479,6 +483,15 @@ class PopulatedWorkspaces
     else
       team.saved_searches.first
     end
+  end
+
+  def create_explainer(team)
+    Explainer.create!({
+      title: random_string,
+      url: random_url,
+      description: random_string,
+      team: team,
+    })
   end
 
   def feed_invitation(feed, invited_user)
@@ -703,6 +716,8 @@ ActiveRecord::Base.transaction do
     populated_workspaces.publish_fact_checks
     puts 'Creating Clusters'
     populated_workspaces.clusters(feed_2)
+    puts 'Creating Explainer'
+    populated_workspaces.explainers
   rescue RuntimeError => e
     if e.message.include?('We could not parse this link')
       puts "—————"

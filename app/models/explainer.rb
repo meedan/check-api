@@ -11,9 +11,11 @@ class Explainer < ApplicationRecord
   validate :language_in_allowed_values, unless: proc { |e| e.language.blank? }
 
   def notify_bots
+    # Nothing to do for Explainer
   end
 
   def send_to_alegre
+    # Nothing to do for Explainer
   end
 
   private
@@ -23,8 +25,8 @@ class Explainer < ApplicationRecord
   end
 
   def language_in_allowed_values
-    allowed_languages = self.team&.get_languages || ['en']
+    allowed_languages = self.team.get_languages || ['en']
     allowed_languages << 'und'
-    errors.add(:language, I18n.t(:"errors.messages.invalid_fact_check_language_value")) unless allowed_languages.include?(self.language)
+    errors.add(:language, I18n.t(:"errors.messages.invalid_article_language_value")) unless allowed_languages.include?(self.language)
   end
 end

@@ -144,6 +144,12 @@ class TeamType < DefaultObject
     object.get_shorten_outgoing_urls
   end
 
+  field :get_article_enabled, GraphQL::Types::Boolean, null: true
+
+  def get_article_enabled
+    object.get_article_enabled
+  end
+
   field :public_team, PublicTeamType, null: true
 
   def public_team

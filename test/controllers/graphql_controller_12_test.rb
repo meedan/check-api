@@ -378,13 +378,16 @@ class GraphqlController12Test < ActionController::TestCase
   end
 
   test "should get team articles" do
+    @t.set_article_enabled = true
+    @t.save!
     ex = create_explainer team: @t
     tag = create_tag annotated: ex
     authenticate_with_user(@u)
-    article_type = 'explainer'
-    query = "query { team(slug: \"#{@t.slug}\") { articles(article_type: \"explainer\") { edges { node { ... on Explainer { dbid, tags { edges { node { dbid } } } } } } } } }"
+    query = "query { team(slug: \"#{@t.slug}\") { get_article_enabled, articles(article_type: \"explainer\") { edges { node { ... on Explainer { dbid, tags { edges { node { dbid } } } } } } } } }"
     post :create, params: { query: query, team: @t.slug }
-    data = JSON.parse(@response.body)['data']['team']['articles']['edges']
+    team = JSON.parse(@response.body)['data']['team']
+    assert team['get_article_enabled']
+    data = team['articles']['edges']
     assert_equal [ex.id], data.collect{ |edge| edge['node']['dbid'] }
     tags = data[0]['node']['tags']['edges']
     assert_equal [tag.id.to_s], tags.collect{ |edge| edge['node']['dbid'] }
