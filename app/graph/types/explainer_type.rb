@@ -16,6 +16,6 @@ class ExplainerType < DefaultObject
   field :tags, TagType.connection_type, null: true
 
   def tags
-    Tag.where(annotation_type: 'Tag', annotated_type: object.class.name, annotated_id: object.id)
+    Tag.where(annotation_type: 'tag', annotated_type: object.class.name, annotated_id: object.id)
   end
 end

@@ -382,8 +382,12 @@ class GraphqlController12Test < ActionController::TestCase
     tag = create_tag annotated: ex
     authenticate_with_user(@u)
     article_type = 'explainer'
-    query = "query { team(slug: \"#{@t.slug}\") { articles(article_type: \"explainer\") { edges { node } } } }"
+    query = "query { team(slug: \"#{@t.slug}\") { articles(article_type: \"explainer\") { edges { node { ... on Explainer { dbid, tags { edges { node { dbid } } } } } } } } }"
     post :create, params: { query: query, team: @t.slug }
+    data = JSON.parse(@response.body)['data']['team']['articles']['edges']
+    assert_equal [ex.id], data.collect{ |edge| edge['node']['dbid'] }
+    tags = data[0]['node']['tags']['edges']
+    assert_equal [tag.id.to_s], tags.collect{ |edge| edge['node']['dbid'] }
     assert_response :success
   end
 end
