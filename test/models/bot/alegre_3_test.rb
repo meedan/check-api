@@ -237,7 +237,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
   end
 
   test "should extract project medias from context as array" do
-    assert_equal Bot::Alegre.extract_project_medias_from_context({"_score" => 2, "_source" => {"context" => [{"project_media_id" => 1}]}}), {1=>{:score=>2, :context=>{"project_media_id"=>1}, :model=>nil}}
+    assert_equal Bot::Alegre.extract_project_medias_from_context({"_score" => 2, "_source" => {"context" => [{"project_media_id" => 1}]}}), {1=>{:score=>2, :context=>[{"project_media_id"=>1}], :model=>nil}}
   end
 
   test "should update on alegre" do
