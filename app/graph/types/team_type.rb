@@ -296,5 +296,13 @@ class TeamType < DefaultObject
     object.explainers if article_type == 'explainer'
   end
 
+  field :api_key, ApiKeyType, null: true do
+    argument :dbid, GraphQL::Types::Int, required: true
+  end
+
+  def api_key(dbid:)
+    object.get_api_key(dbid)
+  end
+
   field :api_keys, ApiKeyType.connection_type, null: true
 end

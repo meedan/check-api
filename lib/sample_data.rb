@@ -41,13 +41,11 @@ module SampleData
   end
 
   def create_api_key_for_team(options = {})
-    team_user = create_team_user(options)
-
     ApiKey.create!({
       title: random_string,
       description: random_string,
-      team: options[:team] || team_user.team,
-      user: options[:user] || team_user.user,
+      team: options[:team] || create_team,
+      user: options[:user] || create_user,
     }.merge(options))
   end
 
