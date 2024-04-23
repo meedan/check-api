@@ -295,4 +295,6 @@ class TeamType < DefaultObject
   def articles(article_type:)
     object.explainers if article_type == 'explainer'
   end
+
+  field :api_keys, ApiKeyType.connection_type, null: true
 end

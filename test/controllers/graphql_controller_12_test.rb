@@ -393,4 +393,60 @@ class GraphqlController12Test < ActionController::TestCase
     assert_equal [tag.id.to_s], tags.collect{ |edge| edge['node']['dbid'] }
     assert_response :success
   end
+
+  test "should create api key" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+    query = 'mutation create { createApiKey(input: { title: "test-api-key", description: "This is a test api key" }) { api_key { id title description } } }'
+
+    byebug
+    assert_difference 'ApiKey.count' do
+      post :create, params: { query: query, team: t }
+    end
+  end
+
+  # test "should get api keys in a team" do
+  #   t = create_team
+  #   u = create_user is_admin: true
+  #   authenticate_with_user(u)
+
+  #   a = create_api_key_for_team(team: t, user: u)
+
+  #   query = "query { team { apiKey(dbid: #{a.id}) { requests_count, requests(request_id: null, first: 100, offset: 0, sort: \"requests\", sort_type: \"asc\") { edges { node { dbid, media { id } } } } } } }"
+  #   post :create, params: { query: query, team: t.slug }
+  #   assert_response :success
+  #   response = JSON.parse(@response.body).dig('data', 'team', 'feed', 'requests', 'edges')
+  #   assert_equal 1, response.size
+  #   assert_equal r1.id, response.dig(0, 'node', 'dbid')
+
+  #   query = "query { team { feed(dbid: #{f.id}) { requests_count, requests(request_id: #{r1.id}, first: 100, offset: 0, sort: \"requests\", sort_type: \"asc\") { edges { node { dbid, feed { name }, media { id } } } } } } }"
+  #   post :create, params: { query: query, team: t.slug }
+  #   assert_response :success
+  #   response = JSON.parse(@response.body).dig('data', 'team', 'feed', 'requests', 'edges')
+  #   assert_equal 2, response.size
+  # end
+
+  # test "should get feed directly by id" do
+  #   t = create_team
+  #   u = create_user
+  #   create_team_user user: u, team: t
+  #   authenticate_with_user(u)
+
+  #   f1 = create_feed
+  #   f1.teams << t
+  #   f2 = create_feed
+  #   FeedTeam.update_all(shared: true)
+
+  #   query = "query { feed(id: \"#{f1.id}\") { dbid } }"
+  #   post :create, params: { query: query, team: t.slug }
+  #   assert_response :success
+  #   assert_equal f1.id, JSON.parse(@response.body).dig('data', 'feed', 'dbid')
+
+  #   query = "query { feed(id: \"#{f2.id}\") { dbid } }"
+  #   post :create, params: { query: query, team: t.slug }
+  #   assert_response :success
+  #   assert_nil JSON.parse(@response.body).dig('data', 'feed', 'dbid')
+  # end
 end
