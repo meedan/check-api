@@ -312,7 +312,7 @@ class PopulatedWorkspaces
   end
 
   def explainers
-    teams.each_value { |team| create_explainer(team) }
+    teams.each_value { |team| 5.times { create_explainer(team) } }
   end
 
   def main_user_feed(to_be_shared)
@@ -487,10 +487,11 @@ class PopulatedWorkspaces
 
   def create_explainer(team)
     Explainer.create!({
-      title: random_string,
+      title: Faker::Lorem.sentence,
       url: random_url,
-      description: random_string,
+      description: Faker::Lorem.paragraph(sentence_count: 8),
       team: team,
+      user: users[:main_user_a],
     })
   end
 
@@ -716,7 +717,7 @@ ActiveRecord::Base.transaction do
     populated_workspaces.publish_fact_checks
     puts 'Creating Clusters'
     populated_workspaces.clusters(feed_2)
-    puts 'Creating Explainer'
+    puts 'Creating Explainers'
     populated_workspaces.explainers
   rescue RuntimeError => e
     if e.message.include?('We could not parse this link')
