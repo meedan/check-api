@@ -413,6 +413,9 @@ module AlegreV2
       self.add_relationships(project_media, get_similar_items_v2_callback(project_media, field)) unless project_media.is_blank?
     end
 
+    def is_cached_data_not_good(cached_data)
+      cached_data.values.collect{|x| x.to_a.empty?}.include?(true)
+    end
     def get_items_with_similar_media_v2(args={})
       media_url = args[:media_url]
       project_media = args[:project_media]
@@ -429,13 +432,13 @@ module AlegreV2
         end
         get_similar_items_v2_async(project_media, nil)
         cached_data = get_cached_data(get_required_keys(project_media, nil))
-        timeout = 60
+        timeout = args[:timeout] || 60
         start_time = Time.now
-        while start_time + timeout > Time.now && cached_data.values.collect{|x| x.to_a.empty?}.include?(true) #more robust for any type of null response
+        while start_time + timeout > Time.now && is_cached_data_not_good(cached_data) #more robust for any type of null response
           sleep(1)
           cached_data = get_cached_data(get_required_keys(project_media, nil))
         end
-        CheckSentry.notify(AlegreTimeoutError.new('Timeout when waiting for async response from Alegre'), params: args.merge({ cached_data: cached_data })) if cached_data.values.include?([])
+        CheckSentry.notify(AlegreTimeoutError.new('Timeout when waiting for async response from Alegre'), params: args.merge({ cached_data: cached_data })) if start_time + timeout > Time.now
         response = get_similar_items_v2_callback(project_media, nil)
         delete(project_media, nil) if project_media.is_a?(TemporaryProjectMedia)
         return response
