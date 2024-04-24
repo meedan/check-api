@@ -376,4 +376,21 @@ class GraphqlController12Test < ActionController::TestCase
     assert_response :success
     assert_equal 3, @t.reload.project_medias.count
   end
+
+  test "should get team articles" do
+    @t.set_explainers_enabled = true
+    @t.save!
+    ex = create_explainer team: @t
+    tag = create_tag annotated: ex
+    authenticate_with_user(@u)
+    query = "query { team(slug: \"#{@t.slug}\") { get_explainers_enabled, articles(article_type: \"explainer\") { edges { node { ... on Explainer { dbid, tags { edges { node { dbid } } } } } } } } }"
+    post :create, params: { query: query, team: @t.slug }
+    team = JSON.parse(@response.body)['data']['team']
+    assert team['get_explainers_enabled']
+    data = team['articles']['edges']
+    assert_equal [ex.id], data.collect{ |edge| edge['node']['dbid'] }
+    tags = data[0]['node']['tags']['edges']
+    assert_equal [tag.id.to_s], tags.collect{ |edge| edge['node']['dbid'] }
+    assert_response :success
+  end
 end

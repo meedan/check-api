@@ -144,6 +144,12 @@ class TeamType < DefaultObject
     object.get_shorten_outgoing_urls
   end
 
+  field :get_explainers_enabled, GraphQL::Types::Boolean, null: true
+
+  def get_explainers_enabled
+    object.get_explainers_enabled
+  end
+
   field :public_team, PublicTeamType, null: true
 
   def public_team
@@ -280,5 +286,13 @@ class TeamType < DefaultObject
 
   def tipline_messages(uid:)
     TiplineMessagesPagination.new(object.tipline_messages.where(uid: uid).order('sent_at DESC'))
+  end
+
+  field :articles, ::ArticleUnion.connection_type, null: true do
+    argument :article_type, GraphQL::Types::String, required: true, camelize: false
+  end
+
+  def articles(article_type:)
+    object.explainers if article_type == 'explainer'
   end
 end

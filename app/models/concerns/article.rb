@@ -1,6 +1,6 @@
 require 'active_support/concern'
 
-module ClaimAndFactCheck
+module Article
   extend ActiveSupport::Concern
 
   included do
@@ -26,11 +26,15 @@ module ClaimAndFactCheck
   end
 
   def update_elasticsearch_data
-    self.index_in_elasticsearch
+    self.article_elasticsearch_data
   end
 
   def destroy_elasticsearch_data
-    self.index_in_elasticsearch('destroy')
+    self.article_elasticsearch_data('destroy')
+  end
+
+  def article_elasticsearch_data(action = 'create_or_update')
+    # Implement it in the child class
   end
 
   def send_to_alegre
@@ -47,30 +51,7 @@ module ClaimAndFactCheck
 
   protected
 
-  def index_in_elasticsearch(action = 'create_or_update')
-    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    data = {}
-    if self.class.name == 'FactCheck'
-      data = action == 'destroy' ? {
-        'fact_check_title' => '',
-        'fact_check_summary' => '',
-        'fact_check_url' => '',
-        'fact_check_languages' => []
-      } : {
-        'fact_check_title' => self.title,
-        'fact_check_summary' => self.summary,
-        'fact_check_url' => self.url,
-        'fact_check_languages' => [self.language]
-      }
-    else
-      data = action == 'destroy' ? {
-        'claim_description_content' => '',
-        'claim_description_context' => ''
-      } : {
-        'claim_description_content' => self.description,
-        'claim_description_context' => self.context
-      }
-    end
+  def index_in_elasticsearch(data)
     # touch project media to update `updated_at` date
     pm = self.project_media
     pm = ProjectMedia.find_by_id(pm.id)

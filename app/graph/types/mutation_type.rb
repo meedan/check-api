@@ -142,4 +142,8 @@ class MutationType < BaseObject
 
   field :addNluKeywordToTiplineMenu, mutation: NluMutations::AddKeywordToTiplineMenu
   field :removeNluKeywordFromTiplineMenu, mutation: NluMutations::RemoveKeywordFromTiplineMenu
+
+  field :createExplainer, mutation: ExplainerMutations::Create
+  field :updateExplainer, mutation: ExplainerMutations::Update
+  field :destroyExplainer, mutation: ExplainerMutations::Destroy
 end
