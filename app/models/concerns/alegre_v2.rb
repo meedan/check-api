@@ -439,8 +439,6 @@ module AlegreV2
         response = get_similar_items_v2_callback(project_media, nil)
         delete(project_media, nil) if project_media.is_a?(TemporaryProjectMedia)
         return response
-      else
-        self.get_items_with_similar_media("#{media_url||media_file_url(project_media)}?hash=#{SecureRandom.hex}", threshold, team_ids, "/#{type}/similarity/search/")
       end
     end
 
