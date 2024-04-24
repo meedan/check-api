@@ -10,14 +10,20 @@ module AlegreWebhooks
       !token.blank? && token == CheckConfig.get('alegre_token')
     end
 
+    def is_from_alegre_callback(request)
+      request.params.dig('data', 'item', 'callback_url').to_s.include?("/presto/receive/add_item") || request.params.dig('data', 'is_shortcircuited_callback')
+    end
+
     def webhook(request)
       key = nil
       begin
         doc_id = request.params.dig('data', 'requested', 'id')
+        # search for doc_id on completed full-circuit callbacks
         doc_id = request.params.dig('data', 'item', 'id') if doc_id.nil?
-        is_from_alegre_callback = request.params.dig('data', 'item', 'callback_url').to_s.include?("/presto/receive/add_item")
+        # search for doc_id on completed short-circuit callbacks (i.e. items already known to Alegre but added context TODO make these the same structure)
+        doc_id = request.params.dig('data', 'item', 'raw', 'doc_id') if doc_id.nil?
         raise 'Unexpected params format' if doc_id.blank?
-        if is_from_alegre_callback
+        if is_from_alegre_callback(request)
           Bot::Alegre.process_alegre_callback(request.params)
         else
           redis = Redis.new(REDIS_CONFIG)
