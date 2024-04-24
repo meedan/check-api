@@ -148,4 +148,5 @@ class MutationType < BaseObject
   field :destroyExplainer, mutation: ExplainerMutations::Destroy
 
   field :createApiKey, mutation: ApiKeyMutations::Create
+  field :destroyApiKey, mutation: ApiKeyMutations::Destroy
 end

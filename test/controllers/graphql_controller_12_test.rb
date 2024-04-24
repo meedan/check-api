@@ -412,8 +412,8 @@ class GraphqlController12Test < ActionController::TestCase
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
 
-    api_key_1 = create_api_key_for_team(team: t, user: u, title: "ApiKey 1")
-    api_key_2 = create_api_key_for_team(team: t, user: u, title: "ApiKey 2")
+    api_key_1 = create_api_key_for_team(team: t, title: "ApiKey 1")
+    api_key_2 = create_api_key_for_team(team: t, title: "ApiKey 2")
 
     query = 'query read { team { api_keys { edges { node { dbid, title, description } } } } }'
     post :create, params: { query: query, team: t }
@@ -428,7 +428,7 @@ class GraphqlController12Test < ActionController::TestCase
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
 
-    a = create_api_key_for_team(team: t, user: u)
+    a = create_api_key_for_team(team: t)
 
     query = "query { team { api_key(dbid: #{a.id}) { dbid } } }"
     post :create, params: { query: query, team: t.slug }
@@ -436,5 +436,19 @@ class GraphqlController12Test < ActionController::TestCase
     response = JSON.parse(@response.body).dig('data', 'team', 'api_key')
     assert_equal 1, response.size
     assert_equal a.id, response.dig('dbid')
+  end
+
+  test "should delete api key" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'collaborator'
+    authenticate_with_user(u)
+
+    a = create_api_key_for_team(team: t)
+    query = 'mutation destroy { destroyApiKey(input: { id: "' + a.id.to_s + '" }) { deletedId } }'
+    post :create, params: { query: query }
+    assert_response :success
+    response = JSON.parse(@response.body).dig('data', 'destroyApiKey')
+    assert_equal a.id.to_s, response.dig('deletedId')
   end
 end
