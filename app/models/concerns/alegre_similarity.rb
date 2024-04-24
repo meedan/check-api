@@ -286,18 +286,6 @@ module AlegreSimilarity
       params
     end
 
-    def get_items_with_similar_media(media_url, threshold, team_id, path)
-      self.get_similar_items_from_api(
-        path,
-        self.similar_media_content_from_api_conditions(
-          team_id,
-          media_url,
-          threshold
-        ),
-        threshold
-      )
-    end
-
     def similar_media_content_from_api_conditions(team_id, media_url, threshold, match_across_content_types=true)
       {
         url: media_url,
