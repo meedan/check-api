@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_04_04_154458) do
+ActiveRecord::Schema.define(version: 2024_04_17_140727) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -285,7 +285,7 @@ ActiveRecord::Schema.define(version: 2024_04_04_154458) do
     t.jsonb "value_json", default: "{}"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index "dynamic_annotation_fields_value(field_name, value)", name: "dynamic_annotation_fields_value", where: "((field_name)::text = ANY ((ARRAY['external_id'::character varying, 'smooch_user_id'::character varying, 'verification_status_status'::character varying])::text[]))"
+    t.index "dynamic_annotation_fields_value(field_name, value)", name: "dynamic_annotation_fields_value", where: "((field_name)::text = ANY (ARRAY[('external_id'::character varying)::text, ('smooch_user_id'::character varying)::text, ('verification_status_status'::character varying)::text]))"
     t.index ["annotation_id", "field_name"], name: "index_dynamic_annotation_fields_on_annotation_id_and_field_name"
     t.index ["annotation_id"], name: "index_dynamic_annotation_fields_on_annotation_id"
     t.index ["annotation_type"], name: "index_dynamic_annotation_fields_on_annotation_type"
@@ -296,6 +296,19 @@ ActiveRecord::Schema.define(version: 2024_04_04_154458) do
     t.index ["value"], name: "smooch_user_unique_id", unique: true, where: "(((field_name)::text = 'smooch_user_id'::text) AND (value <> ''::text) AND (value <> '\"\"'::text))"
     t.index ["value"], name: "translation_request_id", unique: true, where: "((field_name)::text = 'translation_request_id'::text)"
     t.index ["value_json"], name: "index_dynamic_annotation_fields_on_value_json", using: :gin
+  end
+
+  create_table "explainers", force: :cascade do |t|
+    t.string "title"
+    t.text "description"
+    t.string "url"
+    t.string "language"
+    t.bigint "user_id", null: false
+    t.bigint "team_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["team_id"], name: "index_explainers_on_team_id"
+    t.index ["user_id"], name: "index_explainers_on_user_id"
   end
 
   create_table "fact_checks", force: :cascade do |t|
@@ -885,6 +898,8 @@ ActiveRecord::Schema.define(version: 2024_04_04_154458) do
 
   add_foreign_key "claim_descriptions", "project_medias"
   add_foreign_key "claim_descriptions", "users"
+  add_foreign_key "explainers", "teams"
+  add_foreign_key "explainers", "users"
   add_foreign_key "fact_checks", "claim_descriptions"
   add_foreign_key "fact_checks", "users"
   add_foreign_key "feed_invitations", "feeds"

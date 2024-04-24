@@ -1,5 +1,5 @@
 class ClaimDescription < ApplicationRecord
-  include ClaimAndFactCheck
+  include Article
 
   belongs_to :project_media
   has_one :fact_check, dependent: :destroy
@@ -19,5 +19,17 @@ class ClaimDescription < ApplicationRecord
 
   def text_fields
     ['claim_description_content']
+  end
+
+  def article_elasticsearch_data(action = 'create_or_update')
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    data = action == 'destroy' ? {
+      'claim_description_content' => '',
+      'claim_description_context' => ''
+    } : {
+      'claim_description_content' => self.description,
+      'claim_description_context' => self.context
+    }
+    self.index_in_elasticsearch(data)
   end
 end

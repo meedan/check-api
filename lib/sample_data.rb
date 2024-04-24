@@ -900,6 +900,16 @@ module SampleData
     }.merge(options))
   end
 
+  def create_explainer(options = {})
+    Explainer.create!({
+      title: random_string,
+      url: random_url,
+      description: random_string,
+      user: options[:user] || create_user,
+      team: options[:team] || create_team,
+    }.merge(options))
+  end
+
   def create_feed(options = {})
     Feed.create!({
       name: random_string,
