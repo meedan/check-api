@@ -234,7 +234,7 @@ class WebhooksControllerTest < ActionController::TestCase
   end
 
   test "should process Alegre webhook" do
-    CheckSentry.expects(:notify).once
+    CheckSentry.expects(:notify).twice
     redis = Redis.new(REDIS_CONFIG)
     redis.del('foo')
     id = random_number
@@ -249,7 +249,7 @@ class WebhooksControllerTest < ActionController::TestCase
   end
 
   test "should process Alegre callback webhook" do
-    CheckSentry.expects(:notify).once
+    CheckSentry.expects(:notify).twice
     id = random_number
     payload = { 'action' => 'audio', 'data' => {'item' => { 'callback_url' => '/presto/receive/add_item', 'id' => id.to_s }} }
     Bot::Alegre.stubs(:process_alegre_callback).returns({})
