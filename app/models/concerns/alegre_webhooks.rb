@@ -10,8 +10,8 @@ module AlegreWebhooks
       !token.blank? && token == CheckConfig.get('alegre_token')
     end
 
-    def is_from_alegre_callback(request)
-      request.params.dig('data', 'item', 'callback_url').to_s.include?("/presto/receive/add_item") || request.params.dig('data', 'is_shortcircuited_callback')
+    def is_from_alegre_search_result_callback(request)
+      request.params.dig('data', 'is_shortcircuited_search_result_callback') || request.params.dig('data', 'is_shortcircuited_callback')
     end
 
     def webhook(request)
