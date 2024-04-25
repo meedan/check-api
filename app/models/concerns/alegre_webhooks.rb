@@ -11,7 +11,7 @@ module AlegreWebhooks
     end
 
     def is_from_alegre_search_result_callback(request)
-      request.params.dig('data', 'is_shortcircuited_search_result_callback') || request.params.dig('data', 'is_shortcircuited_callback')
+      request.params.dig('data', 'is_shortcircuited_search_result_callback') || request.params.dig('data', 'is_search_result_callback')
     end
 
     def webhook(request)
