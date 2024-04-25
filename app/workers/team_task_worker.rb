@@ -3,12 +3,12 @@ class TeamTaskWorker
 
   sidekiq_options :queue => :tsqueue
 
-  def perform(action, id, author, fields = YAML::dump({}), keep_completed_tasks = false, options_diff = {})
+  def perform(action, id, author_id, fields = YAML::dump({}), keep_completed_tasks = false, options_diff = {})
     RequestStore.store[:skip_notifications] = true
     user_current = User.current
     team_current = Team.current
     fields = YAML::load(fields)
-    author = YAML::load(author)
+    author = User.find_by_id(author_id)
     User.current = author
     if action == 'update' || action == 'add'
       team_task = TeamTask.find_by_id(id)
