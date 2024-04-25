@@ -98,6 +98,10 @@ class TeamTask < ApplicationRecord
     task2_order = task2.order
     task1.update_column(:order, task2_order)
     task2.update_column(:order, task1_order)
+    # Apply new order to item annotations
+    fields = { order: true }
+    TeamTaskWorker.perform_in(1.second, 'update', task1.id, YAML::dump(User.current), YAML::dump(fields))
+    TeamTaskWorker.perform_in(1.second, 'update', task2.id, YAML::dump(User.current), YAML::dump(fields))
     task2_order
   end
 
@@ -122,7 +126,8 @@ class TeamTask < ApplicationRecord
       label: self.saved_change_to_label?,
       description: self.saved_change_to_description?,
       task_type: self.saved_change_to_task_type?,
-      options: self.saved_change_to_options?
+      options: self.saved_change_to_options?,
+      order: self.saved_change_to_order?
     }
     fields.delete_if{|_k, v| v == false || v.nil?}
     TeamTaskWorker.perform_in(1.second, 'update', self.id, YAML::dump(User.current), YAML::dump(fields), false, self.options_diff) unless fields.blank?
