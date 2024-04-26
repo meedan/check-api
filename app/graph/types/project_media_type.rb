@@ -49,7 +49,9 @@ class ProjectMediaType < DefaultObject
   field :imported_from_feed, FeedType, null: true
 
   def imported_from_feed
-    GraphqlCrudOperations.load_if_can(Feed, object.imported_from_feed_id, context)
+    ability = context[:ability] || Ability.new
+    feed = Feed.find_by_id(object.imported_from_feed_id)
+    (feed && ability.can?(:read, feed)) ? feed : nil
   end
 
   field :claim_description, ClaimDescriptionType, null: true
