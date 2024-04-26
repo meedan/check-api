@@ -214,12 +214,12 @@ class ProjectMediaType < DefaultObject
     object.get_annotations("comment").map(&:load)
   end
 
-  field :requests,
-        TiplineRequestType.connection_type,
-        null: true
+  field :requests, TiplineRequestType.connection_type, null: true do
+    argument :include_children, GraphQL::Types::Boolean, required: false
+  end
 
-  def requests
-    object.get_requests
+  def requests(include_children: false)
+    object.get_requests(include_children)
   end
 
   field :last_status, GraphQL::Types::String, null: true
