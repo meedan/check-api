@@ -13,4 +13,5 @@ class ApiKeyType < DefaultObject
   field :expire_at, GraphQL::Types::String, null: true
 
   field :team, PublicTeamType, null: true
+  field :user, UserType, null: true
 end
