@@ -24,7 +24,7 @@ module AlegreWebhooks
         doc_id = request.params.dig('data', 'item', 'raw', 'doc_id') if doc_id.nil?
         CheckSentry.notify(AlegreCallbackError.new("Tracing Webhook NOT AN ERROR"), params: {doc_id: doc_id, is_not_a_bug_is_a_temporary_log_to_sentry: true, alegre_response: request.params })
         raise 'Unexpected params format' if doc_id.blank?
-        if is_from_alegre_callback(request)
+        if is_from_alegre_search_result_callback(request)
           Bot::Alegre.process_alegre_callback(request.params)
         else
           redis = Redis.new(REDIS_CONFIG)

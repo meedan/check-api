@@ -233,8 +233,8 @@ class WebhooksControllerTest < ActionController::TestCase
     assert_match /ignored/, response.body
   end
 
-  test "should process Alegre webhook" do
-    CheckSentry.expects(:notify).twice
+  test "should process Alegre webhook zzz" do
+    CheckSentry.expects(:notify).once
     redis = Redis.new(REDIS_CONFIG)
     redis.del('foo')
     id = random_number
