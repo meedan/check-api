@@ -223,6 +223,25 @@ class PopulatedWorkspaces
     @invited_teams = teams.size > 1
   end
 
+  def imported_fact_check(media_type)
+    unless media_type == 'Blank' then false end
+      {
+        summary: Faker::Company.catch_phrase,
+        title: Faker::Company.name,
+        user: users[:main_user_a],
+        language: 'en',
+        url: get_url_for_some_fact_checks(4)
+      }
+  end
+
+  def fetch_bot
+    teams.each_value do |team|
+      bot = BotUser.fetch_user
+      installation = TeamBotInstallation.where(team: team, user: bot).last
+      bot.install_to!(team) if installation.nil?
+    end
+  end
+
   def populate_projects
     projects_params_main_user_a = 
       {
@@ -234,12 +253,12 @@ class PopulatedWorkspaces
             media_attributes: media_params,
             user: users[:main_user_a],
             team: teams[:main_team_a],
-            channel: media_params[:type] == Blank ? { main: CheckChannels::ChannelCodes::FETCH } : { main: 0},
+            channel: media_params[:type] == "Blank" ? { main: CheckChannels::ChannelCodes::FETCH } : { main: 0},
             claim_description_attributes: {
               description: claim_title(media_params),
               context: Faker::Lorem.sentence,
-              user: users[:main_user_a],
-              fact_check_attributes: fact_check_params_for_half_the_claims(index, users[:main_user_a]),
+              user: media_params[:type] == "Blank" ? BotUser.fetch_user : users[:main_user_a],
+              fact_check_attributes: imported_fact_check(media_params[:type]) || fact_check_params_for_half_the_claims(index, users[:main_user_a]),
             }
           }
         }
@@ -694,6 +713,7 @@ ActiveRecord::Base.transaction do
     setup = Setup.new(answer.presence) # .presence : returns nil or the string
     puts 'Creating projects for all users...'
     populated_workspaces = PopulatedWorkspaces.new(setup)
+    populated_workspaces.fetch_bot
     populated_workspaces.populate_projects
     # puts 'Creating saved searches for all teams...'
     # populated_workspaces.saved_searches
