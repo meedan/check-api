@@ -43,6 +43,8 @@ LINK_PARAMS = -> {[
   end
 }
 
+BLANK_PARAMS = Array.new(8, { type: 'Blank' })
+
 class Setup
 
   private
@@ -232,6 +234,7 @@ class PopulatedWorkspaces
             media_attributes: media_params,
             user: users[:main_user_a],
             team: teams[:main_team_a],
+            channel: media_params[:type] == Blank ? { main: CheckChannels::ChannelCodes::FETCH } : { main: 0},
             claim_description_attributes: {
               description: claim_title(media_params),
               context: Faker::Lorem.sentence,
@@ -410,10 +413,11 @@ class PopulatedWorkspaces
   def medias_params
     [
       *CLAIMS_PARAMS,
-      *UPLOADED_AUDIO_PARAMS,
-      *UPLOADED_IMAGE_PARAMS,
-      *UPLOADED_VIDEO_PARAMS,
-      *LINK_PARAMS.call
+      # *UPLOADED_AUDIO_PARAMS,
+      # *UPLOADED_IMAGE_PARAMS,
+      # *UPLOADED_VIDEO_PARAMS,
+      *BLANK_PARAMS,
+      # *LINK_PARAMS.call
     ].shuffle!
   end
 
@@ -691,28 +695,28 @@ ActiveRecord::Base.transaction do
     puts 'Creating projects for all users...'
     populated_workspaces = PopulatedWorkspaces.new(setup)
     populated_workspaces.populate_projects
-    puts 'Creating saved searches for all teams...'
-    populated_workspaces.saved_searches
-    puts 'Creating feed...'
-    feed_1 = populated_workspaces.main_user_feed("share_factchecks")
-    feed_2 = populated_workspaces.main_user_feed("share_everything")
-    puts 'Making and inviting to Shared Feed... (won\'t run if you are not creating any invited users)'
-    populated_workspaces.share_feed(feed_1)
-    populated_workspaces.share_feed(feed_2)
-    puts 'Accepting invitation to a Shared Feed...'
-    populated_workspaces.accept_invitation(feed_2, :invited_user_c)
-    puts 'Making Confirmed Relationships between items...'
-    populated_workspaces.confirm_relationships
-    puts 'Making Suggested Relationships between items...'
-    populated_workspaces.suggest_relationships
-    puts 'Making Tipline requests...'
-    populated_workspaces.tipline_requests
-    puts 'Publishing half of each user\'s Fact Checks...'
-    populated_workspaces.publish_fact_checks
-    puts 'Creating Clusters'
-    populated_workspaces.clusters(feed_2)
-    puts 'Creating Explainers'
-    populated_workspaces.explainers
+    # puts 'Creating saved searches for all teams...'
+    # populated_workspaces.saved_searches
+    # puts 'Creating feed...'
+    # feed_1 = populated_workspaces.main_user_feed("share_factchecks")
+    # feed_2 = populated_workspaces.main_user_feed("share_everything")
+    # puts 'Making and inviting to Shared Feed... (won\'t run if you are not creating any invited users)'
+    # populated_workspaces.share_feed(feed_1)
+    # populated_workspaces.share_feed(feed_2)
+    # puts 'Accepting invitation to a Shared Feed...'
+    # populated_workspaces.accept_invitation(feed_2, :invited_user_c)
+    # puts 'Making Confirmed Relationships between items...'
+    # populated_workspaces.confirm_relationships
+    # puts 'Making Suggested Relationships between items...'
+    # populated_workspaces.suggest_relationships
+    # puts 'Making Tipline requests...'
+    # populated_workspaces.tipline_requests
+    # puts 'Publishing half of each user\'s Fact Checks...'
+    # populated_workspaces.publish_fact_checks
+    # puts 'Creating Clusters'
+    # populated_workspaces.clusters(feed_2)
+    # puts 'Creating Explainers'
+    # populated_workspaces.explainers
   rescue RuntimeError => e
     if e.message.include?('We could not parse this link')
       puts "—————"
