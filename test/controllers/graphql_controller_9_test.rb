@@ -98,20 +98,30 @@ class GraphqlController9Test < ActionController::TestCase
   end
 
   test "should move team metadata up" do
-    query = 'mutation { moveTeamTaskUp(input: { clientMutationId: "1", id: "' + @tm2.graphql_id + '" }) { team_task { order }, team { team_tasks(fieldset: "metadata", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, params: { query: query, team: @t.slug }
-    assert_response :success
-    assert_equal 1, @tm2.reload.order
-    assert_equal 2, @tm1.reload.order
-    data = JSON.parse(@response.body)['data']['moveTeamTaskUp']
-    assert_equal 1, data['team_task']['order']
-    tasks = data['team']['team_tasks']['edges']
-    assert_equal 1, tasks[0]['node']['order']
-    assert_equal 2, tasks[1]['node']['order']
-    assert_equal 3, tasks[2]['node']['order']
-    assert_equal @tm2.id, tasks[0]['node']['dbid']
-    assert_equal @tm1.id, tasks[1]['node']['dbid']
-    assert_equal @tm3.id, tasks[2]['node']['dbid']
+    Sidekiq::Testing.inline! do
+      pm = create_project_media team: @t
+      query = 'mutation { moveTeamTaskUp(input: { clientMutationId: "1", id: "' + @tm2.graphql_id + '" }) { team_task { order }, team { team_tasks(fieldset: "metadata", first: 10) { edges { node { dbid, order } } } } } }'
+      post :create, params: { query: query, team: @t.slug }
+      assert_response :success
+      assert_equal 1, @tm2.reload.order
+      assert_equal 2, @tm1.reload.order
+      data = JSON.parse(@response.body)['data']['moveTeamTaskUp']
+      assert_equal 1, data['team_task']['order']
+      tasks = data['team']['team_tasks']['edges']
+      assert_equal 1, tasks[0]['node']['order']
+      assert_equal 2, tasks[1]['node']['order']
+      assert_equal 3, tasks[2]['node']['order']
+      assert_equal @tm2.id, tasks[0]['node']['dbid']
+      assert_equal @tm1.id, tasks[1]['node']['dbid']
+      assert_equal @tm3.id, tasks[2]['node']['dbid']
+      # Verify item tasks order
+      pm_tm2 = pm.annotations('task').select{|t| t.team_task_id == @tm2.id}.last
+      assert_equal 1, pm_tm2.order
+      pm_tm1 = pm.annotations('task').select{|t| t.team_task_id == @tm1.id}.last
+      assert_equal 2, pm_tm1.order
+      pm_tm3 = pm.annotations('task').select{|t| t.team_task_id == @tm3.id}.last
+      assert_equal 3, pm_tm3.order
+    end
   end
 
   test "should move team metadata down" do
