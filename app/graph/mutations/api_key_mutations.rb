@@ -13,6 +13,19 @@ module ApiKeyMutations
 
   class Create < Mutations::CreateMutation
     include CreateFields
+
+    def resolve(**inputs)
+      bot_user = BotUser.new
+      bot_user.name = inputs[:title]
+      bot_user.login = inputs[:title]
+      bot_user.save!
+
+      bot_user.api_key.title = inputs[:title]
+      bot_user.api_key.description = inputs[:description]
+      bot_user.api_key.save!
+
+      { api_key: bot_user.api_key }
+    end
   end
 
   class Destroy < Mutations::DestroyMutation; end
