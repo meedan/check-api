@@ -388,9 +388,9 @@ class ProjectMedia < ApplicationRecord
     meta.to_json
   end
 
-  def get_requests
+  def get_requests(include_children = false)
     # Get related items for parent item
-    pm_ids = Relationship.confirmed_parent(self).id == self.id ? self.related_items_ids : [self.id]
+    pm_ids = (Relationship.confirmed_parent(self).id == self.id && include_children) ? self.related_items_ids : [self.id]
     TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: pm_ids).order('created_at ASC')
   end
 

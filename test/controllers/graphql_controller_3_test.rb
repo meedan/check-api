@@ -350,7 +350,7 @@ class GraphqlController3Test < ActionController::TestCase
     create_tipline_request team_id: t.id, associated: pm, smooch_data: { 'authorId' => random_string }
     create_tipline_request team_id: t.id, associated: pm2, smooch_data: { 'authorId' => random_string }
     r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
-    query = "query { project_media(ids: \"#{pm.id}\") { requests(first: 10) { edges { node { dbid } } } } }"
+    query = "query { project_media(ids: \"#{pm.id}\") { requests(first: 10, includeChildren: true) { edges { node { dbid } } } } }"
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']['requests']['edges']
