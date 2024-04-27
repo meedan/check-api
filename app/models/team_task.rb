@@ -98,6 +98,10 @@ class TeamTask < ApplicationRecord
     task2_order = task2.order
     task1.update_column(:order, task2_order)
     task2.update_column(:order, task1_order)
+    # Apply new order to item annotations
+    fields = { order: true }
+    TeamTaskWorker.perform_in(1.second, 'update', task1.id, User.current&.id, YAML::dump(fields))
+    TeamTaskWorker.perform_in(1.second, 'update', task2.id, User.current&.id, YAML::dump(fields))
     task2_order
   end
 
@@ -113,7 +117,7 @@ class TeamTask < ApplicationRecord
 
   def add_teamwide_tasks
     self.team&.clear_list_columns_cache
-    TeamTaskWorker.perform_in(1.second, 'add', self.id, YAML::dump(User.current))
+    TeamTaskWorker.perform_in(1.second, 'add', self.id, User.current&.id)
   end
 
   def update_teamwide_tasks
@@ -122,16 +126,17 @@ class TeamTask < ApplicationRecord
       label: self.saved_change_to_label?,
       description: self.saved_change_to_description?,
       task_type: self.saved_change_to_task_type?,
-      options: self.saved_change_to_options?
+      options: self.saved_change_to_options?,
+      order: self.saved_change_to_order?
     }
     fields.delete_if{|_k, v| v == false || v.nil?}
-    TeamTaskWorker.perform_in(1.second, 'update', self.id, YAML::dump(User.current), YAML::dump(fields), false, self.options_diff) unless fields.blank?
+    TeamTaskWorker.perform_in(1.second, 'update', self.id, User.current&.id, YAML::dump(fields), false, self.options_diff) unless fields.blank?
   end
 
   def delete_teamwide_tasks
     self.team&.clear_list_columns_cache
     self.keep_completed_tasks = self.keep_completed_tasks.nil? ? false : self.keep_completed_tasks
-    TeamTaskWorker.perform_in(1.second, 'destroy', self.id, YAML::dump(User.current), YAML::dump({}), self.keep_completed_tasks)
+    TeamTaskWorker.perform_in(1.second, 'destroy', self.id, User.current&.id, YAML::dump({}), self.keep_completed_tasks)
   end
 
   def add_to_sources
