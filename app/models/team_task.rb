@@ -150,7 +150,7 @@ class TeamTask < ApplicationRecord
   end
 
   def add_to_project_medias
-    ProjectMedia.where({ team_id: self.team_id, archived: CheckArchivedFlags::FlagCodes::NONE })
+    ProjectMedia.where({ team_id: self.team_id, archived: [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED] })
     .joins("LEFT JOIN annotations a ON a.annotation_type = 'task' AND a.annotated_type = 'ProjectMedia'
       AND a.annotated_id = project_medias.id
       AND task_team_task_id(a.annotation_type, a.data) = #{self.id}")
