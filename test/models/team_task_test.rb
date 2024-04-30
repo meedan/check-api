@@ -119,7 +119,7 @@ class TeamTaskTest < ActiveSupport::TestCase
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
       pm = create_project_media team: t
-      pm2 = create_project_media team: t
+      pm2 = create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED
       tt = create_team_task team_id: t.id, order: 2, description: 'Foo', options: [{ label: 'Foo' }]
       tt2 = create_team_task team_id: t.id, order: 1, description: 'Foo2', options: [{ label: 'Foo2' }]
       pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
