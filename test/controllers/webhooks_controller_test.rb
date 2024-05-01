@@ -236,15 +236,15 @@ class WebhooksControllerTest < ActionController::TestCase
   test "should process Alegre webhook" do
     CheckSentry.expects(:notify).once
     redis = Redis.new(REDIS_CONFIG)
-    redis.del('foo')
+    redis.del('alegre:webhook:foo')
     id = random_number
     payload = { 'action' => 'audio', 'data' => {'requested' => { 'id' => 'foo', 'context' => { 'project_media_id' => id } }} }
     assert_nil redis.lpop('alegre:webhook:foo')
 
-    post :index, params: { name: :alegre, token: CheckConfig.get('alegre_token') }.merge(payload)
+    post :index, params: { name: :alegre, token: CheckConfig.get('alegre_token') }, body: payload.to_json
     response = JSON.parse(redis.lpop('alegre:webhook:foo'))
     assert_equal 'foo', response.dig('data', 'requested', 'id')
-    expectation = {"action"=>"index", "data"=>{"requested"=>{"context"=>{"project_media_id"=>id.to_s}, "id"=>"foo"}}, "token"=>"test", "name"=>"alegre", "controller"=>"api/v1/webhooks"}
+    expectation = payload
     assert_equal expectation, response
   end
 
@@ -253,7 +253,7 @@ class WebhooksControllerTest < ActionController::TestCase
     id = random_number
     payload = { 'action' => 'audio', 'data' => {'is_shortcircuited_search_result_callback' => true, 'item' => { 'callback_url' => '/presto/receive/add_item', 'id' => id.to_s }} }
     Bot::Alegre.stubs(:process_alegre_callback).returns({})
-    post :index, params: { name: :alegre, token: CheckConfig.get('alegre_token') }.merge(payload)
+    post :index, params: { name: :alegre, token: CheckConfig.get('alegre_token') }, body: payload.to_json
     assert_equal '200', response.code
     assert_match /success/, response.body
   end
@@ -263,13 +263,13 @@ class WebhooksControllerTest < ActionController::TestCase
     id = random_number
     payload = { 'action' => 'audio', 'data' => {'is_search_result_callback' => true, 'item' => { 'callback_url' => '/presto/receive/add_item', 'id' => id.to_s }} }
     Bot::Alegre.stubs(:process_alegre_callback).returns({})
-    post :index, params: { name: :alegre, token: CheckConfig.get('alegre_token') }.merge(payload)
+    post :index, params: { name: :alegre, token: CheckConfig.get('alegre_token') }, body: payload.to_json
     assert_equal '200', response.code
     assert_match /success/, response.body
   end
 
   test "should report error if can't process Alegre webhook" do
     CheckSentry.expects(:notify).twice
-    post :index, params: { name: :alegre, token: CheckConfig.get('alegre_token') }.merge({ foo: 'bar' })
+    post :index, params: { name: :alegre, token: CheckConfig.get('alegre_token') }, body: {foo: "bar"}.to_json
   end
 end
