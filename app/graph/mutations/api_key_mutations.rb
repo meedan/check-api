@@ -24,7 +24,7 @@ module ApiKeyMutations
       bot_user.api_key.description = inputs[:description]
       bot_user.api_key.save!
 
-      { api_key: bot_user.api_key }
+      { success: true, api_key: bot_user.api_key }
     end
   end
 

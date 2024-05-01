@@ -40,15 +40,6 @@ module SampleData
     a.reload
   end
 
-  def create_api_key_for_team(options = {})
-    ApiKey.create!({
-      title: random_string,
-      description: random_string,
-      team: options[:team] || create_team,
-      user: options[:user] || create_user,
-    }.merge(options))
-  end
-
   def create_saved_search(options = {})
     ss = SavedSearch.new
     ss.team = options[:team] || create_team
@@ -99,6 +90,8 @@ module SampleData
 
     if options[:team]
       create_team_user team: options[:team], user: u
+      u.api_key.team = options[:team]
+      u.api_key.save!
     end
 
     u.reload

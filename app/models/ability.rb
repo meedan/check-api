@@ -66,7 +66,7 @@ class Ability
     can :destroy, FeedTeam do |obj|
       obj.team_id == @context_team.id || obj.feed.team_id == @context_team.id
     end
-    can :manage, ApiKey, :team_id => @context_team.id
+    can :cud, ApiKey, :team_id => @context_team.id
   end
 
   def editor_perms
