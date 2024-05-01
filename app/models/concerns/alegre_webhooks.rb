@@ -10,7 +10,7 @@ module AlegreWebhooks
       !token.blank? && token == CheckConfig.get('alegre_token')
     end
 
-    def is_from_alegre_search_result_callback(request)
+    def is_from_alegre_search_result_callback(params)
       params.dig('data', 'is_shortcircuited_search_result_callback') || params.dig('data', 'is_search_result_callback')
     end
 
