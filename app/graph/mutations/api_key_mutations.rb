@@ -15,16 +15,20 @@ module ApiKeyMutations
     include CreateFields
 
     def resolve(**inputs)
-      bot_user = BotUser.new
-      bot_user.name = inputs[:title]
-      bot_user.login = inputs[:title]
-      bot_user.save!
+      begin
+        bot_user = BotUser.new
+        bot_user.name = inputs[:title]
+        bot_user.login = inputs[:title]
+        bot_user.save!
 
-      bot_user.api_key.title = inputs[:title]
-      bot_user.api_key.description = inputs[:description]
-      bot_user.api_key.save!
+        bot_user.api_key.title = inputs[:title]
+        bot_user.api_key.description = inputs[:description]
+        bot_user.api_key.save!
 
-      { success: true, api_key: bot_user.api_key }
+        { success: true, api_key: bot_user.api_key }
+      rescue
+        { success: false, error: 'Could not create API key' }
+      end
     end
   end
 
