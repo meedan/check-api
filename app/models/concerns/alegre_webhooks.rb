@@ -28,7 +28,7 @@ module AlegreWebhooks
         doc_id = body.dig('data', 'item', 'id') if doc_id.nil?
         # search for doc_id on completed short-circuit callbacks (i.e. items already known to Alegre but added context TODO make these the same structure)
         doc_id = body.dig('data', 'item', 'raw', 'doc_id') if doc_id.nil?
-        CheckSentry.notify(AlegreCallbackError.new("Tracing Webhook NOT AN ERROR"), params: {doc_id: doc_id, is_not_a_bug_is_a_temporary_log_to_sentry: true, alegre_response: request.params, body: body })
+        CheckSentry.notify(AlegreCallbackError.new("Tracing Webhook NOT AN ERROR"), params: {is_raised_from_error: false, doc_id: doc_id, is_not_a_bug_is_a_temporary_log_to_sentry: true, alegre_response: request.params, body: body })
         raise 'Unexpected params format' if doc_id.blank?
         if is_from_alegre_search_result_callback(body)
           Bot::Alegre.process_alegre_callback(body)
@@ -37,7 +37,7 @@ module AlegreWebhooks
           redis.lpush(key, body.to_json)
         end
       rescue StandardError => e
-        CheckSentry.notify(AlegreCallbackError.new(e.message), params: { alegre_response: request.params })
+        CheckSentry.notify(AlegreCallbackError.new(e.message), params: { is_raised_from_error: true, alegre_response: request.params })
       ensure
         redis.expire(key, 1.day.to_i) if !key.nil?
       end
