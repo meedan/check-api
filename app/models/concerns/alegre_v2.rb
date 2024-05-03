@@ -169,14 +169,6 @@ module AlegreV2
       ).merge(params)
     end
 
-    def generic_package_video(project_media, params)
-      generic_package_media(project_media, params)
-    end
-
-    def delete_package_video(project_media, _field, params)
-      generic_package_video(project_media, params)
-    end
-
     def generic_package_image(project_media, params)
       generic_package_media(project_media, params)
     end
@@ -212,10 +204,6 @@ module AlegreV2
       context[:field] = field if field && is_not_generic_field(field)
       context[:temporary_media] = project_media.is_a?(TemporaryProjectMedia)
       context
-    end
-
-    def store_package_video(project_media, _field, params)
-      generic_package_video(project_media, params)
     end
 
     def store_package_image(project_media, _field, params)
@@ -413,16 +401,13 @@ module AlegreV2
       self.add_relationships(project_media, get_similar_items_v2_callback(project_media, field)) unless project_media.is_blank?
     end
 
-    def is_cached_data_not_good(cached_data)
-      cached_data.values.collect{|x| x.to_a.empty?}.include?(true)
-    end
     def get_items_with_similar_media_v2(args={})
       media_url = args[:media_url]
       project_media = args[:project_media]
       threshold = args[:threshold]
       team_ids = args[:team_ids]
       type = args[:type]
-      if ['audio', 'image', 'video'].include?(type)
+      if ['audio', 'image'].include?(type)
         if project_media.nil?
           project_media = TemporaryProjectMedia.new
           project_media.url = media_url
@@ -432,16 +417,18 @@ module AlegreV2
         end
         get_similar_items_v2_async(project_media, nil)
         cached_data = get_cached_data(get_required_keys(project_media, nil))
-        timeout = args[:timeout] || 60
+        timeout = 60
         start_time = Time.now
-        while start_time + timeout > Time.now && is_cached_data_not_good(cached_data) #more robust for any type of null response
+        while start_time + timeout > Time.now && cached_data.values.include?([])
           sleep(1)
           cached_data = get_cached_data(get_required_keys(project_media, nil))
         end
-        CheckSentry.notify(AlegreTimeoutError.new('Timeout when waiting for async response from Alegre'), params: args.merge({ cached_data: cached_data })) if start_time + timeout > Time.now
+        CheckSentry.notify(AlegreTimeoutError.new('Timeout when waiting for async response from Alegre'), params: args.merge({ cached_data: cached_data })) if cached_data.values.include?([])
         response = get_similar_items_v2_callback(project_media, nil)
         delete(project_media, nil) if project_media.is_a?(TemporaryProjectMedia)
         return response
+      else
+        self.get_items_with_similar_media("#{media_url||media_file_url(project_media)}?hash=#{SecureRandom.hex}", threshold, team_ids, "/#{type}/similarity/search/")
       end
     end
 
@@ -461,7 +448,7 @@ module AlegreV2
       field = params.dig('data', 'item', 'raw', 'context', 'field')
       access_key = confirmed ? :confirmed_results : :suggested_or_confirmed_results
       key = get_required_keys(project_media, field)[access_key]
-      response = cache_items_via_callback(project_media, field, confirmed, params.dig('data', 'results', 'result').dup) #dup so we can better debug when playing with this in a repl
+      response = cache_items_via_callback(project_media, field, confirmed, params.dig('data', 'results', 'result'))
       redis.set(key, response.to_yaml)
       redis.expire(key, 1.day.to_i)
       relate_project_media_callback(project_media, field) if should_relate
