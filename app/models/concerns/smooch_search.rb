@@ -157,6 +157,7 @@ module SmoochSearch
           text = [link.pender_data['description'].to_s, text.to_s.gsub(/https?:\/\/[^\s]+/, '').strip].max_by(&:length)
         end
         return [] if text.blank?
+        text = remove_meaningless_phrases(text)
         words = text.split(/\s+/)
         Rails.logger.info "[Smooch Bot] Search query (text): #{text}"
         if Bot::Alegre.get_number_of_words(text) <= self.max_number_of_words_for_keyword_search
@@ -177,6 +178,14 @@ module SmoochSearch
         Rails.logger.info "[Smooch Bot] Media similarity search got #{results.count} results while looking for '#{query}' after date #{after.inspect} for teams #{team_ids}"
       end
       results
+    end
+
+    def remove_meaningless_phrases(text)
+      redis = Redis.new(REDIS_CONFIG)
+      meaningless_phrases = JSON.parse(redis.get("smooch_search_meaningless_phrases") || "[]")
+      meaningless_phrases.each{|phrase| text.sub!(/^#{phrase}\W/i,'')}
+      text.strip!()
+      text
     end
 
     def save_locally_and_return_url(media_url, type, feed_id)
