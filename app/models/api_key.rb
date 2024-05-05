@@ -39,8 +39,8 @@ class ApiKey < ApplicationRecord
   end
 
   def set_user_and_team
-    self.user = User.current unless User.current.nil? || !self.class.column_names.include?('user_id')
-    self.team = Team.current unless Team.current.nil?|| !self.class.column_names.include?('team_id')
+    self.user = User.current unless User.current.nil?
+    self.team = Team.current unless Team.current.nil?
   end
 
   def calculate_expiration_date
