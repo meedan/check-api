@@ -412,10 +412,8 @@ class GraphqlController12Test < ActionController::TestCase
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
 
-    bot_1 = create_bot_user(team: t)
-    bot_2 = create_bot_user(team: t)
-    api_key_1 = bot_1.api_key
-    api_key_2 = bot_2.api_key
+    api_key_1 = create_api_key(team: t)
+    api_key_2 = create_api_key(team: t)
 
     query = 'query read { team { api_keys { edges { node { dbid, title, description } } } } }'
     post :create, params: { query: query, team: t }
@@ -430,8 +428,7 @@ class GraphqlController12Test < ActionController::TestCase
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
 
-    b = create_bot_user(team: t)
-    a = b.api_key
+    a = create_api_key(team: t)
 
     query = "query { team { api_key(dbid: #{a.id}) { dbid } } }"
     post :create, params: { query: query, team: t.slug }

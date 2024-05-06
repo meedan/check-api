@@ -179,7 +179,6 @@ ActiveRecord::Schema.define(version: 2024_04_20_104318) do
     t.string "application"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string "title"
     t.string "description"
   end
 

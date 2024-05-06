@@ -301,8 +301,18 @@ class TeamType < DefaultObject
   end
 
   def api_key(dbid:)
-    object.get_api_key(dbid)
+    ability = context[:ability] || Ability.new
+    api_key = object.get_api_key(dbid)
+    ability.can?(:read, api_key) ? api_key : nil
   end
 
   field :api_keys, ApiKeyType.connection_type, null: true
+  def api_keys
+    ability = context[:ability] || Ability.new
+    api_keys = object.api_keys
+
+    api_keys.select do |api_key|
+      ability.can?(:read, api_key)
+    end
+  end
 end

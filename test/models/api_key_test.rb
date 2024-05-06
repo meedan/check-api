@@ -38,10 +38,20 @@ class ApiKeyTest < ActiveSupport::TestCase
     end
   end
 
-  test "should have bot user" do
+  test "should automatically create bot user" do
     a = create_api_key
-    assert_nil a.bot_user
-    b = create_bot_user api_key_id: a.id
-    assert_equal b, a.reload.bot_user
+    assert_not_nil a.bot_user
+  end
+
+  test "should validate maximum number of api keys in a team" do
+    stub_configs({'max_team_api_keys' => 2}) do
+      t = create_team
+      2.times do
+        create_api_key(team: t)
+      end
+      assert_raises ActiveRecord::RecordInvalid do
+        create_api_key(team: t)
+      end
+    end
   end
 end

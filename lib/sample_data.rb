@@ -36,6 +36,10 @@ module SampleData
     options.each do |key, value|
       a.send("#{key}=", value) if a.respond_to?("#{key}=")
     end
+    a.team = options[:team] || create_team
+    a.user = options[:user] || create_user
+    a.title = options[:title] || random_string
+    a.description = options[:description] || random_string
     a.save!
     a.reload
   end
@@ -71,7 +75,6 @@ module SampleData
     u.password = options[:password] || random_string
     u.password_confirmation = options[:password_confirmation] || u.password
     u.is_admin = options[:is_admin] if options.has_key?(:is_admin)
-    u.api_key_id = options.has_key?(:api_key_id) ? options[:api_key_id] : create_api_key.id
     u.default = options.has_key?(:default) ? options[:default] : false
     u.set_approved true if options.has_key?(:approved) && options[:approved]
 
@@ -90,8 +93,6 @@ module SampleData
 
     if options[:team]
       create_team_user team: options[:team], user: u
-      u.api_key.team = options[:team]
-      u.api_key.save!
     end
 
     u.reload
