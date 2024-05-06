@@ -121,6 +121,7 @@ class MutationType < BaseObject
   field :createFeed, mutation: FeedMutations::Create
   field :updateFeed, mutation: FeedMutations::Update
   field :destroyFeed, mutation: FeedMutations::Destroy
+  field :feedImportMedia, mutation: FeedMutations::ImportMedia
 
   field :updateFeedTeam, mutation: FeedTeamMutations::Update
   field :destroyFeedTeam, mutation: FeedTeamMutations::Destroy
@@ -141,4 +142,8 @@ class MutationType < BaseObject
 
   field :addNluKeywordToTiplineMenu, mutation: NluMutations::AddKeywordToTiplineMenu
   field :removeNluKeywordFromTiplineMenu, mutation: NluMutations::RemoveKeywordFromTiplineMenu
+
+  field :createExplainer, mutation: ExplainerMutations::Create
+  field :updateExplainer, mutation: ExplainerMutations::Update
+  field :destroyExplainer, mutation: ExplainerMutations::Destroy
 end

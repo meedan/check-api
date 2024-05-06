@@ -101,7 +101,9 @@ class TeamType < DefaultObject
   field :get_report, JsonStringType, null: true
 
   def get_report
-    object.get_report
+    placeholders = {}
+    object.get_languages.to_a.each { |language| placeholders[language] = { 'placeholders' => { 'query_date' => Dynamic.new.report_design_date(Time.now, language) } } }
+    object.get_report.to_h.deep_merge(placeholders)
   end
 
   field :get_fieldsets, JsonStringType, null: true
@@ -140,6 +142,12 @@ class TeamType < DefaultObject
 
   def get_shorten_outgoing_urls
     object.get_shorten_outgoing_urls
+  end
+
+  field :get_explainers_enabled, GraphQL::Types::Boolean, null: true
+
+  def get_explainers_enabled
+    object.get_explainers_enabled
   end
 
   field :public_team, PublicTeamType, null: true
@@ -278,5 +286,13 @@ class TeamType < DefaultObject
 
   def tipline_messages(uid:)
     TiplineMessagesPagination.new(object.tipline_messages.where(uid: uid).order('sent_at DESC'))
+  end
+
+  field :articles, ::ArticleUnion.connection_type, null: true do
+    argument :article_type, GraphQL::Types::String, required: true, camelize: false
+  end
+
+  def articles(article_type:)
+    object.explainers if article_type == 'explainer'
   end
 end

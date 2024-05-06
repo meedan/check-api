@@ -107,7 +107,7 @@ en:
       invalid_project_media_channel_value: Sorry, channel value not supported
       invalid_project_media_channel_update: Sorry, you could not update channel value
       invalid_project_media_archived_value: Sorry, archived value not supported
-      invalid_fact_check_language_value: Sorry, language value not supported
+      invalid_article_language_value: Sorry, language value not supported
       fact_check_empty_title_and_summary: Sorry, you should fill title or summary
       invalid_feed_saved_search_value: should belong to a workspace that is part of this feed
       platform_allowed_values_error: 'cannot be of type %{type}, allowed types: %{allowed_types}'
@@ -654,6 +654,7 @@ en:
     Please reload your tipline settings page to see the new changes.
   must_select_exactly_one_facebook_page: Please select exactly the one Facebook page
     you want to integrate with the tipline.
+  invalid_facebook_authdata: It was not possible to authenticate your Facebook account, please reach out to our support team.
   invalid_task_answer: Invalid task answer format
   team_rule_name: A unique name that identifies what this rule does
   team_rule_project_ids: Apply to folder

@@ -119,7 +119,7 @@ class TeamTaskTest < ActiveSupport::TestCase
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
       pm = create_project_media team: t
-      pm2 = create_project_media team: t
+      pm2 = create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED
       tt = create_team_task team_id: t.id, order: 2, description: 'Foo', options: [{ label: 'Foo' }]
       tt2 = create_team_task team_id: t.id, order: 1, description: 'Foo2', options: [{ label: 'Foo2' }]
       pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
@@ -233,6 +233,15 @@ class TeamTaskTest < ActiveSupport::TestCase
       assert_equal 'update desc', pm2_tt.description
       assert_equal 'multiple_choice', pm2_tt.type
       assert_equal([{ 'label' => 'Test' }], pm2_tt.options)
+      # update order
+      order = pm2_tt.order + 1
+      tt.order = order; tt.save!
+      pm2_tt = pm2_tt.reload
+      assert_equal 'update label', pm2_tt.label
+      assert_equal 'update desc', pm2_tt.description
+      assert_equal 'multiple_choice', pm2_tt.type
+      assert_equal([{ 'label' => 'Test' }], pm2_tt.options)
+      assert_equal order, pm2_tt.order
       # update title/description/type/options
       tt.label = 'update label2'
       tt.description = 'update desc2'

@@ -332,9 +332,65 @@ class GraphqlController12Test < ActionController::TestCase
     create_cluster_project_media cluster: c, project_media: pm
 
     authenticate_with_user(@u)
-    query = 'query { feed(id: "' + f.id.to_s + '") { cluster(project_media_id: ' + pm.id.to_s + ') { dbid, project_media(id: ' + pm.id.to_s + ') { id }, project_medias(teamId: ' + @t.id.to_s + ', first: 1) { edges { node { id } } }, cluster_teams(first: 10) { edges { node { id, team { name }, last_request_date, media_count, requests_count, fact_checks(first: 1) { edges { node { id } } } } } } } } }'
+    query = 'query { feed(id: "' + f.id.to_s + '") { cluster(project_media_id: ' + pm.id.to_s + ') { dbid, project_media(id: ' + pm.id.to_s + ') { id, imported_from_feed { id } }, project_medias(teamId: ' + @t.id.to_s + ', first: 1) { edges { node { id } } }, cluster_teams(first: 10) { edges { node { id, team { name }, last_request_date, media_count, requests_count, fact_checks(first: 1) { edges { node { id } } } } } } } } }'
     post :create, params: { query: query }
     assert_response :success
     assert_equal c.id, JSON.parse(@response.body)['data']['feed']['cluster']['dbid']
+  end
+
+  test "should import medias from the feed by creating a new item" do
+    Sidekiq::Testing.inline!
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    f = create_feed team: @t
+    f.teams << t
+    c = create_cluster feed: f, team_ids: [t.id], project_media_id: pm1.id
+    create_cluster_project_media cluster: c, project_media: pm1
+    create_cluster_project_media cluster: c, project_media: pm2
+    assert_equal 0, @t.project_medias.count
+
+    authenticate_with_user(@u)
+    query = "mutation { feedImportMedia(input: { feedId: #{f.id}, projectMediaId: #{pm1.id} }) { projectMedia { id } } }"
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success
+    assert_equal 2, @t.reload.project_medias.count
+  end
+
+  test "should import medias from the feed by adding to existing item" do
+    Sidekiq::Testing.inline!
+    pm = create_project_media team: @t
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    f = create_feed team: @t
+    f.teams << t
+    c = create_cluster feed: f, team_ids: [t.id], project_media_id: pm1.id
+    create_cluster_project_media cluster: c, project_media: pm1
+    create_cluster_project_media cluster: c, project_media: pm2
+    assert_equal 1, @t.project_medias.count
+
+    authenticate_with_user(@u)
+    query = "mutation { feedImportMedia(input: { feedId: #{f.id}, projectMediaId: #{pm1.id}, parentId: #{pm.id} }) { projectMedia { id } } }"
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success
+    assert_equal 3, @t.reload.project_medias.count
+  end
+
+  test "should get team articles" do
+    @t.set_explainers_enabled = true
+    @t.save!
+    ex = create_explainer team: @t
+    tag = create_tag annotated: ex
+    authenticate_with_user(@u)
+    query = "query { team(slug: \"#{@t.slug}\") { get_explainers_enabled, articles(article_type: \"explainer\") { edges { node { ... on Explainer { dbid, tags { edges { node { dbid } } } } } } } } }"
+    post :create, params: { query: query, team: @t.slug }
+    team = JSON.parse(@response.body)['data']['team']
+    assert team['get_explainers_enabled']
+    data = team['articles']['edges']
+    assert_equal [ex.id], data.collect{ |edge| edge['node']['dbid'] }
+    tags = data[0]['node']['tags']['edges']
+    assert_equal [tag.id.to_s], tags.collect{ |edge| edge['node']['dbid'] }
+    assert_response :success
   end
 end

@@ -91,7 +91,10 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       Bot::Alegre.stubs(:media_file_url).returns(media_file_url)
 
       pm1 = create_project_media team: @pm.team, media: create_uploaded_audio(file: 'rails.mp3')
-      WebMock.stub_request(:post, "http://alegre/similarity/sync/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}, :url=>media_file_url, :threshold=>0.9}).to_return(body: {
+      WebMock.stub_request(:post, "http://alegre/similarity/async/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>media_file_url, :threshold=>0.9, :confirmed=> false}).to_return(body: {
+        "result": []
+      }.to_json)
+      WebMock.stub_request(:post, "http://alegre/similarity/async/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>media_file_url, :threshold=>0.9, :confirmed=> true}).to_return(body: {
         "result": []
       }.to_json)
       WebMock.stub_request(:post, 'http://alegre/audio/transcription/result/').with(body: {job_name: "0c481e87f2774b1bd41a0a70d9b70d11"}).to_return(body: { 'job_status' => 'DONE' }.to_json)
@@ -157,7 +160,10 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       Bot::Alegre.stubs(:media_file_url).returns(media_file_url)
 
       pm1 = create_project_media team: @pm.team, media: create_uploaded_audio(file: 'rails.mp3')
-      WebMock.stub_request(:post, "http://alegre/similarity/sync/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}, :url=>media_file_url, :threshold=>0.9}).to_return(body: {
+      WebMock.stub_request(:post, "http://alegre/similarity/async/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>media_file_url, :threshold=>0.9, :confirmed=>true}).to_return(body: {
+        "result": []
+      }.to_json)
+      WebMock.stub_request(:post, "http://alegre/similarity/async/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>media_file_url, :threshold=>0.9, :confirmed=>false}).to_return(body: {
         "result": []
       }.to_json)
       WebMock.stub_request(:post, 'http://alegre/audio/transcription/').with({
@@ -360,9 +366,9 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     pm1.save!
     pm2 = create_project_media project: p, quote: "Blah2", team: @team
     pm2.save!
-    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_query('text', pm2)).returns({pm1.id => {score: 0.99, context: {"blah" => 1}}})
+    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_query('text', pm2)).returns({pm1.id => {score: 0.99, context: {"team_id" => pm1.team_id, "blah" => 1}}})
     Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_query('text', pm2, true)).returns({})
-    assert_equal Bot::Alegre.get_similar_items(pm2), {pm1.id=>{:score=>0.99, :context => {"blah" => 1}, :relationship_type=>{:source=>"suggested_sibling", :target=>"suggested_sibling"}}}
+    assert_equal Bot::Alegre.get_similar_items(pm2), {pm1.id=>{:score=>0.99, :context => [{"team_id" => pm1.team_id, "blah" => 1}], :relationship_type=>{:source=>"suggested_sibling", :target=>"suggested_sibling"}}}
     Bot::Alegre.unstub(:get_merged_items_with_similar_text)
   end
 

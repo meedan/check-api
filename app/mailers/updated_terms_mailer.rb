@@ -1,6 +1,8 @@
 class UpdatedTermsMailer < ApplicationMailer
   layout nil
 
+  rescue_from(Net::SMTPFatalError) { nil }
+
   def notify(recipient, name)
     @name = name
     @accept_terms_url = CheckConfig.get('tos_url')
