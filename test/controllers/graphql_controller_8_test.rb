@@ -172,7 +172,7 @@ class GraphqlController8Test < ActionController::TestCase
     test "should get project using API key" do
     t = create_team
     a = create_api_key
-    b = create_bot_user api_key_id: a.id, team: t
+    b = a.bot_user
     p = create_project team: t
     authenticate_with_token(a)
 

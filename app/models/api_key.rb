@@ -55,7 +55,7 @@ class ApiKey < ApplicationRecord
   end
 
   def calculate_expiration_date
-    self.expire_at ||= Time.now.since(100.years)
+    self.expire_at ||= Time.now.since(1.year)
   end
 
   def validate_team_api_keys_limit

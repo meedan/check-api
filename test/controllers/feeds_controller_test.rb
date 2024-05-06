@@ -8,9 +8,7 @@ class FeedsControllerTest < ActionController::TestCase
     [FeedTeam, Feed, ProjectMediaRequest, Request].each { |klass| klass.delete_all }
     create_verification_status_stuff
     @a = create_api_key
-    @b = create_bot_user
-    @b.api_key = @a
-    @b.save!
+    @b = @a.bot_user
     @t1 = create_team name: 'Foo'
     @t2 = create_team name: 'Bar'
     @t3 = create_team
@@ -39,9 +37,7 @@ class FeedsControllerTest < ActionController::TestCase
 
   test "should request team data" do
     a = create_api_key
-    b = create_bot_user
-    b.api_key = a
-    b.save!
+    b = a.bot_user
     create_team_user team: @t1, user: b
     Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id], nil).returns([@pm1])
 

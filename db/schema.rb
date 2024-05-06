@@ -172,6 +172,7 @@ ActiveRecord::Schema.define(version: 2024_04_20_104318) do
 
   create_table "api_keys", id: :serial, force: :cascade do |t|
     t.string "access_token", default: "", null: false
+    t.string "title"
     t.integer "user_id"
     t.integer "team_id"
     t.datetime "expire_at"
