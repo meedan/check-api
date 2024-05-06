@@ -47,7 +47,7 @@ GIT
 
 GIT
   remote: https://github.com/meedan/rails-i18n.git
-  revision: ba4b3a267ff09b58a29fe8fc9eb002f9b75d7cba
+  revision: 4f7c823ae6088a7edebb67fe18a901813734e0da
   branch: rails-6-x
   specs:
     rails-i18n (6.0.0)
