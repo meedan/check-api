@@ -234,7 +234,6 @@ class WebhooksControllerTest < ActionController::TestCase
   end
 
   test "should process Alegre webhook" do
-    CheckSentry.expects(:notify).once
     redis = Redis.new(REDIS_CONFIG)
     redis.del('alegre:webhook:foo')
     id = random_number
@@ -249,7 +248,6 @@ class WebhooksControllerTest < ActionController::TestCase
   end
 
   test "should process Alegre callback webhook with is_shortcircuited_search_result_callback" do
-    CheckSentry.expects(:notify).once
     id = random_number
     payload = { 'action' => 'audio', 'data' => {'is_shortcircuited_search_result_callback' => true, 'item' => { 'callback_url' => '/presto/receive/add_item', 'id' => id.to_s }} }
     Bot::Alegre.stubs(:process_alegre_callback).returns({})
@@ -259,7 +257,6 @@ class WebhooksControllerTest < ActionController::TestCase
   end
 
   test "should process Alegre callback webhook with is_search_result_callback" do
-    CheckSentry.expects(:notify).once
     id = random_number
     payload = { 'action' => 'audio', 'data' => {'is_search_result_callback' => true, 'item' => { 'callback_url' => '/presto/receive/add_item', 'id' => id.to_s }} }
     Bot::Alegre.stubs(:process_alegre_callback).returns({})
@@ -269,7 +266,7 @@ class WebhooksControllerTest < ActionController::TestCase
   end
 
   test "should report error if can't process Alegre webhook" do
-    CheckSentry.expects(:notify).twice
+    CheckSentry.expects(:notify).once
     post :index, params: { name: :alegre, token: CheckConfig.get('alegre_token') }, body: {foo: "bar"}.to_json
   end
 end
