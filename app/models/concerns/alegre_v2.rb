@@ -314,7 +314,7 @@ module AlegreV2
       )
     end
 
-    def get_items(project_media, field, confirmed=false, threshold=nil)
+    def get_items(project_media, field, confirmed=false, initial_threshold=nil)
       relationship_type = confirmed ? Relationship.confirmed_type : Relationship.suggested_type
       type = get_type(project_media)
       if initial_threshold.nil?
