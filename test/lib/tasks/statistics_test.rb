@@ -39,7 +39,7 @@ class StatisticsTest < ActiveSupport::TestCase
     TeamBotInstallation.delete_all
 
     api_key = create_api_key
-    bot_user = api_key.bot_user
+    bot_user = create_bot_user api_key_id: api_key.id
     bot_user.approve!
 
     non_tipline_team = create_team(slug: 'other-team')

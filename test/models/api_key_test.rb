@@ -38,8 +38,16 @@ class ApiKeyTest < ActiveSupport::TestCase
     end
   end
 
-  test "should automatically create bot user" do
+  test "should have bot user" do
     a = create_api_key
+    assert_nil a.bot_user
+    b = create_bot_user api_key_id: a.id
+    assert_equal b, a.reload.bot_user
+  end
+
+  test "should create bot user automatically when team is provided" do
+    t = create_team
+    a = create_api_key(team: t)
     assert_not_nil a.bot_user
   end
 

@@ -444,11 +444,11 @@ class GraphqlController12Test < ActionController::TestCase
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
 
-    b = create_bot_user(team: t)
-    query = 'mutation destroy { destroyApiKey(input: { id: "' + b.api_key.id.to_s + '" }) { deletedId } }'
+    a = create_api_key(team: t)
+    query = 'mutation destroy { destroyApiKey(input: { id: "' + a.id.to_s + '" }) { deletedId } }'
     post :create, params: { query: query }
     assert_response :success
     response = JSON.parse(@response.body).dig('data', 'destroyApiKey')
-    assert_equal b.api_key.id.to_s, response.dig('deletedId')
+    assert_equal a.id.to_s, response.dig('deletedId')
   end
 end
