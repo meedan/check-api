@@ -419,7 +419,7 @@ class GraphqlController12Test < ActionController::TestCase
     post :create, params: { query: query, team: t }
     assert_response :success
     edges = JSON.parse(@response.body)['data']['team']['api_keys']['edges']
-    assert_equal [api_key_1.title, api_key_2.title], edges.collect{ |e| e['node']['title'] }.sort
+    assert_equal [api_key_1.title, api_key_2.title].sort, edges.collect{ |e| e['node']['title'] }.sort
   end
 
   test "should get api key in a team by id" do
