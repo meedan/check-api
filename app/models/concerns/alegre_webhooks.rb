@@ -22,24 +22,19 @@ module AlegreWebhooks
       key = nil
       body = parse_body(request)
       redis = Redis.new(REDIS_CONFIG)
-      begin
-        doc_id = body.dig('data', 'requested', 'id')
-        # search for doc_id on completed full-circuit callbacks
-        doc_id = body.dig('data', 'item', 'id') if doc_id.nil?
-        # search for doc_id on completed short-circuit callbacks (i.e. items already known to Alegre but added context TODO make these the same structure)
-        doc_id = body.dig('data', 'item', 'raw', 'doc_id') if doc_id.nil?
-        if doc_id.blank?
-          CheckSentry.notify(AlegreCallbackError.new('Unexpected params format from Alegre'), params: {alegre_response: request.params, body: body})
-        end
-        if is_from_alegre_search_result_callback(body)
-          Bot::Alegre.process_alegre_callback(body)
-        else
-          key = "alegre:webhook:#{doc_id}"
-          redis.lpush(key, body.to_json)
-        end
-      rescue StandardError => e
-        CheckSentry.notify(AlegreCallbackError.new(e.message), params: { is_raised_from_error: true, alegre_response: request.params })
-      ensure
+      doc_id = body.dig('data', 'requested', 'id')
+      # search for doc_id on completed full-circuit callbacks
+      doc_id = body.dig('data', 'item', 'id') if doc_id.nil?
+      # search for doc_id on completed short-circuit callbacks (i.e. items already known to Alegre but added context TODO make these the same structure)
+      doc_id = body.dig('data', 'item', 'raw', 'doc_id') if doc_id.nil?
+      if doc_id.blank?
+        CheckSentry.notify(AlegreCallbackError.new('Unexpected params format from Alegre'), params: {alegre_response: request.params, body: body})
+      end
+      if is_from_alegre_search_result_callback(body)
+        Bot::Alegre.process_alegre_callback(body)
+      else
+        key = "alegre:webhook:#{doc_id}"
+        redis.lpush(key, body.to_json)
         redis.expire(key, 1.day.to_i) if !key.nil?
       end
     end

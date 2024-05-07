@@ -314,10 +314,13 @@ module AlegreV2
       )
     end
 
-    def get_items(project_media, field, confirmed=false)
+    def get_items(project_media, field, confirmed=false, threshold=nil)
       relationship_type = confirmed ? Relationship.confirmed_type : Relationship.suggested_type
       type = get_type(project_media)
-      threshold = get_per_model_threshold(project_media, get_threshold_for_query(type, project_media, confirmed))
+      if initial_threshold.nil?
+        initial_threshold = get_threshold_for_query(type, project_media, confirmed)
+      end
+      threshold = get_per_model_threshold(project_media, initial_threshold)
       parse_similarity_results(
         project_media,
         field,
@@ -326,46 +329,49 @@ module AlegreV2
       )
     end
 
-    def get_items_async(project_media, field, confirmed=false)
+    def get_items_async(project_media, field, confirmed=false, initial_threshold=nil)
       type = get_type(project_media)
-      threshold = get_per_model_threshold(project_media, get_threshold_for_query(type, project_media, confirmed))
+      if initial_threshold.nil?
+        initial_threshold = get_threshold_for_query(type, project_media, confirmed)
+      end
+      threshold = get_per_model_threshold(project_media, initial_threshold)
       safe_get_async(project_media, field, threshold.merge(confirmed: confirmed))
     end
 
-    def get_suggested_items(project_media, field)
-      get_items(project_media, field)
+    def get_suggested_items(project_media, field, threshold=nil)
+      get_items(project_media, field, false, threshold)
     end
 
-    def get_confirmed_items(project_media, field)
-      get_items(project_media, field, true)
+    def get_confirmed_items(project_media, field, threshold=nil)
+      get_items(project_media, field, true, threshold)
     end
 
-    def get_suggested_items_async(project_media, field)
-      get_items_async(project_media, field)
+    def get_suggested_items_async(project_media, field, threshold=nil)
+      get_items_async(project_media, field, false, threshold)
     end
 
-    def get_confirmed_items_async(project_media, field)
-      get_items_async(project_media, field, true)
+    def get_confirmed_items_async(project_media, field, threshold=nil)
+      get_items_async(project_media, field, true, threshold)
     end
 
-    def get_similar_items_v2(project_media, field)
+    def get_similar_items_v2(project_media, field, threshold=nil)
       type = get_type(project_media)
       if !should_get_similar_items_of_type?('master', project_media.team_id) || !should_get_similar_items_of_type?(type, project_media.team_id)
         {}
       else
-        suggested_or_confirmed = get_suggested_items(project_media, field)
-        confirmed = get_confirmed_items(project_media, field)
+        suggested_or_confirmed = get_suggested_items(project_media, field, threshold)
+        confirmed = get_confirmed_items(project_media, field, threshold)
         merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, project_media)
       end
     end
 
-    def get_similar_items_v2_async(project_media, field)
+    def get_similar_items_v2_async(project_media, field, threshold=nil)
       type = get_type(project_media)
       if !should_get_similar_items_of_type?('master', project_media.team_id) || !should_get_similar_items_of_type?(type, project_media.team_id)
         return false
       else
-        get_suggested_items_async(project_media, field)
-        get_confirmed_items_async(project_media, field)
+        get_suggested_items_async(project_media, field, threshold)
+        get_confirmed_items_async(project_media, field, threshold)
         return true
       end
     end
@@ -430,7 +436,7 @@ module AlegreV2
           project_media.team_id = team_ids
           project_media.type = type
         end
-        get_similar_items_v2_async(project_media, nil)
+        get_similar_items_v2_async(project_media, nil, threshold)
         cached_data = get_cached_data(get_required_keys(project_media, nil))
         timeout = args[:timeout] || 60
         start_time = Time.now
