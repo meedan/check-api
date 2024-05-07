@@ -16,7 +16,7 @@ class ApiKey < ApplicationRecord
 
   validate :validate_team_api_keys_limit, on: :create
 
-  has_one :bot_user
+  has_one :bot_user, dependent: :destroy
 
   # Reimplement this method in your application
   def self.applications
@@ -44,7 +44,8 @@ class ApiKey < ApplicationRecord
 
   def create_bot_user
     if self.bot_user.blank?
-      new_bot_user = BotUser.new(api_key: self, name: self.title, login: self.title)
+      bot_name = "#{self.team.slug}-bot-#{self.title}"
+      new_bot_user = BotUser.new(api_key: self, name: bot_name, login: bot_name)
       new_bot_user.save!
     end
   end
