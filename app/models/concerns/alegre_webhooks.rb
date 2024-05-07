@@ -36,6 +36,7 @@ module AlegreWebhooks
           key = "alegre:webhook:#{doc_id}"
           redis.lpush(key, body.to_json)
         end
+        
       rescue StandardError => e
         CheckSentry.notify(AlegreCallbackError.new(e.message), params: { is_raised_from_error: true, alegre_response: request.params })
       ensure
