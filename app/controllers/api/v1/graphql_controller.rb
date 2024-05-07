@@ -43,6 +43,7 @@ module Api
       protected
 
       def parse_graphql_result
+        log_graphql_activity
         context = { ability: @ability, file: parse_uploaded_files }
         @output = nil
         begin
@@ -62,6 +63,21 @@ module Api
           @output = format_error_message(e)
           render json: @output, status: 429
         end
+      end
+
+      def log_graphql_activity
+        team = ''
+        role = ''
+        user_name = ''
+        uid = 0
+        unless User.current.nil?
+          uid = User.current.id
+          user_name = User.current.name
+          team = Team.current || User.current.current_team
+          team = team.nil? ? '' : team.name
+          role = User.current.role
+        end
+        Rails.logger.info("[Graphql] Logging activity: uid: #{uid} user_name: #{user_name} team: #{team} role: #{role}")
       end
 
       def parse_uploaded_files

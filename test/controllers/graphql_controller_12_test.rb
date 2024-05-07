@@ -451,4 +451,20 @@ class GraphqlController12Test < ActionController::TestCase
     response = JSON.parse(@response.body).dig('data', 'destroyApiKey')
     assert_equal a.id.to_s, response.dig('deletedId')
   end
+
+  test "should log all graphql activity" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+
+    query = 'query me { me { name } }'
+
+    expected_message = "[Graphql] Logging activity: uid: #{u.id} user_name: #{u.name} team: #{t.name} role: admin"
+    mock_logger = mock()
+    mock_logger.expects(:info).with(expected_message)
+
+    Rails.stubs(:logger).returns(mock_logger)
+    post :create, params: { query: query }
+  end
 end
