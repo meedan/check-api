@@ -46,6 +46,8 @@ class ApiKey < ApplicationRecord
     if self.bot_user.blank?
       bot_name = "#{self.team.slug}-bot-#{self.title}"
       new_bot_user = BotUser.new(api_key: self, name: bot_name, login: bot_name)
+      new_bot_user.skip_check_ability = true
+      new_bot_user.set_role 'editor'
       new_bot_user.save!
     end
   end
