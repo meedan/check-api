@@ -232,22 +232,12 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     end
   end
 
-  def self.extract_project_medias_from_context(search_result)
-    # We currently have two cases of context:
-    # - a straight hash with project_media_id
-    # - an array of hashes, each with project_media_id
-    context = search_result.dig('_source', 'context')
-    pms = []
-    if context.kind_of?(Array)
-      context.each{ |c| pms.push(c.with_indifferent_access.dig('project_media_id')) }
-    elsif context.kind_of?(Hash)
-      pms.push(context.with_indifferent_access.dig('project_media_id'))
-    end
-    Hash[pms.flatten.collect{|pm| [pm.to_i, search_result.with_indifferent_access.dig('_score')]}]
+  test "should extract project medias from context as dict" do
+    assert_equal Bot::Alegre.extract_project_medias_from_context({"_score" => 2, "_source" => {"context" => {"project_media_id" => 1}}}), {1=>{:score=>2, :context=>{"project_media_id"=>1}, :model=>nil}}
   end
 
-  test "should extract project medias from context" do
-    assert_equal Bot::Alegre.extract_project_medias_from_context({"_score" => 2, "_source" => {"context" => {"project_media_id" => 1}}}), {1=>{:score=>2, :context=>{"project_media_id"=>1}, :model=>nil}}
+  test "should extract project medias from context as array" do
+    assert_equal Bot::Alegre.extract_project_medias_from_context({"_score" => 2, "_source" => {"context" => [{"project_media_id" => 1}]}}), {1=>{:score=>2, :context=>[{"project_media_id"=>1}], :model=>nil}}
   end
 
   test "should update on alegre" do
