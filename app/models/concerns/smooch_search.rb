@@ -157,7 +157,7 @@ module SmoochSearch
           text = [link.pender_data['description'].to_s, text.to_s.gsub(/https?:\/\/[^\s]+/, '').strip].max_by(&:length)
         end
         return [] if text.blank?
-        text = remove_meaningless_phrases(text)
+        text = self.remove_meaningless_phrases(text)
         words = text.split(/\s+/)
         Rails.logger.info "[Smooch Bot] Search query (text): #{text}"
         if Bot::Alegre.get_number_of_words(text) <= self.max_number_of_words_for_keyword_search
