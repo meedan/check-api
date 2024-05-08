@@ -120,10 +120,14 @@ module SmoochMenus
     def adjust_language_options(rows, language, number_of_options)
       # WhatsApp just supports up to 10 options, so if we already have 10, we need to replace the
       # individual language options by a single "Languages" option (because we still have the "Privacy and Policy" option)
+      # We can display this single "Languages" option in two languages: the current one and the default one
+      title = [self.get_string('languages', language)]
+      default_language = Team.find_by_id(self.config['team_id'].to_i)&.default_language || 'en'
+      title << self.get_string('languages', default_language) if language != default_language
       new_rows = rows.dup
       new_rows = [{
         id: { state: 'main', keyword: JSON.parse(rows.first[:id])['keyword'] }.to_json,
-        title: '🌐 ' + self.get_string('languages', language, 24)
+        title: '🌐 ' + title.join(' / ').truncate(21) # Maximum is 24
       }] if number_of_options >= 10
       new_rows
     end
