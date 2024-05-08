@@ -384,12 +384,11 @@ module AlegreV2
     end
 
     def get_parsed_cached_data_for_key(key)
-      value = redis.get(key)
+      value = Redis.new(REDIS_CONFIG).get(key)
       Hash[YAML.load(value).collect{|kk,vv| [kk.to_i, vv]}] if value
     end
 
     def get_cached_data(required_keys)
-      redis = Redis.new(REDIS_CONFIG)
       # For a given project media, we expect a set of keys to be set by the webhook callbacks sent from alegre back to check-api.
       # For each callback response (which is set via #process_alegre_callback), we store the value as serialized YAML to persist
       # the data such that symbolized keys return as symbols (as opposed to JSON, which loses the distinction). Here, in effect,
