@@ -309,7 +309,7 @@ class TeamType < DefaultObject
   field :api_keys, ApiKeyType.connection_type, null: true
   def api_keys
     ability = context[:ability] || Ability.new
-    api_keys = object.api_keys
+    api_keys = object.api_keys.order(created_at: :desc)
 
     api_keys.select do |api_key|
       ability.can?(:read, api_key)
