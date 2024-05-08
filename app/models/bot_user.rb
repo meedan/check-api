@@ -54,7 +54,6 @@ class BotUser < User
   before_validation :create_api_key, on: :create
   after_create :add_to_team
   after_update :update_role_if_changed
-  after_save :update_api_key_title
 
   validates_uniqueness_of :login
   validates :api_key_id, presence: true, uniqueness: true
@@ -419,18 +418,12 @@ class BotUser < User
     if self.api_key_id.blank?
       api_key = ApiKey.new(bot_user: self)
       api_key.skip_check_ability = true
+      api_key.title = self.name
       api_key.save!
       api_key.expire_at = api_key.expire_at.since(100.years)
       api_key.save!
       self.api_key_id = api_key.id
     end
-  end
-
-  def update_api_key_title
-    return if self.api_key_id.blank?
-
-    self.api_key.title = "#{self.name}-#{self.id}"
-    self.api_key.save!
   end
 
   def add_to_team

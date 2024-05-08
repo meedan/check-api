@@ -857,6 +857,7 @@ class ActiveSupport::TestCase
     @team = create_team
     @project = create_project team_id: @team.id
     @bid = random_string
+    ApiKey.delete_all
     BotUser.delete_all
     @resource_uuid = random_string
 
