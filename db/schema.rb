@@ -289,7 +289,7 @@ ActiveRecord::Schema.define(version: 2024_04_20_104318) do
     t.jsonb "value_json", default: "{}"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index "dynamic_annotation_fields_value(field_name, value)", name: "dynamic_annotation_fields_value", where: "((field_name)::text = ANY ((ARRAY['external_id'::character varying, 'smooch_user_id'::character varying, 'verification_status_status'::character varying])::text[]))"
+    t.index "dynamic_annotation_fields_value(field_name, value)", name: "dynamic_annotation_fields_value", where: "((field_name)::text = ANY (ARRAY[('external_id'::character varying)::text, ('smooch_user_id'::character varying)::text, ('verification_status_status'::character varying)::text]))"
     t.index ["annotation_id", "field_name"], name: "index_dynamic_annotation_fields_on_annotation_id_and_field_name"
     t.index ["annotation_id"], name: "index_dynamic_annotation_fields_on_annotation_id"
     t.index ["annotation_type"], name: "index_dynamic_annotation_fields_on_annotation_type"
@@ -486,7 +486,7 @@ ActiveRecord::Schema.define(version: 2024_04_20_104318) do
     t.index ["user_id"], name: "index_project_media_users_on_user_id"
   end
 
-  create_table "project_medias", id: :serial, force: :cascade do |t|
+  create_table "project_medias", force: :cascade do |t|
     t.integer "project_id"
     t.integer "media_id"
     t.integer "user_id"
@@ -881,8 +881,7 @@ ActiveRecord::Schema.define(version: 2024_04_20_104318) do
   end
 
   create_table "versions", id: :serial, force: :cascade do |t|
-    t.string "item_type"
-    t.string "{:null=>false}"
+    t.string "item_type", null: false
     t.string "item_id", null: false
     t.string "event", null: false
     t.string "whodunnit"
