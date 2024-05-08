@@ -39,7 +39,7 @@ module AlegreSimilarity
       if type == 'text'
         response = self.get_merged_items_with_similar_text(pm, threshold)
       else
-        results = self.get_items_with_similar_media_v2(project_media: pm, threshold: threshold, team_ids: pm.team_id, type: type).reject{ |id, _score_with_context| pm.id == id }
+        results = self.get_items_with_similar_media_v2(project_media: pm, team_ids: pm.team_id, type: type).reject{ |id, _score_with_context| pm.id == id }
         response = self.merge_response_with_source_and_target_fields(results, type)
       end
       self.restrict_contexts(pm, response)

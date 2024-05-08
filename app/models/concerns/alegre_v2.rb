@@ -422,6 +422,7 @@ module AlegreV2
     def is_cached_data_not_good(cached_data)
       cached_data.values.collect{|x| x.to_a.empty?}.include?(true)
     end
+
     def get_items_with_similar_media_v2(args={})
       media_url = args[:media_url]
       project_media = args[:project_media]
