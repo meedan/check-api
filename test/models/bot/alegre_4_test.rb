@@ -63,6 +63,16 @@ class Bot::Alegre4Test < ActiveSupport::TestCase
     Bot::Alegre.unstub.stubs(:request)
   end
 
+  test "/text/similarity/ request should not be called for URL title" do
+    text = "http://meedan.com/@fun/thing?abc=def&hij=123"
+    pm1 = create_project_media team: @team, quote: text
+    Bot::Alegre.stubs(:request).raises("Request method called when it should not be")
+    assert_nothing_raised do
+        Bot::Alegre.send_to_text_similarity_index(pm1, create_field_instance, text, Bot::Alegre.item_doc_id(pm1, create_field_instance))
+    end
+    Bot::Alegre.unstub.stubs(:request)
+  end
+
   test "/text/similarity/ request should not be called for blank title" do
     text = ""
     pm1 = create_project_media team: @team, quote: text
