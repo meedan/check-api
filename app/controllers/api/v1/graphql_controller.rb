@@ -66,17 +66,13 @@ module Api
       end
 
       def log_graphql_activity
-        team = ''
-        role = ''
-        user_name = ''
-        uid = 0
-        unless User.current.nil?
-          uid = User.current.id
-          user_name = User.current.name
-          team = Team.current || User.current.current_team
-          team = team.nil? ? '' : team.name
-          role = User.current.role
-        end
+        return if User.current.nil?
+
+        uid = User.current.id
+        user_name = User.current.name
+        team = Team.current || User.current.current_team
+        team = team.nil? ? '' : team.name
+        role = User.current.role
         Rails.logger.info("[Graphql] Logging activity: uid: #{uid} user_name: #{user_name} team: #{team} role: #{role}")
       end
 
