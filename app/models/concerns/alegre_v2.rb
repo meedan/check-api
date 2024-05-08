@@ -383,6 +383,11 @@ module AlegreV2
       }
     end
 
+    def get_parsed_cached_data_for_key(key)
+      value = redis.get(key)
+      Hash[YAML.load(value).collect{|kk,vv| [kk.to_i, vv]}] if value
+    end
+
     def get_cached_data(required_keys)
       redis = Redis.new(REDIS_CONFIG)
       # For a given project media, we expect a set of keys to be set by the webhook callbacks sent from alegre back to check-api.
@@ -390,7 +395,7 @@ module AlegreV2
       # the data such that symbolized keys return as symbols (as opposed to JSON, which loses the distinction). Here, in effect,
       # we check to see if all the responses we expect from Alegre have been sent - downstream of this, we check to see if all
       # responses are non-empty before proceeding to creating relationships.
-      Hash[required_keys.collect{|k,v| [k, (Hash[YAML.load(redis.get(v)).collect{|kk,vv| [kk.to_i, vv]}] rescue [])]}]
+      Hash[required_keys.collect{|k,v| [k, get_parsed_cached_data_for_key(v)]}]
     end
 
     def get_similar_items_v2_callback(project_media, field)
@@ -420,7 +425,7 @@ module AlegreV2
     end
 
     def is_cached_data_not_good(cached_data)
-      cached_data.values.collect{|x| x.to_a.empty?}.include?(true)
+      cached_data.values.collect{|x| x.nil?}.include?(true)
     end
 
     def get_items_with_similar_media_v2(args={})
