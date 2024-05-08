@@ -833,7 +833,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     params = {
         "model_type": "image",
         "data": {
-            "is_shortcircuited_callback": true,
+            "is_shortcircuited_search_result_callback": true,
             "item": {
                 "callback_url": "http://alegre:3100/presto/receive/add_item/image",
                 "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
