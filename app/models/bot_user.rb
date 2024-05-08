@@ -416,8 +416,9 @@ class BotUser < User
 
   def create_api_key
     if self.api_key_id.blank?
-      api_key = ApiKey.new
+      api_key = ApiKey.new(bot_user: self)
       api_key.skip_check_ability = true
+      api_key.title = self.name
       api_key.save!
       api_key.expire_at = api_key.expire_at.since(100.years)
       api_key.save!

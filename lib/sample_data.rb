@@ -36,6 +36,8 @@ module SampleData
     options.each do |key, value|
       a.send("#{key}=", value) if a.respond_to?("#{key}=")
     end
+    a.title = options[:title] || random_string
+    a.description = options[:description] || random_string
     a.save!
     a.reload
   end

@@ -393,4 +393,78 @@ class GraphqlController12Test < ActionController::TestCase
     assert_equal [tag.id.to_s], tags.collect{ |edge| edge['node']['dbid'] }
     assert_response :success
   end
+
+  test "should create api key" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+    query = 'mutation create { createApiKey(input: { title: "test-api-key", description: "This is a test api key" }) { api_key { id title description } } }'
+
+    assert_difference 'ApiKey.count' do
+      post :create, params: { query: query, team: t }
+    end
+  end
+
+  test "should get all api keys in a team" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+
+    api_key_1 = create_api_key(team: t)
+    api_key_2 = create_api_key(team: t)
+
+    query = 'query read { team { api_keys { edges { node { dbid, title, description } } } } }'
+    post :create, params: { query: query, team: t }
+    assert_response :success
+    edges = JSON.parse(@response.body)['data']['team']['api_keys']['edges']
+    assert_equal [api_key_1.title, api_key_2.title].sort, edges.collect{ |e| e['node']['title'] }.sort
+  end
+
+  test "should get api key in a team by id" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+
+    a = create_api_key(team: t)
+
+    query = "query { team { api_key(dbid: #{a.id}) { dbid } } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    response = JSON.parse(@response.body).dig('data', 'team', 'api_key')
+    assert_equal 1, response.size
+    assert_equal a.id, response.dig('dbid')
+  end
+
+  test "should delete api key" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+
+    a = create_api_key(team: t)
+    query = 'mutation destroy { destroyApiKey(input: { id: "' + a.id.to_s + '" }) { deletedId } }'
+    post :create, params: { query: query }
+    assert_response :success
+    response = JSON.parse(@response.body).dig('data', 'destroyApiKey')
+    assert_equal a.id.to_s, response.dig('deletedId')
+  end
+
+  test "should log all graphql activity" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+
+    query = 'query me { me { name } }'
+
+    expected_message = "[Graphql] Logging activity: uid: #{u.id} user_name: #{u.name} team: #{t.name} role: admin"
+    mock_logger = mock()
+    mock_logger.expects(:info).with(expected_message)
+
+    Rails.stubs(:logger).returns(mock_logger)
+    post :create, params: { query: query }
+  end
 end
