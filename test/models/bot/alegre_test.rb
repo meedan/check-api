@@ -101,6 +101,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should unarchive item after running" do
+    WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(status: 200, body: '{}')
       pm = create_project_media
