@@ -1,4 +1,5 @@
 require 'open-uri'
+require 'uri'
 
 class Bot::Alegre < BotUser
   check_settings
@@ -20,7 +21,7 @@ class Bot::Alegre < BotUser
 
   REPORT_TEXT_SIMILARITY_FIELDS = ['report_text_title', 'report_text_content', 'report_visual_card_title', 'report_visual_card_content']
   ALL_TEXT_SIMILARITY_FIELDS = REPORT_TEXT_SIMILARITY_FIELDS + ['original_title', 'original_description', 'extracted_text', 'transcription', 'claim_description_content', 'fact_check_title', 'fact_check_summary']
-  BAD_TITLE_REGEX = /^[a-z\-]+-[0-9\-]+$/
+  BAD_TITLE_REGEX = /^[a-z\-]+-[0-9\-]+$|^#{URI.regexp}$/
   ::ProjectMedia.class_eval do
     attr_accessor :alegre_similarity_thresholds, :alegre_matched_fields
 
