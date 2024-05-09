@@ -35,6 +35,32 @@ class StatisticsTest < ActiveSupport::TestCase
     travel_back
   end
 
+  test "check:data:statistics generates statistics data for teams with no tipline" do
+    TeamBotInstallation.delete_all
+
+    api_key = create_api_key
+    bot_user = create_bot_user api_key_id: api_key.id
+    bot_user.approve!
+
+    non_tipline_team = create_team(slug: 'other-team')
+
+    create_team_bot_installation(team_id: non_tipline_team.id, user_id: bot_user.id)
+    3.times{|i| create_project_media(user: bot_user, claim: "Claim: other team #{i}", team: non_tipline_team, created_at: @current_date) }
+
+    assert_equal 0, MonthlyTeamStatistic.where(team: non_tipline_team).count
+
+    travel_to @current_date
+
+    out, err = capture_io do
+      Rake::Task['check:data:statistics'].invoke
+    end
+    Rake::Task['check:data:statistics'].reenable
+
+    assert err.blank?
+
+    assert_equal 7, MonthlyTeamStatistic.where(team: non_tipline_team).count
+  end
+
   test "check:data:statistics generates statistics data for every platform and language of tipline teams" do
     @tipline_team.set_languages(['en', 'es'])
     @tipline_team.save!

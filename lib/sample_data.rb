@@ -36,6 +36,8 @@ module SampleData
     options.each do |key, value|
       a.send("#{key}=", value) if a.respond_to?("#{key}=")
     end
+    a.title = options[:title] || random_string
+    a.description = options[:description] || random_string
     a.save!
     a.reload
   end
@@ -897,6 +899,16 @@ module SampleData
       title: random_string,
       user: options[:user] || create_user,
       claim_description: options[:claim_description] || create_claim_description
+    }.merge(options))
+  end
+
+  def create_explainer(options = {})
+    Explainer.create!({
+      title: random_string,
+      url: random_url,
+      description: random_string,
+      user: options[:user] || create_user,
+      team: options[:team] || create_team,
     }.merge(options))
   end
 

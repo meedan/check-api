@@ -91,7 +91,10 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       Bot::Alegre.stubs(:media_file_url).returns(media_file_url)
 
       pm1 = create_project_media team: @pm.team, media: create_uploaded_audio(file: 'rails.mp3')
-      WebMock.stub_request(:post, "http://alegre/similarity/sync/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}, :url=>media_file_url, :threshold=>0.9}).to_return(body: {
+      WebMock.stub_request(:post, "http://alegre/similarity/async/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>media_file_url, :threshold=>0.9, :confirmed=> false}).to_return(body: {
+        "result": []
+      }.to_json)
+      WebMock.stub_request(:post, "http://alegre/similarity/async/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>media_file_url, :threshold=>0.9, :confirmed=> true}).to_return(body: {
         "result": []
       }.to_json)
       WebMock.stub_request(:post, 'http://alegre/audio/transcription/result/').with(body: {job_name: "0c481e87f2774b1bd41a0a70d9b70d11"}).to_return(body: { 'job_status' => 'DONE' }.to_json)
@@ -157,7 +160,10 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       Bot::Alegre.stubs(:media_file_url).returns(media_file_url)
 
       pm1 = create_project_media team: @pm.team, media: create_uploaded_audio(file: 'rails.mp3')
-      WebMock.stub_request(:post, "http://alegre/similarity/sync/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true}, :url=>media_file_url, :threshold=>0.9}).to_return(body: {
+      WebMock.stub_request(:post, "http://alegre/similarity/async/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>media_file_url, :threshold=>0.9, :confirmed=>true}).to_return(body: {
+        "result": []
+      }.to_json)
+      WebMock.stub_request(:post, "http://alegre/similarity/async/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>media_file_url, :threshold=>0.9, :confirmed=>false}).to_return(body: {
         "result": []
       }.to_json)
       WebMock.stub_request(:post, 'http://alegre/audio/transcription/').with({
@@ -226,22 +232,12 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     end
   end
 
-  def self.extract_project_medias_from_context(search_result)
-    # We currently have two cases of context:
-    # - a straight hash with project_media_id
-    # - an array of hashes, each with project_media_id
-    context = search_result.dig('_source', 'context')
-    pms = []
-    if context.kind_of?(Array)
-      context.each{ |c| pms.push(c.with_indifferent_access.dig('project_media_id')) }
-    elsif context.kind_of?(Hash)
-      pms.push(context.with_indifferent_access.dig('project_media_id'))
-    end
-    Hash[pms.flatten.collect{|pm| [pm.to_i, search_result.with_indifferent_access.dig('_score')]}]
+  test "should extract project medias from context as dict" do
+    assert_equal Bot::Alegre.extract_project_medias_from_context({"_score" => 2, "_source" => {"context" => {"project_media_id" => 1}}}), {1=>{:score=>2, :context=>{"project_media_id"=>1}, :model=>nil}}
   end
 
-  test "should extract project medias from context" do
-    assert_equal Bot::Alegre.extract_project_medias_from_context({"_score" => 2, "_source" => {"context" => {"project_media_id" => 1}}}), {1=>{:score=>2, :context=>{"project_media_id"=>1}, :model=>nil}}
+  test "should extract project medias from context as array" do
+    assert_equal Bot::Alegre.extract_project_medias_from_context({"_score" => 2, "_source" => {"context" => [{"project_media_id" => 1}]}}), {1=>{:score=>2, :context=>[{"project_media_id"=>1}], :model=>nil}}
   end
 
   test "should update on alegre" do
@@ -360,9 +356,9 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     pm1.save!
     pm2 = create_project_media project: p, quote: "Blah2", team: @team
     pm2.save!
-    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_query('text', pm2)).returns({pm1.id => {score: 0.99, context: {"blah" => 1}}})
+    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_query('text', pm2)).returns({pm1.id => {score: 0.99, context: {"team_id" => pm1.team_id, "blah" => 1}}})
     Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_query('text', pm2, true)).returns({})
-    assert_equal Bot::Alegre.get_similar_items(pm2), {pm1.id=>{:score=>0.99, :context => {"blah" => 1}, :relationship_type=>{:source=>"suggested_sibling", :target=>"suggested_sibling"}}}
+    assert_equal Bot::Alegre.get_similar_items(pm2), {pm1.id=>{:score=>0.99, :context => [{"team_id" => pm1.team_id, "blah" => 1}], :relationship_type=>{:source=>"suggested_sibling", :target=>"suggested_sibling"}}}
     Bot::Alegre.unstub(:get_merged_items_with_similar_text)
   end
 

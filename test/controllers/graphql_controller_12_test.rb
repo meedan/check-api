@@ -332,9 +332,139 @@ class GraphqlController12Test < ActionController::TestCase
     create_cluster_project_media cluster: c, project_media: pm
 
     authenticate_with_user(@u)
-    query = 'query { feed(id: "' + f.id.to_s + '") { cluster(project_media_id: ' + pm.id.to_s + ') { dbid, project_media(id: ' + pm.id.to_s + ') { id }, project_medias(teamId: ' + @t.id.to_s + ', first: 1) { edges { node { id } } }, cluster_teams(first: 10) { edges { node { id, team { name }, last_request_date, media_count, requests_count, fact_checks(first: 1) { edges { node { id } } } } } } } } }'
+    query = 'query { feed(id: "' + f.id.to_s + '") { cluster(project_media_id: ' + pm.id.to_s + ') { dbid, project_media(id: ' + pm.id.to_s + ') { id, imported_from_feed { id } }, project_medias(teamId: ' + @t.id.to_s + ', first: 1) { edges { node { id } } }, cluster_teams(first: 10) { edges { node { id, team { name }, last_request_date, media_count, requests_count, fact_checks(first: 1) { edges { node { id } } } } } } } } }'
     post :create, params: { query: query }
     assert_response :success
     assert_equal c.id, JSON.parse(@response.body)['data']['feed']['cluster']['dbid']
+  end
+
+  test "should import medias from the feed by creating a new item" do
+    Sidekiq::Testing.inline!
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    f = create_feed team: @t
+    f.teams << t
+    c = create_cluster feed: f, team_ids: [t.id], project_media_id: pm1.id
+    create_cluster_project_media cluster: c, project_media: pm1
+    create_cluster_project_media cluster: c, project_media: pm2
+    assert_equal 0, @t.project_medias.count
+
+    authenticate_with_user(@u)
+    query = "mutation { feedImportMedia(input: { feedId: #{f.id}, projectMediaId: #{pm1.id} }) { projectMedia { id } } }"
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success
+    assert_equal 2, @t.reload.project_medias.count
+  end
+
+  test "should import medias from the feed by adding to existing item" do
+    Sidekiq::Testing.inline!
+    pm = create_project_media team: @t
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    f = create_feed team: @t
+    f.teams << t
+    c = create_cluster feed: f, team_ids: [t.id], project_media_id: pm1.id
+    create_cluster_project_media cluster: c, project_media: pm1
+    create_cluster_project_media cluster: c, project_media: pm2
+    assert_equal 1, @t.project_medias.count
+
+    authenticate_with_user(@u)
+    query = "mutation { feedImportMedia(input: { feedId: #{f.id}, projectMediaId: #{pm1.id}, parentId: #{pm.id} }) { projectMedia { id } } }"
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success
+    assert_equal 3, @t.reload.project_medias.count
+  end
+
+  test "should get team articles" do
+    @t.set_explainers_enabled = true
+    @t.save!
+    ex = create_explainer team: @t
+    tag = create_tag annotated: ex
+    authenticate_with_user(@u)
+    query = "query { team(slug: \"#{@t.slug}\") { get_explainers_enabled, articles(article_type: \"explainer\") { edges { node { ... on Explainer { dbid, tags { edges { node { dbid } } } } } } } } }"
+    post :create, params: { query: query, team: @t.slug }
+    team = JSON.parse(@response.body)['data']['team']
+    assert team['get_explainers_enabled']
+    data = team['articles']['edges']
+    assert_equal [ex.id], data.collect{ |edge| edge['node']['dbid'] }
+    tags = data[0]['node']['tags']['edges']
+    assert_equal [tag.id.to_s], tags.collect{ |edge| edge['node']['dbid'] }
+    assert_response :success
+  end
+
+  test "should create api key" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+    query = 'mutation create { createApiKey(input: { title: "test-api-key", description: "This is a test api key" }) { api_key { id title description } } }'
+
+    assert_difference 'ApiKey.count' do
+      post :create, params: { query: query, team: t }
+    end
+  end
+
+  test "should get all api keys in a team" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+
+    api_key_1 = create_api_key(team: t)
+    api_key_2 = create_api_key(team: t)
+
+    query = 'query read { team { api_keys { edges { node { dbid, title, description } } } } }'
+    post :create, params: { query: query, team: t }
+    assert_response :success
+    edges = JSON.parse(@response.body)['data']['team']['api_keys']['edges']
+    assert_equal [api_key_1.title, api_key_2.title].sort, edges.collect{ |e| e['node']['title'] }.sort
+  end
+
+  test "should get api key in a team by id" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+
+    a = create_api_key(team: t)
+
+    query = "query { team { api_key(dbid: #{a.id}) { dbid } } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    response = JSON.parse(@response.body).dig('data', 'team', 'api_key')
+    assert_equal 1, response.size
+    assert_equal a.id, response.dig('dbid')
+  end
+
+  test "should delete api key" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+
+    a = create_api_key(team: t)
+    query = 'mutation destroy { destroyApiKey(input: { id: "' + a.id.to_s + '" }) { deletedId } }'
+    post :create, params: { query: query }
+    assert_response :success
+    response = JSON.parse(@response.body).dig('data', 'destroyApiKey')
+    assert_equal a.id.to_s, response.dig('deletedId')
+  end
+
+  test "should log all graphql activity" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+
+    query = 'query me { me { name } }'
+
+    expected_message = "[Graphql] Logging activity: uid: #{u.id} user_name: #{u.name} team: #{t.name} role: admin"
+    mock_logger = mock()
+    mock_logger.expects(:info).with(expected_message)
+
+    Rails.stubs(:logger).returns(mock_logger)
+    post :create, params: { query: query }
   end
 end

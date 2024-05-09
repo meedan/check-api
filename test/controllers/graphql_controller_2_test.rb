@@ -144,7 +144,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should get cached values for list columns" do
     RequestStore.store[:skip_cached_field_update] = false
     t = create_team
-    t.set_list_columns = ["updated_at_timestamp", "last_seen", "demand", "share_count", "folder", "linked_items_count", "suggestions_count", "type_of_media", "status", "created_at_timestamp", "report_status", "tags_as_sentence", "media_published_at", "comment_count", "reaction_count", "related_count"]
+    t.set_list_columns = ["updated_at_timestamp", "last_seen", "demand", "share_count", "folder", "linked_items_count", "suggestions_count", "type_of_media", "status", "created_at_timestamp", "report_status", "tags_as_sentence", "media_published_at", "comment_count", "reaction_count", "related_count", "positive_tipline_search_results_count", "negative_tipline_search_results_count"]
     t.save!
     5.times { create_project_media team: t }
     u = create_user is_admin: true

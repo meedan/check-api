@@ -259,7 +259,7 @@ class CheckSearch
       file_path = "check_search/#{hash}"
     end
     threshold = Bot::Alegre.get_threshold_for_query(@options['file_type'], ProjectMedia.new(team_id: Team.current.id))[0][:value]
-    results = Bot::Alegre.get_items_with_similar_media_v2(CheckS3.public_url(file_path), [{ value: threshold }], @options['team_id'].first, @options['file_type'])
+    results = Bot::Alegre.get_items_with_similar_media_v2(media_url: CheckS3.public_url(file_path), threshold: [{ value: threshold }], team_ids: @options['team_id'].first, type: @options['file_type'])
     results.blank? ? [0] : results.keys
   end
 
@@ -361,7 +361,7 @@ class CheckSearch
 
   def adjust_numeric_range_filter
     @options['range_numeric'] = {}
-    [:linked_items_count, :suggestions_count, :demand].each do |field|
+    [:linked_items_count, :suggestions_count, :demand, :positive_tipline_search_results_count, :negative_tipline_search_results_count].each do |field|
       if @options.has_key?(field) && !@options[field].blank?
         @options['range_numeric'][field] = @options[field]
       end

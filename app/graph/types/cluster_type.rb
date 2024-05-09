@@ -61,10 +61,11 @@ class ClusterType < DefaultObject
   end
 
   field :project_medias, ProjectMediaType.connection_type, null: true do
-    argument :team_id, GraphQL::Types::Int, required: true
+    argument :team_id, GraphQL::Types::Int, required: false
   end
 
-  def project_medias(team_id:)
+  def project_medias(team_id: nil)
+    team_id ||= Team.current.id
     return ProjectMedia.none unless object.team_ids.include?(team_id)
     object.project_medias.where(team_id: team_id.to_i)
   end

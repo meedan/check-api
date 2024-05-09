@@ -27,7 +27,7 @@ module Api
       attribute :report_text_content
 
       def score
-        RequestStore.store[:scores] ? RequestStore.store[:scores][@model.id][:score].to_f : nil
+        (RequestStore.store[:scores] && @model && RequestStore.store[:scores][@model.id]) ? RequestStore.store[:scores][@model.id][:score].to_f : nil
       end
 
       def self.records(options = {})
@@ -100,7 +100,7 @@ module Api
         unless media.blank?
           media[0].rewind
           CheckS3.write(media_path, media[0].content_type.gsub(/^video/, 'application'), media[0].read)
-          ids_and_scores = Bot::Alegre.get_items_with_similar_media_v2(CheckS3.public_url(media_path), [{ value: threshold }], organization_ids, media_type)
+          ids_and_scores = Bot::Alegre.get_items_with_similar_media_v2(media_url: CheckS3.public_url(media_path), threshold: [{ value: threshold }], team_ids: organization_ids, type: media_type)
           RequestStore.store[:scores] = ids_and_scores # Store the scores so we can return them
           ids = ids_and_scores.keys.uniq || [0]
           CheckS3.delete(media_path)

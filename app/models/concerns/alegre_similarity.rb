@@ -37,11 +37,12 @@ module AlegreSimilarity
 
     def get_items_with_similarity(type, pm, threshold)
       if type == 'text'
-        self.get_merged_items_with_similar_text(pm, threshold)
+        response = self.get_merged_items_with_similar_text(pm, threshold)
       else
-        results = self.get_items_with_similar_media_v2(self.media_file_url(pm), threshold, pm.team_id, type).reject{ |id, _score_with_context| pm.id == id }
-        self.merge_response_with_source_and_target_fields(results, type)
+        results = self.get_items_with_similar_media_v2(project_media: pm, team_ids: pm.team_id, type: type).reject{ |id, _score_with_context| pm.id == id }
+        response = self.merge_response_with_source_and_target_fields(results, type)
       end
+      self.restrict_contexts(pm, response)
     end
 
     def get_pm_type(pm)
@@ -283,18 +284,6 @@ module AlegreSimilarity
       params[:language] = language if !language.nil?
       params[:min_es_score] = self.get_min_es_score(team_id)
       params
-    end
-
-    def get_items_with_similar_media(media_url, threshold, team_id, path)
-      self.get_similar_items_from_api(
-        path,
-        self.similar_media_content_from_api_conditions(
-          team_id,
-          media_url,
-          threshold
-        ),
-        threshold
-      )
     end
 
     def similar_media_content_from_api_conditions(team_id, media_url, threshold, match_across_content_types=true)

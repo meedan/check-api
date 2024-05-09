@@ -479,4 +479,43 @@ class ElasticSearch10Test < ActionController::TestCase
 
     Team.current = nil
   end
+
+  test "should filter by positive_tipline_search_results_count and negative_tipline_search_results_count numeric range" do
+    RequestStore.store[:skip_cached_field_update] = false
+    p = create_project
+    [:positive_tipline_search_results_count, :negative_tipline_search_results_count].each do |field|
+      query = { projects: [p.id], "#{field}": { max: 5 } }
+      query[field][:min] = 0
+      result = CheckSearch.new(query.to_json, nil, p.team_id)
+      assert_equal 0, result.medias.count
+    end
+    pm1 = create_project_media project: p, quote: 'Test A', disable_es_callbacks: false
+    pm2 = create_project_media project: p, quote: 'Test B', disable_es_callbacks: false
+
+    # Add positive search results
+    create_tipline_request team_id: p.team_id, associated: pm1, smooch_request_type: 'relevant_search_result_requests'
+    2.times { create_tipline_request(team_id: p.team_id, associated: pm2, smooch_request_type: 'relevant_search_result_requests') }
+
+    # Add negative search results
+    create_tipline_request team_id: p.team_id, associated: pm1, smooch_request_type: 'irrelevant_search_result_requests'
+    2.times { create_tipline_request(team_id: p.team_id, associated: pm2, smooch_request_type: 'irrelevant_search_result_requests') }
+
+    sleep 2
+
+    min_mapping = {
+      "0": [pm1.id, pm2.id],
+      "1": [pm1.id, pm2.id],
+      "2": [pm2.id],
+      "3": [],
+    }
+
+    [:positive_tipline_search_results_count, :negative_tipline_search_results_count].each do |field|
+      query = { projects: [p.id], "#{field}": { max: 5 } }
+      min_mapping.each do |min, items|
+        query[field][:min] = min.to_s
+        result = CheckSearch.new(query.to_json, nil, p.team_id)
+        assert_equal items.sort, result.medias.map(&:id).sort
+      end
+    end
+  end
 end

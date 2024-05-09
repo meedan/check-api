@@ -29,12 +29,19 @@ UPLOADED_VIDEO_PARAMS =  (['d-item.mp4', 'rails.mp4']*4).map do |video|
   { type: 'UploadedVideo', file: open_file(video) }
 end
 
-MEDIAS_PARAMS = [
-  *CLAIMS_PARAMS,
-  *UPLOADED_AUDIO_PARAMS,
-  *UPLOADED_IMAGE_PARAMS,
-  *UPLOADED_VIDEO_PARAMS,
-].shuffle!
+LINK_PARAMS = -> {[
+  'https://meedan.com/post/addressing-misinformation-across-countries-a-pioneering-collaboration-between-taiwan-factcheck-center-vera-files',
+  'https://meedan.com/post/entre-becos-a-women-led-hyperlocal-newsletter-from-the-peripheries-of-brazil',
+  'https://meedan.com/post/check-global-launches-independent-media-response-fund-tackles-on-climate-misinformation',
+  'https://meedan.com/post/chambal-media',
+  'https://meedan.com/post/application-process-for-the-check-global-independent-media-response-fund',
+  'https://meedan.com/post/new-e-course-on-the-fundamentals-of-climate-and-environmental-reporting-in-africa',
+  'https://meedan.com/post/annual-report-2022',
+  'https://meedan.com/post/meedan-joins-partnership-on-ais-ai-and-media-integrity-steering-committee',
+].map do |url|
+    { type: 'Link', url: url+"?timestamp=#{Time.now.to_f}" }
+  end
+}
 
 class Setup
 
@@ -220,7 +227,7 @@ class PopulatedWorkspaces
         title: "#{teams[:main_team_a][:name]} / [a] Main User: Main Team",
         user: users[:main_user_a],
         team: teams[:main_team_a],
-        project_medias_attributes: medias_params_with_links.map.with_index { |media_params, index|
+        project_medias_attributes: medias_params.map.with_index { |media_params, index|
           {
             media_attributes: media_params,
             user: users[:main_user_a],
@@ -244,7 +251,7 @@ class PopulatedWorkspaces
           title: "#{teams[:invited_team_b1][:name]} / [b] Invited User: Project Team #1",
           user: users[:invited_user_b],
           team: teams[:invited_team_b1],
-          project_medias_attributes: MEDIAS_PARAMS.map.with_index { |media_params, index|
+          project_medias_attributes: medias_params.map.with_index { |media_params, index|
             {
               media_attributes: media_params,
               user: users[:invited_user_b],
@@ -262,7 +269,7 @@ class PopulatedWorkspaces
           title: "#{teams[:invited_team_b2][:name]} / [b] Invited User: Project Team #2",
           user: users[:invited_user_b],
           team: teams[:invited_team_b2],
-          project_medias_attributes: MEDIAS_PARAMS.map.with_index { |media_params, index|
+          project_medias_attributes: medias_params.map.with_index { |media_params, index|
             {
               media_attributes: media_params,
               user: users[:invited_user_b],
@@ -280,7 +287,7 @@ class PopulatedWorkspaces
           title: "#{teams[:invited_team_c][:name]} / [c] Invited User: Project Team #1",
           user: users[:invited_user_c],
           team: teams[:invited_team_c],
-          project_medias_attributes: MEDIAS_PARAMS.map.with_index { |media_params, index|
+          project_medias_attributes: medias_params.map.with_index { |media_params, index|
             {
               media_attributes: media_params,
               user: users[:invited_user_c],
@@ -309,6 +316,10 @@ class PopulatedWorkspaces
 
   def saved_searches
     teams.each_value { |team| saved_search(team) }
+  end
+
+  def explainers
+    teams.each_value { |team| 5.times { create_explainer(team) } }
   end
 
   def main_user_feed(to_be_shared)
@@ -390,37 +401,24 @@ class PopulatedWorkspaces
 
   def tipline_requests
     teams_project_medias.each_value do |team_project_medias|
-        create_tipline_requests(team_project_medias)
+      create_tipline_requests(team_project_medias)
     end
   end
 
   private
 
-  def medias_params_with_links
-    links_params = [
-      'https://meedan.com/post/addressing-misinformation-across-countries-a-pioneering-collaboration-between-taiwan-factcheck-center-vera-files',
-      'https://meedan.com/post/entre-becos-a-women-led-hyperlocal-newsletter-from-the-peripheries-of-brazil',
-      'https://meedan.com/post/check-global-launches-independent-media-response-fund-tackles-on-climate-misinformation',
-      'https://meedan.com/post/chambal-media',
-      'https://meedan.com/post/application-process-for-the-check-global-independent-media-response-fund',
-      'https://meedan.com/post/new-e-course-on-the-fundamentals-of-climate-and-environmental-reporting-in-africa',
-      'https://meedan.com/post/annual-report-2022',
-      'https://meedan.com/post/meedan-joins-partnership-on-ais-ai-and-media-integrity-steering-committee',
-    ].map do |url|
-        { type: 'Link', url: url+"?timestamp=#{Time.now.to_f}" }
-      end
-
+  def medias_params
     [
       *CLAIMS_PARAMS,
       *UPLOADED_AUDIO_PARAMS,
       *UPLOADED_IMAGE_PARAMS,
       *UPLOADED_VIDEO_PARAMS,
-      *links_params,
+      *LINK_PARAMS.call
     ].shuffle!
   end
 
   def items_total
-    @items_total ||= MEDIAS_PARAMS.size
+    @items_total ||= medias_params.size
   end
 
   def title_from_link(link)
@@ -479,6 +477,16 @@ class PopulatedWorkspaces
     else
       team.saved_searches.first
     end
+  end
+
+  def create_explainer(team)
+    Explainer.create!({
+      title: Faker::Lorem.sentence,
+      url: random_url,
+      description: Faker::Lorem.paragraph(sentence_count: 8),
+      team: team,
+      user: users[:main_user_a],
+    })
   end
 
   def feed_invitation(feed, invited_user)
@@ -703,6 +711,8 @@ ActiveRecord::Base.transaction do
     populated_workspaces.publish_fact_checks
     puts 'Creating Clusters'
     populated_workspaces.clusters(feed_2)
+    puts 'Creating Explainers'
+    populated_workspaces.explainers
   rescue RuntimeError => e
     if e.message.include?('We could not parse this link')
       puts "—————"

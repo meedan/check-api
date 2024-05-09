@@ -21,6 +21,8 @@ module TeamAssociations
     has_many :tipline_messages
     has_many :tipline_newsletters
     has_many :tipline_requests, as: :associated
+    has_many :explainers, dependent: :destroy
+    has_many :api_keys
 
     has_annotations
   end
