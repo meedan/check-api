@@ -236,7 +236,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => 'Foo bar foo bar foo bar' })
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
-    Bot::Alegre.stubs(:get_merged_similar_items).returns({ pm.id => { score: 0.9, model: 'elasticsearch' } })
+    Bot::Alegre.stubs(:get_merged_similar_items).returns({ pm.id => { score: 0.9, model: 'elasticsearch', context: {foo: :bar} } })
 
     assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en')
 
@@ -259,7 +259,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'image', 'mediaUrl' => random_url })
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
-    Bot::Alegre.stubs(:get_items_with_similar_media).returns({ pm.id => { score: 0.9, model: 'elasticsearch' } })
+    Bot::Alegre.stubs(:get_items_with_similar_media_v2).returns({ pm.id => { score: 0.9, model: 'elasticsearch', context: {foo: :bar} } })
     CheckS3.stubs(:rewrite_url).returns(random_url)
 
     assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en')
@@ -267,7 +267,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     Bot::Smooch.unstub(:bundle_list_of_messages)
     ProjectMedia.any_instance.unstub(:report_status)
     ProjectMedia.any_instance.unstub(:analysis_published_article_url)
-    Bot::Alegre.unstub(:get_items_with_similar_media)
+    Bot::Alegre.unstub(:get_items_with_similar_media_v2)
   end
 
   test "should handle exception when adding Smooch integration" do
@@ -310,9 +310,23 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     pm3 = create_project_media team: t #Vector high score
     pm4 = create_project_media team: t #Vector low score
     # Create more project media if needed
-    results = { pm1.id => { model: 'elasticsearch', score: 10.8 }, pm2.id => { model: 'elasticsearch', score: 15.2},
-      pm3.id => { model: 'anything-else', score: 1.98 }, pm4.id => { model: 'anything-else', score: 1.8}}
+    results = { pm1.id => { model: 'elasticsearch', score: 10.8, context: {foo: :bar}}, pm2.id => { model: 'elasticsearch', score: 15.2, context: {foo: :bar}},
+      pm3.id => { model: 'anything-else', score: 1.98, context: {foo: :bar}}, pm4.id => { model: 'anything-else', score: 1.8, context: {foo: :bar}}}
     assert_equal [pm3, pm4, pm2], Bot::Smooch.parse_search_results_from_alegre(results, t.id)
+    ProjectMedia.any_instance.unstub(:report_status)
+  end
+
+  test "should omit temporary results from Alegre" do
+    ProjectMedia.any_instance.stubs(:report_status).returns('published') # We can stub this because it's not what this test is testing
+    t = create_team
+    pm1 = create_project_media team: t #ES low score
+    pm2 = create_project_media team: t #ES high score
+    pm3 = create_project_media team: t #Vector high score
+    pm4 = create_project_media team: t #Vector low score
+    # Create more project media if needed
+    results = { pm1.id => { model: 'elasticsearch', score: 10.8, context: {blah: 1} }, pm2.id => { model: 'elasticsearch', score: 15.2, context: {blah: 1} },
+      pm3.id => { model: 'anything-else', score: 1.98, context: {temporary_media: true} }, pm4.id => { model: 'anything-else', score: 1.8, context: {temporary_media: false}}}
+    assert_equal [pm4, pm2, pm1], Bot::Smooch.parse_search_results_from_alegre(results, t.id)
     ProjectMedia.any_instance.unstub(:report_status)
   end
 
@@ -491,8 +505,9 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
       Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm)
       Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm)
       Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'timeout_search_requests', pm)
-      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests')
-      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests')
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm)
       message = lambda do
         {
           type: 'text',
@@ -512,24 +527,30 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
         }
       end
       Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm2)
-      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests')
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm2)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm2)
       # Verify cached field
-      assert_equal 5, pm.tipline_search_results_count
+      assert_equal 6, pm.tipline_search_results_count
       assert_equal 2, pm.positive_tipline_search_results_count
-      assert_equal 2, pm2.tipline_search_results_count
+      assert_equal 3, pm.negative_tipline_search_results_count
+      assert_equal 3, pm2.tipline_search_results_count
       assert_equal 1, pm2.positive_tipline_search_results_count
+      assert_equal 2, pm2.negative_tipline_search_results_count
       # Verify ES values
       es = $repository.find(pm.get_es_doc_id)
-      assert_equal 5, es['tipline_search_results_count']
+      assert_equal 6, es['tipline_search_results_count']
       assert_equal 2, es['positive_tipline_search_results_count']
+      assert_equal 3, es['negative_tipline_search_results_count']
       es2 = $repository.find(pm2.get_es_doc_id)
-      assert_equal 2, es2['tipline_search_results_count']
+      assert_equal 3, es2['tipline_search_results_count']
       assert_equal 1, es2['positive_tipline_search_results_count']
+      assert_equal 2, es2['negative_tipline_search_results_count']
       # Verify destroy
       types = ["irrelevant_search_result_requests", "timeout_search_requests"]
       TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: pm.id, smooch_request_type: types).destroy_all
       assert_equal 2, pm.tipline_search_results_count
       assert_equal 2, pm.positive_tipline_search_results_count
+      assert_equal 0, pm.negative_tipline_search_results_count
     end
   end
 

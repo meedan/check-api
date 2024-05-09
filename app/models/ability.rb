@@ -66,6 +66,7 @@ class Ability
     can :destroy, FeedTeam do |obj|
       obj.team_id == @context_team.id || obj.feed.team_id == @context_team.id
     end
+    can [:create, :update, :read, :destroy], ApiKey, :team_id => @context_team.id
   end
 
   def editor_perms
@@ -110,7 +111,10 @@ class Ability
     end
     can [:read], FeedTeam, :team_id => @context_team.id
     can [:read], FeedInvitation, { feed: { team_id: @context_team.id } }
-    can [:read, :create, :update], Feed, :team_id => @context_team.id
+    can [:read, :create, :update, :import_media], Feed, :team_id => @context_team.id
+    can :import_media, Feed do |obj|
+      obj.team_ids.include?(@context_team.id)
+    end
   end
 
   def collaborator_perms
@@ -167,6 +171,7 @@ class Ability
       !v_obj.nil? and v_obj.team_id == @context_team.id and v_obj.media.user_id = @user.id
     end
     can [:create, :update, :read, :destroy], FactCheck, { claim_description: { project_media: { team_id: @context_team.id } } }
+    can [:create, :update, :read, :destroy], Explainer, team_id: @context_team.id
     can [:create, :update, :read], ClaimDescription, { project_media: { team_id: @context_team.id } }
   end
 

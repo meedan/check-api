@@ -44,6 +44,15 @@ class ProjectMediaType < DefaultObject
   field :custom_title, GraphQL::Types::String, null: true
   field :title_field, GraphQL::Types::String, null: true
   field :suggestions_count, GraphQL::Types::Int, null: true
+  field :imported_from_feed_id, GraphQL::Types::Int, null: true
+  field :imported_from_project_media_id, GraphQL::Types::Int, null: true
+  field :imported_from_feed, FeedType, null: true
+
+  def imported_from_feed
+    ability = context[:ability] || Ability.new
+    feed = Feed.find_by_id(object.imported_from_feed_id)
+    (feed && ability.can?(:read, feed)) ? feed : nil
+  end
 
   field :claim_description, ClaimDescriptionType, null: true
 
@@ -205,12 +214,12 @@ class ProjectMediaType < DefaultObject
     object.get_annotations("comment").map(&:load)
   end
 
-  field :requests,
-        TiplineRequestType.connection_type,
-        null: true
+  field :requests, TiplineRequestType.connection_type, null: true do
+    argument :include_children, GraphQL::Types::Boolean, required: false
+  end
 
-  def requests
-    object.get_requests
+  def requests(include_children: false)
+    object.get_requests(include_children)
   end
 
   field :last_status, GraphQL::Types::String, null: true
