@@ -146,4 +146,7 @@ class MutationType < BaseObject
   field :createExplainer, mutation: ExplainerMutations::Create
   field :updateExplainer, mutation: ExplainerMutations::Update
   field :destroyExplainer, mutation: ExplainerMutations::Destroy
+
+  field :createApiKey, mutation: ApiKeyMutations::Create
+  field :destroyApiKey, mutation: ApiKeyMutations::Destroy
 end

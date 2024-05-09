@@ -8,11 +8,13 @@ class ApiKeyTest < ActiveSupport::TestCase
   end
 
   test "should generate expiration date" do
-    t = Time.parse('2015-01-01 09:00:00')
-    Time.stubs(:now).returns(t)
-    k = create_api_key
-    Time.unstub(:now)
-    assert_equal Time.parse('2015-01-31 09:00:00'), k.reload.expire_at
+    stub_configs({'api_default_expiry_days' => 90}) do
+      t = Time.parse('2015-01-01 09:00:00')
+      Time.stubs(:now).returns(t)
+      k = create_api_key
+      Time.unstub(:now)
+      assert_equal Time.parse('2015-04-01 09:00:00'), k.reload.expire_at
+    end
   end
 
   test "should generate access token" do
@@ -43,5 +45,23 @@ class ApiKeyTest < ActiveSupport::TestCase
     assert_nil a.bot_user
     b = create_bot_user api_key_id: a.id
     assert_equal b, a.reload.bot_user
+  end
+
+  test "should create bot user automatically when team is provided" do
+    t = create_team
+    a = create_api_key(team: t)
+    assert_not_nil a.bot_user
+  end
+
+  test "should validate maximum number of api keys in a team" do
+    stub_configs({'max_team_api_keys' => 2}) do
+      t = create_team
+      2.times do
+        create_api_key(team: t)
+      end
+      assert_raises ActiveRecord::RecordInvalid do
+        create_api_key(team: t)
+      end
+    end
   end
 end
