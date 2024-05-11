@@ -209,6 +209,23 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should validate password complexity" do
+    assert_difference 'User.count' do
+      create_user password: random_complex_password
+    end
+    assert_no_difference 'User.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user password: random_string
+      end
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user password: random_complex_password(7)
+      end
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user password: random_complex_password(80)
+      end
+    end
+  end
+
   test "should not register with banned email" do
     u = create_user is_active: false
     assert_no_difference 'User.count' do
@@ -498,19 +515,22 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should set user password" do
-    u = create_user password: '12345678', password_confirmation: '12345678'
-    u.set_password = '87654321'
+    p1 = random_complex_password
+    u = create_user password: p1, password_confirmation: p1
+    p2 = random_complex_password
+    u.set_password = p2
     u.save!
-    assert_equal '87654321', u.password
-    assert_equal '87654321', u.password_confirmation
+    assert_equal p2, u.password
+    assert_equal p2, u.password_confirmation
   end
 
   test "should not change user password if value is blank" do
-    u = create_user password: '12345678', password_confirmation: '12345678'
+    p1 = random_complex_password
+    u = create_user password: p1, password_confirmation: p1
     u.set_password = ''
     u.save!
-    assert_equal '12345678', u.password
-    assert_equal '12345678', u.password_confirmation
+    assert_equal p1, u.password
+    assert_equal p1, u.password_confirmation
   end
 
   test "should protect attributes from mass assignment" do
@@ -529,8 +549,9 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 0, u.send(:pending_notifications).size
     Sidekiq::Extensions::DelayedMailer.jobs.clear
     assert_equal 0, Sidekiq::Extensions::DelayedMailer.jobs.size
-    u.password = '12345678'
-    u.password_confirmation = '12345678'
+    p1 = random_complex_password
+    u.password = p1
+    u.password_confirmation = p1
     u.send(:send_devise_notification, 'confirmation_instructions', 'token', {})
     u.save!
     assert_equal 1, Sidekiq::Extensions::DelayedMailer.jobs.size
@@ -1310,7 +1331,8 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should have 2FA for email based user" do
-    u = create_user password: 'test1234'
+    p1 = random_complex_password
+    u = create_user password: p1
     assert_nil u.otp_secret
     data = u.two_factor
     assert_not_nil u.otp_secret
@@ -1321,8 +1343,8 @@ class UserTest < ActiveSupport::TestCase
     assert_raise RuntimeError do
       u.two_factor=(options)
     end
-    options[:password] = 'test1234'
-    options[:qrcode] = 'test1234'
+    options[:password] = p1
+    options[:qrcode] = p1
     assert_raise RuntimeError do
       u.two_factor=(options)
     end
@@ -1352,23 +1374,25 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should reset or change user password" do
-    u = create_user password: 'test1234'
+    p1 = random_complex_password
+    p2 = random_complex_password
+    u = create_user password: p1
     rand_id = u.id + rand(100)
-    options = { id: rand_id, current_password: 'invalidpassword', password: 'test5678', password_confirmation: 'test5678' }
+    options = { id: rand_id, current_password: 'invalidpassword', password: p2, password_confirmation: p2 }
     User.stubs(:current).returns(u)
     # test change password
     assert_raises ActiveRecord::RecordNotFound do
       User.reset_change_password(options)
     end
     options[:id] = u.id
-    assert u.reload.valid_password?('test1234')
+    assert u.reload.valid_password?(p1)
     assert_raises RuntimeError do
       User.reset_change_password(options)
     end
-    assert u.reload.valid_password?('test1234')
-    options[:current_password] = 'test1234'
+    assert u.reload.valid_password?(p1)
+    options[:current_password] = p1
     User.reset_change_password(options)
-    assert u.reload.valid_password?('test5678')
+    assert u.reload.valid_password?(p2)
     User.unstub(:current)
   end
 

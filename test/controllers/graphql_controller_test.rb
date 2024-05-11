@@ -647,9 +647,10 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should change password if token is found and passwords are present and match" do
+    p1 = random_complex_password
     u = create_user
     t = u.send_reset_password_instructions
-    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"123456789\", password_confirmation: \"123456789\" }) { success } }"
+    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"#{p1}\", password_confirmation: \"#{p1}\" }) { success } }"
     post :create, params: { query: query }
     sleep 1
     assert_response :success
@@ -657,18 +658,20 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should not change password if token is not found and passwords are present and match" do
+    p1 = random_complex_password
     u = create_user
     t = u.send_reset_password_instructions
-    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}x\", password: \"123456789\", password_confirmation: \"123456789\" }) { success } }"
+    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}x\", password: \"#{p1}\", password_confirmation: \"#{p1}\" }) { success } }"
     post :create, params: { query: query }
     sleep 1
     assert_response 400
   end
 
   test "should not change password if token is found but passwords are not present" do
+    p1 = random_complex_password
     u = create_user
     t = u.send_reset_password_instructions
-    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"123456789\" }) { success } }"
+    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"#{p1}\" }) { success } }"
     post :create, params: { query: query }
     sleep 1
     assert_response :success
@@ -676,9 +679,10 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should not change password if token is found but passwords do not match" do
+    p1 = random_complex_password
     u = create_user
     t = u.send_reset_password_instructions
-    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"123456789\", password_confirmation: \"12345678\" }) { success } }"
+    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"#{p1}\", password_confirmation: \"12345678\" }) { success } }"
     post :create, params: { query: query }
     sleep 1
     assert_response 400
