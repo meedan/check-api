@@ -16,7 +16,7 @@ class BotUserTest < ActiveSupport::TestCase
   end
 
   test "should not have password null" do
-    b = create_bot_user password: '12345678'
+    b = create_bot_user password: random_complex_password
     assert_nil b.password
   end
 

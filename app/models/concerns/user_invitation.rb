@@ -132,7 +132,12 @@ module UserInvitation
       tu.save!
       # options should have password & username keys
       user = User.find_by_invitation_token(token, true)
-      password = options[:password] || Devise.friendly_token.first(8)
+      password = options[:password]
+      if password.blank?
+        # Generate random passsword that match password_complexity validation
+        samples = [('a'..'z'), ('A'..'Z'), (0..9), ['@', '#', '$', '%', '&']].map(&:to_a)
+        password = Devise.friendly_token.first(8).concat(samples.map(&:sample).shuffle.join)
+      end
       unless user.nil?
         invitable = User.accept_invitation!(:invitation_token => token, :password => password)
         user.update_columns(raw_invitation_token: nil, completed_signup: false)
