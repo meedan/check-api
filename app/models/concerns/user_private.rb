@@ -58,6 +58,11 @@ module UserPrivate
     end
   end
 
+  def password_complexity
+    return if password.blank? || password =~ /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,70}$/
+    errors.add :password, I18n.t(:error_password_not_strong)
+  end
+
   def handle_duplicate_email(u)
     if u.is_active?
       provider = u.get_user_provider(self.email)
