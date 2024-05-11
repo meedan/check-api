@@ -19,7 +19,7 @@ class ThrottlingTest < ActionDispatch::IntegrationTest
 
   test "should throttle excessive requests to /api/users/sign_in" do
     stub_configs({ 'login_rate_limit' => 2 }) do
-      user_params = { api_user: { email: 'user@example.com', password: 'password' } }
+      user_params = { api_user: { email: 'user@example.com', password: random_complex_password } }
 
       2.times do
         post api_user_session_path, params: user_params, as: :json
