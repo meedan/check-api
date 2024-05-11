@@ -32,7 +32,7 @@ module SampleData
     low = random_string(1).downcase
     up  = random_string(1).upcase
     num = ('0'..'9').to_a
-    u = ['_', '#', '$', '%', '&'].to_a
+    u = ['@', '#', '$', '%', '&'].to_a
     complex = (num.sample(1) + u.sample(1)).join
     random_string(length).concat(low, up, complex)
   end
@@ -80,7 +80,7 @@ module SampleData
     u.name = options[:name] || random_string
     u.login = options.has_key?(:login) ? options[:login] : random_string
     u.email = options[:email] || "#{random_string}@#{random_string}.com"
-    u.password = options[:password] || random_string
+    u.password = options[:password] || random_complex_password
     u.password_confirmation = options[:password_confirmation] || u.password
     u.is_admin = options[:is_admin] if options.has_key?(:is_admin)
     u.api_key_id = options.has_key?(:api_key_id) ? options[:api_key_id] : create_api_key.id
