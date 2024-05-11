@@ -59,7 +59,7 @@ class RegistrationsControllerTest < ActionController::TestCase
   end
 
   test "should not create user if password is too short" do
-    p1 = random_complex_password
+    p1 = '1234'
     assert_no_difference 'User.count' do
       post :create, params: { api_user: { password: p1, password_confirmation: p1, email: 't@test.com', login: 'test', name: 'Test' } }
       assert_response 400
@@ -113,6 +113,7 @@ class RegistrationsControllerTest < ActionController::TestCase
   end
 
   test "should not update account if not logged in" do
+    p1 = random_complex_password
     post :update, params: { api_user: { name: 'Bar', login: 'bar', token: 'bar', email: 'bar@test.com', current_password: p1 } }
     assert_response 401
   end
