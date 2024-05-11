@@ -181,7 +181,8 @@ class GraphqlController9Test < ActionController::TestCase
   end
 
   test "should handle user 2FA" do
-    u = create_user password: 'test1234'
+    p1 = random_complex_password
+    u = create_user password: p1
     t = create_team
     create_team_user team: t, user: u
     authenticate_with_user(u)
@@ -197,16 +198,16 @@ class GraphqlController9Test < ActionController::TestCase
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     # Enable/Disable 2FA
-    query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: \"1\", id: #{u.id}, otp_required: #{true}, password: \"test1234\", qrcode: \"#{u.current_otp}\" }) { success }}"
+    query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: \"1\", id: #{u.id}, otp_required: #{true}, password: \"#{p1}\", qrcode: \"#{u.current_otp}\" }) { success }}"
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert u.reload.otp_required_for_login?
-    query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: \"1\", id: #{u.id}, otp_required: #{false}, password: \"test1234\" }) { success }}"
+    query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: \"1\", id: #{u.id}, otp_required: #{false}, password: \"#{p1}\" }) { success }}"
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_not u.reload.otp_required_for_login?
     # Disable with invalid uid
-    query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: \"1\", id: #{invalid_uid}, otp_required: #{false}, password: \"test1234\" }) { success }}"
+    query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: \"1\", id: #{invalid_uid}, otp_required: #{false}, password: \"#{p1}\" }) { success }}"
     post :create, params: { query: query, team: t.slug }
     assert_response :success
   end

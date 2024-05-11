@@ -56,7 +56,7 @@ class Setup
   def initialize(existing_user_email)
     @existing_user_email = existing_user_email
     @user_names = Array.new(3) { Faker::Name.first_name.downcase }
-    @user_passwords = Array.new(3) { Faker::Internet.password(min_length: 8) }
+    @user_passwords = Array.new(3) { random_complex_password }
     @user_emails = @user_names.map { |name| Faker::Internet.safe_email(name: name) }
     @team_names = Array.new(4) { Faker::Company.name }
 
