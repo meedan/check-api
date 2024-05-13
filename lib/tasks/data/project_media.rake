@@ -148,8 +148,10 @@ namespace :check do
             print '.'
             value = pm.send(field_name, true)
           end
+          sleep 2
         end
         Rails.cache.write('check:project_media:recalculate_cached_field:team_id', team.id) if data_args['slug'].blank?
+        sleep 5
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."

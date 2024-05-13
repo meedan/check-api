@@ -133,10 +133,12 @@ class Assignment < ApplicationRecord
   def update_elasticsearch_assignment
     if ['Annotation', 'Dynamic'].include?(self.assigned_type) && self.assigned.annotation_type == 'verification_status'
       pm = self.assigned.annotated
-      # Update ES
-      uids = Assignment.where(assigned_type: self.assigned_type, assigned_id: self.assigned_id).map(&:user_id)
-      data = { 'assigned_user_ids' => uids }
-      pm.update_elasticsearch_doc(data.keys, data, pm.id)
+      unless pm.nil?
+        # Update ES
+        uids = Assignment.where(assigned_type: self.assigned_type, assigned_id: self.assigned_id).map(&:user_id)
+        data = { 'assigned_user_ids' => uids }
+        pm.update_elasticsearch_doc(data.keys, data, pm.id)
+      end
     end
   end
 end
