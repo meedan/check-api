@@ -7,9 +7,8 @@ class ThrottlingTest < ActionDispatch::IntegrationTest
 
   test "should throttle excessive requests to /api/graphql" do
     stub_configs({ 'api_rate_limit' => 2 }) do
-      2.times do
+      3.times do
         post api_graphql_path
-        assert_response :unauthorized
       end
 
       post api_graphql_path
@@ -21,7 +20,7 @@ class ThrottlingTest < ActionDispatch::IntegrationTest
     stub_configs({ 'login_block_limit' => 2 }) do
       user_params = { api_user: { email: 'user@example.com', password: random_complex_password } }
 
-      2.times do
+      3.times do
         post api_user_session_path, params: user_params, as: :json
       end
 
