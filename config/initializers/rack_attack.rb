@@ -1,6 +1,8 @@
 class Rack::Attack
-  # Configure Cache
-  Rack::Attack.cache.store = ActiveSupport::Cache::RedisCacheStore.new
+  # Throttle all graphql requests by IP address
+  throttle('api/graphql', limit:  proc { CheckConfig.get('api_rate_limit', 100, :integer) }, period: 60.seconds) do |req|
+    req.ip if req.path == '/api/graphql'
+  end
 
   # Blocklist IP addresses that are permanently blocked
   blocklist('block aggressive IPs') do |req|
@@ -26,10 +28,5 @@ class Rack::Attack
   # Response to blocked requests
   self.blocklisted_response = lambda do |env|
     [ 403, {}, ['Blocked - Your IP has been permanently blocked due to suspicious activity.']]
-  end
-
-  # Throttle all graphql requests by IP address
-  throttle('api/graphql', limit:  proc { CheckConfig.get('api_rate_limit', 100, :integer) }, period: 60.seconds) do |req|
-    req.ip if req.path == '/api/graphql'
   end
 end

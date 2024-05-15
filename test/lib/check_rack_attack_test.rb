@@ -6,9 +6,10 @@ class ThrottlingTest < ActionDispatch::IntegrationTest
   end
 
   test "should throttle excessive requests to /api/graphql" do
-    stub_configs({ 'api_rate_limit' => 2 }) do
+    stub_configs({ 'api_rate_limit' => 3 }) do
       3.times do
         post api_graphql_path
+        assert_response :unauthorized
       end
 
       post api_graphql_path
