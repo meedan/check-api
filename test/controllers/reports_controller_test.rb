@@ -40,8 +40,56 @@ class ReportsControllerTest < ActionController::TestCase
     pm5 = create_project_media team: @t, media: create_uploaded_video
     create_project_media team: @t
 
-    Bot::Alegre.stubs(:request).returns({ 'result' => [from_alegre(@pm), from_alegre(pm), from_alegre(pm2), from_alegre(pm3), from_alegre(pm4), from_alegre(pm5)] })
-
+    Bot::Alegre.stubs(:get_items_with_similar_media_v2).returns({
+      @pm.id => {
+        score: 1.0,
+        context: {"team_id" => @pm.team_id, "project_media_id" => @pm.id, "temporary_media" => false},
+        model: Bot::Alegre.get_type(@pm),
+        source_field: Bot::Alegre.get_type(@pm),
+        target_field: Bot::Alegre.get_type(@pm),
+        relationship_type: {:source=>"confirmed_sibling", :target=>"confirmed_sibling"}
+      },
+      pm.id => {
+        score: 1.0,
+        context: {"team_id" => pm.team_id, "project_media_id" => pm.id, "temporary_media" => false},
+        model: Bot::Alegre.get_type(pm),
+        source_field: Bot::Alegre.get_type(pm),
+        target_field: Bot::Alegre.get_type(pm),
+        relationship_type: {:source=>"confirmed_sibling", :target=>"confirmed_sibling"}
+      },
+      pm2.id => {
+        score: 1.0,
+        context: {"team_id" => pm2.team_id, "project_media_id" => pm2.id, "temporary_media" => false},
+        model: Bot::Alegre.get_type(pm2),
+        source_field: Bot::Alegre.get_type(pm2),
+        target_field: Bot::Alegre.get_type(pm2),
+        relationship_type: {:source=>"confirmed_sibling", :target=>"confirmed_sibling"}
+      },
+      pm3.id => {
+        score: 1.0,
+        context: {"team_id" => pm3.team_id, "project_media_id" => pm3.id, "temporary_media" => false},
+        model: Bot::Alegre.get_type(pm3),
+        source_field: Bot::Alegre.get_type(pm3),
+        target_field: Bot::Alegre.get_type(pm3),
+        relationship_type: {:source=>"confirmed_sibling", :target=>"confirmed_sibling"}
+      },
+      pm4.id => {
+        score: 1.0,
+        context: {"team_id" => pm4.team_id, "project_media_id" => pm4.id, "temporary_media" => false},
+        model: Bot::Alegre.get_type(pm4),
+        source_field: Bot::Alegre.get_type(pm4),
+        target_field: Bot::Alegre.get_type(pm4),
+        relationship_type: {:source=>"confirmed_sibling", :target=>"confirmed_sibling"}
+      },
+      pm5.id => {
+        score: 1.0,
+        context: {"team_id" => pm5.team_id, "project_media_id" => pm5.id, "temporary_media" => false},
+        model: Bot::Alegre.get_type(pm5),
+        source_field: Bot::Alegre.get_type(pm5),
+        target_field: Bot::Alegre.get_type(pm5),
+        relationship_type: {:source=>"confirmed_sibling", :target=>"confirmed_sibling"}
+      },
+    })
     post :index, params: {}
     assert_response :success
     assert_equal 7, json_response['data'].size
