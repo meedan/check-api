@@ -48,6 +48,15 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.media_file_url(pm1).class, String
   end
 
+  test "should generate media file url for temporary object" do
+    project_media = TemporaryProjectMedia.new
+    project_media.url = "http://example.com"
+    project_media.id = Digest::MD5.hexdigest(project_media.url).to_i(16)
+    project_media.team_id = [1,2,3]
+    project_media.type = "audio"
+    assert_equal Bot::Alegre.media_file_url(project_media).class, String
+  end
+
   test "should generate item_doc_id" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     assert_equal Bot::Alegre.item_doc_id(pm1).class, String
@@ -1042,6 +1051,25 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       # Simulate the webhook hitting the server and being executed....
       relationship = Bot::Alegre.process_alegre_callback(JSON.parse(params.to_json)) #hack to force into stringed keys
     end
+  end
+
+  test "should handle a call to get_items_with_similar_media_v2 with a temporary request" do
+    keys = {
+      confirmed_results: "alegre:async_results:blah_nil_true",
+      suggested_or_confirmed_results: "alegre:async_results:blah_nil_false"
+    }
+    sequence = sequence('get_cached_data_sequence')
+    Bot::Alegre.stubs(:get_similar_items_v2_async).returns(true)
+    Bot::Alegre.stubs(:get_cached_data).in_sequence(sequence).returns({blah: nil}).then.returns({})
+    Bot::Alegre.stubs(:get_required_keys).returns(keys)
+    Bot::Alegre.stubs(:get_similar_items_v2_callback).returns({})
+    Bot::Alegre.stubs(:delete).returns(true)
+    assert_equal Bot::Alegre.get_items_with_similar_media_v2(type: "audio", media_url: "http://example.com", timeout: 1), {}
+    Bot::Alegre.unstub(:get_similar_items_v2_async)
+    Bot::Alegre.unstub(:get_cached_data)
+    Bot::Alegre.unstub(:get_required_keys)
+    Bot::Alegre.unstub(:get_similar_items_v2_callback)
+    Bot::Alegre.unstub(:delete)
   end
 
   test "should get_cached_data with right fallbacks" do

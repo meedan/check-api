@@ -435,6 +435,7 @@ module AlegreV2
       type = args[:type]
       if ['audio', 'image', 'video'].include?(type)
         if project_media.nil?
+          print("hello")
           project_media = TemporaryProjectMedia.new
           project_media.url = media_url
           project_media.id = Digest::MD5.hexdigest(project_media.url).to_i(16)
