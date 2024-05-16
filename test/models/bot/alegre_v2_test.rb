@@ -48,6 +48,15 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.media_file_url(pm1).class, String
   end
 
+  test "should generate media file url for temporary object" do
+    project_media = TemporaryProjectMedia.new
+    project_media.url = "http://example.com"
+    project_media.id = Digest::MD5.hexdigest(project_media.url).to_i(16)
+    project_media.team_id = [1,2,3]
+    project_media.type = "audio"
+    assert_equal Bot::Alegre.media_file_url(project_media).class, String
+  end
+
   test "should generate item_doc_id" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     assert_equal Bot::Alegre.item_doc_id(pm1).class, String
@@ -816,25 +825,11 @@ class Bot::AlegreTest < ActiveSupport::TestCase
             }
         }
     }
-    assert_difference 'Relationship.count' do
-      # Simulate the webhook hitting the server and being executed....
-      relationship = Bot::Alegre.process_alegre_callback(JSON.parse(params.to_json)) #hack to force into stringed keys
-    end
-    assert_equal relationship.source, pm2
-    assert_equal relationship.target, pm1
-    assert_equal relationship.relationship_type, Relationship.confirmed_type
-  end
-
-  test "should relate project media async for audio when getting a canned response" do
-    pm1 = create_project_media team: @team, media: create_uploaded_audio
-    pm2 = create_project_media team: @team, media: create_uploaded_audio
-    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/async/audio").to_return(body: '{}')
-    relationship = nil
-    params = {
+    unconfirmed_params = {
         "model_type": "image",
         "data": {
-            "is_shortcircuited_callback": true,
             "item": {
+                "id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
                 "callback_url": "http://alegre:3100/presto/receive/add_item/image",
                 "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
                 "text": nil,
@@ -847,8 +842,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
                         "temporary_media": false,
                     },
                     "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
-                    "threshold": 0.73,
-                    "confirmed": true,
+                    "threshold": 0.63,
+                    "confirmed": false,
                     "created_at": "2024-03-14T22:05:47.588975",
                     "limit": 200,
                     "requires_callback": true,
@@ -880,6 +875,118 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     }
     assert_difference 'Relationship.count' do
       # Simulate the webhook hitting the server and being executed....
+      Bot::Alegre.process_alegre_callback(JSON.parse(unconfirmed_params.to_json))
+      relationship = Bot::Alegre.process_alegre_callback(JSON.parse(params.to_json)) #hack to force into stringed keys
+    end
+    assert_equal relationship.source, pm2
+    assert_equal relationship.target, pm1
+    assert_equal relationship.relationship_type, Relationship.confirmed_type
+  end
+
+  test "should relate project media async for audio when getting a canned response" do
+    pm1 = create_project_media team: @team, media: create_uploaded_audio
+    pm2 = create_project_media team: @team, media: create_uploaded_audio
+    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/async/audio").to_return(body: '{}')
+    relationship = nil
+    params = {
+        "model_type": "image",
+        "data": {
+            "is_shortcircuited_search_result_callback": true,
+            "item": {
+                "callback_url": "http://alegre:3100/presto/receive/add_item/image",
+                "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
+                "text": nil,
+                "raw": {
+                    "doc_id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
+                    "context": {
+                        "team_id": pm1.team_id,
+                        "project_media_id": pm1.id,
+                        "has_custom_id": true,
+                        "temporary_media": false,
+                    },
+                    "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
+                    "threshold": 0.85,
+                    "confirmed": true,
+                    "created_at": "2024-03-14T22:05:47.588975",
+                    "limit": 200,
+                    "requires_callback": true,
+                    "final_task": "search"
+                },
+                "hash_value": "1110101010001011110100000011110010101000000010110101101010100101101111110101101001011010100001011111110101011010010000101010010110101101010110100000001010100101101010111110101000010101011100001110101010101111100001010101001011101010101011010001010101010010"
+            },
+            "results": {
+                "result": [
+                    {
+                        "id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
+                        "doc_id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
+                        "pdq": "1110101010001011110100000011110010101000000010110101101010100101101111110101101001011010100001011111110101011010010000101010010110101101010110100000001010100101101010111110101000010101011100001110101010101111100001010101001011101010101011010001010101010010",
+                        "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
+                        "context": [
+                            {
+                                "team_id": pm2.team_id,
+                                "has_custom_id": true,
+                                "project_media_id": pm2.id,
+                                "temporary_media": false,
+                            }
+                        ],
+                        "score": 1.0,
+                        "model": "image/pdq"
+                    }
+                ]
+            }
+        }
+    }
+    unconfirmed_params = {
+        "model_type": "image",
+        "data": {
+            "is_shortcircuited_search_result_callback": true,
+            "item": {
+                "callback_url": "http://alegre:3100/presto/receive/add_item/image",
+                "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
+                "text": nil,
+                "raw": {
+                    "doc_id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
+                    "context": {
+                        "team_id": pm1.team_id,
+                        "project_media_id": pm1.id,
+                        "has_custom_id": true,
+                        "temporary_media": false,
+                    },
+                    "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
+                    "threshold": 0.73,
+                    "confirmed": false,
+                    "created_at": "2024-03-14T22:05:47.588975",
+                    "limit": 200,
+                    "requires_callback": true,
+                    "final_task": "search"
+                },
+                "hash_value": "1110101010001011110100000011110010101000000010110101101010100101101111110101101001011010100001011111110101011010010000101010010110101101010110100000001010100101101010111110101000010101011100001110101010101111100001010101001011101010101011010001010101010010"
+            },
+            "results": {
+                "result": [
+                    {
+                        "id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
+                        "doc_id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
+                        "pdq": "1110101010001011110100000011110010101000000010110101101010100101101111110101101001011010100001011111110101011010010000101010010110101101010110100000001010100101101010111110101000010101011100001110101010101111100001010101001011101010101011010001010101010010",
+                        "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
+                        "context": [
+                            {
+                                "team_id": pm2.team_id,
+                                "has_custom_id": true,
+                                "project_media_id": pm2.id,
+                                "temporary_media": false,
+                            }
+                        ],
+                        "score": 1.0,
+                        "model": "image/pdq"
+                    }
+                ]
+            }
+        }
+    }
+    assert_difference 'Relationship.count' do
+      # Simulate the webhook hitting the server and being executed....
+      Bot::Alegre.process_alegre_callback(JSON.parse(unconfirmed_params.to_json)) #hack to force into stringed keys
       relationship = Bot::Alegre.process_alegre_callback(JSON.parse(params.to_json)) #hack to force into stringed keys
     end
     assert_equal relationship.source, pm2
@@ -946,9 +1053,28 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
   end
 
+  test "should handle a call to get_items_with_similar_media_v2 with a temporary request" do
+    keys = {
+      confirmed_results: "alegre:async_results:blah_nil_true",
+      suggested_or_confirmed_results: "alegre:async_results:blah_nil_false"
+    }
+    sequence = sequence('get_cached_data_sequence')
+    Bot::Alegre.stubs(:get_similar_items_v2_async).returns(true)
+    Bot::Alegre.stubs(:get_cached_data).in_sequence(sequence).returns({blah: nil}).then.returns({})
+    Bot::Alegre.stubs(:get_required_keys).returns(keys)
+    Bot::Alegre.stubs(:get_similar_items_v2_callback).returns({})
+    Bot::Alegre.stubs(:delete).returns(true)
+    assert_equal Bot::Alegre.get_items_with_similar_media_v2(type: "audio", media_url: "http://example.com", timeout: 1), {}
+    Bot::Alegre.unstub(:get_similar_items_v2_async)
+    Bot::Alegre.unstub(:get_cached_data)
+    Bot::Alegre.unstub(:get_required_keys)
+    Bot::Alegre.unstub(:get_similar_items_v2_callback)
+    Bot::Alegre.unstub(:delete)
+  end
+
   test "should get_cached_data with right fallbacks" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
-    assert_equal Bot::Alegre.get_cached_data(Bot::Alegre.get_required_keys(pm1, nil)), {confirmed_results: [], suggested_or_confirmed_results: []}
+    assert_equal Bot::Alegre.get_cached_data(Bot::Alegre.get_required_keys(pm1, nil)), {confirmed_results: nil, suggested_or_confirmed_results: nil}
   end
 
   test "should relate project media for audio" do
