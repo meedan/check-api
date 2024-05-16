@@ -16,7 +16,7 @@ class Rack::Attack
       count = Rails.cache.increment("track:#{req.ip}") || 0
       Rails.cache.write("track:#{req.ip}", count, expires_in: 1.hour)
 
-      # Permanently block if count exceeds the threshold
+      # Add IP to blocklist if count exceeds the threshold
       if count >= CheckConfig.get('login_block_limit', 100, :integer)
         Rails.cache.write("block:#{req.ip}", true)  # No expiration
       end
