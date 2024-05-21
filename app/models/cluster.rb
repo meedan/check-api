@@ -31,8 +31,14 @@ class Cluster < ApplicationRecord
 
   def import_medias_to_team(team, claim_title, claim_context, parent_id = nil)
     # Find the first item in this cluster for which the media_id doesn't exist in the target team yet
-    from_project_media = self.project_medias.where.not(team_id: team.id).select(:id, :media_id).find { |item| !ProjectMedia.where(team_id: team.id, media_id: item.media_id).exists? }
-    raise 'No media to import. All media items from this item already exist in your workspace.' if from_project_media.nil?
+    # Should be fine to load these in memory since clusters don't contain thousands of media
+    existing_items = self.project_medias.where(team_id: team.id).to_a
+    from_project_media = self.project_medias.where.not(team_id: team.id).select(:id, :media_id).find do |item|
+      existing_item = ProjectMedia.where(team_id: team.id, media_id: item.media_id).first
+      existing_items << existing_item
+      existing_item.nil?
+    end
+    raise ActiveRecord::RecordNotUnique.new(I18n.t(:shared_feed_imported_media_already_exist, urls: existing_items.map(&:full_url).uniq.compact_blank.join(', '))) if from_project_media.nil?
     parent = nil
     if parent_id.nil?
       parent = self.import_media_to_team(team, from_project_media, claim_title, claim_context)
