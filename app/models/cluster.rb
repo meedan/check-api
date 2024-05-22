@@ -38,7 +38,7 @@ class Cluster < ApplicationRecord
       existing_items << existing_item
       existing_item.nil?
     end
-    raise ActiveRecord::RecordNotUnique.new(I18n.t(:shared_feed_imported_media_already_exist, urls: existing_items.map(&:full_url).uniq.compact_blank.join(', '))) if from_project_media.nil?
+    raise ActiveRecord::RecordNotUnique.new(I18n.t(:shared_feed_imported_media_already_exist, urls: existing_items.uniq.compact_blank.collect{ |pm| "•︎ [#{pm.title}](#{pm.full_url})" }.join("\n"))) if from_project_media.nil?
     parent = nil
     if parent_id.nil?
       parent = self.import_media_to_team(team, from_project_media, claim_title, claim_context)
