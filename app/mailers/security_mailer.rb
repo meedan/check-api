@@ -1,7 +1,9 @@
 class SecurityMailer < ApplicationMailer
   layout nil
 
-  def notify(user, type, activity)
+  def notify(user_id, type, activity_id)
+    user = User.find_by_id(user_id)
+    activity = LoginActivity.find_by_id(activity_id)
     address = []
     Geocoder.configure(language: I18n.locale)
     ip_result = Geocoder.search(activity.ip).first
@@ -16,16 +18,16 @@ class SecurityMailer < ApplicationMailer
     @location = address.compact.join(', ')
     @timestamp = activity.created_at
     @ip = activity.ip
-    @platform = @user_agent.os.split.first
+    @platform = begin @user_agent.os.split.first rescue 'Unknown' end
     subject = I18n.t("mail_security.#{type}_subject",
       app_name: CheckConfig.get('app_name'), browser: @user_agent.browser, platform: @platform)
     mail(to: email, subject: subject)
   end
 
-  def custom_notification(user, subject)
-    @user = user
+  def custom_notification(user_id, subject)
+    @user = User.find_by_id(user_id)
     attachments.inline['signup.png'] = File.read('public/images/signup.png')
-    mail(to: user.email, subject: subject)
+    mail(to: @user.email, subject: subject)
   end
 
 end
