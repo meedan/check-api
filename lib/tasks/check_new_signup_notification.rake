@@ -5,7 +5,7 @@ namespace :check do
     User.where.not(email: '').find_each do |u|
       unless u.encrypted_password?
         print '.'
-        SecurityMailer.delay.custom_notification(u, subject)
+        SecurityMailer.delay.custom_notification(u.id, subject)
       end
     end
   end
