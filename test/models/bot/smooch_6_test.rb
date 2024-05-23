@@ -440,6 +440,51 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     end
   end
 
+  test "try to reproduce CV2-4593" do
+    pm_id = ProjectMedia.last&.id || 0
+    tr_id = TiplineRequest.last&.id || 0
+    text = "This is message is so long that it is considered a media"
+    Sidekiq::Testing.inline! do
+      message = {
+        type: 'text',
+        text: text,
+        role: 'appUser',
+        received: 1573082583.219,
+        name: random_string,
+        authorId: random_string,
+        '_id': random_string,
+        source: {
+          originalMessageId: random_string,
+          originalMessageTimestamp: 1573082582,
+          type: 'whatsapp',
+          integrationId: random_string
+        },
+        language: 'en',
+      }
+      author = BotUser.smooch_user
+      assert_difference 'ProjectMedia.count' do
+        assert_difference "TiplineRequest.count" do
+          3.times { Bot::Smooch.save_message(message.to_json, @app_id, author, 'timeout_requests', nil) }
+        end
+      end
+      ProjectMedia.where('id > ?', pm_id).destroy_all
+      TiplineRequest.where('id > ?', tr_id).destroy_all
+      threads = []
+      # assert_difference 'ProjectMedia.count', 3 do
+        # assert_difference "TiplineRequest.count" do
+          # assert_raises ActiveRecord::StatementInvalid do
+            3.times do |i|
+              threads << Thread.new {
+                Bot::Smooch.save_message(message.to_json, @app_id, author, 'timeout_requests', nil)
+              }
+            end
+            threads.map(&:join)
+          # end
+        # end
+      # end
+    end
+  end
+
   test "should show main menu as buttons for non-WhatsApp platforms on tipline bot v2" do
     send_message_to_smooch_bot('Hello', @uid, { 'source' => { 'type' => 'telegram' } })
     send_message_to_smooch_bot('1', @uid, { 'source' => { 'type' => 'telegram' } })

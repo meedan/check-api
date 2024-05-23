@@ -333,7 +333,7 @@ module SmoochMessages
     def save_message(message_json, app_id, author = nil, request_type = 'default_requests', associated_obj = nil)
       message = JSON.parse(message_json)
       self.get_installation(self.installation_setting_id_keys, app_id)
-      Team.current = Team.where(id: self.config['team_id']).last
+      Team.current = Team.find self.config['team_id'].to_i
       associated = nil
       if ['default_requests', 'timeout_requests', 'irrelevant_search_result_requests'].include?(request_type)
         message['archived'] = ['default_requests', 'irrelevant_search_result_requests'].include?(request_type) ? self.default_archived_flag : CheckArchivedFlags::FlagCodes::UNCONFIRMED
