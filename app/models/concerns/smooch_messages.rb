@@ -334,28 +334,28 @@ module SmoochMessages
       message = JSON.parse(message_json)
       self.get_installation(self.installation_setting_id_keys, app_id)
       Team.current = Team.find self.config['team_id'].to_i
-      associated = nil
-      if ['default_requests', 'timeout_requests', 'irrelevant_search_result_requests'].include?(request_type)
-        message['archived'] = ['default_requests', 'irrelevant_search_result_requests'].include?(request_type) ? self.default_archived_flag : CheckArchivedFlags::FlagCodes::UNCONFIRMED
-        associated = self.create_project_media_from_message(message)
-      elsif ['menu_options_requests', 'resource_requests'].include?(request_type)
-        associated = associated_obj
-      elsif ['relevant_search_result_requests', 'timeout_search_requests'].include?(request_type)
-        message['archived'] = (request_type == 'relevant_search_result_requests' ? self.default_archived_flag : CheckArchivedFlags::FlagCodes::UNCONFIRMED)
-        associated = self.create_project_media_from_message(message)
+      ApplicationRecord.transaction do
+        associated = nil
+        if ['default_requests', 'timeout_requests', 'irrelevant_search_result_requests'].include?(request_type)
+          message['archived'] = ['default_requests', 'irrelevant_search_result_requests'].include?(request_type) ? self.default_archived_flag : CheckArchivedFlags::FlagCodes::UNCONFIRMED
+          associated = self.create_project_media_from_message(message)
+        elsif ['menu_options_requests', 'resource_requests'].include?(request_type)
+          associated = associated_obj
+        elsif ['relevant_search_result_requests', 'timeout_search_requests'].include?(request_type)
+          message['archived'] = (request_type == 'relevant_search_result_requests' ? self.default_archived_flag : CheckArchivedFlags::FlagCodes::UNCONFIRMED)
+          associated = self.create_project_media_from_message(message)
+        end
+
+        unless associated.nil?
+          # Remember that we received this message.
+          hash = self.message_hash(message)
+          Rails.cache.write("smooch:message:#{hash}", associated.id)
+          self.smooch_save_tipline_request(message, associated, app_id, author, request_type, associated_obj)
+          # If item is published (or parent item), send a report right away
+          self.get_platform_from_message(message)
+          self.send_report_to_user(message['authorId'], message, associated, message['language'], 'fact_check_report') if self.should_try_to_send_report?(request_type, associated)
+        end
       end
-
-      return if associated.nil?
-
-      # Remember that we received this message.
-      hash = self.message_hash(message)
-      Rails.cache.write("smooch:message:#{hash}", associated.id)
-
-      self.smooch_save_tipline_request(message, associated, app_id, author, request_type, associated_obj)
-
-      # If item is published (or parent item), send a report right away
-      self.get_platform_from_message(message)
-      self.send_report_to_user(message['authorId'], message, associated, message['language'], 'fact_check_report') if self.should_try_to_send_report?(request_type, associated)
     end
 
     def smooch_save_tipline_request(message, associated, app_id, author, request_type, associated_obj)

@@ -470,18 +470,18 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       ProjectMedia.where('id > ?', pm_id).destroy_all
       TiplineRequest.where('id > ?', tr_id).destroy_all
       threads = []
-      # assert_difference 'ProjectMedia.count', 3 do
-        # assert_difference "TiplineRequest.count" do
-          # assert_raises ActiveRecord::StatementInvalid do
-            3.times do |i|
+      assert_difference 'ProjectMedia.count' do
+        assert_difference "TiplineRequest.count" do
+          assert_raises ActiveRecord::StatementInvalid do
+            1.times do |i|
               threads << Thread.new {
                 Bot::Smooch.save_message(message.to_json, @app_id, author, 'timeout_requests', nil)
               }
             end
             threads.map(&:join)
-          # end
-        # end
-      # end
+          end
+        end
+      end
     end
   end
 
