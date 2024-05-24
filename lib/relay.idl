@@ -469,7 +469,7 @@ type ApiKey implements Node {
   expire_at: String
   id: ID!
   permissions: String
-  team: PublicTeam
+  team: Team
   team_id: Int
   title: String
   updated_at: String
@@ -12925,7 +12925,11 @@ type Team implements Node {
     Returns the last _n_ elements from the list.
     """
     last: Int
+    offset: Int = 0
+    sort: String = "title"
+    sort_type: String = "ASC"
   ): ArticleUnionConnection
+  articles_count(article_type: String!): Int
   available_newsletter_header_types: JsonStringType
   avatar: String
   check_search_spam: CheckSearch

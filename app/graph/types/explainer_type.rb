@@ -1,5 +1,5 @@
 class ExplainerType < DefaultObject
-  description "Explainer type"
+  description 'Explainer type'
 
   implements GraphQL::Types::Relay::Node
 
