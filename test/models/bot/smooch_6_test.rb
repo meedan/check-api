@@ -464,7 +464,9 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       author = BotUser.smooch_user
       assert_difference 'ProjectMedia.count' do
         assert_difference "TiplineRequest.count" do
-          3.times { Bot::Smooch.save_message(message.to_json, @app_id, author, 'timeout_requests', nil) }
+          assert_raises ActiveRecord::StatementInvalid do
+            3.times { Bot::Smooch.save_message(message.to_json, @app_id, author, 'timeout_requests', nil) }
+          end
         end
       end
       ProjectMedia.where('id > ?', pm_id).destroy_all
@@ -473,7 +475,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       assert_difference 'ProjectMedia.count' do
         assert_difference "TiplineRequest.count" do
           assert_raises ActiveRecord::StatementInvalid do
-            1.times do |i|
+            3.times do |i|
               threads << Thread.new {
                 Bot::Smooch.save_message(message.to_json, @app_id, author, 'timeout_requests', nil)
               }
