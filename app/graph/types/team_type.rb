@@ -290,10 +290,33 @@ class TeamType < DefaultObject
 
   field :articles, ::ArticleUnion.connection_type, null: true do
     argument :article_type, GraphQL::Types::String, required: true, camelize: false
+
+    argument :offset, GraphQL::Types::Int, required: false, default_value: 0
+    argument :sort, GraphQL::Types::String, required: false, default_value: 'title'
+    argument :sort_type, GraphQL::Types::String, required: false, camelize: false, default_value: 'ASC'
   end
 
-  def articles(article_type:)
-    object.explainers if article_type == 'explainer'
+  def articles(**args)
+    sort = args[:sort].to_s
+    order = [:title, :language, :updated_at].include?(sort.downcase.to_sym) ? sort.downcase.to_sym : :title
+    order_type = args[:sort_type].to_s.downcase.to_sym == :desc ? :desc : :asc
+    if args[:article_type] == 'explainer'
+      object.filtered_explainers(args).offset(args[:offset].to_i).order(order => order_type)
+    else
+      []
+    end
+  end
+
+  field :articles_count, GraphQL::Types::Int, null: true do
+    argument :article_type, GraphQL::Types::String, required: true, camelize: false
+  end
+
+  def articles_count(**args)
+    if args[:article_type] == 'explainer'
+      object.filtered_explainers(args).count
+    else
+      nil
+    end
   end
 
   field :api_key, ApiKeyType, null: true do

@@ -2167,7 +2167,7 @@
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "PublicTeam",
+                "name": "Team",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -67686,11 +67686,76 @@
                   "defaultValue": null,
                   "isDeprecated": false,
                   "deprecationReason": null
+                },
+                {
+                  "name": "offset",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": "0",
+                  "isDeprecated": false,
+                  "deprecationReason": null
+                },
+                {
+                  "name": "sort",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": "\"title\"",
+                  "isDeprecated": false,
+                  "deprecationReason": null
+                },
+                {
+                  "name": "sort_type",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": "\"ASC\"",
+                  "isDeprecated": false,
+                  "deprecationReason": null
                 }
               ],
               "type": {
                 "kind": "OBJECT",
                 "name": "ArticleUnionConnection",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "articles_count",
+              "description": null,
+              "args": [
+                {
+                  "name": "article_type",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null,
+                  "isDeprecated": false,
+                  "deprecationReason": null
+                }
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
                 "ofType": null
               },
               "isDeprecated": false,

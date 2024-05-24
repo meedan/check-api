@@ -632,6 +632,12 @@ class Team < ApplicationRecord
     available
   end
 
+  def filtered_explainers(filters = {})
+    query = self.explainers
+    # TODO: Add filters
+    query
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/team_private.rb
