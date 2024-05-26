@@ -419,67 +419,67 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     URI.unstub(:parse)
   end
 
-  # TODO: fix by Sawy
-  # test "should send report to user" do
-  #   text = random_string
-  #   uid = random_string
-  #   child1 = create_project_media project: @project
-  #   u = create_user
-  #   messages = [
-  #     {
-  #       '_id': random_string,
-  #       authorId: uid,
-  #       type: 'text',
-  #       text: text
-  #     }
-  #   ]
-  #   payload = {
-  #     trigger: 'message:appUser',
-  #     app: {
-  #       '_id': @app_id
-  #     },
-  #     version: 'v1.1',
-  #     messages: messages,
-  #     appUser: {
-  #       '_id': random_string,
-  #       'conversationStarted': true
-  #     }
-  #   }.to_json
-  #   Bot::Smooch.run(payload)
-  #   sleep 1
-  #   pm = ProjectMedia.last
-  #   pm.archived = CheckArchivedFlags::FlagCodes::NONE
-  #   pm.save!
-  #   create_relationship source_id: pm.id, target_id: child1.id, user: u
-  #   r = create_report(pm)
-  #   pa1 = r.reload.get_field_value('last_published')
-  #   assert !r.reload.report_design_field_value('visual_card_url')
-  #   r = Dynamic.find(r.id)
-  #   r.save!
-  #   assert !r.reload.report_design_field_value('visual_card_url')
-  #   publish_report(pm, {}, r)
-  #   assert r.reload.report_design_field_value('visual_card_url')
-  #   pa2 = r.reload.get_field_value('last_published')
-  #   assert_not_equal pa1.to_s, pa2.to_s
-  #   s = pm.annotations.where(annotation_type: 'verification_status').last.load
-  #   s.status = 'in_progress'
-  #   assert_raises RuntimeError do
-  #     s.save!
-  #   end
-  #   r = Dynamic.find(r.id)
-  #   r.set_fields = { state: 'paused' }.to_json
-  #   r.action = 'pause'
-  #   r.save!
-  #   s.reload.save!
-  #   assert_equal 'In Progress', r.reload.report_design_field_value('status_label')
-  #   assert_not_equal 'In Progress', r.reload.report_design_field_value('previous_published_status_label')
-  #   r = Dynamic.find(r.id)
-  #   r.set_fields = { state: 'published' }.to_json
-  #   r.action = 'republish_and_resend'
-  #   r.save!
-  #   pa3 = r.reload.get_field_value('last_published')
-  #   assert_not_equal pa2.to_s, pa3.to_s
-  # end
+  test "should send report to user" do
+    text = random_string
+    uid = random_string
+    child1 = create_project_media project: @project
+    u = create_user
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: text,
+        source: { type: "whatsapp" },
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    Bot::Smooch.run(payload)
+    sleep 1
+    pm = ProjectMedia.last
+    pm.archived = CheckArchivedFlags::FlagCodes::NONE
+    pm.save!
+    create_relationship source_id: pm.id, target_id: child1.id, user: u
+    r = create_report(pm)
+    pa1 = r.reload.get_field_value('last_published')
+    assert !r.reload.report_design_field_value('visual_card_url')
+    r = Dynamic.find(r.id)
+    r.save!
+    assert !r.reload.report_design_field_value('visual_card_url')
+    publish_report(pm, {}, r)
+    assert r.reload.report_design_field_value('visual_card_url')
+    pa2 = r.reload.get_field_value('last_published')
+    assert_not_equal pa1.to_s, pa2.to_s
+    s = pm.annotations.where(annotation_type: 'verification_status').last.load
+    s.status = 'in_progress'
+    assert_raises RuntimeError do
+      s.save!
+    end
+    r = Dynamic.find(r.id)
+    r.set_fields = { state: 'paused' }.to_json
+    r.action = 'pause'
+    r.save!
+    s.reload.save!
+    assert_equal 'In Progress', r.reload.report_design_field_value('status_label')
+    assert_not_equal 'In Progress', r.reload.report_design_field_value('previous_published_status_label')
+    r = Dynamic.find(r.id)
+    r.set_fields = { state: 'published' }.to_json
+    r.action = 'republish_and_resend'
+    r.save!
+    pa3 = r.reload.get_field_value('last_published')
+    assert_not_equal pa2.to_s, pa3.to_s
+  end
 
   test "should get language" do
     stub_request(:post, "http://alegre/text/langid/").
