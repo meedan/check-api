@@ -440,9 +440,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     end
   end
 
-  test "try to reproduce CV2-4593" do
-    pm_id = ProjectMedia.last&.id || 0
-    tr_id = TiplineRequest.last&.id || 0
+  test "should save only one item and one request for same tipline message" do
     text = "This is message is so long that it is considered a media"
     Sidekiq::Testing.inline! do
       message = {
@@ -462,15 +460,6 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
         language: 'en',
       }
       author = BotUser.smooch_user
-      assert_difference 'ProjectMedia.count' do
-        assert_difference "TiplineRequest.count" do
-          assert_raises ActiveRecord::StatementInvalid do
-            3.times { Bot::Smooch.save_message(message.to_json, @app_id, author, 'timeout_requests', nil) }
-          end
-        end
-      end
-      ProjectMedia.where('id > ?', pm_id).destroy_all
-      TiplineRequest.where('id > ?', tr_id).destroy_all
       threads = []
       assert_difference 'ProjectMedia.count' do
         assert_difference "TiplineRequest.count" do
