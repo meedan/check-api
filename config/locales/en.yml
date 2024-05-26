@@ -822,7 +822,10 @@ en:
   send_every_must_be_a_list_of_days_of_the_week: must be a list of days of the week.
   send_on_must_be_in_the_future: can't be in the past.
   cant_delete_default_folder: The default folder can't be deleted
-  shared_feed_imported_media_already_exist: "No media to import. All media items from this item already exist in your workspace: %{urls}"
+  shared_feed_imported_media_already_exist: |-
+    No media eligible to be imported into your workspace.
+    The media selected to import already exist in your workspace in the following items:
+    %{urls}
   info:
     messages:
       sent_to_trash_by_rule: '"%{item_title}" has been sent to trash by an automation
