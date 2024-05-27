@@ -291,9 +291,15 @@ class TeamType < DefaultObject
   field :articles, ::ArticleUnion.connection_type, null: true do
     argument :article_type, GraphQL::Types::String, required: true, camelize: false
 
+    # Sort and pagination
     argument :offset, GraphQL::Types::Int, required: false, default_value: 0
     argument :sort, GraphQL::Types::String, required: false, default_value: 'title'
     argument :sort_type, GraphQL::Types::String, required: false, camelize: false, default_value: 'ASC'
+
+    # Filters
+    argument :user_ids, [GraphQL::Types::Int, null: true], required: false, camelize: false
+    argument :tags, [GraphQL::Types::String, null: true], required: false, camelize: false
+    argument :updated_at, GraphQL::Types::String, required: false, camelize: false # JSON
   end
 
   def articles(**args)
