@@ -12928,6 +12928,9 @@ type Team implements Node {
     offset: Int = 0
     sort: String = "title"
     sort_type: String = "ASC"
+    tags: [String]
+    updated_at: String
+    user_ids: [Int]
   ): ArticleUnionConnection
   articles_count(article_type: String!): Int
   available_newsletter_header_types: JsonStringType
