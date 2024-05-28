@@ -306,11 +306,11 @@ class TeamType < DefaultObject
     sort = args[:sort].to_s
     order = [:title, :language, :updated_at].include?(sort.downcase.to_sym) ? sort.downcase.to_sym : :title
     order_type = args[:sort_type].to_s.downcase.to_sym == :desc ? :desc : :asc
+    articles = []
     if args[:article_type] == 'explainer'
-      object.filtered_explainers(args).offset(args[:offset].to_i).order(order => order_type)
-    else
-      []
+      articles = object.filtered_explainers(args).offset(args[:offset].to_i).order(order => order_type)
     end
+    articles
   end
 
   field :articles_count, GraphQL::Types::Int, null: true do
@@ -318,11 +318,11 @@ class TeamType < DefaultObject
   end
 
   def articles_count(**args)
+    count = nil
     if args[:article_type] == 'explainer'
-      object.filtered_explainers(args).count
-    else
-      nil
+      count = object.filtered_explainers(args).count
     end
+    count
   end
 
   field :api_key, ApiKeyType, null: true do

@@ -12,10 +12,5 @@ class ExplainerType < DefaultObject
   field :team_id, GraphQL::Types::Int, null: true
   field :user, UserType, null: true
   field :team, PublicTeamType, null: true
-
-  field :tags, TagType.connection_type, null: true
-
-  def tags
-    Tag.where(annotation_type: 'tag', annotated_type: object.class.name, annotated_id: object.id)
-  end
+  field :tags, [GraphQL::Types::String, null: true], null: true
 end

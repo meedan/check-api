@@ -6,10 +6,11 @@ module ExplainerMutations
     extend ActiveSupport::Concern
 
     included do
-      argument :title, GraphQL::Types::String, required: true
+      argument :title, GraphQL::Types::String, required: false
       argument :description, GraphQL::Types::String, required: false
       argument :url, GraphQL::Types::String, required: false
       argument :language, GraphQL::Types::String, required: false
+      argument :tags, [GraphQL::Types::String, null: true], required: false
     end
   end
 

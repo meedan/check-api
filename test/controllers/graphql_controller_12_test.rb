@@ -383,15 +383,14 @@ class GraphqlController12Test < ActionController::TestCase
     ex = create_explainer team: @t
     tag = create_tag annotated: ex
     authenticate_with_user(@u)
-    query = "query { team(slug: \"#{@t.slug}\") { get_explainers_enabled, articles(article_type: \"explainer\") { edges { node { ... on Explainer { dbid, tags { edges { node { dbid } } } } } } } } }"
+    query = "query { team(slug: \"#{@t.slug}\") { get_explainers_enabled, articles_count(article_type: \"explainer\"), articles(article_type: \"explainer\") { edges { node { ... on Explainer { dbid, tags } } } } } }"
     post :create, params: { query: query, team: @t.slug }
+    assert_response :success
     team = JSON.parse(@response.body)['data']['team']
+    assert_equal 1, team['articles_count']
     assert team['get_explainers_enabled']
     data = team['articles']['edges']
     assert_equal [ex.id], data.collect{ |edge| edge['node']['dbid'] }
-    tags = data[0]['node']['tags']['edges']
-    assert_equal [tag.id.to_s], tags.collect{ |edge| edge['node']['dbid'] }
-    assert_response :success
   end
 
   test "should create api key" do
