@@ -429,7 +429,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
-        text: text
+        text: text,
+        source: { type: "whatsapp" },
       }
     ]
     payload = {

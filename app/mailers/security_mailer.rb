@@ -6,7 +6,7 @@ class SecurityMailer < ApplicationMailer
     activity = LoginActivity.find_by_id(activity_id)
     address = []
     Geocoder.configure(language: I18n.locale)
-    ip_result = Geocoder.search(activity.ip).first
+    ip_result = Geocoder.search(activity&.ip)&.first
     unless ip_result.blank? || ip_result.data["loc"].blank?
       loc_result = Geocoder.search(ip_result.data["loc"]).first
       address = [loc_result.city, loc_result.country] unless loc_result.nil?
