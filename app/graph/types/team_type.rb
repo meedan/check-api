@@ -299,6 +299,7 @@ class TeamType < DefaultObject
     # Filters
     argument :user_ids, [GraphQL::Types::Int, null: true], required: false, camelize: false
     argument :tags, [GraphQL::Types::String, null: true], required: false, camelize: false
+    argument :language, GraphQL::Types::String, required: false, camelize: false
     argument :updated_at, GraphQL::Types::String, required: false, camelize: false # JSON
   end
 
@@ -317,6 +318,12 @@ class TeamType < DefaultObject
 
   field :articles_count, GraphQL::Types::Int, null: true do
     argument :article_type, GraphQL::Types::String, required: true, camelize: false
+
+    # Filters
+    argument :user_ids, [GraphQL::Types::Int, null: true], required: false, camelize: false
+    argument :tags, [GraphQL::Types::String, null: true], required: false, camelize: false
+    argument :language, GraphQL::Types::String, required: false, camelize: false
+    argument :updated_at, GraphQL::Types::String, required: false, camelize: false # JSON
   end
 
   def articles_count(**args)
