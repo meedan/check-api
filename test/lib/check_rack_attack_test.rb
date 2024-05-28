@@ -2,7 +2,8 @@ require 'test_helper'
 
 class ThrottlingTest < ActionDispatch::IntegrationTest
   setup do
-    Rails.cache.clear
+    redis = Redis.new(REDIS_CONFIG)
+    redis.flushdb
   end
 
   test "should throttle excessive requests to /api/graphql" do
@@ -21,7 +22,7 @@ class ThrottlingTest < ActionDispatch::IntegrationTest
     stub_configs({ 'login_block_limit' => 2 }) do
       user_params = { api_user: { email: 'user@example.com', password: random_complex_password } }
 
-      3.times do
+      2.times do
         post api_user_session_path, params: user_params, as: :json
       end
 
