@@ -516,7 +516,7 @@ type ApiKeyEdge {
 """
 A union type of all article types we can handle
 """
-union ArticleUnion = Explainer
+union ArticleUnion = Explainer | FactCheck
 
 """
 The connection type for ArticleUnion.
@@ -2565,6 +2565,7 @@ input CreateFactCheckInput {
   clientMutationId: String
   language: String
   summary: String!
+  tags: [String]
   title: String!
   url: String
 }
@@ -8263,6 +8264,7 @@ type FactCheck implements Node {
   language: String
   permissions: String
   summary: String
+  tags: [String]
   title: String
   updated_at: String
   url: String
@@ -15359,6 +15361,7 @@ input UpdateFactCheckInput {
   id: ID
   language: String
   summary: String
+  tags: [String]
   title: String
   url: String
 }

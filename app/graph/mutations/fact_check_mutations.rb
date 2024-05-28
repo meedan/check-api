@@ -8,6 +8,7 @@ module FactCheckMutations
     included do
       argument :url, GraphQL::Types::String, required: false
       argument :language, GraphQL::Types::String, required: false
+      argument :tags, [GraphQL::Types::String, null: true], required: false
     end
   end
 

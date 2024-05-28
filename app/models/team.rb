@@ -648,6 +648,24 @@ class Team < ApplicationRecord
     query
   end
 
+  def filtered_fact_checks(filters = {})
+    query = FactCheck.joins(claim_description: :project_media).where('project_medias.team_id' => self.id)
+
+    # Filter by language
+    query = query.where('fact_checks.language' => filters[:language]) unless filters[:language].blank?
+
+    # Filter by tags
+    query = query.where('ARRAY[?]::varchar[] && fact_checks.tags', filters[:tags].to_a.map(&:to_s)) unless filters[:tags].blank?
+
+    # Filter by user
+    query = query.where('fact_checks.user_id' => filters[:user_ids].to_a.map(&:to_i)) unless filters[:user_ids].blank?
+
+    # Filter by date
+    query = query.where('fact_checks.updated_at' => Range.new(*format_times_search_range_filter(JSON.parse(filters[:updated_at]), nil))) unless filters[:updated_at].blank?
+
+    query
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/team_private.rb
