@@ -66,7 +66,7 @@ module Article
   end
 
   def create_tag_texts_if_needed
-    self.class.delay.create_tag_texts_if_needed(self.team_id, self.tags) unless self.tags.blank?
+    self.class.delay.create_tag_texts_if_needed(self.team_id, self.tags) if self.respond_to?(:tags) && !self.tags.blank?
   end
 
   module ClassMethods
