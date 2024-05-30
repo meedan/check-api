@@ -377,7 +377,7 @@ class GraphqlController12Test < ActionController::TestCase
     assert_equal 3, @t.reload.project_medias.count
   end
 
-  test "should get team articles" do
+  test "should get team articles (explainers)" do
     @t.set_explainers_enabled = true
     @t.save!
     ex = create_explainer team: @t
@@ -391,6 +391,20 @@ class GraphqlController12Test < ActionController::TestCase
     assert team['get_explainers_enabled']
     data = team['articles']['edges']
     assert_equal [ex.id], data.collect{ |edge| edge['node']['dbid'] }
+  end
+
+  test "should get team articles (fact-checks)" do
+    authenticate_with_user(@u)
+    pm = create_project_media team: @t
+    cd = create_claim_description project_media: pm
+    fc = create_fact_check claim_description: cd, tags: ['foo', 'bar']
+    query = "query { team(slug: \"#{@t.slug}\") { articles_count(article_type: \"fact-check\"), articles(article_type: \"fact-check\") { edges { node { ... on FactCheck { dbid, tags } } } } } }"
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success
+    team = JSON.parse(@response.body)['data']['team']
+    assert_equal 1, team['articles_count']
+    data = team['articles']['edges']
+    assert_equal [fc.id], data.collect{ |edge| edge['node']['dbid'] }
   end
 
   test "should create api key" do

@@ -15,6 +15,7 @@ module Article
 
     after_commit :update_elasticsearch_data, :send_to_alegre, :notify_bots, on: [:create, :update]
     after_commit :destroy_elasticsearch_data, on: :destroy
+    after_save :create_tag_texts_if_needed
   end
 
   def text_fields
@@ -64,7 +65,22 @@ module Article
     end
   end
 
+  def create_tag_texts_if_needed
+    self.class.delay.create_tag_texts_if_needed(self.team_id, self.tags) if self.respond_to?(:tags) && !self.tags.blank?
+  end
+
   module ClassMethods
+    def create_tag_texts_if_needed(team_id, tags)
+      tags.each do |tag|
+        next if TagText.where(text: tag, team_id: team_id).exists?
+        tag_text = TagText.new
+        tag_text.text = tag
+        tag_text.team_id = team_id
+        tag_text.skip_check_ability = true
+        tag_text.save!
+      end
+    end
+
     def send_to_alegre(id)
       obj = self.find_by_id(id)
       obj.text_fields.each do |field|
