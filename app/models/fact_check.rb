@@ -22,6 +22,10 @@ class FactCheck < ApplicationRecord
     self.claim_description&.project_media
   end
 
+  def team_id
+    self.project_media&.team_id
+  end
+
   private
 
   def set_language

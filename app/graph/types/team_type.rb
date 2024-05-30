@@ -299,6 +299,7 @@ class TeamType < DefaultObject
     # Filters
     argument :user_ids, [GraphQL::Types::Int, null: true], required: false, camelize: false
     argument :tags, [GraphQL::Types::String, null: true], required: false, camelize: false
+    argument :language, [GraphQL::Types::String, null: true], required: false, camelize: false
     argument :updated_at, GraphQL::Types::String, required: false, camelize: false # JSON
   end
 
@@ -306,21 +307,31 @@ class TeamType < DefaultObject
     sort = args[:sort].to_s
     order = [:title, :language, :updated_at].include?(sort.downcase.to_sym) ? sort.downcase.to_sym : :title
     order_type = args[:sort_type].to_s.downcase.to_sym == :desc ? :desc : :asc
-    articles = []
+    articles = Explainer.none
     if args[:article_type] == 'explainer'
-      articles = object.filtered_explainers(args).offset(args[:offset].to_i).order(order => order_type)
+      articles = object.filtered_explainers(args)
+    elsif args[:article_type] == 'fact-check'
+      articles = object.filtered_fact_checks(args)
     end
-    articles
+    articles.offset(args[:offset].to_i).order(order => order_type)
   end
 
   field :articles_count, GraphQL::Types::Int, null: true do
     argument :article_type, GraphQL::Types::String, required: true, camelize: false
+
+    # Filters
+    argument :user_ids, [GraphQL::Types::Int, null: true], required: false, camelize: false
+    argument :tags, [GraphQL::Types::String, null: true], required: false, camelize: false
+    argument :language, [GraphQL::Types::String, null: true], required: false, camelize: false
+    argument :updated_at, GraphQL::Types::String, required: false, camelize: false # JSON
   end
 
   def articles_count(**args)
     count = nil
     if args[:article_type] == 'explainer'
       count = object.filtered_explainers(args).count
+    elsif args[:article_type] == 'fact-check'
+      count = object.filtered_fact_checks(args).count
     end
     count
   end
