@@ -649,10 +649,10 @@ class Team < ApplicationRecord
   end
 
   def filtered_fact_checks(filters = {})
-    query = FactCheck.joins(claim_description: :project_media).where('project_medias.team_id' => self.id)
+    query = FactCheck.includes(claim_description: :project_media).where('project_medias.team_id' => self.id)
 
     # Filter by language
-    query = query.where('fact_checks.language' => filters[:language]) unless filters[:language].blank?
+    query = query.where('fact_checks.language' => filters[:language].to_a) unless filters[:language].blank?
 
     # Filter by tags
     query = query.where('ARRAY[?]::varchar[] && fact_checks.tags', filters[:tags].to_a.map(&:to_s)) unless filters[:tags].blank?
