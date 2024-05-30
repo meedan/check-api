@@ -13,7 +13,7 @@ module Article
     before_validation :set_user
     validates_presence_of :user
 
-    after_commit :update_elasticsearch_data, :send_to_alegre, :notify_bots, on: [:create, :update]
+    after_commit :update_elasticsearch_data, :notify_bots, on: [:create, :update] #:send_to_alegre, 
     after_commit :destroy_elasticsearch_data, on: :destroy
   end
 
@@ -38,7 +38,7 @@ module Article
   end
 
   def send_to_alegre
-    self.class.delay_for(1.second).send_to_alegre(self.id)
+    # self.class.delay_for(1.second).send_to_alegre(self.id)
   end
 
   def notify_bots

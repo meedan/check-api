@@ -181,7 +181,7 @@ class Feed < ApplicationRecord
   def self.save_request(feed_id, type, query, webhook_url, result_ids)
     media = Request.get_media_from_query(type, query, feed_id)
     request = Request.create!(feed_id: feed_id, request_type: type, content: query, webhook_url: webhook_url, media: media, skip_check_ability: true)
-    request.attach_to_similar_request!
+    # request.attach_to_similar_request!
     unless result_ids.blank?
       result_ids.each { |id| ProjectMediaRequest.create!(project_media_id: id, request_id: request.id, skip_check_ability: true) }
     end

@@ -10,7 +10,7 @@ class Request < ApplicationRecord
   has_many :project_medias, through: :project_media_requests
 
   before_validation :set_fields, on: :create
-  after_commit :send_to_alegre, on: :create
+  # after_commit :send_to_alegre, on: :create
   after_commit :update_fields, on: :update
 
   validates_inclusion_of :request_type, in: ['audio', 'video', 'image', 'text']
@@ -211,7 +211,7 @@ class Request < ApplicationRecord
   private
 
   def send_to_alegre
-    self.class.delay_for(1.second).send_to_alegre(self.id)
+    # self.class.delay_for(1.second).send_to_alegre(self.id)
   end
 
   def set_fields
