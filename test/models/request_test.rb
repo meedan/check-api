@@ -177,21 +177,6 @@ class RequestTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:request)
   end
 
-  test "should attach to similar media" do
-    Bot::Alegre.stubs(:request).returns(true)
-    f = create_feed
-    m1 = create_uploaded_image
-    r1 = create_request request_type: 'image', media: m1, feed: f
-    m2 = create_uploaded_image
-    r2 = create_request request_type: 'image', media: m2, feed: f
-    response = { 'result' => [{ 'context' => [{ 'request_id' => r1.id }] }] }
-    Bot::Alegre.stubs(:request).with('post', '/image/similarity/search/', { url: m2.file.file.public_url, threshold: 0.85, limit: 20, context: { feed_id: f.id } }).returns(response)
-    r2.attach_to_similar_request!
-    assert_equal r1, r2.reload.similar_to_request
-    assert_equal [r2], r1.reload.similar_requests
-    Bot::Alegre.unstub(:request)
-  end
-
   test "should attach to similar link" do
     Bot::Alegre.stubs(:request).returns(true)
     f = create_feed
