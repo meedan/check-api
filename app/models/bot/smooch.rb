@@ -71,7 +71,7 @@ class Bot::Smooch < BotUser
           status = parent.last_verification_status
           if !s.nil? && s.status != status
             s.status = status
-            s.save!
+            s.save
           end
           ::Bot::Smooch.send_report_from_parent_to_child(parent.id, target.id)
         end
