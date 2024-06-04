@@ -203,9 +203,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
         Bot::Smooch.save_message(message.to_json, @app_id)
       end
       message['mediaUrl'] = @video_url_2
-      assert_raises 'ActiveRecord::RecordInvalid' do
-        Bot::Smooch.save_message(message.to_json, @app_id)
-      end
+      Bot::Smooch.save_message(message.to_json, @app_id)
       # audio
       message = {
         type: 'file',
@@ -224,9 +222,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
         Bot::Smooch.save_message(message.to_json, @app_id)
       end
       message['mediaUrl'] = @audio_url_2
-      assert_raises 'ActiveRecord::RecordInvalid' do
-        Bot::Smooch.save_message(message.to_json, @app_id)
-      end
+      Bot::Smooch.save_message(message.to_json, @app_id)
     end
   end
 

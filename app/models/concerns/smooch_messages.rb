@@ -334,9 +334,9 @@ module SmoochMessages
 
     def save_message(message_json, app_id, author = nil, request_type = 'default_requests', associated_id = nil, associated_class = nil)
       message = JSON.parse(message_json)
-      return if TiplineRequest.where(smooch_message_id: message['_id']).last.present?
+      return if TiplineRequest.where(smooch_message_id: message['_id']).exists?
       associated_obj = nil
-      associated_obj = begin associated_class.constantize.where(id: associated_id).last rescue nil end unless associated_id.nil?
+      associated_obj = associated_class.constantize.where(id: associated_id).last unless associated_id.nil?
       self.get_installation(self.installation_setting_id_keys, app_id)
       Team.current = Team.find self.config['team_id'].to_i
       ApplicationRecord.transaction do
