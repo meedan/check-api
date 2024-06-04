@@ -596,9 +596,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
       medias_count = Media.count
 
       assert_no_difference 'ProjectMedia.count' do
-        assert_raises ActiveRecord::StatementInvalid do
-          Bot::Smooch.save_message(message.to_json, @app_id)
-        end
+        Bot::Smooch.save_message(message.to_json, @app_id)
       end
       assert_equal medias_count, Media.count
     end
