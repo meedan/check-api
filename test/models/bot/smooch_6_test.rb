@@ -396,7 +396,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
         },
         language: 'en',
       }
-      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm)
+      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm.id, pm.class.name)
       message = {
         type: 'text',
         text: random_string,
@@ -413,7 +413,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
         },
         language: 'en',
       }
-      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm)
+      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm.id, pm.class.name)
       # verifiy new channel value
       data = {"main" => CheckChannels::ChannelCodes::MANUAL, "others" => [CheckChannels::ChannelCodes::WHATSAPP, CheckChannels::ChannelCodes::MESSENGER]}
       assert_equal data, pm.reload.channel
@@ -433,7 +433,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
         },
         language: 'en',
       }
-      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm2)
+      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm2.id, pm2.class.name)
       # verifiy new channel value
       data = {"main" => CheckChannels::ChannelCodes::WHATSAPP, "others" => [CheckChannels::ChannelCodes::MESSENGER]}
       assert_equal data, pm2.reload.channel
@@ -466,7 +466,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
           assert_raises ActiveRecord::StatementInvalid do
             3.times do |i|
               threads << Thread.new {
-                Bot::Smooch.save_message(message.to_json, @app_id, author, 'timeout_requests', nil)
+                Bot::Smooch.save_message(message.to_json, @app_id, author, 'timeout_requests', nil, nil)
               }
             end
             threads.map(&:join)

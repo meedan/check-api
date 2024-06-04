@@ -502,12 +502,12 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
           language: 'en',
         }
       end
-      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm)
-      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm)
-      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'timeout_search_requests', pm)
-      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm)
-      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm)
-      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm.id, pm.class.name)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm.id, pm.class.name)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'timeout_search_requests', pm.id, pm.class.name)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm.id, pm.class.name)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm.id, pm.class.name)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm.id, pm.class.name)
       message = lambda do
         {
           type: 'text',
@@ -526,9 +526,9 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
           language: 'en',
         }
       end
-      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm2)
-      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm2)
-      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm2)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm2.id, pm2.class.name)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm2.id, pm2.class.name)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm2.id, pm2.class.name)
       # Verify cached field
       assert_equal 6, pm.tipline_search_results_count
       assert_equal 2, pm.positive_tipline_search_results_count
