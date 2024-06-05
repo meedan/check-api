@@ -55,11 +55,11 @@ class Request < ApplicationRecord
           params = { text: media.quote, models: models_thresholds.keys, per_model_threshold: models_thresholds.transform_values{ |v| v['threshold'] }, limit: alegre_limit, context: context }
           similar_request_id = ::Bot::Alegre.request('post', '/text/similarity/search/', params)&.dig('result').to_a.collect{ |result| result&.dig('_source', 'context', 'request_id').to_i }.find{ |id| id != 0 && id < self.id }
         end
-      elsif ['UploadedImage', 'UploadedAudio', 'UploadedVideo'].include?(media.type)
-        threshold = 0.85 #FIXME: Should be feed setting
-        type = media.type.gsub(/^Uploaded/, '').downcase
-        params = { url: media.file.file.public_url, threshold: threshold, limit: alegre_limit, context: context }
-        similar_request_id = ::Bot::Alegre.request('post', "/#{type}/similarity/search/", params)&.dig('result').to_a.collect{ |result| result&.dig('context').to_a.collect{ |c| c['request_id'].to_i } }.flatten.find{ |id| id != 0 && id < self.id }
+      # elsif ['UploadedImage', 'UploadedAudio', 'UploadedVideo'].include?(media.type)
+      #   threshold = 0.85 #FIXME: Should be feed setting
+      #   type = media.type.gsub(/^Uploaded/, '').downcase
+      #   params = { url: media.file.file.public_url, threshold: threshold, limit: alegre_limit, context: context }
+      #   similar_request_id = ::Bot::Alegre.request('post', "/#{type}/similarity/search/", params)&.dig('result').to_a.collect{ |result| result&.dig('context').to_a.collect{ |c| c['request_id'].to_i } }.flatten.find{ |id| id != 0 && id < self.id }
       end
     end
     unless similar_request_id.blank?
@@ -195,16 +195,16 @@ class Request < ApplicationRecord
         context: context
       }
       ::Bot::Alegre.request('post', '/text/similarity/', params)
-    elsif ['UploadedImage', 'UploadedAudio', 'UploadedVideo'].include?(media.type)
-      type = media.type.gsub(/^Uploaded/, '').downcase
-      url = media.file&.file&.public_url
-      params = {
-        doc_id: doc_id,
-        url: url,
-        context: context,
-        match_across_content_types: true,
-      }
-      ::Bot::Alegre.request('post', "/#{type}/similarity/", params)
+    # elsif ['UploadedImage', 'UploadedAudio', 'UploadedVideo'].include?(media.type)
+    #   type = media.type.gsub(/^Uploaded/, '').downcase
+    #   url = media.file&.file&.public_url
+    #   params = {
+    #     doc_id: doc_id,
+    #     url: url,
+    #     context: context,
+    #     match_across_content_types: true,
+    #   }
+    #   ::Bot::Alegre.request('post', "/#{type}/similarity/", params)
     end
   end
 

@@ -322,7 +322,9 @@ module SmoochMessages
       queue = RequestStore.store[:smooch_bot_queue].to_s
       queue = queue.blank? ? 'smooch_priority' : (mapping[queue] || 'smooch_priority')
       type = (message['type'] == 'text' && !message['text'][/https?:\/\/[^\s]+/, 0].blank?) ? 'link' : message['type']
-      SmoochWorker.set(queue: queue).perform_in(1.second + interval.seconds, message.to_json, type, app_id, request_type, YAML.dump(annotated))
+      associated_id = annotated&.id
+      associated_class = annotated.class.name
+      SmoochWorker.set(queue: queue).perform_in(1.second + interval.seconds, message.to_json, type, app_id, request_type, associated_id, associated_class)
     end
 
     def default_archived_flag
@@ -330,8 +332,11 @@ module SmoochMessages
       Bot::Alegre.team_has_alegre_bot_installed?(team_id) ? CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS : CheckArchivedFlags::FlagCodes::NONE
     end
 
-    def save_message(message_json, app_id, author = nil, request_type = 'default_requests', associated_obj = nil)
+    def save_message(message_json, app_id, author = nil, request_type = 'default_requests', associated_id = nil, associated_class = nil)
       message = JSON.parse(message_json)
+      return if TiplineRequest.where(smooch_message_id: message['_id']).exists?
+      associated_obj = nil
+      associated_obj = associated_class.constantize.where(id: associated_id).last unless associated_id.nil?
       self.get_installation(self.installation_setting_id_keys, app_id)
       Team.current = Team.find self.config['team_id'].to_i
       ApplicationRecord.transaction do
