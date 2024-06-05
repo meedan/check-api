@@ -1,8 +1,9 @@
 require_relative '../test_helper'
 
 class ApiVersionIntegrationTest < ActionDispatch::IntegrationTest
-  def setup
-    super
+  setup do
+    redis = Redis.new(REDIS_CONFIG)
+    redis.flushdb
   end
 
   test "should get default version 1" do

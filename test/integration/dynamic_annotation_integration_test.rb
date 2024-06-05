@@ -1,6 +1,11 @@
 require_relative '../test_helper'
 
 class DynamicAnnotationIntegrationTest < ActionDispatch::IntegrationTest
+  setup do
+    redis = Redis.new(REDIS_CONFIG)
+    redis.flushdb
+  end
+
   test "should create task response free text" do
     assert_nothing_raised do
       at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task Response Free Text', description: 'Free text response that can added to a task'
