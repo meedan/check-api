@@ -21,7 +21,17 @@ Dynamic.class_eval do
       user = self.annotator || User.current
       url = self.report_design_field_value('published_article_url')
       language = self.report_design_field_value('language')
-      fields = { user: user, skip_report_update: true , url: url, language: language }
+      state = self.data['state']
+      publisher_id =  state == 'published' ? self.annotator_id : nil
+      fields = {
+        user: user,
+        skip_report_update: true ,
+        url: url,
+        language: language,
+        publisher_id: publisher_id,
+        report_status: state,
+        rating: pm.status
+      }
       if self.report_design_field_value('use_text_message')
         title = self.report_design_field_value('title')
         summary = self.report_design_field_value('text')
@@ -50,6 +60,23 @@ Dynamic.class_eval do
       # Wait for 1 minute to be sure that the item is indexed in the feed
       Feed.delay_for(1.minute, retry: 0).notify_subscribers(pm, title, summary, url)
       Request.delay_for(1.minute, retry: 0).update_fact_checked_by(pm)
+    end
+
+    if self.annotation_type == 'report_design' && self.action =~ /pause/
+      # Update report fields
+      fc = pm&.claim_description&.fact_check
+      unless fc.nil?
+        state = self.data['state']
+        fields = {
+          skip_report_update: true ,
+          publisher_id: nil,
+          report_status: state,
+          rating: pm.status
+        }
+        fields.each { |field, value| fc.send("#{field}=", value) }
+        fc.skip_check_ability = true
+        fc.save!
+      end
     end
   end
 

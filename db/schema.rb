@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_04_20_104318) do
+ActiveRecord::Schema.define(version: 2024_06_04_045337) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -289,7 +289,7 @@ ActiveRecord::Schema.define(version: 2024_04_20_104318) do
     t.jsonb "value_json", default: "{}"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index "dynamic_annotation_fields_value(field_name, value)", name: "dynamic_annotation_fields_value", where: "((field_name)::text = ANY (ARRAY[('external_id'::character varying)::text, ('smooch_user_id'::character varying)::text, ('verification_status_status'::character varying)::text]))"
+    t.index "dynamic_annotation_fields_value(field_name, value)", name: "dynamic_annotation_fields_value", where: "((field_name)::text = ANY ((ARRAY['external_id'::character varying, 'smooch_user_id'::character varying, 'verification_status_status'::character varying])::text[]))"
     t.index ["annotation_id", "field_name"], name: "index_dynamic_annotation_fields_on_annotation_id_and_field_name"
     t.index ["annotation_id"], name: "index_dynamic_annotation_fields_on_annotation_id"
     t.index ["annotation_type"], name: "index_dynamic_annotation_fields_on_annotation_type"
@@ -325,8 +325,14 @@ ActiveRecord::Schema.define(version: 2024_04_20_104318) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "signature"
+    t.integer "publisher_id"
+    t.integer "report_status", default: 0, null: false
+    t.string "rating"
     t.index ["claim_description_id"], name: "index_fact_checks_on_claim_description_id", unique: true
     t.index ["language"], name: "index_fact_checks_on_language"
+    t.index ["publisher_id"], name: "index_fact_checks_on_publisher_id"
+    t.index ["rating"], name: "index_fact_checks_on_rating"
+    t.index ["report_status"], name: "index_fact_checks_on_report_status"
     t.index ["signature"], name: "index_fact_checks_on_signature", unique: true
     t.index ["user_id"], name: "index_fact_checks_on_user_id"
   end
@@ -486,7 +492,7 @@ ActiveRecord::Schema.define(version: 2024_04_20_104318) do
     t.index ["user_id"], name: "index_project_media_users_on_user_id"
   end
 
-  create_table "project_medias", force: :cascade do |t|
+  create_table "project_medias", id: :serial, force: :cascade do |t|
     t.integer "project_id"
     t.integer "media_id"
     t.integer "user_id"
@@ -881,7 +887,8 @@ ActiveRecord::Schema.define(version: 2024_04_20_104318) do
   end
 
   create_table "versions", id: :serial, force: :cascade do |t|
-    t.string "item_type", null: false
+    t.string "item_type"
+    t.string "{:null=>false}"
     t.string "item_id", null: false
     t.string "event", null: false
     t.string "whodunnit"
