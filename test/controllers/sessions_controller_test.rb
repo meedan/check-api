@@ -77,34 +77,4 @@ class SessionsControllerTest < ActionController::TestCase
     assert_response 400
     assert_not_nil @controller.current_api_user
   end
-
-  # test "should lock user after excessive login requests" do
-  #   p1 = random_complex_password
-  #   u = create_user login: 'test', password: p1, password_confirmation: p1, email: 'test@test.com'
-  #   Devise.maximum_attempts = 2
-
-  #   2.times do
-  #    post :create, params: { api_user: { email: 'test@test.com', password: random_complex_password } }
-  #   end
-
-  #   u.reload
-  #   assert u.access_locked?
-  #   assert_not_nil u.locked_at
-  # end
-
-  # test "should unlock locked user accounts after specified time" do
-  #   travel_to Time.zone.local(2023, 12, 12, 01, 04, 44)
-  #   u = create_user login: 'test', password: p1, password_confirmation: p1, email: 'test@test.com'
-  #   Devise.unlock_in = 10.minutes
-    
-
-  #   u.lock_access!
-
-  #   travel 30.minutes
-  #   post :create, params: { api_user: { email: 'test@test.com', password: p1 } }
-
-  #   u.reload
-  #   assert !u.access_locked?
-  #   assert_nil u.locked_at
-  # end
 end

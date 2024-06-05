@@ -40,10 +40,10 @@ class LoginActivity < ApplicationRecord
     activities = user.login_activities.where(success: true).last(2)
     ip = activities.map(&:ip).uniq
     if ip.count > 1
-      SecurityMailer.delay.notify(user, 'ip', self)
+      SecurityMailer.delay.notify(user.id, 'ip', self.id)
     else
       user_agent = activities.map(&:user_agent).uniq
-      SecurityMailer.delay.notify(user, 'device', self) if user_agent.count > 1
+      SecurityMailer.delay.notify(user.id, 'device', self.id) if user_agent.count > 1
     end
   end
 
@@ -55,7 +55,7 @@ class LoginActivity < ApplicationRecord
       failed_attempts = LoginActivity.where('identity = ? AND success = ? AND created_at > ?', self.identity, false, last_notification).count
     end
     if failed_attempts >= CheckConfig.get('failed_attempts', 4).to_i
-      SecurityMailer.delay.notify(user, 'failed', self)
+      SecurityMailer.delay.notify(user.id, 'failed', self.id)
       user.set_failed_notifications_time = self.created_at
       user.skip_check_ability = true
       user.save!
