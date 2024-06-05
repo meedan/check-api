@@ -1,6 +1,11 @@
 require_relative '../test_helper'
 
 class ShortUrlIntegrationTest < ActionDispatch::IntegrationTest
+  setup do
+    redis = Redis.new(REDIS_CONFIG)
+    redis.flushdb
+  end
+
   test "should not access by other host other than the short host" do
     assert_routing "#{CheckConfig.get('short_url_host')}/x1y2z3", { host: 'localhost', controller: 'shortener/shortened_urls', action: 'show', id: 'x1y2z3' }
   end
