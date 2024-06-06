@@ -30,4 +30,32 @@ class ThrottlingTest < ActionDispatch::IntegrationTest
       assert_response :forbidden
     end
   end
+
+  test "should handle requests via Cloudflare correctly in production" do
+    original_env = Rails.env
+    Rails.env = 'production'
+
+    stub_configs({ 'api_rate_limit' => 3, 'login_block_limit' => 2 }) do
+      # Test throttling for /api/graphql via Cloudflare
+      3.times do
+        post api_graphql_path, headers: { 'CF-Connecting-IP' => '1.2.3.4' }
+        assert_response :unauthorized
+      end
+
+      post api_graphql_path, headers: { 'CF-Connecting-IP' => '1.2.3.4' }
+      assert_response :too_many_requests
+
+      # Test blocking for /api/users/sign_in via Cloudflare
+      user_params = { api_user: { email: 'user@example.com', password: random_complex_password } }
+
+      2.times do
+        post api_user_session_path, params: user_params, as: :json, headers: { 'CF-Connecting-IP' => '1.2.3.4' }
+      end
+
+      post api_user_session_path, params: user_params, as: :json, headers: { 'CF-Connecting-IP' => '1.2.3.4' }
+      assert_response :forbidden
+    end
+
+    Rails.env = original_env
+  end
 end
