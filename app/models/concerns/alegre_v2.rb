@@ -435,7 +435,6 @@ module AlegreV2
       type = args[:type]
       if ['audio', 'image', 'video'].include?(type)
         if project_media.nil?
-          print("hello")
           project_media = TemporaryProjectMedia.new
           project_media.url = media_url
           project_media.id = Digest::MD5.hexdigest(project_media.url).to_i(16)
@@ -450,7 +449,7 @@ module AlegreV2
           sleep(1)
           cached_data = get_cached_data(get_required_keys(project_media, nil))
         end
-        CheckSentry.notify(AlegreTimeoutError.new('Timeout when waiting for async response from Alegre'), params: args.merge({ cached_data: cached_data })) if start_time + timeout > Time.now
+        CheckSentry.notify(AlegreTimeoutError.new('Timeout when waiting for async response from Alegre'), params: args.merge({ cached_data: cached_data.merge(time: Time.now, start_time: start_time, timeout: timeout) })) if start_time + timeout < Time.now
         response = get_similar_items_v2_callback(project_media, nil)
         delete(project_media, nil) if project_media.is_a?(TemporaryProjectMedia)
         return response
