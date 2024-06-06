@@ -326,7 +326,7 @@ ActiveRecord::Schema.define(version: 2024_06_04_045337) do
     t.datetime "updated_at", null: false
     t.string "signature"
     t.integer "publisher_id"
-    t.integer "report_status", default: 0, null: false
+    t.integer "report_status"
     t.string "rating"
     t.index ["claim_description_id"], name: "index_fact_checks_on_claim_description_id", unique: true
     t.index ["language"], name: "index_fact_checks_on_language"

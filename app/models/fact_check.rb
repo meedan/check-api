@@ -1,7 +1,7 @@
 class FactCheck < ApplicationRecord
   include Article
 
-  enum report_status: { unpublished: 0, paused: 1, published: 2 } # default: unpublished
+  enum report_status: { unpublished: 0, paused: 1, published: 2 }
 
   attr_accessor :skip_report_update, :publish_report
 
