@@ -469,7 +469,7 @@ type ApiKey implements Node {
   expire_at: String
   id: ID!
   permissions: String
-  team: PublicTeam
+  team: Team
   team_id: Int
   title: String
   updated_at: String
@@ -516,7 +516,7 @@ type ApiKeyEdge {
 """
 A union type of all article types we can handle
 """
-union ArticleUnion = Explainer
+union ArticleUnion = Explainer | FactCheck
 
 """
 The connection type for ArticleUnion.
@@ -2535,7 +2535,8 @@ input CreateExplainerInput {
   clientMutationId: String
   description: String
   language: String
-  title: String!
+  tags: [String]
+  title: String
   url: String
 }
 
@@ -2564,6 +2565,7 @@ input CreateFactCheckInput {
   clientMutationId: String
   language: String
   summary: String!
+  tags: [String]
   title: String!
   url: String
 }
@@ -8204,27 +8206,7 @@ type Explainer implements Node {
   id: ID!
   language: String
   permissions: String
-  tags(
-    """
-    Returns the elements in the list that come after the specified cursor.
-    """
-    after: String
-
-    """
-    Returns the elements in the list that come before the specified cursor.
-    """
-    before: String
-
-    """
-    Returns the first _n_ elements from the list.
-    """
-    first: Int
-
-    """
-    Returns the last _n_ elements from the list.
-    """
-    last: Int
-  ): TagConnection
+  tags: [String]
   team: PublicTeam
   team_id: Int
   title: String
@@ -8282,6 +8264,7 @@ type FactCheck implements Node {
   language: String
   permissions: String
   summary: String
+  tags: [String]
   title: String
   updated_at: String
   url: String
@@ -12920,12 +12903,20 @@ type Team implements Node {
     Returns the first _n_ elements from the list.
     """
     first: Int
+    language: [String]
 
     """
     Returns the last _n_ elements from the list.
     """
     last: Int
+    offset: Int = 0
+    sort: String = "title"
+    sort_type: String = "ASC"
+    tags: [String]
+    updated_at: String
+    user_ids: [Int]
   ): ArticleUnionConnection
+  articles_count(article_type: String!, language: [String], tags: [String], updated_at: String, user_ids: [Int]): Int
   available_newsletter_header_types: JsonStringType
   avatar: String
   check_search_spam: CheckSearch
@@ -15342,7 +15333,8 @@ input UpdateExplainerInput {
   description: String
   id: ID
   language: String
-  title: String!
+  tags: [String]
+  title: String
   url: String
 }
 
@@ -15370,6 +15362,7 @@ input UpdateFactCheckInput {
   id: ID
   language: String
   summary: String
+  tags: [String]
   title: String
   url: String
 }

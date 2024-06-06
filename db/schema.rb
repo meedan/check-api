@@ -311,6 +311,8 @@ ActiveRecord::Schema.define(version: 2024_06_04_045337) do
     t.bigint "team_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "tags", default: [], array: true
+    t.index ["tags"], name: "index_explainers_on_tags", using: :gin
     t.index ["team_id"], name: "index_explainers_on_team_id"
     t.index ["user_id"], name: "index_explainers_on_user_id"
   end
@@ -328,12 +330,14 @@ ActiveRecord::Schema.define(version: 2024_06_04_045337) do
     t.integer "publisher_id"
     t.integer "report_status"
     t.string "rating"
+    t.string "tags", default: [], array: true
     t.index ["claim_description_id"], name: "index_fact_checks_on_claim_description_id", unique: true
     t.index ["language"], name: "index_fact_checks_on_language"
     t.index ["publisher_id"], name: "index_fact_checks_on_publisher_id"
     t.index ["rating"], name: "index_fact_checks_on_rating"
     t.index ["report_status"], name: "index_fact_checks_on_report_status"
     t.index ["signature"], name: "index_fact_checks_on_signature", unique: true
+    t.index ["tags"], name: "index_fact_checks_on_tags", using: :gin
     t.index ["user_id"], name: "index_fact_checks_on_user_id"
   end
 
