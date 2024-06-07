@@ -1161,7 +1161,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     tbi.save!
     Bot::Alegre.stubs(:merge_suggested_and_confirmed).never
     pm = create_project_media team: @team, media: create_uploaded_image
-    assert_equal({}, Bot::Alegre.wait_for_results(pm, args))
+    assert_equal({}, Bot::Alegre.wait_for_results(pm, {}))
   end
 
   test "should not relate project media for video if disabled on workspace" do
