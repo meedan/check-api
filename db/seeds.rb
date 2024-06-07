@@ -224,26 +224,11 @@ class PopulatedWorkspaces
     @bot = BotUser.fetch_user
   end
 
-  def imported_fact_check_params(media_type)
-    unless media_type == 'Blank' then false end
-      {
-        summary: Faker::Company.catch_phrase,
-        title: Faker::Company.name,
-        user: bot,
-        language: 'en',
-        url: get_url_for_some_fact_checks(4)
-      }
-  end
-
   def fetch_bot_installation
     teams.each_value do |team|
       installation = TeamBotInstallation.where(team: team, user: bot).last
       bot.install_to!(team) if installation.nil?
     end
-  end
-
-  def channel(media_type)
-    media_type == "Blank" ? { main: CheckChannels::ChannelCodes::FETCH } : { main: 0}
   end
 
   def populate_projects
@@ -439,11 +424,11 @@ class PopulatedWorkspaces
   def medias_params
     [
       *CLAIMS_PARAMS,
-      # *UPLOADED_AUDIO_PARAMS,
-      # *UPLOADED_IMAGE_PARAMS,
-      # *UPLOADED_VIDEO_PARAMS,
+      *UPLOADED_AUDIO_PARAMS,
+      *UPLOADED_IMAGE_PARAMS,
+      *UPLOADED_VIDEO_PARAMS,
       *BLANK_PARAMS,
-      # *LINK_PARAMS.call
+      *LINK_PARAMS.call
     ].shuffle!
   end
 
@@ -700,6 +685,21 @@ class PopulatedWorkspaces
     }
     Cluster.create!(cluster_params)
   end
+
+  def imported_fact_check_params(media_type)
+    unless media_type == 'Blank' then false end
+      {
+        summary: Faker::Company.catch_phrase,
+        title: Faker::Company.name,
+        user: bot,
+        language: 'en',
+        url: get_url_for_some_fact_checks(4)
+      }
+  end
+
+  def channel(media_type)
+    media_type == "Blank" ? { main: CheckChannels::ChannelCodes::FETCH } : { main: 0}
+  end
 end
 
 puts "If you want to create a new user: press enter"
@@ -722,28 +722,28 @@ ActiveRecord::Base.transaction do
     populated_workspaces = PopulatedWorkspaces.new(setup)
     populated_workspaces.fetch_bot_installation
     populated_workspaces.populate_projects
-    # puts 'Creating saved searches for all teams...'
-    # populated_workspaces.saved_searches
-    # puts 'Creating feed...'
-    # feed_1 = populated_workspaces.main_user_feed("share_factchecks")
-    # feed_2 = populated_workspaces.main_user_feed("share_everything")
-    # puts 'Making and inviting to Shared Feed... (won\'t run if you are not creating any invited users)'
-    # populated_workspaces.share_feed(feed_1)
-    # populated_workspaces.share_feed(feed_2)
-    # puts 'Accepting invitation to a Shared Feed...'
-    # populated_workspaces.accept_invitation(feed_2, :invited_user_c)
-    # puts 'Making Confirmed Relationships between items...'
-    # populated_workspaces.confirm_relationships
-    # puts 'Making Suggested Relationships between items...'
-    # populated_workspaces.suggest_relationships
-    # puts 'Making Tipline requests...'
-    # populated_workspaces.tipline_requests
-    # puts 'Publishing half of each user\'s Fact Checks...'
-    # populated_workspaces.publish_fact_checks
-    # puts 'Creating Clusters'
-    # populated_workspaces.clusters(feed_2)
-    # puts 'Creating Explainers'
-    # populated_workspaces.explainers
+    puts 'Creating saved searches for all teams...'
+    populated_workspaces.saved_searches
+    puts 'Creating feed...'
+    feed_1 = populated_workspaces.main_user_feed("share_factchecks")
+    feed_2 = populated_workspaces.main_user_feed("share_everything")
+    puts 'Making and inviting to Shared Feed... (won\'t run if you are not creating any invited users)'
+    populated_workspaces.share_feed(feed_1)
+    populated_workspaces.share_feed(feed_2)
+    puts 'Accepting invitation to a Shared Feed...'
+    populated_workspaces.accept_invitation(feed_2, :invited_user_c)
+    puts 'Making Confirmed Relationships between items...'
+    populated_workspaces.confirm_relationships
+    puts 'Making Suggested Relationships between items...'
+    populated_workspaces.suggest_relationships
+    puts 'Making Tipline requests...'
+    populated_workspaces.tipline_requests
+    puts 'Publishing half of each user\'s Fact Checks...'
+    populated_workspaces.publish_fact_checks
+    puts 'Creating Clusters'
+    populated_workspaces.clusters(feed_2)
+    puts 'Creating Explainers'
+    populated_workspaces.explainers
   rescue RuntimeError => e
     if e.message.include?('We could not parse this link')
       puts "—————"
