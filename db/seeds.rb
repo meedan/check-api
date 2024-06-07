@@ -687,7 +687,7 @@ class PopulatedWorkspaces
   end
 
   def imported_fact_check_params(media_type)
-    unless media_type == 'Blank' then false end
+    if media_type == 'Blank'
       {
         summary: Faker::Company.catch_phrase,
         title: Faker::Company.name,
@@ -695,10 +695,13 @@ class PopulatedWorkspaces
         language: 'en',
         url: get_url_for_some_fact_checks(4)
       }
+    else
+      false
+    end
   end
 
   def channel(media_type)
-    media_type == "Blank" ? { main: CheckChannels::ChannelCodes::FETCH } : { main: 0}
+    media_type == "Blank" ? { main: CheckChannels::ChannelCodes::FETCH } : { main: CheckChannels::ChannelCodes::MANUAL }
   end
 end
 
