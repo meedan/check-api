@@ -1137,7 +1137,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal({}, Bot::Alegre.get_similar_items_v2(pm, nil))
   end
 
-  test "should return a similarity_disabled_for_project_media? of true for a disabled workspace" do
+  test "should return a similarity_disabled_for_project_media? of false for a disabled workspace" do
     tbi = TeamBotInstallation.where(team: @team, user: @bot).last
     tbi.set_image_similarity_enabled = false
     tbi.save!
@@ -1146,7 +1146,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal(false, Bot::Alegre.similarity_disabled_for_project_media?(pm))
   end
 
-  test "should return a similarity_disabled_for_project_media? of true for a disabled workspace" do
+  test "should return a similarity_disabled_for_project_media? of true for an enabled workspace" do
     tbi = TeamBotInstallation.where(team: @team, user: @bot).last
     tbi.set_image_similarity_enabled = true
     tbi.save!
