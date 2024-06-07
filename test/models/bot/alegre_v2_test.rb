@@ -1137,6 +1137,33 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal({}, Bot::Alegre.get_similar_items_v2(pm, nil))
   end
 
+  test "should return a similarity_disabled_for_project_media? of true for a disabled workspace" do
+    tbi = TeamBotInstallation.where(team: @team, user: @bot).last
+    tbi.set_image_similarity_enabled = false
+    tbi.save!
+    Bot::Alegre.stubs(:merge_suggested_and_confirmed).never
+    pm = create_project_media team: @team, media: create_uploaded_image
+    assert_equal(false, Bot::Alegre.similarity_disabled_for_project_media?(pm))
+  end
+
+  test "should return a similarity_disabled_for_project_media? of true for a disabled workspace" do
+    tbi = TeamBotInstallation.where(team: @team, user: @bot).last
+    tbi.set_image_similarity_enabled = true
+    tbi.save!
+    Bot::Alegre.stubs(:merge_suggested_and_confirmed).never
+    pm = create_project_media team: @team, media: create_uploaded_image
+    assert_equal(true, Bot::Alegre.similarity_disabled_for_project_media?(pm))
+  end
+
+  test "should not wait for a response when disabled" do
+    tbi = TeamBotInstallation.where(team: @team, user: @bot).last
+    tbi.set_image_similarity_enabled = false
+    tbi.save!
+    Bot::Alegre.stubs(:merge_suggested_and_confirmed).never
+    pm = create_project_media team: @team, media: create_uploaded_image
+    assert_equal({}, Bot::Alegre.wait_for_results(pm, args))
+  end
+
   test "should not relate project media for video if disabled on workspace" do
     tbi = TeamBotInstallation.where(team: @team, user: @bot).last
     tbi.set_video_similarity_enabled = false
