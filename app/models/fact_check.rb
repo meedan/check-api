@@ -70,7 +70,8 @@ class FactCheck < ApplicationRecord
     })
     report.merge!({ use_introduction: default_use_introduction, introduction: default_introduction }) if language != report_language
     data[:options] = report
-    data[:state] = (self.publish_report ? 'published' : 'paused') if data[:state].blank? || !self.publish_report.nil?
+    unpublished_state = data[:state].blank? ? 'unpublished' : 'paused'
+    data[:state] = (self.publish_report ? 'published' : unpublished_state) if data[:state].blank? || !self.publish_report.nil?
     reports.annotator = self.user || User.current
     reports.set_fields = data.to_json
     reports.skip_check_ability = true
