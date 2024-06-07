@@ -325,6 +325,11 @@ class FactCheckTest < ActiveSupport::TestCase
       assert_equal 'unpublished', pm.reload.report_status
 
       fc = FactCheck.find(fc.id)
+      fc.title = random_string
+      fc.save!
+      assert_equal 'unpublished', pm.reload.report_status
+
+      fc = FactCheck.find(fc.id)
       fc.publish_report = true
       fc.save!
       assert_equal 'published', pm.reload.report_status
