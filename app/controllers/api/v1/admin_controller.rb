@@ -80,9 +80,9 @@ class Api::V1::AdminController < Api::V1::BaseApiController
         limit: 100,
       }
       response = Net::HTTP.get_response(URI("https://graph.facebook.com/me/accounts?#{q_params.to_query}"))
-      Rails.logger.info("[Facebook Messenger Integration] API scoped token: #{auth['token']} API response: #{response.body}")
       pages = JSON.parse(response.body)['data']
       if pages.size != 1
+        Rails.logger.info("[Facebook Messenger Integration] API scoped token: #{auth['token']} API response: #{response.body}")
         CheckSentry.notify(StandardError.new('Unexpected list of Facebook pages returned for tipline Messenger integration'), team_bot_installation_id: tbi.id, response: response.body)
         @message = I18n.t(:must_select_exactly_one_facebook_page)
         status = 400
