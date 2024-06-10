@@ -316,6 +316,37 @@ class FactCheckTest < ActiveSupport::TestCase
       cd = create_claim_description project_media: pm
       assert_equal 'unpublished', pm.reload.report_status
 
+      fc = create_fact_check claim_description: cd
+      assert_equal 'unpublished', pm.reload.report_status
+
+      fc = FactCheck.find(fc.id)
+      fc.title = random_string
+      fc.save!
+      assert_equal 'unpublished', pm.reload.report_status
+
+      fc = FactCheck.find(fc.id)
+      fc.title = random_string
+      fc.save!
+      assert_equal 'unpublished', pm.reload.report_status
+
+      fc = FactCheck.find(fc.id)
+      fc.publish_report = true
+      fc.save!
+      assert_equal 'published', pm.reload.report_status
+
+      fc = FactCheck.find(fc.id)
+      fc.title = random_string
+      fc.save!
+      assert_equal 'published', pm.reload.report_status
+
+      fc = FactCheck.find(fc.id)
+      fc.title = random_string
+      fc.publish_report = false
+      fc.save!
+      assert_equal 'paused', pm.reload.report_status
+
+      pm = create_project_media
+      cd = create_claim_description project_media: pm
       fc = create_fact_check claim_description: cd, publish_report: true
       assert_equal 'published', pm.reload.report_status
 

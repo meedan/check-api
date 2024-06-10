@@ -43,6 +43,8 @@ LINK_PARAMS = -> {[
   end
 }
 
+BLANK_PARAMS = Array.new(8, { type: 'Blank' })
+
 class Setup
 
   private
@@ -211,7 +213,7 @@ class PopulatedWorkspaces
 
   private
 
-  attr_reader :teams, :users, :invited_teams
+  attr_reader :teams, :users, :invited_teams, :bot
 
   public
 
@@ -219,6 +221,14 @@ class PopulatedWorkspaces
     @teams = setup.teams
     @users = setup.users
     @invited_teams = teams.size > 1
+    @bot = BotUser.fetch_user
+  end
+
+  def fetch_bot_installation
+    teams.each_value do |team|
+      installation = TeamBotInstallation.where(team: team, user: bot).last
+      bot.install_to!(team) if installation.nil?
+    end
   end
 
   def populate_projects
@@ -232,11 +242,12 @@ class PopulatedWorkspaces
             media_attributes: media_params,
             user: users[:main_user_a],
             team: teams[:main_team_a],
+            channel: channel(media_params[:type]),
             claim_description_attributes: {
               description: claim_title(media_params),
               context: Faker::Lorem.sentence,
-              user: users[:main_user_a],
-              fact_check_attributes: fact_check_params_for_half_the_claims(index, users[:main_user_a]),
+              user: media_params[:type] == "Blank" ? bot : users[:main_user_a],
+              fact_check_attributes: imported_fact_check_params(media_params[:type]) || fact_check_params_for_half_the_claims(index, users[:main_user_a]),
             }
           }
         }
@@ -256,11 +267,12 @@ class PopulatedWorkspaces
               media_attributes: media_params,
               user: users[:invited_user_b],
               team: teams[:invited_team_b1],
+              channel: channel(media_params[:type]),
               claim_description_attributes: {
                 description: claim_title(media_params),
                 context: Faker::Lorem.sentence,
-                user: users[:invited_user_b],
-                fact_check_attributes: fact_check_params_for_half_the_claims(index, users[:invited_user_b]),
+                user: media_params[:type] == "Blank" ? bot : users[:invited_user_b],
+                fact_check_attributes: imported_fact_check_params(media_params[:type]) || fact_check_params_for_half_the_claims(index, users[:invited_user_b]),
               }
             }
           }
@@ -274,11 +286,12 @@ class PopulatedWorkspaces
               media_attributes: media_params,
               user: users[:invited_user_b],
               team: teams[:invited_team_b2],
+              channel: channel(media_params[:type]),
               claim_description_attributes: {
                 description: claim_title(media_params),
                 context: Faker::Lorem.sentence,
-                user: users[:invited_user_b],
-                fact_check_attributes: fact_check_params_for_half_the_claims(index, users[:invited_user_b]),
+                user: media_params[:type] == "Blank" ? bot : users[:invited_user_b],
+                fact_check_attributes: imported_fact_check_params(media_params[:type]) || fact_check_params_for_half_the_claims(index, users[:invited_user_b]),
               }
             }
           }
@@ -292,11 +305,12 @@ class PopulatedWorkspaces
               media_attributes: media_params,
               user: users[:invited_user_c],
               team: teams[:invited_team_c],
+              channel: channel(media_params[:type]),
               claim_description_attributes: {
                 description: claim_title(media_params),
                 context: Faker::Lorem.sentence,
-                user: users[:invited_user_c],
-                fact_check_attributes: fact_check_params_for_half_the_claims(index, users[:invited_user_c]),
+                user: media_params[:type] == "Blank" ? bot : users[:invited_user_c],
+                fact_check_attributes: imported_fact_check_params(media_params[:type]) || fact_check_params_for_half_the_claims(index, users[:invited_user_c]),
               }
             }
           }
@@ -413,6 +427,7 @@ class PopulatedWorkspaces
       *UPLOADED_AUDIO_PARAMS,
       *UPLOADED_IMAGE_PARAMS,
       *UPLOADED_VIDEO_PARAMS,
+      *BLANK_PARAMS,
       *LINK_PARAMS.call
     ].shuffle!
   end
@@ -670,6 +685,24 @@ class PopulatedWorkspaces
     }
     Cluster.create!(cluster_params)
   end
+
+  def imported_fact_check_params(media_type)
+    if media_type == 'Blank'
+      {
+        summary: Faker::Company.catch_phrase,
+        title: Faker::Company.name,
+        user: bot,
+        language: 'en',
+        url: get_url_for_some_fact_checks(4)
+      }
+    else
+      false
+    end
+  end
+
+  def channel(media_type)
+    media_type == "Blank" ? { main: CheckChannels::ChannelCodes::FETCH } : { main: CheckChannels::ChannelCodes::MANUAL }
+  end
 end
 
 puts "If you want to create a new user: press enter"
@@ -690,6 +723,7 @@ ActiveRecord::Base.transaction do
     setup = Setup.new(answer.presence) # .presence : returns nil or the string
     puts 'Creating projects for all users...'
     populated_workspaces = PopulatedWorkspaces.new(setup)
+    populated_workspaces.fetch_bot_installation
     populated_workspaces.populate_projects
     puts 'Creating saved searches for all teams...'
     populated_workspaces.saved_searches

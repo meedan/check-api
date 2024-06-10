@@ -355,8 +355,7 @@ module AlegreV2
     end
 
     def get_similar_items_v2(project_media, field, threshold=nil)
-      type = get_type(project_media)
-      if !should_get_similar_items_of_type?('master', project_media.team_id) || !should_get_similar_items_of_type?(type, project_media.team_id)
+      if similarity_disabled_for_project_media?(project_media)
         {}
       else
         suggested_or_confirmed = get_suggested_items(project_media, field, threshold)
@@ -365,9 +364,13 @@ module AlegreV2
       end
     end
 
+    def similarity_disabled_for_project_media?(project_media)
+      type = Bot::Alegre.get_type(project_media)
+      !should_get_similar_items_of_type?('master', project_media.team_id) || !should_get_similar_items_of_type?(type, project_media.team_id)
+    end
+
     def get_similar_items_v2_async(project_media, field, threshold=nil)
-      type = get_type(project_media)
-      if !should_get_similar_items_of_type?('master', project_media.team_id) || !should_get_similar_items_of_type?(type, project_media.team_id)
+      if similarity_disabled_for_project_media?(project_media)
         return false
       else
         get_suggested_items_async(project_media, field, threshold)
@@ -398,8 +401,7 @@ module AlegreV2
     end
 
     def get_similar_items_v2_callback(project_media, field)
-      type = get_type(project_media)
-      if !should_get_similar_items_of_type?('master', project_media.team_id) || !should_get_similar_items_of_type?(type, project_media.team_id)
+      if similarity_disabled_for_project_media?(project_media)
         return {}
       else
         cached_data = get_cached_data(get_required_keys(project_media, field))
@@ -427,6 +429,19 @@ module AlegreV2
       cached_data.values.collect{|x| x.nil?}.include?(true)
     end
 
+    def wait_for_results(project_media, args)
+      return {} if similarity_disabled_for_project_media?(project_media)
+      cached_data = get_cached_data(get_required_keys(project_media, nil))
+      timeout = args[:timeout] || 60
+      start_time = Time.now
+      while start_time + timeout > Time.now && is_cached_data_not_good(cached_data) #more robust for any type of null response
+        sleep(1)
+        cached_data = get_cached_data(get_required_keys(project_media, nil))
+      end
+      CheckSentry.notify(AlegreTimeoutError.new('Timeout when waiting for async response from Alegre'), params: args.merge({ cached_data: cached_data }).merge({time: Time.now, start_time: start_time, timeout: timeout})) if start_time + timeout < Time.now
+      return cached_data
+    end
+
     def get_items_with_similar_media_v2(args={})
       media_url = args[:media_url]
       project_media = args[:project_media]
@@ -442,14 +457,7 @@ module AlegreV2
           project_media.type = type
         end
         get_similar_items_v2_async(project_media, nil, threshold)
-        cached_data = get_cached_data(get_required_keys(project_media, nil))
-        timeout = args[:timeout] || 60
-        start_time = Time.now
-        while start_time + timeout > Time.now && is_cached_data_not_good(cached_data) #more robust for any type of null response
-          sleep(1)
-          cached_data = get_cached_data(get_required_keys(project_media, nil))
-        end
-        CheckSentry.notify(AlegreTimeoutError.new('Timeout when waiting for async response from Alegre'), params: args.merge({ cached_data: cached_data.merge(time: Time.now, start_time: start_time, timeout: timeout) })) if start_time + timeout < Time.now
+        wait_for_results(project_media, args)
         response = get_similar_items_v2_callback(project_media, nil)
         delete(project_media, nil) if project_media.is_a?(TemporaryProjectMedia)
         return response
