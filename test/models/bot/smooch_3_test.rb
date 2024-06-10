@@ -223,6 +223,9 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       end
       message['mediaUrl'] = @audio_url_2
       Bot::Smooch.save_message(message.to_json, @app_id)
+      # should rescue invalid URL
+      message['mediaUrl'] = random_url
+      Bot::Smooch.detect_media_type(message)
     end
   end
 
