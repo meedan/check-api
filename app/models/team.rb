@@ -663,6 +663,15 @@ class Team < ApplicationRecord
     # Filter by date
     query = query.where('fact_checks.updated_at' => Range.new(*format_times_search_range_filter(JSON.parse(filters[:updated_at]), nil))) unless filters[:updated_at].blank?
 
+    # Filter by publisher
+    query = query.where('fact_checks.publisher_id' => filters[:publisher_ids].to_a.map(&:to_i)) unless filters[:publisher_ids].blank?
+
+    # Filter by rating
+    query = query.where('fact_checks.rating' => filters[:rating].to_a.map(&:to_s)) unless filters[:rating].blank?
+
+    # filter by report_status
+    query = query.where('fact_checks.report_status' => filters[:report_status].to_a.map(&:to_s)) unless filters[:report_status].blank?
+
     query
   end
 

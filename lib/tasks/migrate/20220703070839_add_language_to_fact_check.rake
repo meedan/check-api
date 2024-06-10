@@ -48,8 +48,8 @@ namespace :check do
           # Add rating (depend on status cached field)
           ProjectMedia.where(id: pm_fc.keys).find_each do |pm|
             print '.'
-            fc_fields[pm_fc[pm.id]].merge!({ rating: pm.status })
-            # TODO: add tags
+            tags = pm.tags_as_sentence.split(',')
+            fc_fields[pm_fc[pm.id]].merge!({ rating: pm.status, tags: tags })
           end
           fc_items = []
           FactCheck.where(id: pm_fc.values).find_each do |fc|
