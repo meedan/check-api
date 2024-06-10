@@ -821,7 +821,8 @@ class Bot::Smooch < BotUser
       pm = nil
       extra = {}
       if link.nil?
-        claim = self.extract_claim(text).gsub(/\s+/, ' ').strip
+        # strip and remove null bytes
+        claim = self.extract_claim(text).gsub(/\s+/, ' ').strip.gsub("\u0000", "\\u0000")
         extra = { quote: claim }
         pm = ProjectMedia.joins(:media).where('trim(lower(quote)) = ?', claim.downcase).where('project_medias.team_id' => team.id).last
         # Don't create a new text media if it's an unconfirmed request with just a few words
