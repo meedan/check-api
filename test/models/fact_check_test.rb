@@ -373,4 +373,55 @@ class FactCheckTest < ActiveSupport::TestCase
       assert_equal 'published', pm.reload.report_status
     end
   end
+
+  test "should index report information in fact check" do
+    create_verification_status_stuff
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    RequestStore.store[:skip_cached_field_update] = false
+    Sidekiq::Testing.inline! do
+      with_current_user_and_team(u, t) do
+        pm = create_project_media team: t
+        cd = create_claim_description project_media: pm
+        s = pm.last_verification_status_obj
+        s.status = 'verified'
+        s.save!
+        r = publish_report(pm)
+        fc = cd.fact_check
+        assert_equal u.id, fc.publisher_id
+        assert_equal 'published', fc.report_status
+        assert_equal 'verified', fc.rating
+        # Verify fact-checks filter
+        filters = { publisher_ids: [u.id] }
+        assert_equal [fc.id], t.filtered_fact_checks(filters).map(&:id)
+        filters = { rating: ['verified'] }
+        assert_equal [fc.id], t.filtered_fact_checks(filters).map(&:id)
+        filters = { report_status: ['published'] }
+        assert_equal [fc.id], t.filtered_fact_checks(filters).map(&:id)
+        filters = { publisher_ids: [u.id], rating: ['verified'], report_status: ['published'] }
+        assert_equal [fc.id], t.filtered_fact_checks(filters).map(&:id)
+        r = Dynamic.find(r.id)
+        r.set_fields = { state: 'paused' }.to_json
+        r.action = 'pause'
+        r.save!
+        fc = fc.reload
+        assert_nil fc.publisher_id
+        assert_equal 'paused', fc.report_status
+        assert_equal 'verified', fc.rating
+        s.status = 'in_progress'
+        s.save!
+        assert_equal 'in_progress', fc.reload.rating
+        # verify fact-checks filter
+        filters = { publisher_ids: [u.id] }
+        assert_empty t.filtered_fact_checks(filters).map(&:id)
+        filters = { rating: ['verified'] }
+        assert_empty t.filtered_fact_checks(filters).map(&:id)
+        filters = { report_status: ['published'] }
+        assert_empty t.filtered_fact_checks(filters).map(&:id)
+        filters = { rating: ['in_progress'], report_status: ['paused'] }
+        assert_equal [fc.id], t.filtered_fact_checks(filters).map(&:id)
+      end
+    end
+  end
 end
