@@ -25,7 +25,7 @@ Dynamic.class_eval do
       publisher_id =  state == 'published' ? self.annotator_id : nil
       fields = {
         user: user,
-        skip_report_update: true ,
+        skip_report_update: true,
         url: url,
         language: language,
         publisher_id: publisher_id,
@@ -68,7 +68,7 @@ Dynamic.class_eval do
       unless fc.nil?
         state = self.data['state']
         fields = {
-          skip_report_update: true ,
+          skip_report_update: true,
           publisher_id: nil,
           report_status: state,
           rating: pm.status
