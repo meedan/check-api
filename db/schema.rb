@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_05_28_170336) do
+ActiveRecord::Schema.define(version: 2024_06_04_045337) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -327,9 +327,15 @@ ActiveRecord::Schema.define(version: 2024_05_28_170336) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "signature"
+    t.integer "publisher_id"
+    t.integer "report_status"
+    t.string "rating"
     t.string "tags", default: [], array: true
     t.index ["claim_description_id"], name: "index_fact_checks_on_claim_description_id", unique: true
     t.index ["language"], name: "index_fact_checks_on_language"
+    t.index ["publisher_id"], name: "index_fact_checks_on_publisher_id"
+    t.index ["rating"], name: "index_fact_checks_on_rating"
+    t.index ["report_status"], name: "index_fact_checks_on_report_status"
     t.index ["signature"], name: "index_fact_checks_on_signature", unique: true
     t.index ["tags"], name: "index_fact_checks_on_tags", using: :gin
     t.index ["user_id"], name: "index_fact_checks_on_user_id"
