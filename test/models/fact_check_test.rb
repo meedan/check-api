@@ -392,6 +392,15 @@ class FactCheckTest < ActiveSupport::TestCase
         assert_equal u.id, fc.publisher_id
         assert_equal 'published', fc.report_status
         assert_equal 'verified', fc.rating
+        # Verify fact-checks filter
+        filters = { publisher_ids: [u.id] }
+        assert_equal [fc.id], t.filtered_fact_checks(filters).map(&:id)
+        filters = { rating: ['verified'] }
+        assert_equal [fc.id], t.filtered_fact_checks(filters).map(&:id)
+        filters = { report_status: ['published'] }
+        assert_equal [fc.id], t.filtered_fact_checks(filters).map(&:id)
+        filters = { publisher_ids: [u.id], rating: ['verified'], report_status: ['published'] }
+        assert_equal [fc.id], t.filtered_fact_checks(filters).map(&:id)
         r = Dynamic.find(r.id)
         r.set_fields = { state: 'paused' }.to_json
         r.action = 'pause'
@@ -403,6 +412,15 @@ class FactCheckTest < ActiveSupport::TestCase
         s.status = 'in_progress'
         s.save!
         assert_equal 'in_progress', fc.reload.rating
+        # verify fact-checks filter
+        filters = { publisher_ids: [u.id] }
+        assert_empty t.filtered_fact_checks(filters).map(&:id)
+        filters = { rating: ['verified'] }
+        assert_empty t.filtered_fact_checks(filters).map(&:id)
+        filters = { report_status: ['published'] }
+        assert_empty t.filtered_fact_checks(filters).map(&:id)
+        filters = { rating: ['in_progress'], report_status: ['paused'] }
+        assert_equal [fc.id], t.filtered_fact_checks(filters).map(&:id)
       end
     end
   end
