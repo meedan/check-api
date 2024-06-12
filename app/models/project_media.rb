@@ -1,7 +1,12 @@
 class ProjectMedia < ApplicationRecord
-  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :skip_rules, :set_claim_description, :set_fact_check, :set_tags, :set_title, :set_status
+  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :skip_rules, :set_claim_description, :set_claim_context, :set_fact_check, :set_tags, :set_title, :set_status
 
-  has_paper_trail on: [:create, :update, :destroy], only: [:source_id], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
+  belongs_to :media
+  has_one :claim_description
+
+  accepts_nested_attributes_for :media, :claim_description
+
+  has_paper_trail on: [:create, :update, :destroy], only: [:source_id, :archived], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -364,16 +369,16 @@ class ProjectMedia < ApplicationRecord
     sources.to_json
   end
 
-  def version_metadata(_changes)
-    meta = { source_name: self.source&.name }
+  def version_metadata(changes)
+    changes = begin JSON.parse(changes) rescue {} end
+    meta = changes.keys.include?('source_id') ? { source_name: self.source&.name } : {}
     meta.to_json
   end
 
-  def get_requests
+  def get_requests(include_children = false)
     # Get related items for parent item
-    pm_ids = Relationship.confirmed_parent(self).id == self.id ? self.related_items_ids : [self.id]
-    sm_ids = Annotation.where(annotation_type: 'smooch', annotated_type: 'ProjectMedia', annotated_id: pm_ids).map(&:id)
-    sm_ids.blank? ? [] : DynamicAnnotation::Field.where(annotation_id: sm_ids, field_name: 'smooch_data')
+    pm_ids = (Relationship.confirmed_parent(self).id == self.id && include_children) ? self.related_items_ids : [self.id]
+    TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: pm_ids).order('created_at ASC')
   end
 
   def apply_rules_and_actions_on_update
@@ -466,21 +471,14 @@ class ProjectMedia < ApplicationRecord
     ms.attributes[:assigned_user_ids] = assignments_uids.uniq
     # 'requests'
     requests = []
-    fields = DynamicAnnotation::Field.joins(:annotation)
-    .where(
-      field_name: 'smooch_data',
-      'annotations.annotated_id' => self.id,
-      'annotations.annotation_type' => 'smooch',
-      'annotations.annotated_type' => 'ProjectMedia'
-      )
-    fields.each do |field|
-      identifier = begin field.smooch_user_external_identifier&.value rescue field.smooch_user_external_identifier end
+    TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: self.id).each do |tr|
+      identifier = begin tr.smooch_user_external_identifier&.value rescue tr.smooch_user_external_identifier end
       requests << {
-        id: field.id,
-        username: field.value_json['name'],
+        id: tr.id,
+        username: tr.smooch_data['name'],
         identifier: identifier&.gsub(/[[:space:]|-]/, ''),
-        content: field.value_json['text'],
-        language: field.value_json['language'],
+        content: tr.smooch_data['text'],
+        language: tr.language,
       }
     end
     ms.attributes[:requests] = requests

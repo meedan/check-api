@@ -18,10 +18,12 @@ class FeedType < DefaultObject
   field :licenses, [GraphQL::Types::Int, null: true], null: true
   field :saved_search_id, GraphQL::Types::Int, null: true
   field :discoverable, GraphQL::Types::Boolean, null: true
+  field :last_clusterized_at, GraphQL::Types::String, null: true
   field :user, UserType, null: true
 
-  field :team, TeamType, null: true
+  field :team, PublicTeamType, null: true
   field :saved_search, SavedSearchType, null: true
+  field :saved_search_was, SavedSearchType, null: true
 
   field :requests, RequestType.connection_type, null: true do
     argument :request_id, GraphQL::Types::Int, required: false, camelize: false
@@ -50,6 +52,58 @@ class FeedType < DefaultObject
     object.feed_invitations
   end
 
-  field :teams, TeamType.connection_type, null: false
+  field :teams, PublicTeamType.connection_type, null: false
   field :feed_teams, FeedTeamType.connection_type, null: false
+  field :data_points, [GraphQL::Types::Int, null: true], null: true
+
+  field :clusters_count, GraphQL::Types::Int, null: true do
+    # Filters
+    argument :team_ids, [GraphQL::Types::Int, null: true], required: false, default_value: nil, camelize: false
+    argument :channels, [GraphQL::Types::Int, null: true], required: false, default_value: nil, camelize: false
+    argument :medias_count_min, GraphQL::Types::Int, required: false, camelize: false
+    argument :medias_count_max, GraphQL::Types::Int, required: false, camelize: false
+    argument :requests_count_min, GraphQL::Types::Int, required: false, camelize: false
+    argument :requests_count_max, GraphQL::Types::Int, required: false, camelize: false
+    argument :last_request_date, GraphQL::Types::String, required: false, camelize: false # JSON
+    argument :media_type, [GraphQL::Types::String, null: true], required: false, camelize: false
+  end
+
+  def clusters_count(**args)
+    object.clusters_count(args)
+  end
+
+  field :clusters, ClusterType.connection_type, null: true do
+    argument :offset, GraphQL::Types::Int, required: false, default_value: 0
+    argument :sort, GraphQL::Types::String, required: false, default_value: 'title'
+    argument :sort_type, GraphQL::Types::String, required: false, camelize: false, default_value: 'ASC'
+    # Filters
+    argument :team_ids, [GraphQL::Types::Int, null: true], required: false, default_value: nil, camelize: false
+    argument :channels, [GraphQL::Types::Int, null: true], required: false, default_value: nil, camelize: false
+    argument :medias_count_min, GraphQL::Types::Int, required: false, camelize: false
+    argument :medias_count_max, GraphQL::Types::Int, required: false, camelize: false
+    argument :requests_count_min, GraphQL::Types::Int, required: false, camelize: false
+    argument :requests_count_max, GraphQL::Types::Int, required: false, camelize: false
+    argument :last_request_date, GraphQL::Types::String, required: false, camelize: false # JSON
+    argument :media_type, [GraphQL::Types::String, null: true], required: false, camelize: false
+  end
+
+  def clusters(**args)
+    sort = args[:sort].to_s
+    order = [:title, :media_count, :requests_count, :fact_checks_count, :last_request_date].include?(sort.downcase.to_sym) ? sort.downcase.to_sym : :title
+    order_type = args[:sort_type].to_s.downcase.to_sym == :desc ? :desc : :asc
+    object.filtered_clusters(args).offset(args[:offset].to_i).order(order => order_type)
+  end
+
+  # Given a project media ID, return the cluster it belongs to, in the scope of this feed
+  field :cluster, ClusterType, null: true do
+    argument :project_media_id, GraphQL::Types::Int, required: true, camelize: false
+  end
+
+  def cluster(project_media_id:)
+    cluster = ClusterProjectMedia.joins(:cluster).where('clusters.feed_id' => object.id, 'cluster_project_medias.project_media_id' => project_media_id.to_i).first&.cluster
+    return nil if cluster.nil?
+    ability = context[:ability] || Ability.new
+    return nil unless ability.can?(:read, object)
+    cluster
+  end
 end

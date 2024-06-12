@@ -26,69 +26,6 @@ class ElasticSearch9Test < ActionController::TestCase
     end
   end
 
-  test "should filter feed by workspace" do
-    RequestStore.store[:skip_cached_field_update] = false
-    f = create_feed
-    t1 = create_team ; f.teams << t1
-    t2 = create_team ; f.teams << t2
-    t3 = create_team ; f.teams << t3
-    FeedTeam.update_all(shared: true)
-    pm1 = create_project_media team: t1
-    c1 = create_cluster project_media: pm1
-    c1.project_medias << pm1
-    pm2 = create_project_media team: t2
-    c2 = create_cluster project_media: pm2
-    c2.project_medias << pm2
-    pm3 = create_project_media team: t3
-    c2.project_medias << pm3
-    sleep 2
-    u = create_user
-    create_team_user team: t1, user: u, role: 'admin'
-    with_current_user_and_team(u, t1) do
-      query = { clusterize: true, feed_id: f.id }
-      result = CheckSearch.new(query.to_json)
-      assert_equal [pm1.id, pm2.id], result.medias.map(&:id).sort
-      query[:cluster_teams] = [t1.id]
-      result = CheckSearch.new(query.to_json)
-      assert_equal [pm1.id], result.medias.map(&:id)
-      query[:cluster_teams] = [t2.id, t3.id]
-      result = CheckSearch.new(query.to_json)
-      assert_equal [pm2.id], result.medias.map(&:id)
-      # Get current team
-      assert_equal t1, result.team
-    end
-  end
-
-  test "should filter feed by report status" do
-    create_verification_status_stuff
-    RequestStore.store[:skip_cached_field_update] = false
-    t = create_team
-    f = create_feed
-    f.teams << t
-    FeedTeam.update_all(shared: true)
-    pm1 = create_project_media team: t
-    c1 = create_cluster project_media: pm1
-    c1.project_medias << pm1
-    pm2 = create_project_media team: t
-    c2 = create_cluster project_media: pm2
-    c2.project_medias << pm2
-    sleep 2
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    with_current_user_and_team(u, t) do
-      publish_report(pm1)
-      query = { clusterize: true, feed_id: f.id, report_status: ['published', 'unpublished'] }
-      result = CheckSearch.new(query.to_json)
-      assert_equal [pm1.id, pm2.id], result.medias.map(&:id).sort
-      query[:report_status] = ['published']
-      result = CheckSearch.new(query.to_json)
-      assert_equal [pm1.id], result.medias.map(&:id)
-      query[:report_status] = ['unpublished']
-      result = CheckSearch.new(query.to_json)
-      assert_equal [pm2.id], result.medias.map(&:id)
-    end
-  end
-
   test "should search for keywords with typos" do
     t = create_team
     p = create_project team: t
@@ -134,10 +71,10 @@ class ElasticSearch9Test < ActionController::TestCase
       # Text extraction
       Bot::Alegre.unstub(:media_file_url)
       pm = create_project_media team: team, media: create_uploaded_image, disable_es_callbacks: false
-      WebMock.stub_request(:post, 'http://alegre/similarity/sync/image').with(body: {doc_id: Bot::Alegre.item_doc_id(pm), context: {:has_custom_id=>true, :project_media_id=>pm.id, :team_id=>pm.team_id}, threshold: 0.89, url: "some/path"}).to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre/similarity/async/image').with(body: {doc_id: Bot::Alegre.item_doc_id(pm), context: {:has_custom_id=>true, :project_media_id=>pm.id, :team_id=>pm.team_id, :temporary_media=>false}, threshold: 0.89, url: "some/path", confirmed: false}).to_return(body: {
         "result": []
       }.to_json)
-      WebMock.stub_request(:post, 'http://alegre/similarity/sync/image').with(body: {doc_id: Bot::Alegre.item_doc_id(pm), context: {:has_custom_id=>true, :project_media_id=>pm.id, :team_id=>pm.team_id}, threshold: 0.95, url: "some/path"}).to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre/similarity/async/image').with(body: {doc_id: Bot::Alegre.item_doc_id(pm), context: {:has_custom_id=>true, :project_media_id=>pm.id, :team_id=>pm.team_id, :temporary_media=>false}, threshold: 0.95, url: "some/path", confirmed: true}).to_return(body: {
         "result": []
       }.to_json)
       Bot::Alegre.stubs(:media_file_url).with(pm).returns("some/path")
@@ -264,34 +201,6 @@ class ElasticSearch9Test < ActionController::TestCase
     assert_equal [pm2.id, pm3.id, pm1.id], result.medias.map(&:id)
     result = CheckSearch.new({ sort: 'fact_check_published_on', sort_type: 'desc' }.to_json, nil, t.id)
     assert_equal [pm1.id, pm3.id, pm2.id], result.medias.map(&:id)
-  end
-
-  test "should filter feed by organization" do
-    f = create_feed
-    t1 = create_team ; f.teams << t1
-    t2 = create_team ; f.teams << t2
-    t3 = create_team ; f.teams << t3
-    FeedTeam.update_all(shared: true)
-    pm1 = create_project_media team: t1, disable_es_callbacks: false
-    pm2 = create_project_media team: t2, disable_es_callbacks: false
-    pm3 = create_project_media team: t3, disable_es_callbacks: false
-    sleep 2
-    u = create_user
-    create_team_user team: t1, user: u, role: 'admin'
-    with_current_user_and_team(u, t1) do
-      query = { feed_id: f.id }
-      result = CheckSearch.new(query.to_json)
-      assert_equal [pm1.id, pm2.id, pm3.id], result.medias.map(&:id).sort
-      query[:feed_team_ids] = [t1.id, t3.id]
-      result = CheckSearch.new(query.to_json)
-      assert_equal [pm1.id, pm3.id], result.medias.map(&:id).sort
-      query[:feed_team_ids] = [t2.id]
-      result = CheckSearch.new(query.to_json)
-      assert_equal [pm2.id], result.medias.map(&:id)
-      query[:feed_team_ids] = []
-      result = CheckSearch.new(query.to_json)
-      assert_empty result.medias.map(&:id)
-    end
   end
 
   test "shoud add team filter by default" do

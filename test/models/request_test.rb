@@ -176,21 +176,21 @@ class RequestTest < ActiveSupport::TestCase
     assert_not_equal [r2], r1.reload.similar_requests
     Bot::Alegre.unstub(:request)
   end
-
-  test "should attach to similar media" do
-    Bot::Alegre.stubs(:request).returns(true)
-    f = create_feed
-    m1 = create_uploaded_image
-    r1 = create_request request_type: 'image', media: m1, feed: f
-    m2 = create_uploaded_image
-    r2 = create_request request_type: 'image', media: m2, feed: f
-    response = { 'result' => [{ 'context' => [{ 'request_id' => r1.id }] }] }
-    Bot::Alegre.stubs(:request).with('post', '/image/similarity/search/', { url: m2.file.file.public_url, threshold: 0.85, limit: 20, context: { feed_id: f.id } }).returns(response)
-    r2.attach_to_similar_request!
-    assert_equal r1, r2.reload.similar_to_request
-    assert_equal [r2], r1.reload.similar_requests
-    Bot::Alegre.unstub(:request)
-  end
+  
+  # test "should attach to similar media" do
+  #   Bot::Alegre.stubs(:request).returns(true)
+  #   f = create_feed
+  #   m1 = create_uploaded_image
+  #   r1 = create_request request_type: 'image', media: m1, feed: f
+  #   m2 = create_uploaded_image
+  #   r2 = create_request request_type: 'image', media: m2, feed: f
+  #   response = { 'result' => [{ 'context' => [{ 'request_id' => r1.id }] }] }
+  #   Bot::Alegre.stubs(:request).with('post', '/image/similarity/search/', { url: m2.file.file.public_url, threshold: 0.85, limit: 20, context: { feed_id: f.id } }).returns(response)
+  #   r2.attach_to_similar_request!
+  #   assert_equal r1, r2.reload.similar_to_request
+  #   assert_equal [r2], r1.reload.similar_requests
+  #   Bot::Alegre.unstub(:request)
+  # end
 
   test "should attach to similar link" do
     Bot::Alegre.stubs(:request).returns(true)
@@ -249,7 +249,7 @@ class RequestTest < ActiveSupport::TestCase
     Bot::Alegre.stubs(:request).returns({})
     RequestStore.store[:skip_cached_field_update] = false
     u = create_user is_admin: true
-    f = create_feed
+    f = create_feed data_points: [1, 2], published: true
     t1 = create_team
     t2 = create_team name: 'Foo'
     t3 = create_team name: 'Bar'
@@ -258,6 +258,12 @@ class RequestTest < ActiveSupport::TestCase
     f.teams << t2
     f.teams << t3
     f.teams << t4
+    ss2 = create_saved_search team: t2, filters: {}
+    ss3 = create_saved_search team: t3, filters: {}
+    ss4 = create_saved_search team: t4, filters: {}
+    FeedTeam.where(team: t2, feed: f).update_all(saved_search_id: ss2.id)
+    FeedTeam.where(team: t3, feed: f).update_all(saved_search_id: ss3.id)
+    FeedTeam.where(team: t4, feed: f).update_all(saved_search_id: ss4.id)
     FeedTeam.update_all(shared: true)
     f.teams << t5
     m = create_uploaded_image

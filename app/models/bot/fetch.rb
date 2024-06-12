@@ -184,7 +184,7 @@ class Bot::Fetch < BotUser
       end
     end
 
-    def self.import_claim_review(claim_review, team_id, user_id, status_fallback, status_mapping, auto_publish_reports, force = false)
+    def self.import_claim_review(claim_review, team_id, user_id, status_fallback, status_mapping, _auto_publish_reports, force = false)
       begin
         user = User.find(user_id)
         team = Team.find(team_id)
@@ -196,7 +196,6 @@ class Bot::Fetch < BotUser
             self.set_status(claim_review, pm, status_fallback, status_mapping)
             self.set_analysis(claim_review, pm)
             self.set_claim_and_fact_check(claim_review, pm, user, team)
-            self.create_report(claim_review, pm, team, user, auto_publish_reports)
             self.create_tags(claim_review, pm, user)
           end
         end
@@ -261,8 +260,8 @@ class Bot::Fetch < BotUser
       fc.url = claim_review['url'].to_s
       fc.summary = self.get_summary(claim_review).to_s
       fc.user = user
-      fc.skip_report_update = true
       fc.language = fc_language
+      fc.publish_report = true
       fc.save!
       User.current = current_user
     end
@@ -306,63 +305,8 @@ class Bot::Fetch < BotUser
       end
     end
 
-    def self.get_image_file(image_url)
-      tmp = nil
-      unless image_url.blank?
-        tmp = File.join(Rails.root, 'tmp', "image-#{SecureRandom.hex}")
-        URI(Addressable::URI.escape(image_url)).open do |i|
-          File.open(tmp, 'wb') do |f|
-            f.write(i.read)
-          end
-        end
-      end
-      tmp
-    end
-
     def self.parse_text(text)
       CGI.unescapeHTML(ActionView::Base.full_sanitizer.sanitize(text.to_s))
-    end
-
-    def self.create_report(claim_review, pm, team, user, auto_publish_reports)
-      report = Dynamic.new
-      report.annotation_type = 'report_design'
-      report.annotated = pm
-      report.annotator = user
-      tmp_file_path = begin self.get_image_file(claim_review['image'].to_s) rescue nil end
-      if tmp_file_path
-        File.open(tmp_file_path) do |f|
-          report.file = [f]
-        end
-      end
-      date = claim_review['datePublished'].blank? ? Time.now : Time.parse(claim_review['datePublished'])
-      language = team.default_language
-      title = self.get_title(claim_review).truncate(140)
-      summary = self.parse_text(claim_review['text']).truncate(620)
-      fields = {
-        state: auto_publish_reports ? 'published' : 'paused',
-        options: {
-          language: language,
-          status_label: pm.status_i18n(pm.reload.last_verification_status, { locale: language }),
-          description: summary,
-          title: title,
-          published_article_url: claim_review['url'],
-          headline: title,
-          use_visual_card: false,
-          image: '',
-          use_introduction: !!report.report_design_team_setting_value('use_introduction', language),
-          introduction: report.report_design_team_setting_value('introduction', language).to_s,
-          theme_color: pm.reload.last_status_color,
-          url: '',
-          use_text_message: true,
-          text: summary,
-          date: report.report_design_date(date.to_date, language)
-        }
-      }
-      report.set_fields = fields.to_json
-      report.action = 'save'
-      report.skip_check_ability = true
-      report.save!
-      FileUtils.rm_f(tmp_file_path) if tmp_file_path
     end
   end
 end

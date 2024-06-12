@@ -27,6 +27,16 @@ module SampleData
     name.downcase
   end
 
+  def random_complex_password(length = 10)
+    length -= 4
+    low = random_string(1).downcase
+    up  = random_string(1).upcase
+    num = ('0'..'9').to_a
+    u = ['@', '#', '$', '%', '&'].to_a
+    complex = (num.sample(1) + u.sample(1)).join
+    random_string(length).concat(low, up, complex)
+  end
+
   def random_ip
     "%d.%d.%d.%d" % [rand(256), rand(256), rand(256), rand(256)]
   end
@@ -36,6 +46,8 @@ module SampleData
     options.each do |key, value|
       a.send("#{key}=", value) if a.respond_to?("#{key}=")
     end
+    a.title = options[:title] || random_string
+    a.description = options[:description] || random_string
     a.save!
     a.reload
   end
@@ -68,7 +80,7 @@ module SampleData
     u.name = options[:name] || random_string
     u.login = options.has_key?(:login) ? options[:login] : random_string
     u.email = options[:email] || "#{random_string}@#{random_string}.com"
-    u.password = options[:password] || random_string
+    u.password = options[:password] || random_complex_password
     u.password_confirmation = options[:password_confirmation] || u.password
     u.is_admin = options[:is_admin] if options.has_key?(:is_admin)
     u.api_key_id = options.has_key?(:api_key_id) ? options[:api_key_id] : create_api_key.id
@@ -102,7 +114,7 @@ module SampleData
     u.login = options.has_key?(:login) ? options[:login] : random_string
     u.token = options.has_key?(:token) ? options[:token] : random_string(50)
     u.email = options[:email] || "#{random_string}@#{random_string}.com"
-    u.password = options.has_key?(:password) ? options[:password] : random_string
+    u.password = options.has_key?(:password) ? options[:password] : random_complex_password
     u.password_confirmation = options[:password_confirmation] || u.password
     u.current_team_id = options[:current_team_id] if options.has_key?(:current_team_id)
     u.is_admin = options[:is_admin] if options.has_key?(:is_admin)
@@ -506,6 +518,7 @@ module SampleData
     options[:skip_autocreate_source] = true unless options.has_key?(:skip_autocreate_source)
     pm.source = create_source({ team: options[:team], skip_check_ability: true }) if options[:skip_autocreate_source]
     pm.save!
+    create_cluster_project_media({ cluster: options[:cluster], project_media: pm}) if options[:cluster]
     pm.reload
   end
 
@@ -845,9 +858,39 @@ module SampleData
     }.merge(options))
   end
 
+  def create_tipline_request(options = {})
+    tr = TiplineRequest.new
+    tr.smooch_data = { language: 'en', authorId: random_string, source: { type: 'whatsapp' } } unless options.has_key?(:smooch_data)
+    tr.team_id = options[:team_id] || create_team.id unless options.has_key?(:team_id)
+    tr.associated = options[:associated] || create_project_media
+    tr.smooch_request_type = 'default_requests' unless options.has_key?(:smooch_request_type)
+    tr.platform = 'whatsapp' unless options.has_key?(:platform)
+    tr.language = 'en' unless options.has_key?(:language)
+    options.each do |key, value|
+      tr.send("#{key}=", value) if tr.respond_to?("#{key}=")
+    end
+    tr.save!
+    tr.reload
+  end
+
   def create_cluster(options = {})
-    options[:project_media] = create_project_media unless options.has_key?(:project_media)
-    Cluster.create!(options)
+    team = options[:project_media]&.team || create_team
+    options[:feed] = options[:feed] || create_feed({ team: team })
+    c = Cluster.new
+    options.each do |key, value|
+      c.send("#{key}=", value) if c.respond_to?("#{key}=")
+    end
+    c.save!
+    # Add item to cluster
+    create_cluster_project_media({ cluster: c, project_media: options[:project_media] }) if options[:project_media]
+    c.reload
+  end
+
+  def create_cluster_project_media(options = {})
+    ClusterProjectMedia.create!({
+      cluster: options[:cluster] || create_cluster,
+      project_media: options[:project_media] || create_project_media
+    }.merge(options))
   end
 
   def create_claim_description(options = {})
@@ -869,10 +912,20 @@ module SampleData
     }.merge(options))
   end
 
+  def create_explainer(options = {})
+    Explainer.create!({
+      title: random_string,
+      url: random_url,
+      description: random_string,
+      user: options[:user] || create_user,
+      team: options[:team] || create_team,
+    }.merge(options))
+  end
+
   def create_feed(options = {})
     Feed.create!({
       name: random_string,
-      team: create_team,
+      team: options[:team] || create_team,
       licenses: [1],
     }.merge(options))
   end

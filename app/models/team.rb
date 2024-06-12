@@ -459,6 +459,10 @@ class Team < ApplicationRecord
     self.feeds.where(id: feed_id.to_i).last
   end
 
+  def get_api_key(api_key_id)
+    self.api_keys.where(id: api_key_id.to_i).last
+  end
+
   # A newsletter header type is available only if there are WhatsApp templates for it
   def available_newsletter_header_types
     available = []

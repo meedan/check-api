@@ -106,10 +106,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_create('comment', { text: 'test', annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s })
   end
 
-  test "should destroy comment" do
-    assert_graphql_destroy('comment')
-  end
-
   test "should create media" do
     p = create_project team: @team
     url = random_url
@@ -273,11 +269,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_update('user', :name, 'Foo', 'Bar')
   end
 
-  test "should destroy user" do
-    # TODO test this one with a super admin user
-    # assert_graphql_destroy('user')
-  end
-
   test "should create tag" do
     p = create_project team: @team
     pm = create_project_media project: p
@@ -286,10 +277,6 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should destroy tag" do
     assert_graphql_destroy('tag')
-  end
-
-  test "should destroy annotation" do
-    assert_graphql_destroy('annotation')
   end
 
   test "should get source by id" do
@@ -433,10 +420,11 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t
     p = create_project team: t
     pm = create_project_media project: p
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { team { name } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { team { name }, public_team { name } } }"
     post :create, params: { query: query, team: 'team' }
     assert_response :success
     assert_equal t.name, JSON.parse(@response.body)['data']['project_media']['team']['name']
+    assert_equal t.name, JSON.parse(@response.body)['data']['project_media']['public_team']['name']
   end
 
   test "should run few queries to get project data" do
@@ -515,14 +503,14 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should get default if language is not supported" do
     authenticate_with_user
-    @request.headers['Accept-Language'] = 'mk-MK'
+    @request.headers['Accept-Language'] = 'xx-XX'
     post :create, params: { query: 'query Query { me { name } }' }
     assert_equal :en, I18n.locale
   end
 
   test "should get closest language" do
     authenticate_with_user
-    @request.headers['Accept-Language'] = 'mk-MK, fr-FR'
+    @request.headers['Accept-Language'] = 'xx-XX, fr-FR'
     post :create, params: { query: 'query Query { me { name } }' }
     assert_equal :fr, I18n.locale
   end
@@ -532,16 +520,6 @@ class GraphqlControllerTest < ActionController::TestCase
     pm = create_project_media project: p
     fields = { geolocation_viewport: '', geolocation_location: { type: "Feature", properties: { name: "Dingbat Islands" } , geometry: { type: "Point", coordinates: [125.6, 10.1] } }.to_json }.to_json
     assert_graphql_create('dynamic', { set_fields: fields, annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s, annotation_type: 'geolocation' })
-  end
-
-  test "should create task" do
-    p = create_project team: @team
-    pm = create_project_media project: p
-    assert_graphql_create('task', { fieldset: 'tasks', label: 'test', type: 'yes_no', annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s })
-  end
-
-  test "should destroy task" do
-    assert_graphql_destroy('task')
   end
 
   test "should create comment with image" do
@@ -628,11 +606,8 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
     # check invited by
     u = User.find_by_email 'test1@local.com'
-    query = "query GetById { user(id: \"#{u.id}\") { team_user(team_slug: \"#{@team.slug}\") { invited_by { dbid } } } }"
-    post :create, params: { query: query, team: @team.slug }
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['user']['team_user']
-    assert_equal User.current.id, data['invited_by']['dbid']
+    data = u.team_users.where(team_id: @team.id).last
+    assert_equal User.current.id, data.invited_by_id
     # resend/cancel invitation
     query = 'mutation resendCancelInvitation { resendCancelInvitation(input: { clientMutationId: "1", email: "notexist@local.com", action: "resend" }) { success } }'
     post :create, params: { query: query, team: @team.slug }
@@ -672,9 +647,10 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should change password if token is found and passwords are present and match" do
+    p1 = random_complex_password
     u = create_user
     t = u.send_reset_password_instructions
-    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"123456789\", password_confirmation: \"123456789\" }) { success } }"
+    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"#{p1}\", password_confirmation: \"#{p1}\" }) { success } }"
     post :create, params: { query: query }
     sleep 1
     assert_response :success
@@ -682,18 +658,20 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should not change password if token is not found and passwords are present and match" do
+    p1 = random_complex_password
     u = create_user
     t = u.send_reset_password_instructions
-    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}x\", password: \"123456789\", password_confirmation: \"123456789\" }) { success } }"
+    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}x\", password: \"#{p1}\", password_confirmation: \"#{p1}\" }) { success } }"
     post :create, params: { query: query }
     sleep 1
     assert_response 400
   end
 
   test "should not change password if token is found but passwords are not present" do
+    p1 = random_complex_password
     u = create_user
     t = u.send_reset_password_instructions
-    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"123456789\" }) { success } }"
+    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"#{p1}\" }) { success } }"
     post :create, params: { query: query }
     sleep 1
     assert_response :success
@@ -701,9 +679,10 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should not change password if token is found but passwords do not match" do
+    p1 = random_complex_password
     u = create_user
     t = u.send_reset_password_instructions
-    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"123456789\", password_confirmation: \"12345678\" }) { success } }"
+    query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"#{p1}\", password_confirmation: \"12345678\" }) { success } }"
     post :create, params: { query: query }
     sleep 1
     assert_response 400

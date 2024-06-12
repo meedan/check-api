@@ -254,7 +254,6 @@ class ElasticSearch10Test < ActionController::TestCase
   test "should filter by keyword and requests fields" do
     # Reuests fields are username, identifier and content
     create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'Data' => ['JSON', false] })
-    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
@@ -302,9 +301,9 @@ class ElasticSearch10Test < ActionController::TestCase
     create_dynamic_annotation annotated: pm2, annotation_type: 'smooch_user', set_fields: { smooch_user_id: twitter_uid, smooch_user_data: { raw: twitter_data }.to_json }.to_json
     with_current_user_and_team(u, t) do
       wa_smooch_data = { 'authorId' => whatsapp_uid, 'text' => 'smooch_request a', 'name' => 'wa_user', 'language' => 'en' }
-      smooch_pm = create_dynamic_annotation annotated: pm, annotation_type: 'smooch', set_fields: { smooch_data: wa_smooch_data.to_json }.to_json, disable_es_callbacks: false
+      smooch_pm = create_tipline_request associated: pm, team_id: t.id, language: 'en', smooch_data: wa_smooch_data, disable_es_callbacks: false
       twitter_smooch_data = { 'authorId' => twitter_uid, 'text' => 'smooch_request b', 'name' => 'melsawy', 'language' => 'fr' }
-      smooch_pm2 = create_dynamic_annotation annotated: pm2, annotation_type: 'smooch', set_fields: { smooch_data: twitter_smooch_data.to_json }.to_json, disable_es_callbacks: false
+      smooch_pm2 = create_tipline_request associated: pm2, team_id: t.id, language: 'fr', smooch_data: twitter_smooch_data, disable_es_callbacks: false
       sleep 2
       result = CheckSearch.new({keyword: 'smooch_request', keyword_fields: {fields: ['request_content']}}.to_json)
       assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
@@ -440,5 +439,83 @@ class ElasticSearch10Test < ActionController::TestCase
     result = CheckSearch.new({ keyword: 'source', unmatched: [0] }.to_json)
     assert_empty result.medias.map(&:id)
     Team.current = nil
+  end
+
+  test "should not apply feed filters until a list is chosen" do
+    t1 = create_team
+    create_project_media team: t1, disable_es_callbacks: false
+    create_project_media team: t1, disable_es_callbacks: false
+    ss1 = create_saved_search team: t1, filters: {}
+    f = create_feed team: t1, saved_search: nil, data_points: [1, 2], published: true
+    t2 = create_team
+    create_project_media team: t2, disable_es_callbacks: false
+    ss2 = create_saved_search team: t2, filters: {}
+    ft = create_feed_team feed: f, team: t2, saved_search: nil, shared: true
+    sleep 2
+    Team.current = t1
+    query = { feed_id: f.id, feed_view: 'media', show_similar: true }
+
+    # No workspace has chosen a list yet
+    assert_equal 0, CheckSearch.new(query.to_json, nil, t1.id).number_of_results
+
+    # Only the first workspace has chosen a list
+    f.saved_search = ss1
+    f.save!
+    assert_equal 2, CheckSearch.new(query.to_json, nil, t1.id).number_of_results
+
+    # Only the second workspace has chosen a list
+    f.saved_search = nil
+    f.save!
+    ft.saved_search = ss2
+    ft.save!
+    assert_equal 1, CheckSearch.new(query.to_json, nil, t1.id).number_of_results
+
+    # Both workspaces have chosen a list
+    f.saved_search = ss1
+    f.save!
+    ft.saved_search = ss2
+    ft.save!
+    assert_equal 3, CheckSearch.new(query.to_json, nil, t1.id).number_of_results
+
+    Team.current = nil
+  end
+
+  test "should filter by positive_tipline_search_results_count and negative_tipline_search_results_count numeric range" do
+    RequestStore.store[:skip_cached_field_update] = false
+    p = create_project
+    [:positive_tipline_search_results_count, :negative_tipline_search_results_count].each do |field|
+      query = { projects: [p.id], "#{field}": { max: 5 } }
+      query[field][:min] = 0
+      result = CheckSearch.new(query.to_json, nil, p.team_id)
+      assert_equal 0, result.medias.count
+    end
+    pm1 = create_project_media project: p, quote: 'Test A', disable_es_callbacks: false
+    pm2 = create_project_media project: p, quote: 'Test B', disable_es_callbacks: false
+
+    # Add positive search results
+    create_tipline_request team_id: p.team_id, associated: pm1, smooch_request_type: 'relevant_search_result_requests'
+    2.times { create_tipline_request(team_id: p.team_id, associated: pm2, smooch_request_type: 'relevant_search_result_requests') }
+
+    # Add negative search results
+    create_tipline_request team_id: p.team_id, associated: pm1, smooch_request_type: 'irrelevant_search_result_requests'
+    2.times { create_tipline_request(team_id: p.team_id, associated: pm2, smooch_request_type: 'irrelevant_search_result_requests') }
+
+    sleep 2
+
+    min_mapping = {
+      "0": [pm1.id, pm2.id],
+      "1": [pm1.id, pm2.id],
+      "2": [pm2.id],
+      "3": [],
+    }
+
+    [:positive_tipline_search_results_count, :negative_tipline_search_results_count].each do |field|
+      query = { projects: [p.id], "#{field}": { max: 5 } }
+      min_mapping.each do |min, items|
+        query[field][:min] = min.to_s
+        result = CheckSearch.new(query.to_json, nil, p.team_id)
+        assert_equal items.sort, result.medias.map(&:id).sort
+      end
+    end
   end
 end

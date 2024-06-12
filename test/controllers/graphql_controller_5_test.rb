@@ -39,14 +39,14 @@ class GraphqlController5Test < ActionController::TestCase
     p = create_project team: t
     pm = create_project_media project: p, media: create_uploaded_audio(file: 'rails.mp3')
     pm2 = create_project_media project: p
-    Bot::Alegre.stubs(:get_items_with_similar_media).returns({ pm2.id => 0.9, pm.id => 0.8 })
+    Bot::Alegre.stubs(:get_items_with_similar_media_v2).returns({ pm2.id => 0.9, pm.id => 0.8 })
 
     query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") { similar_items(first: 10000) { edges { node { dbid } } } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal pm2.id, JSON.parse(@response.body)['data']['project_media']['similar_items']['edges'][0]['node']['dbid']
 
-    Bot::Alegre.unstub(:get_items_with_similar_media)
+    Bot::Alegre.unstub(:get_items_with_similar_media_v2)
   end
 
   test "should find similar items to text item" do
@@ -56,9 +56,10 @@ class GraphqlController5Test < ActionController::TestCase
     m2 = create_claim_media quote: 'Foo bar'
     pm = create_project_media project: p, media: m
     pm2 = create_project_media project: p, media: m2
+    create_claim_description project_media: pm2
     Bot::Alegre.stubs(:get_similar_texts).returns({ pm2.id => 0.9, pm.id => 0.8 })
 
-    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") { similar_items(first: 10000) { edges { node { dbid, claim_description { id } } } } } }'
+    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") { similar_items(first: 10000) { edges { node { dbid, claim_description { id, fact_check { id } } } } } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal pm2.id, JSON.parse(@response.body)['data']['project_media']['similar_items']['edges'][0]['node']['dbid']
@@ -149,23 +150,6 @@ class GraphqlController5Test < ActionController::TestCase
       assert_equal 1, log.size
       assert_equal 'verification_status', log[0]['annotation']['annotation_type']
     end
-  end
-
-  test "should get cluster information" do
-    u = create_user is_admin: true
-    f = create_feed
-    t = create_team
-    f.teams << t
-    p = create_project team: t
-    pm = create_project_media project: p
-    c = create_cluster project_media: pm
-    c.project_medias << pm
-    c.project_medias << create_project_media
-    authenticate_with_user(u)
-    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") {  cluster { first_item_at, last_item_at, claim_descriptions(feed_id: ' + f.id.to_s + ') { edges { node { id } } }, items(feed_id: ' + f.id.to_s + ') { edges { node { dbid } } } } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal 1, JSON.parse(@response.body)['data']['project_media']['cluster']['items']['edges'].size
   end
 
   test "should paginate folder items" do

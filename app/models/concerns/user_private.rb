@@ -58,6 +58,11 @@ module UserPrivate
     end
   end
 
+  def password_complexity
+    return if password.blank? || password =~ /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,70}$/
+    errors.add :password, I18n.t(:error_password_not_strong)
+  end
+
   def handle_duplicate_email(u)
     if u.is_active?
       provider = u.get_user_provider(self.email)
@@ -70,6 +75,10 @@ module UserPrivate
 
   def skip_confirmation_for_non_email_provider
     self.skip_confirmation! if self.from_omniauth_login && self.skip_confirmation_mail.nil?
+  end
+
+  def set_last_received_terms_email_at
+    self.last_received_terms_email_at = Time.now if self.respond_to?(:last_received_terms_email_at) && self.last_received_terms_email_at.nil?
   end
 
   def set_blank_email_for_unconfirmed_user

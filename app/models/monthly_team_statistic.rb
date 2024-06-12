@@ -13,11 +13,15 @@ class MonthlyTeamStatistic < ApplicationRecord
     language: 'Language',
     month: 'Month', # model method
     whatsapp_conversations: 'WhatsApp conversations',
+    whatsapp_conversations_business: 'Business Conversations',
+    whatsapp_conversations_user: 'Service Conversations',
     unique_users: 'Unique users',
     returning_users: 'Returning users',
     published_reports: 'Published reports',
     positive_searches: 'Positive searches',
     negative_searches: 'Negative searches',
+    positive_feedback: 'Positive feedback',
+    negative_feedback: 'Negative feedback',
     reports_sent_to_users: 'Reports sent to users',
     unique_users_who_received_report: 'Unique users who received a report',
     formatted_median_response_time: 'Average (median) response time', # model method

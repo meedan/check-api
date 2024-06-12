@@ -73,7 +73,7 @@ module RelationshipBulk
       index_alias = CheckElasticSearchModel.get_index_alias
       es_body = []
       versions = []
-      callbacks = [:reset_counters, :update_counters, :set_cluster, :propagate_inversion]
+      callbacks = [:reset_counters, :update_counters, :propagate_inversion]
       target_ids = []
       Relationship.where(id: ids, source_id: extra_options['source_id']).find_each do |r|
         target_ids << r.target_id

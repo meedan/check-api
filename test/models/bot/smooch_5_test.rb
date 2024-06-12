@@ -43,22 +43,26 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     pm4a = create_project_media quote: 'Test 4', team: t4 # Should not be in search results (team is not part of feed)
     pm4b = create_project_media media: l, team: t4 # Should not be in search results by URL
     ss = create_saved_search team: t1, filters: { show: ['claims', 'weblink'] }
-    f1 = create_feed team_id: t1.id, published: true
+    f1 = create_feed team_id: t1.id, published: true, data_points: [1, 2]
     f1.teams << t2
     FeedTeam.update_all(shared: true)
+    ft = FeedTeam.last
+    ft_ss = create_saved_search team: t2, filters: {}
+    ft.saved_search = ft_ss
+    ft.save!
     f1.teams << t3
-    ft_ss = create_saved_search team: t1, filters: { keyword: 'Bar' }
-    f1.saved_search = ft_ss
+    f_ss = create_saved_search team: t1, filters: { keyword: 'Bar' }
+    f1.saved_search = f_ss
     f1.save!
     u = create_bot_user
     [t1, t2, t3, t4].each { |t| TeamUser.create!(user: u, team: t, role: 'editor') }
     alegre_results = {}
     ProjectMedia.order('id ASC').all.each_with_index do |pm, i|
       publish_report(pm) if pm.id != pm1e.id
-      alegre_results[pm.id] = { score: (1 - i / 10.0), model: 'elasticsearch' } unless [pm1f, pm1g, pm2b].map(&:id).include?(pm.id)
+      alegre_results[pm.id] = { score: (1 - i / 10.0), model: 'elasticsearch', context: {foo: :bar} } unless [pm1f, pm1g, pm2b].map(&:id).include?(pm.id)
     end
     Bot::Alegre.stubs(:get_merged_similar_items).returns(alegre_results)
-    Bot::Alegre.stubs(:get_items_with_similar_media).returns(alegre_results)
+    Bot::Alegre.stubs(:get_items_with_similar_media_v2).returns(alegre_results)
 
     # Get feed data scoped by teams that are part of the feed, taking into account the filters for the feed
     # and for each team participating in the feed
@@ -78,6 +82,6 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     end
 
     Bot::Alegre.unstub(:get_merged_similar_items)
-    Bot::Alegre.unstub(:get_items_with_similar_media)
+    Bot::Alegre.unstub(:get_items_with_similar_media_v2)
   end
 end

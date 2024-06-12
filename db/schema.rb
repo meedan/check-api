@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_12_10_015830) do
+ActiveRecord::Schema.define(version: 2024_04_20_104318) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -172,11 +172,15 @@ ActiveRecord::Schema.define(version: 2023_12_10_015830) do
 
   create_table "api_keys", id: :serial, force: :cascade do |t|
     t.string "access_token", default: "", null: false
+    t.string "title"
+    t.integer "user_id"
+    t.integer "team_id"
     t.datetime "expire_at"
     t.jsonb "rate_limits", default: {}
     t.string "application"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string "description"
   end
 
   create_table "assignments", id: :serial, force: :cascade do |t|
@@ -220,14 +224,31 @@ ActiveRecord::Schema.define(version: 2023_12_10_015830) do
     t.index ["user_id"], name: "index_claim_descriptions_on_user_id"
   end
 
+  create_table "cluster_project_medias", force: :cascade do |t|
+    t.bigint "cluster_id"
+    t.bigint "project_media_id"
+    t.index ["cluster_id", "project_media_id"], name: "index_cluster_project_medias_on_cluster_id_and_project_media_id", unique: true
+    t.index ["cluster_id"], name: "index_cluster_project_medias_on_cluster_id"
+    t.index ["project_media_id"], name: "index_cluster_project_medias_on_project_media_id"
+  end
+
   create_table "clusters", force: :cascade do |t|
-    t.integer "project_medias_count", default: 0
     t.integer "project_media_id"
     t.datetime "first_item_at"
     t.datetime "last_item_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["project_media_id"], name: "index_clusters_on_project_media_id", unique: true
+    t.bigint "feed_id"
+    t.integer "team_ids", default: [], null: false, array: true
+    t.integer "channels", default: [], null: false, array: true
+    t.integer "media_count", default: 0, null: false
+    t.integer "requests_count", default: 0, null: false
+    t.integer "fact_checks_count", default: 0, null: false
+    t.datetime "last_request_date"
+    t.datetime "last_fact_check_date"
+    t.string "title"
+    t.index ["feed_id"], name: "index_clusters_on_feed_id"
+    t.index ["project_media_id"], name: "index_clusters_on_project_media_id"
   end
 
   create_table "dynamic_annotation_annotation_types", primary_key: "annotation_type", id: :string, force: :cascade do |t|
@@ -268,7 +289,7 @@ ActiveRecord::Schema.define(version: 2023_12_10_015830) do
     t.jsonb "value_json", default: "{}"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index "dynamic_annotation_fields_value(field_name, value)", name: "dynamic_annotation_fields_value", where: "((field_name)::text = ANY ((ARRAY['external_id'::character varying, 'smooch_user_id'::character varying, 'verification_status_status'::character varying])::text[]))"
+    t.index "dynamic_annotation_fields_value(field_name, value)", name: "dynamic_annotation_fields_value", where: "((field_name)::text = ANY (ARRAY[('external_id'::character varying)::text, ('smooch_user_id'::character varying)::text, ('verification_status_status'::character varying)::text]))"
     t.index ["annotation_id", "field_name"], name: "index_dynamic_annotation_fields_on_annotation_id_and_field_name"
     t.index ["annotation_id"], name: "index_dynamic_annotation_fields_on_annotation_id"
     t.index ["annotation_type"], name: "index_dynamic_annotation_fields_on_annotation_type"
@@ -276,10 +297,22 @@ ActiveRecord::Schema.define(version: 2023_12_10_015830) do
     t.index ["field_type"], name: "index_dynamic_annotation_fields_on_field_type"
     t.index ["value"], name: "fetch_unique_id", unique: true, where: "(((field_name)::text = 'external_id'::text) AND (value <> ''::text) AND (value <> '\"\"'::text))"
     t.index ["value"], name: "index_status", where: "((field_name)::text = 'verification_status_status'::text)"
-    t.index ["value"], name: "smooch_request_message_id_unique_id", unique: true, where: "(((field_name)::text = 'smooch_message_id'::text) AND (value <> ''::text) AND (value <> '\"\"'::text))"
     t.index ["value"], name: "smooch_user_unique_id", unique: true, where: "(((field_name)::text = 'smooch_user_id'::text) AND (value <> ''::text) AND (value <> '\"\"'::text))"
     t.index ["value"], name: "translation_request_id", unique: true, where: "((field_name)::text = 'translation_request_id'::text)"
     t.index ["value_json"], name: "index_dynamic_annotation_fields_on_value_json", using: :gin
+  end
+
+  create_table "explainers", force: :cascade do |t|
+    t.string "title"
+    t.text "description"
+    t.string "url"
+    t.string "language"
+    t.bigint "user_id", null: false
+    t.bigint "team_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["team_id"], name: "index_explainers_on_team_id"
+    t.index ["user_id"], name: "index_explainers_on_user_id"
   end
 
   create_table "fact_checks", force: :cascade do |t|
@@ -337,9 +370,13 @@ ActiveRecord::Schema.define(version: 2023_12_10_015830) do
     t.string "tags", default: [], array: true
     t.integer "licenses", default: [], array: true
     t.boolean "discoverable", default: false
+    t.integer "data_points", default: [], array: true
+    t.string "uuid", default: "", null: false
+    t.datetime "last_clusterized_at"
     t.index ["saved_search_id"], name: "index_feeds_on_saved_search_id"
     t.index ["team_id"], name: "index_feeds_on_team_id"
     t.index ["user_id"], name: "index_feeds_on_user_id"
+    t.index ["uuid"], name: "index_feeds_on_uuid"
   end
 
   create_table "login_activities", id: :serial, force: :cascade do |t|
@@ -368,6 +405,7 @@ ActiveRecord::Schema.define(version: 2023_12_10_015830) do
     t.string "type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "uuid", default: 0, null: false
     t.index ["url"], name: "index_medias_on_url", unique: true
   end
 
@@ -401,6 +439,10 @@ ActiveRecord::Schema.define(version: 2023_12_10_015830) do
     t.integer "positive_searches"
     t.integer "negative_searches"
     t.integer "newsletters_sent"
+    t.integer "whatsapp_conversations_user"
+    t.integer "whatsapp_conversations_business"
+    t.integer "positive_feedback"
+    t.integer "negative_feedback"
     t.index ["team_id", "platform", "language", "start_date"], name: "index_monthly_stats_team_platform_language_start", unique: true
     t.index ["team_id"], name: "index_monthly_team_statistics_on_team_id"
   end
@@ -444,12 +486,11 @@ ActiveRecord::Schema.define(version: 2023_12_10_015830) do
     t.index ["user_id"], name: "index_project_media_users_on_user_id"
   end
 
-  create_table "project_medias", id: :serial, force: :cascade do |t|
+  create_table "project_medias", force: :cascade do |t|
     t.integer "project_id"
     t.integer "media_id"
     t.integer "user_id"
     t.integer "source_id"
-    t.integer "cluster_id"
     t.integer "team_id"
     t.jsonb "channel", default: {"main"=>0}
     t.boolean "read", default: false, null: false
@@ -462,8 +503,9 @@ ActiveRecord::Schema.define(version: 2023_12_10_015830) do
     t.integer "unmatched", default: 0
     t.string "custom_title"
     t.string "title_field"
+    t.integer "imported_from_feed_id"
+    t.integer "imported_from_project_media_id"
     t.index ["channel"], name: "index_project_medias_on_channel"
-    t.index ["cluster_id"], name: "index_project_medias_on_cluster_id"
     t.index ["last_seen"], name: "index_project_medias_on_last_seen"
     t.index ["media_id"], name: "index_project_medias_on_media_id"
     t.index ["project_id"], name: "index_project_medias_on_project_id"
@@ -711,6 +753,35 @@ ActiveRecord::Schema.define(version: 2023_12_10_015830) do
     t.index ["team_id"], name: "index_tipline_newsletters_on_team_id"
   end
 
+  create_table "tipline_requests", force: :cascade do |t|
+    t.string "language", null: false
+    t.string "tipline_user_uid"
+    t.string "platform", null: false
+    t.string "smooch_request_type", null: false
+    t.string "smooch_resource_id"
+    t.string "smooch_message_id", default: ""
+    t.string "smooch_conversation_id"
+    t.jsonb "smooch_data", default: {}, null: false
+    t.string "associated_type", null: false
+    t.bigint "associated_id", null: false
+    t.bigint "team_id", null: false
+    t.bigint "user_id"
+    t.integer "smooch_report_received_at", default: 0
+    t.integer "smooch_report_update_received_at", default: 0
+    t.integer "smooch_report_correction_sent_at", default: 0
+    t.integer "smooch_report_sent_at", default: 0
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["associated_type", "associated_id"], name: "index_tipline_requests_on_associated"
+    t.index ["associated_type", "associated_id"], name: "index_tipline_requests_on_associated_type_and_associated_id"
+    t.index ["language"], name: "index_tipline_requests_on_language"
+    t.index ["platform"], name: "index_tipline_requests_on_platform"
+    t.index ["smooch_message_id"], name: "index_tipline_requests_on_smooch_message_id", unique: true, where: "((smooch_message_id IS NOT NULL) AND ((smooch_message_id)::text <> ''::text))"
+    t.index ["team_id"], name: "index_tipline_requests_on_team_id"
+    t.index ["tipline_user_uid"], name: "index_tipline_requests_on_tipline_user_uid"
+    t.index ["user_id"], name: "index_tipline_requests_on_user_id"
+  end
+
   create_table "tipline_resources", id: :serial, force: :cascade do |t|
     t.string "uuid", default: "", null: false
     t.string "title", default: "", null: false
@@ -795,6 +866,10 @@ ActiveRecord::Schema.define(version: 2023_12_10_015830) do
     t.integer "consumed_timestep"
     t.boolean "otp_required_for_login"
     t.string "otp_backup_codes", array: true
+    t.integer "failed_attempts", default: 0, null: false
+    t.string "unlock_token"
+    t.datetime "locked_at"
+    t.datetime "last_received_terms_email_at"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true, where: "((email IS NOT NULL) AND ((email)::text <> ''::text))"
     t.index ["invitation_token"], name: "index_users_on_invitation_token", unique: true
@@ -806,8 +881,7 @@ ActiveRecord::Schema.define(version: 2023_12_10_015830) do
   end
 
   create_table "versions", id: :serial, force: :cascade do |t|
-    t.string "item_type"
-    t.string "{:null=>false}"
+    t.string "item_type", null: false
     t.string "item_id", null: false
     t.string "event", null: false
     t.string "whodunnit"
@@ -828,6 +902,8 @@ ActiveRecord::Schema.define(version: 2023_12_10_015830) do
 
   add_foreign_key "claim_descriptions", "project_medias"
   add_foreign_key "claim_descriptions", "users"
+  add_foreign_key "explainers", "teams"
+  add_foreign_key "explainers", "users"
   add_foreign_key "fact_checks", "claim_descriptions"
   add_foreign_key "fact_checks", "users"
   add_foreign_key "feed_invitations", "feeds"

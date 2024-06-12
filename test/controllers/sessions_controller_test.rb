@@ -10,9 +10,10 @@ class SessionsControllerTest < ActionController::TestCase
   end
 
   test "should login using email" do
-    u = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com'
+    p1 = random_complex_password
+    u = create_user login: 'test', password: p1, password_confirmation: p1, email: 'test@test.com'
     u.confirm
-    post :create, params: { api_user: { email: 'test@test.com', password: '12345678' } }
+    post :create, params: { api_user: { email: 'test@test.com', password: p1 } }
     assert_response :success
     assert_not_nil @controller.current_api_user
     # test login activities creation
@@ -21,25 +22,28 @@ class SessionsControllerTest < ActionController::TestCase
   end
 
   test "should require otp_attempt for login using email and 2FA" do
-    u = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com'
+    p1 = random_complex_password
+    u = create_user login: 'test', password: p1, password_confirmation: p1, email: 'test@test.com'
     u.confirm
     u.two_factor
-    options = { otp_required: true, password: '12345678', qrcode: u.reload.current_otp }
+    options = { otp_required: true, password: p1, qrcode: u.reload.current_otp }
     u.two_factor=(options)
-    post :create, params: { api_user: { email: 'test@test.com', password: '12345678' } }
+    post :create, params: { api_user: { email: 'test@test.com', password: p1 } }
     assert_response 400
     assert_nil @controller.current_api_user
   end
 
   test "should not login if password is wrong" do
-    u = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com'
-    post :create, params: { api_user: { email: 'test@test.com', password: '12345679' } }
+    p1 = random_complex_password
+    u = create_user login: 'test', password: p1, password_confirmation: p1, email: 'test@test.com'
+    post :create, params: { api_user: { email: 'test@test.com', password: random_complex_password } }
     assert_response 401
     assert_nil @controller.current_api_user
   end
 
   test "should logout" do
-    u = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com'
+    p1 = random_complex_password
+    u = create_user login: 'test', password: p1, password_confirmation: p1, email: 'test@test.com'
     authenticate_with_user(u)
     delete :destroy, params: {}
     assert_response :success
@@ -47,7 +51,8 @@ class SessionsControllerTest < ActionController::TestCase
   end
 
   test "should logout and redirect to destination" do
-    u = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com'
+    p1 = random_complex_password
+    u = create_user login: 'test', password: p1, password_confirmation: p1, email: 'test@test.com'
     authenticate_with_user(u)
     delete :destroy, params: { destination: '/' }
     assert_redirected_to '/'
@@ -55,21 +60,21 @@ class SessionsControllerTest < ActionController::TestCase
   end
 
   test "should login and redirect to destination" do
-    u = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com'
+    p1 = random_complex_password
+    u = create_user login: 'test', password: p1, password_confirmation: p1, email: 'test@test.com'
     u.confirm
-    post :create, params: { api_user: { email: 'test@test.com', password: '12345678' }, destination: '/admin' }
+    post :create, params: { api_user: { email: 'test@test.com', password: p1 }, destination: '/admin' }
     assert_redirected_to '/admin'
     assert_not_nil @controller.current_api_user
   end
 
   test "should display error if cannot sign out" do
-    u = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com'
+    p1 = random_complex_password
+    u = create_user login: 'test', password: p1, password_confirmation: p1, email: 'test@test.com'
     authenticate_with_user(u)
     @controller.expects(:sign_out).returns(false)
     delete :destroy, params: {}
     assert_response 400
     assert_not_nil @controller.current_api_user
   end
-
-
 end

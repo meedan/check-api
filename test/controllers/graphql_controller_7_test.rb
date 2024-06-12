@@ -401,9 +401,9 @@ class GraphqlController7Test < ActionController::TestCase
   test "should get user confirmed" do
     u = create_user
     authenticate_with_user(u)
-    post :create, params: { query: "query GetById { user(id: \"#{u.id}\") { confirmed  } }" }
+    post :create, params: { query: "query { me { confirmed  } }" }
     assert_response :success
-    data = JSON.parse(@response.body)['data']['user']
+    data = JSON.parse(@response.body)['data']['me']
     assert data['confirmed']
   end
 
@@ -450,6 +450,16 @@ class GraphqlController7Test < ActionController::TestCase
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal [pm.id], JSON.parse(@response.body)['data']['project_medias']['edges'].collect{ |x| x['node']['dbid'] }
+  end
+
+  test "should upload files when calling a mutation" do
+    u = create_user is_admin: true
+    t = create_task
+    f = Rack::Test::UploadedFile.new(File.join(Rails.root, 'test', 'data', 'rails.png'), 'image/png')
+    authenticate_with_user(u)
+    query = 'mutation { updateTask(input: { clientMutationId: "1", id: "' + t.graphql_id + '" }) { task { id } } }' # It could be any other mutation, not only updateTask
+    post :create, params: { query: query, team: t.slug, file: { '0' => f } }
+    assert_response :success
   end
 
   protected

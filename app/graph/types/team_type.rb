@@ -13,7 +13,6 @@ class TeamType < DefaultObject
   field :members_count, GraphQL::Types::Int, null: true
   field :projects_count, GraphQL::Types::Int, null: true
   field :permissions, GraphQL::Types::String, null: true
-  field :get_slack_notifications_enabled, GraphQL::Types::String, null: true
   field :get_slack_webhook, GraphQL::Types::String, null: true
   field :get_embed_whitelist, GraphQL::Types::String, null: true
   field :get_report_design_image_template, GraphQL::Types::String, null: true
@@ -37,19 +36,15 @@ class TeamType < DefaultObject
   field :spam_count, GraphQL::Types::Int, null: true
   field :trash_count, GraphQL::Types::Int, null: true
   field :unconfirmed_count, GraphQL::Types::Int, null: true
-  field :get_languages, GraphQL::Types::String, null: true
-  field :get_language, GraphQL::Types::String, null: true
   field :get_language_detection, GraphQL::Types::Boolean, null: true
   field :get_report, JsonStringType, null: true
   field :get_fieldsets, JsonStringType, null: true
   field :get_data_report_url, GraphQL::Types::String, null: true
   field :url, GraphQL::Types::String, null: true
-  field :get_tipline_inbox_filters, JsonStringType, null: true
-  field :get_suggested_matches_filters, JsonStringType, null: true
   field :data_report, JsonStringType, null: true
   field :available_newsletter_header_types, JsonStringType, null: true # List of header type strings
-  field :get_outgoing_urls_utm_code, GraphQL::Types::String, null: true
-  field :get_shorten_outgoing_urls, GraphQL::Types::Boolean, null: true
+
+  field :get_slack_notifications_enabled, GraphQL::Types::String, null: true
 
   def get_slack_notifications_enabled
     object.get_slack_notifications_enabled
@@ -79,16 +74,6 @@ class TeamType < DefaultObject
     object.get_status_target_turnaround
   end
 
-  field :pusher_channel, GraphQL::Types::String, null: true
-  field :search_id, GraphQL::Types::String, null: true
-  field :search, CheckSearchType, null: true
-  field :check_search_trash, CheckSearchType, null: true
-  field :check_search_unconfirmed, CheckSearchType, null: true
-  field :check_search_spam, CheckSearchType, null: true
-  field :trash_size, JsonStringType, null: true
-  field :public_team_id, GraphQL::Types::String, null: true
-  field :permissions_info, JsonStringType, null: true
-  field :dynamic_search_fields_json_schema, JsonStringType, null: true
   field :get_slack_notifications, JsonStringType, null: true
 
   def get_slack_notifications
@@ -101,13 +86,6 @@ class TeamType < DefaultObject
     object.get_rules
   end
 
-  field :rules_json_schema, GraphQL::Types::String, null: true
-  field :slack_notifications_json_schema, GraphQL::Types::String, null: true
-  field :rules_search_fields_json_schema, JsonStringType, null: true
-  field :medias_count, GraphQL::Types::Int, null: true
-  field :spam_count, GraphQL::Types::Int, null: true
-  field :trash_count, GraphQL::Types::Int, null: true
-  field :unconfirmed_count, GraphQL::Types::Int, null: true
   field :get_languages, GraphQL::Types::String, null: true
 
   def get_languages
@@ -123,7 +101,9 @@ class TeamType < DefaultObject
   field :get_report, JsonStringType, null: true
 
   def get_report
-    object.get_report
+    placeholders = {}
+    object.get_languages.to_a.each { |language| placeholders[language] = { 'placeholders' => { 'query_date' => Dynamic.new.report_design_date(Time.now, language) } } }
+    object.get_report.to_h.deep_merge(placeholders)
   end
 
   field :get_fieldsets, JsonStringType, null: true
@@ -151,8 +131,6 @@ class TeamType < DefaultObject
     object.get_suggested_matches_filters
   end
 
-  field :data_report, JsonStringType, null: true
-  field :available_newsletter_header_types, JsonStringType, null: true # List of header type strings
   field :get_outgoing_urls_utm_code, GraphQL::Types::String, null: true
 
   def get_outgoing_urls_utm_code
@@ -163,6 +141,12 @@ class TeamType < DefaultObject
 
   def get_shorten_outgoing_urls
     object.get_shorten_outgoing_urls
+  end
+
+  field :get_explainers_enabled, GraphQL::Types::Boolean, null: true
+
+  def get_explainers_enabled
+    object.get_explainers_enabled
   end
 
   field :public_team, PublicTeamType, null: true
@@ -301,5 +285,33 @@ class TeamType < DefaultObject
 
   def tipline_messages(uid:)
     TiplineMessagesPagination.new(object.tipline_messages.where(uid: uid).order('sent_at DESC'))
+  end
+
+  field :articles, ::ArticleUnion.connection_type, null: true do
+    argument :article_type, GraphQL::Types::String, required: true, camelize: false
+  end
+
+  def articles(article_type:)
+    object.explainers if article_type == 'explainer'
+  end
+
+  field :api_key, ApiKeyType, null: true do
+    argument :dbid, GraphQL::Types::Int, required: true
+  end
+
+  def api_key(dbid:)
+    ability = context[:ability] || Ability.new
+    api_key = object.get_api_key(dbid)
+    ability.can?(:read, api_key) ? api_key : nil
+  end
+
+  field :api_keys, ApiKeyType.connection_type, null: true
+  def api_keys
+    ability = context[:ability] || Ability.new
+    api_keys = object.api_keys.order(created_at: :desc)
+
+    api_keys.select do |api_key|
+      ability.can?(:read, api_key)
+    end
   end
 end

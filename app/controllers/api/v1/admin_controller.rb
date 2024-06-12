@@ -67,10 +67,23 @@ class Api::V1::AdminController < Api::V1::BaseApiController
     tbi = TeamBotInstallation.find(params[:id])
     auth = session['check.facebook.authdata']
     status = nil
-    if params[:token].to_s.gsub('#_=_', '') == tbi.get_smooch_authorization_token
-      response = Net::HTTP.get_response(URI("https://graph.facebook.com/me/accounts?client_id=#{CheckConfig.get('smooch_facebook_app_id')}&client_secret=#{CheckConfig.get('smooch_facebook_app_secret')}&access_token=#{auth['token']}&limit=100"))
+    if auth.blank?
+      status = 400
+      @message = I18n.t(:invalid_facebook_authdata)
+      error_msg = StandardError.new('Could not authenticate Facebook account for tipline Messenger integration.')
+      CheckSentry.notify(error_msg, team_bot_installation_id: tbi.id, platform: platform)
+    elsif params[:token].to_s.gsub('#_=_', '') == tbi.get_smooch_authorization_token
+      q_params = {
+        client_id: CheckConfig.get('smooch_facebook_app_id'),
+        client_secret: CheckConfig.get('smooch_facebook_app_secret'),
+        access_token: auth['token'],
+        limit: 100,
+      }
+      response = Net::HTTP.get_response(URI("https://graph.facebook.com/me/accounts?#{q_params.to_query}"))
       pages = JSON.parse(response.body)['data']
       if pages.size != 1
+        Rails.logger.info("[Facebook Messenger Integration] API scoped token: #{auth['token']} API response: #{response.body}")
+        CheckSentry.notify(StandardError.new('Unexpected list of Facebook pages returned for tipline Messenger integration'), team_bot_installation_id: tbi.id, response: response.body)
         @message = I18n.t(:must_select_exactly_one_facebook_page)
         status = 400
       else

@@ -89,7 +89,6 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
   end
 
   test "should store Smooch conversation id" do
-    create_annotation_type_and_fields('Smooch', { 'Conversation Id' => ['Text', true] })
     conversation_id = random_string
     result = OpenStruct.new({ conversation: OpenStruct.new({ id: conversation_id })})
     SmoochApi::ConversationApi.any_instance.stubs(:get_messages).returns(result)
@@ -100,6 +99,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
           '_id': random_string,
           authorId: uid,
           type: 'text',
+          source: { type: "whatsapp" },
           text: random_string
         }
       ]
@@ -115,12 +115,12 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
           'conversationStarted': true
         }
       }.to_json
-      assert_difference "DynamicAnnotation::Field.where(field_name: 'smooch_conversation_id').count" do
+      assert_difference "TiplineRequest.count" do
         Bot::Smooch.run(payload)
       end
       pm = ProjectMedia.last
-      a = pm.annotations('smooch').last
-      assert_equal conversation_id, a.load.get_field_value('smooch_conversation_id')
+      tr = TiplineRequest.last
+      assert_equal conversation_id, tr.smooch_conversation_id
     end
     SmoochApi::ConversationApi.any_instance.unstub(:get_messages)
   end
@@ -134,6 +134,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
           '_id': random_string,
           authorId: uid,
           type: 'text',
+          source: { type: "whatsapp" },
           text: random_string
         }
       ]
@@ -175,18 +176,21 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
           '_id': random_string,
           authorId: uid,
           type: 'text',
+          source: { type: "whatsapp" },
           text: 'foo',
         },
         {
           '_id': random_string,
           authorId: uid,
           type: 'text',
+          source: { type: "whatsapp" },
           text: 'bar'
         },
         {
           '_id': random_string,
           authorId: uid,
           type: 'text',
+          source: { type: "whatsapp" },
           text: 'test'
         }
       ]
@@ -206,10 +210,10 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
         Bot::Smooch.run(payload)
         sleep 1
       end
-      assert_difference 'Dynamic.where(annotation_type: "smooch").count' do
+      assert_difference 'TiplineRequest.count' do
         Sidekiq::Worker.drain_all
       end
-      assert_equal ['bar', 'foo', 'test'], JSON.parse(Dynamic.where(annotation_type: 'smooch').last.get_field_value('smooch_data'))['text'].split(Bot::Smooch::MESSAGE_BOUNDARY).map(&:chomp).sort
+      assert_equal ['bar', 'foo', 'test'], TiplineRequest.last.smooch_data['text'].split(Bot::Smooch::MESSAGE_BOUNDARY).map(&:chomp).sort
     end
   end
 
@@ -254,7 +258,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     Rails.cache.unstub(:read)
     Sidekiq::Worker.drain_all
     assert_equal 'waiting_for_message', sm.state.value
-    assert_equal ['Hello for the last time', 'ONE ', '2', 'Query'], JSON.parse(Dynamic.where(annotation_type: 'smooch').last.get_field_value('smooch_data'))['text'].split(Bot::Smooch::MESSAGE_BOUNDARY).map(&:chomp)
+    assert_equal ['Hello for the last time', 'ONE ', '2', 'Query'], TiplineRequest.last.smooch_data['text'].split(Bot::Smooch::MESSAGE_BOUNDARY).map(&:chomp)
     assert_equal 'Hello for the last time', ProjectMedia.last.text
   end
 
@@ -376,16 +380,16 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     u = create_user is_admin: true
     t = create_team
     with_current_user_and_team(u, t) do
-      d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_message_id: random_string, smooch_data: { 'authorId' => whatsapp_uid }.to_json }.to_json
-      assert_equal '+55 12 3456-7890', d.get_field('smooch_data').smooch_user_external_identifier
-      d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_message_id: random_string, smooch_data: { 'authorId' => twitter_uid }.to_json }.to_json
-      assert_equal '@foobar', d.get_field('smooch_data').smooch_user_external_identifier
-      d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_message_id: random_string, smooch_data: { 'authorId' => facebook_uid }.to_json }.to_json
-      assert_equal '123456', d.get_field('smooch_data').smooch_user_external_identifier
-      d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_message_id: random_string, smooch_data: { 'authorId' => telegram_uid }.to_json }.to_json
-      assert_equal '@barfoo', d.get_field('smooch_data').smooch_user_external_identifier
-      d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_message_id: random_string, smooch_data: { 'authorId' => other_uid }.to_json }.to_json
-      assert_equal '', d.get_field('smooch_data').smooch_user_external_identifier
+      tr = create_tipline_request team_id: t.id, smooch_message_id: random_string, smooch_data: { 'authorId' => whatsapp_uid }
+      assert_equal '+55 12 3456-7890', tr.smooch_user_external_identifier
+      tr = create_tipline_request team_id: t.id,smooch_message_id: random_string, smooch_data: { 'authorId' => twitter_uid }
+      assert_equal '@foobar', tr.smooch_user_external_identifier
+      tr = create_tipline_request team_id: t.id, smooch_message_id: random_string, smooch_data: { 'authorId' => facebook_uid }
+      assert_equal '123456', tr.smooch_user_external_identifier
+      tr = create_tipline_request team_id: t.id, smooch_message_id: random_string, smooch_data: { 'authorId' => telegram_uid }
+      assert_equal '@barfoo', tr.smooch_user_external_identifier
+      tr = create_tipline_request team_id: t.id, smooch_message_id: random_string, smooch_data: { 'authorId' => other_uid }
+      assert_equal '', tr.smooch_user_external_identifier
     end
   end
 
@@ -485,9 +489,9 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
       send_message_to_smooch_bot('4', uid)
     end
     Sidekiq::Worker.drain_all
-    a = Dynamic.where(annotation_type: 'smooch').last
-    assert_equal 'TiplineResource', a.annotated_type
-    assert_not_nil a.get_field('smooch_resource_id')
+    tr = TiplineRequest.last
+    assert_equal 'TiplineResource', tr.associated_type
+    assert_not_nil tr.smooch_resource_id
   end
 
   test "should submit short unconfirmed request" do
@@ -502,9 +506,8 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     assert_no_difference 'ProjectMedia.count' do
       Sidekiq::Worker.drain_all
     end
-    a = Dynamic.where(annotation_type: 'smooch').last
-    annotated = a.annotated
-    assert_equal 'Team', a.annotated_type
+    tr = TiplineRequest.last
+    assert_equal 'Team', tr.associated_type
   end
 
   test "should submit long unconfirmed request" do
@@ -519,13 +522,13 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     assert_difference 'ProjectMedia.count' do
       Sidekiq::Worker.drain_all
     end
-    a = Dynamic.where(annotation_type: 'smooch').last
-    annotated = a.annotated
-    assert_equal 'ProjectMedia', a.annotated_type
-    assert_equal CheckArchivedFlags::FlagCodes::UNCONFIRMED, annotated.archived
+    tr = TiplineRequest.last
+    associated = tr.associated
+    assert_equal 'ProjectMedia', tr.associated_type
+    assert_equal CheckArchivedFlags::FlagCodes::UNCONFIRMED, associated.archived
     # Verify requests count & demand
-    assert_equal 1, annotated.requests_count
-    assert_equal 1, annotated.demand
+    assert_equal 1, associated.requests_count
+    assert_equal 1, associated.demand
     # Auto confirm the media if the same media is sent as a default request
     Sidekiq::Testing.fake! do
       send_message_to_smooch_bot(message, uid)
@@ -539,8 +542,8 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     end
     Rails.cache.unstub(:read)
     Sidekiq::Worker.drain_all
-    assert_equal CheckArchivedFlags::FlagCodes::NONE, annotated.reload.archived
-    assert_equal 2, annotated.reload.requests_count
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, associated.reload.archived
+    assert_equal 2, associated.reload.requests_count
     # Test resend the same media (should not update archived column)
     Sidekiq::Testing.fake! do
       send_message_to_smooch_bot('Hello', uid)
@@ -549,8 +552,8 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     assert_no_difference 'ProjectMedia.count' do
       Sidekiq::Worker.drain_all
     end
-    assert_equal CheckArchivedFlags::FlagCodes::NONE, annotated.reload.archived
-    assert_equal 3, annotated.reload.requests_count
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, associated.reload.archived
+    assert_equal 3, associated.reload.requests_count
   end
 
   test "should get default TOS message" do
@@ -573,11 +576,13 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
         text: random_string,
         mediaUrl: @video_url,
         mediaType: 'video/mp4',
+        source: { type: "whatsapp" },
         role: 'appUser',
         received: 1573082583.219,
         name: random_string,
         authorId: random_string,
-        '_id': random_string
+        '_id': random_string,
+        language: 'en'
       }
       medias_count = Media.count
       assert_difference 'ProjectMedia.count', 1 do
@@ -591,7 +596,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
       medias_count = Media.count
 
       assert_no_difference 'ProjectMedia.count' do
-       Bot::Smooch.save_message(message.to_json, @app_id)
+        Bot::Smooch.save_message(message.to_json, @app_id)
       end
       assert_equal medias_count, Media.count
     end
@@ -602,9 +607,11 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
       text  = "\vstring      for testing\t\n  "
       message = {
         type: 'text',
+        source: { type: "whatsapp" },
         text: text,
         authorId: random_string,
-        '_id': random_string
+        '_id': random_string,
+        language: 'en',
       }
       assert_difference 'ProjectMedia.count', 1 do
         Bot::Smooch.save_message(message.to_json, @app_id)
@@ -614,9 +621,11 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
       text  = "\vstring      FOR teSTIng\t\n  "
       message = {
         type: 'text',
+        source: { type: "whatsapp" },
         text: text,
         authorId: random_string,
-        '_id': random_string
+        '_id': random_string,
+        language: 'en',
       }
       assert_no_difference 'ProjectMedia.count' do
         Bot::Smooch.save_message(message.to_json, @app_id)
@@ -626,9 +635,11 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
       text  = "\vTEST      with existing     item  \t\n  "
       message = {
         type: 'text',
+        source: { type: "whatsapp" },
         text: text,
         authorId: random_string,
-        '_id': random_string
+        '_id': random_string,
+        language: 'en',
       }
       assert_no_difference 'ProjectMedia.count' do
         Bot::Smooch.save_message(message.to_json, @app_id)
@@ -656,7 +667,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with(query: { url: url }).to_return(body: response)
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => "Foo bar foo bar #{url}" })
     CheckSearch.any_instance.stubs(:medias).returns([pm1])
-    Bot::Alegre.stubs(:get_merged_similar_items).returns({ pm2.id => { score: 0.9, model: 'elasticsearch' } })
+    Bot::Alegre.stubs(:get_merged_similar_items).returns({ pm2.id => { score: 0.9, model: 'elasticsearch', context: {foo: :bar} } })
 
     assert_equal [pm2], Bot::Smooch.get_search_results(random_string, {}, t.id, 'en')
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => "Test #{url}" })

@@ -30,9 +30,11 @@ class FactCheckTest < ActiveSupport::TestCase
   end
 
   test "should create fact check without optional fields" do
+    Bot::Alegre.stubs(:send_field_to_similarity_index).returns({"success": true})
     assert_difference 'FactCheck.count' do
       create_fact_check url: nil, title: random_string, summary: nil
     end
+    Bot::Alegre.unstub(:send_field_to_similarity_index)
   end
 
   test "should not create fact check without user" do
@@ -303,6 +305,72 @@ class FactCheckTest < ActiveSupport::TestCase
     create_fact_check signature: 'test'
     assert_raises ActiveRecord::RecordNotUnique do
       create_fact_check signature: 'test'
+    end
+  end
+
+  test "should set report status correctly when fact-check is updated" do
+    RequestStore.store[:skip_cached_field_update] = false
+    create_report_design_annotation_type
+    Sidekiq::Testing.inline! do
+      pm = create_project_media
+      cd = create_claim_description project_media: pm
+      assert_equal 'unpublished', pm.reload.report_status
+
+      fc = create_fact_check claim_description: cd
+      assert_equal 'unpublished', pm.reload.report_status
+
+      fc = FactCheck.find(fc.id)
+      fc.title = random_string
+      fc.save!
+      assert_equal 'unpublished', pm.reload.report_status
+
+      fc = FactCheck.find(fc.id)
+      fc.title = random_string
+      fc.save!
+      assert_equal 'unpublished', pm.reload.report_status
+
+      fc = FactCheck.find(fc.id)
+      fc.publish_report = true
+      fc.save!
+      assert_equal 'published', pm.reload.report_status
+
+      fc = FactCheck.find(fc.id)
+      fc.title = random_string
+      fc.save!
+      assert_equal 'published', pm.reload.report_status
+
+      fc = FactCheck.find(fc.id)
+      fc.title = random_string
+      fc.publish_report = false
+      fc.save!
+      assert_equal 'paused', pm.reload.report_status
+
+      pm = create_project_media
+      cd = create_claim_description project_media: pm
+      fc = create_fact_check claim_description: cd, publish_report: true
+      assert_equal 'published', pm.reload.report_status
+
+      fc = FactCheck.find(fc.id)
+      fc.title = random_string
+      fc.save!
+      assert_equal 'published', pm.reload.report_status
+
+      fc = FactCheck.find(fc.id)
+      fc.title = random_string
+      fc.publish_report = false
+      fc.save!
+      assert_equal 'paused', pm.reload.report_status
+
+      fc = FactCheck.find(fc.id)
+      fc.title = random_string
+      fc.save!
+      assert_equal 'paused', pm.reload.report_status
+
+      fc = FactCheck.find(fc.id)
+      fc.title = random_string
+      fc.publish_report = true
+      fc.save!
+      assert_equal 'published', pm.reload.report_status
     end
   end
 end

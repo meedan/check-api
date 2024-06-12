@@ -56,7 +56,7 @@ Dynamic.class_eval do
   def report_design_introduction(data, language)
     if self.annotation_type == 'report_design'
       introduction = self.report_design_field_value('introduction').to_s
-      introduction = introduction.gsub('{{status}}', self.report_design_field_value('status_label').to_s)
+      introduction = introduction.gsub('{{status}}', self.annotated&.status_i18n(nil, { locale: language }))
       introduction = introduction.gsub('{{query_date}}', self.report_design_date(Time.at(data['received']).to_date, language)) if data['received']
       introduction
     end
@@ -84,13 +84,13 @@ Dynamic.class_eval do
     footer.join("\n")
   end
 
-  def report_design_text(language = nil)
+  def report_design_text(language = nil, hide_body = false)
     if self.annotation_type == 'report_design'
       team = self.annotated.team
       text = []
       title = self.report_design_field_value('title')
       text << "*#{title.strip}*" unless title.blank?
-      text << self.report_design_field_value('text').to_s
+      text << self.report_design_field_value('text').to_s unless hide_body
       url = self.report_design_field_value('published_article_url')
       text << url unless url.blank?
       text = text.collect do |part|
@@ -209,7 +209,7 @@ Dynamic.class_eval do
   def sent_count
     if self.annotation_type == 'report_design'
       pmids = self.annotated.related_items_ids
-      DynamicAnnotation::Field.joins(:annotation).where(field_name: 'smooch_report_received', 'annotations.annotated_type' => 'ProjectMedia', 'annotations.annotated_id' => pmids).count
+      TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: pmids).where.not(smooch_report_received_at: 0).count
     end
   end
 

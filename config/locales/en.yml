@@ -107,9 +107,10 @@ en:
       invalid_project_media_channel_value: Sorry, channel value not supported
       invalid_project_media_channel_update: Sorry, you could not update channel value
       invalid_project_media_archived_value: Sorry, archived value not supported
-      invalid_fact_check_language_value: Sorry, language value not supported
+      invalid_article_language_value: Sorry, language value not supported
       fact_check_empty_title_and_summary: Sorry, you should fill title or summary
       invalid_feed_saved_search_value: should belong to a workspace that is part of this feed
+      platform_allowed_values_error: 'cannot be of type %{type}, allowed types: %{allowed_types}'
   activerecord:
     models:
       link: Link
@@ -307,6 +308,7 @@ en:
   media_exists: This item already exists
   source_exists: This source already exists
   email_exists: has already been taken
+  error_password_not_strong: "Complexity requirement not met. Length should be 8-70 characters and include at least: 1 uppercase, 1 lowercase, 1 digit and 1 special character"
   banned_user: Sorry, your account has been banned from %{app_name}. Please contact
     the support team if you think this is an error.
   devise:
@@ -465,6 +467,15 @@ en:
       hello: Hello %{email}
       body: "%{name}, %{email} has invited your organization to contribute to a Check Shared Feed "
       view_button: View invitation
+    updated_terms:
+      subject: Check Updated Terms of Service
+      hello: Hello %{name}
+      title: Updated Terms of Service
+      body: We have made updates to our Terms of Services for Check users.
+        We are sending this notification to everyone with a Check account. Continued use of Check following the update
+        constitutes acceptance of our updated Terms of Service.
+      term_button: Terms of Service
+      more_info: This is a one-time required legal notice sent to all Check users, even those who have unsubscribed by optional announcements.
   mail_security:
     device_subject: 'Security alert: New login to %{app_name} from %{browser} on %{platform}'
     ip_subject: 'Security alert: New or unusual %{app_name} login'
@@ -644,6 +655,7 @@ en:
     Please reload your tipline settings page to see the new changes.
   must_select_exactly_one_facebook_page: Please select exactly the one Facebook page
     you want to integrate with the tipline.
+  invalid_facebook_authdata: It was not possible to authenticate your Facebook account, please reach out to our support team.
   invalid_task_answer: Invalid task answer format
   team_rule_name: A unique name that identifies what this rule does
   team_rule_project_ids: Apply to folder
@@ -810,6 +822,10 @@ en:
   send_every_must_be_a_list_of_days_of_the_week: must be a list of days of the week.
   send_on_must_be_in_the_future: can't be in the past.
   cant_delete_default_folder: The default folder can't be deleted
+  shared_feed_imported_media_already_exist: |-
+    No media eligible to be imported into your workspace.
+    The media selected to import already exist in your workspace in the following items:
+    %{urls}
   info:
     messages:
       sent_to_trash_by_rule: '"%{item_title}" has been sent to trash by an automation

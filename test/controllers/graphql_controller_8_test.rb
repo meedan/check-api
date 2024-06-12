@@ -61,7 +61,7 @@ class GraphqlController8Test < ActionController::TestCase
     tu2 = create_team_user user: u2, team: t2
     authenticate_with_user(u)
 
-    query = 'query { me { team_user(team_slug: "' + t.slug + '") { dbid } } }'
+    query = 'query { me { team_users(first: 1) { edges { node { id } } }, team_user(team_slug: "' + t.slug + '") { dbid, invited_by { dbid } } } }'
     post :create, params: { query: query }
     assert_response :success
     assert_equal tu.id, JSON.parse(@response.body)['data']['me']['team_user']['dbid']
@@ -321,7 +321,8 @@ class GraphqlController8Test < ActionController::TestCase
     d = create_dynamic_annotation annotated: p, annotation_type: 'smooch_user'
     u2 = create_user
     authenticate_with_user(u2)
-    query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "' + d.id.to_s + '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + random_url+ '\"}" }) { annotation { dbid } } }'
+    query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "' + d.id.to_s +
+  '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + random_url+ '\"}" }) { annotation { dbid } } }'
     post :create, params: { query: query }
     assert_response 400
   end
@@ -536,6 +537,7 @@ class GraphqlController8Test < ActionController::TestCase
           }
           public_team {
             id
+            medias_count
             trash_count
             unconfirmed_count
             spam_count
@@ -689,7 +691,7 @@ class GraphqlController8Test < ActionController::TestCase
   test "should get current user" do
     u = create_user name: 'Test User'
     authenticate_with_user(u)
-    post :create, params: { query: 'query Query { me { source_id, token, is_admin, current_project { id }, name, bot { id } } }' }
+    post :create, params: { query: 'query Query { me { get_send_email_notifications, get_send_successful_login_notifications, get_send_failed_login_notifications, annotations(first: 1) { edges { node { id } } }, source { dbid }, source_id, token, is_admin, current_project { id }, name, bot { id } } }' }
     assert_response :success
     data = JSON.parse(@response.body)['data']['me']
     assert_equal 'Test User', data['name']
@@ -874,8 +876,8 @@ class GraphqlController8Test < ActionController::TestCase
   test "should get team settings fields" do
     u = create_user is_admin: true
     authenticate_with_user(u)
-    t = create_team
-    fields = %w(get_slack_notifications_enabled get_slack_webhook get_embed_whitelist get_report_design_image_template get_status_target_turnaround get_rules get_languages get_language get_report get_data_report_url get_outgoing_urls_utm_code get_shorten_outgoing_urls)
+    t = create_team set_report: { en: { use_introduction: true, introduction: 'Test' } }
+    fields = %w(get_slack_notifications_enabled get_slack_webhook get_embed_whitelist get_report_design_image_template get_status_target_turnaround get_rules get_languages get_language get_report get_data_report_url get_outgoing_urls_utm_code get_shorten_outgoing_urls get_report)
     post :create, params: { query: "query Team { team { join_requests(first: 10) { edges { node { id } } }, #{fields.join(', ')} } }", team: t.slug }
     assert_response :success
   end

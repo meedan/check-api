@@ -27,12 +27,14 @@ class User < ApplicationRecord
   has_many :fact_checks
   has_many :feeds
   has_many :feed_invitations
+  has_many :tipline_requests
+  has_many :api_keys
 
   devise :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,
          :omniauthable, omniauth_providers: [:twitter, :facebook, :slack, :google_oauth2]
 
-  before_create :skip_confirmation_for_non_email_provider
+  before_create :skip_confirmation_for_non_email_provider, :set_last_received_terms_email_at
   after_create :create_source_and_account, :set_source_image, :send_welcome_email
   before_save :set_token, :set_login
   after_update :set_blank_email_for_unconfirmed_user
@@ -41,8 +43,7 @@ class User < ApplicationRecord
 
   mount_uploader :image, ImageUploader
   validates :image, size: true
-  validate :user_is_member_in_current_team
-  validate :validate_duplicate_email
+  validate :user_is_member_in_current_team, :validate_duplicate_email, :password_complexity
   validate :languages_format, unless: proc { |u| u.settings.nil? }
   validates :api_key_id, absence: true, if: proc { |u| u.type.nil? }
   validates_presence_of :name
@@ -92,6 +93,10 @@ class User < ApplicationRecord
 
   def self.from_token(token)
     JSON.parse(Base64.decode64(token.gsub('++n', "\n")))
+  end
+
+  def me
+    User.current&.id == self.id ? self : nil
   end
 
   def set_source_image

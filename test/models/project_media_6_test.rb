@@ -142,40 +142,6 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     assert_equal p.id, result['project_id']
   end
 
-  test "should get cluster size" do
-    pm = create_project_media
-    assert_nil pm.reload.cluster
-    c = create_cluster
-    c.project_medias << pm
-    assert_equal 1, pm.reload.cluster.size
-    c.project_medias << create_project_media
-    assert_equal 2, pm.reload.cluster.size
-  end
-
-  test "should get cluster teams" do
-    RequestStore.store[:skip_cached_field_update] = false
-    setup_elasticsearch
-    t1 = create_team
-    t2 = create_team
-    pm1 = create_project_media team: t1
-    assert_nil pm1.cluster
-    c = create_cluster project_media: pm1
-    c.project_medias << pm1
-    assert_equal [t1.name], pm1.cluster.team_names.values
-    assert_equal [t1.id], pm1.cluster.team_names.keys
-    sleep 2
-    id = get_es_id(pm1)
-    es = $repository.find(id)
-    assert_equal [t1.id], es['cluster_teams']
-    pm2 = create_project_media team: t2
-    c.project_medias << pm2
-    sleep 2
-    assert_equal [t1.name, t2.name].sort, pm1.cluster.team_names.values.sort
-    assert_equal [t1.id, t2.id].sort, pm1.cluster.team_names.keys.sort
-    es = $repository.find(id)
-    assert_equal [t1.id, t2.id], es['cluster_teams']
-  end
-
   test "should complete media if there are pending tasks" do
     pm = create_project_media
     s = pm.last_verification_status_obj
@@ -343,16 +309,15 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     RequestStore.store[:skip_cached_field_update] = false
     team = create_team
     p = create_project team: team
-    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     pm = create_project_media team: team, project_id: p.id, disable_es_callbacks: false
     ms_pm = get_es_id(pm)
     assert_queries(0, '=') { assert_equal(0, pm.demand) }
-    create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+    create_tipline_request team: team.id, associated: pm
     assert_queries(0, '=') { assert_equal(1, pm.demand) }
     pm2 = create_project_media team: team, project_id: p.id, disable_es_callbacks: false
     ms_pm2 = get_es_id(pm2)
     assert_queries(0, '=') { assert_equal(0, pm2.demand) }
-    2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2) }
+    2.times { create_tipline_request(team_id: team.id, associated: pm2) }
     assert_queries(0, '=') { assert_equal(2, pm2.demand) }
     # test sorting
     result = $repository.find(ms_pm)
@@ -371,13 +336,13 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     pm3 = create_project_media team: team, project_id: p.id
     ms_pm3 = get_es_id(pm3)
     assert_queries(0, '=') { assert_equal(0, pm3.demand) }
-    2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm3) }
+    2.times { create_tipline_request(team_id: team.id, associated: pm3) }
     assert_queries(0, '=') { assert_equal(2, pm3.demand) }
     create_relationship source_id: pm.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
     assert_queries(0, '=') { assert_equal(5, pm.demand) }
     assert_queries(0, '=') { assert_equal(5, pm2.demand) }
     assert_queries(0, '=') { assert_equal(5, pm3.demand) }
-    create_dynamic_annotation annotation_type: 'smooch', annotated: pm3
+    create_tipline_request team_id: team.id, associated: pm3
     assert_queries(0, '=') { assert_equal(6, pm.demand) }
     assert_queries(0, '=') { assert_equal(6, pm2.demand) }
     assert_queries(0, '=') { assert_equal(6, pm3.demand) }
@@ -487,6 +452,7 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     assert_equal 'The Claim', pm.title
 
     pm.title_field = 'custom_title'
+    pm.custom_title = 'Custom Title'
     pm.save!
     assert_equal 'Custom Title', pm.get_title # Uncached
     assert_equal 'Custom Title', pm.title # Cached

@@ -6,7 +6,7 @@ class FeedTeamType < DefaultObject
   field :dbid, GraphQL::Types::Int, null: true
   field :filters, JsonStringType, null: true
   field :saved_search_id, GraphQL::Types::Int, null: true
-  field :team, TeamType, null: true
+  field :team, PublicTeamType, null: true
   field :feed, FeedType, null: true
   field :team_id, GraphQL::Types::Int, null: true
   field :feed_id, GraphQL::Types::Int, null: true
@@ -18,4 +18,5 @@ class FeedTeamType < DefaultObject
   end
 
   field :saved_search, SavedSearchType, null: true
+  field :saved_search_was, SavedSearchType, null: true
 end

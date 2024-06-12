@@ -61,12 +61,14 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         authorId: id2,
         type: 'audio',
         text: random_string,
+        source: { type: "whatsapp" },
         mediaUrl: @audio_url
       },
       {
         '_id': random_string,
         authorId: id,
         type: 'text',
+        source: { type: "whatsapp" },
         text: 'This is a test claim'
       },
       {
@@ -74,18 +76,21 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         authorId: id,
         type: 'image',
         text: random_string,
+        source: { type: "whatsapp" },
         mediaUrl: @media_url
       },
       {
         '_id': random_string,
         authorId: id,
         type: 'text',
+        source: { type: "whatsapp" },
         text: "#{random_string} #{@link_url} #{random_string}"
       },
       {
         '_id': random_string,
         authorId: id,
         type: 'text',
+        source: { type: "whatsapp" },
         text: 'This is a test claim'
       },
       {
@@ -93,18 +98,21 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         authorId: id,
         type: 'image',
         text: random_string,
+        source: { type: "whatsapp" },
         mediaUrl: @media_url
       },
       {
         '_id': random_string,
         authorId: id,
         type: 'text',
+        source: { type: "whatsapp" },
         text: "#{random_string} #{@link_url} #{random_string}"
       },
       {
         '_id': random_string,
         authorId: id2,
         type: 'text',
+        source: { type: "whatsapp" },
         text: 'This is a test claim'
       },
       {
@@ -112,6 +120,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         authorId: id2,
         type: 'image',
         text: random_string,
+        source: { type: "whatsapp" },
         mediaUrl: @media_url
       },
       {
@@ -120,6 +129,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         type: 'file',
         text: random_string,
         mediaUrl: @media_url,
+        source: { type: "whatsapp" },
         mediaType: 'image/jpeg'
       },
       {
@@ -128,18 +138,21 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         type: 'file',
         text: random_string,
         mediaUrl: @media_url,
+        source: { type: "whatsapp" },
         mediaType: 'application/pdf'
       },
       {
         '_id': random_string,
         authorId: id2,
         type: 'text',
+        source: { type: "whatsapp" },
         text: "#{random_string} #{@link_url} #{random_string}"
       },
       {
         '_id': random_string,
         authorId: id2,
         type: 'text',
+        source: { type: "whatsapp" },
         text: 'This is a test claim'
       },
       {
@@ -147,6 +160,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         authorId: id2,
         type: 'image',
         text: random_string,
+        source: { type: "whatsapp" },
         mediaUrl: @media_url
       },
       {
@@ -154,36 +168,42 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         authorId: id2,
         type: 'video',
         text: random_string,
+        source: { type: "whatsapp" },
         mediaUrl: @video_url
       },
       {
         '_id': random_string,
         authorId: id2,
         type: 'text',
+        source: { type: "whatsapp" },
         text: "#{random_string} #{@link_url} #{random_string}"
       },
       {
         '_id': random_string,
         authorId: id2,
         type: 'text',
+        source: { type: "whatsapp" },
         text: "#{random_string} #{@link_url_2} #montag #{random_string}"
       },
       {
         '_id': random_string,
         authorId: id3,
         type: 'text',
+        source: { type: "whatsapp" },
         text: "#{random_string} #{@link_url_2.gsub(/^https?:\/\//, '')} #teamtag #{random_string}"
       },
       {
         '_id': random_string,
         authorId: id2,
         type: 'text',
+        source: { type: "whatsapp" },
         text: 'This #teamtag is another #hashtag claim'
       },
       {
         '_id': random_string,
         authorId: id3,
         type: 'text',
+        source: { type: "whatsapp" },
         text: 'This #teamtag is another #hashtag CLAIM'
       },
       {
@@ -192,6 +212,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         type: 'file',
         text: random_string,
         mediaUrl: @video_url,
+        source: { type: "whatsapp" },
         mediaType: 'video/mp4'
       },
       {
@@ -200,6 +221,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         type: 'file',
         text: random_string,
         mediaUrl: @audio_url,
+        source: { type: "whatsapp" },
         mediaType: 'audio/mpeg'
       }
     ]
@@ -208,7 +230,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     tt_montag = create_tag_text text: 'montag', team_id: @team.id
 
     assert_difference 'ProjectMedia.count', 7 do
-      assert_difference 'Annotation.where(annotation_type: "smooch").count', 22 do
+      assert_difference 'TiplineRequest.count', 22 do
         assert_no_difference 'Comment.length' do
           messages.each do |message|
             uid = message[:authorId]
@@ -282,7 +304,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
-        text: random_string
+        text: random_string,
+        source: { type: "whatsapp" },
       }
     ]
     payload = {
@@ -406,7 +429,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
-        text: text
+        text: text,
+        source: { type: "whatsapp" },
       }
     ]
     payload = {
@@ -490,7 +514,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
-        text: random_string
+        text: random_string,
+        source: { type: "whatsapp" },
       }
     ]
     payload = {
@@ -535,7 +560,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
-        text: random_string
+        text: random_string,
+        source: { type: "whatsapp" },
       }
     ]
     payload = {
@@ -554,11 +580,9 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert Bot::Smooch.run(payload)
 
     pm = ProjectMedia.last
-    sm = pm.get_annotations('smooch').last
-    df = DynamicAnnotation::Field.where(annotation_id: sm.id, field_name: 'smooch_data').last
-    assert_not_nil df
-    assert_equal 0, df.reload.smooch_report_received_at
-    assert_nil df.reload.smooch_report_update_received_at
+    tr = pm.tipline_requests.last
+    assert_equal 0, tr.reload.smooch_report_received_at
+    assert_equal 0, tr.reload.smooch_report_update_received_at
     r = publish_report(pm)
     assert_equal 0, r.reload.sent_count
     msg_id = random_string
@@ -566,7 +590,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       fallback_template: 'fact_check_report',
       project_media_id: pm.id
     }.to_json)
-    assert_nil DynamicAnnotation::Field.where(field_name: 'smooch_report_received').last
+    assert_equal 0, tr.reload.smooch_report_received_at
     
     payload = {
       trigger: 'message:delivery:channel',
@@ -585,26 +609,18 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     }
 
     assert Bot::Smooch.run(payload.to_json)
-    f1 = DynamicAnnotation::Field.where(field_name: 'smooch_report_received').last
-    assert_not_nil f1
-    t1 = f1.value
-    assert_equal t1, df.reload.smooch_report_received_at
-    assert_nil df.reload.smooch_report_update_received_at
+    assert tr.reload.smooch_report_received_at > 0
+    assert_equal 0, tr.reload.smooch_report_update_received_at
     assert_equal 1, r.reload.sent_count
-
     sleep 1
 
     # Process TiplineMessage creation in background to avoid duplication exception
     Sidekiq::Testing.fake! do
       assert Bot::Smooch.run(payload.to_json)
-      f2 = DynamicAnnotation::Field.where(field_name: 'smooch_report_received').last
-      assert_equal f1, f2
-      t2 = f2.value
-      assert_equal t2, df.reload.smooch_report_received_at
-      assert_equal t2, df.reload.smooch_report_update_received_at
+      tr2 = pm.tipline_requests.last
+      assert_equal tr, tr2
+      assert tr2.smooch_report_update_received_at > 0
       assert_equal 1, r.reload.sent_count
-
-      assert t2 > t1
     end
   end
 
@@ -720,7 +736,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
-        text: random_string
+        text: random_string,
+        source: { type: "whatsapp" },
       }
     ]
     payload = {
@@ -751,7 +768,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
-        text: random_string
+        text: random_string,
+        source: { type: "whatsapp" },
       }
     ]
     payload = {
@@ -768,8 +786,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     }.to_json
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
-    sm = pm.get_annotations('smooch').last.load
-    f = sm.get_field('smooch_data')
-    assert_equal 'en', f.smooch_user_request_language
+    tr = pm.tipline_requests.last
+    assert_equal 'en', tr.smooch_user_request_language
   end
 end

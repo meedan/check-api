@@ -603,4 +603,16 @@ class MediaTest < ActiveSupport::TestCase
       create_media url: url
     end
   end
+
+  test "should have uuid" do
+    m = create_media
+    assert_equal m.id, m.uuid
+    c1 = create_claim_media quote: 'Foo'
+    assert_equal c1.id, c1.uuid
+    create_project_media media: c1
+    assert_equal c1.id, c1.uuid
+    c2 = create_claim_media quote: 'Foo'
+    create_project_media media: c2
+    assert_equal c1.id, c2.uuid
+  end
 end

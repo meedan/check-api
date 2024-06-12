@@ -36,8 +36,6 @@ class ProjectMediaType < DefaultObject
   field :creator_name, GraphQL::Types::String, null: true
   field :team_name, GraphQL::Types::String, null: true
   field :channel, JsonStringType, null: true
-  field :cluster_id, GraphQL::Types::Int, null: true
-  field :cluster, ClusterType, null: true
   field :is_suggested, GraphQL::Types::Boolean, null: true
   field :is_confirmed, GraphQL::Types::Boolean, null: true
   field :positive_tipline_search_results_count, GraphQL::Types::Int, null: true
@@ -45,6 +43,15 @@ class ProjectMediaType < DefaultObject
   field :custom_title, GraphQL::Types::String, null: true
   field :title_field, GraphQL::Types::String, null: true
   field :suggestions_count, GraphQL::Types::Int, null: true
+  field :imported_from_feed_id, GraphQL::Types::Int, null: true
+  field :imported_from_project_media_id, GraphQL::Types::Int, null: true
+  field :imported_from_feed, FeedType, null: true
+
+  def imported_from_feed
+    ability = context[:ability] || Ability.new
+    feed = Feed.find_by_id(object.imported_from_feed_id)
+    (feed && ability.can?(:read, feed)) ? feed : nil
+  end
 
   field :claim_description, ClaimDescriptionType, null: true
 
@@ -131,6 +138,18 @@ class ProjectMediaType < DefaultObject
   field :team, TeamType, null: true
 
   def team
+    RecordLoader
+      .for(Team)
+      .load(object.team_id)
+      .then do |team|
+        ability = context[:ability] || Ability.new
+        team if ability.can?(:read, team)
+      end
+  end
+
+  field :public_team, PublicTeamType, null: true
+
+  def public_team
     RecordLoader.for(Team).load(object.team_id)
   end
 
@@ -194,12 +213,12 @@ class ProjectMediaType < DefaultObject
     object.get_annotations("comment").map(&:load)
   end
 
-  field :requests,
-        TiplineRequestType.connection_type,
-        null: true
+  field :requests, TiplineRequestType.connection_type, null: true do
+    argument :include_children, GraphQL::Types::Boolean, required: false
+  end
 
-  def requests
-    object.get_requests
+  def requests(include_children: false)
+    object.get_requests(include_children)
   end
 
   field :last_status, GraphQL::Types::String, null: true

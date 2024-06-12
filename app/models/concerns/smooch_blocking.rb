@@ -22,6 +22,7 @@ module SmoochBlocking
         block.save!
         Rails.logger.info("[Smooch Bot] Blocked user #{uid}")
         Rails.cache.write("smooch:banned:#{uid}", Time.now.to_i)
+        self.delay.apply_content_warning_to_user_content(uid)
       rescue ActiveRecord::RecordNotUnique
         # User already blocked
         Rails.logger.info("[Smooch Bot] User #{uid} already blocked")
@@ -29,9 +30,10 @@ module SmoochBlocking
     end
 
     def unblock_user(uid)
-      BlockedTiplineUser.where(uid: uid).last.destroy!
-      Rails.logger.info("[Smooch Bot] Unblocked user #{uid}")
       Rails.cache.delete("smooch:banned:#{uid}")
+      blocked_user = BlockedTiplineUser.where(uid: uid).last
+      blocked_user.destroy! unless blocked_user.nil?
+      Rails.logger.info("[Smooch Bot] Unblocked user #{uid}")
     end
 
     def user_blocked?(uid)
@@ -41,6 +43,26 @@ module SmoochBlocking
     def user_banned?(payload)
       uid = payload.dig('appUser', '_id')
       self.user_blocked?(uid)
+    end
+
+    def apply_content_warning_to_user_content(uid)
+      RequestStore.store[:skip_rules] = true
+      ProjectMedia.joins(:tipline_requests)
+          .where(tipline_requests: { tipline_user_uid: uid }).find_each do |pm|
+            begin
+              flags = { 'spam': 1, 'adult': 0, 'spoof': 0, 'medical': 0, 'violence': 0, 'racy': 0 }
+              # Add a flag
+              flag = Dynamic.new
+              flag.annotation_type = 'flag'
+              flag.annotated = pm
+              flag.skip_check_ability = true
+              flag.set_fields = { show_cover: true, flags: flags }.to_json
+              flag.save!
+            rescue  StandardError => e
+              Rails.logger.info "[Smooch Bot] Exception when flagging blocked user's media: #{e.message}"
+            end
+          end
+      RequestStore.store[:skip_rules] = false
     end
   end
 end

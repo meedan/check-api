@@ -60,11 +60,13 @@ class Ability
     can :duplicate, Team, :id => @context_team.id
     can :set_privacy, Project, :team_id => @context_team.id
     can :read_feed_invitations, Feed, :team_id => @context_team.id
-    can [:create, :update, :read, :destroy], [Feed, FeedTeam], :team_id => @context_team.id
+    can :destroy, Feed, :team_id => @context_team.id
+    can [:create, :update], FeedTeam, :team_id => @context_team.id
     can [:create, :update], FeedInvitation, { feed: { team_id: @context_team.id } }
     can :destroy, FeedTeam do |obj|
-      obj.team.id == @context_team.id || obj.feed.team.id == @context_team.id
+      obj.team_id == @context_team.id || obj.feed.team_id == @context_team.id
     end
+    can [:create, :update, :read, :destroy], ApiKey, :team_id => @context_team.id
   end
 
   def editor_perms
@@ -89,7 +91,7 @@ class Ability
     can [:cud], DynamicAnnotation::Field do |obj|
       obj.annotation.team&.id == @context_team.id
     end
-    can [:create, :update, :read, :destroy], [Account, Source, TiplineNewsletter, TiplineResource], :team_id => @context_team.id
+    can [:create, :update, :read, :destroy], [Account, Source, TiplineNewsletter, TiplineResource, TiplineRequest], :team_id => @context_team.id
     can [:cud], AccountSource, source: { team: { team_users: { team_id: @context_team.id }}}
     %w(annotation comment dynamic task tag).each do |annotation_type|
       can [:cud], annotation_type.classify.constantize do |obj|
@@ -107,9 +109,12 @@ class Ability
     can :send, TiplineMessage do |obj|
       obj.team_id == @context_team.id
     end
-    can [:read], [Feed, FeedTeam], :team_id => @context_team.id
+    can [:read], FeedTeam, :team_id => @context_team.id
     can [:read], FeedInvitation, { feed: { team_id: @context_team.id } }
-    can [:create, :update], Feed, :team_id => @context_team.id
+    can [:read, :create, :update, :import_media], Feed, :team_id => @context_team.id
+    can :import_media, Feed do |obj|
+      obj.team_ids.include?(@context_team.id)
+    end
   end
 
   def collaborator_perms
@@ -134,6 +139,10 @@ class Ability
       can [:cud], annotation_type.classify.constantize do |obj|
         obj.team&.id == @context_team.id && !obj.annotated_is_trashed?
       end
+    end
+    can [:cud], TiplineRequest do |obj|
+      is_trashed = obj.associated.respond_to?(:archived) && obj.associated.archived == CheckArchivedFlags::FlagCodes::TRASHED
+      obj.team_id == @context_team.id && !is_trashed
     end
     can [:create, :destroy], Assignment do |obj|
       type = obj.assigned_type
@@ -162,6 +171,7 @@ class Ability
       !v_obj.nil? and v_obj.team_id == @context_team.id and v_obj.media.user_id = @user.id
     end
     can [:create, :update, :read, :destroy], FactCheck, { claim_description: { project_media: { team_id: @context_team.id } } }
+    can [:create, :update, :read, :destroy], Explainer, team_id: @context_team.id
     can [:create, :update, :read], ClaimDescription, { project_media: { team_id: @context_team.id } }
   end
 

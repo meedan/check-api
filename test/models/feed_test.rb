@@ -187,4 +187,35 @@ class FeedTest < ActiveSupport::TestCase
       f.destroy!
     end
   end
+
+  test "should create feed without data points" do
+    f = create_feed
+    assert_equal [], f.data_points
+  end
+
+  test "should create feed with valid data points" do
+    f = create_feed data_points: [1, 2]
+    assert_equal [1, 2], f.data_points
+  end
+
+  test "should not create feed with invalid data points" do
+    assert_raises ActiveRecord::RecordInvalid do
+      create_feed data_points: [0, 1]
+    end
+  end
+
+  test "should not apply filters when medias are shared" do
+    f = create_feed data_points: [2], published: true
+    assert_equal({}, f.get_feed_filters(:media))
+  end
+
+  test "should return previous list" do
+    t = create_team
+    ss1 = create_saved_search team: t
+    ss2 = create_saved_search team: t
+    f = create_feed team: t, saved_search: ss1
+    f.saved_search = ss2
+    f.save!
+    assert_equal ss1, f.saved_search_was
+  end
 end

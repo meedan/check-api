@@ -39,7 +39,8 @@ class CheckSearch
     @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['GraphQL::Types::String', 'GraphQL::Types::Int', 'String', 'Integer'].include?(@options['id'].class.name)
 
     # Apply feed filters
-    @options.merge!(@feed.get_feed_filters) if feed_query?
+    @feed_view = @options['feed_view'] || :fact_check
+    @options.merge!(@feed.get_feed_filters(@feed_view)) if feed_query?
 
     (Project.current ||= Project.where(id: @options['projects'].last).last) if @options['projects'].to_a.size == 1
     @file = file
@@ -222,10 +223,6 @@ class CheckSearch
     !!@feed
   end
 
-  def clusterized_feed_query?
-    feed_query? && @options['clusterize'] && !@feed.published
-  end
-
   def get_pg_results_for_media
     custom_conditions = {}
     core_conditions = {}
@@ -262,7 +259,7 @@ class CheckSearch
       file_path = "check_search/#{hash}"
     end
     threshold = Bot::Alegre.get_threshold_for_query(@options['file_type'], ProjectMedia.new(team_id: Team.current.id))[0][:value]
-    results = Bot::Alegre.get_items_with_similar_media(CheckS3.public_url(file_path), [{ value: threshold }], @options['team_id'].first, "/#{@options['file_type']}/similarity/search/")
+    results = Bot::Alegre.get_items_with_similar_media_v2(media_url: CheckS3.public_url(file_path), threshold: [{ value: threshold }], team_ids: @options['team_id'].first, type: @options['file_type'])
     results.blank? ? [0] : results.keys
   end
 
@@ -290,14 +287,12 @@ class CheckSearch
     custom_conditions << { terms: { read: @options['read'].map(&:to_i) } } if @options.has_key?('read')
     custom_conditions << { terms: { cluster_teams: @options['cluster_teams'] } } if @options.has_key?('cluster_teams')
     core_conditions << { term: { sources_count: 0 } } unless include_related_items
-    core_conditions << { range: { cluster_size: { gt: 0 } } } if clusterized_feed_query?
     custom_conditions << { terms: { unmatched: @options['unmatched'] } } if @options.has_key?('unmatched')
     custom_conditions.concat keyword_conditions
     custom_conditions.concat tags_conditions
     custom_conditions.concat report_status_conditions
     custom_conditions.concat published_by_conditions
     custom_conditions.concat annotated_by_conditions
-    custom_conditions.concat cluster_published_reports_conditions
     custom_conditions.concat integer_terms_query('assigned_user_ids', 'assigned_to')
     custom_conditions.concat integer_terms_query('channel', 'channels')
     custom_conditions.concat integer_terms_query('source_id', 'sources')
@@ -307,7 +302,7 @@ class CheckSearch
     custom_conditions.concat range_filter(:es)
     custom_conditions.concat numeric_range_filter
     custom_conditions.concat language_conditions
-    custom_conditions.concat fact_check_language_conditions
+    custom_conditions.concat fact_check_language_conditions unless feed_query?
     custom_conditions.concat request_language_conditions
     custom_conditions.concat report_language_conditions
     custom_conditions.concat team_tasks_conditions
@@ -366,7 +361,7 @@ class CheckSearch
 
   def adjust_numeric_range_filter
     @options['range_numeric'] = {}
-    [:linked_items_count, :suggestions_count, :demand].each do |field|
+    [:linked_items_count, :suggestions_count, :demand, :positive_tipline_search_results_count, :negative_tipline_search_results_count].each do |field|
       if @options.has_key?(field) && !@options[field].blank?
         @options['range_numeric'][field] = @options[field]
       end
@@ -601,17 +596,6 @@ class CheckSearch
 
   def report_status_conditions
     return [] if @options['report_status'].blank? || !@options['report_status'].is_a?(Array)
-    if clusterized_feed_query?
-      conditions = []
-      if (['published', 'unpublished'] - @options['report_status']).empty?
-        conditions << { range: { cluster_published_reports_count: { gte: 0 } } }
-      elsif @options['report_status'].include?('published')
-        conditions << { range: { cluster_published_reports_count: { gt: 0 } } }
-      elsif @options['report_status'].include?('unpublished')
-        conditions << { term: { cluster_published_reports_count: 0 } }
-      end
-      return conditions
-    end
     statuses = []
     @options['report_status'].each do |status_name|
       status_id = ['unpublished', 'paused', 'published'].index(status_name) || -1 # Invalidate the query if an invalid status is passed
@@ -634,11 +618,6 @@ class CheckSearch
     else
       [{ terms: { annotated_by: [@options['annotated_by']].flatten } }]
     end
-  end
-
-  def cluster_published_reports_conditions
-    return [] if @options['cluster_published_reports'].blank?
-    [{ terms: { cluster_published_reports: [@options['cluster_published_reports']].flatten } }]
   end
 
   def doc_conditions
@@ -747,7 +726,7 @@ class CheckSearch
     conditions = []
     @feed.get_team_filters(@options['feed_team_ids']).each do |filters|
       team_id = filters['team_id'].to_i
-      conditions << CheckSearch.new(filters.to_json, nil, team_id).medias_query
+      conditions << CheckSearch.new(filters.merge({ show_similar: !!@options['show_similar'] }).to_json, nil, team_id).medias_query
     end
     { bool: { should: conditions } }
   end

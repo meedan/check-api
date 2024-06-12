@@ -5,24 +5,25 @@ module SmoochSearch
 
   module ClassMethods
     # This method runs in background
-    def search(app_id, uid, language, message, team_id, workflow)
+    def search(app_id, uid, language, message, team_id, workflow, provider = nil)
       platform = self.get_platform_from_message(message)
       begin
         sm = CheckStateMachine.new(uid)
         self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
+        RequestStore.store[:smooch_bot_provider] = provider unless provider.blank?
         results = self.get_search_results(uid, message, team_id, language).select do |pm|
           pm = Relationship.confirmed_parent(pm)
           report = pm.get_dynamic_annotation('report_design')
           !report.nil? && !!report.should_send_report_in_this_language?(language)
-        end.uniq
+        end.collect{ |pm| Relationship.confirmed_parent(pm) }.uniq
         if results.empty?
           self.bundle_messages(uid, '', app_id, 'default_requests', nil, true)
           self.send_final_message_to_user(uid, self.get_custom_string('search_no_results', language), workflow, language, 'no_results')
         else
-          self.send_search_results_to_user(uid, results, team_id)
+          self.send_search_results_to_user(uid, results, team_id, platform)
           sm.go_to_search_result
           self.save_search_results_for_user(uid, results.map(&:id))
-          self.delay_for(1.second, { queue: 'smooch_priority' }).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, 1)
+          self.delay_for(1.second, { queue: 'smooch_priority' }).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, provider, 1)
         end
       rescue StandardError => e
         self.handle_search_error(uid, e, language)
@@ -82,8 +83,14 @@ module SmoochSearch
       pm.report_status == 'published' && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(pm.archived)
     end
 
+    def reject_temporary_results(results)
+      results.select do |_, result_data|
+        ![result_data[:context]].flatten.compact.select{|x| x[:temporary_media].nil? || x[:temporary_media] == false}.empty?
+      end
+    end
+
     def parse_search_results_from_alegre(results, after = nil, feed_id = nil, team_ids = nil)
-      pms = results.sort_by{ |a| [a[1][:model] != Bot::Alegre::ELASTICSEARCH_MODEL ? 1 : 0, a[1][:score]] }.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }
+      pms = reject_temporary_results(results).sort_by{ |a| [a[1][:model] != Bot::Alegre::ELASTICSEARCH_MODEL ? 1 : 0, a[1][:score]] }.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }
       filter_search_results(pms, after, feed_id, team_ids).uniq(&:id).first(3)
     end
 
@@ -112,7 +119,7 @@ module SmoochSearch
         type = message['type']
         after = self.date_filter(team_id)
         query = message['text']
-        query = message['mediaUrl'] unless type == 'text'
+        query = CheckS3.rewrite_url(message['mediaUrl']) unless type == 'text'
         results = self.search_for_similar_published_fact_checks(type, query, [team_id], after, nil, language).select{ |pm| is_a_valid_search_result(pm) }
       rescue StandardError => e
         self.handle_search_error(uid, e, language)
@@ -150,6 +157,7 @@ module SmoochSearch
           text = [link.pender_data['description'].to_s, text.to_s.gsub(/https?:\/\/[^\s]+/, '').strip].max_by(&:length)
         end
         return [] if text.blank?
+        text = self.remove_meaningless_phrases(text)
         words = text.split(/\s+/)
         Rails.logger.info "[Smooch Bot] Search query (text): #{text}"
         if Bot::Alegre.get_number_of_words(text) <= self.max_number_of_words_for_keyword_search
@@ -161,14 +169,23 @@ module SmoochSearch
         end
       else
         media_url = Twitter::TwitterText::Extractor.extract_urls(query)[0]
+        Rails.logger.info "[Smooch Bot] Got media_url #{media_url} from query #{query}"
         return [] if media_url.blank?
         media_url = self.save_locally_and_return_url(media_url, type, feed_id)
         threshold = Bot::Alegre.get_threshold_for_query(type, pm)[0][:value]
-        alegre_results = Bot::Alegre.get_items_with_similar_media(media_url, [{ value: threshold }], team_ids, "/#{type}/similarity/search/")
+        alegre_results = Bot::Alegre.get_items_with_similar_media_v2(media_url: media_url, threshold: [{ value: threshold }], team_ids: team_ids, type: type)
         results = self.parse_search_results_from_alegre(alegre_results, after, feed_id, team_ids)
         Rails.logger.info "[Smooch Bot] Media similarity search got #{results.count} results while looking for '#{query}' after date #{after.inspect} for teams #{team_ids}"
       end
       results
+    end
+
+    def remove_meaningless_phrases(text)
+      redis = Redis.new(REDIS_CONFIG)
+      meaningless_phrases = JSON.parse(redis.get("smooch_search_meaningless_phrases") || "[]")
+      meaningless_phrases.each{|phrase| text.sub!(/^#{phrase}\W/i,'')}
+      text.strip!()
+      text
     end
 
     def save_locally_and_return_url(media_url, type, feed_id)
@@ -215,7 +232,7 @@ module SmoochSearch
       results
     end
 
-    def send_search_results_to_user(uid, results, team_id)
+    def send_search_results_to_user(uid, results, team_id, platform)
       team = Team.find(team_id)
       redis = Redis.new(REDIS_CONFIG)
       language = self.get_user_language(uid)
@@ -228,7 +245,8 @@ module SmoochSearch
       end
       reports.reject{ |r| r.blank? }.each do |report|
         response = nil
-        response = self.send_message_to_user(uid, report.report_design_text, {}, false, true, 'search_result') if report.report_design_field_value('use_text_message')
+        no_body = (platform == 'Facebook Messenger')
+        response = self.send_message_to_user(uid, report.report_design_text(nil, no_body), {}, false, true, 'search_result') if report.report_design_field_value('use_text_message')
         response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url }, false, true, 'search_result') if !report.report_design_field_value('use_text_message') && report.report_design_field_value('use_visual_card')
         id = self.get_id_from_send_response(response)
         redis.rpush("smooch:search:#{uid}", id) unless id.blank?
@@ -242,16 +260,17 @@ module SmoochSearch
       redis.lrem("smooch:search:#{uid}", 0, id) if redis.exists("smooch:search:#{uid}") == 1
     end
 
-    def ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, attempts)
+    def ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, provider, attempts)
       RequestStore.store[:smooch_bot_platform] = platform
       redis = Redis.new(REDIS_CONFIG)
       max = 20
       if redis.llen("smooch:search:#{uid}") == 0 && CheckStateMachine.new(uid).state.value == 'search_result'
         self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
+        RequestStore.store[:smooch_bot_provider] = provider unless provider.blank?
         self.send_message_for_state(uid, workflow, 'search_result', language)
       else
         redis.del("smooch:search:#{uid}") if (attempts + 1) == max # Give up and just ask for feedback on the last iteration
-        self.delay_for(1.second, { queue: 'smooch_priority' }).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, attempts + 1) if attempts < max # Try for 20 seconds
+        self.delay_for(1.second, { queue: 'smooch_priority' }).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, provider, attempts + 1) if attempts < max # Try for 20 seconds
       end
     end
   end

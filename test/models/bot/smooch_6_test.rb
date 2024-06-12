@@ -62,13 +62,13 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   end
 
   def assert_saved_query_type(type)
-    assert_difference "DynamicAnnotation::Field.where('value LIKE ?', '%#{type}%').count" do
+    assert_difference "TiplineRequest.where('smooch_request_type LIKE ?', '%#{type}%').count" do
       Sidekiq::Worker.drain_all
     end
   end
 
   def assert_no_saved_query
-    assert_no_difference "Dynamic.where(annotation_type: 'smooch').count" do
+    assert_no_difference "TiplineRequest.count" do
       Sidekiq::Worker.drain_all
     end
   end
@@ -223,7 +223,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar', '1'
       assert_state 'search_result'
-      assert_difference 'Dynamic.where(annotation_type: "smooch").count + ProjectMedia.count + Relationship.where(relationship_type: Relationship.suggested_type).count', 3 do
+      assert_difference 'TiplineRequest.count + ProjectMedia.count', 2 do
         send_message '1'
       end
       assert_state 'main'
@@ -236,11 +236,11 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
     pm = create_project_media(team: @team)
     publish_report(pm, {}, nil, { language: 'en', use_visual_card: false })
-    Bot::Alegre.stubs(:get_merged_similar_items).returns({ pm.id => { score: 0.9 } })
+    Bot::Alegre.stubs(:get_merged_similar_items).returns({ pm.id => { score: 0.9, context: {foo: :bar} } })
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar foo bar foo bar', '1'
       assert_state 'search_result'
-      assert_difference 'Dynamic.where(annotation_type: "smooch").count + ProjectMedia.count + Relationship.where(relationship_type: Relationship.suggested_type).count', 3 do
+      assert_difference 'TiplineRequest.count + ProjectMedia.count', 2 do
         send_message '1'
       end
       assert_state 'main'
@@ -256,20 +256,17 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     WebMock.stub_request(:get, image_url).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
-    Bot::Alegre.stubs(:get_items_with_similar_media).returns({ @search_result.id => { score: 0.9 } })
-    Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'image', 'mediaUrl' => image_url })
+    Bot::Alegre.stubs(:get_items_with_similar_media_v2).returns({ @search_result.id => { score: 0.9, context: {foo: :bar} } })
+    Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'image', 'mediaUrl' => image_url, 'source' => { type: "whatsapp" }, language: 'en' })
+    CheckS3.stubs(:rewrite_url).returns(random_url)
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Image here', '1'
       assert_state 'search_result'
-      assert_difference 'Dynamic.where(annotation_type: "smooch").count + ProjectMedia.count + Relationship.where(relationship_type: Relationship.suggested_type).count', 3 do
+      assert_difference 'TiplineRequest.count + ProjectMedia.count', 2 do
         send_message '1'
       end
       assert_state 'main'
     end
-    Bot::Alegre.unstub(:get_merged_similar_items)
-    Bot::Smooch.unstub(:bundle_list_of_messages)
-    ProjectMedia.any_instance.unstub(:report_status)
-    ProjectMedia.any_instance.unstub(:analysis_published_article_url)
   end
 
   test "should submit query and handle search error on tipline bot v2" do
@@ -295,7 +292,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar', '1'
       assert_state 'search_result'
-      assert_difference 'Dynamic.count + ProjectMedia.count', 3 do
+      assert_difference 'Dynamic.count + TiplineRequest.count + ProjectMedia.count', 3 do
         send_message '2'
       end
       assert_state 'waiting_for_message'
@@ -397,8 +394,9 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
           type: 'whatsapp',
           integrationId: random_string
         },
+        language: 'en',
       }
-      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm)
+      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm.id, pm.class.name)
       message = {
         type: 'text',
         text: random_string,
@@ -413,8 +411,9 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
           type: 'messenger',
           integrationId: random_string
         },
+        language: 'en',
       }
-      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm)
+      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm.id, pm.class.name)
       # verifiy new channel value
       data = {"main" => CheckChannels::ChannelCodes::MANUAL, "others" => [CheckChannels::ChannelCodes::WHATSAPP, CheckChannels::ChannelCodes::MESSENGER]}
       assert_equal data, pm.reload.channel
@@ -432,11 +431,48 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
           type: 'messenger',
           integrationId: random_string
         },
+        language: 'en',
       }
-      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm2)
+      Bot::Smooch.save_message(message.to_json, @app_id, nil, 'menu_options_requests', pm2.id, pm2.class.name)
       # verifiy new channel value
       data = {"main" => CheckChannels::ChannelCodes::WHATSAPP, "others" => [CheckChannels::ChannelCodes::MESSENGER]}
       assert_equal data, pm2.reload.channel
+    end
+  end
+
+  test "should save only one item and one request for same tipline message" do
+    text = "This is message is so long that it is considered a media"
+    Sidekiq::Testing.inline! do
+      message = {
+        type: 'text',
+        text: text,
+        role: 'appUser',
+        received: 1573082583.219,
+        name: random_string,
+        authorId: random_string,
+        '_id': random_string,
+        source: {
+          originalMessageId: random_string,
+          originalMessageTimestamp: 1573082582,
+          type: 'whatsapp',
+          integrationId: random_string
+        },
+        language: 'en',
+      }
+      author = BotUser.smooch_user
+      threads = []
+      assert_difference 'ProjectMedia.count' do
+        assert_difference "TiplineRequest.count" do
+          assert_raises ActiveRecord::StatementInvalid do
+            3.times do |i|
+              threads << Thread.new {
+                Bot::Smooch.save_message(message.to_json, @app_id, author, 'timeout_requests', nil, nil)
+              }
+            end
+            threads.map(&:join)
+          end
+        end
+      end
     end
   end
 
@@ -505,7 +541,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     redis = Redis.new(REDIS_CONFIG)
     redis.rpush("smooch:search:#{uid}", id)
     assert_equal 1, redis.llen("smooch:search:#{uid}")
-    Bot::Smooch.ask_for_feedback_when_all_search_results_are_received(@app_id, 'en', {}, uid, 'WhatsApp', 1)
+    Bot::Smooch.ask_for_feedback_when_all_search_results_are_received(@app_id, 'en', {}, uid, 'WhatsApp', 'ZENDESK', 1)
     Sidekiq::Testing.inline! do
       payload = {
         trigger: 'message:delivery:channel',
@@ -522,7 +558,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
         }
       }.to_json
       assert Bot::Smooch.run(payload)
-      Bot::Smooch.ask_for_feedback_when_all_search_results_are_received(@app_id, 'en', {}, uid, 'WhatsApp', 1)
+      Bot::Smooch.ask_for_feedback_when_all_search_results_are_received(@app_id, 'en', {}, uid, 'WhatsApp', 'ZENDESK', 1)
       assert_equal 0, redis.llen("smooch:search:#{uid}")
     end
   end
@@ -615,8 +651,8 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     send_message url, '1', url, '1'
     assert_state 'search'
     Sidekiq::Worker.drain_all
-    d = Dynamic.where(annotation_type: 'smooch').last
-    assert_equal 2, JSON.parse(d.get_field_value('smooch_data'))['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}").select{ |x| x.chomp.strip == url }.size
+    tr = TiplineRequest.last
+    assert_equal 2, tr.smooch_data['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}").select{ |x| x.chomp.strip == url }.size
   end
 
   test "should get search results in different languages" do
@@ -683,7 +719,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     redis.rpush("smooch:search:#{uid}", id)
     assert_equal 1, redis.llen("smooch:search:#{uid}")
     Sidekiq::Testing.inline! do
-      Bot::Smooch.ask_for_feedback_when_all_search_results_are_received(@app_id, 'en', {}, uid, 'WhatsApp', 1)
+      Bot::Smooch.ask_for_feedback_when_all_search_results_are_received(@app_id, 'en', {}, uid, 'WhatsApp', 'ZENDESK', 1)
     end
     assert_equal 0, redis.llen("smooch:search:#{uid}")
   end
@@ -698,8 +734,8 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   end
 
   test "should not reply to banned user" do
-    Sidekiq::Worker.clear_all
     Bot::Smooch.ban_user({ 'authorId' => @uid })
+    Sidekiq::Worker.clear_all
     Sidekiq::Testing.fake! do
       send_message 'hello'
       assert_equal 0, Sidekiq::Worker.jobs.size
@@ -874,7 +910,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     send_message 'hello', '1' # Sends a first message and confirms language as English
     send_message 'This is message is so long that it is considered a media'
     assert_difference 'ProjectMedia.count' do
-      assert_difference "Dynamic.where(annotation_type: 'smooch').count" do
+      assert_difference "TiplineRequest.count" do
         Sidekiq::Worker.drain_all
       end
     end
@@ -887,7 +923,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     send_message 'hello', '1' # Sends a first message and confirms language as English
     send_message 'Hi, there!'
     assert_no_difference 'ProjectMedia.count' do
-      assert_difference "Dynamic.where(annotation_type: 'smooch').count" do
+      assert_difference "TiplineRequest.count" do
         Sidekiq::Worker.drain_all
       end
     end

@@ -16,13 +16,13 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
 
   test "should update cached field when request is created or deleted" do
     RequestStore.store[:skip_cached_field_update] = false
-    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', true] })
     Sidekiq::Testing.inline! do
-      pm = create_project_media
+      t = create_team
+      pm = create_project_media team: t
       assert_equal 0, pm.reload.requests_count
-      d = create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+      tr = create_tipline_request team_id: t.id, associated: pm
       assert_equal 1, pm.reload.requests_count
-      d.destroy
+      tr.destroy
       assert_equal 0, pm.reload.requests_count
     end
   end
@@ -114,7 +114,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     Time.unstub(:now)
   end
 
-  test "should create smooch annotation for user requests" do
+  test "should create tipline requests for user requests" do
     setup_smooch_bot(true)
     Sidekiq::Testing.fake! do
       now = Time.now
@@ -127,16 +127,14 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
       assert_equal 'secondary', sm.state.value
       send_message_to_smooch_bot('1', uid)
       conditions = {
-        annotation_type: 'smooch',
-        annotated_type: @pm_for_menu_option.class.name,
-        annotated_id: @pm_for_menu_option.id
+        associated_type: @pm_for_menu_option.class.name,
+        associated_id: @pm_for_menu_option.id
       }
-      assert_difference "Dynamic.where(#{conditions}).count", 1 do
+      assert_difference "TiplineRequest.where(#{conditions}).count", 1 do
         Sidekiq::Worker.drain_all
       end
-      a = Dynamic.where(conditions).last
-      f = a.get_field_value('smooch_data')
-      text  = JSON.parse(f)['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
+      tr = TiplineRequest.where(conditions).last
+      text  = tr.smooch_data['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
       # Verify that all messages were stored
       assert_equal 3, text.size
       assert_equal '1', text.last
@@ -147,12 +145,11 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
       send_message_to_smooch_bot(random_string, uid)
       send_message_to_smooch_bot(random_string, uid)
       send_message_to_smooch_bot('1', uid)
-      assert_difference "Dynamic.where(#{conditions}).count", 1 do
+      assert_difference "TiplineRequest.where(#{conditions}).count", 1 do
         Sidekiq::Worker.drain_all
       end
-      a = Dynamic.where(conditions).last
-      f = a.get_field_value('smooch_data')
-      text  = JSON.parse(f)['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
+      tr = TiplineRequest.where(conditions).last
+      text  = tr.smooch_data['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
       # verify that all messages stored
       assert_equal 5, text.size
       assert_equal '1', text.last
@@ -161,13 +158,13 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
       send_message_to_smooch_bot(random_string, uid)
       assert_equal 'main', sm.state.value
       Time.stubs(:now).returns(now + 30.minutes)
-      assert_difference 'Annotation.where(annotation_type: "smooch").count', 1 do
+      assert_difference 'TiplineRequest.count', 1 do
         Sidekiq::Worker.drain_all
       end
       send_message_to_smooch_bot(random_string, uid)
       send_message_to_smooch_bot(random_string, uid)
       Time.stubs(:now).returns(now + 30.minutes)
-      assert_difference 'Annotation.where(annotation_type: "smooch").count', 1 do
+      assert_difference 'TiplineRequest.count', 1 do
         Sidekiq::Worker.drain_all
       end
     end
@@ -239,7 +236,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => 'Foo bar foo bar foo bar' })
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
-    Bot::Alegre.stubs(:get_merged_similar_items).returns({ pm.id => { score: 0.9, model: 'elasticsearch' } })
+    Bot::Alegre.stubs(:get_merged_similar_items).returns({ pm.id => { score: 0.9, model: 'elasticsearch', context: {foo: :bar} } })
 
     assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en')
 
@@ -262,14 +259,15 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'image', 'mediaUrl' => random_url })
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
-    Bot::Alegre.stubs(:get_items_with_similar_media).returns({ pm.id => { score: 0.9, model: 'elasticsearch' } })
+    Bot::Alegre.stubs(:get_items_with_similar_media_v2).returns({ pm.id => { score: 0.9, model: 'elasticsearch', context: {foo: :bar} } })
+    CheckS3.stubs(:rewrite_url).returns(random_url)
 
     assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en')
 
     Bot::Smooch.unstub(:bundle_list_of_messages)
     ProjectMedia.any_instance.unstub(:report_status)
     ProjectMedia.any_instance.unstub(:analysis_published_article_url)
-    Bot::Alegre.unstub(:get_items_with_similar_media)
+    Bot::Alegre.unstub(:get_items_with_similar_media_v2)
   end
 
   test "should handle exception when adding Smooch integration" do
@@ -312,9 +310,23 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     pm3 = create_project_media team: t #Vector high score
     pm4 = create_project_media team: t #Vector low score
     # Create more project media if needed
-    results = { pm1.id => { model: 'elasticsearch', score: 10.8 }, pm2.id => { model: 'elasticsearch', score: 15.2},
-      pm3.id => { model: 'anything-else', score: 1.98 }, pm4.id => { model: 'anything-else', score: 1.8}}
+    results = { pm1.id => { model: 'elasticsearch', score: 10.8, context: {foo: :bar}}, pm2.id => { model: 'elasticsearch', score: 15.2, context: {foo: :bar}},
+      pm3.id => { model: 'anything-else', score: 1.98, context: {foo: :bar}}, pm4.id => { model: 'anything-else', score: 1.8, context: {foo: :bar}}}
     assert_equal [pm3, pm4, pm2], Bot::Smooch.parse_search_results_from_alegre(results, t.id)
+    ProjectMedia.any_instance.unstub(:report_status)
+  end
+
+  test "should omit temporary results from Alegre" do
+    ProjectMedia.any_instance.stubs(:report_status).returns('published') # We can stub this because it's not what this test is testing
+    t = create_team
+    pm1 = create_project_media team: t #ES low score
+    pm2 = create_project_media team: t #ES high score
+    pm3 = create_project_media team: t #Vector high score
+    pm4 = create_project_media team: t #Vector low score
+    # Create more project media if needed
+    results = { pm1.id => { model: 'elasticsearch', score: 10.8, context: {blah: 1} }, pm2.id => { model: 'elasticsearch', score: 15.2, context: {blah: 1} },
+      pm3.id => { model: 'anything-else', score: 1.98, context: {temporary_media: true} }, pm4.id => { model: 'anything-else', score: 1.8, context: {temporary_media: false}}}
+    assert_equal [pm4, pm2, pm1], Bot::Smooch.parse_search_results_from_alegre(results, t.id)
     ProjectMedia.any_instance.unstub(:report_status)
   end
 
@@ -435,6 +447,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
+        source: { type: "whatsapp" },
         text: text
       }
     ]
@@ -485,14 +498,16 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
             originalMessageTimestamp: 1573082582,
             type: 'whatsapp',
             integrationId: random_string
-          }
+          },
+          language: 'en',
         }
       end
-      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm)
-      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm)
-      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'timeout_search_requests', pm)
-      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests')
-      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests')
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm.id, pm.class.name)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm.id, pm.class.name)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'timeout_search_requests', pm.id, pm.class.name)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm.id, pm.class.name)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm.id, pm.class.name)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm.id, pm.class.name)
       message = lambda do
         {
           type: 'text',
@@ -508,29 +523,34 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
             type: 'whatsapp',
             integrationId: random_string
           },
+          language: 'en',
         }
       end
-      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm2)
-      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests')
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'relevant_search_result_requests', pm2.id, pm2.class.name)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm2.id, pm2.class.name)
+      Bot::Smooch.save_message(message.call.to_json, @app_id, nil, 'irrelevant_search_result_requests', pm2.id, pm2.class.name)
       # Verify cached field
-      assert_equal 5, pm.tipline_search_results_count
+      assert_equal 6, pm.tipline_search_results_count
       assert_equal 2, pm.positive_tipline_search_results_count
-      assert_equal 2, pm2.tipline_search_results_count
+      assert_equal 3, pm.negative_tipline_search_results_count
+      assert_equal 3, pm2.tipline_search_results_count
       assert_equal 1, pm2.positive_tipline_search_results_count
+      assert_equal 2, pm2.negative_tipline_search_results_count
       # Verify ES values
       es = $repository.find(pm.get_es_doc_id)
-      assert_equal 5, es['tipline_search_results_count']
+      assert_equal 6, es['tipline_search_results_count']
       assert_equal 2, es['positive_tipline_search_results_count']
+      assert_equal 3, es['negative_tipline_search_results_count']
       es2 = $repository.find(pm2.get_es_doc_id)
-      assert_equal 2, es2['tipline_search_results_count']
+      assert_equal 3, es2['tipline_search_results_count']
       assert_equal 1, es2['positive_tipline_search_results_count']
+      assert_equal 2, es2['negative_tipline_search_results_count']
       # Verify destroy
-      DynamicAnnotation::Field.where(annotation_type: 'smooch',field_name: 'smooch_request_type')
-      .where('value IN (?)', ['"irrelevant_search_result_requests"', '"timeout_search_requests"'])
-      .joins('INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id')
-      .where('a.annotated_type = ? AND a.annotated_id = ?', 'ProjectMedia', pm.id).destroy_all
+      types = ["irrelevant_search_result_requests", "timeout_search_requests"]
+      TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: pm.id, smooch_request_type: types).destroy_all
       assert_equal 2, pm.tipline_search_results_count
       assert_equal 2, pm.positive_tipline_search_results_count
+      assert_equal 0, pm.negative_tipline_search_results_count
     end
   end
 
@@ -540,6 +560,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
         '_id': random_string,
         authorId: random_string,
         type: 'text',
+        source: { type: "whatsapp" },
         text: random_string
       }
     ]
@@ -568,11 +589,10 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     r.set_fields = { state: 'published' }.to_json
     r.action = 'republish_and_resend'
     r.save!
-    a = pm.annotations('smooch').last.load
-    smooch_data = a.get_field('smooch_data')
-    assert_not_nil smooch_data.smooch_report_sent_at
-    assert_not_nil smooch_data.smooch_report_correction_sent_at
-    assert_not_nil smooch_data.smooch_request_type
+    tr = TiplineRequest.last
+    assert_not_nil tr.smooch_report_sent_at
+    assert_not_nil tr.smooch_report_correction_sent_at
+    assert_not_nil tr.smooch_request_type
   end
 
   test "should include claim_description_content in smooch search" do
@@ -589,5 +609,20 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     assert_equal query, pm.claim_description_content
     results = Bot::Smooch.search_by_keywords_for_similar_published_fact_checks(query.split(), nil, [t.id])
     assert_equal [pm.id], results.map(&:id)
+  end
+
+  test "should rescue when raise error on tipline request creation" do
+    TiplineRequest.any_instance.stubs(:save!).raises(ActiveRecord::RecordNotUnique)
+    t = create_team
+    pm = create_project_media team: t
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      fields = { 'smooch_request_type' => 'default_requests', 'smooch_message_id' => random_string, 'smooch_data' => { authorId: random_string, language: 'en', source: { type: "whatsapp" }, } }
+      assert_no_difference 'TiplineRequest.count' do
+        Bot::Smooch.create_tipline_requests(pm, nil, fields)
+      end
+    end
+    TiplineRequest.any_instance.unstub(:save!)
   end
 end
