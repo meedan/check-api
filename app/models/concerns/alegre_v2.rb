@@ -432,7 +432,7 @@ module AlegreV2
     def wait_for_results(project_media, args)
       return {} if similarity_disabled_for_project_media?(project_media)
       cached_data = get_cached_data(get_required_keys(project_media, nil))
-      timeout = args[:timeout] || 120
+      timeout = args[:timeout] || CheckConfig.get('alegre_timeout', 120, :integer).to_f
       start_time = Time.now
       while start_time + timeout > Time.now && is_cached_data_not_good(cached_data) #more robust for any type of null response
         sleep(1)
