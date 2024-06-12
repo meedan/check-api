@@ -45,6 +45,7 @@ development: &default
   similarity_media_file_url_host: ''
   min_number_of_words_for_tipline_submit_shortcut: 10
   nlu_disambiguation_threshold: 0.11
+  alegre_timeout: 120
 
   # Localization
   #
