@@ -11347,6 +11347,7 @@ type ProjectMedia implements Node {
     """
     last: Int
   ): DynamicConnection
+  fact_check_published_on: Int
   feed_columns_values: JsonStringType
   field_value(annotation_type_field_name: String!): String
   flags(
