@@ -19,6 +19,7 @@ class ProjectMediaType < DefaultObject
   field :description, GraphQL::Types::String, null: true
   field :picture, GraphQL::Types::String, null: true
   field :virality, GraphQL::Types::Int, null: true
+  field :fact_check_published_on, GraphQL::Types::Int, null: true
   field :requests_count, GraphQL::Types::Int, null: true
   field :demand, GraphQL::Types::Int, null: true
   field :linked_items_count, GraphQL::Types::Int, null: true
