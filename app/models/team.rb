@@ -645,6 +645,9 @@ class Team < ApplicationRecord
     # Filter by date
     query = query.where(updated_at: Range.new(*format_times_search_range_filter(JSON.parse(filters[:updated_at]), nil))) unless filters[:updated_at].blank?
 
+    # Filter by text
+    query = query.where('(title ILIKE ? OR url ILIKE ? OR summary ILIKE ?)', *["%#{filters[:text]}%"]*3) if filters[:text].to_s.size > 2
+
     query
   end
 
@@ -671,6 +674,12 @@ class Team < ApplicationRecord
 
     # filter by report_status
     query = query.where('fact_checks.report_status' => filters[:report_status].to_a.map(&:to_s)) unless filters[:report_status].blank?
+
+    # Filter by standalone
+    query = query.where('fact_checks.claim_description_id' => nil) if filters[:standalone]
+
+    # Filter by text
+    query = query.where('(title ILIKE ? OR url ILIKE ? OR summary ILIKE ?)', *["%#{filters[:text]}%"]*3) if filters[:text].to_s.size > 2
 
     query
   end
