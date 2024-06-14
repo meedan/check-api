@@ -8267,6 +8267,27 @@ type Explainer implements Node {
 }
 
 """
+The connection type for Explainer.
+"""
+type ExplainerConnection {
+  """
+  A list of edges.
+  """
+  edges: [ExplainerEdge]
+
+  """
+  A list of nodes.
+  """
+  nodes: [Explainer]
+
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+"""
 An edge in a connection.
 """
 type ExplainerEdge {
@@ -11438,6 +11459,28 @@ type ProjectMedia implements Node {
     """
     last: Int
   ): DynamicConnection
+  explainers(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): ExplainerConnection
+  fact_check: FactCheck
   fact_check_published_on: Int
   feed_columns_values: JsonStringType
   field_value(annotation_type_field_name: String!): String
