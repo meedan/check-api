@@ -148,8 +148,14 @@ module AlegreV2
       type
     end
 
+    def content_hash(project_media, field)
+      #Adding specific method so that we can easily extend and mutate how we count unique items as necessary...
+      item_doc_id(project_media, field)
+    end
+
     def generic_package(project_media, field)
       {
+        content_hash: content_hash(project_media, field),
         doc_id: item_doc_id(project_media, field),
         context: get_context(project_media, field)
       }
