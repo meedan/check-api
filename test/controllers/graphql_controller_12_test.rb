@@ -467,4 +467,29 @@ class GraphqlController12Test < ActionController::TestCase
     Rails.stubs(:logger).returns(mock_logger)
     post :create, params: { query: query }
   end
+
+  test "should send report when bulk-accepting suggestion" do
+    create_verification_status_stuff
+    pm1 = create_project_media team: @t ; s = pm1.last_status_obj ; s.status = 'false' ; s.save!
+    publish_report(pm1)
+    pm2 = create_project_media team: @t ; s = pm2.last_status_obj ; s.status = 'undetermined' ; s.save!
+    b1 = create_team_bot(name: 'Alegre', login: 'alegre')
+    b2 = create_team_bot(name: 'Smooch', login: 'smooch', set_approved: true)
+    b2.install_to!(@t)
+    r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.suggested_type, user: b1
+
+    assert_equal 'false', pm1.reload.last_status
+    assert_equal 'undetermined', pm2.reload.last_status
+
+    authenticate_with_user(@u)
+    query = 'mutation { updateRelationships(input: { clientMutationId: "1", ids: ' + [r.graphql_id].to_json + ', action: "accept", source_id: ' + pm1.id.to_s + ' }) { ids } }'
+    Sidekiq::Testing.inline! do
+      post :create, params: { query: query, team: @t.slug }
+    end
+    assert_response :success
+
+    # Child item should inherit status from parent when suggestion is accepted
+    assert_equal 'false', pm1.reload.last_status
+    assert_equal 'false', pm2.reload.last_status
+  end
 end
