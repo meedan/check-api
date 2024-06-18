@@ -307,7 +307,7 @@ class TeamType < DefaultObject
 
   def articles(**args)
     sort = args[:sort].to_s
-    order = [:title, :language, :updated_at].include?(sort.downcase.to_sym) ? sort.downcase.to_sym : :title
+    order = [:title, :language, :updated_at, :id].include?(sort.downcase.to_sym) ? sort.downcase.to_sym : :title
     order_type = args[:sort_type].to_s.downcase.to_sym == :desc ? :desc : :asc
     articles = Explainer.none
     if args[:article_type] == 'explainer'
