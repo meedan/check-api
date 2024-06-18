@@ -149,8 +149,17 @@ module AlegreV2
     end
 
     def content_hash(project_media, field)
-      #Adding specific method so that we can easily extend and mutate how we count unique items as necessary...
-      item_doc_id(project_media, field)
+      if Bot::Alegre.ALL_TEXT_SIMILARITY_FIELDS.include?(field)
+        Digest::MD5.hexdigest(project_media.send(field))
+      else
+        if project_media.is_link?
+          return Digest::MD5.hexdigest(project_media.media.url)
+        if !project_media.is_text?
+          return project_media.media.file.split(".").first
+        elsif project_media.is_a?(TemporaryProjectMedia)
+          return Digest::MD5.hexdigest(project_media.url)
+        end
+      end
     end
 
     def generic_package(project_media, field)
