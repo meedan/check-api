@@ -469,6 +469,8 @@ class GraphqlController12Test < ActionController::TestCase
   end
 
   test "should send report when bulk-accepting suggestion" do
+    Sidekiq::Testing.fake!
+    WebMock.stub_request(:get, /#{CheckConfig.get('narcissus_url')}/).to_return(body: '{"url":"http://screenshot/test/test.png"}')
     create_verification_status_stuff
     pm1 = create_project_media team: @t ; s = pm1.last_status_obj ; s.status = 'false' ; s.save!
     publish_report(pm1)
