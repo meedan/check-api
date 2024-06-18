@@ -8363,6 +8363,7 @@ type FactCheck implements Node {
   id: ID!
   language: String
   permissions: String
+  rating: String
   summary: String
   tags: [String]
   title: String
