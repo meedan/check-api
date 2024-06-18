@@ -154,7 +154,7 @@ module AlegreV2
       else
         if project_media.is_link?
           return Digest::MD5.hexdigest(project_media.media.url)
-        if !project_media.is_text?
+        elsif !project_media.is_text?
           return project_media.media.file.split(".").first
         elsif project_media.is_a?(TemporaryProjectMedia)
           return Digest::MD5.hexdigest(project_media.url)
