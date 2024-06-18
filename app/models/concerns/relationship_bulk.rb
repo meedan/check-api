@@ -26,6 +26,7 @@ module RelationshipBulk
           team_id: team&.id,
           user_id: User.current&.id,
           source_id: source_id,
+          action: updates[:action]
         }
         self.delay.run_update_callbacks(ids.to_json, extra_options.to_json)
         { source_project_media: pm_source }
@@ -110,6 +111,8 @@ module RelationshipBulk
         callbacks.each do |callback|
           r.send(callback)
         end
+        # Send report if needed
+        Relationship.inherit_status_and_send_report(r.id) if extra_options['action'] == 'accept'
       end
       # Update un-matched field
       ProjectMedia.where(id: target_ids).update_all(unmatched: 0)
