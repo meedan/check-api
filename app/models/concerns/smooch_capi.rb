@@ -64,7 +64,9 @@ module SmoochCapi
       req = Net::HTTP::Get.new(uri.request_uri, 'Authorization' => "Bearer #{self.config['capi_permanent_token']}")
       response = http.request(req)
       path = "capi/#{media_id}"
-      CheckS3.write(path, mime_type, response.body)
+      body = response.body
+      CheckS3.write(path, mime_type, body)
+      Rails.cache.write("url_sha:#{media_url}", Digest::MD5.hexdigest(body), expires_in: 60*3)
       CheckS3.public_url(path)
     end
 
