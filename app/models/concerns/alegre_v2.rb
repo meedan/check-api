@@ -149,7 +149,7 @@ module AlegreV2
     end
 
     def content_hash(project_media, field)
-      if Bot::Alegre.ALL_TEXT_SIMILARITY_FIELDS.include?(field)
+      if Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.include?(field)
         Digest::MD5.hexdigest(project_media.send(field))
       else
         if project_media.is_link?
