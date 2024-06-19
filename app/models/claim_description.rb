@@ -3,6 +3,7 @@ class ClaimDescription < ApplicationRecord
 
   before_validation :set_team, on: :create
   belongs_to :project_media, optional: true
+  belongs_to :team
   has_one :fact_check, dependent: :destroy
 
   accepts_nested_attributes_for :fact_check, reject_if: proc { |attributes| attributes['summary'].blank? }

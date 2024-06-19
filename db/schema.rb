@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_06_19_131714) do
+ActiveRecord::Schema.define(version: 2024_06_19_141452) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -216,7 +216,7 @@ ActiveRecord::Schema.define(version: 2024_06_19_131714) do
   create_table "claim_descriptions", force: :cascade do |t|
     t.text "description"
     t.bigint "user_id", null: false
-    t.bigint "project_media_id", null: false
+    t.bigint "project_media_id"
     t.text "context"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
