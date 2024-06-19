@@ -42,8 +42,6 @@ module TeamDuplication
 
     def self.modify_settings(old_team, new_team)
       team_task_map = self.team_task_map
-      new_list_columns = old_team.get_list_columns.to_a.collect{|lc| lc.include?("task_value_") ? "task_value_#{team_task_map[lc.split("_").last.to_i]}" : lc}
-      new_team.set_list_columns = new_list_columns unless new_list_columns.blank?
       new_team.set_languages = old_team.get_languages
       new_team.set_language = old_team.get_language
       new_team
