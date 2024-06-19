@@ -108,38 +108,38 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should create a generic_package for audio" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
-    assert_equal Bot::Alegre.generic_package(pm1, "audio"), {:doc_id=>Bot::Alegre.item_doc_id(pm1, "audio"), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}}
+    assert_equal Bot::Alegre.generic_package(pm1, "audio"), {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id=>Bot::Alegre.item_doc_id(pm1, "audio"), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}}
   end
 
   test "should create a generic_package for image" do
     pm1 = create_project_media team: @team, media: create_uploaded_image
-    assert_equal Bot::Alegre.generic_package(pm1, "image"), {:doc_id=>Bot::Alegre.item_doc_id(pm1, "image"), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}}
+    assert_equal Bot::Alegre.generic_package(pm1, "image"), {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id=>Bot::Alegre.item_doc_id(pm1, "image"), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}}
   end
 
   test "should create a generic_package for video" do
     pm1 = create_project_media team: @team, media: create_uploaded_video
-    assert_equal Bot::Alegre.generic_package(pm1, "video"), {:doc_id=>Bot::Alegre.item_doc_id(pm1, "video"), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}}
+    assert_equal Bot::Alegre.generic_package(pm1, "video"), {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id=>Bot::Alegre.item_doc_id(pm1, "video"), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}}
   end
 
   test "should create a generic_package_audio" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
-    assert_equal Bot::Alegre.generic_package_audio(pm1, {}), {:doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
-    assert_equal Bot::Alegre.store_package_audio(pm1, "audio", {}), {:doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
-    assert_equal Bot::Alegre.store_package(pm1, "audio", {}), {:doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
+    assert_equal Bot::Alegre.generic_package_audio(pm1, {}), {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
+    assert_equal Bot::Alegre.store_package_audio(pm1, "audio", {}), {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
+    assert_equal Bot::Alegre.store_package(pm1, "audio", {}), {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
   end
 
   test "should create a generic_package_image" do
     pm1 = create_project_media team: @team, media: create_uploaded_image
-    assert_equal Bot::Alegre.generic_package_image(pm1, {}), {:doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
-    assert_equal Bot::Alegre.store_package_image(pm1, "image", {}), {:doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
-    assert_equal Bot::Alegre.store_package(pm1, "image", {}), {:doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
+    assert_equal Bot::Alegre.generic_package_image(pm1, {}), {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
+    assert_equal Bot::Alegre.store_package_image(pm1, "image", {}), {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
+    assert_equal Bot::Alegre.store_package(pm1, "image", {}), {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
   end
 
   test "should create a generic_package_video" do
     pm1 = create_project_media team: @team, media: create_uploaded_video
-    assert_equal Bot::Alegre.generic_package_image(pm1, {}), {:doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
-    assert_equal Bot::Alegre.store_package_image(pm1, "video", {}), {:doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
-    assert_equal Bot::Alegre.store_package(pm1, "video", {}), {:doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
+    assert_equal Bot::Alegre.generic_package_image(pm1, {}), {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
+    assert_equal Bot::Alegre.store_package_image(pm1, "video", {}), {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
+    assert_equal Bot::Alegre.store_package(pm1, "video", {}), {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
   end
 
   test "should create a context for audio" do
@@ -210,7 +210,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       }
     }
-    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/async/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}).to_return(body: response.to_json)
+    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/async/audio").with(body: {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}).to_return(body: response.to_json)
     assert_equal JSON.parse(Bot::Alegre.get_async(pm1).to_json), JSON.parse(response.to_json)
   end
 
@@ -363,7 +363,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       ]
     }
-    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/sync/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}).to_return(body: response.to_json)
+    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/sync/audio").with(body: {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}).to_return(body: response.to_json)
     assert_equal JSON.parse(Bot::Alegre.get_sync(pm1).to_json), JSON.parse(response.to_json)
   end
 
@@ -479,7 +479,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       ]
     }
-    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/sync/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1), :threshold=>0.9}).to_return(body: response.to_json)
+    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/sync/audio").with(body: {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1), :threshold=>0.9}).to_return(body: response.to_json)
     assert_equal Bot::Alegre.get_items(pm1, nil), {(pm1.id+1)=>{:score=>1.0, :context=>{"team_id"=>pm1.team_id, "has_custom_id"=>true, "project_media_id"=>(pm1.id+1)}, :model=>"audio", :source_field=>"audio", :target_field=>"audio", :relationship_type=>Relationship.suggested_type}}
   end
 
@@ -561,7 +561,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       ]
     }
-    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/sync/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1), :threshold=>0.9}).to_return(body: response.to_json)
+    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/sync/audio").with(body: {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1), :threshold=>0.9}).to_return(body: response.to_json)
     assert_equal Bot::Alegre.get_items(pm1, nil), {(pm1.id+1)=>{:score=>0.91, :context=>{"team_id"=>pm1.team_id, "has_custom_id"=>true, "project_media_id"=>(pm1.id+1), "temporary_media"=>false}, :model=>"audio", :source_field=>"audio", :target_field=>"audio", :relationship_type=>Relationship.suggested_type}}
   end
 
@@ -643,7 +643,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       ]
     }
-    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/sync/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1), :threshold=>0.9}).to_return(body: response.to_json)
+    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/sync/audio").with(body: {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1), :threshold=>0.9}).to_return(body: response.to_json)
     assert_equal Bot::Alegre.get_confirmed_items(pm1, nil), {(pm1.id+1)=>{:score=>0.91, :context=>{"team_id"=>pm1.team_id, "has_custom_id"=>true, "project_media_id"=>(pm1.id+1), "temporary_media"=>false}, :model=>"audio", :source_field=>"audio", :target_field=>"audio", :relationship_type=>Relationship.confirmed_type}}
   end
 
@@ -685,8 +685,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       }
     }
-    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/async/audio").with(body: {:doc_id => Bot::Alegre.item_doc_id(pm1),:context => {:team_id => pm1.team_id, :project_media_id => pm1.id, :has_custom_id => true, :temporary_media => false}, :url => Bot::Alegre.media_file_url(pm1), :threshold => 0.9, :confirmed => false}).to_return(body: response.to_json)
-    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/async/audio").with(body: {:doc_id => Bot::Alegre.item_doc_id(pm1),:context => {:team_id => pm1.team_id, :project_media_id => pm1.id, :has_custom_id => true, :temporary_media => false}, :url => Bot::Alegre.media_file_url(pm1), :threshold => 0.9, :confirmed => true}).to_return(body: response.to_json)
+    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/async/audio").with(body: {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id => Bot::Alegre.item_doc_id(pm1),:context => {:team_id => pm1.team_id, :project_media_id => pm1.id, :has_custom_id => true, :temporary_media => false}, :url => Bot::Alegre.media_file_url(pm1), :threshold => 0.9, :confirmed => false}).to_return(body: response.to_json)
+    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/async/audio").with(body: {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id => Bot::Alegre.item_doc_id(pm1),:context => {:team_id => pm1.team_id, :project_media_id => pm1.id, :has_custom_id => true, :temporary_media => false}, :url => Bot::Alegre.media_file_url(pm1), :threshold => 0.9, :confirmed => true}).to_return(body: response.to_json)
     assert_equal Bot::Alegre.get_similar_items_v2_async(pm1, nil), true
   end
 
@@ -768,7 +768,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       ]
     }
-    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/sync/audio").with(body: {:doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1), :threshold=>0.9}).to_return(body: response.to_json)
+    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/sync/audio").with(body: {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id=>Bot::Alegre.item_doc_id(pm1), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1), :threshold=>0.9}).to_return(body: response.to_json)
     assert_equal Bot::Alegre.get_similar_items_v2(pm1, nil), {}
   end
 
