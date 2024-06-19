@@ -172,7 +172,7 @@ class Ability
     end
     can [:create, :update, :read, :destroy], FactCheck, { claim_description: { project_media: { team_id: @context_team.id } } }
     can [:create, :update, :read, :destroy], Explainer, team_id: @context_team.id
-    can [:create, :update, :read], ClaimDescription, { project_media: { team_id: @context_team.id } }
+    can [:create, :update, :read], ClaimDescription, { team_id: @context_team.id }
     can [:create, :update, :read, :destroy], ExplainerItem, { project_media: { team_id: @context_team.id } }
   end
 

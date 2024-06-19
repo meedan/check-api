@@ -1179,7 +1179,7 @@ input CreateClaimDescriptionInput {
   clientMutationId: String
   context: String
   description: String
-  project_media_id: Int!
+  project_media_id: Int
 }
 
 """
@@ -13969,6 +13969,7 @@ input UpdateClaimDescriptionInput {
   context: String
   description: String
   id: ID
+  project_media_id: Int
 }
 
 """

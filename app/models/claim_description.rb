@@ -1,13 +1,14 @@
 class ClaimDescription < ApplicationRecord
   include Article
 
-  belongs_to :project_media
+  before_validation :set_team, on: :create
+  belongs_to :project_media, optional: true
   has_one :fact_check, dependent: :destroy
 
   accepts_nested_attributes_for :fact_check, reject_if: proc { |attributes| attributes['summary'].blank? }
 
-  validates_presence_of :project_media
-  validates_uniqueness_of :project_media_id
+  validates_presence_of :team
+  validates_uniqueness_of :project_media_id, allow_nil: true
 
   # To avoid GraphQL conflict with name `context`
   alias_attribute :claim_context, :context
@@ -31,5 +32,11 @@ class ClaimDescription < ApplicationRecord
       'claim_description_context' => self.context
     }
     self.index_in_elasticsearch(data)
+  end
+
+  private
+
+  def set_team
+    self.team ||= (self.project_media&.team || Team.current)
   end
 end

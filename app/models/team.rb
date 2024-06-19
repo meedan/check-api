@@ -654,6 +654,9 @@ class Team < ApplicationRecord
   def filtered_fact_checks(filters = {})
     query = FactCheck.includes(claim_description: :project_media).where('project_medias.team_id' => self.id)
 
+    # Filter by standalone
+    query = FactCheck.includes(:claim_description).where('claim_descriptions.project_media_id' => nil, 'fact_checks.team_id' => self.id) if filters[:standalone]
+
     # Filter by language
     query = query.where('fact_checks.language' => filters[:language].to_a) unless filters[:language].blank?
 
@@ -674,9 +677,6 @@ class Team < ApplicationRecord
 
     # filter by report_status
     query = query.where('fact_checks.report_status' => filters[:report_status].to_a.map(&:to_s)) unless filters[:report_status].blank?
-
-    # Filter by standalone
-    query = query.where('fact_checks.claim_description_id' => nil) if filters[:standalone]
 
     # Filter by text
     query = query.where('(title ILIKE ? OR url ILIKE ? OR summary ILIKE ?)', *["%#{filters[:text]}%"]*3) if filters[:text].to_s.size > 2
