@@ -47,7 +47,7 @@ module Article
       'ClaimDescription' => 'save_claim_description',
       'FactCheck' => 'save_fact_check'
     }[self.class.name]
-    BotUser.enqueue_event(event, self.project_media.team_id, self)
+    BotUser.enqueue_event(event, self.project_media.team_id, self) unless self.project_media.nil?
   end
 
   protected
@@ -55,6 +55,7 @@ module Article
   def index_in_elasticsearch(data)
     # touch project media to update `updated_at` date
     pm = self.project_media
+    return if pm.nil?
     pm = ProjectMedia.find_by_id(pm.id)
     unless pm.nil?
       updated_at = Time.now
