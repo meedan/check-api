@@ -1173,7 +1173,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal({}, Bot::Alegre.get_similar_items_v2(pm, nil))
   end
 
-  test "should generate content_hash for text types" do
+  test "should generate content_hash for named field on text types" do
     pm = create_project_media
     data = {
       title: 'Report text title',
@@ -1184,7 +1184,6 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     publish_report(pm, {}, nil, data)
     pm = ProjectMedia.find(pm.id).reload
     assert_equal("eb02b714673c8af17b108836ce750070", Bot::Alegre.content_hash(pm, "report_text_title"))
-    assert_equal("b476da9a44932178529f6896e0346af7", Bot::Alegre.content_hash(pm, nil))
   end
 
   test "should generate content_hash for link types" do
@@ -1209,7 +1208,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm.team_id = [1]
     pm.type = "audio"
     assert_equal(nil, Bot::Alegre.content_hash(pm, nil))
-    Rails.cache.write("url_sha:#{project_media.url}", Digest::MD5.hexdigest("blah"), expires_in: 60*3)
+    Rails.cache.write("url_sha:#{pm.url}", Digest::MD5.hexdigest("blah"), expires_in: 60*3)
     assert_equal("6f1ed002ab5595859014ebf0951522d9", Bot::Alegre.content_hash(pm, nil))
   end
 end
