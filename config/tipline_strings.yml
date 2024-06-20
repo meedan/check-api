@@ -225,6 +225,45 @@ ckb:
   unsubscribed: لە ئێستادا ئێوە بەشدارنین لە هەواڵنامەکەمان.
   nlu_disambiguation: "یەک لەم بژاردانەی خوارەوە هەڵبژێرە:"
   nlu_cancel: "گەڕانەوە بۆ لیست"
+it:
+  add_more_details_state_button_label: Aggiungere altro
+  ask_if_ready_state_button_label: Cancella
+  cancelled: Ok!
+  confirm_preferred_language: Si prega di confermare la lingua preferita
+  invalid_format: "Siamo spiacenti, il file che hai inviato non è in un formato supportato."
+  keep_subscription_button_label: Mantieni abbonamento
+  languages: Lingue
+  languages_and_privacy_title: Lingue e Privacy
+  main_menu: Menu principale
+  main_state_button_label: Cancella
+  navigation_button: Utilizza i tasti per navigare
+  no_results_in_language: "Nessun risultato trovato in %{language}. Ecco alcuni risultati in altre lingue che potrebbero essere rilevanti."
+  privacy_and_purpose: |-
+    Privacy e scopo
+
+    Benvenuto al suggerimento di %{team} %{channel}.
+
+    Puoi utilizzare questo numero per inviare la tua richiesta di verifica.
+
+    I tuoi dati sono al sicuro. Prendiamo sul serio la nostra responsabilità di salvaguardare le tue informazioni personali e di mantenere %{channel} privato e sicuro; non condivideremo, venderemo o utilizzeremo le tue informazioni di identificazione personale (PII) se non per fornire e migliorare questo servizio.
+
+    Per rilevare la disinformazione virale il prima possibile in futuro, potremmo condividere contenuti non PII con ricercatori selezionati e partner di verifica dei fatti.
+
+    Tieni presente che i siti Web a cui ci colleghiamo avranno la propria politica sulla privacy.
+
+    Se non vuoi che i tuoi contributi vengano utilizzati in questo lavoro, ti preghiamo di non contribuire al nostro sistema.
+  privacy_statement: Informativa sulla Privacy
+  privacy_title: Privacy
+  report_updated: "La seguente verifica-dei-dati è stata *aggiornata* con nuove informazioni:"
+  search_result_is_not_relevant_button_label: "No"
+  search_result_is_relevant_button_label: "Sì"
+  search_state_button_label: Invia
+  subscribe_button_label: Iscriviti
+  subscribed: Attualmente sei iscritto alla nostra newsletter.
+  unsubscribe_button_label: Annulla l'iscrizione
+  unsubscribed: Al momento non sei iscritto alla nostra newsletter.
+  nlu_disambiguation: "Scegli una delle seguenti opzioni:"
+  nlu_cancel: "Torna al menu"
 zh_CN:
   add_more_details_state_button_label: 添加
   ask_if_ready_state_button_label: 取消
