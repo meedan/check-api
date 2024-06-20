@@ -1172,4 +1172,44 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm = create_project_media team: @team, media: create_uploaded_video
     assert_equal({}, Bot::Alegre.get_similar_items_v2(pm, nil))
   end
+
+  test "should generate content_hash for text types" do
+    pm = create_project_media
+    data = {
+      title: 'Report text title',
+      text: 'Report text content',
+      headline: 'Visual card title',
+      description: 'Visual card content'
+    }
+    publish_report(pm, {}, nil, data)
+    pm = ProjectMedia.find(pm.id).reload
+    assert_equal("eb02b714673c8af17b108836ce750070", Bot::Alegre.content_hash(pm, "report_text_title")
+    assert_equal("b476da9a44932178529f6896e0346af7", Bot::Alegre.content_hash(pm, nil))
+  end
+
+  test "should generate content_hash for link types" do
+    url = "http://example.com/newslink"
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    raw = {"json+ld": {}}
+    response = {'type':'media','data': {'url': url, 'type': 'item', 'raw': raw}}.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    pm = create_project_media url: url
+    assert_equal("7621482de494568a442bfac13b1ceeb2", Bot::Alegre.content_hash(pm, nil))
+  end
+
+  test "should generate content_hash for media types" do
+    pm = create_project_media media: create_uploaded_image
+    assert_equal("110c700b3c4b02286cbfa3b700af8a57", Bot::Alegre.content_hash(pm, nil))
+  end
+
+  test "should generate content_hash for temporary types" do
+    pm = TemporaryProjectMedia.new
+    pm.url = "http://example.com/asset.mp3"
+    pm.id = Digest::MD5.hexdigest(pm.url).to_i(16)
+    pm.team_id = [1]
+    pm.type = "audio"
+    assert_equal(nil, Bot::Alegre.content_hash(pm, nil))
+    Rails.cache.write("url_sha:#{project_media.url}", Digest::MD5.hexdigest("blah"), expires_in: 60*3)
+    assert_equal("6f1ed002ab5595859014ebf0951522d9", Bot::Alegre.content_hash(pm, nil))
+  end
 end
