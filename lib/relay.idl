@@ -2590,6 +2590,7 @@ input CreateFactCheckInput {
   """
   clientMutationId: String
   language: String
+  rating: String
   summary: String!
   tags: [String]
   title: String!
@@ -15500,6 +15501,7 @@ input UpdateFactCheckInput {
   clientMutationId: String
   id: ID
   language: String
+  rating: String
   summary: String
   tags: [String]
   title: String
