@@ -1183,7 +1183,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     }
     publish_report(pm, {}, nil, data)
     pm = ProjectMedia.find(pm.id).reload
-    assert_equal("eb02b714673c8af17b108836ce750070", Bot::Alegre.content_hash(pm, "report_text_title")
+    assert_equal("eb02b714673c8af17b108836ce750070", Bot::Alegre.content_hash(pm, "report_text_title"))
     assert_equal("b476da9a44932178529f6896e0346af7", Bot::Alegre.content_hash(pm, nil))
   end
 
