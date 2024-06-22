@@ -236,6 +236,30 @@ class StatisticsTest < ActiveSupport::TestCase
     assert_equal 0, MonthlyTeamStatistic.where(team: @tipline_team).count
   end
 
+  test "check:data:statistics skips generating statistics with zero values" do
+    # Setup
+    team = @tipline_team
+    bot_user = BotUser.smooch_user
+
+    CheckStatistics.stubs(:get_statistics).returns(
+      conversations_24hr: 0,
+      another_stat: 0
+    )
+  
+    assert_equal 0, MonthlyTeamStatistic.where(team: team).count
+  
+    travel_to @current_date
+
+    out, err = capture_io do
+      Rake::Task['check:data:statistics'].invoke
+    end
+  
+    Rake::Task['check:data:statistics'].reenable
+  
+    assert err.blank?, "Expected no errors, but got: #{err}"
+    assert_equal 0, MonthlyTeamStatistic.where(team: team).count, "Expected no statistics to be created"
+  end  
+
   test "check:data:statistics skips generating statistics for teams without a team bot installation" do
     TeamBotInstallation.delete_all
 

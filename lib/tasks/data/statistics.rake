@@ -66,13 +66,18 @@ namespace :check do
                     end
                   end
 
-                  partial_month = MonthlyTeamStatistic.find_by(team_id: team_id, platform: platform, language: language, start_date: month_start)
-                  if partial_month.present?
-                    partial_month.update!(row_attributes.merge!(team_id: team_id))
-                    team_stats[:updated] += 1
+                  # Check if any statistics are non-zero
+                  if row_attributes.values.any? { |value| value != 0 }
+                    partial_month = MonthlyTeamStatistic.find_by(team_id: team_id, platform: platform, language: language, start_date: month_start)
+                    if partial_month.present?
+                      partial_month.update!(row_attributes.merge!(team_id: team_id))
+                      team_stats[:updated] += 1
+                    else
+                      MonthlyTeamStatistic.create!(row_attributes.merge!(team_id: team_id))
+                      team_stats[:created] += 1
+                    end
                   else
-                    MonthlyTeamStatistic.create!(row_attributes.merge!(team_id: team_id))
-                    team_stats[:created] += 1
+                    team_stats[:skipped_zero] += 1
                   end
 
                 rescue StandardError => e
