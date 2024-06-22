@@ -62,7 +62,6 @@ module SmoochCapi
         media_url,
         path,
         mime_type,
-        true,
         {'Authorization' => "Bearer #{self.config['capi_permanent_token']}"}
       )
     end

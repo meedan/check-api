@@ -203,19 +203,14 @@ module SmoochSearch
         media_url,
         path,
         mime,
-        false,
         headers
       )
     end
-    
-    def write_file_to_s3(media_url, path, mime, force_ssl, headers)
+
+    def write_file_to_s3(media_url, path, mime, headers)
       uri = URI(media_url)
       http = Net::HTTP.new(uri.host, uri.port)
-      if force_ssl
-        http.use_ssl = true
-      else
-        http.use_ssl = uri.scheme == 'https'
-      end
+      http.use_ssl = uri.scheme == 'https'
       req = Net::HTTP::Get.new(uri.request_uri, headers)
       response = http.request(req)
       body = response.body
