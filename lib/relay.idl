@@ -13047,6 +13047,9 @@ type Team implements Node {
     """
     last: Int
     offset: Int = 0
+    publisher_ids: [Int]
+    rating: [String]
+    report_status: [String]
     sort: String = "title"
     sort_type: String = "ASC"
     standalone: Boolean
@@ -13055,7 +13058,7 @@ type Team implements Node {
     updated_at: String
     user_ids: [Int]
   ): ArticleUnionConnection
-  articles_count(article_type: String!, language: [String], standalone: Boolean, tags: [String], text: String, updated_at: String, user_ids: [Int]): Int
+  articles_count(article_type: String!, language: [String], publisher_ids: [Int], rating: [String], report_status: [String], standalone: Boolean, tags: [String], text: String, updated_at: String, user_ids: [Int]): Int
   available_newsletter_header_types: JsonStringType
   avatar: String
   check_search_spam: CheckSearch

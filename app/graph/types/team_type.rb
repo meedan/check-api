@@ -303,6 +303,9 @@ class TeamType < DefaultObject
     argument :updated_at, GraphQL::Types::String, required: false, camelize: false # JSON
     argument :text, GraphQL::Types::String, required: false, camelize: false # Search by text
     argument :standalone, GraphQL::Types::Boolean, required: false, camelize: false # Not applied to any item (fact-checks only)
+    argument :publisher_ids, [GraphQL::Types::Int, null: true], required: false, camelize: false
+    argument :report_status, [GraphQL::Types::String, null: true], required: false, camelize: false
+    argument :rating, [GraphQL::Types::String, null: true], required: false, camelize: false
   end
 
   def articles(**args)
@@ -328,6 +331,9 @@ class TeamType < DefaultObject
     argument :updated_at, GraphQL::Types::String, required: false, camelize: false # JSON
     argument :text, GraphQL::Types::String, required: false, camelize: false # Search by text
     argument :standalone, GraphQL::Types::Boolean, required: false, camelize: false # Not applied to any item (fact-checks only)
+    argument :publisher_ids, [GraphQL::Types::Int, null: true], required: false, camelize: false
+    argument :report_status, [GraphQL::Types::String, null: true], required: false, camelize: false
+    argument :rating, [GraphQL::Types::String, null: true], required: false, camelize: false
   end
 
   def articles_count(**args)
