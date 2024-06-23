@@ -10,6 +10,7 @@ class ClaimDescription < ApplicationRecord
 
   validates_presence_of :team
   validates_uniqueness_of :project_media_id, allow_nil: true
+  after_commit :update_fact_check, on: [:update]
 
   # To avoid GraphQL conflict with name `context`
   alias_attribute :claim_context, :context
@@ -39,5 +40,13 @@ class ClaimDescription < ApplicationRecord
 
   def set_team
     self.team ||= (self.project_media&.team || Team.current)
+  end
+
+  def update_fact_check
+    fact_check = self.fact_check
+    if fact_check && self.project_media_id
+      fact_check.updated_at = Time.now
+      fact_check.save!
+    end
   end
 end

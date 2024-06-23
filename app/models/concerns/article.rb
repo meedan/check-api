@@ -84,6 +84,7 @@ module Article
 
     def send_to_alegre(id)
       obj = self.find_by_id(id)
+      return if obj.project_media.nil?
       obj.text_fields.each do |field|
         ::Bot::Alegre.send_field_to_similarity_index(obj.project_media, field)
       end unless obj.nil?
