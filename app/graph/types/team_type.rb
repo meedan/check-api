@@ -301,6 +301,8 @@ class TeamType < DefaultObject
     argument :tags, [GraphQL::Types::String, null: true], required: false, camelize: false
     argument :language, [GraphQL::Types::String, null: true], required: false, camelize: false
     argument :updated_at, GraphQL::Types::String, required: false, camelize: false # JSON
+    argument :text, GraphQL::Types::String, required: false, camelize: false # Search by text
+    argument :standalone, GraphQL::Types::Boolean, required: false, camelize: false # Not applied to any item (fact-checks only)
     argument :publisher_ids, [GraphQL::Types::Int, null: true], required: false, camelize: false
     argument :report_status, [GraphQL::Types::String, null: true], required: false, camelize: false
     argument :rating, [GraphQL::Types::String, null: true], required: false, camelize: false
@@ -308,7 +310,7 @@ class TeamType < DefaultObject
 
   def articles(**args)
     sort = args[:sort].to_s
-    order = [:title, :language, :updated_at].include?(sort.downcase.to_sym) ? sort.downcase.to_sym : :title
+    order = [:title, :language, :updated_at, :id].include?(sort.downcase.to_sym) ? sort.downcase.to_sym : :title
     order_type = args[:sort_type].to_s.downcase.to_sym == :desc ? :desc : :asc
     articles = Explainer.none
     if args[:article_type] == 'explainer'
@@ -327,6 +329,8 @@ class TeamType < DefaultObject
     argument :tags, [GraphQL::Types::String, null: true], required: false, camelize: false
     argument :language, [GraphQL::Types::String, null: true], required: false, camelize: false
     argument :updated_at, GraphQL::Types::String, required: false, camelize: false # JSON
+    argument :text, GraphQL::Types::String, required: false, camelize: false # Search by text
+    argument :standalone, GraphQL::Types::Boolean, required: false, camelize: false # Not applied to any item (fact-checks only)
     argument :publisher_ids, [GraphQL::Types::Int, null: true], required: false, camelize: false
     argument :report_status, [GraphQL::Types::String, null: true], required: false, camelize: false
     argument :rating, [GraphQL::Types::String, null: true], required: false, camelize: false

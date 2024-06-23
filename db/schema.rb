@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_06_04_045337) do
+ActiveRecord::Schema.define(version: 2024_06_19_141452) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -216,11 +216,13 @@ ActiveRecord::Schema.define(version: 2024_06_04_045337) do
   create_table "claim_descriptions", force: :cascade do |t|
     t.text "description"
     t.bigint "user_id", null: false
-    t.bigint "project_media_id", null: false
+    t.bigint "project_media_id"
     t.text "context"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "team_id"
     t.index ["project_media_id"], name: "index_claim_descriptions_on_project_media_id", unique: true
+    t.index ["team_id"], name: "index_claim_descriptions_on_team_id"
     t.index ["user_id"], name: "index_claim_descriptions_on_user_id"
   end
 
@@ -302,6 +304,15 @@ ActiveRecord::Schema.define(version: 2024_06_04_045337) do
     t.index ["value_json"], name: "index_dynamic_annotation_fields_on_value_json", using: :gin
   end
 
+  create_table "explainer_items", force: :cascade do |t|
+    t.bigint "explainer_id"
+    t.bigint "project_media_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["explainer_id"], name: "index_explainer_items_on_explainer_id"
+    t.index ["project_media_id"], name: "index_explainer_items_on_project_media_id"
+  end
+
   create_table "explainers", force: :cascade do |t|
     t.string "title"
     t.text "description"
@@ -327,10 +338,10 @@ ActiveRecord::Schema.define(version: 2024_06_04_045337) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "signature"
-    t.integer "publisher_id"
-    t.integer "report_status"
-    t.string "rating"
     t.string "tags", default: [], array: true
+    t.integer "publisher_id"
+    t.integer "report_status", default: 0
+    t.string "rating"
     t.index ["claim_description_id"], name: "index_fact_checks_on_claim_description_id", unique: true
     t.index ["language"], name: "index_fact_checks_on_language"
     t.index ["publisher_id"], name: "index_fact_checks_on_publisher_id"
@@ -913,6 +924,8 @@ ActiveRecord::Schema.define(version: 2024_06_04_045337) do
 
   add_foreign_key "claim_descriptions", "project_medias"
   add_foreign_key "claim_descriptions", "users"
+  add_foreign_key "explainer_items", "explainers"
+  add_foreign_key "explainer_items", "project_medias"
   add_foreign_key "explainers", "teams"
   add_foreign_key "explainers", "users"
   add_foreign_key "fact_checks", "claim_descriptions"

@@ -46,7 +46,7 @@ class FactCheck < ApplicationRecord
   end
 
   def update_report
-    return if self.skip_report_update || !DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').exists?
+    return if self.skip_report_update || !DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').exists? || self.project_media.blank?
     pm = self.project_media
     reports = pm.get_dynamic_annotation('report_design') || Dynamic.new(annotation_type: 'report_design', annotated: pm)
     data = reports.data.to_h.with_indifferent_access
