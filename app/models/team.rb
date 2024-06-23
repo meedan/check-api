@@ -645,11 +645,17 @@ class Team < ApplicationRecord
     # Filter by date
     query = query.where(updated_at: Range.new(*format_times_search_range_filter(JSON.parse(filters[:updated_at]), nil))) unless filters[:updated_at].blank?
 
+    # Filter by text
+    query = query.where('(title ILIKE ? OR url ILIKE ? OR summary ILIKE ?)', *["%#{filters[:text]}%"]*3) if filters[:text].to_s.size > 2
+
     query
   end
 
   def filtered_fact_checks(filters = {})
     query = FactCheck.includes(claim_description: :project_media).where('project_medias.team_id' => self.id)
+
+    # Filter by standalone
+    query = FactCheck.includes(:claim_description).where('claim_descriptions.project_media_id' => nil, 'claim_descriptions.team_id' => self.id) if filters[:standalone]
 
     # Filter by language
     query = query.where('fact_checks.language' => filters[:language].to_a) unless filters[:language].blank?
@@ -671,6 +677,9 @@ class Team < ApplicationRecord
 
     # filter by report_status
     query = query.where('fact_checks.report_status' => filters[:report_status].to_a.map(&:to_s)) unless filters[:report_status].blank?
+
+    # Filter by text
+    query = query.where('(title ILIKE ? OR url ILIKE ? OR summary ILIKE ?)', *["%#{filters[:text]}%"]*3) if filters[:text].to_s.size > 2
 
     query
   end

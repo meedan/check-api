@@ -11,4 +11,5 @@ class FactCheckType < DefaultObject
   field :user, UserType, null: true
   field :claim_description, ClaimDescriptionType, null: true
   field :tags, [GraphQL::Types::String, null: true], null: true
+  field :rating, GraphQL::Types::String, null: true
 end

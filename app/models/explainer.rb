@@ -4,6 +4,8 @@ class Explainer < ApplicationRecord
   belongs_to :team
 
   has_annotations
+  has_many :explainer_items
+  has_many :project_medias, through: :explainer_items
 
   before_validation :set_team
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true

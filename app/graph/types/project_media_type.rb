@@ -371,4 +371,8 @@ class ProjectMediaType < DefaultObject
   field :similar_items, ProjectMediaType.connection_type, null: true
 
   field :media_slug, GraphQL::Types::String, null: true
+
+  field :fact_check, FactCheckType, null: true
+
+  field :explainers, ExplainerType.connection_type, null: true
 end

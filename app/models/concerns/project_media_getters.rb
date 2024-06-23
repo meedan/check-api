@@ -213,4 +213,8 @@ module ProjectMediaGetters
   def team_avatar
     self.team.avatar
   end
+
+  def fact_check
+    self.claim_description&.fact_check
+  end
 end

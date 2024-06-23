@@ -47,7 +47,7 @@ module Article
       'ClaimDescription' => 'save_claim_description',
       'FactCheck' => 'save_fact_check'
     }[self.class.name]
-    BotUser.enqueue_event(event, self.project_media.team_id, self)
+    BotUser.enqueue_event(event, self.project_media.team_id, self) unless self.project_media.nil?
   end
 
   protected
@@ -55,6 +55,7 @@ module Article
   def index_in_elasticsearch(data)
     # touch project media to update `updated_at` date
     pm = self.project_media
+    return if pm.nil?
     pm = ProjectMedia.find_by_id(pm.id)
     unless pm.nil?
       updated_at = Time.now
@@ -83,6 +84,7 @@ module Article
 
     def send_to_alegre(id)
       obj = self.find_by_id(id)
+      return if obj.project_media.nil?
       obj.text_fields.each do |field|
         ::Bot::Alegre.send_field_to_similarity_index(obj.project_media, field)
       end unless obj.nil?
