@@ -20,6 +20,7 @@ build_qa:
     - docker push "$ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"
   only:
     - develop
+    - CV2-4007-test-session-cookie-permissions
 
 deploy_qa:
   image: python:3.7.7
