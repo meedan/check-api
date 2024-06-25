@@ -32,7 +32,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm1 = create_project_media team: @team, media: create_uploaded_video
     pm2 = create_project_media team: @team, media: create_uploaded_video
     pm3 = create_project_media team: @team, media: create_uploaded_video
-    params = {:doc_id => Bot::Alegre.item_doc_id(pm3), :context => {:team_id => pm3.team_id, :project_media_id => pm3.id, :has_custom_id => true, :temporary_media => false}, :url => @media_path}
+    params = {:content_hash=>Bot::Alegre.content_hash(pm3, nil), :doc_id => Bot::Alegre.item_doc_id(pm3), :context => {:team_id => pm3.team_id, :project_media_id => pm3.id, :has_custom_id => true, :temporary_media => false}, :url => @media_path}
     Bot::Alegre.stubs(:request).with('post', '/similarity/async/video', params.merge({ threshold: 0.9, confirmed: false })).returns(true)
     Bot::Alegre.stubs(:request).with('post', '/similarity/async/video', params.merge({ threshold: 0.9, confirmed: true })).returns(true)
     Redis.any_instance.stubs(:get).returns({
@@ -70,7 +70,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     pm2 = create_project_media team: @team, media: create_uploaded_audio
     pm3 = create_project_media team: @team, media: create_uploaded_audio
-    params = {:doc_id => Bot::Alegre.item_doc_id(pm3), :context => {:team_id => pm3.team_id, :project_media_id => pm3.id, :has_custom_id => true, :temporary_media => false}, :url => @media_path}
+    params = {:content_hash=>Bot::Alegre.content_hash(pm3, nil), :doc_id => Bot::Alegre.item_doc_id(pm3), :context => {:team_id => pm3.team_id, :project_media_id => pm3.id, :has_custom_id => true, :temporary_media => false}, :url => @media_path}
     Bot::Alegre.stubs(:request).with('post', '/similarity/async/audio', params.merge({ threshold: 0.9, confirmed: false })).returns(true)
     Bot::Alegre.stubs(:request).with('post', '/similarity/async/audio', params.merge({ threshold: 0.9, confirmed: true })).returns(true)
     
@@ -110,8 +110,8 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     pm1 = create_project_media team: @team, media: create_uploaded_video
     pm2 = create_project_media team: @team, media: create_uploaded_audio
     pm3 = create_project_media team: @team, media: create_uploaded_audio
-    request_params = {:doc_id=>Bot::Alegre.item_doc_id(pm3), :context=>{:team_id=>pm3.team_id, :project_media_id=>pm3.id, :has_custom_id=>true, :temporary_media=>false}, :url=>@media_path, :threshold=>0.9, :confirmed=>true}
-    request_params_unconfirmed = {:doc_id=>Bot::Alegre.item_doc_id(pm3), :context=>{:team_id=>pm3.team_id, :project_media_id=>pm3.id, :has_custom_id=>true, :temporary_media=>false}, :url=>@media_path, :threshold=>0.9, :confirmed=>false}
+    request_params = {:content_hash=>Bot::Alegre.content_hash(pm3, nil), :doc_id=>Bot::Alegre.item_doc_id(pm3), :context=>{:team_id=>pm3.team_id, :project_media_id=>pm3.id, :has_custom_id=>true, :temporary_media=>false}, :url=>@media_path, :threshold=>0.9, :confirmed=>true}
+    request_params_unconfirmed = {:content_hash=>Bot::Alegre.content_hash(pm3, nil), :doc_id=>Bot::Alegre.item_doc_id(pm3), :context=>{:team_id=>pm3.team_id, :project_media_id=>pm3.id, :has_custom_id=>true, :temporary_media=>false}, :url=>@media_path, :threshold=>0.9, :confirmed=>false}
     Bot::Alegre.stubs(:request).with('post', '/similarity/async/audio', request_params).returns({
       result: [
         {
@@ -221,7 +221,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
         }
       ]
     }.with_indifferent_access
-    params = {:doc_id => Bot::Alegre.item_doc_id(pm3), :context => {:team_id => pm3.team_id, :project_media_id => pm3.id, :has_custom_id => true, :temporary_media => false}, :url => @media_path}
+    params = {:content_hash=>Bot::Alegre.content_hash(pm3, nil), :doc_id => Bot::Alegre.item_doc_id(pm3), :context => {:team_id => pm3.team_id, :project_media_id => pm3.id, :has_custom_id => true, :temporary_media => false}, :url => @media_path}
     Bot::Alegre.stubs(:request).with('post', '/similarity/async/image', params.merge({ threshold: 0.89, confirmed: false })).returns(result)
     Bot::Alegre.stubs(:request).with('post', '/similarity/async/image', params.merge({ threshold: 0.95, confirmed: true })).returns(result)
     Bot::Alegre.stubs(:media_file_url).with(pm3).returns(@media_path)
@@ -289,7 +289,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
         relationship_type: Relationship.suggested_type
       }
     }.to_yaml)
-    params = {:doc_id => Bot::Alegre.item_doc_id(pm1a), :context => {:team_id => pm1a.team_id, :project_media_id => pm1a.id, :has_custom_id => true, :temporary_media => false}, :url => @media_path}
+    params = {:content_hash=>Bot::Alegre.content_hash(pm1a, nil), :doc_id => Bot::Alegre.item_doc_id(pm1a), :context => {:team_id => pm1a.team_id, :project_media_id => pm1a.id, :has_custom_id => true, :temporary_media => false}, :url => @media_path}
     Bot::Alegre.stubs(:media_file_url).with(pm1a).returns(@media_path)
     Bot::Alegre.stubs(:request).with('post', '/similarity/async/image', params.merge({ threshold: 0.89, confirmed: false })).returns(true)
     Bot::Alegre.stubs(:request).with('post', '/similarity/async/image', params.merge({ threshold: 0.95, confirmed: true })).returns(true)
