@@ -54,6 +54,7 @@ deploy_qa:
     - echo "new Image was deployed $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"
   only:
     - develop
+    - CV2-4007-test-session-cookie-permissions
 
 build_batch:
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
