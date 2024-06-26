@@ -162,6 +162,14 @@ module SmoochResend
 
       return self.resend_facebook_messenger_report_after_window(message, original) if original&.dig('fallback_template') =~ /report/
 
+      # A newsletter
+      if original&.dig('fallback_template') == 'newsletter'
+        newsletter = TiplineNewsletter.where(language: original['language'], team_id: self.config['team_id'].to_i).last
+        newsletter_content = newsletter.build_content
+        self.send_message_to_user(uid, newsletter_content, self.message_tags_payload(newsletter_content))
+        return true
+      end
+
       # A status message
       if original&.dig('fallback_template') == 'fact_check_status'
         text = original['message']
