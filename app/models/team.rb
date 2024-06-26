@@ -652,10 +652,10 @@ class Team < ApplicationRecord
   end
 
   def filtered_fact_checks(filters = {})
-    query = FactCheck.includes(claim_description: :project_media).where('project_medias.team_id' => self.id)
+    query = FactCheck.includes(:claim_description).where('claim_descriptions.team_id' => self.id)
 
     # Filter by standalone
-    query = FactCheck.includes(:claim_description).where('claim_descriptions.project_media_id' => nil, 'claim_descriptions.team_id' => self.id) if filters[:standalone]
+    query = query.where('claim_descriptions.project_media_id' => nil) if filters[:standalone]
 
     # Filter by language
     query = query.where('fact_checks.language' => filters[:language].to_a) unless filters[:language].blank?
