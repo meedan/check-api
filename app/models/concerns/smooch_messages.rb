@@ -64,8 +64,6 @@ module SmoochMessages
       list = bundle || self.list_of_bundled_messages_from_user(uid)
       return if bundle_contains_only_a_timeout_button_event(list, type) # Don't store a request that is just a reaction to a button
       unless list.empty?
-        Rails.logger.info "SawyDebugging :: list :: #{list.inspect}"
-        Rails.logger.info "SawyDebugging :: data :: id: #{id} - app_id: #{app_id} - type: #{type}"
         last = JSON.parse(list.last)
         if last['_id'] == id || ['menu_options_requests'].include?(type) || force
           self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
@@ -281,51 +279,62 @@ module SmoochMessages
     end
 
     def bundle_list_of_messages_copy(list, last, reject_payload = false)
-      bundles = []
+      # Sperate list into multiple messages based on media files and long text
+      messages = []
       text = []
-      bundle_text = nil
       list.collect{ |m| JSON.parse(m) }.sort_by{ |m| m['received'].to_f }.each do |message|
         next if reject_payload && message['payload']
         if message['type'] == 'text'
+          # Get an item for long text (message that match number of words condition)
           if message['payload'].nil? && ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
-            bundle_text = message
+            messages << message
+          else
+            text << begin JSON.parse(message['payload'])['keyword'] rescue message['text'] end
           end
-          text << begin JSON.parse(message['payload'])['keyword'] rescue message['text'] end
+          # Get text
+          # text << begin JSON.parse(message['payload'])['keyword'] rescue message['text'] end
         else
+          # Get an item for each media file
+          # text << message['mediaUrl'].to_s
           message['text'] = message['mediaUrl'].to_s
-          bundles << self.adjust_media_type(message)
+          messages << self.adjust_media_type(message)
         end
       end
-      collect_text = text.reject{ |t| t.blank? }.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}") # Add a boundary so we can easily split messages if needed
-      if bundles.blank?
-        # if there is no medias then assing the text to a bundle of type text
-        bundle_text ||= last.clone
-        bundle_text['text'] = collect_text
-        bundles << bundle_text
-      elsif bundle_text.nil?
-        # No text bundle with means a text is too short to create a separate bundle
-        # in tihs case will attach the text to last bundle
-        bundles[-1]['text'] = [bundles[-1]['text'], collect_text].join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
+      # collect text and assign it to all existing messages
+      short_text = text.reject{ |t| t.blank? }.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}") # Add a boundary so we can easily split messages if needed
+      # No messages exist (this happens when all messages are short text)
+      # So will create a new message of type text
+      if messages.blank?
+        message = last.clone
+        message['text'] = collect_text
+        messages << message
       else
-        # we already have a bundle text so append it to bundles
-        # and add all other text
-        bundle_text['text'] = [bundle_text['text'], collect_text].join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
-        bundles << bundle_text
+        text = []
+        messages.each do |message|
+          if message['type'] == 'text'
+            text << message['text']
+            message['text'] = [message['text'], short_text].join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
+          end
+        end
+        long_text = text.reject{ |t| t.blank? }.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
+        media_text = [long_text, short_text].join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
+        messages.each do |message|
+          message['text'] = [message['text'], media_text].join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}") if message['type'] != 'text'
+        end
       end
-      bundles
+      messages
     end
 
     def handle_bundle_messages(type, list, last, app_id, annotated, send_message = true)
-      bundles = self.bundle_list_of_messages_copy(list, last)
-      Rails.logger.info "SawyDebugging :: bundles :: #{bundles.inspect}"
-      bundles.each do |bundle|
+      messages = self.bundle_list_of_messages_copy(list, last)
+      messages.each do |message|
         if ['default_requests', 'irrelevant_search_result_requests'].include?(type)
-          self.process_message(bundle, app_id, send_message, type)
+          self.process_message(message, app_id, send_message, type)
         end
         if ['timeout_requests', 'menu_options_requests', 'resource_requests', 'relevant_search_result_requests', 'timeout_search_requests'].include?(type)
-          key = "smooch:banned:#{bundle['authorId']}"
+          key = "smooch:banned:#{message['authorId']}"
           if Rails.cache.read(key).nil?
-            [annotated].flatten.uniq.each_with_index { |a, i| self.save_message_later(bundle, app_id, type, a, i * 60) }
+            [annotated].flatten.uniq.each_with_index { |a, i| self.save_message_later(message, app_id, type, a, i * 60) }
           end
         end
       end
@@ -374,7 +383,6 @@ module SmoochMessages
 
     def save_message(message_json, app_id, author = nil, request_type = 'default_requests', associated_id = nil, associated_class = nil)
       message = JSON.parse(message_json)
-      Rails.logger.info "SawyDebugging :: save_message :: #{message['_id']}"
       return if TiplineRequest.where(smooch_message_id: message['_id']).exists?
       associated_obj = nil
       associated_obj = associated_class.constantize.where(id: associated_id).last unless associated_id.nil?
