@@ -1,4 +1,6 @@
 require 'active_support/concern'
+require 'open-uri'
+require 'uri'
 
 module ProjectMediaCreators
   extend ActiveSupport::Concern
@@ -26,6 +28,76 @@ module ProjectMediaCreators
       annotation.skip_notifications = true
       annotation.save!
     end
+  end
+
+  def create_original_claim
+    claim = self.set_original_claim.strip
+    if claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
+      uri = URI.parse(claim)
+      content_type = fetch_content_type(uri)
+  
+      case content_type
+      when /^image\//
+        self.media = create_media_from_url('UploadedImage', claim)
+      when /^video\//
+        self.media = create_media_from_url('UploadedVideo', claim)
+      when /^audio\//
+        self.media = create_media_from_url('UploadedAudio', claim)
+      else
+        self.media = create_link_media(claim)
+      end
+    else
+      self.media = create_claim_media(claim)
+    end
+  end
+  
+  def fetch_content_type(uri)
+    response = Net::HTTP.get_response(uri)
+    response['content-type']
+  rescue => e
+    Rails.logger.error "[ProjectMediaCreator] Failed to fetch content type for URL #{uri}: #{e.message}"
+    nil
+  end
+
+  def create_media_from_url(type, url)
+    klass = type.constantize
+    file = download_file(url)
+    m = klass.new
+    m.file = file
+    unless m.save
+      Rails.logger.error "[ProjectMediaCreator] Failed to create #{type} from URL #{url}: #{m.errors.full_messages.join(', ')}"
+    end
+    m
+  rescue OpenURI::HTTPError => e
+    Rails.logger.error "[ProjectMediaCreator] Failed to open URL #{url}: #{e.message}"
+    nil
+  rescue => e
+    Rails.logger.error "[ProjectMediaCreator] Failed to create media from URL #{url}: #{e.message}"
+    raise
+  end
+  
+  def mime_type(file)
+    Marcel::MimeType.for(file)
+  end
+
+  def download_file(url)
+    file = URI.open(url)
+    tempfile = Tempfile.new
+    tempfile.binmode
+    tempfile.write(file.read)
+    tempfile.rewind
+    tempfile
+  end
+
+  def create_claim_media(text)
+    Claim.create!(quote: text)
+  end
+
+  def create_link_media(url)
+    team = self.team || Team.current
+    pender_key = team.get_pender_key if team
+    url_from_pender = Link.normalized(url, pender_key)
+    Link.find_by(url: url_from_pender) || Link.create!(url: url, pender_key: pender_key)
   end
 
   def set_quote_metadata

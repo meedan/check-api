@@ -45,6 +45,7 @@ module ProjectMediaMutations
     argument :set_tags, JsonStringType, required: false, camelize: false
     argument :set_title, GraphQL::Types::String, required: false, camelize: false
     argument :set_status, GraphQL::Types::String, required: false, camelize: false # Status identifier (for example, "in_progress")
+    argument :set_original_claim, GraphQL::Types::String, required: false, camelize: false
   end
 
   class Update < Mutations::UpdateMutation

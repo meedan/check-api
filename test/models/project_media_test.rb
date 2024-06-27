@@ -463,4 +463,36 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 2, ProjectMedia.where(id: [pm_s.id, pm_t.id], archived: CheckArchivedFlags::FlagCodes::NONE).count
     assert_not_nil Relationship.where(id: r.id).last
   end
+
+  test "should create media from original claim URL or text" do
+    setup_elasticsearch
+  
+    # Mock Pender response for Link
+    link_url = 'https://example.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    link_response = {
+      type: 'media',
+      data: {
+        url: link_url,
+        type: 'item'
+      }
+    }.to_json
+    WebMock.stub_request(:get, pender_url).with(query: { url: link_url }).to_return(body: link_response)
+  
+    # Test for normal url
+    pm_link = create_project_media(set_original_claim: link_url)
+    assert_equal 'Link', pm_link.media.type
+    assert_equal link_url, pm_link.media.url
+  
+    # Test for media url
+    image_url = 'https://example.com/image.jpg'
+    WebMock.stub_request(:get, image_url).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')), headers: { 'Content-Type' => 'image/jpeg' })
+    pm_image = create_project_media(set_original_claim: image_url)
+    assert_equal 'UploadedImage', pm_image.media.type
+  
+    # Test for plain text
+    pm_claim = create_project_media(set_original_claim: 'This is a claim.')
+    assert_equal 'Claim', pm_claim.media.type
+    assert_equal 'This is a claim.', pm_claim.media.quote
+  end       
 end
