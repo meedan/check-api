@@ -1,4 +1,5 @@
 require_relative '../test_helper'
+require 'tempfile'
 
 class ProjectMediaTest < ActiveSupport::TestCase
   def setup
@@ -466,7 +467,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should create media from original claim URL or text" do
     setup_elasticsearch
-  
+
     # Mock Pender response for Link
     link_url = 'https://example.com'
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
@@ -478,21 +479,45 @@ class ProjectMediaTest < ActiveSupport::TestCase
       }
     }.to_json
     WebMock.stub_request(:get, pender_url).with(query: { url: link_url }).to_return(body: link_response)
-  
-    # Test for normal url
+
+    # Test for Link
     pm_link = create_project_media(set_original_claim: link_url)
     assert_equal 'Link', pm_link.media.type
     assert_equal link_url, pm_link.media.url
-  
-    # Test for media url
-    image_url = 'https://example.com/image.jpg'
-    WebMock.stub_request(:get, image_url).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')), headers: { 'Content-Type' => 'image/jpeg' })
-    pm_image = create_project_media(set_original_claim: image_url)
-    assert_equal 'UploadedImage', pm_image.media.type
-  
-    # Test for plain text
+
+    # Create temporary image file
+    Tempfile.create(['test_image', '.jpg']) do |file|
+      file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
+      file.rewind
+      image_url = "http://example.com/#{file.path.split('/').last}"
+      WebMock.stub_request(:get, image_url).to_return(body: file.read, headers: { 'Content-Type' => 'image/jpeg' })
+      pm_image = create_project_media(set_original_claim: image_url)
+      assert_equal 'UploadedImage', pm_image.media.type
+    end
+
+    # Create temporary video file
+    Tempfile.create(['test_video', '.mp4']) do |file|
+      file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.mp4')))
+      file.rewind
+      video_url = "http://example.com/#{file.path.split('/').last}"
+      WebMock.stub_request(:get, video_url).to_return(body: file.read, headers: { 'Content-Type' => 'video/mp4' })
+      pm_video = create_project_media(set_original_claim: video_url)
+      assert_equal 'UploadedVideo', pm_video.media.type
+    end
+
+    # Create temporary audio file
+    Tempfile.create(['test_audio', '.mp3']) do |file|
+      file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
+      file.rewind
+      audio_url = "http://example.com/#{file.path.split('/').last}"
+      WebMock.stub_request(:get, audio_url).to_return(body: file.read, headers: { 'Content-Type' => 'audio/mp3' })
+      pm_audio = create_project_media(set_original_claim: audio_url)
+      assert_equal 'UploadedAudio', pm_audio.media.type
+    end
+
+    # Test for Claim
     pm_claim = create_project_media(set_original_claim: 'This is a claim.')
     assert_equal 'Claim', pm_claim.media.type
     assert_equal 'This is a claim.', pm_claim.media.quote
-  end       
+  end      
 end

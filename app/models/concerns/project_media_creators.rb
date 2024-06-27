@@ -35,7 +35,7 @@ module ProjectMediaCreators
     if claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
       uri = URI.parse(claim)
       content_type = fetch_content_type(uri)
-  
+
       case content_type
       when /^image\//
         self.media = create_media_from_url('UploadedImage', claim)
@@ -50,13 +50,10 @@ module ProjectMediaCreators
       self.media = create_claim_media(claim)
     end
   end
-  
+
   def fetch_content_type(uri)
     response = Net::HTTP.get_response(uri)
     response['content-type']
-  rescue => e
-    Rails.logger.error "[ProjectMediaCreator] Failed to fetch content type for URL #{uri}: #{e.message}"
-    nil
   end
 
   def create_media_from_url(type, url)
@@ -64,29 +61,22 @@ module ProjectMediaCreators
     file = download_file(url)
     m = klass.new
     m.file = file
-    unless m.save
-      Rails.logger.error "[ProjectMediaCreator] Failed to create #{type} from URL #{url}: #{m.errors.full_messages.join(', ')}"
-    end
+    m.save
     m
-  rescue OpenURI::HTTPError => e
-    Rails.logger.error "[ProjectMediaCreator] Failed to open URL #{url}: #{e.message}"
-    nil
-  rescue => e
-    Rails.logger.error "[ProjectMediaCreator] Failed to create media from URL #{url}: #{e.message}"
-    raise
   end
-  
+
   def mime_type(file)
     Marcel::MimeType.for(file)
   end
 
   def download_file(url)
-    file = URI.open(url)
-    tempfile = Tempfile.new
-    tempfile.binmode
-    tempfile.write(file.read)
-    tempfile.rewind
-    tempfile
+    raise "Invalid URL" unless url =~ /\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/
+
+    file = Tempfile.new(['download', File.extname(url)])
+    file.binmode
+    file.write(URI(url).open.read)
+    file.rewind
+    file
   end
 
   def create_claim_media(text)
