@@ -1,13 +1,6 @@
 # Be sure to restart your server when you modify this file.
 
-# allow subdomains to aceess the session cookie
-# :domain => :all tells Rails to put a dot in front of the cookie domain (which is whatever host your browser has
-# browsed to), such that the cookie applies to all subdomains.
+# We need to allow subdomains to aceess the session cookie so they can auth.
+# for Live and QA the session_store_domain should be .checkmedia.org from config file
 # TODO: do we need to set seperate cookies for qa and live so the wrong ones don't get posted?
-if Rails.env.production?
-  Rails.application.config.session_store :cookie_store, key: '_checkdesk_session', domain: '.checkmedia.org'
-elsif Rails.env.development?
-  Rails.application.config.session_store :cookie_store, key: '_checkdesk_session', domain: 'localhost'
-else
-  Rails.application.config.session_store :cookie_store, key: '_checkdesk_session'
-end
+Rails.application.config.session_store :cookie_store, key: '_checkdesk_session', domain: CheckConfig.get('session_store_domain', 'localhost')
