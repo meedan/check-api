@@ -646,7 +646,7 @@ class Team < ApplicationRecord
     query = query.where(updated_at: Range.new(*format_times_search_range_filter(JSON.parse(filters[:updated_at]), nil))) unless filters[:updated_at].blank?
 
     # Filter by text
-    query = query.where('(title ILIKE ? OR url ILIKE ? OR summary ILIKE ?)', *["%#{filters[:text]}%"]*3) if filters[:text].to_s.size > 2
+    query = query.where('(title ILIKE ? OR url ILIKE ? OR description ILIKE ?)', *["%#{filters[:text]}%"]*3) if filters[:text].to_s.size > 2
 
     query
   end
