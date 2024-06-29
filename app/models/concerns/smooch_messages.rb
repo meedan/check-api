@@ -280,46 +280,44 @@ module SmoochMessages
 
     def bundle_list_of_messages_copy(list, last, reject_payload = false)
       # Sperate list into multiple messages based on media files and long text
+      # so we have three types of messages (media, short text, long text)
       messages = []
+      # Define a text variable to hold short text
       text = []
+      # Define a message_text variable to hold long text
+      message_text = {}
       list.collect{ |m| JSON.parse(m) }.sort_by{ |m| m['received'].to_f }.each do |message|
         next if reject_payload && message['payload']
         if message['type'] == 'text'
           # Get an item for long text (message that match number of words condition)
           if message['payload'].nil? && ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
+            message_text[message['_id']] = message['text']
             messages << message
           else
             text << begin JSON.parse(message['payload'])['keyword'] rescue message['text'] end
           end
-          # Get text
-          # text << begin JSON.parse(message['payload'])['keyword'] rescue message['text'] end
         else
           # Get an item for each media file
-          # text << message['mediaUrl'].to_s
           message['text'] = message['mediaUrl'].to_s
           messages << self.adjust_media_type(message)
         end
       end
-      # collect text and assign it to all existing messages
-      short_text = text.reject{ |t| t.blank? }.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}") # Add a boundary so we can easily split messages if needed
-      # No messages exist (this happens when all messages are short text)
-      # So will create a new message of type text
+      # collect text that did not match min_number_of_words_for_tipline_submit_shortcut(short text)
+      short_text = text.reject{ |t| t.blank? }
       if messages.blank?
+        # No messages exist (this happens when all messages are short text)
+        # So will create a new message of type text and assign short text to it
         message = last.clone
-        message['text'] = collect_text
+        message['text'] = short_text.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
         messages << message
       else
-        text = []
+        # Get text that match min_number_of_words_for_tipline_submit_shortcut(long text)
+        long_text = message_text.values
         messages.each do |message|
-          if message['type'] == 'text'
-            text << message['text']
-            message['text'] = [message['text'], short_text].join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
-          end
-        end
-        long_text = text.reject{ |t| t.blank? }.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
-        media_text = [long_text, short_text].join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
-        messages.each do |message|
-          message['text'] = [message['text'], media_text].join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}") if message['type'] != 'text'
+          # exclude a message text from long_text array in case a message type is text.
+          extra_text = message['type'] == 'text' ? [] : long_text
+          # Append all texts to each message and add a boundary so we can easily split messages if needed
+          message['text'] = [message['text']].concat(extra_text, short_text).reject{ |t| t.blank? }.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
         end
       end
       messages
