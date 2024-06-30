@@ -298,7 +298,7 @@ module SmoochMessages
           end
         else
           # Get an item for each media file
-          message['text'] = message['mediaUrl'].to_s
+          message['text'] = [message['text'], message['mediaUrl'].to_s].compact.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
           messages << self.adjust_media_type(message)
         end
       end
