@@ -278,7 +278,7 @@ module SmoochMessages
       self.adjust_media_type(bundle)
     end
 
-    def bundle_list_of_messages_copy(list, last, reject_payload = false)
+    def bundle_list_of_messages_to_items(list, last, reject_payload = false)
       # Sperate list into multiple messages based on media files and long text
       # so we have three types of messages (media, short text, long text)
       messages = []
@@ -324,7 +324,7 @@ module SmoochMessages
     end
 
     def handle_bundle_messages(type, list, last, app_id, annotated, send_message = true)
-      messages = self.bundle_list_of_messages_copy(list, last)
+      messages = self.bundle_list_of_messages_to_items(list, last)
       messages.each do |message|
         if ['default_requests', 'irrelevant_search_result_requests'].include?(type)
           self.process_message(message, app_id, send_message, type)
