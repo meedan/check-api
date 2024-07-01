@@ -279,8 +279,11 @@ module SmoochMessages
     end
 
     def bundle_list_of_messages_to_items(list, last)
-      # Seperate list into multiple messages based on media files and long text
-      # so we have three types of messages (media, short text, long text)
+      # Collect messages from list based on media files, long text and short text
+      # so we have three types of messages
+      # Long text (text with number of words > min_number_of_words_for_tipline_submit_shortcut)
+      # Short text (text with number of words <= min_number_of_words_for_tipline_submit_shortcut)
+      # Media (image, audio, video, etc)
       messages = []
       # Define a text variable to hold short text
       text = []
