@@ -135,10 +135,10 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
           end
         end
       end
-      pm = ProjectMedia.joins(:media).where('medias.type' => 'UploadedImage').last
+      pm = ProjectMedia.last
       request = pm.tipline_requests.last
       text = request.smooch_data['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}").sort
-      target_text = ['second image', @media_url_2, long_text.join(' '), 'bar'].sort
+      target_text = messages.collect{|m| m[:text]}.concat([@media_url, @media_url_2]).sort
       assert_equal target_text, text
     end
   end

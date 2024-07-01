@@ -278,20 +278,16 @@ module SmoochMessages
       self.adjust_media_type(bundle)
     end
 
-    def bundle_list_of_messages_to_items(list, last, reject_payload = false)
-      # Sperate list into multiple messages based on media files and long text
+    def bundle_list_of_messages_to_items(list, last)
+      # Seperate list into multiple messages based on media files and long text
       # so we have three types of messages (media, short text, long text)
       messages = []
       # Define a text variable to hold short text
       text = []
-      # Define a message_text variable to hold long text
-      message_text = {}
       list.collect{ |m| JSON.parse(m) }.sort_by{ |m| m['received'].to_f }.each do |message|
-        next if reject_payload && message['payload']
         if message['type'] == 'text'
           # Get an item for long text (message that match number of words condition)
           if message['payload'].nil? && ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
-            message_text[message['_id']] = message['text']
             messages << message
           else
             text << begin JSON.parse(message['payload'])['keyword'] rescue message['text'] end
@@ -311,13 +307,12 @@ module SmoochMessages
         message['text'] = short_text.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
         messages << message
       else
-        # Get text that match min_number_of_words_for_tipline_submit_shortcut(long text)
-        long_text = message_text.values
-        messages.each do |message|
-          # exclude a message text from long_text array in case a message type is text.
-          extra_text = message['type'] == 'text' ? [] : long_text
-          # Append all texts to each message and add a boundary so we can easily split messages if needed
-          message['text'] = [message['text']].concat(extra_text, short_text).reject{ |t| t.blank? }.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
+        # Attach all existing text (media text, long text and short text) to each item
+        # and add a boundary so we can easily split messages if needed
+        all_text = messages.collect{ |m| m['text'] }.concat(short_text).reject{ |t| t.blank? }.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
+        messages.each do |raw|
+          # Define a new key `request_body` so we can append all text to request body
+          raw['request_body'] = all_text
         end
       end
       messages
@@ -411,6 +406,8 @@ module SmoochMessages
     end
 
     def smooch_save_tipline_request(message, associated, app_id, author, request_type, associated_obj)
+      message['text'] = message['request_body'] unless message['request_body'].blank?
+      message.delete('request_body')
       fields = { smooch_data: message.merge({ app_id: app_id }) }
       result = self.smooch_api_get_messages(app_id, message['authorId'])
       fields[:smooch_conversation_id] = result.conversation.id unless result.nil? || result.conversation.nil?
