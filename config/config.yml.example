@@ -2,6 +2,7 @@ development: &default
   secret_token: 'somethingsecret'
   app_name: 'Check'
   authorization_header: 'X-Check-Token'
+  session_store_domain: .checkmedia.org
   checkdesk_base_url: 'http://localhost:3000'
   checkdesk_base_url_private: 'http://localhost:3000'
   checkdesk_client: 'http://localhost:3333'
