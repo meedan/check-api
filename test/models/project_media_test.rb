@@ -479,17 +479,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
       }
     }.to_json
     WebMock.stub_request(:get, pender_url).with(query: { url: link_url }).to_return(body: link_response)
-
-    # Test for Link
     pm_link = create_project_media(set_original_claim: link_url)
     assert_equal 'Link', pm_link.media.type
     assert_equal link_url, pm_link.media.url
   end
 
   test "should create media from original claim URL as UploadedImage" do
-    setup_elasticsearch
-
-    # Create temporary image file
     Tempfile.create(['test_image', '.jpg']) do |file|
       file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
       file.rewind
@@ -501,9 +496,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should create media from original claim URL as UploadedVideo" do
-    setup_elasticsearch
-
-    # Create temporary video file
     Tempfile.create(['test_video', '.mp4']) do |file|
       file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.mp4')))
       file.rewind
@@ -515,9 +507,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should create media from original claim URL as UploadedAudio" do
-    setup_elasticsearch
-
-    # Create temporary audio file
     Tempfile.create(['test_audio', '.mp3']) do |file|
       file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
       file.rewind
@@ -529,9 +518,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should create media from original claim text as Claim" do
-    setup_elasticsearch
-
-    # Test for Claim
     pm_claim = create_project_media(set_original_claim: 'This is a claim.')
     assert_equal 'Claim', pm_claim.media.type
     assert_equal 'This is a claim.', pm_claim.media.quote
