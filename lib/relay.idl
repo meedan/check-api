@@ -2671,6 +2671,7 @@ input CreateProjectMediaInput {
   set_annotation: String
   set_claim_description: String
   set_fact_check: JsonStringType
+  set_original_claim: String
   set_status: String
   set_tags: JsonStringType
   set_tasks_responses: JsonStringType
