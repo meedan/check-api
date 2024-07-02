@@ -822,6 +822,7 @@ en:
   send_every_must_be_a_list_of_days_of_the_week: must be a list of days of the week.
   send_on_must_be_in_the_future: can't be in the past.
   cant_delete_default_folder: The default folder can't be deleted
+  explainer_and_item_must_be_from_the_same_team: Explainer and item must be from the same workspace.
   shared_feed_imported_media_already_exist: |-
     No media eligible to be imported into your workspace.
     The media selected to import already exist in your workspace in the following items:

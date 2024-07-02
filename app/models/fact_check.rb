@@ -1,6 +1,8 @@
 class FactCheck < ApplicationRecord
   include Article
 
+  enum report_status: { unpublished: 0, published: 1, paused: 2 }
+
   attr_accessor :skip_report_update, :publish_report
 
   belongs_to :claim_description
@@ -12,7 +14,7 @@ class FactCheck < ApplicationRecord
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
   validate :language_in_allowed_values, :title_or_summary_exists
 
-  after_save :update_report
+  after_save :update_report, unless: proc { |fc| fc.skip_report_update || !DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').exists? || fc.project_media.blank? }
 
   def text_fields
     ['fact_check_title', 'fact_check_summary']
@@ -20,6 +22,10 @@ class FactCheck < ApplicationRecord
 
   def project_media
     self.claim_description&.project_media
+  end
+
+  def team_id
+    self.project_media&.team_id
   end
 
   private
@@ -40,7 +46,6 @@ class FactCheck < ApplicationRecord
   end
 
   def update_report
-    return if self.skip_report_update || !DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').exists?
     pm = self.project_media
     reports = pm.get_dynamic_annotation('report_design') || Dynamic.new(annotation_type: 'report_design', annotated: pm)
     data = reports.data.to_h.with_indifferent_access

@@ -109,6 +109,14 @@ class Workflow::VerificationStatus < Workflow::Base
         })
         report.data = data
         report.save!
+        # update FactCheck rating
+        fc = pm&.claim_description&.fact_check
+        if !fc.nil? && fc.rating != self.value
+          fc.skip_report_update = true
+          fc.skip_check_ability = true
+          fc.rating = self.value
+          fc.save!
+        end
       end
     end
   end

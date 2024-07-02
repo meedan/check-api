@@ -91,9 +91,17 @@ class ExplainerTest < ActiveSupport::TestCase
     end
   end
 
-  test "should tag explainer" do
+  test "should tag explainer using annotation" do
     ex = create_explainer
     tag = create_tag annotated: ex
     assert_equal [tag], ex.annotations('tag')
+  end
+
+  test "should create tag texts when setting tags" do
+    Sidekiq::Testing.inline! do
+      assert_difference 'TagText.count' do
+        create_explainer tags: ['foo']
+      end
+    end
   end
 end
