@@ -61,7 +61,7 @@ module ProjectMediaCreators
     file = download_file(url)
     m = klass.new
     m.file = file
-    m.save
+    m.save!
     m
   end
 
@@ -70,7 +70,7 @@ module ProjectMediaCreators
   end
 
   def download_file(url)
-    raise "Invalid URL" unless url =~ /\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/
+    raise "Invalid URL when creating media from original claim attribute" unless url =~ /\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/
 
     file = Tempfile.new(['download', File.extname(url)])
     file.binmode
