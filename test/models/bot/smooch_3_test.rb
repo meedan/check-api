@@ -71,6 +71,13 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
   end
 
   test "should bundle messages" do
+    long_text = []
+    15.times{ long_text << random_string }
+    # messages contain the following:
+    # 1). long text( > min_number_of_words_for_tipline_submit_shortcut)
+    # 2). short text (< min_number_of_words_for_tipline_submit_shortcut)
+    # 3). 2 medias
+    # Result: created three items (on claim and two items of type image)
     Sidekiq::Testing.fake! do
       uid = random_string
       messages = [
@@ -79,7 +86,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
           authorId: uid,
           type: 'text',
           source: { type: "whatsapp" },
-          text: 'foo',
+          text: long_text.join(' '),
         },
         {
           '_id': random_string,
@@ -94,7 +101,6 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
           authorId: uid,
           type: 'image',
           source: { type: "whatsapp" },
-          text: 'second image',
           mediaUrl: @media_url_2
         },
         {
@@ -121,12 +127,57 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
         Bot::Smooch.run(payload)
         sleep 1
       end
-      assert_difference 'ProjectMedia.count' do
-        Sidekiq::Worker.drain_all
+      assert_difference 'ProjectMedia.count', 3 do
+        assert_difference 'UploadedImage.count', 2 do
+          assert_difference 'Claim.count' do
+            Sidekiq::Worker.drain_all
+          end
+        end
       end
       pm = ProjectMedia.last
-      assert_no_match /#{@media_url}/, pm.text
-      assert_equal 'UploadedImage', pm.media.type
+      request = pm.tipline_requests.last
+      text = request.smooch_data['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
+      target_text = [long_text.join(' '), 'first image', @media_url, @media_url_2, 'bar']
+      assert_equal target_text, text
+      # Messages with short text only
+      messages = [
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          source: { type: "whatsapp" },
+          text: 'foo',
+        },
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          text: 'bar',
+          source: { type: "whatsapp" },
+        }
+      ]
+      messages.each do |message|
+        payload = {
+          trigger: 'message:appUser',
+          app: {
+            '_id': @app_id
+          },
+          version: 'v1.1',
+          messages: [message],
+          appUser: {
+            '_id': random_string,
+            'conversationStarted': true
+          }
+        }.to_json
+        Bot::Smooch.run(payload)
+        sleep 1
+      end
+      assert_difference 'TiplineRequest.count' do
+        Sidekiq::Worker.drain_all
+      end
+      request = TiplineRequest.last
+      text = request.smooch_data['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
+      assert_equal ['foo', 'bar'], text
     end
   end
 
