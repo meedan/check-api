@@ -65,10 +65,6 @@ module ProjectMediaCreators
     m
   end
 
-  def mime_type(file)
-    Marcel::MimeType.for(file)
-  end
-
   def download_file(url)
     raise "Invalid URL when creating media from original claim attribute" unless url =~ /\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/
 
