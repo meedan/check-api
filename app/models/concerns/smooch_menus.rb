@@ -19,7 +19,7 @@ module SmoochMenus
       allowed_types = ['query_state', 'subscription_state', 'custom_resource']
       ['smooch_state_main', 'smooch_state_secondary'].each_with_index do |state, i|
         rows = []
-        options = workflow[state].to_h['smooch_menu_options'].to_a
+        options = begin workflow[state].to_h['smooch_menu_options'].to_a rescue [] end
         next if options.empty?
         options.select{ |o| allowed_types.include?(o['smooch_menu_option_value']) }.each do |option|
           title = option['smooch_menu_option_label']
