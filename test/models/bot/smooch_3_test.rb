@@ -101,7 +101,6 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
           authorId: uid,
           type: 'image',
           source: { type: "whatsapp" },
-          text: 'second image',
           mediaUrl: @media_url_2
         },
         {
@@ -137,9 +136,48 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       end
       pm = ProjectMedia.last
       request = pm.tipline_requests.last
-      text = request.smooch_data['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}").sort
-      target_text = messages.collect{|m| m[:text]}.concat([@media_url, @media_url_2]).sort
+      text = request.smooch_data['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
+      target_text = [long_text.join(' '), 'first image', @media_url, @media_url_2, 'bar']
       assert_equal target_text, text
+      # Messages with short text only
+      messages = [
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          source: { type: "whatsapp" },
+          text: 'foo',
+        },
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          text: 'bar',
+          source: { type: "whatsapp" },
+        }
+      ]
+      messages.each do |message|
+        payload = {
+          trigger: 'message:appUser',
+          app: {
+            '_id': @app_id
+          },
+          version: 'v1.1',
+          messages: [message],
+          appUser: {
+            '_id': random_string,
+            'conversationStarted': true
+          }
+        }.to_json
+        Bot::Smooch.run(payload)
+        sleep 1
+      end
+      assert_difference 'TiplineRequest.count' do
+        Sidekiq::Worker.drain_all
+      end
+      request = TiplineRequest.last
+      text = request.smooch_data['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
+      assert_equal ['foo', 'bar'], text
     end
   end
 
