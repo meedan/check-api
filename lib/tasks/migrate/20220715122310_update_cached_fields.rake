@@ -26,7 +26,6 @@ namespace :check do
         failed = false
         begin
           CACHED_FIELDS.each { |field| pm.send(field) } # Just cache if it's not cached yet
-          pm.list_columns_values
         rescue Exception => e
           failed = e.message
         end

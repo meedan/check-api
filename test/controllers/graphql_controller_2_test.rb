@@ -141,27 +141,6 @@ class GraphqlController2Test < ActionController::TestCase
     assert_nil pm.get_annotations('extracted_text').last
   end
 
-  test "should get cached values for list columns" do
-    RequestStore.store[:skip_cached_field_update] = false
-    t = create_team
-    t.set_list_columns = ["updated_at_timestamp", "last_seen", "demand", "share_count", "folder", "linked_items_count", "suggestions_count", "type_of_media", "status", "created_at_timestamp", "report_status", "tags_as_sentence", "media_published_at", "comment_count", "reaction_count", "related_count", "positive_tipline_search_results_count", "negative_tipline_search_results_count"]
-    t.save!
-    5.times { create_project_media team: t }
-    u = create_user is_admin: true
-    create_team_user user: u, team: t, role: 'admin'
-    authenticate_with_user(u)
-
-    query = 'query CheckSearch { search(query: "{}") { medias(first: 5) { edges { node { list_columns_values } } } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-
-    assert_queries(7, '=') do
-      query = 'query CheckSearch { search(query: "{}") { medias(first: 5) { edges { node { list_columns_values } } } } }'
-      post :create, params: { query: query, team: t.slug }
-      assert_response :success
-    end
-  end
-
   test "should get team task" do
     t = create_team
     t2 = create_team
@@ -219,79 +198,6 @@ class GraphqlController2Test < ActionController::TestCase
     create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: Relationship.confirmed_type
     post :create, params: { query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { confirmed_similar_items_count } }", team: t.slug }; false
     assert_equal 2, JSON.parse(@response.body)['data']['project_media']['confirmed_similar_items_count']
-  end
-
-  test "should sort search by metadata value where items without metadata value show first on ascending order" do
-    RequestStore.store[:skip_cached_field_update] = false
-    u = create_user is_admin: true
-    t = create_team
-    create_team_user team: t, user: u
-    tt1 = create_team_task fieldset: 'metadata', team_id: t.id
-    tt2 = create_team_task fieldset: 'metadata', team_id: t.id
-    t.list_columns = ["task_value_#{tt1.id}", "task_value_#{tt2.id}"]
-    t.save!
-    pm1 = create_project_media team: t, disable_es_callbacks: false
-    pm2 = create_project_media team: t, disable_es_callbacks: false
-    pm3 = create_project_media team: t, disable_es_callbacks: false
-    pm4 = create_project_media team: t, disable_es_callbacks: false
-
-    m = pm1.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt1.id }.last
-    m.disable_es_callbacks = false
-    m.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'B' }.to_json }.to_json
-    m.save!
-    m = pm3.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt1.id }.last
-    m.disable_es_callbacks = false
-    m.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'A' }.to_json }.to_json
-    m.save!
-    m = pm4.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt1.id }.last
-    m.disable_es_callbacks = false
-    m.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'C' }.to_json }.to_json
-    m.save!
-    sleep 2
-
-    m = pm1.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt2.id }.last
-    m.disable_es_callbacks = false
-    m.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'C' }.to_json }.to_json
-    m.save!
-    m = pm2.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt2.id }.last
-    m.disable_es_callbacks = false
-    m.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'B' }.to_json }.to_json
-    m.save!
-    m = pm4.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt2.id }.last
-    m.disable_es_callbacks = false
-    m.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'A' }.to_json }.to_json
-    m.save!
-    sleep 2
-
-    authenticate_with_user(u)
-
-    query = 'query CheckSearch { search(query: "{\"sort\":\"task_value_' + tt1.id.to_s + '\",\"sort_type\":\"asc\"}") {medias(first:20){edges{node{dbid}}}}}'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
-    assert_equal 4, results.size
-    assert_equal pm2.id, results.first
-
-    query = 'query CheckSearch { search(query: "{\"sort\":\"task_value_' + tt2.id.to_s + '\",\"sort_type\":\"asc\"}") {medias(first:20){edges{node{dbid}}}}}'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
-    assert_equal 4, results.size
-    assert_equal pm3.id, results.first
-
-    query = 'query CheckSearch { search(query: "{\"sort\":\"task_value_' + tt1.id.to_s + '\",\"sort_type\":\"desc\"}") {medias(first:20){edges{node{dbid}}}}}'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
-    assert_equal 4, results.size
-    assert_equal pm2.id, results.last
-
-    query = 'query CheckSearch { search(query: "{\"sort\":\"task_value_' + tt2.id.to_s + '\",\"sort_type\":\"desc\"}") {medias(first:20){edges{node{dbid}}}}}'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
-    assert_equal 4, results.size
-    assert_equal pm3.id, results.last
   end
 
   test "should load permissions for GraphQL" do
