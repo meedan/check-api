@@ -1162,7 +1162,7 @@ vi:
 mn:
   add_more_details_state_button_label: "Нэмэх"
   ask_if_ready_state_button_label: "Цуцлах"
-  cancelled: "Амжилттай цуцаллаа"
+  cancelled: "Амжилттай!"
   confirm_preferred_language: "Сонгосон хэлээ баталгаажуулна уу"
   invalid_format: "Уучлаарай, таны илгээсэн файлын формат ажиллахгүй байна."
   keep_subscription_button_label: "Бүртгэлээ хадгалах"

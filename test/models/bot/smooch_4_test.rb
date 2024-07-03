@@ -695,4 +695,26 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should resend newsletter after Facebook Messenger 24-hours window" do
+    WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(body: '<rss></rss>')
+    msgid = random_string
+    response = OpenStruct.new({ body: OpenStruct.new(message: OpenStruct.new({ id: msgid })) })
+    Bot::Smooch.save_smooch_response(response, nil, random_string, 'newsletter', 'en', { message: random_string })
+    message = {
+      app: {
+        '_id': @app_id
+      },
+      appUser: {
+        '_id': random_string,
+      },
+      message: {
+        '_id': msgid
+      },
+      destination: {
+        type: 'messenger'
+      }
+    }.to_json
+    assert Bot::Smooch.resend_message_after_window(message)
+  end
 end

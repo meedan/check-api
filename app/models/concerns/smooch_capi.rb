@@ -57,15 +57,13 @@ module SmoochCapi
       req = Net::HTTP::Get.new(uri.request_uri, 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{self.config['capi_permanent_token']}")
       response = http.request(req)
       media_url = JSON.parse(response.body)['url']
-
-      uri = URI(media_url)
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true
-      req = Net::HTTP::Get.new(uri.request_uri, 'Authorization' => "Bearer #{self.config['capi_permanent_token']}")
-      response = http.request(req)
       path = "capi/#{media_id}"
-      CheckS3.write(path, mime_type, response.body)
-      CheckS3.public_url(path)
+      self.write_file_to_s3(
+        media_url,
+        path,
+        mime_type,
+        {'Authorization' => "Bearer #{self.config['capi_permanent_token']}"}
+      )
     end
 
     def handle_capi_system_message(message)
