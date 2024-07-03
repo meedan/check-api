@@ -39,7 +39,6 @@ class TeamType < DefaultObject
   field :get_language_detection, GraphQL::Types::Boolean, null: true
   field :get_report, JsonStringType, null: true
   field :get_fieldsets, JsonStringType, null: true
-  field :get_data_report_url, GraphQL::Types::String, null: true
   field :url, GraphQL::Types::String, null: true
   field :data_report, JsonStringType, null: true
   field :available_newsletter_header_types, JsonStringType, null: true # List of header type strings
