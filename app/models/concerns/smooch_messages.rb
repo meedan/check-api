@@ -260,25 +260,7 @@ module SmoochMessages
       Redis.new(REDIS_CONFIG).del("smooch:bundle:#{uid}")
     end
 
-    def bundle_list_of_messages(list, last, reject_payload = false)
-      bundle = last.clone
-      text = []
-      media = nil
-      list.collect{ |m| JSON.parse(m) }.sort_by{ |m| m['received'].to_f }.each do |message|
-        next if reject_payload && message['payload']
-        if media.nil?
-          media = message['mediaUrl']
-          bundle['type'] = message['type'] if message['type'] != 'interactive'
-          bundle['mediaUrl'] = media
-        end
-        text << message['mediaUrl'].to_s
-        text << begin JSON.parse(message['payload'])['keyword'] rescue message['text'] end
-      end
-      bundle['text'] = text.reject{ |t| t.blank? }.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}") # Add a boundary so we can easily split messages if needed
-      self.adjust_media_type(bundle)
-    end
-
-    def bundle_list_of_messages_to_items(list, last)
+    def bundle_list_of_messages_to_items(list, last, reject_payload = false)
       # Collect messages from list based on media files, long text and short text
       # so we have three types of messages
       # Long text (text with number of words > min_number_of_words_for_tipline_submit_shortcut)
@@ -288,6 +270,7 @@ module SmoochMessages
       # Define a text variable to hold short text
       text = []
       list.collect{ |m| JSON.parse(m) }.sort_by{ |m| m['received'].to_f }.each do |message|
+        next if reject_payload && message['payload']
         if message['type'] == 'text'
           # Get an item for long text (message that match number of words condition)
           if message['payload'].nil? && ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)

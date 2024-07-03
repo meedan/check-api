@@ -115,16 +115,18 @@ module SmoochSearch
       results = []
       begin
         list = self.list_of_bundled_messages_from_user(uid)
-        message = self.bundle_list_of_messages(list, last_message, true)
-        type = message['type']
+        messages = self.bundle_list_of_messages_to_items(list, last_message, true)
         after = self.date_filter(team_id)
-        query = message['text']
-        query = CheckS3.rewrite_url(message['mediaUrl']) unless type == 'text'
-        results = self.search_for_similar_published_fact_checks(type, query, [team_id], after, nil, language).select{ |pm| is_a_valid_search_result(pm) }
+        messages.each do |message|
+          type = message['type']
+          query = message['text']
+          query = CheckS3.rewrite_url(message['mediaUrl']) unless type == 'text'
+          results << self.search_for_similar_published_fact_checks(type, query, [team_id], after, nil, language).select{ |pm| is_a_valid_search_result(pm) }
+        end
       rescue StandardError => e
         self.handle_search_error(uid, e, language)
       end
-      results
+      results.to_a.flatten
     end
 
     def normalized_query_hash(type, query, team_ids, after, feed_id, language)
