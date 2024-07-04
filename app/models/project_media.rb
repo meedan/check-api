@@ -331,19 +331,6 @@ class ProjectMedia < ApplicationRecord
     end
   end
 
-  def list_columns_values
-    values = {}
-    columns = self.team.list_columns || Team.default_list_columns
-    columns.each do |column|
-      c = column.with_indifferent_access
-      if c[:show]
-        key = c[:key]
-        values[key] = self.send(key)
-      end
-    end
-    values
-  end
-
   def feed_columns_values
     values = {}
     columns = [

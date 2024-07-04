@@ -15,6 +15,5 @@ class ProjectMediaCacheWorker
   def perform(pmid)
     pm = ProjectMedia.find(pmid)
     PROJECT_MEDIA_CACHED_FIELDS.each { |field| pm.send(field) } # Just cache if it's not cached yet
-    pm.list_columns_values
   end
 end
