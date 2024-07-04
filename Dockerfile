@@ -12,6 +12,11 @@ ENV LC_ALL C.UTF-8
 ENV LANG C.UTF-8
 ENV LANGUAGE C.UTF-8
 
+# Setup a user account
+ENV DEPLOYUSER=checkdeploy
+RUN useradd ${DEPLOYUSER} -s /bin/bash -m
+
+
 RUN apt-get update -qq && apt-get install -y --no-install-recommends curl
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
@@ -25,6 +30,9 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     libpq-dev \
     libtag1-dev \
     lsof
+
+# CMD and helper scripts
+COPY --chown=root:root production/bin /opt/bin
 
 # tx client
 RUN curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
