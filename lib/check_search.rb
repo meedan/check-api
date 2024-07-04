@@ -523,34 +523,7 @@ class CheckSearch
   end
 
   def build_es_sort
-    # As per spec, for now the team task sort should be just based on "has data" / "has no data"
-    # Items without data appear first
-    if @options['sort'] =~ /^task_value_[0-9]+$/
-      team_task_id = @options['sort'].match(/^task_value_([0-9]+)$/)[1].to_i
-      missing = {
-        asc: '_first',
-        desc: '_last'
-      }[@options['sort_type'].to_s.downcase.to_sym]
-      return [
-        {
-          'task_responses.id': {
-            order: @options['sort_type'],
-            missing: missing,
-            nested: {
-              path: 'task_responses',
-              filter: {
-                bool: {
-                  must: [
-                    { term: { 'task_responses.team_task_id': team_task_id } },
-                    { exists: { field: 'task_responses.value' } }
-                  ]
-                }
-              }
-            }
-          }
-        }
-      ]
-    elsif SORT_MAPPING.keys.include?(@options['sort'].to_s)
+    if SORT_MAPPING.keys.include?(@options['sort'].to_s)
       return [
         { SORT_MAPPING[@options['sort'].to_s] => @options['sort_type'].to_s.downcase.to_sym }
       ]
