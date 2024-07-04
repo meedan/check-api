@@ -140,7 +140,7 @@ class Feed < ApplicationRecord
   def filtered_clusters(args = {})
     team_ids = args[:team_ids]
     channels = args[:channels]
-    query = self.clusters
+    query = self.clusters.joins(:project_media)
 
     # Filter by workspace
     query = query.where.not("ARRAY[?] && team_ids", self.team_ids - team_ids.to_a.map(&:to_i)) if !team_ids.blank? && team_ids != self.team_ids
