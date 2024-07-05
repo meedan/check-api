@@ -47,7 +47,6 @@ module TeamMutations
     argument :language, GraphQL::Types::String, required: false
     argument :languages, JsonStringType, required: false
     argument :language_detection, GraphQL::Types::Boolean, required: false, camelize: false
-    argument :list_columns, JsonStringType, required: false, camelize: false
     argument :tipline_inbox_filters, GraphQL::Types::String, required: false, camelize: false
     argument :suggested_matches_filters, GraphQL::Types::String, required: false, camelize: false
     argument :outgoing_urls_utm_code, GraphQL::Types::String, required: false, camelize: false
