@@ -16,6 +16,21 @@ module SmoochMenus
       workflow ||= self.get_workflow(language)
 
       # Main section and secondary menu
+      ret_main, counter, number_of_options = self.adjust_main_section_and_secondary_menu(workflow, counter, number_of_options)
+      main.concat ret_main
+
+      # Languages and privacy
+      ret_main, counter, number_of_options = self.adjust_languages_and_privacy(language, counter, number_of_options)
+      main.concat ret_main
+
+      # Set extra and fallback
+      extra, fallback = self.smooch_menus_set_extra_fallback(main, text, language)
+
+      self.send_message_to_user(uid, fallback.join("\n"), extra, false, true, event)
+    end
+
+    def adjust_main_section_and_secondary_menu(workflow, counter, number_of_options)
+      main = []
       allowed_types = ['query_state', 'subscription_state', 'custom_resource']
       ['smooch_state_main', 'smooch_state_secondary'].each_with_index do |state, i|
         rows = []
@@ -40,8 +55,11 @@ module SmoochMenus
           rows: rows
         }
       end
+      return main, counter, number_of_options
+    end
 
-      # Languages and privacy
+    def adjust_languages_and_privacy(language, counter, number_of_options)
+      main = []
       rows = []
       languages = self.get_supported_languages
       title = self.get_string('privacy_title', language, 24)
@@ -66,7 +84,10 @@ module SmoochMenus
         title: title,
         rows: rows
       }
+      return main, counter, number_of_options
+    end
 
+    def smooch_menus_set_extra_fallback(main, text, language)
       extra = {
         override: {
           whatsapp: {
@@ -113,8 +134,7 @@ module SmoochMenus
         extra = { actions: actions }
         fallback = [text]
       end
-
-      self.send_message_to_user(uid, fallback.join("\n"), extra, false, true, event)
+      return extra, fallback
     end
 
     def adjust_language_options(rows, language, number_of_options)
