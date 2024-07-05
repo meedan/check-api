@@ -269,6 +269,36 @@ As we can see above, the `geolocation` task response should be a valid [GeoJSON]
 
 The `url` and `quote` can't be both defined at the same time. It's one or the other. If the `quote` field is set, it means you're creating a claim. If the `url` field is set, it means you're creating a report of type "link".
 
+### Create original claim when creating media
+
+When using `createProjectMedia` to create new project media, you can use the `set_original_claim` field to import a URL as the original claim. This URL can be in the following formats:
+
+1. Video URL: This will create a video as the original claim.
+2. Audio URL: This will create an audio as the original claim.
+3. Image URL: This will create a picture/image as the original claim.
+4. Normal URL: A Link will be created as the original claim
+5. If the value in `set_original_claim` is not a URL, then the original claim will be created in plain-text.
+
+Here is an example of how to use this field:
+
+_Query_
+```graphql
+mutation {
+  createProjectMedia(input: {
+    project_id: 4,
+    set_original_claim: "https://someurl.com/somefile.mp3"
+  }) {
+    project_media {
+      title
+      type
+      url
+    }
+  }
+}
+```
+
+This example will create an audio as the original claim.
+
 ## Updating media
 
 We can update media using the GraphQL (Base 64) id. In the example below, we change the description of a media:
