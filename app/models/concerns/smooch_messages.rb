@@ -290,11 +290,9 @@ module SmoochMessages
       list.collect{ |m| JSON.parse(m) }.sort_by{ |m| m['received'].to_f }.each do |message|
         if message['type'] == 'text'
           # Get an item for long text (message that match number of words condition)
-          if message['payload'].nil? && ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
-            messages << message
+          if message['payload'].nil?
+            messages << message if ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
             text << message['text']
-          else
-            text << begin JSON.parse(message['payload'])['keyword'] rescue message['text'] end
           end
         else
           # Get an item for each media file
