@@ -231,6 +231,21 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     CheckSearch.any_instance.unstub(:medias)
   end
 
+  test "should send summary on messenger when URL is blank" do
+    pm = create_project_media(team: @team)
+    publish_report(pm, {}, nil, { language: 'en', use_visual_card: false })
+    CheckSearch.any_instance.stubs(:medias).returns([pm])
+    Sidekiq::Testing.inline! do
+      ['hello', '1', '1', 'Foo bar', '1'].flatten.each { |message| send_message_to_smooch_bot(message, @uid, { 'source' => { 'type' => 'messenger' } }) }
+      assert_state 'search_result'
+      assert_difference 'TiplineRequest.count + ProjectMedia.count', 2 do
+        send_message_to_smooch_bot('1', @uid, { 'source' => { 'type' => 'messenger' } })
+      end
+      assert_state 'main'
+    end
+    CheckSearch.any_instance.unstub(:medias)
+  end
+
   test "should submit query and get relevant text similarity search results on tipline bot v2" do
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)

@@ -256,7 +256,7 @@ module SmoochSearch
       end
       reports.reject{ |r| r.blank? }.each do |report|
         response = nil
-        no_body = (platform == 'Facebook Messenger')
+        no_body = (platform == 'Facebook Messenger' && !report.report_design_field_value('published_article_url').blank?)
         response = self.send_message_to_user(uid, report.report_design_text(nil, no_body), {}, false, true, 'search_result') if report.report_design_field_value('use_text_message')
         response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url }, false, true, 'search_result') if !report.report_design_field_value('use_text_message') && report.report_design_field_value('use_visual_card')
         id = self.get_id_from_send_response(response)
