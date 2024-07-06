@@ -1,5 +1,5 @@
 class ProjectMedia < ApplicationRecord
-  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :skip_rules, :set_claim_description, :set_claim_context, :set_fact_check, :set_tags, :set_title, :set_status
+  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :skip_rules, :set_claim_description, :set_claim_context, :set_fact_check, :set_tags, :set_title, :set_status, :set_original_claim
 
   belongs_to :media
   has_one :claim_description
@@ -32,6 +32,7 @@ class ProjectMedia < ApplicationRecord
   validates_presence_of :custom_title, if: proc { |pm| pm.title_field == 'custom_title' }
 
   before_validation :set_team_id, :set_channel, :set_project_id, on: :create
+  before_validation :create_original_claim, if: proc { |pm| pm.set_original_claim.present? }, on: :create
   after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks, :create_claim_description_and_fact_check, :create_tags
   after_create :add_source_creation_log, unless: proc { |pm| pm.source_id.blank? }
   after_commit :apply_rules_and_actions_on_create, :set_quote_metadata, :notify_team_bots_create, on: [:create]
@@ -328,19 +329,6 @@ class ProjectMedia < ApplicationRecord
     else
       self.task_value(match[1].to_i)
     end
-  end
-
-  def list_columns_values
-    values = {}
-    columns = self.team.list_columns || Team.default_list_columns
-    columns.each do |column|
-      c = column.with_indifferent_access
-      if c[:show]
-        key = c[:key]
-        values[key] = self.send(key)
-      end
-    end
-    values
   end
 
   def feed_columns_values

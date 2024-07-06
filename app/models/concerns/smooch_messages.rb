@@ -278,15 +278,58 @@ module SmoochMessages
       self.adjust_media_type(bundle)
     end
 
-    def handle_bundle_messages(type, list, last, app_id, annotated, send_message = true)
-      bundle = self.bundle_list_of_messages(list, last)
-      if ['default_requests', 'irrelevant_search_result_requests'].include?(type)
-        self.process_message(bundle, app_id, send_message, type)
+    def bundle_list_of_messages_to_items(list, last)
+      # Collect messages from list based on media files, long text and short text
+      # so we have three types of messages
+      # Long text (text with number of words > min_number_of_words_for_tipline_submit_shortcut)
+      # Short text (text with number of words <= min_number_of_words_for_tipline_submit_shortcut)
+      # Media (image, audio, video, etc)
+      messages = []
+      # Define a text variable to hold short text
+      text = []
+      list.collect{ |m| JSON.parse(m) }.sort_by{ |m| m['received'].to_f }.each do |message|
+        if message['type'] == 'text'
+          # Get an item for long text (message that match number of words condition)
+          if message['payload'].nil?
+            messages << message if ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
+            text << message['text']
+          end
+        else
+          # Get an item for each media file
+          message['text'] = [message['text'], message['mediaUrl'].to_s].compact.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
+          text << message['text']
+          messages << self.adjust_media_type(message)
+        end
       end
-      if ['timeout_requests', 'menu_options_requests', 'resource_requests', 'relevant_search_result_requests', 'timeout_search_requests'].include?(type)
-        key = "smooch:banned:#{bundle['authorId']}"
-        if Rails.cache.read(key).nil?
-          [annotated].flatten.uniq.each_with_index { |a, i| self.save_message_later(bundle, app_id, type, a, i * 60) }
+      # collect all text in right order and add a boundary so we can easily split messages if needed
+      all_text = text.reject{ |t| t.blank? }.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
+      if messages.blank?
+        # No messages exist (this happens when all messages are short text)
+        # So will create a new message of type text and assign short text to it
+        message = last.clone
+        message['text'] = all_text
+        messages << message
+      else
+        # Attach all existing text (media text, long text and short text) to each item
+        messages.each do |raw|
+          # Define a new key `request_body` so we can append all text to request body
+          raw['request_body'] = all_text
+        end
+      end
+      messages
+    end
+
+    def handle_bundle_messages(type, list, last, app_id, annotated, send_message = true)
+      messages = self.bundle_list_of_messages_to_items(list, last)
+      messages.each do |message|
+        if ['default_requests', 'irrelevant_search_result_requests'].include?(type)
+          self.process_message(message, app_id, send_message, type)
+        end
+        if ['timeout_requests', 'menu_options_requests', 'resource_requests', 'relevant_search_result_requests', 'timeout_search_requests'].include?(type)
+          key = "smooch:banned:#{message['authorId']}"
+          if Rails.cache.read(key).nil?
+            [annotated].flatten.uniq.each_with_index { |a, i| self.save_message_later(message, app_id, type, a, i * 60) }
+          end
         end
       end
     end
@@ -364,6 +407,8 @@ module SmoochMessages
     end
 
     def smooch_save_tipline_request(message, associated, app_id, author, request_type, associated_obj)
+      message['text'] = message['request_body'] unless message['request_body'].blank?
+      message.delete('request_body')
       fields = { smooch_data: message.merge({ app_id: app_id }) }
       result = self.smooch_api_get_messages(app_id, message['authorId'])
       fields[:smooch_conversation_id] = result.conversation.id unless result.nil? || result.conversation.nil?

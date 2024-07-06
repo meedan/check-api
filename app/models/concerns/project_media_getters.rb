@@ -72,10 +72,6 @@ module ProjectMediaGetters
     "#{CheckConfig.get('checkdesk_client')}/#{self.team.slug}#{project_prefix}/media/#{self.id}"
   end
 
-  def created_at_timestamp
-    self.created_at.to_i
-  end
-
   def updated_at_timestamp
     self.updated_at.to_i
   end

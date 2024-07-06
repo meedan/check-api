@@ -18,12 +18,6 @@ class ClusterType < DefaultObject
 
   field :center, ProjectMediaType, null: true
 
-  def center
-    RecordLoader
-      .for(ProjectMedia)
-      .load(object.project_media_id)
-  end
-
   field :first_item_at, GraphQL::Types::Int, null: true
 
   def first_item_at

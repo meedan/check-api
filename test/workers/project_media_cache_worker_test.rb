@@ -11,6 +11,6 @@ class ProjectMediaCacheWorkerTest < ActiveSupport::TestCase
   test "should cache data" do
     pm = create_project_media
     assert_queries(10, '>') { ProjectMediaCacheWorker.perform_async(pm.id) }
-    assert_queries(2, '=') { ProjectMediaCacheWorker.perform_async(pm.id) }
+    assert_queries(1, '=') { ProjectMediaCacheWorker.perform_async(pm.id) }
   end
 end

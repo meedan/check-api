@@ -589,10 +589,11 @@ class PopulatedWorkspaces
     Dynamic.create!(annotation_type: 'smooch_user', annotated: project_media.team, annotator: BotUser.smooch_user, set_fields: fields.to_json)
 
     # Tipline request
+    plataform = ['whatsapp', 'telegram', 'messenger'].sample
     smooch_data = {
       'role': 'appUser',
       'source': {
-        'type': ['whatsapp', 'telegram', 'messenger'].sample,
+        'type': plataform,
         'id': random_string,
         'integrationId': random_string,
         'originalMessageId': random_string,
@@ -610,6 +611,9 @@ class PopulatedWorkspaces
       'archived': 3,
       'app_id': random_string
     }
+
+    mapping = {'whatsapp'=> CheckChannels::ChannelCodes::WHATSAPP, 'telegram' => CheckChannels::ChannelCodes::TELEGRAM, 'messenger'=>CheckChannels::ChannelCodes::MESSENGER}
+    project_media.update_columns(channel: {main: project_media.channel['main'], others: project_media.channel['others'].to_a.push(mapping[plataform]).uniq} )
 
     TiplineRequest.create!(
       associated: project_media,
