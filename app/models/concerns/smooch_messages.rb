@@ -294,7 +294,7 @@ module SmoochMessages
             messages << message if ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
             text << message['text']
           end
-        else
+        elsif !message['mediaUrl'].blank?
           # Get an item for each media file
           message['text'] = [message['text'], message['mediaUrl'].to_s].compact.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
           text << message['text']
