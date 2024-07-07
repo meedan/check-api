@@ -307,6 +307,7 @@ module SmoochMessages
         # No messages exist (this happens when all messages are short text)
         # So will create a new message of type text and assign short text to it
         message = last.clone
+        message['type'] = 'text'
         message['text'] = all_text
         messages << message
       else
