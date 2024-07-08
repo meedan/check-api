@@ -19,7 +19,7 @@ module SmoochMenus
       allowed_types = ['query_state', 'subscription_state', 'custom_resource']
       ['smooch_state_main', 'smooch_state_secondary'].each_with_index do |state, i|
         rows = []
-        options = workflow[state].to_h['smooch_menu_options'].to_a
+        options = begin workflow[state].to_h['smooch_menu_options'].to_a rescue [] end
         next if options.empty?
         options.select{ |o| allowed_types.include?(o['smooch_menu_option_value']) }.each do |option|
           title = option['smooch_menu_option_label']
@@ -67,6 +67,13 @@ module SmoochMenus
         rows: rows
       }
 
+      # Set extra and fallback
+      extra, fallback = self.smooch_menus_set_extra_and_fallback(main, text, language)
+
+      self.send_message_to_user(uid, fallback.join("\n"), extra, false, true, event)
+    end
+
+    def smooch_menus_set_extra_and_fallback(main, text, language)
       extra = {
         override: {
           whatsapp: {
@@ -114,7 +121,7 @@ module SmoochMenus
         fallback = [text]
       end
 
-      self.send_message_to_user(uid, fallback.join("\n"), extra, false, true, event)
+      return extra, fallback
     end
 
     def adjust_language_options(rows, language, number_of_options)

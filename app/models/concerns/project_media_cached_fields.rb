@@ -135,7 +135,7 @@ module ProjectMediaCachedFields
         {
           model: TiplineRequest,
           if: proc { |tr| tr.associated_type == 'ProjectMedia' },
-          affected_ids: proc { |tr| tr.associated.related_items_ids },
+          affected_ids: proc { |tr| tr.associated&.related_items_ids },
           events: {
             create: :recalculate,
           }
@@ -247,7 +247,7 @@ module ProjectMediaCachedFields
         {
           model: Dynamic,
           if: proc { |d| d.annotation_type == 'report_design' },
-          affected_ids: proc { |d| d.annotated.related_items_ids },
+          affected_ids: proc { |d| d.annotated&.related_items_ids },
           events: {
             save: :cached_field_project_media_report_status_save,
           }

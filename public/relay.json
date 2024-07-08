@@ -2167,7 +2167,7 @@
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "PublicTeam",
+                "name": "Team",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -16099,6 +16099,18 @@
             },
             {
               "name": "set_status",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "set_original_claim",
               "description": null,
               "type": {
                 "kind": "SCALAR",
@@ -59715,6 +59727,20 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "DynamicConnection",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "fact_check_published_on",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
                 "ofType": null
               },
               "isDeprecated": false,

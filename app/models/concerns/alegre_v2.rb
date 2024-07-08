@@ -148,8 +148,23 @@ module AlegreV2
       type
     end
 
+    def content_hash(project_media, field)
+      if Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.include?(field)
+        Digest::MD5.hexdigest(project_media.send(field))
+      else
+        if project_media.is_link?
+          return Digest::MD5.hexdigest(project_media.media.url)
+        elsif project_media.is_a?(TemporaryProjectMedia)
+          return Rails.cache.read("url_sha:#{project_media.url}")
+        elsif !project_media.is_text?
+          return project_media.media.file.filename.split(".").first
+        end
+      end
+    end
+
     def generic_package(project_media, field)
       {
+        content_hash: content_hash(project_media, field),
         doc_id: item_doc_id(project_media, field),
         context: get_context(project_media, field)
       }
