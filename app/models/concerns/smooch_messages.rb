@@ -294,7 +294,7 @@ module SmoochMessages
             messages << message if ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
             text << message['text']
           end
-        else
+        elsif !message['mediaUrl'].blank?
           # Get an item for each media file
           message['text'] = [message['text'], message['mediaUrl'].to_s].compact.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
           text << message['text']
@@ -307,6 +307,7 @@ module SmoochMessages
         # No messages exist (this happens when all messages are short text)
         # So will create a new message of type text and assign short text to it
         message = last.clone
+        message['type'] = 'text'
         message['text'] = all_text
         messages << message
       else
