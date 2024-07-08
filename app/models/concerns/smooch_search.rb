@@ -198,13 +198,24 @@ module SmoochSearch
         audio: 'audio/ogg',
         video: 'video/mp4'
       }[type.to_sym]
+      path = "feed/#{feed.id}/#{SecureRandom.hex}"
+      self.write_file_to_s3(
+        media_url,
+        path,
+        mime,
+        headers
+      )
+    end
+
+    def write_file_to_s3(media_url, path, mime, headers)
       uri = URI(media_url)
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = uri.scheme == 'https'
       req = Net::HTTP::Get.new(uri.request_uri, headers)
       response = http.request(req)
-      path = "feed/#{feed.id}/#{SecureRandom.hex}"
-      CheckS3.write(path, mime, response.body)
+      body = response.body
+      CheckS3.write(path, mime, body)
+      Rails.cache.write("url_sha:#{media_url}", Digest::MD5.hexdigest(body), expires_in: 60*3)
       CheckS3.public_url(path)
     end
 
@@ -245,7 +256,7 @@ module SmoochSearch
       end
       reports.reject{ |r| r.blank? }.each do |report|
         response = nil
-        no_body = (platform == 'Facebook Messenger')
+        no_body = (platform == 'Facebook Messenger' && !report.report_design_field_value('published_article_url').blank?)
         response = self.send_message_to_user(uid, report.report_design_text(nil, no_body), {}, false, true, 'search_result') if report.report_design_field_value('use_text_message')
         response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url }, false, true, 'search_result') if !report.report_design_field_value('use_text_message') && report.report_design_field_value('use_visual_card')
         id = self.get_id_from_send_response(response)

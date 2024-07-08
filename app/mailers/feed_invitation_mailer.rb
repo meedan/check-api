@@ -3,6 +3,7 @@ class FeedInvitationMailer < ApplicationMailer
 
   def notify(record_id)
     record = FeedInvitation.find_by_id record_id
+    return if record.nil?
     @recipient = record.email
     @user = record.user
     @feed = record.feed

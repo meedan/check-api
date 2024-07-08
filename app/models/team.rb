@@ -169,17 +169,6 @@ class Team < ApplicationRecord
     self.set_shorten_outgoing_urls = bool
   end
 
-  def clear_list_columns_cache
-    languages = self.get_languages.to_a + I18n.available_locales.map(&:to_s)
-    languages.uniq.each { |l| Rails.cache.delete("list_columns:team:#{l}:#{self.id}") }
-  end
-
-  def list_columns=(columns)
-    self.clear_list_columns_cache
-    columns = columns.is_a?(String) ? JSON.parse(columns) : columns
-    self.send(:set_list_columns, columns)
-  end
-
   def search_id
     CheckSearch.id({ 'parent' => { 'type' => 'team', 'slug' => self.slug } })
   end
@@ -331,30 +320,6 @@ class Team < ApplicationRecord
     end
   end
 
-  def list_columns
-    Rails.cache.fetch("list_columns:team:#{I18n.locale}:#{self.id}") do
-      show_columns = self.get_list_columns || Team.default_list_columns.select{ |c| c[:show] }.collect{ |c| c[:key] }
-      columns = []
-      Team.default_list_columns.each do |column|
-        columns << column.merge({ show: show_columns.include?(column[:key]) })
-      end
-      TeamTask.where(team_id: self.id, fieldset: 'metadata', associated_type: 'ProjectMedia').each do |tt|
-        key = "task_value_#{tt.id}"
-        columns << {
-          key: key,
-          label: tt.label,
-          show: show_columns.include?(key),
-          type: tt.task_type
-        }
-      end
-      columns.sort_by! do |column|
-        index = show_columns.index(column[:key])
-        index.nil? ? show_columns.size : index
-      end
-      columns
-    end
-  end
-
   def self.reindex_statuses_after_deleting_status(ids_json, fallback_status_id)
     script = { source: "ctx._source.verification_status = params.status", params: { status: fallback_status_id } }
     ProjectMedia.bulk_reindex(ids_json, script)
@@ -448,122 +413,6 @@ class Team < ApplicationRecord
         $repository.client.update_by_query options
       end
     end
-  end
-
-  # This is a method and not a constant because we need the localizations to be evaluated in runtime
-  def self.default_list_columns
-    [
-      {
-        key: 'demand',
-        label: I18n.t(:list_column_demand),
-        show: true
-      },
-      {
-        key: 'share_count',
-        label: I18n.t(:list_column_share_count),
-        show: true
-      },
-      {
-        key: 'linked_items_count',
-        label: I18n.t(:list_column_linked_items_count),
-        show: true
-      },
-      {
-        key: 'type_of_media',
-        label: I18n.t(:list_column_type),
-        show: true
-      },
-      {
-        key: 'status',
-        label: I18n.t(:list_column_status),
-        show: true
-      },
-      {
-        key: 'created_at_timestamp',
-        label: I18n.t(:list_column_created_at),
-        show: true
-      },
-      {
-        key: 'last_seen',
-        label: I18n.t(:list_column_last_seen),
-        show: true
-      },
-      {
-        key: 'updated_at_timestamp',
-        label: I18n.t(:list_column_updated_at),
-        show: true
-      },
-      {
-        key: 'report_status',
-        label: I18n.t(:list_column_report_status),
-        show: false
-      },
-      {
-        key: 'tags_as_sentence',
-        label: I18n.t(:list_column_tags_as_sentence),
-        show: false
-      },
-      {
-        key: 'media_published_at',
-        label: I18n.t(:list_column_media_published_at),
-        show: false
-      },
-      {
-        key: 'published_by',
-        label: I18n.t(:list_column_published_by),
-        show: false
-      },
-      {
-        key: 'fact_check_published_on',
-        label: I18n.t(:list_column_fact_check_published_on),
-        show: false
-      },
-      {
-        key: 'comment_count',
-        label: I18n.t(:list_column_comment_count),
-        show: false
-      },
-      {
-        key: 'reaction_count',
-        label: I18n.t(:list_column_reaction_count),
-        show: false
-      },
-      {
-        key: 'related_count',
-        label: I18n.t(:list_column_related_count),
-        show: false
-      },
-      {
-        key: 'suggestions_count',
-        label: I18n.t(:list_column_suggestions_count),
-        show: false
-      },
-      {
-        key: 'folder',
-        label: I18n.t(:list_column_folder),
-        show: false
-      },
-      {
-        key: 'creator_name',
-        label: I18n.t(:list_column_creator_name),
-        show: false
-      },
-      {
-        key: 'team_name',
-        label: I18n.t(:list_column_team_name),
-        show: false
-      },
-      {
-        key: 'sources_as_sentence',
-        label: I18n.t(:list_column_sources_as_sentence),
-        show: false
-      },
-      {
-        key: 'fact_check_title',
-        label: I18n.t(:list_column_fact_check_title),
-        show: false
-      }
-    ]
   end
 
   def default_language
