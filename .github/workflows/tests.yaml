@@ -1,12 +1,14 @@
-name: Build and Run Integration Test
+name: Build and Run Function, Unit and Contract Tests
 
 on:
   push:
     branches:
     - master
+    - cv2-4793-identify-required-workflows
   pull_request:
     branches:
     - develop
+
 
 env:
   CC_TEST_REPORTER_ID: "${{ secrets.CC_TEST_REPORTER_ID }}"
