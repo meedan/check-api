@@ -9,12 +9,15 @@ on:
     branches:
     - develop
 
-
 env:
   CC_TEST_REPORTER_ID: "${{ secrets.CC_TEST_REPORTER_ID }}"
+
 jobs:
-  functional_tests:
+  functional-tests:
     runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -33,99 +36,30 @@ jobs:
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
-      
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - run: export RECORD_RUNTIME=true
-    - run: export LC_ALL=C.UTF-8
-    - run: export LANG=C.UTF-8
-    - run: export LANGUAGE=C.UTF-8
-    - run: export PATH=/root/.local/bin:$PATH
-    - run: rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
-    - run: echo '[default]' > credentials && echo "aws_access_key_id = $AWS_ACCESS_KEY_ID" >> credentials && echo "aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" >> credentials
-    - run: cp config/config.yml.example config/config.yml
-    - run: cp config/database.yml.example config/database.yml
-    - run: cp config/sidekiq.yml.example config/sidekiq.yml
-    - run: cp config/credentials.json.example config/credentials.json
-    - run: cp config/sidekiq-test.yml.example config/sidekiq-test.yml
-    - run: docker-compose build
-    - run: docker-compose run api bash -c 'touch /tmp/no-syntax-errors && find app lib config -name *.rb -exec bash -c "ruby -c {} >/dev/null || rm /tmp/no-syntax-errors" ";" && ls /tmp/no-syntax-errors'
-    - run: docker-compose -f docker-compose.yml -f docker-test.yml up -d
-    - run: tail -f log/test.log &
-    - run: until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
-    - run: docker-compose exec api test/setup-parallel-env.sh
-    - run: docker-compose exec api bundle exec rake assets:precompile
-    - run: sleep 10
-    - run: touch tmp/parallel_runtime_test.log
-    - run: chmod +w tmp/parallel_runtime_test.log
-    - run: docker-compose exec -e TEST_RETRY_COUNT=3 -e PATTERN='models mailers integration workers lib contract' api test/run-tests.sh
-    - run: docker-compose exec -e GIT_COMMIT_SHA=${{ github.sha }} -e GIT_COMMITTED_AT=${{ github.event.head_commit.timestamp }} -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID -e PATH=$PATH -e JOB_NAME=functional_tests -e AWS_CONFIG_FILE=/app/credentials api test/test-coverage.sh
-    # - uses: rtCamp/action-slack-notify@v2.2.1
-    #     env:
-    #       SLACK_WEBHOOK_URL: "${{ secrets.SLACK_WEBHOOK_URL }}"
-  unit_tests:
-    runs-on: ubuntu-latest
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - run: export RECORD_RUNTIME=true
-    - run: export LC_ALL=C.UTF-8
-    - run: export LANG=C.UTF-8
-    - run: export LANGUAGE=C.UTF-8
-    - run: export PATH=/root/.local/bin:$PATH
-    - run: rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
-    # - run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-    - run: echo '[default]' > credentials && echo "aws_access_key_id = $AWS_ACCESS_KEY_ID" >> credentials && echo "aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" >> credentials
-    - run: cp config/config.yml.example config/config.yml
-    - run: cp config/database.yml.example config/database.yml
-    - run: cp config/sidekiq.yml.example config/sidekiq.yml
-    - run: cp config/credentials.json.example config/credentials.json
-    - run: cp config/sidekiq-test.yml.example config/sidekiq-test.yml
-    - run: docker-compose build
-    - run: docker-compose run api bash -c 'touch /tmp/no-syntax-errors && find app lib config -name *.rb -exec bash -c "ruby -c {} >/dev/null || rm /tmp/no-syntax-errors" ";" && ls /tmp/no-syntax-errors'
-    - run: docker-compose -f docker-compose.yml -f docker-test.yml up -d
-    - run: tail -f log/test.log &
-    - run: until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
-    - run: docker-compose exec api test/setup-parallel-env.sh
-    - run: docker-compose exec api bundle exec rake assets:precompile
-    - run: sleep 10
-    - run: touch tmp/parallel_runtime_test.log
-    - run: chmod +w tmp/parallel_runtime_test.log
-    - run: docker-compose exec -e TEST_RETRY_COUNT=3 -e PATTERN='controllers contract' api test/run-tests.sh
-    - run: docker-compose exec -e GIT_COMMIT_SHA=${{ github.sha }} -e GIT_COMMITTED_AT=${{ github.event.head_commit.timestamp }} -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID -e PATH=$PATH -e JOB_NAME=unit_tests -e AWS_CONFIG_FILE=/app/credentials api test/test-coverage.sh
-    - uses: rtCamp/action-slack-notify@v2.2.1
-      env:
-        SLACK_WEBHOOK_URL: "${{ secrets.SLACK_WEBHOOK_URL }}"
-  contract_tests:
-    runs-on: ubuntu-latest
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - run: export RECORD_RUNTIME=true
-    - run: export LC_ALL=C.UTF-8
-    - run: export LANG=C.UTF-8
-    - run: export LANGUAGE=C.UTF-8
-    - run: export PATH=/root/.local/bin:$PATH
-    - run: rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
-    # - run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-    - run: echo '[default]' > credentials && echo "aws_access_key_id = $AWS_ACCESS_KEY_ID" >> credentials && echo "aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" >> credentials
-    - run: cp config/config.yml.example config/config.yml
-    - run: cp config/database.yml.example config/database.yml
-    - run: cp config/sidekiq.yml.example config/sidekiq.yml
-    - run: cp config/credentials.json.example config/credentials.json
-    - run: cp config/sidekiq-test.yml.example config/sidekiq-test.yml
-    - run: docker-compose build
-    - run: docker-compose run api bash -c 'touch /tmp/no-syntax-errors && find app lib config -name *.rb -exec bash -c "ruby -c {} >/dev/null || rm /tmp/no-syntax-errors" ";" && ls /tmp/no-syntax-errors'
-    - run: docker-compose -f docker-compose.yml -f docker-test.yml up -d
-    - run: tail -f log/test.log & until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
-    - run: docker-compose exec api test/setup-parallel-env.sh
-    - run: docker-compose exec api bundle exec rake assets:precompile
-    - run: sleep 10
-    - run: touch tmp/parallel_runtime_test.log
-    - run: chmod +w tmp/parallel_runtime_test.log
-    - run: docker-compose exec -e TEST_RETRY_COUNT=3 -e PATTERN='controllers models mailers integration workers lib' api test/run-tests.sh
-    - run: docker-compose exec -e GIT_COMMIT_SHA=${{ github.sha }} -e GIT_COMMITTED_AT=${{ github.event.head_commit.timestamp }} -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID -e PATH=$PATH -e JOB_NAME=contract_tests -e AWS_CONFIG_FILE=/app/credentials api test/test-coverage.sh
-    # - uses: rtCamp/action-slack-notify@v2.2.1
-    #   env:
-    #     SLACK_WEBHOOK_URL: "${{ secrets.SLACK_WEBHOOK_URL }}"
+
+    - name: functional-tests
+      run: |
+        export RECORD_RUNTIME=true
+        export LC_ALL=C.UTF-8
+        export LANG=C.UTF-8
+        export LANGUAGE=C.UTF-8
+        export PATH=/root/.local/bin:$PATH
+        rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
+        cp config/config.yml.example config/config.yml
+        cp config/database.yml.example config/database.yml
+        cp config/sidekiq.yml.example config/sidekiq.yml
+        cp config/credentials.json.example config/credentials.json
+        cp config/sidekiq-test.yml.example config/sidekiq-test.yml
+        docker-compose build
+        docker-compose run api bash -c 'touch /tmp/no-syntax-errors && find app lib config -name *.rb -exec bash -c "ruby -c {} >/dev/null || rm /tmp/no-syntax-errors" ";" && ls /tmp/no-syntax-errors'
+        docker-compose -f docker-compose.yml -f docker-test.yml up -d
+        tail -f log/test.log &
+        until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
+        docker-compose exec api test/setup-parallel-env.sh
+        docker-compose exec api bundle exec rake assets:precompile
+        sleep 10
+        touch tmp/parallel_runtime_test.log
+        chmod +w tmp/parallel_runtime_test.log
+        docker-compose exec -e TEST_RETRY_COUNT=3 -e PATTERN='models mailers integration workers lib contract' api test/run-tests.sh
+        docker-compose exec -e GIT_COMMIT_SHA=${{ github.sha }} -e GIT_COMMITTED_AT=${{ github.event.head_commit.timestamp }} -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID -e PATH=$PATH -e JOB_NAME=functional_tests -e AWS_CONFIG_FILE=/app/credentials api test/test-coverage.sh
+   
