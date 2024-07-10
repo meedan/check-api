@@ -55,11 +55,11 @@ jobs:
         docker-compose -f docker-compose.yml -f docker-test.yml up -d
         tail -f log/test.log &
         until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
-        docker-compose exec api test/setup-parallel-env.sh
-        docker-compose exec api bundle exec rake assets:precompile
+        docker-compose exec -T api test/setup-parallel-env.sh
+        docker-compose exec -T api bundle exec rake assets:precompile
         sleep 10
         touch tmp/parallel_runtime_test.log
         chmod +w tmp/parallel_runtime_test.log
-        docker-compose exec -e TEST_RETRY_COUNT=3 -e PATTERN='models mailers integration workers lib contract' api test/run-tests.sh
-        docker-compose exec -e GIT_COMMIT_SHA=${{ github.sha }} -e GIT_COMMITTED_AT=${{ github.event.head_commit.timestamp }} -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID -e PATH=$PATH -e JOB_NAME=functional_tests -e AWS_CONFIG_FILE=/app/credentials api test/test-coverage.sh
+        docker-compose exec -T -e TEST_RETRY_COUNT=3 -e PATTERN='models mailers integration workers lib contract' api test/run-tests.sh
+        docker-compose exec -T -e GIT_COMMIT_SHA=${{ github.sha }} -e GIT_COMMITTED_AT=${{ github.event.head_commit.timestamp }} -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID -e PATH=$PATH -e JOB_NAME=functional_tests -e AWS_CONFIG_FILE=/app/credentials api test/test-coverage.sh
    
