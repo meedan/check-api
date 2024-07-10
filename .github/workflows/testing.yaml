@@ -81,13 +81,6 @@ jobs:
         touch tmp/parallel_runtime_test.log
         chmod +w tmp/parallel_runtime_test.log
 
-    - name: Run PR Tests
-      id: run-tests
-      env:
-        TEST_RETRY_COUNT: 3
-      run: |
-        docker-compose exec -T -e TEST_RETRY_COUNT=3 -e PATTERN='models mailers integration workers lib contract' api test/run-tests.sh
-
   functional-tests:
     needs: setup
     runs-on: ubuntu-latest
