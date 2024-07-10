@@ -83,7 +83,7 @@ jobs:
       env:
         TEST_RETRY_COUNT: 3
       run: |
-        docker-compose exec -T -e TEST_RETRY_COUNT=$TEST_RETRY_COUNT -T -e PATTERN='models mailers integration workers lib contract' api test/run-tests.sh
+        docker-compose exec -e TEST_RETRY_COUNT=$TEST_RETRY_COUNT -T -e PATTERN='models mailers integration workers lib contract' api test/run-tests.sh
   unit-tests:
     runs-on: ubuntu-latest
 
