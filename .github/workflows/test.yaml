@@ -35,6 +35,9 @@ jobs:
         export LANG=C.UTF-8
         export LANGUAGE=C.UTF-8
         export PATH=/root/.local/bin:$PATH
+        rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1
+        tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
+
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -54,11 +57,7 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
     
-    - name: Cache files
-      run: |
-        rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1
-        tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
-
+    
     - name: Copy configuration files
       run: |
         cp config/config.yml.example config/config.yml
