@@ -35,7 +35,7 @@ jobs:
     - run: docker-compose run api bash -c 'touch /tmp/no-syntax-errors && find app lib config -name *.rb -exec bash -c "ruby -c {} >/dev/null || rm /tmp/no-syntax-errors" ";" && ls /tmp/no-syntax-errors'
     - run: docker-compose -f docker-compose.yml -f docker-test.yml up -d
     - run: tail -f log/test.log &
-    - run: until curl --silent -I -f --fail REDACTED:3000 ; do printf .; sleep 1; done
+    - run: until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
     - run: docker-compose exec api test/setup-parallel-env.sh
     - run: docker-compose exec api bundle exec rake assets:precompile
     - run: sleep 10
@@ -68,7 +68,7 @@ jobs:
     - run: docker-compose run api bash -c 'touch /tmp/no-syntax-errors && find app lib config -name *.rb -exec bash -c "ruby -c {} >/dev/null || rm /tmp/no-syntax-errors" ";" && ls /tmp/no-syntax-errors'
     - run: docker-compose -f docker-compose.yml -f docker-test.yml up -d
     - run: tail -f log/test.log &
-    - run: until curl --silent -I -f --fail REDACTED:3000 ; do printf .; sleep 1; done
+    - run: until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
     - run: docker-compose exec api test/setup-parallel-env.sh
     - run: docker-compose exec api bundle exec rake assets:precompile
     - run: sleep 10
@@ -100,7 +100,7 @@ jobs:
     - run: docker-compose build
     - run: docker-compose run api bash -c 'touch /tmp/no-syntax-errors && find app lib config -name *.rb -exec bash -c "ruby -c {} >/dev/null || rm /tmp/no-syntax-errors" ";" && ls /tmp/no-syntax-errors'
     - run: docker-compose -f docker-compose.yml -f docker-test.yml up -d
-    - run: tail -f log/test.log & until curl --silent -I -f --fail REDACTED:3000 ; do printf .; sleep 1; done
+    - run: tail -f log/test.log & until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
     - run: docker-compose exec api test/setup-parallel-env.sh
     - run: docker-compose exec api bundle exec rake assets:precompile
     - run: sleep 10
