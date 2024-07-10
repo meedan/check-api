@@ -70,10 +70,10 @@ jobs:
         until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
 
     - name: Set up parallel environment
-      run: docker-compose exec api test/setup-parallel-env.sh
+      run: docker-compose exec -T api test/setup-parallel-env.sh
 
     - name: Precompile assets
-      run: docker-compose exec api bundle exec rake assets:precompile
+      run: docker-compose exec -T api bundle exec rake assets:precompile
 
     - name: Prepare parallel runtime log
       run: |
