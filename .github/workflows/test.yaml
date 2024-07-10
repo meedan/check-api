@@ -91,6 +91,6 @@ jobs:
       run: docker-compose exec -e TEST_RETRY_COUNT=3 -e PATTERN='models mailers integration workers lib contract' api test/run-tests.sh
     
     - name: after functional tests
-      run: - run: docker-compose exec -e GIT_COMMIT_SHA=${{ github.sha }} -e GIT_COMMITTED_AT=${{ github.event.head_commit.timestamp }} -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID -e PATH=$PATH -e JOB_NAME=contract_tests -e AWS_CONFIG_FILE=/app/credentials api test/test-coverage.sh
+      run: docker-compose exec -e GIT_COMMIT_SHA=${{ github.sha }} -e GIT_COMMITTED_AT=${{ github.event.head_commit.timestamp }} -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID -e PATH=$PATH -e JOB_NAME=contract_tests -e AWS_CONFIG_FILE=/app/credentials api test/test-coverage.sh
 
     
