@@ -12,6 +12,9 @@ on:
 jobs:
   functional_tests:
     runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
     # env:
     #   RECORD_RUNTIME: true
@@ -23,17 +26,15 @@ jobs:
     # outputs:
     #   image: ${{ steps.build-image.outputs.image }}
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    
       
-      - name: set up env
-        run: |      
-          export RECORD_RUNTIME=true
-          export LC_ALL=C.UTF-8
-          export LANG=C.UTF-8
-          export LANGUAGE=C.UTF-8
-          export PATH=/root/.local/bin:$PATH
+    - name: set up env
+      run: |      
+        export RECORD_RUNTIME=true
+        export LC_ALL=C.UTF-8
+        export LANG=C.UTF-8
+        export LANGUAGE=C.UTF-8
+        export PATH=/root/.local/bin:$PATH
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
