@@ -9,9 +9,9 @@ on:
     branches:
     - develop
 
-# permissions:
-#   id-token: write
-#   contents: read
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   functional_tests:
