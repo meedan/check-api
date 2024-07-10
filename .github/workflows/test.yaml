@@ -27,11 +27,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - run: export RECORD_RUNTIME=true
-      - run: export LC_ALL=C.UTF-8
-      - run: export LANG=C.UTF-8
-      - run: export LANGUAGE=C.UTF-8
-      - run: export PATH=/root/.local/bin:$PATH
+      - name: set up env
+        run: |      
+          export RECORD_RUNTIME=true
+          export LC_ALL=C.UTF-8
+          export LANG=C.UTF-8
+          export LANGUAGE=C.UTF-8
+          export PATH=/root/.local/bin:$PATH
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
