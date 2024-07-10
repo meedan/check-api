@@ -10592,6 +10592,7 @@ type ProjectMedia implements Node {
   ): AnnotationUnionConnection
   annotations_count(annotation_type: String!): Int
   archived: Int
+  articles_count: Int
   assignments(
     """
     Returns the elements in the list that come after the specified cursor.
@@ -11525,7 +11526,6 @@ type ProjectMedia implements Node {
   last_status: String
   last_status_obj: Dynamic
   linked_items_count: Int
-  list_columns_values: JsonStringType
   log(
     """
     Returns the elements in the list that come after the specified cursor.
@@ -13154,7 +13154,6 @@ type Team implements Node {
     """
     last: Int
   ): TeamUserConnection
-  list_columns: JsonStringType
   medias_count: Int
   members_count: Int
   name: String!
@@ -15982,7 +15981,6 @@ input UpdateTeamInput {
   language: String
   language_detection: Boolean
   languages: JsonStringType
-  list_columns: JsonStringType
   media_verification_statuses: JsonStringType
   name: String
   outgoing_urls_utm_code: String

@@ -374,4 +374,12 @@ class ProjectMediaType < DefaultObject
   field :fact_check, FactCheckType, null: true
 
   field :explainers, ExplainerType.connection_type, null: true
+
+  field :articles_count, GraphQL::Types::Int, null: true
+
+  def articles_count
+    count = object.explainers.count
+    count += 1 if object.fact_check
+    count
+  end
 end

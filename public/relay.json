@@ -57246,6 +57246,20 @@
               "deprecationReason": null
             },
             {
+              "name": "articles_count",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "assignments",
               "description": null,
               "args": [
@@ -60783,20 +60797,6 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "Int",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "list_columns_values",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -69371,20 +69371,6 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "TeamUserConnection",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "list_columns",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -88043,18 +88029,6 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "Boolean",
-                "ofType": null
-              },
-              "defaultValue": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "list_columns",
-              "description": null,
-              "type": {
-                "kind": "SCALAR",
-                "name": "JsonStringType",
                 "ofType": null
               },
               "defaultValue": null,
