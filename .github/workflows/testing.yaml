@@ -59,8 +59,8 @@ jobs:
         docker-compose build
 
     - name: Run syntax checks
-        run: |
-          docker-compose run api bash -c 'touch /tmp/no-syntax-errors && find app lib config -name *.rb -exec bash -c "ruby -c {} >/dev/null || rm /tmp/no-syntax-errors" ";" && ls /tmp/no-syntax-errors'
+      run: |
+        docker-compose run api bash -c 'touch /tmp/no-syntax-errors && find app lib config -name *.rb -exec bash -c "ruby -c {} >/dev/null || rm /tmp/no-syntax-errors" ";" && ls /tmp/no-syntax-errors'
     - name: Run Container
       run: docker-compose -f docker-compose.yml -f docker-test.yml up -d
 
@@ -92,10 +92,10 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Run Functional Tests
+    - name: Run Functional Tests
       id: run-tests
       env:
         TEST_RETRY_COUNT: 3
@@ -106,10 +106,10 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Run Unit Tests
+    - name: Run Unit Tests
       id: run-tests
       env:
         TEST_RETRY_COUNT: 3
@@ -120,10 +120,10 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Run Contract Tests
+    - name: Run Contract Tests
       id: run-tests
       env:
         TEST_RETRY_COUNT: 3
@@ -134,20 +134,20 @@ jobs:
     needs: [functional-tests, unit-tests, contract-tests]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
     
-      - name: After PR Tests
-        id: after-tests
-        env:
-          GIT_SHA: ${{ github.sha }}
-          GIT_COMMITED_AT: ${{ github.event.head_commit.timestamp }}
-        run: |  
-          docker-compose exec -T -e GIT_COMMIT_SHA=${{ github.sha }} \
-          -e GIT_COMMITTED_AT=${{ github.event.head_commit.timestamp }} \
-          -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID \
-          -e PATH=$PATH \
-          -e JOB_NAME=functional_tests \
-          -e AWS_CONFIG_FILE=/app/credentials \
-          api test/test-coverage.sh
+    - name: After PR Tests
+      id: after-tests
+      env:
+        GIT_SHA: ${{ github.sha }}
+        GIT_COMMITED_AT: ${{ github.event.head_commit.timestamp }}
+      run: |  
+        docker-compose exec -T -e GIT_COMMIT_SHA=${{ github.sha }} \
+        -e GIT_COMMITTED_AT=${{ github.event.head_commit.timestamp }} \
+        -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID \
+        -e PATH=$PATH \
+        -e JOB_NAME=functional_tests \
+        -e AWS_CONFIG_FILE=/app/credentials \
+        api test/test-coverage.sh
     
