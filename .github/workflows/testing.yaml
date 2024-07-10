@@ -13,7 +13,7 @@ env:
   CC_TEST_REPORTER_ID: "${{ secrets.CC_TEST_REPORTER_ID }}"
 
 jobs:
-  functional-tests:
+  setup:
     runs-on: ubuntu-latest
 
     steps:
@@ -37,7 +37,7 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: functional-tests
+    - name: set up enviromnts 
       run: |
         export RECORD_RUNTIME=true
         export LC_ALL=C.UTF-8
@@ -45,21 +45,109 @@ jobs:
         export LANGUAGE=C.UTF-8
         export PATH=/root/.local/bin:$PATH
         rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
+    
+    - name: set up comfiguration files
+      run: |
         cp config/config.yml.example config/config.yml
         cp config/database.yml.example config/database.yml
         cp config/sidekiq.yml.example config/sidekiq.yml
         cp config/credentials.json.example config/credentials.json
         cp config/sidekiq-test.yml.example config/sidekiq-test.yml
+      
+    - name: Build Docker Container
+      run: |
         docker-compose build
-        docker-compose run api bash -c 'touch /tmp/no-syntax-errors && find app lib config -name *.rb -exec bash -c "ruby -c {} >/dev/null || rm /tmp/no-syntax-errors" ";" && ls /tmp/no-syntax-errors'
-        docker-compose -f docker-compose.yml -f docker-test.yml up -d
+
+    - name: Run syntax checks
+        run: |
+          docker-compose run api bash -c 'touch /tmp/no-syntax-errors && find app lib config -name *.rb -exec bash -c "ruby -c {} >/dev/null || rm /tmp/no-syntax-errors" ";" && ls /tmp/no-syntax-errors'
+    - name: Run Container
+      run: docker-compose -f docker-compose.yml -f docker-test.yml up -d
+
+    - name: Wait for the server to be ready
+      run: |
         tail -f log/test.log &
         until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
-        docker-compose exec -T api test/setup-parallel-env.sh
-        docker-compose exec -T api bundle exec rake assets:precompile
+
+    - name: Set up parallel environment
+      run: docker-compose exec api test/setup-parallel-env.sh
+
+    - name: Precompile assets
+      run: docker-compose exec api bundle exec rake assets:precompile
+
+    - name: Prepare parallel runtime log
+      run: |
         sleep 10
         touch tmp/parallel_runtime_test.log
         chmod +w tmp/parallel_runtime_test.log
+
+    - name: Run PR Tests
+      id: run-tests
+      env:
+        TEST_RETRY_COUNT: 3
+      run: |
         docker-compose exec -T -e TEST_RETRY_COUNT=3 -e PATTERN='models mailers integration workers lib contract' api test/run-tests.sh
-        docker-compose exec -T -e GIT_COMMIT_SHA=${{ github.sha }} -e GIT_COMMITTED_AT=${{ github.event.head_commit.timestamp }} -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID -e PATH=$PATH -e JOB_NAME=functional_tests -e AWS_CONFIG_FILE=/app/credentials api test/test-coverage.sh
-   
+
+  functional-tests:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Functional Tests
+      id: run-tests
+      env:
+        TEST_RETRY_COUNT: 3
+      run: |
+        docker-compose exec -T -e TEST_RETRY_COUNT=$TEST_RETRY_COUNT -T -e PATTERN='models mailers integration workers lib contract' api test/run-tests.sh
+
+  unit-tests:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Unit Tests
+      id: run-tests
+      env:
+        TEST_RETRY_COUNT: 3
+      run: |
+        docker-compose exec -e TEST_RETRY_COUNT=$TEST_RETRY_COUNT -T -e PATTERN='controllers contract' api test/run-tests.sh
+
+  contract-tests:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Contract Tests
+      id: run-tests
+      env:
+        TEST_RETRY_COUNT: 3
+      run: |
+        docker-compose exec -e TEST_RETRY_COUNT=$TEST_RETRY_COUNT -T -e PATTERN='controllers models mailers integration workers lib' api test/run-tests.sh
+    
+  after_script:
+    needs: [functional-tests, unit-tests, contract-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+    
+      - name: After PR Tests
+        id: after-tests
+        env:
+          GIT_SHA: ${{ github.sha }}
+          GIT_COMMITED_AT: ${{ github.event.head_commit.timestamp }}
+        run: |  
+          docker-compose exec -T -e GIT_COMMIT_SHA=${{ github.sha }} \
+          -e GIT_COMMITTED_AT=${{ github.event.head_commit.timestamp }} \
+          -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID \
+          -e PATH=$PATH \
+          -e JOB_NAME=functional_tests \
+          -e AWS_CONFIG_FILE=/app/credentials \
+          api test/test-coverage.sh
+    
