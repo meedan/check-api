@@ -49,7 +49,7 @@ jobs:
     
     - name: Cache files
       run: |
-      - rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1
+        rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1
         tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
 
     - name: Copy configuration files
