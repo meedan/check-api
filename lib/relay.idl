@@ -11485,6 +11485,7 @@ type ProjectMedia implements Node {
     last: Int
   ): ExplainerConnection
   fact_check: FactCheck
+  fact_check_id: Int
   fact_check_published_on: Int
   feed_columns_values: JsonStringType
   field_value(annotation_type_field_name: String!): String

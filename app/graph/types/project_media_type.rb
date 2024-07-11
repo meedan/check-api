@@ -7,6 +7,7 @@ class ProjectMediaType < DefaultObject
 
   field :media_id, GraphQL::Types::Int, null: true
   field :user_id, GraphQL::Types::Int, null: true
+  field :fact_check_id, GraphQL::Types::Int, null: true
   field :url, GraphQL::Types::String, null: true
   field :full_url, GraphQL::Types::String, null: true
   field :quote, GraphQL::Types::String, null: true
