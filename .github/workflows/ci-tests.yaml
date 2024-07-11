@@ -1,13 +1,13 @@
-name: Build and Run Function, Unit and Contract Tests
+name: Build and Run Tests
 
 on:
   push:
     branches:
     - master
-    - cv2-4793-identify-required-workflows
   pull_request:
     branches:
     - develop
+    - cv2-4793-identify-required-workflows
 
 env:
   CC_TEST_REPORTER_ID: "${{ secrets.CC_TEST_REPORTER_ID }}"
@@ -172,6 +172,7 @@ jobs:
         TEST_RETRY_COUNT: 3
       run: |
         docker-compose exec -e TEST_RETRY_COUNT=$TEST_RETRY_COUNT -T -e PATTERN='controllers contract' api test/run-tests.sh
+    
     - name: After unit Tests
       id: unit-tests
       env:
