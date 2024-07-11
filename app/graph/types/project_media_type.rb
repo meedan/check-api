@@ -376,6 +376,8 @@ class ProjectMediaType < DefaultObject
 
   field :explainers, ExplainerType.connection_type, null: true
 
+  field :explainer_items, ExplainerItemType.connection_type, null: true
+
   field :articles_count, GraphQL::Types::Int, null: true
 
   def articles_count
