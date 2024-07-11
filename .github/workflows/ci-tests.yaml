@@ -78,12 +78,29 @@ jobs:
         sleep 10
         touch tmp/parallel_runtime_test.log
         chmod +w tmp/parallel_runtime_test.log
+    
     - name: Run Functional Tests
       id: run-tests
       env:
         TEST_RETRY_COUNT: 3
       run: |
         docker-compose exec -e TEST_RETRY_COUNT=$TEST_RETRY_COUNT -T -e PATTERN='models mailers integration workers lib contract' api test/run-tests.sh
+   
+    - name: After functional Tests
+      id: after-functional-tests
+      env:
+        GIT_SHA: ${{ github.sha }}
+        GIT_COMMITED_AT: ${{ github.event.head_commit.timestamp }}
+      run: |  
+        docker-compose exec -T -e GIT_COMMIT_SHA=${{ github.sha }} \
+        -e GIT_COMMITTED_AT=${{ github.event.head_commit.timestamp }} \
+        -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID \
+        -e PATH=$PATH \
+        -e JOB_NAME=functional-tests \
+        -e AWS_CONFIG_FILE=/app/credentials \
+        api test/test-coverage.sh
+    
+  
   unit-tests:
     runs-on: ubuntu-latest
 
@@ -155,6 +172,20 @@ jobs:
         TEST_RETRY_COUNT: 3
       run: |
         docker-compose exec -e TEST_RETRY_COUNT=$TEST_RETRY_COUNT -T -e PATTERN='controllers contract' api test/run-tests.sh
+    - name: After unit Tests
+      id: unit-tests
+      env:
+        GIT_SHA: ${{ github.sha }}
+        GIT_COMMITED_AT: ${{ github.event.head_commit.timestamp }}
+      run: |  
+        docker-compose exec -T -e GIT_COMMIT_SHA=${{ github.sha }} \
+        -e GIT_COMMITTED_AT=${{ github.event.head_commit.timestamp }} \
+        -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID \
+        -e PATH=$PATH \
+        -e JOB_NAME=unit-tests \
+        -e AWS_CONFIG_FILE=/app/credentials \
+        api test/test-coverage.sh
+
   contract-tests:
     runs-on: ubuntu-latest
 
@@ -221,21 +252,15 @@ jobs:
         sleep 10
         touch tmp/parallel_runtime_test.log
         chmod +w tmp/parallel_runtime_test.log
+    
     - name: Run Contract Tests
       id: run-tests
       env:
         TEST_RETRY_COUNT: 3
       run: |
         docker-compose exec -e TEST_RETRY_COUNT=$TEST_RETRY_COUNT -T -e PATTERN='controllers models mailers integration workers lib' api test/run-tests.sh
-    
-  after_script:
-    needs: [functional-tests, unit-tests, contract-tests]
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: After PR Tests
+
+    - name: After contract Tests
       id: after-tests
       env:
         GIT_SHA: ${{ github.sha }}
@@ -245,6 +270,6 @@ jobs:
         -e GIT_COMMITTED_AT=${{ github.event.head_commit.timestamp }} \
         -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID \
         -e PATH=$PATH \
-        -e JOB_NAME=functional_tests \
+        -e JOB_NAME=contract-tests \
         -e AWS_CONFIG_FILE=/app/credentials \
         api test/test-coverage.sh
