@@ -419,6 +419,24 @@ class PopulatedWorkspaces
     end
   end
 
+  def standalone_fact_check
+    claim_description_attributes = {
+      description: 'testing standalone fc',
+      context: Faker::Lorem.sentence,
+      user: users[:main_user_a],
+      team: teams[:main_team_a],
+      fact_check_attributes: {
+        summary: Faker::Company.catch_phrase,
+        title: Faker::Company.name,
+        user: users[:main_user_a],
+        language: 'en',
+        url: "https://www.thespruceeats.com/step-by-step-basic-cake-recipe-304553?timestamp=#{Time.now.to_f}"
+      },
+    }
+
+    ClaimDescription.create!(claim_description_attributes)
+  end
+
   private
 
   def medias_params
@@ -751,6 +769,8 @@ ActiveRecord::Base.transaction do
     # populated_workspaces.clusters(feed_2)
     puts 'Creating Explainers'
     populated_workspaces.explainers
+    puts 'Creating Standalone FactChecks'
+    populated_workspaces.standalone_fact_check
   rescue RuntimeError => e
     if e.message.include?('We could not parse this link')
       puts "—————"
