@@ -8,7 +8,7 @@ class FactCheck < ApplicationRecord
   belongs_to :claim_description
 
   before_validation :set_language, on: :create, if: proc { |fc| fc.language.blank? }
-  before_validation :set_imported, on: :create, if: proc { |fc| fc.imported.nil? }
+  before_validation :set_imported, on: :create
 
   validates_presence_of :claim_description
   validates_uniqueness_of :claim_description_id
