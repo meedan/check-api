@@ -3,7 +3,7 @@ namespace :check do
     task set_imported_for_fact_checks: :environment do
       puts "[#{Time.now}] Setting imported field for existing fact-checks"
       started = Time.now.to_i
-      BATCH_SIZE = 7
+      BATCH_SIZE = 1000
       query = FactCheck.joins(:user).where('users.type' => 'BotUser').where(imported: false)
       count = query.count
       total = 0
