@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_06_19_141452) do
+ActiveRecord::Schema.define(version: 2024_07_13_012502) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -342,7 +342,9 @@ ActiveRecord::Schema.define(version: 2024_06_19_141452) do
     t.integer "publisher_id"
     t.integer "report_status", default: 0
     t.string "rating"
+    t.boolean "imported", default: false
     t.index ["claim_description_id"], name: "index_fact_checks_on_claim_description_id", unique: true
+    t.index ["imported"], name: "index_fact_checks_on_imported"
     t.index ["language"], name: "index_fact_checks_on_language"
     t.index ["publisher_id"], name: "index_fact_checks_on_publisher_id"
     t.index ["rating"], name: "index_fact_checks_on_rating"
