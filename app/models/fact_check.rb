@@ -22,17 +22,17 @@ class FactCheck < ApplicationRecord
   end
 
   def project_media
-    self.claim_description&.project_media
+    self.claim_description.project_media
   end
 
   def team_id
-    self.project_media&.team_id
+    self.claim_description.team_id
   end
 
   private
 
   def set_language
-    languages = self.project_media&.team&.get_languages || ['en']
+    languages = self.claim_description.team.get_languages || ['en']
     self.language = languages.length == 1 ? languages.first : 'und'
   end
 
@@ -41,7 +41,7 @@ class FactCheck < ApplicationRecord
   end
 
   def language_in_allowed_values
-    allowed_languages = self.project_media&.team&.get_languages || ['en']
+    allowed_languages = self.claim_description.team.get_languages || ['en']
     allowed_languages << 'und'
     errors.add(:language, I18n.t(:"errors.messages.invalid_article_language_value")) unless allowed_languages.include?(self.language)
   end
