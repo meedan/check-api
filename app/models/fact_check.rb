@@ -12,9 +12,10 @@ class FactCheck < ApplicationRecord
   validates_presence_of :claim_description
   validates_uniqueness_of :claim_description_id
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
-  validate :language_in_allowed_values, :title_or_summary_exists
+  validate :language_in_allowed_values, :title_or_summary_exists, :rating_in_allowed_values
 
   after_save :update_report, unless: proc { |fc| fc.skip_report_update || !DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').exists? || fc.project_media.blank? }
+  after_save :update_item_status, if: proc { |fc| fc.saved_change_to_rating? }
 
   def text_fields
     ['fact_check_title', 'fact_check_summary']
@@ -39,6 +40,15 @@ class FactCheck < ApplicationRecord
     allowed_languages = self.claim_description.team.get_languages || ['en']
     allowed_languages << 'und'
     errors.add(:language, I18n.t(:"errors.messages.invalid_article_language_value")) unless allowed_languages.include?(self.language)
+  end
+
+  def rating_in_allowed_values
+    core_statuses = YAML.load(ERB.new(File.read("#{Rails.root}/config/core_statuses.yml")).result)
+    core_keys = core_statuses["MEDIA_CORE_VERIFICATION_STATUSES"].collect{|s| s[:id]}
+    custom_statuses = self.claim_description.team&.get_media_verification_statuses
+    custom_keys = custom_statuses['statuses'].collect{|s| s[:id]} unless custom_statuses.blank?
+    allowed_statuses = custom_keys || core_keys
+    errors.add(:rating, I18n.t(:workflow_status_is_not_valid, status: self.rating, valid: allowed_statuses.join(', '))) unless allowed_statuses.include?(self.rating)
   end
 
   def title_or_summary_exists
@@ -81,6 +91,16 @@ class FactCheck < ApplicationRecord
     reports.set_fields = data.to_json
     reports.skip_check_ability = true
     reports.save!
+  end
+
+  def update_item_status
+    pm = self.project_media
+    s = pm&.last_status_obj
+    unless s.nil?
+      s.skip_check_ability = true
+      s.status = self.rating
+      s.save!
+    end
   end
 
   def article_elasticsearch_data(action = 'create_or_update')
