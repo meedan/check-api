@@ -431,4 +431,9 @@ class FactCheckTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should set fact-check as imported" do
+    assert !create_fact_check(user: create_user).imported
+    assert create_fact_check(user: create_bot_user).imported
+  end
 end

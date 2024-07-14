@@ -8,6 +8,7 @@ class FactCheck < ApplicationRecord
   belongs_to :claim_description
 
   before_validation :set_language, on: :create, if: proc { |fc| fc.language.blank? }
+  before_validation :set_imported, on: :create
 
   validates_presence_of :claim_description
   validates_uniqueness_of :claim_description_id
@@ -33,6 +34,10 @@ class FactCheck < ApplicationRecord
   def set_language
     languages = self.claim_description.team.get_languages || ['en']
     self.language = languages.length == 1 ? languages.first : 'und'
+  end
+
+  def set_imported
+    self.imported = true if self.user&.type == 'BotUser' # We consider "imported" the fact-checks that are not created by humans inside Check
   end
 
   def language_in_allowed_values
