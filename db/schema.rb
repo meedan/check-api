@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_06_19_141452) do
+ActiveRecord::Schema.define(version: 2024_07_14_051039) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -309,6 +309,7 @@ ActiveRecord::Schema.define(version: 2024_06_19_141452) do
     t.bigint "project_media_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["explainer_id", "project_media_id"], name: "index_explainer_items_on_explainer_id_and_project_media_id", unique: true
     t.index ["explainer_id"], name: "index_explainer_items_on_explainer_id"
     t.index ["project_media_id"], name: "index_explainer_items_on_project_media_id"
   end
