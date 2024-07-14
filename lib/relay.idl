@@ -8387,6 +8387,7 @@ type FactCheck implements Node {
   language: String
   permissions: String
   rating: String
+  report_status: String
   summary: String
   tags: [String]
   title: String
