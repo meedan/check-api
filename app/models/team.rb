@@ -524,7 +524,10 @@ class Team < ApplicationRecord
     # Filter by rating
     query = query.where('fact_checks.rating' => filters[:rating].to_a.map(&:to_s)) unless filters[:rating].blank?
 
-    # filter by report_status
+    # Filter by imported
+    query = query.where('fact_checks.imported' => !!filters[:imported]) unless filters[:imported].nil?
+
+    # Filter by report status
     query = query.where('fact_checks.report_status' => filters[:report_status].to_a.map(&:to_s)) unless filters[:report_status].blank?
 
     # Filter by text
