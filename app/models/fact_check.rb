@@ -43,12 +43,11 @@ class FactCheck < ApplicationRecord
   end
 
   def rating_in_allowed_values
-    core_statuses = YAML.load(ERB.new(File.read("#{Rails.root}/config/core_statuses.yml")).result)
-    core_keys = core_statuses["MEDIA_CORE_VERIFICATION_STATUSES"].collect{|s| s[:id]}
-    custom_statuses = self.claim_description.team&.get_media_verification_statuses
-    custom_keys = custom_statuses['statuses'].collect{|s| s[:id]} unless custom_statuses.blank?
-    allowed_statuses = custom_keys || core_keys
-    errors.add(:rating, I18n.t(:workflow_status_is_not_valid, status: self.rating, valid: allowed_statuses.join(', '))) unless allowed_statuses.include?(self.rating)
+    unless self.rating.blank?
+      team = self.claim_description.team
+      allowed_statuses = team.verification_statuses('media', nil)['statuses'].collect{|s| s[:id]}
+      errors.add(:rating, I18n.t(:workflow_status_is_not_valid, status: self.rating, valid: allowed_statuses.join(', '))) unless allowed_statuses.include?(self.rating)
+    end
   end
 
   def title_or_summary_exists

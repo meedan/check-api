@@ -303,6 +303,30 @@ class FactCheckTest < ActiveSupport::TestCase
     assert_difference 'FactCheck.count' do
       create_fact_check rating: 'verified'
     end
+    # Validate custom status
+    t = create_team
+    value = {
+      label: 'Status',
+      default: 'stop',
+      active: 'done',
+      statuses: [
+        { id: 'stop', label: 'Stopped', completed: '', description: 'Not started yet', style: { backgroundColor: '#a00' } },
+        { id: 'done', label: 'Done!', completed: '', description: 'Nothing left to be done here', style: { backgroundColor: '#fc3' } }
+      ]
+    }
+    t.send :set_media_verification_statuses, value
+    t.save!
+    pm = create_project_media team: t
+    cd = create_claim_description project_media: pm
+    assert_no_difference 'FactCheck.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_fact_check claim_description: cd, rating: 'invalid_status'
+      end
+    end
+    allowed_statuses = t.reload.verification_statuses('media', nil)['statuses'].collect{|s| s[:id]}
+    assert_difference 'FactCheck.count' do
+      create_fact_check claim_description: cd, rating: 'stop'
+    end
   end
 
   test "should create many fact-checks without signature" do
