@@ -90,7 +90,7 @@ class Setup
   def users
     @users ||= begin
       all_users = {}
-      # all_users.merge!(invited_users)
+      all_users.merge!(invited_users)
       all_users[:main_user_a] = main_user_a
       all_users.each_value { |user| user.confirm && user.save! }
       all_users
@@ -100,7 +100,7 @@ class Setup
   def teams
     @teams ||= begin
       all_teams = {}
-      # all_teams.merge!(invited_teams)
+      all_teams.merge!(invited_teams)
       all_teams[:main_team_a] = main_team_a
       all_teams
     end
@@ -330,7 +330,7 @@ class PopulatedWorkspaces
 
   def publish_fact_checks
     users.each_value do |user|
-      fact_checks = FactCheck.where(user: user).last(items_total/2)
+      fact_checks = user.claim_descriptions.where.not(project_media_id: nil).includes(:fact_check).map { |claim| claim.fact_check }.compact!.last(items_total/2)
       fact_checks[0, (fact_checks.size/2)].each { |fact_check| verify_fact_check_and_publish_report(fact_check.project_media)}
     end
   end
@@ -438,11 +438,11 @@ class PopulatedWorkspaces
   def medias_params
     [
       *CLAIMS_PARAMS,
-      # *UPLOADED_AUDIO_PARAMS,
-      # *UPLOADED_IMAGE_PARAMS,
-      # *UPLOADED_VIDEO_PARAMS,
-      # *BLANK_PARAMS,
-      # *LINK_PARAMS.call
+      *UPLOADED_AUDIO_PARAMS,
+      *UPLOADED_IMAGE_PARAMS,
+      *UPLOADED_VIDEO_PARAMS,
+      *BLANK_PARAMS,
+      *LINK_PARAMS.call
     ].shuffle!
   end
 
@@ -739,8 +739,7 @@ class PopulatedWorkspaces
   def verify_standalone_claims_and_fact_checks(user)
     status = ['undetermined', 'not_applicable', 'in_progress', 'verified', 'false']
 
-    claims = user.claim_descriptions.where(project_media_id: nil)
-    fact_checks = claims.map { |claim| claim.fact_check }.compact! # some claims don't have fact checks, so they return nil
+    fact_checks = user.claim_descriptions.where(project_media_id: nil).includes(:fact_check).map { |claim| claim.fact_check }.compact! # some claims don't have fact checks, so they return nil
     fact_checks.each do |fact_check|
       fact_check.rating = status.sample
       fact_check.save!
@@ -768,28 +767,28 @@ ActiveRecord::Base.transaction do
     populated_workspaces = PopulatedWorkspaces.new(setup)
     populated_workspaces.fetch_bot_installation
     populated_workspaces.populate_projects
-    # puts 'Creating saved searches for all teams...'
-    # populated_workspaces.saved_searches
-    # puts 'Creating feed...'
-    # feed_1 = populated_workspaces.main_user_feed("share_factchecks")
-    # feed_2 = populated_workspaces.main_user_feed("share_everything")
-    # puts 'Making and inviting to Shared Feed... (won\'t run if you are not creating any invited users)'
-    # populated_workspaces.share_feed(feed_1)
-    # populated_workspaces.share_feed(feed_2)
-    # puts 'Accepting invitation to a Shared Feed...'
-    # populated_workspaces.accept_invitation(feed_2, :invited_user_c)
-    # puts 'Making Confirmed Relationships between items...'
-    # populated_workspaces.confirm_relationships
-    # puts 'Making Suggested Relationships between items...'
-    # populated_workspaces.suggest_relationships
-    # puts 'Making Tipline requests...'
-    # populated_workspaces.tipline_requests
-    # puts 'Publishing half of each user\'s Fact Checks...'
-    # populated_workspaces.publish_fact_checks
-    # puts 'Creating Clusters...'
-    # populated_workspaces.clusters(feed_2)
-    # puts 'Creating Explainers...'
-    # populated_workspaces.explainers
+    puts 'Creating saved searches for all teams...'
+    populated_workspaces.saved_searches
+    puts 'Creating feed...'
+    feed_1 = populated_workspaces.main_user_feed("share_factchecks")
+    feed_2 = populated_workspaces.main_user_feed("share_everything")
+    puts 'Making and inviting to Shared Feed... (won\'t run if you are not creating any invited users)'
+    populated_workspaces.share_feed(feed_1)
+    populated_workspaces.share_feed(feed_2)
+    puts 'Accepting invitation to a Shared Feed...'
+    populated_workspaces.accept_invitation(feed_2, :invited_user_c)
+    puts 'Making Confirmed Relationships between items...'
+    populated_workspaces.confirm_relationships
+    puts 'Making Suggested Relationships between items...'
+    populated_workspaces.suggest_relationships
+    puts 'Making Tipline requests...'
+    populated_workspaces.tipline_requests
+    puts 'Publishing half of each user\'s Fact Checks...'
+    populated_workspaces.publish_fact_checks
+    puts 'Creating Clusters...'
+    populated_workspaces.clusters(feed_2)
+    puts 'Creating Explainers...'
+    populated_workspaces.explainers
     puts 'Creating Standalone Claims and FactChecks with different statuses...'
     populated_workspaces.verified_standalone_claims_and_fact_checks
   rescue RuntimeError => e
