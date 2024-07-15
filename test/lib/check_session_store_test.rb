@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class SessionStoreTest < ActiveSupport::TestCase
-  # Helper to temporarily override Rails.env
   def with_environment(env)
     original_env = Rails.env
     Rails.singleton_class.class_eval do
@@ -14,40 +13,24 @@ class SessionStoreTest < ActiveSupport::TestCase
     end
   end
 
-  test "session store configuration in development" do
-    with_environment('development') do
-      load Rails.root.join('config/initializers/session_store.rb')
-      assert_equal ActionDispatch::Session::CookieStore, Rails.application.config.session_store
-      assert_equal '_checkdesk_session_dev', Rails.application.config.session_options[:key]
-      assert_equal 'localhost', Rails.application.config.session_options[:domain]
-    end
-  end
-
-  test "session store configuration in test" do
-    with_environment('test') do
-      load Rails.root.join('config/initializers/session_store.rb')
-      assert_equal ActionDispatch::Session::CookieStore, Rails.application.config.session_store
-      assert_equal '_checkdesk_session_test', Rails.application.config.session_options[:key]
-      assert_equal '.checkmedia.org', Rails.application.config.session_options[:domain]
-    end
-  end
-
-  test "session store configuration in production with default key" do
+  test "session store configuration with default key and domain when config values are not set" do
     with_environment('production') do
-      load Rails.root.join('config/initializers/session_store.rb')
-      assert_equal ActionDispatch::Session::CookieStore, Rails.application.config.session_store
-      assert_equal '_checkdesk_session', Rails.application.config.session_options[:key]
-      assert_equal '.checkmedia.org', Rails.application.config.session_options[:domain]
+      stub_configs({ 'session_store_key' => nil, 'session_store_domain' => nil }) do
+        load Rails.root.join('config/initializers/session_store.rb')
+        assert_equal ActionDispatch::Session::CookieStore, Rails.application.config.session_store
+        assert_equal '_checkdesk_session', Rails.application.config.session_options[:key]
+        assert_equal '.checkmedia.org', Rails.application.config.session_options[:domain]
+      end
     end
   end
 
-  test "session store configuration in production with overriding key in config" do
+  test "session store configuration with overriding key and domain in config" do
     with_environment('production') do
-      stub_configs({ 'session_key' => '_checkdesk_session_qa' }) do
+      stub_configs({ 'session_store_key' => '_checkdesk_session_qa', 'session_store_domain' => 'qa.checkmedia.org' }) do
         load Rails.root.join('config/initializers/session_store.rb')
         assert_equal ActionDispatch::Session::CookieStore, Rails.application.config.session_store
         assert_equal '_checkdesk_session_qa', Rails.application.config.session_options[:key]
-        assert_equal '.checkmedia.org', Rails.application.config.session_options[:domain]
+        assert_equal 'qa.checkmedia.org', Rails.application.config.session_options[:domain]
       end
     end
   end
