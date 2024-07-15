@@ -337,9 +337,7 @@ class StatisticsTest < ActiveSupport::TestCase
 
   test "check:data:statistics allows generating conversations for months before april 1 2023, with argument" do
     date = DateTime.new(2023,01,01)
-  
     create_project_media(user: BotUser.smooch_user, team: @tipline_team, created_at: date + 2.weeks)
-  
     CheckStatistics.stubs(:get_statistics).returns(
       {
         platform: 'whatsapp',
@@ -350,15 +348,11 @@ class StatisticsTest < ActiveSupport::TestCase
     )
   
     travel_to DateTime.new(2023,01,01)
-  
     out, err = capture_io do
       # pass in ignore_convo_cutoff: true
       Rake::Task['check:data:statistics'].invoke(true)
     end
     Rake::Task['check:data:statistics'].reenable
-  
-    puts "Test output: #{out}"
-    puts "Test error: #{err}"
   
     conversations = MonthlyTeamStatistic.where(team: @tipline_team).pluck(:conversations_24hr).uniq
     assert_equal 1, conversations.count
@@ -396,9 +390,6 @@ class StatisticsTest < ActiveSupport::TestCase
       Rake::Task['check:data:regenerate_statistics'].invoke(start_date)
     end
     Rake::Task['check:data:regenerate_statistics'].reenable
-  
-    puts "Test output: #{out}"
-    puts "Test error: #{err}"
   
     assert err.blank?
   
@@ -438,9 +429,6 @@ class StatisticsTest < ActiveSupport::TestCase
       Rake::Task['check:data:regenerate_statistics'].invoke(start_date)
     end
     Rake::Task['check:data:regenerate_statistics'].reenable
-  
-    puts "Test output: #{out}"
-    puts "Test error: #{err}"
   
     assert err.blank?
   
