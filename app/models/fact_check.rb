@@ -32,12 +32,14 @@ class FactCheck < ApplicationRecord
   private
 
   def set_language
-    languages = self.claim_description.team.get_languages || ['en']
+    languages = begin self.claim_description.team.get_languages rescue nil end
+    languages ||= ['en']
     self.language = languages.length == 1 ? languages.first : 'und'
   end
 
   def language_in_allowed_values
-    allowed_languages = self.claim_description.team.get_languages || ['en']
+    allowed_languages = begin self.claim_description.team.get_languages rescue nil end
+    allowed_languages ||= ['en']
     allowed_languages << 'und'
     errors.add(:language, I18n.t(:"errors.messages.invalid_article_language_value")) unless allowed_languages.include?(self.language)
   end
