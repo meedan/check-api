@@ -45,6 +45,13 @@ LINK_PARAMS = -> {[
 
 BLANK_PARAMS = Array.new(8, { type: 'Blank' })
 
+STANDALONE_CLAIMS_FACT_CHECKS_PARAMS = (Array.new(8) do
+  {
+    description: Faker::Lorem.sentence,
+    context: Faker::Lorem.paragraph(sentence_count: 8)
+  }
+end)
+
 class Setup
 
   private
@@ -419,22 +426,20 @@ class PopulatedWorkspaces
     end
   end
 
-  def standalone_fact_check
-    claim_description_attributes = {
-      description: 'testing standalone fc',
-      context: Faker::Lorem.sentence,
-      user: users[:main_user_a],
-      team: teams[:main_team_a],
-      fact_check_attributes: {
-        summary: Faker::Company.catch_phrase,
-        title: Faker::Company.name,
-        user: users[:main_user_a],
-        language: 'en',
-        url: "https://www.thespruceeats.com/step-by-step-basic-cake-recipe-304553?timestamp=#{Time.now.to_f}"
-      },
-    }
+  def standalone_claims_and_fact_checks
+    users.each_value do |user|
+      STANDALONE_CLAIMS_FACT_CHECKS_PARAMS.each.with_index do |params, index|
+        claim_description_attributes = {
+          description: params[:description],
+          context: params[:context],
+          user: user,
+          team: user.teams[0],
+          fact_check_attributes: fact_check_params_for_half_the_claims(index, user),
+        }
 
-    ClaimDescription.create!(claim_description_attributes)
+        ClaimDescription.create!(claim_description_attributes)
+      end
+    end
   end
 
   private
@@ -770,7 +775,7 @@ ActiveRecord::Base.transaction do
     puts 'Creating Explainers'
     populated_workspaces.explainers
     puts 'Creating Standalone FactChecks'
-    populated_workspaces.standalone_fact_check
+    populated_workspaces.standalone_claims_and_fact_checks
   rescue RuntimeError => e
     if e.message.include?('We could not parse this link')
       puts "—————"
