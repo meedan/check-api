@@ -442,6 +442,19 @@ class PopulatedWorkspaces
     end
   end
 
+  def verify_standalone_claims_and_fact_checks
+    status = ['undetermined', 'not_applicable', 'in_progress', 'verified', 'false']
+
+    users.each_value do |user|
+      claims = user.claim_descriptions.where(project_media_id: nil)
+      fact_checks = claims.map { |claim| claim.fact_check }.compact! # some claims don't have fact checks, so they return nil
+      fact_checks.each do |fact_check|
+        fact_check.rating = status.sample
+        fact_check.save!
+      end
+    end
+  end
+
   private
 
   def medias_params
@@ -772,10 +785,11 @@ ActiveRecord::Base.transaction do
     # populated_workspaces.publish_fact_checks
     # puts 'Creating Clusters'
     # populated_workspaces.clusters(feed_2)
-    puts 'Creating Explainers'
-    populated_workspaces.explainers
+    # puts 'Creating Explainers'
+    # populated_workspaces.explainers
     puts 'Creating Standalone FactChecks'
     populated_workspaces.standalone_claims_and_fact_checks
+    populated_workspaces.verify_standalone_claims_and_fact_checks
   rescue RuntimeError => e
     if e.message.include?('We could not parse this link')
       puts "—————"
