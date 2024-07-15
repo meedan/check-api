@@ -1,13 +1,20 @@
 # Be sure to restart your server when you modify this file.
 
-# allow subdomains to aceess the session cookie
-# :domain => :all tells Rails to put a dot in front of the cookie domain (which is whatever host your browser has
-# browsed to), such that the cookie applies to all subdomains.
-# TODO: do we need to set seperate cookies for qa and live so the wrong ones don't get posted?
-if Rails.env.production?
-  Rails.application.config.session_store :cookie_store, key: '_checkdesk_session', domain: '.checkmedia.org'
-elsif Rails.env.development?
-  Rails.application.config.session_store :cookie_store, key: '_checkdesk_session', domain: 'localhost'
-else
-  Rails.application.config.session_store :cookie_store, key: '_checkdesk_session'
-end
+# Retrieve the session key name based on the environment using CheckConfig.
+# Provide default values specific to each environment.
+
+# Default keys by environment
+default_keys = {
+  production: '_checkdesk_session',
+  development: '_checkdesk_session_dev',
+  test: '_checkdesk_session_test'
+}
+
+# Get the environment specific session key or default to a predefined value.
+cookie_key = CheckConfig.get('session_key', default_keys[Rails.env.to_sym])
+
+# Set the domain for the session cookies based on the environment.
+domain_setting = Rails.env.development? ? 'localhost' : '.checkmedia.org'
+
+# Configure the session store with the dynamically obtained session key and domain.
+Rails.application.config.session_store :cookie_store, key: cookie_key, domain: domain_setting
