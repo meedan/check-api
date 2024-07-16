@@ -6,7 +6,6 @@ class Workflow::VerificationStatus < Workflow::Base
   check_workflow on: :create, actions: :index_on_es_background
   check_workflow on: :update, actions: :index_on_es_foreground
 
-
   def self.core_default_value
     'undetermined'
   end

@@ -477,4 +477,70 @@ class FactCheckTest < ActiveSupport::TestCase
     assert !create_fact_check(user: create_user).imported
     assert create_fact_check(user: create_bot_user).imported
   end
+
+  test "should set initial rating" do
+    create_verification_status_stuff
+
+    # Test core statuses first
+    t = create_team
+    pm = create_project_media team: t
+    cd = create_claim_description project_media: pm
+    fc = create_fact_check claim_description: cd
+    assert_equal 'undetermined', fc.reload.rating
+    fc.rating = 'in_progress'
+    fc.save!
+    assert_equal 'in_progress', pm.reload.last_status
+
+    # Test custom statuses now
+    t = create_team
+    value = {
+      "label": "Custom Status Label",
+      "active": "in_progress",
+      "default": "new",
+      "statuses": [
+        {
+          "id": "new",
+          "style": {
+            "color": "blue"
+          },
+          "locales": {
+            "en": {
+              "label": "New",
+              "description": "An item that did not start yet"
+            },
+            "pt": {
+              "label": "Novo",
+              "description": "Um item que ainda não começou a ser verificado"
+            }
+          }
+        },
+        {
+          "id": "in_progress",
+          "style": {
+            "color": "yellow"
+          },
+          "locales": {
+            "en": {
+              "label": "Working on it",
+              "description": "We are working on it"
+            },
+            "pt": {
+              "label": "Estamos trabalhando nisso",
+              "description": "Estamos trabalhando nisso"
+            }
+          }
+        }
+      ]
+    }
+    t.set_media_verification_statuses(value)
+    t.save!
+
+    pm = create_project_media team: t
+    cd = create_claim_description project_media: pm
+    fc = create_fact_check claim_description: cd
+    assert_equal 'new', fc.reload.rating
+    fc.rating = 'in_progress'
+    fc.save!
+    assert_equal 'in_progress', pm.reload.last_status
+  end
 end

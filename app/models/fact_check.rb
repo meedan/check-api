@@ -7,6 +7,7 @@ class FactCheck < ApplicationRecord
 
   belongs_to :claim_description
 
+  before_validation :set_initial_rating, on: :create, if: proc { |fc| fc.rating.blank? }
   before_validation :set_language, on: :create, if: proc { |fc| fc.language.blank? }
   before_validation :set_imported, on: :create
 
@@ -50,7 +51,7 @@ class FactCheck < ApplicationRecord
   def rating_in_allowed_values
     unless self.rating.blank?
       team = self.claim_description.team
-      allowed_statuses = team.verification_statuses('media', nil)['statuses'].collect{|s| s[:id]}
+      allowed_statuses = team.verification_statuses('media', nil)['statuses'].collect{ |s| s[:id] }
       errors.add(:rating, I18n.t(:workflow_status_is_not_valid, status: self.rating, valid: allowed_statuses.join(', '))) unless allowed_statuses.include?(self.rating)
     end
   end
@@ -121,5 +122,11 @@ class FactCheck < ApplicationRecord
         'fact_check_languages' => [self.language]
       }
     self.index_in_elasticsearch(data)
+  end
+
+  def set_initial_rating
+    team = self.claim_description.team
+    default_rating = team.verification_statuses('media', nil)['default']
+    self.rating = default_rating
   end
 end
