@@ -39,7 +39,8 @@ class ClaimDescription < ApplicationRecord
   private
 
   def set_team
-    self.team = (self.project_media&.team || Team.current)
+    team = (self.project_media&.team || Team.current)
+    self.team = team unless team.nil?
   end
 
   def update_fact_check
