@@ -7,7 +7,7 @@ class FactCheck < ApplicationRecord
 
   belongs_to :claim_description
 
-  before_validation :set_initial_rating, on: :create, if: proc { |fc| fc.rating.blank? }
+  before_validation :set_initial_rating, on: :create, if: proc { |fc| fc.rating.blank? && fc.claim_description.present? }
   before_validation :set_language, on: :create, if: proc { |fc| fc.language.blank? }
   before_validation :set_imported, on: :create
 
