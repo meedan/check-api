@@ -283,7 +283,6 @@ module AlegreV2
     end
 
     def parse_similarity_results(project_media, field, results, relationship_type)
-      results ||= []
       Hash[results.collect{|result|
         result["context"] = isolate_relevant_context(project_media, result)
         [

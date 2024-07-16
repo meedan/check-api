@@ -18,9 +18,7 @@ class RssFeed
         feed = RSS::Parser.parse(rss, false)
         unless feed.nil?
           feed.items.first(count).each do |item|
-            title = item.title.kind_of?(String) ? item.title : item.title.content
-            link = item.link.kind_of?(String) ? item.link : item.link.href
-            output << title.to_s.strip + "\n" + link.to_s.strip
+            output << item.title.strip + "\n" + item.link.strip
           end
         end
       end

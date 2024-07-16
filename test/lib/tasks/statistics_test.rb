@@ -337,7 +337,9 @@ class StatisticsTest < ActiveSupport::TestCase
 
   test "check:data:statistics allows generating conversations for months before april 1 2023, with argument" do
     date = DateTime.new(2023,01,01)
+
     create_project_media(user: BotUser.smooch_user, team: @tipline_team, created_at: date + 2.weeks)
+
     CheckStatistics.stubs(:get_statistics).returns(
       {
         platform: 'whatsapp',
@@ -346,93 +348,120 @@ class StatisticsTest < ActiveSupport::TestCase
         end_date: date,
       }
     )
-  
+
     travel_to DateTime.new(2023,01,01)
+
     out, err = capture_io do
       # pass in ignore_convo_cutoff: true
       Rake::Task['check:data:statistics'].invoke(true)
     end
     Rake::Task['check:data:statistics'].reenable
-  
+
     conversations = MonthlyTeamStatistic.where(team: @tipline_team).pluck(:conversations_24hr).uniq
     assert_equal 1, conversations.count
     assert !conversations.first.nil?
   end
-  
-  test "check:data:regenerate_statistics errors if start_date argument is invalid" do
+
+  test "check:data:regenerate_statistics errors if only an unsupported argument is passed" do
     out, err = capture_io do
-      assert_raises(Check::Statistics::ArgumentError) do
-        Rake::Task['check:data:regenerate_statistics'].invoke("invalid_date")
-      end
+      Rake::Task['check:data:regenerate_statistics'].invoke("foo")
     end
     Rake::Task['check:data:regenerate_statistics'].reenable
-  
-    assert_match /Invalid or missing start_date argument/, err
+
+    assert err.present?
   end
-  
-  test "check:data:regenerate_statistics regenerates stats from the provided start date" do
-    start_date = "2023-04-01"
+
+  test "check:data:regenerate_statistics accepts arguments as comma separated list or string" do
+    out, err = capture_io do
+      Rake::Task['check:data:regenerate_statistics'].invoke("unique_newsletters_sent")
+    end
+    Rake::Task['check:data:regenerate_statistics'].reenable
+
+    assert err.blank?
+
+    out, err = capture_io do
+      Rake::Task['check:data:regenerate_statistics'].invoke("unique_newsletters_sent,foo")
+    end
+    Rake::Task['check:data:regenerate_statistics'].reenable
+
+    assert err.blank?
+  end
+
+  test "check:data:regenerate_statistics outputs supported arguments if no args provided" do
+    out, err = capture_io do
+      Rake::Task['check:data:regenerate_statistics'].invoke
+    end
+    Rake::Task['check:data:regenerate_statistics'].reenable
+
+    assert_match /unique_newsletters_sent/, err
+
+    out, err = capture_io do
+      Rake::Task['check:data:regenerate_statistics'].invoke
+    end
+    Rake::Task['check:data:regenerate_statistics'].reenable
+
+    assert_match /unique_newsletters_sent/, err
+  end
+
+  test "check:data:regenerate_statistics regenerates any monthly team statistics present in database for provided stat" do
     previous_month_start =  DateTime.new(2023,4,1,0,0,0)
     previous_month_end = DateTime.new(2023,4,30,23,59,59)
-  
+
     other_workspace_with_stats = create_team
-  
+
     team_stat_one = create_monthly_team_statistic(team: @tipline_team, language: 'en', start_date: previous_month_start, end_date: previous_month_end)
     team_stat_two = create_monthly_team_statistic(team: @tipline_team, language: 'es', start_date: @start_of_month, end_date: @current_date)
     team_stat_three = create_monthly_team_statistic(team: other_workspace_with_stats, language: 'en', start_date: @start_of_month, end_date: @current_date)
-  
+
     CheckStatistics.stubs(:number_of_newsletters_sent).with(@tipline_team.id, team_stat_one.start_date, team_stat_one.end_date, 'en').returns(100)
     CheckStatistics.expects(:number_of_newsletters_sent).with(@tipline_team.id, team_stat_two.start_date, team_stat_two.end_date, 'es').returns(300)
     CheckStatistics.expects(:number_of_newsletters_sent).with(other_workspace_with_stats.id, team_stat_three.start_date, team_stat_three.end_date, 'en').returns(400)
     travel_to @current_date
-  
+
     out, err = capture_io do
-      Rake::Task['check:data:regenerate_statistics'].invoke(start_date)
+      Rake::Task['check:data:regenerate_statistics'].invoke("unique_newsletters_sent")
     end
     Rake::Task['check:data:regenerate_statistics'].reenable
-  
     assert err.blank?
-  
+
     # en, previous month
-    stats_one = MonthlyTeamStatistic.find_by(team: @tipline_team, language: 'en', start_date: previous_month_start)
+    stats_one = MonthlyTeamStatistic.first
     assert_equal @tipline_team.id, stats_one.team_id
-    assert_equal previous_month_start.to_i, stats_one.start_date.to_i
-    assert_equal previous_month_end.to_i, stats_one.end_date.to_i
+    assert_equal (@current_date - 1.month).beginning_of_month.to_i, stats_one.start_date.to_i
+    assert_equal (@current_date - 1.month).end_of_month.to_i, stats_one.end_date.to_i
     assert_equal 'en', stats_one.language
     assert_equal 100, stats_one.unique_newsletters_sent
-  
+
     # es, current month
-    stats_two = MonthlyTeamStatistic.find_by(team: @tipline_team, language: 'es', start_date: @start_of_month)
+    stats_two = MonthlyTeamStatistic.second
     assert_equal @tipline_team.id, stats_two.team_id
     assert_equal @start_of_month.to_i, stats_two.start_date.to_i
     assert_equal @current_date.to_i, stats_two.end_date.to_i
     assert_equal 'es', stats_two.language
     assert_equal 300, stats_two.unique_newsletters_sent
-  
-    # second workspace - en, current month
-    stats_three = MonthlyTeamStatistic.find_by(team: other_workspace_with_stats, language: 'en', start_date: @start_of_month)
+
+    # second workspace - es, current month
+    stats_three = MonthlyTeamStatistic.third
     assert_equal other_workspace_with_stats.id, stats_three.team_id
     assert_equal @start_of_month.to_i, stats_three.start_date.to_i
     assert_equal @current_date.to_i, stats_three.end_date.to_i
     assert_equal 'en', stats_three.language
     assert_equal 400, stats_three.unique_newsletters_sent
   end
-  
+
   test "check:data:regenerate_statistics doesn't explode if tipline has been disabled, and sets newsletters to nil" do
-    start_date = "2023-04-01"
     random_team = create_team
     create_monthly_team_statistic(team: random_team, language: 'es', start_date: @start_of_month, end_date: @current_date)
-  
+
     travel_to @current_date
-  
+
     out, err = capture_io do
-      Rake::Task['check:data:regenerate_statistics'].invoke(start_date)
+      Rake::Task['check:data:regenerate_statistics'].invoke("unique_newsletters_sent")
     end
     Rake::Task['check:data:regenerate_statistics'].reenable
-  
     assert err.blank?
-  
+
     stats_one = MonthlyTeamStatistic.first
     assert_nil stats_one.unique_newsletters_sent
-  end  
+  end
 end
