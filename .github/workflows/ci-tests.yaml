@@ -4,7 +4,6 @@ on:
   push:
     branches:
     - master
-    - cv2-4793-identify-required-workflows
   pull_request:
     branches:
     - develop
@@ -58,6 +57,7 @@ jobs:
     - name: Build Docker Container
       run: |
         docker-compose build
+
     - name: Run syntax checks
       run: |
         docker-compose run api bash -c 'touch /tmp/no-syntax-errors && find app lib config -name *.rb -exec bash -c "ruby -c {} >/dev/null || rm /tmp/no-syntax-errors" ";" && ls /tmp/no-syntax-errors'
