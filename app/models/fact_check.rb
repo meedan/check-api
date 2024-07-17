@@ -101,7 +101,7 @@ class FactCheck < ApplicationRecord
   def update_item_status
     pm = self.project_media
     s = pm&.last_status_obj
-    unless s.nil?
+    if !s.nil? && s.status != self.rating
       s.skip_check_ability = true
       s.status = self.rating
       s.save!
@@ -125,8 +125,8 @@ class FactCheck < ApplicationRecord
   end
 
   def set_initial_rating
-    team = self.claim_description.team
-    default_rating = team.verification_statuses('media', nil)['default']
-    self.rating = default_rating
+    pm_rating = self.project_media&.last_status
+    default_rating = self.claim_description.team.verification_statuses('media', nil)['default']
+    self.rating = pm_rating || default_rating
   end
 end
