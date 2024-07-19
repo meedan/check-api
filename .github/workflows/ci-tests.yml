@@ -281,7 +281,7 @@ jobs:
         api test/test-coverage.sh
 
   coverage:
-    needs: [ contracts-test ]
+    needs: [ contract-tests ]
     name: coverage
     runs-on: ubuntu-latest
     steps:
