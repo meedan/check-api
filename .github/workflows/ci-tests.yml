@@ -279,3 +279,12 @@ jobs:
         -e GITHUB_JOB=${{ github.job }} \
         -e AWS_CONFIG_FILE=/app/credentials \
         api test/test-coverage.sh
+
+    - name: Test & publish code coverage
+      uses: paambaati/codeclimate-action@v3.0.0
+      env:
+        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+      with:
+        coverageCommand: api test/test-coverage.sh
+        coverageLocations: ${{ github.workspace }}/coverage/coverage.json:simplecov
+        debug: true
