@@ -287,7 +287,7 @@ jobs:
         -e GITHUB_REF_NAME=${{ github.head_ref || github.ref_name }}  \
         -e AWS_CONFIG_FILE=/app/credentials \
         api test/test-coverage.sh \
-        -t simplecov -o coverage/codeclimate.json"
+        -t simplecov -o coverage/codeclimate.json
 
     - name: Upload coverage report to Code Climate
       env:
