@@ -271,12 +271,11 @@ jobs:
       id: after-tests
       env:
         GIT_SHA: ${{ github.sha }}
-        GIT_COMMITED_AT: ${{ github.event.head_commit.timestamp }}
       run: |  
         docker-compose exec -T -e GIT_COMMIT_SHA=${{ github.sha }} \
-        -e GIT_COMMITTED_AT=${{ github.event.head_commit.timestamp }} \
         -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID \
-        -e PATH=$PATH \
-        -e JOB_NAME=contract-tests \
+        -e GITHUB_BRANCH=${{ github.head_ref || github.ref_name }}  \
+        -e GITHUB_PULL_REQUEST=${{ github.event.pull_request.number || 0 }} \
+        -e GITHUB_JOB=${{ github.job }} \
         -e AWS_CONFIG_FILE=/app/credentials \
         api test/test-coverage.sh
