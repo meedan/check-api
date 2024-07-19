@@ -280,11 +280,6 @@ jobs:
         -e AWS_CONFIG_FILE=/app/credentials \
         api test/test-coverage.sh
 
-    - name: Install dependencies
-      run: |
-        gem install bundler
-        bundle install
-
     - name: Generate coverage report
       run: |
         docker-compose exec -e CC_TEST_REPORTER_ID=${{ secrets.CC_TEST_REPORTER_ID }} \
