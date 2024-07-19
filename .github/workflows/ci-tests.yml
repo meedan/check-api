@@ -280,20 +280,20 @@ jobs:
         -e AWS_CONFIG_FILE=/app/credentials \
         api test/test-coverage.sh
 
-    coverage:
-      needs: [ contracts-test ]
-      name: coverage
-      runs-on: ubuntu-latest
-      steps:
-      - uses: actions/checkout@master
-      - uses: actions/setup-node@master
-        with:
-          node-version: '12'
-      - run: npm install -g yarn
-      - run: yarn install
-      - run: yarn build
-      - uses: paambaati/codeclimate-action@v2.2.4
-        env:
-          CC_TEST_REPORTER_ID: $CC_TEST_REPORTER_ID
-        with:
-          coverageCommand: yarn coverage
+  coverage:
+    needs: [ contracts-test ]
+    name: coverage
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - uses: actions/setup-node@master
+      with:
+        node-version: '12'
+    - run: npm install -g yarn
+    - run: yarn install
+    - run: yarn build
+    - uses: paambaati/codeclimate-action@v2.2.4
+      env:
+        CC_TEST_REPORTER_ID: $CC_TEST_REPORTER_ID
+      with:
+        coverageCommand: yarn coverage
