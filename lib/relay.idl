@@ -2609,6 +2609,7 @@ type CreateFactCheckPayload {
   clientMutationId: String
   fact_check: FactCheck
   fact_checkEdge: FactCheckEdge
+  team: Team
 }
 
 """
@@ -4212,6 +4213,7 @@ type DestroyFactCheckPayload {
   """
   clientMutationId: String
   deletedId: ID
+  team: Team
 }
 
 """
@@ -15569,6 +15571,7 @@ type UpdateFactCheckPayload {
   clientMutationId: String
   fact_check: FactCheck
   fact_checkEdge: FactCheckEdge
+  team: Team
 }
 
 """

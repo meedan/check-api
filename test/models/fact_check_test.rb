@@ -543,4 +543,9 @@ class FactCheckTest < ActiveSupport::TestCase
     fc.save!
     assert_equal 'in_progress', pm.reload.last_status
   end
+
+  test "should have team" do
+    fc = create_fact_check
+    assert_not_nil fc.team
+  end
 end

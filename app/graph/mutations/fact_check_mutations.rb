@@ -1,6 +1,6 @@
 module FactCheckMutations
   MUTATION_TARGET = 'fact_check'.freeze
-  PARENTS = ['claim_description'].freeze
+  PARENTS = ['claim_description', 'team'].freeze
 
   module SharedCreateAndUpdateFields
     extend ActiveSupport::Concern
