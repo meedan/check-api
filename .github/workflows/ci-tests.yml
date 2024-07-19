@@ -282,7 +282,7 @@ jobs:
 
     - name: Generate coverage report
       run: |
-        docker-compose exec -e CC_TEST_REPORTER_ID=${{ secrets.CC_TEST_REPORTER_ID }} \
+        docker-compose exec -T -e CC_TEST_REPORTER_ID=${{ secrets.CC_TEST_REPORTER_ID }} \
         -e GIT_COMMIT_SHA=${{ github.sha }} \
         -e GITHUB_REF_NAME=${{ github.head_ref || github.ref_name }}  \
         -e AWS_CONFIG_FILE=/app/credentials \
@@ -293,7 +293,7 @@ jobs:
       env:
         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
       run: |
-        docker-compose exec -e CC_TEST_REPORTER_ID=${{ secrets.CC_TEST_REPORTER_ID }} \
+        docker-compose exec -e -T CC_TEST_REPORTER_ID=${{ secrets.CC_TEST_REPORTER_ID }} \
         -e GIT_COMMIT_SHA=${{ github.sha }} \
         -e GITHUB_REF_NAME=${{ github.head_ref || github.ref_name }}  \
         -e AWS_CONFIG_FILE=/app/credentials \
