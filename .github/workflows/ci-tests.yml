@@ -277,7 +277,7 @@ jobs:
         GITHUB_TEST_RESULT: 0
         GITHUB_BUILD_NUMBER: ${{ github.run_number }}
         GITHUB_COMMIT_SHA: ${{ github.sha }}
-        GITHUB_JOB_NAME: ${{ github.job.name }}
+        GITHUB_JOB_NAME: ${{ github.job }}
         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
       run: |  
         docker-compose exec -T \
