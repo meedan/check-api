@@ -281,14 +281,15 @@ jobs:
         GITHUB_COMMIT_SHA: ${{ github.sha }}
         GITHUB_JOB_NAME: ${{ github.job }}
         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-      run: |  
-        docker-compose exec -T -e GIT_BRANCH=$GIT_BRANCH \
-        -e GITHUB_PULL_REQUEST=$GITHUB_PULL_REQUEST \
-        -e GITHUB_TEST_RESULT=$GITHUB_TEST_RESULT \
-        -e GITHUB_REPO_SLUG=$GITHUB_REPO_SLUG  \
-        -e GITHUB_BUILD_NUMBER=$GITHUB_BUILD_NUMBER \
-        -e GIT_COMMIT_SHA=$GITHUB_COMMIT_SHA \
-        -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID \
-        -e GITHUB_JOB_NAME=$GITHUB_JOB_NAME \
-        -e AWS_CONFIG_FILE=/app/credentials \ 
-        api bash -c "./test/test-coverage.sh"
+      # run: |  
+      #   docker-compose exec -T -e GIT_BRANCH=$GIT_BRANCH \
+      #   -e GITHUB_PULL_REQUEST=$GITHUB_PULL_REQUEST \
+      #   -e GITHUB_TEST_RESULT=$GITHUB_TEST_RESULT \
+      #   -e GITHUB_REPO_SLUG=$GITHUB_REPO_SLUG  \
+      #   -e GITHUB_BUILD_NUMBER=$GITHUB_BUILD_NUMBER \
+      #   -e GIT_COMMIT_SHA=$GITHUB_COMMIT_SHA \
+      #   -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID \
+      #   -e GITHUB_JOB_NAME=$GITHUB_JOB_NAME \
+      #   -e AWS_CONFIG_FILE=/app/credentials \ 
+      with:
+        coverageCommand: api bash -c "./test/test-coverage.sh"
