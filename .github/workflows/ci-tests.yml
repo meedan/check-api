@@ -290,4 +290,5 @@ jobs:
         -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID \
         -e GITHUB_JOB_NAME=$GITHUB_JOB_NAME \
         -e AWS_CONFIG_FILE=/app/credentials \ 
+        -e PATH=$PATH \
         api bash -c "./test/test-coverage.sh"
