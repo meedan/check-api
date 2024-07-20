@@ -292,4 +292,4 @@ jobs:
       #   -e GITHUB_JOB_NAME=$GITHUB_JOB_NAME \
       #   -e AWS_CONFIG_FILE=/app/credentials \ 
       with:
-        coverageCommand: api bash -c "./test/test-coverage.sh"
+        coverageLocation: ${{github.workspace}}/test/test-coverage.sh"
