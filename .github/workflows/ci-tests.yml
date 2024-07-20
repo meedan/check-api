@@ -271,7 +271,7 @@ jobs:
       id: after-tests
       env:
         GIT_SHA: ${{ github.sha }}
-        GITHUB_PULL_REQUEST: ${{ github.event.pull_request.number || 0 }}
+        GITHUB_PULL_REQUEST: 'false'
         GIT_BRANCH: ${{ github.head_ref || github.ref_name }}
         GITHUB_REPO_SLUG: ${{ github.repository }}
         GITHUB_TEST_RESULT: 0
@@ -280,8 +280,7 @@ jobs:
         GITHUB_JOB_NAME: ${{ github.job }}
         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
       run: |  
-        docker-compose exec -T \
-        -e GIT_BRANCH=$GIT_BRANCH \
+        docker-compose exec -T -e GIT_BRANCH=$GIT_BRANCH \
         -e GITHUB_PULL_REQUEST=$GITHUB_PULL_REQUEST \
         -e GITHUB_TEST_RESULT=$GITHUB_TEST_RESULT \
         -e GITHUB_REPO_SLUG=$GITHUB_REPO_SLUG  \
@@ -289,5 +288,5 @@ jobs:
         -e GIT_COMMIT_SHA=$GITHUB_COMMIT_SHA \
         -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID \
         -e GITHUB_JOB_NAME=$GITHUB_JOB_NAME \
-        -e AWS_CONFIG_FILE=/app/credentials \
+        -e AWS_CONFIG_FILE=/app/credentials \ 
         api test/test-coverage.sh
