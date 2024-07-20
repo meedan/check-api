@@ -272,7 +272,7 @@ jobs:
       id: after-tests
       env:
         GIT_SHA: ${{ github.sha }}
-        GITHUB_PULL_REQUEST: 'true'
+        GITHUB_PULL_REQUEST: 'false'
         GIT_BRANCH: ${{ github.head_ref || github.ref_name }}
         GITHUB_REPO_SLUG: ${{ github.repository }}
         GITHUB_TEST_RESULT: 0
