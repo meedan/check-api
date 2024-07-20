@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# if [[ "$GITHUB_PULL_REQUEST" == "false" ]] && [[ $GITHUB_TEST_RESULT == 0 ]]
-# then
+if [[ "$GITHUB_PULL_REQUEST" == "false" ]] && [[ $GITHUB_TEST_RESULT == 0 ]]
+then
   rm -rf ../coverage/*
   aws s3 cp --recursive s3://check-api-travis/codeclimate/$GITHUB_REPO_SLUG/$GITHUB_BUILD_NUMBER/ ../coverage
   if [[ $(ls ../coverage/codeclimate.* | wc -l) -eq 3 ]]
@@ -19,4 +19,4 @@
     cat ../coverage/codeclimate.json | ./cc-test-reporter upload-coverage --input -
     ./cc-test-reporter show-coverage ../coverage/codeclimate.json
   fi
-# fi
+fi
