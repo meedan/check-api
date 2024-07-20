@@ -291,32 +291,50 @@ jobs:
 
     - name: Save coverage
       env:
+        GIT_SHA: ${{ github.sha }}
+        GITHUB_PULL_REQUEST: 'false'
+        GIT_BRANCH: ${{ github.head_ref || github.ref_name }}
+        GITHUB_REPO_SLUG: ${{ github.repository }}
+        GITHUB_TEST_RESULT: 0
+        GITHUB_BUILD_NUMBER: ${{ github.run_number }}
+        GITHUB_COMMIT_SHA: ${{ github.sha }}
         GITHUB_JOB_NAME: ${{ github.job }}
-      run: |
-        ./test/cc-test-reporter format-coverage -t simplecov --output ../coverage/codeclimate.$GITHUB_JOB_NAME.json ../coverage/.resultset.json
-        aws s3 cp ..coverage/codeclimate.GITHUB_JOB_NAME.json s3://check-api-travis/codeclimate/coverage/codeclimate.GITHUB_JOB_NAME.json 
+        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+      run: |  
+        docker-compose exec -T -e GIT_BRANCH=$GIT_BRANCH \
+        -e GITHUB_PULL_REQUEST=$GITHUB_PULL_REQUEST \
+        -e GITHUB_TEST_RESULT=$GITHUB_TEST_RESULT \
+        -e GITHUB_REPO_SLUG=$GITHUB_REPO_SLUG  \
+        -e GITHUB_BUILD_NUMBER=$GITHUB_BUILD_NUMBER \
+        -e GIT_COMMIT_SHA=$GITHUB_COMMIT_SHA \
+        -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID \
+        -e GITHUB_JOB_NAME=$GITHUB_JOB_NAME \
+        -e AWS_CONFIG_FILE=/app/credentials \ 
+        api /test/format-coverage.sh"
+      # ./test/cc-test-reporter format-coverage -t simplecov --output ../coverage/codeclimate.$GITHUB_JOB_NAME.json ../coverage/.resultset.json
+      # aws s3 cp ..coverage/codeclimate.GITHUB_JOB_NAME.json s3://check-api-travis/codeclimate/coverage/codeclimate.GITHUB_JOB_NAME.json 
 
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v2
       with:
         name: coverage-${{ matrix.ruby }}
         path: coverage/codeclimate.GITHUB_JOB_NAME.json
 
-    - uses: actions/download-artifact@v1
+    - uses: actions/download-artifact@v2
       with:
         name: coverage-2.4.9
         path: coverage
 
-    - uses: actions/download-artifact@v1
+    - uses: actions/download-artifact@v2
       with:
         name: coverage-2.5.7
         path: coverage
 
-    - uses: actions/download-artifact@v1
+    - uses: actions/download-artifact@v2
       with:
         name: coverage-2.6.5
         path: coverage
 
-    - uses: actions/download-artifact@v1
+    - uses: actions/download-artifact@v2
       with:
         name: coverage-2.7.0
         path: coverage
