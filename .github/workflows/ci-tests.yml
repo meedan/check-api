@@ -294,7 +294,6 @@ jobs:
         GITHUB_JOB_NAME: ${{ github.job }}
       run: |
         ./test/cc-test-reporter format-coverage -t simplecov --output ../coverage/codeclimate.$GITHUB_JOB_NAME.json ../coverage/.resultset.json
-       # cc-test-reporter format-coverage --output coverage/codeclimate.${{ matrix.ruby }}.json  --debug
         aws s3 cp ..coverage/codeclimate.GITHUB_JOB_NAME.json s3://check-api-travis/codeclimate/coverage/codeclimate.GITHUB_JOB_NAME.json 
 
     - uses: actions/upload-artifact@v1
