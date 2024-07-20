@@ -301,7 +301,7 @@ jobs:
         GITHUB_JOB_NAME: ${{ github.job }}
         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
       run:  |
-        apt-get install -y golang-go golang-glide
+        sudo apt-get install -y golang-go golang-glide
         printf '#!/bin/bash\ngo run /tmp/go/src/github.com/codeclimate/test-reporter/main.go $@\n' > test/cc-test-reporter && chmod +x test/cc-test-reporter
         export GOPATH=/tmp/go
         git config --global --add safe.directory /app
