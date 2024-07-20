@@ -300,9 +300,16 @@ jobs:
         GITHUB_COMMIT_SHA: ${{ github.sha }}
         GITHUB_JOB_NAME: ${{ github.job }}
         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-      run:  ./test/format-coverage.sh"
-      # ./test/cc-test-reporter format-coverage -t simplecov --output ../coverage/codeclimate.$GITHUB_JOB_NAME.json ../coverage/.resultset.json
-      # aws s3 cp ..coverage/codeclimate.GITHUB_JOB_NAME.json s3://check-api-travis/codeclimate/coverage/codeclimate.GITHUB_JOB_NAME.json 
+      run:  |
+        apt-get install -y golang-go golang-glide
+        printf '#!/bin/bash\ngo run /tmp/go/src/github.com/codeclimate/test-reporter/main.go $@\n' > test/cc-test-reporter && chmod +x test/cc-test-reporter
+        export GOPATH=/tmp/go
+        git config --global --add safe.directory /app
+        mkdir -p /tmp/go/src/github.com/codeclimate
+        git clone -b 0.10.3 https://github.com/codeclimate/test-reporter /tmp/go/src/github.com/codeclimate/test-reporter
+      # ./test/format-coverage.sh 
+        ./test/cc-test-reporter format-coverage -t simplecov --output ../coverage/codeclimate.$GITHUB_JOB_NAME.json ../coverage/.resultset.json
+        aws s3 cp ..coverage/codeclimate.GITHUB_JOB_NAME.json s3://check-api-travis/codeclimate/coverage/codeclimate.GITHUB_JOB_NAME.json 
 
     - uses: actions/upload-artifact@v2
       with:
