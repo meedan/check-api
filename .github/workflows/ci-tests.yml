@@ -303,7 +303,7 @@ jobs:
       run:  |
         sudo apt-get install -y golang-go golang-glide
         sudo mkdir -p /tmp/go/src/github.com/codeclimate
-        sudo chown $USER:$USER /tmp/go/src/github.com/codeclimate/test-reporter
+        sudo chown $USER:$USER /tmp/go/src/github.com/codeclimate
         printf '#!/bin/bash\ngo run /tmp/go/src/github.com/codeclimate/test-reporter/main.go $@\n' > test/cc-test-reporter && chmod +x test/cc-test-reporter
         export GOPATH=/tmp/go
         git config --global --add safe.directory /app
