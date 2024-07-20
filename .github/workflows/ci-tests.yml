@@ -268,30 +268,59 @@ jobs:
       run: |
         docker-compose exec -e TEST_RETRY_COUNT=$TEST_RETRY_COUNT -T -e PATTERN='controllers models mailers integration workers lib' api test/run-tests.sh
 
-    - name: After contract Tests
-      id: after-tests
-      uses: paambaati/codeclimate-action@v3.0.0
-      env:
-        GIT_SHA: ${{ github.sha }}
-        GITHUB_PULL_REQUEST: 'false'
-        GIT_BRANCH: ${{ github.head_ref || github.ref_name }}
-        GITHUB_REPO_SLUG: ${{ github.repository }}
-        GITHUB_TEST_RESULT: 0
-        GITHUB_BUILD_NUMBER: ${{ github.run_number }}
-        GITHUB_COMMIT_SHA: ${{ github.sha }}
-        GITHUB_JOB_NAME: ${{ github.job }}
-        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-      # run: |  
-      #   docker-compose exec -T -e GIT_BRANCH=$GIT_BRANCH \
-      #   -e GITHUB_PULL_REQUEST=$GITHUB_PULL_REQUEST \
-      #   -e GITHUB_TEST_RESULT=$GITHUB_TEST_RESULT \
-      #   -e GITHUB_REPO_SLUG=$GITHUB_REPO_SLUG  \
-      #   -e GITHUB_BUILD_NUMBER=$GITHUB_BUILD_NUMBER \
-      #   -e GIT_COMMIT_SHA=$GITHUB_COMMIT_SHA \
-      #   -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID \
-      #   -e GITHUB_JOB_NAME=$GITHUB_JOB_NAME \
-      #   -e AWS_CONFIG_FILE=/app/credentials \ 
-      with:
-        debug: true
-        workingDirectory: ./test/test-coverage.sh"
-        coverageCommand : yarn coverage
+    
+    - name: Set ENV for codeclimate (pull_request)
+      run: |
+        git fetch --no-tags --prune --depth=1 origin +refs/heads/$GITHUB_HEAD_REF:refs/remotes/origin/$GITHUB_HEAD_REF
+        echo "::set-env name=GIT_BRANCH::$GITHUB_HEAD_REF"
+        echo "::set-env name=GIT_COMMIT_SHA::$(git rev-parse origin/$GITHUB_HEAD_REF)"
+      if: github.event_name == 'pull_request'
+
+    - name: Set ENV for codeclimate (push)
+      run: |
+        echo "::set-env name=GIT_BRANCH::$GITHUB_REF"
+        echo "::set-env name=GIT_COMMIT_SHA::$GITHUB_SHA"
+      if: github.event_name == 'push'
+
+      - name: Download test coverage reporter
+        env: 
+          CC_TEST_REPORTER_URL: https://codeclimate.com/downloads/test-reporter/test-reporter-0.7.0-linux-amd64
+        run: curl -L $CC_TEST_REPORTER_URL > cc-test-reporter
+
+      - name: Give test coverage reporter executable permissions
+        run: chmod +x cc-test-reporter
+
+      - name: Save coverage
+        run: |
+        ./cc-test-reporter format-coverage --output coverage/codeclimate.${{ matrix.ruby }}.json
+         aws s3 cp ..coverage/codeclimate.${{ matrix.ruby }}.json s3://check-api-travis/codeclimate/coverage/codeclimate.${{ matrix.ruby }}.json
+
+      - uses: actions/upload-artifact@v1
+        with:
+          name: coverage-${{ matrix.ruby }}
+          path: coverage/codeclimate.${{ matrix.ruby }}.json
+
+      - uses: actions/download-artifact@v1
+        with:
+          name: coverage-2.4.9
+          path: coverage
+
+      - uses: actions/download-artifact@v1
+        with:
+          name: coverage-2.5.7
+          path: coverage
+
+      - uses: actions/download-artifact@v1
+        with:
+          name: coverage-2.6.5
+          path: coverage
+
+      - uses: actions/download-artifact@v1
+        with:
+          name: coverage-2.7.0
+          path: coverage
+          
+      - name: Aggregate & upload results to Code Climate
+        run: |
+          ./cc-test-reporter sum-coverage coverage/codeclimate.*.json
+          ./cc-test-reporter upload-coverage
