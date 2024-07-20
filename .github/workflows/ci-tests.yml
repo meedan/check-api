@@ -268,18 +268,18 @@ jobs:
       run: |
         docker-compose exec -e TEST_RETRY_COUNT=$TEST_RETRY_COUNT -T -e PATTERN='controllers models mailers integration workers lib' api test/run-tests.sh
     
-    - name: Set ENV for codeclimate (pull_request)
+    - name: Set ENV for Code Climate (Pull Request)
+      if: github.event_name == 'pull_request'
       run: |
         git fetch --no-tags --prune --depth=1 origin +refs/heads/$GITHUB_HEAD_REF:refs/remotes/origin/$GITHUB_HEAD_REF
-        echo "::set-env name=GIT_BRANCH::$GITHUB_HEAD_REF"
-        echo "::set-env name=GIT_COMMIT_SHA::$(git rev-parse origin/$GITHUB_HEAD_REF)"
-      if: github.event_name == 'pull_request'
+        echo "GIT_BRANCH=$GITHUB_HEAD_REF" >> $GITHUB_ENV
+        echo "GIT_COMMIT_SHA=$(git rev-parse origin/$GITHUB_HEAD_REF)" >> $GITHUB_ENV
 
-    - name: Set ENV for codeclimate (push)
-      run: |
-        echo "::set-env name=GIT_BRANCH::$GITHUB_REF"
-        echo "::set-env name=GIT_COMMIT_SHA::$GITHUB_SHA"
+    - name: Set ENV for Code Climate (Push)
       if: github.event_name == 'push'
+      run: |
+        echo "GIT_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+        echo "GIT_COMMIT_SHA=$GITHUB_SHA" >> $GITHUB_ENV
 
     - name: Download test coverage reporter
       env: 
