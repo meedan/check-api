@@ -105,13 +105,13 @@ jobs:
         echo "GIT_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
         echo "GIT_COMMIT_SHA=$GITHUB_SHA" >> $GITHUB_ENV
 
-    - name: Download test coverage reporter
-      env: 
-        CC_TEST_REPORTER_URL: https://codeclimate.com/downloads/test-reporter/test-reporter-0.7.0-linux-amd64
-      run: curl -L $CC_TEST_REPORTER_URL > /test/cc-test-reporter
+    # - name: Download test coverage reporter
+    #   env: 
+    #     CC_TEST_REPORTER_URL: https://codeclimate.com/downloads/test-reporter/test-reporter-0.7.0-linux-amd64
+    #   run: curl -L $CC_TEST_REPORTER_URL > /test/cc-test-reporter
 
-    - name: Give test coverage reporter executable permissions
-      run: chmod +x /test/cc-test-reporter
+    # - name: Give test coverage reporter executable permissions
+    #   run: chmod +x /test/cc-test-reporter
 
     - name: Save coverage
       env:
