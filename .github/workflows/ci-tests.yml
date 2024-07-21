@@ -301,34 +301,34 @@ jobs:
         GITHUB_JOB_NAME: ${{ github.job }}
         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
       run:  |
-        chmod +x "${GITHUB_WORKSPACE}/.github/script.sh"
-        "${GITHUB_WORKSPACE}/test/test-coverage.sh"
-    - uses: actions/upload-artifact@v2
-      with:
-        name: coverage-${{ matrix.ruby }}
-        path: coverage/codeclimate.GITHUB_JOB_NAME.json
+        git update-index --chmod=-x  ./test/test-coverage.sh
 
-    - uses: actions/download-artifact@v2
-      with:
-        name: coverage-2.4.9
-        path: coverage
+    # - uses: actions/upload-artifact@v2
+    #   with:
+    #     name: coverage-${{ matrix.ruby }}
+    #     path: coverage/codeclimate.GITHUB_JOB_NAME.json
 
-    - uses: actions/download-artifact@v2
-      with:
-        name: coverage-2.5.7
-        path: coverage
+    # - uses: actions/download-artifact@v2
+    #   with:
+    #     name: coverage-2.4.9
+    #     path: coverage
 
-    - uses: actions/download-artifact@v2
-      with:
-        name: coverage-2.6.5
-        path: coverage
+    # - uses: actions/download-artifact@v2
+    #   with:
+    #     name: coverage-2.5.7
+    #     path: coverage
 
-    - uses: actions/download-artifact@v2
-      with:
-        name: coverage-2.7.0
-        path: coverage
+    # - uses: actions/download-artifact@v2
+    #   with:
+    #     name: coverage-2.6.5
+    #     path: coverage
 
-    - name: Aggregate & upload results to Code Climate
-      run: |
-        ./cc-test-reporter sum-coverage coverage/codeclimate.*.json
-        ./cc-test-reporter upload-coverage
+    # - uses: actions/download-artifact@v2
+    #   with:
+    #     name: coverage-2.7.0
+    #     path: coverage
+
+    # - name: Aggregate & upload results to Code Climate
+    #   run: |
+    #     ./cc-test-reporter sum-coverage coverage/codeclimate.*.json
+    #     ./cc-test-reporter upload-coverage
