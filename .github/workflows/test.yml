@@ -121,7 +121,7 @@ jobs:
     - name: After coverage Test
       env:
         GIT_SHA: ${{ github.sha }}
-        GITHUB_PULL_REQUEST: {{ github.event_name}}
+        GITHUB_PULL_REQUEST: ${{ github.event_name}}
         GIT_BRANCH: ${{ github.head_ref || github.ref_name }}
         GITHUB_REPO_SLUG: ${{ github.repository }}
         GITHUB_TEST_RESULT: ${{ steps.run-tests.outcome}}
