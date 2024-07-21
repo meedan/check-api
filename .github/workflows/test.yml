@@ -90,33 +90,6 @@ jobs:
         TEST_RETRY_COUNT: 3
       run: |
         docker-compose exec -e TEST_RETRY_COUNT=$TEST_RETRY_COUNT -T -e PATTERN='controllers models mailers integration workers lib' api test/run-tests.sh
-    
-    - name: Set ENV for Code Climate (Pull Request)
-      if: github.event_name == 'pull_request'
-      run: |
-        git fetch --no-tags --prune --depth=1 origin +refs/heads/$GITHUB_HEAD_REF:refs/remotes/origin/$GITHUB_HEAD_REF
-        echo "GIT_BRANCH=$GITHUB_HEAD_REF" >> $GITHUB_ENV
-        echo "GIT_COMMIT_SHA=$(git rev-parse origin/$GITHUB_HEAD_REF)" >> $GITHUB_ENV
-
-    - name: Set ENV for Code Climate (Push)
-      if: github.event_name == 'push'
-      run: |
-        echo "GIT_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
-        echo "GIT_COMMIT_SHA=$GITHUB_SHA" >> $GITHUB_ENV
-    
-    # - name: Set up AWS credentials
-    #   run: |
-       
-    #     echo "aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}"  >> app/credentials
-    #     echo "aws_secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> app/credentials
-
-    # - name: Download test coverage reporter
-    #   env: 
-    #     CC_TEST_REPORTER_URL: https://codeclimate.com/downloads/test-reporter/test-reporter-0.7.0-linux-amd64
-    #   run: curl -L $CC_TEST_REPORTER_URL > /test/cc-test-reporter
-
-    # - name: Give test coverage reporter executable permissions
-    #   run: chmod +x /test/cc-test-reporter
 
     - name: After coverage Test
       env:
