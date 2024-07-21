@@ -284,7 +284,7 @@ jobs:
     - name: Download test coverage reporter
       env: 
         CC_TEST_REPORTER_URL: https://codeclimate.com/downloads/test-reporter/test-reporter-0.7.0-linux-amd64
-      run: curl -L $CC_TEST_REPORTER_URL > cc-test-reporter
+      run: curl -L $CC_TEST_REPORTER_URL > /test/cc-test-reporter
 
     - name: Give test coverage reporter executable permissions
       run: chmod +x cc-test-reporter
@@ -301,7 +301,7 @@ jobs:
         GITHUB_JOB_NAME: ${{ github.job }}
         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
       run:  |
-        ./cc-test-reporter format-coverage -t simplecov --output /coverage/codeclimate.$GITHUB_JOB_NAME.json /coverage/.resultset.json
+        ./test/cc-test-reporter format-coverage -t simplecov --output /coverage/codeclimate.$GITHUB_JOB_NAME.json /coverage/.resultset.json
         aws s3 cp /coverage/codeclimate.$GITHUB_JOB_NAME.json s3://check-api-travis/codeclimate/$GITHUB_REPO_SLUG/$GITHUB_BUILD_NUMBER/codeclimate.$GITHUB_JOB_NAME.json
 
     - uses: actions/upload-artifact@v2
