@@ -143,5 +143,4 @@ jobs:
         -e GIT_COMMIT_SHA=$GITHUB_COMMIT_SHA \
         -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID \
         -e GITHUB_JOB_NAME=$GITHUB_JOB_NAME \
-        -e AWS_CONFIG_FILE=/app/credentials \
-        api test/test-coverage.sh
+        -e AWS_CONFIG_FILE=/app/credentials api test/test-coverage.sh
