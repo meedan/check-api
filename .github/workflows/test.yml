@@ -5,12 +5,11 @@ on:
     - cron: '0 5 * * *'  #Runs  daily at 5 AM UTC
   push:
     branches:
-    - CV2-4794-migrate-travis-ci
-    # - master
-    # - develop
-  # pull_request:
-  #   branches:
-    # - develop
+    - master
+    - develop
+  pull_request:
+    branches:
+    - develop
 
 env:
   CC_TEST_REPORTER_ID: "${{ secrets.CC_TEST_REPORTER_ID }}"
