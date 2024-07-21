@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ "$GITHUB_PULL_REQUEST" != "pull_request" ]] && [[ $GITHUB_TEST_RESULT == 'success' ]]
+if [[ "$GITHUB_PULL_REQUEST" == "pull_request" ]] && [[ $GITHUB_TEST_RESULT == 'success' ]]
 then
   rm -rf ../coverage/*
   aws s3 cp --recursive s3://check-api-travis/codeclimate/$GITHUB_REPO_SLUG/$GITHUB_BUILD_NUMBER/ ../coverage
