@@ -124,6 +124,10 @@ jobs:
         GITHUB_COMMIT_SHA: ${{ github.sha }}
         GITHUB_JOB_NAME: ${{ github.job }}
         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+        AWS_REGION: eu-west-1
       run:  |
         docker-compose exec -T -e GIT_BRANCH=$GIT_BRANCH \
         -e GITHUB_PULL_REQUEST=$GITHUB_PULL_REQUEST \
@@ -133,4 +137,5 @@ jobs:
         -e GIT_COMMIT_SHA=$GITHUB_COMMIT_SHA \
         -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID \
         -e GITHUB_JOB_NAME=$GITHUB_JOB_NAME \
-        -e AWS_CONFIG_FILE=/app/credentials api test/test-coverage.sh
+        -e AWS_CONFIG_FILE=/app/credentials 
+        api test/test-coverage.sh
