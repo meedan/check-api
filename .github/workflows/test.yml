@@ -104,6 +104,12 @@ jobs:
       run: |
         echo "GIT_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
         echo "GIT_COMMIT_SHA=$GITHUB_SHA" >> $GITHUB_ENV
+    
+    - name: Set up AWS credentials
+      run: |
+        echo '[default]' > ~/.aws/credentials
+        echo "aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
+        echo "aws_secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
 
     # - name: Download test coverage reporter
     #   env: 
@@ -137,5 +143,5 @@ jobs:
         -e GIT_COMMIT_SHA=$GITHUB_COMMIT_SHA \
         -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID \
         -e GITHUB_JOB_NAME=$GITHUB_JOB_NAME \
-        -e AWS_CONFIG_FILE=/app/credentials 
+        -e AWS_CONFIG_FILE=/app/credentials \
         api test/test-coverage.sh
