@@ -118,13 +118,13 @@ jobs:
     # - name: Give test coverage reporter executable permissions
     #   run: chmod +x /test/cc-test-reporter
 
-    - name: Save coverage
+    - name: After coverage Test
       env:
         GIT_SHA: ${{ github.sha }}
-        GITHUB_PULL_REQUEST: 'false'
+        GITHUB_PULL_REQUEST: {{ github.event_name}}
         GIT_BRANCH: ${{ github.head_ref || github.ref_name }}
         GITHUB_REPO_SLUG: ${{ github.repository }}
-        GITHUB_TEST_RESULT: 0
+        GITHUB_TEST_RESULT: ${{ steps.run-tests.outcome}}
         GITHUB_BUILD_NUMBER: ${{ github.run_number }}
         GITHUB_COMMIT_SHA: ${{ github.sha }}
         GITHUB_JOB_NAME: ${{ github.job }}
