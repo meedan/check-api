@@ -301,7 +301,8 @@ jobs:
         GITHUB_JOB_NAME: ${{ github.job }}
         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
       run:  |
-        ./test/test-coverage.sh
+        chmod +x "${GITHUB_WORKSPACE}/.github/script.sh"
+        "${GITHUB_WORKSPACE}/test/test-coverage.sh"
     - uses: actions/upload-artifact@v2
       with:
         name: coverage-${{ matrix.ruby }}
