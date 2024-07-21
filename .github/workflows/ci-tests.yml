@@ -304,6 +304,7 @@ jobs:
         sudo apt-get install -y golang-go golang-glide
         sudo mkdir -p /tmp/go/src/github.com/codeclimate
         export GOPATH=/tmp/go
+        git config --global --add safe.directory /app
         git clone -b 0.10.3 https://github.com/codeclimate/test-reporter /tmp/go/src/github.com/codeclimate/test-reporter
         printf '#!/bin/bash\ngo run /tmp/go/src/github.com/codeclimate/test-reporter/main.go $@\n' > test/cc-test-reporter && chmod +x test/cc-test-reporter
         ./test/cc-test-reporter format-coverage -t simplecov --output ../coverage/codeclimate.$GITHUB_JOB_NAME.json ../coverage/.resultset.json
