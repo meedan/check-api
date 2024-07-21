@@ -145,4 +145,6 @@ jobs:
         -e GITHUB_JOB_NAME=$GITHUB_JOB_NAME \
         -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
         -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+        -e ROLE_TO_ASSUME=$AWS_ROLE_TO_ASSUME \
+        -e AWS_REGION=$AWS_REGION \
         -e AWS_CONFIG_FILE=/app/credentials api test/test-coverage.sh
