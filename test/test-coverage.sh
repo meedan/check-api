@@ -13,7 +13,7 @@ apt install -y awscli
 cd -
 ./test/cc-test-reporter format-coverage -t simplecov --output ../coverage/codeclimate.$GITHUB_JOB_NAME.json ../coverage/.resultset.json
 aws s3 cp ../coverage/codeclimate.$GITHUB_JOB_NAME.json s3://check-api-travis/codeclimate/$GITHUB_REPO_SLUG/$GITHUB_BUILD_NUMBER/codeclimate.$GITHUB_JOB_NAME.json
-
+echo 'Combining and uploading coverage...' && cd test 
   rm -rf ../coverage/*
   aws s3 cp --recursive s3://check-api-travis/codeclimate/$GITHUB_REPO_SLUG/$GITHUB_BUILD_NUMBER/ ../coverage
   if [[ $(ls ../coverage/codeclimate.* | wc -l) -eq 3 ]]
@@ -31,4 +31,5 @@ aws s3 cp ../coverage/codeclimate.$GITHUB_JOB_NAME.json s3://check-api-travis/co
     cat ../coverage/codeclimate.json | ./cc-test-reporter upload-coverage --input -
     ./cc-test-reporter show-coverage ../coverage/codeclimate.json
   fi
+  cd -
 echo 'Parallel tests runtime log' && cat tmp/parallel_runtime_test.log
