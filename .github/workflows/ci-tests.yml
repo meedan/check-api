@@ -302,7 +302,7 @@ jobs:
         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
       run:  |
         git update-index --chmod=-x  ./test/test-coverage.sh
-        ./test/test-coverage.sh
+        bash test/test-coverage.sh
 
     # - uses: actions/upload-artifact@v2
     #   with:
