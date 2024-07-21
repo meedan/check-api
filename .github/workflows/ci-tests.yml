@@ -287,7 +287,7 @@ jobs:
       run: curl -L $CC_TEST_REPORTER_URL > /test/cc-test-reporter
 
     - name: Give test coverage reporter executable permissions
-      run: chmod +x cc-test-reporter
+      run: chmod +x /test/cc-test-reporter
 
     - name: Save coverage
       env:
