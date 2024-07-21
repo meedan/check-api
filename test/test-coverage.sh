@@ -31,5 +31,5 @@ done
 cat /coverage/codeclimate.json | ./cc-test-reporter upload-coverage --input -
 ./cc-test-reporter show-coverage /coverage/codeclimate.json
 fi
-&& cd -
+cd -
 echo 'Parallel tests runtime log' && cat tmp/parallel_runtime_test.log
