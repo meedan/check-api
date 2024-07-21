@@ -303,14 +303,14 @@ jobs:
       run:  |
         sudo apt-get install -y golang-go golang-glide
         sudo mkdir -p /tmp/go/src/github.com/codeclimate
-        sudo chown $USER:$USER /tmp/go/src/github.com/codeclimate
-        printf '#!/bin/bash\ngo run /tmp/go/src/github.com/codeclimate/test-reporter/main.go $@\n' > test/cc-test-reporter && chmod +x test/cc-test-reporter
+        sudo git clone -b 0.10.3 https://github.com/codeclimate/test-reporter /tmp/go/src/github.com/codeclimate/test-reporter
+        printf '#!/bin/bash\n' > test/cc-test-reporter
+        printf 'go run /tmp/go/src/github.com/codeclimate/test-reporter/main.go $@\n' >> test/cc-test-reporter
+        chmod +x test/cc-test-reporter
         export GOPATH=/tmp/go
-        git config --global --add safe.directory /app
-        git clone -b 0.10.3 https://github.com/codeclimate/test-reporter /tmp/go/src/github.com/codeclimate/test-reporter
         ./test/cc-test-reporter format-coverage -t simplecov --output ../coverage/codeclimate.$GITHUB_JOB_NAME.json ../coverage/.resultset.json
-        aws s3 cp ..coverage/codeclimate.GITHUB_JOB_NAME.json s3://check-api-travis/codeclimate/coverage/codeclimate.GITHUB_JOB_NAME.json 
-
+        aws s3 cp ..coverage/codeclimate.GITHUB_JOB_NAME.json s3://check-api-travis/codeclimate/coverage/codeclimate.GITHUB_JOB_NAME.json
+        
     - uses: actions/upload-artifact@v2
       with:
         name: coverage-${{ matrix.ruby }}
