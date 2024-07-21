@@ -287,7 +287,7 @@ jobs:
       run: curl -L $CC_TEST_REPORTER_URL > cc-test-reporter
 
     - name: Give test coverage reporter executable permissions
-      run: chmod +x ./test/test-coverage.sh
+      run: chmod +x cc-test-reporter
 
     - name: Save coverage
       env:
@@ -301,35 +301,35 @@ jobs:
         GITHUB_JOB_NAME: ${{ github.job }}
         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
       run:  |
-        git update-index --chmod=-x  ./test/test-coverage.sh
-        bash test/test-coverage.sh
+        ./cc-test-reporter format-coverage -t simplecov --output /coverage/codeclimate.$GITHUB_JOB_NAME.json /coverage/.resultset.json
+        aws s3 cp /coverage/codeclimate.$GITHUB_JOB_NAME.json s3://check-api-travis/codeclimate/$GITHUB_REPO_SLUG/$GITHUB_BUILD_NUMBER/codeclimate.$GITHUB_JOB_NAME.json
 
-    # - uses: actions/upload-artifact@v2
-    #   with:
-    #     name: coverage-${{ matrix.ruby }}
-    #     path: coverage/codeclimate.GITHUB_JOB_NAME.json
+    - uses: actions/upload-artifact@v2
+      with:
+        name: coverage-${{ matrix.ruby }}
+        path: coverage/codeclimate.GITHUB_JOB_NAME.json
 
-    # - uses: actions/download-artifact@v2
-    #   with:
-    #     name: coverage-2.4.9
-    #     path: coverage
+    - uses: actions/download-artifact@v2
+      with:
+        name: coverage-2.4.9
+        path: coverage
 
-    # - uses: actions/download-artifact@v2
-    #   with:
-    #     name: coverage-2.5.7
-    #     path: coverage
+    - uses: actions/download-artifact@v2
+      with:
+        name: coverage-2.5.7
+        path: coverage
 
-    # - uses: actions/download-artifact@v2
-    #   with:
-    #     name: coverage-2.6.5
-    #     path: coverage
+    - uses: actions/download-artifact@v2
+      with:
+        name: coverage-2.6.5
+        path: coverage
 
-    # - uses: actions/download-artifact@v2
-    #   with:
-    #     name: coverage-2.7.0
-    #     path: coverage
+    - uses: actions/download-artifact@v2
+      with:
+        name: coverage-2.7.0
+        path: coverage
 
-    # - name: Aggregate & upload results to Code Climate
-    #   run: |
-    #     ./cc-test-reporter sum-coverage coverage/codeclimate.*.json
-    #     ./cc-test-reporter upload-coverage
+    - name: Aggregate & upload results to Code Climate
+      run: |
+        ./cc-test-reporter sum-coverage coverage/codeclimate.$GITHUB_JOB_NAME.json
+        ./cc-test-reporter upload-coverage
