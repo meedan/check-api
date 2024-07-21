@@ -1,4 +1,4 @@
-name: Build and Run Tests
+name: contract Tests
 
 on:
   schedule:
