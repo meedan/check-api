@@ -90,7 +90,7 @@ jobs:
    
     - name: After Functional Test
       env:
-        GITHUB_PULL_REQUEST: ${{ github.event_name}}
+        GITHUB_EVENT: ${{ github.event_name}}
         GIT_BRANCH: ${{ github.head_ref || github.ref_name }}
         GITHUB_REPO: ${{ github.repository }}
         GITHUB_TEST_RESULT: ${{ steps.functional-tests.outcome}}
@@ -104,7 +104,7 @@ jobs:
         AWS_REGION: eu-west-1
       run:  |
         docker-compose exec -T -e GIT_BRANCH=$GIT_BRANCH \
-        -e GITHUB_PULL_REQUEST=$GITHUB_PULL_REQUEST \
+        -e GITHUB_EVENT=$GITHUB_EVENT \
         -e GITHUB_TEST_RESULT=$GITHUB_TEST_RESULT \
         -e GITHUB_REPO=$GITHUB_REPO \
         -e GITHUB_BUILD_NUMBER=$GITHUB_BUILD_NUMBER \
@@ -193,7 +193,7 @@ jobs:
     
     - name: After Unit Test
       env:
-        GITHUB_PULL_REQUEST: ${{ github.event_name}}
+        GITHUB_EVENT: ${{ github.event_name}}
         GIT_BRANCH: ${{ github.head_ref || github.ref_name }}
         GITHUB_REPO: ${{ github.repository }}
         GITHUB_TEST_RESULT: ${{ steps.unit-tests.outcome}}
@@ -207,7 +207,7 @@ jobs:
         AWS_REGION: eu-west-1
       run:  |
         docker-compose exec -T -e GIT_BRANCH=$GIT_BRANCH \
-        -e GITHUB_PULL_REQUEST=$GITHUB_PULL_REQUEST \
+        -e GITHUB_EVENT=$GITHUB_EVENT \
         -e GITHUB_TEST_RESULT=$GITHUB_TEST_RESULT \
         -e GITHUB_REPO=$GITHUB_REPO \
         -e GITHUB_BUILD_NUMBER=$GITHUB_BUILD_NUMBER \
@@ -299,7 +299,7 @@ jobs:
         
     - name: After Contract Test
       env:
-        GITHUB_PULL_REQUEST: ${{ github.event_name}}
+        GITHUB_EVENT: ${{ github.event_name}}
         GIT_BRANCH: ${{ github.head_ref || github.ref_name }}
         GITHUB_REPO: ${{ github.repository }}
         GITHUB_TEST_RESULT: ${{ steps.run-tests.outcome}}
@@ -313,7 +313,7 @@ jobs:
         AWS_REGION: eu-west-1
       run:  |
         docker-compose exec -T -e GIT_BRANCH=$GIT_BRANCH \
-        -e GITHUB_PULL_REQUEST=$GITHUB_PULL_REQUEST \
+        -e GITHUB_EVENT=$GITHUB_EVENT \
         -e GITHUB_TEST_RESULT=$GITHUB_TEST_RESULT \
         -e GITHUB_REPO=$GITHUB_REPO  \
         -e GITHUB_BUILD_NUMBER=$GITHUB_BUILD_NUMBER \
