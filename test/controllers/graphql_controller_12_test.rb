@@ -345,8 +345,7 @@ class GraphqlController12Test < ActionController::TestCase
     pm2 = create_project_media team: t
     f = create_feed team: @t
     f.teams << t
-    c = create_cluster feed: f, team_ids: [t.id], project_media_id: pm1.id
-    create_cluster_project_media cluster: c, project_media: pm1
+    c = create_cluster feed: f, team_ids: [t.id], project_media: pm1
     create_cluster_project_media cluster: c, project_media: pm2
     assert_equal 0, @t.project_medias.count
 
@@ -365,8 +364,7 @@ class GraphqlController12Test < ActionController::TestCase
     pm2 = create_project_media team: t
     f = create_feed team: @t
     f.teams << t
-    c = create_cluster feed: f, team_ids: [t.id], project_media_id: pm1.id
-    create_cluster_project_media cluster: c, project_media: pm1
+    c = create_cluster feed: f, team_ids: [t.id], project_media: pm1
     create_cluster_project_media cluster: c, project_media: pm2
     assert_equal 1, @t.project_medias.count
 
