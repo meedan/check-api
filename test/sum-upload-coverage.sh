@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ "$GITHUB_EVENT" == "pull_request" || "$GITHUB_EVENT" == "push"]] && [[ "$GITHUB_TEST_RESULT" == 'success' ]]
+if [[ "$GITHUB_EVENT" == "pull_request" || "$GITHUB_EVENT" == "push" ]] && [[ "$GITHUB_TEST_RESULT" == 'success' ]]
 then
   rm -rf ../coverage/*
   aws s3 cp --recursive s3://check-api-github/codeclimate/$GITHUB_REPO/$GITHUB_BUILD_NUMBER/ ../coverage
