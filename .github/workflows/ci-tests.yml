@@ -39,7 +39,7 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: set up enviroments 
+    - name: Set up Enviroments 
       run: |
         export RECORD_RUNTIME=true
         export LC_ALL=C.UTF-8
@@ -48,7 +48,7 @@ jobs:
         export PATH=/root/.local/bin:$PATH
         rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
     
-    - name: set up comfiguration files
+    - name: Set up Configuration Files
       run: |
         cp config/config.yml.example config/config.yml
         cp config/database.yml.example config/database.yml
@@ -72,10 +72,10 @@ jobs:
     - name: Set up parallel environment
       run: docker-compose exec -T api test/setup-parallel-env.sh
 
-    - name: Precompile assets
+    - name: Precompile Assets
       run: docker-compose exec -T api bundle exec rake assets:precompile
 
-    - name: Prepare parallel runtime log
+    - name: Prepare Parallel Runtime Log
       run: |
         sleep 10
         touch tmp/parallel_runtime_test.log
@@ -151,7 +151,7 @@ jobs:
         export PATH=/root/.local/bin:$PATH
         rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
     
-    - name: set up comfiguration files
+    - name: Set up Configuration Files
       run: |
         cp config/config.yml.example config/config.yml
         cp config/database.yml.example config/database.yml
@@ -175,10 +175,10 @@ jobs:
     - name: Set up parallel environment
       run: docker-compose exec -T api test/setup-parallel-env.sh
 
-    - name: Precompile assets
+    - name: Precompile Assets
       run: docker-compose exec -T api bundle exec rake assets:precompile
 
-    - name: Prepare parallel runtime log
+    - name: Prepare Parallel Runtime Log
       run: |
         sleep 10
         touch tmp/parallel_runtime_test.log
@@ -245,7 +245,7 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: set up enviromnts 
+    - name: Set up Enviroments 
       run: |
         export RECORD_RUNTIME=true
         export LC_ALL=C.UTF-8
@@ -254,7 +254,7 @@ jobs:
         export PATH=/root/.local/bin:$PATH
         rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
     
-    - name: set up comfiguration files
+    - name: Set up Configuration Files
       run: |
         cp config/config.yml.example config/config.yml
         cp config/database.yml.example config/database.yml
@@ -278,13 +278,13 @@ jobs:
         tail -f log/test.log &
         until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
     
-    - name: Set up parallel environment
+    - name: Set up Parallel Environment
       run: docker-compose exec -T api test/setup-parallel-env.sh
 
-    - name: Precompile assets
+    - name: Precompile Assets
       run: docker-compose exec -T api bundle exec rake assets:precompile
 
-    - name: Prepare parallel runtime log
+    - name: Prepare Parallel Runtime Log
       run: |
         sleep 10
         touch tmp/parallel_runtime_test.log
