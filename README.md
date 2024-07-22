@@ -1,5 +1,7 @@
 # Check API
 
+[![Build and Run Tests](https://github.com/meedan/check-api/actions/workflows/ci-tests.yml/badge.svg)](https://github.com/meedan/check-api/actions/workflows/ci-tests.yml)
+
 Part of the [Check platform](https://meedan.com/check). Refer to the [main repository](https://github.com/meedan/check) for instructions.
 
 ## Development
