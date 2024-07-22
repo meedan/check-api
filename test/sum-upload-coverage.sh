@@ -1,9 +1,9 @@
 #!/bin/bash
 
-if [[ "$TRAVIS_PULL_REQUEST" == "false" ]] && [[ $TRAVIS_TEST_RESULT == 0 ]]
+if [[ "$GITHUB_PULL_REQUEST" == "pull_request" ]] && [[ "$GITHUB_TEST_RESULT" == 'success' ]]
 then
   rm -rf ../coverage/*
-  aws s3 cp --recursive s3://check-api-travis/codeclimate/$TRAVIS_REPO_SLUG/$TRAVIS_BUILD_NUMBER/ ../coverage
+  aws s3 cp --recursive s3://check-api-github/codeclimate/$GITHUB_REPO/$GITHUB_BUILD_NUMBER/ ../coverage
   if [[ $(ls ../coverage/codeclimate.* | wc -l) -eq 3 ]]
   then
     # Make sure we are not dealing with a file that is still being uploaded
@@ -15,7 +15,7 @@ then
       sleep 5
       size=$(du -s ../coverage/ | cut -f1)
     done
-    ./cc-test-reporter sum-coverage --output - --parts 3 ../coverage/codeclimate.* | sed 's/\/home\/travis\/build\/meedan\/check-api\///g' > ../coverage/codeclimate.json
+    ./cc-test-reporter sum-coverage --output - --parts 3 ../coverage/codeclimate.* | sed 's/\/home\/runner\/work\/check-api\///g' > ../coverage/codeclimate.json
     cat ../coverage/codeclimate.json | ./cc-test-reporter upload-coverage --input -
     ./cc-test-reporter show-coverage ../coverage/codeclimate.json
   fi

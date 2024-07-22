@@ -7,8 +7,10 @@ class ClusterProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should create cluster project media" do
+    c = create_cluster
+    pm = create_project_media
     assert_difference 'ClusterProjectMedia.count' do
-      create_cluster_project_media
+      create_cluster_project_media cluster: c, project_media: pm
     end
   end
 

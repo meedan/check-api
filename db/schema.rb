@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_07_14_051039) do
+ActiveRecord::Schema.define(version: 2024_07_19_183518) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -235,7 +235,7 @@ ActiveRecord::Schema.define(version: 2024_07_14_051039) do
   end
 
   create_table "clusters", force: :cascade do |t|
-    t.integer "project_media_id"
+    t.integer "project_media_id", null: false
     t.datetime "first_item_at"
     t.datetime "last_item_at"
     t.datetime "created_at", null: false
