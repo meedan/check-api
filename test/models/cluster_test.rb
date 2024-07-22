@@ -19,10 +19,11 @@ class ClusterTest < ActiveSupport::TestCase
   end
 
   test "should have items" do
-    c = create_cluster
+    pm = create_project_media
+    c = create_cluster project_media: pm
     pm1 = create_project_media cluster: c
     pm2 = create_project_media cluster: c
-    assert_equal [pm1, pm2].sort, c.reload.items.sort
+    assert_equal [pm, pm1, pm2].sort, c.reload.items.sort
   end
 
   test "should access cluster" do
@@ -69,8 +70,8 @@ class ClusterTest < ActiveSupport::TestCase
 
   test "should return size" do
     c = create_cluster
-    assert_equal 0, c.size
-    c.project_medias << create_project_media
     assert_equal 1, c.size
+    c.project_medias << create_project_media
+    assert_equal 2, c.size
   end
 end

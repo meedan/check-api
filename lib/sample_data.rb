@@ -874,6 +874,7 @@ module SampleData
   end
 
   def create_cluster(options = {})
+    options[:project_media] = create_project_media if options[:project_media].blank?
     team = options[:project_media]&.team || create_team
     options[:feed] = options[:feed] || create_feed({ team: team })
     c = Cluster.new

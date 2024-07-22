@@ -277,7 +277,11 @@ namespace :check do
                     cluster_title = cluster_center == pm.id ? pm.title : cluster.title
                     updated_cluster_attributes[:title] = cluster_title
                     # Update cluster
-                    cluster_items[cluster.id] = updated_cluster_attributes
+                    if updated_cluster_attributes[:project_media_id].blank?
+                      error_logs << {Cluster: "Failed to update Cluster with id #{cluster.id}"}
+                    else
+                      cluster_items[cluster.id] = updated_cluster_attributes
+                    end
                   end
                 end
                 # Bulk-update Cluster
