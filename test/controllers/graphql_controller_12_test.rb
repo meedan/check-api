@@ -378,6 +378,7 @@ class GraphqlController12Test < ActionController::TestCase
   end
 
   test "should get team articles (explainers)" do
+    Sidekiq::Testing.fake!
     @t.set_explainers_enabled = true
     @t.save!
     ex = create_explainer team: @t
@@ -394,6 +395,7 @@ class GraphqlController12Test < ActionController::TestCase
   end
 
   test "should get team articles (fact-checks)" do
+    Sidekiq::Testing.fake!
     authenticate_with_user(@u)
     pm = create_project_media team: @t
     cd = create_claim_description project_media: pm
@@ -405,6 +407,20 @@ class GraphqlController12Test < ActionController::TestCase
     assert_equal 1, team['articles_count']
     data = team['articles']['edges']
     assert_equal [fc.id], data.collect{ |edge| edge['node']['dbid'] }
+  end
+
+  test "should get team articles (all)" do
+    Sidekiq::Testing.fake!
+    authenticate_with_user(@u)
+    pm = create_project_media team: @t
+    cd = create_claim_description project_media: pm
+    create_fact_check claim_description: cd, tags: ['foo', 'bar']
+    create_explainer team: @t
+    query = "query { team(slug: \"#{@t.slug}\") { articles_count } }"
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success
+    team = JSON.parse(@response.body)['data']['team']
+    assert_equal 2, team['articles_count']
   end
 
   test "should create api key" do

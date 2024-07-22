@@ -321,7 +321,7 @@ class TeamType < DefaultObject
   end
 
   field :articles_count, GraphQL::Types::Int, null: true do
-    argument :article_type, GraphQL::Types::String, required: true, camelize: false
+    argument :article_type, GraphQL::Types::String, required: false, camelize: false
 
     # Filters
     argument :user_ids, [GraphQL::Types::Int, null: true], required: false, camelize: false
@@ -342,6 +342,8 @@ class TeamType < DefaultObject
       count = object.filtered_explainers(args).count
     elsif args[:article_type] == 'fact-check'
       count = object.filtered_fact_checks(args).count
+    elsif args[:article_type].blank?
+      count = object.filtered_explainers(args).count + object.filtered_fact_checks(args).count
     end
     count
   end
