@@ -4,10 +4,12 @@ class Explainer < ApplicationRecord
   belongs_to :team
 
   has_annotations
+  has_many :explainer_items
+  has_many :project_medias, through: :explainer_items
 
   before_validation :set_team
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
-  validates_presence_of :team
+  validates_presence_of :team, :title, :description
   validate :language_in_allowed_values, unless: proc { |e| e.language.blank? }
 
   def notify_bots

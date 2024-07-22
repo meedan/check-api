@@ -1219,7 +1219,7 @@ class TeamTest < ActiveSupport::TestCase
     t.save!
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
-      with_current_user_and_team(u, t) do
+    with_current_user_and_team(u, t) do
       pm = create_project_media team: t, disable_es_callbacks: false
       cd = create_claim_description project_media: pm, disable_es_callbacks: false
       fc = create_fact_check claim_description: cd, language: 'fr'
@@ -1257,5 +1257,10 @@ class TeamTest < ActiveSupport::TestCase
       result = $repository.find(get_es_id(pm))
       assert_equal ['en'], result['fact_check_languages']
     end
+  end
+
+  test "should return no team fact-checks by default" do
+    t = create_team
+    assert_equal [], t.fact_checks.to_a
   end
 end

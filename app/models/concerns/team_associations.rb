@@ -116,4 +116,8 @@ module TeamAssociations
   def check_search_spam
     check_search_filter({ 'archived' => CheckArchivedFlags::FlagCodes::SPAM })
   end
+
+  def fact_checks
+    FactCheck.joins(:claim_description).where('claim_descriptions.team_id' => self.id)
+  end
 end

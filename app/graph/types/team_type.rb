@@ -288,10 +288,64 @@ class TeamType < DefaultObject
 
   field :articles, ::ArticleUnion.connection_type, null: true do
     argument :article_type, GraphQL::Types::String, required: true, camelize: false
+
+    # Sort and pagination
+    argument :offset, GraphQL::Types::Int, required: false, default_value: 0
+    argument :sort, GraphQL::Types::String, required: false, default_value: 'title'
+    argument :sort_type, GraphQL::Types::String, required: false, camelize: false, default_value: 'ASC'
+
+    # Filters
+    argument :user_ids, [GraphQL::Types::Int, null: true], required: false, camelize: false
+    argument :tags, [GraphQL::Types::String, null: true], required: false, camelize: false
+    argument :language, [GraphQL::Types::String, null: true], required: false, camelize: false
+    argument :updated_at, GraphQL::Types::String, required: false, camelize: false # JSON
+    argument :text, GraphQL::Types::String, required: false, camelize: false # Search by text
+    argument :standalone, GraphQL::Types::Boolean, required: false, camelize: false # Not applied to any item (fact-checks only)
+    argument :publisher_ids, [GraphQL::Types::Int, null: true], required: false, camelize: false
+    argument :report_status, [GraphQL::Types::String, null: true], required: false, camelize: false
+    argument :rating, [GraphQL::Types::String, null: true], required: false, camelize: false
+    argument :imported, GraphQL::Types::Boolean, required: false, camelize: false # Only for fact-checks
   end
 
-  def articles(article_type:)
-    object.explainers if article_type == 'explainer'
+  def articles(**args)
+    sort = args[:sort].to_s
+    order = [:title, :language, :updated_at, :id].include?(sort.downcase.to_sym) ? sort.downcase.to_sym : :title
+    order_type = args[:sort_type].to_s.downcase.to_sym == :desc ? :desc : :asc
+    articles = Explainer.none
+    if args[:article_type] == 'explainer'
+      articles = object.filtered_explainers(args)
+    elsif args[:article_type] == 'fact-check'
+      articles = object.filtered_fact_checks(args)
+    end
+    articles.offset(args[:offset].to_i).order(order => order_type)
+  end
+
+  field :articles_count, GraphQL::Types::Int, null: true do
+    argument :article_type, GraphQL::Types::String, required: false, camelize: false
+
+    # Filters
+    argument :user_ids, [GraphQL::Types::Int, null: true], required: false, camelize: false
+    argument :tags, [GraphQL::Types::String, null: true], required: false, camelize: false
+    argument :language, [GraphQL::Types::String, null: true], required: false, camelize: false
+    argument :updated_at, GraphQL::Types::String, required: false, camelize: false # JSON
+    argument :text, GraphQL::Types::String, required: false, camelize: false # Search by text
+    argument :standalone, GraphQL::Types::Boolean, required: false, camelize: false # Not applied to any item (fact-checks only)
+    argument :publisher_ids, [GraphQL::Types::Int, null: true], required: false, camelize: false
+    argument :report_status, [GraphQL::Types::String, null: true], required: false, camelize: false
+    argument :rating, [GraphQL::Types::String, null: true], required: false, camelize: false
+    argument :imported, GraphQL::Types::Boolean, required: false, camelize: false # Only for fact-checks
+  end
+
+  def articles_count(**args)
+    count = nil
+    if args[:article_type] == 'explainer'
+      count = object.filtered_explainers(args).count
+    elsif args[:article_type] == 'fact-check'
+      count = object.filtered_fact_checks(args).count
+    elsif args[:article_type].blank?
+      count = object.filtered_explainers(args).count + object.filtered_fact_checks(args).count
+    end
+    count
   end
 
   field :api_key, ApiKeyType, null: true do
