@@ -6,6 +6,7 @@ on:
   push:
     branches:
     - master
+    - develop
   pull_request:
     branches:
     - develop
@@ -81,25 +82,40 @@ jobs:
         chmod +w tmp/parallel_runtime_test.log
     
     - name: Run Functional Tests
-      id: run-tests
+      id: functional-tests
       env:
         TEST_RETRY_COUNT: 3
       run: |
         docker-compose exec -e TEST_RETRY_COUNT=$TEST_RETRY_COUNT -T -e PATTERN='models mailers integration workers lib contract' api test/run-tests.sh
    
-    - name: After functional Tests
-      id: after-functional-tests
+    - name: After Functional Test
       env:
-        GIT_SHA: ${{ github.sha }}
-        GIT_COMMITED_AT: ${{ github.event.head_commit.timestamp }}
-      run: |  
-        docker-compose exec -T -e GIT_COMMIT_SHA=${{ github.sha }} \
-        -e GIT_COMMITTED_AT=${{ github.event.head_commit.timestamp }} \
+        GITHUB_PULL_REQUEST: ${{ github.event_name}}
+        GIT_BRANCH: ${{ github.head_ref || github.ref_name }}
+        GITHUB_REPO: ${{ github.repository }}
+        GITHUB_TEST_RESULT: ${{ steps.functional-tests.outcome}}
+        GITHUB_BUILD_NUMBER: ${{ github.run_number }}
+        GITHUB_COMMIT_SHA: ${{ github.sha }}
+        GITHUB_JOB_NAME: ${{ github.job }}
+        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+        AWS_REGION: eu-west-1
+      run:  |
+        docker-compose exec -T -e GIT_BRANCH=$GIT_BRANCH \
+        -e GITHUB_PULL_REQUEST=$GITHUB_PULL_REQUEST \
+        -e GITHUB_TEST_RESULT=$GITHUB_TEST_RESULT \
+        -e GITHUB_REPO=$GITHUB_REPO \
+        -e GITHUB_BUILD_NUMBER=$GITHUB_BUILD_NUMBER \
+        -e GIT_COMMIT_SHA=$GITHUB_COMMIT_SHA \
         -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID \
-        -e PATH=$PATH \
-        -e JOB_NAME=functional-tests \
-        -e AWS_CONFIG_FILE=/app/credentials \
-        api test/test-coverage.sh
+        -e GITHUB_JOB_NAME=$GITHUB_JOB_NAME \
+        -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+        -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+        -e ROLE_TO_ASSUME=$AWS_ROLE_TO_ASSUME \
+        -e AWS_REGION=$AWS_REGION \
+        -e AWS_CONFIG_FILE=/app/credentials api test/test-coverage.sh
     
   
   unit-tests:
@@ -169,25 +185,40 @@ jobs:
         chmod +w tmp/parallel_runtime_test.log
     
     - name: Run Unit Tests
-      id: run-tests
+      id: unit-tests
       env:
         TEST_RETRY_COUNT: 3
       run: |
         docker-compose exec -e TEST_RETRY_COUNT=$TEST_RETRY_COUNT -T -e PATTERN='controllers contract' api test/run-tests.sh
     
-    - name: After unit Tests
-      id: unit-tests
+    - name: After Unit Test
       env:
-        GIT_SHA: ${{ github.sha }}
-        GIT_COMMITED_AT: ${{ github.event.head_commit.timestamp }}
-      run: |  
-        docker-compose exec -T -e GIT_COMMIT_SHA=${{ github.sha }} \
-        -e GIT_COMMITTED_AT=${{ github.event.head_commit.timestamp }} \
+        GITHUB_PULL_REQUEST: ${{ github.event_name}}
+        GIT_BRANCH: ${{ github.head_ref || github.ref_name }}
+        GITHUB_REPO: ${{ github.repository }}
+        GITHUB_TEST_RESULT: ${{ steps.unit-tests.outcome}}
+        GITHUB_BUILD_NUMBER: ${{ github.run_number }}
+        GITHUB_COMMIT_SHA: ${{ github.sha }}
+        GITHUB_JOB_NAME: ${{ github.job }}
+        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+        AWS_REGION: eu-west-1
+      run:  |
+        docker-compose exec -T -e GIT_BRANCH=$GIT_BRANCH \
+        -e GITHUB_PULL_REQUEST=$GITHUB_PULL_REQUEST \
+        -e GITHUB_TEST_RESULT=$GITHUB_TEST_RESULT \
+        -e GITHUB_REPO=$GITHUB_REPO \
+        -e GITHUB_BUILD_NUMBER=$GITHUB_BUILD_NUMBER \
+        -e GIT_COMMIT_SHA=$GITHUB_COMMIT_SHA \
         -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID \
-        -e PATH=$PATH \
-        -e JOB_NAME=unit-tests \
-        -e AWS_CONFIG_FILE=/app/credentials \
-        api test/test-coverage.sh
+        -e GITHUB_JOB_NAME=$GITHUB_JOB_NAME \
+        -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+        -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+        -e ROLE_TO_ASSUME=$AWS_ROLE_TO_ASSUME \
+        -e AWS_REGION=$AWS_REGION \
+        -e AWS_CONFIG_FILE=/app/credentials api test/test-coverage.sh
 
   
   contract-tests:
@@ -265,17 +296,32 @@ jobs:
         TEST_RETRY_COUNT: 3
       run: |
         docker-compose exec -e TEST_RETRY_COUNT=$TEST_RETRY_COUNT -T -e PATTERN='controllers models mailers integration workers lib' api test/run-tests.sh
-
-    - name: After contract Tests
-      id: after-tests
+        
+    - name: After Contract Test
       env:
-        GIT_SHA: ${{ github.sha }}
-        GIT_COMMITED_AT: ${{ github.event.head_commit.timestamp }}
-      run: |  
-        docker-compose exec -T -e GIT_COMMIT_SHA=${{ github.sha }} \
-        -e GIT_COMMITTED_AT=${{ github.event.head_commit.timestamp }} \
+        GITHUB_PULL_REQUEST: ${{ github.event_name}}
+        GIT_BRANCH: ${{ github.head_ref || github.ref_name }}
+        GITHUB_REPO: ${{ github.repository }}
+        GITHUB_TEST_RESULT: ${{ steps.run-tests.outcome}}
+        GITHUB_BUILD_NUMBER: ${{ github.run_number }}
+        GITHUB_COMMIT_SHA: ${{ github.sha }}
+        GITHUB_JOB_NAME: ${{ github.job }}
+        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+        AWS_REGION: eu-west-1
+      run:  |
+        docker-compose exec -T -e GIT_BRANCH=$GIT_BRANCH \
+        -e GITHUB_PULL_REQUEST=$GITHUB_PULL_REQUEST \
+        -e GITHUB_TEST_RESULT=$GITHUB_TEST_RESULT \
+        -e GITHUB_REPO=$GITHUB_REPO  \
+        -e GITHUB_BUILD_NUMBER=$GITHUB_BUILD_NUMBER \
+        -e GIT_COMMIT_SHA=$GITHUB_COMMIT_SHA \
         -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID \
-        -e PATH=$PATH \
-        -e JOB_NAME=contract-tests \
-        -e AWS_CONFIG_FILE=/app/credentials \
-        api test/test-coverage.sh
+        -e GITHUB_JOB_NAME=$GITHUB_JOB_NAME \
+        -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+        -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+        -e ROLE_TO_ASSUME=$AWS_ROLE_TO_ASSUME \
+        -e AWS_REGION=$AWS_REGION \
+        -e AWS_CONFIG_FILE=/app/credentials api test/test-coverage.sh
