@@ -484,4 +484,13 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     pms = ProjectMedia.where(team: t).to_a
     assert_queries(1, '=') { pms.map(&:team_avatar) }
   end
+
+  test "should return fact-check" do
+    pm = create_project_media
+    assert_nil pm.fact_check
+    cd = create_claim_description project_media: pm
+    assert_nil pm.fact_check
+    fc = create_fact_check claim_description: cd
+    assert_equal fc, pm.fact_check
+  end
 end

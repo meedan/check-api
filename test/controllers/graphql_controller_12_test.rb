@@ -332,7 +332,7 @@ class GraphqlController12Test < ActionController::TestCase
     create_cluster_project_media cluster: c, project_media: pm
 
     authenticate_with_user(@u)
-    query = 'query { feed(id: "' + f.id.to_s + '") { cluster(project_media_id: ' + pm.id.to_s + ') { dbid, project_media(id: ' + pm.id.to_s + ') { id, imported_from_feed { id } }, project_medias(teamId: ' + @t.id.to_s + ', first: 1) { edges { node { id } } }, cluster_teams(first: 10) { edges { node { id, team { name }, last_request_date, media_count, requests_count, fact_checks(first: 1) { edges { node { id } } } } } } } } }'
+    query = 'query { feed(id: "' + f.id.to_s + '") { cluster(project_media_id: ' + pm.id.to_s + ') { dbid, project_media(id: ' + pm.id.to_s + ') { id, articles_count, imported_from_feed { id } }, project_medias(teamId: ' + @t.id.to_s + ', first: 1) { edges { node { id } } }, cluster_teams(first: 10) { edges { node { id, team { name }, last_request_date, media_count, requests_count, fact_checks(first: 1) { edges { node { id } } } } } } } } }'
     post :create, params: { query: query }
     assert_response :success
     assert_equal c.id, JSON.parse(@response.body)['data']['feed']['cluster']['dbid']
@@ -375,21 +375,50 @@ class GraphqlController12Test < ActionController::TestCase
     assert_equal 3, @t.reload.project_medias.count
   end
 
-  test "should get team articles" do
+  test "should get team articles (explainers)" do
+    Sidekiq::Testing.fake!
     @t.set_explainers_enabled = true
     @t.save!
     ex = create_explainer team: @t
     tag = create_tag annotated: ex
     authenticate_with_user(@u)
-    query = "query { team(slug: \"#{@t.slug}\") { get_explainers_enabled, articles(article_type: \"explainer\") { edges { node { ... on Explainer { dbid, tags { edges { node { dbid } } } } } } } } }"
+    query = "query { team(slug: \"#{@t.slug}\") { get_explainers_enabled, articles_count(article_type: \"explainer\"), articles(article_type: \"explainer\") { edges { node { ... on Explainer { dbid, tags } } } } } }"
     post :create, params: { query: query, team: @t.slug }
+    assert_response :success
     team = JSON.parse(@response.body)['data']['team']
+    assert_equal 1, team['articles_count']
     assert team['get_explainers_enabled']
     data = team['articles']['edges']
     assert_equal [ex.id], data.collect{ |edge| edge['node']['dbid'] }
-    tags = data[0]['node']['tags']['edges']
-    assert_equal [tag.id.to_s], tags.collect{ |edge| edge['node']['dbid'] }
+  end
+
+  test "should get team articles (fact-checks)" do
+    Sidekiq::Testing.fake!
+    authenticate_with_user(@u)
+    pm = create_project_media team: @t
+    cd = create_claim_description project_media: pm
+    fc = create_fact_check claim_description: cd, tags: ['foo', 'bar']
+    query = "query { team(slug: \"#{@t.slug}\") { articles_count(article_type: \"fact-check\"), articles(article_type: \"fact-check\") { edges { node { ... on FactCheck { dbid, tags } } } } } }"
+    post :create, params: { query: query, team: @t.slug }
     assert_response :success
+    team = JSON.parse(@response.body)['data']['team']
+    assert_equal 1, team['articles_count']
+    data = team['articles']['edges']
+    assert_equal [fc.id], data.collect{ |edge| edge['node']['dbid'] }
+  end
+
+  test "should get team articles (all)" do
+    Sidekiq::Testing.fake!
+    authenticate_with_user(@u)
+    pm = create_project_media team: @t
+    cd = create_claim_description project_media: pm
+    create_fact_check claim_description: cd, tags: ['foo', 'bar']
+    create_explainer team: @t
+    query = "query { team(slug: \"#{@t.slug}\") { articles_count } }"
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success
+    team = JSON.parse(@response.body)['data']['team']
+    assert_equal 2, team['articles_count']
   end
 
   test "should create api key" do
