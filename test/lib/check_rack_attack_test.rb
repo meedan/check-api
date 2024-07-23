@@ -58,4 +58,24 @@ class ThrottlingTest < ActionDispatch::IntegrationTest
 
     Rails.env = original_env
   end
+
+  test "should apply higher rate limit for authenticated users" do
+    stub_configs({ 'api_rate_limit_authenticated' => 5 }) do
+      password = random_complex_password
+      user = create_user password: password
+      user_params = { api_user: { email: user.email, password: password } }
+
+
+      post api_user_session_path, params: user_params, as: :json
+      assert_response :success
+
+      5.times do
+        post api_graphql_path
+        assert_response :success
+      end
+
+      post api_graphql_path
+      assert_response :too_many_requests
+    end
+  end
 end
