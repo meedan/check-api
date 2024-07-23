@@ -37,19 +37,19 @@ namespace :check do
           pm_fc = {}
           items.each{ |i| pm_fc[i['id']] = i['fc_id'] }
           fc_fields = {}
+          # Add rating (depend on status cached field)
+          ProjectMedia.where(id: pm_fc.keys).find_each do |pm|
+            print '.'
+            tags = pm.tags_as_sentence.split(',')
+            fc_fields[pm_fc[pm.id]] = { rating: pm.status, tags: tags }
+          end
           # Collect report designer
           Dynamic.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia', annotated_id: pm_fc.keys).find_each do |rd|
             print '.'
             # Get report status and publisher id
             state = rd.data['state']
             publisher_id =  state == 'published' ? rd.annotator_id : nil
-            fc_fields[pm_fc[rd.annotated_id]] = { publisher_id: publisher_id, report_status: state }
-          end
-          # Add rating (depend on status cached field)
-          ProjectMedia.where(id: pm_fc.keys).find_each do |pm|
-            print '.'
-            tags = pm.tags_as_sentence.split(',')
-            fc_fields[pm_fc[pm.id]].merge!({ rating: pm.status, tags: tags })
+            fc_fields[pm_fc[rd.annotated_id]].merge!({ publisher_id: publisher_id, report_status: state })
           end
           fc_items = []
           FactCheck.where(id: pm_fc.values).find_each do |fc|
