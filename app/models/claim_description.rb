@@ -48,6 +48,7 @@ class ClaimDescription < ApplicationRecord
     if fact_check && self.project_media_id
       fact_check.updated_at = Time.now
       fact_check.save!
+      fact_check.update_item_status
     end
   end
 end

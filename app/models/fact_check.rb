@@ -16,6 +16,7 @@ class FactCheck < ApplicationRecord
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
   validate :language_in_allowed_values, :title_or_summary_exists, :rating_in_allowed_values
 
+  before_save :set_report_status
   after_save :update_report, unless: proc { |fc| fc.skip_report_update || !DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').exists? || fc.project_media.blank? }
   after_save :update_item_status, if: proc { |fc| fc.saved_change_to_rating? }
 
@@ -33,6 +34,16 @@ class FactCheck < ApplicationRecord
 
   def team
     self.claim_description&.team
+  end
+
+  def update_item_status
+    pm = self.project_media
+    s = pm&.last_status_obj
+    if !s.nil? && s.status != self.rating
+      s.skip_check_ability = true
+      s.status = self.rating
+      s.save!
+    end
   end
 
   private
@@ -102,16 +113,6 @@ class FactCheck < ApplicationRecord
     reports.save!
   end
 
-  def update_item_status
-    pm = self.project_media
-    s = pm&.last_status_obj
-    if !s.nil? && s.status != self.rating
-      s.skip_check_ability = true
-      s.status = self.rating
-      s.save!
-    end
-  end
-
   def article_elasticsearch_data(action = 'create_or_update')
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     data = action == 'destroy' ? {
@@ -132,5 +133,10 @@ class FactCheck < ApplicationRecord
     pm_rating = self.project_media&.last_status
     default_rating = self.claim_description.team.verification_statuses('media', nil)['default']
     self.rating = pm_rating || default_rating
+  end
+
+  def set_report_status
+    pm_report_status = self.project_media&.report_status
+    self.report_status = pm_report_status if pm_report_status && pm_report_status != self.report_status
   end
 end
