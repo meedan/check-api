@@ -35,6 +35,16 @@ class FactCheck < ApplicationRecord
     self.claim_description&.team
   end
 
+  def update_item_status
+    pm = self.project_media
+    s = pm&.last_status_obj
+    if !s.nil? && s.status != self.rating
+      s.skip_check_ability = true
+      s.status = self.rating
+      s.save!
+    end
+  end
+
   private
 
   def set_language
@@ -100,16 +110,6 @@ class FactCheck < ApplicationRecord
     reports.set_fields = data.to_json
     reports.skip_check_ability = true
     reports.save!
-  end
-
-  def update_item_status
-    pm = self.project_media
-    s = pm&.last_status_obj
-    if !s.nil? && s.status != self.rating
-      s.skip_check_ability = true
-      s.status = self.rating
-      s.save!
-    end
   end
 
   def article_elasticsearch_data(action = 'create_or_update')
