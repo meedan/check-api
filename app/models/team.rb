@@ -504,7 +504,7 @@ class Team < ApplicationRecord
     query = FactCheck.includes(:claim_description).where('claim_descriptions.team_id' => self.id)
 
     # Filter by standalone
-    query = query.where('claim_descriptions.project_media_id' => nil) if filters[:standalone]
+    query = query.left_joins(claim_description: { project_media: :media }).where('claim_descriptions.project_media_id IS NULL OR medias.type = ?', 'Blank') if filters[:standalone]
 
     # Filter by language
     query = query.where('fact_checks.language' => filters[:language].to_a) unless filters[:language].blank?
