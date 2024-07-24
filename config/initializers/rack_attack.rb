@@ -6,8 +6,19 @@ class Rack::Attack
     req.get_header('HTTP_CF_CONNECTING_IP') || req.ip
   end
 
+  def self.authenticated?(req)
+    warden = req.env['warden']
+    warden && warden.user.present?
+  end
+
   # Throttle all graphql requests by IP address
-  throttle('api/graphql', limit: proc { CheckConfig.get('api_rate_limit', 100, :integer) }, period: 60.seconds) do |req|
+  throttle('api/graphql', limit: proc { |req|
+    if authenticated?(req)
+      CheckConfig.get('api_rate_limit_authenticated', 1000, :integer)
+    else
+      CheckConfig.get('api_rate_limit', 100, :integer)
+    end
+  }, period: 60.seconds) do |req|
     real_ip(req) if req.path == '/api/graphql'
   end
 
