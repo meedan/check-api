@@ -531,7 +531,7 @@ class Team < ApplicationRecord
     query = query.where('fact_checks.report_status' => filters[:report_status].to_a.map(&:to_s)) unless filters[:report_status].blank?
 
     # Filter by text
-    query = query.where('(title ILIKE ? OR url ILIKE ? OR summary ILIKE ?)', *["%#{filters[:text]}%"]*3) if filters[:text].to_s.size > 2
+    query = query.where('(fact_checks.title ILIKE ? OR fact_checks.url ILIKE ? OR fact_checks.summary ILIKE ?)', *["%#{filters[:text]}%"]*3) if filters[:text].to_s.size > 2
 
     query
   end
