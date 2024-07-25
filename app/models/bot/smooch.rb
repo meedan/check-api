@@ -833,14 +833,11 @@ class Bot::Smooch < BotUser
         extra = { url: link.url }
         pm = ProjectMedia.joins(:media).where('medias.url' => link.url, 'project_medias.team_id' => team.id).last
       end
-
       if pm.nil?
         type = link.nil? ? 'Claim' : 'Link'
         pm = self.create_project_media(message, type, extra)
       end
-
       self.add_hashtags(text, pm)
-
       pm
     rescue SecurityError
       self.ban_user(message)
@@ -923,11 +920,23 @@ class Bot::Smooch < BotUser
           pm.save!
         end
       end
+      self.relate_item_and_caption(pm, message) unless pm.nil? || message['caption'].nil?
       FileUtils.rm_f filepath
-
       self.add_hashtags(text, pm)
-
       pm
+    end
+  end
+
+  def self.relate_item_and_caption(pm, message)
+    message['text'] = message['caption']
+    target = self.create_project_media(message, 'Claim', { quote:  message['caption'] })
+    unless target.nil?
+      r = Relationship.new
+      r.skip_check_ability = true
+      r.relationship_type = Relationship.suggested_type
+      r.source_id = pm.id
+      r.target_id = target.id
+      r.save!
     end
   end
 

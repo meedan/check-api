@@ -77,7 +77,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     # 1). long text( > min_number_of_words_for_tipline_submit_shortcut)
     # 2). short text (< min_number_of_words_for_tipline_submit_shortcut)
     # 3). 2 medias
-    # Result: created three items (on claim and two items of type image)
+    # Result: created three items (one claim and two items of type image)
     Sidekiq::Testing.fake! do
       uid = random_string
       messages = [
@@ -178,6 +178,68 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       request = TiplineRequest.last
       text = request.smooch_data['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
       assert_equal ['foo', 'bar'], text
+    end
+  end
+
+  test "should force relationship between media and caption text" do
+    long_text = []
+    15.times{ long_text << random_string }
+    caption = long_text.join(' ')
+    # messages contain the following:
+    # 1). media with long text( > min_number_of_words_for_tipline_submit_shortcut)
+    # 2). media with short text (< min_number_of_words_for_tipline_submit_shortcut)
+    # Result: created three items and one relationship (one claim for caption and two items of type image)
+    last_id = ProjectMedia.last.id
+    Sidekiq::Testing.fake! do
+      uid = random_string
+      messages = [
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'image',
+          source: { type: "whatsapp" },
+          text: 'first image',
+          mediaUrl: @media_url
+        },
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'image',
+          source: { type: "whatsapp" },
+          text: caption,
+          mediaUrl: @media_url_2
+        }
+      ]
+      messages.each do |message|
+        payload = {
+          trigger: 'message:appUser',
+          app: {
+            '_id': @app_id
+          },
+          version: 'v1.1',
+          messages: [message],
+          appUser: {
+            '_id': random_string,
+            'conversationStarted': true
+          }
+        }.to_json
+        Bot::Smooch.run(payload)
+        sleep 1
+      end
+      assert_difference 'ProjectMedia.count', 3 do
+        assert_difference 'UploadedImage.count', 2 do
+          assert_difference 'Claim.count' do
+            assert_difference 'Relationship.count' do
+              Sidekiq::Worker.drain_all
+            end
+          end
+        end
+      end
+      claim_item = ProjectMedia.joins(:media).where('medias.type' => 'Claim').last
+      assert_equal caption, claim_item.media.quote
+      r = Relationship.last
+      assert_equal Relationship.suggested_type, r.relationship_type
+      assert_equal claim_item.id, r.target_id
     end
   end
 
