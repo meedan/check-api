@@ -534,19 +534,17 @@ class GraphqlController12Test < ActionController::TestCase
 
     authenticate_with_user(u1)
 
-    query1 = "query { user (id: #{ u1.id }) { name, profile_image } }"
+    query1 = "query { user (id: #{ u1.id }) { name } }"
     post :create, params: { query: query1 }
     assert_response :success
     assert_equal false, u1.is_admin?
     assert_equal 'Mei', JSON.parse(@response.body)['data']['user']['name']
-    assert_equal 'http://localhost:3000/images/user.png', JSON.parse(@response.body)['data']['user']['profile_image']
 
-    query2 = "query { user (id: #{ u2.id }) { name, profile_image } }"
+    query2 = "query { user (id: #{ u2.id }) { name } }"
     post :create, params: { query: query2 }
     assert_response :success
     assert_equal true, u2.is_admin?
-    assert_equal 'Meedan', JSON.parse(@response.body)['data']['user']['name']
-    assert_equal 'http://localhost:3000/images/checklogo.png', JSON.parse(@response.body)['data']['user']['profile_image']
+    assert_equal CheckConfig.get('super_admin_name'), JSON.parse(@response.body)['data']['user']['name']
   end
 
   test "should return super-admin user themself if user IS a part of the team" do
@@ -560,18 +558,55 @@ class GraphqlController12Test < ActionController::TestCase
 
     authenticate_with_user(u1)
 
-    query1 = "query { user (id: #{ u1.id }) { name, profile_image } }"
+    query1 = "query { user (id: #{ u1.id }) { name } }"
     post :create, params: { query: query1 }
     assert_response :success
     assert_equal false, u1.is_admin?
     assert_equal 'Mei', JSON.parse(@response.body)['data']['user']['name']
-    assert_equal 'http://localhost:3000/images/user.png', JSON.parse(@response.body)['data']['user']['profile_image']
 
-    query2 = "query { user (id: #{ u2.id }) { name, profile_image } }"
+    query2 = "query { user (id: #{ u2.id }) { name } }"
     post :create, params: { query: query2 }
     assert_response :success
     assert_equal true, u2.is_admin?
     assert_equal 'Satsuki', JSON.parse(@response.body)['data']['user']['name']
-    assert_equal 'http://localhost:3000/images/user.png', JSON.parse(@response.body)['data']['user']['profile_image']
+  end
+
+  test "should return default profile image if super-admin user IS NOT a part of the team" do
+    u1 = create_user
+    u2 = create_user is_admin: true, profile_image: "#{CheckConfig.get('checkdesk_base_url')}/images/checklogo.png"
+
+    t1 = create_team
+    t2 = create_team
+
+    create_team_user user: u1, team: t1
+    create_team_user user: u2, team: t2
+
+    authenticate_with_user(u1)
+
+    query = "query { user (id: #{ u2.id }) { profile_image, source { image } } }"
+    post :create, params: { query: query }
+    assert_response :success
+    assert_equal true, u2.is_admin?
+    assert_equal "#{CheckConfig.get('checkdesk_base_url')}/images/user.png", JSON.parse(@response.body)['data']['user']['profile_image']
+    assert_equal "#{CheckConfig.get('checkdesk_base_url')}/images/user.png", JSON.parse(@response.body)['data']['user']['source']['image']
+  end
+
+  test "should return custom profile image if super-admin user IS a part of the team" do
+    u1 = create_user
+    u2 = create_user is_admin: true, profile_image: "#{CheckConfig.get('checkdesk_base_url')}/images/checklogo.png"
+
+    t = create_team
+
+    create_team_user user: u1, team: t
+    create_team_user user: u2, team: t
+
+    authenticate_with_user(u1)
+
+    query = "query { user (id: #{ u2.id }) { profile_image, source { image } } }"
+    post :create, params: { query: query }
+    assert_response :success
+    assert_equal true, u2.is_admin?
+    assert_equal "#{CheckConfig.get('checkdesk_base_url')}/images/checklogo.png", JSON.parse(@response.body)['data']['user']['profile_image']
+    assert_equal "#{CheckConfig.get('checkdesk_base_url')}/images/checklogo.png", JSON.parse(@response.body)['data']['user']['source']['image']
   end
 end

@@ -19,16 +19,16 @@ class UserType < DefaultObject
   end
 
   def name
-    meedan_user? ? 'Meedan' : object.name
+    super_admin? ? CheckConfig.get('super_admin_name') : object.name
   end
 
   def profile_image
-    meedan_user? ? 'http://localhost:3000/images/checklogo.png' : object.profile_image
+    super_admin? ? "#{CheckConfig.get('checkdesk_base_url')}/images/user.png" : object.profile_image
   end
 
   private
 
-  def meedan_user?
+  def super_admin?
     object.is_admin && !object.is_member_of?(Team.current)
   end
   
