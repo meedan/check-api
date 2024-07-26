@@ -1,6 +1,12 @@
 class Explainer < ApplicationRecord
   include Article
 
+  # FIXME: Read from workspace settings
+  ALEGRE_MODELS_AND_THRESHOLDS = {
+    Bot::Alegre::ELASTICSEARCH_MODEL => 0.8 # Sometimes this is easier for local development
+    # Bot::Alegre::PARAPHRASE_MULTILINGUAL_MODEL => 0.6
+  }
+
   belongs_to :team
 
   has_annotations
@@ -47,7 +53,8 @@ class Explainer < ApplicationRecord
       count += 1
       params = {
         doc_id: Digest::MD5.hexdigest(['explainer', explainer.id, 'paragraph', count].join(':')),
-        quiet: true,
+        text: paragraph,
+        models: ALEGRE_MODELS_AND_THRESHOLDS.keys,
         context: base_context.merge({ paragraph: count })
       }
       Bot::Alegre.request('post', '/text/similarity/', params)
