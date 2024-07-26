@@ -17,4 +17,8 @@ class UserType < DefaultObject
   def source
     Source.find(object.source_id)
   end
+
+  def name
+    object.is_admin ? 'Meedan' : object.name
+  end
 end
