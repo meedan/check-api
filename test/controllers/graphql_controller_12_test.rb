@@ -522,7 +522,7 @@ class GraphqlController12Test < ActionController::TestCase
     assert_equal 'false', pm2.reload.last_status
   end
 
-  test "should return super-admin user name as 'meedan' if user IS NOT a part of the team" do
+  test "should return super-admin user as 'meedan' if user IS NOT a part of the team" do
     u1 = create_user name: 'Mei'
     u2 = create_user name: 'Satsuki', is_admin: true
 
@@ -534,20 +534,22 @@ class GraphqlController12Test < ActionController::TestCase
 
     authenticate_with_user(u1)
 
-    query1 = "query { user (id: #{ u1.id }) { name } }"
+    query1 = "query { user (id: #{ u1.id }) { name, profile_image } }"
     post :create, params: { query: query1 }
     assert_response :success
     assert_equal false, u1.is_admin?
     assert_equal 'Mei', JSON.parse(@response.body)['data']['user']['name']
+    assert_equal 'http://localhost:3000/images/user.png', JSON.parse(@response.body)['data']['user']['profile_image']
 
-    query2 = "query { user (id: #{ u2.id }) { name } }"
+    query2 = "query { user (id: #{ u2.id }) { name, profile_image } }"
     post :create, params: { query: query2 }
     assert_response :success
     assert_equal true, u2.is_admin?
     assert_equal 'Meedan', JSON.parse(@response.body)['data']['user']['name']
+    assert_equal 'http://localhost:3000/images/checklogo.png', JSON.parse(@response.body)['data']['user']['profile_image']
   end
 
-  test "should return super-admin user name as their name if user IS a part of the team" do
+  test "should return super-admin user themself if user IS a part of the team" do
     u1 = create_user name: 'Mei'
     u2 = create_user name: 'Satsuki', is_admin: true
 
@@ -558,16 +560,18 @@ class GraphqlController12Test < ActionController::TestCase
 
     authenticate_with_user(u1)
 
-    query1 = "query { user (id: #{ u1.id }) { name } }"
+    query1 = "query { user (id: #{ u1.id }) { name, profile_image } }"
     post :create, params: { query: query1 }
     assert_response :success
     assert_equal false, u1.is_admin?
     assert_equal 'Mei', JSON.parse(@response.body)['data']['user']['name']
+    assert_equal 'http://localhost:3000/images/user.png', JSON.parse(@response.body)['data']['user']['profile_image']
 
-    query2 = "query { user (id: #{ u2.id }) { name } }"
+    query2 = "query { user (id: #{ u2.id }) { name, profile_image } }"
     post :create, params: { query: query2 }
     assert_response :success
     assert_equal true, u2.is_admin?
     assert_equal 'Satsuki', JSON.parse(@response.body)['data']['user']['name']
+    assert_equal 'http://localhost:3000/images/user.png', JSON.parse(@response.body)['data']['user']['profile_image']
   end
 end
