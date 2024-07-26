@@ -19,7 +19,17 @@ class UserType < DefaultObject
   end
 
   def name
-    object.is_admin && !object.is_member_of?(Team.current) ? 'Meedan' : object.name
+    meedan_user? ? 'Meedan' : object.name
+  end
+
+  def profile_image
+    meedan_user? ? 'http://localhost:3000/images/checklogo.png' : object.profile_image
+  end
+
+  private
+
+  def meedan_user?
+    object.is_admin && !object.is_member_of?(Team.current)
   end
   
   field :accessible_teams, PublicTeamType.connection_type, null: true
