@@ -19,7 +19,7 @@ class UserType < DefaultObject
   end
 
   def name
-    object.is_admin ? 'Meedan' : object.name
+    object.is_admin && !object.is_member_of?(Team.current) ? 'Meedan' : object.name
   end
   
   field :accessible_teams, PublicTeamType.connection_type, null: true
