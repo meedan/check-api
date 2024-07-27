@@ -28,6 +28,19 @@ class Explainer < ApplicationRecord
     # Let's not use the same callbacks from article.rb
   end
 
+  def as_tipline_search_result
+    TiplineSearchResult.new(
+      team: self.team,
+      title: self.title,
+      body: self.description,
+      image_url: nil,
+      language: self.language,
+      url: self.url,
+      type: :explainer,
+      format: :text
+    )
+  end
+
   def update_paragraphs_in_alegre
     previous_paragraphs_count = self.description_before_last_save.to_s.gsub(/\r\n?/, "\n").split(/\n+/).size
 

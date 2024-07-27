@@ -93,41 +93,24 @@ Dynamic.class_eval do
     self.annotated&.team&.get_report.to_h.with_indifferent_access.dig(language, field) if self.annotation_type == 'report_design'
   end
 
-  def report_design_text_footer(language)
-    footer = []
-    prefixes = {
-      whatsapp: 'WhatsApp: ',
-      facebook: 'FB Messenger: m.me/',
-      twitter: 'Twitter: twitter.com/',
-      telegram: 'Telegram: t.me/',
-      viber: 'Viber: ',
-      line: 'LINE: ',
-      instagram: 'Instagram: instagram.com/'
-    }
-    [:signature, :whatsapp, :facebook, :twitter, :telegram, :viber, :line, :instagram].each do |field|
-      value = self.report_design_team_setting_value(field.to_s, language)
-      footer << "#{prefixes[field]}#{value}" unless value.blank?
+  def report_design_to_tipline_search_result
+    if self.annotation_type == 'report_design'
+      TiplineSearchResult.new(
+        type: :fact_check,
+        team: self.annotated.team,
+        title: self.report_design_field_value('title'),
+        body: self.report_design_field_value('text'),
+        image_url: self.report_design_image_url,
+        language: self.report_design_field_value('language'),
+        url: self.report_design_field_value('published_article_url'),
+        format: (!self.report_design_field_value('use_text_message') && self.report_design_field_value('use_visual_card')) ? :image : :text
+      )
     end
-    footer.join("\n")
   end
 
   def report_design_text(language = nil, hide_body = false)
     if self.annotation_type == 'report_design'
-      team = self.annotated.team
-      text = []
-      title = self.report_design_field_value('title')
-      text << "*#{title.strip}*" unless title.blank?
-      text << self.report_design_field_value('text').to_s unless hide_body
-      url = self.report_design_field_value('published_article_url')
-      text << url unless url.blank?
-      text = text.collect do |part|
-        team.get_shorten_outgoing_urls ? UrlRewriter.shorten_and_utmize_urls(part, team.get_outgoing_urls_utm_code) : part
-      end
-      unless language.nil?
-        footer = self.report_design_text_footer(language)
-        text << footer if !footer.blank? && self.report_design_team_setting_value('use_signature', language)
-      end
-      text.join("\n\n")
+      self.report_design_to_tipline_search_result.text(language, hide_body)
     end
   end
 
@@ -241,10 +224,6 @@ Dynamic.class_eval do
   end
 
   def should_send_report_in_this_language?(language)
-    team = self.annotated.team
-    return true if team.get_languages.to_a.size < 2
-    tbi = TeamBotInstallation.where(team_id: team.id, user: BotUser.alegre_user).last
-    should_send_report_in_different_language = !tbi&.alegre_settings&.dig('single_language_fact_checks_enabled')
-    self.annotation_type == 'report_design' && (self.report_design_field_value('language') == language || should_send_report_in_different_language)
+    self.annotation_type == 'report_design' && self.report_design_to_tipline_search_result.should_send_in_language?(language)
   end
 end
