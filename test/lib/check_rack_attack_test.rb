@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative '../test_helper'
 
 class ThrottlingTest < ActionDispatch::IntegrationTest
   setup do
@@ -61,6 +61,7 @@ class ThrottlingTest < ActionDispatch::IntegrationTest
 
   test "should apply higher rate limit for authenticated users" do
     stub_configs({ 'api_rate_limit_authenticated' => 5 }) do
+      host!('localhost')
       password = random_complex_password
       user = create_user password: password
       user_params = { api_user: { email: user.email, password: password } }
