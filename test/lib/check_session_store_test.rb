@@ -1,6 +1,12 @@
-require 'test_helper'
+require_relative '../test_helper'
 
 class SessionStoreTest < ActiveSupport::TestCase
+  def setup
+  end
+
+  def teardown
+  end
+
   def with_environment(env)
     original_env = Rails.env
     Rails.singleton_class.class_eval do
@@ -19,7 +25,7 @@ class SessionStoreTest < ActiveSupport::TestCase
         load Rails.root.join('config/initializers/session_store.rb')
         assert_equal ActionDispatch::Session::CookieStore, Rails.application.config.session_store
         assert_equal '_checkdesk_session', Rails.application.config.session_options[:key]
-        assert_equal '.checkmedia.org', Rails.application.config.session_options[:domain]
+        assert_equal 'checkmedia.org', Rails.application.config.session_options[:domain]
       end
     end
   end
