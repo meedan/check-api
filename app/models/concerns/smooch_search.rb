@@ -308,13 +308,12 @@ module SmoochSearch
           results = results.where(language: language) if should_restrict_by_language?([team_id])
           results = results.order('updated_at DESC')
         else
-          # FIXME: Call Alegre
-          results = Explainer.none
+          results = Explainer.search_by_similarity(text, language, team_id)
         end
       rescue StandardError => e
         self.handle_search_error(uid, e, language)
       end
-      results
+      results.joins(:project_medias)
     end
   end
 end

@@ -3,8 +3,8 @@ class Explainer < ApplicationRecord
 
   # FIXME: Read from workspace settings
   ALEGRE_MODELS_AND_THRESHOLDS = {
-    Bot::Alegre::ELASTICSEARCH_MODEL => 0.8 # Sometimes this is easier for local development
-    # Bot::Alegre::PARAPHRASE_MULTILINGUAL_MODEL => 0.6
+    # Bot::Alegre::ELASTICSEARCH_MODEL => 0.8 # Sometimes this is easier for local development
+    Bot::Alegre::PARAPHRASE_MULTILINGUAL_MODEL => 0.7
   }
 
   belongs_to :team
@@ -83,6 +83,22 @@ class Explainer < ApplicationRecord
       }
       Bot::Alegre.request('delete', '/text/similarity/', params)
     end
+  end
+
+  def self.search_by_similarity(text, language, team_id)
+    params = {
+      text: text,
+      models: ALEGRE_MODELS_AND_THRESHOLDS.keys,
+      per_model_threshold: ALEGRE_MODELS_AND_THRESHOLDS,
+      context: {
+        team: Team.find(team_id).slug,
+        language: language
+      }
+    }
+    response = Bot::Alegre.request('post', '/text/similarity/search/', params)
+    results = response['result'].to_a.sort_by{ |result| result['_score'] }
+    explainer_ids = results.collect{ |result| result.dig('_source', 'context', 'explainer_id').to_i }.uniq.first(3)
+    explainer_ids.empty? ? Explainer.none : Explainer.where(team_id: team_id, id: explainer_ids)
   end
 
   private
