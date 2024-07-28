@@ -217,7 +217,9 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => 'Foo bar' })
     CheckSearch.any_instance.stubs(:medias).returns([pm])
 
-    assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en')
+    uid = random_string
+    query = Bot::Smooch.get_search_query(uid, {})
+    assert_equal [pm], Bot::Smooch.get_search_results(uid, query, pm.team_id, 'en')
 
     Bot::Smooch.unstub(:bundle_list_of_messages)
     CheckSearch.any_instance.unstub(:medias)
@@ -238,7 +240,9 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
     Bot::Alegre.stubs(:get_merged_similar_items).returns({ pm.id => { score: 0.9, model: 'elasticsearch', context: {foo: :bar} } })
 
-    assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en')
+    uid = random_string
+    query = Bot::Smooch.get_search_query(uid, {})
+    assert_equal [pm], Bot::Smooch.get_search_results(uid, query, pm.team_id, 'en')
 
     Bot::Smooch.unstub(:bundle_list_of_messages)
     ProjectMedia.any_instance.unstub(:report_status)
