@@ -55,6 +55,7 @@ class Explainer < ApplicationRecord
     return if explainer.updated_at.to_f > timestamp
 
     base_context = {
+      type: 'explainer',
       team: explainer.team.slug,
       language: explainer.language,
       explainer_id: explainer.id
@@ -91,6 +92,7 @@ class Explainer < ApplicationRecord
       models: ALEGRE_MODELS_AND_THRESHOLDS.keys,
       per_model_threshold: ALEGRE_MODELS_AND_THRESHOLDS,
       context: {
+        type: 'explainer',
         team: Team.find(team_id).slug,
         language: language
       }

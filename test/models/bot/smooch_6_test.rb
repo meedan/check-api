@@ -285,6 +285,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   end
 
   test "should submit query and handle search error on tipline bot v2" do
+    WebMock.stub_request(:post, /\/text\/similarity\/search\//).to_return(body: {}.to_json) # For explainers
     CheckSearch.any_instance.stubs(:medias).raises(StandardError)
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar', '1'
@@ -383,6 +384,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
     Bot::Alegre.stubs(:get_merged_similar_items).returns({ create_project_media.id => { score: 0.9 } })
+    WebMock.stub_request(:post, /\/text\/similarity\/search\//).to_return(body: {}.to_json) # For explainers
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', "Foo bar foo bar #{url} foo bar", '1'
     end
