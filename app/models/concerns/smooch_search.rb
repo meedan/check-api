@@ -14,7 +14,7 @@ module SmoochSearch
         RequestStore.store[:smooch_bot_provider] = provider unless provider.blank?
         query = self.get_search_query(uid, message)
         results = self.get_search_results(uid, query, team_id, language).collect{ |pm| Relationship.confirmed_parent(pm) }.uniq
-        reports = results.collect{ |pm| pm.get_dynamic_annotation('report_design') }.reject{ |r| r.nil? }.collect{ |r| r.report_design_to_tipline_search_result }.select{ |r| r.should_send_in_language?(language) }
+        reports = results.select{ |pm| pm.report_status == 'published' }.collect{ |pm| pm.get_dynamic_annotation('report_design') }.reject{ |r| r.nil? }.collect{ |r| r.report_design_to_tipline_search_result }.select{ |r| r.should_send_in_language?(language) }
 
         # Extract explainers from matched media if they don't have published fact-checks but they have explainers
         reports = results.collect{ |pm| pm.explainers.to_a }.flatten.uniq.first(3).map(&:as_tipline_search_result) if !results.empty? && reports.empty?
