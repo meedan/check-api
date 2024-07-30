@@ -34,6 +34,6 @@ class UserType < DefaultObject
   private
 
   def super_admin?
-    object.is_admin && !object.is_member_of?(Team.current)
+    object&.is_admin && !object&.is_member_of?(Team.current)
   end
 end
