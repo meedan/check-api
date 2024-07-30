@@ -17,4 +17,9 @@ class UserType < DefaultObject
   def source
     Source.find(object.source_id)
   end
+
+  field :accessible_teams, PublicTeamType.connection_type, null: true
+  def accessible_teams
+    User.current.is_admin? ? Team.all : User.current.teams
+  end
 end
