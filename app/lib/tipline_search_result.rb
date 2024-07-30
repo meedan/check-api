@@ -19,14 +19,6 @@ class TiplineSearchResult
     self.language == language || should_send_report_in_different_language
   end
 
-  def is_explainer?
-    self.type == :explainer
-  end
-
-  def is_fact_check?
-    self.type == :fact_check
-  end
-
   def team_report_setting_value(key, language)
     self.team.get_report.to_h.with_indifferent_access.dig(language, key)
   end

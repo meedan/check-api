@@ -42,7 +42,7 @@ class Explainer < ApplicationRecord
   end
 
   def update_paragraphs_in_alegre
-    previous_paragraphs_count = self.description_before_last_save.to_s.gsub(/\r\n?/, "\n").split(/\n+/).size
+    previous_paragraphs_count = self.description_before_last_save.to_s.gsub(/\r\n?/, "\n").split(/\n+/).reject{ |paragraph| paragraph.strip.blank? }.size
 
     # Schedule to run 5 seconds later - it's a way to be sure there won't be more updates coming
     self.class.delay_for(5.seconds).update_paragraphs_in_alegre(self.id, previous_paragraphs_count, Time.now.to_f)
@@ -63,11 +63,11 @@ class Explainer < ApplicationRecord
 
     # Index paragraphs
     count = 0
-    explainer.description.to_s.gsub(/\r\n?/, "\n").split(/\n+/).each do |paragraph|
+    explainer.description.to_s.gsub(/\r\n?/, "\n").split(/\n+/).reject{ |paragraph| paragraph.strip.blank? }.each do |paragraph|
       count += 1
       params = {
         doc_id: Digest::MD5.hexdigest(['explainer', explainer.id, 'paragraph', count].join(':')),
-        text: paragraph,
+        text: paragraph.strip,
         models: ALEGRE_MODELS_AND_THRESHOLDS.keys,
         context: base_context.merge({ paragraph: count })
       }
@@ -75,8 +75,8 @@ class Explainer < ApplicationRecord
     end
 
     # Remove paragraphs that don't exist anymore (we delete after updating in order to avoid race conditions)
-    previous_paragraphs_count.times do |i|
-      next if i < count
+    previous_paragraphs_count.times do |index|
+      next if index < count
       params = {
         doc_id: Digest::MD5.hexdigest(['explainer', explainer.id, 'paragraph', index + 1].join(':')),
         quiet: true,

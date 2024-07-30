@@ -946,4 +946,21 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should submit query and handle explainer search error on tipline bot v2" do
+    Explainer.stubs(:search_by_similarity).raises(StandardError)
+    Sidekiq::Testing.inline! do
+      send_message 'hello', '1', '1', 'Foo bar', '1'
+    end
+  end
+
+  test "should search by explainers on tipline bot v2" do
+    assert_nil Rails.cache.read("smooch:user_search_results:#{@uid}")
+    @search_result.explainers << create_explainer(language: 'en', team: @team, title: 'Test', description: 'Foo bar')
+    Bot::Smooch.stubs(:get_search_results).returns([])
+    Sidekiq::Testing.inline! do
+      send_message 'hi', '1', '1', 'Foo', '1'
+    end
+    assert_not_nil Rails.cache.read("smooch:user_search_results:#{@uid}")
+  end
 end
