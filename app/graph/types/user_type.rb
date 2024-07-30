@@ -25,6 +25,11 @@ class UserType < DefaultObject
   def profile_image
     super_admin? ? "#{CheckConfig.get('checkdesk_base_url')}/images/user.png" : object.profile_image
   end
+  
+  field :accessible_teams, PublicTeamType.connection_type, null: true
+  def accessible_teams
+    User.current.is_admin? ? Team.all : User.current.teams
+  end
 
   private
 
