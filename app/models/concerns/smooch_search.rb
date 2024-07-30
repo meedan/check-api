@@ -4,6 +4,7 @@ module SmoochSearch
   extend ActiveSupport::Concern
 
   module ClassMethods
+
     # This method runs in background
     def search(app_id, uid, language, message, team_id, workflow, provider = nil)
       platform = self.get_platform_from_message(message)
@@ -11,16 +12,26 @@ module SmoochSearch
         sm = CheckStateMachine.new(uid)
         self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
         RequestStore.store[:smooch_bot_provider] = provider unless provider.blank?
-        results = self.get_search_results(uid, message, team_id, language).select do |pm|
-          pm = Relationship.confirmed_parent(pm)
-          report = pm.get_dynamic_annotation('report_design')
-          !report.nil? && !!report.should_send_report_in_this_language?(language)
-        end.collect{ |pm| Relationship.confirmed_parent(pm) }.uniq
-        if results.empty?
+        query = self.get_search_query(uid, message)
+        results = self.get_search_results(uid, query, team_id, language).collect{ |pm| Relationship.confirmed_parent(pm) }.uniq
+        reports = results.collect{ |pm| pm.get_dynamic_annotation('report_design') }.reject{ |r| r.nil? }.collect{ |r| r.report_design_to_tipline_search_result }.select{ |r| r.should_send_in_language?(language) }
+
+        # Extract explainers from matched media if they don't have published fact-checks but they have explainers
+        reports = results.collect{ |pm| pm.explainers.to_a }.flatten.uniq.first(3).map(&:as_tipline_search_result) if !results.empty? && reports.empty?
+
+        # Search for explainers if fact-checks were not found
+        if reports.empty? && query['type'] == 'text'
+          explainers = self.search_for_explainers(uid, query['text'], team_id, language).first(3).select{ |explainer| explainer.as_tipline_search_result.should_send_in_language?(language) }
+          Rails.logger.info "[Smooch Bot] Text similarity search got #{explainers.count} explainers while looking for '#{query['text']}' for team #{team_id}"
+          results = explainers.collect{ |explainer| explainer.project_medias.to_a }.flatten.uniq.reject{ |pm| pm.blank? }.first(3)
+          reports = explainers.map(&:as_tipline_search_result)
+        end
+
+        if reports.empty?
           self.bundle_messages(uid, '', app_id, 'default_requests', nil, true)
           self.send_final_message_to_user(uid, self.get_custom_string('search_no_results', language), workflow, language, 'no_results')
         else
-          self.send_search_results_to_user(uid, results, team_id, platform)
+          self.send_search_results_to_user(uid, reports, team_id, platform)
           sm.go_to_search_result
           self.save_search_results_for_user(uid, results.map(&:id))
           self.delay_for(1.second, { queue: 'smooch_priority' }).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, provider, 1)
@@ -80,7 +91,7 @@ module SmoochSearch
     end
 
     def is_a_valid_search_result(pm)
-      pm.report_status == 'published' && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(pm.archived)
+      (pm.report_status == 'published' || pm.explainers.count > 0) && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(pm.archived)
     end
 
     def reject_temporary_results(results)
@@ -91,7 +102,7 @@ module SmoochSearch
 
     def parse_search_results_from_alegre(results, after = nil, feed_id = nil, team_ids = nil)
       pms = reject_temporary_results(results).sort_by{ |a| [a[1][:model] != Bot::Alegre::ELASTICSEARCH_MODEL ? 1 : 0, a[1][:score]] }.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }
-      filter_search_results(pms, after, feed_id, team_ids).uniq(&:id).first(3)
+      filter_search_results(pms, after, feed_id, team_ids).uniq(&:id).sort_by{ |pm| pm.report_status == 'published' ? 0 : 1 }.first(3)
     end
 
     def date_filter(team_id)
@@ -111,11 +122,14 @@ module SmoochSearch
       value == 0.0 ? 0.85 : value
     end
 
-    def get_search_results(uid, last_message, team_id, language)
+    def get_search_query(uid, last_message)
+      list = self.list_of_bundled_messages_from_user(uid)
+      self.bundle_list_of_messages(list, last_message, true)
+    end
+
+    def get_search_results(uid, message, team_id, language)
       results = []
       begin
-        list = self.list_of_bundled_messages_from_user(uid)
-        message = self.bundle_list_of_messages(list, last_message, true)
         type = message['type']
         after = self.date_filter(team_id)
         query = message['text']
@@ -243,22 +257,22 @@ module SmoochSearch
       results
     end
 
-    def send_search_results_to_user(uid, results, team_id, platform)
+    def send_search_results_to_user(uid, reports, team_id, platform)
       team = Team.find(team_id)
       redis = Redis.new(REDIS_CONFIG)
       language = self.get_user_language(uid)
-      reports = results.collect{ |r| r.get_dynamic_annotation('report_design') }
-      # Get reports languages
-      reports_language = reports.map { |r| r&.report_design_field_value('language') }.uniq
-      if team.get_languages.to_a.size > 1 && !reports_language.include?(language)
+      reports_languages = reports.map(&:language).uniq
+
+      if team.get_languages.to_a.size > 1 && !reports_languages.include?(language)
         self.send_message_to_user(uid, self.get_string(:no_results_in_language, language).gsub('%{language}', CheckCldr.language_code_to_name(language, language)), {}, false, true, 'no_results')
         sleep 1
       end
-      reports.reject{ |r| r.blank? }.each do |report|
+
+      reports.each do |report|
         response = nil
-        no_body = (platform == 'Facebook Messenger' && !report.report_design_field_value('published_article_url').blank?)
-        response = self.send_message_to_user(uid, report.report_design_text(nil, no_body), {}, false, true, 'search_result') if report.report_design_field_value('use_text_message')
-        response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url }, false, true, 'search_result') if !report.report_design_field_value('use_text_message') && report.report_design_field_value('use_visual_card')
+        no_body = (platform == 'Facebook Messenger' && !report.url.blank?)
+        response = self.send_message_to_user(uid, report.text(nil, no_body), {}, false, true, 'search_result') if report.format == :text
+        response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.image_url }, false, true, 'search_result') if report.format == :image
         id = self.get_id_from_send_response(response)
         redis.rpush("smooch:search:#{uid}", id) unless id.blank?
       end
@@ -283,6 +297,23 @@ module SmoochSearch
         redis.del("smooch:search:#{uid}") if (attempts + 1) == max # Give up and just ask for feedback on the last iteration
         self.delay_for(1.second, { queue: 'smooch_priority' }).ask_for_feedback_when_all_search_results_are_received(app_id, language, workflow, uid, platform, provider, attempts + 1) if attempts < max # Try for 20 seconds
       end
+    end
+
+    def search_for_explainers(uid, query, team_id, language)
+      results = nil
+      begin
+        text = ::Bot::Smooch.extract_claim(query)
+        if Bot::Alegre.get_number_of_words(text) == 1
+          results = Explainer.where(team_id: team_id).where('description ILIKE ? OR title ILIKE ?', "%#{text}%", "%#{text}%")
+          results = results.where(language: language) if should_restrict_by_language?([team_id])
+          results = results.order('updated_at DESC')
+        else
+          results = Explainer.search_by_similarity(text, language, team_id)
+        end
+      rescue StandardError => e
+        self.handle_search_error(uid, e, language)
+      end
+      results.joins(:project_medias)
     end
   end
 end

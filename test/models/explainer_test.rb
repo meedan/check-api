@@ -104,4 +104,25 @@ class ExplainerTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should index explainer information" do
+    Sidekiq::Testing.inline!
+    description = %{
+      The is the first paragraph.
+
+      This is the second paragraph.
+    }
+
+    # Index two paragraphs when the explainer is created
+    Bot::Alegre.stubs(:request).with('post', '/text/similarity/', anything).times(2)
+    Bot::Alegre.stubs(:request).with('delete', '/text/similarity/', anything).never
+    ex = create_explainer description: description
+
+    # Update the index when paragraphs change
+    Bot::Alegre.stubs(:request).with('post', '/text/similarity/', anything).once
+    Bot::Alegre.stubs(:request).with('delete', '/text/similarity/', anything).once
+    ex = Explainer.find(ex.id)
+    ex.description = 'Now this is the only paragraph'
+    ex.save!
+  end
 end
