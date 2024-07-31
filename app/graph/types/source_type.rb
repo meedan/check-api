@@ -42,6 +42,6 @@ class SourceType < DefaultObject
   private
 
   def super_admin?
-    object.user.is_admin && !object.user.is_member_of?(Team.current)
+    object.user&.is_admin && !object.user&.is_member_of?(Team.current)
   end
 end

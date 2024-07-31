@@ -11,9 +11,9 @@ class UserType < DefaultObject
   field :is_bot, GraphQL::Types::Boolean, null: true
   field :is_active, GraphQL::Types::Boolean, null: true
   field :number_of_teams, GraphQL::Types::Int, null: true
-  
+
   field :source, SourceType, null: true
-  
+
   def source
     Source.find(object.source_id)
   end
@@ -25,7 +25,7 @@ class UserType < DefaultObject
   def profile_image
     super_admin? ? "#{CheckConfig.get('checkdesk_base_url')}/images/user.png" : object.profile_image
   end
-  
+
   field :accessible_teams, PublicTeamType.connection_type, null: true
   def accessible_teams
     User.current.is_admin? ? Team.all : User.current.teams
