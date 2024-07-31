@@ -245,7 +245,7 @@ class User < ApplicationRecord
   end
 
   def profile_image
-    self.source.nil? ? nil : self.source.avatar
+    self.source.nil? ? nil : self.source.image
   end
 
   def bot_events
