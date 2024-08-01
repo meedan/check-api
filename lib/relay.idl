@@ -11885,6 +11885,16 @@ type Query {
   dynamic_annotation_field(only_cache: Boolean, query: String!): DynamicAnnotationField
 
   """
+  Information about the explainer with given id
+  """
+  explainer(id: ID!): Explainer
+
+  """
+  Information about the fact_check with given id
+  """
+  fact_check(id: ID!): FactCheck
+
+  """
   Information about the feed with given id
   """
   feed(id: ID!): Feed
