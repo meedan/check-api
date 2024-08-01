@@ -230,7 +230,9 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
         assert_difference 'UploadedImage.count', 2 do
           assert_difference 'Claim.count' do
             assert_difference 'Relationship.count' do
-              Sidekiq::Worker.drain_all
+              assert_difference 'TiplineRequest.count', 3 do
+                Sidekiq::Worker.drain_all
+              end
             end
           end
         end
@@ -240,6 +242,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       r = Relationship.last
       assert_equal Relationship.suggested_type, r.relationship_type
       assert_equal claim_item.id, r.target_id
+      assert_equal 1, claim_item.tipline_requests.count
     end
   end
 
