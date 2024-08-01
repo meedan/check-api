@@ -497,6 +497,9 @@ class Team < ApplicationRecord
     # Filter by text
     query = query.where('(title ILIKE ? OR url ILIKE ? OR description ILIKE ?)', *["%#{filters[:text]}%"]*3) if filters[:text].to_s.size > 2
 
+    # Exclude the ones already applied to a target item
+    query = query.where.not(id: ProjectMedia.find(filters[:target_id].to_i).explainer_ids) unless ProjectMedia.find_by_id(filters[:target_id].to_i).nil?
+
     query
   end
 
@@ -532,6 +535,9 @@ class Team < ApplicationRecord
 
     # Filter by text
     query = query.where('(fact_checks.title ILIKE ? OR fact_checks.url ILIKE ? OR fact_checks.summary ILIKE ?)', *["%#{filters[:text]}%"]*3) if filters[:text].to_s.size > 2
+
+    # Exclude the ones already applied to a target item
+    query = query.where.not('fact_checks.id' => ProjectMedia.find(filters[:target_id].to_i).fact_check_id) unless ProjectMedia.find_by_id(filters[:target_id].to_i).nil?
 
     query
   end
