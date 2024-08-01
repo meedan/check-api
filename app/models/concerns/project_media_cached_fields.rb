@@ -13,16 +13,17 @@ module ProjectMediaCachedFields
       [
         {
           model: ClaimDescription,
-          affected_ids: proc { |cd| [cd.project_media] },
+          affected_ids: proc { |cd| [cd.project_media_id, cd.project_media_id_before_last_save] },
           events: {
             save: :recalculate
           }
         },
         {
           model: FactCheck,
-          affected_ids: proc { |fc| [fc.claim_description.project_media] },
+          affected_ids: proc { |fc| [fc.claim_description.project_media_id] },
           events: {
-            save: :recalculate
+            save: :recalculate,
+            destroy: :recalculate
           }
         },
         {
@@ -71,7 +72,7 @@ module ProjectMediaCachedFields
 
     FACT_CHECK_EVENT = {
       model: FactCheck,
-      affected_ids: proc { |fc| [fc.claim_description.project_media] },
+      affected_ids: proc { |fc| [fc.claim_description.project_media_id] },
       events: {
         save: :recalculate,
         destroy: :recalculate

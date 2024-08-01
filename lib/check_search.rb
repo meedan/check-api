@@ -46,7 +46,7 @@ class CheckSearch
     @file = file
   end
 
-  MEDIA_TYPES = %w[claims links twitter youtube tiktok instagram facebook telegram weblink images videos audios blank]
+  MEDIA_TYPES = %w[claims links twitter youtube tiktok instagram facebook telegram weblink images videos audios]
   SORT_MAPPING = {
     'recent_activity' => 'updated_at', 'recent_added' => 'created_at', 'demand' => 'demand',
     'related' => 'linked_items_count', 'last_seen' => 'last_seen', 'share_count' => 'share_count',
@@ -147,13 +147,16 @@ class CheckSearch
     collection.limit(nil).reorder(nil).offset(nil).count
   end
 
+  def query_all_types?
+    MEDIA_TYPES.size == media_types_filter.size
+  end
+
   def should_hit_elasticsearch?
     return true if feed_query?
     status_blank = true
     status_search_fields.each do |field|
       status_blank = false unless @options[field].blank?
     end
-    query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     filters_blank = true
     ['tags', 'keyword', 'rules', 'language', 'fc_language', 'request_language', 'report_language', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
       'has_claim', 'cluster_teams', 'published_by', 'annotated_by', 'channels', 'cluster_published_reports'
@@ -161,7 +164,7 @@ class CheckSearch
       filters_blank = false unless @options[filter].blank?
     end
     range_filter = hit_es_for_range_filter
-    !(query_all_types && status_blank && filters_blank && !range_filter && ['recent_activity', 'recent_added', 'last_seen'].include?(@options['sort']))
+    !(query_all_types? && status_blank && filters_blank && !range_filter && ['recent_activity', 'recent_added', 'last_seen'].include?(@options['sort']))
   end
 
   def media_types_filter
@@ -190,7 +193,7 @@ class CheckSearch
       query = { bool: { must: conditions, must_not: must_not } }
       $repository.count(query: query)
     else
-      condition = sort_type == :asc ? "#{sort_key} < ?" : "#{sort_key} > ?"
+      condition = sort_type == :asc ? "project_medias.#{sort_key} < ?" : "project_medias.#{sort_key} > ?"
       get_pg_results_for_media.where(condition, pm.send(sort_key)).count
     end
   end
@@ -249,6 +252,7 @@ class CheckSearch
       core_conditions.merge!({ 'project_medias.id' => ids })
     end
     relation = relation.distinct('project_medias.id').includes(:media).includes(:project).where(core_conditions)
+    relation = relation.joins(:media).where('medias.type != ?', 'Blank') if query_all_types?
     relation
   end
 

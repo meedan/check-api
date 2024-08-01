@@ -305,6 +305,7 @@ class TeamType < DefaultObject
     argument :report_status, [GraphQL::Types::String, null: true], required: false, camelize: false
     argument :rating, [GraphQL::Types::String, null: true], required: false, camelize: false
     argument :imported, GraphQL::Types::Boolean, required: false, camelize: false # Only for fact-checks
+    argument :target_id, GraphQL::Types::Int, required: false, camelize: false # Exclude articles already applied to the `ProjectMedia` with this ID
   end
 
   def articles(**args)
@@ -334,6 +335,7 @@ class TeamType < DefaultObject
     argument :report_status, [GraphQL::Types::String, null: true], required: false, camelize: false
     argument :rating, [GraphQL::Types::String, null: true], required: false, camelize: false
     argument :imported, GraphQL::Types::Boolean, required: false, camelize: false # Only for fact-checks
+    argument :target_id, GraphQL::Types::Int, required: false, camelize: false # Exclude articles already applied to the `ProjectMedia` with this ID
   end
 
   def articles_count(**args)
