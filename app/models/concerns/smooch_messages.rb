@@ -291,8 +291,8 @@ module SmoochMessages
         if message['type'] == 'text'
           # Get an item for long text (message that match number of words condition)
           if message['payload'].nil?
-            contains_link = self.extract_url(message['text'])
-            messages << message if !contains_link.nil? || ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
+            contains_link = Twitter::TwitterText::Extractor.extract_urls(message['text'])
+            messages << message if !contains_link.blank? || ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
             text << message['text']
           end
         elsif !message['mediaUrl'].blank?
