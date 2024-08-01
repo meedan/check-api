@@ -34,4 +34,14 @@ class SourceType < DefaultObject
 
   field :medias_count, GraphQL::Types::Int, null: true
   field :collaborators, UserType.connection_type, null: true
+
+  def image
+    super_admin? ? "#{CheckConfig.get('checkdesk_base_url')}/images/user.png" : object.image
+  end
+
+  private
+
+  def super_admin?
+    object.user&.is_admin && !object.user&.is_member_of?(Team.current)
+  end
 end
