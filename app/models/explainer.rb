@@ -61,6 +61,15 @@ class Explainer < ApplicationRecord
       explainer_id: explainer.id
     }
 
+    # Index title
+    params = {
+      doc_id: Digest::MD5.hexdigest(['explainer', explainer.id, 'title'].join(':')),
+      text: explainer.title,
+      models: ALEGRE_MODELS_AND_THRESHOLDS.keys,
+      context: base_context.merge({ field: 'title' })
+    }
+    Bot::Alegre.request('post', '/text/similarity/', params)
+
     # Index paragraphs
     count = 0
     explainer.description.to_s.gsub(/\r\n?/, "\n").split(/\n+/).reject{ |paragraph| paragraph.strip.blank? }.each do |paragraph|

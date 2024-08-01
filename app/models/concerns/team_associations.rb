@@ -93,6 +93,7 @@ module TeamAssociations
     conditions[key] = obj.id
     relationship_type = Team.sanitize_sql(Relationship.confirmed_type.to_yaml)
     ProjectMedia.where(conditions)
+    .joins(:media).where('medias.type != ?', 'Blank')
     .joins("LEFT JOIN relationships r ON r.target_id = project_medias.id AND r.relationship_type = '#{relationship_type}'")
     .where('r.id IS NULL').count
   end
