@@ -89,7 +89,7 @@ class Tag < ApplicationRecord
   def get_tag_text_reference
     if self.tag.is_a?(String)
       team_id = self.team&.id
-      tag_text = TagText.where(text: (self.tag).strip, team_id: team_id).last
+      tag_text = TagText.where(text: self.tag.strip, team_id: team_id).last
       if tag_text.nil? && team_id.present?
         tag_text = TagText.new
         tag_text.text = self.tag
