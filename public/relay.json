@@ -3697,6 +3697,20 @@
               "deprecationReason": null
             },
             {
+              "name": "project_media_was",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "ProjectMedia",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "updated_at",
               "description": null,
               "args": [

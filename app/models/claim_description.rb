@@ -38,6 +38,10 @@ class ClaimDescription < ApplicationRecord
     self.index_in_elasticsearch(data)
   end
 
+  def project_media_was
+    ProjectMedia.find_by_id(self.project_media_id_before_last_save)
+  end
+
   private
 
   def set_team

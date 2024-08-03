@@ -728,6 +728,7 @@ type ClaimDescription implements Node {
   id: ID!
   permissions: String
   project_media: ProjectMedia
+  project_media_was: ProjectMedia
   updated_at: String
   user: User
 }

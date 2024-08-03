@@ -8,6 +8,7 @@ class ClaimDescriptionType < DefaultObject
   field :context, GraphQL::Types::String, null: true, resolver_method: :claim_context
   field :user, UserType, null: true
   field :project_media, ProjectMediaType, null: true
+  field :project_media_was, ProjectMediaType, null: true
   field :fact_check, FactCheckType, null: true do
     argument :report_status, GraphQL::Types::String, required: false, camelize: false
   end
