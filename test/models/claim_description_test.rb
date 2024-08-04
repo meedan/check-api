@@ -165,4 +165,12 @@ class ClaimDescriptionTest < ActiveSupport::TestCase
     assert_equal 'paused', fc.reload.report_status
     assert_equal 'paused', pm.report_status(true)
   end
+
+  test "should get information from removed item" do
+    pm = create_project_media
+    cd = create_claim_description project_media: pm
+    cd.project_media = nil
+    cd.save!
+    assert_equal pm, cd.project_media_was
+  end
 end
