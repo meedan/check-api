@@ -178,6 +178,26 @@ module AlegreV2
       ).merge(params)
     end
 
+    def generic_package_text(project_media, field, params, fuzzy=false, match_across_content_types=true)
+      package = generic_package(project_media, field).merge(
+        params
+      ).merge(
+        models: self.indexing_models_to_use(project_media),
+        text: project_media.send(field),
+        fuzzy: fuzzy == 'true' || fuzzy.to_i == 1,
+        match_across_content_types: match_across_content_types,
+      )
+      team_id = project_media.team_id
+      language = self.language_for_similarity(team_id)
+      package[:language] = language if !language.nil?
+      package[:min_es_score] = self.get_min_es_score(team_id)
+      package
+    end
+
+    def delete_package_text(project_media, field, params)
+      generic_package_text(project_media, field, params)
+    end
+
     def generic_package_media(project_media, params)
       generic_package(project_media, nil).merge(
         url: media_file_url(project_media),
@@ -239,6 +259,10 @@ module AlegreV2
 
     def store_package_audio(project_media, _field, params)
       generic_package_audio(project_media, params)
+    end
+
+    def store_package_text(project_media, field, params)
+      generic_package_text(project_media, field, params)
     end
 
     def get_sync(project_media, field=nil, params={})
