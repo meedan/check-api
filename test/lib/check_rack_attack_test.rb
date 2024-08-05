@@ -2,8 +2,12 @@ require_relative '../test_helper'
 
 class ThrottlingTest < ActionDispatch::IntegrationTest
   setup do
-    redis = Redis.new(REDIS_CONFIG)
-    redis.flushdb
+    @redis = Redis.new(REDIS_CONFIG)
+    @redis.flushdb
+  end
+
+  def real_ip(request)
+    request.get_header('HTTP_CF_CONNECTING_IP') || request.remote_ip
   end
 
   test "should throttle excessive requests to /api/graphql" do
@@ -22,7 +26,7 @@ class ThrottlingTest < ActionDispatch::IntegrationTest
     stub_configs({ 'login_block_limit' => 2 }) do
       user_params = { api_user: { email: 'user@example.com', password: random_complex_password } }
 
-      2.times do
+      3.times do
         post api_user_session_path, params: user_params, as: :json
       end
 
@@ -48,7 +52,7 @@ class ThrottlingTest < ActionDispatch::IntegrationTest
       # Test blocking for /api/users/sign_in via Cloudflare
       user_params = { api_user: { email: 'user@example.com', password: random_complex_password } }
 
-      2.times do
+      3.times do
         post api_user_session_path, params: user_params, as: :json, headers: { 'CF-Connecting-IP' => '1.2.3.4' }
       end
 
@@ -66,7 +70,6 @@ class ThrottlingTest < ActionDispatch::IntegrationTest
       user = create_user password: password
       user_params = { api_user: { email: user.email, password: password } }
 
-
       post api_user_session_path, params: user_params, as: :json
       assert_response :success
 
@@ -77,6 +80,48 @@ class ThrottlingTest < ActionDispatch::IntegrationTest
 
       post api_graphql_path
       assert_response :too_many_requests
+
+      delete destroy_api_user_session_path, as: :json
+      assert_response :success
+    end
+  end
+
+  test "should not increment counter on successful login" do
+    stub_configs({ 'login_block_limit' => 3 }) do
+      password = random_complex_password
+      user = create_user password: password
+      user_params = { api_user: { email: user.email, password: password } }
+
+      # Successful logins
+      2.times do
+        post api_user_session_path, params: user_params, as: :json
+        assert_response :success
+      end
+
+      ip = real_ip(@request)
+      counter_value = @redis.get("track:#{ip}")
+      assert_equal "0", counter_value, "Counter should not be incremented for successful logins"
+
+      delete destroy_api_user_session_path, as: :json
+      assert_response :success
+
+      # Unsuccessful login attempts
+      2.times do
+        post api_user_session_path, params: { api_user: { email: user.email, password: 'wrong_password' } }, as: :json
+        assert_response :unauthorized
+      end
+
+      # Check counter value after unsuccessful logins
+      counter_value = @redis.get("track:#{ip}")
+      assert_equal "2", counter_value, "Counter should be incremented for unsuccessful logins"
+
+      # Ensure that the IP is not blocked after successful logins
+      post api_user_session_path, params: user_params, as: :json
+      assert_response :success
+
+      # Subsequent unsuccessful login attempts should result in a block
+      post api_user_session_path, params: { api_user: { email: user.email, password: 'wrong_password' } }, as: :json
+      assert_response :forbidden
     end
   end
 end
