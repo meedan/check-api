@@ -609,4 +609,73 @@ class GraphqlController12Test < ActionController::TestCase
     assert_equal "#{CheckConfig.get('checkdesk_base_url')}/images/checklogo.png", JSON.parse(@response.body)['data']['user']['profile_image']
     assert_equal "#{CheckConfig.get('checkdesk_base_url')}/images/checklogo.png", JSON.parse(@response.body)['data']['user']['source']['image']
   end
+
+  test "should treat ' tag' and 'tag' as the same tag, and not try to create a new tag" do
+    t = create_team
+    a = ApiKey.create!
+    b = create_bot_user api_key_id: a.id
+    create_team_user team: t, user: b
+    p = create_project team: t
+    authenticate_with_token(a)
+
+    query1 = ' mutation create {
+              createProjectMedia(input: {
+                project_id: ' + p.id.to_s + ',
+                media_type: "Blank",
+                channel: {main: 1},
+                set_tags: ["science"],
+                set_status: "verified",
+                set_claim_description: "Claim #1.",
+                set_fact_check: {
+                  title: "Title #1",
+                  language: "en",
+                }
+              }) {
+                project_media {
+                  full_url,
+                  tags {
+                    edges {
+                      node {
+                        tag_text
+                      }
+                    }
+                  }
+                }
+              }
+            } '
+
+    post :create, params: { query: query1, team: t.slug }
+    assert_response :success
+    assert_equal 'science', JSON.parse(@response.body)['data']['createProjectMedia']['project_media']['tags']['edges'][0]['node']['tag_text']
+
+    query2 = ' mutation create {
+      createProjectMedia(input: {
+        project_id: ' + p.id.to_s + ',
+        media_type: "Blank",
+        channel: {main: 1},
+        set_tags: [" science"],
+        set_status: "verified",
+        set_claim_description: "Claim #2.",
+        set_fact_check: {
+          title: "Title #2",
+          language: "en",
+        }
+      }) {
+        project_media {
+          full_url,
+          tags {
+            edges {
+              node {
+                tag_text
+              }
+            }
+          }
+        }
+      }
+    } '
+
+  post :create, params: { query: query2, team: t.slug }
+  assert_response :success
+  assert_equal 'science', JSON.parse(@response.body)['data']['createProjectMedia']['project_media']['tags']['edges'][0]['node']['tag_text']
+  end
 end
