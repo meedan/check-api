@@ -11666,6 +11666,7 @@ type ProjectMedia implements Node {
   source_id: Int
   status: String
   suggested_main_item: ProjectMedia
+  suggested_main_relationship: Relationship
   suggested_similar_items_count: Int
   suggested_similar_relationships(
     """

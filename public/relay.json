@@ -61622,6 +61622,20 @@
               "deprecationReason": null
             },
             {
+              "name": "suggested_main_relationship",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Relationship",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "suggested_similar_items_count",
               "description": null,
               "args": [
