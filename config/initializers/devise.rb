@@ -1,4 +1,5 @@
 require 'error_codes'
+require 'redis'
 
 class CustomFailure < Devise::FailureApp
   def respond
@@ -49,6 +50,12 @@ Devise.setup do |config|
   end
   config.mailer = 'DeviseMailer'
   config.invite_for = 1.month
+
+  Warden::Manager.after_authentication do |user, auth, opts|
+    @redis = Redis.new(REDIS_CONFIG)
+    ip = auth.request.ip
+    @redis.decr("track:#{ip}")
+  end
 end
 
 AuthTrail.geocode = false

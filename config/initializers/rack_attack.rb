@@ -36,6 +36,8 @@ class Rack::Attack
         count = redis.incr("track:#{ip}")
         redis.expire("track:#{ip}", 3600) # Set the expiration time to 1 hour
 
+        redis.set("track:#{ip}", 0) if count < 0
+
         # Add IP to blocklist if count exceeds the threshold
         if count.to_i >= CheckConfig.get('login_block_limit', 100, :integer)
           redis.set("block:#{ip}", true)  # No expiration
