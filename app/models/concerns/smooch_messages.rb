@@ -291,7 +291,8 @@ module SmoochMessages
         if message['type'] == 'text'
           # Get an item for long text (message that match number of words condition)
           if message['payload'].nil?
-            messages << message if ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
+            contains_link = Twitter::TwitterText::Extractor.extract_urls(message['text'])
+            messages << message if !contains_link.blank? || ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
             text << message['text']
           end
         elsif !message['mediaUrl'].blank?
@@ -397,16 +398,40 @@ module SmoochMessages
           message['archived'] = (request_type == 'relevant_search_result_requests' ? self.default_archived_flag : CheckArchivedFlags::FlagCodes::UNCONFIRMED)
           associated = self.create_project_media_from_message(message)
         end
-
         unless associated.nil?
-          # Remember that we received this message.
-          hash = self.message_hash(message)
-          Rails.cache.write("smooch:message:#{hash}", associated.id)
-          self.smooch_save_tipline_request(message, associated, app_id, author, request_type, associated_obj)
-          # If item is published (or parent item), send a report right away
-          self.get_platform_from_message(message)
-          self.send_report_to_user(message['authorId'], message, associated, message['language'], 'fact_check_report') if self.should_try_to_send_report?(request_type, associated)
+          self.smoooch_post_save_message_actions(message, associated, app_id, author, request_type, associated_obj)
+          # Check if message contains caption then create an item and force relationship
+          self.relate_item_and_caption(message, associated, app_id, author, request_type, associated_obj) unless message['caption'].blank?
         end
+      end
+    end
+
+    def smoooch_post_save_message_actions(message, associated, app_id, author, request_type, associated_obj)
+      # Remember that we received this message.
+      hash = self.message_hash(message)
+      Rails.cache.write("smooch:message:#{hash}", associated.id)
+      self.smooch_save_tipline_request(message, associated, app_id, author, request_type, associated_obj)
+      # If item is published (or parent item), send a report right away
+      self.get_platform_from_message(message)
+      self.send_report_to_user(message['authorId'], message, associated, message['language'], 'fact_check_report') if self.should_try_to_send_report?(request_type, associated)
+    end
+
+    def relate_item_and_caption(message, associated, app_id, author, request_type, associated_obj)
+      message['_id'] = SecureRandom.hex
+      message['type'] = 'text'
+      message['request_body'] = message['text']
+      message['text'] = message['caption']
+      message.delete('caption')
+      message.delete('mediaUrl')
+      target = self.create_project_media_from_message(message)
+      unless target.nil?
+        smoooch_post_save_message_actions(message, target, app_id, author, request_type, associated_obj)
+        r = Relationship.new
+        r.skip_check_ability = true
+        r.relationship_type = Relationship.suggested_type
+        r.source_id = associated.id
+        r.target_id = target.id
+        r.save!
       end
     end
 

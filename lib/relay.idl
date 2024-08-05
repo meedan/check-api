@@ -728,6 +728,7 @@ type ClaimDescription implements Node {
   id: ID!
   permissions: String
   project_media: ProjectMedia
+  project_media_was: ProjectMedia
   updated_at: String
   user: User
 }
@@ -11665,6 +11666,7 @@ type ProjectMedia implements Node {
   source_id: Int
   status: String
   suggested_main_item: ProjectMedia
+  suggested_main_relationship: Relationship
   suggested_similar_items_count: Int
   suggested_similar_relationships(
     """
@@ -11883,6 +11885,16 @@ type Query {
   """
   bot_user(id: ID!): BotUser
   dynamic_annotation_field(only_cache: Boolean, query: String!): DynamicAnnotationField
+
+  """
+  Information about the explainer with given id
+  """
+  explainer(id: ID!): Explainer
+
+  """
+  Information about the fact_check with given id
+  """
+  fact_check(id: ID!): FactCheck
 
   """
   Information about the feed with given id
@@ -13103,11 +13115,12 @@ type Team implements Node {
     sort_type: String = "ASC"
     standalone: Boolean
     tags: [String]
+    target_id: Int
     text: String
     updated_at: String
     user_ids: [Int]
   ): ArticleUnionConnection
-  articles_count(article_type: String, imported: Boolean, language: [String], publisher_ids: [Int], rating: [String], report_status: [String], standalone: Boolean, tags: [String], text: String, updated_at: String, user_ids: [Int]): Int
+  articles_count(article_type: String, imported: Boolean, language: [String], publisher_ids: [Int], rating: [String], report_status: [String], standalone: Boolean, tags: [String], target_id: Int, text: String, updated_at: String, user_ids: [Int]): Int
   available_newsletter_header_types: JsonStringType
   avatar: String
   check_search_spam: CheckSearch
