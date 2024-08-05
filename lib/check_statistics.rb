@@ -95,7 +95,7 @@ module CheckStatistics
             all = 0
             user = 0
             business = 0
-            data.dig('conversation_analytics', 'data', 0, 'data_points')&.each do |data_point|
+            data.dig('conversation_analytics', 'data', 0, 'data_points').each do |data_point|
               count = data_point['conversation']
               all += count
               user += count if data_point['conversation_direction'] == 'USER_INITIATED' || data_point['conversation_category'] == 'SERVICE'
