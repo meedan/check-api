@@ -320,6 +320,15 @@ class ProjectMediaType < DefaultObject
       &.source
   end
 
+  field :suggested_main_relationship, RelationshipType, null: true
+
+  def suggested_main_relationship
+    Relationship
+      .where("relationship_type = ?", Relationship.suggested_type.to_yaml)
+      .where(target_id: object.id)
+      .first
+  end
+
   field :confirmed_similar_relationships, RelationshipType.connection_type, null: true
 
   def confirmed_similar_relationships
