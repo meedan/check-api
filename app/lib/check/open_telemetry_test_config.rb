@@ -2,7 +2,7 @@ module Check
   class OpenTelemetryTestConfig
     class << self
       def configure!
-        raise StandardError.new("[otel] Test config being used in non-test environment") unless Rails.env.test?
+        # raise StandardError.new("[otel] Test config being used in non-test environment") unless Rails.env.test?
 
         # Supplement Open Telemetry config in initializer to capture spans in test
         # https://github.com/open-telemetry/opentelemetry-ruby-contrib/blob/main/.instrumentation_generator/templates/test/test_helper.rb

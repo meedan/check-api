@@ -158,6 +158,8 @@ module AlegreV2
           return Rails.cache.read("url_sha:#{project_media.url}")
         elsif !project_media.is_text?
           return project_media.media.file.filename.split(".").first
+        else
+          return Digest::MD5.hexdigest(project_media.send(field).to_s)
         end
       end
     end
