@@ -79,7 +79,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.host, CheckConfig.get('alegre_host')
     assert_equal Bot::Alegre.sync_path(pm1), "/similarity/sync/text"
     assert_equal Bot::Alegre.async_path(pm1), "/similarity/async/text"
-    assert_equal Bot::Alegre.delete_path(pm1), "/audio/similarity/"
+    assert_equal Bot::Alegre.delete_path(pm1), "/text/similarity/"
   end
 
   test "should have host and paths for audio" do
