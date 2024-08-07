@@ -9017,6 +9017,7 @@ type Me implements Node {
     last: Int
     status: String
   ): TeamUserConnection
+  team_users_count(status: String): Int
   teams(
     """
     Returns the elements in the list that come after the specified cursor.
