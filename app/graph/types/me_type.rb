@@ -125,6 +125,14 @@ class MeType < DefaultObject
     team_users
   end
 
+  field :team_users_count, GraphQL::Types::Int, null: true do
+    argument :status, GraphQL::Types::String, required: false
+  end
+
+  def team_users_count(status: nil)
+    team_users(status: status).count
+  end
+
   field :annotations, AnnotationType.connection_type, null: true do
     argument :type, GraphQL::Types::String, required: false
   end
