@@ -74,6 +74,13 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.get_type(pm4), "text"
   end
 
+  test "should have host and paths for text" do
+    pm1 = create_project_media team: @team, quote: 'This is a long text that creates a text-based item'
+    assert_equal Bot::Alegre.host, CheckConfig.get('alegre_host')
+    assert_equal Bot::Alegre.sync_path(pm1), "/similarity/sync/text"
+    assert_equal Bot::Alegre.async_path(pm1), "/similarity/async/text"
+    assert_equal Bot::Alegre.delete_path(pm1), "/text/similarity/"
+  end
 
   test "should have host and paths for audio" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
@@ -106,6 +113,11 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     RequestStore.store[:pause_database_connection] = false
   end
 
+  test "should create a generic_package for text" do
+    pm1 = create_project_media team: @team, quote: 'This is a long text that creates a text-based item'
+    assert_equal Bot::Alegre.generic_package(pm1, "quote"), {:content_hash=>Bot::Alegre.content_hash(pm1, "quote"), :doc_id=>Bot::Alegre.item_doc_id(pm1, "quote"), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :field=>"quote", :temporary_media=>false}}
+  end
+
   test "should create a generic_package for audio" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     assert_equal Bot::Alegre.generic_package(pm1, "audio"), {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id=>Bot::Alegre.item_doc_id(pm1, "audio"), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}}
@@ -119,6 +131,13 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should create a generic_package for video" do
     pm1 = create_project_media team: @team, media: create_uploaded_video
     assert_equal Bot::Alegre.generic_package(pm1, "video"), {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id=>Bot::Alegre.item_doc_id(pm1, "video"), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}}
+  end
+
+  test "should create a generic_package_text" do
+    pm1 = create_project_media team: @team, quote: 'This is a long text that creates a text-based item'
+    assert_equal Bot::Alegre.generic_package_text(pm1, "quote", {}), {:content_hash=>Bot::Alegre.content_hash(pm1, "quote"), :doc_id=>Bot::Alegre.item_doc_id(pm1, "quote"), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :field=>"quote", :temporary_media=>false}, :models=>["elasticsearch"], :text=>pm1.text, :fuzzy=>false, :match_across_content_types=>true, :min_es_score=>10}
+    assert_equal Bot::Alegre.store_package_text(pm1, "quote", {}), {:content_hash=>Bot::Alegre.content_hash(pm1, "quote"), :doc_id=>Bot::Alegre.item_doc_id(pm1, "quote"), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :field=>"quote", :temporary_media=>false}, :models=>["elasticsearch"], :text=>pm1.text, :fuzzy=>false, :match_across_content_types=>true, :min_es_score=>10}
+    assert_equal Bot::Alegre.store_package(pm1, "quote", {}), {:content_hash=>Bot::Alegre.content_hash(pm1, "quote"), :doc_id=>Bot::Alegre.item_doc_id(pm1, "quote"), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :field=>"quote", :temporary_media=>false}, :models=>["elasticsearch"], :text=>pm1.text, :fuzzy=>false, :match_across_content_types=>true, :min_es_score=>10}
   end
 
   test "should create a generic_package_audio" do
@@ -142,6 +161,11 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.store_package(pm1, "video", {}), {:content_hash=>Bot::Alegre.content_hash(pm1, nil), :doc_id=>Bot::Alegre.item_doc_id(pm1, nil), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}, :url=>Bot::Alegre.media_file_url(pm1)}
   end
 
+  test "should create a context for text" do
+    pm1 = create_project_media team: @team, quote: 'This is a long text that creates a text-based item'
+    assert_equal Bot::Alegre.get_context(pm1, "quote"), {:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :field=>"quote", :temporary_media=>false}
+  end
+
   test "should create a context for audio" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     assert_equal Bot::Alegre.get_context(pm1, "audio"), {:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}
@@ -155,6 +179,15 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should create a context for video" do
     pm1 = create_project_media team: @team, media: create_uploaded_video
     assert_equal Bot::Alegre.get_context(pm1, "video"), {:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}
+  end
+
+  test "should create a delete_package for text" do
+    pm1 = create_project_media team: @team, quote: 'This is a long text that creates a text-based item'
+    package = Bot::Alegre.delete_package(pm1, "quote")
+    assert_equal package[:doc_id], Bot::Alegre.item_doc_id(pm1, "quote")
+    assert_equal package[:context], {:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :field=>"quote", :temporary_media=>false}
+    assert_equal package[:text].class, String
+    assert_equal package[:quiet], false
   end
 
   test "should create a delete_package for audio" do
@@ -182,6 +215,37 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal package[:context], {:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :temporary_media=>false}
     assert_equal package[:url].class, String
     assert_equal package[:quiet], false
+  end
+
+  test "should run text async request" do
+    pm1 = create_project_media team: @team, quote: 'This is a long text that creates a text-based item'
+    response = {
+      "message": "Message pushed successfully",
+      "queue": "text__Model",
+      "body": {
+        "callback_url": "http:\/\/alegre:3100\/presto\/receive\/add_item\/text",
+        "id": "f0d43d29-853d-4099-9e92-073203afa75b",
+        "url": nil,
+        "text": 'This is a long text that creates a text-based item',
+        "raw": {
+          "limit": 200,
+          "url": nil,
+          "text": 'This is a long text that creates a text-based item',
+          "callback_url": "http:\/\/example.com\/search_results",
+          "doc_id": Bot::Alegre.item_doc_id(pm1, "quote"),
+          "context": Bot::Alegre.get_context(pm1, "quote"),
+          "created_at": "2023-10-27T22:40:14.205586",
+          "command": "search",
+          "threshold": 0.0,
+          "per_model_threshold": {},
+          "match_across_content_types": false,
+          "requires_callback": true,
+          "final_task": "search"
+        }
+      }
+    }
+    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/async/text").with(body: {:content_hash=>Bot::Alegre.content_hash(pm1, "quote"), :doc_id=>Bot::Alegre.item_doc_id(pm1, "quote"), :context=>{:team_id=>pm1.team_id, :project_media_id=>pm1.id, :has_custom_id=>true, :field=>"quote", :temporary_media=>false}, :models=>["elasticsearch"], :text=>pm1.quote, :fuzzy=>false, :match_across_content_types=>true, :min_es_score=>10}).to_return(body: response.to_json)
+    assert_equal JSON.parse(Bot::Alegre.get_async(pm1, "quote").to_json), JSON.parse(response.to_json)
   end
 
   test "should run audio async request" do
@@ -214,6 +278,11 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal JSON.parse(Bot::Alegre.get_async(pm1).to_json), JSON.parse(response.to_json)
   end
 
+  test "should isolate relevant_context for text" do
+    pm1 = create_project_media team: @team, quote: 'This is a long text that creates a text-based item'
+    assert_equal Bot::Alegre.isolate_relevant_context(pm1, {"context"=>[{"team_id"=>pm1.team_id}]}), {"team_id"=>pm1.team_id}
+  end
+
   test "should isolate relevant_context for audio" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     assert_equal Bot::Alegre.isolate_relevant_context(pm1, {"context"=>[{"team_id"=>pm1.team_id}]}), {"team_id"=>pm1.team_id}
@@ -227,6 +296,13 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should isolate relevant_context for video" do
     pm1 = create_project_media team: @team, media: create_uploaded_video
     assert_equal Bot::Alegre.isolate_relevant_context(pm1, {"context"=>[{"team_id"=>pm1.team_id}]}), {"team_id"=>pm1.team_id}
+  end
+
+  test "should return field or type on get_target_field for text" do
+    pm1 = create_project_media team: @team, quote: 'This is a long text that creates a text-based item'
+    Bot::Alegre.stubs(:get_type).returns(nil)
+    assert_equal Bot::Alegre.get_target_field(pm1, "quote"), "quote"
+    Bot::Alegre.unstub(:get_type)
   end
 
   test "should return field or type on get_target_field for audio" do
@@ -273,6 +349,11 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm1 = create_project_media team: @team, media: create_uploaded_video
     sample = [{:value=>0.9, :key=>"video_hash_suggestion_threshold", :automatic=>false, :model=>"hash"}]
     assert_equal Bot::Alegre.get_per_model_threshold(pm1, sample), {:threshold=>0.9}
+  end
+
+  test "should get target field for text" do
+    pm1 = create_project_media team: @team, quote: 'This is a long text that creates a text-based item'
+    assert_equal Bot::Alegre.get_target_field(pm1, "quote"), "quote"
   end
 
   test "should get target field for audio" do
@@ -1075,6 +1156,20 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should get_cached_data with right fallbacks" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
     assert_equal Bot::Alegre.get_cached_data(Bot::Alegre.get_required_keys(pm1, nil)), {confirmed_results: nil, suggested_or_confirmed_results: nil}
+  end
+
+  test "should relate project media for text" do
+    pm1 = create_project_media team: @team, quote: 'This is a long text that creates a text-based item'
+    pm2 = create_project_media team: @team, quote: 'This is another long text that creates a text-based item'
+    Bot::Alegre.stubs(:get_similar_items_v2).returns({pm2.id=>{:score=>0.91, :context=>{"team_id"=>pm2.team_id, "has_custom_id"=>true, "project_media_id"=>pm2.id, "temporary_media"=>false}, :model=>"audio", :source_field=>"audio", :target_field=>"audio", :relationship_type=>Relationship.suggested_type}})
+    relationship = nil
+    assert_difference 'Relationship.count' do
+      relationship = Bot::Alegre.relate_project_media(pm1)
+    end
+    assert_equal relationship.source, pm2
+    assert_equal relationship.target, pm1
+    assert_equal relationship.relationship_type, Relationship.suggested_type
+    Bot::Alegre.unstub(:get_similar_items_v2)
   end
 
   test "should relate project media for audio" do
