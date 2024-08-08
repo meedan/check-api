@@ -122,7 +122,7 @@ class MeType < DefaultObject
     return TeamUser.none unless object == User.current
     team_users = object.team_users
     team_users = team_users.where(status: status) if status
-    team_users
+    team_users.joins(:team).order('name ASC')
   end
 
   field :team_users_count, GraphQL::Types::Int, null: true do
