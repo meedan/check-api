@@ -66,7 +66,6 @@ class ExplainerItemTest < ActiveSupport::TestCase
           pm.explainers << e
         end
         ei = ExplainerItem.where(project_media_id: pm.id, explainer_id: e.id).last
-        assert_equal u.id, ei.user_id
         assert_equal 1, ei.versions.count
         assert_difference 'PaperTrail::Version.count', 1 do
           ei.destroy

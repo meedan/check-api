@@ -18,12 +18,36 @@ class ClaimDescriptionTest < ActiveSupport::TestCase
       t = create_team
       create_team_user team: t, user: u, role: 'admin'
       pm = create_project_media team: t
+      pm2 = create_project_media team: t
       with_current_user_and_team(u, t) do
         cd = nil
-        assert_difference 'PaperTrail::Version.count', 1 do
+        fc = nil
+        assert_difference 'PaperTrail::Version.count', 2 do
           cd = create_claim_description project_media: pm, user: u
+          fc = create_fact_check claim_description: cd
         end
-        assert_equal 1, cd.versions.count
+        cd.description = 'update description'
+        cd.save!
+        fc.title = 'update title'
+        fc.save!
+        # Remove FactCheck
+        cd.project_media_id = nil
+        cd.save!
+        assert_equal 3, cd.versions.count
+        assert_equal 2, fc.versions.count
+        v_count = Version.from_partition(t.id).where(associated_type: 'ProjectMedia', associated_id: pm.id, item_type: ['ClaimDescription', 'FactCheck']).count
+        assert_equal 5, v_count
+        # Add existing FactCheck to another media
+        cd.project_media_id = pm2.id
+        cd.save!
+        assert_equal 4, cd.versions.count
+        assert_equal 2, fc.versions.count
+        # Old item logs
+        v_count = Version.from_partition(t.id).where(associated_type: 'ProjectMedia', associated_id: pm.id, item_type: ['ClaimDescription', 'FactCheck']).count
+        assert_equal 0, v_count
+        # New item logs
+        v_count = Version.from_partition(t.id).where(associated_type: 'ProjectMedia', associated_id: pm2.id, item_type: ['ClaimDescription', 'FactCheck']).count
+        assert_equal 6, v_count
       end
     end
   end
