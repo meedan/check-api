@@ -145,8 +145,13 @@ class Version < Partitioned::ByForeignKey
     when 'create_assignment', 'destroy_assignment'
       self.get_associated_from_assignment
     when 'create_claimdescription', 'update_claimdescription'
-      ['ProjectMedia', self.item.project_media_id]
-    when 'create_factcheck'
+      pm_id = self.item.project_media_id
+      if pm_id.nil?
+        changes = self.get_object_changes
+        pm_id = changes['project_media_id'][0] if changes.has_key?('project_media_id') && changes['project_media_id'][1].nil?
+      end
+      ['ProjectMedia', pm_id]
+    when 'create_factcheck', 'update_factcheck'
       ['ProjectMedia', self.item.claim_description.project_media_id]
     when 'create_explaineritem', 'destroy_explaineritem'
       ['ProjectMedia', self.item.project_media_id]

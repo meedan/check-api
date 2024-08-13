@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_08_12_063317) do
+ActiveRecord::Schema.define(version: 2024_07_19_183518) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -309,11 +309,9 @@ ActiveRecord::Schema.define(version: 2024_08_12_063317) do
     t.bigint "project_media_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.bigint "user_id"
     t.index ["explainer_id", "project_media_id"], name: "index_explainer_items_on_explainer_id_and_project_media_id", unique: true
     t.index ["explainer_id"], name: "index_explainer_items_on_explainer_id"
     t.index ["project_media_id"], name: "index_explainer_items_on_project_media_id"
-    t.index ["user_id"], name: "index_explainer_items_on_user_id"
   end
 
   create_table "explainers", force: :cascade do |t|
@@ -931,7 +929,6 @@ ActiveRecord::Schema.define(version: 2024_08_12_063317) do
   add_foreign_key "claim_descriptions", "users"
   add_foreign_key "explainer_items", "explainers"
   add_foreign_key "explainer_items", "project_medias"
-  add_foreign_key "explainer_items", "users"
   add_foreign_key "explainers", "teams"
   add_foreign_key "explainers", "users"
   add_foreign_key "fact_checks", "claim_descriptions"

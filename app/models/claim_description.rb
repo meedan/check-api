@@ -42,6 +42,10 @@ class ClaimDescription < ApplicationRecord
     ProjectMedia.find_by_id(self.project_media_id_before_last_save)
   end
 
+  def version_metadata(_changes)
+    { fact_check: self.fact_check&.title }.to_json
+  end
+
   private
 
   def set_team
