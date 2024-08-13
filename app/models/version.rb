@@ -148,6 +148,8 @@ class Version < Partitioned::ByForeignKey
       ['ProjectMedia', self.item.project_media_id]
     when 'create_factcheck'
       ['ProjectMedia', self.item.claim_description.project_media_id]
+    when 'create_explaineritem', 'destroy_explaineritem'
+      ['ProjectMedia', self.item.project_media_id]
     end
   end
 

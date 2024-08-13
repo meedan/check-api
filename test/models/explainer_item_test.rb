@@ -54,6 +54,27 @@ class ExplainerItemTest < ActiveSupport::TestCase
     assert_not ExplainerItem.new(project_media: pm2, explainer: e1).valid?
   end
 
+  test "should have versions" do
+    with_versioning do
+      u = create_user
+      t = create_team
+      create_team_user team: t, user: u, role: 'admin'
+      e = create_explainer team: t
+      pm = create_project_media team: t
+      with_current_user_and_team(u, t) do
+        assert_difference 'PaperTrail::Version.count', 1 do
+          pm.explainers << e
+        end
+        ei = ExplainerItem.where(project_media_id: pm.id, explainer_id: e.id).last
+        assert_equal u.id, ei.user_id
+        assert_equal 1, ei.versions.count
+        assert_difference 'PaperTrail::Version.count', 1 do
+          ei.destroy
+        end
+      end
+    end
+  end
+
   test "should have permission to create explainer item" do
     t1 = create_team
     u1 = create_user
