@@ -255,7 +255,7 @@ module ProjectMediaCreators
         claim_description: cd,
         report_status: (fact_check['publish_report'] ? 'published' : 'unpublished'),
         rating: self.set_status,
-        tags: self.set_tags,
+        tags: self.set_tags.to_a.map(&:strip),
         skip_check_ability: true
       })
     end
@@ -263,6 +263,6 @@ module ProjectMediaCreators
   end
 
   def create_tags
-    self.set_tags.each { |tag| Tag.create!(annotated: self, tag: tag, skip_check_ability: true) } if self.set_tags.is_a?(Array)
+    self.set_tags.each { |tag| Tag.create!(annotated: self, tag: tag.strip, skip_check_ability: true) } if self.set_tags.is_a?(Array)
   end
 end

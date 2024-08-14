@@ -611,6 +611,7 @@ class GraphqlController12Test < ActionController::TestCase
   end
 
   test "should treat ' tag' and 'tag' as the same tag, and not try to create a new tag" do
+    Sidekiq::Testing.inline!
     t = create_team
     a = ApiKey.create!
     b = create_bot_user api_key_id: a.id
@@ -622,7 +623,7 @@ class GraphqlController12Test < ActionController::TestCase
               createProjectMedia(input: {
                 project_id: ' + p.id.to_s + ',
                 media_type: "Blank",
-                channel: {main: 1},
+                channel: { main: 1 },
                 set_tags: ["science"],
                 set_status: "verified",
                 set_claim_description: "Claim #1.",
@@ -647,13 +648,14 @@ class GraphqlController12Test < ActionController::TestCase
     post :create, params: { query: query1, team: t.slug }
     assert_response :success
     assert_equal 'science', JSON.parse(@response.body)['data']['createProjectMedia']['project_media']['tags']['edges'][0]['node']['tag_text']
+    sleep 1
 
     query2 = ' mutation create {
       createProjectMedia(input: {
         project_id: ' + p.id.to_s + ',
         media_type: "Blank",
-        channel: {main: 1},
-        set_tags: [" science"],
+        channel: { main: 1 },
+        set_tags: ["science "],
         set_status: "verified",
         set_claim_description: "Claim #2.",
         set_fact_check: {
