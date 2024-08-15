@@ -1,6 +1,8 @@
 class FactCheck < ApplicationRecord
   include Article
 
+  has_paper_trail on: [:create, :update], ignore: [:updated_at, :created_at, :rating, :report_status], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
+
   enum report_status: { unpublished: 0, published: 1, paused: 2 }
 
   attr_accessor :skip_report_update, :publish_report

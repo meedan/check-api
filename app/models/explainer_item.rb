@@ -1,10 +1,16 @@
 # Join model
 class ExplainerItem < ApplicationRecord
+  has_paper_trail on: [:create, :destroy], ignore: [:updated_at, :created_at], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
+
   belongs_to :explainer
   belongs_to :project_media
 
   validates_presence_of :explainer, :project_media
   validate :same_team
+
+  def version_metadata(_changes)
+    { explainer_title: self.explainer.title }.to_json
+  end
 
   private
 

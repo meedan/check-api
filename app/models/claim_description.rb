@@ -1,6 +1,8 @@
 class ClaimDescription < ApplicationRecord
   include Article
 
+  has_paper_trail on: [:create, :update], ignore: [:updated_at, :created_at], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
+
   before_validation :set_team, on: :create
   belongs_to :project_media, optional: true
   belongs_to :team
@@ -13,6 +15,7 @@ class ClaimDescription < ApplicationRecord
   after_commit :update_fact_check, on: [:update]
   after_update :update_report_status
   after_update :replace_media
+  after_update :migrate_claim_and_fact_check_logs, if: proc { |cd| cd.saved_change_to_project_media_id? && !cd.project_media_id.nil? }
 
   # To avoid GraphQL conflict with name `context`
   alias_attribute :claim_context, :context
@@ -40,6 +43,10 @@ class ClaimDescription < ApplicationRecord
 
   def project_media_was
     ProjectMedia.find_by_id(self.project_media_id_before_last_save)
+  end
+
+  def version_metadata(_changes)
+    { fact_check: self.fact_check&.title }.to_json
   end
 
   private
@@ -87,6 +94,23 @@ class ClaimDescription < ApplicationRecord
       old_pm = ProjectMedia.find(self.project_media_id_before_last_save)
       new_pm = self.project_media
       old_pm.replace_by(new_pm)
+    end
+  end
+
+  def migrate_claim_and_fact_check_logs
+    # Migrate ClaimDescription logs
+    cd_versions = Version.from_partition(self.team_id).where(item_type: 'ClaimDescription', item_id: self.id)
+    # Exclude the one related to add/remove based on object_changes field.
+    cd_versions = cd_versions.reject do |v|
+      oc = begin JSON.parse(v.object_changes) rescue {} end
+      oc.length == 1 && oc.keys.include?('project_media_id')
+    end
+    Version.from_partition(self.team_id).where(id: cd_versions.map(&:id)).update_all(associated_id: self.project_media_id)
+    fc_id = self.fact_check&.id
+    unless fc_id.nil?
+      # Migrate FactCheck logs and exclude create event
+      Version.from_partition(self.team_id).where(item_type: 'FactCheck', item_id: fc_id)
+      .where.not(event: 'create').update_all(associated_id: self.project_media_id)
     end
   end
 end

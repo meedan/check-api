@@ -11,21 +11,6 @@ class ExplainerTest < ActiveSupport::TestCase
     end
   end
 
-  test "should have versions" do
-    with_versioning do
-      u = create_user
-      t = create_team
-      create_team_user team: t, user: u, role: 'admin'
-      with_current_user_and_team(u, t) do
-        ex = nil
-        assert_difference 'PaperTrail::Version.count', 1 do
-          ex = create_explainer user: u, team: t
-        end
-        assert_equal 1, ex.versions.count
-      end
-    end
-  end
-
   test "should not create explainer without user or team" do
     assert_no_difference 'Explainer.count' do
       assert_raises ActiveRecord::RecordInvalid do

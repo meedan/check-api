@@ -10,7 +10,7 @@ class Explainer < ApplicationRecord
   belongs_to :team
 
   has_annotations
-  has_many :explainer_items
+  has_many :explainer_items, dependent: :destroy
   has_many :project_medias, through: :explainer_items
 
   before_validation :set_team
