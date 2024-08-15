@@ -70,13 +70,13 @@ module Article
 
   module ClassMethods
     def create_tag_texts_if_needed(team_id, tags)
-      tags.each do |tag|
+      tags.to_a.map(&:strip).each do |tag|
         next if TagText.where(text: tag, team_id: team_id).exists?
         tag_text = TagText.new
         tag_text.text = tag
         tag_text.team_id = team_id
         tag_text.skip_check_ability = true
-        tag_text.save!
+        tag_text.save
       end
     end
 
