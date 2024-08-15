@@ -98,10 +98,19 @@ class ClaimDescription < ApplicationRecord
   end
 
   def migrate_claim_and_fact_check_logs
-    Version.from_partition(self.team_id).where(item_type: 'ClaimDescription', item_id: self.id).update_all(associated_id: self.project_media_id)
+    # Migrate ClaimDescription logs
+    cd_versions = Version.from_partition(self.team_id).where(item_type: 'ClaimDescription', item_id: self.id)
+    # Exclude the one related to add/remove based on object_changes field.
+    cd_versions = cd_versions.reject do |v|
+      oc = begin JSON.parse(v.object_changes) rescue {} end
+      oc.length == 1 && oc.keys.include?('project_media_id')
+    end
+    Version.from_partition(self.team_id).where(id: cd_versions.map(&:id)).update_all(associated_id: self.project_media_id)
     fc_id = self.fact_check&.id
     unless fc_id.nil?
-      Version.from_partition(self.team_id).where(item_type: 'FactCheck', item_id: fc_id).update_all(associated_id: self.project_media_id)
+      # Migrate FactCheck logs and exclude create event
+      Version.from_partition(self.team_id).where(item_type: 'FactCheck', item_id: fc_id)
+      .where.not(event: 'create').update_all(associated_id: self.project_media_id)
     end
   end
 end

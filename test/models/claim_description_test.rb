@@ -44,10 +44,10 @@ class ClaimDescriptionTest < ActiveSupport::TestCase
         assert_equal 2, fc.versions.count
         # Old item logs
         v_count = Version.from_partition(t.id).where(associated_type: 'ProjectMedia', associated_id: pm.id, item_type: ['ClaimDescription', 'FactCheck']).count
-        assert_equal 0, v_count
+        assert_equal 2, v_count
         # New item logs
         v_count = Version.from_partition(t.id).where(associated_type: 'ProjectMedia', associated_id: pm2.id, item_type: ['ClaimDescription', 'FactCheck']).count
-        assert_equal 6, v_count
+        assert_equal 4, v_count
       end
     end
   end
