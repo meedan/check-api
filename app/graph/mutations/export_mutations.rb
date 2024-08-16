@@ -5,7 +5,19 @@ module ExportMutations
     field :success, GraphQL::Types::Boolean, null: true
 
     def resolve(query:)
-      { success: false }
+      ability = context[:ability]
+      team = Team.find_if_can(Team.current.id, ability)
+      if ability.cannot?(:export_list, team)
+        { success: false }
+      else
+        search = CheckSearch.new(query, nil, team.id)
+        if search.number_of_results > CheckConfig.get(:export_csv_maximum_number_of_results, 10000, :integer)
+          { success: false }
+        else
+          search.export_to_csv
+          { success: true }
+        end
+      end
     end
   end
 end

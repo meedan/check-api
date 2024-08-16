@@ -3,6 +3,7 @@
 
 class CheckConfig
   def self.get(key, default = nil, type = nil)
+    key = key.to_s
     value = ENV[key]
     value ||= CONFIG[key] if CONFIG.has_key?(key)
     return default if value.nil?

@@ -159,4 +159,42 @@ class GraphqlController11Test < ActionController::TestCase
     assert_equal team1.id, data[0]['node']['dbid']
     assert_equal 1, response['accessible_teams_count']
   end
+
+  test "should export list if it's a workspace admin and number of results is not over the limit" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'admin'
+    authenticate_with_user(u)
+
+    query = "mutation { exportList(input: { query: \"{}\" }) { success } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert JSON.parse(@response.body)['data']['exportList']['success']
+  end
+
+  test "should not export list if it's not a workspace admin" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'editor'
+    authenticate_with_user(u)
+
+    query = "mutation { exportList(input: { query: \"{}\" }) { success } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert !JSON.parse(@response.body)['data']['exportList']['success']
+  end
+
+  test "should not export list if it's over the limit" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'admin'
+    authenticate_with_user(u)
+
+    stub_configs({ 'export_csv_maximum_number_of_results' => -1 }) do 
+      query = "mutation { exportList(input: { query: \"{}\" }) { success } }"
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      assert !JSON.parse(@response.body)['data']['exportList']['success']
+    end
+  end
 end

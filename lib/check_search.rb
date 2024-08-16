@@ -329,6 +329,10 @@ class CheckSearch
     @options['es_id'] ? $repository.find([@options['es_id']]).compact : $repository.search(query: query, collapse: collapse, sort: sort, size: @options['eslimit'], from: @options['esoffset']).results
   end
 
+  def export_to_csv
+    # TODO
+  end
+
   private
 
   def adjust_es_window_size
