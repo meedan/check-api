@@ -158,6 +158,8 @@ module AlegreV2
           return Rails.cache.read("url_sha:#{project_media.url}")
         elsif !project_media.is_text?
           return project_media.media.file.filename.split(".").first
+        else
+          return Digest::MD5.hexdigest(project_media.send(field).to_s)
         end
       end
     end
@@ -176,6 +178,26 @@ module AlegreV2
       ).merge(
         quiet: quiet
       ).merge(params)
+    end
+
+    def generic_package_text(project_media, field, params, fuzzy=false, match_across_content_types=true)
+      package = generic_package(project_media, field).merge(
+        params
+      ).merge(
+        models: self.indexing_models_to_use(project_media),
+        text: project_media.send(field),
+        fuzzy: fuzzy == 'true' || fuzzy.to_i == 1,
+        match_across_content_types: match_across_content_types,
+      )
+      team_id = project_media.team_id
+      language = self.language_for_similarity(team_id)
+      package[:language] = language if !language.nil?
+      package[:min_es_score] = self.get_min_es_score(team_id)
+      package
+    end
+
+    def delete_package_text(project_media, field, params)
+      generic_package_text(project_media, field, params)
     end
 
     def generic_package_media(project_media, params)
@@ -239,6 +261,10 @@ module AlegreV2
 
     def store_package_audio(project_media, _field, params)
       generic_package_audio(project_media, params)
+    end
+
+    def store_package_text(project_media, field, params)
+      generic_package_text(project_media, field, params)
     end
 
     def get_sync(project_media, field=nil, params={})
