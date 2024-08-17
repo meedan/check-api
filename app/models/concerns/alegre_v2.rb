@@ -160,7 +160,7 @@ module AlegreV2
     end
 
     def content_hash_for_value(value)
-      Digest::MD5.hexdigest(value)
+      value.nil? ? nil : Digest::MD5.hexdigest(value)
     end
 
     def content_hash(project_media, field)
@@ -180,11 +180,13 @@ module AlegreV2
     end
 
     def generic_package(project_media, field)
-      {
-        content_hash: content_hash(project_media, field),
+      content_hash_value = content_hash(project_media, field)
+      params = {
         doc_id: item_doc_id(project_media, field),
         context: get_context(project_media, field)
       }
+      params[:content_hash] = content_hash_value if !content_hash_value.nil?
+      params
     end
 
     def delete_package(project_media, field, params={}, quiet=false)
