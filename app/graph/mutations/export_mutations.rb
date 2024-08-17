@@ -14,7 +14,7 @@ module ExportMutations
         if search.number_of_results > CheckConfig.get(:export_csv_maximum_number_of_results, 10000, :integer)
           { success: false }
         else
-          search.export_to_csv
+          CheckSearch.delay.export_to_csv(query, team.id)
           { success: true }
         end
       end
