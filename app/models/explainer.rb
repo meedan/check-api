@@ -63,24 +63,26 @@ class Explainer < ApplicationRecord
 
     # Index title
     params = {
+      content_hash: Bot::Alegre.content_hash_for_value(explainer.title),
       doc_id: Digest::MD5.hexdigest(['explainer', explainer.id, 'title'].join(':')),
+      context: base_context.merge({ field: 'title' }),
       text: explainer.title,
       models: ALEGRE_MODELS_AND_THRESHOLDS.keys,
-      context: base_context.merge({ field: 'title' })
     }
-    Bot::Alegre.request('post', '/text/similarity/', params)
+    Bot::Alegre.get_async_raw_params(params, "text")
 
     # Index paragraphs
     count = 0
     explainer.description.to_s.gsub(/\r\n?/, "\n").split(/\n+/).reject{ |paragraph| paragraph.strip.blank? }.each do |paragraph|
       count += 1
       params = {
+        content_hash: Bot::Alegre.content_hash_for_value(paragraph.strip),
         doc_id: Digest::MD5.hexdigest(['explainer', explainer.id, 'paragraph', count].join(':')),
+        context: base_context.merge({ paragraph: count }),
         text: paragraph.strip,
         models: ALEGRE_MODELS_AND_THRESHOLDS.keys,
-        context: base_context.merge({ paragraph: count })
       }
-      Bot::Alegre.request('post', '/text/similarity/', params)
+      Bot::Alegre.get_async_raw_params(params, "text")
     end
 
     # Remove paragraphs that don't exist anymore (we delete after updating in order to avoid race conditions)
@@ -91,7 +93,7 @@ class Explainer < ApplicationRecord
         quiet: true,
         context: base_context.merge({ paragraph: count })
       }
-      Bot::Alegre.request('delete', '/text/similarity/', params)
+      Bot::Alegre.request_delete_from_raw(params, type)
     end
   end
 
@@ -106,7 +108,7 @@ class Explainer < ApplicationRecord
         language: language
       }
     }
-    response = Bot::Alegre.request('post', '/text/similarity/search/', params)
+    Bot::Alegre.get_async_raw_params(params, "text")
     results = response['result'].to_a.sort_by{ |result| result['_score'] }
     explainer_ids = results.collect{ |result| result.dig('_source', 'context', 'explainer_id').to_i }.uniq.first(3)
     explainer_ids.empty? ? Explainer.none : Explainer.where(team_id: team_id, id: explainer_ids)
