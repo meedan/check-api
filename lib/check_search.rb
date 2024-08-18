@@ -338,7 +338,7 @@ class CheckSearch
     search = CheckSearch.new(query, nil, team_id)
 
     # Prepare the export
-    csv_file_path = File.join(Rails.root, 'tmp', "items-export-#{team.slug}-#{Time.now.to_i}-#{Digest::MD5.hexdigest(query)}.csv")
+    csv_file_path = File.join(Rails.root, 'tmp', "items-export-#{Time.now.to_i}-#{Digest::MD5.hexdigest(query)}.csv")
     csv = File.open(csv_file_path, 'w+')
     header = ['Claim', 'Item page URL', 'Status', 'Created by', 'Submitted at', 'Published at', 'Number of media', 'Tags']
     fields = team.team_tasks.sort
