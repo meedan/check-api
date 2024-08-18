@@ -21,7 +21,7 @@ module ProjectMediaAssociations
     has_one :claim_description, dependent: :destroy
     belongs_to :source, optional: true
     has_many :tipline_requests, as: :associated
-    has_many :explainer_items
+    has_many :explainer_items, dependent: :destroy
     has_many :explainers, through: :explainer_items
     has_annotations
   end

@@ -110,4 +110,14 @@ class ExplainerTest < ActiveSupport::TestCase
     ex.description = 'Now this is the only paragraph'
     ex.save!
   end
+
+  test "should destroy explainer items when project media is destroyed" do
+    t = create_team
+    ex = create_explainer team: t
+    pm = create_project_media team: t
+    pm.explainers << ex
+    assert_difference 'ExplainerItem.count', -1 do
+      pm.destroy!
+    end
+  end
 end
