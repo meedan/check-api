@@ -100,12 +100,12 @@ class ExplainerTest < ActiveSupport::TestCase
 
     # Index two paragraphs and title when the explainer is created
     Bot::Alegre.stubs(:request).with('post', '/similarity/async/text', anything).times(3)
-    Bot::Alegre.stubs(:request).with('delete', '/similarity/async/text', anything).never
+    Bot::Alegre.stubs(:request).with('delete', '/text/similarity/', anything).never
     ex = create_explainer description: description
 
     # Update the index when paragraphs change
     Bot::Alegre.stubs(:request).with('post', '/similarity/async/text', anything).times(2)
-    Bot::Alegre.stubs(:request).with('delete', '/similarity/async/text', anything).once
+    Bot::Alegre.stubs(:request).with('delete', '/text/similarity/', anything).once
     ex = Explainer.find(ex.id)
     ex.description = 'Now this is the only paragraph'
     ex.save!
