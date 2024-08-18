@@ -69,7 +69,7 @@ class Explainer < ApplicationRecord
       text: explainer.title,
       models: ALEGRE_MODELS_AND_THRESHOLDS.keys,
     }
-    Bot::Alegre.get_async_raw_params(params, "text")
+    Bot::Alegre.get_sync_raw_params(params, "text")
 
     # Index paragraphs
     count = 0
@@ -82,7 +82,7 @@ class Explainer < ApplicationRecord
         text: paragraph.strip,
         models: ALEGRE_MODELS_AND_THRESHOLDS.keys,
       }
-      Bot::Alegre.get_async_raw_params(params, "text")
+      Bot::Alegre.get_sync_raw_params(params, "text")
     end
 
     # Remove paragraphs that don't exist anymore (we delete after updating in order to avoid race conditions)
@@ -108,7 +108,7 @@ class Explainer < ApplicationRecord
         language: language
       }
     }
-    Bot::Alegre.get_async_raw_params(params, "text")
+    response = Bot::Alegre.get_sync_raw_params(params, "text")
     results = response['result'].to_a.sort_by{ |result| result['_score'] }
     explainer_ids = results.collect{ |result| result.dig('_source', 'context', 'explainer_id').to_i }.uniq.first(3)
     explainer_ids.empty? ? Explainer.none : Explainer.where(team_id: team_id, id: explainer_ids)
