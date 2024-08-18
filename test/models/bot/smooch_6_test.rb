@@ -693,7 +693,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     pm = create_project_media team: @team
     publish_report(pm, {}, nil, { language: 'pt', use_visual_card: false })
     Bot::Smooch.stubs(:get_search_results).returns([pm])
-    WebMock.stub_request(:post, /\/similarity\/sync\/text/).to_return(body: {}.to_json) # For explainers
+    WebMock.stub_request(:post, /\/text\/similarity\/search/).to_return(body: {}.to_json) # For explainers
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar', '1'
     end
