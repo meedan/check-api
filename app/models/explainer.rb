@@ -93,7 +93,7 @@ class Explainer < ApplicationRecord
         quiet: true,
         context: base_context.merge({ paragraph: count })
       }
-      Bot::Alegre.request_delete_from_raw(params, type)
+      Bot::Alegre.request_delete_from_raw(params, "text")
     end
   end
 
