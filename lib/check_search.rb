@@ -338,16 +338,17 @@ class CheckSearch
     search = CheckSearch.new(query, nil, team_id)
 
     # Prepare the export
-    csv_file_path = File.join(Rails.root, 'tmp', "items-export-#{Time.now.to_i}-#{Digest::MD5.hexdigest(query)}.csv")
-    csv = File.open(csv_file_path, 'w+')
+    data = []
     header = ['Claim', 'Item page URL', 'Status', 'Created by', 'Submitted at', 'Published at', 'Number of media', 'Tags']
     fields = team.team_tasks.sort
     fields.each { |tt| header << tt.label }
-    csv.puts(header.collect{ |x| '"' + x.to_s.gsub('"', '') + '"' }.join(','))
+    data << header
 
     # No pagination for the export
     search.set_option('esoffset', 0)
     search.set_option('eslimit', CheckConfig.get(:export_csv_maximum_number_of_results, 10000, :integer))
+
+    # Iterate through each result and generate an output row for the CSV
     search.medias.find_each do |pm|
       row = [
         pm.claim_description&.description,
@@ -366,11 +367,18 @@ class CheckSearch
         answer = begin JSON.parse(answer).collect{ |x| x['url'] }.join(', ') rescue answer end
         row << answer
       end
-      csv.puts(row.collect{ |x| '"' + x.to_s.gsub('"', '') + '"' }.join(','))
+      data << row
     end
 
-    csv.close
-    csv_file_path
+    # Convert to CSV
+    csv_string = CSV.generate do |csv|
+      data.each do |row|
+        csv << row
+      end
+    end
+
+    # Save to S3
+    CheckS3.write_presigned("export/item/#{team.slug}/#{Time.now.to_i}/#{Digest::MD5.hexdigest(query)}.csv", 'text/csv', csv_string)
   end
 
   private

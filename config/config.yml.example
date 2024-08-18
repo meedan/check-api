@@ -262,7 +262,7 @@ development: &default
   otel_traces_sampler:
   otel_custom_sampling_rate:
 
-  # Rate limits for tiplines
+  # Limits
   #
   # OPTIONAL
   # When not set, default values are used.
@@ -274,9 +274,16 @@ development: &default
   devise_unlock_accounts_after: 1
   login_rate_limit: 10
   api_rate_limit: 100
+  export_csv_maximum_number_of_results: 10000
+  export_csv_expire: 604800 # Seconds: Default is 7 days
+
+  # Session
+  #
+  # OPTIONAL
+  # When not set, default values are used.
+  #
   session_store_key: '_checkdesk_session_dev'
   session_store_domain: 'localhost'
-  export_csv_maximum_number_of_results: 10000
 test:
   <<: *default
   checkdesk_base_url_private: http://api:3000
