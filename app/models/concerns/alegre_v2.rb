@@ -1,7 +1,7 @@
 require 'active_support/concern'
 class AlegreTimeoutError < StandardError; end
 class TemporaryProjectMedia
-  attr_accessor :team_id, :id, :url, :type
+  attr_accessor :team_id, :id, :url, :text, :type
   def media
     media_type_map = {
       "claim" => "Claim",
@@ -55,11 +55,18 @@ module AlegreV2
     end
 
     def async_path(project_media)
-      "/similarity/async/#{get_type(project_media)}"
+      self.async_path_for_type(get_type(project_media))
+    end
+
+    def async_path_for_type(type)
+      "/similarity/async/#{type}"
     end
 
     def delete_path(project_media)
-      type = get_type(project_media)
+      self.delete_path_for_type(get_type(project_media))
+    end
+
+    def delete_path_for_type(type)
       "/#{type}/similarity/"
     end
 
@@ -122,6 +129,10 @@ module AlegreV2
       end
     end
 
+    def request_delete_from_raw(params, type)
+      request("delete", delete_path_for_type(type), params)
+    end
+
     def request_delete(data, project_media)
       request("delete", delete_path(project_media), data)
     end
@@ -148,18 +159,22 @@ module AlegreV2
       type
     end
 
+    def content_hash_for_value(value)
+      Digest::MD5.hexdigest(value)
+    end
+
     def content_hash(project_media, field)
       if Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.include?(field)
-        Digest::MD5.hexdigest(project_media.send(field))
+        content_hash_for_value(project_media.send(field))
       else
         if project_media.is_link?
-          return Digest::MD5.hexdigest(project_media.media.url)
+          return content_hash_for_value(project_media.media.url)
         elsif project_media.is_a?(TemporaryProjectMedia)
           return Rails.cache.read("url_sha:#{project_media.url}")
         elsif !project_media.is_text?
           return project_media.media.file.filename.split(".").first
         else
-          return Digest::MD5.hexdigest(project_media.send(field).to_s)
+          return content_hash_for_value(project_media.send(field).to_s)
         end
       end
     end
@@ -265,6 +280,14 @@ module AlegreV2
 
     def store_package_text(project_media, field, params)
       generic_package_text(project_media, field, params)
+    end
+
+    def get_sync_raw_params(params, type)
+      request("post", sync_path_for_type(type), params)
+    end
+
+    def get_async_raw_params(params, type)
+      request("post", async_path_for_type(type), params)
     end
 
     def get_sync(project_media, field=nil, params={})
