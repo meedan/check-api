@@ -90,7 +90,7 @@ class ExplainerTest < ActiveSupport::TestCase
     end
   end
 
-  test "should index explainer information zzz" do
+  test "should index explainer information" do
     Sidekiq::Testing.inline!
     description = %{
       The is the first paragraph.
