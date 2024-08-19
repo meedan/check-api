@@ -284,6 +284,10 @@ module AlegreV2
       generic_package_text(project_media, field, params)
     end
 
+    def index_async_with_params(params, type, suppress_response=true)
+      request("post", async_path_for_type(type), params.merge(suppress_response: suppress_response))
+    end
+
     def get_sync_with_params(params, type)
       request("post", sync_path_for_type(type), params)
     end
