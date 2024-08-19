@@ -84,7 +84,7 @@ module Article
       obj = self.find_by_id(id)
       return if obj.project_media.nil?
       obj.text_fields.each do |field|
-        ::Bot::Alegre.relate_project_media_async(obj.project_media, field)
+        ::Bot::Alegre.send_field_to_similarity_index(obj.project_media, field)
       end unless obj.nil?
     end
   end

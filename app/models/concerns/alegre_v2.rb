@@ -284,11 +284,11 @@ module AlegreV2
       generic_package_text(project_media, field, params)
     end
 
-    def get_sync_raw_params(params, type)
+    def get_sync_with_params(params, type)
       request("post", sync_path_for_type(type), params)
     end
 
-    def get_async_raw_params(params, type)
+    def get_async_with_params(params, type)
       request("post", async_path_for_type(type), params)
     end
 
