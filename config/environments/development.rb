@@ -83,4 +83,11 @@ Rails.application.configure do
   else
     puts '[WARNING] config.hosts not provided. Only requests from localhost are allowed. To change, update `whitelisted_hosts` in config.yml'
   end
+
+  if ENV['smtp_use_mailcatcher'] || cfg['smtp_use_mailcatcher']
+    config.action_mailer.smtp_settings = {
+      address: '127.0.0.1',
+      port: 1025
+    }
+  end
 end

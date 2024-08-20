@@ -160,6 +160,7 @@ development: &default
   smtp_user: # '<GMAIL USERNAME>'
   smtp_pass: # '<GMAIL PASSWORD>'
   smtp_default_url_host: 'http://localhost:3333' # Used to construct URLs for links in email
+  smtp_use_mailcatcher: false
 
   # Pusher notification service https://pusher.com/channels
   #
