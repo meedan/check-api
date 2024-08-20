@@ -243,7 +243,7 @@ GEM
     encryptor (3.0.0)
     equalizer (0.0.11)
     erubi (1.12.0)
-    et-orbi (1.2.7)
+    et-orbi (1.2.11)
       tzinfo
     ethon (0.16.0)
       ffi (>= 1.15.0)
@@ -302,8 +302,8 @@ GEM
       fog-core
       nokogiri (>= 1.5.11, < 2.0.0)
     formatador (1.1.0)
-    fugit (1.5.2)
-      et-orbi (~> 1.1, >= 1.1.8)
+    fugit (1.11.1)
+      et-orbi (~> 1, >= 1.2.11)
       raabro (~> 1.4)
     fx (0.8.0)
       activerecord (>= 6.0.0)
