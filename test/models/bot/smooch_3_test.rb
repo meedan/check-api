@@ -558,9 +558,11 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       'Segurança das urna',
       'Seguranca das urnas'
     ].each do |query|
+      Rails.cache.clear
       assert_equal [pm1.id], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id]).to_a.map(&:id)
     end
 
+    Rails.cache.clear
     assert_equal [], Bot::Smooch.search_for_similar_published_fact_checks('text', 'Segurando', [t.id]).to_a.map(&:id)
   end
   

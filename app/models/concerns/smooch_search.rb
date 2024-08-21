@@ -142,7 +142,12 @@ module SmoochSearch
     end
 
     def normalized_query_hash(type, query, team_ids, after, feed_id, language)
-      normalized_query = query.downcase.chomp.strip unless query.nil?
+      normalized_query = nil
+      if RequestStore.store[:smooch_bot_provider] == 'CAPI'
+        normalized_query = query.to_s.downcase.chomp.strip.truncate(4096)
+      elsif RequestStore.store[:smooch_bot_provider] == 'SMOOCH'
+        normalized_query = query.to_s.downcase.chomp.strip.truncate(1024)
+      end
       Digest::MD5.hexdigest([type.to_s, normalized_query, [team_ids].flatten.join(','), after.to_s, feed_id.to_i, language.to_s].join(':'))
     end
 

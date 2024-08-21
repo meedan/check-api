@@ -69,15 +69,19 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     with_current_user_and_team(u, t1) do
 
       # Keyword search
+      Rails.cache.clear
       assert_equal [pm1a, pm1f, pm2a].sort, Bot::Smooch.search_for_similar_published_fact_checks('text', 'Test', [t1.id, t2.id, t3.id, t4.id], nil, f1.id).to_a.sort
 
       # Text similarity search
+      Rails.cache.clear
       assert_equal [pm1a, pm1d, pm2a], Bot::Smooch.search_for_similar_published_fact_checks('text', 'This is a test', [t1.id, t2.id, t3.id, t4.id], nil, f1.id).to_a
 
       # Media similarity search
+      Rails.cache.clear
       assert_equal [pm1a, pm1d, pm2a], Bot::Smooch.search_for_similar_published_fact_checks('image', random_url, [t1.id, t2.id, t3.id, t4.id], nil, f1.id).to_a
 
       # URL search
+      Rails.cache.clear
       assert_equal [pm1g, pm2b].sort, Bot::Smooch.search_for_similar_published_fact_checks('text', "Test with URL: #{url}", [t1.id, t2.id, t3.id, t4.id], nil, f1.id).to_a.sort
     end
 
