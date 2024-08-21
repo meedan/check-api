@@ -132,10 +132,10 @@ class GraphqlController11Test < ActionController::TestCase
     post :create, params: { query: query }
     assert_response :success
     response = JSON.parse(@response.body)['data']['me']
-    data = response['accessible_teams']['edges']
+    data = response['accessible_teams']['edges'].collect{ |edge| edge['node']['dbid'] }.sort
     assert_equal 2, data.size
-    assert_equal team1.id, data[0]['node']['dbid']
-    assert_equal team2.id, data[1]['node']['dbid']
+    assert_equal team1.id, data[0]
+    assert_equal team2.id, data[1]
     assert_equal 2, response['accessible_teams_count']
   end
 
