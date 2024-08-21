@@ -671,11 +671,9 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
 
     uid = random_string
     query = Bot::Smooch.get_search_query(uid, {})
-    Rails.cache.clear
     assert_equal [pm2], Bot::Smooch.get_search_results(uid, query, t.id, 'en')
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => "Test #{url}" })
     query = Bot::Smooch.get_search_query(uid, {})
-    Rails.cache.clear
     assert_equal [pm1], Bot::Smooch.get_search_results(uid, query, t.id, 'en')
 
     ProjectMedia.any_instance.unstub(:report_status)
