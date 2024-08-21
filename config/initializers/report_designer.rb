@@ -50,9 +50,11 @@ Dynamic.class_eval do
       if fc.nil?
         FactCheck.create({ claim_description: pm.claim_description }.merge(fields))
       else
-        fields.each { |field, value| fc.send("#{field}=", value) }
-        fc.skip_check_ability = true
-        fc.save!
+        PaperTrail.request(enabled: false) do
+          fields.each { |field, value| fc.send("#{field}=", value) }
+          fc.skip_check_ability = true
+          fc.save!
+        end
       end
     end
 
@@ -66,16 +68,18 @@ Dynamic.class_eval do
       # Update report fields
       fc = pm&.claim_description&.fact_check
       unless fc.nil?
-        state = self.data['state']
-        fields = {
-          skip_report_update: true,
-          publisher_id: nil,
-          report_status: state,
-          rating: pm.status
-        }
-        fields.each { |field, value| fc.send("#{field}=", value) }
-        fc.skip_check_ability = true
-        fc.save!
+        PaperTrail.request(enabled: false) do
+          state = self.data['state']
+          fields = {
+            skip_report_update: true,
+            publisher_id: nil,
+            report_status: state,
+            rating: pm.status
+          }
+          fields.each { |field, value| fc.send("#{field}=", value) }
+          fc.skip_check_ability = true
+          fc.save!
+        end
       end
     end
   end
