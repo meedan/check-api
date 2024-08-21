@@ -389,7 +389,6 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
       'ward', #Fuzzy match (non-emoji)
       '🤣 ward', #Fuzzy match (non-emoji)
     ].each do |query|
-      Rails.cache.clear
       assert_equal [pm.id], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id]).to_a.map(&:id)
     end
 
@@ -398,7 +397,6 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
       '🌞', #No match
       '🤣 🌞' #No match (we only perform AND)
     ].each do |query|
-      Rails.cache.clear
       assert_equal [], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id]).to_a.map(&:id)
     end
   end
