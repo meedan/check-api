@@ -192,6 +192,8 @@ namespace :check do
             Cluster.transaction do
               # Create clusters
               mapping = {} # Media ID => Cluster ID
+              # Cluster to delete in case there is no center (project_media_id)
+              cluster_to_delete = []
               # Bulk-insert clusters
               c_inserted_items = []
               clusters.length.times.each_slice(2500) do |rows|
@@ -278,6 +280,7 @@ namespace :check do
                     updated_cluster_attributes[:title] = cluster_title
                     # Update cluster
                     if updated_cluster_attributes[:project_media_id].blank?
+                      cluster_to_delete << cluster.id
                       error_logs << {Cluster: "Failed to update Cluster with id #{cluster.id}"}
                     else
                       cluster_items[cluster.id] = updated_cluster_attributes
@@ -303,6 +306,8 @@ namespace :check do
                 end
                 search_after = [pm_ids.max]
               end
+              # Delete cluster with no project_media_id
+              Cluster.where(id: cluster_to_delete).delete_all
               Team.current = nil
             end
             puts "\nRebuilding clusters for feed #{feed.name} took #{Time.now.to_f - started_at} seconds."
