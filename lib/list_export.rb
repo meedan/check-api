@@ -32,6 +32,9 @@ class ListExport
 
     # Send to e-mail
     ExportListMailer.delay.send_csv(csv_file_url, user)
+
+    # Return path to CSV
+    csv_file_url
   end
 
   def self.generate_csv_and_send_email(export, user_id)

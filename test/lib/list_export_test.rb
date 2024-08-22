@@ -7,7 +7,7 @@ class CheckSearchTest < ActiveSupport::TestCase
   def teardown
   end
 
-  test "should export CSV and expire it" do
+  test "should export media CSV and expire it" do
     t = create_team
     create_team_task team_id: t.id, fieldset: 'tasks'
     pm1 = create_project_media team: t
@@ -16,7 +16,8 @@ class CheckSearchTest < ActiveSupport::TestCase
     stub_configs({ 'export_csv_expire' => 2 }) do
 
       # Generate a CSV with the two exported items
-      csv_url = CheckSearch.export_to_csv('{}', t.id)
+      export = ListExport.new(:media, '{}', t.id)
+      csv_url = export.generate_csv_and_send_email(create_user)
       response = Net::HTTP.get_response(URI(csv_url))
       assert_equal 200, response.code.to_i
       csv_content = CSV.parse(response.body, headers: true)
