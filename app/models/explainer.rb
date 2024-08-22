@@ -108,7 +108,7 @@ class Explainer < ApplicationRecord
         language: language
       }
     }
-    response = Bot::Alegre.index_async_with_params(params, "text")
+    response = Bot::Alegre.get_async_with_params(params, "text")
     results = response['result'].to_a.sort_by{ |result| result['_score'] }
     explainer_ids = results.collect{ |result| result.dig('_source', 'context', 'explainer_id').to_i }.uniq.first(3)
     explainer_ids.empty? ? Explainer.none : Explainer.where(team_id: team_id, id: explainer_ids)
