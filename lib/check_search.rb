@@ -333,7 +333,7 @@ class CheckSearch
     @options['es_id'] ? $repository.find([@options['es_id']]).compact : $repository.search(query: query, collapse: collapse, sort: sort, size: @options['eslimit'], from: @options['esoffset']).results
   end
 
-  def self.export_to_csv(query, team_id)
+  def self.get_exported_data(query, team_id)
     team = Team.find(team_id)
     search = CheckSearch.new(query, nil, team_id)
 
@@ -369,16 +369,7 @@ class CheckSearch
       end
       data << row
     end
-
-    # Convert to CSV
-    csv_string = CSV.generate do |csv|
-      data.each do |row|
-        csv << row
-      end
-    end
-
-    # Save to S3
-    CheckS3.write_presigned("export/item/#{team.slug}/#{Time.now.to_i}/#{Digest::MD5.hexdigest(query)}.csv", 'text/csv', csv_string)
+    data
   end
 
   private

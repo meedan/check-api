@@ -166,7 +166,7 @@ class GraphqlController11Test < ActionController::TestCase
     create_team_user team: t, user: u, role: 'admin'
     authenticate_with_user(u)
 
-    query = "mutation { exportList(input: { query: \"{}\" }) { success } }"
+    query = "mutation { exportList(input: { query: \"{}\", type: \"media\" }) { success } }"
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert JSON.parse(@response.body)['data']['exportList']['success']
@@ -178,7 +178,7 @@ class GraphqlController11Test < ActionController::TestCase
     create_team_user team: t, user: u, role: 'editor'
     authenticate_with_user(u)
 
-    query = "mutation { exportList(input: { query: \"{}\" }) { success } }"
+    query = "mutation { exportList(input: { query: \"{}\", type: \"media\" }) { success } }"
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert !JSON.parse(@response.body)['data']['exportList']['success']
@@ -191,7 +191,7 @@ class GraphqlController11Test < ActionController::TestCase
     authenticate_with_user(u)
 
     stub_configs({ 'export_csv_maximum_number_of_results' => -1 }) do 
-      query = "mutation { exportList(input: { query: \"{}\" }) { success } }"
+      query = "mutation { exportList(input: { query: \"{}\", type: \"media\" }) { success } }"
       post :create, params: { query: query, team: t.slug }
       assert_response :success
       assert !JSON.parse(@response.body)['data']['exportList']['success']

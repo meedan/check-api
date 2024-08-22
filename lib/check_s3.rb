@@ -66,12 +66,12 @@ class CheckS3
     client.delete_objects(bucket: CheckConfig.get('storage_bucket'), delete: { objects: objects })
   end
 
-  def self.write_presigned(path, content_type, content)
+  def self.write_presigned(path, content_type, content, expires_in)
     self.write(path, content_type, content)
     bucket = CheckConfig.get('storage_bucket')
     client = Aws::S3::Client.new
     s3 = Aws::S3::Resource.new(client: client)
     obj = s3.bucket(bucket).object(path)
-    obj.presigned_url(:get, expires_in: CheckConfig.get('export_csv_expire', 7.days.to_i, :integer))
+    obj.presigned_url(:get, expires_in: expires_in)
   end
 end

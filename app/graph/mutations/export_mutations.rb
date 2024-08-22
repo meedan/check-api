@@ -1,20 +1,21 @@
 module ExportMutations
   class ExportList < Mutations::BaseMutation
     argument :query, GraphQL::Types::String, required: true
+    argument :type, GraphQL::Types::String, required: true # 'media', 'feed' or 'article'
 
     field :success, GraphQL::Types::Boolean, null: true
 
-    def resolve(query:)
+    def resolve(query:, type:)
       ability = context[:ability]
       team = Team.find_if_can(Team.current.id, ability)
       if ability.cannot?(:export_list, team)
         { success: false }
       else
-        search = CheckSearch.new(query, nil, team.id)
-        if search.number_of_results > CheckConfig.get(:export_csv_maximum_number_of_results, 10000, :integer)
+        export = ListExport.new(type.to_sym, query, team.id)
+        if export.number_of_rows > CheckConfig.get(:export_csv_maximum_number_of_results, 10000, :integer)
           { success: false }
         else
-          CheckSearch.delay.export_to_csv(query, team.id)
+          export.generate_csv_and_send_email_in_background(User.current)
           { success: true }
         end
       end
