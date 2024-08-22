@@ -1,6 +1,6 @@
 require_relative '../test_helper'
 
-class CheckSearchTest < ActiveSupport::TestCase
+class ListExportTest < ActiveSupport::TestCase
   def setup
   end
 
