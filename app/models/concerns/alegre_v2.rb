@@ -166,16 +166,14 @@ module AlegreV2
     def content_hash(project_media, field)
       if Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.include?(field)
         content_hash_for_value(project_media.send(field))
+      elsif project_media.is_link?
+        return content_hash_for_value(project_media.media.url)
+      elsif project_media.is_a?(TemporaryProjectMedia)
+        return Rails.cache.read("url_sha:#{project_media.url}")
+      elsif !project_media.is_text?
+        return project_media.media.file.filename.split(".").first
       else
-        if project_media.is_link?
-          return content_hash_for_value(project_media.media.url)
-        elsif project_media.is_a?(TemporaryProjectMedia)
-          return Rails.cache.read("url_sha:#{project_media.url}")
-        elsif !project_media.is_text?
-          return project_media.media.file.filename.split(".").first
-        else
-          return content_hash_for_value(project_media.send(field).to_s)
-        end
+        return content_hash_for_value(project_media.send(field).to_s)
       end
     end
 
