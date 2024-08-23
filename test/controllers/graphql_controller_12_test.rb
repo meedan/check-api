@@ -332,7 +332,7 @@ class GraphqlController12Test < ActionController::TestCase
     create_cluster_project_media cluster: c, project_media: pm
 
     authenticate_with_user(@u)
-    query = 'query { feed(id: "' + f.id.to_s + '") { cluster(project_media_id: ' + pm.id.to_s + ') { dbid, project_media(id: ' + pm.id.to_s + ') { id, imported_from_feed { id } }, project_medias(teamId: ' + @t.id.to_s + ', first: 1) { edges { node { id } } }, cluster_teams(first: 10) { edges { node { id, team { name }, last_request_date, media_count, requests_count, fact_checks(first: 1) { edges { node { id } } } } } } } } }'
+    query = 'query { feed(id: "' + f.id.to_s + '") { cluster(project_media_id: ' + pm.id.to_s + ') { dbid, project_media(id: ' + pm.id.to_s + ') { id, articles_count, imported_from_feed { id } }, project_medias(teamId: ' + @t.id.to_s + ', first: 1) { edges { node { id } } }, cluster_teams(first: 10) { edges { node { id, team { name }, last_request_date, media_count, requests_count, fact_checks(first: 1) { edges { node { id } } } } } } } } }'
     post :create, params: { query: query }
     assert_response :success
     assert_equal c.id, JSON.parse(@response.body)['data']['feed']['cluster']['dbid']
@@ -345,8 +345,7 @@ class GraphqlController12Test < ActionController::TestCase
     pm2 = create_project_media team: t
     f = create_feed team: @t
     f.teams << t
-    c = create_cluster feed: f, team_ids: [t.id], project_media_id: pm1.id
-    create_cluster_project_media cluster: c, project_media: pm1
+    c = create_cluster feed: f, team_ids: [t.id], project_media: pm1
     create_cluster_project_media cluster: c, project_media: pm2
     assert_equal 0, @t.project_medias.count
 
@@ -365,8 +364,7 @@ class GraphqlController12Test < ActionController::TestCase
     pm2 = create_project_media team: t
     f = create_feed team: @t
     f.teams << t
-    c = create_cluster feed: f, team_ids: [t.id], project_media_id: pm1.id
-    create_cluster_project_media cluster: c, project_media: pm1
+    c = create_cluster feed: f, team_ids: [t.id], project_media: pm1
     create_cluster_project_media cluster: c, project_media: pm2
     assert_equal 1, @t.project_medias.count
 
@@ -377,21 +375,50 @@ class GraphqlController12Test < ActionController::TestCase
     assert_equal 3, @t.reload.project_medias.count
   end
 
-  test "should get team articles" do
+  test "should get team articles (explainers)" do
+    Sidekiq::Testing.fake!
     @t.set_explainers_enabled = true
     @t.save!
     ex = create_explainer team: @t
     tag = create_tag annotated: ex
     authenticate_with_user(@u)
-    query = "query { team(slug: \"#{@t.slug}\") { get_explainers_enabled, articles(article_type: \"explainer\") { edges { node { ... on Explainer { dbid, tags { edges { node { dbid } } } } } } } } }"
+    query = "query { team(slug: \"#{@t.slug}\") { get_explainers_enabled, articles_count(article_type: \"explainer\"), articles(article_type: \"explainer\") { edges { node { ... on Explainer { dbid, tags } } } } } }"
     post :create, params: { query: query, team: @t.slug }
+    assert_response :success
     team = JSON.parse(@response.body)['data']['team']
+    assert_equal 1, team['articles_count']
     assert team['get_explainers_enabled']
     data = team['articles']['edges']
     assert_equal [ex.id], data.collect{ |edge| edge['node']['dbid'] }
-    tags = data[0]['node']['tags']['edges']
-    assert_equal [tag.id.to_s], tags.collect{ |edge| edge['node']['dbid'] }
+  end
+
+  test "should get team articles (fact-checks)" do
+    Sidekiq::Testing.fake!
+    authenticate_with_user(@u)
+    pm = create_project_media team: @t
+    cd = create_claim_description project_media: pm
+    fc = create_fact_check claim_description: cd, tags: ['foo', 'bar']
+    query = "query { team(slug: \"#{@t.slug}\") { articles_count(article_type: \"fact-check\"), articles(article_type: \"fact-check\") { edges { node { ... on FactCheck { dbid, tags } } } } } }"
+    post :create, params: { query: query, team: @t.slug }
     assert_response :success
+    team = JSON.parse(@response.body)['data']['team']
+    assert_equal 1, team['articles_count']
+    data = team['articles']['edges']
+    assert_equal [fc.id], data.collect{ |edge| edge['node']['dbid'] }
+  end
+
+  test "should get team articles (all)" do
+    Sidekiq::Testing.fake!
+    authenticate_with_user(@u)
+    pm = create_project_media team: @t
+    cd = create_claim_description project_media: pm
+    create_fact_check claim_description: cd, tags: ['foo', 'bar']
+    create_explainer team: @t
+    query = "query { team(slug: \"#{@t.slug}\") { articles_count } }"
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success
+    team = JSON.parse(@response.body)['data']['team']
+    assert_equal 2, team['articles_count']
   end
 
   test "should create api key" do
@@ -493,5 +520,164 @@ class GraphqlController12Test < ActionController::TestCase
     # Child item should inherit status from parent when suggestion is accepted
     assert_equal 'false', pm1.reload.last_status
     assert_equal 'false', pm2.reload.last_status
+  end
+
+  test "should return super-admin user as 'meedan' if user IS NOT a part of the team" do
+    u1 = create_user name: 'Mei'
+    u2 = create_user name: 'Satsuki', is_admin: true
+
+    t1 = create_team
+    t2 = create_team
+
+    create_team_user user: u1, team: t1
+    create_team_user user: u2, team: t2
+
+    authenticate_with_user(u1)
+
+    query1 = "query { user (id: #{ u1.id }) { name } }"
+    post :create, params: { query: query1 }
+    assert_response :success
+    assert_equal false, u1.is_admin?
+    assert_equal 'Mei', JSON.parse(@response.body)['data']['user']['name']
+
+    query2 = "query { user (id: #{ u2.id }) { name } }"
+    post :create, params: { query: query2 }
+    assert_response :success
+    assert_equal true, u2.is_admin?
+    assert_equal CheckConfig.get('super_admin_name'), JSON.parse(@response.body)['data']['user']['name']
+  end
+
+  test "should return super-admin user themself if user IS a part of the team" do
+    u1 = create_user name: 'Mei'
+    u2 = create_user name: 'Satsuki', is_admin: true
+
+    t = create_team
+
+    create_team_user user: u1, team: t
+    create_team_user user: u2, team: t
+
+    authenticate_with_user(u1)
+
+    query1 = "query { user (id: #{ u1.id }) { name } }"
+    post :create, params: { query: query1 }
+    assert_response :success
+    assert_equal false, u1.is_admin?
+    assert_equal 'Mei', JSON.parse(@response.body)['data']['user']['name']
+
+    query2 = "query { user (id: #{ u2.id }) { name } }"
+    post :create, params: { query: query2 }
+    assert_response :success
+    assert_equal true, u2.is_admin?
+    assert_equal 'Satsuki', JSON.parse(@response.body)['data']['user']['name']
+  end
+
+  test "should return default profile image if super-admin user IS NOT a part of the team" do
+    u1 = create_user
+    u2 = create_user is_admin: true, profile_image: "#{CheckConfig.get('checkdesk_base_url')}/images/checklogo.png"
+
+    t1 = create_team
+    t2 = create_team
+
+    create_team_user user: u1, team: t1
+    create_team_user user: u2, team: t2
+
+    authenticate_with_user(u1)
+
+    query = "query { user (id: #{ u2.id }) { profile_image, source { image } } }"
+    post :create, params: { query: query }
+    assert_response :success
+    assert_equal true, u2.is_admin?
+    assert_equal "#{CheckConfig.get('checkdesk_base_url')}/images/user.png", JSON.parse(@response.body)['data']['user']['profile_image']
+    assert_equal "#{CheckConfig.get('checkdesk_base_url')}/images/user.png", JSON.parse(@response.body)['data']['user']['source']['image']
+  end
+
+  test "should return custom profile image if super-admin user IS a part of the team" do
+    u1 = create_user
+    u2 = create_user is_admin: true, profile_image: "#{CheckConfig.get('checkdesk_base_url')}/images/checklogo.png"
+
+    t = create_team
+
+    create_team_user user: u1, team: t
+    create_team_user user: u2, team: t
+
+    authenticate_with_user(u1)
+
+    query = "query { user (id: #{ u2.id }) { profile_image, source { image } } }"
+    post :create, params: { query: query }
+    assert_response :success
+    assert_equal true, u2.is_admin?
+    assert_equal "#{CheckConfig.get('checkdesk_base_url')}/images/checklogo.png", JSON.parse(@response.body)['data']['user']['profile_image']
+    assert_equal "#{CheckConfig.get('checkdesk_base_url')}/images/checklogo.png", JSON.parse(@response.body)['data']['user']['source']['image']
+  end
+
+  test "should treat ' tag' and 'tag' as the same tag, and not try to create a new tag" do
+    Sidekiq::Testing.inline!
+    t = create_team
+    a = ApiKey.create!
+    b = create_bot_user api_key_id: a.id
+    create_team_user team: t, user: b
+    p = create_project team: t
+    authenticate_with_token(a)
+
+    query1 = ' mutation create {
+              createProjectMedia(input: {
+                project_id: ' + p.id.to_s + ',
+                media_type: "Blank",
+                channel: { main: 1 },
+                set_tags: ["science"],
+                set_status: "verified",
+                set_claim_description: "Claim #1.",
+                set_fact_check: {
+                  title: "Title #1",
+                  language: "en",
+                }
+              }) {
+                project_media {
+                  full_url,
+                  tags {
+                    edges {
+                      node {
+                        tag_text
+                      }
+                    }
+                  }
+                }
+              }
+            } '
+
+    post :create, params: { query: query1, team: t.slug }
+    assert_response :success
+    assert_equal 'science', JSON.parse(@response.body)['data']['createProjectMedia']['project_media']['tags']['edges'][0]['node']['tag_text']
+    sleep 1
+
+    query2 = ' mutation create {
+      createProjectMedia(input: {
+        project_id: ' + p.id.to_s + ',
+        media_type: "Blank",
+        channel: { main: 1 },
+        set_tags: ["science "],
+        set_status: "verified",
+        set_claim_description: "Claim #2.",
+        set_fact_check: {
+          title: "Title #2",
+          language: "en",
+        }
+      }) {
+        project_media {
+          full_url,
+          tags {
+            edges {
+              node {
+                tag_text
+              }
+            }
+          }
+        }
+      }
+    } '
+
+  post :create, params: { query: query2, team: t.slug }
+  assert_response :success
+  assert_equal 'science', JSON.parse(@response.body)['data']['createProjectMedia']['project_media']['tags']['edges'][0]['node']['tag_text']
   end
 end

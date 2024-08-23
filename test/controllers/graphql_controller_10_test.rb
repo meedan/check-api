@@ -87,7 +87,7 @@ class GraphqlController10Test < ActionController::TestCase
     assert_equal 3, data.size
     assert_equal [u.id, u2.id, u3.id], ids.sort
     # Quey bot
-    query = "query { me { dbid, get_send_email_notifications, get_send_successful_login_notifications, get_send_failed_login_notifications, source { medias(first: 1) { edges { node { id } } } }, annotations(first: 1) { edges { node { id } } }, team_users(first: 1) { edges { node { id } } }, bot { get_description, get_role, get_version, get_source_code_url } } }"
+    query = "query { me { dbid, get_send_email_notifications, get_send_successful_login_notifications, get_send_failed_login_notifications, source { medias(first: 1) { edges { node { id } } } }, annotations(first: 1) { edges { node { id } } }, team_users_count, team_users(first: 1) { edges { node { id } } }, bot { get_description, get_role, get_version, get_source_code_url } } }"
     post :create, params: { query: query }
     assert_response :success
   end

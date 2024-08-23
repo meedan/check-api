@@ -669,9 +669,12 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     CheckSearch.any_instance.stubs(:medias).returns([pm1])
     Bot::Alegre.stubs(:get_merged_similar_items).returns({ pm2.id => { score: 0.9, model: 'elasticsearch', context: {foo: :bar} } })
 
-    assert_equal [pm2], Bot::Smooch.get_search_results(random_string, {}, t.id, 'en')
+    uid = random_string
+    query = Bot::Smooch.get_search_query(uid, {})
+    assert_equal [pm2], Bot::Smooch.get_search_results(uid, query, t.id, 'en')
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => "Test #{url}" })
-    assert_equal [pm1], Bot::Smooch.get_search_results(random_string, {}, t.id, 'en')
+    query = Bot::Smooch.get_search_query(uid, {})
+    assert_equal [pm1], Bot::Smooch.get_search_results(uid, query, t.id, 'en')
 
     ProjectMedia.any_instance.unstub(:report_status)
     CheckSearch.any_instance.unstub(:medias)

@@ -271,7 +271,7 @@ class ProjectMedia < ApplicationRecord
         new_pm.skip_check_ability = true
         new_pm.channel = { main: CheckChannels::ChannelCodes::FETCH }
         # Point the claim and consequently the fact-check
-        new_pm.claim_description = self.claim_description
+        new_pm.claim_description = self.claim_description if self.claim_description
         new_pm.save(validate: false) # To skip channel validation
         RequestStore.store[:skip_check_ability] = false
 

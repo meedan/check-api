@@ -153,7 +153,7 @@ module ProjectMediaGetters
       return self.send(title_mapping[title_field]).to_s
     end
     title = self.original_title
-    [self.analysis['file_title'], self.analysis['title'], self.fact_check_title, self.claim_description_content].each do |value|
+    [self.analysis['file_title'], self.analysis['title'], self.fact_check_title(true), self.claim_description_content].each do |value|
       title = value if !value.blank? && value != '-' && value != '​'
     end
     title.to_s
@@ -174,7 +174,7 @@ module ProjectMediaGetters
   end
 
   def get_description
-    return self.fact_check_summary if self.get_main_channel == CheckChannels::ChannelCodes::FETCH
+    return self.fact_check_summary(true) if self.get_main_channel == CheckChannels::ChannelCodes::FETCH
     analysis_description = self.has_analysis_description? ? self.analysis_description : nil
     self.claim_description_content || analysis_description || self.original_description
   end
@@ -208,5 +208,9 @@ module ProjectMediaGetters
 
   def team_avatar
     self.team.avatar
+  end
+
+  def fact_check
+    self.claim_description&.fact_check
   end
 end

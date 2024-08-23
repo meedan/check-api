@@ -3,6 +3,7 @@ class Team < ApplicationRecord
   after_create :create_team_partition
   before_destroy :delete_created_bots, :remove_is_default_project_flag
 
+  include SearchHelper
   include ValidationsHelper
   include DestroyLater
   include TeamValidations
@@ -479,6 +480,68 @@ class Team < ApplicationRecord
       end
     end
     available
+  end
+
+  def filtered_explainers(filters = {})
+    query = self.explainers
+
+    # Filter by tags
+    query = query.where('ARRAY[?]::varchar[] && tags', filters[:tags].to_a.map(&:to_s)) unless filters[:tags].blank?
+
+    # Filter by user
+    query = query.where(user_id: filters[:user_ids].to_a.map(&:to_i)) unless filters[:user_ids].blank?
+
+    # Filter by date
+    query = query.where(updated_at: Range.new(*format_times_search_range_filter(JSON.parse(filters[:updated_at]), nil))) unless filters[:updated_at].blank?
+
+    # Filter by text
+    query = query.where('(title ILIKE ? OR url ILIKE ? OR description ILIKE ?)', *["%#{filters[:text]}%"]*3) if filters[:text].to_s.size > 2
+
+    # Exclude the ones already applied to a target item
+    target = ProjectMedia.find_by_id(filters[:target_id].to_i)
+    query = query.where.not(id: target.explainer_ids) unless target.nil?
+
+    query
+  end
+
+  def filtered_fact_checks(filters = {})
+    query = FactCheck.includes(:claim_description).where('claim_descriptions.team_id' => self.id)
+
+    # Filter by standalone
+    query = query.left_joins(claim_description: { project_media: :media }).where('claim_descriptions.project_media_id IS NULL OR medias.type = ?', 'Blank') if filters[:standalone]
+
+    # Filter by language
+    query = query.where('fact_checks.language' => filters[:language].to_a) unless filters[:language].blank?
+
+    # Filter by tags
+    query = query.where('ARRAY[?]::varchar[] && fact_checks.tags', filters[:tags].to_a.map(&:to_s)) unless filters[:tags].blank?
+
+    # Filter by user
+    query = query.where('fact_checks.user_id' => filters[:user_ids].to_a.map(&:to_i)) unless filters[:user_ids].blank?
+
+    # Filter by date
+    query = query.where('fact_checks.updated_at' => Range.new(*format_times_search_range_filter(JSON.parse(filters[:updated_at]), nil))) unless filters[:updated_at].blank?
+
+    # Filter by publisher
+    query = query.where('fact_checks.publisher_id' => filters[:publisher_ids].to_a.map(&:to_i)) unless filters[:publisher_ids].blank?
+
+    # Filter by rating
+    query = query.where('fact_checks.rating' => filters[:rating].to_a.map(&:to_s)) unless filters[:rating].blank?
+
+    # Filter by imported
+    query = query.where('fact_checks.imported' => !!filters[:imported]) unless filters[:imported].nil?
+
+    # Filter by report status
+    query = query.where('fact_checks.report_status' => filters[:report_status].to_a.map(&:to_s)) unless filters[:report_status].blank?
+
+    # Filter by text
+    query = query.where('(fact_checks.title ILIKE ? OR fact_checks.url ILIKE ? OR fact_checks.summary ILIKE ?)', *["%#{filters[:text]}%"]*3) if filters[:text].to_s.size > 2
+
+    # Exclude the ones already applied to a target item
+    target = ProjectMedia.find_by_id(filters[:target_id].to_i)
+    query = query.where.not('fact_checks.id' => target.fact_check_id) unless target.nil?
+
+    query
   end
 
   # private

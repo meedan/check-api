@@ -294,6 +294,41 @@ class FactCheckTest < ActiveSupport::TestCase
     assert_not_empty fc.reload.title
   end
 
+  test "should validate rating" do
+    assert_no_difference 'FactCheck.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_fact_check rating: 'invalid_status'
+      end
+    end
+    assert_difference 'FactCheck.count' do
+      create_fact_check rating: 'verified'
+    end
+    # Validate custom status
+    t = create_team
+    value = {
+      label: 'Status',
+      default: 'stop',
+      active: 'done',
+      statuses: [
+        { id: 'stop', label: 'Stopped', completed: '', description: 'Not started yet', style: { backgroundColor: '#a00' } },
+        { id: 'done', label: 'Done!', completed: '', description: 'Nothing left to be done here', style: { backgroundColor: '#fc3' } }
+      ]
+    }
+    t.send :set_media_verification_statuses, value
+    t.save!
+    pm = create_project_media team: t
+    cd = create_claim_description project_media: pm
+    assert_no_difference 'FactCheck.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_fact_check claim_description: cd, rating: 'invalid_status'
+      end
+    end
+    allowed_statuses = t.reload.verification_statuses('media', nil)['statuses'].collect{|s| s[:id]}
+    assert_difference 'FactCheck.count' do
+      create_fact_check claim_description: cd, rating: 'stop'
+    end
+  end
+
   test "should create many fact-checks without signature" do
     assert_difference 'FactCheck.count', 2 do
       create_fact_check signature: nil
@@ -372,5 +407,145 @@ class FactCheckTest < ActiveSupport::TestCase
       fc.save!
       assert_equal 'published', pm.reload.report_status
     end
+  end
+
+  test "should index report information in fact check" do
+    create_verification_status_stuff
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    RequestStore.store[:skip_cached_field_update] = false
+    Sidekiq::Testing.inline! do
+      with_current_user_and_team(u, t) do
+        pm = create_project_media team: t
+        cd = create_claim_description project_media: pm
+        s = pm.last_verification_status_obj
+        s.status = 'verified'
+        s.save!
+        r = publish_report(pm)
+        fc = cd.fact_check
+        fc.title = 'Foo Bar'
+        fc.save!
+        fc = fc.reload
+        assert_equal u.id, fc.publisher_id
+        assert_equal 'published', fc.report_status
+        assert_equal 'verified', fc.rating
+        # Verify fact-checks filter
+        filters = { publisher_ids: [u.id] }
+        assert_equal [fc.id], t.filtered_fact_checks(filters).map(&:id)
+        filters = { rating: ['verified'] }
+        assert_equal [fc.id], t.filtered_fact_checks(filters).map(&:id)
+        filters = { report_status: ['published'] }
+        assert_equal [fc.id], t.filtered_fact_checks(filters).map(&:id)
+        filters = { publisher_ids: [u.id], rating: ['verified'], report_status: ['published'] }
+        assert_equal [fc.id], t.filtered_fact_checks(filters).map(&:id)
+        r = Dynamic.find(r.id)
+        r.set_fields = { state: 'paused' }.to_json
+        r.action = 'pause'
+        r.save!
+        fc = fc.reload
+        assert_nil fc.publisher_id
+        assert_equal 'paused', fc.report_status
+        assert_equal 'verified', fc.rating
+        s.status = 'in_progress'
+        s.save!
+        assert_equal 'in_progress', fc.reload.rating
+        # Verify fact-checks filter
+        filters = { publisher_ids: [u.id] }
+        assert_empty t.filtered_fact_checks(filters).map(&:id)
+        filters = { rating: ['verified'] }
+        assert_empty t.filtered_fact_checks(filters).map(&:id)
+        filters = { report_status: ['published'] }
+        assert_empty t.filtered_fact_checks(filters).map(&:id)
+        filters = { rating: ['in_progress'], report_status: ['paused'] }
+        assert_equal [fc.id], t.filtered_fact_checks(filters).map(&:id)
+        # Verify text filter
+        filters = { text: 'Test' }
+        assert_empty t.filtered_fact_checks(filters).map(&:id)
+        filters = { text: 'Foo' }
+        assert_equal [fc.id], t.filtered_fact_checks(filters).map(&:id)
+        # Update item status based on factcheck rating
+        fc.rating = 'verified'
+        fc.save!
+        s = pm.reload.last_verification_status_obj
+        assert_equal 'verified', s.status
+      end
+    end
+  end
+
+  test "should set fact-check as imported" do
+    assert !create_fact_check(user: create_user).imported
+    assert create_fact_check(user: create_bot_user).imported
+  end
+
+  test "should set initial rating" do
+    create_verification_status_stuff
+
+    # Test core statuses first
+    t = create_team
+    pm = create_project_media team: t
+    cd = create_claim_description project_media: pm
+    fc = create_fact_check claim_description: cd
+    assert_equal 'undetermined', fc.reload.rating
+    fc.rating = 'in_progress'
+    fc.save!
+    assert_equal 'in_progress', pm.reload.last_status
+
+    # Test custom statuses now
+    t = create_team
+    value = {
+      "label": "Custom Status Label",
+      "active": "in_progress",
+      "default": "new",
+      "statuses": [
+        {
+          "id": "new",
+          "style": {
+            "color": "blue"
+          },
+          "locales": {
+            "en": {
+              "label": "New",
+              "description": "An item that did not start yet"
+            },
+            "pt": {
+              "label": "Novo",
+              "description": "Um item que ainda não começou a ser verificado"
+            }
+          }
+        },
+        {
+          "id": "in_progress",
+          "style": {
+            "color": "yellow"
+          },
+          "locales": {
+            "en": {
+              "label": "Working on it",
+              "description": "We are working on it"
+            },
+            "pt": {
+              "label": "Estamos trabalhando nisso",
+              "description": "Estamos trabalhando nisso"
+            }
+          }
+        }
+      ]
+    }
+    t.set_media_verification_statuses(value)
+    t.save!
+
+    pm = create_project_media team: t
+    cd = create_claim_description project_media: pm
+    fc = create_fact_check claim_description: cd
+    assert_equal 'new', fc.reload.rating
+    fc.rating = 'in_progress'
+    fc.save!
+    assert_equal 'in_progress', pm.reload.last_status
+  end
+
+  test "should have team" do
+    fc = create_fact_check
+    assert_not_nil fc.team
   end
 end

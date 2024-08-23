@@ -138,7 +138,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   end
 
   test "should submit query without details on tipline bot v2" do
-    WebMock.stub_request(:post, /\/text\/similarity\/search\//).to_return(body: {}.to_json)
+    WebMock.stub_request(:post, /\/text\/similarity\/search\//).to_return(body: {}.to_json) # For explainers
     claim = 'This is a test claim'
     send_message 'hello', '1', '1', random_string, random_string, claim, random_string, random_string, '1'
     assert_saved_query_type 'default_requests'
@@ -208,7 +208,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   end
 
   test "should submit query with details on tipline bot v2" do
-    WebMock.stub_request(:post, /\/text\/similarity\/search\//).to_return(body: {}.to_json)
+    WebMock.stub_request(:post, /\/text\/similarity\/search\//).to_return(body: {}.to_json) # For explainers
     claim = 'This is a test claim'
     send_message 'hello', '1', '1', random_string, '2', random_string, claim, '1'
     assert_saved_query_type 'default_requests'
@@ -285,6 +285,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   end
 
   test "should submit query and handle search error on tipline bot v2" do
+    WebMock.stub_request(:post, /\/text\/similarity\/search\//).to_return(body: {}.to_json) # For explainers
     CheckSearch.any_instance.stubs(:medias).raises(StandardError)
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar', '1'
@@ -383,6 +384,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
     ProjectMedia.any_instance.stubs(:analysis_published_article_url).returns(random_url)
     Bot::Alegre.stubs(:get_merged_similar_items).returns({ create_project_media.id => { score: 0.9 } })
+    WebMock.stub_request(:post, /\/text\/similarity\/search\//).to_return(body: {}.to_json) # For explainers
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', "Foo bar foo bar #{url} foo bar", '1'
     end
@@ -691,6 +693,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     pm = create_project_media team: @team
     publish_report(pm, {}, nil, { language: 'pt', use_visual_card: false })
     Bot::Smooch.stubs(:get_search_results).returns([pm])
+    WebMock.stub_request(:post, /\/text\/similarity\/search\//).to_return(body: {}.to_json) # For explainers
     Sidekiq::Testing.inline! do
       send_message 'hello', '1', '1', 'Foo bar', '1'
     end
@@ -942,5 +945,22 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
         Sidekiq::Worker.drain_all
       end
     end
+  end
+
+  test "should submit query and handle explainer search error on tipline bot v2" do
+    Explainer.stubs(:search_by_similarity).raises(StandardError)
+    Sidekiq::Testing.inline! do
+      send_message 'hello', '1', '1', 'Foo bar', '1'
+    end
+  end
+
+  test "should search by explainers on tipline bot v2" do
+    assert_nil Rails.cache.read("smooch:user_search_results:#{@uid}")
+    @search_result.explainers << create_explainer(language: 'en', team: @team, title: 'Test', description: 'Foo bar')
+    Bot::Smooch.stubs(:get_search_results).returns([])
+    Sidekiq::Testing.inline! do
+      send_message 'hi', '1', '1', 'Foo', '1'
+    end
+    assert_not_nil Rails.cache.read("smooch:user_search_results:#{@uid}")
   end
 end

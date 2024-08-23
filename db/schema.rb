@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_04_20_104318) do
+ActiveRecord::Schema.define(version: 2024_08_13_155311) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -216,11 +216,13 @@ ActiveRecord::Schema.define(version: 2024_04_20_104318) do
   create_table "claim_descriptions", force: :cascade do |t|
     t.text "description"
     t.bigint "user_id", null: false
-    t.bigint "project_media_id", null: false
+    t.bigint "project_media_id"
     t.text "context"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "team_id"
     t.index ["project_media_id"], name: "index_claim_descriptions_on_project_media_id", unique: true
+    t.index ["team_id"], name: "index_claim_descriptions_on_team_id"
     t.index ["user_id"], name: "index_claim_descriptions_on_user_id"
   end
 
@@ -289,7 +291,7 @@ ActiveRecord::Schema.define(version: 2024_04_20_104318) do
     t.jsonb "value_json", default: "{}"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index "dynamic_annotation_fields_value(field_name, value)", name: "dynamic_annotation_fields_value", where: "((field_name)::text = ANY (ARRAY[('external_id'::character varying)::text, ('smooch_user_id'::character varying)::text, ('verification_status_status'::character varying)::text]))"
+    t.index "dynamic_annotation_fields_value(field_name, value)", name: "dynamic_annotation_fields_value", where: "((field_name)::text = ANY ((ARRAY['external_id'::character varying, 'smooch_user_id'::character varying, 'verification_status_status'::character varying])::text[]))"
     t.index ["annotation_id", "field_name"], name: "index_dynamic_annotation_fields_on_annotation_id_and_field_name"
     t.index ["annotation_id"], name: "index_dynamic_annotation_fields_on_annotation_id"
     t.index ["annotation_type"], name: "index_dynamic_annotation_fields_on_annotation_type"
@@ -302,6 +304,16 @@ ActiveRecord::Schema.define(version: 2024_04_20_104318) do
     t.index ["value_json"], name: "index_dynamic_annotation_fields_on_value_json", using: :gin
   end
 
+  create_table "explainer_items", force: :cascade do |t|
+    t.bigint "explainer_id"
+    t.bigint "project_media_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["explainer_id", "project_media_id"], name: "index_explainer_items_on_explainer_id_and_project_media_id", unique: true
+    t.index ["explainer_id"], name: "index_explainer_items_on_explainer_id"
+    t.index ["project_media_id"], name: "index_explainer_items_on_project_media_id"
+  end
+
   create_table "explainers", force: :cascade do |t|
     t.string "title"
     t.text "description"
@@ -311,6 +323,8 @@ ActiveRecord::Schema.define(version: 2024_04_20_104318) do
     t.bigint "team_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "tags", default: [], array: true
+    t.index ["tags"], name: "index_explainers_on_tags", using: :gin
     t.index ["team_id"], name: "index_explainers_on_team_id"
     t.index ["user_id"], name: "index_explainers_on_user_id"
   end
@@ -325,9 +339,19 @@ ActiveRecord::Schema.define(version: 2024_04_20_104318) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "signature"
+    t.string "tags", default: [], array: true
+    t.integer "publisher_id"
+    t.integer "report_status", default: 0
+    t.string "rating"
+    t.boolean "imported", default: false
     t.index ["claim_description_id"], name: "index_fact_checks_on_claim_description_id", unique: true
+    t.index ["imported"], name: "index_fact_checks_on_imported"
     t.index ["language"], name: "index_fact_checks_on_language"
+    t.index ["publisher_id"], name: "index_fact_checks_on_publisher_id"
+    t.index ["rating"], name: "index_fact_checks_on_rating"
+    t.index ["report_status"], name: "index_fact_checks_on_report_status"
     t.index ["signature"], name: "index_fact_checks_on_signature", unique: true
+    t.index ["tags"], name: "index_fact_checks_on_tags", using: :gin
     t.index ["user_id"], name: "index_fact_checks_on_user_id"
   end
 
@@ -486,7 +510,7 @@ ActiveRecord::Schema.define(version: 2024_04_20_104318) do
     t.index ["user_id"], name: "index_project_media_users_on_user_id"
   end
 
-  create_table "project_medias", force: :cascade do |t|
+  create_table "project_medias", id: :serial, force: :cascade do |t|
     t.integer "project_id"
     t.integer "media_id"
     t.integer "user_id"
@@ -881,7 +905,8 @@ ActiveRecord::Schema.define(version: 2024_04_20_104318) do
   end
 
   create_table "versions", id: :serial, force: :cascade do |t|
-    t.string "item_type", null: false
+    t.string "item_type"
+    t.string "{:null=>false}"
     t.string "item_id", null: false
     t.string "event", null: false
     t.string "whodunnit"
@@ -902,6 +927,8 @@ ActiveRecord::Schema.define(version: 2024_04_20_104318) do
 
   add_foreign_key "claim_descriptions", "project_medias"
   add_foreign_key "claim_descriptions", "users"
+  add_foreign_key "explainer_items", "explainers"
+  add_foreign_key "explainer_items", "project_medias"
   add_foreign_key "explainers", "teams"
   add_foreign_key "explainers", "users"
   add_foreign_key "fact_checks", "claim_descriptions"

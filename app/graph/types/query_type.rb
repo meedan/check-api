@@ -235,6 +235,8 @@ class QueryType < BaseObject
     feed
     request
     tipline_message
+    fact_check
+    explainer
   ].each do |type|
     field type,
           "#{type.to_s.camelize}Type",

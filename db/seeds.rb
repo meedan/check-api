@@ -45,6 +45,13 @@ LINK_PARAMS = -> {[
 
 BLANK_PARAMS = Array.new(8, { type: 'Blank' })
 
+STANDALONE_CLAIMS_FACT_CHECKS_PARAMS = (Array.new(8) do
+  {
+    description: Faker::Lorem.sentence,
+    context: Faker::Lorem.paragraph(sentence_count: 8)
+  }
+end)
+
 class Setup
 
   private
@@ -323,7 +330,7 @@ class PopulatedWorkspaces
 
   def publish_fact_checks
     users.each_value do |user|
-      fact_checks = FactCheck.where(user: user).last(items_total/2)
+      fact_checks = user.claim_descriptions.where.not(project_media_id: nil).includes(:fact_check).map { |claim| claim.fact_check }.compact!.last(items_total/2)
       fact_checks[0, (fact_checks.size/2)].each { |fact_check| verify_fact_check_and_publish_report(fact_check.project_media)}
     end
   end
@@ -416,6 +423,13 @@ class PopulatedWorkspaces
   def tipline_requests
     teams_project_medias.each_value do |team_project_medias|
       create_tipline_requests(team_project_medias)
+    end
+  end
+
+  def verified_standalone_claims_and_fact_checks
+    users.each_value do |user|
+      standalone_claims_and_fact_checks(user)
+      verify_standalone_claims_and_fact_checks(user)
     end
   end
 
@@ -707,6 +721,30 @@ class PopulatedWorkspaces
   def channel(media_type)
     media_type == "Blank" ? { main: CheckChannels::ChannelCodes::FETCH } : { main: CheckChannels::ChannelCodes::MANUAL }
   end
+
+  def standalone_claims_and_fact_checks(user)
+    STANDALONE_CLAIMS_FACT_CHECKS_PARAMS.each.with_index do |params, index|
+      claim_description_attributes = {
+        description: params[:description],
+        context: params[:context],
+        user: user,
+        team: user.teams[0],
+        fact_check_attributes: fact_check_params_for_half_the_claims(index, user),
+      }
+
+      ClaimDescription.create!(claim_description_attributes)
+    end
+  end
+
+  def verify_standalone_claims_and_fact_checks(user)
+    status = ['undetermined', 'not_applicable', 'in_progress', 'verified', 'false']
+
+    fact_checks = user.claim_descriptions.where(project_media_id: nil).includes(:fact_check).map { |claim| claim.fact_check }.compact! # some claims don't have fact checks, so they return nil
+    fact_checks.each do |fact_check|
+      fact_check.rating = status.sample
+      fact_check.save!
+    end
+  end
 end
 
 puts "If you want to create a new user: press enter"
@@ -747,10 +785,12 @@ ActiveRecord::Base.transaction do
     populated_workspaces.tipline_requests
     puts 'Publishing half of each user\'s Fact Checks...'
     populated_workspaces.publish_fact_checks
-    puts 'Creating Clusters'
+    puts 'Creating Clusters...'
     populated_workspaces.clusters(feed_2)
-    puts 'Creating Explainers'
+    puts 'Creating Explainers...'
     populated_workspaces.explainers
+    puts 'Creating Standalone Claims and FactChecks with different statuses...'
+    populated_workspaces.verified_standalone_claims_and_fact_checks
   rescue RuntimeError => e
     if e.message.include?('We could not parse this link')
       puts "—————"

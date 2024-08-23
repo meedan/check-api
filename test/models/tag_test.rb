@@ -271,4 +271,17 @@ class TagTest < ActiveSupport::TestCase
     tt2.delete
     TagText.update_tags(tt1.id, t.id, tt2.id)
   end
+
+  test "should treat ' tag' and 'tag' as the same tag, and not try to create a new tag" do
+    t = create_team
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+
+    create_tag tag: 'foo', annotated: pm1
+
+    assert_nothing_raised do
+      create_tag tag: ' foo', annotated: pm2
+    end
+  end
 end

@@ -7,6 +7,7 @@ class ProjectMediaType < DefaultObject
 
   field :media_id, GraphQL::Types::Int, null: true
   field :user_id, GraphQL::Types::Int, null: true
+  field :fact_check_id, GraphQL::Types::Int, null: true
   field :url, GraphQL::Types::String, null: true
   field :full_url, GraphQL::Types::String, null: true
   field :quote, GraphQL::Types::String, null: true
@@ -319,6 +320,15 @@ class ProjectMediaType < DefaultObject
       &.source
   end
 
+  field :suggested_main_relationship, RelationshipType, null: true
+
+  def suggested_main_relationship
+    Relationship
+      .where("relationship_type = ?", Relationship.suggested_type.to_yaml)
+      .where(target_id: object.id)
+      .first
+  end
+
   field :confirmed_similar_relationships, RelationshipType.connection_type, null: true
 
   def confirmed_similar_relationships
@@ -370,4 +380,18 @@ class ProjectMediaType < DefaultObject
   field :similar_items, ProjectMediaType.connection_type, null: true
 
   field :media_slug, GraphQL::Types::String, null: true
+
+  field :fact_check, FactCheckType, null: true
+
+  field :explainers, ExplainerType.connection_type, null: true
+
+  field :explainer_items, ExplainerItemType.connection_type, null: true
+
+  field :articles_count, GraphQL::Types::Int, null: true
+
+  def articles_count
+    count = object.explainers.count
+    count += 1 if object.fact_check
+    count
+  end
 end
