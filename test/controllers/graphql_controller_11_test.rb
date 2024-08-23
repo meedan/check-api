@@ -161,6 +161,7 @@ class GraphqlController11Test < ActionController::TestCase
   end
 
   test "should export list if it's a workspace admin and number of results is not over the limit" do
+    Sidekiq::Testing.inline!
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'admin'
@@ -173,6 +174,7 @@ class GraphqlController11Test < ActionController::TestCase
   end
 
   test "should not export list if it's not a workspace admin" do
+    Sidekiq::Testing.inline!
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'editor'
@@ -185,6 +187,7 @@ class GraphqlController11Test < ActionController::TestCase
   end
 
   test "should not export list if it's over the limit" do
+    Sidekiq::Testing.inline!
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'admin'
