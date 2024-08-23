@@ -477,10 +477,11 @@ en:
       term_button: Terms of Service
       more_info: This is a one-time required legal notice sent to all Check users, even those who have unsubscribed by optional announcements.
     export_list:
-      subject: Your Check data export is ready
       hello: Hello %{name}
-      body: Your data export is ready. Click on the button below to download it. Please note that the link is valid only for %{days} days.
-      button_label: Download export
+      subject: Check Data Export
+      body: Your requested Check data export is available to download.
+      button_label: Download Export
+      footer: This download link will expire on %{date}.
   mail_security:
     device_subject: 'Security alert: New login to %{app_name} from %{browser} on %{platform}'
     ip_subject: 'Security alert: New or unusual %{app_name} login'

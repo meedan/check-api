@@ -2,9 +2,11 @@
 
 <%= I18n.t('mails_notifications.export_list.subject') %>
 
-<%= I18n.t('mails_notifications.export_list.body', days: @expire_in ) %>
+<%= I18n.t('mails_notifications.export_list.body') %>
 
 <%= I18n.t('mails_notifications.export_list.button_label') %>: <%= @csv_file_url %>
+
+<%= I18n.t('mails_notifications.export_list.footer', date: @expire_in ) %>
 
 ...
 
