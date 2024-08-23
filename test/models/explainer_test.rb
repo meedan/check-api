@@ -11,21 +11,6 @@ class ExplainerTest < ActiveSupport::TestCase
     end
   end
 
-  test "should have versions" do
-    with_versioning do
-      u = create_user
-      t = create_team
-      create_team_user team: t, user: u, role: 'admin'
-      with_current_user_and_team(u, t) do
-        ex = nil
-        assert_difference 'PaperTrail::Version.count', 1 do
-          ex = create_explainer user: u, team: t
-        end
-        assert_equal 1, ex.versions.count
-      end
-    end
-  end
-
   test "should not create explainer without user or team" do
     assert_no_difference 'Explainer.count' do
       assert_raises ActiveRecord::RecordInvalid do
@@ -91,9 +76,48 @@ class ExplainerTest < ActiveSupport::TestCase
     end
   end
 
-  test "should tag explainer" do
+  test "should tag explainer using annotation" do
     ex = create_explainer
     tag = create_tag annotated: ex
     assert_equal [tag], ex.annotations('tag')
+  end
+
+  test "should create tag texts when setting tags" do
+    Sidekiq::Testing.inline! do
+      assert_difference 'TagText.count' do
+        create_explainer tags: ['foo']
+      end
+    end
+  end
+
+  test "should index explainer information" do
+    Sidekiq::Testing.inline!
+    description = %{
+      The is the first paragraph.
+
+      This is the second paragraph.
+    }
+
+    # Index two paragraphs and title when the explainer is created
+    Bot::Alegre.stubs(:request).with('post', '/text/similarity/', anything).times(3)
+    Bot::Alegre.stubs(:request).with('delete', '/text/similarity/', anything).never
+    ex = create_explainer description: description
+
+    # Update the index when paragraphs change
+    Bot::Alegre.stubs(:request).with('post', '/text/similarity/', anything).times(2)
+    Bot::Alegre.stubs(:request).with('delete', '/text/similarity/', anything).once
+    ex = Explainer.find(ex.id)
+    ex.description = 'Now this is the only paragraph'
+    ex.save!
+  end
+
+  test "should destroy explainer items when project media is destroyed" do
+    t = create_team
+    ex = create_explainer team: t
+    pm = create_project_media team: t
+    pm.explainers << ex
+    assert_difference 'ExplainerItem.count', -1 do
+      pm.destroy!
+    end
   end
 end

@@ -13,16 +13,17 @@ module ProjectMediaCachedFields
       [
         {
           model: ClaimDescription,
-          affected_ids: proc { |cd| [cd.project_media] },
+          affected_ids: proc { |cd| [cd.project_media_id, cd.project_media_id_before_last_save] },
           events: {
             save: :recalculate
           }
         },
         {
           model: FactCheck,
-          affected_ids: proc { |fc| [fc.claim_description.project_media] },
+          affected_ids: proc { |fc| [fc.claim_description.project_media_id] },
           events: {
-            save: :recalculate
+            save: :recalculate,
+            destroy: :recalculate
           }
         },
         {
@@ -71,9 +72,10 @@ module ProjectMediaCachedFields
 
     FACT_CHECK_EVENT = {
       model: FactCheck,
-      affected_ids: proc { |fc| [fc.claim_description.project_media] },
+      affected_ids: proc { |fc| [fc.claim_description.project_media_id] },
       events: {
-        save: :recalculate
+        save: :recalculate,
+        destroy: :recalculate
       }
     }
 
@@ -175,6 +177,11 @@ module ProjectMediaCachedFields
           }
         }
       ]
+
+    cached_field :fact_check_id,
+      start_as: nil,
+      recalculate: :recalculate_fact_check_id,
+      update_on: [FACT_CHECK_EVENT]
 
     cached_field :fact_check_title,
       start_as: nil,
@@ -538,6 +545,10 @@ module ProjectMediaCachedFields
       v1 = TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: ids).order('created_at DESC').first&.created_at || 0
       v2 = ProjectMedia.where(id: ids).order('created_at DESC').first&.created_at || 0
       [v1, v2].max.to_i
+    end
+
+    def recalculate_fact_check_id
+      self.claim_description&.fact_check&.id
     end
 
     def recalculate_fact_check_title

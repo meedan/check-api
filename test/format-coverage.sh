@@ -2,8 +2,9 @@
 
 apt-get install -y awscli
 
-if [ "$TRAVIS_PULL_REQUEST" == "false" ]
+if [[ "$GITHUB_EVENT" == "pull_request" || "$GITHUB_EVENT" == "push" ]]
 then
-  ./test/cc-test-reporter format-coverage -t simplecov --output ../coverage/codeclimate.$TRAVIS_JOB_NAME.json ../coverage/.resultset.json
-  aws s3 cp ../coverage/codeclimate.$TRAVIS_JOB_NAME.json s3://check-api-travis/codeclimate/$TRAVIS_REPO_SLUG/$TRAVIS_BUILD_NUMBER/codeclimate.$TRAVIS_JOB_NAME.json
+./test/cc-test-reporter format-coverage -t simplecov --output ../coverage/codeclimate.$GITHUB_JOB_NAME.json ../coverage/.resultset.json
+aws s3 cp ../coverage/codeclimate.$GITHUB_JOB_NAME.json s3://check-api-github/codeclimate/$GITHUB_REPO/$GITHUB_BUILD_NUMBER/codeclimate.$GITHUB_JOB_NAME.json
 fi
+

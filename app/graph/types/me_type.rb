@@ -122,7 +122,29 @@ class MeType < DefaultObject
     return TeamUser.none unless object == User.current
     team_users = object.team_users
     team_users = team_users.where(status: status) if status
-    team_users
+    team_users.joins(:team).order('name ASC')
+  end
+
+  field :team_users_count, GraphQL::Types::Int, null: true do
+    argument :status, GraphQL::Types::String, required: false
+  end
+
+  def team_users_count(status: nil)
+    team_users(status: status).count
+  end
+
+  field :accessible_teams, TeamType.connection_type, null: true
+
+  def accessible_teams
+    return Team.none unless object == User.current
+    teams = User.current.is_admin? ? Team.all : User.current.teams.where('team_users.status' => 'member')
+    teams.order('name ASC')
+  end
+
+  field :accessible_teams_count, GraphQL::Types::Int, null: true
+
+  def accessible_teams_count
+    accessible_teams.count
   end
 
   field :annotations, AnnotationType.connection_type, null: true do

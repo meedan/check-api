@@ -11,6 +11,8 @@ development: &default
   elasticsearch_index:
   elasticsearch_log: true
   elasticsearch_sync: false
+  super_admin_name: 'Meedan'
+
   # WARNING For production, don't use a wildcard: set the allowed domains explicitly as a regular expression, e.g.
   # '(https?://.*\.?(meedan.com|meedan.org))'
   allowed_origins: '.*'
@@ -273,6 +275,9 @@ development: &default
   devise_unlock_accounts_after: 1
   login_rate_limit: 10
   api_rate_limit: 100
+
+  session_store_key: '_checkdesk_session_dev'
+  session_store_domain: 'localhost'
 test:
   <<: *default
   checkdesk_base_url_private: http://api:3000

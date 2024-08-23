@@ -6,7 +6,6 @@ class Workflow::VerificationStatus < Workflow::Base
   check_workflow on: :create, actions: :index_on_es_background
   check_workflow on: :update, actions: :index_on_es_foreground
 
-
   def self.core_default_value
     'undetermined'
   end
@@ -109,6 +108,14 @@ class Workflow::VerificationStatus < Workflow::Base
         })
         report.data = data
         report.save!
+        # update FactCheck rating
+        fc = pm&.claim_description&.fact_check
+        if !fc.nil? && fc.rating != self.value
+          fc.skip_report_update = true
+          fc.skip_check_ability = true
+          fc.rating = self.value
+          fc.save!
+        end
       end
     end
   end

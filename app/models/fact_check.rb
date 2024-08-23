@@ -1,18 +1,25 @@
 class FactCheck < ApplicationRecord
   include Article
 
+  has_paper_trail on: [:create, :update], ignore: [:updated_at, :created_at, :rating, :report_status], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
+
+  enum report_status: { unpublished: 0, published: 1, paused: 2 }
+
   attr_accessor :skip_report_update, :publish_report
 
   belongs_to :claim_description
 
+  before_validation :set_initial_rating, on: :create, if: proc { |fc| fc.rating.blank? && fc.claim_description.present? }
   before_validation :set_language, on: :create, if: proc { |fc| fc.language.blank? }
+  before_validation :set_imported, on: :create
 
   validates_presence_of :claim_description
   validates_uniqueness_of :claim_description_id
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
-  validate :language_in_allowed_values, :title_or_summary_exists
+  validate :language_in_allowed_values, :title_or_summary_exists, :rating_in_allowed_values
 
-  after_save :update_report
+  after_save :update_report, unless: proc { |fc| fc.skip_report_update || !DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').exists? || fc.project_media.blank? }
+  after_save :update_item_status, if: proc { |fc| fc.saved_change_to_rating? }
 
   def text_fields
     ['fact_check_title', 'fact_check_summary']
@@ -22,17 +29,47 @@ class FactCheck < ApplicationRecord
     self.claim_description&.project_media
   end
 
+  def team_id
+    self.claim_description&.team_id
+  end
+
+  def team
+    self.claim_description&.team
+  end
+
+  def update_item_status
+    pm = self.project_media
+    s = pm&.last_status_obj
+    if !s.nil? && s.status != self.rating
+      s.skip_check_ability = true
+      s.status = self.rating
+      s.save!
+    end
+  end
+
   private
 
   def set_language
-    languages = self.project_media&.team&.get_languages || ['en']
+    languages = self.claim_description&.team&.get_languages || ['en']
     self.language = languages.length == 1 ? languages.first : 'und'
   end
 
+  def set_imported
+    self.imported = true if self.user&.type == 'BotUser' # We consider "imported" the fact-checks that are not created by humans inside Check
+  end
+
   def language_in_allowed_values
-    allowed_languages = self.project_media&.team&.get_languages || ['en']
+    allowed_languages = self.claim_description&.team&.get_languages || ['en']
     allowed_languages << 'und'
     errors.add(:language, I18n.t(:"errors.messages.invalid_article_language_value")) unless allowed_languages.include?(self.language)
+  end
+
+  def rating_in_allowed_values
+    unless self.rating.blank?
+      team = self.claim_description.team
+      allowed_statuses = team.verification_statuses('media', nil)['statuses'].collect{ |s| s[:id] }
+      errors.add(:rating, I18n.t(:workflow_status_is_not_valid, status: self.rating, valid: allowed_statuses.join(', '))) unless allowed_statuses.include?(self.rating)
+    end
   end
 
   def title_or_summary_exists
@@ -40,7 +77,6 @@ class FactCheck < ApplicationRecord
   end
 
   def update_report
-    return if self.skip_report_update || !DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').exists?
     pm = self.project_media
     reports = pm.get_dynamic_annotation('report_design') || Dynamic.new(annotation_type: 'report_design', annotated: pm)
     data = reports.data.to_h.with_indifferent_access
@@ -92,5 +128,11 @@ class FactCheck < ApplicationRecord
         'fact_check_languages' => [self.language]
       }
     self.index_in_elasticsearch(data)
+  end
+
+  def set_initial_rating
+    pm_rating = self.project_media&.last_status
+    default_rating = self.claim_description.team.verification_statuses('media', nil)['default']
+    self.rating = pm_rating || default_rating
   end
 end

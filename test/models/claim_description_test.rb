@@ -18,12 +18,36 @@ class ClaimDescriptionTest < ActiveSupport::TestCase
       t = create_team
       create_team_user team: t, user: u, role: 'admin'
       pm = create_project_media team: t
+      pm2 = create_project_media team: t
       with_current_user_and_team(u, t) do
         cd = nil
-        assert_difference 'PaperTrail::Version.count', 1 do
+        fc = nil
+        assert_difference 'PaperTrail::Version.count', 2 do
           cd = create_claim_description project_media: pm, user: u
+          fc = create_fact_check claim_description: cd
         end
-        assert_equal 1, cd.versions.count
+        cd.description = 'update description'
+        cd.save!
+        fc.title = 'update title'
+        fc.save!
+        # Remove FactCheck
+        cd.project_media_id = nil
+        cd.save!
+        assert_equal 3, cd.versions.count
+        assert_equal 2, fc.versions.count
+        v_count = Version.from_partition(t.id).where(associated_type: 'ProjectMedia', associated_id: pm.id, item_type: ['ClaimDescription', 'FactCheck']).count
+        assert_equal 5, v_count
+        # Add existing FactCheck to another media
+        cd.project_media_id = pm2.id
+        cd.save!
+        assert_equal 4, cd.versions.count
+        assert_equal 2, fc.versions.count
+        # Old item logs
+        v_count = Version.from_partition(t.id).where(associated_type: 'ProjectMedia', associated_id: pm.id, item_type: ['ClaimDescription', 'FactCheck']).count
+        assert_equal 2, v_count
+        # New item logs
+        v_count = Version.from_partition(t.id).where(associated_type: 'ProjectMedia', associated_id: pm2.id, item_type: ['ClaimDescription', 'FactCheck']).count
+        assert_equal 4, v_count
       end
     end
   end
@@ -132,5 +156,45 @@ class ClaimDescriptionTest < ActiveSupport::TestCase
     assert_nothing_raised do
       pm.destroy!
     end
+  end
+
+  test "should replace item when applying fact-check from blank media" do
+    Sidekiq::Testing.inline!
+    t = create_team
+    pm1 = create_project_media team: t, media: create_blank_media
+    cd = create_claim_description project_media: pm1
+    fc = create_fact_check claim_description: cd
+    pm2 = create_project_media team: t
+    cd.project_media = pm2
+    assert_difference 'ProjectMedia.count', -1 do
+      cd.save!
+    end
+    assert_nil ProjectMedia.find_by_id(pm1.id)
+    assert_equal fc, pm2.fact_check
+  end
+
+  test "should pause report when removing fact-check" do
+    Sidekiq::Testing.inline!
+    t = create_team
+    pm = create_project_media team: t
+    cd = create_claim_description project_media: pm
+    fc = create_fact_check claim_description: cd
+
+    publish_report(pm)
+    assert_equal 'published', fc.reload.report_status
+    assert_equal 'published', pm.report_status(true)
+
+    cd.project_media = nil
+    cd.save!
+    assert_equal 'paused', fc.reload.report_status
+    assert_equal 'paused', pm.report_status(true)
+  end
+
+  test "should get information from removed item" do
+    pm = create_project_media
+    cd = create_claim_description project_media: pm
+    cd.project_media = nil
+    cd.save!
+    assert_equal pm, cd.project_media_was
   end
 end
