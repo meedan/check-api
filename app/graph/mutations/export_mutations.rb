@@ -1,7 +1,7 @@
 module ExportMutations
   class ExportList < Mutations::BaseMutation
-    argument :query, GraphQL::Types::String, required: true
-    argument :type, GraphQL::Types::String, required: true # 'media', 'feed' or 'article'
+    argument :query, GraphQL::Types::String, required: true # JSON
+    argument :type, GraphQL::Types::String, required: true # 'media', 'feed', 'fact-check' or 'explainer'
 
     field :success, GraphQL::Types::Boolean, null: true
 

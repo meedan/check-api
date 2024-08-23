@@ -1,10 +1,13 @@
 class ListExport
-  TYPES = [:article, :feed, :media]
+  TYPES = [:media, :feed, :fact_check, :explainer]
 
   def initialize(type, query, team_id)
     @type = type
     @query = query
+    @parsed_query = JSON.parse(@query)
     @team_id = team_id
+    @team = Team.find(team_id)
+    @feed = Feed.where(id: @parsed_query['feed_id'], team_id: @team_id).last if type == :feed
     raise "Invalid export type '#{type}'. Should be one of: #{TYPES}" unless TYPES.include?(type)
   end
 
@@ -12,6 +15,12 @@ class ListExport
     case @type
     when :media
       CheckSearch.new(@query, nil, @team_id).number_of_results
+    when :feed
+      @feed.clusters_count(@parsed_query)
+    when :fact_check
+      @team.filtered_fact_checks(@parsed_query).count
+    when :explainer
+      @team.filtered_explainers(@parsed_query).count
     end
   end
 
@@ -47,6 +56,12 @@ class ListExport
     case @type
     when :media
       CheckSearch.get_exported_data(@query, @team_id)
+    when :feed
+      @feed.get_exported_data(@parsed_query)
+    when :fact_check
+      FactCheck.get_exported_data(@parsed_query, @team)
+    when :explainer
+      Explainer.get_exported_data(@parsed_query, @team)
     end
   end
 end

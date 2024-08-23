@@ -172,6 +172,14 @@ class Feed < ApplicationRecord
     SavedSearch.find_by_id(self.saved_search_id_before_last_save)
   end
 
+  def get_exported_data(filters)
+    data = [['Title', 'Number of media', 'Number of requests', 'Number of fact-checks']]
+    self.filtered_clusters(filters).find_each do |cluster|
+      data << [cluster.title, cluster.media_count, cluster.requests_count, cluster.fact_checks_count]
+    end
+    data
+  end
+
   # This takes some time to run because it involves external HTTP requests and writes to the database:
   # 1) If the query contains a media URL, it will be downloaded... if it contains some other URL, it will be sent to Pender
   # 2) Requests will be made to Alegre in order to index the request media and to look for similar requests
