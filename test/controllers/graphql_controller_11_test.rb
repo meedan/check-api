@@ -132,10 +132,10 @@ class GraphqlController11Test < ActionController::TestCase
     post :create, params: { query: query }
     assert_response :success
     response = JSON.parse(@response.body)['data']['me']
-    data = response['accessible_teams']['edges']
+    data = response['accessible_teams']['edges'].collect{ |edge| edge['node']['dbid'] }.sort
     assert_equal 2, data.size
-    assert_equal team1.id, data[0]['node']['dbid']
-    assert_equal team2.id, data[1]['node']['dbid']
+    assert_equal team1.id, data[0]
+    assert_equal team2.id, data[1]
     assert_equal 2, response['accessible_teams_count']
   end
 
@@ -158,5 +158,46 @@ class GraphqlController11Test < ActionController::TestCase
     assert_equal 1, data.size
     assert_equal team1.id, data[0]['node']['dbid']
     assert_equal 1, response['accessible_teams_count']
+  end
+
+  test "should export list if it's a workspace admin and number of results is not over the limit" do
+    Sidekiq::Testing.inline!
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'admin'
+    authenticate_with_user(u)
+
+    query = "mutation { exportList(input: { query: \"{}\", type: \"media\" }) { success } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert JSON.parse(@response.body)['data']['exportList']['success']
+  end
+
+  test "should not export list if it's not a workspace admin" do
+    Sidekiq::Testing.inline!
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'editor'
+    authenticate_with_user(u)
+
+    query = "mutation { exportList(input: { query: \"{}\", type: \"media\" }) { success } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert !JSON.parse(@response.body)['data']['exportList']['success']
+  end
+
+  test "should not export list if it's over the limit" do
+    Sidekiq::Testing.inline!
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'admin'
+    authenticate_with_user(u)
+
+    stub_configs({ 'export_csv_maximum_number_of_results' => -1 }) do 
+      query = "mutation { exportList(input: { query: \"{}\", type: \"media\" }) { success } }"
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      assert !JSON.parse(@response.body)['data']['exportList']['success']
+    end
   end
 end
