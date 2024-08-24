@@ -48,6 +48,14 @@ class Explainer < ApplicationRecord
     self.class.delay_for(5.seconds).update_paragraphs_in_alegre(self.id, previous_paragraphs_count, Time.now.to_f)
   end
 
+  def self.get_exported_data(query, team)
+    data = [['ID', 'Title', 'Description', 'URL', 'Language']]
+    team.filtered_explainers(query).find_each do |exp|
+      data << [exp.id, exp.title, exp.description, exp.url, exp.language]
+    end
+    data
+  end
+
   def self.update_paragraphs_in_alegre(id, previous_paragraphs_count, timestamp)
     explainer = Explainer.find(id)
 

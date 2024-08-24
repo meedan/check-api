@@ -152,4 +152,6 @@ class MutationType < BaseObject
 
   field :createExplainerItem, mutation: ExplainerItemMutations::Create
   field :destroyExplainerItem, mutation: ExplainerItemMutations::Destroy
+
+  field :exportList, mutation: ExportMutations::ExportList
 end
