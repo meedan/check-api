@@ -47,6 +47,14 @@ class FactCheck < ApplicationRecord
     end
   end
 
+  def self.get_exported_data(query, team)
+    data = [['ID', 'Title', 'Summary', 'URL', 'Language', 'Report Status', 'Imported?']]
+    team.filtered_fact_checks(query).find_each do |fc|
+      data << [fc.id, fc.title, fc.summary, fc.url, fc.language, fc.report_status, fc.imported.to_s]
+    end
+    data
+  end
+
   private
 
   def set_language
