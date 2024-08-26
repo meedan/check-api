@@ -4,10 +4,6 @@ module SmoochMenus
   extend ActiveSupport::Concern
 
   module ClassMethods
-    def is_v2?
-      self.config['smooch_version'] == 'v2'
-    end
-
     def send_message_to_user_with_main_menu_appended(uid, text, workflow, language, tbi_id = nil, event = nil)
       self.get_installation('team_bot_installation_id', tbi_id) { |i| i.id == tbi_id } if self.config.blank? && !tbi_id.nil?
       main = []
@@ -304,12 +300,10 @@ module SmoochMenus
     end
 
     def send_greeting(uid, workflow)
-      if self.is_v2?
-        text = self.get_custom_string('smooch_message_smooch_bot_greetings', workflow['smooch_workflow_language'])
-        image = workflow['smooch_greeting_image'] if workflow['smooch_greeting_image'] =~ /^https?:\/\//
-        image.blank? || image == 'none' ? self.send_message_to_user(uid, text) : self.send_message_to_user(uid, text, { 'type' => 'image', 'mediaUrl' => image })
-        sleep 3 # Give it some time, so the main menu message is sent after the greetings
-      end
+      text = self.get_custom_string('smooch_message_smooch_bot_greetings', workflow['smooch_workflow_language'])
+      image = workflow['smooch_greeting_image'] if workflow['smooch_greeting_image'] =~ /^https?:\/\//
+      image.blank? || image == 'none' ? self.send_message_to_user(uid, text) : self.send_message_to_user(uid, text, { 'type' => 'image', 'mediaUrl' => image })
+      sleep 3 # Give it some time, so the main menu message is sent after the greetings
     end
   end
 end

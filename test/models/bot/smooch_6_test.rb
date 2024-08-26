@@ -121,10 +121,6 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     assert_not_nil Rails.cache.read("smooch:original:#{@msgid}")
   end
 
-  test "should use v2" do
-    assert Bot::Smooch.is_v2?
-  end
-
   test "should start on tipline bot v2" do
     assert_state 'waiting_for_message'
     send_message 'hello'

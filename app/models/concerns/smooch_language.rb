@@ -44,7 +44,7 @@ module SmoochLanguage
     end
 
     def should_ask_for_language_confirmation?(uid)
-      self.is_v2? && self.get_supported_languages.size > 1 && !self.user_language_confirmed?(uid)
+      self.get_supported_languages.size > 1 && !self.user_language_confirmed?(uid)
     end
 
     def get_language(message, fallback_language = 'en')

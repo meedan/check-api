@@ -358,14 +358,8 @@ class Bot::Smooch < BotUser
 
   def self.parse_query_message(message, app_id, uid, workflow, language)
     sm = CheckStateMachine.new(uid)
-    if self.process_menu_option(message, sm.state.value, app_id)
-      # Do nothing else - the action will be executed by "process_menu_option" method
-    elsif self.is_v2?
-      sm.go_to_ask_if_ready unless sm.state.value == 'ask_if_ready'
-      self.ask_if_ready_to_submit(uid, workflow, 'ask_if_ready', language)
-    else
-      self.delay_for(self.time_to_send_request, { queue: 'smooch', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id)
-    end
+    sm.go_to_ask_if_ready unless sm.state.value == 'ask_if_ready'
+    self.ask_if_ready_to_submit(uid, workflow, 'ask_if_ready', language)
   end
 
   def self.parse_message_based_on_state(message, app_id)
@@ -429,12 +423,12 @@ class Bot::Smooch < BotUser
         { 'smooch_menu_option_keyword' => '1', 'smooch_menu_option_value' => 'search_result_is_relevant' },
         { 'smooch_menu_option_keyword' => '2', 'smooch_menu_option_value' => 'search_result_is_not_relevant' }
       ]
-    elsif state == 'subscription' && self.is_v2?
+    elsif state == 'subscription'
       [
         { 'smooch_menu_option_keyword' => '1', 'smooch_menu_option_value' => 'subscription_confirmation' },
         { 'smooch_menu_option_keyword' => '2', 'smooch_menu_option_value' => 'main_state' }
       ]
-    elsif ['query', 'add_more_details'].include?(state) && self.is_v2?
+    elsif ['query', 'add_more_details'].include?(state)
       destination = { 'query' => 'main_state', 'add_more_details' => 'ask_if_ready_state' }[state]
       [{ 'smooch_menu_option_keyword' => '1', 'smooch_menu_option_value' => destination }]
     # Custom menus
@@ -445,7 +439,7 @@ class Bot::Smooch < BotUser
 
   def self.get_custom_menu_options(state, workflow, uid)
     options = workflow.dig("smooch_state_#{state}", 'smooch_menu_options').to_a.clone
-    if ['main', 'waiting_for_message'].include?(state) && self.is_v2?
+    if ['main', 'waiting_for_message'].include?(state)
       if self.should_ask_for_language_confirmation?(uid)
         options = []
         i = 0
@@ -492,11 +486,10 @@ class Bot::Smooch < BotUser
     sm = CheckStateMachine.new(uid)
     self.bundle_message(message)
     new_state = value.gsub(/_state$/, '')
-    self.delay_for(self.time_to_send_request, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id) if new_state == 'query' && !self.is_v2?
     sm.send("go_to_#{new_state}")
     self.delay_for(1.seconds, { queue: 'smooch_priority', retry: false }).search(app_id, uid, language, message, self.config['team_id'].to_i, workflow, RequestStore.store[:smooch_bot_provider]) if new_state == 'search'
     self.clear_user_bundled_messages(uid) if new_state == 'main'
-    new_state == 'main' && self.is_v2? ? self.send_message_to_user_with_main_menu_appended(uid, self.get_string('cancelled', language), workflow, language) : self.send_message_for_state(uid, workflow, new_state, language)
+    new_state == 'main' ? self.send_message_to_user_with_main_menu_appended(uid, self.get_string('cancelled', language), workflow, language) : self.send_message_for_state(uid, workflow, new_state, language)
   end
 
   def self.process_menu_option_value(value, option, message, language, workflow, app_id)
@@ -542,7 +535,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.is_a_shortcut_for_submission?(state, message)
-    self.is_v2? && (state == 'main' || state == 'waiting_for_message') && (!message['mediaUrl'].blank? || ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer))
+    (state == 'main' || state == 'waiting_for_message') && (!message['mediaUrl'].blank? || ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer))
   end
 
   def self.process_menu_option(message, state, app_id)
