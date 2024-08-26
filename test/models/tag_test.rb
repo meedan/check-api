@@ -284,4 +284,15 @@ class TagTest < ActiveSupport::TestCase
       create_tag tag: ' foo', annotated: pm2
     end
   end
+
+  test "tags should be created in the background" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+
+    pm.set_tags = ['foo']
+    pm.create_tags
+
+    assert_equal 1, GenericWorker.jobs.size
+  end
 end
