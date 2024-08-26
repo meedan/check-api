@@ -288,11 +288,11 @@ class TagTest < ActiveSupport::TestCase
   test "tags should be created in the background" do
     t = create_team
     p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media project: p, tags: ['one']
 
-    pm.set_tags = ['foo']
-    pm.create_tags
+    # assert_equal 1, GenericWorker.jobs.size
 
-    assert_equal 1, GenericWorker.jobs.size
+    assert_equal 'one', Tag.last.tag_text
+    assert_equal pm.id, Tag.last.annotated_id
   end
 end

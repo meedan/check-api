@@ -263,7 +263,9 @@ module ProjectMediaCreators
   end
 
   def create_tags
-    # self.set_tags.each { |tag| Tag.create!(annotated: self, tag: tag.strip, skip_check_ability: true) } if self.set_tags.is_a?(Array)
-    self.set_tags.each { |tag| GenericWorker.perform_in(1.second, 'tag', 'create!', annotated: self, tag: tag.strip, skip_check_ability: true) } if self.set_tags.is_a?(Array)
+    self.set_tags.each { |tag| Tag.create!(annotated: self, tag: tag.strip, skip_check_ability: true) } if self.set_tags.is_a?(Array)
+    # require 'byebug'
+    # byebug
+    # self.set_tags.each { |tag| GenericWorker.perform_in(1.second, 'Tag', 'create!', annotated: self, tag: tag.strip, skip_check_ability: true) } if self.set_tags.is_a?(Array)
   end
 end
