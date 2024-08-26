@@ -36,6 +36,10 @@ class TemporaryProjectMedia
   def is_audio?
     self.type == "audio"
   end
+
+  def is_uploaded_media?
+    self.is_image? || self.is_audio? || self.is_video?
+  end
 end
 
 module AlegreV2
@@ -170,7 +174,7 @@ module AlegreV2
         return content_hash_for_value(project_media.media.url)
       elsif project_media.is_a?(TemporaryProjectMedia)
         return Rails.cache.read("url_sha:#{project_media.url}")
-      elsif !project_media.is_text?
+      elsif project_media.is_uploaded_media?
         return project_media.media.file.filename.split(".").first
       else
         return content_hash_for_value(project_media.send(field).to_s)
@@ -313,6 +317,10 @@ module AlegreV2
         delete_package(project_media, field, params),
         project_media
       )
+    rescue StandardError => e
+      error = Error.new(e)
+      Rails.logger.error("[AutoTagger Bot] Exception for event `#{body['event']}`: #{error.class} - #{error.message}")
+      CheckSentry.notify(error, bot: "alegre", project_media: project_media, params: params, field: field)
     end
 
     def get_per_model_threshold(project_media, threshold)
