@@ -358,6 +358,8 @@ class Bot::Smooch < BotUser
 
   def self.parse_query_message(message, app_id, uid, workflow, language)
     sm = CheckStateMachine.new(uid)
+    if self.process_menu_option(message, sm.state.value, app_id)
+      # Do nothing else - the action will be executed by "process_menu_option" method
     sm.go_to_ask_if_ready unless sm.state.value == 'ask_if_ready'
     self.ask_if_ready_to_submit(uid, workflow, 'ask_if_ready', language)
   end
