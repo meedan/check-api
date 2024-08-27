@@ -87,7 +87,11 @@ class SmoochNlu
           language: language,
         }.merge(context)
       }
+<<<<<<< HEAD
       response = Bot::Alegre.get_sync_with_params(params, "text")
+=======
+      response = Bot::Alegre.get_sync_raw_params(params, "text")
+>>>>>>> 7c7cdd38d (rebase)
 
       # One approach would be to take the option that has the most matches
       # Unfortunately this approach is influenced by the number of keywords per option
