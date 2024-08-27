@@ -31,6 +31,10 @@ module ProjectMediaGetters
     self.is_uploaded_image?
   end
 
+  def is_uploaded_media?
+    self.is_image? || self.is_audio? || self.is_video?
+  end
+
   def is_text?
     self.is_claim? || self.is_link?
   end
