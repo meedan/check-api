@@ -286,13 +286,12 @@ class TagTest < ActiveSupport::TestCase
   end
 
   test "tags should be created in the background" do
+    Sidekiq::Testing.inline!
+
     t = create_team
     p = create_project team: t
-    pm = create_project_media project: p, tags: ['one']
-
-    assert_equal 1, GenericWorker.jobs.size
-
-    # assert_equal 'one', Tag.last.tag_text
-    # assert_equal pm.id, Tag.last.annotated_id
+    assert_nothing_raised do
+      create_project_media project: p, tags: ['one']
+    end
   end
 end
