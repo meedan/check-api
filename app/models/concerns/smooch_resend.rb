@@ -159,6 +159,7 @@ module SmoochResend
     def resend_facebook_messenger_message_after_window(message, original)
       original = JSON.parse(original) unless original.blank?
       uid = message['appUser']['_id']
+      RequestStore.store[:smooch_bot_provider] = 'ZENDESK'
 
       return self.resend_facebook_messenger_report_after_window(message, original) if original&.dig('fallback_template') =~ /report/
 
@@ -184,6 +185,7 @@ module SmoochResend
     end
 
     def resend_facebook_messenger_report_after_window(message, original)
+      RequestStore.store[:smooch_bot_provider] = 'ZENDESK'
       pm = ProjectMedia.where(id: original['project_media_id']).last
       report = self.get_report_data_to_be_resent(message, original)
       unless report.nil?
