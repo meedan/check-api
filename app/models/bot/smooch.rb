@@ -546,7 +546,7 @@ class Bot::Smooch < BotUser
     self.is_v2? && (state == 'main' || state == 'waiting_for_message') && (
       !message['mediaUrl'].blank? ||
       ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer) ||
-      URI.regexp.match(message['text'].to_s)!=nil # URL in message?
+      !URI.regexp.match(message['text'].to_s).nil? # URL in message?
       )
   end
 
