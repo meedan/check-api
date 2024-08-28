@@ -495,7 +495,11 @@ class Team < ApplicationRecord
     query = query.where(updated_at: Range.new(*format_times_search_range_filter(JSON.parse(filters[:updated_at]), nil))) unless filters[:updated_at].blank?
 
     # Filter by text
-    query = query.where('(title ILIKE ? OR url ILIKE ? OR description ILIKE ?)', *["%#{filters[:text]}%"]*3) if filters[:text].to_s.size > 2
+    if filters[:text].to_s.size > 2
+      tsquery = Team.sanitize_sql_array(["to_tsquery(?)", filters[:text].split(/\s+/).map(&:strip).join(' & ')]) # FIXME: May not work for all languages
+      tsvector = "to_tsvector('simple', coalesce(title, '') || ' ' || coalesce(url, '') || coalesce(description, ''))"
+      query = query.where(Arel.sql("#{tsvector} @@ #{tsquery}"))
+    end
 
     # Exclude the ones already applied to a target item
     target = ProjectMedia.find_by_id(filters[:target_id].to_i)
