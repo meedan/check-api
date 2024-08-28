@@ -877,9 +877,9 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     Sidekiq::Testing.fake! do
       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
       # Mock any call to Alegre like `POST /text/similarity/` with a "text" parameter that contains "who are you"
-      Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/' && z[:text] =~ /who are you/ }.returns(true)
+      Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/similarity/sync/text' && z[:text] =~ /who are you/ }.returns(true)
       # Mock any call to Alegre like `GET /text/similarity/` with a "text" parameter that does not contain "who are you"
-      Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/search/' && (z[:text] =~ /who are you/).nil? }.returns({ 'result' => [] })
+      Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/similarity/sync/text' && (z[:text] =~ /who are you/).nil? }.returns({ 'result' => [] })
 
       # Enable NLU and add a couple of keywords to a new "About Us" resource
       nlu = SmoochNlu.new(@team.slug)
@@ -889,7 +889,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       r.add_keyword('who are you')
 
       # Mock a call to Alegre like `GET /text/similarity/` with a "text" parameter that contains "who are you"
-      Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/search/' && z[:text] =~ /who are you/ }.returns({ 'result' => [
+      Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/similarity/sync/text' && z[:text] =~ /who are you/ }.returns({ 'result' => [
         { '_score' => 0.9, '_source' => { 'context' => { 'resource_id' => 0 } } },
         { '_score' => 0.8, '_source' => { 'context' => { 'resource_id' => r.id } } }
       ]})
@@ -907,7 +907,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       assert_no_saved_query
 
       # Delete one keyword, so expect one call to Alegre
-      Bot::Alegre.expects(:request).with{ |x, y, _z| x == 'delete' && y == '/text/similarity/' }.once
+      Bot::Alegre.expects(:request).with{ |x, y, _z| x == 'delete' && y == '/similarity/sync/text' }.once
       r.remove_keyword('who are you')
       Bot::Alegre.unstub(:request)
     end
