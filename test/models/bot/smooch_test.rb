@@ -789,4 +789,23 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     tr = pm.tipline_requests.last
     assert_equal 'en', tr.smooch_user_request_language
   end
+
+  test "should submit message for factchecking" do
+    Bot::Smooch.stubs(:is_v2?).returns{true}
+    state='main'
+
+    # Should not be a submission shortcut
+    message = {"text": "abc"}
+    assert_equal(false, Bot::Smooch::is_a_shortcut_for_submission(state,message), "Unexpected shortcut"
+
+    # Should be a submission shortcut
+    message = {"text": "abc http://example.com"}
+    assert_equal(true, Bot::Smooch::is_a_shortcut_for_submission(state,message), "Missed URL shortcut"
+
+    # Should be a submission shortcut
+    message = {"text": "abc", "mediaUrl": "not blank"}
+    assert_equal(true, Bot::Smooch::is_a_shortcut_for_submission(state,message), "Missed media shortcut"
+
+    Bot::Smooch.unstubs(:is_v2?)
+  end
 end
