@@ -496,7 +496,7 @@ class Team < ApplicationRecord
 
     # Filter by text
     if filters[:text].to_s.size > 2
-      tsquery = Team.sanitize_sql_array(["websearch_to_tsquery(?)", filters[:text].split(/\s+/).map(&:strip).join(' & ')]) # FIXME: May not work for all languages
+      tsquery = Team.sanitize_sql_array(["websearch_to_tsquery(?)", filters[:text]]) # FIXME: May not work for all languages
       tsvector = "to_tsvector('simple', coalesce(title, '') || ' ' || coalesce(url, '') || coalesce(description, ''))"
       query = query.where(Arel.sql("#{tsvector} @@ #{tsquery}"))
     end
@@ -540,7 +540,7 @@ class Team < ApplicationRecord
 
     # Filter by text
     if filters[:text].to_s.size > 2
-      tsquery = Team.sanitize_sql_array(["websearch_to_tsquery(?)", filters[:text].split(/\s+/).map(&:strip).join(' & ')]) # FIXME: May not work for all languages
+      tsquery = Team.sanitize_sql_array(["websearch_to_tsquery(?)", filters[:text]]) # FIXME: May not work for all languages
       tsvector = "to_tsvector('simple', coalesce(title, '') || ' ' || coalesce(summary, '') || coalesce(url, ''))"
       query = query.where(Arel.sql("#{tsvector} @@ #{tsquery}"))
     end

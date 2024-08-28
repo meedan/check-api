@@ -1540,6 +1540,7 @@ class Team2Test < ActiveSupport::TestCase
     assert_equal 2, t.filtered_fact_checks(text: 'Foo Bar').count
     assert_equal 1, t.filtered_fact_checks(text: 'Foo Bar Bravo').count
     assert_equal 1, t.filtered_fact_checks(text: 'Foo Bar Alpha').count
+    assert_equal 0, t.filtered_fact_checks(text: 'Foo Bar Delta').count
     # Explainer
     create_explainer title: 'Some Other Test', team: t
     create_explainer title: 'Bar Bravo Foo Test', team: t
@@ -1549,5 +1550,6 @@ class Team2Test < ActiveSupport::TestCase
     assert_equal 2, t.filtered_explainers(text: 'Foo Bar').count
     assert_equal 1, t.filtered_explainers(text: 'Foo Bar Bravo').count
     assert_equal 1, t.filtered_explainers(text: 'Foo Bar Alpha').count
+    assert_equal 0, t.filtered_fact_checks(text: 'Foo Bar Delta').count
   end
 end
