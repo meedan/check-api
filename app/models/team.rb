@@ -535,7 +535,11 @@ class Team < ApplicationRecord
     query = query.where('fact_checks.report_status' => filters[:report_status].to_a.map(&:to_s)) unless filters[:report_status].blank?
 
     # Filter by text
-    query = query.where('(fact_checks.title ILIKE ? OR fact_checks.url ILIKE ? OR fact_checks.summary ILIKE ?)', *["%#{filters[:text]}%"]*3) if filters[:text].to_s.size > 2
+    if filters[:text].to_s.size > 2
+      tsquery = Team.sanitize_sql_array(["to_tsquery(?)", filters[:text].split(/\s+/).map(&:strip).join(' & ')]) # FIXME: May not work for all languages
+      tsvector = "to_tsvector('simple', coalesce(title, '') || ' ' || coalesce(summary, '') || coalesce(url, ''))"
+      query = query.where(Arel.sql("#{tsvector} @@ #{tsquery}"))
+    end
 
     # Exclude the ones already applied to a target item
     target = ProjectMedia.find_by_id(filters[:target_id].to_i)
