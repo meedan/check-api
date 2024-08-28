@@ -838,7 +838,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     assert_state 'main'
 
     # Mock a call to Alegre like `GET /text/similarity/` with a "text" parameter that contains "want"
-    Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/search/' && z[:text] =~ /want/ }.returns({ 'result' => [
+    Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/similarity/sync/text' && z[:text] =~ /want/ }.returns({ 'result' => [
       { '_score' => 0.96, '_source' => { 'context' => { 'menu_option_id' => subscription_option_id } } },
       { '_score' => 0.91, '_source' => { 'context' => { 'menu_option_id' => query_option_id } } }
     ]})
