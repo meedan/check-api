@@ -796,15 +796,15 @@ class Bot::SmoochTest < ActiveSupport::TestCase
 
     # Should not be a submission shortcut
     message = {"text": "abc"}
-    assert_equal(false, Bot::Smooch::is_a_shortcut_for_submission(state,message), "Unexpected shortcut"
+    assert_equal(false, Bot::Smooch::is_a_shortcut_for_submission(state,message), "Unexpected shortcut")
 
     # Should be a submission shortcut
     message = {"text": "abc http://example.com"}
-    assert_equal(true, Bot::Smooch::is_a_shortcut_for_submission(state,message), "Missed URL shortcut"
+    assert_equal(true, Bot::Smooch::is_a_shortcut_for_submission(state,message), "Missed URL shortcut")
 
     # Should be a submission shortcut
     message = {"text": "abc", "mediaUrl": "not blank"}
-    assert_equal(true, Bot::Smooch::is_a_shortcut_for_submission(state,message), "Missed media shortcut"
+    assert_equal(true, Bot::Smooch::is_a_shortcut_for_submission(state,message), "Missed media shortcut")
 
     Bot::Smooch.unstubs(:is_v2?)
   end
