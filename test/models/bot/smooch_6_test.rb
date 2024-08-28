@@ -809,9 +809,9 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
 
   test 'should process menu option using NLU' do
     # Mock any call to Alegre like `POST /text/similarity/` with a "text" parameter that contains "want"
-    Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/' && z[:text] =~ /want/ }.returns(true)
+    Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/similarity/sync/text' && z[:text] =~ /want/ }.returns(true)
     # Mock any call to Alegre like `GET /text/similarity/` with a "text" parameter that does not contain "want"
-    Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/search/' && (z[:text] =~ /want/).nil? }.returns({ 'result' => [] })
+    Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/similarity/sync/text' && (z[:text] =~ /want/).nil? }.returns({ 'result' => [] })
 
     # Enable NLU and add a couple of keywords for the newsletter menu option
     nlu = SmoochNlu.new(@team.slug)
@@ -824,7 +824,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     subscription_option_id = @installation.get_smooch_workflows[0]['smooch_state_main']['smooch_menu_options'][2]['smooch_menu_option_id']
 
     # Mock a call to Alegre like `GET /text/similarity/` with a "text" parameter that contains "want"
-    Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/search/' && z[:text] =~ /want/ }.returns({ 'result' => [
+    Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/similarity/sync/text' && z[:text] =~ /want/ }.returns({ 'result' => [
       { '_score' => 0.9, '_source' => { 'context' => { 'menu_option_id' => subscription_option_id } } },
       { '_score' => 0.2, '_source' => { 'context' => { 'menu_option_id' => query_option_id } } }
     ]})
