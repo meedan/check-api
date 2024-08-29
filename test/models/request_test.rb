@@ -116,7 +116,7 @@ class RequestTest < ActiveSupport::TestCase
   end
 
   test "should send text request to Alegre" do
-    Bot::Alegre.stubs(:request).returns(true)
+    Bot::Alegre.stubs(:request).returns({'result' => []})
     assert_nothing_raised do
       create_request(media: create_claim_media)
     end
@@ -124,7 +124,6 @@ class RequestTest < ActiveSupport::TestCase
   end
 
   test "should send media request to Alegre" do
-    Bot::Alegre.stubs(:request).returns(true)
     assert_nothing_raised do
       create_request(media: create_uploaded_image)
     end
@@ -132,14 +131,14 @@ class RequestTest < ActiveSupport::TestCase
   end
 
   test "should attach to similar text long" do
-    Bot::Alegre.stubs(:request).returns(true)
     f = create_feed
+    Bot::Alegre.stubs(:request).with('post', '/similarity/async/text', anything).returns({})
     m1 = Media.create! type: 'Claim', quote: 'Foo bar foo bar'
     r1 = create_request media: m1, feed: f
     m2 = Media.create! type: 'Claim', quote: 'Foo bar foo bar 2'
     r2 = create_request media: m2, feed: f
     response = { 'result' => [{ '_source' => { 'context' => { 'request_id' => r1.id } } }] }
-    Bot::Alegre.stubs(:request).with('post', '/similarity/sync/text/', { text: 'Foo bar foo bar 2', models: [::Bot::Alegre::ELASTICSEARCH_MODEL, ::Bot::Alegre::MEAN_TOKENS_MODEL], per_model_threshold: {::Bot::Alegre::ELASTICSEARCH_MODEL => 0.85, ::Bot::Alegre::MEAN_TOKENS_MODEL =>  0.9}, limit: 20, context: { feed_id: f.id } }).returns(response)
+    Bot::Alegre.stubs(:request).with('post', '/similarity/sync/text', { text: 'Foo bar foo bar 2', models: [::Bot::Alegre::ELASTICSEARCH_MODEL, ::Bot::Alegre::MEAN_TOKENS_MODEL], per_model_threshold: {::Bot::Alegre::ELASTICSEARCH_MODEL => 0.85, ::Bot::Alegre::MEAN_TOKENS_MODEL =>  0.9}, limit: 20, context: { feed_id: f.id } }).returns(response)
     r2.attach_to_similar_request!
     #Alegre should be called with ES and vector model for request with 4 or more words
     assert_equal r1, r2.reload.similar_to_request
@@ -148,14 +147,14 @@ class RequestTest < ActiveSupport::TestCase
   end
   
   test "should attach to similar text short" do
-    Bot::Alegre.stubs(:request).returns(true)
     f = create_feed
+    Bot::Alegre.stubs(:request).with('post', '/similarity/async/text', anything).returns({})
     m1 = Media.create! type: 'Claim', quote: 'Foo bar foo bar'
     r1 = create_request media: m1, feed: f
     m2 = Media.create! type: 'Claim', quote: 'Foo bar 2'
     r2 = create_request media: m2, feed: f
     response = { 'result' => [{ '_source' => { 'context' => { 'request_id' => r1.id } } }] }
-    Bot::Alegre.stubs(:request).with('post', '/similarity/sync/text/', { text: 'Foo bar 2', models: [::Bot::Alegre::MEAN_TOKENS_MODEL], per_model_threshold: {::Bot::Alegre::MEAN_TOKENS_MODEL =>  0.9}, limit: 20, context: { feed_id: f.id } }).returns(response)
+    Bot::Alegre.stubs(:request).with('post', '/similarity/sync/text', { text: 'Foo bar 2', models: [::Bot::Alegre::MEAN_TOKENS_MODEL], per_model_threshold: {::Bot::Alegre::MEAN_TOKENS_MODEL =>  0.9}, limit: 20, context: { feed_id: f.id } }).returns(response)
     r2.attach_to_similar_request!
     #Alegre should only be called with vector models for 2 or 3 word request
     assert_equal r1, r2.reload.similar_to_request
@@ -164,7 +163,7 @@ class RequestTest < ActiveSupport::TestCase
   end
   
   test "should not attach to similar text short" do
-    Bot::Alegre.stubs(:request).returns(true)
+    Bot::Alegre.stubs(:request).returns({'result' => []})
     f = create_feed
     m1 = Media.create! type: 'Claim', quote: 'Foo bar foo bar'
     r1 = create_request media: m1, feed: f
@@ -193,7 +192,7 @@ class RequestTest < ActiveSupport::TestCase
   # end
 
   test "should attach to similar link" do
-    Bot::Alegre.stubs(:request).returns(true)
+    Bot::Alegre.stubs(:request).returns({'result' => []})
     f = create_feed
     m = create_valid_media
     create_request request_type: 'text', media: m
