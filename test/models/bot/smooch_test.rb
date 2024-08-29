@@ -806,6 +806,10 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     message = {"text"=>"abc", "mediaUrl"=>"not blank"}
     assert_equal(true, Bot::Smooch.is_a_shortcut_for_submission?(state,message), "Missed media shortcut")
 
+    # Should be a submission shortcut
+    message = {"text"=>"abc example.com"}
+    assert_equal(true, Bot::Smooch.is_a_shortcut_for_submission?(state,message), "Missed non-qualified URL shortcut")
+
     Bot::Smooch.unstub(:is_v2?)
   end
 end
