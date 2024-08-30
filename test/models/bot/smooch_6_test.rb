@@ -660,12 +660,12 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   test "should not duplicate messages when saving" do
     @team.set_languages ['en']
     @team.save!
-    url = 'http://localhost'
-    send_message url, '1', url, '1'
+    message_text = 'not_a_url' #Not a URL, not media, and not longer than 'min_number_of_words_for_tipline_submit_shortcut'
+    send_message message_text, '1', message_text, '1'
     assert_state 'search'
     Sidekiq::Worker.drain_all
     tr = TiplineRequest.last
-    assert_equal 2, tr.smooch_data['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}").select{ |x| x.chomp.strip == url }.size
+    assert_equal 2, tr.smooch_data['text'].split("\n#{Bot::Smooch::MESSAGE_BOUNDARY}").select{ |x| x.chomp.strip == message_text }.size
   end
 
   test "should get search results in different languages" do

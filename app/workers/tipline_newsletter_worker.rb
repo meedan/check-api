@@ -39,6 +39,7 @@ class TiplineNewsletterWorker
       begin
         RequestStore.store[:smooch_bot_platform] = ts.platform
         Bot::Smooch.get_installation('team_bot_installation_id', tbi.id) { |i| i.id == tbi.id }
+        RequestStore.store[:smooch_bot_provider] = 'ZENDESK' if ts.platform != 'WhatsApp' # Adjustment for tiplines running CAPI and Smooch at the same time
 
         response = (ts.platform == 'WhatsApp' ? Bot::Smooch.send_message_to_user(ts.uid, newsletter.format_as_template_message, {}, false, true, 'newsletter') : Bot::Smooch.send_message_to_user(ts.uid, *newsletter.format_as_tipline_message))
 

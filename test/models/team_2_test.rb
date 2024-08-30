@@ -1527,4 +1527,29 @@ class Team2Test < ActiveSupport::TestCase
     tbi.save!
     assert_equal ['none', 'link_preview'], t.available_newsletter_header_types
   end
+
+  test "should search for fact-checks and explainers by keywords" do
+    Sidekiq::Testing.fake!
+    t = create_team
+    # Fact-checks
+    create_fact_check title: 'Some Other Test', claim_description: create_claim_description(project_media: create_project_media(team: t))
+    create_fact_check title: 'Bar Bravo Foo Test', claim_description: create_claim_description(project_media: create_project_media(team: t))
+    create_fact_check title: 'Foo Alpha Bar Test', claim_description: create_claim_description(project_media: create_project_media(team: t))
+    assert_equal 3, t.filtered_fact_checks.count
+    assert_equal 3, t.filtered_fact_checks(text: 'Test').count
+    assert_equal 2, t.filtered_fact_checks(text: 'Foo Bar').count
+    assert_equal 1, t.filtered_fact_checks(text: 'Foo Bar Bravo').count
+    assert_equal 1, t.filtered_fact_checks(text: 'Foo Bar Alpha').count
+    assert_equal 0, t.filtered_fact_checks(text: 'Foo Bar Delta').count
+    # Explainer
+    create_explainer title: 'Some Other Test', team: t
+    create_explainer title: 'Bar Bravo Foo Test', team: t
+    create_explainer title: 'Foo Alpha Bar Test', team: t
+    assert_equal 3, t.filtered_explainers.count
+    assert_equal 3, t.filtered_explainers(text: 'Test').count
+    assert_equal 2, t.filtered_explainers(text: 'Foo Bar').count
+    assert_equal 1, t.filtered_explainers(text: 'Foo Bar Bravo').count
+    assert_equal 1, t.filtered_explainers(text: 'Foo Bar Alpha').count
+    assert_equal 0, t.filtered_fact_checks(text: 'Foo Bar Delta').count
+  end
 end

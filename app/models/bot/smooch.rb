@@ -539,7 +539,11 @@ class Bot::Smooch < BotUser
   end
 
   def self.is_a_shortcut_for_submission?(state, message)
-    (state == 'main' || state == 'waiting_for_message') && (!message['mediaUrl'].blank? || ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer))
+    (state == 'main' || state == 'waiting_for_message') && (
+      !message['mediaUrl'].blank? ||
+      ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer) ||
+      !Twitter::TwitterText::Extractor.extract_urls(message['text'].to_s).blank? # URL in message?
+      )
   end
 
   def self.process_menu_option(message, state, app_id)
