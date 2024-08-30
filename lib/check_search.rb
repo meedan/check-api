@@ -168,7 +168,7 @@ class CheckSearch
   end
 
   def media_types_filter
-    MEDIA_TYPES & @options['show']
+    [MEDIA_TYPES, 'blank'].flatten & @options['show']
   end
 
   def get_pg_results
