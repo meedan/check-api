@@ -495,7 +495,7 @@ class Team < ApplicationRecord
     query = query.where(updated_at: Range.new(*format_times_search_range_filter(JSON.parse(filters[:updated_at]), nil))) unless filters[:updated_at].blank?
 
     # Filter by text
-    query = query.where('(title ILIKE ? OR url ILIKE ? OR description ILIKE ?)', *["%#{filters[:text]}%"]*3) if filters[:text].to_s.size > 2
+    query = self.filter_by_keywords(query, filters, 'Explainer') if filters[:text].to_s.size > 2
 
     # Exclude the ones already applied to a target item
     target = ProjectMedia.find_by_id(filters[:target_id].to_i)
@@ -535,13 +535,23 @@ class Team < ApplicationRecord
     query = query.where('fact_checks.report_status' => filters[:report_status].to_a.map(&:to_s)) unless filters[:report_status].blank?
 
     # Filter by text
-    query = query.where('(fact_checks.title ILIKE ? OR fact_checks.url ILIKE ? OR fact_checks.summary ILIKE ?)', *["%#{filters[:text]}%"]*3) if filters[:text].to_s.size > 2
+    query = self.filter_by_keywords(query, filters) if filters[:text].to_s.size > 2
 
     # Exclude the ones already applied to a target item
     target = ProjectMedia.find_by_id(filters[:target_id].to_i)
     query = query.where.not('fact_checks.id' => target.fact_check_id) unless target.nil?
 
     query
+  end
+
+  def filter_by_keywords(query, filters, type = 'FactCheck')
+    tsquery = Team.sanitize_sql_array(["websearch_to_tsquery(?)", filters[:text]]) # FIXME: May not work for all languages
+    if type == 'FactCheck'
+      tsvector = "to_tsvector('simple', coalesce(title, '') || ' ' || coalesce(summary, '') || coalesce(url, ''))"
+    else
+      tsvector = "to_tsvector('simple', coalesce(title, '') || ' ' || coalesce(description, '') || coalesce(url, ''))"
+    end
+    query.where(Arel.sql("#{tsvector} @@ #{tsquery}"))
   end
 
   # private
