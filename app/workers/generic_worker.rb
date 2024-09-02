@@ -2,13 +2,13 @@ class GenericWorker
 
   include Sidekiq::Worker
 
-  def perform(klass_name, *args)
+  def perform(klass_name, klass_method, *method_args)
     klass = klass_name.constantize
-    options = args.extract_options!
+    options = method_args.extract_options!
     if options
-      klass.public_send(*args, **options)
+      klass.public_send(klass_method, **options)
     else
-      klass.public_send(*args)
+      klass.public_send(klass_method)
     end
   end
 end
