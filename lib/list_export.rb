@@ -4,7 +4,7 @@ class ListExport
   def initialize(type, query, team_id)
     @type = type
     @query = query
-    @parsed_query = JSON.parse(@query)
+    @parsed_query = JSON.parse(@query).with_indifferent_access
     @team_id = team_id
     @team = Team.find(team_id)
     @feed = Feed.where(id: @parsed_query['feed_id'], team_id: @team_id).last if type == :feed
