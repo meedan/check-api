@@ -17,13 +17,9 @@ class RelationshipTest < ActiveSupport::TestCase
     pm2 = create_project_media team: t, project: p2
     assert_equal p1, pm1.reload.project
     assert_equal p2, pm2.reload.project
-    assert_equal 1, p1.reload.medias_count
-    assert_equal 1, p2.reload.medias_count
     r = create_relationship relationship_type: Relationship.confirmed_type, source_id: pm1.id, target_id: pm2.id
     assert_equal p1, pm1.reload.project
     assert_equal p1, pm2.reload.project
-    assert_equal 1, p1.reload.medias_count
-    assert_equal 0, p2.reload.medias_count
   end
 
   test "should create relationship between items with same media" do

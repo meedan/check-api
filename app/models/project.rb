@@ -40,41 +40,6 @@ class Project < ApplicationRecord
 
   check_settings
 
-  cached_field :medias_count,
-    start_as: 0,
-    recalculate: :recalculate_medias_count,
-    update_on: [
-      {
-        model: Relationship,
-        affected_ids: proc { |r| ProjectMedia.where(id: r.target_id).map(&:project_id) },
-        events: {
-          save: :recalculate,
-          destroy: :recalculate
-        }
-      },
-      {
-        model: ProjectMedia,
-        if: proc { |pm| !pm.project_id.nil? },
-        affected_ids: proc { |pm| [pm.project_id] },
-        events: {
-          create: :recalculate,
-          destroy: :recalculate
-        }
-      },
-      {
-        model: ProjectMedia,
-        if: proc { |pm| pm.saved_change_to_archived? || pm.saved_change_to_project_id? },
-        affected_ids: proc { |pm| [pm.project_id, pm.project_id_before_last_save] },
-        events: {
-          update: :recalculate,
-        }
-      },
-    ]
-
-  def recalculate_medias_count
-    self.team.medias_count(self)
-  end
-
   def check_search_team
     self.team.check_search_team
   end

@@ -515,7 +515,6 @@ class TeamTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u
     assert_equal 0, p.reload.project_medias.count
-    assert_equal 0, p.reload.medias_count
     rules = []
     rules << {
       "name": random_string,
@@ -547,7 +546,6 @@ class TeamTest < ActiveSupport::TestCase
     create_project_media team: t
     create_project_media user: u
     assert_equal 1, p.reload.project_medias.count
-    assert_equal 1, p.reload.medias_count
   end
 
   test "should set default language when creating team" do
@@ -573,7 +571,6 @@ class TeamTest < ActiveSupport::TestCase
     u2 = create_user
     create_team_user team: t, user: u
     assert_equal 0, p.reload.project_medias.count
-    assert_equal 0, p.reload.medias_count
     rules = []
     rules << {
       "name": random_string,
@@ -636,7 +633,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 0, pm2.reload.archived
     assert_equal 0, pm3.reload.archived
     assert_equal 1, p.reload.project_medias.count
-    assert_equal 1, p.reload.medias_count
   end
 
   test "should create default fieldsets when team is created" do
@@ -670,7 +666,6 @@ class TeamTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media team: t
     assert_equal 0, p.reload.project_medias.count
-    assert_equal 0, p.reload.medias_count
     rules = []
     rules << {
       "name": random_string,
@@ -702,12 +697,10 @@ class TeamTest < ActiveSupport::TestCase
     tk.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: { selected: 'Bar' }.to_json }.to_json }.to_json
     tk.save!
     assert_equal 0, p.reload.project_medias.count
-    assert_equal 0, p.reload.medias_count
     tk = Task.find(tk.id)
     tk.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: { selected: 'Foo' }.to_json }.to_json }.to_json
     tk.save!
     assert_equal 1, p.reload.project_medias.count
-    assert_equal 1, p.reload.medias_count
   end
 
   test "should match rule by assignment" do
@@ -719,7 +712,6 @@ class TeamTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media team: t
     assert_equal 0, p.reload.project_medias.count
-    assert_equal 0, p.reload.medias_count
     rules = []
     rules << {
       "name": random_string,
@@ -749,7 +741,6 @@ class TeamTest < ActiveSupport::TestCase
     t.save!
     Assignment.create! assigned: pm.last_status_obj.becomes(Annotation), assigner: create_user, user: u
     assert_equal 1, p.reload.project_medias.count
-    assert_equal 1, p.reload.medias_count
   end
 
   test "should match rule by text task answer" do
@@ -760,7 +751,6 @@ class TeamTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media team: t
     assert_equal 0, p.reload.project_medias.count
-    assert_equal 0, p.reload.medias_count
     rules = []
     rules << {
       "name": random_string,
@@ -792,12 +782,10 @@ class TeamTest < ActiveSupport::TestCase
     tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'test test' }.to_json }.to_json
     tk.save!
     assert_equal 0, p.reload.project_medias.count
-    assert_equal 0, p.reload.medias_count
     tk = Task.find(tk.id)
     tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'test foo test' }.to_json }.to_json
     tk.save!
     assert_equal 1, p.reload.project_medias.count
-    assert_equal 1, p.reload.medias_count
   end
 
   test "should allow default BotUser to be added on creation" do

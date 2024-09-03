@@ -9,7 +9,6 @@ class ProjectType < DefaultObject
   field :dbid, GraphQL::Types::Int, null: true
   field :permissions, GraphQL::Types::String, null: true
   field :pusher_channel, GraphQL::Types::String, null: true
-  field :medias_count, GraphQL::Types::Int, null: true
   field :search_id, GraphQL::Types::String, null: true
   field :url, GraphQL::Types::String, null: true
   field :search, CheckSearchType, null: true
