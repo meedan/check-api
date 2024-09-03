@@ -10495,7 +10495,6 @@ type Project implements Node {
   description: String
   id: ID!
   is_default: Boolean
-  medias_count: Int
   permissions: String
   privacy: Int
   project_group: ProjectGroup
