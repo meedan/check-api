@@ -357,8 +357,8 @@ class CheckSearch
         pm.author_name.to_s.gsub(/ \[.*\]$/, ''),
         pm.created_at.strftime("%Y-%m-%d %H:%M:%S"),
         pm.published_at&.strftime("%Y-%m-%d %H:%M:%S"),
-        pm.linked_items_count(true),
-        pm.tags_as_sentence(true)
+        pm.linked_items_count,
+        pm.tags_as_sentence
       ]
       annotations = pm.get_annotations('task').map(&:load)
       fields.each do |field|
