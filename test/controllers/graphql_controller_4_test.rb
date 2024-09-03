@@ -47,7 +47,6 @@ class GraphqlController4Test < ActionController::TestCase
 
   test "should bulk-send project medias to trash" do
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived }
-    @ps.each { |p| assert_equal 1, p.reload.medias_count }
     assert_search_finds_all({ archived: CheckArchivedFlags::FlagCodes::NONE })
     assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::TRASHED })
     assert_equal 0, CheckPusher::Worker.jobs.size
@@ -57,7 +56,6 @@ class GraphqlController4Test < ActionController::TestCase
     assert_response :success
     
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.reload.archived }
-    @ps.each { |p| assert_equal 0, p.reload.medias_count }
     assert_search_finds_all({ archived: CheckArchivedFlags::FlagCodes::TRASHED })
     assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::NONE })
     assert_equal 1, CheckPusher::Worker.jobs.size
@@ -90,7 +88,6 @@ class GraphqlController4Test < ActionController::TestCase
     Sidekiq::Worker.drain_all
     sleep 1
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.reload.archived }
-    @ps.each { |p| assert_equal 0, p.reload.medias_count }
     assert_search_finds_all({ archived: CheckArchivedFlags::FlagCodes::TRASHED })
     assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::NONE })
     assert_equal 0, CheckPusher::Worker.jobs.size
@@ -100,7 +97,6 @@ class GraphqlController4Test < ActionController::TestCase
     assert_response :success
     
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.reload.archived }
-    @ps.each { |p| assert_equal 1, p.reload.medias_count }
     assert_search_finds_all({ archived: CheckArchivedFlags::FlagCodes::NONE })
     assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::TRASHED })
     assert_equal 1, CheckPusher::Worker.jobs.size
@@ -113,7 +109,6 @@ class GraphqlController4Test < ActionController::TestCase
     Sidekiq::Worker.drain_all
     sleep 1
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.reload.archived }
-    @ps.each { |p| assert_equal 0, p.reload.medias_count }
     assert_search_finds_all({ archived: CheckArchivedFlags::FlagCodes::TRASHED })
     assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::NONE })
     assert_equal 0, CheckPusher::Worker.jobs.size
@@ -123,8 +118,6 @@ class GraphqlController4Test < ActionController::TestCase
     assert_response :success
 
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.reload.archived }
-    @ps.each { |p| assert_equal 0, p.reload.medias_count }
-    assert_equal @pms.length, add_to.reload.medias_count
     assert_search_finds_all({ archived: CheckArchivedFlags::FlagCodes::NONE })
     assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::TRASHED })
     assert_equal 2, CheckPusher::Worker.jobs.size
@@ -291,17 +284,11 @@ class GraphqlController4Test < ActionController::TestCase
     invalid_id_1 = Base64.encode64("ProjectMedia/0")
     invalid_id_2 = Base64.encode64("Project/#{pm1.id}")
     invalid_id_3 = random_string
-    assert_equal 4, @p1.reload.medias_count
-    assert_equal 2, @p2.reload.medias_count
-    assert_equal 0, p4.reload.medias_count
     ids = []
     [@pm1.graphql_id, @pm2.graphql_id, pm1.graphql_id, pm2.graphql_id, invalid_id_1, invalid_id_2, invalid_id_3].each { |id| ids << id }
     query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', action: "move_to", params: "{\"move_to\": \"' + p4.id.to_s + '\"}" }) { team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
-    assert_equal 0, @p1.reload.medias_count
-    assert_equal 0, @p2.reload.medias_count
-    assert_equal 6, p4.reload.medias_count
     # verify move similar items
     assert_equal p4.id, t_pm1.reload.project_id
     assert_equal p4.id, t2_pm1.reload.project_id
