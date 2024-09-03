@@ -532,7 +532,7 @@ class Team < ApplicationRecord
     query = query.where('fact_checks.imported' => !!filters[:imported]) unless filters[:imported].nil?
 
     # Filter by report status
-    query = query.where('fact_checks.report_status' => filters[:report_status].to_a.map(&:to_s)) unless filters[:report_status].blank?
+    query = query.where('fact_checks.report_status' => [filters[:report_status]].flatten.map(&:to_s)) unless filters[:report_status].blank?
 
     # Filter by text
     query = self.filter_by_keywords(query, filters) if filters[:text].to_s.size > 2
