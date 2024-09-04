@@ -20,12 +20,13 @@ namespace :check do
       FileUtils.mkdir_p(File.join(Rails.root, 'tmp', 'feed-clusters-input'))
       started = Time.now.to_i
       sort = [{ annotated_id: { order: :asc } }]
+      all_types = CheckSearch::MEDIA_TYPES + ['blank']
       Feed.find_each do |feed|
         # Only feeds that are sharing media
         if feed.data_points.to_a.include?(2)
           output = { call_id: "#{TIMESTAMP}-#{feed.uuid}", nodes: [], edges: [] }
           Team.current = feed.team
-          query = { feed_id: feed.id, feed_view: 'media', show_similar: true }
+          query = { feed_id: feed.id, feed_view: 'media', show_similar: true, show: all_types }
           es_query = CheckSearch.new(query.to_json).medias_query
           total = CheckSearch.new(query.to_json, nil, feed.team.id).number_of_results
           pages = (total / PER_PAGE.to_f).ceil
@@ -211,7 +212,8 @@ namespace :check do
               end
               # Add items to clusters
               Team.current = feed.team
-              query = { feed_id: feed.id, feed_view: 'media', show_similar: true }
+              all_types = CheckSearch::MEDIA_TYPES + ['blank']
+              query = { feed_id: feed.id, feed_view: 'media', show_similar: true, show: all_types }
               es_query = CheckSearch.new(query.to_json).medias_query
               total = CheckSearch.new(query.to_json, nil, feed.team.id).number_of_results
               pages = (total / PER_PAGE.to_f).ceil
