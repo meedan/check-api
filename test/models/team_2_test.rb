@@ -1528,12 +1528,13 @@ class Team2Test < ActiveSupport::TestCase
     Sidekiq::Testing.fake!
     t = create_team
     # Fact-checks
-    create_fact_check title: 'Some Other Test', claim_description: create_claim_description(project_media: create_project_media(team: t))
-    create_fact_check title: 'Bar Bravo Foo Test', claim_description: create_claim_description(project_media: create_project_media(team: t))
+    create_fact_check title: 'Some Other Test', claim_description: create_claim_description(description: 'Claim', project_media: create_project_media(team: t))
+    create_fact_check title: 'Bar Bravo Foo Test', claim_description: create_claim_description(context: 'Claim', project_media: create_project_media(team: t))
     create_fact_check title: 'Foo Alpha Bar Test', claim_description: create_claim_description(project_media: create_project_media(team: t))
     assert_equal 3, t.filtered_fact_checks.count
     assert_equal 3, t.filtered_fact_checks(text: 'Test').count
     assert_equal 2, t.filtered_fact_checks(text: 'Foo Bar').count
+    assert_equal 2, t.filtered_fact_checks(text: 'Claim').count
     assert_equal 1, t.filtered_fact_checks(text: 'Foo Bar Bravo').count
     assert_equal 1, t.filtered_fact_checks(text: 'Foo Bar Alpha').count
     assert_equal 0, t.filtered_fact_checks(text: 'Foo Bar Delta').count
