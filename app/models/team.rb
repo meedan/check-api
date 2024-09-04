@@ -545,11 +545,11 @@ class Team < ApplicationRecord
   end
 
   def filter_by_keywords(query, filters, type = 'FactCheck')
-    tsquery = Team.sanitize_sql_array(["websearch_to_tsquery(?)", filters[:text]]) # FIXME: May not work for all languages
+    tsquery = Team.sanitize_sql_array(["websearch_to_tsquery(?)", filters[:text]])
     if type == 'FactCheck'
-      tsvector = "to_tsvector('simple', coalesce(title, '') || ' ' || coalesce(summary, '') || coalesce(url, ''))"
+      tsvector = "to_tsvector('simple', coalesce(title, '') || ' ' || coalesce(summary, '') || ' ' || coalesce(url, '') || ' ' || coalesce(claim_descriptions.description, '') || ' ' || coalesce(claim_descriptions.context, ''))"
     else
-      tsvector = "to_tsvector('simple', coalesce(title, '') || ' ' || coalesce(description, '') || coalesce(url, ''))"
+      tsvector = "to_tsvector('simple', coalesce(title, '') || ' ' || coalesce(description, '') || ' ' || coalesce(url, ''))"
     end
     query.where(Arel.sql("#{tsvector} @@ #{tsquery}"))
   end
