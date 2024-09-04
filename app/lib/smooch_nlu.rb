@@ -87,7 +87,7 @@ class SmoochNlu
           language: language,
         }.merge(context)
       }
-      response = Bot::Alegre.get_sync_raw_params(params, "text")
+      response = Bot::Alegre.get_sync_with_params(params, "text")
 
       # One approach would be to take the option that has the most matches
       # Unfortunately this approach is influenced by the number of keywords per option
