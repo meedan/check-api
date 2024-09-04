@@ -57,7 +57,7 @@ class Ability
     can :destroy, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['admin']
     can [:update, :destroy], TeamUser, team_id: @context_team.id
-    can :duplicate, Team, :id => @context_team.id
+    can [:duplicate, :export_list], Team, :id => @context_team.id
     can :set_privacy, Project, :team_id => @context_team.id
     can :read_feed_invitations, Feed, :team_id => @context_team.id
     can :destroy, Feed, :team_id => @context_team.id

@@ -60,6 +60,10 @@ class CheckSearch
     'fact_check_published_on' => 'fact_check_published_on'
   }
 
+  def set_option(key, value)
+    @options[key] = value
+  end
+
   def team_condition(team_id = nil)
     if feed_query?
       feed_teams = @options['feed_team_ids'].is_a?(Array) ? (@feed.team_ids & @options['feed_team_ids']) : @feed.team_ids
@@ -329,12 +333,51 @@ class CheckSearch
     @options['es_id'] ? $repository.find([@options['es_id']]).compact : $repository.search(query: query, collapse: collapse, sort: sort, size: @options['eslimit'], from: @options['esoffset']).results
   end
 
+  def self.get_exported_data(query, team_id)
+    team = Team.find(team_id)
+    search = CheckSearch.new(query, nil, team_id)
+
+    # Prepare the export
+    data = []
+    header = ['Claim', 'Item page URL', 'Status', 'Created by', 'Submitted at', 'Published at', 'Number of media', 'Tags']
+    fields = team.team_tasks.sort
+    fields.each { |tt| header << tt.label }
+    data << header
+
+    # No pagination for the export
+    search.set_option('esoffset', 0)
+    search.set_option('eslimit', CheckConfig.get(:export_csv_maximum_number_of_results, 10000, :integer))
+
+    # Iterate through each result and generate an output row for the CSV
+    search.medias.find_each do |pm|
+      row = [
+        pm.claim_description&.description,
+        pm.full_url,
+        pm.status_i18n,
+        pm.author_name.to_s.gsub(/ \[.*\]$/, ''),
+        pm.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+        pm.published_at&.strftime("%Y-%m-%d %H:%M:%S"),
+        pm.linked_items_count,
+        pm.tags_as_sentence
+      ]
+      annotations = pm.get_annotations('task').map(&:load)
+      fields.each do |field|
+        annotation = annotations.find { |a| a.team_task_id == field.id }
+        answer = (annotation ? (begin annotation.first_response_obj.file_data[:file_urls].join("\n") rescue annotation.first_response.to_s end) : '')
+        answer = begin JSON.parse(answer).collect{ |x| x['url'] }.join(', ') rescue answer end
+        row << answer
+      end
+      data << row
+    end
+    data
+  end
+
   private
 
   def adjust_es_window_size
     window_size = 10000
     current_size = @options['esoffset'].to_i + @options['eslimit'].to_i
-    @options['eslimit'] = window_size - @options['esoffset'].to_i if  current_size > window_size
+    @options['eslimit'] = window_size - @options['esoffset'].to_i if current_size > window_size
   end
 
   def adjust_project_filter

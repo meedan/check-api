@@ -1,6 +1,12 @@
 require_relative '../test_helper'
 
 class CheckS3Test < ActiveSupport::TestCase
+  def setup
+  end
+
+  def teardown
+  end
+
   test "should return resource" do
     assert_kind_of Aws::S3::Resource, CheckS3.resource
   end

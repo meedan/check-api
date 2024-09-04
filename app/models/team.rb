@@ -532,7 +532,7 @@ class Team < ApplicationRecord
     query = query.where('fact_checks.imported' => !!filters[:imported]) unless filters[:imported].nil?
 
     # Filter by report status
-    query = query.where('fact_checks.report_status' => filters[:report_status].to_a.map(&:to_s)) unless filters[:report_status].blank?
+    query = query.where('fact_checks.report_status' => [filters[:report_status]].flatten.map(&:to_s)) unless filters[:report_status].blank?
 
     # Filter by text
     query = self.filter_by_keywords(query, filters) if filters[:text].to_s.size > 2
@@ -545,11 +545,11 @@ class Team < ApplicationRecord
   end
 
   def filter_by_keywords(query, filters, type = 'FactCheck')
-    tsquery = Team.sanitize_sql_array(["websearch_to_tsquery(?)", filters[:text]]) # FIXME: May not work for all languages
+    tsquery = Team.sanitize_sql_array(["websearch_to_tsquery(?)", filters[:text]])
     if type == 'FactCheck'
-      tsvector = "to_tsvector('simple', coalesce(title, '') || ' ' || coalesce(summary, '') || coalesce(url, ''))"
+      tsvector = "to_tsvector('simple', coalesce(title, '') || ' ' || coalesce(summary, '') || ' ' || coalesce(url, '') || ' ' || coalesce(claim_descriptions.description, '') || ' ' || coalesce(claim_descriptions.context, ''))"
     else
-      tsvector = "to_tsvector('simple', coalesce(title, '') || ' ' || coalesce(description, '') || coalesce(url, ''))"
+      tsvector = "to_tsvector('simple', coalesce(title, '') || ' ' || coalesce(description, '') || ' ' || coalesce(url, ''))"
     end
     query.where(Arel.sql("#{tsvector} @@ #{tsquery}"))
   end

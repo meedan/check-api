@@ -397,7 +397,7 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     create_comment annotated: pm, annotator: u
-    query = "query GetById { project(id: \"#{p.id}\") { medias_count, project_medias(first: 1) { edges { node { permissions } } } } }"
+    query = "query GetById { project(id: \"#{p.id}\") { project_medias(first: 1) { edges { node { permissions } } } } }"
     post :create, params: { query: query, team: 'team' }
     assert_response :success
     assert_not_equal '{}', JSON.parse(@response.body)['data']['project']['project_medias']['edges'][0]['node']['permissions']
