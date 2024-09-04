@@ -7,9 +7,12 @@ on:
     branches:
     - master
     - develop
+    - epic*
+    - cv2*
   pull_request:
     branches:
     - develop
+    
 
 env:
   CC_TEST_REPORTER_ID: "${{ secrets.CC_TEST_REPORTER_ID }}"
