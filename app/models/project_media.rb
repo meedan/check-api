@@ -530,9 +530,11 @@ class ProjectMedia < ApplicationRecord
 
 
   def self.create_tags_in_background(**params)
-    project_media = ProjectMedia.find(params['project_media_id'])
-    tags = JSON.parse(params['tags_json'])
-    tags.each { |tag| Tag.create! annotated: project_media, tag: tag.strip, skip_check_ability: true }
+    project_media = ProjectMedia.find_by_id(params['project_media_id'])
+    unless project_media.nil?
+      tags = JSON.parse(params['tags_json'])
+      tags.each { |tag| Tag.create! annotated: project_media, tag: tag.strip, skip_check_ability: true }
+    end
   end
 
   # private

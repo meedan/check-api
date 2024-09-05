@@ -6,6 +6,18 @@ class ProjectMedia8Test < ActiveSupport::TestCase
     require 'sidekiq/testing'
   end
 
+  test "create tags when project media id and tags are present" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+
+    ProjectMedia.create_tags_in_background(project_media_id: pm.id, tags_json: ['one', 'two'].to_json)
+  end
+
+  test "does not raise an error when no project media is sent" do
+    ProjectMedia.create_tags_in_background(project_media_id: nil, tags_json: ['one', 'two'].to_json)
+  end
+
   test "when creating an item with tag/tags, tags should be created in the background" do
     Sidekiq::Testing.inline!
 
