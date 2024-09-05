@@ -14,8 +14,7 @@ class ProjectMedia8Test < ActiveSupport::TestCase
     assert_nothing_raised do
       ProjectMedia.create_tags_in_background(project_media_id: pm.id, tags_json: ['one', 'two'].to_json)
     end
-    assert_equal pm.id, Tag.last.annotated_id
-    assert_equal 'two', Tag.last.tag_text
+    assert_equal 2, pm.annotations('tag').count
   end
 
   test "does not raise an error when no project media is sent" do
@@ -30,10 +29,9 @@ class ProjectMedia8Test < ActiveSupport::TestCase
 
     t = create_team
     p = create_project team: t
+    pm = create_project_media project: p, tags: ['one']
 
-    assert_nothing_raised do
-      create_project_media project: p, tags: ['one']
-    end
+    assert_equal 1, pm.annotations('tag').count
   end
 
   test "when creating an item with multiple tags, only one job should be scheduled" do
