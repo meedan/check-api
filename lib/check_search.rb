@@ -335,7 +335,6 @@ class CheckSearch
 
   def self.get_exported_data(query, team_id)
     team = Team.find(team_id)
-    search = CheckSearch.new(query, nil, team_id)
 
     # Prepare the export
     data = []
@@ -344,31 +343,41 @@ class CheckSearch
     fields.each { |tt| header << tt.label }
     data << header
 
-    # No pagination for the export
-    search.set_option('esoffset', 0)
-    search.set_option('eslimit', CheckConfig.get(:export_csv_maximum_number_of_results, 10000, :integer))
+    # Paginate
+    page_size = 10000
+    search = CheckSearch.new(query, nil, team_id)
+    total = search.number_of_results
+    offset = 0
+    while offset < total
+      search = CheckSearch.new(query, nil, team_id)
+      search.set_option('eslimit', page_size)
+      search.set_option('esoffset', offset)
 
-    # Iterate through each result and generate an output row for the CSV
-    search.medias.find_each do |pm|
-      row = [
-        pm.claim_description&.description,
-        pm.full_url,
-        pm.status_i18n,
-        pm.author_name.to_s.gsub(/ \[.*\]$/, ''),
-        pm.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-        pm.published_at&.strftime("%Y-%m-%d %H:%M:%S"),
-        pm.linked_items_count,
-        pm.tags_as_sentence
-      ]
-      annotations = pm.get_annotations('task').map(&:load)
-      fields.each do |field|
-        annotation = annotations.find { |a| a.team_task_id == field.id }
-        answer = (annotation ? (begin annotation.first_response_obj.file_data[:file_urls].join("\n") rescue annotation.first_response.to_s end) : '')
-        answer = begin JSON.parse(answer).collect{ |x| x['url'] }.join(', ') rescue answer end
-        row << answer
+      # Iterate through each result and generate an output row for the CSV
+      search.medias.find_each do |pm|
+        row = [
+          pm.claim_description&.description,
+          pm.full_url,
+          pm.status_i18n,
+          pm.author_name.to_s.gsub(/ \[.*\]$/, ''),
+          pm.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+          pm.published_at&.strftime("%Y-%m-%d %H:%M:%S"),
+          pm.linked_items_count,
+          pm.tags_as_sentence
+        ]
+        annotations = pm.get_annotations('task').map(&:load)
+        fields.each do |field|
+          annotation = annotations.find { |a| a.team_task_id == field.id }
+          answer = (annotation ? (begin annotation.first_response_obj.file_data[:file_urls].join("\n") rescue annotation.first_response.to_s end) : '')
+          answer = begin JSON.parse(answer).collect{ |x| x['url'] }.join(', ') rescue answer end
+          row << answer
+        end
+        data << row
       end
-      data << row
+
+      offset += page_size
     end
+
     data
   end
 
