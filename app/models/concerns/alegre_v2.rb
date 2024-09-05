@@ -290,11 +290,11 @@ module AlegreV2
       request("post", async_path_for_type(type), params.merge(suppress_search_response: suppress_search_response))
     end
 
-    def get_sync_with_params(params, type)
+    def query_sync_with_params(params, type)
       request("post", sync_path_for_type(type), params)
     end
 
-    def get_async_with_params(params, type)
+    def query_async_with_params(params, type)
       request("post", async_path_for_type(type), params)
     end
 
@@ -576,4 +576,5 @@ module AlegreV2
       }]
     end
   end
+  alias :index_sync_with_params, :query_sync_with_params
 end
