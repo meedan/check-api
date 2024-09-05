@@ -264,7 +264,7 @@ module ProjectMediaCreators
 
   def create_tags
     if self.set_tags.is_a?(Array)
-        GenericWorker.perform_in(1.second, 'ProjectMedia', 'create_tags_in_background', project_media_id: self.id, tags_json: self.set_tags.to_json)
+        GenericWorker.perform_in(1.second, 'ProjectMedia', 'create_tags_in_background', project_media_id: self.id, tags_json: self.set_tags.to_json, user_id: self.user_id)
     end
   end
 end

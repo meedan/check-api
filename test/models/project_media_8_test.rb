@@ -30,6 +30,7 @@ class ProjectMedia8Test < ActiveSupport::TestCase
 
     t = create_team
     p = create_project team: t
+
     assert_nothing_raised do
       create_project_media project: p, tags: ['one']
     end
@@ -40,6 +41,7 @@ class ProjectMedia8Test < ActiveSupport::TestCase
 
     t = create_team
     p = create_project team: t
+
     assert_nothing_raised do
       create_project_media project: p, tags: ['one', 'two', 'three']
     end

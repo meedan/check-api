@@ -14,7 +14,7 @@ class GenericWorkerTest < ActiveSupport::TestCase
     pm = create_project_media project: p
 
     assert_nothing_raised do
-      GenericWorker.perform_async('Tag', 'create!', annotated_type: 'ProjectMedia' , annotated_id: pm.id, tag: 'test_tag', skip_check_ability: true)
+      GenericWorker.perform_async('Tag', 'create!', annotated_type: 'ProjectMedia' , annotated_id: pm.id, tag: 'test_tag', skip_check_ability: true, user_id: pm.user_id)
     end
   end
 
