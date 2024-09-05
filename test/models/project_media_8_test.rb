@@ -11,11 +11,18 @@ class ProjectMedia8Test < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
 
-    ProjectMedia.create_tags_in_background(project_media_id: pm.id, tags_json: ['one', 'two'].to_json)
+    assert_nothing_raised do
+      ProjectMedia.create_tags_in_background(project_media_id: pm.id, tags_json: ['one', 'two'].to_json)
+    end
+    assert_equal pm.id, Tag.last.annotated_id
+    assert_equal 'two', Tag.last.tag_text
   end
 
   test "does not raise an error when no project media is sent" do
-    ProjectMedia.create_tags_in_background(project_media_id: nil, tags_json: ['one', 'two'].to_json)
+    assert_nothing_raised do
+      CheckSentry.expects(:notify).once
+      ProjectMedia.create_tags_in_background(project_media_id: nil, tags_json: ['one', 'two'].to_json)
+    end
   end
 
   test "when creating an item with tag/tags, tags should be created in the background" do
