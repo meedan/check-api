@@ -156,6 +156,13 @@ module AnnotationBase
       perms["destroy Smooch"] = ability.can?(:destroy, self) if self.annotation_type == 'smooch'
       perms
     end
+
+    def hit_nested_objects_limit?
+      ret = false
+      pm = self.project_media
+      ret = pm.get_annotations(self.annotation_type).count > CheckConfig.get('nested_objects_limit', 10000, :integer) unless pm.nil?
+      ret
+    end
   end
 
   module ClassMethods
