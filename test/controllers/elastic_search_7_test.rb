@@ -300,5 +300,29 @@ class ElasticSearch7Test < ActionController::TestCase
     end
   end
 
+  test "should ignore index task responses that exceeds nested objects limit" do
+    team = create_team
+    tt = create_team_task team_id: team.id, type: 'single_choice', options: ['ans_a', 'ans_b', 'ans_c']
+    tt2 = create_team_task team_id: team.id, type: 'single_choice', options: ['ans_aa', 'ans_bb', 'ans_cc']
+    tt3 = create_team_task team_id: team.id, type: 'single_choice', options: ['ans_aaa', 'ans_bbb', 'ans_ccc']
+    pm = create_project_media team: team
+    stub_configs({ 'nested_objects_limit' => 2 }) do
+      # answer single choice
+      puts "Start to answer"
+      pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: 'ans_a' }.to_json }.to_json
+      pm_tt.save!
+      # pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
+      # pm_tt2.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: 'ans_aa' }.to_json }.to_json
+      # pm_tt2.save!
+      # pm_tt3 = pm.annotations('task').select{|t| t.team_task_id == tt3.id}.last
+      # pm_tt3.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: 'ans_aaa' }.to_json }.to_json
+      # pm_tt3.save!
+      sleep 2
+      es = $repository.find(pm.get_es_doc_id)
+      pp es['task_responses']
+    end
+  end
+
   # Please add new tests to test/controllers/elastic_search_8_test.rb
 end

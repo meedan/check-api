@@ -206,7 +206,7 @@ class ElasticSearch9Test < ActionController::TestCase
   test "shoud add team filter by default" do
     t = create_team
     t2 = create_team
-    pm1 = create_project_media team: t, quote: 'test',  disable_es_callbacks: false
+    pm1 = create_project_media team: t, quote: 'test', disable_es_callbacks: false
     pm2 = create_project_media team: t2, quote: 'test', disable_es_callbacks: false
     ProjectMedia.where(id: [pm1.id, pm2.id]).update_all(project_id: nil)
     options = {
@@ -228,6 +228,33 @@ class ElasticSearch9Test < ActionController::TestCase
     result = CheckSearch.new(query.to_json)
     assert_equal [pm1.id], result.medias.map(&:id)
     Team.unstub(:current)
+  end
+
+  test "should ignore index document that exceeds nested objects limit" do
+    team = create_team
+    pm = create_project_media team: team
+    stub_configs({ 'nested_objects_limit' => 2 }) do
+      tr = create_tipline_request associated: pm, disable_es_callbacks: false
+      tr2 = create_tipline_request associated: pm, disable_es_callbacks: false
+      tr3 = create_tipline_request associated: pm, disable_es_callbacks: false
+      t = create_tag annotated: pm, disable_es_callbacks: false
+      t2 = create_tag annotated: pm, disable_es_callbacks: false
+      t3 = create_tag annotated: pm, disable_es_callbacks: false
+      c = create_comment annotated: pm, disable_es_callbacks: false
+      c2 = create_comment annotated: pm, disable_es_callbacks: false
+      c3 = create_comment annotated: pm, disable_es_callbacks: false
+      sleep 2
+      es = $repository.find(pm.get_es_doc_id)
+      requests = es['requests']
+      assert_equal 2, requests.size
+      assert_equal [tr.id, tr2.id], requests.collect{|r| r['id']}.sort
+      tags = es['tags']
+      assert_equal 2, tags.size
+      assert_equal [t.id, t2.id], tags.collect{|i| i['id']}.sort
+      comments = es['comments']
+      assert_equal 2, comments.size
+      assert_equal [c.id, c2.id], comments.collect{|i| i['id']}.sort
+    end
   end
 
   # Please add new tests to test/controllers/elastic_search_10_test.rb
