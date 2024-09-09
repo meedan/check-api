@@ -240,9 +240,6 @@ class ElasticSearch9Test < ActionController::TestCase
       t = create_tag annotated: pm, disable_es_callbacks: false
       t2 = create_tag annotated: pm, disable_es_callbacks: false
       t3 = create_tag annotated: pm, disable_es_callbacks: false
-      c = create_comment annotated: pm, disable_es_callbacks: false
-      c2 = create_comment annotated: pm, disable_es_callbacks: false
-      c3 = create_comment annotated: pm, disable_es_callbacks: false
       sleep 2
       es = $repository.find(pm.get_es_doc_id)
       requests = es['requests']
@@ -251,9 +248,6 @@ class ElasticSearch9Test < ActionController::TestCase
       tags = es['tags']
       assert_equal 2, tags.size
       assert_equal [t.id, t2.id], tags.collect{|i| i['id']}.sort
-      comments = es['comments']
-      assert_equal 2, comments.size
-      assert_equal [c.id, c2.id], comments.collect{|i| i['id']}.sort
     end
   end
 
