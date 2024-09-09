@@ -172,7 +172,7 @@ class CheckSearch
   end
 
   def media_types_filter
-    MEDIA_TYPES & @options['show']
+    [MEDIA_TYPES, 'blank'].flatten & @options['show']
   end
 
   def get_pg_results
@@ -225,7 +225,7 @@ class CheckSearch
 
   def feed_query?
     if @feed.nil?
-      @feed = (@options['feed_id'] && Team.current.is_part_of_feed?(@options['feed_id'])) ? Feed.find(@options['feed_id']) : false
+      @feed = (@options['feed_id'] && Team.current&.is_part_of_feed?(@options['feed_id'])) ? Feed.find(@options['feed_id']) : false
     end
     !!@feed
   end
@@ -357,8 +357,8 @@ class CheckSearch
         pm.author_name.to_s.gsub(/ \[.*\]$/, ''),
         pm.created_at.strftime("%Y-%m-%d %H:%M:%S"),
         pm.published_at&.strftime("%Y-%m-%d %H:%M:%S"),
-        pm.linked_items_count(true),
-        pm.tags_as_sentence(true)
+        pm.linked_items_count,
+        pm.tags_as_sentence
       ]
       annotations = pm.get_annotations('task').map(&:load)
       fields.each do |field|

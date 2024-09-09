@@ -4,10 +4,10 @@ class ListExport
   def initialize(type, query, team_id)
     @type = type
     @query = query
-    @parsed_query = JSON.parse(@query)
+    @parsed_query = JSON.parse(@query).with_indifferent_access
     @team_id = team_id
     @team = Team.find(team_id)
-    @feed = Feed.where(id: @parsed_query['feed_id'], team_id: @team_id).last if type == :feed
+    @feed = Feed.find(@parsed_query['feed_id']) if type == :feed && @team.is_part_of_feed?(Feed.find(@parsed_query['feed_id']))
     raise "Invalid export type '#{type}'. Should be one of: #{TYPES}" unless TYPES.include?(type)
   end
 

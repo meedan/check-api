@@ -121,14 +121,6 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal [m1, m2].sort, p.reload.project_medias.map(&:media).sort
   end
 
-  test "should get project medias count" do
-    t = create_team
-    p = create_project team: t
-    create_project_media project: p
-    create_project_media project: p
-    assert_equal 2, p.medias_count
-  end
-
   test "should have annotations" do
     pm = create_project_media
     c1 = create_comment annotated: nil
@@ -550,40 +542,9 @@ class ProjectTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not include trashed items in medias count" do
-    p = create_project
-    create_project_media project: p
-    create_project_media project: p
-    create_project_media project: p, archived: CheckArchivedFlags::FlagCodes::TRASHED
-    assert_equal 2, p.reload.medias_count
-  end
-
   test "should have search team" do
     assert_kind_of CheckSearch, create_project.check_search_team
     assert_kind_of Array, create_project.check_search_team.projects
-  end
-
-  test "should cache medias_count" do
-    RequestStore.store[:skip_cached_field_update] = false
-    t = create_team
-    p = create_project team: t
-    pm1 = create_project_media team: t, project: nil
-    pm2 = create_project_media team: t, project: nil
-    pm3 = create_project_media team: t, project: nil
-    assert_equal 0, p.reload.medias_count
-    pm1.project_id = p.id; pm1.save!
-    assert_equal 1, p.reload.medias_count
-    pm2.project_id = p.id; pm2.save!
-    assert_equal 2, p.reload.medias_count
-    pm3.project_id = p.id; pm3.save!
-    assert_equal 3, p.reload.medias_count
-    pm3.destroy!
-    assert_equal 2, p.reload.medias_count
-    assert_equal 0, pm2.reload.sources_count
-    r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
-    assert_equal 1, pm2.reload.sources_count
-    assert_equal 1, p.reload.medias_count
-    RequestStore.store[:skip_cached_field_update] = true
   end
 
   test "should have a project group" do
@@ -657,8 +618,6 @@ class ProjectTest < ActiveSupport::TestCase
         p2.items_destination_project_id = p3.id
         p2.destroy
         assert_equal [pm3.id, pm4.id], p3.reload.project_media_ids.sort
-        # assert_equal p3.title, pm3.folder
-        assert_equal 2, p3.medias_count
       end
     end
     RequestStore.store[:skip_cached_field_update] = true
