@@ -82,6 +82,7 @@ module CheckElasticSearch
 
   def add_update_nested_obj(options)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    return if options[:op] == 'create' && self.respond_to?(:hit_nested_objects_limit?) && self.hit_nested_objects_limit?
     model = { klass: self.class.name, id: self.id }
     ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'create_update_doc_nested')
   end

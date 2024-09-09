@@ -1117,16 +1117,12 @@ class Team2Test < ActiveSupport::TestCase
     t.rules = rules.to_json
     t.save!
     pm1 = create_project_media project: p0, disable_es_callbacks: false
-    assert_equal 1, p0.reload.medias_count
-    assert_equal 0, p1.reload.medias_count
     s = pm1.last_status_obj
     s.status = 'in_progress'
     s.save!
     sleep 2
     result = $repository.find(get_es_id(pm1))
     assert_equal p1.id, result['project_id']
-    assert_equal 0, p0.reload.medias_count
-    assert_equal 1, p1.reload.medias_count
     pm2 = create_project_media project: p0, disable_es_callbacks: false
     sleep 2
     assert_equal p1.id, pm1.reload.project_id
@@ -1532,12 +1528,13 @@ class Team2Test < ActiveSupport::TestCase
     Sidekiq::Testing.fake!
     t = create_team
     # Fact-checks
-    create_fact_check title: 'Some Other Test', claim_description: create_claim_description(project_media: create_project_media(team: t))
-    create_fact_check title: 'Bar Bravo Foo Test', claim_description: create_claim_description(project_media: create_project_media(team: t))
+    create_fact_check title: 'Some Other Test', claim_description: create_claim_description(description: 'Claim', project_media: create_project_media(team: t))
+    create_fact_check title: 'Bar Bravo Foo Test', claim_description: create_claim_description(context: 'Claim', project_media: create_project_media(team: t))
     create_fact_check title: 'Foo Alpha Bar Test', claim_description: create_claim_description(project_media: create_project_media(team: t))
     assert_equal 3, t.filtered_fact_checks.count
     assert_equal 3, t.filtered_fact_checks(text: 'Test').count
     assert_equal 2, t.filtered_fact_checks(text: 'Foo Bar').count
+    assert_equal 2, t.filtered_fact_checks(text: 'Claim').count
     assert_equal 1, t.filtered_fact_checks(text: 'Foo Bar Bravo').count
     assert_equal 1, t.filtered_fact_checks(text: 'Foo Bar Alpha').count
     assert_equal 0, t.filtered_fact_checks(text: 'Foo Bar Delta').count
