@@ -1,4 +1,4 @@
-class CheckSearch
+  class CheckSearch
   include SearchHelper
 
   def initialize(options, file = nil, team_id = Team.current&.id)
@@ -225,7 +225,7 @@ class CheckSearch
 
   def feed_query?
     if @feed.nil?
-      @feed = (@options['feed_id'] && Team.current.is_part_of_feed?(@options['feed_id'])) ? Feed.find(@options['feed_id']) : false
+      @feed = (@options['feed_id'] && Team.current&.is_part_of_feed?(@options['feed_id'])) ? Feed.find(@options['feed_id']) : false
     end
     !!@feed
   end
