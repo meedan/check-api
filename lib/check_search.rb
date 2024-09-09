@@ -1,4 +1,4 @@
-  class CheckSearch
+class CheckSearch
   include SearchHelper
 
   def initialize(options, file = nil, team_id = Team.current&.id)
