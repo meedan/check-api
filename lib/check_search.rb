@@ -347,10 +347,9 @@ class CheckSearch
     # Paginate
     search = CheckSearch.new(query, nil, team_id)
     search_after = [0]
-    while true
+    while !search_after.empty?
       result = $repository.search(_source: 'annotated_id', query: search.medias_query, sort: [{ annotated_id: { order: :asc } }], size: 10000, search_after: search_after).results
-      ids = result.collect{ |i| i['annotated_id'] }.uniq.map(&:to_i)
-      break if ids.empty?
+      ids = result.collect{ |i| i['annotated_id'] }.uniq.compact.map(&:to_i)
 
       # Iterate through each result and generate an output row for the CSV
       ProjectMedia.where(id: ids, team_id: search.team_condition(team_id)).find_each do |pm|
@@ -374,7 +373,7 @@ class CheckSearch
         data << row
       end
 
-      search_after = [ids.max]
+      search_after = [ids.max].compact
     end
 
     data
