@@ -44,12 +44,10 @@ class SmoochNlu
     }
     if operation == 'add' && !keywords.include?(keyword)
       keywords << keyword
-      alegre_operation = 'post'
-      alegre_params = common_alegre_params.merge({ text: keyword, models: ALEGRE_MODELS_AND_THRESHOLDS.keys })
+      Bot::Alegre.index_sync_with_params(common_alegre_params.merge({ text: keyword, models: ALEGRE_MODELS_AND_THRESHOLDS.keys }), "text")
     elsif operation == 'remove'
       keywords -= [keyword]
-      alegre_operation = 'delete'
-      alegre_params = common_alegre_params.merge({ quiet: true })
+      Bot::Alegre.request_delete_from_raw(common_alegre_params.merge({ quiet: true }), "text")
     end
     # FIXME: Add error handling and better logging
     Bot::Alegre.request(alegre_operation, '/text/similarity/', alegre_params) if alegre_operation && alegre_params
@@ -91,7 +89,7 @@ class SmoochNlu
           language: language,
         }.merge(context)
       }
-      response = Bot::Alegre.request('post', '/text/similarity/search/', params)
+      response = Bot::Alegre.query_sync_with_params(params, "text")
 
       # One approach would be to take the option that has the most matches
       # Unfortunately this approach is influenced by the number of keywords per option
