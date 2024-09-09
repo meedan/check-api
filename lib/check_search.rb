@@ -335,6 +335,7 @@ class CheckSearch
 
   def self.get_exported_data(query, team_id)
     team = Team.find(team_id)
+    Team.current = team
 
     # Prepare the export
     data = []
@@ -344,17 +345,15 @@ class CheckSearch
     data << header
 
     # Paginate
-    page_size = 10000
     search = CheckSearch.new(query, nil, team_id)
-    total = search.number_of_results
-    offset = 0
-    while offset < total
-      search = CheckSearch.new(query, nil, team_id)
-      search.set_option('eslimit', page_size)
-      search.set_option('esoffset', offset)
+    search_after = [0]
+    while true
+      result = $repository.search(_source: 'annotated_id', query: search.medias_query, sort: [{ annotated_id: { order: :asc } }], size: 10000, search_after: search_after).results
+      ids = result.collect{ |i| i['annotated_id'] }.uniq.map(&:to_i)
+      break if ids.empty?
 
       # Iterate through each result and generate an output row for the CSV
-      search.medias.find_each do |pm|
+      ProjectMedia.where(id: ids, team_id: search.team_condition(team_id)).find_each do |pm|
         row = [
           pm.claim_description&.description,
           pm.full_url,
@@ -375,7 +374,7 @@ class CheckSearch
         data << row
       end
 
-      offset += page_size
+      search_after = [ids.max]
     end
 
     data
