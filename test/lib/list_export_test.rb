@@ -62,6 +62,10 @@ class ListExportTest < ActiveSupport::TestCase
   test "should export fact-check feed CSV" do
     setup_elasticsearch
     RequestStore.store[:skip_cached_field_update] = false
+
+    pender_url = CheckConfig.get('pender_url_private')
+    WebMock.stub_request(:get, /#{pender_url}/).to_return(body: '{}', status: 200)
+
     t = create_team
     2.times do
       pm = create_project_media team: t, disable_es_callbacks: false
