@@ -84,6 +84,13 @@ class Tag < ApplicationRecord
     ProjectMedia.where(id: pmids).find_each { |pm| pm.tags_as_sentence }
   end
 
+  def hit_nested_objects_limit?
+    ret = false
+    pm = self.project_media
+    ret = pm.get_annotations(self.annotation_type).count > CheckConfig.get('nested_objects_limit', 10000, :integer) unless pm.nil?
+    ret
+  end
+
   private
 
   def get_tag_text_reference
