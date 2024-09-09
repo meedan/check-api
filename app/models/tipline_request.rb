@@ -64,6 +64,11 @@ class TiplineRequest < ApplicationRecord
     Base64.encode64("#{self.associated_type}/#{self.associated_id}")
   end
 
+  def hit_nested_objects_limit?
+    associated = self.associated
+    associated.tipline_requests.count > CheckConfig.get('nested_objects_limit', 10000, :integer)
+  end
+
   private
 
   def set_team_and_user
