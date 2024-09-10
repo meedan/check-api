@@ -294,6 +294,19 @@ class ProjectMedia < ApplicationRecord
       # Update creator_name cached field
       Rails.cache.write("check_cached_field:ProjectMedia:#{new_pm.id}:creator_name", 'Import')
 
+      # Log a version for replace_by action
+      replace_v = Version.new({
+        item_type: 'ProjectMedia',
+        item_id: self.id.to_s,
+        event: 'replace',
+        whodunnit: User.current&.id.to_s,
+        object_changes: { pm_id: [self.id, new_pm.id] }.to_json,
+        associated_id: new_pm.id,
+        associated_type: 'ProjectMedia',
+        team_id: new_pm.team_id,
+      })
+      replace_v.save!
+
       # Apply other stuff in background
       self.class.delay_for(5.seconds).apply_replace_by(self.id, new_pm.id, skip_send_report)
     end
