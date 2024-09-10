@@ -580,5 +580,5 @@ module AlegreV2
       }]
     end
   end
-  alias index_sync_with_params query_sync_with_params
+  alias :index_sync_with_params :query_sync_with_params
 end
