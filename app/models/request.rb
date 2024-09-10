@@ -194,7 +194,7 @@ class Request < ApplicationRecord
         models: request.text_similarity_settings.keys(),
         context: context
       }
-      ::Bot::Alegre.get_async_with_params(params, "text")
+      ::Bot::Alegre.index_async_with_params(params, "text")
     # elsif ['UploadedImage', 'UploadedAudio', 'UploadedVideo'].include?(media.type)
     #   type = media.type.gsub(/^Uploaded/, '').downcase
     #   url = media.file&.file&.public_url
