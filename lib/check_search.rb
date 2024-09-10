@@ -60,10 +60,6 @@ class CheckSearch
     'fact_check_published_on' => 'fact_check_published_on'
   }
 
-  def set_option(key, value)
-    @options[key] = value
-  end
-
   def team_condition(team_id = nil)
     if feed_query?
       feed_teams = @options['feed_team_ids'].is_a?(Array) ? (@feed.team_ids & @options['feed_team_ids']) : @feed.team_ids
