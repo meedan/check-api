@@ -290,10 +290,6 @@ module AlegreV2
       request("post", async_path_for_type(type), params.merge(suppress_search_response: suppress_search_response))
     end
 
-    def index_async_with_params(params, type)
-      request("post", async_path_for_type(type), params)
-    end
-
     def index_sync_with_params(params, type)
       query_sync_with_params(params, type)
     end
