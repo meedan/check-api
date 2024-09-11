@@ -58,16 +58,19 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
 
   test "checks alegre package in get_request_doc" do
     package = {
-      :doc_id=>Bot::Alegre.item_doc_id(@pm, "title"),
-      :text=>"Some text",
-      :context=>{
-        :team_id=>@pm.team_id,
-        :project_media_id=>@pm.id,
-        :has_custom_id=>true,
-        :temporary_media=>false,
-        :field=>"title"
+      :doc=>{
+        :doc_id=>Bot::Alegre.item_doc_id(@pm, "title"),
+        :text=>"Some text",
+        :context=>{
+          :team_id=>@pm.team_id,
+          :project_media_id=>@pm.id,
+          :has_custom_id=>true,
+          :temporary_media=>false,
+          :field=>"title"
+        },
+        :models=>["elasticsearch"]
       },
-      :models=>["elasticsearch"]
+      :type=>"text"
     }
     response = ReindexAlegreWorkspace.new.get_request_doc(@pm, "title", "Some text")
     assert_equal package, response
@@ -93,16 +96,19 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
   
   test "tests the parallel request" do
     package = {
-      :doc_id=>Bot::Alegre.item_doc_id(@pm, "title"),
-      :text=>"Some text",
-      :context=>{
-        :team_id=>@pm.team_id,
-        :project_media_id=>@pm.id,
-        :has_custom_id=>true,
-        :temporary_media=>false,
-        :field=>"title"
+      :doc=>{
+        :doc_id=>Bot::Alegre.item_doc_id(@pm, "title"),
+        :text=>"Some text",
+        :context=>{
+          :team_id=>@pm.team_id,
+          :project_media_id=>@pm.id,
+          :has_custom_id=>true,
+          :temporary_media=>false,
+          :field=>"title"
+        },
+        :models=>["elasticsearch"]
       },
-      :models=>["elasticsearch"]
+      :type=>"text"
     }
     response = ReindexAlegreWorkspace.new.check_for_write(1.upto(30).collect{|x| package}, "a", @team.id, true, 1)
     assert_equal Array, response.class
