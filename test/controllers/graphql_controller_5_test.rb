@@ -57,14 +57,14 @@ class GraphqlController5Test < ActionController::TestCase
     pm = create_project_media project: p, media: m
     pm2 = create_project_media project: p, media: m2
     create_claim_description project_media: pm2
-    Bot::Alegre.stubs(:get_similar_texts).returns({ pm2.id => 0.9, pm.id => 0.8 })
+    Bot::Alegre.stubs(:get_items_from_similar_text).returns({ pm2.id => 0.9, pm.id => 0.8 })
 
     query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") { similar_items(first: 10000) { edges { node { dbid, claim_description { id, fact_check { id } } } } } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal pm2.id, JSON.parse(@response.body)['data']['project_media']['similar_items']['edges'][0]['node']['dbid']
 
-    Bot::Alegre.unstub(:get_similar_texts)
+    Bot::Alegre.unstub(:get_items_from_similar_text)
   end
 
   test "should create and update flags and content warning" do

@@ -83,6 +83,7 @@ class ExplainerTest < ActiveSupport::TestCase
   end
 
   test "should create tag texts when setting tags" do
+    WebMock.stub_request(:post, /\/similarity\/async\/text/).to_return(body: {}.to_json) # For explainers
     Sidekiq::Testing.inline! do
       assert_difference 'TagText.count' do
         create_explainer tags: ['foo']
