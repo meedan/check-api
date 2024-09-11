@@ -271,14 +271,13 @@ class ProjectMedia < ApplicationRecord
         new_pm.skip_check_ability = true
         new_pm.channel = { main: CheckChannels::ChannelCodes::FETCH }
         # Point the claim and consequently the fact-check
-        new_pm.claim_description = self.claim_description if self.claim_description
+        cd = self.claim_description
+        if cd
+          cd.disable_replace_media = true
+          new_pm.claim_description = cd
+        end
         new_pm.save(validate: false) # To skip channel validation
         RequestStore.store[:skip_check_ability] = false
-
-        # All annotations from the old item should point to the new item
-        # Remove any status and report from the new item
-        Annotation.where(annotation_type: ['verification_status', 'report_design'], annotated_type: 'ProjectMedia', annotated_id: new_pm.id).delete_all
-        Annotation.where(annotated_type: 'ProjectMedia', annotated_id: self.id).where.not(annotation_type: ['tag', 'task']).update_all(annotated_id: new_pm.id)
 
         # All versions from the old item should point to the new item
         Version.from_partition(self.team_id).where(associated_type: 'ProjectMedia', associated_id: self.id).update_all(associated_id: new_pm.id)
@@ -288,16 +287,10 @@ class ProjectMedia < ApplicationRecord
         Relationship.where(source_id: self.id).update_all(source_id: new_pm.id)
       end
 
-      # Clear cached fields
-      new_pm.clear_cached_fields
-
-      # Update creator_name cached field
-      Rails.cache.write("check_cached_field:ProjectMedia:#{new_pm.id}:creator_name", 'Import')
-
       # Log a version for replace_by action
       replace_v = Version.new({
         item_type: 'ProjectMedia',
-        item_id: self.id.to_s,
+        item_id: new_pm.id.to_s,
         event: 'replace',
         whodunnit: User.current&.id.to_s,
         object_changes: { pm_id: [self.id, new_pm.id] }.to_json,
@@ -306,6 +299,12 @@ class ProjectMedia < ApplicationRecord
         team_id: new_pm.team_id,
       })
       replace_v.save!
+
+      # Clear cached fields
+      new_pm.clear_cached_fields
+
+      # Update creator_name cached field
+      Rails.cache.write("check_cached_field:ProjectMedia:#{new_pm.id}:creator_name", 'Import')
 
       # Apply other stuff in background
       self.class.delay_for(5.seconds).apply_replace_by(self.id, new_pm.id, skip_send_report)
@@ -316,6 +315,28 @@ class ProjectMedia < ApplicationRecord
     old_pm = ProjectMedia.find_by_id(old_pm_id)
     new_pm = ProjectMedia.find_by_id(new_pm_id)
     unless new_pm.nil?
+      # Merge assignment
+      new_assignments = new_pm.last_status_obj.assignments
+      old_status = self.last_status_obj
+      old_assignments = old_status.assignments
+      if old_assignments.blank?
+        new_assignments.update_all(assigned_id: old_status.id)
+      else
+        assignments_uids = old_assignments.map(&:user_id)
+        new_assignments.find_each do |as|
+          if assignments_uids.include?(as.user_id)
+            as.skip_check_ability = true
+            as.destroy
+          else 
+            as.update_columns(assigned_id: old_status.id)
+            as.send(:increase_assignments_count)
+          end
+        end
+      end
+      # Remove any status and report from the new item
+      Annotation.where(annotation_type: ['verification_status', 'report_design'], annotated_type: 'ProjectMedia', annotated_id: new_pm.id).delete_all
+      # All annotations from the old item should point to the new item
+      Annotation.where(annotated_type: 'ProjectMedia', annotated_id: self.id).where.not(annotation_type: ['tag', 'task']).update_all(annotated_id: new_pm.id)
       # Merge tags
       new_item_tags = new_pm.annotations('tag').map(&:tag)
       unless new_item_tags.blank? || old_pm.nil?
