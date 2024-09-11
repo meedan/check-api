@@ -317,7 +317,7 @@ class ProjectMedia < ApplicationRecord
     options = begin JSON.parse(options_json) rescue {} end
     unless new_pm.nil?
       # Merge assignment
-      new_pm.replace_merge_assignmnets(options['assignments_ids'])
+      new_pm.replace_merge_assignments(options['assignments_ids'])
       # Merge tags
       new_item_tags = new_pm.annotations('tag').map(&:tag)
       unless new_item_tags.blank? || old_pm.nil?
@@ -349,7 +349,7 @@ class ProjectMedia < ApplicationRecord
     ::Bot::Smooch.send_report_from_parent_to_child(new_pm.id, new_pm.id) unless options['skip_send_report']
   end
 
-  def replace_merge_assignmnets(assignments_ids)
+  def replace_merge_assignments(assignments_ids)
     unless assignments_ids.blank?
       new_assignments = Assignment.where(id: assignments_ids)
       status = self.last_status_obj
