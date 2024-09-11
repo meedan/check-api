@@ -44,7 +44,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
        WebMock.stub_request(:post, 'http://alegre/text/langid/').to_return(body: 'bad JSON response')
        WebMock.stub_request(:post, 'http://alegre/text/langid/').to_return(body: 'bad JSON response')
        WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
-       WebMock.stub_request(:post, 'http://alegre/text/similarity/search/').to_return(body: 'success')
+       WebMock.stub_request(:post, 'http://alegre/similarity/sync/text').to_return(body: 'success')
        WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
        Bot::Alegre.any_instance.stubs(:get_language).raises(RuntimeError)
        assert_nothing_raised do
