@@ -281,7 +281,7 @@ class ProjectMedia < ApplicationRecord
         RequestStore.store[:skip_check_ability] = false
 
         # Get assignment for new items
-        assignments_ids = new_pm.last_status_obj.assignments.map(&:id)
+        assignments_ids = begin new_pm.last_status_obj.assignments.map(&:id) rescue [] end
         # Remove any status and report from the new item
         Annotation.where(annotation_type: ['verification_status', 'report_design'], annotated_type: 'ProjectMedia', annotated_id: new_pm.id).delete_all
         # All annotations from the old item should point to the new item
@@ -317,27 +317,7 @@ class ProjectMedia < ApplicationRecord
     options = begin JSON.parse(options_json) rescue {} end
     unless new_pm.nil?
       # Merge assignment
-      assignments_ids = options['assignments_ids']
-      unless assignments_ids.blank?
-        new_assignments = Assignment.where(id: assignments_ids)
-        status = new_pm.last_status_obj
-        current_assignments = status.assignments
-        if current_assignments.blank?
-          new_assignments.update_all(assigned_id: status.id)
-        else
-          assignments_uids = current_assignments.map(&:user_id)
-          new_assignments.find_each do |as|
-            if assignments_uids.include?(as.user_id)
-              as.skip_check_ability = true
-              as.delete
-            else
-              as.update_columns(assigned_id: status.id)
-              as.send(:increase_assignments_count)
-            end
-          end
-        end
-      end
-
+      new_pm.replace_merge_assignmnets(options['assignments_ids'])
       # Merge tags
       new_item_tags = new_pm.annotations('tag').map(&:tag)
       unless new_item_tags.blank? || old_pm.nil?
@@ -367,6 +347,28 @@ class ProjectMedia < ApplicationRecord
     old_pm.destroy! unless old_pm.nil?
     # Send a published report if any
     ::Bot::Smooch.send_report_from_parent_to_child(new_pm.id, new_pm.id) unless options['skip_send_report']
+  end
+
+  def replace_merge_assignmnets(assignments_ids)
+    unless assignments_ids.blank?
+      new_assignments = Assignment.where(id: assignments_ids)
+      status = self.last_status_obj
+      current_assignments = status.assignments
+      if current_assignments.blank?
+        new_assignments.update_all(assigned_id: status.id)
+      else
+        assignments_uids = current_assignments.map(&:user_id)
+        new_assignments.find_each do |as|
+          if assignments_uids.include?(as.user_id)
+            as.skip_check_ability = true
+            as.delete
+          else
+            as.update_columns(assigned_id: status.id)
+            as.send(:increase_assignments_count)
+          end
+        end
+      end
+    end
   end
 
   def method_missing(method, *args, &block)
