@@ -899,7 +899,9 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     t = create_team
     u = create_user
     u2 = create_user
+    u3 = create_user
     create_team_user team: t, user: u2
+    create_team_user team: t, user: u3
     at = create_annotation_type annotation_type: 'task_response_single_choice', label: 'Task'
     ft1 = create_field_type field_type: 'single_choice', label: 'Single Choice'
     fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
@@ -938,7 +940,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       # assign to
       s = new.last_verification_status_obj
       s = Dynamic.find(s.id)
-      s.assigned_to_ids = u2.id.to_s
+      s.assigned_to_ids = [u2.id, u3.id].join(',')
       s.save!
       old.replace_by(new)
       assert_nil ProjectMedia.find_by_id(old.id)
@@ -957,14 +959,14 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       assert_not_empty replace_v
       # Verifiy assignment
       s = new.last_verification_status_obj
-      assert_equal [u.id, u2.id], s.assignments.map(&:user_id)
+      assert_equal [u.id, u2.id, u3.id], s.assignments.map(&:user_id).sort
       # Verify ES
       result = $repository.find(get_es_id(new))
       assert_equal [CheckChannels::ChannelCodes::FETCH], result['channel']
       assert_equal [old_c.id, new_c.id], result['comments'].collect{ |c| c['id'] }.sort
       assert_equal [new_tag_a.id, new_tag_c.id, old_tag_b.id].sort, result['tags'].collect{ |tag| tag['id'] }.sort
       assert_equal [new_tt.id, new_tt2.id].sort, result['task_responses'].collect{ |task| task['id'] }.sort
-      assert_equal [u.id, u2.id], result['assigned_user_ids'].sort
+      assert_equal [u.id, u2.id, u3.id], result['assigned_user_ids'].sort
     end
   end
 

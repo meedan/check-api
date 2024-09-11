@@ -307,7 +307,7 @@ class ProjectMedia < ApplicationRecord
         assignments_ids: assignments_ids,
         skip_send_report: skip_send_report
       }
-      self.class.delay_for(5.seconds).apply_replace_by(self.id, new_pm.id, options.to_json)
+      self.class.delay_for(1.second).apply_replace_by(self.id, new_pm.id, options.to_json)
     end
   end
 
@@ -351,21 +351,15 @@ class ProjectMedia < ApplicationRecord
 
   def replace_merge_assignments(assignments_ids)
     unless assignments_ids.blank?
-      new_assignments = Assignment.where(id: assignments_ids)
       status = self.last_status_obj
-      current_assignments = status.assignments
-      if current_assignments.blank?
-        new_assignments.update_all(assigned_id: status.id)
-      else
-        assignments_uids = current_assignments.map(&:user_id)
-        new_assignments.find_each do |as|
-          if assignments_uids.include?(as.user_id)
-            as.skip_check_ability = true
-            as.delete
-          else
-            as.update_columns(assigned_id: status.id)
-            as.send(:increase_assignments_count)
-          end
+      assignments_uids = status.assignments.map(&:user_id)
+      Assignment.where(id: assignments_ids).find_each do |as|
+        if assignments_uids.include?(as.user_id)
+          as.skip_check_ability = true
+          as.delete
+        else
+          as.update_columns(assigned_id: status.id)
+          as.send(:increase_assignments_count)
         end
       end
     end
