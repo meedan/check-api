@@ -1,4 +1,6 @@
 class ClaimDescription < ApplicationRecord
+  attr_accessor :disable_replace_media
+
   include Article
 
   has_paper_trail on: [:create, :update], ignore: [:updated_at, :created_at], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
@@ -14,7 +16,7 @@ class ClaimDescription < ApplicationRecord
   validates_uniqueness_of :project_media_id, allow_nil: true
   after_commit :update_fact_check, on: [:update]
   after_update :update_report_status
-  after_update :replace_media
+  after_update :replace_media, unless: proc { |cd| cd.disable_replace_media }
   after_update :migrate_claim_and_fact_check_logs, if: proc { |cd| cd.saved_change_to_project_media_id? && !cd.project_media_id.nil? }
 
   # To avoid GraphQL conflict with name `context`
