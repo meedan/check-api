@@ -140,6 +140,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   test "should submit query without details on tipline bot v2" do
     WebMock.stub_request(:post, /\/text\/similarity\/search\//).to_return(body: {}.to_json) # For explainers
     WebMock.stub_request(:post, /\/similarity\/async\/text/).to_return(body: {}.to_json) # For explainers
+    WebMock.stub_request(:post, /\/similarity\/sync\/text/).to_return(body: {}.to_json) # For explainers
     claim = 'This is a test claim'
     send_message 'hello', '1', '1', random_string, random_string, claim, random_string, random_string, '1'
     assert_saved_query_type 'default_requests'
@@ -209,6 +210,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   end
 
   test "should submit query with details on tipline bot v2" do
+    WebMock.stub_request(:post, /\/similarity\/sync\/text/).to_return(body: {}.to_json) # For explainers
     WebMock.stub_request(:post, /\/similarity\/async\/text/).to_return(body: {}.to_json) # For explainers
     WebMock.stub_request(:post, /\/text\/similarity\/search\//).to_return(body: {}.to_json) # For explainers
     claim = 'This is a test claim'
@@ -809,9 +811,9 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
 
   test 'should process menu option using NLU' do
     # Mock any call to Alegre like `POST /text/similarity/` with a "text" parameter that contains "want"
-    Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/' && z[:text] =~ /want/ }.returns(true)
+    Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/similarity/sync/text' && z[:text] =~ /want/ }.returns(true)
     # Mock any call to Alegre like `GET /text/similarity/` with a "text" parameter that does not contain "want"
-    Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/search/' && (z[:text] =~ /want/).nil? }.returns({ 'result' => [] })
+    Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/similarity/sync/text' && (z[:text] =~ /want/).nil? }.returns({ 'result' => [] })
 
     # Enable NLU and add a couple of keywords for the newsletter menu option
     nlu = SmoochNlu.new(@team.slug)
@@ -824,7 +826,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     subscription_option_id = @installation.get_smooch_workflows[0]['smooch_state_main']['smooch_menu_options'][2]['smooch_menu_option_id']
 
     # Mock a call to Alegre like `GET /text/similarity/` with a "text" parameter that contains "want"
-    Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/search/' && z[:text] =~ /want/ }.returns({ 'result' => [
+    Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/similarity/sync/text' && z[:text] =~ /want/ }.returns({ 'result' => [
       { '_score' => 0.9, '_source' => { 'context' => { 'menu_option_id' => subscription_option_id } } },
       { '_score' => 0.2, '_source' => { 'context' => { 'menu_option_id' => query_option_id } } }
     ]})
@@ -838,7 +840,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     assert_state 'main'
 
     # Mock a call to Alegre like `GET /text/similarity/` with a "text" parameter that contains "want"
-    Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/search/' && z[:text] =~ /want/ }.returns({ 'result' => [
+    Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/similarity/sync/text' && z[:text] =~ /want/ }.returns({ 'result' => [
       { '_score' => 0.96, '_source' => { 'context' => { 'menu_option_id' => subscription_option_id } } },
       { '_score' => 0.91, '_source' => { 'context' => { 'menu_option_id' => query_option_id } } }
     ]})
@@ -877,9 +879,9 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     Sidekiq::Testing.fake! do
       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
       # Mock any call to Alegre like `POST /text/similarity/` with a "text" parameter that contains "who are you"
-      Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/' && z[:text] =~ /who are you/ }.returns(true)
+      Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/similarity/sync/text' && z[:text] =~ /who are you/ }.returns(true)
       # Mock any call to Alegre like `GET /text/similarity/` with a "text" parameter that does not contain "who are you"
-      Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/search/' && (z[:text] =~ /who are you/).nil? }.returns({ 'result' => [] })
+      Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/similarity/sync/text' && (z[:text] =~ /who are you/).nil? }.returns({ 'result' => [] })
 
       # Enable NLU and add a couple of keywords to a new "About Us" resource
       nlu = SmoochNlu.new(@team.slug)
@@ -889,7 +891,7 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       r.add_keyword('who are you')
 
       # Mock a call to Alegre like `GET /text/similarity/` with a "text" parameter that contains "who are you"
-      Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/search/' && z[:text] =~ /who are you/ }.returns({ 'result' => [
+      Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/similarity/sync/text' && z[:text] =~ /who are you/ }.returns({ 'result' => [
         { '_score' => 0.9, '_source' => { 'context' => { 'resource_id' => 0 } } },
         { '_score' => 0.8, '_source' => { 'context' => { 'resource_id' => r.id } } }
       ]})
