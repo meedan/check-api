@@ -72,6 +72,7 @@ class ReindexAlegreWorkspace
     if running_bucket.length > 500 || write_remains
       log(event_id, 'Writing to Alegre...')
       running_bucket.each do |item|
+        # FIXME we need to go back to bulk uploads eventually
         Bot::Alegre.query_async_with_params(item[:doc], item[:type])
       end
       log(event_id, 'Wrote to Alegre.')
