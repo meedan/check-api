@@ -25,7 +25,7 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
     @tbi.save
     Bot::Alegre.stubs(:get_alegre_tbi).returns(TeamBotInstallation.new)
     Sidekiq::Testing.inline!
-    Bot::Alegre.stubs(:request).with('post', '/text/bulk_similarity/', anything).returns("done")
+    Bot::Alegre.stubs(:request).with('post', '/similarity/async/text', anything).returns("done")
   end
 
   def teardown
