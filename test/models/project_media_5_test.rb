@@ -911,9 +911,15 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
       RequestStore.store[:skip_clear_cache] = true
-      old = create_project_media team: t, media: Blank.create!, channel: { main: CheckChannels::ChannelCodes::FETCH }, disable_es_callbacks: false
+      old = create_project_media team: t, media: Blank.create!, channel: { main: CheckChannels::ChannelCodes::FETCH }, disable_es_callbacks: false 
+      cd = create_claim_description project_media: old
+      fc = create_fact_check claim_description: cd
       old_r = publish_report(old)
       old_s = old.last_status_obj
+      # assign to
+      s_old = Dynamic.find(old_s.id)
+      s_old.assigned_to_ids =[u.id, u2.id].join(',')
+      s_old.save!
       new = create_project_media team: t, media: create_uploaded_video, disable_es_callbacks: false
       new_r = publish_report(new)
       new_s = new.last_status_obj
@@ -946,13 +952,19 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       assert_equal data, new.channel
       assert_equal 3, new.annotations('tag').count
       assert_equal 2, new.annotations('comment').count
+      # Verify replace log entry
+      replace_v = Version.from_partition(new.team_id).where(event_type: 'replace_projectmedia', associated_id: new.id, associated_type: 'ProjectMedia')
+      assert_not_empty replace_v
+      # Verifiy assignment
+      s = new.last_verification_status_obj
+      assert_equal [u.id, u2.id], s.assignments.map(&:user_id)
       # Verify ES
       result = $repository.find(get_es_id(new))
       assert_equal [CheckChannels::ChannelCodes::FETCH], result['channel']
       assert_equal [old_c.id, new_c.id], result['comments'].collect{ |c| c['id'] }.sort
       assert_equal [new_tag_a.id, new_tag_c.id, old_tag_b.id].sort, result['tags'].collect{ |tag| tag['id'] }.sort
       assert_equal [new_tt.id, new_tt2.id].sort, result['task_responses'].collect{ |task| task['id'] }.sort
-      assert_equal [u2.id], result['assigned_user_ids']
+      assert_equal [u.id, u2.id], result['assigned_user_ids'].sort
     end
   end
 
