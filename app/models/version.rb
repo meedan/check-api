@@ -155,6 +155,8 @@ class Version < Partitioned::ByForeignKey
       ['ProjectMedia', self.item.claim_description.project_media_id]
     when 'create_explaineritem', 'destroy_explaineritem'
       ['ProjectMedia', self.item.project_media_id]
+    else
+      [self.associated_type, self.associated_id]
     end
   end
 
@@ -190,7 +192,7 @@ class Version < Partitioned::ByForeignKey
   end
 
   def set_project_association
-    associated = self.get_associated || [nil, nil]
+    associated = self.get_associated
     self.associated_type = associated[0]
     self.associated_id = associated[1]
   end
