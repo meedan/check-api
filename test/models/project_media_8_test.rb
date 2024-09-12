@@ -12,7 +12,7 @@ class ProjectMedia8Test < ActiveSupport::TestCase
     pm = create_project_media project: p
 
     assert_nothing_raised do
-      ProjectMedia.create_tags_in_background(project_media_id: pm.id, tags_json: ['one', 'two'].to_json)
+      ProjectMedia.create_tags(project_media_id: pm.id, tags_json: ['one', 'two'].to_json)
     end
     assert_equal 2, pm.annotations('tag').count
   end
@@ -20,7 +20,7 @@ class ProjectMedia8Test < ActiveSupport::TestCase
   test "does not raise an error when no project media is sent" do
     assert_nothing_raised do
       CheckSentry.expects(:notify).once
-      ProjectMedia.create_tags_in_background(project_media_id: nil, tags_json: ['one', 'two'].to_json)
+      ProjectMedia.create_tags(project_media_id: nil, tags_json: ['one', 'two'].to_json)
     end
   end
 
