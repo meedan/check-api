@@ -13919,6 +13919,7 @@ type TiplineRequest implements Node {
   dbid: Int
   id: ID!
   permissions: String
+  responded_at: Int
   smooch_data: JsonStringType
   smooch_report_correction_sent_at: Int
   smooch_report_received_at: Int
