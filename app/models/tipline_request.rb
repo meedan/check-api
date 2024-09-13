@@ -23,7 +23,8 @@ class TiplineRequest < ApplicationRecord
   end
 
   def responded_at
-    self.returned_search_results? ? self.created_at.to_i : self.smooch_report_sent_at.to_i
+    report_sent_at = [self.smooch_report_received_at, self.smooch_report_update_received_at, self.smooch_report_sent_at, self.smooch_report_correction_sent_at].map(&:to_i).select{ |timestamp| timestamp > 0 }.min
+    self.returned_search_results? ? self.created_at.to_i : report_sent_at.to_i
   end
 
   def smooch_user_slack_channel_url
