@@ -8265,6 +8265,7 @@ type Explainer implements Node {
   team: PublicTeam
   team_id: Int
   title: String
+  trashed: Boolean
   updated_at: String
   url: String
   user: User
@@ -8418,6 +8419,7 @@ type FactCheck implements Node {
   summary: String
   tags: [String]
   title: String
+  trashed: Boolean
   updated_at: String
   url: String
   user: User
@@ -15590,6 +15592,7 @@ input UpdateExplainerInput {
   language: String
   tags: [String]
   title: String
+  trashed: Boolean
   url: String
 }
 
@@ -15620,6 +15623,7 @@ input UpdateFactCheckInput {
   summary: String
   tags: [String]
   title: String
+  trashed: Boolean
   url: String
 }
 
