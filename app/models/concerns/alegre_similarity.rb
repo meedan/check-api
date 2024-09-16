@@ -133,10 +133,9 @@ module AlegreSimilarity
 
     def send_to_text_similarity_index(pm, field, text, doc_id)
       if !text.blank? && Bot::Alegre::BAD_TITLE_REGEX !~ text
-        self.request(
-          'post',
-          '/text/similarity/',
-          self.send_to_text_similarity_index_package(pm, field, text, doc_id)
+        self.query_sync_with_params(
+          self.send_to_text_similarity_index_package(pm, field, text, doc_id),
+          "text"
         )
       end
     end
@@ -207,10 +206,10 @@ module AlegreSimilarity
       es_matches
     end
 
-    def get_similar_items_from_api(path, conditions, _threshold = {})
-      Rails.logger.error("[Alegre Bot] Sending request to alegre : #{path} , #{conditions.to_json}")
+    def get_similar_items_from_api(type, conditions, _threshold = {})
+      Rails.logger.error("[Alegre Bot] Sending request to alegre : #{type} , #{conditions.to_json}")
       response = {}
-      result = self.request('post', path, conditions)&.dig('result')
+      result = self.query_sync_with_params(conditions, type)&.dig('result')
       project_medias = result.collect{ |r| self.extract_project_medias_from_context(r) } if !result.nil? && result.is_a?(Array)
       project_medias.each do |request_response|
         request_response.each do |pmid, score_with_context|

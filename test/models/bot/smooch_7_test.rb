@@ -601,7 +601,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
 
   test "should include claim_description_content in smooch search" do
     WebMock.stub_request(:post, 'http://alegre:3100/similarity/async/image').to_return(body: {}.to_json)
-    WebMock.stub_request(:post, 'http://alegre:3100/text/similarity/').to_return(body: {}.to_json)
+    WebMock.stub_request(:post, 'http://alegre:3100/similarity/sync/text').to_return(body: {}.to_json)
     RequestStore.store[:skip_cached_field_update] = false
     t = create_team
     m = create_uploaded_image

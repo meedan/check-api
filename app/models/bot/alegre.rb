@@ -155,10 +155,8 @@ class Bot::Alegre < BotUser
         if ['audio', 'image', 'video'].include?(self.get_pm_type(pm))
           self.relate_project_media_async(pm)
         else
-          Bot::Alegre.send_to_media_similarity_index(pm)
-          Bot::Alegre.send_field_to_similarity_index(pm, 'original_title')
-          Bot::Alegre.send_field_to_similarity_index(pm, 'original_description')
-          Bot::Alegre.relate_project_media_to_similar_items(pm)
+          self.relate_project_media_async(pm, 'original_title')
+          self.relate_project_media_async(pm, 'original_description')
         end
         self.get_extracted_text(pm)
         self.get_flags(pm)
@@ -206,7 +204,7 @@ class Bot::Alegre < BotUser
     threshold ||= self.get_threshold_for_query('text', nil, true)
     models ||= [self.matching_model_to_use(team_ids)].flatten
     Hash[self.get_similar_items_from_api(
-      '/similarity/sync/text',
+      'text',
       self.similar_texts_from_api_conditions(text, models, fuzzy, team_ids, fields, threshold),
       threshold
     ).collect{|k,v| [k, v.merge(model: v[:model]||Bot::Alegre.default_matching_model)]}]
