@@ -33,7 +33,7 @@ module Api
         after = filters.dig(:after, 0)
         after = Time.parse(after) unless after.blank?
         feed_id = filters.dig(:feed_id, 0).to_i
-        skip_save_request = filters.dig(:skip_save_request, 0) == 'true'
+        skip_save_request = skip_save_request || filters.dig(:skip_save_request, 0) == 'true'
 
         return ProjectMedia.none if team_ids.blank? || query.blank?
 
@@ -56,10 +56,7 @@ module Api
         RequestStore.store[:pause_database_connection] = true # Release database connection during Bot::Alegre.request_api
         RequestStore.store[:smooch_bot_settings] = feed.get_smooch_bot_settings.to_h
         results = Bot::Smooch.search_for_similar_published_fact_checks(type, query, feed.team_ids, after, feed_id)
-        unless skip_save_request || RequestStore.store[:already_saved_request]
-          Feed.delay({ retry: 0, queue: 'feed' }).save_request(feed_id, type, query, webhook_url, results.to_a.map(&:id))
-          RequestStore.store[:already_saved_request] = true
-        end
+        Feed.delay({ retry: 0, queue: 'feed' }).save_request(feed_id, type, query, webhook_url, results.to_a.map(&:id)) unless skip_save_request 
         results
       end
 
