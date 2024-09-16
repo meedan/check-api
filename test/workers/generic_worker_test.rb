@@ -12,7 +12,7 @@ class GenericWorkerTest < ActiveSupport::TestCase
   test "should run a job, without raising an error, for a method that takes a hash as a parameter" do
     Sidekiq::Testing.inline!
 
-    assert_nothing_raised do
+    assert_difference "Team.where(name: 'BackgroundTeam', slug: 'background-team').count" do
       GenericWorker.perform_async('Team', 'create!', name: 'BackgroundTeam', slug: 'background-team')
     end
   end
