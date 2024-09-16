@@ -264,7 +264,9 @@ module ProjectMediaCreators
 
   def create_tags_in_background
     if self.set_tags.is_a?(Array)
-      ProjectMedia.run_later_in(1.second, 'create_tags', project_media_id: self.id, tags_json: self.set_tags.to_json, user_id: self.user_id)
+      project_media_id = self.id
+      tags_json = self.set_tags.to_json
+      ProjectMedia.run_later_in(1.second, 'create_tags', project_media_id, tags_json, user_id: self.user_id)
     end
   end
 end

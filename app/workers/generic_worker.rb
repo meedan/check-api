@@ -9,7 +9,7 @@ class GenericWorker
       user_id = options.delete(:user_id) if options.key?(:user_id)
       current_user = User.current
       User.current = User.find_by_id(user_id)
-      klass.public_send(klass_method, **options)
+      klass.public_send(klass_method, *method_args, **options)
       User.current = current_user
     else
       klass.public_send(klass_method)

@@ -11,16 +11,22 @@ class ProjectMedia8Test < ActiveSupport::TestCase
     project = create_project team: team
     pm = create_project_media project: project
 
+    project_media_id = pm.id
+    tags_json = ['one', 'two'].to_json
+
     assert_nothing_raised do
-      ProjectMedia.create_tags(project_media_id: pm.id, tags_json: ['one', 'two'].to_json)
+      ProjectMedia.create_tags(project_media_id, tags_json)
     end
     assert_equal 2, pm.annotations('tag').count
   end
 
   test ":create_tags should not raise an error when no project media is sent" do
+    project_media_id = nil
+    tags_json = ['one', 'two'].to_json
+
     assert_nothing_raised do
       CheckSentry.expects(:notify).once
-      ProjectMedia.create_tags(project_media_id: nil, tags_json: ['one', 'two'].to_json)
+      ProjectMedia.create_tags(project_media_id, tags_json)
     end
   end
 
@@ -53,7 +59,10 @@ class ProjectMedia8Test < ActiveSupport::TestCase
     project = create_project team: team
     pm = create_project_media project: project
 
-    ProjectMedia.run_later_in(0.second, 'create_tags', project_media_id: pm.id, tags_json: ['one', 'two', 'three'].to_json, user_id: pm.user_id)
+    project_media_id = pm.id
+    tags_json = ['one', 'two', 'three'].to_json
+
+    ProjectMedia.run_later_in(0.second, 'create_tags', project_media_id, tags_json, user_id: pm.user_id)
 
     assert_equal 1, GenericWorker.jobs.size
   end
@@ -65,7 +74,10 @@ class ProjectMedia8Test < ActiveSupport::TestCase
     project = create_project team: team
     pm = create_project_media project: project
 
-    ProjectMedia.run_later_in(0.second, 'create_tags', project_media_id: pm.id, tags_json: ['one', 'two', 'three'].to_json, user_id: pm.user_id)
+    project_media_id = pm.id
+    tags_json = ['one', 'two', 'three'].to_json
+
+    ProjectMedia.run_later_in(0.second, 'create_tags', project_media_id, tags_json, user_id: pm.user_id)
 
     assert_equal 3, pm.annotations('tag').count
   end

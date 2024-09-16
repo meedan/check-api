@@ -528,16 +528,15 @@ class ProjectMedia < ApplicationRecord
     ms.attributes[:requests] = requests
   end
 
-  def self.create_tags(**params)
-    params = params.with_indifferent_access
-    project_media = ProjectMedia.find_by_id(params['project_media_id'])
+  def self.create_tags(project_media_id, tags_json)
+    project_media = ProjectMedia.find_by_id(project_media_id)
 
     if !project_media.nil?
-      tags = JSON.parse(params['tags_json'])
+      tags = JSON.parse(tags_json)
       tags.each { |tag| Tag.create! annotated: project_media, tag: tag.strip, skip_check_ability: true }
     else
       error = StandardError.new("[ProjectMedia] Exception creating project media's tags in background. Project media is nil.")
-      CheckSentry.notify(error, project_media_id: params['project_media_id'])
+      CheckSentry.notify(error, project_media_id: project_media_id)
     end
   end
 
