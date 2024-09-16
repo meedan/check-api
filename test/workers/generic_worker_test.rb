@@ -2,8 +2,11 @@ require 'test_helper'
 
 class GenericWorkerTest < ActiveSupport::TestCase
   def setup
-    super
     require 'sidekiq/testing'
+    Sidekiq::Worker.clear_all
+  end
+
+  def teardown
   end
 
   test "should schedule a job for a method that takes a hash: Tag creation" do

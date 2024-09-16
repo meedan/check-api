@@ -2,8 +2,11 @@ require_relative '../test_helper'
 
 class ProjectMedia8Test < ActiveSupport::TestCase
   def setup
-    super
     require 'sidekiq/testing'
+    Sidekiq::Worker.clear_all
+  end
+
+  def teardown
   end
 
   test ":create_tags should create tags when project media id and tags are present" do
