@@ -548,4 +548,34 @@ class FactCheckTest < ActiveSupport::TestCase
     fc = create_fact_check
     assert_not_nil fc.team
   end
+
+  test "should unpublish report when fact-check is sent to the trash" do
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media
+    cd = create_claim_description(project_media: pm)
+    fc = create_fact_check claim_description: cd
+    r = publish_report(pm)
+    assert_equal pm, cd.reload.project_media
+    assert_equal 'published', pm.reload.report_status
+    assert_equal 'published', fc.reload.report_status
+    assert_equal 'published', r.reload.data['state']
+
+    fc = FactCheck.find(fc.id)
+    fc.trashed = true
+    fc.save!
+
+    assert_nil cd.reload.project_media
+    assert_equal 'paused', pm.reload.report_status
+    assert_equal 'paused', fc.reload.report_status
+    assert_equal 'paused', r.reload.data['state']
+
+    fc = FactCheck.find(fc.id)
+    fc.trashed = false
+    fc.save!
+
+    assert_nil cd.reload.project_media
+    assert_equal 'paused', pm.reload.report_status
+    assert_equal 'paused', fc.reload.report_status
+    assert_equal 'paused', r.reload.data['state']
+  end
 end
