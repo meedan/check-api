@@ -125,7 +125,8 @@ module AlegreSimilarity
         doc_id: doc_id,
         text: text,
         models: models,
-        context: self.get_context(pm, field)
+        context: self.get_context(pm, field),
+        requires_callback: true
       }
       params[:language] = language if !language.nil?
       params
