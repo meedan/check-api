@@ -33,8 +33,6 @@ class SmoochNlu
   end
 
   def update_keywords(language, keywords, keyword, operation, doc_id, context)
-    alegre_operation = nil
-    alegre_params = nil
     common_alegre_params = {
       doc_id: doc_id,
       context: {
