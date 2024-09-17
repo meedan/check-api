@@ -13,6 +13,7 @@ class TiplineRequestType < DefaultObject
   field :smooch_report_correction_sent_at, GraphQL::Types::Int, null: true
   field :smooch_request_type, GraphQL::Types::String, null: true
   field :associated_graphql_id, GraphQL::Types::String, null: true
+  field :responded_at, GraphQL::Types::Int, null: true
 
   field :smooch_user_external_identifier, GraphQL::Types::String, null: true
 
