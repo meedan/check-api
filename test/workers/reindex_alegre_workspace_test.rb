@@ -68,7 +68,8 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
           :temporary_media=>false,
           :field=>"title"
         },
-        :models=>["elasticsearch"]
+        :models=>["elasticsearch"],
+        :requires_callback=>true
       },
       :type=>"text"
     }
