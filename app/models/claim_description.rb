@@ -14,6 +14,7 @@ class ClaimDescription < ApplicationRecord
 
   validates_presence_of :team
   validates_uniqueness_of :project_media_id, allow_nil: true
+  validate :cant_apply_article_to_item_if_article_is_in_the_trash
   after_commit :update_fact_check, on: [:update]
   after_update :update_report_status
   after_update :replace_media, unless: proc { |cd| cd.disable_replace_media }
@@ -114,5 +115,9 @@ class ClaimDescription < ApplicationRecord
       Version.from_partition(self.team_id).where(item_type: 'FactCheck', item_id: fc_id)
       .where.not(event: 'create').update_all(associated_id: self.project_media_id)
     end
+  end
+
+  def cant_apply_article_to_item_if_article_is_in_the_trash
+    errors.add(:base, I18n.t(:cant_apply_article_to_item_if_article_is_in_the_trash)) if self.project_media && self.fact_check&.trashed
   end
 end
