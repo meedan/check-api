@@ -426,12 +426,15 @@ module SmoochMessages
       target = self.create_project_media_from_message(message)
       unless target.nil?
         smoooch_post_save_message_actions(message, target, app_id, author, request_type, associated_obj)
-        r = Relationship.new
-        r.skip_check_ability = true
-        r.relationship_type = Relationship.suggested_type
-        r.source_id = associated.id
-        r.target_id = target.id
-        r.save!
+        r_exists = Relationship.where(source_id: associated.id, target_id: target.id).exists?
+        unless r_exists
+          r = Relationship.new
+          r.skip_check_ability = true
+          r.relationship_type = Relationship.suggested_type
+          r.source_id = associated.id
+          r.target_id = target.id
+          r.save!
+        end
       end
     end
 
