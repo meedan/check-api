@@ -337,7 +337,7 @@ module AlegreV2
     end
 
     def isolate_relevant_context(project_media, result)
-      result["context"].select{|x| ([x["team_id"]].flatten & [project_media.team_id].flatten).count > 0 && !x["temporary_media"]}.first
+      (result["contexts"]||result["context"]).select{|x| ([x["team_id"]].flatten & [project_media.team_id].flatten).count > 0 && !x["temporary_media"]}.first
     end
 
     def get_target_field(project_media, field)
