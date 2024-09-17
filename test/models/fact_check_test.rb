@@ -578,4 +578,21 @@ class FactCheckTest < ActiveSupport::TestCase
     assert_equal 'paused', fc.reload.report_status
     assert_equal 'paused', r.reload.data['state']
   end
+
+  test "should delete after days in the trash" do
+    pm = create_project_media
+    cd = create_claim_description(project_media: pm)
+    fc = create_fact_check claim_description: cd
+    Sidekiq::Testing.inline! do
+      assert_no_difference 'ProjectMedia.count' do
+        assert_difference 'FactCheck.count', -1 do
+          assert_difference 'ClaimDescription.count', -1 do
+            fc = FactCheck.find(fc.id)
+            fc.trashed = true
+            fc.save!
+          end
+        end
+      end
+    end
+  end
 end

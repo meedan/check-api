@@ -136,4 +136,19 @@ class ExplainerTest < ActiveSupport::TestCase
     assert_equal [], pm.reload.explainers
     assert_equal [], ex.reload.project_medias
   end
+
+  test "should delete after days in the trash" do
+    t = create_team
+    pm = create_project_media team: t
+    ex = create_explainer team: t
+    Sidekiq::Testing.inline! do
+      assert_no_difference 'ProjectMedia.count' do
+        assert_difference 'Explainer.count', -1 do
+          ex = Explainer.find(ex.id)
+          ex.trashed = true
+          ex.save!
+        end
+      end
+    end
+  end
 end

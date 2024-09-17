@@ -58,7 +58,8 @@ class Explainer < ApplicationRecord
   end
 
   def self.update_paragraphs_in_alegre(id, previous_paragraphs_count, timestamp)
-    explainer = Explainer.find(id)
+    explainer = Explainer.find_by_id(id)
+    return if explainer.nil?
 
     # Skip if the explainer was saved since this job was created (it means that there is a more recent job)
     return if explainer.updated_at.to_f > timestamp
