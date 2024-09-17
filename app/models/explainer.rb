@@ -19,6 +19,7 @@ class Explainer < ApplicationRecord
   validate :language_in_allowed_values, unless: proc { |e| e.language.blank? }
 
   after_save :update_paragraphs_in_alegre
+  after_update :detach_explainer_if_trashed
 
   def notify_bots
     # Nothing to do for Explainer
@@ -130,5 +131,11 @@ class Explainer < ApplicationRecord
     allowed_languages = self.team.get_languages || ['en']
     allowed_languages << 'und'
     errors.add(:language, I18n.t(:"errors.messages.invalid_article_language_value")) unless allowed_languages.include?(self.language)
+  end
+
+  def detach_explainer_if_trashed
+    if self.trashed && !self.trashed_before_last_save
+      self.project_medias = []
+    end
   end
 end
