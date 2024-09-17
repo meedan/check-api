@@ -835,7 +835,9 @@ class Bot::Smooch < BotUser
         end
       else
         extra = { url: link.url }
-        pm = ProjectMedia.joins(:media).where('medias.url' => link.url, 'project_medias.team_id' => team.id).last
+        # Normalized url before query DB
+        url_from_pender = Link.normalized(link.url, team.get_pender_key)
+        pm = ProjectMedia.joins(:media).where('medias.url' => url_from_pender, 'project_medias.team_id' => team.id).last
       end
       if pm.nil?
         type = link.nil? ? 'Claim' : 'Link'

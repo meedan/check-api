@@ -264,6 +264,7 @@ class ProjectMedia < ApplicationRecord
     elsif self.media.media_type != 'blank'
       raise I18n.t(:replace_blank_media_only)
     else
+      assignments_ids = []
       ProjectMedia.transaction do
         # Save the new item
         RequestStore.store[:skip_check_ability] = true
@@ -271,13 +272,19 @@ class ProjectMedia < ApplicationRecord
         new_pm.skip_check_ability = true
         new_pm.channel = { main: CheckChannels::ChannelCodes::FETCH }
         # Point the claim and consequently the fact-check
-        new_pm.claim_description = self.claim_description if self.claim_description
+        cd = self.claim_description
+        if cd
+          cd.disable_replace_media = true
+          new_pm.claim_description = cd
+        end
         new_pm.save(validate: false) # To skip channel validation
         RequestStore.store[:skip_check_ability] = false
 
-        # All annotations from the old item should point to the new item
+        # Get assignment for new items
+        assignments_ids = begin new_pm.last_status_obj.assignments.map(&:id) rescue [] end
         # Remove any status and report from the new item
         Annotation.where(annotation_type: ['verification_status', 'report_design'], annotated_type: 'ProjectMedia', annotated_id: new_pm.id).delete_all
+        # All annotations from the old item should point to the new item
         Annotation.where(annotated_type: 'ProjectMedia', annotated_id: self.id).where.not(annotation_type: ['tag', 'task']).update_all(annotated_id: new_pm.id)
 
         # All versions from the old item should point to the new item
@@ -295,14 +302,22 @@ class ProjectMedia < ApplicationRecord
       Rails.cache.write("check_cached_field:ProjectMedia:#{new_pm.id}:creator_name", 'Import')
 
       # Apply other stuff in background
-      self.class.delay_for(5.seconds).apply_replace_by(self.id, new_pm.id, skip_send_report)
+      options = {
+        author_id: User.current&.id,
+        assignments_ids: assignments_ids,
+        skip_send_report: skip_send_report
+      }
+      self.class.delay_for(1.second).apply_replace_by(self.id, new_pm.id, options.to_json)
     end
   end
 
-  def self.apply_replace_by(old_pm_id, new_pm_id, skip_send_report = false)
+  def self.apply_replace_by(old_pm_id, new_pm_id, options_json)
     old_pm = ProjectMedia.find_by_id(old_pm_id)
     new_pm = ProjectMedia.find_by_id(new_pm_id)
+    options = begin JSON.parse(options_json) rescue {} end
     unless new_pm.nil?
+      # Merge assignment
+      new_pm.replace_merge_assignments(options['assignments_ids'])
       # Merge tags
       new_item_tags = new_pm.annotations('tag').map(&:tag)
       unless new_item_tags.blank? || old_pm.nil?
@@ -313,13 +328,41 @@ class ProjectMedia < ApplicationRecord
         Annotation.where(id: deleted_tags).delete_all
       end
       Annotation.where(annotation_type: 'tag', annotated_type: 'ProjectMedia', annotated_id: old_pm_id).update_all(annotated_id: new_pm.id)
+      # Log a version for replace_by action
+      replace_v = Version.new({
+        item_type: 'ProjectMedia',
+        item_id: new_pm.id.to_s,
+        event: 'replace',
+        whodunnit: options['author_id'].to_s,
+        object_changes: { pm_id: [old_pm.id, new_pm.id] }.to_json,
+        associated_id: new_pm.id,
+        associated_type: 'ProjectMedia',
+        team_id: new_pm.team_id,
+      })
+      replace_v.save!
       # Re-index new items in ElasticSearch
       new_pm.create_elasticsearch_doc_bg({ force_creation: true })
     end
     # Destroy old item
     old_pm.destroy! unless old_pm.nil?
     # Send a published report if any
-    ::Bot::Smooch.send_report_from_parent_to_child(new_pm.id, new_pm.id) unless skip_send_report
+    ::Bot::Smooch.send_report_from_parent_to_child(new_pm.id, new_pm.id) unless options['skip_send_report']
+  end
+
+  def replace_merge_assignments(assignments_ids)
+    unless assignments_ids.blank?
+      status = self.last_status_obj
+      assignments_uids = status.assignments.map(&:user_id)
+      Assignment.where(id: assignments_ids).find_each do |as|
+        if assignments_uids.include?(as.user_id)
+          as.skip_check_ability = true
+          as.delete
+        else
+          as.update_columns(assigned_id: status.id)
+          as.send(:increase_assignments_count)
+        end
+      end
+    end
   end
 
   def method_missing(method, *args, &block)
