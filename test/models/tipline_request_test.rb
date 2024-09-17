@@ -1,6 +1,13 @@
 require_relative '../test_helper'
 
 class TiplineRequestTest < ActiveSupport::TestCase
+  def setup
+    User.current = Team.current = nil
+  end
+
+  def teardown
+  end
+
   test "should create tipline request" do
     assert_difference 'TiplineRequest.count' do
       create_tipline_request
@@ -52,5 +59,17 @@ class TiplineRequestTest < ActiveSupport::TestCase
   test "should get associated GraphQL ID" do
     tr = create_tipline_request
     assert_kind_of String, tr.associated_graphql_id
+  end
+
+  test "should return the time it was responded" do
+    tr = create_tipline_request smooch_request_type: 'default_requests'
+    assert_equal 0, tr.responded_at
+
+    tr = create_tipline_request smooch_request_type: 'relevant_search_result_requests'
+    assert_equal tr.created_at.to_i, tr.responded_at
+
+    now = Time.now.to_i
+    tr = create_tipline_request smooch_request_type: 'default_requests', smooch_report_sent_at: now
+    assert_equal now, tr.responded_at
   end
 end

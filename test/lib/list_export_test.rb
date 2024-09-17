@@ -26,21 +26,26 @@ class ListExportTest < ActiveSupport::TestCase
     end
   end
 
-  test "should export media CSV" do
+  test "should export media (including child media) CSV" do
+    setup_elasticsearch
     t = create_team
     create_team_task team_id: t.id, fieldset: 'tasks'
-    2.times { create_project_media team: t }
+    parent = create_project_media team: t, disable_es_callbacks: false
+    child = create_project_media team: t, disable_es_callbacks: false
+    create_relationship source_id: parent.id, target_id: child.id, relationship_type: Relationship.confirmed_type
 
-    export = ListExport.new(:media, '{}', t.id)
+    sleep 2 # Wait for indexing
+
+    export = ListExport.new(:media, { show_similar: true }.to_json, t.id)
     csv_url = export.generate_csv_and_send_email(create_user)
     response = Net::HTTP.get_response(URI(csv_url))
     assert_equal 200, response.code.to_i
     csv_content = CSV.parse(response.body, headers: true)
-    assert_equal 2, csv_content.size
     assert_equal 2, export.number_of_rows
+    assert_equal 2, csv_content.size
   end
 
-  test "should export feed CSV" do
+  test "should export media feed CSV" do
     t = create_team
     f = create_feed team: t
     2.times { f.clusters << create_cluster }
@@ -52,6 +57,36 @@ class ListExportTest < ActiveSupport::TestCase
     csv_content = CSV.parse(response.body, headers: true)
     assert_equal 2, csv_content.size
     assert_equal 2, export.number_of_rows
+  end
+
+  test "should export fact-check feed CSV" do
+    setup_elasticsearch
+    RequestStore.store[:skip_cached_field_update] = false
+
+    pender_url = CheckConfig.get('pender_url_private')
+    WebMock.stub_request(:get, /#{pender_url}/).to_return(body: '{}', status: 200)
+
+    t = create_team
+    2.times do
+      pm = create_project_media team: t, disable_es_callbacks: false
+      r = publish_report(pm, {}, nil, { language: 'en', use_visual_card: false })
+      r = Dynamic.find(r.id)
+      r.disable_es_callbacks = false
+      r.set_fields = { state: 'published' }.to_json
+      r.save!
+    end
+    ss = create_saved_search team: t
+    f = create_feed team: t, data_points: [1], saved_search: ss, published: true
+
+    sleep 2 # Wait for indexing
+
+    export = ListExport.new(:media, { feed_id: f.id, feed_view: 'fact_check' }.to_json, t.id)
+    csv_url = export.generate_csv_and_send_email(create_user)
+    response = Net::HTTP.get_response(URI(csv_url))
+    assert_equal 200, response.code.to_i
+    csv_content = CSV.parse(response.body, headers: true)
+    assert_equal 2, export.number_of_rows
+    assert_equal 2, csv_content.size
   end
 
   test "should export fact-checks CSV" do

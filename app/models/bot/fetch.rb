@@ -259,6 +259,7 @@ class Bot::Fetch < BotUser
       fc.title = self.get_title(claim_review).to_s
       fc.url = claim_review['url'].to_s
       fc.summary = self.get_summary(claim_review).to_s
+      fc.tags = claim_review['keywords'].to_s.split(',').map(&:strip).reject{ |r| r.blank? }
       fc.user = user
       fc.language = fc_language
       fc.publish_report = true
