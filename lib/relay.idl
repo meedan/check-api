@@ -8265,6 +8265,7 @@ type Explainer implements Node {
   team: PublicTeam
   team_id: Int
   title: String
+  trashed: Boolean
   updated_at: String
   url: String
   user: User
@@ -8418,6 +8419,7 @@ type FactCheck implements Node {
   summary: String
   tags: [String]
   title: String
+  trashed: Boolean
   updated_at: String
   url: String
   user: User
@@ -13167,10 +13169,11 @@ type Team implements Node {
     tags: [String]
     target_id: Int
     text: String
+    trashed: Boolean = false
     updated_at: String
     user_ids: [Int]
   ): ArticleUnionConnection
-  articles_count(article_type: String, imported: Boolean, language: [String], publisher_ids: [Int], rating: [String], report_status: [String], standalone: Boolean, tags: [String], target_id: Int, text: String, updated_at: String, user_ids: [Int]): Int
+  articles_count(article_type: String, imported: Boolean, language: [String], publisher_ids: [Int], rating: [String], report_status: [String], standalone: Boolean, tags: [String], target_id: Int, text: String, trashed: Boolean = false, updated_at: String, user_ids: [Int]): Int
   available_newsletter_header_types: JsonStringType
   avatar: String
   check_search_spam: CheckSearch
@@ -15590,6 +15593,7 @@ input UpdateExplainerInput {
   language: String
   tags: [String]
   title: String
+  trashed: Boolean
   url: String
 }
 
@@ -15620,6 +15624,7 @@ input UpdateFactCheckInput {
   summary: String
   tags: [String]
   title: String
+  trashed: Boolean
   url: String
 }
 
