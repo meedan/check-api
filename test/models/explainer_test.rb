@@ -122,6 +122,7 @@ class ExplainerTest < ActiveSupport::TestCase
   end
 
   test "should detach from items when explainer is sent to the trash" do
+    Sidekiq::Testing.fake!
     t = create_team
     ex = create_explainer team: t
     pm = create_project_media team: t

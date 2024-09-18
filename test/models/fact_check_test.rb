@@ -181,7 +181,7 @@ class FactCheckTest < ActiveSupport::TestCase
       assert_nil pm.reload.published_url
 
       d = create_dynamic_annotation annotation_type: 'report_design', annotator: u, annotated: pm, set_fields: { options: { language: 'en', use_text_message: true, title: 'Text report created title', text: 'Text report created summary', published_article_url: 'http://text.report/created' } }.to_json, action: 'save'
-      fc = cd.fact_check
+      fc = cd.reload.fact_check
       assert_equal 'Text report created title', pm.reload.fact_check_title
       assert_equal 'Text report created summary', pm.reload.fact_check_summary
       assert_equal 'http://text.report/created', pm.reload.published_url
@@ -423,7 +423,7 @@ class FactCheckTest < ActiveSupport::TestCase
         s.status = 'verified'
         s.save!
         r = publish_report(pm)
-        fc = cd.fact_check
+        fc = cd.reload.fact_check
         fc.title = 'Foo Bar'
         fc.save!
         fc = fc.reload
@@ -550,6 +550,7 @@ class FactCheckTest < ActiveSupport::TestCase
   end
 
   test "should unpublish report when fact-check is sent to the trash" do
+    Sidekiq::Testing.fake!
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media
     cd = create_claim_description(project_media: pm)
