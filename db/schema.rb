@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_08_13_155311) do
+ActiveRecord::Schema.define(version: 2024_09_13_210101) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -324,6 +324,7 @@ ActiveRecord::Schema.define(version: 2024_08_13_155311) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "tags", default: [], array: true
+    t.boolean "trashed", default: false
     t.index ["tags"], name: "index_explainers_on_tags", using: :gin
     t.index ["team_id"], name: "index_explainers_on_team_id"
     t.index ["user_id"], name: "index_explainers_on_user_id"
@@ -344,6 +345,7 @@ ActiveRecord::Schema.define(version: 2024_08_13_155311) do
     t.integer "report_status", default: 0
     t.string "rating"
     t.boolean "imported", default: false
+    t.boolean "trashed", default: false
     t.index ["claim_description_id"], name: "index_fact_checks_on_claim_description_id", unique: true
     t.index ["imported"], name: "index_fact_checks_on_imported"
     t.index ["language"], name: "index_fact_checks_on_language"

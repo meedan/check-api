@@ -19,6 +19,7 @@ class Explainer < ApplicationRecord
   validate :language_in_allowed_values, unless: proc { |e| e.language.blank? }
 
   after_save :update_paragraphs_in_alegre
+  after_update :detach_explainer_if_trashed
 
   def notify_bots
     # Nothing to do for Explainer
@@ -57,7 +58,8 @@ class Explainer < ApplicationRecord
   end
 
   def self.update_paragraphs_in_alegre(id, previous_paragraphs_count, timestamp)
-    explainer = Explainer.find(id)
+    explainer = Explainer.find_by_id(id)
+    return if explainer.nil?
 
     # Skip if the explainer was saved since this job was created (it means that there is a more recent job)
     return if explainer.updated_at.to_f > timestamp
@@ -130,5 +132,11 @@ class Explainer < ApplicationRecord
     allowed_languages = self.team.get_languages || ['en']
     allowed_languages << 'und'
     errors.add(:language, I18n.t(:"errors.messages.invalid_article_language_value")) unless allowed_languages.include?(self.language)
+  end
+
+  def detach_explainer_if_trashed
+    if self.trashed && !self.trashed_before_last_save
+      self.project_medias = []
+    end
   end
 end

@@ -181,7 +181,7 @@ class FactCheckTest < ActiveSupport::TestCase
       assert_nil pm.reload.published_url
 
       d = create_dynamic_annotation annotation_type: 'report_design', annotator: u, annotated: pm, set_fields: { options: { language: 'en', use_text_message: true, title: 'Text report created title', text: 'Text report created summary', published_article_url: 'http://text.report/created' } }.to_json, action: 'save'
-      fc = cd.fact_check
+      fc = cd.reload.fact_check
       assert_equal 'Text report created title', pm.reload.fact_check_title
       assert_equal 'Text report created summary', pm.reload.fact_check_summary
       assert_equal 'http://text.report/created', pm.reload.published_url
@@ -423,7 +423,7 @@ class FactCheckTest < ActiveSupport::TestCase
         s.status = 'verified'
         s.save!
         r = publish_report(pm)
-        fc = cd.fact_check
+        fc = cd.reload.fact_check
         fc.title = 'Foo Bar'
         fc.save!
         fc = fc.reload
@@ -547,5 +547,53 @@ class FactCheckTest < ActiveSupport::TestCase
   test "should have team" do
     fc = create_fact_check
     assert_not_nil fc.team
+  end
+
+  test "should unpublish report when fact-check is sent to the trash" do
+    Sidekiq::Testing.fake!
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media
+    cd = create_claim_description(project_media: pm)
+    fc = create_fact_check claim_description: cd
+    r = publish_report(pm)
+    assert_equal pm, cd.reload.project_media
+    assert_equal 'published', pm.reload.report_status
+    assert_equal 'published', fc.reload.report_status
+    assert_equal 'published', r.reload.data['state']
+
+    fc = FactCheck.find(fc.id)
+    fc.trashed = true
+    fc.save!
+
+    assert_nil cd.reload.project_media
+    assert_equal 'paused', pm.reload.report_status
+    assert_equal 'paused', fc.reload.report_status
+    assert_equal 'paused', r.reload.data['state']
+
+    fc = FactCheck.find(fc.id)
+    fc.trashed = false
+    fc.save!
+
+    assert_nil cd.reload.project_media
+    assert_equal 'paused', pm.reload.report_status
+    assert_equal 'paused', fc.reload.report_status
+    assert_equal 'paused', r.reload.data['state']
+  end
+
+  test "should delete after days in the trash" do
+    pm = create_project_media
+    cd = create_claim_description(project_media: pm)
+    fc = create_fact_check claim_description: cd
+    Sidekiq::Testing.inline! do
+      assert_no_difference 'ProjectMedia.count' do
+        assert_difference 'FactCheck.count', -1 do
+          assert_difference 'ClaimDescription.count', -1 do
+            fc = FactCheck.find(fc.id)
+            fc.trashed = true
+            fc.save!
+          end
+        end
+      end
+    end
   end
 end
