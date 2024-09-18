@@ -4,6 +4,7 @@ class FeedsControllerTest < ActionController::TestCase
   def setup
     @controller = Api::V2::FeedsController.new
     super
+    RequestStore.clear!
     RequestStore.store[:skip_cached_field_update] = false
     [FeedTeam, Feed, ProjectMediaRequest, Request].each { |klass| klass.delete_all }
     create_verification_status_stuff
@@ -125,6 +126,17 @@ class FeedsControllerTest < ActionController::TestCase
     authenticate_with_token @a
     assert_difference 'Request.count' do
       get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
+    end
+    assert_response :success
+    Bot::Alegre.unstub(:request)
+  end
+
+  test "should not save request when skip_save_request is true" do
+    Bot::Alegre.stubs(:request).returns({})
+    Sidekiq::Testing.inline!
+    authenticate_with_token @a
+    assert_no_difference 'Request.count' do
+      get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id, skip_save_request: 'true' }}
     end
     assert_response :success
     Bot::Alegre.unstub(:request)
