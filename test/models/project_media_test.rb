@@ -463,4 +463,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 2, ProjectMedia.where(id: [pm_s.id, pm_t.id], archived: CheckArchivedFlags::FlagCodes::NONE).count
     assert_not_nil Relationship.where(id: r.id).last
   end
+
+  test "should create item with original claim video with arguments" do
+    video_url = 'https://test.xyz/video.mp4?foo=bar'
+    WebMock.stub_request(:get, video_url).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp4')), headers: { 'Content-Type' => 'video/mp4' })
+    assert_difference 'ProjectMedia.count' do
+      create_project_media media: nil, set_original_claim: video_url
+    end
+  end
 end
