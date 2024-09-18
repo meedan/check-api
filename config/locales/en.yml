@@ -81,6 +81,7 @@ en:
         description: 'Conclusion: the source is a sockpuppet'
   errors:
     messages:
+      extension_whitelist_error: extension is not supported
       invalid_password: Invalid password
       invalid_qrcode: Invalid validation code
       # This string is preceded by the name of the file being validated.
