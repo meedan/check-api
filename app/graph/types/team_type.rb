@@ -224,7 +224,7 @@ class TeamType < DefaultObject
   end
 
   def tag_texts(keyword: nil)
-    object.tag_texts_by_keyword(keyword)
+    object.tag_texts_by_keyword(keyword).order('text ASC')
   end
 
   field :tag_texts_count, GraphQL::Types::Int, null: true do
