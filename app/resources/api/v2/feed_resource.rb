@@ -18,6 +18,7 @@ module Api
       filter :after, apply: ->(records, _value, _options) { records }
       filter :feed_id, apply: ->(records, _value, _options) { records }
       filter :webhook_url, apply: ->(records, _value, _options) { records }
+      filter :skip_save_request, apply: ->(records, _value, _options) { records }
 
       paginator :none
 
@@ -32,6 +33,8 @@ module Api
         after = filters.dig(:after, 0)
         after = Time.parse(after) unless after.blank?
         feed_id = filters.dig(:feed_id, 0).to_i
+        skip_save_request = skip_save_request || filters.dig(:skip_save_request, 0) == 'true'
+
         return ProjectMedia.none if team_ids.blank? || query.blank?
 
         if feed_id > 0
