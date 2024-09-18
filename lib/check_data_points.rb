@@ -1,18 +1,18 @@
 class CheckDataPoints
   def self.tipline_messages(team_id, start_date, end_date, granularity = nil)
-    start_date, end_date = parse_start_end_dates(start_date, end_date)
+    start_date, end_date = self.parse_start_end_dates(start_date, end_date)
     query = TiplineMessage.where(team_id: team_id, created_at: start_date..end_date)
-    query_based_on_granularity(query, granularity)
+    self.query_based_on_granularity(query, granularity)
   end
 
   def self.tipline_requests(team_id, start_date, end_date, granularity = nil)
-    start_date, end_date = parse_start_end_dates(start_date, end_date)
+    start_date, end_date = self.parse_start_end_dates(start_date, end_date)
     query = TiplineRequest.where(team_id: team_id, created_at: start_date..end_date)
-    query_based_on_granularity(query, granularity)
+    self.query_based_on_granularity(query, granularity)
   end
 
   def self.tipline_requests_by_search_type(team_id, start_date, end_date)
-    start_date, end_date = parse_start_end_dates(start_date, end_date)
+    start_date, end_date = self.parse_start_end_dates(start_date, end_date)
     TiplineRequest.where(
       team_id: team_id,
       smooch_request_type: ['relevant_search_result_requests', 'irrelevant_search_result_requests'],
@@ -21,28 +21,26 @@ class CheckDataPoints
   end
 
   def self.tipline_subscriptions(team_id, start_date, end_date, granularity = nil)
-    start_date, end_date = parse_start_end_dates(start_date, end_date)
+    start_date, end_date = self.parse_start_end_dates(start_date, end_date)
     query = TiplineSubscription.where(team_id: team_id, created_at: start_date..end_date)
-    query_based_on_granularity(query, granularity)
+    self.query_based_on_granularity(query, granularity)
   end
 
   def self.newsletters_sent(start_date, end_date)
-    start_date, end_date = parse_start_end_dates(start_date, end_date)
+    start_date, end_date = self.parse_start_end_dates(start_date, end_date)
     query = TiplineNewsletterDelivery.where(created_at: start_date..end_date)
     query.count
   end
 
-  def media_received_by_type(team_id, start_date, end_date)
+  def self.media_received_by_type(team_id, start_date, end_date)
     bot = BotUser.smooch_user
-    start_date, end_date = parse_start_end_dates(start_date, end_date)
+    start_date, end_date = self.parse_start_end_dates(start_date, end_date)
     query = ProjectMedia.where(team_id: team_id, user_id: bot.id, created_at: start_date..end_date)
     .joins(:media).group('medias.type')
     query.count
   end
 
-  private
-
-  def parse_start_end_dates(start_date, end_date)
+  def self.parse_start_end_dates(start_date, end_date)
     # date format is `2023-08-23`
     start_date = Time.parse(start_date)
     end_date = Time.parse(end_date)
@@ -50,7 +48,7 @@ class CheckDataPoints
     return start_date, end_date
   end
 
-  def query_based_on_granularity(query, granularity)
+  def self.query_based_on_granularity(query, granularity)
     # For PG the allowed values for granularity can be one of the following
     # [millennium, century, decade, year, quarter, month, week, day, hour,
     # minute, second, milliseconds, microseconds]
