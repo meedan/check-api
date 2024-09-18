@@ -15,8 +15,8 @@ class CheckDataPoints
     start_date, end_date = parse_start_end_dates(start_date, end_date)
     TiplineRequest.where(
       team_id: team_id,
-      smooch_request_type: ['relevant_search_result_requests', 'irrelevant_search_result_requests']
-      created_at: start_date..end_date
+      smooch_request_type: ['relevant_search_result_requests', 'irrelevant_search_result_requests'],
+      created_at: start_date..end_date,
     ).group('smooch_request_type').count
   end
 
