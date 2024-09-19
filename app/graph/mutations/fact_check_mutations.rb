@@ -26,6 +26,7 @@ module FactCheckMutations
 
     argument :title, GraphQL::Types::String, required: false
     argument :summary, GraphQL::Types::String, required: false
+    argument :trashed, GraphQL::Types::Boolean, required: false
   end
 
   class Destroy < Mutations::DestroyMutation; end

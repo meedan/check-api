@@ -109,4 +109,13 @@ class ExplainerItemTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should not attach to item if explainer is in the trash" do
+    t = create_team
+    pm = create_project_media team: t
+    ex = create_explainer team: t, trashed: true
+    assert_raises ActiveRecord::RecordInvalid do
+      ex.project_medias << pm
+    end
+  end
 end
