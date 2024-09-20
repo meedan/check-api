@@ -9,6 +9,14 @@ class GenericWorkerTest < ActiveSupport::TestCase
   def teardown
   end
 
+  test "should run a job, without raising an error, for a method that takes no parameters" do
+    Sidekiq::Testing.inline!
+
+    assert_nothing_raised do
+      GenericWorker.perform_async('Media', 'types')
+    end
+  end
+
   test "should run a job, without raising an error, for a method that takes a hash as a parameter" do
     Sidekiq::Testing.inline!
 
@@ -30,6 +38,16 @@ class GenericWorkerTest < ActiveSupport::TestCase
     assert_nothing_raised do
       GenericWorker.perform_async('ProjectMedia', 'create_tags', project_media_id, tags_json, user_id: pm.user_id)
     end
+  end
+
+  test "should schedule a job, without raising an error, for a method that takes no parameters" do
+    Sidekiq::Testing.fake!
+
+    assert_nothing_raised do
+      GenericWorker.perform_async('Media', 'types')
+    end
+
+    assert_equal 1, GenericWorker.jobs.size
   end
 
   test "should schedule a job, without raising an error, for a method that takes a hash as a parameter" do
