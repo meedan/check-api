@@ -12,8 +12,8 @@ class GenericWorkerTest < ActiveSupport::TestCase
   test "should run a job, without raising an error, for a method that takes no parameters" do
     Sidekiq::Testing.inline!
 
-    assert_nothing_raised do
-      GenericWorker.perform_async('Media', 'types')
+    assert_difference 'Blank.count' do
+      GenericWorker.perform_async('Blank', 'create!')
     end
   end
 
@@ -35,7 +35,7 @@ class GenericWorkerTest < ActiveSupport::TestCase
     project_media_id = pm.id
     tags_json = ['one', 'two'].to_json
 
-    assert_nothing_raised do
+    assert_difference "Tag.where(annotation_type: 'tag').count", difference = 2 do
       GenericWorker.perform_async('ProjectMedia', 'create_tags', project_media_id, tags_json, user_id: pm.user_id)
     end
   end
