@@ -1076,7 +1076,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 'Custom Status 2 Changed', r.reload.data.dig('options', 'status_label')
   end
 
-  test "should add trashed link to duplicated team" do
+  test "should add trash link to duplicated team" do
     m = create_valid_media
     t1 = create_team
     t2 = Team.duplicate(t1)
@@ -1250,5 +1250,22 @@ class TeamTest < ActiveSupport::TestCase
   test "should return no team fact-checks by default" do
     t = create_team
     assert_equal [], t.fact_checks.to_a
+  end
+
+  test "should return trashed and non-trashed articles" do
+    Sidekiq::Testing.fake!
+    t = create_team
+    create_explainer team: t, trashed: true
+    create_explainer team: t, trashed: false
+    create_explainer team: t, trashed: false
+    create_fact_check claim_description: create_claim_description(project_media: create_project_media(team: t)), trashed: true
+    create_fact_check claim_description: create_claim_description(project_media: create_project_media(team: t)), trashed: false
+    create_fact_check claim_description: create_claim_description(project_media: create_project_media(team: t)), trashed: false
+    assert_equal 2, t.filtered_explainers.count
+    assert_equal 2, t.filtered_explainers(trashed: false).count
+    assert_equal 1, t.filtered_explainers(trashed: true).count
+    assert_equal 2, t.filtered_fact_checks.count
+    assert_equal 2, t.filtered_fact_checks(trashed: false).count
+    assert_equal 1, t.filtered_fact_checks(trashed: true).count
   end
 end

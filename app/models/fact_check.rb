@@ -20,6 +20,7 @@ class FactCheck < ApplicationRecord
 
   after_save :update_report, unless: proc { |fc| fc.skip_report_update || !DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').exists? || fc.project_media.blank? }
   after_save :update_item_status, if: proc { |fc| fc.saved_change_to_rating? }
+  after_update :detach_claim_if_trashed
 
   def text_fields
     ['fact_check_title', 'fact_check_summary']
@@ -142,5 +143,13 @@ class FactCheck < ApplicationRecord
     pm_rating = self.project_media&.last_status
     default_rating = self.claim_description.team.verification_statuses('media', nil)['default']
     self.rating = pm_rating || default_rating
+  end
+
+  def detach_claim_if_trashed
+    if self.trashed && !self.trashed_before_last_save
+      cd = self.claim_description
+      cd.project_media = nil
+      cd.save!
+    end
   end
 end

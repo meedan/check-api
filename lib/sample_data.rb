@@ -517,6 +517,7 @@ module SampleData
     end
     options[:skip_autocreate_source] = true unless options.has_key?(:skip_autocreate_source)
     pm.source = create_source({ team: options[:team], skip_check_ability: true }) if options[:skip_autocreate_source]
+    pm.set_tags = options[:tags] if options[:tags]
     pm.save!
     create_cluster_project_media({ cluster: options[:cluster], project_media: pm}) if options[:cluster]
     pm.reload
@@ -899,7 +900,7 @@ module SampleData
       description: random_string,
       context: random_string,
       user: options[:user] || create_user,
-      project_media: options[:project_media] || create_project_media
+      project_media: options.has_key?(:project_media) ? options[:project_media] : create_project_media
     }.merge(options))
   end
 

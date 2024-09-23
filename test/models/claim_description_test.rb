@@ -197,4 +197,16 @@ class ClaimDescriptionTest < ActiveSupport::TestCase
     cd.save!
     assert_equal pm, cd.project_media_was
   end
+
+  test "should not attach to item if fact-check is in the trash" do
+    t = create_team
+    cd = create_claim_description team: t, project_media: nil
+    fc = create_fact_check claim_description: cd, trashed: true
+    pm = create_project_media team: t
+    assert_raises ActiveRecord::RecordInvalid do
+      cd = ClaimDescription.find(cd.id)
+      cd.project_media = pm
+      cd.save!
+    end
+  end
 end

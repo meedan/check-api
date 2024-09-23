@@ -20,6 +20,8 @@ module ExplainerMutations
 
   class Update < Mutations::UpdateMutation
     include SharedCreateAndUpdateFields
+
+    argument :trashed, GraphQL::Types::Boolean, required: false
   end
 
   class Destroy < Mutations::DestroyMutation; end

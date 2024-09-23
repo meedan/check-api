@@ -35,14 +35,15 @@ module ProjectMediaCreators
     if claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
       uri = URI.parse(claim)
       content_type = fetch_content_type(uri)
+      ext = File.extname(uri.path)
 
       case content_type
       when /^image\//
-        self.media = create_media_from_url('UploadedImage', claim)
+        self.media = create_media_from_url('UploadedImage', claim, ext)
       when /^video\//
-        self.media = create_media_from_url('UploadedVideo', claim)
+        self.media = create_media_from_url('UploadedVideo', claim, ext)
       when /^audio\//
-        self.media = create_media_from_url('UploadedAudio', claim)
+        self.media = create_media_from_url('UploadedAudio', claim, ext)
       else
         self.media = create_link_media(claim)
       end
@@ -56,19 +57,19 @@ module ProjectMediaCreators
     response['content-type']
   end
 
-  def create_media_from_url(type, url)
+  def create_media_from_url(type, url, ext)
     klass = type.constantize
-    file = download_file(url)
+    file = download_file(url, ext)
     m = klass.new
     m.file = file
     m.save!
     m
   end
 
-  def download_file(url)
+  def download_file(url, ext)
     raise "Invalid URL when creating media from original claim attribute" unless url =~ /\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/
 
-    file = Tempfile.new(['download', File.extname(url)])
+    file = Tempfile.new(['download', ext])
     file.binmode
     file.write(URI(url).open.read)
     file.rewind
@@ -262,7 +263,11 @@ module ProjectMediaCreators
     fc
   end
 
-  def create_tags
-    self.set_tags.each { |tag| Tag.create!(annotated: self, tag: tag.strip, skip_check_ability: true) } if self.set_tags.is_a?(Array)
+  def create_tags_in_background
+    if self.set_tags.is_a?(Array)
+      project_media_id = self.id
+      tags_json = self.set_tags.to_json
+      ProjectMedia.run_later_in(1.second, 'create_tags', project_media_id, tags_json, user_id: self.user_id)
+    end
   end
 end

@@ -33,7 +33,7 @@ class ProjectMedia < ApplicationRecord
 
   before_validation :set_team_id, :set_channel, :set_project_id, on: :create
   before_validation :create_original_claim, if: proc { |pm| pm.set_original_claim.present? }, on: :create
-  after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks, :create_claim_description_and_fact_check, :create_tags
+  after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks, :create_claim_description_and_fact_check, :create_tags_in_background
   after_create :add_source_creation_log, unless: proc { |pm| pm.source_id.blank? }
   after_commit :apply_rules_and_actions_on_create, :set_quote_metadata, :notify_team_bots_create, on: [:create]
   after_commit :create_relationship, on: [:update]
@@ -526,6 +526,18 @@ class ProjectMedia < ApplicationRecord
       }
     end
     ms.attributes[:requests] = requests
+  end
+
+  def self.create_tags(project_media_id, tags_json)
+    project_media = ProjectMedia.find_by_id(project_media_id)
+
+    if !project_media.nil?
+      tags = JSON.parse(tags_json)
+      tags.each { |tag| Tag.create! annotated: project_media, tag: tag.strip, skip_check_ability: true }
+    else
+      error = StandardError.new("[ProjectMedia] Exception creating project media's tags in background. Project media is nil.")
+      CheckSentry.notify(error, project_media_id: project_media_id)
+    end
   end
 
   # private
