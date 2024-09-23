@@ -3,13 +3,18 @@ require 'active_support/concern'
 module TiplineContentVideo
   extend ActiveSupport::Concern
 
-  # MP4 less than 10 MB (WhatsApp supports 16 MB, let's be safe)
-  def header_file_video_max_size
+  # Max size that WhatsApp supports
+  def header_file_video_max_size_whatsapp
+    16
+  end
+
+  # Max size for Check (we need to convert it to H.264, so let's be safe)
+  def header_file_video_max_size_check
     10
   end
 
   def validate_header_file_video
-    self.validate_header_file(self.header_file_video_max_size, ['mp4'], 'errors.messages.video_too_large')
+    self.validate_header_file(self.header_file_video_max_size_check, ['mp4'], 'errors.messages.video_too_large')
   end
 
   def should_convert_header_video?
