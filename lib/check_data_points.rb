@@ -84,29 +84,28 @@ class CheckDataPoints
     end
 
     # All users
-    def all_users(team_id, start_date, end_date, granularity = nil)
+    def all_users(team_id, start_date, end_date)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
-      query = TiplineRequest.where(team_id: team_id, created_at: start_date..end_date)
-      query_tipline_users_based_on_granularity(query, granularity)
+      TiplineRequest.where(team_id: team_id, created_at: start_date..end_date)
+      .count('DISTINCT(tipline_user_uid)')
     end
 
     # Returning users
-    def returning_users(team_id, start_date, end_date, granularity = nil)
+    def returning_users(team_id, start_date, end_date)
       # Number of returning users (at least one session in the current month, and at least one session in the last previous 2 months)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
       uids = TiplineRequest.where(team_id: team_id, created_at: start_date.ago(2.months)..start_date).map(&:tipline_user_uid).uniq
-      query = TiplineRequest.where(team_id: team_id, tipline_user_uid: uids, created_at: start_date..end_date)
-      query_tipline_users_based_on_granularity(query, granularity)
+      TiplineRequest.where(team_id: team_id, tipline_user_uid: uids, created_at: start_date..end_date)
+      .count('DISTINCT(tipline_user_uid)')
     end
 
     # New users
-    def new_users(team_id, start_date, end_date, granularity = nil)
+    def new_users(team_id, start_date, end_date)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
-      query = TiplineRequest.where(team_id: team_id)
-      .joins("INNER JOIN annotations a ON tipline_requests.team_id = a.annotated_id")
-      .where('a.annotation_type': 'smooch_user', 'a.annotated_type': 'Team')
-      .where('a.created_at': start_date..end_date)
-      query_tipline_users_based_on_granularity(query, granularity)
+      Annotation.where(annotation_type: 'smooch_user', annotated_type: 'Team', annotated_id: team_id)
+      .joins("INNER JOIN dynamic_annotation_fields fs ON fs.annotation_id = annotations.id AND fs.field_name = 'smooch_user_id'")
+      .where('annotations.created_at': start_date..end_date)
+      .count('DISTINCT(fs.value)')
     end
 
     private
@@ -134,22 +133,17 @@ class CheckDataPoints
       query.count
     end
 
-    def query_tipline_users_based_on_granularity(query, granularity)
-      query = query.group("date_trunc('#{granularity}', tipline_requests.created_at)") if GRANULARITY_VALUES.include?(granularity)
-      query.count('DISTINCT(tipline_user_uid)')
-    end
-
     def elastic_search_top_items(team_id, start_date, end_date, limit, with_tags = false)
       data = {}
       query = {
-        range: {'created_at': { start_time: start_date, end_time: end_date } },
+        range: { 'created_at': { start_time: start_date, end_time: end_date } },
         demand: { min: 1 },
         sort: 'demand',
         eslimit: limit
       }
       query[:tags_as_sentence] = { min: 1 } if with_tags
       result = CheckSearch.new(query.to_json, nil, team_id)
-      result.medias.each{|pm| data[pm.id] = pm.demand }
+      result.medias.each{ |pm| data[pm.id] = pm.demand }
       data
     end
   end
