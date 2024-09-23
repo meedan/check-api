@@ -3,21 +3,21 @@ class CheckDataPoints
     SEARCH_RESULT_TYPES = ['relevant_search_result_requests', 'irrelevant_search_result_requests', 'timeout_search_requests']
     GRANULARITY_VALUES = ['year', 'quarter', 'month', 'week', 'day']
 
-    # 1) Number of tipline messages
+    # Number of tipline messages
     def tipline_messages(team_id, start_date, end_date, granularity = nil)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
       query = TiplineMessage.where(team_id: team_id, created_at: start_date..end_date)
       query_based_on_granularity(query, granularity)
     end
 
-    # 2) Number of tipline requests
+    # Number of tipline requests
     def tipline_requests(team_id, start_date, end_date, granularity = nil)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
       query = TiplineRequest.where(team_id: team_id, created_at: start_date..end_date)
       query_based_on_granularity(query, granularity)
     end
 
-    # 3) Number of tipline requests grouped by type of search result
+    # Number of tipline requests grouped by type of search result
     def tipline_requests_by_search_type(team_id, start_date, end_date)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
       TiplineRequest.where(
@@ -27,14 +27,14 @@ class CheckDataPoints
       ).group('smooch_request_type').count
     end
 
-    # 4) Number of Subscribers
+    # Number of Subscribers
     def tipline_subscriptions(team_id, start_date, end_date, granularity = nil)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
       query = TiplineSubscription.where(team_id: team_id, created_at: start_date..end_date)
       query_based_on_granularity(query, granularity)
     end
 
-    # 5) Number of Newsletters sent
+    # Number of Newsletters sent
     def newsletters_sent(team_id, start_date, end_date, granularity = nil)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
       query = TiplineNewsletterDelivery
@@ -44,7 +44,7 @@ class CheckDataPoints
       query_based_on_granularity(query, granularity, 'newsletter')
     end
 
-    # 6) Number of Media received, by type
+    # Number of Media received, by type
     def media_received_by_type(team_id, start_date, end_date)
       bot = BotUser.smooch_user
       start_date, end_date = parse_start_end_dates(start_date, end_date)
@@ -52,33 +52,45 @@ class CheckDataPoints
       .joins(:media).group('medias.type').count
     end
 
-    # 7) Top clusters
+    # Top clusters
     def top_clusters(team_id, start_date, end_date, limit = 5)
       elastic_search_top_items(team_id, start_date, end_date, limit)
     end
 
-    # 8) Top media tags
+    # Top media tags
     def top_media_tags(team_id, start_date, end_date, limit = 5)
       elastic_search_top_items(team_id, start_date, end_date, limit, true)
     end
 
-    # 9) Articles sent
-    def articles_sent()
+    # Articles sent
+    def articles_sent(team_id, start_date, end_date)
+      start_date, end_date = parse_start_end_dates(start_date, end_date)
+      c1 = TiplineRequest.where(
+        team_id: team_id,
+        smooch_request_type: SEARCH_RESULT_TYPES,
+        created_at: start_date..end_date,
+      ).count
+      c2 = TiplineRequest
+      .where(smooch_request_type: ["default_requests", "timeout_requests"])
+      .where('smooch_report_received_at > 0 OR smooch_report_update_received_at > 0 OR smooch_report_sent_at > 0 OR smooch_report_correction_sent_at > 0').count
+      c1 + c2
     end
 
-    # 10) Average response time
-    def average_response_time()
+    # Average response time
+    def average_response_time(team_id, start_date, end_date)
+      TiplineRequest
+      .where(team_id: team_id, smooch_report_received_at: start_date.to_datetime.to_i..end_date.to_datetime.to_i)
+      .average("smooch_report_received_at - CAST(DATE_PART('EPOCH', created_at::timestamp) AS INTEGER)").to_f
     end
 
-    # 11) Number of users
-    # 11.1) All users
+    # All users
     def all_users(team_id, start_date, end_date, granularity = nil)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
       query = TiplineRequest.where(team_id: team_id, created_at: start_date..end_date)
       query_tipline_users_based_on_granularity(query, granularity)
     end
 
-    # 11.2) Returning users
+    # Returning users
     def returning_users(team_id, start_date, end_date, granularity = nil)
       # Number of returning users (at least one session in the current month, and at least one session in the last previous 2 months)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
@@ -87,7 +99,7 @@ class CheckDataPoints
       query_tipline_users_based_on_granularity(query, granularity)
     end
 
-    # 11.3) New users
+    # New users
     def new_users(team_id, start_date, end_date, granularity = nil)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
       query = TiplineRequest.where(team_id: team_id)
@@ -123,9 +135,7 @@ class CheckDataPoints
     end
 
     def query_tipline_users_based_on_granularity(query, granularity)
-      if GRANULARITY_VALUES.include?(granularity)
-        query = query.group("date_trunc('#{granularity}', created_at)")
-      end
+      query = query.group("date_trunc('#{granularity}', tipline_requests.created_at)") if GRANULARITY_VALUES.include?(granularity)
       query.count('DISTINCT(tipline_user_uid)')
     end
 
