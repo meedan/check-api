@@ -263,7 +263,11 @@ module ProjectMediaCreators
     fc
   end
 
-  def create_tags
-    self.set_tags.each { |tag| Tag.create!(annotated: self, tag: tag.strip, skip_check_ability: true) } if self.set_tags.is_a?(Array)
+  def create_tags_in_background
+    if self.set_tags.is_a?(Array)
+      project_media_id = self.id
+      tags_json = self.set_tags.to_json
+      ProjectMedia.run_later_in(1.second, 'create_tags', project_media_id, tags_json, user_id: self.user_id)
+    end
   end
 end
