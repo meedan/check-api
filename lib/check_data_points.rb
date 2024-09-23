@@ -65,15 +65,13 @@ class CheckDataPoints
     # Articles sent
     def articles_sent(team_id, start_date, end_date)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
-      c1 = TiplineRequest.where(
-        team_id: team_id,
-        smooch_request_type: SEARCH_RESULT_TYPES,
-        created_at: start_date..end_date,
-      ).count
-      c2 = TiplineRequest
-      .where(smooch_request_type: ["default_requests", "timeout_requests"])
+      # Get number of articles sent as search results
+      search_result_c = TiplineRequest.where(team_id: team_id, smooch_request_type: SEARCH_RESULT_TYPES, created_at: start_date..end_date).count
+      # Get the number of articles sent as reports
+      reports_c = TiplineRequest
+      .where(team_id: team_id, created_at: start_date..end_date)
       .where('smooch_report_received_at > 0 OR smooch_report_update_received_at > 0 OR smooch_report_sent_at > 0 OR smooch_report_correction_sent_at > 0').count
-      c1 + c2
+      search_result_c + reports_c
     end
 
     # Average response time
