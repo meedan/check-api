@@ -81,6 +81,7 @@ en:
         description: 'Conclusion: the source is a sockpuppet'
   errors:
     messages:
+      extension_whitelist_error: extension is not supported
       invalid_password: Invalid password
       invalid_qrcode: Invalid validation code
       # This string is preceded by the name of the file being validated.
@@ -829,6 +830,7 @@ en:
   send_on_must_be_in_the_future: can't be in the past.
   cant_delete_default_folder: The default folder can't be deleted
   explainer_and_item_must_be_from_the_same_team: Explainer and item must be from the same workspace.
+  cant_apply_article_to_item_if_article_is_in_the_trash: This article is in the trash so it can't be added to this media cluster. Please first restore it from the trash.
   shared_feed_imported_media_already_exist: |-
     No media eligible to be imported into your workspace.
     The media selected to import already exist in your workspace in the following items:

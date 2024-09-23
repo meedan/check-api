@@ -14,4 +14,5 @@ class FactCheckType < DefaultObject
   field :rating, GraphQL::Types::String, null: true
   field :imported, GraphQL::Types::Boolean, null: true
   field :report_status, GraphQL::Types::String, null: true
+  field :trashed, GraphQL::Types::Boolean, null: true
 end

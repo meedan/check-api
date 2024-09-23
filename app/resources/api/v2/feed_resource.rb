@@ -18,7 +18,7 @@ module Api
       filter :after, apply: ->(records, _value, _options) { records }
       filter :feed_id, apply: ->(records, _value, _options) { records }
       filter :webhook_url, apply: ->(records, _value, _options) { records }
-      filter :skip_save_request, apply: ->(records, value, _options) { records }
+      filter :skip_save_request, apply: ->(records, _value, _options) { records }
 
       paginator :none
 
@@ -56,7 +56,7 @@ module Api
         RequestStore.store[:pause_database_connection] = true # Release database connection during Bot::Alegre.request_api
         RequestStore.store[:smooch_bot_settings] = feed.get_smooch_bot_settings.to_h
         results = Bot::Smooch.search_for_similar_published_fact_checks(type, query, feed.team_ids, after, feed_id)
-        Feed.delay({ retry: 0, queue: 'feed' }).save_request(feed_id, type, query, webhook_url, results.to_a.map(&:id)) unless skip_save_request 
+        Feed.delay({ retry: 0, queue: 'feed' }).save_request(feed_id, type, query, webhook_url, results.to_a.map(&:id)) unless skip_save_request
         results
       end
 

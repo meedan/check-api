@@ -7,6 +7,7 @@ class ExplainerItem < ApplicationRecord
 
   validates_presence_of :explainer, :project_media
   validate :same_team
+  validate :cant_apply_article_to_item_if_article_is_in_the_trash
 
   def version_metadata(_changes)
     { explainer_title: self.explainer.title }.to_json
@@ -16,5 +17,9 @@ class ExplainerItem < ApplicationRecord
 
   def same_team
     errors.add(:base, I18n.t(:explainer_and_item_must_be_from_the_same_team)) unless self.explainer&.team_id == self.project_media&.team_id
+  end
+
+  def cant_apply_article_to_item_if_article_is_in_the_trash
+    errors.add(:base, I18n.t(:cant_apply_article_to_item_if_article_is_in_the_trash)) if self.explainer&.trashed
   end
 end
