@@ -5,12 +5,12 @@ module TiplineContentVideo
 
   # Max size that WhatsApp supports
   def header_file_video_max_size_whatsapp
-    16
+    CheckConfig.get(:header_file_video_max_size_whatsapp, 16, :integer)
   end
 
-  # Max size for Check (we need to convert it to H.264, so let's be safe)
+  # Max size for Check (we need to convert it to H.264, so let's be safe and use a value less than what WhatsApp supports)
   def header_file_video_max_size_check
-    10
+    CheckConfig.get(:header_file_video_max_size_check, 10, :integer)
   end
 
   def validate_header_file_video
