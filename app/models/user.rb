@@ -435,6 +435,11 @@ class User < ApplicationRecord
     user
   end
 
+  def owns_media?
+    ProjectMedia.where(user_id: self.id).count > 0
+  end
+
+
   # private
   #
   # Please add private methods to app/models/concerns/user_private.rb
