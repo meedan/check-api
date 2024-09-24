@@ -16,7 +16,9 @@ class ApiKey < ApplicationRecord
 
   validate :validate_team_api_keys_limit, on: :create
 
-  has_one :bot_user, dependent: :destroy
+  has_one :bot_user
+
+  after_destroy :delete_bot_user
 
   # Reimplement this method in your application
   def self.applications
@@ -49,6 +51,14 @@ class ApiKey < ApplicationRecord
       new_bot_user.skip_check_ability = true
       new_bot_user.set_role 'editor'
       new_bot_user.save!
+    end
+  end
+
+  def delete_bot_user
+    if bot_user.present? && bot_user.owns_media?
+      bot_user.update(api_key_id: nil)
+    else
+      bot_user.destroy
     end
   end
 

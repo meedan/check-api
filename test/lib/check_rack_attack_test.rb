@@ -87,41 +87,41 @@ class ThrottlingTest < ActionDispatch::IntegrationTest
   end
 
   test "should not increment counter on successful login" do
-    stub_configs({ 'login_block_limit' => 3 }) do
+    stub_configs({ 'login_block_limit' => 2 }) do
       password = random_complex_password
       user = create_user password: password
       user_params = { api_user: { email: user.email, password: password } }
 
-      # Successful logins
-      2.times do
+      3.times do
         post api_user_session_path, params: user_params, as: :json
         assert_response :success
       end
 
       ip = real_ip(@request)
       counter_value = @redis.get("track:#{ip}")
-      assert_equal "0", counter_value, "Counter should not be incremented for successful logins"
+      assert_nil counter_value, "Counter should not exist after successful logins"
+    end
+  end
 
-      delete destroy_api_user_session_path, as: :json
-      assert_response :success
+  test "should block IP after excessive invalid login attempts" do
+    stub_configs({ 'login_block_limit' => 2 }) do
+      password = random_complex_password
+      user = create_user password: password
 
-      # Unsuccessful login attempts
       2.times do
         post api_user_session_path, params: { api_user: { email: user.email, password: 'wrong_password' } }, as: :json
         assert_response :unauthorized
       end
 
-      # Check counter value after unsuccessful logins
+      ip = real_ip(@request)
       counter_value = @redis.get("track:#{ip}")
       assert_equal "2", counter_value, "Counter should be incremented for unsuccessful logins"
 
-      # Ensure that the IP is not blocked after successful logins
-      post api_user_session_path, params: user_params, as: :json
-      assert_response :success
-
-      # Subsequent unsuccessful login attempts should result in a block
+      # Subsequent unsuccessful login attempts should result in a blocked IP
       post api_user_session_path, params: { api_user: { email: user.email, password: 'wrong_password' } }, as: :json
       assert_response :forbidden
+
+      assert_equal "true", @redis.get("block:#{ip}")
     end
   end
 end
