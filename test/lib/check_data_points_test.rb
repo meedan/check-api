@@ -41,11 +41,14 @@ class CheckDataPointsTest < ActiveSupport::TestCase
     # Verify all tipline requests
     assert_equal 5, CheckDataPoints.tipline_requests(@team.id, @start_date, @end_date)
     assert_equal 1, CheckDataPoints.tipline_requests(@team2.id, @start_date, @end_date)
+    # Verify granularity
+    from = (Time.now - 4.month).strftime("%Y-%m-%d")
+    result_g = CheckDataPoints.tipline_requests(@team.id, from, @end_date, 'month')
+    assert_equal [2, 5], result_g.values.sort
     # Verify tipline requests by search_type
     result = CheckDataPoints.tipline_requests_by_search_type(@team.id, @start_date, @end_date)
     actual = { "irrelevant_search_result_requests" => 1, "relevant_search_result_requests" => 2, "timeout_search_requests" => 1 }
     assert_equal actual, result
-    from = (Time.now - 4.month).strftime("%Y-%m-%d")
     result = CheckDataPoints.tipline_requests_by_search_type(@team.id, from, @end_date)
     actual = { "irrelevant_search_result_requests" => 1, "relevant_search_result_requests" => 3, "timeout_search_requests" => 1 }
     assert_equal actual, result

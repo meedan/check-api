@@ -123,12 +123,13 @@ class CheckDataPoints
       # But I'll limit the value to the following [year, quarter, month, week, day]
       if GRANULARITY_VALUES.include?(granularity)
         if type == 'newsletter'
-          query = query.group("date_trunc('#{granularity}', tipline_newsletter_deliveries.created_at)")
+          query = query.group("date_trunc('#{granularity}', tipline_newsletter_deliveries.created_at)").count
         else
-          query.group("date_trunc('#{granularity}', created_at)")
+          query.group("date_trunc('#{granularity}', created_at)").count
         end
+      else
+        query.count
       end
-      query.count
     end
 
     def elastic_search_top_items(team_id, start_date, end_date, limit, with_tags = false)
