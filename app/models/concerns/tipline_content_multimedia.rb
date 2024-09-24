@@ -51,7 +51,7 @@ module TiplineContentMultimedia
       output_path = File.join(Rails.root, 'tmp', "#{content_name}-#{type}-output-#{self.id}-#{now}.mp4")
       video = FFMPEG::Movie.new(input.path)
       video.transcode(output_path, options)
-      raise TiplineContentMultimedia::ConvertedFileTooLarge.new('Converted file for tipline content is too large') if (File.size(output_path).to_f / 1024000.0) > self.header_file_video_max_size
+      raise TiplineContentMultimedia::ConvertedFileTooLarge.new('Converted file for tipline content is too large') if (File.size(output_path).to_f / 1024000.0) > self.header_file_video_max_size_whatsapp
       path = "#{content_name}/video/#{content_name}-#{type}-#{self.id}-#{now}"
       CheckS3.write(path, 'video/mp4', File.read(output_path))
       url = CheckS3.public_url(path)

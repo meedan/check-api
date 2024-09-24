@@ -277,6 +277,8 @@ development: &default
   api_rate_limit: 100
   export_csv_maximum_number_of_results: 10000
   export_csv_expire: 604800 # Seconds: Default is 7 days
+  header_file_video_max_size_whatsapp: 16 # Megabytes
+  header_file_video_max_size_check: 10 # Megabytes, should be less than WhatsApp limit
 
   # Session
   #
