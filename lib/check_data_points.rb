@@ -103,7 +103,7 @@ class CheckDataPoints
       Annotation.where(annotation_type: 'smooch_user', annotated_type: 'Team', annotated_id: team_id)
       .joins("INNER JOIN dynamic_annotation_fields fs ON fs.annotation_id = annotations.id AND fs.field_name = 'smooch_user_id'")
       .where('annotations.created_at': start_date..end_date)
-      .count('DISTINCT(fs.value)')
+      .count
     end
 
     private

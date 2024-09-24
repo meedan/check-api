@@ -1000,6 +1000,18 @@ module SampleData
     newsletter
   end
 
+  def create_tipline_newsletter_delivery(options = {})
+    newsletter_delivery = TiplineNewsletterDelivery.new({
+      recipients_count: 100,
+      content: 'Test',
+      started_sending_at: Time.now.ago(1.minute),
+      finished_sending_at: Time.now,
+      tipline_newsletter: options[:tipline_newsletter] || create_tipline_newsletter
+    }.merge(options))
+    newsletter_delivery.save!
+    newsletter_delivery
+  end
+
   def create_rss_feed(custom_url = nil)
     url = custom_url || random_url
     rss = %{
