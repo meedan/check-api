@@ -434,7 +434,7 @@ class CheckSearch
 
   def adjust_numeric_range_filter
     @options['range_numeric'] = {}
-    [:linked_items_count, :suggestions_count, :demand, :positive_tipline_search_results_count, :negative_tipline_search_results_count].each do |field|
+    [:linked_items_count, :suggestions_count, :demand, :positive_tipline_search_results_count, :negative_tipline_search_results_count, :tags_as_sentence].each do |field|
       if @options.has_key?(field) && !@options[field].blank?
         @options['range_numeric'][field] = @options[field]
       end

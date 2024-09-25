@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_09_13_210101) do
+ActiveRecord::Schema.define(version: 2024_09_24_130424) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -168,6 +168,7 @@ ActiveRecord::Schema.define(version: 2024_09_13_210101) do
     t.index ["annotated_type", "annotated_id"], name: "index_annotations_on_annotated_type_and_annotated_id"
     t.index ["annotation_type"], name: "index_annotation_type_order", opclass: :varchar_pattern_ops
     t.index ["annotation_type"], name: "index_annotations_on_annotation_type"
+    t.index ["created_at"], name: "index_annotations_on_created_at"
   end
 
   create_table "api_keys", id: :serial, force: :cascade do |t|
@@ -733,6 +734,12 @@ ActiveRecord::Schema.define(version: 2024_09_13_210101) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "state"
+    t.index "date_trunc('day'::text, created_at)", name: "tipline_message_created_at_day"
+    t.index "date_trunc('month'::text, created_at)", name: "tipline_message_created_at_month"
+    t.index "date_trunc('quarter'::text, created_at)", name: "tipline_message_created_at_quarter"
+    t.index "date_trunc('week'::text, created_at)", name: "tipline_message_created_at_week"
+    t.index "date_trunc('year'::text, created_at)", name: "tipline_message_created_at_year"
+    t.index ["created_at"], name: "index_tipline_messages_on_created_at"
     t.index ["external_id", "state"], name: "index_tipline_messages_on_external_id_and_state", unique: true
     t.index ["team_id"], name: "index_tipline_messages_on_team_id"
     t.index ["uid"], name: "index_tipline_messages_on_uid"
@@ -746,6 +753,7 @@ ActiveRecord::Schema.define(version: 2024_09_13_210101) do
     t.bigint "tipline_newsletter_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_tipline_newsletter_deliveries_on_created_at"
     t.index ["tipline_newsletter_id"], name: "index_tipline_newsletter_deliveries_on_tipline_newsletter_id"
   end
 
@@ -798,8 +806,14 @@ ActiveRecord::Schema.define(version: 2024_09_13_210101) do
     t.integer "smooch_report_sent_at", default: 0
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index "date_trunc('day'::text, created_at)", name: "tipline_request_created_at_day"
+    t.index "date_trunc('month'::text, created_at)", name: "tipline_request_created_at_month"
+    t.index "date_trunc('quarter'::text, created_at)", name: "tipline_request_created_at_quarter"
+    t.index "date_trunc('week'::text, created_at)", name: "tipline_request_created_at_week"
+    t.index "date_trunc('year'::text, created_at)", name: "tipline_request_created_at_year"
     t.index ["associated_type", "associated_id"], name: "index_tipline_requests_on_associated"
     t.index ["associated_type", "associated_id"], name: "index_tipline_requests_on_associated_type_and_associated_id"
+    t.index ["created_at"], name: "index_tipline_requests_on_created_at"
     t.index ["language"], name: "index_tipline_requests_on_language"
     t.index ["platform"], name: "index_tipline_requests_on_platform"
     t.index ["smooch_message_id"], name: "index_tipline_requests_on_smooch_message_id", unique: true, where: "((smooch_message_id IS NOT NULL) AND ((smooch_message_id)::text <> ''::text))"
@@ -835,6 +849,7 @@ ActiveRecord::Schema.define(version: 2024_09_13_210101) do
     t.string "platform"
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.index ["created_at"], name: "index_tipline_subscriptions_on_created_at"
     t.index ["language", "team_id"], name: "index_tipline_subscriptions_on_language_and_team_id"
     t.index ["language"], name: "index_tipline_subscriptions_on_language"
     t.index ["platform"], name: "index_tipline_subscriptions_on_platform"
