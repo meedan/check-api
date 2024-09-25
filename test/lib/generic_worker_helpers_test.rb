@@ -27,7 +27,7 @@ class GenericWorkerHelpersTest < ActionView::TestCase
     project_media_id = pm.id
     tags_json = ['one', 'two', 'three'].to_json
 
-    ProjectMedia.run_later_in(0.second, 'create_tags', project_media_id, tags_json, user_id: pm.user_id)
+    Tag.run_later_in(0.second, 'create_project_media_tags', project_media_id, tags_json, user_id: pm.user_id)
 
     assert_equal 3, pm.annotations('tag').count
   end

@@ -284,4 +284,30 @@ class TagTest < ActiveSupport::TestCase
       create_tag tag: ' foo', annotated: pm2
     end
   end
+
+  test ":create_project_media_tags should create tags when project media id and tags are present" do
+    team = create_team
+    project = create_project team: team
+    pm = create_project_media project: project
+
+    project_media_id = pm.id
+    tags_json = ['one', 'two'].to_json
+
+    assert_nothing_raised do
+      Tag.create_project_media_tags(project_media_id, tags_json)
+    end
+    assert_equal 2, pm.annotations('tag').count
+  end
+
+  test ":create_project_media_tags should not raise an error when no project media is sent" do
+    project_media_id = nil
+    tags_json = ['one', 'two'].to_json
+
+    assert_nothing_raised do
+      CheckSentry.expects(:notify).once
+      Tag.create_project_media_tags(project_media_id, tags_json)
+    end
+  end
+
+
 end
