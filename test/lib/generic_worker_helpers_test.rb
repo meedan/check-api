@@ -9,7 +9,7 @@ class GenericWorkerHelpersTest < ActionView::TestCase
   def teardown
   end
 
-  test "should run a job, without raising an error, for a method that takes a hash as a parameter" do
+  test "should run a job async, without raising an error, for a method that takes a hash as a parameter" do
     Sidekiq::Testing.inline!
 
     assert_difference "Team.where(name: 'BackgroundTeam', slug: 'background-team').count" do
@@ -17,7 +17,7 @@ class GenericWorkerHelpersTest < ActionView::TestCase
     end
   end
 
-  test "should run a job, without raising an error, for a method that takes standalone parameters" do
+  test "should run a job in a specified time, without raising an error, for a method that takes standalone parameters" do
     Sidekiq::Testing.inline!
 
     team = create_team
