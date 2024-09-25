@@ -1,7 +1,8 @@
 require 'sample_data'
 
 class TestController < ApplicationController
-  before_action :check_environment
+  before_action :check_environment, :init_bot_events
+  after_action :trigger_bot_events
 
   include SampleData
 
@@ -249,5 +250,13 @@ class TestController < ApplicationController
 
   def check_environment
     (render(plain: 'Only available in test mode', status: 400) and return) unless Rails.env === 'test'
+  end
+
+  def init_bot_events
+    BotUser.init_event_queue if Rails.env.test?
+  end
+
+  def trigger_bot_events
+    BotUser.trigger_events if Rails.env.test?
   end
 end
