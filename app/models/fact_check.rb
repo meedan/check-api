@@ -74,7 +74,7 @@ class FactCheck < ApplicationRecord
   end
 
   def rating_in_allowed_values
-    unless self.rating.blank?
+    unless self.rating.blank? || self.claim_description.nil?
       team = self.claim_description.team
       allowed_statuses = team.verification_statuses('media', nil)['statuses'].collect{ |s| s[:id] }
       errors.add(:rating, I18n.t(:workflow_status_is_not_valid, status: self.rating, valid: allowed_statuses.join(', '))) unless allowed_statuses.include?(self.rating)
