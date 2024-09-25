@@ -92,6 +92,8 @@ class CheckDataPointsTest < ActiveSupport::TestCase
     assert_equal 1, CheckDataPoints.newsletters_sent(@team2.id, @start_date, @end_date)
     from = (Time.now - 4.month).strftime("%Y-%m-%d")
     assert_equal 3, CheckDataPoints.newsletters_sent(@team.id, from, @end_date)
+    result_g = CheckDataPoints.newsletters_sent(@team.id, from, @end_date, 'month')
+    assert_equal [1, 2], result_g.values.sort
   end
 
   test "should calculate media_received_by_type" do
