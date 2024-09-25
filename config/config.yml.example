@@ -273,10 +273,12 @@ development: &default
   nlu_user_rate_limit: 30
   devise_maximum_attempts: 5
   devise_unlock_accounts_after: 1
-  login_rate_limit: 10
+  login_block_limit: 100
   api_rate_limit: 100
   export_csv_maximum_number_of_results: 10000
   export_csv_expire: 604800 # Seconds: Default is 7 days
+  header_file_video_max_size_whatsapp: 16 # Megabytes
+  header_file_video_max_size_check: 10 # Megabytes, should be less than WhatsApp limit
 
   # Session
   #

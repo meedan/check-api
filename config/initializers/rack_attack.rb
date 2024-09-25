@@ -27,29 +27,6 @@ class Rack::Attack
     redis.get("block:#{real_ip(req)}") == "true"
   end
 
-  # Track excessive login attempts for permanent blocking
-  track('track excessive logins/ip') do |req|
-    if req.path == '/api/users/sign_in' && req.post?
-      ip = real_ip(req)
-      begin
-        # Increment the counter for the IP and check if it should be blocked
-        count = redis.incr("track:#{ip}")
-        redis.expire("track:#{ip}", 3600) # Set the expiration time to 1 hour
-
-        redis.set("track:#{ip}", 0) if count < 0
-
-        # Add IP to blocklist if count exceeds the threshold
-        if count.to_i >= CheckConfig.get('login_block_limit', 100, :integer)
-          redis.set("block:#{ip}", true)  # No expiration
-        end
-      rescue => e
-        Rails.logger.error("Rack::Attack Error: #{e.message}")
-      end
-
-      ip
-    end
-  end
-
   # Response to blocked requests
   self.blocklisted_responder = lambda do |req|
     [403, {}, ['Blocked - Your IP has been permanently blocked due to suspicious activity.']]

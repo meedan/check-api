@@ -2,6 +2,8 @@ class GenericWorker
 
   include Sidekiq::Worker
 
+  sidekiq_options retry: 3
+
   def perform(klass_name, klass_method, *method_args)
     klass = klass_name.constantize
     options = method_args.extract_options!.with_indifferent_access
