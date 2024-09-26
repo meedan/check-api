@@ -30,4 +30,14 @@ class ProjectMedia8Test < ActiveSupport::TestCase
     end
     assert_equal 1, GenericWorker.jobs.size
   end
+
+  test "when creating an item with multiple tags, after_create :create_tags_in_background callback should not create duplicate tags" do
+    Sidekiq::Testing.inline!
+
+    team = create_team
+    project = create_project team: team
+    pm = create_project_media project: project, tags: ['one', 'one']
+
+    assert_equal 1, pm.annotations('tag').count
+  end
 end

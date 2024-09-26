@@ -96,7 +96,7 @@ class Tag < ApplicationRecord
 
     if !project_media.nil?
       tags = JSON.parse(tags_json)
-      tags.each { |tag| Tag.create! annotated: project_media, tag: tag.strip, skip_check_ability: true }
+      tags.uniq.each { |tag| Tag.create! annotated: project_media, tag: tag.strip, skip_check_ability: true }
     else
       error = StandardError.new("[ProjectMedia] Exception creating project media's tags in background. Project media is nil.")
       CheckSentry.notify(error, project_media_id: project_media_id)
