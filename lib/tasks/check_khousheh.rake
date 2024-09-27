@@ -23,6 +23,7 @@ namespace :check do
       all_types = CheckSearch::MEDIA_TYPES + ['blank']
       Feed.find_each do |feed|
         # Only feeds that are sharing media
+        next unless feed.id == Feed.last.id
         if feed.data_points.to_a.include?(2)
           output = { call_id: "#{TIMESTAMP}-#{feed.uuid}", nodes: [], edges: [] }
           Team.current = feed.team
@@ -92,9 +93,11 @@ namespace :check do
             search_after = [pm_ids.max]
             puts "\nDone for page #{page}/#{pages}\n"
           end
-          file = File.open(File.join(Rails.root, 'tmp', 'feed-clusters-input', "#{TIMESTAMP}-#{feed.uuid}.json"), 'w+')
+          output_file_path = File.join(Rails.root, 'tmp', 'feed-clusters-input', "#{TIMESTAMP}-#{feed.uuid}.json")
+          file = File.open(output_file_path, 'w+')
           file.puts output.to_json
           file.close
+          puts "[#{Time.now}] Output file saved to #{output_file_path}."
           Team.current = nil
         end
       end
@@ -115,6 +118,7 @@ namespace :check do
         puts 'Please provide the AWS credentials.'
       end
       Feed.find_each do |feed|
+        next unless feed.id == Feed.last.id
         # Only feeds that are sharing media
         if feed.data_points.to_a.include?(2)
           filename = "#{TIMESTAMP}-#{feed.uuid}.json"
@@ -145,6 +149,7 @@ namespace :check do
       region = CheckConfig.get('storage_bucket_region') || 'eu-west-1'
       s3_client = Aws::S3::Client.new(region: region)
       Feed.find_each do |feed|
+        next unless feed.id == Feed.last.id
         # Only feeds that are sharing media
         if feed.data_points.to_a.include?(2)
           filename = "#{TIMESTAMP}-#{feed.uuid}.json"
@@ -182,6 +187,7 @@ namespace :check do
       sort = [{ annotated_id: { order: :asc } }]
       error_logs = []
       Feed.find_each do |feed|
+        next unless feed.id == Feed.last.id
         last_old_cluster_id = Cluster.where(feed_id: feed.id).order('id ASC').last&.id
         puts "Parsing feed #{feed.name}..."
         # Only feeds that are sharing media
@@ -219,10 +225,18 @@ namespace :check do
               pages = (total / PER_PAGE.to_f).ceil
               search_after = [0]
               page = 0
+              processed = []
               while true
                 result = $repository.search(_source: 'annotated_id', query: es_query, sort: sort, search_after: search_after, size: PER_PAGE).results
                 pm_ids = result.collect{ |i| i['annotated_id'] }.uniq
                 break if pm_ids.empty?
+
+                # Append IDs of child items but ignore the ones that were already processed
+                pm_ids += Relationship.where(source_id: pm_ids).where('relationship_type = ?', Relationship.confirmed_type.to_yaml).select(:target_id).map(&:target_id)
+                pm_ids.uniq!
+                pm_ids.reject!{ |id| processed.include?(id) }
+                processed += pm_ids
+
                 page += 1
                 puts "\nIterating on page #{page}/#{pages}\n"
                 pm_media_mapping = {} # Project Media ID => Media ID
