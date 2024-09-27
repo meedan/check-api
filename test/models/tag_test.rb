@@ -319,4 +319,18 @@ class TagTest < ActiveSupport::TestCase
 
     assert_equal 1, pm.reload.annotations('tag').count
   end
+
+  test ":create_project_media_tags should be able to add an existing tag to a new project media" do
+    Sidekiq::Testing.fake!
+
+    team = create_team
+    project = create_project team: team
+    pm = create_project_media project: project
+    Tag.create_project_media_tags(pm.id, ['one'].to_json)
+
+    pm2 = create_project_media project: project
+    Tag.create_project_media_tags(pm2.id, ['#one'].to_json)
+
+    assert_equal 1, pm2.reload.annotations('tag').count
+  end
 end

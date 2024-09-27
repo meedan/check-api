@@ -59,7 +59,7 @@ class FactCheck < ApplicationRecord
 
   def clean_tags
     return if self.tags.blank?
-    self.tags.map! { |tag| tag.strip.gsub(/^#/, '') }.uniq!
+    self.tags = self.tags.map! { |tag| tag.strip.gsub(/^#/, '') }.uniq
   end
 
   private
