@@ -239,4 +239,21 @@ class RelationshipTest < ActiveSupport::TestCase
       create_relationship source_id: pm3.id, target_id: pm3.id
     end
   end
+
+  test "should create relationship unless exists" do
+    t = create_team
+    u = create_user
+    source = create_project_media team: t
+    target = create_project_media team: t
+    r = nil
+    assert_difference 'Relationship.count' do
+      r = Relationship.create_unless_exists(source.id, target.id, Relationship.confirmed_type, { user_id: u.id })
+    end
+    assert_equal u.id, r.user_id
+    r2 = nil
+    assert_no_difference 'Relationship.count' do
+      r2 = Relationship.create_unless_exists(source.id, target.id, Relationship.confirmed_type)
+    end
+    assert_equal r, r2
+  end
 end
