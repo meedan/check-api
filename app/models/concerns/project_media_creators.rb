@@ -229,12 +229,7 @@ module ProjectMediaCreators
     unless self.related_to_id.nil?
       related = ProjectMedia.where(id: self.related_to_id).last
       unless related.nil?
-        r = Relationship.new
-        r.skip_check_ability = true
-        r.relationship_type = type
-        r.source_id = related.id
-        r.target_id = self.id
-        r.save!
+        Relationship.create_unless_exists(related.id, self.id, type)
       else
         raise 'Could not create related item'
       end
