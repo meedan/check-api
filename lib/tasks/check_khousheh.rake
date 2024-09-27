@@ -23,7 +23,6 @@ namespace :check do
       all_types = CheckSearch::MEDIA_TYPES + ['blank']
       Feed.find_each do |feed|
         # Only feeds that are sharing media
-        next unless feed.id == Feed.last.id
         if feed.data_points.to_a.include?(2)
           output = { call_id: "#{TIMESTAMP}-#{feed.uuid}", nodes: [], edges: [] }
           Team.current = feed.team
@@ -118,7 +117,6 @@ namespace :check do
         puts 'Please provide the AWS credentials.'
       end
       Feed.find_each do |feed|
-        next unless feed.id == Feed.last.id
         # Only feeds that are sharing media
         if feed.data_points.to_a.include?(2)
           filename = "#{TIMESTAMP}-#{feed.uuid}.json"
@@ -149,7 +147,6 @@ namespace :check do
       region = CheckConfig.get('storage_bucket_region') || 'eu-west-1'
       s3_client = Aws::S3::Client.new(region: region)
       Feed.find_each do |feed|
-        next unless feed.id == Feed.last.id
         # Only feeds that are sharing media
         if feed.data_points.to_a.include?(2)
           filename = "#{TIMESTAMP}-#{feed.uuid}.json"
@@ -187,7 +184,6 @@ namespace :check do
       sort = [{ annotated_id: { order: :asc } }]
       error_logs = []
       Feed.find_each do |feed|
-        next unless feed.id == Feed.last.id
         last_old_cluster_id = Cluster.where(feed_id: feed.id).order('id ASC').last&.id
         puts "Parsing feed #{feed.name}..."
         # Only feeds that are sharing media
