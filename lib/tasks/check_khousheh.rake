@@ -268,7 +268,7 @@ namespace :check do
                     updated_cluster_attributes[:channels] = (cluster.channels.to_a + pm.channel.to_h['others'].to_a + [pm.channel.to_h['main']]).uniq.compact_blank
                     updated_cluster_attributes[:media_count] = cluster.media_count + 1
                     updated_cluster_attributes[:requests_count] = cluster.requests_count + pm.requests_count
-                    updated_cluster_attributes[:last_request_date] = (pm.last_seen > cluster.last_request_date.to_i) ? Time.at(pm.last_seen) : cluster.last_request_date
+                    updated_cluster_attributes[:last_request_date] = (pm.tipline_requests.last&.created_at.to_i > cluster.last_request_date.to_i) ? pm.tipline_requests.last.created_at : cluster.last_request_date
                     updated_cluster_attributes[:fact_checks_count] = cluster.fact_checks_count
                     updated_cluster_attributes[:last_fact_check_date] = cluster.last_fact_check_date
                     unless pm_fc_mapping[pm.id].blank?
