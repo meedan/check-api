@@ -317,7 +317,12 @@ class TagTest < ActiveSupport::TestCase
     pm = create_project_media project: project
     Tag.create_project_media_tags(pm.id, ['one', 'one', '#one'].to_json)
 
-    assert_equal 1, pm.reload.annotations('tag').count
+    tags = pm.reload.annotations('tag')
+    tag_text_id = tags.last.data['tag']
+    tag_text = TagText.find(tag_text_id).text
+
+    assert_equal 1, tags.count
+    assert_equal 'one', tag_text
   end
 
   test ":create_project_media_tags should be able to add an existing tag to a new project media" do
