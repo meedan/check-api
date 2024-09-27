@@ -695,7 +695,7 @@ class GraphqlController12Test < ActionController::TestCase
                 project_id: ' + p.id.to_s + ',
                 media_type: "Blank",
                 channel: { main: 1 },
-                set_tags: ["science", "science"],
+                set_tags: ["science", "science", "#science"],
                 set_status: "verified",
                 set_claim_description: "Claim #1.",
                 set_fact_check: {

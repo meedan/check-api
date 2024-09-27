@@ -600,7 +600,7 @@ class FactCheckTest < ActiveSupport::TestCase
   test "should not have duplicate tags" do
     pm = create_project_media
     cd = create_claim_description(project_media: pm)
-    fc = create_fact_check claim_description: cd, tags: ['one', 'one']
+    fc = create_fact_check claim_description: cd, tags: ['one', 'one', '#one']
 
     assert_equal 1, fc.tags.count
   end

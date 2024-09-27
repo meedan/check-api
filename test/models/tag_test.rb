@@ -315,7 +315,7 @@ class TagTest < ActiveSupport::TestCase
     team = create_team
     project = create_project team: team
     pm = create_project_media project: project
-    Tag.create_project_media_tags(pm.id, ['one', 'one'].to_json)
+    Tag.create_project_media_tags(pm.id, ['one', 'one', '#one'].to_json)
 
     assert_equal 1, pm.reload.annotations('tag').count
   end

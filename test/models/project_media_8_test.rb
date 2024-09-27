@@ -36,7 +36,7 @@ class ProjectMedia8Test < ActiveSupport::TestCase
 
     team = create_team
     project = create_project team: team
-    pm = create_project_media project: project, tags: ['one', 'one']
+    pm = create_project_media project: project, tags: ['one', 'one', '#one']
 
     assert_equal 1, pm.annotations('tag').count
   end
