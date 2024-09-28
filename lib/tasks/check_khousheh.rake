@@ -92,9 +92,11 @@ namespace :check do
             search_after = [pm_ids.max]
             puts "\nDone for page #{page}/#{pages}\n"
           end
-          file = File.open(File.join(Rails.root, 'tmp', 'feed-clusters-input', "#{TIMESTAMP}-#{feed.uuid}.json"), 'w+')
+          output_file_path = File.join(Rails.root, 'tmp', 'feed-clusters-input', "#{TIMESTAMP}-#{feed.uuid}.json")
+          file = File.open(output_file_path, 'w+')
           file.puts output.to_json
           file.close
+          puts "[#{Time.now}] Output file saved to #{output_file_path}."
           Team.current = nil
         end
       end
@@ -219,10 +221,18 @@ namespace :check do
               pages = (total / PER_PAGE.to_f).ceil
               search_after = [0]
               page = 0
+              processed = []
               while true
                 result = $repository.search(_source: 'annotated_id', query: es_query, sort: sort, search_after: search_after, size: PER_PAGE).results
                 pm_ids = result.collect{ |i| i['annotated_id'] }.uniq
                 break if pm_ids.empty?
+
+                # Append IDs of child items but ignore the ones that were already processed
+                pm_ids += Relationship.where(source_id: pm_ids).where('relationship_type = ?', Relationship.confirmed_type.to_yaml).select(:target_id).map(&:target_id)
+                pm_ids.uniq!
+                pm_ids.reject!{ |id| processed.include?(id) }
+                processed += pm_ids
+
                 page += 1
                 puts "\nIterating on page #{page}/#{pages}\n"
                 pm_media_mapping = {} # Project Media ID => Media ID
@@ -268,7 +278,7 @@ namespace :check do
                     updated_cluster_attributes[:channels] = (cluster.channels.to_a + pm.channel.to_h['others'].to_a + [pm.channel.to_h['main']]).uniq.compact_blank
                     updated_cluster_attributes[:media_count] = cluster.media_count + 1
                     updated_cluster_attributes[:requests_count] = cluster.requests_count + pm.requests_count
-                    updated_cluster_attributes[:last_request_date] = (pm.last_seen > cluster.last_request_date.to_i) ? Time.at(pm.last_seen) : cluster.last_request_date
+                    updated_cluster_attributes[:last_request_date] = (pm.tipline_requests.last&.created_at.to_i > cluster.last_request_date.to_i) ? pm.tipline_requests.last.created_at : cluster.last_request_date
                     updated_cluster_attributes[:fact_checks_count] = cluster.fact_checks_count
                     updated_cluster_attributes[:last_fact_check_date] = cluster.last_fact_check_date
                     unless pm_fc_mapping[pm.id].blank?
