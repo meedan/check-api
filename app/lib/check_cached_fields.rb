@@ -66,7 +66,7 @@ module CheckCachedFields
       if should_update_cached_field?(options, target)
         update_index = options[:update_es] || false
         value = target.send(update_index, value) if update_index.is_a?(Symbol) && target.respond_to?(update_index)
-        field_name = options[:es_field_name]&.flatten || [name]
+        field_name = options[:es_field_name].nil? ? [name] : [options[:es_field_name]]&.flatten
         data = {}
         field_name.each{ |f| data[f] = value }
         es_options = { keys: field_name, data: data }
