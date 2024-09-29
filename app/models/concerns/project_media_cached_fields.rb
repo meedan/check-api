@@ -210,7 +210,7 @@ module ProjectMediaCachedFields
 
     cached_field :title,
       update_es: true,
-      es_field_name: :title_index,
+      es_field_name: [:title, :title_index],
       recalculate: :recalculate_title,
       update_on: title_or_description_update
 
