@@ -145,13 +145,13 @@ class ElasticSearchTest < ActionController::TestCase
     response = '{"type":"media","data":' + data.to_json + '}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: media_url } }).to_return(body: response)
     m2 = create_media url: media_url, account_id: nil, user_id: nil, account: nil, user: nil
-    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
+    pm2 = create_project_media team: t, media: m2, disable_es_callbacks: false
     sleep 1
     result = CheckSearch.new({keyword: "search_desc"}.to_json)
     assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
     # search in quote (with and operator)
     m = create_claim_media quote: 'keyworda and keywordb'
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    pm = create_project_media team: t, media: m, disable_es_callbacks: false
     sleep 1
     result = CheckSearch.new({keyword: "keyworda and keywordb"}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
