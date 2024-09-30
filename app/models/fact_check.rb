@@ -1,5 +1,6 @@
 class FactCheck < ApplicationRecord
   include Article
+  include TagHelpers
 
   has_paper_trail on: [:create, :update], ignore: [:updated_at, :created_at, :rating, :report_status], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
 
@@ -18,6 +19,7 @@ class FactCheck < ApplicationRecord
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
   validate :language_in_allowed_values, :title_or_summary_exists, :rating_in_allowed_values
 
+  before_save :clean_fact_check_tags
   after_save :update_report, unless: proc { |fc| fc.skip_report_update || !DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').exists? || fc.project_media.blank? }
   after_save :update_item_status, if: proc { |fc| fc.saved_change_to_rating? }
   after_update :detach_claim_if_trashed
@@ -54,6 +56,11 @@ class FactCheck < ApplicationRecord
       data << [fc.id, fc.title, fc.summary, fc.url, fc.language, fc.report_status, fc.imported.to_s]
     end
     data
+  end
+
+  def clean_fact_check_tags
+    return if self.tags.blank?
+    self.tags = clean_tags(self.tags)
   end
 
   private
