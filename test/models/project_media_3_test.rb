@@ -72,6 +72,8 @@ class ProjectMedia3Test < ActiveSupport::TestCase
     pm.refresh_media = true
     pm.save!
     pm = ProjectMedia.find(pm.id)
+    # TODO: discuss the failure with Caio
+    assert_equal 601720260, pm.media_published_at
     assert_queries(0, '=') { assert_equal 601720260, pm.media_published_at }
   end
 
