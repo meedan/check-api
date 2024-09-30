@@ -36,7 +36,7 @@ class GenericWorkerTest < ActiveSupport::TestCase
     tags_json = ['one', 'two'].to_json
 
     assert_difference "Tag.where(annotation_type: 'tag').count", difference = 2 do
-      GenericWorker.perform_async('ProjectMedia', 'create_tags', project_media_id, tags_json, user_id: pm.user_id)
+      GenericWorker.perform_async('Tag', 'create_project_media_tags', project_media_id, tags_json, user_id: pm.user_id)
     end
   end
 
@@ -71,7 +71,7 @@ class GenericWorkerTest < ActiveSupport::TestCase
     tags_json = ['one', 'two'].to_json
 
     assert_nothing_raised do
-      GenericWorker.perform_async('ProjectMedia', 'create_tags', project_media_id, tags_json, user_id: pm.user_id)
+      GenericWorker.perform_async('Tag', 'create_project_media_tags', project_media_id, tags_json, user_id: pm.user_id)
     end
 
     assert_equal 1, GenericWorker.jobs.size

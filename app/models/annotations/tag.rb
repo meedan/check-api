@@ -1,5 +1,6 @@
 class Tag < ApplicationRecord
   include AnnotationBase
+  extend TagHelpers
 
   # "tag" is a reference to a TagText object
   field :tag, GraphQL::Types::Int, presence: true
@@ -89,6 +90,18 @@ class Tag < ApplicationRecord
     pm = self.project_media
     ret = pm.get_annotations(self.annotation_type).count > CheckConfig.get('nested_objects_limit', 10000, :integer) unless pm.nil?
     ret
+  end
+
+  def self.create_project_media_tags(project_media_id, tags_json)
+    project_media = ProjectMedia.find_by_id(project_media_id)
+
+    if !project_media.nil?
+      tags = JSON.parse(tags_json)
+      clean_tags(tags).each { |tag| Tag.create! annotated: project_media, tag: tag.strip, skip_check_ability: true }
+    else
+      error = StandardError.new("[ProjectMedia] Exception creating project media's tags in background. Project media is nil.")
+      CheckSentry.notify(error, project_media_id: project_media_id)
+    end
   end
 
   private

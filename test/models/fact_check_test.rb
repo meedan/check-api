@@ -596,4 +596,26 @@ class FactCheckTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should not have duplicate tags" do
+    pm = create_project_media
+    cd = create_claim_description(project_media: pm)
+    fc = create_fact_check claim_description: cd, tags: ['one', 'one', '#one']
+
+    assert_equal 1, fc.tags.count
+    assert_equal 'one', fc.tags.first
+  end
+
+  test "should add existing tag to a new fact check" do
+    pm = create_project_media
+    cd = create_claim_description(project_media: pm)
+    create_fact_check claim_description: cd, tags: ['one']
+
+    pm2 = create_project_media
+    cd2 = create_claim_description(project_media: pm2)
+    fc2 = create_fact_check claim_description: cd2, tags: ['#one']
+
+    assert_equal 1, fc2.tags.count
+    assert_equal 'one', fc2.tags.first
+  end
 end
