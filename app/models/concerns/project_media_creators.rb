@@ -262,7 +262,7 @@ module ProjectMediaCreators
     if self.set_tags.is_a?(Array)
       project_media_id = self.id
       tags_json = self.set_tags.to_json
-      ProjectMedia.run_later_in(1.second, 'create_tags', project_media_id, tags_json, user_id: self.user_id)
+      Tag.run_later_in(1.second, 'create_project_media_tags', project_media_id, tags_json, user_id: self.user_id)
     end
   end
 end
