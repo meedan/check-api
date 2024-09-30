@@ -10,7 +10,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
     create_flag_annotation_type
     create_annotation_type(annotation_type: 'language')
 
-    p = create_projec t
+    p = create_project
     m = create_claim_media quote: 'I like apples'
     @pm = create_project_media project: p, media: m
     response = JSON.parse("{ \"text\": \"X X X\\n3\\nTranslate this sentence\\nو عندي وقت في الساعة العاشرة.\\n\" }")
