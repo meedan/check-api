@@ -320,17 +320,15 @@ class GraphqlController3Test < ActionController::TestCase
 
   test "should return updated offset from ES" do
     RequestStore.store[:skip_cached_field_update] = false
-
     u = create_user is_admin: true
     authenticate_with_user(u)
     t = create_team
-    p = create_project team: t
-    pm1 = create_project_media project: p
-    create_relationship source_id: pm1.id, target_id: create_project_media(project: p).id, relationship_type: Relationship.confirmed_type
-    pm2 = create_project_media project: p
-    create_relationship source_id: pm2.id, target_id: create_project_media(project: p).id, relationship_type: Relationship.confirmed_type
-    create_relationship source_id: pm2.id, target_id: create_project_media(project: p).id, relationship_type: Relationship.confirmed_type
-    sleep 10
+    pm1 = create_project_media team: t, disable_es_callbacks: false
+    create_relationship source_id: pm1.id, target_id: create_project_media(team: t).id, relationship_type: Relationship.confirmed_type
+    pm2 = create_project_media team: t, disable_es_callbacks: false
+    create_relationship source_id: pm2.id, target_id: create_project_media(team: t).id, relationship_type: Relationship.confirmed_type
+    create_relationship source_id: pm2.id, target_id: create_project_media(team: t).id, relationship_type: Relationship.confirmed_type
+    sleep 2
     query = 'query CheckSearch { search(query: "{\"sort\":\"related\",\"id\":' + pm1.id.to_s + ',\"esoffset\":0,\"eslimit\":1}") {item_navigation_offset,medias(first:20){edges{node{dbid}}}}}'
     post :create, params: { query: query, team: t.slug }
     assert_response :success

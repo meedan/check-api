@@ -60,7 +60,7 @@ module ProjectAssociation
     validate :is_unique, on: :create, unless: proc { |p| p.is_being_copied }
 
     after_commit :add_elasticsearch_data, on: :create
-    after_commit :update_elasticsearch_data, on: :update
+    after_update :update_elasticsearch_data
     after_commit :destroy_elasticsearch_media , on: :destroy
 
     def get_versions_log(event_types = nil, field_names = nil, annotation_types = nil, whodunnit = nil, include_related = false)
@@ -86,26 +86,21 @@ module ProjectAssociation
 
     def update_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-      obj = self.class.find_by_id(self.id)
-      return if obj.nil?
-      data = {
-        'team_id' => obj.team_id,
-        'archived' => { method: 'archived', klass: obj.class.name, id: obj.id, type: 'int' },
-        'sources_count' => { method: 'sources_count', klass: 'ProjectMedia', id: obj.id, type: 'int' },
-        'user_id' => obj.user_id,
-        'read' => obj.read.to_i,
-        'media_published_at' => obj.media_published_at,
-        'source_id' => obj.source_id,
-        'source_name' => obj.source&.name,
-        'project_id' => obj.project_id,
-        'unmatched' => obj.unmatched,
-        'channel' => obj.channel.values.flatten.map(&:to_i),
-        'updated_at' => obj.updated_at.utc,
-        'title' => obj.title
-      }
-      options = { keys: data.keys, data: data, pm_id: obj.id }
-      model = { klass: obj.class.name, id: obj.id }
-      ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
+      data = {}
+      ['team_id', 'user_id', 'read', 'source_id', 'project_id', 'unmatched'].each do |fname|
+        data[fname] = self.send(fname).to_i if self.send("saved_change_to_#{fname}?")
+      end
+      ['archived', 'sources_count'].each do |fname|
+        data[fname] = { method: fname, klass: 'ProjectMedia', id: self.id, type: 'int' } if self.send("saved_change_to_#{fname}?")
+      end
+      data['channel'] = self.channel.values.flatten.map(&:to_i) if self.send(:saved_change_to_channel?)
+      data['source_name'] =  self.source&.name if self.send(:saved_change_to_source_id?)
+      unless data.blank?
+        data['updated_at'] = self.updated_at.utc
+        options = { keys: data.keys, data: data, pm_id: self.id }
+        model = { klass: self.class.name, id: self.id }
+        ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
+      end
     end
 
     def destroy_elasticsearch_media

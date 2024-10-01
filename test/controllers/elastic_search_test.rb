@@ -9,19 +9,20 @@ class ElasticSearchTest < ActionController::TestCase
   test "should search media" do
     u = create_user
     @team = create_team
-    p = create_project team: @team
     m1 = create_valid_media
-    pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
+    pm1 = create_project_media team: @team, media: m1, disable_es_callbacks: false
     authenticate_with_user(u)
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m2 = create_media(account: create_valid_account, url: url)
-    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-    sleep 10
-    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
+    pm2 = create_project_media team: @team, media: m2, disable_es_callbacks: false
+    sleep 2
+    Team.stubs(:current).returns(@team)
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\"}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
     post :create, params: { query: query }
+    Team.unstub(:current)
     assert_response :success
     ids = []
     JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
@@ -29,9 +30,11 @@ class ElasticSearchTest < ActionController::TestCase
     end
     assert_equal [pm2.id], ids
     create_comment text: 'title_a', annotated: pm1, disable_es_callbacks: false
-    sleep 20
-    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
+    sleep 2
+    Team.stubs(:current).returns(@team)
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"sort\":\"recent_activity\"}") { medias(first: 10) { edges { node { dbid } } } } }'
     post :create, params: { query: query }
+    Team.unstub(:current)
     assert_response :success
     ids = []
     JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
@@ -57,7 +60,7 @@ class ElasticSearchTest < ActionController::TestCase
     m2 = create_media(account: create_valid_account, url: url2)
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     pm2 = create_project_media project: p2, media: m2,  disable_es_callbacks:  false
-    sleep 10
+    sleep 2
     query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
     post :create, params: { query: query }
     assert_response :success
@@ -67,7 +70,7 @@ class ElasticSearchTest < ActionController::TestCase
     end
     assert_equal [pm.id, pm2.id], m_ids.sort
     pm2.analysis = { content: 'new_description' }
-    sleep 10
+    sleep 2
     query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, description } } } } }'
     post :create, params: { query: query }
     assert_response :success
@@ -104,7 +107,6 @@ class ElasticSearchTest < ActionController::TestCase
 
   test "should search with keyword" do
     t = create_team
-    p = create_project team: t
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'http://test.com'
     author_url = 'http://facebook.com/123456'
@@ -119,7 +121,7 @@ class ElasticSearchTest < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: author_url } }).to_return(body: response)
 
     m = create_media url: url, account_id: nil, user_id: nil, account: nil, user: nil
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    pm = create_project_media team: t, media: m, disable_es_callbacks: false
     sleep 1
     Team.current = t
     result = CheckSearch.new({keyword: "non_exist_title"}.to_json)
@@ -143,13 +145,13 @@ class ElasticSearchTest < ActionController::TestCase
     response = '{"type":"media","data":' + data.to_json + '}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: media_url } }).to_return(body: response)
     m2 = create_media url: media_url, account_id: nil, user_id: nil, account: nil, user: nil
-    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
+    pm2 = create_project_media team: t, media: m2, disable_es_callbacks: false
     sleep 1
     result = CheckSearch.new({keyword: "search_desc"}.to_json)
     assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
     # search in quote (with and operator)
     m = create_claim_media quote: 'keyworda and keywordb'
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    pm = create_project_media team: t, media: m, disable_es_callbacks: false
     sleep 1
     result = CheckSearch.new({keyword: "keyworda and keywordb"}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)

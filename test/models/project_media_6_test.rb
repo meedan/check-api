@@ -475,6 +475,12 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     pm.save!
     assert_match /^text-/, pm.get_title # Uncached
     assert_match /^text-/, pm.title # Cached
+    # Verify save the title as a custom title
+    ProjectMedia.stubs(:get_title).returns(nil)
+    pm = create_project_media custom_title: 'Custom Title'
+    assert_equal 'Custom Title', pm.title
+    assert_equal 'custom_title', pm.reload.title_field
+    ProjectMedia.unstub(:get_title)
   end
 
   test "should avoid N + 1 queries problem when loading the team avatar of many items at once" do
