@@ -2,9 +2,9 @@ class ElasticSearchWorker
 
   include Sidekiq::Worker
 
-  sidekiq_options :queue => :esqueue, :retry => 5
+  sidekiq_options :queue => :esqueue, :retry => 3
 
-  sidekiq_retry_in { |_count, _e| 5 }
+  sidekiq_retry_in { |_count, _e| 3 }
 
   def perform(model_data, options, type)
     model_data = begin YAML::load(model_data) rescue nil end
