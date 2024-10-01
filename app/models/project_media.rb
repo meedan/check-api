@@ -258,7 +258,7 @@ class ProjectMedia < ApplicationRecord
   end
 
   def replace_by(new_pm, skip_send_report = false)
-    return if self.id == new_pm.id || new_pm.nil?
+    return if new_pm.nil? || self.id == new_pm.id
     if self.team_id != new_pm.team_id
       raise I18n.t(:replace_by_media_in_the_same_team)
     elsif self.media.media_type != 'blank'
