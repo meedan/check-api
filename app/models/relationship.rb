@@ -164,7 +164,7 @@ class Relationship < ApplicationRecord
       options.each do |key, value|
         r.send("#{key}=", value) if r.respond_to?("#{key}=")
       end
-      r.save!
+      r.save ? r : nil
     end
     r
   end
