@@ -618,4 +618,76 @@ class FactCheckTest < ActiveSupport::TestCase
     assert_equal 1, fc2.tags.count
     assert_equal 'one', fc2.tags.first
   end
+
+  test "should move item to default core status when fact-check is removed from it" do
+    RequestStore.store[:skip_cached_field_update] = false
+    create_verification_status_stuff
+    Sidekiq::Testing.inline! do
+      pm = create_project_media
+      assert_equal 'undetermined', pm.reload.status
+      cd = create_claim_description(project_media: pm)
+      fc = create_fact_check claim_description: cd, rating: 'false'
+      assert_equal 'false', pm.reload.status
+      cd.project_media = nil
+      cd.save!
+      assert_equal 'undetermined', pm.reload.status
+    end
+  end
+
+  test "should move item to default custom status when fact-check is removed from it" do
+    RequestStore.store[:skip_cached_field_update] = false
+    create_verification_status_stuff
+    t = create_team
+    custom_statuses = {
+      "label": "Custom Status Label",
+      "active": "in_progress",
+      "default": "unstarted",
+      "statuses": [
+        {
+          "id": "unstarted",
+          "style": {
+            "color": "blue"
+          },
+          "locales": {
+            "en": {
+              "label": "Unstarted",
+              "description": "An item that did not start yet"
+            },
+            "pt": {
+              "label": "Não iniciado ainda",
+              "description": "Um item que ainda não começou a ser verificado"
+            }
+          }
+        },
+        {
+          "id": "in_progress",
+          "style": {
+            "color": "yellow"
+          },
+          "locales": {
+            "en": {
+              "label": "Working on it",
+              "description": "We are working on it"
+            },
+            "pt": {
+              "label": "Estamos trabalhando nisso",
+              "description": "Estamos trabalhando nisso"
+            }
+          }
+        }
+      ]
+    }
+    t.set_media_verification_statuses(custom_statuses)
+    t.save!
+    Sidekiq::Testing.inline! do
+      pm = create_project_media team: t
+      assert_equal 'unstarted', pm.reload.status
+      cd = create_claim_description(project_media: pm)
+      fc = create_fact_check claim_description: cd, rating: 'in_progress'
+      assert_equal 'in_progress', pm.reload.status
+      cd.project_media = nil
+      cd.save!
+      assert_equal 'unstarted', pm.reload.status
+    end
+  end
 end
