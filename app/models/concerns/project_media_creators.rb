@@ -229,12 +229,7 @@ module ProjectMediaCreators
     unless self.related_to_id.nil?
       related = ProjectMedia.where(id: self.related_to_id).last
       unless related.nil?
-        r = Relationship.new
-        r.skip_check_ability = true
-        r.relationship_type = type
-        r.source_id = related.id
-        r.target_id = self.id
-        r.save!
+        Relationship.create_unless_exists(related.id, self.id, type)
       else
         raise 'Could not create related item'
       end
@@ -263,7 +258,11 @@ module ProjectMediaCreators
     fc
   end
 
-  def create_tags
-    self.set_tags.each { |tag| Tag.create!(annotated: self, tag: tag.strip, skip_check_ability: true) } if self.set_tags.is_a?(Array)
+  def create_tags_in_background
+    if self.set_tags.is_a?(Array)
+      project_media_id = self.id
+      tags_json = self.set_tags.to_json
+      Tag.run_later_in(1.second, 'create_project_media_tags', project_media_id, tags_json, user_id: self.user_id)
+    end
   end
 end

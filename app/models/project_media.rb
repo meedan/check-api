@@ -33,7 +33,7 @@ class ProjectMedia < ApplicationRecord
 
   before_validation :set_team_id, :set_channel, :set_project_id, on: :create
   before_validation :create_original_claim, if: proc { |pm| pm.set_original_claim.present? }, on: :create
-  after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks, :create_claim_description_and_fact_check, :create_tags
+  after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks, :create_claim_description_and_fact_check, :create_tags_in_background
   after_create :add_source_creation_log, unless: proc { |pm| pm.source_id.blank? }
   after_commit :apply_rules_and_actions_on_create, :set_quote_metadata, :notify_team_bots_create, on: [:create]
   after_commit :create_relationship, on: [:update]
@@ -258,7 +258,7 @@ class ProjectMedia < ApplicationRecord
   end
 
   def replace_by(new_pm, skip_send_report = false)
-    return if self.id == new_pm.id
+    return if new_pm.nil? || self.id == new_pm.id
     if self.team_id != new_pm.team_id
       raise I18n.t(:replace_by_media_in_the_same_team)
     elsif self.media.media_type != 'blank'

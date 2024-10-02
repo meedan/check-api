@@ -14,6 +14,7 @@ module Article
     after_commit :update_elasticsearch_data, :send_to_alegre, :notify_bots, on: [:create, :update]
     after_commit :destroy_elasticsearch_data, on: :destroy
     after_save :create_tag_texts_if_needed
+    after_update :schedule_for_permanent_deletion_if_sent_to_trash, if: proc { |obj| obj.is_a?(FactCheck) || obj.is_a?(Explainer) }
   end
 
   def text_fields
@@ -68,6 +69,13 @@ module Article
     self.class.delay.create_tag_texts_if_needed(self.team_id, self.tags) if self.respond_to?(:tags) && !self.tags.blank?
   end
 
+  def schedule_for_permanent_deletion_if_sent_to_trash
+    if self.trashed && !self.trashed_before_last_save
+      interval = CheckConfig.get('empty_trash_interval', 30, :integer)
+      self.class.delay_for(interval.days, { queue: 'trash', retry: 0 }).delete_permanently(self.id)
+    end
+  end
+
   module ClassMethods
     def create_tag_texts_if_needed(team_id, tags)
       tags.to_a.map(&:strip).each do |tag|
@@ -86,6 +94,14 @@ module Article
       obj.text_fields.each do |field|
         ::Bot::Alegre.send_field_to_similarity_index(obj.project_media, field)
       end unless obj.nil?
+    end
+
+    def delete_permanently(id)
+      obj = self.find_by_id(id)
+      if obj && obj.trashed
+        obj.destroy!
+        obj.claim_description.destroy! if obj.is_a?(FactCheck)
+      end
     end
   end
 end

@@ -680,4 +680,55 @@ class GraphqlController12Test < ActionController::TestCase
   assert_response :success
   assert_equal 'science', JSON.parse(@response.body)['data']['createProjectMedia']['project_media']['tags']['edges'][0]['node']['tag_text']
   end
+
+  test "should not create duplicate tags for the ProjectMedia and FactCheck" do
+    Sidekiq::Testing.inline!
+    t = create_team
+    a = ApiKey.create!
+    b = create_bot_user api_key_id: a.id
+    create_team_user team: t, user: b
+    p = create_project team: t
+    authenticate_with_token(a)
+
+    query1 = ' mutation create {
+              createProjectMedia(input: {
+                project_id: ' + p.id.to_s + ',
+                media_type: "Blank",
+                channel: { main: 1 },
+                set_tags: ["science", "science", "#science"],
+                set_status: "verified",
+                set_claim_description: "Claim #1.",
+                set_fact_check: {
+                  title: "Title #1",
+                  language: "en",
+                }
+              }) {
+                project_media {
+                full_url
+                  claim_description {
+                    fact_check {
+                      tags
+                    }
+                  }
+                  tags {
+                    edges {
+                      node {
+                        tag_text
+                      }
+                    }
+                  }
+                }
+              }
+            } '
+
+    post :create, params: { query: query1, team: t.slug }
+    assert_response :success
+
+    pm = JSON.parse(@response.body)['data']['createProjectMedia']['project_media']
+    pm_tags = pm['tags']['edges']
+    fc_tags = pm['claim_description']['fact_check']['tags']
+
+    assert_equal 1, pm_tags.count
+    assert_equal 1, fc_tags.count
+  end
 end

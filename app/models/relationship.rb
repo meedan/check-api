@@ -153,6 +153,22 @@ class Relationship < ApplicationRecord
     self.source_id
   end
 
+  def self.create_unless_exists(source_id, target_id, relationship_type, options = {})
+    r = Relationship.where(source_id: source_id, target_id: target_id).last
+    if r.nil?
+      r = Relationship.new
+      r.skip_check_ability = true
+      r.relationship_type = relationship_type
+      r.source_id = source_id
+      r.target_id = target_id
+      options.each do |key, value|
+        r.send("#{key}=", value) if r.respond_to?("#{key}=")
+      end
+      r.save ? r : nil
+    end
+    r
+  end
+
   protected
 
   def update_elasticsearch_parent(action = 'create_or_update')

@@ -284,4 +284,58 @@ class TagTest < ActiveSupport::TestCase
       create_tag tag: ' foo', annotated: pm2
     end
   end
+
+  test ":create_project_media_tags should create tags when project media id and tags are present" do
+    team = create_team
+    project = create_project team: team
+    pm = create_project_media project: project
+
+    project_media_id = pm.id
+    tags_json = ['one', 'two'].to_json
+
+    assert_nothing_raised do
+      Tag.create_project_media_tags(project_media_id, tags_json)
+    end
+    assert_equal 2, pm.annotations('tag').count
+  end
+
+  test ":create_project_media_tags should not raise an error when no project media is sent" do
+    project_media_id = nil
+    tags_json = ['one', 'two'].to_json
+
+    assert_nothing_raised do
+      CheckSentry.expects(:notify).once
+      Tag.create_project_media_tags(project_media_id, tags_json)
+    end
+  end
+
+  test ":create_project_media_tags should not try to create duplicate tags" do
+    Sidekiq::Testing.fake!
+
+    team = create_team
+    project = create_project team: team
+    pm = create_project_media project: project
+    Tag.create_project_media_tags(pm.id, ['one', 'one', '#one'].to_json)
+
+    tags = pm.reload.annotations('tag')
+    tag_text_id = tags.last.data['tag']
+    tag_text = TagText.find(tag_text_id).text
+
+    assert_equal 1, tags.count
+    assert_equal 'one', tag_text
+  end
+
+  test ":create_project_media_tags should be able to add an existing tag to a new project media" do
+    Sidekiq::Testing.fake!
+
+    team = create_team
+    project = create_project team: team
+    pm = create_project_media project: project
+    Tag.create_project_media_tags(pm.id, ['one'].to_json)
+
+    pm2 = create_project_media project: project
+    Tag.create_project_media_tags(pm2.id, ['#one'].to_json)
+
+    assert_equal 1, pm2.reload.annotations('tag').count
+  end
 end

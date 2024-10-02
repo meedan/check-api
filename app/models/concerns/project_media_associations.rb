@@ -18,7 +18,7 @@ module ProjectMediaAssociations
     has_many :project_media_requests, dependent: :destroy
     has_many :cluster_project_medias, dependent: :destroy
     has_many :clusters, through: :cluster_project_medias
-    has_one :claim_description, dependent: :destroy
+    has_one :claim_description, dependent: :nullify
     belongs_to :source, optional: true
     has_many :tipline_requests, as: :associated
     has_many :explainer_items, dependent: :destroy
