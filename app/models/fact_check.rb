@@ -1,5 +1,6 @@
 class FactCheck < ApplicationRecord
   include Article
+  include TagHelpers
 
   has_paper_trail on: [:create, :update], ignore: [:updated_at, :created_at, :rating, :report_status], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
 
@@ -18,8 +19,10 @@ class FactCheck < ApplicationRecord
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
   validate :language_in_allowed_values, :title_or_summary_exists, :rating_in_allowed_values
 
+  before_save :clean_fact_check_tags
   after_save :update_report, unless: proc { |fc| fc.skip_report_update || !DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').exists? || fc.project_media.blank? }
   after_save :update_item_status, if: proc { |fc| fc.saved_change_to_rating? }
+  after_update :detach_claim_if_trashed
 
   def text_fields
     ['fact_check_title', 'fact_check_summary']
@@ -55,6 +58,11 @@ class FactCheck < ApplicationRecord
     data
   end
 
+  def clean_fact_check_tags
+    return if self.tags.blank?
+    self.tags = clean_tags(self.tags)
+  end
+
   private
 
   def set_language
@@ -73,7 +81,7 @@ class FactCheck < ApplicationRecord
   end
 
   def rating_in_allowed_values
-    unless self.rating.blank?
+    unless self.rating.blank? || self.claim_description.nil?
       team = self.claim_description.team
       allowed_statuses = team.verification_statuses('media', nil)['statuses'].collect{ |s| s[:id] }
       errors.add(:rating, I18n.t(:workflow_status_is_not_valid, status: self.rating, valid: allowed_statuses.join(', '))) unless allowed_statuses.include?(self.rating)
@@ -142,5 +150,13 @@ class FactCheck < ApplicationRecord
     pm_rating = self.project_media&.last_status
     default_rating = self.claim_description.team.verification_statuses('media', nil)['default']
     self.rating = pm_rating || default_rating
+  end
+
+  def detach_claim_if_trashed
+    if self.trashed && !self.trashed_before_last_save
+      cd = self.claim_description
+      cd.project_media = nil
+      cd.save!
+    end
   end
 end

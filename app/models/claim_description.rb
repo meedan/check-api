@@ -14,8 +14,10 @@ class ClaimDescription < ApplicationRecord
 
   validates_presence_of :team
   validates_uniqueness_of :project_media_id, allow_nil: true
+  validate :cant_apply_article_to_item_if_article_is_in_the_trash
   after_commit :update_fact_check, on: [:update]
   after_update :update_report_status
+  after_update :reset_item_rating_if_removed
   after_update :replace_media, unless: proc { |cd| cd.disable_replace_media }
   after_update :migrate_claim_and_fact_check_logs, if: proc { |cd| cd.saved_change_to_project_media_id? && !cd.project_media_id.nil? }
 
@@ -113,6 +115,24 @@ class ClaimDescription < ApplicationRecord
       # Migrate FactCheck logs and exclude create event
       Version.from_partition(self.team_id).where(item_type: 'FactCheck', item_id: fc_id)
       .where.not(event: 'create').update_all(associated_id: self.project_media_id)
+    end
+  end
+
+  def cant_apply_article_to_item_if_article_is_in_the_trash
+    errors.add(:base, I18n.t(:cant_apply_article_to_item_if_article_is_in_the_trash)) if self.project_media && self.fact_check&.trashed
+  end
+
+  # If claim/fact-check is detached from item, reset the item status/rating back to the default one (unstarted, undetermined, etc.)
+  def reset_item_rating_if_removed
+    if self.project_media_id.nil? && !self.project_media_id_before_last_save.nil?
+      old_pm = ProjectMedia.find_by_id(self.project_media_id_before_last_save)
+      return if old_pm.nil?
+      status = old_pm.last_status_obj
+      default_status = old_pm.team.verification_statuses('media')[:default]
+      if status && status.status != default_status
+        status.status = default_status
+        status.save
+      end
     end
   end
 end

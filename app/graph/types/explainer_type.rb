@@ -13,4 +13,5 @@ class ExplainerType < DefaultObject
   field :user, UserType, null: true
   field :team, PublicTeamType, null: true
   field :tags, [GraphQL::Types::String, null: true], null: true
+  field :trashed, GraphQL::Types::Boolean, null: true
 end

@@ -312,17 +312,19 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 'Shared Database', pm.creator_name
   end
 
-  test "should delete claims and fact-checks when item is deleted" do
+  test "should make claims and fact-checks standalone when item is deleted" do
     pm = create_project_media
     cd = create_claim_description project_media: pm
     fc = create_fact_check claim_description: cd
     assert_difference 'ProjectMedia.count', -1 do
-      assert_difference 'ClaimDescription.count', -1 do
-        assert_difference 'FactCheck.count', -1 do
+      assert_no_difference 'ClaimDescription.count' do
+        assert_no_difference 'FactCheck.count' do
           pm.destroy!
         end
       end
     end
+    assert_nil cd.reload.project_media
+    assert_equal cd, fc.reload.claim_description
   end
 
   test "should delete project_media_requests and requests when item is deleted" do

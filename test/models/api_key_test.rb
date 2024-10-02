@@ -64,4 +64,22 @@ class ApiKeyTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should delete API key even if key's user has been used to create media" do
+    a = create_api_key
+    b = create_bot_user
+    b.api_key = a
+    b.save!
+    pm = create_project_media user: b
+
+    assert_equal b, pm.user
+
+    assert_difference 'ApiKey.count', -1 do
+      a.destroy
+    end
+
+    assert_raises ActiveRecord::RecordNotFound do
+      ApiKey.find(a.id)
+    end
+  end
 end

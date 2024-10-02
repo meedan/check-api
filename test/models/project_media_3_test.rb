@@ -60,19 +60,21 @@ class ProjectMedia3Test < ActiveSupport::TestCase
 
   test "should cache media published at" do
     RequestStore.store[:skip_cached_field_update] = false
-    url = 'http://twitter.com/test/123456'
-    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-    response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"1989-01-25 08:30:00"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    pm = create_project_media media: nil, url: url
-    assert_queries(0, '=') { assert_equal 601720200, pm.media_published_at }
-    response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"1989-01-25 08:31:00"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
-    pm = ProjectMedia.find(pm.id)
-    pm.refresh_media = true
-    pm.save!
-    pm = ProjectMedia.find(pm.id)
-    assert_queries(0, '=') { assert_equal 601720260, pm.media_published_at }
+    Sidekiq::Testing.inline! do
+      url = 'http://twitter.com/test/123456'
+      pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+      response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"1989-01-25 08:30:00"}}'
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+      pm = create_project_media media: nil, url: url
+      assert_queries(0, '=') { assert_equal 601720200, pm.media_published_at }
+      response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"1989-01-25 08:31:00"}}'
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
+      pm = ProjectMedia.find(pm.id)
+      pm.refresh_media = true
+      pm.save!
+      pm = ProjectMedia.find(pm.id)
+      assert_queries(0, '=') { assert_equal 601720260, pm.media_published_at }
+    end
   end
 
   test "should cache number of related items" do

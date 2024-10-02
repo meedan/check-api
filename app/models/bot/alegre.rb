@@ -621,7 +621,6 @@ class Bot::Alegre < BotUser
         target.save!
       end
       r = self.fill_in_new_relationship(source, target, pm_id_scores, relationship_type, original_source, original_relationship_type)
-      r.save!
       self.report_exception_if_bad_relationship(r, pm_id_scores, relationship_type)
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Created new relationship for relationship ID Of #{r.id}"
     elsif self.is_relationship_upgrade?(r, relationship_type)
@@ -640,26 +639,23 @@ class Bot::Alegre < BotUser
 
   def self.fill_in_new_relationship(source, target, pm_id_scores, relationship_type, original_source, original_relationship_type)
     score_with_context = pm_id_scores[source.id] || {}
-    r = Relationship.new
-    r.skip_check_ability = true
-    r.relationship_type = relationship_type
-    r.model = self.get_indexing_model(source, score_with_context)
-    r.weight = score_with_context[:score]
-    r.details = score_with_context[:context]
-    r.source_id = source.id
-    r.target_id = target.id
-    r.source_field = score_with_context[:source_field]
-    r.target_field = score_with_context[:target_field]
-    if original_source
-      r.original_weight = pm_id_scores[original_source.id][:score]
-      r.original_details = pm_id_scores[original_source.id][:context]
-      r.original_relationship_type = original_relationship_type
-      r.original_model = self.get_indexing_model(original_source, pm_id_scores[original_source.id])
-      r.original_source_id = original_source.id
-      r.original_source_field = pm_id_scores[original_source.id][:source_field]
-    end
-    r.user_id ||= BotUser.alegre_user&.id
-    r
+    options = {
+      model: self.get_indexing_model(source, score_with_context),
+      weight: score_with_context[:score],
+      details: score_with_context[:context],
+      source_field: score_with_context[:source_field],
+      target_field: score_with_context[:target_field],
+    }
+    options.merge!({
+      original_weight: pm_id_scores[original_source.id][:score],
+      original_details: pm_id_scores[original_source.id][:context],
+      original_relationship_type: original_relationship_type,
+      original_model: self.get_indexing_model(original_source, pm_id_scores[original_source.id]),
+      original_source_id: original_source.id,
+      original_source_field: pm_id_scores[original_source.id][:source_field],
+    }) if original_source
+    options[:user_id] = BotUser.alegre_user&.id
+    Relationship.create_unless_exists(source.id, target.id, relationship_type, options)
   end
 
   def self.can_create_relationship?(source, target, relationship_type)

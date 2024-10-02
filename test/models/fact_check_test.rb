@@ -181,7 +181,7 @@ class FactCheckTest < ActiveSupport::TestCase
       assert_nil pm.reload.published_url
 
       d = create_dynamic_annotation annotation_type: 'report_design', annotator: u, annotated: pm, set_fields: { options: { language: 'en', use_text_message: true, title: 'Text report created title', text: 'Text report created summary', published_article_url: 'http://text.report/created' } }.to_json, action: 'save'
-      fc = cd.fact_check
+      fc = cd.reload.fact_check
       assert_equal 'Text report created title', pm.reload.fact_check_title
       assert_equal 'Text report created summary', pm.reload.fact_check_summary
       assert_equal 'http://text.report/created', pm.reload.published_url
@@ -423,7 +423,7 @@ class FactCheckTest < ActiveSupport::TestCase
         s.status = 'verified'
         s.save!
         r = publish_report(pm)
-        fc = cd.fact_check
+        fc = cd.reload.fact_check
         fc.title = 'Foo Bar'
         fc.save!
         fc = fc.reload
@@ -547,5 +547,147 @@ class FactCheckTest < ActiveSupport::TestCase
   test "should have team" do
     fc = create_fact_check
     assert_not_nil fc.team
+  end
+
+  test "should unpublish report when fact-check is sent to the trash" do
+    Sidekiq::Testing.fake!
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media
+    cd = create_claim_description(project_media: pm)
+    fc = create_fact_check claim_description: cd
+    r = publish_report(pm)
+    assert_equal pm, cd.reload.project_media
+    assert_equal 'published', pm.reload.report_status
+    assert_equal 'published', fc.reload.report_status
+    assert_equal 'published', r.reload.data['state']
+
+    fc = FactCheck.find(fc.id)
+    fc.trashed = true
+    fc.save!
+
+    assert_nil cd.reload.project_media
+    assert_equal 'paused', pm.reload.report_status
+    assert_equal 'paused', fc.reload.report_status
+    assert_equal 'paused', r.reload.data['state']
+
+    fc = FactCheck.find(fc.id)
+    fc.trashed = false
+    fc.save!
+
+    assert_nil cd.reload.project_media
+    assert_equal 'paused', pm.reload.report_status
+    assert_equal 'paused', fc.reload.report_status
+    assert_equal 'paused', r.reload.data['state']
+  end
+
+  test "should delete after days in the trash" do
+    pm = create_project_media
+    cd = create_claim_description(project_media: pm)
+    fc = create_fact_check claim_description: cd
+    Sidekiq::Testing.inline! do
+      assert_no_difference 'ProjectMedia.count' do
+        assert_difference 'FactCheck.count', -1 do
+          assert_difference 'ClaimDescription.count', -1 do
+            fc = FactCheck.find(fc.id)
+            fc.trashed = true
+            fc.save!
+          end
+        end
+      end
+    end
+  end
+
+  test "should not have duplicate tags" do
+    pm = create_project_media
+    cd = create_claim_description(project_media: pm)
+    fc = create_fact_check claim_description: cd, tags: ['one', 'one', '#one']
+
+    assert_equal 1, fc.tags.count
+    assert_equal 'one', fc.tags.first
+  end
+
+  test "should add existing tag to a new fact check" do
+    pm = create_project_media
+    cd = create_claim_description(project_media: pm)
+    create_fact_check claim_description: cd, tags: ['one']
+
+    pm2 = create_project_media
+    cd2 = create_claim_description(project_media: pm2)
+    fc2 = create_fact_check claim_description: cd2, tags: ['#one']
+
+    assert_equal 1, fc2.tags.count
+    assert_equal 'one', fc2.tags.first
+  end
+
+  test "should move item to default core status when fact-check is removed from it" do
+    RequestStore.store[:skip_cached_field_update] = false
+    create_verification_status_stuff
+    Sidekiq::Testing.inline! do
+      pm = create_project_media
+      assert_equal 'undetermined', pm.reload.status
+      cd = create_claim_description(project_media: pm)
+      fc = create_fact_check claim_description: cd, rating: 'false'
+      assert_equal 'false', pm.reload.status
+      cd.project_media = nil
+      cd.save!
+      assert_equal 'undetermined', pm.reload.status
+    end
+  end
+
+  test "should move item to default custom status when fact-check is removed from it" do
+    RequestStore.store[:skip_cached_field_update] = false
+    create_verification_status_stuff
+    t = create_team
+    custom_statuses = {
+      "label": "Custom Status Label",
+      "active": "in_progress",
+      "default": "unstarted",
+      "statuses": [
+        {
+          "id": "unstarted",
+          "style": {
+            "color": "blue"
+          },
+          "locales": {
+            "en": {
+              "label": "Unstarted",
+              "description": "An item that did not start yet"
+            },
+            "pt": {
+              "label": "Não iniciado ainda",
+              "description": "Um item que ainda não começou a ser verificado"
+            }
+          }
+        },
+        {
+          "id": "in_progress",
+          "style": {
+            "color": "yellow"
+          },
+          "locales": {
+            "en": {
+              "label": "Working on it",
+              "description": "We are working on it"
+            },
+            "pt": {
+              "label": "Estamos trabalhando nisso",
+              "description": "Estamos trabalhando nisso"
+            }
+          }
+        }
+      ]
+    }
+    t.set_media_verification_statuses(custom_statuses)
+    t.save!
+    Sidekiq::Testing.inline! do
+      pm = create_project_media team: t
+      assert_equal 'unstarted', pm.reload.status
+      cd = create_claim_description(project_media: pm)
+      fc = create_fact_check claim_description: cd, rating: 'in_progress'
+      assert_equal 'in_progress', pm.reload.status
+      cd.project_media = nil
+      cd.save!
+      assert_equal 'unstarted', pm.reload.status
+    end
   end
 end

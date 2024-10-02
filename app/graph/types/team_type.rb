@@ -224,7 +224,7 @@ class TeamType < DefaultObject
   end
 
   def tag_texts(keyword: nil)
-    object.tag_texts_by_keyword(keyword)
+    object.tag_texts_by_keyword(keyword).order('text ASC')
   end
 
   field :tag_texts_count, GraphQL::Types::Int, null: true do
@@ -306,6 +306,7 @@ class TeamType < DefaultObject
     argument :rating, [GraphQL::Types::String, null: true], required: false, camelize: false
     argument :imported, GraphQL::Types::Boolean, required: false, camelize: false # Only for fact-checks
     argument :target_id, GraphQL::Types::Int, required: false, camelize: false # Exclude articles already applied to the `ProjectMedia` with this ID
+    argument :trashed, GraphQL::Types::Boolean, required: false, camelize: false, default_value: false
   end
 
   def articles(**args)
@@ -336,6 +337,7 @@ class TeamType < DefaultObject
     argument :rating, [GraphQL::Types::String, null: true], required: false, camelize: false
     argument :imported, GraphQL::Types::Boolean, required: false, camelize: false # Only for fact-checks
     argument :target_id, GraphQL::Types::Int, required: false, camelize: false # Exclude articles already applied to the `ProjectMedia` with this ID
+    argument :trashed, GraphQL::Types::Boolean, required: false, camelize: false, default_value: false
   end
 
   def articles_count(**args)

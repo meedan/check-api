@@ -86,8 +86,7 @@ module UserPrivate
   end
 
   def can_destroy_user
-    count = ProjectMedia.where(user_id: self.id).count
-    throw :abort if count > 0
+    throw :abort if owns_media?
   end
 
   def set_user_notification_settings(type, enabled)

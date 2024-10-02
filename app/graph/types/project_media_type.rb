@@ -206,7 +206,7 @@ class ProjectMediaType < DefaultObject
   field :tags, TagType.connection_type, null: true
 
   def tags
-    object.get_annotations('tag').map(&:load)
+    object.get_annotations('tag').map(&:load).sort_by { |tag| tag.tag_text.downcase }
   end
 
   field :comments, CommentType.connection_type, null: true

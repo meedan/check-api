@@ -494,6 +494,9 @@ class Team < ApplicationRecord
     # Filter by date
     query = query.where(updated_at: Range.new(*format_times_search_range_filter(JSON.parse(filters[:updated_at]), nil))) unless filters[:updated_at].blank?
 
+    # Filter by trashed
+    query = query.where(trashed: !!filters[:trashed])
+
     # Filter by text
     query = self.filter_by_keywords(query, filters, 'Explainer') if filters[:text].to_s.size > 2
 
@@ -533,6 +536,9 @@ class Team < ApplicationRecord
 
     # Filter by report status
     query = query.where('fact_checks.report_status' => [filters[:report_status]].flatten.map(&:to_s)) unless filters[:report_status].blank?
+
+    # Filter by trashed
+    query = query.where('fact_checks.trashed' => !!filters[:trashed])
 
     # Filter by text
     query = self.filter_by_keywords(query, filters) if filters[:text].to_s.size > 2

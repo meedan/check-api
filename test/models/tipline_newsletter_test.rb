@@ -479,4 +479,16 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
       create_tipline_newsletter send_every: nil
     end
   end
+
+  test 'should validate video size after converting' do
+    # This test file is 300 KB, but 1.6 MB after converting
+    WebMock.stub_request(:get, /:9000/).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'h265-video.mp4')))
+    TiplineNewsletter.any_instance.stubs(:new_file_uploaded?).returns(true)
+    TiplineNewsletter.any_instance.stubs(:header_file_video_max_size_check).returns(2) # Maximum 2 MB
+    TiplineNewsletter.any_instance.stubs(:header_file_video_max_size_whatsapp).returns(1) # Maximum 1 MB
+    CheckSentry.stubs(:notify).once
+    Sidekiq::Testing.inline! do
+      create_tipline_newsletter header_type: 'video', header_file: 'h265-video.mp4'
+    end
+  end
 end
