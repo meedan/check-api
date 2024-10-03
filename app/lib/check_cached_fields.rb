@@ -90,13 +90,15 @@ module CheckCachedFields
     end
 
     def index_cached_field(options, value, name, obj)
-      index_options = {
-        update_es: options[:update_es],
-        es_field_name: options[:es_field_name],
-        update_pg: options[:update_pg],
-        pg_field_name: options[:pg_field_name],
-      }
-      self.delay_for(1.second).index_cached_field_bg(index_options, value, name, obj)
+      if options[:update_es] || options[:update_pg]
+        index_options = {
+          update_es: options[:update_es],
+          es_field_name: options[:es_field_name],
+          update_pg: options[:update_pg],
+          pg_field_name: options[:pg_field_name],
+        }
+        self.delay_for(1.second).index_cached_field_bg(index_options, value, name, obj)
+      end
     end
 
     def index_cached_field_bg(index_options, value, name, obj)
