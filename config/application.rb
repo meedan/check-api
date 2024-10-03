@@ -47,7 +47,7 @@ module Check
 
     locale = ENV['locale'] || cfg['locale']
     if locale.blank?
-      config.i18n.available_locales = ["ar","bho","bn","ckb","fil","fr","de","hi","id","it","kn","mk","ml","mn","mr","pa","pt","ro","ru","es","sw","ta","te","ur","en","am","as","bn_BD","gu","ks","ne","si","tl"] # Do not change manually! Use `rake transifex:languages` instead, or set the `locale` key in your `config/config.yml`
+      config.i18n.available_locales = ["ar","bho","bn","ckb","fil","fr","de","hi","id","it","kn","mk","ml","mn","mr","pa","pt","ro","ru","es","sw","ta","te","uk","ur","en","am","as","bn_BD","gu","ks","ne","si","tl"] # Do not change manually! Use `rake transifex:languages` instead, or set the `locale` key in your `config/config.yml`
     else
       config.i18n.available_locales = [locale].flatten
     end
