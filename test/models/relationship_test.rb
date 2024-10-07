@@ -255,5 +255,13 @@ class RelationshipTest < ActiveSupport::TestCase
       r2 = Relationship.create_unless_exists(source.id, target.id, Relationship.confirmed_type)
     end
     assert_equal r, r2
+    Relationship.any_instance.stubs(:save).raises(ActiveRecord::RecordNotUnique)
+    target = create_project_media team: t
+    r = nil
+    assert_no_difference 'Relationship.count' do
+      r = Relationship.create_unless_exists(source.id, target.id, Relationship.confirmed_type)
+    end
+    assert_nil r
+    Relationship.any_instance.unstub(:save)
   end
 end
