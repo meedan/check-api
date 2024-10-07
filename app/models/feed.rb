@@ -173,9 +173,9 @@ class Feed < ApplicationRecord
   end
 
   def get_exported_data(filters)
-    data = [['Title', 'Number of media', 'Number of requests', 'Number of fact-checks']]
+    data = [['Title', 'Description', 'Number of media', 'Number of requests', 'Number of fact-checks']]
     self.filtered_clusters(filters).find_each do |cluster|
-      data << [cluster.title, cluster.media_count, cluster.requests_count, cluster.fact_checks_count]
+      data << [cluster.title, cluster.center.description, cluster.media_count, cluster.requests_count, cluster.fact_checks_count]
     end
     data
   end
