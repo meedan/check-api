@@ -155,8 +155,12 @@ class Relationship < ApplicationRecord
 
   def self.create_unless_exists(source_id, target_id, relationship_type, options = {})
     r = Relationship.where(source_id: source_id, target_id: target_id).last
-    if r.nil?
+    ret = r
+    if !r.nil? && relationship_type == Relationship.confirmed_type && r.relationship_type != relationship_type
+      r.destroy
       ret = nil
+    end
+    if ret.nil?
       begin
         r = Relationship.new
         r.skip_check_ability = true
@@ -170,13 +174,8 @@ class Relationship < ApplicationRecord
       rescue ActiveRecord::RecordNotUnique
         ret = Relationship.where(source_id: source_id, target_id: target_id).last
       end
-      r = ret
-    elsif relationship_type == Relationship.confirmed_type && r.relationship_type != relationship_type
-      r.relationship_type = relationship_type
-      r.user = User.current unless User.current.nil?
-      r.save
     end
-    r
+    ret
   end
 
   protected
