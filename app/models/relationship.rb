@@ -171,6 +171,10 @@ class Relationship < ApplicationRecord
         ret = Relationship.where(source_id: source_id, target_id: target_id).last
       end
       r = ret
+    elsif relationship_type == Relationship.confirmed_type && r.relationship_type != relationship_type
+      r.relationship_type = relationship_type
+      r.user = User.current unless User.current.nil?
+      r.save
     end
     r
   end

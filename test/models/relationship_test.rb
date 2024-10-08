@@ -255,6 +255,15 @@ class RelationshipTest < ActiveSupport::TestCase
       r2 = Relationship.create_unless_exists(source.id, target.id, Relationship.confirmed_type)
     end
     assert_equal r, r2
+    # Should update type if the new one is confirmed
+    target = create_project_media team: t
+    r = create_relationship source_id: source.id, target_id: target.id, relationship_type: Relationship.suggested_type
+    r2 = nil
+    assert_no_difference 'Relationship.count' do
+      r2 = Relationship.create_unless_exists(source.id, target.id, Relationship.confirmed_type)
+    end
+    assert_equal r.id, r2.id
+    assert_equal Relationship.confirmed_type, r.reload.relationship_type
     Relationship.any_instance.stubs(:save).raises(ActiveRecord::RecordNotUnique)
     target = create_project_media team: t
     r = nil
