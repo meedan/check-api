@@ -338,4 +338,16 @@ class TagTest < ActiveSupport::TestCase
 
     assert_equal 1, pm2.reload.annotations('tag').count
   end
+
+  test ":create_project_media_tags should be able to ignore tag already added to item" do
+    Sidekiq::Testing.fake!
+
+    team = create_team
+    pm = create_project_media team: team
+    create_tag tag: 'two', annotated: pm
+    assert_equal 1, pm.reload.annotations('tag').count
+
+    Tag.create_project_media_tags(pm.id, ['one', 'two', 'three'].to_json)
+    assert_equal 3, pm.reload.annotations('tag').count
+  end
 end
