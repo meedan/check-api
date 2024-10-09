@@ -55,6 +55,7 @@ module SmoochBlocking
               flag = Dynamic.new
               flag.annotation_type = 'flag'
               flag.annotated = pm
+              flag.annotator = BotUser.smooch_user
               flag.skip_check_ability = true
               flag.set_fields = { show_cover: true, flags: flags }.to_json
               flag.save!

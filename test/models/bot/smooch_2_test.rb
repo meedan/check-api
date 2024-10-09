@@ -109,6 +109,17 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
     r.destroy
     s = child.annotations.where(annotation_type: 'verification_status').last.load
     assert_equal 'undetermined', s.status
+    u = create_user
+    create_team_user team: @team, user: u, role: 'admin'
+    with_current_user_and_team(u, @team) do
+      child2 = create_project_media project: @project
+      s2 = child2.annotations.where(annotation_type: 'verification_status').last.load
+      assert_equal 'undetermined', s2.status
+      create_tipline_request team_id: @project.team_id, associated: child2, language: 'en', smooch_message_id: random_string, smooch_data: { app_id: @app_id, authorId: random_string, language: 'en' }
+      r = create_relationship source_id: parent.id, target_id: child2.id, relationship_type: Relationship.confirmed_type, user: @bot
+      s2 = child2.annotations.where(annotation_type: 'verification_status').last.load
+      assert_equal 'verified', s2.status
+    end
   end
 
   test "should send message to user when status changes" do
