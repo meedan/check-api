@@ -723,8 +723,8 @@ module SampleData
 
   def create_relationship(options = {})
     t = create_team
-    source_id = options[:source_id] || create_project_media(team: t).id
-    target_id = options[:target_id] || create_project_media(team: t).id
+    source_id = options[:source_id] || options[:source]&.id || create_project_media(team: t).id
+    target_id = options[:target_id] || options[:target]&.id || create_project_media(team: t).id
     options = {
       source_id: source_id,
       target_id: target_id,
