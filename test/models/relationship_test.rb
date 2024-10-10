@@ -296,7 +296,7 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_equal suggestion, Relationship.where(source_id: pm1.id, target: pm2.id).last
   end
 
-  test "should revert rejecting suggestion when creation fails (using create_unless_exists)" do
+  test "should revert rejecting suggestion when creation fails (using create_unless_exists) bli" do
     Sidekiq::Testing.fake!
     t = create_team
     pm1 = create_project_media team: t
@@ -315,5 +315,18 @@ class RelationshipTest < ActiveSupport::TestCase
     end
     assert_equal 1, Relationship.where(source_id: pm1.id, target: pm2.id).count
     assert_equal suggestion, Relationship.where(source_id: pm1.id, target: pm2.id).last
+  end
+
+  test "should not be related to itself bli" do
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    r = create_relationship source: pm1, target: pm2
+    begin
+      r.update_column :target_id, pm1.id
+      flunk 'Expected save to fail, but it succeeded'
+    rescue ActiveRecord::StatementInvalid => e
+      assert_match /violates check constraint "source_target_must_be_different"/, e.message
+    end
   end
 end
