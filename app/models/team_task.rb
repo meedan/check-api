@@ -96,12 +96,13 @@ class TeamTask < ApplicationRecord
   def self.swap_order(task1, task2)
     task1_order = task1.order
     task2_order = task2.order
-    task1.update_column(:order, task2_order)
-    task2.update_column(:order, task1_order)
+    updated_at = Time.now
+    task1.update_columns(order: task2_order, updated_at: updated_at)
+    task2.update_columns(order: task1_order, updated_at: updated_at)
     # Apply new order to item annotations
     fields = { order: true }
-    TeamTaskWorker.perform_in(1.second, 'update', task1.id, User.current&.id, YAML::dump(fields))
-    TeamTaskWorker.perform_in(1.second, 'update', task2.id, User.current&.id, YAML::dump(fields))
+    TeamTaskWorker.perform_in(30.seconds, 'update', task1.id, User.current&.id, updated_at.to_f, YAML::dump(fields))
+    TeamTaskWorker.perform_in(30.seconds, 'update', task2.id, User.current&.id, updated_at.to_f, YAML::dump(fields))
     task2_order
   end
 
@@ -116,7 +117,7 @@ class TeamTask < ApplicationRecord
   private
 
   def add_teamwide_tasks
-    TeamTaskWorker.perform_in(1.second, 'add', self.id, User.current&.id)
+    TeamTaskWorker.perform_in(30.seconds, 'add', self.id, User.current&.id, self.updated_at.to_f)
   end
 
   def update_teamwide_tasks
@@ -128,12 +129,12 @@ class TeamTask < ApplicationRecord
       order: self.saved_change_to_order?
     }
     fields.delete_if{|_k, v| v == false || v.nil?}
-    TeamTaskWorker.perform_in(1.second, 'update', self.id, User.current&.id, YAML::dump(fields), false, self.options_diff) unless fields.blank?
+    TeamTaskWorker.perform_in(30.seconds, 'update', self.id, User.current&.id, self.updated_at.to_f, YAML::dump(fields), false, self.options_diff) unless fields.blank?
   end
 
   def delete_teamwide_tasks
     self.keep_completed_tasks = self.keep_completed_tasks.nil? ? false : self.keep_completed_tasks
-    TeamTaskWorker.perform_in(1.second, 'destroy', self.id, User.current&.id, YAML::dump({}), self.keep_completed_tasks)
+    TeamTaskWorker.perform_in(30.seconds, 'destroy', self.id, User.current&.id, self.updated_at.to_f, YAML::dump({}), self.keep_completed_tasks)
   end
 
   def add_to_sources
