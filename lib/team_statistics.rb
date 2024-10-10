@@ -6,6 +6,11 @@ class TeamStatistics
     @platform = platform
   end
 
+  # For GraphQL
+  def id
+    Base64.encode64("TeamStatistics/#{@team.id}")
+  end
+
   # For articles
 
   # TODO
