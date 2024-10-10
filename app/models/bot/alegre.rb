@@ -621,8 +621,8 @@ class Bot::Alegre < BotUser
         target.save!
       end
       r = self.fill_in_new_relationship(source, target, pm_id_scores, relationship_type, original_source, original_relationship_type)
-      self.report_exception_if_bad_relationship(r, pm_id_scores, relationship_type)
-      Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Created new relationship for relationship ID Of #{r.id}"
+      self.report_exception_if_bad_relationship(r, pm_id_scores, relationship_type) unless r.nil?
+      Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Created new relationship for relationship ID Of #{r&.id}"
     elsif self.is_relationship_upgrade?(r, relationship_type)
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Upgrading relationship from suggested to confirmed for relationship ID of #{r.id}"
       # confirm existing relation if a new one is confirmed
