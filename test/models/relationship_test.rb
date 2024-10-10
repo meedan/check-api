@@ -241,6 +241,7 @@ class RelationshipTest < ActiveSupport::TestCase
   end
 
   test "should create relationship unless exists" do
+    Sidekiq::Testing.fake!
     t = create_team
     u = create_user
     source = create_project_media team: t
@@ -257,14 +258,14 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_equal r, r2
     # Should update type if the new one is confirmed
     target = create_project_media team: t
-    r = create_relationship source_id: source.id, target_id: target.id, relationship_type: Relationship.suggested_type
+    r = create_relationship source_id: source.id, target_id: target.id, relationship_type: Relationship.suggested_type, user: create_bot_user
     r2 = nil
     assert_no_difference 'Relationship.count' do
       r2 = Relationship.create_unless_exists(source.id, target.id, Relationship.confirmed_type)
     end
     assert_nil Relationship.where(id: r.id).last
     assert_equal Relationship.confirmed_type, r2.relationship_type
-    Relationship.any_instance.stubs(:save).raises(ActiveRecord::RecordNotUnique)
+    Relationship.any_instance.stubs(:save!).raises(ActiveRecord::RecordNotUnique)
     target = create_project_media team: t
     r = nil
     assert_no_difference 'Relationship.count' do
@@ -272,5 +273,47 @@ class RelationshipTest < ActiveSupport::TestCase
     end
     assert_nil r
     Relationship.any_instance.unstub(:save)
+  end
+
+  test "should revert rejecting suggestion when creation fails" do
+    Sidekiq::Testing.fake!
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    suggestion = create_relationship source: pm1, target: pm2, relationship_type: Relationship.suggested_type, user: create_bot_user
+
+    p = create_project
+    p.archived = CheckArchivedFlags::FlagCodes::TRASHED
+    p.save!
+    pm1.update_column(:project_id, p.id) # Just to force an error
+
+    begin
+      Relationship.create!(source: pm1, target: pm2, relationship_type: Relationship.confirmed_type)
+    rescue
+      # Validation error
+    end
+    assert_equal 1, Relationship.where(source_id: pm1.id, target: pm2.id).count
+    assert_equal suggestion, Relationship.where(source_id: pm1.id, target: pm2.id).last
+  end
+
+  test "should revert rejecting suggestion when creation fails (using create_unless_exists)" do
+    Sidekiq::Testing.fake!
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    suggestion = create_relationship source: pm1, target: pm2, relationship_type: Relationship.suggested_type, user: create_bot_user
+
+    p = create_project
+    p.archived = CheckArchivedFlags::FlagCodes::TRASHED
+    p.save!
+    pm1.update_column(:project_id, p.id) # Just to force an error
+
+    begin
+      Relationship.create_unless_exists(pm1.id, pm2.id, Relationship.confirmed_type)
+    rescue
+      # Validation error
+    end
+    assert_equal 1, Relationship.where(source_id: pm1.id, target: pm2.id).count
+    assert_equal suggestion, Relationship.where(source_id: pm1.id, target: pm2.id).last
   end
 end

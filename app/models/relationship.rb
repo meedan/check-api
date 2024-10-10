@@ -154,13 +154,8 @@ class Relationship < ApplicationRecord
   end
 
   def self.create_unless_exists(source_id, target_id, relationship_type, options = {})
-    r = Relationship.where(source_id: source_id, target_id: target_id).last
-    ret = r
-    if !r.nil? && relationship_type == Relationship.confirmed_type && r.relationship_type != relationship_type
-      r.destroy
-      ret = nil
-    end
-    if ret.nil?
+    r = Relationship.where(source_id: source_id, target_id: target_id).where('relationship_type = ?', relationship_type.to_yaml).last
+    if r.nil?
       begin
         r = Relationship.new
         r.skip_check_ability = true
@@ -170,12 +165,12 @@ class Relationship < ApplicationRecord
         options.each do |key, value|
           r.send("#{key}=", value) if r.respond_to?("#{key}=")
         end
-        ret = r.save ? r : nil
-      rescue ActiveRecord::RecordNotUnique
-        ret = Relationship.where(source_id: source_id, target_id: target_id).last
+        r.save!
+      rescue
+        r = Relationship.where(source_id: source_id, target_id: target_id).where('relationship_type = ?', relationship_type.to_yaml).last
       end
     end
-    ret
+    r
   end
 
   protected
@@ -332,11 +327,12 @@ class Relationship < ApplicationRecord
   end
 
   def destroy_same_suggested_item
-    # Check if same item already exists as a suggested item by a bot
-    Relationship.where(source_id: self.source_id, target_id: self.target_id)
-    .joins(:user).where('users.type' => 'BotUser')
-    .where('relationship_type = ?', Relationship.suggested_type.to_yaml)
-    .destroy_all
+    Relationship.transaction do
+      # Check if same item already exists as a suggested item by a bot
+      suggestions = Relationship.where(source_id: self.source_id, target_id: self.target_id).joins(:user).where('users.type' => 'BotUser').where('relationship_type = ?', Relationship.suggested_type.to_yaml)
+      Rails.logger.info "[Relationship] Deleting #{suggestions.count} suggestions between items #{self.source_id} and #{self.target_id}..."
+      suggestions.destroy_all
+    end
   end
 
   def cant_be_related_to_itself
