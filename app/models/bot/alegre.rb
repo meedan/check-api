@@ -666,6 +666,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.send_post_create_message(source, target, relationship)
+    return if relationship.nil?
     message_type = relationship.is_confirmed? ? 'related_to_confirmed_similar' : 'related_to_suggested_similar'
     message_opts = {item_title: target.title, similar_item_title: source.title}
     CheckNotification::InfoMessages.send(
