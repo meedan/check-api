@@ -63,7 +63,7 @@ class Bot::Smooch < BotUser
       relationship = Relationship.find_by_id(rid)
       unless relationship.nil?
         # A relationship created by the Smooch Bot or Alegre Bot is related to search results, so the user has already received the report as a search result - unless it's a suggestion
-        return if [BotUser.smooch_user&.id, BotUser.alegre_user&.id].include?(relationship.user_id) && !relationship.confirmed_by
+        return if [BotUser.smooch_user&.id, BotUser.alegre_user&.id].include?(relationship.user_id) && (relationship.confirmed_at.to_i <= relationship.created_at.to_i)
         target = relationship.target
         parent = relationship.source
         if ::Bot::Smooch.team_has_smooch_bot_installed(target) && relationship.is_confirmed?
