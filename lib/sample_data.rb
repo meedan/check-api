@@ -511,7 +511,7 @@ module SampleData
       options[:team] = options[:project].team
     end
     options[:team] = create_team unless options.has_key?(:team)
-    options[:media] = create_valid_media({team: options[:team]}) unless options.has_key?(:media)
+    options[:media] = create_valid_media({team: options[:team], url: options[:url]}) unless options.has_key?(:media)
     options.each do |key, value|
       pm.send("#{key}=", value) if pm.respond_to?("#{key}=")
     end
@@ -550,7 +550,7 @@ module SampleData
 
   def create_valid_media(options = {})
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-    url = random_url
+    url = options[:url] ? options[:url] : random_url
     params = { url: url }
     params[:archivers] = Team.current.enabled_archivers if !Team.current&.enabled_archivers.blank?
     WebMock.stub_request(:get, pender_url).with({ query: params }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","archives":{}}}')
