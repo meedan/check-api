@@ -103,9 +103,11 @@ module CheckCachedFields
     end
 
     def index_cached_field_bg(index_options, value, name, obj_data)
-      obj_data = begin YAML::load(obj_data) rescue nil end
-      obj = obj_data[:klass].constantize.find_by_id obj_data[:id]
-      self.index_and_pg_cached_field(index_options, value, name, obj) unless obj.nil?
+      obj_data = begin YAML::load(obj_data) rescue {} end
+      unless obj.blank?
+        obj = obj_data[:klass].constantize.find_by_id obj_data[:id]
+        self.index_and_pg_cached_field(index_options, value, name, obj) unless obj.nil?
+      end
     end
 
     def update_pg_cache_field(options, value, name, target)
