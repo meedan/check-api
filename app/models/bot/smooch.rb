@@ -62,10 +62,10 @@ class Bot::Smooch < BotUser
     def self.inherit_status_and_send_report(rid)
       relationship = Relationship.find_by_id(rid)
       unless relationship.nil?
-        # A relationship created by the Smooch Bot or Alegre Bot is related to search results, so the user has already received the report as a search result - unless it's a suggestion
-        return if [BotUser.smooch_user&.id, BotUser.alegre_user&.id].include?(relationship.user_id) && !relationship.confirmed_by
         target = relationship.target
         parent = relationship.source
+
+        # Always inherit status for confirmed matches
         if ::Bot::Smooch.team_has_smooch_bot_installed(target) && relationship.is_confirmed?
           s = target.annotations.where(annotation_type: 'verification_status').last&.load
           status = parent.last_verification_status
@@ -73,17 +73,21 @@ class Bot::Smooch < BotUser
             s.status = status
             s.save
           end
-          ::Bot::Smooch.send_report_from_parent_to_child(parent.id, target.id)
+
+          # A relationship created by the Smooch Bot or Alegre Bot is related to search results (unless it's a suggestion that was confirmed), so the user has already received the report as a search result... no need to send another report
+          # Only send a report for (1) Confirmed matches created manually OR (2) Suggestions accepted
+          created_by_bot = [BotUser.smooch_user&.id, BotUser.alegre_user&.id].include?(relationship.user_id)
+          ::Bot::Smooch.send_report_from_parent_to_child(parent.id, target.id) if !created_by_bot || relationship.confirmed_by
         end
       end
     end
 
     after_create do
-      self.class.delay_for(1.seconds, { queue: 'smooch_priority'}).inherit_status_and_send_report(self.id)
+      self.class.delay_for(2.seconds, { queue: 'smooch_priority'}).inherit_status_and_send_report(self.id)
     end
 
     after_update do
-      self.class.delay_for(1.seconds, { queue: 'smooch_priority'}).inherit_status_and_send_report(self.id) if self.suggestion_accepted?
+      self.class.delay_for(2.seconds, { queue: 'smooch_priority'}).inherit_status_and_send_report(self.id) if self.suggestion_accepted?
     end
 
     after_destroy do
