@@ -97,12 +97,15 @@ module CheckCachedFields
           update_pg: options[:update_pg],
           pg_field_name: options[:pg_field_name],
         }
-        self.delay_for(1.second).index_cached_field_bg(index_options, value, name, obj)
+        obj_data = { klass: obj.class.name, id: obj.id }
+        self.delay_for(1.second).index_cached_field_bg(index_options, value, name, YAML::dump(obj_data))
       end
     end
 
-    def index_cached_field_bg(index_options, value, name, obj)
-      self.index_and_pg_cached_field(index_options, value, name, obj)
+    def index_cached_field_bg(index_options, value, name, obj_data)
+      obj_data = begin YAML::load(obj_data) rescue nil end
+      obj = obj_data[:klass].constantize.find_by_id obj_data[:id]
+      self.index_and_pg_cached_field(index_options, value, name, obj) unless obj.nil?
     end
 
     def update_pg_cache_field(options, value, name, target)
