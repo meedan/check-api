@@ -3,6 +3,7 @@ class GenericWorker
   include Sidekiq::Worker
 
   sidekiq_options retry: 3
+  sidekiq_retry_in { |_count, _exception| 3 }
 
   def perform(klass_name, klass_method, *method_args)
     klass = klass_name.constantize

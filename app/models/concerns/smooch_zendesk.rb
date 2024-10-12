@@ -74,6 +74,7 @@ module SmoochZendesk
       response_body = nil
       response_code = 0
       begin
+        Rails.logger.info("[Smooch Bot] [Zendesk] Sending message to #{uid} for app #{app_id}: #{params.to_json}")
         response_body = api_instance.post_message(app_id, uid, message_post_body) # It will raise an exception if message can't be sent
         response_code = 200
       rescue SmoochApi::ApiError => e
