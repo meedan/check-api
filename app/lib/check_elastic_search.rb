@@ -63,7 +63,7 @@ module CheckElasticSearch
       create_doc_if_not_exists(options)
       sleep 1
       client = $repository.client
-      client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], retry_on_conflict: 3, body: { doc: fields }
+      client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], body: { doc: fields }
     end
   end
 
@@ -98,7 +98,7 @@ module CheckElasticSearch
     end
     values = store_elasticsearch_data(options[:keys], options[:data])
     client = $repository.client
-    client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], retry_on_conflict: 3,
+    client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id],
             body: { script: { source: source, params: { value: values, id: values['id'] } } }
   end
 
@@ -178,7 +178,7 @@ module CheckElasticSearch
       begin
         client = $repository.client
         source = "for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == params.id){ctx._source.#{nested_type}.remove(i);}}"
-        client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], retry_on_conflict: 3,
+        client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id],
                  body: { script: { source: source, params: { id: options[:model_id] } } }
       rescue
         Rails.logger.info "[ES destroy] doc with id #{options[:doc_id]} not exists"

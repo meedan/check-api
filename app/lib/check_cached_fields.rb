@@ -97,12 +97,13 @@ module CheckCachedFields
           update_pg: options[:update_pg],
           pg_field_name: options[:pg_field_name],
         }
-        self.delay_for(1.second).index_cached_field_bg(index_options, value, name, obj)
+        self.delay_for(1.second).index_cached_field_bg(index_options, value, name, obj.class.name, obj.id)
       end
     end
 
-    def index_cached_field_bg(index_options, value, name, obj)
-      self.index_and_pg_cached_field(index_options, value, name, obj)
+    def index_cached_field_bg(index_options, value, name, klass, id)
+      obj = klass.constantize.find_by_id id
+      self.index_and_pg_cached_field(index_options, value, name, obj) unless obj.nil?
     end
 
     def update_pg_cache_field(options, value, name, target)
