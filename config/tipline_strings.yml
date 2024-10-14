@@ -981,29 +981,44 @@ es:
   unsubscribe_button_label: Cancelar suscripción
   unsubscribed: Actualmente no estás suscrita(o) a nuestro boletín.
 tl:
-  add_more_details_state_button_label: ''
-  ask_if_ready_state_button_label: ''
-  cancelled: ''
-  confirm_preferred_language: ''
-  invalid_format: ''
-  keep_subscription_button_label: ''
-  languages: ''
-  languages_and_privacy_title: ''
-  main_menu: ''
-  main_state_button_label: ''
-  navigation_button: ''
-  no_results_in_language: ''
-  privacy_and_purpose: ''
-  privacy_statement: ''
-  privacy_title: ''
-  report_updated: ''
-  search_result_is_not_relevant_button_label: ''
-  search_result_is_relevant_button_label: ''
-  search_state_button_label: ''
-  subscribe_button_label: ''
-  subscribed: ''
-  unsubscribe_button_label: ''
-  unsubscribed: ''
+  add_more_details_state_button_label: Magdagdag
+  ask_if_ready_state_button_label: I-cancel
+  cancelled: Ok!
+  confirm_preferred_language: Pumili ng wika
+  invalid_format: "Hindi suportado ang format ng ipinadala mo."
+  keep_subscription_button_label: Manatiling konektado
+  languages: Mga wika
+  languages_and_privacy_title: Wika at Privacy
+  main_menu: Main menu
+  main_state_button_label: I-cancel
+  navigation_button: Gamitin ang mga button para mag-navigate
+  no_results_in_language: "Walang resulta na nahanap sa %{language}. Narito ang ilang resulta sa ibang wika na maaaring konektado sa hinahanap mo."
+  privacy_and_purpose: |-
+    PRIVACY AT LAYUNIN
+
+    Welcome sa %{team} %{channel} tipline.
+
+    Puwede mong gamitin ang tip line na ito para magpadala ng mga bagay na gusto mong ipa-fact check.
+
+    Ligtas ang data mo rito. Seryoso kami sa aming responsibilidad na alagaan ang iyong personal na impormasyon at panatilihing ang %{channel} ay pribado at ligtas; hindi kailanman ipamamahagi, ibebenta o gagamitin sa ibang layunin ang impormasyon na nakapagtutukoy sa iyo (personally identifiable information o PII) maliban para maibigay at mapabuti ang serbisyong ito.
+
+    Para ma-detect sa lalong mabilis na paraan ang kumakalat na misinformation, posibleng ibahagi namin ang content na hindi PII mula sa tip line na ito sa mga mananaliksik at fact-checking partner na pumasa sa aming pagsusuri.
+
+    Paalala na ang mga website na aming ili-link ay may kanya-kanyang privacy policy.
+
+    Kung hindi mo nais na magamit ang mga isinumite mong impormasyon sa gawaing ito, mangyaring huwag mag-ambag sa aming system.
+  privacy_statement: Privacy statement
+  privacy_title: Privacy
+  report_updated: "*In-update* ang fact check na ito dahil sa bagong impormasyon:"
+  search_result_is_not_relevant_button_label: "Hindi"
+  search_result_is_relevant_button_label: "Oo"
+  search_state_button_label: I-submit
+  subscribe_button_label: Mag-subscribe
+  subscribed: Kasalukuyan kang naka-subscribe sa aming newsletter.
+  unsubscribe_button_label: Mag-unsubscribe
+  unsubscribed: Hindi ka kasalukuyang naka-subscribe sa aming newsletter.
+  nlu_disambiguation: "Pumili ng isa sa mga option na ito:"
+  nlu_cancel: "Bumalik sa menu"
 ta:
   add_more_details_state_button_label: கூடுதல் தகவல்ககள்
   ask_if_ready_state_button_label: ரத்து செய்
