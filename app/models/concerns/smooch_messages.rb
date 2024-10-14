@@ -400,20 +400,7 @@ module SmoochMessages
         end
         unless associated.nil?
           self.smoooch_post_save_message_actions(message, associated, app_id, author, request_type, associated_obj)
-          if !message['caption'].blank?
-            # Check if message contains caption then create an item and force relationship
-            self.relate_item_and_text(message, associated, app_id, author, request_type, associated_obj, Relationship.suggested_type)
-          elsif message['type'] == 'text' && associated.class.name == 'ProjectMedia' && associated.media.type == 'Link'
-            # Check if message of type text contain a link and long text
-            # Text words equal the number of words - 1(which is the link size)
-            text_words = ::Bot::Alegre.get_number_of_words(message['text']) - 1
-            if text_words > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
-              # Remove link from text
-              link = self.extract_url(message['text'])
-              message['text'] = message['text'].chomp(link.url)
-              self.relate_item_and_text(message, associated, app_id, author, request_type, associated_obj, Relationship.confirmed_type)
-            end
-          end
+          self.smooch_relate_items_for_same_message(message, associated, app_id, author, request_type, associated_obj)
         end
       end
     end
@@ -426,6 +413,23 @@ module SmoochMessages
       # If item is published (or parent item), send a report right away
       self.get_platform_from_message(message)
       self.send_report_to_user(message['authorId'], message, associated, message['language'], 'fact_check_report') if self.should_try_to_send_report?(request_type, associated)
+    end
+
+    def smooch_relate_items_for_same_message(message, associated, app_id, author, request_type, associated_obj)
+      if !message['caption'].blank?
+        # Check if message contains caption then create an item and force relationship
+        self.relate_item_and_text(message, associated, app_id, author, request_type, associated_obj, Relationship.suggested_type)
+      elsif message['type'] == 'text' && associated.class.name == 'ProjectMedia' && associated.media.type == 'Link'
+        # Check if message of type text contain a link and long text
+        # Text words equal the number of words - 1(which is the link size)
+        text_words = ::Bot::Alegre.get_number_of_words(message['text']) - 1
+        if text_words > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
+          # Remove link from text
+          link = self.extract_url(message['text'])
+          message['text'] = message['text'].chomp(link.url)
+          self.relate_item_and_text(message, associated, app_id, author, request_type, associated_obj, Relationship.confirmed_type)
+        end
+      end
     end
 
     def relate_item_and_text(message, associated, app_id, author, request_type, associated_obj, relationship_type)
