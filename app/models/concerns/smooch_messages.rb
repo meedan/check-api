@@ -402,6 +402,17 @@ module SmoochMessages
           self.smoooch_post_save_message_actions(message, associated, app_id, author, request_type, associated_obj)
           # Check if message contains caption then create an item and force relationship
           self.relate_item_and_caption(message, associated, app_id, author, request_type, associated_obj) unless message['caption'].blank?
+          # Check if message of type text contatin a link and long text
+          if message['type'] == 'text' && associated.media.type == 'Link'
+            claim = self.extract_claim(message['text']).gsub(/\s+/, ' ').strip.gsub("\u0000", "\\u0000")
+            link = self.extract_url(claim)
+            claim = claim.chomp(link.url)
+            if ::Bot::Alegre.get_number_of_words(claim) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
+              message['caption'] = claim
+              message['text'] = claim
+              self.relate_item_and_caption(message, associated, app_id, author, request_type, associated_obj)
+            end
+          end
         end
       end
     end
