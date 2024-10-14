@@ -401,16 +401,15 @@ module SmoochMessages
         unless associated.nil?
           self.smoooch_post_save_message_actions(message, associated, app_id, author, request_type, associated_obj)
           # Check if message contains caption then create an item and force relationship
-          self.relate_item_and_caption(message, associated, app_id, author, request_type, associated_obj) unless message['caption'].blank?
-          # Check if message of type text contatin a link and long text
+          self.relate_item_and_text(message, associated, app_id, author, request_type, associated_obj, Relationship.suggested_type) unless message['caption'].blank?
           if message['type'] == 'text' && associated.media.type == 'Link'
+            # Check if message of type text contatin a link and long text
             claim = self.extract_claim(message['text']).gsub(/\s+/, ' ').strip.gsub("\u0000", "\\u0000")
             link = self.extract_url(claim)
             claim = claim.chomp(link.url)
             if ::Bot::Alegre.get_number_of_words(claim) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
-              message['caption'] = claim
               message['text'] = claim
-              self.relate_item_and_caption(message, associated, app_id, author, request_type, associated_obj)
+              self.relate_item_and_text(message, associated, app_id, author, request_type, associated_obj, Relationship.confirmed_type)
             end
           end
         end
@@ -427,17 +426,17 @@ module SmoochMessages
       self.send_report_to_user(message['authorId'], message, associated, message['language'], 'fact_check_report') if self.should_try_to_send_report?(request_type, associated)
     end
 
-    def relate_item_and_caption(message, associated, app_id, author, request_type, associated_obj)
+    def relate_item_and_text(message, associated, app_id, author, request_type, associated_obj, relationship_type)
       message['_id'] = SecureRandom.hex
       message['type'] = 'text'
       message['request_body'] = message['text']
-      message['text'] = message['caption']
+      message['text'] = message['caption'] unless message['caption'].nil?
       message.delete('caption')
       message.delete('mediaUrl')
       target = self.create_project_media_from_message(message)
       unless target.nil?
         smoooch_post_save_message_actions(message, target, app_id, author, request_type, associated_obj)
-        Relationship.create_unless_exists(associated.id, target.id, Relationship.suggested_type)
+        Relationship.create_unless_exists(associated.id, target.id, relationship_type)
       end
     end
 

@@ -206,6 +206,28 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       }
     }
     Sidekiq::Testing.fake! do
+      # 1) Send link and short text
+      message = {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        source: { type: "whatsapp" },
+        text: "short text #{@link_url}",
+      }
+      payload[:messages] = [message]
+      Bot::Smooch.run(payload.to_json)
+      sleep 1
+      assert_difference 'ProjectMedia.count' do
+        assert_no_difference 'Claim.count' do
+          assert_difference 'Link.count' do
+            Sidekiq::Worker.drain_all
+          end
+        end
+      end
+      # Clean up created items to start other cases with same link
+      ProjectMedia.last.destroy
+      Link.last.destroy
+      # 2) Send link with long text
       long_text = []
       15.times{ long_text << random_string }
       # 1) Link + long text
@@ -236,20 +258,22 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       pm_c1 = c1.project_medias.last
       r = Relationship.last
       assert_equal [pm_l1.id, pm_c1.id].sort, [r.source_id, r.target_id].sort
-      # 2) Same message multiple times (re-send message in step 1)
+      # 3) Same message multiple times (re-send message in step 2)
+      message['_id'] = random_string
+      payload[:messages] = [message]
       Bot::Smooch.run(payload.to_json)
       sleep 1
       # TODO: fix Tipline requests count
       assert_no_difference 'ProjectMedia.count' do
         assert_no_difference 'Relationship.count' do
-          # assert_difference 'TiplineRequest.count' do
+          assert_difference 'TiplineRequest.count', 2 do
             Sidekiq::Worker.drain_all
-          # end
+          end
         end
       end
-      # assert_equal 2, pm_l1.tipline_requests.count
-      # assert_equal 2, pm_c1.tipline_requests.count
-      # 3) Send different messages with the same link
+      assert_equal 2, pm_l1.tipline_requests.count
+      assert_equal 2, pm_c1.tipline_requests.count
+      # 4) Send different messages with the same link
       long_text2 = []
       15.times{ long_text2 << random_string }
       link_long_text2 = long_text2.join(' ').concat(' ').concat(@link_url)
@@ -275,7 +299,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       pm = ProjectMedia.last
       r = Relationship.last
       assert_equal [pm_l1.id, pm.id].sort, [r.source_id, r.target_id].sort
-      # 4) Send two messages with the same text but different links
+      # 5) Send two messages with the same text but different links
       link_long_text3 = long_text.join(' ').concat(' ').concat(@link_url_2)
       message = {
         '_id': random_string,
