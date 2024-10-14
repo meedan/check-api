@@ -400,15 +400,17 @@ module SmoochMessages
         end
         unless associated.nil?
           self.smoooch_post_save_message_actions(message, associated, app_id, author, request_type, associated_obj)
-          # Check if message contains caption then create an item and force relationship
-          self.relate_item_and_text(message, associated, app_id, author, request_type, associated_obj, Relationship.suggested_type) unless message['caption'].blank?
-          if message['type'] == 'text' && associated.media.type == 'Link'
-            # Check if message of type text contatin a link and long text
-            claim = self.extract_claim(message['text']).gsub(/\s+/, ' ').strip.gsub("\u0000", "\\u0000")
-            link = self.extract_url(claim)
-            claim = claim.chomp(link.url)
-            if ::Bot::Alegre.get_number_of_words(claim) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
-              message['text'] = claim
+          if !message['caption'].blank?
+            # Check if message contains caption then create an item and force relationship
+            self.relate_item_and_text(message, associated, app_id, author, request_type, associated_obj, Relationship.suggested_type)
+          elsif message['type'] == 'text' && associated.class.name == 'ProjectMedia' && associated.media.type == 'Link'
+            # Check if message of type text contain a link and long text
+            # Text words equal the number of words - 1(which is the link size)
+            text_words = ::Bot::Alegre.get_number_of_words(message['text']) - 1
+            if text_words > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
+              # Remove link from text
+              link = self.extract_url(message['text'])
+              message['text'] = message['text'].chomp(link.url)
               self.relate_item_and_text(message, associated, app_id, author, request_type, associated_obj, Relationship.confirmed_type)
             end
           end
@@ -441,6 +443,7 @@ module SmoochMessages
     end
 
     def smooch_save_tipline_request(message, associated, app_id, author, request_type, associated_obj)
+      text = message['text']
       message['text'] = message['request_body'] unless message['request_body'].blank?
       message.delete('request_body')
       fields = { smooch_data: message.merge({ app_id: app_id }) }
@@ -460,6 +463,8 @@ module SmoochMessages
           associated.save!
         end
       end
+      # Back message text to original one
+      message['text'] = text
     end
 
     def create_tipline_requests(associated, author, fields)
