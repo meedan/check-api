@@ -69,7 +69,8 @@ class Link < Media
   end
 
   def url_max_size
-    errors.add(:base, "Media URL exceeds the maximum size (2000 bytes)") if !self.url.nil? && self.url.bytesize > 2000
+    # Use 2k as max size to stay within safe limits as max size is 2712 bytes.
+    errors.add(:base, "Media URL exceeds the maximum size (2000 bytes)") if !self.url.nil? && self.url.bytesize > CheckConfig.get('url_max_size', 2000, :integer)
   end
 
   def validate_pender_result_and_retry
