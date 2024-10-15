@@ -1,7 +1,11 @@
 class TeamStatistics
-  def initialize(team, period, language, platform)
+  PERIODS = ['last_day', 'last_week', 'last_month', 'last_year']
+
+  def initialize(team, period, language, platform = nil)
     @team = team
+    raise ArgumentError.new('Invalid workspace provided') unless @team.is_a?(Team)
     @period = period
+    raise ArgumentError.new("Invalid period provided. Allowed values: #{PERIODS.join(', ')}") unless PERIODS.include?(@period)
     @language = language
     @platform = platform
   end
@@ -13,42 +17,28 @@ class TeamStatistics
 
   # For articles
 
-  # TODO
   def number_of_articles_created
-    data = {}
-    time_range.each do |day|
-      data[day] = rand(100)
-    end
-    data
+    number_of_articles_saved(:created_at)
   end
 
-  # TODO
   def number_of_articles_updated
-    data = {}
-    time_range.each do |day|
-      data[day] = rand(100)
-    end
-    data
+    number_of_articles_saved(:updated_at)
   end
 
-  # TODO
   def number_of_explainers_created
-    rand(1000)
+    explainers_base_query.count
   end
 
-  # TODO
   def number_of_fact_checks_created
-    rand(1000)
+    fact_checks_base_query.count
   end
 
-  # TODO
   def number_of_published_fact_checks
-    rand(1000)
+    fact_checks_base_query.where(report_status: 'published').count
   end
 
-  # TODO
   def number_of_fact_checks_by_rating
-    { 'Unstarted' => rand(100), 'In Progress' => rand(100), 'False' => rand(100), 'True' => rand(100) }
+    fact_checks_base_query.group(:rating).count.sort.to_h
   end
 
   # TODO
@@ -144,10 +134,30 @@ class TeamStatistics
 
   def time_range
     ago = {
+      last_day: 1.day,
       last_week: 1.week,
       last_month: 1.month,
       last_year: 1.year
     }[@period.to_sym]
-    (Time.now.ago(ago).to_datetime..Time.now.to_datetime).to_a
+    Time.now.ago(ago).to_datetime..Time.now.to_datetime
+  end
+
+  def fact_checks_base_query(timestamp_field = :created_at)
+    FactCheck.joins(:claim_description).where('language' => @language, timestamp_field => time_range, 'claim_descriptions.team_id' => @team.id)
+  end
+
+  def explainers_base_query(timestamp_field = :created_at)
+    Explainer.where('language' => @language, timestamp_field => time_range, 'team_id' => @team.id)
+  end
+
+  def number_of_articles_saved(timestamp_field) # timestamp_field = :created_at or :updated_at
+    raise ArgumentError if timestamp_field != :created_at && timestamp_field != :updated_at
+    number_of_fact_checks = fact_checks_base_query(timestamp_field).group("date_trunc('day', fact_checks.#{timestamp_field})").count
+    number_of_explainers = explainers_base_query(timestamp_field).group("date_trunc('day', explainers.#{timestamp_field})").count
+    number_of_articles = {}
+    (number_of_fact_checks.keys + number_of_explainers.keys).uniq.sort.each do |day|
+      number_of_articles[day.to_s] = number_of_fact_checks[day].to_i + number_of_explainers[day].to_i
+    end
+    number_of_articles
   end
 end
