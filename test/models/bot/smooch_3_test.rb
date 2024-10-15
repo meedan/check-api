@@ -191,6 +191,139 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     end
   end
 
+  test "should bundle message with link and text" do
+    uid = random_string
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: [message],
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }
+    Sidekiq::Testing.fake! do
+      # 1) Send link and short text
+      message = {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        source: { type: "whatsapp" },
+        text: "#{@link_url} short text",
+      }
+      payload[:messages] = [message]
+      Bot::Smooch.run(payload.to_json)
+      sleep 1
+      assert_difference 'ProjectMedia.count' do
+        assert_no_difference 'Claim.count' do
+          assert_difference 'Link.count' do
+            Sidekiq::Worker.drain_all
+          end
+        end
+      end
+      # Clean up created items to start other cases with same link
+      ProjectMedia.last.destroy
+      Link.last.destroy
+      # 2) Send link with long text
+      long_text = []
+      15.times{ long_text << random_string }
+      link_long_text = @link_url.concat(' ').concat(long_text.join(' '))
+      message = {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        source: { type: "whatsapp" },
+        text: link_long_text,
+      }
+      payload[:messages] = [message]
+      Bot::Smooch.run(payload.to_json)
+      sleep 1
+      pm_id = ProjectMedia.last.id
+      assert_difference 'ProjectMedia.count', 2 do
+        assert_difference 'Claim.count' do
+          assert_difference 'Link.count' do
+            assert_difference 'Relationship.count' do
+              Sidekiq::Worker.drain_all
+            end
+          end
+        end
+      end
+      l1 = Link.last
+      c1 = Claim.last
+      pm_l1 = l1.project_medias.last
+      pm_c1 = c1.project_medias.last
+      r = Relationship.last
+      assert_equal [pm_l1.id, pm_c1.id].sort, [r.source_id, r.target_id].sort
+      # 3) Same message multiple times (re-send message in step 2)
+      message['_id'] = random_string
+      payload[:messages] = [message]
+      Bot::Smooch.run(payload.to_json)
+      sleep 1
+      assert_no_difference 'ProjectMedia.count' do
+        assert_no_difference 'Relationship.count' do
+          assert_difference 'TiplineRequest.count', 2 do
+            Sidekiq::Worker.drain_all
+          end
+        end
+      end
+      assert_equal 2, pm_l1.tipline_requests.count
+      assert_equal 2, pm_c1.tipline_requests.count
+      # 4) Send different messages with the same link
+      long_text2 = []
+      15.times{ long_text2 << random_string }
+      link_long_text2 = long_text2.join(' ').concat(' ').concat(@link_url)
+      message = {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        source: { type: "whatsapp" },
+        text: link_long_text2,
+      }
+      payload[:messages] = [message]
+      Bot::Smooch.run(payload.to_json)
+      sleep 1
+      assert_difference 'ProjectMedia.count' do
+        assert_difference 'Relationship.count' do
+          assert_difference 'Claim.count' do
+            assert_no_difference 'Link.count' do
+              Sidekiq::Worker.drain_all
+            end
+          end
+        end
+      end
+      pm = ProjectMedia.last
+      r = Relationship.last
+      assert_equal [pm_l1.id, pm.id].sort, [r.source_id, r.target_id].sort
+      # 5) Send two messages with the same text but different links
+      link_long_text3 = @link_url_2.concat(' ').concat(long_text.join(' '))
+      message = {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        source: { type: "whatsapp" },
+        text: link_long_text3,
+      }
+      payload[:messages] = [message]
+      Bot::Smooch.run(payload.to_json)
+      sleep 1
+      assert_difference 'ProjectMedia.count' do
+        assert_difference 'Relationship.count' do
+          assert_difference 'Link.count' do
+            assert_no_difference 'Claim.count' do
+              Sidekiq::Worker.drain_all
+            end
+          end
+        end
+      end
+      pm = ProjectMedia.last
+      r = Relationship.last
+      assert_equal [pm_c1.id, pm.id].sort, [r.source_id, r.target_id].sort
+    end
+  end
+
   test "should force relationship between media and caption text" do
     long_text = []
     15.times{ long_text << random_string }
