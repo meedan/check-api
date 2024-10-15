@@ -69,7 +69,7 @@ class Link < Media
   end
 
   def url_max_size
-    # Use 2k as max size to stay within safe limits as max size is 2712 bytes.
+    # Use 2k as max size to stay within safe limits for a unique URL index in PostgreSQL as max size is 2712 bytes.
     errors.add(:base, "Media URL exceeds the maximum size (2000 bytes)") if !self.url.nil? && self.url.bytesize > CheckConfig.get('url_max_size', 2000, :integer)
   end
 
