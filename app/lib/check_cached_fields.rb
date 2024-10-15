@@ -137,11 +137,12 @@ module CheckCachedFields
           pg_field_name: options[:pg_field_name],
           recalculate: options[:recalculate],
         }
-        self.delay_for(1.second).update_cached_field_bg(name, obj, ids, callback, index_options)
+        self.delay_for(1.second).update_cached_field_bg(name, ids, callback, index_options, obj.class.name, obj.id)
       end
     end
 
-    def update_cached_field_bg(name, obj, ids, callback, options)
+    def update_cached_field_bg(name, ids, callback, options, klass, id)
+      obj = klass.constantize.find_by_id id
       recalculate = options[:recalculate]
       self.where(id: ids).each do |target|
         value = callback == :recalculate ? target.send(recalculate) : obj.send(callback, target)
