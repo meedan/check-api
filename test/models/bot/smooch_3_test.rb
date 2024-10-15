@@ -212,7 +212,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
         authorId: uid,
         type: 'text',
         source: { type: "whatsapp" },
-        text: "short text #{@link_url}",
+        text: "#{@link_url} short text",
       }
       payload[:messages] = [message]
       Bot::Smooch.run(payload.to_json)
@@ -230,8 +230,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       # 2) Send link with long text
       long_text = []
       15.times{ long_text << random_string }
-      # 1) Link + long text
-      link_long_text = long_text.join(' ').concat(' ').concat(@link_url)
+      link_long_text = @link_url.concat(' ').concat(long_text.join(' '))
       message = {
         '_id': random_string,
         authorId: uid,
@@ -263,7 +262,6 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       payload[:messages] = [message]
       Bot::Smooch.run(payload.to_json)
       sleep 1
-      # TODO: fix Tipline requests count
       assert_no_difference 'ProjectMedia.count' do
         assert_no_difference 'Relationship.count' do
           assert_difference 'TiplineRequest.count', 2 do
@@ -300,7 +298,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       r = Relationship.last
       assert_equal [pm_l1.id, pm.id].sort, [r.source_id, r.target_id].sort
       # 5) Send two messages with the same text but different links
-      link_long_text3 = long_text.join(' ').concat(' ').concat(@link_url_2)
+      link_long_text3 = @link_url_2.concat(' ').concat(long_text.join(' '))
       message = {
         '_id': random_string,
         authorId: uid,
