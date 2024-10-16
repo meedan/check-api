@@ -142,6 +142,21 @@ class FeedsControllerTest < ActionController::TestCase
     Bot::Alegre.unstub(:request)
   end
 
+  test "should bypass cache when skip_cache is true" do
+    Bot::Alegre.stubs(:request).returns({})
+    Sidekiq::Testing.inline!
+    authenticate_with_token @a
+
+    Bot::Smooch.stubs(:search_for_similar_published_fact_checks_no_cache).with('text', 'Foo', [@t1.id, @t2.id], nil, @f.id).returns([@pm1, @pm2])
+    
+    get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id, skip_cache: 'true' } }
+    assert_response :success
+    assert_equal 2, json_response['data'].size
+    assert_equal 2, json_response['meta']['record-count']
+
+    Bot::Smooch.unstub(:search_for_similar_published_fact_checks_no_cache)
+  end
+
   test "should parse the full query" do
     Bot::Smooch.unstub(:search_for_similar_published_fact_checks)
     Bot::Alegre.stubs(:request).returns({})
