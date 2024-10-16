@@ -42,13 +42,12 @@ class Bot::Smooch < BotUser
     def get_deduplicated_tipline_requests
       uids = []
       tipline_requests = []
-      ProjectMedia.where(id: self.related_items_ids).each do |pm|
-        pm.tipline_requests.find_each do |tr|
-          uid = tr.tipline_user_uid
-          next if uids.include?(uid)
-          uids << uid
-          tipline_requests << tr
-        end
+      pm_ids = ProjectMedia.where(id: self.related_items_ids).map(&:id)
+      TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: pmids).find_each do |tr|
+        uid = tr.tipline_user_uid
+        next if uids.include?(uid)
+        uids << uid
+        tipline_requests << tr
       end
       tipline_requests
     end
