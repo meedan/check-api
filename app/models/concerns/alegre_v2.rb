@@ -322,8 +322,8 @@ module AlegreV2
         project_media
       )
     rescue StandardError => e
-      error = Error.new(e)
-      Rails.logger.error("[AutoTagger Bot] Exception for event `#{body['event']}`: #{error.class} - #{error.message}")
+      error = Bot::Alegre::Error.new(e)
+      Rails.logger.error("[Alegre Bot] Exception on Delete for ProjectMedia ##{project_media.id}: #{error.class} - #{error.message}")
       CheckSentry.notify(error, bot: "alegre", project_media: project_media, params: params, field: field)
     end
 
