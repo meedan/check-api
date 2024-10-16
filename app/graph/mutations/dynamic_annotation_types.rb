@@ -16,7 +16,6 @@ module DynamicAnnotation::AnnotationTypeManager
         end
 
         field :lock_version, GraphQL::Types::Int, null: true
-        field :locked, GraphQL::Types::Boolean, null: true
       end unless defined? DynamicAnnotation#{klass}Type
 
       module DynamicAnnotation#{klass}Mutations
