@@ -43,7 +43,7 @@ class Bot::Smooch < BotUser
       uids = []
       tipline_requests = []
       pm_ids = ProjectMedia.where(id: self.related_items_ids).map(&:id)
-      TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: pmids).find_each do |tr|
+      TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: pm_ids).find_each do |tr|
         uid = tr.tipline_user_uid
         next if uids.include?(uid)
         uids << uid
