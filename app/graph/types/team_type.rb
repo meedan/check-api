@@ -13,10 +13,6 @@ class TeamType < DefaultObject
   field :members_count, GraphQL::Types::Int, null: true
   field :projects_count, GraphQL::Types::Int, null: true
   field :permissions, GraphQL::Types::String, null: true
-  field :get_slack_webhook, GraphQL::Types::String, null: true
-  field :get_embed_whitelist, GraphQL::Types::String, null: true
-  field :get_report_design_image_template, GraphQL::Types::String, null: true
-  field :get_status_target_turnaround, GraphQL::Types::String, null: true
   field :pusher_channel, GraphQL::Types::String, null: true
   field :search_id, GraphQL::Types::String, null: true
   field :search, CheckSearchType, null: true
@@ -27,8 +23,6 @@ class TeamType < DefaultObject
   field :public_team_id, GraphQL::Types::String, null: true
   field :permissions_info, JsonStringType, null: true
   field :dynamic_search_fields_json_schema, JsonStringType, null: true
-  field :get_slack_notifications, JsonStringType, null: true
-  field :get_rules, JsonStringType, null: true
   field :rules_json_schema, GraphQL::Types::String, null: true
   field :slack_notifications_json_schema, GraphQL::Types::String, null: true
   field :rules_search_fields_json_schema, JsonStringType, null: true
@@ -37,9 +31,6 @@ class TeamType < DefaultObject
   field :trash_count, GraphQL::Types::Int, null: true
   field :unconfirmed_count, GraphQL::Types::Int, null: true
   field :get_language_detection, GraphQL::Types::Boolean, null: true
-  field :get_report, JsonStringType, null: true
-  field :get_fieldsets, JsonStringType, null: true
-  field :url, GraphQL::Types::String, null: true
   field :data_report, JsonStringType, null: true
   field :available_newsletter_header_types, JsonStringType, null: true # List of header type strings
 

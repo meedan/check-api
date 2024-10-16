@@ -32,7 +32,6 @@ class SourceType < DefaultObject
     object.medias
   end
 
-  field :medias_count, GraphQL::Types::Int, null: true
   field :collaborators, UserType.connection_type, null: true
 
   def image
