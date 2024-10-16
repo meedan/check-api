@@ -19,10 +19,11 @@ module Api
       filter :feed_id, apply: ->(records, _value, _options) { records }
       filter :webhook_url, apply: ->(records, _value, _options) { records }
       filter :skip_save_request, apply: ->(records, _value, _options) { records }
+      filter :skip_cache, apply: ->(records, _value, _options) { records }
 
       paginator :none
 
-      def self.records(options = {}, skip_save_request = false)
+      def self.records(options = {}, skip_save_request = false, skip_cache = false)
         team_ids = self.workspaces(options).map(&:id)
         Team.current ||= Team.find_by_id(team_ids[0].to_i)
         filters = options[:filters] || {}
@@ -34,13 +35,14 @@ module Api
         after = Time.parse(after) unless after.blank?
         feed_id = filters.dig(:feed_id, 0).to_i
         skip_save_request = skip_save_request || filters.dig(:skip_save_request, 0) == 'true'
+        skip_cache = skip_cache || filters.dig(:skip_cache, 0) == 'true'
 
         return ProjectMedia.none if team_ids.blank? || query.blank?
 
         if feed_id > 0
-          return get_results_from_feed_teams(team_ids, feed_id, query, type, after, webhook_url, skip_save_request)
+          return get_results_from_feed_teams(team_ids, feed_id, query, type, after, webhook_url, skip_save_request, skip_cache)
         elsif ApiKey.current
-          return get_results_from_api_key_teams(type, query, after)
+          return get_results_from_api_key_teams(type, query, after, skip_cache)
         end
       end
 
@@ -55,7 +57,11 @@ module Api
         feed = Feed.find(feed_id)
         RequestStore.store[:pause_database_connection] = true # Release database connection during Bot::Alegre.request_api
         RequestStore.store[:smooch_bot_settings] = feed.get_smooch_bot_settings.to_h
-        results = Bot::Smooch.search_for_similar_published_fact_checks(type, query, feed.team_ids, after, feed_id)
+        if skip_cache
+          results = Bot::Smooch.search_for_similar_published_fact_checks_no_cache(type, query, feed.team_ids, after, feed_id)
+        else
+          results = Bot::Smooch.search_for_similar_published_fact_checks(type, query, feed.team_ids, after, feed_id)
+        end
         Feed.delay({ retry: 0, queue: 'feed' }).save_request(feed_id, type, query, webhook_url, results.to_a.map(&:id)) unless skip_save_request
         results
       end
