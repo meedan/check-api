@@ -262,7 +262,7 @@ class Bot::Fetch < BotUser
       fc.tags = claim_review['keywords'].to_s.split(',').map(&:strip).reject{ |r| r.blank? }
       fc.user = user
       fc.language = fc_language
-      fc.publish_report = true
+      fc.report_status = "published"
       fc.save!
       User.current = current_user
     end
