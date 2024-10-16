@@ -3,7 +3,7 @@ class Link < Media
 
   validates :url, presence: true, on: :create
   validate :validate_pender_result_and_retry, on: :create
-  validate :url_is_unique, on: :create
+  validate :url_is_unique, :url_max_size, on: :create
 
   after_create :set_pender_result_as_annotation, :set_account
 
@@ -66,6 +66,11 @@ class Link < Media
       existing = Media.where(url: self.url).first
       errors.add(:base, "Media with this URL exists and has id #{existing.id}") unless existing.nil?
     end
+  end
+
+  def url_max_size
+    # Use 2k as max size to stay within safe limits for a unique URL index in PostgreSQL as max size is 2712 bytes.
+    errors.add(:base, "Media URL exceeds the maximum size (2000 bytes)") if !self.url.nil? && self.url.bytesize > CheckConfig.get('url_max_size', 2000, :integer)
   end
 
   def validate_pender_result_and_retry
