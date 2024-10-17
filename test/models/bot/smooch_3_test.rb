@@ -74,8 +74,8 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     long_text = []
     15.times{ long_text << random_string }
     # messages contain the following:
-    # 1). long text( > min_number_of_words_for_tipline_submit_shortcut)
-    # 2). short text (< min_number_of_words_for_tipline_submit_shortcut)
+    # 1). long text( > min_number_of_words_for_tipline_long_text)
+    # 2). short text (< min_number_of_words_for_tipline_long_text)
     # 3). link
     # 4). 2 medias
     # Result: created four items (one claim, one link and two items of type image)
@@ -329,8 +329,8 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     15.times{ long_text << random_string }
     caption = long_text.join(' ')
     # messages contain the following:
-    # 1). media with long text( > min_number_of_words_for_tipline_submit_shortcut)
-    # 2). media with short text (< min_number_of_words_for_tipline_submit_shortcut)
+    # 1). media with long text( > min_number_of_words_for_tipline_long_text)
+    # 2). media with short text (< min_number_of_words_for_tipline_long_text)
     # Result: created three items and one relationship (one claim for caption and two items of type image)
     last_id = ProjectMedia.last.id
     Sidekiq::Testing.fake! do
