@@ -418,7 +418,7 @@ module SmoochMessages
     def smooch_relate_items_for_same_message(message, associated, app_id, author, request_type, associated_obj)
       if !message['caption'].blank?
         # Check if message contains caption then create an item and force relationship
-        self.relate_item_and_text(message, associated, app_id, author, request_type, associated_obj, Relationship.suggested_type)
+        self.relate_item_and_text(message, associated, app_id, author, request_type, associated_obj, Relationship.confirmed_type)
       elsif message['type'] == 'text' && associated.class.name == 'ProjectMedia' && associated.media.type == 'Link'
         # Check if message of type text contain a link and long text
         # Text words equal the number of words - 1(which is the link size)

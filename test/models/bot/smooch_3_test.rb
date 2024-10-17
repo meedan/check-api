@@ -383,7 +383,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       claim_item = ProjectMedia.joins(:media).where('medias.type' => 'Claim').last
       assert_equal caption, claim_item.media.quote
       r = Relationship.last
-      assert_equal Relationship.suggested_type, r.relationship_type
+      assert_equal Relationship.confirmed_type, r.relationship_type
       assert_equal claim_item.id, r.target_id
       assert_equal 1, claim_item.tipline_requests.count
     end
