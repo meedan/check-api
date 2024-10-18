@@ -92,7 +92,15 @@ class GraphqlCrudOperations
     attrs["annotation_type"] = type.gsub(/^dynamic_annotation_/, "") if type =~
       /^dynamic_annotation_/
 
-    self.safe_save(obj, attrs, parents_mapping.keys)
+    begin
+      self.safe_save(obj, attrs, parents_mapping.keys)
+    rescue StandardError => e
+      if obj.is_a?(ProjectMedia) && obj.set_fact_check.present? && obj.set_original_claim.present?
+        obj = obj.handle_fact_check_for_existing_claim
+      else
+        raise e
+      end
+    end
   end
 
   def self.update_from_single_id(_graphql_id, obj, inputs, ctx, parent_names)
