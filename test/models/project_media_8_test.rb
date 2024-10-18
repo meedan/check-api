@@ -40,4 +40,26 @@ class ProjectMedia8Test < ActiveSupport::TestCase
 
     assert_equal 1, pm.annotations('tag').count
   end
+
+  test "should verify n + 1 for deduplicated TiplineRequest(CV2-5464)" do
+    t = create_team
+    pm = create_project_media team: t
+    pm2 = create_project_media team: t
+    pm3 = create_project_media team: t
+    create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
+    [pm, pm2, pm3].each do |ass|
+      create_tipline_request team_id: t.id, associated: ass
+    end
+    assert_queries(4, '=') {
+      pm.get_deduplicated_tipline_requests
+    }
+    # Should add a new item for related_items_ids and got same queries count
+    create_relationship source_id: pm.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
+    [pm, pm2, pm3].each do |ass|
+      create_tipline_request team_id: t.id, associated: ass
+    end
+    assert_queries(4, '=') {
+      pm.get_deduplicated_tipline_requests
+    }
+  end
 end

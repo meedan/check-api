@@ -263,6 +263,7 @@ class Bot::Fetch < BotUser
       fc.user = user
       fc.language = fc_language
       fc.publish_report = true
+      fc.report_status = "published"
       fc.save!
       User.current = current_user
     end
