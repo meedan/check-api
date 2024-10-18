@@ -71894,7 +71894,7 @@
               "deprecationReason": null
             },
             {
-              "name": "number_of_articles_created",
+              "name": "number_of_articles_created_by_date",
               "description": null,
               "args": [
 
@@ -71922,7 +71922,7 @@
               "deprecationReason": null
             },
             {
-              "name": "number_of_articles_updated",
+              "name": "number_of_articles_updated_by_date",
               "description": null,
               "args": [
 

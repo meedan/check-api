@@ -5,8 +5,8 @@ class TeamStatisticsType < DefaultObject
 
   # For articles
 
-  field :number_of_articles_created, JsonStringType, null: true
-  field :number_of_articles_updated, JsonStringType, null: true
+  field :number_of_articles_created_by_date, JsonStringType, null: true
+  field :number_of_articles_updated_by_date, JsonStringType, null: true
   field :number_of_explainers_created, GraphQL::Types::Int, null: true
   field :number_of_fact_checks_created, GraphQL::Types::Int, null: true
   field :number_of_published_fact_checks, GraphQL::Types::Int, null: true

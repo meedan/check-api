@@ -17,12 +17,12 @@ class TeamStatistics
 
   # For articles
 
-  def number_of_articles_created
-    number_of_articles_saved(:created_at)
+  def number_of_articles_created_by_date
+    number_of_articles_saved_by_date(:created_at)
   end
 
-  def number_of_articles_updated
-    number_of_articles_saved(:updated_at)
+  def number_of_articles_updated_by_date
+    number_of_articles_saved_by_date(:updated_at)
   end
 
   def number_of_explainers_created
@@ -142,22 +142,38 @@ class TeamStatistics
     Time.now.ago(ago).to_datetime..Time.now.to_datetime
   end
 
-  def fact_checks_base_query(timestamp_field = :created_at)
+  def fact_checks_base_query(timestamp_field = :created_at, group_by_day = false)
     query = FactCheck.joins(:claim_description).where('language' => @language, timestamp_field => time_range, 'claim_descriptions.team_id' => @team.id)
     query = query.where('fact_checks.created_at != fact_checks.updated_at') if timestamp_field.to_sym == :updated_at
+    if group_by_day
+      # Avoid SQL injection warning
+      group = {
+        created_at: "date_trunc('day', fact_checks.created_at)",
+        updated_at: "date_trunc('day', fact_checks.updated_at)"
+      }[timestamp_field.to_sym]
+      query = query.group(group)
+    end
     query
   end
 
-  def explainers_base_query(timestamp_field = :created_at)
+  def explainers_base_query(timestamp_field = :created_at, group_by_day = false)
     query = Explainer.where('language' => @language, timestamp_field => time_range, 'team_id' => @team.id)
     query = query.where('explainers.created_at != explainers.updated_at') if timestamp_field.to_sym == :updated_at
+    if group_by_day
+      # Avoid SQL injection warning
+      group = {
+        created_at: "date_trunc('day', explainers.created_at)",
+        updated_at: "date_trunc('day', explainers.updated_at)"
+      }[timestamp_field.to_sym]
+      query = query.group(group)
+    end
     query
   end
 
-  def number_of_articles_saved(timestamp_field) # timestamp_field = :created_at or :updated_at
+  def number_of_articles_saved_by_date(timestamp_field) # timestamp_field = :created_at or :updated_at
     raise ArgumentError if timestamp_field != :created_at && timestamp_field != :updated_at
-    number_of_fact_checks = fact_checks_base_query(timestamp_field).group("date_trunc('day', #{Arel.sql("fact_checks.#{timestamp_field}")})").count
-    number_of_explainers = explainers_base_query(timestamp_field).group("date_trunc('day', #{Arel.sql("explainers.#{timestamp_field}")})").count
+    number_of_fact_checks = fact_checks_base_query(timestamp_field, true).count
+    number_of_explainers = explainers_base_query(timestamp_field, true).count
     number_of_articles = {}
 
     # Pre-fill with zeros

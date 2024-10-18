@@ -52,8 +52,10 @@ class TeamStatisticsTest < ActiveSupport::TestCase
 
     travel_to Time.parse('2024-01-08') do
       object = TeamStatistics.new(@team, 'last_week', 'en')
-      assert_equal({ '2024-01-01' => 2, '2024-01-02' => 2, '2024-01-03' => 0, '2024-01-04' => 0, '2024-01-05' => 0, '2024-01-06' => 0, '2024-01-07' => 0, '2024-01-08' => 0 }, object.number_of_articles_created)
-      assert_equal({ '2024-01-01' => 0, '2024-01-02' => 1, '2024-01-03' => 0, '2024-01-04' => 0, '2024-01-05' => 0, '2024-01-06' => 0, '2024-01-07' => 0, '2024-01-08' => 0 }, object.number_of_articles_updated)
+      assert_equal({ '2024-01-01' => 2, '2024-01-02' => 2, '2024-01-03' => 0, '2024-01-04' => 0, '2024-01-05' => 0, '2024-01-06' => 0, '2024-01-07' => 0, '2024-01-08' => 0 },
+                   object.number_of_articles_created_by_date)
+      assert_equal({ '2024-01-01' => 0, '2024-01-02' => 1, '2024-01-03' => 0, '2024-01-04' => 0, '2024-01-05' => 0, '2024-01-06' => 0, '2024-01-07' => 0, '2024-01-08' => 0 },
+                   object.number_of_articles_updated_by_date)
       assert_equal 2, object.number_of_explainers_created
       assert_equal 2, object.number_of_fact_checks_created
       assert_equal 1, object.number_of_published_fact_checks
