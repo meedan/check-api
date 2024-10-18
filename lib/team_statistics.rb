@@ -143,21 +143,33 @@ class TeamStatistics
   end
 
   def fact_checks_base_query(timestamp_field = :created_at)
-    FactCheck.joins(:claim_description).where('language' => @language, timestamp_field => time_range, 'claim_descriptions.team_id' => @team.id)
+    query = FactCheck.joins(:claim_description).where('language' => @language, timestamp_field => time_range, 'claim_descriptions.team_id' => @team.id)
+    query = query.where('fact_checks.created_at != fact_checks.updated_at') if timestamp_field.to_sym == :updated_at
+    query
   end
 
   def explainers_base_query(timestamp_field = :created_at)
-    Explainer.where('language' => @language, timestamp_field => time_range, 'team_id' => @team.id)
+    query = Explainer.where('language' => @language, timestamp_field => time_range, 'team_id' => @team.id)
+    query = query.where('explainers.created_at != explainers.updated_at') if timestamp_field.to_sym == :updated_at
+    query
   end
 
   def number_of_articles_saved(timestamp_field) # timestamp_field = :created_at or :updated_at
     raise ArgumentError if timestamp_field != :created_at && timestamp_field != :updated_at
-    number_of_fact_checks = fact_checks_base_query(timestamp_field).group("date_trunc('day', fact_checks.#{timestamp_field})").count
-    number_of_explainers = explainers_base_query(timestamp_field).group("date_trunc('day', explainers.#{timestamp_field})").count
+    number_of_fact_checks = fact_checks_base_query(timestamp_field).group("date_trunc('day', #{Arel.sql("fact_checks.#{timestamp_field}")})").count
+    number_of_explainers = explainers_base_query(timestamp_field).group("date_trunc('day', #{Arel.sql("explainers.#{timestamp_field}")})").count
     number_of_articles = {}
-    (number_of_fact_checks.keys + number_of_explainers.keys).uniq.sort.each do |day|
-      number_of_articles[day.to_s] = number_of_fact_checks[day].to_i + number_of_explainers[day].to_i
+
+    # Pre-fill with zeros
+    time_range.to_a.each do |day|
+      number_of_articles[day.strftime("%Y-%m-%d")] = 0
     end
+
+    # Replace zeros by the days we have data for
+    (number_of_fact_checks.keys + number_of_explainers.keys).uniq.sort.each do |day|
+      number_of_articles[day.strftime("%Y-%m-%d")] = number_of_fact_checks[day].to_i + number_of_explainers[day].to_i
+    end
+
     number_of_articles
   end
 end

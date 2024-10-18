@@ -32,10 +32,11 @@ class TeamStatisticsTest < ActiveSupport::TestCase
 
   test "should return articles statistics" do
     team = create_team
+    exp = nil
 
     travel_to Time.parse('2024-01-01') do
       create_fact_check(language: 'en', rating: 'false', claim_description: create_claim_description(project_media: create_project_media(team: @team)))
-      create_explainer team: @team, language: 'en'
+      exp = create_explainer team: @team, language: 'en'
       create_explainer team: @team
       create_explainer language: 'en', team: team
     end
@@ -45,13 +46,14 @@ class TeamStatisticsTest < ActiveSupport::TestCase
       create_explainer team: @team, language: 'en'
       create_explainer team: @team
       create_explainer language: 'en', team: team
+      exp.updated_at = Time.now
+      exp.save!
     end
 
-    travel_to Time.parse('2024-01-03') do
-      expected = { '2024-01-01 00:00:00 UTC' => 2, '2024-01-02 00:00:00 UTC' => 2 }
-      object = TeamStatistics.new(@team, 'last_month', 'en')
-      assert_equal expected, object.number_of_articles_created
-      assert_equal expected, object.number_of_articles_updated
+    travel_to Time.parse('2024-01-08') do
+      object = TeamStatistics.new(@team, 'last_week', 'en')
+      assert_equal({ '2024-01-01' => 2, '2024-01-02' => 2, '2024-01-03' => 0, '2024-01-04' => 0, '2024-01-05' => 0, '2024-01-06' => 0, '2024-01-07' => 0, '2024-01-08' => 0 }, object.number_of_articles_created)
+      assert_equal({ '2024-01-01' => 0, '2024-01-02' => 1, '2024-01-03' => 0, '2024-01-04' => 0, '2024-01-05' => 0, '2024-01-06' => 0, '2024-01-07' => 0, '2024-01-08' => 0 }, object.number_of_articles_updated)
       assert_equal 2, object.number_of_explainers_created
       assert_equal 2, object.number_of_fact_checks_created
       assert_equal 1, object.number_of_published_fact_checks
