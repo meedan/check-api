@@ -791,27 +791,10 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should return the last time that the terms were updated" do
-    assert User.terms_last_updated_at > 0
-  end
-
-  test "should return the last time that the terms of service were updated" do
-    assert User.terms_last_updated_at_by_page(:tos) > 0
-  end
-
-  test "should return the last time that the terms of privacy were updated" do
-    assert User.terms_last_updated_at_by_page(:privacy_policy) > 0
-  end
-
-  test "should return the last time that invalid terms were updated" do
-    assert_equal 0, User.terms_last_updated_at_by_page(:invalid)
-  end
-
-  test "should not crash but notify if could not get the last time that the terms were updated" do
-    stub_configs({ 'tos_url' => 'invalid-tos-url' }) do
-      assert_nothing_raised do
-        assert_equal 0, User.terms_last_updated_at
-      end
-    end
+    assert_equal 0, User.terms_last_updated_at
+    time_now = Time.now.to_i
+    Rails.cache.write('terms_last_updated_at', time_now)
+    assert_equal time_now, User.terms_last_updated_at
   end
 
   test "should return if user accepted terms" do

@@ -7,6 +7,10 @@ class TermsOfServiceUpdateWorkerTest < ActiveSupport::TestCase
     u = create_user
     u.last_received_terms_email_at = terms_update
     u.save!
+    last_received_terms_email_at = u.reload.last_received_terms_email_at
+    TermsOfServiceUpdateWorker.new.perform
+    assert_equal last_received_terms_email_at, u.reload.last_received_terms_email_at
+    Rails.cache.write('enable_terms_last_updated_at_notification', true)
     TermsOfServiceUpdateWorker.new.perform
     last_term_update = u.reload.last_received_terms_email_at
     assert last_term_update > terms_update
@@ -15,6 +19,7 @@ class TermsOfServiceUpdateWorkerTest < ActiveSupport::TestCase
   end
 
   test "should notify users in background" do
+    Rails.cache.write('enable_terms_last_updated_at_notification', true)
     User.stubs(:terms_last_updated_at).returns(Time.now.to_i)
     terms_update = Time.now - 1.day
     u = create_user
