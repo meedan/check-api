@@ -345,7 +345,7 @@ class CheckSearch
     if feed_sharing_only_fact_checks
       header = ['Fact-check title', 'Fact-check summary', 'Fact-check URL', 'Tags', 'Workspace', 'Updated at', 'Rating']
     else
-      header = ['Claim', 'Item page URL', 'Status', 'Created by', 'Submitted at', 'Published at', 'Number of media', 'Tags']
+      header = ['Claim', 'Item page URL', 'Status', 'Created by', 'Submitted at', 'Social Media Posted at', 'Report Published at', 'Number of media', 'Tags']
       fields = team.team_tasks.sort
       fields.each { |tt| header << tt.label }
     end
@@ -356,6 +356,12 @@ class CheckSearch
     while !search_after.empty?
       result = $repository.search(_source: 'annotated_id', query: search.medias_query, sort: [{ annotated_id: { order: :asc } }], size: 10000, search_after: search_after).results
       ids = result.collect{ |i| i['annotated_id'] }.uniq.compact.map(&:to_i)
+      pm_report = {}
+      Dynamic.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia', annotated_id: ids)
+      .find_each do |raw|
+        data = raw.data
+        pm_report[raw.annotated_id] = data['last_published'].to_i if data['state'] == 'published'
+      end
 
       # Iterate through each result and generate an output row for the CSV
       ProjectMedia.where(id: ids, team_id: search.team_condition(team_id)).find_each do |pm|
@@ -371,6 +377,7 @@ class CheckSearch
             pm.status
           ]
         else
+          report_published_at = pm_report[pm.id] ? Time.at(pm_report[pm.id]).strftime("%Y-%m-%d %H:%M:%S") : nil
           row = [
             pm.claim_description&.description,
             pm.full_url,
@@ -378,6 +385,7 @@ class CheckSearch
             pm.author_name.to_s.gsub(/ \[.*\]$/, ''),
             pm.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             pm.published_at&.strftime("%Y-%m-%d %H:%M:%S"),
+            report_published_at,
             pm.linked_items_count,
             pm.tags_as_sentence
           ]
