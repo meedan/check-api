@@ -268,7 +268,8 @@ class User < ApplicationRecord
   end
 
   def self.terms_last_updated_at
-    Rails.cache.read('terms_last_updated_at') || 0
+    # Cached value should be an integer timestamp i.e Time.now.to_i
+    Rails.cache.read('terms_last_updated_at').to_i || 0
   end
 
   def self.delete_check_user(user)
