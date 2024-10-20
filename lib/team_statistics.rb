@@ -93,6 +93,24 @@ class TeamStatistics
   end
 
   # TODO
+  def number_of_messages_by_date
+    data = {}
+    time_range.each do |day|
+      data[day] = rand(1000)
+    end
+    data
+  end
+
+  # TODO
+  def number_of_conversations_by_date
+    data = {}
+    time_range.each do |day|
+      data[day] = rand(1000)
+    end
+    data
+  end
+
+  # TODO
   def number_of_search_results_by_type
     { 'Image' => rand(100), 'Text' => rand(100), 'Audio' => rand(100), 'Video' => rand(100), 'Link' => rand(100) }
   end
