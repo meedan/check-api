@@ -30,6 +30,16 @@ class TeamStatisticsTest < ActiveSupport::TestCase
     end
   end
 
+  test "should provide a valid platform" do
+    assert_raises ArgumentError do
+      TeamStatistics.new(Class.new, 'last_month', 'en', 'icq')
+    end
+
+    assert_nothing_raised do
+      TeamStatistics.new(@team, 'last_month', 'en', 'whatsapp')
+    end
+  end
+
   test "should return articles statistics" do
     team = create_team
     exp = nil
@@ -72,17 +82,57 @@ class TeamStatisticsTest < ActiveSupport::TestCase
 
     pm1 = create_project_media team: @team, disable_es_callbacks: false
     create_fact_check title: 'Bar', report_status: 'published', rating: 'verified', language: 'en', claim_description: create_claim_description(project_media: pm1), disable_es_callbacks: false
-    create_tipline_request team: @team.id, associated: pm1
+    create_tipline_request team_id: @team.id, associated: pm1
 
     pm2 = create_project_media team: @team, disable_es_callbacks: false
     create_fact_check title: 'Foo', report_status: 'published', rating: 'verified', language: 'en', claim_description: create_claim_description(project_media: pm2), disable_es_callbacks: false
-    create_tipline_request team: @team.id, associated: pm2
-    create_tipline_request team: @team.id, associated: pm2
+    create_tipline_request team_id: @team.id, associated: pm2
+    create_tipline_request team_id: @team.id, associated: pm2
 
     sleep 2
 
     object = TeamStatistics.new(@team, 'last_week', 'en')
     expected = { 'Foo' => 2, 'Bar' => 1 }
     assert_equal expected, object.top_articles_sent
+  end
+
+  test "should return tipline statistics" do
+    team = create_team
+    pm1 = create_project_media team: @team
+    pm2 = create_project_media team: team
+
+    travel_to Time.parse('2024-01-01') do
+      2.times { create_tipline_message team_id: @team.id, language: 'en', platform: 'WhatsApp' }
+      create_tipline_message team_id: @team.id, language: 'en', platform: 'Telegram'
+      create_tipline_message team_id: @team.id, language: 'pt', platform: 'WhatsApp'
+      create_tipline_message team_id: team.id, language: 'en', platform: 'WhatsApp'
+
+      create_tipline_request team_id: @team.id, associated: pm1, language: 'en', platform: 'whatsapp'
+      create_tipline_request team_id: team.id, associated: pm2, language: 'en', platform: 'whatsapp'
+      create_tipline_request team_id: @team.id, associated: pm1, language: 'pt', platform: 'whatsapp'
+      create_tipline_request team_id: @team.id, associated: pm1, language: 'en', platform: 'telegram'
+    end
+
+    travel_to Time.parse('2024-01-03') do
+      3.times { create_tipline_message team_id: @team.id, language: 'en', platform: 'WhatsApp' }
+      create_tipline_message team_id: @team.id, language: 'en', platform: 'Telegram'
+      create_tipline_message team_id: @team.id, language: 'pt', platform: 'WhatsApp'
+      create_tipline_message team_id: team.id, language: 'en', platform: 'WhatsApp'
+
+      2.times { create_tipline_request team_id: @team.id, associated: pm1, language: 'en', platform: 'whatsapp' }
+      create_tipline_request team_id: team.id, associated: pm2, language: 'en', platform: 'whatsapp'
+      create_tipline_request team_id: @team.id, associated: pm1, language: 'pt', platform: 'whatsapp'
+      create_tipline_request team_id: @team.id, associated: pm1, language: 'en', platform: 'telegram'
+    end
+
+    travel_to Time.parse('2024-01-08') do
+      object = TeamStatistics.new(@team, 'last_week', 'en', 'whatsapp')
+      assert_equal 5, object.number_of_messages
+      assert_equal({ '2024-01-01' => 2, '2024-01-02' => 0, '2024-01-03' => 3, '2024-01-04' => 0, '2024-01-05' => 0, '2024-01-06' => 0, '2024-01-07' => 0, '2024-01-08' => 0 },
+                   object.number_of_messages_by_date)
+      assert_equal 3, object.number_of_conversations
+      assert_equal({ '2024-01-01' => 1, '2024-01-02' => 0, '2024-01-03' => 2, '2024-01-04' => 0, '2024-01-05' => 0, '2024-01-06' => 0, '2024-01-07' => 0, '2024-01-08' => 0 },
+                   object.number_of_conversations_by_date)
+    end
   end
 end

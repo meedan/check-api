@@ -1,13 +1,30 @@
 class TeamStatistics
   PERIODS = ['last_day', 'last_week', 'last_month', 'last_year']
+  PLATFORMS = Bot::Smooch::SUPPORTED_INTEGRATION_NAMES
 
   def initialize(team, period, language, platform = nil)
     @team = team
-    raise ArgumentError.new('Invalid workspace provided') unless @team.is_a?(Team)
+    unless @team.is_a?(Team)
+      raise ArgumentError.new('Invalid workspace provided')
+    end
+
     @period = period
-    raise ArgumentError.new("Invalid period provided. Allowed values: #{PERIODS.join(', ')}") unless PERIODS.include?(@period)
-    @language = language
+    unless PERIODS.include?(@period)
+      raise ArgumentError.new("Invalid period provided. Allowed values: #{PERIODS.join(', ')}")
+    end
+
+    range = time_range.to_a
+    @start_date, @end_date = range.first, range.last
+    @start_date_str, @end_date_str = @start_date.strftime('%Y-%m-%d'), @end_date.strftime('%Y-%m-%d')
+
     @platform = platform
+    if !@platform.blank? && !PLATFORMS.keys.include?(@platform)
+      # For `Bot::Smooch::SUPPORTED_INTEGRATION_NAMES`, the keys (e.g., 'whatsapp') are used by `TiplineRequest`,
+      # while the values (e.g., 'WhatsApp') are used by `TiplineMessage`
+      raise ArgumentError.new("Invalid platform provided. Allowed values: #{PLATFORMS.keys.join(', ')}")
+    end
+
+    @language = language
   end
 
   # For GraphQL
@@ -44,9 +61,7 @@ class TeamStatistics
   # FIXME: Only fact-checks for now - add explainers
   def top_articles_sent
     data = {}
-    range = time_range.to_a
-    start_date, end_date = range.first, range.last
-    clusters = CheckDataPoints.top_clusters(@team.id, start_date, end_date, 5, 'last_seen', @language)
+    clusters = CheckDataPoints.top_clusters(@team.id, @start_date, @end_date, 5, 'last_seen', @language)
     clusters.each do |pm_id, demand|
       data[ProjectMedia.find(pm_id).fact_check_title] = demand
     end
@@ -69,10 +84,8 @@ class TeamStatistics
       LIMIT 5
     SQL
 
-    range = time_range.to_a
-    start_date, end_date = range.first, range.last
     language = @language ? [@language] : @team.get_languages.to_a
-    result = ActiveRecord::Base.connection.execute(ApplicationRecord.sanitize_sql_for_assignment([sql, team_id: @team.id, start_date: start_date, end_date: end_date, language: language]))
+    result = ActiveRecord::Base.connection.execute(ApplicationRecord.sanitize_sql_for_assignment([sql, team_id: @team.id, start_date: @start_date, end_date: @end_date, language: language]))
     data = {}
     result.each do |row|
       data[row['tag']] = row['tag_count'].to_i
@@ -82,32 +95,24 @@ class TeamStatistics
 
   # For tiplines
 
-  # TODO
   def number_of_messages
-    rand(1000)
+    platform = PLATFORMS[@platform]
+    CheckDataPoints.tipline_messages(@team.id, @start_date_str, @end_date_str, nil, platform, @language)
   end
 
-  # TODO
   def number_of_conversations
-    rand(1000)
+    CheckDataPoints.tipline_requests(@team.id, @start_date_str, @end_date_str, nil, @platform, @language)
   end
 
-  # TODO
   def number_of_messages_by_date
-    data = {}
-    time_range.each do |day|
-      data[day] = rand(1000)
-    end
-    data
+    platform = Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[@platform]
+    data = CheckDataPoints.tipline_messages(@team.id, @start_date_str, @end_date_str, 'day', platform, @language)
+    number_of_tipline_data_points_by_date(data)
   end
 
-  # TODO
   def number_of_conversations_by_date
-    data = {}
-    time_range.each do |day|
-      data[day] = rand(1000)
-    end
-    data
+    data = CheckDataPoints.tipline_requests(@team.id, @start_date_str, @end_date_str, 'day', @platform, @language)
+    number_of_tipline_data_points_by_date(data)
   end
 
   # TODO
@@ -234,5 +239,17 @@ class TeamStatistics
     end
 
     number_of_articles
+  end
+
+  def number_of_tipline_data_points_by_date(results)
+    data = {}
+    # Pre-fill with zeros
+    time_range.to_a.each do |day|
+      data[day.strftime("%Y-%m-%d")] = 0
+    end
+    results.each do |day, count|
+      data[day.strftime("%Y-%m-%d")] = count
+    end
+    data
   end
 end
