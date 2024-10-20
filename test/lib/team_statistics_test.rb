@@ -35,15 +35,15 @@ class TeamStatisticsTest < ActiveSupport::TestCase
     exp = nil
 
     travel_to Time.parse('2024-01-01') do
-      create_fact_check(language: 'en', rating: 'false', claim_description: create_claim_description(project_media: create_project_media(team: @team)))
-      exp = create_explainer team: @team, language: 'en'
+      create_fact_check(tags: ['foo', 'bar'], language: 'en', rating: 'false', claim_description: create_claim_description(project_media: create_project_media(team: @team)))
+      exp = create_explainer team: @team, language: 'en', tags: ['foo']
       create_explainer team: @team
       create_explainer language: 'en', team: team
     end
 
     travel_to Time.parse('2024-01-02') do
-      create_fact_check(report_status: 'published', rating: 'verified', language: 'en', claim_description: create_claim_description(project_media: create_project_media(team: @team)))
-      create_explainer team: @team, language: 'en'
+      create_fact_check(tags: ['bar'], report_status: 'published', rating: 'verified', language: 'en', claim_description: create_claim_description(project_media: create_project_media(team: @team)))
+      create_explainer team: @team, language: 'en', tags: ['foo']
       create_explainer team: @team
       create_explainer language: 'en', team: team
       exp.updated_at = Time.now
@@ -60,6 +60,27 @@ class TeamStatisticsTest < ActiveSupport::TestCase
       assert_equal 2, object.number_of_fact_checks_created
       assert_equal 1, object.number_of_published_fact_checks
       assert_equal({ 'false' => 1, 'verified' => 1 }, object.number_of_fact_checks_by_rating)
+      assert_equal({ 'foo' => 3, 'bar' => 2 }, object.top_articles_tags)
     end
+  end
+
+  test "should return number of articles sent" do
+    setup_elasticsearch
+    RequestStore.store[:skip_cached_field_update] = false
+
+    pm1 = create_project_media team: @team, disable_es_callbacks: false
+    create_fact_check title: 'Bar', report_status: 'published', rating: 'verified', language: 'en', claim_description: create_claim_description(project_media: pm1), disable_es_callbacks: false
+    create_tipline_request team: @team.id, associated: pm1
+
+    pm2 = create_project_media team: @team, disable_es_callbacks: false
+    create_fact_check title: 'Foo', report_status: 'published', rating: 'verified', language: 'en', claim_description: create_claim_description(project_media: pm2), disable_es_callbacks: false
+    create_tipline_request team: @team.id, associated: pm2
+    create_tipline_request team: @team.id, associated: pm2
+
+    sleep 2
+
+    object = TeamStatistics.new(@team, 'last_week', 'en')
+    expected = { 'Foo' => 2, 'Bar' => 1 }
+    assert_equal expected, object.top_articles_sent
   end
 end

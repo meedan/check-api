@@ -41,14 +41,37 @@ class TeamStatistics
     fact_checks_base_query.group(:rating).count.sort.to_h
   end
 
-  # TODO
+  # FIXME: Only fact-checks for now - add explainers
   def top_articles_sent
-    { 'The sky is blue' => rand(100), 'Earth is round' => rand(100), 'Soup is dinner' => rand(100) }
+    data = {}
+    range = time_range.to_a
+    start_date, end_date = range.first, range.last
+    clusters = CheckDataPoints.top_clusters(@team.id, start_date, end_date, 5, 'last_seen', @language)
+    clusters.each do |pm_id, demand|
+      data[ProjectMedia.find(pm_id).fact_check_title] = demand
+    end
+    data
   end
 
-  # TODO
   def top_articles_tags
-    { 'tag1' => rand(100), 'tag2' => rand(100), 'tag3' => rand(100), 'tag4' => rand(100), 'tag5' => rand(100) }
+    sql = <<-SQL
+      SELECT tag, COUNT(*) as tag_count
+      FROM (
+        SELECT unnest(fact_checks.tags) AS tag FROM fact_checks
+        UNION ALL
+        SELECT unnest(explainers.tags) AS tag FROM explainers
+      ) AS all_tags
+      GROUP BY tag
+      ORDER BY tag_count DESC
+      LIMIT 5
+    SQL
+
+    result = ActiveRecord::Base.connection.execute(sql)
+    data = {}
+    result.each do |row|
+      data[row['tag']] = row['tag_count'].to_i
+    end
+    data.sort.reverse.to_h
   end
 
   # For tiplines

@@ -53,8 +53,8 @@ class CheckDataPoints
     end
 
     # Top clusters
-    def top_clusters(team_id, start_date, end_date, limit = 5)
-      elastic_search_top_items(team_id, start_date, end_date, limit)
+    def top_clusters(team_id, start_date, end_date, limit = 5, range_field = 'created_at', language = nil)
+      elastic_search_top_items(team_id, start_date, end_date, limit, false, range_field, language)
     end
 
     # Top media tags
@@ -132,15 +132,16 @@ class CheckDataPoints
       end
     end
 
-    def elastic_search_top_items(team_id, start_date, end_date, limit, with_tags = false)
+    def elastic_search_top_items(team_id, start_date, end_date, limit, with_tags = false, range_field = 'created_at', language = nil)
       data = {}
       query = {
-        range: { 'created_at': { start_time: start_date, end_time: end_date } },
+        range: { range_field => { start_time: start_date, end_time: end_date } },
         demand: { min: 1 },
         sort: 'demand',
         eslimit: limit
       }
       query[:tags_as_sentence] = { min: 1 } if with_tags
+      query[:fc_language] = [language] if language
       result = CheckSearch.new(query.to_json, nil, team_id)
       result.medias.each{ |pm| data[pm.id] = pm.demand }
       data
