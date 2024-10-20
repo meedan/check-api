@@ -36,16 +36,18 @@ class TeamStatisticsTest < ActiveSupport::TestCase
 
     travel_to Time.parse('2024-01-01') do
       create_fact_check(tags: ['foo', 'bar'], language: 'en', rating: 'false', claim_description: create_claim_description(project_media: create_project_media(team: @team)))
+      create_fact_check(tags: ['foo', 'bar'], claim_description: create_claim_description(project_media: create_project_media(team: team)))
       exp = create_explainer team: @team, language: 'en', tags: ['foo']
-      create_explainer team: @team
-      create_explainer language: 'en', team: team
+      create_explainer team: @team, tags: ['foo', 'bar']
+      create_explainer language: 'en', team: team, tags: ['foo', 'bar']
     end
 
     travel_to Time.parse('2024-01-02') do
       create_fact_check(tags: ['bar'], report_status: 'published', rating: 'verified', language: 'en', claim_description: create_claim_description(project_media: create_project_media(team: @team)))
+      create_fact_check(tags: ['foo', 'bar'], claim_description: create_claim_description(project_media: create_project_media(team: team)))
       create_explainer team: @team, language: 'en', tags: ['foo']
-      create_explainer team: @team
-      create_explainer language: 'en', team: team
+      create_explainer team: @team, tags: ['foo', 'bar']
+      create_explainer language: 'en', team: team, tags: ['foo', 'bar']
       exp.updated_at = Time.now
       exp.save!
     end

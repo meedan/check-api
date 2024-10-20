@@ -57,16 +57,22 @@ class TeamStatistics
     sql = <<-SQL
       SELECT tag, COUNT(*) as tag_count
       FROM (
-        SELECT unnest(fact_checks.tags) AS tag FROM fact_checks
+        SELECT unnest(fcs.tags) AS tag FROM fact_checks fcs
+          INNER JOIN claim_descriptions cds ON fcs.claim_description_id = cds.id
+          WHERE cds.team_id = :team_id AND fcs.created_at BETWEEN :start_date AND :end_date AND fcs.language IN (:language)
         UNION ALL
         SELECT unnest(explainers.tags) AS tag FROM explainers
+          WHERE explainers.team_id = :team_id AND explainers.created_at BETWEEN :start_date AND :end_date AND explainers.language IN (:language)
       ) AS all_tags
       GROUP BY tag
       ORDER BY tag_count DESC
       LIMIT 5
     SQL
 
-    result = ActiveRecord::Base.connection.execute(sql)
+    range = time_range.to_a
+    start_date, end_date = range.first, range.last
+    language = @language ? [@language] : @team.get_languages.to_a
+    result = ActiveRecord::Base.connection.execute(ApplicationRecord.sanitize_sql_for_assignment([sql, team_id: @team.id, start_date: start_date, end_date: end_date, language: language]))
     data = {}
     result.each do |row|
       data[row['tag']] = row['tag_count'].to_i
