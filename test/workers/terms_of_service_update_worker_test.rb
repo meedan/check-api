@@ -1,12 +1,16 @@
 require_relative '../test_helper'
 
 class TermsOfServiceUpdateWorkerTest < ActiveSupport::TestCase
-  test "should notify users based on last term update" do
+  test "should notify users based on terms_last_updated_at_notification flag" do
     User.stubs(:terms_last_updated_at).returns(Time.now.to_i)
     terms_update = Time.now - 1.day
     u = create_user
     u.last_received_terms_email_at = terms_update
     u.save!
+    last_received_terms_email_at = u.reload.last_received_terms_email_at
+    TermsOfServiceUpdateWorker.new.perform
+    assert_equal last_received_terms_email_at, u.reload.last_received_terms_email_at
+    Rails.cache.write('terms_last_updated_at_notification', Time.now.to_i)
     TermsOfServiceUpdateWorker.new.perform
     last_term_update = u.reload.last_received_terms_email_at
     assert last_term_update > terms_update
@@ -15,6 +19,7 @@ class TermsOfServiceUpdateWorkerTest < ActiveSupport::TestCase
   end
 
   test "should notify users in background" do
+    Rails.cache.write('terms_last_updated_at_notification', Time.now.to_i)
     User.stubs(:terms_last_updated_at).returns(Time.now.to_i)
     terms_update = Time.now - 1.day
     u = create_user
