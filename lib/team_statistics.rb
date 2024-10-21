@@ -115,9 +115,21 @@ class TeamStatistics
     number_of_tipline_data_points_by_date(data)
   end
 
-  # TODO
   def number_of_search_results_by_type
-    { 'Image' => rand(100), 'Text' => rand(100), 'Audio' => rand(100), 'Video' => rand(100), 'Link' => rand(100) }
+    mapping = {
+      relevant_search_result_requests: 'Positive',
+      irrelevant_search_result_requests: 'Negative',
+      timeout_search_requests: 'No Response'
+    }
+    data = {
+      'Positive' => 0,
+      'Negative' => 0,
+      'No Response' => 0
+    }
+    CheckDataPoints.tipline_requests_by_search_type(@team.id, @start_date_str, @end_date_str, @platform, @language).each do |type, count|
+      data[mapping[type.to_sym]] = count
+    end
+    data
   end
 
   # TODO

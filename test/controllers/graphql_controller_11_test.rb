@@ -200,4 +200,47 @@ class GraphqlController11Test < ActionController::TestCase
       assert !JSON.parse(@response.body)['data']['exportList']['success']
     end
   end
+
+  test "should get team statistics" do
+    user = create_user
+    team = create_team
+    create_team_user user: user, team: team, role: 'admin'
+
+    authenticate_with_user(user)
+    query = <<~GRAPHQL
+      query {
+        team(slug: "#{team.slug}") {
+          statistics(period: "last_week") {
+            number_of_articles_created_by_date
+            number_of_articles_updated_by_date
+            number_of_explainers_created
+            number_of_fact_checks_created
+            number_of_published_fact_checks
+            number_of_fact_checks_by_rating
+            top_articles_sent
+            top_articles_tags
+            number_of_messages
+            number_of_conversations
+            number_of_messages_by_date
+            number_of_conversations_by_date
+            number_of_search_results_by_type
+            average_response_type
+            number_of_unique_users
+            number_of_total_users
+            number_of_returning_users
+            number_of_subscribers
+            number_of_newsletters_sent
+            number_of_newsletters_delivered
+            top_media_tags
+            top_requested_media_clusters
+            number_of_media_received_by_type
+            number_of_articles_sent
+            number_of_matched_results
+          }
+        }
+      }
+    GRAPHQL
+    post :create, params: { query: query }
+    assert_response :success
+  end
 end

@@ -7,45 +7,44 @@ class CheckDataPoints
     def tipline_messages(team_id, start_date, end_date, granularity = nil, platform = nil, language = nil)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
       query = TiplineMessage.where(team_id: team_id, created_at: start_date..end_date)
-      query = query.where(platform: platform) unless platform.blank?
-      query = query.where(language: language) unless language.blank?
-      query_based_on_granularity(query, granularity)
+      query_based_on_granularity(query, platform, language, granularity)
     end
 
     # Number of tipline requests
     def tipline_requests(team_id, start_date, end_date, granularity = nil, platform = nil, language = nil)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
       query = TiplineRequest.where(team_id: team_id, created_at: start_date..end_date)
-      query = query.where(platform: platform) unless platform.blank?
-      query = query.where(language: language) unless language.blank?
-      query_based_on_granularity(query, granularity)
+      query_based_on_granularity(query, platform, language, granularity)
     end
 
     # Number of tipline requests grouped by type of search result
-    def tipline_requests_by_search_type(team_id, start_date, end_date)
+    def tipline_requests_by_search_type(team_id, start_date, end_date, platform = nil, language = nil)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
-      TiplineRequest.where(
+      query = TiplineRequest.where(
         team_id: team_id,
         smooch_request_type: SEARCH_RESULT_TYPES,
         created_at: start_date..end_date,
-      ).group('smooch_request_type').count
+      )
+      query = query.where(platform: platform) unless platform.blank?
+      query = query.where(language: language) unless language.blank?
+      query.group('smooch_request_type').count
     end
 
     # Number of Subscribers
-    def tipline_subscriptions(team_id, start_date, end_date, granularity = nil)
+    def tipline_subscriptions(team_id, start_date, end_date, granularity = nil, platform = nil, language = nil)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
       query = TiplineSubscription.where(team_id: team_id, created_at: start_date..end_date)
-      query_based_on_granularity(query, granularity)
+      query_based_on_granularity(query, platform, language, granularity)
     end
 
     # Number of Newsletters sent
-    def newsletters_sent(team_id, start_date, end_date, granularity = nil)
+    def newsletters_sent(team_id, start_date, end_date, granularity = nil, platform = nil, language = nil)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
       query = TiplineNewsletterDelivery
       .joins(:tipline_newsletter)
       .where('tipline_newsletters.team_id': team_id)
       .where(created_at: start_date..end_date)
-      query_based_on_granularity(query, granularity, 'newsletter')
+      query_based_on_granularity(query, platform, language, granularity, 'newsletter')
     end
 
     # Number of Media received, by type
@@ -120,7 +119,9 @@ class CheckDataPoints
       return start_date, end_date
     end
 
-    def query_based_on_granularity(query, granularity, type = nil)
+    def query_based_on_granularity(query, platform, language, granularity, type = nil)
+      query = query.where(platform: platform) unless platform.blank?
+      query = query.where(language: language) unless language.blank?
       # For PG the allowed values for granularity can be one of the following
       # [millennium, century, decade, year, quarter, month, week, day, hour,
       # minute, second, milliseconds, microseconds]

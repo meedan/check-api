@@ -32,12 +32,16 @@ class TeamStatisticsTest < ActiveSupport::TestCase
 
   test "should provide a valid platform" do
     assert_raises ArgumentError do
-      TeamStatistics.new(Class.new, 'last_month', 'en', 'icq')
+      TeamStatistics.new(@team, 'last_month', 'en', 'icq')
     end
 
     assert_nothing_raised do
       TeamStatistics.new(@team, 'last_month', 'en', 'whatsapp')
     end
+  end
+
+  test "should have a GraphQL ID" do
+    assert_kind_of String, TeamStatistics.new(@team, 'last_month', 'en', 'whatsapp').id
   end
 
   test "should return articles statistics" do
@@ -107,10 +111,10 @@ class TeamStatisticsTest < ActiveSupport::TestCase
       create_tipline_message team_id: @team.id, language: 'pt', platform: 'WhatsApp'
       create_tipline_message team_id: team.id, language: 'en', platform: 'WhatsApp'
 
-      create_tipline_request team_id: @team.id, associated: pm1, language: 'en', platform: 'whatsapp'
-      create_tipline_request team_id: team.id, associated: pm2, language: 'en', platform: 'whatsapp'
-      create_tipline_request team_id: @team.id, associated: pm1, language: 'pt', platform: 'whatsapp'
-      create_tipline_request team_id: @team.id, associated: pm1, language: 'en', platform: 'telegram'
+      create_tipline_request team_id: @team.id, associated: pm1, language: 'en', platform: 'whatsapp', smooch_request_type: 'relevant_search_result_requests'
+      create_tipline_request team_id: team.id, associated: pm2, language: 'en', platform: 'whatsapp', smooch_request_type: 'relevant_search_result_requests'
+      create_tipline_request team_id: @team.id, associated: pm1, language: 'pt', platform: 'whatsapp', smooch_request_type: 'relevant_search_result_requests'
+      create_tipline_request team_id: @team.id, associated: pm1, language: 'en', platform: 'telegram', smooch_request_type: 'relevant_search_result_requests'
     end
 
     travel_to Time.parse('2024-01-03') do
@@ -119,10 +123,10 @@ class TeamStatisticsTest < ActiveSupport::TestCase
       create_tipline_message team_id: @team.id, language: 'pt', platform: 'WhatsApp'
       create_tipline_message team_id: team.id, language: 'en', platform: 'WhatsApp'
 
-      2.times { create_tipline_request team_id: @team.id, associated: pm1, language: 'en', platform: 'whatsapp' }
-      create_tipline_request team_id: team.id, associated: pm2, language: 'en', platform: 'whatsapp'
-      create_tipline_request team_id: @team.id, associated: pm1, language: 'pt', platform: 'whatsapp'
-      create_tipline_request team_id: @team.id, associated: pm1, language: 'en', platform: 'telegram'
+      2.times { create_tipline_request team_id: @team.id, associated: pm1, language: 'en', platform: 'whatsapp', smooch_request_type: 'irrelevant_search_result_requests' }
+      create_tipline_request team_id: team.id, associated: pm2, language: 'en', platform: 'whatsapp', smooch_request_type: 'relevant_search_result_requests'
+      create_tipline_request team_id: @team.id, associated: pm1, language: 'pt', platform: 'whatsapp', smooch_request_type: 'relevant_search_result_requests'
+      create_tipline_request team_id: @team.id, associated: pm1, language: 'en', platform: 'telegram', smooch_request_type: 'relevant_search_result_requests'
     end
 
     travel_to Time.parse('2024-01-08') do
@@ -133,6 +137,7 @@ class TeamStatisticsTest < ActiveSupport::TestCase
       assert_equal 3, object.number_of_conversations
       assert_equal({ '2024-01-01' => 1, '2024-01-02' => 0, '2024-01-03' => 2, '2024-01-04' => 0, '2024-01-05' => 0, '2024-01-06' => 0, '2024-01-07' => 0, '2024-01-08' => 0 },
                    object.number_of_conversations_by_date)
+      assert_equal({ 'Positive' => 1, 'Negative' => 2, 'No Response' => 0 }, object.number_of_search_results_by_type)
     end
   end
 end
