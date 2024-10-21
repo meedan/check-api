@@ -26,7 +26,7 @@ class FeedsControllerTest < ActionController::TestCase
     @f = create_feed published: true
     @f.teams = [@t1, @t2]
     FeedTeam.update_all(shared: true)
-    Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id, @t2.id], nil, @f.id, skip_cache: false).returns([@pm1, @pm2])
+    Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id, @t2.id], nil, @f.id, false).returns([@pm1, @pm2])
   end
 
   def teardown

@@ -134,7 +134,7 @@ module SmoochSearch
         after = self.date_filter(team_id)
         query = message['text']
         query = CheckS3.rewrite_url(message['mediaUrl']) unless type == 'text'
-        results = self.search_for_similar_published_fact_checks(type, query, [team_id], after, nil, language, false).select{ |pm| is_a_valid_search_result(pm) }
+        results = self.search_for_similar_published_fact_checks(type, query, [team_id], after, nil, language).select{ |pm| is_a_valid_search_result(pm) }
       rescue StandardError => e
         self.handle_search_error(uid, e, language)
       end
@@ -148,7 +148,7 @@ module SmoochSearch
 
     # "type" is text, video, audio or image
     # "query" is either a piece of text of a media URL
-    def search_for_similar_published_fact_checks(type, query, team_ids, after = nil, feed_id = nil, language = nil, skip_cache: false)
+    def search_for_similar_published_fact_checks(type, query, team_ids, after = nil, feed_id = nil, language = nil, skip_cache = false)
       if skip_cache
         self.search_for_similar_published_fact_checks_no_cache(type, query, team_ids, after, feed_id, language)
       else
