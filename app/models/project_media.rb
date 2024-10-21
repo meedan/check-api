@@ -437,8 +437,12 @@ class ProjectMedia < ApplicationRecord
     pm.set_fact_check = self.set_fact_check
     if pm.fact_check.blank?
       pm.create_claim_description_and_fact_check
-    # elsif # it's a different language
-      # create a fact-check with a blank media
+    elsif pm.fact_check.present?
+      if pm.fact_check.language != self.set_fact_check['language']
+        m = Blank.create!
+        self.set_original_claim = nil
+        self.media_id = m.id
+      end
     end
   end
 
