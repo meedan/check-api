@@ -46,6 +46,7 @@ module UserMultiAuthLogin
       user.login = auth.info.nickname || auth.info.name.tr(' ', '-').downcase
       user.from_omniauth_login = true
       user.skip_confirmation!
+      user.last_accepted_terms_at = Time.now if user.last_accepted_terms_at.nil?
       User.current = user
       user.save!
       user.confirm unless user.is_confirmed?
