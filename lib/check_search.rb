@@ -342,10 +342,11 @@ class CheckSearch
     # Prepare the export
     data = []
     header = nil
+    fields = []
     if feed_sharing_only_fact_checks
       header = ['Fact-check title', 'Fact-check summary', 'Fact-check URL', 'Tags', 'Workspace', 'Updated at', 'Rating']
     else
-      header = ['Claim', 'Item page URL', 'Status', 'Created by', 'Submitted at', 'Published at', 'Number of media', 'Tags']
+      header = ['Claim', 'Item page URL', 'Status', 'Created by', 'Submitted at', 'Social Media Posted at', 'Report Published at', 'Number of media', 'Tags']
       fields = team.team_tasks.sort
       fields.each { |tt| header << tt.label }
     end
@@ -356,39 +357,15 @@ class CheckSearch
     while !search_after.empty?
       result = $repository.search(_source: 'annotated_id', query: search.medias_query, sort: [{ annotated_id: { order: :asc } }], size: 10000, search_after: search_after).results
       ids = result.collect{ |i| i['annotated_id'] }.uniq.compact.map(&:to_i)
+      pm_report = {}
+      Dynamic.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia', annotated_id: ids)
+      .find_each do |raw|
+        pm_report[raw.annotated_id] = raw.data['last_published'].to_i if raw.data['state'] == 'published'
+      end
 
       # Iterate through each result and generate an output row for the CSV
       ProjectMedia.where(id: ids, team_id: search.team_condition(team_id)).find_each do |pm|
-        row = nil
-        if feed_sharing_only_fact_checks
-          row = [
-            pm.fact_check_title,
-            pm.fact_check_summary,
-            pm.fact_check_url,
-            pm.tags_as_sentence,
-            pm.team_name,
-            pm.updated_at_timestamp,
-            pm.status
-          ]
-        else
-          row = [
-            pm.claim_description&.description,
-            pm.full_url,
-            pm.status_i18n,
-            pm.author_name.to_s.gsub(/ \[.*\]$/, ''),
-            pm.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-            pm.published_at&.strftime("%Y-%m-%d %H:%M:%S"),
-            pm.linked_items_count,
-            pm.tags_as_sentence
-          ]
-          annotations = pm.get_annotations('task').map(&:load)
-          fields.each do |field|
-            annotation = annotations.find { |a| a.team_task_id == field.id }
-            answer = (annotation ? (begin annotation.first_response_obj.file_data[:file_urls].join("\n") rescue annotation.first_response.to_s end) : '')
-            answer = begin JSON.parse(answer).collect{ |x| x['url'] }.join(', ') rescue answer end
-            row << answer
-          end
-        end
+        row = self.get_exported_data_row(feed_sharing_only_fact_checks, pm, pm_report[pm.id], fields)
         data << row
       end
 
@@ -396,6 +373,42 @@ class CheckSearch
     end
 
     data
+  end
+
+  def self.get_exported_data_row(feed_sharing_only_fact_checks, pm, report_published_at, fields)
+    row = nil
+    if feed_sharing_only_fact_checks
+      row = [
+        pm.fact_check_title,
+        pm.fact_check_summary,
+        pm.fact_check_url,
+        pm.tags_as_sentence,
+        pm.team_name,
+        pm.updated_at_timestamp,
+        pm.status
+      ]
+    else
+      report_published_at_value = report_published_at ? Time.at(report_published_at).strftime("%Y-%m-%d %H:%M:%S") : nil
+      row = [
+        pm.claim_description&.description,
+        pm.full_url,
+        pm.status_i18n,
+        pm.author_name.to_s.gsub(/ \[.*\]$/, ''),
+        pm.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+        pm.published_at&.strftime("%Y-%m-%d %H:%M:%S"),
+        report_published_at_value,
+        pm.linked_items_count,
+        pm.tags_as_sentence
+      ]
+      annotations = pm.get_annotations('task').map(&:load)
+      fields.each do |field|
+        annotation = annotations.find { |a| a.team_task_id == field.id }
+        answer = (annotation ? (begin annotation.first_response_obj.file_data[:file_urls].join("\n") rescue annotation.first_response.to_s end) : '')
+        answer = begin JSON.parse(answer).collect{ |x| x['url'] }.join(', ') rescue answer end
+        row << answer
+      end
+    end
+    row
   end
 
   private
