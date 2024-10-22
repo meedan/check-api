@@ -796,6 +796,8 @@ class GraphqlController12Test < ActionController::TestCase
     url = 'http://example.com'
 
     t = create_team
+    t.settings[:languages] << 'pt'
+    t.save!
     p = create_project team: t
     pm = create_project_media team: t, url: url
     c = create_claim_description project_media: pm
