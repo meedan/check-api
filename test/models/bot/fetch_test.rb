@@ -253,4 +253,18 @@ class Bot::FetchTest < ActiveSupport::TestCase
       Bot::Fetch::Import.import_claim_review(cr, @team.id, @bot.id, 'undetermined', {}, false)
     end
   end
+
+  test "should import claim review as published report" do
+    cr = @claim_review.deep_dup
+    cr['identifier'] = random_string
+    assert_difference 'FactCheck.count' do
+      Bot::Fetch::Import.import_claim_review(cr, @team.id, @bot.id, 'undetermined', {}, false)
+    end
+
+    r = Dynamic.where(annotation_type: 'report_design').last
+    assert_equal "published", r.state
+
+    fc = FactCheck.last
+    assert_equal "published", fc.report_status
+  end
 end

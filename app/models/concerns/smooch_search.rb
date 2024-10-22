@@ -148,9 +148,13 @@ module SmoochSearch
 
     # "type" is text, video, audio or image
     # "query" is either a piece of text of a media URL
-    def search_for_similar_published_fact_checks(type, query, team_ids, after = nil, feed_id = nil, language = nil)
-      Rails.cache.fetch("smooch:search_results:#{self.normalized_query_hash(type, query, team_ids, after, feed_id, language)}", expires_in: 2.hours) do
+    def search_for_similar_published_fact_checks(type, query, team_ids, after = nil, feed_id = nil, language = nil, skip_cache = false)
+      if skip_cache
         self.search_for_similar_published_fact_checks_no_cache(type, query, team_ids, after, feed_id, language)
+      else
+        Rails.cache.fetch("smooch:search_results:#{self.normalized_query_hash(type, query, team_ids, after, feed_id, language)}", expires_in: 2.hours) do
+          self.search_for_similar_published_fact_checks_no_cache(type, query, team_ids, after, feed_id, language)
+        end
       end
     end
 
