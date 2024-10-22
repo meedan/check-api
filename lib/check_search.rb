@@ -360,7 +360,7 @@ class CheckSearch
       pm_report = {}
       Dynamic.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia', annotated_id: ids)
       .find_each do |raw|
-        pm_report[raw.annotated_id] = raw.data['last_published'].to_i if raw.data['state'] == 'published'
+        pm_report[raw.annotated_id] = (raw.data['last_published'] || raw.updated_at).to_i if raw.data['state'] == 'published'
       end
 
       # Iterate through each result and generate an output row for the CSV
