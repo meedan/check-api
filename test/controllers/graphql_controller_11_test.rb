@@ -224,7 +224,7 @@ class GraphqlController11Test < ActionController::TestCase
             number_of_messages_by_date
             number_of_conversations_by_date
             number_of_search_results_by_type
-            average_response_type
+            average_response_time
             number_of_unique_users
             number_of_total_users
             number_of_returning_users

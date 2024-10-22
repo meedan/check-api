@@ -13670,7 +13670,7 @@ type TeamEdge {
 Workspace statistics.
 """
 type TeamStatistics implements Node {
-  average_response_type: Int
+  average_response_time: Int
   created_at: String
   id: ID!
   number_of_articles_created_by_date: JsonStringType

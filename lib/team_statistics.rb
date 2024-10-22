@@ -134,7 +134,7 @@ class TeamStatistics
   end
 
   # TODO
-  def average_response_type
+  def average_response_time
     24.hours
   end
 

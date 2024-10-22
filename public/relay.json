@@ -71848,7 +71848,7 @@
           "description": "Workspace statistics.",
           "fields": [
             {
-              "name": "average_response_type",
+              "name": "average_response_time",
               "description": null,
               "args": [
 
