@@ -67,7 +67,7 @@ class ReindexAlegreWorkspace
     end
   end
 
-  def check_for_write(running_bucket, event_id, team_id, write_remains=false, _in_processes=3)
+  def check_for_write(running_bucket, event_id, team_id, write_remains=false)
     # manage dispatch of documents to bulk similarity api call in parallel
     if running_bucket.length > 500 || write_remains
       log(event_id, 'Writing to Alegre...')

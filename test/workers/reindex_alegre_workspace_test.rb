@@ -111,7 +111,7 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
       },
       :type=>"text"
     }
-    response = ReindexAlegreWorkspace.new.check_for_write(1.upto(30).collect{|x| package}, "a", @team.id, true, 1)
+    response = ReindexAlegreWorkspace.new.check_for_write(1.upto(30).collect{|x| package}, "a", @team.id, true)
     assert_equal Array, response.class
   end
 

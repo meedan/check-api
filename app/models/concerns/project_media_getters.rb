@@ -11,10 +11,6 @@ module ProjectMediaGetters
     self.media.type == "Link"
   end
 
-  def is_uploaded_image?
-    self.media.type == "UploadedImage"
-  end
-
   def is_blank?
     self.media.type == "Blank"
   end
@@ -28,7 +24,7 @@ module ProjectMediaGetters
   end
 
   def is_image?
-    self.is_uploaded_image?
+    self.media.type == "UploadedImage"
   end
 
   def is_uploaded_media?
