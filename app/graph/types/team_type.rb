@@ -286,6 +286,23 @@ class TeamType < DefaultObject
     TiplineMessagesPagination.new(object.tipline_messages.where(uid: uid).order('sent_at DESC'))
   end
 
+  field :tipline_requests, TiplineRequestType.connection_type, null: true do
+    argument :from_timestamp, GraphQL::Types::Int, required: true, camelize: false
+    argument :to_timestamp, GraphQL::Types::Int, required: true, camelize: false
+  end
+
+  def tipline_requests(from_timestamp:, to_timestamp:)
+    ability = context[:ability] || Ability.new
+    return TiplineRequest.none unless ability.can?(:read, TiplineRequest.new(team_id: object.id))
+
+    raise 'Maximum interval is one month.' if ((to_timestamp - from_timestamp) > 32.days.to_i) # Use 32 just to be safe
+    from = Time.at(from_timestamp)
+    to = Time.at(to_timestamp)
+
+    # Only `ProjectMedia` requests that are not in the trash
+    TiplineRequest.joins("INNER JOIN project_medias pm ON pm.id = tipline_requests.associated_id AND tipline_requests.associated_type = 'ProjectMedia'").where(team_id: object.id, created_at: from..to).where('pm.archived' => ::CheckArchivedFlags::FlagCodes::NONE)
+  end
+
   field :articles, ::ArticleUnion.connection_type, null: true do
     argument :article_type, GraphQL::Types::String, required: true, camelize: false
 

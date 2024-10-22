@@ -200,4 +200,58 @@ class GraphqlController11Test < ActionController::TestCase
       assert !JSON.parse(@response.body)['data']['exportList']['success']
     end
   end
+
+  test "should not get requests if interval is more than one month" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'editor'
+    2.times { create_tipline_request team_id: t.id }
+    create_tipline_request
+    authenticate_with_user(u)
+
+    query = <<~GRAPHQL
+      query {
+        team(slug: "#{t.slug}") {
+          tipline_requests(from_timestamp: 1724266372, to_timestamp: 1729536732) {
+            edges {
+              node {
+                id
+              }
+            }
+          }
+        }
+      }
+    GRAPHQL
+    post :create, params: { query: query, team: t.slug }
+    assert_response 400
+    assert_equal 'Maximum interval is one month.', JSON.parse(@response.body)['errors'][0]['message']
+  end
+
+  test "should get requests" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'editor'
+    2.times { create_tipline_request team_id: t.id }
+    create_tipline_request
+    authenticate_with_user(u)
+
+    from = Time.now.beginning_of_month.to_i
+    to = Time.now.end_of_month.to_i
+    query = <<~GRAPHQL
+      query {
+        team(slug: "#{t.slug}") {
+          tipline_requests(from_timestamp: #{from}, to_timestamp: #{to}) {
+            edges {
+              node {
+                id
+              }
+            }
+          }
+        }
+      }
+    GRAPHQL
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 2, JSON.parse(@response.body).dig('data', 'team', 'tipline_requests', 'edges').size
+  end
 end
