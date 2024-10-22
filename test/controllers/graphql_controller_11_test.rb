@@ -210,7 +210,7 @@ class GraphqlController11Test < ActionController::TestCase
     query = <<~GRAPHQL
       query {
         team(slug: "#{team.slug}") {
-          statistics(period: "past_week") {
+          statistics(period: "past_week", platform: "whatsapp", language: "en") {
             number_of_articles_created_by_date
             number_of_articles_updated_by_date
             number_of_explainers_created

@@ -133,24 +133,20 @@ class TeamStatistics
     data
   end
 
-  # TODO
   def average_response_time
-    24.hours
+    CheckDataPoints.average_response_time(@team.id, @start_date, @end_date, @platform, @language)
   end
 
-  # TODO
   def number_of_unique_users
-    rand(1000)
+    number_of_total_users - number_of_returning_users
   end
 
-  # TODO
   def number_of_total_users
-    rand(1000)
+    CheckDataPoints.all_users(@team.id, @start_date_str, @end_date_str, @platform, @language)
   end
 
-  # TODO
   def number_of_returning_users
-    rand(1000)
+    CheckDataPoints.returning_users(@team.id, @start_date_str, @end_date_str, @platform, @language)
   end
 
   # TODO

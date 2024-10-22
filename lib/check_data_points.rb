@@ -78,26 +78,31 @@ class CheckDataPoints
     end
 
     # Average response time
-    def average_response_time(team_id, start_date, end_date)
-      TiplineRequest
-      .where(team_id: team_id, smooch_report_received_at: start_date.to_datetime.to_i..end_date.to_datetime.to_i)
-      .average("smooch_report_received_at - CAST(DATE_PART('EPOCH', created_at::timestamp) AS INTEGER)").to_f
+    def average_response_time(team_id, start_date, end_date, platform = nil, language = nil)
+      query = TiplineRequest.where(team_id: team_id, smooch_report_received_at: start_date.to_datetime.to_i..end_date.to_datetime.to_i)
+      query = query.where(platform: platform) unless platform.blank?
+      query = query.where(language: language) unless language.blank?
+      query.average("smooch_report_received_at - CAST(DATE_PART('EPOCH', created_at::timestamp) AS INTEGER)").to_f
     end
 
     # All users
-    def all_users(team_id, start_date, end_date)
+    def all_users(team_id, start_date, end_date, platform = nil, language = nil)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
-      TiplineRequest.where(team_id: team_id, created_at: start_date..end_date)
-      .count('DISTINCT(tipline_user_uid)')
+      query = TiplineRequest.where(team_id: team_id, created_at: start_date..end_date)
+      query = query.where(platform: platform) unless platform.blank?
+      query = query.where(language: language) unless language.blank?
+      query.count('DISTINCT(tipline_user_uid)')
     end
 
     # Returning users
-    def returning_users(team_id, start_date, end_date)
+    def returning_users(team_id, start_date, end_date, platform = nil, language = nil)
       # Number of returning users (at least one session in the current month, and at least one session in the last previous 2 months)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
       uids = TiplineRequest.where(team_id: team_id, created_at: start_date.ago(2.months)..start_date).map(&:tipline_user_uid).uniq
-      TiplineRequest.where(team_id: team_id, tipline_user_uid: uids, created_at: start_date..end_date)
-      .count('DISTINCT(tipline_user_uid)')
+      query = TiplineRequest.where(team_id: team_id, tipline_user_uid: uids, created_at: start_date..end_date)
+      query = query.where(platform: platform) unless platform.blank?
+      query = query.where(language: language) unless language.blank?
+      query.count('DISTINCT(tipline_user_uid)')
     end
 
     # New users
