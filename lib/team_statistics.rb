@@ -1,5 +1,6 @@
 class TeamStatistics
-  PERIODS = ['last_day', 'last_week', 'last_month', 'last_year']
+  PERIODS = ['past_week', 'past_2_weeks', 'past_month', 'past_3_months', 'past_6_months', 'year_to_date']
+
   PLATFORMS = Bot::Smooch::SUPPORTED_INTEGRATION_NAMES
 
   def initialize(team, period, language, platform = nil)
@@ -198,12 +199,15 @@ class TeamStatistics
 
   def time_range
     ago = {
-      last_day: 1.day,
-      last_week: 1.week,
-      last_month: 1.month,
-      last_year: 1.year
+      past_week: 1.week,
+      past_2_weeks: 2.weeks,
+      past_month: 1.month,
+      past_3_months: 3.months,
+      past_6_months: 6.months
     }[@period.to_sym]
-    Time.now.ago(ago).to_datetime..Time.now.to_datetime
+    from = Time.now.ago(ago) unless ago.nil?
+    from = Time.now.beginning_of_year if @period.to_s == 'year_to_date'
+    from.to_datetime..Time.now.to_datetime
   end
 
   def fact_checks_base_query(timestamp_field = :created_at, group_by_day = false)
