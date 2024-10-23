@@ -24,6 +24,7 @@ class TeamStatistics
       # while the values (e.g., 'WhatsApp') are used by `TiplineMessage`
       raise ArgumentError.new("Invalid platform provided. Allowed values: #{PLATFORMS.keys.join(', ')}")
     end
+    @platform_name = PLATFORMS[@platform]
 
     @language = language
   end
@@ -97,8 +98,7 @@ class TeamStatistics
   # For tiplines
 
   def number_of_messages
-    platform = PLATFORMS[@platform]
-    CheckDataPoints.tipline_messages(@team.id, @start_date_str, @end_date_str, nil, platform, @language)
+    CheckDataPoints.tipline_messages(@team.id, @start_date_str, @end_date_str, nil, @platform_name, @language)
   end
 
   def number_of_conversations
@@ -106,8 +106,7 @@ class TeamStatistics
   end
 
   def number_of_messages_by_date
-    platform = Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[@platform]
-    data = CheckDataPoints.tipline_messages(@team.id, @start_date_str, @end_date_str, 'day', platform, @language)
+    data = CheckDataPoints.tipline_messages(@team.id, @start_date_str, @end_date_str, 'day', @platform_name, @language)
     number_of_tipline_data_points_by_date(data)
   end
 
@@ -149,19 +148,16 @@ class TeamStatistics
     CheckDataPoints.returning_users(@team.id, @start_date_str, @end_date_str, @platform, @language)
   end
 
-  # TODO
   def number_of_subscribers
-    rand(1000)
+    CheckDataPoints.tipline_subscriptions(@team.id, @start_date_str, @end_date_str, nil, @platform, @language)
   end
 
-  # TODO
   def number_of_newsletters_sent
-    rand(1000)
+    TiplineMessage.where(created_at: @start_date..@end_date, team_id: @team.id, platform: @platform_name, language: @language, state: 'sent', event: 'newsletter').count
   end
 
-  # TODO
   def number_of_newsletters_delivered
-    rand(1000)
+    TiplineMessage.where(created_at: @start_date..@end_date, team_id: @team.id, platform: @platform_name, language: @language, state: 'delivered', event: 'newsletter').count
   end
 
   # TODO
