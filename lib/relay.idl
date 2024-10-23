@@ -13527,6 +13527,29 @@ type Team implements Node {
     """
     last: Int
   ): TiplineNewsletterConnection
+  tipline_requests(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+    from_timestamp: Int!
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+    to_timestamp: Int!
+  ): TiplineRequestConnection
   tipline_resources(
     """
     Returns the elements in the list that come after the specified cursor.
