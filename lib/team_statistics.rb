@@ -60,16 +60,6 @@ class TeamStatistics
     fact_checks_base_query.group(:rating).count.sort.to_h
   end
 
-  # FIXME: Only fact-checks for now - add explainers
-  def top_articles_sent
-    data = {}
-    clusters = CheckDataPoints.top_clusters(@team.id, @start_date, @end_date, 5, 'last_seen', @language)
-    clusters.each do |pm_id, demand|
-      data[ProjectMedia.find(pm_id).fact_check_title] = demand
-    end
-    data
-  end
-
   def top_articles_tags
     sql = <<-SQL
       SELECT tag, COUNT(*) as tag_count
@@ -149,7 +139,7 @@ class TeamStatistics
   end
 
   def number_of_subscribers
-    CheckDataPoints.tipline_subscriptions(@team.id, @start_date_str, @end_date_str, nil, @platform, @language)
+    CheckDataPoints.tipline_subscriptions(@team.id, @start_date_str, @end_date_str, nil, @platform_name, @language)
   end
 
   def number_of_newsletters_sent
@@ -160,9 +150,14 @@ class TeamStatistics
     TiplineMessage.where(created_at: @start_date..@end_date, team_id: @team.id, platform: @platform_name, language: @language, state: 'delivered', event: 'newsletter').count
   end
 
-  # TODO
-  def top_media_tags
-    { 'tag1' => rand(100), 'tag2' => rand(100), 'tag3' => rand(100), 'tag4' => rand(100), 'tag5' => rand(100) }
+  # FIXME: Only fact-checks for now - add explainers
+  def top_articles_sent
+    data = {}
+    clusters = CheckDataPoints.top_clusters(@team.id, @start_date, @end_date, 5, 'last_seen', @language)
+    clusters.each do |pm_id, demand|
+      data[ProjectMedia.find(pm_id).fact_check_title] = demand
+    end
+    data
   end
 
   # TODO
@@ -173,6 +168,11 @@ class TeamStatistics
   # TODO
   def number_of_media_received_by_type
     { 'Image' => rand(100), 'Text' => rand(100), 'Audio' => rand(100), 'Video' => rand(100), 'Link' => rand(100) }
+  end
+
+  # TODO
+  def top_media_tags
+    { 'tag1' => rand(100), 'tag2' => rand(100), 'tag3' => rand(100), 'tag4' => rand(100), 'tag5' => rand(100) }
   end
 
   # For both articles and tiplines
