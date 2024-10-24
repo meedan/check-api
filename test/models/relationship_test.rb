@@ -199,6 +199,56 @@ class RelationshipTest < ActiveSupport::TestCase
     end
   end
 
+  test "should move explainer to source after pin item or match items" do
+    t = create_team
+    e = create_explainer team: t
+    e_s = create_explainer team: t
+    e_t = create_explainer team: t
+    source = create_project_media team: t
+    target = create_project_media team: t
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_versioning do
+      with_current_user_and_team(u, t) do
+        source.explainers << e
+        source.explainers << e_s
+        target.explainers << e
+        target.explainers << e_t
+      end
+    end
+    assert_equal 2, source.explainer_items.count
+    assert_equal 2, target.explainer_items.count
+    pp Version.from_partition(t.id)
+    sv_count = Version.from_partition(t.id).where(event_type: 'create_explaineritem', associated_id: source.id).count
+    tv_count = Version.from_partition(t.id).where(event_type: 'create_explaineritem', associated_id: target.id).count
+    assert_equal 2, sv_count
+    assert_equal 2, tv_count
+    r = create_relationship source_id: source.id, target_id: target.id, relationship_type: Relationship.confirmed_type
+    assert_equal 3, source.explainer_items.count
+    assert_equal 0, target.explainer_items.count
+    sv_count = Version.from_partition(t.id).where(event_type: 'create_explaineritem', associated_id: source.id).count
+    tv_count = Version.from_partition(t.id).where(event_type: 'create_explaineritem', associated_id: target.id).count
+    assert_equal 4, sv_count
+    assert_equal 0, tv_count
+    # Pin target item
+    r.source_id = target.id
+    r.target_id = source.id
+    r.save!
+    assert_equal 0, source.explainer_items.count
+    assert_equal 3, target.explainer_items.count
+    sv_count = Version.from_partition(t.id).where(event_type: 'create_explaineritem', associated_id: source.id).count
+    tv_count = Version.from_partition(t.id).where(event_type: 'create_explaineritem', associated_id: target.id).count
+    assert_equal 0, sv_count
+    assert_equal 4, tv_count
+    # should not move for similar item
+    pm2_s = create_project_media team: t
+    pm2 = create_project_media team: t
+    e2 = create_explainer team: t
+    pm2.explainers << e
+    r2 = create_relationship source_id: pm2_s.id, target_id: pm2.id, relationship_type: Relationship.suggested_type
+    assert_equal 1, pm2.explainer_items.count
+  end
+
   test "should not attempt to update source count if source does not exist" do
     r = create_relationship relationship_type: Relationship.confirmed_type
     r.source.delete
