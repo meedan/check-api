@@ -827,8 +827,8 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
 
     # Mock a call to Alegre like `GET /text/similarity/` with a "text" parameter that contains "want"
     Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/similarity/sync/text' && z[:text] =~ /want/ }.returns({ 'result' => [
-      { '_score' => 0.9, '_source' => { 'context' => { 'menu_option_id' => subscription_option_id } } },
-      { '_score' => 0.2, '_source' => { 'context' => { 'menu_option_id' => query_option_id } } }
+      { 'score' => 0.9, 'context' => { 'menu_option_id' => subscription_option_id } },
+      { 'score' => 0.2, 'context' => { 'menu_option_id' => query_option_id } }
     ]})
 
     # Sending a message about the newsletter should take to the newsletter state, as per configurations done above
@@ -841,8 +841,8 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
 
     # Mock a call to Alegre like `GET /text/similarity/` with a "text" parameter that contains "want"
     Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/similarity/sync/text' && z[:text] =~ /want/ }.returns({ 'result' => [
-      { '_score' => 0.96, '_source' => { 'context' => { 'menu_option_id' => subscription_option_id } } },
-      { '_score' => 0.91, '_source' => { 'context' => { 'menu_option_id' => query_option_id } } }
+      { 'score' => 0.96, 'context' => { 'menu_option_id' => subscription_option_id } },
+      { 'score' => 0.91, 'context' => { 'menu_option_id' => query_option_id } }
     ]})
 
     # Sending a message that returns more than one option (disambiguation)
@@ -892,8 +892,8 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
 
       # Mock a call to Alegre like `GET /text/similarity/` with a "text" parameter that contains "who are you"
       Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/similarity/sync/text' && z[:text] =~ /who are you/ }.returns({ 'result' => [
-        { '_score' => 0.9, '_source' => { 'context' => { 'resource_id' => 0 } } },
-        { '_score' => 0.8, '_source' => { 'context' => { 'resource_id' => r.id } } }
+        { '_score' => 0.9, 'context' => { 'resource_id' => 0 } },
+        { '_score' => 0.8, 'context' => { 'resource_id' => r.id } }
       ]})
 
       # Sending a message asking about the tipline should send a resource, as per configurations done above

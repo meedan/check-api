@@ -115,7 +115,7 @@ class SmoochNluTest < ActiveSupport::TestCase
 
   test 'should return a menu option if NLU is enabled' do
     Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/similarity/sync/text' && z[:text] =~ /newsletter/ }.returns({ 'result' => [
-      { '_score' => 0.9, '_source' => { 'context' => { 'menu_option_id' => 'test' } } },
+      { 'score' => 0.9, 'context' => { 'menu_option_id' => 'test' } },
     ]})
     team = create_team_with_smooch_bot_installed
     SmoochNlu.new(team.slug).enable!
