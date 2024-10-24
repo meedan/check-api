@@ -91,13 +91,13 @@ class SmoochNlu
       # Unfortunately this approach is influenced by the number of keywords per option
       # So, we are not using this approach right now
       # Get the `alegre_result_key` of all results returned
-      # option_counts = response['result'].to_a.map{|o| o.dig('_source', 'context', alegre_result_key)}
+      # option_counts = response['result'].to_a.map{|o| o.dig('context', alegre_result_key)}
       # Count how many of each alegre_result_key we have and sort (high to low)
       # ranked_options = option_counts.group_by(&:itself).transform_values(&:count).sort_by{|_k,v| v}.reverse()
 
       # Second approach is to sort the results from best to worst
-      sorted_options = response['result'].to_a.sort_by{ |result| result['_score'] }.reverse
-      ranked_options = sorted_options.map{ |o| { 'key' => o.dig('_source', 'context', alegre_result_key), 'score' => o['_score'] } }
+      sorted_options = response['result'].to_a.sort_by{ |result| result['score'] }.reverse
+      ranked_options = sorted_options.map{ |o| { 'key' => o.dig('context', alegre_result_key), 'score' => o['score'] } }
       matches = ranked_options
 
       # In all cases log for analysis
