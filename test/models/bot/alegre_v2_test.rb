@@ -37,7 +37,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       tpm = TemporaryProjectMedia.new
       tpm.type = k
       assert_equal tpm.media.type, v
-      [:is_blank?, :is_link?, :is_text?, :is_image?, :is_video?, :is_audio?].each do |meth|
+      [:is_blank?, :is_link?, :is_text?, :is_image?, :is_video?, :is_audio?, :is_uploaded_media?].each do |meth|
         assert_equal [true, false].include?(tpm.send(meth)), true
       end
     end
@@ -482,6 +482,15 @@ class Bot::AlegreTest < ActiveSupport::TestCase
    }
    WebMock.stub_request(:delete, Bot::Alegre.host+Bot::Alegre.delete_path(pm1)).to_return(body: response.to_json)
    assert_equal JSON.parse(Bot::Alegre.delete(pm1).to_json), JSON.parse(response.to_json)
+  end
+
+  test "should return false and log error during delete request" do
+    pm1 = create_project_media team: @team, media: create_uploaded_audio
+    Bot::Alegre.stubs(:request_delete).raises(StandardError)
+    Rails.logger.expects(:error).with("[Alegre Bot] Exception on Delete for ProjectMedia ##{pm1.id}: Bot::Alegre::Error - StandardError").returns(nil)
+    CheckSentry.expects(:notify).with(instance_of(Bot::Alegre::Error), bot: "alegre", project_media: pm1, params: {}, field: nil).returns(false)
+    result = Bot::Alegre.delete(pm1)
+    assert_equal false, result
   end
 
   test "should get_items" do
