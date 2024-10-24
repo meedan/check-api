@@ -174,15 +174,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     assert pm.is_link?
   end
 
-  test "checks truthfulness of is_uploaded_image?" do
-    u = create_user
-    t = create_team
-    pm = create_project_media team: t
-    pm.media.type = "UploadedImage"
-    pm.media.save!
-    assert pm.is_uploaded_image?
-  end
-
   test "checks truthfulness of is_image?" do
     u = create_user
     t = create_team

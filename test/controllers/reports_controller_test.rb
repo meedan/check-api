@@ -13,17 +13,15 @@ class ReportsControllerTest < ActionController::TestCase
 
   def from_alegre(pm)
     {
-      '_index' => 'alegre_similarity',
-      '_type' => '_doc',
+      'index' => 'alegre_similarity',
       '_id' => 'tMXj53UB36CYclMPXp14',
-      '_score' => 0.9,
-      '_source' => {
-        'content' => 'Test',
-        'context' => {
-          'team_id' => pm.team_id.to_s,
-          'field' => 'original_title',
-          'project_media_id' => pm.id.to_s
-        }
+      'id' => 'tMXj53UB36CYclMPXp14',
+      'score' => 0.9,
+      'content' => 'Test',
+      'context' => {
+        'team_id' => pm.team_id.to_s,
+        'field' => 'original_title',
+        'project_media_id' => pm.id.to_s
       }
     }
   end
