@@ -24,6 +24,7 @@ class Relationship < ApplicationRecord
   after_update :reset_counters, prepend: true
   after_update :propagate_inversion
   after_save :turn_off_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
+  after_save :move_explainers_to_source, if: proc { |r| r.is_confirmed? }
   before_destroy :archive_detach_to_list
   after_destroy :update_counters, prepend: true
   after_destroy :turn_on_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
@@ -324,6 +325,19 @@ class Relationship < ApplicationRecord
       secondary.save!
       CheckNotification::InfoMessages.send('moved_to_private_folder', item_title: secondary.title)
     end
+  end
+
+  def move_explainers_to_source
+    # Destroy common Explainer from target item (use destroy to log this event)
+    data = ExplainerItem.select('explainer_id').where(project_media_id: [self.source_id, self.target_id])
+    .group('explainer_id').having("count(explainer_id) = ?", 2)
+    ExplainerItem.where(explainer_id: data.map(&:explainer_id), project_media_id: self.target_id).destroy_all
+    # Move the Explainer from target to source by using update_all(as no callbacks) and then update logs
+    ExplainerItem.where(project_media_id: self.target_id).update_all(project_media_id: self.source_id)
+    # Update logs (to make item history consistent with Explainers attached to item)
+    Version.from_partition(self.source.team_id)
+    .where(event_type: 'create_explaineritem', associated_type: 'ProjectMedia', associated_id: self.target_id)
+    .update_all(associated_id: self.source_id)
   end
 
   def destroy_same_suggested_item
