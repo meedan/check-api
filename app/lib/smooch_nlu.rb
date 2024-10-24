@@ -33,8 +33,6 @@ class SmoochNlu
   end
 
   def update_keywords(language, keywords, keyword, operation, doc_id, context)
-    alegre_operation = nil
-    alegre_params = nil
     common_alegre_params = {
       doc_id: doc_id,
       context: {
@@ -44,15 +42,11 @@ class SmoochNlu
     }
     if operation == 'add' && !keywords.include?(keyword)
       keywords << keyword
-      alegre_operation = 'post'
-      alegre_params = common_alegre_params.merge({ text: keyword, models: ALEGRE_MODELS_AND_THRESHOLDS.keys })
+      Bot::Alegre.index_sync_with_params(common_alegre_params.merge({ text: keyword, models: ALEGRE_MODELS_AND_THRESHOLDS.keys }), "text")
     elsif operation == 'remove'
       keywords -= [keyword]
-      alegre_operation = 'delete'
-      alegre_params = common_alegre_params.merge({ quiet: true })
+      Bot::Alegre.request_delete_from_raw(common_alegre_params.merge({ quiet: true }), "text")
     end
-    # FIXME: Add error handling and better logging
-    Bot::Alegre.request(alegre_operation, '/text/similarity/', alegre_params) if alegre_operation && alegre_params
     keywords
   end
 
@@ -91,19 +85,19 @@ class SmoochNlu
           language: language,
         }.merge(context)
       }
-      response = Bot::Alegre.request('post', '/text/similarity/search/', params)
+      response = Bot::Alegre.query_sync_with_params(params, "text")
 
       # One approach would be to take the option that has the most matches
       # Unfortunately this approach is influenced by the number of keywords per option
       # So, we are not using this approach right now
       # Get the `alegre_result_key` of all results returned
-      # option_counts = response['result'].to_a.map{|o| o.dig('_source', 'context', alegre_result_key)}
+      # option_counts = response['result'].to_a.map{|o| o.dig('context', alegre_result_key)}
       # Count how many of each alegre_result_key we have and sort (high to low)
       # ranked_options = option_counts.group_by(&:itself).transform_values(&:count).sort_by{|_k,v| v}.reverse()
 
       # Second approach is to sort the results from best to worst
-      sorted_options = response['result'].to_a.sort_by{ |result| result['_score'] }.reverse
-      ranked_options = sorted_options.map{ |o| { 'key' => o.dig('_source', 'context', alegre_result_key), 'score' => o['_score'] } }
+      sorted_options = response['result'].to_a.sort_by{ |result| result['score'] }.reverse
+      ranked_options = sorted_options.map{ |o| { 'key' => o.dig('context', alegre_result_key), 'score' => o['score'] } }
       matches = ranked_options
 
       # In all cases log for analysis

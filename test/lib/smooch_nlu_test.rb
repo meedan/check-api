@@ -64,7 +64,7 @@ class SmoochNluTest < ActiveSupport::TestCase
     team = create_team_with_smooch_bot_installed
     nlu = SmoochNlu.new(team.slug)
     nlu.enable!
-    Bot::Alegre.expects(:request).with{ |x, y, _z| x == 'post' && y == '/text/similarity/' }.once
+    Bot::Alegre.expects(:request).with{ |x, y, _z| x == 'post' && y == '/similarity/sync/text' }.once
     nlu.add_keyword_to_menu_option('en', 'main', 0, 'subscribe')
     expected_output = {
       'en' => {
@@ -85,7 +85,7 @@ class SmoochNluTest < ActiveSupport::TestCase
   end
 
   test 'should add keyword if it does not exist' do
-    Bot::Alegre.expects(:request).with{ |x, y, _z| x == 'post' && y == '/text/similarity/' }.once
+    Bot::Alegre.expects(:request).with{ |x, y, _z| x == 'post' && y == '/similarity/sync/text' }.once
     team = create_team_with_smooch_bot_installed
     SmoochNlu.new(team.slug).add_keyword_to_menu_option('en', 'main', 0, 'subscribe to the newsletter')
   end
@@ -93,9 +93,9 @@ class SmoochNluTest < ActiveSupport::TestCase
   test 'should not add keyword if it exists' do
     team = create_team_with_smooch_bot_installed
     nlu = SmoochNlu.new(team.slug)
-    Bot::Alegre.expects(:request).with{ |x, y, _z| x == 'post' && y == '/text/similarity/' }.once
+    Bot::Alegre.expects(:request).with{ |x, y, _z| x == 'post' && y == '/similarity/sync/text' }.once
     nlu.add_keyword_to_menu_option('en', 'main', 0, 'subscribe to the newsletter')
-    Bot::Alegre.expects(:request).with{ |x, y, _z| x == 'post' && y == '/text/similarity/' }.never
+    Bot::Alegre.expects(:request).with{ |x, y, _z| x == 'post' && y == '/similarity/sync/text' }.never
     nlu.add_keyword_to_menu_option('en', 'main', 0, 'subscribe to the newsletter')
   end
 
@@ -114,8 +114,8 @@ class SmoochNluTest < ActiveSupport::TestCase
   end
 
   test 'should return a menu option if NLU is enabled' do
-    Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/text/similarity/search/' && z[:text] =~ /newsletter/ }.returns({ 'result' => [
-      { '_score' => 0.9, '_source' => { 'context' => { 'menu_option_id' => 'test' } } },
+    Bot::Alegre.stubs(:request).with{ |x, y, z| x == 'post' && y == '/similarity/sync/text' && z[:text] =~ /newsletter/ }.returns({ 'result' => [
+      { 'score' => 0.9, 'context' => { 'menu_option_id' => 'test' } },
     ]})
     team = create_team_with_smooch_bot_installed
     SmoochNlu.new(team.slug).enable!

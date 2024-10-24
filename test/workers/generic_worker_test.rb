@@ -3,6 +3,7 @@ require 'test_helper'
 class GenericWorkerTest < ActiveSupport::TestCase
   def setup
     require 'sidekiq/testing'
+    WebMock.disable_net_connect! allow: /http:\/\/bot|#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
     Sidekiq::Worker.clear_all
   end
 

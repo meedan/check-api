@@ -57,7 +57,7 @@ module Api
         ids = nil
         unless text.blank?
           fields = filters[:similarity_fields].blank? ? nil : filters[:similarity_fields].to_a.flatten
-          ids_and_scores = Bot::Alegre.get_similar_texts(organization_ids, text[0], fields, [{ value: threshold }], nil, filters.dig(:fuzzy, 0))
+          ids_and_scores = Bot::Alegre.get_items_from_similar_text(organization_ids, text[0], fields, [{ value: threshold }], nil, filters.dig(:fuzzy, 0))
           RequestStore.store[:scores] = ids_and_scores # Store the scores so we can return them
           ids = ids_and_scores.keys.uniq
           ids = [0] if ids.blank?
