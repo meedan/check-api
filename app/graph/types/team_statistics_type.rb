@@ -26,6 +26,7 @@ class TeamStatisticsType < DefaultObject
   field :number_of_total_users, GraphQL::Types::Int, null: true
   field :number_of_returning_users, GraphQL::Types::Int, null: true
   field :number_of_subscribers, GraphQL::Types::Int, null: true
+  field :number_of_new_subscribers, GraphQL::Types::Int, null: true
   field :number_of_newsletters_sent, GraphQL::Types::Int, null: true
   field :number_of_newsletters_delivered, GraphQL::Types::Int, null: true
   field :top_media_tags, JsonStringType, null: true

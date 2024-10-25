@@ -72155,6 +72155,20 @@
               "deprecationReason": null
             },
             {
+              "name": "number_of_new_subscribers",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "number_of_newsletters_delivered",
               "description": null,
               "args": [

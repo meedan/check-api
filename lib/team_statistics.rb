@@ -60,6 +60,16 @@ class TeamStatistics
     fact_checks_base_query.group(:rating).count.sort.to_h
   end
 
+  # FIXME: Only fact-checks for now - add explainers
+  def top_articles_sent
+    data = {}
+    clusters = CheckDataPoints.top_clusters(@team.id, @start_date, @end_date, 5, 'last_seen', @language)
+    clusters.each do |pm_id, demand|
+      data[ProjectMedia.find(pm_id).fact_check_title] = demand
+    end
+    data
+  end
+
   def top_articles_tags
     sql = <<-SQL
       SELECT tag, COUNT(*) as tag_count
@@ -139,6 +149,10 @@ class TeamStatistics
   end
 
   def number_of_subscribers
+    CheckDataPoints.tipline_subscriptions(@team.id, @team.created_at.strftime('%Y-%m-%d'), @end_date_str, nil, @platform_name, @language)
+  end
+
+  def number_of_new_subscribers
     CheckDataPoints.tipline_subscriptions(@team.id, @start_date_str, @end_date_str, nil, @platform_name, @language)
   end
 
@@ -148,16 +162,6 @@ class TeamStatistics
 
   def number_of_newsletters_delivered
     TiplineMessage.where(created_at: @start_date..@end_date, team_id: @team.id, platform: @platform_name, language: @language, state: 'delivered', event: 'newsletter').count
-  end
-
-  # FIXME: Only fact-checks for now - add explainers
-  def top_articles_sent
-    data = {}
-    clusters = CheckDataPoints.top_clusters(@team.id, @start_date, @end_date, 5, 'last_seen', @language)
-    clusters.each do |pm_id, demand|
-      data[ProjectMedia.find(pm_id).fact_check_title] = demand
-    end
-    data
   end
 
   # TODO

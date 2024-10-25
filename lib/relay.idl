@@ -13708,6 +13708,7 @@ type TeamStatistics implements Node {
   number_of_media_received_by_type: JsonStringType
   number_of_messages: Int
   number_of_messages_by_date: JsonStringType
+  number_of_new_subscribers: Int
   number_of_newsletters_delivered: Int
   number_of_newsletters_sent: Int
   number_of_published_fact_checks: Int
