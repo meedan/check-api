@@ -86,7 +86,7 @@ class TeamStatistics
       LIMIT 5
     SQL
 
-    language = @language ? [@language] : @team.get_languages.to_a
+    language = @language ? [@language] : [@team.get_languages.to_a, 'und'].flatten
     result = ActiveRecord::Base.connection.execute(ApplicationRecord.sanitize_sql_for_assignment([sql, team_id: @team.id, start_date: @start_date, end_date: @end_date, language: language]))
     data = {}
     result.each do |row|
