@@ -229,6 +229,7 @@ class GraphqlController11Test < ActionController::TestCase
             number_of_total_users
             number_of_returning_users
             number_of_subscribers
+            number_of_new_subscribers
             number_of_newsletters_sent
             number_of_newsletters_delivered
             top_media_tags
