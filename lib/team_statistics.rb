@@ -24,7 +24,7 @@ class TeamStatistics
       # while the values (e.g., 'WhatsApp') are used by `TiplineMessage`
       raise ArgumentError.new("Invalid platform provided. Allowed values: #{PLATFORMS.keys.join(', ')}")
     end
-    @platform_name = PLATFORMS[@platform]
+    @platform_name = PLATFORMS[@platform] unless @platform.blank?
 
     @language = language
     @all_languages = [@team.get_languages.to_a, 'und'].flatten
@@ -158,21 +158,29 @@ class TeamStatistics
   end
 
   def number_of_newsletters_sent
-    TiplineMessage.where(created_at: @start_date..@end_date, team_id: @team.id, platform: @platform_name, language: @language, state: 'sent', event: 'newsletter').count
+    number_of_newsletters('sent')
   end
 
   def number_of_newsletters_delivered
-    TiplineMessage.where(created_at: @start_date..@end_date, team_id: @team.id, platform: @platform_name, language: @language, state: 'delivered', event: 'newsletter').count
+    number_of_newsletters('delivered')
+  end
+
+  def number_of_media_received_by_type
+    conditions = { team_id: @team.id, created_at: @start_date..@end_date }
+    conditions[:language] = @language unless @language.blank?
+    conditions[:platform] = @platform unless @platform.blank?
+    data = TiplineRequest
+           .joins("INNER JOIN project_medias pm ON tipline_requests.associated_type = 'ProjectMedia' AND pm.id = tipline_requests.associated_id")
+           .joins("INNER JOIN medias m ON m.id = pm.media_id")
+           .where(conditions)
+           .group('m.type')
+           .count
+    { 'Claim' => 0, 'Link' => 0, 'UploadedAudio' => 0, 'UploadedImage' => 0, 'UploadedVideo' => 0 }.merge(data).reject{ |k, _v| k == 'Blank' }
   end
 
   # TODO
   def top_requested_media_clusters
     { 'The sky is blue' => rand(100), 'Earth is round' => rand(100), 'Soup is dinner' => rand(100) }
-  end
-
-  # TODO
-  def number_of_media_received_by_type
-    { 'Image' => rand(100), 'Text' => rand(100), 'Audio' => rand(100), 'Video' => rand(100), 'Link' => rand(100) }
   end
 
   # TODO
@@ -208,8 +216,9 @@ class TeamStatistics
   end
 
   def fact_checks_base_query(timestamp_field = :created_at, group_by_day = false)
-    query = FactCheck.joins(:claim_description).where('language' => @language, timestamp_field => time_range, 'claim_descriptions.team_id' => @team.id)
+    query = FactCheck.joins(:claim_description).where(timestamp_field => time_range, 'claim_descriptions.team_id' => @team.id)
     query = query.where('fact_checks.created_at != fact_checks.updated_at') if timestamp_field.to_sym == :updated_at
+    query = query.where(language: @language) unless @language.blank?
     if group_by_day
       # Avoid SQL injection warning
       group = {
@@ -222,7 +231,8 @@ class TeamStatistics
   end
 
   def explainers_base_query(timestamp_field = :created_at, group_by_day = false)
-    query = Explainer.where('language' => @language, timestamp_field => time_range, 'team_id' => @team.id)
+    query = Explainer.where(timestamp_field => time_range, 'team_id' => @team.id)
+    query = query.where(language: @language) unless @language.blank?
     query = query.where('explainers.created_at != explainers.updated_at') if timestamp_field.to_sym == :updated_at
     if group_by_day
       # Avoid SQL injection warning
@@ -264,5 +274,12 @@ class TeamStatistics
       data[day.strftime("%Y-%m-%d")] = count
     end
     data
+  end
+
+  def number_of_newsletters(state)
+    query = TiplineMessage.where(created_at: @start_date..@end_date, team_id: @team.id, state: state, event: 'newsletter')
+    query = query.where(language: @language) unless @language.blank?
+    query = query.where(platform: @platform_name) unless @platform.blank?
+    query.count
   end
 end
