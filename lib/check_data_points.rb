@@ -151,7 +151,7 @@ class CheckDataPoints
         eslimit: limit
       }
       query[:tags_as_sentence] = { min: 1 } if with_tags
-      query[:fc_language] = [language] if language
+      query[:fc_language] = [language].flatten if language
       result = CheckSearch.new(query.to_json, nil, team_id)
       result.medias.each{ |pm| data[pm.id] = pm.demand }
       data

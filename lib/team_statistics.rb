@@ -27,6 +27,7 @@ class TeamStatistics
     @platform_name = PLATFORMS[@platform]
 
     @language = language
+    @all_languages = [@team.get_languages.to_a, 'und'].flatten
   end
 
   # For GraphQL
@@ -63,7 +64,7 @@ class TeamStatistics
   # FIXME: Only fact-checks for now - add explainers
   def top_articles_sent
     data = {}
-    clusters = CheckDataPoints.top_clusters(@team.id, @start_date, @end_date, 5, 'last_seen', @language)
+    clusters = CheckDataPoints.top_clusters(@team.id, @start_date, @end_date, 5, 'last_seen', @language || @all_languages)
     clusters.each do |pm_id, demand|
       data[ProjectMedia.find(pm_id).fact_check_title] = demand
     end
@@ -86,7 +87,7 @@ class TeamStatistics
       LIMIT 5
     SQL
 
-    language = @language ? [@language] : [@team.get_languages.to_a, 'und'].flatten
+    language = @language ? [@language] : @all_languages
     result = ActiveRecord::Base.connection.execute(ApplicationRecord.sanitize_sql_for_assignment([sql, team_id: @team.id, start_date: @start_date, end_date: @end_date, language: language]))
     data = {}
     result.each do |row|
