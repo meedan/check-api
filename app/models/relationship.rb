@@ -328,16 +328,18 @@ class Relationship < ApplicationRecord
   end
 
   def move_explainers_to_source
-    # Destroy common Explainer from target item (use destroy to log this event)
-    data = ExplainerItem.select('explainer_id').where(project_media_id: [self.source_id, self.target_id])
-    .group('explainer_id').having("count(explainer_id) = ?", 2)
-    ExplainerItem.where(explainer_id: data.map(&:explainer_id), project_media_id: self.target_id).destroy_all
-    # Move the Explainer from target to source by using update_all(as no callbacks) and then update logs
-    ExplainerItem.where(project_media_id: self.target_id).update_all(project_media_id: self.source_id)
-    # Update logs (to make item history consistent with Explainers attached to item)
-    Version.from_partition(self.source.team_id)
-    .where(event_type: 'create_explaineritem', associated_type: 'ProjectMedia', associated_id: self.target_id)
-    .update_all(associated_id: self.source_id)
+    ExplainerItem.transaction do
+      # Destroy common Explainer from target item (use destroy to log this event)
+      explainer_ids = ExplainerItem.where(project_media_id: [self.source_id, self.target_id])
+      .group('explainer_id').having("count(explainer_id) = ?", 2).pluck(:explainer_id)
+      ExplainerItem.where(explainer_id: explainer_ids, project_media_id: self.target_id).destroy_all
+      # Move the Explainer from target to source by using update_all(as no callbacks) and then update logs
+      ExplainerItem.where(project_media_id: self.target_id).update_all(project_media_id: self.source_id)
+      # Update logs (to make item history consistent with Explainers attached to item)
+      Version.from_partition(self.source.team_id)
+      .where(event_type: 'create_explaineritem', associated_type: 'ProjectMedia', associated_id: self.target_id)
+      .update_all(associated_id: self.source_id)
+    end
   end
 
   def destroy_same_suggested_item

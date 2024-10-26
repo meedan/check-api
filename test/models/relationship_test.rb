@@ -218,7 +218,6 @@ class RelationshipTest < ActiveSupport::TestCase
     end
     assert_equal 2, source.explainer_items.count
     assert_equal 2, target.explainer_items.count
-    pp Version.from_partition(t.id)
     sv_count = Version.from_partition(t.id).where(event_type: 'create_explaineritem', associated_id: source.id).count
     tv_count = Version.from_partition(t.id).where(event_type: 'create_explaineritem', associated_id: target.id).count
     assert_equal 2, sv_count
