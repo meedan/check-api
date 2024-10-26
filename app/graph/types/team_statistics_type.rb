@@ -20,7 +20,7 @@ class TeamStatisticsType < DefaultObject
   field :number_of_conversations, GraphQL::Types::Int, null: true
   field :number_of_messages_by_date, JsonStringType, null: true
   field :number_of_conversations_by_date, JsonStringType, null: true
-  field :number_of_search_results_by_type, JsonStringType, null: true
+  field :number_of_search_results_by_feedback_type, JsonStringType, null: true
   field :average_response_time, GraphQL::Types::Int, null: true
   field :number_of_unique_users, GraphQL::Types::Int, null: true
   field :number_of_total_users, GraphQL::Types::Int, null: true
@@ -31,10 +31,10 @@ class TeamStatisticsType < DefaultObject
   field :number_of_newsletters_delivered, GraphQL::Types::Int, null: true
   field :top_media_tags, JsonStringType, null: true
   field :top_requested_media_clusters, JsonStringType, null: true
-  field :number_of_media_received_by_type, JsonStringType, null: true
+  field :number_of_media_received_by_media_type, JsonStringType, null: true
 
   # For both articles and tiplines
 
   field :number_of_articles_sent, GraphQL::Types::Int, null: true
-  field :number_of_matched_results, GraphQL::Types::Int, null: true
+  field :number_of_matched_results_by_article_type, JsonStringType, null: true
 end

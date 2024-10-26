@@ -98,7 +98,10 @@ class CheckDataPoints
     def returning_users(team_id, start_date, end_date, platform = nil, language = nil)
       # Number of returning users (at least one session in the current month, and at least one session in the last previous 2 months)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
-      uids = TiplineRequest.where(team_id: team_id, created_at: start_date.ago(2.months)..start_date).map(&:tipline_user_uid).uniq
+      uids_query = TiplineRequest.where(team_id: team_id, created_at: start_date.ago(2.months)..start_date)
+      uids_query = uids_query.where(platform: platform) unless platform.blank?
+      uids_query = uids_query.where(language: language) unless language.blank?
+      uids = uids_query.select(:tipline_user_uid).map(&:tipline_user_uid).uniq
       query = TiplineRequest.where(team_id: team_id, tipline_user_uid: uids, created_at: start_date..end_date)
       query = query.where(platform: platform) unless platform.blank?
       query = query.where(language: language) unless language.blank?

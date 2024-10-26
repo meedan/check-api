@@ -66,7 +66,8 @@ class TeamStatistics
     data = {}
     clusters = CheckDataPoints.top_clusters(@team.id, @start_date, @end_date, 5, 'last_seen', @language || @all_languages)
     clusters.each do |pm_id, demand|
-      data[ProjectMedia.find(pm_id).fact_check_title] = demand
+      item = ProjectMedia.find(pm_id)
+      data[item.fact_check_title || item.title] = demand
     end
     data
   end
@@ -116,7 +117,7 @@ class TeamStatistics
     number_of_tipline_data_points_by_date(data)
   end
 
-  def number_of_search_results_by_type
+  def number_of_search_results_by_feedback_type
     mapping = {
       relevant_search_result_requests: 'Positive',
       irrelevant_search_result_requests: 'Negative',
@@ -165,7 +166,7 @@ class TeamStatistics
     number_of_newsletters('delivered')
   end
 
-  def number_of_media_received_by_type
+  def number_of_media_received_by_media_type
     conditions = { team_id: @team.id, created_at: @start_date..@end_date }
     conditions[:language] = @language unless @language.blank?
     conditions[:platform] = @platform unless @platform.blank?
@@ -196,8 +197,8 @@ class TeamStatistics
   end
 
   # TODO
-  def number_of_matched_results
-    rand(1000)
+  def number_of_matched_results_by_article_type
+    { 'FactCheck' => rand(1000), 'Explainer' => rand(1000) }
   end
 
   private

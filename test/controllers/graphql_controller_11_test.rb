@@ -223,7 +223,7 @@ class GraphqlController11Test < ActionController::TestCase
             number_of_conversations
             number_of_messages_by_date
             number_of_conversations_by_date
-            number_of_search_results_by_type
+            number_of_search_results_by_feedback_type
             average_response_time
             number_of_unique_users
             number_of_total_users
@@ -234,9 +234,9 @@ class GraphqlController11Test < ActionController::TestCase
             number_of_newsletters_delivered
             top_media_tags
             top_requested_media_clusters
-            number_of_media_received_by_type
+            number_of_media_received_by_media_type
             number_of_articles_sent
-            number_of_matched_results
+            number_of_matched_results_by_article_type
           }
         }
       }
