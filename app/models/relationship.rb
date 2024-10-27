@@ -328,17 +328,23 @@ class Relationship < ApplicationRecord
   end
 
   def move_explainers_to_source
-    ExplainerItem.transaction do
-      # Destroy common Explainer from target item (use destroy to log this event)
-      explainer_ids = ExplainerItem.where(project_media_id: [self.source_id, self.target_id])
-      .group('explainer_id').having("count(explainer_id) = ?", 2).pluck(:explainer_id)
-      ExplainerItem.where(explainer_id: explainer_ids, project_media_id: self.target_id).destroy_all
-      # Move the Explainer from target to source by using update_all(as no callbacks) and then update logs
-      ExplainerItem.where(project_media_id: self.target_id).update_all(project_media_id: self.source_id)
-      # Update logs (to make item history consistent with Explainers attached to item)
-      Version.from_partition(self.source.team_id)
-      .where(event_type: 'create_explaineritem', associated_type: 'ProjectMedia', associated_id: self.target_id)
-      .update_all(associated_id: self.source_id)
+    # Three cases to move explainers
+    # 1) Relationship is new and confirmed
+    # 2) Item is being confirmed (move from suggested to confirmed)
+    # 3) Pin item (sawp source_id & target_id)
+    if self.relationship_type_before_last_save.nil? || self.is_being_confirmed? || (self.source_id_before_last_save && self.source_id_before_last_save == self.target_id)
+      ExplainerItem.transaction do
+        # Destroy common Explainer from target item (use destroy to log this event)
+        explainer_ids = ExplainerItem.where(project_media_id: [self.source_id, self.target_id])
+        .group('explainer_id').having("count(explainer_id) = ?", 2).pluck(:explainer_id)
+        ExplainerItem.where(explainer_id: explainer_ids, project_media_id: self.target_id).destroy_all
+        # Move the Explainer from target to source by using update_all(as no callbacks) and then update logs
+        ExplainerItem.where(project_media_id: self.target_id).update_all(project_media_id: self.source_id)
+        # Update logs (to make item history consistent with Explainers attached to item)
+        Version.from_partition(self.source.team_id)
+        .where(event_type: 'create_explaineritem', associated_type: 'ProjectMedia', associated_id: self.target_id)
+        .update_all(associated_id: self.source_id)
+      end
     end
   end
 
