@@ -435,11 +435,14 @@ class ProjectMedia < ApplicationRecord
       existing_pm.set_claim_description = new_pm.set_claim_description
       existing_pm.set_fact_check = new_pm.set_fact_check
       existing_pm.create_claim_description_and_fact_check
+      existing_pm
     elsif existing_pm.fact_check.present?
-      if existing_pm.fact_check.language != self.set_fact_check['language']
+      if existing_pm.fact_check.language != new_pm.set_fact_check['language']
         m = Blank.create!
-        self.set_original_claim = nil
-        self.media_id = m.id
+        new_pm.set_original_claim = nil
+        new_pm.media_id = m.id
+        new_pm.save!
+        new_pm
       end
     end
   end
