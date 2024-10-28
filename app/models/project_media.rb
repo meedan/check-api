@@ -439,7 +439,7 @@ class ProjectMedia < ApplicationRecord
       end
     end
   end
-  
+
   def appended_fact_check_from(new_pm)
     self.set_claim_description = new_pm.set_claim_description
     self.set_fact_check = new_pm.set_fact_check
