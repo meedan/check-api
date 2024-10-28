@@ -430,15 +430,13 @@ class ProjectMedia < ApplicationRecord
     self.team.apply_rules_and_actions(self, rule_ids)
   end
 
-  def handle_fact_check_for_existing_claim
-    # find the project media with the original claim media
-    pm = ProjectMedia.find_by(media_id: self.media_id)
-    if pm.fact_check.blank?
-      pm.set_claim_description = self.set_claim_description
-      pm.set_fact_check = self.set_fact_check
-      pm.create_claim_description_and_fact_check
-    elsif pm.fact_check.present?
-      if pm.fact_check.language != self.set_fact_check['language']
+  def handle_fact_check_for_existing_claim(existing_pm)
+    if existing_pm.fact_check.blank?
+      existing_pm.set_claim_description = self.set_claim_description
+      existing_pm.set_fact_check = self.set_fact_check
+      existing_pm.create_claim_description_and_fact_check
+    elsif existing_pm.fact_check.present?
+      if existing_pm.fact_check.language != self.set_fact_check['language']
         m = Blank.create!
         self.set_original_claim = nil
         self.media_id = m.id

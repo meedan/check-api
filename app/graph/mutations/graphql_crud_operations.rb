@@ -96,7 +96,8 @@ class GraphqlCrudOperations
       self.safe_save(obj, attrs, parents_mapping.keys)
     rescue StandardError => e
       if obj.is_a?(ProjectMedia) && obj.set_fact_check.present? && obj.set_original_claim.present?
-        obj = obj.handle_fact_check_for_existing_claim
+        existing_pm = ProjectMedia.find(JSON.parse(e.message)['data']['id'])
+        obj = obj.handle_fact_check_for_existing_claim(existing_pm)
       else
         raise e
       end
