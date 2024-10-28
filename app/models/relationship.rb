@@ -167,7 +167,7 @@ class Relationship < ApplicationRecord
           r.send("#{key}=", value) if r.respond_to?("#{key}=")
         end
         r.save!
-      rescue Exception => e
+      rescue StandardError => e
         logger.error("[Relationship::create_unless_exists] rescuing #{e}")
         CheckSentry.notify(e, source_id: source_id, target_id: target_id, relationship_type: relationship_type)
         r = Relationship.where(source_id: source_id, target_id: target_id).where('relationship_type = ?', relationship_type.to_yaml).last
