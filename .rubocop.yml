@@ -243,10 +243,10 @@ Metrics/ModuleLength:
   Max: 250
 
 Metrics/ParameterLists:
-  Description: 'Avoid parameter lists longer than three or four parameters.'
+  Description: 'Avoid parameter lists longer than 9 parameters.'
   StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#too-many-params'
   Enabled: true
-  Max: 8
+  Max: 9
 
 Metrics/PerceivedComplexity:
   Description: >-

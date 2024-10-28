@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_10_09_192811) do
+ActiveRecord::Schema.define(version: 2024_10_15_223059) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -292,7 +292,7 @@ ActiveRecord::Schema.define(version: 2024_10_09_192811) do
     t.jsonb "value_json", default: "{}"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index "dynamic_annotation_fields_value(field_name, value)", name: "dynamic_annotation_fields_value", where: "((field_name)::text = ANY (ARRAY[('external_id'::character varying)::text, ('smooch_user_id'::character varying)::text, ('verification_status_status'::character varying)::text]))"
+    t.index "dynamic_annotation_fields_value(field_name, value)", name: "dynamic_annotation_fields_value", where: "((field_name)::text = ANY ((ARRAY['external_id'::character varying, 'smooch_user_id'::character varying, 'verification_status_status'::character varying])::text[]))"
     t.index ["annotation_id", "field_name"], name: "index_dynamic_annotation_fields_on_annotation_id_and_field_name"
     t.index ["annotation_id"], name: "index_dynamic_annotation_fields_on_annotation_id"
     t.index ["annotation_type"], name: "index_dynamic_annotation_fields_on_annotation_type"
@@ -326,6 +326,8 @@ ActiveRecord::Schema.define(version: 2024_10_09_192811) do
     t.datetime "updated_at", precision: 6, null: false
     t.string "tags", default: [], array: true
     t.boolean "trashed", default: false
+    t.index "date_trunc('day'::text, created_at)", name: "explainer_created_at_day"
+    t.index ["created_at"], name: "index_explainers_on_created_at"
     t.index ["tags"], name: "index_explainers_on_tags", using: :gin
     t.index ["team_id"], name: "index_explainers_on_team_id"
     t.index ["user_id"], name: "index_explainers_on_user_id"
@@ -347,7 +349,9 @@ ActiveRecord::Schema.define(version: 2024_10_09_192811) do
     t.string "rating"
     t.boolean "imported", default: false
     t.boolean "trashed", default: false
+    t.index "date_trunc('day'::text, created_at)", name: "fact_check_created_at_day"
     t.index ["claim_description_id"], name: "index_fact_checks_on_claim_description_id", unique: true
+    t.index ["created_at"], name: "index_fact_checks_on_created_at"
     t.index ["imported"], name: "index_fact_checks_on_imported"
     t.index ["language"], name: "index_fact_checks_on_language"
     t.index ["publisher_id"], name: "index_fact_checks_on_publisher_id"
