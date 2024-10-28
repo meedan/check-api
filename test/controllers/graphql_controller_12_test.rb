@@ -733,7 +733,7 @@ class GraphqlController12Test < ActionController::TestCase
   end
 
   test "should append FactCheck to ProjectMedia, if ProjectMedia already exists and does not have a FactCheck" do
-    Sidekiq::Testing.inline!
+    Sidekiq::Testing.fake!
     url = 'http://example.com'
     t = create_team
     p = create_project team: t
@@ -792,7 +792,7 @@ class GraphqlController12Test < ActionController::TestCase
   end
 
   test "should create a FactCheck with a Blank ProjectMedia, if ProjectMedia already exists and has a FactCheck in a different language" do
-    Sidekiq::Testing.inline!
+    Sidekiq::Testing.fake!
     url = 'http://example.com'
 
     t = create_team
