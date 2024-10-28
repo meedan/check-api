@@ -10,9 +10,13 @@ class GraphqlCrudOperations
 
     begin
       obj.save_with_version!
-    rescue StandardError => e
-      if obj.is_a?(ProjectMedia) && obj.set_fact_check.present? && obj.set_original_claim.present?
-        existing_pm = ProjectMedia.find(JSON.parse(e.message)['data']['id'])
+    rescue RuntimeError => e
+      error_json = JSON.parse(e.message)
+      if error_json['message'] == "This item already exists" &&
+      obj.is_a?(ProjectMedia) &&
+      obj.set_fact_check.present? &&
+      obj.set_original_claim.present?
+        existing_pm = ProjectMedia.find(error_json['data']['id'])
         obj = ProjectMedia.handle_fact_check_for_existing_claim(existing_pm,obj)
       else
         raise e
