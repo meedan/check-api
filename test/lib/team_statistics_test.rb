@@ -75,7 +75,7 @@ class TeamStatisticsTest < ActiveSupport::TestCase
       assert_equal 2, object.number_of_explainers_created
       assert_equal 2, object.number_of_fact_checks_created
       assert_equal 1, object.number_of_published_fact_checks
-      assert_equal({ 'false' => 1, 'verified' => 1 }, object.number_of_fact_checks_by_rating)
+      assert_equal({ 'False' => 1, 'Verified' => 1 }, object.number_of_fact_checks_by_rating)
       assert_equal({ 'foo' => 3, 'bar' => 2 }, object.top_articles_tags)
     end
   end

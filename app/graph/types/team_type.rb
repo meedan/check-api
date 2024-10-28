@@ -397,7 +397,6 @@ class TeamType < DefaultObject
   end
 
   def statistics(period:, language: nil, platform: nil)
-    # FIXME: Check for permissions
     TeamStatistics.new(object, period, language, platform)
   end
 end
