@@ -11,6 +11,28 @@ module ProjectMediaCreators
     end
   end
 
+  def create_claim_description_and_fact_check
+    cd = ClaimDescription.create!(description: self.set_claim_description, context: self.set_claim_context, project_media: self, skip_check_ability: true) unless self.set_claim_description.blank?
+    fc = nil
+    unless self.set_fact_check.blank?
+      fact_check = self.set_fact_check.with_indifferent_access
+      fc = FactCheck.create!({
+        title: fact_check['title'],
+        summary: fact_check['summary'],
+        language: fact_check['language'],
+        url: fact_check['url'],
+        publish_report: !!fact_check['publish_report'],
+        signature: Digest::MD5.hexdigest([self.set_fact_check.to_json, self.team_id].join(':')),
+        claim_description: cd,
+        report_status: (fact_check['publish_report'] ? 'published' : 'unpublished'),
+        rating: self.set_status,
+        tags: self.set_tags.to_a.map(&:strip),
+        skip_check_ability: true
+      })
+    end
+    fc
+  end
+
   private
 
   def create_team_tasks
@@ -234,28 +256,6 @@ module ProjectMediaCreators
         raise 'Could not create related item'
       end
     end
-  end
-
-  def create_claim_description_and_fact_check
-    cd = ClaimDescription.create!(description: self.set_claim_description, context: self.set_claim_context, project_media: self, skip_check_ability: true) unless self.set_claim_description.blank?
-    fc = nil
-    unless self.set_fact_check.blank?
-      fact_check = self.set_fact_check.with_indifferent_access
-      fc = FactCheck.create!({
-        title: fact_check['title'],
-        summary: fact_check['summary'],
-        language: fact_check['language'],
-        url: fact_check['url'],
-        publish_report: !!fact_check['publish_report'],
-        signature: Digest::MD5.hexdigest([self.set_fact_check.to_json, self.team_id].join(':')),
-        claim_description: cd,
-        report_status: (fact_check['publish_report'] ? 'published' : 'unpublished'),
-        rating: self.set_status,
-        tags: self.set_tags.to_a.map(&:strip),
-        skip_check_ability: true
-      })
-    end
-    fc
   end
 
   def create_tags_in_background
