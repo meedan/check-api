@@ -139,6 +139,33 @@ class TeamStatisticsTest < ActiveSupport::TestCase
                    object.number_of_conversations_by_date)
       assert_equal({ 'Positive' => 1, 'Negative' => 2, 'No Response' => 0 }, object.number_of_search_results_by_feedback_type)
       assert_equal({ 'Claim' => 3, 'Link' => 0, 'UploadedAudio' => 0, 'UploadedImage' => 0, 'UploadedVideo' => 0 }, object.number_of_media_received_by_media_type)
+      assert_equal 3, object.number_of_articles_sent
+    end
+  end
+
+  test "should return top requested media clusters" do
+    setup_elasticsearch
+    RequestStore.store[:skip_cached_field_update] = false
+    channel = CheckChannels::ChannelCodes::WHATSAPP
+    Sidekiq::Testing.inline! do
+      pm1 = create_project_media team: @team, quote: 'Bar', channel: { main: channel, others: [channel] }, disable_es_callbacks: false
+      create_tipline_request team_id: @team.id, associated: pm1, platform: 'whatsapp', language: 'en', disable_es_callbacks: false
+
+      pm2 = create_project_media team: @team, quote: 'Foo', channel: { main: channel, others: [channel] }, disable_es_callbacks: false
+      create_tipline_request team_id: @team.id, associated: pm2, platform: 'whatsapp', language: 'en', disable_es_callbacks: false
+      create_tipline_request team_id: @team.id, associated: pm2, platform: 'whatsapp', language: 'en', disable_es_callbacks: false
+
+      pm3 = create_project_media team: @team, quote: 'Test 1', channel: { main: 0, others: [0] }, disable_es_callbacks: false
+      create_tipline_request team_id: @team.id, associated: pm3, platform: 'whatsapp', language: 'en', disable_es_callbacks: false
+
+      pm4 = create_project_media team: @team, quote: 'Test 2', channel: { main: channel, others: [channel] }, disable_es_callbacks: false
+      create_tipline_request team_id: @team.id, associated: pm4, platform: 'whatsapp', language: 'pt', disable_es_callbacks: false
+
+      sleep 3
+
+      object = TeamStatistics.new(@team, 'past_week', 'en', 'whatsapp')
+      expected = { 'Foo' => 2, 'Bar' => 1 }
+      assert_equal expected, object.top_requested_media_clusters
     end
   end
 end

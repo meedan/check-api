@@ -61,10 +61,10 @@ class TeamStatistics
     fact_checks_base_query.group(:rating).count.sort.to_h
   end
 
-  # FIXME: Only fact-checks for now - add explainers
+  # FIXME: Only fact-checks for now (need to add explainers) and the "demand" is across languages and platforms
   def top_articles_sent
     data = {}
-    clusters = CheckDataPoints.top_clusters(@team.id, @start_date, @end_date, 5, 'last_seen', @language || @all_languages)
+    clusters = CheckDataPoints.top_clusters(@team.id, @start_date, @end_date, 5, 'last_seen', @language || @all_languages, 'fc_language')
     clusters.each do |pm_id, demand|
       item = ProjectMedia.find(pm_id)
       data[item.fact_check_title || item.title] = demand
@@ -179,9 +179,15 @@ class TeamStatistics
     { 'Claim' => 0, 'Link' => 0, 'UploadedAudio' => 0, 'UploadedImage' => 0, 'UploadedVideo' => 0 }.merge(data).reject{ |k, _v| k == 'Blank' }
   end
 
-  # TODO
+  # FIXME: The "demand" is across languages and platforms
   def top_requested_media_clusters
-    { 'The sky is blue' => rand(100), 'Earth is round' => rand(100), 'Soup is dinner' => rand(100) }
+    data = {}
+    clusters = CheckDataPoints.top_clusters(@team.id, @start_date, @end_date, 5, 'last_seen', @language || @all_languages, 'request_language', @platform)
+    clusters.each do |pm_id, demand|
+      item = ProjectMedia.find(pm_id)
+      data[item.title] = demand
+    end
+    data
   end
 
   # TODO
@@ -191,9 +197,8 @@ class TeamStatistics
 
   # For both articles and tiplines
 
-  # TODO
   def number_of_articles_sent
-    rand(1000)
+    CheckDataPoints.articles_sent(@team.id, @start_date_str, @end_date_str, @platform, @language)
   end
 
   # TODO

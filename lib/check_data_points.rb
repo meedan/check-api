@@ -56,8 +56,8 @@ class CheckDataPoints
     end
 
     # Top clusters
-    def top_clusters(team_id, start_date, end_date, limit = 5, range_field = 'created_at', language = nil)
-      elastic_search_top_items(team_id, start_date, end_date, limit, false, range_field, language)
+    def top_clusters(team_id, start_date, end_date, limit = 5, range_field = 'created_at', language = nil, language_field = 'language', platform = nil)
+      elastic_search_top_items(team_id, start_date, end_date, limit, false, range_field, language, language_field, platform)
     end
 
     # Top media tags
@@ -66,15 +66,21 @@ class CheckDataPoints
     end
 
     # Articles sent
-    def articles_sent(team_id, start_date, end_date)
+    def articles_sent(team_id, start_date, end_date, platform = nil, language = nil)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
       # Get number of articles sent as search results
-      search_result_c = TiplineRequest.where(team_id: team_id, smooch_request_type: SEARCH_RESULT_TYPES, created_at: start_date..end_date).count
+      search_results_query = TiplineRequest.where(team_id: team_id, smooch_request_type: SEARCH_RESULT_TYPES, created_at: start_date..end_date)
+      search_results_query = search_results_query.where(platform: platform) unless platform.blank?
+      search_results_query = search_results_query.where(language: language) unless language.blank?
+      search_results_count = search_results_query.count
       # Get the number of articles sent as reports
-      reports_c = TiplineRequest
+      reports_query = TiplineRequest
       .where(team_id: team_id, created_at: start_date..end_date)
-      .where('smooch_report_received_at > 0 OR smooch_report_update_received_at > 0 OR smooch_report_sent_at > 0 OR smooch_report_correction_sent_at > 0').count
-      search_result_c + reports_c
+      .where('smooch_report_received_at > 0 OR smooch_report_update_received_at > 0 OR smooch_report_sent_at > 0 OR smooch_report_correction_sent_at > 0')
+      reports_query = reports_query.where(platform: platform) unless platform.blank?
+      reports_query = reports_query.where(language: language) unless language.blank?
+      reports_count = reports_query.count
+      search_results_count + reports_count
     end
 
     # Average response time
@@ -145,7 +151,7 @@ class CheckDataPoints
       end
     end
 
-    def elastic_search_top_items(team_id, start_date, end_date, limit, with_tags = false, range_field = 'created_at', language = nil)
+    def elastic_search_top_items(team_id, start_date, end_date, limit, with_tags = false, range_field = 'created_at', language = nil, language_field = 'language', platform = nil)
       data = {}
       query = {
         range: { range_field => { start_time: start_date, end_time: end_date } },
@@ -154,7 +160,8 @@ class CheckDataPoints
         eslimit: limit
       }
       query[:tags_as_sentence] = { min: 1 } if with_tags
-      query[:fc_language] = [language].flatten if language
+      query[language_field.to_sym] = [language].flatten if language
+      query[:channels] = [CheckChannels::ChannelCodes.all_channels['TIPLINE'][platform.upcase]] if platform
       result = CheckSearch.new(query.to_json, nil, team_id)
       result.medias.each{ |pm| data[pm.id] = pm.demand }
       data
