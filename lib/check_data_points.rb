@@ -61,8 +61,8 @@ class CheckDataPoints
     end
 
     # Top media tags
-    def top_media_tags(team_id, start_date, end_date, limit = 5)
-      elastic_search_top_items(team_id, start_date, end_date, limit, true)
+    def top_media_tags(team_id, start_date, end_date, limit = 5, range_field = 'created_at', language = nil, language_field = 'language', platform = nil)
+      elastic_search_top_items(team_id, start_date, end_date, limit, true, range_field, language, language_field, platform)
     end
 
     # Articles sent

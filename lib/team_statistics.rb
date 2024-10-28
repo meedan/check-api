@@ -190,9 +190,18 @@ class TeamStatistics
     data
   end
 
-  # TODO
+  # FIXME: The "demand" is across languages and platforms
   def top_media_tags
-    { 'tag1' => rand(100), 'tag2' => rand(100), 'tag3' => rand(100), 'tag4' => rand(100), 'tag5' => rand(100) }
+    data = {}
+    clusters = CheckDataPoints.top_clusters(@team.id, @start_date, @end_date, 5, 'last_seen', @language || @all_languages, 'language', @platform)
+    clusters.each do |pm_id, demand|
+      item = ProjectMedia.find(pm_id)
+      item.tags_as_sentence.split(',').map(&:strip).each do |tag|
+        data[tag] ||= 0
+        data[tag] += demand
+      end
+    end
+    data.sort_by{ |key, value| value }.reverse.first(5).to_h
   end
 
   # For both articles and tiplines
@@ -201,9 +210,11 @@ class TeamStatistics
     CheckDataPoints.articles_sent(@team.id, @start_date_str, @end_date_str, @platform, @language)
   end
 
-  # TODO
   def number_of_matched_results_by_article_type
-    { 'FactCheck' => rand(1000), 'Explainer' => rand(1000) }
+    query = TiplineRequest.where(team_id: @team.id, smooch_request_type: ['relevant_search_result_requests', 'irrelevant_search_result_requests', 'timeout_search_requests'], created_at: @start_date..@end_date)
+    query = query.where(platform: @platform) unless @platform.blank?
+    query = query.where(language: @language) unless @language.blank?
+    { 'FactCheck' => query.joins(project_media: { claim_description: :fact_check }).count, 'Explainer' => query.joins(project_media: :explainers).count }
   end
 
   private

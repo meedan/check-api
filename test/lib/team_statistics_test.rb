@@ -101,8 +101,11 @@ class TeamStatisticsTest < ActiveSupport::TestCase
   end
 
   test "should return tipline statistics" do
-    team = create_team
     pm1 = create_project_media team: @team, quote: 'Test'
+    create_fact_check claim_description: create_claim_description(project_media: pm1)
+    exp = create_explainer team: @team
+    pm1.explainers << exp
+    team = create_team
     pm2 = create_project_media team: team
 
     travel_to Time.parse('2024-01-01') do
@@ -140,6 +143,7 @@ class TeamStatisticsTest < ActiveSupport::TestCase
       assert_equal({ 'Positive' => 1, 'Negative' => 2, 'No Response' => 0 }, object.number_of_search_results_by_feedback_type)
       assert_equal({ 'Claim' => 3, 'Link' => 0, 'UploadedAudio' => 0, 'UploadedImage' => 0, 'UploadedVideo' => 0 }, object.number_of_media_received_by_media_type)
       assert_equal 3, object.number_of_articles_sent
+      assert_equal({ 'FactCheck' => 3, 'Explainer' => 3 }, object.number_of_matched_results_by_article_type)
     end
   end
 
@@ -166,6 +170,42 @@ class TeamStatisticsTest < ActiveSupport::TestCase
       object = TeamStatistics.new(@team, 'past_week', 'en', 'whatsapp')
       expected = { 'Foo' => 2, 'Bar' => 1 }
       assert_equal expected, object.top_requested_media_clusters
+    end
+  end
+
+  test "should return top media tags" do
+    setup_elasticsearch
+    RequestStore.store[:skip_cached_field_update] = false
+    channel = CheckChannels::ChannelCodes::WHATSAPP
+    TestDynamicAnnotationTables.load!
+    create_annotation_type_and_fields('Language', { 'Language' => ['Text', true] })
+    Sidekiq::Testing.inline! do
+      pm1 = create_project_media team: @team, channel: { main: channel, others: [channel] }, tags: ['foo', 'bar'], disable_es_callbacks: false
+      create_dynamic_annotation annotation_type: 'language', annotated: pm1, set_fields: { language: 'en' }.to_json, disable_es_callbacks: false
+      create_tipline_request team_id: @team.id, associated: pm1, platform: 'whatsapp', language: 'en', disable_es_callbacks: false
+
+      pm2 = create_project_media team: @team, channel: { main: channel, others: [channel] }, tags: ['foo', 'test'], disable_es_callbacks: false
+      create_dynamic_annotation annotation_type: 'language', annotated: pm2, set_fields: { language: 'en' }.to_json, disable_es_callbacks: false
+      create_tipline_request team_id: @team.id, associated: pm2, platform: 'whatsapp', language: 'en', disable_es_callbacks: false
+      create_tipline_request team_id: @team.id, associated: pm2, platform: 'whatsapp', language: 'en', disable_es_callbacks: false
+
+      pm3 = create_project_media team: @team, channel: { main: 0, others: [0] }, tags: ['test-1'], disable_es_callbacks: false
+      create_dynamic_annotation annotation_type: 'language', annotated: pm3, set_fields: { language: 'en' }.to_json, disable_es_callbacks: false
+      create_tipline_request team_id: @team.id, associated: pm3, platform: 'whatsapp', language: 'en', disable_es_callbacks: false
+
+      pm4 = create_project_media team: @team, channel: { main: channel, others: [channel] }, tags: ['test-2'], disable_es_callbacks: false
+      create_dynamic_annotation annotation_type: 'language', annotated: pm4, set_fields: { language: 'pt' }.to_json, disable_es_callbacks: false
+      create_tipline_request team_id: @team.id, associated: pm4, platform: 'whatsapp', language: 'pt', disable_es_callbacks: false
+
+      pm5 = create_project_media team: @team, channel: { main: channel, others: [channel] }, disable_es_callbacks: false
+      create_dynamic_annotation annotation_type: 'language', annotated: pm5, set_fields: { language: 'en' }.to_json, disable_es_callbacks: false
+      create_tipline_request team_id: @team.id, associated: pm4, platform: 'whatsapp', language: 'en', disable_es_callbacks: false
+
+      sleep 3
+
+      object = TeamStatistics.new(@team, 'past_week', 'en', 'whatsapp')
+      expected = { 'foo' => 3, 'test' => 2, 'bar' => 1 }
+      assert_equal expected, object.top_media_tags
     end
   end
 end
