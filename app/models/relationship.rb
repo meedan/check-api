@@ -167,9 +167,16 @@ class Relationship < ApplicationRecord
           r.send("#{key}=", value) if r.respond_to?("#{key}=")
         end
         r.save!
-      rescue
+      rescue Exception => e
+        logger.error("[Relationship::create_unless_exists] rescuing #{e}")
+        CheckSentry.notify(e.message, error: e, source_id: source_id, target_id: target_id, relationship_type: relationship_type)
         r = Relationship.where(source_id: source_id, target_id: target_id).where('relationship_type = ?', relationship_type.to_yaml).last
       end
+    end
+    if r.nil?
+      logger.error("[Relationship::create_unless_exists] returning nil")
+      error_msg = StandardError.new('Unable to create new relationship as requested.')
+      CheckSentry.notify(error_msg, source_id: source_id, target_id: target_id, relationship_type: relationship_type, options: options)
     end
     r
   end
