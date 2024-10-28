@@ -201,7 +201,7 @@ class TeamStatistics
         data[tag] += demand
       end
     end
-    data.sort_by{ |key, value| value }.reverse.first(5).to_h
+    data.sort_by{ |_key, value| value }.reverse.first(5).to_h
   end
 
   # For both articles and tiplines
