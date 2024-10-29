@@ -735,9 +735,13 @@ class GraphqlController12Test < ActionController::TestCase
   test "should append FactCheck to ProjectMedia, if ProjectMedia already exists and does not have a FactCheck" do
     Sidekiq::Testing.fake!
     url = 'http://example.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response_body = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response_body)
+
     t = create_team
     p = create_project team: t
-    pm = create_project_media team: t, url: url
+    pm = create_project_media team: t, set_original_claim: url
 
     assert_not_nil pm
 
@@ -745,10 +749,6 @@ class GraphqlController12Test < ActionController::TestCase
     b = create_bot_user api_key_id: a.id
     create_team_user team: t, user: b
     authenticate_with_token(a)
-
-    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-    response_body = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response_body)
 
     query = <<~GRAPHQL
       mutation {
@@ -795,12 +795,15 @@ class GraphqlController12Test < ActionController::TestCase
   test "should create a FactCheck with a Blank ProjectMedia, if ProjectMedia already exists and has a FactCheck in a different language" do
     Sidekiq::Testing.fake!
     url = 'http://example.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response_body = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response_body)
 
     t = create_team
     t.settings[:languages] << 'pt'
     t.save!
     p = create_project team: t
-    pm = create_project_media team: t, url: url
+    pm = create_project_media team: t, set_original_claim: url
     c = create_claim_description project_media: pm
     fc_1 = create_fact_check claim_description: c
 
@@ -810,10 +813,6 @@ class GraphqlController12Test < ActionController::TestCase
     b = create_bot_user api_key_id: a.id
     create_team_user team: t, user: b
     authenticate_with_token(a)
-
-    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-    response_body = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response_body)
 
     query = <<~GRAPHQL
       mutation {
