@@ -380,6 +380,7 @@ class TeamType < DefaultObject
   end
 
   field :api_keys, ApiKeyType.connection_type, null: true
+
   def api_keys
     ability = context[:ability] || Ability.new
     api_keys = object.api_keys.order(created_at: :desc)
@@ -387,5 +388,15 @@ class TeamType < DefaultObject
     api_keys.select do |api_key|
       ability.can?(:read, api_key)
     end
+  end
+
+  field :statistics, TeamStatisticsType, null: true do
+    argument :period, GraphQL::Types::String, required: true # FIXME: List/validate possible values
+    argument :language, GraphQL::Types::String, required: false
+    argument :platform, GraphQL::Types::String, required: false # FIXME: List/validate possible values
+  end
+
+  def statistics(period:, language: nil, platform: nil)
+    TeamStatistics.new(object, period, language, platform)
   end
 end
