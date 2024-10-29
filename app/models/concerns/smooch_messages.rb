@@ -291,10 +291,15 @@ module SmoochMessages
         if message['type'] == 'text'
           # Get an item for long text (message that match number of words condition)
           if message['payload'].nil?
-            contains_link = self.extract_url(message['text'])
-            messages << message if !contains_link.blank? || ::Bot::Alegre.get_number_of_words(message['text'].to_s) > self.min_number_of_words_for_tipline_long_text
+            link_from_message = nil
+            begin
+              link_from_message = self.extract_url(message['text'])
+            rescue SecurityError
+              # rescue to avoid raising error
+            end
+            messages << message if !link_from_message.blank? || ::Bot::Alegre.get_number_of_words(message['text'].to_s) > self.min_number_of_words_for_tipline_long_text
             # Text should be a link only in case we have two matched items (link and long text)
-            text << (contains_link.blank? ? message['text'] : contains_link.url)
+            text << (link_from_message.blank? ? message['text'] : link_from_message.url)
           end
         elsif !message['mediaUrl'].blank?
           # Get an item for each media file
