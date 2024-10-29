@@ -291,20 +291,34 @@ module SmoochMessages
         if message['type'] == 'text'
           # Get an item for long text (message that match number of words condition)
           if message['payload'].nil?
-            contains_link = Twitter::TwitterText::Extractor.extract_urls(message['text'])
-            messages << message if !contains_link.blank? || ::Bot::Alegre.get_number_of_words(message['text'].to_s) > self.min_number_of_words_for_tipline_long_text
-            text << message['text']
+            link_from_message = nil
+            begin
+              link_from_message = self.extract_url(message['text'])
+            rescue SecurityError
+              link_from_message = nil
+            end
+            messages << message if !link_from_message.blank? || ::Bot::Alegre.get_number_of_words(message['text'].to_s) > self.min_number_of_words_for_tipline_long_text
+            # Text should be a link only in case we have two matched items (link and long text)
+            text << (link_from_message.blank? ? message['text'] : link_from_message.url)
           end
         elsif !message['mediaUrl'].blank?
           # Get an item for each media file
           if !message['text'].blank? && ::Bot::Alegre.get_number_of_words(message['text'].to_s) > self.min_number_of_words_for_tipline_long_text
             message['caption'] = message['text']
+            # Text should be a media url in case we have two matched items (media and caption)
+            message['text'] = message['mediaUrl'].to_s
+          else
+            message['text'] = [message['text'], message['mediaUrl'].to_s].compact.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
           end
-          message['text'] = [message['text'], message['mediaUrl'].to_s].compact.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
           text << message['text']
           messages << self.adjust_media_type(message)
         end
       end
+      # Attach text to exising messages and return all messages
+      self.attach_text_to_messages(text, messages, last)
+    end
+
+    def attach_text_to_messages(text, messages, last)
       # collect all text in right order and add a boundary so we can easily split messages if needed
       all_text = text.reject{ |t| t.blank? }.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
       if messages.blank?
