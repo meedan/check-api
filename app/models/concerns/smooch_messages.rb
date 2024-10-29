@@ -314,22 +314,6 @@ module SmoochMessages
           messages << self.adjust_media_type(message)
         end
       end
-      # collect all text in right order and add a boundary so we can easily split messages if needed
-      all_text = text.reject{ |t| t.blank? }.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
-      if messages.blank?
-        # No messages exist (this happens when all messages are short text)
-        # So will create a new message of type text and assign short text to it
-        message = last.clone
-        message['type'] = 'text'
-        message['text'] = all_text
-        messages << message
-      else
-        # Attach all existing text (media text, long text and short text) to each item
-        messages.each do |raw|
-          # Define a new key `request_body` so we can append all text to request body
-          raw['request_body'] = all_text
-        end
-      end
       # Attach text to exising messages and return all messages
       self.attach_text_to_messages(text, messages, last)
     end
