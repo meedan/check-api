@@ -276,9 +276,9 @@ class Relationship < ApplicationRecord
 
   def point_targets_to_new_source
     # Get existing targets for the source
-    target_ids = Relationship.where(source_id: self.source_id, relationship_type: self.relationship_type).map(&:target_id)
+    target_ids = Relationship.where(source_id: self.source_id).map(&:target_id)
     # Delete duplicate relation from target(CHECK-1603)
-    Relationship.where(source_id: self.target_id, relationship_type: self.relationship_type, target_id: target_ids).delete_all
+    Relationship.where(source_id: self.target_id, target_id: target_ids).delete_all
     Relationship.where(source_id: self.target_id).where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).each do |old_relationship|
       old_relationship.delete
       new_relationship = Relationship.new(
