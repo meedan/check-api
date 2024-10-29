@@ -595,7 +595,7 @@ class Bot::Alegre < BotUser
       self.create_relationship(parent, pm, pm_id_scores, Relationship.suggested_type, original_parent, original_relationship)
     elsif pm_id_scores[parent_id]
       relationship_type = self.set_relationship_type(pm, pm_id_scores, parent)
-      Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 4/6] Parent is blank, creating relationship of #{relationship_type.inspect}"
+      Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 4/6] Creating relationship of #{relationship_type.inspect}"
       self.create_relationship(parent, pm, pm_id_scores, relationship_type, original_parent, original_relationship)
     end
   end
@@ -620,9 +620,9 @@ class Bot::Alegre < BotUser
       end
       r = self.fill_in_new_relationship(source, target, pm_id_scores, relationship_type, original_source, original_relationship_type)
       self.report_exception_if_bad_relationship(r, pm_id_scores, relationship_type) unless r.nil?
-      Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Created new relationship for relationship ID Of #{r&.id}"
+      Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Created new relationship for relationship ID of '#{r&.id}'"
     elsif self.is_relationship_upgrade?(r, relationship_type)
-      Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Upgrading relationship from suggested to confirmed for relationship ID of #{r.id}"
+      Rails.logger.info "[Alegre Bot] [ProjectMedia ##{target.id}] [Relationships 5/6] Upgrading relationship from suggested to confirmed for relationship ID of '#{r.id}'"
       # confirm existing relation if a new one is confirmed
       r.relationship_type = relationship_type
       r.save!
