@@ -835,7 +835,6 @@ en:
     No media eligible to be imported into your workspace.
     The media selected to import already exist in your workspace in the following items:
     %{urls}
-  no_rating: No rating
   info:
     messages:
       sent_to_trash_by_rule: '"%{item_title}" has been sent to trash by an automation

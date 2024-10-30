@@ -60,8 +60,7 @@ class TeamStatistics
   def number_of_fact_checks_by_rating
     data = {}
     fact_checks_base_query.group(:rating).count.each do |status_id, count|
-      label = status_id.blank? ? I18n.t(:no_rating) : ProjectMedia.new(team: @team).status_i18n(status_id)
-      data[label] = count
+      data[status_id.to_s] = count
     end
     data.sort.to_h
   end
