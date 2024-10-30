@@ -287,6 +287,14 @@ development: &default
   #
   session_store_key: '_checkdesk_session_dev'
   session_store_domain: 'localhost'
+
+  # Google API key
+  #
+  # OPTIONAL for non-core integrations with Google API
+  # (for example, Google Civic Information API)
+  #
+  google_api_key: '<GOOGLE API KEY>'
+
 test:
   <<: *default
   checkdesk_base_url_private: http://api:3000

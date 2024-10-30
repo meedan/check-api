@@ -27,8 +27,9 @@ class CheckStateMachine
     state :search_result
     state :add_more_details
     state :ask_if_ready
+    state :resource_waiting_for_user_input
 
-    ALL_STATES = [:human_mode, :main, :secondary, :query, :waiting_for_message, :subscription, :search, :search_result, :add_more_details, :ask_if_ready]
+    ALL_STATES = [:human_mode, :main, :secondary, :query, :waiting_for_message, :subscription, :search, :search_result, :add_more_details, :ask_if_ready, :resource_waiting_for_user_input]
 
     event :start do
       transitions :from => [:waiting_for_message, :main], :to => :main
@@ -76,6 +77,10 @@ class CheckStateMachine
 
     event :go_to_add_more_details do
       transitions :from => ALL_STATES, :to => :add_more_details
+    end
+
+    event :go_to_resource_waiting_for_user_input do
+      transitions :from => ALL_STATES, :to => :resource_waiting_for_user_input
     end
   end
 end
