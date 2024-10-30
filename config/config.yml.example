@@ -333,5 +333,11 @@ test:
   slack_app_id: # '<SLACK APP ID>'
   slack_app_secret: # '<SLACK APP SECRET>'
 
+  # Google API key
+  #
+  # OPTIONAL for non-core integrations with Google API
+  # (for example, Google Civic Information API)
+  #
+  google_api_key: # '<GOOGLE API KEY>'
 production:
   <<: *default
